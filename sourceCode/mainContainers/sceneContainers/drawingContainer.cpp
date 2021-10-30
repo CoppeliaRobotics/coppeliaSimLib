@@ -21,11 +21,11 @@ void CDrawingContainer::simulationEnded()
 {
 }
 
-CDrawingObject* CDrawingContainer::getObject(int objectID)
+CDrawingObject* CDrawingContainer::getObject(int objectId)
 {
     for (size_t i=0;i<_allObjects.size();i++)
     {
-        if (_allObjects[i]->getObjectID()==objectID)
+        if (_allObjects[i]->getObjectId()==objectId)
             return(_allObjects[i]);
     }
     return(nullptr);
@@ -35,44 +35,46 @@ CDrawingObject* CDrawingContainer::getObject(int objectID)
 int CDrawingContainer::addObject(CDrawingObject* it)
 {
     EASYLOCK(_objectMutex);
-    int newID=0;
-    newID++;
-    while (getObject(newID)!=nullptr)
-        newID++;
-    it->setObjectID(newID);
+    int newId=0;
+    newId++;
+    while (getObject(newId)!=nullptr)
+        newId++;
+    it->setObjectId(newId);
+    it->setObjectUniqueId();
     _allObjects.push_back(it);
     it->pushCreateContainerEvent();
-    return(newID);
+    return(newId);
 }
 
-void CDrawingContainer::removeObject(int objectID)
+void CDrawingContainer::removeObject(int objectId)
 {
     EASYLOCK(_objectMutex);
     for (size_t i=0;i<_allObjects.size();i++)
     {
-        if (_allObjects[i]->getObjectID()==objectID)
+        if (_allObjects[i]->getObjectId()==objectId)
         {
+            if (App::worldContainer->getEnableEvents())
+            {
+                auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTREMOVED,nullptr,_allObjects[i]->getObjectUid());
+                App::worldContainer->pushEvent(event);
+            }
+
             delete _allObjects[i];
             _allObjects.erase(_allObjects.begin()+i);
+
             break;
         }
     }
-
-    if (App::worldContainer->getEnableEvents())
-    {
-        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTREMOVED,nullptr,objectID);
-        App::worldContainer->pushEvent(event);
-    }
 }
 
-bool CDrawingContainer::getExportableMeshAtIndex(int parentObjectID,int index,std::vector<float>& vertices,std::vector<int>& indices)
+bool CDrawingContainer::getExportableMeshAtIndex(int parentObjectId,int index,std::vector<float>& vertices,std::vector<int>& indices)
 {
     vertices.clear();
     indices.clear();
     int cnt=0;
     for (int i=0;i<int(_allObjects.size());i++)
     {
-        if ((_allObjects[i]->getSceneObjectID()==parentObjectID)&&_allObjects[i]->canMeshBeExported())
+        if ((_allObjects[i]->getSceneObjectId()==parentObjectId)&&_allObjects[i]->canMeshBeExported())
         {
             cnt++;
             if (cnt==index+1)
@@ -85,20 +87,20 @@ bool CDrawingContainer::getExportableMeshAtIndex(int parentObjectID,int index,st
     return(false);
 }
 
-void CDrawingContainer::adjustForFrameChange(int objectID,const C7Vector& preCorrection)
+void CDrawingContainer::adjustForFrameChange(int objectId,const C7Vector& preCorrection)
 {
     for (size_t i=0;i<_allObjects.size();i++)
     {
-        if (_allObjects[i]->getSceneObjectID()==objectID)
+        if (_allObjects[i]->getSceneObjectId()==objectId)
             _allObjects[i]->adjustForFrameChange(preCorrection);
     }
 }
 
-void CDrawingContainer::adjustForScaling(int objectID,float xScale,float yScale,float zScale)
+void CDrawingContainer::adjustForScaling(int objectId,float xScale,float yScale,float zScale)
 {
     for (size_t i=0;i<_allObjects.size();i++)
     {
-        if (_allObjects[i]->getSceneObjectID()==objectID)
+        if (_allObjects[i]->getSceneObjectId()==objectId)
             _allObjects[i]->adjustForScaling(xScale,yScale,zScale);
     }
 }
@@ -106,16 +108,16 @@ void CDrawingContainer::adjustForScaling(int objectID,float xScale,float yScale,
 void CDrawingContainer::removeAllObjects()
 {
     while (_allObjects.size()>0)
-        removeObject(_allObjects[0]->getObjectID());
+        removeObject(_allObjects[0]->getObjectId());
 }
 
-void CDrawingContainer::announceObjectWillBeErased(int objID)
+void CDrawingContainer::announceObjectWillBeErased(int objId)
 { // Never called from copy buffer!
     size_t i=0;
     while (i<_allObjects.size())
     {
-        if (_allObjects[i]->announceObjectWillBeErased(objID))
-            removeObject(_allObjects[i]->getObjectID());
+        if (_allObjects[i]->announceObjectWillBeErased(objId))
+            removeObject(_allObjects[i]->getObjectId());
         else
             i++;
     }
@@ -127,7 +129,7 @@ void CDrawingContainer::announceScriptStateWillBeErased(int scriptHandle,bool si
     while (i<_allObjects.size())
     {
         if (_allObjects[i]->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript))
-            removeObject(_allObjects[i]->getObjectID());
+            removeObject(_allObjects[i]->getObjectId());
         else
             i++;
     }
@@ -155,14 +157,14 @@ void CDrawingContainer::drawAll(bool overlay,bool transparentObject,int displayA
         _allObjects[i]->draw(overlay,transparentObject,displayAttrib,cameraCTM);
 }
 
-void CDrawingContainer::drawObjectsParentedWith(bool overlay,bool transparentObject,int parentObjectID,int displayAttrib,const C4X4Matrix& cameraCTM)
+void CDrawingContainer::drawObjectsParentedWith(bool overlay,bool transparentObject,int parentObjectId,int displayAttrib,const C4X4Matrix& cameraCTM)
 {
     if ((displayAttrib&sim_displayattribute_nodrawingobjects)==0)
     {
         EASYLOCK(_objectMutex);
         for (size_t i=0;i<_allObjects.size();i++)
         {
-            if ( (_allObjects[i]->getSceneObjectID()==parentObjectID)&&((_allObjects[i]->getObjectType()&sim_drawing_painttag)!=0) )
+            if ( (_allObjects[i]->getSceneObjectId()==parentObjectId)&&((_allObjects[i]->getObjectType()&sim_drawing_painttag)!=0) )
                 _allObjects[i]->draw(overlay,transparentObject,displayAttrib,cameraCTM);
         }
     }

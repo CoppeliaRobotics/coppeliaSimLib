@@ -27,8 +27,6 @@
     #include "oglSurface.h"
 #endif
 
-//int CSceneObject::_modelPropertyValidityNumber=0;
-
 CSceneObject::CSceneObject()
 {
     _parentObjectHandle_forSerializationOnly=-1;
@@ -1016,17 +1014,10 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringBool("selectModelBase",(_objectProperty&sim_objectproperty_selectmodelbaseinstead)!=0);
     data->appendMapObject_stringBool("collapsedHierarchy",(_objectProperty&sim_objectproperty_collapsed)!=0);
     data->appendMapObject_stringBool("selectable",(_objectProperty&sim_objectproperty_selectable)!=0);
-    int pHandle=-1;
     int pUid=-1;
     if (_parentObject!=nullptr)
-    {
-        pHandle=_parentObject->getObjectHandle();
-        pUid=_parentObject->getObjectUniqueId();
-    }
-    CInterfaceStackTable* sdata=new CInterfaceStackTable();
-    sdata->appendMapObject_stringInt32("handle",pHandle);
-    sdata->appendMapObject_stringInt32("uid",pUid);
-    data->appendMapObject_stringObject("parent",sdata);
+        pUid=_parentObject->getObjectUid();
+    data->appendMapObject_stringInt32("parent",pUid);
 }
 
 CSceneObject* CSceneObject::copyYourself()
@@ -1411,7 +1402,7 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     _initialParentUniqueId=-1; // -1 means there was no parent at begin
     CSceneObject* p=getParent();
     if (p!=nullptr)
-        _initialParentUniqueId=p->getObjectUniqueId();
+        _initialParentUniqueId=p->getObjectUid();
     _initialLocalTransformationPart1=_localTransformation;
     //********************************
 
@@ -1435,7 +1426,7 @@ void CSceneObject::simulationEnded()
                     int puid=-1;
                     CSceneObject* p=getParent();
                     if (p!=nullptr)
-                        puid=p->getObjectUniqueId();
+                        puid=p->getObjectUid();
                     // Changed following on 24/04/2011 (because we also wanna reset the parenting to the initial state!)
                     if (puid!=_initialParentUniqueId)
                     { // Not sure following instructions are not problematic here.

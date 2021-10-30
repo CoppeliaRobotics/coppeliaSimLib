@@ -68,7 +68,7 @@ public:
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
 
-    std::tuple<SEventInfo,CInterfaceStackTable*> createEvent(const char* event,const char* change,int handle=-1,bool canMerge=false);
+    std::tuple<SEventInfo,CInterfaceStackTable*> createEvent(const char* event,const char* change,int uid=-1,bool canMerge=false);
     std::tuple<SEventInfo,CInterfaceStackTable*> createObjectEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData,int subIndex=-2);
     std::tuple<SEventInfo,CInterfaceStackTable*> createObjectEvent(const char* event,const char* change,int objectHandle,bool isCommonObjectData,int subIndex=-2);
     void pushEvent(SEventInfo& event);

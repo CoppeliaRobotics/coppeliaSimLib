@@ -51,7 +51,7 @@ int App::_exitCode=0;
 bool App::_online=false;
 std::string App::_consoleLogFilterStr;
 std::string App::_startupScriptString;
-
+int App::_nextUniqueId=0;
 
 bool App::_simulatorIsRunning=false;
 std::vector<std::string> App::_applicationArguments;
@@ -285,6 +285,11 @@ void App::setBrowserEnabled(bool e)
 bool App::getBrowserEnabled()
 {
     return(_browserEnabled);
+}
+
+int App::getFreshUniqueId()
+{
+    return(_nextUniqueId++);
 }
 
 App::App(bool headless)

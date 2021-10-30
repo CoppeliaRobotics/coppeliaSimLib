@@ -55,7 +55,7 @@ int CWorldContainer::getModificationFlags(bool clearTheFlagsAfter)
     {
         CSceneObject* it=currentWorld->sceneObjects->getObjectFromHandle(currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         if (it!=nullptr)
-            currentUniqueIdsOfSel.push_back(it->getObjectUniqueId());
+            currentUniqueIdsOfSel.push_back(it->getObjectUid());
     }
     if (currentUniqueIdsOfSel.size()==_uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled.size())
     {
@@ -424,7 +424,7 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
 long long int CWorldContainer::_eventUid=0;
 long long int CWorldContainer::_eventSeq=0;
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,int handle/*=-1*/,bool canMerge/*=false*/)
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,int uid/*=-1*/,bool canMerge/*=false*/)
 {
     _eventMutex.lock();
 
@@ -433,14 +433,14 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const 
     if (change!=nullptr)
         eventInfo.subEvent=change;
     if (canMerge)
-        eventInfo.objectUid=std::to_string(handle);
+        eventInfo.objectUid=std::to_string(uid);
     else
         eventInfo.objectUid="#"+std::to_string(_eventUid++);
 
     eventInfo.eventTable=new CInterfaceStackTable();
     eventInfo.eventTable->appendMapObject_stringString("event",event,0);
-    if (handle>=0)
-        eventInfo.eventTable->appendMapObject_stringInt32("handle",handle);
+    if (uid>=0)
+        eventInfo.eventTable->appendMapObject_stringInt32("uid",uid);
     eventInfo.eventTable->appendMapObject_stringInt64("seq",_eventSeq++);
     CInterfaceStackTable* data=new CInterfaceStackTable();
     eventInfo.eventTable->appendMapObject_stringObject("data",data);
@@ -499,7 +499,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createObjectEvent(
     if (change!=nullptr)
         eventInfo.subEvent=change;
     eventInfo.objectType=sub;
-    eventInfo.objectUid=std::to_string(object->getObjectUniqueId());
+    eventInfo.objectUid=std::to_string(object->getObjectUid());
     if (subIndex!=-2)
     {
         if (subIndex==-1)
@@ -511,7 +511,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createObjectEvent(
     eventInfo.eventTable=new CInterfaceStackTable();
     eventInfo.eventTable->appendMapObject_stringString("event",event,0);
     eventInfo.eventTable->appendMapObject_stringInt32("handle",object->getObjectHandle());
-    eventInfo.eventTable->appendMapObject_stringInt32("uid",object->getObjectUniqueId());
+    eventInfo.eventTable->appendMapObject_stringInt32("uid",object->getObjectUid());
     eventInfo.eventTable->appendMapObject_stringInt64("seq",_eventSeq++);
     CInterfaceStackTable* data=new CInterfaceStackTable();
     eventInfo.eventTable->appendMapObject_stringObject("data",data);

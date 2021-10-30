@@ -17,16 +17,16 @@ public:
     void renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib);
     void renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib);
     void drawAll(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM);
-    void drawObjectsParentedWith(bool overlay,bool transparentObject,int parentObjectID,int displayAttrib,const C4X4Matrix& cameraCTM);
+    void drawObjectsParentedWith(bool overlay,bool transparentObject,int parentObjectId,int displayAttrib,const C4X4Matrix& cameraCTM);
     int addObject(CDrawingObject* it);
-    CDrawingObject* getObject(int objectID);
-    void announceObjectWillBeErased(int objID);
+    CDrawingObject* getObject(int objectId);
+    void announceObjectWillBeErased(int objId);
     void announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
-    void removeObject(int objectID);
-    void adjustForFrameChange(int objectID,const C7Vector& preCorrection);
-    void adjustForScaling(int objectID,float xScale,float yScale,float zScale);
+    void removeObject(int objectId);
+    void adjustForFrameChange(int objectId,const C7Vector& preCorrection);
+    void adjustForScaling(int objectId,float xScale,float yScale,float zScale);
 
-    bool getExportableMeshAtIndex(int parentObjectID,int index,std::vector<float>& vertices,std::vector<int>& indices);
+    bool getExportableMeshAtIndex(int parentObjectId,int index,std::vector<float>& vertices,std::vector<int>& indices);
 
     void pushReconstructSceneEvents();
     void pushAppendNewPointEvents();

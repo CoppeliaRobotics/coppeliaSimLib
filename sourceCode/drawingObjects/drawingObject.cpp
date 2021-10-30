@@ -27,7 +27,7 @@ std::vector<float>* CDrawingObject::getDataPtr()
     return(&_data);
 }
 
-CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateTolerance,int sceneObjID,int maxItemCount,int creatorHandle)
+CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateTolerance,int sceneObjId,int maxItemCount,int creatorHandle)
 {
     _creatorHandle=creatorHandle;
     float tr=0.0f;
@@ -45,8 +45,11 @@ CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateToler
         color.setTransparencyFactor(1.0f-tr);
     }
 
-    _objectID=0;
-    _sceneObjectID=-1;
+    _objectId=-1;
+    _sceneObjectId=-1;
+    _objectUid=-1;
+    _sceneObjectUid=-1;
+
     size=tt::getLimitedFloat(0.0001f,100.0f,size);
     _size=size;
     if (maxItemCount==0)
@@ -76,13 +79,14 @@ CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateToler
     _objectType=theObjectType;
     _setItemSizes();
 
-    if (sceneObjID==-1)
-        _sceneObjectID=-1;
-    else
+    if (sceneObjId!=-1)
     {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sceneObjID);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sceneObjId);
         if (it!=nullptr)
-            _sceneObjectID=sceneObjID;
+        {
+            _sceneObjectId=sceneObjId;
+            _sceneObjectUid=it->getObjectUid();
+        }
     }
 }
 
@@ -95,19 +99,29 @@ int CDrawingObject::getObjectType() const
     return(_objectType);
 }
 
-int CDrawingObject::getSceneObjectID() const
+int CDrawingObject::getSceneObjectId() const
 {
-    return(_sceneObjectID);
+    return(_sceneObjectId);
 }
 
-void CDrawingObject::setObjectID(int newID)
+void CDrawingObject::setObjectId(int newId)
 {
-    _objectID=newID;
+    _objectId=newId;
 }
 
-int CDrawingObject::getObjectID() const
+int CDrawingObject::getObjectId() const
 {
-    return(_objectID);
+    return(_objectId);
+}
+
+int CDrawingObject::getObjectUid() const
+{
+    return(_objectUid);
+}
+
+void CDrawingObject::setObjectUniqueId()
+{
+    _objectUid=App::getFreshUniqueId();
 }
 
 void CDrawingObject::adjustForFrameChange(const C7Vector& preCorrection)
@@ -181,7 +195,7 @@ bool CDrawingObject::addItem(const float* itemData)
 
         if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
         {
-            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_objectID);
+            auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_objectUid);
             data->appendMapObject_stringFloatArray("points",nullptr,0);
             App::worldContainer->pushEvent(event);
         }
@@ -204,11 +218,11 @@ bool CDrawingObject::addItem(const float* itemData)
 
     C7Vector trInv;
     trInv.setIdentity();
-    if (_sceneObjectID>=0)
+    if (_sceneObjectId>=0)
     {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectID);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
         if (it==nullptr)
-            _sceneObjectID=-2; // should normally never happen!
+            _sceneObjectId=-2; // should normally never happen!
         else
             trInv=it->getCumulativeTransformation().getInverse();
     }
@@ -236,7 +250,7 @@ bool CDrawingObject::addItem(const float* itemData)
     }
 
 
-    if (_sceneObjectID!=-2)
+    if (_sceneObjectId!=-2)
     {
         int off=0;
         for (int i=0;i<verticesPerItem;i++)
@@ -303,9 +317,9 @@ void CDrawingObject::_setItemSizes()
     floatsPerItem=3*verticesPerItem+3*normalsPerItem+otherFloatsPerItem;
 }
 
-bool CDrawingObject::announceObjectWillBeErased(int objID)
+bool CDrawingObject::announceObjectWillBeErased(int objId)
 {
-    return(_sceneObjectID==objID);
+    return(_sceneObjectId==objId);
 }
 
 bool CDrawingObject::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
@@ -326,9 +340,9 @@ void CDrawingObject::getExportableMesh(std::vector<float>& vertices,std::vector<
     indices.clear();
     C7Vector tr;
     tr.setIdentity();
-    if (_sceneObjectID>=0)
+    if (_sceneObjectId>=0)
     {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectID);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
         if (it!=nullptr)
             tr=it->getCumulativeTransformation();
     }
@@ -439,11 +453,11 @@ void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,
     C7Vector tr;
     tr.setIdentity();
 
-    if (_sceneObjectID>=0)
+    if (_sceneObjectId>=0)
     {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectID);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
         if (it==nullptr)
-            _sceneObjectID=-2; // should normally never happen
+            _sceneObjectId=-2; // should normally never happen
         else
         {
             tr=it->getCumulativeTransformation();
@@ -463,7 +477,7 @@ void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,
             }
         }
     }
-    if (_sceneObjectID==-2)
+    if (_sceneObjectId==-2)
         return;
 
     displayDrawingObject(this,tr,overlay,transparentObject,displayAttrib,cameraCTM);
@@ -474,7 +488,7 @@ void CDrawingObject::pushCreateContainerEvent()
 {
     if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
     {
-        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED,nullptr,_objectID);
+        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED,nullptr,_objectUid);
         std::string tp;
         switch(_objectType&0x001f)
         {
@@ -509,7 +523,7 @@ void CDrawingObject::pushCreateContainerEvent()
 
         data->appendMapObject_stringFloat("size",_size);
 
-        data->appendMapObject_stringInt32("parent",_sceneObjectID);
+        data->appendMapObject_stringInt32("parent",_sceneObjectUid);
 
         data->appendMapObject_stringBool("cyclic",(_objectType&sim_drawing_cyclic)!=0);
 
@@ -523,7 +537,7 @@ void CDrawingObject::pushAppendNewPointEvent()
 {
     if ( _bufferedEventData.size()>0 )
     {
-        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_objectID);
+        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_objectUid);
 
         CCbor obj(nullptr,0);
         size_t l;

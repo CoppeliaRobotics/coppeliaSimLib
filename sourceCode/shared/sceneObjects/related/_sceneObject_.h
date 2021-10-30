@@ -33,7 +33,7 @@ public:
     int getObjectType() const;
     CSceneObject* getParent() const;
     int getObjectHandle() const;
-    int getObjectUniqueId() const;
+    int getObjectUid() const;
     bool getSelected() const;
     bool getIsInScene() const;
     bool getModelBase() const;
@@ -93,7 +93,7 @@ protected:
 
 
     int _objectHandle;
-    int _objectUniqueId; // valid for a given session (non-persistent)
+    int _objectUid; // valid for a given session (non-persistent)
     std::string _extensionString;
     unsigned short _visibilityLayer;
     bool _selected;
@@ -123,8 +123,6 @@ protected:
     int _calculatedModelProperty;
     int _calculatedObjectProperty;
     std::string _modelAcknowledgement;
-
-    static int _objectUniqueIDCounter;
 
     // Old:
     std::string _objectName_old;

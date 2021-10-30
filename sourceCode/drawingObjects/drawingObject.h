@@ -8,16 +8,18 @@
 class CDrawingObject  
 {
 public:
-    CDrawingObject(int theObjectType,float size,float duplicateTolerance,int sceneObjID,int maxItemCount,int creatorHandle);
+    CDrawingObject(int theObjectType,float size,float duplicateTolerance,int sceneObjId,int maxItemCount,int creatorHandle);
     virtual ~CDrawingObject();
 
     void draw(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM);
-    void setObjectID(int newID);
-    int getObjectID() const;
+    void setObjectId(int newId);
+    void setObjectUniqueId();
+    int getObjectUid() const;
+    int getObjectId() const;
     bool addItem(const float* itemData);
     void setItems(const float* itemData,size_t itemCnt);
     int getObjectType() const;
-    bool announceObjectWillBeErased(int objID);
+    bool announceObjectWillBeErased(int objId);
     bool announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     void adjustForFrameChange(const C7Vector& preCorrection);
     void adjustForScaling(float xScale,float yScale,float zScale);
@@ -31,7 +33,7 @@ public:
 
 
 
-    int getSceneObjectID() const;
+    int getSceneObjectId() const;
 
     float getSize() const;
     int getMaxItemCount() const;
@@ -58,8 +60,10 @@ protected:
 
     void _setItemSizes();
 
-    int _objectID;
-    int _sceneObjectID;
+    int _objectId;
+    int _objectUid;
+    int _sceneObjectId;
+    int _sceneObjectUid;
     int _objectType;
     float _size;
     int _maxItemCount;

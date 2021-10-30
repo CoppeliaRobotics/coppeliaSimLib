@@ -2,8 +2,6 @@
 #include "sceneObject.h"
 #include "app.h"
 
-int _CSceneObject_::_objectUniqueIDCounter=0;
-
 _CSceneObject_::_CSceneObject_()
 {
     _selected=false;
@@ -30,12 +28,12 @@ void _CSceneObject_::setParentPtr(CSceneObject* parent)
 
 void _CSceneObject_::setObjectUniqueId()
 {
-    _objectUniqueId=_objectUniqueIDCounter++;
+    _objectUid=App::getFreshUniqueId();
 }
 
-int _CSceneObject_::getObjectUniqueId() const
+int _CSceneObject_::getObjectUid() const
 {
-    return(_objectUniqueId);
+    return(_objectUid);
 }
 
 bool _CSceneObject_::setParent(CSceneObject* parent)
@@ -48,17 +46,10 @@ bool _CSceneObject_::setParent(CSceneObject* parent)
         {
             const char* cmd="parent";
             auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
-            int pHandle=-1;
             int pUid=-1;
             if (_parentObject!=nullptr)
-            {
-                pHandle=_parentObject->getObjectHandle();
-                pUid=_parentObject->getObjectUniqueId();
-            }
-            CInterfaceStackTable* sdata=new CInterfaceStackTable();
-            data->appendMapObject_stringObject(cmd,sdata);
-            sdata->appendMapObject_stringInt32("handle",pHandle);
-            sdata->appendMapObject_stringInt32("uid",pUid);
+                pUid=_parentObject->getObjectUid();
+            data->appendMapObject_stringInt32(cmd,pUid);
             App::worldContainer->pushEvent(event);
         }
     }

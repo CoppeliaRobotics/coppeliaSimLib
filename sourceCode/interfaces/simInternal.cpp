@@ -9058,7 +9058,7 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                 }
                 if (parameterID==sim_objintparam_unique_id)
                 {
-                    parameter[0]=it->getObjectUniqueId();
+                    parameter[0]=it->getObjectUid();
                     retVal=1;
                 }
                 if (parameterID==sim_objintparam_collection_self_collision_indicator)
@@ -22760,7 +22760,7 @@ simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueI
         if (objectHandle!=sim_handle_all)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            uniqueIdentifier[0]=it->getObjectUniqueId();
+            uniqueIdentifier[0]=it->getObjectUid();
         }
         else
         { // for backward compatibility
@@ -22769,7 +22769,7 @@ simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueI
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
                 if ( (it->getObjectHandle()==objectHandle)||(objectHandle==sim_handle_all) )
-                    uniqueIdentifier[p++]=it->getObjectUniqueId();
+                    uniqueIdentifier[p++]=it->getObjectUid();
             }
         }
         return(1);

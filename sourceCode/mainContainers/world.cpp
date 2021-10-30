@@ -605,7 +605,7 @@ void CWorld::simulationAboutToStart()
     for (size_t i=0;i<sceneObjects->getObjectCount();i++)
     {
         CSceneObject* it=sceneObjects->getObjectFromIndex(i);
-        _initialObjectUniqueIdentifiersForRemovingNewObjects.push_back(it->getObjectUniqueId());
+        _initialObjectUniqueIdentifiersForRemovingNewObjects.push_back(it->getObjectUid());
     }
     App::undoRedo_sceneChanged("");
 
@@ -718,7 +718,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
             bool found=false;
             for (size_t j=0;j<_initialObjectUniqueIdentifiersForRemovingNewObjects.size();j++)
             {
-                if (it->getObjectUniqueId()==_initialObjectUniqueIdentifiersForRemovingNewObjects[j])
+                if (it->getObjectUid()==_initialObjectUniqueIdentifiersForRemovingNewObjects[j])
                 {
                     found=true;
                     break;

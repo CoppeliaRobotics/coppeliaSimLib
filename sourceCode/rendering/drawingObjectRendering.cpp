@@ -116,7 +116,7 @@ void displayDrawingObject(CDrawingObject* drawingObject,C7Vector& tr,bool overla
     glLoadName(-1);
     drawingObject->color.makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
     C4X4Matrix cameraRTM(cameraCTM);
-    if (drawingObject->getSceneObjectID()>=0)
+    if (drawingObject->getSceneObjectId()>=0)
     {
         glTranslatef(tr.X(0),tr.X(1),tr.X(2));
         C4Vector axis=tr.Q.getAngleAndAxis();
