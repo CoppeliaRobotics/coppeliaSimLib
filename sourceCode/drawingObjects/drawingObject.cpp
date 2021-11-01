@@ -529,7 +529,7 @@ void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<floa
             w=3;
     }
 
-    for (size_t itemCnt=0;itemCnt<=_bufferedEventData.size()/size_t(floatsPerItem);itemCnt++)
+    for (size_t itemCnt=0;itemCnt<_bufferedEventData.size()/size_t(floatsPerItem);itemCnt++)
     {
         size_t t=itemCnt*floatsPerItem;
 
