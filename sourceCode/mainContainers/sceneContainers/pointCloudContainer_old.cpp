@@ -15,9 +15,6 @@ CPointCloudContainer_old::~CPointCloudContainer_old()
 void CPointCloudContainer_old::simulationEnded()
 {
     removeAllObjects(true);
-//  if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
-//  {
-//  }
 }
 
 CPtCloud_old* CPointCloudContainer_old::getObject(int objectID)
@@ -38,28 +35,29 @@ int CPointCloudContainer_old::addObject(CPtCloud_old* it)
     while (getObject(newID)!=nullptr)
         newID++;
     it->setObjectID(newID);
+    it->setObjectUniqueId();
     _allObjects.push_back(it);
+    it->pushCreateContainerEvent();
     return(newID);
 }
 
 void CPointCloudContainer_old::removeAllObjects(bool onlyNonPersistentOnes)
 {
     EASYLOCK(_objectMutex);
-    for (int i=0;i<int(_allObjects.size());i++)
+    size_t i=0;
+    while (i<_allObjects.size())
     {
         if ( (!onlyNonPersistentOnes)||(!_allObjects[i]->isPersistent()) )
-        {
-            delete _allObjects[i];
-            _allObjects.erase(_allObjects.begin()+i);
-            i--; // reprocess this position
-        }
+            removeObject(_allObjects[i]->getObjectID());
+        else
+            i++;
     }
 }
 
 bool CPointCloudContainer_old::removeObject(int objectID)
 {
     EASYLOCK(_objectMutex);
-    for (int i=0;i<int(_allObjects.size());i++)
+    for (size_t i=0;i<_allObjects.size();i++)
     {
         if (_allObjects[i]->getObjectID()==objectID)
         {
@@ -73,14 +71,11 @@ bool CPointCloudContainer_old::removeObject(int objectID)
 
 void CPointCloudContainer_old::announceObjectWillBeErased(int objID)
 { // Never called from copy buffer!
-    int i=0;
-    while (i<int(_allObjects.size()))
+    size_t i=0;
+    while (i<_allObjects.size())
     {
         if (_allObjects[i]->announceObjectWillBeErased(objID))
-        {
-            delete _allObjects[i];
-            _allObjects.erase(_allObjects.begin()+i);
-        }
+            removeObject(_allObjects[i]->getObjectID());
         else
             i++;
     }
@@ -105,4 +100,10 @@ void CPointCloudContainer_old::drawAll(int displayAttrib)
     EASYLOCK(_objectMutex);
     for (size_t i=0;i<_allObjects.size();i++)
         _allObjects[i]->draw(displayAttrib);
+}
+
+void CPointCloudContainer_old::pushReconstructSceneEvents()
+{
+    for (size_t i=0;i<_allObjects.size();i++)
+        _allObjects[i]->pushCreateContainerEvent();
 }

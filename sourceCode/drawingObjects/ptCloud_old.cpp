@@ -3,11 +3,11 @@
 #include "app.h"
 #include "ptCloudRendering_old.h"
 
-CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int objectHandle,int options,float pointSize,int ptCnt,const float* vertices,const unsigned char* colors,const float* normals,const unsigned char* defaultColors)
+CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int parentHandle,int options,float pointSize,int ptCnt,const float* vertices,const unsigned char* colors,const float* normals,const unsigned char* defaultColors)
 {
     _pageMask=pageMask;
     _layerMask=layerMask;
-    _objectHandle=objectHandle;
+    _parentHandle=parentHandle;
     _options=options;
     _pointSize=pointSize;
     _vertices.assign(vertices,vertices+ptCnt*3);
@@ -55,9 +55,11 @@ CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int objectHandle,int optio
     if (normals!=nullptr)
         _normals.assign(normals,normals+ptCnt*3);
 
-    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandle);
+    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_parentHandle);
+    _parentUniqueId=-1;
     if (it!=nullptr)
     {
+        _parentUniqueId=it->getObjectUid();
         C7Vector tr(it->getCumulativeTransformation());
         C7Vector trInv(tr.getInverse());
         for (int i=0;i<ptCnt;i++)
@@ -98,9 +100,19 @@ int CPtCloud_old::getObjectID() const
     return(_id);
 }
 
+void CPtCloud_old::setObjectUniqueId()
+{
+    _uniqueId=App::getFreshUniqueId();
+}
+
+int CPtCloud_old::getObjectUniqueId() const
+{
+    return(_uniqueId);
+}
+
 bool CPtCloud_old::announceObjectWillBeErased(int objectHandleAttachedTo)
 { // return value true means: destroy me!
-    return(_objectHandle==objectHandleAttachedTo);
+    return(_parentHandle==objectHandleAttachedTo);
 }
 
 void CPtCloud_old::draw(int displayAttrib)
@@ -116,9 +128,60 @@ void CPtCloud_old::draw(int displayAttrib)
             int currentLayers=App::currentWorld->mainSettings->getActiveLayers();
             if ( ((currentLayers&_layerMask)!=0)&&(_vertices.size()!=0) )
             {
-                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandle);
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_parentHandle);
                 displayPtCloud_old(this,it);
             }
         }
+    }
+}
+
+void CPtCloud_old::pushCreateContainerEvent()
+{
+    if (App::worldContainer->getEnableEvents())
+    {
+        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED,nullptr,_uniqueId);
+
+        float c[9];
+        c[0]=_defaultColors[0];
+        c[1]=_defaultColors[1];
+        c[2]=_defaultColors[2];
+        c[3]=_defaultColors[8];
+        c[4]=_defaultColors[9];
+        c[5]=_defaultColors[10];
+        c[6]=_defaultColors[12];
+        c[7]=_defaultColors[13];
+        c[8]=_defaultColors[14];
+        data->appendMapObject_stringFloatArray("color",c,9);
+
+        data->appendMapObject_stringInt32("maxCnt",0);
+
+        data->appendMapObject_stringFloat("size",_pointSize);
+
+        data->appendMapObject_stringInt32("parent",_parentUniqueId);
+
+        data->appendMapObject_stringBool("cyclic",false);
+
+        data->appendMapObject_stringBool("clearPoints",true);
+
+        App::worldContainer->pushEvent(event);
+
+        std::tie(event,data)=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_uniqueId);
+
+        CCbor obj(nullptr,0);
+        size_t l;
+        obj.appendFloatArray(_vertices.data(),_vertices.size());
+        const char* buff=(const char*)obj.getBuff(l);
+        data->appendMapObject_stringString("points",buff,l,true);
+
+   //     data->appendMapObject_stringString("normals",nullptr,0,true);
+
+        obj.clear();
+        obj.appendFloatArray(_colors.data(),_colors.size());
+        buff=(const char*)obj.getBuff(l);
+        data->appendMapObject_stringString("colors",buff,l,true);
+
+        data->appendMapObject_stringBool("clearPoints",true);
+
+        App::worldContainer->pushEvent(event);
     }
 }

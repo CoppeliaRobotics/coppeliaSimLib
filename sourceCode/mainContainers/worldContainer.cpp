@@ -596,6 +596,7 @@ void CWorldContainer::pushReconstructSceneEvents()
         App::currentWorld->sceneObjects->getObjectFromIndex(i)->pushObjectCreationEvent();
 
     currentWorld->drawingCont->pushReconstructSceneEvents();
+    currentWorld->pointCloudCont->pushReconstructSceneEvents();
 }
 
 SBufferedEvents CWorldContainer::swapBufferedEvents(SBufferedEvents newBuffer)

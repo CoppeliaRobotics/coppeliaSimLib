@@ -142,6 +142,8 @@ void CDrawingObject::adjustForFrameChange(const C7Vector& preCorrection)
             n.copyTo(&_data[floatsPerItem*i+off+j*3+0]);
         }
     }
+    _initBufferedEventData();
+    pushAppendNewPointEvent(true);
 }
 
 void CDrawingObject::adjustForScaling(float xScale,float yScale,float zScale)
@@ -174,12 +176,14 @@ void CDrawingObject::adjustForScaling(float xScale,float yScale,float zScale)
         if (_objectType&sim_drawing_itemtransparency)
             off+=1;
     }
+    _initBufferedEventData();
+    pushAppendNewPointEvent(true);
 }
 
 void CDrawingObject::setItems(const float* itemData,size_t itemCnt)
 {
     addItem(nullptr);
-    size_t off=size_t(verticesPerItem*3+normalsPerItem*3+otherFloatsPerItem);
+    size_t off=size_t(verticesPerItem*3+normalsPerItem*3+colorsPerItem*3+otherFloatsPerItem);
     for (size_t i=0;i<itemCnt;i++)
         addItem(itemData+off*i);
 }
@@ -196,7 +200,7 @@ bool CDrawingObject::addItem(const float* itemData)
         if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
         {
             auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_objectUid);
-            data->appendMapObject_stringFloatArray("points",nullptr,0);
+            data->appendMapObject_stringBool("clearPoints",true);
             App::worldContainer->pushEvent(event);
         }
 
@@ -239,16 +243,12 @@ bool CDrawingObject::addItem(const float* itemData)
         }
     }
 
-    if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
-        _bufferedEventData.insert(_bufferedEventData.begin(),itemData,itemData+floatsPerItem);
-
     if (int(_data.size())/floatsPerItem<_maxItemCount)
     { // The buffer is not yet full!
         newPos=int(_data.size())/floatsPerItem;
         for (int i=0;i<floatsPerItem;i++)
             _data.push_back(0.0f);
     }
-
 
     if (_sceneObjectId!=-2)
     {
@@ -260,6 +260,12 @@ bool CDrawingObject::addItem(const float* itemData)
             _data[newPos*floatsPerItem+off+0]=v(0);
             _data[newPos*floatsPerItem+off+1]=v(1);
             _data[newPos*floatsPerItem+off+2]=v(2);
+            if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
+            {
+                _bufferedEventData.push_back(v(0));
+                _bufferedEventData.push_back(v(1));
+                _bufferedEventData.push_back(v(2));
+            }
             off+=3;
         }
         for (int i=0;i<normalsPerItem;i++)
@@ -269,10 +275,20 @@ bool CDrawingObject::addItem(const float* itemData)
             _data[newPos*floatsPerItem+off+0]=v(0);
             _data[newPos*floatsPerItem+off+1]=v(1);
             _data[newPos*floatsPerItem+off+2]=v(2);
+            if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
+            {
+                _bufferedEventData.push_back(v(0));
+                _bufferedEventData.push_back(v(1));
+                _bufferedEventData.push_back(v(2));
+            }
             off+=3;
         }
-        for (int i=0;i<otherFloatsPerItem;i++)
+        for (int i=0;i<colorsPerItem*3+otherFloatsPerItem;i++)
+        {
             _data[newPos*floatsPerItem+off+i]=itemData[off+i];
+            if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
+                _bufferedEventData.push_back(itemData[off+i]);
+        }
     }
     return(true);
 }
@@ -281,6 +297,7 @@ void CDrawingObject::_setItemSizes()
 {
     verticesPerItem=0;
     normalsPerItem=0;
+    colorsPerItem=0;
     otherFloatsPerItem=0;
     int tmp=_objectType&0x001f;
     if ( (tmp==sim_drawing_points)||(tmp==sim_drawing_trianglepoints)||(tmp==sim_drawing_quadpoints)||(tmp==sim_drawing_discpoints)||(tmp==sim_drawing_cubepoints)||(tmp==sim_drawing_spherepoints) )
@@ -299,22 +316,22 @@ void CDrawingObject::_setItemSizes()
     }
 
     if (_objectType&sim_drawing_itemcolors)
-        otherFloatsPerItem+=3;
+        colorsPerItem+=3;
     if (_objectType&sim_drawing_vertexcolors)
     { 
         if (tmp==sim_drawing_linestrip)
-            otherFloatsPerItem+=3;
+            colorsPerItem+=3;
         if (tmp==sim_drawing_lines)
-            otherFloatsPerItem+=6;
+            colorsPerItem+=6;
         if (tmp==sim_drawing_triangles)
-            otherFloatsPerItem+=9;
+            colorsPerItem+=9;
     }
     if (_objectType&sim_drawing_itemsizes)
         otherFloatsPerItem+=1;
     if (_objectType&sim_drawing_itemtransparency)
         otherFloatsPerItem+=1;
 
-    floatsPerItem=3*verticesPerItem+3*normalsPerItem+otherFloatsPerItem;
+    floatsPerItem=3*verticesPerItem+3*normalsPerItem+3*colorsPerItem+otherFloatsPerItem;
 }
 
 bool CDrawingObject::announceObjectWillBeErased(int objId)
@@ -484,6 +501,74 @@ void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,
 
 }
 
+void CDrawingObject::_initBufferedEventData()
+{
+    _bufferedEventData.resize(_data.size());
+    size_t index=_startItem;
+    for (size_t itemCnt=0;itemCnt<_data.size()/size_t(floatsPerItem);itemCnt++)
+    {
+        for (size_t i=0;i<size_t(floatsPerItem);i++)
+            _bufferedEventData[itemCnt*floatsPerItem+i]=_data[index*floatsPerItem+i];
+
+        index++;
+        if (index>=_maxItemCount)
+            index-=_maxItemCount;
+    }
+
+}
+
+void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<float>& normals,std::vector<float>& colors) const
+{
+    size_t w=0;
+    if (_objectType&sim_drawing_itemcolors)
+    {
+        int tmp=_objectType&0x001f;
+        if (tmp==sim_drawing_lines)
+            w=2;
+        if (tmp==sim_drawing_triangles)
+            w=3;
+    }
+
+    for (size_t itemCnt=0;itemCnt<=_bufferedEventData.size()/size_t(floatsPerItem);itemCnt++)
+    {
+        size_t t=itemCnt*floatsPerItem;
+
+        for (size_t i=0;i<verticesPerItem;i++)
+        {
+            vertices.push_back(_bufferedEventData[t+0]);
+            vertices.push_back(_bufferedEventData[t+1]);
+            vertices.push_back(_bufferedEventData[t+2]);
+            t+=3;
+        }
+        for (size_t i=0;i<normalsPerItem;i++)
+        {
+            normals.push_back(_bufferedEventData[t+0]);
+            normals.push_back(_bufferedEventData[t+1]);
+            normals.push_back(_bufferedEventData[t+2]);
+            t+=3;
+        }
+        if (w==0)
+        {
+            for (size_t i=0;i<colorsPerItem;i++)
+            {
+                colors.push_back(_bufferedEventData[t+0]);
+                colors.push_back(_bufferedEventData[t+1]);
+                colors.push_back(_bufferedEventData[t+2]);
+                t+=3;
+            }
+        }
+        else
+        {
+            for (size_t i=0;i<w;i++)
+            {
+                colors.push_back(_bufferedEventData[t+0]);
+                colors.push_back(_bufferedEventData[t+1]);
+                colors.push_back(_bufferedEventData[t+2]);
+            }
+        }
+    }
+}
+
 void CDrawingObject::pushCreateContainerEvent()
 {
     if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
@@ -527,41 +612,43 @@ void CDrawingObject::pushCreateContainerEvent()
 
         data->appendMapObject_stringBool("cyclic",(_objectType&sim_drawing_cyclic)!=0);
 
+        data->appendMapObject_stringBool("clearPoints",true);
+
         App::worldContainer->pushEvent(event);
 
-        _bufferedEventData.assign(_data.begin(),_data.end());
+        _initBufferedEventData();
     }
 }
 
-void CDrawingObject::pushAppendNewPointEvent()
+void CDrawingObject::pushAppendNewPointEvent(bool clearAllFirst)
 {
     if ( _bufferedEventData.size()>0 )
     {
         auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_objectUid);
 
-        if (_sceneObjectId!=-1)
-        {
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
-            if (it!=nullptr)
-            {
-                C7Vector tr(it->getCumulativeTransformation().getInverse());
-                C3Vector pt;
-                for (size_t i=0;i<_bufferedEventData.size()/3;i++)
-                {
-                    pt.set(_bufferedEventData.data()+3*i);
-                    pt*=tr;
-                    _bufferedEventData[3*i+0]=pt(0);
-                    _bufferedEventData[3*i+1]=pt(1);
-                    _bufferedEventData[3*i+2]=pt(2);
-                }
-            }
-        }
+        std::vector<float> points;
+        std::vector<float> normals;
+        std::vector<float> colors;
+        _getEventData(points,normals,colors);
 
         CCbor obj(nullptr,0);
         size_t l;
-        obj.appendFloatArray(_bufferedEventData.data(),_bufferedEventData.size());
+        obj.appendFloatArray(points.data(),points.size());
         const char* buff=(const char*)obj.getBuff(l);
         data->appendMapObject_stringString("points",buff,l,true);
+
+        obj.clear();
+        obj.appendFloatArray(normals.data(),normals.size());
+        buff=(const char*)obj.getBuff(l);
+        data->appendMapObject_stringString("normals",buff,l,true);
+
+        obj.clear();
+        obj.appendFloatArray(colors.data(),colors.size());
+        buff=(const char*)obj.getBuff(l);
+        data->appendMapObject_stringString("colors",buff,l,true);
+
+        data->appendMapObject_stringBool("clearPoints",clearAllFirst);
+
         _bufferedEventData.clear();
 
         App::worldContainer->pushEvent(event);

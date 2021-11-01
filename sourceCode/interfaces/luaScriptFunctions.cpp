@@ -7857,7 +7857,7 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
         CDrawingObject* it=App::currentWorld->drawingCont->getObject(h);
         size_t d=3;
         if (it!=nullptr)
-            d=size_t(it->verticesPerItem*3+it->normalsPerItem*3+it->otherFloatsPerItem);
+            d=size_t(it->verticesPerItem*3+it->normalsPerItem*3+it->colorsPerItem*3+it->otherFloatsPerItem);
         int res=checkOneGeneralInputArgument(L,2,lua_arg_number,int(d),true,true,&errorString);
         if (res==2)
         {

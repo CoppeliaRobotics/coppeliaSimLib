@@ -28,8 +28,7 @@ public:
     void getExportableMesh(std::vector<float>& vertices,std::vector<int>& indices) const;
 
     void pushCreateContainerEvent();
-    void pushAppendNewPointEvent();
-
+    void pushAppendNewPointEvent(bool clearAllFirst);
 
 
 
@@ -45,11 +44,13 @@ public:
 
     int verticesPerItem;
     int normalsPerItem;
-    int otherFloatsPerItem;
+    int colorsPerItem;
+    int otherFloatsPerItem; // sizes and/or transparency
     int floatsPerItem;
 
 protected:
-    void _pushAppendPointsEvent(const char) const;
+    void _initBufferedEventData();
+    void _getEventData(std::vector<float>& vertices,std::vector<float>& normals,std::vector<float>& colors) const;
     void _exportTrianglePoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
     void _exportQuadPoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
     void _exportDiscPoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;

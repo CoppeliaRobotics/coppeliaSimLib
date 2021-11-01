@@ -180,5 +180,5 @@ void CDrawingContainer::pushReconstructSceneEvents()
 void CDrawingContainer::pushAppendNewPointEvents()
 {
     for (size_t i=0;i<_allObjects.size();i++)
-        _allObjects[i]->pushAppendNewPointEvent();
+        _allObjects[i]->pushAppendNewPointEvent(false);
 }

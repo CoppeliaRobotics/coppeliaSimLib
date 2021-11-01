@@ -1888,8 +1888,6 @@ bool CSceneObjectOperations::_divideShape(CShape* shape,std::vector<CShape*>& ne
 
                     C7Vector tmpTr(it->getFullCumulativeTransformation());
                     CShape* newIt=new CShape(&tmpTr,subvert,subind,nullptr,nullptr);
-                    App::currentWorld->sceneObjects->addObjectToScene(newIt,false,false);
-                    newShapes.push_back(newIt);
 
                     // Now a few properties/things we want to be same for the new shape:
                     App::currentWorld->sceneObjects->setObjectParent(newIt,it->getParent(),true);
@@ -1897,22 +1895,16 @@ bool CSceneObjectOperations::_divideShape(CShape* shape,std::vector<CShape*>& ne
                     newIt->setObjectProperty(it->getObjectProperty());
                     newIt->setLocalObjectSpecialProperty(it->getLocalObjectSpecialProperty());
                     newIt->setVisibilityLayer(it->getVisibilityLayer());
-                    // Do not copy following:
-                    //  newIt->setShapeIsDynamicallyStatic(it->getShapeIsDynamicallyStatic());
-                    //  newIt->setRespondable(it->getRespondable());
-                    //  newIt->setDynamicCollisionMask(it->getDynamicCollisionMask());
 
                     // Copy some CMesh properties:
                     it->getSingleMesh()->copyVisualAttributesTo(newIt->getSingleMesh());
-                    newIt->getSingleMesh()->actualizeGouraudShadingAndVisibleEdges(); // since 21/3/2014
-
+                    newIt->getSingleMesh()->actualizeGouraudShadingAndVisibleEdges();
                     newIt->setDynMaterial(it->getDynMaterial()->copyYourself());
-
-                    // Do not copy following:
-                    //      newIt->geomInfo->setPrincipalMomentsOfInertia(it->geomInfo->getPrincipalMomentsOfInertia());
                     newIt->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation); // to have the inertia frame centered in the geometric middle of the mesh!
-
                     newIt->actualizeContainsTransparentComponent();
+
+                    App::currentWorld->sceneObjects->addObjectToScene(newIt,false,false);
+                    newShapes.push_back(newIt);
                 }
                 else
                 { // nothing was extracted

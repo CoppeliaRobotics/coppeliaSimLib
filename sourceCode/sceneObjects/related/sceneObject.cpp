@@ -624,7 +624,16 @@ void CSceneObject::scaleObject(float scalingFactor)
     _sizeValues[1]*=scalingFactor;
     _sizeValues[2]*=scalingFactor;
     incrementMemorizedConfigurationValidCounter();
-    pushObjectRefreshEvent();
+
+    if ( _isInScene&&App::worldContainer->getEnableEvents() )
+    {
+        const char* cmd="scaling";
+        auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
+        data->appendMapObject_stringFloat(cmd,scalingFactor);
+        App::worldContainer->pushEvent(event);
+    }
+//    pushObjectRefreshEvent();
+
     App::currentWorld->drawingCont->adjustForScaling(_objectHandle,scalingFactor,scalingFactor,scalingFactor);
     App::worldContainer->setModificationFlag(256); // object scaled
 }
