@@ -539,6 +539,24 @@ void CDrawingObject::pushAppendNewPointEvent()
     {
         auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_objectUid);
 
+        if (_sceneObjectId!=-1)
+        {
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
+            if (it!=nullptr)
+            {
+                C7Vector tr(it->getCumulativeTransformation().getInverse());
+                C3Vector pt;
+                for (size_t i=0;i<_bufferedEventData.size()/3;i++)
+                {
+                    pt.set(_bufferedEventData.data()+3*i);
+                    pt*=tr;
+                    _bufferedEventData[3*i+0]=pt(0);
+                    _bufferedEventData[3*i+1]=pt(1);
+                    _bufferedEventData[3*i+2]=pt(2);
+                }
+            }
+        }
+
         CCbor obj(nullptr,0);
         size_t l;
         obj.appendFloatArray(_bufferedEventData.data(),_bufferedEventData.size());

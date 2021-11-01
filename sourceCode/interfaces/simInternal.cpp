@@ -12080,15 +12080,6 @@ simInt* simUngroupShape_internal(simInt shapeHandle,simInt* shapeCount)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        // Commented following because animation export won't work otherwise
-        /*
-        if (!App::currentWorld->simulation->isSimulationStopped())
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
-            shapeCount[0]=0;
-            return(nullptr);
-        }
-        */
         bool dividing=false;
         if (shapeHandle<=-2)
         {

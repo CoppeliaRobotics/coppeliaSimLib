@@ -1317,7 +1317,7 @@ void CSceneObjectOperations::deleteObjects(std::vector<int>* selection,bool disp
 }
 
 int CSceneObjectOperations::groupSelection(std::vector<int>* selection,bool showMessages)
-{ // CALL ONLY FROM THE MAIN SIMULATION THREAD!
+{
     if (App::currentWorld->sceneObjects->getShapeCountInSelection(selection)!=int(selection->size()))
         return(-1);
     if (selection->size()<2)
@@ -1486,12 +1486,13 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
     App::currentWorld->textureContainer->updateAllDependencies();
 
     App::currentWorld->sceneObjects->eraseSeveralObjects(shapesToErase,true);
+    lastSel->pushObjectRefreshEvent();
+
     return(lastSel);
 }
 
 void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection,bool showMessages)
-{ // CALL ONLY FROM THE MAIN SIMULATION THREAD!
-
+{
     if (showMessages)
         App::uiThread->showOrHideProgressBar(true,-1.0f,"Ungrouping shapes...");
     std::vector<int> newObjectHandles;
@@ -1593,6 +1594,7 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,st
             it->setLocalTransformation(tempLocal);
             it->alignBoundingBoxWithWorld();
             it->setLocalTransformation(currentLocal*tempLocal.getInverse()*it->getFullLocalTransformation());
+            it->pushObjectRefreshEvent();
         }
         else
         { // the other elements in the list will receive a new shape
@@ -1635,7 +1637,7 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,st
 }
 
 int CSceneObjectOperations::mergeSelection(std::vector<int>* selection,bool showMessages)
-{ // CALL ONLY FROM THE MAIN SIMULATION THREAD!
+{
     if (selection->size()<2)
         return(-1);
 
@@ -1782,6 +1784,7 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
         // Do not copy following:
         //      lastSel->geomInfo->setPrincipalMomentsOfInertia(lastSel->geomInfo->getPrincipalMomentsOfInertia());
         lastSel->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation); // to have the inertia frame centered in the geometric middle of the mesh!
+        lastSel->pushObjectRefreshEvent();
 
         delete geometricTemp;
 
@@ -1796,7 +1799,7 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
 }
 
 void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool showMessages)
-{ // CALL ONLY FROM THE MAIN SIMULATION THREAD!
+{
     if (selection->size()<1)
         return;
 
@@ -1934,6 +1937,7 @@ bool CSceneObjectOperations::_divideShape(CShape* shape,std::vector<CShape*>& ne
 
                     delete oldGeomCopy;
                     it->actualizeContainsTransparentComponent();
+                    it->pushObjectRefreshEvent();
 
                     // Now we have to adjust all the children:
                     for (size_t j=0;j<it->getChildCount();j++)

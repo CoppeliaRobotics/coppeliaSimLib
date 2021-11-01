@@ -624,6 +624,7 @@ void CSceneObject::scaleObject(float scalingFactor)
     _sizeValues[1]*=scalingFactor;
     _sizeValues[2]*=scalingFactor;
     incrementMemorizedConfigurationValidCounter();
+    pushObjectRefreshEvent();
     App::currentWorld->drawingCont->adjustForScaling(_objectHandle,scalingFactor,scalingFactor,scalingFactor);
     App::worldContainer->setModificationFlag(256); // object scaled
 }
@@ -635,6 +636,7 @@ void CSceneObject::scaleObjectNonIsometrically(float x,float y,float z)
     _sizeValues[1]*=y;
     _sizeValues[2]*=z;
     incrementMemorizedConfigurationValidCounter();
+    pushObjectRefreshEvent();
     App::currentWorld->drawingCont->adjustForScaling(_objectHandle,x,y,z);
     App::worldContainer->setModificationFlag(256); // object scaled
 }
