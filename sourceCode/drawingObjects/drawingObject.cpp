@@ -316,15 +316,15 @@ void CDrawingObject::_setItemSizes()
     }
 
     if (_objectType&sim_drawing_itemcolors)
-        colorsPerItem+=3;
+        colorsPerItem+=1;
     if (_objectType&sim_drawing_vertexcolors)
     { 
         if (tmp==sim_drawing_linestrip)
-            colorsPerItem+=3;
+            colorsPerItem+=1;
         if (tmp==sim_drawing_lines)
-            colorsPerItem+=6;
+            colorsPerItem+=2;
         if (tmp==sim_drawing_triangles)
-            colorsPerItem+=9;
+            colorsPerItem+=3;
     }
     if (_objectType&sim_drawing_itemsizes)
         otherFloatsPerItem+=1;
