@@ -524,21 +524,21 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
     if ( (colorName==nullptr)||(color.getColorName().compare(colorName)==0)||(strcmp(colorName,"@compound")==0) )
     {
         bool compoundColors=(colorName!=nullptr)&&(strcmp(colorName,"@compound")==0);
-        if (colorComponent<4)
+        if (colorComponent<sim_colorcomponent_transparency)
         { // regular components
             for (int i=0;i<3;i++)
                 color.getColorsPtr()[colorComponent*3+i]=rgbData[rgbDataOffset+i];
             if (compoundColors)
                 rgbDataOffset+=3;
         }
-        if (colorComponent==4)
+        if (colorComponent==sim_colorcomponent_transparency)
         {
             color.setTransparencyFactor(rgbData[rgbDataOffset+0]);
             color.setTranslucid(rgbData[rgbDataOffset+0]<1.0f);
             if (compoundColors)
                 rgbDataOffset+=1;
         }
-        if (colorComponent==5)
+        if (colorComponent==sim_colorcomponent_auxiliary)
         { // auxiliary components
             for (int i=0;i<3;i++)
                 color.getColorsPtr()[12+i]=rgbData[rgbDataOffset+i];

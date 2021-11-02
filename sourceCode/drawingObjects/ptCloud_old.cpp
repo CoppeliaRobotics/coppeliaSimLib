@@ -180,6 +180,7 @@ void CPtCloud_old::pushCreateContainerEvent()
         buff=(const char*)obj.getBuff(l);
         data->appendMapObject_stringString("colors",buff,l,true);
 
+
         data->appendMapObject_stringBool("clearPoints",true);
 
         App::worldContainer->pushEvent(event);

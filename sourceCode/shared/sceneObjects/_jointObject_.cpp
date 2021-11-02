@@ -396,6 +396,8 @@ bool _CJoint_::setPositionIntervalMin(float min)
             data->appendMapObject_stringFloat(cmd,min);
             App::worldContainer->pushEvent(event);
         }
+        if (getObjectCanSync())
+            _setPositionIntervalMin_send(min);
     }
     return(diff&&getObjectCanChange());
 }
@@ -418,6 +420,8 @@ bool _CJoint_::setPositionIntervalRange(float range)
             data->appendMapObject_stringFloat(cmd,range);
             App::worldContainer->pushEvent(event);
         }
+        if (getObjectCanSync())
+            _setPositionIntervalRange_send(range);
     }
     return(diff&&getObjectCanChange());
 }
@@ -458,6 +462,8 @@ bool _CJoint_::setPositionIsCyclic(bool isCyclic)
             data->appendMapObject_stringBool(cmd,isCyclic);
             App::worldContainer->pushEvent(event);
         }
+        if (getObjectCanSync())
+            _setPositionIsCyclic_send(isCyclic);
     }
     return(diff&&getObjectCanChange());
 }
@@ -584,6 +590,8 @@ bool _CJoint_::setPosition(float pos)
             data->appendMapObject_stringFloatArray("pose",pose,7);
             App::worldContainer->pushEvent(event);
         }
+        if (getObjectCanSync())
+            _setPosition_send(pos);
     }
     return(diff&&getObjectCanChange());
 }
@@ -613,6 +621,8 @@ bool _CJoint_::setSphericalTransformation(const C4Vector& tr)
             data->appendMapObject_stringFloatArray("pose",pose,7);
             App::worldContainer->pushEvent(event);
         }
+        if (getObjectCanSync())
+            _setSphericalTransformation_send(tr);
     }
     return(diff&&getObjectCanChange());
 }

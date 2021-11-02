@@ -774,9 +774,9 @@ void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix
         C3Vector v,w;
         float rgbaAmb[3]={0.0f,0.0f,0.0f};
         float rgbaAmb2[3]={0.0f,0.0f,0.0f};
-        int off=0;
         for (int i=0;i<int(_data.size())/drawingObject->floatsPerItem;i++)
         {
+            int off=0;
             int p=_startItem+i;
             if (p>=_maxItemCount)
                 p-=_maxItemCount;
@@ -861,9 +861,9 @@ void _drawLineStrip(CDrawingObject* drawingObject,int displayAttrib,const C4X4Ma
         v.set(&_data[drawingObject->floatsPerItem*p+0]);
         if ( (_objectType&(sim_drawing_itemcolors|sim_drawing_vertexcolors)) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
-            rgbaAmb[0]=_data[drawingObject->floatsPerItem*p+6];
-            rgbaAmb[1]=_data[drawingObject->floatsPerItem*p+7];
-            rgbaAmb[2]=_data[drawingObject->floatsPerItem*p+8];
+            rgbaAmb[0]=_data[drawingObject->floatsPerItem*p+3];
+            rgbaAmb[1]=_data[drawingObject->floatsPerItem*p+4];
+            rgbaAmb[2]=_data[drawingObject->floatsPerItem*p+5];
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
                 ogl::setMaterialColor(sim_colorcomponent_emission,rgbaAmb);
             else

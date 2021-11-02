@@ -52,6 +52,13 @@ bool _CSceneObject_::setParent(CSceneObject* parent)
             data->appendMapObject_stringInt32(cmd,pUid);
             App::worldContainer->pushEvent(event);
         }
+        if (getObjectCanSync())
+        {
+            int h=-1;
+            if (parent!=nullptr)
+                h=parent->getObjectHandle();
+            _setParent_send(h);
+        }
     }
     return(diff&&getObjectCanChange());
 }
@@ -491,6 +498,8 @@ bool _CSceneObject_::setLocalTransformation(const C7Vector& tr)
             data->appendMapObject_stringFloatArray(cmd,p,7);
             App::worldContainer->pushEvent(event);
         }
+        if (getObjectCanSync())
+            _setLocalTransformation_send(_localTransformation);
     }
     return(diff&&getObjectCanChange());
 }
@@ -500,8 +509,15 @@ bool _CSceneObject_::setLocalTransformation(const C4Vector& q)
     bool diff=(_localTransformation.Q!=q);
     if (diff)
     {
-        if (getObjectCanChange())
-            _localTransformation.Q=q;
+        _localTransformation.Q=q;
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="pose";
+            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
+            float p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
+            data->appendMapObject_stringFloatArray(cmd,p,7);
+            App::worldContainer->pushEvent(event);
+        }
         if (getObjectCanSync())
         {
             C7Vector tr(_localTransformation);
@@ -517,8 +533,15 @@ bool _CSceneObject_::setLocalTransformation(const C3Vector& x)
     bool diff=(_localTransformation.X!=x);
     if (diff)
     {
-        if (getObjectCanChange())
-            _localTransformation.X=x;
+        _localTransformation.X=x;
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="pose";
+            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,true);
+            float p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
+            data->appendMapObject_stringFloatArray(cmd,p,7);
+            App::worldContainer->pushEvent(event);
+        }
         if (getObjectCanSync())
         {
             C7Vector tr(_localTransformation);

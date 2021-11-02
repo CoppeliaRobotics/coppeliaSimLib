@@ -146,6 +146,10 @@ void CColorObject::pushColorChangeEvent(int objectHandle,int colorIndex,bool isL
         getColor(c+3,sim_colorcomponent_specular);
         getColor(c+6,sim_colorcomponent_emission);
         sdata->appendMapObject_stringFloatArray("color",c,9);
+        float transp=0.0f;
+        if (_translucid)
+            transp=_transparencyFactor;
+        sdata->appendMapObject_stringFloat("transparency",transp);
         sdata->appendMapObject_stringInt32("index",colorIndex);
         App::worldContainer->pushEvent(event);
     }

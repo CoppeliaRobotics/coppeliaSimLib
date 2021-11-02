@@ -7614,7 +7614,13 @@ simInt simSetObjectColor_internal(simInt objectHandle,simInt index,simInt colorC
             if ( (index>=0)&&(index<int(all.size()))&&(colorComponent<=sim_colorcomponent_auxiliary) )
             {
                 CMesh* geom=all[index];
-                geom->color.setColor(rgbData,colorComponent);
+                if (colorComponent==sim_colorcomponent_transparency)
+                {
+                    geom->color.setTranslucid(rgbData[0]!=0.0f);
+                    geom->color.setTransparencyFactor(rgbData[0]);
+                }
+                else
+                    geom->color.setColor(rgbData,colorComponent);
                 geom->color.pushColorChangeEvent(objectHandle,index);
                 retVal=1;
             }
