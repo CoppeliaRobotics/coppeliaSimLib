@@ -325,7 +325,7 @@ void ogl::drawRandom3dPoints(const float* pts,int ptsCnt,const float normalVecto
     drawRandom3dPointsEx(pts,ptsCnt,nullptr,nullptr,nullptr,false,normalVectorForDiffuseComp);
 }
 
-void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,const float* cols,const float* sizes,bool colsAreEmission,const float normalVectorForDiffuseComp[3])
+void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,const float* cols,const float* sizes,bool colsAreEmission,const float normalVectorForDiffuseComp[3],int colComp/*=4*/)
 {
     if (cols!=nullptr)
     { // note: glMaterialfv has some bugs in some geForce drivers, use glColor instead
@@ -383,7 +383,7 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
                     glNormal3f(0.0f,0.0f,1.0f);
                 for (int i=0;i<ptsCnt;i++)
                 {
-                    glColor4fv(cols+4*i);
+                    glColor4fv(cols+colComp*i);
                     glVertex3fv(pts+i*3);
                 }
                 glEnd();
@@ -398,7 +398,7 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
                 {
                     glPointSize(sizes[i]); // cannot be called between glBegin and glEnd!
                     glBegin(GL_POINTS);
-                    glColor4fv(cols+4*i);
+                    glColor4fv(cols+colComp*i);
                     glVertex3fv(pts+i*3);
                     glEnd();
                 }

@@ -21,7 +21,7 @@ bool _CColorObject_::_isSame(const _CColorObject_* it) const
         }
     }
     retVal=retVal&&(_shininess==it->_shininess);
-    retVal=retVal&&(_transparencyFactor==it->_transparencyFactor);
+    retVal=retVal&&(_opacity==it->_opacity);
     retVal=retVal&&(_translucid==it->_translucid);
     retVal=retVal&&(_colorName==it->_colorName);
     retVal=retVal&&(_extensionString==it->_extensionString);
@@ -33,9 +33,9 @@ bool _CColorObject_::getTranslucid() const
     return(_translucid);
 }
 
-float _CColorObject_::getTransparencyFactor() const
+float _CColorObject_::getOpacity() const
 {
-    return(_transparencyFactor);
+    return(_opacity);
 }
 
 int _CColorObject_::getShininess() const
@@ -104,15 +104,15 @@ void _CColorObject_::setTranslucid(bool e)
     }
 }
 
-void _CColorObject_::setTransparencyFactor(float e)
+void _CColorObject_::setOpacity(float e)
 {
-    bool diff=(_transparencyFactor!=e);
+    bool diff=(_opacity!=e);
     if (diff)
     {
         if (getObjectCanChange())
-            _transparencyFactor=e;
+            _opacity=e;
         if (getObjectCanSync())
-            _setTransparencyFactor_send(e);
+            _setOpacity_send(e);
     }
 }
 
@@ -157,7 +157,7 @@ void _CColorObject_::_setTranslucid_send(bool e) const
     sendBool(e,sim_syncobj_colorobject_settranslucid);
 }
 
-void _CColorObject_::_setTransparencyFactor_send(float e) const
+void _CColorObject_::_setOpacity_send(float e) const
 {
     sendFloat(e,sim_syncobj_colorobject_settransparency);
 }
@@ -191,7 +191,7 @@ void _CColorObject_::synchronizationMsg(std::vector<SSyncRoute>& routing,const S
     }
     if (msg.msg==sim_syncobj_colorobject_settransparency)
     {
-        setTransparencyFactor(((float*)msg.data)[0]);
+        setOpacity(((float*)msg.data)[0]);
         return;
     }
     if (msg.msg==sim_syncobj_colorobject_setshininess)

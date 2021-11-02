@@ -73,7 +73,7 @@ void CColorObject::setDefaultValues()
     col[12]=0.5f; // temperature channel
     setColors(col);
     setTranslucid(false);
-    setTransparencyFactor(0.5f);
+    setOpacity(0.5f);
     setShininess(48);
     setColorName("");
     setExtensionString("povray { pattern {default}}");
@@ -148,7 +148,7 @@ void CColorObject::pushColorChangeEvent(int objectHandle,int colorIndex,bool isL
         sdata->appendMapObject_stringFloatArray("color",c,9);
         float transp=0.0f;
         if (_translucid)
-            transp=_transparencyFactor;
+            transp=1.0f-_opacity;
         sdata->appendMapObject_stringFloat("transparency",transp);
         sdata->appendMapObject_stringInt32("index",colorIndex);
         App::worldContainer->pushEvent(event);
@@ -176,7 +176,7 @@ void CColorObject::copyYourselfInto(CColorObject* it) const
 {
     it->setColors(_colors);
     it->setShininess(_shininess);
-    it->setTransparencyFactor(_transparencyFactor);
+    it->setOpacity(_opacity);
     it->setTranslucid(_translucid);
     it->setColorName(_colorName.c_str());
     it->setExtensionString(_extensionString.c_str());
@@ -228,7 +228,7 @@ void CColorObject::serialize(CSer& ar,int objType)
             ar.flush();
 
             ar.storeDataName("Trf");
-            ar << _transparencyFactor;
+            ar << _opacity;
             ar.flush();
 
             ar.storeDataName("Var");
@@ -344,7 +344,7 @@ void CColorObject::serialize(CSer& ar,int objType)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _transparencyFactor;
+                        ar >> _opacity;
                     }
                     if (theName.compare("Var")==0)
                     {
@@ -406,7 +406,7 @@ void CColorObject::serialize(CSer& ar,int objType)
 
             ar.xmlAddNode_int("shininess",_shininess);
 
-            ar.xmlAddNode_float("transparency",_transparencyFactor);
+            ar.xmlAddNode_float("transparency",_opacity);
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("transparent",_translucid);
@@ -434,7 +434,7 @@ void CColorObject::serialize(CSer& ar,int objType)
 
             ar.xmlGetNode_int("shininess",_shininess);
 
-            ar.xmlGetNode_float("transparency",_transparencyFactor);
+            ar.xmlGetNode_float("transparency",_opacity);
 
             if (ar.xmlPushChildNode("switches"))
             {
@@ -616,7 +616,7 @@ void CColorObject::buildUpdateAndPopulateSynchronizationObject(const std::vector
         // Update the remote object:
         _setColors_send(_colors);
         _setTranslucid_send(_translucid);
-        _setTransparencyFactor_send(_transparencyFactor);
+        _setOpacity_send(_opacity);
         _setShininess_send(_shininess);
         _setColorName_send(_colorName.c_str());
         _setExtensionString_send(_extensionString.c_str());

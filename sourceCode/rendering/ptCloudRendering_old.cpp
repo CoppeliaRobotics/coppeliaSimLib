@@ -26,16 +26,16 @@ void displayPtCloud_old(CPtCloud_old* ptCloud,CSceneObject* it)
     if (ptCloud->_colors.size()==0)
     {
         if (ptCloud->_normals.size()==0)
-            ogl::drawRandom3dPointsEx(&ptCloud->_vertices[0],(int)ptCloud->_vertices.size()/3,nullptr,nullptr,nullptr,false,normalVectorForLinesAndPoints.data);
+            ogl::drawRandom3dPointsEx(&ptCloud->_vertices[0],(int)ptCloud->_vertices.size()/3,nullptr,nullptr,nullptr,false,normalVectorForLinesAndPoints.data,3);
         else
-            ogl::drawRandom3dPointsEx(&ptCloud->_vertices[0],(int)ptCloud->_vertices.size()/3,&ptCloud->_normals[0],nullptr,nullptr,false,normalVectorForLinesAndPoints.data);
+            ogl::drawRandom3dPointsEx(&ptCloud->_vertices[0],(int)ptCloud->_vertices.size()/3,&ptCloud->_normals[0],nullptr,nullptr,false,normalVectorForLinesAndPoints.data,3);
     }
     else
     {
         if (ptCloud->_normals.size()==0)
-            ogl::drawRandom3dPointsEx(&ptCloud->_vertices[0],(int)ptCloud->_vertices.size()/3,nullptr,&ptCloud->_colors[0],nullptr,(ptCloud->_options&4)!=0,normalVectorForLinesAndPoints.data);
+            ogl::drawRandom3dPointsEx(&ptCloud->_vertices[0],(int)ptCloud->_vertices.size()/3,nullptr,&ptCloud->_colors[0],nullptr,(ptCloud->_options&4)!=0,normalVectorForLinesAndPoints.data,3);
         else
-            ogl::drawRandom3dPointsEx(&ptCloud->_vertices[0],(int)ptCloud->_vertices.size()/3,&ptCloud->_normals[0],&ptCloud->_colors[0],nullptr,(ptCloud->_options&4)!=0,normalVectorForLinesAndPoints.data);
+            ogl::drawRandom3dPointsEx(&ptCloud->_vertices[0],(int)ptCloud->_vertices.size()/3,&ptCloud->_normals[0],&ptCloud->_colors[0],nullptr,(ptCloud->_options&4)!=0,normalVectorForLinesAndPoints.data,3);
     }
     glPointSize(1.0f);
 

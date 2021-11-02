@@ -157,7 +157,7 @@ void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vecto
         data[20]=&_extRendererObjectId;
         bool translucid=color.getTranslucid();
         data[21]=&translucid;
-        float transparencyF=color.getTransparencyFactor();
+        float transparencyF=color.getOpacity();
         data[22]=&transparencyF;
         data[23]=&_culling;
         data[24]=&_extRendererMeshId;
@@ -533,7 +533,7 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
         }
         if (colorComponent==sim_colorcomponent_transparency)
         {
-            color.setTransparencyFactor(rgbData[rgbDataOffset+0]);
+            color.setOpacity(rgbData[rgbDataOffset+0]);
             color.setTranslucid(rgbData[rgbDataOffset+0]<1.0f);
             if (compoundColors)
                 rgbDataOffset+=1;
@@ -557,7 +557,7 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
         }
         if (colorComponent==4)
         {
-            insideColor_DEPRECATED.setTransparencyFactor(rgbData[rgbDataOffset+0]);
+            insideColor_DEPRECATED.setOpacity(rgbData[rgbDataOffset+0]);
             insideColor_DEPRECATED.setTranslucid(rgbData[rgbDataOffset+0]<1.0f);
         }
         if (colorComponent==5)
@@ -596,7 +596,7 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
             }
             if (colorComponent==4)
             {
-                color.setTransparencyFactor(tt::getLimitedFloat(0.0f,1.0f,color.getTransparencyFactor()+rgbData[rgbDataOffset+0]));
+                color.setOpacity(tt::getLimitedFloat(0.0f,1.0f,color.getOpacity()+rgbData[rgbDataOffset+0]));
             }
             if (colorComponent==5)
             { // auxiliary components
@@ -621,7 +621,7 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
             }
             if (colorComponent==4)
             {
-                insideColor_DEPRECATED.setTransparencyFactor(tt::getLimitedFloat(0.0f,1.0f,insideColor_DEPRECATED.getTransparencyFactor()+rgbData[rgbDataOffset+0]));
+                insideColor_DEPRECATED.setOpacity(tt::getLimitedFloat(0.0f,1.0f,insideColor_DEPRECATED.getOpacity()+rgbData[rgbDataOffset+0]));
             }
             if (colorComponent==5)
             { // auxiliary components
@@ -673,7 +673,7 @@ bool CMesh::getColor(const char* colorName,int colorComponent,float* rgbData,int
         }
         if (colorComponent==4)
         {
-            rgbData[rgbDataOffset+0]=color.getTransparencyFactor();
+            rgbData[rgbDataOffset+0]=color.getOpacity();
             if (compoundColors)
                 rgbDataOffset+=1;
             return(true);
@@ -698,7 +698,7 @@ bool CMesh::getColor(const char* colorName,int colorComponent,float* rgbData,int
         }
         if (colorComponent==4)
         {
-            rgbData[rgbDataOffset+0]=insideColor_DEPRECATED.getTransparencyFactor();
+            rgbData[rgbDataOffset+0]=insideColor_DEPRECATED.getOpacity();
             return(true);
         }
         if (colorComponent==5)

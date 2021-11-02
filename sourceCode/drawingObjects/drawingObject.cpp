@@ -42,7 +42,7 @@ CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateToler
     if (tr!=0.0f)
     {
         color.setTranslucid(true);
-        color.setTransparencyFactor(1.0f-tr);
+        color.setOpacity(1.0f-tr);
     }
 
     _objectId=-1;
@@ -53,7 +53,7 @@ CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateToler
     size=tt::getLimitedFloat(0.0001f,100.0f,size);
     _size=size;
     if (maxItemCount==0)
-        maxItemCount=10000000;
+        maxItemCount=100000;
     maxItemCount=tt::getLimitedInt(1,10000000,maxItemCount);
     _maxItemCount=maxItemCount;
     _startItem=0;

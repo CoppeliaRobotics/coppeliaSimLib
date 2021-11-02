@@ -7617,7 +7617,7 @@ simInt simSetObjectColor_internal(simInt objectHandle,simInt index,simInt colorC
                 if (colorComponent==sim_colorcomponent_transparency)
                 {
                     geom->color.setTranslucid(rgbData[0]!=0.0f);
-                    geom->color.setTransparencyFactor(rgbData[0]);
+                    geom->color.setOpacity(rgbData[0]);
                 }
                 else
                     geom->color.setColor(rgbData,colorComponent);
@@ -15661,7 +15661,7 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
             {
                 info->transparency=0.0f;
                 if (geom->color.getTranslucid())
-                    info->transparency=geom->color.getTransparencyFactor();
+                    info->transparency=geom->color.getOpacity();
                 info->options=0;
                 if (geom->getCulling())
                     info->options|=1;

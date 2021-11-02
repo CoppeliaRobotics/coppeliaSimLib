@@ -2,6 +2,7 @@
 #include "pointCloudContainer_old.h"
 #include "viewableBase.h"
 #include "easyLock.h"
+#include "app.h"
 
 CPointCloudContainer_old::CPointCloudContainer_old()
 {
@@ -61,6 +62,12 @@ bool CPointCloudContainer_old::removeObject(int objectID)
     {
         if (_allObjects[i]->getObjectID()==objectID)
         {
+            if (App::worldContainer->getEnableEvents())
+            {
+                auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTREMOVED,nullptr,_allObjects[i]->getObjectUniqueId());
+                App::worldContainer->pushEvent(event);
+            }
+
             delete _allObjects[i];
             _allObjects.erase(_allObjects.begin()+i);
             return(true);

@@ -127,7 +127,7 @@ void CEnvironment::setUpDefaultValues()
     wirelessEmissionVolumeColor.setColorsAllBlack();
     wirelessEmissionVolumeColor.setColor(1.0f,1.0f,0.0f,sim_colorcomponent_emission);
     wirelessEmissionVolumeColor.setTranslucid(true);
-    wirelessEmissionVolumeColor.setTransparencyFactor(0.2f);
+    wirelessEmissionVolumeColor.setOpacity(0.2f);
     wirelessReceptionVolumeColor.setColorsAllBlack();
     wirelessReceptionVolumeColor.setColor(1.0f,1.0f,0.0f,sim_colorcomponent_emission);
 

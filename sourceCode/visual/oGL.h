@@ -108,7 +108,7 @@ public:
     };
 
     static void drawRandom3dPoints(const float* pts,int ptsCnt,const float normalVectorForDiffuseComp[3]);
-    static void drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,const float* cols,const float* sizes,bool colsAreEmission,const float normalVectorForDiffuseComp[3]);
+    static void drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,const float* cols,const float* sizes,bool colsAreEmission,const float normalVectorForDiffuseComp[3],int colComp=4);
     static void drawBitmapTextTo3dPosition(const float pos[3],const char* txt,const float normalVectorForDiffuseComp[3]);
     static void drawBitmapTextTo3dPosition(float x,float y,float z,const char* txt,const float normalVectorForDiffuseComp[3]);
 

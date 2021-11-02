@@ -25,14 +25,14 @@ public:
     const float* getColorsPtr() const;
     float* getColorsPtr();
     bool getTranslucid() const;
-    float getTransparencyFactor() const;
+    float getOpacity() const;
     int getShininess() const;
     std::string getColorName() const;
     std::string getExtensionString() const;
 
     virtual void setColors(const float col[15]);
     virtual void setTranslucid(bool e);
-    virtual void setTransparencyFactor(float e);
+    virtual void setOpacity(float e);
     virtual void setShininess(int e);
     virtual void setColorName(const char* nm);
     virtual void setExtensionString(const char* nm);
@@ -40,7 +40,7 @@ public:
 protected:
     virtual void _setColors_send(const float col[15]) const;
     virtual void _setTranslucid_send(bool e) const;
-    virtual void _setTransparencyFactor_send(float e) const;
+    virtual void _setOpacity_send(float e) const;
     virtual void _setShininess_send(int e) const;
     virtual void _setColorName_send(const char* nm) const;
     virtual void _setExtensionString_send(const char* nm) const;
@@ -49,7 +49,7 @@ protected:
 
     float _colors[15];
     int _shininess;
-    float _transparencyFactor;
+    float _opacity;
     bool _translucid;
     std::string _colorName;
     std::string _extensionString;

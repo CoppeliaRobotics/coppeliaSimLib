@@ -52,7 +52,7 @@ void CMirror::_commonInit()
     clipPlaneColor.setDefaultValues();
     clipPlaneColor.setColor(0.0f,0.525f,0.6f,sim_colorcomponent_ambient_diffuse);
     clipPlaneColor.setTranslucid(true);
-    clipPlaneColor.setTransparencyFactor(0.4f);
+    clipPlaneColor.setOpacity(0.4f);
 
     _active=true;
     _isMirror=true;

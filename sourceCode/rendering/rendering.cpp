@@ -168,20 +168,20 @@ void makeColorCurrent(const CColorObject* visParam,bool forceNonTransparent,bool
                         col0[i]=col0[i]*(1.0f-t)+col1[i]*t;
                     ogl::setMaterialColor(col0,col0+6,col0+9);
                     ogl::setShininess(visParam->getShininess());
-                    ogl::setAlpha(visParam->getTransparencyFactor());
+                    ogl::setAlpha(visParam->getOpacity());
             }
             else
             { // flash is off
                 ogl::setMaterialColor(visParam->getColorsPtr(),visParam->getColorsPtr()+6,ogl::colorBlack);
                 ogl::setShininess(visParam->getShininess());
-                ogl::setAlpha(visParam->getTransparencyFactor());
+                ogl::setAlpha(visParam->getOpacity());
             }
         }
         else
         {
             ogl::setMaterialColor(visParam->getColorsPtr(),visParam->getColorsPtr()+6,visParam->getColorsPtr()+9);
             ogl::setShininess(visParam->getShininess());
-            ogl::setAlpha(visParam->getTransparencyFactor());
+            ogl::setAlpha(visParam->getOpacity());
         }
 
         if (visParam->getTranslucid()&&(!forceNonTransparent))

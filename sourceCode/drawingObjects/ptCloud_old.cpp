@@ -43,13 +43,12 @@ CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int parentHandle,int optio
 
     if (colors!=nullptr)
     {
-        _colors.resize(ptCnt*4);
+        _colors.resize(ptCnt*3);
         for (int i=0;i<ptCnt;i++)
         {
-            _colors[4*i+0]=float(colors[3*i+0])/255.0f;
-            _colors[4*i+1]=float(colors[3*i+1])/255.0f;
-            _colors[4*i+2]=float(colors[3*i+2])/255.0f;
-            _colors[4*i+3]=1.0f;
+            _colors[3*i+0]=float(colors[3*i+0])/255.0f;
+            _colors[3*i+1]=float(colors[3*i+1])/255.0f;
+            _colors[3*i+2]=float(colors[3*i+2])/255.0f;
         }
     }
     if (normals!=nullptr)
@@ -141,6 +140,8 @@ void CPtCloud_old::pushCreateContainerEvent()
     {
         auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED,nullptr,_uniqueId);
 
+        data->appendMapObject_stringString("type","point",0);
+
         float c[9];
         c[0]=_defaultColors[0];
         c[1]=_defaultColors[1];
@@ -153,7 +154,7 @@ void CPtCloud_old::pushCreateContainerEvent()
         c[8]=_defaultColors[14];
         data->appendMapObject_stringFloatArray("color",c,9);
 
-        data->appendMapObject_stringInt32("maxCnt",0);
+        data->appendMapObject_stringInt32("maxCnt",_vertices.size()/3);
 
         data->appendMapObject_stringFloat("size",_pointSize);
 

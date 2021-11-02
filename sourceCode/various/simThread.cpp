@@ -140,7 +140,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (!shape->isCompound())
                 {
                     shape->getSingleMesh()->color.setTranslucid(cmd.boolParams[0]);
-                    shape->getSingleMesh()->color.setTransparencyFactor(cmd.floatParams[0]);
+                    shape->getSingleMesh()->color.setOpacity(cmd.floatParams[0]);
                     App::undoRedo_sceneChanged("");
                 }
             }
@@ -1959,7 +1959,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
             CColorObject* it=App::getVisualParamPointerFromItem(cmd.intParams[0],cmd.intParams[1],cmd.intParams[2],nullptr,&allowedParts);
             if ( (it!=nullptr)&&(allowedParts&128) )
-                it->setTransparencyFactor(tt::getLimitedFloat(0.0,1.0,cmd.floatParams[0]));
+                it->setOpacity(tt::getLimitedFloat(0.0,1.0,cmd.floatParams[0]));
         }
         if (cmd.cmdId==SET_NAME_MATERIALGUITRIGGEREDCMD)
         {

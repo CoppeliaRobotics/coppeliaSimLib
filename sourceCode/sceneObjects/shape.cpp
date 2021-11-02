@@ -1822,7 +1822,20 @@ bool CShape::getVisibleEdges()
 void CShape::setVisibleEdges(bool v)
 {
     if (getMeshWrapper()->isMesh())
+    {
         getSingleMesh()->setVisibleEdges(v);
+
+        if (App::worldContainer->getEnableEvents())
+        {
+            const char* cmd="color";
+            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,_objectHandle,false);
+            CInterfaceStackTable* sdata=new CInterfaceStackTable();
+            data->appendMapObject_stringObject(cmd,sdata);
+            sdata->appendMapObject_stringBool("showEdges",v);
+            sdata->appendMapObject_stringInt32("index",0);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
 bool CShape::getHideEdgeBorders()
@@ -1987,11 +2000,14 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
         geom->color.getColor(c+6,sim_colorcomponent_emission);
         mesh->appendMapObject_stringFloatArray("color",c,9);
 
+//        mesh->appendMapObject_stringFloat("edgeAngle",geom->);
         mesh->appendMapObject_stringFloat("shadingAngle",geom->getGouraudShadingAngle());
+        mesh->appendMapObject_stringBool("showEdges",geom->getVisibleEdges());
         float transp=0.0f;
         if (geom->color.getTranslucid())
-            transp=geom->color.getTransparencyFactor();
+            transp=1.0f-geom->color.getOpacity();
         mesh->appendMapObject_stringFloat("transparency",transp);
+
 
         int options=0;
         if (geom->getCulling())

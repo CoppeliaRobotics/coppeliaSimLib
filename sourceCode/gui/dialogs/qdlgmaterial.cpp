@@ -51,7 +51,7 @@ void CQDlgMaterial::refresh()
     {
         ui->qqOpacityEnable->setChecked(vc->getTranslucid());
         ui->qqOpacity->setEnabled(vc->getTranslucid());
-        ui->qqOpacity->setText(tt::getFString(false,vc->getTransparencyFactor(),2).c_str());
+        ui->qqOpacity->setText(tt::getFString(false,vc->getOpacity(),2).c_str());
     }
     else
     {
