@@ -1809,7 +1809,20 @@ bool CShape::getCulling()
 void CShape::setCulling(bool culState)
 {
     if (getMeshWrapper()->isMesh())
+    {
         getSingleMesh()->setCulling(culState);
+
+        if (App::worldContainer->getEnableEvents())
+        {
+            const char* cmd="color";
+            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,_objectHandle,false);
+            CInterfaceStackTable* sdata=new CInterfaceStackTable();
+            data->appendMapObject_stringObject(cmd,sdata);
+            sdata->appendMapObject_stringBool("culling",culState);
+            sdata->appendMapObject_stringInt32("index",0);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
 bool CShape::getVisibleEdges()
@@ -2003,6 +2016,7 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 //        mesh->appendMapObject_stringFloat("edgeAngle",geom->);
         mesh->appendMapObject_stringFloat("shadingAngle",geom->getGouraudShadingAngle());
         mesh->appendMapObject_stringBool("showEdges",geom->getVisibleEdges());
+        mesh->appendMapObject_stringBool("culling",geom->getCulling());
         float transp=0.0f;
         if (geom->color.getTranslucid())
             transp=1.0f-geom->color.getOpacity();
