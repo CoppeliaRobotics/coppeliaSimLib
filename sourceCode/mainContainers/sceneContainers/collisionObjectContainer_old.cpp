@@ -9,7 +9,9 @@ CCollisionObjectContainer_old::CCollisionObjectContainer_old()
 }
 
 CCollisionObjectContainer_old::~CCollisionObjectContainer_old()
-{ // beware, the current world could be nullptr
+{
+    while (_collisionObjects.size()!=0)
+        _removeObject(_collisionObjects[0]->getObjectHandle());
 }
 
 void CCollisionObjectContainer_old::simulationAboutToStart()
@@ -268,46 +270,53 @@ void CCollisionObjectContainer_old::displayCollisionContours()
         getObjectFromIndex(i)->displayCollisionContour();
 }
 
-void CCollisionObjectContainer_old::_addObject(CCollisionObject_old* newCollObj)
-{ // Overridden from _CCollisionObjectContainer_old
-    _CCollisionObjectContainer_old::_addObject(newCollObj);
+size_t CCollisionObjectContainer_old::getObjectCount() const
+{
+    return(_collisionObjects.size());
+}
 
-    if (newCollObj->setObjectCanSync(true))
-        newCollObj->buildUpdateAndPopulateSynchronizationObject(nullptr);
+CCollisionObject_old* CCollisionObjectContainer_old::getObjectFromIndex(size_t index) const
+{
+    CCollisionObject_old* retVal=nullptr;
+    if (index<_collisionObjects.size())
+        retVal=_collisionObjects[index];
+    return(retVal);
+}
+
+CCollisionObject_old* CCollisionObjectContainer_old::getObjectFromHandle(int objectHandle) const
+{
+    for (size_t i=0;i<_collisionObjects.size();i++)
+    {
+        if (_collisionObjects[i]->getObjectHandle()==objectHandle)
+            return(_collisionObjects[i]);
+    }
+    return(nullptr);
+}
+
+CCollisionObject_old* CCollisionObjectContainer_old::getObjectFromName(const char* objName) const
+{
+    for (size_t i=0;i<_collisionObjects.size();i++)
+    {
+        if (_collisionObjects[i]->getObjectName().compare(objName)==0)
+            return(_collisionObjects[i]);
+    }
+    return(nullptr);
+}
+
+void CCollisionObjectContainer_old::_addObject(CCollisionObject_old* newCollObj)
+{
+    _collisionObjects.push_back(newCollObj);
 }
 
 void CCollisionObjectContainer_old::_removeObject(int objectHandle)
-{ // Overridden from _CCollisionObjectContainer_old
-    CCollisionObject_old* ig=getObjectFromHandle(objectHandle);
-    if (ig!=nullptr)
-        ig->removeSynchronizationObject(false);
-
-    _CCollisionObjectContainer_old::_removeObject(objectHandle);
-}
-
-void CCollisionObjectContainer_old::buildUpdateAndPopulateSynchronizationObjects()
 {
-    for (size_t i=0;i<getObjectCount();i++)
+    for (size_t i=0;i<_collisionObjects.size();i++)
     {
-        CCollisionObject_old* it=getObjectFromIndex(i);
-        it->buildUpdateAndPopulateSynchronizationObject(nullptr);
-    }
-}
-
-void CCollisionObjectContainer_old::connectSynchronizationObjects()
-{
-    for (size_t i=0;i<getObjectCount();i++)
-    {
-        CCollisionObject_old* it=getObjectFromIndex(i);
-        it->connectSynchronizationObject();
-    }
-}
-
-void CCollisionObjectContainer_old::removeSynchronizationObjects(bool localReferencesToItOnly)
-{
-    for (size_t i=0;i<getObjectCount();i++)
-    {
-        CCollisionObject_old* it=getObjectFromIndex(i);
-        it->removeSynchronizationObject(localReferencesToItOnly);
+        if (_collisionObjects[i]->getObjectHandle()==objectHandle)
+        {
+            delete _collisionObjects[i];
+            _collisionObjects.erase(_collisionObjects.begin()+i);
+            break;
+        }
     }
 }

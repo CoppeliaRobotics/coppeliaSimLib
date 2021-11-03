@@ -78,11 +78,8 @@ bool _CIkGroupContainer_::shiftIkGroup(int ikGroupHandle,bool shiftUp)
         {
             if ( (ikg->getObjectHandle()==ikGroupHandle)&&(i>0) )
             {
-                if (getObjectCanChange())
-                {
-                    _ikGroups.erase(_ikGroups.begin()+i);
-                    _ikGroups.insert(_ikGroups.begin()+i-1,it);
-                }
+                _ikGroups.erase(_ikGroups.begin()+i);
+                _ikGroups.insert(_ikGroups.begin()+i-1,it);
                 diff=true;
                 break;
             }
@@ -91,11 +88,8 @@ bool _CIkGroupContainer_::shiftIkGroup(int ikGroupHandle,bool shiftUp)
         {
             if ( (ikg->getObjectHandle()==ikGroupHandle)&&(i<_ikGroups.size()-1) )
             {
-                if (getObjectCanChange())
-                {
-                    _ikGroups.erase(_ikGroups.begin()+i);
-                    _ikGroups.insert(_ikGroups.begin()+i+1,it);
-                }
+                _ikGroups.erase(_ikGroups.begin()+i);
+                _ikGroups.insert(_ikGroups.begin()+i+1,it);
                 diff=true;
                 break;
             }
@@ -114,52 +108,8 @@ void _CIkGroupContainer_::_shiftIkGroup_send(int ikGroupHandle,bool shiftUp)
     int h=ikGroupHandle;
     if (!shiftUp)
         h=-1-h;
-// notReplicatedAnymoreSinceOldFunc    sendInt32(h,sim_syncobj_ikgroupcont_shift);
 }
 
 void _CIkGroupContainer_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)
 { // Overridden from _CSyncObject_
-// notReplicatedAnymoreSinceOldFunc
-/*
-    if (routing[0].objType==sim_syncobj_ikgroup)
-    {
-        if (routing[0].objHandle!=-1)
-        { // Msg is for an IK group
-            CIkGroup_old* ikGroup=getObjectFromHandle(routing[0].objHandle);
-            if (ikGroup==nullptr)
-            {
-                if ( (msg.msg==sim_syncobj_ikgroup_create)&&(routing.size()==1) ) // check also size (some msgs have same ids in different scopes)
-                {
-                    ikGroup=new CIkGroup_old();
-                    ikGroup->setObjectHandle(routing[0].objHandle);
-                    _addIkGroup(ikGroup);
-                }
-            }
-            else
-            {
-                if ( (msg.msg==sim_syncobj_ikgroup_delete)&&(routing.size()==1) ) // check also size (some msgs have same ids in different scopes)
-                    _removeIkGroup(routing[0].objHandle);
-                else
-                {
-                    routing.erase(routing.begin());
-                    ikGroup->synchronizationMsg(routing,msg);
-                }
-            }
-        }
-        else
-        { // Msg is for this IK group container
-            if (msg.msg==sim_syncobj_ikgroupcont_shift)
-            {
-                int h=((int*)msg.data)[0];
-                bool up=true;
-                if (h<0)
-                {
-                    h=-h+1;
-                    up=false;
-                }
-                shiftIkGroup(h,up);
-            }
-        }
-    }
-    */
 }

@@ -57,56 +57,7 @@ bool _CSyncObject_::getObjectCanSync() const
     return(_objectCanSync); // slave can sync when not incoming msg underway
 }
 
-bool _CSyncObject_::getObjectCanChange() const
-{
-    return(true); // master always true, slave can change when incoming msg underway
-}
-
 void _CSyncObject_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)
-{
-}
-
-void _CSyncObject_::sendVoid(unsigned char itemId) const
-{
-}
-
-void _CSyncObject_::sendBool(bool v,unsigned char itemId) const
-{
-}
-
-void _CSyncObject_::sendInt32(int v,unsigned char itemId) const
-{
-}
-
-void _CSyncObject_::sendUInt16(unsigned short v,unsigned char itemId) const
-{
-}
-
-void _CSyncObject_::sendFloat(float v,unsigned char itemId) const
-{
-}
-
-void _CSyncObject_::sendString(const char* str,unsigned char itemId) const
-{
-}
-
-void _CSyncObject_::sendInt32Array(const int* arr,size_t count,unsigned char itemId) const
-{
-}
-
-void _CSyncObject_::sendFloatArray(const float* arr,size_t count,unsigned char itemId) const
-{
-}
-
-void _CSyncObject_::sendRandom(void* data,size_t size,unsigned char itemId) const
-{
-}
-
-void _CSyncObject_::sendQuaternion(const C4Vector* q,unsigned char itemId) const
-{
-}
-
-void _CSyncObject_::sendTransformation(const C7Vector* tr,unsigned char itemId) const
 {
 }
 

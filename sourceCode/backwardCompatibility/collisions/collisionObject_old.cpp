@@ -30,6 +30,15 @@ CCollisionObject_old::~CCollisionObject_old()
 
 void CCollisionObject_old::_commonInit()
 {
+    _entity1Handle=-1;
+    _entity2Handle=-1;
+    _objectHandle=-1;
+    _countourWidth=1;
+    _colliderChangesColor=true;
+    _collideeChangesColor=false;
+    _detectAllCollisions=false;
+    _explicitHandling=false;
+
     _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
     _collisionResult=false;
     _collisionResultValid=false;
@@ -55,9 +64,7 @@ void CCollisionObject_old::simulationAboutToStart()
 void CCollisionObject_old::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
-    {
-        _CCollisionObject_old::setExplicitHandling(_initialExplicitHandling);
-    }
+        setExplicitHandling(_initialExplicitHandling);
     _initialValuesInitialized=false;
 }
 
@@ -223,12 +230,12 @@ void CCollisionObject_old::clearCollisionResult()
 
 bool CCollisionObject_old::setObjectName(const char* newName,bool check)
 { // Overridden from _CCollisionObject_
-    bool diff=false;
+    std::string nnn;
     CCollisionObject_old* it=nullptr;
     if (check)
         it=App::currentWorld->collisions->getObjectFromHandle(_objectHandle);
     if (it!=this)
-        diff=_CCollisionObject_old::setObjectName(newName,check); // no checking or object not yet in world
+        nnn=newName;
     else
     { // object is in world
         std::string nm(newName);
@@ -239,18 +246,18 @@ bool CCollisionObject_old::setObjectName(const char* newName,bool check)
             {
                 while (App::currentWorld->collisions->getObjectFromName(nm.c_str())!=nullptr)
                     nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
-                diff=_CCollisionObject_old::setObjectName(nm.c_str(),check);
+                nnn=nm.c_str();
             }
         }
     }
+    bool diff=false;
+    if (nnn.size()>0)
+    {
+        diff=(_objectName!=newName);
+        if (diff)
+            _objectName=newName;
+    }
     return(diff);
-}
-
-
-bool CCollisionObject_old::setContourWidth(int w)
-{ // Overridden from _CCollisionObject_
-    w=tt::getLimitedInt(1,4,w);
-    return(_CCollisionObject_old::setContourWidth(w));
 }
 
 bool CCollisionObject_old::handleCollision()
@@ -496,7 +503,7 @@ void CCollisionObject_old::_clearCollisionResult()
     _collObjectHandles[0]=-1;
     _collObjectHandles[1]=-1;
     _calcTimeInMs=0;
-    _CCollisionObject_old::setIntersections(nullptr);
+    setIntersections(nullptr);
 }
 
 void CCollisionObject_old::_setCollisionResult(bool result,int calcTime,int obj1Handle,int obj2Handle,const std::vector<float>& intersect)
@@ -506,7 +513,7 @@ void CCollisionObject_old::_setCollisionResult(bool result,int calcTime,int obj1
     _collObjectHandles[0]=obj1Handle;
     _collObjectHandles[1]=obj2Handle;
     _calcTimeInMs=calcTime;
-    _CCollisionObject_old::setIntersections(&intersect);
+    setIntersections(&intersect);
 }
 
 bool CCollisionObject_old::isCollisionResultValid() const
@@ -524,53 +531,136 @@ float CCollisionObject_old::getCalculationTime() const
     return(float(_calcTimeInMs)*0.001f);
 }
 
-void CCollisionObject_old::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting)
-{ // Overridden from CSyncObject
-    if (setObjectCanSync(true))
-    {
-        // Set routing:
-        SSyncRoute r;
-        r.objHandle=_objectHandle;
-        r.objType=sim_syncobj_collision;
-        setSyncMsgRouting(parentRouting,r);
-
-        // Build remote collision object:
-        void* data[2];
-        data[0]=&_entity1Handle;
-        data[1]=&_entity2Handle;
-        sendRandom(data,2,sim_syncobj_collisionobject_create);
-
-        // Update the remote object:
-        _setExplicitHandling_send(_explicitHandling);
-        _setObjectName_send(_objectName.c_str());
-        _setColliderChangesColor_send(_colliderChangesColor);
-        _setCollideeChangesColor_send(_collideeChangesColor);
-        _setExhaustiveDetection_send(_detectAllCollisions);
-        _setContourWidth_send(_countourWidth);
-        _setIntersections_send(&_intersections);
-
-        // Update the color object:
-        _contourColor.buildUpdateAndPopulateSynchronizationObject(getSyncMsgRouting());
-    }
+int CCollisionObject_old::getObjectHandle() const
+{
+    return(_objectHandle);
 }
 
-void CCollisionObject_old::connectSynchronizationObject()
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-    }
+int CCollisionObject_old::getEntity1Handle() const
+{
+    return(_entity1Handle);
 }
 
-void CCollisionObject_old::removeSynchronizationObject(bool localReferencesToItOnly)
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-        setObjectCanSync(false);
+int CCollisionObject_old::getEntity2Handle() const
+{
+    return(_entity2Handle);
+}
 
-        if (!localReferencesToItOnly)
+std::string CCollisionObject_old::getObjectName() const
+{
+    return(_objectName);
+}
+
+bool CCollisionObject_old::getColliderChangesColor() const
+{
+    return(_colliderChangesColor);
+}
+
+bool CCollisionObject_old::getCollideeChangesColor() const
+{
+    return(_collideeChangesColor);
+}
+
+bool CCollisionObject_old::getExhaustiveDetection() const
+{
+    return(_detectAllCollisions);
+}
+
+bool CCollisionObject_old::getExplicitHandling() const
+{
+    return(_explicitHandling);
+}
+
+int CCollisionObject_old::getContourWidth() const
+{
+    return(_countourWidth);
+}
+
+const std::vector<float>* CCollisionObject_old::getIntersections() const
+{
+    return(&_intersections);
+}
+
+CColorObject* CCollisionObject_old::getContourColor()
+{
+    return(&_contourColor);
+}
+
+bool CCollisionObject_old::setObjectHandle(int newHandle)
+{
+    bool diff=(_objectHandle!=newHandle);
+    if (diff)
+        _objectHandle=newHandle;
+    return(diff);
+}
+
+bool CCollisionObject_old::setColliderChangesColor(bool changes)
+{
+    bool diff=(_colliderChangesColor!=changes);
+    if (diff)
+        _colliderChangesColor=changes;
+    return(diff);
+}
+
+bool CCollisionObject_old::setCollideeChangesColor(bool changes)
+{
+    bool diff=(_collideeChangesColor!=changes);
+    if (diff)
+        _collideeChangesColor=changes;
+    return(diff);
+}
+
+bool CCollisionObject_old::setExhaustiveDetection(bool exhaustive)
+{
+    bool diff=(_detectAllCollisions!=exhaustive);
+    if (diff)
+        _detectAllCollisions=exhaustive;
+    return(diff);
+}
+
+bool CCollisionObject_old::setExplicitHandling(bool explicitHandl)
+{
+    bool diff=(_explicitHandling!=explicitHandl);
+    if (diff)
+        _explicitHandling=explicitHandl;
+    return(diff);
+}
+
+bool CCollisionObject_old::setContourWidth(int w)
+{
+    w=tt::getLimitedInt(1,4,w);
+    bool diff=(_countourWidth!=w);
+    if (diff)
+        _countourWidth=w;
+    return(diff);
+}
+
+bool CCollisionObject_old::setIntersections(const std::vector<float>* intersections)
+{
+    bool diff=false;
+    if (intersections==nullptr)
+    {
+        diff=(_intersections.size()>0);
+        if (diff)
+            _intersections.clear();
+    }
+    else
+    {
+        diff=(intersections->size()!=_intersections.size());
+        if (!diff)
         {
-            // Delete remote collision object:
-            sendVoid(sim_syncobj_collisionobject_delete);
+            for (size_t i=0;i<intersections->size();i++)
+            {
+                if (intersections->at(i)!=_intersections[i])
+                {
+                    diff=true;
+                    break;
+                }
+            }
         }
+        if (diff)
+            _intersections.assign(intersections->begin(),intersections->end());
     }
+    return(diff);
 }
+

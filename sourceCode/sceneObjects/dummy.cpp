@@ -670,9 +670,6 @@ void CDummy::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSync
         r.objType=sim_syncobj_dummy;
         setSyncMsgRouting(parentRouting,r);
 
-        // Build remote dummy:
-        sendVoid(sim_syncobj_sceneobject_create);
-
         // Update the remote sceneObject:
         CSceneObject::buildUpdateAndPopulateSynchronizationObject(parentRouting);
 

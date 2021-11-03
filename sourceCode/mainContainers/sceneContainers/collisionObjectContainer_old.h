@@ -1,18 +1,14 @@
 #pragma once
 
-#include "_collisionObjectContainer_old.h"
+#include "collisionObject_old.h"
 
 class CViewableBase;
 
-class CCollisionObjectContainer_old : public _CCollisionObjectContainer_old
+class CCollisionObjectContainer_old
 {
 public:
     CCollisionObjectContainer_old();
     virtual ~CCollisionObjectContainer_old();
-
-    void buildUpdateAndPopulateSynchronizationObjects();
-    void connectSynchronizationObjects();
-    void removeSynchronizationObjects(bool localReferencesToItOnly);
 
     void simulationAboutToStart();
     void simulationEnded();
@@ -26,6 +22,11 @@ public:
     void setSuffix1ToSuffix2(int suffix1,int suffix2);
     void removeObject(int objectHandle);
 
+    size_t getObjectCount() const;
+    CCollisionObject_old* getObjectFromIndex(size_t index) const;
+    CCollisionObject_old* getObjectFromHandle(int objectHandle) const;
+    CCollisionObject_old* getObjectFromName(const char* objName) const;
+
     void removeAllCollisionObjects();
     void announceObjectWillBeErased(int objectHandle);
     void announceCollectionWillBeErased(int collectionHandle);
@@ -35,7 +36,8 @@ public:
     int getCollisionColor(int entityID);
 
 protected:
-    // Overridden from _CCollisionObjectContainer_old:
     void _addObject(CCollisionObject_old* newCollObj);
     void _removeObject(int objectHandle);
+
+    std::vector<CCollisionObject_old*> _collisionObjects;
 };

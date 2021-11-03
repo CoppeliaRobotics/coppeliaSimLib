@@ -94,12 +94,11 @@ bool _CDistanceObject_old::setObjectName(const char* newName,bool check)
     bool diff=(_objectName!=newName);
     if (diff)
     {
-        if (getObjectCanChange())
-            _objectName=newName;
+        _objectName=newName;
         if (getObjectCanSync())
             _setObjectName_send(newName);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 bool _CDistanceObject_old::setThreshold(float tr)
@@ -107,12 +106,11 @@ bool _CDistanceObject_old::setThreshold(float tr)
     bool diff=(_threshold!=tr);
     if (diff)
     {
-        if (getObjectCanChange())
-            _threshold=tr;
+        _threshold=tr;
         if (getObjectCanSync())
             _setThreshold_send(tr);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 float _CDistanceObject_old::getTreshhold() const
@@ -125,12 +123,11 @@ bool _CDistanceObject_old::setThresholdEnabled(bool enabled)
     bool diff=(_thresholdEnabled!=enabled);
     if (diff)
     {
-        if (getObjectCanChange())
-            _thresholdEnabled=enabled;
+        _thresholdEnabled=enabled;
         if (getObjectCanSync())
             _setThresholdEnabled_send(enabled);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 bool _CDistanceObject_old::getTreshholdEnabled() const
@@ -143,12 +140,11 @@ bool _CDistanceObject_old::setDisplaySegment(bool display)
     bool diff=(_displaySegment!=display);
     if (diff)
     {
-        if (getObjectCanChange())
-            _displaySegment=display;
+        _displaySegment=display;
         if (getObjectCanSync())
             _setDisplaySegment_send(display);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 bool _CDistanceObject_old::setExplicitHandling(bool explicitHandl)
@@ -156,12 +152,11 @@ bool _CDistanceObject_old::setExplicitHandling(bool explicitHandl)
     bool diff=(_explicitHandling!=explicitHandl);
     if (diff)
     {
-        if (getObjectCanChange())
-            _explicitHandling=explicitHandl;
+        _explicitHandling=explicitHandl;
         if (getObjectCanSync())
             _setExplicitHandling_send(explicitHandl);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 bool _CDistanceObject_old::getExplicitHandling() const
@@ -179,12 +174,11 @@ bool _CDistanceObject_old::setSegmentWidth(int w)
     bool diff=(_segmentWidth!=w);
     if (diff)
     {
-        if (getObjectCanChange())
-            _segmentWidth=w;
+        _segmentWidth=w;
         if (getObjectCanSync())
             _setSegmentWidth_send(w);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 int _CDistanceObject_old::getSegmentWidth() const
@@ -207,31 +201,25 @@ bool _CDistanceObject_old::setObjectHandle(int newHandle)
 
 void _CDistanceObject_old::_setObjectName_send(const char* newName) const
 {
-    sendString(newName,sim_syncobj_distanceobject_setobjectname);
 }
 
 void _CDistanceObject_old::_setThreshold_send(float tr) const
 {
-    sendFloat(tr,sim_syncobj_distanceobject_setthreshold);
 }
 
 void _CDistanceObject_old::_setThresholdEnabled_send(bool enabled) const
 {
-    sendBool(enabled,sim_syncobj_distanceobject_setthresholdenabled);
 }
 
 void _CDistanceObject_old::_setDisplaySegment_send(bool display) const
 {
-    sendBool(display,sim_syncobj_distanceobject_setdisplaysegment);
 }
 
 void _CDistanceObject_old::_setExplicitHandling_send(bool explicitHandl) const
 {
-    sendBool(explicitHandl,sim_syncobj_distanceobject_setexplicithandling);
 }
 
 void _CDistanceObject_old::_setSegmentWidth_send(int w) const
 {
-    sendInt32(w,sim_syncobj_distanceobject_setsegmentwidth);
 }
 

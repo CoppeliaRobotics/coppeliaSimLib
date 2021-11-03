@@ -1185,24 +1185,17 @@ bool _CSceneObjectContainer_::setSelectedObjectHandles(const std::vector<int>* v
                     w.push_back(it->getObjectHandle());
             }
         }
-        if (getObjectCanChange())
-        {
-            _selectedObjectHandles.clear();
-            if (v!=nullptr)
-                _selectedObjectHandles.assign(w.begin(),w.end());
-        }
+        _selectedObjectHandles.clear();
+        if (v!=nullptr)
+            _selectedObjectHandles.assign(w.begin(),w.end());
         if (getObjectCanSync())
             _setSelectedObjectHandles_send(&w);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CSceneObjectContainer_::_setSelectedObjectHandles_send(const std::vector<int>* v) const
 {
-    if ( (v==nullptr)||(v->size()==0) )
-        sendInt32Array(nullptr,0,sim_syncobj_sceneobjectcont_selection);
-    else
-        sendInt32Array(&v->at(0),v->size(),sim_syncobj_sceneobjectcont_selection);
 }
 
 size_t _CSceneObjectContainer_::getSelectionCount() const

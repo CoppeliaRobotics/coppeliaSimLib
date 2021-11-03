@@ -211,15 +211,6 @@ void CCollectionElement::buildUpdateAndPopulateSynchronizationObject(const std::
         r.objType=sim_syncobj_collectionelement;
         setSyncMsgRouting(parentRouting,r);
 
-        // Build remote collection element:
-        void* data[3];
-        data[0]=&_mainObjectHandle;
-        data[1]=&_elementType;
-        data[2]=&_additive;
-        sendRandom(data,3,sim_syncobj_collectionelement_create);
-
-        // Update the remote object:
-        // (nothing here)
     }
 }
 
@@ -235,11 +226,5 @@ void CCollectionElement::removeSynchronizationObject(bool localReferencesToItOnl
     if (getObjectCanSync())
     {
         setObjectCanSync(false);
-
-        if (!localReferencesToItOnly)
-        {
-            // Delete remote collection element:
-            sendVoid(sim_syncobj_collectionelement_delete);
-        }
     }
 }

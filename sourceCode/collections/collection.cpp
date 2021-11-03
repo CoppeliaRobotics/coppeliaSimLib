@@ -433,9 +433,6 @@ void CCollection::buildUpdateAndPopulateSynchronizationObject(const std::vector<
         r.objType=sim_syncobj_collection;
         setSyncMsgRouting(parentRouting,r);
 
-        // Build remote collection:
-        sendVoid(sim_syncobj_collection_create);
-
         // Update the remote object:
         _setOverridesObjectMainProperties_send(_overridesObjectMainProperties);
         _setCollectionName_send(_collectionName.c_str());
@@ -461,11 +458,5 @@ void CCollection::removeSynchronizationObject(bool localReferencesToItOnly)
     if (getObjectCanSync())
     {
         setObjectCanSync(false);
-
-        if (!localReferencesToItOnly)
-        {
-            // Delete remote collection:
-            sendVoid(sim_syncobj_collection_delete);
-        }
     }
 }

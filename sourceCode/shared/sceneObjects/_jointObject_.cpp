@@ -399,12 +399,11 @@ bool _CJoint_::setPositionIntervalMin(float min)
         if (getObjectCanSync())
             _setPositionIntervalMin_send(min);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setPositionIntervalMin_send(float min) const
 {
-    sendFloat(min,sim_syncobj_joint_intervalmin);
 }
 
 bool _CJoint_::setPositionIntervalRange(float range)
@@ -423,12 +422,11 @@ bool _CJoint_::setPositionIntervalRange(float range)
         if (getObjectCanSync())
             _setPositionIntervalRange_send(range);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setPositionIntervalRange_send(float range) const
 {
-    sendFloat(range,sim_syncobj_joint_intervalrange);
 }
 
 bool _CJoint_::setScrewPitch(float pitch)
@@ -436,17 +434,15 @@ bool _CJoint_::setScrewPitch(float pitch)
     bool diff=(_screwPitch!=pitch);
     if (diff)
     {
-        if (getObjectCanChange())
-            _screwPitch=pitch;
+        _screwPitch=pitch;
         if (getObjectCanSync())
             _setScrewPitch_send(pitch);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setScrewPitch_send(float pitch) const
 {
-    sendFloat(pitch,sim_syncobj_joint_pitch);
 }
 
 bool _CJoint_::setPositionIsCyclic(bool isCyclic)
@@ -465,12 +461,11 @@ bool _CJoint_::setPositionIsCyclic(bool isCyclic)
         if (getObjectCanSync())
             _setPositionIsCyclic_send(isCyclic);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setPositionIsCyclic_send(bool isCyclic) const
 {
-    sendBool(isCyclic,sim_syncobj_joint_intervalcyclic);
 }
 
 bool _CJoint_::setDiameter(float d)
@@ -487,12 +482,11 @@ bool _CJoint_::setDiameter(float d)
             App::worldContainer->pushEvent(event);
         }
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDiameter_send(float d) const
 {
-    sendFloat(d,sim_syncobj_joint_diameter);
 }
 
 bool _CJoint_::setLength(float l)
@@ -509,12 +503,11 @@ bool _CJoint_::setLength(float l)
             App::worldContainer->pushEvent(event);
         }
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setLength_send(float l) const
 {
-    sendFloat(l,sim_syncobj_joint_length);
 }
 
 bool _CJoint_::setDependencyMasterJointHandle(int depJointID)
@@ -522,17 +515,15 @@ bool _CJoint_::setDependencyMasterJointHandle(int depJointID)
     bool diff=(_dependencyMasterJointHandle!=depJointID);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dependencyMasterJointHandle=depJointID;
+        _dependencyMasterJointHandle=depJointID;
         if (getObjectCanSync())
             _setDependencyJointHandle_send(depJointID);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDependencyJointHandle_send(int depJointID) const
 {
-    sendInt32(depJointID,sim_syncobj_joint_dependencyhandle);
 }
 
 bool _CJoint_::setDependencyJointMult(float coeff)
@@ -540,17 +531,15 @@ bool _CJoint_::setDependencyJointMult(float coeff)
     bool diff=(_dependencyJointMult!=coeff);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dependencyJointMult=coeff;
+        _dependencyJointMult=coeff;
         if (getObjectCanSync())
             _setDependencyJointMult_send(coeff);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDependencyJointMult_send(float coeff) const
 {
-    sendFloat(coeff,sim_syncobj_joint_dependencymult);
 }
 
 bool _CJoint_::setDependencyJointOffset(float off)
@@ -558,17 +547,15 @@ bool _CJoint_::setDependencyJointOffset(float off)
     bool diff=(_dependencyJointOffset!=off);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dependencyJointOffset=off;
+        _dependencyJointOffset=off;
         if (getObjectCanSync())
             _setDependencyJointOffset_send(off);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDependencyJointOffset_send(float off) const
 {
-    sendFloat(off,sim_syncobj_joint_dependencyoff);
 }
 
 bool _CJoint_::setPosition(float pos)
@@ -593,12 +580,11 @@ bool _CJoint_::setPosition(float pos)
         if (getObjectCanSync())
             _setPosition_send(pos);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setPosition_send(float pos) const
 {
-    sendFloat(pos,sim_syncobj_joint_position);
 }
 
 bool _CJoint_::setSphericalTransformation(const C4Vector& tr)
@@ -624,12 +610,11 @@ bool _CJoint_::setSphericalTransformation(const C4Vector& tr)
         if (getObjectCanSync())
             _setSphericalTransformation_send(tr);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setSphericalTransformation_send(const C4Vector& tr) const
 {
-    sendQuaternion(&tr,sim_syncobj_joint_sphericaltransf);
 }
 
 bool _CJoint_::setIkWeight(float newWeight)
@@ -637,17 +622,15 @@ bool _CJoint_::setIkWeight(float newWeight)
     bool diff=(_ikWeight!=newWeight);
     if (diff)
     {
-        if (getObjectCanChange())
-            _ikWeight=newWeight;
+        _ikWeight=newWeight;
         if (getObjectCanSync())
             _setIkWeight_send(newWeight);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setIkWeight_send(float newWeight) const
 {
-    sendFloat(newWeight,sim_syncobj_joint_ikweight);
 }
 
 bool _CJoint_::setMaxStepSize(float stepS)
@@ -655,17 +638,15 @@ bool _CJoint_::setMaxStepSize(float stepS)
     bool diff=(_maxStepSize!=stepS);
     if (diff)
     {
-        if (getObjectCanChange())
-            _maxStepSize=stepS;
+        _maxStepSize=stepS;
         if (getObjectCanSync())
             _setMaxStepSize_send(stepS);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setMaxStepSize_send(float stepS) const
 {
-    sendFloat(stepS,sim_syncobj_joint_stepsize);
 }
 
 bool _CJoint_::setJointMode(int theMode)
@@ -673,17 +654,15 @@ bool _CJoint_::setJointMode(int theMode)
     bool diff=(_jointMode!=theMode);
     if (diff)
     {
-        if (getObjectCanChange())
-            _jointMode=theMode;
+        _jointMode=theMode;
         if (getObjectCanSync())
             _setJointMode_send(theMode);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setJointMode_send(int theMode) const
 {
-    sendInt32(theMode,sim_syncobj_joint_mode);
 }
 
 bool _CJoint_::setEnableDynamicMotor(bool e)
@@ -691,17 +670,15 @@ bool _CJoint_::setEnableDynamicMotor(bool e)
     bool diff=(_dynamicMotorEnabled!=e);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dynamicMotorEnabled=e;
+        _dynamicMotorEnabled=e;
         if (getObjectCanSync())
             _setEnableDynamicMotor_send(e);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setEnableDynamicMotor_send(bool e) const
 {
-    sendBool(e,sim_syncobj_joint_enablemotor);
 }
 
 bool _CJoint_::setHybridFunctionality(bool h)
@@ -709,17 +686,15 @@ bool _CJoint_::setHybridFunctionality(bool h)
     bool diff=(_jointHasHybridFunctionality!=h);
     if (diff)
     {
-        if (getObjectCanChange())
-            _jointHasHybridFunctionality=h;
+        _jointHasHybridFunctionality=h;
         if (getObjectCanSync())
             _setHybridFunctionality_send(h);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setHybridFunctionality_send(bool e) const
 {
-    sendBool(e,sim_syncobj_joint_hybridfunc);
 }
 
 bool _CJoint_::setDynamicMotorPositionControlTargetPosition(float p)
@@ -727,17 +702,15 @@ bool _CJoint_::setDynamicMotorPositionControlTargetPosition(float p)
     bool diff=(_dynamicMotorPositionControl_targetPosition!=p);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dynamicMotorPositionControl_targetPosition=p;
+        _dynamicMotorPositionControl_targetPosition=p;
         if (getObjectCanSync())
             _setDynamicMotorPositionControlTargetPosition_send(p);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDynamicMotorPositionControlTargetPosition_send(float p) const
 {
-    sendFloat(p,sim_syncobj_joint_targetposition);
 }
 
 bool _CJoint_::getEnableDynamicMotor() const
@@ -790,17 +763,15 @@ bool _CJoint_::setDynamicMotorTargetVelocity(float v)
     bool diff=(_dynamicMotorTargetVelocity!=v);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dynamicMotorTargetVelocity=v;
+        _dynamicMotorTargetVelocity=v;
         if (getObjectCanSync())
             _setDynamicMotorTargetVelocity_send(v);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDynamicMotorTargetVelocity_send(float v) const
 {
-    sendFloat(v,sim_syncobj_joint_targetvelocity);
 }
 
 bool _CJoint_::setDynamicMotorLockModeWhenInVelocityControl(bool e)
@@ -808,17 +779,15 @@ bool _CJoint_::setDynamicMotorLockModeWhenInVelocityControl(bool e)
     bool diff=(_dynamicLockModeWhenInVelocityControl!=e);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dynamicLockModeWhenInVelocityControl=e;
+        _dynamicLockModeWhenInVelocityControl=e;
         if (getObjectCanSync())
             _setDynamicMotorLockModeWhenInVelocityControl_send(e);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDynamicMotorLockModeWhenInVelocityControl_send(bool e) const
 {
-    sendBool(e,sim_syncobj_joint_motorlock);
 }
 
 bool _CJoint_::setDynamicMotorUpperLimitVelocity(float v)
@@ -826,17 +795,15 @@ bool _CJoint_::setDynamicMotorUpperLimitVelocity(float v)
     bool diff=(_dynamicMotorUpperLimitVelocity!=v);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dynamicMotorUpperLimitVelocity=v;
+        _dynamicMotorUpperLimitVelocity=v;
         if (getObjectCanSync())
             _setDynamicMotorUpperLimitVelocity_send(v);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDynamicMotorUpperLimitVelocity_send(float v) const
 {
-    sendFloat(v,sim_syncobj_joint_uppervelocitylimit);
 }
 
 bool _CJoint_::setDynamicMotorMaximumForce(float f)
@@ -844,17 +811,15 @@ bool _CJoint_::setDynamicMotorMaximumForce(float f)
     bool diff=(_dynamicMotorMaximumForce!=f);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dynamicMotorMaximumForce=f;
+        _dynamicMotorMaximumForce=f;
         if (getObjectCanSync())
             _setDynamicMotorMaximumForce_send(f);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDynamicMotorMaximumForce_send(float v) const
 {
-    sendFloat(v,sim_syncobj_joint_force);
 }
 
 bool _CJoint_::setDynamicSecondPartIsValid(bool v)
@@ -862,17 +827,15 @@ bool _CJoint_::setDynamicSecondPartIsValid(bool v)
     bool diff=(_dynamicSecondPartIsValid!=v);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dynamicSecondPartIsValid=v;
+        _dynamicSecondPartIsValid=v;
         if (getObjectCanSync())
             _setDynamicSecondPartIsValid_send(v);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDynamicSecondPartIsValid_send(bool v) const
 {
-    sendBool(v,sim_syncobj_joint_secondpartvalid);
 }
 
 bool _CJoint_::setDynamicSecondPartLocalTransform(const C7Vector& tr)
@@ -880,17 +843,15 @@ bool _CJoint_::setDynamicSecondPartLocalTransform(const C7Vector& tr)
     bool diff=(_dynamicSecondPartLocalTransform!=tr);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dynamicSecondPartLocalTransform=tr;
+        _dynamicSecondPartLocalTransform=tr;
         if (getObjectCanSync())
             _setDynamicSecondPartLocalTransform_send(tr);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDynamicSecondPartLocalTransform_send(const C7Vector& tr) const
 {
-    sendTransformation(&tr,sim_syncobj_joint_secondparttransf);
 }
 
 bool _CJoint_::setEnableDynamicMotorControlLoop(bool p)
@@ -898,17 +859,15 @@ bool _CJoint_::setEnableDynamicMotorControlLoop(bool p)
     bool diff=(_dynamicMotorControlLoopEnabled!=p);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dynamicMotorControlLoopEnabled=p;
+        _dynamicMotorControlLoopEnabled=p;
         if (getObjectCanSync())
             _setEnableDynamicMotorControlLoop_send(p);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setEnableDynamicMotorControlLoop_send(bool v) const
 {
-    sendBool(v,sim_syncobj_joint_controlenabled);
 }
 
 bool _CJoint_::setEnableTorqueModulation(bool p)
@@ -916,17 +875,15 @@ bool _CJoint_::setEnableTorqueModulation(bool p)
     bool diff=(_dynamicMotorPositionControl_torqueModulation!=p);
     if (diff)
     {
-        if (getObjectCanChange())
-            _dynamicMotorPositionControl_torqueModulation=p;
+        _dynamicMotorPositionControl_torqueModulation=p;
         if (getObjectCanSync())
             _setEnableTorqueModulation_send(p);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setEnableTorqueModulation_send(bool v) const
 {
-    sendBool(v,sim_syncobj_joint_torquemodulation);
 }
 
 bool _CJoint_::getHybridFunctionality() const
@@ -1109,17 +1066,15 @@ bool _CJoint_::setBulletFloatParams(const std::vector<float>& p)
     }
     if (diff)
     {
-        if (getObjectCanChange())
-            _bulletFloatParams.assign(p.begin(),p.end());
+        _bulletFloatParams.assign(p.begin(),p.end());
         if (getObjectCanSync())
             _setBulletFloatParams_send(p);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setBulletFloatParams_send(const std::vector<float>& p) const
 {
-    sendFloatArray(&p[0],p.size(),sim_syncobj_joint_bulletfloats);
 }
 
 bool _CJoint_::setBulletIntParams(const std::vector<int>& p)
@@ -1138,17 +1093,15 @@ bool _CJoint_::setBulletIntParams(const std::vector<int>& p)
     }
     if (diff)
     {
-        if (getObjectCanChange())
-            _bulletIntParams.assign(p.begin(),p.end());
+        _bulletIntParams.assign(p.begin(),p.end());
         if (getObjectCanSync())
             _setBulletIntParams_send(p);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setBulletIntParams_send(const std::vector<int>& p) const
 {
-    sendInt32Array(&p[0],p.size(),sim_syncobj_joint_bulletints);
 }
 
 bool _CJoint_::setOdeFloatParams(const std::vector<float>& p)
@@ -1167,17 +1120,15 @@ bool _CJoint_::setOdeFloatParams(const std::vector<float>& p)
     }
     if (diff)
     {
-        if (getObjectCanChange())
-            _odeFloatParams.assign(p.begin(),p.end());
+        _odeFloatParams.assign(p.begin(),p.end());
         if (getObjectCanSync())
             _setOdeFloatParams_send(p);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setOdeFloatParams_send(const std::vector<float>& p) const
 {
-    sendFloatArray(&p[0],p.size(),sim_syncobj_joint_odefloats);
 }
 
 bool _CJoint_::setOdeIntParams(const std::vector<int>& p)
@@ -1196,17 +1147,15 @@ bool _CJoint_::setOdeIntParams(const std::vector<int>& p)
     }
     if (diff)
     {
-        if (getObjectCanChange())
-            _odeIntParams.assign(p.begin(),p.end());
+        _odeIntParams.assign(p.begin(),p.end());
         if (getObjectCanSync())
             _setOdeIntParams_send(p);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setOdeIntParams_send(const std::vector<int>& p) const
 {
-    sendInt32Array(&p[0],p.size(),sim_syncobj_joint_odeints);
 }
 
 bool _CJoint_::setVortexFloatParams(const std::vector<float>& p)
@@ -1225,17 +1174,15 @@ bool _CJoint_::setVortexFloatParams(const std::vector<float>& p)
     }
     if (diff)
     {
-        if (getObjectCanChange())
-            _vortexFloatParams.assign(p.begin(),p.end());
+        _vortexFloatParams.assign(p.begin(),p.end());
         if (getObjectCanSync())
             _setVortexFloatParams_send(p);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setVortexFloatParams_send(const std::vector<float>& p) const
 {
-    sendFloatArray(&p[0],p.size(),sim_syncobj_joint_vortexfloats);
 }
 
 bool _CJoint_::setVortexIntParams(const std::vector<int>& p)
@@ -1254,17 +1201,15 @@ bool _CJoint_::setVortexIntParams(const std::vector<int>& p)
     }
     if (diff)
     {
-        if (getObjectCanChange())
-            _vortexIntParams.assign(p.begin(),p.end());
+        _vortexIntParams.assign(p.begin(),p.end());
         if (getObjectCanSync())
             _setVortexIntParams_send(p);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setVortexIntParams_send(const std::vector<int>& p) const
 {
-    sendInt32Array(&p[0],p.size(),sim_syncobj_joint_vortexints);
 }
 
 bool _CJoint_::setNewtonFloatParams(const std::vector<float>& p)
@@ -1283,17 +1228,15 @@ bool _CJoint_::setNewtonFloatParams(const std::vector<float>& p)
     }
     if (diff)
     {
-        if (getObjectCanChange())
-            _newtonFloatParams.assign(p.begin(),p.end());
+        _newtonFloatParams.assign(p.begin(),p.end());
         if (getObjectCanSync())
             _setNewtonFloatParams_send(p);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setNewtonFloatParams_send(const std::vector<float>& p) const
 {
-    sendFloatArray(&p[0],p.size(),sim_syncobj_joint_newtonfloats);
 }
 
 bool _CJoint_::setNewtonIntParams(const std::vector<int>& p)
@@ -1312,17 +1255,15 @@ bool _CJoint_::setNewtonIntParams(const std::vector<int>& p)
     }
     if (diff)
     {
-        if (getObjectCanChange())
-            _newtonIntParams.assign(p.begin(),p.end());
+        _newtonIntParams.assign(p.begin(),p.end());
         if (getObjectCanSync())
             _setNewtonIntParams_send(p);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setNewtonIntParams_send(const std::vector<int>& p) const
 {
-    sendInt32Array(&p[0],p.size(),sim_syncobj_joint_newtonints);
 }
 
 void _CJoint_::getDynamicMotorPositionControlParameters(float& p_param,float& i_param,float& d_param) const
@@ -1373,22 +1314,17 @@ bool _CJoint_::setDynamicMotorPositionControlParameters(float p_param,float i_pa
     bool diff=(_dynamicMotorPositionControl_P!=p_param)||(_dynamicMotorPositionControl_I!=i_param)||(_dynamicMotorPositionControl_D!=d_param);
     if (diff)
     {
-        if (getObjectCanChange())
-        {
-            _dynamicMotorPositionControl_P=p_param;
-            _dynamicMotorPositionControl_I=i_param;
-            _dynamicMotorPositionControl_D=d_param;
-        }
+        _dynamicMotorPositionControl_P=p_param;
+        _dynamicMotorPositionControl_I=i_param;
+        _dynamicMotorPositionControl_D=d_param;
         if (getObjectCanSync())
             _setDynamicMotorPositionControlParameters_send(p_param,i_param,d_param);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDynamicMotorPositionControlParameters_send(float p_param,float i_param,float d_param) const
 {
-    float a[3]={p_param,i_param,d_param};
-    sendFloatArray(a,3,sim_syncobj_joint_pid);
 }
 
 bool _CJoint_::setDynamicMotorSpringControlParameters(float k_param,float c_param)
@@ -1396,21 +1332,16 @@ bool _CJoint_::setDynamicMotorSpringControlParameters(float k_param,float c_para
     bool diff=(_dynamicMotorSpringControl_K!=k_param)||(_dynamicMotorSpringControl_C!=c_param);
     if (diff)
     {
-        if (getObjectCanChange())
-        {
-            _dynamicMotorSpringControl_K=k_param;
-            _dynamicMotorSpringControl_C=c_param;
-        }
+        _dynamicMotorSpringControl_K=k_param;
+        _dynamicMotorSpringControl_C=c_param;
         if (getObjectCanSync())
             _setDynamicMotorSpringControlParameters_send(k_param,c_param);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CJoint_::_setDynamicMotorSpringControlParameters_send(float k_param,float c_param) const
 {
-    float a[2]={k_param,c_param};
-    sendFloatArray(a,2,sim_syncobj_joint_kc);
 }
 
 float _CJoint_::getLength()  const

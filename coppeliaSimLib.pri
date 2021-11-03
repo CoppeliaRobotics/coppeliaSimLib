@@ -365,7 +365,6 @@ HEADERS += $$PWD/sourceCode/collections/collectionElement.h \
     $$PWD/sourceCode/shared/collections/_collection_.h \
 
 HEADERS += $$PWD/sourceCode/backwardCompatibility/collisions/collisionObject_old.h \
-    $$PWD/sourceCode/shared/backwardCompatibility/collisions/_collisionObject_old.h \
     $$PWD/sourceCode/collisions/collisionRoutines.h \
 
 HEADERS += $$PWD/sourceCode/backwardCompatibility/distances/distanceObject_old.h \
@@ -440,7 +439,6 @@ HEADERS += $$PWD/sourceCode/mainContainers/sceneContainers/drawingContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/distanceObjectContainer_old.h \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_distanceObjectContainer_old.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/collisionObjectContainer_old.h \
-    $$PWD/sourceCode/shared/mainContainers/sceneContainers/_collisionObjectContainer_old.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.h \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/mainSettings.h \
@@ -793,7 +791,6 @@ SOURCES += $$PWD/sourceCode/collections/collectionElement.cpp \
     $$PWD/sourceCode/shared/collections/_collection_.cpp \
 
 SOURCES += $$PWD/sourceCode/backwardCompatibility/collisions/collisionObject_old.cpp \
-    $$PWD/sourceCode/shared/backwardCompatibility/collisions/_collisionObject_old.cpp \
     $$PWD/sourceCode/collisions/collisionRoutines.cpp \
 
 SOURCES += $$PWD/sourceCode/backwardCompatibility/distances/distanceObject_old.cpp \
@@ -871,7 +868,6 @@ SOURCES += $$PWD/sourceCode/mainContainers/sceneContainers/bannerContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/distanceObjectContainer_old.cpp \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_distanceObjectContainer_old.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/collisionObjectContainer_old.cpp \
-    $$PWD/sourceCode/shared/mainContainers/sceneContainers/_collisionObjectContainer_old.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.cpp \

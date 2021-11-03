@@ -82,11 +82,8 @@ void _CColorObject_::setColors(const float col[15])
     }
     if (diff)
     {
-        if (getObjectCanChange())
-        {
-            for (size_t i=0;i<15;i++)
-                _colors[i]=col[i];
-        }
+        for (size_t i=0;i<15;i++)
+            _colors[i]=col[i];
         if (getObjectCanSync())
             _setColors_send(col);
     }
@@ -97,8 +94,7 @@ void _CColorObject_::setTranslucid(bool e)
     bool diff=(_translucid!=e);
     if (diff)
     {
-        if (getObjectCanChange())
-            _translucid=e;
+        _translucid=e;
         if (getObjectCanSync())
             _setTranslucid_send(e);
     }
@@ -109,8 +105,7 @@ void _CColorObject_::setOpacity(float e)
     bool diff=(_opacity!=e);
     if (diff)
     {
-        if (getObjectCanChange())
-            _opacity=e;
+        _opacity=e;
         if (getObjectCanSync())
             _setOpacity_send(e);
     }
@@ -121,8 +116,7 @@ void _CColorObject_::setShininess(int e)
     bool diff=(_shininess!=e);
     if (diff)
     {
-        if (getObjectCanChange())
-            _shininess=e;
+        _shininess=e;
         if (getObjectCanSync())
             _setShininess_send(e);
     }
@@ -133,8 +127,7 @@ void _CColorObject_::setColorName(const char* nm)
     bool diff=(_colorName!=nm);
     if (diff)
     {
-        if (getObjectCanChange())
-            _colorName=nm;
+        _colorName=nm;
         if (getObjectCanSync())
             _setColorName_send(nm);
     }
@@ -145,8 +138,7 @@ void _CColorObject_::setExtensionString(const char* nm)
     bool diff=(_extensionString!=nm);
     if (diff)
     {
-        if (getObjectCanChange())
-            _extensionString=nm;
+        _extensionString=nm;
         if (getObjectCanSync())
             _setExtensionString_send(nm);
     }
@@ -154,32 +146,26 @@ void _CColorObject_::setExtensionString(const char* nm)
 
 void _CColorObject_::_setTranslucid_send(bool e) const
 {
-    sendBool(e,sim_syncobj_colorobject_settranslucid);
 }
 
 void _CColorObject_::_setOpacity_send(float e) const
 {
-    sendFloat(e,sim_syncobj_colorobject_settransparency);
 }
 
 void _CColorObject_::_setShininess_send(int e) const
 {
-    sendInt32(e,sim_syncobj_colorobject_setshininess);
 }
 
 void _CColorObject_::_setColorName_send(const char* nm) const
 {
-    sendString(nm,sim_syncobj_colorobject_setcolorname);
 }
 
 void _CColorObject_::_setExtensionString_send(const char* nm) const
 {
-    sendString(nm,sim_syncobj_colorobject_setextensionstring);
 }
 
 void _CColorObject_::_setColors_send(const float col[15]) const
 {
-    sendFloatArray(col,15,sim_syncobj_colorobject_setcolors);
 }
 
 void _CColorObject_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)

@@ -79,12 +79,11 @@ bool _CDummy_::setDummySize(float s)
             App::worldContainer->pushEvent(event);
         }
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CDummy_::_setDummySize_send(float s) const
 {
-    sendFloat(s,sim_syncobj_dummy_size);
 }
 
 bool _CDummy_::setLinkedDummyHandle(int h,bool check)
@@ -92,17 +91,15 @@ bool _CDummy_::setLinkedDummyHandle(int h,bool check)
     bool diff=(_linkedDummyHandle!=h);
     if (diff)
     {
-        if (getObjectCanChange())
-            _linkedDummyHandle=h;
+        _linkedDummyHandle=h;
         if (getObjectCanSync())
             _setLinkedDummyHandle_send(h);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CDummy_::_setLinkedDummyHandle_send(int h) const
 {
-    sendInt32(h,sim_syncobj_dummy_linkeddummy);
 }
 
 bool _CDummy_::setLinkType(int lt,bool check)
@@ -110,17 +107,15 @@ bool _CDummy_::setLinkType(int lt,bool check)
     bool diff=(_linkType!=lt);
     if (diff)
     {
-        if (getObjectCanChange())
-            _linkType=lt;
+        _linkType=lt;
         if (getObjectCanSync())
             _setLinkType_send(lt);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CDummy_::_setLinkType_send(int t) const
 {
-    sendInt32(t,sim_syncobj_dummy_linktype);
 }
 
 bool _CDummy_::setAssignedToParentPath(bool a)
@@ -128,17 +123,15 @@ bool _CDummy_::setAssignedToParentPath(bool a)
     bool diff=(_assignedToParentPath!=a);
     if (diff)
     {
-        if (getObjectCanChange())
-            _assignedToParentPath=a;
+        _assignedToParentPath=a;
         if (getObjectCanSync())
             _setAssignedToParentPath_send(a);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CDummy_::_setAssignedToParentPath_send(bool a) const
 {
-    sendBool(a,sim_syncobj_dummy_assignedparentpath);
 }
 
 bool _CDummy_::setAssignedToParentPathOrientation(bool a)
@@ -146,17 +139,15 @@ bool _CDummy_::setAssignedToParentPathOrientation(bool a)
     bool diff=(_assignedToParentPathOrientation!=a);
     if (diff)
     {
-        if (getObjectCanChange())
-            _assignedToParentPathOrientation=a;
+        _assignedToParentPathOrientation=a;
         if (getObjectCanSync())
             _setAssignedToParentPathOrientation_send(a);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CDummy_::_setAssignedToParentPathOrientation_send(bool a) const
 {
-    sendBool(a,sim_syncobj_dummy_assignedparentpathorientation);
 }
 
 bool _CDummy_::getAssignedToParentPath() const

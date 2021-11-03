@@ -4044,9 +4044,6 @@ void CSceneObject::buildUpdateAndPopulateSynchronizationObject(const std::vector
             r.objHandle=_objectHandle;
             r.objType=sim_syncobj_dummy;
             setSyncMsgRouting(parentRouting,r);
-
-            // Build remote dummy:
-            sendVoid(sim_syncobj_sceneobject_create);
         }
 
         // Build IK plugin counterpart, if not a joint:
@@ -4084,9 +4081,6 @@ void CSceneObject::removeSynchronizationObject(bool localReferencesToItOnly)
 
         if (!localReferencesToItOnly)
         {
-            // Delete remote object:
-            sendVoid(sim_syncobj_sceneobject_delete);
-
             // Synchronize with IK plugin:
             if (_ikPluginCounterpartHandle!=-1)
                 CPluginContainer::ikPlugin_eraseObject(_ikPluginCounterpartHandle);

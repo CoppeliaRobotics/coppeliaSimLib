@@ -171,7 +171,7 @@ void CDrawingContainer::drawObjectsParentedWith(bool overlay,bool transparentObj
 }
 
 
-void CDrawingContainer::pushReconstructSceneEvents()
+void CDrawingContainer::pushReconstructAllEvents()
 {
     for (size_t i=0;i<_allObjects.size();i++)
         _allObjects[i]->pushCreateContainerEvent();

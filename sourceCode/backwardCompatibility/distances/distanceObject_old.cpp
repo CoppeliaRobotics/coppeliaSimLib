@@ -473,12 +473,6 @@ void CDistanceObject_old::buildUpdateAndPopulateSynchronizationObject(const std:
         r.objType=sim_syncobj_distance;
         setSyncMsgRouting(parentRouting,r);
 
-        // Build remote distance object:
-        void* data[2];
-        data[0]=&_entity1Handle;
-        data[1]=&_entity2Handle;
-        sendRandom(data,2,sim_syncobj_distanceobject_create);
-
         // Update the remote object:
         _setExplicitHandling_send(_explicitHandling);
         _setObjectName_send(_objectName.c_str());
@@ -504,11 +498,5 @@ void CDistanceObject_old::removeSynchronizationObject(bool localReferencesToItOn
     if (getObjectCanSync())
     {
         setObjectCanSync(false);
-
-        if (!localReferencesToItOnly)
-        {
-            // Delete remote distance object:
-            sendVoid(sim_syncobj_distanceobject_delete);
-        }
     }
 }

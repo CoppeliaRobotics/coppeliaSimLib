@@ -518,9 +518,6 @@ void CIkElement_old::buildUpdateAndPopulateSynchronizationObject(const std::vect
         r.objType=sim_syncobj_ikelement;
         setSyncMsgRouting(parentRouting,r);
 
-        // Build remote IK element:
-        sendInt32(_tipHandle,sim_syncobj_ikelement_create);
-
         // Build remote IK element in IK plugin:
         int counterpartHandle=-1;
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_tipHandle);
@@ -555,9 +552,6 @@ void CIkElement_old::removeSynchronizationObject(bool localReferencesToItOnly)
 
         if (!localReferencesToItOnly)
         {
-            // Delete remote IK element:
-            sendVoid(sim_syncobj_ikelement_delete);
-
             // Synchronize with IK plugin:
             if ( (_ikGroupPluginCounterpartHandle!=-1)&&(_ikElementPluginCounterpartHandle!=-1) )
                 CPluginContainer::ikPlugin_eraseIkElement(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle);

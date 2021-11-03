@@ -24,11 +24,13 @@
 #define EVENTTYPE_OBJECTADDED "objectAdded"
 #define EVENTTYPE_OBJECTCHANGED "objectChanged"
 #define EVENTTYPE_OBJECTREMOVED "objectRemoved"
-#define EVENTTYPE_SCENECHANGE "sceneChange"
+#define EVENTTYPE_SCENECHANGED "sceneChanged"
 
 #define EVENTTYPE_DRAWINGOBJECTADDED "drawingObjectAdded"
 #define EVENTTYPE_DRAWINGOBJECTCHANGED "drawingObjectChanged"
 #define EVENTTYPE_DRAWINGOBJECTREMOVED "drawingObjectRemoved"
+
+#define EVENTTYPE_SYSTEMCHANGED "systemChanged"
 
 struct SEventInfo
 {
@@ -68,6 +70,7 @@ public:
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
 
+    std::tuple<SEventInfo,CInterfaceStackTable*> createSystemEvent();
     std::tuple<SEventInfo,CInterfaceStackTable*> createEvent(const char* event,const char* change,int uid=-1,bool canMerge=false);
     std::tuple<SEventInfo,CInterfaceStackTable*> createObjectEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData,int subIndex=-2);
     std::tuple<SEventInfo,CInterfaceStackTable*> createObjectEvent(const char* event,const char* change,int objectHandle,bool isCommonObjectData,int subIndex=-2);
@@ -78,11 +81,12 @@ public:
     void setMergeEvents(bool b);
     bool getEnableEvents() const;
     void setEnableEvents(bool b);
-    void pushReconstructSceneEvents();
-    void buildReconstructSceneEventsOntoInterpreterStack(CInterfaceStack* stack);
+    void pushReconstructAllEvents();
+    void buildReconstructAllEventsOntoInterpreterStack(CInterfaceStack* stack);
 
     SBufferedEvents swapBufferedEvents(SBufferedEvents newBuffer);
 
+    void pushReconstructSettingsEvents();
 
     void simulationAboutToStart();
     void simulationPaused();

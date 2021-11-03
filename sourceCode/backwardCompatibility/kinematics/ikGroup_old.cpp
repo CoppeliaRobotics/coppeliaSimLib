@@ -835,9 +835,6 @@ void CIkGroup_old::buildUpdateAndPopulateSynchronizationObject(const std::vector
         r.objType=sim_syncobj_ikgroup;
         setSyncMsgRouting(parentRouting,r);
 
-        // Build remote IK Group:
-        sendVoid(sim_syncobj_ikgroup_create);
-
         // Build IK group in IK plugin:
         _ikPluginCounterpartHandle=CPluginContainer::ikPlugin_createIkGroup();
 
@@ -887,9 +884,6 @@ void CIkGroup_old::removeSynchronizationObject(bool localReferencesToItOnly)
 
         if (!localReferencesToItOnly)
         {
-            // Delete remote IK Group:
-            sendVoid(sim_syncobj_ikgroup_delete);
-
             // Synchronize with IK plugin:
             if (_ikPluginCounterpartHandle!=-1)
                 CPluginContainer::ikPlugin_eraseIkGroup(_ikPluginCounterpartHandle);

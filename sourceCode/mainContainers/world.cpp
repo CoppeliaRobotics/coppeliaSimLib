@@ -38,9 +38,6 @@ CWorld::~CWorld()
 
 void CWorld::removeRemoteWorlds()
 {
-    // Remote worlds:
-    sendVoid(sim_syncobj_world_empty);
-
     // IK plugin world:
     CPluginContainer::ikPlugin_emptyEnvironment();
 
@@ -48,7 +45,6 @@ void CWorld::removeRemoteWorlds()
     sceneObjects->removeSynchronizationObjects(true);
     ikGroups->removeSynchronizationObjects(true);
     collections->removeSynchronizationObjects(true);
-    collisions->removeSynchronizationObjects(true);
     distances->removeSynchronizationObjects(true);
 }
 
@@ -179,9 +175,6 @@ void CWorld::rebuildRemoteWorlds()
 
     collections->buildUpdateAndPopulateSynchronizationObjects();
     collections->connectSynchronizationObjects();
-
-    collisions->buildUpdateAndPopulateSynchronizationObjects();
-    collisions->connectSynchronizationObjects();
 
     distances->buildUpdateAndPopulateSynchronizationObjects();
     distances->connectSynchronizationObjects();
@@ -1068,11 +1061,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         loadedCollectionList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
     for (size_t i=0;i<loadedCollectionList->size();i++)
         loadedCollectionList->at(i)->connectSynchronizationObject();
-
-    for (size_t i=0;i<loadedCollisionList->size();i++)
-        loadedCollisionList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
-    for (size_t i=0;i<loadedCollisionList->size();i++)
-        loadedCollisionList->at(i)->connectSynchronizationObject();
 
     for (size_t i=0;i<loadedDistanceList->size();i++)
         loadedDistanceList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);

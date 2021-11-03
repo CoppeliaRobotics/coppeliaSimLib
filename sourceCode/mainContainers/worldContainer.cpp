@@ -123,7 +123,7 @@ int CWorldContainer::createNewWorld()
     currentWorld->initializeWorld();
 
     // Inform scripts about performed switch to new world:
-    pushReconstructSceneEvents();
+    pushReconstructAllEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -212,7 +212,7 @@ int CWorldContainer::destroyCurrentWorld()
         App::currentWorld=currentWorld;
 
         // Inform scripts about performed world switch:
-        pushReconstructSceneEvents();
+        pushReconstructAllEvents();
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
@@ -346,7 +346,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     App::currentWorld=currentWorld;
 
     // Inform scripts about performed world switch:
-    pushReconstructSceneEvents();
+    pushReconstructAllEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -423,6 +423,23 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
 
 long long int CWorldContainer::_eventUid=0;
 long long int CWorldContainer::_eventSeq=0;
+
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createSystemEvent()
+{
+    _eventMutex.lock();
+
+    SEventInfo eventInfo;
+    eventInfo.event=EVENTTYPE_SYSTEMCHANGED;
+
+    eventInfo.eventTable=new CInterfaceStackTable();
+    eventInfo.eventTable->appendMapObject_stringString("event",EVENTTYPE_SYSTEMCHANGED,0);
+    eventInfo.eventTable->appendMapObject_stringInt64("seq",_eventSeq++);
+    CInterfaceStackTable* data=new CInterfaceStackTable();
+    eventInfo.eventTable->appendMapObject_stringObject("data",data);
+    _eventMutex.unlock();
+    return {eventInfo,data};
+}
+
 
 std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,int uid/*=-1*/,bool canMerge/*=false*/)
 {
@@ -562,14 +579,14 @@ void CWorldContainer::setEnableEvents(bool b)
     _enableEvents=b;
 }
 
-void CWorldContainer::buildReconstructSceneEventsOntoInterpreterStack(CInterfaceStack* stack)
+void CWorldContainer::buildReconstructAllEventsOntoInterpreterStack(CInterfaceStack* stack)
 {
     SBufferedEvents newBuff;
     newBuff.eventsStack=stack;
     newBuff.eventsStack->pushTableOntoStack();
     SBufferedEvents savedBuff=swapBufferedEvents(newBuff);
 
-    pushReconstructSceneEvents();
+    pushReconstructAllEvents();
     swapBufferedEvents(savedBuff);
 
     if (_cborEvents)
@@ -580,23 +597,25 @@ void CWorldContainer::buildReconstructSceneEventsOntoInterpreterStack(CInterface
     }
 }
 
-void CWorldContainer::pushReconstructSceneEvents()
+void CWorldContainer::pushReconstructAllEvents()
 {
+    pushReconstructSettingsEvents();
+
     const char* cmd="sceneUid";
-    auto [event,data]=createEvent(EVENTTYPE_SCENECHANGE,cmd,-1);
+    auto [event,data]=createEvent(EVENTTYPE_SCENECHANGED,cmd,-1);
     data->appendMapObject_stringInt32(cmd,currentWorld->environment->getSceneUniqueID());
     pushEvent(event);
 
     cmd="visibilityLayers";
-    std::tie(event,data)=createEvent(EVENTTYPE_SCENECHANGE,cmd,-1);
+    std::tie(event,data)=createEvent(EVENTTYPE_SCENECHANGED,cmd,-1);
     data->appendMapObject_stringInt32(cmd,currentWorld->mainSettings->getActiveLayers());
     pushEvent(event);
 
     for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
         App::currentWorld->sceneObjects->getObjectFromIndex(i)->pushObjectCreationEvent();
 
-    currentWorld->drawingCont->pushReconstructSceneEvents();
-    currentWorld->pointCloudCont->pushReconstructSceneEvents();
+    currentWorld->drawingCont->pushReconstructAllEvents();
+    currentWorld->pointCloudCont->pushReconstructAllEvents();
 }
 
 SBufferedEvents CWorldContainer::swapBufferedEvents(SBufferedEvents newBuffer)
@@ -609,6 +628,14 @@ SBufferedEvents CWorldContainer::swapBufferedEvents(SBufferedEvents newBuffer)
     _bufferedEvents.eventDescriptions=newBuffer.eventDescriptions;
     _eventMutex.unlock();
     return(retVal);
+}
+
+void CWorldContainer::pushReconstructSettingsEvents()
+{
+    auto [event,data]=createSystemEvent();
+    data->appendMapObject_stringFloat("defaultTranslationStepSize",App::userSettings->getTranslationStepSize());
+    data->appendMapObject_stringFloat("defaultRotationStepSize",App::userSettings->getRotationStepSize());
+    pushEvent(event);
 }
 
 void CWorldContainer::sendEvents()

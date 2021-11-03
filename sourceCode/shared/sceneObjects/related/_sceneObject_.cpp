@@ -60,12 +60,11 @@ bool _CSceneObject_::setParent(CSceneObject* parent)
             _setParent_send(h);
         }
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CSceneObject_::_setParent_send(int parentHandle) const
 {
-    sendInt32(parentHandle,sim_syncobj_sceneobject_setparent);
 }
 
 bool _CSceneObject_::setExtensionString(const char* str)
@@ -73,17 +72,15 @@ bool _CSceneObject_::setExtensionString(const char* str)
     bool diff=(_extensionString!=str);
     if (diff)
     {
-        if (getObjectCanChange())
-            _extensionString=str;
+        _extensionString=str;
         if (getObjectCanSync())
             _setExtensionString_send(str);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CSceneObject_::_setExtensionString_send(const char* str) const
 {
-    sendString(str,sim_syncobj_sceneobject_setextensionstring);
 }
 
 unsigned short _CSceneObject_::getVisibilityLayer() const
@@ -110,7 +107,7 @@ bool _CSceneObject_::setVisibilityLayer(unsigned short l)
             App::worldContainer->pushEvent(event);
         }
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 bool _CSceneObject_::setChildOrder(int order)
@@ -127,17 +124,15 @@ bool _CSceneObject_::setChildOrder(int order)
             App::worldContainer->pushEvent(event);
         }
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CSceneObject_::_setVisibilityLayer_send(unsigned short l) const
 {
-    sendUInt16(l,sim_syncobj_sceneobject_setvisibilitylayer);
 }
 
 void _CSceneObject_::_setChildOrder_send(int order) const
 {
-    sendInt32(order,sim_syncobj_sceneobject_setchildorder);
 }
 
 bool _CSceneObject_::getSelected() const
@@ -371,7 +366,7 @@ bool _CSceneObject_::setObjectAlias_direct(const char* newName)
             App::worldContainer->pushEvent(event);
         }
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 bool _CSceneObject_::setObjectName_direct_old(const char* newName)
@@ -379,12 +374,11 @@ bool _CSceneObject_::setObjectName_direct_old(const char* newName)
     bool diff=(_objectName_old!=newName);
     if (diff)
     {
-        if (getObjectCanChange())
-            _objectName_old=newName;
+        _objectName_old=newName;
         if (getObjectCanSync())
             _setObjectName_send(newName);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 std::string _CSceneObject_::getObjectAltName_old() const
@@ -397,12 +391,11 @@ bool _CSceneObject_::setObjectAltName_direct_old(const char* newAltName)
     bool diff=(_objectAltName_old!=newAltName);
     if (diff)
     {
-        if (getObjectCanChange())
-            _objectAltName_old=newAltName;
+        _objectAltName_old=newAltName;
         if (getObjectCanSync())
             _setObjectAltName_send(newAltName);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 
@@ -471,17 +464,14 @@ void _CSceneObject_::recomputeModelInfluencedValues(int flags/*=-1*/)
 
 void _CSceneObject_::_setObjectAlias_send(const char* newName) const
 {
-    sendString(newName,sim_syncobj_sceneobject_setalias);
 }
 
 void _CSceneObject_::_setObjectName_send(const char* newName) const
 {
-    sendString(newName,sim_syncobj_sceneobject_setname);
 }
 
 void _CSceneObject_::_setObjectAltName_send(const char* newAltName) const
 {
-    sendString(newAltName,sim_syncobj_sceneobject_setaltname);
 }
 
 bool _CSceneObject_::setLocalTransformation(const C7Vector& tr)
@@ -501,7 +491,7 @@ bool _CSceneObject_::setLocalTransformation(const C7Vector& tr)
         if (getObjectCanSync())
             _setLocalTransformation_send(_localTransformation);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 bool _CSceneObject_::setLocalTransformation(const C4Vector& q)
@@ -525,7 +515,7 @@ bool _CSceneObject_::setLocalTransformation(const C4Vector& q)
             _setLocalTransformation_send(tr);
         }
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 bool _CSceneObject_::setLocalTransformation(const C3Vector& x)
@@ -549,12 +539,11 @@ bool _CSceneObject_::setLocalTransformation(const C3Vector& x)
             _setLocalTransformation_send(tr);
         }
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CSceneObject_::_setLocalTransformation_send(const C7Vector& tr) const
 {
-    sendTransformation(&tr,sim_syncobj_sceneobject_localtransf);
 }
 
 void _CSceneObject_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)

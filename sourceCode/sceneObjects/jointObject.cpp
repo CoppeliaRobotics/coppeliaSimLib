@@ -3080,9 +3080,6 @@ void CJoint::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSync
         // Build IK plugin counterpart:
         _ikPluginCounterpartHandle=CPluginContainer::ikPlugin_createJoint(_jointType);
 
-        // Build remote joint:
-        sendInt32(_jointType,sim_syncobj_sceneobject_create);
-
         // Update the remote sceneObject:
         CSceneObject::buildUpdateAndPopulateSynchronizationObject(parentRouting);
 

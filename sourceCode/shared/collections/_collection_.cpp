@@ -65,12 +65,11 @@ bool _CCollection_::setOverridesObjectMainProperties(bool o)
     bool diff=(_overridesObjectMainProperties!=o);
     if (diff)
     {
-        if (getObjectCanChange())
-            _overridesObjectMainProperties=o;
+        _overridesObjectMainProperties=o;
         if (getObjectCanSync())
             _setOverridesObjectMainProperties_send(o);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 size_t _CCollection_::getElementCount() const
@@ -136,20 +135,17 @@ bool _CCollection_::setCollectionName(const char* newName,bool check)
     bool diff=(_collectionName!=newName);
     if (diff)
     {
-        if (getObjectCanChange())
-            _collectionName=newName;
+        _collectionName=newName;
         if (getObjectCanSync())
             _setCollectionName_send(newName);
     }
-    return(diff&&getObjectCanChange());
+    return(diff);
 }
 
 void _CCollection_::_setCollectionName_send(const char* newName)
 {
-    sendString(newName,sim_syncobj_collection_setobjectname);
 }
 
 void _CCollection_::_setOverridesObjectMainProperties_send(bool o)
 {
-    sendBool(o,sim_syncobj_collection_setoverrideproperties);
 }
