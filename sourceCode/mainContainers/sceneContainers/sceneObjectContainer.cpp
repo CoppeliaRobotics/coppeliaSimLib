@@ -1943,7 +1943,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
         float v;
         if (ar.xmlGetNode_float("shadingAngle",v,false))
         { // checkHere
-            retVal->getSingleMesh()->setGouraudShadingAngle(v*piValue_f/180.0f);
+            retVal->getSingleMesh()->setShadingAngle(v*piValue_f/180.0f);
             retVal->getSingleMesh()->setEdgeThresholdAngle(v*piValue_f/180.0f);
         }
         retVal->setVisibleEdges(false);
@@ -1951,7 +1951,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
         if (ar.xmlGetNode_bool("culling",b,false))
             retVal->setCulling(b);
         if (ar.xmlGetNode_bool("wireframe",b,false))
-            retVal->getSingleMesh()->setWireframe(b);
+            retVal->getSingleMesh()->setWireframe_OLD(b);
         if (ar.xmlPushChildNode("color",false))
         {
             int rgb[3];
@@ -2074,12 +2074,12 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         {
             int shapeHandle=shape->getObjectHandle();
             std::string filename(ar.getFilenameBase()+"_mesh_"+originalShapeName+tt::FNb(ar.getIncrementCounter())+".dae");
-            bool wireframe=shape->getShapeWireframe();
+            bool wireframe=shape->getShapeWireframe_OLD();
             if (wireframe)
-                shape->setShapeWireframe(false); // The Assimp plugin will ignore wireframe shapes and not write them!!
+                shape->setShapeWireframe_OLD(false); // The Assimp plugin will ignore wireframe shapes and not write them!!
             CPluginContainer::assimp_exportShapes(&shapeHandle,1,(ar.getFilenamePath()+filename).c_str(),"collada",1.0f,1,256);
             if (wireframe)
-                shape->setShapeWireframe(true);
+                shape->setShapeWireframe_OLD(true);
             ar.xmlAddNode_string("fileName",filename.c_str());
         }
         else
@@ -2149,9 +2149,9 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
     }
 
     // now the visual attributes:
-    ar.xmlAddNode_float("shadingAngle",geom->getGouraudShadingAngle()*180.0f/piValue_f);
+    ar.xmlAddNode_float("shadingAngle",geom->getShadingAngle()*180.0f/piValue_f);
     ar.xmlAddNode_bool("culling",geom->getCulling());
-    ar.xmlAddNode_bool("wireframe",geom->getWireframe());
+    ar.xmlAddNode_bool("wireframe",geom->getWireframe_OLD());
 
     ar.xmlPushNewNode("color");
     int rgb[3];

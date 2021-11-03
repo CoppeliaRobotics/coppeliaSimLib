@@ -23,8 +23,6 @@ public:
 private slots:
     void on_qqBackfaceCulling_clicked();
 
-    void on_qqWireframe_clicked();
-
     void on_qqShowEdges_clicked();
 
     void on_qqShadingAngle_editingFinished();
@@ -32,10 +30,6 @@ private slots:
     void on_qqAdjustColor_clicked();
 
     void on_qqTexture_clicked();
-
-    void on_qqEdgesAngle_editingFinished();
-
-    void on_qqHiddenBorder_clicked();
 
 private:
     Ui::CQDlgMultishapeEdition *ui;

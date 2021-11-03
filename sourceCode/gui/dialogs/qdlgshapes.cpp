@@ -52,7 +52,6 @@ void CQDlgShapes::refresh()
     ui->qqApplyMain->setVisible(!compoundShapeDisplay);
 
     ui->qqShadingAngle->setEnabled(ssel&&noEditModeAndNoSim);
-    ui->qqEdgesAngle->setEnabled(ssel&&noEditModeAndNoSim);
     ui->qqBackfaceCulling->setEnabled(ssel&&noEditModeAndNoSim);
     ui->qqShowEdges->setEnabled(ssel&&noEditModeAndNoSim);
 
@@ -78,17 +77,15 @@ void CQDlgShapes::refresh()
 
     if (ssel)
     {
-        ui->qqShadingAngle->setText(tt::getAngleFString(false,it->getSingleMesh()->getGouraudShadingAngle(),1).c_str());
-        ui->qqEdgesAngle->setText(tt::getAngleFString(false,it->getSingleMesh()->getEdgeThresholdAngle(),1).c_str());
+        ui->qqShadingAngle->setText(tt::getAngleFString(false,it->getSingleMesh()->getShadingAngle(),1).c_str());
         ui->qqBackfaceCulling->setChecked(it->getSingleMesh()->getCulling());
-        ui->qqWireframe->setChecked(it->getSingleMesh()->getWireframe());
+        ui->qqWireframe->setChecked(it->getSingleMesh()->getWireframe_OLD());
         ui->qqShowEdges->setChecked(it->getSingleMesh()->getVisibleEdges());
-        ui->qqHiddenBorder->setChecked(it->getSingleMesh()->getHideEdgeBorders());
+        ui->qqHiddenBorder->setChecked(it->getSingleMesh()->getHideEdgeBorders_OLD());
     }
     else
     {
         ui->qqShadingAngle->setText("");
-        ui->qqEdgesAngle->setText("");
         ui->qqBackfaceCulling->setChecked(false);
         ui->qqWireframe->setChecked(false);
         ui->qqShowEdges->setChecked(false);
@@ -268,23 +265,6 @@ void CQDlgShapes::on_qqClearTextures_clicked()
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgShapes::on_qqEdgesAngle_editingFinished()
-{
-    if (!ui->qqEdgesAngle->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        bool ok;
-        float newVal=ui->qqEdgesAngle->text().toFloat(&ok);
-        if (ok)
-        {
-            App::appendSimulationThreadCommand(SET_EDGEANGLE_SHAPEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,gv::userToRad*newVal);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 

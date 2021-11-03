@@ -73,16 +73,19 @@ public:
     // Various
     void commonInit();
     int getComponentCount() const;
-    bool getCulling();
+    bool getCulling() const;
     void setCulling(bool culState);
-    bool getVisibleEdges();
+    bool getVisibleEdges() const;
     void setVisibleEdges(bool v);
-    bool getHideEdgeBorders();
-    void setHideEdgeBorders(bool v);
-    int getEdgeWidth_DEPRECATED();
+    float getShadingAngle() const;
+    void setShadingAngle(float a);
+
+    bool getHideEdgeBorders_OLD() const;
+    void setHideEdgeBorders_OLD(bool v);
+    int getEdgeWidth_DEPRECATED() const;
     void setEdgeWidth_DEPRECATED(int w);
-    bool getShapeWireframe();
-    void setShapeWireframe(bool w);
+    bool getShapeWireframe_OLD() const;
+    void setShapeWireframe_OLD(bool w);
     CDynMaterialObject* getDynMaterial();
     void setDynMaterial(CDynMaterialObject* mat);
 

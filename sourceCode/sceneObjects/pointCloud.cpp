@@ -100,7 +100,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
                 _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
                 _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
                 _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                _colors.push_back(0.0);
+                _colors.push_back(1.0f);
             }
         }
 
@@ -155,7 +155,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
                     _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
                     _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
                     _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                    _colors.push_back(0.0);
+                    _colors.push_back(1.0f);
                 }
                 _displayColors.clear();
                 for (size_t i=0;i<_displayPoints.size()/3;i++)
@@ -163,7 +163,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
                     _displayColors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
                     _displayColors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
                     _displayColors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                    _displayColors.push_back(0.0);
+                    _displayColors.push_back(1.0f);
                 }
             }
             for (size_t i=0;i<_displayColors.size();i++)

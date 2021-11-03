@@ -20,40 +20,39 @@ public:
     void performTextureObjectLoadingMapping(const std::vector<int>* map);
     void announceSceneObjectWillBeErased(int objectID);
     void setTextureDependencies(int shapeID);
-    bool getContainsTransparentComponents();
+    bool getContainsTransparentComponents() const;
     CMesh* copyYourself();
     void scale(float xVal,float yVal,float zVal);
-    int getPurePrimitiveType();
+    int getPurePrimitiveType() const;
     void setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOrHeight);
-    bool isMesh();
-    bool isPure();
-    bool isConvex();
+    bool isMesh() const;
+    bool isPure() const;
+    bool isConvex() const;
     bool checkIfConvex();
     void setConvex(bool convex);
     bool containsOnlyPureConvexShapes();
     void getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* indices,std::vector<float>* normals);
     void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
-    bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset);
+    bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset) const;
     void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList);
-    int countAllShapeComponentsCumulative();
     CMesh* getShapeComponentAtIndex(int& index);
     int getComponentCount() const;
     void serialize(CSer& ar,const char* shapeName);
     void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     void flipFaces();
-    float getGouraudShadingAngle();
-    void setGouraudShadingAngle(float angle);
-    float getEdgeThresholdAngle();
+    float getShadingAngle() const;
+    void setShadingAngle(float angle);
+    float getEdgeThresholdAngle() const;
     void setEdgeThresholdAngle(float angle);
-    void setHideEdgeBorders(bool v);
-    bool getHideEdgeBorders();
-    int getTextureCount();
-    bool hasTextureThatUsesFixedTextureCoordinates();
+    void setHideEdgeBorders_OLD(bool v);
+    bool getHideEdgeBorders_OLD() const;
+    int getTextureCount() const;
+    bool hasTextureThatUsesFixedTextureCoordinates() const;
     void removeAllTextures();
-    void getColorStrings(std::string& colorStrings);
+    void getColorStrings(std::string& colorStrings) const;
     void setHeightfieldDiamonds(int d); // 0
 
-    int getUniqueID();
+    int getUniqueID() const;
     void setMesh(const std::vector<float>& vertices,const std::vector<int>& indices,const std::vector<float>* normals,const C7Vector& transformation);
     void setMeshDataDirect(const std::vector<float>& vertices,const std::vector<int>& indices,const std::vector<float>& normals,const std::vector<unsigned char>& edges);
 
@@ -61,33 +60,33 @@ public:
 
     void setHeightfieldData(const std::vector<float>& heights,int xCount,int yCount);
     float* getHeightfieldData(int& xCount,int& yCount,float& minHeight,float& maxHeight);
-    void getPurePrimitiveSizes(C3Vector& s);
-    void setPurePrimitiveInsideScaling(float s);
-    float getPurePrimitiveInsideScaling();
+    void getPurePrimitiveSizes(C3Vector& s) const;
+    void setPurePrimitiveInsideScaling_OLD(float s);
+    float getPurePrimitiveInsideScaling_OLD() const;
 
     void setConvexVisualAttributes();
 
-    C7Vector getVerticeLocalFrame();
+    C7Vector getVerticeLocalFrame() const;
     void setVerticeLocalFrame(const C7Vector& tr);
 
     CTextureProperty* getTextureProperty();
     void setTextureProperty(CTextureProperty* tp);
 
     void setVisibleEdges(bool v);
-    bool getVisibleEdges();
+    bool getVisibleEdges() const;
     void setEdgeWidth_DEPRECATED(int w);
-    int getEdgeWidth_DEPRECATED();
+    int getEdgeWidth_DEPRECATED() const;
     void setCulling(bool c);
-    bool getCulling();
-    bool getDisplayInverted_DEPRECATED();
+    bool getCulling() const;
+    bool getDisplayInverted_DEPRECATED() const;
     void setDisplayInverted_DEPRECATED(bool di);
 
     void actualizeGouraudShadingAndVisibleEdges();
 
     void setInsideAndOutsideFacesSameColor_DEPRECATED(bool s);
-    bool getInsideAndOutsideFacesSameColor_DEPRECATED();
-    void setWireframe(bool w);
-    bool getWireframe();
+    bool getInsideAndOutsideFacesSameColor_DEPRECATED() const;
+    void setWireframe_OLD(bool w);
+    bool getWireframe_OLD() const;
 
     std::vector<float>* getVertices();
     std::vector<int>* getIndices();
@@ -141,13 +140,13 @@ protected:
     std::vector<unsigned char> _edges;
     
     bool _visibleEdges;
-    bool _hideEdgeBorders;
+    bool _hideEdgeBorders_OLD;
     bool _culling;
     bool _displayInverted_DEPRECATED;
     bool _insideAndOutsideFacesSameColor_DEPRECATED;
-    bool _wireframe;
+    bool _wireframe_OLD;
     int _edgeWidth_DEPRERCATED;
-    float _gouraudShadingAngle;
+    float _shadingAngle;
     float _edgeThresholdAngle;
 
     C7Vector _verticeLocalFrame; // frame relative to the shape. All vertices are transformed by it. This frame also represents the configuration of the origin frame of pure shapes!!!!

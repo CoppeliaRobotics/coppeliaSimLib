@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>201</height>
+    <height>171</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,7 +31,7 @@
      <x>10</x>
      <y>80</y>
      <width>411</width>
-     <height>111</height>
+     <height>81</height>
     </rect>
    </property>
    <property name="title">
@@ -43,9 +43,9 @@
    <widget class="QCheckBox" name="qqBackfaceCulling">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>65</y>
-      <width>201</width>
+      <x>240</x>
+      <y>45</y>
+      <width>161</width>
       <height>18</height>
      </rect>
     </property>
@@ -56,27 +56,11 @@
      <string>Backface culling</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqWireframe">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>85</y>
-      <width>181</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Wireframe</string>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="qqShowEdges">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
+      <y>45</y>
       <width>231</width>
       <height>18</height>
      </rect>
@@ -85,7 +69,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Show edges with angle [deg]</string>
+     <string>Show edges</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
@@ -109,32 +93,6 @@
       <width>76</width>
       <height>18</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqEdgesAngle">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>45</y>
-      <width>76</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqHiddenBorder">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>65</y>
-      <width>161</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Hidden border</string>
     </property>
    </widget>
   </widget>
@@ -192,10 +150,7 @@
   <tabstop>qqTexture</tabstop>
   <tabstop>qqShadingAngle</tabstop>
   <tabstop>qqShowEdges</tabstop>
-  <tabstop>qqEdgesAngle</tabstop>
-  <tabstop>qqHiddenBorder</tabstop>
   <tabstop>qqBackfaceCulling</tabstop>
-  <tabstop>qqWireframe</tabstop>
  </tabstops>
  <resources/>
  <connections/>

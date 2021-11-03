@@ -580,9 +580,9 @@
     <widget class="QCheckBox" name="qqBackfaceCulling">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>65</y>
-       <width>181</width>
+       <x>210</x>
+       <y>45</y>
+       <width>171</width>
        <height>18</height>
       </rect>
      </property>
@@ -606,7 +606,7 @@
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="text">
-      <string>Show edges with angle [deg]</string>
+      <string>Show edges</string>
      </property>
     </widget>
     <widget class="QLabel" name="label">
@@ -648,21 +648,11 @@
       <string>Invert faces</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="qqEdgesAngle">
-     <property name="geometry">
-      <rect>
-       <x>210</x>
-       <y>45</y>
-       <width>56</width>
-       <height>18</height>
-      </rect>
-     </property>
-    </widget>
     <widget class="QCheckBox" name="qqHiddenBorder">
      <property name="geometry">
       <rect>
-       <x>280</x>
-       <y>45</y>
+       <x>10</x>
+       <y>65</y>
        <width>111</width>
        <height>18</height>
       </rect>
@@ -1255,7 +1245,6 @@
   <tabstop>qqApplyColors</tabstop>
   <tabstop>qqShadingAngle</tabstop>
   <tabstop>qqShowEdges</tabstop>
-  <tabstop>qqEdgesAngle</tabstop>
   <tabstop>qqHiddenBorder</tabstop>
   <tabstop>qqBackfaceCulling</tabstop>
   <tabstop>qqInvertFaces</tabstop>

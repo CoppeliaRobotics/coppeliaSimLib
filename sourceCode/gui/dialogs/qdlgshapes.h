@@ -47,8 +47,6 @@ private slots:
 
     void on_qqClearTextures_clicked();
 
-    void on_qqEdgesAngle_editingFinished();
-
     void on_qqEditMultishape_clicked();
 
     void on_qqHiddenBorder_clicked();

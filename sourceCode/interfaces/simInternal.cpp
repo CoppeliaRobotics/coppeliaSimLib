@@ -8357,7 +8357,7 @@ simInt simCreateMeshShape_internal(simInt options,simFloat shadingAngle,const si
                     std::vector<float> vert(vertices,vertices+verticesSize);
                     std::vector<int> ind(indices,indices+indicesSize);
                     CShape* shape=new CShape(nullptr,vert,ind,nullptr,nullptr);
-                    shape->getSingleMesh()->setGouraudShadingAngle(shadingAngle);
+                    shape->getSingleMesh()->setShadingAngle(shadingAngle);
                     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
                     shape->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation);
                     shape->setCulling((options&1)!=0);
@@ -9367,7 +9367,7 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             if (parameterID==sim_shapeintparam_wireframe)
             {
                 parameter[0]=0;
-                if (shape->getShapeWireframe())
+                if (shape->getShapeWireframe_OLD())
                     parameter[0]=1;
                 retVal=1;
             }
@@ -9400,7 +9400,7 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             if (parameterID==sim_shapeintparam_edge_borders_hidden)
             {
                 parameter[0]=0;
-                if (shape->getHideEdgeBorders())
+                if (shape->getHideEdgeBorders_OLD())
                     parameter[0]=1;
                 retVal=1;
             }
@@ -9684,7 +9684,7 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             }
             if (parameterID==sim_shapeintparam_wireframe)
             {
-                shape->setShapeWireframe(parameter!=0);
+                shape->setShapeWireframe_OLD(parameter!=0);
                 retVal=1;
             }
             if (parameterID==sim_shapeintparam_convex)
@@ -9709,7 +9709,7 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             }
             if (parameterID==sim_shapeintparam_edge_borders_hidden)
             {
-                shape->setHideEdgeBorders(parameter!=0);
+                shape->setHideEdgeBorders_OLD(parameter!=0);
                 retVal=1;
             }
         }
@@ -10061,7 +10061,7 @@ simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
             {
                 if (shape->getMeshWrapper()->isMesh())
                 {
-                    parameter[0]=shape->getSingleMesh()->getGouraudShadingAngle();
+                    parameter[0]=shape->getSingleMesh()->getShadingAngle();
                     retVal=1;
                 }
                 else
@@ -10470,7 +10470,7 @@ simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
                 {
                     if (!VThread::isCurrentThreadTheUiThread())
                     { // we are NOT in the UI thread. We execute the command now:
-                        shape->getSingleMesh()->setGouraudShadingAngle(parameter);
+                        shape->getSingleMesh()->setShadingAngle(parameter);
                     }
                     else
                     { // We are in the UI thread. Execute the command via the main thread:
@@ -12919,7 +12919,7 @@ simInt simGetShapeGeomInfo_internal(simInt shapeHandle,simInt* intData,simFloat*
                     floatData[0]=s(0);
                     floatData[1]=s(1);
                     floatData[2]=s(2);
-                    floatData[3]=geom->getPurePrimitiveInsideScaling();
+                    floatData[3]=geom->getPurePrimitiveInsideScaling_OLD();
                 }
                 if (geom->isPure())
                     retVal|=2;
@@ -15665,7 +15665,7 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
                 info->options=0;
                 if (geom->getCulling())
                     info->options|=1;
-                if (geom->getWireframe())
+                if (geom->getWireframe_OLD())
                     info->options|=2;
             }
 
@@ -15698,7 +15698,7 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
             geom->color.getColor(info->colors+0,sim_colorcomponent_ambient_diffuse);
             geom->color.getColor(info->colors+3,sim_colorcomponent_specular);
             geom->color.getColor(info->colors+6,sim_colorcomponent_emission);
-            info->shadingAngle=geom->getGouraudShadingAngle();
+            info->shadingAngle=geom->getShadingAngle();
 
             CTextureProperty* tp=geom->getTextureProperty();
             CTextureObject* to=nullptr;
@@ -15729,7 +15729,7 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
                     info->textureOptions|=2;
                 if (tp->getInterpolateColors())
                     info->textureOptions|=4;
-                if (geom->getWireframe())
+                if (geom->getWireframe_OLD())
                     info->textureOptions|=8;
                 info->textureId=tp->getTextureObjectID();
             }
@@ -15740,7 +15740,7 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
                 info->textureCoords=nullptr;
                 info->textureId=-1;
                 info->textureOptions=0;
-                if (geom->getWireframe())
+                if (geom->getWireframe_OLD())
                     info->textureOptions|=8;
             }
             return(retVal);
@@ -17066,7 +17066,7 @@ simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simI
 simFloat _simGetPureHollowScaling_internal(const simVoid* geometric)
 {
     TRACE_C_API;
-    return(((CMesh*)geometric)->getPurePrimitiveInsideScaling());
+    return(((CMesh*)geometric)->getPurePrimitiveInsideScaling_OLD());
 }
 
 simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData)

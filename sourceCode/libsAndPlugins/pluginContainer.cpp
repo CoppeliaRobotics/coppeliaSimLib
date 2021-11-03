@@ -1338,7 +1338,7 @@ void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct,std::vec
                     colorData->push_back(data[6*i+3]);
                     colorData->push_back(data[6*i+4]);
                     colorData->push_back(data[6*i+5]);
-                    colorData->push_back(0.0f);
+                    colorData->push_back(1.0f);
                 }
             }
             currentGeomPlugin->geomPlugin_releaseBuffer(data);

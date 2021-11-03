@@ -1493,7 +1493,7 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,float pointSpacing,const
     shape->alignBoundingBoxWithWorld();
     shape->setCulling((options&1)!=0);
     shape->setVisibleEdges((options&2)!=0);
-    shape->getSingleMesh()->setGouraudShadingAngle(shadingAngle);
+    shape->getSingleMesh()->setShadingAngle(shadingAngle);
     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
     shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.68f,0.56f,0.36f);
     shape->setColor(nullptr,sim_colorcomponent_specular,0.25f,0.25f,0.25f);

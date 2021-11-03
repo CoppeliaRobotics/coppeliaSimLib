@@ -46,13 +46,13 @@ CMesh::CMesh()
 
     _edgeWidth_DEPRERCATED=1;
     _visibleEdges=false;
-    _hideEdgeBorders=false;
+    _hideEdgeBorders_OLD=false;
     _culling=false;
     _displayInverted_DEPRECATED=false;
-    _wireframe=false;
+    _wireframe_OLD=false;
     _insideAndOutsideFacesSameColor_DEPRECATED=true;
-    _gouraudShadingAngle=0.5f*degToRad_f;
-    _edgeThresholdAngle=_gouraudShadingAngle;
+    _shadingAngle=0.5f*degToRad_f;
+    _edgeThresholdAngle=_shadingAngle;
     _uniqueID=_nextUniqueID++;
 
     _extRendererObjectId=0;
@@ -70,7 +70,7 @@ CMesh::~CMesh()
 
 void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex)
 { // function has virtual/non-virtual counterpart!
-    if (!_wireframe)
+    if (!_wireframe_OLD)
     {
         // Mesh change:
         if (_extRendererMeshId==0)
@@ -153,7 +153,7 @@ void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vecto
         data[7]=tr2.Q.data;
 
         data[8]=color.getColorsPtr();
-        data[19]=&_gouraudShadingAngle;
+        data[19]=&_shadingAngle;
         data[20]=&_extRendererObjectId;
         bool translucid=color.getTranslucid();
         data[21]=&translucid;
@@ -250,21 +250,21 @@ void CMesh::setTextureDependencies(int shapeID)
         _textureProperty->addTextureDependencies(shapeID,_uniqueID);
 }
 
-int CMesh::getTextureCount()
+int CMesh::getTextureCount() const
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty!=nullptr)
         return(1);
     return(0);
 }
 
-bool CMesh::hasTextureThatUsesFixedTextureCoordinates()
+bool CMesh::hasTextureThatUsesFixedTextureCoordinates() const
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty!=nullptr)
         return(_textureProperty->getFixedCoordinates());
     return(false);
 }
 
-bool CMesh::getContainsTransparentComponents()
+bool CMesh::getContainsTransparentComponents() const
 { // function has virtual/non-virtual counterpart!
     return(color.getTranslucid()||insideColor_DEPRECATED.getTranslucid());
 }
@@ -290,12 +290,12 @@ CMesh* CMesh::copyYourself()
     newIt->_heightfieldHeights.insert(newIt->_heightfieldHeights.end(),_heightfieldHeights.begin(),_heightfieldHeights.end());
 
     newIt->_visibleEdges=_visibleEdges;
-    newIt->_hideEdgeBorders=_hideEdgeBorders;
+    newIt->_hideEdgeBorders_OLD=_hideEdgeBorders_OLD;
     newIt->_culling=_culling;
     newIt->_displayInverted_DEPRECATED=_displayInverted_DEPRECATED;
     newIt->_insideAndOutsideFacesSameColor_DEPRECATED=_insideAndOutsideFacesSameColor_DEPRECATED;
-    newIt->_wireframe=_wireframe;
-    newIt->_gouraudShadingAngle=_gouraudShadingAngle;
+    newIt->_wireframe_OLD=_wireframe_OLD;
+    newIt->_shadingAngle=_shadingAngle;
     newIt->_edgeThresholdAngle=_edgeThresholdAngle;
     newIt->_edgeWidth_DEPRERCATED=_edgeWidth_DEPRERCATED;
 
@@ -444,22 +444,22 @@ void CMesh::setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOr
         _purePrimitiveInsideScaling=0.0f; // no inside part!
 }
 
-int CMesh::getPurePrimitiveType()
+int CMesh::getPurePrimitiveType() const
 { // function has virtual/non-virtual counterpart!
     return(_purePrimitive);
 }
 
-bool CMesh::isMesh()
+bool CMesh::isMesh() const
 { // function has virtual/non-virtual counterpart!
     return(true);
 }
 
-bool CMesh::isPure()
+bool CMesh::isPure() const
 { // function has virtual/non-virtual counterpart!
     return(_purePrimitive!=sim_pure_primitive_none);
 }
 
-bool CMesh::isConvex()
+bool CMesh::isConvex() const
 { // function has virtual/non-virtual counterpart!
     return(_convex);
 }
@@ -658,7 +658,7 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
     elementIndex++;
 }
 
-bool CMesh::getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset)
+bool CMesh::getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset) const
 { // function has virtual/non-virtual counterpart!
     if ( (colorName==nullptr)||(color.getColorName().compare(colorName)==0)||(strcmp(colorName,"@compound")==0) )
     {
@@ -732,11 +732,6 @@ void CMesh::getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentL
     shapeComponentList.push_back(this);
 }
 
-int CMesh::countAllShapeComponentsCumulative()
-{   // function has virtual/non-virtual counterpart!
-    return(1);
-}
-
 CMesh* CMesh::getShapeComponentAtIndex(int& index)
 { // function has virtual/non-virtual counterpart!
     if (index<0)
@@ -752,7 +747,7 @@ int CMesh::getComponentCount() const
     return(1);
 }
 
-int CMesh::getUniqueID()
+int CMesh::getUniqueID() const
 {
     return(_uniqueID);
 }
@@ -804,27 +799,27 @@ void CMesh::setHeightfieldDiamonds(int d)
     }
 }
 
-void CMesh::getPurePrimitiveSizes(C3Vector& s)
+void CMesh::getPurePrimitiveSizes(C3Vector& s) const
 {
     s(0)=_purePrimitiveXSizeOrDiameter;
     s(1)=_purePrimitiveYSize;
     s(2)=_purePrimitiveZSizeOrHeight;
 }
 
-void CMesh::setPurePrimitiveInsideScaling(float s)
+void CMesh::setPurePrimitiveInsideScaling_OLD(float s)
 {
     _purePrimitiveInsideScaling=tt::getLimitedFloat(0.0f,0.99999f,s);
 }
 
-float CMesh::getPurePrimitiveInsideScaling()
+float CMesh::getPurePrimitiveInsideScaling_OLD() const
 {
     return(_purePrimitiveInsideScaling);
 }
 
 void CMesh::setConvexVisualAttributes()
 {
-    _hideEdgeBorders=false;
-    setGouraudShadingAngle(0.0f);
+    _hideEdgeBorders_OLD=false;
+    setShadingAngle(0.0f);
     setEdgeThresholdAngle(0.0f);
     setVisibleEdges(false);
     color.setConvexColors();
@@ -847,12 +842,12 @@ void CMesh::setInsideAndOutsideFacesSameColor_DEPRECATED(bool s)
     _insideAndOutsideFacesSameColor_DEPRECATED=s;
 }
 
-bool CMesh::getInsideAndOutsideFacesSameColor_DEPRECATED()
+bool CMesh::getInsideAndOutsideFacesSameColor_DEPRECATED() const
 {
     return(_insideAndOutsideFacesSameColor_DEPRECATED);
 }
 
-bool CMesh::getVisibleEdges()
+bool CMesh::getVisibleEdges() const
 {
     return(_visibleEdges);
 }
@@ -862,21 +857,21 @@ void CMesh::setVisibleEdges(bool v)
     _visibleEdges=v;
 }
 
-void CMesh::setHideEdgeBorders(bool v)
+void CMesh::setHideEdgeBorders_OLD(bool v)
 {
-    if (_hideEdgeBorders!=v)
+    if (_hideEdgeBorders_OLD!=v)
     {
-        _hideEdgeBorders=v;
+        _hideEdgeBorders_OLD=v;
         _computeVisibleEdges();
     }
 }
 
-bool CMesh::getHideEdgeBorders()
+bool CMesh::getHideEdgeBorders_OLD() const
 {
-    return(_hideEdgeBorders);
+    return(_hideEdgeBorders_OLD);
 }
 
-int CMesh::getEdgeWidth_DEPRECATED()
+int CMesh::getEdgeWidth_DEPRECATED() const
 {
     return(_edgeWidth_DEPRERCATED);
 }
@@ -887,7 +882,7 @@ void CMesh::setEdgeWidth_DEPRECATED(int w)
     _edgeWidth_DEPRERCATED=w;
 }
 
-bool CMesh::getCulling()
+bool CMesh::getCulling() const
 {
     return(_culling);
 }
@@ -897,7 +892,7 @@ void CMesh::setCulling(bool c)
     _culling=c;
 }
 
-bool CMesh::getDisplayInverted_DEPRECATED()
+bool CMesh::getDisplayInverted_DEPRECATED() const
 {
     return(_displayInverted_DEPRECATED);
 }
@@ -914,32 +909,34 @@ void CMesh::copyVisualAttributesTo(CMesh* target)
     edgeColor_DEPRECATED.copyYourselfInto(&target->edgeColor_DEPRECATED);
 
     target->_visibleEdges=_visibleEdges;
-    target->_hideEdgeBorders=_hideEdgeBorders;
+    target->_hideEdgeBorders_OLD=_hideEdgeBorders_OLD;
     target->_culling=_culling;
     target->_displayInverted_DEPRECATED=_displayInverted_DEPRECATED;
     target->_insideAndOutsideFacesSameColor_DEPRECATED=_insideAndOutsideFacesSameColor_DEPRECATED;
-    target->_wireframe=_wireframe;
+    target->_wireframe_OLD=_wireframe_OLD;
     target->_edgeWidth_DEPRERCATED=_edgeWidth_DEPRERCATED;
-    target->_gouraudShadingAngle=_gouraudShadingAngle;
+    target->_shadingAngle=_shadingAngle;
     target->_edgeThresholdAngle=_edgeThresholdAngle;
 }
 
-float CMesh::getGouraudShadingAngle()
+float CMesh::getShadingAngle() const
 { // function has virtual/non-virtual counterpart!
-    return(_gouraudShadingAngle);
+    return(_shadingAngle);
 }
 
-void CMesh::setGouraudShadingAngle(float angle)
+void CMesh::setShadingAngle(float angle)
 { // function has virtual/non-virtual counterpart!
     tt::limitValue(0.0f,89.0f*degToRad_f,angle);
-    if (_gouraudShadingAngle!=angle)
+    if (_shadingAngle!=angle)
     {
-        _gouraudShadingAngle=angle;
+        _shadingAngle=angle;
         _recomputeNormals();
+        _edgeThresholdAngle=angle;
+        _computeVisibleEdges();
     }
 }
 
-float CMesh::getEdgeThresholdAngle()
+float CMesh::getEdgeThresholdAngle() const
 { // function has virtual/non-virtual counterpart!
     return(_edgeThresholdAngle);
 }
@@ -954,17 +951,17 @@ void CMesh::setEdgeThresholdAngle(float angle)
     }
 }
 
-void CMesh::setWireframe(bool w)
+void CMesh::setWireframe_OLD(bool w)
 {
-    _wireframe=w;
+    _wireframe_OLD=w;
 }
 
-bool CMesh::getWireframe()
+bool CMesh::getWireframe_OLD() const
 {
-    return(_wireframe);
+    return(_wireframe_OLD);
 }
 
-C7Vector CMesh::getVerticeLocalFrame()
+C7Vector CMesh::getVerticeLocalFrame() const
 {
     return(_verticeLocalFrame);
 }
@@ -1028,7 +1025,7 @@ void CMesh::removeAllTextures()
     _textureProperty=nullptr;
 }
 
-void CMesh::getColorStrings(std::string& colorStrings)
+void CMesh::getColorStrings(std::string& colorStrings) const
 { // function has virtual/non-virtual counterpart!
     if ( (color.getColorName().length()>0)&&(colorStrings.find(color.getColorName())==std::string::npos) )
     {
@@ -1094,7 +1091,7 @@ void CMesh::actualizeGouraudShadingAndVisibleEdges()
 void CMesh::_recomputeNormals()
 {
     _normals.resize(3*_indices.size());
-    float maxAngle=_gouraudShadingAngle;
+    float maxAngle=_shadingAngle;
     C3Vector v[3];
     for (int i=0;i<int(_indices.size())/3;i++)
     {   // Here we restore first all the normal vectors
@@ -1178,7 +1175,7 @@ void CMesh::_computeVisibleEdges()
     float softAngle=_edgeThresholdAngle;
     _edges.clear();
     std::vector<int> eIDs;
-    CMeshRoutines::getEdgeFeatures(&_vertices[0],(int)_vertices.size(),&_indices[0],(int)_indices.size(),nullptr,&eIDs,nullptr,softAngle,true,_hideEdgeBorders);
+    CMeshRoutines::getEdgeFeatures(&_vertices[0],(int)_vertices.size(),&_indices[0],(int)_indices.size(),nullptr,&eIDs,nullptr,softAngle,true,_hideEdgeBorders_OLD);
     _edges.assign((_indices.size()/8)+1,0);
     std::vector<bool> usedEdges(_indices.size(),false);
     for (int i=0;i<int(eIDs.size());i++)
@@ -1700,7 +1697,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar.flush();
 
             ar.storeDataName("Gsa"); // write this always before Gs2
-            ar << _gouraudShadingAngle << _edgeWidth_DEPRERCATED;
+            ar << _shadingAngle << _edgeWidth_DEPRERCATED;
             ar.flush();
 
             ar.storeDataName("Gs2");
@@ -1711,12 +1708,12 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             unsigned char nothing=0;
             SIM_SET_CLEAR_BIT(nothing,0,_visibleEdges);
             SIM_SET_CLEAR_BIT(nothing,1,_culling);
-            SIM_SET_CLEAR_BIT(nothing,2,_wireframe);
+            SIM_SET_CLEAR_BIT(nothing,2,_wireframe_OLD);
             SIM_SET_CLEAR_BIT(nothing,3,_insideAndOutsideFacesSameColor_DEPRECATED);
             // RESERVED... DO NOT USE  // SIM_SET_CLEAR_BIT(nothing,4,true); // means: we do not have to make the convectivity test for this shape (was already done). Added this on 16/1/2013
             SIM_SET_CLEAR_BIT(nothing,5,true); // means: we do not have to make the convectivity test for this shape (was already done). Added this on 28/1/2013
             SIM_SET_CLEAR_BIT(nothing,6,_displayInverted_DEPRECATED);
-            SIM_SET_CLEAR_BIT(nothing,7,_hideEdgeBorders);
+            SIM_SET_CLEAR_BIT(nothing,7,_hideEdgeBorders_OLD);
             ar << nothing;
             ar.flush();
 
@@ -1909,8 +1906,8 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _gouraudShadingAngle >> _edgeWidth_DEPRERCATED;
-                        _edgeThresholdAngle=_gouraudShadingAngle;
+                        ar >> _shadingAngle >> _edgeWidth_DEPRERCATED;
+                        _edgeThresholdAngle=_shadingAngle;
                     }
                     if (theName.compare("Gs2")==0)
                     {
@@ -1926,12 +1923,12 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                         ar >> nothing;
                         _visibleEdges=SIM_IS_BIT_SET(nothing,0);
                         _culling=SIM_IS_BIT_SET(nothing,1);
-                        _wireframe=SIM_IS_BIT_SET(nothing,2);
+                        _wireframe_OLD=SIM_IS_BIT_SET(nothing,2);
                         _insideAndOutsideFacesSameColor_DEPRECATED=SIM_IS_BIT_SET(nothing,3);
                         // reserved   doTheConvectivityTest=!SIM_IS_BIT_SET(nothing,4); // version 3.0.1 was buggy
                         // reserved doTheConvectivityTest=!SIM_IS_BIT_SET(nothing,5); // since version 3.0.2 (version 3.0.1 was buggy)
                         _displayInverted_DEPRECATED=SIM_IS_BIT_SET(nothing,6);
-                        _hideEdgeBorders=SIM_IS_BIT_SET(nothing,7);
+                        _hideEdgeBorders_OLD=SIM_IS_BIT_SET(nothing,7);
                         if (CSimFlavor::getBoolVal(18))
                             _visibleEdges=false;
                     }
@@ -1964,7 +1961,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
     {
         if (ar.isStoring())
         {
-            ar.xmlAddNode_float("shadingAngle",_gouraudShadingAngle*180.0f/piValue_f);
+            ar.xmlAddNode_float("shadingAngle",_shadingAngle*180.0f/piValue_f);
             ar.xmlAddNode_float("edgeThresholdAngle",_edgeThresholdAngle*180.0f/piValue_f);
 
             ar.xmlPushNewNode("color");
@@ -1985,8 +1982,8 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("edgesVisible",_visibleEdges);
             ar.xmlAddNode_bool("culling",_culling);
-            ar.xmlAddNode_bool("wireframe",_wireframe);
-            ar.xmlAddNode_bool("hideEdgeBorders",_hideEdgeBorders);
+            ar.xmlAddNode_bool("wireframe",_wireframe_OLD);
+            ar.xmlAddNode_bool("hideEdgeBorders",_hideEdgeBorders_OLD);
             ar.xmlPopNode();
 
             if (_textureProperty!=nullptr)
@@ -2015,8 +2012,8 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
         }
         else
         {
-            ar.xmlGetNode_float("shadingAngle",_gouraudShadingAngle);
-            _gouraudShadingAngle*=piValue_f/180.0f;
+            ar.xmlGetNode_float("shadingAngle",_shadingAngle);
+            _shadingAngle*=piValue_f/180.0f;
             ar.xmlGetNode_float("edgeThresholdAngle",_edgeThresholdAngle);
             _edgeThresholdAngle*=piValue_f/180.0f;
 
@@ -2046,8 +2043,8 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             {
                 ar.xmlGetNode_bool("edgesVisible",_visibleEdges);
                 ar.xmlGetNode_bool("culling",_culling);
-                ar.xmlGetNode_bool("wireframe",_wireframe);
-                ar.xmlGetNode_bool("hideEdgeBorders",_hideEdgeBorders);
+                ar.xmlGetNode_bool("wireframe",_wireframe_OLD);
+                ar.xmlGetNode_bool("hideEdgeBorders",_hideEdgeBorders_OLD);
                 ar.xmlPopNode();
             }
 

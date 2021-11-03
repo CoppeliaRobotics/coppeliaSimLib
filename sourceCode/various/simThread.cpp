@@ -176,7 +176,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if ((shape!=nullptr)&&shape->getMeshWrapper()->isMesh())
-                shape->getSingleMesh()->setGouraudShadingAngle(cmd.floatParams[0]);
+                shape->getSingleMesh()->setShadingAngle(cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_SHAPE_EDGE_ANGLE_CMD)
         {
@@ -2275,7 +2275,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setShapeWireframe(!it->getShapeWireframe());
+                it->setShapeWireframe_OLD(!it->getShapeWireframe_OLD());
         }
         if (cmd.cmdId==INVERT_FACES_SHAPEGUITRIGGEREDCMD)
         {
@@ -2292,8 +2292,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SET_SHADINGANGLE_SHAPEGUITRIGGEREDCMD)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
-            if ((it!=nullptr)&&(!it->isCompound()))
-                it->getSingleMesh()->setGouraudShadingAngle(cmd.floatParams[0]);
+            if (it!=nullptr)
+                it->setShadingAngle(cmd.floatParams[0]);
         }
         if (cmd.cmdId==APPLY_OTHERPROP_SHAPEGUITRIGGEREDCMD)
         {
@@ -2309,10 +2309,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         it->getSingleMesh()->setCulling(last->getSingleMesh()->getCulling());
                         it->getSingleMesh()->setInsideAndOutsideFacesSameColor_DEPRECATED(last->getSingleMesh()->getInsideAndOutsideFacesSameColor_DEPRECATED());
                         it->getSingleMesh()->setEdgeWidth_DEPRECATED(last->getSingleMesh()->getEdgeWidth_DEPRECATED());
-                        it->getSingleMesh()->setWireframe(last->getSingleMesh()->getWireframe());
-                        it->getSingleMesh()->setGouraudShadingAngle(last->getSingleMesh()->getGouraudShadingAngle());
+                        it->getSingleMesh()->setWireframe_OLD(last->getSingleMesh()->getWireframe_OLD());
+                        it->getSingleMesh()->setShadingAngle(last->getSingleMesh()->getShadingAngle());
                         it->getSingleMesh()->setEdgeThresholdAngle(last->getSingleMesh()->getEdgeThresholdAngle());
-                        it->getSingleMesh()->setHideEdgeBorders(last->getSingleMesh()->getHideEdgeBorders());
+                        it->getSingleMesh()->setHideEdgeBorders_OLD(last->getSingleMesh()->getHideEdgeBorders_OLD());
                         it->getSingleMesh()->setDisplayInverted_DEPRECATED(last->getSingleMesh()->getDisplayInverted_DEPRECATED());
                     }
                 }
@@ -2336,17 +2336,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
         }
-        if (cmd.cmdId==SET_EDGEANGLE_SHAPEGUITRIGGEREDCMD)
-        {
-            CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
-            if ((it!=nullptr)&&(!it->isCompound()))
-                it->getSingleMesh()->setEdgeThresholdAngle(cmd.floatParams[0]);
-        }
         if (cmd.cmdId==TOGGLE_HIDEEDGEBORDERS_SHAPEGUITRIGGEREDCMD)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setHideEdgeBorders(!it->getHideEdgeBorders());
+                it->setHideEdgeBorders_OLD(!it->getHideEdgeBorders_OLD());
         }
         if (cmd.cmdId==CLEAR_TEXTURES_SHAPEGUITRIGGEREDCMD)
         {
@@ -2787,21 +2781,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
         }
-        if (cmd.cmdId==TOGGLE_WIREFRAME_MULTISHAPEEDITIONGUITRIGGEREDCMD)
-        {
-            CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                std::vector<CMesh*> geoms;
-                it->getMeshWrapper()->getAllShapeComponentsCumulative(geoms);
-                int index=cmd.intParams[1];
-                if ((index>=0)&&(index<int(geoms.size())))
-                {
-                    CMesh* geom=geoms[index];
-                    geom->setWireframe(!geom->getWireframe());
-                }
-            }
-        }
         if (cmd.cmdId==TOGGLE_SHOWEDGES_MULTISHAPEEDITIONGUITRIGGEREDCMD)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
@@ -2828,42 +2807,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if ((index>=0)&&(index<int(geoms.size())))
                 {
                     CMesh* geom=geoms[index];
-                    geom->setGouraudShadingAngle(cmd.floatParams[0]);
+                    geom->setShadingAngle(cmd.floatParams[0]);
                 }
             }
         }
-        if (cmd.cmdId==SET_EDGEANGLE_MULTISHAPEEDITIONGUITRIGGEREDCMD)
-        {
-            CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                std::vector<CMesh*> geoms;
-                it->getMeshWrapper()->getAllShapeComponentsCumulative(geoms);
-                int index=cmd.intParams[1];
-                if ((index>=0)&&(index<int(geoms.size())))
-                {
-                    CMesh* geom=geoms[index];
-                    geom->setEdgeThresholdAngle(cmd.floatParams[0]);
-                }
-            }
-        }
-        if (cmd.cmdId==TOGGLE_HIDDENBORDER_MULTISHAPEEDITIONGUITRIGGEREDCMD)
-        {
-            CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                std::vector<CMesh*> geoms;
-                it->getMeshWrapper()->getAllShapeComponentsCumulative(geoms);
-                int index=cmd.intParams[1];
-                if ((index>=0)&&(index<int(geoms.size())))
-                {
-                    CMesh* geom=geoms[index];
-                    geom->setHideEdgeBorders(!geom->getHideEdgeBorders());
-                }
-            }
-        }
-
-
 
         if (cmd.cmdId==TOGGLE_LAYER_LAYERGUITRIGGEREDCMD)
         {
@@ -4522,7 +4469,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             else
                 newShape=new CShape(nullptr,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
             newShape->setVisibleEdges(false);
-            newShape->getSingleMesh()->setGouraudShadingAngle(0.0f);
+            newShape->getSingleMesh()->setShadingAngle(0.0f);
             newShape->getSingleMesh()->setEdgeThresholdAngle(0.0f);
             newShape->setObjectAlias_direct("Extracted_shape");
             newShape->setObjectName_direct_old("Extracted_shape");

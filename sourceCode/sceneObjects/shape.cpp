@@ -1043,7 +1043,7 @@ bool CShape::isCompound() const
     return(!getMeshWrapper()->isMesh());
 }
 
-int CShape::getEdgeWidth_DEPRECATED()
+int CShape::getEdgeWidth_DEPRECATED() const
 {
     if (getMeshWrapper()->isMesh())
         return(getSingleMesh()->getEdgeWidth_DEPRECATED());
@@ -1799,7 +1799,7 @@ void CShape::initializeMeshCalculationStructureIfNeeded()
     }
 }
 
-bool CShape::getCulling()
+bool CShape::getCulling() const
 {
     if (getMeshWrapper()->isMesh())
         return(getSingleMesh()->getCulling());
@@ -1810,22 +1810,26 @@ void CShape::setCulling(bool culState)
 {
     if (getMeshWrapper()->isMesh())
     {
-        getSingleMesh()->setCulling(culState);
-
-        if (App::worldContainer->getEnableEvents())
+        CMesh* m=getSingleMesh();
+        if (m->getCulling()!=culState)
         {
-            const char* cmd="color";
-            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,_objectHandle,false);
-            CInterfaceStackTable* sdata=new CInterfaceStackTable();
-            data->appendMapObject_stringObject(cmd,sdata);
-            sdata->appendMapObject_stringBool("culling",culState);
-            sdata->appendMapObject_stringInt32("index",0);
-            App::worldContainer->pushEvent(event);
+            m->setCulling(culState);
+
+            if (App::worldContainer->getEnableEvents())
+            {
+                const char* cmd="color";
+                auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,_objectHandle,false);
+                CInterfaceStackTable* sdata=new CInterfaceStackTable();
+                data->appendMapObject_stringObject(cmd,sdata);
+                sdata->appendMapObject_stringBool("culling",culState);
+                sdata->appendMapObject_stringInt32("index",0);
+                App::worldContainer->pushEvent(event);
+            }
         }
     }
 }
 
-bool CShape::getVisibleEdges()
+bool CShape::getVisibleEdges() const
 {
     if (getMeshWrapper()->isMesh())
         return(getSingleMesh()->getVisibleEdges());
@@ -1836,42 +1840,67 @@ void CShape::setVisibleEdges(bool v)
 {
     if (getMeshWrapper()->isMesh())
     {
-        getSingleMesh()->setVisibleEdges(v);
-
-        if (App::worldContainer->getEnableEvents())
+        CMesh* m=getSingleMesh();
+        if (m->getVisibleEdges()!=v)
         {
-            const char* cmd="color";
-            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,_objectHandle,false);
-            CInterfaceStackTable* sdata=new CInterfaceStackTable();
-            data->appendMapObject_stringObject(cmd,sdata);
-            sdata->appendMapObject_stringBool("showEdges",v);
-            sdata->appendMapObject_stringInt32("index",0);
-            App::worldContainer->pushEvent(event);
+            m->setVisibleEdges(v);
+
+            if (App::worldContainer->getEnableEvents())
+            {
+                const char* cmd="color";
+                auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,_objectHandle,false);
+                CInterfaceStackTable* sdata=new CInterfaceStackTable();
+                data->appendMapObject_stringObject(cmd,sdata);
+                sdata->appendMapObject_stringBool("showEdges",v);
+                sdata->appendMapObject_stringInt32("index",0);
+                App::worldContainer->pushEvent(event);
+            }
         }
     }
 }
 
-bool CShape::getHideEdgeBorders()
+float CShape::getShadingAngle() const
 {
-    return(getMeshWrapper()->getHideEdgeBorders());
+    float retVal=0.0f;
+    if (getMeshWrapper()->isMesh())
+        retVal=getSingleMesh()->getShadingAngle();
+    return(retVal);
 }
 
-void CShape::setHideEdgeBorders(bool v)
-{
-    getMeshWrapper()->setHideEdgeBorders(v);
-}
-
-bool CShape::getShapeWireframe()
+void CShape::setShadingAngle(float a)
 {
     if (getMeshWrapper()->isMesh())
-        return(getSingleMesh()->getWireframe());
+    {
+        CMesh* m=getSingleMesh();
+        if (fabs(m->getShadingAngle()-a)>0.001f)
+        {
+            m->setShadingAngle(a);
+            pushObjectRefreshEvent();
+        }
+    }
+}
+
+bool CShape::getHideEdgeBorders_OLD() const
+{
+    return(getMeshWrapper()->getHideEdgeBorders_OLD());
+}
+
+void CShape::setHideEdgeBorders_OLD(bool v)
+{
+    getMeshWrapper()->setHideEdgeBorders_OLD(v);
+}
+
+bool CShape::getShapeWireframe_OLD() const
+{
+    if (getMeshWrapper()->isMesh())
+        return(getSingleMesh()->getWireframe_OLD());
     return(false);
 }
 
-void CShape::setShapeWireframe(bool w)
+void CShape::setShapeWireframe_OLD(bool w)
 {
     if (getMeshWrapper()->isMesh())
-        getSingleMesh()->setWireframe(w);
+        getSingleMesh()->setWireframe_OLD(w);
 }
 
 bool CShape::doesShapeCollideWithShape(CShape* collidee,std::vector<float>* intersections)
@@ -2014,7 +2043,7 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
         mesh->appendMapObject_stringFloatArray("color",c,9);
 
 //        mesh->appendMapObject_stringFloat("edgeAngle",geom->);
-        mesh->appendMapObject_stringFloat("shadingAngle",geom->getGouraudShadingAngle());
+        mesh->appendMapObject_stringFloat("shadingAngle",geom->getShadingAngle());
         mesh->appendMapObject_stringBool("showEdges",geom->getVisibleEdges());
         mesh->appendMapObject_stringBool("culling",geom->getCulling());
         float transp=0.0f;
@@ -2026,7 +2055,7 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
         int options=0;
         if (geom->getCulling())
             options|=1;
-        if (geom->getWireframe())
+        if (geom->getWireframe_OLD())
             options|=2;
         mesh->appendMapObject_stringInt32("options",options);
 

@@ -28,7 +28,7 @@ CMeshWrapper::~CMeshWrapper()
         delete childList[i];
 }
 
-C7Vector CMeshWrapper::getTransformationsSinceGrouping()
+C7Vector CMeshWrapper::getTransformationsSinceGrouping() const
 {
     return(_transformationsSinceGrouping);
 }
@@ -91,7 +91,7 @@ void CMeshWrapper::setTextureDependencies(int shapeID)
         childList[i]->setTextureDependencies(shapeID);
 }
 
-int CMeshWrapper::getTextureCount()
+int CMeshWrapper::getTextureCount() const
 { // function has virtual/non-virtual counterpart!
     int retVal=0;
     for (size_t i=0;i<childList.size();i++)
@@ -99,7 +99,7 @@ int CMeshWrapper::getTextureCount()
     return(retVal);
 }
 
-bool CMeshWrapper::hasTextureThatUsesFixedTextureCoordinates()
+bool CMeshWrapper::hasTextureThatUsesFixedTextureCoordinates() const
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
     {
@@ -115,13 +115,13 @@ void CMeshWrapper::removeAllTextures()
         childList[i]->removeAllTextures();
 }
 
-void CMeshWrapper::getColorStrings(std::string& colorStrings)
+void CMeshWrapper::getColorStrings(std::string& colorStrings) const
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->getColorStrings(colorStrings);
 }
 
-bool CMeshWrapper::getContainsTransparentComponents()
+bool CMeshWrapper::getContainsTransparentComponents() const
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
     {
@@ -131,18 +131,18 @@ bool CMeshWrapper::getContainsTransparentComponents()
     return(false);
 }
 
-float CMeshWrapper::getGouraudShadingAngle()
+float CMeshWrapper::getShadingAngle() const
 { // function has virtual/non-virtual counterpart!
-    return(childList[0]->getGouraudShadingAngle()); // we just return the first angle we encounter! Normally never used
+    return(childList[0]->getShadingAngle()); // we just return the first angle we encounter! Normally never used
 }
 
-void CMeshWrapper::setGouraudShadingAngle(float angle)
+void CMeshWrapper::setShadingAngle(float angle)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->setGouraudShadingAngle(angle);
+        childList[i]->setShadingAngle(angle);
 }
 
-float CMeshWrapper::getEdgeThresholdAngle()
+float CMeshWrapper::getEdgeThresholdAngle() const
 { // function has virtual/non-virtual counterpart!
     return(childList[0]->getEdgeThresholdAngle()); // we just return the first angle we encounter! Normally never used
 }
@@ -153,15 +153,15 @@ void CMeshWrapper::setEdgeThresholdAngle(float angle)
         childList[i]->setEdgeThresholdAngle(angle);
 }
 
-void CMeshWrapper::setHideEdgeBorders(bool v)
+void CMeshWrapper::setHideEdgeBorders_OLD(bool v)
 {  // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->setHideEdgeBorders(v);
+        childList[i]->setHideEdgeBorders_OLD(v);
 }
 
-bool CMeshWrapper::getHideEdgeBorders()
+bool CMeshWrapper::getHideEdgeBorders_OLD() const
 {  // function has virtual/non-virtual counterpart!
-    return(childList[0]->getHideEdgeBorders()); // we just return the first setting we encounter! Normally never used
+    return(childList[0]->getHideEdgeBorders_OLD()); // we just return the first setting we encounter! Normally never used
 }
 
 CMeshWrapper* CMeshWrapper::copyYourself()
@@ -193,7 +193,7 @@ void CMeshWrapper::setMass(float m)
     _mass=tt::getLimitedFloat(0.000000001f,100000.0f,m);
 }
 
-float CMeshWrapper::getMass()
+float CMeshWrapper::getMass() const
 {
     return(_mass);
 }
@@ -211,12 +211,12 @@ void CMeshWrapper::setName(std::string newName)
     _name=newName;
 }
 
-std::string CMeshWrapper::getName()
+std::string CMeshWrapper::getName() const
 {
     return(_name);
 }
 
-int CMeshWrapper::getDynMaterialId_old()
+int CMeshWrapper::getDynMaterialId_old() const
 {
     return(_dynMaterialId_old);
 }
@@ -226,7 +226,7 @@ void CMeshWrapper::setDynMaterialId_old(int id)
     _dynMaterialId_old=id;
 }
 
-C7Vector CMeshWrapper::getLocalInertiaFrame()
+C7Vector CMeshWrapper::getLocalInertiaFrame() const
 {
     return (_localInertiaFrame);
 }
@@ -236,7 +236,7 @@ void CMeshWrapper::setLocalInertiaFrame(const C7Vector& li)
     _localInertiaFrame=li;
 }
 
-C3Vector CMeshWrapper::getPrincipalMomentsOfInertia()
+C3Vector CMeshWrapper::getPrincipalMomentsOfInertia() const
 {
     return (_principalMomentsOfInertia);
 }
@@ -300,22 +300,22 @@ void CMeshWrapper::setPurePrimitiveType(int theType,float xOrDiameter,float y,fl
     }
 }
 
-int CMeshWrapper::getPurePrimitiveType()
+int CMeshWrapper::getPurePrimitiveType() const
 { // function has virtual/non-virtual counterpart!
     return(childList[0]->getPurePrimitiveType()); // we just return the first type we encounter! Normally never used
 }
 
-bool CMeshWrapper::isMesh()
+bool CMeshWrapper::isMesh() const
 { // function has virtual/non-virtual counterpart!
     return(false);
 }
 
-bool CMeshWrapper::isPure()
+bool CMeshWrapper::isPure() const
 { // function has virtual/non-virtual counterpart!
     return(childList[0]->isPure());
 }
 
-bool CMeshWrapper::isConvex()
+bool CMeshWrapper::isConvex() const
 { // function has virtual/non-virtual counterpart!
     return(_convex);
 }
@@ -367,7 +367,7 @@ void CMeshWrapper::setColor(const CShape* shape,int& elementIndex,const char* co
         childList[i]->setColor(shape,elementIndex,colorName,colorComponent,rgbData,rgbDataOffset);
 }
 
-bool CMeshWrapper::getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset)
+bool CMeshWrapper::getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset) const
 { // function has virtual/non-virtual counterpart!
     bool retVal=false;
     for (size_t i=0;i<childList.size();i++)
@@ -380,14 +380,6 @@ void CMeshWrapper::getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeCom
     // needed by the dynamics routine. We return ALL shape components!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->getAllShapeComponentsCumulative(shapeComponentList);
-}
-
-int CMeshWrapper::countAllShapeComponentsCumulative()
-{   // function has virtual/non-virtual counterpart!
-    int retVal=0;
-    for (size_t i=0;i<childList.size();i++)
-        retVal+=childList[i]->countAllShapeComponentsCumulative();
-    return(retVal);
 }
 
 CMesh* CMeshWrapper::getShapeComponentAtIndex(int& index)

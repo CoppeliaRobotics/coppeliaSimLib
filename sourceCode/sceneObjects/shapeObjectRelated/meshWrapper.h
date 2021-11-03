@@ -23,7 +23,7 @@ public:
     void performDynMaterialObjectLoadingMapping(const std::vector<int>* map);
     virtual void announceSceneObjectWillBeErased(int objectID);
     virtual void setTextureDependencies(int shapeID);
-    virtual bool getContainsTransparentComponents();
+    virtual bool getContainsTransparentComponents() const;
     virtual void displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors);
     virtual void display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
     virtual void display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
@@ -31,33 +31,32 @@ public:
     virtual CMeshWrapper* copyYourself();
     virtual void scale(float xVal,float yVal,float zVal);
     virtual void setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOrHeight);
-    virtual int getPurePrimitiveType();
-    virtual bool isMesh();
-    virtual bool isPure();
-    virtual bool isConvex();
+    virtual int getPurePrimitiveType() const;
+    virtual bool isMesh() const;
+    virtual bool isPure() const;
+    virtual bool isConvex() const;
     virtual bool checkIfConvex();
     virtual void setConvex(bool convex);
     virtual bool containsOnlyPureConvexShapes();
     virtual void getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* indices,std::vector<float>* normals);
     virtual void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
-    virtual bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset);
+    virtual bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset) const;
     virtual void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList);
-    virtual int countAllShapeComponentsCumulative();
     virtual CMesh* getShapeComponentAtIndex(int& index);
     virtual int getComponentCount() const;
     virtual void serialize(CSer& ar,const char* shapeName);
     virtual void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     virtual void flipFaces();
-    virtual float getGouraudShadingAngle();
-    virtual void setGouraudShadingAngle(float angle);
-    virtual float getEdgeThresholdAngle();
+    virtual float getShadingAngle() const;
+    virtual void setShadingAngle(float angle);
+    virtual float getEdgeThresholdAngle() const;
     virtual void setEdgeThresholdAngle(float angle);
-    virtual void setHideEdgeBorders(bool v);
-    virtual bool getHideEdgeBorders();
-    virtual int getTextureCount();
-    virtual bool hasTextureThatUsesFixedTextureCoordinates();
+    virtual void setHideEdgeBorders_OLD(bool v);
+    virtual bool getHideEdgeBorders_OLD() const;
+    virtual int getTextureCount() const;
+    virtual bool hasTextureThatUsesFixedTextureCoordinates() const;
     virtual void removeAllTextures();
-    virtual void getColorStrings(std::string& colorStrings);
+    virtual void getColorStrings(std::string& colorStrings) const;
 
     void serializeWrapperInfos(CSer& ar,const char* shapeName);
     void scaleWrapperInfos(float xVal,float yVal,float zVal);
@@ -65,21 +64,21 @@ public:
     void copyWrapperInfos(CMeshWrapper* target);
     void setDefaultInertiaParams();
     void setMass(float m);
-    float getMass();
+    float getMass() const;
     void setName(std::string newName);
-    std::string getName();
+    std::string getName() const;
 
-    int getDynMaterialId_old();
+    int getDynMaterialId_old() const;
     void setDynMaterialId_old(int id);
     // ---------------------
 
 
-    C7Vector getLocalInertiaFrame();
+    C7Vector getLocalInertiaFrame() const;
     void setLocalInertiaFrame(const C7Vector& li);
-    C3Vector getPrincipalMomentsOfInertia();
+    C3Vector getPrincipalMomentsOfInertia() const;
     void setPrincipalMomentsOfInertia(const C3Vector& inertia);
 
-    C7Vector getTransformationsSinceGrouping();
+    C7Vector getTransformationsSinceGrouping() const;
     void setTransformationsSinceGrouping(const C7Vector& tr);
 
     static void findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vector& rotation,C3Vector& principalMoments);
