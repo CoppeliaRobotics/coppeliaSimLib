@@ -55,7 +55,7 @@ void CDrawingContainer::removeObject(int objectId)
         {
             if (App::worldContainer->getEnableEvents())
             {
-                auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTREMOVED,nullptr,_allObjects[i]->getObjectUid());
+                auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTREMOVED,nullptr,_allObjects[i]->getObjectUid());
                 App::worldContainer->pushEvent(event);
             }
 
@@ -169,7 +169,6 @@ void CDrawingContainer::drawObjectsParentedWith(bool overlay,bool transparentObj
         }
     }
 }
-
 
 void CDrawingContainer::pushReconstructAllEvents()
 {

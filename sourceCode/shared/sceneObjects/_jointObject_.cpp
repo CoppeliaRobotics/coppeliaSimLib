@@ -392,7 +392,7 @@ bool _CJoint_::setPositionIntervalMin(float min)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="min";
-            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd);
             data->appendMapObject_stringFloat(cmd,min);
             App::worldContainer->pushEvent(event);
         }
@@ -415,7 +415,7 @@ bool _CJoint_::setPositionIntervalRange(float range)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="range";
-            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd);
             data->appendMapObject_stringFloat(cmd,range);
             App::worldContainer->pushEvent(event);
         }
@@ -454,7 +454,7 @@ bool _CJoint_::setPositionIsCyclic(bool isCyclic)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="cyclic";
-            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd);
             data->appendMapObject_stringBool(cmd,isCyclic);
             App::worldContainer->pushEvent(event);
         }
@@ -477,7 +477,7 @@ bool _CJoint_::setDiameter(float d)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="diameter";
-            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd);
             data->appendMapObject_stringFloat(cmd,d);
             App::worldContainer->pushEvent(event);
         }
@@ -498,7 +498,7 @@ bool _CJoint_::setLength(float l)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="length";
-            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd);
             data->appendMapObject_stringFloat(cmd,l);
             App::worldContainer->pushEvent(event);
         }
@@ -567,7 +567,7 @@ bool _CJoint_::setPosition(float pos)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="position";
-            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd);
             data->appendMapObject_stringFloat(cmd,_jointPosition);
             float pose[7];
             C7Vector trFull(getFullLocalTransformation());
@@ -596,7 +596,7 @@ bool _CJoint_::setSphericalTransformation(const C4Vector& tr)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="quaternion";
-            auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,this,false);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd);
             float p[4]={tr(1),tr(2),tr(3),tr(0)};
             data->appendMapObject_stringFloatArray(cmd,p,4);
             float pose[7];

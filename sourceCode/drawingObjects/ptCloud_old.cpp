@@ -138,7 +138,7 @@ void CPtCloud_old::pushCreateContainerEvent()
 {
     if (App::worldContainer->getEnableEvents())
     {
-        auto [event,data]=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED,nullptr,_uniqueId);
+        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTADDED,nullptr,_uniqueId);
 
         data->appendMapObject_stringString("type","point",0);
 
@@ -166,7 +166,7 @@ void CPtCloud_old::pushCreateContainerEvent()
 
         App::worldContainer->pushEvent(event);
 
-        std::tie(event,data)=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_uniqueId);
+        std::tie(event,data)=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_uniqueId);
 
         CCbor obj(nullptr,0);
         size_t l;

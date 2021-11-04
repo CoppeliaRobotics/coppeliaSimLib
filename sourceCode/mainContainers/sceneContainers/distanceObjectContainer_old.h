@@ -1,18 +1,14 @@
 #pragma once
 
-#include "_distanceObjectContainer_old.h"
+#include "distanceObject_old.h"
 
 class CViewableBase;
 
-class CDistanceObjectContainer_old : public _CDistanceObjectContainer_old
+class CDistanceObjectContainer_old
 {
 public:
     CDistanceObjectContainer_old();
     virtual ~CDistanceObjectContainer_old();
-
-    void buildUpdateAndPopulateSynchronizationObjects();
-    void connectSynchronizationObjects();
-    void removeSynchronizationObjects(bool localReferencesToItOnly);
 
     void simulationAboutToStart();
     void simulationEnded();
@@ -32,10 +28,15 @@ public:
     void setUpDefaultValues();
     float handleAllDistances(bool exceptExplicitHandling);
 
+    size_t getObjectCount() const;
+    CDistanceObject_old* getObjectFromIndex(size_t index) const;
+    CDistanceObject_old* getObjectFromHandle(int objectHandle) const;
+    CDistanceObject_old* getObjectFromName(const char* objName) const;
+
 protected:
-    // Overridden from _CDistanceObjectContainer_old:
     void _addObject(CDistanceObject_old* newDistObj);
     void _removeObject(int objectHandle);
 
+    std::vector<CDistanceObject_old*> _distanceObjects;
 };
 

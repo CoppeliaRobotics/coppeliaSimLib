@@ -11,6 +11,8 @@ CDistanceObjectContainer_old::CDistanceObjectContainer_old()
 
 CDistanceObjectContainer_old::~CDistanceObjectContainer_old()
 { // beware, the current world could be nullptr
+    while (_distanceObjects.size()!=0)
+        _removeObject(_distanceObjects[0]->getObjectHandle());
 }
 
 void CDistanceObjectContainer_old::simulationAboutToStart()
@@ -263,45 +265,53 @@ void CDistanceObjectContainer_old::displayDistanceSegments()
 }
 
 void CDistanceObjectContainer_old::_addObject(CDistanceObject_old* newDistObj)
-{ // Overridden from _CDistanceObjectContainer_old
-    _CDistanceObjectContainer_old::_addObject(newDistObj);
-
-    if (newDistObj->setObjectCanSync(true))
-        newDistObj->buildUpdateAndPopulateSynchronizationObject(nullptr);
+{
+    _distanceObjects.push_back(newDistObj);
 }
 
 void CDistanceObjectContainer_old::_removeObject(int objectHandle)
-{ // Overridden from _CDistanceObjectContainer_old
-    CDistanceObject_old* ig=getObjectFromHandle(objectHandle);
-    if (ig!=nullptr)
-        ig->removeSynchronizationObject(false);
-
-    _CDistanceObjectContainer_old::_removeObject(objectHandle);
-}
-
-void CDistanceObjectContainer_old::buildUpdateAndPopulateSynchronizationObjects()
 {
-    for (size_t i=0;i<getObjectCount();i++)
+    for (size_t i=0;i<_distanceObjects.size();i++)
     {
-        CDistanceObject_old* it=getObjectFromIndex(i);
-        it->buildUpdateAndPopulateSynchronizationObject(nullptr);
+        if (_distanceObjects[i]->getObjectHandle()==objectHandle)
+        {
+            delete _distanceObjects[i];
+            _distanceObjects.erase(_distanceObjects.begin()+i);
+            break;
+        }
     }
 }
 
-void CDistanceObjectContainer_old::connectSynchronizationObjects()
+size_t CDistanceObjectContainer_old::getObjectCount() const
 {
-    for (size_t i=0;i<getObjectCount();i++)
-    {
-        CDistanceObject_old* it=getObjectFromIndex(i);
-        it->connectSynchronizationObject();
-    }
+    return(_distanceObjects.size());
 }
 
-void CDistanceObjectContainer_old::removeSynchronizationObjects(bool localReferencesToItOnly)
+CDistanceObject_old* CDistanceObjectContainer_old::getObjectFromIndex(size_t index) const
 {
-    for (size_t i=0;i<getObjectCount();i++)
-    {
-        CDistanceObject_old* it=getObjectFromIndex(i);
-        it->removeSynchronizationObject(localReferencesToItOnly);
-    }
+    CDistanceObject_old* retVal=nullptr;
+    if (index<_distanceObjects.size())
+        retVal=_distanceObjects[index];
+    return(retVal);
 }
+
+CDistanceObject_old* CDistanceObjectContainer_old::getObjectFromHandle(int objectHandle) const
+{
+    for (size_t i=0;i<_distanceObjects.size();i++)
+    {
+        if (_distanceObjects[i]->getObjectHandle()==objectHandle)
+            return(_distanceObjects[i]);
+    }
+    return(nullptr);
+}
+
+CDistanceObject_old* CDistanceObjectContainer_old::getObjectFromName(const char* objName) const
+{
+    for (size_t i=0;i<_distanceObjects.size();i++)
+    {
+        if (_distanceObjects[i]->getObjectName().compare(objName)==0)
+            return(_distanceObjects[i]);
+    }
+    return(nullptr);
+}
+

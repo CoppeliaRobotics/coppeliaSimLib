@@ -45,7 +45,6 @@ void CWorld::removeRemoteWorlds()
     sceneObjects->removeSynchronizationObjects(true);
     ikGroups->removeSynchronizationObjects(true);
     collections->removeSynchronizationObjects(true);
-    distances->removeSynchronizationObjects(true);
 }
 
 void CWorld::initializeWorld()
@@ -175,9 +174,6 @@ void CWorld::rebuildRemoteWorlds()
 
     collections->buildUpdateAndPopulateSynchronizationObjects();
     collections->connectSynchronizationObjects();
-
-    distances->buildUpdateAndPopulateSynchronizationObjects();
-    distances->connectSynchronizationObjects();
 
     // selection state:
     std::vector<int> sel(sceneObjects->getSelectedObjectHandlesPtr()[0]);
@@ -1061,11 +1057,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         loadedCollectionList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
     for (size_t i=0;i<loadedCollectionList->size();i++)
         loadedCollectionList->at(i)->connectSynchronizationObject();
-
-    for (size_t i=0;i<loadedDistanceList->size();i++)
-        loadedDistanceList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
-    for (size_t i=0;i<loadedDistanceList->size();i++)
-        loadedDistanceList->at(i)->connectSynchronizationObject();
 
     // We select what was loaded if we have a model loaded through the GUI:
     sceneObjects->deselectObjects();

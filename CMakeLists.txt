@@ -463,7 +463,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/collisions/collisionRoutines.cpp
 
     sourceCode/backwardCompatibility/distances/distanceObject_old.cpp
-    sourceCode/shared/backwardCompatibility/distances/_distanceObject_old.cpp
     sourceCode/distances/distanceRoutines.cpp
 
     sourceCode/sceneObjects/related/sceneObject.cpp
@@ -535,7 +534,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/sceneContainers/collectionContainer.cpp
     sourceCode/shared/mainContainers/sceneContainers/_collectionContainer_.cpp
     sourceCode/mainContainers/sceneContainers/distanceObjectContainer_old.cpp
-    sourceCode/shared/mainContainers/sceneContainers/_distanceObjectContainer_old.cpp
     sourceCode/mainContainers/sceneContainers/collisionObjectContainer_old.cpp
     sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp
     sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp

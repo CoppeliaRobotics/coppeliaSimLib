@@ -1,18 +1,14 @@
 #pragma once
 
-#include "_distanceObject_old.h"
+#include "colorObject.h"
+#include "ser.h"
 
-class CDistanceObject_old : public _CDistanceObject_old
+class CDistanceObject_old
 {
 public:
     CDistanceObject_old();
     CDistanceObject_old(int entity1Handle,int entity2Handle);
     virtual ~CDistanceObject_old();
-
-    // Overridden from CSyncObject:
-    void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
-    void connectSynchronizationObject();
-    void removeSynchronizationObject(bool localReferencesToItOnly);
 
     void displayDistanceSegment();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -35,7 +31,22 @@ public:
     bool announceCollectionWillBeErased(int collectionHandle,bool copyBuffer);
     CDistanceObject_old* copyYourself();
 
-    // Overridden from _CDistanceObject_:
+    int getObjectHandle() const;
+    int getEntity1Handle() const;
+    int getEntity2Handle() const;
+    std::string getObjectName() const;
+    float getTreshhold() const;
+    bool getTreshholdEnabled() const;
+    bool getDisplaySegment() const;
+    bool getExplicitHandling() const;
+    int getSegmentWidth() const;
+
+    CColorObject* getSegmentColor();
+
+    bool setObjectHandle(int newHandle);
+    bool setThresholdEnabled(bool enabled);
+    bool setDisplaySegment(bool display);
+    bool setExplicitHandling(bool explicitHandl);
     bool setObjectName(const char* newName,bool check);
     bool setThreshold(float tr);
     bool setSegmentWidth(int w);
@@ -43,6 +54,17 @@ public:
 private:
     void _commonInit();
 
+    int _entity1Handle;
+    int _entity2Handle;
+    std::string _objectName;
+    int _objectHandle;
+    int _segmentWidth;
+    float _threshold;
+    bool _thresholdEnabled;
+    bool _displaySegment;
+    bool _explicitHandling;
+
+    CColorObject _segmentColor;
     std::string _uniquePersistentIdString;
     float _distanceResult[7];
     float _distance;

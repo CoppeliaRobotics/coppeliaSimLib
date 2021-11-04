@@ -31,6 +31,14 @@ CDistanceObject_old::~CDistanceObject_old()
 
 void CDistanceObject_old::_commonInit()
 {
+    _entity1Handle=-1;
+    _entity2Handle=-1;
+    _objectHandle=-1;
+    _displaySegment=true;
+    _explicitHandling=false;
+    _threshold=0.5f;
+    _thresholdEnabled=false;
+    _segmentWidth=2;
     _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
     for (size_t i=0;i<7;i++)
         _distanceResult[i]=0.0f;
@@ -59,7 +67,7 @@ void CDistanceObject_old::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
     {
-        _CDistanceObject_old::setExplicitHandling(_initialExplicitHandling);
+        setExplicitHandling(_initialExplicitHandling);
     }
     _initialValuesInitialized=false;
 }
@@ -171,12 +179,12 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
 
 bool CDistanceObject_old::setObjectName(const char* newName,bool check)
 { // Overridden from _CDistanceObject_
-    bool diff=false;
+    std::string nnn;
     CDistanceObject_old* it=nullptr;
     if (check)
         it=App::currentWorld->distances->getObjectFromHandle(_objectHandle);
     if (it!=this)
-        diff=_CDistanceObject_old::setObjectName(newName,check); // no checking or object not yet in world
+        nnn=newName;
     else
     { // object is in world
         std::string nm(newName);
@@ -187,17 +195,27 @@ bool CDistanceObject_old::setObjectName(const char* newName,bool check)
             {
                 while (App::currentWorld->distances->getObjectFromName(nm.c_str())!=nullptr)
                     nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
-                diff=_CDistanceObject_old::setObjectName(nm.c_str(),check);
+                nnn=nm;
             }
         }
+    }
+    bool diff=false;
+    if (nnn.size()>0)
+    {
+        diff=(_objectName!=nnn);
+        if (diff)
+            _objectName=nnn;
     }
     return(diff);
 }
 
 bool CDistanceObject_old::setThreshold(float tr)
-{ // Overridden from _CDistanceObject_
+{
     tt::limitValue(0.0001f,10000.0f,tr);
-    return(_CDistanceObject_old::setThreshold(tr));
+    bool diff=(_threshold!=tr);
+    if (diff)
+        _threshold=tr;
+    return(diff);
 }
 
 void CDistanceObject_old::clearDistanceResult()
@@ -282,9 +300,12 @@ CDistanceObject_old* CDistanceObject_old::copyYourself()
 }
 
 bool CDistanceObject_old::setSegmentWidth(int w)
-{ // Overridden from _CDistanceObject_
+{
     w=tt::getLimitedInt(1,4,w);
-    return(_CDistanceObject_old::setSegmentWidth(w));
+    bool diff=(_segmentWidth!=w);
+    if (diff)
+        _segmentWidth=w;
+    return(diff);
 }
 
 void CDistanceObject_old::serialize(CSer& ar)
@@ -463,40 +484,85 @@ void CDistanceObject_old::displayDistanceSegment()
     displayDistance(this,_segmentWidth,_distanceResult);
 }
 
-void CDistanceObject_old::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting)
-{ // Overridden from CSyncObject
-    if (setObjectCanSync(true))
-    {
-        // Set routing:
-        SSyncRoute r;
-        r.objHandle=_objectHandle;
-        r.objType=sim_syncobj_distance;
-        setSyncMsgRouting(parentRouting,r);
-
-        // Update the remote object:
-        _setExplicitHandling_send(_explicitHandling);
-        _setObjectName_send(_objectName.c_str());
-        _setThreshold_send(_threshold);
-        _setThresholdEnabled_send(_thresholdEnabled);
-        _setDisplaySegment_send(_displaySegment);
-        _setSegmentWidth_send(_segmentWidth);
-
-        // Update the color object:
-        _segmentColor.buildUpdateAndPopulateSynchronizationObject(getSyncMsgRouting());
-    }
+int CDistanceObject_old::getObjectHandle() const
+{
+    return(_objectHandle);
 }
 
-void CDistanceObject_old::connectSynchronizationObject()
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-    }
+int CDistanceObject_old::getEntity1Handle() const
+{
+    return(_entity1Handle);
 }
 
-void CDistanceObject_old::removeSynchronizationObject(bool localReferencesToItOnly)
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-        setObjectCanSync(false);
-    }
+int CDistanceObject_old::getEntity2Handle() const
+{
+    return(_entity2Handle);
 }
+
+std::string CDistanceObject_old::getObjectName() const
+{
+    return(_objectName);
+}
+
+float CDistanceObject_old::getTreshhold() const
+{
+    return(_threshold);
+}
+
+bool CDistanceObject_old::getTreshholdEnabled() const
+{
+    return(_thresholdEnabled);
+}
+
+bool CDistanceObject_old::getExplicitHandling() const
+{
+    return(_explicitHandling);
+}
+
+bool CDistanceObject_old::getDisplaySegment() const
+{
+    return(_displaySegment);
+}
+
+int CDistanceObject_old::getSegmentWidth() const
+{
+    return(_segmentWidth);
+}
+
+CColorObject* CDistanceObject_old::getSegmentColor()
+{
+    return(&_segmentColor);
+}
+
+bool CDistanceObject_old::setThresholdEnabled(bool enabled)
+{
+    bool diff=(_thresholdEnabled!=enabled);
+    if (diff)
+        _thresholdEnabled=enabled;
+    return(diff);
+}
+
+bool CDistanceObject_old::setDisplaySegment(bool display)
+{
+    bool diff=(_displaySegment!=display);
+    if (diff)
+        _displaySegment=display;
+    return(diff);
+}
+
+bool CDistanceObject_old::setExplicitHandling(bool explicitHandl)
+{
+    bool diff=(_explicitHandling!=explicitHandl);
+    if (diff)
+        _explicitHandling=explicitHandl;
+    return(diff);
+}
+
+bool CDistanceObject_old::setObjectHandle(int newHandle)
+{
+    bool diff=(_objectHandle!=newHandle);
+    if (diff)
+        _objectHandle=newHandle;
+    return(diff);
+}
+

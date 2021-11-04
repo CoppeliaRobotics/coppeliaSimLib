@@ -108,7 +108,6 @@ all:
 	gcc $(CFLAGS) -c sourceCode/backwardCompatibility/collisions/collisionObject_old.cpp -o collisionObject_old.o
 	gcc $(CFLAGS) -c sourceCode/collisions/collisionRoutines.cpp -o collisionRoutines.o
 	gcc $(CFLAGS) -c sourceCode/backwardCompatibility/distances/distanceObject_old.cpp -o distanceObject_old.o
-	gcc $(CFLAGS) -c sourceCode/shared/backwardCompatibility/distances/_distanceObject_old.cpp -o _distanceObject_old.o
 	gcc $(CFLAGS) -c sourceCode/distances/distanceRoutines.cpp -o distanceRoutines.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/related/sceneObject.cpp -o sceneObject.o
 	gcc $(CFLAGS) -c sourceCode/shared/sceneObjects/related/_sceneObject_.cpp -o _sceneObject_.o
@@ -168,7 +167,6 @@ all:
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/collectionContainer.cpp -o collectionContainer.o
 	gcc $(CFLAGS) -c sourceCode/shared/mainContainers/sceneContainers/_collectionContainer_.cpp -o _collectionContainer_.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/distanceObjectContainer_old.cpp -o distanceObjectContainer_old.o
-	gcc $(CFLAGS) -c sourceCode/shared/mainContainers/sceneContainers/_distanceObjectContainer_old.cpp -o _distanceObjectContainer_old.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/collisionObjectContainer_old.cpp -o collisionObjectContainer_old.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp -o outsideCommandQueue.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp -o sceneObjectContainer.o

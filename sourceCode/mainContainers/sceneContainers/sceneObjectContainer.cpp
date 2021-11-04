@@ -236,12 +236,7 @@ bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
     App::currentWorld->announceObjectWillBeErased(it->getObjectHandle()); // this may trigger other "interesting" things, such as customization script runs, etc.
     deselectObjects(); // to make sure, since above might have changed selection again
 
-    if (App::worldContainer->getEnableEvents())
-    {
-        auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTREMOVED,nullptr,it,true);
-        App::worldContainer->pushEvent(event);
-    }
-
+    App::worldContainer->pushSceneObjectRemoveEvent(it);
     _removeObject(it);
 
     App::worldContainer->setModificationFlag(1); // object erased

@@ -1818,7 +1818,7 @@ void CShape::setCulling(bool culState)
             if (App::worldContainer->getEnableEvents())
             {
                 const char* cmd="color";
-                auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,_objectHandle,false);
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd);
                 CInterfaceStackTable* sdata=new CInterfaceStackTable();
                 data->appendMapObject_stringObject(cmd,sdata);
                 sdata->appendMapObject_stringBool("culling",culState);
@@ -1848,7 +1848,7 @@ void CShape::setVisibleEdges(bool v)
             if (App::worldContainer->getEnableEvents())
             {
                 const char* cmd="color";
-                auto [event,data]=App::worldContainer->createObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,_objectHandle,false);
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd);
                 CInterfaceStackTable* sdata=new CInterfaceStackTable();
                 data->appendMapObject_stringObject(cmd,sdata);
                 sdata->appendMapObject_stringBool("showEdges",v);

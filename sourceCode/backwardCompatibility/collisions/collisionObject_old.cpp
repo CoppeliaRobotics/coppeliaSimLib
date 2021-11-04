@@ -253,9 +253,9 @@ bool CCollisionObject_old::setObjectName(const char* newName,bool check)
     bool diff=false;
     if (nnn.size()>0)
     {
-        diff=(_objectName!=newName);
+        diff=(_objectName!=nnn);
         if (diff)
-            _objectName=newName;
+            _objectName=nnn;
     }
     return(diff);
 }

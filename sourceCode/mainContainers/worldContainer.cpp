@@ -424,7 +424,28 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
 long long int CWorldContainer::_eventUid=0;
 long long int CWorldContainer::_eventSeq=0;
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createSystemEvent()
+void CWorldContainer::pushSceneObjectRemoveEvent(const _CSceneObject_* object)
+{
+    if (getEnableEvents())
+    {
+        auto [event,data]=prepareObjectEvent(EVENTTYPE_OBJECTREMOVED,nullptr,object,true);
+        pushEvent(event);
+    }
+}
+
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObjectAddEvent(const _CSceneObject_* object)
+{
+    auto [eventInfo,data]=prepareObjectEvent(EVENTTYPE_OBJECTADDED,nullptr,object,true,-1);
+    return {eventInfo,data};
+}
+
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObjectChangedEvent(const _CSceneObject_* object,bool isCommonObjectData,const char* fieldName,int auxIndex/*=-1*/)
+{
+    auto [eventInfo,data]=prepareObjectEvent(EVENTTYPE_OBJECTCHANGED,fieldName,object,isCommonObjectData,auxIndex);
+    return {eventInfo,data};
+}
+
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSystemEvent()
 {
     _eventMutex.lock();
 
@@ -441,7 +462,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createSystemEvent(
 }
 
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const char* event,const char* change,int uid/*=-1*/,bool canMerge/*=false*/)
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareEvent(const char* event,const char* change,int uid/*=-1*/,bool canMerge/*=false*/)
 {
     _eventMutex.lock();
 
@@ -465,13 +486,13 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createEvent(const 
     return {eventInfo,data};
 }
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createObjectEvent(const char* event,const char* change,int objectHandle,bool isCommonObjectData,int subIndex/*=-2*/)
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareObjectEvent(const char* event,const char* change,int objectHandle,bool isCommonObjectData,int subIndex/*=-2*/)
 {
     CSceneObject* object=currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-    return(createObjectEvent(event,change,object,isCommonObjectData,subIndex));
+    return(prepareObjectEvent(event,change,object,isCommonObjectData,subIndex));
 }
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::createObjectEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData,int subIndex/*=-2*/)
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareObjectEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData,int subIndex/*=-2*/)
 { // subIndex==-2: mergeable, subIndex=-1: not mergeable, subIndex>=0: mergeable as long as subIndex is same too
     _eventMutex.lock();
     std::string sub;
@@ -602,12 +623,12 @@ void CWorldContainer::pushReconstructAllEvents()
     pushReconstructSettingsEvents();
 
     const char* cmd="sceneUid";
-    auto [event,data]=createEvent(EVENTTYPE_SCENECHANGED,cmd,-1);
+    auto [event,data]=prepareEvent(EVENTTYPE_SCENECHANGED,cmd,-1);
     data->appendMapObject_stringInt32(cmd,currentWorld->environment->getSceneUniqueID());
     pushEvent(event);
 
     cmd="visibilityLayers";
-    std::tie(event,data)=createEvent(EVENTTYPE_SCENECHANGED,cmd,-1);
+    std::tie(event,data)=prepareEvent(EVENTTYPE_SCENECHANGED,cmd,-1);
     data->appendMapObject_stringInt32(cmd,currentWorld->mainSettings->getActiveLayers());
     pushEvent(event);
 
@@ -632,7 +653,7 @@ SBufferedEvents CWorldContainer::swapBufferedEvents(SBufferedEvents newBuffer)
 
 void CWorldContainer::pushReconstructSettingsEvents()
 {
-    auto [event,data]=createSystemEvent();
+    auto [event,data]=prepareSystemEvent();
     data->appendMapObject_stringFloat("defaultTranslationStepSize",App::userSettings->getTranslationStepSize());
     data->appendMapObject_stringFloat("defaultRotationStepSize",App::userSettings->getRotationStepSize());
     pushEvent(event);

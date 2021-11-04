@@ -61,8 +61,6 @@ void _CWorld_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMs
         sceneObjects->synchronizationMsg(routing,msg);
     if (routing[0].objType==sim_syncobj_ikgroup)
         ikGroups->synchronizationMsg(routing,msg);
-    if (routing[0].objType==sim_syncobj_distance)
-        distances->synchronizationMsg(routing,msg);
     if (routing[0].objType==sim_syncobj_collection)
         collections->synchronizationMsg(routing,msg);
     if (routing[0].objType==sim_syncobj_world)
