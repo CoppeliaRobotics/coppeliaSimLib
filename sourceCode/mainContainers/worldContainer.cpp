@@ -661,6 +661,13 @@ void CWorldContainer::sendEvents()
         currentWorld->drawingCont->pushAppendNewPointEvents();
 
         _eventMutex.lock();
+
+        CInterfaceStackTable* buff=(CInterfaceStackTable*)_bufferedEvents->eventsStack->getStackObjectFromIndex(0);
+        if (buff->isEmpty())
+        {
+            _eventMutex.unlock();
+            return;
+        }
         SBufferedEvents* tmpEvents=_bufferedEvents;
         _bufferedEvents=new SBufferedEvents;
         _bufferedEvents->eventsStack=interfaceStackContainer->createStack();

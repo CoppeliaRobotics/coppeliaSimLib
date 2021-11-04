@@ -776,6 +776,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     std::vector<int> objectMapping;
     for (size_t i=0;i<loadedObjectList->size();i++)
     {
+        loadedObjectList->at(i)->performTextureObjectLoadingMapping(&textureMapping);
         objectMapping.push_back(loadedObjectList->at(i)->getObjectHandle()); // Old ID
         sceneObjects->addObjectToSceneWithSuffixOffset(loadedObjectList->at(i),objectIsACopy,suffixOffset,false);
         objectMapping.push_back(loadedObjectList->at(i)->getObjectHandle()); // New ID
@@ -899,7 +900,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         it->performCollisionLoadingMapping(&collisionMapping,model);
         it->performDistanceLoadingMapping(&distanceMapping,model);
         it->performIkLoadingMapping(&ikGroupMapping,model);
-        it->performTextureObjectLoadingMapping(&textureMapping);
+        // Needs to be done before! it->performTextureObjectLoadingMapping(&textureMapping);
     }
     // We do the mapping for the collections:
     for (size_t i=0;i<loadedCollectionList->size();i++)
