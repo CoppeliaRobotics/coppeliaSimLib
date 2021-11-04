@@ -409,7 +409,7 @@ void CSceneObject::setModelBase(bool m)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="modelBase";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringBool(cmd,m);
             App::worldContainer->pushEvent(event);
         }
@@ -431,21 +431,21 @@ void CSceneObject::setObjectProperty(int p)
             if ((p^_objectProperty)==sim_objectproperty_selectmodelbaseinstead)
             {
                 const char* cmd="selectModelBase";
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
                 data->appendMapObject_stringBool(cmd,(p&sim_objectproperty_selectmodelbaseinstead)!=0);
                 App::worldContainer->pushEvent(event);
             }
             if ((p^_objectProperty)==sim_objectproperty_collapsed)
             {
                 const char* cmd="collapsedHierarchy";
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
                 data->appendMapObject_stringBool(cmd,(p&sim_objectproperty_collapsed)!=0);
                 App::worldContainer->pushEvent(event);
             }
             if ((p^_objectProperty)==sim_objectproperty_selectable)
             {
                 const char* cmd="selectable";
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
                 data->appendMapObject_stringBool(cmd,(p&sim_objectproperty_selectable)!=0);
                 App::worldContainer->pushEvent(event);
             }
@@ -628,7 +628,7 @@ void CSceneObject::scaleObject(float scalingFactor)
     if ( _isInScene&&App::worldContainer->getEnableEvents() )
     {
         const char* cmd="scaling";
-        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
         data->appendMapObject_stringFloat(cmd,scalingFactor);
         App::worldContainer->pushEvent(event);
     }
@@ -1005,7 +1005,7 @@ void CSceneObject::pushObjectRefreshEvent() const
 {
     if ( _isInScene&&App::worldContainer->getEnableEvents() )
     {
-        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr);
+        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
         CSceneObject::_addCommonObjectEventData(data);
         addSpecializedObjectEventData(data);
         App::worldContainer->pushEvent(event);

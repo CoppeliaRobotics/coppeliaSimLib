@@ -37,14 +37,15 @@ struct SEventInfo
     CInterfaceStackTable* eventTable;
     std::string event;
     std::string subEvent;
-    std::string objectType;
-    std::string objectUid;
+    std::string dataSubtype;
+    int uid;
+    bool mergeable;
 };
 
 struct SBufferedEvents
 {
     CInterfaceStack* eventsStack;
-    std::vector<std::string> eventDescriptions;
+    std::vector<SEventInfo> eventDescriptions;
 };
 
 
@@ -70,14 +71,15 @@ public:
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
 
-    std::tuple<SEventInfo,CInterfaceStackTable*> prepareSystemEvent();
-    std::tuple<SEventInfo,CInterfaceStackTable*> prepareEvent(const char* event,const char* change,int uid=-1,bool canMerge=false);
-    std::tuple<SEventInfo,CInterfaceStackTable*> prepareObjectEvent(const char* event,const char* change,const _CSceneObject_* object,bool isCommonObjectData,int subIndex=-2);
-    std::tuple<SEventInfo,CInterfaceStackTable*> prepareObjectEvent(const char* event,const char* change,int objectHandle,bool isCommonObjectData,int subIndex=-2);
-
+    std::tuple<SEventInfo,CInterfaceStackTable*> prepareSystemEvent(const char* fieldName,bool mergeable);
+    std::tuple<SEventInfo,CInterfaceStackTable*> prepareEvent(const char* event,int uid,const char* fieldName,bool mergeable);
     void pushSceneObjectRemoveEvent(const _CSceneObject_* object);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectAddEvent(const _CSceneObject_* object);
-    std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(const _CSceneObject_* object,bool isCommonObjectData,const char* fieldName,int auxIndex=-1);
+    std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(const _CSceneObject_* object,bool isCommonObjectData,const char* fieldName,bool mergeable);
+    std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(int sceneObjectHandle,bool isCommonObjectData,const char* fieldName,bool mergeable);
+    std::tuple<SEventInfo,CInterfaceStackTable*> _prepareGeneralEvent(const char* event,int objectHandle,int uid,const char* objType,const char* fieldName,bool mergeable);
+    void _combineDuplicateEvents(SBufferedEvents* events);
+    void _mergeEvents(SBufferedEvents* events);
 
 
     void pushEvent(SEventInfo& event);
@@ -88,10 +90,8 @@ public:
     bool getEnableEvents() const;
     void setEnableEvents(bool b);
     void pushReconstructAllEvents();
-    void buildReconstructAllEventsOntoInterpreterStack(CInterfaceStack* stack);
-
-    SBufferedEvents swapBufferedEvents(SBufferedEvents newBuffer);
-
+    void buildReconstructAllEventsOntoInterfaceStack(CInterfaceStack* stack);
+    SBufferedEvents* swapBufferedEvents(SBufferedEvents* newBuffer);
     void pushReconstructSettingsEvents();
 
     void simulationAboutToStart();
@@ -127,12 +127,11 @@ private:
     std::vector<CWorld*> _worlds;
     int _currentWorldIndex;
 
-    static long long int _eventUid;
     static long long int _eventSeq;
-    SBufferedEvents _bufferedEvents;
+    SBufferedEvents* _bufferedEvents;
     VMutex _eventMutex;
     bool _cborEvents;
-    bool _mergeEvents;
+    bool _mergeTheEvents;
     bool _enableEvents;
 
     std::vector<int> _uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled;

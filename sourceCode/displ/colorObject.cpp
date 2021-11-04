@@ -135,7 +135,7 @@ void CColorObject::pushColorChangeEvent(int objectHandle,int colorIndex,bool isL
     if ( (objectHandle!=-1)&&App::worldContainer->getEnableEvents() )
     {
         const char* cmd="color";
-        auto [event,data]=App::worldContainer->prepareObjectEvent(EVENTTYPE_OBJECTCHANGED,cmd,objectHandle,false,colorIndex);
+        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(objectHandle,false,cmd,false);
         CInterfaceStackTable* sdata=new CInterfaceStackTable();
         data->appendMapObject_stringObject(cmd,sdata);
         float c[9];

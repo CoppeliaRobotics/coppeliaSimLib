@@ -199,7 +199,7 @@ bool CDrawingObject::addItem(const float* itemData)
 
         if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
         {
-            auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_objectUid);
+            auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_objectUid,nullptr,false);
             data->appendMapObject_stringBool("clearPoints",true);
             App::worldContainer->pushEvent(event);
         }
@@ -573,7 +573,7 @@ void CDrawingObject::pushCreateContainerEvent()
 {
     if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
     {
-        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTADDED,nullptr,_objectUid);
+        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTADDED,_objectUid,nullptr,false);
         std::string tp;
         switch(_objectType&0x001f)
         {
@@ -622,9 +622,9 @@ void CDrawingObject::pushCreateContainerEvent()
 
 void CDrawingObject::pushAppendNewPointEvent(bool clearAllFirst)
 {
-    if ( _bufferedEventData.size()>0 )
+    if ( (_bufferedEventData.size()>0)&&App::worldContainer->getEnableEvents() )
     {
-        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,nullptr,_objectUid);
+        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_objectUid,nullptr,false);
 
         std::vector<float> points;
         std::vector<float> normals;

@@ -45,7 +45,7 @@ bool _CSceneObject_::setParent(CSceneObject* parent)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="parent";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             int pUid=-1;
             if (_parentObject!=nullptr)
                 pUid=_parentObject->getObjectUid();
@@ -102,7 +102,7 @@ bool _CSceneObject_::setVisibilityLayer(unsigned short l)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="layer";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringInt32(cmd,l);
             App::worldContainer->pushEvent(event);
         }
@@ -119,7 +119,7 @@ bool _CSceneObject_::setChildOrder(int order)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="childOrder";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringInt32(cmd,order);
             App::worldContainer->pushEvent(event);
         }
@@ -164,7 +164,7 @@ void _CSceneObject_::_setModelInvisible(bool inv)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="modelInvisible";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringBool(cmd,inv);
             App::worldContainer->pushEvent(event);
         }
@@ -361,7 +361,7 @@ bool _CSceneObject_::setObjectAlias_direct(const char* newName)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="alias";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringString(cmd,newName,0);
             App::worldContainer->pushEvent(event);
         }
@@ -483,7 +483,7 @@ bool _CSceneObject_::setLocalTransformation(const C7Vector& tr)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="pose";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
             data->appendMapObject_stringFloatArray(cmd,p,7);
             App::worldContainer->pushEvent(event);
@@ -503,7 +503,7 @@ bool _CSceneObject_::setLocalTransformation(const C4Vector& q)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="pose";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             float p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
             data->appendMapObject_stringFloatArray(cmd,p,7);
             App::worldContainer->pushEvent(event);
@@ -527,7 +527,7 @@ bool _CSceneObject_::setLocalTransformation(const C3Vector& x)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="pose";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             float p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
             data->appendMapObject_stringFloatArray(cmd,p,7);
             App::worldContainer->pushEvent(event);

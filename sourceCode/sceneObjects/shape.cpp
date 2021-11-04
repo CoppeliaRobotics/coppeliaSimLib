@@ -1755,8 +1755,8 @@ bool CShape::_reorientGeometry(int type)
 
     // Now we have to compute the new local transformation:
     setLocalTransformation(getLocalTransformation()*mCorr);
-    // we have to correct the attached drawing objects:
-    App::currentWorld->drawingCont->adjustForFrameChange(getObjectHandle(),mCorrInv);
+    if (_isInScene)
+        App::currentWorld->drawingCont->adjustForFrameChange(_objectHandle,mCorrInv);
     incrementMemorizedConfigurationValidCounter();
     for (size_t i=0;i<getChildCount();i++)
     {
@@ -1818,7 +1818,7 @@ void CShape::setCulling(bool culState)
             if (App::worldContainer->getEnableEvents())
             {
                 const char* cmd="color";
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd);
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
                 CInterfaceStackTable* sdata=new CInterfaceStackTable();
                 data->appendMapObject_stringObject(cmd,sdata);
                 sdata->appendMapObject_stringBool("culling",culState);
@@ -1848,7 +1848,7 @@ void CShape::setVisibleEdges(bool v)
             if (App::worldContainer->getEnableEvents())
             {
                 const char* cmd="color";
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd);
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
                 CInterfaceStackTable* sdata=new CInterfaceStackTable();
                 data->appendMapObject_stringObject(cmd,sdata);
                 sdata->appendMapObject_stringBool("showEdges",v);

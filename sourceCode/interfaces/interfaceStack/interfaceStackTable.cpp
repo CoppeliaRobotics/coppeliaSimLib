@@ -185,6 +185,23 @@ bool CInterfaceStackTable::getDoubleArray(double* array,int count) const
     return(retVal);
 }
 
+bool CInterfaceStackTable::containsKey(const char* fieldName) const
+{
+    if (_isTableArray)
+        return(false);
+    for (size_t i=0;i<_tableObjects.size()/2;i++)
+    {
+        CInterfaceStackObject* key=_tableObjects[2*i+0];
+        if (key->getObjectType()==STACK_OBJECT_STRING)
+        {
+            std::string theKey(((CInterfaceStackString*)key)->getValue(0));
+            if (theKey.compare(fieldName)==0)
+                return(true);
+        }
+    }
+    return(false);
+}
+
 CInterfaceStackObject* CInterfaceStackTable::getMapObject(const char* fieldName) const
 {
     if (_isTableArray)

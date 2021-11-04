@@ -50,7 +50,7 @@ void CMainSettings::setActiveLayers(unsigned short l)
     {
         _activeLayers=l;
         const char* cmd="visibilityLayers";
-        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SCENECHANGED,cmd,-1);
+        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SCENECHANGED,-1,cmd,true);
         data->appendMapObject_stringInt32(cmd,_activeLayers);
         App::worldContainer->pushEvent(event);
     }

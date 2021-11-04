@@ -74,6 +74,7 @@ public:
     bool getFloatArray(float* array,int count) const;
     bool getDoubleArray(double* array,int count) const;
     CInterfaceStackObject* getMapObject(const char* fieldName) const;
+    bool containsKey(const char* fieldName) const;
 
     bool removeFromKey(const char* keyToRemove);
     bool removeFromKey(const CInterfaceStackObject* keyToRemove);

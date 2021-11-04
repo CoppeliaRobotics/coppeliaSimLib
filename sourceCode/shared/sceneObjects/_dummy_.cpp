@@ -74,7 +74,7 @@ bool _CDummy_::setDummySize(float s)
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="size";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd);
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,_dummySize);
             App::worldContainer->pushEvent(event);
         }
