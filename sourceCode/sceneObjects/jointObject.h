@@ -45,7 +45,6 @@ public:
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;
 
-    float getPosition_useTempValues() const;
     float getMeasuredJointVelocity() const;
     std::string getDependencyJointLoadAlias() const;
     std::string getDependencyJointLoadName_old() const;
@@ -121,20 +120,8 @@ public:
     void setTargetVelocity_DEPRECATED(float vel);
     float getTargetVelocity_DEPRECATED();
 
-    // Old IK
-    void initializeParametersForIK();
-    int getDoFs() const;
-    void getLocalTransformationExPart1(C7Vector& mTr,int index,bool useTempValues=false);
-    float getTempParameterEx(int index);
-    void setTempParameterEx(float parameter,int index);
-    void applyTempParametersEx();
-    int getTempSphericalJointLimitations();
-
-    void setPosition_useTempValues(float parameter);
-
-
 protected:
-    void _rectifyDependentJoints(bool useTempValues);
+    void _rectifyDependentJoints();
 
 private:
     void _commonInit();
@@ -204,11 +191,4 @@ private:
     float _initialVelocity_DEPRECATED;
     float _initialTargetVelocity_DEPRECATED;
     bool _initialExplicitHandling_DEPRECATED;
-
-    // Temporary values used when doing IK:
-    float _jointPosition_tempForIK;
-    float _sphericalTransformation_euler1TempForIK;
-    float _sphericalTransformation_euler2TempForIK;
-    float _sphericalTransformation_euler3TempForIK;
-    int _sphericalTransformation_eulerLockTempForIK; // bit-coded, bit0--> _sphericalTransformation_euler1TempForIK, bit1--> _sphericalTransformation_euler2TempForIK, etc.
 };

@@ -12,7 +12,7 @@
 
 CPath_old::CPath_old()
 {
-    setObjectType(sim_object_path_type);
+    _objectType=sim_object_path_type;
     pathContainer=nullptr;
     _visibilityLayer=PATH_LAYER;
     _explicitHandling=false;
@@ -933,7 +933,7 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
     _objectManipulationModeSubTranslation+=v;
     for (int i=0;i<3;i++)
     {
-        float ss=getNonDefaultTranslationStepSize();
+        float ss=getObjectMovementStepSize(0);
         if (ss==0.0f)
             ss=App::userSettings->getTranslationStepSize();
         if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))

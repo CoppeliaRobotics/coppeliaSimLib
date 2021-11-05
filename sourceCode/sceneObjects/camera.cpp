@@ -735,7 +735,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
 
 void CCamera::commonInit()
 {
-    setObjectType(sim_object_camera_type);
+    _objectType=sim_object_camera_type;
     _nearClippingPlane=0.05f;
     _farClippingPlane=30.0f;
     cameraSize=0.05f;

@@ -1234,7 +1234,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
         bool b=true;
         C7Vector modelTr(modelBaseObject->getCumulativeTransformation());
         C3Vector modelBBSize;
-        float modelNonDefaultTranslationStepSize=modelBaseObject->getNonDefaultTranslationStepSize();
+        float modelNonDefaultTranslationStepSize=modelBaseObject->getObjectMovementStepSize(0);
 
         if (modelBaseObject->getGlobalMarkingBoundingBox(modelTr.getInverse(),minV,maxV,b,true,false))
         {

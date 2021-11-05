@@ -78,8 +78,8 @@ void CQDlgTranslation::refresh()
             _setValuesScalingPart(true);
             // Mouse manip part:
             manipulationModePermission=object->getObjectManipulationModePermissions();
-            manipulationTranslationRelativeTo=object->getObjectManipulationTranslationRelativeTo();
-            manipulationTranslationStepSize=object->getNonDefaultTranslationStepSize();
+            manipulationTranslationRelativeTo=object->getObjectMovementRelativity(0);
+            manipulationTranslationStepSize=object->getObjectMovementStepSize(0);
             objectTranslationSettingsLocked=object->getObjectTranslationSettingsLocked();
         }
         else
@@ -124,7 +124,7 @@ void CQDlgTranslation::refresh()
 
             if (App::currentWorld->simulation->isSimulationStopped())
             {
-                if (object->getObjectTranslationDisabledDuringNonSimulation())
+                if (object->getObjectMovementOptions()&1)
                     _selectItemOfCombobox(ui->qqPosCombo,-1);
                 else
                     _selectItemOfCombobox(ui->qqPosCombo,int((manipulationTranslationStepSize+0.0005f)*1000.0f));
@@ -132,7 +132,7 @@ void CQDlgTranslation::refresh()
             }
             else
             {
-                if (object->getObjectTranslationDisabledDuringSimulation())
+                if (object->getObjectMovementOptions()&2)
                     _selectItemOfCombobox(ui->qqPosCombo,-1);
                 else
                     _selectItemOfCombobox(ui->qqPosCombo,int((manipulationTranslationStepSize+0.0005f)*1000.0f));

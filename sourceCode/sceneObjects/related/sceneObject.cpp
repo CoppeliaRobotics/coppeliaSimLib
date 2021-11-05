@@ -49,7 +49,7 @@ CSceneObject::CSceneObject()
     _ignorePosAndCameraOrthoviewSize_forUndoRedo=false;
 
     _modelBase=false;
-    _dynamicObjectFlag_forVisualization=0;
+    _dynamicFlag=0;
 
     _transparentObjectDistanceOffset=0;
     _objectManipulationMode_flaggedForGridOverlay=0;
@@ -64,25 +64,21 @@ CSceneObject::CSceneObject()
     _dynamicsTemporarilyDisabled=false;
     _initialValuesInitialized=false;
     _initialConfigurationMemorized=false;
-    _objectTranslationDisabledDuringSimulation=false;
-    _objectTranslationDisabledDuringNonSimulation=false;
     _objectTranslationSettingsLocked=false;
-    _objectRotationDisabledDuringSimulation=false;
-    _objectRotationDisabledDuringNonSimulation=false;
     _objectRotationSettingsLocked=false;
     _objectManipulationModePermissions=0x023; // about Z and in the X-Y plane!       0x03f; // full
     _objectManipulationModeEventId=-1;
-    _objectManipulationTranslationRelativeTo=0; // relative to world by default
-    _objectTranslationNonDefaultStepSize=0.0f; // 0.0 means: use the default
-    _objectManipulationRotationRelativeTo=2; // relative to own frame by default
-    _objectRotationNonDefaultStepSize=0.0f; // 0.0 means: use the default
+
+    _objectMovementOptions=0;
+    _objectMovementRelativity[0]=0; // relative to world by default
+    _objectMovementRelativity[1]=2; // relative to own frame by default
+    _objectMovementStepSize[0]=0.0f; // i.e. use default
+    _objectMovementStepSize[1]=0.0f; // i.e. use default
 
     _customObjectData=nullptr;
     _customObjectData_tempData=nullptr;
     _localObjectSpecialProperty=0;
     _modelProperty=0; // By default, the main properties are not overriden! (0 means we inherit from parents)
-//    _cumulativeModelProperty=0;
-//    _cumulativeModelPropertyValidityNumber=-2;
 
     _memorizedConfigurationValidCounter=0;
 
@@ -206,14 +202,25 @@ int CSceneObject::getCollectionSelfCollisionIndicator() const
     return(_collectionSelfCollisionIndicator);
 }
 
-void CSceneObject::setDynamicObjectFlag_forVisualization(int isDynamicallySimulatedFlag)
+void CSceneObject::setDynamicFlag(int flag)
 {
-    _dynamicObjectFlag_forVisualization=isDynamicallySimulatedFlag;
+    bool diff=(_dynamicFlag!=flag);
+    if (diff)
+    {
+        _dynamicFlag=flag;
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="dynamicFlag";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            data->appendMapObject_stringInt32(cmd,_dynamicFlag);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
-int CSceneObject::getDynamicObjectFlag_forVisualization() const
+int CSceneObject::getDynamicFlag() const
 {
-    return(_dynamicObjectFlag_forVisualization);
+    return(_dynamicFlag);
 }
 
 bool CSceneObject::getShouldObjectBeDisplayed(int viewableHandle,int displayAttrib)
@@ -236,7 +243,7 @@ bool CSceneObject::getShouldObjectBeDisplayed(int viewableHandle,int displayAttr
     if (((displayAttrib&sim_displayattribute_pickpass)==0)||((_objectProperty&sim_objectproperty_selectinvisible)==0))
     { // ok, no pickpass and select invisible
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
-            display=(_dynamicObjectFlag_forVisualization!=0);
+            display=(_dynamicFlag!=0);
         else
         {
             display=( (!isObjectPartOfInvisibleModel())&&((App::currentWorld->environment->getActiveLayers()&getVisibilityLayer())||(displayAttrib&sim_displayattribute_ignorelayer)) );
@@ -518,31 +525,7 @@ int CSceneObject::getModelProperty() const
 int CSceneObject::getCumulativeModelProperty()
 { // model properties are actually override properties. This func. returns the cumulative value
     return(_calculatedModelProperty);
-    /*
-    int vn=_modelPropertyValidityNumber;
-    if (vn!=_cumulativeModelPropertyValidityNumber)
-    { // the cumulative value is not up-to-date
-        if (getParent()==nullptr)
-            _cumulativeModelProperty=_modelProperty;
-        else
-        {
-            int parentCumul=getParent()->getCumulativeModelProperty();
-            _cumulativeModelProperty=_modelProperty|parentCumul;
-        }
-        if (_dynamicsTemporarilyDisabled)
-            _cumulativeModelProperty|=sim_modelproperty_not_dynamic;
-        _cumulativeModelPropertyValidityNumber=vn;
-    }
-    return(_cumulativeModelProperty);
-    */
 }
-
-/*
-void CSceneObject::incrementModelPropertyValidityNumber()
-{ // static
-    _modelPropertyValidityNumber++;
-}
-*/
 
 bool CSceneObject::isObjectVisible()
 {
@@ -943,11 +926,6 @@ void CSceneObject::getChain(std::vector<CSceneObject*>& objectList,bool tipInclu
         getParent()->getChain(objectList,true,false);
 }
 
-void CSceneObject::setObjectType(int theNewType)
-{ // Be very careful with this function!!
-    _objectType=theNewType;
-}
-
 CSceneObject* CSceneObject::getFirstParentInSelection(const std::vector<CSceneObject*>* sel) const
 {
     CSceneObject* it=getParent();
@@ -1029,6 +1007,14 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
     if (_parentObject!=nullptr)
         pUid=_parentObject->getObjectUid();
     data->appendMapObject_stringInt32("parent",pUid);
+    _appendObjectMovementEventData(data);
+}
+
+void CSceneObject::_appendObjectMovementEventData(CInterfaceStackTable* data) const
+{
+    data->appendMapObject_stringInt32("movementOptions",_objectMovementOptions);
+    data->appendMapObject_stringFloatArray("movementStepSize",_objectMovementStepSize,2);
+    data->appendMapObject_stringInt32Array("movementRelativity",_objectMovementRelativity,2);
 }
 
 CSceneObject* CSceneObject::copyYourself()
@@ -1090,17 +1076,14 @@ CSceneObject* CSceneObject::copyYourself()
 
     theNewObject->_assemblyMatchValuesChild.assign(_assemblyMatchValuesChild.begin(),_assemblyMatchValuesChild.end());
     theNewObject->_assemblyMatchValuesParent.assign(_assemblyMatchValuesParent.begin(),_assemblyMatchValuesParent.end());
-    theNewObject->_objectTranslationDisabledDuringSimulation=_objectTranslationDisabledDuringSimulation;
-    theNewObject->_objectTranslationDisabledDuringNonSimulation=_objectTranslationDisabledDuringNonSimulation;
     theNewObject->_objectTranslationSettingsLocked=_objectTranslationSettingsLocked;
-    theNewObject->_objectRotationDisabledDuringSimulation=_objectRotationDisabledDuringSimulation;
-    theNewObject->_objectRotationDisabledDuringNonSimulation=_objectRotationDisabledDuringNonSimulation;
     theNewObject->_objectRotationSettingsLocked=_objectRotationSettingsLocked;
     theNewObject->_objectManipulationModePermissions=_objectManipulationModePermissions;
-    theNewObject->_objectManipulationTranslationRelativeTo=_objectManipulationTranslationRelativeTo;
-    theNewObject->_objectManipulationRotationRelativeTo=_objectManipulationRotationRelativeTo;
-    theNewObject->_objectTranslationNonDefaultStepSize=_objectTranslationNonDefaultStepSize;
-    theNewObject->_objectRotationNonDefaultStepSize=_objectRotationNonDefaultStepSize;
+    theNewObject->_objectMovementOptions=_objectMovementOptions;
+    theNewObject->_objectMovementRelativity[0]=_objectMovementRelativity[0];
+    theNewObject->_objectMovementRelativity[1]=_objectMovementRelativity[1];
+    theNewObject->_objectMovementStepSize[0]=_objectMovementStepSize[0];
+    theNewObject->_objectMovementStepSize[1]=_objectMovementStepSize[1];
 
     theNewObject->_sizeFactor=_sizeFactor;
     theNewObject->_sizeValues[0]=_sizeValues[0];
@@ -1204,26 +1187,6 @@ bool CSceneObject::getObjectCustomDataHeader_tempData(int index,int& header) con
     return(_customObjectData_tempData->getHeader(index,header));
 }
 
-void CSceneObject::setObjectTranslationDisabledDuringSimulation(bool d)
-{
-    _objectTranslationDisabledDuringSimulation=d;
-}
-
-bool CSceneObject::getObjectTranslationDisabledDuringSimulation() const
-{
-    return(_objectTranslationDisabledDuringSimulation);
-}
-
-void CSceneObject::setObjectTranslationDisabledDuringNonSimulation(bool d)
-{
-    _objectTranslationDisabledDuringNonSimulation=d;
-}
-
-bool CSceneObject::getObjectTranslationDisabledDuringNonSimulation() const
-{
-    return(_objectTranslationDisabledDuringNonSimulation);
-}
-
 void CSceneObject::setObjectTranslationSettingsLocked(bool l)
 {
     _objectTranslationSettingsLocked=l;
@@ -1232,26 +1195,6 @@ void CSceneObject::setObjectTranslationSettingsLocked(bool l)
 bool CSceneObject::getObjectTranslationSettingsLocked() const
 {
     return(_objectTranslationSettingsLocked);
-}
-
-void CSceneObject::setObjectRotationDisabledDuringSimulation(bool d)
-{
-    _objectRotationDisabledDuringSimulation=d;
-}
-
-bool CSceneObject::getObjectRotationDisabledDuringSimulation() const
-{
-    return(_objectRotationDisabledDuringSimulation);
-}
-
-void CSceneObject::setObjectRotationDisabledDuringNonSimulation(bool d)
-{
-    _objectRotationDisabledDuringNonSimulation=d;
-}
-
-bool CSceneObject::getObjectRotationDisabledDuringNonSimulation() const
-{
-    return(_objectRotationDisabledDuringNonSimulation);
 }
 
 void CSceneObject::setObjectRotationSettingsLocked(bool l)
@@ -1276,102 +1219,108 @@ int CSceneObject::getObjectManipulationModePermissions() const
     return(_objectManipulationModePermissions);
 }
 
-void CSceneObject::setObjectManipulationTranslationRelativeTo(int p)
-{
-    _objectManipulationTranslationRelativeTo=p;
-}
 
-int CSceneObject::getObjectManipulationTranslationRelativeTo() const
+void CSceneObject::setObjectMovementOptions(int p)
 {
-    return(_objectManipulationTranslationRelativeTo);
-}
-
-void CSceneObject::setObjectManipulationRotationRelativeTo(int p)
-{
-    _objectManipulationRotationRelativeTo=p;
-}
-
-int CSceneObject::getObjectManipulationRotationRelativeTo() const
-{
-    return(_objectManipulationRotationRelativeTo);
-}
-
-void CSceneObject::setNonDefaultTranslationStepSize(float s)
-{
-    if (s<0.0005)
+    bool diff=(_objectMovementOptions!=p);
+    if (diff)
     {
-        _objectTranslationNonDefaultStepSize=0.0f; //default
-        return;
-    }
-    float sc=1.0f;
-    if ((s>=0.0075f)&&(s<0.075f))
-        sc=10.0f;
-    if (s>=0.075f)
-        sc=100.0f;
-    if (s<0.0015f*sc)
-        s=0.001f*sc;
-    else
-    {
-        if (s<0.00375f*sc)
+        _objectMovementOptions=p;
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
-            if (sc<2.0f)
-                s=0.002f*sc;
-            else
-                s=0.0025f*sc;
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
+            _appendObjectMovementEventData(data);
+            App::worldContainer->pushEvent(event);
         }
-        else
-            s=0.005f*sc;
     }
-    _objectTranslationNonDefaultStepSize=s;
 }
 
-float CSceneObject::getNonDefaultTranslationStepSize() const
+int CSceneObject::getObjectMovementOptions() const
 {
-    return(_objectTranslationNonDefaultStepSize);
+    return(_objectMovementOptions);
 }
 
-void CSceneObject::setNonDefaultRotationStepSize(float s)
+void CSceneObject::setObjectMovementRelativity(int index,int p)
 {
-    if (s<0.05f*degToRad_f)
+    bool diff=(_objectMovementRelativity[index]!=p);
+    if (diff)
     {
-        _objectRotationNonDefaultStepSize=0.0f; //default
-        return;
+        _objectMovementRelativity[index]=p;
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
+            _appendObjectMovementEventData(data);
+            App::worldContainer->pushEvent(event);
+        }
     }
-    if (s<1.5f*degToRad_f)
-        s=1.0f*degToRad_f;
-    else
+}
+
+int CSceneObject::getObjectMovementRelativity(int index) const
+{
+    return(_objectMovementRelativity[index]);
+}
+
+void CSceneObject::setObjectMovementStepSize(int index,float s)
+{
+    if (index==0)
     {
-        if (s<3.5f*degToRad_f)
-            s=2.0f*degToRad_f;
+        if (s<0.0005)
+            s=0.0f; // default
         else
         {
-            if (s<7.5f*degToRad_f)
-                s=5.0f*degToRad_f;
-            else
+            float sc=1.0f;
+            if ((s>=0.0075f)&&(s<0.075f))
+                sc=10.0f;
+            if (s>=0.075f)
+                sc=100.0f;
+            if (s<0.0015f*sc)
+                s=0.001f*sc;
+            else if (s<0.00375f*sc)
             {
-                if (s<12.5f*degToRad_f)
-                    s=10.0f*degToRad_f;
+                if (sc<2.0f)
+                    s=0.002f*sc;
                 else
-                {
-                    if (s<22.5f*degToRad_f)
-                        s=15.0f*degToRad_f;
-                    else
-                    {
-                        if (s<37.5f*degToRad_f)
-                            s=30.0f*degToRad_f;
-                        else
-                            s=45.0f*degToRad_f;
-                    }
-                }
+                    s=0.0025f*sc;
             }
+            else
+                s=0.005f*sc;
         }
     }
-    _objectRotationNonDefaultStepSize=s;
+    else
+    {
+        if (s<0.05f*degToRad_f)
+            s=0.0f; // default
+        else if (s<1.5f*degToRad_f)
+            s=1.0f*degToRad_f;
+        else if (s<3.5f*degToRad_f)
+            s=2.0f*degToRad_f;
+        else if (s<7.5f*degToRad_f)
+            s=5.0f*degToRad_f;
+        else if (s<12.5f*degToRad_f)
+            s=10.0f*degToRad_f;
+        else if (s<22.5f*degToRad_f)
+            s=15.0f*degToRad_f;
+        else if (s<37.5f*degToRad_f)
+            s=30.0f*degToRad_f;
+        else
+            s=45.0f*degToRad_f;
+    }
+    bool diff=(_objectMovementStepSize[index]!=s);
+    if (diff)
+    {
+        _objectMovementStepSize[index]=s;
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
+            _appendObjectMovementEventData(data);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
-float CSceneObject::getNonDefaultRotationStepSize() const
+float CSceneObject::getObjectMovementStepSize(int index) const
 {
-    return(_objectRotationNonDefaultStepSize);
+    return(_objectMovementStepSize[index]);
 }
 
 void CSceneObject::setMechanismID(int id)
@@ -1395,7 +1344,7 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     _modelProperty=(_modelProperty|sim_modelproperty_not_reset)-sim_modelproperty_not_reset;
     recomputeModelInfluencedValues();
     //incrementModelPropertyValidityNumber();
-    _dynamicObjectFlag_forVisualization=0;
+    setDynamicFlag(0);
 
     _measuredAngularVelocity_velocityMeasurement=0.0f;
     _measuredAngularVelocity3_velocityMeasurement.clear();
@@ -1423,7 +1372,7 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
 void CSceneObject::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
     _dynamicSimulationIconCode=sim_dynamicsimicon_none;
-    _dynamicObjectFlag_forVisualization=0;
+    setDynamicFlag(0);
     if (_userScriptParameters!=nullptr)
         _userScriptParameters->simulationEnded();
     if (_initialValuesInitialized)
@@ -1781,8 +1730,8 @@ void CSceneObject::serialize(CSer& ar)
             ar.storeDataName("Va2");
             unsigned char dummy=0;
             SIM_SET_CLEAR_BIT(dummy,0,_modelBase);
-            SIM_SET_CLEAR_BIT(dummy,1,_objectTranslationDisabledDuringSimulation);
-            SIM_SET_CLEAR_BIT(dummy,2,_objectTranslationDisabledDuringNonSimulation);
+            SIM_SET_CLEAR_BIT(dummy,1,(_objectMovementOptions&2)!=0);
+            SIM_SET_CLEAR_BIT(dummy,2,(_objectMovementOptions&1)!=0);
             SIM_SET_CLEAR_BIT(dummy,3,_ignoredByViewFitting);
             SIM_SET_CLEAR_BIT(dummy,7,_assemblingLocalTransformationIsUsed);
             ar << dummy;
@@ -1792,11 +1741,11 @@ void CSceneObject::serialize(CSer& ar)
             ar.storeDataName("Va3");
             dummy=0;
             SIM_SET_CLEAR_BIT(dummy,0,_modelBase);
-            SIM_SET_CLEAR_BIT(dummy,1,_objectTranslationDisabledDuringSimulation);
-            SIM_SET_CLEAR_BIT(dummy,2,_objectTranslationDisabledDuringNonSimulation);
+            SIM_SET_CLEAR_BIT(dummy,1,(_objectMovementOptions&2)!=0);
+            SIM_SET_CLEAR_BIT(dummy,2,(_objectMovementOptions&1)!=0);
             SIM_SET_CLEAR_BIT(dummy,3,_ignoredByViewFitting);
-            SIM_SET_CLEAR_BIT(dummy,4,_objectRotationDisabledDuringSimulation);
-            SIM_SET_CLEAR_BIT(dummy,5,_objectRotationDisabledDuringNonSimulation);
+            SIM_SET_CLEAR_BIT(dummy,4,(_objectMovementOptions&8)!=0);
+            SIM_SET_CLEAR_BIT(dummy,5,(_objectMovementOptions&4)!=0);
             SIM_SET_CLEAR_BIT(dummy,7,_assemblingLocalTransformationIsUsed);
             ar << dummy;
             ar.flush();
@@ -1825,11 +1774,11 @@ void CSceneObject::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Om5");
-            ar << _objectManipulationModePermissions << _objectManipulationTranslationRelativeTo << _objectTranslationNonDefaultStepSize;
+            ar << _objectManipulationModePermissions << _objectMovementRelativity[0] << _objectMovementStepSize[0];
             ar.flush();
 
             ar.storeDataName("Omr");
-            ar << _objectManipulationRotationRelativeTo << _objectRotationNonDefaultStepSize;
+            ar << _objectMovementRelativity[1] << _objectMovementStepSize[1];
             ar.flush();
 
             ar.storeDataName("Sfa");
@@ -2047,8 +1996,10 @@ void CSceneObject::serialize(CSer& ar)
                         unsigned char dummy;
                         ar >> dummy;
                         _modelBase=SIM_IS_BIT_SET(dummy,0);
-                        _objectTranslationDisabledDuringSimulation=SIM_IS_BIT_SET(dummy,1);
-                        _objectTranslationDisabledDuringNonSimulation=SIM_IS_BIT_SET(dummy,2);
+                        if (SIM_IS_BIT_SET(dummy,1))
+                            _objectMovementOptions=_objectMovementOptions|10;
+                        if (SIM_IS_BIT_SET(dummy,2))
+                            _objectMovementOptions=_objectMovementOptions|5;
                         _ignoredByViewFitting=SIM_IS_BIT_SET(dummy,3);
                         // reserved since 9/6/2013   _useSpecialLocalTransformationWhenAssembling=SIM_IS_BIT_SET(dummy,4);
                         bool assemblyCanHaveChildRole=!SIM_IS_BIT_SET(dummy,5);
@@ -2062,8 +2013,6 @@ void CSceneObject::serialize(CSer& ar)
                             _assemblyMatchValuesChild.clear();
                         if (!assemblyCanHaveParentRole)
                             _assemblyMatchValuesParent.clear();
-                        _objectRotationDisabledDuringSimulation=_objectTranslationDisabledDuringSimulation;
-                        _objectRotationDisabledDuringNonSimulation=_objectTranslationDisabledDuringNonSimulation;
                     }
                     if (theName.compare("Va2")==0)
                     { // Keep for backward compatibility (19/4/2017)
@@ -2072,11 +2021,11 @@ void CSceneObject::serialize(CSer& ar)
                         unsigned char dummy;
                         ar >> dummy;
                         _modelBase=SIM_IS_BIT_SET(dummy,0);
-                        _objectTranslationDisabledDuringSimulation=SIM_IS_BIT_SET(dummy,1);
-                        _objectTranslationDisabledDuringNonSimulation=SIM_IS_BIT_SET(dummy,2);
+                        if (SIM_IS_BIT_SET(dummy,1))
+                            _objectMovementOptions=_objectMovementOptions|10;
+                        if (SIM_IS_BIT_SET(dummy,2))
+                            _objectMovementOptions=_objectMovementOptions|5;
                         _ignoredByViewFitting=SIM_IS_BIT_SET(dummy,3);
-                        _objectRotationDisabledDuringSimulation=_objectTranslationDisabledDuringSimulation;
-                        _objectRotationDisabledDuringNonSimulation=_objectTranslationDisabledDuringNonSimulation;
                         _assemblingLocalTransformationIsUsed=SIM_IS_BIT_SET(dummy,7);
                     }
                     if (theName.compare("Va3")==0)
@@ -2086,11 +2035,15 @@ void CSceneObject::serialize(CSer& ar)
                         unsigned char dummy;
                         ar >> dummy;
                         _modelBase=SIM_IS_BIT_SET(dummy,0);
-                        _objectTranslationDisabledDuringSimulation=SIM_IS_BIT_SET(dummy,1);
-                        _objectTranslationDisabledDuringNonSimulation=SIM_IS_BIT_SET(dummy,2);
+                        if (SIM_IS_BIT_SET(dummy,1))
+                            _objectMovementOptions=_objectMovementOptions|2;
+                        if (SIM_IS_BIT_SET(dummy,2))
+                            _objectMovementOptions=_objectMovementOptions|1;
                         _ignoredByViewFitting=SIM_IS_BIT_SET(dummy,3);
-                        _objectRotationDisabledDuringSimulation=SIM_IS_BIT_SET(dummy,4);
-                        _objectRotationDisabledDuringNonSimulation=SIM_IS_BIT_SET(dummy,5);
+                        if (SIM_IS_BIT_SET(dummy,4))
+                            _objectMovementOptions=_objectMovementOptions|8;
+                        if (SIM_IS_BIT_SET(dummy,5))
+                            _objectMovementOptions=_objectMovementOptions|4;
                         _assemblingLocalTransformationIsUsed=SIM_IS_BIT_SET(dummy,7);
                     }
                     if (theName.compare("Va4")==0)
@@ -2131,13 +2084,13 @@ void CSceneObject::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _objectManipulationModePermissions >> _objectManipulationTranslationRelativeTo >> _objectTranslationNonDefaultStepSize;
+                        ar >> _objectManipulationModePermissions >> _objectMovementRelativity[0] >> _objectMovementStepSize[0];
                     }
                     if (theName.compare("Omr")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _objectManipulationRotationRelativeTo >> _objectRotationNonDefaultStepSize;
+                        ar >> _objectMovementRelativity[1] >> _objectMovementStepSize[1];
                     }
 
                     if (theName.compare("Cod")==0)
@@ -2417,18 +2370,18 @@ void CSceneObject::serialize(CSer& ar)
                 ar.xmlPushNewNode("manipulation");
                 ar.xmlAddNode_int("permissions",_objectManipulationModePermissions);
                 ar.xmlPushNewNode("translation");
-                ar.xmlAddNode_bool("disabledDuringSimulation",_objectTranslationDisabledDuringSimulation);
-                ar.xmlAddNode_bool("disabledDuringNonSimulation",_objectTranslationDisabledDuringNonSimulation);
+                ar.xmlAddNode_bool("disabledDuringSimulation",(_objectMovementOptions&2)!=0);
+                ar.xmlAddNode_bool("disabledDuringNonSimulation",(_objectMovementOptions&1)!=0);
                 ar.xmlAddNode_bool("settingsLocked",_objectTranslationSettingsLocked);
-                ar.xmlAddNode_int("relativeTo",_objectManipulationTranslationRelativeTo);
-                ar.xmlAddNode_float("nonDefaultStepSize",_objectTranslationNonDefaultStepSize);
+                ar.xmlAddNode_int("relativeTo",_objectMovementRelativity[0]);
+                ar.xmlAddNode_float("nonDefaultStepSize",_objectMovementStepSize[0]);
                 ar.xmlPopNode();
                 ar.xmlPushNewNode("rotation");
-                ar.xmlAddNode_bool("disabledDuringSimulation",_objectRotationDisabledDuringSimulation);
-                ar.xmlAddNode_bool("disabledDuringNonSimulation",_objectRotationDisabledDuringNonSimulation);
+                ar.xmlAddNode_bool("disabledDuringSimulation",(_objectMovementOptions&8)!=0);
+                ar.xmlAddNode_bool("disabledDuringNonSimulation",(_objectMovementOptions&4)!=0);
                 ar.xmlAddNode_bool("settingsLocked",_objectRotationSettingsLocked);
-                ar.xmlAddNode_int("relativeTo",_objectManipulationRotationRelativeTo);
-                ar.xmlAddNode_float("nonDefaultStepSize",_objectRotationNonDefaultStepSize);
+                ar.xmlAddNode_int("relativeTo",_objectMovementRelativity[1]);
+                ar.xmlAddNode_float("nonDefaultStepSize",_objectMovementStepSize[1]);
                 ar.xmlPopNode();
                 ar.xmlPopNode();
             }
@@ -2660,20 +2613,38 @@ void CSceneObject::serialize(CSer& ar)
                     ar.xmlGetNode_int("permissions",_objectManipulationModePermissions);
                     if (ar.xmlPushChildNode("translation"))
                     {
-                        ar.xmlGetNode_bool("disabledDuringSimulation",_objectTranslationDisabledDuringSimulation);
-                        ar.xmlGetNode_bool("disabledDuringNonSimulation",_objectTranslationDisabledDuringNonSimulation);
+                        bool tmp;
+                        if (ar.xmlGetNode_bool("disabledDuringSimulation",tmp))
+                        {
+                            if (tmp)
+                                _objectMovementOptions=_objectMovementOptions|2;
+                        }
+                        if (ar.xmlGetNode_bool("disabledDuringNonSimulation",tmp))
+                        {
+                            if (tmp)
+                                _objectMovementOptions=_objectMovementOptions|1;
+                        }
                         ar.xmlGetNode_bool("settingsLocked",_objectTranslationSettingsLocked);
-                        ar.xmlGetNode_int("relativeTo",_objectManipulationTranslationRelativeTo);
-                        ar.xmlGetNode_float("nonDefaultStepSize",_objectTranslationNonDefaultStepSize);
+                        ar.xmlGetNode_int("relativeTo",_objectMovementRelativity[0]);
+                        ar.xmlGetNode_float("nonDefaultStepSize",_objectMovementStepSize[0]);
                         ar.xmlPopNode();
                     }
                     if (ar.xmlPushChildNode("rotation"))
                     {
-                        ar.xmlGetNode_bool("disabledDuringSimulation",_objectRotationDisabledDuringSimulation);
-                        ar.xmlGetNode_bool("disabledDuringNonSimulation",_objectRotationDisabledDuringNonSimulation);
+                        bool tmp;
+                        if (ar.xmlGetNode_bool("disabledDuringSimulation",tmp))
+                        {
+                            if (tmp)
+                                _objectMovementOptions=_objectMovementOptions|8;
+                        }
+                        if (ar.xmlGetNode_bool("disabledDuringNonSimulation",tmp))
+                        {
+                            if (tmp)
+                                _objectMovementOptions=_objectMovementOptions|4;
+                        }
                         ar.xmlGetNode_bool("settingsLocked",_objectRotationSettingsLocked);
-                        ar.xmlGetNode_int("relativeTo",_objectManipulationRotationRelativeTo);
-                        ar.xmlGetNode_float("nonDefaultStepSize",_objectRotationNonDefaultStepSize);
+                        ar.xmlGetNode_int("relativeTo",_objectMovementRelativity[1]);
+                        ar.xmlGetNode_float("nonDefaultStepSize",_objectMovementStepSize[1]);
                         ar.xmlPopNode();
                     }
                     ar.xmlPopNode();
@@ -3047,103 +3018,6 @@ void CSceneObject::getCumulativeTransformationMatrix(float m[4][4]) const
     getCumulativeTransformation().copyTo(m);
 }
 
-C7Vector CSceneObject::getFullParentCumulativeTransformation_ikOld() const
-{
-    if (getParent()==nullptr)
-    {
-        C7Vector retV;
-        retV.setIdentity();
-        return(retV);
-    }
-    else
-        return(getParent()->getFullCumulativeTransformation_ikOld());
-}
-
-C7Vector CSceneObject::getFullCumulativeTransformation_ikOld() const
-{
-    C7Vector tr(getFullLocalTransformation_ikOld());
-    if (getParent()==nullptr)
-        return(tr);
-    else
-        return(getFullParentCumulativeTransformation_ikOld()*tr);
-}
-
-C7Vector CSceneObject::getFullLocalTransformation_ikOld() const
-{
-    if (getObjectType()==sim_object_joint_type)
-    {
-        CJoint* it=(CJoint*)this;
-        C7Vector jointTr;
-        jointTr.setIdentity();
-        float val=it->getPosition_useTempValues();
-        if (it->getJointType()==sim_joint_revolute_subtype)
-        {
-            jointTr.Q.setAngleAndAxis(val,C3Vector(0.0f,0.0f,1.0f));
-            jointTr.X(2)=val*it->getScrewPitch();
-        }
-        if (it->getJointType()==sim_joint_prismatic_subtype)
-            jointTr.X(2)=val;
-        if (it->getJointType()==sim_joint_spherical_subtype)
-        {
-            if (it->getTempSphericalJointLimitations()==0)
-            { // Used by the IK routine when away from joint limitations
-                jointTr.Q.setEulerAngles(0.0f,0.0f,it->getTempParameterEx(2));
-                C4Vector q2;
-                q2.setEulerAngles(piValD2_f,0.0f,0.0f);
-                jointTr.Q=q2*jointTr.Q;
-
-                q2.setEulerAngles(0.0f,0.0f,it->getTempParameterEx(1));
-                jointTr.Q=q2*jointTr.Q;
-                q2.setEulerAngles(-piValD2_f,0.0f,-piValD2_f);
-                jointTr.Q=q2*jointTr.Q;
-
-                q2.setEulerAngles(0.0f,0.0f,it->getTempParameterEx(0));
-                jointTr.Q=q2*jointTr.Q;
-                q2.setEulerAngles(0.0f,piValD2_f,0.0f);
-                jointTr.Q=q2*jointTr.Q;
-                q2=it->getSphericalTransformation();
-                jointTr.Q=q2*jointTr.Q;
-            }
-            else
-            { // Used by the IK routine when close to joint limitations
-                jointTr.Q.setEulerAngles(0.0f,0.0f,it->getTempParameterEx(2));
-                C4Vector q2;
-                q2.setEulerAngles(0.0f,-piValD2_f,0.0f);
-                jointTr.Q=q2*jointTr.Q;
-
-                q2.setEulerAngles(0.0f,0.0f,it->getTempParameterEx(1));
-                jointTr.Q=q2*jointTr.Q;
-                q2.setEulerAngles(0.0f,piValD2_f,0.0f);
-                jointTr.Q=q2*jointTr.Q;
-
-                q2.setEulerAngles(0.0f,0.0f,it->getTempParameterEx(0));
-                jointTr.Q=q2*jointTr.Q;
-            }
-        }
-        return(_localTransformation*jointTr);
-    }
-    else if (getObjectType()==sim_object_dummy_type)
-    {
-        CDummy* it=(CDummy*)this;
-        return(it->getTempLocalTransformation()); // used for IK when dummy is freely sliding on a path object
-    }
-    else
-        return(_localTransformation);
-}
-
-C7Vector CSceneObject::getCumulativeTransformation_ikOld() const
-{
-    if (getObjectType()==sim_object_joint_type)
-    {
-        if (getParent()==nullptr)
-            return(getLocalTransformation());
-        else
-            return(getFullParentCumulativeTransformation_ikOld()*getLocalTransformation());
-    }
-    else
-        return(getFullCumulativeTransformation_ikOld());
-}
-
 void CSceneObject::setAbsoluteTransformation(const C7Vector& v)
 {
     setLocalTransformation(getFullParentCumulativeTransformation().getInverse()*v);
@@ -3346,22 +3220,22 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         axisInfo=_objectManipulationMode_flaggedForGridOverlay-8;
         tr=getCumulativeTransformation().getMatrix();
 
-        if (getObjectManipulationRotationRelativeTo()==0) // world
+        if (getObjectMovementRelativity(1)==0) // world
             tr.M.setIdentity();
-        if (getObjectManipulationRotationRelativeTo()==1) // parent frame
+        if (getObjectMovementRelativity(1)==1) // parent frame
             tr.M=getFullParentCumulativeTransformation().getMatrix().M;
-        if ((getObjectManipulationRotationRelativeTo()==2)||isPathPoints) // own frame
+        if ((getObjectMovementRelativity(1)==2)||isPathPoints) // own frame
             tr.M=getCumulativeTransformation().getMatrix().M;
     }
     else
     { // translation
         axisInfo=_objectManipulationMode_flaggedForGridOverlay-16;
         tr=getCumulativeTransformation().getMatrix();
-        if (getObjectManipulationTranslationRelativeTo()==0) // world
+        if (getObjectMovementRelativity(0)==0) // world
             tr.M.setIdentity();
-        if (getObjectManipulationTranslationRelativeTo()==1) // parent frame
+        if (getObjectMovementRelativity(0)==1) // parent frame
             tr.M=getFullParentCumulativeTransformation().getMatrix().M;
-        if ((getObjectManipulationTranslationRelativeTo()==2)||isPathPoints) // own frame
+        if ((getObjectMovementRelativity(0)==2)||isPathPoints) // own frame
             tr.M=getCumulativeTransformation().getMatrix().M;
         if (isPathPoints)
             tr.X=tr*localPositionOnPath;
@@ -3449,7 +3323,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
     // Do the OGL transformation:
         glTranslatef(tr.X(0),tr.X(1),tr.X(2));
         C3X3Matrix rrot;
-        if (getObjectManipulationRotationRelativeTo()==2) // own frame
+        if (getObjectMovementRelativity(1)==2) // own frame
             rrot=tr.M;
         else
         {
@@ -3671,13 +3545,13 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
 
 bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix& cameraAbsConf,float rotationAmount,bool perspective,int eventID)
 { // bits 0-2: position x,y,z (relative to parent frame), bits 3-5: Euler e9,e1,e2 (relative to own frame)
-    if ( (!App::currentWorld->simulation->isSimulationStopped())&&getObjectRotationDisabledDuringSimulation())
+    if ( (!App::currentWorld->simulation->isSimulationStopped())&&(getObjectMovementOptions()&8))
     {
         _objectManipulationMode_flaggedForGridOverlay=0;
         _objectManipulationModeEventId=-1;
         return(false);
     }
-    if (App::currentWorld->simulation->isSimulationStopped()&&getObjectRotationDisabledDuringNonSimulation())
+    if (App::currentWorld->simulation->isSimulationStopped()&&(getObjectMovementOptions()&4))
     {
         _objectManipulationMode_flaggedForGridOverlay=0;
         _objectManipulationModeEventId=-1;
@@ -3710,11 +3584,11 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
             specialMode=true;
         C4X4Matrix objAbs(getCumulativeTransformation().getMatrix());
         C3X3Matrix rotAxes;
-        if (getObjectManipulationRotationRelativeTo()==2)
+        if (getObjectMovementRelativity(1)==2)
             rotAxes=objAbs.M; // own frame
-        if (getObjectManipulationRotationRelativeTo()==1)
+        if (getObjectMovementRelativity(1)==1)
             rotAxes=getFullParentCumulativeTransformation().getMatrix().M; // parent frame
-        if (getObjectManipulationRotationRelativeTo()==0)
+        if (getObjectMovementRelativity(1)==0)
             rotAxes.setIdentity(); // absolute frame
 
         float ml=0.0f;
@@ -3758,7 +3632,7 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
     if (_objectManipulationModeAxisIndex==-1)
         return(false); //rotation not allowed
 
-    float ss=getNonDefaultRotationStepSize();
+    float ss=getObjectMovementStepSize(1);
     if (ss==0.0f)
         ss=App::userSettings->getRotationStepSize();
     if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
@@ -3778,11 +3652,11 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
     euler(_objectManipulationModeAxisIndex)=axisEffectiveRotationAmount;
     C4Vector rot(euler);
     C7Vector tr(_localTransformation);
-    if (getObjectManipulationRotationRelativeTo()==2)
+    if (getObjectMovementRelativity(1)==2)
         tr.Q*=rot; // relative to own frame
-    if (getObjectManipulationRotationRelativeTo()==1)
+    if (getObjectMovementRelativity(1)==1)
         tr.Q=rot*tr.Q; // relative to parent frame
-    if (getObjectManipulationRotationRelativeTo()==0)
+    if (getObjectMovementRelativity(1)==0)
     { // relative to world frame
         C4Vector trq(getCumulativeTransformation().Q);
         trq=rot*trq;
@@ -3798,13 +3672,13 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
 bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,float prevPos[2],float pos[2],float screenHalfSizes[2],float halfSizes[2],bool perspective,int eventID)
 { // bits 0-2: position x,y,z (relative to parent frame), bits 3-5: Euler e9,e1,e2 (relative to own frame)
 
-    if ( (!App::currentWorld->simulation->isSimulationStopped())&&getObjectTranslationDisabledDuringSimulation())
+    if ( (!App::currentWorld->simulation->isSimulationStopped())&&(getObjectMovementOptions()&2))
     {
         _objectManipulationMode_flaggedForGridOverlay=0;
         _objectManipulationModeEventId=-1;
         return(false);
     }
-    if (App::currentWorld->simulation->isSimulationStopped()&&getObjectTranslationDisabledDuringNonSimulation())
+    if (App::currentWorld->simulation->isSimulationStopped()&&(getObjectMovementOptions()&1))
     {
         _objectManipulationMode_flaggedForGridOverlay=0;
         _objectManipulationModeEventId=-1;
@@ -3813,11 +3687,11 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
 
     C4X4Matrix objAbs;
     objAbs.X=getCumulativeTransformation().X;
-    if (getObjectManipulationTranslationRelativeTo()==0)
+    if (getObjectMovementRelativity(0)==0)
         objAbs.M.setIdentity();
-    if (getObjectManipulationTranslationRelativeTo()==1)
+    if (getObjectMovementRelativity(0)==1)
         objAbs.M=getFullParentCumulativeTransformation().getMatrix().M;
-    if (getObjectManipulationTranslationRelativeTo()==2)
+    if (getObjectMovementRelativity(0)==2)
         objAbs.M=getCumulativeTransformation().getMatrix().M;
     static int  otherAxisMemorized=0;
     bool ctrlKeyDown=((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1))&&(!_objectTranslationSettingsLocked);
@@ -4013,7 +3887,7 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
     _objectManipulationModeSubTranslation+=v;
     for (int i=0;i<3;i++)
     {
-        float ss=getNonDefaultTranslationStepSize();
+        float ss=getObjectMovementStepSize(0);
         if (ss==0.0f)
             ss=App::userSettings->getTranslationStepSize();
         if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))

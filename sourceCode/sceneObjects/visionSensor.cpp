@@ -216,7 +216,7 @@ bool CVisionSensor::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
 
 void CVisionSensor::commonInit()
 {
-    setObjectType(sim_object_visionsensor_type);
+    _objectType=sim_object_visionsensor_type;
     _nearClippingPlane=0.01f;
     _farClippingPlane=10.0f;
     _viewAngle=60.0f*degToRad_f;

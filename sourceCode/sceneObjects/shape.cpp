@@ -904,7 +904,7 @@ bool CShape::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
 
 void CShape::commonInit()
 {
-    setObjectType(sim_object_shape_type);
+    _objectType=sim_object_shape_type;
     _containsTransparentComponents=false;
     _startInDynamicSleeping=false;
     _shapeIsDynamicallyStatic=true;

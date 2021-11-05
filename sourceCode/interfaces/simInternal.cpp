@@ -9089,13 +9089,13 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                 if (parameterID==sim_objintparam_manipulation_permissions)
                 {
                     parameter[0]=0;
-                    if (!it->getObjectTranslationDisabledDuringNonSimulation())
+                    if ((it->getObjectMovementOptions()&1)==0)
                         parameter[0]|=1;
-                    if (!it->getObjectTranslationDisabledDuringSimulation())
+                    if ((it->getObjectMovementOptions()&2)==0)
                         parameter[0]|=2;
-                    if (!it->getObjectRotationDisabledDuringNonSimulation())
+                    if ((it->getObjectMovementOptions()&4)==0)
                         parameter[0]|=4;
-                    if (!it->getObjectRotationDisabledDuringSimulation())
+                    if ((it->getObjectMovementOptions()&8)==0)
                         parameter[0]|=8;
                     if (it->getObjectTranslationSettingsLocked())
                         parameter[0]|=16;
@@ -9473,10 +9473,9 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                 }
                 if (parameterID==sim_objintparam_manipulation_permissions)
                 {
-                    it->setObjectTranslationDisabledDuringNonSimulation((parameter&1)==0);
-                    it->setObjectTranslationDisabledDuringSimulation((parameter&2)==0);
-                    it->setObjectRotationDisabledDuringNonSimulation((parameter&4)==0);
-                    it->setObjectRotationDisabledDuringSimulation((parameter&8)==0);
+                    int a=it->getObjectMovementOptions()&0xffff0;
+                    a=a^parameter&0x00000f;
+                    it->setObjectMovementOptions(a);
                     it->setObjectTranslationSettingsLocked((parameter&16)!=0);
                     it->setObjectRotationSettingsLocked((parameter&32)!=0);
                     retVal=1;
@@ -16853,7 +16852,7 @@ simVoid _simSetDynamicSimulationIconCode_internal(simVoid* object,simInt code)
 simVoid _simSetDynamicObjectFlagForVisualization_internal(simVoid* object,simInt flag)
 {
     TRACE_C_API;
-    ((CSceneObject*)object)->setDynamicObjectFlag_forVisualization(flag);
+    ((CSceneObject*)object)->setDynamicFlag(flag);
 }
 
 simInt _simGetTreeDynamicProperty_internal(const simVoid* object)

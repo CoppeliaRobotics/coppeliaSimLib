@@ -73,8 +73,8 @@ void CQDlgRotation::refresh()
             _setValuesTransformationPart(true);
             // Manip part:
             manipulationModePermission=object->getObjectManipulationModePermissions();
-            manipulationRotationRelativeTo=object->getObjectManipulationRotationRelativeTo();
-            manipulationRotationStepSize=object->getNonDefaultRotationStepSize();
+            manipulationRotationRelativeTo=object->getObjectMovementRelativity(1);
+            manipulationRotationStepSize=object->getObjectMovementStepSize(1);
             objectRotationSettingsLocked=object->getObjectRotationSettingsLocked();
         }
         else
@@ -115,14 +115,14 @@ void CQDlgRotation::refresh()
 
             if (App::currentWorld->simulation->isSimulationStopped())
             {
-                if (object->getObjectRotationDisabledDuringNonSimulation())
+                if (object->getObjectMovementOptions()&4)
                     _selectItemOfCombobox(ui->qqOrCombo,-1);
                 else
                     _selectItemOfCombobox(ui->qqOrCombo,int((manipulationRotationStepSize*radToDeg_f+0.0005f)*1000.0f));
             }
             else
             {
-                if (object->getObjectRotationDisabledDuringSimulation())
+                if (object->getObjectMovementOptions()&8)
                     _selectItemOfCombobox(ui->qqOrCombo,-1);
                 else
                     _selectItemOfCombobox(ui->qqOrCombo,int((manipulationRotationStepSize*radToDeg_f+0.0005f)*1000.0f));

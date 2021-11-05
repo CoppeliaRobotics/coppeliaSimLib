@@ -107,9 +107,8 @@ public:
 
     CSceneObject* getFirstParentInSelection(const std::vector<CSceneObject*>* sel) const;
     CSceneObject* getLastParentInSelection(const std::vector<CSceneObject*>* sel) const;
-    void setObjectType(int theType);
-    void setDynamicObjectFlag_forVisualization(int isDynamicallySimulatedFlag);
-    int getDynamicObjectFlag_forVisualization() const;
+    void setDynamicFlag(int flag);
+    int getDynamicFlag() const;
 
     void setSpecificLight(int h);
     int getSpecificLight() const;
@@ -127,28 +126,17 @@ public:
 
     void setObjectManipulationModePermissions(int p);
     int getObjectManipulationModePermissions() const;
-    void setObjectTranslationDisabledDuringSimulation(bool d);
-    bool getObjectTranslationDisabledDuringSimulation() const;
-    void setObjectTranslationDisabledDuringNonSimulation(bool d);
-    bool getObjectTranslationDisabledDuringNonSimulation() const;
     void setObjectTranslationSettingsLocked(bool l);
     bool getObjectTranslationSettingsLocked() const;
-    void setObjectRotationDisabledDuringSimulation(bool d);
-    bool getObjectRotationDisabledDuringSimulation() const;
-    void setObjectRotationDisabledDuringNonSimulation(bool d);
-    bool getObjectRotationDisabledDuringNonSimulation() const;
     void setObjectRotationSettingsLocked(bool l);
     bool getObjectRotationSettingsLocked() const;
 
-
-    void setObjectManipulationTranslationRelativeTo(int p);
-    int getObjectManipulationTranslationRelativeTo() const;
-    void setObjectManipulationRotationRelativeTo(int p);
-    int getObjectManipulationRotationRelativeTo() const;
-    void setNonDefaultTranslationStepSize(float s);
-    float getNonDefaultTranslationStepSize() const;
-    void setNonDefaultRotationStepSize(float s);
-    float getNonDefaultRotationStepSize() const;
+    void setObjectMovementOptions(int p);
+    int getObjectMovementOptions() const;
+    void setObjectMovementRelativity(int index,int p);
+    int getObjectMovementRelativity(int index) const;
+    void setObjectMovementStepSize(int index,float s);
+    float getObjectMovementStepSize(int index) const;
 
     void setObjectCustomData(int header,const char* data,int dataLength);
     void clearObjectCustomData();
@@ -264,12 +252,6 @@ public:
 
     void getCumulativeTransformationMatrix(float m[4][4]) const;
 
-    // Old IK functionality:
-    C7Vector getFullParentCumulativeTransformation_ikOld() const;
-    C7Vector getFullCumulativeTransformation_ikOld() const;
-    C7Vector getFullLocalTransformation_ikOld() const;
-    C7Vector getCumulativeTransformation_ikOld() const;
-
     int getIkPluginCounterpartHandle() const;
 
     std::string getDisplayName() const;
@@ -293,13 +275,13 @@ public:
 
 protected:
     void _addCommonObjectEventData(CInterfaceStackTable* data) const;
+    void _appendObjectMovementEventData(CInterfaceStackTable* data) const;
 
     bool _ignorePosAndCameraOrthoviewSize_forUndoRedo;
 
     int _getAllowedObjectSpecialProperties() const;
 
     int _dynamicSimulationIconCode;
-//    static int _modelPropertyValidityNumber;
 
     bool _restoreToDefaultLights;
     bool _forceAlwaysVisible_tmp;
@@ -317,24 +299,18 @@ protected:
     std::string _objectTempName_old;
     std::string _objectTempAltName_old;
 
-//    int _cumulativeModelProperty;
-//    int _cumulativeModelPropertyValidityNumber;
-
     int _authorizedViewableObjects; // -1 --> all, -2 --> none, otherwise object or collection handle
 
     int _objectManipulationModePermissions;
-    bool _objectTranslationDisabledDuringSimulation;
-    bool _objectTranslationDisabledDuringNonSimulation;
     bool _objectTranslationSettingsLocked;
-    bool _objectRotationDisabledDuringSimulation;
-    bool _objectRotationDisabledDuringNonSimulation;
     bool _objectRotationSettingsLocked;
-
     bool _objectManipulationModePermissionsPreviousCtrlKeyDown;
-    float _objectTranslationNonDefaultStepSize;
-    float _objectRotationNonDefaultStepSize;
-    int _objectManipulationTranslationRelativeTo; //0=world, 1=parent, 2=own frame
-    int _objectManipulationRotationRelativeTo; //0=world, 1=parent, 2=own frame
+
+
+    int _objectMovementOptions; // bit0=transl not ok when sim. stopped, bit1=transl not ok when sim. running, bit2&bit3: same but for rotations
+    float _objectMovementStepSize[2]; // 0.0= use app default
+    int _objectMovementRelativity[2]; //0=world, 1=parent, 2=own frame
+
     int _memorizedConfigurationValidCounter;
     float _sizeFactor; // just used so that scripts can also adjust for scaling
     float _sizeValues[3];
@@ -370,7 +346,7 @@ protected:
     int _initialMemorizedConfigurationValidCounter;
     C7Vector _initialLocalTransformationPart1;
 
-    int _dynamicObjectFlag_forVisualization;
+    int _dynamicFlag;
 
     float _measuredAngularVelocity_velocityMeasurement;
     C3Vector _measuredAngularVelocity3_velocityMeasurement;

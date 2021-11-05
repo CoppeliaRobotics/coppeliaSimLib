@@ -144,12 +144,14 @@ void CDynamicsContainer::handleDynamics(float dt)
 {
     App::worldContainer->calcInfo->dynamicsStart();
 
+    /*
     for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
     {
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
         if (it!=nullptr)
-            it->setDynamicObjectFlag_forVisualization(0);
+            it->setDynamicFlag(0);
     }
+    */
     addWorldIfNotThere();
 
     if (getDynamicsEnabled())

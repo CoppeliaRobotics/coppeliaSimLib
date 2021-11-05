@@ -53,7 +53,7 @@ bool CLight::isPotentiallyRenderable() const
 
 void CLight::_commonInit()
 {
-    setObjectType(sim_object_light_type);
+    _objectType=sim_object_light_type;
     _lightSize=0.10f;
     _spotExponent=5;
     _spotCutoffAngle=90.0f*degToRad_f;

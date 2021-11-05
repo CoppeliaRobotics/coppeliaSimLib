@@ -449,7 +449,7 @@ void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp)
         // Turn count is taken care by the physics plugin.
         _CJoint_::setPosition(rfp);
     }
-    _rectifyDependentJoints(false);
+    _rectifyDependentJoints();
 }
 
 bool CJoint::setDependencyMasterJointHandle(int depJointID)
@@ -869,11 +869,6 @@ std::string CJoint::getObjectTypeInfoExtended() const
         retVal+=gv::getAngleStr(true,euler(0))+", b="+gv::getAngleStr(true,euler(1))+", g="+gv::getAngleStr(true,euler(2))+")";
     }
     return(retVal);
-}
-
-float CJoint::getPosition_useTempValues() const
-{
-    return(_jointPosition_tempForIK);
 }
 
 float CJoint::getMeasuredJointVelocity() const
@@ -2695,17 +2690,12 @@ void CJoint::_setJointMode_send(int theMode) const
         CPluginContainer::ikPlugin_setJointMode(_ikPluginCounterpartHandle,theMode);
 }
 
-void CJoint::_rectifyDependentJoints(bool useTempValues)
-{   // We rectify now all joints linked to that one (rewritten on 2009-01-27):
+void CJoint::_rectifyDependentJoints()
+{
     for (size_t i=0;i<_directDependentJoints.size();i++)
     {
         if ((_directDependentJoints[i]->getJointMode()==sim_jointmode_dependent)||(_directDependentJoints[i]->getJointMode()==sim_jointmode_reserved_previously_ikdependent)) // second part on 3/7/2014
-        {
-            if (useTempValues)
-                _directDependentJoints[i]->setPosition_useTempValues(0.0f); // value doesn't matter!
-            else
-                _directDependentJoints[i]->setPosition(0.0f); // value doesn't matter!
-        }
+            _directDependentJoints[i]->setPosition(0.0f); // value doesn't matter!
     }
 }
 
@@ -2803,7 +2793,7 @@ bool CJoint::setPosition(float pos)
     }
     retVal=_CJoint_::setPosition(pos);
 
-    _rectifyDependentJoints(false);
+    _rectifyDependentJoints();
     setVelocity_DEPRECATED(getVelocity_DEPRECATED());
     return(retVal);
 }
@@ -2814,211 +2804,6 @@ void CJoint::_setPosition_send(float pos) const
     // Synchronize with IK plugin:
     if ( (_ikPluginCounterpartHandle!=-1)&&(_jointType!=sim_joint_spherical_subtype) )
         CPluginContainer::ikPlugin_setJointPosition(_ikPluginCounterpartHandle,pos);
-}
-
-void CJoint::setPosition_useTempValues(float pos)
-{
-    if (_positionIsCyclic)
-        pos=tt::getNormalizedAngle(pos);
-    else
-    {
-        if (pos>(getPositionIntervalMin()+getPositionIntervalRange()))
-            pos=getPositionIntervalMin()+getPositionIntervalRange();
-        if (pos<getPositionIntervalMin())
-            pos=getPositionIntervalMin();
-    }
-
-    if ( (_jointMode==sim_jointmode_dependent)||(_jointMode==sim_jointmode_reserved_previously_ikdependent) )
-    {
-        float linked=0.0f;
-        if (_dependencyMasterJointHandle!=-1)
-        {
-            CJoint* anAct=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
-            if (anAct!=nullptr)
-                linked=_dependencyJointMult*anAct->getPosition_useTempValues();
-        }
-        pos=linked+_dependencyJointOffset;
-    }
-    _jointPosition_tempForIK=pos;
-
-    _rectifyDependentJoints(true);
-}
-
-void CJoint::initializeParametersForIK()
-{
-    if (_jointType!=sim_joint_spherical_subtype)
-        _jointPosition_tempForIK=_jointPosition;
-    else
-    {
-        // 1. Do we need to prepare the thing for the joint limitation?
-        _sphericalTransformation_eulerLockTempForIK=0;
-        C3X3Matrix m(_sphericalTransformation);
-        float angle=C3Vector::unitZVector.getAngle(m.axis[2]);
-        if ( (_jointPositionRange<179.9f*degToRad_f)&&(angle>1.0f*degToRad_f) )
-        {
-            if (_jointPositionRange/2.0f<angle)
-            { // We have to activate the second type of spherical joint (with joint limitation (IK pass dependent))
-                _sphericalTransformation_eulerLockTempForIK=2;
-                C3Vector n(m.axis[2]);
-                n(2)=0.0f;
-                n.normalize();
-                C3Vector y((C3Vector::unitZVector^n).getNormalized());
-                float angle2=C3Vector::unitXVector.getAngle(y);
-                C3Vector zz(C3Vector::unitXVector^y);
-                if (zz(2)<0.0f)
-                    angle2=-angle2;
-                _jointPosition_tempForIK=0.0f; // Not really needed!
-                _sphericalTransformation_euler1TempForIK=angle2;
-                _sphericalTransformation_euler2TempForIK=angle;
-                float angle3=m.axis[0].getAngle(y);
-                C3Vector nz(y^m.axis[0]);
-                if (nz*m.axis[2]<0.0f)
-                    angle3=-angle3;
-                _sphericalTransformation_euler3TempForIK=angle3;
-            }
-        }
-        if (_sphericalTransformation_eulerLockTempForIK==0)
-        { // No joint limitations for the IK (in this IK pass)
-            _jointPosition_tempForIK=0.0f; // Not really needed!
-            _sphericalTransformation_euler1TempForIK=0.0f;
-            _sphericalTransformation_euler2TempForIK=0.0f;
-            _sphericalTransformation_euler3TempForIK=0.0f;
-        }
-    }
-}
-
-int CJoint::getDoFs() const
-{
-    int retVal=1;
-    if (_jointType==sim_joint_spherical_subtype)
-        retVal=3;;
-    return(retVal);
-}
-
-int CJoint::getTempSphericalJointLimitations()
-{
-    return(_sphericalTransformation_eulerLockTempForIK);
-}
-
-void CJoint::getLocalTransformationExPart1(C7Vector& mTr,int index,bool useTempValues)
-{ // Used for Jacobian calculation with spherical joints
-    if (_sphericalTransformation_eulerLockTempForIK==0)
-    { // Spherical joint limitations are not activated in the IK algorithm (but if we come close to the limit, it might get activated in next pass!)
-        if (index==0)
-        { 
-            mTr.setIdentity();
-            mTr.Q.setEulerAngles(0.0f,piValD2_f,0.0f);
-            C7Vector tr2(getFullLocalTransformation());
-            mTr=tr2*mTr;
-        }
-        if (index==1)
-        {
-            mTr.setIdentity();
-            mTr.Q.setEulerAngles(-piValD2_f,0.0f,-piValD2_f);
-        }
-        if (index==2)
-        {
-            mTr.setIdentity();
-            mTr.Q.setEulerAngles(piValD2_f,0.0f,0.0f);
-        }
-    }
-    else
-    {
-        if (index==0)
-        {
-            mTr=getLocalTransformation();
-        }
-        if (index==1)
-        {
-            mTr.setIdentity();
-            mTr.Q.setEulerAngles(0.0f,piValD2_f,0.0f);
-        }
-        if (index==2)
-        {
-            mTr.setIdentity();
-            mTr.Q.setEulerAngles(0.0f,-piValD2_f,0.0f);
-        }
-    }
-}
-
-float CJoint::getTempParameterEx(int index)
-{
-    if (index==0)
-        return(_sphericalTransformation_euler1TempForIK);
-    if (index==1)
-        return(_sphericalTransformation_euler2TempForIK);
-    if (index==2)
-        return(_sphericalTransformation_euler3TempForIK);
-    return(0.0f);
-}
-
-void CJoint::setTempParameterEx(float parameter,int index)
-{
-    if (index==0)
-        _sphericalTransformation_euler1TempForIK=parameter;
-    if (index==1)
-        _sphericalTransformation_euler2TempForIK=parameter;
-    if (index==2)
-        _sphericalTransformation_euler3TempForIK=parameter;
-
-    if (_sphericalTransformation_eulerLockTempForIK==0)
-    { // Spherical joint limitations are not activated in the IK algorithm (but if we come close to the limit, it might get activated in next pass!)
-        C4Vector saved(_sphericalTransformation);
-        applyTempParametersEx();
-        C4Vector tr(saved.getInverse()*_sphericalTransformation);
-        C3Vector euler(tr.getEulerAngles());
-        _sphericalTransformation_euler1TempForIK=euler(0);
-        _sphericalTransformation_euler2TempForIK=euler(1);
-        _sphericalTransformation_euler3TempForIK=euler(2);
-        _sphericalTransformation=saved;
-    }
-    else
-    { // Spherical joint limitations are activated in the IK algorithm
-        C4Vector saved(_sphericalTransformation);
-        applyTempParametersEx();
-
-        C3X3Matrix m(_sphericalTransformation);
-
-        float angle=C3Vector::unitZVector.getAngle(m.axis[2]);
-        if (angle>0.01f*degToRad_f)
-        {
-            C3Vector n(m.axis[2]);
-            n(2)=0.0f;
-            n.normalize();
-            C3Vector y((C3Vector::unitZVector^n).getNormalized());
-            float angle2=C3Vector::unitXVector.getAngle(y);
-            C3Vector zz(C3Vector::unitXVector^y);
-            if (zz(2)<0.0f)
-                angle2=-angle2;
-            _sphericalTransformation_euler1TempForIK=angle2;
-            _sphericalTransformation_euler2TempForIK=angle;
-            float angle3=m.axis[0].getAngle(y);
-            C3Vector nz(y^m.axis[0]);
-            if (nz*m.axis[2]<0.0f)
-                angle3=-angle3;
-            _sphericalTransformation_euler3TempForIK=angle3;
-        }
-        else
-        { // This is a rare case and should never happen if the spherical joint limitation is not too small!
-            float angle=C3Vector::unitXVector.getAngle(m.axis[0]);
-            if ((C3Vector::unitXVector^m.axis[0])(2)<0.0f)
-                angle=-angle;
-            _sphericalTransformation_euler1TempForIK=angle;
-            _sphericalTransformation_euler2TempForIK=0.0f;
-            _sphericalTransformation_euler3TempForIK=0.0f;
-        }
-        _sphericalTransformation=saved;
-    }
-}
-
-void CJoint::applyTempParametersEx()
-{
-    if (_jointType==sim_joint_spherical_subtype)
-    {
-        C7Vector tr1(getLocalTransformation());
-        C7Vector tr2(getFullLocalTransformation_ikOld());
-        setSphericalTransformation(tr1.Q.getInverse()*tr2.Q);
-    }
 }
 
 bool CJoint::announceObjectWillBeErased(int objectHandle,bool copyBuffer)

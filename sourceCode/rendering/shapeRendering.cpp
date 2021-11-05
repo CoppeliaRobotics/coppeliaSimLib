@@ -144,23 +144,23 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
                         if (shape->isMeshCalculationStructureInitialized())
                         {
                             fakeCol.setColor(0.5f,0.1f,0.1f,0);
-                            shape->getMeshWrapper()->display(shape,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicObjectFlag_forVisualization(),0,false);
+                            shape->getMeshWrapper()->display(shape,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
                         }
                         else
                         {
                             fakeCol.setColor(0.5f,0.5f,0.5f,0);
-                            shape->getMeshWrapper()->display(shape,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicObjectFlag_forVisualization(),0,false);
+                            shape->getMeshWrapper()->display(shape,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
                         }
                     }
                     else
                     { // normal visualization
                         if (shape->getContainsTransparentComponent())
                         {
-                            shape->getMeshWrapper()->display(shape,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization(),2,false);
-                            shape->getMeshWrapper()->display(shape,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization(),1,false);
+                            shape->getMeshWrapper()->display(shape,displayAttrib,otherColorP,shape->getDynamicFlag(),2,false);
+                            shape->getMeshWrapper()->display(shape,displayAttrib,otherColorP,shape->getDynamicFlag(),1,false);
                         }
                         else
-                            shape->getMeshWrapper()->display(shape,displayAttrib,otherColorP,shape->getDynamicObjectFlag_forVisualization(),0,false);
+                            shape->getMeshWrapper()->display(shape,displayAttrib,otherColorP,shape->getDynamicFlag(),0,false);
                     }
                 }
                 else

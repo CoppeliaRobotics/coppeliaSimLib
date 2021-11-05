@@ -259,7 +259,7 @@ bool CSimulation::startOrResumeSimulation()
         _speedModifierIndexOffset=0;
         _pauseOnErrorRequested=false;
         _realTimeCorrection_us=0;
-        _simulationTime_us=0;
+        _setSimulationTime_us(0);
         simulationTime_real_us=0;
         simulationTime_real_noCatchUp_us=0;
         clearSimulationTimeHistory_us();
@@ -354,7 +354,7 @@ void CSimulation::advanceSimulationByOneStep()
     }
     else
     {
-        if ( _pauseAtSpecificTime&&(_simulationTime_us>=_simulationTimeToPause_us) )
+        if ( _pauseAtSpecificTime&&(getSimulationTime_us()>=_simulationTimeToPause_us) )
         {
             pauseSimulation();
             _pauseAtSpecificTime=false;
@@ -367,17 +367,17 @@ void CSimulation::advanceSimulationByOneStep()
     if (_simulationStepCount==1)
         _realTimeCorrection_us=0;
 
-    _simulationTime_us+=getSimulationTimeStep_speedModified_us();
+    _setSimulationTime_us(getSimulationTime_us()+getSimulationTimeStep_speedModified_us());
 
     int ct=VDateTime::getTimeInMs();
     quint64 drt=quint64((double(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))*1000.0+double(_realTimeCorrection_us))*getRealTimeCoefficient_speedModified());
     simulationTime_real_us+=drt;
     simulationTime_real_noCatchUp_us+=drt;
-    if ( (!_catchUpIfLate)&&(simulationTime_real_noCatchUp_us>_simulationTime_us+getSimulationTimeStep_speedModified_us()) )
-        simulationTime_real_noCatchUp_us=_simulationTime_us+getSimulationTimeStep_speedModified_us();
+    if ( (!_catchUpIfLate)&&(simulationTime_real_noCatchUp_us>getSimulationTime_us()+getSimulationTimeStep_speedModified_us()) )
+        simulationTime_real_noCatchUp_us=getSimulationTime_us()+getSimulationTimeStep_speedModified_us();
     _realTimeCorrection_us=0;
     simulationTime_real_lastInMs=ct;
-    addToSimulationTimeHistory_us(_simulationTime_us,simulationTime_real_us);
+    addToSimulationTimeHistory_us(getSimulationTime_us(),simulationTime_real_us);
 
     if (getSimulationState()==sim_simulation_advancing_firstafterstop)
         setSimulationState(sim_simulation_advancing_running);
@@ -499,7 +499,7 @@ bool CSimulation::isRealTimeCalculationStepNeeded()
     if (!isSimulationRunning())
         return(false);
     quint64 crt=simulationTime_real_noCatchUp_us+quint64(double(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))*getRealTimeCoefficient_speedModified()*1000.0);
-    return (_simulationTime_us+getSimulationTimeStep_speedModified_us()<crt);
+    return (getSimulationTime_us()+getSimulationTimeStep_speedModified_us()<crt);
 }
 
 bool CSimulation::getRealTimeSimulation()
@@ -539,7 +539,8 @@ int CSimulation::getSimulationPassesPerRendering_raw()
 void CSimulation::pushAllInitialEvents() const
 {
     auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SIMULATIONCHANGED,-1,nullptr,false);
-    data->appendMapObject_stringInt32("state",_simulationState);
+    data->appendMapObject_stringInt32("state",getSimulationState());
+    data->appendMapObject_stringInt32("time",getSimulationTime_us()/1000);
 
     App::worldContainer->pushEvent(event);
 }
@@ -645,12 +646,28 @@ void CSimulation::setPauseAtSpecificTime(bool e)
     _pauseAtSpecificTime=e;
 }
 
-quint64 CSimulation::getSimulationTime_us()
+quint64 CSimulation::getSimulationTime_us() const
 {
     return(_simulationTime_us);
 }
 
-quint64 CSimulation::getSimulationTime_real_us()
+void CSimulation::_setSimulationTime_us(quint64 t)
+{
+    bool diff=(_simulationTime_us!=t);
+    if (diff)
+    {
+        _simulationTime_us=t;
+        if (App::worldContainer->getEnableEvents())
+        {
+            const char* cmd="time";
+            auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SIMULATIONCHANGED,-1,cmd,true);
+            data->appendMapObject_stringInt32(cmd,_simulationTime_us/1000);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
+quint64 CSimulation::getSimulationTime_real_us() const
 {
     return(simulationTime_real_us);
 }
@@ -936,11 +953,11 @@ bool CSimulation::getInfo(std::string& txtLeft,std::string& txtRight,int& index)
                     txtRight="&&fg930"; // When current simulation speed is too slow
                 else
                 {
-                    if ( abs((long long int)(_simulationTime_us-simulationTime_real_us)) > (long long int)(10*getSimulationTimeStep_speedModified_us()) )
+                    if ( abs((long long int)(getSimulationTime_us()-simulationTime_real_us)) > (long long int)(10*getSimulationTimeStep_speedModified_us()) )
                         txtRight="&&fg930"; // When simulation is behind
                 }
             }
-            txtRight+=gv::getHourMinuteSecondMilisecondStr(double(_simulationTime_us)/1000000.0+0.0001)+" &&fg@@@(real time: ";
+            txtRight+=gv::getHourMinuteSecondMilisecondStr(double(getSimulationTime_us())/1000000.0+0.0001)+" &&fg@@@(real time: ";
             if (abs(getRealTimeCoefficient_speedModified()-1.0)<0.01)
                 txtRight+=gv::getHourMinuteSecondMilisecondStr(double(simulationTime_real_us)/1000000.0+0.0001)+")";
             else
@@ -949,12 +966,12 @@ bool CSimulation::getInfo(std::string& txtLeft,std::string& txtRight,int& index)
                 txtRight+=tt::FNb(0,float(getRealTimeCoefficient_speedModified()),3,false)+"))";
             }
             if (simulationTime_real_us!=0)
-                txtRight+=" (real time fact="+tt::FNb(0,double(_simulationTime_us)/double(simulationTime_real_us),2,false)+")";
+                txtRight+=" (real time fact="+tt::FNb(0,double(getSimulationTime_us())/double(simulationTime_real_us),2,false)+")";
             txtRight+=" (dt="+tt::FNb(0,double(getSimulationTimeStep_speedModified_us())/1000.0,1,false)+" ms)";
         }
         else
         {
-            txtRight="&&fg@@@"+gv::getHourMinuteSecondMilisecondStr(double(_simulationTime_us)/1000000.0+0.0001);
+            txtRight="&&fg@@@"+gv::getHourMinuteSecondMilisecondStr(double(getSimulationTime_us())/1000000.0+0.0001);
             txtRight+=" (dt="+tt::FNb(0,double(getSimulationTimeStep_speedModified_us())/1000.0,1,false)+" ms)";
         }
     }

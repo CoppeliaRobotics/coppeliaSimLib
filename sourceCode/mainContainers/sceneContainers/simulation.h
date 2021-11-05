@@ -27,8 +27,8 @@ public:
     bool getRealTimeSimulation();
     void serialize(CSer& ar);
 
-    quint64 getSimulationTime_us();
-    quint64 getSimulationTime_real_us();
+    quint64 getSimulationTime_us() const;
+    quint64 getSimulationTime_real_us() const;
     void clearSimulationTimeHistory_us();
     void addToSimulationTimeHistory_us(quint64 simTime,quint64 simTimeReal);
     bool getSimulationTimeHistoryDurations_us(quint64& simTime,quint64& simTimeReal);
@@ -106,6 +106,8 @@ public:
 #endif
 
 private:
+    void _setSimulationTime_us(quint64 t);
+
     double _getRealTimeCoefficient_raw();
     double _getSpeedModifier_forRealTimeCoefficient();
 

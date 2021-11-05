@@ -483,10 +483,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CSceneObject* obj=App::currentWorld->sceneObjects->getLastSelectionObject();
                 if (obj!=nullptr)
                 {
-// Not anymore! 30/12/2016                    if ( (obj->getObjectManipulationModePermissions()&0x03)||(obj->getObjectManipulationTranslationRelativeTo()!=0) )
+// Not anymore! 30/12/2016                    if ( (obj->getObjectManipulationModePermissions()&0x03)||(obj->getObjectMovementRelativity(0)!=0) )
 //                    { // We can only place the model if the X and/or Y manip are set or if the placement is not relative to world
                         C7Vector tr(obj->getFullLocalTransformation());
-                        float ss=obj->getNonDefaultTranslationStepSize();
+                        float ss=obj->getObjectMovementStepSize(0);
                         if (ss==0.0)
                             ss=App::userSettings->getTranslationStepSize();
                         float x=cmd.floatParams[0]-fmod(cmd.floatParams[0],ss);
@@ -3853,7 +3853,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setObjectManipulationTranslationRelativeTo(cmd.intParams[1]);
+                it->setObjectMovementRelativity(0,cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD)
         {
@@ -3866,21 +3866,23 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
+                int a=it->getObjectMovementOptions();
                 if (cmd.floatParams[0]<0.0)
                 {
                     if (App::currentWorld->simulation->isSimulationStopped())
-                        it->setObjectTranslationDisabledDuringNonSimulation(true);
+                        a=a|1;
                     else
-                        it->setObjectTranslationDisabledDuringSimulation(true);
+                        a=a|2;
                 }
                 else
                 {
                     if (App::currentWorld->simulation->isSimulationStopped())
-                        it->setObjectTranslationDisabledDuringNonSimulation(false);
+                        a=(a|1)-1;
                     else
-                        it->setObjectTranslationDisabledDuringSimulation(false);
-                    it->setNonDefaultTranslationStepSize(cmd.floatParams[0]);
+                        a=(a|2)-2;
+                    it->setObjectMovementStepSize(0,cmd.floatParams[0]);
                 }
+                it->setObjectMovementOptions(a);
             }
         }
         if (cmd.cmdId==SET_ORSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD)
@@ -3888,28 +3890,30 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
+                int a=it->getObjectMovementOptions();
                 if (cmd.floatParams[0]<0.0)
                 {
                     if (App::currentWorld->simulation->isSimulationStopped())
-                        it->setObjectRotationDisabledDuringNonSimulation(true);
+                        a=a|4;
                     else
-                        it->setObjectRotationDisabledDuringSimulation(true);
+                        a=a|8;
                 }
                 else
                 {
                     if (App::currentWorld->simulation->isSimulationStopped())
-                        it->setObjectRotationDisabledDuringNonSimulation(false);
+                        a=(a|4)-4;
                     else
-                        it->setObjectRotationDisabledDuringSimulation(false);
-                    it->setNonDefaultRotationStepSize(cmd.floatParams[0]);
+                        a=(a|8)-8;
+                    it->setObjectMovementStepSize(1,cmd.floatParams[0]);
                 }
+                it->setObjectMovementOptions(a);
             }
         }
         if (cmd.cmdId==SET_ORRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setObjectManipulationRotationRelativeTo(cmd.intParams[1]);
+                it->setObjectMovementRelativity(1,cmd.intParams[1]);
         }
 
 

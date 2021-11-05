@@ -24,11 +24,11 @@ void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib
         _enableAuxClippingPlanes(joint->getObjectHandle());
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
         {
-            if (joint->getDynamicObjectFlag_forVisualization()==4)
+            if (joint->getDynamicFlag()==4)
                 ogl::setMaterialColor(0.0f,0.3f,1.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
-            if (joint->getDynamicObjectFlag_forVisualization()==8)
+            if (joint->getDynamicFlag()==8)
                 ogl::setMaterialColor(1.0f,0.0f,0.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
-            if (joint->getDynamicObjectFlag_forVisualization()==16)
+            if (joint->getDynamicFlag()==16)
                 ogl::setMaterialColor(0.9f,0.9f,0.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
         }
         else
