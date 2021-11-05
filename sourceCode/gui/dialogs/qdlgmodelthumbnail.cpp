@@ -83,7 +83,7 @@ void CQDlgModelThumbnail::actualizeBitmap()
             if (!((CVisionSensor*)it)->getShowVolumeWhenNotDetecting())
                 display=false;
         }
-        if ( (!it->isObjectPartOfInvisibleModel())&&(it->getVisibilityLayer()&App::currentWorld->mainSettings->getActiveLayers())&&display )
+        if ( (!it->isObjectPartOfInvisibleModel())&&(it->getVisibilityLayer()&App::currentWorld->environment->getActiveLayers())&&display )
         {
             C7Vector tr(it->getCumulativeTransformation());
             C3Vector minV,maxV;

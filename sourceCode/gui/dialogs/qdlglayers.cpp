@@ -39,22 +39,22 @@ void CQDlgLayers::refresh()
     ui->qqDynamicContentOnly->setEnabled(!App::currentWorld->simulation->isSimulationStopped());
 
 
-    ui->a_1->setChecked(App::currentWorld->mainSettings->getActiveLayers()&1);
-    ui->a_2->setChecked(App::currentWorld->mainSettings->getActiveLayers()&2);
-    ui->a_3->setChecked(App::currentWorld->mainSettings->getActiveLayers()&4);
-    ui->a_4->setChecked(App::currentWorld->mainSettings->getActiveLayers()&8);
-    ui->a_5->setChecked(App::currentWorld->mainSettings->getActiveLayers()&16);
-    ui->a_6->setChecked(App::currentWorld->mainSettings->getActiveLayers()&32);
-    ui->a_7->setChecked(App::currentWorld->mainSettings->getActiveLayers()&64);
-    ui->a_8->setChecked(App::currentWorld->mainSettings->getActiveLayers()&128);
-    ui->a_9->setChecked(App::currentWorld->mainSettings->getActiveLayers()&256);
-    ui->a_10->setChecked(App::currentWorld->mainSettings->getActiveLayers()&512);
-    ui->a_11->setChecked(App::currentWorld->mainSettings->getActiveLayers()&1024);
-    ui->a_12->setChecked(App::currentWorld->mainSettings->getActiveLayers()&2048);
-    ui->a_13->setChecked(App::currentWorld->mainSettings->getActiveLayers()&4096);
-    ui->a_14->setChecked(App::currentWorld->mainSettings->getActiveLayers()&8192);
-    ui->a_15->setChecked(App::currentWorld->mainSettings->getActiveLayers()&16384);
-    ui->a_16->setChecked(App::currentWorld->mainSettings->getActiveLayers()&32768);
+    ui->a_1->setChecked(App::currentWorld->environment->getActiveLayers()&1);
+    ui->a_2->setChecked(App::currentWorld->environment->getActiveLayers()&2);
+    ui->a_3->setChecked(App::currentWorld->environment->getActiveLayers()&4);
+    ui->a_4->setChecked(App::currentWorld->environment->getActiveLayers()&8);
+    ui->a_5->setChecked(App::currentWorld->environment->getActiveLayers()&16);
+    ui->a_6->setChecked(App::currentWorld->environment->getActiveLayers()&32);
+    ui->a_7->setChecked(App::currentWorld->environment->getActiveLayers()&64);
+    ui->a_8->setChecked(App::currentWorld->environment->getActiveLayers()&128);
+    ui->a_9->setChecked(App::currentWorld->environment->getActiveLayers()&256);
+    ui->a_10->setChecked(App::currentWorld->environment->getActiveLayers()&512);
+    ui->a_11->setChecked(App::currentWorld->environment->getActiveLayers()&1024);
+    ui->a_12->setChecked(App::currentWorld->environment->getActiveLayers()&2048);
+    ui->a_13->setChecked(App::currentWorld->environment->getActiveLayers()&4096);
+    ui->a_14->setChecked(App::currentWorld->environment->getActiveLayers()&8192);
+    ui->a_15->setChecked(App::currentWorld->environment->getActiveLayers()&16384);
+    ui->a_16->setChecked(App::currentWorld->environment->getActiveLayers()&32768);
 
     ui->qqDynamicContentOnly->setChecked(App::currentWorld->simulation->getDynamicContentVisualizationOnly());
 

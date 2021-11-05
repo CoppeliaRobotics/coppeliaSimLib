@@ -18,11 +18,6 @@ public:
     std::string getSceneNameForUi() const;
     std::string getSceneNameWithExt() const;
 
-    void pushReconstructAllEvents() const;
-
-    void setActiveLayers(unsigned short l);
-    unsigned short getActiveLayers() const;
-
     int dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012;
     int dynamicsODEStepSizeDivider_forBackwardCompatibility_03_01_2012;
     bool forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers;
@@ -46,5 +41,4 @@ public:
 
 private:
     std::string _scenePathAndName;
-    unsigned short _activeLayers;
 };

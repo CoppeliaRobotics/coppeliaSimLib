@@ -24,13 +24,14 @@
 #define EVENTTYPE_OBJECTADDED "objectAdded"
 #define EVENTTYPE_OBJECTCHANGED "objectChanged"
 #define EVENTTYPE_OBJECTREMOVED "objectRemoved"
-#define EVENTTYPE_SCENECHANGED "sceneChanged"
+
+#define EVENTTYPE_ENVIRONMENTCHANGED "environmentChanged"
 
 #define EVENTTYPE_DRAWINGOBJECTADDED "drawingObjectAdded"
 #define EVENTTYPE_DRAWINGOBJECTCHANGED "drawingObjectChanged"
 #define EVENTTYPE_DRAWINGOBJECTREMOVED "drawingObjectRemoved"
 
-#define EVENTTYPE_SYSTEMCHANGED "systemChanged"
+#define EVENTTYPE_APPSETTINGSCHANGED "appSettingsChanged"
 #define EVENTTYPE_SIMULATIONCHANGED "simulationChanged"
 
 struct SEventInfo
@@ -72,26 +73,26 @@ public:
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
 
-    std::tuple<SEventInfo,CInterfaceStackTable*> prepareSystemEvent(const char* fieldName,bool mergeable);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareEvent(const char* event,int uid,const char* fieldName,bool mergeable);
     void pushSceneObjectRemoveEvent(const _CSceneObject_* object);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectAddEvent(const _CSceneObject_* object);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(const _CSceneObject_* object,bool isCommonObjectData,const char* fieldName,bool mergeable);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(int sceneObjectHandle,bool isCommonObjectData,const char* fieldName,bool mergeable);
     std::tuple<SEventInfo,CInterfaceStackTable*> _prepareGeneralEvent(const char* event,int objectHandle,int uid,const char* objType,const char* fieldName,bool mergeable);
-    void _combineDuplicateEvents(SBufferedEvents* events);
-    void _mergeEvents(SBufferedEvents* events);
+    void _combineDuplicateEvents(SBufferedEvents* events) const;
+    void _mergeEvents(SBufferedEvents* events) const;
+    void _prepareEventsForDispatch(SBufferedEvents* events) const;
 
 
     void pushEvent(SEventInfo& event);
-    void sendEvents();
+    void dispatchEvents();
     bool getCborEvents() const;
     void setCborEvents(bool b);
     void setMergeEvents(bool b);
     bool getEnableEvents() const;
     void setEnableEvents(bool b);
-    void pushReconstructAllEvents();
-    void buildReconstructAllEventsOntoInterfaceStack(CInterfaceStack* stack);
+    void pushAllInitialEvents();
+    void getAllInitialEvents(CInterfaceStack* stack);
     SBufferedEvents* swapBufferedEvents(SBufferedEvents* newBuffer);
 
     void simulationAboutToStart();

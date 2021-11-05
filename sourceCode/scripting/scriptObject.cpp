@@ -1340,7 +1340,7 @@ int CScriptObject::systemCallMainScript(int optionalCallType,const CInterfaceSta
                 retVal=systemCallScript(sim_syscb_init,inStack,outStack);
 
             retVal=systemCallScript(sim_syscb_actuation,inStack,outStack);
-            App::worldContainer->sendEvents();
+            App::worldContainer->dispatchEvents();
             retVal=systemCallScript(sim_syscb_sensing,inStack,outStack);
 
             if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_lastbeforestop)

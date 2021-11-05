@@ -15,7 +15,7 @@ public:
     void setObjectUniqueId();
     int getObjectUniqueId() const;
 
-    void pushCreateContainerEvent();
+    void pushAddEvent();
     bool announceObjectWillBeErased(int objectHandleAttachedTo);
 
     int _id;

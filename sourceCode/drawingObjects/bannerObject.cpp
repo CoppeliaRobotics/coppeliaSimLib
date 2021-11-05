@@ -149,7 +149,7 @@ void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayA
                 tr=it->getCumulativeTransformation();
                 if (_options&sim_banner_followparentvisibility)
                 {
-                    if ( ((App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer())==0)&&((displayAttrib&sim_displayattribute_ignorelayer)==0) )
+                    if ( ((App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer())==0)&&((displayAttrib&sim_displayattribute_ignorelayer)==0) )
                         return; // not visible
                     if (it->isObjectPartOfInvisibleModel())
                         return; // not visible

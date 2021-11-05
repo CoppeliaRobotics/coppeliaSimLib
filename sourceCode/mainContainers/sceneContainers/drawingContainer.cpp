@@ -42,7 +42,7 @@ int CDrawingContainer::addObject(CDrawingObject* it)
     it->setObjectId(newId);
     it->setObjectUniqueId();
     _allObjects.push_back(it);
-    it->pushCreateContainerEvent();
+    it->pushAddEvent();
     return(newId);
 }
 
@@ -170,10 +170,10 @@ void CDrawingContainer::drawObjectsParentedWith(bool overlay,bool transparentObj
     }
 }
 
-void CDrawingContainer::pushReconstructAllEvents()
+void CDrawingContainer::pushAllInitialEvents()
 {
     for (size_t i=0;i<_allObjects.size();i++)
-        _allObjects[i]->pushCreateContainerEvent();
+        _allObjects[i]->pushAddEvent();
 }
 
 void CDrawingContainer::pushAppendNewPointEvents()

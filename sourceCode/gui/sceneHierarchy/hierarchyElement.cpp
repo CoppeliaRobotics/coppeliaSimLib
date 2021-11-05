@@ -288,7 +288,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
             tc=ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE;
         else
         {
-            if ( (it!=nullptr)&&( ((it->getVisibilityLayer()&App::currentWorld->mainSettings->getActiveLayers())==0)||it->isObjectPartOfInvisibleModel() ) )
+            if ( (it!=nullptr)&&( ((it->getVisibilityLayer()&App::currentWorld->environment->getActiveLayers())==0)||it->isObjectPartOfInvisibleModel() ) )
                 tc=ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_INVISIBLE;
             else
                 tc=ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE;

@@ -27,7 +27,7 @@ public:
     void setShapeTexturesEnabled(bool e);
     bool getShapeTexturesEnabled() const;
 
-    void pushReconstructAllEvents() const;
+    void pushAllInitialEvents() const;
 
 
     static int getNextSceneUniqueId();
@@ -75,6 +75,8 @@ public:
     int getFogType() const;
     bool areNonAmbientLightsActive() const;
     void setNonAmbientLightsActive(bool a);
+    void setActiveLayers(unsigned short l);
+    unsigned short getActiveLayers() const;
 
     void setBackgroundColor(int viewSize[2]);
     void activateAmbientLight(bool a);
@@ -98,6 +100,8 @@ public:
     CThumbnail modelThumbnail_notSerializedHere;
 
 protected:
+    unsigned short _activeLayers;
+
     bool _nonAmbientLightsAreActive;
     bool fogEnabled;
     float fogDensity;

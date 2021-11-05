@@ -18,7 +18,6 @@ CMainSettings::~CMainSettings()
 void CMainSettings::setUpDefaultValues()
 {
     _scenePathAndName="";
-    _activeLayers=0x00ff;
 
     infoWindowColorStyle=0; // default
     statusBoxOpenState=false;
@@ -41,26 +40,6 @@ void CMainSettings::setUpDefaultValues()
     clippingPlanesDisabled=false;
 
     forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers=false;
-}
-
-void CMainSettings::setActiveLayers(unsigned short l)
-{
-    bool diff=(_activeLayers!=l);
-    if (diff)
-    {
-        _activeLayers=l;
-        const char* cmd="visibilityLayers";
-        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SCENECHANGED,-1,cmd,true);
-        data->appendMapObject_stringInt32(cmd,_activeLayers);
-        App::worldContainer->pushEvent(event);
-    }
-    App::setRefreshHierarchyViewFlag();
-    App::setLightDialogRefreshFlag();
-}
-
-unsigned short CMainSettings::getActiveLayers() const
-{
-    return(_activeLayers);
 }
 
 void CMainSettings::setScenePathAndName(const char* pathAndName)
@@ -101,13 +80,6 @@ std::string CMainSettings::getSceneNameForUi() const
 std::string CMainSettings::getSceneNameWithExt() const
 {
     return(VVarious::splitPath_fileBaseAndExtension(_scenePathAndName.c_str()));
-}
-
-void CMainSettings::pushReconstructAllEvents() const
-{
-    auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SCENECHANGED,-1,nullptr,false);
-    data->appendMapObject_stringInt32("visibilityLayers",getActiveLayers());
-    App::worldContainer->pushEvent(event);
 }
 
 void CMainSettings::serialize(CSer& ar)
@@ -152,8 +124,8 @@ void CMainSettings::serialize(CSer& ar)
             if (ar.setWritingMode())
                 collisionColor.serialize(ar,0);
 
-            ar.storeDataName("Al2");
-            ar << _activeLayers;
+            ar.storeDataName("Al2"); // Kept for backward compatibility
+            ar << App::currentWorld->environment->getActiveLayers();
             ar.flush();
 
             ar.storeDataName("Iwc");
@@ -275,10 +247,12 @@ void CMainSettings::serialize(CSer& ar)
                         collisionColor.serialize(ar,0);
                     }
                     if (theName.compare("Al2")==0)
-                    {
+                    { // For backward compatibility
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _activeLayers;
+                        unsigned short l;
+                        ar >> l;
+                        App::currentWorld->environment->setActiveLayers(l);
                     }
                     if (theName.compare("Iwc")==0)
                     {
@@ -367,7 +341,8 @@ void CMainSettings::serialize(CSer& ar)
         bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
         if (ar.isStoring())
         {
-            ar.xmlAddNode_int("visibleLayers",_activeLayers);
+            ar.xmlAddNode_comment(" 'visibleLayers' tag: deprecated. Use equivalent in 'environment' section ",exhaustiveXml);
+            ar.xmlAddNode_int("visibleLayers",App::currentWorld->environment->getActiveLayers()); // Kept for backward compatibility
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("visionSensorsEnabled",visionSensorsEnabled);
@@ -391,9 +366,9 @@ void CMainSettings::serialize(CSer& ar)
 
             int l;
             if (ar.xmlGetNode_int("visibleLayers",l,exhaustiveXml))
-            {
+            { // For backward compatibility
                 tt::limitValue(0,65526,l);
-                _activeLayers=(unsigned short)l;
+                App::currentWorld->environment->setActiveLayers((unsigned short)l);
             }
 
             if (ar.xmlPushChildNode("switches",exhaustiveXml))

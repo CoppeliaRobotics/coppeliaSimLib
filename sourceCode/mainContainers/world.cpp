@@ -329,6 +329,21 @@ void CWorld::saveScene(CSer& ar)
 
     if (ar.isBinary())
     {
+        ar.storeDataName(SER_SETTINGS);
+        ar.setCountingMode();
+        mainSettings->serialize(ar);
+        if (ar.setWritingMode())
+            mainSettings->serialize(ar);
+    }
+    else
+    {
+        ar.xmlPushNewNode(SERX_SETTINGS);
+        mainSettings->serialize(ar);
+        ar.xmlPopNode();
+    }
+
+    if (ar.isBinary())
+    {
         ar.storeDataName(SER_ENVIRONMENT);
         ar.setCountingMode();
         environment->serialize(ar);
@@ -411,21 +426,6 @@ void CWorld::saveScene(CSer& ar)
         }
     }
     // --------------------------
-
-    if (ar.isBinary())
-    {
-        ar.storeDataName(SER_SETTINGS);
-        ar.setCountingMode();
-        mainSettings->serialize(ar);
-        if (ar.setWritingMode())
-            mainSettings->serialize(ar);
-    }
-    else
-    {
-        ar.xmlPushNewNode(SERX_SETTINGS);
-        mainSettings->serialize(ar);
-        ar.xmlPopNode();
-    }
 
     if (ar.isBinary())
     {
@@ -1150,15 +1150,14 @@ void CWorld::announceScriptStateWillBeErased(int scriptHandle,bool simulationScr
     drawingCont->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
 }
 
-void CWorld::pushReconstructAllEvents()
+void CWorld::pushAllInitialEvents()
 {
-    simulation->pushReconstructAllEvents();
-    environment->pushReconstructAllEvents();
-    mainSettings->pushReconstructAllEvents();
-    sceneObjects->pushReconstructAllEvents();
+    simulation->pushAllInitialEvents();
+    environment->pushAllInitialEvents();
+    sceneObjects->pushAllInitialEvents();
 
-    drawingCont->pushReconstructAllEvents();
-    pointCloudCont->pushReconstructAllEvents();
+    drawingCont->pushAllInitialEvents();
+    pointCloudCont->pushAllInitialEvents();
 }
 
 // Old:
@@ -1300,16 +1299,16 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     ghostObjectCont->serialize(ar);
                     noHit=false;
                 }
-                if (theName.compare(SER_ENVIRONMENT)==0)
-                {
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    environment->serialize(ar);
-                    noHit=false;
-                }
                 if (theName.compare(SER_SETTINGS)==0)
                 {
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                     mainSettings->serialize(ar);
+                    noHit=false;
+                }
+                if (theName.compare(SER_ENVIRONMENT)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    environment->serialize(ar);
                     noHit=false;
                 }
                 if (theName.compare(SER_DYNAMICS)==0)
@@ -1481,14 +1480,14 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
             ghostObjectCont->serialize(ar);
             ar.xmlPopNode();
         }
-        if (ar.xmlPushChildNode(SERX_ENVIRONMENT,isScene))
-        {
-            environment->serialize(ar);
-            ar.xmlPopNode();
-        }
         if (ar.xmlPushChildNode(SERX_SETTINGS,isScene))
         {
             mainSettings->serialize(ar);
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_ENVIRONMENT,isScene))
+        {
+            environment->serialize(ar);
             ar.xmlPopNode();
         }
         if (ar.xmlPushChildNode(SERX_DYNAMICS,isScene))

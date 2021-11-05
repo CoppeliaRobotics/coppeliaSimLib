@@ -536,7 +536,7 @@ int CSimulation::getSimulationPassesPerRendering_raw()
     return(SIMULATION_DEFAULT_PASSES_PER_RENDERING[_defaultSimulationParameterIndex]);
 }
 
-void CSimulation::pushReconstructAllEvents() const
+void CSimulation::pushAllInitialEvents() const
 {
     auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SIMULATIONCHANGED,-1,nullptr,false);
     data->appendMapObject_stringInt32("state",_simulationState);

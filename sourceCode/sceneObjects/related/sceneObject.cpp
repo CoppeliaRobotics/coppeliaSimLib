@@ -239,7 +239,7 @@ bool CSceneObject::getShouldObjectBeDisplayed(int viewableHandle,int displayAttr
             display=(_dynamicObjectFlag_forVisualization!=0);
         else
         {
-            display=( (!isObjectPartOfInvisibleModel())&&((App::currentWorld->mainSettings->getActiveLayers()&getVisibilityLayer())||(displayAttrib&sim_displayattribute_ignorelayer)) );
+            display=( (!isObjectPartOfInvisibleModel())&&((App::currentWorld->environment->getActiveLayers()&getVisibilityLayer())||(displayAttrib&sim_displayattribute_ignorelayer)) );
 
             if (display)
             {
@@ -551,7 +551,7 @@ bool CSceneObject::isObjectVisible()
 
 bool CSceneObject::isObjectInVisibleLayer()
 {
-    return( (int(App::currentWorld->mainSettings->getActiveLayers())&_visibilityLayer)!=0 );
+    return( (int(App::currentWorld->environment->getActiveLayers())&_visibilityLayer)!=0 );
 }
 
 bool CSceneObject::isObjectPartOfInvisibleModel()

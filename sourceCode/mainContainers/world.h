@@ -76,7 +76,7 @@ public:
     void announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     void announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
 
-    void pushReconstructAllEvents();
+    void pushAllInitialEvents();
 
 
     // Old:

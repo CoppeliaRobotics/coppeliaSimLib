@@ -124,7 +124,7 @@ void CPtCloud_old::draw(int displayAttrib)
         if ( (_pageMask==0) || ((_pageMask&p)!=0) )
 #endif
         {
-            int currentLayers=App::currentWorld->mainSettings->getActiveLayers();
+            int currentLayers=App::currentWorld->environment->getActiveLayers();
             if ( ((currentLayers&_layerMask)!=0)&&(_vertices.size()!=0) )
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_parentHandle);
@@ -134,7 +134,7 @@ void CPtCloud_old::draw(int displayAttrib)
     }
 }
 
-void CPtCloud_old::pushCreateContainerEvent()
+void CPtCloud_old::pushAddEvent()
 {
     if (App::worldContainer->getEnableEvents())
     {

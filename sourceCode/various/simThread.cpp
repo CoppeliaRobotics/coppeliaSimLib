@@ -2814,7 +2814,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
         if (cmd.cmdId==TOGGLE_LAYER_LAYERGUITRIGGEREDCMD)
         {
-            App::currentWorld->mainSettings->setActiveLayers(App::currentWorld->mainSettings->getActiveLayers()^cmd.intParams[0]);
+            App::currentWorld->environment->setActiveLayers(App::currentWorld->environment->getActiveLayers()^cmd.intParams[0]);
         }
         if (cmd.cmdId==TOGGLE_SHOWDYNCONTENT_LAYERGUITRIGGEREDCMD)
         {

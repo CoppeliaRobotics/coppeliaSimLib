@@ -564,7 +564,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             for (size_t i=0;i<sel.size();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                if ( (it!=nullptr)&&(!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer()) )
+                if ( (it!=nullptr)&&(!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
                     inputObjects.push_back(it);
             }
 
@@ -608,7 +608,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             for (size_t i=0;i<sel.size();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                if ( (it!=nullptr)&&(!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer()) )
+                if ( (it!=nullptr)&&(!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
                     inputObjects.push_back(it);
             }
             float grow=0.03f;

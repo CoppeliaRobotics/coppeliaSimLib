@@ -38,7 +38,7 @@ int CPointCloudContainer_old::addObject(CPtCloud_old* it)
     it->setObjectID(newID);
     it->setObjectUniqueId();
     _allObjects.push_back(it);
-    it->pushCreateContainerEvent();
+    it->pushAddEvent();
     return(newID);
 }
 
@@ -109,8 +109,8 @@ void CPointCloudContainer_old::drawAll(int displayAttrib)
         _allObjects[i]->draw(displayAttrib);
 }
 
-void CPointCloudContainer_old::pushReconstructAllEvents()
+void CPointCloudContainer_old::pushAllInitialEvents()
 {
     for (size_t i=0;i<_allObjects.size();i++)
-        _allObjects[i]->pushCreateContainerEvent();
+        _allObjects[i]->pushAddEvent();
 }

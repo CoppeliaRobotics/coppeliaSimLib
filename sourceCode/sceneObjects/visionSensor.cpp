@@ -1623,7 +1623,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool d
             for (int i=0;i<int(rootSel.size());i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(rootSel[i]);
-                if (App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer())
+                if (App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer())
                 { // ok, currently visible
                     if (it->getObjectType()==sim_object_shape_type)
                     {
@@ -1799,7 +1799,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(int entityID,bo
             for (int i=0;i<int(rootSel.size());i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(rootSel[i]);
-                if (App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer())
+                if (App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer())
                 { // ok, currently visible
                     if (it->getObjectType()==sim_object_shape_type)
                     {
@@ -1907,7 +1907,7 @@ int CVisionSensor::_getActiveMirrors(int entityID,bool detectAll,bool entityIsMo
             for (int i=0;i<int(rootSel.size());i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(rootSel[i]);
-                if (App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer())
+                if (App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer())
                 { // ok, currently visible
                     toRender.push_back(it);
                 }

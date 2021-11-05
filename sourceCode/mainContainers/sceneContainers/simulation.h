@@ -44,7 +44,7 @@ public:
     int getStopRequestCounter();
     bool didStopRequestCounterChangeSinceSimulationStart();
 
-    void pushReconstructAllEvents() const;
+    void pushAllInitialEvents() const;
 
 
     bool canGoSlower();

@@ -434,7 +434,7 @@ void CSceneObjectContainer::removeSceneDependencies()
         getObjectFromIndex(i)->removeSceneDependencies();
 }
 
-void CSceneObjectContainer::pushReconstructAllEvents() const
+void CSceneObjectContainer::pushAllInitialEvents() const
 {
     for (size_t i=0;i<getObjectCount();i++)
         getObjectFromIndex(i)->pushObjectCreationEvent();

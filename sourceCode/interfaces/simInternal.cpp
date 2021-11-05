@@ -3650,7 +3650,7 @@ simInt simSetInt32Param_internal(simInt parameter,simInt intState)
                 return(-1);
             if (App::currentWorld->mainSettings==nullptr)
                 return(-1);
-            App::currentWorld->mainSettings->setActiveLayers((unsigned short)intState);
+            App::currentWorld->environment->setActiveLayers((unsigned short)intState);
             return(1);
         }
         if (parameter==sim_intparam_infotext_style)
@@ -3919,7 +3919,7 @@ simInt simGetInt32Param_internal(simInt parameter,simInt* intState)
                 return(-1);
             if (App::currentWorld->mainSettings==nullptr)
                 return(-1);
-            intState[0]=int(App::currentWorld->mainSettings->getActiveLayers());
+            intState[0]=int(App::currentWorld->environment->getActiveLayers());
             return(1);
         }
         if (parameter==sim_intparam_infotext_style)

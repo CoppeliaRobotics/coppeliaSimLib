@@ -27,7 +27,7 @@ public:
     bool canMeshBeExported() const;
     void getExportableMesh(std::vector<float>& vertices,std::vector<int>& indices) const;
 
-    void pushCreateContainerEvent();
+    void pushAddEvent();
     void pushAppendNewPointEvent(bool clearAllFirst);
 
 

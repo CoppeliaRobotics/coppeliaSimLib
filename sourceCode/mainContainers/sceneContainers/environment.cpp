@@ -97,6 +97,7 @@ bool CEnvironment::getSceneCanBeDiscardedWhenNewSceneOpened() const
 
 void CEnvironment::setUpDefaultValues()
 {
+    _activeLayers=0x00ff;
     _nonAmbientLightsAreActive=false;
     fogEnabled=false;
     fogDensity=0.5f;
@@ -143,11 +144,32 @@ void CEnvironment::setUpDefaultValues()
     _saveExistingCalculationStructures=false;
 }
 
-void CEnvironment::pushReconstructAllEvents() const
+void CEnvironment::pushAllInitialEvents() const
 {
-    auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SCENECHANGED,-1,nullptr,false);
+    auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_ENVIRONMENTCHANGED,-1,nullptr,false);
     data->appendMapObject_stringInt32("sceneUid",getSceneUniqueID());
+    data->appendMapObject_stringInt32("visibilityLayers",getActiveLayers());
     App::worldContainer->pushEvent(event);
+}
+
+void CEnvironment::setActiveLayers(unsigned short l)
+{
+    bool diff=(_activeLayers!=l);
+    if (diff)
+    {
+        _activeLayers=l;
+        const char* cmd="visibilityLayers";
+        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_ENVIRONMENTCHANGED,-1,cmd,true);
+        data->appendMapObject_stringInt32(cmd,_activeLayers);
+        App::worldContainer->pushEvent(event);
+    }
+    App::setRefreshHierarchyViewFlag();
+    App::setLightDialogRefreshFlag();
+}
+
+unsigned short CEnvironment::getActiveLayers() const
+{
+    return(_activeLayers);
 }
 
 bool CEnvironment::areNonAmbientLightsActive() const
@@ -350,6 +372,10 @@ void CEnvironment::serialize(CSer& ar)
             ar << fogEnd;
             ar.flush();
 
+            ar.storeDataName("Vil");
+            ar << _activeLayers;
+            ar.flush();
+
             ar.storeDataName("Fd2");
             ar << fogType << fogStart << fogDensity;
             ar.flush();
@@ -444,6 +470,12 @@ void CEnvironment::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> fogEnd;
+                    }
+                    if (theName.compare("Vil")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _activeLayers;
                     }
                     if (theName.compare("Fd2")==0)
                     {
@@ -629,6 +661,8 @@ void CEnvironment::serialize(CSer& ar)
                 ar.xmlPopNode();
             }
 
+            ar.xmlAddNode_int("visibleLayers",_activeLayers);
+
             ar.xmlPushNewNode("fog");
             ar.xmlAddNode_bool("enabled",fogEnabled);
             ar.xmlAddNode_comment(" 'type' tag: can be 'linear', 'exp' or 'exp2' ",exhaustiveXml);
@@ -720,6 +754,13 @@ void CEnvironment::serialize(CSer& ar)
                     }
                     ar.xmlPopNode();
                 }
+            }
+
+            int l;
+            if (ar.xmlGetNode_int("visibleLayers",l,exhaustiveXml))
+            {
+                tt::limitValue(0,65526,l);
+                _activeLayers=l;
             }
 
             if (ar.xmlPushChildNode("fog",exhaustiveXml))

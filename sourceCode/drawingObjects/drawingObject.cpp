@@ -480,7 +480,7 @@ void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,
             tr=it->getCumulativeTransformation();
             if (_objectType&sim_drawing_followparentvisibility)
             {
-                if ( ((App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer())==0)&&((displayAttrib&sim_displayattribute_ignorelayer)==0) )
+                if ( ((App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer())==0)&&((displayAttrib&sim_displayattribute_ignorelayer)==0) )
                     return; // not visible
                 if (it->isObjectPartOfInvisibleModel())
                     return; // not visible
@@ -569,7 +569,7 @@ void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<floa
     }
 }
 
-void CDrawingObject::pushCreateContainerEvent()
+void CDrawingObject::pushAddEvent()
 {
     if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
     {

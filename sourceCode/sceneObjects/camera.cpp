@@ -2253,7 +2253,7 @@ void CCamera::_handleMirrors(int renderingMode,bool noSelection,int pass,int nav
         C7Vector mmtr(myMirror->getFullCumulativeTransformation());
         mmtr=camTri*mmtr;
 
-        if ( (!myMirror->isObjectPartOfInvisibleModel())&&(App::currentWorld->mainSettings->getActiveLayers()&myMirror->getVisibilityLayer())&&myMirror->getIsMirror() )
+        if ( (!myMirror->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&myMirror->getVisibilityLayer())&&myMirror->getIsMirror() )
         {
             allMirrors.push_back(myMirror->getObjectHandle());
             allMirrorDist.push_back(mmtr.X(2));

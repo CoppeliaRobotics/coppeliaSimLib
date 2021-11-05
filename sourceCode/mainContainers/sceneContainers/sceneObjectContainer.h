@@ -60,7 +60,7 @@ public:
     void setTextureDependencies();
     void removeSceneDependencies();
 
-    void pushReconstructAllEvents() const;
+    void pushAllInitialEvents() const;
 
     void getAllCollidableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,std::vector<CSceneObject*>& objects);
     void getAllMeasurableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,std::vector<CSceneObject*>& objects);

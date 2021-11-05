@@ -23,7 +23,7 @@ public:
     void announceObjectWillBeErased(int objID);
     bool removeObject(int objectID);
 
-    void pushReconstructAllEvents();
+    void pushAllInitialEvents();
 
 private:
     std::vector<CPtCloud_old*> _allObjects;

@@ -168,7 +168,7 @@ void CQDlgOctrees::on_qqInsert_clicked()
             for (size_t i=0;i<sel.size();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer()) )
+                if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
                     sel2.push_back(sel[i]);
             }
             App::appendSimulationThreadCommand(SHOW_PROGRESSDLGGUITRIGGEREDCMD,-1,-1,0.0,0.0,"Inserting object(s) into octree...");
@@ -203,7 +203,7 @@ void CQDlgOctrees::on_qqSubtract_clicked()
             for (size_t i=0;i<sel.size();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->mainSettings->getActiveLayers()&it->getVisibilityLayer()) )
+                if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
                     sel2.push_back(sel[i]);
             }
             App::appendSimulationThreadCommand(SHOW_PROGRESSDLGGUITRIGGEREDCMD,-1,-1,0.0,0.0,"Subtracting object(s) from octree...");

@@ -124,7 +124,7 @@ int CWorldContainer::createNewWorld()
     currentWorld->initializeWorld();
 
     // Inform scripts about performed switch to new world:
-    pushReconstructAllEvents();
+    pushAllInitialEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -213,7 +213,7 @@ int CWorldContainer::destroyCurrentWorld()
         App::currentWorld=currentWorld;
 
         // Inform scripts about performed world switch:
-        pushReconstructAllEvents();
+        pushAllInitialEvents();
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
@@ -349,7 +349,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     App::currentWorld=currentWorld;
 
     // Inform scripts about performed world switch:
-    pushReconstructAllEvents();
+    pushAllInitialEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -506,18 +506,6 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObject
     return {d,nullptr};
 }
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSystemEvent(const char* fieldName,bool mergeable)
-{
-    if (_enableEvents)
-    {
-        auto [eventInfo,data]=_prepareGeneralEvent(EVENTTYPE_SYSTEMCHANGED,-1,-1,nullptr,fieldName,mergeable);
-        return {eventInfo,data};
-    }
-    SEventInfo d;
-    return {d,nullptr};
-}
-
-
 std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareEvent(const char* event,int uid,const char* fieldName,bool mergeable)
 {
     if (_enableEvents)
@@ -594,35 +582,35 @@ void CWorldContainer::setEnableEvents(bool b)
     _enableEvents=b;
 }
 
-void CWorldContainer::buildReconstructAllEventsOntoInterfaceStack(CInterfaceStack* stack)
+void CWorldContainer::getAllInitialEvents(CInterfaceStack* stack)
 {
-    SBufferedEvents* newBuff=new SBufferedEvents;
-    newBuff->eventsStack=stack;
-    newBuff->eventsStack->pushTableOntoStack();
-    SBufferedEvents* savedBuff=swapBufferedEvents(newBuff);
+    // Swap event buffer:
+    SBufferedEvents* tmpEvents=new SBufferedEvents;
+    tmpEvents->eventsStack=stack;
+    tmpEvents->eventsStack->pushTableOntoStack();
+    SBufferedEvents* savedEvents=swapBufferedEvents(tmpEvents);
 
-    pushReconstructAllEvents();
-    swapBufferedEvents(savedBuff);
+    // Push all initial events:
+    pushAllInitialEvents();
 
-    if (_cborEvents)
-    {
-        std::string cbor=newBuff->eventsStack->getCborEncodedBufferFromTable(0);
-        newBuff->eventsStack->clear();
-        newBuff->eventsStack->pushStringOntoStack(cbor.c_str(),cbor.size());
-    }
-    delete newBuff;
+    // Restore event buffer:
+    swapBufferedEvents(savedEvents);
+
+    // Condition events
+    _prepareEventsForDispatch(tmpEvents);
+    delete tmpEvents;
 }
 
-void CWorldContainer::pushReconstructAllEvents()
+void CWorldContainer::pushAllInitialEvents()
 {
     if (_enableEvents)
     {
-        auto [event,data]=prepareSystemEvent(nullptr,false);
+        auto [event,data]=_prepareGeneralEvent(EVENTTYPE_APPSETTINGSCHANGED,-1,-1,nullptr,nullptr,false);
         data->appendMapObject_stringFloat("defaultTranslationStepSize",App::userSettings->getTranslationStepSize());
         data->appendMapObject_stringFloat("defaultRotationStepSize",App::userSettings->getRotationStepSize());
         pushEvent(event);
 
-        currentWorld->pushReconstructAllEvents();
+        currentWorld->pushAllInitialEvents();
     }
 }
 
@@ -635,14 +623,15 @@ SBufferedEvents* CWorldContainer::swapBufferedEvents(SBufferedEvents* newBuffer)
     return(retVal);
 }
 
-void CWorldContainer::sendEvents()
+void CWorldContainer::dispatchEvents()
 {
     if (!VThread::isCurrentThreadTheUiThread())
     {
+        // Push the last changes that are not immediate:
         currentWorld->drawingCont->pushAppendNewPointEvents();
 
+        // Swap the event buffer:
         _eventMutex.lock();
-
         CInterfaceStackTable* buff=(CInterfaceStackTable*)_bufferedEvents->eventsStack->getStackObjectFromIndex(0);
         if (buff->isEmpty())
         {
@@ -655,19 +644,9 @@ void CWorldContainer::sendEvents()
         _bufferedEvents->eventsStack->pushTableOntoStack();
         _eventMutex.unlock();
 
-        if (_mergeTheEvents)
-        {
-            _combineDuplicateEvents(tmpEvents);
-            _mergeEvents(tmpEvents);
-        }
+        _prepareEventsForDispatch(tmpEvents);
 
-        if (_cborEvents)
-        {
-            std::string cbor=tmpEvents->eventsStack->getCborEncodedBufferFromTable(0);
-            tmpEvents->eventsStack->clear();
-            tmpEvents->eventsStack->pushStringOntoStack(cbor.c_str(),cbor.size());
-        }
-
+        // Dispatch events:
         callScripts(sim_syscb_event,tmpEvents->eventsStack);
 
         interfaceStackContainer->destroyStack(tmpEvents->eventsStack);
@@ -675,7 +654,7 @@ void CWorldContainer::sendEvents()
     }
 }
 
-void CWorldContainer::_combineDuplicateEvents(SBufferedEvents* events)
+void CWorldContainer::_combineDuplicateEvents(SBufferedEvents* events) const
 {
     CInterfaceStackTable* buff=(CInterfaceStackTable*)events->eventsStack->getStackObjectFromIndex(0);
     std::vector<SEventInfo>* evSum=&events->eventDescriptions;
@@ -697,7 +676,7 @@ void CWorldContainer::_combineDuplicateEvents(SBufferedEvents* events)
     }
 }
 
-void CWorldContainer::_mergeEvents(SBufferedEvents* events)
+void CWorldContainer::_mergeEvents(SBufferedEvents* events) const
 {
     CInterfaceStackTable* buff=(CInterfaceStackTable*)events->eventsStack->getStackObjectFromIndex(0);
     std::vector<SEventInfo>* evSum=&events->eventDescriptions;
@@ -756,6 +735,22 @@ void CWorldContainer::_mergeEvents(SBufferedEvents* events)
                 }
             }
         }
+    }
+}
+
+void CWorldContainer::_prepareEventsForDispatch(SBufferedEvents* events) const
+{
+    if (_mergeTheEvents)
+    {
+        _combineDuplicateEvents(events);
+        _mergeEvents(events);
+    }
+
+    if (_cborEvents)
+    {
+        std::string cbor=events->eventsStack->getCborEncodedBufferFromTable(0);
+        events->eventsStack->clear();
+        events->eventsStack->pushStringOntoStack(cbor.c_str(),cbor.size());
     }
 }
 
