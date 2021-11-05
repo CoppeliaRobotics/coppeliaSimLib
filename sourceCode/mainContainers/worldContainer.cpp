@@ -617,23 +617,12 @@ void CWorldContainer::pushReconstructAllEvents()
 {
     if (_enableEvents)
     {
-        pushReconstructSettingsEvents();
-
-        const char* cmd="sceneUid";
-        auto [event,data]=prepareEvent(EVENTTYPE_SCENECHANGED,-1,cmd,false);
-        data->appendMapObject_stringInt32(cmd,currentWorld->environment->getSceneUniqueID());
+        auto [event,data]=prepareSystemEvent(nullptr,false);
+        data->appendMapObject_stringFloat("defaultTranslationStepSize",App::userSettings->getTranslationStepSize());
+        data->appendMapObject_stringFloat("defaultRotationStepSize",App::userSettings->getRotationStepSize());
         pushEvent(event);
 
-        cmd="visibilityLayers";
-        std::tie(event,data)=prepareEvent(EVENTTYPE_SCENECHANGED,-1,cmd,true);
-        data->appendMapObject_stringInt32(cmd,currentWorld->mainSettings->getActiveLayers());
-        pushEvent(event);
-
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-            App::currentWorld->sceneObjects->getObjectFromIndex(i)->pushObjectCreationEvent();
-
-        currentWorld->drawingCont->pushReconstructAllEvents();
-        currentWorld->pointCloudCont->pushReconstructAllEvents();
+        currentWorld->pushReconstructAllEvents();
     }
 }
 
@@ -644,14 +633,6 @@ SBufferedEvents* CWorldContainer::swapBufferedEvents(SBufferedEvents* newBuffer)
     _bufferedEvents=newBuffer;
     _eventMutex.unlock();
     return(retVal);
-}
-
-void CWorldContainer::pushReconstructSettingsEvents()
-{
-    auto [event,data]=prepareSystemEvent(nullptr,true);
-    data->appendMapObject_stringFloat("defaultTranslationStepSize",App::userSettings->getTranslationStepSize());
-    data->appendMapObject_stringFloat("defaultRotationStepSize",App::userSettings->getRotationStepSize());
-    pushEvent(event);
 }
 
 void CWorldContainer::sendEvents()
@@ -705,7 +686,7 @@ void CWorldContainer::_combineDuplicateEvents(SBufferedEvents* events)
         {
             std::string c(evSum->at(i).event+evSum->at(i).subEvent+evSum->at(i).dataSubtype+std::to_string(evSum->at(i).uid));
             std::map<std::string,bool>::iterator it=map.find(c);
-            if (it==map.end()||evSum->at(i).mergeable)
+            if (it==map.end()||(!evSum->at(i).mergeable))
                 map[c]=true;
             else
             {

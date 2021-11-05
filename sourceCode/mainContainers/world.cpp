@@ -1150,6 +1150,17 @@ void CWorld::announceScriptStateWillBeErased(int scriptHandle,bool simulationScr
     drawingCont->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
 }
 
+void CWorld::pushReconstructAllEvents()
+{
+    simulation->pushReconstructAllEvents();
+    environment->pushReconstructAllEvents();
+    mainSettings->pushReconstructAllEvents();
+    sceneObjects->pushReconstructAllEvents();
+
+    drawingCont->pushReconstructAllEvents();
+    pointCloudCont->pushReconstructAllEvents();
+}
+
 // Old:
 // -----------
 void CWorld::announceIkGroupWillBeErased(int ikGroupHandle)

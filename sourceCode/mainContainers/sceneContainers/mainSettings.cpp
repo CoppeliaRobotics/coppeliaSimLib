@@ -58,7 +58,7 @@ void CMainSettings::setActiveLayers(unsigned short l)
     App::setLightDialogRefreshFlag();
 }
 
-unsigned short CMainSettings::getActiveLayers()
+unsigned short CMainSettings::getActiveLayers() const
 {
     return(_activeLayers);
 }
@@ -101,6 +101,13 @@ std::string CMainSettings::getSceneNameForUi() const
 std::string CMainSettings::getSceneNameWithExt() const
 {
     return(VVarious::splitPath_fileBaseAndExtension(_scenePathAndName.c_str()));
+}
+
+void CMainSettings::pushReconstructAllEvents() const
+{
+    auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SCENECHANGED,-1,nullptr,false);
+    data->appendMapObject_stringInt32("visibilityLayers",getActiveLayers());
+    App::worldContainer->pushEvent(event);
 }
 
 void CMainSettings::serialize(CSer& ar)

@@ -31,7 +31,7 @@ CSimulation::~CSimulation()
 void CSimulation::setUpDefaultValues()
 {
     _dynamicContentVisualizationOnly=false;
-    simulationState=sim_simulation_stopped;
+    _simulationState=sim_simulation_stopped;
     _simulationTime_us=0;
 
     simulationTime_real_us=0;
@@ -267,7 +267,7 @@ bool CSimulation::startOrResumeSimulation()
         _requestToPause=false; 
         simulationTime_real_lastInMs=VDateTime::getTimeInMs();
         _simulationStepCount=0;
-        simulationState=sim_simulation_advancing_firstafterstop;
+        setSimulationState(sim_simulation_advancing_firstafterstop);
         return(true);
     }
     else if (isSimulationPaused())
@@ -275,7 +275,7 @@ bool CSimulation::startOrResumeSimulation()
         App::worldContainer->simulationAboutToResume();
 
         _realTimeCorrection_us=0;
-        simulationState=sim_simulation_advancing_firstafterpause;
+        setSimulationState(sim_simulation_advancing_firstafterpause);
         simulationTime_real_lastInMs=VDateTime::getTimeInMs();
         _requestToPause=false;
         return(true);
@@ -288,18 +288,18 @@ bool CSimulation::startOrResumeSimulation()
 bool CSimulation::stopSimulation()
 {
     TRACE_INTERNAL;
-    if (simulationState!=sim_simulation_stopped)
+    if (getSimulationState()!=sim_simulation_stopped)
         App::setFullScreen(false);
 
-    if ((simulationState==sim_simulation_advancing_abouttostop)||
-        (simulationState==sim_simulation_advancing_lastbeforestop))
+    if ((getSimulationState()==sim_simulation_advancing_abouttostop)||
+        (getSimulationState()==sim_simulation_advancing_lastbeforestop))
         return(true); // in this situation, we are stopping anyway!!
-    if (simulationState==sim_simulation_paused)
+    if (getSimulationState()==sim_simulation_paused)
     {
         App::worldContainer->simulationAboutToResume();
 
         // Special case here: we have to change the state directly here (and not automatically in "advanceSimulationByOneStep")
-        simulationState=sim_simulation_advancing_firstafterpause;
+        setSimulationState(sim_simulation_advancing_firstafterpause);
     }
     if (!_requestToStop)
     {
@@ -311,9 +311,9 @@ bool CSimulation::stopSimulation()
 
 bool CSimulation::pauseSimulation()
 {
-    if ((simulationState!=sim_simulation_advancing_firstafterstop)&&
-        (simulationState!=sim_simulation_advancing_running)&&
-        (simulationState!=sim_simulation_advancing_firstafterpause))
+    if ((getSimulationState()!=sim_simulation_advancing_firstafterstop)&&
+        (getSimulationState()!=sim_simulation_advancing_running)&&
+        (getSimulationState()!=sim_simulation_advancing_firstafterpause))
         return(false); // in these situations, we are already about to pause or stopping anyway!!
     if (_requestToStop)
         return(false);
@@ -321,19 +321,19 @@ bool CSimulation::pauseSimulation()
     return(true);   
 }
 
-bool CSimulation::isSimulationRunning()
+bool CSimulation::isSimulationRunning() const
 { 
-    return((simulationState&sim_simulation_advancing)!=0);
+    return((getSimulationState()&sim_simulation_advancing)!=0);
 }
 
-bool CSimulation::isSimulationStopped()
+bool CSimulation::isSimulationStopped() const
 { 
-    return(simulationState==sim_simulation_stopped); 
+    return(getSimulationState()==sim_simulation_stopped);
 }
 
-bool CSimulation::isSimulationPaused()
+bool CSimulation::isSimulationPaused() const
 { 
-    return(simulationState==sim_simulation_paused); 
+    return(getSimulationState()==sim_simulation_paused);
 }
 
 void CSimulation::adjustRealTimeTimer_us(quint64 deltaTime)
@@ -379,47 +379,45 @@ void CSimulation::advanceSimulationByOneStep()
     simulationTime_real_lastInMs=ct;
     addToSimulationTimeHistory_us(_simulationTime_us,simulationTime_real_us);
 
-    if (simulationState==sim_simulation_advancing_firstafterstop)
-        simulationState=sim_simulation_advancing_running;
-    else if (simulationState==sim_simulation_advancing_running)
+    if (getSimulationState()==sim_simulation_advancing_firstafterstop)
+        setSimulationState(sim_simulation_advancing_running);
+    else if (getSimulationState()==sim_simulation_advancing_running)
     {
         if (_requestToStop)
         {
             CThreadPool_old::setRequestSimulationStop(true);
-            simulationState=sim_simulation_advancing_abouttostop;
+            setSimulationState(sim_simulation_advancing_abouttostop);
             _requestToStop=false;
         }
         else
         {
             if (_requestToPause)
             {
-                simulationState=sim_simulation_advancing_lastbeforepause;
+                setSimulationState(sim_simulation_advancing_lastbeforepause);
                 _requestToPause=false;
             }
         }
     }
-    else if (simulationState==sim_simulation_advancing_lastbeforepause)
+    else if (getSimulationState()==sim_simulation_advancing_lastbeforepause)
     {
-        simulationState=sim_simulation_paused;
+        setSimulationState(sim_simulation_paused);
         App::worldContainer->simulationPaused();
     }
-    else if (simulationState==sim_simulation_advancing_firstafterpause)
+    else if (getSimulationState()==sim_simulation_advancing_firstafterpause)
     {
-        simulationState=sim_simulation_advancing_running;
+        setSimulationState(sim_simulation_advancing_running);
     }
-    else if (simulationState==sim_simulation_advancing_abouttostop)
+    else if (getSimulationState()==sim_simulation_advancing_abouttostop)
     {
-        // Check if all threads have stopped
         if (CThreadPool_old::getThreadPoolThreadCount()==0)
-            simulationState=sim_simulation_advancing_lastbeforestop;
+            setSimulationState(sim_simulation_advancing_lastbeforestop);
     }
-    else if (simulationState==sim_simulation_advancing_lastbeforestop)
+    else if (getSimulationState()==sim_simulation_advancing_lastbeforestop)
     {
         App::worldContainer->simulationAboutToEnd();
         CThreadPool_old::setSimulationEmergencyStop(false);
         CThreadPool_old::setRequestSimulationStop(false);
- //       CScriptObject::emergencyStopButtonPressed=false;
-        simulationState=sim_simulation_stopped;
+        setSimulationState(sim_simulation_stopped);
         App::worldContainer->simulationEnded(_removeNewObjectsAtSimulationEnd);
     }
     while (_desiredFasterOrSlowerSpeed>0)
@@ -434,9 +432,9 @@ void CSimulation::advanceSimulationByOneStep()
     }
 }
 
-int CSimulation::getSimulationState()
+int CSimulation::getSimulationState() const
 { 
-    return(simulationState);
+    return(_simulationState);
 }
 
 void CSimulation::setSimulationTimeStep_raw_us(quint64 dt)
@@ -538,9 +536,28 @@ int CSimulation::getSimulationPassesPerRendering_raw()
     return(SIMULATION_DEFAULT_PASSES_PER_RENDERING[_defaultSimulationParameterIndex]);
 }
 
-void CSimulation::setSimulationStateDirect(int state)
-{ // Careful with that function!
-    simulationState=state;
+void CSimulation::pushReconstructAllEvents() const
+{
+    auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SIMULATIONCHANGED,-1,nullptr,false);
+    data->appendMapObject_stringInt32("state",_simulationState);
+
+    App::worldContainer->pushEvent(event);
+}
+
+void CSimulation::setSimulationState(int state)
+{
+    bool diff=(_simulationState!=state);
+    if (diff)
+    {
+        _simulationState=state;
+        if (App::worldContainer->getEnableEvents())
+        {
+            const char* cmd="state";
+            auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SIMULATIONCHANGED,-1,cmd,true);
+            data->appendMapObject_stringInt32(cmd,_simulationState);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
 void CSimulation::clearSimulationTimeHistory_us()
@@ -1207,7 +1224,7 @@ bool CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* sc
                 CThreadPool_old::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
                 CThreadPool_old::setSimulationEmergencyStop(true);
   //              if (getSimulationState()!=sim_simulation_advancing_lastbeforestop)
-  //                  setSimulationStateDirect(sim_simulation_advancing_abouttostop);
+  //                  setSimulationState(sim_simulation_advancing_abouttostop);
             }
             retVal=true;
 //            CScriptObject::emergencyStopButtonPressed=true;

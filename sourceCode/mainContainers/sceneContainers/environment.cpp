@@ -143,6 +143,13 @@ void CEnvironment::setUpDefaultValues()
     _saveExistingCalculationStructures=false;
 }
 
+void CEnvironment::pushReconstructAllEvents() const
+{
+    auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SCENECHANGED,-1,nullptr,false);
+    data->appendMapObject_stringInt32("sceneUid",getSceneUniqueID());
+    App::worldContainer->pushEvent(event);
+}
+
 bool CEnvironment::areNonAmbientLightsActive() const
 {
     return(_nonAmbientLightsAreActive);

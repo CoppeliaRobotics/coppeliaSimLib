@@ -434,6 +434,12 @@ void CSceneObjectContainer::removeSceneDependencies()
         getObjectFromIndex(i)->removeSceneDependencies();
 }
 
+void CSceneObjectContainer::pushReconstructAllEvents() const
+{
+    for (size_t i=0;i<getObjectCount();i++)
+        getObjectFromIndex(i)->pushObjectCreationEvent();
+}
+
 void CSceneObjectContainer::getAllCollidableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,std::vector<CSceneObject*>& objects)
 {
     for (size_t i=0;i<getObjectCount();i++)

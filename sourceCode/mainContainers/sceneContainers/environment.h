@@ -27,6 +27,9 @@ public:
     void setShapeTexturesEnabled(bool e);
     bool getShapeTexturesEnabled() const;
 
+    void pushReconstructAllEvents() const;
+
+
     static int getNextSceneUniqueId();
     static void setShapeTexturesTemporarilyDisabled(bool d);
     static bool getShapeTexturesTemporarilyDisabled();

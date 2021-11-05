@@ -31,6 +31,7 @@
 #define EVENTTYPE_DRAWINGOBJECTREMOVED "drawingObjectRemoved"
 
 #define EVENTTYPE_SYSTEMCHANGED "systemChanged"
+#define EVENTTYPE_SIMULATIONCHANGED "simulationChanged"
 
 struct SEventInfo
 {
@@ -92,7 +93,6 @@ public:
     void pushReconstructAllEvents();
     void buildReconstructAllEventsOntoInterfaceStack(CInterfaceStack* stack);
     SBufferedEvents* swapBufferedEvents(SBufferedEvents* newBuffer);
-    void pushReconstructSettingsEvents();
 
     void simulationAboutToStart();
     void simulationPaused();

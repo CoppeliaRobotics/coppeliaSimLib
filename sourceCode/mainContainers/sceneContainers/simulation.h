@@ -17,9 +17,9 @@ public:
     bool startOrResumeSimulation();
     bool stopSimulation();
     bool pauseSimulation();
-    bool isSimulationRunning();
-    bool isSimulationPaused();
-    bool isSimulationStopped();
+    bool isSimulationRunning() const;
+    bool isSimulationPaused() const;
+    bool isSimulationStopped() const;
     void advanceSimulationByOneStep();
     void setDefaultSimulationParameterIndex(int d);
     int getDefaultSimulationParameterIndex();
@@ -43,6 +43,9 @@ public:
     void incrementStopRequestCounter();
     int getStopRequestCounter();
     bool didStopRequestCounterChangeSinceSimulationStart();
+
+    void pushReconstructAllEvents() const;
+
 
     bool canGoSlower();
     bool canGoFaster();
@@ -73,7 +76,7 @@ public:
 
     bool isRealTimeCalculationStepNeeded();
 
-    void setSimulationStateDirect(int state);
+    void setSimulationState(int state);
 
     bool processCommand(int commandID);
     bool getInfo(std::string& txtLeft,std::string& txtRight,int& index);
@@ -88,7 +91,7 @@ public:
     void setCatchUpIfLate(bool c);
     bool getCatchUpIfLate();
 
-    int getSimulationState();
+    int getSimulationState() const;
 
     bool getDisplayWarningAboutNonDefaultParameters();
 
@@ -146,7 +149,7 @@ private:
 
     volatile static int emergencyStopButtonThreadForMainScriptsLaunched;
 
-    int simulationState;
+    int _simulationState;
     bool _requestToStop; // Indicates a passage from paused to stop (but through running!). Check the simulation state diagram!!
     bool _requestToPause; // added on 2010/01/13 (simPauseSimulation didn't work in the first simulation pass)
 

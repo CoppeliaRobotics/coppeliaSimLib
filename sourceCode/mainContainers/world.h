@@ -76,6 +76,9 @@ public:
     void announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     void announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
 
+    void pushReconstructAllEvents();
+
+
     // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);
     void announceCollectionWillBeErased(int collectionHandle);
