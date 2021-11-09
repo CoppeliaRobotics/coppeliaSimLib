@@ -6987,6 +6987,9 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         App::logMsg(sim_verbosity_errors,"Contains sim.scaleSelectedObjects...");
     if (_containsScriptText_old(scriptObject,"sim.copyPasteSelectedObjects"))
         App::logMsg(sim_verbosity_errors,"Contains sim.copyPasteSelectedObjects...");
+    if (_containsScriptText_old(scriptObject,"sim.breakForceSensor"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.breakForceSensor...");
+
 
 
     if (_containsScriptText_old(scriptObject,"sim.fileDlg"))

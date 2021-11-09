@@ -80,7 +80,7 @@ void CDummy::scaleObject(float scalingFactor)
     CSceneObject::scaleObject(scalingFactor);
 
     // We have to reconstruct a part of the dynamics world:
-    _dynamicsFullRefreshFlag=true; // yes, because we might have a position scaling too!
+    _dynamicsResetFlag=true; // yes, because we might have a position scaling too!
 }
 
 void CDummy::scaleObjectNonIsometrically(float x,float y,float z)

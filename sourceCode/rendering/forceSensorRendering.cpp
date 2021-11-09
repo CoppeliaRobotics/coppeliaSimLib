@@ -53,13 +53,10 @@ void _displayForceSensor(CForceSensor* forceSensor,int displayAttrib,bool partOn
         ogl::drawCylinder(forceSensor->getSize(),forceSensor->getSize()*0.5f,16,0,true);
     else
     {
-        if (forceSensor->getDynamicSecondPartIsValid()&&(!App::currentWorld->simulation->isSimulationStopped()))
-        { // for dynamic mode
-            C7Vector tr(forceSensor->getDynamicSecondPartLocalTransform());
-            glTranslatef(tr.X(0),tr.X(1),tr.X(2));
-            C4Vector axis=tr.Q.getAngleAndAxisNoChecking();
-            glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
-        }
+        C7Vector tr(forceSensor->getIntrinsicTransformation(true));
+        glTranslatef(tr.X(0),tr.X(1),tr.X(2));
+        C4Vector axis=tr.Q.getAngleAndAxisNoChecking();
+        glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
 
         ogl::drawCylinder(forceSensor->getSize()/5.0f,forceSensor->getSize(),16,0,true);
         if (displayAttrib&sim_displayattribute_selected)

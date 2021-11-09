@@ -46,7 +46,7 @@ void CMemorizedConf::restore()
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromUniqueId(uniqueID);
     if ( (it==nullptr)||(it->getMemorizedConfigurationValidCounter()!=memorizedConfigurationValidCounter) ) // second part is in case a shape gets edited
         return;
-    it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
+    it->setDynamicsResetFlag(true,false); // dynamically enabled objects have to be reset first!
     int puid=-1;
     if (it->getParent()!=nullptr)
         puid=it->getParent()->getObjectUid();

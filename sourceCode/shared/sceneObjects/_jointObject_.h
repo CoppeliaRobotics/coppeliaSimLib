@@ -170,8 +170,6 @@ public:
     bool getDynamicMotorLockModeWhenInVelocityControl() const;
     float getDynamicMotorUpperLimitVelocity() const;
     float getDynamicMotorMaximumForce() const;
-    bool getDynamicSecondPartIsValid() const;
-    C7Vector getDynamicSecondPartLocalTransform() const;
     bool getEnableDynamicMotorControlLoop() const;
     bool getEnableTorqueModulation() const;
     bool getHybridFunctionality() const;
@@ -204,6 +202,8 @@ public:
     void getDynamicMotorSpringControlParameters(float& k_param,float& c_param) const;
     float getDynamicMotorPositionControlTargetPosition() const;
 
+    C7Vector getIntrinsicTransformation(bool includeDynErrorComponent) const;
+
     // Overridden from _CSceneObject_:
     virtual C7Vector getFullLocalTransformation() const;
 
@@ -232,8 +232,6 @@ public:
     virtual bool setEnableDynamicMotorControlLoop(bool p);
     virtual bool setEnableTorqueModulation(bool p);
     virtual bool setDynamicMotorLockModeWhenInVelocityControl(bool e);
-    virtual bool setDynamicSecondPartIsValid(bool v);
-    virtual bool setDynamicSecondPartLocalTransform(const C7Vector& tr);
     virtual bool setBulletFloatParams(const std::vector<float>& p);
     virtual bool setBulletIntParams(const std::vector<int>& p);
     virtual bool setOdeFloatParams(const std::vector<float>& p);
@@ -242,6 +240,8 @@ public:
     virtual bool setVortexIntParams(const std::vector<int>& p);
     virtual bool setNewtonFloatParams(const std::vector<float>& p);
     virtual bool setNewtonIntParams(const std::vector<int>& p);
+
+    void setIntrinsicTransformationError(const C7Vector& tr);
 
     CColorObject* getJointColor1();
     CColorObject* getJointColor2();
@@ -272,8 +272,6 @@ protected:
     virtual void _setEnableDynamicMotorControlLoop_send(bool p) const;
     virtual void _setEnableTorqueModulation_send(bool p) const;
     virtual void _setDynamicMotorLockModeWhenInVelocityControl_send(bool e) const;
-    virtual void _setDynamicSecondPartIsValid_send(bool v) const;
-    virtual void _setDynamicSecondPartLocalTransform_send(const C7Vector& tr) const;
     virtual void _setBulletFloatParams_send(const std::vector<float>& p) const;
     virtual void _setBulletIntParams_send(const std::vector<int>& p) const;
     virtual void _setOdeFloatParams_send(const std::vector<float>& p) const;
@@ -329,6 +327,5 @@ protected:
     std::vector<float> _newtonFloatParams;
     std::vector<int> _newtonIntParams;
 
-    bool _dynamicSecondPartIsValid;
-    C7Vector _dynamicSecondPartLocalTransform;
+    C7Vector _intrinsicTransformationError; // from physics engine
 };

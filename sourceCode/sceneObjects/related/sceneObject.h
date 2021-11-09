@@ -183,8 +183,8 @@ public:
     void getSizeValues(float s[3]) const;
 
 
-    void setDynamicsFullRefreshFlag(bool refresh);
-    bool getDynamicsFullRefreshFlag() const;
+    void setDynamicsResetFlag(bool reset,bool fullHierarchyTree);
+    bool getDynamicsResetFlag() const;
 
     void setDynamicSimulationIconCode(int c);
     int getDynamicSimulationIconCode() const;
@@ -314,9 +314,8 @@ protected:
     int _memorizedConfigurationValidCounter;
     float _sizeFactor; // just used so that scripts can also adjust for scaling
     float _sizeValues[3];
-    int _dynamicProperty; // modified in the dynamics routines. Not saved nor copied!
     bool _dynamicsTemporarilyDisabled;
-    bool _dynamicsFullRefreshFlag;
+    bool _dynamicsResetFlag;
 
     float _transparentObjectDistanceOffset;
 

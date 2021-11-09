@@ -22,8 +22,7 @@ _CJoint_::_CJoint_()
     _dynamicMotorTargetVelocity=0.0f;
     _dynamicLockModeWhenInVelocityControl=false;
     _dynamicMotorMaximumForce=1000.0f; // This value has to be adjusted according to the joint type
-    _dynamicSecondPartIsValid=false;
-    _dynamicSecondPartLocalTransform.setIdentity();
+    _intrinsicTransformationError.setIdentity();
 
     _dynamicMotorControlLoopEnabled=false;
     _dynamicMotorPositionControl_P=0.1f;
@@ -300,13 +299,6 @@ void _CJoint_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMs
                 setDynamicMotorLockModeWhenInVelocityControl(((bool*)msg.data)[0]);
                 return;
             }
-            if (msg.msg==sim_syncobj_joint_secondpartvalid)
-            {
-                setDynamicSecondPartIsValid(((bool*)msg.data)[0]);
-                return;
-            }
-
-
             if (msg.msg==sim_syncobj_joint_pid)
             {
                 setDynamicMotorPositionControlParameters(((float*)msg.data)[0],((float*)msg.data)[1],((float*)msg.data)[2]);
@@ -322,13 +314,6 @@ void _CJoint_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMs
                 C4Vector tr;
                 tr.setInternalData((float*)msg.data);
                 setSphericalTransformation(tr);
-                return;
-            }
-            if (msg.msg==sim_syncobj_joint_secondparttransf)
-            {
-                C7Vector tr;
-                tr.setInternalData((float*)msg.data);
-                setDynamicSecondPartLocalTransform(tr);
                 return;
             }
             if (msg.msg==sim_syncobj_joint_bulletfloats)
@@ -569,12 +554,10 @@ bool _CJoint_::setPosition(float pos)
             const char* cmd="position";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,_jointPosition);
-            float pose[7];
-            C7Vector trFull(getFullLocalTransformation());
-            C7Vector trPart1(getLocalTransformation());
-            C7Vector tr(trPart1.getInverse()*trFull);
-            tr.getInternalData(pose,true);
-            data->appendMapObject_stringFloatArray("pose",pose,7);
+
+            C7Vector tr(getIntrinsicTransformation(true));
+            float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+            data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
             App::worldContainer->pushEvent(event);
         }
         if (getObjectCanSync())
@@ -597,14 +580,11 @@ bool _CJoint_::setSphericalTransformation(const C4Vector& tr)
         {
             const char* cmd="quaternion";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            float p[4]={tr(1),tr(2),tr(3),tr(0)};
-            data->appendMapObject_stringFloatArray(cmd,p,4);
-            float pose[7];
-            C7Vector trFull(getFullLocalTransformation());
-            C7Vector trPart1(getLocalTransformation());
-            C7Vector tr(trPart1.getInverse()*trFull);
-            tr.getInternalData(pose,true);
-            data->appendMapObject_stringFloatArray("pose",pose,7);
+            float q[4]={tr(1),tr(2),tr(3),tr(0)};
+            data->appendMapObject_stringFloatArray(cmd,q,4);
+            C7Vector tr(getIntrinsicTransformation(true));
+            float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+            data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
             App::worldContainer->pushEvent(event);
         }
         if (getObjectCanSync())
@@ -738,16 +718,6 @@ float _CJoint_::getDynamicMotorMaximumForce() const
     return(_dynamicMotorMaximumForce);
 }
 
-bool _CJoint_::getDynamicSecondPartIsValid() const
-{
-    return(_dynamicSecondPartIsValid);
-}
-
-C7Vector _CJoint_::getDynamicSecondPartLocalTransform() const
-{
-    return(_dynamicSecondPartLocalTransform);
-}
-
 bool _CJoint_::getEnableDynamicMotorControlLoop() const
 {
     return(_dynamicMotorControlLoopEnabled);
@@ -822,36 +792,23 @@ void _CJoint_::_setDynamicMotorMaximumForce_send(float v) const
 {
 }
 
-bool _CJoint_::setDynamicSecondPartIsValid(bool v)
+void _CJoint_::setIntrinsicTransformationError(const C7Vector& tr)
 {
-    bool diff=(_dynamicSecondPartIsValid!=v);
+    bool diff=(_intrinsicTransformationError!=tr);
     if (diff)
     {
-        _dynamicSecondPartIsValid=v;
-        if (getObjectCanSync())
-            _setDynamicSecondPartIsValid_send(v);
+        _intrinsicTransformationError=tr;
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="position";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringFloat(cmd,_jointPosition);
+            C7Vector tr2(getIntrinsicTransformation(true));
+            float p[7]={tr2.X(0),tr2.X(1),tr2.X(2),tr2.Q(1),tr2.Q(2),tr2.Q(3),tr2.Q(0)};
+            data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
+            App::worldContainer->pushEvent(event);
+        }
     }
-    return(diff);
-}
-
-void _CJoint_::_setDynamicSecondPartIsValid_send(bool v) const
-{
-}
-
-bool _CJoint_::setDynamicSecondPartLocalTransform(const C7Vector& tr)
-{
-    bool diff=(_dynamicSecondPartLocalTransform!=tr);
-    if (diff)
-    {
-        _dynamicSecondPartLocalTransform=tr;
-        if (getObjectCanSync())
-            _setDynamicSecondPartLocalTransform_send(tr);
-    }
-    return(diff);
-}
-
-void _CJoint_::_setDynamicSecondPartLocalTransform_send(const C7Vector& tr) const
-{
 }
 
 bool _CJoint_::setEnableDynamicMotorControlLoop(bool p)
@@ -1284,8 +1241,8 @@ float _CJoint_::getDynamicMotorPositionControlTargetPosition() const
     return(_dynamicMotorPositionControl_targetPosition);
 }
 
-C7Vector _CJoint_::getFullLocalTransformation() const
-{ // Overridden from _CSceneObject_
+C7Vector _CJoint_::getIntrinsicTransformation(bool includeDynErrorComponent) const
+{
     C7Vector jointTr;
     if (getJointType()==sim_joint_revolute_subtype)
     {
@@ -1306,7 +1263,14 @@ C7Vector _CJoint_::getFullLocalTransformation() const
         jointTr.Q=_sphericalTransformation;
         jointTr.X.clear();
     }
-    return(_localTransformation*jointTr);
+    if (includeDynErrorComponent)
+        jointTr=jointTr*_intrinsicTransformationError;
+    return(jointTr);
+}
+
+C7Vector _CJoint_::getFullLocalTransformation() const
+{ // Overridden from _CSceneObject_
+    return(_localTransformation*getIntrinsicTransformation(true));
 }
 
 bool _CJoint_::setDynamicMotorPositionControlParameters(float p_param,float i_param,float d_param)

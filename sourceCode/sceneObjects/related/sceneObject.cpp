@@ -95,7 +95,7 @@ CSceneObject::CSceneObject()
     _sizeValues[0]=1.0f;
     _sizeValues[1]=1.0f;
     _sizeValues[2]=1.0f;
-    _dynamicsFullRefreshFlag=true;
+    _dynamicsResetFlag=true;
     _ignoredByViewFitting=false;
 }
 
@@ -297,21 +297,35 @@ std::string CSceneObject::getModelAcknowledgement() const
     return(_modelAcknowledgement);
 }
 
-void CSceneObject::setDynamicsFullRefreshFlag(bool refresh)
+void CSceneObject::setDynamicsResetFlag(bool reset,bool fullHierarchyTree)
 {
-    _dynamicsFullRefreshFlag=refresh;
-    if (refresh)
+    _dynamicsResetFlag=reset;
+    if (reset)
     {
+        _dynamicFlag=0;
         if (_objectType==sim_object_joint_type)
-            ((CJoint*)this)->setForceOrTorqueNotValid();
+        {
+            CJoint* joint=(CJoint*)this;
+            joint->setForceOrTorqueNotValid();
+            joint->setIntrinsicTransformationError(C7Vector::identityTransformation);
+        }
         if (_objectType==sim_object_forcesensor_type)
-            ((CForceSensor*)this)->setForceAndTorqueNotValid();
+        {
+            CForceSensor* sensor=(CForceSensor*)this;
+            sensor->setForceAndTorqueNotValid();
+            sensor->setIntrinsicTransformationError(C7Vector::identityTransformation);
+        }
+    }
+    if (fullHierarchyTree)
+    {
+        for (size_t i=0;i<getChildCount();i++)
+            getChildFromIndex(i)->setDynamicsResetFlag(reset,fullHierarchyTree);
     }
 }
 
-bool CSceneObject::getDynamicsFullRefreshFlag() const
+bool CSceneObject::getDynamicsResetFlag() const
 {
-    return(_dynamicsFullRefreshFlag);
+    return(_dynamicsResetFlag);
 }
 
 
@@ -1353,7 +1367,6 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     _previousPositionOrientationIsValid=false;
     if (_userScriptParameters!=nullptr)
         _userScriptParameters->initializeInitialValues(simulationAlreadyRunning);
-//    _previousAbsTransf_velocityMeasurement=getCumulativeTransformationPart1();
 
     // this section is special and reserved to local configuration restoration!
     //********************************
@@ -1423,7 +1436,6 @@ void CSceneObject::disableDynamicTreeForManipulation(bool d)
 {
     if (d!=_dynamicsTemporarilyDisabled)
         recomputeModelInfluencedValues();
-//        incrementModelPropertyValidityNumber(); // we want the cumulative values all recalculated
     _dynamicsTemporarilyDisabled=d;
 }
 

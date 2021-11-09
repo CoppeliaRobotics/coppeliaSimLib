@@ -1110,7 +1110,8 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
         if (dataIndex==GRAPH_SCENEOBJECT_FORCESENSOR_BROKEN)
         {
             value=0.0f;
-            if (it->getForceSensorIsBroken())
+            CSceneObject* child=it->getChildFromIndex(0);
+            if (child==nullptr)
                 value=1.0f;
             return(true);
         }

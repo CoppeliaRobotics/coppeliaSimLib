@@ -43,12 +43,14 @@ public:
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
 
+    C7Vector getIntrinsicTransformation(bool includeDynErrorComponent) const;
+
+    // Overridden from _CSceneObject_:
+    virtual C7Vector getFullLocalTransformation() const;
+
     void commonInit();
 
-    // Dynamic routines:
-    void setDynamicSecondPartIsValid(bool v);
-    bool getDynamicSecondPartIsValid() const;
-    void setDynamicSecondPartLocalTransform(const C7Vector& tr);
+    void setIntrinsicTransformationError(const C7Vector& tr);
 
     void addCumulativeForcesAndTorques(const C3Vector& f,const C3Vector& t,int countForAverage);
     void setForceAndTorqueNotValid();
@@ -56,8 +58,6 @@ public:
     bool getDynamicForces(C3Vector& f,bool dynamicStepValue) const;
     bool getDynamicTorques(C3Vector& t,bool dynamicStepValue) const;
 
-    void setForceSensorIsBroken();
-    bool getForceSensorIsBroken() const;
     float getDynamicPositionError() const;
     float getDynamicOrientationError() const;
     void getDynamicErrorsFull(C3Vector& linear,C3Vector& angular) const;
@@ -73,7 +73,6 @@ public:
     bool getEnableTorqueThreshold() const;
     void setConsecutiveThresholdViolationsForBreaking(int count);
     int getConsecutiveThresholdViolationsForBreaking() const;
-    C7Vector getDynamicSecondPartLocalTransform() const;
 
     void setValueCountForFilter(int c);
     int getValueCountForFilter() const;
@@ -90,7 +89,6 @@ protected:
     void _computeFilteredValues();
     void _handleSensorBreaking();
 
-    bool _dynamicSecondPartIsValid;
     float _forceThreshold;
     float _torqueThreshold;
     int _valueCountForFilter;
@@ -99,11 +97,10 @@ protected:
     bool _torqueThresholdEnabled;
     bool _stillAutomaticallyBreaking;
 
-    bool _forceSensorIsBroken; // if false, then _unbrokenConstraintState is applied, else _brokenConstraintState is applied
-
     int _consecutiveThresholdViolationsForBreaking;
     int _currentThresholdViolationCount;
-    C7Vector _dynamicSecondPartLocalTransform;
+
+    C7Vector _intrinsicTransformationError; // from physics engine
 
     // Variables which need to be serialized & copied
     // Visual attributes:

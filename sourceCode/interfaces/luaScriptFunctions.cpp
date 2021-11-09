@@ -259,7 +259,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setModelProperty",_simSetModelProperty,                "sim.setModelProperty(int objectHandle,int property)",true},
     {"sim.getModelProperty",_simGetModelProperty,                "int property=sim.getModelProperty(int objectHandle)",true},
     {"sim.readForceSensor",_simReadForceSensor,                  "int result,table[3] forceVector,table[3] torqueVector=sim.readForceSensor(int objectHandle)",true},
-    {"sim.breakForceSensor",_simBreakForceSensor,                "sim.breakForceSensor(int objectHandle)",true},
     {"sim.getLightParameters",_simGetLightParameters,            "int state,table[3] zero,table[3] diffusePart,table[3] specular=sim.getLightParameters(int lightHandle)",true},
     {"sim.setLightParameters",_simSetLightParameters,            "sim.setLightParameters(int lightHandle,int state,nil,table[3] diffusePart,table[3] specularPart)",true},
     {"sim.getLinkDummy",_simGetLinkDummy,                        "int linkDummyHandle=sim.getLinkDummy(int dummyHandle)",true},
@@ -570,6 +569,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.addObjectToSelection",_simAddObjectToSelection,        "Deprecated. Use sim.setObjectSelection instead",false},
     {"sim.removeObjectFromSelection",_simRemoveObjectFromSelection,"Deprecated. Use sim.setObjectSelection instead",false},
     {"sim.getObjectUniqueIdentifier",_simGetObjectUniqueIdentifier,"Deprecated. Use sim.getObjectInt32Param with sim.objintparam_unique_id instead",false},
+    {"sim.breakForceSensor",_simBreakForceSensor,                "Deprecated. Use sim.setObjectParent instead",false},
 
     {"",nullptr,"",false}
 };
@@ -8419,20 +8419,6 @@ int _simReadForceSensor(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simBreakForceSensor(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.breakForceSensor");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simBreakForceSensor_internal(luaToInt(L,1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
 int _simGetLightParameters(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -13285,7 +13271,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simSetModelProperty",_simSetModelProperty,                "Use the newer 'sim.setModelProperty' notation",false},
     {"simGetModelProperty",_simGetModelProperty,                "Use the newer 'sim.getModelProperty' notation",false},
     {"simReadForceSensor",_simReadForceSensor,                  "Use the newer 'sim.readForceSensor' notation",false},
-    {"simBreakForceSensor",_simBreakForceSensor,                "Use the newer 'sim.breakForceSensor' notation",false},
+    {"simBreakForceSensor",_simBreakForceSensor,                "Deprecated. Use sim.setObjectParent instead",false},
     {"simGetLightParameters",_simGetLightParameters,            "Use the newer 'sim.getLightParameters' notation",false},
     {"simSetLightParameters",_simSetLightParameters,            "Use the newer 'sim.setLightParameters' notation",false},
     {"simGetLinkDummy",_simGetLinkDummy,                        "Use the newer 'sim.getLinkDummy' notation",false},
@@ -20396,4 +20382,18 @@ int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
+}
+
+int _simBreakForceSensor(luaWrap_lua_State* L)
+{ // deprecated since 08.11.2021
+    TRACE_LUA_API;
+    LUA_START("sim.breakForceSensor");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        retVal=simBreakForceSensor_internal(luaToInt(L,1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
 }

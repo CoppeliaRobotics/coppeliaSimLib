@@ -1496,14 +1496,7 @@ simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
-        if (it->getObjectType()==sim_object_shape_type)
-        {
-            CShape* shape=(CShape*)it;
-            if (!shape->getShapeIsDynamicallyStatic()) // condition new since 5/5/2013
-                shape->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
-        }
-        else
-            it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
+        it->setDynamicsResetFlag(true,it->getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
         C4X4Matrix m;
         m.copyFromInterface(matrix);
         CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
@@ -1596,14 +1589,7 @@ simInt simSetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHand
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
-        if (it->getObjectType()==sim_object_shape_type)
-        {
-            CShape* shape=(CShape*)it;
-            if (!shape->getShapeIsDynamicallyStatic()) // condition new since 5/5/2013
-                shape->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
-        }
-        else
-            it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
+        it->setDynamicsResetFlag(true,it->getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
         C7Vector tr;
         tr.setInternalData(pose,true);
         CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
@@ -1705,14 +1691,7 @@ simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
-        if (it->getObjectType()==sim_object_shape_type)
-        {
-            CShape* shape=(CShape*)it;
-            if (!shape->getShapeIsDynamicallyStatic()) // condition new since 5/5/2013
-                shape->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
-        }
-        else
-            it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
+        it->setDynamicsResetFlag(true,it->getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
         CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (relObj==nullptr)
             App::currentWorld->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(),C3Vector(position));
@@ -1828,14 +1807,7 @@ simInt simSetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
-        if (it->getObjectType()==sim_object_shape_type)
-        {
-            CShape* shape=(CShape*)it;
-            if (!shape->getShapeIsDynamicallyStatic()) // condition new since 5/5/2013
-                shape->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
-        }
-        else
-            it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
+        it->setDynamicsResetFlag(true,it->getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
         CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (relObj==nullptr)
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),C3Vector(eulerAngles));
@@ -7000,42 +6972,11 @@ simInt simReadForceSensor_internal(simInt objectHandle,simFloat* forceVector,sim
             retVal|=1;
         }
 
-        if (it->getForceSensorIsBroken())
+        CSceneObject* child=it->getChildFromIndex(0);
+        if (child==nullptr)
             retVal|=2;
 
         return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simBreakForceSensor_internal(simInt objectHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,objectHandle))
-        {
-            return(-1);
-        }
-        if (!isForceSensor(__func__,objectHandle))
-        {
-            return(-1);
-        }
-        if (App::currentWorld->simulation->isSimulationStopped())
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
-            return(-1);
-        }
-        CForceSensor* it=App::currentWorld->sceneObjects->getForceSensorFromHandle(objectHandle);
-        it->setForceSensorIsBroken();
-        return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -7881,25 +7822,9 @@ simInt simResetDynamicObject_internal(simInt objectHandle)
             if ( (it->getObjectHandle()==objectHandle)||(objectHandle==sim_handle_all) )
             {
                 if (it->getObjectHandle()==objectHandle)
-                {
-                    if (handleFlags&sim_handleflag_model)
-                    {
-                        std::vector<CSceneObject*> toExplore;
-                        toExplore.push_back(it);
-                        while (toExplore.size()!=0)
-                        {
-                            CSceneObject* obj=toExplore[0];
-                            toExplore.erase(toExplore.begin(),toExplore.begin()+1);
-                            for (size_t j=0;j<obj->getChildCount();j++)
-                                toExplore.push_back(obj->getChildFromIndex(j));
-                            obj->setDynamicsFullRefreshFlag(true);
-                        }
-                    }
-                    else
-                        it->setDynamicsFullRefreshFlag(true);
-                }
+                    it->setDynamicsResetFlag(true,handleFlags&sim_handleflag_model);
                 else
-                    it->setDynamicsFullRefreshFlag(true);
+                    it->setDynamicsResetFlag(true,false);
             }
         }
         return(1);
@@ -11551,14 +11476,7 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
-        if (it->getObjectType()==sim_object_shape_type)
-        {
-            CShape* shape=(CShape*)it;
-            if (!shape->getShapeIsDynamicallyStatic()) // condition new since 5/5/2013
-                shape->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
-        }
-        else
-            it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
+        it->setDynamicsResetFlag(true,it->getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
         CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (relObj==nullptr)
         {
@@ -11654,7 +11572,7 @@ simInt simSetShapeMass_internal(simInt shapeHandle,simFloat mass)
         if (mass<0.0000001f)
             mass=0.0000001f;
         it->getMeshWrapper()->setMass(mass);
-        it->setDynamicsFullRefreshFlag(true);
+        it->setDynamicsResetFlag(true,false);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -11727,7 +11645,7 @@ simInt simSetShapeInertia_internal(simInt shapeHandle,const simFloat* inertiaMat
             pmoment(0)=0.0000001f;
         it->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
         it->getMeshWrapper()->setLocalInertiaFrame(tr.getTransformation()*corr);
-        it->setDynamicsFullRefreshFlag(true);
+        it->setDynamicsResetFlag(true,false);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -16562,19 +16480,43 @@ simBool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const simVoid* geomData
 simBool _simGetDynamicsFullRefreshFlag_internal(const simVoid* object)
 {
     TRACE_C_API;
-    return(((CSceneObject*)object)->getDynamicsFullRefreshFlag());
+    return(((CSceneObject*)object)->getDynamicsResetFlag());
 }
 
 simVoid _simSetDynamicsFullRefreshFlag_internal(const simVoid* object,simBool flag)
 {
     TRACE_C_API;
-    ((CSceneObject*)object)->setDynamicsFullRefreshFlag(flag!=0);
+    ((CSceneObject*)object)->setDynamicsResetFlag(flag!=0,false);
 }
 
 const simVoid* _simGetParentObject_internal(const simVoid* object)
 {
     TRACE_C_API;
     return(((CSceneObject*)object)->getParent());
+}
+
+simVoid _simDynReportObjectCumulativeTransformation_internal(simVoid* object,const simFloat* pos,const simFloat* quat)
+{ // object is always a shape
+    TRACE_C_API;
+    CSceneObject* parent=((CSceneObject*)object)->getParent();
+    C7Vector tr;
+    tr.X.setInternalData(pos);
+    tr.Q.setInternalData(quat);
+    if (parent!=nullptr)
+    {
+        if ( (parent->getObjectType()==sim_object_joint_type)||(parent->getObjectType()==sim_object_forcesensor_type) )
+        {
+            tr=parent->getCumulativeTransformation().getInverse()*tr*((CSceneObject*)object)->getLocalTransformation().getInverse();
+            if (parent->getObjectType()==sim_object_joint_type)
+                ((CJoint*)parent)->setIntrinsicTransformationError(((CJoint*)parent)->getIntrinsicTransformation(false).getInverse()*tr);
+            else
+                ((CForceSensor*)parent)->setIntrinsicTransformationError(tr);
+        }
+        else
+            App::currentWorld->sceneObjects->setObjectAbsolutePose(((CSceneObject*)object)->getObjectHandle(),tr,false);
+    }
+    else
+        ((CSceneObject*)object)->setLocalTransformation(tr);
 }
 
 simVoid _simSetObjectCumulativeTransformation_internal(simVoid* object,const simFloat* pos,const simFloat* quat,simBool keepChildrenInPlace)
@@ -16639,20 +16581,6 @@ simInt _simGetJointType_internal(const simVoid* joint)
     return(((CJoint*)joint)->getJointType());
 }
 
-simBool _simIsForceSensorBroken_internal(const simVoid* forceSensor)
-{
-    TRACE_C_API;
-    return(((CForceSensor*)forceSensor)->getForceSensorIsBroken());
-}
-
-simVoid _simGetDynamicForceSensorLocalTransformationPart2_internal(const simVoid* forceSensor,simFloat* pos,simFloat* quat)
-{
-    TRACE_C_API;
-    C7Vector tr(((CForceSensor*)forceSensor)->getDynamicSecondPartLocalTransform());
-    tr.X.getInternalData(pos);
-    tr.Q.getInternalData(quat);
-}
-
 simBool _simIsDynamicMotorEnabled_internal(const simVoid* joint)
 {
     TRACE_C_API;
@@ -16711,36 +16639,6 @@ simVoid _simSetJointSphericalTransformation_internal(simVoid* joint,const simFlo
 {
     TRACE_C_API;
     ((CJoint*)joint)->setSphericalTransformation(quat);
-}
-
-simVoid _simSetDynamicJointLocalTransformationPart2_internal(simVoid* joint,const simFloat* pos,const simFloat* quat)
-{
-    TRACE_C_API;
-    C7Vector tr;
-    tr.X.setInternalData(pos);
-    tr.Q.setInternalData(quat);
-    ((CJoint*)joint)->setDynamicSecondPartLocalTransform(tr);
-}
-
-simVoid _simSetDynamicForceSensorLocalTransformationPart2_internal(simVoid* forceSensor,const simFloat* pos,const simFloat* quat)
-{
-    TRACE_C_API;
-    C7Vector tr;
-    tr.X.setInternalData(pos);
-    tr.Q.setInternalData(quat);
-    ((CForceSensor*)forceSensor)->setDynamicSecondPartLocalTransform(tr);
-}
-
-simVoid _simSetDynamicJointLocalTransformationPart2IsValid_internal(simVoid* joint,simBool valid)
-{
-    TRACE_C_API;
-    ((CJoint*)joint)->setDynamicSecondPartIsValid(valid!=0);
-}
-
-simVoid _simSetDynamicForceSensorLocalTransformationPart2IsValid_internal(simVoid* forceSensor,simBool valid)
-{
-    TRACE_C_API;
-    ((CForceSensor*)forceSensor)->setDynamicSecondPartIsValid(valid!=0);
 }
 
 simVoid _simAddForceSensorCumulativeForcesAndTorques_internal(simVoid* forceSensor,const simFloat* force,const simFloat* torque,int totalPassesCount)
@@ -19140,7 +19038,7 @@ simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const
             pmoment(0)=0.0000001f;
         it->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
         it->getMeshWrapper()->setLocalInertiaFrame(it->getFullCumulativeTransformation().getInverse()*tr.getTransformation()*C7Vector(rot,com));
-        it->setDynamicsFullRefreshFlag(true);
+        it->setDynamicsResetFlag(true,false);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -22773,3 +22671,64 @@ simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueI
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
+
+simVoid _simSetDynamicJointLocalTransformationPart2_internal(simVoid* joint,const simFloat* pos,const simFloat* quat)
+{ // deprecated on 08.11.2021
+}
+
+simVoid _simSetDynamicForceSensorLocalTransformationPart2_internal(simVoid* forceSensor,const simFloat* pos,const simFloat* quat)
+{ // deprecated on 08.11.2021
+}
+
+simVoid _simSetDynamicJointLocalTransformationPart2IsValid_internal(simVoid* joint,simBool valid)
+{ // deprecated on 08.11.2021
+}
+
+simVoid _simSetDynamicForceSensorLocalTransformationPart2IsValid_internal(simVoid* forceSensor,simBool valid)
+{ // deprecated on 08.11.2021
+}
+
+simInt simBreakForceSensor_internal(simInt objectHandle)
+{ // deprecated on 08.11.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        if (!isForceSensor(__func__,objectHandle))
+            return(-1);
+        if (App::currentWorld->simulation->isSimulationStopped())
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+            return(-1);
+        }
+        CForceSensor* it=App::currentWorld->sceneObjects->getForceSensorFromHandle(objectHandle);
+        CSceneObject* child=it->getChildFromIndex(0);
+        if (child!=nullptr)
+            App::currentWorld->sceneObjects->setObjectParent(child,nullptr,true);
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simBool _simIsForceSensorBroken_internal(const simVoid* forceSensor)
+{ // deprecated on 08.11.2021
+    TRACE_C_API;
+    CSceneObject* child=((CForceSensor*)forceSensor)->getChildFromIndex(0);
+    return(child==nullptr);
+}
+
+simVoid _simGetDynamicForceSensorLocalTransformationPart2_internal(const simVoid* forceSensor,simFloat* pos,simFloat* quat)
+{ // deprecated on 08.11.2021
+    TRACE_C_API;
+    C7Vector tr;
+    tr.setIdentity();
+    tr.X.getInternalData(pos);
+    tr.Q.getInternalData(quat);
+}
+

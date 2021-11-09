@@ -172,7 +172,6 @@ SIM_DLLEXPORT simInt simGetObjectProperty(simInt objectHandle);
 SIM_DLLEXPORT simInt simSetObjectSpecialProperty(simInt objectHandle,simInt prop);
 SIM_DLLEXPORT simInt simGetObjectSpecialProperty(simInt objectHandle);
 SIM_DLLEXPORT simInt simReadForceSensor(simInt objectHandle,simFloat* forceVector,simFloat* torqueVector);
-SIM_DLLEXPORT simInt simBreakForceSensor(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetShapeVertex(simInt shapeHandle,simInt groupElementIndex,simInt vertexIndex,simFloat* relativePosition);
 SIM_DLLEXPORT simInt simGetShapeTriangle(simInt shapeHandle,simInt groupElementIndex,simInt triangleIndex,simInt* vertexIndices,simFloat* triangleNormals);
 SIM_DLLEXPORT simInt simSetLightParameters(simInt objectHandle,simInt state,const simFloat* setToNULL,const simFloat* diffusePart,const simFloat* specularPart);
@@ -381,6 +380,7 @@ SIM_DLLEXPORT const simVoid* _simGetParentObject(const simVoid* object);
 SIM_DLLEXPORT const simVoid* _simGetObject(int objID);
 SIM_DLLEXPORT simVoid _simGetObjectLocalTransformation(const simVoid* object,simFloat* pos,simFloat* quat,simBool excludeFirstJointTransformation);
 SIM_DLLEXPORT simVoid _simSetObjectLocalTransformation(simVoid* object,const simFloat* pos,const simFloat* quat);
+SIM_DLLEXPORT simVoid _simDynReportObjectCumulativeTransformation(simVoid* object,const simFloat* pos,const simFloat* quat);
 SIM_DLLEXPORT simVoid _simSetObjectCumulativeTransformation(simVoid* object,const simFloat* pos,const simFloat* quat,simBool keepChildrenInPlace);
 SIM_DLLEXPORT simVoid _simGetObjectCumulativeTransformation(const simVoid* object,simFloat* pos,simFloat* quat,simBool excludeFirstJointTransformation);
 SIM_DLLEXPORT simBool _simIsShapeDynamicallyStatic(const simVoid* shape);
@@ -412,8 +412,6 @@ SIM_DLLEXPORT simVoid _simGetAdditionalForceAndTorque(const simVoid* shape,simFl
 SIM_DLLEXPORT simVoid _simClearAdditionalForceAndTorque(const simVoid* shape);
 SIM_DLLEXPORT simBool _simGetJointPositionInterval(const simVoid* joint,simFloat* minValue,simFloat* rangeValue);
 SIM_DLLEXPORT simInt _simGetJointType(const simVoid* joint);
-SIM_DLLEXPORT simBool _simIsForceSensorBroken(const simVoid* forceSensor);
-SIM_DLLEXPORT simVoid _simGetDynamicForceSensorLocalTransformationPart2(const simVoid* forceSensor,simFloat* pos,simFloat* quat);
 SIM_DLLEXPORT simBool _simIsDynamicMotorEnabled(const simVoid* joint);
 SIM_DLLEXPORT simBool _simIsDynamicMotorPositionCtrlEnabled(const simVoid* joint);
 SIM_DLLEXPORT simBool _simIsDynamicMotorTorqueModulationEnabled(const simVoid* joint);
@@ -426,10 +424,6 @@ SIM_DLLEXPORT simVoid _simSetDynamicMotorReflectedPositionFromDynamicEngine(simV
 SIM_DLLEXPORT simVoid _simSetJointSphericalTransformation(simVoid* joint,const simFloat* quat);
 SIM_DLLEXPORT simVoid _simAddForceSensorCumulativeForcesAndTorques(simVoid* forceSensor,const simFloat* force,const simFloat* torque,int totalPassesCount);
 SIM_DLLEXPORT simVoid _simAddJointCumulativeForcesOrTorques(simVoid* joint,simFloat forceOrTorque,int totalPassesCount);
-SIM_DLLEXPORT simVoid _simSetDynamicJointLocalTransformationPart2(simVoid* joint,const simFloat* pos,const simFloat* quat);
-SIM_DLLEXPORT simVoid _simSetDynamicForceSensorLocalTransformationPart2(simVoid* forceSensor,const simFloat* pos,const simFloat* quat);
-SIM_DLLEXPORT simVoid _simSetDynamicJointLocalTransformationPart2IsValid(simVoid* joint,simBool valid);
-SIM_DLLEXPORT simVoid _simSetDynamicForceSensorLocalTransformationPart2IsValid(simVoid* forceSensor,simBool valid);
 SIM_DLLEXPORT const simVoid* _simGetGeomWrapFromGeomProxy(const simVoid* geomData);
 SIM_DLLEXPORT simVoid _simGetLocalInertiaFrame(const simVoid* geomInfo,simFloat* pos,simFloat* quat);
 SIM_DLLEXPORT simInt _simGetPurePrimitiveType(const simVoid* geomInfo);
@@ -711,6 +705,13 @@ SIM_DLLEXPORT simInt simDeleteSelectedObjects();
 SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength);
 SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* uniqueIdentifier);
+SIM_DLLEXPORT simVoid _simSetDynamicJointLocalTransformationPart2(simVoid* joint,const simFloat* pos,const simFloat* quat);
+SIM_DLLEXPORT simVoid _simSetDynamicForceSensorLocalTransformationPart2(simVoid* forceSensor,const simFloat* pos,const simFloat* quat);
+SIM_DLLEXPORT simVoid _simSetDynamicJointLocalTransformationPart2IsValid(simVoid* joint,simBool valid);
+SIM_DLLEXPORT simVoid _simSetDynamicForceSensorLocalTransformationPart2IsValid(simVoid* forceSensor,simBool valid);
+SIM_DLLEXPORT simInt simBreakForceSensor(simInt objectHandle);
+SIM_DLLEXPORT simBool _simIsForceSensorBroken(const simVoid* forceSensor);
+SIM_DLLEXPORT simVoid _simGetDynamicForceSensorLocalTransformationPart2(const simVoid* forceSensor,simFloat* pos,simFloat* quat);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

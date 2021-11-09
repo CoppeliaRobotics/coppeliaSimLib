@@ -629,10 +629,6 @@ SIM_DLLEXPORT simInt simReadForceSensor(simInt objectHandle,simFloat* forceVecto
 {
     return(simReadForceSensor_internal(objectHandle,forceVector,torqueVector));
 }
-SIM_DLLEXPORT simInt simBreakForceSensor(simInt objectHandle)
-{
-    return(simBreakForceSensor_internal(objectHandle));
-}
 SIM_DLLEXPORT simInt simGetShapeVertex(simInt shapeHandle,simInt groupElementIndex,simInt vertexIndex,simFloat* relativePosition)
 {
     return(simGetShapeVertex_internal(shapeHandle,groupElementIndex,vertexIndex,relativePosition));
@@ -1459,6 +1455,10 @@ SIM_DLLEXPORT simVoid _simSetObjectLocalTransformation(simVoid* object,const sim
 {
     return(_simSetObjectLocalTransformation_internal(object,pos,quat));
 }
+SIM_DLLEXPORT simVoid _simDynReportObjectCumulativeTransformation(simVoid* object,const simFloat* pos,const simFloat* quat)
+{
+    return(_simDynReportObjectCumulativeTransformation_internal(object,pos,quat));
+}
 SIM_DLLEXPORT simVoid _simSetObjectCumulativeTransformation(simVoid* object,const simFloat* pos,const simFloat* quat,simBool keepChildrenInPlace)
 {
     return(_simSetObjectCumulativeTransformation_internal(object,pos,quat,keepChildrenInPlace));
@@ -1583,14 +1583,6 @@ SIM_DLLEXPORT simInt _simGetJointType(const simVoid* joint)
 {
     return(_simGetJointType_internal(joint));
 }
-SIM_DLLEXPORT simBool _simIsForceSensorBroken(const simVoid* forceSensor)
-{
-    return(_simIsForceSensorBroken_internal(forceSensor));
-}
-SIM_DLLEXPORT simVoid _simGetDynamicForceSensorLocalTransformationPart2(const simVoid* forceSensor,simFloat* pos,simFloat* quat)
-{
-    return(_simGetDynamicForceSensorLocalTransformationPart2_internal(forceSensor,pos,quat));
-}
 SIM_DLLEXPORT simBool _simIsDynamicMotorEnabled(const simVoid* joint)
 {
     return(_simIsDynamicMotorEnabled_internal(joint));
@@ -1638,22 +1630,6 @@ SIM_DLLEXPORT simVoid _simAddForceSensorCumulativeForcesAndTorques(simVoid* forc
 SIM_DLLEXPORT simVoid _simAddJointCumulativeForcesOrTorques(simVoid* joint,simFloat forceOrTorque,int totalPassesCount)
 {
     return(_simAddJointCumulativeForcesOrTorques_internal(joint,forceOrTorque,totalPassesCount));
-}
-SIM_DLLEXPORT simVoid _simSetDynamicJointLocalTransformationPart2(simVoid* joint,const simFloat* pos,const simFloat* quat)
-{
-    return(_simSetDynamicJointLocalTransformationPart2_internal(joint,pos,quat));
-}
-SIM_DLLEXPORT simVoid _simSetDynamicForceSensorLocalTransformationPart2(simVoid* forceSensor,const simFloat* pos,const simFloat* quat)
-{
-    return(_simSetDynamicForceSensorLocalTransformationPart2_internal(forceSensor,pos,quat));
-}
-SIM_DLLEXPORT simVoid _simSetDynamicJointLocalTransformationPart2IsValid(simVoid* joint,simBool valid)
-{
-    return(_simSetDynamicJointLocalTransformationPart2IsValid_internal(joint,valid));
-}
-SIM_DLLEXPORT simVoid _simSetDynamicForceSensorLocalTransformationPart2IsValid(simVoid* forceSensor,simBool valid)
-{
-    return(_simSetDynamicForceSensorLocalTransformationPart2IsValid_internal(forceSensor,valid));
 }
 SIM_DLLEXPORT const simVoid* _simGetGeomWrapFromGeomProxy(const simVoid* geomData)
 {
@@ -2736,6 +2712,34 @@ SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* p
 SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* uniqueIdentifier)
 {
     return(simGetObjectUniqueIdentifier_internal(objectHandle,uniqueIdentifier));
+}
+SIM_DLLEXPORT simVoid _simSetDynamicJointLocalTransformationPart2(simVoid* joint,const simFloat* pos,const simFloat* quat)
+{
+    return(_simSetDynamicJointLocalTransformationPart2_internal(joint,pos,quat));
+}
+SIM_DLLEXPORT simVoid _simSetDynamicForceSensorLocalTransformationPart2(simVoid* forceSensor,const simFloat* pos,const simFloat* quat)
+{
+    return(_simSetDynamicForceSensorLocalTransformationPart2_internal(forceSensor,pos,quat));
+}
+SIM_DLLEXPORT simVoid _simSetDynamicJointLocalTransformationPart2IsValid(simVoid* joint,simBool valid)
+{
+    return(_simSetDynamicJointLocalTransformationPart2IsValid_internal(joint,valid));
+}
+SIM_DLLEXPORT simVoid _simSetDynamicForceSensorLocalTransformationPart2IsValid(simVoid* forceSensor,simBool valid)
+{
+    return(_simSetDynamicForceSensorLocalTransformationPart2IsValid_internal(forceSensor,valid));
+}
+SIM_DLLEXPORT simInt simBreakForceSensor(simInt objectHandle)
+{
+    return(simBreakForceSensor_internal(objectHandle));
+}
+SIM_DLLEXPORT simBool _simIsForceSensorBroken(const simVoid* forceSensor)
+{
+    return(_simIsForceSensorBroken_internal(forceSensor));
+}
+SIM_DLLEXPORT simVoid _simGetDynamicForceSensorLocalTransformationPart2(const simVoid* forceSensor,simFloat* pos,simFloat* quat)
+{
+    return(_simGetDynamicForceSensorLocalTransformationPart2_internal(forceSensor,pos,quat));
 }
 // Deprecated end
 

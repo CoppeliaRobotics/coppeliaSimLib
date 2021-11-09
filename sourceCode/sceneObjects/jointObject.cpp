@@ -122,45 +122,38 @@ void CJoint::getDynamicJointErrors(float& linear,float& angular) const
 {
     linear=0.0f;
     angular=0.0f;
-    if (!_dynamicSecondPartIsValid)
-        return;
     if (_jointType==sim_joint_revolute_subtype)
     {
-        linear=_dynamicSecondPartLocalTransform.X.getLength();
-        angular=C3Vector::unitZVector.getAngle(_dynamicSecondPartLocalTransform.Q.getMatrix().axis[2]);
+        linear=_intrinsicTransformationError.X.getLength();
+        angular=C3Vector::unitZVector.getAngle(_intrinsicTransformationError.Q.getMatrix().axis[2]);
     }
     if (_jointType==sim_joint_prismatic_subtype)
     {
-        float l=_dynamicSecondPartLocalTransform.X*C3Vector::unitZVector;
-        linear=sqrt(_dynamicSecondPartLocalTransform.X*_dynamicSecondPartLocalTransform.X-l*l);
-        C4Vector idQuat;
-        idQuat.setIdentity();
-        angular=_dynamicSecondPartLocalTransform.Q.getAngleBetweenQuaternions(idQuat);
+        linear=_intrinsicTransformationError.X.getLength();
+        angular=_intrinsicTransformationError.Q.getAngleBetweenQuaternions(C4Vector::identityRotation);
     }
     if (_jointType==sim_joint_spherical_subtype)
-        linear=_dynamicSecondPartLocalTransform.X.getLength();
+        linear=_intrinsicTransformationError.X.getLength();
 }
 
 void CJoint::getDynamicJointErrorsFull(C3Vector& linear,C3Vector& angular) const
 {
     linear.clear();
     angular.clear();
-    if (!_dynamicSecondPartIsValid)
-        return;
     if (_jointType==sim_joint_revolute_subtype)
     {
-        linear=_dynamicSecondPartLocalTransform.X;
-        angular=_dynamicSecondPartLocalTransform.Q.getEulerAngles();
+        linear=_intrinsicTransformationError.X;
+        angular=_intrinsicTransformationError.Q.getEulerAngles();
         angular(2)=0.0f;
     }
     if (_jointType==sim_joint_prismatic_subtype)
     {
-        linear=_dynamicSecondPartLocalTransform.X;
+        linear=_intrinsicTransformationError.X;
         linear(2)=0.0f;
-        angular=_dynamicSecondPartLocalTransform.Q.getEulerAngles();
+        angular=_intrinsicTransformationError.Q.getEulerAngles();
     }
     if (_jointType==sim_joint_spherical_subtype)
-        linear=_dynamicSecondPartLocalTransform.X;
+        linear=_intrinsicTransformationError.X;
 }
 
 bool CJoint::setEngineFloatParam(int what,float v)
@@ -574,12 +567,12 @@ void CJoint::measureJointVelocity(float dt)
 void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
-    _dynamicSecondPartIsValid=false; // do the same as for force sensors here?! (if the joint is copied while apart, paste it apart too!)
     _previousJointPositionIsValid=false;
     _measuredJointVelocity_velocityMeasurement=0.0f;
     _previousJointPosition_velocityMeasurement=0.0f;
     _initialPosition=_jointPosition;
     _initialSphericalJointTransformation=_sphericalTransformation;
+    setIntrinsicTransformationError(C7Vector::identityTransformation);
 
     _initialDynamicMotorEnabled=_dynamicMotorEnabled;
     _initialDynamicMotorTargetVelocity=_dynamicMotorTargetVelocity;
@@ -645,14 +638,13 @@ void CJoint::simulationEnded()
             _targetVelocity_DEPRECATED=_initialTargetVelocity_DEPRECATED;
         }
     }
-    _CJoint_::setDynamicSecondPartIsValid(false);
 
     _averageForceOrTorqueValid=false;
     _cumulatedForceOrTorque=0.0f;
     _lastForceOrTorqueValid_dynStep=false;
     _lastForceOrTorque_dynStep=0.0f;
     _cumulativeForceOrTorqueTmp=0.0f;
-
+    setIntrinsicTransformationError(C7Vector::identityTransformation);
     CSceneObject::simulationEnded();
 }
 
@@ -1089,7 +1081,7 @@ void CJoint::scaleObject(float scalingFactor)
     CSceneObject::scaleObject(scalingFactor);
 
     // We have to reconstruct a part of the dynamics world:
-    _dynamicsFullRefreshFlag=true;
+    _dynamicsResetFlag=true;
 
     _lastForceOrTorqueValid_dynStep=false;
     _lastForceOrTorque_dynStep=0.0f;
@@ -1168,7 +1160,7 @@ void CJoint::scaleObjectNonIsometrically(float x,float y,float z)
     CSceneObject::scaleObjectNonIsometrically(diam,diam,z);
 
     // We have to reconstruct a part of the dynamics world:
-    _dynamicsFullRefreshFlag=true;
+    _dynamicsResetFlag=true;
 }
 
 void CJoint::addCumulativeForceOrTorque(float forceOrTorque,int countForAverage)
@@ -1474,15 +1466,12 @@ void CJoint::addSpecializedObjectEventData(CInterfaceStackTable* data) const
             break;
     }
     data->appendMapObject_stringString("type",tmp.c_str(),0);
-    float p[4]={_sphericalTransformation(1),_sphericalTransformation(2),_sphericalTransformation(3),_sphericalTransformation(0)};
-    data->appendMapObject_stringFloatArray("quaternion",p,4);
+    float q[4]={_sphericalTransformation(1),_sphericalTransformation(2),_sphericalTransformation(3),_sphericalTransformation(0)};
+    data->appendMapObject_stringFloatArray("quaternion",q,4);
     data->appendMapObject_stringFloat("position",_jointPosition);
-    float pose[7];
-    C7Vector trFull(getFullLocalTransformation());
-    C7Vector trPart1(getLocalTransformation());
-    C7Vector tr(trPart1.getInverse()*trFull);
-    tr.getInternalData(pose,true);
-    data->appendMapObject_stringFloatArray("pose",pose,7);
+    C7Vector tr(getIntrinsicTransformation(true));
+    float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+    data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
     data->appendMapObject_stringBool("cyclic",_positionIsCyclic);
     data->appendMapObject_stringFloat("min",_jointMinPosition);
     data->appendMapObject_stringFloat("range",_jointPositionRange);
@@ -1565,8 +1554,6 @@ CSceneObject* CJoint::copyYourself()
     newJoint->_initialDynamicMotorLockModeWhenInVelocityControl=_initialDynamicMotorLockModeWhenInVelocityControl;
     newJoint->_initialDynamicMotorUpperLimitVelocity=_initialDynamicMotorUpperLimitVelocity;
     newJoint->_initialDynamicMotorMaximumForce=_initialDynamicMotorMaximumForce;
-    newJoint->_dynamicSecondPartIsValid=_dynamicSecondPartIsValid;
-    newJoint->_dynamicSecondPartLocalTransform=_dynamicSecondPartLocalTransform;
     newJoint->_initialDynamicMotorControlLoopEnabled=_initialDynamicMotorControlLoopEnabled;
     newJoint->_initialDynamicMotorPositionControl_P=_initialDynamicMotorPositionControl_P;
     newJoint->_initialDynamicMotorPositionControl_I=_initialDynamicMotorPositionControl_I;
@@ -2894,8 +2881,6 @@ void CJoint::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSync
         _setEnableDynamicMotorControlLoop_send(_dynamicMotorControlLoopEnabled);
         _setEnableTorqueModulation_send(_dynamicMotorPositionControl_torqueModulation);
         _setDynamicMotorLockModeWhenInVelocityControl_send(_dynamicLockModeWhenInVelocityControl);
-        _setDynamicSecondPartIsValid_send(_dynamicSecondPartIsValid);
-        _setDynamicSecondPartLocalTransform_send(_dynamicSecondPartLocalTransform);
         _setBulletFloatParams_send(_bulletFloatParams);
         _setBulletIntParams_send(_bulletIntParams);
         _setOdeFloatParams_send(_odeFloatParams);

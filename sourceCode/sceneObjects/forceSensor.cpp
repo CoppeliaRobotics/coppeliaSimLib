@@ -16,8 +16,6 @@ CForceSensor::CForceSensor()
 void CForceSensor::commonInit()
 {
     _objectType=sim_object_forcesensor_type;
-    _forceSensorIsBroken=false;
-
     _forceThreshold=100.0f;
     _torqueThreshold=10.0f;
     _forceThresholdEnabled=false;
@@ -27,8 +25,7 @@ void CForceSensor::commonInit()
     _stillAutomaticallyBreaking=false;
 
     // Dynamic values:
-    _dynamicSecondPartIsValid=false;
-    _dynamicSecondPartLocalTransform.setIdentity();
+    _intrinsicTransformationError.setIdentity();
     _filteredDynamicForces.clear();
     _filteredDynamicTorques.clear();
 
@@ -133,26 +130,6 @@ void CForceSensor::setConsecutiveThresholdViolationsForBreaking(int count)
 int CForceSensor::getConsecutiveThresholdViolationsForBreaking() const
 {
     return(_consecutiveThresholdViolationsForBreaking);
-}
-
-void CForceSensor::setDynamicSecondPartIsValid(bool v)
-{
-    _dynamicSecondPartIsValid=v;
-}
-
-bool CForceSensor::getDynamicSecondPartIsValid() const
-{
-    return(_dynamicSecondPartIsValid);
-}
-
-void CForceSensor::setDynamicSecondPartLocalTransform(const C7Vector& tr)
-{
-    _dynamicSecondPartLocalTransform=tr;
-}
-
-C7Vector CForceSensor::getDynamicSecondPartLocalTransform() const
-{
-    return(_dynamicSecondPartLocalTransform);
 }
 
 void CForceSensor::addCumulativeForcesAndTorques(const C3Vector& f,const C3Vector& t,int countForAverage)
@@ -285,7 +262,7 @@ bool CForceSensor::getDynamicTorques(C3Vector& t,bool dynamicStepValue) const
 
 void CForceSensor::_handleSensorBreaking()
 {
-    if (_filteredValuesAreValid&&_dynamicSecondPartIsValid)
+    if (_filteredValuesAreValid)
     {
         bool trigger=false;
         if (_forceThresholdEnabled&&(_filteredDynamicForces.getLength()>=_forceThreshold))
@@ -325,46 +302,52 @@ void CForceSensor::_handleSensorBreaking()
     }
 }
 
-void CForceSensor::setForceSensorIsBroken()
+C7Vector CForceSensor::getIntrinsicTransformation(bool includeDynErrorComponent) const
 {
-    _forceSensorIsBroken=true;
-    App::setRefreshHierarchyViewFlag();
+    C7Vector retVal;
+    retVal.setIdentity();
+    if (includeDynErrorComponent)
+        retVal=_intrinsicTransformationError;
+    return(retVal);
 }
-bool CForceSensor::getForceSensorIsBroken() const
+
+C7Vector CForceSensor::getFullLocalTransformation() const
+{ // Overridden from _CSceneObject_
+    return(_localTransformation*getIntrinsicTransformation(true));
+}
+
+void CForceSensor::setIntrinsicTransformationError(const C7Vector& tr)
 {
-    return(_forceSensorIsBroken);
+    bool diff=(_intrinsicTransformationError!=tr);
+    if (diff)
+    {
+        _intrinsicTransformationError=tr;
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="intrinsicPose";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+            data->appendMapObject_stringFloatArray(cmd,p,7);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
 void CForceSensor::getDynamicErrorsFull(C3Vector& linear,C3Vector& angular) const
 {
-    linear.clear();
-    angular.clear();
-    if (_dynamicSecondPartIsValid)
-    {
-        linear=_dynamicSecondPartLocalTransform.X;
-        angular=_dynamicSecondPartLocalTransform.Q.getEulerAngles();
-    }
+    linear=_intrinsicTransformationError.X;
+    angular=_intrinsicTransformationError.Q.getEulerAngles();
 }
 
 
 float CForceSensor::getDynamicPositionError() const
 {
-    float retVal=0.0f;
-    if (_dynamicSecondPartIsValid)
-        retVal=_dynamicSecondPartLocalTransform.X.getLength();
-    return(retVal);
+    return(_intrinsicTransformationError.X.getLength());
 }
 
 float CForceSensor::getDynamicOrientationError() const
 {
-    float retVal=0.0f;
-    if (_dynamicSecondPartIsValid)
-    {
-        C4Vector idQuat;
-        idQuat.setIdentity();
-        retVal=_dynamicSecondPartLocalTransform.Q.getAngleBetweenQuaternions(idQuat);
-    }
-    return(retVal);
+    return(_intrinsicTransformationError.Q.getAngleBetweenQuaternions(C4Vector::identityRotation));
 }
 
 void CForceSensor::initializeInitialValues(bool simulationAlreadyRunning)
@@ -379,13 +362,12 @@ void CForceSensor::initializeInitialValues(bool simulationAlreadyRunning)
     _cumulatedTorques.clear();
     _cumulativeForcesTmp.clear();
     _cumulativeTorquesTmp.clear();
+    setIntrinsicTransformationError(C7Vector::identityTransformation);
 }
 
 void CForceSensor::simulationAboutToStart()
 {
     initializeInitialValues(false);
-    _dynamicSecondPartIsValid=false;
-    _forceSensorIsBroken=false;
     CSceneObject::simulationAboutToStart();
 }
 
@@ -397,14 +379,13 @@ void CForceSensor::simulationEnded()
         {
         }
     }
-    _dynamicSecondPartIsValid=false;
-    _forceSensorIsBroken=false;
     _filteredValuesAreValid=false;
     _lastForceAndTorqueValid_dynStep=false;
     _cumulatedForces.clear();
     _cumulatedTorques.clear();
     _cumulativeForcesTmp.clear();
     _cumulativeTorquesTmp.clear();
+    setIntrinsicTransformationError(C7Vector::identityTransformation);
     CSceneObject::simulationEnded();
 }
 
@@ -471,7 +452,7 @@ void CForceSensor::scaleObject(float scalingFactor)
 
     CSceneObject::scaleObject(scalingFactor);
     // We have to reconstruct a part of the dynamics world:
-    _dynamicsFullRefreshFlag=true; // yes, because we might have a position scaling too!
+    _dynamicsResetFlag=true; // yes, because we might have a position scaling too!
 
     _filteredValuesAreValid=false;
     _lastForceAndTorqueValid_dynStep=false;
@@ -504,7 +485,9 @@ void CForceSensor::addSpecializedObjectEventData(CInterfaceStackTable* data) con
     colorPart2.getColor(c+3,sim_colorcomponent_specular);
     colorPart2.getColor(c+6,sim_colorcomponent_emission);
     colors->appendArrayObject_floatArray(c,9);
-
+    C7Vector tr(getIntrinsicTransformation(true));
+    float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+    data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
     // todo
 }
 
@@ -513,9 +496,6 @@ CSceneObject* CForceSensor::copyYourself()
     CForceSensor* newForceSensor=(CForceSensor*)CSceneObject::copyYourself();
 
     newForceSensor->_forceSensorSize=_forceSensorSize;
-    newForceSensor->_forceSensorIsBroken=_forceSensorIsBroken;
-    newForceSensor->_dynamicSecondPartIsValid=_dynamicSecondPartIsValid;
-
     newForceSensor->_forceThreshold=_forceThreshold;
     newForceSensor->_torqueThreshold=_torqueThreshold;
     newForceSensor->_forceThresholdEnabled=_forceThresholdEnabled;
@@ -528,8 +508,6 @@ CSceneObject* CForceSensor::copyYourself()
 
     colorPart1.copyYourselfInto(&newForceSensor->colorPart1);
     colorPart2.copyYourselfInto(&newForceSensor->colorPart2);
-
-    newForceSensor->_dynamicSecondPartLocalTransform=_dynamicSecondPartLocalTransform; // needed when copying a broken sensor!
 
     return(newForceSensor);
 }
