@@ -1,17 +1,12 @@
 #pragma once
 
-#include "_collection_.h"
+#include "collectionElement.h"
 
-class CCollection : public _CCollection_
+class CCollection
 {
 public:
     CCollection(int creatorHandle);
     virtual ~CCollection();
-
-    // Overridden from CSyncObject:
-    void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
-    void connectSynchronizationObject();
-    void removeSynchronizationObject(bool localReferencesToItOnly);
 
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
@@ -28,9 +23,17 @@ public:
     CCollection* copyYourself() const;
     void emptyCollection();
     int getCreatorHandle() const;
+    size_t getElementCount() const;
+    CCollectionElement* getElementFromIndex(size_t index) const;
+    CCollectionElement* getElementFromHandle(int collectionElementHandle) const;
 
-    // Overridden from _CCollection_:
+    int getCollectionHandle() const;
+    std::string getCollectionName() const;
+    bool getOverridesObjectMainProperties() const;
+
+    bool setCollectionHandle(int newHandle);
     bool setCollectionName(const char* newName,bool check);
+    bool setOverridesObjectMainProperties(bool o);
 
     std::string getCollectionLoadName() const;
     std::string getUniquePersistentIdString() const;
@@ -39,14 +42,17 @@ public:
     int getSceneObjectHandleFromIndex(size_t index) const;
 
 protected:
-    // Overridden from _CCollection_:
     void _addCollectionElement(CCollectionElement* collectionElement);
     void _removeCollectionElementFromHandle(int collectionElementHandle);
 
+    int _collectionHandle;
+    std::string _collectionName;
+    bool _overridesObjectMainProperties;
 
 private:
     void _updateCollectionObjects_(const std::vector<int>& sceneObjectHandles);
 
+    std::vector<CCollectionElement*> _collectionElements;
     int _creatorHandle; // -2: old gui items, -1: c-side, otherwise script handle
     std::string _uniquePersistentIdString;
     std::vector<int> _collectionObjects;

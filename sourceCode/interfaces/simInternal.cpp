@@ -1496,7 +1496,8 @@ simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
-        it->setDynamicsResetFlag(true,it->getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
+        if (it->getDynamicFlag()>1) // for non-static shapes, and other objects that are in the dyn. world
+            it->setDynamicsResetFlag(true,true);
         C4X4Matrix m;
         m.copyFromInterface(matrix);
         CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
@@ -1589,7 +1590,8 @@ simInt simSetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHand
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
-        it->setDynamicsResetFlag(true,it->getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
+        if (it->getDynamicFlag()>1) // for non-static shapes, and other objects that are in the dyn. world
+            it->setDynamicsResetFlag(true,true);
         C7Vector tr;
         tr.setInternalData(pose,true);
         CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
@@ -1691,7 +1693,8 @@ simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
-        it->setDynamicsResetFlag(true,it->getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
+        if (it->getDynamicFlag()>1) // for non-static shapes, and other objects that are in the dyn. world
+            it->setDynamicsResetFlag(true,true);
         CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (relObj==nullptr)
             App::currentWorld->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(),C3Vector(position));
@@ -1807,7 +1810,8 @@ simInt simSetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
-        it->setDynamicsResetFlag(true,it->getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
+        if (it->getDynamicFlag()>1) // for non-static shapes, and other objects that are in the dyn. world
+            it->setDynamicsResetFlag(true,true);
         CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (relObj==nullptr)
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),C3Vector(eulerAngles));
@@ -11425,7 +11429,8 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
         }
-        it->setDynamicsResetFlag(true,it->getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
+        if (it->getDynamicFlag()>1) // for non-static shapes, and other objects that are in the dyn. world
+            it->setDynamicsResetFlag(true,true);
         CSceneObject* relObj=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (relObj==nullptr)
         {

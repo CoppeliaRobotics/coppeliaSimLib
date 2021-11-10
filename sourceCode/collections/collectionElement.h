@@ -1,18 +1,12 @@
 #pragma once
 
 #include "ser.h"
-#include "_collectionElement_.h"
 
-class CCollectionElement : public _CCollectionElement_
+class CCollectionElement
 {
 public:
     CCollectionElement(int mainObjectHandle,int collectionType,bool add);
     virtual ~CCollectionElement();
-
-    // Overridden from CSyncObject:
-    void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
-    void connectSynchronizationObject();
-    void removeSynchronizationObject(bool localReferencesToItOnly);
 
     std::string getMainObjectTempName() const;
 
@@ -23,6 +17,19 @@ public:
     void performObjectLoadingMapping(const std::vector<int>* map);
     CCollectionElement* copyYourself() const;
 
+
+    int getElementHandle() const;
+    int getMainObject() const;
+    bool getIsAdditive() const;
+    int getElementType() const;
+
+    void setElementHandle(int newHandle);
+    void setMainObject(int mo);
+
 private:
     std::string _objectTempName;
+    int _elementHandle;
+    int _elementType;
+    int _mainObjectHandle;
+    bool _additive;
 };

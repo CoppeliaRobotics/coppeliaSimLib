@@ -25,7 +25,6 @@ void _CDummy_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMs
         if (routing[0].objType==sim_syncobj_color)
         { // this message is for the color object
             routing.erase(routing.begin());
-            _dummyColor.synchronizationMsg(routing,msg);
         }
     }
     else

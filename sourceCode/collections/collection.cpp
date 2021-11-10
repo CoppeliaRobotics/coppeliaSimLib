@@ -7,6 +7,7 @@
 
 CCollection::CCollection(int creatorHandle)
 {
+    _collectionHandle=-1;
     _creatorHandle=creatorHandle;
     _overridesObjectMainProperties=false;
     _uniquePersistentIdString=CTTUtil::generateUniqueReadableString();
@@ -14,6 +15,8 @@ CCollection::CCollection(int creatorHandle)
 
 CCollection::~CCollection()
 {
+    while (_collectionElements.size()>0)
+        _removeCollectionElementFromHandle(_collectionElements[0]->getElementHandle());
 }
 
 void CCollection::initializeInitialValues(bool simulationAlreadyRunning)
@@ -66,7 +69,7 @@ bool CCollection::actualizeCollection()
         if (it==nullptr)
         {
             if (getElementFromIndex(i)->getElementType()!=sim_collectionelement_all)
-                _CCollection_::_removeCollectionElementFromHandle(getElementFromIndex(i)->getElementHandle());
+                _removeCollectionElementFromHandle(getElementFromIndex(i)->getElementHandle());
             else
                 i++;
         }
@@ -85,7 +88,7 @@ bool CCollection::actualizeCollection()
         if (removeAll)
         {
             while (getElementCount()>0)
-                _CCollection_::_removeCollectionElementFromHandle(getElementFromIndex(0)->getElementHandle());
+                _removeCollectionElementFromHandle(getElementFromIndex(0)->getElementHandle());
         }
     }
     // Is this collection still valid?
@@ -103,7 +106,7 @@ bool CCollection::actualizeCollection()
 
 void CCollection::removeCollectionElementFromHandle(int collectionElementHandle)
 {
-    _CCollection_::_removeCollectionElementFromHandle(collectionElementHandle);
+    _removeCollectionElementFromHandle(collectionElementHandle);
     actualizeCollection();
 }
 
@@ -121,7 +124,7 @@ bool CCollection::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
     {
         if ( (getElementFromIndex(i)->getMainObject()==objectHandle) ) //  GROUP_EVERYTHING is handled a little bit further down
         {
-            _CCollection_::_removeCollectionElementFromHandle(getElementFromIndex(i)->getElementHandle());
+            _removeCollectionElementFromHandle(getElementFromIndex(i)->getElementHandle());
             i=0;
         }
         else
@@ -138,7 +141,7 @@ bool CCollection::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
     if (removeAll)
     {
         while (getElementCount()>0)
-            _CCollection_::_removeCollectionElementFromHandle(getElementFromIndex(0)->getElementHandle());
+            _removeCollectionElementFromHandle(getElementFromIndex(0)->getElementHandle());
     }
 
     if ( (getElementCount()!=initialSubGroupListSize)&&copyBuffer )
@@ -164,13 +167,13 @@ bool CCollection::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
 }
 
 bool CCollection::setCollectionName(const char* newName,bool check)
-{ // Overridden from _CCollection_
-    bool diff=false;
+{
     CCollection* it=nullptr;
     if (check)
         it=App::currentWorld->collections->getObjectFromHandle(_collectionHandle);
+    std::string nn;
     if (it!=this)
-        diff=_CCollection_::setCollectionName(newName,check); // no checking or object not yet in world
+        nn=newName;
     else
     { // object is in world
         std::string nm(newName);
@@ -181,10 +184,18 @@ bool CCollection::setCollectionName(const char* newName,bool check)
             {
                 while (App::currentWorld->collections->getObjectFromName(nm.c_str())!=nullptr)
                     nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
-                diff=_CCollection_::setCollectionName(nm.c_str(),check);
+                nn=nm;
             }
         }
     }
+    bool diff=false;
+    if (nn.size()>0)
+    {
+        diff=(_collectionName!=nn);
+        if (diff)
+            _collectionName=nn;
+    }
+
     if (diff)
         App::setFullDialogRefreshFlag();
     return(diff);
@@ -203,7 +214,7 @@ CCollection* CCollection::copyYourself() const
     newCollection->_collectionHandle=_collectionHandle; // important for copy operations connections
     newCollection->_collectionName=_collectionName;
     for (size_t i=0;i<getElementCount();i++)
-        newCollection->_CCollection_::_addCollectionElement(getElementFromIndex(i)->copyYourself());
+        newCollection->_addCollectionElement(getElementFromIndex(i)->copyYourself());
     newCollection->_overridesObjectMainProperties=_overridesObjectMainProperties;
     return(newCollection);
 }
@@ -211,8 +222,8 @@ CCollection* CCollection::copyYourself() const
 void CCollection::emptyCollection()
 {
     while (getElementCount()>0)
-        _CCollection_::_removeCollectionElementFromHandle(getElementFromIndex(0)->getElementHandle());
-    _collectionObjects.clear(); // added on 14/10/2016 (was forgotten)
+        _removeCollectionElementFromHandle(getElementFromIndex(0)->getElementHandle());
+    _collectionObjects.clear();
     actualizeCollection();
 }
 
@@ -302,7 +313,7 @@ void CCollection::serialize(CSer& ar)
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                         CCollectionElement* it=new CCollectionElement(0,0,false);
                         it->serialize(ar);
-                        _CCollection_::_addCollectionElement(it);
+                        _addCollectionElement(it);
                     }
                     if (theName=="Par")
                     {
@@ -383,7 +394,7 @@ void CCollection::serialize(CSer& ar)
                 {
                     CCollectionElement* it=new CCollectionElement(0,0,false);
                     it->serialize(ar);
-                    _CCollection_::_addCollectionElement(it);
+                    _addCollectionElement(it);
                     if (!ar.xmlPushSiblingNode("item",false))
                         break;
                 }
@@ -403,60 +414,73 @@ std::string CCollection::getCollectionLoadName() const
     return(_collectionLoadName);
 }
 
-void CCollection::_addCollectionElement(CCollectionElement* collectionElement)
-{ // Overridden from _CCollection_
-    _CCollection_::_addCollectionElement(collectionElement);
+bool CCollection::getOverridesObjectMainProperties() const
+{
+    return(_overridesObjectMainProperties);
+}
 
-    if (getObjectCanSync())
-        collectionElement->buildUpdateAndPopulateSynchronizationObject(getSyncMsgRouting());
+size_t CCollection::getElementCount() const
+{
+    return(_collectionElements.size());
+}
+
+CCollectionElement* CCollection::getElementFromIndex(size_t index) const
+{
+    CCollectionElement* retVal=nullptr;
+    if (index<_collectionElements.size())
+        retVal=_collectionElements[index];
+    return(retVal);
+}
+
+CCollectionElement* CCollection::getElementFromHandle(int collectionElementHandle) const
+{
+    for (size_t i=0;i<_collectionElements.size();i++)
+    {
+        if (_collectionElements[i]->getElementHandle()==collectionElementHandle)
+            return(_collectionElements[i]);
+    }
+    return(nullptr);
+}
+
+int CCollection::getCollectionHandle() const
+{
+    return(_collectionHandle);
+}
+
+std::string CCollection::getCollectionName() const
+{
+    return(_collectionName);
+}
+
+bool CCollection::setOverridesObjectMainProperties(bool o)
+{
+    bool diff=(_overridesObjectMainProperties!=o);
+    if (diff)
+        _overridesObjectMainProperties=o;
+    return(diff);
+}
+
+bool CCollection::setCollectionHandle(int newHandle)
+{
+    bool diff=(_collectionHandle!=newHandle);
+    _collectionHandle=newHandle;
+    return(diff);
+}
+
+void CCollection::_addCollectionElement(CCollectionElement* collectionElement)
+{
+    _collectionElements.push_back(collectionElement);
 }
 
 void CCollection::_removeCollectionElementFromHandle(int collectionElementHandle)
-{ // Overridden from _CCollection_
-    if (getObjectCanSync())
+{
+    for (size_t i=0;i<_collectionElements.size();i++)
     {
-        CCollectionElement* el=getElementFromHandle(collectionElementHandle);
-        if (el!=nullptr)
-            el->removeSynchronizationObject(false);
-    }
-
-    _CCollection_::_removeCollectionElementFromHandle(collectionElementHandle);
-}
-
-void CCollection::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting)
-{ // Overridden from CSyncObject
-    if (setObjectCanSync(true))
-    {
-        // Set routing:
-        SSyncRoute r;
-        r.objHandle=_collectionHandle;
-        r.objType=sim_syncobj_collection;
-        setSyncMsgRouting(parentRouting,r);
-
-        // Update the remote object:
-        _setOverridesObjectMainProperties_send(_overridesObjectMainProperties);
-        _setCollectionName_send(_collectionName.c_str());
-
-        // Populate remote collections with remote collection elements:
-        for (size_t i=0;i<getElementCount();i++)
+        if (_collectionElements[i]->getElementHandle()==collectionElementHandle)
         {
-            CCollectionElement* it=getElementFromIndex(i);
-            it->buildUpdateAndPopulateSynchronizationObject(getSyncMsgRouting());
+            delete _collectionElements[i];
+            _collectionElements.erase(_collectionElements.begin()+i);
+            break;
         }
-    }
-}
-
-void CCollection::connectSynchronizationObject()
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-    }
-}
-
-void CCollection::removeSynchronizationObject(bool localReferencesToItOnly)
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-        setObjectCanSync(false);
     }
 }

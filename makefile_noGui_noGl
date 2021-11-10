@@ -15,8 +15,6 @@ CFLAGS += -I/usr/include/eigen3
 
 CFLAGS += -IsourceCode
 CFLAGS += -IsourceCode/shared
-CFLAGS += -IsourceCode/shared/backwardCompatibility/collisions
-CFLAGS += -IsourceCode/shared/backwardCompatibility/distances
 CFLAGS += -IsourceCode/shared/backwardCompatibility/kinematics
 CFLAGS += -IsourceCode/communication
 CFLAGS += -IsourceCode/communication/tubes
@@ -24,7 +22,6 @@ CFLAGS += -IsourceCode/communication/wireless
 CFLAGS += -IsourceCode/drawingObjects
 CFLAGS += -IsourceCode/platform
 CFLAGS += -IsourceCode/collections
-CFLAGS += -IsourceCode/shared/collections
 CFLAGS += -IsourceCode/collisions
 CFLAGS += -IsourceCode/distances
 CFLAGS += -IsourceCode/pathPlanning_old
@@ -58,7 +55,6 @@ CFLAGS += -IsourceCode/shared/various
 CFLAGS += -IsourceCode/libsAndPlugins
 CFLAGS += -IsourceCode/visual
 CFLAGS += -IsourceCode/displ
-CFLAGS += -IsourceCode/shared/displ
 CFLAGS += -IsourceCode/utils
 CFLAGS += -IsourceCode/backwardCompatibility/pathPlanning
 CFLAGS += -IsourceCode/backwardCompatibility/collisions
@@ -102,9 +98,7 @@ all:
 	gcc $(CFLAGS) -c sourceCode/platform/vDateTime.cpp -o vDateTime.o
 	gcc $(CFLAGS) -c sourceCode/platform/vArchive.cpp -o vArchive.o
 	gcc $(CFLAGS) -c sourceCode/collections/collectionElement.cpp -o collectionElement.o
-	gcc $(CFLAGS) -c sourceCode/shared/collections/_collectionElement_.cpp -o _collectionElement_.o
 	gcc $(CFLAGS) -c sourceCode/collections/collection.cpp -o collection.o
-	gcc $(CFLAGS) -c sourceCode/shared/collections/_collection_.cpp -o _collection_.o
 	gcc $(CFLAGS) -c sourceCode/backwardCompatibility/collisions/collisionObject_old.cpp -o collisionObject_old.o
 	gcc $(CFLAGS) -c sourceCode/collisions/collisionRoutines.cpp -o collisionRoutines.o
 	gcc $(CFLAGS) -c sourceCode/backwardCompatibility/distances/distanceObject_old.cpp -o distanceObject_old.o
@@ -165,7 +159,6 @@ all:
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/ikGroupContainer.cpp -o ikGroupContainer.o
 	gcc $(CFLAGS) -c sourceCode/shared/mainContainers/sceneContainers/_ikGroupContainer_.cpp -o _ikGroupContainer_.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/collectionContainer.cpp -o collectionContainer.o
-	gcc $(CFLAGS) -c sourceCode/shared/mainContainers/sceneContainers/_collectionContainer_.cpp -o _collectionContainer_.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/distanceObjectContainer_old.cpp -o distanceObjectContainer_old.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/collisionObjectContainer_old.cpp -o collisionObjectContainer_old.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp -o outsideCommandQueue.o
@@ -279,7 +272,6 @@ all:
 	gcc $(CFLAGS) -c sourceCode/rendering/viewRendering.cpp -o viewRendering.o
 	gcc $(CFLAGS) -c sourceCode/libsAndPlugins/pluginContainer.cpp -o pluginContainer.o
 	gcc $(CFLAGS) -c sourceCode/displ/colorObject.cpp -o colorObject.o
-	gcc $(CFLAGS) -c sourceCode/shared/displ/_colorObject_.cpp -o _colorObject_.o
 	gcc $(CFLAGS) -c sourceCode/visual/thumbnail.cpp -o thumbnail.o
 	gcc $(CFLAGS) -c sourceCode/utils/threadPool_old.cpp -o threadPool_old.o
 	gcc $(CFLAGS) -c sourceCode/utils/ttUtil.cpp -o ttUtil.o

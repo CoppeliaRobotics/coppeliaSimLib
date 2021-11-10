@@ -162,8 +162,6 @@ LIBS += $$QSCINTILLA_LIBS # somehow required to avoid a crash on exit (Windows),
 
 INCLUDEPATH += $$PWD/"sourceCode"
 INCLUDEPATH += $$PWD/"sourceCode/shared"
-INCLUDEPATH += $$PWD/"sourceCode/shared/backwardCompatibility/collisions"
-INCLUDEPATH += $$PWD/"sourceCode/shared/backwardCompatibility/distances"
 INCLUDEPATH += $$PWD/"sourceCode/shared/backwardCompatibility/kinematics"
 INCLUDEPATH += $$PWD/"sourceCode/communication"
 INCLUDEPATH += $$PWD/"sourceCode/communication/tubes"
@@ -171,7 +169,6 @@ INCLUDEPATH += $$PWD/"sourceCode/communication/wireless"
 INCLUDEPATH += $$PWD/"sourceCode/drawingObjects"
 INCLUDEPATH += $$PWD/"sourceCode/platform"
 INCLUDEPATH += $$PWD/"sourceCode/collections"
-INCLUDEPATH += $$PWD/"sourceCode/shared/collections"
 INCLUDEPATH += $$PWD/"sourceCode/collisions"
 INCLUDEPATH += $$PWD/"sourceCode/distances"
 INCLUDEPATH += $$PWD/"sourceCode/pathPlanning_old"
@@ -205,7 +202,6 @@ INCLUDEPATH += $$PWD/"sourceCode/shared/various"
 INCLUDEPATH += $$PWD/"sourceCode/libsAndPlugins"
 INCLUDEPATH += $$PWD/"sourceCode/visual"
 INCLUDEPATH += $$PWD/"sourceCode/displ"
-INCLUDEPATH += $$PWD/"sourceCode/shared/displ"
 INCLUDEPATH += $$PWD/"sourceCode/utils"
 INCLUDEPATH += $$PWD/"sourceCode/backwardCompatibility/pathPlanning"
 INCLUDEPATH += $$PWD/"sourceCode/backwardCompatibility/collisions"
@@ -360,9 +356,7 @@ HEADERS += $$PWD/sourceCode/platform/vVarious.h \
     $$PWD/sourceCode/platform/vArchive.h
 
 HEADERS += $$PWD/sourceCode/collections/collectionElement.h \
-    $$PWD/sourceCode/shared/collections/_collectionElement_.h \
     $$PWD/sourceCode/collections/collection.h \
-    $$PWD/sourceCode/shared/collections/_collection_.h \
 
 HEADERS += $$PWD/sourceCode/backwardCompatibility/collisions/collisionObject_old.h \
     $$PWD/sourceCode/collisions/collisionRoutines.h \
@@ -434,7 +428,6 @@ HEADERS += $$PWD/sourceCode/mainContainers/sceneContainers/drawingContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/ikGroupContainer.h \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_ikGroupContainer_.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/collectionContainer.h \
-    $$PWD/sourceCode/shared/mainContainers/sceneContainers/_collectionContainer_.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/distanceObjectContainer_old.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/collisionObjectContainer_old.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.h \
@@ -577,7 +570,6 @@ HEADERS += $$PWD/sourceCode/libsAndPlugins/pluginContainer.h \
 HEADERS += $$PWD/sourceCode/visual/thumbnail.h \
 
 HEADERS += $$PWD/sourceCode/displ/colorObject.h \
-    $$PWD/sourceCode/shared/displ/_colorObject_.h \
 
 HEADERS += $$PWD/sourceCode/utils/threadPool_old.h \
     $$PWD/sourceCode/utils/tt.h \
@@ -784,9 +776,7 @@ SOURCES += $$PWD/sourceCode/platform/vVarious.cpp \
     $$PWD/sourceCode/platform/vArchive.cpp
 
 SOURCES += $$PWD/sourceCode/collections/collectionElement.cpp \
-    $$PWD/sourceCode/shared/collections/_collectionElement_.cpp \
     $$PWD/sourceCode/collections/collection.cpp \
-    $$PWD/sourceCode/shared/collections/_collection_.cpp \
 
 SOURCES += $$PWD/sourceCode/backwardCompatibility/collisions/collisionObject_old.cpp \
     $$PWD/sourceCode/collisions/collisionRoutines.cpp \
@@ -861,7 +851,6 @@ SOURCES += $$PWD/sourceCode/mainContainers/sceneContainers/bannerContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/ikGroupContainer.cpp \
     $$PWD/sourceCode/shared/mainContainers/sceneContainers/_ikGroupContainer_.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/collectionContainer.cpp \
-    $$PWD/sourceCode/shared/mainContainers/sceneContainers/_collectionContainer_.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/distanceObjectContainer_old.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/collisionObjectContainer_old.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp \
@@ -995,7 +984,6 @@ SOURCES += $$PWD/sourceCode/rendering/rendering.cpp \
 SOURCES += $$PWD/sourceCode/libsAndPlugins/pluginContainer.cpp \
 
 SOURCES += $$PWD/sourceCode/displ/colorObject.cpp \
-    $$PWD/sourceCode/shared/displ/_colorObject_.cpp \
 
 SOURCES += $$PWD/sourceCode/visual/thumbnail.cpp \
 

@@ -3,6 +3,7 @@
 
 CCollectionElement::CCollectionElement(int mainObjectHandle,int collectionType,bool add)
 {
+    _elementHandle=-1;
     _mainObjectHandle=mainObjectHandle;
     _elementType=collectionType;
     _additive=add;
@@ -201,30 +202,32 @@ void CCollectionElement::serialize(CSer& ar)
     }
 }
 
-void CCollectionElement::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting)
-{ // Overridden from CSyncObject
-    if (setObjectCanSync(true))
-    {
-        // Set routing:
-        SSyncRoute r;
-        r.objHandle=_elementHandle;
-        r.objType=sim_syncobj_collectionelement;
-        setSyncMsgRouting(parentRouting,r);
-
-    }
+bool CCollectionElement::getIsAdditive() const
+{
+    return(_additive);
 }
 
-void CCollectionElement::connectSynchronizationObject()
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-    }
+int CCollectionElement::getMainObject() const
+{
+    return(_mainObjectHandle);
 }
 
-void CCollectionElement::removeSynchronizationObject(bool localReferencesToItOnly)
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-        setObjectCanSync(false);
-    }
+int CCollectionElement::getElementType() const
+{
+    return(_elementType);
+}
+
+int CCollectionElement::getElementHandle() const
+{
+    return(_elementHandle);
+}
+
+void CCollectionElement::setElementHandle(int newHandle)
+{
+    _elementHandle=newHandle;
+}
+
+void CCollectionElement::setMainObject(int mo)
+{ // only used in special situations
+    _mainObjectHandle=mo;
 }

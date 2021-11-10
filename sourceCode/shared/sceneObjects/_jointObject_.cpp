@@ -176,7 +176,6 @@ void _CJoint_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMs
             if (routing[0].objHandle==1)
                 obj=&_colorPart2;
             routing.erase(routing.begin());
-            obj->synchronizationMsg(routing,msg);
         }
     }
     else

@@ -629,8 +629,6 @@ void CSceneObject::scaleObject(float scalingFactor)
         data->appendMapObject_stringFloat(cmd,scalingFactor);
         App::worldContainer->pushEvent(event);
     }
-//    pushObjectRefreshEvent();
-
     App::currentWorld->drawingCont->adjustForScaling(_objectHandle,scalingFactor,scalingFactor,scalingFactor);
     App::worldContainer->setModificationFlag(256); // object scaled
 }
@@ -652,6 +650,7 @@ void CSceneObject::scalePosition(float scalingFactor)
     C7Vector local(getLocalTransformation());
     setLocalTransformation(local.X*scalingFactor);
     _assemblingLocalTransformation.X=_assemblingLocalTransformation.X*scalingFactor;
+    _dynamicsResetFlag=true;
 }
 
 void CSceneObject::setSpecificLight(int h)
@@ -3678,7 +3677,8 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
         tr.Q=pinv*trq;
     }
     setLocalTransformation(tr);
-    setDynamicsResetFlag(true,getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
+    if (getDynamicFlag()>1) // for non-static shapes, and other objects that are in the dyn. world
+        setDynamicsResetFlag(true,true);
     _objectManipulationMode_flaggedForGridOverlay=_objectManipulationModeAxisIndex+8;
     return(true);
 }
@@ -3916,7 +3916,8 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
     C4X4Matrix m(getCumulativeTransformation());
     m.X+=v;
     setLocalTransformation(getFullParentCumulativeTransformation().getInverse().getMatrix()*m);
-    setDynamicsResetFlag(true,getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
+    if (getDynamicFlag()>1) // for non-static shapes, and other objects that are in the dyn. world
+        setDynamicsResetFlag(true,true);
     _objectManipulationMode_flaggedForGridOverlay=_objectManipulationModeAxisIndex+16;
     return(true);
 }

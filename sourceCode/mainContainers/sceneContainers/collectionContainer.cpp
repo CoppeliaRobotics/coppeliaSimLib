@@ -8,6 +8,8 @@ CCollectionContainer::CCollectionContainer()
 
 CCollectionContainer::~CCollectionContainer()
 { // beware, the current world could be nullptr
+    while (_allCollections.size()!=0)
+        _removeCollection(_allCollections[0]->getCollectionHandle());
 }
 
 void CCollectionContainer::simulationAboutToStart()
@@ -252,45 +254,60 @@ void CCollectionContainer::performObjectLoadingMapping(const std::vector<int>* m
 }
 
 void CCollectionContainer::_removeCollection(int collectionHandle)
-{ // Overridden from _CCollectionContainer_
-    CCollection* ig=getObjectFromHandle(collectionHandle);
-    if (ig!=nullptr)
-        ig->removeSynchronizationObject(false);
-
-    _CCollectionContainer_::_removeCollection(collectionHandle);
+{
+    for (size_t i=0;i<_allCollections.size();i++)
+    {
+        if (_allCollections[i]->getCollectionHandle()==collectionHandle)
+        {
+            delete _allCollections[i];
+            _allCollections.erase(_allCollections.begin()+i);
+            break;
+        }
+    }
 }
 
 void CCollectionContainer::_addCollection(CCollection* collection)
-{ // Overridden from _CCollectionContainer_
-    _CCollectionContainer_::_addCollection(collection);
-
-    if (collection->setObjectCanSync(true))
-        collection->buildUpdateAndPopulateSynchronizationObject(nullptr);
+{
+    _allCollections.push_back(collection);
 }
 
-void CCollectionContainer::buildUpdateAndPopulateSynchronizationObjects()
+size_t CCollectionContainer::getObjectCount() const
 {
-    for (size_t i=0;i<getObjectCount();i++)
-    {
-        CCollection* it=getObjectFromIndex(i);
-        it->buildUpdateAndPopulateSynchronizationObject(nullptr);
-    }
+    return(_allCollections.size());
 }
 
-void CCollectionContainer::connectSynchronizationObjects()
+CCollection* CCollectionContainer::getObjectFromIndex(size_t index) const
 {
-    for (size_t i=0;i<getObjectCount();i++)
-    {
-        CCollection* it=getObjectFromIndex(i);
-        it->connectSynchronizationObject();
-    }
+    CCollection* retVal=nullptr;
+    if (index<_allCollections.size())
+        retVal=_allCollections[index];
+    return(retVal);
 }
 
-void CCollectionContainer::removeSynchronizationObjects(bool localReferencesToItOnly)
+CCollection* CCollectionContainer::getObjectFromHandle(int collectionHandle) const
 {
-    for (size_t i=0;i<getObjectCount();i++)
+    CCollection* retVal=nullptr;
+    for (size_t i=0;i<_allCollections.size();i++)
     {
-        CCollection* it=getObjectFromIndex(i);
-        it->removeSynchronizationObject(localReferencesToItOnly);
+        if (_allCollections[i]->getCollectionHandle()==collectionHandle)
+        {
+            retVal=_allCollections[i];
+            break;
+        }
     }
+    return(retVal);
+}
+
+CCollection* CCollectionContainer::getObjectFromName(const char* collectionName) const
+{
+    CCollection* retVal=nullptr;
+    for (size_t i=0;i<_allCollections.size();i++)
+    {
+        if (_allCollections[i]->getCollectionName().compare(collectionName)==0)
+        {
+            retVal=_allCollections[i];
+            break;
+        }
+    }
+    return(retVal);
 }

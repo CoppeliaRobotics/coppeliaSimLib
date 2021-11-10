@@ -78,9 +78,6 @@ void CDummy::scaleObject(float scalingFactor)
     _virtualDistanceOffsetOnPath*=scalingFactor;
     _virtualDistanceOffsetOnPath_variationWhenCopy*=scalingFactor;
     CSceneObject::scaleObject(scalingFactor);
-
-    // We have to reconstruct a part of the dynamics world:
-    _dynamicsResetFlag=true; // yes, because we might have a position scaling too!
 }
 
 void CDummy::scaleObjectNonIsometrically(float x,float y,float z)
@@ -679,10 +676,6 @@ void CDummy::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSync
         //_setLinkType_send(_linkType);
         _setAssignedToParentPath_send(_assignedToParentPath);
         _setAssignedToParentPathOrientation_send(_assignedToParentPathOrientation);
-
-        _dummyColor.buildUpdateAndPopulateSynchronizationObject(getSyncMsgRouting());
-
-        // Update other objects:
     }
 }
 

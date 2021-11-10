@@ -3,17 +3,12 @@
 #include "collection.h"
 #include "shape.h"
 #include "dummy.h"
-#include "_collectionContainer_.h"
 
-class CCollectionContainer : public _CCollectionContainer_
+class CCollectionContainer
 {
 public:
     CCollectionContainer();
     virtual ~CCollectionContainer();
-
-    void buildUpdateAndPopulateSynchronizationObjects();
-    void connectSynchronizationObjects();
-    void removeSynchronizationObjects(bool localReferencesToItOnly);
 
     void simulationAboutToStart();
     void simulationEnded();
@@ -31,6 +26,10 @@ public:
     void setSuffix1ToSuffix2(int suffix1,int suffix2);
     void removeCollection(int collectionHandle);
 
+    size_t getObjectCount() const;
+    CCollection* getObjectFromIndex(size_t index) const;
+    CCollection* getObjectFromHandle(int collectionHandle) const;
+    CCollection* getObjectFromName(const char* collectionName) const;
     void getCollidableObjectsFromCollection(int collectionHandle,std::vector<CSceneObject*>& objects) const;
     void getMeasurableObjectsFromCollection(int collectionHandle,std::vector<CSceneObject*>& objects) const;
     void getDetectableObjectsFromCollection(int collectionHandle,std::vector<CSceneObject*>& objects,int detectableMask) const;
@@ -40,8 +39,8 @@ public:
     void addCollectionToSelection(int collectionHandle) const;
 
 protected:
-    // Overridden from _CCollectionContainer_:
     void _addCollection(CCollection* collection);
     void _removeCollection(int collectionHandle);
 
+    std::vector<CCollection*> _allCollections;
 };

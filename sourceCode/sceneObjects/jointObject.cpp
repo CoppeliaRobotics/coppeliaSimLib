@@ -1079,8 +1079,6 @@ void CJoint::scaleObject(float scalingFactor)
     }
 
     CSceneObject::scaleObject(scalingFactor);
-
-    // We have to reconstruct a part of the dynamics world:
     _dynamicsResetFlag=true;
 
     _lastForceOrTorqueValid_dynStep=false;
@@ -1158,8 +1156,6 @@ void CJoint::scaleObjectNonIsometrically(float x,float y,float z)
     }
 
     CSceneObject::scaleObjectNonIsometrically(diam,diam,z);
-
-    // We have to reconstruct a part of the dynamics world:
     _dynamicsResetFlag=true;
 }
 
@@ -2889,11 +2885,6 @@ void CJoint::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSync
         _setVortexIntParams_send(_vortexIntParams);
         _setNewtonFloatParams_send(_newtonFloatParams);
         _setNewtonIntParams_send(_newtonIntParams);
-
-        _colorPart1.buildUpdateAndPopulateSynchronizationObject(getSyncMsgRouting());
-        _colorPart2.buildUpdateAndPopulateSynchronizationObject(getSyncMsgRouting());
-
-        // Update other objects:
     }
 }
 

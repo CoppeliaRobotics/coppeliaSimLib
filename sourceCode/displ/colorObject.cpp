@@ -603,45 +603,115 @@ void CColorObject::makeCurrentColor2(bool forceNonTransparent,bool useAuxiliaryC
     makeColorCurrent(this,forceNonTransparent,useAuxiliaryComponent);
 }
 
-void CColorObject::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting)
-{ // Overridden from CSyncObject
-    if (setObjectCanSync(true))
-    {
-        // Set routing:
-        SSyncRoute r;
-        r.objHandle=-1;
-        r.objType=sim_syncobj_color;
-        setSyncMsgRouting(parentRouting,r);
-
-        // Update the remote object:
-        _setColors_send(_colors);
-        _setTranslucid_send(_translucid);
-        _setOpacity_send(_opacity);
-        _setShininess_send(_shininess);
-        _setColorName_send(_colorName.c_str());
-        _setExtensionString_send(_extensionString.c_str());
-
-        // Update child objects:
-    }
+bool CColorObject::getTranslucid() const
+{
+    return(_translucid);
 }
 
-void CColorObject::connectSynchronizationObject()
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-    }
+float CColorObject::getOpacity() const
+{
+    return(_opacity);
 }
 
-void CColorObject::removeSynchronizationObject(bool localReferencesToItOnly)
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-        setObjectCanSync(false);
+int CColorObject::getShininess() const
+{
+    return(_shininess);
+}
 
-        if (!localReferencesToItOnly)
+std::string CColorObject::getColorName() const
+{
+    return(_colorName);
+}
+
+std::string CColorObject::getExtensionString() const
+{
+    return(_extensionString);
+}
+
+void CColorObject::getColors(float col[15]) const
+{
+    for (size_t i=0;i<15;i++)
+        col[i]=_colors[i];
+}
+
+const float* CColorObject::getColorsPtr() const
+{
+    return(_colors);
+}
+
+float* CColorObject::getColorsPtr()
+{
+    return(_colors);
+}
+
+bool CColorObject::_isSame(const CColorObject* it) const
+{
+    bool retVal=true;
+    for (size_t i=0;i<15;i++)
+    {
+        if (it->_colors[i]!=_colors[i])
         {
-            // Delete remote object:
-            // not needed here
+            retVal=false;
+            break;
         }
     }
+    retVal=retVal&&(_shininess==it->_shininess);
+    retVal=retVal&&(_opacity==it->_opacity);
+    retVal=retVal&&(_translucid==it->_translucid);
+    retVal=retVal&&(_colorName==it->_colorName);
+    retVal=retVal&&(_extensionString==it->_extensionString);
+    return(retVal);
+}
+
+void CColorObject::setColors(const float col[15])
+{
+    bool diff=false;
+    for (size_t i=0;i<15;i++)
+    {
+        if (_colors[i]!=col[i])
+        {
+            diff=true;
+            break;
+        }
+    }
+    if (diff)
+    {
+        for (size_t i=0;i<15;i++)
+            _colors[i]=col[i];
+    }
+}
+
+void CColorObject::setTranslucid(bool e)
+{
+    bool diff=(_translucid!=e);
+    if (diff)
+        _translucid=e;
+}
+
+void CColorObject::setOpacity(float e)
+{
+    bool diff=(_opacity!=e);
+    if (diff)
+        _opacity=e;
+}
+
+void CColorObject::setShininess(int e)
+{
+    bool diff=(_shininess!=e);
+    if (diff)
+        _shininess=e;
+}
+
+void CColorObject::setColorName(const char* nm)
+{
+    bool diff=(_colorName!=nm);
+    if (diff)
+        _colorName=nm;
+}
+
+void CColorObject::setExtensionString(const char* nm)
+{
+    bool diff=(_extensionString!=nm);
+    if (diff)
+        _extensionString=nm;
 }

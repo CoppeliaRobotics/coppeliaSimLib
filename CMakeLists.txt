@@ -191,15 +191,12 @@ target_include_directories(coppeliaSim
     sourceCode
     sourceCode/shared
     sourceCode/shared/backwardCompatibility/kinematics
-    sourceCode/shared/backwardCompatibility/collisions
-    sourceCode/shared/backwardCompatibility/distances
     sourceCode/communication
     sourceCode/communication/tubes
     sourceCode/communication/wireless
     sourceCode/drawingObjects
     sourceCode/platform
     sourceCode/collections
-    sourceCode/shared/collections
     sourceCode/collisions
     sourceCode/distances
     sourceCode/pathPlanning_old
@@ -233,7 +230,6 @@ target_include_directories(coppeliaSim
     sourceCode/libsAndPlugins
     sourceCode/visual
     sourceCode/displ
-    sourceCode/shared/displ
     sourceCode/utils
     sourceCode/backwardCompatibility/pathPlanning
     sourceCode/backwardCompatibility/collisions
@@ -455,9 +451,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/platform/vArchive.cpp
 
     sourceCode/collections/collectionElement.cpp
-    sourceCode/shared/collections/_collectionElement_.cpp
     sourceCode/collections/collection.cpp
-    sourceCode/shared/collections/_collection_.cpp
 
     sourceCode/backwardCompatibility/collisions/collisionObject_old.cpp
     sourceCode/collisions/collisionRoutines.cpp
@@ -532,7 +526,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/sceneContainers/ikGroupContainer.cpp
     sourceCode/shared/mainContainers/sceneContainers/_ikGroupContainer_.cpp
     sourceCode/mainContainers/sceneContainers/collectionContainer.cpp
-    sourceCode/shared/mainContainers/sceneContainers/_collectionContainer_.cpp
     sourceCode/mainContainers/sceneContainers/distanceObjectContainer_old.cpp
     sourceCode/mainContainers/sceneContainers/collisionObjectContainer_old.cpp
     sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp
@@ -666,7 +659,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/libsAndPlugins/pluginContainer.cpp
 
     sourceCode/displ/colorObject.cpp
-    sourceCode/shared/displ/_colorObject_.cpp
 
     sourceCode/visual/thumbnail.cpp
 

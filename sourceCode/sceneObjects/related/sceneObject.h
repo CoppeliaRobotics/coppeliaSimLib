@@ -345,7 +345,7 @@ protected:
     int _initialMemorizedConfigurationValidCounter;
     C7Vector _initialLocalTransformationPart1;
 
-    int _dynamicFlag;
+    int _dynamicFlag; // 1=respondableShape, 2=nonStaticShape, 4=dynJointNoMotor, 8=dynJointMotor, 16=dynJointPosCtrl, 32=dynForceSensor, 64=dynDummy
 
     float _measuredAngularVelocity_velocityMeasurement;
     C3Vector _measuredAngularVelocity3_velocityMeasurement;

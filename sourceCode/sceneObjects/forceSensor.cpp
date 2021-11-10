@@ -449,11 +449,7 @@ void CForceSensor::scaleObject(float scalingFactor)
     _forceSensorSize*=scalingFactor;
     _forceThreshold*=scalingFactor*scalingFactor*scalingFactor;//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
     _torqueThreshold*=scalingFactor*scalingFactor*scalingFactor*scalingFactor;//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
-
     CSceneObject::scaleObject(scalingFactor);
-    // We have to reconstruct a part of the dynamics world:
-    _dynamicsResetFlag=true; // yes, because we might have a position scaling too!
-
     _filteredValuesAreValid=false;
     _lastForceAndTorqueValid_dynStep=false;
 }

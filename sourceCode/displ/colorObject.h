@@ -1,18 +1,12 @@
 #pragma once
 
-#include "_colorObject_.h"
 #include "ser.h"
 
-class CColorObject : public _CColorObject_
+class CColorObject
 {
 public:
     CColorObject();
     virtual ~CColorObject();
-
-    // Overridden from CSyncObject:
-    void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
-    void connectSynchronizationObject();
-    void removeSynchronizationObject(bool localReferencesToItOnly);
 
     void makeCurrentColor(bool useAuxiliaryComponent) const;
     void makeCurrentColor2(bool forceNonTransparent,bool useAuxiliaryComponent) const;
@@ -26,6 +20,14 @@ public:
     void setConvexColors();
 
     void getColor(float col[3],unsigned char colorMode) const;
+    void getColors(float col[15]) const;
+    const float* getColorsPtr() const;
+    float* getColorsPtr();
+    bool getTranslucid() const;
+    float getOpacity() const;
+    int getShininess() const;
+    std::string getColorName() const;
+    std::string getExtensionString() const;
 
     void setFlash(bool flashIsOn);
     bool getFlash() const;
@@ -38,8 +40,23 @@ public:
     void setUseSimulationTime(bool sim);
     bool getUseSimulationTime() const;
 
+    void setColors(const float col[15]);
+    void setTranslucid(bool e);
+    void setOpacity(float e);
+    void setShininess(int e);
+    void setColorName(const char* nm);
+    void setExtensionString(const char* nm);
+
 private:
+    bool _isSame(const CColorObject* it) const;
     std::string _getPatternStringFromPatternId_backwardCompatibility_3_2_2016(int id);
+
+    float _colors[15];
+    int _shininess;
+    float _opacity;
+    bool _translucid;
+    std::string _colorName;
+    std::string _extensionString;
 
     bool _useSimulationTime;
     float _flashFrequency;
