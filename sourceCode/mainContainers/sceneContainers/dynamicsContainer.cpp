@@ -85,13 +85,6 @@ void CDynamicsContainer::simulationAboutToStart()
 
     removeWorld(); // not really needed
 
-    // Following is just in case:
-    for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-    {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-        it->disableDynamicTreeForManipulation(false);
-    }
-
     // Keep following (important that it is initialized BEFORE simHandleDynamics is called!!)
     if (getDynamicsEnabled())
         addWorldIfNotThere();
@@ -101,13 +94,6 @@ void CDynamicsContainer::simulationEnded()
 {
     removeWorld();
 
-    // Following is because some shapes might have been disabled because below z=-1000 meters:
-    for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-    {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-        it->disableDynamicTreeForManipulation(false);
-    }
-    
     _resetWarningFlags();
     _tempDisabledWarnings=0;
 }

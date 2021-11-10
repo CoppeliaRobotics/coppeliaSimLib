@@ -37,6 +37,7 @@ CSceneObject::CSceneObject()
     _assemblingLocalTransformation.setIdentity();
     _assemblingLocalTransformationIsUsed=false;
     _userScriptParameters=nullptr;
+    _dynamicsTemporarilyDisabled=false;
 
     _authorizedViewableObjects=-1; // all
     _assemblyMatchValuesChild.push_back("default");
@@ -556,19 +557,18 @@ bool CSceneObject::isObjectPartOfInvisibleModel()
     return((getCumulativeModelProperty()&sim_modelproperty_not_visible)!=0);
 }
 
-
-
 int CSceneObject::getTreeDynamicProperty() // combination of sim_objdynprop_dynamic and sim_objdynprop_respondable
-{ // returns the total
-    int o=getCumulativeModelProperty();
-    if (o==0)
-        return(sim_objdynprop_dynamic|sim_objdynprop_respondable); // nothing is overridden!
-    int ret=0;
-    if ((o&sim_modelproperty_not_dynamic)==0)
-        ret|=sim_objdynprop_dynamic;
-    if ((o&sim_modelproperty_not_respondable)==0)
-        ret|=sim_objdynprop_respondable;
-    return(ret);
+{
+    int retVal=0;
+    if (!_dynamicsTemporarilyDisabled)
+    {
+        int o=getCumulativeModelProperty();
+        if ((o&sim_modelproperty_not_dynamic)==0)
+            retVal|=sim_objdynprop_dynamic;
+        if ((o&sim_modelproperty_not_respondable)==0)
+            retVal|=sim_objdynprop_respondable;
+    }
+    return(retVal);
 }
 
 int CSceneObject::getModelSelectionHandle(bool firstObject)
@@ -1379,6 +1379,8 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     _initialLocalTransformationPart1=_localTransformation;
     //********************************
 
+    _dynamicsTemporarilyDisabled=false;
+
     _initialMainPropertyOverride=_modelProperty;
 }
 
@@ -1432,11 +1434,11 @@ bool CSceneObject::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
     return(getFullBoundingBox(minV,maxV));
 }
 
-void CSceneObject::disableDynamicTreeForManipulation(bool d)
+void CSceneObject::temporarilyDisableDynamicTree()
 {
-    if (d!=_dynamicsTemporarilyDisabled)
-        recomputeModelInfluencedValues();
-    _dynamicsTemporarilyDisabled=d;
+    _dynamicsTemporarilyDisabled=true;
+    for (size_t i=0;i<_childList.size();i++)
+        _childList[i]->temporarilyDisableDynamicTree();
 }
 
 void CSceneObject::setDynamicSimulationIconCode(int c)
@@ -3676,6 +3678,7 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
         tr.Q=pinv*trq;
     }
     setLocalTransformation(tr);
+    setDynamicsResetFlag(true,getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
     _objectManipulationMode_flaggedForGridOverlay=_objectManipulationModeAxisIndex+8;
     return(true);
 }
@@ -3913,6 +3916,7 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
     C4X4Matrix m(getCumulativeTransformation());
     m.X+=v;
     setLocalTransformation(getFullParentCumulativeTransformation().getInverse().getMatrix()*m);
+    setDynamicsResetFlag(true,getDynamicFlag()>1); // full tree, for non-static shapes, and other objects that are in the dyn. world
     _objectManipulationMode_flaggedForGridOverlay=_objectManipulationModeAxisIndex+16;
     return(true);
 }

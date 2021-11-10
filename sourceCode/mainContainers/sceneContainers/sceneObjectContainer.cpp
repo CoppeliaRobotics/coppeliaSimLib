@@ -1096,11 +1096,23 @@ void CSceneObjectContainer::setObjectParent(CSceneObject* object,CSceneObject* n
     {
         C7Vector absTr(object->getFullCumulativeTransformation());
         if (oldParent!=nullptr)
+        {
             oldParent->removeChild(object);
+            if (oldParent->getObjectType()==sim_object_joint_type)
+                ((CJoint*)oldParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
+            if (oldParent->getObjectType()==sim_object_forcesensor_type)
+                ((CForceSensor*)oldParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
+        }
         else
             _removeFromOrphanObjects(object);
         if (newParent!=nullptr)
+        {
             newParent->addChild(object);
+            if (newParent->getObjectType()==sim_object_joint_type)
+                ((CJoint*)newParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
+            if (newParent->getObjectType()==sim_object_forcesensor_type)
+                ((CForceSensor*)newParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
+        }
         else
             _addToOrphanObjects(object);
         object->setParent(newParent);

@@ -149,10 +149,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setObjectMatrix",_simSetObjectMatrix,                  "sim.setObjectMatrix(int objectHandle,int relativeToObjectHandle,table[12] matrix)",true},
     {"sim.getObjectPose",_simGetObjectPose,                      "table[7] pose=sim.getObjectPose(int objectHandle,int relativeToObjectHandle)",true},
     {"sim.setObjectPose",_simSetObjectPose,                      "sim.setObjectPose(int objectHandle,int relativeToObjectHandle,table[7] pose)",true},
-    {"sim.getJointMatrix",_simGetJointMatrix,                    "table[12] matrix=sim.getJointMatrix(int objectHandle)",true},
-    {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "sim.setSphericalJointMatrix(int objectHandle,table[12] matrix)",true},
-    {"sim.getJointPose",_simGetJointPose,                        "table[7] pose=sim.getJointPose(int objectHandle)",true},
-    {"sim.setJointPose",_simSetJointPose,                        "sim.setJointPose(int objectHandle,table[7] pose)",true},
+    {"sim.getObjectChildPose",_simGetObjectChildPose,            "table[7] pose=sim.getObjectChildPose(int objectHandle)",true},
+    {"sim.setObjectChildPose",_simSetObjectChildPose,            "sim.setObjectChildPose(int objectHandle,table[7] pose)",true},
     {"sim.buildIdentityMatrix",_simBuildIdentityMatrix,          "table[12] matrix=sim.buildIdentityMatrix()",true},
     {"sim.buildMatrix",_simBuildMatrix,                          "table[12] matrix=sim.buildMatrix(table[3] position,table[3] eulerAngles)",true},
     {"sim.getEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"table[3] eulerAngles=sim.getEulerAnglesFromMatrix(table[12] matrix)",true},
@@ -570,6 +568,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.removeObjectFromSelection",_simRemoveObjectFromSelection,"Deprecated. Use sim.setObjectSelection instead",false},
     {"sim.getObjectUniqueIdentifier",_simGetObjectUniqueIdentifier,"Deprecated. Use sim.getObjectInt32Param with sim.objintparam_unique_id instead",false},
     {"sim.breakForceSensor",_simBreakForceSensor,                "Deprecated. Use sim.setObjectParent instead",false},
+    {"sim.getJointMatrix",_simGetJointMatrix,                    "Deprecated. Use sim.getObjectChildPose instead",false},
+    {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "Deprecated. Use sim.setObjectChildPose instead",false},
 
     {"",nullptr,"",false}
 };
@@ -3989,52 +3989,15 @@ int _simSetObjectPose(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetJointMatrix(luaWrap_lua_State* L)
+int _simGetObjectChildPose(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getJointMatrix");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        float arr[12];
-        if (simGetJointMatrix_internal(luaWrap_lua_tointeger(L,1),arr)==1)
-        {
-            pushFloatTableOntoStack(L,12,arr); // Success
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetSphericalJointMatrix(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setSphericalJointMatrix");
-
-    int retVal=-1; // error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,12))
-    {
-        float arr[12];
-        getFloatsFromTable(L,2,12,arr);
-        retVal=simSetSphericalJointMatrix_internal(luaWrap_lua_tointeger(L,1),arr);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetJointPose(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getJointPose");
+    LUA_START("sim.getObjectChildPose");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         float arr[7];
-        if (simGetJointPose_internal(luaWrap_lua_tointeger(L,1),arr)==1)
+        if (simGetObjectChildPose_internal(luaWrap_lua_tointeger(L,1),arr)==1)
         {
             pushFloatTableOntoStack(L,7,arr); // Success
             LUA_END(1);
@@ -4045,16 +4008,16 @@ int _simGetJointPose(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetJointPose(luaWrap_lua_State* L)
+int _simSetObjectChildPose(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setJointPose");
+    LUA_START("sim.setObjectChildPose");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,7))
     {
         float arr[7];
         getFloatsFromTable(L,2,7,arr);
-        simSetJointPose_internal(luaWrap_lua_tointeger(L,1),arr);
+        simSetObjectChildPose_internal(luaWrap_lua_tointeger(L,1),arr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -13171,8 +13134,8 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simStartSimulation",_simStartSimulation,                  "Use the newer 'sim.startSimulation' notation",false},
     {"simGetObjectMatrix",_simGetObjectMatrix,                  "Use the newer 'sim.getObjectMatrix' notation",false},
     {"simSetObjectMatrix",_simSetObjectMatrix,                  "Use the newer 'sim.setObjectMatrix' notation",false},
-    {"simGetJointMatrix",_simGetJointMatrix,                    "Use the newer 'sim.getJointMatrix' notation",false},
-    {"simSetSphericalJointMatrix",_simSetSphericalJointMatrix,  "Use the newer 'sim.setSphericalJointMatrix' notation",false},
+    {"simGetJointMatrix",_simGetJointMatrix,                    "Deprecated. Use sim.getObjectChildPose instead",false},
+    {"simSetSphericalJointMatrix",_simSetSphericalJointMatrix,  "Deprecated. Use sim.setObjectChildPose instead",false},
     {"simBuildIdentityMatrix",_simBuildIdentityMatrix,          "Use the newer 'sim.buildIdentityMatrix' notation",false},
     {"simBuildMatrix",_simBuildMatrix,                          "Use the newer 'sim.buildMatrix' notation",false},
     {"simGetEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"Use the newer 'sim.getEulerAnglesFromMatrix' notation",false},
@@ -20397,3 +20360,41 @@ int _simBreakForceSensor(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
+
+int _simSetSphericalJointMatrix(luaWrap_lua_State* L)
+{ // deprecated since 09.11.2021
+    TRACE_LUA_API;
+    LUA_START("sim.setSphericalJointMatrix");
+
+    int retVal=-1; // error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,12))
+    {
+        float arr[12];
+        getFloatsFromTable(L,2,12,arr);
+        retVal=simSetSphericalJointMatrix_internal(luaWrap_lua_tointeger(L,1),arr);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetJointMatrix(luaWrap_lua_State* L)
+{ // deprecated since 09.11.2021
+    TRACE_LUA_API;
+    LUA_START("sim.getJointMatrix");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        float arr[12];
+        if (simGetJointMatrix_internal(luaWrap_lua_tointeger(L,1),arr)==1)
+        {
+            pushFloatTableOntoStack(L,12,arr); // Success
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+

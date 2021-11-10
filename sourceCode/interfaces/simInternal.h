@@ -51,10 +51,8 @@ simInt simSetJointPosition_internal(simInt objectHandle,simFloat position);
 simInt simSetJointTargetPosition_internal(simInt objectHandle,simFloat targetPosition);
 simInt simGetJointTargetPosition_internal(simInt objectHandle,simFloat* targetPosition);
 simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque);
-simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix);
-simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* matrix);
-simInt simGetJointPose_internal(simInt objectHandle,simFloat* pose);
-simInt simSetJointPose_internal(simInt objectHandle,const simFloat* pose);
+simInt simGetObjectChildPose_internal(simInt objectHandle,simFloat* pose);
+simInt simSetObjectChildPose_internal(simInt objectHandle,const simFloat* pose);
 simInt simGetJointInterval_internal(simInt objectHandle,simBool* cyclic,simFloat* interval);
 simInt simSetJointInterval_internal(simInt objectHandle,simBool cyclic,const simFloat* interval);
 simInt simGetObjectParent_internal(simInt objectHandle);
@@ -659,4 +657,6 @@ simVoid _simSetDynamicForceSensorLocalTransformationPart2IsValid_internal(simVoi
 simInt simBreakForceSensor_internal(simInt objectHandle);
 simBool _simIsForceSensorBroken_internal(const simVoid* forceSensor);
 simVoid _simGetDynamicForceSensorLocalTransformationPart2_internal(const simVoid* forceSensor,simFloat* pos,simFloat* quat);
+simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix);
+simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* matrix);
 #endif // !defined(simInternal_INCLUDED_)

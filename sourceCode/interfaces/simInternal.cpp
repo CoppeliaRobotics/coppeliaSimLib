@@ -2019,7 +2019,7 @@ simInt simGetJointTargetVelocity_internal(simInt objectHandle,simFloat* targetVe
     return(-1);
 }
 
-simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix)
+simInt simGetObjectChildPose_internal(simInt objectHandle,simFloat* pose)
 {
     TRACE_C_API;
 
@@ -2030,36 +2030,13 @@ simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix)
     {
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
-        if (!isJoint(__func__,objectHandle))
-            return(-1);
-        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        C7Vector trFull(it->getFullLocalTransformation());
-        C7Vector trPart1(it->getLocalTransformation());
-        C7Vector tr(trPart1.getInverse()*trFull);
-        tr.getMatrix().copyToInterface(matrix);
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simGetJointPose_internal(simInt objectHandle,simFloat* pose)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,objectHandle))
-            return(-1);
-        if (!isJoint(__func__,objectHandle))
-            return(-1);
-        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        C7Vector trFull(it->getFullLocalTransformation());
-        C7Vector trPart1(it->getLocalTransformation());
-        C7Vector tr(trPart1.getInverse()*trFull);
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        C7Vector tr;
+        tr.setIdentity();
+        if (obj->getObjectType()==sim_object_joint_type)
+            tr=((CJoint*)obj)->getIntrinsicTransformation(true);
+        if (obj->getObjectType()==sim_object_forcesensor_type)
+            tr=((CForceSensor*)obj)->getIntrinsicTransformation(true);
         tr.getInternalData(pose,true);
         return(1);
     }
@@ -2067,7 +2044,7 @@ simInt simGetJointPose_internal(simInt objectHandle,simFloat* pose)
     return(-1);
 }
 
-simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* matrix)
+simInt simSetObjectChildPose_internal(simInt objectHandle,const simFloat* pose)
 {
     TRACE_C_API;
 
@@ -2078,46 +2055,24 @@ simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* m
     {
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
-        if (!isJoint(__func__,objectHandle))
-            return(-1);
-        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        if (it->getJointType()!=sim_joint_spherical_subtype)
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        if (obj->getObjectType()==sim_object_joint_type)
         {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_NOT_SPHERICAL);
-            return(-1);
+            CJoint* it=(CJoint*)obj;
+            if (it->getJointType()==sim_joint_spherical_subtype)
+            {
+                C7Vector tr;
+                tr.setInternalData(pose,true);
+                it->setSphericalTransformation(C4Vector(tr.Q));
+                it->setIntrinsicTransformationError(C7Vector::identityTransformation);
+            }
         }
-        C4X4Matrix m;
-        m.copyFromInterface(matrix);
-        it->setSphericalTransformation(C4Vector(m.M.getQuaternion()));
+        if (obj->getObjectType()==sim_object_forcesensor_type)
+        {
+            CForceSensor* it=(CForceSensor*)obj;
+            it->setIntrinsicTransformationError(C7Vector::identityTransformation);
+        }
         return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simSetJointPose_internal(simInt objectHandle,const simFloat* pose)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,objectHandle))
-            return(-1);
-        if (!isJoint(__func__,objectHandle))
-            return(-1);
-        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        if (it->getJointType()==sim_joint_spherical_subtype)
-        {
-            C7Vector tr;
-            tr.setInternalData(pose,true);
-            it->setSphericalTransformation(C4Vector(tr.Q));
-            return(1);
-        }
-        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_NOT_SPHERICAL);
-        return(-1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -2128,20 +2083,14 @@ simInt simGetJointInterval_internal(simInt objectHandle,simBool* cyclic,simFloat
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isJoint(__func__,objectHandle))
-        {
             return(-1);
-        }
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         cyclic[0]=0;
         if (it->getPositionIsCyclic())
@@ -16811,7 +16760,7 @@ simBool _simIsJointInHybridOperation_internal(const simVoid* joint)
 simVoid _simDisableDynamicTreeForManipulation_internal(const simVoid* object,simBool disableFlag)
 {
     TRACE_C_API;
-    ((CSceneObject*)object)->disableDynamicTreeForManipulation(disableFlag!=0);
+    ((CSceneObject*)object)->temporarilyDisableDynamicTree();
 }
 
 simVoid _simSetJointPosition_internal(const simVoid* joint,simFloat pos)
@@ -22730,5 +22679,57 @@ simVoid _simGetDynamicForceSensorLocalTransformationPart2_internal(const simVoid
     tr.setIdentity();
     tr.X.getInternalData(pos);
     tr.Q.getInternalData(quat);
+}
+
+simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix)
+{ // deprecated on 09.11.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        if (!isJoint(__func__,objectHandle))
+            return(-1);
+        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        C7Vector trFull(it->getFullLocalTransformation());
+        C7Vector trPart1(it->getLocalTransformation());
+        C7Vector tr(trPart1.getInverse()*trFull);
+        tr.getMatrix().copyToInterface(matrix);
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* matrix)
+{ // deprecated on 09.11.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        if (!isJoint(__func__,objectHandle))
+            return(-1);
+        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        if (it->getJointType()!=sim_joint_spherical_subtype)
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_NOT_SPHERICAL);
+            return(-1);
+        }
+        C4X4Matrix m;
+        m.copyFromInterface(matrix);
+        it->setSphericalTransformation(C4Vector(m.M.getQuaternion()));
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
 }
 

@@ -153,21 +153,13 @@ SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTor
 {
     return(simSetJointMaxForce_internal(objectHandle,forceOrTorque));
 }
-SIM_DLLEXPORT simInt simGetJointMatrix(simInt objectHandle,simFloat* matrix)
+SIM_DLLEXPORT simInt simGetObjectChildPose(simInt objectHandle,simFloat* pose)
 {
-    return(simGetJointMatrix_internal(objectHandle,matrix));
+    return(simGetObjectChildPose_internal(objectHandle,pose));
 }
-SIM_DLLEXPORT simInt simSetSphericalJointMatrix(simInt objectHandle,const simFloat* matrix)
+SIM_DLLEXPORT simInt simSetObjectChildPose(simInt objectHandle,const simFloat* pose)
 {
-    return(simSetSphericalJointMatrix_internal(objectHandle,matrix));
-}
-SIM_DLLEXPORT simInt simGetJointPose(simInt objectHandle,simFloat* pose)
-{
-    return(simGetJointPose_internal(objectHandle,pose));
-}
-SIM_DLLEXPORT simInt simSetJointPose(simInt objectHandle,const simFloat* pose)
-{
-    return(simSetJointPose_internal(objectHandle,pose));
+    return(simSetObjectChildPose_internal(objectHandle,pose));
 }
 SIM_DLLEXPORT simInt simGetJointInterval(simInt objectHandle,simBool* cyclic,simFloat* interval)
 {
@@ -2740,6 +2732,14 @@ SIM_DLLEXPORT simBool _simIsForceSensorBroken(const simVoid* forceSensor)
 SIM_DLLEXPORT simVoid _simGetDynamicForceSensorLocalTransformationPart2(const simVoid* forceSensor,simFloat* pos,simFloat* quat)
 {
     return(_simGetDynamicForceSensorLocalTransformationPart2_internal(forceSensor,pos,quat));
+}
+SIM_DLLEXPORT simInt simGetJointMatrix(simInt objectHandle,simFloat* matrix)
+{
+    return(simGetJointMatrix_internal(objectHandle,matrix));
+}
+SIM_DLLEXPORT simInt simSetSphericalJointMatrix(simInt objectHandle,const simFloat* matrix)
+{
+    return(simSetSphericalJointMatrix_internal(objectHandle,matrix));
 }
 // Deprecated end
 

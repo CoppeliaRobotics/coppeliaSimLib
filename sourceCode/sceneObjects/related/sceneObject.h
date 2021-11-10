@@ -162,7 +162,7 @@ public:
 
     int getTreeDynamicProperty(); // combination of sim_objdynprop_dynamic and sim_objdynprop_respondable
 
-    void disableDynamicTreeForManipulation(bool d);
+    void temporarilyDisableDynamicTree();
 
     void setTransparentObjectDistanceOffset(float d);
     float getTransparentObjectDistanceOffset() const;

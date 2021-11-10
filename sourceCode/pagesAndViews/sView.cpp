@@ -1657,12 +1657,6 @@ void CSView::handleCameraOrGraphMotion()
     {
         mouseIsDown=false;
         selectionStatus=NOSELECTION;
-        // Following added on 2010/02/09 in order to be able to manipulate dynamic objects too
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-        {
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-            it->disableDynamicTreeForManipulation(false);
-        }
         App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
     }
     mouseJustWentDownFlag=false;
@@ -1899,10 +1893,7 @@ void CSView::cameraAndObjectMotion()
                     bool rotatedMaster=false;
                     C7Vector oldTr(masterObj->getCumulativeTransformation());
                     if (masterObj->setLocalTransformationFromObjectRotationMode(camera->getFullCumulativeTransformation().getMatrix(),dX*0.5f,perspective,eventID))
-                    {
-                        masterObj->disableDynamicTreeForManipulation(true); // so that we can also manipulate dynamic objects
                         rotatedMaster=true;
-                    }
                     if (rotatedMaster)
                     {
                         C7Vector newTr(masterObj->getCumulativeTransformation());
@@ -1913,7 +1904,6 @@ void CSView::cameraAndObjectMotion()
                             C7Vector oldLTr=obj->getLocalTransformation();
                             C7Vector parentTr=obj->getFullParentCumulativeTransformation();
                             obj->setLocalTransformation(parentTr.getInverse()*shift*parentTr*oldLTr);
-                            obj->disableDynamicTreeForManipulation(true); // so that we can also manipulate dynamic objects
                         }
                     }
                 }
@@ -2065,10 +2055,7 @@ void CSView::cameraAndObjectMotion()
                     if ( (masterObj->getObjectType()!=sim_object_path_type)||(allSelObjects.size()!=0)||(App::mainWindow->editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()==0) )
                     { // normal object shifting:
                         if (masterObj->setLocalTransformationFromObjectTranslationMode(camera->getFullCumulativeTransformation().getMatrix(),centerPos,prevPos,pos,screenHalfSizes,halfSizes,perspective,eventID))
-                        {
-                            masterObj->disableDynamicTreeForManipulation(true); // so that we can also manipulate dynamic objects
                             shiftedMaster=true;
-                        }
                     }
                     else
                     { // path point shifting (non-edit mode!):
@@ -2085,7 +2072,6 @@ void CSView::cameraAndObjectMotion()
                             C7Vector oldLTr=obj->getLocalTransformation();
                             C7Vector parentTr=obj->getFullParentCumulativeTransformation();
                             obj->setLocalTransformation(parentTr.getInverse()*shift*parentTr*oldLTr);
-                            obj->disableDynamicTreeForManipulation(true); // so that we can also manipulate dynamic objects
                         }
                     }
                 }

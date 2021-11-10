@@ -54,10 +54,8 @@ SIM_DLLEXPORT simInt simSetJointPosition(simInt objectHandle,simFloat position);
 SIM_DLLEXPORT simInt simSetJointTargetPosition(simInt objectHandle,simFloat targetPosition);
 SIM_DLLEXPORT simInt simGetJointTargetPosition(simInt objectHandle,simFloat* targetPosition);
 SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTorque);
-SIM_DLLEXPORT simInt simGetJointMatrix(simInt objectHandle,simFloat* matrix);
-SIM_DLLEXPORT simInt simSetSphericalJointMatrix(simInt objectHandle,const simFloat* matrix);
-SIM_DLLEXPORT simInt simGetJointPose(simInt objectHandle,simFloat* pose);
-SIM_DLLEXPORT simInt simSetJointPose(simInt objectHandle,const simFloat* pose);
+SIM_DLLEXPORT simInt simGetObjectChildPose(simInt objectHandle,simFloat* pose);
+SIM_DLLEXPORT simInt simSetObjectChildPose(simInt objectHandle,const simFloat* pose);
 SIM_DLLEXPORT simInt simGetJointInterval(simInt objectHandle,simBool* cyclic,simFloat* interval);
 SIM_DLLEXPORT simInt simSetJointInterval(simInt objectHandle,simBool cyclic,const simFloat* interval);
 SIM_DLLEXPORT simInt simGetObjectParent(simInt objectHandle);
@@ -712,6 +710,8 @@ SIM_DLLEXPORT simVoid _simSetDynamicForceSensorLocalTransformationPart2IsValid(s
 SIM_DLLEXPORT simInt simBreakForceSensor(simInt objectHandle);
 SIM_DLLEXPORT simBool _simIsForceSensorBroken(const simVoid* forceSensor);
 SIM_DLLEXPORT simVoid _simGetDynamicForceSensorLocalTransformationPart2(const simVoid* forceSensor,simFloat* pos,simFloat* quat);
+SIM_DLLEXPORT simInt simGetJointMatrix(simInt objectHandle,simFloat* matrix);
+SIM_DLLEXPORT simInt simSetSphericalJointMatrix(simInt objectHandle,const simFloat* matrix);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)
