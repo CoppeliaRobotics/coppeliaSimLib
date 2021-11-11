@@ -85,10 +85,12 @@ void CLight::_commonInit()
         _objectAlias=IDSOGL_DIRECTIONAL_LIGHT;
     _objectName_old=_objectAlias;
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
+    computeBoundingBox();
 }
 
-bool CLight::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CLight::computeBoundingBox()
 {
+    C3Vector minV,maxV;
     if (_lightType==sim_light_omnidirectional_subtype)
     {
         minV(0)=-0.5f*_lightSize;
@@ -116,12 +118,7 @@ bool CLight::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
         minV(2)=-0.5f*_lightSize;
         maxV(2)=0.5f*_lightSize;
     }
-    return(true);
-}
-
-bool CLight::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return(getFullBoundingBox(minV,maxV));
+    _setBoundingBox(minV,maxV);
 }
 
 void CLight::_setDefaultColors()
@@ -164,7 +161,7 @@ bool CLight::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std
 
 void CLight::scaleObject(float scalingFactor)
 {
-    _lightSize*=scalingFactor;
+    setLightSize(_lightSize*scalingFactor);
     linearAttenuation/=scalingFactor;
     quadraticAttenuation/=scalingFactor*scalingFactor;
 
@@ -190,7 +187,18 @@ void CLight::scaleObjectNonIsometrically(float x,float y,float z)
 void CLight::setLightSize(float size)
 {
     tt::limitValue(0.001f,100.0f,size);
-    _lightSize=size;
+    if (_lightSize!=size)
+    {
+        _lightSize=size;
+        computeBoundingBox();
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="size";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringFloat(cmd,_lightSize);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
 float CLight::getLightSize()
@@ -263,6 +271,8 @@ void CLight::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("light",subC);
     data=subC;
+
+    data->appendMapObject_stringFloat("size",_lightSize);
 
     CInterfaceStackTable* colors=new CInterfaceStackTable();
     data->appendMapObject_stringObject("colors",colors);
@@ -550,6 +560,7 @@ void CLight::serialize(CSer& ar)
                         _extensionString+="openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} bias {0.001} normalBias {0.005} shadowTextureSize {2048}}}";
                 }
             }
+        computeBoundingBox();
         }
     }
     else
@@ -668,14 +679,9 @@ void CLight::serialize(CSer& ar)
                 }
                 ar.xmlPopNode();
             }
+            computeBoundingBox();
         }
     }
-}
-
-void CLight::serializeWExtIk(CExtIkSer& ar)
-{
-    CSceneObject::serializeWExtIk(ar);
-    CDummy::serializeWExtIkStatic(ar);
 }
 
 void CLight::display(CViewableBase* renderingObject,int displayAttrib)

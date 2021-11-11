@@ -186,6 +186,7 @@ C7Vector CShape::reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeo
     }
 
     _computeMeshBoundingBox();
+    computeBoundingBox();
     actualizeContainsTransparentComponent();
     return(retVal);
 }
@@ -253,6 +254,7 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<float>& vert,const std::ve
     }
 
     _computeMeshBoundingBox();
+    computeBoundingBox();
     _meshModificationCounter++;
     _meshDynamicsFullRefreshFlag=true;
     return(retVal);
@@ -288,7 +290,7 @@ C7Vector CShape::_recomputeOrientation(C7Vector& m,bool alignWithMainAxis)
 
     // 5. We recompute usual things:
     _computeMeshBoundingBox();
-
+    computeBoundingBox();
     _meshModificationCounter++;
     return(tr);
 }
@@ -352,7 +354,7 @@ C7Vector CShape::_recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& e
 
     // 6. We recompute usual things:
     _computeMeshBoundingBox();
-
+    computeBoundingBox();
     _meshModificationCounter++;
     return(tr);
 }
@@ -890,16 +892,9 @@ bool CShape::isPotentiallyRenderable() const
     return(true);
 }
 
-bool CShape::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CShape::computeBoundingBox()
 {
-    maxV=getBoundingBoxHalfSizes();
-    minV=maxV*-1.0f;
-    return(true);
-}
-
-bool CShape::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return(getFullBoundingBox(minV,maxV));
+    _setBoundingBox(getBoundingBoxHalfSizes()*-1.0f,getBoundingBoxHalfSizes());
 }
 
 void CShape::commonInit()
@@ -1419,6 +1414,7 @@ void CShape::serialize(CSer& ar)
                 }
             }
             actualizeContainsTransparentComponent();
+            computeBoundingBox();
         }
     }
     else
@@ -1549,6 +1545,7 @@ void CShape::serialize(CSer& ar)
                     }
                     ar.xmlPopNode();
                 }
+                computeBoundingBox();
             }
         }
     }
@@ -1641,6 +1638,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                 }
             }
             _computeMeshBoundingBox();
+            computeBoundingBox();
         }
     }
     else
@@ -1704,14 +1702,9 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                 }
             }
             _computeMeshBoundingBox();
+            computeBoundingBox();
         }
     }
-}
-
-void CShape::serializeWExtIk(CExtIkSer& ar)
-{
-    CSceneObject::serializeWExtIk(ar);
-    CDummy::serializeWExtIkStatic(ar);
 }
 
 void CShape::alignBoundingBoxWithMainAxis()

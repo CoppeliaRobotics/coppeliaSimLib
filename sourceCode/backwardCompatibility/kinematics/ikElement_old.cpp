@@ -270,28 +270,6 @@ void CIkElement_old::serialize(CSer& ar)
     }
 }
 
-void CIkElement_old::serializeWExtIk(CExtIkSer& ar) const
-{
-    ar.writeInt(_objectHandle);
-
-    ar.writeInt(_tipHandle);
-    ar.writeInt(_baseHandle);
-
-    ar.writeInt(_constraintBaseHandle);
-
-    ar.writeFloat(_minAngularPrecision);
-    ar.writeFloat(_minLinearPrecision);
-
-    ar.writeInt(_constraints);
-
-    ar.writeFloat(_positionWeight);
-    ar.writeFloat(_orientationWeight);
-
-    unsigned char nothing=0;
-    nothing=nothing+1*_enabled;
-    ar.writeByte(nothing);
-}
-
 bool CIkElement_old::announceObjectWillBeErased(int objID,bool copyBuffer)
 { // Return value true means that this IK el object should be destroyed
     if ((_baseHandle==objID)||(_constraintBaseHandle==objID)||(_tipHandle==objID))

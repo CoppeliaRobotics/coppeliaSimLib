@@ -32,14 +32,13 @@ public:
 
     CColorObject* getDummyColor();
 
-    virtual bool setDummySize(float s);
+    void setDummySize(float s);
     virtual bool setLinkedDummyHandle(int h,bool check);
     virtual bool setLinkType(int t,bool check);
     virtual bool setAssignedToParentPath(bool a);
     virtual bool setAssignedToParentPathOrientation(bool a);
 
 protected:
-    virtual void _setDummySize_send(float s) const;
     virtual void _setLinkedDummyHandle_send(int h) const;
     virtual void _setLinkType_send(int t) const;
     virtual void _setAssignedToParentPath_send(bool a) const;

@@ -250,8 +250,6 @@ protected:
     virtual void _setPositionIntervalMin_send(float min) const;
     virtual void _setPositionIntervalRange_send(float range) const;
     virtual void _setPositionIsCyclic_send(bool isCyclic) const;
-    virtual void _setDiameter_send(float d) const;
-    virtual void _setLength_send(float l) const;
     virtual void _setScrewPitch_send(float pitch) const;
     virtual void _setDependencyJointHandle_send(int depJointID) const;
     virtual void _setDependencyJointMult_send(float coeff) const;

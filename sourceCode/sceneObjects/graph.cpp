@@ -37,7 +37,7 @@ CGraph::CGraph()
     xYZPlanesDisplay=true;
     graphGrid=true;
     graphValues=true;
-    size=0.1f;
+    _graphSize=0.1f;
     color.setDefaultValues();
     color.setColor(0.15f,0.15f,0.15f,sim_colorcomponent_ambient_diffuse);
 
@@ -52,6 +52,7 @@ CGraph::CGraph()
     _objectAlias=IDSOGL_GRAPH;
     _objectName_old=IDSOGL_GRAPH;
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
+    computeBoundingBox();
 }
 
 CGraph::~CGraph()
@@ -103,86 +104,10 @@ bool CGraph::isPotentiallyRenderable() const
     return(false);
 }
 
-bool CGraph::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CGraph::computeBoundingBox()
 {
-    getMarkingBoundingBox(minV,maxV);
-    C7Vector thisInv(getFullCumulativeTransformation().getInverse());
-    for (int i=0;i<int(curves3d_old.size());i++)
-    {
-        const CGraphData_old* part0=getGraphData(curves3d_old[i]->data[0]);
-        const CGraphData_old* part1=getGraphData(curves3d_old[i]->data[1]);
-        const CGraphData_old* part2=getGraphData(curves3d_old[i]->data[2]);
-        int pos=0;
-        int absIndex;
-        float point[3];
-        bool cyclic0,cyclic1,cyclic2;
-        float range0,range1,range2;
-        if (part0!=nullptr)    
-            CGraphingRoutines_old::getCyclicAndRangeValues(part0,cyclic0,range0);
-        if (part1!=nullptr)    
-            CGraphingRoutines_old::getCyclicAndRangeValues(part1,cyclic1,range1);
-        if (part2!=nullptr)    
-            CGraphingRoutines_old::getCyclicAndRangeValues(part2,cyclic2,range2);
-        while (getAbsIndexOfPosition(pos++,absIndex))
-        {
-            bool dataIsValid=true;
-            if (part0!=nullptr)
-            {
-                if(!getData(part0,absIndex,point[0],cyclic0,range0,true))
-                    dataIsValid=false;
-            }
-            else
-                dataIsValid=false;
-            if (part1!=nullptr)
-            {
-                if(!getData(part1,absIndex,point[1],cyclic1,range1,true))
-                    dataIsValid=false;
-            }
-            else
-                dataIsValid=false;
-            if (part2!=nullptr)
-            {
-                if(!getData(part2,absIndex,point[2],cyclic2,range2,true))
-                    dataIsValid=false;
-            }
-            else
-                dataIsValid=false;
-            if (dataIsValid)
-            {
-                C3Vector pp(point);
-                if (curves3d_old[i]->getCurveRelativeToWorld())
-                    pp=thisInv*pp;
-                minV.keepMin(pp);
-                maxV.keepMax(pp);
-            }
-        }
-    }
-
-    // Static 3D curves now:
-    for (int i=0;i<int(staticStreamsAndCurves_old.size());i++)
-    {
-        CStaticGraphCurve_old* it=staticStreamsAndCurves_old[i];
-        if (it->getCurveType()==2)
-        {
-            for (int j=0;j<int(it->values.size()/3);j++)
-            {
-                C3Vector pp(it->values[3*j+0],it->values[3*j+1],it->values[3*j+2]);
-                if (it->getRelativeToWorld())
-                    pp=thisInv*pp;
-                minV.keepMin(pp);
-                maxV.keepMax(pp);
-            }
-        }
-    }
-
-    return(true);
-}
-
-bool CGraph::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    maxV(0)=maxV(1)=maxV(2)=size/2.0f;
-    minV=maxV*-1.0f;
-    return(true);
+    C3Vector maxV(_graphSize/2.0f,_graphSize/2.0f,_graphSize/2.0f);
+    _setBoundingBox(maxV*-1.0f,maxV);
 }
 
 bool CGraph::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
@@ -640,7 +565,7 @@ int CGraph::getNumberOfPoints() const
 
 void CGraph::scaleObject(float scalingFactor)
 {
-    size=size*scalingFactor;
+    setGraphSize(_graphSize*scalingFactor);
     CSceneObject::scaleObject(scalingFactor);
 }
 
@@ -660,6 +585,8 @@ void CGraph::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringObject("graph",subC);
     data=subC;
 
+    data->appendMapObject_stringFloat("size",_graphSize);
+
     // todo
 }
 
@@ -667,7 +594,7 @@ CSceneObject* CGraph::copyYourself()
 {   
     CGraph* newGraph=(CGraph*)CSceneObject::copyYourself();
     color.copyYourselfInto(&newGraph->color);
-    newGraph->setSize(getSize());
+    newGraph->_graphSize=_graphSize;
     newGraph->setCyclic(getCyclic());
     newGraph->setBufferSize(getBufferSize());
     newGraph->numberOfPoints=numberOfPoints;
@@ -936,15 +863,26 @@ CStaticGraphCurve_old* CGraph::getStaticCurveFromName(int type,const char* name)
     return(nullptr);
 }
 
-void CGraph::setSize(float theNewSize)
+void CGraph::setGraphSize(float theNewSize)
 {
     tt::limitValue(0.001f,10.0f,theNewSize);
-    size=theNewSize;
+    if (_graphSize!=theNewSize)
+    {
+        _graphSize=theNewSize;
+        computeBoundingBox();
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="size";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringFloat(cmd,_graphSize);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
-float CGraph::getSize() const
+float CGraph::getGraphSize() const
 {
-    return(size);
+    return(_graphSize);
 }
 
 bool CGraph::getNeedsRefresh()
@@ -2094,7 +2032,7 @@ void CGraph::serialize(CSer& ar)
         if (ar.isStoring())
         {       // Storing
             ar.storeDataName("Ghg");
-            ar << size;
+            ar << _graphSize;
             ar.flush();
 
             ar.storeDataName("Cl0"); // Colors
@@ -2203,7 +2141,7 @@ void CGraph::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> size;
+                        ar >> _graphSize;
                     }
                     if (theName.compare("Cl0")==0)
                     {
@@ -2325,6 +2263,7 @@ void CGraph::serialize(CSer& ar)
                 if (dataStreams_old.size()+curves3d_old.size()+curves2d_old.size()+staticStreamsAndCurves_old.size()!=0)
                     App::logMsg(sim_verbosity_errors,"Contains old graph streams/curves...");
             }
+            computeBoundingBox();
         }
     }
     else
@@ -2332,7 +2271,7 @@ void CGraph::serialize(CSer& ar)
         bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
         if (ar.isStoring())
         {
-            ar.xmlAddNode_float("size",size);
+            ar.xmlAddNode_float("size",_graphSize);
 
             ar.xmlPushNewNode("color");
             if (exhaustiveXml)
@@ -2427,7 +2366,7 @@ void CGraph::serialize(CSer& ar)
         }
         else
         {
-            ar.xmlGetNode_float("size",size,exhaustiveXml);
+            ar.xmlGetNode_float("size",_graphSize,exhaustiveXml);
 
             if (ar.xmlPushChildNode("color",exhaustiveXml))
             {
@@ -2567,14 +2506,9 @@ void CGraph::serialize(CSer& ar)
                 }
                 // --------------
             }
+            computeBoundingBox();
         }
     }
-}
-
-void CGraph::serializeWExtIk(CExtIkSer& ar)
-{
-    CSceneObject::serializeWExtIk(ar);
-    CDummy::serializeWExtIkStatic(ar);
 }
 
 VPoint CGraph::currentWinSize;

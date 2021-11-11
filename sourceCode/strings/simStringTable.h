@@ -153,8 +153,6 @@
 #define IDSNS_EXPORTING_SHAPES "Exporting shapes..."
 #define IDSNS_EXPORTING_GRAPH_DATA "Exporting graph data..."
 #define IDSNS_EXPORTING_DYNAMIC_CONTENT "Exporting dynamic content..."
-#define IDSNS_EXPORTING_IK_CONTENT "Exporting kinematics content..."
-
 
 #define IDSNS_SCENE_COULD_NOT_BE_OPENED "Scene could not be opened."
 #define IDSNS_SCENE_OPENED "Scene opened."
@@ -602,8 +600,6 @@
 #define IDS_SAVING_GRAPHS___ "Saving graphs..."
 #define IDS_IMPORTING_HEIGHTFIELD___ "Importing heightfield..."
 #define IDS_EXPORTING_DYNAMIC_CONTENT___ "Exporting dynamic content..."
-#define IDS_EXPORT_IK_CONTENT_MENU_ITEM "Kinematics content..."
-#define IDS_EXPORTING_IK_CONTENT___ "Exporting kinematics content..."
 
 #define IDSN_IMPORT_MENU_ITEM "Import"
 #define IDSN_EXPORT_MENU_ITEM "Export"

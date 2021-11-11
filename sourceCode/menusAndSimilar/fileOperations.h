@@ -22,7 +22,6 @@ public:
     static void createNewScene(bool displayMessages,bool forceForNewInstance);
     static void closeScene(bool displayMessages,bool displayDialogs);
     static void addToRecentlyOpenedScenes(std::string filenameAndPath);
-    static bool apiExportIkContent(const char* pathAndName,bool displayDialogs);
 
 private:
     static void _removeFromRecentlyOpenedScenes(std::string filenameAndPath);

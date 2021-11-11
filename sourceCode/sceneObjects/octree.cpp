@@ -36,6 +36,7 @@ COctree::COctree()
     _normalBufferId=-1;
 
     clear(); // also sets the _minDim and _maxDim values
+    computeBoundingBox();
 }
 
 COctree::~COctree()
@@ -46,9 +47,9 @@ COctree::~COctree()
 
 void COctree::getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) const
 {
-    hs=(_maxDim-_minDim)*0.5f;
+    hs=(_boundingBoxMax-_boundingBoxMin)*0.5f;
     C4X4Matrix m=getFullCumulativeTransformation().getMatrix();
-    C3Vector center((_minDim+_maxDim)*0.5);
+    C3Vector center((_boundingBoxMin+_boundingBoxMax)*0.5);
     m.X+=m.M*center;
     tr=m.getTransformation();
 }
@@ -76,12 +77,6 @@ void COctree::setNormalBufferId(int id)
 int COctree::getNormalBufferId() const
 {
     return(_normalBufferId);
-}
-
-void COctree::getMaxMinDims(C3Vector& ma,C3Vector& mi) const
-{
-    ma=_maxDim;
-    mi=_minDim;
 }
 
 float* COctree::getCubeVertices()
@@ -114,26 +109,28 @@ void COctree::_readPositionsAndColorsAndSetDimensions()
             }
         }
 
+        C3Vector minDim,maxDim;
         for (size_t i=0;i<_voxelPositions.size()/3;i++)
         {
             C3Vector p(&_voxelPositions[3*i]);
             if (i==0)
             {
-                _minDim=p;
-                _maxDim=p;
+                minDim=p;
+                maxDim=p;
             }
             else
             {
-                _minDim.keepMin(p);
-                _maxDim.keepMax(p);
+                minDim.keepMin(p);
+                maxDim.keepMax(p);
             }
         }
-        _minDim(0)-=_cellSize*0.5;
-        _minDim(1)-=_cellSize*0.5;
-        _minDim(2)-=_cellSize*0.5;
-        _maxDim(0)+=_cellSize*0.5;
-        _maxDim(1)+=_cellSize*0.5;
-        _maxDim(2)+=_cellSize*0.5;
+        minDim(0)-=_cellSize*0.5;
+        minDim(1)-=_cellSize*0.5;
+        minDim(2)-=_cellSize*0.5;
+        maxDim(0)+=_cellSize*0.5;
+        maxDim(1)+=_cellSize*0.5;
+        maxDim(2)+=_cellSize*0.5;
+        _setBoundingBox(minDim,maxDim);
     }
     else
         clear();
@@ -403,8 +400,7 @@ void COctree::clear()
     }
     _voxelPositions.clear();
     _colors.clear();
-    _minDim.set(-0.1f,-0.1f,-0.1f);
-    _maxDim.set(+0.1f,+0.1f,+0.1f);
+    _setBoundingBox(C3Vector(-0.1f,-0.1f,-0.1f),C3Vector(+0.1f,+0.1f,+0.1f));
 }
 
 bool COctree::getUseRandomColors() const
@@ -519,16 +515,8 @@ bool COctree::isPotentiallyRenderable() const
     return(true);
 }
 
-bool COctree::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    minV=_minDim;
-    maxV=_maxDim;
-    return(true);
-}
-
-bool COctree::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return(getFullBoundingBox(minV,maxV));
+void COctree::computeBoundingBox()
+{ // handled elsewhere
 }
 
 bool COctree::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
@@ -541,13 +529,12 @@ bool COctree::getExportableMeshAtIndex(int index,std::vector<float>& vertices,st
 void COctree::scaleObject(float scalingFactor)
 {
     _cellSize*=scalingFactor;
-    CSceneObject::scaleObject(scalingFactor);
-    _minDim*=scalingFactor;
-    _maxDim*=scalingFactor;
+    _setBoundingBox(_boundingBoxMin*scalingFactor,_boundingBoxMax*scalingFactor);
     for (size_t i=0;i<_voxelPositions.size();i++)
         _voxelPositions[i]*=scalingFactor;
     if (_octreeInfo!=nullptr)
         CPluginContainer::geomPlugin_scaleOctree(_octreeInfo,scalingFactor);
+    CSceneObject::scaleObject(scalingFactor);
 }
 
 void COctree::scaleObjectNonIsometrically(float x,float y,float z)
@@ -581,8 +568,6 @@ CSceneObject* COctree::copyYourself()
         newOctree->_octreeInfo=CPluginContainer::geomPlugin_copyOctree(_octreeInfo);
     newOctree->_voxelPositions.assign(_voxelPositions.begin(),_voxelPositions.end());
     newOctree->_colors.assign(_colors.begin(),_colors.end());
-    newOctree->_minDim=_minDim;
-    newOctree->_maxDim=_maxDim;
     newOctree->_showOctreeStructure=_showOctreeStructure;
     newOctree->_useRandomColors=_useRandomColors;
     newOctree->_colorIsEmissive=_colorIsEmissive;
@@ -760,8 +745,8 @@ void COctree::serialize(CSer& ar)
                 else
                 {
                     ar.storeDataName("Mm2");
-                    ar << _minDim(0) << _minDim(1) << _minDim(2);
-                    ar << _maxDim(0) << _maxDim(1) << _maxDim(2);
+                    ar << _boundingBoxMin(0) << _boundingBoxMin(1) << _boundingBoxMin(2);
+                    ar << _boundingBoxMax(0) << _boundingBoxMax(1) << _boundingBoxMax(2);
                     ar.flush();
 
                     std::vector<unsigned char> data;
@@ -846,8 +831,8 @@ void COctree::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _minDim(0) >> _minDim(1) >> _minDim(2);
-                        ar >> _maxDim(0) >> _maxDim(1) >> _maxDim(2);
+                        ar >> _boundingBoxMin(0) >> _boundingBoxMin(1) >> _boundingBoxMin(2);
+                        ar >> _boundingBoxMax(0) >> _boundingBoxMax(1) >> _boundingBoxMax(2);
                     }
                     if (theName.compare("Co2")==0)
                     {
@@ -869,6 +854,7 @@ void COctree::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
+            computeBoundingBox();
         }
     }
     else
@@ -1025,14 +1011,9 @@ void COctree::serialize(CSer& ar)
                 else
                     _readPositionsAndColorsAndSetDimensions();
             }
+            computeBoundingBox();
         }
     }
-}
-
-void COctree::serializeWExtIk(CExtIkSer& ar)
-{ // make sure to do similar in the serializeWExtIkStatic routine
-    CSceneObject::serializeWExtIk(ar);
-    CDummy::serializeWExtIkStatic(ar);
 }
 
 void COctree::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)

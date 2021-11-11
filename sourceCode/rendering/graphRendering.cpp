@@ -9,7 +9,7 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
     _commonStart(graph,renderingObject,displayAttrib);
 
     // Bounding box display:
-    float size=graph->getSize();
+    float size=graph->getGraphSize();
     if ( (displayAttrib&sim_displayattribute_renderpass)&&(!graph->getJustDrawCurves()) )
         _displayBoundingBox(graph,displayAttrib,true,size/2.0f);
 

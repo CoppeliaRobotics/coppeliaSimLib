@@ -24,8 +24,6 @@ public:
     void scaleObject(float scalingFactor);
     void scaleObjectNonIsometrically(float x,float y,float z);
     void serialize(CSer& ar);
-    void serializeWExtIk(CExtIkSer& ar);
-    static void serializeWExtIkStatic(CExtIkSer& ar);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
@@ -38,8 +36,7 @@ public:
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
-    bool getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const;
-    bool getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const;
+    void computeBoundingBox();
     bool getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const;
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;

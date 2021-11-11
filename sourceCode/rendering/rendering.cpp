@@ -377,8 +377,7 @@ void _drawReference(CSceneObject* object,float refSize)
     else
     {
         C3Vector minV,maxV;
-        if (!object->getMarkingBoundingBox(minV,maxV))
-            return; // no bounding box --> no reference!
+        object->getBoundingBox(minV,maxV);
         maxV-=minV;
         s=(maxV(0)+maxV(1)+maxV(2))/4.0f;
     }
@@ -408,10 +407,7 @@ void _displayBoundingBox(CSceneObject* object,int displayAttrib,bool displRef,fl
         glEnable(GL_LINE_STIPPLE);
     }
     else
-    {
-        if (!object->getMarkingBoundingBox(bbMin,bbMax))
-            return; // No bounding box to display!
-    }
+        object->getBoundingBox(bbMin,bbMax);
     C3Vector bbs(bbMax-bbMin);
     // Bounding box is 4% bigger:
     C3Vector dx(bbs(0)*0.02f,bbs(1)*0.02f,bbs(2)*0.02f);

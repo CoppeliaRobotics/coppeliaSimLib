@@ -620,15 +620,9 @@ void CSceneObject::scaleObject(float scalingFactor)
     _sizeValues[0]*=scalingFactor;
     _sizeValues[1]*=scalingFactor;
     _sizeValues[2]*=scalingFactor;
+    _setBoundingBox(_boundingBoxMin*scalingFactor,_boundingBoxMax*scalingFactor);
     incrementMemorizedConfigurationValidCounter();
 
-    if ( _isInScene&&App::worldContainer->getEnableEvents() )
-    {
-        const char* cmd="scaling";
-        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
-        data->appendMapObject_stringFloat(cmd,scalingFactor);
-        App::worldContainer->pushEvent(event);
-    }
     App::currentWorld->drawingCont->adjustForScaling(_objectHandle,scalingFactor,scalingFactor,scalingFactor);
     App::worldContainer->setModificationFlag(256); // object scaled
 }
@@ -639,6 +633,7 @@ void CSceneObject::scaleObjectNonIsometrically(float x,float y,float z)
     _sizeValues[0]*=x;
     _sizeValues[1]*=y;
     _sizeValues[2]*=z;
+    computeBoundingBox();
     incrementMemorizedConfigurationValidCounter();
     pushObjectRefreshEvent();
     App::currentWorld->drawingCont->adjustForScaling(_objectHandle,x,y,z);
@@ -670,7 +665,7 @@ bool CSceneObject::setBeforeDeleteCallbackSent()
     return(retVal);
 }
 
-bool CSceneObject::getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool& minMaxNotYetDefined,bool first,bool guiIsRendering) const
+bool CSceneObject::getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool& minMaxNotYetDefined,bool first,bool guiIsRendering)
 { // For root selection display! Return value false means there is no global marking bounding box and min/max values are not valid
     bool retVal=false;
     int objProp=getObjectProperty();
@@ -683,33 +678,31 @@ bool CSceneObject::getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Ve
     if (includeThisBox&&exploreChildren)
     {
         C3Vector smi,sma;
-        if (getMarkingBoundingBox(smi,sma))
+        getBoundingBox(smi,sma);
+        retVal=true;
+        C3Vector sm;
+        C7Vector ctm;
+        ctm=getCumulativeTransformation();
+        ctm=baseCoordInv*ctm;
+        for (int i=0;i<2;i++)
         {
-            retVal=true;
-            C3Vector sm;
-            C7Vector ctm;
-            ctm=getCumulativeTransformation();
-            ctm=baseCoordInv*ctm;
-            for (int i=0;i<2;i++)
+            sm(0)=smi(0)*i+sma(0)*(1-i);
+            for (int j=0;j<2;j++)
             {
-                sm(0)=smi(0)*i+sma(0)*(1-i);
-                for (int j=0;j<2;j++)
+                sm(1)=smi(1)*j+sma(1)*(1-j);
+                for (int k=0;k<2;k++)
                 {
-                    sm(1)=smi(1)*j+sma(1)*(1-j);
-                    for (int k=0;k<2;k++)
+                    sm(2)=smi(2)*k+sma(2)*(1-k);
+                    if (minMaxNotYetDefined)
                     {
-                        sm(2)=smi(2)*k+sma(2)*(1-k);
-                        if (minMaxNotYetDefined)
-                        {
-                            max=ctm*sm;
-                            min=max;
-                            minMaxNotYetDefined=false;
-                        }
-                        else
-                        {
-                            max.keepMax(ctm*sm);
-                            min.keepMin(ctm*sm);
-                        }
+                        max=ctm*sm;
+                        min=max;
+                        minMaxNotYetDefined=false;
+                    }
+                    else
+                    {
+                        max.keepMax(ctm*sm);
+                        min.keepMin(ctm*sm);
                     }
                 }
             }
@@ -727,10 +720,10 @@ bool CSceneObject::getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Ve
     return(retVal);
 }
 
-void CSceneObject::getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool guiIsRendering) const
+void CSceneObject::getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool guiIsRendering)
 {
     C3Vector smi,sma;
-    getFullBoundingBox(smi,sma);
+    getBoundingBox(smi,sma);
     bool minMaxNotYetDefined=true;
     C3Vector sm;
     C7Vector ctm;
@@ -1020,6 +1013,10 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
     if (_parentObject!=nullptr)
         pUid=_parentObject->getObjectUid();
     data->appendMapObject_stringInt32("parent",pUid);
+    CInterfaceStackTable* subC=new CInterfaceStackTable();
+    data->appendMapObject_stringObject("boundingBox",subC);
+    subC->appendMapObject_stringFloatArray("min",_boundingBoxMin.data,3);
+    subC->appendMapObject_stringFloatArray("max",_boundingBoxMax.data,3);
     _appendObjectMovementEventData(data);
 }
 
@@ -1098,6 +1095,8 @@ CSceneObject* CSceneObject::copyYourself()
     theNewObject->_objectMovementStepSize[0]=_objectMovementStepSize[0];
     theNewObject->_objectMovementStepSize[1]=_objectMovementStepSize[1];
 
+    theNewObject->_boundingBoxMin=_boundingBoxMin;
+    theNewObject->_boundingBoxMax=_boundingBoxMax;
     theNewObject->_sizeFactor=_sizeFactor;
     theNewObject->_sizeValues[0]=_sizeValues[0];
     theNewObject->_sizeValues[1]=_sizeValues[1];
@@ -1423,14 +1422,33 @@ void CSceneObject::simulationEnded()
     _initialValuesInitialized=false;
 }
 
-bool CSceneObject::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return(false);
+void CSceneObject::computeBoundingBox()
+{ // overridden
 }
 
-bool CSceneObject::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CSceneObject::_setBoundingBox(const C3Vector& vmin,const C3Vector& vmax)
 {
-    return(getFullBoundingBox(minV,maxV));
+    if ( (_boundingBoxMin!=vmin)||(_boundingBoxMax!=vmax) )
+    {
+        _boundingBoxMin=vmin;
+        _boundingBoxMax=vmax;
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="boundingBox";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            CInterfaceStackTable* subC=new CInterfaceStackTable();
+            data->appendMapObject_stringObject(cmd,subC);
+            subC->appendMapObject_stringFloatArray("min",_boundingBoxMin.data,3);
+            subC->appendMapObject_stringFloatArray("max",_boundingBoxMax.data,3);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
+void CSceneObject::getBoundingBox(C3Vector& vmin,C3Vector& vmax) const
+{
+    vmin=_boundingBoxMin;
+    vmax=_boundingBoxMax;
 }
 
 void CSceneObject::temporarilyDisableDynamicTree()
@@ -2763,26 +2781,6 @@ void CSceneObject::serialize(CSer& ar)
     }
 }
 
-void CSceneObject::serializeWExtIk(CExtIkSer& ar)
-{
-    C7Vector tr=getLocalTransformation();
-    ar.writeFloat(tr.Q(0));
-    ar.writeFloat(tr.Q(1));
-    ar.writeFloat(tr.Q(2));
-    ar.writeFloat(tr.Q(3));
-    ar.writeFloat(tr.X(0));
-    ar.writeFloat(tr.X(1));
-    ar.writeFloat(tr.X(2));
-    
-    int parentID=-1;
-    if (getParent()!=nullptr)
-        parentID=getParent()->getObjectHandle();
-    ar.writeInt(_objectHandle);
-    ar.writeInt(parentID);
-
-    ar.writeString(_objectName_old.c_str());
-}
-
 void CSceneObject::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
 {
     int newParentID=CWorld::getLoadingMapping(map,_parentObjectHandle_forSerializationOnly);
@@ -3270,10 +3268,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
             bbMax=C3Vector(0.1f,0.1f,0.1f); // shouldn't happen!
     }
     else
-    {
-        if (!getMarkingBoundingBox(bbMin,bbMax))
-            bbMax=C3Vector(0.1f,0.1f,0.1f); // shouldn't happen!
-    }
+        getBoundingBox(bbMin,bbMax);
     C3Vector bbs(bbMax-bbMin);
 
     float halfSize=0.0f;

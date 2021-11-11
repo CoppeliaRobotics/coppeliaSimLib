@@ -65,6 +65,7 @@ void CMirror::_commonInit()
     _objectAlias=IDSOGL_MIRROR;
     _objectName_old=IDSOGL_MIRROR;
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
+    computeBoundingBox();
 }
 
 bool CMirror::getContainsTransparentComponent() const
@@ -80,20 +81,16 @@ CColorObject* CMirror::getClipPlaneColor()
 }
 
 
-bool CMirror::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CMirror::computeBoundingBox()
 {
+    C3Vector minV,maxV;
     minV(0)=-0.5f*_mirrorWidth;
     maxV(0)=0.5f*_mirrorWidth;
     minV(1)=-0.5f*_mirrorHeight;
     maxV(1)=0.5f*_mirrorHeight;
     minV(2)=0.0f;
     maxV(2)=0.0f;
-    return(true);
-}
-
-bool CMirror::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return(getFullBoundingBox(minV,maxV));
+    _setBoundingBox(minV,maxV);
 }
 
 CMirror::~CMirror()
@@ -408,6 +405,7 @@ void CMirror::serialize(CSer& ar)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
                 CTTUtil::scaleColorUp_(mirrorColor);
             }
+            computeBoundingBox();
         }
     }
     else
@@ -457,14 +455,9 @@ void CMirror::serialize(CSer& ar)
                 clipPlaneColor.serialize(ar,0);
                 ar.xmlPopNode();
             }
+            computeBoundingBox();
         }
     }
-}
-
-void CMirror::serializeWExtIk(CExtIkSer& ar)
-{
-    CSceneObject::serializeWExtIk(ar);
-    CDummy::serializeWExtIkStatic(ar);
 }
 
 void CMirror::display(CViewableBase* renderingObject,int displayAttrib)

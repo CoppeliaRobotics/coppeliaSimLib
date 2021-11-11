@@ -39,6 +39,7 @@ CPointCloud::CPointCloud()
     _pointDisplayRatio=1.0;
 
     clear(); // also sets the _minDim and _maxDim values
+    computeBoundingBox();
 }
 
 CPointCloud::~CPointCloud()
@@ -49,9 +50,9 @@ CPointCloud::~CPointCloud()
 
 void CPointCloud::getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) const
 {
-    hs=(_maxDim-_minDim)*0.5f;
+    hs=(_boundingBoxMax-_boundingBoxMin)*0.5f;
     C4X4Matrix m=getFullCumulativeTransformation().getMatrix();
-    C3Vector center((_minDim+_maxDim)*0.5);
+    C3Vector center((_boundingBoxMin+_boundingBoxMax)*0.5);
     m.X+=m.M*center;
     tr=m.getTransformation();
 }
@@ -59,12 +60,6 @@ void CPointCloud::getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) c
 CColorObject* CPointCloud::getColor()
 {
     return(&color);
-}
-
-void CPointCloud::getMaxMinDims(C3Vector& ma,C3Vector& mi) const
-{
-    ma=_maxDim;
-    mi=_minDim;
 }
 
 std::vector<float>* CPointCloud::getColors()
@@ -103,29 +98,30 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
                 _colors.push_back(1.0f);
             }
         }
-
+        C3Vector minDim,maxDim;
         for (size_t i=0;i<_points.size()/3;i++)
         {
             C3Vector p(&_points[3*i]);
             if (i==0)
             {
-                _minDim=p;
-                _maxDim=p;
+                minDim=p;
+                maxDim=p;
             }
             else
             {
-                _minDim.keepMin(p);
-                _maxDim.keepMax(p);
+                minDim.keepMin(p);
+                maxDim.keepMax(p);
             }
         }
         /*
-        _minDim(0)-=_cellSize; // not *0.5 here! The point could lie on the other side of the cube (i.e. not centered)
-        _minDim(1)-=_cellSize;
-        _minDim(2)-=_cellSize;
-        _maxDim(0)+=_cellSize;
-        _maxDim(1)+=_cellSize;
-        _maxDim(2)+=_cellSize;
+        minDim(0)-=_cellSize; // not *0.5 here! The point could lie on the other side of the cube (i.e. not centered)
+        minDim(1)-=_cellSize;
+        minDim(2)-=_cellSize;
+        maxDim(0)+=_cellSize;
+        maxDim(1)+=_cellSize;
+        maxDim(2)+=_cellSize;
         */
+        _setBoundingBox(minDim,maxDim);
         _displayPoints.assign(_points.begin(),_points.end());
         _displayColors.assign(_colors.begin(),_colors.end());
         for (size_t i=0;i<_displayColors.size();i++)
@@ -168,29 +164,30 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
             }
             for (size_t i=0;i<_displayColors.size();i++)
                 _displayColorsByte.push_back((unsigned char)(_displayColors[i]*255.1f));
-
+            C3Vector minDim,maxDim;
             for (size_t i=0;i<_points.size()/3;i++)
             {
                 C3Vector p(&_points[3*i]);
                 if (i==0)
                 {
-                    _minDim=p;
-                    _maxDim=p;
+                    minDim=p;
+                    maxDim=p;
                 }
                 else
                 {
-                    _minDim.keepMin(p);
-                    _maxDim.keepMax(p);
+                    minDim.keepMin(p);
+                    maxDim.keepMax(p);
                 }
             }
             /*
-            _minDim(0)-=_cellSize; // not *0.5 here! The point could lie on the other side of the cube (i.e. not centered)
-            _minDim(1)-=_cellSize;
-            _minDim(2)-=_cellSize;
-            _maxDim(0)+=_cellSize;
-            _maxDim(1)+=_cellSize;
-            _maxDim(2)+=_cellSize;
+            minDim(0)-=_cellSize; // not *0.5 here! The point could lie on the other side of the cube (i.e. not centered)
+            minDim(1)-=_cellSize;
+            minDim(2)-=_cellSize;
+            maxDim(0)+=_cellSize;
+            maxDim(1)+=_cellSize;
+            maxDim(2)+=_cellSize;
             */
+            _setBoundingBox(minDim,maxDim);
         }
         else
             clear();
@@ -584,8 +581,7 @@ void CPointCloud::clear()
         CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
         _pointCloudInfo=nullptr;
     }
-    _minDim.set(-0.1f,-0.1f,-0.1f);
-    _maxDim.set(+0.1f,+0.1f,+0.1f);
+    _setBoundingBox(C3Vector(-0.1f,-0.1f,-0.1f),C3Vector(+0.1f,+0.1f,+0.1f));
     _nonEmptyCells=0;
 }
 
@@ -637,16 +633,8 @@ bool CPointCloud::isPotentiallyRenderable() const
     return(true);
 }
 
-bool CPointCloud::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    minV=_minDim;
-    maxV=_maxDim;
-    return(true);
-}
-
-bool CPointCloud::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return(getFullBoundingBox(minV,maxV));
+void CPointCloud::computeBoundingBox()
+{ // handled elsewhere
 }
 
 bool CPointCloud::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
@@ -662,15 +650,14 @@ void CPointCloud::scaleObject(float scalingFactor)
     _buildResolution*=scalingFactor;
     _removalDistanceTolerance*=scalingFactor;
     _insertionDistanceTolerance*=scalingFactor;
-    CSceneObject::scaleObject(scalingFactor);
-    _minDim*=scalingFactor;
-    _maxDim*=scalingFactor;
+    _setBoundingBox(_boundingBoxMin*scalingFactor,_boundingBoxMax*scalingFactor);
     for (size_t i=0;i<_points.size();i++)
         _points[i]*=scalingFactor;
     for (size_t i=0;i<_displayPoints.size();i++)
         _displayPoints[i]*=scalingFactor;
     if (_pointCloudInfo!=nullptr)
         CPluginContainer::geomPlugin_scalePtcloud(_pointCloudInfo,scalingFactor);
+    CSceneObject::scaleObject(scalingFactor);
 }
 
 void CPointCloud::scaleObjectNonIsometrically(float x,float y,float z)
@@ -720,8 +707,6 @@ CSceneObject* CPointCloud::copyYourself()
         newPointcloud->_pointCloudInfo=CPluginContainer::geomPlugin_copyPtcloud(_pointCloudInfo);
     newPointcloud->_points.assign(_points.begin(),_points.end());
     newPointcloud->_colors.assign(_colors.begin(),_colors.end());
-    newPointcloud->_minDim=_minDim;
-    newPointcloud->_maxDim=_maxDim;
     newPointcloud->_showOctreeStructure=_showOctreeStructure;
     newPointcloud->_useRandomColors=_useRandomColors;
     newPointcloud->_colorIsEmissive=_colorIsEmissive;
@@ -1067,8 +1052,8 @@ void CPointCloud::serialize(CSer& ar)
                 if (_pointCloudInfo!=nullptr)
                 {
                     ar.storeDataName("Mmd");
-                    ar << _minDim(0) << _minDim(1) << _minDim(2);
-                    ar << _maxDim(0) << _maxDim(1) << _maxDim(2);
+                    ar << _boundingBoxMin(0) << _boundingBoxMin(1) << _boundingBoxMin(2);
+                    ar << _boundingBoxMax(0) << _boundingBoxMax(1) << _boundingBoxMax(2);
                     ar.flush();
 
                     std::vector<unsigned char> data;
@@ -1163,8 +1148,8 @@ void CPointCloud::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _minDim(0) >> _minDim(1) >> _minDim(2);
-                        ar >> _maxDim(0) >> _maxDim(1) >> _maxDim(2);
+                        ar >> _boundingBoxMin(0) >> _boundingBoxMin(1) >> _boundingBoxMin(2);
+                        ar >> _boundingBoxMax(0) >> _boundingBoxMax(1) >> _boundingBoxMax(2);
                     }
 
                     if (theName.compare("Var")==0)
@@ -1205,6 +1190,7 @@ void CPointCloud::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
+            computeBoundingBox();
         }
     }
     else
@@ -1381,14 +1367,9 @@ void CPointCloud::serialize(CSer& ar)
                 else
                     clear();
             }
+            computeBoundingBox();
         }
     }
-}
-
-void CPointCloud::serializeWExtIk(CExtIkSer& ar)
-{ // make sure to do similar in the serializeWExtIkStatic routine
-    CSceneObject::serializeWExtIk(ar);
-    CDummy::serializeWExtIkStatic(ar);
 }
 
 void CPointCloud::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)

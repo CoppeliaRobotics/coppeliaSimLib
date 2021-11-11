@@ -22,6 +22,7 @@ CDummy::CDummy()
 
     _dummyColor.setDefaultValues();
     _dummyColor.setColor(1.0f,0.8f,0.55f,sim_colorcomponent_ambient_diffuse);
+    computeBoundingBox();
 }
 
 CDummy::~CDummy()
@@ -53,16 +54,10 @@ bool CDummy::isPotentiallyDetectable() const
     return(true);
 }
 
-bool CDummy::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CDummy::computeBoundingBox()
 {
-    maxV(0)=maxV(1)=maxV(2)=_dummySize/2.0f;
-    minV=maxV*-1.0f;
-    return(true);
-}
-
-bool CDummy::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return(getFullBoundingBox(minV,maxV));
+    C3Vector maxV(_dummySize/2.0f,_dummySize/2.0f,_dummySize/2.0f);
+    _setBoundingBox(maxV*-1.0f,maxV);
 }
 
 bool CDummy::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
@@ -74,9 +69,10 @@ bool CDummy::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std
 
 void CDummy::scaleObject(float scalingFactor)
 {
-    _CDummy_::setDummySize(_dummySize*scalingFactor);
+    setDummySize(_dummySize*scalingFactor);
     _virtualDistanceOffsetOnPath*=scalingFactor;
     _virtualDistanceOffsetOnPath_variationWhenCopy*=scalingFactor;
+
     CSceneObject::scaleObject(scalingFactor);
 }
 
@@ -359,6 +355,7 @@ void CDummy::serialize(CSer& ar)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
                 CTTUtil::scaleColorUp_(_dummyColor.getColorsPtr());
             }
+            computeBoundingBox();
         }
     }
     else
@@ -452,26 +449,9 @@ void CDummy::serialize(CSer& ar)
                 }
                 ar.xmlPopNode();
             }
+            computeBoundingBox();
         }
     }
-}
-
-void CDummy::serializeWExtIk(CExtIkSer& ar)
-{ // make sure to do similar in the serializeWExtIkStatic routine
-    CSceneObject::serializeWExtIk(ar);
-
-    ar.writeInt(_linkedDummyHandle);
-
-    ar.writeInt(_linkType);
-}
-
-void CDummy::serializeWExtIkStatic(CExtIkSer& ar)
-{ // make sure to do similar in the serializeWExtIk routine
-//  CSceneObject::serializeWExtIk(ar); (called in the other obejct's routines!!)
-
-    ar.writeInt(-1); // linked dummy ID
-
-    ar.writeInt(0); // value doesn't matter (link type)
 }
 
 // SPECIAL FUNCTION TO GUARANTEE FORWARD COMPATIBILITY WHEN LOADING OBJECT TYPES THAT DON'T EXIST YET!
@@ -670,10 +650,6 @@ void CDummy::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSync
         // Update the remote sceneObject:
         CSceneObject::buildUpdateAndPopulateSynchronizationObject(parentRouting);
 
-        // Update the remote dummy:
-        _setDummySize_send(_dummySize);
-        //_setLinkedDummyHandle_send(_linkedDummyHandle);
-        //_setLinkType_send(_linkType);
         _setAssignedToParentPath_send(_assignedToParentPath);
         _setAssignedToParentPathOrientation_send(_assignedToParentPathOrientation);
     }

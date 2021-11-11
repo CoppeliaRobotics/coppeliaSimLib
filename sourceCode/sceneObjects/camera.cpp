@@ -393,7 +393,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                 if (gr->xYZPlanesDisplay)
                 {
                     C3Vector minV,maxV;
-                    it->getMarkingBoundingBox(minV,maxV);
+                    it->getBoundingBox(minV,maxV);
                     minV*=trr;
                     maxV*=trr;
                     for (int k=0;k<2;k++)
@@ -738,7 +738,7 @@ void CCamera::commonInit()
     _objectType=sim_object_camera_type;
     _nearClippingPlane=0.05f;
     _farClippingPlane=30.0f;
-    cameraSize=0.05f;
+    _cameraSize=0.05f;
     _perspectiveOperation=-1; // undefined
     _renderMode=sim_rendermode_opengl;
     _renderModeDuringSimulation=false;
@@ -774,6 +774,7 @@ void CCamera::commonInit()
     _objectAlias=IDSOGL_CAMERA;
     _objectName_old=IDSOGL_CAMERA;
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
+    computeBoundingBox();
 }
 
 void CCamera::setCameraManipulationModePermissions(int p)
@@ -845,20 +846,11 @@ void CCamera::tiltCameraInCameraManipulationMode(float tiltAmount)
     }
 }
 
-bool CCamera::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CCamera::computeBoundingBox()
 {
-    minV(0)=-0.5f*cameraSize;
-    maxV(0)=0.5f*cameraSize;
-    minV(1)=-0.5f*cameraSize;
-    maxV(1)=2.2f*cameraSize;
-    minV(2)=-2.6f*cameraSize;
-    maxV(2)=cameraSize;
-    return(true);
-}
-
-bool CCamera::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return(getFullBoundingBox(minV,maxV));
+    C3Vector minV(-0.5f*_cameraSize,-0.5f*_cameraSize,-2.6f*_cameraSize);
+    C3Vector maxV(0.5f*_cameraSize,2.2f*_cameraSize,_cameraSize);
+    _setBoundingBox(minV,maxV);
 }
 
 CCamera::~CCamera()
@@ -935,10 +927,10 @@ void CCamera::handleTrackingAndHeadAlwaysUp()
 
 void CCamera::scaleObject(float scalingFactor)
 {
-    cameraSize*=scalingFactor;
-    _nearClippingPlane*=scalingFactor;
-    _farClippingPlane*=scalingFactor;
-    _orthoViewSize*=scalingFactor;
+    setCameraSize(_cameraSize*scalingFactor);
+    setNearClippingPlane(_nearClippingPlane*scalingFactor);
+    setFarClippingPlane(_farClippingPlane*scalingFactor);
+    setOrthoViewSize(_orthoViewSize*scalingFactor);
 
     CSceneObject::scaleObject(scalingFactor);
 }
@@ -948,17 +940,19 @@ void CCamera::scaleObjectNonIsometrically(float x,float y,float z)
     scaleObject(cbrt(x*y*z));
 }
 
+
 void CCamera::setCameraSize(float size)
 {
     tt::limitValue(0.001f,100.0f,size);
-    if (cameraSize!=size)
+    if (_cameraSize!=size)
     {
-        cameraSize=size;
+        _cameraSize=size;
+        computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringFloat(cmd,cameraSize);
+            data->appendMapObject_stringFloat(cmd,size);
             App::worldContainer->pushEvent(event);
         }
     }
@@ -966,7 +960,7 @@ void CCamera::setCameraSize(float size)
 
 float CCamera::getCameraSize() const
 {
-    return(cameraSize);
+    return(_cameraSize);
 }
 
 int CCamera::getTrackedObjectID() const
@@ -1017,7 +1011,7 @@ void CCamera::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
     data->appendMapObject_stringFloat("viewAngle",_viewAngle);
     data->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
-    data->appendMapObject_stringFloat("size",cameraSize);
+    data->appendMapObject_stringFloat("size",_cameraSize);
 
     CInterfaceStackTable* colors=new CInterfaceStackTable();
     data->appendMapObject_stringObject("colors",colors);
@@ -1037,7 +1031,7 @@ CSceneObject* CCamera::copyYourself()
     CCamera* newCamera=(CCamera*)CSceneObject::copyYourself();
 
     // Various
-    newCamera->cameraSize=cameraSize;
+    newCamera->_cameraSize=_cameraSize;
     newCamera->_renderMode=_renderMode;
     newCamera->_renderModeDuringSimulation=_renderModeDuringSimulation;
     newCamera->_renderModeDuringRecording=_renderModeDuringRecording;
@@ -1272,8 +1266,8 @@ void CCamera::simulationEnded()
     {
         if ( App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
         {
-            _viewAngle=_initialViewAngle;
-            _orthoViewSize=_initialOrthoViewSize;
+            setViewAngle(_initialViewAngle);
+            setOrthoViewSize(_initialOrthoViewSize);
         }
     }
     CSceneObject::simulationEnded();
@@ -1290,7 +1284,7 @@ void CCamera::serialize(CSer& ar)
             if (trackedObjectIdentifier_NeverDirectlyTouch!=-1)
                 trck=trackedObjectIdentifier_NeverDirectlyTouch;
             ar.storeDataName("Cp4");
-            ar << trck << cameraSize;
+            ar << trck << _cameraSize;
             ar.flush();
 
             ar.storeDataName("Cp3");
@@ -1361,7 +1355,7 @@ void CCamera::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> trackedObjectIdentifier_NeverDirectlyTouch >> cameraSize;
+                        ar >> trackedObjectIdentifier_NeverDirectlyTouch >> _cameraSize;
                     }
                     if (theName.compare("Cp3")==0)
                     {
@@ -1497,6 +1491,7 @@ void CCamera::serialize(CSer& ar)
                 CTTUtil::scaleColorUp_(colorPart1.getColorsPtr());
                 CTTUtil::scaleColorUp_(colorPart2.getColorsPtr());
             }
+            computeBoundingBox();
         }
     }
     else
@@ -1530,7 +1525,7 @@ void CCamera::serialize(CSer& ar)
                 ar.xmlAddNode_string("trackedObjectAlias",str.c_str());
             }
 
-            ar.xmlAddNode_float("size",cameraSize);
+            ar.xmlAddNode_float("size",_cameraSize);
 
             ar.xmlAddNode_float("orthoViewSize",_orthoViewSize);
 
@@ -1594,7 +1589,7 @@ void CCamera::serialize(CSer& ar)
                 ar.xmlGetNode_string("trackedObject",_trackedObjectLoadName_old,exhaustiveXml);
             }
 
-            ar.xmlGetNode_float("size",cameraSize,exhaustiveXml);
+            ar.xmlGetNode_float("size",_cameraSize,exhaustiveXml);
 
             ar.xmlGetNode_float("orthoViewSize",_orthoViewSize,exhaustiveXml);
 
@@ -1652,14 +1647,9 @@ void CCamera::serialize(CSer& ar)
                 }
                 ar.xmlPopNode();
             }
+            computeBoundingBox();
         }
     }
-}
-
-void CCamera::serializeWExtIk(CExtIkSer& ar)
-{
-    CSceneObject::serializeWExtIk(ar);
-    CDummy::serializeWExtIkStatic(ar);
 }
 
 void CCamera::display(CViewableBase* renderingObject,int displayAttrib)

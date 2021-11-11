@@ -33,7 +33,6 @@ public:
     void announceIkGroupWillBeErased(int ikGroupHandle);
     int computeAllIkGroups(bool exceptExplicitHandling);
     void resetCalculationResults();
-    void exportIkContent(CExtIkSer& ar);
 
 protected:
     // Overridden from _CIkGroupContainer_:

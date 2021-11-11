@@ -22,7 +22,6 @@ public:
     void simulationEnded();
     CIkGroup_old* copyYourself() const;
     void serialize(CSer& ar);
-    void serializeWExtIk(CExtIkSer& ar) const;
     void performObjectLoadingMapping(const std::vector<int>* map);
     void performIkGroupLoadingMapping(const std::vector<int>* map);
     bool announceObjectWillBeErased(int objID,bool copyBuffer);

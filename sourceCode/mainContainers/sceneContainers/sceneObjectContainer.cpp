@@ -524,18 +524,6 @@ void CSceneObjectContainer::getAllDetectableObjectsFromSceneExcept(const std::ve
     }
 }
 
-void CSceneObjectContainer::exportIkContent(CExtIkSer& ar)
-{
-    ar.writeInt(int(getObjectCount()));
-
-    for (size_t i=0;i<getObjectCount();i++)
-    {
-        CSceneObject* it=getObjectFromIndex(i);
-        ar.writeInt(it->getObjectType());
-        it->serializeWExtIk(ar);
-    }
-}
-
 CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,bool& noHit)
 {
     if (ar.isBinary())

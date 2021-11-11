@@ -87,7 +87,7 @@ void CQDlgModelThumbnail::actualizeBitmap()
         {
             C7Vector tr(it->getCumulativeTransformation());
             C3Vector minV,maxV;
-            it->getMarkingBoundingBox(minV,maxV);
+            it->getBoundingBox(minV,maxV);
             tr.X*=(maxV+minV)*0.5f;
             C3Vector hs((maxV-minV)*0.5f);
             for (float x=-1.0f;x<2.0f;x+=2.0f)

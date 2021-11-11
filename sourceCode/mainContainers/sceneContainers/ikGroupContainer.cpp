@@ -169,13 +169,6 @@ void CIkGroupContainer::resetCalculationResults()
         getObjectFromIndex(i)->resetCalculationResult();
 }
 
-void CIkGroupContainer::exportIkContent(CExtIkSer& ar)
-{
-    ar.writeInt(int(getObjectCount()));
-    for (size_t i=0;i<getObjectCount();i++)
-        getObjectFromIndex(i)->serializeWExtIk(ar);
-}
-
 void CIkGroupContainer::announceIkGroupWillBeErased(int ikGroupHandle)
 { // Never called from copy buffer!
     size_t i=0;

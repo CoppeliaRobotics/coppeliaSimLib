@@ -8495,7 +8495,7 @@ simInt simCreateForceSensor_internal(simInt options,const simInt* intParams,cons
         it->setValueCountForFilter(intParams[1]);
         it->setConsecutiveThresholdViolationsForBreaking(intParams[2]);
 
-        it->setSize(floatParams[0]);
+        it->setForceSensorSize(floatParams[0]);
         it->setForceThreshold(floatParams[1]);
         it->setTorqueThreshold(floatParams[2]);
 
@@ -9643,7 +9643,7 @@ simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
                 if ((parameterID>=sim_objfloatparam_objbbox_min_x)&&(parameterID<=sim_objfloatparam_objbbox_max_z))
                 {
                     C3Vector minV,maxV;
-                    it->getMarkingBoundingBox(minV,maxV);
+                    it->getBoundingBox(minV,maxV);
                     if (parameterID<=sim_objfloatparam_objbbox_min_z)
                         parameter[0]=minV(parameterID-sim_objfloatparam_objbbox_min_x);
                     else
@@ -19156,22 +19156,7 @@ simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const sim
 
 simInt simExportIk_internal(const simChar* pathAndFilename,simInt reserved1,simVoid* reserved2)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal=0;
-        if (App::currentWorld->simulation->isSimulationStopped())
-        {
-            if (CFileOperations::apiExportIkContent(pathAndFilename,false))
-                retVal=1;
-        }
-        return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastWarningOrError(__func__,"Not supported anymore. Use CoppeliaSim V4.2.0 or earlier.");
     return(-1);
 }
 

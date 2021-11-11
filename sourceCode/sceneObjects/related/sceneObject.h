@@ -48,7 +48,6 @@ public:
     virtual void scaleObject(float scalingFactor);
     virtual void scaleObjectNonIsometrically(float x,float y,float z);
     virtual void serialize(CSer& ar);
-    virtual void serializeWExtIk(CExtIkSer& ar);
 
     virtual bool announceObjectWillBeErased(int objHandle,bool copyBuffer);
     virtual void announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer);
@@ -75,8 +74,7 @@ public:
     virtual void simulationAboutToStart();
     virtual void simulationEnded();
     virtual void initializeInitialValues(bool simulationAlreadyRunning);
-    virtual bool getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const;
-    virtual bool getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const;
+    virtual void computeBoundingBox();
     virtual bool getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const;
 
     virtual std::string getObjectTypeInfo() const;
@@ -114,8 +112,8 @@ public:
     int getSpecificLight() const;
     bool setBeforeDeleteCallbackSent();
 
-    bool getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool& minMaxNotYetDefined,bool first,bool guiIsRendering) const;
-    void getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool guiIsRendering) const;
+    bool getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool& minMaxNotYetDefined,bool first,bool guiIsRendering);
+    void getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool guiIsRendering);
 
     int getModelSelectionHandle(bool firstObject=true);
 
@@ -272,8 +270,10 @@ public:
 
     void pushObjectCreationEvent() const;
     void pushObjectRefreshEvent() const;
+    void getBoundingBox(C3Vector& vmin,C3Vector& vmax) const;
 
 protected:
+    void _setBoundingBox(const C3Vector& vmin,const C3Vector& vmax);
     void _addCommonObjectEventData(CInterfaceStackTable* data) const;
     void _appendObjectMovementEventData(CInterfaceStackTable* data) const;
 
@@ -310,6 +310,8 @@ protected:
     int _objectMovementOptions; // bit0=transl not ok when sim. stopped, bit1=transl not ok when sim. running, bit2&bit3: same but for rotations
     float _objectMovementStepSize[2]; // 0.0= use app default
     int _objectMovementRelativity[2]; //0=world, 1=parent, 2=own frame
+    C3Vector _boundingBoxMin;
+    C3Vector _boundingBoxMax;
 
     int _memorizedConfigurationValidCounter;
     float _sizeFactor; // just used so that scripts can also adjust for scaling

@@ -58,7 +58,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
 
     // Bounding box display:
     C3Vector mmaDim,mmiDim;
-    octree->getMaxMinDims(mmaDim,mmiDim);
+    octree->getBoundingBox(mmiDim,mmaDim);
     C3Vector d(mmaDim-mmiDim);
     if (displayAttrib&sim_displayattribute_renderpass)
         _displayBoundingBox(octree,displayAttrib,true,cbrt(d(0)*d(1)*d(2))*0.6f);

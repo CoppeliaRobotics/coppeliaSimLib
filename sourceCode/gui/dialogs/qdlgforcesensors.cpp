@@ -54,7 +54,7 @@ void CQDlgForceSensors::refresh()
 
     if (sel)
     {
-        ui->qqSize->setText(tt::getFString(false,it->getSize(),3).c_str());
+        ui->qqSize->setText(tt::getFString(false,it->getForceSensorSize(),3).c_str());
 
         ui->qqSampleSize->setText(tt::getIString(false,it->getValueCountForFilter()).c_str());
         ui->qqAverage->setChecked(it->getFilterType()==0);

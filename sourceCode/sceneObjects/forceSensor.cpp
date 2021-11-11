@@ -52,6 +52,7 @@ void CForceSensor::commonInit()
     _objectAlias=IDSOGL_FORCE_SENSOR;
     _objectName_old=IDSOGL_FORCE_SENSOR;
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
+    computeBoundingBox();
 }
 
 CForceSensor::~CForceSensor()
@@ -414,16 +415,10 @@ bool CForceSensor::isPotentiallyRenderable() const
     return(false);
 }
 
-bool CForceSensor::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CForceSensor::computeBoundingBox()
 {
-    maxV(0)=maxV(1)=maxV(2)=_forceSensorSize*0.5f;
-    minV(0)=minV(1)=minV(2)=-_forceSensorSize*0.5f;
-    return(true);
-}
-
-bool CForceSensor::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return(getFullBoundingBox(minV,maxV));
+    C3Vector maxV(_forceSensorSize/2.0f,_forceSensorSize/2.0f,_forceSensorSize/2.0f);
+    _setBoundingBox(maxV*-1.0f,maxV);
 }
 
 bool CForceSensor::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
@@ -433,22 +428,34 @@ bool CForceSensor::getExportableMeshAtIndex(int index,std::vector<float>& vertic
     return(false); // for now
 }
 
-void CForceSensor::setSize(float s)
+void CForceSensor::setForceSensorSize(float s)
 {
     tt::limitValue(0.001f,10.0f,s);
-    _forceSensorSize=s;
+    if (_forceSensorSize!=s)
+    {
+        _forceSensorSize=s;
+        computeBoundingBox();
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="size";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringFloat(cmd,_forceSensorSize);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
-float CForceSensor::getSize() const
+float CForceSensor::getForceSensorSize() const
 {
     return(_forceSensorSize);
 }
 
 void CForceSensor::scaleObject(float scalingFactor)
 {
-    _forceSensorSize*=scalingFactor;
+    setForceSensorSize(_forceSensorSize*scalingFactor);
     _forceThreshold*=scalingFactor*scalingFactor*scalingFactor;//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
     _torqueThreshold*=scalingFactor*scalingFactor*scalingFactor*scalingFactor;//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+
     CSceneObject::scaleObject(scalingFactor);
     _filteredValuesAreValid=false;
     _lastForceAndTorqueValid_dynStep=false;
@@ -469,6 +476,8 @@ void CForceSensor::addSpecializedObjectEventData(CInterfaceStackTable* data) con
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("forceSensor",subC);
     data=subC;
+
+    data->appendMapObject_stringFloat("size",_forceSensorSize);
 
     CInterfaceStackTable* colors=new CInterfaceStackTable();
     data->appendMapObject_stringObject("colors",colors);
@@ -679,6 +688,7 @@ void CForceSensor::serialize(CSer& ar)
                 CTTUtil::scaleColorUp_(colorPart1.getColorsPtr());
                 CTTUtil::scaleColorUp_(colorPart2.getColorsPtr());
             }
+            computeBoundingBox();
         }
     }
     else
@@ -730,7 +740,7 @@ void CForceSensor::serialize(CSer& ar)
         else
         {
             if (ar.xmlGetNode_float("size",_forceSensorSize,exhaustiveXml))
-                setSize(_forceSensorSize);
+                setForceSensorSize(_forceSensorSize);
 
             if (ar.xmlPushChildNode("filter",exhaustiveXml))
             {
@@ -787,14 +797,9 @@ void CForceSensor::serialize(CSer& ar)
                 }
                 ar.xmlPopNode();
             }
+            computeBoundingBox();
         }
     }
-}
-
-void CForceSensor::serializeWExtIk(CExtIkSer& ar)
-{
-    CSceneObject::serializeWExtIk(ar);
-    CDummy::serializeWExtIkStatic(ar);
 }
 
 void CForceSensor::display(CViewableBase* renderingObject,int displayAttrib)

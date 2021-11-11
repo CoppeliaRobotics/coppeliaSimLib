@@ -14,6 +14,7 @@
 CJoint::CJoint()
 {
     _commonInit();
+    computeBoundingBox();
 }
 
 CJoint::CJoint(int jointType)
@@ -60,6 +61,7 @@ CJoint::CJoint(int jointType)
         _maxAcceleration_DEPRECATED=60.0f*degToRad_f;
     }
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
+    computeBoundingBox();
 }
 
 void CJoint::_commonInit()
@@ -888,8 +890,9 @@ void CJoint::setDirectDependentJoints(const std::vector<CJoint*>& joints)
     _directDependentJoints.assign(joints.begin(),joints.end());
 }
 
-bool CJoint::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CJoint::computeBoundingBox()
 {
+    C3Vector minV,maxV;
     if (_jointType!=sim_joint_spherical_subtype)
     {
         maxV(0)=maxV(1)=_diameter/2.0f;
@@ -903,12 +906,7 @@ bool CJoint::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
         maxV(0)=maxV(1)=maxV(2)=_diameter;
         minV(0)=minV(1)=minV(2)=-maxV(0);
     }
-    return(true);
-}
-
-bool CJoint::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return(getFullBoundingBox(minV,maxV));
+    _setBoundingBox(minV,maxV);
 }
 
 bool CJoint::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
@@ -2130,6 +2128,7 @@ void CJoint::serialize(CSer& ar)
                 CTTUtil::scaleColorUp_(_colorPart1.getColorsPtr());
                 CTTUtil::scaleColorUp_(_colorPart2.getColorsPtr());
             }
+            computeBoundingBox();
         }
     }
     else
@@ -2545,41 +2544,9 @@ void CJoint::serialize(CSer& ar)
 
                 ar.xmlPopNode();
             }
+            computeBoundingBox();
         }
     }
-}
-
-void CJoint::serializeWExtIk(CExtIkSer& ar)
-{
-    CSceneObject::serializeWExtIk(ar);
-
-    ar.writeInt(_jointType);
-
-    ar.writeFloat(_screwPitch);
-
-    ar.writeFloat(_sphericalTransformation(0));
-    ar.writeFloat(_sphericalTransformation(1));
-    ar.writeFloat(_sphericalTransformation(2));
-    ar.writeFloat(_sphericalTransformation(3));
-
-    unsigned char dummy=0;
-    SIM_SET_CLEAR_BIT(dummy,0,_positionIsCyclic);
-    ar.writeByte(dummy);
-
-    ar.writeFloat(_jointMinPosition);
-    ar.writeFloat(_jointPositionRange);
-
-    ar.writeFloat(_jointPosition);
-
-    ar.writeFloat(_maxStepSize);
-
-    ar.writeFloat(_ikWeight);
-
-    ar.writeInt(_jointMode);
-
-    ar.writeInt(_dependencyMasterJointHandle);
-    ar.writeFloat(_dependencyJointMult);
-    ar.writeFloat(_dependencyJointOffset);
 }
 
 void CJoint::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
@@ -2855,8 +2822,6 @@ void CJoint::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSync
         _setPositionIntervalMin_send(_jointMinPosition);
         _setPositionIntervalRange_send(_jointPositionRange);
         _setPositionIsCyclic_send(_positionIsCyclic);
-        _setDiameter_send(_diameter);
-        _setLength_send(_length);
         _setScrewPitch_send(_screwPitch);
         // _setDependencyJointHandle_send(_dependencyMasterJointHandle);
         // _setDependencyJointMult_send(_dependencyJointMult);

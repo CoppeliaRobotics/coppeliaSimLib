@@ -66,8 +66,6 @@ public:
     void getAllMeasurableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,std::vector<CSceneObject*>& objects);
     void getAllDetectableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,std::vector<CSceneObject*>& objects,int detectableMask);
 
-    void exportIkContent(CExtIkSer& ar);
-
     CSceneObject* readSceneObject(CSer& ar,const char* name,bool& noHit);
     void writeSceneObject(CSer& ar,CSceneObject* it);
     bool readAndAddToSceneSimpleXmlSceneObjects(CSer& ar,CSceneObject* parentObject,const C7Vector& localFramePreCorrection,std::vector<SSimpleXmlSceneObject>& simpleXmlObjects);

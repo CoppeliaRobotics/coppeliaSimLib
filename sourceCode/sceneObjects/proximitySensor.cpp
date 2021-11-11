@@ -13,11 +13,13 @@ CProxSensor::CProxSensor(int theType)
 {
     commonInit();
     setSensorType(theType);
+    computeBoundingBox();
 }
 
 CProxSensor::CProxSensor()
 { // needed by the serialization routine only!
     commonInit();
+    computeBoundingBox();
 }
 
 CProxSensor::~CProxSensor()
@@ -593,6 +595,7 @@ void CProxSensor::serialize(CSer& ar)
                 CTTUtil::scaleColorUp_(detectionRayColor.getColorsPtr());
                 CTTUtil::scaleColorUp_(closestDistanceVolumeColor.getColorsPtr());
             }
+            computeBoundingBox();
         }
     }
     else
@@ -792,14 +795,9 @@ void CProxSensor::serialize(CSer& ar)
                 convexVolume->serialize(ar);
                 ar.xmlPopNode();
             }
+            computeBoundingBox();
         }
     }
-}
-
-void CProxSensor::serializeWExtIk(CExtIkSer& ar)
-{
-    CSceneObject::serializeWExtIk(ar);
-    CDummy::serializeWExtIkStatic(ar);
 }
 
 bool CProxSensor::getSensingVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
@@ -819,19 +817,15 @@ void CProxSensor::getSensingVolumeOBB(C7Vector& tr,C3Vector& halfSizes)
     tr=m.getTransformation();
 }
 
-bool CProxSensor::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CProxSensor::computeBoundingBox()
 {
+    C3Vector minV,maxV;
     getSensingVolumeBoundingBox(minV,maxV);
     C3Vector m(size*0.5f,size*0.5f,size*0.5f); // sensing sphere
     C3Vector n(-size*0.5f,-size*0.5f,-size*0.5f);
     minV.keepMin(n);
     maxV.keepMax(m);
-    return(true);
-}
-
-bool CProxSensor::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return (getFullBoundingBox(minV,maxV));
+    _setBoundingBox(minV,maxV);
 }
 
 void CProxSensor::calculateFreshRandomizedRays()

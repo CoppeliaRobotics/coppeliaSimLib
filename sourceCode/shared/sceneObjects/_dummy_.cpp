@@ -35,11 +35,6 @@ void _CDummy_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMs
         }
         else
         { // message is for this dummy
-            if (msg.msg==sim_syncobj_dummy_size)
-            {
-                setDummySize(((float*)msg.data)[0]);
-                return;
-            }
             if (msg.msg==sim_syncobj_dummy_linkeddummy)
             {
                 setLinkedDummyHandle(((int*)msg.data)[0],true);
@@ -64,12 +59,13 @@ void _CDummy_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMs
     }
 }
 
-bool _CDummy_::setDummySize(float s)
+void _CDummy_::setDummySize(float s)
 {
     bool diff=(_dummySize!=s);
     if (diff)
     {
         _dummySize=s;
+        computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="size";
@@ -78,11 +74,6 @@ bool _CDummy_::setDummySize(float s)
             App::worldContainer->pushEvent(event);
         }
     }
-    return(diff);
-}
-
-void _CDummy_::_setDummySize_send(float s) const
-{
 }
 
 bool _CDummy_::setLinkedDummyHandle(int h,bool check)

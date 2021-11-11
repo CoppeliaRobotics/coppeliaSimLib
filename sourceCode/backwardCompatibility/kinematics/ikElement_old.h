@@ -21,7 +21,6 @@ public:
     void simulationEnded();
     CIkElement_old* copyYourself() const;
     void serialize(CSer& ar);
-    void serializeWExtIk(CExtIkSer& ar) const;
     bool announceObjectWillBeErased(int objID,bool copyBuffer);
     void performObjectLoadingMapping(const std::vector<int>* map);
 

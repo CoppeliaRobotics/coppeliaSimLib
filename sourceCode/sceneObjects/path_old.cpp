@@ -31,6 +31,7 @@ CPath_old::CPath_old()
     _objectAlias=IDSOGL_PATH;
     _objectName_old=IDSOGL_PATH;
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
+    computeBoundingBox();
 }
 
 CPath_old::~CPath_old()
@@ -38,45 +39,10 @@ CPath_old::~CPath_old()
     delete pathContainer;
 }
 
-bool CPath_old::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CPath_old::computeBoundingBox()
 {
-    int c=pathContainer->getSimplePathPointCount();
-    if (c==0)
-        return(false);
-    for (int i=0;i<c;i++)
-    {
-        C3Vector v(pathContainer->getSimplePathPoint(i)->getTransformation().X);
-        if (i==0)
-        {
-            minV=v;
-            maxV=v;
-        }
-        else
-        {
-            minV.keepMin(v);
-            maxV.keepMax(v);
-        }
-    }
-    float ssd2=pathContainer->getSquareSize()/2.0f;
-    minV(0)-=ssd2;
-    minV(1)-=ssd2;
-    minV(2)-=ssd2;
-    maxV(0)+=ssd2;
-    maxV(1)+=ssd2;
-    maxV(2)+=ssd2;
-    return(true);
-}
-
-bool CPath_old::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    float ssd2=pathContainer->getSquareSize()/2.0f;
-    minV(0)=-ssd2;
-    minV(1)=-ssd2;
-    minV(2)=-ssd2;
-    maxV(0)=ssd2;
-    maxV(1)=ssd2;
-    maxV(2)=ssd2;
-    return(true);
+    C3Vector maxV(pathContainer->getSquareSize()/2.0f,pathContainer->getSquareSize()/2.0f,pathContainer->getSquareSize()/2.0f);
+    _setBoundingBox(maxV*-1.0f,maxV);
 }
 
 bool CPath_old::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
@@ -701,6 +667,7 @@ void CPath_old::serialize(CSer& ar)
                 CTTUtil::scaleColorUp_(shapingColor.getColorsPtr());
             }
             _generatePathShape();
+            computeBoundingBox();
         }
     }
     else
@@ -769,14 +736,9 @@ void CPath_old::serialize(CSer& ar)
             }
             else
                 pathContainer->serialize(ar);
+            computeBoundingBox();
         }
     }
-}
-
-void CPath_old::serializeWExtIk(CExtIkSer& ar)
-{
-    CSceneObject::serializeWExtIk(ar);
-    CDummy::serializeWExtIkStatic(ar);
 }
 
 void CPath_old::display(CViewableBase* renderingObject,int displayAttrib)

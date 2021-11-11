@@ -458,6 +458,7 @@ bool _CJoint_::setDiameter(float d)
     if (diff)
     {
         _diameter=d;
+        computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="diameter";
@@ -469,16 +470,13 @@ bool _CJoint_::setDiameter(float d)
     return(diff);
 }
 
-void _CJoint_::_setDiameter_send(float d) const
-{
-}
-
 bool _CJoint_::setLength(float l)
 {
     bool diff=(_length!=l);
     if (diff)
     {
         _length=l;
+        computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="length";
@@ -488,10 +486,6 @@ bool _CJoint_::setLength(float l)
         }
     }
     return(diff);
-}
-
-void _CJoint_::_setLength_send(float l) const
-{
 }
 
 bool _CJoint_::setDependencyMasterJointHandle(int depJointID)

@@ -179,8 +179,9 @@ unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX
     return(buff);
 }
 
-bool CVisionSensor::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CVisionSensor::computeBoundingBox()
 {
+    C3Vector minV,maxV;
     minV(0)=-0.5f*_size(0);
     maxV(0)=0.5f*_size(0);
     minV(1)=-0.5f*_size(1);
@@ -206,12 +207,7 @@ bool CVisionSensor::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
             maxV.keepMax(e);
         }
     }
-    return(true);
-}
-
-bool CVisionSensor::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return(getFullBoundingBox(minV,maxV));
+    _setBoundingBox(minV,maxV);
 }
 
 void CVisionSensor::commonInit()
@@ -290,6 +286,7 @@ void CVisionSensor::commonInit()
     _objectAlias=IDSOGL_VISION_U_SENSOR;
     _objectName_old=IDSOGL_VISION_U_SENSOR;
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
+    computeBoundingBox();
 }
 
 void CVisionSensor::setUseExternalImage(bool u)
@@ -1371,7 +1368,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
 
     std::vector<CSceneObject*> toRender;
     CSceneObject* viewBoxObject;
-    if (App::userSettings->enableOldRenderableBehaviour)
+    if (true)//App::userSettings->enableOldRenderableBehaviour)
         viewBoxObject=_getInfoOfWhatNeedsToBeRendered_old(entityID,detectAll,rendAttrib,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,overrideRenderableFlagsForNonCollections,toRender);
     else
         viewBoxObject=_getInfoOfWhatNeedsToBeRendered(entityID,detectAll,rendAttrib,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,overrideRenderableFlagsForNonCollections,toRender);
@@ -1547,7 +1544,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool d
             for (size_t i=0;i<collection->getSceneObjectCountInCollection();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(collection->getSceneObjectHandleFromIndex(i));
-                if ( ((it->getObjectType()==sim_object_shape_type)||(it->getObjectType()==sim_object_octree_type)||(it->getObjectType()==sim_object_pointcloud_type))&&(overridePropertyFlag||it->isObjectVisible()) )
+                if ( ((it->getObjectType()==sim_object_shape_type)||(it->getObjectType()==sim_object_octree_type)||(it->getObjectType()==sim_object_pointcloud_type)||(it->getObjectType()==sim_object_path_type))&&(overridePropertyFlag||it->isObjectVisible()) )
                 {
                     if (it->getObjectType()==sim_object_shape_type)
                     {
@@ -1578,7 +1575,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool d
                 for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
                 {
                     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                    if ( ((it->getObjectType()==sim_object_shape_type)||(it->getObjectType()==sim_object_octree_type)||(it->getObjectType()==sim_object_pointcloud_type))&&it->isObjectVisible() )
+                    if ( ((it->getObjectType()==sim_object_shape_type)||(it->getObjectType()==sim_object_octree_type)||(it->getObjectType()==sim_object_pointcloud_type)||(it->getObjectType()==sim_object_path_type))&&it->isObjectVisible() )
                     {
                         if (it->getObjectType()==sim_object_shape_type)
                         {
@@ -2658,6 +2655,7 @@ void CVisionSensor::serialize(CSer& ar)
                 CTTUtil::scaleColorUp_(color.getColorsPtr());
                 CTTUtil::scaleColorUp_(activeColor.getColorsPtr());
             }
+            computeBoundingBox();
         }
     }
     else
@@ -2843,14 +2841,9 @@ void CVisionSensor::serialize(CSer& ar)
                 ar.xmlPopNode();
             }
             _reserveBuffers();
+            computeBoundingBox();
         }
     }
-}
-
-void CVisionSensor::serializeWExtIk(CExtIkSer& ar)
-{
-    CSceneObject::serializeWExtIk(ar);
-    CDummy::serializeWExtIkStatic(ar);
 }
 
 void CVisionSensor::detectVisionSensorEntity_executedViaUiThread(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)

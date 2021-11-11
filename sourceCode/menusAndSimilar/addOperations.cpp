@@ -151,7 +151,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     myNewCamera->setLocalTransformation(m);
                     myNewCamera->scaleObject(camera->getCameraSize()/myNewCamera->getCameraSize());
                     C3Vector minV,maxV;
-                    myNewCamera->getFullBoundingBox(minV,maxV);
+                    myNewCamera->getBoundingBox(minV,maxV);
                     m=myNewCamera->getFullLocalTransformation();
                     maxV-=minV;
                     float averageSize=(maxV(0)+maxV(1)+maxV(2))/3.0f;

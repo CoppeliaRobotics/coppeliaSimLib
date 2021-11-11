@@ -2163,7 +2163,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CForceSensor* it=App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setSize(cmd.floatParams[0]);
+                it->setForceSensorSize(cmd.floatParams[0]);
         }
         if (cmd.cmdId==APPLY_VISUALPROP_FORCESENSORGUITRIGGEREDCMD)
         {
@@ -2177,7 +2177,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         it->getColor(false)->copyYourselfInto(it2->getColor(false));
                         it->getColor(true)->copyYourselfInto(it2->getColor(true));
-                        it2->setSize(it->getSize());
+                        it2->setForceSensorSize(it->getForceSensorSize());
                     }
                 }
             }
@@ -3595,7 +3595,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setSize(cmd.floatParams[0]);
+                it->setGraphSize(cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_BUFFERSIZE_GRAPHGUITRIGGEREDCMD)
         {

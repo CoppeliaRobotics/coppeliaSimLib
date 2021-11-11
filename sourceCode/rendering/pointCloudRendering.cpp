@@ -9,7 +9,7 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
     _commonStart(pointCloud,renderingObject,displayAttrib);
 
     C3Vector mmaDim,mmiDim;
-    pointCloud->getMaxMinDims(mmaDim,mmiDim);
+    pointCloud->getBoundingBox(mmiDim,mmaDim);
     C3Vector d(mmaDim-mmiDim);
     if (displayAttrib&sim_displayattribute_renderpass)
         _displayBoundingBox(pointCloud,displayAttrib,true,cbrt(d(0)*d(1)*d(2))*0.6f);

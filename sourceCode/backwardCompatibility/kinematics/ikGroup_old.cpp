@@ -324,46 +324,6 @@ void CIkGroup_old::serialize(CSer &ar)
     }
 }
 
-void CIkGroup_old::serializeWExtIk(CExtIkSer &ar) const
-{
-    ar.writeInt(_objectHandle);
-
-    ar.writeString(_objectName.c_str());
-
-    ar.writeInt(_maxIterations);
-
-    ar.writeInt(0); // DEPRECATED SINCE 1.4.2020
-
-    ar.writeFloat(1.0f); // DEPRECATED SINCE 1.4.2020
-
-    ar.writeFloat(0.0f); // DEPRECATED SINCE 1.4.2020
-    ar.writeFloat(0.0f); // DEPRECATED SINCE 1.4.2020
-
-    ar.writeFloat(_dampingFactor);
-
-    ar.writeInt(_calculationMethod);
-
-    ar.writeInt(_doOnFailOrSuccessOf);
-
-    unsigned char nothing=0;
-    SIM_SET_CLEAR_BIT(nothing,0,_enabled);
-    SIM_SET_CLEAR_BIT(nothing,1,_restoreIfPositionNotReached);
-    SIM_SET_CLEAR_BIT(nothing,2,_restoreIfOrientationNotReached);
-    SIM_SET_CLEAR_BIT(nothing,3,_doOnFail);
-    SIM_SET_CLEAR_BIT(nothing,4,_doOnPerformed);
-    SIM_SET_CLEAR_BIT(nothing,5,!_ignoreMaxStepSizes);
-    SIM_SET_CLEAR_BIT(nothing,6,_explicitHandling);
-    ar.writeByte(nothing);
-
-    nothing=0;
-    SIM_SET_CLEAR_BIT(nothing,0,false); // DEPRECATED SINCE 1.4.2020
-    ar.writeByte(nothing);
-
-    ar.writeInt(int(getIkElementCount()));
-    for (size_t i=0;i<getIkElementCount();i++)
-        getIkElementFromIndex(i)->serializeWExtIk(ar);
-}
-
 void CIkGroup_old::performObjectLoadingMapping(const std::vector<int>* map)
 {
     for (size_t i=0;i<getIkElementCount();i++)

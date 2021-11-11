@@ -12,6 +12,7 @@ CMill::CMill(int theType)
 {
     commonInit();
     setMillType(theType);
+    computeBoundingBox();
 }
 
 CMill::CMill()
@@ -361,6 +362,7 @@ void CMill::serialize(CSer& ar)
                 CTTUtil::scaleColorUp_(passiveVolumeColor.getColorsPtr());
                 CTTUtil::scaleColorUp_(activeVolumeColor.getColorsPtr());
             }
+            computeBoundingBox();
         }
     }
     else
@@ -427,14 +429,9 @@ void CMill::serialize(CSer& ar)
                 convexVolume->serialize(ar);
                 ar.xmlPopNode();
             }
+            computeBoundingBox();
         }
     }
-}
-
-void CMill::serializeWExtIk(CExtIkSer& ar)
-{
-    CSceneObject::serializeWExtIk(ar);
-    CDummy::serializeWExtIkStatic(ar);
 }
 
 bool CMill::getMillingVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
@@ -442,19 +439,15 @@ bool CMill::getMillingVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
     return(convexVolume->getVolumeBoundingBox(minV,maxV));
 }
 
-bool CMill::getFullBoundingBox(C3Vector& minV,C3Vector& maxV) const
+void CMill::computeBoundingBox()
 {
+    C3Vector minV,maxV;
     getMillingVolumeBoundingBox(minV,maxV);
     C3Vector m(_size*0.25f,_size*0.25f,_size*0.25f); // mill base
     C3Vector n(-_size*0.25f,-_size*0.25f,-_size*0.25f);
     minV.keepMin(n);
     maxV.keepMax(m);
-    return(true);
-}
-
-bool CMill::getMarkingBoundingBox(C3Vector& minV,C3Vector& maxV) const
-{
-    return (getFullBoundingBox(minV,maxV));
+    _setBoundingBox(minV,maxV);
 }
 
 void CMill::resetMill(bool exceptExplicitHandling)

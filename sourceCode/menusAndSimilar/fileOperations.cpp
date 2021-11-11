@@ -190,33 +190,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         }
         return(true);
     }
-    if (cmd.cmdId==FILE_OPERATION_EXPORT_IK_CONTENT_FOCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            if (!App::currentWorld->environment->getSceneLocked())
-            {
-                App::logMsg(sim_verbosity_msgs,IDSNS_EXPORTING_IK_CONTENT);
-                std::string tst(App::folders->getOtherFilesPath());
-                std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_EXPORTING_IK_CONTENT___,tst.c_str(),"",false,"Coppelia Kinematics Content Files","ik");
-                if (filenameAndPath.length()!=0)
-                {
-                    App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                    if (apiExportIkContent(filenameAndPath.c_str(),true))
-                        App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
-                    else
-                        App::logMsg(sim_verbosity_errors,IDSNS_EXPORT_OPERATION_FAILED);
-                }
-                else
-                    App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
-            }
-            else
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-        }
-        else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
-        return(true);
-    }
     if ( (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD) )
     {
         if (App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
@@ -1585,34 +1558,6 @@ void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPat
     }
 }
 
-bool CFileOperations::apiExportIkContent(const char* pathAndName,bool displayDialogs)
-{ // Call only from SIM thread
-    CExtIkSer ar;
-    App::currentWorld->exportIkContent(ar);
-    bool retVal=true;
-    if (displayDialogs)
-        App::uiThread->showOrHideProgressBar(true,-1,"Exporting kinematics content...");
-    try
-    {
-        VFile myFile(pathAndName,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
-        VArchive arch(&myFile,VArchive::STORE);
-
-        int dataLength;
-        unsigned char* data=ar.getBuffer(dataLength);
-        for (int i=0;i<dataLength;i++)
-            arch << data[i];
-        arch.close();
-        myFile.close();
-    }
-    catch(VFILE_EXCEPTION_TYPE e)
-    {
-        retVal=false;
-    }
-    if (displayDialogs)
-        App::uiThread->showOrHideProgressBar(false);
-    return(retVal);
-}
-
 #ifdef SIM_WITH_GUI
 void CFileOperations::keyPress(int key)
 {
@@ -1737,8 +1682,6 @@ void CFileOperations::addMenu(VMenu* menu)
         VMenu* expMenu=new VMenu();
         expMenu->appendMenuItem(simStoppedOrPausedNoEditMode&&(shapeNumber>0),false,FILE_OPERATION_EXPORT_SHAPE_FOCMD,IDS_EXPORT_SELECTION_SHAPES_MENU_ITEM);
         expMenu->appendMenuItem(fileOpOk&&(graphNumber!=0),false,FILE_OPERATION_EXPORT_GRAPHS_FOCMD,IDS_EXPORT_SELECTION_GRAPHS_MENU_ITEM);
-        if (App::userSettings->showOldDlgs)
-            expMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_EXPORT_IK_CONTENT_FOCMD,IDS_EXPORT_IK_CONTENT_MENU_ITEM);
         bool canExportDynamicContent=CPluginContainer::dyn_isDynamicContentAvailable()!=0;
         expMenu->appendMenuItem(canExportDynamicContent,false,FILE_OPERATION_EXPORT_DYNAMIC_CONTENT_FOCMD,IDSN_EXPORT_DYNAMIC_CONTENT);
         menu->appendMenuAndDetach(expMenu,true,IDSN_EXPORT_MENU_ITEM);

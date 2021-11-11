@@ -87,8 +87,6 @@ public:
     void announce2DElementWillBeErased(int elementID);
     void announce2DElementButtonWillBeErased(int elementID,int buttonID);
 
-    void exportIkContent(CExtIkSer& ar);
-
     static void appendLoadOperationIssue(int verbosity,const char* text,int objectId);
     static int getLoadingMapping(const std::vector<int>* map,int oldVal);
 

@@ -1190,13 +1190,6 @@ void CWorld::announce2DElementButtonWillBeErased(int elementID,int buttonID)
 }
 // -----------
 
-void CWorld::exportIkContent(CExtIkSer& ar)
-{
-    ar.writeInt(0); // this is the ext IK serialization version. Not forward nor backward compatible!
-    sceneObjects->exportIkContent(ar);
-    ikGroups->exportIkContent(ar);
-}
-
 bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
 {
     appendLoadOperationIssue(-1,nullptr,-1); // clear

@@ -116,7 +116,7 @@ void CQDlgGraphs::refresh()
 
     if (sel)
     {
-        ui->qqObjectSize->setText(tt::getFString(false,it->getSize(),3).c_str());
+        ui->qqObjectSize->setText(tt::getFString(false,it->getGraphSize(),3).c_str());
         ui->qqBufferSize->setText(tt::getIString(false,it->getBufferSize()).c_str());
 
         ui->qqTransformationCombo->clear();
