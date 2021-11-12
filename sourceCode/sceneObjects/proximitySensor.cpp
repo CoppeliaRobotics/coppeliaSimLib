@@ -50,7 +50,7 @@ void CProxSensor::setRandomizedDetection(bool enable)
 
         if (enable)
         {
-            convexVolume->setVolumeType(CONE_TYPE_CONVEX_VOLUME,_objectType,size);
+            convexVolume->setVolumeType(CONE_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
             convexVolume->setOffset(0.0f);
             convexVolume->setRadius(off);
             convexVolume->setRange(range);
@@ -64,7 +64,7 @@ void CProxSensor::setRandomizedDetection(bool enable)
         }
         else
         {
-            convexVolume->setVolumeType(RAY_TYPE_CONVEX_VOLUME,_objectType,size);
+            convexVolume->setVolumeType(RAY_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
             convexVolume->setOffset(radius);
             convexVolume->setRange(range);
             convexVolume->setSmallestDistanceEnabled(forbiddenDistEnable);
@@ -169,7 +169,7 @@ void CProxSensor::commonInit()
     _randomizedDetectionSampleCount=20;
     _randomizedDetectionCountForDetection=5;
 
-    size=0.01f;
+    _proxSensorSize=0.01f;
     _showVolumeWhenNotDetecting=true;
     _showVolumeWhenDetecting=true;
     _localObjectSpecialProperty=0;
@@ -256,6 +256,8 @@ void CProxSensor::addSpecializedObjectEventData(CInterfaceStackTable* data) cons
     data->appendMapObject_stringObject("proxSensor",subC);
     data=subC;
 
+    data->appendMapObject_stringFloat("size",_proxSensorSize);
+
     // todo
 }
 
@@ -267,7 +269,7 @@ CSceneObject* CProxSensor::copyYourself()
     newSensor->_detectedPoint=_detectedPoint;
     newSensor->_detectedPointValid=false;
     newSensor->allowedNormal=allowedNormal;
-    newSensor->size=size;
+    newSensor->_proxSensorSize=_proxSensorSize;
     newSensor->normalCheck=normalCheck;
     newSensor->closestObjectMode=closestObjectMode;
     newSensor->frontFaceDetection=frontFaceDetection;
@@ -412,7 +414,7 @@ void CProxSensor::serialize(CSer& ar)
                 convexVolume->serialize(ar);
 
             ar.storeDataName("Sns");
-            ar << size;
+            ar << _proxSensorSize;
             ar.flush();
 
             ar.storeDataName("Al2");
@@ -507,7 +509,7 @@ void CProxSensor::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> size;
+                        ar >> _proxSensorSize;
                     }
                     if (theName.compare("Sox")==0)
                     {
@@ -606,7 +608,7 @@ void CProxSensor::serialize(CSer& ar)
             ar.xmlAddNode_comment(" 'type' tag: can be 'pyramid', 'cylinder', 'disc', 'cone' or 'ray' ",exhaustiveXml);
             ar.xmlAddNode_enum("type",sensorType,sim_proximitysensor_pyramid_subtype,"pyramid",sim_proximitysensor_cylinder_subtype,"cylinder",sim_proximitysensor_disc_subtype,"disc",sim_proximitysensor_cone_subtype,"cone",sim_proximitysensor_ray_subtype,"ray");
 
-            ar.xmlAddNode_float("size",size);
+            ar.xmlAddNode_float("size",_proxSensorSize);
 
             if (exhaustiveXml)
                 ar.xmlAddNode_int("detectableEntity",_sensableObject);
@@ -695,7 +697,7 @@ void CProxSensor::serialize(CSer& ar)
         {
             ar.xmlGetNode_enum("type",sensorType,exhaustiveXml,"pyramid",sim_proximitysensor_pyramid_subtype,"cylinder",sim_proximitysensor_cylinder_subtype,"disc",sim_proximitysensor_disc_subtype,"cone",sim_proximitysensor_cone_subtype,"ray",sim_proximitysensor_ray_subtype);
 
-            ar.xmlGetNode_float("size",size,exhaustiveXml);
+            ar.xmlGetNode_float("size",_proxSensorSize,exhaustiveXml);
 
             if (exhaustiveXml)
                 ar.xmlGetNode_int("detectableEntity",_sensableObject);
@@ -779,17 +781,17 @@ void CProxSensor::serialize(CSer& ar)
                 if (!exhaustiveXml)
                 {
                     if (sensorType==sim_proximitysensor_ray_subtype)
-                        convexVolume->setVolumeType(RAY_TYPE_CONVEX_VOLUME,_objectType,size);
+                        convexVolume->setVolumeType(RAY_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
                     else
                         _randomizedDetection=false;
                     if (sensorType==sim_proximitysensor_cylinder_subtype)
-                        convexVolume->setVolumeType(CYLINDER_TYPE_CONVEX_VOLUME,_objectType,size);
+                        convexVolume->setVolumeType(CYLINDER_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
                     if (sensorType==sim_proximitysensor_disc_subtype)
-                        convexVolume->setVolumeType(DISC_TYPE_CONVEX_VOLUME,_objectType,size);
+                        convexVolume->setVolumeType(DISC_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
                     if (sensorType==sim_proximitysensor_pyramid_subtype)
-                        convexVolume->setVolumeType(PYRAMID_TYPE_CONVEX_VOLUME,_objectType,size);
+                        convexVolume->setVolumeType(PYRAMID_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
                     if (sensorType==sim_proximitysensor_cone_subtype)
-                        convexVolume->setVolumeType(CONE_TYPE_CONVEX_VOLUME,_objectType,size);
+                        convexVolume->setVolumeType(CONE_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
                 }
 
                 convexVolume->serialize(ar);
@@ -819,13 +821,17 @@ void CProxSensor::getSensingVolumeOBB(C7Vector& tr,C3Vector& halfSizes)
 
 void CProxSensor::computeBoundingBox()
 {
+    /*
     C3Vector minV,maxV;
     getSensingVolumeBoundingBox(minV,maxV);
-    C3Vector m(size*0.5f,size*0.5f,size*0.5f); // sensing sphere
-    C3Vector n(-size*0.5f,-size*0.5f,-size*0.5f);
+    C3Vector m(_proxSensorSize*0.5f,_proxSensorSize*0.5f,_proxSensorSize*0.5f); // sensing sphere
+    C3Vector n(-_proxSensorSize*0.5f,-_proxSensorSize*0.5f,-_proxSensorSize*0.5f);
     minV.keepMin(n);
     maxV.keepMax(m);
     _setBoundingBox(minV,maxV);
+    */
+    C3Vector v(_proxSensorSize*0.5f,_proxSensorSize*0.5f,_proxSensorSize*0.5f);
+    _setBoundingBox(v*-1.0f,v);
 }
 
 void CProxSensor::calculateFreshRandomizedRays()
@@ -1034,14 +1040,27 @@ bool CProxSensor::getClosestObjectMode()
     return(closestObjectMode);
 }
 
-void CProxSensor::setSize(float newSize)
+void CProxSensor::setProxSensorSize(float newSize)
 {
     tt::limitValue(0.0001f,10.0f,newSize);
-    size=newSize;
+    bool diff=(_proxSensorSize!=newSize);
+    if (diff)
+    {
+        _proxSensorSize=newSize;
+        computeBoundingBox();
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="size";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringFloat(cmd,_proxSensorSize);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
-float CProxSensor::getSize()
+
+float CProxSensor::getProxSensorSize()
 {
-    return(size);
+    return(_proxSensorSize);
 }
 
 bool CProxSensor::getSensedData(C3Vector& pt)
@@ -1054,8 +1073,8 @@ bool CProxSensor::getSensedData(C3Vector& pt)
 
 void CProxSensor::scaleObject(float scalingFactor)
 {
-    size*=scalingFactor;
     convexVolume->scaleVolume(scalingFactor);
+    setProxSensorSize(_proxSensorSize*scalingFactor);
     CSceneObject::scaleObject(scalingFactor);
 }
 
@@ -1063,7 +1082,7 @@ void CProxSensor::scaleObjectNonIsometrically(float x,float y,float z)
 {
     float xp,yp,zp;
     convexVolume->scaleVolumeNonIsometrically(x,y,z,xp,yp,zp);
-    size*=cbrt(xp*yp*zp);
+    setProxSensorSize(_proxSensorSize*cbrt(xp*yp*zp));
     CSceneObject::scaleObjectNonIsometrically(xp,yp,zp);
 }
 
@@ -1104,18 +1123,18 @@ void CProxSensor::setSensorType(int theType)
 {
     sensorType=theType;
     if (theType==sim_proximitysensor_ray_subtype)
-        convexVolume->setVolumeType(RAY_TYPE_CONVEX_VOLUME,_objectType,size);
+        convexVolume->setVolumeType(RAY_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
     else
         _randomizedDetection=false;
 
     if (theType==sim_proximitysensor_cylinder_subtype)
-        convexVolume->setVolumeType(CYLINDER_TYPE_CONVEX_VOLUME,_objectType,size);
+        convexVolume->setVolumeType(CYLINDER_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
     if (theType==sim_proximitysensor_disc_subtype)
-        convexVolume->setVolumeType(DISC_TYPE_CONVEX_VOLUME,_objectType,size);
+        convexVolume->setVolumeType(DISC_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
     if (theType==sim_proximitysensor_pyramid_subtype)
-        convexVolume->setVolumeType(PYRAMID_TYPE_CONVEX_VOLUME,_objectType,size);
+        convexVolume->setVolumeType(PYRAMID_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
     if (theType==sim_proximitysensor_cone_subtype)
-        convexVolume->setVolumeType(CONE_TYPE_CONVEX_VOLUME,_objectType,size);
+        convexVolume->setVolumeType(CONE_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
 }
 
 int CProxSensor::getSensorType() const

@@ -450,25 +450,27 @@ void CSceneObject::setObjectProperty(int p)
         _objectProperty=p;
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
+            const char* cmd="objectProperty";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            data->appendMapObject_stringInt32(cmd,_objectProperty);
+            App::worldContainer->pushEvent(event);
+
             if ((p^_objectProperty)==sim_objectproperty_selectmodelbaseinstead)
             {
-                const char* cmd="selectModelBase";
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
-                data->appendMapObject_stringBool(cmd,(p&sim_objectproperty_selectmodelbaseinstead)!=0);
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,"selectModelBase",true);
+                data->appendMapObject_stringBool("selectModelBase",(p&sim_objectproperty_selectmodelbaseinstead)!=0);
                 App::worldContainer->pushEvent(event);
             }
             if ((p^_objectProperty)==sim_objectproperty_collapsed)
             {
-                const char* cmd="collapsedHierarchy";
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
-                data->appendMapObject_stringBool(cmd,(p&sim_objectproperty_collapsed)!=0);
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,"collapsedHierarchy",true);
+                data->appendMapObject_stringBool("collapsedHierarchy",(p&sim_objectproperty_collapsed)!=0);
                 App::worldContainer->pushEvent(event);
             }
             if ((p^_objectProperty)==sim_objectproperty_selectable)
             {
-                const char* cmd="selectable";
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
-                data->appendMapObject_stringBool(cmd,(p&sim_objectproperty_selectable)!=0);
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,"selectable",true);
+                data->appendMapObject_stringBool("selectable",(p&sim_objectproperty_selectable)!=0);
                 App::worldContainer->pushEvent(event);
             }
         }
@@ -1006,6 +1008,7 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringString("oldName",_objectName_old.c_str(),0);
     data->appendMapObject_stringBool("modelInvisible",_modelInvisible);
     data->appendMapObject_stringBool("modelBase",_modelBase);
+    data->appendMapObject_stringInt32("objectProperty",_objectProperty);
     data->appendMapObject_stringBool("selectModelBase",(_objectProperty&sim_objectproperty_selectmodelbaseinstead)!=0);
     data->appendMapObject_stringBool("collapsedHierarchy",(_objectProperty&sim_objectproperty_collapsed)!=0);
     data->appendMapObject_stringBool("selectable",(_objectProperty&sim_objectproperty_selectable)!=0);

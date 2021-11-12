@@ -940,7 +940,6 @@ void CCamera::scaleObjectNonIsometrically(float x,float y,float z)
     scaleObject(cbrt(x*y*z));
 }
 
-
 void CCamera::setCameraSize(float size)
 {
     tt::limitValue(0.001f,100.0f,size);

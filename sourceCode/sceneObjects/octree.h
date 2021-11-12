@@ -100,6 +100,7 @@ public:
     float* getColors();
 
 protected:
+    void _updateOctreeEvent() const;
     void _readPositionsAndColorsAndSetDimensions();
 
     // Variables which need to be serialized & copied
@@ -109,6 +110,7 @@ protected:
     void* _octreeInfo;
     std::vector<float> _voxelPositions;
     std::vector<float> _colors;
+    std::vector<unsigned char> _colorsByte;
     bool _showOctreeStructure;
     bool _useRandomColors;
     bool _usePointsInsteadOfCubes;

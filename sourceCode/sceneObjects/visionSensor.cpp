@@ -181,14 +181,9 @@ unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX
 
 void CVisionSensor::computeBoundingBox()
 {
-    C3Vector minV,maxV;
-    minV(0)=-0.5f*_size(0);
-    maxV(0)=0.5f*_size(0);
-    minV(1)=-0.5f*_size(1);
-    maxV(1)=0.5f*_size(1);
-    minV(2)=-_size(2);
-    maxV(2)=0.0f;
-
+    C3Vector minV(-0.5f*_visionSensorSize(0),-0.5f*_visionSensorSize(1),-_visionSensorSize(2));
+    C3Vector maxV(0.5f*_visionSensorSize(0),0.5f*_visionSensorSize(1),0.0f);
+    /*
     C3Vector c,f,e;
     getSensingVolumeCorners(c,f);
     for (float fi=-1.0f;fi<2.0f;fi+=2.0f)
@@ -207,6 +202,7 @@ void CVisionSensor::computeBoundingBox()
             maxV.keepMax(e);
         }
     }
+    */
     _setBoundingBox(minV,maxV);
 }
 
@@ -258,9 +254,9 @@ void CVisionSensor::commonInit()
     _resolutionY=32;
     _desiredResolution[0]=32;
     _desiredResolution[1]=32;
-    _size(0)=_orthoViewSize;
-    _size(1)=_size(0);
-    _size(2)=_size(0)*3.0f;
+    _visionSensorSize(0)=_orthoViewSize;
+    _visionSensorSize(1)=_visionSensorSize(0);
+    _visionSensorSize(2)=_visionSensorSize(0)*3.0f;
     _perspectiveOperation=false;
     if (_extensionString.size()!=0)
         _extensionString+=" ";
@@ -493,16 +489,26 @@ bool CVisionSensor::getUseEnvironmentBackgroundColor()
     return(_useSameBackgroundAsEnvironment);
 }
 
-void CVisionSensor::setSize(const C3Vector& s)
+void CVisionSensor::setVisionSensorSize(const C3Vector& s)
 {
-    _size=s;
-    for (int i=0;i<3;i++)
-        tt::limitValue(0.0001f,100.0f,_size(i));
+    bool diff=((_visionSensorSize-s).getLength()>0.0001f);
+    if (diff)
+    {
+        _visionSensorSize=s;
+        computeBoundingBox();
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="size";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringFloatArray(cmd,_visionSensorSize.data,3);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
-C3Vector CVisionSensor::getSize()
+C3Vector CVisionSensor::getVisionSensorSize() const
 {
-    return(_size);
+    return(_visionSensorSize);
 }
 
 void CVisionSensor::setPerspectiveOperation(bool p)
@@ -1930,23 +1936,20 @@ int CVisionSensor::_getActiveMirrors(int entityID,bool detectAll,bool entityIsMo
 
 void CVisionSensor::scaleObject(float scalingFactor)
 {
-    _nearClippingPlane*=scalingFactor;
-    _farClippingPlane*=scalingFactor;
-
-    _orthoViewSize*=scalingFactor;
-    _size=_size*scalingFactor;
+    setNearClippingPlane(_nearClippingPlane*scalingFactor);
+    setFarClippingPlane(_farClippingPlane*scalingFactor);
+    setOrthoViewSize(_orthoViewSize*scalingFactor);
+    setVisionSensorSize(_visionSensorSize*scalingFactor);
     CSceneObject::scaleObject(scalingFactor);
 }
 
 void CVisionSensor::scaleObjectNonIsometrically(float x,float y,float z)
 {
-    _nearClippingPlane*=z;
-    _farClippingPlane*=z;
-
+    setNearClippingPlane(_nearClippingPlane*z);
+    setFarClippingPlane(_farClippingPlane*z);
     float avg=sqrt(x*y);
-
-    _orthoViewSize*=avg;
-    _size*=cbrt(x*y*z);
+    setOrthoViewSize(_orthoViewSize*avg);
+    setVisionSensorSize(_visionSensorSize*cbrt(x*y*z));
     CSceneObject::scaleObjectNonIsometrically(avg,avg,z);
 }
 
@@ -1967,6 +1970,9 @@ void CVisionSensor::addSpecializedObjectEventData(CInterfaceStackTable* data) co
     data->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
     data->appendMapObject_stringFloat("viewAngle",_viewAngle);
     data->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
+    data->appendMapObject_stringFloatArray("size",_visionSensorSize.data,3);
+
+    // todo
 }
 
 CSceneObject* CVisionSensor::copyYourself()
@@ -1987,7 +1993,7 @@ CSceneObject* CVisionSensor::copyYourself()
     for (int i=0;i<3;i++) // Important to do it before setting the sensor type
         newVisionSensor->_defaultBufferValues[i]=_defaultBufferValues[i];
     newVisionSensor->_perspectiveOperation=_perspectiveOperation;
-    newVisionSensor->_size=_size;
+    newVisionSensor->_visionSensorSize=_visionSensorSize;
     newVisionSensor->_detectableEntityHandle=_detectableEntityHandle;
     newVisionSensor->_useExternalImage=_useExternalImage;
     newVisionSensor->_useSameBackgroundAsEnvironment=_useSameBackgroundAsEnvironment;
@@ -2450,7 +2456,7 @@ void CVisionSensor::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Siz");
-            ar << _size(0) << _size(1) << _size(2);
+            ar << _visionSensorSize(0) << _visionSensorSize(1) << _visionSensorSize(2);
             ar.flush();
 
             ar.storeDataName("Rmd");
@@ -2549,7 +2555,7 @@ void CVisionSensor::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _size(0) >> _size(1) >> _size(2);
+                        ar >> _visionSensorSize(0) >> _visionSensorSize(1) >> _visionSensorSize(2);
                     }
                     if (theName.compare("Rmd")==0)
                     {
@@ -2663,7 +2669,7 @@ void CVisionSensor::serialize(CSer& ar)
         bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
         if (ar.isStoring())
         {
-            ar.xmlAddNode_floats("size",_size.data,3);
+            ar.xmlAddNode_floats("size",_visionSensorSize.data,3);
 
             ar.xmlAddNode_float("orthoViewSize",_orthoViewSize);
 
@@ -2755,7 +2761,7 @@ void CVisionSensor::serialize(CSer& ar)
         {
             C3Vector x;
             if (ar.xmlGetNode_floats("size",x.data,3,exhaustiveXml))
-                setSize(x);
+                setVisionSensorSize(x);
 
             if (ar.xmlGetNode_float("orthoViewSize",_orthoViewSize,exhaustiveXml))
                 setOrthoViewSize(_orthoViewSize);

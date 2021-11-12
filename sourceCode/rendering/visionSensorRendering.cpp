@@ -71,7 +71,7 @@ void displayVisionSensor(CVisionSensor* visionSensor,CViewableBase* renderingObj
             visionSensor->getColor(true)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
         else
             visionSensor->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-        C3Vector _size(visionSensor->getSize());
+        C3Vector _size(visionSensor->getVisionSensorSize());
         float dx=_size(0)*0.5f;
         float dy=_size(1)*0.5f;
         glBegin(GL_QUADS);

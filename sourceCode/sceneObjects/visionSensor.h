@@ -64,8 +64,8 @@ public:
     void setDesiredResolution(int r[2]);
     void getDesiredResolution(int r[2]);
 
-    void setSize(const C3Vector& s);
-    C3Vector getSize();
+    void setVisionSensorSize(const C3Vector& s);
+    C3Vector getVisionSensorSize() const;
     void setPerspectiveOperation(bool p);
     bool getPerspectiveOperation() const;
     void setExplicitHandling(bool explicitHandl);
@@ -166,7 +166,7 @@ protected:
     int _resolutionY;
     int _desiredResolution[2];
     int _detectableEntityHandle;
-    C3Vector _size;
+    C3Vector _visionSensorSize;
     bool _perspectiveOperation;
     bool _explicitHandling;
     bool _showVolumeWhenNotDetecting;

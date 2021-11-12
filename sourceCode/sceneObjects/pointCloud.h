@@ -105,6 +105,7 @@ public:
     std::vector<float>* getDisplayColors();
 
 protected:
+    void _updatePointCloudEvent() const;
     void _readPositionsAndColorsAndSetDimensions();
     void _getCharRGB3Colors(const std::vector<float>& floatRGBA,std::vector<unsigned char>& charRGB);
 

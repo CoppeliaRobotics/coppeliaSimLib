@@ -91,8 +91,12 @@ float* COctree::getColors()
 
 void COctree::_readPositionsAndColorsAndSetDimensions()
 {
-    _voxelPositions.clear();
+    std::vector<float> _voxelPositions_old;
+    _voxelPositions_old.swap(_voxelPositions);
+    std::vector<unsigned char> _colorsByte_old;
+    _colorsByte_old.swap(_colorsByte);
     _colors.clear();
+    bool generateEvent=true;
     if (_octreeInfo!=nullptr)
     {
         CPluginContainer::geomPlugin_getOctreeVoxelPositions(_octreeInfo,_voxelPositions);
@@ -105,9 +109,11 @@ void COctree::_readPositionsAndColorsAndSetDimensions()
                 _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
                 _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
                 _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                _colors.push_back(0.0);
+                _colors.push_back(1.0f);
             }
         }
+        for (size_t i=0;i<_colors.size();i++)
+            _colorsByte.push_back((unsigned char)(_colors[i]*255.1f));
 
         C3Vector minDim,maxDim;
         for (size_t i=0;i<_voxelPositions.size()/3;i++)
@@ -133,7 +139,67 @@ void COctree::_readPositionsAndColorsAndSetDimensions()
         _setBoundingBox(minDim,maxDim);
     }
     else
+    {
         clear();
+        generateEvent=false;
+    }
+    if ( generateEvent&&_isInScene&&App::worldContainer->getEnableEvents() )
+    {
+        if (_voxelPositions_old.size()==_voxelPositions.size())
+        {
+            unsigned char* v=(unsigned char*)_voxelPositions.data();
+            unsigned char* w=(unsigned char*)_voxelPositions_old.data();
+            unsigned long long vv=0;
+            unsigned long long ww=0;
+            for (size_t i=0;i<_voxelPositions_old.size()*4;i++)
+            {
+                vv+=v[i];
+                ww+=w[i];
+            }
+            if (vv==ww)
+            {
+
+                v=_colorsByte.data();
+                w=_colorsByte_old.data();
+                vv=0;
+                ww=0;
+                for (size_t i=0;i<_colorsByte.size();i++)
+                {
+                    vv+=v[i];
+                    ww+=w[i];
+                }
+                if (vv==ww)
+                    generateEvent=false;
+            }
+        }
+        if (generateEvent)
+            _updateOctreeEvent();
+    }
+}
+
+void COctree::_updateOctreeEvent() const
+{
+    if ( _isInScene&&App::worldContainer->getEnableEvents() )
+    {
+        const char* cmd="voxels";
+        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+        data->appendMapObject_stringFloat("voxelSize",_cellSize);
+        CInterfaceStackTable* subC=new CInterfaceStackTable();
+        data->appendMapObject_stringObject(cmd,subC);
+        data=subC;
+
+        CCbor obj(nullptr,0);
+        size_t l;
+        obj.appendFloatArray(_voxelPositions.data(),_voxelPositions.size());
+        const char* buff=(const char*)obj.getBuff(l);
+        data->appendMapObject_stringString("positions",buff,l,true);
+
+        obj.clear();
+        obj.appendBuff(_colorsByte.data(),_colorsByte.size());
+        buff=(const char*)obj.getBuff(l);
+        data->appendMapObject_stringString("colors",buff,l,true);
+        App::worldContainer->pushEvent(event);
+    }
 }
 
 void COctree::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToOctree,const unsigned char* optionalColors3,bool colorsAreIndividual,const unsigned int* optionalTags,unsigned int theTagWhenOptionalTagsIsNull)
@@ -400,7 +466,9 @@ void COctree::clear()
     }
     _voxelPositions.clear();
     _colors.clear();
+    _colorsByte.clear();
     _setBoundingBox(C3Vector(-0.1f,-0.1f,-0.1f),C3Vector(+0.1f,+0.1f,+0.1f));
+    _updateOctreeEvent();
 }
 
 bool COctree::getUseRandomColors() const
@@ -413,27 +481,7 @@ void COctree::setUseRandomColors(bool r)
     if (r!=_useRandomColors)
     {
         _useRandomColors=r;
-        _colors.clear();
-        if (r)
-        {
-            for (size_t i=0;i<_voxelPositions.size()/3;i++)
-            {
-                _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                _colors.push_back(0.0);
-            }
-        }
-        else
-        {
-            for (size_t i=0;i<_voxelPositions.size()/3;i++)
-            {
-                _colors.push_back(color.getColorsPtr()[0]);
-                _colors.push_back(color.getColorsPtr()[1]);
-                _colors.push_back(color.getColorsPtr()[2]);
-                _colors.push_back(0.0);
-            }
-        }
+        _readPositionsAndColorsAndSetDimensions();
     }
 }
 
@@ -534,6 +582,7 @@ void COctree::scaleObject(float scalingFactor)
         _voxelPositions[i]*=scalingFactor;
     if (_octreeInfo!=nullptr)
         CPluginContainer::geomPlugin_scaleOctree(_octreeInfo,scalingFactor);
+    _updateOctreeEvent();
     CSceneObject::scaleObject(scalingFactor);
 }
 
@@ -554,7 +603,22 @@ void COctree::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringObject("octree",subC);
     data=subC;
 
-    // todo
+    data->appendMapObject_stringFloat("voxelSize",_cellSize);
+
+    subC=new CInterfaceStackTable();
+    data->appendMapObject_stringObject("voxels",subC);
+    data=subC;
+
+    CCbor obj(nullptr,0);
+    size_t l;
+    obj.appendFloatArray(_voxelPositions.data(),_voxelPositions.size());
+    const char* buff=(const char*)obj.getBuff(l);
+    data->appendMapObject_stringString("positions",buff,l,true);
+
+    obj.clear();
+    obj.appendBuff(_colorsByte.data(),_colorsByte.size());
+    buff=(const char*)obj.getBuff(l);
+    data->appendMapObject_stringString("colors",buff,l,true);
 }
 
 CSceneObject* COctree::copyYourself()
@@ -568,6 +632,7 @@ CSceneObject* COctree::copyYourself()
         newOctree->_octreeInfo=CPluginContainer::geomPlugin_copyOctree(_octreeInfo);
     newOctree->_voxelPositions.assign(_voxelPositions.begin(),_voxelPositions.end());
     newOctree->_colors.assign(_colors.begin(),_colors.end());
+    newOctree->_colorsByte.assign(_colorsByte.begin(),_colorsByte.end());
     newOctree->_showOctreeStructure=_showOctreeStructure;
     newOctree->_useRandomColors=_useRandomColors;
     newOctree->_colorIsEmissive=_colorIsEmissive;

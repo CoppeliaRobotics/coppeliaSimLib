@@ -8445,7 +8445,7 @@ simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt
 
         it->setAllowedNormal(floatParams[10]);
         it->convexVolume->setSmallestDistanceAllowed(floatParams[11]);
-        it->setSize(floatParams[12]);
+        it->setProxSensorSize(floatParams[12]);
 
         if (color!=nullptr)
         {
@@ -8549,7 +8549,7 @@ simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,con
             it->setViewAngle(floatParams[2]);
         else
             it->setOrthoViewSize(floatParams[2]);
-        it->setSize(C3Vector(floatParams+3));
+        it->setVisionSensorSize(C3Vector(floatParams+3));
         it->setDefaultBufferValues(floatParams+6);
 
         if (color!=nullptr)
@@ -14893,9 +14893,7 @@ simInt simCreateOctree_internal(simFloat voxelSize,simInt options,simFloat point
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -14919,9 +14917,7 @@ simInt simCreatePointCloud_internal(simFloat maxVoxelSize,simInt maxPtCntPerVoxe
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -14946,16 +14942,12 @@ simInt simSetPointCloudOptions_internal(simInt pointCloudHandle,simFloat maxVoxe
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!isPointCloud(__func__,pointCloudHandle))
-        {
             return(-1);
-        }
         CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
         it->setCellSize(maxVoxelSize);
         it->setMaxPointCountPerCell(maxPtCntPerVoxel);
@@ -14975,16 +14967,12 @@ simInt simGetPointCloudOptions_internal(simInt pointCloudHandle,simFloat* maxVox
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isPointCloud(__func__,pointCloudHandle))
-        {
             return(-1);
-        }
         CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
         maxVoxelSize[0]=it->getCellSize();
         maxPtCntPerVoxel[0]=it->getMaxPointCountPerCell();
@@ -15044,16 +15032,12 @@ simInt simRemoveVoxelsFromOctree_internal(simInt octreeHandle,simInt options,con
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!isOctree(__func__,octreeHandle))
-        {
             return(-1);
-        }
         COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
         if (pts==nullptr)
             it->clear();
@@ -15098,16 +15082,12 @@ simInt simRemovePointsFromPointCloud_internal(simInt pointCloudHandle,simInt opt
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!isPointCloud(__func__,pointCloudHandle))
-        {
             return(-1);
-        }
         CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
         if (pts==nullptr)
             it->clear();

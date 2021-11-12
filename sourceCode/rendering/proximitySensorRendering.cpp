@@ -84,7 +84,7 @@ void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObje
 
         if ((proxSensor->getShowVolumeWhenDetecting()&&proxSensor->getIsDetectedPointValid())||(proxSensor->getShowVolumeWhenNotDetecting()&&(!proxSensor->getIsDetectedPointValid())))
         {
-            ogl::drawSphere(proxSensor->getSize()/2.0f,10,5,true);
+            ogl::drawSphere(proxSensor->getProxSensorSize()/2.0f,10,5,true);
             if (proxSensor->convexVolume->volumeEdges.size()!=0)
                 ogl::drawRandom3dLines(&proxSensor->convexVolume->volumeEdges[0],(int)proxSensor->convexVolume->volumeEdges.size()/3,false,normalVectorForLinesAndPoints.data);
             proxSensor->getColor(3)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);

@@ -100,7 +100,7 @@ void CQDlgVisionSensors::refresh()
         s->getDesiredResolution(r);
         ui->qqResX->setText(tt::getIString(false,r[0]).c_str());
         ui->qqResY->setText(tt::getIString(false,r[1]).c_str());
-        C3Vector size(s->getSize());
+        C3Vector size(s->getVisionSensorSize());
         ui->qqSizeX->setText(tt::getFString(false,size(0),3).c_str());
         ui->qqSizeY->setText(tt::getFString(false,size(1),3).c_str());
         ui->qqSizeZ->setText(tt::getFString(false,size(2),3).c_str());
@@ -402,7 +402,7 @@ void CQDlgVisionSensors::on_qqSizeX_editingFinished()
             float newVal=ui->qqSizeX->text().toFloat(&ok);
             if (ok)
             {
-                C3Vector s(it->getSize());
+                C3Vector s(it->getVisionSensorSize());
                 s(0)=newVal;
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_OBJECTSIZE_VISIONSENSORGUITRIGGEREDCMD;
@@ -431,7 +431,7 @@ void CQDlgVisionSensors::on_qqSizeY_editingFinished()
             float newVal=ui->qqSizeY->text().toFloat(&ok);
             if (ok)
             {
-                C3Vector s(it->getSize());
+                C3Vector s(it->getVisionSensorSize());
                 s(1)=newVal;
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_OBJECTSIZE_VISIONSENSORGUITRIGGEREDCMD;
@@ -460,7 +460,7 @@ void CQDlgVisionSensors::on_qqSizeZ_editingFinished()
             float newVal=ui->qqSizeZ->text().toFloat(&ok);
             if (ok)
             {
-                C3Vector s(it->getSize());
+                C3Vector s(it->getVisionSensorSize());
                 s(2)=newVal;
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_OBJECTSIZE_VISIONSENSORGUITRIGGEREDCMD;

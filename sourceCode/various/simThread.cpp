@@ -811,7 +811,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setSize(C3Vector(&cmd.floatParams[0]));
+                it->setVisionSensorSize(C3Vector(&cmd.floatParams[0]));
         }
         if (cmd.cmdId==SET_DEFAULTIMGCOL_VISIONSENSORGUITRIGGEREDCMD)
         {
@@ -869,7 +869,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         last->getColor(false)->copyYourselfInto(it->getColor(false));
                         last->getColor(true)->copyYourselfInto(it->getColor(true));
-                        it->setSize(last->getSize());
+                        it->setVisionSensorSize(last->getVisionSensorSize());
                         it->setShowVolumeWhenNotDetecting(last->getShowVolumeWhenNotDetecting());
                         it->setShowVolumeWhenDetecting(last->getShowVolumeWhenDetecting());
                     }
@@ -1356,7 +1356,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setSize(cmd.floatParams[0]);
+                it->setProxSensorSize(cmd.floatParams[0]);
         }
         if (cmd.cmdId==APPLY_MAINPROP_PROXSENSORGUITRIGGEREDCMD)
         {
@@ -1404,7 +1404,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             it->getColor(1)->copyYourselfInto(it2->getColor(1));
                             it->getColor(2)->copyYourselfInto(it2->getColor(2));
                             it->getColor(3)->copyYourselfInto(it2->getColor(3));
-                            it2->setSize(it->getSize());
+                            it2->setProxSensorSize(it->getProxSensorSize());
                             it2->setShowVolumeWhenNotDetecting(it->getShowVolumeWhenNotDetecting());
                             it2->setShowVolumeWhenDetecting(it->getShowVolumeWhenDetecting());
                         }

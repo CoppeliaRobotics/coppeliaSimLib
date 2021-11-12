@@ -84,6 +84,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
     displayPoints_old.swap(_displayPoints);
     displayColorsByte_old.swap(_displayColorsByte);
     _displayColors.clear();
+    bool generateEvent=true;
     if (_doNotUseOctreeStructure)
     {
         _nonEmptyCells=0;
@@ -190,12 +191,14 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
             _setBoundingBox(minDim,maxDim);
         }
         else
+        {
             clear();
+            generateEvent=false;
+        }
     }
 
-    if ( _isInScene&&App::worldContainer->getEnableEvents() )
+    if ( generateEvent&&_isInScene&&App::worldContainer->getEnableEvents() )
     {
-        bool generateEvent=true;
         if (displayPoints_old.size()==_displayPoints.size())
         {
             unsigned char* v=(unsigned char*)_displayPoints.data();
@@ -224,26 +227,32 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
             }
         }
         if (generateEvent)
-        {
-            const char* cmd="points";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            _updatePointCloudEvent();
+    }
+}
 
-            CInterfaceStackTable* subC=new CInterfaceStackTable();
-            data->appendMapObject_stringObject(cmd,subC);
-            data=subC;
+void CPointCloud::_updatePointCloudEvent() const
+{
+    if ( _isInScene&&App::worldContainer->getEnableEvents() )
+    {
+        const char* cmd="points";
+        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
 
-            CCbor obj(nullptr,0);
-            size_t l;
-            obj.appendFloatArray(_displayPoints.data(),_displayPoints.size());
-            const char* buff=(const char*)obj.getBuff(l);
-            data->appendMapObject_stringString("points",buff,l,true);
+        CInterfaceStackTable* subC=new CInterfaceStackTable();
+        data->appendMapObject_stringObject(cmd,subC);
+        data=subC;
 
-            obj.clear();
-            obj.appendBuff(_displayColorsByte.data(),_displayColorsByte.size());
-            buff=(const char*)obj.getBuff(l);
-            data->appendMapObject_stringString("colors",buff,l,true);
-            App::worldContainer->pushEvent(event);
-        }
+        CCbor obj(nullptr,0);
+        size_t l;
+        obj.appendFloatArray(_displayPoints.data(),_displayPoints.size());
+        const char* buff=(const char*)obj.getBuff(l);
+        data->appendMapObject_stringString("points",buff,l,true);
+
+        obj.clear();
+        obj.appendBuff(_displayColorsByte.data(),_displayColorsByte.size());
+        buff=(const char*)obj.getBuff(l);
+        data->appendMapObject_stringString("colors",buff,l,true);
+        App::worldContainer->pushEvent(event);
     }
 }
 
@@ -419,7 +428,7 @@ void CPointCloud::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeTo
                 _colors.push_back(color.getColorsPtr()[0]);
                 _colors.push_back(color.getColorsPtr()[1]);
                 _colors.push_back(color.getColorsPtr()[2]);
-                _colors.push_back(0.0);
+                _colors.push_back(1.0f);
             }
         }
         else
@@ -431,7 +440,7 @@ void CPointCloud::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeTo
                     _colors.push_back(float(optionalColors3[3*i+0])/255.1f);
                     _colors.push_back(float(optionalColors3[3*i+1])/255.1f);
                     _colors.push_back(float(optionalColors3[3*i+2])/255.1f);
-                    _colors.push_back(0.0);
+                    _colors.push_back(1.0f);
                 }
             }
             else
@@ -441,7 +450,7 @@ void CPointCloud::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeTo
                     _colors.push_back(float(optionalColors3[0])/255.1f);
                     _colors.push_back(float(optionalColors3[1])/255.1f);
                     _colors.push_back(float(optionalColors3[2])/255.1f);
-                    _colors.push_back(0.0);
+                    _colors.push_back(1.0f);
                 }
             }
         }
@@ -583,6 +592,7 @@ void CPointCloud::clear()
     }
     _setBoundingBox(C3Vector(-0.1f,-0.1f,-0.1f),C3Vector(+0.1f,+0.1f,+0.1f));
     _nonEmptyCells=0;
+    _updatePointCloudEvent();
 }
 
 const std::vector<float>* CPointCloud::getPoints() const
@@ -657,6 +667,7 @@ void CPointCloud::scaleObject(float scalingFactor)
         _displayPoints[i]*=scalingFactor;
     if (_pointCloudInfo!=nullptr)
         CPluginContainer::geomPlugin_scalePtcloud(_pointCloudInfo,scalingFactor);
+    _updatePointCloudEvent();
     CSceneObject::scaleObject(scalingFactor);
 }
 
@@ -707,6 +718,9 @@ CSceneObject* CPointCloud::copyYourself()
         newPointcloud->_pointCloudInfo=CPluginContainer::geomPlugin_copyPtcloud(_pointCloudInfo);
     newPointcloud->_points.assign(_points.begin(),_points.end());
     newPointcloud->_colors.assign(_colors.begin(),_colors.end());
+    newPointcloud->_displayPoints.assign(_displayPoints.begin(),_displayPoints.end());
+    newPointcloud->_displayColors.assign(_displayColors.begin(),_displayColors.end());
+    newPointcloud->_displayColorsByte.assign(_displayColorsByte.begin(),_displayColorsByte.end());
     newPointcloud->_showOctreeStructure=_showOctreeStructure;
     newPointcloud->_useRandomColors=_useRandomColors;
     newPointcloud->_colorIsEmissive=_colorIsEmissive;
@@ -718,9 +732,6 @@ CSceneObject* CPointCloud::copyYourself()
     newPointcloud->_removalDistanceTolerance=_removalDistanceTolerance;
     newPointcloud->_insertionDistanceTolerance=_insertionDistanceTolerance;
     newPointcloud->_pointDisplayRatio=_pointDisplayRatio;
-    newPointcloud->_displayPoints.assign(_displayPoints.begin(),_displayPoints.end());
-    newPointcloud->_displayColors.assign(_displayColors.begin(),_displayColors.end());
-    newPointcloud->_displayColorsByte.assign(_displayColorsByte.begin(),_displayColorsByte.end());
 
     return(newPointcloud);
 }
@@ -844,17 +855,7 @@ void CPointCloud::setUseRandomColors(bool r)
     if (r!=_useRandomColors)
     {
         _useRandomColors=r;
-        _colors.clear();
-        if (r)
-        {
-            for (size_t i=0;i<_points.size()/3;i++)
-            {
-                _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                _colors.push_back(0.0);
-            }
-        }
+        _readPositionsAndColorsAndSetDimensions();
     }
 }
 

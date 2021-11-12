@@ -58,8 +58,8 @@ public:
     bool getSensedData(C3Vector& pt);
     void setClosestObjectMode(bool closestObjMode);
     bool getClosestObjectMode();
-    void setSize(float newSize);
-    float getSize();
+    void setProxSensorSize(float newSize);
+    float getProxSensorSize();
 
     void setAllowedNormal(float al);
     float getAllowedNormal() const;
@@ -122,7 +122,7 @@ protected:
     CColorObject detectionRayColor;
     CColorObject closestDistanceVolumeColor;
     float allowedNormal;
-    float size;
+    float _proxSensorSize;
     bool normalCheck;
 //    bool _checkOcclusions;
     bool closestObjectMode;
