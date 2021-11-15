@@ -278,22 +278,6 @@
      <string>Length [m]</string>
     </property>
    </widget>
-   <widget class="QToolButton" name="qqAdjustColorB">
-    <property name="geometry">
-     <rect>
-      <x>230</x>
-      <y>45</y>
-      <width>171</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Adjust color B</string>
-    </property>
-   </widget>
    <widget class="QToolButton" name="qqAdjustColorA">
     <property name="geometry">
      <rect>
@@ -307,7 +291,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust color A</string>
+     <string>Adjust color</string>
     </property>
    </widget>
   </widget>
@@ -1699,7 +1683,6 @@
   <tabstop>qqLength</tabstop>
   <tabstop>qqDiameter</tabstop>
   <tabstop>qqAdjustColorA</tabstop>
-  <tabstop>qqAdjustColorB</tabstop>
   <tabstop>qqApplyAppearance</tabstop>
   <tabstop>qqAdjustDynamicParameters</tabstop>
  </tabstops>

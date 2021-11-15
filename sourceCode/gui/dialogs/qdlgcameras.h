@@ -50,8 +50,6 @@ private slots:
 
     void on_qqColorA_clicked();
 
-    void on_qqColorB_clicked();
-
     void on_qqSize_editingFinished();
 
     void on_qqLocalLights_clicked();

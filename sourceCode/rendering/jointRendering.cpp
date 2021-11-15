@@ -32,14 +32,14 @@ void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib
                 ogl::setMaterialColor(0.9f,0.9f,0.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
         }
         else
-            joint->getJointColor1()->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
+            joint->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
 
         _displayJoint(joint,displayAttrib,true,sizeParam);
 
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
             ogl::setMaterialColor(0.1f,0.1f,0.1f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
         else
-            joint->getJointColor2()->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
+            joint->getColor(true)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
         _displayJoint(joint,displayAttrib,false,sizeParam);
         _disableAuxClippingPlanes();
     }

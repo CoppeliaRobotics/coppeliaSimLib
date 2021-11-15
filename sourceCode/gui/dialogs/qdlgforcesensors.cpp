@@ -37,7 +37,6 @@ void CQDlgForceSensors::refresh()
 
     ui->qqSize->setEnabled(sel&&noEditModeNoSim);
     ui->qqColorA->setEnabled(sel&&noEditModeNoSim);
-    ui->qqColorB->setEnabled(sel&&noEditModeNoSim);
     ui->qqApplyMain->setEnabled(bigSel&&noEditModeNoSim);
 
     ui->qqSampleSize->setEnabled(sel&&noEditModeNoSim);
@@ -105,14 +104,6 @@ void CQDlgForceSensors::on_qqColorA_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CQDlgMaterial::displayMaterialDlg(COLOR_ID_FORCESENSOR_A,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
-    }
-}
-
-void CQDlgForceSensors::on_qqColorB_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_FORCESENSOR_B,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
     }
 }
 

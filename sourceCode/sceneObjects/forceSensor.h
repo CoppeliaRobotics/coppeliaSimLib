@@ -103,8 +103,8 @@ protected:
     // Variables which need to be serialized & copied
     // Visual attributes:
     float _forceSensorSize;
-    CColorObject colorPart1;
-    CColorObject colorPart2;
+    CColorObject _color;
+    CColorObject _color_removeSoon;
 
     // Dynamic values:
     std::vector<C3Vector> _cumulatedForces;

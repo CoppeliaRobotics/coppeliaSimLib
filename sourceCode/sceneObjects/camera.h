@@ -90,8 +90,8 @@ protected:
     bool _renderModeDuringSimulation;
     bool _renderModeDuringRecording;
     int _cameraManipulationModePermissions;
-    CColorObject colorPart1; // Part1 color
-    CColorObject colorPart2; // Part2 color
+    CColorObject _color;
+    CColorObject _color_removeSoon;
 
     // Various
     int trackedObjectIdentifier_NeverDirectlyTouch;

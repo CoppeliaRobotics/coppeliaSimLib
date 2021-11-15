@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>343</height>
+    <height>325</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
      <x>10</x>
      <y>240</y>
      <width>411</width>
-     <height>71</height>
+     <height>51</height>
     </rect>
    </property>
    <property name="title">
@@ -67,23 +67,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust color A</string>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="qqColorB">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>45</y>
-      <width>161</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Adjust color B</string>
+     <string>Adjust color</string>
     </property>
    </widget>
   </widget>
@@ -259,7 +243,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>315</y>
+     <y>300</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -1643,7 +1627,6 @@
   <tabstop>qqApplyBreaking</tabstop>
   <tabstop>qqSize</tabstop>
   <tabstop>qqColorA</tabstop>
-  <tabstop>qqColorB</tabstop>
   <tabstop>qqApplyMain</tabstop>
  </tabstops>
  <resources/>

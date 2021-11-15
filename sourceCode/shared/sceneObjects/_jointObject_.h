@@ -243,8 +243,7 @@ public:
 
     void setIntrinsicTransformationError(const C7Vector& tr);
 
-    CColorObject* getJointColor1();
-    CColorObject* getJointColor2();
+    CColorObject* getColor(bool part2);
 
 protected:
     virtual void _setPositionIntervalMin_send(float min) const;
@@ -295,8 +294,8 @@ protected:
     float _dependencyJointMult;
     float _dependencyJointOffset;
 
-    CColorObject _colorPart1;
-    CColorObject _colorPart2;
+    CColorObject _color;
+    CColorObject _color_removeSoon;
 
     bool _dynamicMotorEnabled;
     float _dynamicMotorTargetVelocity;

@@ -27,6 +27,7 @@ CViewableBase::CViewableBase()
     _frustumCullingTemporarilyDisabled=false;
     _disabledColorComponents=0;
     _perspective=true;
+    _viewAngle=60.0f*piValue/180.0f;
     _resolution[0]=1280;
     _resolution[1]=720;
 }

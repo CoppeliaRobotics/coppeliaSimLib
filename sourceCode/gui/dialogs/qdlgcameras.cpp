@@ -38,7 +38,6 @@ void CQDlgCameras::refresh()
     ui->qqAlongY->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqAlongZ->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqColorA->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqColorB->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqFarClipping->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqNearClipping->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqFullRotation->setEnabled((it!=nullptr)&&noEditModeNoSim);
@@ -338,14 +337,6 @@ void CQDlgCameras::on_qqColorA_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CQDlgMaterial::displayMaterialDlg(COLOR_ID_CAMERA_A,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
-    }
-}
-
-void CQDlgCameras::on_qqColorB_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_CAMERA_B,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
     }
 }
 

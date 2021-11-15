@@ -2947,8 +2947,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
                     if ( (it!=nullptr)&&(last->getJointType()==it->getJointType()) )
                     {
-                        last->getJointColor1()->copyYourselfInto(it->getJointColor1());
-                        last->getJointColor2()->copyYourselfInto(it->getJointColor2());
+                        last->getColor(false)->copyYourselfInto(it->getColor(false));
+                        last->getColor(true)->copyYourselfInto(it->getColor(true));
                         it->setLength(last->getLength());
                         it->setDiameter(last->getDiameter());
                     }

@@ -172,9 +172,9 @@ void _CJoint_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMs
     {
         if (routing[0].objType==sim_syncobj_color)
         { // this message is for the color objects
-            CColorObject* obj=&_colorPart1;
+            CColorObject* obj=&_color;
             if (routing[0].objHandle==1)
-                obj=&_colorPart2;
+                obj=&_color_removeSoon;
             routing.erase(routing.begin());
         }
     }
@@ -1373,12 +1373,9 @@ float _CJoint_::getDependencyJointOffset() const
     return(_dependencyJointOffset);
 }
 
-CColorObject* _CJoint_::getJointColor1()
+CColorObject* _CJoint_::getColor(bool part2)
 {
-    return(&_colorPart1);
-}
-
-CColorObject* _CJoint_::getJointColor2()
-{
-    return(&_colorPart2);
+    if (part2)
+        return(&_color_removeSoon);
+    return(&_color);
 }

@@ -398,23 +398,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust color A</string>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="qqColorB">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>45</y>
-      <width>181</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Adjust color B</string>
+     <string>Adjust color</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="qqSize">
@@ -477,7 +461,6 @@
   <tabstop>qqAllowPicking</tabstop>
   <tabstop>qqSize</tabstop>
   <tabstop>qqColorA</tabstop>
-  <tabstop>qqColorB</tabstop>
  </tabstops>
  <resources/>
  <connections/>

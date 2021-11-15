@@ -1105,7 +1105,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _allowedParts[0]=1+4+8+16+32+64;
         CJoint* it=currentWorld->sceneObjects->getJointFromHandle(objID1);
         if (it!=nullptr)
-            return((CColorObject*)it->getJointColor1());
+            return((CColorObject*)it->getColor(false));
     }
     if (objType==COLOR_ID_JOINT_B)
     {
@@ -1113,7 +1113,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _allowedParts[0]=1+4+8+16+32+64;
         CJoint* it=currentWorld->sceneObjects->getJointFromHandle(objID1);
         if (it!=nullptr)
-            return((CColorObject*)it->getJointColor2());
+            return((CColorObject*)it->getColor(true));
     }
     if (objType==COLOR_ID_PATH)
     {

@@ -84,7 +84,6 @@ void CQDlgJoints::refresh()
     ui->qqLength->setEnabled(sel&&(!spherical)&&noEditModeNoSim);
     ui->qqDiameter->setEnabled(sel&&noEditModeNoSim);
     ui->qqAdjustColorA->setEnabled(sel&&noEditModeNoSim);
-    ui->qqAdjustColorB->setEnabled(sel&&noEditModeNoSim);
     ui->qqApplyAppearance->setEnabled(sel&&bigSel&&noEditModeNoSim);
 
     ui->qqCyclic->setChecked(sel&&revolute&&it->getPositionIsCyclic());
@@ -405,14 +404,6 @@ void CQDlgJoints::on_qqAdjustColorA_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CQDlgMaterial::displayMaterialDlg(COLOR_ID_JOINT_A,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
-    }
-}
-
-void CQDlgJoints::on_qqAdjustColorB_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_JOINT_B,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
     }
 }
 

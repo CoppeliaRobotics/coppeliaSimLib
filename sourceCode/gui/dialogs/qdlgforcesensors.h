@@ -25,8 +25,6 @@ private slots:
 
     void on_qqColorA_clicked();
 
-    void on_qqColorB_clicked();
-
     void on_qqApplyMain_clicked();
 
     void on_qqSampleSize_editingFinished();

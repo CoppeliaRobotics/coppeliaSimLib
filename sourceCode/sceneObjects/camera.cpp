@@ -53,8 +53,8 @@ bool CCamera::isPotentiallyRenderable() const
 CColorObject* CCamera::getColor(bool secondPart)
 {
     if (secondPart)
-        return(&colorPart2);
-    return(&colorPart1);
+        return(&_color_removeSoon);
+    return(&_color);
 }
 
 void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPerspectiveProjection,std::vector<int>* selectedObjects,bool useSystemSelection,bool includeModelObjects,float scalingFactor,CSView* optionalView)
@@ -767,10 +767,10 @@ void CCamera::commonInit()
     _localObjectSpecialProperty=0;
     _useParentObjectAsManipulationProxy=false;
 
-    colorPart1.setDefaultValues();
-    colorPart1.setColor(0.9f,0.2f,0.2f,sim_colorcomponent_ambient_diffuse);
-    colorPart2.setDefaultValues();
-    colorPart2.setColor(0.45f,0.45f,0.45f,sim_colorcomponent_ambient_diffuse);
+    _color.setDefaultValues();
+    _color.setColor(0.9f,0.2f,0.2f,sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.setDefaultValues();
+    _color_removeSoon.setColor(0.22f,0.22f,0.22f,sim_colorcomponent_ambient_diffuse);
 
     _objectAlias=IDSOGL_CAMERA;
     _objectName_old=IDSOGL_CAMERA;
@@ -1023,13 +1023,13 @@ void CCamera::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     CInterfaceStackTable* colors=new CInterfaceStackTable();
     data->appendMapObject_stringObject("colors",colors);
     float c[9];
-    colorPart1.getColor(c,sim_colorcomponent_ambient_diffuse);
-    colorPart1.getColor(c+3,sim_colorcomponent_specular);
-    colorPart1.getColor(c+6,sim_colorcomponent_emission);
+    _color.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _color.getColor(c+3,sim_colorcomponent_specular);
+    _color.getColor(c+6,sim_colorcomponent_emission);
     colors->appendArrayObject_floatArray(c,9);
-    colorPart2.getColor(c,sim_colorcomponent_ambient_diffuse);
-    colorPart2.getColor(c+3,sim_colorcomponent_specular);
-    colorPart2.getColor(c+6,sim_colorcomponent_emission);
+    _color_removeSoon.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.getColor(c+3,sim_colorcomponent_specular);
+    _color_removeSoon.getColor(c+6,sim_colorcomponent_emission);
     colors->appendArrayObject_floatArray(c,9);
 }
 
@@ -1056,10 +1056,7 @@ CSceneObject* CCamera::copyYourself()
     newCamera->_useLocalLights=_useLocalLights;
     newCamera->_allowPicking=_allowPicking;
     newCamera->_showVolume=_showVolume;
-
-    // Colors:
-    colorPart1.copyYourselfInto(&newCamera->colorPart1);
-    colorPart2.copyYourselfInto(&newCamera->colorPart2);
+    _color.copyYourselfInto(&newCamera->_color);
 
     return(newCamera);
 }
@@ -1336,15 +1333,9 @@ void CCamera::serialize(CSer& ar)
 
             ar.storeDataName("Cl1");
             ar.setCountingMode();
-            colorPart1.serialize(ar,0);
+            _color.serialize(ar,0);
             if (ar.setWritingMode())
-                colorPart1.serialize(ar,0);
-
-            ar.storeDataName("Cl2");
-            ar.setCountingMode();
-            colorPart2.serialize(ar,0);
-            if (ar.setWritingMode())
-                colorPart2.serialize(ar,0);
+                _color.serialize(ar,0);
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -1470,13 +1461,7 @@ void CCamera::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        colorPart1.serialize(ar,0);
-                    }
-                    if (theName.compare("Cl2")==0)
-                    {
-                        noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        colorPart2.serialize(ar,0);
+                        _color.serialize(ar,0);
                     }
                     if (theName.compare("Cmp")==0)
                     {
@@ -1496,10 +1481,7 @@ void CCamera::serialize(CSer& ar)
             }
 
             if (ar.getSerializationVersionThatWroteThisFile()<17)
-            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-                CTTUtil::scaleColorUp_(colorPart1.getColorsPtr());
-                CTTUtil::scaleColorUp_(colorPart2.getColorsPtr());
-            }
+                CTTUtil::scaleColorUp_(_color.getColorsPtr());
             computeBoundingBox();
             computeVolumeVectors();
         }
@@ -1566,27 +1548,19 @@ void CCamera::serialize(CSer& ar)
                 ar.xmlAddNode_bool("perspectiveMode",_perspectiveOperation!=0);
             ar.xmlPopNode();
 
-            ar.xmlPushNewNode("color");
             if (exhaustiveXml)
             {
-                ar.xmlPushNewNode("part1");
-                colorPart1.serialize(ar,0);
-                ar.xmlPopNode();
-                ar.xmlPushNewNode("part2");
-                colorPart2.serialize(ar,0);
+                ar.xmlPushNewNode("objectColor");
+                _color.serialize(ar,0);
                 ar.xmlPopNode();
             }
             else
             {
                 int rgb[3];
                 for (size_t l=0;l<3;l++)
-                    rgb[l]=int(colorPart1.getColorsPtr()[l]*255.1f);
-                ar.xmlAddNode_ints("part1",rgb,3);
-                for (size_t l=0;l<3;l++)
-                    rgb[l]=int(colorPart2.getColorsPtr()[l]*255.1f);
-                ar.xmlAddNode_ints("part2",rgb,3);
+                    rgb[l]=int(_color.getColorsPtr()[l]*255.1f);
+                ar.xmlAddNode_ints("objectColor",rgb,3);
             }
-            ar.xmlPopNode();
         }
         else
         {
@@ -1635,18 +1609,33 @@ void CCamera::serialize(CSer& ar)
                 ar.xmlPopNode();
             }
 
-            if (ar.xmlPushChildNode("color",exhaustiveXml))
+            if (exhaustiveXml)
             {
+                if (ar.xmlPushChildNode("objectColor",false))
+                {
+                    _color.serialize(ar,0);
+                    ar.xmlPopNode();
+                }
+            }
+            else
+            {
+                int rgb[3];
+                if (ar.xmlGetNode_ints("objectColor",rgb,3,false))
+                    _color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+            }
+
+            if (ar.xmlPushChildNode("color",false))
+            { // for backward compatibility
                 if (exhaustiveXml)
                 {
                     if (ar.xmlPushChildNode("part1"))
                     {
-                        colorPart1.serialize(ar,0);
+                        _color.serialize(ar,0);
                         ar.xmlPopNode();
                     }
                     if (ar.xmlPushChildNode("part2"))
                     {
-                        colorPart2.serialize(ar,0);
+                        _color_removeSoon.serialize(ar,0);
                         ar.xmlPopNode();
                     }
                 }
@@ -1654,9 +1643,9 @@ void CCamera::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("part1",rgb,3,exhaustiveXml))
-                        colorPart1.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        _color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
                     if (ar.xmlGetNode_ints("part2",rgb,3,exhaustiveXml))
-                        colorPart2.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        _color_removeSoon.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }

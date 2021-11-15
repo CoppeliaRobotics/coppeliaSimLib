@@ -51,8 +51,6 @@ private slots:
 
     void on_qqAdjustColorA_clicked();
 
-    void on_qqAdjustColorB_clicked();
-
     void on_qqApplyAppearance_clicked();
 
 private:

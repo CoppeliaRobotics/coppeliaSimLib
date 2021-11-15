@@ -87,10 +87,10 @@ void CJoint::_commonInit()
     _invertTargetVelocityAtLimits_DEPRECATED=true;
     _maxAcceleration_DEPRECATED=60.0f*degToRad_f;
 
-    _colorPart1.setDefaultValues();
-    _colorPart1.setColor(1.0f,0.3f,0.1f,sim_colorcomponent_ambient_diffuse);
-    _colorPart2.setDefaultValues();
-    _colorPart2.setColor(0.1f,0.1f,0.9f,sim_colorcomponent_ambient_diffuse);
+    _color.setDefaultValues();
+    _color.setColor(1.0f,0.3f,0.1f,sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.setDefaultValues();
+    _color_removeSoon.setColor(0.22f,0.22f,0.22f,sim_colorcomponent_ambient_diffuse);
 }
 
 CJoint::~CJoint()
@@ -1475,13 +1475,13 @@ void CJoint::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     CInterfaceStackTable* colors=new CInterfaceStackTable();
     data->appendMapObject_stringObject("colors",colors);
     float c[9];
-    _colorPart1.getColor(c,sim_colorcomponent_ambient_diffuse);
-    _colorPart1.getColor(c+3,sim_colorcomponent_specular);
-    _colorPart1.getColor(c+6,sim_colorcomponent_emission);
+    _color.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _color.getColor(c+3,sim_colorcomponent_specular);
+    _color.getColor(c+6,sim_colorcomponent_emission);
     colors->appendArrayObject_floatArray(c,9);
-    _colorPart2.getColor(c,sim_colorcomponent_ambient_diffuse);
-    _colorPart2.getColor(c+3,sim_colorcomponent_specular);
-    _colorPart2.getColor(c+6,sim_colorcomponent_emission);
+    _color_removeSoon.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.getColor(c+3,sim_colorcomponent_specular);
+    _color_removeSoon.getColor(c+6,sim_colorcomponent_emission);
     colors->appendArrayObject_floatArray(c,9);
 }
 
@@ -1505,8 +1505,7 @@ CSceneObject* CJoint::copyYourself()
     newJoint->_jointMinPosition=_jointMinPosition;
     newJoint->_maxStepSize=_maxStepSize;
 
-    _colorPart1.copyYourselfInto(&newJoint->_colorPart1);
-    _colorPart2.copyYourselfInto(&newJoint->_colorPart2);
+    _color.copyYourselfInto(&newJoint->_color);
 
     newJoint->_dynamicMotorEnabled=_dynamicMotorEnabled;
     newJoint->_dynamicMotorTargetVelocity=_dynamicMotorTargetVelocity;
@@ -1664,15 +1663,9 @@ void CJoint::serialize(CSer& ar)
 
             ar.storeDataName("Cl1");
             ar.setCountingMode();
-            _colorPart1.serialize(ar,0);
+            _color.serialize(ar,0);
             if (ar.setWritingMode())
-                _colorPart1.serialize(ar,0);
-
-            ar.storeDataName("Cl2");
-            ar.setCountingMode();
-            _colorPart2.serialize(ar,0);
-            if (ar.setWritingMode())
-                _colorPart2.serialize(ar,0);
+                _color.serialize(ar,0);
 
             ar.storeDataName("Pmr");
             ar << _jointMinPosition << _jointPositionRange;
@@ -1824,13 +1817,7 @@ void CJoint::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        _colorPart1.serialize(ar,0);
-                    }
-                    if (theName.compare("Cl2")==0)
-                    {
-                        noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        _colorPart2.serialize(ar,0);
+                        _color.serialize(ar,0);
                     }
                     if (theName.compare("Arg")==0)
                     {
@@ -2124,10 +2111,7 @@ void CJoint::serialize(CSer& ar)
             }
 
             if (ar.getSerializationVersionThatWroteThisFile()<17)
-            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-                CTTUtil::scaleColorUp_(_colorPart1.getColorsPtr());
-                CTTUtil::scaleColorUp_(_colorPart2.getColorsPtr());
-            }
+                CTTUtil::scaleColorUp_(_color.getColorsPtr());
             computeBoundingBox();
         }
     }
@@ -2170,27 +2154,19 @@ void CJoint::serialize(CSer& ar)
             ar.xmlAddNode_float("diameter",_diameter);
             ar.xmlPopNode();
 
-            ar.xmlPushNewNode("color");
             if (exhaustiveXml)
             {
-                ar.xmlPushNewNode("part1");
-                _colorPart1.serialize(ar,0);
-                ar.xmlPopNode();
-                ar.xmlPushNewNode("part2");
-                _colorPart2.serialize(ar,0);
+                ar.xmlPushNewNode("objectColor");
+                _color.serialize(ar,0);
                 ar.xmlPopNode();
             }
             else
             {
                 int rgb[3];
                 for (size_t l=0;l<3;l++)
-                    rgb[l]=int(_colorPart1.getColorsPtr()[l]*255.1f);
-                ar.xmlAddNode_ints("part1",rgb,3);
-                for (size_t l=0;l<3;l++)
-                    rgb[l]=int(_colorPart2.getColorsPtr()[l]*255.1f);
-                ar.xmlAddNode_ints("part2",rgb,3);
+                    rgb[l]=int(_color.getColorsPtr()[l]*255.1f);
+                ar.xmlAddNode_ints("objectColor",rgb,3);
             }
-            ar.xmlPopNode();
 
             ar.xmlPushNewNode("ik");
             ar.xmlAddNode_float("maxStepSize",_maxStepSize*mult);
@@ -2377,18 +2353,33 @@ void CJoint::serialize(CSer& ar)
                 ar.xmlPopNode();
             }
 
-            if (ar.xmlPushChildNode("color",exhaustiveXml))
+            if (exhaustiveXml)
             {
+                if (ar.xmlPushChildNode("objectColor",false))
+                {
+                    _color.serialize(ar,0);
+                    ar.xmlPopNode();
+                }
+            }
+            else
+            {
+                int rgb[3];
+                if (ar.xmlGetNode_ints("objectColor",rgb,3,false))
+                    _color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+            }
+
+            if (ar.xmlPushChildNode("color",false))
+            { // for backward compatibility
                 if (exhaustiveXml)
                 {
                     if (ar.xmlPushChildNode("part1"))
                     {
-                        _colorPart1.serialize(ar,0);
+                        _color.serialize(ar,0);
                         ar.xmlPopNode();
                     }
                     if (ar.xmlPushChildNode("part2"))
                     {
-                        _colorPart2.serialize(ar,0);
+                        _color_removeSoon.serialize(ar,0);
                         ar.xmlPopNode();
                     }
                 }
@@ -2396,9 +2387,9 @@ void CJoint::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("part1",rgb,3,exhaustiveXml))
-                        _colorPart1.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_ambient_diffuse);
+                        _color.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_ambient_diffuse);
                     if (ar.xmlGetNode_ints("part2",rgb,3,exhaustiveXml))
-                        _colorPart2.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_ambient_diffuse);
+                        _color_removeSoon.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }

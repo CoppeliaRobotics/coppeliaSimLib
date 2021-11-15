@@ -7532,28 +7532,20 @@ simInt simSetObjectColor_internal(simInt objectHandle,simInt index,simInt colorC
         if (it->getObjectType()==sim_object_camera_type)
         {
             CCamera* camera=(CCamera*)it;
-            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            if ( (index==0)&&(colorComponent<=sim_colorcomponent_emission) )
             {
-                camera->getColor(index==1)->setColor(rgbData,colorComponent);
-                camera->getColor(index==1)->pushColorChangeEvent(objectHandle,index);
+                camera->getColor(false)->setColor(rgbData,colorComponent);
+                camera->getColor(false)->pushColorChangeEvent(objectHandle,index);
                 retVal=1;
             }
         }
         if (it->getObjectType()==sim_object_joint_type)
         {
             CJoint* joint=(CJoint*)it;
-            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            if ( (index==0)&&(colorComponent<=sim_colorcomponent_emission) )
             {
-                if (index==0)
-                {
-                    joint->getJointColor1()->setColor(rgbData,colorComponent);
-                    joint->getJointColor1()->pushColorChangeEvent(objectHandle,index);
-                }
-                if (index==1)
-                {
-                    joint->getJointColor2()->setColor(rgbData,colorComponent);
-                    joint->getJointColor2()->pushColorChangeEvent(objectHandle,index);
-                }
+                joint->getColor(false)->setColor(rgbData,colorComponent);
+                joint->getColor(false)->pushColorChangeEvent(objectHandle,index);
                 retVal=1;
             }
         }
@@ -7590,10 +7582,10 @@ simInt simSetObjectColor_internal(simInt objectHandle,simInt index,simInt colorC
         if (it->getObjectType()==sim_object_forcesensor_type)
         {
             CForceSensor* sensor=(CForceSensor*)it;
-            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            if ( (index==0)&&(colorComponent<=sim_colorcomponent_emission) )
             {
-                sensor->getColor(index==1)->setColor(rgbData,colorComponent);
-                sensor->getColor(index==1)->pushColorChangeEvent(objectHandle,index);
+                sensor->getColor(false)->setColor(rgbData,colorComponent);
+                sensor->getColor(false)->pushColorChangeEvent(objectHandle,index);
                 retVal=1;
             }
         }
@@ -7652,9 +7644,9 @@ simInt simGetObjectColor_internal(simInt objectHandle,simInt index,simInt colorC
             if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
             {
                 if (index==0)
-                    joint->getJointColor1()->getColor(rgbData,colorComponent);
+                    joint->getColor(false)->getColor(rgbData,colorComponent);
                 if (index==1)
-                    joint->getJointColor2()->getColor(rgbData,colorComponent);
+                    joint->getColor(true)->getColor(rgbData,colorComponent);
                 retVal=1;
             }
         }
@@ -8574,15 +8566,15 @@ simInt simCreateJoint_internal(simInt jointType,simInt jointMode,simInt options,
         }
         if (colorA!=nullptr)
         {
-            it->getJointColor1()->setColor(colorA+0,sim_colorcomponent_ambient_diffuse);
-            it->getJointColor1()->setColor(colorA+6,sim_colorcomponent_specular);
-            it->getJointColor1()->setColor(colorA+9,sim_colorcomponent_emission);
+            it->getColor(false)->setColor(colorA+0,sim_colorcomponent_ambient_diffuse);
+            it->getColor(false)->setColor(colorA+6,sim_colorcomponent_specular);
+            it->getColor(false)->setColor(colorA+9,sim_colorcomponent_emission);
         }
         if (colorB!=nullptr)
         {
-            it->getJointColor2()->setColor(colorB+0,sim_colorcomponent_ambient_diffuse);
-            it->getJointColor2()->setColor(colorB+6,sim_colorcomponent_specular);
-            it->getJointColor2()->setColor(colorB+9,sim_colorcomponent_emission);
+            it->getColor(true)->setColor(colorB+0,sim_colorcomponent_ambient_diffuse);
+            it->getColor(true)->setColor(colorB+6,sim_colorcomponent_specular);
+            it->getColor(true)->setColor(colorB+9,sim_colorcomponent_emission);
         }
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         int retVal=it->getObjectHandle();
