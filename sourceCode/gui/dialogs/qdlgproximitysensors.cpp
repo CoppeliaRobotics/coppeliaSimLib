@@ -47,8 +47,7 @@ void CQDlgProximitySensors::refresh()
     ui->qqEnableAll->setChecked(App::currentWorld->mainSettings->proximitySensorsEnabled);
 
     ui->qqExplicitHandling->setEnabled(isSensor&&noEditModeAndNoSim);
-    ui->qqShowDetecting->setEnabled(isSensor&&noEditModeAndNoSim);
-    ui->qqShowNotDetecting->setEnabled(isSensor&&noEditModeAndNoSim);
+    ui->qqShowVolume->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqPointSize->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqSensorTypeCombo->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqSensorTypeCombo->clear();
@@ -59,14 +58,11 @@ void CQDlgProximitySensors::refresh()
 
     ui->qqAdjustDetectionParams->setEnabled(isSensor&&noEditModeAndNoSim);
 
-    ui->qqPassiveVolumeColor->setEnabled(isSensor&&noEditModeAndNoSim);
-    ui->qqActiveVolumeColor->setEnabled(isSensor&&noEditModeAndNoSim);
-    ui->qqMinDistColor->setEnabled(isSensor&&noEditModeAndNoSim);
+    ui->qqVolumeColor->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqRayColor->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqApplyColors->setEnabled(isSensor&&manySensors&&noEditModeAndNoSim);
 
-    ui->qqShowDetecting->setChecked(isSensor&&it->getShowVolumeWhenDetecting());
-    ui->qqShowNotDetecting->setChecked(isSensor&&it->getShowVolumeWhenNotDetecting());
+    ui->qqShowVolume->setChecked(isSensor&&it->getShowVolume());
     ui->qqExplicitHandling->setChecked(isSensor&&it->getExplicitHandling());
 
     ui->qqSensorTypeCombo->setVisible(App::userSettings->showOldDlgs);
@@ -130,16 +126,6 @@ void CQDlgProximitySensors::on_qqSensorTypeCombo_currentIndexChanged(int index)
     }
 }
 
-void CQDlgProximitySensors::on_qqShowDetecting_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_SHOWVOLWHENDETECTING_PROXSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
 void CQDlgProximitySensors::on_qqPointSize_editingFinished()
 {
     if (!ui->qqPointSize->isModified())
@@ -157,11 +143,11 @@ void CQDlgProximitySensors::on_qqPointSize_editingFinished()
     }
 }
 
-void CQDlgProximitySensors::on_qqShowNotDetecting_clicked()
+void CQDlgProximitySensors::on_qqShowVolume_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_SHOWVOLWHENNOTDETECTING_PROXSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        App::appendSimulationThreadCommand(TOGGLE_SHOWVOLUME_PROXSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -241,19 +227,11 @@ void CQDlgProximitySensors::on_qqAdjustDetectionParams_clicked()
     }
 }
 
-void CQDlgProximitySensors::on_qqPassiveVolumeColor_clicked()
+void CQDlgProximitySensors::on_qqVolumeColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_PROXSENSOR_PASSIVE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
-    }
-}
-
-void CQDlgProximitySensors::on_qqActiveVolumeColor_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_PROXSENSOR_ACTIVE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_PROXSENSOR_VOLUME,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
     }
 }
 
@@ -262,14 +240,6 @@ void CQDlgProximitySensors::on_qqRayColor_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CQDlgMaterial::displayMaterialDlg(COLOR_ID_PROXSENSOR_RAY,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
-    }
-}
-
-void CQDlgProximitySensors::on_qqMinDistColor_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_PROXSENSOR_MINDIST,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
     }
 }
 

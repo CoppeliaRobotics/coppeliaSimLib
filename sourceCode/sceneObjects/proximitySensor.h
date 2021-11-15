@@ -80,13 +80,8 @@ public:
     void setSensableType(int theType);
     int getSensableType() const;
 
-    void setShowVolumeWhenNotDetecting(bool s);
-    bool getShowVolumeWhenNotDetecting() const;
-    void setShowVolumeWhenDetecting(bool s);
-    bool getShowVolumeWhenDetecting() const;
-
-//    void setCheckOcclusions(bool c);
-//    bool getCheckOcclusions() const;
+    void setShowVolume(bool s);
+    bool getShowVolume() const;
 
     void setHideDetectionRay(bool hide);
     bool getHideDetectionRay() const;
@@ -117,10 +112,8 @@ public:
 protected:
 
     // Variables which need to be serialized & copied
-    CColorObject passiveVolumeColor;
-    CColorObject activeVolumeColor;
+    CColorObject volumeColor;
     CColorObject detectionRayColor;
-    CColorObject closestDistanceVolumeColor;
     float allowedNormal;
     float _proxSensorSize;
     bool normalCheck;
@@ -129,8 +122,7 @@ protected:
     bool frontFaceDetection;
     bool backFaceDetection;
     bool explicitHandling;
-    bool _showVolumeWhenNotDetecting;
-    bool _showVolumeWhenDetecting;
+    bool _showVolume;
     int sensorType;
     int _sensableType;
     bool displayNormals;

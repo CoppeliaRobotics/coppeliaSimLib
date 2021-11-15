@@ -60,20 +60,12 @@ public:
 
     void commonInit();
 
-    void getRealResolution(int r[2]);
-    void setDesiredResolution(int r[2]);
-    void getDesiredResolution(int r[2]);
+    void setResolution(const int r[2]); // override
 
     void setVisionSensorSize(const C3Vector& s);
     C3Vector getVisionSensorSize() const;
-    void setPerspectiveOperation(bool p);
-    bool getPerspectiveOperation() const;
     void setExplicitHandling(bool explicitHandl);
-    bool getExplicitHandling();
-    void setShowVolumeWhenNotDetecting(bool s);
-    bool getShowVolumeWhenNotDetecting();
-    void setShowVolumeWhenDetecting(bool s);
-    bool getShowVolumeWhenDetecting();
+    bool getExplicitHandling() const;
     void resetSensor();
     bool handleSensor();
     bool checkSensor(int entityID,bool overrideRenderableFlagsForNonCollections);
@@ -83,53 +75,52 @@ public:
     void setDepthBuffer(const float* img);
 
     void setIgnoreRGBInfo(bool ignore);
-    bool getIgnoreRGBInfo();
+    bool getIgnoreRGBInfo() const;
     void setIgnoreDepthInfo(bool ignore);
-    bool getIgnoreDepthInfo();
+    bool getIgnoreDepthInfo() const;
 
     void setRenderMode(int mode);
-    int getRenderMode();
+    int getRenderMode() const;
 
     void setAttributesForRendering(int attr);
-    int getAttributesForRendering();
+    int getAttributesForRendering() const;
 
     void setComputeImageBasicStats(bool c);
-    bool getComputeImageBasicStats();
+    bool getComputeImageBasicStats() const;
 
     unsigned char* getRgbBufferPointer();
-    float* getDepthBufferPointer();
+    float* getDepthBufferPointer() const;
 
-    void getSensingVolumeCorners(C3Vector& sizeAndPosClose,C3Vector& sizeAndPosFar) const;
     void setDetectableEntityHandle(int entityHandle);
-    int getDetectableEntityHandle();
+    int getDetectableEntityHandle() const;
 
     void detectVisionSensorEntity_executedViaUiThread(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
     bool detectEntity(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
     void detectEntity2(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
     void renderForDetection(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections,const std::vector<int>& activeMirrors);
     void setDefaultBufferValues(const float v[3]);
-    void getDefaultBufferValues(float v[3]);
+    void getDefaultBufferValues(float v[3]) const;
 
     void setUseExternalImage(bool u);
-    bool getUseExternalImage();
-    bool getInternalRendering();
-    bool getApplyExternalRenderedImage();
+    bool getUseExternalImage() const;
+    bool getInternalRendering() const;
+    bool getApplyExternalRenderedImage() const;
 
     void setExtWindowSizeAndPos(int sizeX,int sizeY,int posX,int posY);
-    void getExtWindowSizeAndPos(int& sizeX,int& sizeY,int& posX,int& posY);
+    void getExtWindowSizeAndPos(int& sizeX,int& sizeY,int& posX,int& posY) const;
 
     float* readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth);
     unsigned char* readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,float cutoffRgba,bool imgIsGreyScale);
 
     void setUseEnvironmentBackgroundColor(bool s);
-    bool getUseEnvironmentBackgroundColor();
-    float getCalculationTime();
+    bool getUseEnvironmentBackgroundColor() const;
+    float getCalculationTime() const;
     std::string getDetectableEntityLoadAlias() const;
     std::string getDetectableEntityLoadName_old() const;
 
-    CComposedFilter* getComposedFilter();
+    CComposedFilter* getComposedFilter() const;
     void setComposedFilter(CComposedFilter* newFilter);
-    CColorObject* getColor(bool colorWhenActive);
+    CColorObject* getColor();
 
     SHandlingResult sensorResult;
     std::vector<std::vector<float> > sensorAuxiliaryResult; // e.g. vectors, etc. set by a filter or an extension module's filter
@@ -161,16 +152,9 @@ protected:
 
     // Variables which need to be serialized & copied (don't forget the vars from the CViewableBase class!)
     CColorObject color;
-    CColorObject activeColor;
-    int _resolutionX;
-    int _resolutionY;
-    int _desiredResolution[2];
     int _detectableEntityHandle;
     C3Vector _visionSensorSize;
-    bool _perspectiveOperation;
     bool _explicitHandling;
-    bool _showVolumeWhenNotDetecting;
-    bool _showVolumeWhenDetecting;
     bool _useExternalImage;
     bool _useSameBackgroundAsEnvironment;
     float _defaultBufferValues[3];

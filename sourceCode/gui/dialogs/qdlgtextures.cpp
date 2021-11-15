@@ -184,7 +184,7 @@ void CQDlgTextures::refresh()
             {
                 textureName=rs->getObjectAlias_printPath();
                 int s[2];
-                rs->getRealResolution(s);
+                rs->getResolution(s);
                 textureName+=" [";
                 textureName+=boost::lexical_cast<std::string>(s[0])+"x"+boost::lexical_cast<std::string>(s[1])+"] ";
                 textureName+=tt::decorateString(" (",IDSN_DYNAMIC_TEXTURE,")");

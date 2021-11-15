@@ -12,6 +12,8 @@ void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAtt
     if (displayAttrib&sim_displayattribute_renderpass)
         _displayBoundingBox(camera,displayAttrib,true,0.0);
 
+    C3Vector normalVectorForLinesAndPoints(camera->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
+
     // Object display:
     if (camera->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
@@ -43,8 +45,41 @@ void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAtt
         glTranslatef(1.5f*cameraSize,0.0f,0.0f);
         ogl::drawCylinder(2.0f*cameraSize,cameraSize/2.0f,20,0,true);
         glPopMatrix();
+        glPushMatrix();
         glTranslatef(0.0f,0.0f,cameraSize/6.0f);
         ogl::drawCone(cameraSize,5.0f*cameraSize/3.0f,20,true,true);
+        glPopMatrix();
+        if (camera->getShowVolume())
+        {
+            C3Vector c,f;
+            camera->getVolumeVectors(c,f);
+            ogl::buffer.clear();
+            ogl::addBuffer3DPoints(-f(0),-f(1),f(2));
+            ogl::addBuffer3DPoints(-f(0),+f(1),f(2));
+            ogl::addBuffer3DPoints(+f(0),+f(1),f(2));
+            ogl::addBuffer3DPoints(+f(0),-f(1),f(2));
+            ogl::addBuffer3DPoints(-f(0),-f(1),f(2));
+            ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,normalVectorForLinesAndPoints.data);
+            ogl::buffer.clear();
+            ogl::addBuffer3DPoints(-c(0),-c(1),c(2));
+            ogl::addBuffer3DPoints(-c(0),+c(1),c(2));
+            ogl::addBuffer3DPoints(+c(0),+c(1),c(2));
+            ogl::addBuffer3DPoints(+c(0),-c(1),c(2));
+            ogl::addBuffer3DPoints(-c(0),-c(1),c(2));
+            ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,normalVectorForLinesAndPoints.data);
+            ogl::buffer.clear();
+            ogl::addBuffer3DPoints(-c(0),-c(1),c(2));
+            ogl::addBuffer3DPoints(-f(0),-f(1),f(2));
+            ogl::addBuffer3DPoints(-c(0),+c(1),c(2));
+            ogl::addBuffer3DPoints(-f(0),+f(1),f(2));
+            ogl::addBuffer3DPoints(+c(0),-c(1),c(2));
+            ogl::addBuffer3DPoints(+f(0),-f(1),f(2));
+            ogl::addBuffer3DPoints(+c(0),+c(1),c(2));
+            ogl::addBuffer3DPoints(+f(0),+f(1),f(2));
+            ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,normalVectorForLinesAndPoints.data);
+            ogl::buffer.clear();
+        }
+
         _disableAuxClippingPlanes();
     }
 

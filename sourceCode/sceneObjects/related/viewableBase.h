@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "sceneObject.h"
@@ -60,6 +59,16 @@ public:
     int getDisabledColorComponents();
     void setDisabledColorComponents(int c);
 
+    virtual void setResolution(const int r[2]);
+    void getResolution(int r[2]) const;
+
+    void setPerspective(bool p);
+    bool getPerspective() const;
+    void setShowVolume(bool s);
+    bool getShowVolume() const;
+    void computeVolumeVectors();
+    void getVolumeVectors(C3Vector& n,C3Vector& f) const;
+
     static bool getFrustumCullingEnabled();
     static void setFrustumCullingEnabled(bool e);
 
@@ -75,6 +84,14 @@ protected:
     float _farClippingPlane;
     float _viewAngle;
     float _orthoViewSize;
+    int _resolution[2];
+    bool _perspective;
+    bool _showVolume;
+    C3Vector _volumeVectorNear;
+    C3Vector _volumeVectorFar;
+
+
+
     bool _showFogIfAvailable;
     bool _useLocalLights;
 

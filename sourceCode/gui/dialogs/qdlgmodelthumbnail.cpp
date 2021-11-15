@@ -52,8 +52,8 @@ void CQDlgModelThumbnail::initialize()
     rs=new CVisionSensor();
     App::currentWorld->sceneObjects->addObjectToScene(rs,false,false); // oops, we are in the wrong thread here. Very dangerous
     int res[2]={256,256};
-    rs->setDesiredResolution(res);
-    rs->setPerspectiveOperation(true);
+    rs->setResolution(res);
+    rs->setPerspective(true);
     rs->setUseEnvironmentBackgroundColor(false);
     rs->setViewAngle(THUMBNAIL_THING_VIEW_ANGLE*degToRad_f);
     rs->setNearClippingPlane(0.01f);
@@ -75,12 +75,12 @@ void CQDlgModelThumbnail::actualizeBitmap()
         bool display=true;
         if (it->getObjectType()==sim_object_proximitysensor_type)
         {
-            if (!((CProxSensor*)it)->getShowVolumeWhenNotDetecting())
+            if (!((CProxSensor*)it)->getShowVolume())
                 display=false;
         }
         if (it->getObjectType()==sim_object_visionsensor_type)
         {
-            if (!((CVisionSensor*)it)->getShowVolumeWhenNotDetecting())
+            if (!((CVisionSensor*)it)->getShowVolume())
                 display=false;
         }
         if ( (!it->isObjectPartOfInvisibleModel())&&(it->getVisibilityLayer()&App::currentWorld->environment->getActiveLayers())&&display )

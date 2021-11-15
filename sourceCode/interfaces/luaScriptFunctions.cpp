@@ -2544,7 +2544,7 @@ int _simGetVisionSensorImage(luaWrap_lua_State* L)
                                 if ( (sizeX==0)&&(sizeY==0) )
                                 { // we have default values here (the whole picture)
                                     int reso[2];
-                                    rs->getRealResolution(reso);
+                                    rs->getResolution(reso);
                                     sizeX=reso[0];
                                     sizeY=reso[1];
                                 }
@@ -2630,7 +2630,7 @@ int _simGetVisionSensorCharImage(luaWrap_lua_State* L)
                             if (rs!=nullptr)
                             {
                                 int reso[2];
-                                rs->getRealResolution(reso);
+                                rs->getResolution(reso);
                                 if ( (sizeX==0)&&(sizeY==0) )
                                 { // we have default values here (the whole picture)
                                     sizeX=reso[0];
@@ -2696,7 +2696,7 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
             { // ok we have a valid vision sensor
                 int res[2];
                 CVisionSensor* rendSens=(CVisionSensor*)it;
-                rendSens->getRealResolution(res);
+                rendSens->getResolution(res);
                 // We check if we have a table or string at position 2:
                 bool notTableNorString=true;
                 if (luaWrap_lua_istable(L,2))
@@ -2801,7 +2801,7 @@ int _simSetVisionSensorCharImage(luaWrap_lua_State* L)
             { // ok we have a valid vision sensor
                 int res[2];
                 CVisionSensor* rendSens=(CVisionSensor*)it;
-                rendSens->getRealResolution(res);
+                rendSens->getResolution(res);
                 // We check if we have a string at position 2:
                 if (luaWrap_lua_isstring(L,2))
                 { // Ok we have a string. Now what size is it?
@@ -2874,7 +2874,7 @@ int _simGetVisionSensorDepthBuffer(luaWrap_lua_State* L)
                             if ( (sizeX==0)&&(sizeY==0) )
                             { // we have default values here (the whole picture)
                                 int reso[2];
-                                rs->getRealResolution(reso);
+                                rs->getResolution(reso);
                                 sizeX=reso[0];
                                 sizeY=reso[1];
                             }

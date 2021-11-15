@@ -1839,7 +1839,7 @@ void CShape::setVisibleEdges(bool v)
             if (App::worldContainer->getEnableEvents())
             {
                 const char* cmd="color";
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,false);
                 CInterfaceStackTable* sdata=new CInterfaceStackTable();
                 data->appendMapObject_stringObject(cmd,sdata);
                 sdata->appendMapObject_stringBool("showEdges",v);

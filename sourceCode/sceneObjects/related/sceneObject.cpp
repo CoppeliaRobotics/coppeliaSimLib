@@ -454,25 +454,6 @@ void CSceneObject::setObjectProperty(int p)
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringInt32(cmd,_objectProperty);
             App::worldContainer->pushEvent(event);
-
-            if ((p^_objectProperty)==sim_objectproperty_selectmodelbaseinstead)
-            {
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,"selectModelBase",true);
-                data->appendMapObject_stringBool("selectModelBase",(p&sim_objectproperty_selectmodelbaseinstead)!=0);
-                App::worldContainer->pushEvent(event);
-            }
-            if ((p^_objectProperty)==sim_objectproperty_collapsed)
-            {
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,"collapsedHierarchy",true);
-                data->appendMapObject_stringBool("collapsedHierarchy",(p&sim_objectproperty_collapsed)!=0);
-                App::worldContainer->pushEvent(event);
-            }
-            if ((p^_objectProperty)==sim_objectproperty_selectable)
-            {
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,"selectable",true);
-                data->appendMapObject_stringBool("selectable",(p&sim_objectproperty_selectable)!=0);
-                App::worldContainer->pushEvent(event);
-            }
         }
         recomputeModelInfluencedValues();
     }
@@ -1009,9 +990,6 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringBool("modelInvisible",_modelInvisible);
     data->appendMapObject_stringBool("modelBase",_modelBase);
     data->appendMapObject_stringInt32("objectProperty",_objectProperty);
-    data->appendMapObject_stringBool("selectModelBase",(_objectProperty&sim_objectproperty_selectmodelbaseinstead)!=0);
-    data->appendMapObject_stringBool("collapsedHierarchy",(_objectProperty&sim_objectproperty_collapsed)!=0);
-    data->appendMapObject_stringBool("selectable",(_objectProperty&sim_objectproperty_selectable)!=0);
     int pUid=-1;
     if (_parentObject!=nullptr)
         pUid=_parentObject->getObjectUid();

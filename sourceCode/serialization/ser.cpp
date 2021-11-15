@@ -1597,7 +1597,7 @@ bool CSer::xmlPushChildNode(const char* name,bool required/*=true*/)
     if (node==nullptr)
     {
         if (required)
-            App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+            App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
         return(false);
     }
     _xmlCurrentNode=node;
@@ -1621,7 +1621,7 @@ bool CSer::xmlPushSiblingNode(const char* name,bool required/*=true*/)
         }
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -1633,7 +1633,7 @@ bool CSer::xmlGetNode_nameAttribute(std::string& val,bool required/*=true*/)
     if (nm==nullptr)
     {
         if (required)
-            App::logMsg(sim_verbosity_errors,"XML read: missing attribute 'name'! (stack: %s)",xmlGetStackString().c_str());
+            App::logMsg(sim_verbosity_warnings,"XML read: missing attribute 'name' (stack: %s).",xmlGetStackString().c_str());
     }
     return(nm!=nullptr);
 }
@@ -1659,7 +1659,7 @@ bool CSer::xmlGetNode_bool(const char* name,bool& val,bool required/*=true*/)
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -1686,7 +1686,7 @@ bool CSer::xmlGetNode_bools(const char* name,std::vector<bool>& vals,bool requir
                     else
                     {
                         if (required)
-                            App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                            App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                         vals.clear();
                         return(false);
                     }
@@ -1698,7 +1698,7 @@ bool CSer::xmlGetNode_bools(const char* name,std::vector<bool>& vals,bool requir
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -1714,7 +1714,7 @@ bool CSer::xmlGetNode_flags(const char* name,int& flags,int flagWhenTrue,bool re
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -1740,12 +1740,12 @@ bool CSer::xmlGetNode_binFile(const char* name,std::vector<unsigned char>& buffe
                 serObj.readClose();
                 return(true);
             }
-            App::logMsg(sim_verbosity_errors,"XML read: file '%s' can't be opened!",filename.c_str());
+            App::logMsg(sim_verbosity_errors,"XML read: file '%s' can't be opened.",filename.c_str());
             return(false);
         }
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -1819,12 +1819,12 @@ bool CSer::xmlGetNode_imageFile(const char* name,std::vector<unsigned char>& ima
                 }
                 return(retVal);
             }
-            App::logMsg(sim_verbosity_errors,"XML read: file '%s' can't be opened!",filename.c_str());
+            App::logMsg(sim_verbosity_errors,"XML read: file '%s' can't be opened.",filename.c_str());
             return(false);
         }
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -1899,12 +1899,12 @@ bool CSer::xmlGetNode_meshFile(const char* name,std::vector<float>& vertices,std
                 delete w;
                 return(true);
             }
-            App::logMsg(sim_verbosity_errors,"XML read: file '%s' can't be opened!",filename.c_str());
+            App::logMsg(sim_verbosity_errors,"XML read: file '%s' can't be opened.",filename.c_str());
             return(false);
         }
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -1930,7 +1930,7 @@ CSer* CSer::xmlGetNode_binFile(const char* name,bool required/*=true*/)
         }
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(nullptr);
 }
 
@@ -1945,7 +1945,7 @@ bool CSer::xmlGetNode_string(const char* name,std::string& val,bool required/*=t
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -1969,7 +1969,7 @@ bool CSer::xmlGetNode_strings(const char* name,std::vector<std::string>& vals,bo
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -1984,7 +1984,7 @@ bool CSer::xmlGetNode_cdata(const char* name,std::string& val,bool required/*=tr
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2045,7 +2045,7 @@ bool CSer::xmlGetNode_enum(const char* name,int& val,bool required,const char* s
     else
     {
         if (required)
-            App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+            App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     }
     return(retVal);
 }
@@ -2076,7 +2076,7 @@ bool CSer::xmlGetNode_enum(const char* name,int& val,bool required,const std::ve
     else
     {
         if (required)
-            App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+            App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     }
     return(retVal);
 }
@@ -2100,20 +2100,20 @@ bool CSer::xmlGetNode_int(const char* name,int& val,bool required/*=true*/)
             catch (boost::bad_lexical_cast &)
             {
                 if (required)
-                    App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                    App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                 return(false);
             }
         }
         else
         {
             if (required)
-                App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
+                App::logMsg(sim_verbosity_warnings,"XML read: missing value(s) in node '%s'.",name);
             return(false);
         }
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2139,14 +2139,14 @@ bool CSer::xmlGetNode_2int(const char* name,int& val1,int& val2,bool required/*=
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                        App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                     return(false);
                 }
             }
             else
             {
                 if (required)
-                    App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
+                    App::logMsg(sim_verbosity_warnings,"XML read: missing value(s) in node '%s'.",name);
                 return(false);
             }
         }
@@ -2155,7 +2155,7 @@ bool CSer::xmlGetNode_2int(const char* name,int& val1,int& val2,bool required/*=
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2181,14 +2181,14 @@ bool CSer::xmlGetNode_3int(const char* name,int& val1,int& val2,int& val3,bool r
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                        App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                     return(false);
                 }
             }
             else
             {
                 if (required)
-                    App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
+                    App::logMsg(sim_verbosity_warnings,"XML read: missing value(s) in node '%s'.",name);
                 return(false);
             }
         }
@@ -2198,7 +2198,7 @@ bool CSer::xmlGetNode_3int(const char* name,int& val1,int& val2,int& val3,bool r
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2223,21 +2223,21 @@ bool CSer::xmlGetNode_ints(const char* name,int* vals,size_t cnt,bool required/*
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                        App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                     return(false);
                 }
             }
             else
             {
                 if (required)
-                    App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
+                    App::logMsg(sim_verbosity_warnings,"XML read: missing value(s) in node '%s'.",name);
                 return(false);
             }
         }
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2263,7 +2263,7 @@ bool CSer::xmlGetNode_ints(const char* name,std::vector<int>& vals,bool required
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                        App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                     vals.clear();
                     return(false);
                 }
@@ -2274,7 +2274,7 @@ bool CSer::xmlGetNode_ints(const char* name,std::vector<int>& vals,bool required
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2297,20 +2297,20 @@ bool CSer::xmlGetNode_uint(const char* name,unsigned int& val,bool required/*=tr
             catch (boost::bad_lexical_cast &)
             {
                 if (required)
-                    App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                    App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                 return(false);
             }
         }
         else
         {
             if (required)
-                App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
+                App::logMsg(sim_verbosity_warnings,"XML read: missing value(s) in node '%s'.",name);
             return(false);
         }
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2333,20 +2333,20 @@ bool CSer::xmlGetNode_ulonglong(const char* name,unsigned long long& val,bool re
             catch (boost::bad_lexical_cast &)
             {
                 if (required)
-                    App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                    App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                 return(false);
             }
         }
         else
         {
             if (required)
-                App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
+                App::logMsg(sim_verbosity_warnings,"XML read: missing value(s) in node '%s'.",name);
             return(false);
         }
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2372,7 +2372,7 @@ bool CSer::xmlGetNode_uchars(const char* name,std::vector<unsigned char>& vals,b
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                        App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                     vals.clear();
                     return(false);
                 }
@@ -2383,7 +2383,7 @@ bool CSer::xmlGetNode_uchars(const char* name,std::vector<unsigned char>& vals,b
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2407,20 +2407,20 @@ bool CSer::xmlGetNode_float(const char* name,float& val,bool required/*=true*/)
             catch (boost::bad_lexical_cast &)
             {
                 if (required)
-                    App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                    App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                 return(false);
             }
         }
         else
         {
             if (required)
-                App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
+                App::logMsg(sim_verbosity_warnings,"XML read: missing value(s) in node '%s'.",name);
             return(false);
         }
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2446,14 +2446,14 @@ bool CSer::xmlGetNode_2float(const char* name,float& val1,float& val2,bool requi
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                        App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                     return(false);
                 }
             }
             else
             {
                 if (required)
-                    App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
+                    App::logMsg(sim_verbosity_warnings,"XML read: missing value(s) in node '%s'.",name);
                 return(false);
             }
         }
@@ -2462,7 +2462,7 @@ bool CSer::xmlGetNode_2float(const char* name,float& val1,float& val2,bool requi
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2481,7 +2481,7 @@ bool CSer::xmlGetNode_3float(const char* name,float& val1,float& val2,float& val
     else
     {
         if (required)
-            App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+            App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     }
     return(retVal);
 }
@@ -2502,7 +2502,7 @@ bool CSer::xmlGetNode_4float(const char* name,float& val1,float& val2,float& val
     else
     {
         if (required)
-            App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+            App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     }
     return(retVal);
 }
@@ -2528,21 +2528,21 @@ bool CSer::xmlGetNode_floats(const char* name,float* vals,size_t cnt,bool requir
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                        App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                     return(false);
                 }
             }
             else
             {
                 if (required)
-                    App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
+                    App::logMsg(sim_verbosity_warnings,"XML read: missing value(s) in node '%s'.",name);
                 return(false);
             }
         }
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2568,7 +2568,7 @@ bool CSer::xmlGetNode_floats(const char* name,std::vector<float>& vals,bool requ
                 catch (boost::bad_lexical_cast &)
                 {
                     if (required)
-                        App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                        App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                     vals.clear();
                     return(false);
                 }
@@ -2579,7 +2579,7 @@ bool CSer::xmlGetNode_floats(const char* name,std::vector<float>& vals,bool requ
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 
@@ -2602,20 +2602,20 @@ bool CSer::xmlGetNode_double(const char* name,double& val,bool required/*=true*/
             catch (boost::bad_lexical_cast &)
             {
                 if (required)
-                    App::logMsg(sim_verbosity_errors,"XML read: bad value(s) in node '%s'!",name);
+                    App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
                 return(false);
             }
         }
         else
         {
             if (required)
-                App::logMsg(sim_verbosity_errors,"XML read: missing value(s) in node '%s'!",name);
+                App::logMsg(sim_verbosity_warnings,"XML read: missing value(s) in node '%s'.",name);
             return(false);
         }
         return(true);
     }
     if (required)
-        App::logMsg(sim_verbosity_errors,"XML read: missing node '%s'! (stack: %s)",name,xmlGetStackString().c_str());
+        App::logMsg(sim_verbosity_warnings,"XML read: missing node '%s' (stack: %s).",name,xmlGetStackString().c_str());
     return(false);
 }
 

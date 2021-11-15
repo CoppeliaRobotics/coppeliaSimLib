@@ -947,13 +947,12 @@ void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,floa
         if (_volumeType==CONE_TYPE_CONVEX_VOLUME)
         {
             offset=0.0f;
-            radius=pointSize/2.0f;
+            radius=0.1f;
             range=0.3f-radius;
             angle=piValD2_f;
             faceNumber=32;
             subdivisions=1;
             subdivisionsFar=16;
-            _smallestDistanceEnabled=true;
         }
     }
     if (objectTypeTheVolumeIsFor==sim_object_mill_type)

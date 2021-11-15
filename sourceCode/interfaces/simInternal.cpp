@@ -7570,7 +7570,7 @@ simInt simSetObjectColor_internal(simInt objectHandle,simInt index,simInt colorC
         if (it->getObjectType()==sim_object_proximitysensor_type)
         {
             CProxSensor* sensor=(CProxSensor*)it;
-            if ( (index>=0)&&(index<=3)&&(colorComponent<=sim_colorcomponent_emission) )
+            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
             {
                 sensor->getColor(index)->setColor(rgbData,colorComponent);
                 sensor->getColor(index)->pushColorChangeEvent(objectHandle,index);
@@ -7580,10 +7580,10 @@ simInt simSetObjectColor_internal(simInt objectHandle,simInt index,simInt colorC
         if (it->getObjectType()==sim_object_visionsensor_type)
         {
             CVisionSensor* sensor=(CVisionSensor*)it;
-            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            if ( (index==0)&&(colorComponent<=sim_colorcomponent_emission) )
             {
-                sensor->getColor(index==1)->setColor(rgbData,colorComponent);
-                sensor->getColor(index==1)->pushColorChangeEvent(objectHandle,index);
+                sensor->getColor()->setColor(rgbData,colorComponent);
+                sensor->getColor()->pushColorChangeEvent(objectHandle,index);
                 retVal=1;
             }
         }
@@ -7670,7 +7670,7 @@ simInt simGetObjectColor_internal(simInt objectHandle,simInt index,simInt colorC
         if (it->getObjectType()==sim_object_proximitysensor_type)
         {
             CProxSensor* sensor=(CProxSensor*)it;
-            if ( (index>=0)&&(index<=3)&&(colorComponent<=sim_colorcomponent_emission) )
+            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
             {
                 sensor->getColor(index)->getColor(rgbData,colorComponent);
                 retVal=1;
@@ -7679,9 +7679,9 @@ simInt simGetObjectColor_internal(simInt objectHandle,simInt index,simInt colorC
         if (it->getObjectType()==sim_object_visionsensor_type)
         {
             CVisionSensor* sensor=(CVisionSensor*)it;
-            if ( (index>=0)&&(index<=1)&&(colorComponent<=sim_colorcomponent_emission) )
+            if ( (index==0)&&(colorComponent<=sim_colorcomponent_emission) )
             {
-                sensor->getColor(index==1)->getColor(rgbData,colorComponent);
+                sensor->getColor()->getColor(rgbData,colorComponent);
                 retVal=1;
             }
         }
@@ -8396,8 +8396,7 @@ simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt
         CProxSensor* it=new CProxSensor(sensorType);
         it->setSensableType(subType);
         it->setExplicitHandling((options&1)!=0);
-        it->setShowVolumeWhenDetecting((options&2)==0);
-        it->setShowVolumeWhenNotDetecting((options&4)==0);
+        it->setShowVolume((options&4)==0);
         it->setFrontFaceDetection((options&8)==0);
         it->setBackFaceDetection((options&16)==0);
         it->setClosestObjectMode((options&32)==0);
@@ -8456,16 +8455,7 @@ simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt
             it->getColor(1)->setColor(color+12,sim_colorcomponent_ambient_diffuse);
             it->getColor(1)->setColor(color+18,sim_colorcomponent_specular);
             it->getColor(1)->setColor(color+21,sim_colorcomponent_emission);
-
-            it->getColor(2)->setColor(color+24,sim_colorcomponent_ambient_diffuse);
-            it->getColor(2)->setColor(color+30,sim_colorcomponent_specular);
-            it->getColor(2)->setColor(color+33,sim_colorcomponent_emission);
-
-            it->getColor(3)->setColor(color+36,sim_colorcomponent_ambient_diffuse);
-            it->getColor(3)->setColor(color+42,sim_colorcomponent_specular);
-            it->getColor(3)->setColor(color+45,sim_colorcomponent_emission);
         }
-
 
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         int retVal=it->getObjectHandle();
@@ -8532,20 +8522,17 @@ simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,con
         CVisionSensor* it=new CVisionSensor();
 
         it->setExplicitHandling((options&1)!=0);
-        it->setPerspectiveOperation((options&2)!=0);
-        it->setShowVolumeWhenNotDetecting((options&4)==0);
-        it->setShowVolumeWhenDetecting((options&8)==0);
+        it->setPerspective((options&2)!=0);
+        it->setShowVolume((options&4)==0);
         it->setUseExternalImage((options&16)!=0);
         it->setUseLocalLights((options&32)!=0);
         it->setShowFogIfAvailable((options&64)==0);
         it->setUseEnvironmentBackgroundColor((options&128)==0);
-
-        int res[2]={intParams[0],intParams[1]};
-        it->setDesiredResolution(res);
+        it->setResolution(intParams);
 
         it->setNearClippingPlane(floatParams[0]);
         it->setFarClippingPlane(floatParams[1]);
-        if (it->getPerspectiveOperation())
+        if (it->getPerspective())
             it->setViewAngle(floatParams[2]);
         else
             it->setOrthoViewSize(floatParams[2]);
@@ -8554,13 +8541,9 @@ simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,con
 
         if (color!=nullptr)
         {
-            it->getColor(false)->setColor(color+0,sim_colorcomponent_ambient_diffuse);
-            it->getColor(false)->setColor(color+6,sim_colorcomponent_specular);
-            it->getColor(false)->setColor(color+9,sim_colorcomponent_emission);
-
-            it->getColor(true)->setColor(color+12,sim_colorcomponent_ambient_diffuse);
-            it->getColor(true)->setColor(color+18,sim_colorcomponent_specular);
-            it->getColor(true)->setColor(color+21,sim_colorcomponent_emission);
+            it->getColor()->setColor(color+0,sim_colorcomponent_ambient_diffuse);
+            it->getColor()->setColor(color+6,sim_colorcomponent_specular);
+            it->getColor()->setColor(color+9,sim_colorcomponent_emission);
         }
 
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
@@ -8993,14 +8976,14 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             if (parameterID==sim_visionintparam_resolution_x)
             {
                 int r[2];
-                rendSens->getRealResolution(r);
+                rendSens->getResolution(r);
                 parameter[0]=r[0];
                 retVal=1;
             }
             if (parameterID==sim_visionintparam_resolution_y)
             {
                 int r[2];
-                rendSens->getRealResolution(r);
+                rendSens->getResolution(r);
                 parameter[0]=r[1];
                 retVal=1;
             }
@@ -9066,7 +9049,7 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             if (parameterID==sim_visionintparam_perspective_operation)
             {
                 parameter[0]=0;
-                if (rendSens->getPerspectiveOperation())
+                if (rendSens->getPerspective())
                     parameter[0]=1;
                 retVal=1;
             }
@@ -9122,7 +9105,7 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             if (parameterID==sim_cameraintparam_perspective_operation)
             {
                 parameter[0]=0;
-                if (camera->getPerspectiveOperation()!=0)
+                if (camera->getPerspective())
                     parameter[0]=1;
                 retVal=1;
             }
@@ -9370,12 +9353,12 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             if ((parameterID==sim_visionintparam_resolution_x)||(parameterID==sim_visionintparam_resolution_y))
             {
                 int r[2];
-                rendSens->getRealResolution(r);
+                rendSens->getResolution(r);
                 if (parameterID==sim_visionintparam_resolution_x)
                     r[0]=parameter;
                 else
                     r[1]=parameter;
-                rendSens->setDesiredResolution(r);
+                rendSens->setResolution(r);
                 retVal=1;
             }
             if (parameterID==sim_visionintparam_disabled_light_components)
@@ -9432,7 +9415,7 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             }
             if (parameterID==sim_visionintparam_perspective_operation)
             {
-                rendSens->setPerspectiveOperation(parameter!=0);
+                rendSens->setPerspective(parameter!=0);
                 retVal=1;
             }
         }
@@ -9467,9 +9450,9 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             if (parameterID==sim_cameraintparam_perspective_operation)
             {
                 if (parameter!=0)
-                    camera->setPerspectiveOperation(1);
+                    camera->setPerspectiveOperation(true);
                 else
-                    camera->setPerspectiveOperation(0);
+                    camera->setPerspectiveOperation(false);
                 retVal=1;
             }
             if (parameterID==sim_cameraintparam_disabled_light_components)
@@ -11035,22 +11018,16 @@ simInt simGetVisionSensorResolution_internal(simInt sensorHandle,simInt* resolut
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,sensorHandle))
-        {
             return(-1);
-        }
         if (!isVisionSensor(__func__,sensorHandle))
-        {
             return(-1);
-        }
         CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
-        it->getRealResolution(resolution);
+        it->getResolution(resolution);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -11062,25 +11039,19 @@ simFloat* simGetVisionSensorImage_internal(simInt sensorHandle)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int handleFlags=sensorHandle&0xff00000;
         sensorHandle=sensorHandle&0xfffff;
         if (!doesObjectExist(__func__,sensorHandle))
-        {
             return(nullptr);
-        }
         if (!isVisionSensor(__func__,sensorHandle))
-        {
             return(nullptr);
-        }
         CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         int res[2];
-        it->getRealResolution(res);
+        it->getResolution(res);
         int valPerPixel=3;
         if ((handleFlags&sim_handleflag_greyscale)!=0)
             valPerPixel=1;
@@ -11112,25 +11083,19 @@ simUChar* simGetVisionSensorCharImage_internal(simInt sensorHandle,simInt* resol
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int handleFlags=sensorHandle&0xff00000;
         sensorHandle=sensorHandle&0xfffff;
         if (!doesObjectExist(__func__,sensorHandle))
-        {
             return(nullptr);
-        }
         if (!isVisionSensor(__func__,sensorHandle))
-        {
             return(nullptr);
-        }
         CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         int res[2];
-        it->getRealResolution(res);
+        it->getResolution(res);
         if (resolutionX!=nullptr)
             resolutionX[0]=res[0];
         if (resolutionY!=nullptr)
@@ -11236,7 +11201,7 @@ simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
             return(nullptr);
         CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         int res[2];
-        it->getRealResolution(res);
+        it->getResolution(res);
         float* buff=new float[res[0]*res[1]];
         float* depthBuff=it->getDepthBufferPointer();
         if ((handleFlags&sim_handleflag_depthbuffermeters)!=0)

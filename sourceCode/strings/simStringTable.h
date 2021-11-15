@@ -483,7 +483,6 @@
 #define IDS_MAKE_LAST_SELECTED_OBJECTS_PARENT_MENU_ITEM "Make last selected object parent"
 #define IDS_MAKE_SELECTED_SIMPLE_SHAPES_PURE_MENU_ITEM "Make selected simple shapes pure"
 #define IDS_MAKE_SELECTED_OBJECT_S__ORPHAN_MENU_ITEM "Make selected object(s) orphan"
-#define IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING "The resolution you selected is not a power of two. This can lead to some display problems on older graphic cards. For a resolution of X*Y, best is to assign X and Y one of the following values: 2, 4, 8, 16, 32, 64, 128, 256 or 512."
 
 #define IDS_GCSOBJECT_ALREADY_THERE_MESSAGE "The specified object is part of a mechanism that is already handled by"
 #define IDS_CAD_DATA_IMPORT_PROGRESS "CAD data import progress"

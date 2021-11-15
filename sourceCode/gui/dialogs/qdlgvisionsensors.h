@@ -33,11 +33,9 @@ private slots:
 
     void on_qqLocalLights_clicked();
 
-    void on_qqShowNotDetecting_clicked();
+    void on_qqShowVolume_clicked();
 
     void on_qqShowFog_clicked();
-
-    void on_qqShowDetecting_clicked();
 
     void on_qqNearPlane_editingFinished();
 
@@ -59,9 +57,7 @@ private slots:
 
     void on_qqApplyMainProperties_clicked();
 
-    void on_qqCasingColorPassive_clicked();
-
-    void on_qqCasingColorActive_clicked();
+    void on_qqCasingColor_clicked();
 
     void on_qqApplyColors_clicked();
 

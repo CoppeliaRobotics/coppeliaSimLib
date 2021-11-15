@@ -735,6 +735,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
 
 void CCamera::commonInit()
 {
+    _showVolume=false;
     _objectType=sim_object_camera_type;
     _nearClippingPlane=0.05f;
     _farClippingPlane=30.0f;
@@ -775,6 +776,7 @@ void CCamera::commonInit()
     _objectName_old=IDSOGL_CAMERA;
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
+    computeVolumeVectors();
 }
 
 void CCamera::setCameraManipulationModePermissions(int p)
@@ -1011,6 +1013,12 @@ void CCamera::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringFloat("viewAngle",_viewAngle);
     data->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
     data->appendMapObject_stringFloat("size",_cameraSize);
+    data->appendMapObject_stringBool("showFrustum",_showVolume);
+
+    CInterfaceStackTable* fr=new CInterfaceStackTable();
+    data->appendMapObject_stringObject("frustumVectors",fr);
+    fr->appendMapObject_stringFloatArray("near",_volumeVectorNear.data,3);
+    fr->appendMapObject_stringFloatArray("far",_volumeVectorFar.data,3);
 
     CInterfaceStackTable* colors=new CInterfaceStackTable();
     data->appendMapObject_stringObject("colors",colors);
@@ -1039,12 +1047,15 @@ CSceneObject* CCamera::copyYourself()
     newCamera->_orthoViewSize=_orthoViewSize;
     newCamera->_nearClippingPlane=_nearClippingPlane;
     newCamera->_farClippingPlane=_farClippingPlane;
+    newCamera->_volumeVectorNear=_volumeVectorNear;
+    newCamera->_volumeVectorFar=_volumeVectorFar;
     newCamera->_showFogIfAvailable=_showFogIfAvailable;
     newCamera->trackedObjectIdentifier_NeverDirectlyTouch=trackedObjectIdentifier_NeverDirectlyTouch;
     newCamera->_useParentObjectAsManipulationProxy=_useParentObjectAsManipulationProxy;
     newCamera->_cameraManipulationModePermissions=_cameraManipulationModePermissions;
     newCamera->_useLocalLights=_useLocalLights;
     newCamera->_allowPicking=_allowPicking;
+    newCamera->_showVolume=_showVolume;
 
     // Colors:
     colorPart1.copyYourselfInto(&newCamera->colorPart1);
@@ -1117,11 +1128,6 @@ void CCamera::performDynMaterialObjectLoadingMapping(const std::vector<int>* map
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
 
-int CCamera::getPerspectiveOperation() const
-{
-    return(_perspectiveOperation);
-}
-
 void CCamera::setPerspectiveOperation(bool p)
 {
     int v=_perspectiveOperation;
@@ -1134,6 +1140,8 @@ void CCamera::setPerspectiveOperation(bool p)
     if (diff)
     {
         _perspectiveOperation=v;
+        _perspective=(v!=0);
+        computeVolumeVectors();
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="perspectiveMode";
@@ -1322,6 +1330,7 @@ void CCamera::serialize(CSer& ar)
             // RESERVED SIM_SET_CLEAR_BIT(nothing,4,_povFocalBlurEnabled);
             SIM_SET_CLEAR_BIT(nothing,5,_renderModeDuringSimulation);
             SIM_SET_CLEAR_BIT(nothing,6,_renderModeDuringRecording);
+            SIM_SET_CLEAR_BIT(nothing,7,_showVolume);
             ar << nothing;
             ar.flush();
 
@@ -1399,6 +1408,7 @@ void CCamera::serialize(CSer& ar)
                         povFocalBlurEnabled_backwardCompatibility_3_2_2016=SIM_IS_BIT_SET(nothing,4);
                         _renderModeDuringSimulation=SIM_IS_BIT_SET(nothing,5);
                         _renderModeDuringRecording=SIM_IS_BIT_SET(nothing,6);
+                        _showVolume=SIM_IS_BIT_SET(nothing,7);
                     }
                     if (theName.compare("Rm2")==0)
                     {
@@ -1491,6 +1501,7 @@ void CCamera::serialize(CSer& ar)
                 CTTUtil::scaleColorUp_(colorPart2.getColorsPtr());
             }
             computeBoundingBox();
+            computeVolumeVectors();
         }
     }
     else
@@ -1545,6 +1556,8 @@ void CCamera::serialize(CSer& ar)
                 ar.xmlAddNode_bool("useLocalLights",_useLocalLights);
             if (exhaustiveXml)
                 ar.xmlAddNode_bool("allowPicking",_allowPicking);
+            if (exhaustiveXml)
+                ar.xmlAddNode_bool("showVolume",_showVolume);
             if (exhaustiveXml)
                 ar.xmlAddNode_bool("renderModeOnlyDuringSimulation",_renderModeDuringSimulation);
             if (exhaustiveXml)
@@ -1616,6 +1629,7 @@ void CCamera::serialize(CSer& ar)
                 ar.xmlGetNode_bool("useParentAsManipulationProxy",_useParentObjectAsManipulationProxy,exhaustiveXml);
                 ar.xmlGetNode_bool("useLocalLights",_useLocalLights,exhaustiveXml);
                 ar.xmlGetNode_bool("allowPicking",_allowPicking,exhaustiveXml);
+                ar.xmlGetNode_bool("showVolume",_showVolume,false);
                 ar.xmlGetNode_bool("renderModeOnlyDuringSimulation",_renderModeDuringSimulation,exhaustiveXml);
                 ar.xmlGetNode_bool("renderModeOnlyDuringRecording",_renderModeDuringRecording,exhaustiveXml);
                 ar.xmlPopNode();
@@ -1647,6 +1661,7 @@ void CCamera::serialize(CSer& ar)
                 ar.xmlPopNode();
             }
             computeBoundingBox();
+            computeVolumeVectors();
         }
     }
 }

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>268</height>
+    <height>238</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>240</y>
+     <y>210</y>
      <width>211</width>
      <height>18</height>
     </rect>
@@ -131,7 +131,7 @@
      <x>10</x>
      <y>125</y>
      <width>411</width>
-     <height>111</height>
+     <height>81</height>
     </rect>
    </property>
    <property name="title">
@@ -140,11 +140,11 @@
    <property name="flat">
     <bool>false</bool>
    </property>
-   <widget class="QToolButton" name="qqPassiveVolumeColor">
+   <widget class="QToolButton" name="qqVolumeColor">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>65</y>
+      <y>50</y>
       <width>191</width>
       <height>18</height>
      </rect>
@@ -153,30 +153,14 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust volume color (passive)</string>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="qqActiveVolumeColor">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>65</y>
-      <width>191</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Adjust volume color (active)</string>
+     <string>Adjust volume color</string>
     </property>
    </widget>
    <widget class="QToolButton" name="qqRayColor">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>85</y>
+      <x>210</x>
+      <y>50</y>
       <width>191</width>
       <height>18</height>
      </rect>
@@ -188,11 +172,11 @@
      <string>Adjust detection ray color</string>
     </property>
    </widget>
-   <widget class="QToolButton" name="qqMinDistColor">
+   <widget class="QCheckBox" name="qqShowVolume">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>85</y>
+      <x>10</x>
+      <y>25</y>
       <width>191</width>
       <height>18</height>
      </rect>
@@ -201,23 +185,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust min. dist. volume</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqShowNotDetecting">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>231</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Show vol. when not detecting</string>
+     <string>Show volume</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -231,22 +199,6 @@
     </property>
     <property name="text">
      <string>Sens. pt size [m]</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqShowDetecting">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>25</y>
-      <width>201</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Show vol. when detecting</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="qqPointSize">
@@ -722,7 +674,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>240</y>
+     <y>210</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -1184,13 +1136,10 @@
   <tabstop>qqAdjustVolume</tabstop>
   <tabstop>qqAdjustDetectionParams</tabstop>
   <tabstop>qqApplyMain</tabstop>
-  <tabstop>qqShowDetecting</tabstop>
-  <tabstop>qqShowNotDetecting</tabstop>
+  <tabstop>qqShowVolume</tabstop>
   <tabstop>qqPointSize</tabstop>
-  <tabstop>qqPassiveVolumeColor</tabstop>
-  <tabstop>qqActiveVolumeColor</tabstop>
+  <tabstop>qqVolumeColor</tabstop>
   <tabstop>qqRayColor</tabstop>
-  <tabstop>qqMinDistColor</tabstop>
   <tabstop>qqApplyColors</tabstop>
  </tabstops>
  <resources/>

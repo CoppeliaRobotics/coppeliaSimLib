@@ -60,15 +60,13 @@ void CQDlgVisionSensors::refresh()
     ui->qqShowFog->setVisible(App::userSettings->showOldDlgs);
     ui->qqShowFog->setEnabled(isSensor&&noEditModeAndNoSim);
 
-    ui->qqShowNotDetecting->setEnabled(isSensor&&noEditModeAndNoSim);
-    ui->qqShowDetecting->setEnabled(isSensor&&noEditModeAndNoSim);
+    ui->qqShowVolume->setEnabled(isSensor&&noEditModeAndNoSim);
 
     ui->qqIgnoreRGB->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqIgnoreDepth->setEnabled(isSensor&&noEditModeAndNoSim&&(it->getRenderMode()!=sim_rendermode_povray));
     ui->qqIgnorePacket1->setEnabled(isSensor&&noEditModeAndNoSim);
 
-    ui->qqCasingColorPassive->setEnabled(isSensor&&noEditModeAndNoSim);
-    ui->qqCasingColorActive->setEnabled(isSensor&&noEditModeAndNoSim);
+    ui->qqCasingColor->setEnabled(isSensor&&noEditModeAndNoSim);
 
     ui->qqEnabled->setVisible(App::userSettings->showOldDlgs);
     ui->qqEnabled->setChecked(App::currentWorld->mainSettings->visionSensorsEnabled);
@@ -90,14 +88,14 @@ void CQDlgVisionSensors::refresh()
         ui->qqNearPlane->setText(tt::getEString(false,s->getNearClippingPlane(),2).c_str());
         ui->qqFarPlane->setText(tt::getEString(false,s->getFarClippingPlane(),2).c_str());
 
-        ui->qqPerspective->setChecked(s->getPerspectiveOperation());
-        if (s->getPerspectiveOperation())
+        ui->qqPerspective->setChecked(s->getPerspective());
+        if (s->getPerspective())
             ui->qqPerspectiveAngleOrOrthographicSize->setText(gv::getAngleStr(false,s->getViewAngle(),0).c_str());
         else
             ui->qqPerspectiveAngleOrOrthographicSize->setText(gv::getSizeStr(false,s->getOrthoViewSize()).c_str());
 
         int r[2];
-        s->getDesiredResolution(r);
+        s->getResolution(r);
         ui->qqResX->setText(tt::getIString(false,r[0]).c_str());
         ui->qqResY->setText(tt::getIString(false,r[1]).c_str());
         C3Vector size(s->getVisionSensorSize());
@@ -110,8 +108,7 @@ void CQDlgVisionSensors::refresh()
         ui->qqLocalLights->setChecked(s->getuseLocalLights());
 
 
-        ui->qqShowNotDetecting->setChecked(s->getShowVolumeWhenNotDetecting());
-        ui->qqShowDetecting->setChecked(s->getShowVolumeWhenDetecting());
+        ui->qqShowVolume->setChecked(s->getShowVolume());
 
         ui->qqIgnoreRGB->setChecked(s->getIgnoreRGBInfo());
         ui->qqIgnoreDepth->setChecked(s->getIgnoreDepthInfo());
@@ -158,8 +155,7 @@ void CQDlgVisionSensors::refresh()
 
         ui->qqShowFog->setChecked(false);
 
-        ui->qqShowNotDetecting->setChecked(false);
-        ui->qqShowDetecting->setChecked(false);
+        ui->qqShowVolume->setChecked(false);
         ui->qqIgnoreRGB->setChecked(false);
         ui->qqIgnoreDepth->setChecked(false);
         ui->qqIgnorePacket1->setChecked(false);
@@ -219,11 +215,11 @@ void CQDlgVisionSensors::on_qqLocalLights_clicked()
     }
 }
 
-void CQDlgVisionSensors::on_qqShowNotDetecting_clicked()
+void CQDlgVisionSensors::on_qqShowVolume_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_SHOWVOLUME_WHEN_NOT_DETECTING_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        App::appendSimulationThreadCommand(TOGGLE_SHOWVOLUME_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -234,16 +230,6 @@ void CQDlgVisionSensors::on_qqShowFog_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_SHOWFOG_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgVisionSensors::on_qqShowDetecting_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_SHOWVOLUME_WHEN_DETECTING_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -294,7 +280,7 @@ void CQDlgVisionSensors::on_qqPerspectiveAngleOrOrthographicSize_editingFinished
         if (ok)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getLastSelectionVisionSensor();
-            if ((it!=nullptr)&&it->getPerspectiveOperation())
+            if ((it!=nullptr)&&it->getPerspective())
                 newVal*=gv::userToRad;
             App::appendSimulationThreadCommand(SET_PERSPECTANGLE_OR_ORTHOSIZE_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -317,21 +303,10 @@ void CQDlgVisionSensors::on_qqResX_editingFinished()
             if (ok)
             {
                 int r[2];
-                it->getDesiredResolution(r);
+                it->getResolution(r);
                 if (newVal!=r[0])
                 {
                     r[0]=newVal;
-                    // Check if the resolution is a power of 2:
-                    newVal&=(32768-1);
-                    unsigned short tmp=32768;
-                    while (tmp!=1)
-                    {
-                        if (newVal&tmp)
-                            newVal&=tmp;
-                        tmp/=2;
-                    }
-                    if (newVal!=r[0])
-                        App::uiThread->messageBox_warning(App::mainWindow,"Vision sensor",IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=SET_RESOLUTION_VISIONSENSORGUITRIGGEREDCMD;
                     cmd.intParams.push_back(it->getObjectHandle());
@@ -360,21 +335,10 @@ void CQDlgVisionSensors::on_qqResY_editingFinished()
             if (ok)
             {
                 int r[2];
-                it->getDesiredResolution(r);
+                it->getResolution(r);
                 if (newVal!=r[1])
                 {
                     r[1]=newVal;
-                    // Check if the resolution is a power of 2:
-                    newVal&=(32768-1);
-                    unsigned short tmp=32768;
-                    while (tmp!=1)
-                    {
-                        if (newVal&tmp)
-                            newVal&=tmp;
-                        tmp/=2;
-                    }
-                    if (newVal!=r[1])
-                        App::uiThread->messageBox_warning(App::mainWindow,"Vision sensor",IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=SET_RESOLUTION_VISIONSENSORGUITRIGGEREDCMD;
                     cmd.intParams.push_back(it->getObjectHandle());
@@ -533,19 +497,11 @@ void CQDlgVisionSensors::on_qqApplyMainProperties_clicked()
     }
 }
 
-void CQDlgVisionSensors::on_qqCasingColorPassive_clicked()
+void CQDlgVisionSensors::on_qqCasingColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_VISIONSENSOR_PASSIVE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
-    }
-}
-
-void CQDlgVisionSensors::on_qqCasingColorActive_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_VISIONSENSOR_ACTIVE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_VISIONSENSOR,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
     }
 }
 

@@ -99,21 +99,13 @@ int CProxSensor::getRandomizedDetectionCountForDetection() const
     return(_randomizedDetectionCountForDetection);
 }
 
-void CProxSensor::setShowVolumeWhenNotDetecting(bool s)
+void CProxSensor::setShowVolume(bool s)
 {
-    _showVolumeWhenNotDetecting=s;
+    _showVolume=s;
 }
-bool CProxSensor::getShowVolumeWhenNotDetecting() const
+bool CProxSensor::getShowVolume() const
 {
-    return(_showVolumeWhenNotDetecting);
-}
-void CProxSensor::setShowVolumeWhenDetecting(bool s)
-{
-    _showVolumeWhenDetecting=s;
-}
-bool CProxSensor::getShowVolumeWhenDetecting() const
-{
-    return(_showVolumeWhenDetecting);
+    return(_showVolume);
 }
 
 std::string CProxSensor::getObjectTypeInfo() const
@@ -170,8 +162,7 @@ void CProxSensor::commonInit()
     _randomizedDetectionCountForDetection=5;
 
     _proxSensorSize=0.01f;
-    _showVolumeWhenNotDetecting=true;
-    _showVolumeWhenDetecting=true;
+    _showVolume=true;
     _localObjectSpecialProperty=0;
 
     _sensableObject=-1;
@@ -179,15 +170,10 @@ void CProxSensor::commonInit()
     _detectedPointValid=false;
     _calcTimeInMs=0;
 
-    passiveVolumeColor.setColorsAllBlack();
-    passiveVolumeColor.setColor(0.9f,0.0f,0.5f,sim_colorcomponent_ambient_diffuse);
-    activeVolumeColor.setColorsAllBlack();
-    activeVolumeColor.setColor(1.0f,0.15f,0.75f,sim_colorcomponent_ambient_diffuse);
+    volumeColor.setColorsAllBlack();
+    volumeColor.setColor(0.9f,0.0f,0.5f,sim_colorcomponent_ambient_diffuse);
     detectionRayColor.setColorsAllBlack();
     detectionRayColor.setColor(1.0f,1.0f,0.0f,sim_colorcomponent_emission);
-    detectionRayColor.setFlash(true);
-    closestDistanceVolumeColor.setColorsAllBlack();
-    closestDistanceVolumeColor.setColor(0.1f,0.1f,0.9f,sim_colorcomponent_ambient_diffuse);
 
     _objectManipulationModePermissions=0x013;
 
@@ -278,9 +264,7 @@ CSceneObject* CProxSensor::copyYourself()
     newSensor->sensorType=sensorType;
     newSensor->_sensableType=_sensableType;
     newSensor->displayNormals=displayNormals;
-    newSensor->_showVolumeWhenNotDetecting=_showVolumeWhenNotDetecting;
-    newSensor->_showVolumeWhenDetecting=_showVolumeWhenDetecting;
-//    newSensor->_checkOcclusions=_checkOcclusions;
+    newSensor->_showVolume=_showVolume;
 
     newSensor->_randomizedDetection=_randomizedDetection;
     newSensor->_randomizedDetectionSampleCount=_randomizedDetectionSampleCount;
@@ -289,11 +273,8 @@ CSceneObject* CProxSensor::copyYourself()
     delete newSensor->convexVolume;
     newSensor->convexVolume=convexVolume->copyYourself();
 
-    // Colors:
-    passiveVolumeColor.copyYourselfInto(&newSensor->passiveVolumeColor);
-    activeVolumeColor.copyYourselfInto(&newSensor->activeVolumeColor);
+    volumeColor.copyYourselfInto(&newSensor->volumeColor);
     detectionRayColor.copyYourselfInto(&newSensor->detectionRayColor);
-    closestDistanceVolumeColor.copyYourselfInto(&newSensor->closestDistanceVolumeColor);
 
     newSensor->_initialValuesInitialized=_initialValuesInitialized;
     newSensor->_initialExplicitHandling=_initialExplicitHandling;
@@ -423,13 +404,13 @@ void CProxSensor::serialize(CSer& ar)
 
             ar.storeDataName("Pr4");
             unsigned char nothing=0;
-            SIM_SET_CLEAR_BIT(nothing,0,_showVolumeWhenNotDetecting);
+            SIM_SET_CLEAR_BIT(nothing,0,_showVolume);
             SIM_SET_CLEAR_BIT(nothing,1,closestObjectMode);
             SIM_SET_CLEAR_BIT(nothing,2,normalCheck);
     // 12/12/2011       SIM_SET_CLEAR_BIT(nothing,3,_detectAllDetectable);
             SIM_SET_CLEAR_BIT(nothing,4,!frontFaceDetection);
             SIM_SET_CLEAR_BIT(nothing,5,!backFaceDetection);
-            SIM_SET_CLEAR_BIT(nothing,6,_showVolumeWhenDetecting);
+            SIM_SET_CLEAR_BIT(nothing,6,false); //_showVolumeWhenDetecting);
             SIM_SET_CLEAR_BIT(nothing,7,explicitHandling);
             ar << nothing;
             ar.flush();
@@ -447,27 +428,18 @@ void CProxSensor::serialize(CSer& ar)
 
             ar.storeDataName("Cl1");
             ar.setCountingMode();
-            passiveVolumeColor.serialize(ar,0);
+            volumeColor.serialize(ar,0);
             if (ar.setWritingMode())
-                passiveVolumeColor.serialize(ar,0);
+                volumeColor.serialize(ar,0);
 
-            ar.storeDataName("Cl2");
-            ar.setCountingMode();
-            activeVolumeColor.serialize(ar,0);
-            if (ar.setWritingMode())
-                activeVolumeColor.serialize(ar,0);
+            //ar.storeDataName("Cl2");
+            //ar.storeDataName("Cl4");
 
             ar.storeDataName("Cl3");
             ar.setCountingMode();
             detectionRayColor.serialize(ar,1);
             if (ar.setWritingMode())
                 detectionRayColor.serialize(ar,1);
-
-            ar.storeDataName("Cl4");
-            ar.setCountingMode();
-            closestDistanceVolumeColor.serialize(ar,1);
-            if (ar.setWritingMode())
-                closestDistanceVolumeColor.serialize(ar,1);
 
             ar.storeDataName("Sox");
             ar << _sensableObject;
@@ -535,12 +507,12 @@ void CProxSensor::serialize(CSer& ar)
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        _showVolumeWhenNotDetecting=SIM_IS_BIT_SET(nothing,0);
+                        _showVolume=SIM_IS_BIT_SET(nothing,0);
                         closestObjectMode=SIM_IS_BIT_SET(nothing,1);
                         normalCheck=SIM_IS_BIT_SET(nothing,2);
                         frontFaceDetection=!SIM_IS_BIT_SET(nothing,4);
                         backFaceDetection=!SIM_IS_BIT_SET(nothing,5);
-                        _showVolumeWhenDetecting=SIM_IS_BIT_SET(nothing,6);
+                        //_showVolumeWhenDetecting=SIM_IS_BIT_SET(nothing,6);
                         explicitHandling=SIM_IS_BIT_SET(nothing,7);
                     }
                     if (theName=="Pr5")
@@ -563,25 +535,15 @@ void CProxSensor::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        passiveVolumeColor.serialize(ar,0);
+                        volumeColor.serialize(ar,0);
                     }
-                    if (theName.compare("Cl2")==0)
-                    {
-                        noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        activeVolumeColor.serialize(ar,0);
-                    }
+                    // if (theName.compare("Cl2")==0)
+                    //if (theName.compare("Cl4")==0)
                     if (theName.compare("Cl3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                         detectionRayColor.serialize(ar,1);
-                    }
-                    if (theName.compare("Cl4")==0)
-                    {
-                        noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        closestDistanceVolumeColor.serialize(ar,1);
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -592,10 +554,8 @@ void CProxSensor::serialize(CSer& ar)
 
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-                CTTUtil::scaleColorUp_(passiveVolumeColor.getColorsPtr());
-                CTTUtil::scaleColorUp_(activeVolumeColor.getColorsPtr());
+                CTTUtil::scaleColorUp_(volumeColor.getColorsPtr());
                 CTTUtil::scaleColorUp_(detectionRayColor.getColorsPtr());
-                CTTUtil::scaleColorUp_(closestDistanceVolumeColor.getColorsPtr());
             }
             computeBoundingBox();
         }
@@ -640,8 +600,7 @@ void CProxSensor::serialize(CSer& ar)
             ar.xmlAddNode_float("allowedNormalAngle",allowedNormal*180.0f/piValue_f);
 
             ar.xmlPushNewNode("switches");
-            ar.xmlAddNode_bool("showVolumeWhenDetecting",_showVolumeWhenDetecting);
-            ar.xmlAddNode_bool("showVolumeWhenNotDetecting",_showVolumeWhenNotDetecting);
+            ar.xmlAddNode_bool("showVolumeWhenNotDetecting",_showVolume);
             ar.xmlAddNode_bool("closestObjectMode",closestObjectMode);
             ar.xmlAddNode_bool("normalCheck",normalCheck);
             ar.xmlAddNode_bool("frontFaceDetection",frontFaceDetection);
@@ -658,34 +617,22 @@ void CProxSensor::serialize(CSer& ar)
             ar.xmlPushNewNode("color");
             if (exhaustiveXml)
             {
-                ar.xmlPushNewNode("passiveVolume");
-                passiveVolumeColor.serialize(ar,0);
-                ar.xmlPopNode();
-                ar.xmlPushNewNode("activeVolume");
-                activeVolumeColor.serialize(ar,0);
+                ar.xmlPushNewNode("volume");
+                volumeColor.serialize(ar,0);
                 ar.xmlPopNode();
                 ar.xmlPushNewNode("detectionRay");
                 detectionRayColor.serialize(ar,0);
-                ar.xmlPopNode();
-                ar.xmlPushNewNode("closestDistVolume");
-                closestDistanceVolumeColor.serialize(ar,0);
                 ar.xmlPopNode();
             }
             else
             {
                 int rgb[3];
                 for (size_t l=0;l<3;l++)
-                    rgb[l]=int(passiveVolumeColor.getColorsPtr()[l]*127.0f+passiveVolumeColor.getColorsPtr()[9+l]*127.0f);
-                ar.xmlAddNode_ints("passiveVolume",rgb,3);
-                for (size_t l=0;l<3;l++)
-                    rgb[l]=int(activeVolumeColor.getColorsPtr()[l]*127.1f+activeVolumeColor.getColorsPtr()[9+l]*127.1f);
-                ar.xmlAddNode_ints("activeVolume",rgb,3);
+                    rgb[l]=int(volumeColor.getColorsPtr()[l]*127.0f+volumeColor.getColorsPtr()[9+l]*127.0f);
+                ar.xmlAddNode_ints("volume",rgb,3);
                 for (size_t l=0;l<3;l++)
                     rgb[l]=int(detectionRayColor.getColorsPtr()[l]*127.1f+detectionRayColor.getColorsPtr()[9+l]*127.1f);
                 ar.xmlAddNode_ints("detectionRay",rgb,3);
-                for (size_t l=0;l<3;l++)
-                    rgb[l]=int(closestDistanceVolumeColor.getColorsPtr()[l]*127.1f+closestDistanceVolumeColor.getColorsPtr()[9+l]*127.1f);
-                ar.xmlAddNode_ints("closestDistVolume",rgb,3);
             }
             ar.xmlPopNode();
 
@@ -714,8 +661,7 @@ void CProxSensor::serialize(CSer& ar)
 
             if (ar.xmlPushChildNode("switches",exhaustiveXml))
             {
-                ar.xmlGetNode_bool("showVolumeWhenDetecting",_showVolumeWhenDetecting,exhaustiveXml);
-                ar.xmlGetNode_bool("showVolumeWhenNotDetecting",_showVolumeWhenNotDetecting,exhaustiveXml);
+                ar.xmlGetNode_bool("showVolumeWhenNotDetecting",_showVolume,exhaustiveXml);
                 ar.xmlGetNode_bool("closestObjectMode",closestObjectMode,exhaustiveXml);
                 ar.xmlGetNode_bool("normalCheck",normalCheck,exhaustiveXml);
                 ar.xmlGetNode_bool("frontFaceDetection",frontFaceDetection,exhaustiveXml);
@@ -736,14 +682,14 @@ void CProxSensor::serialize(CSer& ar)
             {
                 if (exhaustiveXml)
                 {
-                    if (ar.xmlPushChildNode("passiveVolume"))
-                    {
-                        passiveVolumeColor.serialize(ar,0);
+                    if (ar.xmlPushChildNode("passiveVolume",false))
+                    { // for backward compatibility
+                        volumeColor.serialize(ar,0);
                         ar.xmlPopNode();
                     }
-                    if (ar.xmlPushChildNode("activeVolume"))
+                    if (ar.xmlPushChildNode("volume",false))
                     {
-                        activeVolumeColor.serialize(ar,0);
+                        volumeColor.serialize(ar,0);
                         ar.xmlPopNode();
                     }
                     if (ar.xmlPushChildNode("detectionRay"))
@@ -751,23 +697,16 @@ void CProxSensor::serialize(CSer& ar)
                         detectionRayColor.serialize(ar,0);
                         ar.xmlPopNode();
                     }
-                    if (ar.xmlPushChildNode("closestDistVolume"))
-                    {
-                        closestDistanceVolumeColor.serialize(ar,0);
-                        ar.xmlPopNode();
-                    }
                 }
                 else
                 {
                     int rgb[3];
-                    if (ar.xmlGetNode_ints("passiveVolume",rgb,3,exhaustiveXml))
-                        passiveVolumeColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
-                    if (ar.xmlGetNode_ints("activeVolume",rgb,3,exhaustiveXml))
-                        activeVolumeColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
-                    if (ar.xmlGetNode_ints("detectionRay",rgb,3,exhaustiveXml))
+                    if (ar.xmlGetNode_ints("passiveVolume",rgb,3,false))
+                        volumeColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    if (ar.xmlGetNode_ints("volume",rgb,3,false))
+                        volumeColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    if (ar.xmlGetNode_ints("detectionRay",rgb,3,false))
                         detectionRayColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
-                    if (ar.xmlGetNode_ints("closestDistVolume",rgb,3,exhaustiveXml))
-                        closestDistanceVolumeColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -1109,13 +1048,9 @@ std::string CProxSensor::getSensableObjectLoadName_old() const
 CColorObject* CProxSensor::getColor(int index)
 {
     if (index==0)
-        return(&passiveVolumeColor);
+        return(&volumeColor);
     if (index==1)
-        return(&activeVolumeColor);
-    if (index==2)
         return(&detectionRayColor);
-    if (index==3)
-        return(&closestDistanceVolumeColor);
     return(nullptr);
 }
 

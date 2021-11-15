@@ -32,14 +32,11 @@ void displayVisionSensor(CVisionSensor* visionSensor,CViewableBase* renderingObj
 
         glPushMatrix();
 
-        if ((visionSensor->sensorResult.sensorWasTriggered&&visionSensor->getShowVolumeWhenDetecting())||((!visionSensor->sensorResult.sensorWasTriggered)&&visionSensor->getShowVolumeWhenNotDetecting()))
+        if (visionSensor->getShowVolume())
         {
-            if (visionSensor->sensorResult.sensorWasTriggered)
-                visionSensor->getColor(true)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-            else
-                visionSensor->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
+            visionSensor->getColor()->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
             C3Vector c,f;
-            visionSensor->getSensingVolumeCorners(c,f);
+            visionSensor->getVolumeVectors(c,f);
             ogl::buffer.clear();
             ogl::addBuffer3DPoints(-f(0),-f(1),f(2));
             ogl::addBuffer3DPoints(-f(0),+f(1),f(2));
@@ -67,10 +64,7 @@ void displayVisionSensor(CVisionSensor* visionSensor,CViewableBase* renderingObj
             ogl::buffer.clear();
         }
 
-        if (visionSensor->sensorResult.sensorWasTriggered)
-            visionSensor->getColor(true)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-        else
-            visionSensor->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
+        visionSensor->getColor()->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
         C3Vector _size(visionSensor->getVisionSensorSize());
         float dx=_size(0)*0.5f;
         float dy=_size(1)*0.5f;

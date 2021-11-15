@@ -56,7 +56,6 @@ public:
 
     void handleTrackingAndHeadAlwaysUp();
     void commonInit();
-    int getPerspectiveOperation() const;
     void setPerspectiveOperation(bool p);
     int getViewOrientation() const;
     void setViewOrientation(int ori,bool setPositionAlso=false);

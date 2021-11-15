@@ -440,6 +440,22 @@
      <string>Object size [m]</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="qqShowVolume">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>45</y>
+      <width>171</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Show view frustum</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <tabstops>

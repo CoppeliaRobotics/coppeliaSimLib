@@ -53,7 +53,7 @@ void CQDlgTextureSelection::refresh()
         CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
         std::string txt(rs->getObjectAlias_printPath());
         int s[2];
-        rs->getRealResolution(s);
+        rs->getResolution(s);
         txt+=" [";
         txt+=boost::lexical_cast<std::string>(s[0])+"x"+boost::lexical_cast<std::string>(s[1])+"] ";
         txt+=tt::decorateString(" (",IDSN_DYNAMIC_TEXTURE,")");

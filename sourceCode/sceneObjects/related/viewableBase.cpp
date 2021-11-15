@@ -26,6 +26,9 @@ CViewableBase::CViewableBase()
     _fogTimerDuration=0.0f;
     _frustumCullingTemporarilyDisabled=false;
     _disabledColorComponents=0;
+    _perspective=true;
+    _resolution[0]=1280;
+    _resolution[1]=720;
 }
 
 CViewableBase::~CViewableBase()
@@ -133,6 +136,7 @@ void CViewableBase::setNearClippingPlane(float nearPlane)
     if (diff)
     {
         _nearClippingPlane=nearPlane;
+        computeVolumeVectors();
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="nearClippingPlane";
@@ -155,6 +159,7 @@ void CViewableBase::setFarClippingPlane(float farPlane)
     if (diff)
     {
         _farClippingPlane=farPlane;
+        computeVolumeVectors();
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="farClippingPlane";
@@ -177,6 +182,7 @@ void CViewableBase::setViewAngle(float angle)
     if (diff)
     {
         _viewAngle=angle;
+        computeVolumeVectors();
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="viewAngle";
@@ -199,6 +205,7 @@ void CViewableBase::setOrthoViewSize(float theSize)
     if (diff)
     {
         _orthoViewSize=theSize;
+        computeVolumeVectors();
         if ( _isInScene&&App::worldContainer->getEnableEvents() )
         {
             const char* cmd="orthoSize";
@@ -458,3 +465,126 @@ bool CViewableBase::_isBoxOutsideVolumeApprox(const C4X4Matrix& tr,
     }
     return(false);
 }
+
+void CViewableBase::setPerspective(bool p)
+{
+    bool diff=(_perspective!=p);
+    if (diff)
+    {
+        _perspective=p;
+        computeVolumeVectors();
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="perspectiveMode";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringBool(cmd,_perspective);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
+void CViewableBase::setResolution(const int r[2])
+{
+    if ( (_resolution[0]!=r[0])||(_resolution[1]!=r[1]) )
+    {
+        _resolution[0]=r[0];
+        _resolution[1]=r[1];
+        computeVolumeVectors();
+    }
+}
+void CViewableBase::getResolution(int r[2]) const
+{
+    r[0]=_resolution[0];
+    r[1]=_resolution[1];
+}
+
+
+bool CViewableBase::getPerspective() const
+{
+    return(_perspective);
+}
+
+void CViewableBase::computeVolumeVectors()
+{
+    C3Vector nearV,farV;
+    float resYoverResX=float(_resolution[1])/float(_resolution[0]);
+    if (_perspective)
+    {
+        if (resYoverResX<=1.0f)
+        { // x is bigger
+            farV(0)=tan(_viewAngle/2.0f)*_farClippingPlane;
+            farV(1)=farV(0)*resYoverResX;
+            farV(2)=_farClippingPlane;
+
+            nearV(0)=tan(_viewAngle/2.0f)*_nearClippingPlane;
+            nearV(1)=nearV(0)*resYoverResX;
+            nearV(2)=_nearClippingPlane;
+        }
+        else
+        { // y is bigger
+            farV(1)=tan(_viewAngle/2.0f)*_farClippingPlane;
+            farV(0)=farV(1)/resYoverResX;
+            farV(2)=_farClippingPlane;
+
+            nearV(1)=tan(_viewAngle/2.0f)*_nearClippingPlane;
+            nearV(0)=nearV(1)/resYoverResX;
+            nearV(2)=_nearClippingPlane;
+        }
+    }
+    else
+    {
+        if (resYoverResX<=1.0f)
+            farV(0)=_orthoViewSize/2.0f; // x is bigger
+        else
+            farV(0)=_orthoViewSize/(2.0f*resYoverResX); // y is bigger
+        farV(1)=farV(0)*resYoverResX;
+        farV(2)=_farClippingPlane;
+
+        nearV(0)=farV(0);
+        nearV(1)=farV(1);
+        nearV(2)=_nearClippingPlane;
+    }
+    if ( (nearV-_volumeVectorNear).getLength()+(farV-_volumeVectorFar).getLength()>0.0001f )
+    {
+        _volumeVectorNear=nearV;
+        _volumeVectorFar=farV;
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="frustumVectors";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            CInterfaceStackTable* fr=new CInterfaceStackTable();
+            data->appendMapObject_stringObject(cmd,fr);
+            fr->appendMapObject_stringFloatArray("near",_volumeVectorNear.data,3);
+            fr->appendMapObject_stringFloatArray("far",_volumeVectorFar.data,3);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
+void CViewableBase::setShowVolume(bool s)
+{
+    bool diff=(_showVolume!=s);
+    if (diff)
+    {
+        _showVolume=s;
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="showFrustum";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringBool(cmd,_showVolume);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
+bool CViewableBase::getShowVolume() const
+{
+    return(_showVolume);
+}
+
+void CViewableBase::getVolumeVectors(C3Vector& n,C3Vector& f) const
+{
+    n=_volumeVectorNear;
+    f=_volumeVectorFar;
+}
+

@@ -1197,37 +1197,21 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         if (it!=nullptr)
             return((CColorObject*)it->getDummyColor());
     }
-    if (objType==COLOR_ID_VISIONSENSOR_PASSIVE)
+    if (objType==COLOR_ID_VISIONSENSOR)
     {
-        _auxDlgTitle->assign("Vision sensor - passive");
+        _auxDlgTitle->assign("Vision sensor");
         _allowedParts[0]=1+4+8+16+32;
         CVisionSensor* it=currentWorld->sceneObjects->getVisionSensorFromHandle(objID1);
         if (it!=nullptr)
-            return(it->getColor(false));
+            return(it->getColor());
     }
-    if (objType==COLOR_ID_VISIONSENSOR_ACTIVE)
+    if (objType==COLOR_ID_PROXSENSOR_VOLUME)
     {
-        _auxDlgTitle->assign("Vision sensor - active");
-        _allowedParts[0]=1+4+8+16+32;
-        CVisionSensor* it=currentWorld->sceneObjects->getVisionSensorFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(true));
-    }
-    if (objType==COLOR_ID_PROXSENSOR_PASSIVE)
-    {
-        _auxDlgTitle->assign("Proximity sensor - passive");
+        _auxDlgTitle->assign("Proximity sensor - volume");
         _allowedParts[0]=1+4+8+16+32;
         CProxSensor* it=currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
         if (it!=nullptr)
             return(it->getColor(0));
-    }
-    if (objType==COLOR_ID_PROXSENSOR_ACTIVE)
-    {
-        _auxDlgTitle->assign("Proximity sensor - active");
-        _allowedParts[0]=1+4+8+16+32;
-        CProxSensor* it=currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(1));
     }
     if (objType==COLOR_ID_PROXSENSOR_RAY)
     {
@@ -1235,15 +1219,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _allowedParts[0]=1+4+8+16+32;
         CProxSensor* it=currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
         if (it!=nullptr)
-            return(it->getColor(2));
-    }
-    if (objType==COLOR_ID_PROXSENSOR_MINDIST)
-    {
-        _auxDlgTitle->assign("Proximity sensor - min. dist.");
-        _allowedParts[0]=1+4+8+16+32;
-        CProxSensor* it=currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(3));
+            return(it->getColor(1));
     }
     if (objType==COLOR_ID_MILL_PASSIVE)
     {

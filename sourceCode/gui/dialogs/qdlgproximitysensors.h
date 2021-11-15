@@ -1,4 +1,3 @@
-
 #ifndef QDLGPROXIMITYSENSORS_H
 #define QDLGPROXIMITYSENSORS_H
 
@@ -29,11 +28,9 @@ private slots:
 
     void on_qqSensorTypeCombo_currentIndexChanged(int index);
 
-    void on_qqShowDetecting_clicked();
-
     void on_qqPointSize_editingFinished();
 
-    void on_qqShowNotDetecting_clicked();
+    void on_qqShowVolume_clicked();
 
     void on_qqApplyMain_clicked();
 
@@ -41,13 +38,9 @@ private slots:
 
     void on_qqAdjustDetectionParams_clicked();
 
-    void on_qqPassiveVolumeColor_clicked();
-
-    void on_qqActiveVolumeColor_clicked();
+    void on_qqVolumeColor_clicked();
 
     void on_qqRayColor_clicked();
-
-    void on_qqMinDistColor_clicked();
 
     void on_qqApplyColors_clicked();
 

@@ -555,15 +555,21 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (cam!=nullptr)
                 cam->setShowFogIfAvailable(!cam->getShowFogIfAvailable());
         }
+        if (cmd.cmdId==TOGGLE_SHOWVOLUME_CAMERAGUITRIGGEREDCMD)
+        {
+            CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+            if (cam!=nullptr)
+                cam->setShowVolume(!cam->getShowVolume());
+        }
         if (cmd.cmdId==TOGGLE_PERSPECTIVEMODE_CAMERAGUITRIGGEREDCMD)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
             if (cam!=nullptr)
             {
-                if (cam->getPerspectiveOperation()==0)
-                    cam->setPerspectiveOperation(1);
+                if (!cam->getPerspective())
+                    cam->setPerspectiveOperation(true);
                 else
-                    cam->setPerspectiveOperation(0);
+                    cam->setPerspectiveOperation(false);
             }
         }
         if (cmd.cmdId==TOGGLE_USEPARENTASMANIPPROXY_CAMERAGUITRIGGEREDCMD)
@@ -752,7 +758,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setPerspectiveOperation(!it->getPerspectiveOperation());
+                it->setPerspective(!it->getPerspective());
         }
         if (cmd.cmdId==TOGGLE_LOCALLIGHTS_VISIONSENSORGUITRIGGEREDCMD)
         {
@@ -760,23 +766,17 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
                 it->setUseLocalLights(!it->getuseLocalLights());
         }
-        if (cmd.cmdId==TOGGLE_SHOWVOLUME_WHEN_NOT_DETECTING_VISIONSENSORGUITRIGGEREDCMD)
+        if (cmd.cmdId==TOGGLE_SHOWVOLUME_VISIONSENSORGUITRIGGEREDCMD)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setShowVolumeWhenNotDetecting(!it->getShowVolumeWhenNotDetecting());
+                it->setShowVolume(!it->getShowVolume());
         }
         if (cmd.cmdId==TOGGLE_SHOWFOG_VISIONSENSORGUITRIGGEREDCMD)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setShowFogIfAvailable(!it->getShowFogIfAvailable());
-        }
-        if (cmd.cmdId==TOGGLE_SHOWVOLUME_WHEN_DETECTING_VISIONSENSORGUITRIGGEREDCMD)
-        {
-            CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->setShowVolumeWhenDetecting(!it->getShowVolumeWhenDetecting());
         }
         if (cmd.cmdId==SET_NEARCLIPPING_VISIONSENSORGUITRIGGEREDCMD)
         {
@@ -795,7 +795,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                if (it->getPerspectiveOperation())
+                if (it->getPerspective())
                     it->setViewAngle(cmd.floatParams[0]);
                 else
                     it->setOrthoViewSize(cmd.floatParams[0]);
@@ -805,7 +805,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDesiredResolution(&cmd.intParams[1]);
+                it->setResolution(&cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_OBJECTSIZE_VISIONSENSORGUITRIGGEREDCMD)
         {
@@ -828,7 +828,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (last!=nullptr)
             {
                 int r[2];
-                last->getDesiredResolution(r);
+                last->getResolution(r);
                 float b[3];
                 last->getDefaultBufferValues(b);
                 for (size_t i=1;i<cmd.intParams.size();i++)
@@ -839,7 +839,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         it->setRenderMode(last->getRenderMode());
                         it->setExplicitHandling(last->getExplicitHandling());
                         it->setUseExternalImage(last->getUseExternalImage());
-                        it->setPerspectiveOperation(last->getPerspectiveOperation());
+                        it->setPerspective(last->getPerspective());
                         it->setShowFogIfAvailable(last->getShowFogIfAvailable());
                         it->setIgnoreRGBInfo(last->getIgnoreRGBInfo());
                         it->setIgnoreDepthInfo(last->getIgnoreDepthInfo());
@@ -848,7 +848,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         it->setFarClippingPlane(last->getFarClippingPlane());
                         it->setViewAngle(last->getViewAngle());
                         it->setOrthoViewSize(last->getOrthoViewSize());
-                        it->setDesiredResolution(r);
+                        it->setResolution(r);
                         it->setUseLocalLights(last->getuseLocalLights());
                         it->setUseEnvironmentBackgroundColor(last->getUseEnvironmentBackgroundColor());
                         it->setDefaultBufferValues(b);
@@ -867,11 +867,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[i]);
                     if (it!=nullptr)
                     {
-                        last->getColor(false)->copyYourselfInto(it->getColor(false));
-                        last->getColor(true)->copyYourselfInto(it->getColor(true));
+                        last->getColor()->copyYourselfInto(it->getColor());
                         it->setVisionSensorSize(last->getVisionSensorSize());
-                        it->setShowVolumeWhenNotDetecting(last->getShowVolumeWhenNotDetecting());
-                        it->setShowVolumeWhenDetecting(last->getShowVolumeWhenDetecting());
+                        it->setShowVolume(last->getShowVolume());
                     }
                 }
             }
@@ -1340,17 +1338,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
                 it->setSensableType(cmd.intParams[1]);
         }
-        if (cmd.cmdId==TOGGLE_SHOWVOLWHENDETECTING_PROXSENSORGUITRIGGEREDCMD)
+        if (cmd.cmdId==TOGGLE_SHOWVOLUME_PROXSENSORGUITRIGGEREDCMD)
         {
             CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setShowVolumeWhenDetecting(!it->getShowVolumeWhenDetecting());
-        }
-        if (cmd.cmdId==TOGGLE_SHOWVOLWHENNOTDETECTING_PROXSENSORGUITRIGGEREDCMD)
-        {
-            CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->setShowVolumeWhenNotDetecting(!it->getShowVolumeWhenNotDetecting());
+                it->setShowVolume(!it->getShowVolume());
         }
         if (cmd.cmdId==SET_POINTSIZE_PROXSENSORGUITRIGGEREDCMD)
         {
@@ -1402,11 +1394,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         {
                             it->getColor(0)->copyYourselfInto(it2->getColor(0));
                             it->getColor(1)->copyYourselfInto(it2->getColor(1));
-                            it->getColor(2)->copyYourselfInto(it2->getColor(2));
-                            it->getColor(3)->copyYourselfInto(it2->getColor(3));
                             it2->setProxSensorSize(it->getProxSensorSize());
-                            it2->setShowVolumeWhenNotDetecting(it->getShowVolumeWhenNotDetecting());
-                            it2->setShowVolumeWhenDetecting(it->getShowVolumeWhenDetecting());
+                            it2->setShowVolume(it->getShowVolume());
                         }
                     }
                 }

@@ -31,27 +31,11 @@ void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObje
             glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
 
         ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
-/*
-        if (CIloIlo::debugSensorCutting&&(sensorType!=sim_proximitysensor_ray_subtype))
-        {
-            ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
-            ogl::setBlending(true);
-            glDepthMask(GL_FALSE);
-            ogl::buffer.clear();
-            for (int klm=0;klm<int(cutEdges.size())/3;klm++)
-                ogl::addBuffer3DPoints(&cutEdges[3*klm]);
-            if (ogl::buffer.size()!=0)
-                ogl::drawRandom3dLines(&ogl::buffer[0],ogl::buffer.size(),true,normalVectorForLinesAndPoints.data);
-            ogl::buffer.clear();
-            ogl::setBlending(false);
-            glDepthMask(GL_TRUE);
-        }
-*/
         if (proxSensor->getIsDetectedPointValid())
         {
             if (!proxSensor->getHideDetectionRay())
             {
-                proxSensor->getColor(2)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
+                proxSensor->getColor(1)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
                 glLineWidth(3.0f);
                 ogl::buffer.clear();
                 ogl::addBuffer3DPoints(0.0f,0.0f,0.0f);
@@ -77,17 +61,17 @@ void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObje
                     ogl::buffer.clear();
                 }
             }
-            proxSensor->getColor(1)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
         }
-        else
-            proxSensor->getColor(0)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
+        proxSensor->getColor(0)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
 
-        if ((proxSensor->getShowVolumeWhenDetecting()&&proxSensor->getIsDetectedPointValid())||(proxSensor->getShowVolumeWhenNotDetecting()&&(!proxSensor->getIsDetectedPointValid())))
+        ogl::drawSphere(proxSensor->getProxSensorSize()/2.0f,10,5,true);
+
+        if (proxSensor->getShowVolume())
         {
-            ogl::drawSphere(proxSensor->getProxSensorSize()/2.0f,10,5,true);
             if (proxSensor->convexVolume->volumeEdges.size()!=0)
                 ogl::drawRandom3dLines(&proxSensor->convexVolume->volumeEdges[0],(int)proxSensor->convexVolume->volumeEdges.size()/3,false,normalVectorForLinesAndPoints.data);
-            proxSensor->getColor(3)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
+            float ccc[3]={0.2f,0.2f,0.2f};
+            ogl::setMaterialColor(ccc,ccc,ccc);
             if (proxSensor->convexVolume->nonDetectingVolumeEdges.size()!=0)
                 ogl::drawRandom3dLines(&proxSensor->convexVolume->nonDetectingVolumeEdges[0],(int)proxSensor->convexVolume->nonDetectingVolumeEdges.size()/3,false,normalVectorForLinesAndPoints.data);
         }

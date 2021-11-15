@@ -60,6 +60,8 @@ private slots:
 
     void on_qqRenderModeCombo_currentIndexChanged(int index);
 
+    void on_qqShowVolume_clicked();
+
 private:
     Ui::CQDlgCameras *ui;
 };

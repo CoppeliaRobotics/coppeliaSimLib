@@ -382,7 +382,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             CVisionSensor* newObject=new CVisionSensor();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             newObject->setLocalTransformation(C3Vector(0.0f,0.0f,newObject->getVisionSensorSize()(2)));
-            newObject->setPerspectiveOperation(true);
+            newObject->setPerspective(true);
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
