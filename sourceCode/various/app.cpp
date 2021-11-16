@@ -1069,51 +1069,27 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
 
     if (objType==COLOR_ID_CAMERA_A)
     {
-        _auxDlgTitle->assign("Camera - part A");
+        _auxDlgTitle->assign("Camera");
         _allowedParts[0]=1+4+8+16+32+64;
         CCamera* it=currentWorld->sceneObjects->getCameraFromHandle(objID1);
         if (it!=nullptr)
             return(it->getColor(false));
-    }
-    if (objType==COLOR_ID_CAMERA_B)
-    {
-        _auxDlgTitle->assign("Camera - part B");
-        _allowedParts[0]=1+4+8+16+32+64;
-        CCamera* it=currentWorld->sceneObjects->getCameraFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(true));
     }
     if (objType==COLOR_ID_FORCESENSOR_A)
     {
-        _auxDlgTitle->assign("Force sensor - part A");
+        _auxDlgTitle->assign("Force sensor");
         _allowedParts[0]=1+4+8+16+32+64;
         CForceSensor* it=currentWorld->sceneObjects->getForceSensorFromHandle(objID1);
         if (it!=nullptr)
             return(it->getColor(false));
     }
-    if (objType==COLOR_ID_FORCESENSOR_B)
-    {
-        _auxDlgTitle->assign("Force sensor - part B");
-        _allowedParts[0]=1+4+8+16+32+64;
-        CForceSensor* it=currentWorld->sceneObjects->getForceSensorFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(true));
-    }
     if (objType==COLOR_ID_JOINT_A)
     {
-        _auxDlgTitle->assign("Joint - part A");
+        _auxDlgTitle->assign("Joint");
         _allowedParts[0]=1+4+8+16+32+64;
         CJoint* it=currentWorld->sceneObjects->getJointFromHandle(objID1);
         if (it!=nullptr)
             return((CColorObject*)it->getColor(false));
-    }
-    if (objType==COLOR_ID_JOINT_B)
-    {
-        _auxDlgTitle->assign("Joint - part B");
-        _allowedParts[0]=1+4+8+16+32+64;
-        CJoint* it=currentWorld->sceneObjects->getJointFromHandle(objID1);
-        if (it!=nullptr)
-            return((CColorObject*)it->getColor(true));
     }
     if (objType==COLOR_ID_PATH)
     {
@@ -1207,7 +1183,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
     }
     if (objType==COLOR_ID_PROXSENSOR_VOLUME)
     {
-        _auxDlgTitle->assign("Proximity sensor - volume");
+        _auxDlgTitle->assign("Proximity sensor");
         _allowedParts[0]=1+4+8+16+32;
         CProxSensor* it=currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
         if (it!=nullptr)

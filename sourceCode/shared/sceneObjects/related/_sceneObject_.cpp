@@ -150,11 +150,6 @@ bool _CSceneObject_::getModelBase() const
     return(_modelBase);
 }
 
-bool _CSceneObject_::getModelInvisible() const
-{
-    return(_modelInvisible);
-}
-
 void _CSceneObject_::_setModelInvisible(bool inv)
 {
     bool diff=(_modelInvisible!=inv);
@@ -434,32 +429,37 @@ C7Vector _CSceneObject_::getFullCumulativeTransformation() const
     return(getFullParentCumulativeTransformation()*getFullLocalTransformation());
 }
 
-void _CSceneObject_::recomputeModelInfluencedValues(int flags/*=-1*/)
-{ // -2: parent has correct values, -1: recompute for this object + children
-    if (flags==-1)
+void _CSceneObject_::recomputeModelInfluencedValues(int overrideFlags/*=-1*/)
+{
+    if (overrideFlags==-1)
     {
         if (_parentObject==nullptr)
-            flags=_modelProperty;
+        {
+            if (_modelBase)
+                overrideFlags=_modelProperty;
+            else
+                overrideFlags=0;
+        }
         else
         {
             _parentObject->recomputeModelInfluencedValues(-2);
             return;
         }
     }
-    if (flags==-2)
-        flags=_calculatedModelProperty;
-    if (_modelBase)
-        flags|=_modelProperty;
-    _calculatedModelProperty=flags;
+    if (overrideFlags!=-2)
+    {
+        if (_modelBase)
+            overrideFlags|=_modelProperty;
+        _calculatedModelProperty=overrideFlags;
+        _setModelInvisible((_calculatedModelProperty&sim_modelproperty_not_visible)!=0);
 
-    _setModelInvisible((_calculatedModelProperty&sim_modelproperty_not_visible)!=0);
-
-    _calculatedObjectProperty=_objectProperty;
-    if ((_calculatedModelProperty&sim_modelproperty_not_showasinsidemodel)!=0)
-        _calculatedObjectProperty|=sim_objectproperty_dontshowasinsidemodel;
+        _calculatedObjectProperty=_objectProperty;
+        if ((_calculatedModelProperty&sim_modelproperty_not_showasinsidemodel)!=0)
+            _calculatedObjectProperty|=sim_objectproperty_dontshowasinsidemodel;
+    }
 
     for (size_t i=0;i<_childList.size();i++)
-        _childList[i]->recomputeModelInfluencedValues(flags);
+        _childList[i]->recomputeModelInfluencedValues(_calculatedModelProperty);
 }
 
 void _CSceneObject_::_setObjectAlias_send(const char* newName) const

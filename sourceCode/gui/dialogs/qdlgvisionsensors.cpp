@@ -51,7 +51,6 @@ void CQDlgVisionSensors::refresh()
     ui->qqSizeY->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqSizeZ->setEnabled(isSensor&&noEditModeAndNoSim);
 
-    ui->qqPerspective->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqExplicitHandling->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqExternalInput->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqLocalLights->setEnabled(isSensor&&noEditModeAndNoSim);
@@ -88,7 +87,6 @@ void CQDlgVisionSensors::refresh()
         ui->qqNearPlane->setText(tt::getEString(false,s->getNearClippingPlane(),2).c_str());
         ui->qqFarPlane->setText(tt::getEString(false,s->getFarClippingPlane(),2).c_str());
 
-        ui->qqPerspective->setChecked(s->getPerspective());
         if (s->getPerspective())
             ui->qqPerspectiveAngleOrOrthographicSize->setText(gv::getAngleStr(false,s->getViewAngle(),0).c_str());
         else
@@ -118,7 +116,6 @@ void CQDlgVisionSensors::refresh()
         ui->qqRenderModeCombo->addItem(IDS_AUXILIARY_CHANNELS,QVariant(sim_rendermode_auxchannels));
         ui->qqRenderModeCombo->addItem(IDS_COLOR_CODED_IDS,QVariant(sim_rendermode_colorcoded));
         ui->qqRenderModeCombo->addItem(IDS_RAY_TRACING,QVariant(sim_rendermode_povray));
-//        ui->qqRenderModeCombo->addItem(IDS_RAY_TRACING2,QVariant(4));
         ui->qqRenderModeCombo->addItem(IDS_EXTERNAL_RENDERER,QVariant(sim_rendermode_extrenderer));
         ui->qqRenderModeCombo->addItem(IDS_EXTERNAL_RENDERER_WINDOWED,QVariant(sim_rendermode_extrendererwindowed));
         ui->qqRenderModeCombo->addItem(IDS_OPENGL3,QVariant(sim_rendermode_opengl3));
@@ -148,7 +145,6 @@ void CQDlgVisionSensors::refresh()
         ui->qqSizeY->setText("");
         ui->qqSizeZ->setText("");
 
-        ui->qqPerspective->setChecked(false);
         ui->qqExplicitHandling->setChecked(false);
         ui->qqExternalInput->setChecked(false);
         ui->qqLocalLights->setChecked(false);
@@ -190,16 +186,6 @@ void CQDlgVisionSensors::on_qqExternalInput_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_EXTERNALINPUT_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgVisionSensors::on_qqPerspective_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_PERSPECTIVE_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

@@ -209,7 +209,7 @@ SIM_DLLEXPORT simInt simCreateMeshShape(simInt options,simFloat shadingAngle,con
 SIM_DLLEXPORT simInt simCreatePureShape(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision);
 SIM_DLLEXPORT simInt simCreateHeightfieldShape(simInt options,simFloat shadingAngle,simInt xPointCount,simInt yPointCount,simFloat xSize,const simFloat* heights);
 SIM_DLLEXPORT simInt simGetShapeMesh(simInt shapeHandle,simFloat** vertices,simInt* verticesSize,simInt** indices,simInt* indicesSize,simFloat** normals);
-SIM_DLLEXPORT simInt simCreateJoint(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* colorA,const simFloat* colorB);
+SIM_DLLEXPORT simInt simCreateJoint(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* reservedA,const simFloat* reservedB);
 SIM_DLLEXPORT simInt simGetObjectInt32Param(simInt objectHandle,simInt ParamID,simInt* Param);
 SIM_DLLEXPORT simInt simSetObjectInt32Param(simInt objectHandle,simInt ParamID,simInt Param);
 SIM_DLLEXPORT simInt simGetObjectFloatParam(simInt objectHandle,simInt ParamID,simFloat* Param);
@@ -240,12 +240,12 @@ SIM_DLLEXPORT simInt simRuckigPos(simInt dofs,simDouble smallestTimeStep,simInt 
 SIM_DLLEXPORT simInt simRuckigVel(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
 SIM_DLLEXPORT simInt simRuckigStep(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2);
 SIM_DLLEXPORT simInt simRuckigRemove(simInt objHandle);
-SIM_DLLEXPORT simInt simCreateDummy(simFloat size,const simFloat* color);
+SIM_DLLEXPORT simInt simCreateDummy(simFloat size,const simFloat* reserved);
 SIM_DLLEXPORT simInt simGroupShapes(const simInt* shapeHandles,simInt shapeCount);
 SIM_DLLEXPORT simInt* simUngroupShape(simInt shapeHandle,simInt* shapeCount);
-SIM_DLLEXPORT simInt simCreateProximitySensor(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
-SIM_DLLEXPORT simInt simCreateForceSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
-SIM_DLLEXPORT simInt simCreateVisionSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
+SIM_DLLEXPORT simInt simCreateProximitySensor(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved);
+SIM_DLLEXPORT simInt simCreateForceSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved);
+SIM_DLLEXPORT simInt simCreateVisionSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved);
 SIM_DLLEXPORT simInt simConvexDecompose(simInt shapeHandle,simInt options,const simInt* intParams,const simFloat* floatParams);
 SIM_DLLEXPORT simVoid simQuitSimulator(simBool ignoredArgument);
 SIM_DLLEXPORT simInt simSetShapeMaterial(simInt shapeHandle,simInt materialIdOrShapeHandle);

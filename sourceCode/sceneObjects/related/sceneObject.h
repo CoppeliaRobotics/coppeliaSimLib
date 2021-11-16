@@ -240,10 +240,6 @@ public:
 
     void setForceAlwaysVisible_tmp(bool force);
 
-    static void incrementModelPropertyValidityNumber();
-
-
-
     void setAbsoluteTransformation(const C7Vector& v);
     void setAbsoluteTransformation(const C4Vector& q);
     void setAbsoluteTransformation(const C3Vector& x);

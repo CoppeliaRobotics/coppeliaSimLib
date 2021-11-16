@@ -79,22 +79,6 @@
      <string>External input</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqPerspective">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>65</y>
-      <width>201</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Perspective mode</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
@@ -1381,7 +1365,6 @@
   <tabstop>qqIgnoreRGB</tabstop>
   <tabstop>qqExternalInput</tabstop>
   <tabstop>qqIgnoreDepth</tabstop>
-  <tabstop>qqPerspective</tabstop>
   <tabstop>qqIgnorePacket1</tabstop>
   <tabstop>qqRenderModeCombo</tabstop>
   <tabstop>qqNearPlane</tabstop>

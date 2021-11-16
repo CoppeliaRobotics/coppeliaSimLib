@@ -29,8 +29,6 @@ private slots:
 
     void on_qqExternalInput_clicked();
 
-    void on_qqPerspective_clicked();
-
     void on_qqLocalLights_clicked();
 
     void on_qqShowVolume_clicked();

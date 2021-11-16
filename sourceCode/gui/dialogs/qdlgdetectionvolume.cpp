@@ -50,54 +50,11 @@ void CQDlgDetectionVolume::refresh()
     if (mill)
         cv=millIt->convexVolume;
 
-    ui->qqType->clear();
-    ui->qqType->setEnabled((prox||mill)&&noEditModeNoSim);
     ui->qqApplyAll->setEnabled(ssel&&noEditModeNoSim);
 
 
     if (prox||mill)
     {
-        // The combo first:
-        if (prox)
-        {
-            ui->qqType->addItem(IDSN_RAY,QVariant(0));
-            ui->qqType->addItem(IDSN_RANDOMIZED_RAY,QVariant(1));
-        }
-        ui->qqType->addItem(IDSN_PYRAMID,QVariant(2));
-        ui->qqType->addItem(IDSN_CYLINDER,QVariant(3));
-        ui->qqType->addItem(IDSN_DISC,QVariant(4));
-        ui->qqType->addItem(IDSN_CONE,QVariant(5));
-        // Select the current item:
-        if (prox)
-        {
-            if (proxIt->getSensorType()==sim_proximitysensor_ray_subtype)
-            {
-                if (proxIt->getRandomizedDetection())
-                    ui->qqType->setCurrentIndex(1);
-                else
-                    ui->qqType->setCurrentIndex(0);
-            }
-            if (proxIt->getSensorType()==sim_proximitysensor_pyramid_subtype)
-                ui->qqType->setCurrentIndex(2);
-            if (proxIt->getSensorType()==sim_proximitysensor_cylinder_subtype)
-                ui->qqType->setCurrentIndex(3);
-            if (proxIt->getSensorType()==sim_proximitysensor_disc_subtype)
-                ui->qqType->setCurrentIndex(4);
-            if (proxIt->getSensorType()==sim_proximitysensor_cone_subtype)
-                ui->qqType->setCurrentIndex(5);
-        }
-        if (mill)
-        {
-            if (millIt->getMillType()==sim_mill_pyramid_subtype)
-                ui->qqType->setCurrentIndex(0);
-            if (millIt->getMillType()==sim_mill_cylinder_subtype)
-                ui->qqType->setCurrentIndex(1);
-            if (millIt->getMillType()==sim_mill_disc_subtype)
-                ui->qqType->setCurrentIndex(2);
-            if (millIt->getMillType()==sim_mill_cone_subtype)
-                ui->qqType->setCurrentIndex(3);
-        }
-
         if (prox)
         {
             setWindowTitle(IDSN_DETECTION_VOLUME_PROPERTIES);
@@ -468,60 +425,6 @@ CConvexVolume* CQDlgDetectionVolume::getCurrentConvexVolume()
     if (millIt!=nullptr)
         cv=millIt->convexVolume;
     return(cv);
-}
-
-void CQDlgDetectionVolume::on_qqType_currentIndexChanged(int index)
-{
-    if (!inMainRefreshRoutine)
-    {
-        IF_UI_EVENT_CAN_WRITE_DATA
-        {
-            CConvexVolume* cv=getCurrentConvexVolume();
-            if (cv!=nullptr)
-            {
-                int index=ui->qqType->currentIndex();
-                CProxSensor* proxIt=App::currentWorld->sceneObjects->getLastSelectionProxSensor();
-                CMill* millIt=App::currentWorld->sceneObjects->getLastSelectionMill();
-                int theType=-1;
-                bool randomized=false;
-                if (proxIt!=nullptr)
-                {
-                    if ((index==0)||(index==1))
-                    {
-                        theType=sim_proximitysensor_ray_subtype;
-                        randomized=(index==1);
-                    }
-                    if (index==2)
-                        theType=sim_proximitysensor_pyramid_subtype;
-                    if (index==3)
-                        theType=sim_proximitysensor_cylinder_subtype;
-                    if (index==4)
-                        theType=sim_proximitysensor_disc_subtype;
-                    if (index==5)
-                        theType=sim_proximitysensor_cone_subtype;
-                }
-                if (millIt)
-                {
-                    if (index==0)
-                        theType=sim_mill_pyramid_subtype;
-                    if (index==1)
-                        theType=sim_mill_cylinder_subtype;
-                    if (index==2)
-                        theType=sim_mill_disc_subtype;
-                    if (index==3)
-                        theType=sim_mill_cone_subtype;
-                }
-                SSimulationThreadCommand cmd;
-                cmd.cmdId=SET_TYPE_DETECTIONVOLUMEGUITRIGGEREDCMD;
-                cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
-                cmd.intParams.push_back(theType);
-                cmd.boolParams.push_back(randomized);
-                App::appendSimulationThreadCommand(cmd);
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-        }
-    }
 }
 
 void CQDlgDetectionVolume::on_qqOffset_editingFinished()

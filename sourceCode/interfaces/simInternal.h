@@ -206,7 +206,7 @@ simInt simCreateMeshShape_internal(simInt options,simFloat shadingAngle,const si
 simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision);
 simInt simCreateHeightfieldShape_internal(simInt options,simFloat shadingAngle,simInt xPointCount,simInt yPointCount,simFloat xSize,const simFloat* heights);
 simInt simGetShapeMesh_internal(simInt shapeHandle,simFloat** vertices,simInt* verticesSize,simInt** indices,simInt* indicesSize,simFloat** normals);
-simInt simCreateJoint_internal(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* colorA,const simFloat* colorB);
+simInt simCreateJoint_internal(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* reservedA,const simFloat* reservedB);
 simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,simInt* parameter);
 simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,simInt parameter);
 simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,simFloat* parameter);
@@ -237,12 +237,12 @@ simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags
 simInt simRuckigVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
 simInt simRuckigStep_internal(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2);
 simInt simRuckigRemove_internal(simInt objHandle);
-simInt simCreateDummy_internal(simFloat size,const simFloat* color);
+simInt simCreateDummy_internal(simFloat size,const simFloat* reserved);
 simInt simGroupShapes_internal(const simInt* shapeHandles,simInt shapeCount);
 simInt* simUngroupShape_internal(simInt shapeHandle,simInt* shapeCount);
-simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
-simInt simCreateForceSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
-simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color);
+simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved);
+simInt simCreateForceSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved);
+simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved);
 simInt simConvexDecompose_internal(simInt shapeHandle,simInt options,const simInt* intParams,const simFloat* floatParams);
 simVoid simQuitSimulator_internal(simBool ignoredArgument);
 simInt simSetShapeMaterial_internal(simInt shapeHandle,simInt materialIdOrShapeHandle);

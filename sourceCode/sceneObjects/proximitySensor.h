@@ -71,7 +71,6 @@ public:
     void setBackFaceDetection(bool faceOn);
     void setShowDetectionVolume(bool show);
 
-    void setSensorType(int theType);
     int getSensorType() const;
 
     void setExplicitHandling(bool setExplicit);
@@ -117,7 +116,6 @@ protected:
     float allowedNormal;
     float _proxSensorSize;
     bool normalCheck;
-//    bool _checkOcclusions;
     bool closestObjectMode;
     bool frontFaceDetection;
     bool backFaceDetection;

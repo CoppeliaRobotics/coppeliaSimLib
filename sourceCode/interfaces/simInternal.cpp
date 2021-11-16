@@ -8351,7 +8351,7 @@ simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const sim
     return(-1);
 }
 
-simInt simCreateDummy_internal(simFloat size,const simFloat* color)
+simInt simCreateDummy_internal(simFloat size,const simFloat* reserved)
 {
     TRACE_C_API;
 
@@ -8362,11 +8362,11 @@ simInt simCreateDummy_internal(simFloat size,const simFloat* color)
     {
         CDummy* it=new CDummy();
         it->setDummySize(size);
-        if (color!=nullptr)
+        if (reserved!=nullptr)
         {
-            it->getDummyColor()->setColor(color+0,sim_colorcomponent_ambient_diffuse);
-            it->getDummyColor()->setColor(color+6,sim_colorcomponent_specular);
-            it->getDummyColor()->setColor(color+9,sim_colorcomponent_emission);
+            it->getDummyColor()->setColor(reserved+0,sim_colorcomponent_ambient_diffuse);
+            it->getDummyColor()->setColor(reserved+6,sim_colorcomponent_specular);
+            it->getDummyColor()->setColor(reserved+9,sim_colorcomponent_emission);
         }
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         int retVal=it->getObjectHandle();
@@ -8376,7 +8376,7 @@ simInt simCreateDummy_internal(simFloat size,const simFloat* color)
     return(-1);
 }
 
-simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
+simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved)
 {
     TRACE_C_API;
 
@@ -8438,15 +8438,15 @@ simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt
         it->convexVolume->setSmallestDistanceAllowed(floatParams[11]);
         it->setProxSensorSize(floatParams[12]);
 
-        if (color!=nullptr)
+        if (reserved!=nullptr)
         {
-            it->getColor(0)->setColor(color+0,sim_colorcomponent_ambient_diffuse);
-            it->getColor(0)->setColor(color+6,sim_colorcomponent_specular);
-            it->getColor(0)->setColor(color+9,sim_colorcomponent_emission);
+            it->getColor(0)->setColor(reserved+0,sim_colorcomponent_ambient_diffuse);
+            it->getColor(0)->setColor(reserved+6,sim_colorcomponent_specular);
+            it->getColor(0)->setColor(reserved+9,sim_colorcomponent_emission);
 
-            it->getColor(1)->setColor(color+12,sim_colorcomponent_ambient_diffuse);
-            it->getColor(1)->setColor(color+18,sim_colorcomponent_specular);
-            it->getColor(1)->setColor(color+21,sim_colorcomponent_emission);
+            it->getColor(1)->setColor(reserved+12,sim_colorcomponent_ambient_diffuse);
+            it->getColor(1)->setColor(reserved+18,sim_colorcomponent_specular);
+            it->getColor(1)->setColor(reserved+21,sim_colorcomponent_emission);
         }
 
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
@@ -8457,14 +8457,12 @@ simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt
     return(-1);
 }
 
-simInt simCreateForceSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
+simInt simCreateForceSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved)
 {
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -8481,15 +8479,15 @@ simInt simCreateForceSensor_internal(simInt options,const simInt* intParams,cons
         it->setForceThreshold(floatParams[1]);
         it->setTorqueThreshold(floatParams[2]);
 
-        if (color!=nullptr)
+        if (reserved!=nullptr)
         {
-            it->getColor(false)->setColor(color+0,sim_colorcomponent_ambient_diffuse);
-            it->getColor(false)->setColor(color+6,sim_colorcomponent_specular);
-            it->getColor(false)->setColor(color+9,sim_colorcomponent_emission);
+            it->getColor(false)->setColor(reserved+0,sim_colorcomponent_ambient_diffuse);
+            it->getColor(false)->setColor(reserved+6,sim_colorcomponent_specular);
+            it->getColor(false)->setColor(reserved+9,sim_colorcomponent_emission);
 
-            it->getColor(true)->setColor(color+12,sim_colorcomponent_ambient_diffuse);
-            it->getColor(true)->setColor(color+18,sim_colorcomponent_specular);
-            it->getColor(true)->setColor(color+21,sim_colorcomponent_emission);
+            it->getColor(true)->setColor(reserved+12,sim_colorcomponent_ambient_diffuse);
+            it->getColor(true)->setColor(reserved+18,sim_colorcomponent_specular);
+            it->getColor(true)->setColor(reserved+21,sim_colorcomponent_emission);
         }
 
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
@@ -8500,14 +8498,12 @@ simInt simCreateForceSensor_internal(simInt options,const simInt* intParams,cons
     return(-1);
 }
 
-simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
+simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved)
 {
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -8531,11 +8527,11 @@ simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,con
         it->setVisionSensorSize(C3Vector(floatParams+3));
         it->setDefaultBufferValues(floatParams+6);
 
-        if (color!=nullptr)
+        if (reserved!=nullptr)
         {
-            it->getColor()->setColor(color+0,sim_colorcomponent_ambient_diffuse);
-            it->getColor()->setColor(color+6,sim_colorcomponent_specular);
-            it->getColor()->setColor(color+9,sim_colorcomponent_emission);
+            it->getColor()->setColor(reserved+0,sim_colorcomponent_ambient_diffuse);
+            it->getColor()->setColor(reserved+6,sim_colorcomponent_specular);
+            it->getColor()->setColor(reserved+9,sim_colorcomponent_emission);
         }
 
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
@@ -8547,7 +8543,7 @@ simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,con
 }
 
 
-simInt simCreateJoint_internal(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* colorA,const simFloat* colorB)
+simInt simCreateJoint_internal(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* reservedA,const simFloat* reservedB)
 {
     TRACE_C_API;
 
@@ -8564,17 +8560,17 @@ simInt simCreateJoint_internal(simInt jointType,simInt jointMode,simInt options,
             it->setLength(sizes[0]);
             it->setDiameter(sizes[1]);
         }
-        if (colorA!=nullptr)
+        if (reservedA!=nullptr)
         {
-            it->getColor(false)->setColor(colorA+0,sim_colorcomponent_ambient_diffuse);
-            it->getColor(false)->setColor(colorA+6,sim_colorcomponent_specular);
-            it->getColor(false)->setColor(colorA+9,sim_colorcomponent_emission);
+            it->getColor(false)->setColor(reservedA+0,sim_colorcomponent_ambient_diffuse);
+            it->getColor(false)->setColor(reservedA+6,sim_colorcomponent_specular);
+            it->getColor(false)->setColor(reservedA+9,sim_colorcomponent_emission);
         }
-        if (colorB!=nullptr)
+        if (reservedB!=nullptr)
         {
-            it->getColor(true)->setColor(colorB+0,sim_colorcomponent_ambient_diffuse);
-            it->getColor(true)->setColor(colorB+6,sim_colorcomponent_specular);
-            it->getColor(true)->setColor(colorB+9,sim_colorcomponent_emission);
+            it->getColor(true)->setColor(reservedB+0,sim_colorcomponent_ambient_diffuse);
+            it->getColor(true)->setColor(reservedB+6,sim_colorcomponent_specular);
+            it->getColor(true)->setColor(reservedB+9,sim_colorcomponent_emission);
         }
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         int retVal=it->getObjectHandle();
@@ -8589,9 +8585,7 @@ simInt simFloatingViewAdd_internal(simFloat posX,simFloat posY,simFloat sizeX,si
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {

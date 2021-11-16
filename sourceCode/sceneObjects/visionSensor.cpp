@@ -192,7 +192,7 @@ void CVisionSensor::commonInit()
     _nearClippingPlane=0.01f;
     _farClippingPlane=10.0f;
     _viewAngle=60.0f*degToRad_f;
-    _orthoViewSize=0.01f;
+    _orthoViewSize=0.1f;
     _showFogIfAvailable=true;
     _useLocalLights=false;
     _inApplyFilterRoutine=false;
@@ -228,7 +228,7 @@ void CVisionSensor::commonInit()
 
     _resolution[0]=32;
     _resolution[1]=32;
-    _visionSensorSize(0)=_orthoViewSize;
+    _visionSensorSize(0)=0.02f;
     _visionSensorSize(1)=_visionSensorSize(0);
     _visionSensorSize(2)=_visionSensorSize(0)*3.0f;
     _perspective=false;

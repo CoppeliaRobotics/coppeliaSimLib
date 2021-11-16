@@ -561,17 +561,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (cam!=nullptr)
                 cam->setShowVolume(!cam->getShowVolume());
         }
-        if (cmd.cmdId==TOGGLE_PERSPECTIVEMODE_CAMERAGUITRIGGEREDCMD)
-        {
-            CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
-            if (cam!=nullptr)
-            {
-                if (!cam->getPerspective())
-                    cam->setPerspectiveOperation(true);
-                else
-                    cam->setPerspectiveOperation(false);
-            }
-        }
         if (cmd.cmdId==TOGGLE_USEPARENTASMANIPPROXY_CAMERAGUITRIGGEREDCMD)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
@@ -753,12 +742,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setUseExternalImage(!it->getUseExternalImage());
-        }
-        if (cmd.cmdId==TOGGLE_PERSPECTIVE_VISIONSENSORGUITRIGGEREDCMD)
-        {
-            CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->setPerspective(!it->getPerspective());
         }
         if (cmd.cmdId==TOGGLE_LOCALLIGHTS_VISIONSENSORGUITRIGGEREDCMD)
         {
@@ -1422,21 +1405,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             }
         }
 
-
-
-
-        if (cmd.cmdId==SET_TYPE_DETECTIONVOLUMEGUITRIGGEREDCMD)
-        {
-            CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-            CMill* mill=App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
-            if (prox!=nullptr)
-            {
-                prox->setSensorType(cmd.intParams[1]);
-                prox->setRandomizedDetection(cmd.boolParams[0]);
-            }
-            if (mill!=nullptr)
-                mill->setMillType(cmd.intParams[1]);
-        }
         if (cmd.cmdId==SET_OFFSET_DETECTIONVOLUMEGUITRIGGEREDCMD)
         {
             CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
@@ -1572,13 +1540,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 for (size_t i=1;i<cmd.intParams.size();i++)
                 {
                     CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[i]);
-                    if (it!=nullptr)
+                    if ( (it!=nullptr)&&(it->getSensorType()==prox->getSensorType()) )
                     {
                         float w=it->convexVolume->getSmallestDistanceAllowed();
                         bool ww=it->convexVolume->getSmallestDistanceEnabled();
                         it->convexVolume->disableVolumeComputation(true);
                         // Volume parameters:
-                        it->setSensorType(prox->getSensorType());
                         it->setRandomizedDetection(false); // somehow needed for next to work always...??
                         it->setRandomizedDetection(prox->getRandomizedDetection());
                         it->convexVolume->setOffset(prox->convexVolume->getOffset());

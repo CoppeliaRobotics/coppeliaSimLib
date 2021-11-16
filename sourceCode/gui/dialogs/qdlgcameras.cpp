@@ -41,7 +41,6 @@ void CQDlgCameras::refresh()
     ui->qqFarClipping->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqNearClipping->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqFullRotation->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqPerspectiveMode->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqShowVolume->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqLocalLights->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqLocalLights->setVisible(App::userSettings->showOldDlgs);
@@ -63,7 +62,6 @@ void CQDlgCameras::refresh()
     if (it!=nullptr)
     {
         ui->qqManipProxy->setChecked(it->getUseParentObjectAsManipulationProxy());
-        ui->qqPerspectiveMode->setChecked(it->getPerspective());
         ui->qqShowVolume->setChecked(it->getShowVolume());
         ui->qqFullRotation->setChecked((it->getCameraManipulationModePermissions()&0x008)!=0);
         ui->qqTilting->setChecked((it->getCameraManipulationModePermissions()&0x010)!=0);
@@ -151,7 +149,6 @@ void CQDlgCameras::refresh()
         ui->qqAlongY->setChecked(false);
         ui->qqAlongZ->setChecked(false);
         ui->qqFullRotation->setChecked(false);
-        ui->qqPerspectiveMode->setChecked(false);
         ui->qqShowVolume->setChecked(false);
         ui->qqLocalLights->setChecked(false);
         ui->qqManipProxy->setChecked(false);
@@ -257,16 +254,6 @@ void CQDlgCameras::on_qqShowFog_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_SHOWFOG_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgCameras::on_qqPerspectiveMode_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_PERSPECTIVEMODE_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

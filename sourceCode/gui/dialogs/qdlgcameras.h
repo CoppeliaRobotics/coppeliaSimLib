@@ -34,8 +34,6 @@ private slots:
 
     void on_qqShowFog_clicked();
 
-    void on_qqPerspectiveMode_clicked();
-
     void on_qqManipProxy_clicked();
 
     void on_qqAlongX_clicked();

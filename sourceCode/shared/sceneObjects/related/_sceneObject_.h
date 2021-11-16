@@ -37,7 +37,6 @@ public:
     bool getSelected() const;
     bool getIsInScene() const;
     bool getModelBase() const;
-    bool getModelInvisible() const;
     std::string getExtensionString() const;
     unsigned short getVisibilityLayer() const;
     int getChildOrder() const;
@@ -57,7 +56,7 @@ public:
     C7Vector getCumulativeTransformation() const;
     C7Vector getFullCumulativeTransformation() const;
 
-    void recomputeModelInfluencedValues(int flags=-1);
+    void recomputeModelInfluencedValues(int overrideFlags=-1);
 
 
     void setObjectUniqueId();

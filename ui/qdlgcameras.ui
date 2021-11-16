@@ -126,22 +126,6 @@
      <number>50</number>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqPerspectiveMode">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>105</y>
-      <width>171</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Perspective mode</string>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="qqManipProxy">
     <property name="geometry">
      <rect>
@@ -449,7 +433,6 @@
   <tabstop>qqFarClipping</tabstop>
   <tabstop>qqRenderModeCombo</tabstop>
   <tabstop>qqTrackedCombo</tabstop>
-  <tabstop>qqPerspectiveMode</tabstop>
   <tabstop>qqManipProxy</tabstop>
   <tabstop>qqAlongX</tabstop>
   <tabstop>qqAlongY</tabstop>

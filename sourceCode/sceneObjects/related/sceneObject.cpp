@@ -437,7 +437,6 @@ void CSceneObject::setModelBase(bool m)
         }
        _modelProperty=0; // Nothing is overridden!
         _modelAcknowledgement="";
-        //incrementModelPropertyValidityNumber();
         recomputeModelInfluencedValues();
     }
 }
@@ -510,9 +509,18 @@ int CSceneObject::getCumulativeObjectSpecialProperty()
 
 void CSceneObject::setModelProperty(int prop)
 { // model properties are actually override properties. This func. returns the local value
-    _modelProperty=prop;
-    recomputeModelInfluencedValues();
-    //incrementModelPropertyValidityNumber();
+    if (_modelProperty!=prop)
+    {
+        _modelProperty=prop;
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="modelProperty";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            data->appendMapObject_stringInt32(cmd,_modelProperty);
+            App::worldContainer->pushEvent(event);
+        }
+        recomputeModelInfluencedValues();
+    }
 }
 
 int CSceneObject::getModelProperty() const
@@ -990,6 +998,7 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringBool("modelInvisible",_modelInvisible);
     data->appendMapObject_stringBool("modelBase",_modelBase);
     data->appendMapObject_stringInt32("objectProperty",_objectProperty);
+    data->appendMapObject_stringInt32("modelProperty",_modelProperty);
     int pUid=-1;
     if (_parentObject!=nullptr)
         pUid=_parentObject->getObjectUid();
@@ -1335,8 +1344,6 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     _dynamicSimulationIconCode=sim_dynamicsimicon_none;
     _initialValuesInitialized=true;
     _modelProperty=(_modelProperty|sim_modelproperty_not_reset)-sim_modelproperty_not_reset;
-    recomputeModelInfluencedValues();
-    //incrementModelPropertyValidityNumber();
     setDynamicFlag(0);
 
     _measuredAngularVelocity_velocityMeasurement=0.0f;

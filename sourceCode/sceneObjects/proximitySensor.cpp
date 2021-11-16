@@ -12,31 +12,35 @@
 CProxSensor::CProxSensor(int theType)
 {
     commonInit();
-    setSensorType(theType);
+
+    sensorType=theType;
+    if (theType==sim_proximitysensor_ray_subtype)
+        convexVolume->setVolumeType(RAY_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
+    else
+        _randomizedDetection=false;
+
+    if (theType==sim_proximitysensor_cylinder_subtype)
+        convexVolume->setVolumeType(CYLINDER_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
+    if (theType==sim_proximitysensor_disc_subtype)
+        convexVolume->setVolumeType(DISC_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
+    if (theType==sim_proximitysensor_pyramid_subtype)
+        convexVolume->setVolumeType(PYRAMID_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
+    if (theType==sim_proximitysensor_cone_subtype)
+        convexVolume->setVolumeType(CONE_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
+
     computeBoundingBox();
 }
 
 CProxSensor::CProxSensor()
 { // needed by the serialization routine only!
     commonInit();
-    computeBoundingBox();
 }
 
 CProxSensor::~CProxSensor()
 {
     delete convexVolume;
 }
-/*
-void CProxSensor::setCheckOcclusions(bool c)
-{
-    _checkOcclusions=c;
-}
 
-bool CProxSensor::getCheckOcclusions() const
-{
-    return(_checkOcclusions);
-}
-*/
 void CProxSensor::setRandomizedDetection(bool enable)
 {
     if ( (sensorType==sim_proximitysensor_ray_subtype)&&(enable!=_randomizedDetection) )
@@ -1052,24 +1056,6 @@ CColorObject* CProxSensor::getColor(int index)
     if (index==1)
         return(&detectionRayColor);
     return(nullptr);
-}
-
-void CProxSensor::setSensorType(int theType)
-{
-    sensorType=theType;
-    if (theType==sim_proximitysensor_ray_subtype)
-        convexVolume->setVolumeType(RAY_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
-    else
-        _randomizedDetection=false;
-
-    if (theType==sim_proximitysensor_cylinder_subtype)
-        convexVolume->setVolumeType(CYLINDER_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
-    if (theType==sim_proximitysensor_disc_subtype)
-        convexVolume->setVolumeType(DISC_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
-    if (theType==sim_proximitysensor_pyramid_subtype)
-        convexVolume->setVolumeType(PYRAMID_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
-    if (theType==sim_proximitysensor_cone_subtype)
-        convexVolume->setVolumeType(CONE_TYPE_CONVEX_VOLUME,_objectType,_proxSensorSize);
 }
 
 int CProxSensor::getSensorType() const

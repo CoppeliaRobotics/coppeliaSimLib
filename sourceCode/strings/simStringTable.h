@@ -532,7 +532,6 @@
 #define IDS_PRISMATIC_MENU_ITEM "Prismatic"
 #define IDS_SPHERICAL_MENU_ITEM "Spherical"
 
-#define IDS_CAMERA_MENU_ITEM    "Camera"
 #define IDS_MIRROR_MENU_ITEM    "Mirror"
 
 #define IDS_LIGHT_MENU_ITEM     "Light"

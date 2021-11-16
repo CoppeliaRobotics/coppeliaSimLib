@@ -777,9 +777,9 @@ SIM_DLLEXPORT simInt simGetShapeMesh(simInt shapeHandle,simFloat** vertices,simI
 {
     return(simGetShapeMesh_internal(shapeHandle,vertices,verticesSize,indices,indicesSize,normals));
 }
-SIM_DLLEXPORT simInt simCreateJoint(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* colorA,const simFloat* colorB)
+SIM_DLLEXPORT simInt simCreateJoint(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* reservedA,const simFloat* reservedB)
 {
-    return(simCreateJoint_internal(jointType,jointMode,options,sizes,colorA,colorB));
+    return(simCreateJoint_internal(jointType,jointMode,options,sizes,reservedA,reservedB));
 }
 SIM_DLLEXPORT simInt simGetObjectInt32Param(simInt objectHandle,simInt ParamID,simInt* Param)
 {
@@ -901,9 +901,9 @@ SIM_DLLEXPORT simInt simRuckigRemove(simInt objHandle)
 {
     return(simRuckigRemove_internal(objHandle));
 }
-SIM_DLLEXPORT simInt simCreateDummy(simFloat size,const simFloat* color)
+SIM_DLLEXPORT simInt simCreateDummy(simFloat size,const simFloat* reserved)
 {
-    return(simCreateDummy_internal(size,color));
+    return(simCreateDummy_internal(size,reserved));
 }
 SIM_DLLEXPORT simInt simGroupShapes(const simInt* shapeHandles,simInt shapeCount)
 {
@@ -913,17 +913,17 @@ SIM_DLLEXPORT simInt* simUngroupShape(simInt shapeHandle,simInt* shapeCount)
 {
     return(simUngroupShape_internal(shapeHandle,shapeCount));
 }
-SIM_DLLEXPORT simInt simCreateProximitySensor(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
+SIM_DLLEXPORT simInt simCreateProximitySensor(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved)
 {
-    return(simCreateProximitySensor_internal(sensorType,subType,options,intParams,floatParams,color));
+    return(simCreateProximitySensor_internal(sensorType,subType,options,intParams,floatParams,reserved));
 }
-SIM_DLLEXPORT simInt simCreateForceSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
+SIM_DLLEXPORT simInt simCreateForceSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved)
 {
-    return(simCreateForceSensor_internal(options,intParams,floatParams,color));
+    return(simCreateForceSensor_internal(options,intParams,floatParams,reserved));
 }
-SIM_DLLEXPORT simInt simCreateVisionSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
+SIM_DLLEXPORT simInt simCreateVisionSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved)
 {
-    return(simCreateVisionSensor_internal(options,intParams,floatParams,color));
+    return(simCreateVisionSensor_internal(options,intParams,floatParams,reserved));
 }
 SIM_DLLEXPORT simInt simConvexDecompose(simInt shapeHandle,simInt options,const simInt* intParams,const simFloat* floatParams)
 {

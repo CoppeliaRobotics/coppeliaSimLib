@@ -1,4 +1,3 @@
-
 #ifndef QDLGDETECTIONVOLUME_H
 #define QDLGDETECTIONVOLUME_H
 
@@ -29,8 +28,6 @@ public:
     static bool showVolumeWindow;
 
 private slots:
-    void on_qqType_currentIndexChanged(int index);
-
     void on_qqOffset_editingFinished();
 
     void on_qqRadius_editingFinished();

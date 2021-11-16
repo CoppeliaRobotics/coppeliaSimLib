@@ -141,9 +141,6 @@ int CWorldContainer::createNewWorld()
     cmdIn.cmdId=INSTANCE_WAS_JUST_CREATED_UITHREADCMD;
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
-
-    //CSceneObject::incrementModelPropertyValidityNumber();
-
     currentWorld->rebuildRemoteWorlds();
 
     return(_currentWorldIndex);
@@ -232,9 +229,6 @@ int CWorldContainer::destroyCurrentWorld()
         cmdIn.intParams.push_back(_currentWorldIndex);
         App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
-
-        //CSceneObject::incrementModelPropertyValidityNumber();
-
         currentWorld->rebuildRemoteWorlds();
     }
 
@@ -370,8 +364,6 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     cmdIn.intParams.push_back(_currentWorldIndex);
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
-
-    //CSceneObject::incrementModelPropertyValidityNumber();
 
     currentWorld->rebuildRemoteWorlds();
 

@@ -24,7 +24,6 @@ CSceneObjectContainer::~CSceneObjectContainer()
 
 void CSceneObjectContainer::simulationAboutToStart()
 {
-    //CSceneObject::incrementModelPropertyValidityNumber();
     for (size_t i=0;i<getObjectCount();i++)
         getObjectFromIndex(i)->simulationAboutToStart();
 }
@@ -33,7 +32,6 @@ void CSceneObjectContainer::simulationEnded()
 {
     for (size_t i=0;i<getObjectCount();i++)
        getObjectFromIndex(i)->simulationEnded();
-    //CSceneObject::incrementModelPropertyValidityNumber();
 }
 
 void CSceneObjectContainer::announceObjectWillBeErased(int objectHandle)
@@ -346,7 +344,6 @@ void CSceneObjectContainer::actualizeObjectInformation()
             getShapeFromIndex(i)->clearLastParentForLocalGlobalRespondable();
 
         App::currentWorld->textureContainer->updateAllDependencies();
-        //CSceneObject::incrementModelPropertyValidityNumber();
         App::setRebuildHierarchyFlag();
     }
 }
@@ -2193,7 +2190,6 @@ void CSceneObjectContainer::_removeObject(CSceneObject* object)
     _CSceneObjectContainer_::_removeObject(object);
     _handleOrderIndexOfOrphans();
 
-    //CSceneObject::incrementModelPropertyValidityNumber();
     actualizeObjectInformation();
     App::setFullDialogRefreshFlag();
     App::setRebuildHierarchyFlag();
