@@ -100,7 +100,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.handleProximitySensor",_simHandleProximitySensor,      "int result,float distance,table[3] detectedPoint,int detectedObjectHandle,table[3] normalVector=\nsim.handleProximitySensor(int sensorHandle)",true},
     {"sim.readProximitySensor",_simReadProximitySensor,          "int result,float distance,table[3] detectedPoint,int detectedObjectHandle,table[3] normalVector=\nsim.readProximitySensor(int sensorHandle)",true},
     {"sim.resetProximitySensor",_simResetProximitySensor,        "sim.resetProximitySensor(int objectHandle)",true},
-    {"sim.checkProximitySensor",_simCheckProximitySensor,        "int result,float distance,table[3] detectedPoint=sim.checkProximitySensor(int sensorHandle,int entityHandle)",true},
+    {"sim.checkProximitySensor",_simCheckProximitySensor,        "int result,float distance,table[3] detectedPoint,int detectedObjectHandle,table[3] normalVector=\nsim.checkProximitySensor(int sensorHandle,int entityHandle)",true},
     {"sim.checkProximitySensorEx",_simCheckProximitySensorEx,    "int result,float distance,table[3] detectedPoint,int detectedObjectHandle,table[3] normalVector=\nsim.checkProximitySensorEx(int sensorHandle,int entityHandle,int mode,float threshold,float maxAngle)",true},
     {"sim.checkProximitySensorEx2",_simCheckProximitySensorEx2,  "int result,float distance,table[3] detectedPoint,table[3] normalVector=\nsim.checkProximitySensorEx2(int sensorHandle,table[3..*] vertices,int itemType,int itemCount,int mode,float threshold,float maxAngle)",true},
     {"sim._getObjectHandle",_sim_getObjectHandle,                "",false}, // handled via sim.getObjectHandle from sim.lua
@@ -2380,15 +2380,35 @@ int _simCheckProximitySensor(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        float detPt[4];
-        retVal=simCheckProximitySensor_internal(luaToInt(L,1),luaToInt(L,2),detPt);
-        if (retVal==1)
+        int handle=luaToInt(L,1);
+        CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(handle);
+        if (it!=nullptr)
         {
-            luaWrap_lua_pushinteger(L,retVal);
-            luaWrap_lua_pushnumber(L,detPt[3]);
-            pushFloatTableOntoStack(L,3,detPt);
-            LUA_END(3);
+            float detPt[4];
+            float n[3];
+            int detectedObjectHandle;
+            int options=0;
+            if (it->getFrontFaceDetection())
+                options=options|1;
+            if (it->getBackFaceDetection())
+                options=options|2;
+            if (!it->getClosestObjectMode())
+                options=options|4;
+            if (it->getNormalCheck())
+                options=options|8;
+            retVal=simCheckProximitySensorEx_internal(handle,luaToInt(L,2),options,SIM_MAX_FLOAT,it->getAllowedNormal(),detPt,&detectedObjectHandle,n);
+            if (retVal==1)
+            {
+                luaWrap_lua_pushinteger(L,retVal);
+                luaWrap_lua_pushnumber(L,detPt[3]);
+                pushFloatTableOntoStack(L,3,detPt);
+                luaWrap_lua_pushinteger(L,detectedObjectHandle);
+                pushFloatTableOntoStack(L,3,n);
+                LUA_END(5);
+            }
         }
+        else
+            errorString="invalid proximity sensor handle.";
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

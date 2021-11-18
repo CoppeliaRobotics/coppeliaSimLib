@@ -2072,7 +2072,7 @@ void CPathCont_old::serialize(CSer& ar)
                     if (theName.compare("Pat")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         CSimplePathPoint_old* newPoint=new CSimplePathPoint_old();
                         newPoint->serialize(ar);
                         _simplePathPoints.push_back(newPoint);
@@ -2092,7 +2092,7 @@ void CPathCont_old::serialize(CSer& ar)
                     if (theName.compare("Cl0")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         _lineColor.serialize(ar,1);
                     }
                     if (theName.compare("Jm2")==0)

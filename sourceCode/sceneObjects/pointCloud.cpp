@@ -1168,7 +1168,7 @@ void CPointCloud::serialize(CSer& ar)
                     if (theName.compare("Col")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         color.serialize(ar,0);
                     }
                     if (theName.compare("Co2")==0)

@@ -5145,7 +5145,17 @@ simInt simCheckProximitySensor_internal(simInt sensorHandle,simInt entityHandle,
             return(-1);
         if ( (entityHandle!=sim_handle_all)&&(!doesEntityExist(__func__,entityHandle)) )
             return(-1);
-        int retVal=simCheckProximitySensorEx_internal(sensorHandle,entityHandle,3,SIM_MAX_FLOAT,0,detectedPoint,nullptr,nullptr);
+        CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorHandle);
+        int options=0;
+        if (it->getFrontFaceDetection())
+            options=options|1;
+        if (it->getBackFaceDetection())
+            options=options|2;
+        if (!it->getClosestObjectMode())
+            options=options|4;
+        if (it->getNormalCheck())
+            options=options|8;
+        int retVal=simCheckProximitySensorEx_internal(sensorHandle,entityHandle,options,SIM_MAX_FLOAT,it->getAllowedNormal(),detectedPoint,nullptr,nullptr);
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -8524,7 +8534,7 @@ simInt simCreateVisionSensor_internal(simInt options,const simInt* intParams,con
             it->setViewAngle(floatParams[2]);
         else
             it->setOrthoViewSize(floatParams[2]);
-        it->setVisionSensorSize(C3Vector(floatParams+3));
+        it->setVisionSensorSize(floatParams[3]);
         it->setDefaultBufferValues(floatParams+6);
 
         if (reserved!=nullptr)
@@ -12311,12 +12321,104 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         std::vector<char> buffer;
-        int extractedBufSize;
         bool useTempBuffer=false;
-        if (strlen(tagName)>=4)
-            useTempBuffer=((tagName[0]=='@')&&(tagName[1]=='t')&&(tagName[2]=='m')&&(tagName[3]=='p'));
+        size_t l=std::strlen(tagName);
+        if (l>4)
+        {
+            useTempBuffer=( (tagName[l-4]=='@')&&(tagName[l-3]=='t')&&(tagName[l-2]=='m')&&(tagName[l-1]=='p') );
+            useTempBuffer=useTempBuffer||( (tagName[0]=='@')&&(tagName[1]=='t')&&(tagName[2]=='m')&&(tagName[3]=='p') ); // backw. compatibility
+        }
         if (data==nullptr)
             dataSize=0;
+
+        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
+        { // here we have an object
+            if (!doesObjectExist(__func__,objectHandle))
+                return(-1);
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            it->writeCustomDataBlock(useTempBuffer,tagName,data,dataSize);
+            // ---------------------- Old -----------------------------
+            if (!useTempBuffer)
+            {
+                if (strlen(tagName)!=0)
+                {
+                    int l=it->getObjectCustomDataLength_old(356248756);
+                    if (l>0)
+                    {
+                        buffer.resize(l,' ');
+                        it->getObjectCustomData_old(356248756,&buffer[0]);
+                    }
+                    int extractedBufSize;
+                    delete[] _extractCustomDataFromBuffer(buffer,tagName,&extractedBufSize);
+                    _appendCustomDataToBuffer(buffer,tagName,data,dataSize);
+                    if (buffer.size()>0)
+                        it->setObjectCustomData_old(356248756,&buffer[0],(int)buffer.size());
+                    else
+                        it->setObjectCustomData_old(356248756,nullptr,0);
+                }
+                else
+                    it->setObjectCustomData_old(356248756,nullptr,0);
+            }
+            // ---------------------- Old -----------------------------
+        }
+
+        if (objectHandle==sim_handle_scene)
+        {
+            if (useTempBuffer)
+                App::currentWorld->customSceneData_tempData.setData(tagName,data,dataSize);
+            else
+                App::currentWorld->customSceneData.setData(tagName,data,dataSize);
+            // ---------------------- Old -----------------------------
+            if (!useTempBuffer)
+            {
+                if (strlen(tagName)!=0)
+                {
+                    int l=App::currentWorld->customSceneData_old->getDataLength(356248756);
+                    if (l>0)
+                    {
+                        buffer.resize(l,' ');
+                        App::currentWorld->customSceneData_old->getData(356248756,&buffer[0]);
+                    }
+                    int extractedBufSize;
+                    delete[] _extractCustomDataFromBuffer(buffer,tagName,&extractedBufSize);
+                    _appendCustomDataToBuffer(buffer,tagName,data,dataSize);
+                    if (buffer.size()>0)
+                        App::currentWorld->customSceneData_old->setData(356248756,&buffer[0],(int)buffer.size());
+                    else
+                        App::currentWorld->customSceneData_old->setData(356248756,nullptr,0);
+                }
+                else
+                    App::currentWorld->customSceneData_old->setData(356248756,nullptr,0);
+            }
+            // ---------------------- Old -----------------------------
+        }
+
+        if (objectHandle==sim_handle_app)
+        { // here we have the app
+            App::worldContainer->customAppData.setData(tagName,data,dataSize);
+            // ---------------------- Old -----------------------------
+            if (strlen(tagName)!=0)
+            {
+                int l=App::worldContainer->customAppData_old->getDataLength(356248756);
+                if (l>0)
+                {
+                    buffer.resize(l,' ');
+                    App::worldContainer->customAppData_old->getData(356248756,&buffer[0]);
+                }
+                int extractedBufSize;
+                delete[] _extractCustomDataFromBuffer(buffer,tagName,&extractedBufSize);
+                _appendCustomDataToBuffer(buffer,tagName,data,dataSize);
+                if (buffer.size()>0)
+                    App::worldContainer->customAppData_old->setData(356248756,&buffer[0],(int)buffer.size());
+                else
+                    App::worldContainer->customAppData_old->setData(356248756,nullptr,0);
+            }
+            else
+                App::worldContainer->customAppData_old->setData(356248756,nullptr,0);
+            // ---------------------- Old -----------------------------
+        }
+
+        // ---------------------- Old -----------------------------
         if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
@@ -12338,6 +12440,7 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
                             buffer.resize(l,' ');
                             script->getObjectCustomData_tempData_old(356248756,&buffer[0]);
                         }
+                        int extractedBufSize;
                         delete[] _extractCustomDataFromBuffer(buffer,tagName,&extractedBufSize);
                         _appendCustomDataToBuffer(buffer,tagName,data,dataSize);
                         if (buffer.size()>0)
@@ -12358,6 +12461,7 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
                             buffer.resize(l,' ');
                             script->getObjectCustomData_old(356248756,&buffer[0]);
                         }
+                        int extractedBufSize;
                         delete[] _extractCustomDataFromBuffer(buffer,tagName,&extractedBufSize);
                         _appendCustomDataToBuffer(buffer,tagName,data,dataSize);
                         if (buffer.size()>0)
@@ -12370,117 +12474,7 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
                 }
             }
         }
-        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
-        { // here we have an object
-            if (!doesObjectExist(__func__,objectHandle))
-                return(-1);
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            if (useTempBuffer)
-            {
-                if (strlen(tagName)!=0)
-                {
-                    int l=it->getObjectCustomDataLength_tempData(356248756);
-                    if (l>0)
-                    {
-                        buffer.resize(l,' ');
-                        it->getObjectCustomData_tempData(356248756,&buffer[0]);
-                    }
-                    delete[] _extractCustomDataFromBuffer(buffer,tagName,&extractedBufSize);
-                    _appendCustomDataToBuffer(buffer,tagName,data,dataSize);
-                    if (buffer.size()>0)
-                        it->setObjectCustomData_tempData(356248756,&buffer[0],(int)buffer.size());
-                    else
-                        it->setObjectCustomData_tempData(356248756,nullptr,0);
-                }
-                else
-                    it->setObjectCustomData(356248756,nullptr,0);
-            }
-            else
-            {
-                if (strlen(tagName)!=0)
-                {
-                    int l=it->getObjectCustomDataLength(356248756);
-                    if (l>0)
-                    {
-                        buffer.resize(l,' ');
-                        it->getObjectCustomData(356248756,&buffer[0]);
-                    }
-                    delete[] _extractCustomDataFromBuffer(buffer,tagName,&extractedBufSize);
-                    _appendCustomDataToBuffer(buffer,tagName,data,dataSize);
-                    if (buffer.size()>0)
-                        it->setObjectCustomData(356248756,&buffer[0],(int)buffer.size());
-                    else
-                        it->setObjectCustomData(356248756,nullptr,0);
-                }
-                else
-                    it->setObjectCustomData(356248756,nullptr,0);
-            }
-        }
-
-        if (objectHandle==sim_handle_scene)
-        {
-            if (useTempBuffer)
-            {
-                if (strlen(tagName)!=0)
-                {
-                    int l=App::currentWorld->customSceneData_tempData->getDataLength(356248756);
-                    if (l>0)
-                    {
-                        buffer.resize(l,' ');
-                        App::currentWorld->customSceneData_tempData->getData(356248756,&buffer[0]);
-                    }
-                    delete[] _extractCustomDataFromBuffer(buffer,tagName,&extractedBufSize);
-                    _appendCustomDataToBuffer(buffer,tagName,data,dataSize);
-                    if (buffer.size()>0)
-                        App::currentWorld->customSceneData_tempData->setData(356248756,&buffer[0],(int)buffer.size());
-                    else
-                        App::currentWorld->customSceneData_tempData->setData(356248756,nullptr,0);
-                }
-                else
-                    App::currentWorld->customSceneData_tempData->setData(356248756,nullptr,0);
-            }
-            else
-            {
-                if (strlen(tagName)!=0)
-                {
-                    int l=App::currentWorld->customSceneData->getDataLength(356248756);
-                    if (l>0)
-                    {
-                        buffer.resize(l,' ');
-                        App::currentWorld->customSceneData->getData(356248756,&buffer[0]);
-                    }
-                    delete[] _extractCustomDataFromBuffer(buffer,tagName,&extractedBufSize);
-                    _appendCustomDataToBuffer(buffer,tagName,data,dataSize);
-                    if (buffer.size()>0)
-                        App::currentWorld->customSceneData->setData(356248756,&buffer[0],(int)buffer.size());
-                    else
-                        App::currentWorld->customSceneData->setData(356248756,nullptr,0);
-                }
-                else
-                    App::currentWorld->customSceneData->setData(356248756,nullptr,0);
-            }
-        }
-
-        if (objectHandle==sim_handle_app)
-        { // here we have the app
-            if (strlen(tagName)!=0)
-            {
-                int l=App::worldContainer->customAppData->getDataLength(356248756);
-                if (l>0)
-                {
-                    buffer.resize(l,' ');
-                    App::worldContainer->customAppData->getData(356248756,&buffer[0]);
-                }
-                delete[] _extractCustomDataFromBuffer(buffer,tagName,&extractedBufSize);
-                _appendCustomDataToBuffer(buffer,tagName,data,dataSize);
-                if (buffer.size()>0)
-                    App::worldContainer->customAppData->setData(356248756,&buffer[0],(int)buffer.size());
-                else
-                    App::worldContainer->customAppData->setData(356248756,nullptr,0);
-            }
-            else
-                App::worldContainer->customAppData->setData(356248756,nullptr,0);
-        }
+        // ---------------------- Old -----------------------------
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -12498,10 +12492,43 @@ simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagN
     {
         char* retBuffer=nullptr;
         dataSize[0]=0;
-        std::vector<char> buffer;
         bool useTempBuffer=false;
-        if (strlen(tagName)>=4)
-            useTempBuffer=((tagName[0]=='@')&&(tagName[1]=='t')&&(tagName[2]=='m')&&(tagName[3]=='p'));
+        size_t l=std::strlen(tagName);
+        if (l>4)
+        {
+            useTempBuffer=( (tagName[l-4]=='@')&&(tagName[l-3]=='t')&&(tagName[l-2]=='m')&&(tagName[l-1]=='p') );
+            useTempBuffer=useTempBuffer||( (tagName[0]=='@')&&(tagName[1]=='t')&&(tagName[2]=='m')&&(tagName[3]=='p') ); // backw. compatibility
+        }
+
+        std::string rrr;
+        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
+        { // Here we have an object
+            if (!doesObjectExist(__func__,objectHandle))
+                return(nullptr);
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            rrr=it->readCustomDataBlock(useTempBuffer,tagName);
+        }
+
+        if (objectHandle==sim_handle_scene)
+        { // here we have a scene
+            if (useTempBuffer)
+                rrr=App::currentWorld->customSceneData_tempData.getData(tagName);
+            else
+                rrr=App::currentWorld->customSceneData.getData(tagName);
+        }
+
+        if (objectHandle==sim_handle_app)
+            rrr=App::worldContainer->customAppData.getData(tagName); // here we have the app
+
+        if (rrr.size()>0)
+        {
+            retBuffer=new char[rrr.size()];
+            for (size_t i=0;i<rrr.size();i++)
+                retBuffer[i]=rrr[i];
+            dataSize[0]=int(rrr.size());
+        }
+
+        // ---------------------- Old -----------------------------
         if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
@@ -12512,6 +12539,7 @@ simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagN
             CScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
             if (script!=nullptr)
             {
+                std::vector<char> buffer;
                 if (useTempBuffer)
                 {
                     int l=script->getObjectCustomDataLength_tempData_old(356248756);
@@ -12533,66 +12561,7 @@ simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagN
                 retBuffer=_extractCustomDataFromBuffer(buffer,tagName,dataSize);
             }
         }
-        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
-        { // Here we have an object
-            if (!doesObjectExist(__func__,objectHandle))
-                return(nullptr);
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            if (useTempBuffer)
-            {
-                int l=it->getObjectCustomDataLength_tempData(356248756);
-                if (l>0)
-                {
-                    buffer.resize(l,' ');
-                    it->getObjectCustomData_tempData(356248756,&buffer[0]);
-                }
-            }
-            else
-            {
-                int l=it->getObjectCustomDataLength(356248756);
-                if (l>0)
-                {
-                    buffer.resize(l,' ');
-                    it->getObjectCustomData(356248756,&buffer[0]);
-                }
-            }
-            retBuffer=_extractCustomDataFromBuffer(buffer,tagName,dataSize);
-        }
-
-        if (objectHandle==sim_handle_scene)
-        { // here we have a scene
-            if (useTempBuffer)
-            {
-                int l=App::currentWorld->customSceneData_tempData->getDataLength(356248756);
-                if (l>0)
-                {
-                    buffer.resize(l,' ');
-                    App::currentWorld->customSceneData_tempData->getData(356248756,&buffer[0]);
-                }
-            }
-            else
-            {
-                int l=App::currentWorld->customSceneData->getDataLength(356248756);
-                if (l>0)
-                {
-                    buffer.resize(l,' ');
-                    App::currentWorld->customSceneData->getData(356248756,&buffer[0]);
-                }
-            }
-            retBuffer=_extractCustomDataFromBuffer(buffer,tagName,dataSize);
-        }
-
-        if (objectHandle==sim_handle_app)
-        { // here we have the app
-            int l=App::worldContainer->customAppData->getDataLength(356248756);
-            if (l>0)
-            {
-                buffer.resize(l,' ');
-                App::worldContainer->customAppData->getData(356248756,&buffer[0]);
-            }
-            retBuffer=_extractCustomDataFromBuffer(buffer,tagName,dataSize);
-        }
-
+        // ---------------------- Old -----------------------------
         return(retBuffer);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -12610,10 +12579,46 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
     {
         char* retBuffer=nullptr;
         tagCount[0]=0;
-        std::vector<char> buffer;
-        std::vector<std::string> allTags;
+        std::string tags;
+        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
+        { // here we have an object
+            if (!doesObjectExist(__func__,objectHandle))
+                return(nullptr);
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            size_t tc;
+            tags=it->getAllCustomDataBlockTags(false,&tc);
+            tagCount[0]+=int(tc);
+            tags+=it->getAllCustomDataBlockTags(true,&tc);
+            tagCount[0]+=int(tc);
+        }
+
+        if (objectHandle==sim_handle_scene)
+        { // here we have a scene
+            size_t tc;
+            tags=App::currentWorld->customSceneData.getAllTags(&tc);
+            tagCount[0]+=int(tc);
+            tags+=App::currentWorld->customSceneData_tempData.getAllTags(&tc);
+            tagCount[0]+=int(tc);
+        }
+
+        if (objectHandle==sim_handle_app)
+        { // here we have the application
+            size_t tc;
+            tags=App::worldContainer->customAppData.getAllTags(&tc);
+            tagCount[0]+=int(tc);
+        }
+
+        if (tagCount[0]>0)
+        {
+            retBuffer=new char[tags.size()];
+            for (size_t i=0;i<tags.size();i++)
+                retBuffer[i]=tags[i];
+        }
+
+        // ---------------------- Old -----------------------------
         if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
+            std::vector<std::string> allTags;
             if (!App::userSettings->compatibilityFix1)
             {
                 CApiErrors::setLastWarningOrError(__func__,"targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
@@ -12622,6 +12627,7 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
             CScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
             if (script!=nullptr)
             {
+                std::vector<char> buffer;
                 int l=script->getObjectCustomDataLength_tempData_old(356248756);
                 if (l>0)
                 {
@@ -12638,73 +12644,25 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
                     _extractCustomDataTagsFromBuffer(buffer,allTags);
                 }
             }
-        }
-        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
-        { // here we have an object
-            if (!doesObjectExist(__func__,objectHandle))
-                return(nullptr);
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            int l=it->getObjectCustomDataLength_tempData(356248756);
-            if (l>0)
+            if (allTags.size()>0)
             {
-                buffer.resize(l,' ');
-                it->getObjectCustomData_tempData(356248756,&buffer[0]);
-                _extractCustomDataTagsFromBuffer(buffer,allTags);
-            }
-            l=it->getObjectCustomDataLength(356248756);
-            if (l>0)
-            {
-                buffer.resize(l,' ');
-                it->getObjectCustomData(356248756,&buffer[0]);
-                _extractCustomDataTagsFromBuffer(buffer,allTags);
+                tagCount[0]=int(allTags.size());
+                int totChars=0;
+                for (size_t i=0;i<allTags.size();i++)
+                    totChars+=(int)allTags[i].length()+1;
+                retBuffer=new char[totChars];
+                totChars=0;
+                for (size_t i=0;i<allTags.size();i++)
+                {
+                    for (size_t j=0;j<allTags[i].length();j++)
+                        retBuffer[totChars+j]=allTags[i][j];
+                    retBuffer[totChars+allTags[i].length()]=0;
+                    totChars+=(int)allTags[i].length()+1;
+                }
             }
         }
+        // ---------------------- Old -----------------------------
 
-        if (objectHandle==sim_handle_scene)
-        { // here we have a scene
-            int l=App::currentWorld->customSceneData_tempData->getDataLength(356248756);
-            if (l>0)
-            {
-                buffer.resize(l,' ');
-                App::currentWorld->customSceneData_tempData->getData(356248756,&buffer[0]);
-                _extractCustomDataTagsFromBuffer(buffer,allTags);
-            }
-            l=App::currentWorld->customSceneData->getDataLength(356248756);
-            if (l>0)
-            {
-                buffer.resize(l,' ');
-                App::currentWorld->customSceneData->getData(356248756,&buffer[0]);
-                _extractCustomDataTagsFromBuffer(buffer,allTags);
-            }
-        }
-
-        if (objectHandle==sim_handle_app)
-        { // here we have the application
-            int l=App::worldContainer->customAppData->getDataLength(356248756);
-            if (l>0)
-            {
-                buffer.resize(l,' ');
-                App::worldContainer->customAppData->getData(356248756,&buffer[0]);
-                _extractCustomDataTagsFromBuffer(buffer,allTags);
-            }
-        }
-
-        if (allTags.size()>0)
-        {
-            tagCount[0]=int(allTags.size());
-            int totChars=0;
-            for (size_t i=0;i<allTags.size();i++)
-                totChars+=(int)allTags[i].length()+1;
-            retBuffer=new char[totChars];
-            totChars=0;
-            for (size_t i=0;i<allTags.size();i++)
-            {
-                for (size_t j=0;j<allTags[i].length();j++)
-                    retBuffer[totChars+j]=allTags[i][j];
-                retBuffer[totChars+allTags[i].length()]=0;
-                totChars+=(int)allTags[i].length()+1;
-            }
-        }
         return(retBuffer);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -12716,9 +12674,7 @@ simInt simGetShapeGeomInfo_internal(simInt shapeHandle,simInt* intData,simFloat*
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -17830,7 +17786,7 @@ simFloat _simGetFriction_internal(const simVoid* geomInfo)
 }
 
 simInt simAddSceneCustomData_internal(simInt header,const simChar* data,simInt dataLength)
-{
+{ // deprecated
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
@@ -17838,7 +17794,13 @@ simInt simAddSceneCustomData_internal(simInt header,const simChar* data,simInt d
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        App::currentWorld->customSceneData->setData(header,data,dataLength);
+        std::string hh("_oldSceneCustomData_");
+        hh+=std::to_string(header);
+        hh+="_";
+        App::currentWorld->customSceneData.setData(hh.c_str(),data,dataLength);
+        // ---------------------- Old -----------------------------
+        App::currentWorld->customSceneData_old->setData(header,data,dataLength);
+        // ---------------------- Old -----------------------------
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -17846,7 +17808,7 @@ simInt simAddSceneCustomData_internal(simInt header,const simChar* data,simInt d
 }
 
 simInt simGetSceneCustomDataLength_internal(simInt header)
-{
+{ // deprecated
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
@@ -17854,7 +17816,11 @@ simInt simGetSceneCustomDataLength_internal(simInt header)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal=App::currentWorld->customSceneData->getDataLength(header);
+        std::string hh("_oldSceneCustomData_");
+        hh+=std::to_string(header);
+        hh+="_";
+        std::string data=App::currentWorld->customSceneData.getData(hh.c_str());
+        int retVal=int(data.size());
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -17862,7 +17828,7 @@ simInt simGetSceneCustomDataLength_internal(simInt header)
 }
 
 simInt simGetSceneCustomData_internal(simInt header,simChar* data)
-{
+{ // deprecated
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
@@ -17870,7 +17836,13 @@ simInt simGetSceneCustomData_internal(simInt header,simChar* data)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::currentWorld->customSceneData->getData(header,data);
+        std::string hh("_oldSceneCustomData_");
+        hh+=std::to_string(header);
+        hh+="_";
+        std::string dat=App::currentWorld->customSceneData.getData(hh.c_str());
+        for (size_t i=0;i<dat.size();i++)
+            data[i]=dat[i];
+        App::currentWorld->customSceneData_old->getData(header,data);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -17880,7 +17852,7 @@ simInt simGetSceneCustomData_internal(simInt header,simChar* data)
 
 
 simInt simAddObjectCustomData_internal(simInt objectHandle,simInt header,const simChar* data,simInt dataLength)
-{
+{ // deprecated
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
@@ -17891,7 +17863,13 @@ simInt simAddObjectCustomData_internal(simInt objectHandle,simInt header,const s
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        it->setObjectCustomData(header,data,dataLength);
+        std::string hh("_oldObjectCustomData_");
+        hh+=std::to_string(header);
+        hh+="_";
+        it->writeCustomDataBlock(false,hh.c_str(),data,dataLength);
+        // ---------------------- Old -----------------------------
+        it->setObjectCustomData_old(header,data,dataLength);
+        // ---------------------- Old -----------------------------
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -17899,7 +17877,7 @@ simInt simAddObjectCustomData_internal(simInt objectHandle,simInt header,const s
 }
 
 simInt simGetObjectCustomDataLength_internal(simInt objectHandle,simInt header)
-{
+{ // deprecated
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
@@ -17910,7 +17888,11 @@ simInt simGetObjectCustomDataLength_internal(simInt objectHandle,simInt header)
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        int retVal=it->getObjectCustomDataLength(header);
+        std::string hh("_oldObjectCustomData_");
+        hh+=std::to_string(header);
+        hh+="_";
+        std::string data=it->readCustomDataBlock(false,hh.c_str());
+        int retVal=int(data.size());
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -17918,7 +17900,7 @@ simInt simGetObjectCustomDataLength_internal(simInt objectHandle,simInt header)
 }
 
 simInt simGetObjectCustomData_internal(simInt objectHandle,simInt header,simChar* data)
-{
+{ // deprecated
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
@@ -17929,7 +17911,13 @@ simInt simGetObjectCustomData_internal(simInt objectHandle,simInt header,simChar
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        it->getObjectCustomData(header,data);
+        std::string hh("_oldObjectCustomData_");
+        hh+=std::to_string(header);
+        hh+="_";
+        std::string dat=it->readCustomDataBlock(false,hh.c_str());
+        for (size_t i=0;i<dat.size();i++)
+            data[i]=dat[i];
+        App::currentWorld->customSceneData_old->getData(header,data);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

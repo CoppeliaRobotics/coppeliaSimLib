@@ -16,22 +16,6 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
-  <widget class="QCheckBox" name="qqEnabled">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>300</y>
-     <width>201</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::StrongFocus</enum>
-   </property>
-   <property name="text">
-    <string>Enable all vision sensors</string>
-   </property>
-  </widget>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
@@ -335,42 +319,6 @@
      <string>Show view frustum</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="qqSizeZ">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>25</y>
-      <width>56</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqSizeY">
-    <property name="geometry">
-     <rect>
-      <x>260</x>
-      <y>25</y>
-      <width>56</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>25</y>
-      <width>21</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>-</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
@@ -381,33 +329,17 @@
      </rect>
     </property>
     <property name="text">
-     <string>Object size X - Y - Z [m]</string>
+     <string>Sensor size [m]</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="qqSizeX">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>250</x>
       <y>25</y>
       <width>56</width>
       <height>18</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_7">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>25</y>
-      <width>21</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>-</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>
@@ -1377,11 +1309,8 @@
   <tabstop>qqShowFog</tabstop>
   <tabstop>qqApplyMainProperties</tabstop>
   <tabstop>qqSizeX</tabstop>
-  <tabstop>qqSizeY</tabstop>
-  <tabstop>qqSizeZ</tabstop>
   <tabstop>qqShowVolume</tabstop>
   <tabstop>qqCasingColor</tabstop>
-  <tabstop>qqEnabled</tabstop>
   <tabstop>qqApplyColors</tabstop>
  </tabstops>
  <resources/>

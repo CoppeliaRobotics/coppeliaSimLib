@@ -2849,7 +2849,7 @@ void CScriptObject::serialize(CSer& ar)
                     if (theName.compare("Prm")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         delete _scriptParameters_backCompatibility;
                         _scriptParameters_backCompatibility=new CUserParameters();
                         _scriptParameters_backCompatibility->serialize(ar);
@@ -2867,8 +2867,8 @@ void CScriptObject::serialize(CSer& ar)
                     if (theName.compare("Cod")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        _customObjectData_old=new CCustomData();
+                        ar >> byteQuantity; 
+                        _customObjectData_old=new CCustomData_old();
                         _customObjectData_old->serializeData(ar,nullptr,-1);
                     }
 
@@ -2979,7 +2979,7 @@ void CScriptObject::serialize(CSer& ar)
             {
                 if (ar.xmlPushChildNode("customData",false))
                 {
-                    _customObjectData_old=new CCustomData();
+                    _customObjectData_old=new CCustomData_old();
                     _customObjectData_old->serializeData(ar,nullptr,-1);
                     ar.xmlPopNode();
                 }
@@ -5161,7 +5161,7 @@ bool CScriptObject::getRaiseErrors_backCompatibility() const
 void CScriptObject::setObjectCustomData_old(int header,const char* data,int dataLength)
 {
     if (_customObjectData_old==nullptr)
-        _customObjectData_old=new CCustomData();
+        _customObjectData_old=new CCustomData_old();
     _customObjectData_old->setData(header,data,dataLength);
 }
 int CScriptObject::getObjectCustomDataLength_old(int header) const
@@ -5179,7 +5179,7 @@ void CScriptObject::getObjectCustomData_old(int header,char* data) const
 void CScriptObject::setObjectCustomData_tempData_old(int header,const char* data,int dataLength)
 {
     if (_customObjectData_tempData_old==nullptr)
-        _customObjectData_tempData_old=new CCustomData();
+        _customObjectData_tempData_old=new CCustomData_old();
     _customObjectData_tempData_old->setData(header,data,dataLength);
 }
 int CScriptObject::getObjectCustomDataLength_tempData_old(int header) const
@@ -6612,284 +6612,6 @@ void CScriptObject::_adjustScriptText13_old(CScriptObject* scriptObject,bool doI
         end\n";
         _replaceScriptText_old(scriptObject,txt1,txt2);
 
-        if ( _containsScriptText_old(scriptObject,"sysCall_vision")&&(scriptObject->_scriptType==sim_scripttype_customizationscript) )
-            App::logMsg(sim_verbosity_errors,"Contains a vision callback in a customization script");
-        if ( _containsScriptText_old(scriptObject,"sysCall_trigger")&&(scriptObject->_scriptType==sim_scripttype_customizationscript) )
-            App::logMsg(sim_verbosity_errors,"Contains a trigger callback in a customization script");
-
-        if (_containsScriptText_old(scriptObject,"sim.rmlMove"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.rmlMove...");
-        if (_containsScriptText_old(scriptObject,"sim.include"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.include...");
-        if (_containsScriptText_old(scriptObject,"sim.getIk"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getIk...");
-        if (_containsScriptText_old(scriptObject,"sim.getScriptSimulationParameter"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getScriptSimulationParameter...");
-        if (_containsScriptText_old(scriptObject,"sim.setScriptSimulationParameter"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setScriptSimulationParameter...");
-        if (_containsScriptText_old(scriptObject,"sim.tube"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.tube...");
-        if (_containsScriptText_old(scriptObject,"sim.addStatusbarMessage"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.addStatusbarMessage...");
-        if (_containsScriptText_old(scriptObject,"sim.getNameSuffix"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getNameSuffix...");
-        if (_containsScriptText_old(scriptObject,"sim.setNameSuffix"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setNameSuffix...");
-        if (_containsScriptText_old(scriptObject,"sim.resetMill"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.resetMill...");
-        if (_containsScriptText_old(scriptObject,"sim.handleMill"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.handleMill...");
-        if (_containsScriptText_old(scriptObject,"sim.resetMilling"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.resetMilling...");
-        if (_containsScriptText_old(scriptObject,"sim.openTextEditor"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.openTextEditor...");
-        if (_containsScriptText_old(scriptObject,"sim.closeTextEditor"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.closeTextEditor...");
-        if (_containsScriptText_old(scriptObject,"simGetMaterialId"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetMaterialId...");
-        if (_containsScriptText_old(scriptObject,"simGetShapeMaterial"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetShapeMaterial...");
-        if (_containsScriptText_old(scriptObject,"simHandleVarious"))
-            App::logMsg(sim_verbosity_errors,"Contains simHandleVarious...");
-        if (_containsScriptText_old(scriptObject,"simGetInstanceIndex"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetInstanceIndex...");
-        if (_containsScriptText_old(scriptObject,"simGetVisibleInstanceIndex"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetVisibleInstanceIndex...");
-        if (_containsScriptText_old(scriptObject,"simResetPath"))
-            App::logMsg(sim_verbosity_errors,"Contains simResetPath...");
-        if (_containsScriptText_old(scriptObject,"simHandlePath"))
-            App::logMsg(sim_verbosity_errors,"Contains simHandlePath...");
-        if (_containsScriptText_old(scriptObject,"simResetJoint"))
-            App::logMsg(sim_verbosity_errors,"Contains simResetJoint...");
-        if (_containsScriptText_old(scriptObject,"simHandleJoint"))
-            App::logMsg(sim_verbosity_errors,"Contains simHandleJoint...");
-        if (_containsScriptText_old(scriptObject,"simGetInvertedMatrix"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetInvertedMatrix...");
-        if (_containsScriptText_old(scriptObject,"simAddSceneCustomData"))
-            App::logMsg(sim_verbosity_errors,"Contains simAddSceneCustomData...");
-        if (_containsScriptText_old(scriptObject,"simGetSceneCustomData"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetSceneCustomData...");
-        if (_containsScriptText_old(scriptObject,"simAddObjectCustomData"))
-            App::logMsg(sim_verbosity_errors,"Contains simAddObjectCustomData...");
-        if (_containsScriptText_old(scriptObject,"simGetObjectCustomData"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetObjectCustomData...");
-        if (_containsScriptText_old(scriptObject,"sim.setVisionSensorFilter"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setVisionSensorFilter...");
-        if (_containsScriptText_old(scriptObject,"sim.getVisionSensorFilter"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getVisionSensorFilter...");
-        if (_containsScriptText_old(scriptObject,"sim.handleMechanism"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.handleMechanism...");
-        if (_containsScriptText_old(scriptObject,"sim.setPathTargetNominalVelocity"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setPathTargetNominalVelocity...");
-        if (_containsScriptText_old(scriptObject,"sim.setShapeMassAndInertia"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setShapeMassAndInertia...");
-        if (_containsScriptText_old(scriptObject,"sim.getShapeMassAndInertia"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getShapeMassAndInertia...");
-        if (_containsScriptText_old(scriptObject,"sim.checkIkGroup"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.checkIkGroup...");
-        if (_containsScriptText_old(scriptObject,"sim.handleIkGroup"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.handleIkGroup...");
-        if (_containsScriptText_old(scriptObject,"sim.createIkGroup"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.createIkGroup...");
-        if (_containsScriptText_old(scriptObject,"sim.removeIkGroup"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.removeIkGroup...");
-        if (_containsScriptText_old(scriptObject,"sim.createIkElement"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.createIkElement...");
-        if (_containsScriptText_old(scriptObject,"sim.exportIk"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.exportIk...");
-        if (_containsScriptText_old(scriptObject,"sim.computeJacobian"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.computeJacobian...");
-        if (_containsScriptText_old(scriptObject,"sim.getConfigForTipPose"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getConfigForTipPose...");
-        if (_containsScriptText_old(scriptObject,"sim.generateIkPath"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.generateIkPath...");
-        if (_containsScriptText_old(scriptObject,"sim.getIkGroupHandle"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getIkGroupHandle...");
-        if (_containsScriptText_old(scriptObject,"sim.getIkGroupMatrix"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getIkGroupMatrix...");
-        if (_containsScriptText_old(scriptObject,"sim.setIkGroupProperties"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setIkGroupProperties...");
-        if (_containsScriptText_old(scriptObject,"sim.setIkElementProperties"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setIkElementProperties...");
-        if (_containsScriptText_old(scriptObject,"sim.setThreadIsFree"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setThreadIsFree...");
-        if (_containsScriptText_old(scriptObject,"simSetUIPosition"))
-            App::logMsg(sim_verbosity_errors,"Contains simSetUIPosition...");
-        if (_containsScriptText_old(scriptObject,"simGetUIPosition"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetUIPosition...");
-        if (_containsScriptText_old(scriptObject,"simGetUIHandle"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetUIHandle...");
-        if (_containsScriptText_old(scriptObject,"simGetUIProperty"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetUIProperty...");
-        if (_containsScriptText_old(scriptObject,"simSetUIProperty"))
-            App::logMsg(sim_verbosity_errors,"Contains simSetUIProperty...");
-        if (_containsScriptText_old(scriptObject,"simGetUIEventButton"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetUIEventButton...");
-        if (_containsScriptText_old(scriptObject,"simGetUIButtonProperty"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetUIButtonProperty...");
-        if (_containsScriptText_old(scriptObject,"simSetUIButtonProperty"))
-            App::logMsg(sim_verbosity_errors,"Contains simSetUIButtonProperty...");
-        if (_containsScriptText_old(scriptObject,"simGetUIButtonSize"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetUIButtonSize...");
-        if (_containsScriptText_old(scriptObject,"simSetUIButtonLabel"))
-            App::logMsg(sim_verbosity_errors,"Contains simSetUIButtonLabel...");
-        if (_containsScriptText_old(scriptObject,"simGetUIButtonLabel"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetUIButtonLabel...");
-        if (_containsScriptText_old(scriptObject,"simSetUISlider"))
-            App::logMsg(sim_verbosity_errors,"Contains simSetUISlider...");
-        if (_containsScriptText_old(scriptObject,"simGetUISlider"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetUISlider...");
-        if (_containsScriptText_old(scriptObject,"simCreateUIButtonArray"))
-            App::logMsg(sim_verbosity_errors,"Contains simCreateUIButtonArray...");
-        if (_containsScriptText_old(scriptObject,"simSetUIButtonArrayColor"))
-            App::logMsg(sim_verbosity_errors,"Contains simSetUIButtonArrayColor...");
-        if (_containsScriptText_old(scriptObject,"simDeleteUIButtonArray"))
-            App::logMsg(sim_verbosity_errors,"Contains simDeleteUIButtonArray...");
-        if (_containsScriptText_old(scriptObject,"simCreateUI"))
-            App::logMsg(sim_verbosity_errors,"Contains simCreateUI...");
-        if (_containsScriptText_old(scriptObject,"simCreateUIButton"))
-            App::logMsg(sim_verbosity_errors,"Contains simCreateUIButton...");
-        if (_containsScriptText_old(scriptObject,"simLoadUI"))
-            App::logMsg(sim_verbosity_errors,"Contains simLoadUI...");
-        if (_containsScriptText_old(scriptObject,"simSaveUI"))
-            App::logMsg(sim_verbosity_errors,"Contains simSaveUI...");
-        if (_containsScriptText_old(scriptObject,"simRemoveUI"))
-            App::logMsg(sim_verbosity_errors,"Contains simRemoveUI...");
-        if (_containsScriptText_old(scriptObject,"simSetUIButtonColor"))
-            App::logMsg(sim_verbosity_errors,"Contains simSetUIButtonColor...");
-        if (_containsScriptText_old(scriptObject,"simHandleChildScript"))
-            App::logMsg(sim_verbosity_errors,"Contains simHandleChildScript...");
-        if (_containsScriptText_old(scriptObject,"simSearchPath"))
-            App::logMsg(sim_verbosity_errors,"Contains simSearchPath...");
-        if (_containsScriptText_old(scriptObject,"simInitializePathSearch"))
-            App::logMsg(sim_verbosity_errors,"Contains simInitializePathSearch...");
-        if (_containsScriptText_old(scriptObject,"simPerformPathSearchStep"))
-            App::logMsg(sim_verbosity_errors,"Contains simPerformPathSearchStep...");
-        if (_containsScriptText_old(scriptObject,"sim.sendData"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.sendData...");
-        if (_containsScriptText_old(scriptObject,"sim.receiveData"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.receiveData...");
-        if (_containsScriptText_old(scriptObject,"simSerialPortOpen"))
-            App::logMsg(sim_verbosity_errors,"Contains simSerialPortOpen...");
-        if (_containsScriptText_old(scriptObject,"simSerialPortClose"))
-            App::logMsg(sim_verbosity_errors,"Contains simSerialPortClose...");
-        if (_containsScriptText_old(scriptObject,"simSerialPortSend"))
-            App::logMsg(sim_verbosity_errors,"Contains simSerialPortSend...");
-        if (_containsScriptText_old(scriptObject,"simSerialPortRead"))
-            App::logMsg(sim_verbosity_errors,"Contains simSerialPortRead...");
-        if (_containsScriptText_old(scriptObject,"sim.rmlMoveToJointPositions"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.rmlMoveToJointPositions...");
-        if (_containsScriptText_old(scriptObject,"simRMLMoveToJointPositions"))
-            App::logMsg(sim_verbosity_errors,"Contains simRMLMoveToJointPositions...");
-        if (_containsScriptText_old(scriptObject,"sim.rmlMoveToPosition"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.rmlMoveToPosition...");
-        if (_containsScriptText_old(scriptObject,"simRMLMoveToPosition"))
-            App::logMsg(sim_verbosity_errors,"Contains simRMLMoveToPosition...");
-
-        if (_containsScriptText_old(scriptObject,"sim.getCollectionHandle"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getCollectionHandle...");
-        if (_containsScriptText_old(scriptObject,"sim.addCollection"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.addCollection...");
-        if (_containsScriptText_old(scriptObject,"sim.addObjectToCollection"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.addObjectToCollection...");
-        if (_containsScriptText_old(scriptObject,"sim.emptyCollection"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.emptyCollection...");
-        if (_containsScriptText_old(scriptObject,"sim.removeCollection"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.removeCollection...");
-        if (_containsScriptText_old(scriptObject,"sim.getCollectionName"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getCollectionName...");
-        if (_containsScriptText_old(scriptObject,"sim.setCollectionName"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setCollectionName...");
-        if (_containsScriptText_old(scriptObject,"sim.getCollisionHandle"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getCollisionHandle...");
-        if (_containsScriptText_old(scriptObject,"sim.handleCollision"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.handleCollision...");
-        if (_containsScriptText_old(scriptObject,"sim.readCollision"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.readCollision...");
-        if (_containsScriptText_old(scriptObject,"sim.resetCollision"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.resetCollision...");
-        if (_containsScriptText_old(scriptObject,"sim.getDistanceHandle"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getDistanceHandle...");
-        if (_containsScriptText_old(scriptObject,"sim.handleDistance"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.handleDistance...");
-        if (_containsScriptText_old(scriptObject,"sim.readDistance"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.readDistance...");
-        if (_containsScriptText_old(scriptObject,"sim.resetDistance"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.resetDistance...");
-        if (_containsScriptText_old(scriptObject,"sim.boolAnd32"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.boolAnd32...");
-        if (_containsScriptText_old(scriptObject,"sim.boolOr32"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.boolOr32...");
-        if (_containsScriptText_old(scriptObject,"sim.boolXor32"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.boolXor32...");
-        if (_containsScriptText_old(scriptObject,"simBoolAnd32"))
-            App::logMsg(sim_verbosity_errors,"Contains simBoolAnd32...");
-        if (_containsScriptText_old(scriptObject,"simBoolOr32"))
-            App::logMsg(sim_verbosity_errors,"Contains simBoolOr32...");
-        if (_containsScriptText_old(scriptObject,"simBoolXor32"))
-            App::logMsg(sim_verbosity_errors,"Contains simBoolXo32...");
-        if (_containsScriptText_old(scriptObject,"simBoolAnd16"))
-            App::logMsg(sim_verbosity_errors,"Contains simBoolAnd16...");
-        if (_containsScriptText_old(scriptObject,"simBoolOr16"))
-            App::logMsg(sim_verbosity_errors,"Contains simBoolOr16...");
-        if (_containsScriptText_old(scriptObject,"simBoolXor16"))
-            App::logMsg(sim_verbosity_errors,"Contains simBoolXo16...");
-
-        if (_containsScriptText_old(scriptObject,"sim.getScriptExecutionCount"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getScriptExecutionCount...");
-        if (_containsScriptText_old(scriptObject,"sim.isScriptRunningInThread"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.isScriptRunningInThread...");
-        if (_containsScriptText_old(scriptObject,"sim.isScriptExecutionThreaded"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.isScriptExecutionThreaded...");
-        if (_containsScriptText_old(scriptObject,"sim.setThreadResumeLocation"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setThreadResumeLocation...");
-        if (_containsScriptText_old(scriptObject,"sim.resumeThreads"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.resumeThreads...");
-        if (_containsScriptText_old(scriptObject,"sim.launchThreadedChildScripts"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.launchThreadedChildScripts...");
-        if (_containsScriptText_old(scriptObject,"simGetScriptExecutionCount"))
-            App::logMsg(sim_verbosity_errors,"Contains simGetScriptExecutionCount...");
-        if (_containsScriptText_old(scriptObject,"simIsScriptExecutionThreaded"))
-            App::logMsg(sim_verbosity_errors,"Contains simIsScriptExecutionThreaded...");
-        if (_containsScriptText_old(scriptObject,"simIsScriptRunningInThread"))
-            App::logMsg(sim_verbosity_errors,"Contains simIsScriptRunningInThread...");
-        if (_containsScriptText_old(scriptObject,"simSetThreadResumeLocation"))
-            App::logMsg(sim_verbosity_errors,"Contains simSetThreadResumeLocation...");
-        if (_containsScriptText_old(scriptObject,"sim.setJointForce"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setJointForce...");
-        if (_containsScriptText_old(scriptObject,"simResumeThreads"))
-            App::logMsg(sim_verbosity_errors,"Contains simResumeThreads...");
-        if (_containsScriptText_old(scriptObject,"simLaunchThreadedChildScripts"))
-            App::logMsg(sim_verbosity_errors,"Contains simLaunchThreadedChildScripts...");
-        if (_containsScriptText_old(scriptObject,"sim.copyMatrix"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.copyMatrix...");
-        if (_containsScriptText_old(scriptObject,"sim.getPathPosition"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.getPathPosition...");
-        if (_containsScriptText_old(scriptObject,"sim.setPathPosition"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.setPathPosition...");
-
-        if (_containsScriptText_old(scriptObject,"'utils'"))
-            App::logMsg(sim_verbosity_errors,"Contains 'utils'...");
-
-        //************************************************************
-        // Scripts containing following should remain handled in threaded mode:
-        if (_containsScriptText_old(scriptObject,"simMoveToPosition"))
-            App::logMsg(sim_verbosity_errors,"Contains simMoveToPosition...");
-        if (_containsScriptText_old(scriptObject,"sim.moveToPosition"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.moveToPosition...");
-        if (_containsScriptText_old(scriptObject,"simMoveToObject"))
-            App::logMsg(sim_verbosity_errors,"Contains simMoveToObject...");
-        if (_containsScriptText_old(scriptObject,"sim.moveToObject"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.moveToObject...");
-        if (_containsScriptText_old(scriptObject,"simFollowPath"))
-            App::logMsg(sim_verbosity_errors,"Contains simFollowPath...");
-        if (_containsScriptText_old(scriptObject,"sim.followPath"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.followPath...");
-        if (_containsScriptText_old(scriptObject,"simMoveToJointPositions"))
-            App::logMsg(sim_verbosity_errors,"Contains simMoveToJointPositions...");
-        if (_containsScriptText_old(scriptObject,"sim.moveToJointPositions"))
-            App::logMsg(sim_verbosity_errors,"Contains sim.moveToJointPositions...");
-        //************************************************************
     }
 }
 bool CScriptObject::_convertThreadedScriptToCoroutine_old(CScriptObject* scriptObject)
@@ -7051,6 +6773,285 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         App::logMsg(sim_verbosity_errors,"Contains sim.isHandleValid...");
     if (_containsScriptText_old(scriptObject,"sim.addPointCloud"))
         App::logMsg(sim_verbosity_errors,"Contains sim.addPointCloud...");
+
+    if ( _containsScriptText_old(scriptObject,"sysCall_vision")&&(scriptObject->_scriptType==sim_scripttype_customizationscript) )
+        App::logMsg(sim_verbosity_errors,"Contains a vision callback in a customization script");
+    if ( _containsScriptText_old(scriptObject,"sysCall_trigger")&&(scriptObject->_scriptType==sim_scripttype_customizationscript) )
+        App::logMsg(sim_verbosity_errors,"Contains a trigger callback in a customization script");
+
+    if (_containsScriptText_old(scriptObject,"sim.rmlMove"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.rmlMove...");
+    if (_containsScriptText_old(scriptObject,"sim.include"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.include...");
+    if (_containsScriptText_old(scriptObject,"sim.getIk"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getIk...");
+    if (_containsScriptText_old(scriptObject,"sim.getScriptSimulationParameter"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getScriptSimulationParameter...");
+    if (_containsScriptText_old(scriptObject,"sim.setScriptSimulationParameter"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setScriptSimulationParameter...");
+    if (_containsScriptText_old(scriptObject,"sim.tube"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.tube...");
+    if (_containsScriptText_old(scriptObject,"sim.addStatusbarMessage"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.addStatusbarMessage...");
+    if (_containsScriptText_old(scriptObject,"sim.getNameSuffix"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getNameSuffix...");
+    if (_containsScriptText_old(scriptObject,"sim.setNameSuffix"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setNameSuffix...");
+    if (_containsScriptText_old(scriptObject,"sim.resetMill"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.resetMill...");
+    if (_containsScriptText_old(scriptObject,"sim.handleMill"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.handleMill...");
+    if (_containsScriptText_old(scriptObject,"sim.resetMilling"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.resetMilling...");
+    if (_containsScriptText_old(scriptObject,"sim.openTextEditor"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.openTextEditor...");
+    if (_containsScriptText_old(scriptObject,"sim.closeTextEditor"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.closeTextEditor...");
+    if (_containsScriptText_old(scriptObject,"simGetMaterialId"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetMaterialId...");
+    if (_containsScriptText_old(scriptObject,"simGetShapeMaterial"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetShapeMaterial...");
+    if (_containsScriptText_old(scriptObject,"simHandleVarious"))
+        App::logMsg(sim_verbosity_errors,"Contains simHandleVarious...");
+    if (_containsScriptText_old(scriptObject,"simGetInstanceIndex"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetInstanceIndex...");
+    if (_containsScriptText_old(scriptObject,"simGetVisibleInstanceIndex"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetVisibleInstanceIndex...");
+    if (_containsScriptText_old(scriptObject,"simResetPath"))
+        App::logMsg(sim_verbosity_errors,"Contains simResetPath...");
+    if (_containsScriptText_old(scriptObject,"simHandlePath"))
+        App::logMsg(sim_verbosity_errors,"Contains simHandlePath...");
+    if (_containsScriptText_old(scriptObject,"simResetJoint"))
+        App::logMsg(sim_verbosity_errors,"Contains simResetJoint...");
+    if (_containsScriptText_old(scriptObject,"simHandleJoint"))
+        App::logMsg(sim_verbosity_errors,"Contains simHandleJoint...");
+    if (_containsScriptText_old(scriptObject,"simGetInvertedMatrix"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetInvertedMatrix...");
+    if (_containsScriptText_old(scriptObject,"simAddSceneCustomData"))
+        App::logMsg(sim_verbosity_errors,"Contains simAddSceneCustomData...");
+    if (_containsScriptText_old(scriptObject,"simGetSceneCustomData"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetSceneCustomData...");
+    if (_containsScriptText_old(scriptObject,"simAddObjectCustomData"))
+        App::logMsg(sim_verbosity_errors,"Contains simAddObjectCustomData...");
+    if (_containsScriptText_old(scriptObject,"simGetObjectCustomData"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetObjectCustomData...");
+    if (_containsScriptText_old(scriptObject,"sim.setVisionSensorFilter"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setVisionSensorFilter...");
+    if (_containsScriptText_old(scriptObject,"sim.getVisionSensorFilter"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getVisionSensorFilter...");
+    if (_containsScriptText_old(scriptObject,"sim.handleMechanism"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.handleMechanism...");
+    if (_containsScriptText_old(scriptObject,"sim.setPathTargetNominalVelocity"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setPathTargetNominalVelocity...");
+    if (_containsScriptText_old(scriptObject,"sim.setShapeMassAndInertia"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setShapeMassAndInertia...");
+    if (_containsScriptText_old(scriptObject,"sim.getShapeMassAndInertia"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getShapeMassAndInertia...");
+    if (_containsScriptText_old(scriptObject,"sim.checkIkGroup"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.checkIkGroup...");
+    if (_containsScriptText_old(scriptObject,"sim.handleIkGroup"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.handleIkGroup...");
+    if (_containsScriptText_old(scriptObject,"sim.createIkGroup"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.createIkGroup...");
+    if (_containsScriptText_old(scriptObject,"sim.removeIkGroup"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.removeIkGroup...");
+    if (_containsScriptText_old(scriptObject,"sim.createIkElement"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.createIkElement...");
+    if (_containsScriptText_old(scriptObject,"sim.exportIk"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.exportIk...");
+    if (_containsScriptText_old(scriptObject,"sim.computeJacobian"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.computeJacobian...");
+    if (_containsScriptText_old(scriptObject,"sim.getConfigForTipPose"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getConfigForTipPose...");
+    if (_containsScriptText_old(scriptObject,"sim.generateIkPath"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.generateIkPath...");
+    if (_containsScriptText_old(scriptObject,"sim.getIkGroupHandle"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getIkGroupHandle...");
+    if (_containsScriptText_old(scriptObject,"sim.getIkGroupMatrix"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getIkGroupMatrix...");
+    if (_containsScriptText_old(scriptObject,"sim.setIkGroupProperties"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setIkGroupProperties...");
+    if (_containsScriptText_old(scriptObject,"sim.setIkElementProperties"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setIkElementProperties...");
+    if (_containsScriptText_old(scriptObject,"sim.setThreadIsFree"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setThreadIsFree...");
+    if (_containsScriptText_old(scriptObject,"simSetUIPosition"))
+        App::logMsg(sim_verbosity_errors,"Contains simSetUIPosition...");
+    if (_containsScriptText_old(scriptObject,"simGetUIPosition"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetUIPosition...");
+    if (_containsScriptText_old(scriptObject,"simGetUIHandle"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetUIHandle...");
+    if (_containsScriptText_old(scriptObject,"simGetUIProperty"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetUIProperty...");
+    if (_containsScriptText_old(scriptObject,"simSetUIProperty"))
+        App::logMsg(sim_verbosity_errors,"Contains simSetUIProperty...");
+    if (_containsScriptText_old(scriptObject,"simGetUIEventButton"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetUIEventButton...");
+    if (_containsScriptText_old(scriptObject,"simGetUIButtonProperty"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetUIButtonProperty...");
+    if (_containsScriptText_old(scriptObject,"simSetUIButtonProperty"))
+        App::logMsg(sim_verbosity_errors,"Contains simSetUIButtonProperty...");
+    if (_containsScriptText_old(scriptObject,"simGetUIButtonSize"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetUIButtonSize...");
+    if (_containsScriptText_old(scriptObject,"simSetUIButtonLabel"))
+        App::logMsg(sim_verbosity_errors,"Contains simSetUIButtonLabel...");
+    if (_containsScriptText_old(scriptObject,"simGetUIButtonLabel"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetUIButtonLabel...");
+    if (_containsScriptText_old(scriptObject,"simSetUISlider"))
+        App::logMsg(sim_verbosity_errors,"Contains simSetUISlider...");
+    if (_containsScriptText_old(scriptObject,"simGetUISlider"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetUISlider...");
+    if (_containsScriptText_old(scriptObject,"simCreateUIButtonArray"))
+        App::logMsg(sim_verbosity_errors,"Contains simCreateUIButtonArray...");
+    if (_containsScriptText_old(scriptObject,"simSetUIButtonArrayColor"))
+        App::logMsg(sim_verbosity_errors,"Contains simSetUIButtonArrayColor...");
+    if (_containsScriptText_old(scriptObject,"simDeleteUIButtonArray"))
+        App::logMsg(sim_verbosity_errors,"Contains simDeleteUIButtonArray...");
+    if (_containsScriptText_old(scriptObject,"simCreateUI"))
+        App::logMsg(sim_verbosity_errors,"Contains simCreateUI...");
+    if (_containsScriptText_old(scriptObject,"simCreateUIButton"))
+        App::logMsg(sim_verbosity_errors,"Contains simCreateUIButton...");
+    if (_containsScriptText_old(scriptObject,"simLoadUI"))
+        App::logMsg(sim_verbosity_errors,"Contains simLoadUI...");
+    if (_containsScriptText_old(scriptObject,"simSaveUI"))
+        App::logMsg(sim_verbosity_errors,"Contains simSaveUI...");
+    if (_containsScriptText_old(scriptObject,"simRemoveUI"))
+        App::logMsg(sim_verbosity_errors,"Contains simRemoveUI...");
+    if (_containsScriptText_old(scriptObject,"simSetUIButtonColor"))
+        App::logMsg(sim_verbosity_errors,"Contains simSetUIButtonColor...");
+    if (_containsScriptText_old(scriptObject,"simHandleChildScript"))
+        App::logMsg(sim_verbosity_errors,"Contains simHandleChildScript...");
+    if (_containsScriptText_old(scriptObject,"simSearchPath"))
+        App::logMsg(sim_verbosity_errors,"Contains simSearchPath...");
+    if (_containsScriptText_old(scriptObject,"simInitializePathSearch"))
+        App::logMsg(sim_verbosity_errors,"Contains simInitializePathSearch...");
+    if (_containsScriptText_old(scriptObject,"simPerformPathSearchStep"))
+        App::logMsg(sim_verbosity_errors,"Contains simPerformPathSearchStep...");
+    if (_containsScriptText_old(scriptObject,"sim.sendData"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.sendData...");
+    if (_containsScriptText_old(scriptObject,"sim.receiveData"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.receiveData...");
+    if (_containsScriptText_old(scriptObject,"simSerialPortOpen"))
+        App::logMsg(sim_verbosity_errors,"Contains simSerialPortOpen...");
+    if (_containsScriptText_old(scriptObject,"simSerialPortClose"))
+        App::logMsg(sim_verbosity_errors,"Contains simSerialPortClose...");
+    if (_containsScriptText_old(scriptObject,"simSerialPortSend"))
+        App::logMsg(sim_verbosity_errors,"Contains simSerialPortSend...");
+    if (_containsScriptText_old(scriptObject,"simSerialPortRead"))
+        App::logMsg(sim_verbosity_errors,"Contains simSerialPortRead...");
+    if (_containsScriptText_old(scriptObject,"sim.rmlMoveToJointPositions"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.rmlMoveToJointPositions...");
+    if (_containsScriptText_old(scriptObject,"simRMLMoveToJointPositions"))
+        App::logMsg(sim_verbosity_errors,"Contains simRMLMoveToJointPositions...");
+    if (_containsScriptText_old(scriptObject,"sim.rmlMoveToPosition"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.rmlMoveToPosition...");
+    if (_containsScriptText_old(scriptObject,"simRMLMoveToPosition"))
+        App::logMsg(sim_verbosity_errors,"Contains simRMLMoveToPosition...");
+
+    if (_containsScriptText_old(scriptObject,"sim.getCollectionHandle"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getCollectionHandle...");
+    if (_containsScriptText_old(scriptObject,"sim.addCollection"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.addCollection...");
+    if (_containsScriptText_old(scriptObject,"sim.addObjectToCollection"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.addObjectToCollection...");
+    if (_containsScriptText_old(scriptObject,"sim.emptyCollection"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.emptyCollection...");
+    if (_containsScriptText_old(scriptObject,"sim.removeCollection"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.removeCollection...");
+    if (_containsScriptText_old(scriptObject,"sim.getCollectionName"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getCollectionName...");
+    if (_containsScriptText_old(scriptObject,"sim.setCollectionName"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setCollectionName...");
+    if (_containsScriptText_old(scriptObject,"sim.getCollisionHandle"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getCollisionHandle...");
+    if (_containsScriptText_old(scriptObject,"sim.handleCollision"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.handleCollision...");
+    if (_containsScriptText_old(scriptObject,"sim.readCollision"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.readCollision...");
+    if (_containsScriptText_old(scriptObject,"sim.resetCollision"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.resetCollision...");
+    if (_containsScriptText_old(scriptObject,"sim.getDistanceHandle"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getDistanceHandle...");
+    if (_containsScriptText_old(scriptObject,"sim.handleDistance"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.handleDistance...");
+    if (_containsScriptText_old(scriptObject,"sim.readDistance"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.readDistance...");
+    if (_containsScriptText_old(scriptObject,"sim.resetDistance"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.resetDistance...");
+    if (_containsScriptText_old(scriptObject,"sim.boolAnd32"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.boolAnd32...");
+    if (_containsScriptText_old(scriptObject,"sim.boolOr32"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.boolOr32...");
+    if (_containsScriptText_old(scriptObject,"sim.boolXor32"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.boolXor32...");
+    if (_containsScriptText_old(scriptObject,"simBoolAnd32"))
+        App::logMsg(sim_verbosity_errors,"Contains simBoolAnd32...");
+    if (_containsScriptText_old(scriptObject,"simBoolOr32"))
+        App::logMsg(sim_verbosity_errors,"Contains simBoolOr32...");
+    if (_containsScriptText_old(scriptObject,"simBoolXor32"))
+        App::logMsg(sim_verbosity_errors,"Contains simBoolXo32...");
+    if (_containsScriptText_old(scriptObject,"simBoolAnd16"))
+        App::logMsg(sim_verbosity_errors,"Contains simBoolAnd16...");
+    if (_containsScriptText_old(scriptObject,"simBoolOr16"))
+        App::logMsg(sim_verbosity_errors,"Contains simBoolOr16...");
+    if (_containsScriptText_old(scriptObject,"simBoolXor16"))
+        App::logMsg(sim_verbosity_errors,"Contains simBoolXo16...");
+
+    if (_containsScriptText_old(scriptObject,"sim.getScriptExecutionCount"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getScriptExecutionCount...");
+    if (_containsScriptText_old(scriptObject,"sim.isScriptRunningInThread"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.isScriptRunningInThread...");
+    if (_containsScriptText_old(scriptObject,"sim.isScriptExecutionThreaded"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.isScriptExecutionThreaded...");
+    if (_containsScriptText_old(scriptObject,"sim.setThreadResumeLocation"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setThreadResumeLocation...");
+    if (_containsScriptText_old(scriptObject,"sim.resumeThreads"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.resumeThreads...");
+    if (_containsScriptText_old(scriptObject,"sim.launchThreadedChildScripts"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.launchThreadedChildScripts...");
+    if (_containsScriptText_old(scriptObject,"simGetScriptExecutionCount"))
+        App::logMsg(sim_verbosity_errors,"Contains simGetScriptExecutionCount...");
+    if (_containsScriptText_old(scriptObject,"simIsScriptExecutionThreaded"))
+        App::logMsg(sim_verbosity_errors,"Contains simIsScriptExecutionThreaded...");
+    if (_containsScriptText_old(scriptObject,"simIsScriptRunningInThread"))
+        App::logMsg(sim_verbosity_errors,"Contains simIsScriptRunningInThread...");
+    if (_containsScriptText_old(scriptObject,"simSetThreadResumeLocation"))
+        App::logMsg(sim_verbosity_errors,"Contains simSetThreadResumeLocation...");
+    if (_containsScriptText_old(scriptObject,"sim.setJointForce"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setJointForce...");
+    if (_containsScriptText_old(scriptObject,"simResumeThreads"))
+        App::logMsg(sim_verbosity_errors,"Contains simResumeThreads...");
+    if (_containsScriptText_old(scriptObject,"simLaunchThreadedChildScripts"))
+        App::logMsg(sim_verbosity_errors,"Contains simLaunchThreadedChildScripts...");
+    if (_containsScriptText_old(scriptObject,"sim.copyMatrix"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.copyMatrix...");
+    if (_containsScriptText_old(scriptObject,"sim.getPathPosition"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getPathPosition...");
+    if (_containsScriptText_old(scriptObject,"sim.setPathPosition"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setPathPosition...");
+
+    if (_containsScriptText_old(scriptObject,"'utils'"))
+        App::logMsg(sim_verbosity_errors,"Contains 'utils'...");
+
+    //************************************************************
+    // Scripts containing following should remain handled in threaded mode:
+    if (_containsScriptText_old(scriptObject,"simMoveToPosition"))
+        App::logMsg(sim_verbosity_errors,"Contains simMoveToPosition...");
+    if (_containsScriptText_old(scriptObject,"sim.moveToPosition"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.moveToPosition...");
+    if (_containsScriptText_old(scriptObject,"simMoveToObject"))
+        App::logMsg(sim_verbosity_errors,"Contains simMoveToObject...");
+    if (_containsScriptText_old(scriptObject,"sim.moveToObject"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.moveToObject...");
+    if (_containsScriptText_old(scriptObject,"simFollowPath"))
+        App::logMsg(sim_verbosity_errors,"Contains simFollowPath...");
+    if (_containsScriptText_old(scriptObject,"sim.followPath"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.followPath...");
+    if (_containsScriptText_old(scriptObject,"simMoveToJointPositions"))
+        App::logMsg(sim_verbosity_errors,"Contains simMoveToJointPositions...");
+    if (_containsScriptText_old(scriptObject,"sim.moveToJointPositions"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.moveToJointPositions...");
+    //************************************************************
 }
 // **************************************************************
 // **************************************************************

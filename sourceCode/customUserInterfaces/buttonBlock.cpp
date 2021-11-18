@@ -780,7 +780,7 @@ void CButtonBlock::serialize(CSer &ar)
                 if (theName.compare("Btn")==0)
                 {
                     noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity; 
                     CSoftButton* newButton=new CSoftButton("",0,0,1,1);
                     newButton->serialize(ar);
                     int buttonHandle=newButton->buttonID;
@@ -790,7 +790,7 @@ void CButtonBlock::serialize(CSer &ar)
                 if (theName.compare("Toj")==0)
                 {
                     noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity; 
                     _textureProperty=new CTextureProperty();
                     _textureProperty->serialize(ar);
                 }

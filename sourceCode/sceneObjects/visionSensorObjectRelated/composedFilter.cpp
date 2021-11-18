@@ -34,7 +34,7 @@ void CComposedFilter::serialize(CSer& ar)
                 if (theName.compare("Sfr")==0)
                 {
                     noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity; 
                     CSimpleFilter* it=new CSimpleFilter();
                     it->serialize(ar);
                     _allSimpleFilters.push_back(it);

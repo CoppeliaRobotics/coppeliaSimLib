@@ -10,6 +10,7 @@
 #include "moduleMenuItemContainer.h"
 #include "world.h"
 #include "_worldContainer_.h"
+#include "customData.h"
 #include <tuple>
 
 #ifdef SIM_WITH_GUI
@@ -111,7 +112,8 @@ public:
     CCalculationInfo* calcInfo;
     CInterfaceStackContainer* interfaceStackContainer;
     CScriptCustomFuncAndVarContainer* scriptCustomFuncAndVarContainer;
-    CCustomData* customAppData;
+    CCustomData customAppData;
+    CCustomData_old* customAppData_old;
     CAddOnScriptContainer* addOnScriptContainer;
     CScriptObject* sandboxScript;
     CModuleMenuItemContainer* moduleMenuItemContainer;

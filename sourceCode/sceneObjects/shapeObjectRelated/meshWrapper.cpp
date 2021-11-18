@@ -544,7 +544,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                     if (theName.compare("Geo")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         CMesh* it=new CMesh();
                         it->serialize(ar,shapeName);
                         childList.push_back(it);
@@ -552,7 +552,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                     if (theName.compare("Wrp")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         CMeshWrapper* it=new CMeshWrapper();
                         it->serialize(ar,shapeName);
                         childList.push_back(it);

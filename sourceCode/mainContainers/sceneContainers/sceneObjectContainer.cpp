@@ -529,7 +529,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         std::string theName(name);
         if (theName.compare(SER_SHAPE)==0)
         {
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CShape* myNewObject=new CShape();
             myNewObject->serialize(ar);
             noHit=false;
@@ -537,7 +537,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_JOINT)==0)
         {
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CJoint* myNewObject=new CJoint();
             myNewObject->serialize(ar);
             noHit=false;
@@ -545,7 +545,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_GRAPH)==0)
         {
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CGraph* myNewObject=new CGraph();
             myNewObject->serialize(ar);
             noHit=false;
@@ -553,7 +553,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_CAMERA)==0)
         {
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CCamera* myNewObject=new CCamera();
             myNewObject->serialize(ar);
             noHit=false;
@@ -561,7 +561,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_LIGHT)==0)
         {
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CLight* myNewObject=new CLight();
             myNewObject->serialize(ar);
             noHit=false;
@@ -571,7 +571,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         {
             if (CSimFlavor::getBoolVal(18))
                 App::logMsg(sim_verbosity_errors,"Contains mirrors...");
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CMirror* myNewObject=new CMirror();
             myNewObject->serialize(ar);
             noHit=false;
@@ -579,7 +579,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_OCTREE)==0)
         {
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             COctree* myNewObject=new COctree();
             myNewObject->serialize(ar);
             noHit=false;
@@ -587,7 +587,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_POINTCLOUD)==0)
         {
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CPointCloud* myNewObject=new CPointCloud();
             myNewObject->serialize(ar);
             noHit=false;
@@ -595,7 +595,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_DUMMY)==0)
         {
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CDummy* myNewObject=new CDummy();
             myNewObject->serialize(ar);
             noHit=false;
@@ -603,7 +603,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_PROXIMITYSENSOR)==0)
         {
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CProxSensor* myNewObject=new CProxSensor();
             myNewObject->serialize(ar);
             noHit=false;
@@ -611,7 +611,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_VISIONSENSOR)==0)
         {
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CVisionSensor* myNewObject=new CVisionSensor();
             myNewObject->serialize(ar);
             noHit=false;
@@ -621,7 +621,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         {
             if (CSimFlavor::getBoolVal(18))
                 App::logMsg(sim_verbosity_errors,"Contains path objects...");
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CPath_old* myNewObject=new CPath_old();
             myNewObject->serialize(ar);
             noHit=false;
@@ -631,7 +631,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         {
             if (CSimFlavor::getBoolVal(18))
                 App::logMsg(sim_verbosity_errors,"Contains mills...");
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CMill* myNewObject=new CMill();
             myNewObject->serialize(ar);
             noHit=false;
@@ -639,7 +639,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_FORCESENSOR)==0)
         {
-            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteQuantity; 
             CForceSensor* myNewObject=new CForceSensor();
             myNewObject->serialize(ar);
             noHit=false;

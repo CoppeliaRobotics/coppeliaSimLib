@@ -3,9 +3,9 @@
 #include "ser.h"
 #include "3Vector.h"
 #include "7Vector.h"
-#include "_dummy_.h"
+#include "sceneObject.h"
 
-class CDummy : public _CDummy_
+class CDummy : public CSceneObject
 {
 public:
 
@@ -52,31 +52,39 @@ public:
     float getVirtualDistanceOffsetOnPath_variationWhenCopy() const;
     std::string getLinkedDummyLoadAlias() const;
     std::string getLinkedDummyLoadName_old() const;
-    C7Vector getTempLocalTransformation() const;
+    float getDummySize() const;
+    bool getAssignedToParentPath() const;
+    bool getAssignedToParentPathOrientation() const;
+    int getLinkedDummyHandle() const;
+    int getLinkType() const;
 
+    CColorObject* getDummyColor();
     void loadUnknownObjectType(CSer& ar);
 
-    // Overridden from _CDummy_:
     bool setAssignedToParentPath(bool assigned);
     bool setAssignedToParentPathOrientation(bool assigned);
-    bool setLinkedDummyHandle(int handle,bool check);
+    void setLinkedDummyHandle(int handle,bool check);
     bool setLinkType(int lt,bool check);
+    void setDummySize(float s);
 
     void setFreeOnPathTrajectory(bool isFree);
     void setVirtualDistanceOffsetOnPath(float off);
     void setVirtualDistanceOffsetOnPath_variationWhenCopy(float off);
 
-    void setTempLocalTransformation(const C7Vector& tr);
-
-private:
-    // Overridden from _CDummy_:
-    void _setLinkedDummyHandle_send(int h) const;
-    void _setLinkType_send(int t) const;
+protected:
+    void _setLinkedDummyHandle_sendOldIk(int h) const;
+    void _setLinkType_sendOldIk(int t) const;
 
     bool _freeOnPathTrajectory;
     float _virtualDistanceOffsetOnPath;
     float _virtualDistanceOffsetOnPath_variationWhenCopy;
-    C7Vector _localTransformation_temp; // used for IK (needed when the dummy is freely sliding on a path object!)
     std::string _linkedDummyLoadAlias;
     std::string _linkedDummyLoadName_old;
+
+    CColorObject _dummyColor;
+    float _dummySize;
+    int _linkedDummyHandle;
+    int _linkType;
+    bool _assignedToParentPath;
+    bool _assignedToParentPathOrientation;
 };

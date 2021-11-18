@@ -310,7 +310,7 @@ void CCollection::serialize(CSer& ar)
                     if (theName.compare("Asg")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         CCollectionElement* it=new CCollectionElement(0,0,false);
                         it->serialize(ar);
                         _addCollectionElement(it);

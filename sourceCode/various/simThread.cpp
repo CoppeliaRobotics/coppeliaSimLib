@@ -727,10 +727,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
 
 
-        if (cmd.cmdId==TOGGLE_ENABLE_ALL_VISIONSENSORGUITRIGGEREDCMD)
-        {
-            App::currentWorld->mainSettings->visionSensorsEnabled=!App::currentWorld->mainSettings->visionSensorsEnabled;
-        }
         if (cmd.cmdId==TOGGLE_EXPLICITHANDLING_VISIONSENSORGUITRIGGEREDCMD)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
@@ -794,7 +790,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setVisionSensorSize(C3Vector(&cmd.floatParams[0]));
+                it->setVisionSensorSize(cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_DEFAULTIMGCOL_VISIONSENSORGUITRIGGEREDCMD)
         {
@@ -1302,13 +1298,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             App::currentWorld->dynamicsContainer->setNewtonFloatParams(cmd.floatVectorParams[3],false);
         }
 
-
-
-
-        if (cmd.cmdId==TOGGLE_ENABLEALL_PROXSENSORGUITRIGGEREDCMD)
-        {
-            App::currentWorld->mainSettings->proximitySensorsEnabled=!App::currentWorld->mainSettings->proximitySensorsEnabled;
-        }
         if (cmd.cmdId==TOGGLE_EXPLICITHANDLING_PROXSENSORGUITRIGGEREDCMD)
         {
             CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);

@@ -313,8 +313,9 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         CSceneObject* it=original->copyYourself();
         if ((options&2)!=0)
         {
-            it->clearObjectCustomData();
-            it->clearObjectCustomData_tempData();
+            it->writeCustomDataBlock(false,nullptr,nullptr,0);
+            it->writeCustomDataBlock(true,nullptr,nullptr,0);
+            it->clearObjectCustomData_old();
         }
         if ((options&4)!=0)
         {

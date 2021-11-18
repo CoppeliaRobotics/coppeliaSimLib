@@ -111,7 +111,6 @@ all:
 	gcc $(CFLAGS) -c sourceCode/shared/sceneObjects/_jointObject_.cpp -o _jointObject_.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/camera.cpp -o camera.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/dummy.cpp -o dummy.o
-	gcc $(CFLAGS) -c sourceCode/shared/sceneObjects/_dummy_.cpp -o _dummy_.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/octree.cpp -o octree.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/pointCloud.cpp -o pointCloud.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/forceSensor.cpp -o forceSensor.o
@@ -169,6 +168,7 @@ all:
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/environment.cpp -o environment.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/dynamicsContainer.cpp -o dynamicsContainer.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/customData.cpp -o customData.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/customData_old.cpp -o customData_old.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/commTubeContainer.cpp -o commTubeContainer.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/cacheCont.cpp -o cacheCont.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/sceneContainers/apiErrors.cpp -o apiErrors.o

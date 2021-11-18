@@ -23,8 +23,6 @@ public:
     bool inMainRefreshRoutine;
 
 private slots:
-    void on_qqEnabled_clicked();
-
     void on_qqExplicitHandling_clicked();
 
     void on_qqExternalInput_clicked();
@@ -46,10 +44,6 @@ private slots:
     void on_qqResY_editingFinished();
 
     void on_qqSizeX_editingFinished();
-
-    void on_qqSizeY_editingFinished();
-
-    void on_qqSizeZ_editingFinished();
 
     void on_qqAdjustImageColor_clicked();
 

@@ -1,27 +1,29 @@
 #pragma once
 
 #include "ser.h"
+#include "interfaceStackTable.h"
 
-class CCustomData 
+struct SCustomData
+{
+    std::string tag;
+    std::string data;
+};
+
+class CCustomData
 {
 public:
     CCustomData();
     virtual ~CCustomData();
 
-    void setData(int header,const char* data,int datLen);
-    int getDataLength(int header);
-    void getData(int header,char* data) const;
-    bool getHeader(int index,int& header) const;
-
-    void removeData(int header);
-    void removeAllData();
-    CCustomData* copyYourself();
-
-    void serializeData(CSer &ar,const char* objectName,int scriptHandle);
+    bool setData(const char* tag,const char* data,size_t dataLen);
+    std::string getData(const char* tag) const;
+    std::string getAllTags(size_t* cnt) const;
+    size_t getDataCount() const;
+    void copyYourselfInto(CCustomData& theCopy) const;
+    void serializeData(CSer &ar,const char* objectName);
+    void appendEventData(CInterfaceStackTable* table) const;
 
 protected:
-    std::vector<char*> dat;
-    std::vector<int> len;
-    std::vector<int> head;
+    std::vector<SCustomData> _data;
 };
 

@@ -468,7 +468,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/shared/sceneObjects/_jointObject_.cpp
     sourceCode/sceneObjects/camera.cpp
     sourceCode/sceneObjects/dummy.cpp
-    sourceCode/shared/sceneObjects/_dummy_.cpp
     sourceCode/sceneObjects/octree.cpp
     sourceCode/sceneObjects/pointCloud.cpp
     sourceCode/sceneObjects/forceSensor.cpp
@@ -536,6 +535,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/sceneContainers/environment.cpp
     sourceCode/mainContainers/sceneContainers/dynamicsContainer.cpp
     sourceCode/mainContainers/sceneContainers/customData.cpp
+    sourceCode/mainContainers/sceneContainers/customData_old.cpp
     sourceCode/mainContainers/sceneContainers/commTubeContainer.cpp
     sourceCode/mainContainers/sceneContainers/cacheCont.cpp
     sourceCode/mainContainers/sceneContainers/apiErrors.cpp

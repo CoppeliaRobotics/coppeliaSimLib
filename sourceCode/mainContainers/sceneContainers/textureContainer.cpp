@@ -229,7 +229,7 @@ CTextureObject* CTextureContainer::loadTextureObject(CSer& ar,std::string theNam
         if (theName.compare(SER_TEXTURE)==0)
         {
             noHit=false;
-            ar >> byteNumber; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            ar >> byteNumber; 
             CTextureObject* myNewObject=new CTextureObject();
             myNewObject->serialize(ar);
             return(myNewObject);

@@ -42,10 +42,6 @@ void CQDlgProximitySensors::refresh()
     bool noEditModeAndNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 //  bool noSim=App::currentWorld->simulation->isSimulationStopped();
 
-    ui->qqEnableAll->setVisible(App::userSettings->showOldDlgs);
-    ui->qqEnableAll->setEnabled(noEditMode);
-    ui->qqEnableAll->setChecked(App::currentWorld->mainSettings->proximitySensorsEnabled);
-
     ui->qqExplicitHandling->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqShowVolume->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqPointSize->setEnabled(isSensor&&noEditModeAndNoSim);
@@ -90,16 +86,6 @@ void CQDlgProximitySensors::refresh()
 
     selectLineEdit(lineEditToSelect);
     inMainRefreshRoutine=false;
-}
-
-void CQDlgProximitySensors::on_qqEnableAll_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_ENABLEALL_PROXSENSORGUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
 }
 
 void CQDlgProximitySensors::on_qqExplicitHandling_clicked()

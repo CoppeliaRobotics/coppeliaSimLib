@@ -9,6 +9,7 @@
 #include "outsideCommandQueue.h"
 #include "embeddedScriptContainer.h"
 #include "customData.h"
+#include "customData_old.h"
 #include "cacheCont.h"
 #include "textureContainer.h"
 #include "drawingContainer.h"
@@ -100,8 +101,9 @@ public:
     CEmbeddedScriptContainer* embeddedScriptContainer;
     CTextureContainer* textureContainer;
     CSimulation* simulation;
-    CCustomData* customSceneData;
-    CCustomData* customSceneData_tempData; // same as above, but not serialized!
+    CCustomData customSceneData;
+    CCustomData customSceneData_tempData; // same as above, but not serialized!
+    CCustomData_old* customSceneData_old;
     CCacheCont* cacheData;
     CDrawingContainer* drawingCont;
 

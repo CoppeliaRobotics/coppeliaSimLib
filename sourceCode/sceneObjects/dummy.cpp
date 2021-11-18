@@ -11,6 +11,15 @@
 
 CDummy::CDummy()
 {
+    _objectType=sim_object_dummy_type;
+    _localObjectSpecialProperty=0;
+
+    _dummySize=0.01f;
+    _assignedToParentPath=false;
+    _assignedToParentPathOrientation=false;
+    _linkedDummyHandle=-1;
+    _linkType=sim_dummy_linktype_dynamics_loop_closure;
+
     _visibilityLayer=DUMMY_LAYER;
     _objectAlias=IDSOGL_DUMMY;
     _objectName_old=IDSOGL_DUMMY;
@@ -84,7 +93,7 @@ void CDummy::scaleObjectNonIsometrically(float x,float y,float z)
 void CDummy::removeSceneDependencies()
 {
     CSceneObject::removeSceneDependencies();
-    _CDummy_::setLinkedDummyHandle(-1,false);
+    setLinkedDummyHandle(-1,false);
 }
 
 void CDummy::addSpecializedObjectEventData(CInterfaceStackTable* data) const
@@ -133,19 +142,27 @@ CSceneObject* CDummy::copyYourself()
 }
 
 bool CDummy::setAssignedToParentPath(bool assigned)
-{ // Overridden from _CDummy_
-    bool retVal=_CDummy_::setAssignedToParentPath(assigned);
-    if (assigned)
-        retVal=_CDummy_::setAssignedToParentPathOrientation(false)||retVal;
-    return(retVal);
+{
+    bool diff=(_assignedToParentPath!=assigned);
+    if (diff)
+    {
+        _assignedToParentPath=assigned;
+        if (_assignedToParentPath)
+            setAssignedToParentPathOrientation(false);
+    }
+    return(diff);
 }
 
 bool CDummy::setAssignedToParentPathOrientation(bool assigned)
-{ // Overridden from _CDummy_
-    bool retVal=_CDummy_::setAssignedToParentPathOrientation(assigned);
-    if (assigned)
-        retVal=_CDummy_::setAssignedToParentPath(false)||retVal;
-    return(retVal);
+{
+    bool diff=(_assignedToParentPathOrientation!=assigned);
+    if (diff)
+    {
+        _assignedToParentPathOrientation=assigned;
+        if (_assignedToParentPathOrientation)
+            setAssignedToParentPath(false);
+    }
+    return(diff);
 }
 
 void CDummy::setFreeOnPathTrajectory(bool isFree)
@@ -300,7 +317,7 @@ void CDummy::serialize(CSer& ar)
                     if (theName.compare("Cl0")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity;
                         _dummyColor.serialize(ar,0);
                     }
                     if (theName.compare("Var")==0)
@@ -474,14 +491,14 @@ void CDummy::performObjectLoadingMapping(const std::vector<int>* map,bool loadin
     _linkedDummyHandle=CWorld::getLoadingMapping(map,_linkedDummyHandle);
 }
 
-bool CDummy::setLinkedDummyHandle(int handle,bool check)
-{ // Overridden from _CDummy_
-    bool retVal=false;
+void CDummy::setLinkedDummyHandle(int handle,bool check)
+{
+    int _linkedDummyHandleOld=_linkedDummyHandle;
     CDummy* thisObject=nullptr;
     if (check)
         thisObject=App::currentWorld->sceneObjects->getDummyFromHandle(_objectHandle);
     if (thisObject!=this)
-        retVal=_CDummy_::setLinkedDummyHandle(handle,false); // no checking or dummy not yet in scene
+        _linkedDummyHandle=handle;
     else
     {
         CDummy* linkedDummy=App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
@@ -489,7 +506,7 @@ bool CDummy::setLinkedDummyHandle(int handle,bool check)
         { // we unlink this dummy and its partner:
             if (linkedDummy!=nullptr)
                 linkedDummy->setLinkedDummyHandle(-1,false);
-            retVal=_CDummy_::setLinkedDummyHandle(-1,false);
+            _linkedDummyHandle=-1;
         }
         else if (_linkedDummyHandle!=handle)
         { // We link this dummy to another dummy
@@ -499,7 +516,7 @@ bool CDummy::setLinkedDummyHandle(int handle,bool check)
             if (newLinkedDummy!=nullptr)
             { // we detach the new dummy from its original linking:
                 newLinkedDummy->setLinkedDummyHandle(-1,true);
-                retVal=_CDummy_::setLinkedDummyHandle(handle,false);
+                _linkedDummyHandle=handle;
                 newLinkedDummy->setLinkedDummyHandle(getObjectHandle(),false);
 
                 if (_linkType==sim_dummy_linktype_gcs_tip)
@@ -510,20 +527,27 @@ bool CDummy::setLinkedDummyHandle(int handle,bool check)
                     newLinkedDummy->setLinkType(_linkType,false);
             }
             else
-                retVal=_CDummy_::setLinkedDummyHandle(-1,false);
-        }
-        if (retVal)
-        {
-            App::setRefreshHierarchyViewFlag();
-            App::setFullDialogRefreshFlag();
+                _linkedDummyHandle=-1;
         }
     }
-    return(retVal);
+    if (_linkedDummyHandleOld!=_linkedDummyHandle)
+    {
+        if (getObjectCanSync())
+            _setLinkedDummyHandle_sendOldIk(_linkedDummyHandle);
+        App::setRefreshHierarchyViewFlag();
+        App::setFullDialogRefreshFlag();
+    }
 }
 
 bool CDummy::setLinkType(int lt,bool check)
-{ // Overridden from _CDummy_
-    bool retVal=_CDummy_::setLinkType(lt,check);
+{
+    bool diff=(_linkType!=lt);
+    if (diff)
+    {
+        _linkType=lt;
+        if (getObjectCanSync())
+            _setLinkType_sendOldIk(lt);
+    }
     if ( (_linkedDummyHandle!=-1)&&check )
     {
         CDummy* it=App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
@@ -540,12 +564,7 @@ bool CDummy::setLinkType(int lt,bool check)
         App::setRefreshHierarchyViewFlag();
         App::setFullDialogRefreshFlag();
     }
-    return(retVal);
-}
-
-void CDummy::setTempLocalTransformation(const C7Vector& tr)
-{
-    _localTransformation_temp=tr;
+    return(diff);
 }
 
 bool CDummy::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
@@ -573,10 +592,8 @@ void CDummy::display(CViewableBase* renderingObject,int displayAttrib)
     displayDummy(this,renderingObject,displayAttrib);
 }
 
-void CDummy::_setLinkedDummyHandle_send(int h) const
-{ // Overridden from _CDummy_
-    _CDummy_::_setLinkedDummyHandle_send(h);
-
+void CDummy::_setLinkedDummyHandle_sendOldIk(int h) const
+{
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
     {
@@ -590,10 +607,8 @@ void CDummy::_setLinkedDummyHandle_send(int h) const
     }
 }
 
-void CDummy::_setLinkType_send(int t) const
-{ // Overridden from _CDummy_
-    _CDummy_::_setLinkType_send(t);
-
+void CDummy::_setLinkType_sendOldIk(int t) const
+{
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
     {
@@ -632,11 +647,6 @@ std::string CDummy::getLinkedDummyLoadAlias() const
     return(_linkedDummyLoadAlias);
 }
 
-C7Vector CDummy::getTempLocalTransformation() const
-{
-    return(_localTransformation_temp);
-}
-
 void CDummy::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting)
 { // Overridden from CSceneObject
     if (setObjectCanSync(true))
@@ -649,9 +659,6 @@ void CDummy::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSync
 
         // Update the remote sceneObject:
         CSceneObject::buildUpdateAndPopulateSynchronizationObject(parentRouting);
-
-        _setAssignedToParentPath_send(_assignedToParentPath);
-        _setAssignedToParentPathOrientation_send(_assignedToParentPathOrientation);
     }
 }
 
@@ -661,7 +668,54 @@ void CDummy::connectSynchronizationObject()
     {
         CSceneObject::connectSynchronizationObject();
 
-        _setLinkedDummyHandle_send(_linkedDummyHandle);
-        _setLinkType_send(_linkType);
+        _setLinkedDummyHandle_sendOldIk(_linkedDummyHandle);
+        _setLinkType_sendOldIk(_linkType);
+    }
+}
+
+bool CDummy::getAssignedToParentPath() const
+{
+    return(_assignedToParentPath);
+}
+
+bool CDummy::getAssignedToParentPathOrientation() const
+{
+    return(_assignedToParentPathOrientation);
+}
+
+float CDummy::getDummySize() const
+{
+    return(_dummySize);
+}
+
+int CDummy::getLinkType() const
+{
+    return(_linkType);
+}
+
+int CDummy::getLinkedDummyHandle() const
+{
+    return(_linkedDummyHandle);
+}
+
+CColorObject* CDummy::getDummyColor()
+{
+    return(&_dummyColor);
+}
+
+void CDummy::setDummySize(float s)
+{
+    bool diff=(_dummySize!=s);
+    if (diff)
+    {
+        _dummySize=s;
+        computeBoundingBox();
+        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        {
+            const char* cmd="size";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringFloat(cmd,_dummySize);
+            App::worldContainer->pushEvent(event);
+        }
     }
 }

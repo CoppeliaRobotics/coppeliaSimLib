@@ -606,13 +606,13 @@ void CEnvironment::serialize(CSer& ar)
                     if (theName.compare("Evc")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         wirelessEmissionVolumeColor.serialize(ar,1);
                     }
                     if (theName.compare("Wtc")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         wirelessReceptionVolumeColor.serialize(ar,1);
                     }
                     if (theName.compare("Ups")==0)

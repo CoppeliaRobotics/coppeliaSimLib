@@ -31,6 +31,8 @@ CViewableBase::CViewableBase()
     _orthoViewSize=1.0f;
     _resolution[0]=1280;
     _resolution[1]=720;
+    _volumeVectorNear.clear();
+    _volumeVectorFar.clear();
 }
 
 CViewableBase::~CViewableBase()

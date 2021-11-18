@@ -210,7 +210,7 @@ void CIkGroup_old::serialize(CSer &ar)
                     if (theName.compare("Ike")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         CIkElement_old* it=new CIkElement_old();
                         it->serialize(ar);
                         _CIkGroup_old::_addIkElement(it);

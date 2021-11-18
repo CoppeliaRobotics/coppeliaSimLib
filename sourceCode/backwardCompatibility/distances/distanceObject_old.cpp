@@ -381,7 +381,7 @@ void CDistanceObject_old::serialize(CSer& ar)
                     if (theName.compare("Col")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         _segmentColor.serialize(ar,1);
                     }
                     if (theName.compare("Var")==0)

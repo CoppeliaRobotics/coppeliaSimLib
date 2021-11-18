@@ -181,8 +181,8 @@ unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX
 
 void CVisionSensor::computeBoundingBox()
 {
-    C3Vector minV(-0.5f*_visionSensorSize(0),-0.5f*_visionSensorSize(1),-_visionSensorSize(2));
-    C3Vector maxV(0.5f*_visionSensorSize(0),0.5f*_visionSensorSize(1),0.0f);
+    C3Vector minV(-0.5f*_visionSensorSize,-0.5f*_visionSensorSize,-_visionSensorSize*2.0f);
+    C3Vector maxV(0.5f*_visionSensorSize,0.5f*_visionSensorSize,0.0f);
     _setBoundingBox(minV,maxV);
 }
 
@@ -228,9 +228,7 @@ void CVisionSensor::commonInit()
 
     _resolution[0]=32;
     _resolution[1]=32;
-    _visionSensorSize(0)=0.02f;
-    _visionSensorSize(1)=_visionSensorSize(0);
-    _visionSensorSize(2)=_visionSensorSize(0)*3.0f;
+    _visionSensorSize=0.01f;
     _perspective=false;
     if (_extensionString.size()!=0)
         _extensionString+=" ";
@@ -407,10 +405,9 @@ bool CVisionSensor::getUseEnvironmentBackgroundColor() const
     return(_useSameBackgroundAsEnvironment);
 }
 
-void CVisionSensor::setVisionSensorSize(const C3Vector& s)
+void CVisionSensor::setVisionSensorSize(const float s)
 {
-    bool diff=((_visionSensorSize-s).getLength()>0.0001f);
-    if (diff)
+    if (_visionSensorSize!=s)
     {
         _visionSensorSize=s;
         computeBoundingBox();
@@ -418,13 +415,13 @@ void CVisionSensor::setVisionSensorSize(const C3Vector& s)
         {
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringFloatArray(cmd,_visionSensorSize.data,3);
+            data->appendMapObject_stringFloat(cmd,_visionSensorSize);
             App::worldContainer->pushEvent(event);
         }
     }
 }
 
-C3Vector CVisionSensor::getVisionSensorSize() const
+float CVisionSensor::getVisionSensorSize() const
 {
     return(_visionSensorSize);
 }
@@ -1851,7 +1848,7 @@ void CVisionSensor::addSpecializedObjectEventData(CInterfaceStackTable* data) co
     data->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
     data->appendMapObject_stringFloat("viewAngle",_viewAngle);
     data->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
-    data->appendMapObject_stringFloatArray("size",_visionSensorSize.data,3);
+    data->appendMapObject_stringFloat("size",_visionSensorSize);
     data->appendMapObject_stringBool("showFrustum",_showVolume);
 
     CInterfaceStackTable* fr=new CInterfaceStackTable();
@@ -2340,8 +2337,8 @@ void CVisionSensor::serialize(CSer& ar)
             ar << _defaultBufferValues[0] << _defaultBufferValues[1] << _defaultBufferValues[2];
             ar.flush();
 
-            ar.storeDataName("Siz");
-            ar << _visionSensorSize(0) << _visionSensorSize(1) << _visionSensorSize(2);
+            ar.storeDataName("Si2");
+            ar << _visionSensorSize;
             ar.flush();
 
             ar.storeDataName("Rmd");
@@ -2425,10 +2422,17 @@ void CVisionSensor::serialize(CSer& ar)
                         ar >> _defaultBufferValues[0] >> _defaultBufferValues[1] >> _defaultBufferValues[2];
                     }
                     if (theName.compare("Siz")==0)
+                    { // for backward compatibility
+                        noHit=false;
+                        ar >> byteQuantity;
+                        float dum;
+                        ar >> _visionSensorSize >> dum >> dum;
+                    }
+                    if (theName.compare("Si2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _visionSensorSize(0) >> _visionSensorSize(1) >> _visionSensorSize(2);
+                        ar >> _visionSensorSize;
                     }
                     if (theName.compare("Rmd")==0)
                     {
@@ -2503,13 +2507,13 @@ void CVisionSensor::serialize(CSer& ar)
                     if (theName.compare("Cl1")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         color.serialize(ar,0);
                     }
                     if (theName.compare("Cfr")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         delete _composedFilter;
                         _composedFilter=new CComposedFilter();
                         _composedFilter->serialize(ar);
@@ -2531,9 +2535,7 @@ void CVisionSensor::serialize(CSer& ar)
         bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
         if (ar.isStoring())
         {
-            ar.xmlAddNode_floats("size",_visionSensorSize.data,3);
-
-            ar.xmlAddNode_float("orthoViewSize",_orthoViewSize);
+            ar.xmlAddNode_float("objectSize",_visionSensorSize);
 
             ar.xmlAddNode_float("viewAngle",_viewAngle*180.0f/piValue_f);
 
@@ -2612,19 +2614,23 @@ void CVisionSensor::serialize(CSer& ar)
         else
         {
             C3Vector x;
-            if (ar.xmlGetNode_floats("size",x.data,3,exhaustiveXml))
-                setVisionSensorSize(x);
+            if (ar.xmlGetNode_floats("size",x.data,3,false))
+                setVisionSensorSize(x(0));
 
-            if (ar.xmlGetNode_float("orthoViewSize",_orthoViewSize,exhaustiveXml))
-                setOrthoViewSize(_orthoViewSize);
+            float s,s2;
+            if (ar.xmlGetNode_float("objectSize",s,false))
+                setVisionSensorSize(s);
 
-            if (ar.xmlGetNode_float("viewAngle",_viewAngle,exhaustiveXml))
-                setViewAngle(_viewAngle*piValue_f/180.0f);
+            if (ar.xmlGetNode_float("orthoViewSize",s,exhaustiveXml))
+                setOrthoViewSize(s);
 
-            if (ar.xmlGetNode_2float("clippingPlanes",_nearClippingPlane,_farClippingPlane,exhaustiveXml))
+            if (ar.xmlGetNode_float("viewAngle",s,exhaustiveXml))
+                setViewAngle(s*piValue_f/180.0f);
+
+            if (ar.xmlGetNode_2float("clippingPlanes",s,s2,exhaustiveXml))
             {
-                setNearClippingPlane(_nearClippingPlane);
-                setFarClippingPlane(_farClippingPlane);
+                setNearClippingPlane(s);
+                setFarClippingPlane(s2);
             }
 
             ar.xmlGetNode_ints("resolution",_resolution,2,exhaustiveXml);

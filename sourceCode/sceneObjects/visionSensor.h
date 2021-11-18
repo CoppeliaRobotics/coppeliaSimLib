@@ -62,8 +62,8 @@ public:
 
     void setResolution(const int r[2]); // override
 
-    void setVisionSensorSize(const C3Vector& s);
-    C3Vector getVisionSensorSize() const;
+    void setVisionSensorSize(float s);
+    float getVisionSensorSize() const;
     void setExplicitHandling(bool explicitHandl);
     bool getExplicitHandling() const;
     void resetSensor();
@@ -153,7 +153,7 @@ protected:
     // Variables which need to be serialized & copied (don't forget the vars from the CViewableBase class!)
     CColorObject color;
     int _detectableEntityHandle;
-    C3Vector _visionSensorSize;
+    float _visionSensorSize;
     bool _explicitHandling;
     bool _useExternalImage;
     bool _useSameBackgroundAsEnvironment;

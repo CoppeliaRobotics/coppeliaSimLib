@@ -635,7 +635,7 @@ void CForceSensor::serialize(CSer& ar)
                     if (theName.compare("Cl1")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         _color.serialize(ar,0);
                     }
                     if (theName.compare("Vab")==0)

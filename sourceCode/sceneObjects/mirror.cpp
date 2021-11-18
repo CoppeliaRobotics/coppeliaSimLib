@@ -394,7 +394,7 @@ void CMirror::serialize(CSer& ar)
                     if (theName.compare("Cpc")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         clipPlaneColor.serialize(ar,0);
                     }
                     if (noHit)

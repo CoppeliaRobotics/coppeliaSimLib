@@ -715,7 +715,7 @@ void CSPage::serialize(CSer& ar)
                     if (theName.compare("Sv2")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         CSView* theSubView=new CSView(-1);
                         theSubView->serialize(ar);
                         _allViews.push_back(theSubView);

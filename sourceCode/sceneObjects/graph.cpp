@@ -2146,7 +2146,7 @@ void CGraph::serialize(CSer& ar)
                     if (theName.compare("Cl0")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         color.serialize(ar,0);
                     }
                     if (theName.compare("Cl1")==0)
@@ -2201,7 +2201,7 @@ void CGraph::serialize(CSer& ar)
                     if (theName.compare("Ghd")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         CGraphData_old* it=new CGraphData_old();
                         it->serialize(ar,this);
                         dataStreams_old.push_back(it);
@@ -2209,7 +2209,7 @@ void CGraph::serialize(CSer& ar)
                     if (theName.compare("Gh3")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         CGraphDataComb_old* it=new CGraphDataComb_old();
                         it->serialize(ar);
                         curves3d_old.push_back(it);
@@ -2217,7 +2217,7 @@ void CGraph::serialize(CSer& ar)
                     if (theName.compare("Gh2")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         CGraphDataComb_old* it=new CGraphDataComb_old();
                         it->serialize(ar);
                         curves2d_old.push_back(it);
@@ -2225,7 +2225,7 @@ void CGraph::serialize(CSer& ar)
                     if (theName.compare("Sta")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         CStaticGraphCurve_old* it=new CStaticGraphCurve_old();
                         it->serialize(ar);
                         // Following 4 on 16/3/2017: duplicate names for static curves can cause problems

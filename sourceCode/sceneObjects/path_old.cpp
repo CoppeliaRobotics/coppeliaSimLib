@@ -634,7 +634,7 @@ void CPath_old::serialize(CSer& ar)
                     if (theName.compare("Ntp")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         pathContainer->serialize(ar);
                     }
                     if (theName.compare("Sec")==0)
@@ -654,7 +654,7 @@ void CPath_old::serialize(CSer& ar)
                     if (theName.compare("Scl")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         shapingColor.serialize(ar,0);
                     }
                     if (noHit)

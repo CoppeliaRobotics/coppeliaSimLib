@@ -475,7 +475,7 @@ void CProxSensor::serialize(CSer& ar)
                     if (theName.compare("Vod")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         if (convexVolume!=nullptr)
                             delete convexVolume;
                         convexVolume=new CConvexVolume();
@@ -538,7 +538,7 @@ void CProxSensor::serialize(CSer& ar)
                     if (theName.compare("Cl1")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         volumeColor.serialize(ar,0);
                     }
                     // if (theName.compare("Cl2")==0)
@@ -546,7 +546,7 @@ void CProxSensor::serialize(CSer& ar)
                     if (theName.compare("Cl3")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         detectionRayColor.serialize(ar,1);
                     }
                     if (noHit)

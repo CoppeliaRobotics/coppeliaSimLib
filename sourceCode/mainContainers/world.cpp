@@ -23,8 +23,7 @@ CWorld::CWorld()
     embeddedScriptContainer=nullptr;
     textureContainer=nullptr;
     simulation=nullptr;
-    customSceneData=nullptr;
-    customSceneData_tempData=nullptr;
+    customSceneData_old=nullptr;
     cacheData=nullptr;
     drawingCont=nullptr;
     pointCloudCont=nullptr;
@@ -61,8 +60,7 @@ void CWorld::initializeWorld()
     environment=new CEnvironment();
     pageContainer=new CPageContainer();
     mainSettings=new CMainSettings();
-    customSceneData=new CCustomData();
-    customSceneData_tempData=new CCustomData();
+    customSceneData_old=new CCustomData_old();
     cacheData=new CCacheCont();
     drawingCont=new CDrawingContainer();
     pointCloudCont=new CPointCloudContainer_old();
@@ -107,8 +105,9 @@ void CWorld::clearScene(bool notCalledFromUndoFunction)
     simulation->setUpDefaultValues();
     pageContainer->emptySceneProcedure();
 
-    customSceneData->removeAllData();
-    customSceneData_tempData->removeAllData();
+    customSceneData.setData(nullptr,nullptr,0);
+    customSceneData_tempData.setData(nullptr,nullptr,0);
+    customSceneData_old->removeAllData();
     if (notCalledFromUndoFunction)
         mainSettings->setUpDefaultValues();
     cacheData->clearCache();
@@ -142,10 +141,8 @@ void CWorld::deleteWorld()
     buttonBlockContainer=nullptr;
     delete outsideCommandQueue;
     outsideCommandQueue=nullptr;
-    delete customSceneData;
-    customSceneData=nullptr;
-    delete customSceneData_tempData;
-    customSceneData_tempData=nullptr;
+    delete customSceneData_old;
+    customSceneData_old=nullptr;
     delete cacheData;
     cacheData=nullptr;
     delete drawingCont;
@@ -456,16 +453,33 @@ void CWorld::saveScene(CSer& ar)
     {
         ar.storeDataName(SER_SCENE_CUSTOM_DATA);
         ar.setCountingMode();
-        customSceneData->serializeData(ar,nullptr,-1);
+        customSceneData.serializeData(ar,nullptr);
         if (ar.setWritingMode())
-            customSceneData->serializeData(ar,nullptr,-1);
+            customSceneData.serializeData(ar,nullptr);
     }
     else
     {
         ar.xmlPushNewNode(SERX_SCENE_CUSTOM_DATA);
-        customSceneData->serializeData(ar,nullptr,-1);
+        customSceneData.serializeData(ar,nullptr);
         ar.xmlPopNode();
     }
+    // Keep a while for backward compatibility (e.g. until V4.4.0)
+    //------------------------------------------------------------
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_SCENE_CUSTOM_DATA_OLD);
+        ar.setCountingMode();
+        customSceneData_old->serializeData(ar,nullptr,-1);
+        if (ar.setWritingMode())
+            customSceneData_old->serializeData(ar,nullptr,-1);
+    }
+    else
+    {
+        ar.xmlPushNewNode(SERX_SCENE_CUSTOM_DATA_OLD);
+        customSceneData_old->serializeData(ar,nullptr,-1);
+        ar.xmlPopNode();
+    }
+    //------------------------------------------------------------
 
     if (ar.isBinary())
     {
@@ -1221,7 +1235,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 bool noHit=true;
                 if (theName.compare(SER_MODEL_THUMBNAIL_INFO)==0)
                 {
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     C7Vector tr;
                     C3Vector bbs;
                     float ndss;
@@ -1237,7 +1251,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
 
                 if (theName.compare(SER_MODEL_THUMBNAIL)==0)
                 {
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     environment->modelThumbnail_notSerializedHere.serialize(ar);
                     noHit=false;
                     if (justLoadThumbnail)
@@ -1250,7 +1264,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 if (theName.compare(SER_VERTICESINDICESNORMALSEDGES)==0)
                 {
                     CMesh::clearTempVerticesIndicesNormalsAndEdges();
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     CMesh::serializeTempVerticesIndicesNormalsAndEdges(ar);
                     noHit=false;
                 }
@@ -1271,7 +1285,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_DYNMATERIAL)==0)
                 { // Following for backward compatibility (i.e. files written prior CoppeliaSim 3.4.0) (30/10/2016)
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     CDynMaterialObject* myNewObject=new CDynMaterialObject();
                     myNewObject->serialize(ar);
                     loadedDynMaterialList.push_back(myNewObject);
@@ -1279,31 +1293,31 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_GHOSTS)==0)
                 {
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     ghostObjectCont->serialize(ar);
                     noHit=false;
                 }
                 if (theName.compare(SER_SETTINGS)==0)
                 {
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     mainSettings->serialize(ar);
                     noHit=false;
                 }
                 if (theName.compare(SER_ENVIRONMENT)==0)
                 {
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     environment->serialize(ar);
                     noHit=false;
                 }
                 if (theName.compare(SER_DYNAMICS)==0)
                 {
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     dynamicsContainer->serialize(ar);
                     noHit=false;
                 }
                 if (theName.compare(SER_SIMULATION)==0)
                 {
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     simulation->serialize(ar);
                     noHit=false;
 
@@ -1325,7 +1339,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_VIEWS)==0)
                 {
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     pageContainer->serialize(ar);
                     noHit=false;
                 }
@@ -1333,7 +1347,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 { // for backward compatibility 18.11.2020
                     if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors,"Contains collections...");
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     CCollection* it=new CCollection(-2);
                     it->serialize(ar);
                     loadedCollectionList.push_back(it);
@@ -1345,7 +1359,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                         App::logMsg(sim_verbosity_errors,"Contains old custom UIs...");
                     if (!App::userSettings->disableOpenGlBasedCustomUi)
                     {
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity;
                         CButtonBlock* it=new CButtonBlock(1,1,10,10,0);
                         it->serialize(ar);
                         loadedButtonBlockList.push_back(it);
@@ -1354,7 +1368,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_LUA_SCRIPT)==0)
                 {
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     CScriptObject* it=new CScriptObject(-1);
                     it->serialize(ar);
                     if ( (it->getScriptType()==sim_scripttype_jointctrlcallback_old)||(it->getScriptType()==sim_scripttype_generalcallback_old)||(it->getScriptType()==sim_scripttype_contactcallback_old) )
@@ -1375,15 +1389,23 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 }
                 if (theName.compare(SER_SCENE_CUSTOM_DATA)==0)
                 {
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    customSceneData->serializeData(ar,nullptr,-1);
+                    ar >> byteQuantity;
+                    customSceneData.serializeData(ar,nullptr);
                     noHit=false;
+                }
+                if (theName.compare(SER_SCENE_CUSTOM_DATA_OLD)==0)
+                { // for backward compatibility
+                    ar >> byteQuantity;
+                    customSceneData_old->serializeData(ar,nullptr,-1);
+                    noHit=false;
+                    if (customSceneData.getDataCount()==0)
+                        customSceneData_old->initNewFormat(customSceneData,false);
                 }
                 if (theName.compare(SER_COLLISION)==0)
                 {
                     if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors,"Contains collision objects...");
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     CCollisionObject_old* it=new CCollisionObject_old();
                     it->serialize(ar);
                     loadedCollisionList.push_back(it);
@@ -1393,7 +1415,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 {
                     if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors,"Contains distance objects...");
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     CDistanceObject_old* it=new CDistanceObject_old();
                     it->serialize(ar);
                     loadedDistanceList.push_back(it);
@@ -1403,7 +1425,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 {
                     if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors,"Contains IK objects...");
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     CIkGroup_old* it=new CIkGroup_old();
                     it->serialize(ar);
                     loadedIkGroupList.push_back(it);
@@ -1413,7 +1435,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                 {
                     if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors,"Contains path planning objects...");
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    ar >> byteQuantity;
                     CPathPlanningTask* it=new CPathPlanningTask();
                     it->serialize(ar);
                     pathPlanningTaskList.push_back(it);
@@ -1484,10 +1506,17 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
             simulation->serialize(ar);
             ar.xmlPopNode();
         }
-        if (ar.xmlPushChildNode(SERX_SCENE_CUSTOM_DATA,isScene))
+        if (ar.xmlPushChildNode(SERX_SCENE_CUSTOM_DATA,false))
         {
-            customSceneData->serializeData(ar,nullptr,-1);
+            customSceneData.serializeData(ar,nullptr);
             ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_SCENE_CUSTOM_DATA_OLD,false))
+        { // for backward compatibility
+            customSceneData_old->serializeData(ar,nullptr,-1);
+            ar.xmlPopNode();
+            if (customSceneData.getDataCount()==0)
+                customSceneData_old->initNewFormat(customSceneData,false);
         }
         if (ar.xmlPushChildNode(SERX_VIEWS,isScene))
         {

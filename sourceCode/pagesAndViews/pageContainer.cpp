@@ -233,7 +233,7 @@ void CPageContainer::serialize(CSer& ar)
                     if (theName.compare("Vwo")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         CSPage* theView=new CSPage(0);
                         theView->serialize(ar);
                         if (viewCounter<PAGES_COUNT)

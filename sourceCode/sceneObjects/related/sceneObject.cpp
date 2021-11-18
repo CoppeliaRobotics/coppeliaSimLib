@@ -4,7 +4,7 @@
 #include "camera.h"
 #include "graph.h"
 #include "path_old.h"
-#include "customData.h"
+#include "customData_old.h"
 #include "visionSensor.h"
 #include "mill.h"
 #include "light.h"
@@ -76,8 +76,7 @@ CSceneObject::CSceneObject()
     _objectMovementStepSize[0]=0.0f; // i.e. use default
     _objectMovementStepSize[1]=0.0f; // i.e. use default
 
-    _customObjectData=nullptr;
-    _customObjectData_tempData=nullptr;
+    _customObjectData_old=nullptr;
     _localObjectSpecialProperty=0;
     _modelProperty=0; // By default, the main properties are not overriden! (0 means we inherit from parents)
 
@@ -102,8 +101,7 @@ CSceneObject::CSceneObject()
 
 CSceneObject::~CSceneObject() 
 {
-    delete _customObjectData;
-    delete _customObjectData_tempData;
+    delete _customObjectData_old;
     delete _userScriptParameters;
 }
 
@@ -1008,6 +1006,10 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
     subC->appendMapObject_stringFloatArray("min",_boundingBoxMin.data,3);
     subC->appendMapObject_stringFloatArray("max",_boundingBoxMax.data,3);
     _appendObjectMovementEventData(data);
+    subC=new CInterfaceStackTable();
+    data->appendMapObject_stringObject("customData",subC);
+    _customObjectData.appendEventData(subC);
+    _customObjectData_tempData.appendEventData(subC);
 }
 
 void CSceneObject::_appendObjectMovementEventData(CInterfaceStackTable* data) const
@@ -1094,16 +1096,13 @@ CSceneObject* CSceneObject::copyYourself()
     theNewObject->_modelAcknowledgement=_modelAcknowledgement;
     theNewObject->_ignoredByViewFitting=_ignoredByViewFitting;
     theNewObject->_transparentObjectDistanceOffset=_transparentObjectDistanceOffset;
+    _customObjectData.copyYourselfInto(theNewObject->_customObjectData);
+    _customObjectData_tempData.copyYourselfInto(theNewObject->_customObjectData_tempData);
 
-    delete theNewObject->_customObjectData;
-    theNewObject->_customObjectData=nullptr;
-    if (_customObjectData!=nullptr)
-        theNewObject->_customObjectData=_customObjectData->copyYourself();
-
-    delete theNewObject->_customObjectData_tempData;
-    theNewObject->_customObjectData_tempData=nullptr;
-    if (_customObjectData_tempData!=nullptr)
-        theNewObject->_customObjectData_tempData=_customObjectData_tempData->copyYourself();
+    delete theNewObject->_customObjectData_old;
+    theNewObject->_customObjectData_old=nullptr;
+    if (_customObjectData_old!=nullptr)
+        theNewObject->_customObjectData_old=_customObjectData_old->copyYourself();
 
     delete theNewObject->_userScriptParameters;
     theNewObject->_userScriptParameters=nullptr;
@@ -1121,72 +1120,72 @@ CSceneObject* CSceneObject::copyYourself()
     return(theNewObject);
 }
 
-void CSceneObject::clearObjectCustomData()
+void CSceneObject::clearObjectCustomData_old()
 {
-    delete _customObjectData;
-    _customObjectData=nullptr;
+    delete _customObjectData_old;
+    _customObjectData_old=nullptr;
 }
 
-void CSceneObject::setObjectCustomData(int header,const char* data,int dataLength)
+
+void CSceneObject::writeCustomDataBlock(bool tmpData,const char* dataName,const char* data,size_t dataLength)
 {
-    if (_customObjectData==nullptr)
-        _customObjectData=new CCustomData();
-    _customObjectData->setData(header,data,dataLength);
+    bool diff=false;
+    if (tmpData)
+        diff=_customObjectData_tempData.setData(dataName,data,dataLength);
+    else
+        diff=_customObjectData.setData(dataName,data,dataLength);
+
+    if ( diff&&_isInScene&&App::worldContainer->getEnableEvents() )
+    {
+        const char* cmd="customData";
+        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,false);
+        CInterfaceStackTable* subC=new CInterfaceStackTable();
+        data->appendMapObject_stringObject(cmd,subC);
+        _customObjectData.appendEventData(subC);
+        _customObjectData_tempData.appendEventData(subC);
+        App::worldContainer->pushEvent(event);
+    }
 }
 
-int CSceneObject::getObjectCustomDataLength(int header) const
+std::string CSceneObject::readCustomDataBlock(bool tmpData,const char* dataName) const
 {
-    if (_customObjectData==nullptr)
+    std::string retVal;
+    if (tmpData)
+        retVal=_customObjectData_tempData.getData(dataName);
+    else
+        retVal=_customObjectData.getData(dataName);
+    return(retVal);
+}
+
+std::string CSceneObject::getAllCustomDataBlockTags(bool tmpData,size_t* cnt) const
+{
+    std::string retVal;
+    if (tmpData)
+        retVal=_customObjectData_tempData.getAllTags(cnt);
+    else
+        retVal=_customObjectData.getAllTags(cnt);
+    return(retVal);
+}
+
+void CSceneObject::setObjectCustomData_old(int header,const char* data,int dataLength)
+{
+    if (_customObjectData_old==nullptr)
+        _customObjectData_old=new CCustomData_old();
+    _customObjectData_old->setData(header,data,dataLength);
+}
+
+int CSceneObject::getObjectCustomDataLength_old(int header) const
+{
+    if (_customObjectData_old==nullptr)
         return(0);
-    return(_customObjectData->getDataLength(header));
+    return(_customObjectData_old->getDataLength(header));
 }
 
-void CSceneObject::getObjectCustomData(int header,char* data) const
+void CSceneObject::getObjectCustomData_old(int header,char* data) const
 {
-    if (_customObjectData==nullptr)
+    if (_customObjectData_old==nullptr)
         return;
-    _customObjectData->getData(header,data);
-}
-
-bool CSceneObject::getObjectCustomDataHeader(int index,int& header) const
-{
-    if (_customObjectData==nullptr)
-        return(false);
-    return(_customObjectData->getHeader(index,header));
-}
-
-void CSceneObject::clearObjectCustomData_tempData()
-{
-    delete _customObjectData_tempData;
-    _customObjectData_tempData=nullptr;
-}
-
-void CSceneObject::setObjectCustomData_tempData(int header,const char* data,int dataLength)
-{
-    if (_customObjectData_tempData==nullptr)
-        _customObjectData_tempData=new CCustomData();
-    _customObjectData_tempData->setData(header,data,dataLength);
-}
-
-int CSceneObject::getObjectCustomDataLength_tempData(int header) const
-{
-    if (_customObjectData_tempData==nullptr)
-        return(0);
-    return(_customObjectData_tempData->getDataLength(header));
-}
-
-void CSceneObject::getObjectCustomData_tempData(int header,char* data) const
-{
-    if (_customObjectData_tempData==nullptr)
-        return;
-    _customObjectData_tempData->getData(header,data);
-}
-
-bool CSceneObject::getObjectCustomDataHeader_tempData(int index,int& header) const
-{
-    if (_customObjectData_tempData==nullptr)
-        return(false);
-    return(_customObjectData_tempData->getHeader(index,header));
+    _customObjectData_old->getData(header,data);
 }
 
 void CSceneObject::setObjectTranslationSettingsLocked(bool l)
@@ -1808,13 +1807,22 @@ void CSceneObject::serialize(CSer& ar)
             ar << _sizeValues[0] << _sizeValues[1] << _sizeValues[2];
             ar.flush();
 
-            if (_customObjectData!=nullptr)
+            if (_customObjectData.getDataCount()!=0)
             {
+                ar.storeDataName("Cda");
+                ar.setCountingMode();
+                _customObjectData.serializeData(ar,nullptr);
+                if (ar.setWritingMode())
+                    _customObjectData.serializeData(ar,nullptr);
+            }
+
+            if (_customObjectData_old!=nullptr)
+            { // keep for backward compatibility (e.g. until V4.4.0)
                 ar.storeDataName("Cod");
                 ar.setCountingMode();
-                _customObjectData->serializeData(ar,nullptr,-1);
+                _customObjectData_old->serializeData(ar,nullptr,-1);
                 if (ar.setWritingMode())
-                    _customObjectData->serializeData(ar,nullptr,-1);
+                    _customObjectData_old->serializeData(ar,nullptr,-1);
             }
 
             if (_userScriptParameters!=nullptr)
@@ -2111,18 +2119,25 @@ void CSceneObject::serialize(CSer& ar)
                         ar >> byteQuantity;
                         ar >> _objectMovementRelativity[1] >> _objectMovementStepSize[1];
                     }
-
-                    if (theName.compare("Cod")==0)
+                    if (theName.compare("Cda")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                        _customObjectData=new CCustomData();
-                        _customObjectData->serializeData(ar,nullptr,-1);
+                        ar >> byteQuantity;
+                        _customObjectData.serializeData(ar,nullptr);
+                    }
+                    if (theName.compare("Cod")==0)
+                    { // keep for backward compatibility
+                        noHit=false;
+                        ar >> byteQuantity;
+                        _customObjectData_old=new CCustomData_old();
+                        _customObjectData_old->serializeData(ar,nullptr,-1);
+                        if (_customObjectData.getDataCount()==0)
+                            _customObjectData_old->initNewFormat(_customObjectData,true);
                     }
                     if (theName.compare("Lsp")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity;
                         _userScriptParameters=new CUserParameters();
                         _userScriptParameters->serialize(ar);
                         if (_userScriptParameters->userParamEntries.size()==0)
@@ -2428,11 +2443,16 @@ void CSceneObject::serialize(CSer& ar)
 
             if (exhaustiveXml)
             {
-                if (_customObjectData!=nullptr)
+                if (_customObjectData.getDataCount()!=0)
                 {
+                    ar.xmlPushNewNode("customObjectData");
+                    _customObjectData.serializeData(ar,getObjectAliasAndHandle().c_str());
+                    ar.xmlPopNode();
+                }
+                if (_customObjectData_old!=nullptr)
+                { // keep a while for backward compatibility (e.g. until V4.4.0)
                     ar.xmlPushNewNode("customData");
-//                    _customObjectData->serializeData(ar,_objectName.c_str(),-1);
-                    _customObjectData->serializeData(ar,getObjectAliasAndHandle().c_str(),-1);
+                    _customObjectData_old->serializeData(ar,getObjectAliasAndHandle().c_str(),-1);
                     ar.xmlPopNode();
                 }
                 if (_userScriptParameters!=nullptr)
@@ -2691,11 +2711,17 @@ void CSceneObject::serialize(CSer& ar)
 
                 ar.xmlGetNode_string("modelAcknowledgement",_modelAcknowledgement,exhaustiveXml);
 
+                if (exhaustiveXml&&ar.xmlPushChildNode("customObjectData",false))
+                {
+                    _customObjectData.serializeData(ar,getObjectAliasAndHandle().c_str());
+                    ar.xmlPopNode();
+                }
                 if (exhaustiveXml&&ar.xmlPushChildNode("customData",false))
                 {
-                    _customObjectData=new CCustomData();
-//                    _customObjectData->serializeData(ar,_objectName.c_str(),-1);
-                    _customObjectData->serializeData(ar,getObjectAliasAndHandle().c_str(),-1);
+                    _customObjectData_old=new CCustomData_old();
+                    _customObjectData_old->serializeData(ar,getObjectAliasAndHandle().c_str(),-1);
+                    if (_customObjectData.getDataCount()==0)
+                        _customObjectData_old->initNewFormat(_customObjectData,true);
                     ar.xmlPopNode();
                 }
                 if (exhaustiveXml&&ar.xmlPushChildNode("userParameters",false))

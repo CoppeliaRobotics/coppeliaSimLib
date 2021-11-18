@@ -193,7 +193,7 @@ void CGraphDataComb_old::serialize(CSer& ar)
                     if (theName.compare("Cl2")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         curveColor.serialize(ar,0);
                     }
                     if (theName.compare("Did")==0)

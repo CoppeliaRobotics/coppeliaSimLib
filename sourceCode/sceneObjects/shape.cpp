@@ -1317,14 +1317,14 @@ void CShape::serialize(CSer& ar)
                     if (theName.compare("Ge2")==0)
                     { // keep until 2024 for back compatibility
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         _serializeBackCompatibility(ar);
                         getMeshWrapper()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
                     }
                     if (theName.compare("Gst")==0)
                     { // geometric (not yet used, but so that old versions will be able to read this)
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         delete _mesh;
                         _mesh=new CMesh();
                         ((CMesh*)_mesh)->serialize(ar,getObjectAliasAndHandle().c_str());
@@ -1334,7 +1334,7 @@ void CShape::serialize(CSer& ar)
                     if (theName.compare("Gsg")==0)
                     { // geomWrap (not yet used, but so that old versions will be able to read this)
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         delete _mesh;
                         _mesh=new CMeshWrapper();
                         _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
@@ -1362,7 +1362,7 @@ void CShape::serialize(CSer& ar)
                     if (theName.compare("Mat")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         _dynMaterial->serialize(ar);
                     }
 
@@ -1601,7 +1601,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                     if (theName.compare("Gst")==0)
                     { // geometric
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         delete _mesh;
                         _mesh=new CMesh();
                         ((CMesh*)_mesh)->serialize(ar,getObjectAliasAndHandle().c_str());
@@ -1609,7 +1609,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                     if (theName.compare("Gsg")==0)
                     { // geomWrap
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         delete _mesh;
                         _mesh=new CMeshWrapper();
                         _mesh->serialize(ar,getObjectAliasAndHandle().c_str());

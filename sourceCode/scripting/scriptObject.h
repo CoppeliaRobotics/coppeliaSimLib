@@ -17,7 +17,7 @@
 #include "userParameters.h"
 #include "vMutex.h"
 #include "vThread.h"
-#include "customData.h"
+#include "customData_old.h"
 #define DEFAULT_THREADEDCHILDSCRIPTOLD_NAME "dlttscptbkcomp.txt"
 #define SIM_SCRIPT_NAME_INDEX_OLD "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
 // **********************
@@ -331,8 +331,8 @@ protected:
     bool _mainScriptIsDefaultMainScript_old; // 16.11.2020
     bool _raiseErrors_backCompatibility;
     CUserParameters* _scriptParameters_backCompatibility;
-    CCustomData* _customObjectData_old;
-    CCustomData* _customObjectData_tempData_old;
+    CCustomData_old* _customObjectData_old;
+    CCustomData_old* _customObjectData_tempData_old;
     bool _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014;
     bool _warning_simRMLPosition_oldCompatibility_30_8_2014;
     bool _warning_simRMLVelocity_oldCompatibility_30_8_2014;

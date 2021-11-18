@@ -373,7 +373,6 @@ HEADERS += $$PWD/sourceCode/sceneObjects/jointObject.h \
     $$PWD/sourceCode/shared/sceneObjects/_jointObject_.h \
     $$PWD/sourceCode/sceneObjects/camera.h \
     $$PWD/sourceCode/sceneObjects/dummy.h \
-    $$PWD/sourceCode/shared/sceneObjects/_dummy_.h \
     $$PWD/sourceCode/sceneObjects/octree.h \
     $$PWD/sourceCode/sceneObjects/pointCloud.h \
     $$PWD/sourceCode/sceneObjects/forceSensor.h \
@@ -441,6 +440,7 @@ HEADERS += $$PWD/sourceCode/mainContainers/sceneContainers/drawingContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/outsideCommandQueue.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/cacheCont.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/customData.h \
+    $$PWD/sourceCode/mainContainers/sceneContainers/customData_old.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/ghostObjectContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/pointCloudContainer_old.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/buttonBlockContainer.h \
@@ -793,7 +793,6 @@ SOURCES += $$PWD/sourceCode/sceneObjects/jointObject.cpp \
     $$PWD/sourceCode/shared/sceneObjects/_jointObject_.cpp \
     $$PWD/sourceCode/sceneObjects/camera.cpp \
     $$PWD/sourceCode/sceneObjects/dummy.cpp \
-    $$PWD/sourceCode/shared/sceneObjects/_dummy_.cpp \
     $$PWD/sourceCode/sceneObjects/octree.cpp \
     $$PWD/sourceCode/sceneObjects/pointCloud.cpp \
     $$PWD/sourceCode/sceneObjects/forceSensor.cpp \
@@ -861,6 +860,7 @@ SOURCES += $$PWD/sourceCode/mainContainers/sceneContainers/bannerContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/environment.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/dynamicsContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/customData.cpp \
+    $$PWD/sourceCode/mainContainers/sceneContainers/customData_old.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/commTubeContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/cacheCont.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/apiErrors.cpp \

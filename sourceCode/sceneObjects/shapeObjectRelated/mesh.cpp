@@ -1747,19 +1747,19 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                     if (theName.compare("Cl0")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         color.serialize(ar,0);
                     }
                     if (theName.compare("Cl2")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         insideColor_DEPRECATED.serialize(ar,0);
                     }
                     if (theName.compare("Ecl")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         edgeColor_DEPRECATED.serialize(ar,1);
                     }
                     if (App::currentWorld->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
@@ -1935,7 +1935,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                     if (theName.compare("Toj")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         _textureProperty=new CTextureProperty();
                         _textureProperty->serialize(ar);
                     }

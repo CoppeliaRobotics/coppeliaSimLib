@@ -243,7 +243,7 @@ void CMainSettings::serialize(CSer& ar)
                     if (theName.compare("Crc")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> byteQuantity; 
                         collisionColor.serialize(ar,0);
                     }
                     if (theName.compare("Al2")==0)

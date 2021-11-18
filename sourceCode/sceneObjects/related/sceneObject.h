@@ -8,6 +8,7 @@
 #include "vMutex.h"
 #include <map>
 #include "userParameters.h"
+#include "customData.h"
 #include "_sceneObject_.h"
 
 struct SCustomRefs
@@ -24,7 +25,7 @@ struct SCustomOriginalRefs
 };
 
 class CShape;
-class CCustomData;
+class CCustomData_old;
 class CViewableBase;
 class CScriptObject;
 class CInterfaceStack;
@@ -136,18 +137,14 @@ public:
     void setObjectMovementStepSize(int index,float s);
     float getObjectMovementStepSize(int index) const;
 
-    void setObjectCustomData(int header,const char* data,int dataLength);
-    void clearObjectCustomData();
-    int getObjectCustomDataLength(int header) const;
-    void getObjectCustomData(int header,char* data) const;
-    bool getObjectCustomDataHeader(int index,int& header) const;
+    void writeCustomDataBlock(bool tmpData,const char* dataName,const char* data,size_t dataLength);
+    std::string readCustomDataBlock(bool tmpData,const char* dataName) const;
+    std::string getAllCustomDataBlockTags(bool tmpData,size_t* cnt) const;
 
-    // Following same as above, but not serialized:
-    void setObjectCustomData_tempData(int header,const char* data,int dataLength);
-    void clearObjectCustomData_tempData();
-    int getObjectCustomDataLength_tempData(int header) const;
-    void getObjectCustomData_tempData(int header,char* data) const;
-    bool getObjectCustomDataHeader_tempData(int index,int& header) const;
+    void clearObjectCustomData_old();
+    int getObjectCustomDataLength_old(int header) const;
+    void setObjectCustomData_old(int header,const char* data,int dataLength);
+    void getObjectCustomData_old(int header,char* data) const;
 
     int getParentCount() const;
 
@@ -326,8 +323,9 @@ protected:
     C3Vector _objectManipulationModeTotalTranslation;
     float _objectManipulationModeTotalRotation;
     unsigned char _objectManipulationMode_flaggedForGridOverlay; // is the rotation or translation axis index + 8 if it is a rotation, or +16 if it is a translation
-    CCustomData* _customObjectData;
-    CCustomData* _customObjectData_tempData; // this one is not serialized (but copied)!
+    CCustomData _customObjectData;
+    CCustomData _customObjectData_tempData; // this one is not serialized (but copied)!
+    CCustomData_old* _customObjectData_old;
     std::vector<SCustomRefs> _customReferencedHandles;
     std::vector<SCustomOriginalRefs> _customReferencedOriginalHandles;
     CUserParameters* _userScriptParameters;

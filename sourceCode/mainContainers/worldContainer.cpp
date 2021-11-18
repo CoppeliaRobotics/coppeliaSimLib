@@ -16,7 +16,7 @@ CWorldContainer::CWorldContainer()
     scriptCustomFuncAndVarContainer=nullptr;
     simulatorMessageQueue=nullptr;
     calcInfo=nullptr;
-    customAppData=nullptr;
+    customAppData_old=nullptr;
     moduleMenuItemContainer=nullptr;
 #ifdef SIM_WITH_GUI
     globalGuiTextureCont=nullptr;
@@ -257,7 +257,7 @@ void CWorldContainer::initialize()
     persistentDataContainer=new CPersistentDataContainer();
     interfaceStackContainer=new CInterfaceStackContainer();
     scriptCustomFuncAndVarContainer=new CScriptCustomFuncAndVarContainer();
-    customAppData=new CCustomData();
+    customAppData_old=new CCustomData_old();
     calcInfo=new CCalculationInfo();
     addOnScriptContainer=new CAddOnScriptContainer();
 
@@ -284,7 +284,7 @@ void CWorldContainer::deinitialize()
 
 //    delete sandboxScript;
     delete addOnScriptContainer;
-    delete customAppData;
+    delete customAppData_old;
     delete scriptCustomFuncAndVarContainer;
     delete interfaceStackContainer;
     delete persistentDataContainer;

@@ -48,8 +48,6 @@ void CQDlgVisionSensors::refresh()
     ui->qqResY->setEnabled(isSensor&&noEditModeAndNoSim);
 
     ui->qqSizeX->setEnabled(isSensor&&noEditModeAndNoSim);
-    ui->qqSizeY->setEnabled(isSensor&&noEditModeAndNoSim);
-    ui->qqSizeZ->setEnabled(isSensor&&noEditModeAndNoSim);
 
     ui->qqExplicitHandling->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqExternalInput->setEnabled(isSensor&&noEditModeAndNoSim);
@@ -66,9 +64,6 @@ void CQDlgVisionSensors::refresh()
     ui->qqIgnorePacket1->setEnabled(isSensor&&noEditModeAndNoSim);
 
     ui->qqCasingColor->setEnabled(isSensor&&noEditModeAndNoSim);
-
-    ui->qqEnabled->setVisible(App::userSettings->showOldDlgs);
-    ui->qqEnabled->setChecked(App::currentWorld->mainSettings->visionSensorsEnabled);
 
     ui->qqApplyMainProperties->setEnabled(isSensor&&manySensors&&noEditModeAndNoSim);
     ui->qqApplyColors->setEnabled(isSensor&&manySensors&&noEditModeAndNoSim);
@@ -96,10 +91,7 @@ void CQDlgVisionSensors::refresh()
         s->getResolution(r);
         ui->qqResX->setText(tt::getIString(false,r[0]).c_str());
         ui->qqResY->setText(tt::getIString(false,r[1]).c_str());
-        C3Vector size(s->getVisionSensorSize());
-        ui->qqSizeX->setText(tt::getFString(false,size(0),3).c_str());
-        ui->qqSizeY->setText(tt::getFString(false,size(1),3).c_str());
-        ui->qqSizeZ->setText(tt::getFString(false,size(2),3).c_str());
+        ui->qqSizeX->setText(tt::getFString(false,s->getVisionSensorSize(),3).c_str());
 
         ui->qqExplicitHandling->setChecked(s->getExplicitHandling());
         ui->qqExternalInput->setChecked(s->getUseExternalImage());
@@ -142,8 +134,6 @@ void CQDlgVisionSensors::refresh()
         ui->qqResY->setText("");
 
         ui->qqSizeX->setText("");
-        ui->qqSizeY->setText("");
-        ui->qqSizeZ->setText("");
 
         ui->qqExplicitHandling->setChecked(false);
         ui->qqExternalInput->setChecked(false);
@@ -159,16 +149,6 @@ void CQDlgVisionSensors::refresh()
 
     selectLineEdit(lineEditToSelect);
     inMainRefreshRoutine=false;
-}
-
-void CQDlgVisionSensors::on_qqEnabled_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_ENABLE_ALL_VISIONSENSORGUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
 }
 
 void CQDlgVisionSensors::on_qqExplicitHandling_clicked()
@@ -352,72 +332,10 @@ void CQDlgVisionSensors::on_qqSizeX_editingFinished()
             float newVal=ui->qqSizeX->text().toFloat(&ok);
             if (ok)
             {
-                C3Vector s(it->getVisionSensorSize());
-                s(0)=newVal;
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_OBJECTSIZE_VISIONSENSORGUITRIGGEREDCMD;
                 cmd.intParams.push_back(it->getObjectHandle());
-                cmd.floatParams.push_back(s(0));
-                cmd.floatParams.push_back(s(1));
-                cmd.floatParams.push_back(s(2));
-                App::appendSimulationThreadCommand(cmd);
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-        }
-    }
-}
-
-void CQDlgVisionSensors::on_qqSizeY_editingFinished()
-{
-    if (!ui->qqSizeY->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CVisionSensor* it=App::currentWorld->sceneObjects->getLastSelectionVisionSensor();
-        if (it!=nullptr)
-        {
-            bool ok;
-            float newVal=ui->qqSizeY->text().toFloat(&ok);
-            if (ok)
-            {
-                C3Vector s(it->getVisionSensorSize());
-                s(1)=newVal;
-                SSimulationThreadCommand cmd;
-                cmd.cmdId=SET_OBJECTSIZE_VISIONSENSORGUITRIGGEREDCMD;
-                cmd.intParams.push_back(it->getObjectHandle());
-                cmd.floatParams.push_back(s(0));
-                cmd.floatParams.push_back(s(1));
-                cmd.floatParams.push_back(s(2));
-                App::appendSimulationThreadCommand(cmd);
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-        }
-    }
-}
-
-void CQDlgVisionSensors::on_qqSizeZ_editingFinished()
-{
-    if (!ui->qqSizeZ->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CVisionSensor* it=App::currentWorld->sceneObjects->getLastSelectionVisionSensor();
-        if (it!=nullptr)
-        {
-            bool ok;
-            float newVal=ui->qqSizeZ->text().toFloat(&ok);
-            if (ok)
-            {
-                C3Vector s(it->getVisionSensorSize());
-                s(2)=newVal;
-                SSimulationThreadCommand cmd;
-                cmd.cmdId=SET_OBJECTSIZE_VISIONSENSORGUITRIGGEREDCMD;
-                cmd.intParams.push_back(it->getObjectHandle());
-                cmd.floatParams.push_back(s(0));
-                cmd.floatParams.push_back(s(1));
-                cmd.floatParams.push_back(s(2));
+                cmd.floatParams.push_back(newVal);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }

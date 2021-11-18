@@ -19,22 +19,6 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
-  <widget class="QCheckBox" name="qqEnableAll">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>210</y>
-     <width>211</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::StrongFocus</enum>
-   </property>
-   <property name="text">
-    <string>Enable all proximity sensors</string>
-   </property>
-  </widget>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
@@ -1130,7 +1114,6 @@
   </widget>
  </widget>
  <tabstops>
-  <tabstop>qqEnableAll</tabstop>
   <tabstop>qqExplicitHandling</tabstop>
   <tabstop>qqSensorTypeCombo</tabstop>
   <tabstop>qqAdjustVolume</tabstop>

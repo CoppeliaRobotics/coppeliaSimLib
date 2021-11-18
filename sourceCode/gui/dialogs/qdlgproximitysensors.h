@@ -22,8 +22,6 @@ public:
     bool inMainRefreshRoutine;
 
 private slots:
-    void on_qqEnableAll_clicked();
-
     void on_qqExplicitHandling_clicked();
 
     void on_qqSensorTypeCombo_currentIndexChanged(int index);
