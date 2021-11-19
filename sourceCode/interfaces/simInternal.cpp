@@ -4286,6 +4286,16 @@ simChar* simGetStringParam_internal(simInt parameter)
             validParam=true;
             retVal=App::folders->getImportExportPath();
         }
+        if (parameter==sim_stringparam_scenedefaultdir)
+        {
+            validParam=true;
+            retVal=App::folders->getScenesDefaultPath();
+        }
+        if (parameter==sim_stringparam_modeldefaultdir)
+        {
+            validParam=true;
+            retVal=App::folders->getModelsDefaultPath();
+        }
         if (parameter==sim_stringparam_scene_path_and_name)
         {
             validParam=true;

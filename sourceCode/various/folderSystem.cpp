@@ -30,6 +30,8 @@ CFolderSystem::CFolderSystem()
     _importExportPath=_resourcesPath+"/"+SIM_IMPORTEXPORT_DIRECTORY_NAME;
     _videosPath=_resourcesPath;
     _otherFilesPath=_resourcesPath;
+    _scenesDefaultPath=_scenesPath;
+    _modelsDefaultPath=_modelsPath;
 
     if (App::userSettings->defaultDirectoryForScenes.length()!=0)
         setScenesPath(App::userSettings->defaultDirectoryForScenes.c_str());
@@ -126,6 +128,16 @@ std::string CFolderSystem::getSystemPath() const
 std::string CFolderSystem::getResourcesPath() const
 {
     return(_resourcesPath);
+}
+
+std::string CFolderSystem::getScenesDefaultPath() const
+{
+    return(_scenesDefaultPath);
+}
+
+std::string CFolderSystem::getModelsDefaultPath() const
+{
+    return(_modelsDefaultPath);
 }
 
 std::string CFolderSystem::getScenesPath() const
