@@ -1097,6 +1097,7 @@ void CShape::scaleObject(float scalingFactor)
 {   
     scaleMesh(scalingFactor,scalingFactor,scalingFactor); // will set the geomObject dynamics full refresh flag!
     CSceneObject::scaleObject(scalingFactor);
+    pushObjectRefreshEvent();
     _dynamicsResetFlag=true;
 }
 
@@ -1105,6 +1106,7 @@ void CShape::scaleObjectNonIsometrically(float x,float y,float z)
     float xp,yp,zp;
     scaleMesh(x,y,z,xp,yp,zp); // will set the geomObject dynamics full refresh flag!
     CSceneObject::scaleObjectNonIsometrically(xp,yp,zp);
+    pushObjectRefreshEvent();
     _dynamicsResetFlag=true;
 }
 
