@@ -143,7 +143,7 @@ void COctree::_readPositionsAndColorsAndSetDimensions()
         clear();
         generateEvent=false;
     }
-    if ( generateEvent&&_isInScene&&App::worldContainer->getEnableEvents() )
+    if ( generateEvent&&_isInScene&&App::worldContainer->getEventsEnabled() )
     {
         if (_voxelPositions_old.size()==_voxelPositions.size())
         {
@@ -179,7 +179,7 @@ void COctree::_readPositionsAndColorsAndSetDimensions()
 
 void COctree::_updateOctreeEvent() const
 {
-    if ( _isInScene&&App::worldContainer->getEnableEvents() )
+    if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
         const char* cmd="voxels";
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);

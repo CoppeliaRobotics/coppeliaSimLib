@@ -44,7 +44,7 @@ public:
     bool isDynCallbackFunctionAvailable();
 
     void callScripts(int callType,CInterfaceStack* inStack);
-    void sceneOrModelAboutToBeSaved(int modelBase);
+    void sceneOrModelAboutToBeSaved_old(int modelBase);
 
     std::vector<CScriptObject*> allScripts;
 

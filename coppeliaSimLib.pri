@@ -370,7 +370,6 @@ HEADERS += $$PWD/sourceCode/sceneObjects/related/sceneObject.h \
     $$PWD/sourceCode/sceneObjects/related/viewableBase.h \
 
 HEADERS += $$PWD/sourceCode/sceneObjects/jointObject.h \
-    $$PWD/sourceCode/shared/sceneObjects/_jointObject_.h \
     $$PWD/sourceCode/sceneObjects/camera.h \
     $$PWD/sourceCode/sceneObjects/dummy.h \
     $$PWD/sourceCode/sceneObjects/octree.h \
@@ -790,7 +789,6 @@ SOURCES += $$PWD/sourceCode/sceneObjects/related/sceneObject.cpp \
     $$PWD/sourceCode/sceneObjects/related/viewableBase.cpp \
 
 SOURCES += $$PWD/sourceCode/sceneObjects/jointObject.cpp \
-    $$PWD/sourceCode/shared/sceneObjects/_jointObject_.cpp \
     $$PWD/sourceCode/sceneObjects/camera.cpp \
     $$PWD/sourceCode/sceneObjects/dummy.cpp \
     $$PWD/sourceCode/sceneObjects/octree.cpp \

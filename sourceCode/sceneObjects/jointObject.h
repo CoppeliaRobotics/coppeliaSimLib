@@ -1,8 +1,116 @@
 #pragma once
 
-#include "_jointObject_.h"
+#include "sceneObject.h"
 
-class CJoint : public _CJoint_
+enum { /* Bullet joint float params */
+    simi_bullet_joint_stoperp=0,
+    simi_bullet_joint_stopcfm,
+    simi_bullet_joint_normalcfm
+};
+
+// enum { /* Bullet joint int params */
+//     /* if you add something here, search for bji11032016 */
+// };
+// enum { /* Bullet joint bit params */
+//     /* if you add something here, search for bjb11032016 */
+// };
+
+enum { /* Ode joint float params */
+    simi_ode_joint_stoperp=0,
+    simi_ode_joint_stopcfm,
+    simi_ode_joint_bounce,
+    simi_ode_joint_fudgefactor,
+    simi_ode_joint_normalcfm
+};
+
+// enum { /* Ode joint int params */
+//     /* if you add something here, search for oji11032016 */
+// };
+// enum { /* Ode joint bit params */
+//     /* if you add something here, search for ojb11032016 */
+// };
+
+enum { /* Vortex joint float params */
+    simi_vortex_joint_lowerlimitdamping=0,
+    simi_vortex_joint_upperlimitdamping,
+    simi_vortex_joint_lowerlimitstiffness,
+    simi_vortex_joint_upperlimitstiffness,
+    simi_vortex_joint_lowerlimitrestitution,
+    simi_vortex_joint_upperlimitrestitution,
+    simi_vortex_joint_lowerlimitmaxforce,
+    simi_vortex_joint_upperlimitmaxforce,
+    simi_vortex_joint_motorconstraintfrictioncoeff,
+    simi_vortex_joint_motorconstraintfrictionmaxforce,
+    simi_vortex_joint_motorconstraintfrictionloss,
+    simi_vortex_joint_p0loss,
+    simi_vortex_joint_p0stiffness,
+    simi_vortex_joint_p0damping,
+    simi_vortex_joint_p0frictioncoeff,
+    simi_vortex_joint_p0frictionmaxforce,
+    simi_vortex_joint_p0frictionloss,
+    simi_vortex_joint_p1loss,
+    simi_vortex_joint_p1stiffness,
+    simi_vortex_joint_p1damping,
+    simi_vortex_joint_p1frictioncoeff,
+    simi_vortex_joint_p1frictionmaxforce,
+    simi_vortex_joint_p1frictionloss,
+    simi_vortex_joint_p2loss,
+    simi_vortex_joint_p2stiffness,
+    simi_vortex_joint_p2damping,
+    simi_vortex_joint_p2frictioncoeff,
+    simi_vortex_joint_p2frictionmaxforce,
+    simi_vortex_joint_p2frictionloss,
+    simi_vortex_joint_a0loss,
+    simi_vortex_joint_a0stiffness,
+    simi_vortex_joint_a0damping,
+    simi_vortex_joint_a0frictioncoeff,
+    simi_vortex_joint_a0frictionmaxforce,
+    simi_vortex_joint_a0frictionloss,
+    simi_vortex_joint_a1loss,
+    simi_vortex_joint_a1stiffness,
+    simi_vortex_joint_a1damping,
+    simi_vortex_joint_a1frictioncoeff,
+    simi_vortex_joint_a1frictionmaxforce,
+    simi_vortex_joint_a1frictionloss,
+    simi_vortex_joint_a2loss,
+    simi_vortex_joint_a2stiffness,
+    simi_vortex_joint_a2damping,
+    simi_vortex_joint_a2frictioncoeff,
+    simi_vortex_joint_a2frictionmaxforce,
+    simi_vortex_joint_a2frictionloss,
+    simi_vortex_joint_dependencyfactor,
+    simi_vortex_joint_dependencyoffset
+};
+
+enum { /* Vortex joint int params */
+    simi_vortex_joint_bitcoded=0,
+    simi_vortex_joint_relaxationenabledbc,
+    simi_vortex_joint_frictionenabledbc,
+    simi_vortex_joint_frictionproportionalbc,
+    simi_vortex_joint_objectid,
+    simi_vortex_joint_dependentobjectid
+};
+
+enum { /* Vortex joint bit params */
+    simi_vortex_joint_motorfrictionenabled=1,
+    simi_vortex_joint_proportionalmotorfriction=2
+};
+
+enum { /* Newton joint float params */
+    simi_newton_joint_dependencyfactor=0,
+    simi_newton_joint_dependencyoffset
+};
+
+enum { /* Newton joint int params */
+    simi_newton_joint_objectid=0,
+    simi_newton_joint_dependentobjectid
+};
+
+// enum { /* Newton joint bit params */
+//     /* if you add something here, search for njb11032016 */
+// };
+
+class CJoint : public CSceneObject
 {
 public:
     CJoint(); // default, use only during serialization!
@@ -38,9 +146,54 @@ public:
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
     bool getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const;
+    C7Vector getFullLocalTransformation() const;
 
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;
+
+    float getLength() const;
+    float getDiameter() const;
+    float getPosition() const;
+    bool getEnableDynamicMotor() const;
+    float getDynamicMotorTargetVelocity() const;
+    bool getDynamicMotorLockModeWhenInVelocityControl() const;
+    float getDynamicMotorUpperLimitVelocity() const;
+    float getDynamicMotorMaximumForce() const;
+    bool getEnableDynamicMotorControlLoop() const;
+    bool getEnableTorqueModulation() const;
+    bool getHybridFunctionality() const;
+    float getEngineFloatParam(int what,bool* ok) const;
+    int getEngineIntParam(int what,bool* ok) const;
+    bool getEngineBoolParam(int what,bool* ok) const;
+    void getBulletFloatParams(std::vector<float>& p) const;
+    void getBulletIntParams(std::vector<int>& p) const;
+    void getOdeFloatParams(std::vector<float>& p) const;
+    void getOdeIntParams(std::vector<int>& p) const;
+    void getVortexFloatParams(std::vector<float>& p) const;
+    void getVortexIntParams(std::vector<int>& p) const;
+    void getNewtonFloatParams(std::vector<float>& p) const;
+    void getNewtonIntParams(std::vector<int>& p) const;
+    int getVortexDependentJointId() const;
+    int getNewtonDependentJointId() const;
+    float getScrewPitch() const;
+    int getJointType() const;
+    C4Vector getSphericalTransformation() const;
+    bool getPositionIsCyclic() const;
+    float getPositionIntervalMin() const;
+    float getPositionIntervalRange() const;
+    float getIKWeight() const;
+    float getMaxStepSize() const;
+    int getJointMode() const;
+    int getDependencyMasterJointHandle() const;
+    float getDependencyJointMult() const;
+    float getDependencyJointOffset() const;
+    void getDynamicMotorPositionControlParameters(float& p_param,float& i_param,float& d_param) const;
+    void getDynamicMotorSpringControlParameters(float& k_param,float& c_param) const;
+    float getDynamicMotorPositionControlTargetPosition() const;
+    CColorObject* getColor(bool part2);
+
+    C7Vector getIntrinsicTransformation(bool includeDynErrorComponent) const;
+
 
     float getMeasuredJointVelocity() const;
     std::string getDependencyJointLoadAlias() const;
@@ -48,34 +201,46 @@ public:
     int getJointCallbackCallOrder_backwardCompatibility() const;
     void setDirectDependentJoints(const std::vector<CJoint*>& joints);
 
-    // Overridden from _CJoint_:
-    bool setPositionIntervalMin(float min);
-    bool setPositionIntervalRange(float range);
-    bool setPositionIsCyclic(bool isCyclic);
-    bool setLength(float l);
-    bool setDiameter(float d);
+    void setPositionIntervalMin(float min);
+    void setPositionIntervalRange(float range);
+    void setPositionIsCyclic(bool isCyclic);
+    void setLength(float l);
+    void setDiameter(float d);
     bool setScrewPitch(float pitch);
-    bool setDependencyMasterJointHandle(int depJointID);
-    bool setDependencyJointMult(float coeff);
-    bool setDependencyJointOffset(float off);
-    bool setIkWeight(float newWeight);
-    bool setMaxStepSize(float stepS);
-    bool setPosition(float pos);
-    bool setSphericalTransformation(const C4Vector& tr);
-    bool setJointMode(int theMode);
-    bool setHybridFunctionality(bool h);
-    bool setDynamicMotorTargetVelocity(float v);
-    bool setDynamicMotorUpperLimitVelocity(float v);
-    bool setDynamicMotorPositionControlTargetPosition(float pos);
-    bool setDynamicMotorPositionControlParameters(float p_param,float i_param,float d_param);
-    bool setDynamicMotorSpringControlParameters(float k_param,float c_param);
-    bool setDynamicMotorMaximumForce(float f);
-    bool setBulletFloatParams(const std::vector<float>& p);
-    bool setOdeFloatParams(const std::vector<float>& p);
-    bool setVortexFloatParams(const std::vector<float>& p);
-    bool setNewtonFloatParams(const std::vector<float>& p);
+    void setDependencyMasterJointHandle(int depJointID);
+    void setDependencyJointMult(float coeff);
+    void setDependencyJointOffset(float off);
+    void setIkWeight(float newWeight);
+    void setMaxStepSize(float stepS);
+    void setPosition(float pos,bool setDirect);
+    void setSphericalTransformation(const C4Vector& tr);
+    void setJointMode(int theMode);
+
+    void setIntrinsicTransformationError(const C7Vector& tr);
+
+    void setHybridFunctionality(bool h);
+    void setDynamicMotorTargetVelocity(float v);
+    void setDynamicMotorUpperLimitVelocity(float v);
+    void setDynamicMotorPositionControlTargetPosition(float pos);
+    void setDynamicMotorPositionControlParameters(float p_param,float i_param,float d_param);
+    void setDynamicMotorSpringControlParameters(float k_param,float c_param);
+    void setDynamicMotorMaximumForce(float f);
+
+    void setBulletFloatParams(const std::vector<float>& p);
+    void setOdeFloatParams(const std::vector<float>& p);
+    void setVortexFloatParams(const std::vector<float>& p);
+    void setNewtonFloatParams(const std::vector<float>& p);
+    void setBulletIntParams(const std::vector<int>& p);
+    void setOdeIntParams(const std::vector<int>& p);
+    void setVortexIntParams(const std::vector<int>& p);
+    void setNewtonIntParams(const std::vector<int>& p);
 
     bool setJointMode_noDynMotorTargetPosCorrection(int theMode);
+
+    void setEnableDynamicMotor(bool e);
+    void setEnableDynamicMotorControlLoop(bool p);
+    void setEnableTorqueModulation(bool p);
+    void setDynamicMotorLockModeWhenInVelocityControl(bool e);
 
 
     void measureJointVelocity(float dt); // should be called just after the main script was called!!!
@@ -119,23 +284,20 @@ public:
 
 protected:
     void _rectifyDependentJoints();
-
-private:
     void _commonInit();
 
-    // Overridden from _CJoint_:
-    void _setPositionIntervalMin_send(float min) const;
-    void _setPositionIntervalRange_send(float range) const;
-    void _setPositionIsCyclic_send(bool isCyclic) const;
-    void _setScrewPitch_send(float pitch) const;
-    void _setDependencyJointHandle_send(int depJointID) const;
-    void _setDependencyJointMult_send(float coeff) const;
-    void _setDependencyJointOffset_send(float off) const;
-    void _setIkWeight_send(float newWeight) const;
-    void _setMaxStepSize_send(float stepS) const;
-    void _setPosition_send(float pos) const;
-    void _setSphericalTransformation_send(const C4Vector& tr) const;
-    void _setJointMode_send(int theMode) const;
+    void _setPositionIntervalMin_sendOldIk(float min) const;
+    void _setPositionIntervalRange_sendOldIk(float range) const;
+    void _setPositionIsCyclic_sendOldIk(bool isCyclic) const;
+    void _setScrewPitch_sendOldIk(float pitch) const;
+    void _setDependencyJointHandle_sendOldIk(int depJointID) const;
+    void _setDependencyJointMult_sendOldIk(float coeff) const;
+    void _setDependencyJointOffset_sendOldIk(float off) const;
+    void _setIkWeight_sendOldIk(float newWeight) const;
+    void _setMaxStepSize_sendOldIk(float stepS) const;
+    void _setPosition_sendOldIk(float pos) const;
+    void _setSphericalTransformation_sendOldIk(const C4Vector& tr) const;
+    void _setJointMode_sendOldIk(int theMode) const;
 
     std::vector<CJoint*> _directDependentJoints;
 
@@ -171,6 +333,54 @@ private:
     float _cumulatedForceOrTorque;
     float _cumulativeForceOrTorqueTmp;
     bool _averageForceOrTorqueValid;
+
+    int _jointType;
+    float _length;
+    float _diameter;
+    C4Vector _sphericalTransformation;
+    bool _positionIsCyclic;
+    float _screwPitch;
+    float _jointMinPosition;
+    float _jointPositionRange;
+    float _jointPosition;
+    float _maxStepSize;
+    float _ikWeight;
+    int _jointMode;
+    int _dependencyMasterJointHandle;
+    float _dependencyJointMult;
+    float _dependencyJointOffset;
+
+    CColorObject _color;
+    CColorObject _color_removeSoon;
+
+    bool _dynamicMotorEnabled;
+    float _dynamicMotorTargetVelocity;
+    bool _dynamicLockModeWhenInVelocityControl;
+    float _dynamicMotorUpperLimitVelocity;
+    float _dynamicMotorMaximumForce;
+    bool _dynamicMotorControlLoopEnabled;
+    bool _dynamicMotorPositionControl_torqueModulation;
+    float _dynamicMotorPositionControl_targetPosition;
+    float _dynamicMotorPositionControl_P;
+    float _dynamicMotorPositionControl_I;
+    float _dynamicMotorPositionControl_D;
+    float _dynamicMotorSpringControl_K;
+    float _dynamicMotorSpringControl_C;
+    bool _jointHasHybridFunctionality;
+
+    std::vector<float> _bulletFloatParams;
+    std::vector<int> _bulletIntParams;
+
+    std::vector<float> _odeFloatParams;
+    std::vector<int> _odeIntParams;
+
+    std::vector<float> _vortexFloatParams;
+    std::vector<int> _vortexIntParams;
+
+    std::vector<float> _newtonFloatParams;
+    std::vector<int> _newtonIntParams;
+
+    C7Vector _intrinsicTransformationError; // from physics engine
 
     // Following is the force/torque acquired during a single dyn. calculation step:
     float _lastForceOrTorque_dynStep;

@@ -1879,7 +1879,7 @@ simInt simSetJointPosition_internal(simInt objectHandle,simFloat position)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
-        it->setPosition(position);
+        it->setPosition(position,false);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -2128,7 +2128,7 @@ simInt simSetJointInterval_internal(simInt objectHandle,simBool cyclic,const sim
             it->setPositionIsCyclic(cyclic!=0);
             it->setPositionIntervalMin(interval[0]);
             it->setPositionIntervalRange(interval[1]);
-            it->setPosition(previousPos);
+            it->setPosition(previousPos,false);
             return(1);
         }
 //        return(-1);
@@ -4450,7 +4450,7 @@ simInt simLoadScene_internal(const simChar* filename)
         if (keepCurrent)
             CFileOperations::createNewScene(outputSceneOrModelLoadMessagesWithApiCall,true);
 
-        if (!CFileOperations::loadScene(nm.c_str(),outputSceneOrModelLoadMessagesWithApiCall,outputSceneOrModelLoadMessagesWithApiCall,false))
+        if (!CFileOperations::loadScene(nm.c_str(),outputSceneOrModelLoadMessagesWithApiCall,false))
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_COULD_NOT_BE_READ);
             return(-1);
@@ -4476,7 +4476,7 @@ simInt simCloseScene_internal()
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
             return(-1);
         }
-        CFileOperations::closeScene(false,false);
+        CFileOperations::closeScene(false);
         return(App::worldContainer->getCurrentWorldIndex());
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -4493,7 +4493,7 @@ simInt simLoadModel_internal(const simChar* filename)
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         std::string nm(filename);
-        size_t atCopyPos=nm.find("@copy");
+        size_t atCopyPos=nm.find("@copy"); // deprecated option
         bool forceAsCopy=(atCopyPos!=std::string::npos);
         if (forceAsCopy)
             nm.erase(nm.begin()+atCopyPos,nm.end());
@@ -4503,7 +4503,7 @@ simInt simLoadModel_internal(const simChar* filename)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_FILE_NOT_FOUND);
             return(-1);
         }
-        if (!CFileOperations::loadModel(nm.c_str(),outputSceneOrModelLoadMessagesWithApiCall,outputSceneOrModelLoadMessagesWithApiCall,false,true,nullptr,false,forceAsCopy))
+        if (!CFileOperations::loadModel(nm.c_str(),outputSceneOrModelLoadMessagesWithApiCall,false,true,nullptr,false,forceAsCopy))
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_MODEL_COULD_NOT_BE_READ);
             return(-1);
@@ -4542,7 +4542,7 @@ simInt simSaveScene_internal(const simChar* filename)
         if (App::currentWorld->environment->getRequestFinalSave())
             App::currentWorld->environment->setSceneLocked(); // silent locking!
 
-        if (!CFileOperations::saveScene(filename,false,false,false,false))
+        if (!CFileOperations::saveScene(filename,false,false,false))
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_COULD_NOT_BE_SAVED);
             return(-1);
@@ -4577,7 +4577,7 @@ simInt simSaveModel_internal(int baseOfModelHandle,const simChar* filename)
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         const std::vector<int>* initSelection=App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
-        if (!CFileOperations::saveModel(baseOfModelHandle,filename,false,false,false))
+        if (!CFileOperations::saveModel(baseOfModelHandle,filename,false,false))
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_MODEL_COULD_NOT_BE_SAVED);
             return(-1);
@@ -10262,8 +10262,8 @@ simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
             }
             if (parameterID==sim_jointfloatparam_step_size)
             {
-                if (joint->setMaxStepSize(parameter))
-                    retVal=1;
+                joint->setMaxStepSize(parameter);
+                retVal=1;
             }
         }
         if (shape!=nullptr)
@@ -16668,7 +16668,7 @@ simVoid _simDisableDynamicTreeForManipulation_internal(const simVoid* object,sim
 simVoid _simSetJointPosition_internal(const simVoid* joint,simFloat pos)
 {
     TRACE_C_API;
-    ((CJoint*)joint)->setPosition(pos);
+    ((CJoint*)joint)->setPosition(pos,false);
 }
 
 simFloat _simGetJointPosition_internal(const simVoid* joint)
@@ -19314,7 +19314,7 @@ simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const 
             for (size_t i=0;i<sceneJoints.size();i++)
             {
                 if (sceneJoints[i]->getPosition()!=initSceneJointValues[i])
-                    sceneJoints[i]->setPosition(initSceneJointValues[i]);
+                    sceneJoints[i]->setPosition(initSceneJointValues[i],false);
                 if (sceneJoints[i]->getJointMode()!=initSceneJointModes[i])
                     sceneJoints[i]->setJointMode_noDynMotorTargetPosCorrection(initSceneJointModes[i]);
             }

@@ -1929,8 +1929,8 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                         // reserved doTheConvectivityTest=!SIM_IS_BIT_SET(nothing,5); // since version 3.0.2 (version 3.0.1 was buggy)
                         _displayInverted_DEPRECATED=SIM_IS_BIT_SET(nothing,6);
                         _hideEdgeBorders_OLD=SIM_IS_BIT_SET(nothing,7);
-                        if (CSimFlavor::getBoolVal(18))
-                            _visibleEdges=false;
+                        // if (CSimFlavor::getBoolVal(18))
+                        //    _visibleEdges=false;
                     }
                     if (theName.compare("Toj")==0)
                     {

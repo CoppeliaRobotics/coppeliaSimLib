@@ -21,6 +21,7 @@
 
 int CScriptObject::_scriptUniqueCounter=-1;
 int CScriptObject::_nextIdForExternalScriptEditor=-1;
+int CScriptObject::_totalEventCallbackFunctions=0;
 
 CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
 {
@@ -474,6 +475,11 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
     // ------------------------------
 
     return("");
+}
+
+int CScriptObject::getTotalEventCallbackFunctions()
+{
+    return(_totalEventCallbackFunctions);
 }
 
 void CScriptObject::getMatchingFunctions(const char* txt,std::vector<std::string>& v)
@@ -1609,6 +1615,8 @@ bool CScriptObject::_loadCode()
                         _containsTriggerCallbackFunction=functionsPresent[4];
                         _containsUserConfigCallbackFunction=functionsPresent[5];
                         _containsEventCallbackFunction=functionsPresent[6];
+                        if (_containsEventCallbackFunction)
+                            _totalEventCallbackFunctions++;
                     }
                 }
                 _numberOfPasses++;
@@ -2104,6 +2112,8 @@ bool CScriptObject::_killInterpreterState()
     _scriptState|=scriptState_ended; // set the ended state
     _scriptTextExec.clear();
     _executionDepth=0;
+    if (_containsEventCallbackFunction)
+        _totalEventCallbackFunctions--;
     _containsJointCallbackFunction=false;
     _containsContactCallbackFunction=false;
     _containsDynCallbackFunction=false;

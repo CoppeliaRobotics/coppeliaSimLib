@@ -159,6 +159,7 @@ void CShape::setNewMesh(CMeshWrapper* newGeomInfo)
     _meshDynamicsFullRefreshFlag=true;
     _meshModificationCounter++;
     _computeMeshBoundingBox();
+    computeBoundingBox();
     actualizeContainsTransparentComponent();
     incrementMemorizedConfigurationValidCounter(); // so if we are running in a simulation, the shape doesn't get reset at its initial config
 }
@@ -704,6 +705,7 @@ void CShape::scaleMesh(float x,float y,float z,float& xp,float& yp,float& zp)
 
     // recompute the bounding box:
     _computeMeshBoundingBox();
+    computeBoundingBox();
 
     xp=x;
     yp=y;
@@ -1808,7 +1810,7 @@ void CShape::setCulling(bool culState)
         {
             m->setCulling(culState);
 
-            if (App::worldContainer->getEnableEvents())
+            if (App::worldContainer->getEventsEnabled())
             {
                 const char* cmd="color";
                 auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
@@ -1838,7 +1840,7 @@ void CShape::setVisibleEdges(bool v)
         {
             m->setVisibleEdges(v);
 
-            if (App::worldContainer->getEnableEvents())
+            if (App::worldContainer->getEventsEnabled())
             {
                 const char* cmd="color";
                 auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,false);

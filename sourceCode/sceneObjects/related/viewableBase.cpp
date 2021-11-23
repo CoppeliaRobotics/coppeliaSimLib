@@ -141,7 +141,7 @@ void CViewableBase::setNearClippingPlane(float nearPlane)
     {
         _nearClippingPlane=nearPlane;
         computeVolumeVectors();
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="nearClippingPlane";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
@@ -164,7 +164,7 @@ void CViewableBase::setFarClippingPlane(float farPlane)
     {
         _farClippingPlane=farPlane;
         computeVolumeVectors();
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="farClippingPlane";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
@@ -187,7 +187,7 @@ void CViewableBase::setViewAngle(float angle)
     {
         _viewAngle=angle;
         computeVolumeVectors();
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="viewAngle";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
@@ -210,7 +210,7 @@ void CViewableBase::setOrthoViewSize(float theSize)
     {
         _orthoViewSize=theSize;
         computeVolumeVectors();
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="orthoSize";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
@@ -477,7 +477,7 @@ void CViewableBase::setPerspective(bool p)
     {
         _perspective=p;
         computeVolumeVectors();
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="perspectiveMode";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
@@ -552,7 +552,7 @@ void CViewableBase::computeVolumeVectors()
     {
         _volumeVectorNear=nearV;
         _volumeVectorFar=farV;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="frustumVectors";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
@@ -571,7 +571,7 @@ void CViewableBase::setShowVolume(bool s)
     if (diff)
     {
         _showVolume=s;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="showFrustum";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);

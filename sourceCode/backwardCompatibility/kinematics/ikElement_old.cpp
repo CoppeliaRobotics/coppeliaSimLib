@@ -341,7 +341,7 @@ void CIkElement_old::setAllInvolvedJointsToIkPluginPositions() const
                         if (joint->getJointType()==sim_joint_spherical_subtype)
                             joint->setSphericalTransformation(CPluginContainer::ikPlugin_getSphericalJointQuaternion(h));
                         else
-                            joint->setPosition(CPluginContainer::ikPlugin_getJointPosition(h));
+                            joint->setPosition(CPluginContainer::ikPlugin_getJointPosition(h),false);
                     }
                 }
             }

@@ -391,7 +391,7 @@ void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack
     handleCascadedScriptExecution(sim_scripttype_customizationscript,callType,inStack,nullptr,nullptr);
 }
 
-void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
+void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved_old(int modelBase)
 {
     CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(modelBase);
     if (obj!=nullptr)

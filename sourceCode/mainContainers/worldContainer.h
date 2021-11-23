@@ -90,8 +90,7 @@ public:
     bool getCborEvents() const;
     void setCborEvents(bool b);
     void setMergeEvents(bool b);
-    bool getEnableEvents() const;
-    void setEnableEvents(bool b);
+    bool getEventsEnabled() const;
     void pushAllInitialEvents();
     void getAllInitialEvents(CInterfaceStack* stack);
     SBufferedEvents* swapBufferedEvents(SBufferedEvents* newBuffer);
@@ -135,7 +134,6 @@ private:
     VMutex _eventMutex;
     bool _cborEvents;
     bool _mergeTheEvents;
-    bool _enableEvents;
 
     std::vector<int> _uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled;
     int _modificationFlags;

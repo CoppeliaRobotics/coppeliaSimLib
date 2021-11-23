@@ -136,7 +136,7 @@ void CPtCloud_old::draw(int displayAttrib)
 
 void CPtCloud_old::pushAddEvent()
 {
-    if (App::worldContainer->getEnableEvents())
+    if (App::worldContainer->getEventsEnabled())
     {
         auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTADDED,_uniqueId,nullptr,false);
 

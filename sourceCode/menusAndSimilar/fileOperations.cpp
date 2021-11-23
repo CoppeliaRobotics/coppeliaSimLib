@@ -58,9 +58,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         if (App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
             if (!VThread::isCurrentThreadTheUiThread())
-            { // we are NOT in the UI thread. We execute the command now:
-                closeScene(true,true);
-            }
+                closeScene(true);
             else
                 App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
@@ -88,7 +86,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     App::setDefaultMouseMode();
                     App::worldContainer->createNewWorld();
                     createNewScene(true,false);
-                    if (loadScene(filenameAndPath.c_str(),true,true,true))
+                    if (loadScene(filenameAndPath.c_str(),true,true))
                         addToRecentlyOpenedScenes(filenameAndPath);
                     else
                         _removeFromRecentlyOpenedScenes(filenameAndPath);
@@ -139,7 +137,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     App::worldContainer->createNewWorld();
                     CFileOperations::createNewScene(true,false);
 
-                    if (loadScene(filenameAndPath.c_str(),true,true,true))
+                    if (loadScene(filenameAndPath.c_str(),true,true))
                         addToRecentlyOpenedScenes(filenameAndPath);
                     else
                         _removeFromRecentlyOpenedScenes(filenameAndPath);
@@ -169,7 +167,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,IDSN_LOADING_MODEL,App::folders->getModelsPath().c_str(),"",false,"Models",ext[0].c_str(),ext[1].c_str(),ext[2].c_str(),ext[3].c_str());
 
             if (filenameAndPath.length()!=0)
-                loadModel(filenameAndPath.c_str(),true,true,true,true,nullptr,false,false); // Undo things is in here.
+                loadModel(filenameAndPath.c_str(),true,true,true,nullptr,false,false); // Undo things is in here.
             else
                 App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
         }
@@ -341,7 +339,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                 }
                                 if (!abort)
                                 {
-                                    saveModel(modelBase,filenameAndPath.c_str(),true,true,true);
+                                    saveModel(modelBase,filenameAndPath.c_str(),true,true);
                                     App::currentWorld->sceneObjects->deselectObjects();
                                 }
                                 else
@@ -693,7 +691,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,cmd.boolParams[0],false,cmd.boolParams[1],nullptr,false,false);
+            loadModel(cmd.stringParams[0].c_str(),true,false,cmd.boolParams[1],nullptr,false,false);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread:
@@ -719,7 +717,7 @@ void CFileOperations::createNewScene(bool displayMessages,bool forceForNewInstan
     App::currentWorld->clearScene(true);
     std::string fullPathAndFilename=App::folders->getSystemPath()+"/";
     fullPathAndFilename+=CSimFlavor::getStringVal(16);
-    loadScene(fullPathAndFilename.c_str(),false,false,false);
+    loadScene(fullPathAndFilename.c_str(),false,false);
     App::currentWorld->mainSettings->setScenePathAndName("");//savedLoc;
     App::currentWorld->environment->generateNewUniquePersistentIdString();
     if (displayMessages)
@@ -728,7 +726,7 @@ void CFileOperations::createNewScene(bool displayMessages,bool forceForNewInstan
     App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
 }
 
-void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
+void CFileOperations::closeScene(bool displayMessages)
 {
     TRACE_INTERNAL;
     unsigned short action=VMESSAGEBOX_REPLY_NO;
@@ -737,7 +735,7 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
     {
         if (CSimFlavor::getBoolVal(16)&&(!App::currentWorld->environment->getSceneLocked()))
         {
-            if (displayDialogs&&App::currentWorld->undoBufferContainer->isSceneSaveMaybeNeededFlagSet())
+            if (displayMessages&&App::currentWorld->undoBufferContainer->isSceneSaveMaybeNeededFlagSet())
             {
                 action=App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_WANNA_SAVE_THE_SCENE_WARNING,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_NO);
                 if (action==VMESSAGEBOX_REPLY_YES)
@@ -757,22 +755,16 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
         if (App::mainWindow!=nullptr)
             App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr);
 #endif
-        if (displayDialogs)
-            App::uiThread->showOrHideProgressBar(true,-1,"Closing scene...");
         App::currentWorld->clearScene(true);
-        if (displayDialogs)
-            App::uiThread->showOrHideProgressBar(false);
         if (App::worldContainer->getWorldCount()>1)
-        { // remove this instance:
             App::worldContainer->destroyCurrentWorld();
-        }
         else
         { // simply set-up an empty (default) scene
             std::string savedLoc=App::currentWorld->mainSettings->getScenePathAndName();
             std::string fullPathAndFilename=App::folders->getSystemPath()+"/";
             fullPathAndFilename+="dfltscn.";
             fullPathAndFilename+=SIM_SCENE_EXTENSION;
-            loadScene(fullPathAndFilename.c_str(),false,false,false);
+            loadScene(fullPathAndFilename.c_str(),false,false);
             App::currentWorld->mainSettings->setScenePathAndName(""); //savedLoc.c_str());
             App::currentWorld->environment->generateNewUniquePersistentIdString();
             App::logMsg(sim_verbosity_msgs,IDSNS_DEFAULT_SCENE_WAS_SET_UP);
@@ -783,13 +775,11 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
     App::setRebuildHierarchyFlag();
 }
 
-bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir)
+bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,std::vector<char>* loadBuffer/*=nullptr*/)
 {
     TRACE_INTERNAL;
-    if (App::isFullScreen()||App::userSettings->doNotShowAcknowledgmentMessages||(App::getDlgVerbosity()<sim_verbosity_infos))
-        displayDialogs=false;
 
-    if (strlen(pathAndFilename)==0)
+    if ( (pathAndFilename!=nullptr)&&(strlen(pathAndFilename)==0) )
     {
         createNewScene(displayMessages,true);
         return(true);
@@ -801,127 +791,103 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
     CSimFlavor::run(2);
     App::currentWorld->sceneObjects->deselectObjects();
     App::currentWorld->simulation->stopSimulation(); // should be anyway stopped!
-    if (VFile::doesFileExist(pathAndFilename))
+    if ( (pathAndFilename==nullptr)||VFile::doesFileExist(pathAndFilename) )
     {
         App::currentWorld->clearScene(true);
 
-        App::currentWorld->mainSettings->setScenePathAndName(pathAndFilename);
+        if (pathAndFilename!=nullptr)
+            App::currentWorld->mainSettings->setScenePathAndName(pathAndFilename);
         if (setCurrentDir)
             App::folders->setScenesPath(App::currentWorld->mainSettings->getScenePath().c_str());
         if (CSimFlavor::getBoolVal_str(1,App::currentWorld->mainSettings->getScenePathAndName().c_str()))
             App::currentWorld->mainSettings->setScenePathAndName("");
 
-        if (displayDialogs)
-            App::uiThread->showOrHideProgressBar(true,-1,"Opening scene...");
+        if (pathAndFilename!=nullptr)
+        { // loading from file...
+            CSer* serObj;
+            int serializationVersion;
+            unsigned short csimVersionThatWroteThis;
+            int licenseTypeThatWroteThis;
+            char revisionNumber;
+            if ( (CSer::getFileTypeFromName(pathAndFilename)==CSer::filetype_csim_xml_simplescene_file) )
+            {
+                serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
+                result=serObj->readOpenXml(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+                if (serObj->getFileType()==CSer::filetype_csim_xml_simplescene_file) // final file type is set in readOpenXml (whether exhaustive or simple scene)
+                    App::currentWorld->mainSettings->setScenePathAndName(""); // since lossy format
+            }
+            else
+            {
+                serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
+                result=serObj->readOpenBinary(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+            }
 
-        CSer* serObj;
-        int serializationVersion;
-        unsigned short csimVersionThatWroteThis;
-        int licenseTypeThatWroteThis;
-        char revisionNumber;
-        if ( (CSer::getFileTypeFromName(pathAndFilename)==CSer::filetype_csim_xml_simplescene_file) )
-        {
-            serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
-            result=serObj->readOpenXml(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
-            if (serObj->getFileType()==CSer::filetype_csim_xml_simplescene_file) // final file type is set in readOpenXml (whether exhaustive or simple scene)
-                App::currentWorld->mainSettings->setScenePathAndName(""); // since lossy format
-        }
-        else
-        {
-            serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
-            result=serObj->readOpenBinary(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
-        }
-
-        std::string infoPrintOut(tt::decorateString("",IDSNS_LOADING_SCENE," ("));
-        infoPrintOut+=std::string(pathAndFilename)+"). ";
-#ifdef SIM_WITH_GUI
-        if ((result==-3)&&(App::mainWindow!=nullptr))
-        {
-            if (displayMessages)
+            std::string infoPrintOut(tt::decorateString("",IDSNS_LOADING_SCENE," ("));
+            infoPrintOut+=std::string(pathAndFilename)+"). ";
+    #ifdef SIM_WITH_GUI
+            if ((result==-3)&&displayMessages)
                 App::logMsg(sim_verbosity_errors,"The file does not seem to be a valid scene file.");
-            if (displayDialogs)
+            if ((result!=-3)&&displayMessages)
             {
-                App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,"The file does not seem to be a valid scene file.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                App::uiThread->showOrHideProgressBar(true);
-            }
-        }
-        if ((result!=-3)&&displayMessages&&(App::mainWindow!=nullptr))
-        {
-            infoPrintOut+=" ";
-            infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
-            infoPrintOut+=" ";
-            infoPrintOut+=boost::lexical_cast<std::string>(serializationVersion)+".";
-            App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
-            infoPrintOut=_getStringOfVersionAndLicenseThatTheFileWasWrittenWith(csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber);
-            if (infoPrintOut!="")
+                infoPrintOut+=" ";
+                infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
+                infoPrintOut+=" ";
+                infoPrintOut+=boost::lexical_cast<std::string>(serializationVersion)+".";
                 App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
-        }
-        if ((result==-2)&&(App::mainWindow!=nullptr))
-        {
-            if (displayMessages)
+                infoPrintOut=_getStringOfVersionAndLicenseThatTheFileWasWrittenWith(csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber);
+                if (infoPrintOut!="")
+                    App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
+            }
+            if ((result==-2)&&displayMessages)
                 App::logMsg(sim_verbosity_errors,IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE);
-            if (displayDialogs)
-            {
-                App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                App::uiThread->showOrHideProgressBar(true);
-            }
-        }
-        if ((result==-1)&&(App::mainWindow!=nullptr))
-        {
-            if (displayMessages)
+            if ((result==-1)&&displayMessages)
                 App::logMsg(sim_verbosity_errors,IDS_SERIALIZATION_VERSION_TOO_RECENT);
-            if (displayDialogs)
-            {
-                App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_TOO_RECENT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                App::uiThread->showOrHideProgressBar(true);
-            }
-        }
-        if ((result==0)&&(App::mainWindow!=nullptr))
-        {
-            if (displayMessages)
+            if ((result==0)&&displayMessages)
                 App::logMsg(sim_verbosity_errors,IDS_COMPRESSION_SCHEME_NOT_SUPPORTED);
-            if (displayDialogs)
+    #endif
+            if (result==1)
             {
-                App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_COMPRESSION_SCHEME_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                App::uiThread->showOrHideProgressBar(true);
-            }
-        }
-#endif
-        if (result==1)
-        {
-            App::currentWorld->loadScene(serObj[0],false);
-            serObj->readClose();
-#ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
-            if (displayMessages)
-                App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_OPENED);
-            if ((csimVersionThatWroteThis>SIM_PROGRAM_VERSION_NB)&&displayDialogs&&(App::mainWindow!=nullptr))
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SAVED_WITH_MORE_RECENT_VERSION_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-            if (displayMessages)
-            {
-                std::string acknowledgement(App::currentWorld->environment->getAcknowledgement());
-                tt::removeSpacesAtBeginningAndEnd(acknowledgement);
-                if (acknowledgement.length()!=0)
+                App::currentWorld->loadScene(serObj[0],false);
+                serObj->readClose();
+    #ifdef SIM_WITH_GUI
+                if (App::mainWindow!=nullptr)
+                    App::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
+                if (displayMessages)
                 {
-                    acknowledgement="Scene infos:\n"+acknowledgement;
-                    App::logMsg(sim_verbosity_scriptinfos,acknowledgement.c_str());
+                    App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_OPENED);
+                    std::string acknowledgement(App::currentWorld->environment->getAcknowledgement());
+                    tt::removeSpacesAtBeginningAndEnd(acknowledgement);
+                    if (acknowledgement.length()!=0)
+                    {
+                        acknowledgement="Scene infos:\n"+acknowledgement;
+                        App::logMsg(sim_verbosity_scriptinfos,acknowledgement.c_str());
+                    }
                 }
+    #endif
             }
-#endif
+            else
+            {
+                if (displayMessages)
+                    App::logMsg(sim_verbosity_errors,IDSNS_SCENE_COULD_NOT_BE_OPENED);
+            }
+            delete serObj;
         }
         else
-        {
-            if (displayMessages)
-                App::logMsg(sim_verbosity_errors,IDSNS_SCENE_COULD_NOT_BE_OPENED);
+        { // loading from buffer
+            CSer serObj(loadBuffer[0],CSer::filetype_csim_bin_scene_buff);
+            int serializationVersion;
+            unsigned short csimVersionThatWroteThis;
+            int licenseTypeThatWroteThis;
+            char revisionNumber;
+            result=serObj.readOpenBinary(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+            if (result==1)
+            {
+                App::currentWorld->loadScene(serObj,false);
+                serObj.readClose();
+                if (App::mainWindow!=nullptr)
+                    App::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
+            }
         }
-        delete serObj;
-        if (displayDialogs)
-            App::uiThread->showOrHideProgressBar(false);
         App::currentWorld->undoBufferContainer->memorizeState(); // so that we can come back to the initial state!
     }
     else
@@ -933,11 +899,9 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
     return(result==1);
 }
 
-bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy)
+bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy)
 {
     TRACE_INTERNAL;
-    if (App::isFullScreen()||App::userSettings->doNotShowAcknowledgmentMessages||(App::getDlgVerbosity()<sim_verbosity_infos))
-        displayDialogs=false;
     int result=-3;
     CSimFlavor::run(2);
     if ((pathAndFilename==nullptr)||VFile::doesFileExist(pathAndFilename))
@@ -946,9 +910,6 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
 
         if (setCurrentDir&&(pathAndFilename!=nullptr))
             App::folders->setModelsPath(App::folders->getPathFromFull(pathAndFilename).c_str());
-
-        if (displayDialogs)
-            App::uiThread->showOrHideProgressBar(true,-1,"Loading model...");
 
         if (pathAndFilename!=nullptr)
         { // loading from file...
@@ -972,18 +933,9 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
             std::string infoPrintOut(tt::decorateString("",IDSNS_LOADING_MODEL," ("));
             infoPrintOut+=std::string(pathAndFilename)+"). ";
     #ifdef SIM_WITH_GUI
-            if ((result==-3)&&(App::mainWindow!=nullptr))
-            {
-                if (displayMessages)
-                    App::logMsg(sim_verbosity_errors,"The file does not seem to be a valid model file.");
-                if (displayDialogs)
-                {
-                    App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,"The file does not seem to be a valid model file.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                    App::uiThread->showOrHideProgressBar(true);
-                }
-            }
-            if (((result!=-3)&&displayMessages)&&(App::mainWindow!=nullptr))
+            if ( (result==-3)&&displayMessages )
+                App::logMsg(sim_verbosity_errors,"The file does not seem to be a valid model file.");
+            if ( (result!=-3)&&displayMessages )
             {
                 infoPrintOut+=" ";
                 infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
@@ -994,39 +946,12 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if (infoPrintOut!="")
                     App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
             }
-            if ((result==-2)&&(App::mainWindow!=nullptr))
-            {
-                if (displayMessages)
-                    App::logMsg(sim_verbosity_errors,IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE);
-                if (displayDialogs)
-                {
-                    App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                    App::uiThread->showOrHideProgressBar(true);
-                }
-            }
-            if ((result==-1)&&(App::mainWindow!=nullptr))
-            {
-                if (displayMessages)
-                    App::logMsg(sim_verbosity_errors,IDS_SERIALIZATION_VERSION_TOO_RECENT);
-                if (displayDialogs)
-                {
-                    App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_SERIALIZATION_VERSION_TOO_RECENT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                    App::uiThread->showOrHideProgressBar(true);
-                }
-            }
-            if ((result==0)&&(App::mainWindow!=nullptr))
-            {
-                if (displayMessages)
-                    App::logMsg(sim_verbosity_errors,IDS_COMPRESSION_SCHEME_NOT_SUPPORTED);
-                if (displayDialogs)
-                {
-                    App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,IDS_COMPRESSION_SCHEME_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                    App::uiThread->showOrHideProgressBar(true);
-                }
-            }
+            if ( (result==-2)&&displayMessages )
+                App::logMsg(sim_verbosity_errors,IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE);
+            if ( (result==-1)&&displayMessages )
+                App::logMsg(sim_verbosity_errors,IDS_SERIALIZATION_VERSION_TOO_RECENT);
+            if ( (result==0)&&displayMessages )
+                App::logMsg(sim_verbosity_errors,IDS_COMPRESSION_SCHEME_NOT_SUPPORTED);
     #endif
             if (result==1)
             {
@@ -1034,14 +959,6 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 serObj->readClose();
                 if (displayMessages&&(!onlyThumbnail))
                     App::logMsg(sim_verbosity_msgs,IDSNS_MODEL_LOADED);
-    #ifdef SIM_WITH_GUI
-                if ((csimVersionThatWroteThis>SIM_PROGRAM_VERSION_NB)&&displayDialogs&&(App::mainWindow!=nullptr)&&(!onlyThumbnail))
-                {
-                    App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_warning(App::mainWindow,IDSN_MODEL,IDS_MODEL_SAVED_WITH_MORE_RECENT_VERSION_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                    App::uiThread->showOrHideProgressBar(true);
-                }
-    #endif
                 if (!onlyThumbnail)
                 {
                     std::string acknowledgement;
@@ -1086,15 +1003,10 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
             }
         }
 
-        if (displayDialogs)
-            App::uiThread->showOrHideProgressBar(false);
-
         App::currentWorld->sceneObjects->removeFromSelectionAllExceptModelBase(false);
         App::setRebuildHierarchyFlag();
         if (doUndoThingInHere)
-        {
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-        }
     }
     else
     {
@@ -1104,14 +1016,11 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
     return(result==1);
 }
 
-bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,bool changeSceneUniqueId)
-{ // There is a similar routine in CUndoBuffer!!
+bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,bool changeSceneUniqueId,std::vector<char>* saveBuffer/*=nullptr*/)
+{
     bool retVal=false;
-    if (CSimFlavor::getBoolVal(16))
+    if (CSimFlavor::getBoolVal(16)) // saving a scene to buffer not for player version
     {
-        if (App::isFullScreen())
-            displayDialogs=false;
-
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
             App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
@@ -1120,85 +1029,82 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
         void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scenesave,nullptr,nullptr,nullptr);
         delete[] (char*)returnVal;
 
-        std::string _pathAndFilename(pathAndFilename);
-        size_t simpleXmlPos=_pathAndFilename.find("@simpleXml");
-        bool simpleXml=(simpleXmlPos!=std::string::npos);
-        if (simpleXml)
-            _pathAndFilename.erase(_pathAndFilename.begin()+simpleXmlPos,_pathAndFilename.end());
-        CSer* serObj;
-        if ( (CSer::getFileTypeFromName(_pathAndFilename.c_str())==CSer::filetype_csim_xml_simplescene_file) )
-        {
-            VFile::eraseFilesWithPrefix(VVarious::splitPath_path(_pathAndFilename.c_str()).c_str(),(VVarious::splitPath_fileBase(_pathAndFilename.c_str())+"_").c_str());
-            if (!simpleXml)
-                serObj=new CSer(_pathAndFilename.c_str(),CSer::filetype_csim_xml_xscene_file);
+        if (pathAndFilename!=nullptr)
+        { // saving to file...
+            std::string _pathAndFilename(pathAndFilename);
+            size_t simpleXmlPos=_pathAndFilename.find("@simpleXml");
+            bool simpleXml=(simpleXmlPos!=std::string::npos);
+            if (simpleXml)
+                _pathAndFilename.erase(_pathAndFilename.begin()+simpleXmlPos,_pathAndFilename.end());
+            CSer* serObj;
+            if ( (CSer::getFileTypeFromName(_pathAndFilename.c_str())==CSer::filetype_csim_xml_simplescene_file) )
+            {
+                VFile::eraseFilesWithPrefix(VVarious::splitPath_path(_pathAndFilename.c_str()).c_str(),(VVarious::splitPath_fileBase(_pathAndFilename.c_str())+"_").c_str());
+                if (!simpleXml)
+                    serObj=new CSer(_pathAndFilename.c_str(),CSer::filetype_csim_xml_xscene_file);
+                else
+                    serObj=new CSer(_pathAndFilename.c_str(),CSer::filetype_csim_xml_simplescene_file);
+                retVal=serObj->writeOpenXml(App::userSettings->xmlExportSplitSize,App::userSettings->xmlExportKnownFormats);
+            }
             else
-                serObj=new CSer(_pathAndFilename.c_str(),CSer::filetype_csim_xml_simplescene_file);
-            retVal=serObj->writeOpenXml(App::userSettings->xmlExportSplitSize,App::userSettings->xmlExportKnownFormats);
+            {
+                serObj=new CSer(_pathAndFilename.c_str(),CSer::getFileTypeFromName(_pathAndFilename.c_str()));
+                retVal=serObj->writeOpenBinary(App::userSettings->compressFiles);
+            }
+
+            if (retVal)
+            {
+                if (!simpleXml) // because lossy
+                    App::currentWorld->mainSettings->setScenePathAndName(_pathAndFilename.c_str());
+
+                App::currentWorld->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(-1);
+
+                if (changeSceneUniqueId)
+                    App::currentWorld->environment->generateNewUniquePersistentIdString();
+
+                if (setCurrentDir)
+                    App::folders->setScenesPath(App::currentWorld->mainSettings->getScenePath().c_str());
+
+                std::string infoPrintOut(IDSN_SAVING_SCENE);
+                infoPrintOut+=" (";
+                infoPrintOut+=std::string(_pathAndFilename.c_str())+"). ";
+                infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
+                infoPrintOut+=" ";
+                if ( (serObj->getFileType()==CSer::filetype_csim_xml_xscene_file)||(serObj->getFileType()==CSer::filetype_csim_xml_simplescene_file) )
+                    infoPrintOut+=boost::lexical_cast<std::string>(CSer::XML_XSERIALIZATION_VERSION)+".";
+                else
+                    infoPrintOut+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
+                if (displayMessages)
+                    App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
+
+                App::currentWorld->saveScene(serObj[0]);
+                serObj->writeClose();
+
+                if (displayMessages)
+                    App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_WAS_SAVED);
+
+                App::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
+            }
+            delete serObj;
         }
         else
-        {
-            serObj=new CSer(_pathAndFilename.c_str(),CSer::getFileTypeFromName(_pathAndFilename.c_str()));
-            retVal=serObj->writeOpenBinary(App::userSettings->compressFiles);
+        { // saving to buffer...
+            CSer serObj(saveBuffer[0],CSer::filetype_csim_bin_scene_buff);
+
+            retVal=serObj.writeOpenBinary(App::userSettings->compressFiles);
+            App::currentWorld->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(-1);
+            App::currentWorld->saveScene(serObj);
+            serObj.writeClose();
         }
-
-        if (retVal)
-        {
-            if (displayDialogs)
-                App::uiThread->showOrHideProgressBar(true,-1,"Saving scene...");
-            if (!simpleXml) // because lossy
-                App::currentWorld->mainSettings->setScenePathAndName(_pathAndFilename.c_str());
-
-            App::currentWorld->embeddedScriptContainer->sceneOrModelAboutToBeSaved(-1);
-
-            if (changeSceneUniqueId)
-                App::currentWorld->environment->generateNewUniquePersistentIdString();
-
-            if (setCurrentDir)
-                App::folders->setScenesPath(App::currentWorld->mainSettings->getScenePath().c_str());
-
-            std::string infoPrintOut(IDSN_SAVING_SCENE);
-            infoPrintOut+=" (";
-            infoPrintOut+=std::string(_pathAndFilename.c_str())+"). ";
-            infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
-            infoPrintOut+=" ";
-            if ( (serObj->getFileType()==CSer::filetype_csim_xml_xscene_file)||(serObj->getFileType()==CSer::filetype_csim_xml_simplescene_file) )
-                infoPrintOut+=boost::lexical_cast<std::string>(CSer::XML_XSERIALIZATION_VERSION)+".";
-            else
-                infoPrintOut+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
-            if (displayMessages)
-                App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
-
-            App::currentWorld->saveScene(serObj[0]);
-            serObj->writeClose();
-
-            if (displayMessages)
-                App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_WAS_SAVED);
-
-            if (displayDialogs)
-                App::uiThread->showOrHideProgressBar(false);
-            App::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
-        }
-        else
-        {
-            #ifdef SIM_WITH_GUI
-                if ((App::mainWindow!=nullptr)&&displayDialogs)
-                { // to avoid an error when saving a file that was opened while still attached to an email for instance
-                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_FILE_ACCESS,IDSN_ACCESS_TO_FILE_WAS_DENIED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                }
-            #endif
-        }
-        delete serObj;
     }
     return(retVal);
 }
 
-bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::vector<char>* saveBuffer/*=nullptr*/)
+bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename,bool displayMessages,bool setCurrentDir,std::vector<char>* saveBuffer/*=nullptr*/)
 {
     if ( CSimFlavor::getBoolVal(16)||(saveBuffer!=nullptr) )
     {
-        App::currentWorld->embeddedScriptContainer->sceneOrModelAboutToBeSaved(modelBaseDummyID);
-        if (App::isFullScreen())
-            displayDialogs=false;
+        App::currentWorld->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(modelBaseDummyID);
         std::vector<int> sel;
         sel.push_back(modelBaseDummyID);
 
@@ -1707,7 +1613,7 @@ bool CFileOperations::_saveSceneWithDialogAndEverything()
                 std::string infoPrintOut(IDSN_SAVING_SCENE);
                 infoPrintOut+="...";
                 App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
-                if (saveScene(App::currentWorld->mainSettings->getScenePathAndName().c_str(),true,true,true,false))
+                if (saveScene(App::currentWorld->mainSettings->getScenePathAndName().c_str(),true,true,false))
                 {
                     addToRecentlyOpenedScenes(App::currentWorld->mainSettings->getScenePathAndName());
                     App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
@@ -1798,7 +1704,7 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                 {
                     if (filetype==CSer::filetype_csim_xml_simplescene_file)
                         filenameAndPath+="@simpleXml";
-                    if (saveScene(filenameAndPath.c_str(),true,true,true,true))
+                    if (saveScene(filenameAndPath.c_str(),true,true,true))
                     {
                         addToRecentlyOpenedScenes(App::currentWorld->mainSettings->getScenePathAndName());
                         App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();

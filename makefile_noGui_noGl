@@ -108,7 +108,6 @@ all:
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/related/convexVolume.cpp -o convexVolume.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/related/viewableBase.cpp -o viewableBase.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/jointObject.cpp -o jointObject.o
-	gcc $(CFLAGS) -c sourceCode/shared/sceneObjects/_jointObject_.cpp -o _jointObject_.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/camera.cpp -o camera.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/dummy.cpp -o dummy.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/octree.cpp -o octree.o

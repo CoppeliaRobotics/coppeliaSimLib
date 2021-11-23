@@ -465,7 +465,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/sceneObjects/related/viewableBase.cpp
 
     sourceCode/sceneObjects/jointObject.cpp
-    sourceCode/shared/sceneObjects/_jointObject_.cpp
     sourceCode/sceneObjects/camera.cpp
     sourceCode/sceneObjects/dummy.cpp
     sourceCode/sceneObjects/octree.cpp

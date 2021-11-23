@@ -207,7 +207,7 @@ void CSceneObject::setDynamicFlag(int flag)
     if (diff)
     {
         _dynamicFlag=flag;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="dynamicFlag";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
@@ -426,7 +426,7 @@ void CSceneObject::setModelBase(bool m)
     if (diff)
     {
         _modelBase=m;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="modelBase";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
@@ -445,7 +445,7 @@ void CSceneObject::setObjectProperty(int p)
     if (diff)
     {
         _objectProperty=p;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="objectProperty";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
@@ -510,7 +510,7 @@ void CSceneObject::setModelProperty(int prop)
     if (_modelProperty!=prop)
     {
         _modelProperty=prop;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="modelProperty";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
@@ -965,7 +965,7 @@ void CSceneObject::addSpecializedObjectEventData(CInterfaceStackTable* data) con
 
 void CSceneObject::pushObjectCreationEvent() const
 {
-    if ( _isInScene&&App::worldContainer->getEnableEvents() )
+    if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
         auto [event,data]=App::worldContainer->prepareSceneObjectAddEvent(this);
         CSceneObject::_addCommonObjectEventData(data);
@@ -976,7 +976,7 @@ void CSceneObject::pushObjectCreationEvent() const
 
 void CSceneObject::pushObjectRefreshEvent() const
 {
-    if ( _isInScene&&App::worldContainer->getEnableEvents() )
+    if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
         CSceneObject::_addCommonObjectEventData(data);
@@ -1135,7 +1135,7 @@ void CSceneObject::writeCustomDataBlock(bool tmpData,const char* dataName,const 
     else
         diff=_customObjectData.setData(dataName,data,dataLength);
 
-    if ( diff&&_isInScene&&App::worldContainer->getEnableEvents() )
+    if ( diff&&_isInScene&&App::worldContainer->getEventsEnabled() )
     {
         const char* cmd="customData";
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,false);
@@ -1227,7 +1227,7 @@ void CSceneObject::setObjectMovementOptions(int p)
     if (diff)
     {
         _objectMovementOptions=p;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
             _appendObjectMovementEventData(data);
@@ -1247,7 +1247,7 @@ void CSceneObject::setObjectMovementRelativity(int index,int p)
     if (diff)
     {
         _objectMovementRelativity[index]=p;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
             _appendObjectMovementEventData(data);
@@ -1310,7 +1310,7 @@ void CSceneObject::setObjectMovementStepSize(int index,float s)
     if (diff)
     {
         _objectMovementStepSize[index]=s;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
             _appendObjectMovementEventData(data);
@@ -1419,7 +1419,7 @@ void CSceneObject::_setBoundingBox(const C3Vector& vmin,const C3Vector& vmax)
     {
         _boundingBoxMin=vmin;
         _boundingBoxMax=vmax;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="boundingBox";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);

@@ -710,7 +710,7 @@ void CDummy::setDummySize(float s)
     {
         _dummySize=s;
         computeBoundingBox();
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);

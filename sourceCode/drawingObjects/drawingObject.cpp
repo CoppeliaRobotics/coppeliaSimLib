@@ -197,7 +197,7 @@ bool CDrawingObject::addItem(const float* itemData)
         _bufferedEventData.clear();
         _startItem=0;
 
-        if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
+        if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
         {
             auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_objectUid,nullptr,false);
             data->appendMapObject_stringBool("clearPoints",true);
@@ -260,7 +260,7 @@ bool CDrawingObject::addItem(const float* itemData)
             _data[newPos*floatsPerItem+off+0]=v(0);
             _data[newPos*floatsPerItem+off+1]=v(1);
             _data[newPos*floatsPerItem+off+2]=v(2);
-            if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
+            if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
             {
                 _bufferedEventData.push_back(v(0));
                 _bufferedEventData.push_back(v(1));
@@ -275,7 +275,7 @@ bool CDrawingObject::addItem(const float* itemData)
             _data[newPos*floatsPerItem+off+0]=v(0);
             _data[newPos*floatsPerItem+off+1]=v(1);
             _data[newPos*floatsPerItem+off+2]=v(2);
-            if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
+            if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
             {
                 _bufferedEventData.push_back(v(0));
                 _bufferedEventData.push_back(v(1));
@@ -286,7 +286,7 @@ bool CDrawingObject::addItem(const float* itemData)
         for (int i=0;i<colorsPerItem*3+otherFloatsPerItem;i++)
         {
             _data[newPos*floatsPerItem+off+i]=itemData[off+i];
-            if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
+            if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
                 _bufferedEventData.push_back(itemData[off+i]);
         }
     }
@@ -571,7 +571,7 @@ void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<floa
 
 void CDrawingObject::pushAddEvent()
 {
-    if ( (otherFloatsPerItem==0)&&App::worldContainer->getEnableEvents() )
+    if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
     {
         auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTADDED,_objectUid,nullptr,false);
         std::string tp;
@@ -622,7 +622,7 @@ void CDrawingObject::pushAddEvent()
 
 void CDrawingObject::pushAppendNewPointEvent(bool clearAllFirst)
 {
-    if ( (_bufferedEventData.size()>0)&&App::worldContainer->getEnableEvents() )
+    if ( (_bufferedEventData.size()>0)&&App::worldContainer->getEventsEnabled() )
     {
         auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_objectUid,nullptr,false);
 

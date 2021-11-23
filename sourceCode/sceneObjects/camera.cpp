@@ -949,7 +949,7 @@ void CCamera::setCameraSize(float size)
     {
         _cameraSize=size;
         computeBoundingBox();
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
@@ -1139,7 +1139,7 @@ void CCamera::setPerspectiveOperation(bool p)
         _perspectiveOperation=v;
         _perspective=(v!=0);
         computeVolumeVectors();
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="perspectiveMode";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);

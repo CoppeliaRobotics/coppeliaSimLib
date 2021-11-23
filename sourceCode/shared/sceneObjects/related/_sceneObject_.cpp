@@ -42,7 +42,7 @@ bool _CSceneObject_::setParent(CSceneObject* parent)
     if (diff)
     {
         _parentObject=parent;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="parent";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
@@ -99,7 +99,7 @@ bool _CSceneObject_::setVisibilityLayer(unsigned short l)
     if (diff)
     {
         _visibilityLayer=l;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="layer";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
@@ -116,7 +116,7 @@ bool _CSceneObject_::setChildOrder(int order)
     if (diff)
     {
         _childOrder=order;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="childOrder";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
@@ -156,7 +156,7 @@ void _CSceneObject_::_setModelInvisible(bool inv)
     if (diff)
     {
         _modelInvisible=inv;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="modelInvisible";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
@@ -353,7 +353,7 @@ bool _CSceneObject_::setObjectAlias_direct(const char* newName)
     if (diff)
     {
         _objectAlias=newName;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="alias";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
@@ -480,7 +480,7 @@ bool _CSceneObject_::setLocalTransformation(const C7Vector& tr)
     if (diff)
     {
         _localTransformation=tr;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="pose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
@@ -500,7 +500,7 @@ bool _CSceneObject_::setLocalTransformation(const C4Vector& q)
     if (diff)
     {
         _localTransformation.Q=q;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="pose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
@@ -524,7 +524,7 @@ bool _CSceneObject_::setLocalTransformation(const C3Vector& x)
     if (diff)
     {
         _localTransformation.X=x;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="pose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
@@ -548,55 +548,5 @@ void _CSceneObject_::_setLocalTransformation_send(const C7Vector& tr) const
 
 void _CSceneObject_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)
 { // Overridden from _CSyncObject_
-    if (routing.size()>0)
-    {
-    }
-    else
-    { // message is for this object
-        if (msg.msg==sim_syncobj_sceneobject_setchildorder)
-        {
-            setChildOrder(((int*)msg.data)[0]);
-            return;
-        }
-        if (msg.msg==sim_syncobj_sceneobject_setvisibilitylayer)
-        {
-            setVisibilityLayer(((int*)msg.data)[0]);
-            return;
-        }
-        if (msg.msg==sim_syncobj_sceneobject_localtransf)
-        {
-            C7Vector tr;
-            tr.setInternalData((float*)msg.data);
-            setLocalTransformation(tr);
-            return;
-        }
-        if (msg.msg==sim_syncobj_sceneobject_setextensionstring)
-        {
-            setExtensionString(((char*)msg.data));
-            return;
-        }
-        if (msg.msg==sim_syncobj_sceneobject_setalias)
-        {
-            setObjectAlias_direct(((char*)msg.data));
-            return;
-        }
-        if (msg.msg==sim_syncobj_sceneobject_setname)
-        {
-            setObjectName_direct_old(((char*)msg.data));
-            return;
-        }
-        if (msg.msg==sim_syncobj_sceneobject_setaltname)
-        {
-            setObjectAltName_direct_old(((char*)msg.data));
-            return;
-        }
-        if (msg.msg==sim_syncobj_sceneobject_setparent)
-        {
-            int h=((int*)msg.data)[0];
-            CSceneObject* parent=App::currentWorld->sceneObjects->getObjectFromHandle(h);
-            setParent(parent);
-            return;
-        }
-    }
 }
 

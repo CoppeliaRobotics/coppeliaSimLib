@@ -323,7 +323,7 @@ void CForceSensor::setIntrinsicTransformationError(const C7Vector& tr)
     if (diff)
     {
         _intrinsicTransformationError=tr;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="intrinsicPose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
@@ -435,7 +435,7 @@ void CForceSensor::setForceSensorSize(float s)
     {
         _forceSensorSize=s;
         computeBoundingBox();
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);

@@ -924,7 +924,7 @@ int CIkGroup_old::checkIkGroup(int jointCnt,const int* jointHandles,float* joint
         for (size_t i=0;i<sceneJoints.size();i++)
         {
             if (sceneJoints[i]->getPosition()!=initSceneJointValues[i])
-                sceneJoints[i]->setPosition(initSceneJointValues[i]);
+                sceneJoints[i]->setPosition(initSceneJointValues[i],false);
             if (sceneJoints[i]->getJointMode()!=initSceneJointModes[i])
                 sceneJoints[i]->setJointMode_noDynMotorTargetPosCorrection(initSceneJointModes[i]);
         }
@@ -1094,7 +1094,7 @@ int CIkGroup_old::generateIkPath(int jointCnt,const int* jointHandles,int ptCnt,
         for (size_t i=0;i<sceneJoints.size();i++)
         {
             if (sceneJoints[i]->getPosition()!=initSceneJointValues[i])
-                sceneJoints[i]->setPosition(initSceneJointValues[i]);
+                sceneJoints[i]->setPosition(initSceneJointValues[i],false);
             if (sceneJoints[i]->getJointMode()!=initSceneJointModes[i])
                 sceneJoints[i]->setJointMode_noDynMotorTargetPosCorrection(initSceneJointModes[i]);
         }

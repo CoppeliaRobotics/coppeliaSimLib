@@ -62,7 +62,7 @@ bool CPointCloudContainer_old::removeObject(int objectID)
     {
         if (_allObjects[i]->getObjectID()==objectID)
         {
-            if (App::worldContainer->getEnableEvents())
+            if (App::worldContainer->getEventsEnabled())
             {
                 auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTREMOVED,_allObjects[i]->getObjectUniqueId(),nullptr,false);
                 App::worldContainer->pushEvent(event);

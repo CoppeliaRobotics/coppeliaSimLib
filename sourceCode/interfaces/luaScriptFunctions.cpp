@@ -181,7 +181,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setJointInterval",_simSetJointInterval,                "sim.setJointInterval(int objectHandle,boolean cyclic,table[2] interval)",true},
     {"sim.loadScene",_simLoadScene,                              "sim.loadScene(string filename)",true},
     {"sim.closeScene",_simCloseScene,                            "int result=sim.closeScene()",true},
-    {"sim.saveScene",_simSaveScene,                              "sim.saveScene(string filename)",true},
+    {"sim.saveScene",_simSaveScene,                              "string buffer=sim.saveScene(string filename)",true},
     {"sim.loadModel",_simLoadModel,                              "int objectHandle=sim.loadModel(string filename)",true},
     {"sim.saveModel",_simSaveModel,                              "string buffer=sim.saveModel(int modelBaseHandle,string filename=nil)",true},
     {"sim.getObjectSelection",_simGetObjectSelection,            "table[] selectedObjectHandles=sim.getObjectSelection()",true},
@@ -4690,7 +4690,28 @@ int _simLoadScene(luaWrap_lua_State* L)
     if ( (script!=nullptr)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
     {
         if (checkInputArguments(L,&errorString,lua_arg_string,0))
-            retVal=simLoadScene_internal(luaWrap_lua_tostring(L,1));
+        {
+            size_t dataLength;
+            const char* data=((char*)luaWrap_lua_tolstring(L,1,&dataLength));
+            if (dataLength<1000)
+                retVal=simLoadScene_internal(luaWrap_lua_tostring(L,1)); // loading from file
+            else
+            { // loading from buffer
+                std::string nm(data,data+dataLength);
+                std::vector<char> buffer(data,data+dataLength);
+                size_t keepCurrentPos=nm.find("@keepCurrent");
+                bool keepCurrent=(keepCurrentPos==nm.size()-12);
+                if (keepCurrent)
+                {
+                    buffer.erase(buffer.end()-12,buffer.end());
+                    CFileOperations::createNewScene(false,true);
+                }
+                if (!CFileOperations::loadScene(nullptr,false,false,&buffer))
+                    errorString=SIM_ERROR_SCENE_COULD_NOT_BE_READ;
+                else
+                    retVal=1;
+            }
+        }
     }
     else
         errorString=SIM_ERROR_MUST_BE_CALLED_FROM_ADDON_OR_SANDBOX_SCRIPT;
@@ -4724,8 +4745,27 @@ int _simSaveScene(luaWrap_lua_State* L)
     LUA_START("sim.saveScene");
 
     int retVal=-1;// error
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-        retVal=simSaveScene_internal(luaWrap_lua_tostring(L,1));
+    if (luaWrap_lua_gettop(L)!=0)
+    { // to file
+        if (checkInputArguments(L,&errorString,lua_arg_string,0))
+            retVal=simSaveScene_internal(luaWrap_lua_tostring(L,1));
+    }
+    else
+    { // to buffer
+        if (!App::currentWorld->environment->getSceneLocked())
+        {
+            std::vector<char> buffer;
+            if (CFileOperations::saveScene(nullptr,false,false,false,&buffer))
+            {
+                luaWrap_lua_pushlstring(L,&buffer[0],buffer.size());
+                LUA_END(1);
+            }
+            else
+                errorString=SIM_ERROR_SCENE_COULD_NOT_BE_SAVED;
+        }
+        else
+            errorString=SIM_ERROR_SCENE_LOCKED;
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -4758,7 +4798,7 @@ int _simLoadModel(luaWrap_lua_State* L)
 
                 if (VFile::doesFileExist(path.c_str()))
                 {
-                    if (CFileOperations::loadModel(path.c_str(),false,false,false,false,nullptr,onlyThumbnails,forceAsCopy))
+                    if (CFileOperations::loadModel(path.c_str(),false,false,false,nullptr,onlyThumbnails,forceAsCopy))
                     {
                         if (onlyThumbnails)
                         {
@@ -4785,7 +4825,7 @@ int _simLoadModel(luaWrap_lua_State* L)
             else
             { // loading from buffer:
                 std::vector<char> buffer(data,data+dataLength);
-                if (CFileOperations::loadModel(nullptr,false,false,false,false,&buffer,onlyThumbnails,false))
+                if (CFileOperations::loadModel(nullptr,false,false,false,&buffer,onlyThumbnails,false))
                 {
                     if (onlyThumbnails)
                     {
@@ -4840,7 +4880,7 @@ int _simSaveModel(luaWrap_lua_State* L)
                         {
                             const std::vector<int>* initSelection=App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
                             std::vector<char> buffer;
-                            if (CFileOperations::saveModel(model,nullptr,false,false,false,&buffer))
+                            if (CFileOperations::saveModel(model,nullptr,false,false,&buffer))
                             {
                                 luaWrap_lua_pushlstring(L,&buffer[0],buffer.size());
                                 LUA_END(1);
@@ -5015,11 +5055,6 @@ int _simTest(luaWrap_lua_State* L)
         if (cmd.compare("sim.mergeEvents")==0)
         {
             App::worldContainer->setMergeEvents(luaWrap_lua_toboolean(L,2));
-            LUA_END(0);
-        }
-        if (cmd.compare("sim.enableEvents")==0)
-        {
-            App::worldContainer->setEnableEvents(luaWrap_lua_toboolean(L,2));
             LUA_END(0);
         }
         if (cmd.compare("sim.fetchCreationEvents")==0)
@@ -15830,7 +15865,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
                     if (joint->getJointMode()==sim_jointmode_force)
                         joint->setDynamicMotorPositionControlTargetPosition(mem->jointStartPositions[i]+(mem->jointTargetPositions[i]-mem->jointStartPositions[i])*mem->jointCurrentVirtualPositions[i]/mem->jointVirtualDistances[i]);
                     else
-                        joint->setPosition(mem->jointStartPositions[i]+(mem->jointTargetPositions[i]-mem->jointStartPositions[i])*mem->jointCurrentVirtualPositions[i]/mem->jointVirtualDistances[i]);
+                        joint->setPosition(mem->jointStartPositions[i]+(mem->jointTargetPositions[i]-mem->jointStartPositions[i])*mem->jointCurrentVirtualPositions[i]/mem->jointVirtualDistances[i],false);
                 }
             }
 

@@ -200,11 +200,9 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
     App::worldContainer->setModificationFlag(2); // object created
     newObject->recomputeModelInfluencedValues();
 
-    if (App::worldContainer->getEnableEvents())
-    {
-        newObject->setIsInScene(true);
+    newObject->setIsInScene(true);
+    if (App::worldContainer->getEventsEnabled())
         newObject->pushObjectCreationEvent();
-    }
 }
 
 bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfterDeleteCallback)

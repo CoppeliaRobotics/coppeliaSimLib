@@ -151,6 +151,7 @@ public:
 
     int registerFunctionHook(const char* sysFunc,const char* userFunc,bool before);
 
+    static int getTotalEventCallbackFunctions();
     static void getMatchingFunctions(const char* txt,std::vector<std::string>& v);
     static void getMatchingConstants(const char* txt,std::vector<std::string>& v);
     static std::string getFunctionCalltip(const char* txt);
@@ -277,6 +278,7 @@ protected:
 
     static int _nextIdForExternalScriptEditor;
     static int _scriptUniqueCounter;
+    static int _totalEventCallbackFunctions;
 
     // Lua specific:
     // -----------------------------

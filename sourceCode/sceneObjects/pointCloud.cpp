@@ -197,7 +197,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
         }
     }
 
-    if ( generateEvent&&_isInScene&&App::worldContainer->getEnableEvents() )
+    if ( generateEvent&&_isInScene&&App::worldContainer->getEventsEnabled() )
     {
         if (displayPoints_old.size()==_displayPoints.size())
         {
@@ -233,7 +233,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
 
 void CPointCloud::_updatePointCloudEvent() const
 {
-    if ( _isInScene&&App::worldContainer->getEnableEvents() )
+    if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
         const char* cmd="points";
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
@@ -805,7 +805,7 @@ void CPointCloud::setPointSize(int s)
     if (diff)
     {
         _pointSize=s;
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="pointSize";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);

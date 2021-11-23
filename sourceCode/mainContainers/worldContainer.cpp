@@ -266,7 +266,6 @@ void CWorldContainer::initialize()
     _bufferedEvents->eventsStack->pushTableOntoStack();
     _cborEvents=false;
     _mergeTheEvents=false;
-    _enableEvents=true;
 
     initializeRendering();
     createNewWorld();
@@ -420,7 +419,7 @@ long long int CWorldContainer::_eventSeq=0;
 
 void CWorldContainer::pushSceneObjectRemoveEvent(const _CSceneObject_* object)
 {
-    if (_enableEvents)
+    if (getEventsEnabled())
     {
         auto [event,data]=_prepareGeneralEvent(EVENTTYPE_OBJECTREMOVED,object->getObjectHandle(),object->getObjectUid(),nullptr,nullptr,false);
         pushEvent(event);
@@ -429,7 +428,7 @@ void CWorldContainer::pushSceneObjectRemoveEvent(const _CSceneObject_* object)
 
 std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObjectAddEvent(const _CSceneObject_* object)
 {
-    if (_enableEvents)
+    if (getEventsEnabled())
     {
         auto [eventInfo,data]=_prepareGeneralEvent(EVENTTYPE_OBJECTADDED,object->getObjectHandle(),object->getObjectUid(),nullptr,nullptr,false);
         return {eventInfo,data};
@@ -440,7 +439,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObject
 
 std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObjectChangedEvent(int sceneObjectHandle,bool isCommonObjectData,const char* fieldName,bool mergeable)
 {
-    if (_enableEvents)
+    if (getEventsEnabled())
     {
         CSceneObject* object=currentWorld->sceneObjects->getObjectFromHandle(sceneObjectHandle);
         auto [eventInfo,data]=prepareSceneObjectChangedEvent(object,isCommonObjectData,fieldName,mergeable);
@@ -452,7 +451,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObject
 
 std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObjectChangedEvent(const _CSceneObject_* object,bool isCommonObjectData,const char* fieldName,bool mergeable)
 {
-    if (_enableEvents)
+    if (getEventsEnabled())
     {
         const char* ot=nullptr;
         std::string objType;
@@ -500,7 +499,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObject
 
 std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareEvent(const char* event,int uid,const char* fieldName,bool mergeable)
 {
-    if (_enableEvents)
+    if (getEventsEnabled())
     {
         auto [eventInfo,data]=_prepareGeneralEvent(event,-1,uid,nullptr,fieldName,mergeable);
         return {eventInfo,data};
@@ -564,14 +563,9 @@ void CWorldContainer::setMergeEvents(bool b)
     _mergeTheEvents=b;
 }
 
-bool CWorldContainer::getEnableEvents() const
+bool CWorldContainer::getEventsEnabled() const
 {
-    return(_enableEvents);
-}
-
-void CWorldContainer::setEnableEvents(bool b)
-{
-    _enableEvents=b;
+    return(CScriptObject::getTotalEventCallbackFunctions()>0);
 }
 
 void CWorldContainer::getAllInitialEvents(CInterfaceStack* stack)
@@ -595,7 +589,7 @@ void CWorldContainer::getAllInitialEvents(CInterfaceStack* stack)
 
 void CWorldContainer::pushAllInitialEvents()
 {
-    if (_enableEvents)
+    if (getEventsEnabled())
     {
         auto [event,data]=_prepareGeneralEvent(EVENTTYPE_APPSETTINGSCHANGED,-1,-1,nullptr,nullptr,false);
         data->appendMapObject_stringFloat("defaultTranslationStepSize",App::userSettings->getTranslationStepSize());

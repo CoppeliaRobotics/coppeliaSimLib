@@ -551,7 +551,7 @@ void CSimulation::setSimulationState(int state)
     if (diff)
     {
         _simulationState=state;
-        if (App::worldContainer->getEnableEvents())
+        if (App::worldContainer->getEventsEnabled())
         {
             const char* cmd="state";
             auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SIMULATIONCHANGED,-1,cmd,true);
@@ -657,7 +657,7 @@ void CSimulation::_setSimulationTime_us(quint64 t)
     if (diff)
     {
         _simulationTime_us=t;
-        if (App::worldContainer->getEnableEvents())
+        if (App::worldContainer->getEventsEnabled())
         {
             const char* cmd="time";
             auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SIMULATIONCHANGED,-1,cmd,true);

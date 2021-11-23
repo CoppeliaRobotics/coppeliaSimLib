@@ -477,7 +477,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
         if (cmd.cmdId==MODEL_BROWSER_DRAG_AND_DROP_CMD)
         {
-            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,true,false,false,nullptr,false,false);
+            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,false,false,nullptr,false,false);
             if (App::currentWorld->sceneObjects->getSelectionCount()==1)
             { // we could have several model bases (in the old fileformat)
                 CSceneObject* obj=App::currentWorld->sceneObjects->getLastSelectionObject();
@@ -2833,7 +2833,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                it->setPosition(cmd.floatParams[0]);
+                it->setPosition(cmd.floatParams[0],false);
                 if (it->getJointMode()==sim_jointmode_force)
                     it->setDynamicMotorPositionControlTargetPosition(cmd.floatParams[0]);
             }
@@ -2851,7 +2851,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         it->setPositionIsCyclic(last->getPositionIsCyclic());
                         it->setPositionIntervalRange(last->getPositionIntervalRange());
                         it->setPositionIntervalMin(last->getPositionIntervalMin());
-                        it->setPosition(last->getPosition());
+                        it->setPosition(last->getPosition(),false);
                         it->setSphericalTransformation(last->getSphericalTransformation());
                         it->setScrewPitch(last->getScrewPitch());
                         it->setIkWeight(last->getIKWeight());
@@ -4656,7 +4656,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId==OPEN_DRAG_AND_DROP_SCENE_CMD)
     {
         CFileOperations::createNewScene(false,true);
-        CFileOperations::loadScene(cmd.stringParams[0].c_str(),true,cmd.boolParams[0],false);
+        CFileOperations::loadScene(cmd.stringParams[0].c_str(),true,false);
         App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
     }
 
@@ -4779,7 +4779,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                             std::string testScene=App::folders->getExecutablePath()+"/";
                             testScene.append("AUTO_SAVED_INSTANCE_1.");
                             testScene+=SIM_SCENE_EXTENSION;
-                            if (CFileOperations::loadScene(testScene.c_str(),false,false,false))
+                            if (CFileOperations::loadScene(testScene.c_str(),false,false))
                             {
                                 App::currentWorld->mainSettings->setScenePathAndName("");
                                 App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_WAS_RESTORED_FROM_AUTO_SAVED_SCENE);
@@ -4795,7 +4795,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                                 if (VFile::doesFileExist(testScene.c_str()))
                                 {
                                     App::worldContainer->createNewWorld();
-                                    if (CFileOperations::loadScene(testScene.c_str(),false,false,false))
+                                    if (CFileOperations::loadScene(testScene.c_str(),false,false))
                                     {
                                         App::currentWorld->mainSettings->setScenePathAndName("");
                                         App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_WAS_RESTORED_FROM_AUTO_SAVED_SCENE);
@@ -4837,7 +4837,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                     testScene+=tt::FNb(App::worldContainer->getCurrentWorldIndex()+1);
                     testScene+=".";
                     testScene+=SIM_SCENE_EXTENSION;
-                    CFileOperations::saveScene(testScene.c_str(),false,false,false,false);
+                    CFileOperations::saveScene(testScene.c_str(),false,false,false);
                     App::currentWorld->mainSettings->setScenePathAndName(savedLoc.c_str());
                     App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970=VDateTime::getSecondsSince1970();
                 }

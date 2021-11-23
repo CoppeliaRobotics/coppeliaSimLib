@@ -870,7 +870,7 @@ void CGraph::setGraphSize(float theNewSize)
     {
         _graphSize=theNewSize;
         computeBoundingBox();
-        if ( _isInScene&&App::worldContainer->getEnableEvents() )
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);

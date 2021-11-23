@@ -66,6 +66,161 @@ CJoint::CJoint(int jointType)
 
 void CJoint::_commonInit()
 {
+    _objectType=sim_object_joint_type;
+    _localObjectSpecialProperty=0;
+
+    _jointType=sim_joint_revolute_subtype;
+    _screwPitch=0.0f;
+    _sphericalTransformation.setIdentity();
+    _jointPosition=0.0f;
+
+    _jointMode=sim_jointmode_passive;
+    _dependencyMasterJointHandle=-1;
+    _dependencyJointMult=1.0f;
+    _dependencyJointOffset=0.0f;
+
+    // Dynamic values:
+    _dynamicMotorEnabled=false;
+    _dynamicMotorTargetVelocity=0.0f;
+    _dynamicLockModeWhenInVelocityControl=false;
+    _dynamicMotorMaximumForce=1000.0f; // This value has to be adjusted according to the joint type
+    _intrinsicTransformationError.setIdentity();
+
+    _dynamicMotorControlLoopEnabled=false;
+    _dynamicMotorPositionControl_P=0.1f;
+    _dynamicMotorPositionControl_I=0.0f;
+    _dynamicMotorPositionControl_D=0.0f;
+    _dynamicMotorSpringControl_K=0.1f;
+    _dynamicMotorSpringControl_C=0.0f;
+    _dynamicMotorPositionControl_targetPosition=_jointPosition;
+    _dynamicMotorPositionControl_torqueModulation=false;
+    _dynamicMotorPositionControl_targetPosition=0.0f;
+    _jointHasHybridFunctionality=false;
+
+    // Bullet parameters
+    // ----------------------------------------------------
+    // next is index 0:
+    _bulletFloatParams.push_back(0.2f); // simi_bullet_joint_stoperp
+    _bulletFloatParams.push_back(0.0f); // simi_bullet_joint_stopcfm
+    _bulletFloatParams.push_back(0.0f); // simi_bullet_joint_normalcfm
+    _bulletFloatParams.push_back(0.0f); // Free
+    _bulletFloatParams.push_back(0.0f); // Free
+    // BULLET_JOINT_FLOAT_PARAM_CNT_CURRENT=5
+
+    // next is index 0:
+    _bulletIntParams.push_back(0); // Free
+    // BULLET_JOINT_INT_PARAM_CNT_CURRENT=1
+    // ----------------------------------------------------
+
+    // ODE parameters
+    // ----------------------------------------------------
+    // next is index 0:
+    _odeFloatParams.push_back(0.6f); // simi_ode_joint_stoperp
+    _odeFloatParams.push_back(0.00001f); // simi_ode_joint_stopcfm
+    _odeFloatParams.push_back(0.0f); // simi_ode_joint_bounce
+    _odeFloatParams.push_back(1.0f); // simi_ode_joint_fudgefactor
+    _odeFloatParams.push_back(0.00001f); // simi_ode_joint_normalcfm
+    // ODE_JOINT_FLOAT_PARAM_CNT_CURRENT=5
+
+    // next is index 0:
+    _odeIntParams.push_back(0); // Free
+    // ODE_JOINT_INT_PARAM_CNT_CURRENT=1
+    // ----------------------------------------------------
+
+    // Vortex parameters (neg. stiffness --> INF):
+    // ----------------------------------------------------
+    // next is index 0:
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_lowerlimitdamping
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_upperlimitdamping
+    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_lowerlimitstiffness
+    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_upperlimitstiffness
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_lowerlimitrestitution
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_upperlimitrestitution
+    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_lowerlimitmaxforce
+    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_upperlimitmaxforce
+    _vortexFloatParams.push_back(0.001f); // simi_vortex_joint_motorconstraintfrictioncoeff
+    _vortexFloatParams.push_back(10.0f); // simi_vortex_joint_motorconstraintfrictionmaxforce
+    // next is index 10:
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_motorconstraintfrictionloss
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0loss
+    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_p0stiffness
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0damping
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0frictioncoeff
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0frictionmaxforce
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0frictionloss
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1loss
+    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_p1stiffness
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1damping
+    // next is index 20:
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1frictioncoeff
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1frictionmaxforce
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1frictionloss
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2loss
+    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_p2stiffness
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2damping
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2frictioncoeff
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2frictionmaxforce
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2frictionloss
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0loss
+    // next is index 30:
+    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_a0stiffness
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0damping
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0frictioncoeff
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0frictionmaxforce
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0frictionloss
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1loss
+    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_a1stiffness
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1damping
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1frictioncoeff
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1frictionmaxforce
+    // next is index 40:
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1frictionloss
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2loss
+    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_a2stiffness
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2damping
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2frictioncoeff
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2frictionmaxforce
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2frictionloss
+    // next is index 47:
+    _vortexFloatParams.push_back(1.0f); // simi_vortex_joint_dependencyfactor
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_dependencyoffset
+    _vortexFloatParams.push_back(0.0f); // reserved for future ext.
+    _vortexFloatParams.push_back(0.0f); // reserved for future ext.
+    // VORTEX_JOINT_FLOAT_PARAM_CNT_CURRENT=51
+
+    // next is index 0:
+    _vortexIntParams.push_back(simi_vortex_joint_proportionalmotorfriction); // simi_vortex_joint_bitcoded
+    _vortexIntParams.push_back(0); // simi_vortex_joint_relaxationenabledbc. 1 bit per dof
+    _vortexIntParams.push_back(0); // simi_vortex_joint_frictionenabledbc. 1 bit per dof
+    _vortexIntParams.push_back(1+2+4+8+16+32); // simi_vortex_joint_frictionproportionalbc. 1 bit per dof
+    _vortexIntParams.push_back(-1); // simi_vortex_joint_objectid
+    _vortexIntParams.push_back(-1); // simi_vortex_joint_dependentobjectid
+    _vortexIntParams.push_back(0); // reserved for future ext.
+    // VORTEX_JOINT_INT_PARAM_CNT_CURRENT=7
+    // ----------------------------------------------------
+
+    // Newton parameters (neg. stiffness --> INF):
+    // ----------------------------------------------------
+    // next is index 0:
+    _newtonFloatParams.push_back(1.0f); // simi_newton_joint_dependencyfactor
+    _newtonFloatParams.push_back(0.0f); // simi_newton_joint_dependencyoffset
+    // NEWTON_JOINT_FLOAT_PARAM_CNT_CURRENT=2
+
+    // next is index 0:
+    _newtonIntParams.push_back(-1); // simi_newton_joint_objectid. The ID is redefined in each session
+    _newtonIntParams.push_back(-1); // simi_newton_joint_dependentobjectid
+    // NEWTON_JOINT_INT_PARAM_CNT_CURRENT=2
+    // ----------------------------------------------------
+
+    _ikWeight=1.0f;
+    _diameter=0.02f;
+    _length=0.15f;
+
+    _positionIsCyclic=true;
+    _jointPositionRange=piValTimes2_f;
+    _jointMinPosition=-piValue_f;
+    _maxStepSize=10.0f*degToRad_f;
+
     _visibilityLayer=JOINT_LAYER;
     _objectAlias=IDSOGL_JOINT;
     _objectName_old=IDSOGL_JOINT;
@@ -98,26 +253,23 @@ CJoint::~CJoint()
 
 }
 
-bool CJoint::setHybridFunctionality(bool h)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setHybridFunctionality(bool h)
+{
     if ( (_jointType!=sim_joint_spherical_subtype)&&(_jointMode!=sim_jointmode_force) )
     {
-        retVal=_CJoint_::setHybridFunctionality(h);
-        if (h)
+        bool diff=(_jointHasHybridFunctionality!=h);
+        if (diff)
         {
-            _CJoint_::setEnableDynamicMotor(true);
-            _CJoint_::setEnableDynamicMotorControlLoop(true);
-            if (_jointType==sim_joint_revolute_subtype)
+            _jointHasHybridFunctionality=h;
+            if (h)
             {
-                _CJoint_::setScrewPitch(0.0f);
-// REMOVED FOLLOWING ON 24/7/2015: causes problem when switching modes. The physics engine plugin will now not set limits if the range>=360
-//          _jointPositionRange=tt::getLimitedFloat(0.0f,piValTimes2_f,_jointPositionRange);
-//          setPosition(getPosition()); // to make sure it is within range (will also get/set velocity)
+                setEnableDynamicMotor(true);
+                setEnableDynamicMotorControlLoop(true);
+                if (_jointType==sim_joint_revolute_subtype)
+                    setScrewPitch(0.0f);
             }
         }
     }
-    return(retVal);
 }
 
 void CJoint::getDynamicJointErrors(float& linear,float& angular) const
@@ -267,30 +419,54 @@ bool CJoint::setEngineBoolParam(int what,bool v)
     return(false);
 }
 
-bool CJoint::setBulletFloatParams(const std::vector<float>& pp)
-{ // Overridden from _CJoint_
+void CJoint::setBulletFloatParams(const std::vector<float>& pp)
+{
     std::vector<float> p(pp);
     tt::limitValue(0.0f,1.0f,p[simi_bullet_joint_stoperp]); // stop ERP
     tt::limitValue(0.0f,100.0f,p[simi_bullet_joint_stopcfm]); // stop CFM
     tt::limitValue(0.0f,100.0f,p[simi_bullet_joint_normalcfm]); // normal CFM
-    bool retVal=_CJoint_::setBulletFloatParams(p);
-    return(retVal);
+    bool diff=(_bulletFloatParams.size()!=p.size());
+    if (!diff)
+    {
+        for (size_t i=0;i<p.size();i++)
+        {
+            if (_bulletFloatParams[i]!=p[i])
+            {
+                diff=true;
+                break;
+            }
+        }
+    }
+    if (diff)
+        _bulletFloatParams.assign(p.begin(),p.end());
 }
 
-bool CJoint::setOdeFloatParams(const std::vector<float>& pp)
-{ // Overridden from _CJoint_
+void CJoint::setOdeFloatParams(const std::vector<float>& pp)
+{
     std::vector<float> p(pp);
     tt::limitValue(0.0f,1.0f,p[simi_ode_joint_stoperp]); // stop ERP
     tt::limitValue(0.0f,100.0f,p[simi_ode_joint_stopcfm]); // stop CFM
     tt::limitValue(0.0f,100.0f,p[simi_ode_joint_bounce]); // bounce
     tt::limitValue(0.0f,10.0f,p[simi_ode_joint_fudgefactor]); // fudge factor
     tt::limitValue(0.0f,100.0f,p[simi_ode_joint_normalcfm]); // normal CFM
-    bool retVal=_CJoint_::setOdeFloatParams(p);
-    return(retVal);
+    bool diff=(_odeFloatParams.size()!=p.size());
+    if (!diff)
+    {
+        for (size_t i=0;i<p.size();i++)
+        {
+            if (_odeFloatParams[i]!=p[i])
+            {
+                diff=true;
+                break;
+            }
+        }
+    }
+    if (diff)
+        _odeFloatParams.assign(p.begin(),p.end());
 }
 
-bool CJoint::setVortexFloatParams(const std::vector<float>& pp)
-{ // Overridden from _CJoint_
+void CJoint::setVortexFloatParams(const std::vector<float>& pp)
+{
     std::vector<float> p(pp);
     // Forbid zero stiffness for relaxation axes:
     if (p[simi_vortex_joint_p0stiffness]==0.0f)
@@ -314,12 +490,24 @@ bool CJoint::setVortexFloatParams(const std::vector<float>& pp)
         p[simi_vortex_joint_dependencyoffset]=10000.0f;
     if (p[simi_vortex_joint_dependencyoffset]<-10000.0f)
         p[simi_vortex_joint_dependencyoffset]=-10000.0f;
-    bool retVal=_CJoint_::setVortexFloatParams(p);
-    return(retVal);
+    bool diff=(_vortexFloatParams.size()!=p.size());
+    if (!diff)
+    {
+        for (size_t i=0;i<p.size();i++)
+        {
+            if (_vortexFloatParams[i]!=p[i])
+            {
+                diff=true;
+                break;
+            }
+        }
+    }
+    if (diff)
+        _vortexFloatParams.assign(p.begin(),p.end());
 }
 
-bool CJoint::setNewtonFloatParams(const std::vector<float>& pp)
-{ // Overridden from _CJoint_
+void CJoint::setNewtonFloatParams(const std::vector<float>& pp)
+{
     std::vector<float> p(pp);
     // Limit offset and factor for dependency equation:
     if (p[simi_newton_joint_dependencyfactor]>10000.0f)
@@ -330,8 +518,20 @@ bool CJoint::setNewtonFloatParams(const std::vector<float>& pp)
         p[simi_newton_joint_dependencyoffset]=10000.0f;
     if (p[simi_newton_joint_dependencyoffset]<-10000.0f)
         p[simi_newton_joint_dependencyoffset]=-10000.0f;
-    bool retVal=_CJoint_::setNewtonFloatParams(p);
-    return(retVal);
+    bool diff=(_newtonFloatParams.size()!=p.size());
+    if (!diff)
+    {
+        for (size_t i=0;i<p.size();i++)
+        {
+            if (_newtonFloatParams[i]!=p[i])
+            {
+                diff=true;
+                break;
+            }
+        }
+    }
+    if (diff)
+        _newtonFloatParams.assign(p.begin(),p.end());
 }
 
 void CJoint::copyEnginePropertiesTo(CJoint* target)
@@ -363,77 +563,84 @@ void CJoint::copyEnginePropertiesTo(CJoint* target)
     target->setNewtonIntParams(ip);
 }
 
-bool CJoint::setDynamicMotorTargetVelocity(float v)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setDynamicMotorTargetVelocity(float v)
+{
     if (_jointType!=sim_joint_spherical_subtype)
     {
         if (_jointType==sim_joint_revolute_subtype)
             v=tt::getLimitedFloat(-90000.0f*degToRad_f,+90000.0f*degToRad_f,v); // 250 rot/sec --> 0.25 rot/1ms
         if (_jointType==sim_joint_prismatic_subtype)
             v=tt::getLimitedFloat(-100.0f,+100.0f,v); // 100 m/sec --> 0.1 m/1ms
-        retVal=_CJoint_::setDynamicMotorTargetVelocity(v);
+        bool diff=(_dynamicMotorTargetVelocity!=v);
+        if (diff)
+            _dynamicMotorTargetVelocity=v;
     }
-    return(retVal);
 }
 
-bool CJoint::setDynamicMotorUpperLimitVelocity(float v)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setDynamicMotorUpperLimitVelocity(float v)
+{
     if (_jointType!=sim_joint_spherical_subtype)
     {
         v=tt::getLimitedFloat(0.01f,20.0f,v);
-        retVal=_CJoint_::setDynamicMotorUpperLimitVelocity(v);
+        bool diff=(_dynamicMotorUpperLimitVelocity!=v);
+        if (diff)
+            _dynamicMotorUpperLimitVelocity=v;
     }
-    return(retVal);
 }
 
-bool CJoint::setDynamicMotorMaximumForce(float f)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setDynamicMotorMaximumForce(float f)
+{
     if (_jointType!=sim_joint_spherical_subtype)
     {
         if (_jointType==sim_joint_revolute_subtype)
             f=tt::getLimitedFloat(0.0f,+100000000000.0f,f);
         if (_jointType==sim_joint_prismatic_subtype)
             f=tt::getLimitedFloat(0.0f,+10000000000.0f,f);
-        retVal=_CJoint_::setDynamicMotorMaximumForce(f);
+        bool diff=(_dynamicMotorMaximumForce!=f);
+        if (diff)
+            _dynamicMotorMaximumForce=f;
     }
-    return(retVal);
 }
 
-bool CJoint::setDynamicMotorPositionControlParameters(float p_param,float i_param,float d_param)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setDynamicMotorPositionControlParameters(float p_param,float i_param,float d_param)
+{
     p_param=tt::getLimitedFloat(-1000.0f,1000.0f,p_param);
     i_param=tt::getLimitedFloat(-1000.0f,1000.0f,i_param);
     d_param=tt::getLimitedFloat(-1000.0f,1000.0f,d_param);
-    retVal=_CJoint_::setDynamicMotorPositionControlParameters(p_param,i_param,d_param);
-    return(retVal);
+    bool diff=(_dynamicMotorPositionControl_P!=p_param)||(_dynamicMotorPositionControl_I!=i_param)||(_dynamicMotorPositionControl_D!=d_param);
+    if (diff)
+    {
+        _dynamicMotorPositionControl_P=p_param;
+        _dynamicMotorPositionControl_I=i_param;
+        _dynamicMotorPositionControl_D=d_param;
+    }
 }
 
-bool CJoint::setDynamicMotorSpringControlParameters(float k_param,float c_param)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setDynamicMotorSpringControlParameters(float k_param,float c_param)
+{
     float maxVal=+10000000000.0f;
     if (_jointType==sim_joint_revolute_subtype)
         maxVal=+100000000000.0f;
     k_param=tt::getLimitedFloat(-maxVal,maxVal,k_param);
     c_param=tt::getLimitedFloat(-maxVal,maxVal,c_param);
-    retVal=_CJoint_::setDynamicMotorSpringControlParameters(k_param,c_param);
-    return(retVal);
+    bool diff=(_dynamicMotorSpringControl_K!=k_param)||(_dynamicMotorSpringControl_C!=c_param);
+    if (diff)
+    {
+        _dynamicMotorSpringControl_K=k_param;
+        _dynamicMotorSpringControl_C=c_param;
+    }
 }
 
-bool CJoint::setDynamicMotorPositionControlTargetPosition(float pos)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setDynamicMotorPositionControlTargetPosition(float pos)
+{
     if (_jointType!=sim_joint_spherical_subtype)
     {
         if ( (_jointType==sim_joint_revolute_subtype)&&_positionIsCyclic )
             pos=tt::getNormalizedAngle(pos);
-        retVal=_CJoint_::setDynamicMotorPositionControlTargetPosition(pos);
+        bool diff=(_dynamicMotorPositionControl_targetPosition!=pos);
+        if (diff)
+            _dynamicMotorPositionControl_targetPosition=pos;
     }
-    return(retVal);
 }
 
 void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp)
@@ -442,47 +649,50 @@ void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp)
         // This is because dynamic joints can over or undershoot limits.
         // So we set the position directly, without checking for limits.
         // Turn count is taken care by the physics plugin.
-        _CJoint_::setPosition(rfp);
+        setPosition(rfp,true);
     }
     _rectifyDependentJoints();
 }
 
-bool CJoint::setDependencyMasterJointHandle(int depJointID)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setDependencyMasterJointHandle(int depJointID)
+{
     if ( (_jointType!=sim_joint_spherical_subtype)&&(getJointMode()==sim_jointmode_dependent) )
     {
-        retVal=_CJoint_::setDependencyMasterJointHandle(depJointID);
-        if (depJointID==-1)
-            App::currentWorld->sceneObjects->actualizeObjectInformation();
-        else
-        { // enable it
-            // We now check for an illegal loop:
-            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(depJointID);
-            CJoint* iterat=it;
-            while (iterat->getDependencyMasterJointHandle()!=-1)
-            {
-                if (iterat->getJointMode()!=_jointMode)
-                    break; // We might have a loop, but it is interupted by another jointMode!! (e.g. IK dependency VS direct dependency)
-                int joint=iterat->getDependencyMasterJointHandle();
-                if (joint==getObjectHandle())
-                { // We have an illegal loop! We disable it:
-                    iterat->setDependencyMasterJointHandle(-1);
-                    break;
+        bool diff=(_dependencyMasterJointHandle!=depJointID);
+        if (diff)
+        {
+            _dependencyMasterJointHandle=depJointID;
+            if (getObjectCanSync())
+                _setDependencyJointHandle_sendOldIk(depJointID);
+
+            if (depJointID==-1)
+                App::currentWorld->sceneObjects->actualizeObjectInformation();
+            else
+            { // enable it
+                // We now check for an illegal loop:
+                CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(depJointID);
+                CJoint* iterat=it;
+                while (iterat->getDependencyMasterJointHandle()!=-1)
+                {
+                    if (iterat->getJointMode()!=_jointMode)
+                        break; // We might have a loop, but it is interupted by another jointMode!! (e.g. IK dependency VS direct dependency)
+                    int joint=iterat->getDependencyMasterJointHandle();
+                    if (joint==getObjectHandle())
+                    { // We have an illegal loop! We disable it:
+                        iterat->setDependencyMasterJointHandle(-1);
+                        break;
+                    }
+                    iterat=App::currentWorld->sceneObjects->getJointFromHandle(joint);
                 }
-                iterat=App::currentWorld->sceneObjects->getJointFromHandle(joint);
+                App::currentWorld->sceneObjects->actualizeObjectInformation();
+                setPosition(getPosition(),false);
             }
-            App::currentWorld->sceneObjects->actualizeObjectInformation();
-            setPosition(getPosition());
         }
     }
-    return(retVal);
 }
 
-void CJoint::_setDependencyJointHandle_send(int depJointID) const
+void CJoint::_setDependencyJointHandle_sendOldIk(int depJointID) const
 { // Overridden from _CJoint_
-    _CJoint_::_setDependencyJointHandle_send(depJointID);
-
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
     {
@@ -494,22 +704,24 @@ void CJoint::_setDependencyJointHandle_send(int depJointID) const
     }
 }
 
-bool CJoint::setDependencyJointMult(float coeff)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setDependencyJointMult(float coeff)
+{
     if (_jointType!=sim_joint_spherical_subtype)
     {
         coeff=tt::getLimitedFloat(-10000.0f,10000.0f,coeff);
-        retVal=_CJoint_::setDependencyJointMult(coeff);
-        setPosition(getPosition());
+        bool diff=(_dependencyJointMult!=coeff);
+        if (diff)
+        {
+            _dependencyJointMult=coeff;
+            if (getObjectCanSync())
+                _setDependencyJointMult_sendOldIk(coeff);
+            setPosition(getPosition(),false);
+        }
     }
-    return(retVal);
 }
 
-void CJoint::_setDependencyJointMult_send(float coeff) const
+void CJoint::_setDependencyJointMult_sendOldIk(float coeff) const
 { // Overridden from _CJoint_
-    _CJoint_::_setDependencyJointMult_send(coeff);
-
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
     {
@@ -521,22 +733,24 @@ void CJoint::_setDependencyJointMult_send(float coeff) const
     }
 }
 
-bool CJoint::setDependencyJointOffset(float off)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setDependencyJointOffset(float off)
+{
     if (_jointType!=sim_joint_spherical_subtype)
     {
         off=tt::getLimitedFloat(-10000.0f,10000.0f,off);
-        retVal=_CJoint_::setDependencyJointOffset(off);
-        setPosition(getPosition());
+        bool diff=(_dependencyJointOffset!=off);
+        if (diff)
+        {
+            _dependencyJointOffset=off;
+            if (getObjectCanSync())
+                _setDependencyJointOffset_sendOldIk(off);
+            setPosition(getPosition(),false);
+        }
     }
-    return(retVal);
 }
 
-void CJoint::_setDependencyJointOffset_send(float off) const
+void CJoint::_setDependencyJointOffset_sendOldIk(float off) const
 { // Overridden from _CJoint_
-    _CJoint_::_setDependencyJointOffset_send(off);
-
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
     {
@@ -618,22 +832,22 @@ void CJoint::simulationEnded()
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
         {
-            _CJoint_::setPosition(_initialPosition);
-            _CJoint_::setSphericalTransformation(_initialSphericalJointTransformation);
+            setPosition(_initialPosition,false);
+            setSphericalTransformation(_initialSphericalJointTransformation);
 
-            _CJoint_::setEnableDynamicMotor(_initialDynamicMotorEnabled);
-            _CJoint_::setDynamicMotorTargetVelocity(_initialDynamicMotorTargetVelocity);
-            _CJoint_::setDynamicMotorLockModeWhenInVelocityControl(_initialDynamicMotorLockModeWhenInVelocityControl);
-            _CJoint_::setDynamicMotorUpperLimitVelocity(_initialDynamicMotorUpperLimitVelocity);
-            _CJoint_::setDynamicMotorMaximumForce(_initialDynamicMotorMaximumForce);
+            setEnableDynamicMotor(_initialDynamicMotorEnabled);
+            setDynamicMotorTargetVelocity(_initialDynamicMotorTargetVelocity);
+            setDynamicMotorLockModeWhenInVelocityControl(_initialDynamicMotorLockModeWhenInVelocityControl);
+            setDynamicMotorUpperLimitVelocity(_initialDynamicMotorUpperLimitVelocity);
+            setDynamicMotorMaximumForce(_initialDynamicMotorMaximumForce);
 
-            _CJoint_::setEnableDynamicMotorControlLoop(_initialDynamicMotorControlLoopEnabled);
-            _CJoint_::setDynamicMotorPositionControlParameters(_initialDynamicMotorPositionControl_P,_initialDynamicMotorPositionControl_I,_initialDynamicMotorPositionControl_D);
-            _CJoint_::setDynamicMotorSpringControlParameters(_initialDynamicMotorSpringControl_K,_initialDynamicMotorSpringControl_C);
-            _CJoint_::setDynamicMotorPositionControlTargetPosition(_initialTargetPosition);
+            setEnableDynamicMotorControlLoop(_initialDynamicMotorControlLoopEnabled);
+            setDynamicMotorPositionControlParameters(_initialDynamicMotorPositionControl_P,_initialDynamicMotorPositionControl_I,_initialDynamicMotorPositionControl_D);
+            setDynamicMotorSpringControlParameters(_initialDynamicMotorSpringControl_K,_initialDynamicMotorSpringControl_C);
+            setDynamicMotorPositionControlTargetPosition(_initialTargetPosition);
 
-            _CJoint_::setJointMode(_initialJointMode);
-            _CJoint_::setHybridFunctionality(_initialHybridOperation);
+            setJointMode(_initialJointMode);
+            setHybridFunctionality(_initialHybridOperation);
 
             _explicitHandling_DEPRECATED=_initialExplicitHandling_DEPRECATED;
             _velocity_DEPRECATED=_initialVelocity_DEPRECATED;
@@ -658,7 +872,7 @@ void CJoint::resetJoint_DEPRECATED()
         return;
     if (_initialValuesInitialized)
     {
-        setPosition(_initialPosition);
+        setPosition(_initialPosition,false);
         setVelocity_DEPRECATED(_initialVelocity_DEPRECATED);
         setTargetVelocity_DEPRECATED(_initialTargetVelocity_DEPRECATED);
     }
@@ -710,7 +924,7 @@ void CJoint::handleJoint_DEPRECATED(float deltaTime)
             }
             else
                 newPos+=_velocity_DEPRECATED*deltaTime;
-            setPosition(newPos);
+            setPosition(newPos,false);
             _jointPositionForMotionHandling_DEPRECATED=getPosition();
         }
     }
@@ -743,7 +957,7 @@ void CJoint::handleJoint_DEPRECATED(float deltaTime)
         }
         _velocity_DEPRECATED=float(velocityDouble);
 
-        setPosition(float(newPos));
+        setPosition(float(newPos),false);
         _jointPositionForMotionHandling_DEPRECATED=getPosition();
     }
 }
@@ -917,58 +1131,70 @@ bool CJoint::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std
 }
 
 bool CJoint::setScrewPitch(float pitch)
-{ // Overridden from _CJoint_
+{
     bool retVal=false;
     if (_jointType==sim_joint_revolute_subtype)
     {
         if (_jointMode!=sim_jointmode_force)
         { // no pitch when in torque/force mode
             pitch=tt::getLimitedFloat(-10.0f,10.0f,pitch);
-            if (pitch!=0.0f)
-                _CJoint_::setHybridFunctionality(false);
-            retVal=_CJoint_::setScrewPitch(pitch);
+            bool diff=(_screwPitch!=pitch);
+            if (diff)
+            {
+                _screwPitch=pitch;
+                if (getObjectCanSync())
+                    _setScrewPitch_sendOldIk(pitch);
+                if (pitch!=0.0f)
+                    setHybridFunctionality(false);
+            }
+            retVal=true;
         }
     }
     return(retVal);
 }
 
-void CJoint::_setScrewPitch_send(float pitch) const
+void CJoint::_setScrewPitch_sendOldIk(float pitch) const
 { // Overridden from _CJoint_
-    _CJoint_::_setScrewPitch_send(pitch);
-
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setJointScrewPitch(_ikPluginCounterpartHandle,_screwPitch);
 }
 
-bool CJoint::setPositionIntervalMin(float min)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setPositionIntervalMin(float min)
+{
     if (_jointType!=sim_joint_spherical_subtype)
     {
         if (_jointType==sim_joint_revolute_subtype)
             min=tt::getLimitedFloat(-100000.0f,100000.0f,min);
         if (_jointType==sim_joint_prismatic_subtype)
             min=tt::getLimitedFloat(-1000.0f,1000.0f,min);
-        retVal=_CJoint_::setPositionIntervalMin(min);
-
-        setPosition(getPosition());
+        bool diff=(_jointMinPosition!=min);
+        if (diff)
+        {
+            _jointMinPosition=min;
+            if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+            {
+                const char* cmd="min";
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+                data->appendMapObject_stringFloat(cmd,min);
+                App::worldContainer->pushEvent(event);
+            }
+            if (getObjectCanSync())
+                _setPositionIntervalMin_sendOldIk(min);
+            setPosition(getPosition(),false);
+        }
     }
-    return(retVal);
 }
 
-void CJoint::_setPositionIntervalMin_send(float min) const
+void CJoint::_setPositionIntervalMin_sendOldIk(float min) const
 { // Overridden from _CJoint_
-    _CJoint_::_setPositionIntervalMin_send(min);
-
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_positionIsCyclic,_jointMinPosition,_jointPositionRange);
 }
 
-bool CJoint::setPositionIntervalRange(float range)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setPositionIntervalRange(float range)
+{
     if (_jointType==sim_joint_revolute_subtype)
         range=tt::getLimitedFloat(0.001f*degToRad_f,10000000.0f*degToRad_f,range);
     if (_jointType==sim_joint_prismatic_subtype)
@@ -980,58 +1206,90 @@ bool CJoint::setPositionIntervalRange(float range)
         else
             range=piValue_f;
     }
-    retVal=_CJoint_::setPositionIntervalRange(range);
-    setPosition(getPosition());
-    setSphericalTransformation(getSphericalTransformation());
-    return(retVal);
+    bool diff=(_jointPositionRange!=range);
+    if (diff)
+    {
+        _jointPositionRange=range;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="range";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringFloat(cmd,range);
+            App::worldContainer->pushEvent(event);
+        }
+        if (getObjectCanSync())
+            _setPositionIntervalRange_sendOldIk(range);
+        setPosition(getPosition(),false);
+        setSphericalTransformation(getSphericalTransformation());
+    }
 }
 
-void CJoint::_setPositionIntervalRange_send(float range) const
+void CJoint::_setPositionIntervalRange_sendOldIk(float range) const
 { // Overridden from _CJoint_
-    _CJoint_::_setPositionIntervalRange_send(range);
-
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_positionIsCyclic,_jointMinPosition,_jointPositionRange);
 }
 
-bool CJoint::setLength(float l)
-{ // Overridden from _CJoint_
+void CJoint::setLength(float l)
+{
     tt::limitValue(0.001f,1000.0f,l);
-    bool retVal=_CJoint_::setLength(l);
-    return(retVal);
+    bool diff=(_length!=l);
+    if (diff)
+    {
+        _length=l;
+        computeBoundingBox();
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="length";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringFloat(cmd,l);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
-bool CJoint::setDiameter(float d)
-{ // Overridden from _CJoint_
+void CJoint::setDiameter(float d)
+{
     tt::limitValue(0.0001f,100.0f,d);
-    bool retVal=_CJoint_::setDiameter(d);
-    return(retVal);
+    bool diff=(_diameter!=d);
+    if (diff)
+    {
+        _diameter=d;
+        computeBoundingBox();
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="diameter";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringFloat(cmd,d);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
 void CJoint::scaleObject(float scalingFactor)
 {
-    _CJoint_::setDiameter(_diameter*scalingFactor);
-    _CJoint_::setLength(_length*scalingFactor);
-    _CJoint_::setScrewPitch(_screwPitch*scalingFactor);
+    setDiameter(_diameter*scalingFactor);
+    setLength(_length*scalingFactor);
+    setScrewPitch(_screwPitch*scalingFactor);
     if (_jointType==sim_joint_prismatic_subtype)
     {
-        _CJoint_::setPosition(_jointPosition*scalingFactor);
+        setPosition(_jointPosition*scalingFactor,false);
         _jointPositionForMotionHandling_DEPRECATED*=scalingFactor;
-        _CJoint_::setPositionIntervalMin(_jointMinPosition*scalingFactor);
-        _CJoint_::setPositionIntervalRange(_jointPositionRange*scalingFactor);
-        _CJoint_::setDependencyJointOffset(_dependencyJointOffset*scalingFactor);
-        _CJoint_::setMaxStepSize(_maxStepSize*scalingFactor);
-        _CJoint_::setDynamicMotorPositionControlTargetPosition(_dynamicMotorPositionControl_targetPosition*scalingFactor);
+        setPositionIntervalMin(_jointMinPosition*scalingFactor);
+        setPositionIntervalRange(_jointPositionRange*scalingFactor);
+        setDependencyJointOffset(_dependencyJointOffset*scalingFactor);
+        setMaxStepSize(_maxStepSize*scalingFactor);
+        setDynamicMotorPositionControlTargetPosition(_dynamicMotorPositionControl_targetPosition*scalingFactor);
 
-        _CJoint_::setDynamicMotorSpringControlParameters(_dynamicMotorSpringControl_K*scalingFactor*scalingFactor,_dynamicMotorSpringControl_C*scalingFactor*scalingFactor);
+        setDynamicMotorSpringControlParameters(_dynamicMotorSpringControl_K*scalingFactor*scalingFactor,_dynamicMotorSpringControl_C*scalingFactor*scalingFactor);
 
-        _CJoint_::setDynamicMotorTargetVelocity(_dynamicMotorTargetVelocity*scalingFactor);
-        _CJoint_::setDynamicMotorUpperLimitVelocity(_dynamicMotorUpperLimitVelocity*scalingFactor);
+        setDynamicMotorTargetVelocity(_dynamicMotorTargetVelocity*scalingFactor);
+        setDynamicMotorUpperLimitVelocity(_dynamicMotorUpperLimitVelocity*scalingFactor);
         if (_dynamicMotorPositionControl_torqueModulation) // this condition and next line added on 04/10/2013 (Alles Gute zu Geburtstag Mama :) )
-            _CJoint_::setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*scalingFactor*scalingFactor); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+            setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*scalingFactor*scalingFactor); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
         else
-            _CJoint_::setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*scalingFactor*scalingFactor*scalingFactor); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+            setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*scalingFactor*scalingFactor*scalingFactor); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
 
         // Following removed on 04/10/2013. Why did we have this?!
         //_dynamicMotorPositionControl_targetPosition=_jointPosition;
@@ -1063,9 +1321,9 @@ void CJoint::scaleObject(float scalingFactor)
 
     if (_jointType==sim_joint_revolute_subtype)
     {
-        _CJoint_::setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*scalingFactor*scalingFactor*scalingFactor*scalingFactor);//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+        setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*scalingFactor*scalingFactor*scalingFactor*scalingFactor);//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
 
-        _CJoint_::setDynamicMotorSpringControlParameters(_dynamicMotorSpringControl_K*scalingFactor*scalingFactor*scalingFactor*scalingFactor,_dynamicMotorSpringControl_C*scalingFactor*scalingFactor*scalingFactor*scalingFactor);
+        setDynamicMotorSpringControlParameters(_dynamicMotorSpringControl_K*scalingFactor*scalingFactor*scalingFactor*scalingFactor,_dynamicMotorSpringControl_C*scalingFactor*scalingFactor*scalingFactor*scalingFactor);
 
         if (_initialValuesInitialized)
         {
@@ -1088,26 +1346,26 @@ void CJoint::scaleObject(float scalingFactor)
 void CJoint::scaleObjectNonIsometrically(float x,float y,float z)
 {
     float diam=sqrt(x*y);
-    _CJoint_::setDiameter(_diameter*diam);
-    _CJoint_::setLength(_length*z);
-    _CJoint_::setScrewPitch(_screwPitch*z);
+    setDiameter(_diameter*diam);
+    setLength(_length*z);
+    setScrewPitch(_screwPitch*z);
     if (_jointType==sim_joint_prismatic_subtype)
     {
-        _CJoint_::setPosition(_jointPosition*z);
-        _CJoint_::setPositionIntervalMin(_jointMinPosition*z);
-        _CJoint_::setPositionIntervalRange(_jointPositionRange*z);
-        _CJoint_::setDependencyJointOffset(_dependencyJointOffset*z);
-        _CJoint_::setMaxStepSize(_maxStepSize*z);
-        _CJoint_::setDynamicMotorPositionControlTargetPosition(_dynamicMotorPositionControl_targetPosition*z);
+        setPosition(_jointPosition*z,false);
+        setPositionIntervalMin(_jointMinPosition*z);
+        setPositionIntervalRange(_jointPositionRange*z);
+        setDependencyJointOffset(_dependencyJointOffset*z);
+        setMaxStepSize(_maxStepSize*z);
+        setDynamicMotorPositionControlTargetPosition(_dynamicMotorPositionControl_targetPosition*z);
 
-        _CJoint_::setDynamicMotorSpringControlParameters(_dynamicMotorSpringControl_K*diam*diam,_dynamicMotorSpringControl_C*diam*diam);
+        setDynamicMotorSpringControlParameters(_dynamicMotorSpringControl_K*diam*diam,_dynamicMotorSpringControl_C*diam*diam);
 
-        _CJoint_::setDynamicMotorTargetVelocity(_dynamicMotorTargetVelocity*z);
-        _CJoint_::setDynamicMotorUpperLimitVelocity(_dynamicMotorUpperLimitVelocity*z);
+        setDynamicMotorTargetVelocity(_dynamicMotorTargetVelocity*z);
+        setDynamicMotorUpperLimitVelocity(_dynamicMotorUpperLimitVelocity*z);
         if (_dynamicMotorPositionControl_torqueModulation) // this condition and next line added on 04/10/2013 (Alles Gute zu Geburtstag Mama :) )
-            _CJoint_::setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*diam*diam); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+            setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*diam*diam); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
         else
-            _CJoint_::setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*diam*diam*diam); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+            setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*diam*diam*diam); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
 
         // Following removed on 04/10/2013. Why did we have this?!
         //_dynamicMotorPositionControl_targetPosition=_jointPosition;
@@ -1140,9 +1398,9 @@ void CJoint::scaleObjectNonIsometrically(float x,float y,float z)
 
     if (_jointType==sim_joint_revolute_subtype)
     {
-        _CJoint_::setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*diam*diam*diam*diam);//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+        setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*diam*diam*diam*diam);//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
 
-        _CJoint_::setDynamicMotorSpringControlParameters(_dynamicMotorSpringControl_K*diam*diam*diam*diam,_dynamicMotorSpringControl_C*diam*diam*diam*diam);
+        setDynamicMotorSpringControlParameters(_dynamicMotorSpringControl_K*diam*diam*diam*diam,_dynamicMotorSpringControl_C*diam*diam*diam*diam);
 
         if (_initialValuesInitialized)
         {
@@ -1411,27 +1669,36 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
     }
 }
 
-bool CJoint::setPositionIsCyclic(bool isCyclic)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setPositionIsCyclic(bool isCyclic)
+{
     if (isCyclic)
     {
         if (getJointType()==sim_joint_revolute_subtype)
         {
-            _CJoint_::setScrewPitch(0.0f);
-            _CJoint_::setPositionIntervalMin(-piValue_f);
-            _CJoint_::setPositionIntervalRange(piValTimes2_f);
+            setScrewPitch(0.0f);
+            setPositionIntervalMin(-piValue_f);
+            setPositionIntervalRange(piValTimes2_f);
         }
     }
-    retVal=_CJoint_::setPositionIsCyclic(isCyclic);
-    setVelocity_DEPRECATED(getVelocity_DEPRECATED()); // To make sure velocity is within allowed range
-    return(retVal);
+    bool diff=(_positionIsCyclic!=isCyclic);
+    if (diff)
+    {
+        _positionIsCyclic=isCyclic;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="cyclic";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringBool(cmd,isCyclic);
+            App::worldContainer->pushEvent(event);
+        }
+        if (getObjectCanSync())
+            _setPositionIsCyclic_sendOldIk(isCyclic);
+        setVelocity_DEPRECATED(getVelocity_DEPRECATED()); // To make sure velocity is within allowed range
+    }
 }
 
-void CJoint::_setPositionIsCyclic_send(bool isCyclic) const
+void CJoint::_setPositionIsCyclic_sendOldIk(bool isCyclic) const
 { // Overridden from _CJoint_
-    _CJoint_::_setPositionIsCyclic_send(isCyclic);
-
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_positionIsCyclic,_jointMinPosition,_jointPositionRange);
@@ -1440,7 +1707,7 @@ void CJoint::_setPositionIsCyclic_send(bool isCyclic) const
 void CJoint::removeSceneDependencies()
 {
     CSceneObject::removeSceneDependencies();
-    _CJoint_::setDependencyMasterJointHandle(-1);
+    setDependencyMasterJointHandle(-1);
 }
 
 void CJoint::addSpecializedObjectEventData(CInterfaceStackTable* data) const
@@ -2556,19 +2823,17 @@ void CJoint::performObjectLoadingMapping(const std::vector<int>* map,bool loadin
     setNewtonIntParams(ip);
 }
 
-bool CJoint::setJointMode(int theMode)
-{ // Overriden from _CJoint_
+void CJoint::setJointMode(int theMode)
+{
     bool retVal=setJointMode_noDynMotorTargetPosCorrection(theMode);
     if ( retVal&&(theMode==sim_jointmode_force)&&_dynamicMotorControlLoopEnabled )
     { // Make sure the target position is the same here (otherwise big jump)
         setDynamicMotorPositionControlTargetPosition(getPosition());
     }
-    return(retVal);
 }
 
 bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int theMode)
 {
-    bool retVal=false;
     int md;
     if (theMode==sim_jointmode_passive)
     {
@@ -2601,13 +2866,13 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int theMode)
     }
     if (theMode==sim_jointmode_force)
     {
-        _CJoint_::setHybridFunctionality(false);
-        _CJoint_::setScrewPitch(0.0f);
+        setHybridFunctionality(false);
+        setScrewPitch(0.0f);
 // REMOVED FOLLOWING ON 24/7/2015: causes problem when switching modes. The physics engine plugin will now not set limits if the range>=360
 //      if (_jointType==sim_joint_revolute_subtype)
 //          _jointPositionRange=tt::getLimitedFloat(0.0f,piValTimes2_f,_jointPositionRange); // new since 18/11/2012 (was forgotten)
         if (_jointType==sim_joint_spherical_subtype)
-            _CJoint_::setPositionIntervalRange(piValue_f);
+            setPositionIntervalRange(piValue_f);
 
         App::currentWorld->sceneObjects->actualizeObjectInformation();
         md=theMode;
@@ -2617,15 +2882,20 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int theMode)
         App::currentWorld->sceneObjects->actualizeObjectInformation();
         md=theMode;
     }
-    retVal=_CJoint_::setJointMode(md);
-    setPosition(getPosition());
-    return(retVal);
+
+    bool diff=(_jointMode!=md);
+    if (diff)
+    {
+        _jointMode=md;
+        if (getObjectCanSync())
+            _setJointMode_sendOldIk(_jointMode);
+        setPosition(getPosition(),false);
+    }
+    return(diff);
 }
 
-void CJoint::_setJointMode_send(int theMode) const
+void CJoint::_setJointMode_sendOldIk(int theMode) const
 { // Overridden from _CJoint_
-    _CJoint_::_setJointMode_send(theMode);
-
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setJointMode(_ikPluginCounterpartHandle,theMode);
@@ -2636,13 +2906,12 @@ void CJoint::_rectifyDependentJoints()
     for (size_t i=0;i<_directDependentJoints.size();i++)
     {
         if ((_directDependentJoints[i]->getJointMode()==sim_jointmode_dependent)||(_directDependentJoints[i]->getJointMode()==sim_jointmode_reserved_previously_ikdependent)) // second part on 3/7/2014
-            _directDependentJoints[i]->setPosition(0.0f); // value doesn't matter!
+            _directDependentJoints[i]->setPosition(0.0f,false); // value doesn't matter!
     }
 }
 
-bool CJoint::setSphericalTransformation(const C4Vector& tr)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setSphericalTransformation(const C4Vector& tr)
+{
     C4Vector transf(tr);
     if (_jointPositionRange<piValue_f*0.99f)
     {
@@ -2655,93 +2924,127 @@ bool CJoint::setSphericalTransformation(const C4Vector& tr)
             C4Vector rot(angle-_jointPositionRange,rotAxis);
             transf=rot*transf;
         }
+        bool diff=(_sphericalTransformation!=transf);
+        if (diff)
+        {
+            _sphericalTransformation=transf;
+            if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+            {
+                const char* cmd="quaternion";
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+                float q[4]={transf(1),transf(2),transf(3),transf(0)};
+                data->appendMapObject_stringFloatArray(cmd,q,4);
+                C7Vector trr(getIntrinsicTransformation(true));
+                float p[7]={trr.X(0),trr.X(1),trr.X(2),trr.Q(1),trr.Q(2),trr.Q(3),trr.Q(0)};
+                data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
+                App::worldContainer->pushEvent(event);
+            }
+            if (getObjectCanSync())
+                _setSphericalTransformation_sendOldIk(transf);
+        }
     }
-    retVal=_CJoint_::setSphericalTransformation(transf);
-    return(retVal);
 }
 
-void CJoint::_setSphericalTransformation_send(const C4Vector& tr) const
+void CJoint::_setSphericalTransformation_sendOldIk(const C4Vector& tr) const
 { // Overridden from _CJoint_
-    _CJoint_::_setSphericalTransformation_send(tr);
-
     // Synchronize with IK plugin:
     if ( (_ikPluginCounterpartHandle!=-1)&&(_jointType==sim_joint_spherical_subtype) )
         CPluginContainer::ikPlugin_setSphericalJointQuaternion(_ikPluginCounterpartHandle,tr);
 }
 
-bool CJoint::setMaxStepSize(float stepS)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setMaxStepSize(float stepS)
+{
     if (_jointType==sim_joint_revolute_subtype)
         tt::limitValue(0.01f*degToRad_f,100000.0f,stepS); // high number for screws!
     if (_jointType==sim_joint_prismatic_subtype)
         tt::limitValue(0.0001f,1000.0f,stepS);
     if (_jointType==sim_joint_spherical_subtype)
         tt::limitValue(0.01f*degToRad_f,piValue_f,stepS);
-    retVal=_CJoint_::setMaxStepSize(stepS);
-    return(retVal);
+    bool diff=(_maxStepSize!=stepS);
+    if (diff)
+    {
+        _maxStepSize=stepS;
+        if (getObjectCanSync())
+            _setMaxStepSize_sendOldIk(stepS);
+    }
 }
 
-void CJoint::_setMaxStepSize_send(float stepS) const
+void CJoint::_setMaxStepSize_sendOldIk(float stepS) const
 { // Overridden from _CJoint_
-    _CJoint_::_setMaxStepSize_send(stepS);
-
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setJointMaxStepSize(_ikPluginCounterpartHandle,_maxStepSize);
 }
 
-bool CJoint::setIkWeight(float newWeight)
-{ // Overridden from _CJoint_
-    bool retVal=false;
+void CJoint::setIkWeight(float newWeight)
+{
     newWeight=tt::getLimitedFloat(-1.0f,1.0f,newWeight);
-    retVal=_CJoint_::setIkWeight(newWeight);
-    return(retVal);
+    bool diff=(_ikWeight!=newWeight);
+    if (diff)
+    {
+        _ikWeight=newWeight;
+        if (getObjectCanSync())
+            _setIkWeight_sendOldIk(newWeight);
+    }
 }
 
-void CJoint::_setIkWeight_send(float newWeight) const
+void CJoint::_setIkWeight_sendOldIk(float newWeight) const
 { // Overridden from _CJoint_
-    _CJoint_::_setIkWeight_send(newWeight);
-
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setJointIkWeight(_ikPluginCounterpartHandle,_ikWeight);
 }
 
-bool CJoint::setPosition(float pos)
-{ // Overriden from _CJoint_
-    bool retVal=false;
-    if (_positionIsCyclic)
-        pos=tt::getNormalizedAngle(pos);
-    else
+void CJoint::setPosition(float pos,bool setDirect)
+{
+    if (!setDirect)
     {
-        if (pos>(getPositionIntervalMin()+getPositionIntervalRange()))
-            pos=getPositionIntervalMin()+getPositionIntervalRange();
-        if (pos<getPositionIntervalMin())
-            pos=getPositionIntervalMin();
-    }
-
-    if ( (_jointMode==sim_jointmode_dependent)||(_jointMode==sim_jointmode_reserved_previously_ikdependent) )
-    {
-        float linked=0.0f;
-        if (_dependencyMasterJointHandle!=-1)
+        if (_positionIsCyclic)
+            pos=tt::getNormalizedAngle(pos);
+        else
         {
-            CJoint* anAct=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
-            if (anAct!=nullptr)
-                linked=_dependencyJointMult*anAct->getPosition();
+            if (pos>(getPositionIntervalMin()+getPositionIntervalRange()))
+                pos=getPositionIntervalMin()+getPositionIntervalRange();
+            if (pos<getPositionIntervalMin())
+                pos=getPositionIntervalMin();
         }
-        pos=linked+_dependencyJointOffset;
-    }
-    retVal=_CJoint_::setPosition(pos);
 
-    _rectifyDependentJoints();
-    setVelocity_DEPRECATED(getVelocity_DEPRECATED());
-    return(retVal);
+        if ( (_jointMode==sim_jointmode_dependent)||(_jointMode==sim_jointmode_reserved_previously_ikdependent) )
+        {
+            float linked=0.0f;
+            if (_dependencyMasterJointHandle!=-1)
+            {
+                CJoint* anAct=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
+                if (anAct!=nullptr)
+                    linked=_dependencyJointMult*anAct->getPosition();
+            }
+            pos=linked+_dependencyJointOffset;
+        }
+    }
+    bool diff=(_jointPosition!=pos);
+    if (diff)
+    {
+        _jointPosition=pos;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="position";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringFloat(cmd,_jointPosition);
+
+            C7Vector tr(getIntrinsicTransformation(true));
+            float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+            data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
+            App::worldContainer->pushEvent(event);
+        }
+        if (getObjectCanSync())
+            _setPosition_sendOldIk(pos);
+        _rectifyDependentJoints();
+        setVelocity_DEPRECATED(getVelocity_DEPRECATED());
+    }
 }
 
-void CJoint::_setPosition_send(float pos) const
+void CJoint::_setPosition_sendOldIk(float pos) const
 { // Overriden from _CJoint_
-    _CJoint_::_setPosition_send(pos);
     // Synchronize with IK plugin:
     if ( (_ikPluginCounterpartHandle!=-1)&&(_jointType!=sim_joint_spherical_subtype) )
         CPluginContainer::ikPlugin_setJointPosition(_ikPluginCounterpartHandle,pos);
@@ -2756,20 +3059,20 @@ bool CJoint::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
     // Return value true means 'this' has to be erased too!
     bool retVal=CSceneObject::announceObjectWillBeErased(objectHandle,copyBuffer);
     if (_dependencyMasterJointHandle==objectHandle)
-        _CJoint_::setDependencyMasterJointHandle(-1);
+        setDependencyMasterJointHandle(-1);
     if (_vortexIntParams[5]==objectHandle) // that's the Vortex dependency joint
     {
         std::vector<int> ip;
         getVortexIntParams(ip);
         ip[5]=-1;
-        _CJoint_::setVortexIntParams(ip);
+        setVortexIntParams(ip);
     }
     if (_newtonIntParams[1]==objectHandle) // that's the Vortex dependency joint
     {
         std::vector<int> ip;
         getNewtonIntParams(ip);
         ip[1]=-1;
-        _CJoint_::setNewtonIntParams(ip);
+        setNewtonIntParams(ip);
     }
 
     // We check if the joint is listed in the _directDependentJoints:
@@ -2810,37 +3113,15 @@ void CJoint::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSync
         CSceneObject::buildUpdateAndPopulateSynchronizationObject(parentRouting);
 
         // Update the remote joint:
-        _setPositionIntervalMin_send(_jointMinPosition);
-        _setPositionIntervalRange_send(_jointPositionRange);
-        _setPositionIsCyclic_send(_positionIsCyclic);
-        _setScrewPitch_send(_screwPitch);
-        // _setDependencyJointHandle_send(_dependencyMasterJointHandle);
-        // _setDependencyJointMult_send(_dependencyJointMult);
-        // _setDependencyJointOffset_send(_dependencyJointOffset);
-        _setIkWeight_send(_ikWeight);
-        _setMaxStepSize_send(_maxStepSize);
-        _setPosition_send(_jointPosition);
-        _setSphericalTransformation_send(_sphericalTransformation);
-        _setJointMode_send(_jointMode);
-        _setEnableDynamicMotor_send(_dynamicMotorEnabled);
-        _setHybridFunctionality_send(_jointHasHybridFunctionality);
-        _setDynamicMotorTargetVelocity_send(_dynamicMotorTargetVelocity);
-        _setDynamicMotorUpperLimitVelocity_send(_dynamicMotorUpperLimitVelocity);
-        _setDynamicMotorPositionControlTargetPosition_send(_dynamicMotorPositionControl_targetPosition);
-        _setDynamicMotorPositionControlParameters_send(_dynamicMotorPositionControl_P,_dynamicMotorPositionControl_I,_dynamicMotorPositionControl_D);
-        _setDynamicMotorSpringControlParameters_send(_dynamicMotorSpringControl_K,_dynamicMotorSpringControl_C);
-        _setDynamicMotorMaximumForce_send(_dynamicMotorMaximumForce);
-        _setEnableDynamicMotorControlLoop_send(_dynamicMotorControlLoopEnabled);
-        _setEnableTorqueModulation_send(_dynamicMotorPositionControl_torqueModulation);
-        _setDynamicMotorLockModeWhenInVelocityControl_send(_dynamicLockModeWhenInVelocityControl);
-        _setBulletFloatParams_send(_bulletFloatParams);
-        _setBulletIntParams_send(_bulletIntParams);
-        _setOdeFloatParams_send(_odeFloatParams);
-        _setOdeIntParams_send(_odeIntParams);
-        _setVortexFloatParams_send(_vortexFloatParams);
-        _setVortexIntParams_send(_vortexIntParams);
-        _setNewtonFloatParams_send(_newtonFloatParams);
-        _setNewtonIntParams_send(_newtonIntParams);
+        _setPositionIntervalMin_sendOldIk(_jointMinPosition);
+        _setPositionIntervalRange_sendOldIk(_jointPositionRange);
+        _setPositionIsCyclic_sendOldIk(_positionIsCyclic);
+        _setScrewPitch_sendOldIk(_screwPitch);
+        _setIkWeight_sendOldIk(_ikWeight);
+        _setMaxStepSize_sendOldIk(_maxStepSize);
+        _setPosition_sendOldIk(_jointPosition);
+        _setSphericalTransformation_sendOldIk(_sphericalTransformation);
+        _setJointMode_sendOldIk(_jointMode);
     }
 }
 
@@ -2850,8 +3131,455 @@ void CJoint::connectSynchronizationObject()
     {
         CSceneObject::connectSynchronizationObject();
 
-        _setDependencyJointHandle_send(_dependencyMasterJointHandle);
-        _setDependencyJointMult_send(_dependencyJointMult);
-        _setDependencyJointOffset_send(_dependencyJointOffset);
+        _setDependencyJointHandle_sendOldIk(_dependencyMasterJointHandle);
+        _setDependencyJointMult_sendOldIk(_dependencyJointMult);
+        _setDependencyJointOffset_sendOldIk(_dependencyJointOffset);
     }
+}
+
+bool CJoint::getEnableDynamicMotor() const
+{
+    return(_dynamicMotorEnabled);
+}
+
+float CJoint::getDynamicMotorTargetVelocity() const
+{
+    return(_dynamicMotorTargetVelocity);
+}
+
+bool CJoint::getDynamicMotorLockModeWhenInVelocityControl() const
+{
+    return(_dynamicLockModeWhenInVelocityControl);
+}
+
+float CJoint::getDynamicMotorUpperLimitVelocity() const
+{
+    return(_dynamicMotorUpperLimitVelocity);
+}
+
+float CJoint::getDynamicMotorMaximumForce() const
+{
+    return(_dynamicMotorMaximumForce);
+}
+
+bool CJoint::getEnableDynamicMotorControlLoop() const
+{
+    return(_dynamicMotorControlLoopEnabled);
+}
+
+bool CJoint::getEnableTorqueModulation() const
+{
+    return(_dynamicMotorPositionControl_torqueModulation);
+}
+
+bool CJoint::getHybridFunctionality() const
+{
+    return(_jointHasHybridFunctionality);
+}
+
+float CJoint::getEngineFloatParam(int what,bool* ok) const
+{
+    if (ok!=nullptr)
+        ok[0]=true;
+    if ((what>sim_bullet_joint_float_start)&&(what<sim_bullet_joint_float_end))
+    {
+        int w=what-sim_bullet_joint_stoperp+simi_bullet_joint_stoperp;
+        return(_bulletFloatParams[w]);
+    }
+    if ((what>sim_ode_joint_float_start)&&(what<sim_ode_joint_float_end))
+    {
+        int w=what-sim_ode_joint_stoperp+simi_ode_joint_stoperp;
+        return(_odeFloatParams[w]);
+    }
+    if ((what>sim_vortex_joint_float_start)&&(what<sim_vortex_joint_float_end))
+    {
+        int w=what-sim_vortex_joint_lowerlimitdamping+simi_vortex_joint_lowerlimitdamping;
+        return(_vortexFloatParams[w]);
+    }
+    if ((what>sim_newton_joint_float_start)&&(what<sim_newton_joint_float_end))
+    {
+        int w=what-sim_newton_joint_dependencyfactor+simi_newton_joint_dependencyfactor;
+        return(_newtonFloatParams[w]);
+    }
+    if (ok!=nullptr)
+        ok[0]=false;
+    return(0.0f);
+}
+
+int CJoint::getEngineIntParam(int what,bool* ok) const
+{
+    if (ok!=nullptr)
+        ok[0]=true;
+    if ((what>sim_bullet_joint_int_start)&&(what<sim_bullet_joint_int_end))
+    {
+        // no int params for now
+        // search for bji11032016
+        if (ok!=nullptr)
+            ok[0]=false;
+        return(0);
+    }
+    if ((what>sim_ode_joint_int_start)&&(what<sim_ode_joint_int_end))
+    {
+        // no int params for now
+        // search for oji11032016
+        if (ok!=nullptr)
+            ok[0]=false;
+        return(0);
+    }
+    if ((what>sim_vortex_joint_int_start)&&(what<sim_vortex_joint_int_end))
+    {
+        int w=what-sim_vortex_joint_bitcoded+simi_vortex_joint_bitcoded;
+        return(_vortexIntParams[w]);
+    }
+    if ((what>sim_newton_joint_int_start)&&(what<sim_newton_joint_int_end))
+    {
+        int w=what-sim_newton_joint_objectid+simi_newton_joint_objectid;
+        return(_newtonIntParams[w]);
+    }
+    if (ok!=nullptr)
+        ok[0]=false;
+    return(0);
+}
+
+bool CJoint::getEngineBoolParam(int what,bool* ok) const
+{
+    if (ok!=nullptr)
+        ok[0]=true;
+    if ((what>sim_bullet_joint_bool_start)&&(what<sim_bullet_joint_bool_end))
+    {
+        // No bool params for now
+        // search for bjb11032016
+        if (ok!=nullptr)
+            ok[0]=false;
+        return(0);
+    }
+    if ((what>sim_ode_joint_bool_start)&&(what<sim_ode_joint_bool_end))
+    {
+        // No bool params for now
+        // search for ojb11032016
+        if (ok!=nullptr)
+            ok[0]=false;
+        return(0);
+    }
+    if ((what>sim_vortex_joint_bool_start)&&(what<sim_vortex_joint_bool_end))
+    {
+        int b=1;
+        int w=(what-sim_vortex_joint_motorfrictionenabled);
+        while (w>0) {b*=2; w--;}
+        return((_vortexIntParams[simi_vortex_joint_bitcoded]&b)!=0);
+    }
+    if ((what>sim_newton_joint_bool_start)&&(what<sim_newton_joint_bool_end))
+    {
+        // No bool params for now
+        // search for njb11032016
+        if (ok!=nullptr)
+            ok[0]=false;
+        return(0);
+    }
+    if (ok!=nullptr)
+        ok[0]=false;
+    return(0);
+}
+
+void CJoint::getBulletFloatParams(std::vector<float>& p) const
+{
+    p.assign(_bulletFloatParams.begin(),_bulletFloatParams.end());
+}
+
+void CJoint::getBulletIntParams(std::vector<int>& p) const
+{
+    p.assign(_bulletIntParams.begin(),_bulletIntParams.end());
+}
+
+void CJoint::getOdeFloatParams(std::vector<float>& p) const
+{
+    p.assign(_odeFloatParams.begin(),_odeFloatParams.end());
+}
+
+void CJoint::getOdeIntParams(std::vector<int>& p) const
+{
+    p.assign(_odeIntParams.begin(),_odeIntParams.end());
+}
+
+void CJoint::getVortexFloatParams(std::vector<float>& p) const
+{
+    p.assign(_vortexFloatParams.begin(),_vortexFloatParams.end());
+}
+
+void CJoint::getVortexIntParams(std::vector<int>& p) const
+{
+    p.assign(_vortexIntParams.begin(),_vortexIntParams.end());
+}
+
+void CJoint::getNewtonFloatParams(std::vector<float>& p) const
+{
+    p.assign(_newtonFloatParams.begin(),_newtonFloatParams.end());
+}
+
+void CJoint::getNewtonIntParams(std::vector<int>& p) const
+{
+    p.assign(_newtonIntParams.begin(),_newtonIntParams.end());
+}
+
+int CJoint::getVortexDependentJointId() const
+{
+    return(_vortexIntParams[5]);
+}
+
+int CJoint::getNewtonDependentJointId() const
+{
+    return(_newtonIntParams[1]);
+}
+
+float CJoint::getPosition() const
+{
+    return(_jointPosition);
+}
+
+float CJoint::getDynamicMotorPositionControlTargetPosition() const
+{
+    return(_dynamicMotorPositionControl_targetPosition);
+}
+
+C7Vector CJoint::getIntrinsicTransformation(bool includeDynErrorComponent) const
+{
+    C7Vector jointTr;
+    if (getJointType()==sim_joint_revolute_subtype)
+    {
+        jointTr.Q.setAngleAndAxis(_jointPosition,C3Vector(0.0f,0.0f,1.0f));
+        jointTr.X(0)=0.0f;
+        jointTr.X(1)=0.0f;
+        jointTr.X(2)=_jointPosition*getScrewPitch();
+    }
+    if (getJointType()==sim_joint_prismatic_subtype)
+    {
+        jointTr.Q.setIdentity();
+        jointTr.X(0)=0.0f;
+        jointTr.X(1)=0.0f;
+        jointTr.X(2)=_jointPosition;
+    }
+    if (getJointType()==sim_joint_spherical_subtype)
+    {
+        jointTr.Q=_sphericalTransformation;
+        jointTr.X.clear();
+    }
+    if (includeDynErrorComponent)
+        jointTr=jointTr*_intrinsicTransformationError;
+    return(jointTr);
+}
+
+C7Vector CJoint::getFullLocalTransformation() const
+{
+    return(_localTransformation*getIntrinsicTransformation(true));
+}
+
+void CJoint::getDynamicMotorPositionControlParameters(float& p_param,float& i_param,float& d_param) const
+{
+    p_param=_dynamicMotorPositionControl_P;
+    i_param=_dynamicMotorPositionControl_I;
+    d_param=_dynamicMotorPositionControl_D;
+}
+
+void CJoint::getDynamicMotorSpringControlParameters(float& k_param,float& c_param) const
+{
+    k_param=_dynamicMotorSpringControl_K;
+    c_param=_dynamicMotorSpringControl_C;
+}
+
+float CJoint::getLength()  const
+{
+    return(_length);
+}
+
+float CJoint::getDiameter() const
+{
+    return(_diameter);
+}
+
+int CJoint::getJointType() const
+{
+    return(_jointType);
+}
+
+float CJoint::getScrewPitch() const
+{
+    return(_screwPitch);
+}
+
+C4Vector CJoint::getSphericalTransformation() const
+{
+    return(_sphericalTransformation);
+}
+
+bool CJoint::getPositionIsCyclic() const
+{
+    if (_jointType==sim_joint_prismatic_subtype)
+        return(false);
+    return(_positionIsCyclic);
+}
+
+float CJoint::getPositionIntervalMin() const
+{
+    return(_jointMinPosition);
+}
+
+float CJoint::getPositionIntervalRange() const
+{
+    return(_jointPositionRange);
+}
+
+float CJoint::getIKWeight() const
+{
+    return(_ikWeight);
+}
+
+float CJoint::getMaxStepSize() const
+{
+    return(_maxStepSize);
+}
+
+int CJoint::getJointMode() const
+{
+    return(_jointMode);
+}
+
+int CJoint::getDependencyMasterJointHandle() const
+{
+    return(_dependencyMasterJointHandle);
+}
+
+float CJoint::getDependencyJointMult() const
+{
+    return(_dependencyJointMult);
+}
+
+float CJoint::getDependencyJointOffset() const
+{
+    return(_dependencyJointOffset);
+}
+
+void CJoint::setBulletIntParams(const std::vector<int>& p)
+{
+    bool diff=(_bulletIntParams.size()!=p.size());
+    if (!diff)
+    {
+        for (size_t i=0;i<p.size();i++)
+        {
+            if (_bulletIntParams[i]!=p[i])
+            {
+                diff=true;
+                break;
+            }
+        }
+    }
+    if (diff)
+        _bulletIntParams.assign(p.begin(),p.end());
+}
+
+void CJoint::setOdeIntParams(const std::vector<int>& p)
+{
+    bool diff=(_odeIntParams.size()!=p.size());
+    if (!diff)
+    {
+        for (size_t i=0;i<p.size();i++)
+        {
+            if (_odeIntParams[i]!=p[i])
+            {
+                diff=true;
+                break;
+            }
+        }
+    }
+    if (diff)
+        _odeIntParams.assign(p.begin(),p.end());
+}
+
+void CJoint::setVortexIntParams(const std::vector<int>& p)
+{
+    bool diff=(_vortexIntParams.size()!=p.size());
+    if (!diff)
+    {
+        for (size_t i=0;i<p.size();i++)
+        {
+            if (_vortexIntParams[i]!=p[i])
+            {
+                diff=true;
+                break;
+            }
+        }
+    }
+    if (diff)
+        _vortexIntParams.assign(p.begin(),p.end());
+}
+
+void CJoint::setNewtonIntParams(const std::vector<int>& p)
+{
+    bool diff=(_newtonIntParams.size()!=p.size());
+    if (!diff)
+    {
+        for (size_t i=0;i<p.size();i++)
+        {
+            if (_newtonIntParams[i]!=p[i])
+            {
+                diff=true;
+                break;
+            }
+        }
+    }
+    if (diff)
+        _newtonIntParams.assign(p.begin(),p.end());
+}
+
+void CJoint::setEnableDynamicMotor(bool e)
+{
+    bool diff=(_dynamicMotorEnabled!=e);
+    if (diff)
+        _dynamicMotorEnabled=e;
+}
+
+void CJoint::setEnableDynamicMotorControlLoop(bool p)
+{
+    bool diff=(_dynamicMotorControlLoopEnabled!=p);
+    if (diff)
+        _dynamicMotorControlLoopEnabled=p;
+}
+
+void CJoint::setEnableTorqueModulation(bool p)
+{
+    bool diff=(_dynamicMotorPositionControl_torqueModulation!=p);
+    if (diff)
+        _dynamicMotorPositionControl_torqueModulation=p;
+}
+
+void CJoint::setDynamicMotorLockModeWhenInVelocityControl(bool e)
+{
+    bool diff=(_dynamicLockModeWhenInVelocityControl!=e);
+    if (diff)
+        _dynamicLockModeWhenInVelocityControl=e;
+}
+
+void CJoint::setIntrinsicTransformationError(const C7Vector& tr)
+{
+    bool diff=(_intrinsicTransformationError!=tr);
+    if (diff)
+    {
+        _intrinsicTransformationError=tr;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="position";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringFloat(cmd,_jointPosition);
+            C7Vector tr2(getIntrinsicTransformation(true));
+            float p[7]={tr2.X(0),tr2.X(1),tr2.X(2),tr2.Q(1),tr2.Q(2),tr2.Q(3),tr2.Q(0)};
+            data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
+CColorObject* CJoint::getColor(bool part2)
+{
+    if (part2)
+        return(&_color_removeSoon);
+    return(&_color);
 }
