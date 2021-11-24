@@ -4697,11 +4697,9 @@ int _simLoadScene(luaWrap_lua_State* L)
                 retVal=simLoadScene_internal(luaWrap_lua_tostring(L,1)); // loading from file
             else
             { // loading from buffer
-                std::string nm(data,data+dataLength);
+                std::string nm(data+dataLength-12,12);
                 std::vector<char> buffer(data,data+dataLength);
-                size_t keepCurrentPos=nm.find("@keepCurrent");
-                bool keepCurrent=(keepCurrentPos==nm.size()-12);
-                if (keepCurrent)
+                if (nm=="@keepCurrent")
                 {
                     buffer.erase(buffer.end()-12,buffer.end());
                     CFileOperations::createNewScene(false,true);
