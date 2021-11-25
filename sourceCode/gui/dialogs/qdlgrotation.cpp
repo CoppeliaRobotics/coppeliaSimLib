@@ -72,10 +72,10 @@ void CQDlgRotation::refresh()
             // Transformation part:
             _setValuesTransformationPart(true);
             // Manip part:
-            manipulationModePermission=object->getObjectManipulationModePermissions();
+            manipulationModePermission=object->getObjectMovementPreferredAxes();
             manipulationRotationRelativeTo=object->getObjectMovementRelativity(1);
             manipulationRotationStepSize=object->getObjectMovementStepSize(1);
-            objectRotationSettingsLocked=object->getObjectRotationSettingsLocked();
+            objectRotationSettingsLocked=(object->getObjectMovementOptions()&(32+512+1024+2048))!=0;
         }
         else
         {
@@ -776,7 +776,7 @@ void CQDlgRotation::on_qqOrA_clicked()
         CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object!=nullptr)
         {
-            int permission=object->getObjectManipulationModePermissions();
+            int permission=object->getObjectMovementPreferredAxes();
             permission=(permission&0x07)|0x08;
             App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),permission);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -792,7 +792,7 @@ void CQDlgRotation::on_qqOrB_clicked()
         CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object!=nullptr)
         {
-            int permission=object->getObjectManipulationModePermissions();
+            int permission=object->getObjectMovementPreferredAxes();
             permission=(permission&0x07)|0x10;
             App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),permission);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -808,7 +808,7 @@ void CQDlgRotation::on_qqOrG_clicked()
         CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object!=nullptr)
         {
-            int permission=object->getObjectManipulationModePermissions();
+            int permission=object->getObjectMovementPreferredAxes();
             permission=(permission&0x07)|0x20;
             App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),permission);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

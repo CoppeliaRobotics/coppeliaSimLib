@@ -179,8 +179,6 @@ void CProxSensor::commonInit()
     detectionRayColor.setColorsAllBlack();
     detectionRayColor.setColor(1.0f,1.0f,0.0f,sim_colorcomponent_emission);
 
-    _objectManipulationModePermissions=0x013;
-
     _visibilityLayer=PROXIMITY_SENSOR_LAYER;
     _objectAlias="Proximity_sensor";
     _objectName_old="Proximity_sensor";

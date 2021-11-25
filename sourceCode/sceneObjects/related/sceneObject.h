@@ -123,12 +123,8 @@ public:
     int getCumulativeObjectProperty();
     void setModelBase(bool m);
 
-    void setObjectManipulationModePermissions(int p);
-    int getObjectManipulationModePermissions() const;
-    void setObjectTranslationSettingsLocked(bool l);
-    bool getObjectTranslationSettingsLocked() const;
-    void setObjectRotationSettingsLocked(bool l);
-    bool getObjectRotationSettingsLocked() const;
+    void setObjectMovementPreferredAxes(int p);
+    int getObjectMovementPreferredAxes() const;
 
     void setObjectMovementOptions(int p);
     int getObjectMovementOptions() const;
@@ -294,13 +290,10 @@ protected:
 
     int _authorizedViewableObjects; // -1 --> all, -2 --> none, otherwise object or collection handle
 
-    int _objectManipulationModePermissions;
-    bool _objectTranslationSettingsLocked;
-    bool _objectRotationSettingsLocked;
-    bool _objectManipulationModePermissionsPreviousCtrlKeyDown;
+    bool _objectMovementPreferredAxesPreviousCtrlKeyDown;
 
-
-    int _objectMovementOptions; // bit0=transl not ok when sim. stopped, bit1=transl not ok when sim. running, bit2&bit3: same but for rotations
+    int _objectMovementPreferredAxes; //bits 0-2: position x,y,z, bits 3-5: Euler e9,e1,e2
+    int _objectMovementOptions; // bit0=transl not ok when sim. stopped, bit1=transl not ok when sim. running, bit2&bit3: same but for rotations, bit4: manualShift forbidden, bit5: manualRot forbidden, bit6-bit8: forbidden local translation axes, bit9-bit11: forbidden local rotation axes
     float _objectMovementStepSize[2]; // 0.0= use app default
     int _objectMovementRelativity[2]; //0=world, 1=parent, 2=own frame
     C3Vector _boundingBoxMin;

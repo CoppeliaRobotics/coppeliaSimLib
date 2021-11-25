@@ -75,7 +75,7 @@ void CLight::_commonInit()
     if (_lightType==sim_light_directional_subtype)
         _extensionString+="openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} bias {0.001} normalBias {0.005} shadowTextureSize {2048}}} povray {shadow {true} fadeXDist {0.00}}";
 
-    _objectManipulationModePermissions=0x013;
+    _objectMovementPreferredAxes=0x013;
 
     if (_lightType==sim_light_omnidirectional_subtype)
         _objectAlias=IDSOGL_OMNIDIRECTIONAL_LIGHT;

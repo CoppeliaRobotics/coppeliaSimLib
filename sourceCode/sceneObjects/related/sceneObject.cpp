@@ -65,9 +65,7 @@ CSceneObject::CSceneObject()
     _dynamicsTemporarilyDisabled=false;
     _initialValuesInitialized=false;
     _initialConfigurationMemorized=false;
-    _objectTranslationSettingsLocked=false;
-    _objectRotationSettingsLocked=false;
-    _objectManipulationModePermissions=0x023; // about Z and in the X-Y plane!       0x03f; // full
+    _objectMovementPreferredAxes=0x023; // about Z and in the X-Y plane!       0x03f; // full
     _objectManipulationModeEventId=-1;
 
     _objectMovementOptions=0;
@@ -978,7 +976,7 @@ void CSceneObject::pushObjectRefreshEvent() const
 {
     if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
-        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
+        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,false);
         CSceneObject::_addCommonObjectEventData(data);
         addSpecializedObjectEventData(data);
         App::worldContainer->pushEvent(event);
@@ -1015,6 +1013,7 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
 void CSceneObject::_appendObjectMovementEventData(CInterfaceStackTable* data) const
 {
     data->appendMapObject_stringInt32("movementOptions",_objectMovementOptions);
+    data->appendMapObject_stringInt32("movementPreferredAxes",_objectMovementPreferredAxes);
     data->appendMapObject_stringFloatArray("movementStepSize",_objectMovementStepSize,2);
     data->appendMapObject_stringInt32Array("movementRelativity",_objectMovementRelativity,2);
 }
@@ -1078,9 +1077,7 @@ CSceneObject* CSceneObject::copyYourself()
 
     theNewObject->_assemblyMatchValuesChild.assign(_assemblyMatchValuesChild.begin(),_assemblyMatchValuesChild.end());
     theNewObject->_assemblyMatchValuesParent.assign(_assemblyMatchValuesParent.begin(),_assemblyMatchValuesParent.end());
-    theNewObject->_objectTranslationSettingsLocked=_objectTranslationSettingsLocked;
-    theNewObject->_objectRotationSettingsLocked=_objectRotationSettingsLocked;
-    theNewObject->_objectManipulationModePermissions=_objectManipulationModePermissions;
+    theNewObject->_objectMovementPreferredAxes=_objectMovementPreferredAxes;
     theNewObject->_objectMovementOptions=_objectMovementOptions;
     theNewObject->_objectMovementRelativity[0]=_objectMovementRelativity[0];
     theNewObject->_objectMovementRelativity[1]=_objectMovementRelativity[1];
@@ -1188,36 +1185,25 @@ void CSceneObject::getObjectCustomData_old(int header,char* data) const
     _customObjectData_old->getData(header,data);
 }
 
-void CSceneObject::setObjectTranslationSettingsLocked(bool l)
-{
-    _objectTranslationSettingsLocked=l;
-}
-
-bool CSceneObject::getObjectTranslationSettingsLocked() const
-{
-    return(_objectTranslationSettingsLocked);
-}
-
-void CSceneObject::setObjectRotationSettingsLocked(bool l)
-{
-    _objectRotationSettingsLocked=l;
-}
-
-bool CSceneObject::getObjectRotationSettingsLocked() const
-{
-    return(_objectRotationSettingsLocked);
-}
-
-
-void CSceneObject::setObjectManipulationModePermissions(int p)
-{ // bits 0-2: position x,y,z (relative to parent frame), bits 3-5: Euler e9,e1,e2 (relative to own frame) 
+void CSceneObject::setObjectMovementPreferredAxes(int p)
+{ // bits 0-2: position x,y,z, bits 3-5: Euler e9,e1,e2
     p&=0x3f;
-    _objectManipulationModePermissions=p;
+    bool diff=(_objectMovementPreferredAxes!=p);
+    if (diff)
+    {
+        _objectMovementPreferredAxes=p;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
+            _appendObjectMovementEventData(data);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
-int CSceneObject::getObjectManipulationModePermissions() const
-{ // bits 0-2: position x,y,z (relative to parent frame), bits 3-5: Euler e9,e1,e2 (relative to own frame) 
-    return(_objectManipulationModePermissions);
+int CSceneObject::getObjectMovementPreferredAxes() const
+{ // bits 0-2: position x,y,z, bits 3-5: Euler e9,e1,e2
+    return(_objectMovementPreferredAxes);
 }
 
 
@@ -1770,8 +1756,8 @@ void CSceneObject::serialize(CSer& ar)
 
             ar.storeDataName("Va4");
             dummy=0;
-            SIM_SET_CLEAR_BIT(dummy,0,_objectTranslationSettingsLocked);
-            SIM_SET_CLEAR_BIT(dummy,1,_objectRotationSettingsLocked);
+            SIM_SET_CLEAR_BIT(dummy,0,(_objectMovementOptions&16)!=0);
+            SIM_SET_CLEAR_BIT(dummy,1,(_objectMovementOptions&32)!=0);
             ar << dummy;
             ar.flush();
 
@@ -1792,7 +1778,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Om5");
-            ar << _objectManipulationModePermissions << _objectMovementRelativity[0] << _objectMovementStepSize[0];
+            ar << _objectMovementPreferredAxes << _objectMovementRelativity[0] << _objectMovementStepSize[0];
             ar.flush();
 
             ar.storeDataName("Omr");
@@ -2079,8 +2065,10 @@ void CSceneObject::serialize(CSer& ar)
                         ar >> byteQuantity;
                         unsigned char dummy;
                         ar >> dummy;
-                        _objectTranslationSettingsLocked=SIM_IS_BIT_SET(dummy,0);
-                        _objectRotationSettingsLocked=SIM_IS_BIT_SET(dummy,1);
+                        if (SIM_IS_BIT_SET(dummy,0))
+                            _objectMovementOptions=_objectMovementOptions|16;
+                        if (SIM_IS_BIT_SET(dummy,1))
+                            _objectMovementOptions=_objectMovementOptions|32;
                     }
 
                     if (theName.compare("Omp")==0)
@@ -2111,7 +2099,7 @@ void CSceneObject::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _objectManipulationModePermissions >> _objectMovementRelativity[0] >> _objectMovementStepSize[0];
+                        ar >> _objectMovementPreferredAxes >> _objectMovementRelativity[0] >> _objectMovementStepSize[0];
                     }
                     if (theName.compare("Omr")==0)
                     {
@@ -2402,18 +2390,18 @@ void CSceneObject::serialize(CSer& ar)
             if (exhaustiveXml)
             {
                 ar.xmlPushNewNode("manipulation");
-                ar.xmlAddNode_int("permissions",_objectManipulationModePermissions);
+                ar.xmlAddNode_int("permissions",_objectMovementPreferredAxes);
                 ar.xmlPushNewNode("translation");
                 ar.xmlAddNode_bool("disabledDuringSimulation",(_objectMovementOptions&2)!=0);
                 ar.xmlAddNode_bool("disabledDuringNonSimulation",(_objectMovementOptions&1)!=0);
-                ar.xmlAddNode_bool("settingsLocked",_objectTranslationSettingsLocked);
+                ar.xmlAddNode_bool("settingsLocked",(_objectMovementOptions&16)!=0);
                 ar.xmlAddNode_int("relativeTo",_objectMovementRelativity[0]);
                 ar.xmlAddNode_float("nonDefaultStepSize",_objectMovementStepSize[0]);
                 ar.xmlPopNode();
                 ar.xmlPushNewNode("rotation");
                 ar.xmlAddNode_bool("disabledDuringSimulation",(_objectMovementOptions&8)!=0);
                 ar.xmlAddNode_bool("disabledDuringNonSimulation",(_objectMovementOptions&4)!=0);
-                ar.xmlAddNode_bool("settingsLocked",_objectRotationSettingsLocked);
+                ar.xmlAddNode_bool("settingsLocked",(_objectMovementOptions&32)!=0);
                 ar.xmlAddNode_int("relativeTo",_objectMovementRelativity[1]);
                 ar.xmlAddNode_float("nonDefaultStepSize",_objectMovementStepSize[1]);
                 ar.xmlPopNode();
@@ -2649,21 +2637,25 @@ void CSceneObject::serialize(CSer& ar)
 
                 if (exhaustiveXml&&ar.xmlPushChildNode("manipulation"))
                 {
-                    ar.xmlGetNode_int("permissions",_objectManipulationModePermissions);
+                    ar.xmlGetNode_int("permissions",_objectMovementPreferredAxes);
                     if (ar.xmlPushChildNode("translation"))
                     {
                         bool tmp;
-                        if (ar.xmlGetNode_bool("disabledDuringSimulation",tmp))
+                        if (ar.xmlGetNode_bool("disabledDuringSimulation",tmp,false))
                         {
                             if (tmp)
                                 _objectMovementOptions=_objectMovementOptions|2;
                         }
-                        if (ar.xmlGetNode_bool("disabledDuringNonSimulation",tmp))
+                        if (ar.xmlGetNode_bool("disabledDuringNonSimulation",tmp,false))
                         {
                             if (tmp)
                                 _objectMovementOptions=_objectMovementOptions|1;
                         }
-                        ar.xmlGetNode_bool("settingsLocked",_objectTranslationSettingsLocked);
+                        if (ar.xmlGetNode_bool("settingsLocked",tmp,false))
+                        {
+                            if (tmp)
+                                _objectMovementOptions=_objectMovementOptions|16;
+                        }
                         ar.xmlGetNode_int("relativeTo",_objectMovementRelativity[0]);
                         ar.xmlGetNode_float("nonDefaultStepSize",_objectMovementStepSize[0]);
                         ar.xmlPopNode();
@@ -2671,17 +2663,21 @@ void CSceneObject::serialize(CSer& ar)
                     if (ar.xmlPushChildNode("rotation"))
                     {
                         bool tmp;
-                        if (ar.xmlGetNode_bool("disabledDuringSimulation",tmp))
+                        if (ar.xmlGetNode_bool("disabledDuringSimulation",tmp,false))
                         {
                             if (tmp)
                                 _objectMovementOptions=_objectMovementOptions|8;
                         }
-                        if (ar.xmlGetNode_bool("disabledDuringNonSimulation",tmp))
+                        if (ar.xmlGetNode_bool("disabledDuringNonSimulation",tmp,false))
                         {
                             if (tmp)
                                 _objectMovementOptions=_objectMovementOptions|4;
                         }
-                        ar.xmlGetNode_bool("settingsLocked",_objectRotationSettingsLocked);
+                        if (ar.xmlGetNode_bool("settingsLocked",tmp,false))
+                        {
+                            if (tmp)
+                                _objectMovementOptions=_objectMovementOptions|32;
+                        }
                         ar.xmlGetNode_int("relativeTo",_objectMovementRelativity[1]);
                         ar.xmlGetNode_float("nonDefaultStepSize",_objectMovementStepSize[1]);
                         ar.xmlPopNode();
@@ -3580,17 +3576,17 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
         return(false);
     }
     static int  otherAxisMemorized=0;
-    bool ctrlKeyDown=((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1))&&(!_objectRotationSettingsLocked);
-    if ( (!ctrlKeyDown)&&((getObjectManipulationModePermissions()&56)==0) )
+    bool ctrlKeyDown=((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1))&&((_objectMovementOptions&32)==0);
+    if ( (!ctrlKeyDown)&&((getObjectMovementPreferredAxes()&56)==0) )
     { // This is special so that, when no manip is allowed but we held down the ctrl key and released it, the green manip disc doesn't appear
         _objectManipulationModeAxisIndex=-1;
         _objectManipulationMode_flaggedForGridOverlay=0;
-        _objectManipulationModePermissionsPreviousCtrlKeyDown=ctrlKeyDown;
+        _objectMovementPreferredAxesPreviousCtrlKeyDown=ctrlKeyDown;
         return(false);
     }
-    if ( (eventID!=_objectManipulationModeEventId)||(ctrlKeyDown!=_objectManipulationModePermissionsPreviousCtrlKeyDown) )
+    if ( (eventID!=_objectManipulationModeEventId)||(ctrlKeyDown!=_objectMovementPreferredAxesPreviousCtrlKeyDown) )
     {
-        if ( (otherAxisMemorized>1)&&((getObjectManipulationModePermissions()&56)!=0) )
+        if ( (otherAxisMemorized>1)&&((getObjectMovementPreferredAxes()&56)!=0) )
             otherAxisMemorized=0;
         if (otherAxisMemorized>2)
             otherAxisMemorized=0;
@@ -3600,7 +3596,7 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
         _objectManipulationModeTotalTranslation.clear();
         _objectManipulationModeTotalRotation=0.0f;
         // Let's first see around which axis we wanna rotate:
-        int _objectManipulationModePermissionsTEMP=getObjectManipulationModePermissions();
+        int _objectMovementPreferredAxesTEMP=getObjectMovementPreferredAxes();
         bool specialMode=false;
         if (ctrlKeyDown)
             specialMode=true;
@@ -3622,7 +3618,7 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
                 l=(cameraAbsConf.X-objAbs.X) *rotAxes.axis[i];
             else
                 l=cameraAbsConf.M.axis[2]*rotAxes.axis[i];
-            if ( (fabs(l)>=ml)&&(_objectManipulationModePermissionsTEMP&(8<<i)) )
+            if ( (fabs(l)>=ml)&&(_objectMovementPreferredAxesTEMP&(8<<i)) )
             {
                 ml=fabs(l);
                 _objectManipulationModeAxisIndex=i;
@@ -3649,7 +3645,7 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
         }
     }
 
-    _objectManipulationModePermissionsPreviousCtrlKeyDown=ctrlKeyDown;
+    _objectMovementPreferredAxesPreviousCtrlKeyDown=ctrlKeyDown;
 
     if (_objectManipulationModeAxisIndex==-1)
         return(false); //rotation not allowed
@@ -3718,17 +3714,17 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
     if (getObjectMovementRelativity(0)==2)
         objAbs.M=getCumulativeTransformation().getMatrix().M;
     static int  otherAxisMemorized=0;
-    bool ctrlKeyDown=((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1))&&(!_objectTranslationSettingsLocked);
-    if ( (!ctrlKeyDown)&&((getObjectManipulationModePermissions()&7)==0) )
+    bool ctrlKeyDown=((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1))&&((_objectMovementOptions&16)==0);
+    if ( (!ctrlKeyDown)&&((getObjectMovementPreferredAxes()&7)==0) )
     { // This is special so that, when no manip is allowed but we held down the ctrl key and released it, the green manip bars don't appear
         _objectManipulationModeAxisIndex=-1;
         _objectManipulationMode_flaggedForGridOverlay=0;
-        _objectManipulationModePermissionsPreviousCtrlKeyDown=ctrlKeyDown;
+        _objectMovementPreferredAxesPreviousCtrlKeyDown=ctrlKeyDown;
         return(false);
     }
     if (eventID!=_objectManipulationModeEventId)
         _objectManipulationModeRelativePositionOfClickedPoint=clicked3DPoint-objAbs.X; // Added on 2010/07/29
-    if ( (eventID!=_objectManipulationModeEventId)||(ctrlKeyDown!=_objectManipulationModePermissionsPreviousCtrlKeyDown) )
+    if ( (eventID!=_objectManipulationModeEventId)||(ctrlKeyDown!=_objectMovementPreferredAxesPreviousCtrlKeyDown) )
     {
         if (otherAxisMemorized>1)
             otherAxisMemorized=0;
@@ -3738,15 +3734,15 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
         _objectManipulationModeTotalTranslation.clear();
         _objectManipulationModeTotalRotation=0.0f;
         // Let's first see on which plane we wanna translate:
-        int _objectManipulationModePermissionsTEMP=getObjectManipulationModePermissions();
+        int _objectMovementPreferredAxesTEMP=getObjectMovementPreferredAxes();
         bool specialMode=false;
         bool specialMode2=false;
         if (ctrlKeyDown)
         {
-            if ((_objectManipulationModePermissionsTEMP&7)!=7)
+            if ((_objectMovementPreferredAxesTEMP&7)!=7)
             {
-                _objectManipulationModePermissionsTEMP^=7;
-                specialMode2=((_objectManipulationModePermissionsTEMP&7)==7);
+                _objectMovementPreferredAxesTEMP^=7;
+                specialMode2=((_objectMovementPreferredAxesTEMP&7)==7);
             }
             else
                 specialMode=true;
@@ -3761,7 +3757,7 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
                 l=(cameraAbsConf.X-objAbs.X)*objAbs.M.axis[i];
             else
                 l=cameraAbsConf.M.axis[2]*objAbs.M.axis[i];
-            if ( (fabs(l)>=ml)&&((_objectManipulationModePermissionsTEMP&(planeComb[i]))==planeComb[i]) )
+            if ( (fabs(l)>=ml)&&((_objectMovementPreferredAxesTEMP&(planeComb[i]))==planeComb[i]) )
             {
                 ml=fabs(l);
                 _objectManipulationModeAxisIndex=i;
@@ -3771,7 +3767,7 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
         { // maybe we are constrained to stay on a line?
             for (int i=0;i<3;i++)
             {
-                if (_objectManipulationModePermissionsTEMP&(1<<i))
+                if (_objectMovementPreferredAxesTEMP&(1<<i))
                     _objectManipulationModeAxisIndex=3+i;
             }
         }
@@ -3788,7 +3784,7 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
         }
     }
 
-    _objectManipulationModePermissionsPreviousCtrlKeyDown=ctrlKeyDown;
+    _objectMovementPreferredAxesPreviousCtrlKeyDown=ctrlKeyDown;
 
     if (_objectManipulationModeAxisIndex==-1)
         return(false); //rotation not allowed

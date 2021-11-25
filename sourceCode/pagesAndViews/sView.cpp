@@ -1850,7 +1850,7 @@ void CSView::cameraAndObjectMotion()
             { // We manipulate the parent object instead:
                 C7Vector local1(camera->getFullLocalTransformation());
                 camera->setLocalTransformation(local); // we reset to initial
-                if ((cameraParentProxy->getObjectManipulationModePermissions()&0x1f)==0x1f)
+                if ((cameraParentProxy->getObjectMovementPreferredAxes()&0x1f)==0x1f)
                     cameraParentProxy->setLocalTransformation(cameraParentProxy->getFullLocalTransformation()*local1*local.getInverse());
             }
         }

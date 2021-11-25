@@ -760,7 +760,7 @@ void CCamera::commonInit()
 
     _cameraManipulationModePermissions=0x1f;
 
-    _objectManipulationModePermissions=0x013;
+    _objectMovementPreferredAxes=0x013;
 
     trackedObjectIdentifier_NeverDirectlyTouch=-1;
     _visibilityLayer=CAMERA_LIGHT_LAYER;

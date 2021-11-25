@@ -77,10 +77,10 @@ void CQDlgTranslation::refresh()
             _setValuesTranslationPart(true);
             _setValuesScalingPart(true);
             // Mouse manip part:
-            manipulationModePermission=object->getObjectManipulationModePermissions();
+            manipulationModePermission=object->getObjectMovementPreferredAxes();
             manipulationTranslationRelativeTo=object->getObjectMovementRelativity(0);
             manipulationTranslationStepSize=object->getObjectMovementStepSize(0);
-            objectTranslationSettingsLocked=object->getObjectTranslationSettingsLocked();
+            objectTranslationSettingsLocked=(object->getObjectMovementOptions()&(16+64+128+256))!=0;
         }
         else
         {
@@ -1095,7 +1095,7 @@ void CQDlgTranslation::on_qqPosX_clicked()
         CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object!=nullptr)
         {
-            int permission=object->getObjectManipulationModePermissions();
+            int permission=object->getObjectMovementPreferredAxes();
             permission=permission^0x01;
             int low=permission&0x07;
             int high=permission&56;
@@ -1118,7 +1118,7 @@ void CQDlgTranslation::on_qqPosY_clicked()
         CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object!=nullptr)
         {
-            int permission=object->getObjectManipulationModePermissions();
+            int permission=object->getObjectMovementPreferredAxes();
             permission=permission^0x02;
             int low=permission&0x07;
             int high=permission&56;
@@ -1141,7 +1141,7 @@ void CQDlgTranslation::on_qqPosZ_clicked()
         CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object!=nullptr)
         {
-            int permission=object->getObjectManipulationModePermissions();
+            int permission=object->getObjectMovementPreferredAxes();
             permission=permission^0x04;
             int low=permission&0x07;
             int high=permission&56;
@@ -1181,3 +1181,4 @@ int CQDlgTranslation::_getIndexOfComboboxItemWithData(QComboBox* theBox,int item
     }
     return(-1);
 }
+

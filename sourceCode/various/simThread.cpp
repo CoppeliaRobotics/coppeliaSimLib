@@ -483,7 +483,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CSceneObject* obj=App::currentWorld->sceneObjects->getLastSelectionObject();
                 if (obj!=nullptr)
                 {
-// Not anymore! 30/12/2016                    if ( (obj->getObjectManipulationModePermissions()&0x03)||(obj->getObjectMovementRelativity(0)!=0) )
+// Not anymore! 30/12/2016                    if ( (obj->getObjectMovementPreferredAxes()&0x03)||(obj->getObjectMovementRelativity(0)!=0) )
 //                    { // We can only place the model if the X and/or Y manip are set or if the placement is not relative to world
                         C7Vector tr(obj->getFullLocalTransformation());
                         float ss=obj->getObjectMovementStepSize(0);
@@ -3804,7 +3804,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setObjectManipulationModePermissions(cmd.intParams[1]);
+                it->setObjectMovementPreferredAxes(cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_POSSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD)
         {

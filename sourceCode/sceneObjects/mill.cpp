@@ -73,7 +73,7 @@ void CMill::commonInit()
     _milledVolume=0.0f;
     _milledObjectCount=0;
 
-    _objectManipulationModePermissions=0x013;
+    _objectMovementPreferredAxes=0x013;
 
     passiveVolumeColor.setDefaultValues();
     passiveVolumeColor.setColor(0.0f,0.5f,0.9f,sim_colorcomponent_ambient_diffuse);

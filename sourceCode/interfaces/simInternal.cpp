@@ -8955,19 +8955,16 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                 }
                 if (parameterID==sim_objintparam_manipulation_permissions)
                 {
-                    parameter[0]=0;
-                    if ((it->getObjectMovementOptions()&1)==0)
+                    int a=it->getObjectMovementOptions();
+                    parameter[0]=(a&0xffff0);
+                    if ((a&1)==0)
                         parameter[0]|=1;
-                    if ((it->getObjectMovementOptions()&2)==0)
+                    if ((a&2)==0)
                         parameter[0]|=2;
-                    if ((it->getObjectMovementOptions()&4)==0)
+                    if ((a&4)==0)
                         parameter[0]|=4;
-                    if ((it->getObjectMovementOptions()&8)==0)
+                    if ((a&8)==0)
                         parameter[0]|=8;
-                    if (it->getObjectTranslationSettingsLocked())
-                        parameter[0]|=16;
-                    if (it->getObjectRotationSettingsLocked())
-                        parameter[0]|=32;
                     retVal=1;
                 }
                 if (parameterID==sim_objintparam_illumination_handle)
@@ -9340,11 +9337,16 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                 }
                 if (parameterID==sim_objintparam_manipulation_permissions)
                 {
-                    int a=it->getObjectMovementOptions()&0xffff0;
-                    a=a^parameter&0x00000f;
+                    int a=parameter&(0xffff0);
+                    if ((parameter&1)==0)
+                        a=a|1;
+                    if ((parameter&2)==0)
+                        a=a|2;
+                    if ((parameter&4)==0)
+                        a=a|4;
+                    if ((parameter&8)==0)
+                        a=a|8;
                     it->setObjectMovementOptions(a);
-                    it->setObjectTranslationSettingsLocked((parameter&16)!=0);
-                    it->setObjectRotationSettingsLocked((parameter&32)!=0);
                     retVal=1;
                 }
                 if (parameterID==sim_objintparam_illumination_handle)

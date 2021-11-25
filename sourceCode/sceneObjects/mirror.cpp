@@ -60,7 +60,7 @@ void CMirror::_commonInit()
     _visibilityLayer=CAMERA_LIGHT_LAYER;
     _localObjectSpecialProperty=sim_objectspecialproperty_renderable;
 
-    _objectManipulationModePermissions=0x013;
+    _objectMovementPreferredAxes=0x013;
 
     _objectAlias=IDSOGL_MIRROR;
     _objectName_old=IDSOGL_MIRROR;

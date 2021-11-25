@@ -1810,7 +1810,7 @@ void CShape::setCulling(bool culState)
         {
             m->setCulling(culState);
 
-            if (App::worldContainer->getEventsEnabled())
+            if ( _isInScene&&App::worldContainer->getEventsEnabled() )
             {
                 const char* cmd="color";
                 auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
@@ -1840,7 +1840,7 @@ void CShape::setVisibleEdges(bool v)
         {
             m->setVisibleEdges(v);
 
-            if (App::worldContainer->getEventsEnabled())
+            if ( _isInScene&&App::worldContainer->getEventsEnabled() )
             {
                 const char* cmd="color";
                 auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,false);

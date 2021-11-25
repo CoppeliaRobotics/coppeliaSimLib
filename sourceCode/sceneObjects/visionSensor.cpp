@@ -249,8 +249,6 @@ void CVisionSensor::commonInit()
     _depthBuffer=nullptr;
     _reserveBuffers();
 
-    _objectManipulationModePermissions=0x013;
-
     _objectAlias=IDSOGL_VISION_U_SENSOR;
     _objectName_old=IDSOGL_VISION_U_SENSOR;
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());

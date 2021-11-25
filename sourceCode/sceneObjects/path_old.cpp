@@ -781,7 +781,7 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
     bool ctrlKeyDown=((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1));
     if (eventID!=_objectManipulationModeEventId)
         _objectManipulationModeRelativePositionOfClickedPoint=clicked3DPoint-objAbs.X;
-    if ( (eventID!=_objectManipulationModeEventId)||(ctrlKeyDown!=_objectManipulationModePermissionsPreviousCtrlKeyDown) )
+    if ( (eventID!=_objectManipulationModeEventId)||(ctrlKeyDown!=_objectMovementPreferredAxesPreviousCtrlKeyDown) )
     {
         _objectManipulationModeSubTranslation.clear();
         _objectManipulationModeSubRotation=0.0f;
@@ -797,7 +797,7 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
             _objectManipulationModeAxisIndex+=3;
     }
 
-    _objectManipulationModePermissionsPreviousCtrlKeyDown=ctrlKeyDown;
+    _objectMovementPreferredAxesPreviousCtrlKeyDown=ctrlKeyDown;
 
     C4X4Matrix originalPlane(objAbs); // x-y plane
     originalPlane.X+=_objectManipulationModeRelativePositionOfClickedPoint;
