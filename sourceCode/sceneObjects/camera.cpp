@@ -435,7 +435,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
     if (pts.size()==0)
         return;
 
-    if (getTrackedObjectID()!=-1)
+    if (getTrackedObjectHandle()!=-1)
     { // When tracking an object, we should stay on the current view axis. To do this, we simply reflect all points left/right/top/bottom relative to the camera!
         std::vector<float> ptsC(pts);
         pts.clear();
@@ -762,7 +762,7 @@ void CCamera::commonInit()
 
     _objectMovementPreferredAxes=0x013;
 
-    trackedObjectIdentifier_NeverDirectlyTouch=-1;
+    _trackedObjectHandle=-1;
     _visibilityLayer=CAMERA_LIGHT_LAYER;
     _localObjectSpecialProperty=0;
     _useParentObjectAsManipulationProxy=false;
@@ -881,10 +881,10 @@ void CCamera::handleTrackingAndHeadAlwaysUp()
     // 1. First tracking:
     // Check if the tracked object is not parented with that camera
     // (camera would follow the object which would follow the camera which...)
-    CSceneObject* tr=App::currentWorld->sceneObjects->getObjectFromHandle(trackedObjectIdentifier_NeverDirectlyTouch);
+    CSceneObject* tr=App::currentWorld->sceneObjects->getObjectFromHandle(_trackedObjectHandle);
     if ((tr==nullptr)||(tr==this)||tr->isObjectParentedWith(this))
     {
-        trackedObjectIdentifier_NeverDirectlyTouch=-1;
+        _trackedObjectHandle=-1;
         tr=nullptr;
     }
     if (tr!=nullptr)
@@ -964,9 +964,9 @@ float CCamera::getCameraSize() const
     return(_cameraSize);
 }
 
-int CCamera::getTrackedObjectID() const
+int CCamera::getTrackedObjectHandle() const
 {
-    return(trackedObjectIdentifier_NeverDirectlyTouch);
+    return(_trackedObjectHandle);
 }
 
 void CCamera::setUseParentObjectAsManipulationProxy(bool useParent)
@@ -979,25 +979,25 @@ bool CCamera::getUseParentObjectAsManipulationProxy() const
     return(_useParentObjectAsManipulationProxy);
 }
 
-void CCamera::setTrackedObjectID(int trackedObjID)
+void CCamera::setTrackedObjectHandle(int trackedObjHandle)
 {
-    if (trackedObjID==_objectHandle)
+    if (trackedObjHandle==_objectHandle)
         return;
-    if (trackedObjID==-1)
+    if (trackedObjHandle==-1)
     {
-        trackedObjectIdentifier_NeverDirectlyTouch=-1;
+        _trackedObjectHandle=-1;
         return;
     }
-    if (App::currentWorld->sceneObjects->getObjectFromHandle(trackedObjID)==nullptr)
+    if (App::currentWorld->sceneObjects->getObjectFromHandle(trackedObjHandle)==nullptr)
         return;
-    trackedObjectIdentifier_NeverDirectlyTouch=trackedObjID;
+    _trackedObjectHandle=trackedObjHandle;
     App::setLightDialogRefreshFlag();
 }
 
 void CCamera::removeSceneDependencies()
 {
     CSceneObject::removeSceneDependencies();
-    trackedObjectIdentifier_NeverDirectlyTouch=-1;
+    _trackedObjectHandle=-1;
 }
 
 void CCamera::addSpecializedObjectEventData(CInterfaceStackTable* data) const
@@ -1050,7 +1050,7 @@ CSceneObject* CCamera::copyYourself()
     newCamera->_volumeVectorNear=_volumeVectorNear;
     newCamera->_volumeVectorFar=_volumeVectorFar;
     newCamera->_showFogIfAvailable=_showFogIfAvailable;
-    newCamera->trackedObjectIdentifier_NeverDirectlyTouch=trackedObjectIdentifier_NeverDirectlyTouch;
+    newCamera->_trackedObjectHandle=_trackedObjectHandle;
     newCamera->_useParentObjectAsManipulationProxy=_useParentObjectAsManipulationProxy;
     newCamera->_cameraManipulationModePermissions=_cameraManipulationModePermissions;
     newCamera->_useLocalLights=_useLocalLights;
@@ -1069,8 +1069,8 @@ bool CCamera::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
     // 'ct::objCont->getObject(id)'-call or similar
     // Return value true means 'this' has to be erased too!
     bool retVal=CSceneObject::announceObjectWillBeErased(objectHandle,copyBuffer);
-    if (trackedObjectIdentifier_NeverDirectlyTouch==objectHandle)
-        trackedObjectIdentifier_NeverDirectlyTouch=-1;
+    if (_trackedObjectHandle==objectHandle)
+        _trackedObjectHandle=-1;
     return(retVal);
 }
 void CCamera::announceCollectionWillBeErased(int groupID,bool copyBuffer)
@@ -1096,7 +1096,7 @@ void CCamera::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 void CCamera::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
 { // New_Object_ID=map[Old_Object_ID]
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
-    trackedObjectIdentifier_NeverDirectlyTouch=CWorld::getLoadingMapping(map,trackedObjectIdentifier_NeverDirectlyTouch);
+    _trackedObjectHandle=CWorld::getLoadingMapping(map,_trackedObjectHandle);
 }
 void CCamera::performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
@@ -1285,8 +1285,8 @@ void CCamera::serialize(CSer& ar)
         if (ar.isStoring())
         { // Storing
             int trck=-1;
-            if (trackedObjectIdentifier_NeverDirectlyTouch!=-1)
-                trck=trackedObjectIdentifier_NeverDirectlyTouch;
+            if (_trackedObjectHandle!=-1)
+                trck=_trackedObjectHandle;
             ar.storeDataName("Cp4");
             ar << trck << _cameraSize;
             ar.flush();
@@ -1354,7 +1354,7 @@ void CCamera::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> trackedObjectIdentifier_NeverDirectlyTouch >> _cameraSize;
+                        ar >> _trackedObjectHandle >> _cameraSize;
                     }
                     if (theName.compare("Cp3")==0)
                     {
@@ -1497,8 +1497,8 @@ void CCamera::serialize(CSer& ar)
                 ar.xmlAddNode_bool("mainCamera",h==_objectHandle);
             }
             int trck=-1;
-            if (trackedObjectIdentifier_NeverDirectlyTouch!=-1)
-                trck=trackedObjectIdentifier_NeverDirectlyTouch;
+            if (_trackedObjectHandle!=-1)
+                trck=_trackedObjectHandle;
             if (exhaustiveXml)
                 ar.xmlAddNode_int("trackedObjectHandle",trck);
             else
@@ -1568,7 +1568,7 @@ void CCamera::serialize(CSer& ar)
                 ar.xmlGetNode_bool("mainCamera",_isMainCamera,exhaustiveXml);
 
             if (exhaustiveXml)
-                ar.xmlGetNode_int("trackedObjectHandle",trackedObjectIdentifier_NeverDirectlyTouch);
+                ar.xmlGetNode_int("trackedObjectHandle",_trackedObjectHandle);
             else
             {
                 ar.xmlGetNode_string("trackedObjectAlias",_trackedObjectLoadAlias,exhaustiveXml);

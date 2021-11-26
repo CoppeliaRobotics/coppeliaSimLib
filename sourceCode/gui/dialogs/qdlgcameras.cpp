@@ -94,7 +94,7 @@ void CQDlgCameras::refresh()
             ui->qqTrackedCombo->addItem(names[i].c_str(),QVariant(ids[i]));
         for (int i=0;i<ui->qqTrackedCombo->count();i++)
         {
-            if (ui->qqTrackedCombo->itemData(i).toInt()==it->getTrackedObjectID())
+            if (ui->qqTrackedCombo->itemData(i).toInt()==it->getTrackedObjectHandle())
             {
                 ui->qqTrackedCombo->setCurrentIndex(i);
                 break;

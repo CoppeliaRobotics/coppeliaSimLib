@@ -540,12 +540,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (cam!=nullptr)
             {
                 if (cmd.intParams[1]<0)
-                    cam->setTrackedObjectID(-1);
+                    cam->setTrackedObjectHandle(-1);
                 else
                 {
                     CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[1]);
                     if (obj!=nullptr)
-                        cam->setTrackedObjectID(obj->getObjectHandle());
+                        cam->setTrackedObjectHandle(obj->getObjectHandle());
                 }
             }
         }

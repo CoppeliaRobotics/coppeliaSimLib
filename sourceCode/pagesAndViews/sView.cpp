@@ -638,7 +638,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
             if ((camera!=nullptr)&&(sel.size()==1))
             {
-                camera->setTrackedObjectID(sel[0]);
+                camera->setTrackedObjectHandle(sel[0]);
                 App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_CAMERA_NOW_TRACKING_SELECTED_OBJECT);
             }
@@ -659,7 +659,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
             if (camera!=nullptr)
             {
-                camera->setTrackedObjectID(-1);
+                camera->setTrackedObjectHandle(-1);
                 App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 App::logMsg(sim_verbosity_msgs,IDSNS_CAMERA_NOW_NOT_TRACKING_ANY_OBJECT);
             }
@@ -933,7 +933,7 @@ void CSView::addMenu(VMenu* menu)
 
         menu->appendMenuItem(true,false,VIEW_SELECTOR_SELECT_ANY_VSCMD,IDSN_SELECT_VIEWABLE_OBJECT);
 
-        CSceneObject* trkObj=App::currentWorld->sceneObjects->getObjectFromHandle(camera->getTrackedObjectID());
+        CSceneObject* trkObj=App::currentWorld->sceneObjects->getObjectFromHandle(camera->getTrackedObjectHandle());
         if (trkObj!=nullptr)
         {
             std::string tmp(IDS_DONT_TRACK_OBJECT__MENU_ITEM);

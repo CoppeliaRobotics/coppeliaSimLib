@@ -63,8 +63,8 @@ public:
     float getCameraSize() const;
     void setAllowPicking(bool a);
     bool getAllowPicking() const;
-    void setTrackedObjectID(int trackedObjID);
-    int getTrackedObjectID() const;
+    void setTrackedObjectHandle(int trackedObjHandle);
+    int getTrackedObjectHandle() const;
     void setUseParentObjectAsManipulationProxy(bool useParent);
     bool getUseParentObjectAsManipulationProxy() const;
     void setCameraManipulationModePermissions(int p); // bit coded: own x, own y, own z, full rotation, tilting, never tilting
@@ -94,7 +94,7 @@ protected:
     CColorObject _color_removeSoon;
 
     // Various
-    int trackedObjectIdentifier_NeverDirectlyTouch;
+    int _trackedObjectHandle;
     int hitForMouseUpProcessing_minus2MeansIgnore;
     int _attributesForRendering;
     unsigned int _textureNameForExtGeneratedView;

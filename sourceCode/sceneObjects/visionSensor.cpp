@@ -2535,6 +2535,8 @@ void CVisionSensor::serialize(CSer& ar)
         {
             ar.xmlAddNode_float("objectSize",_visionSensorSize);
 
+            ar.xmlAddNode_float("orthoViewSize",_orthoViewSize);
+
             ar.xmlAddNode_float("viewAngle",_viewAngle*180.0f/piValue_f);
 
             ar.xmlAddNode_2float("clippingPlanes",_nearClippingPlane,_farClippingPlane);

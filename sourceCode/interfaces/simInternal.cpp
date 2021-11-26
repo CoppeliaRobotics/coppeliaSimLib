@@ -9112,6 +9112,11 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                     parameter[0]=1;
                 retVal=1;
             }
+            if (parameterID==sim_cameraintparam_trackedobject)
+            {
+                parameter[0]=camera->getTrackedObjectHandle();
+                retVal=1;
+            }
             if (parameterID==sim_cameraintparam_disabled_light_components)
             {
                 parameter[0]=camera->getDisabledColorComponents();
@@ -9461,6 +9466,14 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                     camera->setPerspectiveOperation(true);
                 else
                     camera->setPerspectiveOperation(false);
+                retVal=1;
+            }
+            if (parameterID==sim_cameraintparam_trackedobject)
+            {
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(parameter);
+                if ( (it==nullptr)||(it==camera) )
+                    parameter=-1;
+                camera->setTrackedObjectHandle(parameter);
                 retVal=1;
             }
             if (parameterID==sim_cameraintparam_disabled_light_components)

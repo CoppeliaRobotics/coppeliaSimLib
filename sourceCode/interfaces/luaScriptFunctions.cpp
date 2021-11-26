@@ -1167,6 +1167,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.camerafloatparam_pov_aperture",sim_camerafloatparam_pov_aperture,true},
     {"sim.cameraintparam_pov_blur_samples",sim_cameraintparam_pov_blur_samples,true},
     {"sim.cameraintparam_perspective_operation",sim_cameraintparam_perspective_operation,true},
+    {"sim.cameraintparam_trackedobject",sim_cameraintparam_trackedobject,true},
 
     // dummies
     {"sim.dummyintparam_link_type",sim_dummyintparam_link_type,true},

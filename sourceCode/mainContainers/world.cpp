@@ -1995,14 +1995,14 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
             CCamera* camera=(CCamera*)obj;
             std::map<std::string,CSceneObject*>::const_iterator it=_objectAliasesMap.find(camera->getTrackedObjectLoadAlias());
             if ( (camera->getTrackedObjectLoadAlias().size()>0)&&(it!=_objectAliasesMap.end()) )
-                camera->setTrackedObjectID(it->second->getObjectHandle());
+                camera->setTrackedObjectHandle(it->second->getObjectHandle());
             else
             { // for backward compatibility
                 if (camera->getTrackedObjectLoadName_old().size()>0)
                 {
                     it=_objectTempNamesMap.find(camera->getTrackedObjectLoadName_old());
                     if (it!=_objectTempNamesMap.end())
-                        camera->setTrackedObjectID(it->second->getObjectHandle());
+                        camera->setTrackedObjectHandle(it->second->getObjectHandle());
                 }
             }
         }
