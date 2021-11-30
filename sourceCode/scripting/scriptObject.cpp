@@ -753,6 +753,8 @@ bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int ca
             return(true);
         if (callType==sim_syscb_event)
             return(true);
+        if (callType==sim_syscb_beforemainscript)
+            return(true);
     }
     if ( (scriptType==sim_scripttype_sandboxscript)||(scriptType==sim_scripttype_addonscript)||(scriptType==sim_scripttype_customizationscript) )
     {
@@ -762,8 +764,8 @@ bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int ca
             return(true);
         if (callType==sim_syscb_aftersimulation)
             return(true);
-        if (callType==sim_syscb_beforemainscript)
-            return(true);
+ //       if (callType==sim_syscb_beforemainscript)
+ //           return(true);
         if (callType==sim_syscb_beforeinstanceswitch)
             return(true);
         if (callType==sim_syscb_afterinstanceswitch)

@@ -466,6 +466,7 @@ bool CEmbeddedScriptContainer::shouldTemporarilySuspendMainScript()
     bool retVal=false;
     std::vector<CScriptObject*> scripts;
     std::vector<int> uniqueIds;
+    _getScriptsToExecute(sim_scripttype_childscript,scripts,uniqueIds);
     _getScriptsToExecute(sim_scripttype_customizationscript,scripts,uniqueIds);
     for (size_t i=0;i<scripts.size();i++)
     {

@@ -4818,7 +4818,7 @@ simInt simHandleMainScript_internal()
     void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_mainscriptabouttobecalled,data,nullptr,rtVal);
     delete[] (char*)returnVal;
 
-    // Customization scripts:
+    // Child scripts & customization scripts:
     bool cs=!App::currentWorld->embeddedScriptContainer->shouldTemporarilySuspendMainScript();
 
     // Add-on scripts:
