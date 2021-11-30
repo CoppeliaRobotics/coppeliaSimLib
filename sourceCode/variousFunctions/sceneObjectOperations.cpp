@@ -1768,7 +1768,7 @@ void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection,floa
         it->scaleObject(scalingFactor);
     }
 
-    // Now we might have to scale a few ikElements/ikGroups:
+    // OLD IK:
     for (size_t i=0;i<App::currentWorld->ikGroups->getObjectCount();i++)
     {
         CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromIndex(i);

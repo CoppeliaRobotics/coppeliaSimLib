@@ -12781,9 +12781,7 @@ simInt* simGetObjectsInTree_internal(simInt treeBaseHandle,simInt objectType,sim
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {

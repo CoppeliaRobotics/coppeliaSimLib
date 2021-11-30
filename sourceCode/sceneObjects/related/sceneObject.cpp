@@ -607,7 +607,7 @@ void CSceneObject::scaleObject(float scalingFactor)
     _sizeValues[0]*=scalingFactor;
     _sizeValues[1]*=scalingFactor;
     _sizeValues[2]*=scalingFactor;
-    _setBoundingBox(_boundingBoxMin*scalingFactor,_boundingBoxMax*scalingFactor);
+    computeBoundingBox();
     incrementMemorizedConfigurationValidCounter();
 
     App::currentWorld->drawingCont->adjustForScaling(_objectHandle,scalingFactor,scalingFactor,scalingFactor);
