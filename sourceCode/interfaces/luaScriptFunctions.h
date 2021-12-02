@@ -156,6 +156,7 @@ extern int _simGetObjectChildPose(luaWrap_lua_State* L);
 extern int _simSetObjectChildPose(luaWrap_lua_State* L);
 extern int _simBuildIdentityMatrix(luaWrap_lua_State* L);
 extern int _simBuildMatrix(luaWrap_lua_State* L);
+extern int _simBuildPose(luaWrap_lua_State* L);
 extern int _simGetEulerAnglesFromMatrix(luaWrap_lua_State* L);
 extern int _simInvertMatrix(luaWrap_lua_State* L);
 extern int _simMultiplyMatrices(luaWrap_lua_State* L);

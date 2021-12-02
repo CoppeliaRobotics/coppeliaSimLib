@@ -153,6 +153,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setObjectChildPose",_simSetObjectChildPose,            "sim.setObjectChildPose(int objectHandle,table[7] pose)",true},
     {"sim.buildIdentityMatrix",_simBuildIdentityMatrix,          "table[12] matrix=sim.buildIdentityMatrix()",true},
     {"sim.buildMatrix",_simBuildMatrix,                          "table[12] matrix=sim.buildMatrix(table[3] position,table[3] eulerAngles)",true},
+    {"sim.buildPose",_simBuildPose,                              "table[7] pose=sim.buildPose(table[3] position,table[3] eulerAngles)",true},
     {"sim.getEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"table[3] eulerAngles=sim.getEulerAnglesFromMatrix(table[12] matrix)",true},
     {"sim.invertMatrix",_simInvertMatrix,                        "sim.invertMatrix(table[12] matrix)",true},
     {"sim.multiplyMatrices",_simMultiplyMatrices,                "table[12] resultMatrix=sim.multiplyMatrices(table[12] matrixIn1,table[12] matrixIn2)",true},
@@ -4075,6 +4076,29 @@ int _simBuildMatrix(luaWrap_lua_State* L)
         if (simBuildMatrix_internal(pos,euler,arr)==1)
         {
             pushFloatTableOntoStack(L,12,arr);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simBuildPose(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.buildPose");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,3,lua_arg_number,3))
+    {
+        float tr[7];
+        float pos[3];
+        float euler[3];
+        getFloatsFromTable(L,1,3,pos);
+        getFloatsFromTable(L,2,3,euler);
+        if (simBuildPose_internal(pos,euler,tr)==1)
+        {
+            pushFloatTableOntoStack(L,7,tr);
             LUA_END(1);
         }
     }

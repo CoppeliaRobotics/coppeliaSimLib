@@ -197,6 +197,10 @@ SIM_DLLEXPORT simInt simBuildMatrix(const simFloat* position,const simFloat* eul
 {
     return(simBuildMatrix_internal(position,eulerAngles,matrix));
 }
+SIM_DLLEXPORT simInt simBuildPose(const simFloat* position,const simFloat* eulerAngles,simFloat* pose)
+{
+    return(simBuildPose_internal(position,eulerAngles,pose));
+}
 SIM_DLLEXPORT simInt simBuildMatrixQ(const simFloat* position,const simFloat* quaternion,simFloat* matrix)
 {
     return(simBuildMatrixQ_internal(position,quaternion,matrix));

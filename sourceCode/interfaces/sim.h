@@ -65,6 +65,7 @@ SIM_DLLEXPORT simInt simGetObjectType(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetJointType(simInt objectHandle);
 SIM_DLLEXPORT simInt simBuildIdentityMatrix(simFloat* matrix);
 SIM_DLLEXPORT simInt simBuildMatrix(const simFloat* position,const simFloat* eulerAngles,simFloat* matrix);
+SIM_DLLEXPORT simInt simBuildPose(const simFloat* position,const simFloat* eulerAngles,simFloat* pose);
 SIM_DLLEXPORT simInt simBuildMatrixQ(const simFloat* position,const simFloat* quaternion,simFloat* matrix);
 SIM_DLLEXPORT simInt simGetEulerAnglesFromMatrix(const simFloat* matrix,simFloat* eulerAngles);
 SIM_DLLEXPORT simInt simGetQuaternionFromMatrix(const simFloat* matrix,simFloat* quaternion);

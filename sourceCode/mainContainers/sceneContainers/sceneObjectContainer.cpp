@@ -1175,20 +1175,23 @@ bool CSceneObjectContainer::setObjectName_old(CSceneObject* object,const char* n
 { // overridden from _CSceneObjectContainer_
     std::string nm(newName);
     bool retVal=false;
-    if (allowNameAdjustment||tt::isObjectNameValid_old(newName,!tt::isHashFree(newName)))
+    if (nm!=object->getObjectName_old())
     {
-        tt::removeIllegalCharacters(nm,true);
-        bool renamed=false;
-        while (getObjectFromName_old(nm.c_str())!=nullptr)
+        if (allowNameAdjustment||tt::isObjectNameValid_old(newName,!tt::isHashFree(newName)))
         {
-            renamed=true;
-            nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
-        }
-        if (allowNameAdjustment||(!renamed))
-        {
-            retVal=_CSceneObjectContainer_::setObjectName_old(object,nm.c_str(),allowNameAdjustment);
-            if (retVal)
-                object->setObjectName_direct_old(nm.c_str());
+            tt::removeIllegalCharacters(nm,true);
+            bool renamed=false;
+            while (getObjectFromName_old(nm.c_str())!=nullptr)
+            {
+                renamed=true;
+                nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
+            }
+            if (allowNameAdjustment||(!renamed))
+            {
+                retVal=_CSceneObjectContainer_::setObjectName_old(object,nm.c_str(),allowNameAdjustment);
+                if (retVal)
+                    object->setObjectName_direct_old(nm.c_str());
+            }
         }
     }
     return(retVal);

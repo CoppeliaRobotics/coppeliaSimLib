@@ -2320,6 +2320,17 @@ simInt simBuildMatrix_internal(const simFloat* position,const simFloat* eulerAng
     return(1);
 }
 
+simInt simBuildPose_internal(const simFloat* position,const simFloat* eulerAngles,simFloat* pose)
+{
+    // CoppeliaSim quaternion, internally: w x y z
+    // CoppeliaSim quaternion, at interfaces: x y z w
+    TRACE_C_API;
+
+    C7Vector tr(C4Vector(eulerAngles[0],eulerAngles[1],eulerAngles[2]),C3Vector(position));
+    tr.getInternalData(pose,true);
+    return(1);
+}
+
 simInt simBuildMatrixQ_internal(const simFloat* position,const simFloat* quaternion,simFloat* matrix)
 {
     // CoppeliaSim quaternion, internally: w x y z

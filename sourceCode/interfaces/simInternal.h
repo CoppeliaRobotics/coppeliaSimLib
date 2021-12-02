@@ -62,6 +62,7 @@ simInt simGetObjectType_internal(simInt objectHandle);
 simInt simGetJointType_internal(simInt objectHandle);
 simInt simBuildIdentityMatrix_internal(simFloat* matrix);
 simInt simBuildMatrix_internal(const simFloat* position,const simFloat* eulerAngles,simFloat* matrix);
+simInt simBuildPose_internal(const simFloat* position,const simFloat* eulerAngles,simFloat* pose);
 simInt simBuildMatrixQ_internal(const simFloat* position,const simFloat* quaternion,simFloat* matrix);
 simInt simGetEulerAnglesFromMatrix_internal(const simFloat* matrix,simFloat* eulerAngles);
 simInt simGetQuaternionFromMatrix_internal(const simFloat* matrix,simFloat* quaternion);

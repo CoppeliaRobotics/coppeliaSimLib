@@ -6701,6 +6701,8 @@ void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject,bool doI
 
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 {
+    if (_containsScriptText_old(scriptObject,"simIK.getGetConfigForTipPose"))
+        App::logMsg(sim_verbosity_errors,"Contains simIK.getGetConfigForTipPose...");
     if (_containsScriptText_old(scriptObject,"sim.getJointMatrix"))
         App::logMsg(sim_verbosity_errors,"Contains sim.getJointMatrix...");
     if (_containsScriptText_old(scriptObject,"sim.setSphericalJointMatrix"))
