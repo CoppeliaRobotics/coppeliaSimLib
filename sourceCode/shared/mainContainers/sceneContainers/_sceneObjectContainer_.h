@@ -38,6 +38,7 @@ public:
     size_t getObjectCount() const;
     CSceneObject* getObjectFromIndex(size_t index) const;
     CSceneObject* getObjectFromHandle(int objectHandle) const;
+    CSceneObject* getObjectFromUid(long long int objectUid) const;
     CSceneObject* getObjectFromPath(CSceneObject* emittingObject,const char* objectAliasAndPath,int index,CSceneObject* proxy) const;
     CSceneObject* getObjectFromName_old(const char* objectName) const;
     CSceneObject* getObjectFromAltName_old(const char* objectAltName) const;

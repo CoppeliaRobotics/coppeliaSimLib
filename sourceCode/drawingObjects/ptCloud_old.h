@@ -13,17 +13,17 @@ public:
     void setObjectID(int id);
     int getObjectID() const;
     void setObjectUniqueId();
-    int getObjectUniqueId() const;
+    long long int getObjectUniqueId() const;
 
     void pushAddEvent();
     bool announceObjectWillBeErased(int objectHandleAttachedTo);
 
     int _id;
-    int _uniqueId;
+    long long int _uniqueId;
     int _pageMask;
     int _layerMask;
     int _parentHandle;
-    int _parentUniqueId;
+    long long int _parentUniqueId;
     int _options;
     float _pointSize;
     std::vector<float> _vertices;

@@ -69,9 +69,17 @@ SIM_DLLEXPORT simChar* simGetNamedStringParam(const simChar* paramName,simInt* p
 {
     return(simGetNamedStringParam_internal(paramName,paramLength));
 }
-SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,simInt index,simInt proxy,simInt options)
+SIM_DLLEXPORT simInt simGetObject(const simChar* objectAlias,simInt index,simInt proxy,simInt options)
 {
-    return(simGetObjectHandleEx_internal(objectAlias,index,proxy,options));
+    return(simGetObject_internal(objectAlias,index,proxy,options));
+}
+SIM_DLLEXPORT simInt64 simGetObjectUid(simInt objectHandle)
+{
+    return(simGetObjectUid_internal(objectHandle));
+}
+SIM_DLLEXPORT simInt simGetObjectFromUid(simInt64 uid,simInt options)
+{
+    return(simGetObjectFromUid_internal(uid,options));
 }
 SIM_DLLEXPORT simInt simGetScriptHandleEx(simInt scriptType,simInt objectHandle,const simChar* scriptName)
 {
@@ -2564,6 +2572,10 @@ SIM_DLLEXPORT simInt simSetScriptVariable(simInt scriptHandleOrType,const simCha
 SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectAlias)
 {
     return(simGetObjectHandleEx_internal(objectAlias,-1,-1,0));
+}
+SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,simInt index,simInt proxy,simInt options)
+{
+    return(simGetObjectHandleEx_internal(objectAlias,index,proxy,options));
 }
 SIM_DLLEXPORT simInt simGetScript(simInt index)
 {

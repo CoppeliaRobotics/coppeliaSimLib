@@ -18,8 +18,8 @@ public:
 private:
     // General 3D objects:
     C7Vector configuration;
-    int uniqueID;
-    int parentUniqueID;
+    long long int uniqueID;
+    long long int parentUniqueID;
     int objectType;
     int memorizedConfigurationValidCounter;
 

@@ -31,7 +31,7 @@ void _CSceneObject_::setObjectUniqueId()
     _objectUid=App::getFreshUniqueId();
 }
 
-int _CSceneObject_::getObjectUid() const
+long long int _CSceneObject_::getObjectUid() const
 {
     return(_objectUid);
 }
@@ -46,10 +46,10 @@ bool _CSceneObject_::setParent(CSceneObject* parent)
         {
             const char* cmd="parent";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
-            int pUid=-1;
+            long long int pUid=-1;
             if (_parentObject!=nullptr)
                 pUid=_parentObject->getObjectUid();
-            data->appendMapObject_stringInt32(cmd,pUid);
+            data->appendMapObject_stringInt64(cmd,pUid);
             App::worldContainer->pushEvent(event);
         }
         if (getObjectCanSync())

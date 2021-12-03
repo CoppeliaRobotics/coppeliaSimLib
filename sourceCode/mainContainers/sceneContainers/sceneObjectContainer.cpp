@@ -1312,17 +1312,6 @@ void CSceneObjectContainer::setObjectAbsoluteOrientation(int objectHandle,const 
     }
 }
 
-CSceneObject* CSceneObjectContainer::getObjectFromUniqueId(int uniqueId) const
-{
-    for (size_t i=0;i<getObjectCount();i++)
-    {
-        CSceneObject* it=getObjectFromIndex(i);
-        if (it->getObjectUid()==uniqueId)
-            return(it);
-    }
-    return(nullptr);
-}
-
 int CSceneObjectContainer::getHighestObjectHandle() const
 {
     int highest=-1;

@@ -104,7 +104,7 @@ void CPtCloud_old::setObjectUniqueId()
     _uniqueId=App::getFreshUniqueId();
 }
 
-int CPtCloud_old::getObjectUniqueId() const
+long long int CPtCloud_old::getObjectUniqueId() const
 {
     return(_uniqueId);
 }
@@ -158,7 +158,7 @@ void CPtCloud_old::pushAddEvent()
 
         data->appendMapObject_stringFloat("size",_pointSize);
 
-        data->appendMapObject_stringInt32("parent",_parentUniqueId);
+        data->appendMapObject_stringInt64("parent",_parentUniqueId);
 
         data->appendMapObject_stringBool("cyclic",false);
 

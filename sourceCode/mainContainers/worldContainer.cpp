@@ -51,7 +51,7 @@ int CWorldContainer::getModificationFlags(bool clearTheFlagsAfter)
 {
     if (App::getEditModeType()!=NO_EDIT_MODE)
         _modificationFlags|=128;
-    std::vector<int> currentUniqueIdsOfSel;
+    std::vector<long long int> currentUniqueIdsOfSel;
     for (size_t i=0;i<currentWorld->sceneObjects->getSelectionCount();i++)
     {
         CSceneObject* it=currentWorld->sceneObjects->getObjectFromHandle(currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
@@ -497,7 +497,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObject
     return {d,nullptr};
 }
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareEvent(const char* event,int uid,const char* fieldName,bool mergeable)
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareEvent(const char* event,long long int uid,const char* fieldName,bool mergeable)
 {
     if (getEventsEnabled())
     {
@@ -508,7 +508,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareEvent(const
     return {d,nullptr};
 }
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::_prepareGeneralEvent(const char* event,int objectHandle,int uid,const char* objType,const char* fieldName,bool mergeable)
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::_prepareGeneralEvent(const char* event,int objectHandle,long long int uid,const char* objType,const char* fieldName,bool mergeable)
 {
     _eventMutex.lock();
     SEventInfo eventInfo;
@@ -526,7 +526,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::_prepareGeneralEve
     if (objectHandle!=-1)
         eventInfo.eventTable->appendMapObject_stringInt32("handle",objectHandle);
     if (uid!=-1)
-        eventInfo.eventTable->appendMapObject_stringInt32("uid",uid);
+        eventInfo.eventTable->appendMapObject_stringInt64("uid",uid);
     CInterfaceStackTable* data=new CInterfaceStackTable();
     eventInfo.eventTable->appendMapObject_stringObject("data",data);
     if (objType!=nullptr)

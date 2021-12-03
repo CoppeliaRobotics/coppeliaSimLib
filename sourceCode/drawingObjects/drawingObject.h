@@ -14,7 +14,7 @@ public:
     void draw(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM);
     void setObjectId(int newId);
     void setObjectUniqueId();
-    int getObjectUid() const;
+    long long int getObjectUid() const;
     int getObjectId() const;
     bool addItem(const float* itemData);
     void setItems(const float* itemData,size_t itemCnt);
@@ -62,9 +62,9 @@ protected:
     void _setItemSizes();
 
     int _objectId;
-    int _objectUid;
+    long long int _objectUid;
     int _sceneObjectId;
-    int _sceneObjectUid;
+    long long int _sceneObjectUid;
     int _objectType;
     float _size;
     int _maxItemCount;

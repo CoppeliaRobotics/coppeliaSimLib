@@ -329,7 +329,7 @@ protected:
     bool _beforeDeleteCallbackSent;
     bool _initialValuesInitialized;
     bool _initialConfigurationMemorized;
-    int _initialParentUniqueId;
+    long long int _initialParentUniqueId;
     int _initialMainPropertyOverride;
     int _initialMemorizedConfigurationValidCounter;
     C7Vector _initialLocalTransformationPart1;

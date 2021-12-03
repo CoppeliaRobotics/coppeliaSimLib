@@ -995,10 +995,10 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringBool("modelBase",_modelBase);
     data->appendMapObject_stringInt32("objectProperty",_objectProperty);
     data->appendMapObject_stringInt32("modelProperty",_modelProperty);
-    int pUid=-1;
+    long long int pUid=-1;
     if (_parentObject!=nullptr)
         pUid=_parentObject->getObjectUid();
-    data->appendMapObject_stringInt32("parent",pUid);
+    data->appendMapObject_stringInt64("parent",pUid);
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("boundingBox",subC);
     subC->appendMapObject_stringFloatArray("min",_boundingBoxMin.data,3);
@@ -1369,14 +1369,14 @@ void CSceneObject::simulationEnded()
             { // this section is special and reserved to local configuration restoration!
                 if (_initialMemorizedConfigurationValidCounter==_memorizedConfigurationValidCounter)
                 { // the object wasn't resized/didn't change frame
-                    int puid=-1;
+                    long long int puid=-1;
                     CSceneObject* p=getParent();
                     if (p!=nullptr)
                         puid=p->getObjectUid();
                     // Changed following on 24/04/2011 (because we also wanna reset the parenting to the initial state!)
                     if (puid!=_initialParentUniqueId)
                     { // Not sure following instructions are not problematic here.
-                        CSceneObject* oldParent=App::currentWorld->sceneObjects->getObjectFromUniqueId(_initialParentUniqueId);
+                        CSceneObject* oldParent=App::currentWorld->sceneObjects->getObjectFromUid(_initialParentUniqueId);
                         if ( (oldParent!=nullptr)||(_initialParentUniqueId==-1) )
                         {
                             // Inverted following 2 lines on 24/2/2012:

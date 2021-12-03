@@ -1180,7 +1180,7 @@ simInt simSetLastError_internal(const simChar* funcName,const simChar* errorMess
     return(-1);
 }
 
-simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int proxy,int options)
+simInt simGetObject_internal(const simChar* objectAlias,int index,int proxy,int options)
 {
     TRACE_C_API;
 
@@ -1189,10 +1189,8 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CSceneObject* it;
+        CSceneObject* it=nullptr;
         std::string nm(objectAlias);
-        size_t silentErrorPos=std::string(objectAlias).find("@silentError"); // Old, for backcompatibility
-        std::string additionalMessage_backCompatibility;
         if ( (nm.size()>0)&&((nm[0]=='.')||(nm[0]==':')||(nm[0]=='/')) )
         {
             int objHandle=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
@@ -1200,41 +1198,53 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
             CSceneObject* prox=App::currentWorld->sceneObjects->getObjectFromHandle(proxy);
             it=App::currentWorld->sceneObjects->getObjectFromPath(obj,nm.c_str(),index,prox);
         }
-        else
-        { // Old, for backcompatibility:
-            size_t altPos=std::string(objectAlias).find("@alt");
-            size_t firstAtPos=std::string(objectAlias).find("@");
-            if (firstAtPos!=std::string::npos)
-                nm.erase(nm.begin()+firstAtPos,nm.end());
-            if (altPos==std::string::npos)
-            { // handle retrieval via regular name
-                nm=getIndexAdjustedObjectName(nm.c_str());
-                it=App::currentWorld->sceneObjects->getObjectFromName_old(nm.c_str());
-                if (it==nullptr)
-                {
-                    additionalMessage_backCompatibility+="\n\nSince CoppeliaSim V4.3.0, objects should be retrieved via a path and alias, e.g. \"./path/to/alias\", \":/path/to/alias\", \"/path/to/alias\", etc.";
-                    additionalMessage_backCompatibility+="\nYou however tried to access an object in a way that doesn't follow the new notation, i.e. \"";
-                    additionalMessage_backCompatibility+=objectAlias;
-                    additionalMessage_backCompatibility+="\" wasn't found.";
-                    additionalMessage_backCompatibility+="\nNote also that object aliases are distinct from object names, which are deprecated and not displayed anymore.";
-                    additionalMessage_backCompatibility+="\nMake sure to read the following page for additional details: https://www.coppeliarobotics.com/helpFiles/en/accessingSceneObjects.htm";
-                }
-            }
-            else
-                it=App::currentWorld->sceneObjects->getObjectFromAltName_old(nm.c_str()); // handle retrieval via alt name
-        }
 
         if (it==nullptr)
         {
-            if ( (silentErrorPos==std::string::npos)&&((options&1)==0) )
-            {
-                additionalMessage_backCompatibility=SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH+additionalMessage_backCompatibility;
-                CApiErrors::setLastWarningOrError(__func__,additionalMessage_backCompatibility.c_str());
-            }
+            if ((options&1)==0)
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH);
             return(-1);
         }
         int retVal=it->getObjectHandle();
         return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt64 simGetObjectUid_internal(simInt objectHandle)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        return(it->getObjectUid());
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetObjectFromUid_internal(simInt64 uid,simInt options)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromUid(uid);
+        if (it!=nullptr)
+            return(it->getObjectHandle());
+        if ((options&1)==0)
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_INEXISTANT);
+        return(-1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -8942,7 +8952,7 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                 }
                 if (parameterID==sim_objintparam_unique_id)
                 {
-                    parameter[0]=it->getObjectUid();
+                    parameter[0]=int(it->getObjectUid());
                     retVal=1;
                 }
                 if (parameterID==sim_objintparam_collection_self_collision_indicator)
@@ -22546,7 +22556,7 @@ simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueI
         if (objectHandle!=sim_handle_all)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            uniqueIdentifier[0]=it->getObjectUid();
+            uniqueIdentifier[0]=int(it->getObjectUid());
         }
         else
         { // for backward compatibility
@@ -22555,7 +22565,7 @@ simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueI
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
                 if ( (it->getObjectHandle()==objectHandle)||(objectHandle==sim_handle_all) )
-                    uniqueIdentifier[p++]=it->getObjectUid();
+                    uniqueIdentifier[p++]=int(it->getObjectUid());
             }
         }
         return(1);
@@ -22676,3 +22686,62 @@ simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* m
     return(-1);
 }
 
+simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int proxy,int options)
+{ // deprecated on 03.12.2021
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CSceneObject* it=nullptr;
+        std::string nm(objectAlias);
+        size_t silentErrorPos=std::string(objectAlias).find("@silentError"); // Old, for backcompatibility
+        std::string additionalMessage_backCompatibility;
+        if ( (nm.size()>0)&&((nm[0]=='.')||(nm[0]==':')||(nm[0]=='/')) )
+        {
+            int objHandle=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
+            CSceneObject* prox=App::currentWorld->sceneObjects->getObjectFromHandle(proxy);
+            it=App::currentWorld->sceneObjects->getObjectFromPath(obj,nm.c_str(),index,prox);
+        }
+        else
+        { // Old, for backcompatibility:
+            size_t altPos=std::string(objectAlias).find("@alt");
+            size_t firstAtPos=std::string(objectAlias).find("@");
+            if (firstAtPos!=std::string::npos)
+                nm.erase(nm.begin()+firstAtPos,nm.end());
+            if (altPos==std::string::npos)
+            { // handle retrieval via regular name
+                nm=getIndexAdjustedObjectName(nm.c_str());
+                it=App::currentWorld->sceneObjects->getObjectFromName_old(nm.c_str());
+                if (it==nullptr)
+                {
+                    additionalMessage_backCompatibility+="\n\nSince CoppeliaSim V4.3.0, objects should be retrieved via a path and alias, e.g. \"./path/to/alias\", \":/path/to/alias\", \"/path/to/alias\", etc.";
+                    additionalMessage_backCompatibility+="\nYou however tried to access an object in a way that doesn't follow the new notation, i.e. \"";
+                    additionalMessage_backCompatibility+=objectAlias;
+                    additionalMessage_backCompatibility+="\" wasn't found.";
+                    additionalMessage_backCompatibility+="\nNote also that object aliases are distinct from object names, which are deprecated and not displayed anymore.";
+                    additionalMessage_backCompatibility+="\nMake sure to read the following page for additional details: https://www.coppeliarobotics.com/helpFiles/en/accessingSceneObjects.htm";
+                }
+            }
+            else
+                it=App::currentWorld->sceneObjects->getObjectFromAltName_old(nm.c_str()); // handle retrieval via alt name
+        }
+
+        if (it==nullptr)
+        {
+            if ( (silentErrorPos==std::string::npos)&&((options&1)==0) )
+            {
+                additionalMessage_backCompatibility=SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH+additionalMessage_backCompatibility;
+                CApiErrors::setLastWarningOrError(__func__,additionalMessage_backCompatibility.c_str());
+            }
+            return(-1);
+        }
+        int retVal=it->getObjectHandle();
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}

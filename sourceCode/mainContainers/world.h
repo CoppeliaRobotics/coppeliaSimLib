@@ -143,7 +143,7 @@ private:
     static void _prepareFastLoadingMapping(std::vector<int>& map);
 
     int _savedMouseMode;
-    std::vector<int> _initialObjectUniqueIdentifiersForRemovingNewObjects;
+    std::vector<long long int> _initialObjectUniqueIdentifiersForRemovingNewObjects;
 
     static std::vector<SLoadOperationIssue> _loadOperationIssues;
 };

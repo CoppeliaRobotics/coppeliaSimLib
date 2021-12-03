@@ -35,7 +35,7 @@ CMemorizedConf::~CMemorizedConf()
 
 int CMemorizedConf::getParentCount()
 {
-    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromUniqueId(uniqueID);
+    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromUid(uniqueID);
     if (it==nullptr)
         return(0);
     return(it->getParentCount());
@@ -43,11 +43,11 @@ int CMemorizedConf::getParentCount()
 
 void CMemorizedConf::restore()
 {
-    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromUniqueId(uniqueID);
+    CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromUid(uniqueID);
     if ( (it==nullptr)||(it->getMemorizedConfigurationValidCounter()!=memorizedConfigurationValidCounter) ) // second part is in case a shape gets edited
         return;
     it->setDynamicsResetFlag(true,false); // dynamically enabled objects have to be reset first!
-    int puid=-1;
+    long long int puid=-1;
     if (it->getParent()!=nullptr)
         puid=it->getParent()->getObjectUid();
     if (parentUniqueID==puid)
@@ -67,7 +67,7 @@ void CMemorizedConf::restore()
 
 bool CMemorizedConf::doesStillExist()
 {
-    return(App::currentWorld->sceneObjects->getObjectFromUniqueId(uniqueID)!=nullptr);
+    return(App::currentWorld->sceneObjects->getObjectFromUid(uniqueID)!=nullptr);
 }
 
 void CMemorizedConf::serializeToMemory(std::vector<char>& data)
@@ -83,9 +83,9 @@ void CMemorizedConf::serializeToMemory(std::vector<char>& data)
     CTTUtil::pushIntToBuffer(objectType,data);
     for (int i=0;i<7;i++)
         CTTUtil::pushFloatToBuffer(configuration(i),data);
-    CTTUtil::pushIntToBuffer(uniqueID,data);
+    CTTUtil::pushIntToBuffer(int(uniqueID),data);
     CTTUtil::pushIntToBuffer(memorizedConfigurationValidCounter,data);
-    CTTUtil::pushIntToBuffer(parentUniqueID,data);
+    CTTUtil::pushIntToBuffer(int(parentUniqueID),data);
 }
 
 void CMemorizedConf::serializeFromMemory(std::vector<char>& data)

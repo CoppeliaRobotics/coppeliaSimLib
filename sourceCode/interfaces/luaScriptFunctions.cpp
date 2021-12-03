@@ -103,7 +103,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.checkProximitySensor",_simCheckProximitySensor,        "int result,float distance,table[3] detectedPoint,int detectedObjectHandle,table[3] normalVector=\nsim.checkProximitySensor(int sensorHandle,int entityHandle)",true},
     {"sim.checkProximitySensorEx",_simCheckProximitySensorEx,    "int result,float distance,table[3] detectedPoint,int detectedObjectHandle,table[3] normalVector=\nsim.checkProximitySensorEx(int sensorHandle,int entityHandle,int mode,float threshold,float maxAngle)",true},
     {"sim.checkProximitySensorEx2",_simCheckProximitySensorEx2,  "int result,float distance,table[3] detectedPoint,table[3] normalVector=\nsim.checkProximitySensorEx2(int sensorHandle,table[3..*] vertices,int itemType,int itemCount,int mode,float threshold,float maxAngle)",true},
-    {"sim._getObjectHandle",_sim_getObjectHandle,                "",false}, // handled via sim.getObjectHandle from sim.lua
+    {"sim._getObject",_sim_getObject,                            "",false}, // handled via sim.getObject from sim.lua
+    {"sim.getObjectUid",_simGetObjectUid,                        "int uid=sim.getObjectUid(int objectHandle)",true},
+    {"sim._getObjectFromUid",_sim_getObjectFromUid,              "",false}, // handled via sim.getObjectFromUid from sim.lua
     {"sim.getScriptHandle",_simGetScriptHandle,                  "int scriptHandle=sim.getScriptHandle(int scriptType,string scriptName='')",true},
     {"sim.addScript",_simAddScript,                              "int scriptHandle=sim.addScript(int scriptType)",true},
     {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"sim.associateScriptWithObject(int scriptHandle,int objectHandle)",true},
@@ -571,6 +573,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.breakForceSensor",_simBreakForceSensor,                "Deprecated. Use sim.setObjectParent instead",false},
     {"sim.getJointMatrix",_simGetJointMatrix,                    "Deprecated. Use sim.getObjectChildPose instead",false},
     {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "Deprecated. Use sim.setObjectChildPose instead",false},
+    {"sim._getObjectHandle",_sim_getObjectHandle,                "",false}, // handled via sim.getObjectHandle from sim.lua
 
     {"",nullptr,"",false}
 };
@@ -3012,53 +3015,78 @@ int _simCheckVisionSensorEx(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _sim_getObjectHandle(luaWrap_lua_State* L)
+int _sim_getObject(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim._getObjectHandle");
+    LUA_START("sim._getObject");
 
     int retVal=-1; // means error
 
-    bool checkWithString=true;
-    if (checkInputArguments(L,nullptr,lua_arg_integer,0)) // do not output error if not string
-    { // argument sim.handle_self
-        if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
-        {
-            checkWithString=false;
-            int a=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-            retVal=simGetObjectAssociatedWithScript_internal(a);
-        }
-    }
-    if (checkWithString)
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
-        if (checkInputArguments(L,&errorString,lua_arg_string,0))
+        int index=-1;
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
+        if (res>=0)
         {
-            int index=-1;
-            int res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
+            if (res==2)
+                index=luaToInt(L,2);
+            int proxyForSearch=-1;
+            res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
             if (res>=0)
             {
                 if (res==2)
-                    index=luaToInt(L,2);
-                int proxyForSearch=-1;
-                res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
+                    proxyForSearch=luaToInt(L,3);
+
+                int options=0;
+                res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
                 if (res>=0)
                 {
                     if (res==2)
-                        proxyForSearch=luaToInt(L,3);
-
-                    int options=0;
-                    res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
-                    if (res>=0)
-                    {
-                        if (res==2)
-                            options=luaToInt(L,4);
-                        std::string name(luaWrap_lua_tostring(L,1));
-                        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-                        retVal=simGetObjectHandleEx_internal(name.c_str(),index,proxyForSearch,options);
-                        setCurrentScriptInfo_cSide(-1,-1);
-                    }
+                        options=luaToInt(L,4);
+                    std::string name(luaWrap_lua_tostring(L,1));
+                    setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                    retVal=simGetObject_internal(name.c_str(),index,proxyForSearch,options);
+                    setCurrentScriptInfo_cSide(-1,-1);
                 }
             }
+        }
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetObjectUid(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectUid");
+
+    long long int retVal=-1; // means error
+
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0))
+        retVal=simGetObjectUid_internal(luaWrap_lua_tointeger(L,1));
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _sim_getObjectFromUid(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim._getObjectFromUid");
+
+    int retVal=-1; // means error
+
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0))
+    {
+        long long int uid=luaWrap_lua_tointeger(L,1);
+        int options=0;
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_integer,0,true,false,&errorString);
+        if (res>=0)
+        {
+            if (res==2)
+                options=luaToInt(L,2);
+            retVal=simGetObjectFromUid_internal(uid,options);
         }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -20476,5 +20504,59 @@ int _simGetJointMatrix(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
+}
+
+int _sim_getObjectHandle(luaWrap_lua_State* L)
+{ // deprecated on 03.12.2021
+    TRACE_LUA_API;
+    LUA_START("sim._getObjectHandle");
+
+    int retVal=-1; // means error
+
+    bool checkWithString=true;
+    if (checkInputArguments(L,nullptr,lua_arg_integer,0)) // do not output error if not string
+    { // argument sim.handle_self
+        if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
+        {
+            checkWithString=false;
+            int a=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            retVal=simGetObjectAssociatedWithScript_internal(a);
+        }
+    }
+    if (checkWithString)
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_string,0))
+        {
+            int index=-1;
+            int res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
+            if (res>=0)
+            {
+                if (res==2)
+                    index=luaToInt(L,2);
+                int proxyForSearch=-1;
+                res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
+                if (res>=0)
+                {
+                    if (res==2)
+                        proxyForSearch=luaToInt(L,3);
+
+                    int options=0;
+                    res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
+                    if (res>=0)
+                    {
+                        if (res==2)
+                            options=luaToInt(L,4);
+                        std::string name(luaWrap_lua_tostring(L,1));
+                        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                        retVal=simGetObjectHandleEx_internal(name.c_str(),index,proxyForSearch,options);
+                        setCurrentScriptInfo_cSide(-1,-1);
+                    }
+                }
+            }
+        }
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
 }
 

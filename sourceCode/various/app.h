@@ -23,7 +23,7 @@ public:
     bool wasInitSuccessful();
     static void setBrowserEnabled(bool e);
     static bool getBrowserEnabled();
-    static int getFreshUniqueId();
+    static long long int getFreshUniqueId();
 
     static void beep(int frequ=5000,int duration=1000);
     static void setApplicationName(const char* name);
@@ -129,7 +129,7 @@ private:
 
     static bool _browserEnabled;
     static bool _canInitSimThread;
-    static int _nextUniqueId;
+    static long long int _nextUniqueId;
 
     static void _runInitializationCallback(void(*initCallBack)());
     static void _runDeinitializationCallback(void(*deinitCallBack)());

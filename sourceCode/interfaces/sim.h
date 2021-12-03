@@ -33,7 +33,9 @@ SIM_DLLEXPORT simInt simSetArrayParam(simInt parameter,const simVoid* arrayOfVal
 SIM_DLLEXPORT simInt simGetArrayParam(simInt parameter,simVoid* arrayOfValues);
 SIM_DLLEXPORT simInt simSetNamedStringParam(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 SIM_DLLEXPORT simChar* simGetNamedStringParam(const simChar* paramName,simInt* paramLength);
-SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,simInt index,simInt proxy,simInt options);
+SIM_DLLEXPORT simInt simGetObject(const simChar* objectAlias,simInt index,simInt proxy,simInt options);
+SIM_DLLEXPORT simInt64 simGetObjectUid(simInt objectHandle);
+SIM_DLLEXPORT simInt simGetObjectFromUid(simInt64 uid,simInt options);
 SIM_DLLEXPORT simInt simGetScriptHandleEx(simInt scriptType,simInt objectHandle,const simChar* scriptName);
 SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simRemoveModel(simInt objectHandle);
@@ -668,6 +670,7 @@ SIM_DLLEXPORT simChar* simGetScriptName(simInt scriptHandle);
 SIM_DLLEXPORT simInt simGetScriptHandle(const simChar* scriptName);
 SIM_DLLEXPORT simInt simSetScriptVariable(simInt scriptHandleOrType,const simChar* variableNameAtScriptName,simInt stackHandle);
 SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectAlias);
+SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,simInt index,simInt proxy,simInt options);
 SIM_DLLEXPORT simInt simGetScript(simInt index);
 SIM_DLLEXPORT simInt simGetScriptAssociatedWithObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetCustomizationScriptAssociatedWithObject(simInt objectHandle);

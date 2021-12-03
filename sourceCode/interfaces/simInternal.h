@@ -30,7 +30,9 @@ simInt simSetArrayParam_internal(simInt parameter,const simVoid* arrayOfValues);
 simInt simGetArrayParam_internal(simInt parameter,simVoid* arrayOfValues);
 simInt simSetNamedStringParam_internal(const simChar* paramName,const simChar* stringParam,simInt paramLength);
 simChar* simGetNamedStringParam_internal(const simChar* paramName,simInt* paramLength);
-simInt simGetObjectHandleEx_internal(const simChar* objectAlias,simInt index,simInt proxy,simInt options);
+simInt simGetObject_internal(const simChar* objectAlias,simInt index,simInt proxy,simInt options);
+simInt64 simGetObjectUid_internal(simInt objectHandle);
+simInt simGetObjectFromUid_internal(simInt64 uid,simInt options);
 simInt simGetScriptHandleEx_internal(simInt scriptType,simInt objectHandle,const simChar* scriptName);
 simInt simRemoveObject_internal(simInt objectHandle);
 simInt simRemoveModel_internal(simInt objectHandle);
@@ -660,4 +662,5 @@ simBool _simIsForceSensorBroken_internal(const simVoid* forceSensor);
 simVoid _simGetDynamicForceSensorLocalTransformationPart2_internal(const simVoid* forceSensor,simFloat* pos,simFloat* quat);
 simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix);
 simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* matrix);
+simInt simGetObjectHandleEx_internal(const simChar* objectAlias,simInt index,simInt proxy,simInt options);
 #endif // !defined(simInternal_INCLUDED_)

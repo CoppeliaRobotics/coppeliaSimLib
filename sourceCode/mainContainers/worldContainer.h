@@ -41,7 +41,7 @@ struct SEventInfo
     std::string event;
     std::string subEvent;
     std::string dataSubtype;
-    int uid;
+    long long int uid;
     bool mergeable;
 };
 
@@ -74,12 +74,12 @@ public:
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
 
-    std::tuple<SEventInfo,CInterfaceStackTable*> prepareEvent(const char* event,int uid,const char* fieldName,bool mergeable);
+    std::tuple<SEventInfo,CInterfaceStackTable*> prepareEvent(const char* event,long long int uid,const char* fieldName,bool mergeable);
     void pushSceneObjectRemoveEvent(const _CSceneObject_* object);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectAddEvent(const _CSceneObject_* object);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(const _CSceneObject_* object,bool isCommonObjectData,const char* fieldName,bool mergeable);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(int sceneObjectHandle,bool isCommonObjectData,const char* fieldName,bool mergeable);
-    std::tuple<SEventInfo,CInterfaceStackTable*> _prepareGeneralEvent(const char* event,int objectHandle,int uid,const char* objType,const char* fieldName,bool mergeable);
+    std::tuple<SEventInfo,CInterfaceStackTable*> _prepareGeneralEvent(const char* event,int objectHandle,long long int uid,const char* objType,const char* fieldName,bool mergeable);
     void _combineDuplicateEvents(SBufferedEvents* events) const;
     void _mergeEvents(SBufferedEvents* events) const;
     void _prepareEventsForDispatch(SBufferedEvents* events) const;
@@ -135,7 +135,7 @@ private:
     bool _cborEvents;
     bool _mergeTheEvents;
 
-    std::vector<int> _uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled;
+    std::vector<long long int> _uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled;
     int _modificationFlags;
     // +bit 0: object(s) erased
     // +bit 1: object(s) created

@@ -84,7 +84,6 @@ public:
     void setObjectAbsoluteOrientation(int objectHandle,const C3Vector& euler);
     void setObjectAbsolutePosition(int objectHandle,const C3Vector& p);
 
-    CSceneObject* getObjectFromUniqueId(int uniqueId) const;
     int getHighestObjectHandle() const;
 
 

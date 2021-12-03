@@ -52,6 +52,16 @@ CSceneObject* _CSceneObjectContainer_::getObjectFromHandle(int objectHandle) con
     return(nullptr);
 }
 
+CSceneObject* _CSceneObjectContainer_::getObjectFromUid(long long int objectUid) const
+{ // not efficient. For now
+    for (size_t i=0;i<_allObjects.size();i++)
+    {
+        if (_allObjects[i]->getObjectUid()==objectUid)
+            return(_allObjects[i]);
+    }
+    return(nullptr);
+}
+
 int _CSceneObjectContainer_::getObjects_hierarchyOrder(std::vector<CSceneObject*>& allObjects)
 {
     int retVal=0;
