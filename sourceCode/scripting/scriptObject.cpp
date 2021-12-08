@@ -1502,6 +1502,19 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
     int retVal=-1;
     if (_lang==lang_lua)
     {
+        std::string _code(code);
+        if (_code.find("#pythonWrapper")==0)
+        {
+            std::string n;
+            if (CTTUtil::extractLine(_code,n))
+            {
+                n.erase(n.begin());
+                _code="pythonProg=[[\n\n"+_code+"]]\nrequire('"+n+"')";
+            }
+        }
+
+
+
         luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
         _raiseErrors_backCompatibility=true;
         if (_checkIfMixingOldAndNewCallMethods_old())
@@ -1516,7 +1529,7 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
         std::string tmp("sim_call_type="); // for backward compatibility
         tmp+=std::to_string(sim_syscb_init);
         _execSimpleString_safe_lua(L,tmp.c_str());
-        if (_loadBuffer_lua(code,strlen(code),getShortDescriptiveName().c_str()))
+        if (_loadBuffer_lua(_code.c_str(),_code.size(),getShortDescriptiveName().c_str()))
         {
             if (_executionDepth==0)
                 _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
@@ -2314,7 +2327,10 @@ int CScriptObject::_checkLanguage()
 {
     int retVal=lang_lua;
     if (_scriptText.find("#python")==0)
-        retVal=lang_python;
+    {
+        if (_scriptText.find("#pythonWrapper")!=0)
+            retVal=lang_python;
+    }
     return(retVal);
 }
 
