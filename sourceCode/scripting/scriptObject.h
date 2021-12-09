@@ -139,6 +139,7 @@ public:
     int changeAutoYieldingForbidLevel(int dx,bool absolute);
     int getAutoYieldingForbidLevel() const;
     int changeOverallYieldingForbidLevel(int dx,bool absolute);
+    int getEditorLanguage();
 
     void registerPluginFunctions();
     bool registerPluginVariables(bool onlyRequireStatements);

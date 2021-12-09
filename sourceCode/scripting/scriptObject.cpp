@@ -2323,6 +2323,14 @@ std::string CScriptObject::_getAdditionalSearchPath_cpath_lua()
     return(retVal);
 }
 
+int CScriptObject::getEditorLanguage()
+{
+    int retVal=lang_lua;
+    if (_scriptText.find("#python")==0)
+        retVal=lang_python;
+    return(retVal);
+}
+
 int CScriptObject::_checkLanguage()
 {
     int retVal=lang_lua;
