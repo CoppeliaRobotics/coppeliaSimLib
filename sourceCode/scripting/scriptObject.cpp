@@ -1541,7 +1541,10 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
                 retVal=1;
                 std::string initCb=getSystemCallbackString(sim_syscb_init,false);
                 luaWrap_lua_getglobal(L,initCb.c_str());
-                _compatibilityMode_oldLua=!(luaWrap_lua_isfunction(L,-1));
+
+                if (_functionHooks_before.size()+_functionHooks_after.size()==0)
+                    _compatibilityMode_oldLua=!(luaWrap_lua_isfunction(L,-1)); // With function hooks, we have new calling method anyways
+
                 luaWrap_lua_pop(L,1);
                 if (!_compatibilityMode_oldLua)
                     _execSimpleString_safe_lua(L,"sim_call_type=nil");

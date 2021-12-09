@@ -1088,7 +1088,7 @@ void CSceneObjectContainer::setObjectParent(CSceneObject* object,CSceneObject* n
     CSceneObject* oldParent=object->getParent();
     if (oldParent!=newParent)
     {
-        C7Vector absTr(object->getFullCumulativeTransformation());
+        C7Vector absTr(object->getCumulativeTransformation());
         if (oldParent!=nullptr)
         {
             oldParent->removeChild(object);
