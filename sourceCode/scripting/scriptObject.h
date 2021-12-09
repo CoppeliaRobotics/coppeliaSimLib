@@ -150,6 +150,7 @@ public:
 
     void printInterpreterStack() const;
 
+    bool hasFunctionHook(const char* sysFunc) const;
     int registerFunctionHook(const char* sysFunc,const char* userFunc,bool before);
 
     static int getTotalEventCallbackFunctions();

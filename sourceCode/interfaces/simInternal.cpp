@@ -16402,6 +16402,11 @@ simVoid _simDynReportObjectCumulativeTransformation_internal(simVoid* object,con
     }
     else
         ((CSceneObject*)object)->setLocalTransformation(tr);
+
+    // Handle situations like shape1 --> joint --> dummy1 --- dummy2 <-- shape2
+
+
+
 }
 
 simVoid _simSetObjectCumulativeTransformation_internal(simVoid* object,const simFloat* pos,const simFloat* quat,simBool keepChildrenInPlace)

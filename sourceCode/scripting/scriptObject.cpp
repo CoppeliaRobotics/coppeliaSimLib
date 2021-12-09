@@ -1539,13 +1539,13 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
             else
             { // here we check if we can enable the new calling method:
                 retVal=1;
+
                 std::string initCb=getSystemCallbackString(sim_syscb_init,false);
                 luaWrap_lua_getglobal(L,initCb.c_str());
-
                 if (_functionHooks_before.size()+_functionHooks_after.size()==0)
                     _compatibilityMode_oldLua=!(luaWrap_lua_isfunction(L,-1)); // With function hooks, we have new calling method anyways
-
                 luaWrap_lua_pop(L,1);
+
                 if (!_compatibilityMode_oldLua)
                     _execSimpleString_safe_lua(L,"sim_call_type=nil");
                 size_t off=0;
@@ -1558,7 +1558,7 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
                     else
                     {
                         luaWrap_lua_getglobal(L,functionsToFind+off);
-                        functionsFound[cnt++]=luaWrap_lua_isfunction(L,-1);
+                        functionsFound[cnt++]=(luaWrap_lua_isfunction(L,-1)||hasFunctionHook(functionsToFind+off));
                         luaWrap_lua_pop(L,1);
                     }
                     off+=l+1;
@@ -2543,6 +2543,21 @@ void CScriptObject::registerNewFunctions_lua()
                 luaWrap_lua_register(L,simLuaCommandsOldApi[i].name.c_str(),simLuaCommandsOldApi[i].func);
         }
     }
+}
+
+bool CScriptObject::hasFunctionHook(const char* sysFunc) const
+{
+    for (size_t i=0;i<_functionHooks_before.size()/2;i++)
+    {
+        if (_functionHooks_before[2*i+0].compare(sysFunc)==0)
+            return(true);
+    }
+    for (size_t i=0;i<_functionHooks_after.size()/2;i++)
+    {
+        if (_functionHooks_after[2*i+0].compare(sysFunc)==0)
+            return(true);
+    }
+    return(false);
 }
 
 int CScriptObject::registerFunctionHook(const char* sysFunc,const char* userFunc,bool before)
