@@ -16383,7 +16383,8 @@ const simVoid* _simGetParentObject_internal(const simVoid* object)
 simVoid _simDynReportObjectCumulativeTransformation_internal(simVoid* object,const simFloat* pos,const simFloat* quat)
 { // object is always a shape
     TRACE_C_API;
-    CSceneObject* parent=((CSceneObject*)object)->getParent();
+    CSceneObject* obj=(CSceneObject*)object;
+    CSceneObject* parent=obj->getParent();
     C7Vector tr;
     tr.X.setInternalData(pos);
     tr.Q.setInternalData(quat);
@@ -16391,22 +16392,52 @@ simVoid _simDynReportObjectCumulativeTransformation_internal(simVoid* object,con
     {
         if ( (parent->getObjectType()==sim_object_joint_type)||(parent->getObjectType()==sim_object_forcesensor_type) )
         {
-            tr=parent->getCumulativeTransformation().getInverse()*tr*((CSceneObject*)object)->getLocalTransformation().getInverse();
+            C7Vector x(parent->getCumulativeTransformation().getInverse()*tr*((CSceneObject*)object)->getLocalTransformation().getInverse());
             if (parent->getObjectType()==sim_object_joint_type)
-                ((CJoint*)parent)->setIntrinsicTransformationError(((CJoint*)parent)->getIntrinsicTransformation(false).getInverse()*tr);
+                ((CJoint*)parent)->setIntrinsicTransformationError(((CJoint*)parent)->getIntrinsicTransformation(false).getInverse()*x);
             else
-                ((CForceSensor*)parent)->setIntrinsicTransformationError(tr);
+                ((CForceSensor*)parent)->setIntrinsicTransformationError(x);
         }
         else
             App::currentWorld->sceneObjects->setObjectAbsolutePose(((CSceneObject*)object)->getObjectHandle(),tr,false);
     }
     else
         ((CSceneObject*)object)->setLocalTransformation(tr);
+}
 
-    // Handle situations like shape1 --> joint --> dummy1 --- dummy2 <-- shape2
+simVoid _simDynReportObjectCumulativeTransformationLooped_internal(simVoid* object,const simFloat* pos,const simFloat* quat)
+{ // object is always a shape
+    TRACE_C_API;
+    CSceneObject* obj=(CSceneObject*)object;
+    C7Vector tr;
+    tr.X.setInternalData(pos);
+    tr.Q.setInternalData(quat);
+    // Handle situations like shape1 --> joint --> dummy1 --- dummy2 <-- shape2 (where object is "shape2"):
+    for (size_t i=0;i<obj->getChildCount();i++)
+    {
+        CSceneObject* child=obj->getChildFromIndex(i);
+        if (child->getObjectType()==sim_object_dummy_type)
+        {
+            CDummy* dummy1=(CDummy*)child;
+            CDummy* dummy2=(CDummy*)App::currentWorld->sceneObjects->getObjectFromHandle(dummy1->getLinkedDummyHandle());
+            if ( (dummy2!=nullptr)&&(dummy1->getLinkType()==sim_dummy_linktype_dynamics_loop_closure)&&(dummy2->getChildCount()==0) )
+            {
+                CSceneObject* parent=dummy2->getParent();
+                if ( (parent!=nullptr)&&((parent->getObjectType()==sim_object_joint_type)||(parent->getObjectType()==sim_object_forcesensor_type)) )
+                {
+                    C7Vector dummy1L(dummy1->getLocalTransformation());
+                    C7Vector dummy2L(dummy2->getLocalTransformation());
+                    C7Vector parentAbs(parent->getCumulativeTransformation());
+                    C7Vector x(dummy2L.getInverse()*tr*dummy1L*parentAbs.getInverse());
+                    if (parent->getObjectType()==sim_object_joint_type)
+                        ((CJoint*)parent)->setIntrinsicTransformationError(((CJoint*)parent)->getIntrinsicTransformation(false).getInverse()*x);
+                    else
+                        ((CForceSensor*)parent)->setIntrinsicTransformationError(x);
 
-
-
+                }
+            }
+        }
+    }
 }
 
 simVoid _simSetObjectCumulativeTransformation_internal(simVoid* object,const simFloat* pos,const simFloat* quat,simBool keepChildrenInPlace)

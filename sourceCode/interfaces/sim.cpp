@@ -1463,6 +1463,10 @@ SIM_DLLEXPORT simVoid _simDynReportObjectCumulativeTransformation(simVoid* objec
 {
     return(_simDynReportObjectCumulativeTransformation_internal(object,pos,quat));
 }
+SIM_DLLEXPORT simVoid _simDynReportObjectCumulativeTransformationLooped(simVoid* object,const simFloat* pos,const simFloat* quat)
+{
+    return(_simDynReportObjectCumulativeTransformationLooped_internal(object,pos,quat));
+}
 SIM_DLLEXPORT simVoid _simSetObjectCumulativeTransformation(simVoid* object,const simFloat* pos,const simFloat* quat,simBool keepChildrenInPlace)
 {
     return(_simSetObjectCumulativeTransformation_internal(object,pos,quat,keepChildrenInPlace));
