@@ -1798,23 +1798,57 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
 int CScriptObject::_callScriptFunction(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg)
 { // retVal: -1=error during execution, 0=func does not exist, 1=execution ok
     // This will also execute function hooks
-    int retVal=0;
+    int retVal=1;
+    std::string err;
     for (size_t i=0;i<_functionHooks_before.size()/2;i++)
     {
-        if ( (retVal>=0)&&(_functionHooks_before[2*i+0].compare(functionName)==0) )
-            retVal=_callScriptFunc(_functionHooks_before[2*i+1].c_str(),inStack,nullptr,errorMsg);
-    }
-    if (retVal>=0)
-    {
-        retVal=_callScriptFunc(functionName,inStack,outStack,errorMsg);
-        int r=retVal;
-        for (size_t i=0;i<_functionHooks_after.size()/2;i++)
+        if (_functionHooks_before[2*i+0].compare(functionName)==0)
         {
-            if ( (r>=0)&&(_functionHooks_after[2*i+0].compare(functionName)==0) )
-                r=_callScriptFunc(_functionHooks_after[2*i+1].c_str(),inStack,nullptr,errorMsg);
+            int r=_callScriptFunc(_functionHooks_before[2*i+1].c_str(),inStack,nullptr,&err);
+            if (r<0)
+            {
+                retVal=r;
+                if (errorMsg!=nullptr)
+                {
+                    errorMsg[0]+=err;
+                    errorMsg[0]+="\n\n";
+                }
+            }
         }
+    }
+    int r=_callScriptFunc(functionName,inStack,outStack,&err);
+    if (r<=retVal)
+    {
+        retVal=r;
         if (r<0)
-            retVal=r;
+        {
+            if (errorMsg!=nullptr)
+            {
+                errorMsg[0]+=err;
+                errorMsg[0]+="\n\n";
+            }
+        }
+    }
+    for (size_t i=0;i<_functionHooks_after.size()/2;i++)
+    {
+        if (_functionHooks_after[2*i+0].compare(functionName)==0)
+        {
+            int r=_callScriptFunc(_functionHooks_after[2*i+1].c_str(),inStack,nullptr,&err);
+            if (r<0)
+            {
+                retVal=r;
+                if (errorMsg!=nullptr)
+                {
+                    errorMsg[0]+=err;
+                    errorMsg[0]+="\n\n";
+                }
+            }
+        }
+    }
+    if ( (errorMsg!=nullptr)&&(errorMsg[0].size()>1)&&boost::algorithm::ends_with(errorMsg->c_str(),"\n\n") )
+    {
+        errorMsg[0].pop_back();
+        errorMsg[0].pop_back();
     }
     return(retVal);
 }

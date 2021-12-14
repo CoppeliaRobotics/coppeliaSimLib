@@ -403,7 +403,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setModuleInfo",_simSetModuleInfo,                      "sim.setModuleInfo(string moduleName,int infoType,string/number info)",true},
     {"sim.registerScriptFunction",_simRegisterScriptFunction,    "int result=sim.registerScriptFunction(string funcNameAtPluginName,string callTips)",true},
     {"sim.registerScriptVariable",_simRegisterScriptVariable,    "int result=sim.registerScriptVariable(string varNameAtPluginName)",true},
-    {"sim.registerScriptFuncHook",_simRegisterScriptFuncHook,    "int result=sim.registerScriptFuncHook(string funcToHook,string userFunc,bool execBefore)",true},
+    {"sim.registerScriptFuncHook",_simRegisterScriptFuncHook,    "int result=sim.registerScriptFuncHook(string funcToHook,string/function userFunc,bool execBefore)",true},
     {"sim.isDeprecated",_simIsDeprecated,                        "int result=sim.isDeprecated(string funcOrConst)",true},
     {"sim.getPersistentDataTags",_simGetPersistentDataTags,      "table[] tags=sim.getPersistentDataTags()",true},
     {"sim.getRandom",_simGetRandom,                              "float randomNumber=sim.getRandom(int seed=nil)",true},

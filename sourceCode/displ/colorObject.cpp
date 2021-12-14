@@ -110,6 +110,16 @@ void CColorObject::getColor(float col[3],unsigned char colorMode) const
         col[i]=ptr[offset+i];
 }
 
+void CColorObject::getNewColors(float cols[9]) const
+{
+    for (size_t i=0;i<3;i++)
+    {
+        cols[0+i]=_colors[0+i];
+        cols[3+i]=_colors[6+i];
+        cols[6+i]=_colors[9+i];
+    }
+}
+
 void CColorObject::setColor(const float theColor[3],unsigned char colorMode)
 {
     int offset=0;
@@ -130,7 +140,7 @@ void CColorObject::setColor(const float theColor[3],unsigned char colorMode)
     setColors(col);
 }
 
-void CColorObject::pushColorChangeEvent(int objectHandle,int colorIndex,bool isLight/*=false*/)
+void CColorObject::pushShapeColorChangeEvent(int objectHandle,int colorIndex)
 {
     if ( (objectHandle!=-1)&&App::worldContainer->getEventsEnabled() )
     {
@@ -140,8 +150,6 @@ void CColorObject::pushColorChangeEvent(int objectHandle,int colorIndex,bool isL
         data->appendMapObject_stringObject(cmd,sdata);
         float c[9];
         int w=sim_colorcomponent_ambient_diffuse;
-        if (isLight)
-            w=sim_colorcomponent_diffuse;
         getColor(c+0,w);
         getColor(c+3,sim_colorcomponent_specular);
         getColor(c+6,sim_colorcomponent_emission);
@@ -151,6 +159,25 @@ void CColorObject::pushColorChangeEvent(int objectHandle,int colorIndex,bool isL
             transp=1.0f-_opacity;
         sdata->appendMapObject_stringFloat("transparency",transp);
         sdata->appendMapObject_stringInt32("index",colorIndex);
+        App::worldContainer->pushEvent(event);
+    }
+}
+
+void CColorObject::pushColorChangeEvent(int objectHandle,float col1[9],float col2[9],float col3[9],float col4[9])
+{
+    if ( (objectHandle!=-1)&&App::worldContainer->getEventsEnabled() )
+    {
+        const char* cmd="colors";
+        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(objectHandle,false,cmd,false);
+        CInterfaceStackTable* sdata=new CInterfaceStackTable();
+        data->appendMapObject_stringObject(cmd,sdata);
+        sdata->appendArrayObject_floatArray(col1,9);
+        if (col2!=nullptr)
+            sdata->appendArrayObject_floatArray(col2,9);
+        if (col3!=nullptr)
+            sdata->appendArrayObject_floatArray(col3,9);
+        if (col4!=nullptr)
+            sdata->appendArrayObject_floatArray(col4,9);
         App::worldContainer->pushEvent(event);
     }
 }

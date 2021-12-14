@@ -14,7 +14,9 @@ public:
     void setColorsAllBlack();
     void setColor(const float theColor[3],unsigned char colorMode);
     void setColor(float r,float g,float b,unsigned char colorMode);
-    void pushColorChangeEvent(int objectHandle,int colorIndex,bool isLight=false);
+    void pushShapeColorChangeEvent(int objectHandle,int colorIndex);
+    static void pushColorChangeEvent(int objectHandle,float col1[9],float col2[9]=nullptr,float col3[9]=nullptr,float col4[9]=nullptr);
+    void getNewColors(float cols[9]) const;
     void copyYourselfInto(CColorObject* it) const;
     void serialize(CSer& ar,int objType); // 0=3d mesh, 1=3d lines, 2=3d points, 3=3d light, 4=2d thing
     void setConvexColors();

@@ -546,7 +546,7 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
                 rgbDataOffset+=3;
         }
         if (shape!=nullptr)
-            color.pushColorChangeEvent(shape->getObjectHandle(),elementIndex);
+            color.pushShapeColorChangeEvent(shape->getObjectHandle(),elementIndex);
     }
     if ((colorName!=nullptr)&&(insideColor_DEPRECATED.getColorName().compare(colorName)==0))
     { // OLD, deprecated
