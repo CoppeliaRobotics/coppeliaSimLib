@@ -52,7 +52,6 @@ public:
     void removeAllObjects(bool generateBeforeAfterDeleteCallback);
     void actualizeObjectInformation();
     void enableObjectActualization(bool e);
-
     void getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix) const;
     bool canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const;
     void setSuffix1ToSuffix2(int suffix1,int suffix2);
@@ -60,6 +59,7 @@ public:
     void setTextureDependencies();
     void removeSceneDependencies();
 
+    void checkObjectIsInstanciated(CSceneObject* obj,const char* location) const;
     void pushAllInitialEvents() const;
 
     void getAllCollidableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,std::vector<CSceneObject*>& objects);

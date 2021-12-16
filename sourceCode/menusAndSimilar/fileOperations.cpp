@@ -884,8 +884,10 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             {
                 App::currentWorld->loadScene(serObj,false);
                 serObj.readClose();
+#ifdef SIM_WITH_GUI
                 if (App::mainWindow!=nullptr)
                     App::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
+#endif
             }
         }
         App::currentWorld->undoBufferContainer->memorizeState(); // so that we can come back to the initial state!

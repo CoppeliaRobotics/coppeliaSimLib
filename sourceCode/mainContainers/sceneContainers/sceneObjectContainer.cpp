@@ -429,6 +429,23 @@ void CSceneObjectContainer::removeSceneDependencies()
         getObjectFromIndex(i)->removeSceneDependencies();
 }
 
+void CSceneObjectContainer::checkObjectIsInstanciated(CSceneObject* obj,const char* location) const
+{
+    if (obj==nullptr)
+    {
+        App::logMsg(sim_verbosity_errors,(std::string("internal error: scene object is NULL in '")+location+"'. Please report this error").c_str());
+        App::beep();
+    }
+    else
+    {
+        if (getObjectFromHandle(obj->getObjectHandle())==nullptr)
+        {
+            App::logMsg(sim_verbosity_errors,(std::string("internal error: scene object not instanciated in '")+location+"'. Please report this error").c_str());
+            App::beep();
+        }
+    }
+}
+
 void CSceneObjectContainer::pushAllInitialEvents() const
 {
     std::vector<CSceneObject*> orderedObjects;
@@ -1085,6 +1102,9 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar,const CSceneO
 void CSceneObjectContainer::setObjectParent(CSceneObject* object,CSceneObject* newParent,bool keepInPlace)
 {
     TRACE_INTERNAL;
+    checkObjectIsInstanciated(object,__func__);
+    if (newParent!=nullptr)
+        checkObjectIsInstanciated(newParent,__func__);
     CSceneObject* oldParent=object->getParent();
     if (oldParent!=newParent)
     {
@@ -1126,6 +1146,7 @@ void CSceneObjectContainer::setObjectParent(CSceneObject* object,CSceneObject* n
 bool CSceneObjectContainer::setObjectAlias(CSceneObject* object,const char* newAlias,bool allowNameAdjustment)
 {
     bool retVal=false;
+    checkObjectIsInstanciated(object,__func__);
     if (allowNameAdjustment||tt::isAliasValid(newAlias))
     {
         std::string nm(tt::getValidAlias(newAlias));
@@ -1173,6 +1194,7 @@ bool CSceneObjectContainer::setObjectSequence(CSceneObject* object,int order)
 
 bool CSceneObjectContainer::setObjectName_old(CSceneObject* object,const char* newName,bool allowNameAdjustment)
 { // overridden from _CSceneObjectContainer_
+    checkObjectIsInstanciated(object,__func__);
     std::string nm(newName);
     bool retVal=false;
     if (nm!=object->getObjectName_old())
@@ -1199,6 +1221,7 @@ bool CSceneObjectContainer::setObjectName_old(CSceneObject* object,const char* n
 
 bool CSceneObjectContainer::setObjectAltName_old(CSceneObject* object,const char* newName,bool allowNameAdjustment)
 { // overridden from _CSceneObjectContainer_
+    checkObjectIsInstanciated(object,__func__);
     std::string nm(newName);
     bool retVal=false;
     if (allowNameAdjustment||tt::isObjectNameValid_old(newName,false))

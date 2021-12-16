@@ -115,8 +115,18 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
     std::string theText;
     if (it!=nullptr)
+    {
 //        theText=it->getObjectName();
         theText=it->getObjectAliasAndOrderIfRequired();
+        /*
+        if (App::currentWorld->sceneObjects->isObjectInSelection(objectID))
+        {
+            theText+=" (";
+            theText+=it->getObjectName_old();
+            theText+=")";
+        }
+        */
+    }
     else
     {
         theText+=_sceneName;

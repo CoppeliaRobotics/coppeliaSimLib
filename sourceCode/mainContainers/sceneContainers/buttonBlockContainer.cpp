@@ -107,6 +107,9 @@ void CButtonBlockContainer::updateInfoWindowColorStyle(int colorStyle)
 {
     if (infoBox==nullptr)
         return;
+#ifdef LIN_SIM
+    colorStyle=2; // otherwise not always visible on Ubuntu somehow
+#endif
     bool background=(colorStyle==2);
     float txtCol[3];
     if ((colorStyle==0)||(colorStyle==2))

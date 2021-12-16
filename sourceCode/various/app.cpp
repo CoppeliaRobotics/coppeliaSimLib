@@ -1472,6 +1472,7 @@ std::string App::_getHtmlEscapedString(const char* str)
     CTTUtil::replaceSubstring(s,"\n","*+-%NL%-+*");
     CTTUtil::replaceSubstring(s," ","*+-%S%-+*");
     CTTUtil::replaceSubstring(s,"\t","*+-%T%-+*");
+    CTTUtil::replaceSubstring(s,"/","*+-%FS%-+*");
 #ifdef SIM_WITH_QT
     QString qstr(s.c_str());
     qstr=qstr.toHtmlEscaped();
@@ -1480,6 +1481,7 @@ std::string App::_getHtmlEscapedString(const char* str)
     CTTUtil::replaceSubstring(s,"*+-%NL%-+*","<br/>");
     CTTUtil::replaceSubstring(s,"*+-%S%-+*","&nbsp;");
     CTTUtil::replaceSubstring(s,"*+-%T%-+*","&nbsp;&nbsp;&nbsp;&nbsp;");
+    CTTUtil::replaceSubstring(s,"*+-%FS%-+*","&#47;");
     CTTUtil::replaceSubstring(s,"*+-%A%-+*","&lt;");
     CTTUtil::replaceSubstring(s,"*+-%B%-+*","&gt;");
     return(s);
@@ -1562,7 +1564,6 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
             auto f=std::getenv("COPPELIASIM_STATUSBAR_LOG_FORMAT_UNDECORATED");
             statusbarLogFormatUndecorated=f?f:"<font color='{color}'>{message}</font>";
         }
-
         std::map<std::string,std::string> vars;
         vars["message"]=msg;
         vars["origin"]=originName?originName:"CoppeliaSim";
@@ -1639,18 +1640,6 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         if ( (statusbarVerbosity>=realVerbosityLevel)&&(uiThread!=nullptr)&&(simThread!=nullptr) )
         {
             vars["message"]=_getHtmlEscapedString(vars["message"].c_str());
-            /*
-            if ( (realVerbosityLevel==sim_verbosity_errors)||(realVerbosityLevel==sim_verbosity_scripterrors) )
-            {
-                if ((verbosityLevel&sim_verbosity_undecorated)==0)
-                {
-                    SUIThreadCommand cmdIn;
-                    SUIThreadCommand cmdOut;
-                    cmdIn.cmdId=FLASH_STATUSBAR_UITHREADCMD;
-                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-                }
-            }
-            */
             std::string statusbarTxt=replaceVars(decorateMsg?statusbarLogFormat:statusbarLogFormatUndecorated,vars);
             _logMsgToStatusbar(statusbarTxt.c_str(),true);
         }

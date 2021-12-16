@@ -1676,7 +1676,6 @@ bool CSceneObjectOperations::_divideShape(CShape* shape,std::vector<CShape*>& ne
                     CShape* newIt=new CShape(&tmpTr,subvert,subind,nullptr,nullptr);
 
                     // Now a few properties/things we want to be same for the new shape:
-                    App::currentWorld->sceneObjects->setObjectParent(newIt,it->getParent(),true);
                     newIt->setSizeFactor(it->getSizeFactor());
                     newIt->setObjectProperty(it->getObjectProperty());
                     newIt->setLocalObjectSpecialProperty(it->getLocalObjectSpecialProperty());
@@ -1690,6 +1689,7 @@ bool CSceneObjectOperations::_divideShape(CShape* shape,std::vector<CShape*>& ne
                     newIt->actualizeContainsTransparentComponent();
 
                     App::currentWorld->sceneObjects->addObjectToScene(newIt,false,false);
+                    App::currentWorld->sceneObjects->setObjectParent(newIt,it->getParent(),true);
                     newShapes.push_back(newIt);
                 }
                 else

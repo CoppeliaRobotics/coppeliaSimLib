@@ -4317,6 +4317,11 @@ simChar* simGetStringParam_internal(simInt parameter)
             validParam=true;
             retVal=App::folders->getModelsDefaultPath();
         }
+        if (parameter==sim_stringparam_defaultpython)
+        {
+            validParam=true;
+            retVal=App::userSettings->defaultPython;
+        }
         if (parameter==sim_stringparam_scene_path_and_name)
         {
             validParam=true;
@@ -22774,7 +22779,7 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
                     additionalMessage_backCompatibility+="\nYou however tried to access an object in a way that doesn't follow the new notation, i.e. \"";
                     additionalMessage_backCompatibility+=objectAlias;
                     additionalMessage_backCompatibility+="\" wasn't found.";
-                    additionalMessage_backCompatibility+="\nNote also that object aliases are distinct from object names, which are deprecated and not displayed anymore.";
+                    additionalMessage_backCompatibility+="\nNote also that object aliases are distinct from object names, which are deprecated and not displayed anymore. Additionally, sim.getObject is preferred over sim.getObjectHandle.";
                     additionalMessage_backCompatibility+="\nMake sure to read the following page for additional details: https://www.coppeliarobotics.com/helpFiles/en/accessingSceneObjects.htm";
                 }
             }

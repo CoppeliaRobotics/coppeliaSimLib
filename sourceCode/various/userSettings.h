@@ -120,6 +120,8 @@ public:
     int scriptEditorFontSize;
 
     std::string additionalLuaPath;
+    std::string defaultPython;
+    bool executeUnsafe;
 
     int guiFontSize_Win;
     int guiFontSize_Mac;

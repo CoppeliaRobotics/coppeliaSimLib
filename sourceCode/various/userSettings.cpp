@@ -93,6 +93,8 @@
 #define _USR_RENDERING_SURFACE_VERTICAL_SHIFT "renderingSurfaceVShift"
 #define _USR_RENDERING_SURFACE_VERTICAL_RESIZE "renderingSurfaceVResize"
 #define _USR_ADDITIONAL_LUA_PATH "additionalLuaPath"
+#define _USR_DEFAULT_PYTHON "defaultPython"
+#define _USR_EXECUTE_UNSAFE "executeUnsafe"
 
 #define _USR_DIRECTORY_FOR_SCENES "defaultDirectoryForScenes"
 #define _USR_DIRECTORY_FOR_MODELS "defaultDirectoryForModels"
@@ -389,6 +391,9 @@ CUserSettings::CUserSettings()
     orderHierarchyAlphabetically=false;
     macChildDialogType=-1; // default
     additionalLuaPath="";
+    defaultPython="";
+    executeUnsafe=false;
+
     desktopRecordingIndex=0;
     desktopRecordingWidth=-1;
     externalScriptEditor="";
@@ -774,6 +779,8 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_ORDER_HIERARCHY_ALPHABETICALLY,orderHierarchyAlphabetically,"");
     c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
     c.addString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath,"e.g. d:/myLuaRoutines");
+    c.addString(_USR_DEFAULT_PYTHON,defaultPython,"e.g. c:/Python38/python.exe");
+    c.addBoolean(_USR_EXECUTE_UNSAFE,executeUnsafe,"recommended to keep false.");
     c.addInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex,"");
     c.addInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth,"-1=default.");
     c.addString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditor,"");
@@ -1100,6 +1107,8 @@ void CUserSettings::loadUserSettings()
     #endif
 #endif
     c.getString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath);
+    c.getString(_USR_DEFAULT_PYTHON,defaultPython);
+    c.getBoolean(_USR_EXECUTE_UNSAFE,executeUnsafe);
     c.getInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex);
     c.getInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth);
     c.getBoolean(_USR_FORCE_BUG_FIX_REL_30002,forceBugFix_rel30002);
