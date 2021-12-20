@@ -741,6 +741,7 @@ void CCamera::commonInit()
     _farClippingPlane=30.0f;
     _cameraSize=0.05f;
     _perspectiveOperation=-1; // undefined
+    _remoteCameraMode=0; // free
     _renderMode=sim_rendermode_opengl;
     _renderModeDuringSimulation=false;
     _renderModeDuringRecording=false;
@@ -1014,6 +1015,7 @@ void CCamera::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
     data->appendMapObject_stringFloat("size",_cameraSize);
     data->appendMapObject_stringBool("showFrustum",_showVolume);
+    data->appendMapObject_stringInt32("remoteCameraMode",_remoteCameraMode);
 
     CInterfaceStackTable* fr=new CInterfaceStackTable();
     data->appendMapObject_stringObject("frustumVectors",fr);
@@ -1040,6 +1042,7 @@ CSceneObject* CCamera::copyYourself()
     // Various
     newCamera->_cameraSize=_cameraSize;
     newCamera->_renderMode=_renderMode;
+    newCamera->_remoteCameraMode=_remoteCameraMode;
     newCamera->_renderModeDuringSimulation=_renderModeDuringSimulation;
     newCamera->_renderModeDuringRecording=_renderModeDuringRecording;
     newCamera->_viewAngle=_viewAngle;
@@ -1123,6 +1126,27 @@ void CCamera::performTextureObjectLoadingMapping(const std::vector<int>* map)
 void CCamera::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
+}
+
+void CCamera::setRemoteCameraMode(int m)
+{
+    bool diff=(_remoteCameraMode!=m);
+    if (diff)
+    {
+        _remoteCameraMode=m;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="remoteCameraMode";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringInt32(cmd,_remoteCameraMode);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
+int CCamera::getRemoteCameraMode() const
+{
+    return(_remoteCameraMode);
 }
 
 void CCamera::setPerspectiveOperation(bool p)
@@ -1314,6 +1338,10 @@ void CCamera::serialize(CSer& ar)
             ar << _renderMode;
             ar.flush();
 
+            ar.storeDataName("Rcm");
+            ar << _remoteCameraMode;
+            ar.flush();
+
             ar.storeDataName("Cpm");
             ar << _perspectiveOperation;
             ar.flush();
@@ -1406,6 +1434,12 @@ void CCamera::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _renderMode;
+                    }
+                    if (theName.compare("Rcm")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _remoteCameraMode;
                     }
                     if (theName.compare("Cpm")==0)
                     {
@@ -1529,6 +1563,9 @@ void CCamera::serialize(CSer& ar)
                 ar.xmlAddNode_int("renderMode",_renderMode);
 
             if (exhaustiveXml)
+                ar.xmlAddNode_int("remoteCameraMode",_remoteCameraMode);
+
+            if (exhaustiveXml)
                 ar.xmlAddNode_int("manipulationPermissions",_cameraManipulationModePermissions);
 
             ar.xmlPushNewNode("switches");
@@ -1586,6 +1623,9 @@ void CCamera::serialize(CSer& ar)
 
             if (exhaustiveXml)
                 ar.xmlGetNode_int("renderMode",_renderMode);
+
+            if (exhaustiveXml)
+                ar.xmlGetNode_int("remoteCameraMode",_remoteCameraMode);
 
             if (exhaustiveXml)
                 ar.xmlGetNode_int("manipulationPermissions",_cameraManipulationModePermissions);

@@ -56,6 +56,8 @@ public:
 
     void handleTrackingAndHeadAlwaysUp();
     void commonInit();
+    void setRemoteCameraMode(int m);
+    int getRemoteCameraMode() const;
     void setPerspectiveOperation(bool p);
     int getViewOrientation() const;
     void setViewOrientation(int ori,bool setPositionAlso=false);
@@ -85,6 +87,7 @@ protected:
     float _cameraSize;
     int _renderMode;
     int _perspectiveOperation; // -1: undefined, 0=false, 1=true
+    int _remoteCameraMode; // 0: free, 1: slave, 2: master
     bool _useParentObjectAsManipulationProxy;
     bool _allowPicking;
     bool _renderModeDuringSimulation;

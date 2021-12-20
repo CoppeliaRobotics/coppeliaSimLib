@@ -56,6 +56,7 @@ public:
     void popStackValue(int cnt);
     bool moveStackItemToTop(int cIndex);
     CInterfaceStackObject* getStackObjectFromIndex(size_t index) const;
+    CInterfaceStackObject* detachStackObjectFromIndex(size_t index);
     bool getStackBoolValue(bool& theValue) const;
     bool getStackStrictDoubleValue(double& theValue) const;
     bool getStackStrictInt64Value(long long int& theValue) const;

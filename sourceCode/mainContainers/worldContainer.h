@@ -74,6 +74,7 @@ public:
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     void callScripts(int callType,CInterfaceStack* inStack);
 
+    std::tuple<SEventInfo,CInterfaceStackTable*> prepareNakedEvent(const char* event,int handle,long long int uid,bool mergeable);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareEvent(const char* event,long long int uid,const char* fieldName,bool mergeable);
     void pushSceneObjectRemoveEvent(const _CSceneObject_* object);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectAddEvent(const _CSceneObject_* object);

@@ -424,6 +424,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getClosestPosOnPath",_simGetClosestPosOnPath,          "float posAlongPath=sim.getClosestPosOnPath(table[] path,table[] pathLengths,table[3] absPt)",true},
     {"sim.initScript",_simInitScript,                            "bool result=sim.initScript(int scriptHandle)",true},
     {"sim.moduleEntry",_simModuleEntry,                          "int handle=sim.moduleEntry(int handle,string label=nil,int state=-1)",true},
+    {"sim.pushUserEvent",_simPushUserEvent,                      "sim.pushUserEvent(string event,int handle,int uid,table eventData,int options=0)",true},
+    {"sim.getGenesisEvents",_simGetGenesisEvents,                "table/string events=sim.getGenesisEvents()",true},
 
     {"sim.test",_simTest,                                        "test function - shouldn't be used",true},
 
@@ -1173,6 +1175,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.cameraintparam_pov_blur_samples",sim_cameraintparam_pov_blur_samples,true},
     {"sim.cameraintparam_perspective_operation",sim_cameraintparam_perspective_operation,true},
     {"sim.cameraintparam_trackedobject",sim_cameraintparam_trackedobject,true},
+    {"sim.cameraintparam_remotecameramode",sim_cameraintparam_remotecameramode,true},
 
     // dummies
     {"sim.dummyintparam_link_type",sim_dummyintparam_link_type,true},
@@ -10869,6 +10872,60 @@ int _simModuleEntry(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
+}
+
+int _simPushUserEvent(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.pushUserEvent");
+
+    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_integer,0,lua_arg_integer,0))
+    {
+        std::string event(luaWrap_lua_tostring(L,1));
+        int handle=luaWrap_lua_tointeger(L,2);
+        long long int uid=luaWrap_lua_tointeger(L,3);
+        if (luaWrap_lua_istable(L,4))
+        {
+            int options=0; // bit0: mergeable
+            int res=checkOneGeneralInputArgument(L,5,lua_arg_integer,0,true,true,&errorString);
+            if (res>=0)
+            {
+                if (res==2)
+                    options=luaWrap_lua_tointeger(L,5);
+                if (App::worldContainer->getEventsEnabled())
+                {
+                    auto [event,data]=App::worldContainer->prepareNakedEvent(event.c_str(),handle,uid,(options&1)!=0);
+                    CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+                    CScriptObject::buildFromInterpreterStack_lua(L,stack,4,0); // skip the 3 first args
+                    CInterfaceStackTable* t=(CInterfaceStackTable*)stack->detachStackObjectFromIndex(0);
+                    App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                    event.eventTable->appendMapObject_stringObject("data",t);
+                    App::worldContainer->pushEvent(event);
+                }
+            }
+        }
+        else
+            errorString.assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetGenesisEvents(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getGenesisEvents");
+
+    // no args for now
+    CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+    App::worldContainer->getAllInitialEvents(stack);
+    CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
+    int s=stack->getStackSize();
+    App::worldContainer->interfaceStackContainer->destroyStack(stack);
+    LUA_END(s);
+
+//    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+//    LUA_END(0);
 }
 
 int _simGroupShapes(luaWrap_lua_State* L)

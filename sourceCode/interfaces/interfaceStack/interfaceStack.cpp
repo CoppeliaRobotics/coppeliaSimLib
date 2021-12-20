@@ -99,6 +99,17 @@ CInterfaceStackObject* CInterfaceStack::getStackObjectFromIndex(size_t index) co
     return(nullptr);
 }
 
+CInterfaceStackObject* CInterfaceStack::detachStackObjectFromIndex(size_t index)
+{
+    CInterfaceStackObject* retVal=nullptr;
+    if ( (_stackObjects.size()!=0)&&(index<_stackObjects.size()) )
+    {
+        retVal=_stackObjects[index];
+        _stackObjects.erase(_stackObjects.begin()+index);
+    }
+    return(retVal);
+}
+
 bool CInterfaceStack::getStackBoolValue(bool& theValue) const
 {
     if (_stackObjects.size()!=0)

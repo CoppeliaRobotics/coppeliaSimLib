@@ -497,6 +497,17 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObject
     return {d,nullptr};
 }
 
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareNakedEvent(const char* event,int handle,long long int uid,bool mergeable)
+{
+    if (getEventsEnabled())
+    {
+        auto [eventInfo,data]=_prepareGeneralEvent(event,handle,uid,nullptr,nullptr,mergeable);
+        return {eventInfo,data};
+    }
+    SEventInfo d;
+    return {d,nullptr};
+}
+
 std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareEvent(const char* event,long long int uid,const char* fieldName,bool mergeable)
 {
     if (getEventsEnabled())
