@@ -10881,7 +10881,7 @@ int _simPushUserEvent(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_integer,0,lua_arg_integer,0))
     {
-        std::string event(luaWrap_lua_tostring(L,1));
+        std::string eventStr(luaWrap_lua_tostring(L,1));
         int handle=luaWrap_lua_tointeger(L,2);
         long long int uid=luaWrap_lua_tointeger(L,3);
         if (luaWrap_lua_istable(L,4))
@@ -10894,7 +10894,7 @@ int _simPushUserEvent(luaWrap_lua_State* L)
                     options=luaWrap_lua_tointeger(L,5);
                 if (App::worldContainer->getEventsEnabled())
                 {
-                    auto [event,data]=App::worldContainer->prepareNakedEvent(event.c_str(),handle,uid,(options&1)!=0);
+                    auto [event,data]=App::worldContainer->prepareNakedEvent(eventStr.c_str(),handle,uid,(options&1)!=0);
                     CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
                     CScriptObject::buildFromInterpreterStack_lua(L,stack,4,0); // skip the 3 first args
                     CInterfaceStackTable* t=(CInterfaceStackTable*)stack->detachStackObjectFromIndex(0);
