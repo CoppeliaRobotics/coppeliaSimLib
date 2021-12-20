@@ -998,7 +998,7 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
     long long int pUid=-1;
     if (_parentObject!=nullptr)
         pUid=_parentObject->getObjectUid();
-    data->appendMapObject_stringInt64("parent",pUid);
+    data->appendMapObject_stringInt64("parentUid",pUid);
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("boundingBox",subC);
     subC->appendMapObject_stringFloatArray("min",_boundingBoxMin.data,3);
