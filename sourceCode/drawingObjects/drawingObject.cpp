@@ -608,7 +608,7 @@ void CDrawingObject::pushAddEvent()
 
         data->appendMapObject_stringFloat("size",_size);
 
-        data->appendMapObject_stringInt64("parent",_sceneObjectUid);
+        data->appendMapObject_stringInt64("parentUid",_sceneObjectUid);
 
         data->appendMapObject_stringBool("cyclic",(_objectType&sim_drawing_cyclic)!=0);
 

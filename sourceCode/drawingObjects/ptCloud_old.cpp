@@ -158,7 +158,7 @@ void CPtCloud_old::pushAddEvent()
 
         data->appendMapObject_stringFloat("size",_pointSize);
 
-        data->appendMapObject_stringInt64("parent",_parentUniqueId);
+        data->appendMapObject_stringInt64("parentUid",_parentUniqueId);
 
         data->appendMapObject_stringBool("cyclic",false);
 

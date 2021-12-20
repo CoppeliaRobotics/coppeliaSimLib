@@ -44,7 +44,7 @@ bool _CSceneObject_::setParent(CSceneObject* parent)
         _parentObject=parent;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            const char* cmd="parent";
+            const char* cmd="parentUid";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             long long int pUid=-1;
             if (_parentObject!=nullptr)
