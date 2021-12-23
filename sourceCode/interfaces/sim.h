@@ -365,6 +365,8 @@ SIM_DLLEXPORT simInt simGenerateShapeFromPath(const simFloat* path,simInt pathSi
 SIM_DLLEXPORT simFloat simGetClosestPosOnPath(const simFloat* path,simInt pathSize,const simFloat* pathLengths,const simFloat* absPt);
 SIM_DLLEXPORT simInt simInitScript(simInt scriptHandle);
 SIM_DLLEXPORT simInt simModuleEntry(simInt handle,const simChar* label,simInt state);
+SIM_DLLEXPORT simInt simCheckExecAuthorization(const simChar* what,const simChar* args);
+
 
 
 SIM_DLLEXPORT simInt _simGetContactCallbackCount();

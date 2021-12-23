@@ -1403,6 +1403,10 @@ SIM_DLLEXPORT simInt simModuleEntry(simInt handle,const simChar* label,simInt st
 {
     return(simModuleEntry_internal(handle,label,state));
 }
+SIM_DLLEXPORT simInt simCheckExecAuthorization(const simChar* what,const simChar* args)
+{
+    return(simCheckExecAuthorization_internal(what,args));
+}
 SIM_DLLEXPORT simInt _simGetContactCallbackCount()
 {
     return(_simGetContactCallbackCount_internal());

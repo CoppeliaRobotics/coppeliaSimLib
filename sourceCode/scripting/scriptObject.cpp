@@ -1505,15 +1505,48 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
         std::string _code(code);
         if (_code.find("#pythonWrapper")==0)
         {
-            std::string n;
-            if (CTTUtil::extractLine(_code,n))
+            std::string l;
+            if (CTTUtil::extractLine(_code,l))
             {
+                std::string n(l);
+                std::string f;
+                size_t b=l.find("(");
+                if (b!=std::string::npos)
+                {
+                    n.assign(l.begin(),l.begin()+b);
+                    size_t c=l.find("'",b);
+                    size_t d=std::string::npos;
+                    if (c==std::string::npos)
+                    {
+                        c=l.find("\"",b);
+                        if (c==std::string::npos)
+                        {
+                            c=b;
+                            d=l.find(")",c+1);
+                        }
+                        else
+                            d=l.find("\"",c+1);
+                    }
+                    else
+                        d=l.find("'",c+1);
+                    if ( (c!=std::string::npos)&&(d!=std::string::npos) )
+                        f.assign(l.begin()+c+1,l.begin()+d);
+                }
                 n.erase(n.begin());
-                _code="pythonProg=[[\n\n"+_code+"]]\nrequire('"+n+"')";
+                CTTUtil::removeSpacesAtBeginningAndEnd(n);
+                CTTUtil::removeSpacesAtBeginningAndEnd(f);
+                if (f.size()==0)
+                    _code="pythonProg=[[\n\n"+_code+"]]\nrequire('"+n+"')";
+                else
+                {
+                    if (!boost::algorithm::ends_with(f,".py"))
+                        f+=".py";
+                    if ( (f.find(":")==std::string::npos)&&(f[0]!='/') )
+                        f="python/"+f;
+                    _code="if true then local f=assert(io.open('"+f+"','rb')) pythonProg=f:read('*all') f:close() end require('"+n+"')";
+                }
             }
         }
-
-
 
         luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
         _raiseErrors_backCompatibility=true;
@@ -2443,6 +2476,13 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
             registerPluginFunctions();
             registerPluginVariables(false);
             luaWrap_lua_sethook(L,_hookFunction_lua,luaWrapGet_LUA_MASKCOUNT(),100); // This instruction gets also called in luaHookFunction!!!!
+        }
+        if (!App::userSettings->executeUnsafe)
+        {
+            _execSimpleString_safe_lua(L,"load=function() sim.addLog(sim.verbosity_errors,\"'load' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
+            _execSimpleString_safe_lua(L,"loadfile=function() sim.addLog(sim.verbosity_errors,\"'loadfile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
+            _execSimpleString_safe_lua(L,"dofile=function() sim.addLog(sim.verbosity_errors,\"'dofile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
+            _execSimpleString_safe_lua(L,"io.popen=function() sim.addLog(sim.verbosity_errors,\"'io.popen' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
         }
     }
     if (_lang==lang_python)

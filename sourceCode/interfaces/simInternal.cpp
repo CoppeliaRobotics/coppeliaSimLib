@@ -11945,6 +11945,25 @@ simInt simModuleEntry_internal(simInt handle,const simChar* label,simInt state)
     return(-1);
 }
 
+simInt simCheckExecAuthorization_internal(const simChar* what,const simChar* args)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal=0;
+        if ( App::userSettings->executeUnsafe||((App::mainWindow!=nullptr)&&(App::uiThread->checkExecuteUnsafeOk(what,args))) )
+            retVal=1;
+        else
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_EXEC_UNSAFE_FAILED);
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
 
 simInt simGroupShapes_internal(const simInt* shapeHandles,simInt shapeCount)
 {

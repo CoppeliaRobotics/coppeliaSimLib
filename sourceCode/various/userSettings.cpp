@@ -46,7 +46,6 @@
 #define _USR_UNDO_REDO_LEVEL_COUNT "undoRedoLevelCount"
 #define _USR_RUN_CUSTOMIZATION_SCRIPTS "runCustomizationScripts"
 #define _USR_TEST1 "test1"
-#define _USR_ORDER_HIERARCHY_ALPHABETICALLY "orderHierarchyAlphabetically"
 #define _USR_MAC_CHILD_DIALOG_TYPE "macChildDialogType"
 #define _USR_DESKTOP_RECORDING_INDEX "desktopRecordingIndex"
 #define _USR_DESKTOP_RECORDING_WIDTH "desktopRecordingWidth"
@@ -388,7 +387,6 @@ CUserSettings::CUserSettings()
     identicalTrianglesWindingCheck=true;
     runCustomizationScripts=true;
     test1=false;
-    orderHierarchyAlphabetically=false;
     macChildDialogType=-1; // default
     additionalLuaPath="";
     defaultPython="";
@@ -776,7 +774,6 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_TRIANGLE_WINDING_CHECK,identicalTrianglesWindingCheck,"");
     c.addBoolean(_USR_RUN_CUSTOMIZATION_SCRIPTS,runCustomizationScripts,"");
     c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
-    c.addBoolean(_USR_ORDER_HIERARCHY_ALPHABETICALLY,orderHierarchyAlphabetically,"");
     c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
     c.addString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath,"e.g. d:/myLuaRoutines");
     c.addString(_USR_DEFAULT_PYTHON,defaultPython,"e.g. c:/Python38/python.exe");
@@ -1090,7 +1087,6 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_TRIANGLE_WINDING_CHECK,identicalTrianglesWindingCheck);
     c.getBoolean(_USR_RUN_CUSTOMIZATION_SCRIPTS,runCustomizationScripts);
     c.getBoolean(_USR_TEST1,test1);
-    c.getBoolean(_USR_ORDER_HIERARCHY_ALPHABETICALLY,orderHierarchyAlphabetically);
     c.getInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType);
 #ifdef SIM_WITH_GUI
     #ifdef MAC_SIM

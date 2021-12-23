@@ -982,17 +982,17 @@ bool CCamera::getUseParentObjectAsManipulationProxy() const
 
 void CCamera::setTrackedObjectHandle(int trackedObjHandle)
 {
-    if (trackedObjHandle==_objectHandle)
-        return;
-    if (trackedObjHandle==-1)
+    if ( (trackedObjHandle!=_objectHandle)&&(trackedObjHandle!=_trackedObjectHandle) )
     {
-        _trackedObjectHandle=-1;
-        return;
+        if (App::currentWorld->sceneObjects->getObjectFromHandle(trackedObjHandle)!=nullptr)
+        {
+            _trackedObjectHandle=trackedObjHandle;
+            handleTrackingAndHeadAlwaysUp();
+        }
+        else
+            _trackedObjectHandle=-1;
+        App::setLightDialogRefreshFlag();
     }
-    if (App::currentWorld->sceneObjects->getObjectFromHandle(trackedObjHandle)==nullptr)
-        return;
-    _trackedObjectHandle=trackedObjHandle;
-    App::setLightDialogRefreshFlag();
 }
 
 void CCamera::removeSceneDependencies()

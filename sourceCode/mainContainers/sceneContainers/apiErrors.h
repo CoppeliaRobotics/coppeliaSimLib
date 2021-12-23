@@ -176,7 +176,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_COULD_NOT_FIND_RUCKIG "could not find the Ruckig plugin."
 #define SIM_ERROR_RUCKIG_OBJECT_INEXISTANT "ruckig object does not exist."
 #define SIM_ERROR_STRING_NOT_RECOGNIZED_AS_FUNC_OR_CONST "string not recognized as function or constant."
-
+#define SIM_ERROR_EXEC_UNSAFE_FAILED "function was hidered to execute for your safety. You can enabled its execution and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!"
 
 // Class is fully static
 class CApiErrors

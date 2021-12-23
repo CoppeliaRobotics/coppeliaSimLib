@@ -57,7 +57,6 @@ public:
     bool packIndices;
     bool runCustomizationScripts;
     bool test1;
-    bool orderHierarchyAlphabetically;
     int macChildDialogType;
 
     int undoRedoLevelCount;
