@@ -11955,8 +11955,12 @@ simInt simCheckExecAuthorization_internal(const simChar* what,const simChar* arg
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal=0;
-        if ( App::userSettings->executeUnsafe||((App::mainWindow!=nullptr)&&(App::uiThread->checkExecuteUnsafeOk(what,args))) )
+        if (App::userSettings->executeUnsafe)
             retVal=1;
+#ifdef SIM_WITH_GUI
+        else if ( (App::mainWindow!=nullptr)&&(App::uiThread->checkExecuteUnsafeOk(what,args)) )
+            retVal=1;
+#endif
         else
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_EXEC_UNSAFE_FAILED);
         return(retVal);

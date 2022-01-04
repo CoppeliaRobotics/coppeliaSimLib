@@ -8,7 +8,7 @@ under the same terms of the files in the parent directory otherwise.
 CoppeliaSimLib, based on the V-REP library source code from Coppelia
 Robotics AG on September 2019
 
-Copyright (C) 2006-2021 Coppelia Robotics AG / Marc Freese
+Copyright (C) 2006-2022 Coppelia Robotics AG / Marc Freese
 Copyright (C) 2019 Robot Nordic ApS
 
 All rights reserved.

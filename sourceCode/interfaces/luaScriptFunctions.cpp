@@ -5041,7 +5041,14 @@ int _simLaunchExecutable(luaWrap_lua_State* L)
                 std::string what("sim.launchExecutable in ");
                 if (it!=nullptr)
                     what+=it->getDescriptiveName();
-                if ( App::userSettings->executeUnsafe||((App::mainWindow!=nullptr)&&(App::uiThread->checkExecuteUnsafeOk(what.c_str(),(file+" "+args).c_str()))) )
+                bool doIt=false;
+                if (App::userSettings->executeUnsafe)
+                    doIt=true;
+#ifdef SIM_WITH_GUI
+                else if ( (App::mainWindow!=nullptr)&&(App::uiThread->checkExecuteUnsafeOk(what.c_str(),(file+" "+args).c_str())) )
+                    doIt=true;
+#endif
+                if (doIt)
                 {
                     if (VVarious::executeExternalApplication(file.c_str(),args.c_str(),App::folders->getExecutablePath().c_str(),sh)) // executable directory needed because otherwise the shellExecute command might switch directories!
                         retVal=1;
