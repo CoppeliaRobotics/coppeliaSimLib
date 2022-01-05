@@ -50,7 +50,7 @@ CScriptObject* CAddOnScriptContainer::getAddOnFromName(const char* name) const
 {
     for (size_t i=0;i<_addOns.size();i++)
     {
-        if (_addOns[i]->getAddOnName().compare(name)==0)
+        if (_addOns[i]->getScriptName().compare(name)==0)
             return(_addOns[i]);
     }
     return(nullptr);

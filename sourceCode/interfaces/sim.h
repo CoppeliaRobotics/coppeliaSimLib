@@ -219,6 +219,10 @@ SIM_DLLEXPORT simInt simGetObjectFloatParam(simInt objectHandle,simInt ParamID,s
 SIM_DLLEXPORT simInt simSetObjectFloatParam(simInt objectHandle,simInt ParamID,simFloat Param);
 SIM_DLLEXPORT simChar* simGetObjectStringParam(simInt objectHandle,simInt ParamID,simInt* ParamLength);
 SIM_DLLEXPORT simInt simSetObjectStringParam(simInt objectHandle,simInt ParamID,const simChar* Param,simInt ParamLength);
+SIM_DLLEXPORT simInt simGetScriptInt32Param(simInt ScriptHandle,simInt ParamID,simInt* Param);
+SIM_DLLEXPORT simInt simSetScriptInt32Param(simInt ScriptHandle,simInt ParamID,simInt Param);
+SIM_DLLEXPORT simChar* simGetScriptStringParam(simInt ScriptHandle,simInt ParamID,simInt* ParamLength);
+SIM_DLLEXPORT simInt simSetScriptStringParam(simInt ScriptHandle,simInt ParamID,const simChar* Param,simInt ParamLength);
 SIM_DLLEXPORT simInt simSetSimulationPassesPerRenderingPass(simInt p);
 SIM_DLLEXPORT simInt simGetRotationAxis(const simFloat* matrixStart,const simFloat* matrixGoal,simFloat* axis,simFloat* angle);
 SIM_DLLEXPORT simInt simRotateAroundAxis(const simFloat* matrixIn,const simFloat* axis,const simFloat* axisPos,simFloat angle,simFloat* matrixOut);
@@ -269,8 +273,6 @@ SIM_DLLEXPORT simInt simCreateCollectionEx(simInt options);
 SIM_DLLEXPORT simInt simAddItemToCollection(simInt collectionHandle,simInt what,simInt objectHandle,simInt options);
 SIM_DLLEXPORT simInt simDestroyCollection(simInt collectionHandle);
 SIM_DLLEXPORT simInt* simGetCollectionObjects(simInt collectionHandle,simInt* objectCount);
-SIM_DLLEXPORT simInt simSetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal);
-SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal);
 SIM_DLLEXPORT simInt simReorientShapeBoundingBox(simInt shapeHandle,simInt relativeToHandle,simInt reservedSetToZero);
 SIM_DLLEXPORT simInt simSaveImage(const simUChar* image,const simInt* resolution,simInt options,const simChar* filename,simInt quality,simVoid* reserved);
 SIM_DLLEXPORT simUChar* simLoadImage(simInt* resolution,simInt options,const simChar* filename,simVoid* reserved);
@@ -719,6 +721,8 @@ SIM_DLLEXPORT simBool _simIsForceSensorBroken(const simVoid* forceSensor);
 SIM_DLLEXPORT simVoid _simGetDynamicForceSensorLocalTransformationPart2(const simVoid* forceSensor,simFloat* pos,simFloat* quat);
 SIM_DLLEXPORT simInt simGetJointMatrix(simInt objectHandle,simFloat* matrix);
 SIM_DLLEXPORT simInt simSetSphericalJointMatrix(simInt objectHandle,const simFloat* matrix);
+SIM_DLLEXPORT simInt simSetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal);
+SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

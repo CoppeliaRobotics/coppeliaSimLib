@@ -216,6 +216,10 @@ simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
 simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,simFloat parameter);
 simChar* simGetObjectStringParam_internal(simInt objectHandle,simInt parameterID,simInt* parameterLength);
 simInt simSetObjectStringParam_internal(simInt objectHandle,simInt parameterID,const simChar* parameter,simInt parameterLength);
+simInt simGetScriptInt32Param_internal(simInt scriptHandle,simInt parameterID,simInt* parameter);
+simInt simSetScriptInt32Param_internal(simInt scriptHandle,simInt parameterID,simInt parameter);
+simChar* simGetScriptStringParam_internal(simInt scriptHandle,simInt parameterID,simInt* parameterLength);
+simInt simSetScriptStringParam_internal(simInt scriptHandle,simInt parameterID,const simChar* parameter,simInt parameterLength);
 simInt simSetSimulationPassesPerRenderingPass_internal(simInt p);
 simInt simGetRotationAxis_internal(const simFloat* matrixStart,const simFloat* matrixGoal,simFloat* axis,simFloat* angle);
 simInt simRotateAroundAxis_internal(const simFloat* matrixIn,const simFloat* axis,const simFloat* axisPos,simFloat angle,simFloat* matrixOut);
@@ -268,8 +272,6 @@ simInt simCreateCollectionEx_internal(simInt options);
 simInt simAddItemToCollection_internal(simInt collectionHandle,simInt what,simInt objectHandle,simInt options);
 simInt simDestroyCollection_internal(simInt collectionHandle);
 simInt* simGetCollectionObjects_internal(simInt collectionHandle,simInt* objectCount);
-simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal);
-simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal);
 simInt simReorientShapeBoundingBox_internal(simInt shapeHandle,simInt relativeToHandle,simInt reservedSetToZero);
 simInt simSaveImage_internal(const simUChar* image,const simInt* resolution,simInt options,const simChar* filename,simInt quality,simVoid* reserved);
 simUChar* simLoadImage_internal(simInt* resolution,simInt options,const simChar* filename,simVoid* reserved);
@@ -665,4 +667,6 @@ simVoid _simGetDynamicForceSensorLocalTransformationPart2_internal(const simVoid
 simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix);
 simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* matrix);
 simInt simGetObjectHandleEx_internal(const simChar* objectAlias,simInt index,simInt proxy,simInt options);
+simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal);
+simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal);
 #endif // !defined(simInternal_INCLUDED_)

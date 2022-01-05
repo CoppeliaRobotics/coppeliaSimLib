@@ -928,9 +928,23 @@ void CScriptObject::setPreviousEditionWindowPosAndSize(const int posAndSize[4])
         _previousEditionWindowPosAndSize[i]=posAndSize[i];
 }
 
-std::string CScriptObject::getAddOnName() const
+std::string CScriptObject::getScriptName() const
 {
-    return(_addOnName);
+    if (_scriptType==sim_scripttype_mainscript)
+        return("mainScript");
+    if (_scriptType==sim_scripttype_sandboxscript)
+        return("sandboxScript");
+    if (_scriptType==sim_scripttype_addonscript)
+        return(_addOnName);
+    if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
+    {
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
+        if (obj!=nullptr)
+            return(obj->getObjectAlias());
+        return("error");
+    }
+
+    return("deprecatedScript");
 }
 
 int CScriptObject::getAddOnUiMenuHandle() const
@@ -6817,6 +6831,10 @@ void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject,bool doI
 
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 {
+    if (_containsScriptText_old(scriptObject,"sim.setScriptAttribute"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setScriptAttribute...");
+    if (_containsScriptText_old(scriptObject,"sim.getScriptAttribute"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getScriptAttribute...");
     if (_containsScriptText_old(scriptObject,"sim.getObjectHandle"))
         App::logMsg(sim_verbosity_errors,"Contains sim.getObjectHandle...");
     if (_containsScriptText_old(scriptObject,"simIK.getConfigForTipPose"))

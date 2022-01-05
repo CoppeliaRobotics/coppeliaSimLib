@@ -2924,24 +2924,24 @@ void CJoint::setSphericalTransformation(const C4Vector& tr)
             C4Vector rot(angle-_jointPositionRange,rotAxis);
             transf=rot*transf;
         }
-        bool diff=(_sphericalTransformation!=transf);
-        if (diff)
+    }
+    bool diff=(_sphericalTransformation!=transf);
+    if (diff)
+    {
+        _sphericalTransformation=transf;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            _sphericalTransformation=transf;
-            if ( _isInScene&&App::worldContainer->getEventsEnabled() )
-            {
-                const char* cmd="quaternion";
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-                float q[4]={transf(1),transf(2),transf(3),transf(0)};
-                data->appendMapObject_stringFloatArray(cmd,q,4);
-                C7Vector trr(getIntrinsicTransformation(true));
-                float p[7]={trr.X(0),trr.X(1),trr.X(2),trr.Q(1),trr.Q(2),trr.Q(3),trr.Q(0)};
-                data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
-                App::worldContainer->pushEvent(event);
-            }
-            if (getObjectCanSync())
-                _setSphericalTransformation_sendOldIk(transf);
+            const char* cmd="quaternion";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            float q[4]={transf(1),transf(2),transf(3),transf(0)};
+            data->appendMapObject_stringFloatArray(cmd,q,4);
+            C7Vector trr(getIntrinsicTransformation(true));
+            float p[7]={trr.X(0),trr.X(1),trr.X(2),trr.Q(1),trr.Q(2),trr.Q(3),trr.Q(0)};
+            data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
+            App::worldContainer->pushEvent(event);
         }
+        if (getObjectCanSync())
+            _setSphericalTransformation_sendOldIk(transf);
     }
 }
 

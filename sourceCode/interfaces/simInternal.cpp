@@ -10551,9 +10551,7 @@ simChar* simGetObjectStringParam_internal(simInt objectHandle,simInt parameterID
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -10646,6 +10644,150 @@ simInt simSetObjectStringParam_internal(simInt objectHandle,simInt parameterID,c
         if (retVal==0)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_SET_PARAMETER);
         return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetScriptInt32Param_internal(simInt scriptHandle,simInt parameterID,simInt* parameter)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            return(-1);
+        }
+        int retVal=-1;
+        if (parameterID==sim_scriptintparam_execorder)
+        {
+            parameter[0]=it->getExecutionPriority();
+            retVal=1;
+        }
+        if (parameterID==sim_scriptintparam_execcount)
+        {
+            parameter[0]=it->getNumberOfPasses();
+            retVal=1;
+        }
+        if (parameterID==sim_scriptintparam_type)
+        {
+            parameter[0]=it->getScriptType();
+            if (it->getThreadedExecution_oldThreads())
+                parameter[0]|=sim_scripttype_threaded_old;
+            retVal=1;
+        }
+        if (parameterID==sim_scriptintparam_handle)
+        {
+            parameter[0]=it->getScriptHandle();
+            retVal=1;
+        }
+
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetScriptInt32Param_internal(simInt scriptHandle,simInt parameterID,simInt parameter)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            return(-1);
+        }
+        int retVal=-1;
+        if (parameterID==sim_scriptintparam_execorder)
+        {
+            it->setExecutionPriority(parameter);
+            retVal=1;
+        }
+        if (parameterID==sim_scriptintparam_execcount)
+        {
+            it->setNumberOfPasses(parameter);
+            retVal=1;
+        }
+        if (parameterID==sim_scriptintparam_enabled)//&&(it->getScriptType()==sim_scripttype_childscript) )
+        {
+            it->setScriptIsDisabled(parameter==0);
+            retVal=1;
+        }
+
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simChar* simGetScriptStringParam_internal(simInt scriptHandle,simInt parameterID,simInt* parameterLength)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            return(nullptr);
+        }
+        char* retVal=nullptr;
+        if (parameterID==sim_scriptstringparam_name)
+        {
+            std::string s(it->getScriptName());
+            retVal=new char[s.length()+1];
+            for (size_t i=0;i<s.length();i++)
+                retVal[i]=s[i];
+            retVal[s.length()]=0;
+            parameterLength[0]=(int)s.length();
+        }
+        if (parameterID==sim_scriptstringparam_description)
+        {
+            std::string s(it->getDescriptiveName());
+            retVal=new char[s.length()+1];
+            for (size_t i=0;i<s.length();i++)
+                retVal[i]=s[i];
+            retVal[s.length()]=0;
+            parameterLength[0]=(int)s.length();
+        }
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simSetScriptStringParam_internal(simInt scriptHandle,simInt parameterID,const simChar* parameter,simInt parameterLength)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            return(-1);
+        }
+        return(-1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -13136,136 +13278,6 @@ simInt* simGetCollectionObjects_internal(simInt collectionHandle,simInt* objectC
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
-}
-
-simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
-            return(-1);
-        }
-        int retVal=-1;
-        if ( (attributeID==sim_customizationscriptattribute_activeduringsimulation)&&(it->getScriptType()==sim_scripttype_customizationscript) )
-        {
-            it->setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(intOrBoolVal==0);
-            retVal=1;
-        }
-        if ( (attributeID==sim_customizationscriptattribute_cleanupbeforesave)&&(it->getScriptType()==sim_scripttype_customizationscript) )
-        {
-            it->setCustomizationScriptCleanupBeforeSave_DEPRECATED(intOrBoolVal!=0);
-            retVal=1;
-        }
-        if (attributeID==sim_scriptattribute_executionorder)
-        {
-            it->setExecutionPriority(intOrBoolVal);
-            retVal=1;
-        }
-        if (attributeID==sim_scriptattribute_executioncount)
-        {
-            it->setNumberOfPasses(intOrBoolVal);
-            retVal=1;
-        }
-        if ( (attributeID==sim_childscriptattribute_automaticcascadingcalls)&&(it->getScriptType()==sim_scripttype_childscript)&&(!it->getThreadedExecution_oldThreads()) )
-        {
-            it->setAutomaticCascadingCallsDisabled_old(intOrBoolVal==0);
-            retVal=1;
-        }
-        if (attributeID==sim_scriptattribute_enabled)//&&(it->getScriptType()==sim_scripttype_childscript) )
-        {
-            it->setScriptIsDisabled(intOrBoolVal==0);
-            retVal=1;
-        }
-        if (attributeID==sim_scriptattribute_debuglevel)
-            retVal=1; // deprecated. Doesn't do anything
-
-
-        return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
-            return(-1);
-        }
-        int retVal=-1;
-        if ( (attributeID==sim_customizationscriptattribute_activeduringsimulation)&&(it->getScriptType()==sim_scripttype_customizationscript) )
-        {
-            if (it->getCustScriptDisabledDSim_compatibilityMode_DEPRECATED())
-                intOrBoolVal[0]=0;
-            else
-                intOrBoolVal[0]=1;
-            retVal=1;
-        }
-        if ( (attributeID==sim_customizationscriptattribute_cleanupbeforesave)&&(it->getScriptType()==sim_scripttype_customizationscript) )
-        {
-            if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
-                intOrBoolVal[0]=1;
-            else
-                intOrBoolVal[0]=0;
-            retVal=1;
-        }
-        if ( (attributeID==sim_childscriptattribute_automaticcascadingcalls)&&(it->getScriptType()==sim_scripttype_childscript)&&(!it->getThreadedExecution_oldThreads()) )
-        {
-            if (it->getAutomaticCascadingCallsDisabled_old())
-                intOrBoolVal[0]=0;
-            else
-                intOrBoolVal[0]=1;
-            retVal=1;
-        }
-        if (attributeID==sim_scriptattribute_executionorder)
-        {
-            intOrBoolVal[0]=it->getExecutionPriority();
-            retVal=1;
-        }
-        if (attributeID==sim_scriptattribute_executioncount)
-        {
-            intOrBoolVal[0]=it->getNumberOfPasses();
-            retVal=1;
-        }
-        if (attributeID==sim_scriptattribute_debuglevel)
-        {
-            intOrBoolVal[0]=sim_scriptdebug_none; // deprecated, doesn't work anymore
-            retVal=1;
-        }
-        if (attributeID==sim_scriptattribute_scripttype)
-        {
-            intOrBoolVal[0]=it->getScriptType();
-            if (it->getThreadedExecution_oldThreads())
-                intOrBoolVal[0]|=sim_scripttype_threaded_old;
-            retVal=1;
-        }
-        if (attributeID==sim_scriptattribute_scripthandle)
-        {
-            intOrBoolVal[0]=it->getScriptHandle();
-            retVal=1;
-        }
-
-        return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
 }
 
 simInt simReorientShapeBoundingBox_internal(simInt shapeHandle,simInt relativeToHandle,simInt reservedSetToZero)
@@ -22830,6 +22842,136 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
             return(-1);
         }
         int retVal=it->getObjectHandle();
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal)
+{ // deprecated on 05.01.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            return(-1);
+        }
+        int retVal=-1;
+        if ( (attributeID==sim_customizationscriptattribute_activeduringsimulation)&&(it->getScriptType()==sim_scripttype_customizationscript) )
+        {
+            it->setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(intOrBoolVal==0);
+            retVal=1;
+        }
+        if ( (attributeID==sim_customizationscriptattribute_cleanupbeforesave)&&(it->getScriptType()==sim_scripttype_customizationscript) )
+        {
+            it->setCustomizationScriptCleanupBeforeSave_DEPRECATED(intOrBoolVal!=0);
+            retVal=1;
+        }
+        if (attributeID==sim_scriptattribute_executionorder)
+        {
+            it->setExecutionPriority(intOrBoolVal);
+            retVal=1;
+        }
+        if (attributeID==sim_scriptattribute_executioncount)
+        {
+            it->setNumberOfPasses(intOrBoolVal);
+            retVal=1;
+        }
+        if ( (attributeID==sim_childscriptattribute_automaticcascadingcalls)&&(it->getScriptType()==sim_scripttype_childscript)&&(!it->getThreadedExecution_oldThreads()) )
+        {
+            it->setAutomaticCascadingCallsDisabled_old(intOrBoolVal==0);
+            retVal=1;
+        }
+        if (attributeID==sim_scriptattribute_enabled)//&&(it->getScriptType()==sim_scripttype_childscript) )
+        {
+            it->setScriptIsDisabled(intOrBoolVal==0);
+            retVal=1;
+        }
+        if (attributeID==sim_scriptattribute_debuglevel)
+            retVal=1; // deprecated. Doesn't do anything
+
+
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal)
+{ // deprecated on 05.01.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            return(-1);
+        }
+        int retVal=-1;
+        if ( (attributeID==sim_customizationscriptattribute_activeduringsimulation)&&(it->getScriptType()==sim_scripttype_customizationscript) )
+        {
+            if (it->getCustScriptDisabledDSim_compatibilityMode_DEPRECATED())
+                intOrBoolVal[0]=0;
+            else
+                intOrBoolVal[0]=1;
+            retVal=1;
+        }
+        if ( (attributeID==sim_customizationscriptattribute_cleanupbeforesave)&&(it->getScriptType()==sim_scripttype_customizationscript) )
+        {
+            if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
+                intOrBoolVal[0]=1;
+            else
+                intOrBoolVal[0]=0;
+            retVal=1;
+        }
+        if ( (attributeID==sim_childscriptattribute_automaticcascadingcalls)&&(it->getScriptType()==sim_scripttype_childscript)&&(!it->getThreadedExecution_oldThreads()) )
+        {
+            if (it->getAutomaticCascadingCallsDisabled_old())
+                intOrBoolVal[0]=0;
+            else
+                intOrBoolVal[0]=1;
+            retVal=1;
+        }
+        if (attributeID==sim_scriptattribute_executionorder)
+        {
+            intOrBoolVal[0]=it->getExecutionPriority();
+            retVal=1;
+        }
+        if (attributeID==sim_scriptattribute_executioncount)
+        {
+            intOrBoolVal[0]=it->getNumberOfPasses();
+            retVal=1;
+        }
+        if (attributeID==sim_scriptattribute_debuglevel)
+        {
+            intOrBoolVal[0]=sim_scriptdebug_none; // deprecated, doesn't work anymore
+            retVal=1;
+        }
+        if (attributeID==sim_scriptattribute_scripttype)
+        {
+            intOrBoolVal[0]=it->getScriptType();
+            if (it->getThreadedExecution_oldThreads())
+                intOrBoolVal[0]|=sim_scripttype_threaded_old;
+            retVal=1;
+        }
+        if (attributeID==sim_scriptattribute_scripthandle)
+        {
+            intOrBoolVal[0]=it->getScriptHandle();
+            retVal=1;
+        }
+
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

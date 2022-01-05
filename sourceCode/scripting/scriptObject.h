@@ -56,7 +56,7 @@ public:
     std::string getDescriptiveName() const;
     std::string getShortDescriptiveName() const;
     void setAddOnName(const char* name);
-    std::string getAddOnName() const;
+    std::string getScriptName() const;
 
     CScriptObject* copyYourself();
     void serialize(CSer& ar);

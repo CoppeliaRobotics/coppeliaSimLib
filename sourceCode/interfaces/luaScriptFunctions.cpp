@@ -304,6 +304,10 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setObjectFloatParam",_simSetObjectFloatParam,          "sim.setObjectFloatParam(int objectHandle,int parameterID,float parameter)",true},
     {"sim.getObjectStringParam",_simGetObjectStringParam,        "string parameter=sim.getObjectStringParam(int objectHandle,int parameterID)",true},
     {"sim.setObjectStringParam",_simSetObjectStringParam,        "sim.setObjectStringParam(int objectHandle,int parameterID,string parameter)",true},
+    {"sim.getScriptInt32Param",_simGetScriptInt32Param,          "int parameter=sim.getScriptInt32Param(int scriptHandle,int parameterID)",true},
+    {"sim.setScriptInt32Param",_simSetScriptInt32Param,          "sim.setScriptInt32Param(int scriptHandle,int parameterID,int parameter)",true},
+    {"sim.getScriptStringParam",_simGetScriptStringParam,        "string parameter=sim.getScriptStringParam(int scriptHandle,int parameterID)",true},
+    {"sim.setScriptStringParam",_simSetScriptStringParam,        "sim.setScriptStringParam(int scriptHandle,int parameterID,string parameter)",true},
     {"sim.getRotationAxis",_simGetRotationAxis,                  "table[3] axis,float angle=sim.getRotationAxis(table[12] matrixStart,table[12] matrixGoal)",true},
     {"sim.rotateAroundAxis",_simRotateAroundAxis,                "table[12] matrixOut=sim.rotateAroundAxis(table[12] matrixIn,table[3] axis,table[3] axisPos,float angle)",true},
     {"sim.launchExecutable",_simLaunchExecutable,                "sim.launchExecutable(string filename,string parameters='',int showStatus=1)",true},
@@ -338,8 +342,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.handleCustomizationScripts",_simHandleCustomizationScripts,"int count=sim.handleCustomizationScripts(int callType)",true},
     {"sim.handleAddOnScripts",_simHandleAddOnScripts,            "int count=sim.handleAddOnScripts(int callType)",true},
     {"sim.handleSandboxScript",_simHandleSandboxScript,          "sim.handleSandboxScript(int callType)",true},
-    {"sim.setScriptAttribute",_simSetScriptAttribute,            "sim.setScriptAttribute(int scriptHandle,int attributeID,number/boolean attribute)",true},
-    {"sim.getScriptAttribute",_simGetScriptAttribute,            "number/boolean attribute=sim.getScriptAttribute(int scriptHandle,int attributeID)",true},
     {"sim.handleChildScripts",_simHandleChildScripts,            "int executedScriptCount=sim.handleChildScripts(int callType)",true},
     {"sim.reorientShapeBoundingBox",_simReorientShapeBoundingBox,"int result=sim.reorientShapeBoundingBox(int shapeHandle,int relativeToHandle)",true},
     {"sim.handleVisionSensor",_simHandleVisionSensor,            "int detectionCount,table[] auxiliaryValuesPacket1,table[] auxiliaryValuesPacket2,etc.=sim.handleVisionSensor(int sensorHandle)",true},
@@ -575,6 +577,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.breakForceSensor",_simBreakForceSensor,                "Deprecated. Use sim.setObjectParent instead",false},
     {"sim.getJointMatrix",_simGetJointMatrix,                    "Deprecated. Use sim.getObjectChildPose instead",false},
     {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "Deprecated. Use sim.setObjectChildPose instead",false},
+    {"sim.setScriptAttribute",_simSetScriptAttribute,            "Deprecated. Use sim.setScriptXXXParam instead",false},
+    {"sim.getScriptAttribute",_simGetScriptAttribute,            "Deprecated. Use sim.getScriptXXXParam instead",false},
     {"sim._getObjectHandle",_sim_getObjectHandle,                "",false}, // handled via sim.getObjectHandle from sim.lua
 
     {"",nullptr,"",false}
@@ -690,13 +694,14 @@ const SLuaVariables simLuaVariables[]=
     {"sim.syscb_threadmain",sim_syscb_threadmain,true},
     {"sim.syscb_userconfig",sim_syscb_userconfig,true},
     {"sim.syscb_moduleentry",sim_syscb_moduleentry,true},
-    // script attributes:
-    {"sim.scriptattribute_executionorder",sim_scriptattribute_executionorder,true},
-    {"sim.scriptattribute_executioncount",sim_scriptattribute_executioncount,true},
-    {"sim.childscriptattribute_enabled",sim_childscriptattribute_enabled,true},
-    {"sim.scriptattribute_enabled",sim_scriptattribute_enabled,true},
-    {"sim.scriptattribute_scripttype",sim_scriptattribute_scripttype,true},
-    {"sim.scriptattribute_scripthandle",sim_scriptattribute_scripthandle,true},
+    // script params:
+    {"sim.scriptintparam_execorder",sim_scriptintparam_execorder,true},
+    {"sim.scriptintparam_execcount",sim_scriptintparam_execcount,true},
+    {"sim.scriptintparam_type",sim_scriptintparam_type,true},
+    {"sim.scriptintparam_handle",sim_scriptintparam_handle,true},
+    {"sim.scriptintparam_enabled",sim_scriptintparam_enabled,true},
+    {"sim.scriptstringparam_description",sim_scriptstringparam_description,true},
+    {"sim.scriptstringparam_name",sim_scriptstringparam_name,true},
     // script execution order:
     {"sim.scriptexecorder_first",sim_scriptexecorder_first,true},
     {"sim.scriptexecorder_normal",sim_scriptexecorder_normal,true},
@@ -1634,6 +1639,12 @@ const SLuaVariables simLuaVariables[]=
     {"sim.dlgret_cancel",sim_dlgret_cancel,false},
     {"sim.dlgret_yes",sim_dlgret_yes,false},
     {"sim.dlgret_no",sim_dlgret_no,false},
+    {"sim.scriptattribute_executionorder",sim_scriptattribute_executionorder,false},
+    {"sim.scriptattribute_executioncount",sim_scriptattribute_executioncount,false},
+    {"sim.childscriptattribute_enabled",sim_childscriptattribute_enabled,false},
+    {"sim.scriptattribute_enabled",sim_scriptattribute_enabled,false},
+    {"sim.scriptattribute_scripttype",sim_scriptattribute_scripttype,false},
+    {"sim.scriptattribute_scripthandle",sim_scriptattribute_scripthandle,false},
 
     {"",-1}
 };
@@ -9952,6 +9963,93 @@ int _simSetObjectStringParam(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simGetScriptInt32Param(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getScriptInt32Param");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int param;
+        int scriptID=luaToInt(L,1);
+        if (scriptID==sim_handle_self)
+            scriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        int retVal=simGetScriptInt32Param_internal(scriptID,luaToInt(L,2),&param);
+        if (retVal>0)
+        {
+            luaWrap_lua_pushinteger(L,param);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetScriptInt32Param(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setScriptInt32Param");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+    {
+        int scriptID=luaToInt(L,1);
+        if (scriptID==sim_handle_self)
+            scriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        retVal=simSetScriptInt32Param_internal(scriptID,luaToInt(L,2),luaToInt(L,3));
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetScriptStringParam(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getScriptStringParam");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int paramLength;
+        int scriptID=luaToInt(L,1);
+        if (scriptID==sim_handle_self)
+            scriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        char* strBuff=simGetScriptStringParam_internal(scriptID,luaToInt(L,2),&paramLength);
+        if (strBuff!=nullptr)
+        {
+            luaWrap_lua_pushlstring(L,strBuff,paramLength);
+            delete[] strBuff;
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetScriptStringParam(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setScriptStringParam");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0))
+    {
+        int scriptID=luaToInt(L,1);
+        if (scriptID==sim_handle_self)
+            scriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        size_t dataLength;
+        char* data=(char*)luaWrap_lua_tolstring(L,3,&dataLength);
+        retVal=simSetScriptStringParam_internal(scriptID,luaToInt(L,2),data,(int)dataLength);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
 int _simGetRotationAxis(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -11744,69 +11842,6 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetScriptAttribute(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setScriptAttribute");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        int scriptID=luaToInt(L,1);
-        if (scriptID==sim_handle_self)
-            scriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        int attribID=luaToInt(L,2);
-        int thirdArgType=lua_arg_number;
-        if ( (attribID==sim_customizationscriptattribute_activeduringsimulation)||(attribID==sim_childscriptattribute_automaticcascadingcalls)||(attribID==sim_scriptattribute_enabled)||(attribID==sim_customizationscriptattribute_cleanupbeforesave) )
-            thirdArgType=lua_arg_bool;
-
-
-        if ( (attribID==sim_scriptattribute_executionorder)||(attribID==sim_scriptattribute_executioncount)||(attribID==sim_scriptattribute_debuglevel) )
-            thirdArgType=lua_arg_number;
-        int res=checkOneGeneralInputArgument(L,3,thirdArgType,0,false,false,&errorString);
-        if (res==2)
-        {
-            if ( (attribID==sim_customizationscriptattribute_activeduringsimulation)||(attribID==sim_childscriptattribute_automaticcascadingcalls)||(attribID==sim_scriptattribute_enabled)||(attribID==sim_customizationscriptattribute_cleanupbeforesave) )
-                retVal=simSetScriptAttribute_internal(scriptID,attribID,0.0f,luaToBool(L,3));
-            if ( (attribID==sim_scriptattribute_executionorder)||(attribID==sim_scriptattribute_executioncount)||(attribID==sim_scriptattribute_debuglevel) )
-                retVal=simSetScriptAttribute_internal(scriptID,attribID,0.0f,luaToInt(L,3));
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetScriptAttribute(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getScriptAttribute");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        int scriptID=luaToInt(L,1);
-        if (scriptID==sim_handle_self)
-            scriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        int attribID=luaToInt(L,2);
-        int intVal;
-        float floatVal;
-        int result=simGetScriptAttribute_internal(scriptID,attribID,&floatVal,&intVal);
-        if (result!=-1)
-        {
-            if ( (attribID==sim_customizationscriptattribute_activeduringsimulation)||(attribID==sim_childscriptattribute_automaticcascadingcalls)||(attribID==sim_scriptattribute_enabled)||(attribID==sim_customizationscriptattribute_cleanupbeforesave) )
-                luaWrap_lua_pushboolean(L,intVal);
-            if ( (attribID==sim_scriptattribute_executionorder)||(attribID==sim_scriptattribute_executioncount)||(attribID==sim_scriptattribute_scripttype)||(attribID==sim_scriptattribute_scripthandle) )
-                luaWrap_lua_pushinteger(L,intVal);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-
 int _simReorientShapeBoundingBox(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -13488,8 +13523,8 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetShapeTextureId",_simGetShapeTextureId,              "Use the newer 'sim.getShapeTextureId' notation",false},
     {"simGetCollectionObjects",_simGetCollectionObjects,        "Use the newer 'sim.getCollectionObjects' notation",false},
     {"simHandleCustomizationScripts",_simHandleCustomizationScripts,"Use the newer 'sim.handleCustomizationScripts' notation",false},
-    {"simSetScriptAttribute",_simSetScriptAttribute,            "Use the newer 'sim.setScriptAttribute' notation",false},
-    {"simGetScriptAttribute",_simGetScriptAttribute,            "Use the newer 'sim.getScriptAttribute' notation",false},
+    {"simSetScriptAttribute",_simSetScriptAttribute,            "Deprecated. use sim.setScriptXXXParam instead",false},
+    {"simGetScriptAttribute",_simGetScriptAttribute,            "Deprecated. use sim.getScriptXXXParam instead",false},
     {"simHandleChildScripts",_simHandleChildScripts,            "Use the newer 'sim.handleChildScripts' notation",false},
     {"simReorientShapeBoundingBox",_simReorientShapeBoundingBox,"Use the newer 'sim.reorientShapeBoundingBox' notation",false},
     {"simHandleVisionSensor",_simHandleVisionSensor,            "Use the newer 'sim.handleVisionSensor' notation",false},
@@ -20633,5 +20668,67 @@ int _sim_getObjectHandle(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
+}
+
+int _simSetScriptAttribute(luaWrap_lua_State* L)
+{ // deprecated on 05.01.2022
+    TRACE_LUA_API;
+    LUA_START("sim.setScriptAttribute");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int scriptID=luaToInt(L,1);
+        if (scriptID==sim_handle_self)
+            scriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        int attribID=luaToInt(L,2);
+        int thirdArgType=lua_arg_number;
+        if ( (attribID==sim_customizationscriptattribute_activeduringsimulation)||(attribID==sim_childscriptattribute_automaticcascadingcalls)||(attribID==sim_scriptattribute_enabled)||(attribID==sim_customizationscriptattribute_cleanupbeforesave) )
+            thirdArgType=lua_arg_bool;
+
+
+        if ( (attribID==sim_scriptattribute_executionorder)||(attribID==sim_scriptattribute_executioncount)||(attribID==sim_scriptattribute_debuglevel) )
+            thirdArgType=lua_arg_number;
+        int res=checkOneGeneralInputArgument(L,3,thirdArgType,0,false,false,&errorString);
+        if (res==2)
+        {
+            if ( (attribID==sim_customizationscriptattribute_activeduringsimulation)||(attribID==sim_childscriptattribute_automaticcascadingcalls)||(attribID==sim_scriptattribute_enabled)||(attribID==sim_customizationscriptattribute_cleanupbeforesave) )
+                retVal=simSetScriptAttribute_internal(scriptID,attribID,0.0f,luaToBool(L,3));
+            if ( (attribID==sim_scriptattribute_executionorder)||(attribID==sim_scriptattribute_executioncount)||(attribID==sim_scriptattribute_debuglevel) )
+                retVal=simSetScriptAttribute_internal(scriptID,attribID,0.0f,luaToInt(L,3));
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetScriptAttribute(luaWrap_lua_State* L)
+{ // deprecated on 05.01.2022
+    TRACE_LUA_API;
+    LUA_START("sim.getScriptAttribute");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int scriptID=luaToInt(L,1);
+        if (scriptID==sim_handle_self)
+            scriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        int attribID=luaToInt(L,2);
+        int intVal;
+        float floatVal;
+        int result=simGetScriptAttribute_internal(scriptID,attribID,&floatVal,&intVal);
+        if (result!=-1)
+        {
+            if ( (attribID==sim_customizationscriptattribute_activeduringsimulation)||(attribID==sim_childscriptattribute_automaticcascadingcalls)||(attribID==sim_scriptattribute_enabled)||(attribID==sim_customizationscriptattribute_cleanupbeforesave) )
+                luaWrap_lua_pushboolean(L,intVal);
+            if ( (attribID==sim_scriptattribute_executionorder)||(attribID==sim_scriptattribute_executioncount)||(attribID==sim_scriptattribute_scripttype)||(attribID==sim_scriptattribute_scripthandle) )
+                luaWrap_lua_pushinteger(L,intVal);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 

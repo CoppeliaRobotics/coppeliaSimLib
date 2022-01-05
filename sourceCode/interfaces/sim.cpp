@@ -817,6 +817,22 @@ SIM_DLLEXPORT simInt simSetObjectStringParam(simInt objectHandle,simInt ParamID,
 {
     return(simSetObjectStringParam_internal(objectHandle,ParamID,Param,ParamLength));
 }
+SIM_DLLEXPORT simInt simGetScriptInt32Param(simInt ScriptHandle,simInt ParamID,simInt* Param)
+{
+    return(simGetScriptInt32Param_internal(ScriptHandle,ParamID,Param));
+}
+SIM_DLLEXPORT simInt simSetScriptInt32Param(simInt ScriptHandle,simInt ParamID,simInt Param)
+{
+    return(simSetScriptInt32Param_internal(ScriptHandle,ParamID,Param));
+}
+SIM_DLLEXPORT simChar* simGetScriptStringParam(simInt ScriptHandle,simInt ParamID,simInt* ParamLength)
+{
+    return(simGetScriptStringParam_internal(ScriptHandle,ParamID,ParamLength));
+}
+SIM_DLLEXPORT simInt simSetScriptStringParam(simInt ScriptHandle,simInt ParamID,const simChar* Param,simInt ParamLength)
+{
+    return(simSetScriptStringParam_internal(ScriptHandle,ParamID,Param,ParamLength));
+}
 SIM_DLLEXPORT simInt simSetSimulationPassesPerRenderingPass(simInt p)
 {
     return(simSetSimulationPassesPerRenderingPass_internal(p));
@@ -1016,14 +1032,6 @@ SIM_DLLEXPORT simInt simDestroyCollection(simInt collectionHandle)
 SIM_DLLEXPORT simInt* simGetCollectionObjects(simInt collectionHandle,simInt* objectCount)
 {
     return(simGetCollectionObjects_internal(collectionHandle,objectCount));
-}
-SIM_DLLEXPORT simInt simSetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal)
-{
-    return(simSetScriptAttribute_internal(scriptHandle,attributeID,floatVal,intOrBoolVal));
-}
-SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal)
-{
-    return(simGetScriptAttribute_internal(scriptHandle,attributeID,floatVal,intOrBoolVal));
 }
 SIM_DLLEXPORT simInt simReorientShapeBoundingBox(simInt shapeHandle,simInt relativeToHandle,simInt reservedSetToZero)
 {
@@ -2764,6 +2772,14 @@ SIM_DLLEXPORT simInt simGetJointMatrix(simInt objectHandle,simFloat* matrix)
 SIM_DLLEXPORT simInt simSetSphericalJointMatrix(simInt objectHandle,const simFloat* matrix)
 {
     return(simSetSphericalJointMatrix_internal(objectHandle,matrix));
+}
+SIM_DLLEXPORT simInt simSetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal)
+{
+    return(simSetScriptAttribute_internal(scriptHandle,attributeID,floatVal,intOrBoolVal));
+}
+SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal)
+{
+    return(simGetScriptAttribute_internal(scriptHandle,attributeID,floatVal,intOrBoolVal));
 }
 // Deprecated end
 
