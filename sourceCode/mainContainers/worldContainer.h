@@ -93,8 +93,8 @@ public:
     void setCborEvents(bool b);
     void setMergeEvents(bool b);
     bool getEventsEnabled() const;
-    void pushAllInitialEvents();
-    void getAllInitialEvents(CInterfaceStack* stack);
+    void pushGenesisEvents();
+    void getGenesisEvents(CInterfaceStack* stack);
     SBufferedEvents* swapBufferedEvents(SBufferedEvents* newBuffer);
 
     void simulationAboutToStart();

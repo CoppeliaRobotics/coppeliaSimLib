@@ -27,7 +27,7 @@ public:
     void setShapeTexturesEnabled(bool e);
     bool getShapeTexturesEnabled() const;
 
-    void pushAllInitialEvents() const;
+    void pushGenesisEvents() const;
 
 
     static int getNextSceneUniqueId();

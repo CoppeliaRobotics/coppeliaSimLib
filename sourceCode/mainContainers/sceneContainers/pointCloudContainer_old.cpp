@@ -109,7 +109,7 @@ void CPointCloudContainer_old::drawAll(int displayAttrib)
         _allObjects[i]->draw(displayAttrib);
 }
 
-void CPointCloudContainer_old::pushAllInitialEvents()
+void CPointCloudContainer_old::pushGenesisEvents()
 {
     for (size_t i=0;i<_allObjects.size();i++)
         _allObjects[i]->pushAddEvent();

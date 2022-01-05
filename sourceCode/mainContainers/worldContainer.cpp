@@ -126,7 +126,7 @@ int CWorldContainer::createNewWorld()
     currentWorld->initializeWorld();
 
     // Inform scripts about performed switch to new world:
-    pushAllInitialEvents();
+    pushGenesisEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -212,7 +212,7 @@ int CWorldContainer::destroyCurrentWorld()
         App::currentWorld=currentWorld;
 
         // Inform scripts about performed world switch:
-        pushAllInitialEvents();
+        pushGenesisEvents();
         currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
@@ -344,7 +344,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     App::currentWorld=currentWorld;
 
     // Inform scripts about performed world switch:
-    pushAllInitialEvents();
+    pushGenesisEvents();
     currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
@@ -581,8 +581,11 @@ bool CWorldContainer::getEventsEnabled() const
     return(CScriptObject::getTotalEventCallbackFunctions()>0);
 }
 
-void CWorldContainer::getAllInitialEvents(CInterfaceStack* stack)
+void CWorldContainer::getGenesisEvents(CInterfaceStack* stack)
 {
+    // Dispatch events in the pipeline:
+    dispatchEvents();
+
     // Swap event buffer:
     SBufferedEvents* tmpEvents=new SBufferedEvents;
     tmpEvents->eventsStack=stack;
@@ -590,7 +593,7 @@ void CWorldContainer::getAllInitialEvents(CInterfaceStack* stack)
     SBufferedEvents* savedEvents=swapBufferedEvents(tmpEvents);
 
     // Push all initial events:
-    pushAllInitialEvents();
+    pushGenesisEvents();
 
     // Restore event buffer:
     swapBufferedEvents(savedEvents);
@@ -600,7 +603,7 @@ void CWorldContainer::getAllInitialEvents(CInterfaceStack* stack)
     delete tmpEvents;
 }
 
-void CWorldContainer::pushAllInitialEvents()
+void CWorldContainer::pushGenesisEvents()
 {
     if (getEventsEnabled())
     {
@@ -617,7 +620,7 @@ void CWorldContainer::pushAllInitialEvents()
             pushEvent(event);
         }
 
-        currentWorld->pushAllInitialEvents();
+        currentWorld->pushGenesisEvents();
     }
 }
 

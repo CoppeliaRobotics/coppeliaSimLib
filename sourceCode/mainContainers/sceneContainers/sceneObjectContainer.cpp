@@ -446,7 +446,7 @@ void CSceneObjectContainer::checkObjectIsInstanciated(CSceneObject* obj,const ch
     }
 }
 
-void CSceneObjectContainer::pushAllInitialEvents() const
+void CSceneObjectContainer::pushGenesisEvents() const
 {
     std::vector<CSceneObject*> orderedObjects;
     for (size_t i=0;i<getOrphanCount();i++)

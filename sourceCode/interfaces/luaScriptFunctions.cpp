@@ -5132,7 +5132,7 @@ int _simTest(luaWrap_lua_State* L)
         if (cmd.compare("sim.fetchCreationEvents")==0)
         {
             CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-            App::worldContainer->getAllInitialEvents(stack);
+            App::worldContainer->getGenesisEvents(stack);
             CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
             int s=stack->getStackSize();
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
@@ -10935,7 +10935,7 @@ int _simGetGenesisEvents(luaWrap_lua_State* L)
 
     // no args for now
     CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-    App::worldContainer->getAllInitialEvents(stack);
+    App::worldContainer->getGenesisEvents(stack);
     CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
     int s=stack->getStackSize();
     App::worldContainer->interfaceStackContainer->destroyStack(stack);

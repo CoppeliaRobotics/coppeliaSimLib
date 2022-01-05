@@ -1155,14 +1155,14 @@ void CWorld::announceScriptStateWillBeErased(int scriptHandle,bool simulationScr
     drawingCont->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
 }
 
-void CWorld::pushAllInitialEvents()
+void CWorld::pushGenesisEvents()
 {
-    simulation->pushAllInitialEvents();
-    environment->pushAllInitialEvents();
-    sceneObjects->pushAllInitialEvents();
+    simulation->pushGenesisEvents();
+    environment->pushGenesisEvents();
+    sceneObjects->pushGenesisEvents();
 
-    drawingCont->pushAllInitialEvents();
-    pointCloudCont->pushAllInitialEvents();
+    drawingCont->pushGenesisEvents();
+    pointCloudCont->pushGenesisEvents();
 }
 
 // Old:

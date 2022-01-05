@@ -60,7 +60,7 @@ public:
     void removeSceneDependencies();
 
     void checkObjectIsInstanciated(CSceneObject* obj,const char* location) const;
-    void pushAllInitialEvents() const;
+    void pushGenesisEvents() const;
 
     void getAllCollidableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,std::vector<CSceneObject*>& objects);
     void getAllMeasurableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,std::vector<CSceneObject*>& objects);

@@ -144,7 +144,7 @@ void CEnvironment::setUpDefaultValues()
     _saveExistingCalculationStructures=false;
 }
 
-void CEnvironment::pushAllInitialEvents() const
+void CEnvironment::pushGenesisEvents() const
 {
     auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_ENVIRONMENTCHANGED,-1,nullptr,false);
     data->appendMapObject_stringInt32("sceneUid",getSceneUniqueID());
