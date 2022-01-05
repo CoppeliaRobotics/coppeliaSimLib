@@ -3,11 +3,13 @@
 #include "pluginContainer.h"
 #include "rendering.h"
 #include "tt.h"
+#include "ttUtil.h"
 #include "interfaceStackString.h"
 
 CWorldContainer::CWorldContainer()
 {
     TRACE_INTERNAL;
+    _sessionId=CTTUtil::generateUniqueReadableString();
     copyBuffer=nullptr;
     sandboxScript=nullptr;
     addOnScriptContainer=nullptr;
@@ -605,6 +607,7 @@ void CWorldContainer::pushAllInitialEvents()
         auto [event,data]=_prepareGeneralEvent(EVENTTYPE_APPSETTINGSCHANGED,-1,-1,nullptr,nullptr,false);
         data->appendMapObject_stringFloat("defaultTranslationStepSize",App::userSettings->getTranslationStepSize());
         data->appendMapObject_stringFloat("defaultRotationStepSize",App::userSettings->getRotationStepSize());
+        data->appendMapObject_stringString("sessionId",_sessionId.c_str(),0);
         pushEvent(event);
 
         currentWorld->pushAllInitialEvents();

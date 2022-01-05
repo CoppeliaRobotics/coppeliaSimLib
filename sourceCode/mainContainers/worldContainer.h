@@ -129,6 +129,7 @@ private:
 
     std::vector<CWorld*> _worlds;
     int _currentWorldIndex;
+    std::string _sessionId;
 
     static long long int _eventSeq;
     SBufferedEvents* _bufferedEvents;
