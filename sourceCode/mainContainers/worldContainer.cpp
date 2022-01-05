@@ -604,11 +604,18 @@ void CWorldContainer::pushAllInitialEvents()
 {
     if (getEventsEnabled())
     {
-        auto [event,data]=_prepareGeneralEvent(EVENTTYPE_APPSETTINGSCHANGED,-1,-1,nullptr,nullptr,false);
-        data->appendMapObject_stringFloat("defaultTranslationStepSize",App::userSettings->getTranslationStepSize());
-        data->appendMapObject_stringFloat("defaultRotationStepSize",App::userSettings->getRotationStepSize());
-        data->appendMapObject_stringString("sessionId",_sessionId.c_str(),0);
-        pushEvent(event);
+        {
+            auto [event,data]=_prepareGeneralEvent(EVENTTYPE_APPSESSION,-1,-1,nullptr,nullptr,false);
+            data->appendMapObject_stringString("sessionId",_sessionId.c_str(),0);
+            pushEvent(event);
+        }
+
+        {
+            auto [event,data]=_prepareGeneralEvent(EVENTTYPE_APPSETTINGSCHANGED,-1,-1,nullptr,nullptr,false);
+            data->appendMapObject_stringFloat("defaultTranslationStepSize",App::userSettings->getTranslationStepSize());
+            data->appendMapObject_stringFloat("defaultRotationStepSize",App::userSettings->getRotationStepSize());
+            pushEvent(event);
+        }
 
         currentWorld->pushAllInitialEvents();
     }

@@ -32,6 +32,7 @@
 #define EVENTTYPE_DRAWINGOBJECTCHANGED "drawingObjectChanged"
 #define EVENTTYPE_DRAWINGOBJECTREMOVED "drawingObjectRemoved"
 
+#define EVENTTYPE_APPSESSION "appSession"
 #define EVENTTYPE_APPSETTINGSCHANGED "appSettingsChanged"
 #define EVENTTYPE_SIMULATIONCHANGED "simulationChanged"
 

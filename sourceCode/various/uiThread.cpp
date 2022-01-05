@@ -853,9 +853,16 @@ bool CUiThread::messageBox_checkbox(void* parentWidget,const char* title,const c
 bool CUiThread::checkExecuteUnsafeOk(const char* what,const char* arg)
 {
     TRACE_INTERNAL;
-    std::string msg(what);
-    msg+=" is trying to execute with following argument(s):\n\n";
-    msg+=arg;
+    std::string msg("'");
+    msg+=what;
+    msg+="' is trying to execute with following argument(s):\n\n";
+    std::string ar(arg);
+    if (ar.size()>400)
+    {
+        ar.assign(ar.begin(),ar.begin()+400);
+        ar+="...\n...\n(truncated here)";
+    }
+    msg+=ar;
     msg+="\n\nDo you want to allow this?\n\n(you can enable execution of unsafe commands by default with 'executeUnsafe=true' in system/usrset.txt, at your own risk!)";
     return messageBox_warning(App::mainWindow,"Execute unsafe",msg.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_NO)==VMESSAGEBOX_REPLY_YES;
 }
