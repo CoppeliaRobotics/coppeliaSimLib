@@ -10399,8 +10399,11 @@ int _simRuckigPos(luaWrap_lua_State* L)
             int retVal=simRuckigPos_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&maxVelAccelJerk[0],&maxVelAccelJerk[dofs],&maxVelAccelJerk[dofs*2],(unsigned char*)(&selection[0]),&targetPosVel[0],&targetPosVel[dofs],nullptr,nullptr);
             setCurrentScriptInfo_cSide(-1,-1);
 
-            luaWrap_lua_pushinteger(L,retVal);
-            LUA_END(1);
+            if (retVal>=0)
+            {
+                luaWrap_lua_pushinteger(L,retVal);
+                LUA_END(1);
+            }
         }
     }
 
@@ -10440,8 +10443,11 @@ int _simRuckigVel(luaWrap_lua_State* L)
             int retVal=simRuckigVel_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&maxAccelJerk[0],&maxAccelJerk[dofs],(unsigned char*)(&selection[0]),&targetVel[0],nullptr,nullptr);
             setCurrentScriptInfo_cSide(-1,-1);
 
-            luaWrap_lua_pushinteger(L,retVal);
-            LUA_END(1);
+            if (retVal>=0)
+            {
+                luaWrap_lua_pushinteger(L,retVal);
+                LUA_END(1);
+            }
         }
     }
 
@@ -10492,8 +10498,11 @@ int _simRuckigRemove(luaWrap_lua_State* L)
     {
         int handle=luaToInt(L,1);
         int retVal=simRuckigRemove_internal(handle);
-        luaWrap_lua_pushinteger(L,retVal);
-        LUA_END(1);
+        if (retVal>=0)
+        {
+            luaWrap_lua_pushinteger(L,retVal);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
