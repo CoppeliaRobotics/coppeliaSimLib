@@ -13,38 +13,42 @@ CPlugin::CPlugin(const char* filename,const char* pluginName)
 {
     _filename=filename;
     _name=pluginName;
+    _loadCount=1;
+    extendedVersionInt=-1;
+    _consoleVerbosity=sim_verbosity_useglobal;
+    _statusbarVerbosity=sim_verbosity_useglobal;
+
+    // Following used to detect appartenance:
     instance=nullptr;
     geomPlugin_createMesh=nullptr;
     ikPlugin_createEnv=nullptr;
     _codeEditor_openModal=nullptr;
     _customUi_msgBox=nullptr;
     _assimp_importShapes=nullptr;
-    _loadCount=1;
-    extendedVersionInt=-1;
-    _consoleVerbosity=sim_verbosity_useglobal;
-    _statusbarVerbosity=sim_verbosity_useglobal;
+    pythonPlugin_initState=nullptr;
+    ruckigPlugin_pos=nullptr;
 }
 
 CPlugin::~CPlugin()
 {
     if (instance!=nullptr)
         VVarious::closeLibrary(instance);
-    if (geomPlugin_createMesh!=nullptr)
+    if (geomPlugin_createMesh!=nullptr) // also check constructor above
         CPluginContainer::currentGeomPlugin=nullptr;
-    if (ikPlugin_createEnv!=nullptr)
+    if (ikPlugin_createEnv!=nullptr) // also check constructor above
     {
         CPluginContainer::currentIkPlugin=nullptr;
         CPluginContainer::ikEnvironment=-1;
     }
-    if (pythonPlugin_initState!=nullptr)
+    if (pythonPlugin_initState!=nullptr) // also check constructor above
         CPluginContainer::currentPythonPlugin=nullptr;
-    if (ruckigPlugin_pos!=nullptr)
+    if (ruckigPlugin_pos!=nullptr) // also check constructor above
         CPluginContainer::currentRuckigPlugin=nullptr;
-    if (_codeEditor_openModal!=nullptr)
+    if (_codeEditor_openModal!=nullptr) // also check constructor above
         CPluginContainer::currentCodeEditor=nullptr;
-    if (_customUi_msgBox!=nullptr)
+    if (_customUi_msgBox!=nullptr) // also check constructor above
         CPluginContainer::currentCustomUi=nullptr;
-    if (_assimp_importShapes!=nullptr)
+    if (_assimp_importShapes!=nullptr) // also check constructor above
         CPluginContainer::currentAssimp=nullptr;
 }
 
