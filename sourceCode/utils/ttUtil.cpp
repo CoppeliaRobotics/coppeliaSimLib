@@ -75,39 +75,21 @@ bool CTTUtil::extractSpaceSeparatedWord(std::string& line,std::string& word)
 
 bool CTTUtil::extractLine(std::string& multiline,std::string& line)
 { // Returns true if a line could be extracted
-    line="";
-    while ( (multiline.length()!=0)&&((multiline[0]=='\n')||(multiline[0]=='\r')) )
-        multiline.erase(multiline.begin());
-    while ( (multiline.length()!=0)&&((multiline[multiline.length()-1]=='\n')||(multiline[multiline.length()-1]=='\r')) )
-        multiline.erase(multiline.end()-1);
-    size_t p1=multiline.find('\n');
-    size_t p2=multiline.find('\r');
-    size_t p3=std::string::npos;
-    if (p1!=std::string::npos)
-        p3=p1;
-    if (p2!=std::string::npos)
+    size_t n=multiline.find('\n');
+    if (n!=std::string::npos)
     {
-        if (p3!=std::string::npos)
-        {
-            if (p2<p3)
-                p3=p2;
-        }
-        else
-            p3=p2;
-    }
-    if (p3!=std::string::npos)
-    {
-        line.assign(multiline.begin(),multiline.begin()+p3);
-        multiline.erase(multiline.begin(),multiline.begin()+p3);
-        while ( (multiline.length()!=0)&&((multiline[0]=='\n')||(multiline[0]=='\r')) )
-            multiline.erase(multiline.begin());
+        line.assign(multiline.begin(),multiline.begin()+n);
+        multiline.erase(multiline.begin(),multiline.begin()+n+1);
+        line.erase(std::remove(line.begin(),line.end(),'\r'),line.end());
+        return(true);
     }
     else
     {
         line=multiline;
-        multiline="";
+        multiline.clear();
+        line.erase(std::remove(line.begin(),line.end(),'\r'),line.end());
+        return(line.length()!=0);
     }
-    return(line.length()!=0);
 }
 
 std::string CTTUtil::getLightEncodedString(const char* ss)

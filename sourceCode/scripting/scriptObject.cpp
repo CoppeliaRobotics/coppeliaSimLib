@@ -1517,6 +1517,13 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
     if (_lang==lang_lua)
     {
         std::string _code(code);
+
+        // With Python first line should be:
+        // #pythonWrapperXX('extFile') auxPythonInstruction
+        // With: XX optional, which represents an alternative wrapper file
+        //       ('extFile') optional, which represents an external python script
+        //       auxPythonInstruction optional, which represents a Python instruction to execute
+
         if (_code.find("#pythonWrapper")==0)
         {
             std::string l;
@@ -1524,6 +1531,7 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
             {
                 std::string n(l);
                 std::string f;
+                std::string t;
                 size_t b=l.find("(");
                 if (b!=std::string::npos)
                 {
@@ -1544,20 +1552,37 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
                     else
                         d=l.find("'",c+1);
                     if ( (c!=std::string::npos)&&(d!=std::string::npos) )
+                    {
                         f.assign(l.begin()+c+1,l.begin()+d);
+                        l.erase(l.begin(),l.begin()+d);
+                        b=l.find(" ");
+                        if (b!=std::string::npos)
+                            t.assign(l.begin()+b,l.end());
+                    }
+                }
+                else
+                {
+                    b=l.find(" ");
+                    if (b!=std::string::npos)
+                    {
+                        n.assign(l.begin(),l.begin()+b);
+                        t.assign(l.begin()+b,l.end());
+                    }
                 }
                 n.erase(n.begin());
-                CTTUtil::removeSpacesAtBeginningAndEnd(n);
-                CTTUtil::removeSpacesAtBeginningAndEnd(f);
+                CTTUtil::removeSpacesAtBeginningAndEnd(n); // wrapper name
+                CTTUtil::removeSpacesAtBeginningAndEnd(f); // optional ext. filename
+                CTTUtil::removeSpacesAtBeginningAndEnd(t); // optional Python instruction
+
                 if (f.size()==0)
-                    _code="pythonProg=[[\n\n"+_code+"]]\nrequire('"+n+"')";
+                    _code="pythonProg=[[\n\n"+_code+"]]\nrequire('"+n+"')\nauxInstr='"+t+"'";
                 else
                 {
                     if (!boost::algorithm::ends_with(f,".py"))
                         f+=".py";
                     if ( (f.find(":")==std::string::npos)&&(f[0]!='/') )
                         f="python/"+f;
-                    _code="if true then local f=assert(io.open('"+f+"','rb')) pythonProg=f:read('*all') f:close() end require('"+n+"')";
+                    _code="if true then local f=assert(io.open('"+f+"','rb')) pythonProg=f:read('*all') f:close() end require('"+n+"')auxInstr='"+t+"'";
                 }
             }
         }
