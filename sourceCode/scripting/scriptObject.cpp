@@ -1519,10 +1519,10 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
         std::string _code(code);
 
         // With Python first line should be:
-        // #pythonWrapperXX('extFile') auxPythonInstruction
+        // #pythonWrapperXX('extFile') auxLuaCode
         // With: XX optional, which represents an alternative wrapper file
         //       ('extFile') optional, which represents an external python script
-        //       auxPythonInstruction optional, which represents a Python instruction to execute
+        //       auxLuaCode optional, which represents Lua code to execute prior Python
 
         if (_code.find("#pythonWrapper")==0)
         {
@@ -1572,17 +1572,17 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
                 n.erase(n.begin());
                 CTTUtil::removeSpacesAtBeginningAndEnd(n); // wrapper name
                 CTTUtil::removeSpacesAtBeginningAndEnd(f); // optional ext. filename
-                CTTUtil::removeSpacesAtBeginningAndEnd(t); // optional Python instruction
+                CTTUtil::removeSpacesAtBeginningAndEnd(t); // optional Lua code
 
                 if (f.size()==0)
-                    _code="pythonProg=[[\n\n"+_code+"]]\nrequire('"+n+"')\nauxInstr='"+t+"'";
+                    _code="pythonProg=[[\n\n"+_code+"]]\nrequire('"+n+"')\n"+t;
                 else
                 {
                     if (!boost::algorithm::ends_with(f,".py"))
                         f+=".py";
                     if ( (f.find(":")==std::string::npos)&&(f[0]!='/') )
                         f="python/"+f;
-                    _code="if true then local f=assert(io.open('"+f+"','rb')) pythonProg=f:read('*all') f:close() end require('"+n+"')auxInstr='"+t+"'";
+                    _code="if true then local f=assert(io.open('"+f+"','rb')) pythonProg=f:read('*all') f:close() end require('"+n+"') "+t;
                 }
             }
         }
