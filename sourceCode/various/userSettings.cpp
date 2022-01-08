@@ -92,6 +92,7 @@
 #define _USR_RENDERING_SURFACE_VERTICAL_SHIFT "renderingSurfaceVShift"
 #define _USR_RENDERING_SURFACE_VERTICAL_RESIZE "renderingSurfaceVResize"
 #define _USR_ADDITIONAL_LUA_PATH "additionalLuaPath"
+#define _USR_ADDITIONAL_PYTHON_PATH "additionalPythonPath"
 #define _USR_DEFAULT_PYTHON "defaultPython"
 #define _USR_EXECUTE_UNSAFE "executeUnsafe"
 
@@ -389,6 +390,7 @@ CUserSettings::CUserSettings()
     test1=false;
     macChildDialogType=-1; // default
     additionalLuaPath="";
+    additionalPythonPath="";
     defaultPython="";
     executeUnsafe=false;
 
@@ -776,6 +778,7 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
     c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
     c.addString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath,"e.g. d:/myLuaRoutines");
+    c.addString(_USR_ADDITIONAL_PYTHON_PATH,additionalPythonPath,"e.g. d:/myPythonRoutines");
     c.addString(_USR_DEFAULT_PYTHON,defaultPython,"e.g. c:/Python38/python.exe");
     c.addBoolean(_USR_EXECUTE_UNSAFE,executeUnsafe,"recommended to keep false.");
     c.addInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex,"");
@@ -1103,6 +1106,7 @@ void CUserSettings::loadUserSettings()
     #endif
 #endif
     c.getString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath);
+    c.getString(_USR_ADDITIONAL_PYTHON_PATH,additionalPythonPath);
     c.getString(_USR_DEFAULT_PYTHON,defaultPython);
     c.getBoolean(_USR_EXECUTE_UNSAFE,executeUnsafe);
     c.getInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex);

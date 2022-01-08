@@ -119,6 +119,7 @@ public:
     int scriptEditorFontSize;
 
     std::string additionalLuaPath;
+    std::string additionalPythonPath;
     std::string defaultPython;
     bool executeUnsafe;
 

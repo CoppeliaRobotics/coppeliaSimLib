@@ -4322,6 +4322,11 @@ simChar* simGetStringParam_internal(simInt parameter)
             validParam=true;
             retVal=App::userSettings->defaultPython;
         }
+        if (parameter==sim_stringparam_additionalpythonpath)
+        {
+            validParam=true;
+            retVal=App::userSettings->additionalPythonPath;
+        }
         if (parameter==sim_stringparam_scene_path_and_name)
         {
             validParam=true;

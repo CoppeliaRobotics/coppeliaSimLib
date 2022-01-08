@@ -1519,70 +1519,67 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
         std::string _code(code);
 
         // With Python first line should be:
-        // #pythonWrapperXX('extFile') auxLuaCode
+        // #pythonWrapperXX(extFile) auxLuaCode
         // With: XX optional, which represents an alternative wrapper file
         //       ('extFile') optional, which represents an external python script
         //       auxLuaCode optional, which represents Lua code to execute prior Python
 
-        if (_code.find("#pythonWrapper")==0)
+        std::string l;
+        std::string tmpCode(code);
+        if (CTTUtil::extractLine(tmpCode,l))
         {
-            std::string l;
-            if (CTTUtil::extractLine(_code,l))
+            CTTUtil::removeSpacesAtBeginningAndEnd(l);
+            if (l[0]=='#')
             {
-                std::string n(l);
-                std::string f;
-                std::string t;
-                size_t b=l.find("(");
-                if (b!=std::string::npos)
-                {
-                    n.assign(l.begin(),l.begin()+b);
-                    size_t c=l.find("'",b);
-                    size_t d=std::string::npos;
-                    if (c==std::string::npos)
-                    {
-                        c=l.find("\"",b);
-                        if (c==std::string::npos)
+                l.erase(l.begin());
+                CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                if (l.find("pythonWrapper")==0)
+                { // ok, we have a python script
+                    std::string n(l);
+                    std::string f; // optional external filename
+                    size_t a=l.find("(");
+                    if (a!=std::string::npos)
+                    { // we expect an external filename
+                        n.assign(l.begin(),l.begin()+a);
+                        size_t b=l.find(")",a+1);
+                        if (b!=std::string::npos)
                         {
-                            c=b;
-                            d=l.find(")",c+1);
+                            f.assign(l.begin()+a+1,l.begin()+b);
+                            CTTUtil::removeSpacesAtBeginningAndEnd(f); // optional ext. filename
+                            if (!boost::algorithm::ends_with(f,".py"))
+                                f+=".py";
                         }
-                        else
-                            d=l.find("\"",c+1);
+                    }
+                    CTTUtil::removeSpacesAtBeginningAndEnd(n); // wrapper name
+                    std::string t; // optional lua code
+                    while (CTTUtil::extractLine(tmpCode,l))
+                    {
+                        CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                        if (l[0]!='#')
+                            break;
+                        l.erase(l.begin());
+                        CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                        if (l.find("luaExec")==0)
+                        {
+                            l.erase(l.begin(),l.begin()+8);
+                            CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                            if (l.size()>0)
+                                t=t+l+" ";
+                        }
+                    }
+
+                    if (f.size()==0)
+                    {
+                        CTTUtil::extractLine(_code,l);
+                        _code="pythonProg=[[\n\n"+_code+"]]\nrequire('"+n+"')\n"+t;
                     }
                     else
-                        d=l.find("'",c+1);
-                    if ( (c!=std::string::npos)&&(d!=std::string::npos) )
                     {
-                        f.assign(l.begin()+c+1,l.begin()+d);
-                        l.erase(l.begin(),l.begin()+d);
-                        b=l.find(" ");
-                        if (b!=std::string::npos)
-                            t.assign(l.begin()+b,l.end());
+                        std::string absPath("false");
+                        if (VVarious::isAbsolutePath(f.c_str()))
+                            absPath="true";
+                        _code="require('"+n+"') loadExternalFile('"+f+"',"+absPath+") "+t;
                     }
-                }
-                else
-                {
-                    b=l.find(" ");
-                    if (b!=std::string::npos)
-                    {
-                        n.assign(l.begin(),l.begin()+b);
-                        t.assign(l.begin()+b,l.end());
-                    }
-                }
-                n.erase(n.begin());
-                CTTUtil::removeSpacesAtBeginningAndEnd(n); // wrapper name
-                CTTUtil::removeSpacesAtBeginningAndEnd(f); // optional ext. filename
-                CTTUtil::removeSpacesAtBeginningAndEnd(t); // optional Lua code
-
-                if (f.size()==0)
-                    _code="pythonProg=[[\n\n"+_code+"]]\nrequire('"+n+"')\n"+t;
-                else
-                {
-                    if (!boost::algorithm::ends_with(f,".py"))
-                        f+=".py";
-                    if ( (f.find(":")==std::string::npos)&&(f[0]!='/') )
-                        f="python/"+f;
-                    _code="if true then local f=assert(io.open('"+f+"','rb')) pythonProg=f:read('*all') f:close() end require('"+n+"') "+t;
                 }
             }
         }

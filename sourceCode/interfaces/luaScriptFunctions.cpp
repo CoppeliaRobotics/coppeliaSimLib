@@ -877,6 +877,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_scenedefaultdir",sim_stringparam_scenedefaultdir,true},
     {"sim.stringparam_modeldefaultdir",sim_stringparam_modeldefaultdir,true},
     {"sim.stringparam_defaultpython",sim_stringparam_defaultpython,true},
+    {"sim.stringparam_additionalpythonpath",sim_stringparam_additionalpythonpath,true},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal,true},
