@@ -171,17 +171,6 @@ typedef char* (__cdecl *ptrCodeEditor_getText)(int handle,int* positionAndSize);
 typedef int (__cdecl *ptrCodeEditor_show)(int handle,int showState);
 typedef int (__cdecl *ptrCodeEditor_close)(int handle,int* positionAndSize);
 
-typedef void* (__cdecl *ptrPythonPlugin_initState)(int scriptHandle,const char* scriptName);
-typedef void (__cdecl *ptrPythonPlugin_cleanupState)(void* state);
-typedef int (__cdecl *ptrPythonPlugin_loadCode)(void* state,const char* code,const char* functionsToFind,bool* functionsFound);
-typedef int (__cdecl *ptrPythonPlugin_callFunc)(void* state,const char* funcName,int inStackHandle,int outStackHandle);
-typedef int (__cdecl *ptrPythonPlugin_execStr)(void* state,const char* str,int outStackHandle);
-typedef int (__cdecl *ptrPythonPlugin_isDeprecated)(const char* str);
-typedef char* (__cdecl *ptrPythonPlugin_getFuncs)(const char* str);
-typedef char* (__cdecl *ptrPythonPlugin_getConsts)(const char* str);
-typedef char* (__cdecl *ptrPythonPlugin_getCalltip)(const char* func);
-typedef char* (__cdecl *ptrPythonPlugin_getError)();
-
 typedef int (__cdecl *ptrRuckigPlugin_pos)(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetPos,const double* targetVel);
 typedef int (__cdecl *ptrRuckigPlugin_vel)(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetVel);
 typedef int (__cdecl *ptrRuckigPlugin_step)(int objHandle,double timeStep,double* newPos,double* newVel,double* newAccel,double* syncTime);
@@ -362,18 +351,6 @@ public:
     ptr_ikPlugin_getConfigForTipPose ikPlugin_getConfigForTipPose;
     ptr_ikPlugin_getObjectLocalTransformation ikPlugin_getObjectLocalTransformation;
     ptr_ikPlugin_setObjectLocalTransformation ikPlugin_setObjectLocalTransformation;
-
-    ptrPythonPlugin_initState pythonPlugin_initState;
-    ptrPythonPlugin_cleanupState pythonPlugin_cleanupState;
-    ptrPythonPlugin_loadCode pythonPlugin_loadCode;
-    ptrPythonPlugin_callFunc pythonPlugin_callFunc;
-    ptrPythonPlugin_execStr pythonPlugin_execStr;
-    ptrPythonPlugin_isDeprecated pythonPlugin_isDeprecated;
-    ptrPythonPlugin_getFuncs pythonPlugin_getFuncs;
-    ptrPythonPlugin_getConsts pythonPlugin_getConsts;
-    ptrPythonPlugin_getCalltip pythonPlugin_getCalltip;
-    ptrPythonPlugin_getError pythonPlugin_getError;
-
 
     ptrRuckigPlugin_pos ruckigPlugin_pos;
     ptrRuckigPlugin_vel ruckigPlugin_vel;
@@ -632,18 +609,6 @@ public:
     static bool codeEditor_getText(int handle,std::string& text,int* positionAndSize);
     static int codeEditor_show(int handle,int showState);
     static int codeEditor_close(int handle,int* positionAndSize);
-
-    // Python plugin:
-    static CPlugin* currentPythonPlugin;
-    static void* pythonPlugin_initState(int scriptHandle,const char* scriptName,std::string* errorMsg);
-    static void pythonPlugin_cleanupState(void* state);
-    static int pythonPlugin_loadCode(void* state,const char* code,const char* functionsToFind,bool* functionsFound,std::string* errorMsg);
-    static int pythonPlugin_callFunc(void* state,const char* funcName,int inStackHandle,int outStackHandle,std::string* errorMsg);
-    static int pythonPlugin_execStr(void* state,const char* str,int outStackHandle);
-    static int pythonPlugin_isDeprecated(const char* str);
-    static void pythonPlugin_getFuncs(const char* str,std::vector<std::string>& v);
-    static void pythonPlugin_getConsts(const char* str,std::vector<std::string>& v);
-    static std::string pythonPlugin_getCalltip(const char* func);
 
     // Ruckig plugin:
     static CPlugin* currentRuckigPlugin;

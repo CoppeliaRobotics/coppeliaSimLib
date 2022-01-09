@@ -139,7 +139,7 @@ public:
     int changeAutoYieldingForbidLevel(int dx,bool absolute);
     int getAutoYieldingForbidLevel() const;
     int changeOverallYieldingForbidLevel(int dx,bool absolute);
-    int getEditorLanguage();
+    int getLanguage();
 
     void registerPluginFunctions();
     bool registerPluginVariables(bool onlyRequireStatements);
@@ -210,7 +210,6 @@ public:
     // *****************************************
 
 protected:
-    int _checkLanguage();
     bool _initInterpreterState(std::string* errorMsg);
     bool _killInterpreterState();
     void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg,bool runtimeError);
@@ -226,7 +225,6 @@ protected:
     int _scriptHandle;
     int _scriptUniqueId;
     int _scriptType;
-    int _lang;
     bool _scriptIsDisabled;
     int _scriptState;
     int _executionPriority;

@@ -31,7 +31,6 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     _scriptText="";
     _scriptTextExec="";
     _numberOfPasses=0;
-    _lang=lang_undefined;
     _addOnUiMenuHandle=-1;
 
     // Old
@@ -486,41 +485,29 @@ void CScriptObject::getMatchingFunctions(const char* txt,std::vector<std::string
 {
     std::string ttxt(txt);
     std::map<std::string,bool> m;
-    int lang=lang_lua;
-    ttxt=ttxt.substr(0,ttxt.find("@lua"));
-    if (ttxt.find("@python")!=std::string::npos)
-    {
-        lang=lang_python;
-        ttxt=ttxt.substr(0,ttxt.find("@python"));
-    }
     bool hasDot=(ttxt.find('.')!=std::string::npos);
-    if (lang==lang_lua)
+    for (size_t i=0;simLuaCommands[i].name!="";i++)
     {
-        for (size_t i=0;simLuaCommands[i].name!="";i++)
+        if (simLuaCommands[i].autoComplete)
         {
-            if (simLuaCommands[i].autoComplete)
+            std::string n(simLuaCommands[i].name);
+            if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
             {
-                std::string n(simLuaCommands[i].name);
-                if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
+                if (!hasDot)
                 {
-                    if (!hasDot)
-                    {
-                        size_t dp=n.find('.');
-                        if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
-                            n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
-                    }
-                    std::map<std::string,bool>::iterator it=m.find(n);
-                    if (it==m.end())
-                    {
-                        m[n]=true;
-                        v.push_back(n);
-                    }
+                    size_t dp=n.find('.');
+                    if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
+                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
+                }
+                std::map<std::string,bool>::iterator it=m.find(n);
+                if (it==m.end())
+                {
+                    m[n]=true;
+                    v.push_back(n);
                 }
             }
         }
     }
-    if (lang==lang_python)
-        CPluginContainer::pythonPlugin_getFuncs(ttxt.c_str(),v);
 
     std::vector<std::string> sysCb=getAllSystemCallbackStrings(-1,false,false);
     for (size_t i=0;i<sysCb.size();i++)
@@ -551,41 +538,29 @@ void CScriptObject::getMatchingConstants(const char* txt,std::vector<std::string
 {
     std::string ttxt(txt);
     std::map<std::string,bool> m;
-    int lang=lang_lua;
-    ttxt=ttxt.substr(0,ttxt.find("@lua"));
-    if (ttxt.find("@python")!=std::string::npos)
-    {
-        lang=lang_python;
-        ttxt=ttxt.substr(0,ttxt.find("@python"));
-    }
     bool hasDot=(ttxt.find('.')!=std::string::npos);
-    if (lang==lang_lua)
+    for (size_t i=0;simLuaVariables[i].name!="";i++)
     {
-        for (size_t i=0;simLuaVariables[i].name!="";i++)
+        if (simLuaVariables[i].autoComplete)
         {
-            if (simLuaVariables[i].autoComplete)
+            std::string n(simLuaVariables[i].name);
+            if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
             {
-                std::string n(simLuaVariables[i].name);
-                if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
+                if (!hasDot)
                 {
-                    if (!hasDot)
-                    {
-                        size_t dp=n.find('.');
-                        if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
-                            n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
-                    }
-                    std::map<std::string,bool>::iterator it=m.find(n);
-                    if (it==m.end())
-                    {
-                        m[n]=true;
-                        v.push_back(n);
-                    }
+                    size_t dp=n.find('.');
+                    if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
+                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
+                }
+                std::map<std::string,bool>::iterator it=m.find(n);
+                if (it==m.end())
+                {
+                    m[n]=true;
+                    v.push_back(n);
                 }
             }
         }
     }
-    if (lang==lang_python)
-        CPluginContainer::pythonPlugin_getConsts(ttxt.c_str(),v);
 
     App::worldContainer->scriptCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList(ttxt.c_str(),v,m);
     std::sort(v.begin(),v.end());
@@ -594,26 +569,10 @@ void CScriptObject::getMatchingConstants(const char* txt,std::vector<std::string
 std::string CScriptObject::getFunctionCalltip(const char* txt)
 {
     std::string func(txt);
-    int lang=lang_lua;
-    func=func.substr(0,func.find("@lua"));
-    if (func.find("@python")!=std::string::npos)
+    for (size_t i=0;simLuaCommands[i].name!="";i++)
     {
-        lang=lang_python;
-        func=func.substr(0,func.find("@python"));
-    }
-    if (lang==lang_lua)
-    {
-        for (size_t i=0;simLuaCommands[i].name!="";i++)
-        {
-            if (simLuaCommands[i].name.compare(func)==0)
-                return(simLuaCommands[i].callTip);
-        }
-    }
-    if (lang==lang_python)
-    {
-        std::string ret=CPluginContainer::pythonPlugin_getCalltip(func.c_str());
-        if (ret.size()>0)
-            return(ret);
+        if (simLuaCommands[i].name.compare(func)==0)
+            return(simLuaCommands[i].callTip);
     }
 
     // Check system callback calltips:
@@ -640,56 +599,39 @@ std::string CScriptObject::getFunctionCalltip(const char* txt)
 int CScriptObject::isFunctionOrConstDeprecated(const char* txt)
 {
     std::string func(txt);
-    int lang=lang_lua;
-    func=func.substr(0,func.find("@lua"));
-    if (func.find("@python")!=std::string::npos)
+    // Functions:
+    for (size_t i=0;simLuaCommands[i].name!="";i++)
     {
-        lang=lang_python;
-        func=func.substr(0,func.find("@python"));
-    }
-    if (lang==lang_lua)
-    {
-        // Functions:
-        for (size_t i=0;simLuaCommands[i].name!="";i++)
+        std::string n(simLuaCommands[i].name);
+        if (n.compare(func)==0)
         {
-            std::string n(simLuaCommands[i].name);
-            if (n.compare(func)==0)
-            {
-                if (simLuaCommands[i].autoComplete)
-                    return(0);
-                return(1);
-            }
-        }
-        for (size_t i=0;simLuaCommandsOldApi[i].name!="";i++)
-        {
-            std::string n(simLuaCommandsOldApi[i].name);
-            if (n.compare(func)==0)
-                return(1);
-        }
-        // Variables/Constants:
-        for (size_t i=0;simLuaVariables[i].name!="";i++)
-        {
-            std::string n(simLuaVariables[i].name);
-            if (n.compare(func)==0)
-            {
-                if (simLuaVariables[i].autoComplete)
-                    return(0);
-                return(1);
-            }
-        }
-        for (size_t i=0;simLuaVariablesOldApi[i].name!="";i++)
-        {
-            std::string n(simLuaVariablesOldApi[i].name);
-            if (n.compare(func)==0)
-                return(1);
+            if (simLuaCommands[i].autoComplete)
+                return(0);
+            return(1);
         }
     }
-    if (lang==lang_python)
+    for (size_t i=0;simLuaCommandsOldApi[i].name!="";i++)
     {
-        int r=CPluginContainer::pythonPlugin_isDeprecated(func.c_str());
-        if (r>=0)
-            return(r);
-        return(-1);
+        std::string n(simLuaCommandsOldApi[i].name);
+        if (n.compare(func)==0)
+            return(1);
+    }
+    // Variables/Constants:
+    for (size_t i=0;simLuaVariables[i].name!="";i++)
+    {
+        std::string n(simLuaVariables[i].name);
+        if (n.compare(func)==0)
+        {
+            if (simLuaVariables[i].autoComplete)
+                return(0);
+            return(1);
+        }
+    }
+    for (size_t i=0;simLuaVariablesOldApi[i].name!="";i++)
+    {
+        std::string n(simLuaVariablesOldApi[i].name);
+        if (n.compare(func)==0)
+            return(1);
     }
 
     // Check also callback functions:
@@ -1384,9 +1326,6 @@ int CScriptObject::systemCallScript(int callType,const CInterfaceStack* inStack,
 { // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
     TRACE_INTERNAL;
 
-    if (_lang==lang_undefined)
-        _lang=_checkLanguage();
-
     if ( (_scriptType==sim_scripttype_addonscript)&&(_scriptState==scriptState_unloaded)&&(callType!=sim_syscb_info) )
     {
         _handleInfoCallback();
@@ -1514,146 +1453,117 @@ void CScriptObject::_handleInfoCallback()
 int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool* functionsFound,std::string* errorMsg)
 { // retVal: -1=compil error, 0=runtime error, 1=no error
     int retVal=-1;
-    if (_lang==lang_lua)
+
+    std::string _code(code);
+
+    // With Python first line should be:
+    // #pythonWrapperXX(extFile) auxLuaCode
+    // With: XX optional, which represents an alternative wrapper file
+    //       ('extFile') optional, which represents an external python script
+    //       auxLuaCode optional, which represents Lua code to execute prior Python
+
+    std::string l;
+    std::string tmpCode(code);
+    if (CTTUtil::extractLine(tmpCode,l))
     {
-        std::string _code(code);
-
-        // With Python first line should be:
-        // #pythonWrapperXX(extFile) auxLuaCode
-        // With: XX optional, which represents an alternative wrapper file
-        //       ('extFile') optional, which represents an external python script
-        //       auxLuaCode optional, which represents Lua code to execute prior Python
-
-        std::string l;
-        std::string tmpCode(code);
-        if (CTTUtil::extractLine(tmpCode,l))
+        CTTUtil::removeSpacesAtBeginningAndEnd(l);
+        if (l[0]=='#')
         {
+            l.erase(l.begin());
             CTTUtil::removeSpacesAtBeginningAndEnd(l);
-            if (l[0]=='#')
-            {
-                l.erase(l.begin());
-                CTTUtil::removeSpacesAtBeginningAndEnd(l);
-                if (l.find("pythonWrapper")==0)
-                { // ok, we have a python script
-                    std::string n(l);
-                    std::string f; // optional external filename
-                    size_t a=l.find("(");
-                    if (a!=std::string::npos)
-                    { // we expect an external filename
-                        n.assign(l.begin(),l.begin()+a);
-                        size_t b=l.find(")",a+1);
-                        if (b!=std::string::npos)
-                        {
-                            f.assign(l.begin()+a+1,l.begin()+b);
-                            CTTUtil::removeSpacesAtBeginningAndEnd(f); // optional ext. filename
-                            if (!boost::algorithm::ends_with(f,".py"))
-                                f+=".py";
-                        }
-                    }
-                    CTTUtil::removeSpacesAtBeginningAndEnd(n); // wrapper name
-                    std::string t; // optional lua code
-                    while (CTTUtil::extractLine(tmpCode,l))
-                    {
-                        CTTUtil::removeSpacesAtBeginningAndEnd(l);
-                        if (l[0]!='#')
-                            break;
-                        l.erase(l.begin());
-                        CTTUtil::removeSpacesAtBeginningAndEnd(l);
-                        if (l.find("luaExec")==0)
-                        {
-                            l.erase(l.begin(),l.begin()+8);
-                            CTTUtil::removeSpacesAtBeginningAndEnd(l);
-                            if (l.size()>0)
-                                t=t+l+" ";
-                        }
-                    }
-
-                    if (f.size()==0)
-                    {
-                        CTTUtil::extractLine(_code,l);
-                        _code="pythonProg=[[\n\n"+_code+"]]\nrequire('"+n+"')\n"+t;
-                    }
-                    else
-                    {
-                        std::string absPath("false");
-                        if (VVarious::isAbsolutePath(f.c_str()))
-                            absPath="true";
-                        _code="require('"+n+"') loadExternalFile('"+f+"',"+absPath+") "+t;
-                    }
-                }
-            }
-        }
-
-        luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
-        _raiseErrors_backCompatibility=true;
-        if (_checkIfMixingOldAndNewCallMethods_old())
-        {
-            std::string msg(getShortDescriptiveName().c_str());
-            msg+=": detected a possible attempt to mix the old and new calling methods. For example:";
-            msg+="\n         with the old method: if sim_call_type==sim_childscriptcall_initialization then ... end";
-            msg+="\n         with the new method: function sysCall_init() ... end";
-            App::logMsg(sim_verbosity_warnings,msg.c_str());
-        }
-        int oldTop=luaWrap_lua_gettop(L);
-        std::string tmp("sim_call_type="); // for backward compatibility
-        tmp+=std::to_string(sim_syscb_init);
-        _execSimpleString_safe_lua(L,tmp.c_str());
-        if (_loadBuffer_lua(_code.c_str(),_code.size(),getShortDescriptiveName().c_str()))
-        {
-            if (_executionDepth==0)
-                _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
-            _executionDepth++;
-            if (_callScriptFunction("",nullptr,nullptr,errorMsg)==-1)
-                retVal=0; // a runtime error occurred!
-            else
-            { // here we check if we can enable the new calling method:
-                retVal=1;
-
-                std::string initCb=getSystemCallbackString(sim_syscb_init,false);
-                luaWrap_lua_getglobal(L,initCb.c_str());
-                if (_functionHooks_before.size()+_functionHooks_after.size()==0)
-                    _compatibilityMode_oldLua=!(luaWrap_lua_isfunction(L,-1)); // With function hooks, we have new calling method anyways
-                luaWrap_lua_pop(L,1);
-
-                if (!_compatibilityMode_oldLua)
-                    _execSimpleString_safe_lua(L,"sim_call_type=nil");
-                size_t off=0;
-                size_t l=strlen(functionsToFind+off);
-                size_t cnt=0;
-                while (l!=0)
+            std::string w;
+            if ( (CTTUtil::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
+            { // ok, we have a python script
+                std::string t("wrapper='pythonWrapper' "); // default wrapper
+                while (CTTUtil::extractLine(tmpCode,l))
                 {
-                    if (_compatibilityMode_oldLua)
-                        functionsFound[cnt++]=false;
-                    else
+                    CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                    if (l[0]!='#')
+                        break;
+                    l.erase(l.begin());
+                    CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                    if (l.find("luaExec")==0)
                     {
-                        luaWrap_lua_getglobal(L,functionsToFind+off);
-                        functionsFound[cnt++]=(luaWrap_lua_isfunction(L,-1)||hasFunctionHook(functionsToFind+off));
-                        luaWrap_lua_pop(L,1);
+                        l.erase(l.begin(),l.begin()+8);
+                        CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                        if (l.size()>0)
+                            t=t+l+" ";
                     }
-                    off+=l+1;
-                    l=strlen(functionsToFind+off);
                 }
+
+                _code=t+" require(wrapper) if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) else pythonProg=[=["+_code+"]=] end";
             }
-            _executionDepth--;
-            if (_executionDepth==0)
-                _timeOfScriptExecutionStart=-1;
         }
-        else
-        { // A compilation error occurred!
-            retVal=-1;
-            if (errorMsg!=nullptr)
-            {
-                if (luaWrap_lua_isstring(L,-1))
-                    errorMsg[0]=std::string(luaWrap_lua_tostring(L,-1));
-                else
-                    errorMsg[0]="(error unknown)";
-            }
-            luaWrap_lua_pop(L,1); // pop error from stack
-        }
-        luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
     }
-    if (_lang==lang_python)
-        retVal=CPluginContainer::pythonPlugin_loadCode(_interpreterState,code,functionsToFind,functionsFound,errorMsg);
+
+    luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
+    _raiseErrors_backCompatibility=true;
+    if (_checkIfMixingOldAndNewCallMethods_old())
+    {
+        std::string msg(getShortDescriptiveName().c_str());
+        msg+=": detected a possible attempt to mix the old and new calling methods. For example:";
+        msg+="\n         with the old method: if sim_call_type==sim_childscriptcall_initialization then ... end";
+        msg+="\n         with the new method: function sysCall_init() ... end";
+        App::logMsg(sim_verbosity_warnings,msg.c_str());
+    }
+    int oldTop=luaWrap_lua_gettop(L);
+    std::string tmp("sim_call_type="); // for backward compatibility
+    tmp+=std::to_string(sim_syscb_init);
+    _execSimpleString_safe_lua(L,tmp.c_str());
+    if (_loadBuffer_lua(_code.c_str(),_code.size(),getShortDescriptiveName().c_str()))
+    {
+        if (_executionDepth==0)
+            _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
+        _executionDepth++;
+        if (_callScriptFunction("",nullptr,nullptr,errorMsg)==-1)
+            retVal=0; // a runtime error occurred!
+        else
+        { // here we check if we can enable the new calling method:
+            retVal=1;
+
+            std::string initCb=getSystemCallbackString(sim_syscb_init,false);
+            luaWrap_lua_getglobal(L,initCb.c_str());
+            if (_functionHooks_before.size()+_functionHooks_after.size()==0)
+                _compatibilityMode_oldLua=!(luaWrap_lua_isfunction(L,-1)); // With function hooks, we have new calling method anyways
+            luaWrap_lua_pop(L,1);
+
+            if (!_compatibilityMode_oldLua)
+                _execSimpleString_safe_lua(L,"sim_call_type=nil");
+            size_t off=0;
+            size_t l=strlen(functionsToFind+off);
+            size_t cnt=0;
+            while (l!=0)
+            {
+                if (_compatibilityMode_oldLua)
+                    functionsFound[cnt++]=false;
+                else
+                {
+                    luaWrap_lua_getglobal(L,functionsToFind+off);
+                    functionsFound[cnt++]=(luaWrap_lua_isfunction(L,-1)||hasFunctionHook(functionsToFind+off));
+                    luaWrap_lua_pop(L,1);
+                }
+                off+=l+1;
+                l=strlen(functionsToFind+off);
+            }
+        }
+        _executionDepth--;
+        if (_executionDepth==0)
+            _timeOfScriptExecutionStart=-1;
+    }
+    else
+    { // A compilation error occurred!
+        retVal=-1;
+        if (errorMsg!=nullptr)
+        {
+            if (luaWrap_lua_isstring(L,-1))
+                errorMsg[0]=std::string(luaWrap_lua_tostring(L,-1));
+            else
+                errorMsg[0]="(error unknown)";
+        }
+        luaWrap_lua_pop(L,1); // pop error from stack
+    }
+    luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
+
     return(retVal);
 }
 
@@ -1927,115 +1837,84 @@ int CScriptObject::_callScriptFunc(const char* functionName,const CInterfaceStac
     int retVal=0;
     std::string func(functionName);
 
-    if (_lang==lang_lua)
+    luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
+    bool funcDoesNotExist=false;
+    int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
+    // Push the function name onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
+    if (func.size()>0)
     {
-        luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
-        bool funcDoesNotExist=false;
-        int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
-        // Push the function name onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
-        if (func.size()>0)
-        {
-            size_t ppos=func.find('.');
-            if (ppos==std::string::npos)
-                luaWrap_lua_getglobal(L,func.c_str()); // in case we have a global function:
-            else
-            { // in case we have a function that is not global
-                std::string globalVar(func.begin(),func.begin()+ppos);
-                luaWrap_lua_getglobal(L,globalVar.c_str());
-                if (luaWrap_lua_istable(L,-1))
-                {
-                    func.assign(func.begin()+ppos+1,func.end());
-                    size_t ppos=func.find('.');
-                    while (ppos!=std::string::npos)
-                    {
-                        std::string var(func.begin(),func.begin()+ppos);
-                        luaWrap_lua_getfield(L,-1,var.c_str());
-                        luaWrap_lua_remove(L,-2);
-                        func.erase(func.begin(),func.begin()+ppos+1);
-                        ppos=func.find('.');
-                        if (!luaWrap_lua_istable(L,-1))
-                        {
-                            funcDoesNotExist=true;
-                            break;
-                        }
-                    }
-                    if (!funcDoesNotExist)
-                    {
-                        luaWrap_lua_getfield(L,-1,func.c_str());
-                        luaWrap_lua_remove(L,-2);
-                    }
-                }
-                else
-                    funcDoesNotExist=true;
-            }
-        }
-        if ( (func.size()==0)||((!funcDoesNotExist)&&luaWrap_lua_isfunction(L,-1)) )
-        { // ok, the function exists, or we call the script chunk
-            // Push the arguments onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
-            int inputArgs=0;
-            if (inStack!=nullptr)
-            {
-                inputArgs=inStack->getStackSize();
-                if (inputArgs!=0)
-                    buildOntoInterpreterStack_lua(L,inStack,false);
-            }
-            luaWrap_lua_getglobal(L,"debug");
-            luaWrap_lua_getfield(L,-1,"traceback");
-            luaWrap_lua_remove(L,-2);
-            int argCnt=inputArgs;
-            int errindex=-argCnt-2;
-            luaWrap_lua_insert(L,errindex);
-            if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState,argCnt,luaWrapGet_LUA_MULTRET(),errindex)!=0)
-            { // a runtime error occurred!
-                retVal=-1;
-                if (errorMsg!=nullptr)
-                {
-                    if (luaWrap_lua_isstring(L,-1))
-                        errorMsg[0]=std::string(luaWrap_lua_tostring(L,-1));
-                    else
-                        errorMsg[0]="(error unknown)";
-                }
-                luaWrap_lua_pop(L,1); // pop error from stack
-            }
-            else
-            { // execution went fine:
-                retVal=1;
-                int currentTop=luaWrap_lua_gettop(L);
-                int numberOfArgs=currentTop-oldTop-1; // the first arg is linked to the debug mechanism
-                if (outStack!=nullptr)
-                    buildFromInterpreterStack_lua(L,outStack,oldTop+1+1,numberOfArgs); // the first arg is linked to the debug mechanism
-            }
-        }
-        luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
-    }
-
-    if (_lang==lang_python)
-    {
-        int inStackHandle=-1;
-        if (inStack!=nullptr)
-            inStackHandle=inStack->getId();
-        int outStackHandle=-1;
-        if (outStack!=nullptr)
-            outStackHandle=outStack->getId();
-        CScriptObject* pythonZmqServer=App::worldContainer->addOnScriptContainer->getAddOnFromName("Python ZMQ server");
-        if ( (pythonZmqServer!=nullptr)&&(pythonZmqServer->getScriptState()==scriptState_initialized) )
-        {
-            retVal=CPluginContainer::pythonPlugin_callFunc(_interpreterState,functionName,inStackHandle,outStackHandle,errorMsg);
-            int res=pythonZmqServer->callCustomScriptFunction("pythonZmqServer.run",nullptr);
-            retVal=res;
-            if (res>=0)
-            {
-                if (errorMsg!=nullptr)
-                    errorMsg[0]="failed calling Python ZMQ server add-on.";
-            }
-        }
+        size_t ppos=func.find('.');
+        if (ppos==std::string::npos)
+            luaWrap_lua_getglobal(L,func.c_str()); // in case we have a global function:
         else
+        { // in case we have a function that is not global
+            std::string globalVar(func.begin(),func.begin()+ppos);
+            luaWrap_lua_getglobal(L,globalVar.c_str());
+            if (luaWrap_lua_istable(L,-1))
+            {
+                func.assign(func.begin()+ppos+1,func.end());
+                size_t ppos=func.find('.');
+                while (ppos!=std::string::npos)
+                {
+                    std::string var(func.begin(),func.begin()+ppos);
+                    luaWrap_lua_getfield(L,-1,var.c_str());
+                    luaWrap_lua_remove(L,-2);
+                    func.erase(func.begin(),func.begin()+ppos+1);
+                    ppos=func.find('.');
+                    if (!luaWrap_lua_istable(L,-1))
+                    {
+                        funcDoesNotExist=true;
+                        break;
+                    }
+                }
+                if (!funcDoesNotExist)
+                {
+                    luaWrap_lua_getfield(L,-1,func.c_str());
+                    luaWrap_lua_remove(L,-2);
+                }
+            }
+            else
+                funcDoesNotExist=true;
+        }
+    }
+    if ( (func.size()==0)||((!funcDoesNotExist)&&luaWrap_lua_isfunction(L,-1)) )
+    { // ok, the function exists, or we call the script chunk
+        // Push the arguments onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
+        int inputArgs=0;
+        if (inStack!=nullptr)
         {
+            inputArgs=inStack->getStackSize();
+            if (inputArgs!=0)
+                buildOntoInterpreterStack_lua(L,inStack,false);
+        }
+        luaWrap_lua_getglobal(L,"debug");
+        luaWrap_lua_getfield(L,-1,"traceback");
+        luaWrap_lua_remove(L,-2);
+        int argCnt=inputArgs;
+        int errindex=-argCnt-2;
+        luaWrap_lua_insert(L,errindex);
+        if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState,argCnt,luaWrapGet_LUA_MULTRET(),errindex)!=0)
+        { // a runtime error occurred!
             retVal=-1;
             if (errorMsg!=nullptr)
-                errorMsg[0]="Python ZMQ server add-on was not found, or is not initialized.";
+            {
+                if (luaWrap_lua_isstring(L,-1))
+                    errorMsg[0]=std::string(luaWrap_lua_tostring(L,-1));
+                else
+                    errorMsg[0]="(error unknown)";
+            }
+            luaWrap_lua_pop(L,1); // pop error from stack
+        }
+        else
+        { // execution went fine:
+            retVal=1;
+            int currentTop=luaWrap_lua_gettop(L);
+            int numberOfArgs=currentTop-oldTop-1; // the first arg is linked to the debug mechanism
+            if (outStack!=nullptr)
+                buildFromInterpreterStack_lua(L,outStack,oldTop+1+1,numberOfArgs); // the first arg is linked to the debug mechanism
         }
     }
+    luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
 
     return(retVal);
 }
@@ -2113,45 +1992,21 @@ bool CScriptObject::_execScriptString(const char* scriptString,CInterfaceStack* 
 { // retVal: success, otherwise error
     bool retVal=false;
 
-    if (_lang==lang_lua)
+    luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
+    int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
+    std::string theString("return ");
+    theString+=scriptString;
+    int loadBufferRes=luaWrap_luaL_loadbuffer(L,theString.c_str(),theString.size(),scriptString);
+    if (loadBufferRes!=0)
     {
-        luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
-        int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
-        std::string theString("return ");
-        theString+=scriptString;
-        int loadBufferRes=luaWrap_luaL_loadbuffer(L,theString.c_str(),theString.size(),scriptString);
-        if (loadBufferRes!=0)
-        {
-            luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
-            loadBufferRes=luaWrap_luaL_loadbuffer(L,scriptString,strlen(scriptString),scriptString);
-        }
-        if (loadBufferRes==0)
-        {
-            int intTop=luaWrap_lua_gettop(L);
-            if (luaWrap_lua_pcall(L,0,luaWrapGet_LUA_MULTRET(),0)!=0)
-            { // a runtime error occurred!
-                std::string errMsg;
-                if (luaWrap_lua_isstring(L,-1))
-                    errMsg=std::string(luaWrap_lua_tostring(L,-1));
-                else
-                    errMsg="(error unknown)";
-                if (outStack!=nullptr)
-                {
-                    outStack->clear();
-                    outStack->pushStringOntoStack(errMsg.c_str(),0);
-                }
-            }
-            else
-            {
-                retVal=true;
-                int currentTop=luaWrap_lua_gettop(L);
-                int numberOfArgs=currentTop-oldTop;
-                if (outStack!=nullptr)
-                    buildFromInterpreterStack_lua(L,outStack,currentTop-numberOfArgs+1,numberOfArgs);
-            }
-        }
-        else
-        { // A compilation error occurred!
+        luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
+        loadBufferRes=luaWrap_luaL_loadbuffer(L,scriptString,strlen(scriptString),scriptString);
+    }
+    if (loadBufferRes==0)
+    {
+        int intTop=luaWrap_lua_gettop(L);
+        if (luaWrap_lua_pcall(L,0,luaWrapGet_LUA_MULTRET(),0)!=0)
+        { // a runtime error occurred!
             std::string errMsg;
             if (luaWrap_lua_isstring(L,-1))
                 errMsg=std::string(luaWrap_lua_tostring(L,-1));
@@ -2163,16 +2018,29 @@ bool CScriptObject::_execScriptString(const char* scriptString,CInterfaceStack* 
                 outStack->pushStringOntoStack(errMsg.c_str(),0);
             }
         }
-        luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
+        else
+        {
+            retVal=true;
+            int currentTop=luaWrap_lua_gettop(L);
+            int numberOfArgs=currentTop-oldTop;
+            if (outStack!=nullptr)
+                buildFromInterpreterStack_lua(L,outStack,currentTop-numberOfArgs+1,numberOfArgs);
+        }
     }
-
-    if (_lang==lang_python)
-    {
-        int stackHandle=-1;
+    else
+    { // A compilation error occurred!
+        std::string errMsg;
+        if (luaWrap_lua_isstring(L,-1))
+            errMsg=std::string(luaWrap_lua_tostring(L,-1));
+        else
+            errMsg="(error unknown)";
         if (outStack!=nullptr)
-            stackHandle=outStack->getId();
-        retVal=CPluginContainer::pythonPlugin_execStr(_interpreterState,scriptString,stackHandle)>0;
+        {
+            outStack->clear();
+            outStack->pushStringOntoStack(errMsg.c_str(),0);
+        }
     }
+    luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
 
     return(retVal);
 }
@@ -2222,10 +2090,7 @@ bool CScriptObject::_killInterpreterState()
             // if (_scriptType==sim_scripttype_sandboxscript) // Not needed
         }
         App::worldContainer->announceScriptStateWillBeErased(_scriptHandle,isSimulationScript(),isSceneSwitchPersistentScript());
-        if (_lang==lang_lua)
-            luaWrap_lua_close((luaWrap_lua_State*)_interpreterState);
-        if (_lang==lang_python)
-            CPluginContainer::pythonPlugin_cleanupState(_interpreterState);
+        luaWrap_lua_close((luaWrap_lua_State*)_interpreterState);
         _interpreterState=nullptr;
     }
 
@@ -2256,12 +2121,7 @@ bool CScriptObject::_killInterpreterState()
 
 std::string CScriptObject::getSearchPath() const
 {
-    if (_lang==lang_lua)
-        return(_getAdditionalSearchPath_path_lua());
-    if (_lang==lang_python)
-    {
-    }
-    return("");
+    return(_getAdditionalSearchPath_path_lua());
 }
 
 CScriptObject* CScriptObject::copyYourself()
@@ -2312,12 +2172,8 @@ void CScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
         std::string tmp("?: script execution was terminated externally.");
         _announceErrorWasRaisedAndPossiblyPauseSimulation(tmp.c_str(),true);
     }
-    if (_lang==lang_lua)
-        luaWrap_lua_yield((luaWrap_lua_State*)_interpreterState,0);
-    if (_lang==lang_python)
-    {
-        // Probably nothing needed here, if handled via the sandbox script and custom UI
-    }
+
+    luaWrap_lua_yield((luaWrap_lua_State*)_interpreterState,0);
 }
 
 void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg,bool runtimeError)
@@ -2429,29 +2285,30 @@ std::string CScriptObject::_getAdditionalSearchPath_cpath_lua()
     return(retVal);
 }
 
-int CScriptObject::getEditorLanguage()
+int CScriptObject::getLanguage()
 {
-    int retVal=lang_lua;
-    if (_scriptText.find("#python")==0)
-        retVal=lang_python;
-    return(retVal);
-}
-
-int CScriptObject::_checkLanguage()
-{
-    int retVal=lang_lua;
-    if (_scriptText.find("#python")==0)
+    std::string l;
+    std::string tmpCode(_scriptText);
+    while (CTTUtil::extractLine(tmpCode,l))
     {
-        if (_scriptText.find("#pythonWrapper")!=0)
-            retVal=lang_python;
+        CTTUtil::removeSpacesAtBeginningAndEnd(l);
+        if (l[0]!='#')
+            return(lang_lua);
+        else
+        {
+            l.erase(l.begin());
+            CTTUtil::removeSpacesAtBeginningAndEnd(l);
+            std::string w;
+            if ( (CTTUtil::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
+                return(lang_lua);
+            return(lang_undefined);
+        }
     }
-    return(retVal);
+    return(lang_undefined);
 }
 
 bool CScriptObject::_initInterpreterState(std::string* errorMsg)
 {
-    _lang=_checkLanguage();
-
     _calledInThisSimulationStep=false;
     _randGen.seed(123456);
     _delayForAutoYielding=2;
@@ -2459,70 +2316,65 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
     _forbidOverallYieldingLevel=0;
 
-    if (_lang==lang_lua)
+    luaWrap_lua_State* L=luaWrap_luaL_newstate();
+    _interpreterState=L;
+    luaWrap_luaL_openlibs(L);
+    _execSimpleString_safe_lua(L,"os.setlocale'C'");
+
+    _setScriptHandleToInterpreterState_lua(L,_scriptHandle);
+    setScriptNameIndexToInterpreterState_lua_old(L,_getScriptNameIndexNumber_old());
+
+    // --------------------------------------------
+    // append some paths to the Lua path variable:
+    luaWrap_lua_getglobal(L,"package");
+    luaWrap_lua_getfield(L,-1,"path");
+    std::string cur_path=luaWrap_lua_tostring(L,-1);
+    cur_path+=";";
+    cur_path+=_getAdditionalSearchPath_path_lua().c_str();
+    boost::replace_all(cur_path,"\\","/");
+    luaWrap_lua_pop(L,1);
+    luaWrap_lua_pushstring(L,cur_path.c_str());
+    luaWrap_lua_setfield(L,-2,"path");
+    luaWrap_lua_pop(L,1);
+    // --------------------------------------------
+
+    // --------------------------------------------
+    // append some paths to the Lua cpath variable:
+    luaWrap_lua_getglobal(L,"package");
+    luaWrap_lua_getfield(L,-1,"cpath");
+    cur_path=luaWrap_lua_tostring(L,-1);
+    cur_path+=";";
+    cur_path+=_getAdditionalSearchPath_cpath_lua().c_str();
+    boost::replace_all(cur_path,"\\","/");
+    luaWrap_lua_pop(L,1);
+    luaWrap_lua_pushstring(L,cur_path.c_str());
+    luaWrap_lua_setfield(L,-2,"cpath");
+    luaWrap_lua_pop(L,1);
+    // --------------------------------------------
+
+    _execSimpleString_safe_lua(L,"sim={}");
+    registerNewFunctions_lua();
+    _registerNewVariables_lua();
+    if (0!=_execSimpleString_safe_lua(L,"require('sim')"))
     {
-        luaWrap_lua_State* L=luaWrap_luaL_newstate();
-        _interpreterState=L;
-        luaWrap_luaL_openlibs(L);
-        _execSimpleString_safe_lua(L,"os.setlocale'C'");
-
-        _setScriptHandleToInterpreterState_lua(L,_scriptHandle);
-        setScriptNameIndexToInterpreterState_lua_old(L,_getScriptNameIndexNumber_old());
-
-        // --------------------------------------------
-        // append some paths to the Lua path variable:
-        luaWrap_lua_getglobal(L,"package");
-        luaWrap_lua_getfield(L,-1,"path");
-        std::string cur_path=luaWrap_lua_tostring(L,-1);
-        cur_path+=";";
-        cur_path+=_getAdditionalSearchPath_path_lua().c_str();
-        boost::replace_all(cur_path,"\\","/");
-        luaWrap_lua_pop(L,1);
-        luaWrap_lua_pushstring(L,cur_path.c_str());
-        luaWrap_lua_setfield(L,-2,"path");
-        luaWrap_lua_pop(L,1);
-        // --------------------------------------------
-
-        // --------------------------------------------
-        // append some paths to the Lua cpath variable:
-        luaWrap_lua_getglobal(L,"package");
-        luaWrap_lua_getfield(L,-1,"cpath");
-        cur_path=luaWrap_lua_tostring(L,-1);
-        cur_path+=";";
-        cur_path+=_getAdditionalSearchPath_cpath_lua().c_str();
-        boost::replace_all(cur_path,"\\","/");
-        luaWrap_lua_pop(L,1);
-        luaWrap_lua_pushstring(L,cur_path.c_str());
-        luaWrap_lua_setfield(L,-2,"cpath");
-        luaWrap_lua_pop(L,1);
-        // --------------------------------------------
-
-        _execSimpleString_safe_lua(L,"sim={}");
-        registerNewFunctions_lua();
-        _registerNewVariables_lua();
-        if (0!=_execSimpleString_safe_lua(L,"require('sim')"))
-        {
-            if (errorMsg!=nullptr)
-                errorMsg[0]=luaWrap_lua_tostring(L,-1);
-            _killInterpreterState();
-        }
-        else
-        {
-            registerPluginVariables(true); // for now we do not react to a failed require("file"), for backward compatibility's sake. We report a warning, and only to the console and for the sandbox script
-            registerPluginFunctions();
-            registerPluginVariables(false);
-            luaWrap_lua_sethook(L,_hookFunction_lua,luaWrapGet_LUA_MASKCOUNT(),100); // This instruction gets also called in luaHookFunction!!!!
-        }
-        if (!App::userSettings->executeUnsafe)
-        {
-            _execSimpleString_safe_lua(L,"load=function() sim.addLog(sim.verbosity_errors,\"'load' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
-            _execSimpleString_safe_lua(L,"loadfile=function() sim.addLog(sim.verbosity_errors,\"'loadfile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
-            _execSimpleString_safe_lua(L,"dofile=function() sim.addLog(sim.verbosity_errors,\"'dofile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
-            _execSimpleString_safe_lua(L,"io.popen=function() sim.addLog(sim.verbosity_errors,\"'io.popen' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
-        }
+        if (errorMsg!=nullptr)
+            errorMsg[0]=luaWrap_lua_tostring(L,-1);
+        _killInterpreterState();
     }
-    if (_lang==lang_python)
-        _interpreterState=CPluginContainer::pythonPlugin_initState(_scriptHandle,getShortDescriptiveName().c_str(),errorMsg);
+    else
+    {
+        registerPluginVariables(true); // for now we do not react to a failed require("file"), for backward compatibility's sake. We report a warning, and only to the console and for the sandbox script
+        registerPluginFunctions();
+        registerPluginVariables(false);
+        luaWrap_lua_sethook(L,_hookFunction_lua,luaWrapGet_LUA_MASKCOUNT(),100); // This instruction gets also called in luaHookFunction!!!!
+    }
+    if (!App::userSettings->executeUnsafe)
+    {
+        _execSimpleString_safe_lua(L,"load=function() sim.addLog(sim.verbosity_errors,\"'load' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
+        _execSimpleString_safe_lua(L,"loadfile=function() sim.addLog(sim.verbosity_errors,\"'loadfile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
+        _execSimpleString_safe_lua(L,"dofile=function() sim.addLog(sim.verbosity_errors,\"'dofile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
+        _execSimpleString_safe_lua(L,"io.popen=function() sim.addLog(sim.verbosity_errors,\"'io.popen' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
+    }
 
     return(_interpreterState!=nullptr);
 }
@@ -2758,35 +2610,33 @@ void CScriptObject::registerPluginFunctions()
         {
             std::string functionName(customFunc->getFunctionName());
             int functionID=customFunc->getFunctionID();
-            if (_lang==lang_lua)
-            {
-                size_t p=functionName.find(".");
-                luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
-                if (p!=std::string::npos)
-                { // this is the new notation, e.g. simUI.create()
-                    std::string prefix(functionName.begin(),functionName.begin()+p);
-                    luaWrap_lua_rawgeti(L,luaWrapGet_LUA_REGISTRYINDEX(),luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
-                    luaWrap_lua_pushinteger(L,functionID+1);
-                    luaWrap_lua_pushcclosure(L,_simGenericFunctionHandler,1);
-                    luaWrap_lua_setfield(L,-2,"__iuafkjsdgoi158zLK");
-                    luaWrap_lua_pop(L,1); // pop table of globals
-                    std::string tmp("if not ");
-                    tmp+=prefix;
-                    tmp+=" then ";
-                    tmp+=prefix;
-                    tmp+="={} end ";
-                    tmp+=functionName;
-                    tmp+="=__iuafkjsdgoi158zLK __iuafkjsdgoi158zLK=nil";
-                    _execSimpleString_safe_lua(L,tmp.c_str());
-                }
-                else
-                { // Old
-                    luaWrap_lua_rawgeti(L,luaWrapGet_LUA_REGISTRYINDEX(),luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
-                    luaWrap_lua_pushinteger(L,functionID+1);
-                    luaWrap_lua_pushcclosure(L,_simGenericFunctionHandler,1);
-                    luaWrap_lua_setfield(L,-2,functionName.c_str());
-                    luaWrap_lua_pop(L,1); // pop table of globals
-                }
+
+            size_t p=functionName.find(".");
+            luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
+            if (p!=std::string::npos)
+            { // this is the new notation, e.g. simUI.create()
+                std::string prefix(functionName.begin(),functionName.begin()+p);
+                luaWrap_lua_rawgeti(L,luaWrapGet_LUA_REGISTRYINDEX(),luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
+                luaWrap_lua_pushinteger(L,functionID+1);
+                luaWrap_lua_pushcclosure(L,_simGenericFunctionHandler,1);
+                luaWrap_lua_setfield(L,-2,"__iuafkjsdgoi158zLK");
+                luaWrap_lua_pop(L,1); // pop table of globals
+                std::string tmp("if not ");
+                tmp+=prefix;
+                tmp+=" then ";
+                tmp+=prefix;
+                tmp+="={} end ";
+                tmp+=functionName;
+                tmp+="=__iuafkjsdgoi158zLK __iuafkjsdgoi158zLK=nil";
+                _execSimpleString_safe_lua(L,tmp.c_str());
+            }
+            else
+            { // Old
+                luaWrap_lua_rawgeti(L,luaWrapGet_LUA_REGISTRYINDEX(),luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
+                luaWrap_lua_pushinteger(L,functionID+1);
+                luaWrap_lua_pushcclosure(L,_simGenericFunctionHandler,1);
+                luaWrap_lua_setfield(L,-2,functionName.c_str());
+                luaWrap_lua_pop(L,1); // pop table of globals
             }
         }
     }
@@ -2820,41 +2670,39 @@ bool CScriptObject::registerPluginVariables(bool onlyRequireStatements)
         std::string variableName(customVar->getVariableName());
         std::string variableValue(customVar->getVariableValue());
         int variableStackId=customVar->getVariableStackId();
-        if (_lang==lang_lua)
-        {
-            luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
-            if (variableStackId==0)
-            { // simple variable
-                bool doIt=false;
-                if ( onlyRequireStatements&&(variableValue.find("require")==0) )
-                    doIt=true;
-                if ( (!onlyRequireStatements)&&(variableValue.find("require")!=0) )
-                    doIt=true;
-                if (doIt)
-                {
-                    std::string tmp(variableName);
-                    tmp+="="+variableValue;
-                    if ((0!=_execSimpleString_safe_lua(L,tmp.c_str()))&&onlyRequireStatements&&(_scriptType==sim_scripttype_sandboxscript))
-                    { // warning only with sandbox scripts
-                        if ( (variableName.find("simCHAI3D")==std::string::npos)&&(variableName.find("simJoy")==std::string::npos) )
-                        { // ignore 2 files (old plugins)
-                            tmp="failed executing '"+tmp;
-                            tmp+="'";
-                            App::logScriptMsg(getShortDescriptiveName().c_str(),sim_verbosity_scriptwarnings,tmp.c_str());
-                        }
+
+        luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
+        if (variableStackId==0)
+        { // simple variable
+            bool doIt=false;
+            if ( onlyRequireStatements&&(variableValue.find("require")==0) )
+                doIt=true;
+            if ( (!onlyRequireStatements)&&(variableValue.find("require")!=0) )
+                doIt=true;
+            if (doIt)
+            {
+                std::string tmp(variableName);
+                tmp+="="+variableValue;
+                if ((0!=_execSimpleString_safe_lua(L,tmp.c_str()))&&onlyRequireStatements&&(_scriptType==sim_scripttype_sandboxscript))
+                { // warning only with sandbox scripts
+                    if ( (variableName.find("simCHAI3D")==std::string::npos)&&(variableName.find("simJoy")==std::string::npos) )
+                    { // ignore 2 files (old plugins)
+                        tmp="failed executing '"+tmp;
+                        tmp+="'";
+                        App::logScriptMsg(getShortDescriptiveName().c_str(),sim_verbosity_scriptwarnings,tmp.c_str());
                     }
                 }
             }
-            else
-            { // stack variable
-                if (variableStackId!=0)
+        }
+        else
+        { // stack variable
+            if (variableStackId!=0)
+            {
+                if (!onlyRequireStatements)
                 {
-                    if (!onlyRequireStatements)
-                    {
-                        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(variableStackId);
-                        buildOntoInterpreterStack_lua(L,stack,true);
-                        luaWrap_lua_setglobal(L,variableName.c_str());
-                    }
+                    CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(variableStackId);
+                    buildOntoInterpreterStack_lua(L,stack,true);
+                    luaWrap_lua_setglobal(L,variableName.c_str());
                 }
             }
         }

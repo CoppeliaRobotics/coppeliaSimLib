@@ -25,7 +25,6 @@ CPlugin::CPlugin(const char* filename,const char* pluginName)
     _codeEditor_openModal=nullptr;
     _customUi_msgBox=nullptr;
     _assimp_importShapes=nullptr;
-    pythonPlugin_initState=nullptr;
     ruckigPlugin_pos=nullptr;
 }
 
@@ -40,8 +39,6 @@ CPlugin::~CPlugin()
         CPluginContainer::currentIkPlugin=nullptr;
         CPluginContainer::ikEnvironment=-1;
     }
-    if (pythonPlugin_initState!=nullptr) // also check constructor above
-        CPluginContainer::currentPythonPlugin=nullptr;
     if (ruckigPlugin_pos!=nullptr) // also check constructor above
         CPluginContainer::currentRuckigPlugin=nullptr;
     if (_codeEditor_openModal!=nullptr) // also check constructor above
@@ -311,20 +308,6 @@ int CPlugin::load()
                     CPluginContainer::ikEnvironment=CPluginContainer::currentIkPlugin->ikPlugin_createEnv();
                 }
 
-                // For the python plugin:
-                pythonPlugin_initState=(ptrPythonPlugin_initState)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_initState"));
-                pythonPlugin_cleanupState=(ptrPythonPlugin_cleanupState)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_cleanupState"));
-                pythonPlugin_loadCode=(ptrPythonPlugin_loadCode)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_loadCode"));
-                pythonPlugin_callFunc=(ptrPythonPlugin_callFunc)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_callFunc"));
-                pythonPlugin_execStr=(ptrPythonPlugin_execStr)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_execStr"));
-                pythonPlugin_isDeprecated=(ptrPythonPlugin_isDeprecated)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_isDeprecated"));
-                pythonPlugin_getFuncs=(ptrPythonPlugin_getFuncs)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_getFuncs"));
-                pythonPlugin_getConsts=(ptrPythonPlugin_getConsts)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_getConsts"));
-                pythonPlugin_getCalltip=(ptrPythonPlugin_getCalltip)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_getCalltip"));
-                pythonPlugin_getError=(ptrPythonPlugin_getError)(VVarious::resolveLibraryFuncName(lib,"pythonPlugin_getError"));
-                if (pythonPlugin_initState!=nullptr)
-                    CPluginContainer::currentPythonPlugin=this;
-
                 // For the Ruckig plugin:
                 ruckigPlugin_pos=(ptrRuckigPlugin_pos)(VVarious::resolveLibraryFuncName(lib,"ruckigPlugin_pos"));
                 ruckigPlugin_vel=(ptrRuckigPlugin_vel)(VVarious::resolveLibraryFuncName(lib,"ruckigPlugin_vel"));
@@ -407,7 +390,6 @@ CPlugin* CPluginContainer::currentDynEngine=nullptr;
 CPlugin* CPluginContainer::currentGeomPlugin=nullptr;
 CPlugin* CPluginContainer::currentIkPlugin=nullptr;
 CPlugin* CPluginContainer::currentCodeEditor=nullptr;
-CPlugin* CPluginContainer::currentPythonPlugin=nullptr;
 CPlugin* CPluginContainer::currentRuckigPlugin=nullptr;
 CPlugin* CPluginContainer::currentCustomUi=nullptr;
 CPlugin* CPluginContainer::currentAssimp=nullptr;
@@ -2680,143 +2662,6 @@ int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
     int retVal=-1;
     if (currentCodeEditor!=nullptr)
         retVal=currentCodeEditor->_codeEditor_close(handle,positionAndSize);
-    return(retVal);
-}
-
-void* CPluginContainer::pythonPlugin_initState(int scriptHandle,const char* scriptName,std::string* errorMsg)
-{
-    void* retVal=nullptr;
-    if (currentPythonPlugin!=nullptr)
-    {
-        retVal=currentPythonPlugin->pythonPlugin_initState(scriptHandle,scriptName);
-        if ( (retVal==nullptr)&&(errorMsg!=nullptr) )
-        {
-            errorMsg[0].clear();
-            char* err=currentPythonPlugin->pythonPlugin_getError();
-            if (err!=nullptr)
-            {
-                errorMsg[0]=err;
-                delete[] err;
-            }
-        }
-    }
-    return(retVal);
-}
-
-void CPluginContainer::pythonPlugin_cleanupState(void* state)
-{
-    if (currentPythonPlugin!=nullptr)
-        currentPythonPlugin->pythonPlugin_cleanupState(state);
-}
-
-int CPluginContainer::pythonPlugin_loadCode(void* state,const char* code,const char* functionsToFind,bool* functionsFound,std::string* errorMsg)
-{
-    int retVal=-2;
-    if (currentPythonPlugin!=nullptr)
-    {
-        retVal=currentPythonPlugin->pythonPlugin_loadCode(state,code,functionsToFind,functionsFound);
-        if ( (retVal!=1)&&(errorMsg!=nullptr) )
-        {
-            errorMsg[0].clear();
-            char* err=currentPythonPlugin->pythonPlugin_getError();
-            if (err!=nullptr)
-            {
-                errorMsg[0]=err;
-                delete[] err;
-            }
-        }
-    }
-    return(retVal);
-}
-
-int CPluginContainer::pythonPlugin_callFunc(void* state,const char* funcName,int inStackHandle,int outStackHandle,std::string* errorMsg)
-{
-    int retVal=-2;
-    if (currentPythonPlugin!=nullptr)
-    {
-        retVal=currentPythonPlugin->pythonPlugin_callFunc(state,funcName,inStackHandle,outStackHandle);
-        if ( (retVal<0)&&(errorMsg!=nullptr) )
-        {
-            errorMsg[0].clear();
-            char* err=currentPythonPlugin->pythonPlugin_getError();
-            if (err!=nullptr)
-            {
-                errorMsg[0]=err;
-                delete[] err;
-            }
-        }
-    }
-    return(retVal);
-}
-
-int CPluginContainer::pythonPlugin_execStr(void* state,const char* str,int outStackHandle)
-{
-    int retVal=-2;
-    if (currentPythonPlugin!=nullptr)
-        retVal=currentPythonPlugin->pythonPlugin_execStr(state,str,outStackHandle);
-    return(retVal);
-}
-
-int CPluginContainer::pythonPlugin_isDeprecated(const char* str)
-{
-    int retVal=-2;
-    if (currentPythonPlugin!=nullptr)
-        retVal=currentPythonPlugin->pythonPlugin_isDeprecated(str);
-    return(retVal);
-}
-
-void CPluginContainer::pythonPlugin_getFuncs(const char* str,std::vector<std::string>& v)
-{
-    if (currentPythonPlugin!=nullptr)
-    {
-        char* funcs=currentPythonPlugin->pythonPlugin_getFuncs(str);
-        if (funcs!=nullptr)
-        {
-            size_t off=0;
-            size_t l=strlen(funcs+off);
-            while (l!=0)
-            {
-                v.push_back(funcs+off);
-                off+=l+1;
-                l=strlen(funcs+off);
-            }
-            delete[] funcs;
-        }
-    }
-}
-
-void CPluginContainer::pythonPlugin_getConsts(const char* str,std::vector<std::string>& v)
-{
-    if (currentPythonPlugin!=nullptr)
-    {
-        char* funcs=currentPythonPlugin->pythonPlugin_getConsts(str);
-        if (funcs!=nullptr)
-        {
-            size_t off=0;
-            size_t l=strlen(funcs+off);
-            while (l!=0)
-            {
-                v.push_back(funcs+off);
-                off+=l+1;
-                l=strlen(funcs+off);
-            }
-            delete[] funcs;
-        }
-    }
-}
-
-std::string CPluginContainer::pythonPlugin_getCalltip(const char* func)
-{
-    std::string retVal;
-    if (currentPythonPlugin!=nullptr)
-    {
-        char* tip=currentPythonPlugin->pythonPlugin_getCalltip(func);
-        if (tip!=nullptr)
-        {
-            retVal=tip;
-            delete[] tip;
-        }
-    }
     return(retVal);
 }
 

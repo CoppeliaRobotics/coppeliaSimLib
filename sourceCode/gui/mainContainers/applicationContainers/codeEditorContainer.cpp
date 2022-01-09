@@ -353,9 +353,9 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
                     //editorNode->SetAttribute("is-lua",toBoolStr(true));
-                    if (it->getEditorLanguage()==CScriptObject::lang_lua)
+                    if (it->getLanguage()==CScriptObject::lang_lua)
                         editorNode->SetAttribute("lang","lua");
-                    if (it->getEditorLanguage()==CScriptObject::lang_python)
+                    if (it->getLanguage()==CScriptObject::lang_python)
                         editorNode->SetAttribute("lang","python");
                     editorNode->SetAttribute("lua-search-paths",it->getSearchPath().c_str());
                     int fontSize=12;
@@ -502,9 +502,9 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
                     //editorNode->SetAttribute("is-lua",toBoolStr(true));
-                    if (it->getEditorLanguage()==CScriptObject::lang_lua)
+                    if (it->getLanguage()==CScriptObject::lang_lua)
                         editorNode->SetAttribute("lang","lua");
-                    if (it->getEditorLanguage()==CScriptObject::lang_python)
+                    if (it->getLanguage()==CScriptObject::lang_python)
                         editorNode->SetAttribute("lang","python");
                     editorNode->SetAttribute("lua-search-paths",it->getSearchPath().c_str());
                     int fontSize=12;
