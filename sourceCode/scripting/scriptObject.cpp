@@ -1930,7 +1930,25 @@ int CScriptObject::callCustomScriptFunction(const char* functionName,CInterfaceS
         if (_executionDepth==0)
             _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
         _executionDepth++;
-        retVal=_callScriptFunction(functionName,inOutStack,outStack,&errMsg);
+
+        luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
+        luaWrap_lua_getglobal(L,"sysCall_ext");
+        bool extFunc=luaWrap_lua_isfunction(L,-1);
+        luaWrap_lua_pop(L,1);
+        if (extFunc||hasFunctionHook("sysCall_ext"))
+        { // if sysCall_ext is present, the original func won't be called. Otherwise yes, independently of any such hooks
+            CInterfaceStack* inStack=nullptr;
+            if (inOutStack)
+                inStack=App::worldContainer->interfaceStackContainer->createStackCopy(inOutStack);
+            else
+                inStack=App::worldContainer->interfaceStackContainer->createStack();
+            inStack->pushStringOntoStack(functionName,0,true);
+            retVal=_callScriptFunction("sysCall_ext",inStack,outStack,&errMsg);
+            App::worldContainer->interfaceStackContainer->destroyStack(inStack);
+        }
+        if (!extFunc)
+            retVal=_callScriptFunction(functionName,inOutStack,outStack,&errMsg);
+
         _executionDepth--;
         if (_executionDepth==0)
             _timeOfScriptExecutionStart=-1;

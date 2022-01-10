@@ -490,79 +490,112 @@ bool CInterfaceStack::unfoldStackTable()
     return(true);
 }
 
-void CInterfaceStack::pushObjectOntoStack(CInterfaceStackObject* obj)
+void CInterfaceStack::pushObjectOntoStack(CInterfaceStackObject* obj,bool toFront/*=false*/)
 {
-    _stackObjects.push_back(obj);
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(),obj);
+    else
+        _stackObjects.push_back(obj);
 }
 
-void CInterfaceStack::pushNullOntoStack()
+void CInterfaceStack::pushNullOntoStack(bool toFront/*=false*/)
 {
-    _stackObjects.push_back(new CInterfaceStackNull());
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(),new CInterfaceStackNull());
+    else
+        _stackObjects.push_back(new CInterfaceStackNull());
 }
 
-void CInterfaceStack::pushBoolOntoStack(bool v)
+void CInterfaceStack::pushBoolOntoStack(bool v,bool toFront/*=false*/)
 {
-    _stackObjects.push_back(new CInterfaceStackBool(v));
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(),new CInterfaceStackBool(v));
+    else
+        _stackObjects.push_back(new CInterfaceStackBool(v));
 }
 
-void CInterfaceStack::pushFloatOntoStack(float v)
+void CInterfaceStack::pushFloatOntoStack(float v,bool toFront/*=false*/)
 {
-    pushDoubleOntoStack((double)v);
+    pushDoubleOntoStack((double)v,toFront);
 }
 
-void CInterfaceStack::pushDoubleOntoStack(double v)
+void CInterfaceStack::pushDoubleOntoStack(double v,bool toFront/*=false*/)
 {
-    _stackObjects.push_back(new CInterfaceStackNumber(v));
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(),new CInterfaceStackNumber(v));
+    else
+        _stackObjects.push_back(new CInterfaceStackNumber(v));
 }
 
-void CInterfaceStack::pushInt32OntoStack(int v)
+void CInterfaceStack::pushInt32OntoStack(int v,bool toFront/*=false*/)
 {
-    _stackObjects.push_back(new CInterfaceStackInteger(v));
+    pushInt64OntoStack(v,toFront);
 }
 
-void CInterfaceStack::pushInt64OntoStack(long long int v)
+void CInterfaceStack::pushInt64OntoStack(long long int v,bool toFront/*=false*/)
 {
-    _stackObjects.push_back(new CInterfaceStackInteger(v));
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(),new CInterfaceStackInteger(v));
+    else
+        _stackObjects.push_back(new CInterfaceStackInteger(v));
 }
 
-void CInterfaceStack::pushStringOntoStack(const char* str,size_t l)
+void CInterfaceStack::pushStringOntoStack(const char* str,size_t l,bool toFront/*=false*/)
 {
-    _stackObjects.push_back(new CInterfaceStackString(str,l));
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(),new CInterfaceStackString(str,l));
+    else
+        _stackObjects.push_back(new CInterfaceStackString(str,l));
 }
 
-void CInterfaceStack::pushInt32ArrayOntoStack(const int* arr,size_t l)
+void CInterfaceStack::pushInt32ArrayOntoStack(const int* arr,size_t l,bool toFront/*=false*/)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setInt32Array(arr,l);
-    _stackObjects.push_back(table);
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(),table);
+    else
+        _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushInt64ArrayOntoStack(const long long int* arr,size_t l)
+void CInterfaceStack::pushInt64ArrayOntoStack(const long long int* arr,size_t l,bool toFront/*=false*/)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setInt64Array(arr,l);
-    _stackObjects.push_back(table);
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(),table);
+    else
+        _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushUCharArrayOntoStack(const unsigned char* arr,size_t l)
+void CInterfaceStack::pushUCharArrayOntoStack(const unsigned char* arr,size_t l,bool toFront/*=false*/)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setUCharArray(arr,l);
-    _stackObjects.push_back(table);
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(),table);
+    else
+        _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushFloatArrayOntoStack(const float* arr,size_t l)
+void CInterfaceStack::pushFloatArrayOntoStack(const float* arr,size_t l,bool toFront/*=false*/)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setFloatArray(arr,l);
-    _stackObjects.push_back(table);
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(),table);
+    else
+        _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushDoubleArrayOntoStack(const double* arr,size_t l)
+void CInterfaceStack::pushDoubleArrayOntoStack(const double* arr,size_t l,bool toFront/*=false*/)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setDoubleArray(arr,l);
-    _stackObjects.push_back(table);
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(),table);
+    else
+        _stackObjects.push_back(table);
 }
 
 void CInterfaceStack::insertKeyNullIntoStackTable(const char* key)

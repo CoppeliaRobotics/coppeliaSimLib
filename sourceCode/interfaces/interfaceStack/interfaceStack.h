@@ -20,19 +20,19 @@ public:
     CInterfaceStack* copyYourself() const;
     void copyFrom(const CInterfaceStack* source);
 
-    void pushObjectOntoStack(CInterfaceStackObject* obj);
-    void pushNullOntoStack();
-    void pushBoolOntoStack(bool v);
-    void pushFloatOntoStack(float v);
-    void pushDoubleOntoStack(double v);
-    void pushInt32OntoStack(int v);
-    void pushInt64OntoStack(long long int v);
-    void pushStringOntoStack(const char* str,size_t l);
-    void pushUCharArrayOntoStack(const unsigned char* arr,size_t l);
-    void pushInt32ArrayOntoStack(const int* arr,size_t l);
-    void pushInt64ArrayOntoStack(const long long int* arr,size_t l);
-    void pushFloatArrayOntoStack(const float* arr,size_t l);
-    void pushDoubleArrayOntoStack(const double* arr,size_t l);
+    void pushObjectOntoStack(CInterfaceStackObject* obj,bool toFront=false);
+    void pushNullOntoStack(bool toFront=false);
+    void pushBoolOntoStack(bool v,bool toFront=false);
+    void pushFloatOntoStack(float v,bool toFront=false);
+    void pushDoubleOntoStack(double v,bool toFront=false);
+    void pushInt32OntoStack(int v,bool toFront=false);
+    void pushInt64OntoStack(long long int v,bool toFront=false);
+    void pushStringOntoStack(const char* str,size_t l,bool toFront=false);
+    void pushUCharArrayOntoStack(const unsigned char* arr,size_t l,bool toFront=false);
+    void pushInt32ArrayOntoStack(const int* arr,size_t l,bool toFront=false);
+    void pushInt64ArrayOntoStack(const long long int* arr,size_t l,bool toFront=false);
+    void pushFloatArrayOntoStack(const float* arr,size_t l,bool toFront=false);
+    void pushDoubleArrayOntoStack(const double* arr,size_t l,bool toFront=false);
 
     void insertKeyNullIntoStackTable(const char* key);
     void insertKeyBoolIntoStackTable(const char* key,bool value);
