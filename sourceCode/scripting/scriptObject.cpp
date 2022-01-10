@@ -729,7 +729,7 @@ bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int ca
     return(false);
 }
 
-std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptType,bool callTips,bool threadedOld)
+std::vector<int> CScriptObject::getAllSystemCallbacks(int scriptType,bool threadedOld)
 {
     const int ct[]={
                  sim_syscb_info,
@@ -770,19 +770,28 @@ std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptTy
                  -1
             };
 
-    std::vector<std::string> retVal;
+    std::vector<int> retVal;
     size_t i=0;
     while (ct[i]!=-1)
     {
         if (scriptType!=-1)
         {
             if (canCallSystemCallback(scriptType,threadedOld,ct[i]))
-                retVal.push_back(getSystemCallbackString(ct[i],callTips));
+                retVal.push_back(ct[i]);
         }
         else
-            retVal.push_back(getSystemCallbackString(ct[i],callTips));
+            retVal.push_back(ct[i]);
         i++;
     }
+    return(retVal);
+}
+
+std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptType,bool callTips,bool threadedOld)
+{
+    std::vector<int> ct=getAllSystemCallbacks(scriptType,threadedOld);
+    std::vector<std::string> retVal;
+    for (size_t i=0;i<ct.size();i++)
+        retVal.push_back(getSystemCallbackString(ct[i],callTips));
     return(retVal);
 }
 
@@ -1443,12 +1452,6 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
 
     std::string _code(code);
 
-    // With Python first line should be:
-    // #pythonWrapperXX(extFile) auxLuaCode
-    // With: XX optional, which represents an alternative wrapper file
-    //       ('extFile') optional, which represents an external python script
-    //       auxLuaCode optional, which represents Lua code to execute prior Python
-
     std::string l;
     std::string tmpCode(code);
     if (CTTUtil::extractLine(tmpCode,l))
@@ -1478,7 +1481,7 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
                     }
                 }
 
-                _code=t+" require(wrapper) if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) else pythonProg=[=["+_code+"]=] end";
+                _code=t+" require(wrapper) pythonProg=[=["+_code+"]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
             }
         }
     }
@@ -1508,11 +1511,20 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
         { // here we check if we can enable the new calling method:
             retVal=1;
 
-            std::string initCb=getSystemCallbackString(sim_syscb_init,false);
-            luaWrap_lua_getglobal(L,initCb.c_str());
-            if (_functionHooks_before.size()+_functionHooks_after.size()==0)
-                _compatibilityMode_oldLua=!(luaWrap_lua_isfunction(L,-1)); // With function hooks, we have new calling method anyways
-            luaWrap_lua_pop(L,1);
+            // Remember that function hooks will also be installed with old scripts, so we can't use imply with their presence
+            // that we have new scripts!
+            // So we simply check if any of the system callback function is present:
+            _compatibilityMode_oldLua=true;
+            std::vector<int> sysCb=getAllSystemCallbacks(-1,false);
+            for (size_t i=0;i<sysCb.size();i++)
+            {
+                std::string str=getSystemCallbackString(sysCb[i],false);
+                luaWrap_lua_getglobal(L,str.c_str());
+                _compatibilityMode_oldLua=!luaWrap_lua_isfunction(L,-1);
+                luaWrap_lua_pop(L,1);
+                if (!_compatibilityMode_oldLua)
+                    break;
+            }
 
             if (!_compatibilityMode_oldLua)
                 _execSimpleString_safe_lua(L,"sim_call_type=nil");

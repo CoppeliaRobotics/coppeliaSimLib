@@ -160,6 +160,7 @@ public:
     static int isFunctionOrConstDeprecated(const char* txt);
     static bool canCallSystemCallback(int scriptType,bool threadedOld,int callType);
     static std::string getSystemCallbackString(int calltype,bool callTips);
+    static std::vector<int> getAllSystemCallbacks(int scriptType,bool threadedOld);
     static std::vector<std::string> getAllSystemCallbackStrings(int scriptType,bool callTips,bool threadedOld);
 
     // Lua specific:
