@@ -6,10 +6,10 @@
 #include <random>
 
 #define DEFAULT_MAINSCRIPT_CODE "-- The main script is not supposed to be modified, except in special cases.\nrequire('defaultMainScript')"
-#define DEFAULT_NONTHREADEDCHILDSCRIPT_NAME "defaultChildScript.txt"
-#define DEFAULT_THREADEDCHILDSCRIPT_NAME "defaultThreadedChildScript.txt"
-#define DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT_NAME "defaultCustomizationScript.txt"
-#define DEFAULT_THREADEDCUSTOMIZATIONSCRIPT_NAME "defaultThreadedCustomizationScript.txt"
+#define DEFAULT_NONTHREADEDCHILDSCRIPT "childScript"
+#define DEFAULT_THREADEDCHILDSCRIPT "childScript-threaded"
+#define DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT "customizationScript"
+#define DEFAULT_THREADEDCUSTOMIZATIONSCRIPT "customizationScript-threaded"
 #define SIM_SCRIPT_HANDLE "sim_script_handle" // keep this global, e.g. not _S.sim_script_handle
 
 // Old:
@@ -18,7 +18,7 @@
 #include "vMutex.h"
 #include "vThread.h"
 #include "customData_old.h"
-#define DEFAULT_THREADEDCHILDSCRIPTOLD_NAME "dlttscptbkcomp.txt"
+#define DEFAULT_THREADEDCHILDSCRIPTOLD "dlttscptbkcomp"
 #define SIM_SCRIPT_NAME_INDEX_OLD "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
 // **********************
 

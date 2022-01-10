@@ -10,7 +10,7 @@
 
 CEmbeddedScriptContainer::CEmbeddedScriptContainer()
 {
-    insertDefaultScript(sim_scripttype_mainscript,false,false);
+    insertDefaultScript(sim_scripttype_mainscript,false,true);
 }
 
 CEmbeddedScriptContainer::~CEmbeddedScriptContainer()
@@ -286,7 +286,7 @@ int CEmbeddedScriptContainer::insertScript(CScriptObject* script)
     return(newHandle);
 }
 
-int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,bool oldThreadedScript)
+int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,bool lua,bool oldThreadedScript/*=false*/)
 { 
     if (scriptType!=sim_scripttype_childscript)
         oldThreadedScript=false; // just to make sure
@@ -303,25 +303,29 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,b
     if (scriptType==sim_scripttype_childscript)
     {
         if (oldThreadedScript)
-            filenameAndPath+=DEFAULT_THREADEDCHILDSCRIPTOLD_NAME;
+            filenameAndPath+=DEFAULT_THREADEDCHILDSCRIPTOLD;
         else
         {
             if (threaded)
-                filenameAndPath+=DEFAULT_THREADEDCHILDSCRIPT_NAME;
+                filenameAndPath+=DEFAULT_THREADEDCHILDSCRIPT;
             else
-                filenameAndPath+=DEFAULT_NONTHREADEDCHILDSCRIPT_NAME;
+                filenameAndPath+=DEFAULT_NONTHREADEDCHILDSCRIPT;
         }
     }
     if (scriptType==sim_scripttype_customizationscript)
     {
         if (threaded)
-            filenameAndPath+=DEFAULT_THREADEDCUSTOMIZATIONSCRIPT_NAME;
+            filenameAndPath+=DEFAULT_THREADEDCUSTOMIZATIONSCRIPT;
         else
-            filenameAndPath+=DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT_NAME;
+            filenameAndPath+=DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT;
     }
 
     if (filenameAndPath.size()>0)
     {
+        if (lua)
+            filenameAndPath+=".lua";
+        else
+            filenameAndPath+=".py";
         if (VFile::doesFileExist(filenameAndPath.c_str()))
         {
             try

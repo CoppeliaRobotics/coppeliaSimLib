@@ -454,24 +454,11 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
         return(r);
     }
 
-
     // Old:
-    // ------------------------------
     if (calltype==sim_syscb_aos_run_old)
-    {
-        std::string r("sysCall_addOnScriptRun");
-        if (callTips)
-            r+="()\nDEPRECATED.";
-        return(r);
-    }
+        return("sysCall_addOnScriptRun");
     if (calltype==sim_syscb_threadmain)
-    {
-        std::string r("sysCall_threadmain");
-        if (callTips)
-            r+="()\nDEPRECATED. Use coroutines instead.";
-        return(r);
-    }
-    // ------------------------------
+        return("sysCall_threadmain");
 
     return("");
 }
@@ -764,7 +751,7 @@ std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptTy
                  sim_syscb_beforedelete,
                  sim_syscb_afterdelete,
                  sim_syscb_aftercreate,
-                 sim_syscb_aos_run_old, // for backward compatibility
+                 //sim_syscb_aos_run_old, // for backward compatibility
                  sim_syscb_aos_suspend,
                  sim_syscb_aos_resume,
                  sim_syscb_jointcallback,
@@ -776,7 +763,7 @@ std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptTy
                  sim_syscb_customcallback2,
                  sim_syscb_customcallback3,
                  sim_syscb_customcallback4,
-                 sim_syscb_threadmain, // for backward compatibility
+                 //sim_syscb_threadmain, // for backward compatibility
                  sim_syscb_userconfig,
                  sim_syscb_moduleentry,
                  sim_syscb_event,

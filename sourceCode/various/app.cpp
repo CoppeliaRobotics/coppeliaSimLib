@@ -117,7 +117,7 @@ void App::simulationThreadInit()
 #endif
 
     App::worldContainer->sandboxScript=new CScriptObject(sim_scripttype_sandboxscript);
-    App::worldContainer->sandboxScript->setScriptTextFromFile((App::folders->getSystemPath()+"/"+"sandboxScript.txt").c_str());
+    App::worldContainer->sandboxScript->setScriptTextFromFile((App::folders->getSystemPath()+"/"+"sandboxScript.lua").c_str());
     App::worldContainer->sandboxScript->systemCallScript(sim_syscb_init,nullptr,nullptr);
     if (_startupScriptString.size()>0)
     {

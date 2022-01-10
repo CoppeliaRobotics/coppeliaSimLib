@@ -691,7 +691,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.syscb_beforedelete",sim_syscb_beforedelete,true},
     {"sim.syscb_afterdelete",sim_syscb_afterdelete,true},
     {"sim.syscb_aftercreate",sim_syscb_aftercreate,true},
-    {"sim.syscb_threadmain",sim_syscb_threadmain,true},
+    //{"sim.syscb_threadmain",sim_syscb_threadmain,false},
     {"sim.syscb_userconfig",sim_syscb_userconfig,true},
     {"sim.syscb_moduleentry",sim_syscb_moduleentry,true},
     // script params:
