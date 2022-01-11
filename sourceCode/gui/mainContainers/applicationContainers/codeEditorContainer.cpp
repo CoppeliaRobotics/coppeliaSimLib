@@ -105,7 +105,10 @@ std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* ca
                 editorNode->SetAttribute("position",val);
             val=rootElement->Attribute("isLua");
             if (val!=nullptr)
-                editorNode->SetAttribute("is-lua",val);
+            {
+                if (std::string(val).compare("true"))
+                    editorNode->SetAttribute("lang","lua");
+            }
             val=rootElement->Attribute("commentColor");
             if (val!=nullptr)
                 editorNode->SetAttribute("comment-col",val);
@@ -352,7 +355,6 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     editorNode->SetAttribute("searchable",toBoolStr(true));
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
-                    //editorNode->SetAttribute("is-lua",toBoolStr(true));
                     if (it->getLanguage()==CScriptObject::lang_lua)
                         editorNode->SetAttribute("lang","lua");
                     if (it->getLanguage()==CScriptObject::lang_python)
@@ -501,7 +503,6 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     editorNode->SetAttribute("searchable",toBoolStr(true));
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
-                    //editorNode->SetAttribute("is-lua",toBoolStr(true));
                     if (it->getLanguage()==CScriptObject::lang_lua)
                         editorNode->SetAttribute("lang","lua");
                     if (it->getLanguage()==CScriptObject::lang_python)
@@ -616,7 +617,6 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
         editorNode->SetAttribute("searchable",toBoolStr(false));
         editorNode->SetAttribute("line-numbers",toBoolStr(false));
         editorNode->SetAttribute("tab-width",4);
-        //editorNode->SetAttribute("is-lua",toBoolStr(false));
         editorNode->SetAttribute("lang","none");
         int fontSize=12;
         #ifdef MAC_SIM

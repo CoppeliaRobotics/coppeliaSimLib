@@ -450,9 +450,17 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
     {
         std::string r("sysCall_event");
         if (callTips)
-            r+="(inData)\nCalled frequently in various occasions.";
+            r+="(inData)\nCalled asynchronously with buffered events.";
         return(r);
     }
+    if (calltype==sim_syscb_ext)
+    {
+        std::string r("sysCall_ext");
+        if (callTips)
+            r+="(functionName,inData)\nCalled (and shadows) user callbacks.";
+        return(r);
+    }
+
 
     // Old:
     if (calltype==sim_syscb_aos_run_old)
@@ -682,6 +690,8 @@ bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int ca
             return(true);
         if (callType==sim_syscb_event)
             return(true);
+        if (callType==sim_syscb_ext)
+            return(true);
         if (callType==sim_syscb_beforemainscript)
             return(true);
     }
@@ -767,6 +777,7 @@ std::vector<int> CScriptObject::getAllSystemCallbacks(int scriptType,bool thread
                  sim_syscb_userconfig,
                  sim_syscb_moduleentry,
                  sim_syscb_event,
+                 sim_syscb_ext,
                  -1
             };
 
@@ -2306,22 +2317,26 @@ int CScriptObject::getLanguage()
 {
     std::string l;
     std::string tmpCode(_scriptText);
+    int retVal=lang_lua;
     while (CTTUtil::extractLine(tmpCode,l))
     {
         CTTUtil::removeSpacesAtBeginningAndEnd(l);
-        if (l[0]!='#')
-            return(lang_lua);
-        else
+        if (l.size()>0)
         {
-            l.erase(l.begin());
-            CTTUtil::removeSpacesAtBeginningAndEnd(l);
-            std::string w;
-            if ( (CTTUtil::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
-                return(lang_lua);
-            return(lang_undefined);
+            if (l[0]!='#')
+                break;
+            else
+            {
+                l.erase(l.begin());
+                CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                std::string w;
+                if ( (CTTUtil::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
+                    retVal=lang_python;
+                break;
+            }
         }
     }
-    return(lang_undefined);
+    return(retVal);
 }
 
 bool CScriptObject::_initInterpreterState(std::string* errorMsg)
