@@ -84,8 +84,6 @@ public:
 
     void terminateScriptExecutionExternally(bool generateErrorMsg);
 
-    std::string getSearchPath() const;
-
     bool resetScript();
     bool initScript();
     bool hasInterpreterState() const;
@@ -169,6 +167,13 @@ public:
     static void buildFromInterpreterStack_lua(void* LL,CInterfaceStack* stack,int fromPos,int cnt);
     static void buildOntoInterpreterStack_lua(void* LL,const CInterfaceStack* stack,bool takeOnlyTop);
     static int getScriptHandleFromInterpreterState_lua(void* LL);
+    static std::string getSearchPath_lua();
+    static std::string getSearchCPath_lua();
+    // -----------------------------
+
+    // Python specific:
+    // -----------------------------
+    static std::string getSearchPath_python();
     // -----------------------------
 
     // Old:
@@ -293,8 +298,6 @@ protected:
     static int _countInterpreterStackTableEntries_lua(void* LL,int index);
     static void _pushOntoInterpreterStack_lua(void* LL,CInterfaceStackObject* obj);
     static void _hookFunction_lua(void* LL,void* arr);
-    static std::string _getAdditionalSearchPath_path_lua();
-    static std::string _getAdditionalSearchPath_cpath_lua();
     static void _setScriptHandleToInterpreterState_lua(void* LL,int h);
     // -----------------------------
 

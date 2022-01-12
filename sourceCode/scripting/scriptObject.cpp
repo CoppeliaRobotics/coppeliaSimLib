@@ -1465,35 +1465,69 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
 
     std::string l;
     std::string tmpCode(code);
-    if (CTTUtil::extractLine(tmpCode,l))
+    int lineCnt=0;
+    while (CTTUtil::extractLine(tmpCode,l))
     {
+        lineCnt++;
         CTTUtil::removeSpacesAtBeginningAndEnd(l);
-        if (l[0]=='#')
+        if (l.size()>0)
         {
-            l.erase(l.begin());
-            CTTUtil::removeSpacesAtBeginningAndEnd(l);
-            std::string w;
-            if ( (CTTUtil::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
-            { // ok, we have a python script
-                std::string t("wrapper='pythonWrapper' "); // default wrapper
-                while (CTTUtil::extractLine(tmpCode,l))
-                {
-                    CTTUtil::removeSpacesAtBeginningAndEnd(l);
-                    if (l[0]!='#')
-                        break;
-                    l.erase(l.begin());
-                    CTTUtil::removeSpacesAtBeginningAndEnd(l);
-                    if (l.find("luaExec")==0)
+            if (l[0]=='#')
+            {
+                l.erase(l.begin());
+                CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                std::string w;
+                if ( (CTTUtil::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
+                { // ok, we have a python script
+                    std::string t("wrapper='pythonWrapper'\n"); // default wrapper
+                    bool leave=false;
+                    while (CTTUtil::extractLine(tmpCode,l))
                     {
-                        l.erase(l.begin(),l.begin()+8);
+                        lineCnt++;
                         CTTUtil::removeSpacesAtBeginningAndEnd(l);
-                        if (l.size()>0)
-                            t=t+l+" ";
+                        if (l.size()!=0)
+                        {
+                            if (l[0]!='#')
+                            {
+                                if (l.find("include ")==0)
+                                {
+                                    l.erase(l.begin(),l.begin()+8);
+                                    CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                                    if (l.size()>0)
+                                        t=t+"pythonFile='"+l+".py'\n";
+                                    leave=true;
+                                }
+                                else if (l.find("luaExec ")==0)
+                                {
+                                    l.erase(l.begin(),l.begin()+8);
+                                    CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                                    if (l.size()>0)
+                                        t=t+l+"\n";
+                                }
+                                else
+                                {
+                                    lineCnt--;
+                                    leave=true;
+                                }
+                            }
+                        }
+                        if (leave)
+                            break;
                     }
+                    for (int i=0;i<lineCnt;i++)
+                        CTTUtil::extractLine(_code,l);
+                    for (int i=0;i<lineCnt;i++)
+                        _code="#\n"+_code;
+                    // printf("luaExec:\n%s\n",t.c_str());
+                    // printf("code:\n%s\n",_code.c_str());
+                    _code=t+"\nrequire(wrapper) pythonProg=[=["+_code+"]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
+                    break;
                 }
-
-                _code=t+" require(wrapper) pythonProg=[=["+_code+"]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
+                else
+                    break;
             }
+            else
+                break;
         }
     }
 
@@ -2147,11 +2181,6 @@ bool CScriptObject::_killInterpreterState()
     return(retVal);
 }
 
-std::string CScriptObject::getSearchPath() const
-{
-    return(_getAdditionalSearchPath_path_lua());
-}
-
 CScriptObject* CScriptObject::copyYourself()
 {
     CScriptObject* it=new CScriptObject(_scriptType);
@@ -2256,7 +2285,7 @@ int CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(void* LL)
     return(retVal);
 }
 
-std::string CScriptObject::_getAdditionalSearchPath_path_lua()
+std::string CScriptObject::getSearchPath_lua()
 {
     std::string retVal;
     retVal+=App::folders->getExecutablePath();
@@ -2295,7 +2324,7 @@ std::string CScriptObject::_getAdditionalSearchPath_path_lua()
     return(retVal);
 }
 
-std::string CScriptObject::_getAdditionalSearchPath_cpath_lua()
+std::string CScriptObject::getSearchCPath_lua()
 {
     std::string retVal;
 #ifdef WIN_SIM
@@ -2310,6 +2339,28 @@ std::string CScriptObject::_getAdditionalSearchPath_cpath_lua()
     retVal+=App::folders->getExecutablePath();
     retVal+="/luarocks/lib/lua/5.3/?.so";
 #endif
+    return(retVal);
+}
+
+std::string CScriptObject::getSearchPath_python()
+{
+    std::string retVal;
+    retVal+=App::folders->getExecutablePath();
+    retVal+="/?.py;";
+    retVal+=App::folders->getExecutablePath();
+    retVal+="/python/?.py;";
+    if (App::currentWorld->mainSettings->getScenePathAndName().compare("")!=0)
+    {
+        retVal+=";";
+        retVal+=App::currentWorld->mainSettings->getScenePath();
+        retVal+="/?.py";
+    }
+    if (App::userSettings->additionalPythonPath.length()>0)
+    {
+        retVal+=";";
+        retVal+=App::userSettings->additionalPythonPath;
+        retVal+="/?.py";
+    }
     return(retVal);
 }
 
@@ -2362,7 +2413,7 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     luaWrap_lua_getfield(L,-1,"path");
     std::string cur_path=luaWrap_lua_tostring(L,-1);
     cur_path+=";";
-    cur_path+=_getAdditionalSearchPath_path_lua().c_str();
+    cur_path+=getSearchPath_lua().c_str();
     boost::replace_all(cur_path,"\\","/");
     luaWrap_lua_pop(L,1);
     luaWrap_lua_pushstring(L,cur_path.c_str());
@@ -2376,7 +2427,7 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     luaWrap_lua_getfield(L,-1,"cpath");
     cur_path=luaWrap_lua_tostring(L,-1);
     cur_path+=";";
-    cur_path+=_getAdditionalSearchPath_cpath_lua().c_str();
+    cur_path+=getSearchCPath_lua().c_str();
     boost::replace_all(cur_path,"\\","/");
     luaWrap_lua_pop(L,1);
     luaWrap_lua_pushstring(L,cur_path.c_str());

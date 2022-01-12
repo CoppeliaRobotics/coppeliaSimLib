@@ -356,10 +356,15 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
                     if (it->getLanguage()==CScriptObject::lang_lua)
+                    {
                         editorNode->SetAttribute("lang","lua");
+                        editorNode->SetAttribute("search-paths",it->getSearchPath_lua().c_str());
+                    }
                     if (it->getLanguage()==CScriptObject::lang_python)
+                    {
                         editorNode->SetAttribute("lang","python");
-                    editorNode->SetAttribute("lua-search-paths",it->getSearchPath().c_str());
+                        editorNode->SetAttribute("search-paths",it->getSearchPath_python().c_str());
+                    }
                     int fontSize=12;
                     #ifdef MAC_SIM
                         fontSize=16; // bigger fonts here
@@ -504,10 +509,15 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
                     if (it->getLanguage()==CScriptObject::lang_lua)
+                    {
                         editorNode->SetAttribute("lang","lua");
+                        editorNode->SetAttribute("search-paths",it->getSearchPath_lua().c_str());
+                    }
                     if (it->getLanguage()==CScriptObject::lang_python)
+                    {
                         editorNode->SetAttribute("lang","python");
-                    editorNode->SetAttribute("lua-search-paths",it->getSearchPath().c_str());
+                        editorNode->SetAttribute("search-paths",it->getSearchPath_python().c_str());
+                    }
                     int fontSize=12;
                     #ifdef MAC_SIM
                         fontSize=16; // bigger fonts here
