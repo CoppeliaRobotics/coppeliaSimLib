@@ -10692,6 +10692,11 @@ simInt simGetScriptInt32Param_internal(simInt scriptHandle,simInt parameterID,si
             parameter[0]=it->getScriptHandle();
             retVal=1;
         }
+        if (parameterID==sim_scriptintparam_objecthandle)
+        {
+            parameter[0]=it->getObjectHandleThatScriptIsAttachedTo();
+            retVal=1;
+        }
 
         return(retVal);
     }

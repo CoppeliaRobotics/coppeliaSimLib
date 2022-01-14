@@ -1480,14 +1480,65 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
                 if ( (CTTUtil::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
                 { // ok, we have a python script
                     std::string t("wrapper='pythonWrapper'\n"); // default wrapper
-                    bool leave=false;
-                    while (CTTUtil::extractLine(tmpCode,l))
+                    bool stayIn=true;
+                    while (stayIn&&CTTUtil::extractLine(tmpCode,l))
                     {
                         lineCnt++;
                         CTTUtil::removeSpacesAtBeginningAndEnd(l);
                         if (l.size()!=0)
                         {
-                            if (l[0]!='#')
+                            if (l[0]=='#')
+                            {
+                                l.erase(l.begin());
+                                CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                                if (l.find("luaExec ")==0)
+                                {
+                                    l.erase(l.begin(),l.begin()+8);
+                                    CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                                    t=t+l;
+                                }
+                                t=t+"\n";
+                            }
+                            else if (l.compare(0,3,"'''")==0)
+                            {
+                                l.erase(l.begin(),l.begin()+3);
+                                CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                                bool isLua=( (l.find("luaExec ")==0)||(l.compare("luaExec")==0) );
+                                bool stayIn2=true;
+                                if (isLua)
+                                {
+                                    l.erase(l.begin(),l.begin()+7);
+                                    size_t p=l.find("'''");
+                                    if (p!=std::string::npos)
+                                    {
+                                        stayIn2=false;
+                                        l.erase(l.begin()+p,l.end());
+                                    }
+                                    t=t+l;
+                                }
+                                t=t+"\n";
+                                while (stayIn2&&CTTUtil::extractLine(tmpCode,l))
+                                {
+                                    lineCnt++;
+                                    if (!isLua)
+                                    {
+                                        CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                                        isLua=( (l.find("luaExec ")==0)||(l.compare("luaExec")==0) );
+                                        if (isLua)
+                                            l.erase(l.begin(),l.begin()+7);
+                                    }
+                                    size_t p=l.find("'''");
+                                    if (p!=std::string::npos)
+                                    {
+                                        stayIn2=false;
+                                        l.erase(l.begin()+p,l.end());
+                                    }
+                                    if (isLua)
+                                        t=t+l;
+                                    t=t+"\n";
+                                }
+                            }
+                            else
                             {
                                 if (l.find("include ")==0)
                                 {
@@ -1495,31 +1546,21 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
                                     CTTUtil::removeSpacesAtBeginningAndEnd(l);
                                     if (l.size()>0)
                                         t=t+"pythonFile='"+l+".py'\n";
-                                    leave=true;
-                                }
-                                else if (l.find("luaExec ")==0)
-                                {
-                                    l.erase(l.begin(),l.begin()+8);
-                                    CTTUtil::removeSpacesAtBeginningAndEnd(l);
-                                    if (l.size()>0)
-                                        t=t+l+"\n";
                                 }
                                 else
-                                {
                                     lineCnt--;
-                                    leave=true;
-                                }
+                                stayIn=false;
                             }
                         }
-                        if (leave)
-                            break;
+                        else
+                            t=t+"\n";
                     }
                     for (int i=0;i<lineCnt;i++)
                         CTTUtil::extractLine(_code,l);
                     for (int i=0;i<lineCnt;i++)
                         _code="#\n"+_code;
-                    // printf("luaExec:\n%s\n",t.c_str());
-                    // printf("code:\n%s\n",_code.c_str());
+                    printf("luaExec:\n%s\n",t.c_str());
+                    printf("code:\n%s\n",_code.c_str());
                     _code=t+"\nrequire(wrapper) pythonProg=[=["+_code+"]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
                     break;
                 }
