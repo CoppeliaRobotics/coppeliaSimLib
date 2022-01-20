@@ -174,7 +174,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         C7Vector tr(clones[i]->getLocalTransformation());
                         CSceneObject* parent(clones[i]->getParent());
                         int order=App::currentWorld->sceneObjects->getObjectSequence(clones[i]);
-                        App::currentWorld->sceneObjects->eraseSeveralObjects(objs,true);
+                        App::currentWorld->sceneObjects->eraseObjects(objs,true);
                         App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),2);
                         CSceneObject* newObj=App::currentWorld->sceneObjects->getLastSelectionObject();
                         App::currentWorld->sceneObjects->deselectObjects();
@@ -1095,7 +1095,7 @@ void CSceneObjectOperations::deleteObjects(std::vector<int>* selection,bool disp
         App::uiThread->showOrHideProgressBar(true,-1.0f,"Deleting objects...");
 
     addRootObjectChildrenToSelection(selection[0]);
-    App::currentWorld->sceneObjects->eraseSeveralObjects(selection[0],true);
+    App::currentWorld->sceneObjects->eraseObjects(selection[0],true);
     App::currentWorld->sceneObjects->deselectObjects();
 
     if (displayMessages)
@@ -1195,7 +1195,7 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
         if (allToNonPure)
             it->getMeshWrapper()->setPurePrimitiveType(sim_pure_primitive_none,1.0f,1.0f,1.0f); // this will be propagated to all geometrics!
 
-        App::currentWorld->drawingCont->announceObjectWillBeErased(it->getObjectHandle());
+        App::currentWorld->drawingCont->announceObjectWillBeErased(it);
         App::currentWorld->pointCloudCont->announceObjectWillBeErased(it->getObjectHandle());
         App::currentWorld->bannerCont->announceObjectWillBeErased(it->getObjectHandle());
     }
@@ -1271,7 +1271,7 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
 
     App::currentWorld->textureContainer->updateAllDependencies();
 
-    App::currentWorld->sceneObjects->eraseSeveralObjects(shapesToErase,true);
+    App::currentWorld->sceneObjects->eraseObjects(shapesToErase,true);
     lastSel->pushObjectRefreshEvent();
 
     return(lastSel);
@@ -1348,7 +1348,7 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,st
         it->getMeshWrapper()->setPurePrimitiveType(sim_pure_primitive_none,1.0f,1.0f,1.0f);
 
     // we have to remove all attached drawing objects (we cannot correct for that or it would be very difficult!!)
-    App::currentWorld->drawingCont->announceObjectWillBeErased(it->getObjectHandle());
+    App::currentWorld->drawingCont->announceObjectWillBeErased(it);
     App::currentWorld->pointCloudCont->announceObjectWillBeErased(it->getObjectHandle());
     App::currentWorld->bannerCont->announceObjectWillBeErased(it->getObjectHandle());
 
@@ -1515,7 +1515,7 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
     if (allShapesExceptLast.size()>0)
     {
         // we have to remove all attached drawing objects (we cannot correct for that or it would be very difficult!!)
-        App::currentWorld->drawingCont->announceObjectWillBeErased(lastSel->getObjectHandle());
+        App::currentWorld->drawingCont->announceObjectWillBeErased(lastSel);
         App::currentWorld->pointCloudCont->announceObjectWillBeErased(lastSel->getObjectHandle());
         App::currentWorld->bannerCont->announceObjectWillBeErased(lastSel->getObjectHandle());
 

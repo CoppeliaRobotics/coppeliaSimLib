@@ -122,6 +122,7 @@ extern int _simGetJointTargetVelocity(luaWrap_lua_State* L);
 extern int _simGetObjectAlias(luaWrap_lua_State* L);
 extern int _simSetObjectAlias(luaWrap_lua_State* L);
 extern int _simRemoveObject(luaWrap_lua_State* L);
+extern int _simRemoveObjects(luaWrap_lua_State* L);
 extern int _simRemoveModel(luaWrap_lua_State* L);
 extern int _simGetSimulationTime(luaWrap_lua_State* L);
 extern int _simGetSimulationState(luaWrap_lua_State* L);

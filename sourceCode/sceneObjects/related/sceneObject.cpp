@@ -2824,41 +2824,38 @@ std::string CSceneObject::getDisplayName() const
     return(getObjectAlias_printPath());
 }
 
-bool CSceneObject::announceObjectWillBeErased(int objHandle,bool copyBuffer)
+void CSceneObject::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
 { 
     // This routine can be called for sceneObjects-objects, but also for objects
-    // in the copy-buffer!! So never make use of any 
-    // 'ct::sceneObjects->getObject(objHandle)'-call or similar
-    // Return value true means this needs to be destroyed
+    // in the copy-buffer!!
 #ifdef SIM_WITH_GUI
     // if we are in edit mode, we leave edit mode:
     if ( (App::getEditModeType()!=NO_EDIT_MODE)&&(!copyBuffer) )
     {
-        if (App::mainWindow->editModeContainer->getEditModeObjectID()==objHandle)
+        if (App::mainWindow->editModeContainer->getEditModeObjectID()==object->getObjectHandle())
             App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr); // This is if we destroy the object being edited (shouldn't normally happen!)
     }
 #endif
 
-    if (_authorizedViewableObjects==objHandle)
+    if (_authorizedViewableObjects==object->getObjectHandle())
         _authorizedViewableObjects=-2; // not visible anymore!
 
     // If the object's parent will be erased, make the object child of its grand-parents
     if (!copyBuffer)
     {
         CSceneObject* parent=getParent();
-        CSceneObject* toRemove=App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
         if (parent!=nullptr)
         {
-            if (parent->getObjectHandle()==objHandle)
+            if (parent==object)
                 App::currentWorld->sceneObjects->setObjectParent(this,parent->getParent(),true);
         }
-        removeChild(toRemove);
+        removeChild(object);
     }
     for (size_t i=0;i<_customReferencedHandles.size();i++)
     {
         if (_customReferencedHandles[i].generalObjectType==sim_appobj_object_type)
         {
-            if (_customReferencedHandles[i].generalObjectHandle==objHandle)
+            if (_customReferencedHandles[i].generalObjectHandle==object->getObjectHandle())
                 _customReferencedHandles[i].generalObjectHandle=-1;
         }
     }
@@ -2868,12 +2865,11 @@ bool CSceneObject::announceObjectWillBeErased(int objHandle,bool copyBuffer)
         {
             if (_customReferencedOriginalHandles[i].generalObjectType==sim_appobj_object_type)
             {
-                if (_customReferencedOriginalHandles[i].generalObjectHandle==objHandle)
+                if (_customReferencedOriginalHandles[i].generalObjectHandle==object->getObjectHandle())
                     _customReferencedOriginalHandles[i].generalObjectHandle=-1;
             }
         }
     }
-    return(false);
 }
 
 void CSceneObject::announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer)
@@ -3945,16 +3941,8 @@ void CSceneObject::buildUpdateAndPopulateSynchronizationObject(const std::vector
         // Build IK plugin counterpart, if not a joint:
         if (_ikPluginCounterpartHandle==-1)
             _ikPluginCounterpartHandle=CPluginContainer::ikPlugin_createDummy();
-
         // Update the remote object:
-        _setExtensionString_send(_extensionString.c_str());
-        _setVisibilityLayer_send(_visibilityLayer);
-        _setChildOrder_send(_childOrder);
-        _setObjectName_send(_objectName_old.c_str());
-        _setObjectAltName_send(_objectAltName_old.c_str());
         _setLocalTransformation_send(_localTransformation);
-
-        // Update sub-objects:
     }
 }
 
@@ -4027,7 +4015,8 @@ bool CSceneObject::removeChild(const CSceneObject* child)
             break;
         }
     }
-    handleOrderIndexOfChildren();
+    if (retVal)
+        handleOrderIndexOfChildren();
     return(retVal);
 }
 

@@ -35,6 +35,7 @@ simInt64 simGetObjectUid_internal(simInt objectHandle);
 simInt simGetObjectFromUid_internal(simInt64 uid,simInt options);
 simInt simGetScriptHandleEx_internal(simInt scriptType,simInt objectHandle,const simChar* scriptName);
 simInt simRemoveObject_internal(simInt objectHandle);
+simInt simRemoveObjects_internal(const simInt* objectHandles,simInt count);
 simInt simRemoveModel_internal(simInt objectHandle);
 simChar* simGetObjectAlias_internal(simInt objectHandle,simInt options);
 simInt simSetObjectAlias_internal(simInt objectHandle,const simChar* objectAlias,simInt options);

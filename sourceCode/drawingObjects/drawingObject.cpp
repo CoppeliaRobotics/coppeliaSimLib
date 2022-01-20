@@ -334,9 +334,9 @@ void CDrawingObject::_setItemSizes()
     floatsPerItem=3*verticesPerItem+3*normalsPerItem+3*colorsPerItem+otherFloatsPerItem;
 }
 
-bool CDrawingObject::announceObjectWillBeErased(int objId)
+bool CDrawingObject::announceObjectWillBeErased(const CSceneObject* object)
 {
-    return(_sceneObjectId==objId);
+    return(_sceneObjectId==object->getObjectHandle());
 }
 
 bool CDrawingObject::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
@@ -517,7 +517,7 @@ void CDrawingObject::_initBufferedEventData()
 
 }
 
-void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<float>& normals,std::vector<float>& colors) const
+void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<float>& quaternions,std::vector<float>& colors) const
 {
     size_t w=0;
     if (_objectType&sim_drawing_itemcolors)
@@ -542,9 +542,27 @@ void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<floa
         }
         for (size_t i=0;i<normalsPerItem;i++)
         {
-            normals.push_back(_bufferedEventData[t+0]);
-            normals.push_back(_bufferedEventData[t+1]);
-            normals.push_back(_bufferedEventData[t+2]);
+            C3X3Matrix m;
+            m.axis[2](0)=_bufferedEventData[t+0];
+            m.axis[2](1)=_bufferedEventData[t+1];
+            m.axis[2](2)=_bufferedEventData[t+2];
+            if (m.axis[2](0)<0.1f)
+            {
+                C3Vector v(1.0f,0.0f,0.0f);
+                m.axis[1]=(m.axis[2]^v).getNormalized();
+                m.axis[0]=m.axis[1]^m.axis[2];
+            }
+            else
+            {
+                C3Vector v(0.0f,1.0f,0.0f);
+                m.axis[0]=(v^m.axis[2]).getNormalized();
+                m.axis[1]=m.axis[2]^m.axis[0];
+            }
+            C4Vector q(m.getQuaternion());
+            quaternions.push_back(q(1));
+            quaternions.push_back(q(2));
+            quaternions.push_back(q(3));
+            quaternions.push_back(q(0));
             t+=3;
         }
         if (w==0)

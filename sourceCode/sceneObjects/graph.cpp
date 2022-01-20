@@ -1773,20 +1773,16 @@ void CGraph::removeStaticCurve(int graphType,const char* curveName)
     }
 }
 
-bool CGraph::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
+void CGraph::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    // This routine can be called for objCont-objects, but also for objects
-    // in the copy-buffer!! So never make use of any 
-    // 'ct::objCont->getObject(objectHandle)'-call or similar
-    // Return value true means 'this' has to be erased too!
-    bool retVal=CSceneObject::announceObjectWillBeErased(objectHandle,copyBuffer);
-    // Remove the object which will be erased from the daten's list
+    CSceneObject::announceObjectWillBeErased(object,copyBuffer);
+    // OLD:
     int i=0;
     while (i<int(dataStreams_old.size()))
     {
         CGraphData_old* gr=dataStreams_old[i];
-        if (gr->announceObjectWillBeErased(objectHandle,copyBuffer))
+        if (gr->announceObjectWillBeErased(object->getObjectHandle(),copyBuffer))
         { // We have to remove this graphData:
             removeGraphData(gr->getIdentifier());
             i=0; // We start at 0 again
@@ -1794,7 +1790,6 @@ bool CGraph::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
         else
             i++;
     }
-    return(retVal);
 }
 
 void CGraph::announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer)

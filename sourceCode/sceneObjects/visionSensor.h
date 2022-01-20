@@ -34,7 +34,7 @@ public:
     void scaleObject(float scalingFactor);
     void scaleObjectNonIsometrically(float x,float y,float z);
     void serialize(CSer& ar);
-    bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
+    void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID,bool copyBuffer);

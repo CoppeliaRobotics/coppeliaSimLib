@@ -10,12 +10,12 @@ CPointCloudContainer_old::CPointCloudContainer_old()
 
 CPointCloudContainer_old::~CPointCloudContainer_old()
 { // beware, the current world could be nullptr
-    removeAllObjects(false);
+    eraseAllObjects(false);
 }
 
 void CPointCloudContainer_old::simulationEnded()
 {
-    removeAllObjects(true);
+    eraseAllObjects(true);
 }
 
 CPtCloud_old* CPointCloudContainer_old::getObject(int objectID)
@@ -42,7 +42,7 @@ int CPointCloudContainer_old::addObject(CPtCloud_old* it)
     return(newID);
 }
 
-void CPointCloudContainer_old::removeAllObjects(bool onlyNonPersistentOnes)
+void CPointCloudContainer_old::eraseAllObjects(bool onlyNonPersistentOnes)
 {
     EASYLOCK(_objectMutex);
     size_t i=0;

@@ -101,7 +101,7 @@ void CWorld::clearScene(bool notCalledFromUndoFunction)
     pageContainer->emptySceneProcedure();
 
 
-    sceneObjects->removeAllObjects(true); //false);
+    sceneObjects->eraseAllObjects(true); //false);
     simulation->setUpDefaultValues();
     pageContainer->emptySceneProcedure();
 
@@ -177,7 +177,7 @@ void CWorld::rebuildRemoteWorlds()
 bool CWorld::loadScene(CSer& ar,bool forUndoRedoOperation)
 {
     bool retVal=false;
-    sceneObjects->removeAllObjects(true);
+    sceneObjects->eraseAllObjects(true);
     if (ar.getFileType()==CSer::filetype_csim_xml_simplescene_file)
     {
         retVal=_loadSimpleXmlSceneOrModel(ar);
@@ -726,7 +726,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
             if (!found)
                 toRemove.push_back(it->getObjectHandle());
         }
-        sceneObjects->eraseSeveralObjects(toRemove,true);
+        sceneObjects->eraseObjects(toRemove,true);
         sceneObjects->setSelectedObjectHandles(savedSelection);
     }
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
@@ -758,7 +758,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     TRACE_INTERNAL;
     // We check what suffix offset is needed for this model (in case of a scene, the offset is ignored since we won't introduce the objects as copies!):
     int suffixOffset=_getSuffixOffsetForGeneralObjectToAdd(false,loadedObjectList,loadedCollectionList,loadedCollisionList,loadedDistanceList,loadedIkGroupList,loadedPathPlanningTaskList,loadedButtonBlockList,loadedLuaScriptList);
-
     // We have 3 cases:
     // 1. We are loading a scene, 2. We are loading a model, 3. We are pasting objects
     // We add objects to the scene as copies only if we also add at least one associated script and we don't have a scene. Otherwise objects are added
@@ -897,7 +896,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     }
     _prepareFastLoadingMapping(luaScriptMapping);
 
-
     sceneObjects->enableObjectActualization(false);
 
     // We do the mapping for the sceneObjects:
@@ -912,41 +910,41 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         it->performIkLoadingMapping(&ikGroupMapping,model);
         // Needs to be done before! it->performTextureObjectLoadingMapping(&textureMapping);
     }
-    // We do the mapping for the collections:
+    // We do the mapping for the collections (OLD):
     for (size_t i=0;i<loadedCollectionList->size();i++)
     {
         CCollection* it=loadedCollectionList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
     }
-    // We do the mapping for the collisions:
+    // We do the mapping for the collisions (OLD):
     for (size_t i=0;i<loadedCollisionList->size();i++)
     {
         CCollisionObject_old* it=loadedCollisionList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
         it->performCollectionLoadingMapping(&collectionMapping);
     }
-    // We do the mapping for the distances:
+    // We do the mapping for the distances (OLD):
     for (size_t i=0;i<loadedDistanceList->size();i++)
     {
         CDistanceObject_old* it=loadedDistanceList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
         it->performCollectionLoadingMapping(&collectionMapping);
     }
-    // We do the mapping for the ik groups:
+    // We do the mapping for the ik groups (OLD):
     for (size_t i=0;i<loadedIkGroupList->size();i++)
     {
         CIkGroup_old* it=loadedIkGroupList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
         it->performIkGroupLoadingMapping(&ikGroupMapping);
     }
-    // We do the mapping for the path planning tasks:
+    // We do the mapping for the path planning tasks (OLD):
     for (size_t i=0;i<loadedPathPlanningTaskList->size();i++)
     {
         CPathPlanningTask* it=loadedPathPlanningTaskList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
         it->performCollectionLoadingMapping(&collectionMapping);
     }
-    // We do the mapping for the 2D Elements:
+    // We do the mapping for the 2D Elements (OLD):
     for (size_t i=0;i<loadedButtonBlockList->size();i++)
     {
         CButtonBlock* it=loadedButtonBlockList->at(i);
@@ -960,7 +958,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         it->performSceneObjectLoadingMapping(&objectMapping);
     }
 
-    // We do the mapping for the ghost objects:
+    // We do the mapping for the ghost objects (OLD):
     if (!model)
         ghostObjectCont->performObjectLoadingMapping(&objectMapping);
 
@@ -1054,15 +1052,18 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
 
     setEnableRemoteWorldsSync(true);
 
-    for (size_t i=0;i<loadedObjectList->size();i++)
-        loadedObjectList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
-    for (size_t i=0;i<loadedObjectList->size();i++)
-        loadedObjectList->at(i)->connectSynchronizationObject();
+    if (loadedIkGroupList->size()>0)
+    { // OLD
+        for (size_t i=0;i<loadedObjectList->size();i++)
+            loadedObjectList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
+        for (size_t i=0;i<loadedObjectList->size();i++)
+            loadedObjectList->at(i)->connectSynchronizationObject();
+        for (size_t i=0;i<loadedIkGroupList->size();i++)
+            loadedIkGroupList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
+        for (size_t i=0;i<loadedIkGroupList->size();i++)
+            loadedIkGroupList->at(i)->connectSynchronizationObject();
+    }
 
-    for (size_t i=0;i<loadedIkGroupList->size();i++)
-        loadedIkGroupList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
-    for (size_t i=0;i<loadedIkGroupList->size();i++)
-        loadedIkGroupList->at(i)->connectSynchronizationObject();
 
     // We select what was loaded if we have a model loaded through the GUI:
     sceneObjects->deselectObjects();
@@ -1123,24 +1124,24 @@ void CWorld::renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase*
     dynamicsContainer->renderYour3DStuff_overlay(renderingObject,displayAttrib);
 }
 
-void CWorld::announceObjectWillBeErased(int objectHandle)
+void CWorld::announceObjectWillBeErased(const CSceneObject* object)
 {
-    embeddedScriptContainer->announceObjectWillBeErased(objectHandle);
-    sceneObjects->announceObjectWillBeErased(objectHandle);
-    drawingCont->announceObjectWillBeErased(objectHandle);
-    textureContainer->announceGeneralObjectWillBeErased(objectHandle,-1);
-    pageContainer->announceObjectWillBeErased(objectHandle); // might trigger a view destruction!
+    embeddedScriptContainer->announceObjectWillBeErased(object);
+    sceneObjects->announceObjectWillBeErased(object);
+    drawingCont->announceObjectWillBeErased(object);
+    textureContainer->announceGeneralObjectWillBeErased(object->getObjectHandle(),-1);
+    pageContainer->announceObjectWillBeErased(object->getObjectHandle()); // might trigger a view destruction!
 
     // Old:
-    buttonBlockContainer->announceObjectWillBeErased(objectHandle);
-    pathPlanning->announceObjectWillBeErased(objectHandle);
-    collisions->announceObjectWillBeErased(objectHandle);
-    distances->announceObjectWillBeErased(objectHandle);
-    pointCloudCont->announceObjectWillBeErased(objectHandle);
-    ghostObjectCont->announceObjectWillBeErased(objectHandle);
-    bannerCont->announceObjectWillBeErased(objectHandle);
-    collections->announceObjectWillBeErased(objectHandle); // can trigger distance, collision
-    ikGroups->announceObjectWillBeErased(objectHandle);
+    buttonBlockContainer->announceObjectWillBeErased(object->getObjectHandle());
+    pathPlanning->announceObjectWillBeErased(object->getObjectHandle());
+    collisions->announceObjectWillBeErased(object->getObjectHandle());
+    distances->announceObjectWillBeErased(object->getObjectHandle());
+    pointCloudCont->announceObjectWillBeErased(object->getObjectHandle());
+    ghostObjectCont->announceObjectWillBeErased(object->getObjectHandle());
+    bannerCont->announceObjectWillBeErased(object->getObjectHandle());
+    collections->announceObjectWillBeErased(object->getObjectHandle()); // can trigger distance, collision
+    ikGroups->announceObjectWillBeErased(object->getObjectHandle());
 }
 
 void CWorld::announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)

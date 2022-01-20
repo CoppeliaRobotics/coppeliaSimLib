@@ -584,7 +584,8 @@ bool CButtonBlock::announceSceneObjectWillBeErased(int objectID,bool copyBuffer)
         return(true);
     if (_textureProperty!=nullptr)
     {
-        if (_textureProperty->announceObjectWillBeErased(objectID))
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
+        if ((obj!=nullptr)&&_textureProperty->announceObjectWillBeErased(obj))
         {
             delete _textureProperty;
             _textureProperty=nullptr;

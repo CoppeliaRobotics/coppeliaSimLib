@@ -405,12 +405,12 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
             buttonBlockBuffer.push_back(App::currentWorld->buttonBlockContainer->allBlocks[i]->copyYourself());
     }
 
-    std::vector<int> unselected;
+    std::vector<CSceneObject*> unselected;
     for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
     {
         CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromIndex(i);
         if (!App::currentWorld->sceneObjects->isObjectInSelection(obj->getObjectHandle(),sel))
-            unselected.push_back(obj->getObjectHandle());
+            unselected.push_back(obj);
     }
 
     // Now we make sure the linked info is consistent: we announce to the selected objects
@@ -724,20 +724,6 @@ void CCopyBuffer::_restoreBuffers_temp()
     buttonBlockBuffer_tempSer.clear();
 }
 
-void CCopyBuffer::_eraseObjectInBuffer(int objectID)
-{
-    _announceObjectWillBeErased(objectID);
-    for (size_t i=0;i<objectBuffer.size();i++)
-    {
-        if (objectBuffer[i]->getObjectHandle()==objectID)
-        {
-            delete objectBuffer[i];
-            objectBuffer.erase(objectBuffer.begin()+i);
-            break;
-        }
-    }
-}
-
 void CCopyBuffer::_eraseScriptInBuffer(int objectID)
 {
     _announceScriptWillBeErased(objectID,false,false);
@@ -849,32 +835,22 @@ void CCopyBuffer::_eraseIkObjectInBuffer(int objectID)
 }
 
 //------------------ Object destruction announcement -------------------------
-void CCopyBuffer::_announceObjectWillBeErased(int objectID)
+void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject* object)
 {
     // First objects that won't trigger any more destructions:
     size_t i=0;
     while (i<objectBuffer.size())
     {
         CSceneObject* it=objectBuffer[i];
-        if (it->announceObjectWillBeErased(objectID,true))
-        { // We should never enter here since one obj destruction cannot trigger another obj destruction (anymore, no more versatiles!) 
-#ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_critical(App::mainWindow,IDSNOTR_APPLICATION_ERROR,IDSNOTR_STRANGE_ERROR7,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-#else
-            App::logMsg(sim_verbosity_errors,"%s",IDSNOTR_STRANGE_ERROR7);
-#endif
-            _eraseObjectInBuffer(it->getObjectHandle()); 
-            i=0; // ordering may have changed!
-        }
-        else
-            i++;
+        it->announceObjectWillBeErased(object,true);
+        i++;
     }
 
     i=0;
     while (i<luaScriptBuffer.size())
     {
         CScriptObject* it=luaScriptBuffer[i];
-        if (it->announceSceneObjectWillBeErased(objectID,true))
+        if (it->announceSceneObjectWillBeErased(object,true))
         {
             _eraseScriptInBuffer(it->getScriptHandle());
             i=0; // Ordering may have changed!
@@ -887,7 +863,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     while (i<textureObjectBuffer.size())
     {
         CTextureObject* it=textureObjectBuffer[i];
-        if (it->announceGeneralObjectWillBeErased(objectID,-1))
+        if (it->announceGeneralObjectWillBeErased(object->getObjectHandle(),-1))
         {
             _eraseTextureObjectInBuffer(it->getObjectID());
             i=0; // Ordering may have changed!
@@ -901,7 +877,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     while (i<buttonBlockBuffer.size())
     {
         CButtonBlock* it=buttonBlockBuffer[i];
-        if (it->announceSceneObjectWillBeErased(objectID,true)||(it->getObjectIDAttachedTo()==-1))
+        if (it->announceSceneObjectWillBeErased(object->getObjectHandle(),true)||(it->getObjectIDAttachedTo()==-1))
         {
             _erase2DElementInBuffer(it->getBlockID());
             i=0; // Ordering may have changed!
@@ -914,7 +890,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     while (i<pathPlanningTaskBuffer.size())
     {
         CPathPlanningTask* it=pathPlanningTaskBuffer[i];
-        if (it->announceObjectWillBeErased(objectID,true))
+        if (it->announceObjectWillBeErased(object->getObjectHandle(),true))
         {
             _erasePathPlanningTaskInBuffer(it->getObjectID());
             i=0; // Ordering may have changed!
@@ -927,7 +903,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     while (i<collisionBuffer.size())
     {
         CCollisionObject_old* it=collisionBuffer[i];
-        if (it->announceObjectWillBeErased(objectID,true))
+        if (it->announceObjectWillBeErased(object->getObjectHandle(),true))
         {
             _eraseCollisionInBuffer(it->getObjectHandle());
             i=0; // Ordering may have changed!
@@ -940,7 +916,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     while (i<distanceBuffer.size())
     {
         CDistanceObject_old* it=distanceBuffer[i];
-        if (it->announceObjectWillBeErased(objectID,true))
+        if (it->announceObjectWillBeErased(object->getObjectHandle(),true))
         {
             _eraseDistanceInBuffer(it->getObjectHandle());
             i=0; // Ordering may have changed!
@@ -953,7 +929,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     while (i<collectionBuffer.size())
     {
         CCollection* it=collectionBuffer[i];
-        if (it->announceObjectWillBeErased(objectID,true))
+        if (it->announceObjectWillBeErased(object->getObjectHandle(),true))
         {
             _eraseCollectionInBuffer(it->getCollectionHandle());
             i=0; // Ordering may have changed!
@@ -966,7 +942,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
     while (i<ikGroupBuffer.size())
     {
         CIkGroup_old* it=ikGroupBuffer[i];
-        if (it->announceObjectWillBeErased(objectID,true))
+        if (it->announceObjectWillBeErased(object->getObjectHandle(),true))
         {
             _eraseIkObjectInBuffer(it->getObjectHandle());
             i=0; // Ordering may have changed!

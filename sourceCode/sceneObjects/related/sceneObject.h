@@ -50,7 +50,7 @@ public:
     virtual void scaleObjectNonIsometrically(float x,float y,float z);
     virtual void serialize(CSer& ar);
 
-    virtual bool announceObjectWillBeErased(int objHandle,bool copyBuffer);
+    virtual void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     virtual void announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer);
 
     virtual void performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel);

@@ -11,7 +11,7 @@ CTextureContainer::CTextureContainer()
 
 CTextureContainer::~CTextureContainer()
 { // beware, the current world could be nullptr
-    removeAllObjects();
+    eraseAllObjects();
 }
 
 CTextureObject* CTextureContainer::getObject(int objectID)
@@ -200,7 +200,7 @@ int CTextureContainer::getSameObjectID(CTextureObject* anObject)
     return(-1);
 }
 
-void CTextureContainer::removeAllObjects()
+void CTextureContainer::eraseAllObjects()
 {
     for (int i=0;i<int(_allTextureObjects.size());i++)
         delete _allTextureObjects[i];

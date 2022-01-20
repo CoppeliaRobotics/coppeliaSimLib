@@ -122,6 +122,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "sim.setJointTargetVelocity(int objectHandle,float targetVelocity)",true},
     {"sim.getJointTargetVelocity",_simGetJointTargetVelocity,    "float targetVelocity=sim.getJointTargetVelocity(int objectHandle)",true},
     {"sim.removeObject",_simRemoveObject,                        "int result=sim.removeObject(int objectHandle)",true},
+    {"sim.removeObjects",_simRemoveObjects,                      "sim.removeObjects(table[1..*] objectHandles)",true},
     {"sim.removeModel",_simRemoveModel,                          "int objectCount=sim.removeModel(int objectHandle)",true},
     {"sim.getSimulationTime",_simGetSimulationTime,              "float simulationTime=sim.getSimulationTime()",true},
     {"sim.getSimulationState",_simGetSimulationState,            "int simulationState=sim.getSimulationState()",true},
@@ -4618,6 +4619,25 @@ int _simRemoveObject(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simRemoveObjects(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.removeObjects");
+    if (checkInputArguments(L,&errorString,lua_arg_number,1))
+    {
+        std::vector<int> handles;
+        int cnt=int(luaWrap_lua_rawlen(L,1));
+        handles.resize(cnt);
+        getIntsFromTable(L,1,cnt,&handles[0]);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+        simRemoveObjects_internal(&handles[0],cnt);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
 int _simRemoveModel(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -7935,7 +7955,7 @@ int _simRemoveDrawingObject(luaWrap_lua_State* L)
         { // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from add-on:
             int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
             CScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
-            App::currentWorld->drawingCont->removeAllObjects();
+            App::currentWorld->drawingCont->eraseAllObjects();
             retVal=1;
         }
         else
@@ -19687,7 +19707,7 @@ int _simRemoveBanner(luaWrap_lua_State* L)
         int objectHandle=luaToInt(L,1);
         if (objectHandle==sim_handle_all)
         { // following condition added here on 2011/01/06 so as not to remove objects created from a C/c++ call
-            App::currentWorld->bannerCont->removeAllObjects(true);
+            App::currentWorld->bannerCont->eraseAllObjects(true);
             retVal=1;
         }
         else

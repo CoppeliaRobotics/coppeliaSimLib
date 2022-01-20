@@ -1086,15 +1086,10 @@ void COctree::performObjectLoadingMapping(const std::vector<int>* map,bool loadi
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
 }
 
-bool COctree::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
+void COctree::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    // This routine can be called for objCont-objects, but also for objects
-    // in the copy-buffer!! So never make use of any
-    // 'ct::objCont->getObject(objectHandle)'-call or similar
-    // Return value true means 'this' has to be erased too!
-    bool retVal=CSceneObject::announceObjectWillBeErased(objectHandle,copyBuffer);
-    return(retVal);
+    CSceneObject::announceObjectWillBeErased(object,copyBuffer);
 }
 
 void COctree::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)

@@ -1155,6 +1155,7 @@ void _CSceneObjectContainer_::_removeObject(CSceneObject* object)
     _objectHandleMap.erase(object->getObjectHandle());
     _objectNameMap_old.erase(object->getObjectName_old());
     _objectAltNameMap_old.erase(object->getObjectAltName_old());
+    delete object;
 }
 
 const std::vector<int>* _CSceneObjectContainer_::getSelectedObjectHandlesPtr() const

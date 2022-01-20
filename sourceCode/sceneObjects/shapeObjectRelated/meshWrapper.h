@@ -9,6 +9,7 @@
 class CViewableBase;
 class CShape;
 class CMesh;
+class CSceneObject;
 
 class CMeshWrapper
 {
@@ -21,7 +22,7 @@ public:
     virtual void performSceneObjectLoadingMapping(const std::vector<int>* map);
     virtual void performTextureObjectLoadingMapping(const std::vector<int>* map);
     void performDynMaterialObjectLoadingMapping(const std::vector<int>* map);
-    virtual void announceSceneObjectWillBeErased(int objectID);
+    virtual void announceSceneObjectWillBeErased(const CSceneObject* object);
     virtual void setTextureDependencies(int shapeID);
     virtual bool getContainsTransparentComponents() const;
     virtual void displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors);

@@ -11,7 +11,7 @@ public:
     virtual ~CBroadcastDataContainer();
 
     void visualizeCommunications(int pcTimeInMs);
-    void removeAllObjects();
+    void eraseAllObjects();
     void removeObject(int index);
     void simulationAboutToStart();
     void simulationEnded();

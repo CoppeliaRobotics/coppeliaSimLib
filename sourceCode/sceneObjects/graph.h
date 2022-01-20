@@ -27,7 +27,7 @@ public:
     void scaleObjectNonIsometrically(float x,float y,float z);
     void serialize(CSer& ar);
 
-    bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
+    void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer);
     void performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
     void performScriptLoadingMapping(const std::vector<int>* map);

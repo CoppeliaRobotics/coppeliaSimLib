@@ -79,10 +79,10 @@ void CMeshWrapper::performDynMaterialObjectLoadingMapping(const std::vector<int>
     _dynMaterialId_old=CWorld::getLoadingMapping(map,_dynMaterialId_old);
 }
 
-void CMeshWrapper::announceSceneObjectWillBeErased(int objectID)
+void CMeshWrapper::announceSceneObjectWillBeErased(const CSceneObject* object)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->announceSceneObjectWillBeErased(objectID);
+        childList[i]->announceSceneObjectWillBeErased(object);
 }
 
 void CMeshWrapper::setTextureDependencies(int shapeID)

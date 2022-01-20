@@ -232,11 +232,11 @@ void CMesh::performTextureObjectLoadingMapping(const std::vector<int>* map)
         _textureProperty->performTextureObjectLoadingMapping(map);
 }
 
-void CMesh::announceSceneObjectWillBeErased(int objectID)
+void CMesh::announceSceneObjectWillBeErased(const CSceneObject* object)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty!=nullptr)
     {
-        if (_textureProperty->announceObjectWillBeErased(objectID))
+        if (_textureProperty->announceObjectWillBeErased(object))
         {
             delete _textureProperty;
             _textureProperty=nullptr;

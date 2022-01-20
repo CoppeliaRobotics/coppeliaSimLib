@@ -33,7 +33,7 @@ public:
     void _restoreBuffers_temp();
 private:
 
-    void _announceObjectWillBeErased(int objectID);
+    void _announceObjectWillBeErased(const CSceneObject* object);
     void _announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
 
     // Old:
@@ -43,7 +43,6 @@ private:
     void _announceDistanceWillBeErased(int distanceID);
     void _announce2DElementWillBeErased(int elementID);
 
-    void _eraseObjectInBuffer(int objectID);
     void _eraseScriptInBuffer(int objectID);
     void _eraseTextureObjectInBuffer(int objectID);
 

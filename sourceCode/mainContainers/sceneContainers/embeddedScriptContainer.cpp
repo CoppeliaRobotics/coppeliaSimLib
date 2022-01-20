@@ -20,7 +20,7 @@ CEmbeddedScriptContainer::~CEmbeddedScriptContainer()
         delete _callbackStructureToDestroyAtEndOfSimulation_new[i];
     for (size_t i=0;i<_callbackStructureToDestroyAtEndOfSimulation_old.size();i++)
         delete _callbackStructureToDestroyAtEndOfSimulation_old[i];
-    broadcastDataContainer.removeAllObjects();
+    broadcastDataContainer.eraseAllObjects();
 }
 
 void CEmbeddedScriptContainer::simulationAboutToStart()
@@ -159,12 +159,12 @@ void CEmbeddedScriptContainer::killAllSimulationLuaStates()
     }
 }
 
-void CEmbeddedScriptContainer::announceObjectWillBeErased(int scriptHandle)
+void CEmbeddedScriptContainer::announceObjectWillBeErased(const CSceneObject* object)
 { // Never called from copy buffer!
     size_t i=0;
     while (i<allScripts.size())
     {
-        if (allScripts[i]->announceSceneObjectWillBeErased(scriptHandle,false))
+        if (allScripts[i]->announceSceneObjectWillBeErased(object,false))
         {
             if (removeScript(allScripts[i]->getScriptHandle()))
                 i=0; // ordering may have changed

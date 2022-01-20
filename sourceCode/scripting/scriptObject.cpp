@@ -1175,15 +1175,15 @@ void CScriptObject::performSceneObjectLoadingMapping(const std::vector<int>* map
         _objectHandleAttachedTo=CWorld::getLoadingMapping(map,_objectHandleAttachedTo);
 }
 
-bool CScriptObject::announceSceneObjectWillBeErased(int objectHandle,bool copyBuffer)
-{ // script will be erased if attached to objectHandle (if threaded simulation is not running!)
+bool CScriptObject::announceSceneObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
+{ // script will be erased if attached to object (if threaded simulation is not running!)
     bool retVal=false;
     if (copyBuffer)
-        retVal=(_objectHandleAttachedTo==objectHandle);
+        retVal=(_objectHandleAttachedTo==object->getObjectHandle());
     else
     {
         bool closeCodeEditor=false;
-        if (_objectHandleAttachedTo==objectHandle)
+        if (_objectHandleAttachedTo==object->getObjectHandle())
         {
             closeCodeEditor=true;
             _flaggedForDestruction=true;
@@ -1192,27 +1192,6 @@ bool CScriptObject::announceSceneObjectWillBeErased(int objectHandle,bool copyBu
             // Old:
             if (_threadedExecution_oldThreads)
                 _objectHandleAttachedTo=-1;
-
-            /*
-            if (_scriptType==sim_scripttype_childscript)
-            {
-                closeCodeEditor=true;
-                if (!App::currentWorld->simulation->isSimulationStopped()) // Removed the if(_threadedExecution()) thing on 2008/12/08
-                { // threaded scripts cannot be directly erased, since the Lua state needs to be cleared in the thread that created it
-                    _objectHandleAttachedTo=-1; // This is for a potential threaded simulation running
-                    _flaggedForDestruction=true;
-                    retVal=!_inExecutionNow; // from false to !_inExecutionNow on 8/9/2016
-                }
-                else
-                    retVal=true;
-            }
-            if (_scriptType==sim_scripttype_customizationscript)
-            {
-                closeCodeEditor=true;
-                _flaggedForDestruction=true;
-                retVal=!_inExecutionNow; // from false to !_inExecutionNow on 26/8/2016 (i.e. no delayed destruction anymore. Important since the clean-up section of custom. scripts can contain code that refers to the attached object, etc.)
-            }
-            */
         }
         if (closeCodeEditor)
         {
@@ -1559,8 +1538,8 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
                         CTTUtil::extractLine(_code,l);
                     for (int i=0;i<lineCnt;i++)
                         _code="#\n"+_code;
-                    printf("luaExec:\n%s\n",t.c_str());
-                    printf("code:\n%s\n",_code.c_str());
+                    //printf("luaExec:\n%s\n",t.c_str());
+                    //printf("code:\n%s\n",_code.c_str());
                     _code=t+"\nrequire(wrapper) pythonProg=[=["+_code+"]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
                     break;
                 }

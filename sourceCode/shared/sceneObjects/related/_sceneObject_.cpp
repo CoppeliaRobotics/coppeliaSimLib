@@ -71,16 +71,8 @@ bool _CSceneObject_::setExtensionString(const char* str)
 {
     bool diff=(_extensionString!=str);
     if (diff)
-    {
         _extensionString=str;
-        if (getObjectCanSync())
-            _setExtensionString_send(str);
-    }
     return(diff);
-}
-
-void _CSceneObject_::_setExtensionString_send(const char* str) const
-{
 }
 
 unsigned short _CSceneObject_::getVisibilityLayer() const
@@ -125,14 +117,6 @@ bool _CSceneObject_::setChildOrder(int order)
         }
     }
     return(diff);
-}
-
-void _CSceneObject_::_setVisibilityLayer_send(unsigned short l) const
-{
-}
-
-void _CSceneObject_::_setChildOrder_send(int order) const
-{
 }
 
 bool _CSceneObject_::getSelected() const
@@ -368,11 +352,7 @@ bool _CSceneObject_::setObjectName_direct_old(const char* newName)
 {
     bool diff=(_objectName_old!=newName);
     if (diff)
-    {
         _objectName_old=newName;
-        if (getObjectCanSync())
-            _setObjectName_send(newName);
-    }
     return(diff);
 }
 
@@ -385,11 +365,7 @@ bool _CSceneObject_::setObjectAltName_direct_old(const char* newAltName)
 {
     bool diff=(_objectAltName_old!=newAltName);
     if (diff)
-    {
         _objectAltName_old=newAltName;
-        if (getObjectCanSync())
-            _setObjectAltName_send(newAltName);
-    }
     return(diff);
 }
 
@@ -463,14 +439,6 @@ void _CSceneObject_::recomputeModelInfluencedValues(int overrideFlags/*=-1*/)
 }
 
 void _CSceneObject_::_setObjectAlias_send(const char* newName) const
-{
-}
-
-void _CSceneObject_::_setObjectName_send(const char* newName) const
-{
-}
-
-void _CSceneObject_::_setObjectAltName_send(const char* newAltName) const
 {
 }
 

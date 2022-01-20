@@ -81,13 +81,8 @@ public:
 protected:
     void _setModelInvisible(bool inv);
 
-    virtual void _setChildOrder_send(int order) const;
     virtual void _setParent_send(int parentHandle) const;
-    virtual void _setExtensionString_send(const char* str) const;
-    virtual void _setVisibilityLayer_send(unsigned short l) const;
     virtual void _setObjectAlias_send(const char* newName) const;
-    virtual void _setObjectName_send(const char* newName) const;
-    virtual void _setObjectAltName_send(const char* newAltName) const;
     virtual void _setLocalTransformation_send(const C7Vector& tr) const;
 
 

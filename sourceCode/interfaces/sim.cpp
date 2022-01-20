@@ -89,6 +89,10 @@ SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle)
 {
     return(simRemoveObject_internal(objectHandle));
 }
+SIM_DLLEXPORT simInt simRemoveObjects(const simInt* objectHandles,simInt count)
+{
+    return(simRemoveObjects_internal(objectHandles,count));
+}
 SIM_DLLEXPORT simInt simRemoveModel(simInt objectHandle)
 {
     return(simRemoveModel_internal(objectHandle));

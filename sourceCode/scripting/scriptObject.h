@@ -22,6 +22,8 @@
 #define SIM_SCRIPT_NAME_INDEX_OLD "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
 // **********************
 
+class CSceneObject;
+
 class CScriptObject
 {
 public:
@@ -61,7 +63,7 @@ public:
     CScriptObject* copyYourself();
     void serialize(CSer& ar);
     void performSceneObjectLoadingMapping(const std::vector<int>* map);
-    bool announceSceneObjectWillBeErased(int objectHandle,bool copyBuffer);
+    bool announceSceneObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     int flagScriptForRemoval();
     void setObjectHandleThatScriptIsAttachedTo(int newObjectHandle);
     int getObjectHandleThatScriptIsAttachedTo() const;

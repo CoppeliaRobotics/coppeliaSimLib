@@ -19,7 +19,7 @@ public:
     void drawAll3DStuff(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM,int windowSize[2],float verticalViewSizeOrAngle,bool perspective);
     int addObject(CBannerObject* it);
     CBannerObject* getObject(int objectID);
-    void removeAllObjects(bool onlyThoseCreatedFromScripts);
+    void eraseAllObjects(bool onlyThoseCreatedFromScripts);
     void announceObjectWillBeErased(int objID);
     void removeObject(int objectID);
     void adjustForFrameChange(int objectID,const C7Vector& preCorrection);

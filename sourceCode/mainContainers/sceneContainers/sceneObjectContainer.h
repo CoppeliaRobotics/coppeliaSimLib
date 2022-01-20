@@ -36,7 +36,7 @@ public:
     void simulationAboutToStart();
     void simulationEnded();
 
-    void announceObjectWillBeErased(int objectHandle);
+    void announceObjectWillBeErased(const CSceneObject* object);
     void announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
 
     // Old:
@@ -47,9 +47,9 @@ public:
 
     void addObjectToScene(CSceneObject* newObject,bool objectIsACopy,bool generateAfterCreateCallback);
     void addObjectToSceneWithSuffixOffset(CSceneObject* newObject,bool objectIsACopy,int suffixOffset,bool generateAfterCreateCallback);
-    bool eraseObject(CSceneObject* it,bool generateBeforeAfterDeleteCallback);
-    void eraseSeveralObjects(const std::vector<int>& objectHandles,bool generateBeforeAfterDeleteCallback);
-    void removeAllObjects(bool generateBeforeAfterDeleteCallback);
+    void eraseObject(CSceneObject* it,bool generateBeforeAfterDeleteCallback);
+    void eraseObjects(const std::vector<int>& objectHandles,bool generateBeforeAfterDeleteCallback);
+    void eraseAllObjects(bool generateBeforeAfterDeleteCallback);
     void actualizeObjectInformation();
     void enableObjectActualization(bool e);
     void getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix) const;

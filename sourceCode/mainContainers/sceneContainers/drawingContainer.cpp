@@ -105,18 +105,18 @@ void CDrawingContainer::adjustForScaling(int objectId,float xScale,float yScale,
     }
 }
 
-void CDrawingContainer::removeAllObjects()
+void CDrawingContainer::eraseAllObjects()
 {
     while (_allObjects.size()>0)
         removeObject(_allObjects[0]->getObjectId());
 }
 
-void CDrawingContainer::announceObjectWillBeErased(int objId)
+void CDrawingContainer::announceObjectWillBeErased(const CSceneObject* object)
 { // Never called from copy buffer!
     size_t i=0;
     while (i<_allObjects.size())
     {
-        if (_allObjects[i]->announceObjectWillBeErased(objId))
+        if (_allObjects[i]->announceObjectWillBeErased(object))
             removeObject(_allObjects[i]->getObjectId());
         else
             i++;

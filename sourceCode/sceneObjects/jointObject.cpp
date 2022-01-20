@@ -3050,24 +3050,20 @@ void CJoint::_setPosition_sendOldIk(float pos) const
         CPluginContainer::ikPlugin_setJointPosition(_ikPluginCounterpartHandle,pos);
 }
 
-bool CJoint::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
+void CJoint::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    // This routine can be called for objCont-objects, but also for objects
-    // in the copy-buffer!! So never make use of any 
-    // 'ct::objCont->getObject(objectHandle)'-call or similar
-    // Return value true means 'this' has to be erased too!
-    bool retVal=CSceneObject::announceObjectWillBeErased(objectHandle,copyBuffer);
-    if (_dependencyMasterJointHandle==objectHandle)
+    CSceneObject::announceObjectWillBeErased(object,copyBuffer);
+    if (_dependencyMasterJointHandle==object->getObjectHandle())
         setDependencyMasterJointHandle(-1);
-    if (_vortexIntParams[5]==objectHandle) // that's the Vortex dependency joint
+    if (_vortexIntParams[5]==object->getObjectHandle()) // that's the Vortex dependency joint
     {
         std::vector<int> ip;
         getVortexIntParams(ip);
         ip[5]=-1;
         setVortexIntParams(ip);
     }
-    if (_newtonIntParams[1]==objectHandle) // that's the Vortex dependency joint
+    if (_newtonIntParams[1]==object->getObjectHandle()) // that's the Vortex dependency joint
     {
         std::vector<int> ip;
         getNewtonIntParams(ip);
@@ -3078,10 +3074,9 @@ bool CJoint::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
     // We check if the joint is listed in the _directDependentJoints:
     for (size_t i=0;i<_directDependentJoints.size();i++)
     {
-        if (_directDependentJoints[i]->getObjectHandle()==objectHandle)
+        if (_directDependentJoints[i]==object)
             _directDependentJoints.erase(_directDependentJoints.begin()+i);
     }
-    return(retVal);
 }
 
 void CJoint::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)

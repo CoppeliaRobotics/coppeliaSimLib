@@ -18,7 +18,7 @@ public:
     void setSuffix1ToSuffix2(int suffix1,int suffix2);
     int getSameObjectID(CTextureObject* anObject);
     void removeObject(int objectID);
-    void removeAllObjects();
+    void eraseAllObjects();
 
     void storeTextureObject(CSer& ar,CTextureObject* it);
     CTextureObject* loadTextureObject(CSer& ar,std::string theName,bool &noHit);

@@ -35,7 +35,7 @@ CBroadcastDataContainer::CBroadcastDataContainer()
 
 CBroadcastDataContainer::~CBroadcastDataContainer()
 {
-    removeAllObjects();
+    eraseAllObjects();
 }
 
 void CBroadcastDataContainer::simulationAboutToStart()
@@ -45,7 +45,7 @@ void CBroadcastDataContainer::simulationAboutToStart()
 
 void CBroadcastDataContainer::simulationEnded()
 {
-    removeAllObjects();
+    eraseAllObjects();
 }
 
 void CBroadcastDataContainer::broadcastData(int emitterID,int targetID,int dataHeader,std::string& dataName,float timeOutSimulationTime,float actionRadius,int antennaHandle,float emissionAngle1,float emissionAngle2,const char* data,int dataLength)
@@ -126,7 +126,7 @@ char* CBroadcastDataContainer::receiveData(int receiverID,float simulationTime,i
     return(retVal);
 }
 
-void CBroadcastDataContainer::removeAllObjects()
+void CBroadcastDataContainer::eraseAllObjects()
 {
     EASYLOCK(_objectMutex);
     for (size_t i=0;i<_allObjects.size();i++)

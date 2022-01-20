@@ -1910,17 +1910,12 @@ CSceneObject* CVisionSensor::copyYourself()
     return(newVisionSensor);
 }
 
-bool CVisionSensor::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
+void CVisionSensor::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    // This routine can be called for objCont-objects, but also for objects
-    // in the copy-buffer!! So never make use of any 
-    // 'ct::objCont->getObject(objectHandle)'-call or similar
-    // Return value true means 'this' has to be erased too!
-    if (_detectableEntityHandle==objectHandle)
+    if (_detectableEntityHandle==object->getObjectHandle())
         _detectableEntityHandle=-1;
-    bool retVal=CSceneObject::announceObjectWillBeErased(objectHandle,copyBuffer);
-    return(retVal);
+    CSceneObject::announceObjectWillBeErased(object,copyBuffer);
 }
 
 void CVisionSensor::announceCollectionWillBeErased(int groupID,bool copyBuffer)

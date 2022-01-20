@@ -102,7 +102,8 @@ void CSoftButton::announceSceneObjectWillBeErased(int objID)
 {
     if (_textureProperty!=nullptr)
     {
-        if (_textureProperty->announceObjectWillBeErased(objID))
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
+        if ((obj!=nullptr)&&_textureProperty->announceObjectWillBeErased(obj))
         {
             delete _textureProperty;
             _textureProperty=nullptr;

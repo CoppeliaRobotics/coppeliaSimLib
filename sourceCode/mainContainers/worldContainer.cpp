@@ -554,11 +554,16 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::_prepareGeneralEve
 
 void CWorldContainer::pushEvent(SEventInfo& event)
 {
+    //printf("Event: %s\n",(event.event+"_"+event.subEvent+"_"+event.dataSubtype).c_str());
     _eventMutex.lock();
     CInterfaceStackTable* buff=(CInterfaceStackTable*)_bufferedEvents->eventsStack->getStackObjectFromIndex(0);
     buff->appendArrayObject(event.eventTable);
     _bufferedEvents->eventDescriptions.push_back(event);
+
+    bool dispatchNow=_bufferedEvents->eventDescriptions.size()>10000;
     _eventMutex.unlock();
+    if (dispatchNow)
+        dispatchEvents(); // some actions in specfic situations can trigger a very very large number of events (that normally can be merged)
 }
 
 bool CWorldContainer::getCborEvents() const

@@ -1,9 +1,10 @@
-
 #pragma once
 
 #include "colorObject.h"
 #include "4X4Matrix.h"
 #include "vMutex.h"
+
+class CSceneObject;
 
 class CDrawingObject  
 {
@@ -19,7 +20,7 @@ public:
     bool addItem(const float* itemData);
     void setItems(const float* itemData,size_t itemCnt);
     int getObjectType() const;
-    bool announceObjectWillBeErased(int objId);
+    bool announceObjectWillBeErased(const CSceneObject* object);
     bool announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     void adjustForFrameChange(const C7Vector& preCorrection);
     void adjustForScaling(float xScale,float yScale,float zScale);
@@ -50,7 +51,7 @@ public:
 
 protected:
     void _initBufferedEventData();
-    void _getEventData(std::vector<float>& vertices,std::vector<float>& normals,std::vector<float>& colors) const;
+    void _getEventData(std::vector<float>& vertices,std::vector<float>& quaternions,std::vector<float>& colors) const;
     void _exportTrianglePoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
     void _exportQuadPoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
     void _exportDiscPoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;

@@ -209,7 +209,7 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
 
 CGlobalGuiTextureContainer::~CGlobalGuiTextureContainer()
 {
-    removeAllObjects();
+    eraseAllObjects();
 }
 
 void CGlobalGuiTextureContainer::addObject(int pictureIndex,int sizeX,int sizeY,bool rgba,bool horizFlip,bool vertFlip,unsigned char* data)
@@ -220,7 +220,7 @@ void CGlobalGuiTextureContainer::addObject(int pictureIndex,int sizeX,int sizeY,
     _allPictureIndices.push_back(pictureIndex);
 }
 
-void CGlobalGuiTextureContainer::removeAllObjects()
+void CGlobalGuiTextureContainer::eraseAllObjects()
 {
     for (int i=0;i<int(_allTextureObjects.size());i++)
         delete _allTextureObjects[i];

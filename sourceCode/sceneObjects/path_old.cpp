@@ -264,15 +264,10 @@ CSceneObject* CPath_old::copyYourself()
     return(newPath);
 }
 
-bool CPath_old::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
+void CPath_old::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    // This routine can be called for objCont-objects, but also for objects
-    // in the copy-buffer!! So never make use of any 
-    // 'CSceneObjectContainer::getObject(objectHandle)'-call or similar
-    // Return value true means 'this' has to be erased too!
-    bool retVal=CSceneObject::announceObjectWillBeErased(objectHandle,copyBuffer);
-    return(retVal);
+    CSceneObject::announceObjectWillBeErased(object,copyBuffer);
 }
 
 void CPath_old::announceCollectionWillBeErased(int groupID,bool copyBuffer)

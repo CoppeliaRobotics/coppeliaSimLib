@@ -9,7 +9,6 @@
 #define IDSNOTR_STRANGE_ERROR4 "Error in CParticleDyn destruction!"
 #define IDSNOTR_STRANGE_ERROR5 "Strange error! (in CSceneObjectContainer::announceObjectWillBeErased)"
 #define IDSNOTR_STRANGE_ERROR6 "Strange error in '_getBezierPointsForVirtualDistance'"
-#define IDSNOTR_STRANGE_ERROR7 "Strange error! (in CCopyBuffer::_announceObjectWillBeErased)"
 #define IDSNOTR_STRANGE_ERROR8 "Strange error in startTextureDisplay routine!"
 #define IDSNOTR_STRANGE_ERROR9 "Strange error in startTextureDisplay routine!"
 #define IDSNOTR_NO_NUMBER_ERROR1 "Value is not a number (in robustAsin)."

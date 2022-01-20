@@ -38,6 +38,7 @@ SIM_DLLEXPORT simInt64 simGetObjectUid(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetObjectFromUid(simInt64 uid,simInt options);
 SIM_DLLEXPORT simInt simGetScriptHandleEx(simInt scriptType,simInt objectHandle,const simChar* scriptName);
 SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle);
+SIM_DLLEXPORT simInt simRemoveObjects(const simInt* objectHandles,simInt count);
 SIM_DLLEXPORT simInt simRemoveModel(simInt objectHandle);
 SIM_DLLEXPORT simChar* simGetObjectAlias(simInt objectHandle,simInt options);
 SIM_DLLEXPORT simInt simSetObjectAlias(simInt objectHandle,const simChar* objectAlias,simInt options);

@@ -183,8 +183,7 @@ void CGraphData_old::performIkLoadingMapping(const std::vector<int>* map)
 
 bool CGraphData_old::announceObjectWillBeErased(int objID,bool copyBuffer)
 {   // This routine can be called for objCont-objects, but also for objects
-    // in the copy-buffer!! So never make use of any 
-    // 'ct::objCont->getObject(id)'-call or similar
+    // in the copy-buffer!!
     // Return value true means this CGraphData_old object needs to be destroyed!
     if ( (dataType>GRAPH_SCENEOBJECT_START)&&(dataType<GRAPH_SCENEOBJECT_END) )
     {

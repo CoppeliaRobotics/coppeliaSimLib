@@ -9,12 +9,12 @@ CBannerContainer::CBannerContainer()
 
 CBannerContainer::~CBannerContainer()
 { // beware, the current world could be nullptr
-    removeAllObjects(false);
+    eraseAllObjects(false);
 }
 
 void CBannerContainer::simulationEnded()
 {
-    removeAllObjects(true);
+    eraseAllObjects(true);
 //  if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
 //  {
 //  }
@@ -42,7 +42,7 @@ int CBannerContainer::addObject(CBannerObject* it)
     return(newID);
 }
 
-void CBannerContainer::removeAllObjects(bool onlyThoseCreatedFromScripts)
+void CBannerContainer::eraseAllObjects(bool onlyThoseCreatedFromScripts)
 {
     for (int i=0;i<int(_allObjects.size());i++)
     {

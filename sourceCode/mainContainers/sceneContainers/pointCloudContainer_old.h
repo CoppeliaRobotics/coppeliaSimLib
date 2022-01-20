@@ -19,7 +19,7 @@ public:
     void drawAll(int displayAttrib);//bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM);
     int addObject(CPtCloud_old* it);
     CPtCloud_old* getObject(int objectID);
-    void removeAllObjects(bool onlyNonPersistentOnes);
+    void eraseAllObjects(bool onlyNonPersistentOnes);
     void announceObjectWillBeErased(int objID);
     bool removeObject(int objectID);
 

@@ -19,7 +19,7 @@ CSceneObjectContainer::CSceneObjectContainer()
 
 CSceneObjectContainer::~CSceneObjectContainer()
 { // beware, the current world could be nullptr
-    removeAllObjects(false); // should already have been done
+    eraseAllObjects(false); // should already have been done
 }
 
 void CSceneObjectContainer::simulationAboutToStart()
@@ -34,14 +34,14 @@ void CSceneObjectContainer::simulationEnded()
        getObjectFromIndex(i)->simulationEnded();
 }
 
-void CSceneObjectContainer::announceObjectWillBeErased(int objectHandle)
+void CSceneObjectContainer::announceObjectWillBeErased(const CSceneObject* object)
 {
     TRACE_INTERNAL;
     for (size_t i=0;i<getObjectCount();i++)
     {
         CSceneObject* it=getObjectFromIndex(i);
-        if (it->getObjectHandle()!=objectHandle)
-            it->announceObjectWillBeErased(objectHandle,false);
+        if (it!=object)
+            it->announceObjectWillBeErased(object,false);
     }
 }
 
@@ -205,47 +205,19 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         newObject->pushObjectCreationEvent();
 }
 
-bool CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfterDeleteCallback)
+void CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfterDeleteCallback)
 {
-    deselectObjects();
-
-    if (it==nullptr)
-        return(false);
-
-    CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-    if (generateBeforeAfterDeleteCallback)
+    if (it!=nullptr)
     {
-        stack->pushTableOntoStack();
-        stack->pushStringOntoStack("objectHandles",0);
-        stack->pushTableOntoStack();
-        stack->pushInt32OntoStack(it->getObjectHandle()); // key or index
-        stack->pushBoolOntoStack(true);
-        stack->insertDataIntoStackTable();
-        stack->insertDataIntoStackTable();
-        stack->pushStringOntoStack("allObjects",0);
-        stack->pushBoolOntoStack(getObjectCount()==1);
-        stack->insertDataIntoStackTable();
-        App::worldContainer->callScripts(sim_syscb_beforedelete,stack);
+        std::vector<int> l;
+        l.push_back(it->getObjectHandle());
+        eraseObjects(l,generateBeforeAfterDeleteCallback);
     }
-
-    // We announce the object will be erased:
-    App::currentWorld->announceObjectWillBeErased(it->getObjectHandle()); // this may trigger other "interesting" things, such as customization script runs, etc.
-    deselectObjects(); // to make sure, since above might have changed selection again
-
-    App::worldContainer->pushSceneObjectRemoveEvent(it);
-    _removeObject(it);
-
-    App::worldContainer->setModificationFlag(1); // object erased
-
-    if (generateBeforeAfterDeleteCallback)
-        App::worldContainer->callScripts(sim_syscb_afterdelete,stack);
-    App::worldContainer->interfaceStackContainer->destroyStack(stack);
-
-    return(true);
 }
 
-void CSceneObjectContainer::eraseSeveralObjects(const std::vector<int>& objectHandles,bool generateBeforeAfterDeleteCallback)
+void CSceneObjectContainer::eraseObjects(const std::vector<int>& objectHandles,bool generateBeforeAfterDeleteCallback)
 {
+    deselectObjects();
     if (objectHandles.size()>0)
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
@@ -275,8 +247,17 @@ void CSceneObjectContainer::eraseSeveralObjects(const std::vector<int>& objectHa
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
             if (it!=nullptr)
-                eraseObject(it,false);
+            {
+                // We announce the object will be erased:
+                App::currentWorld->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, etc.
+                deselectObjects(); // to make sure, since above might have changed selection again
+
+                App::worldContainer->pushSceneObjectRemoveEvent(it);
+                _removeObject(it);
+
+            }
         }
+        App::worldContainer->setModificationFlag(1); // object erased
 
         if (generateBeforeAfterDeleteCallback)
             App::worldContainer->callScripts(sim_syscb_afterdelete,stack);
@@ -284,23 +265,16 @@ void CSceneObjectContainer::eraseSeveralObjects(const std::vector<int>& objectHa
     }
 }
 
-void CSceneObjectContainer::removeAllObjects(bool generateBeforeAfterDeleteCallback)
+void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallback)
 {
 #ifdef SIM_WITH_GUI
     if (App::mainWindow!=nullptr)
         App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr);
 #endif
-    if (getObjectCount()>0)
-        deselectObjects();
-
-    std::vector<int> toRemove;
+    std::vector<int> l;
     for (size_t i=0;i<getObjectCount();i++)
-        toRemove.push_back(getObjectFromIndex(i)->getObjectHandle());
-    eraseSeveralObjects(toRemove,generateBeforeAfterDeleteCallback);
-    // The above destroys all sceneObjects, and normally automatically
-    // all resources linked to them. So we don't have to destroy the resources
-
-    // Following new since 30/7/2014:
+        l.push_back(getObjectFromIndex(i)->getObjectHandle());
+    eraseObjects(l,generateBeforeAfterDeleteCallback);
     // ideally we want to always use different object handles so that if the user erases an object and
     // creates a new one just after, the erased object's handle is not reused. That's why we have
     // the _nextObjectHandle variable.

@@ -217,21 +217,16 @@ CSceneObject* CMirror::copyYourself()
     return(newMirror);
 }
 
-bool CMirror::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
+void CMirror::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    // This routine can be called for objCont-objects, but also for objects
-    // in the copy-buffer!! So never make use of any 
-    // 'ct::objCont->getObject(id)'-call or similar
-    // Return value true means 'this' has to be erased too!
-    if (_clippingObjectOrCollection==objectHandle)
+    if (_clippingObjectOrCollection==object->getObjectHandle())
     {
         _clippingObjectOrCollection=-1;
         if (!_isMirror)
             _active=false;
     }
-    bool retVal=CSceneObject::announceObjectWillBeErased(objectHandle,copyBuffer);
-    return(retVal);
+    CSceneObject::announceObjectWillBeErased(object,copyBuffer);
 }
 
 void CMirror::announceCollectionWillBeErased(int groupID,bool copyBuffer)

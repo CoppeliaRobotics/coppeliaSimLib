@@ -4,6 +4,8 @@
 #include "broadcastDataContainer.h"
 #include "simInternal.h"
 
+class CSceneObject;
+
 class CEmbeddedScriptContainer
 {
 public:
@@ -13,7 +15,7 @@ public:
     void simulationEnded();
     void simulationAboutToEnd();
     void removeAllScripts();
-    void announceObjectWillBeErased(int scriptHandle);
+    void announceObjectWillBeErased(const CSceneObject* object);
     bool removeScript_safe(int scriptHandle);
     bool removeScript(int scriptHandle);
     int insertScript(CScriptObject* script);

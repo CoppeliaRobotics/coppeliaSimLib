@@ -14,7 +14,7 @@ public:
     virtual void display(CViewableBase* renderingObject,int displayAttrib);
     virtual void scaleObject(float scalingFactor);
     virtual void serialize(CSer& ar);
-    virtual bool announceObjectWillBeErased(int objID,bool copyBuffer);
+    virtual void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     virtual void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     virtual void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     virtual void announceDistanceWillBeErased(int distanceID,bool copyBuffer);

@@ -449,10 +449,10 @@ CTextureObject* CTextureProperty::getTextureObject()
     return(nullptr);
 }
 
-bool CTextureProperty::announceObjectWillBeErased(int objID)
+bool CTextureProperty::announceObjectWillBeErased(const CSceneObject* object)
 {
     if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_SCENEOBJECT)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_SCENEOBJECT))
-        return(_textureOrVisionSensorObjectID==objID);
+        return(_textureOrVisionSensorObjectID==object->getObjectHandle());
     return(false);
 }
 

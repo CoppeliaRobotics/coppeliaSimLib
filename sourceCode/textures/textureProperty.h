@@ -1,9 +1,10 @@
-
 #pragma once
 
 #include "textureObject.h"
 #include "ser.h"
 #include "7Vector.h"
+
+class CSceneObject;
 
 class CTextureProperty
 {
@@ -14,7 +15,7 @@ public:
 
     CTextureProperty* copyYourself();
     void serialize(CSer& ar);
-    bool announceObjectWillBeErased(int objID);
+    bool announceObjectWillBeErased(const CSceneObject* object);
     void performObjectLoadingMapping(const std::vector<int>* map);
     void performTextureObjectLoadingMapping(const std::vector<int>* map);
     void addTextureDependencies(int objID,int objSubID);

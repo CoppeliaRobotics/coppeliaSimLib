@@ -1297,7 +1297,7 @@ simInt simRemoveObject_internal(simInt objectHandle)
     {
         if (objectHandle==sim_handle_all)
         {
-            App::currentWorld->sceneObjects->removeAllObjects(true);
+            App::currentWorld->sceneObjects->eraseAllObjects(true);
             return(1);
         }
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -1313,6 +1313,37 @@ simInt simRemoveObject_internal(simInt objectHandle)
             initSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
 
         App::currentWorld->sceneObjects->eraseObject(it,true);
+
+        // Restore the initial selection:
+        App::currentWorld->sceneObjects->deselectObjects();
+        for (size_t i=0;i<initSel.size();i++)
+            App::currentWorld->sceneObjects->addObjectToSelection(initSel[i]);
+
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simInt simRemoveObjects_internal(const simInt* objectHandles,simInt count)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        // Memorize the selection:
+        std::vector<int> initSel;
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+            initSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+
+        // Erase the objects:
+        std::vector<int> sel;
+        for (int i=0;i<count;i++)
+            sel.push_back(objectHandles[size_t(i)]);
+        App::currentWorld->sceneObjects->eraseObjects(sel,true);
 
         // Restore the initial selection:
         App::currentWorld->sceneObjects->deselectObjects();
@@ -1356,7 +1387,7 @@ simInt simRemoveModel_internal(simInt objectHandle)
         sel.push_back(objectHandle);
         CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
 
-        App::currentWorld->sceneObjects->eraseSeveralObjects(sel,true);
+        App::currentWorld->sceneObjects->eraseObjects(sel,true);
 
         // Restore the initial selection:
         App::currentWorld->sceneObjects->deselectObjects();
@@ -6374,7 +6405,7 @@ simInt simRemoveDrawingObject_internal(simInt objectHandle)
         }
 
         if (handle==sim_handle_all)
-            App::currentWorld->drawingCont->removeAllObjects();
+            App::currentWorld->drawingCont->eraseAllObjects();
         else
         {
             CDrawingObject* it=App::currentWorld->drawingCont->getObject(handle);
@@ -20488,7 +20519,7 @@ simInt simRemoveCollection_internal(simInt collectionHandle)
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::currentWorld->sceneObjects->deselectObjects();
-            App::currentWorld->sceneObjects->eraseSeveralObjects(sel,true);
+            App::currentWorld->sceneObjects->eraseObjects(sel,true);
             App::currentWorld->collections->removeAllCollections();
             // Restore previous' selection state:
             for (size_t i=0;i<memSel.size();i++)
@@ -20509,7 +20540,7 @@ simInt simRemoveCollection_internal(simInt collectionHandle)
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::currentWorld->sceneObjects->deselectObjects();
-            App::currentWorld->sceneObjects->eraseSeveralObjects(sel,true);
+            App::currentWorld->sceneObjects->eraseObjects(sel,true);
             App::currentWorld->collections->removeCollection(collectionHandle);
             // Restore previous' selection state:
             for (size_t i=0;i<memSel.size();i++)
@@ -20991,7 +21022,7 @@ simInt simRemoveBanner_internal(simInt bannerID)
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (bannerID==sim_handle_all)
-            App::currentWorld->bannerCont->removeAllObjects(false);
+            App::currentWorld->bannerCont->eraseAllObjects(false);
         else
         {
             int handleFlags=0;
@@ -22647,7 +22678,7 @@ simInt simDeleteSelectedObjects_internal()
             sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
         App::currentWorld->sceneObjects->deselectObjects();
-        App::currentWorld->sceneObjects->eraseSeveralObjects(sel,true);
+        App::currentWorld->sceneObjects->eraseObjects(sel,true);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);

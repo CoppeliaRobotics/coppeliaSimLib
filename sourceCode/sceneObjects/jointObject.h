@@ -132,7 +132,7 @@ public:
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
-    bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
+    void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
     void performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
     void performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
