@@ -658,7 +658,7 @@ void CDrawingObject::pushAppendNewPointEvent(bool clearAllFirst)
         obj.clear();
         obj.appendFloatArray(normals.data(),normals.size());
         buff=(const char*)obj.getBuff(l);
-        data->appendMapObject_stringString("normals",buff,l,true);
+        data->appendMapObject_stringString("quaternions",buff,l,true);
 
         obj.clear();
         obj.appendFloatArray(colors.data(),colors.size());
