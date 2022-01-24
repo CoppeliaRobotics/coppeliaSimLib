@@ -178,6 +178,16 @@ std::string CFolderSystem::getTexturesPath() const
     return(_texturesPath);
 }
 
+std::string CFolderSystem::getLuaPath() const
+{
+    return(_executablePath+"/lua");
+}
+
+std::string CFolderSystem::getPythonPath() const
+{
+    return(_executablePath+"/python");
+}
+
 void CFolderSystem::setTexturesPath(const char* path)
 {
     _texturesPath=path;

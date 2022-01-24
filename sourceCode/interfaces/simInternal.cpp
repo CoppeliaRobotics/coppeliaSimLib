@@ -27,6 +27,7 @@
 #include <iostream>
 #include "tinyxml2.h"
 #include "simFlavor.h"
+#include <regex>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #ifdef SIM_WITH_GUI
@@ -4357,6 +4358,16 @@ simChar* simGetStringParam_internal(simInt parameter)
         {
             validParam=true;
             retVal=App::userSettings->additionalPythonPath;
+        }
+        if (parameter==sim_stringparam_luadir)
+        {
+            validParam=true;
+            retVal=App::folders->getLuaPath();
+        }
+        if (parameter==sim_stringparam_pythondir)
+        {
+            validParam=true;
+            retVal=App::folders->getPythonPath();
         }
         if (parameter==sim_stringparam_scene_path_and_name)
         {
@@ -12140,12 +12151,48 @@ simInt simCheckExecAuthorization_internal(const simChar* what,const simChar* arg
         int retVal=0;
         if (App::userSettings->executeUnsafe)
             retVal=1;
-#ifdef SIM_WITH_GUI
-        else if ( (App::mainWindow!=nullptr)&&(App::uiThread->checkExecuteUnsafeOk(what,args)) )
-            retVal=1;
-#endif
         else
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_EXEC_UNSAFE_FAILED);
+        {
+            bool auth=false;
+            int h=CScriptObject::getInExternalCall();
+            CScriptObject* it=nullptr;
+            if (h>=0)
+            {
+                it=App::worldContainer->getScriptFromHandle(h);
+                if (it!=nullptr)
+                {
+                    std::string x("EXECUNSAFE");
+                    x=x+what+args+std::to_string(it->getSimpleHash());
+                    x=std::regex_replace(x,std::regex(" "),"_");
+                    CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+                    std::string val;
+                    if (cont.readData(x.c_str(),val))
+                        auth=true;
+
+                }
+            }
+#ifdef SIM_WITH_GUI
+            if ( (!auth)&&(App::mainWindow!=nullptr) )
+            {
+                if (App::uiThread->checkExecuteUnsafeOk(what,args))
+                {
+                    auth=true;
+                    if (it!=nullptr)
+                    {
+                        std::string x("EXECUNSAFE");
+                        x=x+what+args+std::to_string(it->getSimpleHash());
+                        x=std::regex_replace(x,std::regex(" "),"_");
+                        CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+                        cont.writeData(x.c_str(),"OK",true);
+                    }
+                }
+            }
+#endif
+            if (auth)
+                retVal=1;
+            else
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_EXEC_UNSAFE_FAILED);
+        }
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);

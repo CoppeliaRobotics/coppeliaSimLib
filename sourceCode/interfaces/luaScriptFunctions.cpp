@@ -880,6 +880,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_modeldefaultdir",sim_stringparam_modeldefaultdir,true},
     {"sim.stringparam_defaultpython",sim_stringparam_defaultpython,true},
     {"sim.stringparam_additionalpythonpath",sim_stringparam_additionalpythonpath,true},
+    {"sim.stringparam_luadir",sim_stringparam_luadir,true},
+    {"sim.stringparam_pythondir",sim_stringparam_pythondir,true},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal,true},
@@ -2116,7 +2118,9 @@ int _genericFunctionHandler(luaWrap_lua_State* L,CScriptCustomFunction* func,std
     cb->line=luaWrap_getCurrentCodeLine(L);
 
     // Now we can call the callback:
+    CScriptObject::setInExternalCall(currentScriptID);
     func->callBackFunction_new(cb);
+    CScriptObject::setInExternalCall(-1);
 
     bool dontDeleteStructureYet=false;
     while (cb->waitUntilZero!=0)

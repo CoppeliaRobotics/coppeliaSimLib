@@ -53,6 +53,7 @@ public:
 
     int getScriptHandle() const;
     int getScriptUniqueID() const;
+    size_t getSimpleHash() const;
     void setScriptHandle(int newHandle);
 
     std::string getDescriptiveName() const;
@@ -162,6 +163,9 @@ public:
     static std::string getSystemCallbackString(int calltype,bool callTips);
     static std::vector<int> getAllSystemCallbacks(int scriptType,bool threadedOld);
     static std::vector<std::string> getAllSystemCallbackStrings(int scriptType,bool callTips,bool threadedOld);
+
+    static void setInExternalCall(int scriptHandle);
+    static int getInExternalCall();
 
     // Lua specific:
     // -----------------------------
@@ -287,6 +291,7 @@ protected:
     static int _nextIdForExternalScriptEditor;
     static int _scriptUniqueCounter;
     static int _totalEventCallbackFunctions;
+    static std::vector<int> _externalScriptCalls;
 
     // Lua specific:
     // -----------------------------

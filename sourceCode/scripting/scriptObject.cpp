@@ -12,7 +12,7 @@
 #include "interfaceStackTable.h"
 #include "pluginContainer.h"
 #include "simFlavor.h"
-
+#include <unordered_map>
 #include "luaScriptFunctions.h"
 #include "luaWrapper.h"
 
@@ -22,6 +22,7 @@
 int CScriptObject::_scriptUniqueCounter=-1;
 int CScriptObject::_nextIdForExternalScriptEditor=-1;
 int CScriptObject::_totalEventCallbackFunctions=0;
+std::vector<int> CScriptObject::_externalScriptCalls;
 
 CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
 {
@@ -797,6 +798,21 @@ std::vector<int> CScriptObject::getAllSystemCallbacks(int scriptType,bool thread
     return(retVal);
 }
 
+void CScriptObject::setInExternalCall(int scriptHandle)
+{
+    if (scriptHandle<0)
+        _externalScriptCalls.pop_back();
+    else
+        _externalScriptCalls.push_back(scriptHandle);
+}
+
+int CScriptObject::getInExternalCall()
+{
+    if (_externalScriptCalls.size()>0)
+        return(_externalScriptCalls[_externalScriptCalls.size()-1]);
+    return(-1);
+}
+
 std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptType,bool callTips,bool threadedOld)
 {
     std::vector<int> ct=getAllSystemCallbacks(scriptType,threadedOld);
@@ -1077,6 +1093,12 @@ int CScriptObject::getScriptHandle() const
 int CScriptObject::getScriptUniqueID() const
 {
     return(_scriptUniqueId);
+}
+
+size_t CScriptObject::getSimpleHash() const
+{
+    std::hash<std::string> hasher;
+    return(hasher(_scriptText));
 }
 
 void CScriptObject::setScriptHandle(int newHandle)
