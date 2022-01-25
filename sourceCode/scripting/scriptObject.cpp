@@ -1785,6 +1785,14 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
         if (callType==sim_syscb_cleanup)
             CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationcleanup,data,nullptr,nullptr);
     }
+
+    // Following to make sure we get updates on the presence of sim_syscb_userconfig:
+    luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
+    std::string tmp(getSystemCallbackString(sim_syscb_userconfig,false));
+    luaWrap_lua_getglobal(L,tmp.c_str());
+    _containsUserConfigCallbackFunction=(luaWrap_lua_isfunction(L,-1)||hasFunctionHook(tmp.c_str()));
+    luaWrap_lua_pop(L,1);
+
     std::string errMsg;
     if (_executionDepth==0)
         _timeOfScriptExecutionStart=VDateTime::getTimeInMs();

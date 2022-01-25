@@ -28,6 +28,7 @@
 #include "tinyxml2.h"
 #include "simFlavor.h"
 #include <regex>
+#include <unordered_map>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #ifdef SIM_WITH_GUI
@@ -12139,7 +12140,7 @@ simInt simModuleEntry_internal(simInt handle,const simChar* label,simInt state)
     return(-1);
 }
 
-simInt simCheckExecAuthorization_internal(const simChar* what,const simChar* args)
+simInt simCheckExecAuthorization_internal(const simChar* what,const simChar* args,simInt scriptHandle)
 {
     TRACE_C_API;
 
@@ -12154,36 +12155,39 @@ simInt simCheckExecAuthorization_internal(const simChar* what,const simChar* arg
         else
         {
             bool auth=false;
-            int h=CScriptObject::getInExternalCall();
+            int h=scriptHandle;
+            if (h<0)
+                h=CScriptObject::getInExternalCall();
             CScriptObject* it=nullptr;
+            std::string x,y;
             if (h>=0)
             {
                 it=App::worldContainer->getScriptFromHandle(h);
                 if (it!=nullptr)
                 {
-                    std::string x("EXECUNSAFE");
-                    x=x+what+args+std::to_string(it->getSimpleHash());
+                    x=x+args+" ";
+                    x=std::regex_replace(x,std::regex(" ([0-9]+) ")," X ");
+                    x=std::regex_replace(x,std::regex("([0-9]{5}) "),"X ");
                     x=std::regex_replace(x,std::regex(" "),"_");
+                    y=x+std::to_string(it->getSimpleHash());
+                    std::hash<std::string> hasher;
+                    y=std::to_string(hasher(y))+"EXECUNSAFE";
                     CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
                     std::string val;
-                    if (cont.readData(x.c_str(),val))
+                    if (cont.readData(y.c_str(),val))
                         auth=true;
-
                 }
             }
 #ifdef SIM_WITH_GUI
             if ( (!auth)&&(App::mainWindow!=nullptr) )
             {
-                if (App::uiThread->checkExecuteUnsafeOk(what,args))
+                if (App::uiThread->checkExecuteUnsafeOk(what,args,x.c_str()))
                 {
                     auth=true;
                     if (it!=nullptr)
                     {
-                        std::string x("EXECUNSAFE");
-                        x=x+what+args+std::to_string(it->getSimpleHash());
-                        x=std::regex_replace(x,std::regex(" "),"_");
                         CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
-                        cont.writeData(x.c_str(),"OK",true);
+                        cont.writeData(y.c_str(),"OK",true);
                     }
                 }
             }

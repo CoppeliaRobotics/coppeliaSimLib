@@ -176,7 +176,7 @@ public:
     unsigned short messageBox_question(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer);
     unsigned short messageBox_warning(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer);
     unsigned short messageBox_critical(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer);
-    bool checkExecuteUnsafeOk(const char* what,const char* arg);
+    bool checkExecuteUnsafeOk(const char* what,const char* arg,const char* idStr);
     bool dialogInputGetFloat(void* parentWidget,const char* title,const char* msg,float def,float minV,float maxV,int decimals,float* outFloat);
 
 private:

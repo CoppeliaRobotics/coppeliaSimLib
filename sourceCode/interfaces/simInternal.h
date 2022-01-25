@@ -367,7 +367,7 @@ simInt simGenerateShapeFromPath_internal(const simFloat* path,simInt pathSize,co
 simFloat simGetClosestPosOnPath_internal(const simFloat* path,simInt pathSize,const simFloat* pathLengths,const simFloat* absPt);
 simInt simInitScript_internal(simInt scriptHandle);
 simInt simModuleEntry_internal(simInt handle,const simChar* label,simInt state);
-simInt simCheckExecAuthorization_internal(const simChar* what,const simChar* args);
+simInt simCheckExecAuthorization_internal(const simChar* what,const simChar* args,simInt scriptHandle);
 
 
 simInt _simGetContactCallbackCount_internal();

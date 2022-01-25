@@ -5075,23 +5075,13 @@ int _simLaunchExecutable(luaWrap_lua_State* L)
                     sh=VVARIOUS_HIDE;
 
                 CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
-                std::string what("sim.launchExecutable in ");
-                if (it!=nullptr)
-                    what+=it->getDescriptiveName();
-                bool doIt=false;
-                if (App::userSettings->executeUnsafe)
-                    doIt=true;
-#ifdef SIM_WITH_GUI
-                else if ( (App::mainWindow!=nullptr)&&(App::uiThread->checkExecuteUnsafeOk(what.c_str(),(file+" "+args).c_str())) )
-                    doIt=true;
-#endif
-                if (doIt)
+                std::string what(it->getDescriptiveName());
+                what+=" (via sim.launchExecutable)";
+                if (1==simCheckExecAuthorization_internal(what.c_str(),(file+" "+args).c_str(),it->getScriptHandle()))
                 {
                     if (VVarious::executeExternalApplication(file.c_str(),args.c_str(),App::folders->getExecutablePath().c_str(),sh)) // executable directory needed because otherwise the shellExecute command might switch directories!
                         retVal=1;
                 }
-                else
-                    errorString=SIM_ERROR_EXEC_UNSAFE_FAILED;
             }
         }
     }
