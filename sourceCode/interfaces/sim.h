@@ -387,7 +387,6 @@ SIM_DLLEXPORT const simVoid* _simGetObject(int objID);
 SIM_DLLEXPORT simVoid _simGetObjectLocalTransformation(const simVoid* object,simFloat* pos,simFloat* quat,simBool excludeFirstJointTransformation);
 SIM_DLLEXPORT simVoid _simSetObjectLocalTransformation(simVoid* object,const simFloat* pos,const simFloat* quat);
 SIM_DLLEXPORT simVoid _simDynReportObjectCumulativeTransformation(simVoid* object,const simFloat* pos,const simFloat* quat);
-SIM_DLLEXPORT simVoid _simDynReportObjectCumulativeTransformationLooped(simVoid* object,const simFloat* pos,const simFloat* quat);
 SIM_DLLEXPORT simVoid _simSetObjectCumulativeTransformation(simVoid* object,const simFloat* pos,const simFloat* quat,simBool keepChildrenInPlace);
 SIM_DLLEXPORT simVoid _simGetObjectCumulativeTransformation(const simVoid* object,simFloat* pos,simFloat* quat,simBool excludeFirstJointTransformation);
 SIM_DLLEXPORT simBool _simIsShapeDynamicallyStatic(const simVoid* shape);

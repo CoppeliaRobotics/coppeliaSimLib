@@ -385,7 +385,6 @@ const simVoid* _simGetObject_internal(int objID);
 simVoid _simGetObjectLocalTransformation_internal(const simVoid* object,simFloat* pos,simFloat* quat,simBool excludeFirstJointTransformation);
 simVoid _simSetObjectLocalTransformation_internal(simVoid* object,const simFloat* pos,const simFloat* quat);
 simVoid _simDynReportObjectCumulativeTransformation_internal(simVoid* object,const simFloat* pos,const simFloat* quat);
-simVoid _simDynReportObjectCumulativeTransformationLooped_internal(simVoid* object,const simFloat* pos,const simFloat* quat);
 simVoid _simSetObjectCumulativeTransformation_internal(simVoid* object,const simFloat* pos,const simFloat* quat,simBool keepChildrenInPlace);
 simVoid _simGetObjectCumulativeTransformation_internal(const simVoid* object,simFloat* pos,simFloat* quat,simBool excludeFirstJointTransformation);
 simBool _simIsShapeDynamicallyStatic_internal(const simVoid* shape);
