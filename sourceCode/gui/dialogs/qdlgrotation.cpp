@@ -86,6 +86,7 @@ void CQDlgRotation::refresh()
         // Mouse manip part:
         ui->qqOrWorld->setEnabled((object!=nullptr)&&(!objectRotationSettingsLocked));
         ui->qqOrParent->setEnabled((object!=nullptr)&&(!objectRotationSettingsLocked));
+        ui->qqOrParent->setVisible((object!=nullptr)&&(manipulationRotationRelativeTo==1)); // this mode is deprecated
         ui->qqOrOwn->setEnabled((object!=nullptr)&&(!objectRotationSettingsLocked));
         ui->qqOrA->setEnabled((object!=nullptr)&&(!objectRotationSettingsLocked));
         ui->qqOrB->setEnabled((object!=nullptr)&&(!objectRotationSettingsLocked));
@@ -133,6 +134,7 @@ void CQDlgRotation::refresh()
     { // We are in an edit mode
         // Mouse manip part:
         ui->qqOrWorld->setEnabled(false);
+        ui->qqOrWorld->setVisible(false); // this mode is deprecated
         ui->qqOrParent->setEnabled(false);
         ui->qqOrOwn->setEnabled(false);
         ui->qqOrA->setEnabled(false);

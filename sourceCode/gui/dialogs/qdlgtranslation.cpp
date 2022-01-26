@@ -92,6 +92,7 @@ void CQDlgTranslation::refresh()
         // mouse manip part:
         ui->qqPosWorld->setEnabled((object!=nullptr)&&(!objectTranslationSettingsLocked));
         ui->qqPosParent->setEnabled((object!=nullptr)&&(!objectTranslationSettingsLocked));
+        ui->qqPosParent->setVisible((object!=nullptr)&&(manipulationTranslationRelativeTo==1)); // this mode is deprecated
         ui->qqPosOwn->setEnabled((object!=nullptr)&&(!objectTranslationSettingsLocked));
         ui->qqPosX->setEnabled((object!=nullptr)&&(!objectTranslationSettingsLocked));
         ui->qqPosY->setEnabled((object!=nullptr)&&(!objectTranslationSettingsLocked));
@@ -148,6 +149,7 @@ void CQDlgTranslation::refresh()
        // ui->qqDisabledWhenNotRunning->setEnabled(false);
         ui->qqPosWorld->setEnabled(false);
         ui->qqPosParent->setEnabled(false);
+        ui->qqPosParent->setVisible(false); // this mode is deprecated
         ui->qqPosOwn->setEnabled(false);
         ui->qqPosX->setEnabled(false);
         ui->qqPosY->setEnabled(false);
