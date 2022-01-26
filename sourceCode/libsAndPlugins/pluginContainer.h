@@ -30,7 +30,6 @@ typedef float* (__cdecl *ptr_dynPlugin_getContactPoints)(int*);
 typedef void** (__cdecl *ptr_dynPlugin_getParticles)(int,int*,int*,float**);
 typedef char (__cdecl *ptr_dynPlugin_getParticleData)(const void*,float*,float*,int*,float**);
 typedef char (__cdecl *ptr_dynPlugin_getContactForce)(int,int,int,int*,float*);
-typedef void (__cdecl *ptr_dynPlugin_reportDynamicWorldConfiguration)(int,char,float);
 typedef int (__cdecl *ptr_dynPlugin_getDynamicStepDivider)(void);
 typedef int (__cdecl *ptr_dynPlugin_getEngineInfo)(int*,int*,char*,char*);
 
@@ -219,7 +218,6 @@ public:
     ptr_dynPlugin_getParticles dynPlugin_getParticles;
     ptr_dynPlugin_getParticleData dynPlugin_getParticleData;
     ptr_dynPlugin_getContactForce dynPlugin_getContactForce;
-    ptr_dynPlugin_reportDynamicWorldConfiguration dynPlugin_reportDynamicWorldConfiguration;
     ptr_dynPlugin_getDynamicStepDivider dynPlugin_getDynamicStepDivider;
     ptr_dynPlugin_getEngineInfo dynPlugin_getEngineInfo;
 
@@ -431,7 +429,6 @@ public:
     static int dyn_getParticleObjectOtherFloatsPerItem(int objectHandle);
     static float* dyn_getContactPoints(int* count);
     static void** dyn_getParticles(int index,int* particlesCount,int* objectType,float** cols);
-    static void dyn_reportDynamicWorldConfiguration(int totalPassesCount,char doNotApplyJointIntrinsicPositions,float simulationTime);
     static int dyn_getDynamicStepDivider();
     static int dyn_getEngineInfo(int* engine,int* data1,char* data2,char* data3);
 

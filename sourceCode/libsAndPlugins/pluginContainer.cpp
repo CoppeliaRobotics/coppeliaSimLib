@@ -166,7 +166,6 @@ int CPlugin::load()
                 dynPlugin_getParticles=(ptr_dynPlugin_getParticles)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getParticles"));
                 dynPlugin_getParticleData=(ptr_dynPlugin_getParticleData)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getParticleData"));
                 dynPlugin_getContactForce=(ptr_dynPlugin_getContactForce)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getContactForce"));
-                dynPlugin_reportDynamicWorldConfiguration=(ptr_dynPlugin_reportDynamicWorldConfiguration)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_reportDynamicWorldConfiguration"));
                 dynPlugin_getDynamicStepDivider=(ptr_dynPlugin_getDynamicStepDivider)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getDynamicStepDivider"));
                 dynPlugin_getEngineInfo=(ptr_dynPlugin_getEngineInfo)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getEngineInfo"));
 
@@ -866,12 +865,6 @@ bool CPluginContainer::dyn_getContactForce(int dynamicPass,int objectHandle,int 
     if (currentDynEngine!=nullptr)
         return(currentDynEngine->dynPlugin_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo)!=0);
     return(false);
-}
-
-void CPluginContainer::dyn_reportDynamicWorldConfiguration(int totalPassesCount,char doNotApplyJointIntrinsicPositions,float simulationTime)
-{
-    if (currentDynEngine!=nullptr)
-        currentDynEngine->dynPlugin_reportDynamicWorldConfiguration(totalPassesCount,doNotApplyJointIntrinsicPositions,simulationTime);
 }
 
 int CPluginContainer::dyn_getDynamicStepDivider()

@@ -103,8 +103,6 @@ public:
     void handleDynamics(float dt);
     bool getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float* contactInfo);
 
-    void reportDynamicWorldConfiguration();
-
     void addWorldIfNotThere();
     void removeWorld();
     bool isWorldThere();

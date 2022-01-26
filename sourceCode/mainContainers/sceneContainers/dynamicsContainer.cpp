@@ -160,12 +160,6 @@ bool CDynamicsContainer::getContactForce(int dynamicPass,int objectHandle,int in
     return(false);
 }
 
-void CDynamicsContainer::reportDynamicWorldConfiguration()
-{
-    if (getDynamicsEnabled())
-        CPluginContainer::dyn_reportDynamicWorldConfiguration(-1,1,0.0f);
-}
-
 void CDynamicsContainer::addWorldIfNotThere()
 {
     if (getDynamicsEnabled()&&(!isWorldThere()))
