@@ -245,35 +245,35 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
     {
         std::string r("sysCall_info");
         if (callTips)
-            r+="()\nCalled even before the script is initialized.";
+            r+=" - Called even before the script is initialized.";
         return(r);
     }
     if (calltype==sim_syscb_init)
     {
         std::string r("sysCall_init");
         if (callTips)
-            r+="()\nCalled when the script is initialized.";
+            r+=" - Called when the script is initialized.";
         return(r);
     }
     if (calltype==sim_syscb_cleanup)
     {
         std::string r("sysCall_cleanup");
         if (callTips)
-            r+="()\nCalled when the script is destroyed.";
+            r+=" - Called when the script is destroyed.";
         return(r);
     }
     if (calltype==sim_syscb_nonsimulation)
     {
         std::string r("sysCall_nonSimulation");
         if (callTips)
-            r+="()\nCalled when simulation is not running.";
+            r+=" - Called when simulation is not running.";
         return(r);
     }
     if (calltype==sim_syscb_beforemainscript)
     {
         std::string r("sysCall_beforeMainScript");
         if (callTips)
-            r+="()\nCalled just before the main script is called.\nCan be used to temporarily suppress calling the main script.";
+            r+=" - Called just before the main script is called.";
         return(r);
     }
 
@@ -281,112 +281,112 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
     {
         std::string r("sysCall_beforeSimulation");
         if (callTips)
-            r+="()\nCalled just before simulation starts.";
+            r+=" - Called just before simulation starts.";
         return(r);
     }
     if (calltype==sim_syscb_aftersimulation)
     {
         std::string r("sysCall_afterSimulation");
         if (callTips)
-            r+="()\nCalled just after simulation ended.";
+            r+=" - Called just after simulation ended.";
         return(r);
     }
     if (calltype==sim_syscb_actuation)
     {
         std::string r("sysCall_actuation");
         if (callTips)
-            r+="()\nCalled in the actuation phase.";
+            r+=" - Called in the actuation phase.";
         return(r);
     }
     if (calltype==sim_syscb_sensing)
     {
         std::string r("sysCall_sensing");
         if (callTips)
-            r+="()\nCalled in the sensing phase.";
+            r+=" - Called in the sensing phase.";
         return(r);
     }
     if (calltype==sim_syscb_suspended)
     {
         std::string r("sysCall_suspended");
         if (callTips)
-            r+="()\nCalled when simulation is suspended.";
+            r+=" - Called when simulation is suspended.";
         return(r);
     }
     if (calltype==sim_syscb_suspend)
     {
         std::string r("sysCall_suspend");
         if (callTips)
-            r+="()\nCalled just before simulation gets suspended.";
+            r+=" - Called just before simulation gets suspended.";
         return(r);
     }
     if (calltype==sim_syscb_resume)
     {
         std::string r("sysCall_resume");
         if (callTips)
-            r+="()\nCalled just before simulation resumes.";
+            r+=" - Called just before simulation resumes.";
         return(r);
     }
     if (calltype==sim_syscb_beforeinstanceswitch)
     {
         std::string r("sysCall_beforeInstanceSwitch");
         if (callTips)
-            r+="()\nCalled just before an instance switch.";
+            r+=" - Called just before an instance switch.";
         return(r);
     }
     if (calltype==sim_syscb_afterinstanceswitch)
     {
         std::string r("sysCall_afterInstanceSwitch");
         if (callTips)
-            r+="()\nCalled just after an instance switch.";
+            r+=" - Called just after an instance switch.";
         return(r);
     }
     if (calltype==sim_syscb_beforecopy)
     {
         std::string r("sysCall_beforeCopy");
         if (callTips)
-            r+="(inData)\nCalled just before objects are copied.";
+            r+=" - Called just before objects are copied.";
         return(r);
     }
     if (calltype==sim_syscb_aftercopy)
     {
         std::string r("sysCall_afterCopy");
         if (callTips)
-            r+="(inData)\nCalled just after objects were copied.";
+            r+=" - Called just after objects were copied.";
         return(r);
     }
     if (calltype==sim_syscb_beforedelete)
     {
         std::string r("sysCall_beforeDelete");
         if (callTips)
-            r+="(inData)\nCalled just before objects are deleted.";
+            r+=" - Called just before objects are deleted.";
         return(r);
     }
     if (calltype==sim_syscb_afterdelete)
     {
         std::string r("sysCall_afterDelete");
         if (callTips)
-            r+="(inData)\nCalled just after objects were deleted.";
+            r+=" - Called just after objects were deleted.";
         return(r);
     }
     if (calltype==sim_syscb_aftercreate)
     {
         std::string r("sysCall_afterCreate");
         if (callTips)
-            r+="(inData)\nCalled just after objects were created.";
+            r+=" - Called just after objects were created.";
         return(r);
     }
     if (calltype==sim_syscb_aos_suspend)
     {
         std::string r("sysCall_addOnScriptSuspend");
         if (callTips)
-            r+="()\nCalled just before the add-on script execution gets suspended.";
+            r+=" - Called just before the add-on script execution gets suspended.";
         return(r);
     }
     if (calltype==sim_syscb_aos_resume)
     {
         std::string r("sysCall_addOnScriptResume");
         if (callTips)
-            r+="()\nCalled just before the add-on script execution resumes.";
+            r+=" - Called just before the add-on script execution resumes.";
         return(r);
     }
 
@@ -394,49 +394,49 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
     {
         std::string r("sysCall_jointCallback");
         if (callTips)
-            r+="(inData)\nCalled after a dynamic simulation step.";
+            r+=" - Called after a dynamic simulation step.";
         return(r);
     }
     if (calltype==sim_syscb_vision)
     {
         std::string r("sysCall_vision");
         if (callTips)
-            r+="(inData)\nCalled when a vision sensor requests image processing.";
+            r+=" - Called when a vision sensor requests image processing.";
         return(r);
     }
     if (calltype==sim_syscb_userconfig)
     {
         std::string r("sysCall_userConfig");
         if (callTips)
-            r+="()\nCalled when the user double-clicks a user parameter icon.";
+            r+=" - Called when the user double-clicks a user parameter icon.";
         return(r);
     }
     if (calltype==sim_syscb_moduleentry)
     {
         std::string r("sysCall_moduleEntry");
         if (callTips)
-            r+="(inData)\nCalled when the user selects a module menu entry.";
+            r+=" - Called when the user selects a module menu entry.";
         return(r);
     }
     if (calltype==sim_syscb_trigger)
     {
         std::string r("sysCall_trigger");
         if (callTips)
-            r+="(inData)\nCalled when the sensor is triggered.";
+            r+=" - Called when the sensor is triggered.";
         return(r);
     }
     if (calltype==sim_syscb_contactcallback)
     {
         std::string r("sysCall_contactCallback");
         if (callTips)
-            r+="(inData)\nCalled by the physics engine when two respondable shapes are contacting.";
+            r+=" - Called by the physics engine when two respondable shapes are contacting.";
         return(r);
     }
     if (calltype==sim_syscb_dyncallback)
     {
         std::string r("sysCall_dynCallback");
         if (callTips)
-            r+="(inData)\nCalled by the physics engine twice per dynamic simulation pass.";
+            r+=" - Called by the physics engine twice per dynamic simulation pass.";
         return(r);
     }
     if ( (calltype>=sim_syscb_customcallback1)&&(calltype<=sim_syscb_customcallback4) )
@@ -444,21 +444,21 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
         std::string r("sysCall_customCallback");
         r+=std::to_string(calltype-sim_syscb_customcallback1+1);
         if (callTips)
-            r+="()\nCan be called by a customized main script.";
+            r+=" - Can be called by a customized main script.";
         return(r);
     }
     if (calltype==sim_syscb_event)
     {
         std::string r("sysCall_event");
         if (callTips)
-            r+="(inData)\nCalled asynchronously with buffered events.";
+            r+=" - Called asynchronously with buffered events.";
         return(r);
     }
     if (calltype==sim_syscb_ext)
     {
         std::string r("sysCall_ext");
         if (callTips)
-            r+="(functionName,inData)\nCalled (and shadows) user callbacks.";
+            r+=" - Calls (and shadows) user callbacks.";
         return(r);
     }
 
