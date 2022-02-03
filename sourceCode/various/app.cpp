@@ -1611,7 +1611,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
             vars["message"]=message;
         }
 
-        boost::replace_all(vars["message"],"\n","\n    ");
+     //   boost::replace_all(vars["message"],"\n","\n    ");
 
         std::string consoleTxt(replaceVars(consoleLogFormat,vars)+"\n");
         if (!_consoleLogFilter(consoleTxt.c_str()))

@@ -200,6 +200,10 @@ CMainWindow::CMainWindow() : QMainWindow()
 
 // --- Status bar ---
     statusBar=new CStatusBar();
+    QTextDocument* doc=statusBar->document();
+    QFont font=doc->defaultFont();
+    font.setFamily("Courier New");
+    doc->setDefaultFont(font);
     statusBar->setReadOnly(true);
     statusBar->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     statusBar->setMaximumBlockCount(5000);
