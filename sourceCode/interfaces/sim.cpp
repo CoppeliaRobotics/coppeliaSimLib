@@ -305,18 +305,6 @@ SIM_DLLEXPORT simInt simHandleDynamics(simFloat deltaTime)
 {
     return(simHandleDynamics_internal(deltaTime));
 }
-SIM_DLLEXPORT simInt simSetScriptText(simInt scriptHandle,const simChar* scriptText)
-{
-    return(simSetScriptText_internal(scriptHandle,scriptText));
-}
-SIM_DLLEXPORT const simChar* simGetScriptText(simInt scriptHandle)
-{
-    return(simGetScriptText_internal(scriptHandle));
-}
-SIM_DLLEXPORT simInt simGetScriptProperty(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle)
-{
-    return(simGetScriptProperty_internal(scriptHandle,scriptProperty,associatedObjectHandle));
-}
 SIM_DLLEXPORT simInt simAssociateScriptWithObject(simInt scriptHandle,simInt associatedObjectHandle)
 {
     return(simAssociateScriptWithObject_internal(scriptHandle,associatedObjectHandle));
@@ -2780,6 +2768,18 @@ SIM_DLLEXPORT simInt simSetScriptAttribute(simInt scriptHandle,simInt attributeI
 SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal)
 {
     return(simGetScriptAttribute_internal(scriptHandle,attributeID,floatVal,intOrBoolVal));
+}
+SIM_DLLEXPORT simInt simSetScriptText(simInt scriptHandle,const simChar* scriptText)
+{
+    return(simSetScriptText_internal(scriptHandle,scriptText));
+}
+SIM_DLLEXPORT const simChar* simGetScriptText(simInt scriptHandle)
+{
+    return(simGetScriptText_internal(scriptHandle));
+}
+SIM_DLLEXPORT simInt simGetScriptProperty(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle)
+{
+    return(simGetScriptProperty_internal(scriptHandle,scriptProperty,associatedObjectHandle));
 }
 // Deprecated end
 

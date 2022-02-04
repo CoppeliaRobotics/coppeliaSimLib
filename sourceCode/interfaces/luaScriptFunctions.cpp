@@ -109,7 +109,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getScriptHandle",_simGetScriptHandle,                  "int scriptHandle=sim.getScriptHandle(int scriptType,string scriptName='')",true},
     {"sim.addScript",_simAddScript,                              "int scriptHandle=sim.addScript(int scriptType)",true},
     {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"sim.associateScriptWithObject(int scriptHandle,int objectHandle)",true},
-    {"sim.setScriptText",_simSetScriptText,                      "sim.setScriptText(int scriptHandle,string scriptText)",true},
     {"sim.getObjectPosition",_simGetObjectPosition,              "float[3] position=sim.getObjectPosition(int objectHandle,int relativeToObjectHandle)",true},
     {"sim.getObjectOrientation",_simGetObjectOrientation,        "float[3] eulerAngles=sim.getObjectOrientation(int objectHandle,int relativeToObjectHandle)",true},
     {"sim.setObjectPosition",_simSetObjectPosition,              "sim.setObjectPosition(int objectHandle,int relativeToObjectHandle,float[3] position)",true},
@@ -406,7 +405,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setModuleInfo",_simSetModuleInfo,                      "sim.setModuleInfo(string moduleName,int infoType,string info)\nsim.setModuleInfo(string moduleName,int infoType,number info)",true},
     {"sim.registerScriptFunction",_simRegisterScriptFunction,    "int result=sim.registerScriptFunction(string funcNameAtPluginName,string callTips)",true},
     {"sim.registerScriptVariable",_simRegisterScriptVariable,    "int result=sim.registerScriptVariable(string varNameAtPluginName)",true},
-    {"sim.registerScriptFuncHook",_simRegisterScriptFuncHook,    "int result=sim.registerScriptFuncHook(string funcToHook,func userFunc,bool execBefore)\nint result=sim.registerScriptFuncHook(string funcToHook,string userFunc,bool execBefore)",true},
+    {"sim.registerScriptFuncHook",_simRegisterScriptFuncHook,    "int result=sim.registerScriptFuncHook(string funcToHook,func userFunc,bool execBefore)",true},
     {"sim.isDeprecated",_simIsDeprecated,                        "int result=sim.isDeprecated(string funcOrConst)",true},
     {"sim.getPersistentDataTags",_simGetPersistentDataTags,      "string[] tags=sim.getPersistentDataTags()",true},
     {"sim.getRandom",_simGetRandom,                              "float randomNumber=sim.getRandom(int seed=nil)",true},
@@ -580,6 +579,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setSphericalJointMatrix",_simSetSphericalJointMatrix,  "Deprecated. Use sim.setObjectChildPose instead",false},
     {"sim.setScriptAttribute",_simSetScriptAttribute,            "Deprecated. Use sim.setScriptXXXParam instead",false},
     {"sim.getScriptAttribute",_simGetScriptAttribute,            "Deprecated. Use sim.getScriptXXXParam instead",false},
+    {"sim.setScriptText",_simSetScriptText,                      "Deprecated. Use sim.setScriptStringParam instead",false},
     {"sim._getObjectHandle",_sim_getObjectHandle,                "",false}, // handled via sim.getObjectHandle from sim.lua
 
     {"",nullptr,"",false}
@@ -3217,25 +3217,6 @@ int _simAssociateScriptWithObject(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
-
-int _simSetScriptText(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setScriptText");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
-    {
-        int scriptHandle=luaToInt(L,1);
-        std::string scriptText(luaWrap_lua_tostring(L,2));
-        retVal=simSetScriptText_internal(scriptHandle,scriptText.c_str());
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
 
 int _simRemoveScript(luaWrap_lua_State* L)
 {
@@ -13336,7 +13317,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetObjectHandle",_sim_getObjectHandle,                 "Use the newer 'sim.getObjectHandle' notation",false},
     {"simAddScript",_simAddScript,                              "Use the newer 'sim.addScript' notation",false},
     {"simAssociateScriptWithObject",_simAssociateScriptWithObject,"Use the newer 'sim.associateScriptWithObject' notation",false},
-    {"simSetScriptText",_simSetScriptText,                      "Use the newer 'sim.setScriptText' notation",false},
+    {"simSetScriptText",_simSetScriptText,                      "Deprecated. Use sim.setScriptStringParam instead",false},
     {"simGetScriptHandle",_simGetScriptHandle,                  "Use the newer 'sim.getScriptHandle' notation",false},
     {"simGetObjectPosition",_simGetObjectPosition,              "Use the newer 'sim.getObjectPosition' notation",false},
     {"simGetObjectOrientation",_simGetObjectOrientation,        "Use the newer 'sim.getObjectOrientation' notation",false},
@@ -20756,5 +20737,23 @@ int _simGetScriptAttribute(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
+}
+
+int _simSetScriptText(luaWrap_lua_State* L)
+{ // deprecated on 04.02.2022
+    TRACE_LUA_API;
+    LUA_START("sim.setScriptText");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
+    {
+        int scriptHandle=luaToInt(L,1);
+        std::string scriptText(luaWrap_lua_tostring(L,2));
+        retVal=simSetScriptText_internal(scriptHandle,scriptText.c_str());
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
 }
 

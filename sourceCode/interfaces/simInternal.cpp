@@ -4962,94 +4962,6 @@ simInt simResetScript_internal(simInt scriptHandle)
     return(-1);
 }
 
-simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
-            return(-1);
-        }
-
-#ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
-#endif
-        it->setScriptText(scriptText);
-        if ( (it->getScriptType()!=sim_scripttype_childscript)||(!it->getThreadedExecution_oldThreads())||App::currentWorld->simulation->isSimulationStopped() )
-            it->resetScript();
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-const simChar* simGetScriptText_internal(simInt scriptHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (App::currentWorld->environment->getSceneLocked())
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
-            return(nullptr);
-        }
-        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
-            return(nullptr);
-        }
-        const char* retVal=nullptr;
-
-#ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,false);
-        else
-#endif
-            retVal=it->getScriptText();
-        return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
-}
-
-simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
-            return(-1);
-        }
-        scriptProperty[0]=it->getScriptType();
-        associatedObjectHandle[0]=it->getObjectHandleThatScriptIsAttachedTo_child();
-        if (it->getThreadedExecution_oldThreads())
-            scriptProperty[0]|=sim_scripttype_threaded_old;
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associatedObjectHandle)
 {
     TRACE_C_API;
@@ -10850,7 +10762,16 @@ simInt simSetScriptStringParam_internal(simInt scriptHandle,simInt parameterID,c
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
-        return(-1);
+        int retVal=-1;
+        if (parameterID==sim_scriptstringparam_text)
+        {
+            std::string s(parameter);
+            if (s.size()<parameterLength)
+                s.assign(parameter,parameter+parameterLength);
+            it->setScriptText(s.c_str());
+            retVal=1;
+        }
+        return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -23048,3 +22969,92 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
+
+simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
+{ // deprecated on 04.02.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            return(-1);
+        }
+
+#ifdef SIM_WITH_GUI
+        if (App::mainWindow!=nullptr)
+            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
+#endif
+        it->setScriptText(scriptText);
+        if ( (it->getScriptType()!=sim_scripttype_childscript)||(!it->getThreadedExecution_oldThreads())||App::currentWorld->simulation->isSimulationStopped() )
+            it->resetScript();
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+const simChar* simGetScriptText_internal(simInt scriptHandle)
+{ // deprecated on 04.02.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (App::currentWorld->environment->getSceneLocked())
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
+            return(nullptr);
+        }
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            return(nullptr);
+        }
+        const char* retVal=nullptr;
+
+#ifdef SIM_WITH_GUI
+        if (App::mainWindow!=nullptr)
+            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,false);
+        else
+#endif
+            retVal=it->getScriptText();
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle)
+{ // deprecated on 04.02.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
+            return(-1);
+        }
+        scriptProperty[0]=it->getScriptType();
+        associatedObjectHandle[0]=it->getObjectHandleThatScriptIsAttachedTo_child();
+        if (it->getThreadedExecution_oldThreads())
+            scriptProperty[0]|=sim_scripttype_threaded_old;
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+

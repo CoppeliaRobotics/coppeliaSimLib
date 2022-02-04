@@ -89,9 +89,6 @@ simInt simSetObjectSel_internal(const simInt* handles,simInt cnt);
 simInt simHandleProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 simInt simReadProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 simInt simHandleDynamics_internal(simFloat deltaTime);
-simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText);
-const simChar* simGetScriptText_internal(simInt scriptHandle);
-simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle);
 simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associatedObjectHandle);
 simInt simHandleMainScript_internal();
 simInt simResetScript_internal(simInt scriptHandle);
@@ -669,4 +666,7 @@ simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* m
 simInt simGetObjectHandleEx_internal(const simChar* objectAlias,simInt index,simInt proxy,simInt options);
 simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal);
 simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal);
+simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText);
+const simChar* simGetScriptText_internal(simInt scriptHandle);
+simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle);
 #endif // !defined(simInternal_INCLUDED_)

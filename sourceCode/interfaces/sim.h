@@ -92,9 +92,6 @@ SIM_DLLEXPORT simInt simSetObjectSel(const simInt* handles,simInt cnt);
 SIM_DLLEXPORT simInt simHandleProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 SIM_DLLEXPORT simInt simReadProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 SIM_DLLEXPORT simInt simHandleDynamics(simFloat deltaTime);
-SIM_DLLEXPORT simInt simSetScriptText(simInt scriptHandle,const simChar* scriptText);
-SIM_DLLEXPORT const simChar* simGetScriptText(simInt scriptHandle);
-SIM_DLLEXPORT simInt simGetScriptProperty(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle);
 SIM_DLLEXPORT simInt simAssociateScriptWithObject(simInt scriptHandle,simInt associatedObjectHandle);
 SIM_DLLEXPORT simInt simHandleMainScript();
 SIM_DLLEXPORT simInt simResetScript(simInt scriptHandle);
@@ -723,6 +720,9 @@ SIM_DLLEXPORT simInt simGetJointMatrix(simInt objectHandle,simFloat* matrix);
 SIM_DLLEXPORT simInt simSetSphericalJointMatrix(simInt objectHandle,const simFloat* matrix);
 SIM_DLLEXPORT simInt simSetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal);
 SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal);
+SIM_DLLEXPORT simInt simSetScriptText(simInt scriptHandle,const simChar* scriptText);
+SIM_DLLEXPORT const simChar* simGetScriptText(simInt scriptHandle);
+SIM_DLLEXPORT simInt simGetScriptProperty(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)
