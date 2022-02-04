@@ -10819,6 +10819,16 @@ simChar* simGetScriptStringParam_internal(simInt scriptHandle,simInt parameterID
             retVal[s.length()]=0;
             parameterLength[0]=(int)s.length();
         }
+        if (parameterID==sim_scriptstringparam_text)
+        {
+            std::string s(it->getScriptText());
+            retVal=new char[s.length()+1];
+            for (size_t i=0;i<s.length();i++)
+                retVal[i]=s[i];
+            retVal[s.length()]=0;
+            parameterLength[0]=(int)s.length();
+        }
+
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
