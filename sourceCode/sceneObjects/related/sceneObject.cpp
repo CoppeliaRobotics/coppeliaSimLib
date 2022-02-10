@@ -120,7 +120,7 @@ void CSceneObject::measureVelocity(float dt)
     {
         _measuredLinearVelocity_velocityMeasurement=(abs.X-_previousAbsTransf_velocityMeasurement.X)*(1.0f/dt);
         _measuredAngularVelocity_velocityMeasurement=abs.Q.getAngleBetweenQuaternions(_previousAbsTransf_velocityMeasurement.Q)/dt;
-        _measuredAngularVelocity3_velocityMeasurement=(abs*_previousAbsTransf_velocityMeasurement.getInverse()).Q.getEulerAngles()*(1.0f/dt);
+        _measuredAngularVelocity3_velocityMeasurement=(_previousAbsTransf_velocityMeasurement.getInverse()*abs).Q.getEulerAngles()*(1.0f/dt);
 
         C4Vector AA(_previousAbsTransf_velocityMeasurement.Q);
         C4Vector BB(abs.Q);
