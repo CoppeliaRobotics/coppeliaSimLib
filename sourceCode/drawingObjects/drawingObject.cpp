@@ -288,6 +288,7 @@ bool CDrawingObject::addItem(const float* itemData)
             _data[newPos*floatsPerItem+off+i]=itemData[off+i];
             if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
                 _bufferedEventData.push_back(itemData[off+i]);
+            off+=1;
         }
     }
     return(true);
@@ -577,11 +578,33 @@ void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<floa
         }
         else
         {
-            for (size_t i=0;i<w;i++)
+            if (colorsPerItem>0)
             {
-                colors.push_back(_bufferedEventData[t+0]);
-                colors.push_back(_bufferedEventData[t+1]);
-                colors.push_back(_bufferedEventData[t+2]);
+                for (size_t i=0;i<w;i++)
+                {
+                    colors.push_back(_bufferedEventData[t+0]);
+                    colors.push_back(_bufferedEventData[t+1]);
+                    colors.push_back(_bufferedEventData[t+2]);
+                }
+            }
+        }
+    }
+    if (colorsPerItem==0)
+    { // this is the regular case when sim.drawing_itemcolors is not specified:
+        int t=_objectType&0x001f;
+        w=1;
+        if (t==sim_drawing_lines)
+            w=2;
+        if (t==sim_drawing_triangles)
+            w=3;
+        const float* c=color.getColorsPtr();
+        for (size_t itemCnt=0;itemCnt<_bufferedEventData.size()/size_t(floatsPerItem);itemCnt++)
+        {
+            for (size_t j=0;j<w;j++)
+            {
+                colors.push_back(c[0]);
+                colors.push_back(c[1]);
+                colors.push_back(c[2]);
             }
         }
     }
@@ -615,12 +638,6 @@ void CDrawingObject::pushAddEvent()
                 break;
         }
         data->appendMapObject_stringString("type",tp.c_str(),0);
-
-        float c[9];
-        color.getColor(c+0,sim_colorcomponent_ambient_diffuse);
-        color.getColor(c+3,sim_colorcomponent_specular);
-        color.getColor(c+6,sim_colorcomponent_emission);
-        data->appendMapObject_stringFloatArray("color",c,9);
 
         data->appendMapObject_stringInt32("maxCnt",_maxItemCount);
 
