@@ -288,7 +288,6 @@ bool CDrawingObject::addItem(const float* itemData)
             _data[newPos*floatsPerItem+off+i]=itemData[off+i];
             if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
                 _bufferedEventData.push_back(itemData[off+i]);
-            off+=1;
         }
     }
     return(true);
