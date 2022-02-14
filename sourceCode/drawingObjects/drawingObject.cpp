@@ -29,6 +29,7 @@ std::vector<float>* CDrawingObject::getDataPtr()
 
 CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateTolerance,int sceneObjId,int maxItemCount,int creatorHandle)
 {
+    _rebuildRemoteItems=true;
     _creatorHandle=creatorHandle;
     float tr=0.0f;
     if (theObjectType&sim_drawing_50percenttransparency)
@@ -143,7 +144,7 @@ void CDrawingObject::adjustForFrameChange(const C7Vector& preCorrection)
         }
     }
     _initBufferedEventData();
-    pushAppendNewPointEvent(true);
+    pushAppendNewPointEvent();
 }
 
 void CDrawingObject::adjustForScaling(float xScale,float yScale,float zScale)
@@ -177,7 +178,7 @@ void CDrawingObject::adjustForScaling(float xScale,float yScale,float zScale)
             off+=1;
     }
     _initBufferedEventData();
-    pushAppendNewPointEvent(true);
+    pushAppendNewPointEvent();
 }
 
 void CDrawingObject::setItems(const float* itemData,size_t itemCnt)
@@ -514,7 +515,7 @@ void CDrawingObject::_initBufferedEventData()
         if (index>=_maxItemCount)
             index-=_maxItemCount;
     }
-
+    _rebuildRemoteItems=true;
 }
 
 void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<float>& quaternions,std::vector<float>& colors) const
@@ -654,7 +655,7 @@ void CDrawingObject::pushAddEvent()
     }
 }
 
-void CDrawingObject::pushAppendNewPointEvent(bool clearAllFirst)
+void CDrawingObject::pushAppendNewPointEvent()
 {
     if ( (_bufferedEventData.size()>0)&&App::worldContainer->getEventsEnabled() )
     {
@@ -681,9 +682,10 @@ void CDrawingObject::pushAppendNewPointEvent(bool clearAllFirst)
         buff=(const char*)obj.getBuff(l);
         data->appendMapObject_stringString("colors",buff,l,true);
 
-        data->appendMapObject_stringBool("clearPoints",clearAllFirst);
+        data->appendMapObject_stringBool("clearPoints",_rebuildRemoteItems);
 
         _bufferedEventData.clear();
+        _rebuildRemoteItems=false;
 
         App::worldContainer->pushEvent(event);
     }

@@ -29,7 +29,7 @@ public:
     void getExportableMesh(std::vector<float>& vertices,std::vector<int>& indices) const;
 
     void pushAddEvent();
-    void pushAppendNewPointEvent(bool clearAllFirst);
+    void pushAppendNewPointEvent();
 
 
 
@@ -72,6 +72,7 @@ protected:
     int _startItem;
     float _duplicateTolerance;
     int _creatorHandle;
+    bool _rebuildRemoteItems;
 
     VMutex _objectMutex;
 
