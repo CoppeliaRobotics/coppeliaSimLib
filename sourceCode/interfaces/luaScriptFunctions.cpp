@@ -1152,6 +1152,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.shapefloatparam_edge_angle",sim_shapefloatparam_edge_angle,true},
     {"sim.shapeintparam_edge_borders_hidden",sim_shapeintparam_edge_borders_hidden,true},
     {"sim.shapeintparam_component_cnt",sim_shapeintparam_component_cnt,true},
+    {"sim.shapeintparam_sleepmodestart",sim_shapeintparam_sleepmodestart,true},
     // proximity sensors
     {"sim.proxintparam_ray_invisibility",sim_proxintparam_ray_invisibility,true},
     {"sim.proxintparam_volume_type",sim_proxintparam_volume_type,true},

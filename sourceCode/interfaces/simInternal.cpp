@@ -9219,6 +9219,13 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
         }
         if (shape!=nullptr)
         {
+            if (parameterID==sim_shapeintparam_sleepmodestart)
+            {
+                parameter[0]=0;
+                if (shape->getStartInDynamicSleeping())
+                    parameter[0]=1;
+                retVal=1;
+            }
             if (parameterID==sim_shapeintparam_static)
             {
                 parameter[0]=0;
@@ -9560,6 +9567,11 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
         }
         if (shape!=nullptr)
         {
+            if (parameterID==sim_shapeintparam_sleepmodestart)
+            {
+                shape->setStartInDynamicSleeping(parameter!=0);
+                retVal=1;
+            }
             if (parameterID==sim_shapeintparam_static)
             {
                 shape->setShapeIsDynamicallyStatic(parameter!=0);
