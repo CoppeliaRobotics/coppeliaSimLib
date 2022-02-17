@@ -875,8 +875,6 @@
 
 #define IDSN_PURE_SPHEROID "Pure spheroid"
 #define IDSN_PURE_CONE "Pure cone"
-#define IDSN_NEWTON_NON_CONVEX_MESH "Newton non-convex mesh"
-
 
 #define IDS_WARNING_WITH_NEWTON_NON_CONVEX_DYNAMIC_MESH "The scene contains one or several non-convex dynamic meshes, which are not supported with the selected dynamics engine. Those meshes will be simulated with their convex hull instead."
 #define IDS_WARNING_WHEN_PURE_SPHEROID_NOT_SUPPORTED "The scene contains one or several pure spheroids that cannot be simulated with currently selected dynamics engine. The spheroid(s) will be approximated by spheres for this simulation."

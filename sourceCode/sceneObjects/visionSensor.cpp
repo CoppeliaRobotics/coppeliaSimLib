@@ -1250,7 +1250,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
 
     std::vector<CSceneObject*> toRender;
     CSceneObject* viewBoxObject;
-    if (true)//App::userSettings->enableOldRenderableBehaviour)
+    if (App::userSettings->enableOldRenderableBehaviour)
         viewBoxObject=_getInfoOfWhatNeedsToBeRendered_old(entityID,detectAll,rendAttrib,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,overrideRenderableFlagsForNonCollections,toRender);
     else
         viewBoxObject=_getInfoOfWhatNeedsToBeRendered(entityID,detectAll,rendAttrib,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,overrideRenderableFlagsForNonCollections,toRender);
@@ -1321,6 +1321,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
     // Rendering the scene objects:
     for (int i=0;i<int(toRender.size());i++)
     {
+        toRender[i]->setForceAlwaysVisible_tmp(true); // We have already decided to render this based on vision sensor's settings!
         if (!entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects)
         { // attached non-transparent objects were rendered before
             if (getInternalRendering())
@@ -1344,6 +1345,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
                 toRender[i]->display(this,atr); // attached object were rendered before
         }
 #endif
+        toRender[i]->setForceAlwaysVisible_tmp(false);
     }
 
 #ifdef SIM_WITH_OPENGL
