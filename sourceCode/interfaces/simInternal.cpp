@@ -1483,12 +1483,18 @@ simInt simGetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
-            relativeToObjectHandle=-1;
+            relativeToObjectHandle=sim_handle_world;
             CSceneObject* parent=it->getParent();
             if (parent!=nullptr)
                 relativeToObjectHandle=parent->getObjectHandle();
         }
-        if (relativeToObjectHandle!=-1)
+        bool inverse=false;
+        if (relativeToObjectHandle==sim_handle_inverse)
+        {
+            inverse=true;
+            relativeToObjectHandle=sim_handle_world;
+        }
+        if (relativeToObjectHandle!=sim_handle_world)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
@@ -1506,6 +1512,8 @@ simInt simGetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
                 relTr=relObj->getFullCumulativeTransformation();
             tr=relTr.getInverse()*it->getCumulativeTransformation();
         }
+        if (inverse)
+            tr.inverse();
         tr.getMatrix().copyToInterface(matrix);
         return(1);
     }
@@ -1529,12 +1537,18 @@ simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
-            relativeToObjectHandle=-1;
+            relativeToObjectHandle=sim_handle_world;
             CSceneObject* parent=it->getParent();
             if (parent!=nullptr)
                 relativeToObjectHandle=parent->getObjectHandle();
         }
-        if (relativeToObjectHandle!=-1)
+        bool inverse=false;
+        if (relativeToObjectHandle==sim_handle_inverse)
+        {
+            inverse=true;
+            relativeToObjectHandle=sim_handle_world;
+        }
+        if (relativeToObjectHandle!=sim_handle_world)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
@@ -1543,6 +1557,8 @@ simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
             it->setDynamicsResetFlag(true,true);
         C4X4Matrix m;
         m.copyFromInterface(matrix);
+        if (inverse)
+            m.inverse();
         CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (objRel==nullptr)
             App::currentWorld->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(),m.getTransformation(),false);
@@ -1577,12 +1593,18 @@ simInt simGetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHand
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
-            relativeToObjectHandle=-1;
+            relativeToObjectHandle=sim_handle_world;
             CSceneObject* parent=it->getParent();
             if (parent!=nullptr)
                 relativeToObjectHandle=parent->getObjectHandle();
         }
-        if (relativeToObjectHandle!=-1)
+        bool inverse=false;
+        if (relativeToObjectHandle==sim_handle_inverse)
+        {
+            inverse=true;
+            relativeToObjectHandle=sim_handle_world;
+        }
+        if (relativeToObjectHandle!=sim_handle_world)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
@@ -1600,6 +1622,8 @@ simInt simGetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHand
                 relTr=relObj->getFullCumulativeTransformation();
             tr=relTr.getInverse()*it->getCumulativeTransformation();
         }
+        if (inverse)
+            tr.inverse();
         tr.getInternalData(pose,true);
         return(1);
     }
@@ -1623,12 +1647,18 @@ simInt simSetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHand
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
-            relativeToObjectHandle=-1;
+            relativeToObjectHandle=sim_handle_world;
             CSceneObject* parent=it->getParent();
             if (parent!=nullptr)
                 relativeToObjectHandle=parent->getObjectHandle();
         }
-        if (relativeToObjectHandle!=-1)
+        bool inverse=false;
+        if (relativeToObjectHandle==sim_handle_inverse)
+        {
+            inverse=true;
+            relativeToObjectHandle=sim_handle_world;
+        }
+        if (relativeToObjectHandle!=sim_handle_world)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
@@ -1637,6 +1667,8 @@ simInt simSetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHand
             it->setDynamicsResetFlag(true,true);
         C7Vector tr;
         tr.setInternalData(pose,true);
+        if (inverse)
+            tr.inverse();
         CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (objRel==nullptr)
             App::currentWorld->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(),tr,false);
@@ -1671,12 +1703,12 @@ simInt simGetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
-            relativeToObjectHandle=-1;
+            relativeToObjectHandle=sim_handle_world;
             CSceneObject* parent=it->getParent();
             if (parent!=nullptr)
                 relativeToObjectHandle=parent->getObjectHandle();
         }
-        if (relativeToObjectHandle!=-1)
+        if (relativeToObjectHandle!=sim_handle_world)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
@@ -1726,12 +1758,12 @@ simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
-            relativeToObjectHandle=-1;
+            relativeToObjectHandle=sim_handle_world;
             CSceneObject* parent=it->getParent();
             if (parent!=nullptr)
                 relativeToObjectHandle=parent->getObjectHandle();
         }
-        if (relativeToObjectHandle!=-1)
+        if (relativeToObjectHandle!=sim_handle_world)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
@@ -1793,12 +1825,12 @@ simInt simGetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
-            relativeToObjectHandle=-1;
+            relativeToObjectHandle=sim_handle_world;
             CSceneObject* parent=it->getParent();
             if (parent!=nullptr)
                 relativeToObjectHandle=parent->getObjectHandle();
         }
-        if (relativeToObjectHandle!=-1)
+        if (relativeToObjectHandle!=sim_handle_world)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
@@ -1843,12 +1875,12 @@ simInt simSetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
-            relativeToObjectHandle=-1;
+            relativeToObjectHandle=sim_handle_world;
             CSceneObject* parent=it->getParent();
             if (parent!=nullptr)
                 relativeToObjectHandle=parent->getObjectHandle();
         }
-        if (relativeToObjectHandle!=-1)
+        if (relativeToObjectHandle!=sim_handle_world)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
@@ -11529,12 +11561,12 @@ simInt simGetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
-            relativeToObjectHandle=-1;
+            relativeToObjectHandle=sim_handle_world;
             CSceneObject* parent=it->getParent();
             if (parent!=nullptr)
                 relativeToObjectHandle=parent->getObjectHandle();
         }
-        if (relativeToObjectHandle!=-1)
+        if (relativeToObjectHandle!=sim_handle_world)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);
@@ -11595,12 +11627,12 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
-            relativeToObjectHandle=-1;
+            relativeToObjectHandle=sim_handle_world;
             CSceneObject* parent=it->getParent();
             if (parent!=nullptr)
                 relativeToObjectHandle=parent->getObjectHandle();
         }
-        if (relativeToObjectHandle!=-1)
+        if (relativeToObjectHandle!=sim_handle_world)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
                 return(-1);

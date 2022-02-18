@@ -710,6 +710,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.scriptexecorder_normal",sim_scriptexecorder_normal,true},
     {"sim.scriptexecorder_last",sim_scriptexecorder_last,true},
     // special arguments for some functions:
+    {"sim.handle_world",sim_handle_world,true},
     {"sim.handle_all",sim_handle_all,true},
     {"sim.handle_all_except_explicit",sim_handle_all_except_explicit,true},
     {"sim.handle_self",sim_handle_self,true},
@@ -722,6 +723,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.handle_parent",sim_handle_parent,true},
     {"sim.handle_scene",sim_handle_scene,true},
     {"sim.handle_app",sim_handle_app,true},
+    {"sim.handle_inverse",sim_handle_inverse,true},
     // special handle flags:
     {"sim.handleflag_assembly",sim_handleflag_assembly,true},
     {"sim.handleflag_camera",sim_handleflag_camera,true},

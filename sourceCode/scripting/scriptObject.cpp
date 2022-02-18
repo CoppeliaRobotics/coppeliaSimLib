@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include "luaScriptFunctions.h"
 #include "luaWrapper.h"
+#include <regex>
 
 // Old:
 #include "threadPool_old.h"
@@ -6834,6 +6835,17 @@ void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject,bool doI
 
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 {
+    /*
+    std::smatch match;
+    std::regex regEx("sim.getObjectMatrix\\((.+),( *-1 *)\\)");
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getObjectMatrix(")+match.str(1)+",sim.handle_world)");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    */
+
+
     if (_containsScriptText_old(scriptObject,"sim.setScriptAttribute"))
         App::logMsg(sim_verbosity_errors,"Contains sim.setScriptAttribute...");
     if (_containsScriptText_old(scriptObject,"sim.getScriptAttribute"))
