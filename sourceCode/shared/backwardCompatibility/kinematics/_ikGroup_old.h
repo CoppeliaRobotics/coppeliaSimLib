@@ -28,9 +28,6 @@ public:
     _CIkGroup_old();
     virtual ~_CIkGroup_old();
 
-    // Overridden from _CSyncObject_:
-    virtual void synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg);
-
     CIkElement_old* getIkElementFromHandle(int ikElementHandle) const;
     CIkElement_old* getIkElementFromTipHandle(int tipHandle) const;
     CIkElement_old* getIkElementFromIndex(size_t index) const;

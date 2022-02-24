@@ -2948,7 +2948,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDynamicMotorMaximumForce(cmd.floatParams[0]);
+                it->setDynamicMotorMaximumForce(cmd.floatParams[0],true);
         }
         if (cmd.cmdId==APPLY_MOTORPARAMS_JOINTDYNGUITRIGGEREDCMD)
         {
@@ -2963,7 +2963,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         it->setEnableDynamicMotor(last->getEnableDynamicMotor());
                         it->setDynamicMotorTargetVelocity(last->getDynamicMotorTargetVelocity());
                         it->setDynamicMotorLockModeWhenInVelocityControl(last->getDynamicMotorLockModeWhenInVelocityControl());
-                        it->setDynamicMotorMaximumForce(last->getDynamicMotorMaximumForce());
+                        it->setDynamicMotorMaximumForce(last->getDynamicMotorMaximumForce(false),false);
                         last->copyEnginePropertiesTo(it);
                     }
                 }
@@ -4884,10 +4884,10 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
 
     if (App::currentWorld->dynamicsContainer->displayVortexPluginIsDemoRequired())
 #ifdef WIN_SIM
-        App::uiThread->messageBox_information(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_WINDOWS,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+        App::uiThread->messageBox_information(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
 #ifdef LIN_SIM
-        App::uiThread->messageBox_information(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_LINUX,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+        App::uiThread->messageBox_information(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
 
     if (displayNonPureNonConvexShapeUseWarning)

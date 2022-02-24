@@ -15,11 +15,3 @@ _CWorldContainer_::_CWorldContainer_()
 _CWorldContainer_::~_CWorldContainer_()
 {
 }
-
-void _CWorldContainer_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)
-{ // Overridden from _CSyncObject_
-    CSyncObject::setOverallSyncEnabled(false);
-    currentWorld->synchronizationMsg(routing,msg);
-    CSyncObject::setOverallSyncEnabled(true);
-}
-

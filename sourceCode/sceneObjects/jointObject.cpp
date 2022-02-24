@@ -588,10 +588,16 @@ void CJoint::setDynamicMotorUpperLimitVelocity(float v)
     }
 }
 
-void CJoint::setDynamicMotorMaximumForce(float f)
+void CJoint::setDynamicMotorMaximumForce(float f,bool isSigned)
 {
     if (_jointType!=sim_joint_spherical_subtype)
     {
+        if (isSigned)
+        {
+            if (_dynamicMotorTargetVelocity*f<0.0f)
+                setDynamicMotorTargetVelocity(-_dynamicMotorTargetVelocity);
+            f=fabs(f);
+        }
         if (_jointType==sim_joint_revolute_subtype)
             f=tt::getLimitedFloat(0.0f,+100000000000.0f,f);
         if (_jointType==sim_joint_prismatic_subtype)
@@ -839,7 +845,7 @@ void CJoint::simulationEnded()
             setDynamicMotorTargetVelocity(_initialDynamicMotorTargetVelocity);
             setDynamicMotorLockModeWhenInVelocityControl(_initialDynamicMotorLockModeWhenInVelocityControl);
             setDynamicMotorUpperLimitVelocity(_initialDynamicMotorUpperLimitVelocity);
-            setDynamicMotorMaximumForce(_initialDynamicMotorMaximumForce);
+            setDynamicMotorMaximumForce(_initialDynamicMotorMaximumForce,false);
 
             setEnableDynamicMotorControlLoop(_initialDynamicMotorControlLoopEnabled);
             setDynamicMotorPositionControlParameters(_initialDynamicMotorPositionControl_P,_initialDynamicMotorPositionControl_I,_initialDynamicMotorPositionControl_D);
@@ -1287,9 +1293,9 @@ void CJoint::scaleObject(float scalingFactor)
         setDynamicMotorTargetVelocity(_dynamicMotorTargetVelocity*scalingFactor);
         setDynamicMotorUpperLimitVelocity(_dynamicMotorUpperLimitVelocity*scalingFactor);
         if (_dynamicMotorPositionControl_torqueModulation) // this condition and next line added on 04/10/2013 (Alles Gute zu Geburtstag Mama :) )
-            setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*scalingFactor*scalingFactor); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+            setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*scalingFactor*scalingFactor,false); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
         else
-            setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*scalingFactor*scalingFactor*scalingFactor); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+            setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*scalingFactor*scalingFactor*scalingFactor,false); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
 
         // Following removed on 04/10/2013. Why did we have this?!
         //_dynamicMotorPositionControl_targetPosition=_jointPosition;
@@ -1321,7 +1327,7 @@ void CJoint::scaleObject(float scalingFactor)
 
     if (_jointType==sim_joint_revolute_subtype)
     {
-        setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*scalingFactor*scalingFactor*scalingFactor*scalingFactor);//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+        setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*scalingFactor*scalingFactor*scalingFactor*scalingFactor,false);//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
 
         setDynamicMotorSpringControlParameters(_dynamicMotorSpringControl_K*scalingFactor*scalingFactor*scalingFactor*scalingFactor,_dynamicMotorSpringControl_C*scalingFactor*scalingFactor*scalingFactor*scalingFactor);
 
@@ -1363,9 +1369,9 @@ void CJoint::scaleObjectNonIsometrically(float x,float y,float z)
         setDynamicMotorTargetVelocity(_dynamicMotorTargetVelocity*z);
         setDynamicMotorUpperLimitVelocity(_dynamicMotorUpperLimitVelocity*z);
         if (_dynamicMotorPositionControl_torqueModulation) // this condition and next line added on 04/10/2013 (Alles Gute zu Geburtstag Mama :) )
-            setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*diam*diam); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+            setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*diam*diam,false); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
         else
-            setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*diam*diam*diam); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+            setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*diam*diam*diam,false); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
 
         // Following removed on 04/10/2013. Why did we have this?!
         //_dynamicMotorPositionControl_targetPosition=_jointPosition;
@@ -1398,7 +1404,7 @@ void CJoint::scaleObjectNonIsometrically(float x,float y,float z)
 
     if (_jointType==sim_joint_revolute_subtype)
     {
-        setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*diam*diam*diam*diam);//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+        setDynamicMotorMaximumForce(_dynamicMotorMaximumForce*diam*diam*diam*diam,false);//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
 
         setDynamicMotorSpringControlParameters(_dynamicMotorSpringControl_K*diam*diam*diam*diam,_dynamicMotorSpringControl_C*diam*diam*diam*diam);
 
@@ -3152,9 +3158,15 @@ float CJoint::getDynamicMotorUpperLimitVelocity() const
     return(_dynamicMotorUpperLimitVelocity);
 }
 
-float CJoint::getDynamicMotorMaximumForce() const
+float CJoint::getDynamicMotorMaximumForce(bool signedValue) const
 {
-    return(_dynamicMotorMaximumForce);
+    float retVal=_dynamicMotorMaximumForce;
+    if (signedValue)
+    {
+        if (_dynamicMotorTargetVelocity<0.0f)
+            retVal=-retVal;
+    }
+    return(retVal);
 }
 
 bool CJoint::getEnableDynamicMotorControlLoop() const

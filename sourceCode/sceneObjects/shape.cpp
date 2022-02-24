@@ -2196,7 +2196,7 @@ void CShape::display(CViewableBase* renderingObject,int displayAttrib)
 }
 
 bool CShape::setParent(CSceneObject* newParent)
-{ // Overridden from _CSceneObject_
+{ // Overridden from CSceneObject
     bool retVal=CSceneObject::setParent(newParent);
     if (retVal&&getSetAutomaticallyToNonStaticIfGetsParent())
         setShapeIsDynamicallyStatic(false);

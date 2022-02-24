@@ -18,9 +18,6 @@ public:
     _CWorld_();
     virtual ~_CWorld_();
 
-    // Overridden from _CSyncObject_:
-    virtual void synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg);
-
     int getWorldHandle() const;
 
     virtual void setWorldHandle(int handle);

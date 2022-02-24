@@ -54,19 +54,3 @@ void _CWorld_::deleteWorld()
     delete ikGroups;
     ikGroups=nullptr;
 }
-
-void _CWorld_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)
-{ // Overridden from _CSyncObject_
-    if ( (routing[0].objType>=sim_syncobj_sceneobjectstart)&&(routing[0].objType<=sim_syncobj_sceneobjectend) )
-        sceneObjects->synchronizationMsg(routing,msg);
-    if (routing[0].objType==sim_syncobj_ikgroup)
-        ikGroups->synchronizationMsg(routing,msg);
-    if (routing[0].objType==sim_syncobj_world)
-    {
-        if (msg.msg==sim_syncobj_world_empty)
-        {
-            deleteWorld();
-            initializeWorld();
-        }
-    }
-}

@@ -130,7 +130,7 @@ void CQDlgJointDyn::refresh()
 
         if (it->getJointType()==sim_joint_revolute_subtype)
         {
-            ui->qqMaxForce->setText(tt::getEString(false,it->getDynamicMotorMaximumForce(),4).c_str());
+            ui->qqMaxForce->setText(tt::getEString(false,it->getDynamicMotorMaximumForce(true),4).c_str());
 
             if (ctrlEnabled&&(!springCtrlEnabled))
                 ui->qqVelocityUpperLimit->setText(tt::getAngleEString(false,it->getDynamicMotorUpperLimitVelocity(),4).c_str());
@@ -143,7 +143,7 @@ void CQDlgJointDyn::refresh()
         }
         else
         {
-            ui->qqMaxForce->setText(tt::getEString(false,it->getDynamicMotorMaximumForce(),4).c_str());
+            ui->qqMaxForce->setText(tt::getEString(false,it->getDynamicMotorMaximumForce(true),4).c_str());
             if (ctrlEnabled&&(!springCtrlEnabled))
                 ui->qqVelocityUpperLimit->setText(tt::getEString(false,it->getDynamicMotorUpperLimitVelocity(),4).c_str());
             else

@@ -43,7 +43,7 @@ public:
 
     C7Vector getIntrinsicTransformation(bool includeDynErrorComponent) const;
 
-    // Overridden from _CSceneObject_:
+    // Overridden from CSceneObject:
     virtual C7Vector getFullLocalTransformation() const;
 
     void commonInit();

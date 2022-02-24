@@ -13,9 +13,6 @@ public:
     _CIkGroupContainer_();
     virtual ~_CIkGroupContainer_();
 
-    // Overridden from _CSyncObject_:
-    virtual void synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg);
-
     virtual bool shiftIkGroup(int ikGroupHandle,bool shiftUp);
 
     size_t getObjectCount() const;

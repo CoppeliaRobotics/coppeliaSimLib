@@ -30,9 +30,6 @@ public:
     _CSceneObjectContainer_();
     virtual ~_CSceneObjectContainer_();
 
-    // Overridden from _CSyncObject_:
-    virtual void synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg);
-
     bool doesObjectExist(const CSceneObject* obj) const;
     int getObjectSequence(const CSceneObject* object) const;
     size_t getObjectCount() const;

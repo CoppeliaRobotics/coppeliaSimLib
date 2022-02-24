@@ -57,10 +57,6 @@ bool _CSyncObject_::getObjectCanSync() const
     return(_objectCanSync); // slave can sync when not incoming msg underway
 }
 
-void _CSyncObject_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)
-{
-}
-
 bool _CSyncObject_::setObjectCanSync(bool s)
 {
     bool retVal=true;

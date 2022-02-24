@@ -6845,7 +6845,10 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
     }
     */
 
-
+    if (_containsScriptText_old(scriptObject,"sim.setJointMaxForce"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setJointMaxForce...");
+    if (_containsScriptText_old(scriptObject,"sim.getJointMaxForce"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getJointMaxForce...");
     if (_containsScriptText_old(scriptObject,"sim.setScriptAttribute"))
         App::logMsg(sim_verbosity_errors,"Contains sim.setScriptAttribute...");
     if (_containsScriptText_old(scriptObject,"sim.getScriptAttribute"))

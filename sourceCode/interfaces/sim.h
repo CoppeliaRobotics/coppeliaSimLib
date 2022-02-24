@@ -56,7 +56,6 @@ SIM_DLLEXPORT simInt simGetJointPosition(simInt objectHandle,simFloat* position)
 SIM_DLLEXPORT simInt simSetJointPosition(simInt objectHandle,simFloat position);
 SIM_DLLEXPORT simInt simSetJointTargetPosition(simInt objectHandle,simFloat targetPosition);
 SIM_DLLEXPORT simInt simGetJointTargetPosition(simInt objectHandle,simFloat* targetPosition);
-SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTorque);
 SIM_DLLEXPORT simInt simGetObjectChildPose(simInt objectHandle,simFloat* pose);
 SIM_DLLEXPORT simInt simSetObjectChildPose(simInt objectHandle,const simFloat* pose);
 SIM_DLLEXPORT simInt simGetJointInterval(simInt objectHandle,simBool* cyclic,simFloat* interval);
@@ -225,7 +224,8 @@ SIM_DLLEXPORT simInt simSetSimulationPassesPerRenderingPass(simInt p);
 SIM_DLLEXPORT simInt simGetRotationAxis(const simFloat* matrixStart,const simFloat* matrixGoal,simFloat* axis,simFloat* angle);
 SIM_DLLEXPORT simInt simRotateAroundAxis(const simFloat* matrixIn,const simFloat* axis,const simFloat* axisPos,simFloat angle,simFloat* matrixOut);
 SIM_DLLEXPORT simInt simGetJointForce(simInt jointHandle,simFloat* forceOrTorque);
-SIM_DLLEXPORT simInt simGetJointMaxForce(simInt jointHandle,simFloat* forceOrTorque);
+SIM_DLLEXPORT simInt simGetJointTargetForce(simInt jointHandle,simFloat* forceOrTorque);
+SIM_DLLEXPORT simInt simSetJointTargetForce(simInt objectHandle,simFloat forceOrTorque,simBool signedValue);
 SIM_DLLEXPORT simInt simCameraFitToView(simInt viewHandleOrIndex,simInt objectCount,const simInt* objectHandles,simInt options,simFloat scaling);
 SIM_DLLEXPORT simInt simPersistentDataWrite(const simChar* dataName,const simChar* dataValue,simInt dataLength,simInt options);
 SIM_DLLEXPORT simChar* simPersistentDataRead(const simChar* dataName,simInt* dataLength);
@@ -723,6 +723,8 @@ SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeI
 SIM_DLLEXPORT simInt simSetScriptText(simInt scriptHandle,const simChar* scriptText);
 SIM_DLLEXPORT const simChar* simGetScriptText(simInt scriptHandle);
 SIM_DLLEXPORT simInt simGetScriptProperty(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle);
+SIM_DLLEXPORT simInt simGetJointMaxForce(simInt jointHandle,simFloat* forceOrTorque);
+SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTorque);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

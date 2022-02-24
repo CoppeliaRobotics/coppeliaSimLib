@@ -161,10 +161,6 @@ SIM_DLLEXPORT simInt simGetJointTargetPosition(simInt objectHandle,simFloat* tar
 {
     return(simGetJointTargetPosition_internal(objectHandle,targetPosition));
 }
-SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTorque)
-{
-    return(simSetJointMaxForce_internal(objectHandle,forceOrTorque));
-}
 SIM_DLLEXPORT simInt simGetObjectChildPose(simInt objectHandle,simFloat* pose)
 {
     return(simGetObjectChildPose_internal(objectHandle,pose));
@@ -841,9 +837,13 @@ SIM_DLLEXPORT simInt simGetJointForce(simInt jointHandle,simFloat* forceOrTorque
 {
     return(simGetJointForce_internal(jointHandle,forceOrTorque));
 }
-SIM_DLLEXPORT simInt simGetJointMaxForce(simInt jointHandle,simFloat* forceOrTorque)
+SIM_DLLEXPORT simInt simGetJointTargetForce(simInt jointHandle,simFloat* forceOrTorque)
 {
-    return(simGetJointMaxForce_internal(jointHandle,forceOrTorque));
+    return(simGetJointTargetForce_internal(jointHandle,forceOrTorque));
+}
+SIM_DLLEXPORT simInt simSetJointTargetForce(simInt objectHandle,simFloat forceOrTorque,simBool signedValue)
+{
+    return(simSetJointTargetForce_internal(objectHandle,forceOrTorque,signedValue));
 }
 SIM_DLLEXPORT simInt simCameraFitToView(simInt viewHandleOrIndex,simInt objectCount,const simInt* objectHandles,simInt options,simFloat scaling)
 {
@@ -2780,6 +2780,14 @@ SIM_DLLEXPORT const simChar* simGetScriptText(simInt scriptHandle)
 SIM_DLLEXPORT simInt simGetScriptProperty(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle)
 {
     return(simGetScriptProperty_internal(scriptHandle,scriptProperty,associatedObjectHandle));
+}
+SIM_DLLEXPORT simInt simGetJointMaxForce(simInt jointHandle,simFloat* forceOrTorque)
+{
+    return(simGetJointMaxForce_internal(jointHandle,forceOrTorque));
+}
+SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTorque)
+{
+    return(simSetJointMaxForce_internal(objectHandle,forceOrTorque));
 }
 // Deprecated end
 

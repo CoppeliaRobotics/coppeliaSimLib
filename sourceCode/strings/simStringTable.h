@@ -966,8 +966,7 @@
 #define IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED "The physics engine currently selected is not supported (you might be missing a required plugin). Simulation will not run correctly."
 #define IDS_WARNING_WHEN_VORTEX_PLUGIN_NOT_FOUND "The Vortex plugin was not found. Copy files from CoppeliaSim/vortexPlugin/ to CoppeliaSim/ to enable the plugin."
 #define IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED "The Vortex engine is not yet supported on this platform.\n\nThe Vortex engine is currently supported on Windows and Linux."
-#define IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_WINDOWS "You are running an unregistered version of the Vortex engine: dynamic is disabled.\nYou may obtain a free license for the Vortex engine by downloading Vortex Studio Academic (2020a) here:\n\nwww.cm-labs.com\n\nOnce Vortex Studio is installed and registered, you will be able to run\nCoppeliaSim simulations with the Vortex engine."
-#define IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_LINUX "You are running an unregistered version of the Vortex engine: dynamic is disabled.\nYou may obtain a free license for the Vortex engine by downloading Vortex Studio Academic (2020a) here:\n\nwww.cm-labs.com\n\nOnce Vortex Studio is installed and registered, you will be able to run\nCoppeliaSim simulations with the Vortex engine."
+#define IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN "You are running an unregistered version of the Vortex engine: dynamics is disabled.\nYou may obtain a free license for the Vortex engine by downloading Vortex Studio Academic (2020a) here:\n\nwww.cm-labs.com\n\nOnce Vortex Studio is installed and registered, you will be able to run\nCoppeliaSim simulations with the Vortex engine."
 
 #define IDS_SWITCH_TO_BULLET_2_78_ENGINE_MENU_ITEM "Using the Bullet physics engine (V2.78)"
 #define IDS_SWITCH_TO_BULLET_2_83_ENGINE_MENU_ITEM "Using the Bullet physics engine (V2.83)"

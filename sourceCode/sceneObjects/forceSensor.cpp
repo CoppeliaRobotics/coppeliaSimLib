@@ -313,7 +313,7 @@ C7Vector CForceSensor::getIntrinsicTransformation(bool includeDynErrorComponent)
 }
 
 C7Vector CForceSensor::getFullLocalTransformation() const
-{ // Overridden from _CSceneObject_
+{ // Overridden from CSceneObject
     return(_localTransformation*getIntrinsicTransformation(true));
 }
 

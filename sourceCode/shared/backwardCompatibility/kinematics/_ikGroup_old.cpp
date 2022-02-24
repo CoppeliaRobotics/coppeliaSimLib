@@ -59,10 +59,6 @@ size_t _CIkGroup_old::getIkElementCount() const
     return(_ikElements.size());
 }
 
-void _CIkGroup_old::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)
-{ // Overridden from _CSyncObject_
-}
-
 void _CIkGroup_old::_addIkElement(CIkElement_old* anElement)
 {
     _ikElements.push_back(anElement);

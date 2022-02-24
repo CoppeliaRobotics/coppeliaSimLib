@@ -621,7 +621,7 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_SCENEHIERARCHY_INITIALLY_VISIBLE,sceneHierarchyInitiallyVisible,"");
     c.addBoolean(_USR_SCENEHIERARCHY_HIDDEN_DURING_SIMULATION,sceneHierarchyHiddenDuringSimulation,"");
 
-    c.addString(_USR_SCRIPT_EDITOR_FONT,scriptEditorFont,"empty=default.");
+    c.addString(_USR_SCRIPT_EDITOR_FONT,scriptEditorFont,"empty=default. e.g. \"Courier\", \"Courier New\", \"Consolas\", etc.");
     c.addBoolean(_USR_SCRIPT_EDITOR_BOLDFONT,scriptEditorBoldFont,"");
     c.addInteger(_USR_SCRIPT_EDITOR_FONT_SIZE,scriptEditorFontSize,"-1=default.");
 
@@ -949,6 +949,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_SCENEHIERARCHY_HIDDEN_DURING_SIMULATION,sceneHierarchyHiddenDuringSimulation);
 
     c.getString(_USR_SCRIPT_EDITOR_FONT,scriptEditorFont);
+
     c.getBoolean(_USR_SCRIPT_EDITOR_BOLDFONT,scriptEditorBoldFont);
     c.getInteger(_USR_SCRIPT_EDITOR_FONT_SIZE,scriptEditorFontSize);
 

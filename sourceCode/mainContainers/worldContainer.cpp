@@ -419,16 +419,16 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
 
 long long int CWorldContainer::_eventSeq=0;
 
-void CWorldContainer::pushSceneObjectRemoveEvent(const _CSceneObject_* object)
+void CWorldContainer::pushSceneObjectRemoveEvent(const CSceneObject* object)
 {
     if (getEventsEnabled())
     {
-        auto [event,data]=_prepareGeneralEvent(EVENTTYPE_OBJECTREMOVED,object->getObjectHandle(),object->getObjectUid(),nullptr,nullptr,false);
+         auto [event,data]=_prepareGeneralEvent(EVENTTYPE_OBJECTREMOVED,object->getObjectHandle(),object->getObjectUid(),nullptr,nullptr,false);
         pushEvent(event);
     }
 }
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObjectAddEvent(const _CSceneObject_* object)
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObjectAddEvent(const CSceneObject* object)
 {
     if (getEventsEnabled())
     {
@@ -451,7 +451,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObject
     return {d,nullptr};
 }
 
-std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObjectChangedEvent(const _CSceneObject_* object,bool isCommonObjectData,const char* fieldName,bool mergeable)
+std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObjectChangedEvent(const CSceneObject* object,bool isCommonObjectData,const char* fieldName,bool mergeable)
 {
     if (getEventsEnabled())
     {

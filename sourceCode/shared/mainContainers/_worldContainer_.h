@@ -9,8 +9,5 @@ public:
     _CWorldContainer_();
     virtual ~_CWorldContainer_();
 
-    // Overridden from _CSyncObject_:
-    virtual void synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg);
-
     CWorld* currentWorld;
 };

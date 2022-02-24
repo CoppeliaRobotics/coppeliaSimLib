@@ -9,7 +9,7 @@
 #include <map>
 #include "userParameters.h"
 #include "customData.h"
-#include "_sceneObject_.h"
+#include "syncObject.h"
 
 struct SCustomRefs
 {
@@ -30,7 +30,7 @@ class CViewableBase;
 class CScriptObject;
 class CInterfaceStack;
 
-class CSceneObject : public _CSceneObject_
+class CSceneObject : public CSyncObject
 {
 public:
 
@@ -85,10 +85,54 @@ public:
     virtual bool isPotentiallyDetectable() const;
     virtual bool isPotentiallyRenderable() const;
 
+    virtual C7Vector getFullLocalTransformation() const;
+    virtual bool setParent(CSceneObject* parent);
+
     void setRestoreToDefaultLights(bool s);
     bool getRestoreToDefaultLights() const;
 
-    
+    int getObjectType() const;
+    CSceneObject* getParent() const;
+    int getObjectHandle() const;
+    long long int getObjectUid() const;
+    bool getSelected() const;
+    bool getIsInScene() const;
+    bool getModelBase() const;
+    std::string getExtensionString() const;
+    unsigned short getVisibilityLayer() const;
+    int getChildOrder() const;
+    int getHierarchyTreeObjects(std::vector<CSceneObject*>& allObjects);
+    std::string getObjectAlias() const;
+    std::string getObjectAliasAndOrderIfRequired() const;
+    std::string getObjectAliasAndHandle() const;
+    std::string getObjectAlias_fullPath() const;
+    std::string getObjectAlias_shortPath() const;
+    std::string getObjectAlias_printPath() const;
+    std::string getObjectName_old() const;
+    std::string getObjectAltName_old() const;
+
+    C7Vector getLocalTransformation() const;
+    C7Vector getFullParentCumulativeTransformation() const;
+    C7Vector getCumulativeTransformation() const;
+    C7Vector getFullCumulativeTransformation() const;
+
+    void setObjectHandle(int newObjectHandle);
+    void setChildOrder(int order);
+    void setExtensionString(const char* str);
+    void setVisibilityLayer(unsigned short l);
+    void setObjectAlias_direct(const char* newAlias);
+    void setObjectName_direct_old(const char* newName);
+    void setObjectAltName_direct_old(const char* newAltName);
+    void setLocalTransformation(const C7Vector& tr);
+    void setLocalTransformation(const C4Vector& q);
+    void setLocalTransformation(const C3Vector& x);
+
+    void recomputeModelInfluencedValues(int overrideFlags=-1);
+    void setObjectUniqueId();
+    void setSelected(bool s); // doesn't generate a sync msg
+    void setIsInScene(bool s);
+    void setParentPtr(CSceneObject* parent);
+
     int getScriptExecutionOrder(int scriptType) const;
     int getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds);
 
@@ -262,9 +306,43 @@ public:
     void getBoundingBox(C3Vector& vmin,C3Vector& vmax) const;
 
 protected:
+    void _setModelInvisible(bool inv);
     void _setBoundingBox(const C3Vector& vmin,const C3Vector& vmax);
     void _addCommonObjectEventData(CInterfaceStackTable* data) const;
     void _appendObjectMovementEventData(CInterfaceStackTable* data) const;
+
+    int _objectHandle;
+    long long int _objectUid; // valid for a given session (non-persistent)
+    std::string _extensionString;
+    unsigned short _visibilityLayer;
+    bool _selected;
+    bool _isInScene;
+    bool _modelInvisible;
+    int _childOrder;
+    std::string _objectAlias;
+    C7Vector _localTransformation;
+
+    std::vector<CSceneObject*> _childList;
+    C7Vector _assemblingLocalTransformation; // When assembling this object
+    bool _assemblingLocalTransformationIsUsed;
+    std::vector<std::string> _assemblyMatchValuesChild;
+    std::vector<std::string> _assemblyMatchValuesParent;
+    CSceneObject* _parentObject;
+    int _objectType;
+    int _objectProperty;
+    bool _modelBase;
+    bool _ignoredByViewFitting;
+    int _hierarchyColorIndex;
+    int _collectionSelfCollisionIndicator;
+    int _localObjectSpecialProperty;
+    int _modelProperty;
+    int _calculatedModelProperty;
+    int _calculatedObjectProperty;
+    std::string _modelAcknowledgement;
+
+    // Old:
+    std::string _objectName_old;
+    std::string _objectAltName_old;
 
     bool _ignorePosAndCameraOrthoviewSize_forUndoRedo;
 
@@ -352,7 +430,6 @@ public:
 #endif
 
 private:
-    // Overridden from _CSceneObject_:
     void _setLocalTransformation_send(const C7Vector& tr) const;
     void _setParent_send(int parentHandle) const;
 };

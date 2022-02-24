@@ -17,10 +17,6 @@ _CIkElement_old::~_CIkElement_old()
 {
 }
 
-void _CIkElement_old::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)
-{ // Overridden from _CSyncObject_
-}
-
 bool _CIkElement_old::setObjectHandle(int newHandle)
 {
     bool diff=(_objectHandle!=newHandle);

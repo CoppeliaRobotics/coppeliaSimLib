@@ -2019,27 +2019,6 @@ simInt simGetJointTargetPosition_internal(simInt objectHandle,simFloat* targetPo
     return(-1);
 }
 
-simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,objectHandle))
-            return(-1);
-        if (!isJoint(__func__,objectHandle))
-            return(-1);
-        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        it->setDynamicMotorMaximumForce(forceOrTorque);
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 simInt simSetJointTargetVelocity_internal(simInt objectHandle,simFloat targetVelocity)
 {
     TRACE_C_API;
@@ -10925,7 +10904,7 @@ simInt simGetJointForce_internal(simInt jointHandle,simFloat* forceOrTorque)
     return(-1);
 }
 
-simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque)
+simInt simGetJointTargetForce_internal(simInt jointHandle,simFloat* forceOrTorque)
 {
     TRACE_C_API;
 
@@ -10939,7 +10918,28 @@ simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque)
         if (!isJoint(__func__,jointHandle))
             return(-1);
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
-        forceOrTorque[0]=it->getDynamicMotorMaximumForce();
+        forceOrTorque[0]=it->getDynamicMotorMaximumForce(true);
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetJointTargetForce_internal(simInt objectHandle,simFloat forceOrTorque,simBool signedValue)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        if (!isJoint(__func__,objectHandle))
+            return(-1);
+        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        it->setDynamicMotorMaximumForce(forceOrTorque,signedValue);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -16643,7 +16643,7 @@ simBool _simIsDynamicMotorTorqueModulationEnabled_internal(const simVoid* joint)
 simFloat _simGetDynamicMotorMaxForce_internal(const simVoid* joint)
 {
     TRACE_C_API;
-    return(((CJoint*)joint)->getDynamicMotorMaximumForce());
+    return(((CJoint*)joint)->getDynamicMotorMaximumForce(false));
 }
 
 simFloat _simGetDynamicMotorUpperLimitVelocity_internal(const simVoid* joint)
@@ -23096,6 +23096,48 @@ simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,
         associatedObjectHandle[0]=it->getObjectHandleThatScriptIsAttachedTo_child();
         if (it->getThreadedExecution_oldThreads())
             scriptProperty[0]|=sim_scripttype_threaded_old;
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque)
+{ // deprecated on 24.02.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,jointHandle))
+            return(-1);
+        if (!isJoint(__func__,jointHandle))
+            return(-1);
+        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
+        forceOrTorque[0]=it->getDynamicMotorMaximumForce(false);
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque)
+{ // deprecated on 24.02.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        if (!isJoint(__func__,objectHandle))
+            return(-1);
+        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        it->setDynamicMotorMaximumForce(forceOrTorque,false);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

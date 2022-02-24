@@ -158,7 +158,7 @@ public:
     float getDynamicMotorTargetVelocity() const;
     bool getDynamicMotorLockModeWhenInVelocityControl() const;
     float getDynamicMotorUpperLimitVelocity() const;
-    float getDynamicMotorMaximumForce() const;
+    float getDynamicMotorMaximumForce(bool signedValue) const;
     bool getEnableDynamicMotorControlLoop() const;
     bool getEnableTorqueModulation() const;
     bool getHybridFunctionality() const;
@@ -224,7 +224,7 @@ public:
     void setDynamicMotorPositionControlTargetPosition(float pos);
     void setDynamicMotorPositionControlParameters(float p_param,float i_param,float d_param);
     void setDynamicMotorSpringControlParameters(float k_param,float c_param);
-    void setDynamicMotorMaximumForce(float f);
+    void setDynamicMotorMaximumForce(float f,bool isSigned);
 
     void setBulletFloatParams(const std::vector<float>& p);
     void setOdeFloatParams(const std::vector<float>& p);

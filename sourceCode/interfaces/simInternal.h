@@ -53,7 +53,6 @@ simInt simGetJointPosition_internal(simInt objectHandle,simFloat* position);
 simInt simSetJointPosition_internal(simInt objectHandle,simFloat position);
 simInt simSetJointTargetPosition_internal(simInt objectHandle,simFloat targetPosition);
 simInt simGetJointTargetPosition_internal(simInt objectHandle,simFloat* targetPosition);
-simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque);
 simInt simGetObjectChildPose_internal(simInt objectHandle,simFloat* pose);
 simInt simSetObjectChildPose_internal(simInt objectHandle,const simFloat* pose);
 simInt simGetJointInterval_internal(simInt objectHandle,simBool* cyclic,simFloat* interval);
@@ -222,7 +221,8 @@ simInt simSetSimulationPassesPerRenderingPass_internal(simInt p);
 simInt simGetRotationAxis_internal(const simFloat* matrixStart,const simFloat* matrixGoal,simFloat* axis,simFloat* angle);
 simInt simRotateAroundAxis_internal(const simFloat* matrixIn,const simFloat* axis,const simFloat* axisPos,simFloat angle,simFloat* matrixOut);
 simInt simGetJointForce_internal(simInt jointHandle,simFloat* forceOrTorque);
-simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque);
+simInt simGetJointTargetForce_internal(simInt jointHandle,simFloat* forceOrTorque);
+simInt simSetJointTargetForce_internal(simInt objectHandle,simFloat forceOrTorque,simBool signedValue);
 simInt simCameraFitToView_internal(simInt viewHandleOrIndex,simInt objectCount,const simInt* objectHandles,simInt options,simFloat scaling);
 simInt simPersistentDataWrite_internal(const simChar* dataTag,const simChar* dataValue,simInt dataLength,simInt options);
 simChar* simPersistentDataRead_internal(const simChar* dataTag,simInt* dataLength);
@@ -669,4 +669,6 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
 simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText);
 const simChar* simGetScriptText_internal(simInt scriptHandle);
 simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle);
+simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque);
+simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque);
 #endif // !defined(simInternal_INCLUDED_)

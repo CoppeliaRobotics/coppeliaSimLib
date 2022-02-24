@@ -24,8 +24,6 @@ public:
     bool getObjectCanSync() const;
     bool setObjectCanSync(bool s);
 
-    virtual void synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg);
-
     static void setOverallSyncEnabled(bool e);
     static bool getOverallSyncEnabled();
 

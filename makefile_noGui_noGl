@@ -104,7 +104,6 @@ all:
 	gcc $(CFLAGS) -c sourceCode/backwardCompatibility/distances/distanceObject_old.cpp -o distanceObject_old.o
 	gcc $(CFLAGS) -c sourceCode/distances/distanceRoutines.cpp -o distanceRoutines.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/related/sceneObject.cpp -o sceneObject.o
-	gcc $(CFLAGS) -c sourceCode/shared/sceneObjects/related/_sceneObject_.cpp -o _sceneObject_.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/related/convexVolume.cpp -o convexVolume.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/related/viewableBase.cpp -o viewableBase.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/jointObject.cpp -o jointObject.o

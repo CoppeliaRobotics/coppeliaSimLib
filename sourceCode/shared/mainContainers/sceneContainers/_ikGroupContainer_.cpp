@@ -109,7 +109,3 @@ void _CIkGroupContainer_::_shiftIkGroup_send(int ikGroupHandle,bool shiftUp)
     if (!shiftUp)
         h=-1-h;
 }
-
-void _CIkGroupContainer_::synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg)
-{ // Overridden from _CSyncObject_
-}

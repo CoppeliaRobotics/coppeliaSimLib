@@ -23,9 +23,6 @@ public:
     _CIkElement_old();
     virtual ~_CIkElement_old();
 
-    // Overridden from _CSyncObject_:
-    virtual void synchronizationMsg(std::vector<SSyncRoute>& routing,const SSyncMsg& msg);
-
     int getObjectHandle() const;
     bool getEnabled() const;
     int getTipHandle()const ;

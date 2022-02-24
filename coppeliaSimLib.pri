@@ -365,7 +365,6 @@ HEADERS += $$PWD/sourceCode/backwardCompatibility/distances/distanceObject_old.h
     $$PWD/sourceCode/distances/distanceRoutines.h \
 
 HEADERS += $$PWD/sourceCode/sceneObjects/related/sceneObject.h \
-    $$PWD/sourceCode/shared/sceneObjects/related/_sceneObject_.h \
     $$PWD/sourceCode/sceneObjects/related/convexVolume.h \
     $$PWD/sourceCode/sceneObjects/related/viewableBase.h \
 
@@ -784,7 +783,6 @@ SOURCES += $$PWD/sourceCode/backwardCompatibility/distances/distanceObject_old.c
     $$PWD/sourceCode/distances/distanceRoutines.cpp \
 
 SOURCES += $$PWD/sourceCode/sceneObjects/related/sceneObject.cpp \
-    $$PWD/sourceCode/shared/sceneObjects/related/_sceneObject_.cpp \
     $$PWD/sourceCode/sceneObjects/related/convexVolume.cpp \
     $$PWD/sourceCode/sceneObjects/related/viewableBase.cpp \
 

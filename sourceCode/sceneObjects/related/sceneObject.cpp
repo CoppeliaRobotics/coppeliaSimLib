@@ -29,6 +29,12 @@
 
 CSceneObject::CSceneObject()
 {
+    _selected=false;
+    _isInScene=false;
+    _modelInvisible=false;
+    _parentObject=nullptr;
+    _childOrder=-1;
+    _localTransformation.setIdentity();
     _parentObjectHandle_forSerializationOnly=-1;
     _objectHandle=-1;
     _beforeDeleteCallbackSent=false;
@@ -210,6 +216,314 @@ void CSceneObject::setDynamicFlag(int flag)
             const char* cmd="dynamicFlag";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringInt32(cmd,_dynamicFlag);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
+CSceneObject* CSceneObject::getParent() const
+{
+    return(_parentObject);
+}
+
+int CSceneObject::getObjectType() const
+{
+    return(_objectType);
+}
+
+int CSceneObject::getObjectHandle() const
+{
+    return(_objectHandle);
+}
+
+long long int CSceneObject::getObjectUid() const
+{
+    return(_objectUid);
+}
+
+bool CSceneObject::getSelected() const
+{
+    return(_selected);
+}
+
+bool CSceneObject::getIsInScene() const
+{
+    return(_isInScene);
+}
+
+bool CSceneObject::getModelBase() const
+{
+    return(_modelBase);
+}
+
+std::string CSceneObject::getExtensionString() const
+{
+    return(_extensionString);
+}
+
+unsigned short CSceneObject::getVisibilityLayer() const
+{
+    return(_visibilityLayer);
+}
+
+int CSceneObject::getChildOrder() const
+{
+    return(_childOrder);
+}
+
+int CSceneObject::getHierarchyTreeObjects(std::vector<CSceneObject*>& allObjects)
+{
+    int retVal=1;
+    allObjects.push_back((CSceneObject*)this);
+    for (size_t i=0;i<_childList.size();i++)
+        retVal+=_childList[i]->getHierarchyTreeObjects(allObjects);
+    return(retVal);
+}
+
+std::string CSceneObject::getObjectName_old() const
+{
+    return(_objectName_old);
+}
+
+std::string CSceneObject::getObjectAltName_old() const
+{
+    return(_objectAltName_old);
+}
+
+std::string CSceneObject::getObjectAlias() const
+{
+    return(_objectAlias);
+}
+
+std::string CSceneObject::getObjectAlias_fullPath() const
+{
+    std::string retVal;
+    if (_parentObject==nullptr)
+        retVal="/"+getObjectAliasAndOrderIfRequired();
+    else
+        retVal=_parentObject->getObjectAlias_fullPath()+"/"+getObjectAliasAndOrderIfRequired();
+    return(retVal);
+}
+
+std::string CSceneObject::getObjectAlias_shortPath() const
+{
+    std::string previousAlias=getObjectAliasAndOrderIfRequired();
+    size_t cnt=1;
+    std::string retVal("/"+previousAlias);
+    if (_parentObject!=nullptr)
+    {
+        CSceneObject* it=_parentObject;
+
+        CSceneObject* itBeforeSkipping=nullptr;
+        std::string retValBeforeSkipping;
+        bool previouslySkipped=false;
+        bool doNotSkip=false;
+        while (it!=nullptr)
+        {
+            if (cnt>8)
+                return(getObjectAlias_fullPath());
+            std::string itAlias=it->getObjectAliasAndOrderIfRequired();
+            if ( (itAlias==previousAlias)&&previouslySkipped )
+            {
+                it=itBeforeSkipping;
+                retVal=retValBeforeSkipping;
+                doNotSkip=true;
+                previouslySkipped=false;
+            }
+            else
+            {
+                if (it->getParent()==nullptr)
+                {
+                    if ( it->getModelBase()||doNotSkip||(App::currentWorld->sceneObjects->getObjectFromPath(nullptr,retVal.c_str(),0,nullptr)!=this) )
+                    {
+                        previousAlias=itAlias;
+                        retVal="/"+previousAlias+retVal;
+                        cnt++;
+                    }
+                    else
+                    {
+                        if (!previouslySkipped)
+                        {
+                            retValBeforeSkipping=retVal;
+                            itBeforeSkipping=it;
+                        }
+                        previouslySkipped=true;
+                    }
+                }
+                else
+                {
+                    std::string tmp(".");
+                    tmp+=retVal;
+                    if ( it->getModelBase()||doNotSkip||(App::currentWorld->sceneObjects->getObjectFromPath(nullptr,tmp.c_str(),0,it->getParent())!=this) )
+                    {
+                        previousAlias=itAlias;
+                        retVal="/"+previousAlias+retVal;
+                        cnt++;
+                    }
+                    else
+                    {
+                        if (!previouslySkipped)
+                        {
+                            retValBeforeSkipping=retVal;
+                            itBeforeSkipping=it;
+                        }
+                        previouslySkipped=true;
+                    }
+                }
+                doNotSkip=false;
+                it=it->getParent();
+            }
+        }
+    }
+    return(retVal);
+}
+
+std::string CSceneObject::getObjectAlias_printPath() const
+{
+    std::string retVal=getObjectAlias_shortPath();
+    if (retVal.size()>40)
+    {
+        size_t cnt=0;
+        size_t p2;
+        for (size_t i=0;i<retVal.size();i++)
+        {
+            if (retVal[i]=='/')
+            {
+                cnt++;
+                if (cnt==2)
+                    p2=i;
+                if (cnt>=3)
+                    break;
+            }
+        }
+        if (cnt>=3)
+        {
+            retVal=retVal.substr(0,p2+1)+" ... /";
+            retVal+=getObjectAliasAndOrderIfRequired();
+        }
+    }
+    return(retVal);
+}
+
+std::string CSceneObject::getObjectAliasAndOrderIfRequired() const
+{
+    std::string retVal(_objectAlias);
+    if (_childOrder>=0)
+    {
+        retVal+="[";
+        retVal+=std::to_string(_childOrder);
+        retVal+="]";
+    }
+    return(retVal);
+}
+
+std::string CSceneObject::getObjectAliasAndHandle() const
+{
+    std::string retVal(_objectAlias);
+    retVal+="-";
+    retVal+=std::to_string(_objectHandle);
+    return(retVal);
+}
+
+C7Vector CSceneObject::getLocalTransformation() const
+{
+    return(_localTransformation);
+}
+
+C7Vector CSceneObject::getFullLocalTransformation() const
+{
+    return(_localTransformation);
+}
+
+C7Vector CSceneObject::getFullParentCumulativeTransformation() const
+{
+    C7Vector retVal;
+    if (_parentObject==nullptr)
+        retVal.setIdentity();
+    else
+        retVal=_parentObject->getFullCumulativeTransformation();
+    return(retVal);
+}
+
+C7Vector CSceneObject::getCumulativeTransformation() const
+{
+    C7Vector retVal;
+    if (_parentObject==nullptr)
+        retVal=getLocalTransformation();
+    else
+        retVal=getFullParentCumulativeTransformation()*getLocalTransformation();
+    return(retVal);
+}
+
+C7Vector CSceneObject::getFullCumulativeTransformation() const
+{
+    return(getFullParentCumulativeTransformation()*getFullLocalTransformation());
+}
+
+void CSceneObject::recomputeModelInfluencedValues(int overrideFlags/*=-1*/)
+{
+    if (overrideFlags==-1)
+    {
+        if (_parentObject==nullptr)
+        {
+            if (_modelBase)
+                overrideFlags=_modelProperty;
+            else
+                overrideFlags=0;
+        }
+        else
+        {
+            _parentObject->recomputeModelInfluencedValues(-2);
+            return;
+        }
+    }
+    if (overrideFlags!=-2)
+    {
+        if (_modelBase)
+            overrideFlags|=_modelProperty;
+        _calculatedModelProperty=overrideFlags;
+        _setModelInvisible((_calculatedModelProperty&sim_modelproperty_not_visible)!=0);
+
+        _calculatedObjectProperty=_objectProperty;
+        if ((_calculatedModelProperty&sim_modelproperty_not_showasinsidemodel)!=0)
+            _calculatedObjectProperty|=sim_objectproperty_dontshowasinsidemodel;
+    }
+
+    for (size_t i=0;i<_childList.size();i++)
+        _childList[i]->recomputeModelInfluencedValues(_calculatedModelProperty);
+}
+
+void CSceneObject::setObjectUniqueId()
+{
+    _objectUid=App::getFreshUniqueId();
+}
+
+void CSceneObject::setSelected(bool s)
+{
+    _selected=s;
+}
+
+void CSceneObject::setIsInScene(bool s)
+{
+    _isInScene=s;
+}
+
+void CSceneObject::setParentPtr(CSceneObject* parent)
+{
+    _parentObject=parent;
+}
+
+void CSceneObject::_setModelInvisible(bool inv)
+{
+    bool diff=(_modelInvisible!=inv);
+    if (diff)
+    {
+        _modelInvisible=inv;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="modelInvisible";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            data->appendMapObject_stringBool(cmd,inv);
             App::worldContainer->pushEvent(event);
         }
     }
@@ -1645,18 +1959,14 @@ int CSceneObject::getScriptsToExecute(int scriptType,int parentTraversalDirectio
 }
 
 void CSceneObject::_setLocalTransformation_send(const C7Vector& tr) const
-{ // overridden from _CSceneObject_
-    _CSceneObject_::_setLocalTransformation_send(tr);
-
+{
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setObjectLocalTransformation(_ikPluginCounterpartHandle,_localTransformation);
 }
 
 void CSceneObject::_setParent_send(int parentHandle) const
-{ // overridden from _CSceneObject_
-    _CSceneObject_::_setParent_send(parentHandle);
-
+{
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
     {
@@ -1665,6 +1975,33 @@ void CSceneObject::_setParent_send(int parentHandle) const
             p=getParent()->getIkPluginCounterpartHandle();
         CPluginContainer::ikPlugin_setObjectParent(_ikPluginCounterpartHandle,p);
     }
+}
+
+bool CSceneObject::setParent(CSceneObject* parent)
+{
+    bool diff=(_parentObject!=parent);
+    if (diff)
+    {
+        _parentObject=parent;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="parentUid";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            long long int pUid=-1;
+            if (_parentObject!=nullptr)
+                pUid=_parentObject->getObjectUid();
+            data->appendMapObject_stringInt64(cmd,pUid);
+            App::worldContainer->pushEvent(event);
+        }
+        if (getObjectCanSync())
+        {
+            int h=-1;
+            if (parent!=nullptr)
+                h=parent->getObjectHandle();
+            _setParent_send(h);
+        }
+    }
+    return(diff);
 }
 
 void CSceneObject::serialize(CSer& ar)
@@ -3149,7 +3486,7 @@ void CSceneObject::acquireCommonPropertiesFromObject_simpleXMLLoading(const CSce
     _modelProperty=obj->_modelProperty;
     _modelBase=obj->_modelBase;
     _ignoredByViewFitting=obj->_ignoredByViewFitting;
-    _CSceneObject_::setVisibilityLayer(obj->getVisibilityLayer());
+    setVisibilityLayer(obj->getVisibilityLayer());
     _extensionString=obj->_extensionString;
     _modelAcknowledgement=obj->_modelAcknowledgement;
 }
@@ -3972,6 +4309,140 @@ void CSceneObject::removeSynchronizationObject(bool localReferencesToItOnly)
     }
     // IK plugin part:
     _ikPluginCounterpartHandle=-1;
+}
+
+void CSceneObject::setExtensionString(const char* str)
+{
+    _extensionString=str;
+}
+
+void CSceneObject::setVisibilityLayer(unsigned short l)
+{
+    bool diff=(_visibilityLayer!=l);
+    if (diff)
+    {
+        _visibilityLayer=l;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="layer";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            data->appendMapObject_stringInt32(cmd,l);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
+void CSceneObject::setChildOrder(int order)
+{
+    bool diff=(_childOrder!=order);
+    if (diff)
+    {
+        _childOrder=order;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="childOrder";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            data->appendMapObject_stringInt32(cmd,order);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
+
+void CSceneObject::setObjectHandle(int newObjectHandle)
+{
+    _objectHandle=newObjectHandle;
+}
+
+void CSceneObject::setObjectAlias_direct(const char* newName)
+{
+    bool diff=(_objectAlias!=newName);
+    if (diff)
+    {
+        _objectAlias=newName;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="alias";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            data->appendMapObject_stringString(cmd,newName,0);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
+void CSceneObject::setObjectName_direct_old(const char* newName)
+{
+    _objectName_old=newName;
+}
+
+void CSceneObject::setObjectAltName_direct_old(const char* newAltName)
+{
+    _objectAltName_old=newAltName;
+}
+
+void CSceneObject::setLocalTransformation(const C7Vector& tr)
+{
+    bool diff=(_localTransformation!=tr);
+    if (diff)
+    {
+        _localTransformation=tr;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="pose";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+            data->appendMapObject_stringFloatArray(cmd,p,7);
+            App::worldContainer->pushEvent(event);
+        }
+        if (getObjectCanSync())
+            _setLocalTransformation_send(_localTransformation);
+    }
+}
+
+void CSceneObject::setLocalTransformation(const C4Vector& q)
+{
+    bool diff=(_localTransformation.Q!=q);
+    if (diff)
+    {
+        _localTransformation.Q=q;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="pose";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            float p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
+            data->appendMapObject_stringFloatArray(cmd,p,7);
+            App::worldContainer->pushEvent(event);
+        }
+        if (getObjectCanSync())
+        {
+            C7Vector tr(_localTransformation);
+            tr.Q=q;
+            _setLocalTransformation_send(tr);
+        }
+    }
+}
+
+void CSceneObject::setLocalTransformation(const C3Vector& x)
+{
+    bool diff=(_localTransformation.X!=x);
+    if (diff)
+    {
+        _localTransformation.X=x;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="pose";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            float p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
+            data->appendMapObject_stringFloatArray(cmd,p,7);
+            App::worldContainer->pushEvent(event);
+        }
+        if (getObjectCanSync())
+        {
+            C7Vector tr(_localTransformation);
+            tr.X=x;
+            _setLocalTransformation_send(tr);
+        }
+    }
 }
 
 size_t CSceneObject::getChildCount() const
