@@ -1,9 +1,9 @@
-#include "memorizedConf.h"
+#include "memorizedConf_old.h"
 #include "app.h"
 #include "simInternal.h"
 #include "ttUtil.h"
 
-CMemorizedConf::CMemorizedConf(CSceneObject* theObject)
+CMemorizedConf_old::CMemorizedConf_old(CSceneObject* theObject)
 {
     uniqueID=theObject->getObjectUid();
     parentUniqueID=-1;
@@ -11,7 +11,6 @@ CMemorizedConf::CMemorizedConf(CSceneObject* theObject)
         parentUniqueID=theObject->getParent()->getObjectUid();
     configuration=theObject->getLocalTransformation();
     objectType=theObject->getObjectType();
-    memorizedConfigurationValidCounter=theObject->getMemorizedConfigurationValidCounter();
     if (objectType==sim_object_joint_type)
     {
         CJoint* act=(CJoint*)theObject;
@@ -25,15 +24,15 @@ CMemorizedConf::CMemorizedConf(CSceneObject* theObject)
     }
 }
 
-CMemorizedConf::CMemorizedConf()
+CMemorizedConf_old::CMemorizedConf_old()
 { // Default constructor for serialization from memory!
 }
 
-CMemorizedConf::~CMemorizedConf()
+CMemorizedConf_old::~CMemorizedConf_old()
 {
 }
 
-int CMemorizedConf::getParentCount()
+int CMemorizedConf_old::getParentCount()
 {
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromUid(uniqueID);
     if (it==nullptr)
@@ -41,10 +40,10 @@ int CMemorizedConf::getParentCount()
     return(it->getParentCount());
 }
 
-void CMemorizedConf::restore()
+void CMemorizedConf_old::restore()
 {
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromUid(uniqueID);
-    if ( (it==nullptr)||(it->getMemorizedConfigurationValidCounter()!=memorizedConfigurationValidCounter) ) // second part is in case a shape gets edited
+    if (it==nullptr)
         return;
     it->setDynamicsResetFlag(true,false); // dynamically enabled objects have to be reset first!
     long long int puid=-1;
@@ -65,12 +64,12 @@ void CMemorizedConf::restore()
     }
 }
 
-bool CMemorizedConf::doesStillExist()
+bool CMemorizedConf_old::doesStillExist()
 {
     return(App::currentWorld->sceneObjects->getObjectFromUid(uniqueID)!=nullptr);
 }
 
-void CMemorizedConf::serializeToMemory(std::vector<char>& data)
+void CMemorizedConf_old::serializeToMemory(std::vector<char>& data)
 {
     if (objectType==sim_object_path_type)
         CTTUtil::pushFloatToBuffer(position,data);
@@ -84,14 +83,12 @@ void CMemorizedConf::serializeToMemory(std::vector<char>& data)
     for (int i=0;i<7;i++)
         CTTUtil::pushFloatToBuffer(configuration(i),data);
     CTTUtil::pushIntToBuffer(int(uniqueID),data);
-    CTTUtil::pushIntToBuffer(memorizedConfigurationValidCounter,data);
     CTTUtil::pushIntToBuffer(int(parentUniqueID),data);
 }
 
-void CMemorizedConf::serializeFromMemory(std::vector<char>& data)
+void CMemorizedConf_old::serializeFromMemory(std::vector<char>& data)
 {
     parentUniqueID=CTTUtil::popIntFromBuffer(data);
-    memorizedConfigurationValidCounter=CTTUtil::popIntFromBuffer(data);
     uniqueID=CTTUtil::popIntFromBuffer(data);
     for (int i=0;i<7;i++)
         configuration(6-i)=CTTUtil::popFloatFromBuffer(data);

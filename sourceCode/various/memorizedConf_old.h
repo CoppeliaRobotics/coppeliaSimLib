@@ -1,14 +1,13 @@
-
 #pragma once
 
 #include "sceneObject.h"
 
-class CMemorizedConf  
+class CMemorizedConf_old
 {
 public:
-    CMemorizedConf(CSceneObject* theObject);
-    CMemorizedConf(); // default constructor for serialization from memory!
-    virtual ~CMemorizedConf();
+    CMemorizedConf_old(CSceneObject* theObject);
+    CMemorizedConf_old(); // default constructor for serialization from memory!
+    virtual ~CMemorizedConf_old();
     void restore();
     bool doesStillExist();
     void serializeToMemory(std::vector<char>& data);
@@ -21,7 +20,6 @@ private:
     long long int uniqueID;
     long long int parentUniqueID;
     int objectType;
-    int memorizedConfigurationValidCounter;
 
     // Joints:
     C4Vector sphericalJointOrientation;

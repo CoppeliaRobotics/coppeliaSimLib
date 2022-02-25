@@ -22,7 +22,7 @@
 #include "imgLoaderSaver.h"
 #include "apiErrors.h"
 #include "sigHandler.h"
-#include "memorizedConf.h"
+#include "memorizedConf_old.h"
 #include <algorithm>
 #include <iostream>
 #include "tinyxml2.h"
@@ -21627,7 +21627,7 @@ simChar* simGetObjectConfiguration_internal(simInt objectHandle)
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (it!=nullptr)
         {
-            CMemorizedConf temp(it);
+            CMemorizedConf_old temp(it);
             temp.serializeToMemory(data);
             char* retBuffer=new char[data.size()+sizeof(int)];
             ((int*)retBuffer)[0]=int(data.size());
@@ -21656,7 +21656,7 @@ simInt simSetObjectConfiguration_internal(const simChar* data)
             int l=((int*)data)[0];
             for (int i=0;i<l;i++)
                 arr.push_back(data[i+sizeof(int)]);
-            CMemorizedConf temp;
+            CMemorizedConf_old temp;
             temp.serializeFromMemory(arr);
             temp.restore();
         }
@@ -21697,7 +21697,7 @@ simChar* simGetConfigurationTree_internal(simInt objectHandle)
         }
         for (size_t i=0;i<sel.size();i++)
         {
-            CMemorizedConf temp(sel[i]);
+            CMemorizedConf_old temp(sel[i]);
             temp.serializeToMemory(data);
         }
         char* retBuffer=new char[data.size()+sizeof(int)];
@@ -21725,12 +21725,12 @@ simInt simSetConfigurationTree_internal(const simChar* data)
             std::vector<char> arr;
             for (int i=0;i<l;i++)
                 arr.push_back(data[i+sizeof(int)]);
-            std::vector<CMemorizedConf*> allConfs;
+            std::vector<CMemorizedConf_old*> allConfs;
             std::vector<int> parentCount;
             std::vector<int> index;
             while (arr.size()!=0)
             {
-                CMemorizedConf* temp=new CMemorizedConf();
+                CMemorizedConf_old* temp=new CMemorizedConf_old();
                 temp->serializeFromMemory(arr);
                 parentCount.push_back(temp->getParentCount());
                 index.push_back((int)index.size());

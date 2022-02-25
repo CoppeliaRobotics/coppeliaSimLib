@@ -608,7 +608,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/geometricAlgorithms/algos.cpp
 
     sourceCode/various/gV.cpp
-    sourceCode/various/memorizedConf.cpp
+    sourceCode/various/memorizedConf_old.cpp
     sourceCode/various/userSettings.cpp
     sourceCode/various/folderSystem.cpp
     sourceCode/various/uiThread.cpp

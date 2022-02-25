@@ -518,7 +518,7 @@ HEADERS += $$PWD/sourceCode/various/simConfig.h \
     $$PWD/sourceCode/various/global.h \
     $$PWD/sourceCode/various/embeddedFonts.h \
     $$PWD/sourceCode/various/userSettings.h \
-    $$PWD/sourceCode/various/memorizedConf.h \
+    $$PWD/sourceCode/various/memorizedConf_old.h \
     $$PWD/sourceCode/various/uiThread.h \
     $$PWD/sourceCode/various/simThread.h \
     $$PWD/sourceCode/various/app.h \
@@ -931,7 +931,7 @@ SOURCES += $$PWD/sourceCode/geometricAlgorithms/linMotionRoutines.cpp \
     $$PWD/sourceCode/geometricAlgorithms/algos.cpp \
 
 SOURCES += $$PWD/sourceCode/various/gV.cpp \
-    $$PWD/sourceCode/various/memorizedConf.cpp \
+    $$PWD/sourceCode/various/memorizedConf_old.cpp \
     $$PWD/sourceCode/various/userSettings.cpp \
     $$PWD/sourceCode/various/folderSystem.cpp \
     $$PWD/sourceCode/various/uiThread.cpp \

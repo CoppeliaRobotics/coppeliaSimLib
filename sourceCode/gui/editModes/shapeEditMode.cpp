@@ -86,7 +86,6 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
             }
 
             _shape->alignBoundingBoxWithMainAxis();
-            _shape->incrementMemorizedConfigurationValidCounter();
         }
         else
         { // The shape is empty!!! We have to remove it!

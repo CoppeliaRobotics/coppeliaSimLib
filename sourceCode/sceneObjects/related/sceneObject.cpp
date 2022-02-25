@@ -84,8 +84,6 @@ CSceneObject::CSceneObject()
     _localObjectSpecialProperty=0;
     _modelProperty=0; // By default, the main properties are not overriden! (0 means we inherit from parents)
 
-    _memorizedConfigurationValidCounter=0;
-
     _dynamicSimulationIconCode=sim_dynamicsimicon_none;
 
     _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
@@ -687,16 +685,6 @@ int CSceneObject::_getAllowedObjectSpecialProperties() const
     return(retVal);
 }
 
-void CSceneObject::incrementMemorizedConfigurationValidCounter()
-{
-    _memorizedConfigurationValidCounter++;
-}
-
-int CSceneObject::getMemorizedConfigurationValidCounter()
-{
-    return(_memorizedConfigurationValidCounter);
-}
-
 bool CSceneObject::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
 {
     return(false);
@@ -922,7 +910,6 @@ void CSceneObject::scaleObject(float scalingFactor)
     _sizeValues[1]*=scalingFactor;
     _sizeValues[2]*=scalingFactor;
     computeBoundingBox();
-    incrementMemorizedConfigurationValidCounter();
 
     App::currentWorld->drawingCont->adjustForScaling(_objectHandle,scalingFactor,scalingFactor,scalingFactor);
     App::worldContainer->setModificationFlag(256); // object scaled
@@ -935,7 +922,6 @@ void CSceneObject::scaleObjectNonIsometrically(float x,float y,float z)
     _sizeValues[1]*=y;
     _sizeValues[2]*=z;
     computeBoundingBox();
-    incrementMemorizedConfigurationValidCounter();
     pushObjectRefreshEvent();
     App::currentWorld->drawingCont->adjustForScaling(_objectHandle,x,y,z);
     App::worldContainer->setModificationFlag(256); // object scaled
@@ -1656,7 +1642,6 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     // this section is special and reserved to local configuration restoration!
     //********************************
     _initialConfigurationMemorized=true;
-    _initialMemorizedConfigurationValidCounter=_memorizedConfigurationValidCounter;
     _initialParentUniqueId=-1; // -1 means there was no parent at begin
     CSceneObject* p=getParent();
     if (p!=nullptr)
@@ -1702,17 +1687,14 @@ void CSceneObject::simulationEnded()
         {
             if (_initialConfigurationMemorized)
             { // this section is special and reserved to local configuration restoration!
-                if (_initialMemorizedConfigurationValidCounter==_memorizedConfigurationValidCounter)
-                { // the object wasn't resized/didn't change frame
-                    long long int puid=-1;
-                    CSceneObject* p=getParent();
-                    if (p!=nullptr)
-                        puid=p->getObjectUid();
-                    if (puid!=_initialParentUniqueId)
-                        setAbsoluteTransformation(_initialAbsPose);
-                    else
-                        setLocalTransformation(_initialLocalPose);
-                }
+                long long int puid=-1;
+                CSceneObject* p=getParent();
+                if (p!=nullptr)
+                    puid=p->getObjectUid();
+                if (puid!=_initialParentUniqueId)
+                    setAbsoluteTransformation(_initialAbsPose);
+                else
+                    setLocalTransformation(_initialLocalPose);
                 _modelProperty=_initialMainPropertyOverride;
                 _initialConfigurationMemorized=false;
             }

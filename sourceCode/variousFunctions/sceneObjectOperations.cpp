@@ -331,7 +331,6 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             {
                                 CSceneObject* child=it->getChildFromIndex(i);
                                 child->setLocalTransformation(newLocal.getInverse()*oldLocal*child->getLocalTransformation());
-                                child->incrementMemorizedConfigurationValidCounter(); // so if we are running in a simulation, the shape doesn't get reset at its initial config
                             }
                         }
                         else
@@ -450,7 +449,6 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         {
                             CSceneObject* child=sh->getChildFromIndex(i);
                             child->setLocalTransformation(newLocal.getInverse()*oldLocal*child->getLocalTransformation());
-                            child->incrementMemorizedConfigurationValidCounter(); // so if we are running in a simulation, the shape doesn't get reset at its initial config
                         }
 
                         App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
@@ -559,7 +557,6 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             {
                                 CSceneObject* child=it->getChildFromIndex(i);
                                 child->setLocalTransformation(newLocal.getInverse()*oldLocal*child->getLocalTransformation());
-                                child->incrementMemorizedConfigurationValidCounter(); // so if we are running in a simulation, the shape doesn't get reset at its initial config
                             }
                         }
                     }
@@ -2228,7 +2225,6 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
         {
             CSceneObject* child=it->getChildFromIndex(i);
             child->setLocalTransformation(newLocal.getInverse()*oldLocal*child->getLocalTransformation());
-            child->incrementMemorizedConfigurationValidCounter(); // so if we are running in a simulation, the shape doesn't get reset at its initial config
         }
         retVal=shapeHandle;
     }

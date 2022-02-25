@@ -209,10 +209,6 @@ public:
     void setMechanismID(int id);
     int getMechanismID() const;
 
-    // Following two needed when a shape is edited during simulation
-    void incrementMemorizedConfigurationValidCounter();
-    int getMemorizedConfigurationValidCounter();
-
     void setSizeFactor(float f);
     float getSizeFactor() const;
     void setSizeValues(const float s[3]);
@@ -378,7 +374,6 @@ protected:
     C3Vector _boundingBoxMin;
     C3Vector _boundingBoxMax;
 
-    int _memorizedConfigurationValidCounter;
     float _sizeFactor; // just used so that scripts can also adjust for scaling
     float _sizeValues[3];
     bool _dynamicsTemporarilyDisabled;
@@ -410,7 +405,6 @@ protected:
     bool _initialConfigurationMemorized;
     long long int _initialParentUniqueId;
     int _initialMainPropertyOverride;
-    int _initialMemorizedConfigurationValidCounter;
     C7Vector _initialLocalPose;
     C7Vector _initialAbsPose;
 

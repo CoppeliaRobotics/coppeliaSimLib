@@ -225,7 +225,7 @@ all:
 	gcc $(CFLAGS) -c sourceCode/geometricAlgorithms/edgeElement.cpp -o edgeElement.o
 	gcc $(CFLAGS) -c sourceCode/geometricAlgorithms/algos.cpp -o algos.o
 	gcc $(CFLAGS) -c sourceCode/various/gV.cpp -o gV.o
-	gcc $(CFLAGS) -c sourceCode/various/memorizedConf.cpp -o memorizedConf.o
+	gcc $(CFLAGS) -c sourceCode/various/memorizedConf_old.cpp -o memorizedConf_old.o
 	gcc $(CFLAGS) -c sourceCode/various/userSettings.cpp -o userSettings.o
 	gcc $(CFLAGS) -c sourceCode/various/folderSystem.cpp -o folderSystem.o
 	gcc $(CFLAGS) -c sourceCode/various/uiThread.cpp -o uiThread.o

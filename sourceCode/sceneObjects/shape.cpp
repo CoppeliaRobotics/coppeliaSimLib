@@ -161,7 +161,6 @@ void CShape::setNewMesh(CMeshWrapper* newGeomInfo)
     _computeMeshBoundingBox();
     computeBoundingBox();
     actualizeContainsTransparentComponent();
-    incrementMemorizedConfigurationValidCounter(); // so if we are running in a simulation, the shape doesn't get reset at its initial config
 }
 
 C7Vector CShape::reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeomInfo)
@@ -1747,12 +1746,10 @@ bool CShape::_reorientGeometry(int type)
     setLocalTransformation(getLocalTransformation()*mCorr);
     if (_isInScene)
         App::currentWorld->drawingCont->adjustForFrameChange(_objectHandle,mCorrInv);
-    incrementMemorizedConfigurationValidCounter();
     for (size_t i=0;i<getChildCount();i++)
     {
         CSceneObject* child=getChildFromIndex(i);
         child->setLocalTransformation(mCorrInv*child->getLocalTransformation());
-        child->incrementMemorizedConfigurationValidCounter();
     }
     App::setFullDialogRefreshFlag(); // so that textures and other things get updated!
     pushObjectRefreshEvent();
