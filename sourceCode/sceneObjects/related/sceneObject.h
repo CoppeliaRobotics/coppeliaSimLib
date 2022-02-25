@@ -73,6 +73,7 @@ public:
     // -----------
 
     virtual void simulationAboutToStart();
+    void simulationEnded_restoreHierarchy();
     virtual void simulationEnded();
     virtual void initializeInitialValues(bool simulationAlreadyRunning);
     virtual void computeBoundingBox();
@@ -410,7 +411,8 @@ protected:
     long long int _initialParentUniqueId;
     int _initialMainPropertyOverride;
     int _initialMemorizedConfigurationValidCounter;
-    C7Vector _initialLocalTransformationPart1;
+    C7Vector _initialLocalPose;
+    C7Vector _initialAbsPose;
 
     int _dynamicFlag; // 1=respondableShape, 2=nonStaticShape, 4=dynJointNoMotor, 8=dynJointMotor, 16=dynJointPosCtrl, 32=dynForceSensor, 64=dynDummy
 

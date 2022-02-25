@@ -31,7 +31,20 @@ void CSceneObjectContainer::simulationAboutToStart()
 void CSceneObjectContainer::simulationEnded()
 {
     for (size_t i=0;i<getObjectCount();i++)
-       getObjectFromIndex(i)->simulationEnded();
+       getObjectFromIndex(i)->simulationEnded_restoreHierarchy();
+
+    // Do following from base to tip:
+    std::vector<CSceneObject*> toExplore;
+    for (size_t i=0;i<getOrphanCount();i++)
+        toExplore.push_back(getOrphanFromIndex(i));
+    while (toExplore.size()!=0)
+    {
+        CSceneObject* obj=toExplore[0];
+        toExplore.erase(toExplore.begin());
+        obj->simulationEnded();
+        for (size_t i=0;i<obj->getChildCount();i++)
+            toExplore.push_back(obj->getChildFromIndex(i));
+    }
 }
 
 void CSceneObjectContainer::announceObjectWillBeErased(const CSceneObject* object)

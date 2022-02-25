@@ -688,28 +688,9 @@ void CWorld::simulationEnded(bool removeNewObjects)
     delete[] (char*)retVal;
     App::worldContainer->setModificationFlag(4096); // simulation ended
 
-    _simulationEnded();
-    App::worldContainer->calcInfo->simulationEnded();
-
-#ifdef SIM_WITH_SERIAL
-    App::worldContainer->serialPortContainer->simulationEnded();
-#endif
-
-#ifdef SIM_WITH_GUI
-    SUIThreadCommand cmdIn;
-    SUIThreadCommand cmdOut;
-    cmdIn.cmdId=SIMULATION_JUST_ENDED_UITHREADCMD;
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-#endif
-
-    App::setMouseMode(_savedMouseMode);
-    App::setToolbarRefreshFlag();
-    App::setFullDialogRefreshFlag();
-
     if (removeNewObjects)
     {
         const std::vector<int>* savedSelection=sceneObjects->getSelectedObjectHandlesPtr();
-        //sceneObjects->deselectObjects();
         std::vector<int> toRemove;
         for (size_t i=0;i<sceneObjects->getObjectCount();i++)
         {
@@ -730,6 +711,24 @@ void CWorld::simulationEnded(bool removeNewObjects)
         sceneObjects->setSelectedObjectHandles(savedSelection);
     }
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
+
+    _simulationEnded();
+
+    App::worldContainer->calcInfo->simulationEnded();
+#ifdef SIM_WITH_SERIAL
+    App::worldContainer->serialPortContainer->simulationEnded();
+#endif
+#ifdef SIM_WITH_GUI
+    SUIThreadCommand cmdIn;
+    SUIThreadCommand cmdOut;
+    cmdIn.cmdId=SIMULATION_JUST_ENDED_UITHREADCMD;
+    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+#endif
+
+    App::setMouseMode(_savedMouseMode);
+    App::setToolbarRefreshFlag();
+    App::setFullDialogRefreshFlag();
+
     App::undoRedo_sceneChanged(""); // keeps this (additional objects were removed, and object positions were reset)
 
     embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_aftersimulation,nullptr,nullptr,nullptr);

@@ -1661,7 +1661,8 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     CSceneObject* p=getParent();
     if (p!=nullptr)
         _initialParentUniqueId=p->getObjectUid();
-    _initialLocalTransformationPart1=_localTransformation;
+    _initialLocalPose=_localTransformation;
+    _initialAbsPose=getCumulativeTransformation();
     //********************************
 
     _dynamicsTemporarilyDisabled=false;
@@ -1669,8 +1670,28 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     _initialMainPropertyOverride=_modelProperty;
 }
 
+void CSceneObject::simulationEnded_restoreHierarchy()
+{ // called before simulationEnded
+    if (_initialValuesInitialized&&_initialConfigurationMemorized)
+    {
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
+        {
+            long long int puid=-1;
+            CSceneObject* p=getParent();
+            if (p!=nullptr)
+                puid=p->getObjectUid();
+            if (puid!=_initialParentUniqueId)
+            {
+                CSceneObject* oldParent=App::currentWorld->sceneObjects->getObjectFromUid(_initialParentUniqueId);
+                App::currentWorld->sceneObjects->setObjectParent(this,oldParent,true);
+            }
+        }
+    }
+}
+
 void CSceneObject::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
+    // called after simulationEnded_restoreHierarchy
     _dynamicSimulationIconCode=sim_dynamicsimicon_none;
     setDynamicFlag(0);
     if (_userScriptParameters!=nullptr)
@@ -1687,19 +1708,10 @@ void CSceneObject::simulationEnded()
                     CSceneObject* p=getParent();
                     if (p!=nullptr)
                         puid=p->getObjectUid();
-                    // Changed following on 24/04/2011 (because we also wanna reset the parenting to the initial state!)
                     if (puid!=_initialParentUniqueId)
-                    { // Not sure following instructions are not problematic here.
-                        CSceneObject* oldParent=App::currentWorld->sceneObjects->getObjectFromUid(_initialParentUniqueId);
-                        if ( (oldParent!=nullptr)||(_initialParentUniqueId==-1) )
-                        {
-                            // Inverted following 2 lines on 24/2/2012:
-                            App::currentWorld->sceneObjects->setObjectParent(this,oldParent,true);
-                            setLocalTransformation(_initialLocalTransformationPart1);
-                        }
-                    }
+                        setAbsoluteTransformation(_initialAbsPose);
                     else
-                        setLocalTransformation(_initialLocalTransformationPart1);
+                        setLocalTransformation(_initialLocalPose);
                 }
                 _modelProperty=_initialMainPropertyOverride;
                 _initialConfigurationMemorized=false;
