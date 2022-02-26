@@ -286,6 +286,7 @@ protected:
     std::string _filenameForExternalScriptEditor;
     std::vector<std::string> _functionHooks_before;
     std::vector<std::string> _functionHooks_after;
+    int _initFunctionHookCount;
 
 
     static int _nextIdForExternalScriptEditor;

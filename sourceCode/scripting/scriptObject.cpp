@@ -1579,9 +1579,9 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
     if (_checkIfMixingOldAndNewCallMethods_old())
     {
         std::string msg(getShortDescriptiveName().c_str());
-        msg+=": detected a possible attempt to mix the old and new calling methods. For example:";
-        msg+="\n         with the old method: if sim_call_type==sim_childscriptcall_initialization then ... end";
-        msg+="\n         with the new method: function sysCall_init() ... end";
+        msg+=": detected a possible attempt to mix the old and new calling methods, e.g.:";
+        msg+="\nwith the old method: if sim_call_type==sim_childscriptcall_initialization then ... end";
+        msg+="\nwith the new method: function sysCall_init() ... end";
         App::logMsg(sim_verbosity_warnings,msg.c_str());
     }
     int oldTop=luaWrap_lua_gettop(L);
@@ -1613,8 +1613,18 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
                 if (!_compatibilityMode_oldLua)
                     break;
             }
+            if ( _compatibilityMode_oldLua&&(_functionHooks_before.size()+_functionHooks_after.size()>_initFunctionHookCount) )
+                _compatibilityMode_oldLua=false;
 
-            if (!_compatibilityMode_oldLua)
+            if (_compatibilityMode_oldLua)
+            {
+                std::string msg(getShortDescriptiveName().c_str());
+                msg+=": the script is running in compatibility mode. It is highly recommended to switch to the new calling method, e.g.:";
+                msg+="\nwith the old method: if sim_call_type==sim_childscriptcall_initialization then ... end";
+                msg+="\nwith the new method: function sysCall_init() ... end";
+                App::logMsg(sim_verbosity_warnings,msg.c_str());
+            }
+            else
                 _execSimpleString_safe_lua(L,"sim_call_type=nil");
             size_t off=0;
             size_t l=strlen(functionsToFind+off);
@@ -2494,6 +2504,7 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
         if (errorMsg!=nullptr)
             errorMsg[0]=luaWrap_lua_tostring(L,-1);
         _killInterpreterState();
+        _initFunctionHookCount=0;
     }
     else
     {
@@ -2501,6 +2512,7 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
         registerPluginFunctions();
         registerPluginVariables(false);
         luaWrap_lua_sethook(L,_hookFunction_lua,luaWrapGet_LUA_MASKCOUNT(),100); // This instruction gets also called in luaHookFunction!!!!
+        _initFunctionHookCount=_functionHooks_before.size()+_functionHooks_after.size();
     }
     if (!App::userSettings->executeUnsafe)
     {
