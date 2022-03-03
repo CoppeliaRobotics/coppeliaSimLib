@@ -201,9 +201,7 @@ target_include_directories(coppeliaSim
     sourceCode/distances
     sourceCode/pathPlanning_old
     sourceCode/sceneObjects
-    sourceCode/shared/sceneObjects
     sourceCode/sceneObjects/related
-    sourceCode/shared/sceneObjects/related
     sourceCode/sceneObjects/graphObjectRelated
     sourceCode/sceneObjects/pathObjectRelated
     sourceCode/sceneObjects/proximitySensorObjectRelated

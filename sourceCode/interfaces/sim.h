@@ -408,8 +408,6 @@ SIM_DLLEXPORT simBool _simGetStartSleeping(const simVoid* shape);
 SIM_DLLEXPORT simBool _simGetWasPutToSleepOnce(const simVoid* shape);
 SIM_DLLEXPORT simBool _simGetDynamicsFullRefreshFlag(const simVoid* object);
 SIM_DLLEXPORT simVoid _simSetDynamicsFullRefreshFlag(const simVoid* object,simBool flag);
-SIM_DLLEXPORT simVoid _simSetGeomProxyDynamicsFullRefreshFlag(simVoid* geomData,simBool flag);
-SIM_DLLEXPORT simBool _simGetGeomProxyDynamicsFullRefreshFlag(const simVoid* geomData);
 SIM_DLLEXPORT simVoid _simSetShapeDynamicVelocity(simVoid* shape,const simFloat* linear,const simFloat* angular);
 SIM_DLLEXPORT simVoid _simGetAdditionalForceAndTorque(const simVoid* shape,simFloat* force,simFloat* torque);
 SIM_DLLEXPORT simVoid _simClearAdditionalForceAndTorque(const simVoid* shape);
@@ -725,6 +723,8 @@ SIM_DLLEXPORT const simChar* simGetScriptText(simInt scriptHandle);
 SIM_DLLEXPORT simInt simGetScriptProperty(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle);
 SIM_DLLEXPORT simInt simGetJointMaxForce(simInt jointHandle,simFloat* forceOrTorque);
 SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTorque);
+SIM_DLLEXPORT simVoid _simSetGeomProxyDynamicsFullRefreshFlag(simVoid* geomData,simBool flag);
+SIM_DLLEXPORT simBool _simGetGeomProxyDynamicsFullRefreshFlag(const simVoid* geomData);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

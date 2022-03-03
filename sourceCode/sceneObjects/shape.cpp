@@ -156,7 +156,6 @@ void CShape::setNewMesh(CMeshWrapper* newGeomInfo)
     removeMeshCalculationStructure();
     delete _mesh;
     _mesh=newGeomInfo;
-    _meshDynamicsFullRefreshFlag=true;
     _meshModificationCounter++;
     _computeMeshBoundingBox();
     computeBoundingBox();
@@ -169,7 +168,6 @@ C7Vector CShape::reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeo
     retVal.setIdentity();
     removeMeshCalculationStructure();
     delete _mesh;
-    _meshDynamicsFullRefreshFlag=true;
     _meshModificationCounter++;
 
     newGeomInfo->preMultiplyAllVerticeLocalFrames(transformation);
@@ -256,7 +254,6 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<float>& vert,const std::ve
     _computeMeshBoundingBox();
     computeBoundingBox();
     _meshModificationCounter++;
-    _meshDynamicsFullRefreshFlag=true;
     return(retVal);
 }
 
@@ -664,7 +661,6 @@ void CShape::scaleMesh(float xVal,float yVal,float zVal)
 void CShape::scaleMesh(float x,float y,float z,float& xp,float& yp,float& zp)
 {   // The geometric resource is scaled and the bounding box is recomputed.
     // Normals are not recomputed if xVal==yVal==yVal
-    _meshDynamicsFullRefreshFlag=true; // make sure we refresh part of the dynamic world!
     _meshModificationCounter++;
     if (getMeshWrapper()->isPure())
     { // we have some constraints in case we have a pure mesh (or several pure meshes in a group)
@@ -709,16 +705,6 @@ void CShape::scaleMesh(float x,float y,float z,float& xp,float& yp,float& zp)
     xp=x;
     yp=y;
     zp=z;
-}
-
-void CShape::setMeshDynamicsFullRefreshFlag(bool refresh)
-{
-    _meshDynamicsFullRefreshFlag=refresh;
-}
-
-bool CShape::getMeshDynamicsFullRefreshFlag()
-{
-    return(_meshDynamicsFullRefreshFlag);
 }
 
 int CShape::getMeshModificationCounter()
@@ -924,7 +910,6 @@ void CShape::commonInit()
 
     _meshCalculationStructure=nullptr;
     _mesh=nullptr;
-    _meshDynamicsFullRefreshFlag=true;
     _meshModificationCounter=0;
 
     _dynMaterial=new CDynMaterialObject();

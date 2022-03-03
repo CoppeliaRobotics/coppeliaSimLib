@@ -406,8 +406,6 @@ simBool _simGetStartSleeping_internal(const simVoid* shape);
 simBool _simGetWasPutToSleepOnce_internal(const simVoid* shape);
 simBool _simGetDynamicsFullRefreshFlag_internal(const simVoid* object);
 simVoid _simSetDynamicsFullRefreshFlag_internal(const simVoid* object,simBool flag);
-simVoid _simSetGeomProxyDynamicsFullRefreshFlag_internal(simVoid* geomData,simBool flag);
-simBool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const simVoid* geomData);
 simVoid _simSetShapeDynamicVelocity_internal(simVoid* shape,const simFloat* linear,const simFloat* angular);
 simVoid _simGetAdditionalForceAndTorque_internal(const simVoid* shape,simFloat* force,simFloat* torque);
 simVoid _simClearAdditionalForceAndTorque_internal(const simVoid* shape);
@@ -671,4 +669,6 @@ const simChar* simGetScriptText_internal(simInt scriptHandle);
 simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle);
 simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque);
 simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque);
+simVoid _simSetGeomProxyDynamicsFullRefreshFlag_internal(simVoid* geomData,simBool flag);
+simBool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const simVoid* geomData);
 #endif // !defined(simInternal_INCLUDED_)

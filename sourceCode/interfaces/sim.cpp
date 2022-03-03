@@ -1563,14 +1563,6 @@ SIM_DLLEXPORT simVoid _simSetDynamicsFullRefreshFlag(const simVoid* object,simBo
 {
     return(_simSetDynamicsFullRefreshFlag_internal(object,flag));
 }
-SIM_DLLEXPORT simVoid _simSetGeomProxyDynamicsFullRefreshFlag(simVoid* geomData,simBool flag)
-{
-    return(_simSetGeomProxyDynamicsFullRefreshFlag_internal(geomData,flag));
-}
-SIM_DLLEXPORT simBool _simGetGeomProxyDynamicsFullRefreshFlag(const simVoid* geomData)
-{
-    return(_simGetGeomProxyDynamicsFullRefreshFlag_internal(geomData));
-}
 SIM_DLLEXPORT simVoid _simSetShapeDynamicVelocity(simVoid* shape,const simFloat* linear,const simFloat* angular)
 {
     return(_simSetShapeDynamicVelocity_internal(shape,linear,angular));
@@ -2788,6 +2780,13 @@ SIM_DLLEXPORT simInt simGetJointMaxForce(simInt jointHandle,simFloat* forceOrTor
 SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTorque)
 {
     return(simSetJointMaxForce_internal(objectHandle,forceOrTorque));
+}
+SIM_DLLEXPORT simVoid _simSetGeomProxyDynamicsFullRefreshFlag(simVoid* geomData,simBool flag)
+{
+}
+SIM_DLLEXPORT simBool _simGetGeomProxyDynamicsFullRefreshFlag(const simVoid* geomData)
+{
+    return(0);
 }
 // Deprecated end
 

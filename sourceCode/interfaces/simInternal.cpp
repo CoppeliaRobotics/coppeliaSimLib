@@ -16483,18 +16483,6 @@ const simVoid* _simGetLastParentForLocalGlobalCollidable_internal(const simVoid*
     return(((CShape*)shape)->getLastParentForLocalGlobalRespondable());
 }
 
-simVoid _simSetGeomProxyDynamicsFullRefreshFlag_internal(simVoid* geomData,simBool flag)
-{
-    TRACE_C_API;
-    ((CShape*)geomData)->setMeshDynamicsFullRefreshFlag(flag!=0);
-}
-
-simBool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const simVoid* geomData)
-{
-    TRACE_C_API;
-    return(((CShape*)geomData)->getMeshDynamicsFullRefreshFlag());
-}
-
 simBool _simGetDynamicsFullRefreshFlag_internal(const simVoid* object)
 {
     TRACE_C_API;
@@ -23144,3 +23132,11 @@ simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque)
     return(-1);
 }
 
+simVoid _simSetGeomProxyDynamicsFullRefreshFlag_internal(simVoid* geomData,simBool flag)
+{ // deprecated on 03.03.2022. Has no effect
+}
+
+simBool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const simVoid* geomData)
+{ // deprecated on 03.03.2022. Has no effect
+    return(0);
+}

@@ -22,8 +22,6 @@ public:
     void scaleMesh(float xVal,float yVal,float zVal);
     void scaleMesh(float x,float y,float z,float& xp,float& yp,float& zp);
 
-    void setMeshDynamicsFullRefreshFlag(bool refresh);
-    bool getMeshDynamicsFullRefreshFlag();
     int getMeshModificationCounter();
     CMeshWrapper* getMeshWrapper() const;
     CMesh* getSingleMesh() const;
@@ -31,7 +29,6 @@ public:
 
     void* _meshCalculationStructure;
     C3Vector _meshBoundingBoxHalfSizes;
-    bool _meshDynamicsFullRefreshFlag;
     int _meshModificationCounter;
     CMeshWrapper* _mesh;
 
