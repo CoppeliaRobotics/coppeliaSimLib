@@ -2520,6 +2520,7 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
         _execSimpleString_safe_lua(L,"loadfile=function() sim.addLog(sim.verbosity_errors,\"'loadfile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
         _execSimpleString_safe_lua(L,"dofile=function() sim.addLog(sim.verbosity_errors,\"'dofile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
         _execSimpleString_safe_lua(L,"io.popen=function() sim.addLog(sim.verbosity_errors,\"'io.popen' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
+        _execSimpleString_safe_lua(L,"os.execute=function() sim.addLog(sim.verbosity_errors,\"'os.execute' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!\") end");
     }
 
     return(_interpreterState!=nullptr);

@@ -109,8 +109,6 @@ public:
     bool getRespondable();
     void setDynamicCollisionMask(unsigned short m);
     unsigned short getDynamicCollisionMask();
-    void setShapeIsStaticAndNotRespondableButDynamicTag(bool f);
-    bool getShapeIsStaticAndNotRespondableButDynamicTag();
 
     bool getSetAutomaticallyToNonStaticIfGetsParent();
     void setSetAutomaticallyToNonStaticIfGetsParent(bool autoNonStatic);
@@ -176,7 +174,6 @@ protected:
     bool _startInDynamicSleeping;
     bool _shapeIsDynamicallyStatic;
     bool _shapeIsDynamicallyRespondable;
-    bool _shapeIsStaticAndNotRespondableButDynamicTag; // needed when a dynamic joint connects to a static non respondable shape
     bool _parentFollowsDynamic;
     bool _containsTransparentComponents; // to be able to order shapes according to transparency
     bool _setAutomaticallyToNonStaticIfGetsParent;

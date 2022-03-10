@@ -1288,45 +1288,6 @@ simInt simGetScriptHandleEx_internal(simInt scriptType,simInt objectHandle,const
     return(-1);
 }
 
-simInt simRemoveObject_internal(simInt objectHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (objectHandle==sim_handle_all)
-        {
-            App::currentWorld->sceneObjects->eraseAllObjects(true);
-            return(1);
-        }
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        if (it==nullptr)
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_INEXISTANT);
-            return(-1);
-        }
-
-        // Memorize the selection:
-        std::vector<int> initSel;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            initSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-
-        App::currentWorld->sceneObjects->eraseObject(it,true);
-
-        // Restore the initial selection:
-        App::currentWorld->sceneObjects->deselectObjects();
-        for (size_t i=0;i<initSel.size();i++)
-            App::currentWorld->sceneObjects->addObjectToSelection(initSel[i]);
-
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
 simInt simRemoveObjects_internal(const simInt* objectHandles,simInt count)
 {
     TRACE_C_API;
@@ -16776,18 +16737,6 @@ simInt _simGetObjectType_internal(const simVoid* object)
     return(((CSceneObject*)object)->getObjectType());
 }
 
-simVoid _simSetShapeIsStaticAndNotRespondableButDynamicTag_internal(const simVoid* shape,simBool tag)
-{
-    TRACE_C_API;
-    ((CShape*)shape)->setShapeIsStaticAndNotRespondableButDynamicTag(tag!=0);
-}
-
-simBool _simGetShapeIsStaticAndNotRespondableButDynamicTag_internal(const simVoid* shape)
-{
-    TRACE_C_API;
-    return(((CShape*)shape)->getShapeIsStaticAndNotRespondableButDynamicTag());
-}
-
 const simVoid** _simGetObjectChildren_internal(const simVoid* object,simInt* count)
 {
     TRACE_C_API;
@@ -23140,3 +23089,43 @@ simBool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const simVoid* geomData
 { // deprecated on 03.03.2022. Has no effect
     return(0);
 }
+
+simInt simRemoveObject_internal(simInt objectHandle)
+{ // deprecated on 07.03.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (objectHandle==sim_handle_all)
+        {
+            App::currentWorld->sceneObjects->eraseAllObjects(true);
+            return(1);
+        }
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        if (it==nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_INEXISTANT);
+            return(-1);
+        }
+
+        // Memorize the selection:
+        std::vector<int> initSel;
+        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+            initSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+
+        App::currentWorld->sceneObjects->eraseObject(it,true);
+
+        // Restore the initial selection:
+        App::currentWorld->sceneObjects->deselectObjects();
+        for (size_t i=0;i<initSel.size();i++)
+            App::currentWorld->sceneObjects->addObjectToSelection(initSel[i]);
+
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+

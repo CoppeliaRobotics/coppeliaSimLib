@@ -37,7 +37,6 @@ SIM_DLLEXPORT simInt simGetObject(const simChar* objectAlias,simInt index,simInt
 SIM_DLLEXPORT simInt64 simGetObjectUid(simInt objectHandle);
 SIM_DLLEXPORT simInt simGetObjectFromUid(simInt64 uid,simInt options);
 SIM_DLLEXPORT simInt simGetScriptHandleEx(simInt scriptType,simInt objectHandle,const simChar* scriptName);
-SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle);
 SIM_DLLEXPORT simInt simRemoveObjects(const simInt* objectHandles,simInt count);
 SIM_DLLEXPORT simInt simRemoveModel(simInt objectHandle);
 SIM_DLLEXPORT simChar* simGetObjectAlias(simInt objectHandle,simInt options);
@@ -395,8 +394,6 @@ SIM_DLLEXPORT simVoid _simDisableDynamicTreeForManipulation(const simVoid* objec
 SIM_DLLEXPORT simBool _simIsShapeDynamicallyRespondable(const simVoid* shape);
 SIM_DLLEXPORT simInt _simGetDynamicCollisionMask(const simVoid* shape);
 SIM_DLLEXPORT const simVoid* _simGetLastParentForLocalGlobalCollidable(const simVoid* shape);
-SIM_DLLEXPORT simVoid _simSetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape,simBool tag);
-SIM_DLLEXPORT simBool _simGetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape);
 SIM_DLLEXPORT simVoid _simSetJointPosition(const simVoid* joint,simFloat pos);
 SIM_DLLEXPORT simFloat _simGetJointPosition(const simVoid* joint);
 SIM_DLLEXPORT simVoid _simSetDynamicMotorPositionControlTargetPosition(const simVoid* joint,simFloat pos);
@@ -725,6 +722,9 @@ SIM_DLLEXPORT simInt simGetJointMaxForce(simInt jointHandle,simFloat* forceOrTor
 SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTorque);
 SIM_DLLEXPORT simVoid _simSetGeomProxyDynamicsFullRefreshFlag(simVoid* geomData,simBool flag);
 SIM_DLLEXPORT simBool _simGetGeomProxyDynamicsFullRefreshFlag(const simVoid* geomData);
+SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle);
+SIM_DLLEXPORT simVoid _simSetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape,simBool tag);
+SIM_DLLEXPORT simBool _simGetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

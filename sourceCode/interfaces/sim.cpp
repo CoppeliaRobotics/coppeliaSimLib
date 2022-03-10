@@ -85,10 +85,6 @@ SIM_DLLEXPORT simInt simGetScriptHandleEx(simInt scriptType,simInt objectHandle,
 {
     return(simGetScriptHandleEx_internal(scriptType,objectHandle,scriptName));
 }
-SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle)
-{
-    return(simRemoveObject_internal(objectHandle));
-}
 SIM_DLLEXPORT simInt simRemoveObjects(const simInt* objectHandles,simInt count)
 {
     return(simRemoveObjects_internal(objectHandles,count));
@@ -1511,14 +1507,6 @@ SIM_DLLEXPORT const simVoid* _simGetLastParentForLocalGlobalCollidable(const sim
 {
     return(_simGetLastParentForLocalGlobalCollidable_internal(shape));
 }
-SIM_DLLEXPORT simVoid _simSetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape,simBool tag)
-{
-    return(_simSetShapeIsStaticAndNotRespondableButDynamicTag_internal(shape,tag));
-}
-SIM_DLLEXPORT simBool _simGetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape)
-{
-    return(_simGetShapeIsStaticAndNotRespondableButDynamicTag_internal(shape));
-}
 SIM_DLLEXPORT simVoid _simSetJointPosition(const simVoid* joint,simFloat pos)
 {
     return(_simSetJointPosition_internal(joint,pos));
@@ -2785,6 +2773,17 @@ SIM_DLLEXPORT simVoid _simSetGeomProxyDynamicsFullRefreshFlag(simVoid* geomData,
 {
 }
 SIM_DLLEXPORT simBool _simGetGeomProxyDynamicsFullRefreshFlag(const simVoid* geomData)
+{
+    return(0);
+}
+SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle)
+{
+    return(simRemoveObject_internal(objectHandle));
+}
+SIM_DLLEXPORT simVoid _simSetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape,simBool tag)
+{
+}
+SIM_DLLEXPORT simBool _simGetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape)
 {
     return(0);
 }

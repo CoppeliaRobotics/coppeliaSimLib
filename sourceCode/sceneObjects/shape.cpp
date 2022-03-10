@@ -786,16 +786,6 @@ void CShape::prepareVerticesIndicesNormalsAndEdgesForSerialization()
     getMeshWrapper()->prepareVerticesIndicesNormalsAndEdgesForSerialization();
 }
 
-void CShape::setShapeIsStaticAndNotRespondableButDynamicTag(bool f)
-{
-    _shapeIsStaticAndNotRespondableButDynamicTag=f;
-}
-
-bool CShape::getShapeIsStaticAndNotRespondableButDynamicTag()
-{
-    return(_shapeIsStaticAndNotRespondableButDynamicTag);
-}
-
 void CShape::setDynamicCollisionMask(unsigned short m)
 {
     _dynamicCollisionMask=m;
@@ -972,8 +962,6 @@ bool CShape::getRespondable()
 {
     return(_shapeIsDynamicallyRespondable);
 }
-
-
 
 bool CShape::getSetAutomaticallyToNonStaticIfGetsParent()
 {

@@ -385,8 +385,38 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_VISION_SENSOR);
             CVisionSensor* newObject=new CVisionSensor();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            newObject->setLocalTransformation(C3Vector(0.0f,0.0f,newObject->getVisionSensorSize()*2.0f));
             newObject->setPerspective(commandID==ADD_COMMANDS_ADD_VISION_SENSOR_PERSPECTIVE_ACCMD);
+            bool isSet=false;
+            if (subView!=nullptr)
+            {
+                C7Vector m;
+                int lo=subView->getLinkedObjectID();
+                CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(lo);
+                CVisionSensor* sens=App::currentWorld->sceneObjects->getVisionSensorFromHandle(lo);
+                isSet=( (camera!=nullptr)||(sens!=nullptr) );
+                if (isSet)
+                {
+                    if (camera!=nullptr)
+                        m=camera->getFullLocalTransformation();
+                    if (sens!=nullptr)
+                        m=sens->getFullLocalTransformation();
+                    newObject->setLocalTransformation(m);
+
+                    C3Vector minV,maxV;
+                    newObject->getBoundingBox(minV,maxV);
+                    maxV-=minV;
+                    float averageSize=(maxV(0)+maxV(1)+maxV(2))/3.0f;
+                    float shiftForward;
+                    if (camera!=nullptr)
+                        shiftForward=camera->getNearClippingPlane()-minV(2)+3.0f*averageSize;
+                    if (sens!=nullptr)
+                        shiftForward=sens->getNearClippingPlane()-minV(2)+3.0f*averageSize;
+                    m.X+=(m.Q.getAxis(2)*shiftForward);
+                    newObject->setLocalTransformation(m.X);
+                }
+            }
+            if (!isSet)
+                newObject->setLocalTransformation(C3Vector(0.0f,0.0f,newObject->getVisionSensorSize()*2.0f));
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
@@ -395,6 +425,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
+            cmd.objectParams.push_back(subView);
             App::appendSimulationThreadCommand(cmd);
         }
         return(true);
@@ -1184,8 +1215,8 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
             if (linkedObjIsInexistentOrNotGraphNorRenderingSens)
             {
                 VMenu* camera=new VMenu();
-                camera->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD,"perspective type");
-                camera->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_ORTHOGONAL_CAMERA_ACCMD,"orthogonal type");
+                camera->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD,"Perspective type");
+                camera->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_ORTHOGONAL_CAMERA_ACCMD,"Orthogonal type");
                 menu->appendMenuAndDetach(camera,true,"Camera");
             }
             else
@@ -1229,8 +1260,8 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
         if (linkedObjIsInexistentOrNotGraphNorRenderingSens)
         {
             VMenu* camera=new VMenu();
-            camera->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD,"perspective type");
-            camera->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_ORTHOGONAL_CAMERA_ACCMD,"orthogonal type");
+            camera->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD,"Perspective type");
+            camera->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_ORTHOGONAL_CAMERA_ACCMD,"Orthogonal type");
             menu->appendMenuAndDetach(camera,true,"Camera");
         }
         else
@@ -1273,8 +1304,8 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
             menu->appendMenuAndDetach(sens,true,IDS_PROXSENSOR_MENU_ITEM);
 
             VMenu* camera=new VMenu();
-            camera->appendMenuItem(true,false,ADD_COMMANDS_ADD_VISION_SENSOR_PERSPECTIVE_ACCMD,"perspective type");
-            camera->appendMenuItem(true,false,ADD_COMMANDS_ADD_VISION_SENSOR_ORTHOGONAL_ACCMD,"orthogonal type");
+            camera->appendMenuItem(true,false,ADD_COMMANDS_ADD_VISION_SENSOR_PERSPECTIVE_ACCMD,"Perspective type");
+            camera->appendMenuItem(true,false,ADD_COMMANDS_ADD_VISION_SENSOR_ORTHOGONAL_ACCMD,"Orthogonal type");
             menu->appendMenuAndDetach(camera,true,"Vision sensor");
 
             menu->appendMenuItem(true,false,ADD_COMMANDS_ADD_FORCE_SENSOR_ACCMD,IDSN_FORCE_SENSOR);

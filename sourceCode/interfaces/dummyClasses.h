@@ -6,22 +6,22 @@ class CDummy3DObject
 public:
 };
 
-class CDummyShape  
+class CDummyShape : public CDummy3DObject
 {
 public:
 };
 
-class CDummyJoint  
+class CDummyJoint : public CDummy3DObject
 {
 public:
 };
 
-class CDummyForceSensor  
+class CDummyForceSensor : public CDummy3DObject
 {
 public:
 };
 
-class CDummyDummy  
+class CDummyDummy : public CDummy3DObject
 {
 public:
 };

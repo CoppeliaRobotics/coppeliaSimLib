@@ -132,33 +132,19 @@ public:
     std::string defaultDirectoryForImportExport;
     std::string defaultDirectoryForMiscFiles;
 
-    int threadedChildScriptColor_background[3];
-    int threadedChildScriptColor_selection[3];
-    int threadedChildScriptColor_comment[3];
-    int threadedChildScriptColor_number[3];
-    int threadedChildScriptColor_string[3];
-    int threadedChildScriptColor_character[3];
-    int threadedChildScriptColor_operator[3];
-    int threadedChildScriptColor_preprocessor[3];
-    int threadedChildScriptColor_identifier[3];
-    int threadedChildScriptColor_word[3];
-    int threadedChildScriptColor_word2[3];
-    int threadedChildScriptColor_word3[3];
-    int threadedChildScriptColor_word4[3];
-
-    int nonThreadedChildScriptColor_background[3];
-    int nonThreadedChildScriptColor_selection[3];
-    int nonThreadedChildScriptColor_comment[3];
-    int nonThreadedChildScriptColor_number[3];
-    int nonThreadedChildScriptColor_string[3];
-    int nonThreadedChildScriptColor_character[3];
-    int nonThreadedChildScriptColor_operator[3];
-    int nonThreadedChildScriptColor_preprocessor[3];
-    int nonThreadedChildScriptColor_identifier[3];
-    int nonThreadedChildScriptColor_word[3];
-    int nonThreadedChildScriptColor_word2[3];
-    int nonThreadedChildScriptColor_word3[3];
-    int nonThreadedChildScriptColor_word4[3];
+    int childScriptColor_background[3];
+    int childScriptColor_selection[3];
+    int childScriptColor_comment[3];
+    int childScriptColor_number[3];
+    int childScriptColor_string[3];
+    int childScriptColor_character[3];
+    int childScriptColor_operator[3];
+    int childScriptColor_preprocessor[3];
+    int childScriptColor_identifier[3];
+    int childScriptColor_word[3];
+    int childScriptColor_word2[3];
+    int childScriptColor_word3[3];
+    int childScriptColor_word4[3];
 
     int mainScriptColor_background[3];
     int mainScriptColor_selection[3];

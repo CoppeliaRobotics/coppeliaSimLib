@@ -395,38 +395,19 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     }
                     if (it->getScriptType()==sim_scripttype_childscript)
                     {
-                        if (it->getThreadedExecution_oldThreads())
-                        {
-                            editorNode->SetAttribute("background-col",getColorStr(App::userSettings->threadedChildScriptColor_background).c_str());
-                            editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->threadedChildScriptColor_selection).c_str());
-                            editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->threadedChildScriptColor_comment).c_str());
-                            editorNode->SetAttribute("number-col",getColorStr(App::userSettings->threadedChildScriptColor_number).c_str());
-                            editorNode->SetAttribute("string-col",getColorStr(App::userSettings->threadedChildScriptColor_string).c_str());
-                            editorNode->SetAttribute("character-col",getColorStr(App::userSettings->threadedChildScriptColor_character).c_str());
-                            editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->threadedChildScriptColor_operator).c_str());
-                            editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->threadedChildScriptColor_identifier).c_str());
-                            editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->threadedChildScriptColor_preprocessor).c_str());
-                            editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->threadedChildScriptColor_word2).c_str());
-                            editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->threadedChildScriptColor_word3).c_str());
-                            editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->threadedChildScriptColor_word).c_str());
-                            editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->threadedChildScriptColor_word4).c_str());
-                        }
-                        else
-                        {
-                            editorNode->SetAttribute("background-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_background).c_str());
-                            editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_selection).c_str());
-                            editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_comment).c_str());
-                            editorNode->SetAttribute("number-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_number).c_str());
-                            editorNode->SetAttribute("string-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_string).c_str());
-                            editorNode->SetAttribute("character-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_character).c_str());
-                            editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_operator).c_str());
-                            editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_identifier).c_str());
-                            editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_preprocessor).c_str());
-                            editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word2).c_str());
-                            editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word3).c_str());
-                            editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word).c_str());
-                            editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->nonThreadedChildScriptColor_word4).c_str());
-                        }
+                        editorNode->SetAttribute("background-col",getColorStr(App::userSettings->childScriptColor_background).c_str());
+                        editorNode->SetAttribute("selection-col",getColorStr(App::userSettings->childScriptColor_selection).c_str());
+                        editorNode->SetAttribute("comment-col",getColorStr(App::userSettings->childScriptColor_comment).c_str());
+                        editorNode->SetAttribute("number-col",getColorStr(App::userSettings->childScriptColor_number).c_str());
+                        editorNode->SetAttribute("string-col",getColorStr(App::userSettings->childScriptColor_string).c_str());
+                        editorNode->SetAttribute("character-col",getColorStr(App::userSettings->childScriptColor_character).c_str());
+                        editorNode->SetAttribute("operator-col",getColorStr(App::userSettings->childScriptColor_operator).c_str());
+                        editorNode->SetAttribute("identifier-col",getColorStr(App::userSettings->childScriptColor_identifier).c_str());
+                        editorNode->SetAttribute("preprocessor-col",getColorStr(App::userSettings->childScriptColor_preprocessor).c_str());
+                        editorNode->SetAttribute("keyword1-col",getColorStr(App::userSettings->childScriptColor_word2).c_str());
+                        editorNode->SetAttribute("keyword2-col",getColorStr(App::userSettings->childScriptColor_word3).c_str());
+                        editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->childScriptColor_word).c_str());
+                        editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->childScriptColor_word4).c_str());
                     }
 
                     getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution_oldThreads());

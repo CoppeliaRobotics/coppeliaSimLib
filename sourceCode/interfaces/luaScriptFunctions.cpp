@@ -119,7 +119,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getJointTargetPosition",_simGetJointTargetPosition,    "int result,float targetPosition=sim.getJointTargetPosition(int objectHandle)",true},
     {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "sim.setJointTargetVelocity(int objectHandle,float targetVelocity)",true},
     {"sim.getJointTargetVelocity",_simGetJointTargetVelocity,    "float targetVelocity=sim.getJointTargetVelocity(int objectHandle)",true},
-    {"sim.removeObject",_simRemoveObject,                        "int result=sim.removeObject(int objectHandle)",true},
     {"sim.removeObjects",_simRemoveObjects,                      "sim.removeObjects(int[1..*] objectHandles)",true},
     {"sim.removeModel",_simRemoveModel,                          "int objectCount=sim.removeModel(int objectHandle)",true},
     {"sim.getSimulationTime",_simGetSimulationTime,              "float simulationTime=sim.getSimulationTime()",true},
@@ -583,6 +582,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getJointMaxForce",_simGetJointMaxForce,                "Deprecated. Use sim.getJointTargetForce instead",false},
     {"sim.setJointMaxForce",_simSetJointMaxForce,                "Deprecated. Use sim.setJointTargetForce instead",false},
     {"sim._getObjectHandle",_sim_getObjectHandle,                "",false}, // handled via sim.getObjectHandle from sim.lua
+    {"sim.removeObject",_simRemoveObject,                        "Deprecated. Use sim.removeObjects instead",false},
 
     {"",nullptr,"",false}
 };
@@ -4581,41 +4581,6 @@ int _simGetArrayParam(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simRemoveObject(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.removeObject");
-
-    int retVal=-1;// error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int objId=luaWrap_lua_tointeger(L,1);
-        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
-        if (!it->getThreadedExecution_oldThreads())
-            retVal=simRemoveObject_internal(objId);
-        else
-        { // this script runs threaded and wants to destroy another object (than itself probably). We need to make sure that it will only destroy objects that do not have any scripts attached with a non-nullptr lua state:
-            std::vector<CScriptObject*> scripts;
-            App::currentWorld->embeddedScriptContainer->getScriptsFromObjectAttachedTo(objId,scripts);
-            bool ok=true;
-            for (size_t i=0;i<scripts.size();i++)
-            {
-                if ( (it!=scripts[i])&&scripts[i]->hasInterpreterState() )
-                    ok=false;
-            }
-            if (ok)
-                retVal=simRemoveObject_internal(objId);
-            else
-                errorString=SIM_ERROR_THREADED_SCRIPT_DESTROYING_OBJECTS_WITH_ACTIVE_SCRIPTS;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
 }
 
 int _simRemoveObjects(luaWrap_lua_State* L)
@@ -20797,6 +20762,41 @@ int _simSetJointMaxForce(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
         retVal=simSetJointMaxForce_internal(luaToInt(L,1),luaToFloat(L,2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simRemoveObject(luaWrap_lua_State* L)
+{ // deprecated on 07.03.2022
+    TRACE_LUA_API;
+    LUA_START("sim.removeObject");
+
+    int retVal=-1;// error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int objId=luaWrap_lua_tointeger(L,1);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+        if (!it->getThreadedExecution_oldThreads())
+            retVal=simRemoveObject_internal(objId);
+        else
+        { // this script runs threaded and wants to destroy another object (than itself probably). We need to make sure that it will only destroy objects that do not have any scripts attached with a non-nullptr lua state:
+            std::vector<CScriptObject*> scripts;
+            App::currentWorld->embeddedScriptContainer->getScriptsFromObjectAttachedTo(objId,scripts);
+            bool ok=true;
+            for (size_t i=0;i<scripts.size();i++)
+            {
+                if ( (it!=scripts[i])&&scripts[i]->hasInterpreterState() )
+                    ok=false;
+            }
+            if (ok)
+                retVal=simRemoveObject_internal(objId);
+            else
+                errorString=SIM_ERROR_THREADED_SCRIPT_DESTROYING_OBJECTS_WITH_ACTIVE_SCRIPTS;
+        }
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);

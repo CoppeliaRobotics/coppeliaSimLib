@@ -34,7 +34,6 @@ simInt simGetObject_internal(const simChar* objectAlias,simInt index,simInt prox
 simInt64 simGetObjectUid_internal(simInt objectHandle);
 simInt simGetObjectFromUid_internal(simInt64 uid,simInt options);
 simInt simGetScriptHandleEx_internal(simInt scriptType,simInt objectHandle,const simChar* scriptName);
-simInt simRemoveObject_internal(simInt objectHandle);
 simInt simRemoveObjects_internal(const simInt* objectHandles,simInt count);
 simInt simRemoveModel_internal(simInt objectHandle);
 simChar* simGetObjectAlias_internal(simInt objectHandle,simInt options);
@@ -393,8 +392,6 @@ simVoid _simDisableDynamicTreeForManipulation_internal(const simVoid* object,sim
 simBool _simIsShapeDynamicallyRespondable_internal(const simVoid* shape);
 simInt _simGetDynamicCollisionMask_internal(const simVoid* shape);
 const simVoid* _simGetLastParentForLocalGlobalCollidable_internal(const simVoid* shape);
-simVoid _simSetShapeIsStaticAndNotRespondableButDynamicTag_internal(const simVoid* shape,simBool tag);
-simBool _simGetShapeIsStaticAndNotRespondableButDynamicTag_internal(const simVoid* shape);
 simVoid _simSetJointPosition_internal(const simVoid* joint,simFloat pos);
 simFloat _simGetJointPosition_internal(const simVoid* joint);
 simVoid _simSetDynamicMotorPositionControlTargetPosition_internal(const simVoid* joint,simFloat pos);
@@ -671,4 +668,5 @@ simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque);
 simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque);
 simVoid _simSetGeomProxyDynamicsFullRefreshFlag_internal(simVoid* geomData,simBool flag);
 simBool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const simVoid* geomData);
+simInt simRemoveObject_internal(simInt objectHandle);
 #endif // !defined(simInternal_INCLUDED_)
