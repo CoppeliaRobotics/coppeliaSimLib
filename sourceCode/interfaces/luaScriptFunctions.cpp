@@ -1011,6 +1011,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.physics_ode",sim_physics_ode,true},
     {"sim.physics_vortex",sim_physics_vortex,true},
     {"sim.physics_newton",sim_physics_newton,true},
+    {"sim.physics_mujoco",sim_physics_mujoco,true},
     // pure primitives type
     {"sim.pure_primitive_none",sim_pure_primitive_none,true},
     {"sim.pure_primitive_plane",sim_pure_primitive_plane,true},

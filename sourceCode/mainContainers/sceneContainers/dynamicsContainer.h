@@ -189,6 +189,13 @@ public:
     void getNewtonDefaultFloatParams(std::vector<float>& p,int defType);
     void getNewtonDefaultIntParams(std::vector<int>& p,int defType);
 
+    void getMujocoFloatParams(std::vector<float>& p);
+    void setMujocoFloatParams(const std::vector<float>& p,bool setDirect);
+    void getMujocoIntParams(std::vector<int>& p);
+    void setMujocoIntParams(const std::vector<int>& p,bool setDirect);
+    void getMujocoDefaultFloatParams(std::vector<float>& p,int defType);
+    void getMujocoDefaultIntParams(std::vector<int>& p,int defType);
+
     CColorObject contactPointColor;
 
 protected:

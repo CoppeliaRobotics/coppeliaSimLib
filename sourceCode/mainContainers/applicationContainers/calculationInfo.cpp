@@ -117,6 +117,8 @@ void CCalculationInfo::formatInfo()
                 _dynamicsTxt[0]+=IDS_VORTEX;
             if (eng==sim_physics_newton)
                 _dynamicsTxt[0]+=IDS_NEWTON;
+            if (eng==sim_physics_mujoco)
+                _dynamicsTxt[0]+=IDS_MUJOCO;
             _dynamicsTxt[0]+=")";
         }
         else

@@ -781,8 +781,8 @@ void CDistanceRoutine::_generateValidPairsFromGroupGroup(const std::vector<CScen
             int csci2=obj2->getCollectionSelfCollisionIndicator();
             if (obj1!=obj2)
             { // We never check an object against itself!
-                if ( (abs(csci1-csci2)!=1)||(!collectionSelfDistanceCheck) )
-                { // the collection self collision indicators differences is not 1
+                if ( (!collectionSelfDistanceCheck)||((abs(csci1-csci2)!=1)&&(abs(csci1-csci2)!=10)&&(abs(csci1-csci2)!=100)&&(abs(csci1-csci2)!=1000)&&(abs(csci1-csci2)!=10000)&&(abs(csci1-csci2)!=100000)) )
+                { // the collection self collision indicators differences is not 1, 10, 100 or 1000
                     // We now check if these partners are already present in objPairs
                     bool absent=true;
                     for (size_t k=0;k<pairs.size()/2;k++)

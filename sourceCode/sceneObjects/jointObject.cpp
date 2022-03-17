@@ -1422,14 +1422,14 @@ void CJoint::scaleObjectNonIsometrically(float x,float y,float z)
 }
 
 void CJoint::addCumulativeForceOrTorque(float forceOrTorque,int countForAverage)
-{ // New routine since 1/6/2011. The countForAverage mechanism is needed because we need to average all values in a simulation time step (but this is called every dynamic simulation time step!!)
-    _cumulativeForceOrTorqueTmp+=forceOrTorque;
-    _lastForceOrTorqueValid_dynStep=true;
+{ // The countForAverage mechanism is needed because we need to average all values in a simulation time step (but this is called every dynamic simulation time step!!)
     _lastForceOrTorque_dynStep=forceOrTorque;
+    _lastForceOrTorqueValid_dynStep=true;
+    _cumulativeForceOrTorqueTmp+=forceOrTorque;
     if (countForAverage>0)
     {
-        _averageForceOrTorqueValid=true;
         _cumulatedForceOrTorque=_cumulativeForceOrTorqueTmp/float(countForAverage);
+        _averageForceOrTorqueValid=true;
         _cumulativeForceOrTorqueTmp=0.0f;
     }
 }

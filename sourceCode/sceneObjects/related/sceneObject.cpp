@@ -194,7 +194,6 @@ int CSceneObject::getHierarchyColorIndex() const
 
 void CSceneObject::setCollectionSelfCollisionIndicator(int c)
 {
-    c=tt::getLimitedInt(0,99999999,c);
     _collectionSelfCollisionIndicator=c;
 }
 

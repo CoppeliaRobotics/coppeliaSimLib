@@ -6347,9 +6347,7 @@ simInt simAddParticleObject_internal(simInt objectType,simFloat size,simFloat ma
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -16890,6 +16888,9 @@ simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simI
                         outStack->getStackMapFloatValue("newton.staticFriction",dataFloat[0]);
                         outStack->getStackMapFloatValue("newton.kineticFriction",dataFloat[1]);
                         outStack->getStackMapFloatValue("newton.restitution",dataFloat[2]);
+                    }
+                    if (engine==sim_physics_mujoco)
+                    {
                     }
                     App::worldContainer->interfaceStackContainer->destroyStack(outStack);
                     return(1); // collision

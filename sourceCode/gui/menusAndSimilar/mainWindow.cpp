@@ -1079,6 +1079,7 @@ void CMainWindow::_createDefaultToolBars()
         _engineSelectCombo->addItem(tr(IDS_ODE));
         _engineSelectCombo->addItem(tr(IDS_VORTEX));
         _engineSelectCombo->addItem(tr(IDS_NEWTON));
+        _engineSelectCombo->addItem(tr(IDS_MUJOCO));
         _engineSelectCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DYNAMICS_ENGINE);
         _toolbar1->addWidget(_engineSelectCombo);
         connect(_engineSelectCombo,SIGNAL(activated(int)),this,SLOT(_engineSelectedViaToolbar(int)));
@@ -1767,6 +1768,8 @@ void CMainWindow::_actualizetoolbarButtonState()
             _engineSelectCombo->setCurrentIndex(3);
         if (eng==sim_physics_newton)
             _engineSelectCombo->setCurrentIndex(4);
+        if (eng==sim_physics_mujoco)
+            _engineSelectCombo->setCurrentIndex(5);
 
         if (CSimFlavor::getBoolVal(11))
         {
@@ -1932,6 +1935,8 @@ void CMainWindow::_engineSelectedViaToolbar(int index)
         App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_VORTEX_ENGINE_SCCMD);
     if (index==4)
         App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD);
+    if (index==5)
+        App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD);
 }
 
 void CMainWindow::_enginePrecisionViaToolbar(int index)

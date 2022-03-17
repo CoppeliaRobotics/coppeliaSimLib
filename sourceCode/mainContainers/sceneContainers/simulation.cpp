@@ -918,6 +918,20 @@ bool CSimulation::processCommand(int commandID)
         }
         return(true);
     }
+    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD)
+    {
+        if (!VThread::isCurrentThreadTheUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_mujoco,0);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            App::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
 
 #ifdef SIM_WITH_GUI
     if (commandID==TOGGLE_SIMULATION_DLG_CMD)
@@ -1274,6 +1288,7 @@ void CSimulation::addMenu(VMenu* menu)
     menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_ode,SIMULATION_COMMANDS_TOGGLE_TO_ODE_ENGINE_SCCMD,IDS_SWITCH_TO_ODE_ENGINE_MENU_ITEM,true);
     menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_vortex,SIMULATION_COMMANDS_TOGGLE_TO_VORTEX_ENGINE_SCCMD,IDS_SWITCH_TO_VORTEX_ENGINE_MENU_ITEM,true);
     menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_newton,SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD,IDS_SWITCH_TO_NEWTON_ENGINE_MENU_ITEM,true);
+    menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_mujoco,SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD,IDS_SWITCH_TO_MUJOCO_ENGINE_MENU_ITEM,true);
     if (CSimFlavor::getBoolVal(11))
     {
         menu->appendMenuSeparator();

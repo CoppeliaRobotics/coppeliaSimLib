@@ -582,6 +582,19 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         else
                             App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
                     }
+                    if (eng==sim_physics_mujoco)
+                    {
+                        std::string tst(App::folders->getOtherFilesPath());
+                        std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_EXPORTING_DYNAMIC_CONTENT___,tst.c_str(),"",false,"Mujoco Dynamics World Files","mujoco");
+                        if (filenameAndPath.length()!=0)
+                        {
+                            App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
+                            CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),App::userSettings->bulletSerializationBuffer);
+                            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                        }
+                        else
+                            App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                    }
                 }
                 else
                     App::logMsg(sim_verbosity_errors,IDSNS_CANNOT_PROCEED_NO_DYNAMIC_CONTENT_AVAILABLE);

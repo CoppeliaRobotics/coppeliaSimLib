@@ -850,6 +850,7 @@
 #define IDS_ODE                 "ODE"
 #define IDS_VORTEX              "Vortex"
 #define IDS_NEWTON              "Newton"
+#define IDS_MUJOCO              "Mujoco"
 #define IDS_WARNING_WHEN_SELECTING_PURE_CONE "Pure cones are currently only supported by the Bullet and Newton engines."
 
 #define IDS_TOOLBAR_TOOLTIP_CAMERA_SHIFT "Camera pan"
@@ -973,6 +974,7 @@
 #define IDS_SWITCH_TO_ODE_ENGINE_MENU_ITEM "Using the ODE physics engine"
 #define IDS_SWITCH_TO_VORTEX_ENGINE_MENU_ITEM "Using the Vortex physics engine"
 #define IDS_SWITCH_TO_NEWTON_ENGINE_MENU_ITEM "Using the Newton physics engine"
+#define IDS_SWITCH_TO_MUJOCO_ENGINE_MENU_ITEM "Using the Mujoco physics engine"
 
 #define IDS_WANNA_SAVE_THE_SCENE_WARNING "Do you wish to save the changes?"
 #define IDS_USING_EXISTING_TEXTURE_COORDINATES "Texture coordinates from a previous import operation were found and will be used"

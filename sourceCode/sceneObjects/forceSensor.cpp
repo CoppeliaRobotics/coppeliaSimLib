@@ -135,11 +135,11 @@ int CForceSensor::getConsecutiveThresholdViolationsForBreaking() const
 
 void CForceSensor::addCumulativeForcesAndTorques(const C3Vector& f,const C3Vector& t,int countForAverage)
 { // the countForAverage mechanism is needed because we need to average all values in a simulation time step (but this is called every dynamic simulation time step!!)
-    _cumulativeForcesTmp+=f;
-    _cumulativeTorquesTmp+=t;
     _lastForce_dynStep=f;
     _lastTorque_dynStep=t;
     _lastForceAndTorqueValid_dynStep=true;
+    _cumulativeForcesTmp+=f;
+    _cumulativeTorquesTmp+=t;
     if (countForAverage>0)
     {
         _cumulatedForces.push_back(_cumulativeForcesTmp/float(countForAverage));
