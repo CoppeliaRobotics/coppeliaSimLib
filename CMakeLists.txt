@@ -180,10 +180,13 @@ endif()
 
 if(WIN32)
     target_compile_definitions(coppeliaSim PRIVATE WIN_SIM)
+    target_compile_definitions(coppeliaSim PRIVATE SIM_PLATFORM=\"windows\")
 elseif(APPLE)
     target_compile_definitions(coppeliaSim PRIVATE MAC_SIM)
+    target_compile_definitions(coppeliaSim PRIVATE SIM_PLATFORM=\"macOS\")
 elseif(UNIX)
     target_compile_definitions(coppeliaSim PRIVATE LIN_SIM)
+    target_compile_definitions(coppeliaSim PRIVATE SIM_PLATFORM=\"linux\")
 endif()
 
 target_include_directories(coppeliaSim
