@@ -31,7 +31,6 @@ typedef void** (__cdecl *ptr_dynPlugin_getParticles)(int,int*,int*,float**);
 typedef char (__cdecl *ptr_dynPlugin_getParticleData)(const void*,float*,float*,int*,float**);
 typedef char (__cdecl *ptr_dynPlugin_getContactForce)(int,int,int,int*,float*);
 typedef int (__cdecl *ptr_dynPlugin_getDynamicStepDivider)(void);
-typedef int (__cdecl *ptr_dynPlugin_getEngineInfo)(int*,int*,char*,char*);
 
 
 typedef void (__cdecl *ptr_geomPlugin_releaseBuffer)(void* buff);
@@ -219,7 +218,6 @@ public:
     ptr_dynPlugin_getParticleData dynPlugin_getParticleData;
     ptr_dynPlugin_getContactForce dynPlugin_getContactForce;
     ptr_dynPlugin_getDynamicStepDivider dynPlugin_getDynamicStepDivider;
-    ptr_dynPlugin_getEngineInfo dynPlugin_getEngineInfo;
 
     ptr_geomPlugin_releaseBuffer geomPlugin_releaseBuffer;
     ptr_geomPlugin_createMesh geomPlugin_createMesh;
@@ -430,7 +428,6 @@ public:
     static float* dyn_getContactPoints(int* count);
     static void** dyn_getParticles(int index,int* particlesCount,int* objectType,float** cols);
     static int dyn_getDynamicStepDivider();
-    static int dyn_getEngineInfo(int* engine,int* data1,char* data2,char* data3);
 
     // geom plugin:
     static CPlugin* currentGeomPlugin;

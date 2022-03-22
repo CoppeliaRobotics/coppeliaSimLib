@@ -987,7 +987,7 @@ void CDynamicsContainer::getMujocoFloatParams(std::vector<float>& p)
     if (_dynamicsSettingsMode==dynset_custom)
         p.assign(_bulletFloatParams.begin(),_bulletFloatParams.end());
     else
-        getBulletDefaultFloatParams(p,_dynamicsSettingsMode);
+        getMujocoDefaultFloatParams(p,_dynamicsSettingsMode);
 }
 void CDynamicsContainer::getMujocoDefaultFloatParams(std::vector<float>& p,int defType)
 {
@@ -1015,7 +1015,7 @@ void CDynamicsContainer::getMujocoIntParams(std::vector<int>& p)
     if (_dynamicsSettingsMode==dynset_custom)
         p.assign(_bulletIntParams.begin(),_bulletIntParams.end());
     else
-        getBulletDefaultIntParams(p,_dynamicsSettingsMode);
+        getMujocoDefaultIntParams(p,_dynamicsSettingsMode);
 }
 void CDynamicsContainer::getMujocoDefaultIntParams(std::vector<int>& p,int defType)
 {

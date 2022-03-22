@@ -106,11 +106,9 @@ int CTextureContainer::addObject(CTextureObject* anObject,bool objectIsACopy)
 
 int CTextureContainer::addObjectWithSuffixOffset(CTextureObject* anObject,bool objectIsACopy,int suffixOffset)
 { // If object already exists (well, similar object), it is destroyed in here!
-//    printf("TextCnt: %i\n",_allTextureObjects.size());
     CTextureObject* theOldData=_getEquivalentTextureObject(anObject);
     if (theOldData!=nullptr)
     { // we already have a similar object!!
-  //      printf("a\n");
         // We transfer the dependencies (since 10/2/2012 (was forgotten before)):
         anObject->transferDependenciesToThere(theOldData);
 

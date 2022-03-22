@@ -142,14 +142,17 @@ win32 {
     LIBS += -luser32
     LIBS += -lDbghelp
     DEFINES += WIN_SIM
+    DEFINES += SIM_PLATFORM=\\\"windows\\\"
 }
 
 macx {
     DEFINES += MAC_SIM
+    DEFINES += SIM_PLATFORM=\\\"macOS\\\"
 }
 
 unix:!macx {
     DEFINES += LIN_SIM
+    DEFINES += SIM_PLATFORM=\\\"linux\\\"
 }
 
 INCLUDEPATH += $$BOOST_INCLUDEPATH

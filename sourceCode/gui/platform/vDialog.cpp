@@ -13,7 +13,6 @@ VDialog::VDialog(QWidget* pParent,Qt::WindowFlags specialFlags) : QDialog(pParen
 
 VDialog::~VDialog()
 {
-//  printf("DLGSTYLE: %i\n",QT_MODAL_DLG_STYLE);
 }
 
 void VDialog::reject()

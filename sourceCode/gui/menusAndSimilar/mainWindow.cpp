@@ -1545,7 +1545,6 @@ int CMainWindow::modelDragMoveEvent(int xPos,int yPos,C3Vector* desiredModelPosi
 
 void CMainWindow::setCurrentCursor(int cur)
 {
-//    printf("Cursor: %i\n",cur);
     if (cur!=-1)
         _currentCursor=cur;
     else

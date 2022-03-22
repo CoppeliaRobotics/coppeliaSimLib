@@ -996,11 +996,19 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
     signal(SIGSEGV,_segHandler);
 #endif
     SignalHandler sigH(SignalHandler::SIG_INT | SignalHandler::SIG_TERM | SignalHandler::SIG_CLOSE);
+
+    std::string flav("n/a");
 #ifdef SIM_FL
-    App::logMsg(sim_verbosity_loadinfos,"CoppeliaSim V%s, %s, flavor: %s",SIM_PROGRAM_VERSION,SIM_PROGRAM_REVISION,std::to_string(SIM_FL).c_str());
-#else
-    App::logMsg(sim_verbosity_loadinfos,"CoppeliaSim V%s, %s, flavor: -1",SIM_PROGRAM_VERSION,SIM_PROGRAM_REVISION);
+    flav=std::to_string(SIM_FL).c_str();
 #endif
+    std::string str("CoppeliaSim v");
+    str+=SIM_PROGRAM_VERSION;
+    str+=", ";
+    str+=SIM_PROGRAM_REVISION;
+    str+=", flavor: ";
+    str+=flav+", ";
+    str+=SIM_PLATFORM;
+    App::logMsg(sim_verbosity_loadinfos,str.c_str());
     CSimFlavor::init();
 
     CSimFlavor::run(0);

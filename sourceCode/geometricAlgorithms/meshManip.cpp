@@ -617,7 +617,6 @@ void CMeshManip::removeDoubleVertices(std::vector<float>& vertices,std::vector<i
                                                         { // that point is c loser than the tolerance. We want to merge it!
                                                             currentCell_->at(l_)=-1; // processed!
                                                             mapping[pind_]=pind;
-                                                            //printf(".");
                                                         }
                                                     }
                                                 }

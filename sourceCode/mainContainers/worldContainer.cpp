@@ -554,7 +554,6 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::_prepareGeneralEve
 
 void CWorldContainer::pushEvent(SEventInfo& event)
 {
-    //printf("Event: %s\n",(event.event+"_"+event.subEvent+"_"+event.dataSubtype).c_str());
     _eventMutex.lock();
     CInterfaceStackTable* buff=(CInterfaceStackTable*)_bufferedEvents->eventsStack->getStackObjectFromIndex(0);
     buff->appendArrayObject(event.eventTable);

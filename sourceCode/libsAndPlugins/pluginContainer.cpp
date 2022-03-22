@@ -167,7 +167,6 @@ int CPlugin::load()
                 dynPlugin_getParticleData=(ptr_dynPlugin_getParticleData)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getParticleData"));
                 dynPlugin_getContactForce=(ptr_dynPlugin_getContactForce)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getContactForce"));
                 dynPlugin_getDynamicStepDivider=(ptr_dynPlugin_getDynamicStepDivider)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getDynamicStepDivider"));
-                dynPlugin_getEngineInfo=(ptr_dynPlugin_getEngineInfo)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getEngineInfo"));
 
                 // For the geom plugin:
                 geomPlugin_releaseBuffer=(ptr_geomPlugin_releaseBuffer)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_releaseBuffer"));
@@ -872,13 +871,6 @@ int CPluginContainer::dyn_getDynamicStepDivider()
     if (currentDynEngine!=nullptr)
         return(currentDynEngine->dynPlugin_getDynamicStepDivider());
     return(0);
-}
-
-int CPluginContainer::dyn_getEngineInfo(int* engine,int* data1,char* data2,char* data3)
-{
-    if (currentDynEngine!=nullptr)
-        return(currentDynEngine->dynPlugin_getEngineInfo(engine,data1,data2,data3));
-    return(-1);
 }
 
 bool CPluginContainer::isGeomPluginAvailable()

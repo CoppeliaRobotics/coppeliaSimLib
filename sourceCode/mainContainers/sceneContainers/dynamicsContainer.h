@@ -75,6 +75,26 @@ enum { /* Newton global bit params */
     simi_newton_global_highjointaccuracy=4,
 };
 
+
+//TODOMUJOCO
+enum { /* Mujoco global float params */
+    simi_mujoco_global_stepsize=0,
+//    simi_mujoco_global_contactmergetolerance
+};
+
+enum { /* Mujoco global int params */
+//    simi_mujoco_global_constraintsolvingiterations=0,
+    simi_mujoco_global_bitcoded
+};
+
+enum { /* Mujoco global bit params */
+//    simi_mujoco_global_multithreading=1,
+//    simi_mujoco_global_exactsolver=2,
+//    simi_mujoco_global_highjointaccuracy=4,
+};
+
+
+
 enum {
     dynset_first        =0,
     dynset_veryprecise  =dynset_first,
