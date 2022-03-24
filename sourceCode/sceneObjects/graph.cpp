@@ -110,13 +110,6 @@ void CGraph::computeBoundingBox()
     _setBoundingBox(maxV*-1.0f,maxV);
 }
 
-bool CGraph::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 void CGraph::setJustDrawCurves(bool justCurves)
 {
     justDrawCurves=justCurves;

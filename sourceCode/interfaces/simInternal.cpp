@@ -31,6 +31,9 @@
 #include <unordered_map>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#ifdef SIM_PLUS
+#include "gm.h"
+#endif
 #ifdef SIM_WITH_GUI
     #include <QSplashScreen>
 #endif
@@ -977,6 +980,11 @@ void _segHandler(int sig)
 #endif
 simInt simRunSimulator_internal(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)(),simInt stopDelay,const simChar* sceneOrModelToLoad,bool launchSimThread)
 {
+#ifdef SIM_PLUS
+    CGm gm(SIM_FL);
+    if (gm.fi())
+        return(0);
+#endif
     firstSimulationStopDelay=stopDelay;
     initialSceneOrModelToLoad=sceneOrModelToLoad;
     if ( (options&sim_autostart)!=0 )
@@ -1084,7 +1092,6 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
         App::mainWindow->oglSurface->adjustBrowserAndHierarchySizesToDefault();
     }
 #endif
-
 
     App::run(initCallBack,loopCallBack,deinitCallBack,launchSimThread); // We stay in here until we quit the application!
     App::logMsg(sim_verbosity_loadinfos,"4");
@@ -5433,9 +5440,7 @@ simInt simRegisterScriptFuncHook_internal(simInt scriptHandle,const simChar* fun
         int retVal=-1;
         CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it!=nullptr)
-        {
             retVal=it->registerFunctionHook(funcToHook,userFunction,executeBefore);
-        }
         else
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
         return(retVal);
@@ -8878,6 +8883,9 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
     if (!isSimulatorInitialized(__func__))
         return(-1);
 
+    if (!doesObjectExist(__func__,objectHandle))
+        return(-1);
+
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=0; // Means the parameter was not retrieved
@@ -9294,6 +9302,9 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
     if (!isSimulatorInitialized(__func__))
         return(-1);
 
+    if (!doesObjectExist(__func__,objectHandle))
+        return(-1);
+
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=0; // Means the parameter was not set
@@ -9617,6 +9628,9 @@ simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    if (!doesObjectExist(__func__,objectHandle))
         return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -10112,6 +10126,9 @@ simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
     if (!isSimulatorInitialized(__func__))
         return(-1);
 
+    if (!doesObjectExist(__func__,objectHandle))
+        return(-1);
+
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=0; // Means the parameter was not set
@@ -10503,6 +10520,9 @@ simChar* simGetObjectStringParam_internal(simInt objectHandle,simInt parameterID
     if (!isSimulatorInitialized(__func__))
         return(nullptr);
 
+    if (!doesObjectExist(__func__,objectHandle))
+        return(nullptr);
+
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -10562,6 +10582,9 @@ simInt simSetObjectStringParam_internal(simInt objectHandle,simInt parameterID,c
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    if (!doesObjectExist(__func__,objectHandle))
         return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA

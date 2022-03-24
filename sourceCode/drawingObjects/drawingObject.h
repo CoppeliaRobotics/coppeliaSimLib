@@ -25,26 +25,22 @@ public:
     void adjustForFrameChange(const C7Vector& preCorrection);
     void adjustForScaling(float xScale,float yScale,float zScale);
 
-    bool canMeshBeExported() const;
-    void getExportableMesh(std::vector<float>& vertices,std::vector<int>& indices) const;
-
     void pushAddEvent();
     void pushAppendNewPointEvent();
-
-
 
     int getSceneObjectId() const;
 
     float getSize() const;
     int getMaxItemCount() const;
     int getStartItem() const;
+    int getExpectedFloatsPerItem() const;
 
     std::vector<float>* getDataPtr();
 
     CColorObject color;
 
     int verticesPerItem;
-    int normalsPerItem;
+    int quaternionsPerItem;
     int colorsPerItem;
     int otherFloatsPerItem; // sizes and/or transparency
     int floatsPerItem;
@@ -52,13 +48,6 @@ public:
 protected:
     void _initBufferedEventData();
     void _getEventData(std::vector<float>& vertices,std::vector<float>& quaternions,std::vector<float>& colors) const;
-    void _exportTrianglePoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
-    void _exportQuadPoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
-    void _exportDiscPoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
-    void _exportCubePoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
-    void _exportSpherePoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
-    void _exportTriangles(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const;
-    void _exportTriOrQuad(C7Vector& tr,C3Vector* v0,C3Vector* v1,C3Vector* v2,C3Vector* v3,std::vector<float>& vertices,std::vector<int>& indices,int& nextIndex) const;
 
     void _setItemSizes();
 

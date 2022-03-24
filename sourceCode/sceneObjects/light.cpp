@@ -152,13 +152,6 @@ CLight::~CLight()
 {
 }
 
-bool CLight::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 void CLight::scaleObject(float scalingFactor)
 {
     setLightSize(_lightSize*scalingFactor);

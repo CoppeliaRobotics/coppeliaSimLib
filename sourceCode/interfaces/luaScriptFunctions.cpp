@@ -153,7 +153,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setObjectChildPose",_simSetObjectChildPose,            "sim.setObjectChildPose(int objectHandle,float[7] pose)",true},
     {"sim.buildIdentityMatrix",_simBuildIdentityMatrix,          "float[12] matrix=sim.buildIdentityMatrix()",true},
     {"sim.buildMatrix",_simBuildMatrix,                          "float[12] matrix=sim.buildMatrix(float[3] position,float[3] eulerAngles)",true},
-    {"sim.buildPose",_simBuildPose,                              "float[7] pose=sim.buildPose(float[3] position,float[3] eulerAngles)",true},
+    {"sim.buildPose",_simBuildPose,                              "float[7] pose=sim.buildPose(float[3] position,float[3] eulerAnglesOrAxis,int mode=0,float[3] axis2=nil)",true},
     {"sim.getEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"float[3] eulerAngles=sim.getEulerAnglesFromMatrix(float[12] matrix)",true},
     {"sim.invertMatrix",_simInvertMatrix,                        "sim.invertMatrix(float[12] matrix)",true},
     {"sim.multiplyMatrices",_simMultiplyMatrices,                "float[12] resultMatrix=sim.multiplyMatrices(float[12] matrixIn1,float[12] matrixIn2)",true},
@@ -961,11 +961,11 @@ const SLuaVariables simLuaVariables[]=
     {"sim.drawing_lines",sim_drawing_lines,true},
     {"sim.drawing_linestrip",sim_drawing_linestrip,true},
     {"sim.drawing_triangles",sim_drawing_triangles,true},
-    {"sim.drawing_trianglepoints",sim_drawing_trianglepoints,true},
-    {"sim.drawing_quadpoints",sim_drawing_quadpoints,true},
-    {"sim.drawing_discpoints",sim_drawing_discpoints,true},
-    {"sim.drawing_cubepoints",sim_drawing_cubepoints,true},
-    {"sim.drawing_spherepoints",sim_drawing_spherepoints,true},
+    {"sim.drawing_trianglepts",sim_drawing_trianglepts,true},
+    {"sim.drawing_quadpts",sim_drawing_quadpts,true},
+    {"sim.drawing_discpts",sim_drawing_discpts,true},
+    {"sim.drawing_cubepts",sim_drawing_cubepts,true},
+    {"sim.drawing_spherepts",sim_drawing_spherepts,true},
     {"sim.drawing_itemcolors",sim_drawing_itemcolors,true},
     {"sim.drawing_vertexcolors",sim_drawing_vertexcolors,true},
     {"sim.drawing_itemsizes",sim_drawing_itemsizes,true},
@@ -1657,6 +1657,11 @@ const SLuaVariables simLuaVariables[]=
     {"sim.scriptattribute_enabled",sim_scriptattribute_enabled,false},
     {"sim.scriptattribute_scripttype",sim_scriptattribute_scripttype,false},
     {"sim.scriptattribute_scripthandle",sim_scriptattribute_scripthandle,false},
+    {"sim.drawing_trianglepoints",sim_drawing_trianglepoints,false},
+    {"sim.drawing_quadpoints",sim_drawing_quadpoints,false},
+    {"sim.drawing_discpoints",sim_drawing_discpoints,false},
+    {"sim.drawing_cubepoints",sim_drawing_cubepoints,false},
+    {"sim.drawing_spherepoints",sim_drawing_spherepoints,false},
 
     {"",-1}
 };
@@ -4139,13 +4144,81 @@ int _simBuildPose(luaWrap_lua_State* L)
     {
         float tr[7];
         float pos[3];
-        float euler[3];
+        float axis1[3];
+        float axis2[3];
+        int mode=0;
         getFloatsFromTable(L,1,3,pos);
-        getFloatsFromTable(L,2,3,euler);
-        if (simBuildPose_internal(pos,euler,tr)==1)
+        getFloatsFromTable(L,2,3,axis1);
+        int res=checkOneGeneralInputArgument(L,3,lua_arg_integer,0,true,false,&errorString);
+        if (res>=0)
         {
-            pushFloatTableOntoStack(L,7,tr);
-            LUA_END(1);
+            if (res==2)
+                mode=luaToInt(L,3);
+            if (mode==0)
+            {
+                if (simBuildPose_internal(pos,axis1,tr)==1)
+                {
+                    pushFloatTableOntoStack(L,7,tr);
+                    LUA_END(1);
+                }
+            }
+            else
+            {
+                res=checkOneGeneralInputArgument(L,4,lua_arg_number,3,mode<4,false,&errorString);
+                if (res>=0)
+                {
+                    if (res==2)
+                        getFloatsFromTable(L,4,3,axis2);
+                    C3X3Matrix m;
+                    C3Vector a1(axis1);
+                    a1.normalize();
+                    if (mode<4)
+                    {
+                        int i1=mode-1;
+                        int i2=i1+1;
+                        if (i2>2) i2=0;
+                        int i3=i2+1;
+                        if (i3>2) i3=0;
+                        C3Vector a2;
+                        if (a1(2)<0.8f)
+                            a2.set(0.0f,0.0f,1.0f);
+                        else
+                            a2.set(1.0f,0.0f,0.0f);
+                        m.axis[i1]=a1;
+                        m.axis[i3]=(a1^a2).getNormalized();
+                        m.axis[i2]=m.axis[i3]^a1;
+                    }
+                    else
+                    {
+                        int i1=mode-4;
+                        if (mode>=7)
+                            i1=mode-7;
+                        int i2=i1+1;
+                        if (i2>2) i2=0;
+                        int i3=i2+1;
+                        if (i3>2) i3=0;
+                        C3Vector a2(axis2);
+                        a2.normalize();
+                        m.axis[i1]=a1;
+                        if (mode<7)
+                        {
+                            m.axis[i3]=(a1^a2).getNormalized();
+                            m.axis[i2]=m.axis[i3]^a1;
+                        }
+                        else
+                        {
+                            m.axis[i2]=(a2^a1).getNormalized();
+                            m.axis[i3]=a1^m.axis[i2];
+                        }
+                    }
+                    tr[0]=pos[0];
+                    tr[1]=pos[1];
+                    tr[2]=pos[2];
+                    m.getQuaternion().getInternalData(tr+3,true);
+                    pushFloatTableOntoStack(L,7,tr);
+                    LUA_END(1);
+                }
+            }
         }
     }
 
@@ -7937,7 +8010,7 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
         CDrawingObject* it=App::currentWorld->drawingCont->getObject(h);
         size_t d=3;
         if (it!=nullptr)
-            d=size_t(it->verticesPerItem*3+it->normalsPerItem*3+it->colorsPerItem*3+it->otherFloatsPerItem);
+            d=size_t(it->getExpectedFloatsPerItem());
         int res=checkOneGeneralInputArgument(L,2,lua_arg_number,int(d),true,true,&errorString);
         if (res==2)
         {

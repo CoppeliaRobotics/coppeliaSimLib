@@ -77,7 +77,6 @@ public:
     virtual void simulationEnded();
     virtual void initializeInitialValues(bool simulationAlreadyRunning);
     virtual void computeBoundingBox();
-    virtual bool getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const;
 
     virtual std::string getObjectTypeInfo() const;
     virtual std::string getObjectTypeInfoExtended() const;

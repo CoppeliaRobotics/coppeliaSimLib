@@ -684,11 +684,6 @@ int CSceneObject::_getAllowedObjectSpecialProperties() const
     return(retVal);
 }
 
-bool CSceneObject::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    return(false);
-}
-
 std::string CSceneObject::getObjectTypeInfo() const
 {
     return("");

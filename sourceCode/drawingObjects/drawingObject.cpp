@@ -20,7 +20,15 @@ int CDrawingObject::getStartItem() const
     return(_startItem);
 }
 
-
+int CDrawingObject::getExpectedFloatsPerItem() const
+{
+    int retVal=floatsPerItem;
+    int tmp=_objectType&0x001f;
+    bool usingNormals_old=( (tmp==sim_drawing_trianglepoints)||(tmp==sim_drawing_quadpoints)||(tmp==sim_drawing_discpoints)||(tmp==sim_drawing_cubepoints) );
+    if (usingNormals_old)
+        retVal--;
+    return(retVal);
+}
 
 std::vector<float>* CDrawingObject::getDataPtr()
 {
@@ -136,11 +144,11 @@ void CDrawingObject::adjustForFrameChange(const C7Vector& preCorrection)
             v.copyTo(&_data[floatsPerItem*i+j*3+0]);
         }
         int off=verticesPerItem*3;
-        for (int j=0;j<normalsPerItem;j++)
+        for (int j=0;j<quaternionsPerItem;j++)
         {
-            C3Vector n(&_data[floatsPerItem*i+off+j*3+0]);
-            n=preCorrection.Q*n;
-            n.copyTo(&_data[floatsPerItem*i+off+j*3+0]);
+            C4Vector q(&_data[floatsPerItem*i+off+j*4+0]);
+            q=preCorrection.Q*q;
+            q.getInternalData(&_data[floatsPerItem*i+off+j*4+0]);
         }
     }
     _initBufferedEventData();
@@ -184,7 +192,7 @@ void CDrawingObject::adjustForScaling(float xScale,float yScale,float zScale)
 void CDrawingObject::setItems(const float* itemData,size_t itemCnt)
 {
     addItem(nullptr);
-    size_t off=size_t(verticesPerItem*3+normalsPerItem*3+colorsPerItem*3+otherFloatsPerItem);
+    size_t off=size_t(verticesPerItem*3+quaternionsPerItem*4+colorsPerItem*3+otherFloatsPerItem);
     for (size_t i=0;i<itemCnt;i++)
         addItem(itemData+off*i);
 }
@@ -244,6 +252,9 @@ bool CDrawingObject::addItem(const float* itemData)
         }
     }
 
+    int tmp=_objectType&0x001f;
+    bool usingNormals_old=( (tmp==sim_drawing_trianglepoints)||(tmp==sim_drawing_quadpoints)||(tmp==sim_drawing_discpoints)||(tmp==sim_drawing_cubepoints) );
+
     if (int(_data.size())/floatsPerItem<_maxItemCount)
     { // The buffer is not yet full!
         newPos=int(_data.size())/floatsPerItem;
@@ -253,42 +264,85 @@ bool CDrawingObject::addItem(const float* itemData)
 
     if (_sceneObjectId!=-2)
     {
-        int off=0;
+        int off1=0;
+        int off2=0;
         for (int i=0;i<verticesPerItem;i++)
         {
-            C3Vector v(itemData+off);
+            C3Vector v(itemData+off2);
             v*=trInv;
-            _data[newPos*floatsPerItem+off+0]=v(0);
-            _data[newPos*floatsPerItem+off+1]=v(1);
-            _data[newPos*floatsPerItem+off+2]=v(2);
+            _data[newPos*floatsPerItem+off1+0]=v(0);
+            _data[newPos*floatsPerItem+off1+1]=v(1);
+            _data[newPos*floatsPerItem+off1+2]=v(2);
             if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
             {
                 _bufferedEventData.push_back(v(0));
                 _bufferedEventData.push_back(v(1));
                 _bufferedEventData.push_back(v(2));
             }
-            off+=3;
+            off1+=3;
+            off2+=3;
         }
-        for (int i=0;i<normalsPerItem;i++)
+        if (usingNormals_old)
         {
-            C3Vector v(itemData+off);
-            v=trInv.Q*v; // no translational part!
-            _data[newPos*floatsPerItem+off+0]=v(0);
-            _data[newPos*floatsPerItem+off+1]=v(1);
-            _data[newPos*floatsPerItem+off+2]=v(2);
-            if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
+            for (int i=0;i<quaternionsPerItem;i++)
             {
-                _bufferedEventData.push_back(v(0));
-                _bufferedEventData.push_back(v(1));
-                _bufferedEventData.push_back(v(2));
+                C3X3Matrix m;
+                m.axis[2]=C3Vector(itemData+off2);
+                if (m.axis[2](0)<0.1f)
+                {
+                    C3Vector v(1.0f,0.0f,0.0f);
+                    m.axis[1]=(m.axis[2]^v).getNormalized();
+                    m.axis[0]=m.axis[1]^m.axis[2];
+                }
+                else
+                {
+                    C3Vector v(0.0f,1.0f,0.0f);
+                    m.axis[0]=(v^m.axis[2]).getNormalized();
+                    m.axis[1]=m.axis[2]^m.axis[0];
+                }
+                C4Vector q(m.getQuaternion());
+                q=trInv.Q*q; // no translational part!
+                _data[newPos*floatsPerItem+off1+0]=q(0);
+                _data[newPos*floatsPerItem+off1+1]=q(1);
+                _data[newPos*floatsPerItem+off1+2]=q(2);
+                _data[newPos*floatsPerItem+off1+3]=q(3);
+                if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
+                {
+                    _bufferedEventData.push_back(q(0));
+                    _bufferedEventData.push_back(q(1));
+                    _bufferedEventData.push_back(q(2));
+                    _bufferedEventData.push_back(q(3));
+                }
+                off1+=4;
+                off2+=3;
             }
-            off+=3;
+        }
+        else
+        {
+            for (int i=0;i<quaternionsPerItem;i++)
+            {
+                C4Vector q(itemData+off2,true);
+                q=trInv.Q*q; // no translational part!
+                _data[newPos*floatsPerItem+off1+0]=q(0);
+                _data[newPos*floatsPerItem+off1+1]=q(1);
+                _data[newPos*floatsPerItem+off1+2]=q(2);
+                _data[newPos*floatsPerItem+off1+3]=q(3);
+                if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
+                {
+                    _bufferedEventData.push_back(q(0));
+                    _bufferedEventData.push_back(q(1));
+                    _bufferedEventData.push_back(q(2));
+                    _bufferedEventData.push_back(q(3));
+                }
+                off1+=4;
+                off2+=4;
+            }
         }
         for (int i=0;i<colorsPerItem*3+otherFloatsPerItem;i++)
         {
-            _data[newPos*floatsPerItem+off+i]=itemData[off+i];
+            _data[newPos*floatsPerItem+off1+i]=itemData[off2+i];
             if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
-                _bufferedEventData.push_back(itemData[off+i]);
+                _bufferedEventData.push_back(itemData[off2+i]);
         }
     }
     return(true);
@@ -297,11 +351,11 @@ bool CDrawingObject::addItem(const float* itemData)
 void CDrawingObject::_setItemSizes()
 {
     verticesPerItem=0;
-    normalsPerItem=0;
+    quaternionsPerItem=0;
     colorsPerItem=0;
     otherFloatsPerItem=0;
     int tmp=_objectType&0x001f;
-    if ( (tmp==sim_drawing_points)||(tmp==sim_drawing_trianglepoints)||(tmp==sim_drawing_quadpoints)||(tmp==sim_drawing_discpoints)||(tmp==sim_drawing_cubepoints)||(tmp==sim_drawing_spherepoints) )
+    if ( (tmp==sim_drawing_points)||(tmp==sim_drawing_trianglepoints)||(tmp==sim_drawing_quadpoints)||(tmp==sim_drawing_discpoints)||(tmp==sim_drawing_cubepoints)||(tmp==sim_drawing_spherepts)||(tmp==sim_drawing_trianglepts)||(tmp==sim_drawing_quadpts)||(tmp==sim_drawing_discpts)||(tmp==sim_drawing_cubepts) )
         verticesPerItem=1;
     if (tmp==sim_drawing_lines)
         verticesPerItem=2;
@@ -310,10 +364,10 @@ void CDrawingObject::_setItemSizes()
     if (tmp==sim_drawing_triangles)
         verticesPerItem=3;
 
-    if ( (tmp==sim_drawing_trianglepoints)||(tmp==sim_drawing_quadpoints)||(tmp==sim_drawing_discpoints)||(tmp==sim_drawing_cubepoints) )
+    if ( (tmp==sim_drawing_trianglepts)||(tmp==sim_drawing_quadpts)||(tmp==sim_drawing_discpts)||(tmp==sim_drawing_cubepts)||(tmp==sim_drawing_trianglepoints)||(tmp==sim_drawing_quadpoints)||(tmp==sim_drawing_discpoints)||(tmp==sim_drawing_cubepoints) )
     {
         if ((_objectType&sim_drawing_facingcamera)==0)
-            normalsPerItem=1;
+            quaternionsPerItem=1;
     }
 
     if (_objectType&sim_drawing_itemcolors)
@@ -332,7 +386,7 @@ void CDrawingObject::_setItemSizes()
     if (_objectType&sim_drawing_itemtransparency)
         otherFloatsPerItem+=1;
 
-    floatsPerItem=3*verticesPerItem+3*normalsPerItem+3*colorsPerItem+otherFloatsPerItem;
+    floatsPerItem=3*verticesPerItem+4*quaternionsPerItem+3*colorsPerItem+otherFloatsPerItem;
 }
 
 bool CDrawingObject::announceObjectWillBeErased(const CSceneObject* object)
@@ -343,98 +397,6 @@ bool CDrawingObject::announceObjectWillBeErased(const CSceneObject* object)
 bool CDrawingObject::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
 {
     return( (!sceneSwitchPersistentScript)&&(_creatorHandle==scriptHandle) );
-}
-
-bool CDrawingObject::canMeshBeExported() const
-{
-    int tmp=_objectType&0x001f;
-    return((tmp==sim_drawing_triangles)||(tmp==sim_drawing_trianglepoints)||(tmp==sim_drawing_quadpoints)||
-        (tmp==sim_drawing_discpoints)||(tmp==sim_drawing_cubepoints)||(tmp==sim_drawing_spherepoints));
-}
-
-void CDrawingObject::getExportableMesh(std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    C7Vector tr;
-    tr.setIdentity();
-    if (_sceneObjectId>=0)
-    {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
-        if (it!=nullptr)
-            tr=it->getCumulativeTransformation();
-    }
-    int tmp=_objectType&0x001f;
-    if (tmp==sim_drawing_triangles)
-        _exportTriangles(tr,vertices,indices);
-    if (tmp==sim_drawing_trianglepoints)
-        _exportTrianglePoints(tr,vertices,indices);
-    if (tmp==sim_drawing_quadpoints)
-        _exportQuadPoints(tr,vertices,indices);
-    if (tmp==sim_drawing_discpoints)
-        _exportDiscPoints(tr,vertices,indices);
-    if (tmp==sim_drawing_cubepoints)
-        _exportCubePoints(tr,vertices,indices);
-    if (tmp==sim_drawing_spherepoints)
-        _exportSpherePoints(tr,vertices,indices);
-}
-
-void CDrawingObject::_exportTrianglePoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    // finish this routine (and others linked to export functionality)
-
-}
-
-void CDrawingObject::_exportQuadPoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    // finish this routine (and others linked to export functionality)
-
-}
-
-void CDrawingObject::_exportDiscPoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    // finish this routine (and others linked to export functionality)
-
-}
-
-void CDrawingObject::_exportCubePoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    // finish this routine (and others linked to export functionality)
-
-}
-
-void CDrawingObject::_exportSpherePoints(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    // finish this routine (and others linked to export functionality)
-
-}
-
-void CDrawingObject::_exportTriangles(C7Vector& tr,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    // finish this routine (and others linked to export functionality)
-    C3Vector v;
-    for (int i=0;i<int(_data.size())/floatsPerItem;i++)
-    {
-        int p=_startItem+i;
-        if (p>=_maxItemCount)
-            p-=_maxItemCount;
-        v.set(&_data[floatsPerItem*p+0]);
-        v*=tr;
-        v.set(&_data[floatsPerItem*p+3]);
-        v*=tr;
-        v.set(&_data[floatsPerItem*p+6]);
-        v*=tr;
-    }
-}
-
-void CDrawingObject::_exportTriOrQuad(C7Vector& tr,C3Vector* v0,C3Vector* v1,C3Vector* v2,C3Vector* v3,std::vector<float>& vertices,std::vector<int>& indices,int& nextIndex) const
-{
-    // finish this routine (and others linked to export functionality)
-    v0[0]*=tr;
-    v1[0]*=tr;
-    v2[0]*=tr;
-    if (v3!=nullptr)
-        v3[0]*=tr;
 }
 
 void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM)
@@ -541,30 +503,13 @@ void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<floa
             vertices.push_back(_bufferedEventData[t+2]);
             t+=3;
         }
-        for (size_t i=0;i<normalsPerItem;i++)
+        for (size_t i=0;i<quaternionsPerItem;i++)
         {
-            C3X3Matrix m;
-            m.axis[2](0)=_bufferedEventData[t+0];
-            m.axis[2](1)=_bufferedEventData[t+1];
-            m.axis[2](2)=_bufferedEventData[t+2];
-            if (m.axis[2](0)<0.1f)
-            {
-                C3Vector v(1.0f,0.0f,0.0f);
-                m.axis[1]=(m.axis[2]^v).getNormalized();
-                m.axis[0]=m.axis[1]^m.axis[2];
-            }
-            else
-            {
-                C3Vector v(0.0f,1.0f,0.0f);
-                m.axis[0]=(v^m.axis[2]).getNormalized();
-                m.axis[1]=m.axis[2]^m.axis[0];
-            }
-            C4Vector q(m.getQuaternion());
-            quaternions.push_back(q(1));
-            quaternions.push_back(q(2));
-            quaternions.push_back(q(3));
-            quaternions.push_back(q(0));
-            t+=3;
+            quaternions.push_back(_bufferedEventData[t+1]);
+            quaternions.push_back(_bufferedEventData[t+2]);
+            quaternions.push_back(_bufferedEventData[t+3]);
+            quaternions.push_back(_bufferedEventData[t+0]);
+            t+=4;
         }
         if (w==0)
         {

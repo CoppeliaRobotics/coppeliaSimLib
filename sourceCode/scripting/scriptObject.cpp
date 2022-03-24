@@ -2537,8 +2537,8 @@ void CScriptObject::_hookFunction_lua(void* LL,void* arr)
     luaWrap_lua_Debug* ar=(luaWrap_lua_Debug*)arr;
 
     if (ar->event!=luaWrapGet_LUA_HOOKCALL())
-    { // Return and Count hook (return somehow needed here too when debug is on)
-        // Following 6 instructions are important: it can happen that the user locks/unlocks automatic thread switch in a loop,
+    {
+        // Following 3 instructions are important: it can happen that the user locks/unlocks automatic thread switch in a loop,
         // and that the hook function by malchance only gets called when the thread switches are not allowed (due to the loop
         // timing and hook call timing overlap) --> this thread doesn't switch and stays in a lua loop forever.
         // To avoid this we add some random component to the hook timing:
@@ -6857,7 +6857,16 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
-
+    if (_containsScriptText_old(scriptObject,"sim.drawing_trianglepoints"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.drawing_trianglepoints...");
+    if (_containsScriptText_old(scriptObject,"sim.drawing_quadpoints"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.drawing_quadpoints...");
+    if (_containsScriptText_old(scriptObject,"sim.drawing_discpoints"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.drawing_discpoints...");
+    if (_containsScriptText_old(scriptObject,"sim.drawing_cubepoints"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.drawing_cubepoints...");
+    if (_containsScriptText_old(scriptObject,"sim.drawing_spherepoints"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.drawing_spherepoints...");
     if (_containsScriptText_old(scriptObject,"sim.setJointMaxForce"))
         App::logMsg(sim_verbosity_errors,"Contains sim.setJointMaxForce...");
     if (_containsScriptText_old(scriptObject,"sim.getJointMaxForce"))

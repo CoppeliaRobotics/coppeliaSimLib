@@ -26,8 +26,6 @@ public:
     void adjustForFrameChange(int objectId,const C7Vector& preCorrection);
     void adjustForScaling(int objectId,float xScale,float yScale,float zScale);
 
-    bool getExportableMeshAtIndex(int parentObjectId,int index,std::vector<float>& vertices,std::vector<int>& indices);
-
     void pushGenesisEvents();
     void pushAppendNewPointEvents();
 

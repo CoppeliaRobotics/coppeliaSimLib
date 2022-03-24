@@ -1026,34 +1026,6 @@ void CShape::setEdgeWidth_DEPRECATED(int w)
         getSingleMesh()->setEdgeWidth_DEPRECATED(w);
 }
 
-bool CShape::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    if (index==0)
-    {
-        std::vector<float> visibleVertices;
-        std::vector<int> visibleIndices;
-        getMeshWrapper()->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
-
-        C7Vector m(getCumulativeTransformation());
-        C3Vector v;
-        for (int j=0;j<int(visibleVertices.size())/3;j++)
-        {
-            v(0)=visibleVertices[3*j+0];
-            v(1)=visibleVertices[3*j+1];
-            v(2)=visibleVertices[3*j+2];
-            v=m*v;
-            vertices.push_back(v(0));
-            vertices.push_back(v(1));
-            vertices.push_back(v(2));
-        }
-        indices.assign(visibleIndices.begin(),visibleIndices.end());
-        return(true);
-    }
-    return(App::currentWorld->drawingCont->getExportableMeshAtIndex(getObjectHandle(),index-1,vertices,indices));
-}
-
 void CShape::display_extRenderer(CViewableBase* renderingObject,int displayAttrib)
 {
     if (getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))

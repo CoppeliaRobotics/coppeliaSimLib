@@ -69,13 +69,6 @@ void CDummy::computeBoundingBox()
     _setBoundingBox(maxV*-1.0f,maxV);
 }
 
-bool CDummy::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 void CDummy::scaleObject(float scalingFactor)
 {
     setDummySize(_dummySize*scalingFactor);

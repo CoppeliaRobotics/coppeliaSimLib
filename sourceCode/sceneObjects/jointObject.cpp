@@ -1129,13 +1129,6 @@ void CJoint::computeBoundingBox()
     _setBoundingBox(minV,maxV);
 }
 
-bool CJoint::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 bool CJoint::setScrewPitch(float pitch)
 {
     bool retVal=false;

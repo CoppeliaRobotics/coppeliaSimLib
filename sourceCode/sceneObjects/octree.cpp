@@ -567,13 +567,6 @@ void COctree::computeBoundingBox()
 { // handled elsewhere
 }
 
-bool COctree::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 void COctree::scaleObject(float scalingFactor)
 {
     _cellSize*=scalingFactor;

@@ -869,13 +869,6 @@ CCamera::~CCamera()
     }
 }
 
-bool CCamera::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 void CCamera::handleTrackingAndHeadAlwaysUp()
 {
     TRACE_INTERNAL;

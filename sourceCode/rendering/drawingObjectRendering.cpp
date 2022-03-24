@@ -145,15 +145,15 @@ void displayDrawingObject(CDrawingObject* drawingObject,C7Vector& tr,bool overla
         _drawLineStrip(drawingObject,displayAttrib,cameraRTM,normalVectorForLinesAndPoints.data);
     if (tmp==sim_drawing_triangles)
         _drawTriangles(drawingObject,displayAttrib);
-    if (tmp==sim_drawing_trianglepoints)
+    if ( (tmp==sim_drawing_trianglepoints)||(tmp==sim_drawing_trianglepts) )
         _drawTrianglePoints(drawingObject,displayAttrib,cameraRTM);
-    if (tmp==sim_drawing_quadpoints)
+    if ( (tmp==sim_drawing_quadpoints)||(tmp==sim_drawing_quadpts) )
         _drawQuadPoints(drawingObject,displayAttrib,cameraRTM);
-    if (tmp==sim_drawing_discpoints)
+    if ( (tmp==sim_drawing_discpoints)||(tmp==sim_drawing_discpts) )
         _drawDiscPoints(drawingObject,displayAttrib,cameraRTM);
-    if (tmp==sim_drawing_cubepoints)
+    if ( (tmp==sim_drawing_cubepoints)||(tmp==sim_drawing_cubepts) )
         _drawCubePoints(drawingObject,displayAttrib,cameraRTM);
-    if (tmp==sim_drawing_spherepoints)
+    if (tmp==sim_drawing_spherepts)
         _drawSpherePoints(drawingObject,displayAttrib);
 
     if (overlay)
@@ -321,17 +321,23 @@ void _drawTrianglePoints(CDrawingObject* drawingObject,int displayAttrib,const C
         v.set(&_data[drawingObject->floatsPerItem*p+off]);
         off+=3;
         if (_objectType&sim_drawing_facingcamera)
+        {
             n=cameraRTM.M.axis[2]*-1.0f;
+            if (n(2)<0.8f)
+                x=(n^C3Vector::unitZVector).getNormalized();
+            else
+                x=(n^C3Vector::unitXVector).getNormalized();
+            y=n^x;
+        }
         else
         {
-            n.set(&_data[drawingObject->floatsPerItem*p+off]);
-            off+=3;
+            C4Vector q(&_data[0]+drawingObject->floatsPerItem*p+off);
+            C3X3Matrix m=q.getMatrix();
+            x=m.axis[0];
+            y=m.axis[1];
+            n=m.axis[2];
+            off+=4;
         }
-        if (n(2)<0.8f)
-            x=(n^C3Vector::unitZVector).getNormalized();
-        else
-            x=(n^C3Vector::unitXVector).getNormalized();
-        y=n^x;
         if ( (_objectType&sim_drawing_itemcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
@@ -389,17 +395,23 @@ void _drawQuadPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         v.set(&_data[drawingObject->floatsPerItem*p+off]);
         off+=3;
         if (_objectType&sim_drawing_facingcamera)
+        {
             n=cameraRTM.M.axis[2]*-1.0f;
+            if (n(2)<0.8f)
+                x=(n^C3Vector::unitZVector).getNormalized();
+            else
+                x=(n^C3Vector::unitXVector).getNormalized();
+            y=n^x;
+        }
         else
         {
-            n.set(&_data[drawingObject->floatsPerItem*p+off]);
-            off+=3;
+            C4Vector q(&_data[0]+drawingObject->floatsPerItem*p+off);
+            C3X3Matrix m=q.getMatrix();
+            x=m.axis[0];
+            y=m.axis[1];
+            n=m.axis[2];
+            off+=4;
         }
-        if (n(2)<0.8f)
-            x=(n^C3Vector::unitZVector).getNormalized();
-        else
-            x=(n^C3Vector::unitXVector).getNormalized();
-        y=n^x;
         if ( (_objectType&sim_drawing_itemcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
@@ -459,17 +471,23 @@ void _drawDiscPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         v.set(&_data[drawingObject->floatsPerItem*p+off]);
         off+=3;
         if (_objectType&sim_drawing_facingcamera)
+        {
             n=cameraRTM.M.axis[2]*-1.0f;
+            if (n(2)<0.8f)
+                x=(n^C3Vector::unitZVector).getNormalized();
+            else
+                x=(n^C3Vector::unitXVector).getNormalized();
+            y=n^x;
+        }
         else
         {
-            n.set(&_data[drawingObject->floatsPerItem*p+off]);
-            off+=3;
+            C4Vector q(&_data[0]+drawingObject->floatsPerItem*p+off);
+            C3X3Matrix m=q.getMatrix();
+            x=m.axis[0];
+            y=m.axis[1];
+            n=m.axis[2];
+            off+=4;
         }
-        if (n(2)<0.8f)
-            x=(n^C3Vector::unitZVector).getNormalized();
-        else
-            x=(n^C3Vector::unitXVector).getNormalized();
-        y=n^x;
         if ( (_objectType&sim_drawing_itemcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
@@ -532,17 +550,23 @@ void _drawCubePoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         v.set(&_data[drawingObject->floatsPerItem*p+off]);
         off+=3;
         if (_objectType&sim_drawing_facingcamera)
+        {
             n=cameraRTM.M.axis[2]*-1.0f;
+            if (n(2)<0.8f)
+                x=(n^C3Vector::unitZVector).getNormalized();
+            else
+                x=(n^C3Vector::unitXVector).getNormalized();
+            y=n^x;
+        }
         else
         {
-            n.set(&_data[drawingObject->floatsPerItem*p+off]);
-            off+=3;
+            C4Vector q(&_data[0]+drawingObject->floatsPerItem*p+off);
+            C3X3Matrix m=q.getMatrix();
+            x=m.axis[0];
+            y=m.axis[1];
+            n=m.axis[2];
+            off+=4;
         }
-        if (n(2)<0.8f)
-            x=(n^C3Vector::unitZVector).getNormalized();
-        else
-            x=(n^C3Vector::unitXVector).getNormalized();
-        y=n^x;
         if ( (_objectType&sim_drawing_itemcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))

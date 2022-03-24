@@ -67,26 +67,6 @@ void CDrawingContainer::removeObject(int objectId)
     }
 }
 
-bool CDrawingContainer::getExportableMeshAtIndex(int parentObjectId,int index,std::vector<float>& vertices,std::vector<int>& indices)
-{
-    vertices.clear();
-    indices.clear();
-    int cnt=0;
-    for (int i=0;i<int(_allObjects.size());i++)
-    {
-        if ((_allObjects[i]->getSceneObjectId()==parentObjectId)&&_allObjects[i]->canMeshBeExported())
-        {
-            cnt++;
-            if (cnt==index+1)
-            {
-                _allObjects[i]->getExportableMesh(vertices,indices);
-                return(true);
-            }
-        }
-    }
-    return(false);
-}
-
 void CDrawingContainer::adjustForFrameChange(int objectId,const C7Vector& preCorrection)
 {
     for (size_t i=0;i<_allObjects.size();i++)

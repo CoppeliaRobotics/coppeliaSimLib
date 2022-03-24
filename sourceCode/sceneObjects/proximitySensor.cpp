@@ -225,13 +225,6 @@ void CProxSensor::setSensableObject(int objectID)
     _sensableObject=objectID;
 }
 
-bool CProxSensor::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 void CProxSensor::removeSceneDependencies()
 {
     CSceneObject::removeSceneDependencies();

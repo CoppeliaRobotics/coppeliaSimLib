@@ -97,13 +97,6 @@ CMirror::~CMirror()
 {
 }
 
-bool CMirror::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 void CMirror::scaleObject(float scalingFactor)
 {
     _mirrorWidth*=scalingFactor;

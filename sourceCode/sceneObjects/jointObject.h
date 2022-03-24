@@ -145,7 +145,6 @@ public:
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
-    bool getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const;
     C7Vector getFullLocalTransformation() const;
 
     std::string getObjectTypeInfo() const;

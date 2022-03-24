@@ -45,13 +45,6 @@ void CPath_old::computeBoundingBox()
     _setBoundingBox(maxV*-1.0f,maxV);
 }
 
-bool CPath_old::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 void CPath_old::scaleObject(float scalingFactor)
 {
     if (pathContainer!=nullptr)

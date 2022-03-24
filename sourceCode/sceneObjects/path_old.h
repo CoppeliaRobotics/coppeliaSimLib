@@ -34,7 +34,6 @@ public:
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
-    bool getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const;
     bool isPotentiallyCollidable() const;
     bool isPotentiallyMeasurable() const;
     bool isPotentiallyDetectable() const;

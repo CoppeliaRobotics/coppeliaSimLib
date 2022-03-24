@@ -105,13 +105,6 @@ void CMill::setMillableObject(int objectID)
     _millableObject=objectID;
 }
 
-bool CMill::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 void CMill::removeSceneDependencies()
 {
     CSceneObject::removeSceneDependencies();

@@ -421,13 +421,6 @@ void CForceSensor::computeBoundingBox()
     _setBoundingBox(maxV*-1.0f,maxV);
 }
 
-bool CForceSensor::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 void CForceSensor::setForceSensorSize(float s)
 {
     tt::limitValue(0.001f,10.0f,s);

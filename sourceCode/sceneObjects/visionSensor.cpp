@@ -377,13 +377,6 @@ void CVisionSensor::_clearBuffers()
         _depthBuffer[i]=1.0f;
 }
 
-bool CVisionSensor::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 void CVisionSensor::setResolution(const int r[2])
 { // override
     int res[2]={r[0],r[1]};

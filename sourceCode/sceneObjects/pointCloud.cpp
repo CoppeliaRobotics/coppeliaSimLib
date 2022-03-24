@@ -647,13 +647,6 @@ void CPointCloud::computeBoundingBox()
 { // handled elsewhere
 }
 
-bool CPointCloud::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std::vector<int>& indices) const
-{
-    vertices.clear();
-    indices.clear();
-    return(false); // for now
-}
-
 void CPointCloud::scaleObject(float scalingFactor)
 {
     _cellSize*=scalingFactor;
