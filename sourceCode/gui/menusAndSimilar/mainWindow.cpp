@@ -102,7 +102,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     _mouseButtonsState=0;
     _keyDownState=0;
 
-    resize(1024,768);
+  //  resize(1024,768);
 
     // setWindowTitle adds multiple app icons on Linux somehow..
 #ifndef LIN_SIM
@@ -284,7 +284,7 @@ void CMainWindow::initializeWindow()
 {
     createDefaultMenuBar();
     _createDefaultToolBars();
-    _setInitialDimensions(true);
+    setWindowDimensions(App::userSettings->initWindowSize[0],App::userSettings->initWindowSize[1]);
 }
 
 /*
@@ -547,11 +547,6 @@ QSignalMapper* CMainWindow::getPopupSignalMapper()
     return(_popupSignalMapper);
 }
 
-void CMainWindow::_setInitialDimensions(bool maximized)
-{
-    setWindowDimensions(1024,768,true,maximized);
-}
-
 void CMainWindow::_setClientArea(int x,int y)
 {
     _clientArea.x=x;
@@ -566,22 +561,19 @@ void CMainWindow::windowResizeEvent(int x,int y)
     _renderOpenGlContent_callFromRenderingThreadOnly();
 }
 
-void CMainWindow::setWindowDimensions(int x,int y,bool clientSurface,bool maximized)
+void CMainWindow::setWindowDimensions(int x,int y)
 {
-    if (!maximized)
-        showNormal();
-    int frameWidth=0;
-    int frameHeight=0;
-    if (!clientSurface)
-    {
-        frameWidth=frameGeometry().width()-size().width();
-        frameHeight=frameGeometry().height()-size().height();
-    }
-    x-=frameWidth;
-    y-=frameHeight;
-    resize(x,y);
-    if (maximized)
+    if ( (x==0)&&(y==0) )
         showMaximized();
+    else
+    {
+        showNormal();
+        int frameWidth=0;
+        int frameHeight=0;
+        x-=frameWidth;
+        y-=frameHeight;
+        resize(x,y);
+    }
 }
 
 void CMainWindow::refreshDimensions()

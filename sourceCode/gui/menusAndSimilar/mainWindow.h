@@ -42,7 +42,7 @@ public:
     QMenu* createPopupMenu() { return nullptr; } // required to avoid having a popup when over the toolbar (and other situations). 4/12/2011
 
     void refreshDimensions();
-    void setWindowDimensions(int x,int y,bool clientSurface,bool maximized);
+    void setWindowDimensions(int x,int y);
     void windowResizeEvent(int x,int y);
     bool isFullScreen();
     void setFullScreen(bool f);
@@ -166,9 +166,7 @@ private:
     void _dropFilesIntoScene(const std::vector<std::string>& tttFiles,const std::vector<std::string>& ttmFiles);
     void _createDefaultToolBars();
     void _recomputeClientSizeAndPos();
-    void _setInitialDimensions(bool maximized);
     void _setClientArea(int x,int y);
-//    void _resetStatusbarFlashIfNeeded();
     void _closeDialogTemporarilyIfOpened(int dlgID,std::vector<int>& vect);
 
     QSignalMapper* _signalMapper;

@@ -91,6 +91,7 @@ public:
     int freeServerPortStart;
     int freeServerPortRange;
     bool darkMode;
+    int initWindowSize[2];
     int renderingSurfaceVShift;
     int renderingSurfaceVResize;
     int offscreenContextType;

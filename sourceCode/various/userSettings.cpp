@@ -88,6 +88,7 @@
 #define _USR_THREADED_SCRIPTS_GRACE_TIME "threadedScriptsStoppingGraceTime"
 
 #define _USR_ABORT_SCRIPT_EXECUTION_BUTTON "abortScriptExecutionButton"
+#define _USR_INIT_WINDOW_SIZE "initWindowSize"
 #define _USR_DARK_MODE "darkMode"
 #define _USR_RENDERING_SURFACE_VERTICAL_SHIFT "renderingSurfaceVShift"
 #define _USR_RENDERING_SURFACE_VERTICAL_RESIZE "renderingSurfaceVResize"
@@ -218,6 +219,8 @@ CUserSettings::CUserSettings()
     // Visual section:
     // *****************************
     darkMode=false;
+    initWindowSize[0]=0; // fullscreen
+    initWindowSize[1]=0;
     renderingSurfaceVShift=0;
     renderingSurfaceVResize=0;
     scriptEditorFont=""; // default
@@ -579,6 +582,7 @@ void CUserSettings::saveUserSettings()
 
     c.addRandomLine("// Visual");
     c.addRandomLine("// =================================================");
+    c.addIntVector2(_USR_INIT_WINDOW_SIZE,initWindowSize,"0,0 for fullscreen");
     c.addBoolean(_USR_DARK_MODE,darkMode,"");
     c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_SHIFT,renderingSurfaceVShift,"");
     c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_RESIZE,renderingSurfaceVResize,"");
@@ -885,6 +889,7 @@ void CUserSettings::loadUserSettings()
 
     // Visual section:
     // *****************************
+    c.getIntVector2(_USR_INIT_WINDOW_SIZE,initWindowSize);
     c.getBoolean(_USR_DARK_MODE,darkMode);
     c.getInteger(_USR_RENDERING_SURFACE_VERTICAL_SHIFT,renderingSurfaceVShift);
     c.getInteger(_USR_RENDERING_SURFACE_VERTICAL_RESIZE,renderingSurfaceVResize);
