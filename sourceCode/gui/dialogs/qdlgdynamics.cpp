@@ -49,7 +49,7 @@ void CQDlgDynamics::refresh()
     ui->qqEngineCombo->addItem(IDS_ODE,2);
     ui->qqEngineCombo->addItem(IDS_VORTEX,3);
     ui->qqEngineCombo->addItem(IDS_NEWTON,4);
-    ui->qqEngineCombo->addItem(IDS_MUJOCO,5);
+//    ui->qqEngineCombo->addItem(IDS_MUJOCO,5);
     int ver;
     int eng=App::currentWorld->dynamicsContainer->getDynamicEngineType(&ver);
     if ( (eng==sim_physics_bullet)&&(ver==0) )
