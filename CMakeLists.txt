@@ -737,6 +737,7 @@ endif()
 
 if(PLUS)
     add_subdirectory(${PLUS} ${CMAKE_CURRENT_BINARY_DIR}/plus)
+    target_include_directories(coppeliaSim PRIVATE ${PLUS}/sourceCode)
 endif()
 
 if(APPLE)
