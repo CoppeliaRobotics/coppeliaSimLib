@@ -74,7 +74,7 @@ simInt simTransformVector_internal(const simFloat* matrix,simFloat* vect);
 simInt simReservedCommand_internal(simInt v,simInt w);
 simFloat simGetSimulationTime_internal();
 simInt simGetSimulationState_internal();
-simUInt simGetSystemTimeInMs_internal(simInt previousTime);
+simDouble simGetSystemTime_internal();
 simInt simLoadScene_internal(const simChar* filename);
 simInt simCloseScene_internal();
 simInt simSaveScene_internal(const simChar* filename);
@@ -669,4 +669,5 @@ simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque);
 simVoid _simSetGeomProxyDynamicsFullRefreshFlag_internal(simVoid* geomData,simBool flag);
 simBool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const simVoid* geomData);
 simInt simRemoveObject_internal(simInt objectHandle);
+simUInt simGetSystemTimeInMs_internal(simInt previousTime);
 #endif // !defined(simInternal_INCLUDED_)

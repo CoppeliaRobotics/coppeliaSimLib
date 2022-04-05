@@ -85,7 +85,7 @@ void CSimThread::executeMessages()
 void CSimThread::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay/*=0*/)
 { // CALLED FROM ANY THREAD
     cmd.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
-    cmd.postTime=VDateTime::getTimeInMs();
+    cmd.postTime=(int)VDateTime::getTimeInMs();
     cmd.execDelay=executionDelay;
     EASYLOCK(_simulationThreadCommandsMutex);
     _simulationThreadCommands_tmp.push_back(cmd);
@@ -4958,7 +4958,7 @@ int CSimThread::_prepareSceneForRenderIfNeeded()
 
     if (render)
     {
-        lastRenderingTime=VDateTime::getTimeInMs();
+        lastRenderingTime=(int)VDateTime::getTimeInMs();
         if (App::mainWindow!=nullptr)
         {
             App::mainWindow->simThread_prepareToRenderScene();

@@ -1058,7 +1058,7 @@ bool CSView::mouseWheel(int deltaZ,int x,int y)
             }
             else
             {
-                int ct=VDateTime::getTimeInMs();
+                int ct=(int)VDateTime::getTimeInMs();
                 static int lastTime=ct;
                 int timeDiffInMs=VDateTime::getTimeDiffInMs(lastTime,ct);
                 if (timeDiffInMs<100)
@@ -1244,7 +1244,7 @@ bool CSView::leftMouseButtonDown(int x,int y,int selStatus)
     mousePreviousRelativePosition[1]=y;
     mouseIsDown=true;
     mouseJustWentDownFlag=true;
-    mouseDownTimings=VDateTime::getTimeInMs();
+    mouseDownTimings=(int)VDateTime::getTimeInMs();
     mouseJustWentDownWasProcessed=false;
     mouseJustWentUpFlag=false;
     // Clear all manip mode overlay grid flags:
@@ -1927,7 +1927,7 @@ void CSView::cameraAndObjectMotion()
             scaleFactor=camera->getOrthoViewSize()/(float)activeWinSize.y;
         if (ratio>1.0f)
             scaleFactor=scaleFactor/ratio;
-        int ct=VDateTime::getTimeInMs();
+        int ct=(int)VDateTime::getTimeInMs();
         float zoomFactor=(float)(yPosDifference*yPosDifference*zoomSensitivity)*(float(VDateTime::getTimeDiffInMs(mouseDownTimings))/50.0f);
         mouseDownTimings=ct;
         if (yPosDifference>0)

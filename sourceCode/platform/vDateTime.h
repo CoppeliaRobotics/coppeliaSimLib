@@ -4,7 +4,9 @@
 class VDateTime  
 {
 public:
-    static int getTimeInMs();
+    static double getTime();
+    static long long int getTimeInMs();
+
     static unsigned int getOSTimeInMs();
     static int getTimeDiffInMs(int lastTime);
     static int getTimeDiffInMs(int oldTime,int newTime);
@@ -13,11 +15,7 @@ public:
     static int getDaysTo(int year_before,int month_before,int day_before,int year_after,int month_after,int day_after);
 
 private:
-    static int _getTimeWithStartInMs_viaQt(bool& success);
 #ifdef WIN_SIM
-    static int _getTimeWithStartInMs_viaPerformanceCounter(bool& success);
-    static int _getTimeWithStartInMs_viaTimeGetTime(bool& success);
-#else
-    static int _getTimeWithStartInMs_viaGetTimeOfDay(bool& success);
+    static long long int _getTimeWithStartInMs_viaPerformanceCounter(bool& success);
 #endif
 };

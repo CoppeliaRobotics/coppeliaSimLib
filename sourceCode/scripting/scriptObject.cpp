@@ -158,7 +158,7 @@ bool CScriptObject::shouldAutoYield()
     if ( (_forbidAutoYieldingLevel==0)&&(_forbidOverallYieldingLevel==0) )
         retVal=VDateTime::getTimeDiffInMs(_timeForNextAutoYielding)>0;
     if (retVal)
-        _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
+        _timeForNextAutoYielding=int(VDateTime::getTimeInMs())+_delayForAutoYielding;
     return(retVal);
 }
 
@@ -879,7 +879,7 @@ int CScriptObject::getScriptExecutionTimeInMs() const
 
 void CScriptObject::resetScriptExecutionTime()
 {
-    _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
+    _timeOfScriptExecutionStart=int(VDateTime::getTimeInMs());
 }
 
 void CScriptObject::getPreviousEditionWindowPosAndSize(int posAndSize[4]) const
@@ -1307,7 +1307,7 @@ int CScriptObject::systemCallMainScript(int optionalCallType,const CInterfaceSta
         if (optionalCallType==-1)
         {
             App::currentWorld->embeddedScriptContainer->resetScriptFlagCalledInThisSimulationStep();
-            int startT=VDateTime::getTimeInMs();
+            int startT=int(VDateTime::getTimeInMs());
 
             if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_firstafterstop)
                 retVal=systemCallScript(sim_syscb_init,inStack,outStack);
@@ -1319,7 +1319,7 @@ int CScriptObject::systemCallMainScript(int optionalCallType,const CInterfaceSta
             if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_lastbeforestop)
                 retVal=systemCallScript(sim_syscb_cleanup,inStack,outStack);
 
-            App::worldContainer->calcInfo->setMainScriptExecutionTime(VDateTime::getTimeInMs()-startT);
+            App::worldContainer->calcInfo->setMainScriptExecutionTime(int(VDateTime::getTimeInMs())-startT);
             App::worldContainer->calcInfo->setSimulationScriptExecCount(App::currentWorld->embeddedScriptContainer->getCalledScriptsCountInThisSimulationStep(true));
         }
         else
@@ -1591,7 +1591,7 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
     if (_loadBuffer_lua(_code.c_str(),_code.size(),getShortDescriptiveName().c_str()))
     {
         if (_executionDepth==0)
-            _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
+            _timeOfScriptExecutionStart=int(VDateTime::getTimeInMs());
         _executionDepth++;
         if (_callScriptFunction("",nullptr,nullptr,errorMsg)==-1)
             retVal=0; // a runtime error occurred!
@@ -1618,11 +1618,13 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
 
             if (_compatibilityMode_oldLua)
             {
+                /* No warning here, since an empty script will also trigger that
                 std::string msg(getShortDescriptiveName().c_str());
                 msg+=": the script is running in compatibility mode. It is highly recommended to switch to the new calling method, e.g.:";
                 msg+="\nwith the old method: if sim_call_type==sim_childscriptcall_initialization then ... end";
                 msg+="\nwith the new method: function sysCall_init() ... end";
                 App::logMsg(sim_verbosity_warnings,msg.c_str());
+                */
             }
             else
                 _execSimpleString_safe_lua(L,"sim_call_type=nil");
@@ -1773,7 +1775,7 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
 
     if (_executionDepth==0)
     { // remember: a script func. can call another script func indirectly via the system, even system callback can do that!
-        _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
+        _timeForNextAutoYielding=int(VDateTime::getTimeInMs())+_delayForAutoYielding;
         _forbidOverallYieldingLevel=0;
     }
     else
@@ -1806,7 +1808,7 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
 
     std::string errMsg;
     if (_executionDepth==0)
-        _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
+        _timeOfScriptExecutionStart=int(VDateTime::getTimeInMs());
     _executionDepth++;
     int retVal=_callScriptFunction(getSystemCallbackString(callType,false).c_str(),inStack,outStack,&errMsg);
     _executionDepth--;
@@ -2034,7 +2036,7 @@ int CScriptObject::callCustomScriptFunction(const char* functionName,CInterfaceS
         // -------------------------------------
         std::string errMsg;
         if (_executionDepth==0)
-            _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
+            _timeOfScriptExecutionStart=int(VDateTime::getTimeInMs());
         _executionDepth++;
 
         luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
@@ -2097,7 +2099,7 @@ int CScriptObject::executeScriptString(const char* scriptString,CInterfaceStack*
     if (_scriptState==scriptState_initialized)
     {
         if (_executionDepth==0)
-            _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
+            _timeOfScriptExecutionStart=int(VDateTime::getTimeInMs());
         _executionDepth++;
         if (_execScriptString(scriptString,outStack))
             retVal=0; // success
@@ -2457,7 +2459,7 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     _randGen.seed(123456);
     _delayForAutoYielding=2;
     _forbidAutoYieldingLevel=0;
-    _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
+    _timeForNextAutoYielding=int(VDateTime::getTimeInMs())+_delayForAutoYielding;
     _forbidOverallYieldingLevel=0;
 
     luaWrap_lua_State* L=luaWrap_luaL_newstate();
@@ -5471,7 +5473,7 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
         return;
     _scriptState=scriptState_unloaded;
 
-    _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
+    _timeForNextAutoYielding=int(VDateTime::getTimeInMs())+_delayForAutoYielding;
     _forbidOverallYieldingLevel=0;
 
     if (_interpreterState==nullptr)
@@ -5492,7 +5494,7 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
         int errindex=-argCnt-2;
         luaWrap_lua_insert(L,errindex);
         if (_executionDepth==0)
-            _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
+            _timeOfScriptExecutionStart=int(VDateTime::getTimeInMs());
         _executionDepth++;
         if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState,argCnt,luaWrapGet_LUA_MULTRET(),errindex)!=0)
         { // a runtime error occurred!
@@ -5539,7 +5541,7 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
                     int errindex=-argCnt-2;
                     luaWrap_lua_insert(L,errindex);
                     if (_executionDepth==0)
-                        _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
+                        _timeOfScriptExecutionStart=int(VDateTime::getTimeInMs());
                     _executionDepth++;
                     if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState,argCnt,luaWrapGet_LUA_MULTRET(),errindex)!=0)
                     { // a runtime error occurred!
@@ -5604,7 +5606,7 @@ bool CScriptObject::_callScriptChunk_old(int callType,const CInterfaceStack* inS
     if ((_scriptState&scriptState_error)!=0)
         return(false);
 
-    _timeForNextAutoYielding=VDateTime::getTimeInMs()+_delayForAutoYielding;
+    _timeForNextAutoYielding=int(VDateTime::getTimeInMs())+_delayForAutoYielding;
     _forbidOverallYieldingLevel=0;
 
     luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
@@ -5628,7 +5630,7 @@ bool CScriptObject::_callScriptChunk_old(int callType,const CInterfaceStack* inS
         int errindex=-argCnt-2;
         luaWrap_lua_insert(L,errindex);
         if (_executionDepth==0)
-            _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
+            _timeOfScriptExecutionStart=int(VDateTime::getTimeInMs());
         _executionDepth++;
         if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState,argCnt,luaWrapGet_LUA_MULTRET(),errindex)!=0)
         { // a runtime error occurred!
@@ -5744,7 +5746,7 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName,SLuaCa
     luaWrap_lua_insert(L,errindex);
 
     if (_executionDepth==0)
-        _timeOfScriptExecutionStart=VDateTime::getTimeInMs();
+        _timeOfScriptExecutionStart=int(VDateTime::getTimeInMs());
     _executionDepth++;
     if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState,argCnt,luaWrapGet_LUA_MULTRET(),errindex)!=0)
     { // a runtime error occurred!
@@ -6857,6 +6859,9 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+    if (_containsScriptText_old(scriptObject,"sim.getSystemTimeInMs"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getSystemTimeInMs...");
+
     if (_containsScriptText_old(scriptObject,"sim.drawing_trianglepoints"))
         App::logMsg(sim_verbosity_errors,"Contains sim.drawing_trianglepoints...");
     if (_containsScriptText_old(scriptObject,"sim.drawing_quadpoints"))

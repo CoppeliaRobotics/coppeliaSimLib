@@ -21,29 +21,32 @@ unsigned int VDateTime::getOSTimeInMs()
 #endif
 }
 
-int VDateTime::getTimeInMs()
+double VDateTime::getTime()
 {
+    return(double(getTimeInMs())/1000.0);
+}
+
+long long int VDateTime::getTimeInMs()
+{
+    long long int retVal=0;
+#ifdef WIN_SIM
     bool ok;
-    int retVal=0;
-#ifdef WIN_SIM
     retVal=_getTimeWithStartInMs_viaPerformanceCounter(ok);
-    if (ok)
-        return(retVal);
-#endif // WIN_SIM
-    retVal=_getTimeWithStartInMs_viaQt(ok);
-    if (ok)
-        return(retVal);
-#ifdef WIN_SIM
-    retVal=_getTimeWithStartInMs_viaTimeGetTime(ok);
-#else // WIN_SIM
-    retVal=_getTimeWithStartInMs_viaGetTimeOfDay(ok);
-#endif // WIN_SIM
+    if (!ok)
+        retVal=timeGetTime();
+#else
+    struct timeval now;
+    gettimeofday(&now,nullptr);
+    static time_t initSec=now.tv_sec;
+    static suseconds_t initUSec=now.tv_usec;
+    retVal=(now.tv_sec-initSec)*1000+(now.tv_usec-initUSec)/1000;
+#endif
     return(retVal);
 }
 
 int VDateTime::getTimeDiffInMs(int lastTime)
 {
-    return(getTimeDiffInMs(lastTime,getTimeInMs()));
+    return(getTimeDiffInMs(lastTime,(int)getTimeInMs()));
 }
 
 int VDateTime::getTimeDiffInMs(int oldTime,int newTime)
@@ -118,31 +121,13 @@ int VDateTime::getDaysTo(int year_before,int month_before,int day_before,int yea
 #endif
 }
 
-int VDateTime::_getTimeWithStartInMs_viaQt(bool& success)
-{
-#ifndef SIM_WITH_QT
-    success=false;
-    return(0);
-#else
-    static bool first=true;
-    static QTime firstTime;
-    if (first)
-    {
-        first=false;
-        firstTime.start();
-    }
-    success=true;
-    return(firstTime.elapsed());
-#endif
-}
-
 #ifdef WIN_SIM
-int VDateTime::_getTimeWithStartInMs_viaPerformanceCounter(bool& success)
+long long int VDateTime::_getTimeWithStartInMs_viaPerformanceCounter(bool& success)
 {
     static bool works=true;
     static bool first=true;
     static double pcFreq=0.0;
-    static __int64 cntStart=0;
+    static long long int cntStart=0;
     LARGE_INTEGER highResFreq;
     if (first&&works)
     {
@@ -159,26 +144,7 @@ int VDateTime::_getTimeWithStartInMs_viaPerformanceCounter(bool& success)
     }
     success=true;
     QueryPerformanceCounter(&highResFreq);
-    return(int(double(highResFreq.QuadPart-cntStart)/pcFreq));
+    return((long long int)(double(highResFreq.QuadPart-cntStart)/pcFreq));
 }
-
-int VDateTime::_getTimeWithStartInMs_viaTimeGetTime(bool& success)
-{
-    success=true;
-    unsigned int t=timeGetTime();
-    static unsigned int startT=t;
-    if (t>=startT)
-        return((t-startT)&0x8fffffff);
-    return((t+(0xffffffff-startT))&0x8fffffff);
-}
-#else // WIN_SIM
-int VDateTime::_getTimeWithStartInMs_viaGetTimeOfDay(bool& success)
-{
-    struct timeval now;
-    success=(gettimeofday(&now,nullptr)==0);
-    static time_t initSec=now.tv_sec;
-    static suseconds_t initUSec=now.tv_usec;
-    return((now.tv_sec-initSec)*1000+(now.tv_usec-initUSec)/1000);
-}
-#endif // WIN_SIM
+#endif
 

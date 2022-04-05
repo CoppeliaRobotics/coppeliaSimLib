@@ -55,7 +55,7 @@ VTHREAD_ID_TYPE CThreadPool_old::createNewThread(VTHREAD_START_ADDRESS threadSta
         _allThreadData.push_back(dat);
 
         _threadQueue.push_back(VThread::getCurrentThreadId());
-        _threadStartTime.push_back(VDateTime::getTimeInMs());
+        _threadStartTime.push_back((int)VDateTime::getTimeInMs());
         VThread::setProcessorCoreAffinity(_processorCoreAffinity);
     }
 
@@ -316,7 +316,7 @@ void CThreadPool_old::switchToThread(VTHREAD_ID_TYPE threadID)
             else
             { // we switch forward to an auxiliary thread
                 _threadQueue.push_back(threadID);
-                _threadStartTime.push_back(VDateTime::getTimeInMs());
+                _threadStartTime.push_back((int)VDateTime::getTimeInMs());
 
                 std::string tmp("==> Switching forward from threadID: ");
                 tmp+=boost::lexical_cast<std::string>((unsigned long)_threadQueue[_threadQueue.size()-2]);
@@ -498,7 +498,7 @@ void CThreadPool_old::_cleanupTerminatedThreads()
 
 VTHREAD_RETURN_TYPE CThreadPool_old::_intermediateThreadStartPoint(VTHREAD_ARGUMENT_TYPE lpData)
 {
-    srand(VDateTime::getTimeInMs()+ (((unsigned long)(VThread::getCurrentThreadId()))&0xffffffff) ); // Important: each thread starts with a same seed!!!
+    srand((int)VDateTime::getTimeInMs()+ (((unsigned long)(VThread::getCurrentThreadId()))&0xffffffff) ); // Important: each thread starts with a same seed!!!
     VTHREAD_START_ADDRESS startAdd=_threadStartAdd;
     CVThreadData* it=new CVThreadData(nullptr,VThread::getCurrentThreadId());
     _allThreadData.push_back(it);
@@ -682,7 +682,7 @@ void CThreadPool_old::setRequestSimulationStop(bool stop)
         if (!_simulationStopRequest)
         {
             _simulationStopRequest=true;
-            _simulationStopRequestTime=VDateTime::getTimeInMs();
+            _simulationStopRequestTime=(int)VDateTime::getTimeInMs();
         }
     }
     else

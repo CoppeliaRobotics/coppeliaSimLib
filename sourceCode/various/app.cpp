@@ -97,7 +97,7 @@ void App::simulationThreadInit()
     CThreadPool_old::init();
     _canInitSimThread=false;
     VThread::setSimulationMainThreadId();
-    srand(VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
+    srand((int)VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
                                         // Remember that each thread starts with a same seed!!!
     App::simThread=new CSimThread();
     #ifdef SIM_WITH_QT
@@ -319,6 +319,13 @@ App::App(bool headless)
         qputenv("QT_AUTO_SCREEN_SCALE_FACTOR","1");
         App::sc=2;
     }
+    if (userSettings->highResDisplay==3)
+    {
+        if (userSettings->guiScaling>1.01f)
+            qputenv("QT_SCALE_FACTOR",std::to_string(userSettings->guiScaling).c_str());
+        if (userSettings->oglScaling!=1)
+            App::sc=userSettings->oglScaling;
+    }
 #endif
 
 #ifdef SIM_WITH_QT
@@ -395,7 +402,7 @@ App::App(bool headless)
 
     uiThread=new CUiThread();
     VThread::setUiThreadId();
-    srand(VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
+    srand((int)VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
                                         // Remember that each thread starts with a same seed!!!
     _initSuccessful=true;
     _exitCode=0;
@@ -555,9 +562,9 @@ void App::_runInitializationCallback(void(*initCallBack)())
     App::worldContainer->scriptCustomFuncAndVarContainer->outputWarningWithFunctionNamesWithoutPlugin(true);
 
     if (CPluginContainer::isGeomPluginAvailable())
-        App::logMsg(sim_verbosity_loadinfos,"using the 'Geometric' plugin.");
+        App::logMsg(sim_verbosity_loadinfos,"using the 'Geom' plugin.");
     else
-        App::logMsg(sim_verbosity_warnings,"the 'Geometric' plugin could not be initialized.");
+        App::logMsg(sim_verbosity_warnings,"the 'Geom' plugin could not be initialized.");
 
     if (CPluginContainer::isIkPluginAvailable())
         App::logMsg(sim_verbosity_loadinfos,"using the 'IK' plugin.");
@@ -1806,7 +1813,7 @@ void App::showSplashScreen()
     txt+=__DATE__;
     splash.showMessage(txt,Qt::AlignLeft|Qt::AlignBottom);
     splash.show();
-    int ct=VDateTime::getTimeInMs();
+    int ct=(int)VDateTime::getTimeInMs();
     while (VDateTime::getTimeDiffInMs(ct)<2000)
     {
         splash.raise();

@@ -123,7 +123,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.removeModel",_simRemoveModel,                          "int objectCount=sim.removeModel(int objectHandle)",true},
     {"sim.getSimulationTime",_simGetSimulationTime,              "float simulationTime=sim.getSimulationTime()",true},
     {"sim.getSimulationState",_simGetSimulationState,            "int simulationState=sim.getSimulationState()",true},
-    {"sim.getSystemTimeInMs",_simGetSystemTimeInMs,              "int systemTimeOrTimeDiff=sim.getSystemTimeInMs(int previousTime)",true},
+    {"sim.getSystemTime",_simGetSystemTime,                      "float time=sim.getSystemTime()",true},
     {"sim.checkCollision",_simCheckCollision,                    "int result,int[2] collidingObjects=sim.checkCollision(int entity1Handle,int entity2Handle)",true},
     {"sim.checkCollisionEx",_simCheckCollisionEx,                "int segmentCount,float[6..*] segmentData=sim.checkCollisionEx(int entity1Handle,int entity2Handle)",true},
     {"sim.checkDistance",_simCheckDistance,                      "int result,float[7] distanceData,int[2] objectHandlePair=sim.checkDistance(int entity1Handle,int entity2Handle,float threshold=0.0)",true},
@@ -566,7 +566,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.handleModule",_simHandleModule,                        "Deprecated",false},
     {"sim.getLastError",_simGetLastError,                        "Deprecated",false},
     {"sim._switchThread",_simSwitchThread,                       "Deprecated",false},
-    {"sim.getSystemTime",_simGetSystemTime,                      "Deprecated. Use sim.getSystemTimeInMs instead",false},
+    {"sim.getSystemTimeInMs",_simGetSystemTimeInMs,              "Deprecated. Use sim.getSystemTime Instead",false},
     {"sim.fileDialog",_simFileDialog,                            "Deprecated. Use simUI.fileDialog instead",false},
     {"sim.msgBox",_simMsgBox,                                    "Deprecated. Use simUI.msgBox instead",false},
     {"sim.isObjectInSelection",_simIsObjectInSelection,          "Deprecated. Use sim.getObjectSelection instead",false},
@@ -2227,7 +2227,7 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
             { // only the main script can call this function
                 CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
                 CScriptObject::buildFromInterpreterStack_lua(L,inStack,2,0); // skip the first arg
-                int startT=VDateTime::getTimeInMs();
+                int startT=(int)VDateTime::getTimeInMs();
                 retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,callType,inStack,nullptr,nullptr);
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
             }
@@ -3531,20 +3531,14 @@ int _simGetSimulationState(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetSystemTimeInMs(luaWrap_lua_State* L)
+int _simGetSystemTime(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getSystemTimeInMs");
+    LUA_START("sim.getSystemTime");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int lastTime=luaToInt(L,1);
-        luaWrap_lua_pushinteger(L,simGetSystemTimeInMs_internal(lastTime));
-        LUA_END(1);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED();
+    luaWrap_lua_pushnumber(L,VDateTime::getTime());
+    LUA_END(1);
 }
 
 int _simCheckCollision(luaWrap_lua_State* L)
@@ -13389,7 +13383,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetSimulationTime",_simGetSimulationTime,              "Use the newer sim.getSimulationTime notation",false},
     {"simGetSimulationState",_simGetSimulationState,            "Use the newer sim.getSimulationState notation",false},
     {"simGetSystemTime",_simGetSystemTime,                      "Use the newer sim.getSystemTime notation",false},
-    {"simGetSystemTimeInMs",_simGetSystemTimeInMs,              "Use the newer sim.getSystemTimeInMs notation",false},
+    {"simGetSystemTimeInMs",_simGetSystemTimeInMs,              "Deprecated. Use sim.getSystemTime instead",false},
     {"simCheckCollision",_simCheckCollision,                    "Use the newer sim.checkCollision notation",false},
     {"simCheckCollisionEx",_simCheckCollisionEx,                "Use the newer sim.checkCollisionEx notation",false},
     {"simCheckDistance",_simCheckDistance,                      "Use the newer sim.checkDistance notation",false},
@@ -13736,7 +13730,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetShapeTriangle",_simGetShapeTriangle,                    "Deprecated. Use sim.getShapeMesh instead",false},
     {"simGetInstanceIndex",_simGetInstanceIndex,                    "Deprecated. Returns 0",false},
     {"simGetVisibleInstanceIndex",_simGetVisibleInstanceIndex,      "Deprecated. Returns 0",false},
-    {"simGetSystemTimeInMilliseconds",_simGetSystemTimeInMilliseconds,"Deprecated. Use sim.getSystemTimeInMs instead",false},
+    {"simGetSystemTimeInMilliseconds",_simGetSystemTimeInMilliseconds,"Deprecated. Use sim.getSystemTime instead",false},
     {"simLockInterface",_simLockInterface,                          "Deprecated. Has no effect",false},
     {"simJointGetForce",_simJointGetForce,                          "Deprecated. Use sim.getJointForce instead",false},
     {"simScaleSelectedObjects",_simScaleSelectedObjects,            "Deprecated. Use sim.scaleObjects instead",false},
@@ -19056,7 +19050,7 @@ int _simResumeThreads(luaWrap_lua_State* L)
         {
             int loc=luaWrap_lua_tointeger(L,1);
 
-            int startT=VDateTime::getTimeInMs();
+            int startT=(int)VDateTime::getTimeInMs();
             retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript|sim_scripttype_threaded_old,loc,nullptr,nullptr,nullptr);
             // Following line important: when erasing a running threaded script object, with above cascaded
             // call, the thread will never resume nor be able to end. Next line basically runs all
@@ -19084,7 +19078,7 @@ int _simLaunchThreadedChildScripts(luaWrap_lua_State* L)
     {
         if (it->getScriptType()==sim_scripttype_mainscript)
         {
-            int startT=VDateTime::getTimeInMs();
+            int startT=(int)VDateTime::getTimeInMs();
             retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript|sim_scripttype_threaded_old,sim_scriptthreadresume_launch,nullptr,nullptr,nullptr);
         }
         else
@@ -20419,15 +20413,6 @@ int _simSwitchThread(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
-int _simGetSystemTime(luaWrap_lua_State* L)
-{ // deprecated
-    TRACE_LUA_API;
-    LUA_START("sim.getSystemTime");
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,double(simGetSystemTimeInMs_internal(-2))/1000.0);
-    LUA_END(1);
-}
 int _simFileDialog(luaWrap_lua_State* L)
 { // deprecated
     TRACE_LUA_API;
@@ -20875,5 +20860,21 @@ int _simRemoveObject(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
+}
+
+int _simGetSystemTimeInMs(luaWrap_lua_State* L)
+{ // deprecated on 01.04.2022
+    TRACE_LUA_API;
+    LUA_START("sim.getSystemTimeInMs");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int lastTime=luaToInt(L,1);
+        luaWrap_lua_pushinteger(L,simGetSystemTimeInMs_internal(lastTime));
+        LUA_END(1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 

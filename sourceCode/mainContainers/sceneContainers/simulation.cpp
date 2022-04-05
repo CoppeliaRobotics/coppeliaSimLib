@@ -265,7 +265,7 @@ bool CSimulation::startOrResumeSimulation()
         clearSimulationTimeHistory_us();
         _requestToStop=false;
         _requestToPause=false; 
-        simulationTime_real_lastInMs=VDateTime::getTimeInMs();
+        simulationTime_real_lastInMs=(int)VDateTime::getTimeInMs();
         _simulationStepCount=0;
         setSimulationState(sim_simulation_advancing_firstafterstop);
         return(true);
@@ -276,7 +276,7 @@ bool CSimulation::startOrResumeSimulation()
 
         _realTimeCorrection_us=0;
         setSimulationState(sim_simulation_advancing_firstafterpause);
-        simulationTime_real_lastInMs=VDateTime::getTimeInMs();
+        simulationTime_real_lastInMs=(int)VDateTime::getTimeInMs();
         _requestToPause=false;
         return(true);
     }
@@ -303,7 +303,7 @@ bool CSimulation::stopSimulation()
     }
     if (!_requestToStop)
     {
-        timeInMsWhenStopWasPressed=VDateTime::getTimeInMs();
+        timeInMsWhenStopWasPressed=(int)VDateTime::getTimeInMs();
         _requestToStop=true;
     }
     return(true);
@@ -369,7 +369,7 @@ void CSimulation::advanceSimulationByOneStep()
 
     _setSimulationTime_us(getSimulationTime_us()+getSimulationTimeStep_speedModified_us());
 
-    int ct=VDateTime::getTimeInMs();
+    int ct=(int)VDateTime::getTimeInMs();
     quint64 drt=quint64((double(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))*1000.0+double(_realTimeCorrection_us))*getRealTimeCoefficient_speedModified());
     simulationTime_real_us+=drt;
     simulationTime_real_noCatchUp_us+=drt;

@@ -4462,20 +4462,9 @@ simInt simGetSimulationState_internal()
     return(-1);
 }
 
-simUInt simGetSystemTimeInMs_internal(simInt previousTime)
+simDouble simGetSystemTime_internal()
 {
-    TRACE_C_API;
-    unsigned int retVal;
-    if (previousTime<-1)
-        retVal=VDateTime::getOSTimeInMs();
-    else
-    {
-        if (previousTime==-1)
-            retVal=(unsigned int)VDateTime::getTimeInMs();
-        else
-            retVal=(unsigned int)VDateTime::getTimeDiffInMs(previousTime);
-    }
-    return(retVal);
+    return(VDateTime::getTime());
 }
 
 simInt simLoadScene_internal(const simChar* filename)
@@ -23159,5 +23148,21 @@ simInt simRemoveObject_internal(simInt objectHandle)
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
+}
+
+simUInt simGetSystemTimeInMs_internal(simInt previousTime)
+{ // deprecated on 01.04.2022
+    TRACE_C_API;
+    unsigned int retVal;
+    if (previousTime<-1)
+        retVal=VDateTime::getOSTimeInMs();
+    else
+    {
+        if (previousTime==-1)
+            retVal=(unsigned int)VDateTime::getTimeInMs();
+        else
+            retVal=(unsigned int)VDateTime::getTimeDiffInMs(previousTime);
+    }
+    return(retVal);
 }
 

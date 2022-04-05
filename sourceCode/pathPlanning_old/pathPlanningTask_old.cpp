@@ -717,7 +717,7 @@ bool CPathPlanningTask::initiateSteppedSearch(bool showProgressDlg,float maxTime
     CPath_old* thePath=App::currentWorld->sceneObjects->getPathFromHandle(_pathID);
     if (thePath==nullptr)
         return(false);
-    _steppedSearchTemp_initTimeInMs=VDateTime::getTimeInMs();
+    _steppedSearchTemp_initTimeInMs=(int)VDateTime::getTimeInMs();
     _steppedSearchTemp_maxTimeInMs=int(maximumTime*1000.0f);
     if (maxTime>0.0f)
         _steppedSearchTemp_maxTimeInMs=int(maxTime*1000.0f);

@@ -2836,7 +2836,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             {
                 // Wireless communication activities:
                 if ((displayAttrib&sim_displayattribute_dynamiccontentonly)==0)
-                    App::currentWorld->embeddedScriptContainer->broadcastDataContainer.visualizeCommunications(VDateTime::getTimeInMs());
+                    App::currentWorld->embeddedScriptContainer->broadcastDataContainer.visualizeCommunications((int)VDateTime::getTimeInMs());
             }
 
             if (!shapeEditModeAndPicking)

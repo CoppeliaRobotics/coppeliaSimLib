@@ -177,7 +177,7 @@ void CCalculationInfo::setSimulationScriptExecCount(int cnt)
 
 void CCalculationInfo::simulationPassStart()
 {
-    _simulationPassStartTime=VDateTime::getTimeInMs();
+    _simulationPassStartTime=(int)VDateTime::getTimeInMs();
 }
 
 void CCalculationInfo::simulationPassEnd()
@@ -187,7 +187,7 @@ void CCalculationInfo::simulationPassEnd()
 
 void CCalculationInfo::proximitySensorSimulationStart()
 {
-    _sensStartTime=VDateTime::getTimeInMs();
+    _sensStartTime=(int)VDateTime::getTimeInMs();
 }
 
 void CCalculationInfo::proximitySensorSimulationEnd(bool detected)
@@ -200,7 +200,7 @@ void CCalculationInfo::proximitySensorSimulationEnd(bool detected)
 
 void CCalculationInfo::visionSensorSimulationStart()
 {
-    _rendSensStartTime=VDateTime::getTimeInMs();
+    _rendSensStartTime=(int)VDateTime::getTimeInMs();
 }
 
 void CCalculationInfo::visionSensorSimulationEnd(bool detected)
@@ -213,7 +213,7 @@ void CCalculationInfo::visionSensorSimulationEnd(bool detected)
 
 void CCalculationInfo::renderingStart()
 {
-    _renderingStartTime=VDateTime::getTimeInMs();
+    _renderingStartTime=(int)VDateTime::getTimeInMs();
 }
 
 void CCalculationInfo::renderingEnd()
@@ -228,7 +228,7 @@ void CCalculationInfo::clearRenderingTime()
 
 void CCalculationInfo::dynamicsStart()
 {
-    _dynamicsStartTime=VDateTime::getTimeInMs();
+    _dynamicsStartTime=(int)VDateTime::getTimeInMs();
 }
 
 void CCalculationInfo::dynamicsEnd(int calcPasses,bool dynamicContent)

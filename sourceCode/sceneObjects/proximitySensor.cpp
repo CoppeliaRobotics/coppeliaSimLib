@@ -829,7 +829,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
 
     _sensorResultValid=true;
 
-    int stTime=VDateTime::getTimeInMs();
+    int stTime=(int)VDateTime::getTimeInMs();
 
     float treshhold=SIM_MAX_FLOAT;
     float minThreshold=-1.0f;

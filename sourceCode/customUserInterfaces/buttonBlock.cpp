@@ -1012,10 +1012,10 @@ void CButtonBlock::displayBlock(int winSize[2],bool justCameToFront)
 
             if (App::currentWorld->environment->get2DElementTexturesEnabled())
                 ogl::drawButton(pos,otherButtonSize,txtCol,it->backgroundColor,it->downBackgroundColor,txt,atr,
-                    editing,App::currentWorld->buttonBlockContainer->editBoxEditionPosition,sliderVal,it->getVertical(),VDateTime::getTimeInMs(),secondTextColor,_textureProperty,&blockPosAbs,&blockSize,it->getTextureProperty());
+                    editing,App::currentWorld->buttonBlockContainer->editBoxEditionPosition,sliderVal,it->getVertical(),(int)VDateTime::getTimeInMs(),secondTextColor,_textureProperty,&blockPosAbs,&blockSize,it->getTextureProperty());
             else
                 ogl::drawButton(pos,otherButtonSize,txtCol,it->backgroundColor,it->downBackgroundColor,txt,atr,
-                    editing,App::currentWorld->buttonBlockContainer->editBoxEditionPosition,sliderVal,it->getVertical(),VDateTime::getTimeInMs(),secondTextColor,nullptr,&blockPosAbs,&blockSize,nullptr);
+                    editing,App::currentWorld->buttonBlockContainer->editBoxEditionPosition,sliderVal,it->getVertical(),(int)VDateTime::getTimeInMs(),secondTextColor,nullptr,&blockPosAbs,&blockSize,nullptr);
 
         }
         if ( (App::currentWorld->buttonBlockContainer->getBlockInEdition()==blockID)&&(App::currentWorld->buttonBlockContainer->editMode) )

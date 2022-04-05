@@ -267,7 +267,7 @@ bool CCollisionObject_old::handleCollision()
         return(false);
     if (!CPluginContainer::isGeomPluginAvailable())
         return(false);
-    int stT=VDateTime::getTimeInMs();
+    int stT=(int)VDateTime::getTimeInMs();
     int collObjs[2];
     bool res=false;
     std::vector<float> collCont;

@@ -236,7 +236,7 @@ std::string CTTUtil::generateUniqueString()
     for (size_t i=0;i<16;i++)
         a[i]=(unsigned char)(((static_cast<float>(rand())/static_cast<float>(RAND_MAX)))*255.1f);
     char b[17];
-    sprintf(b,"%i",VDateTime::getTimeInMs());
+    sprintf(b,"%i",(int)VDateTime::getTimeInMs());
     char c[17];
     sprintf(c,"%i",int(VDateTime::getSecondsSince1970()));
     for (size_t i=0;i<16;i++)

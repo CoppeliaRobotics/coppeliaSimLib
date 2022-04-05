@@ -614,7 +614,7 @@ bool CVisionSensor::handleSensor()
         return(false);
     if (_useExternalImage) // those 2 lines added on 2010/12/12
         return(false);
-    int stTime=VDateTime::getTimeInMs();
+    int stTime=(int)VDateTime::getTimeInMs();
     detectEntity(_detectableEntityHandle,_detectableEntityHandle==-1,false,false,false);
 #ifdef SIM_WITH_OPENGL
     if (_contextFboAndTexture!=nullptr)

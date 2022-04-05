@@ -193,7 +193,7 @@ int CIkGroupContainer::computeAllIkGroups(bool exceptExplicitHandling)
         {
             if ( (!exceptExplicitHandling)||(!getObjectFromIndex(i)->getExplicitHandling()) )
             {
-                int stTime=VDateTime::getTimeInMs();
+                int stTime=(int)VDateTime::getTimeInMs();
                 int res=0;
                 res=getObjectFromIndex(i)->computeGroupIk(false);
                 getObjectFromIndex(i)->setCalculationResult(res,VDateTime::getTimeDiffInMs(stTime));

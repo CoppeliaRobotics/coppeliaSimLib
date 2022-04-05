@@ -458,7 +458,7 @@ int CMill::handleMill(bool exceptExplicitHandling,float& milledSurface,float& mi
     if (!CPluginContainer::isGeomPluginAvailable())
         return(0);
 
-    int stTime=VDateTime::getTimeInMs();
+    int stTime=(int)VDateTime::getTimeInMs();
 
     // For now:
     int cutObjectHandle=-1;

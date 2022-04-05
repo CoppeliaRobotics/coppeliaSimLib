@@ -247,7 +247,7 @@ void COpenglWidget::_mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
         CEnvironment::setCustomUisTemporarilyDisabled(false);
         if (!ignoreLeftMouseUp)
         {
-            disableMouseMoveFor200ms=VDateTime::getTimeInMs(); // when the left mouse button was released, sometimes the mouse moves involontarily
+            disableMouseMoveFor200ms=(int)VDateTime::getTimeInMs(); // when the left mouse button was released, sometimes the mouse moves involontarily
             App::mainWindow->onLeftMouseButtonUpTT(x,y);
         }
     }
@@ -257,7 +257,7 @@ void COpenglWidget::_mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
         {
             if (e.button==2)
             { // right button
-                disableMouseMoveFor200ms=VDateTime::getTimeInMs(); // when the right mouse button was released, sometimes the mouse moves involontarily
+                disableMouseMoveFor200ms=(int)VDateTime::getTimeInMs(); // when the right mouse button was released, sometimes the mouse moves involontarily
                 App::mainWindow->onRightMouseButtonUpTT(x,y);
                 if ( App::userSettings->navigationBackwardCompatibility&&(!(App::mainWindow->isFullScreen())) )
                     App::setMouseMode(_savedMouseMode);
@@ -273,8 +273,8 @@ void COpenglWidget::_mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
         {
             if (!App::userSettings->navigationBackwardCompatibility)
             {
-                disableWheelRotateForOne500ms=VDateTime::getTimeInMs(); // when the middle mouse button was released, sometimes the wheel rotates involontarily
-                disableMouseMoveFor200ms=VDateTime::getTimeInMs(); // when the middle mouse button was released, sometimes the mouse moves involontarily
+                disableWheelRotateForOne500ms=(int)VDateTime::getTimeInMs(); // when the middle mouse button was released, sometimes the wheel rotates involontarily
+                disableMouseMoveFor200ms=(int)VDateTime::getTimeInMs(); // when the middle mouse button was released, sometimes the mouse moves involontarily
                 App::mainWindow->onMiddleMouseButtonUpTT(x,y);
                 App::setMouseMode(_savedMouseMode);
             }

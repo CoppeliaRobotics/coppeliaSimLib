@@ -83,7 +83,7 @@ void CGlBufferObjects::drawTriangles(const float* vertices,int verticesCnt,const
     // Can only be called by the GUI thread!
     _buffersAreSupported=_checkIfBuffersAreSupported();
 
-    int currentTimeInMs=VDateTime::getTimeInMs();
+    int currentTimeInMs=(int)VDateTime::getTimeInMs();
     bool forceNotUsingBuffers=true;
 #ifdef SIM_WITH_GUI
     forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
@@ -206,7 +206,7 @@ bool CGlBufferObjects::drawEdges(const float* vertices,int verticesCnt,const int
 {
     _buffersAreSupported=_checkIfBuffersAreSupported();
     // Can only be called by the GUI thread!
-    int currentTimeInMs=VDateTime::getTimeInMs();
+    int currentTimeInMs=(int)VDateTime::getTimeInMs();
     bool forceNotUsingBuffers=true;
 #ifdef SIM_WITH_GUI
     forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
@@ -328,7 +328,7 @@ int CGlBufferObjects::_buildVertexBuffer(const float* individualVertices,int ind
 
     // 2. we didn't find a similar object. We build it:
     SBuffwid buff;
-    buff.lastTimeUsedInMs=VDateTime::getTimeInMs();
+    buff.lastTimeUsedInMs=(int)VDateTime::getTimeInMs();
     buff.refCnt=1;
     buff.data=new std::vector<float>;
     buff.data->assign(individualVertices,individualVertices+individualVerticesCnt*3);
@@ -374,7 +374,7 @@ int CGlBufferObjects::_buildNormalBuffer(const float* normals,int normalsCnt)
 
     // 2. we didn't find a similar object. We build it:
     SBuffwid buff;
-    buff.lastTimeUsedInMs=VDateTime::getTimeInMs();
+    buff.lastTimeUsedInMs=(int)VDateTime::getTimeInMs();
     buff.refCnt=1;
     buff.data=new std::vector<float>;
     buff.data->assign(normals,normals+normalsCnt*3);
@@ -419,7 +419,7 @@ int CGlBufferObjects::_buildTexCoordBuffer(const float* texCoords,int texCoordsC
 
     // 2. we didn't find a similar object. We build it:
     SBuffwid buff;
-    buff.lastTimeUsedInMs=VDateTime::getTimeInMs();
+    buff.lastTimeUsedInMs=(int)VDateTime::getTimeInMs();
     buff.refCnt=1;
     buff.data=new std::vector<float>;
     buff.data->assign(texCoords,texCoords+texCoordsCnt*2);
@@ -461,7 +461,7 @@ int CGlBufferObjects::_buildEdgeBuffer(const float* individualVertices,int indiv
 
     // 2. we didn't find a similar object. We build it:
     SBuffwid buff;
-    buff.lastTimeUsedInMs=VDateTime::getTimeInMs();
+    buff.lastTimeUsedInMs=(int)VDateTime::getTimeInMs();
     buff.refCnt=1;
     buff.data=new std::vector<float>;
     buff.data->assign(individualVertices,individualVertices+individualVerticesCnt*3);

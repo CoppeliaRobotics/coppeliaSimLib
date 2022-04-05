@@ -245,9 +245,9 @@ SIM_DLLEXPORT simInt simGetSimulationState()
 {
     return(simGetSimulationState_internal());
 }
-SIM_DLLEXPORT simUInt simGetSystemTimeInMs(simInt previousTime)
+SIM_DLLEXPORT simFloat simGetSystemTime()
 {
-    return(simGetSystemTimeInMs_internal(previousTime));
+    return(float(simGetSystemTime_internal()));
 }
 SIM_DLLEXPORT simInt simLoadScene(const simChar* filename)
 {
@@ -2629,13 +2629,13 @@ SIM_DLLEXPORT simInt simRMLRemove(simInt handle)
 {
     return(simRMLRemove_internal(handle));
 }
-SIM_DLLEXPORT simFloat simGetSystemTime()
-{
-    return(float(simGetSystemTimeInMs_internal(-2))/1000.0f);
-}
 SIM_DLLEXPORT simInt simGetSystemTimeInMilliseconds()
 {
     return(simGetSystemTimeInMs_internal(-2));
+}
+SIM_DLLEXPORT simUInt simGetSystemTimeInMs(simInt previousTime)
+{
+    return(simGetSystemTimeInMs_internal(previousTime));
 }
 SIM_DLLEXPORT simChar* simFileDialog(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext)
 {

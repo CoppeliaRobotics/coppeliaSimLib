@@ -123,7 +123,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int maxTime)
 //    if (_showActivityInConsole)
 //        CDebugLogFile::addDebugText(false,_getLevelsString("$$R ").c_str()," (GUI) 'try to lock for read' (",_functionName.c_str(),")\n");
 
-    int startTime=VDateTime::getTimeInMs();
+    int startTime=(int)VDateTime::getTimeInMs();
     int to=1;
     if (maxTime==0)
         to=0;
@@ -192,7 +192,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int maxTime)
 
     _ui_writeRequest=true; // so that the SIM thread waits in specific code sections (if not already there)
 
-    int startTime=VDateTime::getTimeInMs();
+    int startTime=(int)VDateTime::getTimeInMs();
     while (VDateTime::getTimeDiffInMs(startTime)<=maxTime)
     {
         if (_uiWritePermission.tryLock(VSimUiMutex::ui,10))

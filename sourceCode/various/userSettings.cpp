@@ -111,6 +111,8 @@
 #define _USR_DESIRED_OPENGL_MAJOR "desiredOpenGlMajor"
 #define _USR_DESIRED_OPENGL_MINOR "desiredOpenGlMinor"
 #define _USR_HIGH_RES_DISPLAY "highResDisplay"
+#define _USR_OGL_SCALING "oglScaling"
+#define _USR_GUI_SCALING "guiScaling"
 #define _USR_NO_EDGES_WHEN_MOUSE_DOWN "noEdgesWhenMouseDownInCameraView"
 #define _USR_NO_TEXTURES_WHEN_MOUSE_DOWN "noTexturesWhenMouseDownInCameraView"
 #define _USR_NO_CUSTOM_UIS_WHEN_MOUSE_DOWN "noCustomUisWhenMouseDownInCameraView"
@@ -239,6 +241,8 @@ CUserSettings::CUserSettings()
     sceneHierarchyHiddenDuringSimulation=false;
 
     highResDisplay=-1;
+    oglScaling=1;
+    guiScaling=1.0f;
     noEdgesWhenMouseDownInCameraView=false;
     noTexturesWhenMouseDownInCameraView=false;
     noCustomUisWhenMouseDownInCameraView=true;
@@ -569,7 +573,9 @@ void CUserSettings::saveUserSettings()
     c.addInteger(_USR_VSYNC,vsync,"recommended to keep at 0. Graphic card dependent.");
     c.addBoolean(_USR_DEBUG_OPENGL,debugOpenGl,"");
     c.addFloat(_USR_STEREO_DIST,stereoDist,"0=no stereo, otherwise the intra occular distance (0.0635 for the human eyes).");
-    c.addInteger(_USR_HIGH_RES_DISPLAY,highResDisplay,"-1=none, 2=enabled, 1=special.");
+    c.addInteger(_USR_HIGH_RES_DISPLAY,highResDisplay,"-1=none, 1=special, 2=enabled, 3=enable oglScaling and guiScaling below.");
+    c.addInteger(_USR_OGL_SCALING,oglScaling,"1=default. No effect if highResDisplay!=3 above.");
+    c.addFloat(_USR_GUI_SCALING,guiScaling,"1.0=default. No effect if highResDisplay!=3 above.");
     c.addBoolean(_USR_NO_EDGES_WHEN_MOUSE_DOWN,noEdgesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
     c.addBoolean(_USR_NO_TEXTURES_WHEN_MOUSE_DOWN,noTexturesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
     c.addBoolean(_USR_NO_CUSTOM_UIS_WHEN_MOUSE_DOWN,noCustomUisWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
@@ -882,6 +888,8 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_DEBUG_OPENGL,debugOpenGl);
     c.getFloat(_USR_STEREO_DIST,stereoDist);
     c.getInteger(_USR_HIGH_RES_DISPLAY,highResDisplay);
+    c.getInteger(_USR_OGL_SCALING,oglScaling);
+    c.getFloat(_USR_GUI_SCALING,guiScaling);
     c.getBoolean(_USR_NO_EDGES_WHEN_MOUSE_DOWN,noEdgesWhenMouseDownInCameraView);
     c.getBoolean(_USR_NO_TEXTURES_WHEN_MOUSE_DOWN,noTexturesWhenMouseDownInCameraView);
     c.getBoolean(_USR_NO_CUSTOM_UIS_WHEN_MOUSE_DOWN,noCustomUisWhenMouseDownInCameraView);

@@ -22,7 +22,7 @@ void CViewableBase::setFrustumCullingEnabled(bool e)
 CViewableBase::CViewableBase()
 {
     _planesCalculated=false;
-    _fogTimer=VDateTime::getTimeInMs()-1;
+    _fogTimer=(int)VDateTime::getTimeInMs()-1;
     _fogTimerDuration=0.0f;
     _frustumCullingTemporarilyDisabled=false;
     _disabledColorComponents=0;
@@ -236,14 +236,14 @@ bool CViewableBase::getShowFogIfAvailable() const
 void CViewableBase::setFogTimer(float seconds)
 {
     _fogTimerDuration=seconds;
-    _fogTimer=VDateTime::getTimeInMs()+int(seconds*1000.0f);
+    _fogTimer=(int)VDateTime::getTimeInMs()+int(seconds*1000.0f);
 }
 
 float CViewableBase::getFogStrength()
 {
     if (_fogTimerDuration==0.0f)
         return(1.0f);
-    int t=VDateTime::getTimeInMs();
+    int t=(int)VDateTime::getTimeInMs();
     if (_fogTimer<t)
     {
         _fogTimerDuration=0.0f;

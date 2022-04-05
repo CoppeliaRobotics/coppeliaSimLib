@@ -77,7 +77,7 @@ SIM_DLLEXPORT simInt simTransformVector(const simFloat* matrix,simFloat* vect);
 SIM_DLLEXPORT simInt simReservedCommand(simInt v,simInt w);
 SIM_DLLEXPORT simFloat simGetSimulationTime();
 SIM_DLLEXPORT simInt simGetSimulationState();
-SIM_DLLEXPORT simUInt simGetSystemTimeInMs(simInt previousTime);
+SIM_DLLEXPORT simFloat simGetSystemTime();
 SIM_DLLEXPORT simInt simLoadScene(const simChar* filename);
 SIM_DLLEXPORT simInt simCloseScene();
 SIM_DLLEXPORT simInt simSaveScene(const simChar* filename);
@@ -685,8 +685,8 @@ SIM_DLLEXPORT simInt simRMLPos(simInt dofs,simDouble smallestTimeStep,simInt fla
 SIM_DLLEXPORT simInt simRMLVel(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simVoid* auxData);
 SIM_DLLEXPORT simInt simRMLStep(simInt handle,simDouble timeStep,simDouble* newPosVelAccel,simVoid* auxData,simVoid* reserved);
 SIM_DLLEXPORT simInt simRMLRemove(simInt handle);
-SIM_DLLEXPORT simFloat simGetSystemTime();
 SIM_DLLEXPORT simInt simGetSystemTimeInMilliseconds();
+SIM_DLLEXPORT simUInt simGetSystemTimeInMs(simInt previousTime);
 SIM_DLLEXPORT simChar* simFileDialog(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext);
 SIM_DLLEXPORT simInt simMsgBox(simInt dlgType,simInt buttons,const simChar* title,const simChar* message);
 SIM_DLLEXPORT simInt simDisplayDialog(const simChar* titleText,const simChar* mainText,simInt dialogType,const simChar* initialText,const simFloat* titleColors,const simFloat* dialogColors,simInt* elementHandle);

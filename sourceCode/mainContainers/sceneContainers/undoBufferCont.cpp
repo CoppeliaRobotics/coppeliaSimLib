@@ -101,7 +101,7 @@ void CUndoBufferCont::announceChangeGradual()
     if (!_inUndoRoutineNow)
     {
         if (_announceChangeGradualCalledTime==-1)
-            _announceChangeGradualCalledTime=VDateTime::getTimeInMs();
+            _announceChangeGradualCalledTime=(int)VDateTime::getTimeInMs();
     }
 }
 
@@ -155,7 +155,7 @@ bool CUndoBufferCont::memorizeState()
     bool retVal=true; // means the scene changed.. we modify this variable accordingly later down
 
     static int tooLongExecutionCount=0;
-    int startTime=VDateTime::getTimeInMs();
+    int startTime=(int)VDateTime::getTimeInMs();
 
     if (App::mainWindow!=nullptr)
         App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();

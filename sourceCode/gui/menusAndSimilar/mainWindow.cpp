@@ -62,8 +62,8 @@ CMainWindow::CMainWindow() : QMainWindow()
     _proxSensorClickSelectUp=0;
 
     lastInstance=-1;
-    timeCounter=VDateTime::getTimeInMs();
-    lastTimeRenderingStarted=VDateTime::getTimeInMs();
+    timeCounter=(int)VDateTime::getTimeInMs();
+    lastTimeRenderingStarted=(int)VDateTime::getTimeInMs();
     previousDisplayWasEnabled=0;
     previousCursor=-1;
 
@@ -93,8 +93,9 @@ CMainWindow::CMainWindow() : QMainWindow()
     for (int i=0;i<App::worldContainer->getWorldCount();i++)
         newInstanceAboutToBeCreated();
 
-    if ( (App::userSettings->highResDisplay==1)||((devicePixelRatio()>1.2f)&&(App::userSettings->highResDisplay==-1)) ) // Required for MacOS apparently
-            App::sc=2;
+    // Required for MacOS apparently:
+    if ( (App::userSettings->highResDisplay==1)||((devicePixelRatio()>1.2f)&&(App::userSettings->highResDisplay==-1)) )
+        App::sc=2;
 
     dlgCont=new CDlgCont(this);
 
@@ -297,7 +298,7 @@ void CMainWindow::flashStatusbar()
             statusBar->verticalScrollBar()->setStyleSheet("background: transparent");
         else
             statusBar->verticalScrollBar()->setStyleSheet("background-color: white"); // since Qt 5.12.5 the scrollbar's color is not reverted with above command, but white
-        _statusbarFlashTime=VDateTime::getTimeInMs();
+        _statusbarFlashTime=(int)VDateTime::getTimeInMs();
     }
 }
 void CMainWindow::setFlyModeCameraHandle(int h)
@@ -676,7 +677,7 @@ void CMainWindow::refreshDialogs_uiThread()
 
 #ifndef LIN_SIM
     // setWindowTitle somehow adds multiple app icons on Linux...
-    int ct=VDateTime::getTimeInMs();
+    int ct=(int)VDateTime::getTimeInMs();
     if ( (VDateTime::getTimeDiffInMs(timeCounter)>1000)||((VDateTime::getTimeDiffInMs(timeCounter)>100)&&(!getOpenGlDisplayEnabled())) )
     { // Refresh the main window text every 1/4 seconds:
         timeCounter=ct;
@@ -729,7 +730,7 @@ void CMainWindow::refreshDialogs_uiThread()
 int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
 { // Called only from the rendering thread!!!
     TRACE_INTERNAL;
-    int startTime=VDateTime::getTimeInMs();
+    int startTime=(int)VDateTime::getTimeInMs();
     _fps=1.0f/(float(VDateTime::getTimeDiffInMs(lastTimeRenderingStarted,startTime))/1000.0f);
     lastTimeRenderingStarted=startTime;
 
@@ -752,7 +753,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         openglWidget->makeContextCurrent();
         if (App::userSettings->debugOpenGl)
         {
-            int oglDebugTimeNow=VDateTime::getTimeInMs();
+            int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
             App::logMsg(sim_verbosity_debug,"openGl debug --> doneCurrent + makeCurrent: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
             oglDebugTime=oglDebugTimeNow;
         }
@@ -775,7 +776,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
 
         if (App::userSettings->debugOpenGl)
         {
-            int oglDebugTimeNow=VDateTime::getTimeInMs();
+            int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
             App::logMsg(sim_verbosity_debug,"openGl debug --> sendEventCallbackMessageToAllPlugins + render: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
             oglDebugTime=oglDebugTimeNow;
         }
@@ -789,7 +790,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
 
         if (App::userSettings->debugOpenGl)
         {
-            int oglDebugTimeNow=VDateTime::getTimeInMs();
+            int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
             App::logMsg(sim_verbosity_debug,"openGl debug --> glFinish (%i, %i): %i",App::userSettings->useGlFinish,App::userSettings->vsync,VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
             std::string tmp="(none given)";
             if (glGetString(GL_VENDOR)!=nullptr)
@@ -834,7 +835,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
 
     if (swapTheBuffers) // condition added on 31/1/2012... might help because some VMWare installations crash when disabling the rendering
     {
-        int oglDebugTime=VDateTime::getTimeInMs();
+        int oglDebugTime=(int)VDateTime::getTimeInMs();
         // the only time in the whole application (except for COpenglWidget::paintGL() ) where we can call
         // this command, otherwise we have problems with some graphic cards and VMWare on MAC:
         #ifndef USING_QOPENGLWIDGET
@@ -844,7 +845,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         #endif
         if (App::userSettings->debugOpenGl)
         {
-            int oglDebugTimeNow=VDateTime::getTimeInMs();
+            int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
             App::logMsg(sim_verbosity_debug,"openGl debug --> swapBuffers: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
             oglDebugTime=oglDebugTimeNow;
         }
@@ -853,7 +854,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
 
         if (App::userSettings->debugOpenGl)
         {
-            int oglDebugTimeNow=VDateTime::getTimeInMs();
+            int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
             App::logMsg(sim_verbosity_debug,"openGl debug --> doneCurrent: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
             oglDebugTime=oglDebugTimeNow;
         }
@@ -1502,7 +1503,7 @@ void CMainWindow::onWheelRotateTT(int delta,int xPos,int yPos)
         if (getOpenGlDisplayEnabled())
             oglSurface->mouseWheel(delta,_mouseRenderingPos.x,_mouseRenderingPos.y);
     }
-    _mouseWheelEventTime=VDateTime::getTimeInMs();
+    _mouseWheelEventTime=(int)VDateTime::getTimeInMs();
 }
 
 void CMainWindow::onMouseMoveTT(int xPos,int yPos)

@@ -231,7 +231,7 @@ float CDistanceObject_old::handleDistance()
         return(-1.0);
     if (!CPluginContainer::isGeomPluginAvailable())
         return(-1.0);
-    int stTime=VDateTime::getTimeInMs();
+    int stTime=(int)VDateTime::getTimeInMs();
     _distance=SIM_MAX_FLOAT;
     if (_thresholdEnabled)
         _distance=_threshold;

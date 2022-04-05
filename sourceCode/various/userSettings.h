@@ -176,6 +176,8 @@ public:
     int customizationScriptColor_word4[3];
 
     int highResDisplay;
+    int oglScaling;
+    float guiScaling;
     bool noEdgesWhenMouseDownInCameraView;
     bool noTexturesWhenMouseDownInCameraView;
     bool noCustomUisWhenMouseDownInCameraView;

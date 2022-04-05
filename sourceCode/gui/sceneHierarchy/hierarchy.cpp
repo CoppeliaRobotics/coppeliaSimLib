@@ -336,7 +336,7 @@ bool CHierarchy::render()
         static int dragStartTime=0;
         if (hierarchDragUnderway)
         {
-            int ct=VDateTime::getTimeInMs();
+            int ct=(int)VDateTime::getTimeInMs();
             if (!lastHierarchDragUnderway)
                 dragStartTime=ct;
             if (ct-dragStartTime>1000)
@@ -1467,7 +1467,7 @@ void CHierarchy::drawEditionLabel(int textPosX,int textPosY)
     float txtCol[3]={0.0f,0.0f,0.0f};
     float backCol[3]={1.0f,1.0f,0.0f};
     int buttonAttrib=sim_buttonproperty_editbox|sim_buttonproperty_enabled|sim_buttonproperty_verticallycentered;
-    ogl::drawButton(p,s,txtCol,backCol,backCol,editionText,buttonAttrib,true,editionTextEditPos,0.0f,false,VDateTime::getTimeInMs(),nullptr,nullptr,nullptr,nullptr,nullptr);
+    ogl::drawButton(p,s,txtCol,backCol,backCol,editionText,buttonAttrib,true,editionTextEditPos,0.0f,false,(int)VDateTime::getTimeInMs(),nullptr,nullptr,nullptr,nullptr,nullptr);
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
 }
 

@@ -72,7 +72,21 @@ void CModelListWidget::addThumbnail(CThumbnail* thumbN,const char* nameWithExten
 
 void CModelListWidget::_addThumbnailItemToList(int index)
 {
-    QListWidgetItem* item=new QListWidgetItem(_allThumbnailsInfo[index].nameWithExtension.c_str());
+    std::string str(_allThumbnailsInfo[index].nameWithExtension);
+    int cnt=0;
+    for (size_t i=0;i<str.size();i++)
+    {
+        if (str[i]!=' ')
+            cnt++;
+        else
+            cnt=0;
+        if (cnt>20)
+        {
+            str.insert(i," ");
+            cnt=0;
+        }
+    }
+    QListWidgetItem* item=new QListWidgetItem(str.c_str());
     if (_allThumbnailsInfo[index].modelOrFolder==1)
     {
         const char* rgba=_allThumbnailsInfo[index].thumbnail->getPointerToUncompressedImage();
