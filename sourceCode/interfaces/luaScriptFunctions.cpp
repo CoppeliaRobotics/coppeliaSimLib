@@ -1483,6 +1483,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.ruckig_phasesync",sim_ruckig_phasesync,true},
     {"sim.ruckig_timesync",sim_ruckig_timesync,true},
     {"sim.ruckig_nosync",sim_ruckig_nosync,true},
+    {"sim.ruckig_minvel",sim_ruckig_minvel,true},
+    {"sim.ruckig_minaccel",sim_ruckig_minaccel,true},
 
     // deprecated!
     {"sim.boolparam_force_show_wireless_emission",sim_boolparam_force_show_wireless_emission,false},
@@ -10421,15 +10423,43 @@ int _simRuckigPos(luaWrap_lua_State* L)
         int dofs=luaToInt(L,1);
         double timeStep=luaWrap_lua_tonumber(L,2);
         int flags=luaToInt(L,3);
-        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,dofs*3,lua_arg_number,dofs*3,lua_arg_number,dofs,lua_arg_number,dofs*2))
+        int maxVelAccelJerkCnt=dofs*3;
+        if ( (flags>=0)&&((flags&sim_ruckig_minvel)!=0) )
+            maxVelAccelJerkCnt+=dofs;
+        if ( (flags>=0)&&((flags&sim_ruckig_minaccel)!=0) )
+            maxVelAccelJerkCnt+=dofs;
+        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,dofs*3,lua_arg_number,maxVelAccelJerkCnt,lua_arg_number,dofs,lua_arg_number,dofs*2))
         {
             std::vector<double> currentPosVelAccel;
             currentPosVelAccel.resize(dofs*3);
             getDoublesFromTable(L,4,dofs*3,&currentPosVelAccel[0]);
 
             std::vector<double> maxVelAccelJerk;
-            maxVelAccelJerk.resize(dofs*3);
-            getDoublesFromTable(L,5,dofs*3,&maxVelAccelJerk[0]);
+            maxVelAccelJerk.resize(maxVelAccelJerkCnt);
+            getDoublesFromTable(L,5,maxVelAccelJerkCnt,&maxVelAccelJerk[0]);
+
+            std::vector<double> minMaxVel;
+            std::vector<double> minMaxAccel;
+            std::vector<double> maxJerk;
+            for (size_t i=0;i<dofs;i++)
+            {
+                minMaxVel.push_back(maxVelAccelJerk[i]);
+                minMaxAccel.push_back(maxVelAccelJerk[dofs+i]);
+                maxJerk.push_back(maxVelAccelJerk[2*dofs+i]);
+            }
+            size_t off=3*dofs;
+            if ( (flags>=0)&&((flags&sim_ruckig_minvel)!=0) )
+            {
+                for (size_t i=0;i<dofs;i++)
+                    minMaxVel.push_back(maxVelAccelJerk[off+i]);
+                off+=dofs;
+            }
+            if ( (flags>=0)&&((flags&sim_ruckig_minaccel)!=0) )
+            {
+                for (size_t i=0;i<dofs;i++)
+                    minMaxAccel.push_back(maxVelAccelJerk[off+i]);
+                off+=dofs;
+            }
 
             std::vector<char> selection;
             selection.resize(dofs);
@@ -10440,7 +10470,7 @@ int _simRuckigPos(luaWrap_lua_State* L)
             getDoublesFromTable(L,7,dofs*2,&targetPosVel[0]);
 
             setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-            int retVal=simRuckigPos_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&maxVelAccelJerk[0],&maxVelAccelJerk[dofs],&maxVelAccelJerk[dofs*2],(unsigned char*)(&selection[0]),&targetPosVel[0],&targetPosVel[dofs],nullptr,nullptr);
+            int retVal=simRuckigPos_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&minMaxVel[0],&minMaxAccel[0],&maxJerk[0],(unsigned char*)(&selection[0]),&targetPosVel[0],&targetPosVel[dofs],nullptr,nullptr);
             setCurrentScriptInfo_cSide(-1,-1);
 
             if (retVal>=0)
@@ -10465,15 +10495,33 @@ int _simRuckigVel(luaWrap_lua_State* L)
         int dofs=luaToInt(L,1);
         double timeStep=luaWrap_lua_tonumber(L,2);
         int flags=luaToInt(L,3);
-        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,dofs*3,lua_arg_number,dofs*2,lua_arg_number,dofs,lua_arg_number,dofs))
+        int maxAccelJerkCnt=dofs*2;
+        if ( (flags>=0)&&((flags&sim_ruckig_minaccel)!=0) )
+            maxAccelJerkCnt+=dofs;
+        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,dofs*3,lua_arg_number,maxAccelJerkCnt,lua_arg_number,dofs,lua_arg_number,dofs))
         {
             std::vector<double> currentPosVelAccel;
             currentPosVelAccel.resize(dofs*3);
             getDoublesFromTable(L,4,dofs*3,&currentPosVelAccel[0]);
 
             std::vector<double> maxAccelJerk;
-            maxAccelJerk.resize(dofs*2);
-            getDoublesFromTable(L,5,dofs*2,&maxAccelJerk[0]);
+            maxAccelJerk.resize(maxAccelJerkCnt);
+            getDoublesFromTable(L,5,maxAccelJerkCnt,&maxAccelJerk[0]);
+
+            std::vector<double> minMaxAccel;
+            std::vector<double> maxJerk;
+            for (size_t i=0;i<dofs;i++)
+            {
+                minMaxAccel.push_back(maxAccelJerk[i]);
+                maxJerk.push_back(maxAccelJerk[dofs+i]);
+            }
+            size_t off=2*dofs;
+            if ( (flags>=0)&&((flags&sim_ruckig_minaccel)!=0) )
+            {
+                for (size_t i=0;i<dofs;i++)
+                    minMaxAccel.push_back(maxAccelJerk[off+i]);
+                off+=dofs;
+            }
 
             std::vector<char> selection;
             selection.resize(dofs);
@@ -10484,7 +10532,7 @@ int _simRuckigVel(luaWrap_lua_State* L)
             getDoublesFromTable(L,7,dofs,&targetVel[0]);
 
             setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-            int retVal=simRuckigVel_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&maxAccelJerk[0],&maxAccelJerk[dofs],(unsigned char*)(&selection[0]),&targetVel[0],nullptr,nullptr);
+            int retVal=simRuckigVel_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&minMaxAccel[0],&maxJerk[0],(unsigned char*)(&selection[0]),&targetVel[0],nullptr,nullptr);
             setCurrentScriptInfo_cSide(-1,-1);
 
             if (retVal>=0)
