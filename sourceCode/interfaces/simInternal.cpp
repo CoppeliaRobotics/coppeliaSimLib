@@ -310,6 +310,8 @@ void simulatorLoop()
                 simStopSimulation_internal();
             }
         }
+        else
+            App::worldContainer->callScripts(sim_syscb_realtimeidle,nullptr);
     }
     if ( (simGetSimulationState_internal()==sim_simulation_stopped)&&wasRunning&&firstSimulationAutoQuit )
     {

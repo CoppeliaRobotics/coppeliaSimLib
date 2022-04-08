@@ -462,7 +462,13 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
             r+=" - Calls (and shadows) user callbacks.";
         return(r);
     }
-
+    if (calltype==sim_syscb_realtimeidle)
+    {
+        std::string r("sysCall_realTimeIdle");
+        if (callTips)
+            r+=" - Called when in real-time mode and idle.";
+        return(r);
+    }
 
     // Old:
     if (calltype==sim_syscb_aos_run_old)
@@ -696,6 +702,8 @@ bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int ca
             return(true);
         if (callType==sim_syscb_beforemainscript)
             return(true);
+        if (callType==sim_syscb_realtimeidle)
+            return(true);
     }
     if ( (scriptType==sim_scripttype_sandboxscript)||(scriptType==sim_scripttype_addonscript)||(scriptType==sim_scripttype_customizationscript) )
     {
@@ -780,6 +788,7 @@ std::vector<int> CScriptObject::getAllSystemCallbacks(int scriptType,bool thread
                  sim_syscb_moduleentry,
                  sim_syscb_event,
                  sim_syscb_ext,
+                 sim_syscb_realtimeidle,
                  -1
             };
 

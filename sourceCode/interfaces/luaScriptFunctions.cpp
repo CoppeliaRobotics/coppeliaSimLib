@@ -2320,7 +2320,12 @@ int _simReadProximitySensor(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    luaWrap_lua_pushnumber(L,0.0);
+    float ft[3]={0.0f,0.0f,0.0f};
+    pushFloatTableOntoStack(L,3,ft);
+    luaWrap_lua_pushinteger(L,-1);
+    pushFloatTableOntoStack(L,3,ft);
+    LUA_END(5);
 }
 
 int _simHandleVisionSensor(luaWrap_lua_State* L)
