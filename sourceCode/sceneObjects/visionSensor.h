@@ -69,8 +69,6 @@ public:
     bool handleSensor();
     bool checkSensor(int entityID,bool overrideRenderableFlagsForNonCollections);
     float* checkSensorEx(int entityID,bool imageBuffer,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
-    bool setExternalImage(const float* img,bool imgIsGreyScale,bool noProcessing);
-    bool setExternalCharImage(const unsigned char* img,bool imgIsGreyScale,bool noProcessing);
     void setDepthBuffer(const float* img);
 
     void setIgnoreRGBInfo(bool ignore);
@@ -108,8 +106,9 @@ public:
     void setExtWindowSizeAndPos(int sizeX,int sizeY,int posX,int posY);
     void getExtWindowSizeAndPos(int& sizeX,int& sizeY,int& posX,int& posY) const;
 
-    float* readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth);
-    unsigned char* readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,float cutoffRgba,bool imgIsGreyScale);
+    float* readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth) const;
+    unsigned char* readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,float cutoffRgba,int option) const;
+    bool writePortionOfCharImage(const unsigned char* img,int posX,int posY,int sizeX,int sizeY,int option);
 
     void setUseEnvironmentBackgroundColor(bool s);
     bool getUseEnvironmentBackgroundColor() const;
@@ -123,6 +122,9 @@ public:
 
     SHandlingResult sensorResult;
     std::vector<std::vector<float> > sensorAuxiliaryResult; // e.g. vectors, etc. set by a filter or an extension module's filter
+
+    bool setExternalImage_old(const float* img,bool imgIsGreyScale,bool noProcessing);
+    bool setExternalCharImage_old(const unsigned char* img,bool imgIsGreyScale,bool noProcessing);
 
 protected:
     void _drawObjects(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);

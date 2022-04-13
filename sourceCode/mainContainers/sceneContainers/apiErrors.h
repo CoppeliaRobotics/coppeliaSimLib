@@ -133,7 +133,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS "the function requires more arguments."
 #define SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG "one of the function's argument type is not correct."
 #define SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG "incorrect table size."
-#define SIM_ERROR_ONE_STRING_SIZE_IS_WRONG "incorrect string size."
+#define SIM_ERROR_INCORRECT_BUFFER_SIZE "incorrect buffer size."
 #define SIM_ERROR_NOT_MAIN_NOR_CHILD_SCRIPT "script is not a main script nor a child script."
 #define SIM_ERROR_NON_EXPLICIT_CHILD_SCRIPT_EXECUTIONS_WERE_DELEGATED "non-explicit child script executions were delegated."
 #define SIM_ERROR_THREAD_LAUNCHING_SCRIPTS_WILL_NOT_BE_CALLED_FROM_SENSING_SECTION "scripts launching a thread will not be called when in a sensing section."

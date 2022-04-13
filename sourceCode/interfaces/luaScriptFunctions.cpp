@@ -116,7 +116,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getJointPosition",_simGetJointPosition,                "float position=sim.getJointPosition(int objectHandle)",true},
     {"sim.setJointPosition",_simSetJointPosition,                "sim.setJointPosition(int objectHandle,float position)",true},
     {"sim.setJointTargetPosition",_simSetJointTargetPosition,    "sim.setJointTargetPosition(int objectHandle,float targetPosition)",true},
-    {"sim.getJointTargetPosition",_simGetJointTargetPosition,    "int result,float targetPosition=sim.getJointTargetPosition(int objectHandle)",true},
+    {"sim.getJointTargetPosition",_simGetJointTargetPosition,    "float targetPosition=sim.getJointTargetPosition(int objectHandle)",true},
     {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "sim.setJointTargetVelocity(int objectHandle,float targetVelocity)",true},
     {"sim.getJointTargetVelocity",_simGetJointTargetVelocity,    "float targetVelocity=sim.getJointTargetVelocity(int objectHandle)",true},
     {"sim.removeObjects",_simRemoveObjects,                      "sim.removeObjects(int[1..*] objectHandles)",true},
@@ -265,7 +265,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setObjectColor",_simSetObjectColor,                    "bool result=sim.setObjectColor(int objectHandle,int index,int colorComponent,float[3] rgbData)",true},
     {"sim.getObjectColor",_simGetObjectColor,                    "float[3] rgbData=sim.getObjectColor(int objectHandle,int index,int colorComponent)",true},
     {"sim.setShapeColor",_simSetShapeColor,                      "sim.setShapeColor(int shapeHandle,string colorName,int colorComponent,float[3] rgbData)",true},
-    {"sim.getShapeColor",_simGetShapeColor,                      "int result,float[3] rgbData=sim.getShapeColor(int shapeHandle,string colorName,int colorComponent)",true},
+    {"sim.getShapeColor",_simGetShapeColor,                      "int result,float[] rgbData=sim.getShapeColor(int shapeHandle,string colorName,int colorComponent)",true},
     {"sim.resetDynamicObject",_simResetDynamicObject,            "sim.resetDynamicObject(int objectHandle)",true},
     {"sim.setJointMode",_simSetJointMode,                        "sim.setJointMode(int jointHandle,int jointMode,int options)",true},
     {"sim.getJointMode",_simGetJointMode,                        "int jointMode,int options=sim.getJointMode(int jointHandle)",true},
@@ -334,7 +334,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.scaleObject",_simScaleObject,                          "sim.scaleObject(int objectHandle,float xScale,float yScale,float zScale,int options=0)",true},
     {"sim.setShapeTexture",_simSetShapeTexture,                  "sim.setShapeTexture(int shapeHandle,int textureId,int mappingMode,int options,float[2] uvScaling,float[3] position=nil,float[3] orientation=nil)",true},
     {"sim.getShapeTextureId",_simGetShapeTextureId,              "int textureId=sim.getShapeTextureId(int shapeHandle)",true},
-    {"sim.createCollectionEx",_simCreateCollectionEx,            "",false},
     {"sim.destroyCollection",_simDestroyCollection,              "sim.destroyCollection(int collectionHandle)",true},
     {"sim.addItemToCollection",_simAddItemToCollection,          "sim.addItemToCollection(int collectionHandle,int what,int objectHandle,int options)",true},
     {"sim.getCollectionObjects",_simGetCollectionObjects,        "int[] objectHandles=sim.getCollectionObjects(int collectionHandle)",true},
@@ -343,21 +342,14 @@ const SLuaCommands simLuaCommands[]=
     {"sim.handleSandboxScript",_simHandleSandboxScript,          "sim.handleSandboxScript(int callType)",true},
     {"sim.handleChildScripts",_simHandleChildScripts,            "int executedScriptCount=sim.handleChildScripts(int callType)",true},
     {"sim.reorientShapeBoundingBox",_simReorientShapeBoundingBox,"int result=sim.reorientShapeBoundingBox(int shapeHandle,int relativeToHandle)",true},
-    {"sim.handleVisionSensor",_simHandleVisionSensor,            "int detectionCount,float[] auxiliaryValuesPacket1,...=sim.handleVisionSensor(int sensorHandle)",true},
-    {"sim.readVisionSensor",_simReadVisionSensor,                "int result,float[] auxiliaryValues=sim.readVisionSensor(int sensorHandle)",true},
+    {"sim.handleVisionSensor",_simHandleVisionSensor,            "int detectionCount,float[] auxPacket1,float[] auxPacket2=sim.handleVisionSensor(int sensorHandle)",true},
+    {"sim.readVisionSensor",_simReadVisionSensor,                "int result,float[] auxPacket1,float[] auxPacket2=sim.readVisionSensor(int sensorHandle)",true},
     {"sim.resetVisionSensor",_simResetVisionSensor,              "sim.resetVisionSensor(int sensorHandle)",true},
-    {"sim.getVisionSensorResolution",_simGetVisionSensorResolution,"int[2] resolution=sim.getVisionSensorResolution(int sensorHandle)",true},
-    {"sim.getVisionSensorImage",_simGetVisionSensorImage,        "float[] imageBuffer=sim.getVisionSensorImage(int sensorHandle,int posX=0,int posY=0,int sizeX=0,int sizeY=0,int returnType=0)\nbuffer imageBuffer=sim.getVisionSensorImage(int sensorHandle,int posX=0,int posY=0,int sizeX=0,int sizeY=0,int returnType=0)",true},
-    {"sim.setVisionSensorImage",_simSetVisionSensorImage,        "int result=sim.setVisionSensorImage(int sensorHandle,buffer image)\nint result=sim.setVisionSensorImage(int sensorHandle,float[] image)",true},
-    {"sim.getVisionSensorCharImage",_simGetVisionSensorCharImage,"buffer imageBuffer,int resolutionX,int resolutionY=sim.getVisionSensorCharImage(int sensorHandle,int posX=0,int posY=0,int sizeX=0,int sizeY=0,float RgbaCutoff=0)",true},
-    {"sim.setVisionSensorCharImage",_simSetVisionSensorCharImage,"int result=sim.setVisionSensorCharImage(int sensorHandle,buffer imageBuffer)",true},
-    {"sim.getVisionSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"float[] depthBuffer=sim.getVisionSensorDepthBuffer(int sensorHandle,int posX=0,int posY=0,int sizeX=0,int sizeY=0)\nbuffer depthBuffer=sim.getVisionSensorDepthBuffer(int sensorHandle,int posX=0,int posY=0,int sizeX=0,int sizeY=0)",true},
-    {"sim.checkVisionSensor",_simCheckVisionSensor,              "int result,float[] auxiliaryValuesPacket1,...=sim.checkVisionSensor(int sensorHandle,int entityHandle)",true},
+    {"sim.getVisionSensorImg",_simGetVisionSensorImg,            "buffer image,int[2] resolution=sim.getVisionSensorImg(int sensorHandle,int options=0,float rgbaCutOff=0.0,int[2] pos={0,0},int[2] size={0,0})",true},
+    {"sim.setVisionSensorImg",_simSetVisionSensorImg,            "sim.setVisionSensorImg(int sensorHandle,buffer image,int options,int[2] pos={0,0},int[2] size={0,0})",true},
+    {"sim.getVisionSensorDepth",_simGetVisionSensorDepth,        "buffer depth,int[2] resolution=sim.getVisionSensorDepth(int sensorHandle,int options,int[2] pos={0,0},int[2] size={0,0})",true},
+    {"sim.checkVisionSensor",_simCheckVisionSensor,              "int result,float[] auxPacket1,float[] auxPacket2=sim.checkVisionSensor(int sensorHandle,int entityHandle)",true},
     {"sim.checkVisionSensorEx",_simCheckVisionSensorEx,          "float[] theBuffer=sim.checkVisionSensorEx(int sensorHandle,int entityHandle,bool returnImage)\nbuffer theBuffer=sim.checkVisionSensorEx(int sensorHandle,int entityHandle,bool returnImage)",true},
-    {"sim.rmlPos",_simRMLPos,                                    "int handle=sim.rmlPos(int dofs,float smallestTimeStep,int flags,float[] currentPosVelAccel,float[] maxVelAccelJerk,int[] selection,float[] targetPosVel)",true},
-    {"sim.rmlVel",_simRMLVel,                                    "int handle=sim.rmlVel(int dofs,float smallestTimeStep,int flags,float[] currentPosVelAccel,float[] maxAccelJerk,int[] selection,float[] targetVel)",true},
-    {"sim.rmlStep",_simRMLStep,                                  "int result,float[] newPosVelAccel,float synchronizationTime=sim.rmlStep(int handle,float timeStep)",true},
-    {"sim.rmlRemove",_simRMLRemove,                              "sim.rmlRemove(int handle)",true},
     {"sim.ruckigPos",_simRuckigPos,                              "int handle=sim.ruckigPos(int dofs,float smallestTimeStep,int flags,float[] currentPosVelAccel,float[] maxVelAccelJerk,int[] selection,float[] targetPosVel)",true},
     {"sim.ruckigVel",_simRuckigVel,                              "int handle=sim.ruckigVel(int dofs,float smallestTimeStep,int flags,float[] currentPosVelAccel,float[] maxAccelJerk,int[] selection,float[] targetVel)",true},
     {"sim.ruckigStep",_simRuckigStep,                            "int result,float[] newPosVelAccel,float synchronizationTime=sim.ruckigStep(int handle,float timeStep)",true},
@@ -366,7 +358,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "float[4] quaternion=sim.getQuaternionFromMatrix(float[12] matrix)",true},
     {"sim.loadModule",_simLoadModule,                            "int pluginHandle=sim.loadModule(string filenameAndPath,string pluginName)",true},
     {"sim.unloadModule",_simUnloadModule,                        "int result=sim.unloadModule(int pluginHandle)",true},
-    {"sim.callScriptFunction",_simCallScriptFunction,            "...=sim.callScriptFunction(string functionNameAtScriptPath,int scriptHandleOrType,...)",true},
+    {"sim.callScriptFunction",_simCallScriptFunction,            "any outArg=sim.callScriptFunction(string functionNameAtScriptPath,int scriptHandleOrType,any inArg=nil)",true},
     {"sim.getExtensionString",_simGetExtensionString,            "string theString=sim.getExtensionString(int objectHandle,int index,string key=nil)",true},
     {"sim.computeMassAndInertia",_simComputeMassAndInertia,      "int result=sim.computeMassAndInertia(int shapeHandle,float density)",true},
     {"sim.getEngineFloatParam",_simGetEngineFloatParam,          "float floatParam=sim.getEngineFloatParam(int paramId,int objectHandle)",true},
@@ -397,7 +389,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setReferencedHandles",_simSetReferencedHandles,        "sim.setReferencedHandles(int objectHandle,int[] referencedHandles)",true},
     {"sim.getReferencedHandles",_simGetReferencedHandles,        "int[] referencedHandles=sim.getReferencedHandles(int objectHandle)",true},
     {"sim.getShapeViz",_simGetShapeViz,                          "map data=sim.getShapeViz(int shapeHandle,int itemIndex)",true},
-    {"sim.executeScriptString",_simExecuteScriptString,          "int result,...=sim.executeScriptString(string stringAtScriptName,int scriptHandleOrType)",true},
+    {"sim.executeScriptString",_simExecuteScriptString,          "int result,any value=sim.executeScriptString(string stringAtScriptName,int scriptHandleOrType)",true},
     {"sim.getApiFunc",_simGetApiFunc,                            "string[] funcsAndVars=sim.getApiFunc(int scriptHandleOrType,string apiWord)",true},
     {"sim.getApiInfo",_simGetApiInfo,                            "string info=sim.getApiInfo(int scriptHandleOrType,string apiWord)",true},
     {"sim.getModuleInfo",_simGetModuleInfo,                      "string info=sim.getModuleInfo(string moduleName,int infoType)\nnumber info=sim.getModuleInfo(string moduleName,int infoType)",true},
@@ -431,6 +423,11 @@ const SLuaCommands simLuaCommands[]=
     {"sim.test",_simTest,                                        "test function - do not use",true},
 
     // deprecated
+    {"sim.rmlPos",_simRMLPos,                                    "Deprecated. Use sim.ruckigPos instead",false},
+    {"sim.rmlVel",_simRMLVel,                                    "Deprecated. Use sim.ruckigVel instead",false},
+    {"sim.rmlStep",_simRMLStep,                                  "Deprecated. Use sim.ruckigStep instead",false},
+    {"sim.rmlRemove",_simRMLRemove,                              "Deprecated. Use sim.ruckigRemove instead",false},
+    {"sim.createCollectionEx",_simCreateCollectionEx,            "",false},
     {"sim.addStatusbarMessage",_simAddStatusbarMessage,         "Deprecated. Use sim.addLog instead",false},
     {"sim.getNameSuffix",_simGetNameSuffix,                     "Deprecated",false},
     {"sim.setNameSuffix",_simSetNameSuffix,                     "Deprecated",false},
@@ -583,6 +580,12 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setJointMaxForce",_simSetJointMaxForce,                "Deprecated. Use sim.setJointTargetForce instead",false},
     {"sim._getObjectHandle",_sim_getObjectHandle,                "",false}, // handled via sim.getObjectHandle from sim.lua
     {"sim.removeObject",_simRemoveObject,                        "Deprecated. Use sim.removeObjects instead",false},
+    {"sim.getVisionSensorResolution",_simGetVisionSensorResolution,"Deprecated. Use sim.getVisionSensorImg instead",false},
+    {"sim.getVisionSensorImage",_simGetVisionSensorImage,        "Deprecated. Use sim.getVisionSensorImg instead",false},
+    {"sim.setVisionSensorImage",_simSetVisionSensorImage,        "Deprecated. Use sim.setVisionSensorImg instead",false},
+    {"sim.getVisionSensorCharImage",_simGetVisionSensorCharImage,"Deprecated. Use sim.getVisionSensorImg instead",false},
+    {"sim.setVisionSensorCharImage",_simSetVisionSensorCharImage,"Deprecated. Use sim.setVisionSensorImg instead",false},
+    {"sim.getVisionSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"Deprecated. Use sim.getVisionSensorDepth instead",false},
 
     {"",nullptr,"",false}
 };
@@ -2292,7 +2295,12 @@ int _simHandleProximitySensor(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    float dummy[3]={0.0f,0.0f,0.0f};
+    luaWrap_lua_pushnumber(L,0.0);
+    pushFloatTableOntoStack(L,3,dummy);
+    luaWrap_lua_pushinteger(L,-1);
+    pushFloatTableOntoStack(L,3,dummy);
+    LUA_END(5);
 }
 
 int _simReadProximitySensor(luaWrap_lua_State* L)
@@ -2339,18 +2347,27 @@ int _simHandleVisionSensor(luaWrap_lua_State* L)
         float* auxVals=nullptr;
         int* auxValsCount=nullptr;
         retVal=simHandleVisionSensor_internal(luaToInt(L,1),&auxVals,&auxValsCount);
-        if ((retVal!=-1)&&(auxValsCount!=nullptr))
+        if (retVal!=-1)
         {
-            int off=0;
             luaWrap_lua_pushinteger(L,retVal);
-            int tableCount=auxValsCount[0];
-            for (int i=0;i<tableCount;i++)
+            int tableCount=0;
+            if (auxValsCount!=nullptr)
             {
-                pushFloatTableOntoStack(L,auxValsCount[i+1],auxVals+off);
-                off+=auxValsCount[i+1];
+                tableCount=auxValsCount[0];
+                int off=0;
+                for (int i=0;i<tableCount;i++)
+                {
+                    pushFloatTableOntoStack(L,auxValsCount[i+1],auxVals+off);
+                    off+=auxValsCount[i+1];
+                }
+                delete[] auxValsCount;
+                delete[] auxVals;
             }
-            delete[] auxValsCount;
-            delete[] auxVals;
+            for (int i=tableCount;i<2;i++)
+            {
+                pushFloatTableOntoStack(L,0,nullptr); // return at least 2 aux packets, even empty
+                tableCount++;
+            }
             LUA_END(1+tableCount);
         }
     }
@@ -2371,18 +2388,27 @@ int _simReadVisionSensor(luaWrap_lua_State* L)
         float* auxVals=nullptr;
         int* auxValsCount=nullptr;
         retVal=simReadVisionSensor_internal(luaToInt(L,1),&auxVals,&auxValsCount);
-        if ((retVal!=-1)&&(auxValsCount!=nullptr))
+        if (retVal!=-1)
         {
-            int off=0;
             luaWrap_lua_pushinteger(L,retVal);
-            int tableCount=auxValsCount[0];
-            for (int i=0;i<tableCount;i++)
+            int tableCount=0;
+            if (auxValsCount!=nullptr)
             {
-                pushFloatTableOntoStack(L,auxValsCount[i+1],auxVals+off);
-                off+=auxValsCount[i+1];
+                tableCount=auxValsCount[0];
+                int off=0;
+                for (int i=0;i<tableCount;i++)
+                {
+                    pushFloatTableOntoStack(L,auxValsCount[i+1],auxVals+off);
+                    off+=auxValsCount[i+1];
+                }
+                delete[] auxValsCount;
+                delete[] auxVals;
             }
-            delete[] auxValsCount;
-            delete[] auxVals;
+            for (int i=tableCount;i<2;i++)
+            {
+                pushFloatTableOntoStack(L,0,nullptr); // return at least 2 aux packets, even empty
+                tableCount++;
+            }
             LUA_END(1+tableCount);
         }
     }
@@ -2418,6 +2444,185 @@ int _simResetVisionSensor(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
+}
+
+int _simGetVisionSensorImg(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getVisionSensorImg");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int sensorHandle=luaToInt(L,1);
+        int options=0;
+        float rgbaCutOff=0.0f;
+        int pos[2]={0,0};
+        int size[2]={0,0};
+        int res;
+        res=checkOneGeneralInputArgument(L,2,lua_arg_integer,0,true,false,&errorString); // options
+        if ((res==0)||(res==2))
+        {
+            if (res==2)
+                options=luaToInt(L,2);
+            res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString); // rgbaCutOff
+            if ((res==0)||(res==2))
+            {
+                if (res==2)
+                    rgbaCutOff=luaToFloat(L,3);
+                res=checkOneGeneralInputArgument(L,4,lua_arg_integer,2,true,false,&errorString); // pos
+                if ((res==0)||(res==2))
+                {
+                    if (res==2)
+                        getIntsFromTable(L,4,2,pos);
+                    res=checkOneGeneralInputArgument(L,5,lua_arg_integer,2,true,false,&errorString); // size
+                    if ((res==0)||(res==2))
+                    {
+                        if (res==2)
+                            getIntsFromTable(L,5,2,size);
+                        int resolution[2];
+                        unsigned char* img=simGetVisionSensorImg_internal(sensorHandle,options,rgbaCutOff,pos,size,resolution);
+                        if (img!=nullptr)
+                        {
+                            int s=3;
+                            if ((options&1)!=0)
+                                s=1; // greyscale
+                            if ((options&2)!=0)
+                                s++; //+ alpha channel
+                            if (size[0]==0)
+                                size[0]=resolution[0];
+                            if (size[1]==0)
+                                size[1]=resolution[1];
+                            luaWrap_lua_pushlstring(L,(const char*)img,s*size[0]*size[1]);
+                            delete[] ((char*)img);
+                            pushIntTableOntoStack(L,2,resolution);
+                            LUA_END(2);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetVisionSensorImg(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setVisionSensorImg");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int sensorHandle=luaToInt(L,1);
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sensorHandle);
+        if (it!=nullptr)
+        { // Ok we have a valid object
+            if (it->getObjectType()==sim_object_visionsensor_type)
+            { // ok we have a valid vision sensor
+                int resolution[2];
+                ((CVisionSensor*)it)->getResolution(resolution);
+                if (luaWrap_lua_isstring(L,2))
+                {
+                    size_t l;
+                    unsigned char* img=(unsigned char*)luaWrap_lua_tolstring(L,2,&l);
+
+
+                    int options=0;
+                    int pos[2]={0,0};
+                    int size[2]={resolution[0],resolution[1]};
+                    int res;
+                    res=checkOneGeneralInputArgument(L,3,lua_arg_integer,0,true,false,&errorString); // options
+                    if ((res==0)||(res==2))
+                    {
+                        if (res==2)
+                            options=luaToInt(L,3);
+                        res=checkOneGeneralInputArgument(L,4,lua_arg_integer,2,true,false,&errorString); // pos
+                        if ((res==0)||(res==2))
+                        {
+                            if (res==2)
+                                getIntsFromTable(L,4,2,pos);
+                            res=checkOneGeneralInputArgument(L,5,lua_arg_integer,2,true,false,&errorString); // size
+                            if ((res==0)||(res==2))
+                            {
+                                if (res==2)
+                                    getIntsFromTable(L,5,2,size);
+                                int s=3;
+                                if ((options&1)!=0)
+                                    s=1; // greyscale
+                                if ((options&2)!=0)
+                                    s++; // + alpha channel
+                                if (int(l)>=size[0]*size[1]*s)
+                                    retVal=simSetVisionSensorImg_internal(sensorHandle,img,options,pos,size);
+                                else
+                                    errorString=SIM_ERROR_INCORRECT_BUFFER_SIZE;
+                            }
+                        }
+                    }
+                }
+                else
+                    errorString=SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG;
+            }
+            else
+                errorString=SIM_ERROR_OBJECT_NOT_VISION_SENSOR;
+        }
+        else
+            errorString=SIM_ERROR_OBJECT_INEXISTANT;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetVisionSensorDepth(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getVisionSensorDepth");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int sensorHandle=luaToInt(L,1);
+        int options=0;
+        int pos[2]={0,0};
+        int size[2]={0,0};
+        int res;
+        res=checkOneGeneralInputArgument(L,2,lua_arg_integer,0,true,false,&errorString); // options
+        if ((res==0)||(res==2))
+        {
+            if (res==2)
+                options=luaToInt(L,2);
+            res=checkOneGeneralInputArgument(L,3,lua_arg_integer,2,true,false,&errorString); // pos
+            if ((res==0)||(res==2))
+            {
+                if (res==2)
+                    getIntsFromTable(L,3,2,pos);
+                res=checkOneGeneralInputArgument(L,4,lua_arg_integer,2,true,false,&errorString); // size
+                if ((res==0)||(res==2))
+                {
+                    if (res==2)
+                        getIntsFromTable(L,4,2,size);
+                    int resolution[2];
+                    float* depth=simGetVisionSensorDepth_internal(sensorHandle,options,pos,size,resolution);
+                    if (depth!=nullptr)
+                    {
+                        if (size[0]==0)
+                            size[0]=resolution[0];
+                        if (size[1]==0)
+                            size[1]=resolution[1];
+                        luaWrap_lua_pushlstring(L,(const char*)depth,size[0]*size[1]*sizeof(float));
+                        delete[] ((char*)depth);
+                        pushIntTableOntoStack(L,2,resolution);
+                        LUA_END(2);
+                    }
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _simCheckProximitySensor(luaWrap_lua_State* L)
@@ -2461,7 +2666,12 @@ int _simCheckProximitySensor(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    float dummy[3]={0.0f,0.0f,0.0f};
+    luaWrap_lua_pushnumber(L,0.0);
+    pushFloatTableOntoStack(L,3,dummy);
+    luaWrap_lua_pushinteger(L,-1);
+    pushFloatTableOntoStack(L,3,dummy);
+    LUA_END(5);
 }
 
 int _simCheckProximitySensorEx(luaWrap_lua_State* L)
@@ -2489,7 +2699,12 @@ int _simCheckProximitySensorEx(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    float dummy[3]={0.0f,0.0f,0.0f};
+    luaWrap_lua_pushnumber(L,0.0);
+    pushFloatTableOntoStack(L,3,dummy);
+    luaWrap_lua_pushinteger(L,-1);
+    pushFloatTableOntoStack(L,3,dummy);
+    LUA_END(5);
 }
 
 int _simCheckProximitySensorEx2(luaWrap_lua_State* L)
@@ -2535,448 +2750,11 @@ int _simCheckProximitySensorEx2(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetVisionSensorResolution(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getVisionSensorResolution");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int resolution[2];
-        if (simGetVisionSensorResolution_internal(luaToInt(L,1),resolution)==1)
-        {
-            pushIntTableOntoStack(L,2,resolution);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetVisionSensorImage(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getVisionSensorImage");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int arg1=luaToInt(L,1);
-        int handleFlags=arg1&0xff00000;
-        int objectHandle=arg1&0xfffff;
-        int valPerPix=3;
-        int rgbOrGreyOrDepth=0;
-        if ((handleFlags&sim_handleflag_greyscale)!=0)
-        {
-            valPerPix=1;
-            rgbOrGreyOrDepth=1;
-        }
-        int posX=0;
-        int posY=0;
-        int sizeX=0;
-        int sizeY=0;
-        int retType=0;
-        // Now check the optional arguments:
-        int res;
-        res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
-        if ((res==0)||(res==2))
-        {
-            if (res==2)
-                posX=luaToInt(L,2);
-            res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
-            if ((res==0)||(res==2))
-            {
-                if (res==2)
-                    posY=luaToInt(L,3);
-                res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
-                if ((res==0)||(res==2))
-                {
-                    if (res==2)
-                        sizeX=luaToInt(L,4);
-                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
-                    if ((res==0)||(res==2))
-                    {
-                        if (res==2)
-                            sizeY=luaToInt(L,5);
-                        res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,false,&errorString);
-                        if ((res==0)||(res==2))
-                        {
-                            if (res==2)
-                                retType=luaToInt(L,6);
-                            CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
-                            if (rs!=nullptr)
-                            {
-                                if ( (sizeX==0)&&(sizeY==0) )
-                                { // we have default values here (the whole picture)
-                                    int reso[2];
-                                    rs->getResolution(reso);
-                                    sizeX=reso[0];
-                                    sizeY=reso[1];
-                                }
-                                float* buffer=rs->readPortionOfImage(posX,posY,sizeX,sizeY,rgbOrGreyOrDepth);
-                                if (buffer!=nullptr)
-                                {
-                                    if (retType==0)
-                                        pushFloatTableOntoStack(L,sizeX*sizeY*valPerPix,buffer);
-                                    else
-                                    { // here we return RGB data in a string
-                                        char* str=new char[sizeX*sizeY*valPerPix];
-                                        int vvv=sizeX*sizeY*valPerPix;
-                                        for (int i=0;i<vvv;i++)
-                                            str[i]=char(buffer[i]*255.0001f);
-                                        luaWrap_lua_pushlstring(L,(const char*)str,vvv);
-                                        delete[] ((char*)str);
-                                    }
-                                    delete[] ((char*)buffer);
-                                    LUA_END(1);
-                                }
-                                else
-                                    errorString=SIM_ERROR_INVALID_ARGUMENTS;
-                            }
-                            else
-                                errorString=SIM_ERROR_VISION_SENSOR_INEXISTANT;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetVisionSensorCharImage(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getVisionSensorCharImage");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int arg1=luaToInt(L,1);
-        int handleFlags=arg1&0xff00000;
-        int objectHandle=arg1&0xfffff;
-        int valPerPix=3;
-        if ((handleFlags&sim_handleflag_greyscale)!=0)
-            valPerPix=1;
-        int posX=0;
-        int posY=0;
-        int sizeX=0;
-        int sizeY=0;
-        float rgbaCutOff=0.0f;
-        // Now check the optional arguments:
-        int res;
-        res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
-        if ((res==0)||(res==2))
-        {
-            if (res==2)
-                posX=luaToInt(L,2);
-            res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
-            if ((res==0)||(res==2))
-            {
-                if (res==2)
-                    posY=luaToInt(L,3);
-                res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
-                if ((res==0)||(res==2))
-                {
-                    if (res==2)
-                        sizeX=luaToInt(L,4);
-                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
-                    if ((res==0)||(res==2))
-                    {
-                        if (res==2)
-                            sizeY=luaToInt(L,5);
-                        res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,false,&errorString);
-                        if ((res==0)||(res==2))
-                        {
-                            if (res==2)
-                                rgbaCutOff=luaToFloat(L,6);
-                            CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
-                            if (rs!=nullptr)
-                            {
-                                int reso[2];
-                                rs->getResolution(reso);
-                                if ( (sizeX==0)&&(sizeY==0) )
-                                { // we have default values here (the whole picture)
-                                    sizeX=reso[0];
-                                    sizeY=reso[1];
-                                }
-                                unsigned char* buffer=rs->readPortionOfCharImage(posX,posY,sizeX,sizeY,rgbaCutOff,valPerPix==1);
-                                if (buffer!=nullptr)
-                                {
-                                    int vvv=sizeX*sizeY*valPerPix;
-                                    if (rgbaCutOff>0.0f)
-                                    {
-                                        if (valPerPix==1)
-                                            vvv=sizeX*sizeY*2;
-                                        else
-                                            vvv=sizeX*sizeY*4;
-                                    }
-                                    luaWrap_lua_pushlstring(L,(const char*)buffer,vvv);
-                                    delete[] ((char*)buffer);
-                                    luaWrap_lua_pushinteger(L,reso[0]);
-                                    luaWrap_lua_pushinteger(L,reso[1]);
-                                    LUA_END(3);
-                                }
-                                else
-                                    errorString=SIM_ERROR_INVALID_ARGUMENTS;
-                            }
-                            else
-                                errorString=SIM_ERROR_VISION_SENSOR_INEXISTANT;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetVisionSensorImage(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setVisionSensorImage");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int arg1=luaToInt(L,1);
-        int handleFlags=arg1&0xff00000;
-        int sensHandle=arg1&0xfffff;
-        int valPerPix=3;
-        bool noProcessing=false;
-        bool setDepthBufferInstead=false;
-        if ((handleFlags&sim_handleflag_greyscale)!=0)
-            valPerPix=1;
-        if ((handleFlags&sim_handleflag_rawvalue)!=0)
-            noProcessing=true;
-        if ((handleFlags&sim_handleflag_depthbuffer)!=0)
-            setDepthBufferInstead=true;
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sensHandle);
-        if (it!=nullptr)
-        { // Ok we have a valid object
-            if (it->getObjectType()==sim_object_visionsensor_type)
-            { // ok we have a valid vision sensor
-                int res[2];
-                CVisionSensor* rendSens=(CVisionSensor*)it;
-                rendSens->getResolution(res);
-                // We check if we have a table or string at position 2:
-                bool notTableNorString=true;
-                if (luaWrap_lua_istable(L,2))
-                { // Ok we have a table. Now what size is it?
-                    notTableNorString=false;
-                    if (setDepthBufferInstead)
-                    {
-                        // Now we check if the provided table has correct size:
-                        if (int(luaWrap_lua_rawlen(L,2))>=res[0]*res[1])
-                        {
-                            float* img=new float[res[0]*res[1]];
-                            getFloatsFromTable(L,2,res[0]*res[1],img);
-                            rendSens->setDepthBuffer(img);
-                            retVal=1;
-                            delete[] img;
-                        }
-                        else
-                            errorString=SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG;
-                    }
-                    else
-                    {
-                        // Now we check if the provided table has correct size:
-                        if (int(luaWrap_lua_rawlen(L,2))>=res[0]*res[1]*valPerPix)
-                        {
-                            float* img=new float[res[0]*res[1]*valPerPix];
-                            getFloatsFromTable(L,2,res[0]*res[1]*valPerPix,img); // we do the operation directly without going through the c-api
-                            if (rendSens->setExternalImage(img,valPerPix==1,noProcessing))
-                                retVal=1;
-                            delete[] img;
-                        }
-                        else
-                            errorString=SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG;
-                    }
-                }
-                if (luaWrap_lua_isstring(L,2))
-                { // Ok we have a string. Now what size is it?
-                    notTableNorString=false;
-                    // Now we check if the provided string has correct size:
-                    size_t dataLength;
-                    char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
-                    if (setDepthBufferInstead)
-                    {
-                        if (int(dataLength)>=res[0]*res[1]*sizeof(float))
-                        {
-                            rendSens->setDepthBuffer((float*)data);
-                            retVal=1;
-                        }
-                        else
-                            errorString=SIM_ERROR_ONE_STRING_SIZE_IS_WRONG;
-                    }
-                    else
-                    {
-                        if (int(dataLength)>=res[0]*res[1]*valPerPix)
-                        {
-                            float* img=new float[res[0]*res[1]*valPerPix];
-                            for (int i=0;i<res[0]*res[1]*valPerPix;i++)
-                                img[i]=float(data[i])/255.0f;
-                            if (rendSens->setExternalImage(img,valPerPix==1,noProcessing))
-                                retVal=1;
-                            delete[] img;
-                        }
-                        else
-                            errorString=SIM_ERROR_ONE_STRING_SIZE_IS_WRONG;
-                    }
-                }
-                if (notTableNorString)
-                    errorString=SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG;
-            }
-            else
-                errorString=SIM_ERROR_OBJECT_NOT_VISION_SENSOR;
-        }
-        else
-            errorString=SIM_ERROR_OBJECT_INEXISTANT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simSetVisionSensorCharImage(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setVisionSensorCharImage");
-
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int arg1=luaToInt(L,1);
-        int handleFlags=arg1&0xff00000;
-        int sensHandle=arg1&0xfffff;
-        int valPerPix=3;
-        if ((handleFlags&sim_handleflag_greyscale)!=0)
-            valPerPix=1;
-        bool noProcessing=false;
-        if ((handleFlags&sim_handleflag_rawvalue)!=0)
-            noProcessing=true;
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sensHandle);
-        if (it!=nullptr)
-        { // Ok we have a valid object
-            if (it->getObjectType()==sim_object_visionsensor_type)
-            { // ok we have a valid vision sensor
-                int res[2];
-                CVisionSensor* rendSens=(CVisionSensor*)it;
-                rendSens->getResolution(res);
-                // We check if we have a string at position 2:
-                if (luaWrap_lua_isstring(L,2))
-                { // Ok we have a string. Now what size is it?
-                    // Now we check if the provided string has correct size:
-                    size_t dataLength;
-                    char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
-                    if (int(dataLength)>=res[0]*res[1]*valPerPix)
-                    {
-                        if (rendSens->setExternalCharImage((unsigned char*)data,valPerPix==1,noProcessing))
-                            retVal=1;
-                    }
-                    else
-                        errorString=SIM_ERROR_ONE_STRING_SIZE_IS_WRONG;
-                }
-                else
-                    errorString=SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG;
-            }
-            else
-                errorString=SIM_ERROR_OBJECT_NOT_VISION_SENSOR;
-        }
-        else
-            errorString=SIM_ERROR_OBJECT_INEXISTANT;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetVisionSensorDepthBuffer(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getVisionSensorDepthBuffer");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int posX=0;
-        int posY=0;
-        int sizeX=0;
-        int sizeY=0;
-        // Now check the optional arguments:
-        int res;
-        res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
-        if ((res==0)||(res==2))
-        {
-            if (res==2)
-                posX=luaToInt(L,2);
-            res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
-            if ((res==0)||(res==2))
-            {
-                if (res==2)
-                    posY=luaToInt(L,3);
-                res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
-                if ((res==0)||(res==2))
-                {
-                    if (res==2)
-                        sizeX=luaToInt(L,4);
-                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
-                    if ((res==0)||(res==2))
-                    {
-                        if (res==2)
-                            sizeY=luaToInt(L,5);
-                        int sensHandle=luaToInt(L,1);
-                        bool returnString=(sensHandle&sim_handleflag_codedstring)!=0;
-                        bool toMeters=(sensHandle&sim_handleflag_depthbuffermeters)!=0;
-                        sensHandle=sensHandle&0xfffff;
-                        CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensHandle);
-                        if (rs!=nullptr)
-                        {
-                            if ( (sizeX==0)&&(sizeY==0) )
-                            { // we have default values here (the whole picture)
-                                int reso[2];
-                                rs->getResolution(reso);
-                                sizeX=reso[0];
-                                sizeY=reso[1];
-                            }
-                            float* buffer=rs->readPortionOfImage(posX,posY,sizeX,sizeY,2);
-                            if (buffer!=nullptr)
-                            {
-                                if (toMeters)
-                                { // Here we need to convert values to distances in meters:
-                                    float n=rs->getNearClippingPlane();
-                                    float f=rs->getFarClippingPlane();
-                                    float fmn=f-n;
-                                    for (int i=0;i<sizeX*sizeY;i++)
-                                        buffer[i]=n+fmn*buffer[i];
-                                }
-                                if (returnString)
-                                    luaWrap_lua_pushlstring(L,(char*)buffer,sizeX*sizeY*sizeof(float));
-                                else
-                                    pushFloatTableOntoStack(L,sizeX*sizeY,buffer);
-                                delete[] ((char*)buffer);
-                                LUA_END(1);
-                            }
-                            else
-                                errorString=SIM_ERROR_INVALID_ARGUMENTS;
-                        }
-                        else
-                            errorString=SIM_ERROR_VISION_SENSOR_INEXISTANT;
-                    }
-                }
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+    float dummy[3]={0.0f,0.0f,0.0f};
+    luaWrap_lua_pushnumber(L,0.0);
+    pushFloatTableOntoStack(L,3,dummy);
+    pushFloatTableOntoStack(L,3,dummy);
+    LUA_END(4);
 }
 
 int _simCheckVisionSensor(luaWrap_lua_State* L)
@@ -2990,18 +2768,27 @@ int _simCheckVisionSensor(luaWrap_lua_State* L)
         float* auxVals=nullptr;
         int* auxValsCount=nullptr;
         retVal=simCheckVisionSensor_internal(luaToInt(L,1),luaToInt(L,2),&auxVals,&auxValsCount);
-        if ((retVal!=-1)&&(auxValsCount!=nullptr))
+        if (retVal!=-1)
         {
-            int off=0;
             luaWrap_lua_pushinteger(L,retVal);
-            int tableCount=auxValsCount[0];
-            for (int i=0;i<tableCount;i++)
+            int tableCount=0;
+            if (auxValsCount!=nullptr)
             {
-                pushFloatTableOntoStack(L,auxValsCount[i+1],auxVals+off);
-                off+=auxValsCount[i+1];
+                tableCount=auxValsCount[0];
+                int off=0;
+                for (int i=0;i<tableCount;i++)
+                {
+                    pushFloatTableOntoStack(L,auxValsCount[i+1],auxVals+off);
+                    off+=auxValsCount[i+1];
+                }
+                delete[] auxValsCount;
+                delete[] auxVals;
             }
-            delete[] auxValsCount;
-            delete[] auxVals;
+            for (int i=tableCount;i<2;i++)
+            {
+                pushFloatTableOntoStack(L,0,nullptr); // return at least 2 aux packets, even empty
+                tableCount++;
+            }
             LUA_END(1+tableCount);
         }
     }
@@ -3393,7 +3180,8 @@ int _simGetJointTargetPosition(luaWrap_lua_State* L)
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+    luaWrap_lua_pushnumber(L,0.0);
+    LUA_END(1);
 }
 
 int _simGetJointTargetForce(luaWrap_lua_State* L)
@@ -3489,21 +3277,24 @@ int _simGetModuleName(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getModuleName");
 
+    std::string nm;
+    int ver=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         unsigned char version;
         char* name=simGetModuleName_internal(luaToInt(L,1),&version);
         if (name!=nullptr)
         {
-            luaWrap_lua_pushstring(L,name);
+            nm=name;
             simReleaseBuffer_internal(name);
-            luaWrap_lua_pushinteger(L,version);
-            LUA_END(2);
+            ver=(int)version;
         }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+    luaWrap_lua_pushstring(L,nm.c_str());
+    luaWrap_lua_pushinteger(L,ver);
+    LUA_END(2);
 }
 
 int _simGetSimulationTime(luaWrap_lua_State* L)
@@ -3552,7 +3343,8 @@ int _simCheckCollision(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.checkCollision");
-
+    int retVal=0;
+    int collidingIds[2]={-1,-1};
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int entity1Handle=luaToInt(L,1);
@@ -3566,22 +3358,17 @@ int _simCheckCollision(luaWrap_lua_State* L)
 
                 if (App::currentWorld->mainSettings->collisionDetectionEnabled)
                 {
-                    int collidingIds[2];
                     if (CCollisionRoutine::doEntitiesCollide(entity1Handle,entity2Handle,nullptr,true,true,collidingIds))
-                    {
-                        luaWrap_lua_pushinteger(L,1);
-                        pushIntTableOntoStack(L,2,collidingIds);
-                        LUA_END(2);
-                    }
+                        retVal=1;
                 }
-                luaWrap_lua_pushinteger(L,0);
-                LUA_END(1);
             }
         }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+    luaWrap_lua_pushinteger(L,retVal);
+    pushIntTableOntoStack(L,2,collidingIds);
+    LUA_END(2);
 }
 
 int _simCheckCollisionEx(luaWrap_lua_State* L)
@@ -3605,14 +3392,17 @@ int _simCheckCollisionEx(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    pushFloatTableOntoStack(L,0,nullptr);
+    LUA_END(2);
 }
 
 int _simCheckDistance(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.checkDistance");
-
+    int retVal=-1;
+    float distanceData[7]={0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
+    int tb[2]={-1,-1};
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int entity1Handle=luaToInt(L,1);
@@ -3629,7 +3419,7 @@ int _simCheckDistance(luaWrap_lua_State* L)
                 {
                     if (entity2Handle==sim_handle_all)
                         entity2Handle=-1;
-
+                    retVal=0;
                     if (App::currentWorld->mainSettings->distanceCalculationEnabled)
                     {
                         int buffer[4];
@@ -3641,22 +3431,21 @@ int _simCheckDistance(luaWrap_lua_State* L)
                         App::currentWorld->cacheData->setCacheDataDist(entity1Handle,entity2Handle,buffer);
                         if (result)
                         {
-                            luaWrap_lua_pushinteger(L,1);
-                            pushFloatTableOntoStack(L,7,distanceData);
-                            int tb[2]={buffer[0],buffer[2]};
-                            pushIntTableOntoStack(L,2,tb);
-                            LUA_END(3);
+                            retVal=1;
+                            tb[0]=buffer[0];
+                            tb[1]=buffer[2];
                         }
                     }
-                    luaWrap_lua_pushinteger(L,0);
-                    LUA_END(1);
                 }
             }
         }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+    luaWrap_lua_pushinteger(L,retVal);
+    pushFloatTableOntoStack(L,7,distanceData);
+    pushIntTableOntoStack(L,2,tb);
+    LUA_END(3);
 }
 
 int _simGetSimulationTimeStep(luaWrap_lua_State* L)
@@ -3670,30 +3459,20 @@ int _simGetSimulationTimeStep(luaWrap_lua_State* L)
 }
 
 int _simGetSimulatorMessage(luaWrap_lua_State* L)
-{ // Careful!! This command does not map its corresponding C-API command!! (different message pipeline)
+{
     TRACE_LUA_API;
     LUA_START("sim.getSimulatorMessage");
-
-    int auxVals[4];
-    float aux2Vals[8];
-    int aux2Cnt;
+    int auxVals[4]={0,0,0,0};
+    float aux2Vals[8]={0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
+    int aux2Cnt=0;
     CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
     int commandID=it->extractCommandFromOutsideCommandQueue(auxVals,aux2Vals,aux2Cnt);
-    if (commandID!=-1)
-    {
-        luaWrap_lua_pushinteger(L,commandID);
-        pushIntTableOntoStack(L,4,auxVals);
-        if (aux2Cnt!=0)
-        {
-            pushFloatTableOntoStack(L,aux2Cnt,aux2Vals);
-            LUA_END(3);
-        }
-        LUA_END(2);
-    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,-1);
-    LUA_END(1);
+    luaWrap_lua_pushinteger(L,commandID);
+    pushIntTableOntoStack(L,4,auxVals);
+    pushFloatTableOntoStack(L,aux2Cnt,aux2Vals);
+    LUA_END(3);
 }
 
 int _simResetGraph(luaWrap_lua_State* L)
@@ -5720,7 +5499,7 @@ int _simSaveImage(luaWrap_lua_State* L)
                 errorString=SIM_ERROR_INVALID_RESOLUTION;
         }
         else
-            errorString=SIM_ERROR_ONE_STRING_SIZE_IS_WRONG;
+            errorString=SIM_ERROR_INCORRECT_BUFFER_SIZE;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5801,7 +5580,7 @@ int _simGetScaledImage(luaWrap_lua_State* L)
                 errorString=SIM_ERROR_INVALID_RESOLUTION;
         }
         else
-            errorString=SIM_ERROR_ONE_STRING_SIZE_IS_WRONG;
+            errorString=SIM_ERROR_INCORRECT_BUFFER_SIZE;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5832,7 +5611,7 @@ int _simTransformImage(luaWrap_lua_State* L)
                 errorString=SIM_ERROR_INVALID_RESOLUTION;
         }
         else
-            errorString=SIM_ERROR_ONE_STRING_SIZE_IS_WRONG;
+            errorString=SIM_ERROR_INCORRECT_BUFFER_SIZE;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -8554,23 +8333,16 @@ int _simReadForceSensor(luaWrap_lua_State* L)
     LUA_START("sim.readForceSensor");
 
     int retVal=-1;
+    float force[3]={0.0f,0.0f,0.0f};
+    float torque[3]={0.0f,0.0f,0.0f};
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        float force[3];
-        float torque[3];
         retVal=simReadForceSensor_internal(luaToInt(L,1),force,torque);
-        if (!( (retVal==-1)||((retVal&1)==0) ))
-        {
-            luaWrap_lua_pushinteger(L,retVal);
-            pushFloatTableOntoStack(L,3,force);
-            pushFloatTableOntoStack(L,3,torque);
-            LUA_END(3);
-        }
-    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    pushFloatTableOntoStack(L,3,force);
+    pushFloatTableOntoStack(L,3,torque);
+    LUA_END(3);
 }
 
 int _simGetLightParameters(luaWrap_lua_State* L)
@@ -8579,25 +8351,18 @@ int _simGetLightParameters(luaWrap_lua_State* L)
     LUA_START("sim.getLightParameters");
 
     int retVal=-1;
+    float ambientOld[3]={0.0f,0.0f,0.0f};
+    float diffuse[3]={0.0f,0.0f,0.0f};
+    float specular[3]={0.0f,0.0f,0.0f};
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        float ambientOld[3]={0.0f,0.0f,0.0f};
-        float diffuse[3];
-        float specular[3];
         retVal=simGetLightParameters_internal(luaToInt(L,1),nullptr,diffuse,specular);
-        if (retVal>=0)
-        {
-            luaWrap_lua_pushinteger(L,retVal);
-            pushFloatTableOntoStack(L,3,ambientOld);
-            pushFloatTableOntoStack(L,3,diffuse);
-            pushFloatTableOntoStack(L,3,specular);
-            LUA_END(4);
-        }
-    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    pushFloatTableOntoStack(L,3,ambientOld);
+    pushFloatTableOntoStack(L,3,diffuse);
+    pushFloatTableOntoStack(L,3,specular);
+    LUA_END(4);
 }
 
 int _simSetLightParameters(luaWrap_lua_State* L)
@@ -8649,21 +8414,15 @@ int _simGetVelocity(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getVelocity");
 
+    float linVel[3]={0.0f,0.0f,0.0f};
+    float angVel[3]={0.0f,0.0f,0.0f};
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        float linVel[3];
-        float angVel[3];
-        int retVal=simGetVelocity_internal(luaToInt(L,1),linVel,angVel);
-        if (retVal!=-1)
-        {
-            pushFloatTableOntoStack(L,3,linVel);
-            pushFloatTableOntoStack(L,3,angVel);
-            LUA_END(2);
-        }
-    }
+        simGetVelocity_internal(luaToInt(L,1),linVel,angVel);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+    pushFloatTableOntoStack(L,3,linVel);
+    pushFloatTableOntoStack(L,3,angVel);
+    LUA_END(2);
 }
 
 int _simGetObjectVelocity(luaWrap_lua_State* L)
@@ -8671,21 +8430,15 @@ int _simGetObjectVelocity(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getObjectVelocity");
 
+    float linVel[3]={0.0f,0.0f,0.0f};
+    float angVel[3]={0.0f,0.0f,0.0f};
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        float linVel[3];
-        float angVel[3];
-        int retVal=simGetObjectVelocity_internal(luaToInt(L,1),linVel,angVel);
-        if (retVal!=-1)
-        {
-            pushFloatTableOntoStack(L,3,linVel);
-            pushFloatTableOntoStack(L,3,angVel);
-            LUA_END(2);
-        }
-    }
+        simGetObjectVelocity_internal(luaToInt(L,1),linVel,angVel);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+    pushFloatTableOntoStack(L,3,linVel);
+    pushFloatTableOntoStack(L,3,angVel);
+    LUA_END(2);
 }
 
 int _simGetJointVelocity(luaWrap_lua_State* L)
@@ -8964,7 +8717,9 @@ int _simGetShapeColor(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    float dummy[3]={0.0f,0.0f,0.0f};
+    pushFloatTableOntoStack(L,3,dummy);
+    LUA_END(2);
 }
 
 int _simSetObjectColor(luaWrap_lua_State* L)
@@ -9044,19 +8799,12 @@ int _simGetJointMode(luaWrap_lua_State* L)
     int retVal=-1; // means error
     int options=0;
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
         retVal=simGetJointMode_internal(luaToInt(L,1),&options);
-        if (retVal>=0)
-        {
-            luaWrap_lua_pushinteger(L,retVal);
-            luaWrap_lua_pushinteger(L,options);
-            LUA_END(2);
-        }
-    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    luaWrap_lua_pushinteger(L,options);
+    LUA_END(2);
 }
 
 int _simSerialOpen(luaWrap_lua_State* L)
@@ -9147,7 +8895,7 @@ int _simSerialCheck(luaWrap_lua_State* L)
 }
 
 int _simGetContactInfo(luaWrap_lua_State* L)
-{
+{ // problematic for remote API and in general: function returns different return value count
     TRACE_LUA_API;
     LUA_START("sim.getContactInfo");
 
@@ -10566,20 +10314,15 @@ int _simRuckigStep(luaWrap_lua_State* L)
             dofs=1; // will be caught later down
         std::vector<double> newPosVelAccel;
         newPosVelAccel.resize(dofs*3);
-        double syncTime;
+        double syncTime=0.0;
         int retVal=simRuckigStep_internal(handle,timeStep,&newPosVelAccel[0],&newPosVelAccel[dofs],&newPosVelAccel[dofs*2],&syncTime,nullptr,nullptr);
-        if ( (retVal!=-1)&&(retVal!=-2) )
-        {
-            luaWrap_lua_pushinteger(L,retVal);
-            if (retVal>=0)
-            {
-                pushDoubleTableOntoStack(L,dofs*3,&newPosVelAccel[0]);
-                luaWrap_lua_pushnumber(L,syncTime);
-                LUA_END(3);
-            }
-            else
-                LUA_END(1);
-        }
+        luaWrap_lua_pushinteger(L,retVal);
+        if (newPosVelAccel.size()>0)
+            pushDoubleTableOntoStack(L,newPosVelAccel.size(),&newPosVelAccel[0]);
+        else
+            pushDoubleTableOntoStack(L,0,nullptr);
+        luaWrap_lua_pushnumber(L,syncTime);
+        LUA_END(3);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -10791,6 +10534,11 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                             CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
                             int ss=stack->getStackSize();
                             App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                            if (ss==0)
+                            {
+                                pushIntTableOntoStack(L,0,nullptr);
+                                ss++;
+                            }
                             LUA_END(ss);
                         }
                         else
@@ -10815,6 +10563,11 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                             CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
                             int ss=stack->getStackSize();
                             App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                            if (ss==0)
+                            {
+                                pushIntTableOntoStack(L,0,nullptr);
+                                ss++;
+                            }
                             LUA_END(ss);
                         }
                         else
@@ -10836,6 +10589,11 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                             CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
                             int ss=stack->getStackSize();
                             App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                            if (ss==0)
+                            {
+                                pushIntTableOntoStack(L,0,nullptr);
+                                ss++;
+                            }
                             LUA_END(ss);
                         }
                         else
@@ -11282,12 +11040,11 @@ int _simGetTextureId(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getTextureId");
 
-    int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string matName(luaWrap_lua_tostring(L,1));
         int resolution[2];
-        retVal=simGetTextureId_internal(matName.c_str(),resolution);
+        int retVal=simGetTextureId_internal(matName.c_str(),resolution);
         if (retVal>=0)
         {
             luaWrap_lua_pushinteger(L,retVal);
@@ -11297,8 +11054,7 @@ int _simGetTextureId(luaWrap_lua_State* L)
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simReadTexture(luaWrap_lua_State* L)
@@ -11465,7 +11221,6 @@ int _simCreateTexture(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.createTexture");
 
-    int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
         std::string fileName(luaWrap_lua_tostring(L,1));
@@ -11543,8 +11298,7 @@ int _simCreateTexture(luaWrap_lua_State* L)
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal); // error
-    LUA_END(1);
+    LUA_END(0);
 }
 
 
@@ -11644,24 +11398,19 @@ int _simGetShapeGeomInfo(luaWrap_lua_State* L)
     LUA_START("sim.getShapeGeomInfo");
 
     int retVal=-1; // means error
+    int intData[5]={0,0,0,0,0};
+    float floatData[5]={0.0f,0.0f,0.0f,0.0f,0.0f};
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int handle=luaToInt(L,1);
-        int intData[5];
-        float floatData[5];
         retVal=simGetShapeGeomInfo_internal(handle,intData,floatData,nullptr);
-        if (retVal>=0)
-        {
-            luaWrap_lua_pushinteger(L,retVal);
-            luaWrap_lua_pushinteger(L,intData[0]);
-            pushFloatTableOntoStack(L,4,floatData);
-            LUA_END(3);
-        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    luaWrap_lua_pushinteger(L,intData[0]);
+    pushFloatTableOntoStack(L,4,floatData);
+    LUA_END(3);
 }
 
 int _simGetObjects(luaWrap_lua_State* L)
@@ -12162,7 +11911,7 @@ int _simGetPointCloudOptions(luaWrap_lua_State* L)
         int options;
         float pointSize;
         int retVal=simGetPointCloudOptions_internal(handle,&maxVoxelSize,&maxPtCntPerVoxel,&options,&pointSize,nullptr);
-        if (retVal>0)
+        if (retVal>=0)
         {
             luaWrap_lua_pushnumber(L,maxVoxelSize);
             luaWrap_lua_pushinteger(L,maxPtCntPerVoxel);
@@ -12558,17 +12307,14 @@ int _simCheckOctreePointOccupancy(luaWrap_lua_State* L)
         getFloatsFromTable(L,3,ptCnt*3,&points[0]);
         unsigned int tag=0;
         unsigned long long int location=0;
+        unsigned int locLow=location&0xffffffff;
+        unsigned int locHigh=(location>>32)&0xffffffff;
         retVal=simCheckOctreePointOccupancy_internal(handle,options,&points[0],ptCnt,&tag,&location,nullptr);
-        if ( (retVal>0)&&(ptCnt==1) )
-        { // in this case we return 4 values:
-            unsigned int locLow=location&0xffffffff;
-            unsigned int locHigh=(location>>32)&0xffffffff;
-            luaWrap_lua_pushinteger(L,retVal);
-            luaWrap_lua_pushinteger(L,tag);
-            luaWrap_lua_pushinteger(L,locLow);
-            luaWrap_lua_pushinteger(L,locHigh);
-            LUA_END(4);
-        }
+        luaWrap_lua_pushinteger(L,retVal);
+        luaWrap_lua_pushinteger(L,tag);
+        luaWrap_lua_pushinteger(L,locLow);
+        luaWrap_lua_pushinteger(L,locHigh);
+        LUA_END(4);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -13137,14 +12883,15 @@ int _simExecuteScriptString(luaWrap_lua_State* L)
                 s+=stack->getStackSize();
             }
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
+            if (s==1)
+            {
+                pushIntTableOntoStack(L,0,nullptr);
+                s++;
+            }
             LUA_END(s);
         }
         else
-        {
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
-//            if (errorString.size()==0)
-//                errorString=SIM_ERROR_OPERATION_FAILED;
-        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -20925,6 +20672,452 @@ int _simGetSystemTimeInMs(luaWrap_lua_State* L)
         int lastTime=luaToInt(L,1);
         luaWrap_lua_pushinteger(L,simGetSystemTimeInMs_internal(lastTime));
         LUA_END(1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetVisionSensorResolution(luaWrap_lua_State* L)
+{ // deprecated on 11.04.2022
+    TRACE_LUA_API;
+    LUA_START("sim.getVisionSensorResolution");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int resolution[2];
+        if (simGetVisionSensorResolution_internal(luaToInt(L,1),resolution)==1)
+        {
+            pushIntTableOntoStack(L,2,resolution);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetVisionSensorImage(luaWrap_lua_State* L)
+{ // deprecated on 11.04.2022
+    TRACE_LUA_API;
+    LUA_START("sim.getVisionSensorImage");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int arg1=luaToInt(L,1);
+        int handleFlags=arg1&0xff00000;
+        int objectHandle=arg1&0xfffff;
+        int valPerPix=3;
+        int rgbOrGreyOrDepth=0;
+        if ((handleFlags&sim_handleflag_greyscale)!=0)
+        {
+            valPerPix=1;
+            rgbOrGreyOrDepth=1;
+        }
+        int posX=0;
+        int posY=0;
+        int sizeX=0;
+        int sizeY=0;
+        int retType=0;
+        // Now check the optional arguments:
+        int res;
+        res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
+        if ((res==0)||(res==2))
+        {
+            if (res==2)
+                posX=luaToInt(L,2);
+            res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
+            if ((res==0)||(res==2))
+            {
+                if (res==2)
+                    posY=luaToInt(L,3);
+                res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
+                if ((res==0)||(res==2))
+                {
+                    if (res==2)
+                        sizeX=luaToInt(L,4);
+                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
+                    if ((res==0)||(res==2))
+                    {
+                        if (res==2)
+                            sizeY=luaToInt(L,5);
+                        res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,false,&errorString);
+                        if ((res==0)||(res==2))
+                        {
+                            if (res==2)
+                                retType=luaToInt(L,6);
+                            CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
+                            if (rs!=nullptr)
+                            {
+                                if ( (sizeX==0)&&(sizeY==0) )
+                                { // we have default values here (the whole picture)
+                                    int reso[2];
+                                    rs->getResolution(reso);
+                                    sizeX=reso[0];
+                                    sizeY=reso[1];
+                                }
+                                float* buffer=rs->readPortionOfImage(posX,posY,sizeX,sizeY,rgbOrGreyOrDepth);
+                                if (buffer!=nullptr)
+                                {
+                                    if (retType==0)
+                                        pushFloatTableOntoStack(L,sizeX*sizeY*valPerPix,buffer);
+                                    else
+                                    { // here we return RGB data in a string
+                                        char* str=new char[sizeX*sizeY*valPerPix];
+                                        int vvv=sizeX*sizeY*valPerPix;
+                                        for (int i=0;i<vvv;i++)
+                                            str[i]=char(buffer[i]*255.0001f);
+                                        luaWrap_lua_pushlstring(L,(const char*)str,vvv);
+                                        delete[] ((char*)str);
+                                    }
+                                    delete[] ((char*)buffer);
+                                    LUA_END(1);
+                                }
+                                else
+                                    errorString=SIM_ERROR_INVALID_ARGUMENTS;
+                            }
+                            else
+                                errorString=SIM_ERROR_VISION_SENSOR_INEXISTANT;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetVisionSensorImage(luaWrap_lua_State* L)
+{ // deprecated on 11.04.2022
+    TRACE_LUA_API;
+    LUA_START("sim.setVisionSensorImage");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int arg1=luaToInt(L,1);
+        int handleFlags=arg1&0xff00000;
+        int sensHandle=arg1&0xfffff;
+        int valPerPix=3;
+        bool noProcessing=false;
+        bool setDepthBufferInstead=false;
+        if ((handleFlags&sim_handleflag_greyscale)!=0)
+            valPerPix=1;
+        if ((handleFlags&sim_handleflag_rawvalue)!=0)
+            noProcessing=true;
+        if ((handleFlags&sim_handleflag_depthbuffer)!=0)
+            setDepthBufferInstead=true;
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sensHandle);
+        if (it!=nullptr)
+        { // Ok we have a valid object
+            if (it->getObjectType()==sim_object_visionsensor_type)
+            { // ok we have a valid vision sensor
+                int res[2];
+                CVisionSensor* rendSens=(CVisionSensor*)it;
+                rendSens->getResolution(res);
+                // We check if we have a table or string at position 2:
+                bool notTableNorString=true;
+                if (luaWrap_lua_istable(L,2))
+                { // Ok we have a table. Now what size is it?
+                    notTableNorString=false;
+                    if (setDepthBufferInstead)
+                    {
+                        // Now we check if the provided table has correct size:
+                        if (int(luaWrap_lua_rawlen(L,2))>=res[0]*res[1])
+                        {
+                            float* img=new float[res[0]*res[1]];
+                            getFloatsFromTable(L,2,res[0]*res[1],img);
+                            rendSens->setDepthBuffer(img);
+                            retVal=1;
+                            delete[] img;
+                        }
+                        else
+                            errorString=SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG;
+                    }
+                    else
+                    {
+                        // Now we check if the provided table has correct size:
+                        if (int(luaWrap_lua_rawlen(L,2))>=res[0]*res[1]*valPerPix)
+                        {
+                            float* img=new float[res[0]*res[1]*valPerPix];
+                            getFloatsFromTable(L,2,res[0]*res[1]*valPerPix,img); // we do the operation directly without going through the c-api
+                            if (rendSens->setExternalImage_old(img,valPerPix==1,noProcessing))
+                                retVal=1;
+                            delete[] img;
+                        }
+                        else
+                            errorString=SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG;
+                    }
+                }
+                if (luaWrap_lua_isstring(L,2))
+                { // Ok we have a string. Now what size is it?
+                    notTableNorString=false;
+                    // Now we check if the provided string has correct size:
+                    size_t dataLength;
+                    char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
+                    if (setDepthBufferInstead)
+                    {
+                        if (int(dataLength)>=res[0]*res[1]*sizeof(float))
+                        {
+                            rendSens->setDepthBuffer((float*)data);
+                            retVal=1;
+                        }
+                        else
+                            errorString=SIM_ERROR_INCORRECT_BUFFER_SIZE;
+                    }
+                    else
+                    {
+                        if (int(dataLength)>=res[0]*res[1]*valPerPix)
+                        {
+                            float* img=new float[res[0]*res[1]*valPerPix];
+                            for (int i=0;i<res[0]*res[1]*valPerPix;i++)
+                                img[i]=float(data[i])/255.0f;
+                            if (rendSens->setExternalImage_old(img,valPerPix==1,noProcessing))
+                                retVal=1;
+                            delete[] img;
+                        }
+                        else
+                            errorString=SIM_ERROR_INCORRECT_BUFFER_SIZE;
+                    }
+                }
+                if (notTableNorString)
+                    errorString=SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG;
+            }
+            else
+                errorString=SIM_ERROR_OBJECT_NOT_VISION_SENSOR;
+        }
+        else
+            errorString=SIM_ERROR_OBJECT_INEXISTANT;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetVisionSensorCharImage(luaWrap_lua_State* L)
+{ // deprecated on 11.04.2022
+    TRACE_LUA_API;
+    LUA_START("sim.getVisionSensorCharImage");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int arg1=luaToInt(L,1);
+        int handleFlags=arg1&0xff00000;
+        int objectHandle=arg1&0xfffff;
+        int valPerPix=3;
+        if ((handleFlags&sim_handleflag_greyscale)!=0)
+            valPerPix=1;
+        int posX=0;
+        int posY=0;
+        int sizeX=0;
+        int sizeY=0;
+        float rgbaCutOff=0.0f;
+        // Now check the optional arguments:
+        int res;
+        res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
+        if ((res==0)||(res==2))
+        {
+            if (res==2)
+                posX=luaToInt(L,2);
+            res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
+            if ((res==0)||(res==2))
+            {
+                if (res==2)
+                    posY=luaToInt(L,3);
+                res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
+                if ((res==0)||(res==2))
+                {
+                    if (res==2)
+                        sizeX=luaToInt(L,4);
+                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
+                    if ((res==0)||(res==2))
+                    {
+                        if (res==2)
+                            sizeY=luaToInt(L,5);
+                        res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,false,&errorString);
+                        if ((res==0)||(res==2))
+                        {
+                            if (res==2)
+                                rgbaCutOff=luaToFloat(L,6);
+                            CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
+                            if (rs!=nullptr)
+                            {
+                                int reso[2];
+                                rs->getResolution(reso);
+                                if ( (sizeX==0)&&(sizeY==0) )
+                                { // we have default values here (the whole picture)
+                                    sizeX=reso[0];
+                                    sizeY=reso[1];
+                                }
+                                int options=0;
+                                if (valPerPix==1)
+                                    options=options|1;
+                                if (rgbaCutOff>0.0f)
+                                    options=options|2;
+                                unsigned char* buffer=rs->readPortionOfCharImage(posX,posY,sizeX,sizeY,rgbaCutOff,valPerPix==1);
+                                if (buffer!=nullptr)
+                                {
+                                    int vvv=sizeX*sizeY*valPerPix;
+                                    if (rgbaCutOff>0.0f)
+                                    {
+                                        if (valPerPix==1)
+                                            vvv=sizeX*sizeY*2;
+                                        else
+                                            vvv=sizeX*sizeY*4;
+                                    }
+                                    luaWrap_lua_pushlstring(L,(const char*)buffer,vvv);
+                                    delete[] ((char*)buffer);
+                                    luaWrap_lua_pushinteger(L,reso[0]);
+                                    luaWrap_lua_pushinteger(L,reso[1]);
+                                    LUA_END(3);
+                                }
+                                else
+                                    errorString=SIM_ERROR_INVALID_ARGUMENTS;
+                            }
+                            else
+                                errorString=SIM_ERROR_VISION_SENSOR_INEXISTANT;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetVisionSensorCharImage(luaWrap_lua_State* L)
+{ // deprecated on 11.04.2022
+    TRACE_LUA_API;
+    LUA_START("sim.setVisionSensorCharImage");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int arg1=luaToInt(L,1);
+        int handleFlags=arg1&0xff00000;
+        int sensHandle=arg1&0xfffff;
+        int valPerPix=3;
+        if ((handleFlags&sim_handleflag_greyscale)!=0)
+            valPerPix=1;
+        bool noProcessing=false;
+        if ((handleFlags&sim_handleflag_rawvalue)!=0)
+            noProcessing=true;
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sensHandle);
+        if (it!=nullptr)
+        { // Ok we have a valid object
+            if (it->getObjectType()==sim_object_visionsensor_type)
+            { // ok we have a valid vision sensor
+                int res[2];
+                CVisionSensor* rendSens=(CVisionSensor*)it;
+                rendSens->getResolution(res);
+                // We check if we have a string at position 2:
+                if (luaWrap_lua_isstring(L,2))
+                { // Ok we have a string. Now what size is it?
+                    // Now we check if the provided string has correct size:
+                    size_t dataLength;
+                    char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
+                    if (int(dataLength)>=res[0]*res[1]*valPerPix)
+                    {
+                        if (rendSens->setExternalCharImage_old((unsigned char*)data,valPerPix==1,noProcessing))
+                            retVal=1;
+                    }
+                    else
+                        errorString=SIM_ERROR_INCORRECT_BUFFER_SIZE;
+                }
+                else
+                    errorString=SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG;
+            }
+            else
+                errorString=SIM_ERROR_OBJECT_NOT_VISION_SENSOR;
+        }
+        else
+            errorString=SIM_ERROR_OBJECT_INEXISTANT;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetVisionSensorDepthBuffer(luaWrap_lua_State* L)
+{ // deprecated on 11.04.2022
+    TRACE_LUA_API;
+    LUA_START("sim.getVisionSensorDepthBuffer");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int posX=0;
+        int posY=0;
+        int sizeX=0;
+        int sizeY=0;
+        // Now check the optional arguments:
+        int res;
+        res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
+        if ((res==0)||(res==2))
+        {
+            if (res==2)
+                posX=luaToInt(L,2);
+            res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
+            if ((res==0)||(res==2))
+            {
+                if (res==2)
+                    posY=luaToInt(L,3);
+                res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
+                if ((res==0)||(res==2))
+                {
+                    if (res==2)
+                        sizeX=luaToInt(L,4);
+                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
+                    if ((res==0)||(res==2))
+                    {
+                        if (res==2)
+                            sizeY=luaToInt(L,5);
+                        int sensHandle=luaToInt(L,1);
+                        bool returnString=(sensHandle&sim_handleflag_codedstring)!=0;
+                        bool toMeters=(sensHandle&sim_handleflag_depthbuffermeters)!=0;
+                        sensHandle=sensHandle&0xfffff;
+                        CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensHandle);
+                        if (rs!=nullptr)
+                        {
+                            if ( (sizeX==0)&&(sizeY==0) )
+                            { // we have default values here (the whole picture)
+                                int reso[2];
+                                rs->getResolution(reso);
+                                sizeX=reso[0];
+                                sizeY=reso[1];
+                            }
+                            float* buffer=rs->readPortionOfImage(posX,posY,sizeX,sizeY,2);
+                            if (buffer!=nullptr)
+                            {
+                                if (toMeters)
+                                { // Here we need to convert values to distances in meters:
+                                    float n=rs->getNearClippingPlane();
+                                    float f=rs->getFarClippingPlane();
+                                    float fmn=f-n;
+                                    for (int i=0;i<sizeX*sizeY;i++)
+                                        buffer[i]=n+fmn*buffer[i];
+                                }
+                                if (returnString)
+                                    luaWrap_lua_pushlstring(L,(char*)buffer,sizeX*sizeY*sizeof(float));
+                                else
+                                    pushFloatTableOntoStack(L,sizeX*sizeY,buffer);
+                                delete[] ((char*)buffer);
+                                LUA_END(1);
+                            }
+                            else
+                                errorString=SIM_ERROR_INVALID_ARGUMENTS;
+                        }
+                        else
+                            errorString=SIM_ERROR_VISION_SENSOR_INEXISTANT;
+                    }
+                }
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

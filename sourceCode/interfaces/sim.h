@@ -234,12 +234,9 @@ SIM_DLLEXPORT simInt simReadVisionSensor(simInt visionSensorHandle,simFloat** au
 SIM_DLLEXPORT simInt simResetVisionSensor(simInt visionSensorHandle);
 SIM_DLLEXPORT simInt simCheckVisionSensor(simInt visionSensorHandle,simInt entityHandle,simFloat** auxValues,simInt** auxValuesCount);
 SIM_DLLEXPORT simFloat* simCheckVisionSensorEx(simInt visionSensorHandle,simInt entityHandle,simBool returnImage);
-SIM_DLLEXPORT simInt simGetVisionSensorResolution(simInt visionSensorHandle,simInt* resolution);
-SIM_DLLEXPORT simFloat* simGetVisionSensorImage(simInt visionSensorHandle);
-SIM_DLLEXPORT simUChar* simGetVisionSensorCharImage(simInt visionSensorHandle,simInt* resolutionX,simInt* resolutionY);
-SIM_DLLEXPORT simInt simSetVisionSensorImage(simInt visionSensorHandle,const simFloat* image);
-SIM_DLLEXPORT simInt simSetVisionSensorCharImage(simInt visionSensorHandle,const simUChar* image);
-SIM_DLLEXPORT int simSetVisionSensorDepthBuffer(simInt visionSensorHandle,const float* depthBuffer);
+SIM_DLLEXPORT simUChar* simGetVisionSensorImg(simInt sensorHandle,simInt options,simFloat rgbaCutOff,const simInt* pos,const simInt* size,simInt* resolution);
+SIM_DLLEXPORT simInt simSetVisionSensorImg(simInt sensorHandle,const simUChar* img,simInt options,const simInt* pos,const simInt* size);
+SIM_DLLEXPORT simFloat* simGetVisionSensorDepth(simInt sensorHandle,simInt options,const simInt* pos,const simInt* size,simInt* resolution);
 SIM_DLLEXPORT simInt simRuckigPos(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
 SIM_DLLEXPORT simInt simRuckigVel(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
 SIM_DLLEXPORT simInt simRuckigStep(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2);
@@ -725,6 +722,12 @@ SIM_DLLEXPORT simBool _simGetGeomProxyDynamicsFullRefreshFlag(const simVoid* geo
 SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle);
 SIM_DLLEXPORT simVoid _simSetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape,simBool tag);
 SIM_DLLEXPORT simBool _simGetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape);
+SIM_DLLEXPORT simInt simGetVisionSensorResolution(simInt visionSensorHandle,simInt* resolution);
+SIM_DLLEXPORT simFloat* simGetVisionSensorImage(simInt visionSensorHandle);
+SIM_DLLEXPORT simUChar* simGetVisionSensorCharImage(simInt visionSensorHandle,simInt* resolutionX,simInt* resolutionY);
+SIM_DLLEXPORT simInt simSetVisionSensorImage(simInt visionSensorHandle,const simFloat* image);
+SIM_DLLEXPORT simInt simSetVisionSensorCharImage(simInt visionSensorHandle,const simUChar* image);
+SIM_DLLEXPORT int simSetVisionSensorDepthBuffer(simInt visionSensorHandle,const float* depthBuffer);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

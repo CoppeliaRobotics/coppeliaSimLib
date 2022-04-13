@@ -231,12 +231,9 @@ simInt simReadVisionSensor_internal(simInt visionSensorHandle,simFloat** auxValu
 simInt simResetVisionSensor_internal(simInt visionSensorHandle);
 simInt simCheckVisionSensor_internal(simInt visionSensorHandle,simInt entityHandle,simFloat** auxValues,simInt** auxValuesCount);
 simFloat* simCheckVisionSensorEx_internal(simInt visionSensorHandle,simInt entityHandle,simBool returnImage);
-simInt simGetVisionSensorResolution_internal(simInt visionSensorHandle,simInt* resolution);
-simFloat* simGetVisionSensorImage_internal(simInt visionSensorHandle);
-simUChar* simGetVisionSensorCharImage_internal(simInt visionSensorHandle,simInt* resolutionX,simInt* resolutionY);
-simInt simSetVisionSensorImage_internal(simInt visionSensorHandle,const simFloat* image);
-simInt simSetVisionSensorCharImage_internal(simInt visionSensorHandle,const simUChar* image);
-simFloat* simGetVisionSensorDepthBuffer_internal(simInt visionSensorHandle);
+simUChar* simGetVisionSensorImg_internal(simInt sensorHandle,simInt options,simFloat rgbaCutOff,const simInt* pos,const simInt* size,simInt* resolution);
+simInt simSetVisionSensorImg_internal(simInt sensorHandle,const simUChar* img,simInt options,const simInt* pos,const simInt* size);
+simFloat* simGetVisionSensorDepth_internal(simInt sensorHandle,simInt options,const simInt* pos,const simInt* size,simInt* resolution);
 simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
 simInt simRuckigVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
 simInt simRuckigStep_internal(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2);
@@ -670,4 +667,10 @@ simVoid _simSetGeomProxyDynamicsFullRefreshFlag_internal(simVoid* geomData,simBo
 simBool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const simVoid* geomData);
 simInt simRemoveObject_internal(simInt objectHandle);
 simUInt simGetSystemTimeInMs_internal(simInt previousTime);
+simInt simGetVisionSensorResolution_internal(simInt visionSensorHandle,simInt* resolution);
+simFloat* simGetVisionSensorImage_internal(simInt visionSensorHandle);
+simUChar* simGetVisionSensorCharImage_internal(simInt visionSensorHandle,simInt* resolutionX,simInt* resolutionY);
+simInt simSetVisionSensorImage_internal(simInt visionSensorHandle,const simFloat* image);
+simInt simSetVisionSensorCharImage_internal(simInt visionSensorHandle,const simUChar* image);
+simFloat* simGetVisionSensorDepthBuffer_internal(simInt visionSensorHandle);
 #endif // !defined(simInternal_INCLUDED_)

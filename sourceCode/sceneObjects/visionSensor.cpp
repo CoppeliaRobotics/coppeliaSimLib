@@ -68,7 +68,7 @@ bool CVisionSensor::isPotentiallyRenderable() const
     return(false);
 }
 
-float* CVisionSensor::readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth)
+float* CVisionSensor::readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth) const
 {
     if ( (posX<0)||(posY<0)||(sizeX<1)||(sizeY<1)||(posX+sizeX>_resolution[0])||(posY+sizeY>_resolution[1]) )
         return(nullptr);
@@ -106,14 +106,80 @@ float* CVisionSensor::readPortionOfImage(int posX,int posY,int sizeX,int sizeY,i
     return(buff);
 }
 
-unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,float cutoffRgba,bool imgIsGreyScale)
+bool CVisionSensor::writePortionOfCharImage(const unsigned char* img,int posX,int posY,int sizeX,int sizeY,int option)
+{ // option: bit0 set --> greyscale. bit1 set --> with alpha channel, bit2 set --> do not apply processing
+    bool retVal=false;
+    if ( (posX>=0)&&(posY>=0)&&(sizeX>=1)&&(sizeY>=1)&&(posX+sizeX<=_resolution[0])&&(posY+sizeY<=_resolution[1]) )
+    {
+        retVal=true;
+        if ((option&2)==0)
+        { // rgb or greyscale
+            int p=0;
+
+            for (int j=posY;j<posY+sizeY;j++)
+            {
+                for (int i=posX;i<posX+sizeX;i++)
+                {
+                    if ((option&1)!=0)
+                    { // greyscale
+                        _rgbBuffer[3*(j*_resolution[0]+i)+0]=img[p];
+                        _rgbBuffer[3*(j*_resolution[0]+i)+1]=img[p];
+                        _rgbBuffer[3*(j*_resolution[0]+i)+2]=img[p];
+                    }
+                    else
+                    { // rgb
+                        _rgbBuffer[3*(j*_resolution[0]+i)+0]=img[3*p+0];
+                        _rgbBuffer[3*(j*_resolution[0]+i)+1]=img[3*p+1];
+                        _rgbBuffer[3*(j*_resolution[0]+i)+2]=img[3*p+2];
+                    }
+                    p++;
+                }
+            }
+        }
+        else
+        { // rgba or greyscale+a
+            int p=0;
+            for (int j=posY;j<posY+sizeY;j++)
+            {
+                for (int i=posX;i<posX+sizeX;i++)
+                {
+                    if ((option&1)!=0)
+                    { // greyscale+a
+                        _rgbBuffer[3*(j*_resolution[0]+i)+0]=img[2*p+0];
+                        _rgbBuffer[3*(j*_resolution[0]+i)+1]=img[2*p+0];
+                        _rgbBuffer[3*(j*_resolution[0]+i)+2]=img[2*p+0];
+                    }
+                    else
+                    { // rgba
+                        _rgbBuffer[3*(j*_resolution[0]+i)+0]=img[4*p+0];
+                        _rgbBuffer[3*(j*_resolution[0]+i)+1]=img[4*p+1];
+                        _rgbBuffer[3*(j*_resolution[0]+i)+2]=img[4*p+2];
+                    }
+                    p++;
+                }
+            }
+        }
+        if ((option&4)==0)
+            _computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
+#ifdef SIM_WITH_OPENGL
+        if (_contextFboAndTexture==nullptr)
+            createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(false);
+
+        if (_contextFboAndTexture!=nullptr)
+            _contextFboAndTexture->textureObject->setImage(false,false,true,_rgbBuffer); // Update the texture
+#endif
+    }
+    return(retVal);
+}
+
+unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,float cutoffRgba,int option) const
 {
     if ( (posX<0)||(posY<0)||(sizeX<1)||(sizeY<1)||(posX+sizeX>_resolution[0])||(posY+sizeY>_resolution[1]) )
         return(nullptr);
     unsigned char* buff=nullptr;
-    if (cutoffRgba==0.0f)
+    if ((option&2)==0)
     {
-        if (imgIsGreyScale)
+        if ((option&1)!=0)
             buff=new unsigned char[sizeX*sizeY];
         else
             buff=new unsigned char[sizeX*sizeY*3];
@@ -122,7 +188,7 @@ unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX
         {
             for (int i=posX;i<posX+sizeX;i++)
             {
-                if (imgIsGreyScale)
+                if ((option&1)!=0)
                 {
                     unsigned int v=_rgbBuffer[3*(j*_resolution[0]+i)+0];
                     v+=_rgbBuffer[3*(j*_resolution[0]+i)+1];
@@ -141,7 +207,7 @@ unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX
     }
     else
     {
-        if (imgIsGreyScale)
+        if ((option&1)!=0)
             buff=new unsigned char[sizeX*sizeY*2];
         else
             buff=new unsigned char[sizeX*sizeY*4];
@@ -150,7 +216,7 @@ unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX
         {
             for (int i=posX;i<posX+sizeX;i++)
             {
-                if (imgIsGreyScale)
+                if ((option&1)!=0)
                 {
                     unsigned int v=_rgbBuffer[3*(j*_resolution[0]+i)+0];
                     v+=_rgbBuffer[3*(j*_resolution[0]+i)+1];
@@ -175,7 +241,6 @@ unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX
             }
         }
     }
-
     return(buff);
 }
 
@@ -523,7 +588,7 @@ void CVisionSensor::resetSensor()
         _clearBuffers();
 }
 
-bool CVisionSensor::setExternalImage(const float* img,bool imgIsGreyScale,bool noProcessing)
+bool CVisionSensor::setExternalImage_old(const float* img,bool imgIsGreyScale,bool noProcessing)
 {
     if (imgIsGreyScale)
     {
@@ -556,7 +621,7 @@ bool CVisionSensor::setExternalImage(const float* img,bool imgIsGreyScale,bool n
     return(returnValue);
 }
 
-bool CVisionSensor::setExternalCharImage(const unsigned char* img,bool imgIsGreyScale,bool noProcessing)
+bool CVisionSensor::setExternalCharImage_old(const unsigned char* img,bool imgIsGreyScale,bool noProcessing)
 {
     if (imgIsGreyScale)
     {

@@ -7027,20 +7027,14 @@ simInt simGetLightParameters_internal(simInt objectHandle,simFloat* setToNULL,si
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isLight(__func__,objectHandle))
-        {
             return(-1);
-        }
         CLight* it=App::currentWorld->sceneObjects->getLightFromHandle(objectHandle);
         int retVal=0;
         if (it->getLightActive())
@@ -11237,178 +11231,93 @@ simFloat* simCheckVisionSensorEx_internal(simInt sensorHandle,simInt entityHandl
     return(nullptr);
 }
 
-simInt simGetVisionSensorResolution_internal(simInt sensorHandle,simInt* resolution)
+
+simUChar* simGetVisionSensorImg_internal(simInt sensorHandle,simInt options,simFloat rgbaCutOff,const simInt* pos,const simInt* size,simInt* resolution)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,sensorHandle))
+            return(nullptr);
+        if (!isVisionSensor(__func__,sensorHandle))
+            return(nullptr);
+        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        int res[2];
+        it->getResolution(res);
+        if (resolution!=nullptr)
+        {
+            resolution[0]=res[0];
+            resolution[1]=res[1];
+        }
+        int posX=0;
+        int posY=0;
+        if (pos!=nullptr)
+        {
+            posX=pos[0];
+            posY=pos[1];
+        }
+        int sizeX=res[0];
+        int sizeY=res[1];
+        if ( (size!=nullptr)&&(size[0]>0) )
+        {
+            sizeX=size[0];
+            sizeY=size[1];
+        }
+        unsigned char* img=it->readPortionOfCharImage(posX,posY,sizeX,sizeY,rgbaCutOff,options);
+        if (img==nullptr)
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENTS);
+        return(img);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simSetVisionSensorImg_internal(simInt sensorHandle,const simUChar* img,simInt options,const simInt* pos,const simInt* size)
 {
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
         return(-1);
 
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!doesObjectExist(__func__,sensorHandle))
             return(-1);
         if (!isVisionSensor(__func__,sensorHandle))
             return(-1);
         CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
-        it->getResolution(resolution);
+        int res[2];
+        it->getResolution(res);
+        int posX=0;
+        int posY=0;
+        if (pos!=nullptr)
+        {
+            posX=pos[0];
+            posY=pos[1];
+        }
+        int sizeX=res[0];
+        int sizeY=res[1];
+        if ( (size!=nullptr)&&(size[0]>0) )
+        {
+            sizeX=size[0];
+            sizeY=size[1];
+        }
+        if (!it->writePortionOfCharImage(img,posX,posY,sizeX,sizeY,options))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENTS);
+            return(-1);
+        }
         return(1);
     }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simFloat* simGetVisionSensorImage_internal(simInt sensorHandle)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int handleFlags=sensorHandle&0xff00000;
-        sensorHandle=sensorHandle&0xfffff;
-        if (!doesObjectExist(__func__,sensorHandle))
-            return(nullptr);
-        if (!isVisionSensor(__func__,sensorHandle))
-            return(nullptr);
-        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
-        int res[2];
-        it->getResolution(res);
-        int valPerPixel=3;
-        if ((handleFlags&sim_handleflag_greyscale)!=0)
-            valPerPixel=1;
-        float* buff=new float[res[0]*res[1]*valPerPixel];
-        unsigned char* imgBuff=it->getRgbBufferPointer();
-        if ((handleFlags&sim_handleflag_greyscale)!=0)
-        {
-            for (int i=0;i<res[0]*res[1];i++)
-            {
-                float v=float(imgBuff[3*i+0])/255.0f;
-                v+=float(imgBuff[3*i+1])/255.0f;
-                v+=float(imgBuff[3*i+2])/255.0f;
-                buff[i]=v/3.0f;
-            }
-        }
-        else
-        {
-            for (int i=0;i<res[0]*res[1]*3;i++)
-                buff[i]=float(imgBuff[i])/255.0f;
-        }
-        return(buff);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
-}
-
-simUChar* simGetVisionSensorCharImage_internal(simInt sensorHandle,simInt* resolutionX,simInt* resolutionY)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int handleFlags=sensorHandle&0xff00000;
-        sensorHandle=sensorHandle&0xfffff;
-        if (!doesObjectExist(__func__,sensorHandle))
-            return(nullptr);
-        if (!isVisionSensor(__func__,sensorHandle))
-            return(nullptr);
-        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
-        int res[2];
-        it->getResolution(res);
-        if (resolutionX!=nullptr)
-            resolutionX[0]=res[0];
-        if (resolutionY!=nullptr)
-            resolutionY[0]=res[1];
-
-        int valPerPixel=3;
-        if ((handleFlags&sim_handleflag_greyscale)!=0)
-            valPerPixel=1;
-        unsigned char* buff=new unsigned char[res[0]*res[1]*valPerPixel];
-        unsigned char* imgBuff=it->getRgbBufferPointer();
-        if ((handleFlags&sim_handleflag_greyscale)!=0)
-        {
-            int n=res[0]*res[1];
-            for (int i=0;i<n;i++)
-            {
-                unsigned int v=imgBuff[3*i+0];
-                v+=imgBuff[3*i+1];
-                v+=imgBuff[3*i+2];
-                buff[i]=(unsigned char)(v/3);
-            }
-        }
-        else
-        {
-            int n=res[0]*res[1]*3;
-            for (int i=0;i<n;i++)
-                buff[i]=imgBuff[i];
-        }
-        return(buff);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(nullptr);
-}
-
-simInt simSetVisionSensorImage_internal(simInt sensorHandle,const simFloat* image)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        int handleFlags=sensorHandle&0xff00000;
-        int objectHandle=sensorHandle&0xfffff;
-        if (!doesObjectExist(__func__,objectHandle))
-            return(-1);
-        if (!isVisionSensor(__func__,objectHandle))
-            return(-1);
-        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
-        int retVal=0;
-        if (handleFlags&sim_handleflag_depthbuffer)
-            it->setDepthBuffer(image);
-        else
-        {
-            if (it->setExternalImage(image,(handleFlags&sim_handleflag_greyscale)!=0,(handleFlags&sim_handleflag_rawvalue)!=0))
-                retVal=1;
-        }
-        return(retVal);
-    }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
-simInt simSetVisionSensorCharImage_internal(simInt sensorHandle,const simUChar* image)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        int handleFlags=sensorHandle&0xff00000;
-        int objectHandle=sensorHandle&0xfffff;
-        if (!doesObjectExist(__func__,objectHandle))
-            return(-1);
-        if (!isVisionSensor(__func__,objectHandle))
-            return(-1);
-        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
-        int retVal=0;
-        if (it->setExternalCharImage(image,(handleFlags&sim_handleflag_greyscale)!=0,(handleFlags&sim_handleflag_rawvalue)!=0))
-            retVal=1;
-        return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
-}
-
-simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
+simFloat* simGetVisionSensorDepth_internal(simInt sensorHandle,simInt options,const simInt* pos,const simInt* size,simInt* resolution)
 {
     TRACE_C_API;
 
@@ -11417,8 +11326,6 @@ simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags=sensorHandle&0xff00000;
-        sensorHandle=sensorHandle&0xfffff;
         if (!doesObjectExist(__func__,sensorHandle))
             return(nullptr);
         if (!isVisionSensor(__func__,sensorHandle))
@@ -11426,22 +11333,35 @@ simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
         CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         int res[2];
         it->getResolution(res);
-        float* buff=new float[res[0]*res[1]];
-        float* depthBuff=it->getDepthBufferPointer();
-        if ((handleFlags&sim_handleflag_depthbuffermeters)!=0)
-        { // Here we need to convert values to distances in meters:
+        if (resolution!=nullptr)
+        {
+            resolution[0]=res[0];
+            resolution[1]=res[1];
+        }
+        int posX=0;
+        int posY=0;
+        if (pos!=nullptr)
+        {
+            posX=pos[0];
+            posY=pos[1];
+        }
+        int sizeX=res[0];
+        int sizeY=res[1];
+        if ( (size!=nullptr)&&(size[0]>0) )
+        {
+            sizeX=size[0];
+            sizeY=size[1];
+        }
+        float* retBuff=it->readPortionOfImage(posX,posY,sizeX,sizeY,2);
+        if ((options&1)!=0)
+        {
             float n=it->getNearClippingPlane();
             float f=it->getFarClippingPlane();
             float fmn=f-n;
             for (int i=0;i<res[0]*res[1];i++)
-                buff[i]=n+fmn*depthBuff[i];
+                retBuff[i]=n+fmn*retBuff[i];
         }
-        else
-        { // values are: 0=on the close clipping plane, 1=on the far clipping plane
-            for (int i=0;i<res[0]*res[1];i++)
-                buff[i]=depthBuff[i];
-        }
-        return(buff);
+        return(retBuff);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
@@ -23166,5 +23086,215 @@ simUInt simGetSystemTimeInMs_internal(simInt previousTime)
             retVal=(unsigned int)VDateTime::getTimeDiffInMs(previousTime);
     }
     return(retVal);
+}
+
+simInt simGetVisionSensorResolution_internal(simInt sensorHandle,simInt* resolution)
+{ // deprecated on 11.04.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,sensorHandle))
+            return(-1);
+        if (!isVisionSensor(__func__,sensorHandle))
+            return(-1);
+        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        it->getResolution(resolution);
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simFloat* simGetVisionSensorImage_internal(simInt sensorHandle)
+{ // deprecated on 11.04.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int handleFlags=sensorHandle&0xff00000;
+        sensorHandle=sensorHandle&0xfffff;
+        if (!doesObjectExist(__func__,sensorHandle))
+            return(nullptr);
+        if (!isVisionSensor(__func__,sensorHandle))
+            return(nullptr);
+        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        int res[2];
+        it->getResolution(res);
+        int valPerPixel=3;
+        if ((handleFlags&sim_handleflag_greyscale)!=0)
+            valPerPixel=1;
+        float* buff=new float[res[0]*res[1]*valPerPixel];
+        unsigned char* imgBuff=it->getRgbBufferPointer();
+        if ((handleFlags&sim_handleflag_greyscale)!=0)
+        {
+            for (int i=0;i<res[0]*res[1];i++)
+            {
+                float v=float(imgBuff[3*i+0])/255.0f;
+                v+=float(imgBuff[3*i+1])/255.0f;
+                v+=float(imgBuff[3*i+2])/255.0f;
+                buff[i]=v/3.0f;
+            }
+        }
+        else
+        {
+            for (int i=0;i<res[0]*res[1]*3;i++)
+                buff[i]=float(imgBuff[i])/255.0f;
+        }
+        return(buff);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simSetVisionSensorImage_internal(simInt sensorHandle,const simFloat* image)
+{ // deprecated on 11.04.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int handleFlags=sensorHandle&0xff00000;
+        int objectHandle=sensorHandle&0xfffff;
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        if (!isVisionSensor(__func__,objectHandle))
+            return(-1);
+        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
+        int retVal=0;
+        if (handleFlags&sim_handleflag_depthbuffer)
+            it->setDepthBuffer(image);
+        else
+        {
+            if (it->setExternalImage_old(image,(handleFlags&sim_handleflag_greyscale)!=0,(handleFlags&sim_handleflag_rawvalue)!=0))
+                retVal=1;
+        }
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simUChar* simGetVisionSensorCharImage_internal(simInt sensorHandle,simInt* resolutionX,simInt* resolutionY)
+{ // deprecated on 11.04.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int handleFlags=sensorHandle&0xff00000;
+        sensorHandle=sensorHandle&0xfffff;
+        if (!doesObjectExist(__func__,sensorHandle))
+            return(nullptr);
+        if (!isVisionSensor(__func__,sensorHandle))
+            return(nullptr);
+        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        int res[2];
+        it->getResolution(res);
+        if (resolutionX!=nullptr)
+            resolutionX[0]=res[0];
+        if (resolutionY!=nullptr)
+            resolutionY[0]=res[1];
+
+        int valPerPixel=3;
+        if ((handleFlags&sim_handleflag_greyscale)!=0)
+            valPerPixel=1;
+        unsigned char* buff=new unsigned char[res[0]*res[1]*valPerPixel];
+        unsigned char* imgBuff=it->getRgbBufferPointer();
+        if ((handleFlags&sim_handleflag_greyscale)!=0)
+        {
+            int n=res[0]*res[1];
+            for (int i=0;i<n;i++)
+            {
+                unsigned int v=imgBuff[3*i+0];
+                v+=imgBuff[3*i+1];
+                v+=imgBuff[3*i+2];
+                buff[i]=(unsigned char)(v/3);
+            }
+        }
+        else
+        {
+            int n=res[0]*res[1]*3;
+            for (int i=0;i<n;i++)
+                buff[i]=imgBuff[i];
+        }
+        return(buff);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simSetVisionSensorCharImage_internal(simInt sensorHandle,const simUChar* image)
+{ // deprecated on 11.04.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int handleFlags=sensorHandle&0xff00000;
+        int objectHandle=sensorHandle&0xfffff;
+        if (!doesObjectExist(__func__,objectHandle))
+            return(-1);
+        if (!isVisionSensor(__func__,objectHandle))
+            return(-1);
+        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
+        int retVal=0;
+        if (it->setExternalCharImage_old(image,(handleFlags&sim_handleflag_greyscale)!=0,(handleFlags&sim_handleflag_rawvalue)!=0))
+            retVal=1;
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
+{ // deprecated on 11.04.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int handleFlags=sensorHandle&0xff00000;
+        sensorHandle=sensorHandle&0xfffff;
+        if (!doesObjectExist(__func__,sensorHandle))
+            return(nullptr);
+        if (!isVisionSensor(__func__,sensorHandle))
+            return(nullptr);
+        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        int res[2];
+        it->getResolution(res);
+        float* buff=new float[res[0]*res[1]];
+        float* depthBuff=it->getDepthBufferPointer();
+        if ((handleFlags&sim_handleflag_depthbuffermeters)!=0)
+        { // Here we need to convert values to distances in meters:
+            float n=it->getNearClippingPlane();
+            float f=it->getFarClippingPlane();
+            float fmn=f-n;
+            for (int i=0;i<res[0]*res[1];i++)
+                buff[i]=n+fmn*depthBuff[i];
+        }
+        else
+        { // values are: 0=on the close clipping plane, 1=on the far clipping plane
+            for (int i=0;i<res[0]*res[1];i++)
+                buff[i]=depthBuff[i];
+        }
+        return(buff);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
 }
 

@@ -877,29 +877,17 @@ SIM_DLLEXPORT simFloat* simCheckVisionSensorEx(simInt visionSensorHandle,simInt 
 {
     return(simCheckVisionSensorEx_internal(visionSensorHandle,entityHandle,returnImage));
 }
-SIM_DLLEXPORT simInt simGetVisionSensorResolution(simInt visionSensorHandle,simInt* resolution)
+SIM_DLLEXPORT simUChar* simGetVisionSensorImg(simInt sensorHandle,simInt options,simFloat rgbaCutOff,const simInt* pos,const simInt* size,simInt* resolution)
 {
-    return(simGetVisionSensorResolution_internal(visionSensorHandle,resolution));
+    return(simGetVisionSensorImg_internal(sensorHandle,options,rgbaCutOff,pos,size,resolution));
 }
-SIM_DLLEXPORT simFloat* simGetVisionSensorImage(simInt visionSensorHandle)
+SIM_DLLEXPORT simInt simSetVisionSensorImg(simInt sensorHandle,const simUChar* img,simInt options,const simInt* pos,const simInt* size)
 {
-    return(simGetVisionSensorImage_internal(visionSensorHandle));
+    return(simSetVisionSensorImg_internal(sensorHandle,img,options,pos,size));
 }
-SIM_DLLEXPORT simUChar* simGetVisionSensorCharImage(simInt visionSensorHandle,simInt* resolutionX,simInt* resolutionY)
+SIM_DLLEXPORT simFloat* simGetVisionSensorDepth(simInt sensorHandle,simInt options,const simInt* pos,const simInt* size,simInt* resolution)
 {
-    return(simGetVisionSensorCharImage_internal(visionSensorHandle,resolutionX,resolutionY));
-}
-SIM_DLLEXPORT simInt simSetVisionSensorImage(simInt visionSensorHandle,const simFloat* image)
-{
-    return(simSetVisionSensorImage_internal(visionSensorHandle,image));
-}
-SIM_DLLEXPORT simInt simSetVisionSensorCharImage(simInt visionSensorHandle,const simUChar* image)
-{
-    return(simSetVisionSensorCharImage_internal(visionSensorHandle,image));
-}
-SIM_DLLEXPORT simFloat* simGetVisionSensorDepthBuffer(simInt visionSensorHandle)
-{
-    return(simGetVisionSensorDepthBuffer_internal(visionSensorHandle));
+    return(simGetVisionSensorDepth_internal(sensorHandle,options,pos,size,resolution));
 }
 SIM_DLLEXPORT simInt simRuckigPos(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
 {
@@ -2786,6 +2774,30 @@ SIM_DLLEXPORT simVoid _simSetShapeIsStaticAndNotRespondableButDynamicTag(const s
 SIM_DLLEXPORT simBool _simGetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape)
 {
     return(0);
+}
+SIM_DLLEXPORT simInt simGetVisionSensorResolution(simInt visionSensorHandle,simInt* resolution)
+{
+    return(simGetVisionSensorResolution_internal(visionSensorHandle,resolution));
+}
+SIM_DLLEXPORT simFloat* simGetVisionSensorImage(simInt visionSensorHandle)
+{
+    return(simGetVisionSensorImage_internal(visionSensorHandle));
+}
+SIM_DLLEXPORT simUChar* simGetVisionSensorCharImage(simInt visionSensorHandle,simInt* resolutionX,simInt* resolutionY)
+{
+    return(simGetVisionSensorCharImage_internal(visionSensorHandle,resolutionX,resolutionY));
+}
+SIM_DLLEXPORT simInt simSetVisionSensorImage(simInt visionSensorHandle,const simFloat* image)
+{
+    return(simSetVisionSensorImage_internal(visionSensorHandle,image));
+}
+SIM_DLLEXPORT simInt simSetVisionSensorCharImage(simInt visionSensorHandle,const simUChar* image)
+{
+    return(simSetVisionSensorCharImage_internal(visionSensorHandle,image));
+}
+SIM_DLLEXPORT simFloat* simGetVisionSensorDepthBuffer(simInt visionSensorHandle)
+{
+    return(simGetVisionSensorDepthBuffer_internal(visionSensorHandle));
 }
 // Deprecated end
 
