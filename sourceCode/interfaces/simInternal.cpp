@@ -11358,7 +11358,7 @@ simFloat* simGetVisionSensorDepth_internal(simInt sensorHandle,simInt options,co
             float n=it->getNearClippingPlane();
             float f=it->getFarClippingPlane();
             float fmn=f-n;
-            for (int i=0;i<res[0]*res[1];i++)
+            for (int i=0;i<sizeX*sizeY;i++)
                 retBuff[i]=n+fmn*retBuff[i];
         }
         return(retBuff);

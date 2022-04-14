@@ -6868,6 +6868,20 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+
+    if (_containsScriptText_old(scriptObject,"sim.getVisionSensorResolution"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getVisionSensorResolution...");
+    if (_containsScriptText_old(scriptObject,"sim.getVisionSensorImage"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getVisionSensorImage...");
+    if (_containsScriptText_old(scriptObject,"sim.getVisionSensorCharImage"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getVisionSensorCharImage...");
+    if (_containsScriptText_old(scriptObject,"sim.setVisionSensorImage"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setVisionSensorImage...");
+    if (_containsScriptText_old(scriptObject,"sim.setVisionSensorCharImage"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setVisionSensorCharImage...");
+    if (_containsScriptText_old(scriptObject,"sim.getVisionSensorDepthBuffer"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getVisionSensorDepthBuffer...");
+
     if (_containsScriptText_old(scriptObject,"sim.getSystemTimeInMs"))
         App::logMsg(sim_verbosity_errors,"Contains sim.getSystemTimeInMs...");
 
