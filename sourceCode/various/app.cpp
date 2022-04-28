@@ -379,7 +379,24 @@ App::App(bool headless)
 #endif
 
 #ifdef SIM_WITH_GUI
-    CAuxLibVideo::loadLibrary(headless);
+    if (!headless)
+    {
+        if (CAuxLibVideo::loadLibrary())
+            App::logMsg(sim_verbosity_loadinfos,"loaded the video compression library.");
+        else
+        {
+            std::string msg("could not find or correctly load the video compression library.");
+#ifdef LIN_SIM
+            msg+="\nTry following:";
+            msg+="\n";
+            msg+="\n$ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev";
+            msg+="\nif above fails, try first:";
+            msg+="\n$ sudo apt-get -f install";
+            msg+="\n";
+#endif
+            App::logMsg(sim_verbosity_errors,msg.c_str());
+        }
+    }
 
     QFont f=QApplication::font();
     #ifdef WIN_SIM
@@ -560,16 +577,6 @@ void App::_runInitializationCallback(void(*initCallBack)())
         initCallBack(); // this should load all plugins
 
     App::worldContainer->scriptCustomFuncAndVarContainer->outputWarningWithFunctionNamesWithoutPlugin(true);
-
-    if (CPluginContainer::isGeomPluginAvailable())
-        App::logMsg(sim_verbosity_loadinfos,"using the 'Geom' plugin.");
-    else
-        App::logMsg(sim_verbosity_warnings,"the 'Geom' plugin could not be initialized.");
-
-    if (CPluginContainer::isIkPluginAvailable())
-        App::logMsg(sim_verbosity_loadinfos,"using the 'IK' plugin.");
-    else
-        App::logMsg(sim_verbosity_warnings,"the 'IK' plugin could not be initialized.");
 }
 
 void App::_runDeinitializationCallback(void(*deinitCallBack)())

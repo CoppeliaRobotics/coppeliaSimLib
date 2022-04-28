@@ -289,7 +289,7 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
                 ogl::setMaterialColor(0.9f,0.11f,0.11f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
             if (dynObjFlag_forVisualization==2)
                 ogl::setMaterialColor(0.9f,0.11f,0.9f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
-            nonPureDynamicDisplay=(geometric->getPurePrimitiveType()==sim_pure_primitive_none);
+            nonPureDynamicDisplay=(geometric->getPurePrimitiveType()==sim_primitiveshape_none);
         }
         else
         {

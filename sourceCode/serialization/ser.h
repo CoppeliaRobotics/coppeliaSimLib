@@ -126,7 +126,7 @@ public:
     void xmlAddNode_string(const char* name,const char* str);
     void xmlAddNode_strings(const char* name,const std::vector<std::string>& vals);
     void xmlAddNode_cdata(const char* name,const char* str);
-    void xmlAddNode_enum(const char* name,int val,int v1,const char* str1,int v2,const char* str2,int v3=-1,const char* str3=nullptr,int v4=-1,const char* str4=nullptr,int v5=-1,const char* str5=nullptr,int v6=-1,const char* str6=nullptr,int v7=-1,const char* str7=nullptr,int v8=-1,const char* str8=nullptr);
+    void xmlAddNode_enum(const char* name,int val,int v1,const char* str1,int v2,const char* str2,int v3=-1,const char* str3=nullptr,int v4=-1,const char* str4=nullptr,int v5=-1,const char* str5=nullptr,int v6=-1,const char* str6=nullptr,int v7=-1,const char* str7=nullptr,int v8=-1,const char* str8=nullptr,int v9=-1,const char* str9=nullptr);
     void xmlAddNode_enum(const char* name,int val,const std::vector<int>& vals,const std::vector<std::string>& strings);
     void xmlAddNode_int(const char* name,int val);
     void xmlAddNode_2int(const char* name,int val1,int val2);
@@ -162,7 +162,7 @@ public:
     bool xmlGetNode_string(const char* name,std::string& val,bool required=true);
     bool xmlGetNode_strings(const char* name,std::vector<std::string>& vals,bool required=true);
     bool xmlGetNode_cdata(const char* name,std::string& val,bool required=true);
-    bool xmlGetNode_enum(const char* name,int& val,bool required,const char* str1,int v1,const char* str2,int v2,const char* str3=nullptr,int v3=-1,const char* str4=nullptr,int v4=-1,const char* str5=nullptr,int v5=-1,const char* str6=nullptr,int v6=-1,const char* str7=nullptr,int v7=-1,const char* str8=nullptr,int v8=-1);
+    bool xmlGetNode_enum(const char* name,int& val,bool required,const char* str1,int v1,const char* str2,int v2,const char* str3=nullptr,int v3=-1,const char* str4=nullptr,int v4=-1,const char* str5=nullptr,int v5=-1,const char* str6=nullptr,int v6=-1,const char* str7=nullptr,int v7=-1,const char* str8=nullptr,int v8=-1,const char* str9=nullptr,int v9=-1);
     bool xmlGetNode_enum(const char* name,int& val,bool required,const std::vector<int>& vals,const std::vector<std::string>& strings);
     bool xmlGetNode_int(const char* name,int& val,bool required=true);
     bool xmlGetNode_2int(const char* name,int& val1,int& val2,bool required=true);

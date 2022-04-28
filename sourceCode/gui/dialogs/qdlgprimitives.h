@@ -22,24 +22,23 @@ public:
     void cancelEvent();
     void okEvent();
 
-    void initialize(int type,const C3Vector* sizes); //0=plane, 1=box, 2=sphere, 3=cylinder, 4=disc
-    void _adjustValuesForPurePrimitive();
+    void initialize(int type,const C3Vector* sizes);
+    void _correctDependentValues();
 
     int primitiveType;
     int subdivX;
     int subdivY;
     int subdivZ;
-    int faces;
+    int faceSubdiv;
     int sides;
     float xSize;
     float ySize;
     float zSize;
     int discSubdiv;
     bool smooth;
-    int openEnds;
+    bool openEnds;
     bool pure;
     bool dynamic;
-    bool cone;
     bool sizesAreLocked;
     float density;
 
@@ -52,11 +51,10 @@ private slots:
     void on_qqYSubdiv_editingFinished();
     void on_qqZSubdiv_editingFinished();
     void on_qqSides_editingFinished();
-    void on_qqFaces_editingFinished();
+    void on_qqFaceSubdiv_editingFinished();
     void on_qqDiscSubdiv_editingFinished();
     void on_qqSmooth_clicked();
     void on_qqOpen_clicked();
-    void on_qqCone_clicked();
     void on_qqOkCancel_accepted();
     void on_qqOkCancel_rejected();
     void on_qqDensity_editingFinished();

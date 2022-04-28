@@ -8,66 +8,20 @@ pVideo_recorderInitialize CAuxLibVideo::video_recorderInitialize=0;
 pVideo_recorderAddFrame CAuxLibVideo::video_recorderAddFrame=0;
 pVideo_recorderEnd CAuxLibVideo::video_recorderEnd=0;
 
-void CAuxLibVideo::loadLibrary(bool headless)
+bool CAuxLibVideo::loadLibrary()
 {
-    if (!headless)
-    {
-        std::string vidLibPathAndName(VVarious::getModulePath());
-        vidLibPathAndName+="/";
+    std::string vidLibPathAndName(VVarious::getModulePath());
+    vidLibPathAndName+="/";
 #ifdef WIN_SIM
-        vidLibPathAndName+="vvcl.dll";
+    vidLibPathAndName+="vvcl.dll";
 #endif
 #ifdef MAC_SIM
-        vidLibPathAndName+="libvvcl.dylib";
+    vidLibPathAndName+="libvvcl.dylib";
 #endif
 #ifdef LIN_SIM
-        vidLibPathAndName+="libvvcl.so";
+    vidLibPathAndName+="libvvcl.so";
 #endif
-        if (_loadLibrary(vidLibPathAndName.c_str()))
-        {
-            if (!_getAuxLibProcAddresses())
-            { // Error
-                unloadLibrary();
-                SSimulationThreadCommand cmd;
-                cmd.cmdId=DISPLAY_MESSAGE_CMD;
-                cmd.intParams.push_back(sim_msgbox_type_info);
-                cmd.stringParams.push_back("Video compression library");
-                cmd.stringParams.push_back("Could not find all required functions in the video compression library.");
-                App::appendSimulationThreadCommand(cmd,5000);
-                App::logMsg(sim_verbosity_errors,"could not find all required functions in the video compression library.");
-            }
-            else
-                App::logMsg(sim_verbosity_loadinfos,"loaded the video compression library.");
-        }
-        else
-        {
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=DISPLAY_MESSAGE_CMD;
-            cmd.intParams.push_back(sim_msgbox_type_info);
-            cmd.stringParams.push_back("Video compression library");
-            #ifdef LIN_SIM
-            cmd.stringParams.push_back("Could not find or correctly load the video compression library.\n\nTry following:\n\n>sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev\nif above fails, try first:\nsudo apt-get -f install");
-            #else
-            cmd.stringParams.push_back("Could not find or correctly load the video compression library.");
-            #endif
-            if ( (!App::userSettings->doNotShowVideoCompressionLibraryLoadError)&&(!App::userSettings->suppressStartupDialogs) )
-                App::appendSimulationThreadCommand(cmd,5000);
-            else
-                App::logMsg(sim_verbosity_errors,cmd.stringParams[1].c_str());
-            std::string msg("could not find or correctly load the video compression library.");
-            #ifdef LIN_SIM
-            msg+="\n    Try following:";
-            msg+="\n";
-            msg+="\n    >sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev";
-            msg+="\n    if above fails, try first:";
-            msg+="\n    >sudo apt-get -f install";
-            msg+="\n";
-            #endif
-            App::logMsg(sim_verbosity_errors,msg.c_str());
-        }
-    }
-    else
-        _lib=nullptr;
+    return(_loadLibrary(vidLibPathAndName.c_str()));
 }
 
 bool CAuxLibVideo::_loadLibrary(const char* pathAndFilename)

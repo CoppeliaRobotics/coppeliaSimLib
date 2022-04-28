@@ -45,7 +45,7 @@ void CQDlgShapeDyn::refresh()
     CShape* it=App::currentWorld->sceneObjects->getLastSelectionShape();
     if (sel)
     {
-        notHeightfield=(it->getMeshWrapper()->getPurePrimitiveType()!=sim_pure_primitive_heightfield);
+        notHeightfield=(it->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_heightfield);
         lastSelIsNotStatic=!it->getShapeIsDynamicallyStatic();
         lastSelIsConvex=it->getMeshWrapper()->isConvex();
     }

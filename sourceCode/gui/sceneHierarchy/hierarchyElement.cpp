@@ -620,7 +620,7 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier,int tPosX,int tPos
                     {
                         if (((CShape*)it)->getMeshWrapper()->isPure())
                         {
-                            if (((CShape*)it)->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_heightfield)
+                            if (((CShape*)it)->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield)
                                 objectOrWorldIconID=HEIGHTFIELD_SHAPE_TREE_PICTURE;
                             else
                                 objectOrWorldIconID=PURE_SHAPE_TREE_PICTURE;

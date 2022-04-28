@@ -761,9 +761,9 @@ SIM_DLLEXPORT simInt simCreateMeshShape(simInt options,simFloat shadingAngle,con
 {
     return(simCreateMeshShape_internal(options,shadingAngle,vertices,verticesSize,indices,indicesSize,reserved));
 }
-SIM_DLLEXPORT simInt simCreatePureShape(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision)
+SIM_DLLEXPORT simInt simCreatePrimitiveShape(simInt primitiveType,const simFloat* sizes,simInt options)
 {
-    return(simCreatePureShape_internal(primitiveType,options,sizes,mass,precision));
+    return(simCreatePrimitiveShape_internal(primitiveType,sizes,options));
 }
 SIM_DLLEXPORT simInt simCreateHeightfieldShape(simInt options,simFloat shadingAngle,simInt xPointCount,simInt yPointCount,simFloat xSize,const simFloat* heights)
 {
@@ -2798,6 +2798,10 @@ SIM_DLLEXPORT simInt simSetVisionSensorCharImage(simInt visionSensorHandle,const
 SIM_DLLEXPORT simFloat* simGetVisionSensorDepthBuffer(simInt visionSensorHandle)
 {
     return(simGetVisionSensorDepthBuffer_internal(visionSensorHandle));
+}
+SIM_DLLEXPORT simInt simCreatePureShape(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision)
+{
+    return(simCreatePureShape_internal(primitiveType,options,sizes,mass,precision));
 }
 // Deprecated end
 

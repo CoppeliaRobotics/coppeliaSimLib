@@ -292,7 +292,7 @@ void CMeshWrapper::scaleMassAndInertia(float xVal,float yVal,float zVal)
 void CMeshWrapper::setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOrHeight)
 { // function has virtual/non-virtual counterpart!
     // Following added on 14/03/2011 because a compound shape composed by pure and non pure shapes would decompose as pure shapes with wrong orientation!
-    if (theType==sim_pure_primitive_none)
+    if (theType==sim_primitiveshape_none)
     {
         for (size_t i=0;i<childList.size();i++)
             childList[i]->setPurePrimitiveType(theType,xOrDiameter,y,zOrHeight);

@@ -3292,13 +3292,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 C7Vector trLast(last->getFullCumulativeTransformation());
                 C7Vector trfLast(last->getMeshWrapper()->getLocalInertiaFrame());
-                bool lastIsHeightfield=(last->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_heightfield);
+                bool lastIsHeightfield=(last->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield);
                 for (size_t i=1;i<cmd.intParams.size();i++)
                 {
                     CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
                     if (it!=nullptr)
                     {
-                        bool itIsHeightfield=(it->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_heightfield);
+                        bool itIsHeightfield=(it->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield);
                         if (lastIsHeightfield)
                         { // Heightfields cannot be non-static
                             if (!itIsHeightfield)

@@ -1120,7 +1120,7 @@ int CSceneObjectOperations::groupSelection(std::vector<int>* selection,bool show
             if (it->getMeshWrapper()->isPure())
             {
                 pureCount++;
-                if ( (it->getMeshWrapper()->isMesh())&&(it->getSingleMesh()->getPurePrimitiveType()==sim_pure_primitive_heightfield) )
+                if ( (it->getMeshWrapper()->isMesh())&&(it->getSingleMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
                     includesHeightfields=true;
             }
             if (it->getMeshWrapper()->isConvex())
@@ -1179,7 +1179,7 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
         if (it->getMeshWrapper()->isPure())
         {
             pureCount++;
-            if ( (it->getMeshWrapper()->isMesh())&&(it->getSingleMesh()->getPurePrimitiveType()==sim_pure_primitive_heightfield) )
+            if ( (it->getMeshWrapper()->isMesh())&&(it->getSingleMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
                 includesHeightfields=true;
         }
         if (!it->getMeshWrapper()->isConvex())
@@ -1190,7 +1190,7 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
     {
         CShape* it=shapesToGroup[i];
         if (allToNonPure)
-            it->getMeshWrapper()->setPurePrimitiveType(sim_pure_primitive_none,1.0f,1.0f,1.0f); // this will be propagated to all geometrics!
+            it->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0f,1.0f,1.0f); // this will be propagated to all geometrics!
 
         App::currentWorld->drawingCont->announceObjectWillBeErased(it);
         App::currentWorld->pointCloudCont->announceObjectWillBeErased(it->getObjectHandle());
@@ -1342,7 +1342,7 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,st
 {
     // Following 2 lines not needed, but added because a previous bug might have done something wrong! So here we make sure that all elements of the multishape are non-pure!!!
     if (!it->getMeshWrapper()->isPure())
-        it->getMeshWrapper()->setPurePrimitiveType(sim_pure_primitive_none,1.0f,1.0f,1.0f);
+        it->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0f,1.0f,1.0f);
 
     // we have to remove all attached drawing objects (we cannot correct for that or it would be very difficult!!)
     App::currentWorld->drawingCont->announceObjectWillBeErased(it);
@@ -1507,7 +1507,7 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
         allShapesExceptLast.insert(allShapesExceptLast.end(),ns.begin(),ns.end());
     }
 
-    lastSel->getMeshWrapper()->setPurePrimitiveType(sim_pure_primitive_none,1.0f,1.0f,1.0f);
+    lastSel->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0f,1.0f,1.0f);
 
     if (allShapesExceptLast.size()>0)
     {

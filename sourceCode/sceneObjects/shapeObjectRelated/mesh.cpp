@@ -28,7 +28,7 @@ CMesh::CMesh()
     edgeColor_DEPRECATED.setColorsAllBlack();
     insideColor_DEPRECATED.setDefaultValues();
 
-    _purePrimitive=sim_pure_primitive_none;
+    _purePrimitive=sim_primitiveshape_none;
     _purePrimitiveXSizeOrDiameter=0.0f;
     _purePrimitiveYSize=0.0f;
     _purePrimitiveZSizeOrHeight=0.0f;
@@ -322,15 +322,20 @@ void CMesh::scale(float xVal,float yVal,float zVal)
 { // function has virtual/non-virtual counterpart!
     // Following should not really be needed (normally already done by the calling function)
     //--------------------
-    if (_purePrimitive==sim_pure_primitive_plane)
+    if (_purePrimitive==sim_primitiveshape_plane)
         zVal=1.0f;
-    if (_purePrimitive==sim_pure_primitive_disc)
+    if (_purePrimitive==sim_primitiveshape_disc)
     {
         zVal=1.0f;
         yVal=xVal;
     }
-    if ( (_purePrimitive==sim_pure_primitive_cylinder)||(_purePrimitive==sim_pure_primitive_cone)||(_purePrimitive==sim_pure_primitive_heightfield) )
+    if ( (_purePrimitive==sim_primitiveshape_cylinder)||(_purePrimitive==sim_primitiveshape_cone)||(_purePrimitive==sim_primitiveshape_heightfield) )
         yVal=xVal;
+    if (_purePrimitive==sim_primitiveshape_capsule)
+    {
+        yVal=xVal;
+        zVal=xVal;
+    }
 
     scaleWrapperInfos(xVal,yVal,zVal);
 
@@ -356,7 +361,7 @@ void CMesh::scale(float xVal,float yVal,float zVal)
         _vertices[3*i+2]=v(2);
     }
     
-    if (_purePrimitive==sim_pure_primitive_heightfield)
+    if (_purePrimitive==sim_primitiveshape_heightfield)
     {
         for (int i=0;i<_heightfieldXCount*_heightfieldYCount;i++)
             _heightfieldHeights[i]*=zVal;
@@ -431,16 +436,16 @@ void CMesh::setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOr
     _purePrimitiveZSizeOrHeight=zOrHeight;
 
     // Set the convex flag only to true!! never to false, at least not here
-    if ((theType!=sim_pure_primitive_heightfield)&&(theType!=sim_pure_primitive_none)&&(theType!=sim_pure_primitive_plane)&&(theType!=sim_pure_primitive_disc))
+    if ((theType!=sim_primitiveshape_heightfield)&&(theType!=sim_primitiveshape_none)&&(theType!=sim_primitiveshape_plane)&&(theType!=sim_primitiveshape_disc))
         _convex=true;
-    if (theType!=sim_pure_primitive_heightfield)
+    if (theType!=sim_primitiveshape_heightfield)
     {
         _heightfieldHeights.clear();
         _heightfieldXCount=0;
         _heightfieldYCount=0;
     }
 
-    if ((theType!=sim_pure_primitive_cuboid)&&(theType!=sim_pure_primitive_spheroid)&&(theType!=sim_pure_primitive_cylinder))
+    if ( (theType!=sim_primitiveshape_cuboid)&&(theType!=sim_primitiveshape_spheroid)&&(theType!=sim_primitiveshape_cylinder)&&(theType!=sim_primitiveshape_capsule) )
         _purePrimitiveInsideScaling=0.0f; // no inside part!
 }
 
@@ -456,7 +461,7 @@ bool CMesh::isMesh() const
 
 bool CMesh::isPure() const
 { // function has virtual/non-virtual counterpart!
-    return(_purePrimitive!=sim_pure_primitive_none);
+    return(_purePrimitive!=sim_primitiveshape_none);
 }
 
 bool CMesh::isConvex() const
@@ -466,7 +471,7 @@ bool CMesh::isConvex() const
 
 bool CMesh::containsOnlyPureConvexShapes()
 { // function has virtual/non-virtual counterpart!
-    bool retVal=((_purePrimitive!=sim_pure_primitive_none)&&(_purePrimitive!=sim_pure_primitive_heightfield)&&(_purePrimitive!=sim_pure_primitive_plane)&&(_purePrimitive!=sim_pure_primitive_disc));
+    bool retVal=((_purePrimitive!=sim_primitiveshape_none)&&(_purePrimitive!=sim_primitiveshape_heightfield)&&(_purePrimitive!=sim_primitiveshape_plane)&&(_purePrimitive!=sim_primitiveshape_disc));
     if (retVal)
         _convex=retVal; // needed since there was a bug where pure planes and pure discs were considered as convex
     return(retVal);
@@ -763,7 +768,7 @@ void CMesh::setHeightfieldData(const std::vector<float>& heights,int xCount,int 
 float* CMesh::getHeightfieldData(int& xCount,int& yCount,float& minHeight,float& maxHeight)
 {
     setHeightfieldDiamonds(0);
-    if ( (_purePrimitive!=sim_pure_primitive_heightfield)||(_heightfieldHeights.size()==0) )
+    if ( (_purePrimitive!=sim_primitiveshape_heightfield)||(_heightfieldHeights.size()==0) )
         return(nullptr);
     xCount=_heightfieldXCount;
     yCount=_heightfieldYCount;
@@ -781,7 +786,7 @@ float* CMesh::getHeightfieldData(int& xCount,int& yCount,float& minHeight,float&
 
 void CMesh::setHeightfieldDiamonds(int d)
 { 
-    if (_purePrimitive==sim_pure_primitive_heightfield)
+    if (_purePrimitive==sim_primitiveshape_heightfield)
     {
         for (size_t i=0;i<_indices.size()/6;i++)
         {
@@ -1969,7 +1974,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("primitive");
-            ar.xmlAddNode_enum("type",_purePrimitive,sim_pure_primitive_none,"none",sim_pure_primitive_plane,"plane",sim_pure_primitive_disc,"disc",sim_pure_primitive_cuboid,"cuboid",sim_pure_primitive_spheroid,"spheroid",sim_pure_primitive_cylinder,"cylinder",sim_pure_primitive_cone,"cone",sim_pure_primitive_heightfield,"heightfield");
+            ar.xmlAddNode_enum("type",_purePrimitive,sim_primitiveshape_none,"none",sim_primitiveshape_plane,"plane",sim_primitiveshape_disc,"disc",sim_primitiveshape_cuboid,"cuboid",sim_primitiveshape_spheroid,"spheroid",sim_primitiveshape_cylinder,"cylinder",sim_primitiveshape_cone,"cone",sim_primitiveshape_heightfield,"heightfield",sim_primitiveshape_capsule,"capsule");
             ar.xmlAddNode_float("insideScaling",_purePrimitiveInsideScaling);
             ar.xmlAddNode_3float("sizes",_purePrimitiveXSizeOrDiameter,_purePrimitiveYSize,_purePrimitiveZSizeOrHeight);
             ar.xmlPopNode();
@@ -2025,7 +2030,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
 
             if (ar.xmlPushChildNode("primitive"))
             {
-                ar.xmlGetNode_enum("type",_purePrimitive,true,"none",sim_pure_primitive_none,"plane",sim_pure_primitive_plane,"disc",sim_pure_primitive_disc,"cuboid",sim_pure_primitive_cuboid,"spheroid",sim_pure_primitive_spheroid,"cylinder",sim_pure_primitive_cylinder,"cone",sim_pure_primitive_cone,"heightfield",sim_pure_primitive_heightfield);
+                ar.xmlGetNode_enum("type",_purePrimitive,true,"none",sim_primitiveshape_none,"plane",sim_primitiveshape_plane,"disc",sim_primitiveshape_disc,"cuboid",sim_primitiveshape_cuboid,"spheroid",sim_primitiveshape_spheroid,"cylinder",sim_primitiveshape_cylinder,"cone",sim_primitiveshape_cone,"heightfield",sim_primitiveshape_heightfield,"capsule",sim_primitiveshape_capsule);
                 ar.xmlGetNode_float("insideScaling",_purePrimitiveInsideScaling);
                 ar.xmlGetNode_3float("sizes",_purePrimitiveXSizeOrDiameter,_purePrimitiveYSize,_purePrimitiveZSizeOrHeight);
                 ar.xmlPopNode();

@@ -106,7 +106,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim._getObject",_sim_getObject,                            "",false}, // handled via sim.getObject from sim.lua
     {"sim.getObjectUid",_simGetObjectUid,                        "int uid=sim.getObjectUid(int objectHandle)",true},
     {"sim._getObjectFromUid",_sim_getObjectFromUid,              "",false}, // handled via sim.getObjectFromUid from sim.lua
-    {"sim.getScriptHandle",_simGetScriptHandle,                  "int scriptHandle=sim.getScriptHandle(int scriptType,string scriptName='')",true},
+    {"sim.getScriptHandle",_simGetScriptHandle,                  "int scriptHandle=sim.getScriptHandle(int scriptType,string scriptAlias='')",true},
     {"sim.addScript",_simAddScript,                              "int scriptHandle=sim.addScript(int scriptType)",true},
     {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"sim.associateScriptWithObject(int scriptHandle,int objectHandle)",true},
     {"sim.getObjectPosition",_simGetObjectPosition,              "float[3] position=sim.getObjectPosition(int objectHandle,int relativeToObjectHandle)",true},
@@ -282,10 +282,10 @@ const SLuaCommands simLuaCommands[]=
     {"sim.importShape",_simImportShape,                          "int shapeHandle=sim.importShape(int fileformat,string pathAndFilename,int options,float identicalVerticeTolerance,float scalingFactor)",true},
     {"sim.importMesh",_simImportMesh,                            "float[1..*] vertices,int[1..*] indices=sim.importMesh(int fileformat,string pathAndFilename,int options,float identicalVerticeTolerance,float scalingFactor)",true},
     {"sim.exportMesh",_simExportMesh,                            "sim.exportMesh(int fileformat,string pathAndFilename,int options,float scalingFactor,float[1..*] vertices,int[1..*] indices)",true},
-    {"sim.createMeshShape",_simCreateMeshShape,                  "int objectHandle=sim.createMeshShape(int options,float shadingAngle,float[] vertices,int[] indices)",true},
+    {"sim.createMeshShape",_simCreateMeshShape,                  "int shapeHandle=sim.createMeshShape(int options,float shadingAngle,float[] vertices,int[] indices)",true},
     {"sim.getShapeMesh",_simGetShapeMesh,                        "float[] vertices,int[] indices,float[] normals=sim.getShapeMesh(int shapeHandle)",true},
-    {"sim.createPureShape",_simCreatePureShape,                  "int objectHandle=sim.createPureShape(int primitiveType,int options,float[3] sizes,float mass,int[2] precision=nil)",true},
-    {"sim.createHeightfieldShape",_simCreateHeightfieldShape,    "int objectHandle=sim.createHeightfieldShape(int options,float shadingAngle,int xPointCount,int yPointCount,float xSize,float[] heights)",true},
+    {"sim.createPrimitiveShape",_simCreatePrimitiveShape,        "int shapeHandle=sim.createPrimitiveShape(int primitiveType,float[3] sizes,int options=0)",true},
+    {"sim.createHeightfieldShape",_simCreateHeightfieldShape,    "int shapeHandle=sim.createHeightfieldShape(int options,float shadingAngle,int xPointCount,int yPointCount,float xSize,float[] heights)",true},
     {"sim.createJoint",_simCreateJoint,                          "int jointHandle=sim.createJoint(int jointType,int jointMode,int options,float[2] sizes=nil)",true},
     {"sim.createDummy",_simCreateDummy,                          "int dummyHandle=sim.createDummy(float size)",true},
     {"sim.createProximitySensor",_simCreateProximitySensor,      "int sensorHandle=sim.createProximitySensor(int sensorType,int subType,int options,int[8] intParams,float[15] floatParams)",true},
@@ -586,6 +586,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getVisionSensorCharImage",_simGetVisionSensorCharImage,"Deprecated. Use sim.getVisionSensorImg instead",false},
     {"sim.setVisionSensorCharImage",_simSetVisionSensorCharImage,"Deprecated. Use sim.setVisionSensorImg instead",false},
     {"sim.getVisionSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"Deprecated. Use sim.getVisionSensorDepth instead",false},
+    {"sim.createPureShape",_simCreatePureShape,                  "Deprecated. Use sim.createPrimitiveShape instead",false},
 
     {"",nullptr,"",false}
 };
@@ -1016,14 +1017,15 @@ const SLuaVariables simLuaVariables[]=
     {"sim.physics_newton",sim_physics_newton,true},
     {"sim.physics_mujoco",sim_physics_mujoco,true},
     // pure primitives type
-    {"sim.pure_primitive_none",sim_pure_primitive_none,true},
-    {"sim.pure_primitive_plane",sim_pure_primitive_plane,true},
-    {"sim.pure_primitive_disc",sim_pure_primitive_disc,true},
-    {"sim.pure_primitive_cuboid",sim_pure_primitive_cuboid,true},
-    {"sim.pure_primitive_spheroid",sim_pure_primitive_spheroid,true},
-    {"sim.pure_primitive_cylinder",sim_pure_primitive_cylinder,true},
-    {"sim.pure_primitive_cone",sim_pure_primitive_cone,true},
-    {"sim.pure_primitive_heightfield",sim_pure_primitive_heightfield,true},
+    {"sim.primitiveshape_none",sim_primitiveshape_none,true},
+    {"sim.primitiveshape_plane",sim_primitiveshape_plane,true},
+    {"sim.primitiveshape_disc",sim_primitiveshape_disc,true},
+    {"sim.primitiveshape_cuboid",sim_primitiveshape_cuboid,true},
+    {"sim.primitiveshape_spheroid",sim_primitiveshape_spheroid,true},
+    {"sim.primitiveshape_cylinder",sim_primitiveshape_cylinder,true},
+    {"sim.primitiveshape_cone",sim_primitiveshape_cone,true},
+    {"sim.primitiveshape_heightfield",sim_primitiveshape_heightfield,true},
+    {"sim.primitiveshape_capsule",sim_primitiveshape_capsule,true},
     // dummy-dummy link types
     {"sim.dummy_linktype_dynamics_loop_closure",sim_dummy_linktype_dynamics_loop_closure,true},
     // color components
@@ -1667,6 +1669,14 @@ const SLuaVariables simLuaVariables[]=
     {"sim.drawing_discpoints",sim_drawing_discpoints,false},
     {"sim.drawing_cubepoints",sim_drawing_cubepoints,false},
     {"sim.drawing_spherepoints",sim_drawing_spherepoints,false},
+    {"sim.pure_primitive_none",sim_primitiveshape_none,false},
+    {"sim.pure_primitive_plane",sim_primitiveshape_plane,false},
+    {"sim.pure_primitive_disc",sim_primitiveshape_disc,false},
+    {"sim.pure_primitive_cuboid",sim_primitiveshape_cuboid,false},
+    {"sim.pure_primitive_spheroid",sim_primitiveshape_spheroid,false},
+    {"sim.pure_primitive_cylinder",sim_primitiveshape_cylinder,false},
+    {"sim.pure_primitive_cone",sim_primitiveshape_cone,false},
+    {"sim.pure_primitive_heightfield",sim_primitiveshape_heightfield,false},
 
     {"",-1}
 };
@@ -3277,24 +3287,21 @@ int _simGetModuleName(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getModuleName");
 
-    std::string nm;
-    int ver=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         unsigned char version;
         char* name=simGetModuleName_internal(luaToInt(L,1),&version);
         if (name!=nullptr)
         {
-            nm=name;
+            luaWrap_lua_pushstring(L,name);
             simReleaseBuffer_internal(name);
-            ver=(int)version;
+            luaWrap_lua_pushinteger(L,(int)version);
+            LUA_END(2);
         }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushstring(L,nm.c_str());
-    luaWrap_lua_pushinteger(L,ver);
-    LUA_END(2);
+    LUA_END(0);
 }
 
 int _simGetSimulationTime(luaWrap_lua_State* L)
@@ -3426,7 +3433,6 @@ int _simCheckDistance(luaWrap_lua_State* L)
                         App::currentWorld->cacheData->getCacheDataDist(entity1Handle,entity2Handle,buffer);
                         if (threshold<=0.0f)
                             threshold=SIM_MAX_FLOAT;
-                        float distanceData[7];
                         bool result=CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(entity1Handle,entity2Handle,threshold,distanceData,buffer,buffer+2,true,true);
                         App::currentWorld->cacheData->setCacheDataDist(entity1Handle,entity2Handle,buffer);
                         if (result)
@@ -4835,17 +4841,25 @@ int _simSetObjectSelection(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.setObjectSelection");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,1))
+    int argCnt=luaWrap_lua_gettop(L);
+    if (argCnt>=1)
     {
-        int objCnt=(int)luaWrap_lua_rawlen(L,1);
-        if (checkInputArguments(L,&errorString,lua_arg_number,objCnt))
+        if (luaWrap_lua_istable(L,1))
         {
-            std::vector<int> objectHandles;
-            objectHandles.resize(objCnt,0);
-            getIntsFromTable(L,1,objCnt,&objectHandles[0]);
-            simSetObjectSel_internal(&objectHandles[0],objCnt);
+            int objCnt=(int)luaWrap_lua_rawlen(L,1);
+            if ( (objCnt==0)||checkInputArguments(L,&errorString,lua_arg_integer,objCnt) )
+            {
+                std::vector<int> objectHandles;
+                objectHandles.resize(objCnt,0);
+                getIntsFromTable(L,1,objCnt,&objectHandles[0]);
+                simSetObjectSel_internal(&objectHandles[0],objCnt);
+            }
         }
+        else
+            errorString=SIM_ERROR_INVALID_ARGUMENT;
     }
+    else
+        errorString=SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
@@ -9302,30 +9316,24 @@ int _simGetShapeMesh(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simCreatePureShape(luaWrap_lua_State* L)
+int _simCreatePrimitiveShape(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.createPureShape");
+    LUA_START("sim.createPrimitiveShape");
 
     int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3,lua_arg_number,0))
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_number,3))
     {
         int primitiveType=luaToInt(L,1);
-        int options=luaToInt(L,2);
         float sizes[3];
-        getFloatsFromTable(L,3,3,sizes);
-        float mass=luaToFloat(L,4);
-        int* precision=nullptr;
-        int prec[2];
-        int res=checkOneGeneralInputArgument(L,5,lua_arg_number,2,true,true,&errorString);
+        getFloatsFromTable(L,2,3,sizes);
+        int res=checkOneGeneralInputArgument(L,3,lua_arg_integer,0,true,false,&errorString);
         if (res>=0)
         {
+            int options=0;
             if (res==2)
-            {
-                getIntsFromTable(L,5,2,prec);
-                precision=prec;
-            }
-            retVal=simCreatePureShape_internal(primitiveType,options,sizes,mass,precision);
+                options=luaToInt(L,3);
+            retVal=simCreatePrimitiveShape_internal(primitiveType,sizes,options);
         }
     }
 
@@ -14115,14 +14123,14 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_physics_ode",sim_physics_ode,false},
     {"sim_physics_vortex",sim_physics_vortex,false},
     {"sim_physics_newton",sim_physics_newton,false},
-    {"sim_pure_primitive_none",sim_pure_primitive_none,false},
-    {"sim_pure_primitive_plane",sim_pure_primitive_plane,false},
-    {"sim_pure_primitive_disc",sim_pure_primitive_disc,false},
-    {"sim_pure_primitive_cuboid",sim_pure_primitive_cuboid,false},
-    {"sim_pure_primitive_spheroid",sim_pure_primitive_spheroid,false},
-    {"sim_pure_primitive_cylinder",sim_pure_primitive_cylinder,false},
-    {"sim_pure_primitive_cone",sim_pure_primitive_cone,false},
-    {"sim_pure_primitive_heightfield",sim_pure_primitive_heightfield,false},
+    {"sim_pure_primitive_none",sim_primitiveshape_none,false},
+    {"sim_pure_primitive_plane",sim_primitiveshape_plane,false},
+    {"sim_pure_primitive_disc",sim_primitiveshape_disc,false},
+    {"sim_pure_primitive_cuboid",sim_primitiveshape_cuboid,false},
+    {"sim_pure_primitive_spheroid",sim_primitiveshape_spheroid,false},
+    {"sim_pure_primitive_cylinder",sim_primitiveshape_cylinder,false},
+    {"sim_pure_primitive_cone",sim_primitiveshape_cone,false},
+    {"sim_pure_primitive_heightfield",sim_primitiveshape_heightfield,false},
     {"sim_dummy_linktype_dynamics_loop_closure",sim_dummy_linktype_dynamics_loop_closure,false},
     {"sim_dummy_linktype_dynamics_force_constraint",sim_dummy_linktype_dynamics_force_constraint,false},
     {"sim_dummy_linktype_gcs_loop_closure",sim_dummy_linktype_gcs_loop_closure,false},
@@ -21122,5 +21130,37 @@ int _simGetVisionSensorDepthBuffer(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
+}
+
+int _simCreatePureShape(luaWrap_lua_State* L)
+{ // deprecated on 27.04.2022
+    TRACE_LUA_API;
+    LUA_START("sim.createPureShape");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3,lua_arg_number,0))
+    {
+        int primitiveType=luaToInt(L,1);
+        int options=luaToInt(L,2);
+        float sizes[3];
+        getFloatsFromTable(L,3,3,sizes);
+        float mass=luaToFloat(L,4);
+        int* precision=nullptr;
+        int prec[2];
+        int res=checkOneGeneralInputArgument(L,5,lua_arg_number,2,true,true,&errorString);
+        if (res>=0)
+        {
+            if (res==2)
+            {
+                getIntsFromTable(L,5,2,prec);
+                precision=prec;
+            }
+            retVal=simCreatePureShape_internal(primitiveType,options,sizes,mass,precision);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
 }
 

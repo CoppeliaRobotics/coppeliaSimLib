@@ -23,6 +23,7 @@
 #define IDSN_PURE_SIMPLE_SHAPE_CUBOID_ "Pure simple shape (cuboid)"
 #define IDSN_PURE_SIMPLE_SHAPE_SPHEROID_ "Pure simple shape (spheroid)"
 #define IDSN_PURE_SIMPLE_SHAPE_CYLINDER_ "Pure simple shape (cylinder)"
+#define IDSN_PURE_SIMPLE_SHAPE_CAPSULE_ "Pure simple shape (capsule)"
 #define IDSN_PURE_SIMPLE_SHAPE_CONE_ "Pure simple shape (cone)"
 #define IDSN_COMPOUND_CONVEX_SHAPE "Compound convex shape"
 #define IDSN_COMPOUND_RANDOM_SHAPE "Compound random shape"
@@ -521,11 +522,15 @@
 #define IDS_DISC_MENU_ITEM      "Disc"
 #define IDS_SPHERE_MENU_ITEM    "Sphere"
 #define IDS_CYLINDER_MENU_ITEM  "Cylinder"
+#define IDS_CONE_MENU_ITEM  "Cone"
+#define IDS_CAPSULE_MENU_ITEM  "Capsule"
 
-#define IDSN_PRIMITIVE_PLANE "Primitive plane"
-#define IDSN_PRIMITIVE_SPHERE "Primitive sphere"
-#define IDSN_PRIMITIVE_CYLINDER "Primitive cylinder"
-#define IDSN_PRIMITIVE_DISC "Primitive disc"
+#define IDSN_PRIMITIVE_PLANE "Plane"
+#define IDSN_PRIMITIVE_SPHERE "Spheroid"
+#define IDSN_PRIMITIVE_CYLINDER "Cylinder"
+#define IDSN_PRIMITIVE_DISC "Disc"
+#define IDSN_PRIMITIVE_CONE "Cone"
+#define IDSN_PRIMITIVE_CAPSULE "Capsule"
 
 #define IDS_JOINT_MENU_ITEM     "Joint"
 #define IDS_REVOLUTE_MENU_ITEM  "Revolute"
@@ -685,7 +690,7 @@
 
 #define IDS_DISPLAY_TIME_GRAPH_MENU_ITEM "Display time-graph"
 #define IDS_DISPLAY_X_Y_GRAPH_MENU_ITEM "Display x/y graph"
-#define IDS_WARNING_WHEN_PURE_SHAPES_HAVE_LOW_POLYCOUNT "Your shape has a low polygon count. Visual appearance and dynamic behaviour might not match anymore."
+#define IDS_WARNING_WHEN_PURE_SHAPES_HAVE_LOW_POLYCOUNT "The shape has a low polygon count. Visual appearance and dynamic behaviour might not match anymore."
 
 #define IDS_TRACK_SELECTED_OBJECT_MENU_ITEM "Track selected object"
 #define IDSN_DYNAMIC_TEXTURE   "dynamic texture"
@@ -851,7 +856,6 @@
 #define IDS_VORTEX              "Vortex"
 #define IDS_NEWTON              "Newton"
 #define IDS_MUJOCO              "Mujoco"
-#define IDS_WARNING_WHEN_SELECTING_PURE_CONE "Pure cones are currently only supported by the Bullet and Newton engines."
 
 #define IDS_TOOLBAR_TOOLTIP_CAMERA_SHIFT "Camera pan"
 #define IDS_TOOLBAR_TOOLTIP_CAMERA_FIT_TO_SCREEN "Fit to view"

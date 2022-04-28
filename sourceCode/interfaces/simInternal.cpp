@@ -8273,8 +8273,8 @@ simInt simGetShapeMesh_internal(simInt shapeHandle,simFloat** vertices,simInt* v
     return(-1);
 }
 
-simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision)
-{ // options: bit: 0=culling, 1=edges, 2=smooth, 3=respondable, 4=static, 5=open
+simInt simCreatePrimitiveShape_internal(simInt primitiveType,const simFloat* sizes,simInt options)
+{ // options: bit: 0=culling, 1=sharp edges, 2=open
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
@@ -8282,60 +8282,15 @@ simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const sim
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        int pType=-1;
-        bool cone=false;
         C3Vector s(tt::getLimitedFloat(0.00001f,100000.0f,sizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[1]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[2]));
-        //bool smooth=(options&4)!=0;
-        int openEnds=0;
-        if ((options&32)!=0)
-            openEnds=3;
-        int faces=0;
-        int sides=32;
-        if (precision!=nullptr)
+        CShape* shape=CAddOperations::addPrimitiveShape(primitiveType,s,options,nullptr,0,32,0,false,1);
+        int retVal=-1;
+        if (shape!=nullptr)
         {
-            faces=tt::getLimitedInt(3,100,precision[0]);
-            if (pType==2)
-                sides=tt::getLimitedInt(3,50,precision[1]); // sphere
-            else
-                sides=tt::getLimitedInt(0,50,precision[1]);
+            shape->setLocalTransformation(C7Vector::identityTransformation);
+            retVal=shape->getObjectHandle();
         }
-
-        if (primitiveType==0) // cuboid
-            pType=1;
-        if (primitiveType==1) // sphere
-        {
-            pType=2;
-            faces=16;
-            s(1)=s(0);
-            s(2)=s(0);
-        }
-        if (primitiveType==2) // cylinder
-        {
-            pType=3;
-            s(1)=s(0);
-        }
-        if (primitiveType==3) // cone
-        {
-            pType=3;
-            s(1)=s(0);
-            cone=true;
-        }
-        if (pType==-1)
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_TYPE);
-            return(-1);
-        }
-        CShape* shape=CAddOperations::addPrimitiveShape(pType,s,nullptr,faces,sides,0,true,openEnds,true,true,cone,1000.0f);
-
-        C7Vector identity;
-        identity.setIdentity();
-        shape->setLocalTransformation(identity);
-        shape->setCulling((options&1)!=0);
-        shape->setVisibleEdges((options&2)!=0);
-        shape->setRespondable((options&8)!=0);
-        shape->setShapeIsDynamicallyStatic((options&16)!=0);
-        shape->getMeshWrapper()->setMass(tt::getLimitedFloat(0.000001f,10000.0f,mass));
-        return(shape->getObjectHandle());
+        return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
@@ -12411,7 +12366,7 @@ simInt simCreateTexture_internal(const simChar* fileName,simInt options,const si
                     C3Vector s(0.1f,0.1f,0.00001f);
                     if (planeSizes!=nullptr)
                         s=C3Vector(tt::getLimitedFloat(0.00001f,100000.0f,planeSizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,planeSizes[1]),0.00001f);
-                    CShape* shape=CAddOperations::addPrimitiveShape(0,s,nullptr,0,32,0,false,0,false,false,false,1000.0f);
+                    CShape* shape=CAddOperations::addPrimitiveShape(sim_primitiveshape_plane,s);
 
                     C7Vector identity;
                     identity.setIdentity();
@@ -12471,7 +12426,7 @@ simInt simCreateTexture_internal(const simChar* fileName,simInt options,const si
                 C3Vector s(0.1f,0.1f,0.00001f);
                 if (planeSizes!=nullptr)
                     s=C3Vector(tt::getLimitedFloat(0.00001f,100000.0f,planeSizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,planeSizes[1]),0.00001f);
-                CShape* shape=CAddOperations::addPrimitiveShape(0,s,nullptr,0,32,0,false,0,false,false,false,1000.0f);
+                CShape* shape=CAddOperations::addPrimitiveShape(sim_primitiveshape_plane,s);
                 C7Vector identity;
                 identity.setIdentity();
                 shape->setLocalTransformation(identity);
@@ -23296,5 +23251,66 @@ simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
+}
+
+simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision)
+{ // deprecated on 27.04.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int pType=0;
+        C3Vector s(tt::getLimitedFloat(0.00001f,100000.0f,sizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[1]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[2]));
+        int sides=32;
+        if (precision!=nullptr)
+        {
+            if (pType==2)
+                sides=tt::getLimitedInt(3,50,precision[1]); // sphere
+            else
+                sides=tt::getLimitedInt(0,50,precision[1]);
+        }
+
+        if (primitiveType==0) // cuboid
+            pType=sim_primitiveshape_cuboid;
+        if (primitiveType==1) // sphere
+        {
+            pType=sim_primitiveshape_spheroid;
+            s(1)=s(0);
+            s(2)=s(0);
+        }
+        if (primitiveType==2) // cylinder
+        {
+            pType=sim_primitiveshape_cylinder;
+            s(1)=s(0);
+        }
+        if (primitiveType==3) // cone
+        {
+            pType=sim_primitiveshape_cone;
+            s(1)=s(0);
+        }
+        if (pType==0)
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_TYPE);
+            return(-1);
+        }
+        int op=0;
+        if ((options&1)!=0)
+            op|=1;
+        if ((options&4)==0)
+            op|=2;
+        if ((options&32)!=0)
+            op|=4;
+        CShape* shape=CAddOperations::addPrimitiveShape(pType,s,op,nullptr,0,sides,0,(options&16)==0,true);
+        shape->setLocalTransformation(C7Vector::identityTransformation);
+        shape->setVisibleEdges((options&2)!=0);
+        shape->setRespondable((options&8)!=0);
+        shape->getMeshWrapper()->setMass(tt::getLimitedFloat(0.000001f,10000.0f,mass));
+        return(shape->getObjectHandle());
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
 }
 

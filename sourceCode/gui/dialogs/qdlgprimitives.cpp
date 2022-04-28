@@ -40,25 +40,28 @@ void CQDlgPrimitives::initialize(int type,const C3Vector* sizes)
     {
         xSize=0.1f;
         ySize=0.1f;
-        zSize=0.1f;
+        if (type==sim_primitiveshape_capsule)
+            zSize=0.2f;
+        else
+            zSize=0.1f;
     }
     subdivX=0;
     subdivY=0;
     subdivZ=0;
-    if (type==2)
-        faces=16;
+    if (type==sim_primitiveshape_spheroid)
+        faceSubdiv=16;
     else
-        faces=0;
+        faceSubdiv=0;
     sides=32;
     discSubdiv=0;
     smooth=true;
-    openEnds=0;
+    openEnds=false;
     pure=true;
-    dynamic=((type!=0)&&(type!=4)); // (planes and discs are almost never used dynamic!)
-    cone=false;
+    dynamic=( (type!=sim_primitiveshape_plane)&&(type!=sim_primitiveshape_disc)&&(type!=sim_primitiveshape_cone) );
     density=1000.0f;
     primitiveType=type;
     sizesAreLocked=(sizes!=nullptr);
+    _correctDependentValues();
     refresh();
 }
 
@@ -73,8 +76,8 @@ void CQDlgPrimitives::refresh()
     ui->qqXSize->setText(tt::getEString(false,xSize,4).c_str());
     ui->qqYSize->setText(tt::getEString(false,ySize,4).c_str());
 
-    if (primitiveType==0)
-    { // Plane
+    if (primitiveType==sim_primitiveshape_plane)
+    {
         setWindowTitle(IDSN_PRIMITIVE_PLANE);
 
         ui->qqXSize->setEnabled(!sizesAreLocked);
@@ -85,12 +88,12 @@ void CQDlgPrimitives::refresh()
         ui->qqYSubdiv->setEnabled(true);
         ui->qqZSubdiv->setEnabled(false);
 
-        ui->qqFaces->setEnabled(false);
+        ui->qqFaceSubdiv->setEnabled(false);
         ui->qqSides->setEnabled(false);
 
         ui->qqZSize->setText("");
 
-        ui->qqFaces->setText("");
+        ui->qqFaceSubdiv->setText("");
         ui->qqSides->setText("");
 
         ui->qqXSubdiv->setText(tt::getIString(false,subdivX).c_str());
@@ -105,12 +108,9 @@ void CQDlgPrimitives::refresh()
 
         ui->qqDiscSubdiv->setEnabled(false);
         ui->qqDiscSubdiv->setText("");
-
-        ui->qqCone->setEnabled(false);
-        ui->qqCone->setChecked(false);
     }
-    if (primitiveType==1)
-    { // Box
+    if (primitiveType==sim_primitiveshape_cuboid)
+    {
         setWindowTitle(IDSN_PRIMITIVE_RECTANGLE);
 
         ui->qqXSize->setEnabled(!sizesAreLocked);
@@ -121,12 +121,12 @@ void CQDlgPrimitives::refresh()
         ui->qqYSubdiv->setEnabled(true);
         ui->qqZSubdiv->setEnabled(true);
 
-        ui->qqFaces->setEnabled(false);
+        ui->qqFaceSubdiv->setEnabled(false);
         ui->qqSides->setEnabled(false);
 
         ui->qqZSize->setText(tt::getEString(false,zSize,4).c_str());
 
-        ui->qqFaces->setText("");
+        ui->qqFaceSubdiv->setText("");
         ui->qqSides->setText("");
 
         ui->qqXSubdiv->setText(tt::getIString(false,subdivX).c_str());
@@ -141,12 +141,9 @@ void CQDlgPrimitives::refresh()
 
         ui->qqDiscSubdiv->setEnabled(false);
         ui->qqDiscSubdiv->setText("");
-
-        ui->qqCone->setEnabled(false);
-        ui->qqCone->setChecked(false);
     }
-    if (primitiveType==2)
-    { // Sphere
+    if (primitiveType==sim_primitiveshape_spheroid)
+    {
         setWindowTitle(IDSN_PRIMITIVE_SPHERE);
 
         ui->qqXSize->setEnabled(!sizesAreLocked);
@@ -159,12 +156,12 @@ void CQDlgPrimitives::refresh()
         ui->qqYSubdiv->setEnabled(false);
         ui->qqZSubdiv->setEnabled(false);
 
-        ui->qqFaces->setEnabled(true);
+        ui->qqFaceSubdiv->setEnabled(false);
         ui->qqSides->setEnabled(true);
 
         ui->qqZSize->setText(tt::getEString(false,zSize,4).c_str());
 
-        ui->qqFaces->setText(tt::getIString(false,faces).c_str());
+        ui->qqFaceSubdiv->setText("");
         ui->qqSides->setText(tt::getIString(false,sides).c_str());
 
 
@@ -180,12 +177,9 @@ void CQDlgPrimitives::refresh()
 
         ui->qqDiscSubdiv->setEnabled(false);
         ui->qqDiscSubdiv->setText("");
-
-        ui->qqCone->setEnabled(false);
-        ui->qqCone->setChecked(false);
     }
-    if (primitiveType==3)
-    { // Cylinder
+    if (primitiveType==sim_primitiveshape_cylinder)
+    {
         setWindowTitle(IDSN_PRIMITIVE_CYLINDER);
 
         ui->qqXSize->setEnabled(!sizesAreLocked);
@@ -196,12 +190,12 @@ void CQDlgPrimitives::refresh()
         ui->qqYSubdiv->setEnabled(false);
         ui->qqZSubdiv->setEnabled(false);
 
-        ui->qqFaces->setEnabled(true);
+        ui->qqFaceSubdiv->setEnabled(true);
         ui->qqSides->setEnabled(true);
 
         ui->qqZSize->setText(tt::getEString(false,zSize,4).c_str());
 
-        ui->qqFaces->setText(tt::getIString(false,faces).c_str());
+        ui->qqFaceSubdiv->setText(tt::getIString(false,faceSubdiv).c_str());
         ui->qqSides->setText(tt::getIString(false,sides).c_str());
 
         ui->qqXSubdiv->setText("");
@@ -212,16 +206,46 @@ void CQDlgPrimitives::refresh()
         ui->qqSmooth->setChecked(smooth);
 
         ui->qqOpen->setEnabled(!pure);
-        ui->qqOpen->setChecked(openEnds==3);
+        ui->qqOpen->setChecked(openEnds);
 
         ui->qqDiscSubdiv->setEnabled(true);
         ui->qqDiscSubdiv->setText(tt::getIString(false,discSubdiv).c_str());
-
-        ui->qqCone->setEnabled(true);
-        ui->qqCone->setChecked(cone);
     }
-    if (primitiveType==4)
-    { // Disc
+    if (primitiveType==sim_primitiveshape_cone)
+    {
+        setWindowTitle(IDSN_PRIMITIVE_CONE);
+
+        ui->qqXSize->setEnabled(!sizesAreLocked);
+        ui->qqYSize->setEnabled((!pure)&&(!sizesAreLocked));
+        ui->qqZSize->setEnabled(!sizesAreLocked);
+
+        ui->qqXSubdiv->setEnabled(false);
+        ui->qqYSubdiv->setEnabled(false);
+        ui->qqZSubdiv->setEnabled(false);
+
+        ui->qqFaceSubdiv->setEnabled(true);
+        ui->qqSides->setEnabled(true);
+
+        ui->qqZSize->setText(tt::getEString(false,zSize,4).c_str());
+
+        ui->qqFaceSubdiv->setText(tt::getIString(false,faceSubdiv).c_str());
+        ui->qqSides->setText(tt::getIString(false,sides).c_str());
+
+        ui->qqXSubdiv->setText("");
+        ui->qqYSubdiv->setText("");
+        ui->qqZSubdiv->setText("");
+
+        ui->qqSmooth->setEnabled(true);
+        ui->qqSmooth->setChecked(smooth);
+
+        ui->qqOpen->setEnabled(!pure);
+        ui->qqOpen->setChecked(openEnds);
+
+        ui->qqDiscSubdiv->setEnabled(false);
+        ui->qqDiscSubdiv->setText("");
+    }
+    if (primitiveType==sim_primitiveshape_disc)
+    {
         setWindowTitle(IDSN_PRIMITIVE_DISC);
 
         ui->qqXSize->setEnabled(!sizesAreLocked);
@@ -232,12 +256,12 @@ void CQDlgPrimitives::refresh()
         ui->qqYSubdiv->setEnabled(false);
         ui->qqZSubdiv->setEnabled(false);
 
-        ui->qqFaces->setEnabled(false);
+        ui->qqFaceSubdiv->setEnabled(false);
         ui->qqSides->setEnabled(true);
 
         ui->qqZSize->setText("");
 
-        ui->qqFaces->setText("");
+        ui->qqFaceSubdiv->setText("");
         ui->qqSides->setText(tt::getIString(false,sides).c_str());
 
         ui->qqXSubdiv->setText("");
@@ -252,11 +276,41 @@ void CQDlgPrimitives::refresh()
 
         ui->qqDiscSubdiv->setEnabled(true);
         ui->qqDiscSubdiv->setText(tt::getIString(false,discSubdiv).c_str());
-
-        ui->qqCone->setEnabled(false);
-        ui->qqCone->setChecked(false);
     }
+    if (primitiveType==sim_primitiveshape_capsule)
+    {
+        setWindowTitle(IDSN_PRIMITIVE_CAPSULE);
 
+        ui->qqXSize->setEnabled(!sizesAreLocked);
+        ui->qqYSize->setEnabled((!pure)&&(!sizesAreLocked));
+        ui->qqZSize->setEnabled(!sizesAreLocked);
+
+        ui->qqXSubdiv->setEnabled(false);
+        ui->qqYSubdiv->setEnabled(false);
+        ui->qqZSubdiv->setEnabled(false);
+
+        ui->qqFaceSubdiv->setEnabled(true);
+        ui->qqSides->setEnabled(true);
+
+        ui->qqZSize->setText(tt::getEString(false,zSize,4).c_str());
+
+        ui->qqFaceSubdiv->setText(tt::getIString(false,faceSubdiv).c_str());
+        ui->qqSides->setText(tt::getIString(false,sides).c_str());
+
+
+        ui->qqXSubdiv->setText("");
+        ui->qqYSubdiv->setText("");
+        ui->qqZSubdiv->setText("");
+
+        ui->qqSmooth->setEnabled(true);
+        ui->qqSmooth->setChecked(smooth);
+
+        ui->qqOpen->setEnabled(false);
+        ui->qqOpen->setChecked(false);
+
+        ui->qqDiscSubdiv->setEnabled(false);
+        ui->qqDiscSubdiv->setText("");
+    }
 }
 
 void CQDlgPrimitives::on_qqDynamic_clicked()
@@ -268,11 +322,8 @@ void CQDlgPrimitives::on_qqDynamic_clicked()
 void CQDlgPrimitives::on_qqPure_clicked()
 {
     pure=!pure;
-    _adjustValuesForPurePrimitive();
-
-    if (pure&&cone)
-        App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_SELECTING_PURE_CONE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-    if (pure&&((sides<32)||((faces<16)&&(primitiveType==2))))
+    _correctDependentValues();
+    if ( pure&&(sides<32) )
         App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_PURE_SHAPES_HAVE_LOW_POLYCOUNT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 
     refresh();
@@ -288,7 +339,12 @@ void CQDlgPrimitives::on_qqXSize_editingFinished()
     {
         tt::limitValue(0.0001f,1000.0f,newVal);
         xSize=newVal;
-        _adjustValuesForPurePrimitive();
+        if (primitiveType==sim_primitiveshape_capsule)
+        {
+            if (xSize>zSize-0.0001f)
+                xSize=zSize-0.0001f;
+        }
+        _correctDependentValues();
     }
     refresh();
 }
@@ -303,7 +359,12 @@ void CQDlgPrimitives::on_qqYSize_editingFinished()
     {
         tt::limitValue(0.0001f,1000.0f,newVal);
         ySize=newVal;
-        _adjustValuesForPurePrimitive();
+        if (primitiveType==sim_primitiveshape_capsule)
+        {
+            if (ySize>zSize-0.0001f)
+                ySize=zSize-0.0001f;
+        }
+        _correctDependentValues();
     }
     refresh();
 }
@@ -318,7 +379,13 @@ void CQDlgPrimitives::on_qqZSize_editingFinished()
     {
         tt::limitValue(0.0001f,1000.0f,newVal);
         zSize=newVal;
-        _adjustValuesForPurePrimitive();
+        if (primitiveType==sim_primitiveshape_capsule)
+        {
+            float mmax=std::max<float>(xSize,ySize);
+            if (zSize<mmax+0.0001f)
+                zSize=mmax+0.0001f;
+        }
+        _correctDependentValues();
     }
     refresh();
 }
@@ -333,7 +400,7 @@ void CQDlgPrimitives::on_qqXSubdiv_editingFinished()
     {
         tt::limitValue(0,100,newVal);
         subdivX=newVal;
-        _adjustValuesForPurePrimitive();
+        _correctDependentValues();
     }
     refresh();
 }
@@ -348,7 +415,7 @@ void CQDlgPrimitives::on_qqYSubdiv_editingFinished()
     {
         tt::limitValue(0,100,newVal);
         subdivY=newVal;
-        _adjustValuesForPurePrimitive();
+        _correctDependentValues();
     }
     refresh();
 }
@@ -363,7 +430,7 @@ void CQDlgPrimitives::on_qqZSubdiv_editingFinished()
     {
         tt::limitValue(0,100,newVal);
         subdivZ=newVal;
-        _adjustValuesForPurePrimitive();
+        _correctDependentValues();
     }
     refresh();
 }
@@ -380,29 +447,25 @@ void CQDlgPrimitives::on_qqSides_editingFinished()
         if (pure&&(newVal<32)&&(newVal<sides))
             App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_PURE_SHAPES_HAVE_LOW_POLYCOUNT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         sides=newVal;
-        _adjustValuesForPurePrimitive();
+        _correctDependentValues();
     }
     refresh();
 }
 
-void CQDlgPrimitives::on_qqFaces_editingFinished()
+void CQDlgPrimitives::on_qqFaceSubdiv_editingFinished()
 {
-    if (!ui->qqFaces->isModified())
+    if (!ui->qqFaceSubdiv->isModified())
         return;
     bool ok;
-    int newVal=ui->qqFaces->text().toInt(&ok);
+    int newVal=ui->qqFaceSubdiv->text().toInt(&ok);
     if (ok)
     {
-        if (primitiveType==2) // Sphere
-        {
+        if (primitiveType==sim_primitiveshape_spheroid)
             tt::limitValue(2,50,newVal);
-            if (pure&&(newVal<16)&&(newVal<faces))
-                App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_PURE_SHAPES_HAVE_LOW_POLYCOUNT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-        }
-        if (primitiveType==3) // Cylinder
+        if (primitiveType==sim_primitiveshape_cylinder)
             tt::limitValue(0,50,newVal);
-        faces=newVal;
-        _adjustValuesForPurePrimitive();
+        faceSubdiv=newVal;
+        _correctDependentValues();
     }
     refresh();
 }
@@ -417,7 +480,7 @@ void CQDlgPrimitives::on_qqDiscSubdiv_editingFinished()
     {
         tt::limitValue(0,50,newVal);
         discSubdiv=newVal;
-        _adjustValuesForPurePrimitive();
+        _correctDependentValues();
     }
     refresh();
 }
@@ -425,28 +488,16 @@ void CQDlgPrimitives::on_qqDiscSubdiv_editingFinished()
 void CQDlgPrimitives::on_qqSmooth_clicked()
 {
     smooth=!smooth;
-    _adjustValuesForPurePrimitive();
+    _correctDependentValues();
     refresh();
 }
 
 void CQDlgPrimitives::on_qqOpen_clicked()
 {
-    if (openEnds==0)
-        openEnds=3;
-    else
-        openEnds=0;
-    if (openEnds!=0)
+    openEnds=!openEnds;
+    if (openEnds)
         pure=false;
-    _adjustValuesForPurePrimitive();
-    refresh();
-}
-
-void CQDlgPrimitives::on_qqCone_clicked()
-{
-    cone=!cone;
-    _adjustValuesForPurePrimitive();
-    if (pure&&cone)
-        App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_SELECTING_PURE_CONE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+    _correctDependentValues();
     refresh();
 }
 
@@ -460,25 +511,33 @@ void CQDlgPrimitives::on_qqOkCancel_rejected()
     defaultModalDialogEndRoutine(false);
 }
 
-void CQDlgPrimitives::_adjustValuesForPurePrimitive()
+void CQDlgPrimitives::_correctDependentValues()
 {
     if (pure)
     {
-        if (primitiveType==2)
-        { // sphere
+        if (primitiveType==sim_primitiveshape_spheroid)
+        {
             // Comment out following if pure spheroids are allowed;
             ySize=xSize;
             zSize=xSize;
         }
-        if (primitiveType==3)
-        { // cylinder
+        if (primitiveType==sim_primitiveshape_cylinder)
+        {
             ySize=xSize;
-            openEnds=0;
+            openEnds=false;
         }
-        if (primitiveType==4)
-        { // disc
+        if (primitiveType==sim_primitiveshape_capsule)
             ySize=xSize;
-        }
+        if (primitiveType==sim_primitiveshape_cone)
+            ySize=xSize;
+        if (primitiveType==sim_primitiveshape_disc)
+            ySize=xSize;
+    }
+    if (primitiveType==sim_primitiveshape_capsule)
+    {
+        float mmax=std::max<float>(xSize,ySize);
+        if (zSize<mmax+0.0001f)
+            zSize=mmax+0.0001f;
     }
 }
 

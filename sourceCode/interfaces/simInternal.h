@@ -202,7 +202,7 @@ simInt simImportShape_internal(simInt fileformat,const simChar* pathAndFilename,
 simInt simImportMesh_internal(simInt fileformat,const simChar* pathAndFilename,simInt options,simFloat identicalVerticeTolerance,simFloat scalingFactor,simFloat*** vertices,simInt** verticesSizes,simInt*** indices,simInt** indicesSizes,simFloat*** reserved,simChar*** names);
 simInt simExportMesh_internal(simInt fileformat,const simChar* pathAndFilename,simInt options,simFloat scalingFactor,simInt elementCount,const simFloat** vertices,const simInt* verticesSizes,const simInt** indices,const simInt* indicesSizes,simFloat** reserved,const simChar** names);
 simInt simCreateMeshShape_internal(simInt options,simFloat shadingAngle,const simFloat* vertices,simInt verticesSize,const simInt* indices,simInt indicesSize,simFloat* reserved);
-simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision);
+simInt simCreatePrimitiveShape_internal(simInt primitiveType,const simFloat* sizes,simInt options);
 simInt simCreateHeightfieldShape_internal(simInt options,simFloat shadingAngle,simInt xPointCount,simInt yPointCount,simFloat xSize,const simFloat* heights);
 simInt simGetShapeMesh_internal(simInt shapeHandle,simFloat** vertices,simInt* verticesSize,simInt** indices,simInt* indicesSize,simFloat** normals);
 simInt simCreateJoint_internal(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* reservedA,const simFloat* reservedB);
@@ -673,4 +673,5 @@ simUChar* simGetVisionSensorCharImage_internal(simInt visionSensorHandle,simInt*
 simInt simSetVisionSensorImage_internal(simInt visionSensorHandle,const simFloat* image);
 simInt simSetVisionSensorCharImage_internal(simInt visionSensorHandle,const simUChar* image);
 simFloat* simGetVisionSensorDepthBuffer_internal(simInt visionSensorHandle);
+simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision);
 #endif // !defined(simInternal_INCLUDED_)

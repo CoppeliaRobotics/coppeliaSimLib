@@ -26,7 +26,8 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 #ifdef SIM_WITH_GUI
     if ( (commandID==ADD_COMMANDS_ADD_PRIMITIVE_PLANE_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRIMITIVE_DISC_ACCMD)||
         (commandID==ADD_COMMANDS_ADD_PRIMITIVE_RECTANGLE_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRIMITIVE_SPHERE_ACCMD)||
-        (commandID==ADD_COMMANDS_ADD_PRIMITIVE_CYLINDER_ACCMD) )
+        (commandID==ADD_COMMANDS_ADD_PRIMITIVE_CYLINDER_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRIMITIVE_CONE_ACCMD)||
+         (commandID==ADD_COMMANDS_ADD_PRIMITIVE_CAPSULE_ACCMD) )
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -582,9 +583,10 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     { 
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
+            std::vector<int> sel0;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                sel0.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            std::vector<int> sel(sel0);
             CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
 
             // Now keep only visible objects:
@@ -592,7 +594,14 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             for (size_t i=0;i<sel.size();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                if ( (it!=nullptr)&&(!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
+                if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
+                    inputObjects.push_back(it);
+            }
+            // Now add objects from the original selection that do not have the model base flag:
+            for (size_t i=0;i<sel0.size();i++)
+            {
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel0[i]);
+                if (!it->getModelBase())
                     inputObjects.push_back(it);
             }
 
@@ -626,9 +635,10 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
+            std::vector<int> sel0;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                sel0.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            std::vector<int> sel(sel0);
             CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
 
             // Now keep only visible objects:
@@ -636,7 +646,14 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             for (size_t i=0;i<sel.size();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                if ( (it!=nullptr)&&(!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
+                if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
+                    inputObjects.push_back(it);
+            }
+            // Now add objects from the original selection that do not have the model base flag:
+            for (size_t i=0;i<sel0.size();i++)
+            {
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel0[i]);
+                if (!it->getModelBase())
                     inputObjects.push_back(it);
             }
             float grow=0.03f;
@@ -678,8 +695,8 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     return(false);
 }
 
-CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const int subdiv[3],int faces,int sides,int discSubdiv,bool smooth,int openEnds,bool dynamic,bool pure,bool cone,float density)
-{ // subdiv can be nullptr
+CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int options,const int subdiv[3],int faceSubdiv,int sides,int discSubdiv,bool dynamic,int pure,float density)
+{ // pure=0: create non-pure, pure=1: create pure if possible, pure=2: force pure creation
     int sdiv[3]={0,0,0};
     if (subdiv!=nullptr)
     {
@@ -687,9 +704,11 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         sdiv[1]=subdiv[1];
         sdiv[2]=subdiv[2];
     }
-
-    if (type==0)
-    { // plane
+    C3Vector sizes=psizes;
+    CShape* shape=nullptr;
+    if (type==sim_primitiveshape_plane)
+    {
+        sizes(2)=0.0001f;
         int divX=sdiv[0]+1;
         int divY=sdiv[1]+1;
         float xhSize=sizes(0)/2.0f;
@@ -699,9 +718,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         std::vector<float> vertices;
         std::vector<int> indices;
         std::vector<float> normals;
-        vertices.reserve((divX+1)*(divY+1)*3);
-        indices.reserve(divX*divY*6);
-        normals.reserve(divX*divY*6*3);
         // We first create the vertices:
         for (int i=0;i<(divY+1);i++)
         { // along y
@@ -723,39 +739,17 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         for (int i=0;i<divX*divY*6;i++)
             tt::addToFloatArray(&normals,0.0f,0.0f,1.0f);
 
-        CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
-        it->getSingleMesh()->color.setDefaultValues();
-        it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,1.0f,1.0f);
-        it->getSingleMesh()->setVisibleEdges(false);
-        it->getSingleMesh()->setShadingAngle(20.0f*degToRad_f);
-        it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
-        it->setObjectAlias_direct(IDSOGL_PLANE);
-        it->setObjectName_direct_old(IDSOGL_PLANE);
-        it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
-        it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // we shift the plane so that it is above the floor
-        it->alignBoundingBoxWithWorld();
-        if (pure)
-            it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_plane,sizes(0),sizes(1),0.0001f);
-        if (dynamic)
-        {
-            int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable;
-            it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
-            it->setRespondable(true);
-            it->setShapeIsDynamicallyStatic(false);
-            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
-        }
-        it->getMeshWrapper()->setMass(sizes(0)*sizes(1)*density*0.001f); // we assume 1mm thickness
-        it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(sizes(1)*sizes(1)/12.0f,sizes(0)*sizes(0)/12.0f,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0f));
-
-        // make sure that object rests, stacks and can be easily grasped:
-        it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
-
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
-        return(it);
+        shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        shape->setObjectAlias_direct(IDSOGL_PLANE);
+        shape->setObjectName_direct_old(IDSOGL_PLANE);
+        shape->alignBoundingBoxWithWorld();
+        shape->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // we shift the plane so that it is above the floor
+        shape->getMeshWrapper()->setMass(sizes(0)*sizes(1)*density*0.001f); // we assume 1mm thickness
+        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(sizes(1)*sizes(1)/12.0f,sizes(0)*sizes(0)/12.0f,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0f));
     }
 
-    if (type==1)
-    { // rectangle
+    if (type==sim_primitiveshape_cuboid)
+    {
         int divX=sdiv[0]+1;
         int divY=sdiv[1]+1;
         int divZ=sdiv[2]+1;
@@ -764,172 +758,145 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         float zhSize=sizes(2)/2.0f;
         std::vector<float> vertices;
         std::vector<int> indices;
-        vertices.reserve(((divX+1)*(2*divY+2*divZ)+2*(divY-1)*(divZ-1))*3);
-        indices.reserve(divX*divY*12+divX*divZ*12+divY*divZ*12);
         int theDiv[3]={divX,divY,divZ};
 
         CMeshRoutines::createCube(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),theDiv);
 
-        CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
-        it->getSingleMesh()->color.setDefaultValues();
-        it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,1.0f,1.0f);
-        it->getSingleMesh()->setVisibleEdges(false);
-        it->getSingleMesh()->setShadingAngle(20.0f*degToRad_f);
-        it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
-        it->setObjectAlias_direct(IDSOGL_RECTANGLE);
-        it->setObjectName_direct_old(IDSOGL_RECTANGLE);
-        it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
-        it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the rectangle so that it sits on the floor
-        it->alignBoundingBoxWithWorld();
-        if (pure)
-            it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_cuboid,sizes(0),sizes(1),sizes(2));
-        if (dynamic)
-        {
-            int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable;
-            it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
-            it->setRespondable(true);
-            it->setShapeIsDynamicallyStatic(false);
-            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
-        }
-
-        it->getMeshWrapper()->setMass(sizes(0)*sizes(1)*sizes(2)*density);
-        it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((sizes(1)*sizes(1)+sizes(2)*sizes(2))/12.0f,(sizes(0)*sizes(0)+sizes(2)*sizes(2))/12.0f,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0f));
-
-        // make sure that object rests, stacks and can be easily grasped:
-        it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
-        return(it);
+        shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        shape->setObjectAlias_direct(IDSOGL_RECTANGLE);
+        shape->setObjectName_direct_old(IDSOGL_RECTANGLE);
+        shape->alignBoundingBoxWithWorld();
+        shape->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the rectangle so that it sits on the floor
+        shape->getMeshWrapper()->setMass(sizes(0)*sizes(1)*sizes(2)*density);
+        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((sizes(1)*sizes(1)+sizes(2)*sizes(2))/12.0f,(sizes(0)*sizes(0)+sizes(2)*sizes(2))/12.0f,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0f));
     }
 
-    if (type==2)
-    { // sphere
+    if (type==sim_primitiveshape_spheroid)
+    {
+        if (pure==2)
+        {
+            sizes(1)=sizes(0);
+            sizes(2)=sizes(0);
+        }
+        if ( (sizes(1)!=sizes(0))||(sizes(2)!=sizes(0)) )
+            pure=0;
         float xhSize=sizes(0)/2.0f;
         float yhSize=sizes(1)/2.0f;
         float zhSize=sizes(2)/2.0f;
         std::vector<float> vertices;
         std::vector<int> indices;
-        vertices.reserve(((faces-1)*sides+2)*3);
-        indices.reserve((sides*2+2*(faces-2)*sides)*3);
+        if (sides==0)
+            sides=32;
         if (sides<3)
             sides=3;
-        if (faces<2)
-            faces=2;
+        faceSubdiv=sides/2;
 
-        CMeshRoutines::createSphere(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),sides,faces);
+        CMeshRoutines::createSphere(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),sides,faceSubdiv);
 
-        CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
-        it->getSingleMesh()->color.setDefaultValues();
-        it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,1.0f,1.0f);
-        if (smooth)
-        {
-            it->getSingleMesh()->setShadingAngle(20.0f*degToRad_f);
-            it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
-        }
-        it->setObjectAlias_direct(IDSOGL_SPHERE);
-        it->setObjectName_direct_old(IDSOGL_SPHERE);
-        it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
-        it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the sphere so that it sits on the floor
-        it->alignBoundingBoxWithWorld();
-        if (pure)
-            it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_spheroid,sizes(0),sizes(1),sizes(2));
-        if (dynamic)
-        {
-            int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable;
-            it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
-            it->setRespondable(true);
-            it->setShapeIsDynamicallyStatic(false);
-            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
-        }
+        shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        shape->setObjectAlias_direct(IDSOGL_SPHERE);
+        shape->setObjectName_direct_old(IDSOGL_SPHERE);
+        shape->alignBoundingBoxWithWorld();
+        shape->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the sphere so that it sits on the floor
         float avR=(sizes(0)+sizes(1)+sizes(2))/6.0f;
 
-        it->getMeshWrapper()->setMass((4.0f*piValue_f/3.0f)*avR*avR*avR*density);
-        it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f));
+        shape->getMeshWrapper()->setMass((4.0f*piValue_f/3.0f)*avR*avR*avR*density);
+        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f));
         float avr2=avR*2.0f;
-        it->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avr2,sizes(1)/avr2,sizes(2)/avr2);
-
-        // make sure that object rests, stacks and can be easily grasped:
-        it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
-
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
-        return(it);
+        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avr2,sizes(1)/avr2,sizes(2)/avr2);
     }
 
-    if (type==3)
-    { // cylinder
-        faces++;
+    if ( (type==sim_primitiveshape_cylinder)||(type==sim_primitiveshape_cone) )
+    {
+        if (pure==2)
+            sizes(1)=sizes(0);
+        if (sizes(1)!=sizes(0))
+            pure=0;
         float xhSize=sizes(0)/2.0f;
         float yhSize=sizes(1)/2.0f;
         float zhSize=sizes(2)/2.0f;
         int discDiv=discSubdiv+1;
         std::vector<float> vertices;
         std::vector<int> indices;
-        vertices.reserve((sides*(1+faces)+2+(discDiv-1)*sides*2)*3);
-        indices.reserve((sides*2+sides*faces*2+(discDiv-1)*4*sides)*3);
+        if (sides==0)
+            sides=32;
         if (sides<3)
             sides=3;
 
-        CMeshRoutines::createCylinder(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),sides,faces,discDiv,openEnds,cone);
+        CMeshRoutines::createCylinder(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),sides,faceSubdiv+1,discDiv,(options&4)!=0,type==sim_primitiveshape_cone);
 
-        CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
-        it->getSingleMesh()->color.setDefaultValues();
-        it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,1.0f,1.0f);
-        it->getSingleMesh()->setVisibleEdges(false);
-        if (smooth)
-        {
-            it->getSingleMesh()->setShadingAngle(20.0f*degToRad_f);
-            it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
-        }
-        it->setObjectAlias_direct(IDSOGL_CYLINDER);
-        it->setObjectName_direct_old(IDSOGL_CYLINDER);
-        it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
-        it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // Now we shift the cylinder so it sits on the floor
-        it->alignBoundingBoxWithWorld();
-        if (pure)
-        {
-            if (cone)
-                it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_cone,sizes(0),sizes(1),sizes(2));
-            else
-                it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_cylinder,sizes(0),sizes(1),sizes(2));
-        }
-        if (dynamic)
-        {
-            int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable;
-            it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
-            it->setRespondable(true);
-            it->setShapeIsDynamicallyStatic(false);
-            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
-        }
+        shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        shape->setObjectAlias_direct(IDSOGL_CYLINDER);
+        shape->setObjectName_direct_old(IDSOGL_CYLINDER);
+        shape->alignBoundingBoxWithWorld();
+        shape->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // Now we shift the cylinder so it sits on the floor
         float avR=(sizes(0)+sizes(1))/4.0f;
         float divider=1.0f;
-        if (cone)
+        if (type==sim_primitiveshape_cone)
             divider=3.0f;
 
-        it->getMeshWrapper()->setMass(piValue_f*avR*avR*divider*sizes(2)*density);
-        if (cone)
-            it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*avR*avR/10.0f));
+        shape->getMeshWrapper()->setMass(piValue_f*avR*avR*divider*sizes(2)*density);
+        if (type==sim_primitiveshape_cone)
+            shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*avR*avR/10.0f));
         else
-            it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((3.0f*avR*avR+sizes(2)*sizes(2))/12.0f,(3.0f*avR*avR+sizes(2)*sizes(2))/12.0f,avR*avR/2.0f));
+            shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((3.0f*avR*avR+sizes(2)*sizes(2))/12.0f,(3.0f*avR*avR+sizes(2)*sizes(2))/12.0f,avR*avR/2.0f));
         float avR2=avR*2.0f;
-        it->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
-
-        // make sure that object rests, stacks and can be easily grasped:
-        it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
-
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
-        return(it);
+        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
     }
 
-    if (type==4)
-    { // disc
+    if (type==sim_primitiveshape_capsule)
+    { // sizes(2) is the total length of the capsule. maxs=sizes(2)-max(sizes(0),sizes(1)) is the length of the cyl. part
+        if (sizes(0)>sizes(2)-0.0001f)
+            sizes(0)=sizes(2)-0.0001f;
+        if (sizes(1)>sizes(2)-0.0001f)
+            sizes(1)=sizes(2)-0.0001f;
+        float maxs=std::max<float>(sizes(0),sizes(1));
+        float cylLength=sizes(2)-maxs;
+        if (pure==2)
+            sizes(1)=sizes(0);
+        if (sizes(1)!=sizes(0))
+            pure=0;
+        std::vector<float> vertices;
+        std::vector<int> indices;
+        if (sides==0)
+            sides=32;
+        if (sides<3)
+            sides=3;
+
+        CMeshRoutines::createCapsule(vertices,indices,C3Vector(sizes(0),sizes(1),cylLength),sides,faceSubdiv);
+
+        shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        shape->setObjectAlias_direct(IDSOGL_CAPSULE);
+        shape->setObjectName_direct_old(IDSOGL_CAPSULE);
+        shape->alignBoundingBoxWithWorld();
+        shape->setLocalTransformation(C3Vector(0.0f,0.0f,sizes(2)*0.5f));
+
+        // For now, approximation:
+        float avR=(sizes(0)+sizes(1))/4.0f;
+        float l=cylLength+maxs*0.75f;
+        shape->getMeshWrapper()->setMass(piValue_f*avR*avR*l*density);
+        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((3.0f*avR*avR+l*l)/12.0f,(3.0f*avR*avR+l*l)/12.0f,avR*avR/2.0f));
+        float avR2=avR*2.0f;
+        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
+    }
+
+    if (type==sim_primitiveshape_disc)
+    {
+        if (pure==2)
+            sizes(1)=sizes(0);
+        if (sizes(1)!=sizes(0))
+            pure=0;
+        sizes(2)=0.0001f;
         float xhSize=sizes(0)/2.0f;
         float yhSize=sizes(1)/2.0f;
         int discDiv=discSubdiv+1;
         std::vector<float> vertices;
         std::vector<int> indices;
-        vertices.reserve((discDiv*sides*2+2)*3);
-        indices.reserve(((discDiv-1)*2*sides)*3);
         float dd=1.0f/((float)discDiv);
-        if (sides<3) sides=3;
+        if (sides==0)
+            sides=32;
+        if (sides<3)
+            sides=3;
         float sa=2.0f*piValue_f/((float)sides);
         // The two middle vertices:
         int sideStart=1;
@@ -986,41 +953,44 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             vertices[3*i+1]=p(1);
         }
 
-        CShape* it=new CShape(nullptr,vertices,indices,nullptr,nullptr);
-        it->getSingleMesh()->color.setDefaultValues();
-        it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,1.0f,1.0f);
-        it->getSingleMesh()->setVisibleEdges(false);
-        it->getSingleMesh()->setShadingAngle(20.0f*degToRad_f);
-        it->getSingleMesh()->setEdgeThresholdAngle(20.0f*degToRad_f);
-        it->setObjectAlias_direct(IDSOGL_DISC);
-        it->setObjectName_direct_old(IDSOGL_DISC);
-        it->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(it->getObjectName_old().c_str()).c_str());
-        it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // Now we shift the disc so it sits just above the floor
-        it->alignBoundingBoxWithWorld();
-        if (pure)
-            it->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_disc,sizes(0),sizes(1),0.0001f);
+        shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        shape->setObjectAlias_direct(IDSOGL_DISC);
+        shape->setObjectName_direct_old(IDSOGL_DISC);
+        shape->alignBoundingBoxWithWorld();
+        shape->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // Now we shift the disc so it sits just above the floor
+        float avR=(sizes(0)+sizes(1))/4.0f;
+        shape->getMeshWrapper()->setMass(piValue_f*avR*avR*density*0.001f); // we assume 1mm thickness
+        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0f*(avR*avR)/12.0f,3.0f*(avR*avR)/12.0f,avR*avR/2.0f));
+        float avR2=avR*2.0f;
+        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
+    }
+
+    if (shape!=nullptr)
+    {
+        shape->getSingleMesh()->color.setDefaultValues();
+        shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,1.0f,1.0f);
+        shape->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(shape->getObjectName_old().c_str()).c_str());
+        if ((options&2)==0)
+        {
+            shape->getSingleMesh()->setShadingAngle(30.0f*degToRad_f);
+            shape->getSingleMesh()->setEdgeThresholdAngle(30.0f*degToRad_f);
+        }
+        if (pure!=0)
+            shape->getSingleMesh()->setPurePrimitiveType(type,sizes(0),sizes(1),sizes(2));
         if (dynamic)
         {
             int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable;
-            it->setLocalObjectSpecialProperty((it->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
-            it->setRespondable(true);
-            it->setShapeIsDynamicallyStatic(false);
-            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
+            shape->setLocalObjectSpecialProperty((shape->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
+            shape->setRespondable(true);
+            shape->setShapeIsDynamicallyStatic(false);
+            shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
+            shape->setRespondable(true);
         }
-        float avR=(sizes(0)+sizes(1))/4.0f;
-        it->getMeshWrapper()->setMass(piValue_f*avR*avR*density*0.001f); // we assume 1mm thickness
-        it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0f*(avR*avR)/12.0f,3.0f*(avR*avR)/12.0f,avR*avR/2.0f));
-        float avR2=avR*2.0f;
-        it->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
-
-        // make sure that object rests, stacks and can be easily grasped:
-        it->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
-
-        App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
-        return(it);
+        shape->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
+        shape->setCulling((options&1)!=0);
+        App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
     }
-
-    return(nullptr);
+    return(shape);
 }
 
 CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& inputObjects,float margin)
@@ -1238,6 +1208,8 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
             prim->appendMenuItem(true,false,ADD_COMMANDS_ADD_PRIMITIVE_RECTANGLE_ACCMD,IDS_RECTANGLE_MENU_ITEM);
             prim->appendMenuItem(true,false,ADD_COMMANDS_ADD_PRIMITIVE_SPHERE_ACCMD,IDS_SPHERE_MENU_ITEM);
             prim->appendMenuItem(true,false,ADD_COMMANDS_ADD_PRIMITIVE_CYLINDER_ACCMD,IDS_CYLINDER_MENU_ITEM);
+            prim->appendMenuItem(true,false,ADD_COMMANDS_ADD_PRIMITIVE_CAPSULE_ACCMD,IDS_CAPSULE_MENU_ITEM);
+            prim->appendMenuItem(true,false,ADD_COMMANDS_ADD_PRIMITIVE_CONE_ACCMD,IDS_CONE_MENU_ITEM);
             menu->appendMenuAndDetach(prim,true,IDS_PRIMITIVE_SHAPE_MENU_ITEM);
             itemsPresent=true;
 
@@ -1352,24 +1324,38 @@ CShape* CAddOperations::addPrimitive_withDialog(int command,const C3Vector* optS
     CShape* retVal=nullptr;
     int pType=-1;
     if (command==ADD_COMMANDS_ADD_PRIMITIVE_PLANE_ACCMD)
-        pType=0;
+        pType=sim_primitiveshape_plane;
     if (command==ADD_COMMANDS_ADD_PRIMITIVE_RECTANGLE_ACCMD)
-        pType=1;
+        pType=sim_primitiveshape_cuboid;
     if (command==ADD_COMMANDS_ADD_PRIMITIVE_SPHERE_ACCMD)
-        pType=2;
+        pType=sim_primitiveshape_spheroid;
+    if (command==ADD_COMMANDS_ADD_PRIMITIVE_CAPSULE_ACCMD)
+        pType=sim_primitiveshape_capsule;
     if (command==ADD_COMMANDS_ADD_PRIMITIVE_CYLINDER_ACCMD)
-        pType=3;
+        pType=sim_primitiveshape_cylinder;
     if (command==ADD_COMMANDS_ADD_PRIMITIVE_DISC_ACCMD)
-        pType=4;
+        pType=sim_primitiveshape_disc;
+    if (command==ADD_COMMANDS_ADD_PRIMITIVE_CONE_ACCMD)
+        pType=sim_primitiveshape_cone;
     if (pType!=-1)
     {
         C3Vector sizes;
         int subdiv[3];
-        int faces,sides,discSubdiv,openEnds;
-        bool smooth,dynamic,pure,cone;
+        int faceSubdiv,sides,discSubdiv;
+        bool smooth,dynamic,pure,openEnds;
         float density;
-        if (App::uiThread->showPrimitiveShapeDialog(pType,optSizes,sizes,subdiv,faces,sides,discSubdiv,smooth,openEnds,dynamic,pure,cone,density))
-            retVal=addPrimitiveShape(pType,sizes,subdiv,faces,sides,discSubdiv,smooth,openEnds,dynamic,pure,cone,density);
+        if (App::uiThread->showPrimitiveShapeDialog(pType,optSizes,sizes,subdiv,faceSubdiv,sides,discSubdiv,smooth,openEnds,dynamic,pure,density))
+        {
+            int options=0;
+            if (!smooth)
+                options|=2;
+            if (openEnds)
+                options|=4;
+            int p=0;
+            if (pure)
+                p=2;
+            retVal=addPrimitiveShape(pType,sizes,options,subdiv,faceSubdiv,sides,discSubdiv,dynamic,p,density);
+        }
     }
     return(retVal);
 }

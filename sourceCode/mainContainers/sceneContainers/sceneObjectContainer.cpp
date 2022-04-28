@@ -1690,7 +1690,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
     {
         loadVisualAttributes=true;
         int primitiveType=0;
-        ar.xmlGetNode_enum("type",primitiveType,false,"cuboid",0,"sphere",1,"cylinder",2,"cone",3,"plane",4,"disc",5);
+        ar.xmlGetNode_enum("type",primitiveType,false,"cuboid",0,"sphere",1,"cylinder",2,"cone",3,"plane",4,"disc",5,"capsule",6);
         float sizes[3]={0.1f,0.1f,0.1f};
         ar.xmlGetNode_floats("size",sizes,3,false);
         C7Vector tr;
@@ -1709,36 +1709,35 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
             ar.xmlPopNode();
         }
         int pType=-1;
-        bool cone=false;
         C3Vector s(tt::getLimitedFloat(0.00001f,100000.0f,sizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[1]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[2]));
-        int openEnds=0;
-        int faces=0;
-        int sides=32;
         if (primitiveType==0) // cuboid
-            pType=1;
+            pType=sim_primitiveshape_cuboid;
         if (primitiveType==1) // sphere
         {
-            pType=2;
-            faces=16;
+            pType=sim_primitiveshape_spheroid;
             s(1)=s(0);
             s(2)=s(0);
         }
         if (primitiveType==2) // cylinder
         {
-            pType=3;
+            pType=sim_primitiveshape_cylinder;
             s(1)=s(0);
         }
         if (primitiveType==3) // cone
         {
-            pType=3;
+            pType=sim_primitiveshape_cone;
             s(1)=s(0);
-            cone=true;
         }
         if (primitiveType==4) // plane
-            pType=0;
+            pType=sim_primitiveshape_plane;
         if (primitiveType==5) // disc
-            pType=4;
-        retVal=CAddOperations::addPrimitiveShape(pType,s,nullptr,faces,sides,0,true,openEnds,true,true,cone,1000.0f);
+            pType=sim_primitiveshape_disc;
+        if (primitiveType==6) // capsule
+        {
+            pType=sim_primitiveshape_capsule;
+            s(1)=s(0);
+        }
+        retVal=CAddOperations::addPrimitiveShape(pType,s);
         retVal->setLocalTransformation(tr);
     }
     if (!noHeightfield)
@@ -2071,7 +2070,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
 void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* originalShapeName,CShape* shape,const C7Vector& frame)
 {
     CMesh* geom=shape->getSingleMesh();
-    if (geom->getPurePrimitiveType()==sim_pure_primitive_none)
+    if (geom->getPurePrimitiveType()==sim_primitiveshape_none)
     { // mesh
         ar.xmlPushNewNode("mesh");
         C7Vector trOld(shape->getFullLocalTransformation());
@@ -2115,7 +2114,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         ar.xmlAddNode_floats("euler",euler.data,3);
         ar.xmlPopNode();
     }
-    else if (geom->getPurePrimitiveType()==sim_pure_primitive_heightfield)
+    else if (geom->getPurePrimitiveType()==sim_primitiveshape_heightfield)
     { // heightfield
         ar.xmlPushNewNode("heightfield");
 
@@ -2132,19 +2131,21 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
     { // primitive
         ar.xmlPushNewNode("primitive");
 
-        ar.xmlAddNode_comment(" 'type' tag: required. Can be one of following: 'cuboid', 'sphere', 'cylinder', 'cone', 'plane' or 'disc' ",false);
-        if (geom->getPurePrimitiveType()==sim_pure_primitive_cuboid)
+        ar.xmlAddNode_comment(" 'type' tag: required. Can be one of following: 'cuboid', 'sphere', 'cylinder', 'cone', 'plane', 'disc' or 'capsule'",false);
+        if (geom->getPurePrimitiveType()==sim_primitiveshape_cuboid)
             ar.xmlAddNode_string("type","cuboid");
-        if (geom->getPurePrimitiveType()==sim_pure_primitive_spheroid)
+        if (geom->getPurePrimitiveType()==sim_primitiveshape_spheroid)
             ar.xmlAddNode_string("type","sphere");
-        if (geom->getPurePrimitiveType()==sim_pure_primitive_cylinder)
+        if (geom->getPurePrimitiveType()==sim_primitiveshape_cylinder)
             ar.xmlAddNode_string("type","cylinder");
-        if (geom->getPurePrimitiveType()==sim_pure_primitive_cone)
+        if (geom->getPurePrimitiveType()==sim_primitiveshape_cone)
             ar.xmlAddNode_string("type","cone");
-        if (geom->getPurePrimitiveType()==sim_pure_primitive_plane)
+        if (geom->getPurePrimitiveType()==sim_primitiveshape_plane)
             ar.xmlAddNode_string("type","plane");
-        if (geom->getPurePrimitiveType()==sim_pure_primitive_disc)
+        if (geom->getPurePrimitiveType()==sim_primitiveshape_disc)
             ar.xmlAddNode_string("type","disc");
+        if (geom->getPurePrimitiveType()==sim_primitiveshape_capsule)
+            ar.xmlAddNode_string("type","capsule");
 
         C3Vector s;
         geom->getPurePrimitiveSizes(s);

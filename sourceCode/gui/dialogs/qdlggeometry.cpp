@@ -56,7 +56,7 @@ void CQDlgGeometry::refresh()
     ui->qqAlpha->setText(tt::getAngleFString(true,rotationVal[0],2).c_str());
     ui->qqBeta->setText(tt::getAngleFString(true,rotationVal[1],2).c_str());
     ui->qqGamma->setText(tt::getAngleFString(true,rotationVal[2],2).c_str());
-    bool canScaleFreely=(!g)&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_pure_primitive_spheroid);
+    bool canScaleFreely=(!g)&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_spheroid)&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_capsule);
     ui->qqKeepProp->setChecked(keepProp||(!canScaleFreely));
     ui->qqKeepProp->setEnabled(canScaleFreely&&noEditModeNoSim);
     ui->qqAlpha->setEnabled(((!isPureShape)||g)&&noEditModeNoSim);
@@ -70,19 +70,21 @@ void CQDlgGeometry::refresh()
             shapeTypeText=IDSN_PURE_COMPOUND_SHAPE;
         else
         {
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_heightfield)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield)
                 shapeTypeText=IDSN_HEIGHTFIELD_SHAPE;
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_plane)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_plane)
                 shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_PLANE_;
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_disc)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_disc)
                 shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_DISC_;
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cuboid)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cuboid)
                 shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_CUBOID_;
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_spheroid)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_spheroid)
                 shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_SPHEROID_;
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cylinder)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cylinder)
                 shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_CYLINDER_;
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cone)
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_capsule)
+                shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_CAPSULE_;
+            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cone)
                 shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_CONE_;
         }
     }
@@ -231,12 +233,12 @@ void CQDlgGeometry::_readSize(int index)
                 sizeVal[index]=newVal;
             }
 
-            if (shape->getMeshWrapper()->isMesh()&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_pure_primitive_spheroid))
+            if ( shape->getMeshWrapper()->isMesh()&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_spheroid)&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_capsule) )
             {
-                if ( (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_disc)||
-                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cylinder)||
-                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cone)||
-                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_heightfield) )
+                if ( (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_disc)||
+                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cylinder)||
+                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cone)||
+                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
                 {
                     if (index==0)
                         sizeVal[1]=sizeVal[0];
@@ -245,7 +247,7 @@ void CQDlgGeometry::_readSize(int index)
                 }
             }
             else
-            { // groups and spheroids have only iso-scaling
+            { // groups, spheres and capsules have only iso-scaling
                 if (!keepProp)
                 { // should normally never happen (compound shapes have the "keepProp" flag set)
                     if (index==0)
@@ -303,12 +305,12 @@ void CQDlgGeometry::_readScaling(int index)
             else
                 scaleVal[index]=newVal;
 
-            if (shape->getMeshWrapper()->isMesh()&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_pure_primitive_spheroid))
+            if ( shape->getMeshWrapper()->isMesh()&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_spheroid)&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_capsule) )
             {
-                if ( (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_disc)||
-                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cylinder)||
-                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_cone)||
-                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_pure_primitive_heightfield) )
+                if ( (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_disc)||
+                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cylinder)||
+                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cone)||
+                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
                 {
                     if (index==0)
                         scaleVal[1]=scaleVal[0];
@@ -317,7 +319,7 @@ void CQDlgGeometry::_readScaling(int index)
                 }
             }
             else
-            { // groups and spheroids have only iso-scaling
+            { // groups, spheres and capsules have only iso-scaling
                 if (index==0)
                     scaleVal[1]=scaleVal[2]=scaleVal[0];
                 if (index==1)

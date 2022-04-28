@@ -1382,7 +1382,7 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,float pointSpacing,const
     CShape* shape=new CShape(allHeights,xSize,ySize,pointSpacing,maxHeight-minHeight);
 
     if (options&4)
-        shape->getSingleMesh()->setPurePrimitiveType(sim_pure_primitive_none,1.0f,1.0f,1.0f);
+        shape->getSingleMesh()->setPurePrimitiveType(sim_primitiveshape_none,1.0f,1.0f,1.0f);
 
     shape->alignBoundingBoxWithWorld();
     shape->setCulling((options&1)!=0);

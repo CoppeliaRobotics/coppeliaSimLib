@@ -986,6 +986,79 @@ void CMeshRoutines::createCube(std::vector<float>& vertices,std::vector<int>& in
     }
 }
 
+void CMeshRoutines::createCapsule(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faceSubdiv)
+{
+    vertices.clear();
+    indices.clear();
+    float xhSize=sizes(0)/2.0f;
+    float yhSize=sizes(1)/2.0f;
+    float zhSize=sizes(2)/2.0f;
+
+    float sa=2.0f*piValue_f/((float)sides);
+    int ff=sides/2;
+    float fa=piValD2_f/((float)ff);
+
+    // We set up the vertices:
+    tt::addToFloatArray(&vertices,0.0f,0.0f,xhSize+zhSize);
+    tt::addToFloatArray(&vertices,0.0f,0.0f,-xhSize-zhSize);
+    for (int i=0;i<sides;i++)
+    {
+        for (int j=1;j<=ff;j++)
+            tt::addToFloatArray(&vertices,xhSize*sin(fa*j)*cos(sa*i),yhSize*sin(fa*j)*sin(sa*i),zhSize+xhSize*cos(fa*j));
+
+        for (int j=1;j<=faceSubdiv;j++)
+            tt::addToFloatArray(&vertices,xhSize*cos(sa*i),yhSize*sin(sa*i),zhSize-j*sizes(2)/(faceSubdiv+1));
+
+        for (int j=ff;j>0;j--)
+            tt::addToFloatArray(&vertices,xhSize*sin(fa*j)*cos(sa*i),yhSize*sin(fa*j)*sin(sa*i),-zhSize-xhSize*cos(fa*j));
+    }
+
+    int off1=2;
+    int off2=2*ff+faceSubdiv;
+    
+    // We set up the indices:
+    for (int i=0;i<sides-1;i++)
+    {
+        tt::addToIntArray(&indices,0,i*off2+off1,(i+1)*off2+off1);
+        for (int j=0;j<ff-1;j++)
+        {
+            tt::addToIntArray(&indices,i*off2+off1+j,i*off2+off1+j+1,(i+1)*off2+off1+j);
+            tt::addToIntArray(&indices,i*off2+off1+j+1,(i+1)*off2+off1+j+1,(i+1)*off2+off1+j);
+        }
+        for (int j=0;j<faceSubdiv+1;j++)
+        {
+            tt::addToIntArray(&indices,i*off2+off1+ff-1+j,i*off2+off1+ff-1+j+1,(i+1)*off2+off1+ff-1+j);
+            tt::addToIntArray(&indices,i*off2+off1+ff-1+j+1,(i+1)*off2+off1+ff-1+j+1,(i+1)*off2+off1+ff-1+j);
+        }
+        for (int j=0;j<ff-1;j++)
+        {
+            tt::addToIntArray(&indices,i*off2+off1+ff+faceSubdiv+j,i*off2+off1+ff+faceSubdiv+j+1,(i+1)*off2+off1+ff+faceSubdiv+j);
+            tt::addToIntArray(&indices,i*off2+off1+ff+faceSubdiv+j+1,(i+1)*off2+off1+ff+faceSubdiv+j+1,(i+1)*off2+off1+ff+faceSubdiv+j);
+        }
+        tt::addToIntArray(&indices,(i+1)*off2+off1-1,1,(i+2)*off2+off1-1);
+    }
+
+    int off3=off2*sides;
+    // We close the capsule:
+    tt::addToIntArray(&indices,0,off3+off1-off2,2);
+    for (int j=0;j<ff-1;j++)
+    {
+        tt::addToIntArray(&indices,off3+off1-off2+j,off3+off1-off2+j+1,off1+j);
+        tt::addToIntArray(&indices,off3+off1-off2+j+1,off1+j+1,off1+j);
+    }
+    for (int j=0;j<faceSubdiv+1;j++)
+    {
+        tt::addToIntArray(&indices,off3+off1-off2+ff-1+j,off3+off1-off2+ff-1+j+1,off1+ff-1+j);
+        tt::addToIntArray(&indices,off3+off1-off2+ff-1+j+1,off1+ff-1+j+1,off1+ff-1+j);
+    }
+    for (int j=0;j<ff-1;j++)
+    {
+        tt::addToIntArray(&indices,off3+off1-off2+ff+faceSubdiv+j,off3+off1-off2+ff+faceSubdiv+j+1,off1+ff+faceSubdiv+j);
+        tt::addToIntArray(&indices,off3+off1-off2+ff+faceSubdiv+j+1,off1+ff+faceSubdiv+j+1,off1+ff+faceSubdiv+j);
+    }
+    tt::addToIntArray(&indices,off3+off1-1,1,off2+off1-1);
+}
+
 void CMeshRoutines::createSphere(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces)
 {
     vertices.clear();
@@ -1002,11 +1075,9 @@ void CMeshRoutines::createSphere(std::vector<float>& vertices,std::vector<int>& 
     for (int i=0;i<sides;i++)
     {
         for (int j=1;j<faces;j++)
-        {
-            tt::addToFloatArray(&vertices,(float)(sin(fa*j)*cos(sa*i)),(float)(sin(fa*j)*sin(sa*i)),(float)cos(fa*j));  
-        }
+            tt::addToFloatArray(&vertices,(float)(sin(fa*j)*cos(sa*i)),(float)(sin(fa*j)*sin(sa*i)),(float)cos(fa*j));
     }
-    
+
     // We set up the indices:
     for (int i=0;i<sides-1;i++)
     {
@@ -1015,8 +1086,8 @@ void CMeshRoutines::createSphere(std::vector<float>& vertices,std::vector<int>& 
         tt::addToIntArray(&indices,(i+1)*(faces-1)+1,1,(i+2)*(faces-1)+1);
         for (int j=0;j<faces-2;j++)
         { // Here the rest:
-            tt::addToIntArray(&indices,i*(faces-1)+2+j,i*(faces-1)+2+j+1,(i+1)*(faces-1)+2+j);  
-            tt::addToIntArray(&indices,i*(faces-1)+2+j+1,(i+1)*(faces-1)+2+j+1,(i+1)*(faces-1)+2+j);    
+            tt::addToIntArray(&indices,i*(faces-1)+2+j,i*(faces-1)+2+j+1,(i+1)*(faces-1)+2+j);
+            tt::addToIntArray(&indices,i*(faces-1)+2+j+1,(i+1)*(faces-1)+2+j+1,(i+1)*(faces-1)+2+j);
         }
     }
     // We have to close the sphere here:
@@ -1025,8 +1096,8 @@ void CMeshRoutines::createSphere(std::vector<float>& vertices,std::vector<int>& 
     tt::addToIntArray(&indices,sides*(faces-1)+1,1,(faces-1)+1);
     for (int j=0;j<faces-2;j++)
     { // Here the rest:
-        tt::addToIntArray(&indices,(sides-1)*(faces-1)+2+j,(sides-1)*(faces-1)+2+j+1,2+j);  
-        tt::addToIntArray(&indices,(sides-1)*(faces-1)+2+j+1,2+j+1,2+j);    
+        tt::addToIntArray(&indices,(sides-1)*(faces-1)+2+j,(sides-1)*(faces-1)+2+j+1,2+j);
+        tt::addToIntArray(&indices,(sides-1)*(faces-1)+2+j+1,2+j+1,2+j);
     }
     // Now we scale the sphere:
     for (int i=0;i<int(vertices.size())/3;i++)
@@ -1041,7 +1112,7 @@ void CMeshRoutines::createSphere(std::vector<float>& vertices,std::vector<int>& 
     }
 }
 
-void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces,int discDiv,int openEnds,bool cone)
+void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces,int discDiv,bool openEnds,bool cone)
 {
     vertices.clear();
     indices.clear();
@@ -1054,7 +1125,7 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
     float sa=2.0f*piValue_f/((float)sides);
     int sideStart=0;
     // We set up the vertices:
-    if (openEnds==0)
+    if (!openEnds)
     { // The two middle vertices:
         sideStart=2;
         tt::addToFloatArray(&vertices,0.0f,0.0f,0.5f);  
@@ -1080,7 +1151,7 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
 
     int dstStart=(int)vertices.size()/3;
     int dsbStart=0;
-    if (openEnds==0)
+    if (!openEnds)
     { // The disc subdivision vertices:
         for (int i=1;i<discDiv;i++)
             for (int j=0;j<sides;j++)
@@ -1096,7 +1167,7 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
     for (int i=0;i<sides-1;i++)
     {
         // First top and bottom part:
-        if (openEnds==0)
+        if (!openEnds)
         {
             if (discDiv==1)
             {
@@ -1129,7 +1200,7 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
 
     // We have to close the cylinder here:
     // First top and bottom part:
-    if (openEnds==0)
+    if (!openEnds)
     {
         if (discDiv==1)
         {

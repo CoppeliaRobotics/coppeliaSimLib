@@ -69,7 +69,7 @@ CShape::CShape(const std::vector<float>& allHeights,int xSize,int ySize,float dx
 
     newLocalTr=_acceptNewGeometry(vert,ind,nullptr,nullptr);
 
-    getMeshWrapper()->setPurePrimitiveType(sim_pure_primitive_heightfield,float(xSize-1)*dx,float(ySize-1)*dx,zSize);
+    getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_heightfield,float(xSize-1)*dx,float(ySize-1)*dx,zSize);
     std::vector<float> heightsInCorrectOrder;
     for (int i=0;i<ySize;i++)
     {
@@ -667,19 +667,19 @@ void CShape::scaleMesh(float x,float y,float z,float& xp,float& yp,float& zp)
         if (getMeshWrapper()->isMesh())
         { // we have a pure mesh (non-group)
             int purePrim=getSingleMesh()->getPurePrimitiveType();
-            if (purePrim==sim_pure_primitive_plane)
+            if (purePrim==sim_primitiveshape_plane)
                 z=1.0f;
-            if (purePrim==sim_pure_primitive_disc)
+            if (purePrim==sim_primitiveshape_disc)
             {
                 z=1.0f;
                 y=x;
             }
-            if (purePrim==sim_pure_primitive_spheroid)
+            if ( (purePrim==sim_primitiveshape_spheroid)||(purePrim==sim_primitiveshape_capsule) )
             {
                 y=x;
                 z=x;
             }
-            if ( (purePrim==sim_pure_primitive_cylinder)||(purePrim==sim_pure_primitive_cone)||(purePrim==sim_pure_primitive_heightfield) )
+            if ( (purePrim==sim_primitiveshape_cylinder)||(purePrim==sim_primitiveshape_cone)||(purePrim==sim_primitiveshape_heightfield) )
                 y=x;
         }
     }
@@ -826,21 +826,23 @@ std::string CShape::getObjectTypeInfoExtended() const
     if (getMeshWrapper()->isMesh())
     {
         int pureType=getSingleMesh()->getPurePrimitiveType();
-        if (pureType==sim_pure_primitive_none)
+        if (pureType==sim_primitiveshape_none)
             return("Shape (simple, non-pure)");
-        if (pureType==sim_pure_primitive_plane)
+        if (pureType==sim_primitiveshape_plane)
             return("Shape (simple, pure (plane))");
-        if (pureType==sim_pure_primitive_disc)
+        if (pureType==sim_primitiveshape_disc)
             return("Shape (simple, pure (disc))");
-        if (pureType==sim_pure_primitive_cuboid)
+        if (pureType==sim_primitiveshape_cuboid)
             return("Shape (simple, pure (cuboid))");
-        if (pureType==sim_pure_primitive_spheroid)
+        if (pureType==sim_primitiveshape_spheroid)
             return("Shape (simple, pure (sphere))");
-        if (pureType==sim_pure_primitive_cylinder)
+        if (pureType==sim_primitiveshape_cylinder)
             return("Shape (simple, pure (cylinder))");
-        if (pureType==sim_pure_primitive_cone)
+        if (pureType==sim_primitiveshape_cone)
             return("Shape (simple, pure (cone))");
-        if (pureType==sim_pure_primitive_heightfield)
+        if (pureType==sim_primitiveshape_capsule)
+            return("Shape (simple, pure (capsule))");
+        if (pureType==sim_primitiveshape_heightfield)
             return("Shape (simple, pure (heightfield))");
     }
     else

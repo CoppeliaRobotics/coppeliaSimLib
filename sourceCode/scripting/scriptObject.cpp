@@ -4334,14 +4334,14 @@ const SNewApiMapping _simApiMapping[]=
     "sim_physics_ode","sim.physics_ode",
     "sim_physics_vortex","sim.physics_vortex",
     "sim_physics_newton","sim.physics_newton",
-    "sim_pure_primitive_none","sim.pure_primitive_none",
-    "sim_pure_primitive_plane","sim.pure_primitive_plane",
-    "sim_pure_primitive_disc","sim.pure_primitive_disc",
-    "sim_pure_primitive_cuboid","sim.pure_primitive_cuboid",
-    "sim_pure_primitive_spheroid","sim.pure_primitive_spheroid",
-    "sim_pure_primitive_cylinder","sim.pure_primitive_cylinder",
-    "sim_pure_primitive_cone","sim.pure_primitive_cone",
-    "sim_pure_primitive_heightfield","sim.pure_primitive_heightfield",
+    "sim_pure_primitive_none","sim.primitiveshape_none",
+    "sim_pure_primitive_plane","sim.primitiveshape_plane",
+    "sim_pure_primitive_disc","sim.primitiveshape_disc",
+    "sim_pure_primitive_cuboid","sim.primitiveshape_cuboid",
+    "sim_pure_primitive_spheroid","sim.primitiveshape_spheroid",
+    "sim_pure_primitive_cylinder","sim.primitiveshape_cylinder",
+    "sim_pure_primitive_cone","sim.primitiveshape_cone",
+    "sim_pure_primitive_heightfield","sim.primitiveshape_heightfield",
     "sim_dummy_linktype_dynamics_loop_closure","sim.dummy_linktype_dynamics_loop_closure",
     "sim_dummy_linktype_dynamics_force_constraint","sim.dummy_linktype_dynamics_force_constraint",
     "sim_dummy_linktype_gcs_loop_closure","sim.dummy_linktype_gcs_loop_closure",
@@ -6868,6 +6868,9 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+
+    if (_containsScriptText_old(scriptObject,"sim.createPureShape"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.createPureShape...");
 
     if (_containsScriptText_old(scriptObject,"sim.getVisionSensorResolution"))
         App::logMsg(sim_verbosity_errors,"Contains sim.getVisionSensorResolution...");

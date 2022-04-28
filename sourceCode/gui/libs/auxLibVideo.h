@@ -12,7 +12,7 @@ typedef char (__cdecl *pVideo_recorderEnd)(void);
 class CAuxLibVideo  
 {
 public:
-    static void loadLibrary(bool headless);
+    static bool loadLibrary();
     static void unloadLibrary();
 
     static pVideo_recorderGetEncoderString video_recorderGetEncoderString;

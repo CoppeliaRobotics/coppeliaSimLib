@@ -27,9 +27,10 @@
 #define IDSOGL_X_Y_GRAPH_CURVES_ "X-Y graph curves:"
 
 #define IDSOGL_PLANE "Plane"
-#define IDSOGL_RECTANGLE "Cuboid" //modifiedOn 25/2/2012
+#define IDSOGL_RECTANGLE "Cuboid"
 #define IDSOGL_SPHERE "Sphere"
 #define IDSOGL_CYLINDER "Cylinder"
+#define IDSOGL_CAPSULE "Capsule"
 #define IDSOGL_DISC "Disc"
 #define IDSOGL_UI "UI"
 #define IDSOGL_MECHANISM "Mechanism"

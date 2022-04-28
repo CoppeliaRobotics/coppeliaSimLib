@@ -205,7 +205,7 @@ SIM_DLLEXPORT simInt simImportShape(simInt fileformat,const simChar* pathAndFile
 SIM_DLLEXPORT simInt simImportMesh(simInt fileformat,const simChar* pathAndFilename,simInt options,simFloat identicalVerticeTolerance,simFloat scalingFactor,simFloat*** vertices,simInt** verticesSizes,simInt*** indices,simInt** indicesSizes,simFloat*** reserved,simChar*** names);
 SIM_DLLEXPORT simInt simExportMesh(simInt fileformat,const simChar* pathAndFilename,simInt options,simFloat scalingFactor,simInt elementCount,const simFloat** vertices,const simInt* verticesSizes,const simInt** indices,const simInt* indicesSizes,simFloat** reserved,const simChar** names);
 SIM_DLLEXPORT simInt simCreateMeshShape(simInt options,simFloat shadingAngle,const simFloat* vertices,simInt verticesSize,const simInt* indices,simInt indicesSize,simFloat* reserved);
-SIM_DLLEXPORT simInt simCreatePureShape(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision);
+SIM_DLLEXPORT simInt simCreatePrimitiveShape(simInt primitiveType,const simFloat* sizes,simInt options);
 SIM_DLLEXPORT simInt simCreateHeightfieldShape(simInt options,simFloat shadingAngle,simInt xPointCount,simInt yPointCount,simFloat xSize,const simFloat* heights);
 SIM_DLLEXPORT simInt simGetShapeMesh(simInt shapeHandle,simFloat** vertices,simInt* verticesSize,simInt** indices,simInt* indicesSize,simFloat** normals);
 SIM_DLLEXPORT simInt simCreateJoint(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* reservedA,const simFloat* reservedB);
@@ -728,6 +728,7 @@ SIM_DLLEXPORT simUChar* simGetVisionSensorCharImage(simInt visionSensorHandle,si
 SIM_DLLEXPORT simInt simSetVisionSensorImage(simInt visionSensorHandle,const simFloat* image);
 SIM_DLLEXPORT simInt simSetVisionSensorCharImage(simInt visionSensorHandle,const simUChar* image);
 SIM_DLLEXPORT int simSetVisionSensorDepthBuffer(simInt visionSensorHandle,const float* depthBuffer);
+SIM_DLLEXPORT simInt simCreatePureShape(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

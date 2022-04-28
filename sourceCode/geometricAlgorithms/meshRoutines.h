@@ -88,7 +88,8 @@ public:
 
     static void createCube(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,const int subdivisions[3]);
     static void createSphere(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces);
-    static void createCylinder(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces,int discDiv,int openEnds,bool cone);
+    static void createCapsule(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faceSubdiv);
+    static void createCylinder(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces,int discDiv,bool openEnds,bool cone);
     static void createAnnulus(std::vector<float>& vertices,std::vector<int>& indices,float Dlarge,float Dsmall,float zShift,int sides,bool faceUp);
 
 private:
