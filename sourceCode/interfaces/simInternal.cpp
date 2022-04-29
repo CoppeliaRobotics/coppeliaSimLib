@@ -3152,6 +3152,17 @@ simInt simGetBoolParam_internal(simInt parameter)
             return(1);
 #endif
         }
+        if (parameter==sim_boolparam_rayvalid)
+        {
+#ifdef SIM_WITH_GUI
+            int retVal=0;
+            C3Vector orig,dir;
+            if ( (App::mainWindow!=nullptr)&&(App::mainWindow->getMouseRay(orig,dir)) )
+                retVal=1;
+            return(retVal);
+#endif
+            return(0);
+        }
         if (parameter==sim_boolparam_display_enabled)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+16+32))
@@ -3547,8 +3558,42 @@ simInt simGetArrayParam_internal(simInt parameter,simVoid* arrayOfValues)
             ((float*)arrayOfValues)[2]=euler(2);
             return(1);
         }
-
-
+        if (parameter==sim_arrayparam_rayorigin)
+        {
+            ((float*)arrayOfValues)[0]=0.0f;
+            ((float*)arrayOfValues)[1]=0.0f;
+            ((float*)arrayOfValues)[2]=0.0f;
+#ifdef SIM_WITH_GUI
+            if (App::mainWindow!=nullptr)
+            {
+                C3Vector orig,dir;
+                if (App::mainWindow->getMouseRay(orig,dir))
+                {
+                    orig.getInternalData(((float*)arrayOfValues));
+                    return(1);
+                }
+            }
+#endif
+            return(0);
+        }
+        if (parameter==sim_arrayparam_raydirection)
+        {
+            ((float*)arrayOfValues)[0]=0.0f;
+            ((float*)arrayOfValues)[1]=0.0f;
+            ((float*)arrayOfValues)[2]=1.0f;
+#ifdef SIM_WITH_GUI
+            if (App::mainWindow!=nullptr)
+            {
+                C3Vector orig,dir;
+                if (App::mainWindow->getMouseRay(orig,dir))
+                {
+                    dir.getInternalData(((float*)arrayOfValues));
+                    return(1);
+                }
+            }
+#endif
+            return(0);
+        }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
     }

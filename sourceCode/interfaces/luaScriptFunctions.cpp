@@ -802,6 +802,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.boolparam_objproperties_toolbarbutton_enabled",sim_boolparam_objproperties_toolbarbutton_enabled,true},
     {"sim.boolparam_calcmodules_toolbarbutton_enabled",sim_boolparam_calcmodules_toolbarbutton_enabled,true},
     {"sim.boolparam_rosinterface_donotrunmainscript",sim_boolparam_rosinterface_donotrunmainscript,true},
+    {"sim.boolparam_rayvalid",sim_boolparam_rayvalid,true},
+
     // Integer parameters:
     {"sim.intparam_error_report_mode",sim_intparam_error_report_mode,true},
     {"sim.intparam_program_version",sim_intparam_program_version,true},
@@ -857,6 +859,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.arrayparam_background_color2",sim_arrayparam_background_color2,true},
     {"sim.arrayparam_ambient_light",sim_arrayparam_ambient_light,true},
     {"sim.arrayparam_random_euler",sim_arrayparam_random_euler,true},
+    {"sim.arrayparam_rayorigin",sim_arrayparam_rayorigin,true},
+    {"sim.arrayparam_raydirection",sim_arrayparam_raydirection,true},
+
     // String parameters:
     {"sim.stringparam_application_path",sim_stringparam_application_path,true},
     {"sim.stringparam_video_filename",sim_stringparam_video_filename,true},

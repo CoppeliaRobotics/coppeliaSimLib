@@ -160,6 +160,9 @@ public:
     void closeTemporarilyDialogsForPageSelector();
     void reopenTemporarilyClosedDialogsForPageSelector();
 
+    void setMouseRay(const C3Vector* orig,const C3Vector* dir);
+    bool getMouseRay(C3Vector& orig,C3Vector& dir);
+
 private:
     int _renderOpenGlContent_callFromRenderingThreadOnly();
     void _actualizetoolbarButtonState();
@@ -250,6 +253,10 @@ private:
 //    int _flyModeCameraHandle;
     int _proxSensorClickSelectDown;
     int _proxSensorClickSelectUp;
+    bool _mouseRayValid;
+    C3Vector _mouseRayOrigin;
+    C3Vector _mouseRayDirection;
+
 
 
     bool _lightDialogRefreshFlag;

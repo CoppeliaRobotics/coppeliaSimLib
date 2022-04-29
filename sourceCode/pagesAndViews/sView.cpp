@@ -1298,6 +1298,55 @@ void CSView::mouseMove(int x,int y,bool passiveAndFocused)
     }
     else
     {
+        if ( (x>=0)&&(y>=0)&&(x<_viewSize[0])&&(y<_viewSize[1])&&(linkedObjectID!=-1) )
+        {
+            CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+            if (cam!=nullptr)
+            {
+                C4X4Matrix tr;
+                tr.setIdentity();
+                float t[2]={(1.0f-float(x)/float(_viewSize[0]))-0.5f,(1.0f-float(y)/float(_viewSize[1]))-0.5f};
+                float ratio=(float)(_viewSize[0]/(float)_viewSize[1]);
+                if (perspectiveDisplay)
+                {
+                    float va[2];
+                    if (ratio>1.0f)
+                    {
+                        va[0]=cam->getViewAngle();
+                        va[1]=2.0f*(float)atan(tan(cam->getViewAngle()/2.0f)/ratio);
+                    }
+                    else
+                    {
+                        va[0]=2.0f*(float)atan(tan(cam->getViewAngle()/2.0f)*ratio);
+                        va[1]=cam->getViewAngle();
+                    }
+                    float a0=atan(2.0f*t[0]*tan(va[0]*0.5f));
+                    float a1=atan(2.0f*t[1]*tan(va[1]*0.5f));
+
+                    C4Vector q(C3Vector(0.0f,0.0f,1.0f),C3Vector(tan(a0),-tan(a1),1.0f));
+                    tr.M=q.getMatrix();
+                }
+                else
+                {
+                    float va[2];
+                    if (ratio>1.0f)
+                    {
+                        va[0]=cam->getOrthoViewSize();
+                        va[1]=cam->getOrthoViewSize()/ratio;
+                    }
+                    else
+                    {
+                        va[0]=cam->getOrthoViewSize()*ratio;
+                        va[1]=cam->getOrthoViewSize();
+                    }
+                    float a0=va[0]*t[0];
+                    float a1=va[1]*(-t[1]);
+                    tr.X=C3Vector(a0,a1,0.0f);
+                }
+                tr=cam->getFullCumulativeTransformation().getMatrix()*tr;
+                App::mainWindow->setMouseRay(&tr.X,&tr.M.axis[2]);
+            }
+        }
         if (!passiveAndFocused)
         {
             if (_caughtElements&sim_middle_button)

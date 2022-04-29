@@ -102,6 +102,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     simulationRecorder=new CSimRecorder(App::folders->getVideosPath().c_str());
     _mouseButtonsState=0;
     _keyDownState=0;
+    _mouseRayValid=false;
 
   //  resize(1024,768);
 
@@ -331,6 +332,27 @@ int CMainWindow::getProxSensorClickSelectUp()
 {
     return(_proxSensorClickSelectUp);
 }
+
+void CMainWindow::setMouseRay(const C3Vector* orig,const C3Vector* dir)
+{
+    _mouseRayValid=(orig!=nullptr);
+    if (_mouseRayValid)
+    {
+        _mouseRayOrigin=orig[0];
+        _mouseRayDirection=dir[0];
+    }
+}
+
+bool CMainWindow::getMouseRay(C3Vector& orig,C3Vector& dir)
+{
+    if (_mouseRayValid)
+    {
+        orig=_mouseRayOrigin;
+        dir=_mouseRayDirection;
+    }
+    return(_mouseRayValid);
+}
+
 
 /*
 void CMainWindow::_resetStatusbarFlashIfNeeded()
