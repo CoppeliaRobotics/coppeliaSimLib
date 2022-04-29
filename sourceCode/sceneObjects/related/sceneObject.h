@@ -229,9 +229,6 @@ public:
     void setModelAcknowledgement(const char* a);
     std::string getModelAcknowledgement() const;
 
-    void setIgnoredByViewFitting(bool ignored);
-    bool getIgnoredByViewFitting() const;
-
     bool getShouldObjectBeDisplayed(int viewableHandle,int displayAttrib);
 
     void setAssemblingLocalTransformation(const C7Vector& tr);
@@ -327,7 +324,6 @@ protected:
     int _objectType;
     int _objectProperty;
     bool _modelBase;
-    bool _ignoredByViewFitting;
     int _hierarchyColorIndex;
     int _collectionSelfCollisionIndicator;
     int _localObjectSpecialProperty;

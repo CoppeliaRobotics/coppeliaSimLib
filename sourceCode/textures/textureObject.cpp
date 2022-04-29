@@ -333,10 +333,9 @@ char* CTextureObject::readPortionOfTexture(int posX,int posY,int sizeX,int sizeY
 
 bool CTextureObject::writePortionOfTexture(const unsigned char* rgbData,int posX,int posY,int sizeX,int sizeY,bool circular,float interpol)
 {
-    if ( (posX<0)||(posY<0)||(sizeX<1)||(sizeY<1)||(posX+sizeX>_textureSize[0])||(posY+sizeY>_textureSize[1]) )
-        return(false);
     int p=0;
     int resX=_textureSize[0];
+    int resY=_textureSize[1];
     if (interpol==0.0f)
     {
         if (circular)
@@ -345,33 +344,49 @@ bool CTextureObject::writePortionOfTexture(const unsigned char* rgbData,int posX
             int hy=posY+sizeY/2;
             for (int j=posY;j<posY+sizeY;j++)
             {
-                float dy=float(hy-j)/float(sizeY/2);
-                float dy2=dy*dy;
-                for (int i=posX;i<posX+sizeX;i++)
+                if ( (j>=0)&&(j<resY) )
                 {
-                    float dx=float(hx-i)/float(sizeX/2);
-                    float dx2=dx*dx;
-                    if (dx2+dy2<=1.0f)
+                    float dy=float(hy-j)/float(sizeY/2);
+                    float dy2=dy*dy;
+                    for (int i=posX;i<posX+sizeX;i++)
                     {
-                        _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0];
-                        _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1];
-                        _textureBuffer[4*(j*resX+i)+2]=rgbData[3*p+2];
+                        if ( (i>=0)&&(i<resX) )
+                        {
+                            float dx=float(hx-i)/float(sizeX/2);
+                            float dx2=dx*dx;
+                            if (dx2+dy2<=1.0f)
+                            {
+                                _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0];
+                                _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1];
+                                _textureBuffer[4*(j*resX+i)+2]=rgbData[3*p+2];
+                            }
+                        }
+                        p++;
                     }
-                    p++;
                 }
+                else
+                    p+=sizeX;
             }
         }
         else
         {
             for (int j=posY;j<posY+sizeY;j++)
             {
-                for (int i=posX;i<posX+sizeX;i++)
+                if ( (j>=0)&&(j<resY) )
                 {
-                    _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0];
-                    _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1];
-                    _textureBuffer[4*(j*resX+i)+2]=rgbData[3*p+2];
-                    p++;
+                    for (int i=posX;i<posX+sizeX;i++)
+                    {
+                        if ( (i>=0)&&(i<resX) )
+                        {
+                            _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0];
+                            _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1];
+                            _textureBuffer[4*(j*resX+i)+2]=rgbData[3*p+2];
+                        }
+                        p++;
+                    }
                 }
+                else
+                    p+=sizeX;
             }
         }
     }
@@ -384,33 +399,49 @@ bool CTextureObject::writePortionOfTexture(const unsigned char* rgbData,int posX
             int hy=posY+sizeY/2;
             for (int j=posY;j<posY+sizeY;j++)
             {
-                float dy=float(hy-j)/float(sizeY/2);
-                float dy2=dy*dy;
-                for (int i=posX;i<posX+sizeX;i++)
+                if ( (j>=0)&&(j<resY) )
                 {
-                    float dx=float(hx-i)/float(sizeX/2);
-                    float dx2=dx*dx;
-                    if (dx2+dy2<=1.0f)
+                    float dy=float(hy-j)/float(sizeY/2);
+                    float dy2=dy*dy;
+                    for (int i=posX;i<posX+sizeX;i++)
                     {
-                        _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0]*interpolI+_textureBuffer[4*(j*resX+i)+0]*interpol;
-                        _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1]*interpolI+_textureBuffer[4*(j*resX+i)+1]*interpol;
-                        _textureBuffer[4*(j*resX+i)+2]=rgbData[3*p+2]*interpolI+_textureBuffer[4*(j*resX+i)+2]*interpol;
+                        if ( (i>=0)&&(i<resX) )
+                        {
+                            float dx=float(hx-i)/float(sizeX/2);
+                            float dx2=dx*dx;
+                            if (dx2+dy2<=1.0f)
+                            {
+                                _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0]*interpolI+_textureBuffer[4*(j*resX+i)+0]*interpol;
+                                _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1]*interpolI+_textureBuffer[4*(j*resX+i)+1]*interpol;
+                                _textureBuffer[4*(j*resX+i)+2]=rgbData[3*p+2]*interpolI+_textureBuffer[4*(j*resX+i)+2]*interpol;
+                            }
+                        }
+                        p++;
                     }
-                    p++;
                 }
+                else
+                    p+=sizeX;
             }
         }
         else
         {
             for (int j=posY;j<posY+sizeY;j++)
             {
-                for (int i=posX;i<posX+sizeX;i++)
+                if ( (j>=0)&&(j<resY) )
                 {
-                    _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0]*interpolI+_textureBuffer[4*(j*resX+i)+0]*interpol;
-                    _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1]*interpolI+_textureBuffer[4*(j*resX+i)+1]*interpol;
-                    _textureBuffer[4*(j*resX+i)+2]=rgbData[3*p+2]*interpolI+_textureBuffer[4*(j*resX+i)+2]*interpol;
-                    p++;
+                    for (int i=posX;i<posX+sizeX;i++)
+                    {
+                        if ( (i>=0)&&(i<resX) )
+                        {
+                            _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0]*interpolI+_textureBuffer[4*(j*resX+i)+0]*interpol;
+                            _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1]*interpolI+_textureBuffer[4*(j*resX+i)+1]*interpol;
+                            _textureBuffer[4*(j*resX+i)+2]=rgbData[3*p+2]*interpolI+_textureBuffer[4*(j*resX+i)+2]*interpol;
+                        }
+                        p++;
+                    }
                 }
+                else
+                    p+=sizeX;
             }
         }
     }

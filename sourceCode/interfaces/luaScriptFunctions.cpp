@@ -161,7 +161,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.multiplyVector",_simMultiplyVector,                    "float[] resultVectors=sim.multiplyVector(float[7] pose,float[] inVectors)\nfloat[] resultVectors=sim.multiplyVector(float[12] matrix,float[] inVectors)",true},
     {"sim.getObjectChild",_simGetObjectChild,                    "int childObjectHandle=sim.getObjectChild(int objectHandle,int index)",true},
     {"sim.getObjectParent",_simGetObjectParent,                  "int parentObjectHandle=sim.getObjectParent(int objectHandle)",true},
-    {"sim.setObjectParent",_simSetObjectParent,                  "sim.setObjectParent(int objectHandle,int parentObjectHandle,bool keepInPlace)",true},
+    {"sim.setObjectParent",_simSetObjectParent,                  "sim.setObjectParent(int objectHandle,int parentObjectHandle,bool keepInPlace=true)",true},
     {"sim.getObjectType",_simGetObjectType,                      "int objectType=sim.getObjectType(int objectHandle)",true},
     {"sim.getJointType",_simGetJointType,                        "int jointType=sim.getJointType(int objectHandle)",true},
     {"sim.setBoolParam",_simSetBoolParam,                        "sim.setBoolParam(int parameter,bool boolState)",true},
@@ -192,7 +192,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getNavigationMode",_simGetNavigationMode,              "int navigationMode=sim.getNavigationMode()",true},
     {"sim.setPage",_simSetPage,                                  "sim.setPage(int pageIndex)",true},
     {"sim.getPage",_simGetPage,                                  "int pageIndex=sim.getPage()",true},
-    {"sim.copyPasteObjects",_simCopyPasteObjects,                "int[1..*] copiedObjectHandles=sim.copyPasteObjects(int[1..*] objectHandles,int options)",true},
+    {"sim.copyPasteObjects",_simCopyPasteObjects,                "int[1..*] copiedObjectHandles=sim.copyPasteObjects(int[1..*] objectHandles,int options=0)",true},
     {"sim.scaleObjects",_simScaleObjects,                        "sim.scaleObjects(int[1..*] objectHandles,float scalingFactor,bool scalePositionsToo)",true},
     {"sim.setThreadAutomaticSwitch",_simSetThreadAutomaticSwitch,"int autoSwitchForbidLevel=sim.setThreadAutomaticSwitch(bool automaticSwitch)\nint autoSwitchForbidLevel=sim.setThreadAutomaticSwitch(int forbidLevel)",true},
     {"sim.getThreadAutomaticSwitch",_simGetThreadAutomaticSwitch,"bool result=sim.getThreadAutomaticSwitch()",true},
@@ -647,6 +647,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.objectproperty_depthinvisible",sim_objectproperty_depthinvisible,true},
     {"sim.objectproperty_cannotdelete",sim_objectproperty_cannotdelete,true},
     {"sim.objectproperty_cannotdeleteduringsim",sim_objectproperty_cannotdeleteduringsim,true},
+    {"sim.objectproperty_ignoreviewfitting",sim_objectproperty_ignoreviewfitting,true},
     // Simulation status:
     {"sim.simulation_stopped",sim_simulation_stopped,true},
     {"sim.simulation_paused",sim_simulation_paused,true},
@@ -4180,8 +4181,17 @@ int _simSetObjectParent(luaWrap_lua_State* L)
     LUA_START("sim.setObjectParent");
 
     int retVal=-1;// error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_bool,0))
-        retVal=simSetObjectParent_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),luaWrap_lua_toboolean(L,3));
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_integer,0))
+    {
+        bool keepInPlace=true;
+        int res=checkOneGeneralInputArgument(L,3,lua_arg_bool,0,true,false,&errorString);
+        if (res>=0)
+        {
+            if (res==2)
+                keepInPlace=luaWrap_lua_toboolean(L,3);
+            retVal=simSetObjectParent_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),keepInPlace);
+        }
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -4447,15 +4457,18 @@ int _simRemoveObjects(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.removeObjects");
-    if (checkInputArguments(L,&errorString,lua_arg_number,1))
+    if (checkInputArguments(L,&errorString,lua_arg_number,-1))
     {
         std::vector<int> handles;
         int cnt=int(luaWrap_lua_rawlen(L,1));
-        handles.resize(cnt);
-        getIntsFromTable(L,1,cnt,&handles[0]);
-        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
-        simRemoveObjects_internal(&handles[0],cnt);
+        if (cnt>0)
+        {
+            handles.resize(cnt);
+            getIntsFromTable(L,1,cnt,&handles[0]);
+            int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+            simRemoveObjects_internal(&handles[0],cnt);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5286,12 +5299,15 @@ int _simCopyPasteObjects(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.copyPasteObjects");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,1,lua_arg_number,0))
+    if (checkInputArguments(L,&errorString,lua_arg_integer,1))
     {
         int objCnt=(int)luaWrap_lua_rawlen(L,1);
-        int options=luaToInt(L,2);
-        if (checkInputArguments(L,&errorString,lua_arg_number,objCnt,lua_arg_number,0))
+        int options=0;
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_integer,0,true,false,&errorString);
+        if (res>=0)
         {
+            if (res==2)
+                options=luaToInt(L,2);
             std::vector<int> objectHandles;
             objectHandles.resize(objCnt,0);
             getIntsFromTable(L,1,objCnt,&objectHandles[0]);
@@ -11147,76 +11163,91 @@ int _simWriteTexture(luaWrap_lua_State* L)
     LUA_START("sim.writeTexture");
 
     int retVal=-1; // error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0))
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_integer,0,lua_arg_string,0))
     {
         int textureId=luaToInt(L,1);
         int options=luaToInt(L,2);
         size_t dataLength;
         char* data=(char*)luaWrap_lua_tolstring(L,3,&dataLength);
-        int posX=0;
-        int posY=0;
-        int sizeX=0;
-        int sizeY=0;
-        float interpol=0.0f;
-        // Now check the optional arguments:
-        int res;
-        res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
-        if ((res==0)||(res==2))
+        if (dataLength>=3)
         {
-            if (res==2)
-                posX=luaToInt(L,4);
-            res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
+            int posX=0;
+            int posY=0;
+            int sizeX=0;
+            int sizeY=0;
+            float interpol=0.0f;
+            // Now check the optional arguments:
+            int res;
+            res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
             if ((res==0)||(res==2))
             {
                 if (res==2)
-                    posY=luaToInt(L,5);
-                res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,false,&errorString);
+                    posX=luaToInt(L,4);
+                res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
                 if ((res==0)||(res==2))
                 {
                     if (res==2)
-                        sizeX=luaToInt(L,6);
-                    res=checkOneGeneralInputArgument(L,7,lua_arg_number,0,true,false,&errorString);
+                        posY=luaToInt(L,5);
+                    res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,false,&errorString);
                     if ((res==0)||(res==2))
                     {
                         if (res==2)
-                            sizeY=luaToInt(L,7);
-                        res=checkOneGeneralInputArgument(L,8,lua_arg_number,0,true,false,&errorString);
+                            sizeX=luaToInt(L,6);
+                        res=checkOneGeneralInputArgument(L,7,lua_arg_number,0,true,false,&errorString);
                         if ((res==0)||(res==2))
                         {
                             if (res==2)
-                                interpol=luaToFloat(L,8);
-                            CTextureObject* to=App::currentWorld->textureContainer->getObject(textureId);
-                            if (to!=nullptr)
+                                sizeY=luaToInt(L,7);
+                            res=checkOneGeneralInputArgument(L,8,lua_arg_number,0,true,false,&errorString);
+                            if ((res==0)||(res==2))
                             {
-                                int tSizeX,tSizeY;
-                                to->getTextureSize(tSizeX,tSizeY);
-                                if ( (posX>=0)&&(posY>=0)&&(sizeX>=0)&&(sizeY>=0)&&(posX+sizeX<=tSizeX)&&(posY+sizeY<=tSizeY) )
+                                if (res==2)
+                                    interpol=luaToFloat(L,8);
+                                CTextureObject* to=App::currentWorld->textureContainer->getObject(textureId);
+                                if (to!=nullptr)
                                 {
-                                    if (sizeX==0)
+                                    int tSizeX,tSizeY;
+                                    to->getTextureSize(tSizeX,tSizeY);
+                                    if ( (sizeX>=0)&&(sizeY>=0) )
                                     {
-                                        posX=0;
-                                        sizeX=tSizeX;
+                                        if (sizeX==0)
+                                        {
+                                            posX=0;
+                                            sizeX=tSizeX;
+                                        }
+                                        if (sizeY==0)
+                                        {
+                                            posY=0;
+                                            sizeY=tSizeY;
+                                        }
+                                        if (int(dataLength)<sizeX*sizeY*3)
+                                        {
+                                            std::vector<char> dat;
+                                            dat.resize(sizeX*sizeY*3);
+                                            for (size_t i=0;i<sizeX*sizeY;i++)
+                                            {
+                                                dat[3*i+0]=data[0];
+                                                dat[3*i+1]=data[1];
+                                                dat[3*i+2]=data[2];
+                                            }
+                                            retVal=simWriteTexture_internal(textureId,options,dat.data(),posX,posY,sizeX,sizeY,interpol);
+                                        }
+                                        else
+                                            retVal=simWriteTexture_internal(textureId,options,data,posX,posY,sizeX,sizeY,interpol);
                                     }
-                                    if (sizeY==0)
-                                    {
-                                        posY=0;
-                                        sizeY=tSizeY;
-                                    }
-                                    if (int(dataLength)>=sizeX*sizeY*3)
-                                        retVal=simWriteTexture_internal(textureId,options,data,posX,posY,sizeX,sizeY,interpol);
                                     else
-                                        errorString=SIM_ERROR_INVALID_BUFFER_SIZE;
+                                        errorString=SIM_ERROR_INVALID_ARGUMENTS;
                                 }
                                 else
-                                    errorString=SIM_ERROR_INVALID_ARGUMENTS;
+                                    errorString=SIM_ERROR_TEXTURE_INEXISTANT;
                             }
-                            else
-                                errorString=SIM_ERROR_TEXTURE_INEXISTANT;
                         }
                     }
                 }
             }
         }
+        else
+            errorString=SIM_ERROR_INVALID_BUFFER_SIZE;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

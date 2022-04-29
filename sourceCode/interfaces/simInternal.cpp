@@ -12313,7 +12313,7 @@ simInt simWriteTexture_internal(simInt textureId,simInt options,const simChar* d
         {
             int resX,resY;
             to->getTextureSize(resX,resY);
-            if ( (posX>=0)&&(posY>=0)&&(sizeX>=0)&&(sizeY>=0)&&(posX+sizeX<=resX)&&(posY+sizeY<=resY) )
+            if ( (sizeX>=0)&&(sizeY>=0) )
             {
                 if (sizeX==0)
                 {

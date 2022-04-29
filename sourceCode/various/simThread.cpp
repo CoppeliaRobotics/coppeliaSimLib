@@ -1019,7 +1019,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setIgnoredByViewFitting(!it->getIgnoredByViewFitting());
+                it->setObjectProperty(it->getObjectProperty()^sim_objectproperty_ignoreviewfitting);
         }
         if (cmd.cmdId==APPLY_GENERALPROP_COMMONPROPGUITRIGGEREDCMD)
         {
@@ -1034,7 +1034,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         int objPropToCopy=sim_objectproperty_selectable|sim_objectproperty_selectmodelbaseinstead|sim_objectproperty_dontshowasinsidemodel|sim_objectproperty_selectinvisible|sim_objectproperty_depthinvisible|sim_objectproperty_cannotdelete|sim_objectproperty_cannotdeleteduringsim;
                         it->setObjectProperty(((it->getObjectProperty()|objPropToCopy)-objPropToCopy)|(last->getObjectProperty()&objPropToCopy));
-                        it->setIgnoredByViewFitting(last->getIgnoredByViewFitting());
                         it->setSizeFactor(last->getSizeFactor());
                         if (it->getObjectType()==lastType)
                             it->setExtensionString(last->getExtensionString().c_str());

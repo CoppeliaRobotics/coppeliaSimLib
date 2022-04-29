@@ -98,7 +98,6 @@ CSceneObject::CSceneObject()
     _sizeValues[1]=1.0f;
     _sizeValues[2]=1.0f;
     _dynamicsResetFlag=true;
-    _ignoredByViewFitting=false;
 }
 
 CSceneObject::~CSceneObject() 
@@ -581,16 +580,6 @@ bool CSceneObject::getShouldObjectBeDisplayed(int viewableHandle,int displayAttr
     }
 
     return(display);
-}
-
-void CSceneObject::setIgnoredByViewFitting(bool ignored)
-{
-    _ignoredByViewFitting=ignored;
-}
-
-bool CSceneObject::getIgnoredByViewFitting() const
-{
-    return(_ignoredByViewFitting);
 }
 
 void CSceneObject::setModelAcknowledgement(const char* a)
@@ -1385,7 +1374,6 @@ CSceneObject* CSceneObject::copyYourself()
     theNewObject->_sizeValues[1]=_sizeValues[1];
     theNewObject->_sizeValues[2]=_sizeValues[2];
     theNewObject->_modelAcknowledgement=_modelAcknowledgement;
-    theNewObject->_ignoredByViewFitting=_ignoredByViewFitting;
     theNewObject->_transparentObjectDistanceOffset=_transparentObjectDistanceOffset;
     _customObjectData.copyYourselfInto(theNewObject->_customObjectData);
     _customObjectData_tempData.copyYourselfInto(theNewObject->_customObjectData_tempData);
@@ -2061,7 +2049,6 @@ void CSceneObject::serialize(CSer& ar)
             SIM_SET_CLEAR_BIT(dummy,0,_modelBase);
             SIM_SET_CLEAR_BIT(dummy,1,(_objectMovementOptions&2)!=0);
             SIM_SET_CLEAR_BIT(dummy,2,(_objectMovementOptions&1)!=0);
-            SIM_SET_CLEAR_BIT(dummy,3,_ignoredByViewFitting);
             SIM_SET_CLEAR_BIT(dummy,7,_assemblingLocalTransformationIsUsed);
             ar << dummy;
             ar.flush();
@@ -2072,7 +2059,7 @@ void CSceneObject::serialize(CSer& ar)
             SIM_SET_CLEAR_BIT(dummy,0,_modelBase);
             SIM_SET_CLEAR_BIT(dummy,1,(_objectMovementOptions&2)!=0);
             SIM_SET_CLEAR_BIT(dummy,2,(_objectMovementOptions&1)!=0);
-            SIM_SET_CLEAR_BIT(dummy,3,_ignoredByViewFitting);
+            // 3 is reserved and should remain at false
             SIM_SET_CLEAR_BIT(dummy,4,(_objectMovementOptions&8)!=0);
             SIM_SET_CLEAR_BIT(dummy,5,(_objectMovementOptions&4)!=0);
             SIM_SET_CLEAR_BIT(dummy,7,_assemblingLocalTransformationIsUsed);
@@ -2338,7 +2325,8 @@ void CSceneObject::serialize(CSer& ar)
                             _objectMovementOptions=_objectMovementOptions|10;
                         if (SIM_IS_BIT_SET(dummy,2))
                             _objectMovementOptions=_objectMovementOptions|5;
-                        _ignoredByViewFitting=SIM_IS_BIT_SET(dummy,3);
+                        if (SIM_IS_BIT_SET(dummy,3))
+                            _objectProperty|=sim_objectproperty_ignoreviewfitting;
                         // reserved since 9/6/2013   _useSpecialLocalTransformationWhenAssembling=SIM_IS_BIT_SET(dummy,4);
                         bool assemblyCanHaveChildRole=!SIM_IS_BIT_SET(dummy,5);
                         bool assemblyCanHaveParentRole=!SIM_IS_BIT_SET(dummy,6);
@@ -2363,7 +2351,8 @@ void CSceneObject::serialize(CSer& ar)
                             _objectMovementOptions=_objectMovementOptions|10;
                         if (SIM_IS_BIT_SET(dummy,2))
                             _objectMovementOptions=_objectMovementOptions|5;
-                        _ignoredByViewFitting=SIM_IS_BIT_SET(dummy,3);
+                        if (SIM_IS_BIT_SET(dummy,3))
+                            _objectProperty|=sim_objectproperty_ignoreviewfitting;
                         _assemblingLocalTransformationIsUsed=SIM_IS_BIT_SET(dummy,7);
                     }
                     if (theName.compare("Va3")==0)
@@ -2377,7 +2366,8 @@ void CSceneObject::serialize(CSer& ar)
                             _objectMovementOptions=_objectMovementOptions|2;
                         if (SIM_IS_BIT_SET(dummy,2))
                             _objectMovementOptions=_objectMovementOptions|1;
-                        _ignoredByViewFitting=SIM_IS_BIT_SET(dummy,3);
+                        if (SIM_IS_BIT_SET(dummy,3))
+                            _objectProperty|=sim_objectproperty_ignoreviewfitting;
                         if (SIM_IS_BIT_SET(dummy,4))
                             _objectMovementOptions=_objectMovementOptions|8;
                         if (SIM_IS_BIT_SET(dummy,5))
@@ -2709,7 +2699,6 @@ void CSceneObject::serialize(CSer& ar)
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("modelBase",_modelBase);
-            ar.xmlAddNode_bool("ignoredByViewFitting",_ignoredByViewFitting);
             ar.xmlPopNode();
 
             if (exhaustiveXml)
@@ -2815,6 +2804,7 @@ void CSceneObject::serialize(CSer& ar)
         else
         {
             bool aliasFound=false;
+            bool _ignoredByViewFitting_backCompat=false;
             if (ar.xmlPushChildNode("common",exhaustiveXml))
             {
                 aliasFound=ar.xmlGetNode_string("alias",_objectAlias,false); // keep false for compatibility with older versions! exhaustiveXml);
@@ -2949,7 +2939,7 @@ void CSceneObject::serialize(CSer& ar)
                 if (ar.xmlPushChildNode("switches",exhaustiveXml))
                 {
                     ar.xmlGetNode_bool("modelBase",_modelBase,exhaustiveXml);
-                    ar.xmlGetNode_bool("ignoredByViewFitting",_ignoredByViewFitting,exhaustiveXml);
+                    ar.xmlGetNode_bool("ignoredByViewFitting",_ignoredByViewFitting_backCompat,exhaustiveXml);
                     ar.xmlPopNode();
                 }
 
@@ -3105,6 +3095,8 @@ void CSceneObject::serialize(CSer& ar)
                 }
                 ar.xmlPopNode();
             }
+            if (_ignoredByViewFitting_backCompat)
+                _objectProperty|=sim_objectproperty_ignoreviewfitting; // for backward compatibility
             if (!aliasFound)
             {
                 if (exhaustiveXml)
@@ -3473,7 +3465,6 @@ void CSceneObject::acquireCommonPropertiesFromObject_simpleXMLLoading(const CSce
     _localObjectSpecialProperty=obj->_localObjectSpecialProperty;
     _modelProperty=obj->_modelProperty;
     _modelBase=obj->_modelBase;
-    _ignoredByViewFitting=obj->_ignoredByViewFitting;
     setVisibilityLayer(obj->getVisibilityLayer());
     _extensionString=obj->_extensionString;
     _modelAcknowledgement=obj->_modelAcknowledgement;

@@ -89,7 +89,7 @@ void CQDlgCommonProperties::refresh()
         ui->qqSelectable->setChecked((ls->getObjectProperty()&sim_objectproperty_selectable)!=0);
         ui->qqSelectInvisible->setChecked((ls->getObjectProperty()&sim_objectproperty_selectinvisible)!=0);
         ui->qqDepthInvisible->setChecked((ls->getObjectProperty()&sim_objectproperty_depthinvisible)!=0);
-        ui->qqIgnoreForViewFitting->setChecked(ls->getIgnoredByViewFitting());
+        ui->qqIgnoreForViewFitting->setChecked((ls->getObjectProperty()&sim_objectproperty_ignoreviewfitting)!=0);
         ui->qqSelectBaseInstead->setChecked((ls->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)!=0);
         ui->qqDontShowInModelSelection->setChecked((ls->getObjectProperty()&sim_objectproperty_dontshowasinsidemodel)!=0);
         ui->qqCannotBeDeleted->setChecked((ls->getObjectProperty()&sim_objectproperty_cannotdelete)!=0);

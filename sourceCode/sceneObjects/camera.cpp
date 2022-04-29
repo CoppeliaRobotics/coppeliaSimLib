@@ -169,7 +169,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                     bool displayMaybe=it->getShouldObjectBeDisplayed(_objectHandle,displAttributes);
                     if (displayMaybe)
                     {
-                        if ( ((skybox==nullptr)||(!it->isObjectParentedWith(skybox)))&&(!it->getIgnoredByViewFitting()) )
+                        if ( ((skybox==nullptr)||(!it->isObjectParentedWith(skybox)))&&((it->getObjectProperty()&sim_objectproperty_ignoreviewfitting)==0))
                             visibleObjs.push_back(it);
                     }
                 }
@@ -214,7 +214,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                     bool displayMaybe=it->getShouldObjectBeDisplayed(_objectHandle,displAttributes);
                     if (displayMaybe)
                     {
-                        if ( ((skybox==nullptr)||(!it->isObjectParentedWith(skybox)))&&(!it->getIgnoredByViewFitting()) )
+                        if ( ((skybox==nullptr)||(!it->isObjectParentedWith(skybox)))&&((it->getObjectProperty()&sim_objectproperty_ignoreviewfitting)==0) )
                             selectionVisibleObjs.push_back(it);
                     }
                 }
