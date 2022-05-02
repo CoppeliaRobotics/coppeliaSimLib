@@ -207,8 +207,7 @@ void CWorld::saveScene(CSer& ar)
         return;
     }
 
-    if (!undoBufferContainer->isUndoSavingOrRestoringUnderWay())
-        App::worldContainer->callScripts(sim_syscb_beforesave,nullptr);
+    App::worldContainer->callScripts(sim_syscb_beforesave,nullptr);
 
     // **** Following needed to save existing calculation structures:
     environment->setSaveExistingCalculationStructuresTemp(false);
@@ -569,8 +568,7 @@ void CWorld::saveScene(CSer& ar)
         ar.storeDataName(SER_END_OF_FILE);
     CMesh::clearTempVerticesIndicesNormalsAndEdges();
 
-    if (!undoBufferContainer->isUndoSavingOrRestoringUnderWay())
-        App::worldContainer->callScripts(sim_syscb_aftersave,nullptr);
+    App::worldContainer->callScripts(sim_syscb_aftersave,nullptr);
 }
 
 bool CWorld::loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
