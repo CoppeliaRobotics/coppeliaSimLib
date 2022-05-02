@@ -276,6 +276,19 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
     clearBuffer();
     _bufferIsFromLockedScene=fromLockedScene;
 
+    CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+    stack->pushTableOntoStack();
+    stack->pushStringOntoStack("objectHandles",0);
+    stack->pushTableOntoStack();
+    for (size_t i=0;i<sel->size();i++)
+    {
+        stack->pushInt32OntoStack(sel->at(i)); // key or index
+        stack->pushBoolOntoStack(true);
+        stack->insertDataIntoStackTable();
+    }
+    stack->insertDataIntoStackTable();
+    App::worldContainer->callScripts(sim_syscb_beforecopy,stack); // could destroy or create objects in there!
+
     // Copy objects in hierarchial order!
     std::vector<CSceneObject*> selObj;
     std::vector<CSceneObject*> selObjTmp;
@@ -285,7 +298,8 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         for (size_t i=0;i<sel->size();i++)
         {
             CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(sel->at(i));
-            selObjMap[obj]=true;
+            if (obj!=nullptr)
+                selObjMap[obj]=true;
         }
         for (size_t i=0;i<selObjTmp.size();i++)
         {
@@ -293,19 +307,6 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
                 selObj.push_back(selObjTmp[i]);
         }
     }
-
-    CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-    stack->pushTableOntoStack();
-    stack->pushStringOntoStack("objectHandles",0);
-    stack->pushTableOntoStack();
-    for (size_t i=0;i<selObj.size();i++)
-    {
-        stack->pushInt32OntoStack(selObj[i]->getObjectHandle()); // key or index
-        stack->pushBoolOntoStack(true);
-        stack->insertDataIntoStackTable();
-    }
-    stack->insertDataIntoStackTable();
-    App::worldContainer->callScripts(sim_syscb_beforecopy,stack);
 
     for (size_t i=0;i<selObj.size();i++)
     {
