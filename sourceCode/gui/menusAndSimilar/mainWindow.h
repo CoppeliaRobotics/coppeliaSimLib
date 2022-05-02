@@ -52,9 +52,6 @@ public:
     void setCurrentCursor(int cur);
     void setBrowserVisible(bool v);
 
-//    void flashStatusbar();
-//    void setFlyModeCameraHandle(int h);
-//    int getFlyModeCameraHandle();
     void setProxSensorClickSelectDown(int v);
     int getProxSensorClickSelectDown();
     void setProxSensorClickSelectUp(int v);
@@ -162,6 +159,8 @@ public:
 
     void setMouseRay(const C3Vector* orig,const C3Vector* dir);
     bool getMouseRay(C3Vector& orig,C3Vector& dir);
+    void mouseClickAction(bool down);
+    int getMouseClickActionCounter(bool down);
 
 private:
     int _renderOpenGlContent_callFromRenderingThreadOnly();
@@ -242,7 +241,6 @@ private:
     bool _hasStereo;
     float _stereoDistance;
     bool _leftEye;
-//    int _statusbarFlashTime;
     VPoint _mouseRenderingPos;
     VPoint _clientArea;
     int _focusObject;
@@ -250,12 +248,13 @@ private:
     int _mouseWheelEventTime;
     bool _openGlDisplayEnabled;
     int _mouseMode;
-//    int _flyModeCameraHandle;
     int _proxSensorClickSelectDown;
     int _proxSensorClickSelectUp;
     bool _mouseRayValid;
     C3Vector _mouseRayOrigin;
     C3Vector _mouseRayDirection;
+    int _mouseClickActionCounter_down;
+    int _mouseClickActionCounter_up;
 
 
 

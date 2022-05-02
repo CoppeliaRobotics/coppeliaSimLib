@@ -53,11 +53,9 @@ CMainWindow::CMainWindow() : QMainWindow()
     _fullscreen=false;
     _hasStereo=false;
     _stereoDistance=0.0f;
-//    _statusbarFlashTime=-1;
     _leftEye=true;
     _openGlDisplayEnabled=true;
     _mouseMode=DEFAULT_MOUSE_MODE;
-//    _flyModeCameraHandle=-1;
     _proxSensorClickSelectDown=0;
     _proxSensorClickSelectUp=0;
 
@@ -103,6 +101,9 @@ CMainWindow::CMainWindow() : QMainWindow()
     _mouseButtonsState=0;
     _keyDownState=0;
     _mouseRayValid=false;
+    _mouseClickActionCounter_down=0;
+    _mouseClickActionCounter_up=0;
+
 
   //  resize(1024,768);
 
@@ -289,30 +290,6 @@ void CMainWindow::initializeWindow()
     setWindowDimensions(App::userSettings->initWindowSize[0],App::userSettings->initWindowSize[1]);
 }
 
-/*
-void CMainWindow::flashStatusbar()
-{ // Call only from GUI
-    if (statusBar!=nullptr)
-    {
-        statusBar->setStyleSheet("background-color: rgb(255,220,220)");
-        if (App::userSettings->darkMode)
-            statusBar->verticalScrollBar()->setStyleSheet("background: transparent");
-        else
-            statusBar->verticalScrollBar()->setStyleSheet("background-color: white"); // since Qt 5.12.5 the scrollbar's color is not reverted with above command, but white
-        _statusbarFlashTime=(int)VDateTime::getTimeInMs();
-    }
-}
-void CMainWindow::setFlyModeCameraHandle(int h)
-{
-    _flyModeCameraHandle=h;
-}
-
-int CMainWindow::getFlyModeCameraHandle()
-{
-    return(_flyModeCameraHandle);
-}
-*/
-
 void CMainWindow::setProxSensorClickSelectDown(int v)
 {
     _proxSensorClickSelectDown=v;
@@ -353,23 +330,23 @@ bool CMainWindow::getMouseRay(C3Vector& orig,C3Vector& dir)
     return(_mouseRayValid);
 }
 
-
-/*
-void CMainWindow::_resetStatusbarFlashIfNeeded()
-{ // Call only from GUI
-    if (_statusbarFlashTime!=-1)
-    {
-        if (VDateTime::getTimeDiffInMs(_statusbarFlashTime)>250)
-        {
-            if (App::userSettings->darkMode)
-                statusBar->setStyleSheet("background: transparent");
-            else
-                statusBar->setStyleSheet("background-color: white");
-            _statusbarFlashTime=-1;
-        }
-    }
+void CMainWindow::mouseClickAction(bool down)
+{
+    if (down)
+        _mouseClickActionCounter_down++;
+    else
+        _mouseClickActionCounter_up++;
 }
-*/
+
+int CMainWindow::getMouseClickActionCounter(bool down)
+{
+    int retVal;
+    if (down)
+        retVal=_mouseClickActionCounter_down;
+    else
+        retVal=_mouseClickActionCounter_up;
+    return(retVal);
+}
 
 bool CMainWindow::getObjectShiftToggleViaGuiEnabled()
 {
@@ -657,8 +634,6 @@ void CMainWindow::refreshDialogs_uiThread()
 {
     void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_guipass,nullptr,nullptr,nullptr);
     delete[] (char*)returnVal;
-
-    //_resetStatusbarFlashIfNeeded();
 
     // We refresh dialogs and the toolbar here:
     //----------------------------------------------------------------------------------
@@ -1478,7 +1453,6 @@ void CMainWindow::onLeftMouseButtonUpTT(int xPos,int yPos)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     _mouseRenderingPos.x=xPos;
     _mouseRenderingPos.y=_clientArea.y-yPos;
-//    _flyModeCameraHandle=-1;
     App::setLightDialogRefreshFlag(); // to refresh dlgs when an object has been dragged for instance
     if (oglSurface->getCaughtElements()&sim_left_button)
         oglSurface->leftMouseButtonUp(_mouseRenderingPos.x,_mouseRenderingPos.y);
@@ -1530,6 +1504,7 @@ void CMainWindow::onWheelRotateTT(int delta,int xPos,int yPos)
 
 void CMainWindow::onMouseMoveTT(int xPos,int yPos)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+    _mouseRayValid=false;
     _mouseRenderingPos.x=xPos;
     _mouseRenderingPos.y=_clientArea.y-yPos;
     int cur=-1;
@@ -2284,8 +2259,6 @@ void CMainWindow::instanceAboutToChange(int newInstanceIndex)
     TRACE_INTERNAL;
     if (codeEditorContainer!=nullptr)
         codeEditorContainer->showOrHideAll(false);
-
-//    _flyModeCameraHandle=-1;
 }
 
 void CMainWindow::instanceHasChanged(int newInstanceIndex)

@@ -3835,6 +3835,30 @@ simInt simGetInt32Param_internal(simInt parameter,simInt* intState)
             intState[0]=App::getExitCode();
             return(1);
         }
+        if (parameter==sim_intparam_mouseclickcounterdown)
+        {
+            int retVal=0;
+#ifdef SIM_WITH_GUI
+            int v=0;
+            if (App::mainWindow!=nullptr)
+                v=App::mainWindow->getMouseClickActionCounter(true);
+            intState[0]=v;
+            retVal=1;
+#endif
+            return(retVal);
+        }
+        if (parameter==sim_intparam_mouseclickcounterup)
+        {
+            int retVal=0;
+#ifdef SIM_WITH_GUI
+            int v=0;
+            if (App::mainWindow!=nullptr)
+                v=App::mainWindow->getMouseClickActionCounter(false);
+            intState[0]=v;
+            retVal=1;
+#endif
+            return(retVal);
+        }
         if (parameter==sim_intparam_bugfix1)
         {
             intState[0]=App::userSettings->bugFix1;
@@ -4094,7 +4118,7 @@ simInt simGetInt32Param_internal(simInt parameter,simInt* intState)
 #ifdef SIM_WITH_GUI
         if ( (App::mainWindow!=nullptr)&&(parameter==sim_intparam_flymode_camera_handle) )
         {
-            intState[0]=-1;//App::mainWindow->getFlyModeCameraHandle();
+            intState[0]=-1;
             return(1);
         }
 #endif

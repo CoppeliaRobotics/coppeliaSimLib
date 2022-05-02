@@ -418,6 +418,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.initScript",_simInitScript,                            "bool result=sim.initScript(int scriptHandle)",true},
     {"sim.moduleEntry",_simModuleEntry,                          "int handle=sim.moduleEntry(int handle,string label=nil,int state=-1)",true},
     {"sim.pushUserEvent",_simPushUserEvent,                      "sim.pushUserEvent(string event,int handle,int uid,map eventData,int options=0)",true},
+    {"sim.createCollectionEx",_simCreateCollectionEx,            "",false}, // implemented in sim.lua
     {"sim.getGenesisEvents",_simGetGenesisEvents,                "map[] events=sim.getGenesisEvents()\nbuffer events=sim.getGenesisEvents()",true},
 
     {"sim.test",_simTest,                                        "test function - do not use",true},
@@ -427,7 +428,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.rmlVel",_simRMLVel,                                    "Deprecated. Use sim.ruckigVel instead",false},
     {"sim.rmlStep",_simRMLStep,                                  "Deprecated. Use sim.ruckigStep instead",false},
     {"sim.rmlRemove",_simRMLRemove,                              "Deprecated. Use sim.ruckigRemove instead",false},
-    {"sim.createCollectionEx",_simCreateCollectionEx,            "",false},
     {"sim.addStatusbarMessage",_simAddStatusbarMessage,         "Deprecated. Use sim.addLog instead",false},
     {"sim.getNameSuffix",_simGetNameSuffix,                     "Deprecated",false},
     {"sim.setNameSuffix",_simSetNameSuffix,                     "Deprecated",false},
@@ -845,6 +845,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.intparam_motionplanning_seed",sim_intparam_motionplanning_seed,true},
     {"sim.intparam_speedmodifier",sim_intparam_speedmodifier,true},
     {"sim.intparam_dynamic_iteration_count",sim_intparam_dynamic_iteration_count,true},
+    {"sim.intparam_mouseclickcounterdown",sim_intparam_mouseclickcounterdown,true},
+    {"sim.intparam_mouseclickcounterup",sim_intparam_mouseclickcounterup,true},
+
     // Float parameters:
     {"sim.floatparam_rand",sim_floatparam_rand,true},
     {"sim.floatparam_simulation_time_step",sim_floatparam_simulation_time_step,true},

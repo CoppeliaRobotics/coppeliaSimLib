@@ -153,6 +153,7 @@ void COpenglWidget::_mousePressEvent(SMouseOrKeyboardOrResizeEvent e)
     App::mainWindow->setMouseButtonState(App::mainWindow->getMouseButtonState()&(0xffff-16));
     if (e.button==0)
     { // Left button down
+        App::mainWindow->mouseClickAction(true);
         if (!e.ctrlDown)
             App::mainWindow->setMouseButtonState(App::mainWindow->getMouseButtonState()|16);
 
@@ -242,6 +243,7 @@ void COpenglWidget::_mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
 
     if (e.button==0)
     { // left button
+        App::mainWindow->mouseClickAction(false);
         CEnvironment::setShapeTexturesTemporarilyDisabled(false);
         CEnvironment::setShapeEdgesTemporarilyDisabled(false);
         CEnvironment::setCustomUisTemporarilyDisabled(false);

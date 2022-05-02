@@ -1279,7 +1279,7 @@ void CSView::mouseMove(int x,int y,bool passiveAndFocused)
     mouseRelativePosition[1]=y;
     if (mouseIsDown&&(mouseDownRelativePosition[0]!=x)&&(mouseDownRelativePosition[1]!=y))
         _mouseMovedWhileDownFlag=true;
-
+    static int a=0;
     if (App::userSettings->navigationBackwardCompatibility)
     {
         if (!passiveAndFocused)

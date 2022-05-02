@@ -201,9 +201,15 @@ void CWorld::saveScene(CSer& ar)
 {
     if (ar.getFileType()==CSer::filetype_csim_xml_simplescene_file)
     {
+        App::worldContainer->callScripts(sim_syscb_beforesave,nullptr);
         _saveSimpleXmlScene(ar);
+        App::worldContainer->callScripts(sim_syscb_aftersave,nullptr);
         return;
     }
+
+    if (!undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+        App::worldContainer->callScripts(sim_syscb_beforesave,nullptr);
+
     // **** Following needed to save existing calculation structures:
     environment->setSaveExistingCalculationStructuresTemp(false);
     if (!undoBufferContainer->isUndoSavingOrRestoringUnderWay())
@@ -562,6 +568,9 @@ void CWorld::saveScene(CSer& ar)
     if (ar.isBinary())
         ar.storeDataName(SER_END_OF_FILE);
     CMesh::clearTempVerticesIndicesNormalsAndEdges();
+
+    if (!undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+        App::worldContainer->callScripts(sim_syscb_aftersave,nullptr);
 }
 
 bool CWorld::loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
