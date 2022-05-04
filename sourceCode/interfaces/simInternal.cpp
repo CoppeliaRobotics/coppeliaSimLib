@@ -5396,36 +5396,6 @@ simInt simUnloadModule_internal(simInt pluginhandle)
     return(retVal);
 }
 
-simVoid* simSendModuleMessage_internal(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData)
-{
-    TRACE_C_API;
-
-    if (replyData!=nullptr)
-    {
-        replyData[0]=-1;
-        replyData[1]=-1;
-        replyData[2]=-1;
-        replyData[3]=-1;
-    }
-    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(message,auxiliaryData,customData,replyData);
-    return(retVal);
-}
-
-simVoid* simBroadcastMessage_internal(simInt* auxiliaryData,simVoid* customData,simInt* replyData)
-{
-    TRACE_C_API;
-
-    if (replyData!=nullptr)
-    {
-        replyData[0]=-1;
-        replyData[1]=-1;
-        replyData[2]=-1;
-        replyData[3]=-1;
-    }
-    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_broadcast,auxiliaryData,customData,replyData);
-    return(retVal);
-}
-
 simInt simRegisterScriptCallbackFunction_internal(const simChar* funcNameAtPluginName,const simChar* callTips,simVoid(*callBack)(struct SScriptCallBack* cb))
 {
     TRACE_C_API;
@@ -23381,5 +23351,35 @@ simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const sim
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
+}
+
+simVoid* simBroadcastMessage_internal(simInt* auxiliaryData,simVoid* customData,simInt* replyData)
+{ // deprecated on 04.05.2022
+    TRACE_C_API;
+
+    if (replyData!=nullptr)
+    {
+        replyData[0]=-1;
+        replyData[1]=-1;
+        replyData[2]=-1;
+        replyData[3]=-1;
+    }
+    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_broadcast,auxiliaryData,customData,replyData);
+    return(retVal);
+}
+
+simVoid* simSendModuleMessage_internal(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData)
+{ // deprecated on 04.05.2022
+    TRACE_C_API;
+
+    if (replyData!=nullptr)
+    {
+        replyData[0]=-1;
+        replyData[1]=-1;
+        replyData[2]=-1;
+        replyData[3]=-1;
+    }
+    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(message,auxiliaryData,customData,replyData);
+    return(retVal);
 }
 

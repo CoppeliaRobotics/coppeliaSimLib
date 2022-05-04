@@ -432,7 +432,7 @@ extern int _simInitScript(luaWrap_lua_State* L);
 extern int _simModuleEntry(luaWrap_lua_State* L);
 extern int _simPushUserEvent(luaWrap_lua_State* L);
 extern int _simGetGenesisEvents(luaWrap_lua_State* L);
-extern int _simBroadcastMessage(luaWrap_lua_State* L);
+extern int _simBroadcastMsg(luaWrap_lua_State* L);
 
 // DEPRECATED
 extern int _simAddStatusbarMessage(luaWrap_lua_State* L);

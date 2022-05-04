@@ -117,8 +117,6 @@ SIM_DLLEXPORT simInt simStopSimulation();
 SIM_DLLEXPORT simInt simPauseSimulation();
 SIM_DLLEXPORT simInt simLoadModule(const simChar* filenameAndPath,const simChar* pluginName);
 SIM_DLLEXPORT simInt simUnloadModule(simInt pluginhandle);
-SIM_DLLEXPORT simVoid* simSendModuleMessage(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData);
-SIM_DLLEXPORT simVoid* simBroadcastMessage(simInt* auxiliaryData,simVoid* customData,simInt* replyData);
 SIM_DLLEXPORT simChar* simGetModuleName(simInt index,simUChar* moduleVersion);
 SIM_DLLEXPORT simInt simFloatingViewAdd(simFloat posX,simFloat posY,simFloat sizeX,simFloat sizeY,simInt options);
 SIM_DLLEXPORT simInt simFloatingViewRemove(simInt floatingViewHandle);
@@ -729,6 +727,8 @@ SIM_DLLEXPORT simInt simSetVisionSensorImage(simInt visionSensorHandle,const sim
 SIM_DLLEXPORT simInt simSetVisionSensorCharImage(simInt visionSensorHandle,const simUChar* image);
 SIM_DLLEXPORT int simSetVisionSensorDepthBuffer(simInt visionSensorHandle,const float* depthBuffer);
 SIM_DLLEXPORT simInt simCreatePureShape(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision);
+SIM_DLLEXPORT simVoid* simBroadcastMessage(simInt* auxiliaryData,simVoid* customData,simInt* replyData);
+SIM_DLLEXPORT simVoid* simSendModuleMessage(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

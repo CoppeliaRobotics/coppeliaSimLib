@@ -106,7 +106,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim._getObject",_sim_getObject,                            "",false}, // handled via sim.getObject from sim.lua
     {"sim.getObjectUid",_simGetObjectUid,                        "int uid=sim.getObjectUid(int objectHandle)",true},
     {"sim._getObjectFromUid",_sim_getObjectFromUid,              "",false}, // handled via sim.getObjectFromUid from sim.lua
-    {"sim.getScriptHandle",_simGetScriptHandle,                  "int scriptHandle=sim.getScriptHandle(int scriptType,string scriptAlias='')",true},
+    {"sim.getScriptHandle",_simGetScriptHandle,                  "int scriptHandle=sim.getScriptHandle(int scriptType,string scriptAlias='',int objectHandle=-1)",true},
     {"sim.addScript",_simAddScript,                              "int scriptHandle=sim.addScript(int scriptType)",true},
     {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"sim.associateScriptWithObject(int scriptHandle,int objectHandle)",true},
     {"sim.getObjectPosition",_simGetObjectPosition,              "float[3] position=sim.getObjectPosition(int objectHandle,int relativeToObjectHandle)",true},
@@ -358,7 +358,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "float[4] quaternion=sim.getQuaternionFromMatrix(float[12] matrix)",true},
     {"sim.loadModule",_simLoadModule,                            "int pluginHandle=sim.loadModule(string filenameAndPath,string pluginName)",true},
     {"sim.unloadModule",_simUnloadModule,                        "int result=sim.unloadModule(int pluginHandle)",true},
-    {"sim.callScriptFunction",_simCallScriptFunction,            "any outArg=sim.callScriptFunction(string functionNameAtScriptPath,int scriptHandleOrType,any inArg=nil)",true},
+    {"sim.callScriptFunction",_simCallScriptFunction,            "any outArg=sim.callScriptFunction(string functionName,int scriptHandle,any inArg=nil)",true},
     {"sim.getExtensionString",_simGetExtensionString,            "string theString=sim.getExtensionString(int objectHandle,int index,string key=nil)",true},
     {"sim.computeMassAndInertia",_simComputeMassAndInertia,      "int result=sim.computeMassAndInertia(int shapeHandle,float density)",true},
     {"sim.getEngineFloatParam",_simGetEngineFloatParam,          "float floatParam=sim.getEngineFloatParam(int paramId,int objectHandle)",true},
@@ -420,7 +420,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.pushUserEvent",_simPushUserEvent,                      "sim.pushUserEvent(string event,int handle,int uid,map eventData,int options=0)",true},
     {"sim.createCollectionEx",_simCreateCollectionEx,            "",false}, // implemented in sim.lua
     {"sim.getGenesisEvents",_simGetGenesisEvents,                "map[] events=sim.getGenesisEvents()\nbuffer events=sim.getGenesisEvents()",true},
-    {"sim.broadcastMessage",_simBroadcastMessage,                "sim.broadcastMessage(map message,int options=0)",true},
+    {"sim.broadcastMsg",_simBroadcastMsg,                        "sim.broadcastMsg(map message,int options=0)",true},
 
     {"sim.test",_simTest,                                        "test function - do not use",true},
 
@@ -2956,7 +2956,7 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
             retVal=CScriptObject::getScriptHandleFromInterpreterState_lua(L); // nil arg, return itself (back. compatibility)
         else
         {
-            if (checkInputArguments(L,nullptr,lua_arg_number,0))
+            if (checkInputArguments(L,nullptr,lua_arg_integer,0))
             { // script type arg.
                 int scriptType=luaWrap_lua_tointeger(L,1);
                 if (scriptType!=sim_handle_self)
@@ -2965,17 +2965,24 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
                     std::string scriptName;
                     if (scriptType==sim_scripttype_addonscript)
                     {
-                        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
+                        if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0))
                             scriptName=luaWrap_lua_tostring(L,2);
                     }
                     if ( (scriptType==sim_scripttype_childscript)||(scriptType==sim_scripttype_customizationscript) )
                     {
-                        if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0))
+                        if (checkInputArguments(L,nullptr,lua_arg_integer,0,lua_arg_integer,0))
                             objectHandle=luaWrap_lua_tointeger(L,2); // back compatibility actually
                         else
                         {
-                            if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
+                            if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0))
+                            {
                                 scriptName=luaWrap_lua_tostring(L,2);
+                                if (scriptName.size()==0)
+                                {
+                                    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0,lua_arg_integer,0))
+                                        objectHandle=luaWrap_lua_tointeger(L,3);
+                                }
+                            }
                         }
                     }
                     if ( ( (scriptName.size()>0)||(objectHandle>=0) )||((scriptType==sim_scripttype_mainscript)||(scriptType==sim_scripttype_sandboxscript)) )
@@ -2998,7 +3005,7 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
                     setCurrentScriptInfo_cSide(-1,-1);
                 }
                 else
-                    checkInputArguments(L,&errorString,lua_arg_number,0); // just generate an error
+                    checkInputArguments(L,&errorString,lua_arg_integer,0); // just generate an error
             }
         }
     }
@@ -10923,10 +10930,10 @@ int _simPushUserEvent(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simBroadcastMessage(luaWrap_lua_State* L)
+int _simBroadcastMsg(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.broadcastMessage");
+    LUA_START("sim.broadcastMsg");
 
     if (luaWrap_lua_istable(L,1))
     {
@@ -10939,7 +10946,7 @@ int _simBroadcastMessage(luaWrap_lua_State* L)
             CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
             CScriptObject::buildFromInterpreterStack_lua(L,stack,1,0);
             stack->pushInt32OntoStack(CScriptObject::getScriptHandleFromInterpreterState_lua(L),false);
-            App::worldContainer->broadcastMessage(stack,options);
+            App::worldContainer->broadcastMsg(stack,options);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
     }

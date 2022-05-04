@@ -405,14 +405,6 @@ SIM_DLLEXPORT simInt simUnloadModule(simInt pluginhandle)
 {
     return(simUnloadModule_internal(pluginhandle));
 }
-SIM_DLLEXPORT simVoid* simSendModuleMessage(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData)
-{
-    return(simSendModuleMessage_internal(message,auxiliaryData,customData,replyData));
-}
-SIM_DLLEXPORT simVoid* simBroadcastMessage(simInt* auxiliaryData,simVoid* customData,simInt* replyData)
-{
-    return(simBroadcastMessage_internal(auxiliaryData,customData,replyData));
-}
 SIM_DLLEXPORT simChar* simGetModuleName(simInt index,simUChar* moduleVersion)
 {
     return(simGetModuleName_internal(index,moduleVersion));
@@ -2802,6 +2794,14 @@ SIM_DLLEXPORT simFloat* simGetVisionSensorDepthBuffer(simInt visionSensorHandle)
 SIM_DLLEXPORT simInt simCreatePureShape(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision)
 {
     return(simCreatePureShape_internal(primitiveType,options,sizes,mass,precision));
+}
+SIM_DLLEXPORT simVoid* simBroadcastMessage(simInt* auxiliaryData,simVoid* customData,simInt* replyData)
+{
+    return(simBroadcastMessage_internal(auxiliaryData,customData,replyData));
+}
+SIM_DLLEXPORT simVoid* simSendModuleMessage(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData)
+{
+    return(simSendModuleMessage_internal(message,auxiliaryData,customData,replyData));
 }
 // Deprecated end
 

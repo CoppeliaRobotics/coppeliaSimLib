@@ -483,11 +483,11 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
             r+=" - Called just after the scene was saved.";
         return(r);
     }
-    if (calltype==sim_syscb_message)
+    if (calltype==sim_syscb_msg)
     {
-        std::string r("sysCall_message");
+        std::string r("sysCall_msg");
         if (callTips)
-            r+=" - Called via sim.broadcastMessage.";
+            r+=" - Called via sim.broadcastMsg.";
         return(r);
     }
 
@@ -730,7 +730,7 @@ bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int ca
             return(true);
         if (callType==sim_syscb_aftersave)
             return(true);
-        if (callType==sim_syscb_message)
+        if (callType==sim_syscb_msg)
             return(true);
     }
     if ( (scriptType==sim_scripttype_sandboxscript)||(scriptType==sim_scripttype_addonscript)||(scriptType==sim_scripttype_customizationscript) )
@@ -819,7 +819,7 @@ std::vector<int> CScriptObject::getAllSystemCallbacks(int scriptType,bool thread
                  sim_syscb_realtimeidle,
                  sim_syscb_beforesave,
                  sim_syscb_aftersave,
-                 sim_syscb_message,
+                 sim_syscb_msg,
                  -1
             };
 
@@ -6899,7 +6899,6 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
-
     if (_containsScriptText_old(scriptObject,"sim.createPureShape"))
         App::logMsg(sim_verbosity_errors,"Contains sim.createPureShape...");
 

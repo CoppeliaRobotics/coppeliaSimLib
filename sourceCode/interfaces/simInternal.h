@@ -114,8 +114,6 @@ simInt simStopSimulation_internal();
 simInt simPauseSimulation_internal();
 simInt simLoadModule_internal(const simChar* filenameAndPath,const simChar* pluginName);
 simInt simUnloadModule_internal(simInt pluginhandle);
-simVoid* simSendModuleMessage_internal(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData);
-simVoid* simBroadcastMessage_internal(simInt* auxiliaryData,simVoid* customData,simInt* replyData);
 simChar* simGetModuleName_internal(simInt index,simUChar* moduleVersion);
 simInt simFloatingViewAdd_internal(simFloat posX,simFloat posY,simFloat sizeX,simFloat sizeY,simInt options);
 simInt simFloatingViewRemove_internal(simInt floatingViewHandle);
@@ -674,4 +672,6 @@ simInt simSetVisionSensorImage_internal(simInt visionSensorHandle,const simFloat
 simInt simSetVisionSensorCharImage_internal(simInt visionSensorHandle,const simUChar* image);
 simFloat* simGetVisionSensorDepthBuffer_internal(simInt visionSensorHandle);
 simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision);
+simVoid* simBroadcastMessage_internal(simInt* auxiliaryData,simVoid* customData,simInt* replyData);
+simVoid* simSendModuleMessage_internal(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData);
 #endif // !defined(simInternal_INCLUDED_)
