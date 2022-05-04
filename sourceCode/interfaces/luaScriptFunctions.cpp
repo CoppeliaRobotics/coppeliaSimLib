@@ -420,6 +420,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.pushUserEvent",_simPushUserEvent,                      "sim.pushUserEvent(string event,int handle,int uid,map eventData,int options=0)",true},
     {"sim.createCollectionEx",_simCreateCollectionEx,            "",false}, // implemented in sim.lua
     {"sim.getGenesisEvents",_simGetGenesisEvents,                "map[] events=sim.getGenesisEvents()\nbuffer events=sim.getGenesisEvents()",true},
+    {"sim.broadcastMessage",_simBroadcastMessage,                "sim.broadcastMessage(map message,int options=0)",true},
 
     {"sim.test",_simTest,                                        "test function - do not use",true},
 
@@ -10918,6 +10919,32 @@ int _simPushUserEvent(luaWrap_lua_State* L)
         else
             errorString.assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
     }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simBroadcastMessage(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.broadcastMessage");
+
+    if (luaWrap_lua_istable(L,1))
+    {
+        int options=0;
+        int res=checkOneGeneralInputArgument(L,2,lua_arg_integer,0,true,true,&errorString);
+        if (res>=0)
+        {
+            if (res==2)
+                options=luaWrap_lua_tointeger(L,2);
+            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+            CScriptObject::buildFromInterpreterStack_lua(L,stack,1,0);
+            stack->pushInt32OntoStack(CScriptObject::getScriptHandleFromInterpreterState_lua(L),false);
+            App::worldContainer->broadcastMessage(stack,options);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
+    }
+    else
+        errorString.assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }

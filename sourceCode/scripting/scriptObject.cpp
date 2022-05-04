@@ -483,6 +483,14 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
             r+=" - Called just after the scene was saved.";
         return(r);
     }
+    if (calltype==sim_syscb_message)
+    {
+        std::string r("sysCall_message");
+        if (callTips)
+            r+=" - Called via sim.broadcastMessage.";
+        return(r);
+    }
+
 
     // Old:
     if (calltype==sim_syscb_aos_run_old)
@@ -722,6 +730,8 @@ bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int ca
             return(true);
         if (callType==sim_syscb_aftersave)
             return(true);
+        if (callType==sim_syscb_message)
+            return(true);
     }
     if ( (scriptType==sim_scripttype_sandboxscript)||(scriptType==sim_scripttype_addonscript)||(scriptType==sim_scripttype_customizationscript) )
     {
@@ -809,6 +819,7 @@ std::vector<int> CScriptObject::getAllSystemCallbacks(int scriptType,bool thread
                  sim_syscb_realtimeidle,
                  sim_syscb_beforesave,
                  sim_syscb_aftersave,
+                 sim_syscb_message,
                  -1
             };
 

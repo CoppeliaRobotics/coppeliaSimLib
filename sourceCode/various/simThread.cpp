@@ -1683,7 +1683,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     CDummy* it2=App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[i]);
                     if (it2!=nullptr)
                     {
-                        it->getDummyColor()->copyYourselfInto(it->getDummyColor());
+                        it->getDummyColor()->copyYourselfInto(it2->getDummyColor());
                         it2->setDummySize(it->getDummySize());
                     }
                 }

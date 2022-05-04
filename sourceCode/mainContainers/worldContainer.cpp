@@ -417,6 +417,15 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
         sandboxScript->systemCallScript(callType,inStack,nullptr);
 }
 
+void CWorldContainer::broadcastMessage(CInterfaceStack* inStack,int options)
+{
+    TRACE_INTERNAL;
+    currentWorld->embeddedScriptContainer->callScripts(sim_syscb_message,inStack);
+    addOnScriptContainer->callScripts(sim_syscb_message,inStack,nullptr);
+    if (sandboxScript!=nullptr)
+        sandboxScript->systemCallScript(sim_syscb_message,inStack,nullptr);
+}
+
 long long int CWorldContainer::_eventSeq=0;
 
 void CWorldContainer::pushSceneObjectRemoveEvent(const CSceneObject* object)
