@@ -3311,11 +3311,10 @@ int CCamera::handleHits(int hits,unsigned int selectBuff[])
             bool ignoreDepth=((App::getEditModeType()&VERTEX_EDIT_MODE)||(App::getEditModeType()&EDGE_EDIT_MODE))&&App::mainWindow->editModeContainer->getShapeEditMode()->getShowHiddenVerticeAndEdges();
             int hitId=getSingleHit(hits,selectBuff,ignoreDepth,hitThatIgnoresTheSelectableFlag);
 
-            // Now generate a plugin callback:
+            // OLD:
             int data[4]={hitThatIgnoresTheSelectableFlag,0,0,0};
             void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_pickselectdown,data,nullptr,nullptr);
             delete[] (char*)retVal;
-            // Now generate a script message:
             App::currentWorld->outsideCommandQueue->addCommand(sim_message_pick_select_down,hitThatIgnoresTheSelectableFlag,0,0,0,nullptr,0);
 
             return(hitId);

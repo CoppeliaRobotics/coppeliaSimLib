@@ -266,8 +266,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
         }
-        if (cmd.cmdId==CLICK_RAY_INTERSECTION_CMD)
-            _handleClickRayIntersection(cmd);
+        if (cmd.cmdId==CLICK_RAY_INTERSECTION_CMD_OLD)
+            _handleClickRayIntersection_old(cmd);
 
         if (cmd.cmdId==SWAP_VIEWS_CMD)
         {
@@ -4684,7 +4684,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 }
 
 #ifdef SIM_WITH_GUI
-void CSimThread::_handleClickRayIntersection(SSimulationThreadCommand cmd)
+void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
 {
     float nearClipp=cmd.floatParams[0];
     C7Vector transf=cmd.transfParams[0];

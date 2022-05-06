@@ -1124,7 +1124,7 @@ bool CSView::getMouseRelPosObjectAndViewSize(int x,int y,int relPos[2],int& objT
     return(true);
 }
 
-void CSView::_handleClickRayIntersection(int x,int y,bool mouseDown)
+void CSView::_handleClickRayIntersection_old(int x,int y,bool mouseDown)
 {
     if (App::mainWindow->getKeyDownState()&3)
         return; // doesn't generate any message when the ctrl or shift key is pressed
@@ -1188,7 +1188,7 @@ void CSView::_handleClickRayIntersection(int x,int y,bool mouseDown)
 
     // Process the command via the simulation thread (delayed):
     SSimulationThreadCommand cmd;
-    cmd.cmdId=CLICK_RAY_INTERSECTION_CMD;
+    cmd.cmdId=CLICK_RAY_INTERSECTION_CMD_OLD;
     cmd.boolParams.push_back(mouseDown);
     cmd.floatParams.push_back(cam->getNearClippingPlane());
     cmd.intParams.push_back(cam->getObjectHandle());
@@ -1221,8 +1221,7 @@ bool CSView::leftMouseButtonDown(int x,int y,int selStatus)
     _mouseMovedWhileDownFlag=false;
     if ( (x<0)||(y<0)||(x>_viewSize[0])||(y>_viewSize[1]) )
         return(false);
-    // Maybe generate an intersection coordinate+object ID with scene objects:
-    _handleClickRayIntersection(x,y,true);
+    _handleClickRayIntersection_old(x,y,true);
 
     // The mouse went down in this subview
     _caughtElements|=sim_left_button;
@@ -1260,9 +1259,8 @@ bool CSView::leftMouseButtonDown(int x,int y,int selStatus)
 void CSView::leftMouseButtonUp(int x,int y)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
 
-    // Maybe generate an intersection coordinate+object ID with scene objects:
     if (!_mouseMovedWhileDownFlag)
-        _handleClickRayIntersection(x,y,false); // will happen in a delayed manner
+        _handleClickRayIntersection_old(x,y,false); // will happen in a delayed manner
 
 
     // Was a previous mouse action processed (needs rendering pass)?
@@ -1344,6 +1342,7 @@ void CSView::mouseMove(int x,int y,bool passiveAndFocused)
                     tr.X=C3Vector(a0,a1,0.0f);
                 }
                 tr=cam->getFullCumulativeTransformation().getMatrix()*tr;
+                tr.X+=tr.M.axis[2]*cam->getNearClippingPlane();
                 App::mainWindow->setMouseRay(&tr.X,&tr.M.axis[2]);
             }
         }

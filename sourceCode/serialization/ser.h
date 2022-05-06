@@ -114,6 +114,7 @@ public:
     void _xmlPushNode(xmlNode* node);
     void xmlPopNode();
 
+    void warnMissingNode(const char* name) const;
     xmlNode* xmlGetCurrentNode();
 
     void xmlAddNode_comment(const char* comment,bool doNotInsert);

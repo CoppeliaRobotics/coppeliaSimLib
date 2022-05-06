@@ -2656,6 +2656,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlAddNode_bool("depthInvisible",_objectProperty&sim_objectproperty_depthinvisible);
             ar.xmlAddNode_bool("cannotDelete",_objectProperty&sim_objectproperty_cannotdelete);
             ar.xmlAddNode_bool("cannotDeleteDuringSimulation",_objectProperty&sim_objectproperty_cannotdeleteduringsim);
+            ar.xmlAddNode_bool("ignoreViewFitting",_objectProperty&sim_objectproperty_ignoreviewfitting);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("localObjectSpecialProperty");
@@ -2894,6 +2895,7 @@ void CSceneObject::serialize(CSer& ar)
                     ar.xmlGetNode_flags("depthInvisible",_objectProperty,sim_objectproperty_depthinvisible,exhaustiveXml);
                     ar.xmlGetNode_flags("cannotDelete",_objectProperty,sim_objectproperty_cannotdelete,exhaustiveXml);
                     ar.xmlGetNode_flags("cannotDeleteDuringSimulation",_objectProperty,sim_objectproperty_cannotdeleteduringsim,exhaustiveXml);
+                    ar.xmlGetNode_flags("ignoreViewFitting",_objectProperty,sim_objectproperty_ignoreviewfitting,false);
                     ar.xmlPopNode();
                 }
 
@@ -2939,7 +2941,7 @@ void CSceneObject::serialize(CSer& ar)
                 if (ar.xmlPushChildNode("switches",exhaustiveXml))
                 {
                     ar.xmlGetNode_bool("modelBase",_modelBase,exhaustiveXml);
-                    ar.xmlGetNode_bool("ignoredByViewFitting",_ignoredByViewFitting_backCompat,exhaustiveXml);
+                    ar.xmlGetNode_bool("ignoredByViewFitting",_ignoredByViewFitting_backCompat,false);
                     ar.xmlPopNode();
                 }
 

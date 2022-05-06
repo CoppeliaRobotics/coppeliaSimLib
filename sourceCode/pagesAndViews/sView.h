@@ -191,6 +191,6 @@ public:
 private:
     void cameraAndObjectMotion();
     void graphMotion();
-    void _handleClickRayIntersection(int x,int y,bool mouseDown);
+    void _handleClickRayIntersection_old(int x,int y,bool mouseDown);
 #endif
 };

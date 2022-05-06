@@ -53,7 +53,7 @@ private:
 
 #ifdef SIM_WITH_GUI
 private:
-    void _handleClickRayIntersection(SSimulationThreadCommand cmd);
+    void _handleClickRayIntersection_old(SSimulationThreadCommand cmd);
     void _handleAutoSaveSceneCommand(SSimulationThreadCommand cmd);
     void _displayVariousWaningMessagesDuringSimulation();
     int _prepareSceneForRenderIfNeeded();
