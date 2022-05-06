@@ -106,7 +106,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim._getObject",_sim_getObject,                            "",false}, // handled via sim.getObject from sim.lua
     {"sim.getObjectUid",_simGetObjectUid,                        "int uid=sim.getObjectUid(int objectHandle)",true},
     {"sim._getObjectFromUid",_sim_getObjectFromUid,              "",false}, // handled via sim.getObjectFromUid from sim.lua
-    {"sim.getScriptHandle",_simGetScriptHandle,                  "int scriptHandle=sim.getScriptHandle(int scriptType,string scriptAlias='',int objectHandle=-1)",true},
+    {"sim.getScript",_simGetScript,                              "int scriptHandle=sim.getScript(int scriptType,int objectHandle=-1,string scriptName='')",true},
     {"sim.addScript",_simAddScript,                              "int scriptHandle=sim.addScript(int scriptType)",true},
     {"sim.associateScriptWithObject",_simAssociateScriptWithObject,"sim.associateScriptWithObject(int scriptHandle,int objectHandle)",true},
     {"sim.getObjectPosition",_simGetObjectPosition,              "float[3] position=sim.getObjectPosition(int objectHandle,int relativeToObjectHandle)",true},
@@ -588,6 +588,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setVisionSensorCharImage",_simSetVisionSensorCharImage,"Deprecated. Use sim.setVisionSensorImg instead",false},
     {"sim.getVisionSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"Deprecated. Use sim.getVisionSensorDepth instead",false},
     {"sim.createPureShape",_simCreatePureShape,                  "Deprecated. Use sim.createPrimitiveShape instead",false},
+    {"sim.getScriptHandle",_simGetScriptHandle,                  "Deprecated. Use sim.getScript instead",false},
 
     {"",nullptr,"",false}
 };
@@ -2942,70 +2943,36 @@ int _sim_getObjectFromUid(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetScriptHandle(luaWrap_lua_State* L)
+int _simGetScript(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getScriptHandle");
+    LUA_START("sim.getScript");
 
     int retVal=-1; // means error
-    if (luaWrap_lua_gettop(L)==0)
-        retVal=CScriptObject::getScriptHandleFromInterpreterState_lua(L); // no arguments, return itself
-    else
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0))
     {
-        if (checkInputArguments(L,nullptr,lua_arg_nil,0))
-            retVal=CScriptObject::getScriptHandleFromInterpreterState_lua(L); // nil arg, return itself (back. compatibility)
+        int scriptType=luaWrap_lua_tointeger(L,1);
+        if (scriptType==sim_handle_self)
+            retVal=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         else
         {
-            if (checkInputArguments(L,nullptr,lua_arg_integer,0))
-            { // script type arg.
-                int scriptType=luaWrap_lua_tointeger(L,1);
-                if (scriptType!=sim_handle_self)
-                {
-                    int objectHandle=-1;
-                    std::string scriptName;
-                    if (scriptType==sim_scripttype_addonscript)
-                    {
-                        if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0))
-                            scriptName=luaWrap_lua_tostring(L,2);
-                    }
-                    if ( (scriptType==sim_scripttype_childscript)||(scriptType==sim_scripttype_customizationscript) )
-                    {
-                        if (checkInputArguments(L,nullptr,lua_arg_integer,0,lua_arg_integer,0))
-                            objectHandle=luaWrap_lua_tointeger(L,2); // back compatibility actually
-                        else
-                        {
-                            if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0))
-                            {
-                                scriptName=luaWrap_lua_tostring(L,2);
-                                if (scriptName.size()==0)
-                                {
-                                    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0,lua_arg_integer,0))
-                                        objectHandle=luaWrap_lua_tointeger(L,3);
-                                }
-                            }
-                        }
-                    }
-                    if ( ( (scriptName.size()>0)||(objectHandle>=0) )||((scriptType==sim_scripttype_mainscript)||(scriptType==sim_scripttype_sandboxscript)) )
-                    {
-                        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-                        retVal=simGetScriptHandleEx_internal(scriptType,objectHandle,scriptName.c_str());
-                        setCurrentScriptInfo_cSide(-1,-1);
-                    }
-                }
-                else
-                    retVal=CScriptObject::getScriptHandleFromInterpreterState_lua(L); // for backward compatibility
+            int objectHandle=-1;
+            std::string scriptName;
+            if (scriptType==sim_scripttype_addonscript)
+            {
+                if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_integer,0,lua_arg_string,0))
+                    scriptName=luaWrap_lua_tostring(L,3);
             }
-            else
-            { // string argument, for backward compatibility:
-                if (checkInputArguments(L,nullptr,lua_arg_string,0))
-                {
-                    std::string name(luaWrap_lua_tostring(L,1));
-                    setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-                    retVal=simGetScriptHandle_internal(name.c_str()); // deprecated func.
-                    setCurrentScriptInfo_cSide(-1,-1);
-                }
-                else
-                    checkInputArguments(L,&errorString,lua_arg_integer,0); // just generate an error
+            if ( (scriptType==sim_scripttype_childscript)||(scriptType==sim_scripttype_customizationscript) )
+            {
+                if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_integer,0))
+                    objectHandle=luaWrap_lua_tointeger(L,2);
+            }
+            if ( ( (scriptName.size()>0)||(objectHandle>=0) )||((scriptType==sim_scripttype_mainscript)||(scriptType==sim_scripttype_sandboxscript)) )
+            {
+                setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                retVal=simGetScriptHandleEx_internal(scriptType,objectHandle,scriptName.c_str());
+                setCurrentScriptInfo_cSide(-1,-1);
             }
         }
     }
@@ -13245,7 +13212,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simAddScript",_simAddScript,                              "Use the newer sim.addScript notation",false},
     {"simAssociateScriptWithObject",_simAssociateScriptWithObject,"Use the newer sim.associateScriptWithObject notation",false},
     {"simSetScriptText",_simSetScriptText,                      "Deprecated. Use sim.setScriptStringParam instead",false},
-    {"simGetScriptHandle",_simGetScriptHandle,                  "Use the newer sim.getScriptHandle notation",false},
+    {"simGetScriptHandle",_simGetScriptHandle,                  "Deprecated. Use sim.getScript instead",false},
     {"simGetObjectPosition",_simGetObjectPosition,              "Use the newer sim.getObjectPosition notation",false},
     {"simGetObjectOrientation",_simGetObjectOrientation,        "Use the newer sim.getObjectOrientation notation",false},
     {"simSetObjectPosition",_simSetObjectPosition,              "Use the newer sim.setObjectPosition notation",false},
@@ -21229,6 +21196,79 @@ int _simCreatePureShape(luaWrap_lua_State* L)
                 precision=prec;
             }
             retVal=simCreatePureShape_internal(primitiveType,options,sizes,mass,precision);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetScriptHandle(luaWrap_lua_State* L)
+{ // deprecated on 06.05.2022
+    TRACE_LUA_API;
+    LUA_START("sim.getScriptHandle");
+
+    int retVal=-1; // means error
+    if (luaWrap_lua_gettop(L)==0)
+        retVal=CScriptObject::getScriptHandleFromInterpreterState_lua(L); // no arguments, return itself
+    else
+    {
+        if (checkInputArguments(L,nullptr,lua_arg_nil,0))
+            retVal=CScriptObject::getScriptHandleFromInterpreterState_lua(L); // nil arg, return itself (back. compatibility)
+        else
+        {
+            if (checkInputArguments(L,nullptr,lua_arg_integer,0))
+            { // script type arg.
+                int scriptType=luaWrap_lua_tointeger(L,1);
+                if (scriptType!=sim_handle_self)
+                {
+                    int objectHandle=-1;
+                    std::string scriptName;
+                    if (scriptType==sim_scripttype_addonscript)
+                    {
+                        if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0))
+                            scriptName=luaWrap_lua_tostring(L,2);
+                    }
+                    if ( (scriptType==sim_scripttype_childscript)||(scriptType==sim_scripttype_customizationscript) )
+                    {
+                        if (checkInputArguments(L,nullptr,lua_arg_integer,0,lua_arg_integer,0))
+                            objectHandle=luaWrap_lua_tointeger(L,2); // back compatibility actually
+                        else
+                        {
+                            if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0))
+                            {
+                                scriptName=luaWrap_lua_tostring(L,2);
+                                if (scriptName.size()==0)
+                                {
+                                    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0,lua_arg_integer,0))
+                                        objectHandle=luaWrap_lua_tointeger(L,3);
+                                }
+                            }
+                        }
+                    }
+                    if ( ( (scriptName.size()>0)||(objectHandle>=0) )||((scriptType==sim_scripttype_mainscript)||(scriptType==sim_scripttype_sandboxscript)) )
+                    {
+                        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                        retVal=simGetScriptHandleEx_internal(scriptType,objectHandle,scriptName.c_str());
+                        setCurrentScriptInfo_cSide(-1,-1);
+                    }
+                }
+                else
+                    retVal=CScriptObject::getScriptHandleFromInterpreterState_lua(L); // for backward compatibility
+            }
+            else
+            { // string argument, for backward compatibility:
+                if (checkInputArguments(L,nullptr,lua_arg_string,0))
+                {
+                    std::string name(luaWrap_lua_tostring(L,1));
+                    setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                    retVal=simGetScriptHandle_internal(name.c_str()); // deprecated func.
+                    setCurrentScriptInfo_cSide(-1,-1);
+                }
+                else
+                    checkInputArguments(L,&errorString,lua_arg_integer,0); // just generate an error
+            }
         }
     }
 
