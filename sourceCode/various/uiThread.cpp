@@ -440,9 +440,9 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
         C3Vector sizes;
         int subdiv[3];
         int faceSubdiv,sides,discSubdiv;
-        bool smooth,dynamic,pure,openEnds;
+        bool smooth,dynamic,openEnds;
         float density;
-        if (showPrimitiveShapeDialog(cmdIn->intParams[0],(C3Vector*)cmdIn->objectParams[0],sizes,subdiv,faceSubdiv,sides,discSubdiv,smooth,openEnds,dynamic,pure,density))
+        if (showPrimitiveShapeDialog(cmdIn->intParams[0],(C3Vector*)cmdIn->objectParams[0],sizes,subdiv,faceSubdiv,sides,discSubdiv,smooth,openEnds,dynamic,density))
         {
             cmdOut->posParams.push_back(sizes);
             cmdOut->intParams.push_back(subdiv[0]);
@@ -452,7 +452,6 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
             cmdOut->intParams.push_back(sides);
             cmdOut->intParams.push_back(discSubdiv);
             cmdOut->boolParams.push_back(smooth);
-            cmdOut->boolParams.push_back(pure);
             cmdOut->boolParams.push_back(dynamic);
             cmdOut->boolParams.push_back(openEnds);
             cmdOut->floatParams.push_back(density);
@@ -1041,7 +1040,7 @@ bool CUiThread::dialogInputGetFloat(void* parentWidget,const char* title,const c
 }
 
 
-bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesIn,C3Vector& sizes,int subdiv[3],int& facesSubdiv,int& sides,int& discSubdiv,bool& smooth,bool& openEnds,bool& dynamic,bool& pure,float& density)
+bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesIn,C3Vector& sizes,int subdiv[3],int& facesSubdiv,int& sides,int& discSubdiv,bool& smooth,bool& openEnds,bool& dynamic,float& density)
 {
     TRACE_INTERNAL;
     bool retVal=false;
@@ -1063,7 +1062,6 @@ bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesI
                 discSubdiv=theDialog.discSubdiv;
                 smooth=theDialog.smooth;
                 openEnds=theDialog.openEnds;
-                pure=theDialog.pure;
                 density=theDialog.density;
                 dynamic=theDialog.dynamic;
             }
@@ -1086,9 +1084,8 @@ bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesI
                 sides=cmdOut.intParams[4];
                 discSubdiv=cmdOut.intParams[5];
                 smooth=cmdOut.boolParams[0];
-                pure=cmdOut.boolParams[1];
-                dynamic=cmdOut.boolParams[2];
-                openEnds=cmdOut.boolParams[3];
+                dynamic=cmdOut.boolParams[1];
+                openEnds=cmdOut.boolParams[2];
                 density=cmdOut.floatParams[0];
                 retVal=true;
             }

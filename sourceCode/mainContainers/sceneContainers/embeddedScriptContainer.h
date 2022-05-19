@@ -22,8 +22,7 @@ public:
     int getObjectHandleFromScriptHandle(int scriptHandle) const;
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
     CScriptObject* getMainScript() const;
-    CScriptObject* getScriptFromObjectAttachedTo_child(int objectHandle) const;
-    CScriptObject* getScriptFromObjectAttachedTo_customization(int objectHandle) const;
+    CScriptObject* getScriptFromObjectAttachedTo(int scriptType,int objectHandle) const;
 
     int getScriptsFromObjectAttachedTo(int objectHandle,std::vector<CScriptObject*>& scripts) const;
     bool doesScriptWithUniqueIdExist(int id) const;
@@ -41,6 +40,7 @@ public:
     bool addCommandToOutsideCommandQueues(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count);
 
     int handleCascadedScriptExecution(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,int* retInfo);
+    void handleCascadedJointMotionExecution();
     bool shouldTemporarilySuspendMainScript();
     bool isContactCallbackFunctionAvailable();
     bool isDynCallbackFunctionAvailable();

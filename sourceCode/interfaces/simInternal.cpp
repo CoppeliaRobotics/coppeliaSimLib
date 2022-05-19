@@ -64,10 +64,6 @@ bool fullModelCopyFromApi=true;
 bool waitingForTrigger=false;
 bool doNotRunMainScriptFromRosInterface=false;
 
-std::vector<contactCallback> allContactCallbacks;
-std::vector<jointCtrlCallback> allJointCtrlCallbacks;
-
-
 std::vector<int> pluginHandles;
 std::string initialSceneOrModelToLoad;
 std::string applicationDir;
@@ -490,17 +486,6 @@ simInt simExtCallScriptFunction_internal(simInt scriptHandleOrType, const simCha
     return ret;
 }
 //********************************************
-
-
-std::vector<contactCallback>& getAllContactCallbacks()
-{
-    return(allContactCallbacks);
-}
-
-std::vector<jointCtrlCallback>& getAllJointCtrlCallbacks()
-{
-    return(allJointCtrlCallbacks);
-}
 
 std::string getIndexAdjustedObjectName(const char* nm)
 {
@@ -1287,13 +1272,13 @@ simInt simGetScriptHandleEx_internal(simInt scriptType,simInt objectHandle,const
         {
             if ( (objectHandle<0)&&(scriptName!=nullptr) )
                 objectHandle=simGetObjectHandleEx_internal(scriptName,-1,-1,0);
-            it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objectHandle);
+            it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objectHandle);
         }
         if (scriptType==sim_scripttype_customizationscript)
         {
             if ( (objectHandle<0)&&(scriptName!=nullptr) )
                 objectHandle=simGetObjectHandleEx_internal(scriptName,-1,-1,0);
-            it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objectHandle);
+            it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objectHandle);
         }
         if ( (scriptType==sim_scripttype_addonscript)&&(scriptName!=nullptr) )
             it=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName);
@@ -1933,6 +1918,7 @@ simInt simSetJointPosition_internal(simInt objectHandle,simFloat position)
             return(-1);
         }
         it->setPosition(position,false);
+        it->setKinematicMotionType(0,true); // reset
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -1958,11 +1944,20 @@ simInt simSetJointTargetPosition_internal(simInt objectHandle,simFloat targetPos
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
-        if (it->getJointMode()==sim_jointmode_force)
-            it->setDynamicMotorPositionControlTargetPosition(targetPosition);
+        if (it->getJointMode()==sim_jointmode_dynamic)
+        {
+            it->setTargetPosition(targetPosition);
+            it->setKinematicMotionType(0,true); // reset
+        }
         else
         {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_NOT_IN_FORCE_TORQUE_MODE);
+            if (it->getJointMode()==sim_jointmode_kinematic)
+            {
+                it->setTargetPosition(targetPosition);
+                it->setKinematicMotionType(1,false); // pos
+            }
+            else
+                it->setKinematicMotionType(0,true); // reset
             return(-1);
         }
         return(1);
@@ -1990,7 +1985,7 @@ simInt simGetJointTargetPosition_internal(simInt objectHandle,simFloat* targetPo
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
-        targetPosition[0]=it->getDynamicMotorPositionControlTargetPosition();
+        targetPosition[0]=it->getTargetPosition();
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -2016,10 +2011,21 @@ simInt simSetJointTargetVelocity_internal(simInt objectHandle,simFloat targetVel
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
-        if (it->getJointMode()==sim_jointmode_force)
-            it->setDynamicMotorTargetVelocity(targetVelocity);
+        if (it->getJointMode()==sim_jointmode_dynamic)
+        {
+            it->setTargetVelocity(targetVelocity);
+            it->setKinematicMotionType(0,true); // reset
+        }
         else
-            it->setTargetVelocity_DEPRECATED(targetVelocity);
+        {
+            if (it->getJointMode()==sim_jointmode_kinematic)
+            {
+                it->setTargetVelocity(targetVelocity);
+                it->setKinematicMotionType(2,false); // vel
+            }
+            else
+                it->setKinematicMotionType(0,true); // reset
+        }
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -2045,10 +2051,7 @@ simInt simGetJointTargetVelocity_internal(simInt objectHandle,simFloat* targetVe
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
-        if (it->getJointMode()==sim_jointmode_force)
-            targetVelocity[0]=it->getDynamicMotorTargetVelocity();
-        else
-            targetVelocity[0]=it->getTargetVelocity_DEPRECATED();
+        targetVelocity[0]=it->getTargetVelocity();
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -2129,10 +2132,10 @@ simInt simGetJointInterval_internal(simInt objectHandle,simBool* cyclic,simFloat
             return(-1);
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         cyclic[0]=0;
-        if (it->getPositionIsCyclic())
+        if (it->getIsCyclic())
             cyclic[0]=1;
-        interval[0]=it->getPositionIntervalMin();
-        interval[1]=it->getPositionIntervalRange();
+        interval[0]=it->getPositionMin();
+        interval[1]=it->getPositionRange();
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -2154,12 +2157,12 @@ simInt simSetJointInterval_internal(simInt objectHandle,simBool cyclic,const sim
             return(-1);
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
 // Some models need to modify that
-//        if ( App::currentWorld->simulation->isSimulationStopped()||((it->getJointMode()!=sim_jointmode_force)&&(!it->getHybridFunctionality())) )
+//        if ( App::currentWorld->simulation->isSimulationStopped()||((it->getJointMode()!=sim_jointmode_dynamic)&&(!it->getHybridFunctionality_old())) )
         {
             float previousPos=it->getPosition();
-            it->setPositionIsCyclic(cyclic!=0);
-            it->setPositionIntervalMin(interval[0]);
-            it->setPositionIntervalRange(interval[1]);
+            it->setIsCyclic(cyclic!=0);
+            it->setPositionMin(interval[0]);
+            it->setPositionRange(interval[1]);
             it->setPosition(previousPos,false);
             return(1);
         }
@@ -5034,13 +5037,13 @@ simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associat
                 { // set association
                     if (doesObjectExist(__func__,associatedObjectHandle))
                     { // object does exist
-                        if (it->getObjectHandleThatScriptIsAttachedTo()==-1)
+                        if (it->getObjectHandleThatScriptIsAttachedTo(-1)==-1)
                         { // script not yet associated
                             CScriptObject* currentSimilarObj=nullptr;
                             if (it->getScriptType()==sim_scripttype_childscript)
-                                currentSimilarObj=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(associatedObjectHandle);
+                                currentSimilarObj=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,associatedObjectHandle);
                             if (it->getScriptType()==sim_scripttype_customizationscript)
-                                currentSimilarObj=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(associatedObjectHandle);
+                                currentSimilarObj=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,associatedObjectHandle);
                             if (currentSimilarObj==nullptr)
                             {
                                 it->setObjectHandleThatScriptIsAttachedTo(associatedObjectHandle);
@@ -7820,7 +7823,7 @@ simInt simSetJointMode_internal(simInt jointHandle,simInt jointMode,simInt optio
             return(-1);
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
         it->setJointMode(jointMode);
-        it->setHybridFunctionality(options&1);
+        it->setHybridFunctionality_old(options&1);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7845,7 +7848,7 @@ simInt simGetJointMode_internal(simInt jointHandle,simInt* options)
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
         int retVal=it->getJointMode();
         options[0]=0;
-        if (it->getHybridFunctionality())
+        if (it->getHybridFunctionality_old())
             options[0]|=1;
         return(retVal);
     }
@@ -8538,7 +8541,7 @@ simInt simCreateJoint_internal(simInt jointType,simInt jointMode,simInt options,
     {
         CJoint* it=new CJoint(jointType);
         it->setJointMode(jointMode);
-        it->setHybridFunctionality(options&1);
+        it->setHybridFunctionality_old(options&1);
         if (sizes!=nullptr)
         {
             it->setLength(sizes[0]);
@@ -9153,14 +9156,14 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             if (parameterID==sim_jointintparam_motor_enabled)
             {
                 parameter[0]=0;
-                if (joint->getEnableDynamicMotor())
+                if (joint->getDynCtrlMode()!=sim_jointdynctrl_free)
                     parameter[0]=1;
                 retVal=1;
             }
             if (parameterID==sim_jointintparam_ctrl_enabled)
             {
                 parameter[0]=0;
-                if (joint->getEnableDynamicMotorControlLoop())
+                if (joint->getDynCtrlMode()>=sim_jointdynctrl_position)
                     parameter[0]=1;
                 retVal=1;
             }
@@ -9172,13 +9175,18 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             if (parameterID==sim_jointintparam_velocity_lock)
             {
                 parameter[0]=0;
-                if (joint->getDynamicMotorLockModeWhenInVelocityControl())
+                if (joint->getMotorLock())
                     parameter[0]=1;
                 retVal=1;
             }
             if (parameterID==sim_jointintparam_vortex_dep_handle)
             {
                 parameter[0]=joint->getVortexDependentJointId();
+                retVal=1;
+            }
+            if (parameterID==sim_jointintparam_dynctrlmode)
+            {
+                parameter[0]=joint->getDynCtrlMode();
                 retVal=1;
             }
         }
@@ -9509,13 +9517,33 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
         if (joint!=nullptr)
         {
             if (parameterID==sim_jointintparam_motor_enabled)
-            {
-                joint->setEnableDynamicMotor(parameter!=0);
+            { // backward compat. 18.05.2022
+                int c=joint->getDynCtrlMode();
+                if (c==sim_jointdynctrl_free)
+                {
+                    if (parameter>0)
+                        joint->setDynCtrlMode(sim_jointdynctrl_velocity);
+                }
+                else
+                {
+                    if (parameter==0)
+                        joint->setDynCtrlMode(sim_jointdynctrl_free);
+                }
                 retVal=1;
             }
             if (parameterID==sim_jointintparam_ctrl_enabled)
-            {
-                joint->setEnableDynamicMotorControlLoop(parameter!=0);
+            { // backward compat. 18.05.2022
+                int c=joint->getDynCtrlMode();
+                if (c<sim_jointdynctrl_position)
+                {
+                    if (parameter>0)
+                        joint->setDynCtrlMode(sim_jointdynctrl_position);
+                }
+                else
+                {
+                    if (parameter==0)
+                        joint->setDynCtrlMode(sim_jointdynctrl_velocity);
+                }
                 retVal=1;
             }
             if (parameterID==2020)
@@ -9524,13 +9552,18 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             }
             if (parameterID==sim_jointintparam_velocity_lock)
             {
-                joint->setDynamicMotorLockModeWhenInVelocityControl(parameter!=0);
+                joint->setMotorLock(parameter!=0);
                 retVal=1;
             }
             if (parameterID==sim_jointintparam_vortex_dep_handle)
             {
                 if (joint->setEngineIntParam(sim_vortex_joint_dependentobjectid,parameter))
                     retVal=1;
+            }
+            if (parameterID==sim_jointintparam_dynctrlmode)
+            {
+                joint->setDynCtrlMode(parameter);
+                retVal=1;
             }
         }
         if (shape!=nullptr)
@@ -9759,7 +9792,7 @@ simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
             if ((parameterID==sim_jointfloatparam_pid_p)||(parameterID==sim_jointfloatparam_pid_i)||(parameterID==sim_jointfloatparam_pid_d))
             {
                 float pp,ip,dp;
-                joint->getDynamicMotorPositionControlParameters(pp,ip,dp);
+                joint->getPid(pp,ip,dp);
                 if (parameterID==sim_jointfloatparam_pid_p)
                     parameter[0]=pp;
                 if (parameterID==sim_jointfloatparam_pid_i)
@@ -9771,7 +9804,7 @@ simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
             if ((parameterID==sim_jointfloatparam_kc_k)||(parameterID==sim_jointfloatparam_kc_c))
             {
                 float kp,cp;
-                joint->getDynamicMotorSpringControlParameters(kp,cp);
+                joint->getKc(kp,cp);
                 if (parameterID==sim_jointfloatparam_kc_k)
                     parameter[0]=kp;
                 if (parameterID==sim_jointfloatparam_kc_c)
@@ -9780,7 +9813,7 @@ simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
             }
             if (parameterID==sim_jointfloatparam_ik_weight)
             {
-                parameter[0]=joint->getIKWeight();
+                parameter[0]=joint->getIKWeight_old();
                 retVal=1;
             }
             if ( (parameterID>=sim_jointfloatparam_error_x)&&(parameterID<=sim_jointfloatparam_error_g) )
@@ -9830,9 +9863,16 @@ simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
                 parameter[0]=joint->getScrewPitch();
                 retVal=1;
             }
+            if ( (parameterID>=sim_jointfloatparam_maxvel)&&(parameterID<=sim_jointfloatparam_maxjerk) )
+            {
+                float v[3];
+                joint->getMaxVelAccelJerk(v);
+                parameter[0]=v[parameterID-sim_jointfloatparam_maxvel];
+                retVal=1;
+            }
             if (parameterID==sim_jointfloatparam_step_size)
             {
-                parameter[0]=joint->getMaxStepSize();
+                parameter[0]=joint->getMaxStepSize_old();
                 retVal=1;
             }
             if ((parameterID>=sim_jointfloatparam_intrinsic_x)&&(parameterID<=sim_jointfloatparam_intrinsic_qw))
@@ -9863,7 +9903,9 @@ simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
             }
             if (parameterID==sim_jointfloatparam_upper_limit)
             {
-                parameter[0]=joint->getDynamicMotorUpperLimitVelocity();
+                float maxVelAccelJerk[3];
+                joint->getMaxVelAccelJerk(maxVelAccelJerk);
+                parameter[0]=maxVelAccelJerk[0];
                 retVal=1;
             }
         }
@@ -10206,30 +10248,30 @@ simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
             if ((parameterID==sim_jointfloatparam_pid_p)||(parameterID==sim_jointfloatparam_pid_i)||(parameterID==sim_jointfloatparam_pid_d))
             {
                 float pp,ip,dp;
-                joint->getDynamicMotorPositionControlParameters(pp,ip,dp);
+                joint->getPid(pp,ip,dp);
                 if (parameterID==sim_jointfloatparam_pid_p)
                     pp=parameter;
                 if (parameterID==sim_jointfloatparam_pid_i)
                     ip=parameter;
                 if (parameterID==sim_jointfloatparam_pid_d)
                     dp=parameter;
-                joint->setDynamicMotorPositionControlParameters(pp,ip,dp);
+                joint->setPid(pp,ip,dp);
                 retVal=1;
             }
             if ((parameterID==sim_jointfloatparam_kc_k)||(parameterID==sim_jointfloatparam_kc_c))
             {
                 float kp,cp;
-                joint->getDynamicMotorSpringControlParameters(kp,cp);
+                joint->getKc(kp,cp);
                 if (parameterID==sim_jointfloatparam_kc_k)
                     kp=parameter;
                 if (parameterID==sim_jointfloatparam_kc_c)
                     cp=parameter;
-                joint->setDynamicMotorSpringControlParameters(kp,cp);
+                joint->setKc(kp,cp);
                 retVal=1;
             }
             if (parameterID==sim_jointfloatparam_ik_weight)
             {
-                joint->setIkWeight(parameter);
+                joint->setIKWeight_old(parameter);
                 retVal=1;
             }
             if ((parameterID>=sim_jointfloatparam_spherical_qx)&&(parameterID<=sim_jointfloatparam_spherical_qw))
@@ -10255,7 +10297,10 @@ simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
             }
             if (parameterID==sim_jointfloatparam_upper_limit)
             {
-                joint->setDynamicMotorUpperLimitVelocity(parameter);
+                float maxVelAccelJerk[3];
+                joint->getMaxVelAccelJerk(maxVelAccelJerk);
+                maxVelAccelJerk[0]=parameter;
+                joint->setMaxVelAccelJerk(maxVelAccelJerk);
                 retVal=1;
             }
             if (parameterID==sim_jointfloatparam_vortex_dep_multiplication)
@@ -10273,9 +10318,17 @@ simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
                 if (joint->setScrewPitch(parameter))
                     retVal=1;
             }
+            if ( (parameterID>=sim_jointfloatparam_maxvel)&&(parameterID<=sim_jointfloatparam_maxjerk) )
+            {
+                float v[3];
+                joint->getMaxVelAccelJerk(v);
+                v[parameterID-sim_jointfloatparam_maxvel]=parameter;
+                joint->setMaxVelAccelJerk(v);
+                retVal=1;
+            }
             if (parameterID==sim_jointfloatparam_step_size)
             {
-                joint->setMaxStepSize(parameter);
+                joint->setMaxStepSize_old(parameter);
                 retVal=1;
             }
         }
@@ -10641,7 +10694,7 @@ simInt simGetScriptInt32Param_internal(simInt scriptHandle,simInt parameterID,si
         }
         if (parameterID==sim_scriptintparam_objecthandle)
         {
-            parameter[0]=it->getObjectHandleThatScriptIsAttachedTo();
+            parameter[0]=it->getObjectHandleThatScriptIsAttachedTo(-1);
             retVal=1;
         }
 
@@ -10887,7 +10940,7 @@ simInt simGetJointTargetForce_internal(simInt jointHandle,simFloat* forceOrTorqu
         if (!isJoint(__func__,jointHandle))
             return(-1);
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
-        forceOrTorque[0]=it->getDynamicMotorMaximumForce(true);
+        forceOrTorque[0]=it->getTargetForce(true);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -10908,7 +10961,7 @@ simInt simSetJointTargetForce_internal(simInt objectHandle,simFloat forceOrTorqu
         if (!isJoint(__func__,objectHandle))
             return(-1);
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        it->setDynamicMotorMaximumForce(forceOrTorque,signedValue);
+        it->setTargetForce(forceOrTorque,signedValue);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -11361,7 +11414,7 @@ simFloat* simGetVisionSensorDepth_internal(simInt sensorHandle,simInt options,co
     return(nullptr);
 }
 
-simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
+simInt simRuckigPos_internal(simInt dofs,simDouble baseCycleTime,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
 {
     TRACE_C_API;
 
@@ -11370,7 +11423,7 @@ simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal=CPluginContainer::ruckigPlugin_pos(_currentScriptHandle,dofs,smallestTimeStep,flags,currentPos,currentVel,currentAccel,maxVel,maxAccel,maxJerk,selection,targetPos,targetVel);
+        int retVal=CPluginContainer::ruckigPlugin_pos(_currentScriptHandle,dofs,baseCycleTime,flags,currentPos,currentVel,currentAccel,maxVel,maxAccel,maxJerk,selection,targetPos,targetVel);
         if (retVal==-2)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_FIND_RUCKIG);
         return(retVal);
@@ -11379,7 +11432,7 @@ simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags
     return(-1);
 }
 
-simInt simRuckigVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
+simInt simRuckigVel_internal(simInt dofs,simDouble baseCycleTime,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
 {
     TRACE_C_API;
 
@@ -11388,7 +11441,7 @@ simInt simRuckigVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal=CPluginContainer::ruckigPlugin_vel(_currentScriptHandle,dofs,smallestTimeStep,flags,currentPos,currentVel,currentAccel,maxAccel,maxJerk,selection,targetVel);
+        int retVal=CPluginContainer::ruckigPlugin_vel(_currentScriptHandle,dofs,baseCycleTime,flags,currentPos,currentVel,currentAccel,maxAccel,maxJerk,selection,targetVel);
         if (retVal==-2)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_FIND_RUCKIG);
         return(retVal);
@@ -11397,7 +11450,7 @@ simInt simRuckigVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags
     return(-1);
 }
 
-simInt simRuckigStep_internal(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2)
+simInt simRuckigStep_internal(simInt objHandle,simDouble cycleTime,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2)
 {
     TRACE_C_API;
 
@@ -11406,7 +11459,9 @@ simInt simRuckigStep_internal(simInt objHandle,simDouble timeStep,simDouble* new
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal=CPluginContainer::ruckigPlugin_step(objHandle,timeStep,newPos,newVel,newAccel,syncTime);
+        int retVal=CPluginContainer::ruckigPlugin_step(objHandle,cycleTime,newPos,newVel,newAccel,syncTime);
+        if (retVal==-3)
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_RUCKIG_CYCLETIME_ERROR);
         if (retVal==-2)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_FIND_RUCKIG);
         if (retVal==-1)
@@ -11722,8 +11777,12 @@ simInt simIsDynamicallyEnabled_internal(simInt objectHandle)
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal=0;
-        if (it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisdynamicallysimulated)
-            retVal=1;
+        if (it->getObjectType()==sim_object_joint_type)
+        {
+            CJoint* joint=(CJoint*)it;
+            if ( (joint->getJointMode()==sim_jointmode_dynamic)&&(it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisdynamicallysimulated) )
+                retVal=1; // we do not consider a joint dyn. enabled when in deprecated hybrid mode
+        }
         /*
         if (it->getObjectType()==sim_object_shape_type)
         {
@@ -13484,9 +13543,9 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
             else
                 objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
             if (scriptHandleOrType==sim_scripttype_customizationscript)
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objId);
             else
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
         }
     }
 
@@ -15631,11 +15690,11 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
                         objId=obj->getObjectHandle();
                     else
                         objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
-                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
                     if (scriptHandleOrType==sim_scripttype_customizationscript)
-                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objId);
                     else
-                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
                 }
             }
         }
@@ -16457,10 +16516,10 @@ simBool _simGetJointPositionInterval_internal(const simVoid* joint,simFloat* min
 {
     TRACE_C_API;
     if (minValue!=nullptr)
-        minValue[0]=((CJoint*)joint)->getPositionIntervalMin();
+        minValue[0]=((CJoint*)joint)->getPositionMin();
     if (rangeValue!=nullptr)
-        rangeValue[0]=((CJoint*)joint)->getPositionIntervalRange();
-    return(!((CJoint*)joint)->getPositionIsCyclic());
+        rangeValue[0]=((CJoint*)joint)->getPositionRange();
+    return(!((CJoint*)joint)->getIsCyclic());
 }
 
 const simVoid* _simGetObject_internal(int objID)
@@ -16487,52 +16546,30 @@ simInt _simGetJointType_internal(const simVoid* joint)
     return(((CJoint*)joint)->getJointType());
 }
 
-simBool _simIsDynamicMotorEnabled_internal(const simVoid* joint)
-{
-    TRACE_C_API;
-    return(((CJoint*)joint)->getEnableDynamicMotor());
-}
-
-simBool _simIsDynamicMotorPositionCtrlEnabled_internal(const simVoid* joint)
-{
-    TRACE_C_API;
-    return(((CJoint*)joint)->getEnableDynamicMotorControlLoop());
-}
-
-simVoid _simGetMotorPid_internal(const simVoid* joint,simFloat* pParam,simFloat* iParam,simFloat* dParam)
-{
-    TRACE_C_API;
-    ((CJoint*)joint)->getDynamicMotorPositionControlParameters(pParam[0],iParam[0],dParam[0]);
-}
-
 simFloat _simGetDynamicMotorTargetPosition_internal(const simVoid* joint)
 {
     TRACE_C_API;
-    return(((CJoint*)joint)->getDynamicMotorPositionControlTargetPosition());
+    return(((CJoint*)joint)->getTargetPosition());
 }
 
 simFloat _simGetDynamicMotorTargetVelocity_internal(const simVoid* joint)
 {
     TRACE_C_API;
-    return(((CJoint*)joint)->getDynamicMotorTargetVelocity());
-}
-
-simBool _simIsDynamicMotorTorqueModulationEnabled_internal(const simVoid* joint)
-{
-    TRACE_C_API;
-    return(((CJoint*)joint)->getEnableTorqueModulation());
+    return(((CJoint*)joint)->getTargetVelocity());
 }
 
 simFloat _simGetDynamicMotorMaxForce_internal(const simVoid* joint)
 {
     TRACE_C_API;
-    return(((CJoint*)joint)->getDynamicMotorMaximumForce(false));
+    return(((CJoint*)joint)->getTargetForce(false));
 }
 
 simFloat _simGetDynamicMotorUpperLimitVelocity_internal(const simVoid* joint)
 {
     TRACE_C_API;
-    return(((CJoint*)joint)->getDynamicMotorUpperLimitVelocity());
+    float maxVelAccelJerk[3];
+    ((CJoint*)joint)->getMaxVelAccelJerk(maxVelAccelJerk);
+    return(maxVelAccelJerk[0]);
 }
 
 simVoid _simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(simVoid* joint,simFloat pos)
@@ -16635,18 +16672,6 @@ const simVoid* _simGetObjectFromIndex_internal(simInt objType,simInt index)
     return(App::currentWorld->sceneObjects->getObjectFromIndex(index));
 }
 
-simInt _simGetContactCallbackCount_internal()
-{
-    TRACE_C_API;
-    return((int)allContactCallbacks.size());
-}
-
-const void* _simGetContactCallback_internal(simInt index)
-{
-    TRACE_C_API;
-    return((const void*)allContactCallbacks[index]);
-}
-
 simVoid _simSetDynamicSimulationIconCode_internal(simVoid* object,simInt code)
 {
     TRACE_C_API;
@@ -16699,7 +16724,7 @@ simInt _simGetJointMode_internal(const simVoid* joint)
 simBool _simIsJointInHybridOperation_internal(const simVoid* joint)
 {
     TRACE_C_API;
-    return(((CJoint*)joint)->getHybridFunctionality());
+    return(((CJoint*)joint)->getHybridFunctionality_old());
 }
 
 simVoid _simDisableDynamicTreeForManipulation_internal(const simVoid* object,simBool disableFlag)
@@ -16723,7 +16748,7 @@ simFloat _simGetJointPosition_internal(const simVoid* joint)
 simVoid _simSetDynamicMotorPositionControlTargetPosition_internal(const simVoid* joint,simFloat pos)
 {
     TRACE_C_API;
-    ((CJoint*)joint)->setDynamicMotorPositionControlTargetPosition(pos);
+    ((CJoint*)joint)->setTargetPosition(pos);
 }
 
 simVoid _simGetGravity_internal(simFloat* gravity)
@@ -16753,12 +16778,30 @@ simBool _simGetDistanceBetweenEntitiesIfSmaller_internal(simInt entity1ID,simInt
 simInt _simHandleJointControl_internal(const simVoid* joint,simInt auxV,const simInt* inputValuesInt,const simFloat* inputValuesFloat,simFloat* outputValues)
 {
     TRACE_C_API;
-    float outVelocity=0.0f;
-    float outForce=0.0f;
-    ((CJoint*)joint)->handleDynJointControl((auxV&1)!=0,inputValuesInt[0],inputValuesInt[1],inputValuesFloat[0],inputValuesFloat[1],inputValuesFloat[2],inputValuesFloat[3],outVelocity,outForce);
-    outputValues[0]=outVelocity;
-    outputValues[1]=outForce;
-    return(2);
+    return(((CJoint*)joint)->handleDynJoint((auxV&1)!=0,inputValuesInt[0],inputValuesInt[1],inputValuesFloat[0],inputValuesFloat[1],inputValuesFloat[2],inputValuesFloat[3],outputValues));
+}
+
+simInt _simGetJointCallbackCallOrder_internal(const simVoid* joint)
+{
+    TRACE_C_API;
+    int retVal=sim_scriptexecorder_normal;
+    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,((CJoint*)joint)->getObjectHandle());
+    if (it!=nullptr)
+        retVal=it->getExecutionPriority();
+    else
+    {
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,((CJoint*)joint)->getObjectHandle());
+        if (it!=nullptr)
+            retVal=it->getExecutionPriority();
+    }
+    return(retVal);
+}
+
+simInt _simGetJointDynCtrlMode_internal(const simVoid* joint)
+{
+    TRACE_C_API;
+    int retVal=((CJoint*)joint)->getDynCtrlMode();
+    return(retVal);
 }
 
 simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simInt engine,simInt* dataInt,simFloat* dataFloat)
@@ -16839,20 +16882,6 @@ simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simI
             }
         }
         App::worldContainer->interfaceStackContainer->destroyStack(outStack);
-    }
-
-    // 2. We check if a plugin wants to handle the contact:
-    size_t callbackCount=allContactCallbacks.size();
-    if (callbackCount!=0)
-    {
-        for (size_t i=0;i<callbackCount;i++)
-        {
-            int res=((contactCallback)allContactCallbacks[i])(objHandle1,objHandle2,engine,dataInt,dataFloat);
-            if (res==0)
-                return(0); // override... we don't wanna collide
-            if (res>0)
-                return(1); // override... we want the custom values
-        }
     }
     return(-1); // we let CoppeliaSim handle the contact
 }
@@ -17443,13 +17472,13 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
                     if (scriptName.size()>0)
                     { // new way
                         int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
-                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
                     }
                 }
                 if (scriptHandleOrType==sim_scripttype_customizationscript)
                 { // new way only possible (6 was not available in the old way)
                     int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
-                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objId);
                 }
             }
             else
@@ -17460,12 +17489,12 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
                 if (scriptHandleOrType==3) // child script
                 {
                     int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
-                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
                 }
                 if (scriptHandleOrType==5) // customization
                 {
                     int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
-                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objId);
                 }
             }
         }
@@ -17531,13 +17560,13 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
                 if (scriptName.size()>0)
                 { // new way
                     int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
-                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
                 }
             }
             if (scriptHandleOrType==sim_scripttype_customizationscript)
             { // new way only possible (6 was not available in the old way)
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objId);
             }
         }
         else
@@ -17548,12 +17577,12 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
             if (scriptHandleOrType==3) // child script
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
             }
             if (scriptHandleOrType==5) // customization
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objId);
             }
         }
     }
@@ -18591,47 +18620,14 @@ simInt simRegisterCustomLuaFunction_internal(const simChar* funcName,const simCh
 }
 
 simInt simRegisterContactCallback_internal(simInt(*callBack)(simInt,simInt,simInt,simInt*,simFloat*))
-{ // Deprecated
-    TRACE_C_API;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        for (int i=0;i<int(allContactCallbacks.size());i++)
-        {
-            if (allContactCallbacks[i]==callBack)
-            { // We unregister that callback
-                allContactCallbacks.erase(allContactCallbacks.begin()+i);
-                return(0);
-            }
-        }
-        // We register that callback:
-        allContactCallbacks.push_back(callBack);
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+{ // deprecated. Disabled on 18.05.2022
+    CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
 simInt simRegisterJointCtrlCallback_internal(simInt(*callBack)(simInt,simInt,simInt,const simInt*,const simFloat*,simFloat*))
-{ // deprecated
-    TRACE_C_API;
-
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        for (int i=0;i<int(allJointCtrlCallbacks.size());i++)
-        {
-            if (allJointCtrlCallbacks[i]==callBack)
-            { // We unregister that callback
-                allJointCtrlCallbacks.erase(allJointCtrlCallbacks.begin()+i);
-                return(0);
-            }
-        }
-        // We register that callback:
-        allJointCtrlCallbacks.push_back(callBack);
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+{ // deprecated. Disabled on 18.05.2022
+    CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
@@ -18711,9 +18707,9 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
                 else
                     objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
                 if (scriptHandleOrType==sim_scripttype_customizationscript)
-                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objId);
                 else
-                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
             }
             if (scriptHandleOrType==sim_scripttype_addonscript)
                 script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
@@ -18726,12 +18722,12 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
             if (scriptHandleOrType==3) // child script
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
             }
             if (scriptHandleOrType==5) // customization
             {
                 int objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
-                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objId);
             }
         }
     }
@@ -18799,7 +18795,7 @@ simChar* simGetScriptSimulationParameter_internal(simInt scriptHandle,const simC
         if ( (it!=nullptr)||(obj!=nullptr) )
         {
             if (obj==nullptr)
-                obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo());
+                obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo(-1));
             if (obj!=nullptr)
             {
                 CUserParameters* uso=obj->getUserScriptParameterObject();
@@ -18840,7 +18836,7 @@ simInt simSetScriptSimulationParameter_internal(simInt scriptHandle,const simCha
         if ( (it!=nullptr)||(obj!=nullptr) )
         {
             if (obj==nullptr)
-                obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo());
+                obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo(-1));
             if (obj!=nullptr)
             {
                 retVal=0;
@@ -19273,7 +19269,7 @@ simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const 
                 initSceneJointModes.push_back(aj->getJointMode());
             }
 
-            ikGroup->setAllInvolvedJointsToNewJointMode(sim_jointmode_passive);
+            ikGroup->setAllInvolvedJointsToNewJointMode(sim_jointmode_kinematic);
 
             bool ikGroupWasActive=ikGroup->getEnabled();
             if (!ikGroupWasActive)
@@ -21258,7 +21254,7 @@ simInt simGetScriptHandle_internal(const simChar* targetAtScriptName)
                 else
                     obj=App::currentWorld->sceneObjects->getObjectFromName_old(scriptName.c_str());
                 if (obj!=nullptr)
-                    it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,obj->getObjectHandle());
             }
         }
         if (targetName.compare("customization")==0)
@@ -21269,7 +21265,7 @@ simInt simGetScriptHandle_internal(const simChar* targetAtScriptName)
             else
                 obj=App::currentWorld->sceneObjects->getObjectFromName_old(scriptName.c_str());
             if (obj!=nullptr)
-                it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(obj->getObjectHandle());
+                it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,obj->getObjectHandle());
         }
         if (it==nullptr)
         {
@@ -21339,9 +21335,9 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
                     else
                         objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
                     if (scriptHandleOrType==sim_scripttype_customizationscript)
-                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objId);
                     else
-                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                        script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
                 }
             }
         }
@@ -21428,7 +21424,7 @@ simInt simGetScriptAssociatedWithObject_internal(simInt objectHandle)
     {
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
-        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objectHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objectHandle);
         if (it==nullptr)
             return(-1);
         int retVal=it->getScriptHandle();
@@ -21449,7 +21445,7 @@ simInt simGetCustomizationScriptAssociatedWithObject_internal(simInt objectHandl
     {
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
-        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objectHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objectHandle);
         if (it==nullptr)
             return(-1);
         int retVal=it->getScriptHandle();
@@ -21476,9 +21472,9 @@ simInt simGetObjectAssociatedWithScript_internal(simInt scriptHandle)
         }
         int retVal=-1;
         if (it->getScriptType()==sim_scripttype_childscript)
-                retVal=it->getObjectHandleThatScriptIsAttachedTo_child();
+                retVal=it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
         if (it->getScriptType()==sim_scripttype_customizationscript)
-                retVal=it->getObjectHandleThatScriptIsAttachedTo_customization();
+                retVal=it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customizationscript);
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -22967,7 +22963,7 @@ simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,
             return(-1);
         }
         scriptProperty[0]=it->getScriptType();
-        associatedObjectHandle[0]=it->getObjectHandleThatScriptIsAttachedTo_child();
+        associatedObjectHandle[0]=it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
         if (it->getThreadedExecution_oldThreads())
             scriptProperty[0]|=sim_scripttype_threaded_old;
         return(1);
@@ -22990,7 +22986,7 @@ simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque)
         if (!isJoint(__func__,jointHandle))
             return(-1);
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
-        forceOrTorque[0]=it->getDynamicMotorMaximumForce(false);
+        forceOrTorque[0]=it->getTargetForce(false);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -23011,7 +23007,7 @@ simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque)
         if (!isJoint(__func__,objectHandle))
             return(-1);
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        it->setDynamicMotorMaximumForce(forceOrTorque,false);
+        it->setTargetForce(forceOrTorque,false);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -23382,4 +23378,3 @@ simVoid* simSendModuleMessage_internal(simInt message,simInt* auxiliaryData,simV
     void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(message,auxiliaryData,customData,replyData);
     return(retVal);
 }
-

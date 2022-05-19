@@ -238,7 +238,7 @@ bool CPathCont_old::_getBezierPointsForVirtualDistance(double& l,int& index0,int
         }
     }
 #ifdef SIM_WITH_GUI
-    App::uiThread->messageBox_critical(App::mainWindow,IDSNOTR_APPLICATION_ERROR,IDSNOTR_STRANGE_ERROR6,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+    App::uiThread->messageBox_critical(App::mainWindow,"Application error","Strange error in '_getBezierPointsForVirtualDistance'",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
     return(false);
 }

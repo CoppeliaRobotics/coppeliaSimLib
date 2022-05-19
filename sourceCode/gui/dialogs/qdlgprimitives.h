@@ -37,13 +37,11 @@ public:
     int discSubdiv;
     bool smooth;
     bool openEnds;
-    bool pure;
     bool dynamic;
     bool sizesAreLocked;
     float density;
 
 private slots:
-    void on_qqPure_clicked();
     void on_qqXSize_editingFinished();
     void on_qqYSize_editingFinished();
     void on_qqZSize_editingFinished();

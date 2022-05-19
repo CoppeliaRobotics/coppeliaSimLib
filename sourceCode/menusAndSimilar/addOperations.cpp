@@ -810,7 +810,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
     {
         if (pure==2)
             sizes(1)=sizes(0);
-        if (sizes(1)!=sizes(0))
+        if ( (sizes(1)!=sizes(0))||((options&4)!=0) )
             pure=0;
         float xhSize=sizes(0)/2.0f;
         float yhSize=sizes(1)/2.0f;
@@ -1161,8 +1161,8 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
     bool canAddCustomizationScript=false;
     if (App::currentWorld->sceneObjects->getSelectionCount()==1)
     {
-        canAddChildScript=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))==nullptr)&&App::currentWorld->simulation->isSimulationStopped();
-        canAddCustomizationScript=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))==nullptr)&&App::currentWorld->simulation->isSimulationStopped();
+        canAddChildScript=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))==nullptr)&&App::currentWorld->simulation->isSimulationStopped();
+        canAddCustomizationScript=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))==nullptr)&&App::currentWorld->simulation->isSimulationStopped();
     }
 
     std::vector<int> rootSel;
@@ -1342,17 +1342,17 @@ CShape* CAddOperations::addPrimitive_withDialog(int command,const C3Vector* optS
         C3Vector sizes;
         int subdiv[3];
         int faceSubdiv,sides,discSubdiv;
-        bool smooth,dynamic,pure,openEnds;
+        bool smooth,dynamic,openEnds;
         float density;
-        if (App::uiThread->showPrimitiveShapeDialog(pType,optSizes,sizes,subdiv,faceSubdiv,sides,discSubdiv,smooth,openEnds,dynamic,pure,density))
+        if (App::uiThread->showPrimitiveShapeDialog(pType,optSizes,sizes,subdiv,faceSubdiv,sides,discSubdiv,smooth,openEnds,dynamic,density))
         {
             int options=0;
             if (!smooth)
                 options|=2;
             if (openEnds)
                 options|=4;
-            int p=0;
-            if (pure)
+            int p=1;
+            if (dynamic)
                 p=2;
             retVal=addPrimitiveShape(pType,sizes,options,subdiv,faceSubdiv,sides,discSubdiv,dynamic,p,density);
         }

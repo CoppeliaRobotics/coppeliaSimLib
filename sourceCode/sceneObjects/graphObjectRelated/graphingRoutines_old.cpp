@@ -487,7 +487,7 @@ void CGraphingRoutines_old::getCyclicAndRangeValues(const CGraphData_old* it,boo
         CJoint* act=App::currentWorld->sceneObjects->getJointFromHandle(it->getDataObjectID());
         if (act!=nullptr)
         {
-            if (act->getPositionIsCyclic())
+            if (act->getIsCyclic())
             {
                 cyclic=true;
                 range=0.0; // means: piValTimes2;

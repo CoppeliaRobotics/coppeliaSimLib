@@ -83,9 +83,9 @@ void CQDlgScripts::refresh()
 
             int objIdAttached=-1;
             if (theScript->getScriptType()==sim_scripttype_childscript)
-                objIdAttached=theScript->getObjectHandleThatScriptIsAttachedTo_child();
+                objIdAttached=theScript->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
             if (theScript->getScriptType()==sim_scripttype_customizationscript)
-                objIdAttached=theScript->getObjectHandleThatScriptIsAttachedTo_customization();
+                objIdAttached=theScript->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customizationscript);
         }
 
         ui->qqDisabled->setChecked(theScript->getScriptIsDisabled());

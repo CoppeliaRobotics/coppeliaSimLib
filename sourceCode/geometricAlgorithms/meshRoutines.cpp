@@ -987,7 +987,7 @@ void CMeshRoutines::createCube(std::vector<float>& vertices,std::vector<int>& in
 }
 
 void CMeshRoutines::createCapsule(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faceSubdiv)
-{
+{ // sizes[0]&sizes[1]: diameters, sizes[2]: tube length
     vertices.clear();
     indices.clear();
     float xhSize=sizes(0)/2.0f;
@@ -998,19 +998,21 @@ void CMeshRoutines::createCapsule(std::vector<float>& vertices,std::vector<int>&
     int ff=sides/2;
     float fa=piValD2_f/((float)ff);
 
+    float rhSize=std::max<float>(xhSize,yhSize);
+
     // We set up the vertices:
-    tt::addToFloatArray(&vertices,0.0f,0.0f,xhSize+zhSize);
-    tt::addToFloatArray(&vertices,0.0f,0.0f,-xhSize-zhSize);
+    tt::addToFloatArray(&vertices,0.0f,0.0f,rhSize+zhSize);
+    tt::addToFloatArray(&vertices,0.0f,0.0f,-rhSize-zhSize);
     for (int i=0;i<sides;i++)
     {
         for (int j=1;j<=ff;j++)
-            tt::addToFloatArray(&vertices,xhSize*sin(fa*j)*cos(sa*i),yhSize*sin(fa*j)*sin(sa*i),zhSize+xhSize*cos(fa*j));
+            tt::addToFloatArray(&vertices,xhSize*sin(fa*j)*cos(sa*i),yhSize*sin(fa*j)*sin(sa*i),zhSize+rhSize*cos(fa*j));
 
         for (int j=1;j<=faceSubdiv;j++)
             tt::addToFloatArray(&vertices,xhSize*cos(sa*i),yhSize*sin(sa*i),zhSize-j*sizes(2)/(faceSubdiv+1));
 
         for (int j=ff;j>0;j--)
-            tt::addToFloatArray(&vertices,xhSize*sin(fa*j)*cos(sa*i),yhSize*sin(fa*j)*sin(sa*i),-zhSize-xhSize*cos(fa*j));
+            tt::addToFloatArray(&vertices,xhSize*sin(fa*j)*cos(sa*i),yhSize*sin(fa*j)*sin(sa*i),-zhSize-rhSize*cos(fa*j));
     }
 
     int off1=2;

@@ -1858,13 +1858,13 @@ int CSceneObject::getScriptExecutionOrder(int scriptType) const
 {
     if (scriptType==sim_scripttype_customizationscript)
     {
-        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,_objectHandle);
         if (it!=nullptr)
             return(it->getExecutionPriority());
     }
     else if ((scriptType&sim_scripttype_childscript)!=0)
     {
-        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,_objectHandle);
         if (it!=nullptr)
         {
             if ( it->getThreadedExecution_oldThreads()==((scriptType&sim_scripttype_threaded_old)!=0) )
@@ -1879,10 +1879,10 @@ int CSceneObject::getScriptsToExecute(int scriptType,int parentTraversalDirectio
     int cnt=0;
     CScriptObject* attachedScript=nullptr;
     if (scriptType==sim_scripttype_customizationscript)
-        attachedScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+        attachedScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,_objectHandle);
     else if ((scriptType&sim_scripttype_childscript)!=0)
     {
-        attachedScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+        attachedScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,_objectHandle);
         if (attachedScript!=nullptr)
         {
             if ( attachedScript->getThreadedExecution_oldThreads()!=((scriptType&sim_scripttype_threaded_old)!=0) )

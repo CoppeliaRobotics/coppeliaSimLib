@@ -6,9 +6,6 @@
 #include <string>
 #include <vector>
 
-std::vector<contactCallback>& getAllContactCallbacks();
-std::vector<jointCtrlCallback>& getAllJointCtrlCallbacks();
-
 void setCurrentScriptInfo_cSide(int scriptHandle,int scriptNameIndex);
 int getCurrentScriptNameIndex_cSide();
 std::string getIndexAdjustedObjectName(const char* nm);
@@ -232,9 +229,9 @@ simFloat* simCheckVisionSensorEx_internal(simInt visionSensorHandle,simInt entit
 simUChar* simGetVisionSensorImg_internal(simInt sensorHandle,simInt options,simFloat rgbaCutOff,const simInt* pos,const simInt* size,simInt* resolution);
 simInt simSetVisionSensorImg_internal(simInt sensorHandle,const simUChar* img,simInt options,const simInt* pos,const simInt* size);
 simFloat* simGetVisionSensorDepth_internal(simInt sensorHandle,simInt options,const simInt* pos,const simInt* size,simInt* resolution);
-simInt simRuckigPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
-simInt simRuckigVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
-simInt simRuckigStep_internal(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2);
+simInt simRuckigPos_internal(simInt dofs,simDouble baseCycleTime,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
+simInt simRuckigVel_internal(simInt dofs,simDouble baseCycleTime,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
+simInt simRuckigStep_internal(simInt objHandle,simDouble cycleTime,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2);
 simInt simRuckigRemove_internal(simInt objHandle);
 simInt simCreateDummy_internal(simFloat size,const simFloat* reserved);
 simInt simGroupShapes_internal(const simInt* shapeHandles,simInt shapeCount);
@@ -361,8 +358,6 @@ simInt simModuleEntry_internal(simInt handle,const simChar* label,simInt state);
 simInt simCheckExecAuthorization_internal(const simChar* what,const simChar* args,simInt scriptHandle);
 
 
-simInt _simGetContactCallbackCount_internal();
-const void* _simGetContactCallback_internal(simInt index);
 simVoid _simSetDynamicSimulationIconCode_internal(simVoid* object,simInt code);
 simVoid _simSetDynamicObjectFlagForVisualization_internal(simVoid* object,simInt flag);
 simInt _simGetObjectListSize_internal(simInt objType);
@@ -403,10 +398,6 @@ simVoid _simGetAdditionalForceAndTorque_internal(const simVoid* shape,simFloat* 
 simVoid _simClearAdditionalForceAndTorque_internal(const simVoid* shape);
 simBool _simGetJointPositionInterval_internal(const simVoid* joint,simFloat* minValue,simFloat* rangeValue);
 simInt _simGetJointType_internal(const simVoid* joint);
-simBool _simIsDynamicMotorEnabled_internal(const simVoid* joint);
-simBool _simIsDynamicMotorPositionCtrlEnabled_internal(const simVoid* joint);
-simBool _simIsDynamicMotorTorqueModulationEnabled_internal(const simVoid* joint);
-simVoid _simGetMotorPid_internal(const simVoid* joint,simFloat* pParam,simFloat* iParam,simFloat* dParam);
 simFloat _simGetDynamicMotorTargetPosition_internal(const simVoid* joint);
 simFloat _simGetDynamicMotorTargetVelocity_internal(const simVoid* joint);
 simFloat _simGetDynamicMotorMaxForce_internal(const simVoid* joint);
@@ -434,6 +425,8 @@ simInt _simGetTimeDiffInMs_internal(simInt previousTime);
 simBool _simDoEntitiesCollide_internal(simInt entity1ID,simInt entity2ID,simInt* cacheBuffer,simBool overrideCollidableFlagIfShape1,simBool overrideCollidableFlagIfShape2,simBool pathOrMotionPlanningRoutineCalling);
 simBool _simGetDistanceBetweenEntitiesIfSmaller_internal(simInt entity1ID,simInt entity2ID,simFloat* distance,simFloat* ray,simInt* cacheBuffer,simBool overrideMeasurableFlagIfNonCollection1,simBool overrideMeasurableFlagIfNonCollection2,simBool pathPlanningRoutineCalling);
 simInt _simHandleJointControl_internal(const simVoid* joint,simInt auxV,const simInt* inputValuesInt,const simFloat* inputValuesFloat,simFloat* outputValues);
+simInt _simGetJointCallbackCallOrder_internal(const simVoid* joint);
+simInt _simGetJointDynCtrlMode_internal(const simVoid* joint);
 simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simInt engine,simInt* dataInt,simFloat* dataFloat);
 const simVoid* _simGetIkGroupObject_internal(int ikGroupID);
 simInt _simMpHandleIkGroupObject_internal(const simVoid* ikGroup);

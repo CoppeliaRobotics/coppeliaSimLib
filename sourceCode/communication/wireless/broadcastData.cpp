@@ -86,8 +86,8 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
             {
                 if (rec->getScriptType()==sim_scripttype_mainscript)
                     return(nullptr);
-                CSceneObject* recObj=App::currentWorld->sceneObjects->getObjectFromHandle(rec->getObjectHandleThatScriptIsAttachedTo_child());
-                CSceneObject* emObj=App::currentWorld->sceneObjects->getObjectFromHandle(em->getObjectHandleThatScriptIsAttachedTo_child());
+                CSceneObject* recObj=App::currentWorld->sceneObjects->getObjectFromHandle(rec->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript));
+                CSceneObject* emObj=App::currentWorld->sceneObjects->getObjectFromHandle(em->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript));
                 bool found=false;
                 while (recObj!=nullptr)
                 {
@@ -112,8 +112,8 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
             {
                 if (em->getScriptType()==sim_scripttype_mainscript)
                     return(nullptr);
-                CSceneObject* recObj=App::currentWorld->sceneObjects->getObjectFromHandle(rec->getObjectHandleThatScriptIsAttachedTo_child());
-                CSceneObject* emObj=App::currentWorld->sceneObjects->getObjectFromHandle(em->getObjectHandleThatScriptIsAttachedTo_child());
+                CSceneObject* recObj=App::currentWorld->sceneObjects->getObjectFromHandle(rec->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript));
+                CSceneObject* emObj=App::currentWorld->sceneObjects->getObjectFromHandle(em->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript));
                 bool found=false;
                 while (emObj!=nullptr)
                 {

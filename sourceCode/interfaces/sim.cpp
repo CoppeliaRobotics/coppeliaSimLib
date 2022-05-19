@@ -881,17 +881,17 @@ SIM_DLLEXPORT simFloat* simGetVisionSensorDepth(simInt sensorHandle,simInt optio
 {
     return(simGetVisionSensorDepth_internal(sensorHandle,options,pos,size,resolution));
 }
-SIM_DLLEXPORT simInt simRuckigPos(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
+SIM_DLLEXPORT simInt simRuckigPos(simInt dofs,simDouble baseCycleTime,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
 {
-    return(simRuckigPos_internal(dofs,smallestTimeStep,flags,currentPos,currentVel,currentAccel,maxVel,maxAccel,maxJerk,selection,targetPos,targetVel,reserved1,reserved2));
+    return(simRuckigPos_internal(dofs,baseCycleTime,flags,currentPos,currentVel,currentAccel,maxVel,maxAccel,maxJerk,selection,targetPos,targetVel,reserved1,reserved2));
 }
-SIM_DLLEXPORT simInt simRuckigVel(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
+SIM_DLLEXPORT simInt simRuckigVel(simInt dofs,simDouble baseCycleTime,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
 {
-    return(simRuckigVel_internal(dofs,smallestTimeStep,flags,currentPos,currentVel,currentAccel,maxAccel,maxJerk,selection,targetVel,reserved1,reserved2));
+    return(simRuckigVel_internal(dofs,baseCycleTime,flags,currentPos,currentVel,currentAccel,maxAccel,maxJerk,selection,targetVel,reserved1,reserved2));
 }
-SIM_DLLEXPORT simInt simRuckigStep(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2)
+SIM_DLLEXPORT simInt simRuckigStep(simInt objHandle,simDouble cycleTime,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2)
 {
-    return(simRuckigStep_internal(objHandle,timeStep,newPos,newVel,newAccel,syncTime,reserved1,reserved2));
+    return(simRuckigStep_internal(objHandle,cycleTime,newPos,newVel,newAccel,syncTime,reserved1,reserved2));
 }
 SIM_DLLEXPORT simInt simRuckigRemove(simInt objHandle)
 {
@@ -1383,14 +1383,6 @@ SIM_DLLEXPORT simInt simCheckExecAuthorization(const simChar* what,const simChar
 {
     return(simCheckExecAuthorization_internal(what,args,-1));
 }
-SIM_DLLEXPORT simInt _simGetContactCallbackCount()
-{
-    return(_simGetContactCallbackCount_internal());
-}
-SIM_DLLEXPORT const void* _simGetContactCallback(simInt index)
-{
-    return(_simGetContactCallback_internal(index));
-}
 SIM_DLLEXPORT simVoid _simSetDynamicSimulationIconCode(simVoid* object,simInt code)
 {
     return(_simSetDynamicSimulationIconCode_internal(object,code));
@@ -1550,22 +1542,6 @@ SIM_DLLEXPORT simBool _simGetJointPositionInterval(const simVoid* joint,simFloat
 SIM_DLLEXPORT simInt _simGetJointType(const simVoid* joint)
 {
     return(_simGetJointType_internal(joint));
-}
-SIM_DLLEXPORT simBool _simIsDynamicMotorEnabled(const simVoid* joint)
-{
-    return(_simIsDynamicMotorEnabled_internal(joint));
-}
-SIM_DLLEXPORT simBool _simIsDynamicMotorPositionCtrlEnabled(const simVoid* joint)
-{
-    return(_simIsDynamicMotorPositionCtrlEnabled_internal(joint));
-}
-SIM_DLLEXPORT simBool _simIsDynamicMotorTorqueModulationEnabled(const simVoid* joint)
-{
-    return(_simIsDynamicMotorTorqueModulationEnabled_internal(joint));
-}
-SIM_DLLEXPORT simVoid _simGetMotorPid(const simVoid* joint,simFloat* pParam,simFloat* iParam,simFloat* dParam)
-{
-    return(_simGetMotorPid_internal(joint,pParam,iParam,dParam));
 }
 SIM_DLLEXPORT simFloat _simGetDynamicMotorTargetPosition(const simVoid* joint)
 {
@@ -2049,9 +2025,13 @@ SIM_DLLEXPORT simInt simCallScriptFunction(simInt scriptHandleOrType,const simCh
 {
     return(simCallScriptFunction_internal(scriptHandleOrType,functionNameAtScriptName,data,reservedSetToNull));
 }
-SIM_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* )
+SIM_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* joint)
 {
-    return(0);
+    return(_simGetJointCallbackCallOrder_internal(joint));
+}
+SIM_DLLEXPORT simInt _simGetJointDynCtrlMode(const simVoid* joint)
+{
+    return(_simGetJointDynCtrlMode_internal(joint));
 }
 SIM_DLLEXPORT simInt simSetVisionSensorFilter(simInt visionSensorHandle,simInt filterIndex,simInt options,const simInt* pSizes,const simUChar* bytes,const simInt* ints,const simFloat* floats,const simUChar* custom)
 {
@@ -2802,6 +2782,29 @@ SIM_DLLEXPORT simVoid* simBroadcastMessage(simInt* auxiliaryData,simVoid* custom
 SIM_DLLEXPORT simVoid* simSendModuleMessage(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData)
 {
     return(simSendModuleMessage_internal(message,auxiliaryData,customData,replyData));
+}
+SIM_DLLEXPORT simBool _simIsDynamicMotorEnabled(const simVoid* joint)
+{
+    return(0);
+}
+SIM_DLLEXPORT simBool _simIsDynamicMotorPositionCtrlEnabled(const simVoid* joint)
+{
+    return(0);
+}
+SIM_DLLEXPORT simBool _simIsDynamicMotorTorqueModulationEnabled(const simVoid* joint)
+{
+    return(0);
+}
+SIM_DLLEXPORT simVoid _simGetMotorPid(const simVoid* joint,simFloat* pParam,simFloat* iParam,simFloat* dParam)
+{
+}
+SIM_DLLEXPORT simInt _simGetContactCallbackCount()
+{
+    return(0);
+}
+SIM_DLLEXPORT const void* _simGetContactCallback(simInt index)
+{
+    return(nullptr);
 }
 // Deprecated end
 

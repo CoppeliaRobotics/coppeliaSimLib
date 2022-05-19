@@ -62,7 +62,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_ILLEGAL_COLLECTION_NAME           "illegal collection name."
 #define SIM_ERROR_JOINT_SPHERICAL           "joint is spherical."
 #define SIM_ERROR_JOINT_NOT_SPHERICAL           "joint is not spherical."
-#define SIM_ERROR_JOINT_NOT_IN_FORCE_TORQUE_MODE            "joint is not in force/torque mode."
+#define SIM_ERROR_JOINT_NOT_IN_DYNAMIC_MODE            "joint is not in dynamic mode."
 #define SIM_ERROR_SIMULATION_NOT_STOPPED            "simulation is not stopped."
 #define SIM_ERROR_SIMULATION_NOT_RUNNING            "simulation is not running."
 #define SIM_ERROR_SIMULATION_NOT_REAL_TIME          "simulation is not real-time."
@@ -174,7 +174,8 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_INVALID_MODULE_INFO_TYPE "invalid module info type."
 #define SIM_ERROR_COULD_NOT_SET_PARAMETER "could not set parameter."
 #define SIM_ERROR_COULD_NOT_FIND_RUCKIG "could not find the Ruckig plugin."
-#define SIM_ERROR_RUCKIG_OBJECT_INEXISTANT "ruckig object does not exist."
+#define SIM_ERROR_RUCKIG_OBJECT_INEXISTANT "Ruckig object does not exist."
+#define SIM_ERROR_RUCKIG_CYCLETIME_ERROR "specified cycle time is not a multiple of the base cycle time."
 #define SIM_ERROR_STRING_NOT_RECOGNIZED_AS_FUNC_OR_CONST "string not recognized as function or constant."
 #define SIM_ERROR_EXEC_UNSAFE_FAILED "function was hindered to execute for your safety. You can enable its execution and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!"
 

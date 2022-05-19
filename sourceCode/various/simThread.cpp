@@ -298,7 +298,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             if (cmd.cmdId==CALL_USER_CONFIG_CALLBACK_CMD)
             {
-                CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(cmd.intParams[0]);
+                CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,cmd.intParams[0]);
                 if ( (script!=nullptr)&&(script->getContainsUserConfigCallbackFunction()) )
                 { // we have a user config callback
                     script->systemCallScript(sim_syscb_userconfig,nullptr,nullptr);
@@ -2807,7 +2807,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setPositionIsCyclic(!it->getPositionIsCyclic());
+                it->setIsCyclic(!it->getIsCyclic());
         }
         if (cmd.cmdId==SET_PITCH_JOINTGUITRIGGEREDCMD)
         {
@@ -2819,13 +2819,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setPositionIntervalMin(cmd.floatParams[0]);
+                it->setPositionMin(cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_RANGE_JOINTGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setPositionIntervalRange(cmd.floatParams[0]);
+                it->setPositionRange(cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_POS_JOINTGUITRIGGEREDCMD)
         {
@@ -2833,8 +2833,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 it->setPosition(cmd.floatParams[0],false);
-                if (it->getJointMode()==sim_jointmode_force)
-                    it->setDynamicMotorPositionControlTargetPosition(cmd.floatParams[0]);
+                it->setTargetPosition(cmd.floatParams[0]);
             }
         }
         if (cmd.cmdId==APPLY_CONFIGPARAMS_JOINTGUITRIGGEREDCMD)
@@ -2847,14 +2846,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
                     if ( (it!=nullptr)&&(last->getJointType()==it->getJointType()) )
                     {
-                        it->setPositionIsCyclic(last->getPositionIsCyclic());
-                        it->setPositionIntervalRange(last->getPositionIntervalRange());
-                        it->setPositionIntervalMin(last->getPositionIntervalMin());
+                        it->setIsCyclic(last->getIsCyclic());
+                        it->setPositionRange(last->getPositionRange());
+                        it->setPositionMin(last->getPositionMin());
                         it->setPosition(last->getPosition(),false);
                         it->setSphericalTransformation(last->getSphericalTransformation());
                         it->setScrewPitch(last->getScrewPitch());
-                        it->setIkWeight(last->getIKWeight());
-                        it->setMaxStepSize(last->getMaxStepSize());
+                        it->setIKWeight_old(last->getIKWeight_old());
+                        it->setMaxStepSize_old(last->getMaxStepSize_old());
                     }
                 }
             }
@@ -2867,12 +2866,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if ((cmd.intParams[1]&sim_jointmode_hybrid_deprecated)!=0)
                 {
                     it->setJointMode(cmd.intParams[1]-sim_jointmode_hybrid_deprecated);
-                    it->setHybridFunctionality(true);
+                    it->setHybridFunctionality_old(true);
                 }
                 else
                 {
                     it->setJointMode(cmd.intParams[1]);
-                    it->setHybridFunctionality(false);
+                    it->setHybridFunctionality_old(false);
                 }
             }
         }
@@ -2887,7 +2886,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     if ( (it!=nullptr)&&(last->getJointType()==it->getJointType()) )
                     {
                         it->setJointMode(last->getJointMode());
-                        it->setHybridFunctionality(last->getHybridFunctionality());
+                        it->setHybridFunctionality_old(last->getHybridFunctionality_old());
                     }
                 }
             }
@@ -2922,59 +2921,45 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
                 it->setDiameter(cmd.floatParams[0]);
         }
-
-
-
-        if (cmd.cmdId==TOGGLE_MOTORENABLED_JOINTDYNGUITRIGGEREDCMD)
-        {
-            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                if (it->getJointMode()==sim_jointmode_force)
-                    it->setEnableDynamicMotor(!it->getEnableDynamicMotor());
-            }
-        }
         if (cmd.cmdId==SET_TARGETVELOCITY_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-            {
-                if ( (it->getJointMode()==sim_jointmode_force)||it->getHybridFunctionality() )
-                    it->setDynamicMotorTargetVelocity(cmd.floatParams[0]);
-            }
+                it->setTargetVelocity(cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_MAXFORCE_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDynamicMotorMaximumForce(cmd.floatParams[0],true);
+                it->setTargetForce(cmd.floatParams[0],true);
         }
-        if (cmd.cmdId==APPLY_MOTORPARAMS_JOINTDYNGUITRIGGEREDCMD)
+        if (cmd.cmdId==APPLY_PARAMS_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* last=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
-            if ( (last!=nullptr)&&((last->getJointMode()==sim_jointmode_force)||last->getHybridFunctionality()) )
+            if ( (last!=nullptr)&&((last->getJointMode()==sim_jointmode_dynamic)||last->getHybridFunctionality_old()) )
             {
                 for (size_t i=1;i<cmd.intParams.size();i++)
                 {
                     CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
-                    if ( (it!=nullptr)&&(last->getJointType()==it->getJointType())&&((it->getJointMode()==last->getJointMode())||(last->getHybridFunctionality()&&it->getHybridFunctionality())) )
+                    if ( (it!=nullptr)&&(last->getJointType()==it->getJointType())&&((it->getJointMode()==last->getJointMode())||(last->getHybridFunctionality_old()&&it->getHybridFunctionality_old())) )
                     {
-                        it->setEnableDynamicMotor(last->getEnableDynamicMotor());
-                        it->setDynamicMotorTargetVelocity(last->getDynamicMotorTargetVelocity());
-                        it->setDynamicMotorLockModeWhenInVelocityControl(last->getDynamicMotorLockModeWhenInVelocityControl());
-                        it->setDynamicMotorMaximumForce(last->getDynamicMotorMaximumForce(false),false);
+                        it->setDynCtrlMode(last->getDynCtrlMode());
+                        it->setTargetForce(last->getTargetForce(false),false);
+                        it->setTargetVelocity(last->getTargetVelocity());
+                        it->setMotorLock(last->getMotorLock());
+                        it->setTargetPosition(last->getTargetPosition());
+                        float maxVelAccelJerk[3];
+                        last->getMaxVelAccelJerk(maxVelAccelJerk);
+                        it->setMaxVelAccelJerk(maxVelAccelJerk);
+                        float pp,ip,dp;
+                        last->getPid(pp,ip,dp);
+                        it->setPid(pp,ip,dp);
+                        float kp,cp;
+                        last->getKc(kp,cp);
+                        it->setKc(kp,cp);
                         last->copyEnginePropertiesTo(it);
                     }
                 }
-            }
-        }
-        if (cmd.cmdId==TOGGLE_CTRLLOOP_JOINTDYNGUITRIGGEREDCMD)
-        {
-            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                if ( (it->getJointMode()==sim_jointmode_force)&&it->getEnableDynamicMotor())
-                    it->setEnableDynamicMotorControlLoop(!it->getEnableDynamicMotorControlLoop());
             }
         }
         if (cmd.cmdId==SET_UPPERVELLIMIT_JOINTDYNGUITRIGGEREDCMD)
@@ -2982,75 +2967,41 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                if ( ((it->getJointMode()==sim_jointmode_force)&&it->getEnableDynamicMotor()&&it->getEnableDynamicMotorControlLoop())||it->getHybridFunctionality())
-                    it->setDynamicMotorUpperLimitVelocity(cmd.floatParams[0]);
+                float maxVelAccelJerk[3];
+                it->getMaxVelAccelJerk(maxVelAccelJerk);
+                maxVelAccelJerk[0]=cmd.floatParams[0];
+                it->setMaxVelAccelJerk(maxVelAccelJerk);
             }
         }
         if (cmd.cmdId==SET_TARGETPOSITION_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-            {
-                if ( (it->getJointMode()==sim_jointmode_force)&&it->getEnableDynamicMotor()&&it->getEnableDynamicMotorControlLoop())
-                    it->setDynamicMotorPositionControlTargetPosition(cmd.floatParams[0]);
-            }
+                it->setTargetPosition(cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_PIDVALUES_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-            {
-                if ( ((it->getJointMode()==sim_jointmode_force)&&it->getEnableDynamicMotor()&&it->getEnableDynamicMotorControlLoop())||it->getHybridFunctionality())
-                    it->setDynamicMotorPositionControlParameters(cmd.floatParams[0],cmd.floatParams[1],cmd.floatParams[2]);
-            }
-        }
-        if (cmd.cmdId==APPLY_CTRLPARAMS_JOINTDYNGUITRIGGEREDCMD)
-        {
-            CJoint* last=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
-            if ( (last!=nullptr)&&((last->getJointMode()==sim_jointmode_force)||last->getHybridFunctionality()) )
-            {
-                for (size_t i=1;i<cmd.intParams.size();i++)
-                {
-                    CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
-                    if ( (it!=nullptr)&&((it->getJointMode()==last->getJointMode())||(last->getHybridFunctionality()&&it->getHybridFunctionality())) )
-                    { // only when the two joints are in the same mode, or when both are in hybrid operation
-                        it->setEnableDynamicMotorControlLoop(last->getEnableDynamicMotorControlLoop());
-                        it->setDynamicMotorUpperLimitVelocity(last->getDynamicMotorUpperLimitVelocity());
-                        it->setEnableTorqueModulation(last->getEnableTorqueModulation());
-                        float pp,ip,dp;
-                        last->getDynamicMotorPositionControlParameters(pp,ip,dp);
-                        it->setDynamicMotorPositionControlParameters(pp,ip,dp);
-                        float kp,cp;
-                        last->getDynamicMotorSpringControlParameters(kp,cp);
-                        it->setDynamicMotorSpringControlParameters(kp,cp);
-                        it->setDynamicMotorPositionControlTargetPosition(last->getDynamicMotorPositionControlTargetPosition());
-                    }
-                }
-            }
-        }
-        if (cmd.cmdId==SELECT_PIDCTRL_JOINTDYNGUITRIGGEREDCMD)
-        {
-            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->setEnableTorqueModulation(false);
-        }
-        if (cmd.cmdId==SELECT_SPRINGDAMPERCTRL_JOINTDYNGUITRIGGEREDCMD)
-        {
-            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->setEnableTorqueModulation(true);
+                it->setPid(cmd.floatParams[0],cmd.floatParams[1],cmd.floatParams[2]);
         }
         if (cmd.cmdId==SET_KCVALUES_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDynamicMotorSpringControlParameters(cmd.floatParams[0],cmd.floatParams[1]);
+                it->setKc(cmd.floatParams[0],cmd.floatParams[1]);
+        }
+        if (cmd.cmdId==SET_JOINTCTRLMODE_JOINTDYNGUITRIGGEREDCMD)
+        {
+            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+            if (it!=nullptr)
+                it->setDynCtrlMode(cmd.intParams[1]);
         }
         if (cmd.cmdId==TOGGLE_LOCKMOTOR_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDynamicMotorLockModeWhenInVelocityControl(!it->getDynamicMotorLockModeWhenInVelocityControl());
+                it->setMotorLock(!it->getMotorLock());
         }
         if (cmd.cmdId==SET_ALLENGINEPARAMS_JOINTDYNGUITRIGGEREDCMD)
         {

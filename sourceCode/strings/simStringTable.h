@@ -341,9 +341,9 @@
 #define IDSN_CURVE_WAS_DUPLICATED_TO_STATIC "Curve was duplicated to a static curve."
 
 // Joint functionality:
-#define IDSN_JOINT_IS_IN_PASSIVE_MODE "Passive mode"
+#define IDSN_JOINT_IS_IN_KINEMATIC_MODE "Kinematic mode"
 #define IDSN_JOINT_IS_IN_DEPENDENT_MODE "Dependent mode"
-#define IDSN_JOINT_IS_IN_TORQUE_FORCE_MODE "Torque/force mode"
+#define IDSN_JOINT_IS_IN_DYNAMIC_MODE "Dynamic mode"
 #define IDSN_JOINT_IS_IN_HYBRID_PASSIVE_MODE "Hybrid passive mode (deprecated)"
 #define IDSN_JOINT_IS_IN_IK_MODE "IK mode (deprecated)"
 #define IDSN_JOINT_IS_IN_HYBRID_IK_MODE "Hybrid IK mode (deprecated)"
@@ -928,14 +928,13 @@
 #define IDS_SHAPE_IS_STATIC_AND_NON_RESPONDABLE "Shape is static and non-respondable."
 #define IDS_SHAPE_IS_NON_STATIC_AND_RESPONDABLE "Shape is non-static and respondable."
 #define IDS_SHAPE_IS_NON_STATIC_AND_NON_RESPONDABLE "Shape is non-static and non-respondable."
-#define IDS_JOINT_OPERATES_IN_FORCE_TORQUE_MODE "Joint operates in force/torque mode"
+#define IDS_JOINT_OPERATES_IN_DYNAMIC_MODE "Joint operates in dynamic mode"
 #define IDS_JOINT_OPERATES_IN_HYBRID_FASHION "Joint operates in hybrid fashion"
 #define IDS_FORCE_SENSOR_IS_BREAKABLE "Force sensor is breakable."
 #define IDS_FORCE_SENSOR_IS_NOT_BREAKABLE "Force sensor is not breakable."
 
-#define IDS__CONTROL_LOOP_ENABLED_  "(motor enabled, control loop enabled)"
 #define IDS__MOTOR_DISABLED_ "(motor disabled)"
-#define IDS__CONTROL_LOOP_DISABLED_ "(motor enabled, control loop disabled)"
+#define IDS__MOTOR_ENABLED_ "(motor enabled)"
 
 #define IDS_READING_NEWER_SERIALIZATION_FILE_WARNING "The file you are about to read was created with a newer version of CoppeliaSim. Some functionality might not be available or not working properly."
 #define IDS_MAKING_NON_PURE_CONCAVE_SHAPE_RESPONDABLE_WARNING "The shape you made respondable is not a pure shape, nor a convex shape. It is a random non-convex shape that will perform much worse than pure shapes or convex shapes. Additionally, calculations with non-pure non-convex respondable shapes are much more time-consuming. For collision response calculations, it is recomended to use pure shapes whenever possible, or if that is not possible, convex shapes."

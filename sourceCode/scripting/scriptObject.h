@@ -67,9 +67,7 @@ public:
     bool announceSceneObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     int flagScriptForRemoval();
     void setObjectHandleThatScriptIsAttachedTo(int newObjectHandle);
-    int getObjectHandleThatScriptIsAttachedTo() const;
-    int getObjectHandleThatScriptIsAttachedTo_child() const; // for child scripts
-    int getObjectHandleThatScriptIsAttachedTo_customization() const; // for customization scripts
+    int getObjectHandleThatScriptIsAttachedTo(int scriptTypeToConsider) const;
 
     void setScriptText(const char* scriptTxt);
     bool setScriptTextFromFile(const char* filename);

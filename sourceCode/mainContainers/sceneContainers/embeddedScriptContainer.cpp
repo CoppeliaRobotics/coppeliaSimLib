@@ -226,39 +226,34 @@ int CEmbeddedScriptContainer::getObjectHandleFromScriptHandle(int scriptHandle) 
 {
     CScriptObject* script=getScriptFromHandle(scriptHandle);
     if (script!=nullptr)
-        return(script->getObjectHandleThatScriptIsAttachedTo());
+        return(script->getObjectHandleThatScriptIsAttachedTo(-1));
     return(-1);
 }
 
-CScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo_child(int objectHandle) const
-{ // used for child scripts
-    if (objectHandle<0)
-        return(nullptr); // 10/1/2016
-    for (size_t i=0;i<allScripts.size();i++)
+CScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo(int scriptType,int objectHandle) const
+{
+    CScriptObject* retVal=nullptr;
+    if (objectHandle>=0)
     {
-        if (allScripts[i]->getObjectHandleThatScriptIsAttachedTo_child()==objectHandle)
-            return(allScripts[i]);
+        for (size_t i=0;i<allScripts.size();i++)
+        {
+            if (allScripts[i]->getObjectHandleThatScriptIsAttachedTo(scriptType)==objectHandle)
+            {
+                retVal=allScripts[i];
+                break;
+            }
+        }
     }
-    return(nullptr);
-}
-
-CScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo_customization(int objectHandle) const
-{ // used for customization scripts
-    for (size_t i=0;i<allScripts.size();i++)
-    {
-        if (allScripts[i]->getObjectHandleThatScriptIsAttachedTo_customization()==objectHandle)
-            return(allScripts[i]);
-    }
-    return(nullptr);
+    return(retVal);
 }
 
 int CEmbeddedScriptContainer::getScriptsFromObjectAttachedTo(int objectHandle,std::vector<CScriptObject*>& scripts) const
 {
     scripts.clear();
-    CScriptObject* it=getScriptFromObjectAttachedTo_child(objectHandle);
+    CScriptObject* it=getScriptFromObjectAttachedTo(sim_scripttype_childscript,objectHandle);
     if (it!=nullptr)
         scripts.push_back(it);
-    it=getScriptFromObjectAttachedTo_customization(objectHandle);
+    it=getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objectHandle);
     if (it!=nullptr)
         scripts.push_back(it);
     return(int(scripts.size()));
@@ -406,7 +401,7 @@ void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved_old(int modelBase)
         {
             obj=toExplore[toExplore.size()-1];
             toExplore.pop_back();
-            CScriptObject* it=getScriptFromObjectAttachedTo_customization(obj->getObjectHandle());
+            CScriptObject* it=getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,obj->getObjectHandle());
             if (it!=nullptr)
             {
                 if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
@@ -557,6 +552,32 @@ int CEmbeddedScriptContainer::handleCascadedScriptExecution(int scriptType,int c
         }
     }
     return(cnt);
+}
+
+void CEmbeddedScriptContainer::handleCascadedJointMotionExecution()
+{
+    std::vector<CSceneObject*> allObjects;
+    App::currentWorld->sceneObjects->getObjects_hierarchyOrder(allObjects);
+    std::vector<CJoint*> joints;
+    for (int i=allObjects.size()-1;i>=0;i--)
+    { // from leaf to root
+        if (allObjects[size_t(i)]->getObjectType()==sim_object_joint_type)
+        {
+            CJoint* joint=(CJoint*)allObjects[size_t(i)];
+            if (!joint->handleMotion(sim_scripttype_childscript))
+                joints.push_back(joint);
+        }
+    }
+    for (size_t i=0;i<joints.size();i++)
+    {
+        if (joints[i]->handleMotion(sim_scripttype_customizationscript))
+            joints[i]=nullptr;
+    }
+    for (size_t i=0;i<joints.size();i++)
+    {
+        if (joints[i]!=nullptr)
+            joints[i]->handleMotion(-1);
+    }
 }
 
 bool CEmbeddedScriptContainer::addCommandToOutsideCommandQueues(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count)

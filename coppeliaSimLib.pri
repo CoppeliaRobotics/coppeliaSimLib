@@ -485,7 +485,6 @@ HEADERS += $$PWD/sourceCode/serialization/ser.h \
 
 HEADERS += $$PWD/sourceCode/strings/simStringTable.h \
     $$PWD/sourceCode/strings/simStringTable_openGl.h \
-    $$PWD/sourceCode/strings/simStringTable_noTranslation.h \
 
 HEADERS += $$PWD/sourceCode/interfaces/sim.h \
     $$PWD/sourceCode/interfaces/simInternal.h \

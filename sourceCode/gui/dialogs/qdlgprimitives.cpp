@@ -56,7 +56,6 @@ void CQDlgPrimitives::initialize(int type,const C3Vector* sizes)
     discSubdiv=0;
     smooth=true;
     openEnds=false;
-    pure=true;
     dynamic=( (type!=sim_primitiveshape_plane)&&(type!=sim_primitiveshape_disc)&&(type!=sim_primitiveshape_cone) );
     density=1000.0f;
     primitiveType=type;
@@ -69,8 +68,7 @@ void CQDlgPrimitives::initialize(int type,const C3Vector* sizes)
 void CQDlgPrimitives::refresh()
 {
     ui->qqDynamic->setChecked(dynamic);
-    ui->qqPure->setChecked(pure);
-    ui->qqDensity->setEnabled(pure);
+    ui->qqDensity->setEnabled(dynamic);
     ui->qqDensity->setText(tt::getFString(false,density,1).c_str());
 
     ui->qqXSize->setText(tt::getEString(false,xSize,4).c_str());
@@ -148,9 +146,8 @@ void CQDlgPrimitives::refresh()
 
         ui->qqXSize->setEnabled(!sizesAreLocked);
 
-        // Remove (!pure) in following 2 lines if pure spheroids are allowed;
-        ui->qqYSize->setEnabled((!pure)&&(!sizesAreLocked));
-        ui->qqZSize->setEnabled((!pure)&&(!sizesAreLocked));
+        ui->qqYSize->setEnabled((!dynamic)&&(!sizesAreLocked));
+        ui->qqZSize->setEnabled((!dynamic)&&(!sizesAreLocked));
 
         ui->qqXSubdiv->setEnabled(false);
         ui->qqYSubdiv->setEnabled(false);
@@ -183,7 +180,7 @@ void CQDlgPrimitives::refresh()
         setWindowTitle(IDSN_PRIMITIVE_CYLINDER);
 
         ui->qqXSize->setEnabled(!sizesAreLocked);
-        ui->qqYSize->setEnabled((!pure)&&(!sizesAreLocked));
+        ui->qqYSize->setEnabled((!dynamic)&&(!sizesAreLocked));
         ui->qqZSize->setEnabled(!sizesAreLocked);
 
         ui->qqXSubdiv->setEnabled(false);
@@ -205,7 +202,7 @@ void CQDlgPrimitives::refresh()
         ui->qqSmooth->setEnabled(true);
         ui->qqSmooth->setChecked(smooth);
 
-        ui->qqOpen->setEnabled(!pure);
+        ui->qqOpen->setEnabled(!dynamic);
         ui->qqOpen->setChecked(openEnds);
 
         ui->qqDiscSubdiv->setEnabled(true);
@@ -216,7 +213,7 @@ void CQDlgPrimitives::refresh()
         setWindowTitle(IDSN_PRIMITIVE_CONE);
 
         ui->qqXSize->setEnabled(!sizesAreLocked);
-        ui->qqYSize->setEnabled((!pure)&&(!sizesAreLocked));
+        ui->qqYSize->setEnabled((!dynamic)&&(!sizesAreLocked));
         ui->qqZSize->setEnabled(!sizesAreLocked);
 
         ui->qqXSubdiv->setEnabled(false);
@@ -238,7 +235,7 @@ void CQDlgPrimitives::refresh()
         ui->qqSmooth->setEnabled(true);
         ui->qqSmooth->setChecked(smooth);
 
-        ui->qqOpen->setEnabled(!pure);
+        ui->qqOpen->setEnabled(!dynamic);
         ui->qqOpen->setChecked(openEnds);
 
         ui->qqDiscSubdiv->setEnabled(false);
@@ -249,7 +246,7 @@ void CQDlgPrimitives::refresh()
         setWindowTitle(IDSN_PRIMITIVE_DISC);
 
         ui->qqXSize->setEnabled(!sizesAreLocked);
-        ui->qqYSize->setEnabled((!pure)&&(!sizesAreLocked));
+        ui->qqYSize->setEnabled((!dynamic)&&(!sizesAreLocked));
         ui->qqZSize->setEnabled(false);
 
         ui->qqXSubdiv->setEnabled(false);
@@ -282,7 +279,7 @@ void CQDlgPrimitives::refresh()
         setWindowTitle(IDSN_PRIMITIVE_CAPSULE);
 
         ui->qqXSize->setEnabled(!sizesAreLocked);
-        ui->qqYSize->setEnabled((!pure)&&(!sizesAreLocked));
+        ui->qqYSize->setEnabled((!dynamic)&&(!sizesAreLocked));
         ui->qqZSize->setEnabled(!sizesAreLocked);
 
         ui->qqXSubdiv->setEnabled(false);
@@ -316,15 +313,13 @@ void CQDlgPrimitives::refresh()
 void CQDlgPrimitives::on_qqDynamic_clicked()
 {
     dynamic=!dynamic;
-    refresh();
-}
-
-void CQDlgPrimitives::on_qqPure_clicked()
-{
-    pure=!pure;
     _correctDependentValues();
-    if ( pure&&(sides<32) )
-        App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_PURE_SHAPES_HAVE_LOW_POLYCOUNT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+    if (dynamic)
+    {
+        openEnds=false;
+        if (sides<32)
+            App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_PURE_SHAPES_HAVE_LOW_POLYCOUNT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+    }
 
     refresh();
 }
@@ -444,7 +439,7 @@ void CQDlgPrimitives::on_qqSides_editingFinished()
     if (ok)
     {
         tt::limitValue(3,100,newVal);
-        if (pure&&(newVal<32)&&(newVal<sides))
+        if ( dynamic&&(newVal<32)&&(newVal<sides) )
             App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_PURE_SHAPES_HAVE_LOW_POLYCOUNT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         sides=newVal;
         _correctDependentValues();
@@ -496,7 +491,7 @@ void CQDlgPrimitives::on_qqOpen_clicked()
 {
     openEnds=!openEnds;
     if (openEnds)
-        pure=false;
+        dynamic=false;
     _correctDependentValues();
     refresh();
 }
@@ -513,11 +508,10 @@ void CQDlgPrimitives::on_qqOkCancel_rejected()
 
 void CQDlgPrimitives::_correctDependentValues()
 {
-    if (pure)
+    if (dynamic)
     {
         if (primitiveType==sim_primitiveshape_spheroid)
         {
-            // Comment out following if pure spheroids are allowed;
             ySize=xSize;
             zSize=xSize;
         }

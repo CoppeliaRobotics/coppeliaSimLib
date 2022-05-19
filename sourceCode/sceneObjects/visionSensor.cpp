@@ -2223,10 +2223,10 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         }
     }
 
-    CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+    CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,_objectHandle);
     if ( (script!=nullptr)&&(!script->getContainsVisionCallbackFunction()) )
         script=nullptr;
-    CScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+    CScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,_objectHandle);
     if ( (cScript!=nullptr)&&(!cScript->getContainsVisionCallbackFunction()) )
         cScript=nullptr;
     if ( (script!=nullptr)||(cScript!=nullptr) )

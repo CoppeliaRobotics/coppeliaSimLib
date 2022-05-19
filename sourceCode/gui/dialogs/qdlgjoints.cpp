@@ -47,7 +47,7 @@ void CQDlgJoints::refresh()
         revolute=(it->getJointType()==sim_joint_revolute_subtype);
         prismatic=(it->getJointType()==sim_joint_prismatic_subtype);
         spherical=(it->getJointType()==sim_joint_spherical_subtype);
-        dynamic=((it->getJointMode()==sim_jointmode_force)||it->getHybridFunctionality() );
+        dynamic=((it->getJointMode()==sim_jointmode_dynamic)||it->getHybridFunctionality_old() );
     }
 
     if (sel&&prismatic)
@@ -64,12 +64,12 @@ void CQDlgJoints::refresh()
     }
 
     ui->qqCyclic->setEnabled(sel&&revolute&&noEditModeNoSim);
-    ui->qqPitch->setEnabled(sel&&revolute&&noEditModeNoSim&&(!dynamic)&&(!it->getPositionIsCyclic()));
-    ui->qqMinimum->setEnabled(sel&&(!spherical)&&(!it->getPositionIsCyclic())&&noEditModeNoSim);
+    ui->qqPitch->setEnabled(sel&&revolute&&noEditModeNoSim&&(!dynamic)&&(!it->getIsCyclic()));
+    ui->qqMinimum->setEnabled(sel&&(!spherical)&&(!it->getIsCyclic())&&noEditModeNoSim);
     if (spherical)
         ui->qqRange->setEnabled(sel&&(!dynamic)&&noEditModeNoSim);
     else
-        ui->qqRange->setEnabled(sel&&(!it->getPositionIsCyclic())&&noEditModeNoSim);
+        ui->qqRange->setEnabled(sel&&(!it->getIsCyclic())&&noEditModeNoSim);
     ui->qqPosition->setEnabled(sel&&(!spherical));
     ui->qqApplyConfig->setEnabled(sel&&bigSel&&noEditModeNoSim);
 
@@ -86,22 +86,22 @@ void CQDlgJoints::refresh()
     ui->qqAdjustColorA->setEnabled(sel&&noEditModeNoSim);
     ui->qqApplyAppearance->setEnabled(sel&&bigSel&&noEditModeNoSim);
 
-    ui->qqCyclic->setChecked(sel&&revolute&&it->getPositionIsCyclic());
+    ui->qqCyclic->setChecked(sel&&revolute&&it->getIsCyclic());
 
     if (sel)
     {
         if (revolute)
         {
             ui->qqPitch->setText(tt::getEString(true,it->getScrewPitch()*degToRad_f,2).c_str());
-            if (it->getPositionIsCyclic())
+            if (it->getIsCyclic())
             {
                 ui->qqMinimum->setText("");
                 ui->qqRange->setText("");
             }
             else
             {
-                ui->qqMinimum->setText(tt::getAngleEString(true,it->getPositionIntervalMin(),3).c_str());
-                ui->qqRange->setText(tt::getAngleEString(false,it->getPositionIntervalRange(),3).c_str());
+                ui->qqMinimum->setText(tt::getAngleEString(true,it->getPositionMin(),3).c_str());
+                ui->qqRange->setText(tt::getAngleEString(false,it->getPositionRange(),3).c_str());
             }
             ui->qqPosition->setText(tt::getAngleEString(true,it->getPosition(),3).c_str());
         }
@@ -110,8 +110,8 @@ void CQDlgJoints::refresh()
 
         if (prismatic)
         {
-            ui->qqMinimum->setText(tt::getEString(true,it->getPositionIntervalMin(),3).c_str());
-            ui->qqRange->setText(tt::getEString(false,it->getPositionIntervalRange(),3).c_str());
+            ui->qqMinimum->setText(tt::getEString(true,it->getPositionMin(),3).c_str());
+            ui->qqRange->setText(tt::getEString(false,it->getPositionRange(),3).c_str());
             ui->qqPosition->setText(tt::getEString(true,it->getPosition(),3).c_str());
         }
 
@@ -122,7 +122,7 @@ void CQDlgJoints::refresh()
             if (dynamic)
                 ui->qqRange->setText("");
             else
-                ui->qqRange->setText(tt::getAngleEString(false,it->getPositionIntervalRange(),3).c_str());
+                ui->qqRange->setText(tt::getAngleEString(false,it->getPositionRange(),3).c_str());
             ui->qqPosition->setText("");
             C3Vector euler(it->getSphericalTransformation().getEulerAngles());
             ui->qqLength->setText("");
@@ -134,14 +134,14 @@ void CQDlgJoints::refresh()
 
         ui->qqDiameter->setText(tt::getFString(false,it->getDiameter(),3).c_str());
 
-        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_PASSIVE_MODE,QVariant(sim_jointmode_passive));
-        if ( ( (it->getJointMode()==sim_jointmode_passive)&&(it->getHybridFunctionality()) )||App::userSettings->showOldDlgs )
-            ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_PASSIVE_MODE,QVariant(sim_jointmode_passive|sim_jointmode_hybrid_deprecated));
+        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_KINEMATIC_MODE,QVariant(sim_jointmode_kinematic));
+        if ( ( (it->getJointMode()==sim_jointmode_kinematic)&&(it->getHybridFunctionality_old()) )||App::userSettings->showOldDlgs )
+            ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_PASSIVE_MODE,QVariant(sim_jointmode_kinematic|sim_jointmode_hybrid_deprecated));
 
         if (!spherical)
         {
             ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_DEPENDENT_MODE,QVariant(sim_jointmode_dependent));
-            if ( ( (it->getJointMode()==sim_jointmode_dependent)&&(it->getHybridFunctionality()) )||App::userSettings->showOldDlgs )
+            if ( ( (it->getJointMode()==sim_jointmode_dependent)&&(it->getHybridFunctionality_old()) )||App::userSettings->showOldDlgs )
                 ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_DEPENDENT_MODE,QVariant(sim_jointmode_dependent|sim_jointmode_hybrid_deprecated));
         }
 
@@ -154,36 +154,36 @@ void CQDlgJoints::refresh()
             }
             else
             {
-                if (it->getHybridFunctionality())
+                if (it->getHybridFunctionality_old())
                     ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_IK_MODE,QVariant(sim_jointmode_ik_deprecated|sim_jointmode_hybrid_deprecated));
                 else
                     ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_IK_MODE,QVariant(sim_jointmode_ik_deprecated));
             }
         }
 
-        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_TORQUE_FORCE_MODE,QVariant(sim_jointmode_force));
+        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_DYNAMIC_MODE,QVariant(sim_jointmode_dynamic));
 
         if ( (!spherical)&&(it->getJointMode()==sim_jointmode_motion_deprecated) )
         {
-            if (it->getHybridFunctionality())
+            if (it->getHybridFunctionality_old())
                 ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_HYBRID_MOTION_MODE,QVariant(sim_jointmode_motion_deprecated|sim_jointmode_hybrid_deprecated));
             else
                 ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_MOTION_MODE,QVariant(sim_jointmode_motion_deprecated));
         }
 /*
-        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_PASSIVE_MODE,QVariant(sim_jointmode_passive));
+        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_KINEMATIC_MODE,QVariant(sim_jointmode_kinematic));
         ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_IK_MODE,QVariant(sim_jointmode_ik_deprecated));
         if (!spherical)
         {
             ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_DEPENDENT_MODE,QVariant(sim_jointmode_dependent));
             ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_MOTION_MODE,QVariant(sim_jointmode_motion_deprecated));
         }
-        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_TORQUE_FORCE_MODE,QVariant(sim_jointmode_force));
+        ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_DYNAMIC_MODE,QVariant(sim_jointmode_dynamic));
         */
         for (int i=0;i<ui->qqJointModeCombo->count();i++)
         {
             int val=0;
-            if (it->getHybridFunctionality())
+            if (it->getHybridFunctionality_old())
                 val=sim_jointmode_hybrid_deprecated;
             if (ui->qqJointModeCombo->itemData(i).toInt()==(it->getJointMode()|val))
             {

@@ -115,9 +115,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setObjectOrientation",_simSetObjectOrientation,        "sim.setObjectOrientation(int objectHandle,int relativeToObjectHandle,float[3] eulerAngles)",true},
     {"sim.getJointPosition",_simGetJointPosition,                "float position=sim.getJointPosition(int objectHandle)",true},
     {"sim.setJointPosition",_simSetJointPosition,                "sim.setJointPosition(int objectHandle,float position)",true},
-    {"sim.setJointTargetPosition",_simSetJointTargetPosition,    "sim.setJointTargetPosition(int objectHandle,float targetPosition)",true},
+    {"sim.setJointTargetPosition",_simSetJointTargetPosition,    "sim.setJointTargetPosition(int objectHandle,float targetPosition,float[3] maxVelAccelJerk={})",true},
     {"sim.getJointTargetPosition",_simGetJointTargetPosition,    "float targetPosition=sim.getJointTargetPosition(int objectHandle)",true},
-    {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "sim.setJointTargetVelocity(int objectHandle,float targetVelocity)",true},
+    {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "sim.setJointTargetVelocity(int objectHandle,float targetVelocity,float[2] maxAccelJerk={},float initVelocity=nil)",true},
     {"sim.getJointTargetVelocity",_simGetJointTargetVelocity,    "float targetVelocity=sim.getJointTargetVelocity(int objectHandle)",true},
     {"sim.removeObjects",_simRemoveObjects,                      "sim.removeObjects(int[1..*] objectHandles)",true},
     {"sim.removeModel",_simRemoveModel,                          "int objectCount=sim.removeModel(int objectHandle)",true},
@@ -350,9 +350,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getVisionSensorDepth",_simGetVisionSensorDepth,        "buffer depth,int[2] resolution=sim.getVisionSensorDepth(int sensorHandle,int options=0,int[2] pos={0,0},int[2] size={0,0})",true},
     {"sim.checkVisionSensor",_simCheckVisionSensor,              "int result,float[] auxPacket1,float[] auxPacket2=sim.checkVisionSensor(int sensorHandle,int entityHandle)",true},
     {"sim.checkVisionSensorEx",_simCheckVisionSensorEx,          "float[] theBuffer=sim.checkVisionSensorEx(int sensorHandle,int entityHandle,bool returnImage)\nbuffer theBuffer=sim.checkVisionSensorEx(int sensorHandle,int entityHandle,bool returnImage)",true},
-    {"sim.ruckigPos",_simRuckigPos,                              "int handle=sim.ruckigPos(int dofs,float smallestTimeStep,int flags,float[] currentPosVelAccel,float[] maxVelAccelJerk,int[] selection,float[] targetPosVel)",true},
-    {"sim.ruckigVel",_simRuckigVel,                              "int handle=sim.ruckigVel(int dofs,float smallestTimeStep,int flags,float[] currentPosVelAccel,float[] maxAccelJerk,int[] selection,float[] targetVel)",true},
-    {"sim.ruckigStep",_simRuckigStep,                            "int result,float[] newPosVelAccel,float synchronizationTime=sim.ruckigStep(int handle,float timeStep)",true},
+    {"sim.ruckigPos",_simRuckigPos,                              "int handle=sim.ruckigPos(int dofs,float baseCycleTime,int flags,float[] currentPosVelAccel,float[] maxVelAccelJerk,int[] selection,float[] targetPosVel)",true},
+    {"sim.ruckigVel",_simRuckigVel,                              "int handle=sim.ruckigVel(int dofs,float baseCycleTime,int flags,float[] currentPosVelAccel,float[] maxAccelJerk,int[] selection,float[] targetVel)",true},
+    {"sim.ruckigStep",_simRuckigStep,                            "int result,float[] newPosVelAccel,float synchronizationTime=sim.ruckigStep(int handle,float cycleTime)",true},
     {"sim.ruckigRemove",_simRuckigRemove,                        "sim.ruckigRemove(int handle)",true},
     {"sim.buildMatrixQ",_simBuildMatrixQ,                        "float[12] matrix=sim.buildMatrixQ(float[3] position,float[4] quaternion)",true},
     {"sim.getQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "float[4] quaternion=sim.getQuaternionFromMatrix(float[12] matrix)",true},
@@ -421,6 +421,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.createCollectionEx",_simCreateCollectionEx,            "",false}, // implemented in sim.lua
     {"sim.getGenesisEvents",_simGetGenesisEvents,                "map[] events=sim.getGenesisEvents()\nbuffer events=sim.getGenesisEvents()",true},
     {"sim.broadcastMsg",_simBroadcastMsg,                        "sim.broadcastMsg(map message,int options=0)",true},
+    {"sim.handleJointMotion",_simHandleJointMotion,              "sim.handleJointMotion()",true},
 
     {"sim.test",_simTest,                                        "test function - do not use",true},
 
@@ -1018,9 +1019,16 @@ const SLuaVariables simLuaVariables[]=
     {"sim.particle_emissioncolor",sim_particle_emissioncolor,true},
     {"sim.particle_water",sim_particle_water,true},
     // joint modes
-    {"sim.jointmode_passive",sim_jointmode_passive,true},
+    {"sim.jointmode_kinematic",sim_jointmode_kinematic,true},
     {"sim.jointmode_dependent",sim_jointmode_dependent,true},
-    {"sim.jointmode_force",sim_jointmode_force,true},
+    {"sim.jointmode_dynamic",sim_jointmode_dynamic,true},
+    // joint dyn ctrl modes
+    {"sim.jointdynctrl_free",sim_jointdynctrl_free,true},
+    {"sim.jointdynctrl_force",sim_jointdynctrl_force,true},
+    {"sim.jointdynctrl_velocity",sim_jointdynctrl_velocity,true},
+    {"sim.jointdynctrl_position",sim_jointdynctrl_position,true},
+    {"sim.jointdynctrl_spring",sim_jointdynctrl_spring,true},
+    {"sim.jointdynctrl_callback",sim_jointdynctrl_callback,true},
     // physics engine
     {"sim.physics_bullet",sim_physics_bullet,true},
     {"sim.physics_ode",sim_physics_ode,true},
@@ -1140,6 +1148,11 @@ const SLuaVariables simLuaVariables[]=
     {"sim.jointfloatparam_vortex_dep_multiplication",sim_jointfloatparam_vortex_dep_multiplication,true},
     {"sim.jointfloatparam_vortex_dep_offset",sim_jointfloatparam_vortex_dep_offset,true},
     {"sim.jointfloatparam_screw_pitch",sim_jointfloatparam_screw_pitch,true},
+    {"sim.jointfloatparam_maxvel",sim_jointfloatparam_maxvel,true},
+    {"sim.jointfloatparam_maxaccel",sim_jointfloatparam_maxaccel,true},
+    {"sim.jointfloatparam_maxjerk",sim_jointfloatparam_maxjerk,true},
+    {"sim.jointintparam_dynctrlmode",sim_jointintparam_dynctrlmode,true},
+
     // shapes
     {"sim.shapefloatparam_init_velocity_x",sim_shapefloatparam_init_velocity_x,true},
     {"sim.shapefloatparam_init_velocity_y",sim_shapefloatparam_init_velocity_y,true},
@@ -1688,6 +1701,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.pure_primitive_cylinder",sim_primitiveshape_cylinder,false},
     {"sim.pure_primitive_cone",sim_primitiveshape_cone,false},
     {"sim.pure_primitive_heightfield",sim_primitiveshape_heightfield,false},
+    {"sim.jointmode_passive",sim_jointmode_kinematic,false},
+    {"sim.jointmode_force",sim_jointmode_dynamic,false},
 
     {"",-1}
 };
@@ -2131,13 +2146,13 @@ int _genericFunctionHandler(luaWrap_lua_State* L,CScriptCustomFunction* func,std
     int linkedObject=-1;
     if (itObj->getScriptType()==sim_scripttype_childscript)
     {
-        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itObj->getObjectHandleThatScriptIsAttachedTo_child());
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itObj->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript));
         if (obj!=nullptr)
             linkedObject=obj->getObjectHandle();
     }
     if (itObj->getScriptType()==sim_scripttype_customizationscript)
     {
-        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itObj->getObjectHandleThatScriptIsAttachedTo_customization());
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itObj->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customizationscript));
         if (obj!=nullptr)
             linkedObject=obj->getObjectHandle();
     }
@@ -2198,7 +2213,7 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.genericFunctionHandler");
 
-//    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+//    CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
 //    it->printInterpreterStack();
 
     luaWrap_lua_pushvalue(L,luaWrap_lua_upvalueindex(1));
@@ -3151,7 +3166,25 @@ int _simSetJointTargetPosition(luaWrap_lua_State* L)
 
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetJointTargetPosition_internal(luaToInt(L,1),luaToFloat(L,2));
+    {
+        int res=checkOneGeneralInputArgument(L,3,lua_arg_number,-1,true,false,&errorString);
+        if (res>=0)
+        {
+            int h=luaToInt(L,1);
+            if (res==2)
+            {
+                CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(h);
+                if (joint!=nullptr)
+                {
+                    float maxVelAccelJerk[3];
+                    joint->getMaxVelAccelJerk(maxVelAccelJerk);
+                    getFloatsFromTable(L,3,std::min<size_t>(luaWrap_lua_rawlen(L,3),3),maxVelAccelJerk);
+                    joint->setMaxVelAccelJerk(maxVelAccelJerk);
+                }
+            }
+            retVal=simSetJointTargetPosition_internal(h,luaToFloat(L,2));
+        }
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -3226,7 +3259,32 @@ int _simSetJointTargetVelocity(luaWrap_lua_State* L)
 
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetJointTargetVelocity_internal(luaToInt(L,1),luaToFloat(L,2));
+    {
+        int res=checkOneGeneralInputArgument(L,3,lua_arg_number,-1,true,false,&errorString);
+        if (res>=0)
+        {
+            int h=luaToInt(L,1);
+            if (res==2)
+            {
+                CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(h);
+                if (joint!=nullptr)
+                {
+                    float maxVelAccelJerk[3];
+                    joint->getMaxVelAccelJerk(maxVelAccelJerk);
+                    getFloatsFromTable(L,3,std::min<size_t>(luaWrap_lua_rawlen(L,3),2),maxVelAccelJerk+1);
+                    joint->setMaxVelAccelJerk(maxVelAccelJerk);
+                    res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
+                    if (res==2)
+                    {
+                        float initVel=luaToFloat(L,4);
+                        joint->setKinematicMotionType(2,true,initVel);
+                    }
+                }
+            }
+            if (errorString.size()==0)
+                retVal=simSetJointTargetVelocity_internal(h,luaToFloat(L,2));
+        }
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -4897,8 +4955,7 @@ int _simLaunchExecutable(luaWrap_lua_State* L)
                 int sh=VVARIOUS_SHOWNORMAL;
                 if (showStatus==0)
                     sh=VVARIOUS_HIDE;
-
-                CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+                CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
                 std::string what(it->getDescriptiveName());
                 what+=" (via sim.launchExecutable)";
                 if (1==simCheckExecAuthorization_internal(what.c_str(),(file+" "+args).c_str(),it->getScriptHandle()))
@@ -10311,7 +10368,9 @@ int _simRuckigStep(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.ruckigStep");
-
+    int retVal=-1;
+    std::vector<double> newPosVelAccel;
+    double syncTime=0.0;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int handle=luaToInt(L,1);
@@ -10319,21 +10378,18 @@ int _simRuckigStep(luaWrap_lua_State* L)
         int dofs=CPluginContainer::ruckigPlugin_dofs(handle);
         if (dofs<0)
             dofs=1; // will be caught later down
-        std::vector<double> newPosVelAccel;
         newPosVelAccel.resize(dofs*3);
-        double syncTime=0.0;
-        int retVal=simRuckigStep_internal(handle,timeStep,&newPosVelAccel[0],&newPosVelAccel[dofs],&newPosVelAccel[dofs*2],&syncTime,nullptr,nullptr);
-        luaWrap_lua_pushinteger(L,retVal);
-        if (newPosVelAccel.size()>0)
-            pushDoubleTableOntoStack(L,newPosVelAccel.size(),&newPosVelAccel[0]);
-        else
-            pushDoubleTableOntoStack(L,0,nullptr);
-        luaWrap_lua_pushnumber(L,syncTime);
-        LUA_END(3);
+        retVal=simRuckigStep_internal(handle,timeStep,&newPosVelAccel[0],&newPosVelAccel[dofs],&newPosVelAccel[dofs*2],&syncTime,nullptr,nullptr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+    luaWrap_lua_pushinteger(L,retVal);
+    if (newPosVelAccel.size()>0)
+        pushDoubleTableOntoStack(L,newPosVelAccel.size(),&newPosVelAccel[0]);
+    else
+        pushDoubleTableOntoStack(L,0,nullptr);
+    luaWrap_lua_pushnumber(L,syncTime);
+    LUA_END(3);
 }
 
 int _simRuckigRemove(luaWrap_lua_State* L)
@@ -10514,9 +10570,9 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                 else
                     objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptDescription.c_str());
                 if (scriptHandleOrType==sim_scripttype_childscript)
-                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
                 else
-                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objId);
             }
             if (scriptHandleOrType==sim_scripttype_sandboxscript)
                 script=App::worldContainer->sandboxScript;
@@ -10919,6 +10975,25 @@ int _simBroadcastMsg(luaWrap_lua_State* L)
     }
     else
         errorString.assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simHandleJointMotion(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.handleJointMotion");
+
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+    if (it!=nullptr)
+    {
+        if (it->getScriptType()==sim_scripttype_mainscript)
+            App::currentWorld->embeddedScriptContainer->handleCascadedJointMotionExecution();
+        else
+            errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
+    }
+
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
@@ -14137,11 +14212,11 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_particle_cyclic",sim_particle_cyclic,false},
     {"sim_particle_emissioncolor",sim_particle_emissioncolor,false},
     {"sim_particle_water",sim_particle_water,false},
-    {"sim_jointmode_passive",sim_jointmode_passive,false},
+    {"sim_jointmode_kinematic",sim_jointmode_kinematic,false},
     {"sim_jointmode_ik",sim_jointmode_ik_deprecated,false},
     {"sim_jointmode_ikdependent",sim_jointmode_reserved_previously_ikdependent,false},
     {"sim_jointmode_dependent",sim_jointmode_dependent,false},
-    {"sim_jointmode_force",sim_jointmode_force,false},
+    {"sim_jointmode_dynamic",sim_jointmode_dynamic,false},
     {"sim_filedlg_type_load",sim_filedlg_type_load,false},
     {"sim_filedlg_type_save",sim_filedlg_type_save,false},
     {"sim_filedlg_type_load_multiple",sim_filedlg_type_load_multiple,false},
@@ -14648,10 +14723,10 @@ const SLuaVariables simLuaVariablesOldApi[]=
 bool isObjectAssociatedWithThisThreadedChildScriptValid_old(luaWrap_lua_State* L)
 {
     int id=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(id);
+    CScriptObject* script=App::worldContainer->getScriptFromHandle(id);
     if (script==nullptr)
         return(false);
-    int h=script->getObjectHandleThatScriptIsAttachedTo_child();
+    int h=script->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
     return(h!=-1);
 }
 
@@ -14698,7 +14773,7 @@ void getScriptTree_old(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& 
     scriptHandles.clear();
     int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
 
-    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (it!=nullptr)
     {
         if (it->getScriptType()==sim_scripttype_mainscript)
@@ -14708,7 +14783,7 @@ void getScriptTree_old(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& 
             for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
             {
                 CSceneObject* q=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(q->getObjectHandle());
+                CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,q->getObjectHandle());
                 if (lso!=nullptr)
                     scriptHandles.push_back(lso->getScriptHandle());
             }
@@ -14716,7 +14791,7 @@ void getScriptTree_old(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& 
 
         if (it->getScriptType()==sim_scripttype_childscript)
         { // we have a child script
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo_child());
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript));
             if (obj!=nullptr)
             { // should always pass
                 if (selfIncluded)
@@ -14726,7 +14801,7 @@ void getScriptTree_old(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& 
                 obj->getAllObjectsRecursive(&objList,false);
                 for (int i=0;i<int(objList.size());i++)
                 {
-                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getObjectHandle());
+                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objList[i]->getObjectHandle());
                     if (lso!=nullptr)
                         scriptHandles.push_back(lso->getScriptHandle());
                 }
@@ -14735,12 +14810,12 @@ void getScriptTree_old(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& 
 
         if (it->getScriptType()==sim_scripttype_customizationscript)
         { // we have a customization script
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo_customization());
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customizationscript));
             if (obj!=nullptr)
             { // should always pass
                 if (selfIncluded)
                 {
-                    CScriptObject* aScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    CScriptObject* aScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,obj->getObjectHandle());
                     if (aScript!=nullptr)
                         scriptHandles.push_back(aScript->getScriptHandle());
                 }
@@ -14749,7 +14824,7 @@ void getScriptTree_old(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& 
                 obj->getAllObjectsRecursive(&objList,false);
                 for (int i=0;i<int(objList.size());i++)
                 {
-                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getObjectHandle());
+                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objList[i]->getObjectHandle());
                     if (lso!=nullptr)
                     {
                         scriptHandles.push_back(lso->getScriptHandle());
@@ -14765,7 +14840,7 @@ void getScriptChain_old(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded
     scriptHandles.clear();
     int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
 
-    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
 
     if (it!=nullptr)
     {
@@ -14777,7 +14852,7 @@ void getScriptChain_old(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded
 
         if (it->getScriptType()==sim_scripttype_childscript)
         { // we have a child script here
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo_child());
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript));
             if (obj!=nullptr)
             {
                 if (selfIncluded)
@@ -14785,7 +14860,7 @@ void getScriptChain_old(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded
                 while (obj->getParent()!=nullptr)
                 {
                     obj=obj->getParent();
-                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,obj->getObjectHandle());
                     if (lso!=nullptr)
                         scriptHandles.push_back(lso->getScriptHandle());
                 }
@@ -14800,19 +14875,19 @@ void getScriptChain_old(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded
 
         if (it->getScriptType()==sim_scripttype_customizationscript)
         { // we have a customization script here
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo_customization());
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customizationscript));
             if (obj!=nullptr)
             {
                 if (selfIncluded)
                 {
-                    CScriptObject* aScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    CScriptObject* aScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,obj->getObjectHandle());
                     if (aScript!=nullptr)
                         scriptHandles.push_back(aScript->getScriptHandle());
                 }
                 while (obj->getParent()!=nullptr)
                 {
                     obj=obj->getParent();
-                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    CScriptObject* lso=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,obj->getObjectHandle());
                     if (lso!=nullptr)
                         scriptHandles.push_back(lso->getScriptHandle());
                 }
@@ -15717,9 +15792,9 @@ int _sim_moveToJointPos_1(luaWrap_lua_State* L)
                 if ((it!=nullptr)&&(it->getJointType()!=sim_joint_spherical_subtype))
                 { // make sure target is within allowed range, and check the maximum virtual distance:
                     jointStartPositions[i]=it->getPosition();
-                    float minP=it->getPositionIntervalMin();
-                    float maxP=minP+it->getPositionIntervalRange();
-                    if (it->getPositionIsCyclic())
+                    float minP=it->getPositionMin();
+                    float maxP=minP+it->getPositionRange();
+                    if (it->getIsCyclic())
                     {
                         float da=tt::getAngleMinusAlpha(jointTargetPositions[i],jointStartPositions[i]);
                         jointTargetPositions[i]=jointStartPositions[i]+da;
@@ -15924,9 +15999,8 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
                 CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(mem->jointHandles[i]);
                 if ( (joint!=nullptr)&&(joint->getJointType()!=sim_joint_spherical_subtype)&&(mem->jointVirtualDistances[i]!=0.0f) )
                 {
-                    if (joint->getJointMode()==sim_jointmode_force)
-                        joint->setDynamicMotorPositionControlTargetPosition(mem->jointStartPositions[i]+(mem->jointTargetPositions[i]-mem->jointStartPositions[i])*mem->jointCurrentVirtualPositions[i]/mem->jointVirtualDistances[i]);
-                    else
+                    joint->setTargetPosition(mem->jointStartPositions[i]+(mem->jointTargetPositions[i]-mem->jointStartPositions[i])*mem->jointCurrentVirtualPositions[i]/mem->jointVirtualDistances[i]);
+                    if (joint->getJointMode()==sim_jointmode_kinematic)
                         joint->setPosition(mem->jointStartPositions[i]+(mem->jointTargetPositions[i]-mem->jointStartPositions[i])*mem->jointCurrentVirtualPositions[i]/mem->jointVirtualDistances[i],false);
                 }
             }
@@ -17083,8 +17157,8 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
             CScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
             if (it->getScriptType()==sim_scripttype_customizationscript)
             {
-                handle=it->getObjectHandleThatScriptIsAttachedTo_customization();
-                it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(handle);
+                handle=it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customizationscript);
+                it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,handle);
                 if (it!=nullptr)
                     handle=it->getScriptHandle();
                 else
@@ -17207,8 +17281,8 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
             CScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
             if (it->getScriptType()==sim_scripttype_customizationscript)
             {
-                handle=it->getObjectHandleThatScriptIsAttachedTo_customization();
-                it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(handle);
+                handle=it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customizationscript);
+                it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,handle);
                 if (it!=nullptr)
                     handle=it->getScriptHandle();
                 else
@@ -18246,7 +18320,7 @@ int _simSendData(luaWrap_lua_State* L)
                                 else
                                 {
                                     if (antennaHandle==sim_handle_self)
-                                        antennaHandle=it->getObjectHandleThatScriptIsAttachedTo_child();
+                                        antennaHandle=it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
                                     if (antennaHandle!=sim_handle_default)
                                     {
                                         CSceneObject* ant=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
@@ -18366,7 +18440,7 @@ int _simReceiveData(luaWrap_lua_State* L)
             if (!err)
             {
                 if (antennaHandle==sim_handle_self)
-                    antennaHandle=it->getObjectHandleThatScriptIsAttachedTo_child();
+                    antennaHandle=it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
                 if (antennaHandle!=sim_handle_default)
                 {
                     CSceneObject* ant=App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
@@ -18841,7 +18915,7 @@ int _simIsScriptExecutionThreaded(luaWrap_lua_State* L)
     LUA_START("sim.isScriptExecutionThreaded");
 
     int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     int retVal=0;
     if ((it!=nullptr)&&it->getThreadedExecution_oldThreads())
         retVal=1;
@@ -18921,7 +18995,7 @@ int _simLaunchThreadedChildScripts(luaWrap_lua_State* L)
 
     int retVal=-1; // means error
     int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
+    CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     if (it!=nullptr)
     {
         if (it->getScriptType()==sim_scripttype_mainscript)
@@ -18962,7 +19036,7 @@ int _simGetUserParameter(luaWrap_lua_State* L)
         {
             handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
             CScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
-            handle=it->getObjectHandleThatScriptIsAttachedTo();
+            handle=it->getObjectHandleThatScriptIsAttachedTo(-1);
         }
         bool returnString=false;
         int ret=checkOneGeneralInputArgument(L,3,lua_arg_bool,0,true,false,&errorString);
@@ -19004,7 +19078,7 @@ int _simSetUserParameter(luaWrap_lua_State* L)
         {
             handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
             CScriptObject* it=App::worldContainer->getScriptFromHandle(handle);
-            handle=it->getObjectHandleThatScriptIsAttachedTo();
+            handle=it->getObjectHandleThatScriptIsAttachedTo(-1);
         }
         std::string parameterName(luaWrap_lua_tostring(L,2));
         size_t parameterValueLength;
@@ -19040,13 +19114,13 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CScriptCustomFunction* func
     int linkedObject=-1;
     if (itObj->getScriptType()==sim_scripttype_childscript)
     {
-        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itObj->getObjectHandleThatScriptIsAttachedTo_child());
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itObj->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript));
         if (obj!=nullptr)
             linkedObject=obj->getObjectHandle();
     }
     if (itObj->getScriptType()==sim_scripttype_customizationscript)
     {
-        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itObj->getObjectHandleThatScriptIsAttachedTo_customization());
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itObj->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customizationscript));
         if (obj!=nullptr)
             linkedObject=obj->getObjectHandle();
     }
@@ -20051,7 +20125,7 @@ int _simGetConfigurationTree(luaWrap_lua_State* L)
         int id=luaToInt(L,1);
         if (id==sim_handle_self)
         {
-            int objID=it->getObjectHandleThatScriptIsAttachedTo_child();
+            int objID=it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
             id=objID;
             if (id==-1)
                 errorString=SIM_ERROR_ARGUMENT_VALID_ONLY_WITH_CHILD_SCRIPTS;

@@ -844,10 +844,10 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
     _calcTimeInMs=VDateTime::getTimeDiffInMs(stTime);
     if (_sensorResultValid&&_detectedPointValid)
     {
-        CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+        CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,_objectHandle);
         if ( (script!=nullptr)&&(!script->getContainsTriggerCallbackFunction()) )
             script=nullptr;
-        CScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+        CScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,_objectHandle);
         if ( (cScript!=nullptr)&&(!cScript->getContainsTriggerCallbackFunction()) )
             cScript=nullptr;
         if ( (script!=nullptr)||(cScript!=nullptr) )

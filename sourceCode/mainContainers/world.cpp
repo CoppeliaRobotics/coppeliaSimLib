@@ -1643,7 +1643,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         if (txt.size()>0)
         {
             cf->scriptEquivalent.clear();
-            CScriptObject* script=embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+            CScriptObject* script=embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,it->getObjectHandle());
             if (script==nullptr)
             {
                 txt=std::string("function sysCall_init()\nend\n\n")+txt;
@@ -1662,7 +1662,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         CForceSensor* it=sceneObjects->getForceSensorFromIndex(i);
         if (it->getStillAutomaticallyBreaking())
         {
-            CScriptObject* script=embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+            CScriptObject* script=embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,it->getObjectHandle());
             std::string txt("function sysCall_trigger(inData)\n    -- callback function automatically added for backward compatibility\n    sim.breakForceSensor(inData.handle)\nend\n\n");
             if (script==nullptr)
             {
@@ -1684,7 +1684,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         if (script!=nullptr)
         {
             CUserParameters* params=script->getScriptParametersObject_backCompatibility();
-            int obj=script->getObjectHandleThatScriptIsAttachedTo_child();
+            int obj=script->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
             CSceneObject* theObj=sceneObjects->getObjectFromHandle(obj);
             if ( (theObj!=nullptr)&&(params!=nullptr) )
             {

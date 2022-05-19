@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>428</width>
-    <height>237</height>
+    <height>216</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -223,22 +223,6 @@
     </rect>
    </property>
   </widget>
-  <widget class="QCheckBox" name="qqPure">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>170</y>
-     <width>161</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::StrongFocus</enum>
-   </property>
-   <property name="text">
-    <string>Create pure shape</string>
-   </property>
-  </widget>
   <widget class="QCheckBox" name="qqOpen">
    <property name="geometry">
     <rect>
@@ -275,7 +259,7 @@
    <property name="geometry">
     <rect>
      <x>15</x>
-     <y>200</y>
+     <y>180</y>
      <width>401</width>
      <height>32</height>
     </rect>
@@ -300,9 +284,9 @@
   <widget class="QLabel" name="label_10">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>170</y>
-     <width>171</width>
+     <x>200</x>
+     <y>150</y>
+     <width>161</width>
      <height>18</height>
     </rect>
    </property>
@@ -313,9 +297,9 @@
   <widget class="QLineEdit" name="qqDensity">
    <property name="geometry">
     <rect>
-     <x>350</x>
-     <y>170</y>
-     <width>71</width>
+     <x>360</x>
+     <y>150</y>
+     <width>61</width>
      <height>18</height>
     </rect>
    </property>
@@ -325,7 +309,7 @@
     <rect>
      <x>10</x>
      <y>150</y>
-     <width>311</width>
+     <width>171</width>
      <height>18</height>
     </rect>
    </property>
@@ -333,7 +317,7 @@
     <enum>Qt::StrongFocus</enum>
    </property>
    <property name="text">
-    <string>Create dynamic and respondable shape</string>
+    <string>Dynamic and respondable</string>
    </property>
   </widget>
  </widget>
@@ -350,7 +334,6 @@
   <tabstop>qqFaceSubdiv</tabstop>
   <tabstop>qqDiscSubdiv</tabstop>
   <tabstop>qqDynamic</tabstop>
-  <tabstop>qqPure</tabstop>
   <tabstop>qqDensity</tabstop>
  </tabstops>
  <resources/>

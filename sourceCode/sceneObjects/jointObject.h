@@ -153,14 +153,10 @@ public:
     float getLength() const;
     float getDiameter() const;
     float getPosition() const;
-    bool getEnableDynamicMotor() const;
-    float getDynamicMotorTargetVelocity() const;
-    bool getDynamicMotorLockModeWhenInVelocityControl() const;
-    float getDynamicMotorUpperLimitVelocity() const;
-    float getDynamicMotorMaximumForce(bool signedValue) const;
-    bool getEnableDynamicMotorControlLoop() const;
-    bool getEnableTorqueModulation() const;
-    bool getHybridFunctionality() const;
+    float getTargetVelocity() const;
+    bool getMotorLock() const;
+    float getTargetForce(bool signedValue) const;
+    int getDynCtrlMode() const;
     float getEngineFloatParam(int what,bool* ok) const;
     int getEngineIntParam(int what,bool* ok) const;
     bool getEngineBoolParam(int what,bool* ok) const;
@@ -174,56 +170,51 @@ public:
     void getNewtonIntParams(std::vector<int>& p) const;
     int getVortexDependentJointId() const;
     int getNewtonDependentJointId() const;
+    void getMaxVelAccelJerk(float maxVelAccelJerk[3]) const;
     float getScrewPitch() const;
     int getJointType() const;
     C4Vector getSphericalTransformation() const;
-    bool getPositionIsCyclic() const;
-    float getPositionIntervalMin() const;
-    float getPositionIntervalRange() const;
-    float getIKWeight() const;
-    float getMaxStepSize() const;
+    bool getIsCyclic() const;
+    float getPositionMin() const;
+    float getPositionRange() const;
     int getJointMode() const;
     int getDependencyMasterJointHandle() const;
     float getDependencyJointMult() const;
     float getDependencyJointOffset() const;
-    void getDynamicMotorPositionControlParameters(float& p_param,float& i_param,float& d_param) const;
-    void getDynamicMotorSpringControlParameters(float& k_param,float& c_param) const;
-    float getDynamicMotorPositionControlTargetPosition() const;
+    void getPid(float& p_param,float& i_param,float& d_param) const;
+    void getKc(float& k_param,float& c_param) const;
+    float getTargetPosition() const;
     CColorObject* getColor(bool part2);
 
     C7Vector getIntrinsicTransformation(bool includeDynErrorComponent) const;
 
-
     float getMeasuredJointVelocity() const;
     std::string getDependencyJointLoadAlias() const;
-    std::string getDependencyJointLoadName_old() const;
     int getJointCallbackCallOrder_backwardCompatibility() const;
     void setDirectDependentJoints(const std::vector<CJoint*>& joints);
 
-    void setPositionIntervalMin(float min);
-    void setPositionIntervalRange(float range);
-    void setPositionIsCyclic(bool isCyclic);
+    void setPositionMin(float min);
+    void setPositionRange(float range);
+    void setIsCyclic(bool isCyclic);
     void setLength(float l);
     void setDiameter(float d);
+    void setMaxVelAccelJerk(const float maxVelAccelJerk[3]);
     bool setScrewPitch(float pitch);
     void setDependencyMasterJointHandle(int depJointID);
     void setDependencyJointMult(float coeff);
     void setDependencyJointOffset(float off);
-    void setIkWeight(float newWeight);
-    void setMaxStepSize(float stepS);
     void setPosition(float pos,bool setDirect);
     void setSphericalTransformation(const C4Vector& tr);
     void setJointMode(int theMode);
 
     void setIntrinsicTransformationError(const C7Vector& tr);
 
-    void setHybridFunctionality(bool h);
-    void setDynamicMotorTargetVelocity(float v);
-    void setDynamicMotorUpperLimitVelocity(float v);
-    void setDynamicMotorPositionControlTargetPosition(float pos);
-    void setDynamicMotorPositionControlParameters(float p_param,float i_param,float d_param);
-    void setDynamicMotorSpringControlParameters(float k_param,float c_param);
-    void setDynamicMotorMaximumForce(float f,bool isSigned);
+    void setTargetVelocity(float v);
+    void setTargetPosition(float pos);
+    void setPid(float p_param,float i_param,float d_param);
+    void setKc(float k_param,float c_param);
+    void setTargetForce(float f,bool isSigned);
+    void setDynCtrlMode(int mode);
 
     void setBulletFloatParams(const std::vector<float>& p);
     void setOdeFloatParams(const std::vector<float>& p);
@@ -236,10 +227,7 @@ public:
 
     bool setJointMode_noDynMotorTargetPosCorrection(int theMode);
 
-    void setEnableDynamicMotor(bool e);
-    void setEnableDynamicMotorControlLoop(bool p);
-    void setEnableTorqueModulation(bool p);
-    void setDynamicMotorLockModeWhenInVelocityControl(bool e);
+    void setMotorLock(bool e);
 
 
     void measureJointVelocity(float dt); // should be called just after the main script was called!!!
@@ -247,7 +235,8 @@ public:
     void getDynamicJointErrors(float& linear,float& angular) const;
     void getDynamicJointErrorsFull(C3Vector& linear,C3Vector& angular) const;
 
-    void handleDynJointControl(bool init,int loopCnt,int totalLoops,float currentPos,float effort,float dynStepSize,float errorV,float& velocity,float& forceTorque);
+    bool handleMotion(int scriptType);
+    int handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos,float effort,float dynStepSize,float errorV,float velAndForce[2]);
 
     void setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp);
 
@@ -255,6 +244,7 @@ public:
     bool getDynamicForceOrTorque(float& forceOrTorque,bool dynamicStepValue) const;
     void setForceOrTorqueNotValid();
 
+    void setKinematicMotionType(int t,bool reset,float initVel=0.0f);
 
     bool setEngineFloatParam(int what,float v);
     bool setEngineIntParam(int what,int v);
@@ -266,6 +256,13 @@ public:
 
 
     // DEPRECATED:
+    bool getHybridFunctionality_old() const;
+    float getIKWeight_old() const;
+    float getMaxStepSize_old() const;
+    std::string getDependencyJointLoadName_old() const;
+    void setIKWeight_old(float newWeight);
+    void setMaxStepSize_old(float stepS);
+    void setHybridFunctionality_old(bool h);
     void setExplicitHandling_DEPRECATED(bool explicitHandl);
     bool getExplicitHandling_DEPRECATED();
     void resetJoint_DEPRECATED();
@@ -278,8 +275,6 @@ public:
     float getMaxAcceleration_DEPRECATED();
     void setVelocity_DEPRECATED(float vel);
     float getVelocity_DEPRECATED();
-    void setTargetVelocity_DEPRECATED(float vel);
-    float getTargetVelocity_DEPRECATED();
 
 protected:
     void _rectifyDependentJoints();
@@ -300,72 +295,67 @@ protected:
 
     std::vector<CJoint*> _directDependentJoints;
 
-    float _dynamicMotorPIDCumulativeErrorForIntegralParameter;
-    float _dynamicMotorPIDLastErrorForDerivativeParameter;
 
     std::string _dependencyJointLoadAlias;
-    std::string _dependencyJointLoadName_old;
 
     float _initialPosition;
-    C4Vector _initialSphericalJointTransformation;
     float _initialTargetPosition;
-    bool _initialDynamicMotorEnabled;
-    float _initialDynamicMotorTargetVelocity;
-    bool _initialDynamicMotorLockModeWhenInVelocityControl;
-    float _initialDynamicMotorUpperLimitVelocity;
-    float _initialDynamicMotorMaximumForce;
-
-    bool _initialDynamicMotorControlLoopEnabled;
-    float _initialDynamicMotorPositionControl_P;
-    float _initialDynamicMotorPositionControl_I;
-    float _initialDynamicMotorPositionControl_D;
-    float _initialDynamicMotorSpringControl_K;
-    float _initialDynamicMotorSpringControl_C;
+    float _initialTargetVelocity;
+    C4Vector _initialSphericalJointTransformation;
     int _initialJointMode;
-    bool _initialHybridOperation;
-    int _initialJointCallbackCallOrder;
 
-    float _measuredJointVelocity_velocityMeasurement;
-    float _previousJointPosition_velocityMeasurement;
-    bool _previousJointPositionIsValid;
+    int _initialDynCtrlMode;
+    bool _initialDynCtrl_lockAtVelZero;
+    float _initialDynCtrl_force;
+    float _initialDynCtrl_pid[3];
+    float _initialDynCtrl_kc[3];
+
+    bool _initialHybridOperation;
+
+    float _initialMaxVelAccelJerk[3];
+
+    float _velCalc_vel;
+    float _velCalc_prevPos;
+    bool _velCalc_prevPosValid;
 
     float _cumulatedForceOrTorque;
     float _cumulativeForceOrTorqueTmp;
     bool _averageForceOrTorqueValid;
+    int _kinematicMotionType; // 0=none, 1=pos ctrl, 2=vel ctrl, bit4 (16): reset motion
+    float _kinematicMotionInitVel;
 
     int _jointType;
     float _length;
     float _diameter;
-    C4Vector _sphericalTransformation;
-    bool _positionIsCyclic;
+    C4Vector _sphericalTransf;
+    bool _isCyclic;
     float _screwPitch;
-    float _jointMinPosition;
-    float _jointPositionRange;
-    float _jointPosition;
-    float _maxStepSize;
-    float _ikWeight;
+    float _posMin;
+    float _posRange;
+    float _pos;
+    float _targetVel;
+    float _targetPos;
     int _jointMode;
     int _dependencyMasterJointHandle;
     float _dependencyJointMult;
     float _dependencyJointOffset;
 
+    float _maxVelAccelJerk[3];
+
     CColorObject _color;
     CColorObject _color_removeSoon;
 
-    bool _dynamicMotorEnabled;
-    float _dynamicMotorTargetVelocity;
-    bool _dynamicLockModeWhenInVelocityControl;
-    float _dynamicMotorUpperLimitVelocity;
-    float _dynamicMotorMaximumForce;
-    bool _dynamicMotorControlLoopEnabled;
-    bool _dynamicMotorPositionControl_torqueModulation;
-    float _dynamicMotorPositionControl_targetPosition;
-    float _dynamicMotorPositionControl_P;
-    float _dynamicMotorPositionControl_I;
-    float _dynamicMotorPositionControl_D;
-    float _dynamicMotorSpringControl_K;
-    float _dynamicMotorSpringControl_C;
+    bool _motorLock;
+    float _targetForce;
+    float _dynCtrl_pid[3];
+    float _dynCtrl_pid_cumulErr;
+    float _dynCtrl_pid_lastErr;
+
+    float _dynCtrl_kc[2];
+    int _dynCtrlMode;
+
     bool _jointHasHybridFunctionality;
+
 
     std::vector<float> _bulletFloatParams;
     std::vector<int> _bulletIntParams;
@@ -386,15 +376,16 @@ protected:
     bool _lastForceOrTorqueValid_dynStep;
 
     // DEPRECATED:
+    float _maxStepSize_old;
+    float _ikWeight_old;
+    std::string _dependencyJointLoadName_old;
     float _jointPositionForMotionHandling_DEPRECATED;
     float _velocity_DEPRECATED;
-    float _targetVelocity_DEPRECATED;
     bool _explicitHandling_DEPRECATED;
     bool _unlimitedAcceleration_DEPRECATED;
     bool _invertTargetVelocityAtLimits_DEPRECATED;
     float _maxAcceleration_DEPRECATED;
     int _jointCallbackCallOrder_backwardCompatibility;
     float _initialVelocity_DEPRECATED;
-    float _initialTargetVelocity_DEPRECATED;
     bool _initialExplicitHandling_DEPRECATED;
 };

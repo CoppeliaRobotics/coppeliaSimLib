@@ -1106,9 +1106,9 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
             bool openScriptEditor=true;
             int auxData[4]={-1,-1,-1,-1};
             if (it->getScriptType()==sim_scripttype_childscript)
-                auxData[0]=it->getObjectHandleThatScriptIsAttachedTo_child();
+                auxData[0]=it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
             if (it->getScriptType()==sim_scripttype_customizationscript)
-                auxData[0]=it->getObjectHandleThatScriptIsAttachedTo_customization();
+                auxData[0]=it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customizationscript);
             int retVals[4]={-1,-1,-1,-1};
             void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scripticondblclick,auxData,nullptr,retVals);
             delete[] (char*)returnVal;
@@ -1217,18 +1217,13 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
                     if (it->getObjectType()==sim_object_joint_type)
                     {
                         CJoint* so=(CJoint*)it;
-                        if (so->getJointMode()==sim_jointmode_force)
-                            txt+=IDS_JOINT_OPERATES_IN_FORCE_TORQUE_MODE;
+                        if (so->getJointMode()==sim_jointmode_dynamic)
+                            txt+=IDS_JOINT_OPERATES_IN_DYNAMIC_MODE;
                         else
                             txt+=IDS_JOINT_OPERATES_IN_HYBRID_FASHION;
                         txt+=' ';
-                        if (so->getEnableDynamicMotor())
-                        {
-                            if (so->getEnableDynamicMotorControlLoop())
-                                txt+=IDS__CONTROL_LOOP_ENABLED_;
-                            else
-                                txt+=IDS__CONTROL_LOOP_DISABLED_;
-                        }
+                        if (so->getDynCtrlMode()!=sim_jointdynctrl_free)
+                            txt+=IDS__MOTOR_ENABLED_;
                         else
                             txt+=IDS__MOTOR_DISABLED_;
                     }

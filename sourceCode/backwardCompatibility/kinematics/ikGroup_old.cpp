@@ -890,7 +890,7 @@ int CIkGroup_old::checkIkGroup(int jointCnt,const int* jointHandles,float* joint
             initSceneJointModes.push_back(aj->getJointMode());
         }
 
-        setAllInvolvedJointsToNewJointMode(sim_jointmode_passive);
+        setAllInvolvedJointsToNewJointMode(sim_jointmode_kinematic);
         // It can happen that some IK elements get deactivated when the user provided wrong handles, so save the activation state:
         std::vector<bool> enabledElements;
         for (size_t i=0;i<getIkElementCount();i++)
@@ -1007,7 +1007,7 @@ int CIkGroup_old::generateIkPath(int jointCnt,const int* jointHandles,int ptCnt,
             initSceneJointModes.push_back(aj->getJointMode());
         }
 
-        setAllInvolvedJointsToNewJointMode(sim_jointmode_passive);
+        setAllInvolvedJointsToNewJointMode(sim_jointmode_kinematic);
 
         bool ikGroupWasActive=getEnabled();
         if (!ikGroupWasActive)

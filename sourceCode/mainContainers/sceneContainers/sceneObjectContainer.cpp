@@ -1065,14 +1065,14 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar,const CSceneO
         obj->serialize(ar);
     }
 
-    CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(object->getObjectHandle());
+    CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,object->getObjectHandle());
     if (script!=nullptr)
     {
         ar.xmlPushNewNode("childScript");
         script->serialize(ar);
         ar.xmlPopNode();
     }
-    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(object->getObjectHandle());
+    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,object->getObjectHandle());
     if (script!=nullptr)
     {
         ar.xmlPushNewNode("customizationScript");

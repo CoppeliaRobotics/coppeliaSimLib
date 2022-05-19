@@ -644,7 +644,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id=App::currentWorld->sceneObjects->getLastSelectionHandle();
-            CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(id);
+            CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,id);
             if (script!=nullptr)
             {
 #ifdef SIM_WITH_GUI
@@ -670,7 +670,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id=App::currentWorld->sceneObjects->getLastSelectionHandle();
-            CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(id);
+            CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,id);
             if (script!=nullptr)
             {
 #ifdef SIM_WITH_GUI
@@ -2268,8 +2268,8 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
     bool hasCustomizationScriptAttached=false;
     if (selItems==1)
     {
-        hasChildScriptAttached=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))!=nullptr);
-        hasCustomizationScriptAttached=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))!=nullptr);
+        hasChildScriptAttached=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))!=nullptr);
+        hasCustomizationScriptAttached=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))!=nullptr);
     }
     std::vector<int> rootSel;
     for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)

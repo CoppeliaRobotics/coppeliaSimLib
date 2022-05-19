@@ -395,7 +395,7 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
     {
         std::string r("sysCall_jointCallback");
         if (callTips)
-            r+=" - Called after a dynamic simulation step.";
+            r+=" - Called for motion handling of kinematic joints, or for custom control of dynamic joints.";
         return(r);
     }
     if (calltype==sim_syscb_vision)
@@ -1287,23 +1287,12 @@ int CScriptObject::flagScriptForRemoval()
     return(0);
 }
 
-int CScriptObject::getObjectHandleThatScriptIsAttachedTo_child() const
+int CScriptObject::getObjectHandleThatScriptIsAttachedTo(int scriptTypeToConsider) const
 {
-    if (_scriptType==sim_scripttype_childscript)
-        return(_objectHandleAttachedTo);
-    return(-1);
-}
-
-int CScriptObject::getObjectHandleThatScriptIsAttachedTo_customization() const
-{
-    if (_scriptType==sim_scripttype_customizationscript)
-        return(_objectHandleAttachedTo);
-    return(-1);
-}
-
-int CScriptObject::getObjectHandleThatScriptIsAttachedTo() const
-{
-    return(_objectHandleAttachedTo);
+    int retVal=-1;
+    if ( (scriptTypeToConsider==-1)||(_scriptType==scriptTypeToConsider) )
+        retVal=_objectHandleAttachedTo;
+    return(retVal);
 }
 
 void CScriptObject::setObjectHandleThatScriptIsAttachedTo(int newObjectHandle)
@@ -1736,6 +1725,7 @@ bool CScriptObject::_loadCode()
                 }
                 else
                 { // success
+                    App::setRefreshHierarchyViewFlag();
                     if (_compatibilityMode_oldLua)
                     {
                         _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState,"_S.sysCallEx_init()");
@@ -1787,6 +1777,7 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     }
     else if (callType==sim_syscb_init)
     {
+        App::setRefreshHierarchyViewFlag();
         if (_scriptState!=scriptState_uninitialized)
             return(0);
         _scriptState=scriptState_initialized;
@@ -2280,7 +2271,7 @@ bool CScriptObject::_killInterpreterState()
     _compatibilityMode_oldLua=false;
     if (!_threadedExecution_oldThreads) // those could run several times
         _numberOfPasses=0;
-
+    App::setRefreshHierarchyViewFlag();
     return(retVal);
 }
 
@@ -2346,6 +2337,7 @@ void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char
         App::logScriptMsg(getShortDescriptiveName().c_str(),sim_verbosity_scripterrors,errM.c_str());
         _lastStackTraceback=errM;
     }
+    App::setRefreshHierarchyViewFlag();
 }
 
 int CScriptObject::getScriptHandleFromInterpreterState_lua(void* LL)
@@ -4339,11 +4331,11 @@ const SNewApiMapping _simApiMapping[]=
     "sim_particle_cyclic","sim.particle_cyclic",
     "sim_particle_emissioncolor","sim.particle_emissioncolor",
     "sim_particle_water","sim.particle_water",
-    "sim_jointmode_passive","sim.jointmode_passive",
+    "sim_jointmode_passive","sim.jointmode_kinematic",
     "sim_jointmode_ik","sim.jointmode_ik",
     "sim_jointmode_ikdependent","sim.jointmode_ikdependent",
     "sim_jointmode_dependent","sim.jointmode_dependent",
-    "sim_jointmode_force","sim.jointmode_force",
+    "sim_jointmode_force","sim.jointmode_dynamic",
     "sim_filedlg_type_load","sim.filedlg_type_load",
     "sim_filedlg_type_save","sim.filedlg_type_save",
     "sim_filedlg_type_load_multiple","sim.filedlg_type_load_multiple",
@@ -6899,6 +6891,14 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+
+
+    if (_containsScriptText_old(scriptObject,"sim.jointmode_passive"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.jointmode_passive...");
+    if (_containsScriptText_old(scriptObject,"sim.jointmode_force"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.jointmode_force...");
+
+
     if (_containsScriptText_old(scriptObject,"sim.createPureShape"))
         App::logMsg(sim_verbosity_errors,"Contains sim.createPureShape...");
 

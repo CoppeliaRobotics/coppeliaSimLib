@@ -28,7 +28,7 @@ int CSer::SER_SERIALIZATION_VERSION=23; // 9 since 2008/09/01,
 
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS=18; // means: files written with this can be read by older CoppeliaSim with serialization THE_NUMBER
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ=18; // means: this executable can read versions >=THE_NUMBER
-int CSer::XML_XSERIALIZATION_VERSION=1;
+int CSer::XML_XSERIALIZATION_VERSION=2;
 int CSer::_serializationVersionThatWroteLastFile=-1;
 const bool xmlDebug=false;
 char CSer::getFileTypeFromName(const char* filename)

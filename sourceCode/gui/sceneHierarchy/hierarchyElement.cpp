@@ -345,7 +345,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     {
         bool hasScript=false;
         // Child scripts:
-        CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_child(it->getObjectHandle());
+        CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,it->getObjectHandle());
         if (script!=nullptr)
         {
             hasScript=true;
@@ -377,7 +377,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
         }
 
         // Customization scripts:
-        CScriptObject* customizationScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+        CScriptObject* customizationScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,it->getObjectHandle());
         if (customizationScript!=nullptr)
         {
             hasScript=true;

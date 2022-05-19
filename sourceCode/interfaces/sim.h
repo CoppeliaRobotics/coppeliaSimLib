@@ -235,9 +235,9 @@ SIM_DLLEXPORT simFloat* simCheckVisionSensorEx(simInt visionSensorHandle,simInt 
 SIM_DLLEXPORT simUChar* simGetVisionSensorImg(simInt sensorHandle,simInt options,simFloat rgbaCutOff,const simInt* pos,const simInt* size,simInt* resolution);
 SIM_DLLEXPORT simInt simSetVisionSensorImg(simInt sensorHandle,const simUChar* img,simInt options,const simInt* pos,const simInt* size);
 SIM_DLLEXPORT simFloat* simGetVisionSensorDepth(simInt sensorHandle,simInt options,const simInt* pos,const simInt* size,simInt* resolution);
-SIM_DLLEXPORT simInt simRuckigPos(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
-SIM_DLLEXPORT simInt simRuckigVel(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
-SIM_DLLEXPORT simInt simRuckigStep(simInt objHandle,simDouble timeStep,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2);
+SIM_DLLEXPORT simInt simRuckigPos(simInt dofs,simDouble baseCycleTime,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
+SIM_DLLEXPORT simInt simRuckigVel(simInt dofs,simDouble baseCycleTime,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2);
+SIM_DLLEXPORT simInt simRuckigStep(simInt objHandle,simDouble cycleTime,simDouble* newPos,simDouble* newVel,simDouble* newAccel,simDouble* syncTime,simDouble* reserved1,simInt* reserved2);
 SIM_DLLEXPORT simInt simRuckigRemove(simInt objHandle);
 SIM_DLLEXPORT simInt simCreateDummy(simFloat size,const simFloat* reserved);
 SIM_DLLEXPORT simInt simGroupShapes(const simInt* shapeHandles,simInt shapeCount);
@@ -363,8 +363,6 @@ SIM_DLLEXPORT simInt simCheckExecAuthorization(const simChar* what,const simChar
 
 
 
-SIM_DLLEXPORT simInt _simGetContactCallbackCount();
-SIM_DLLEXPORT const void* _simGetContactCallback(simInt index);
 SIM_DLLEXPORT simVoid _simSetDynamicSimulationIconCode(simVoid* object,simInt code);
 SIM_DLLEXPORT simVoid _simSetDynamicObjectFlagForVisualization(simVoid* object,simInt flag);
 SIM_DLLEXPORT simInt _simGetObjectListSize(simInt objType);
@@ -405,10 +403,6 @@ SIM_DLLEXPORT simVoid _simGetAdditionalForceAndTorque(const simVoid* shape,simFl
 SIM_DLLEXPORT simVoid _simClearAdditionalForceAndTorque(const simVoid* shape);
 SIM_DLLEXPORT simBool _simGetJointPositionInterval(const simVoid* joint,simFloat* minValue,simFloat* rangeValue);
 SIM_DLLEXPORT simInt _simGetJointType(const simVoid* joint);
-SIM_DLLEXPORT simBool _simIsDynamicMotorEnabled(const simVoid* joint);
-SIM_DLLEXPORT simBool _simIsDynamicMotorPositionCtrlEnabled(const simVoid* joint);
-SIM_DLLEXPORT simBool _simIsDynamicMotorTorqueModulationEnabled(const simVoid* joint);
-SIM_DLLEXPORT simVoid _simGetMotorPid(const simVoid* joint,simFloat* pParam,simFloat* iParam,simFloat* dParam);
 SIM_DLLEXPORT simFloat _simGetDynamicMotorTargetPosition(const simVoid* joint);
 SIM_DLLEXPORT simFloat _simGetDynamicMotorTargetVelocity(const simVoid* joint);
 SIM_DLLEXPORT simFloat _simGetDynamicMotorMaxForce(const simVoid* joint);
@@ -441,6 +435,7 @@ SIM_DLLEXPORT const simVoid* _simGetIkGroupObject(int ikGroupID);
 SIM_DLLEXPORT simInt _simMpHandleIkGroupObject(const simVoid* ikGroup);
 SIM_DLLEXPORT simFloat _simGetPureHollowScaling(const simVoid* geometric);
 SIM_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* joint);
+SIM_DLLEXPORT simInt _simGetJointDynCtrlMode(const simVoid* joint);
 SIM_DLLEXPORT simVoid _simDynCallback(const simInt* intData,const simFloat* floatData);
 
 
@@ -729,6 +724,12 @@ SIM_DLLEXPORT int simSetVisionSensorDepthBuffer(simInt visionSensorHandle,const 
 SIM_DLLEXPORT simInt simCreatePureShape(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision);
 SIM_DLLEXPORT simVoid* simBroadcastMessage(simInt* auxiliaryData,simVoid* customData,simInt* replyData);
 SIM_DLLEXPORT simVoid* simSendModuleMessage(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData);
+SIM_DLLEXPORT simBool _simIsDynamicMotorEnabled(const simVoid* joint);
+SIM_DLLEXPORT simBool _simIsDynamicMotorPositionCtrlEnabled(const simVoid* joint);
+SIM_DLLEXPORT simBool _simIsDynamicMotorTorqueModulationEnabled(const simVoid* joint);
+SIM_DLLEXPORT simVoid _simGetMotorPid(const simVoid* joint,simFloat* pParam,simFloat* iParam,simFloat* dParam);
+SIM_DLLEXPORT simInt _simGetContactCallbackCount();
+SIM_DLLEXPORT const void* _simGetContactCallback(simInt index);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)
