@@ -291,8 +291,8 @@ void CVisionSensor::commonInit()
     color.setDefaultValues();
     color.setColor(0.05f,0.42f,1.0f,sim_colorcomponent_ambient_diffuse);
 
-    _resolution[0]=32;
-    _resolution[1]=32;
+    _resolution[0]=256;
+    _resolution[1]=256;
     _visionSensorSize=0.01f;
     _perspective=false;
     if (_extensionString.size()!=0)

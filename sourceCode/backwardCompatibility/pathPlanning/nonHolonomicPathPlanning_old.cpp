@@ -213,7 +213,7 @@ int CNonHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
     if (maxTimePerPass==61855195)
         return(131183);
 
-    _simSetObjectLocalTransformation_internal(startDummy,dumSavedConf.X.data,dumSavedConf.Q.data);
+    _simSetObjectLocalTransformation_internal(startDummy,dumSavedConf.X.data,dumSavedConf.Q.data,0.0f);
 
     return(pathWasFound);
 }
@@ -313,7 +313,7 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNo
             tr.X(0)=x;
             tr.X(1)=y;
             C7Vector tmpTr(_startDummyLTM*tr);
-            _simSetObjectLocalTransformation_internal(startDummy,tmpTr.X.data,tmpTr.Q.data);
+            _simSetObjectLocalTransformation_internal(startDummy,tmpTr.X.data,tmpTr.Q.data,0.0f);
             if (!specialCase)
             {
                 if (!doCollide(nullptr))
@@ -454,7 +454,7 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::connect(std::vector<CN
             tr.X(0)=x;
             tr.X(1)=y;
             C7Vector tmpTr(_startDummyLTM*tr);
-            _simSetObjectLocalTransformation_internal(startDummy,tmpTr.X.data,tmpTr.Q.data);
+            _simSetObjectLocalTransformation_internal(startDummy,tmpTr.X.data,tmpTr.Q.data,0.0f);
             if (!doCollide(nullptr))
             {
                 if (test)
@@ -672,7 +672,7 @@ int CNonHolonomicPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
                 }
                 else
                     delete newPathElementsBetweenAndIncludingLowAndHigh[0]; // Impossible to connect, we have to erase the only element in the list
-                _simSetObjectLocalTransformation_internal(startDummy,startDummyOriginalLocalTr.X.data,startDummyOriginalLocalTr.Q.data); // Restore the original transformation
+                _simSetObjectLocalTransformation_internal(startDummy,startDummyOriginalLocalTr.X.data,startDummyOriginalLocalTr.Q.data,0.0f); // Restore the original transformation
             }
         }
     }

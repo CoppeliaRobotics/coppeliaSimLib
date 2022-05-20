@@ -16340,7 +16340,7 @@ simVoid _simGetObjectLocalTransformation_internal(const simVoid* object,simFloat
     tr.Q.getInternalData(quat);
 }
 
-simVoid _simSetObjectLocalTransformation_internal(simVoid* object,const simFloat* pos,const simFloat* quat)
+simVoid _simSetObjectLocalTransformation_internal(simVoid* object,const simFloat* pos,const simFloat* quat,simFloat simTime)
 {
     TRACE_C_API;
     C7Vector tr;
@@ -16455,7 +16455,7 @@ const simVoid* _simGetParentObject_internal(const simVoid* object)
     return(((CSceneObject*)object)->getParent());
 }
 
-simVoid _simDynReportObjectCumulativeTransformation_internal(simVoid* obj,const simFloat* pos,const simFloat* quat)
+simVoid _simDynReportObjectCumulativeTransformation_internal(simVoid* obj,const simFloat* pos,const simFloat* quat,simFloat simTime)
 { // obj is always a shape
     TRACE_C_API;
     CSceneObject* object=(CSceneObject*)obj;
@@ -16493,7 +16493,7 @@ simVoid _simSetObjectCumulativeTransformation_internal(simVoid* object,const sim
     App::currentWorld->sceneObjects->setObjectAbsolutePose(((CSceneObject*)object)->getObjectHandle(),tr,keepChildrenInPlace!=0);
 }
 
-simVoid _simSetShapeDynamicVelocity_internal(simVoid* shape,const simFloat* linear,const simFloat* angular)
+simVoid _simSetShapeDynamicVelocity_internal(simVoid* shape,const simFloat* linear,const simFloat* angular,simFloat simTime)
 {
     TRACE_C_API;
     ((CShape*)shape)->setDynamicVelocity(linear,angular);
@@ -16572,25 +16572,25 @@ simFloat _simGetDynamicMotorUpperLimitVelocity_internal(const simVoid* joint)
     return(maxVelAccelJerk[0]);
 }
 
-simVoid _simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(simVoid* joint,simFloat pos)
+simVoid _simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(simVoid* joint,simFloat pos,simFloat simTime)
 {
     TRACE_C_API;
-    ((CJoint*)joint)->setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(pos);
+    ((CJoint*)joint)->setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(pos,simTime);
 }
 
-simVoid _simSetJointSphericalTransformation_internal(simVoid* joint,const simFloat* quat)
+simVoid _simSetJointSphericalTransformation_internal(simVoid* joint,const simFloat* quat,simFloat simTime)
 {
     TRACE_C_API;
     ((CJoint*)joint)->setSphericalTransformation(quat);
 }
 
-simVoid _simAddForceSensorCumulativeForcesAndTorques_internal(simVoid* forceSensor,const simFloat* force,const simFloat* torque,int totalPassesCount)
+simVoid _simAddForceSensorCumulativeForcesAndTorques_internal(simVoid* forceSensor,const simFloat* force,const simFloat* torque,int totalPassesCount,simFloat simTime)
 {
     TRACE_C_API;
     ((CForceSensor*)forceSensor)->addCumulativeForcesAndTorques(force,torque,totalPassesCount);
 }
 
-simVoid _simAddJointCumulativeForcesOrTorques_internal(simVoid* joint,simFloat forceOrTorque,int totalPassesCount)
+simVoid _simAddJointCumulativeForcesOrTorques_internal(simVoid* joint,simFloat forceOrTorque,int totalPassesCount,simFloat simTime)
 {
     TRACE_C_API;
     ((CJoint*)joint)->addCumulativeForceOrTorque(forceOrTorque,totalPassesCount);
@@ -16966,8 +16966,9 @@ simInt simHandleVarious_internal()
 
         // Following is for velocity measurement:
         float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+        float t=dt+float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
-            App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(dt);
+            App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(t);
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
             App::currentWorld->sceneObjects->getObjectFromIndex(i)->measureVelocity(dt);
 

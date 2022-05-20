@@ -230,7 +230,7 @@ public:
     void setMotorLock(bool e);
 
 
-    void measureJointVelocity(float dt); // should be called just after the main script was called!!!
+    void measureJointVelocity(float simTime);
 
     void getDynamicJointErrors(float& linear,float& angular) const;
     void getDynamicJointErrorsFull(C3Vector& linear,C3Vector& angular) const;
@@ -238,7 +238,7 @@ public:
     bool handleMotion(int scriptType);
     int handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos,float effort,float dynStepSize,float errorV,float velAndForce[2]);
 
-    void setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp);
+    void setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp,float simTime);
 
     void addCumulativeForceOrTorque(float forceOrTorque,int countForAverage);
     bool getDynamicForceOrTorque(float& forceOrTorque,bool dynamicStepValue) const;
@@ -316,6 +316,7 @@ protected:
 
     float _velCalc_vel;
     float _velCalc_prevPos;
+    float _velCalc_prevSimTime;
     bool _velCalc_prevPosValid;
 
     float _cumulatedForceOrTorque;

@@ -12519,11 +12519,10 @@ int _simHandleSimulationStart(luaWrap_lua_State* L)
     if (itScrObj->getScriptType()==sim_scripttype_mainscript)
     {
         // Following is for velocity measurement (initial):
-        float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
-            App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(dt);
+            App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(0.0f);
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-            App::currentWorld->sceneObjects->getObjectFromIndex(i)->measureVelocity(dt);
+            App::currentWorld->sceneObjects->getObjectFromIndex(i)->measureVelocity(0.0f);
     }
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
@@ -12552,10 +12551,11 @@ int _simHandleSensingStart(luaWrap_lua_State* L)
 
         // Following is for velocity measurement:
         float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+        float t=dt+float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
-            App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(dt);
+            App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(t);
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-            App::currentWorld->sceneObjects->getObjectFromIndex(i)->measureVelocity(dt);
+            App::currentWorld->sceneObjects->getObjectFromIndex(i)->measureVelocity(dt); // adapt that func!
     }
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;

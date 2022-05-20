@@ -258,7 +258,7 @@ int CHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
             break;
     }
     // We restore the dummy local config and the constraints
-    _simSetObjectLocalTransformation_internal(startDummy,dumSavedConf.X.data,dumSavedConf.Q.data);
+    _simSetObjectLocalTransformation_internal(startDummy,dumSavedConf.X.data,dumSavedConf.Q.data,0.0f);
     for (int constr=0;constr<4;constr++)
         _directionConstraints[constr]=dirConstrSave[constr];
 
@@ -613,7 +613,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
         }
         C7Vector transf(C4Vector(orient),pos);
         C7Vector tmpTr(_startDummyLTM*transf);
-        _simSetObjectLocalTransformation_internal(dummy,tmpTr.X.data,tmpTr.Q.data);
+        _simSetObjectLocalTransformation_internal(dummy,tmpTr.X.data,tmpTr.Q.data,0.0f);
         if (specialCase)
         {
             float d;
@@ -1073,14 +1073,14 @@ int CHolonomicPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
                         }
                         C7Vector transf(orient,pos);
                         C7Vector tmpTr(_startDummyLTM*transf);
-                        _simSetObjectLocalTransformation_internal(startDummy,tmpTr.X.data,tmpTr.Q.data);
+                        _simSetObjectLocalTransformation_internal(startDummy,tmpTr.X.data,tmpTr.Q.data,0.0f);
                         if (doCollide(nullptr))
                         {
                             impossible=true;
                             break;
                         }
                     }
-                    _simSetObjectLocalTransformation_internal(startDummy,originalLocal.X.data,originalLocal.Q.data);
+                    _simSetObjectLocalTransformation_internal(startDummy,originalLocal.X.data,originalLocal.Q.data,0.0f);
                     pos=posCop;
                     orient=orientCop;
                     if (!impossible)

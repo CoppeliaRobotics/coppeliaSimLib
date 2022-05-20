@@ -1427,13 +1427,13 @@ SIM_DLLEXPORT simVoid _simGetObjectLocalTransformation(const simVoid* object,sim
 {
     return(_simGetObjectLocalTransformation_internal(object,pos,quat,excludeFirstJointTransformation));
 }
-SIM_DLLEXPORT simVoid _simSetObjectLocalTransformation(simVoid* object,const simFloat* pos,const simFloat* quat)
+SIM_DLLEXPORT simVoid _simSetObjectLocalTransformation(simVoid* object,const simFloat* pos,const simFloat* quat,simFloat simTime)
 {
-    return(_simSetObjectLocalTransformation_internal(object,pos,quat));
+    return(_simSetObjectLocalTransformation_internal(object,pos,quat,simTime));
 }
-SIM_DLLEXPORT simVoid _simDynReportObjectCumulativeTransformation(simVoid* object,const simFloat* pos,const simFloat* quat)
+SIM_DLLEXPORT simVoid _simDynReportObjectCumulativeTransformation(simVoid* object,const simFloat* pos,const simFloat* quat,simFloat simTime)
 {
-    return(_simDynReportObjectCumulativeTransformation_internal(object,pos,quat));
+    return(_simDynReportObjectCumulativeTransformation_internal(object,pos,quat,simTime));
 }
 SIM_DLLEXPORT simVoid _simSetObjectCumulativeTransformation(simVoid* object,const simFloat* pos,const simFloat* quat,simBool keepChildrenInPlace)
 {
@@ -1523,9 +1523,9 @@ SIM_DLLEXPORT simVoid _simSetDynamicsFullRefreshFlag(const simVoid* object,simBo
 {
     return(_simSetDynamicsFullRefreshFlag_internal(object,flag));
 }
-SIM_DLLEXPORT simVoid _simSetShapeDynamicVelocity(simVoid* shape,const simFloat* linear,const simFloat* angular)
+SIM_DLLEXPORT simVoid _simSetShapeDynamicVelocity(simVoid* shape,const simFloat* linear,const simFloat* angular,simFloat simTime)
 {
-    return(_simSetShapeDynamicVelocity_internal(shape,linear,angular));
+    return(_simSetShapeDynamicVelocity_internal(shape,linear,angular,simTime));
 }
 SIM_DLLEXPORT simVoid _simGetAdditionalForceAndTorque(const simVoid* shape,simFloat* force,simFloat* torque)
 {
@@ -1559,21 +1559,21 @@ SIM_DLLEXPORT simFloat _simGetDynamicMotorUpperLimitVelocity(const simVoid* join
 {
     return(_simGetDynamicMotorUpperLimitVelocity_internal(joint));
 }
-SIM_DLLEXPORT simVoid _simSetDynamicMotorReflectedPositionFromDynamicEngine(simVoid* joint,simFloat pos)
+SIM_DLLEXPORT simVoid _simSetDynamicMotorReflectedPositionFromDynamicEngine(simVoid* joint,simFloat pos,simFloat simTime)
 {
-    return(_simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(joint,pos));
+    return(_simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(joint,pos,simTime));
 }
-SIM_DLLEXPORT simVoid _simSetJointSphericalTransformation(simVoid* joint,const simFloat* quat)
+SIM_DLLEXPORT simVoid _simSetJointSphericalTransformation(simVoid* joint,const simFloat* quat,simFloat simTime)
 {
-    return(_simSetJointSphericalTransformation_internal(joint,quat));
+    return(_simSetJointSphericalTransformation_internal(joint,quat,simTime));
 }
-SIM_DLLEXPORT simVoid _simAddForceSensorCumulativeForcesAndTorques(simVoid* forceSensor,const simFloat* force,const simFloat* torque,int totalPassesCount)
+SIM_DLLEXPORT simVoid _simAddForceSensorCumulativeForcesAndTorques(simVoid* forceSensor,const simFloat* force,const simFloat* torque,int totalPassesCount,simFloat simTime)
 {
-    return(_simAddForceSensorCumulativeForcesAndTorques_internal(forceSensor,force,torque,totalPassesCount));
+    return(_simAddForceSensorCumulativeForcesAndTorques_internal(forceSensor,force,torque,totalPassesCount,simTime));
 }
-SIM_DLLEXPORT simVoid _simAddJointCumulativeForcesOrTorques(simVoid* joint,simFloat forceOrTorque,int totalPassesCount)
+SIM_DLLEXPORT simVoid _simAddJointCumulativeForcesOrTorques(simVoid* joint,simFloat forceOrTorque,int totalPassesCount,simFloat simTime)
 {
-    return(_simAddJointCumulativeForcesOrTorques_internal(joint,forceOrTorque,totalPassesCount));
+    return(_simAddJointCumulativeForcesOrTorques_internal(joint,forceOrTorque,totalPassesCount,simTime));
 }
 SIM_DLLEXPORT const simVoid* _simGetGeomWrapFromGeomProxy(const simVoid* geomData)
 {

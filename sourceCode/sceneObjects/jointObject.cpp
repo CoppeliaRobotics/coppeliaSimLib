@@ -637,7 +637,7 @@ void CJoint::setTargetPosition(float pos)
     }
 }
 
-void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp)
+void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp,float simTime)
 {
     {   // When the joint is in dynamic mode we disable the joint limits and allow a cyclic behaviour (revolute joints)
         // This is because dynamic joints can over or undershoot limits.
@@ -646,6 +646,7 @@ void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp)
         setPosition(rfp,true);
     }
     _rectifyDependentJoints();
+    measureJointVelocity(simTime);
 }
 
 void CJoint::setDependencyMasterJointHandle(int depJointID)
@@ -756,21 +757,21 @@ void CJoint::_setDependencyJointOffset_sendOldIk(float off) const
     }
 }
 
-void CJoint::measureJointVelocity(float dt)
+void CJoint::measureJointVelocity(float simTime)
 {
     if (_jointType!=sim_joint_spherical_subtype)
     {
-        float vel=_velCalc_vel;
-        if (_velCalc_prevPosValid)
+        float dt=simTime-_velCalc_prevSimTime;
+        if (_velCalc_prevPosValid&&(dt>0.0001f))
         {
             if (_isCyclic)
-                vel=tt::getAngleMinusAlpha(_pos,_velCalc_prevPos)/dt;
+                _velCalc_vel=tt::getAngleMinusAlpha(_pos,_velCalc_prevPos)/dt;
             else
-                vel=(_pos-_velCalc_prevPos)/dt;
+                _velCalc_vel=(_pos-_velCalc_prevPos)/dt;
+            _velCalc_prevPos=_pos;
+            _velCalc_prevSimTime=simTime;
         }
         _velCalc_prevPosValid=true;
-        _velCalc_prevPos=_pos;
-        _velCalc_vel=vel;
     }
 }
 
@@ -779,7 +780,6 @@ void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
     _velCalc_prevPosValid=false;
     _velCalc_vel=0.0f;
-    _velCalc_prevPos=0.0f;
     _initialPosition=_pos;
     _initialSphericalJointTransformation=_sphericalTransf;
     setIntrinsicTransformationError(C7Vector::identityTransformation);
@@ -1432,6 +1432,7 @@ bool CJoint::getDynamicForceOrTorque(float& forceOrTorque,bool dynamicStepValue)
 
 int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos,float effort,float dynStepSize,float errorV,float velAndForce[2])
 { // constant callback for every dynamically enabled joint, except for spherical joints. retVal: bit0 set: motor on, bit1 set: motor locked
+    // Called before a dyn step. After the step, setDynamicMotorReflectedPosition_useOnlyFromDynamicPart is called
     int retVal=1;
     if (_dynCtrlMode==sim_jointdynctrl_free)
         retVal=0;
@@ -1717,8 +1718,13 @@ bool CJoint::handleMotion(int scriptType)
                     setPosition(pos,false);
                 bool immobile=false;
                 float cv,ca;
-                if ( (outStack->getStackMapFloatValue("velocity",cv))&&(outStack->getStackMapFloatValue("acceleration",ca)) )
-                    immobile=( (cv==0.0f)&&(ca==0.0f) );
+                if (outStack->getStackMapFloatValue("velocity",cv))
+                {
+                    _velCalc_vel=cv;
+                    _velCalc_prevPosValid=false; // if false, will use _velCalc_vel as current vel in sim.getJointVelocity
+                    if (outStack->getStackMapFloatValue("acceleration",ca))
+                        immobile=( (cv==0.0f)&&(ca==0.0f) );
+                }
                 outStack->getStackMapBoolValue("immobile",immobile);
                 if (immobile)
                     _kinematicMotionType=16;
