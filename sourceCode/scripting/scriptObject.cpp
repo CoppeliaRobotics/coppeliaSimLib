@@ -6892,7 +6892,6 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
     }
     */
 
-
     if (_containsScriptText_old(scriptObject,"sim.jointmode_passive"))
         App::logMsg(sim_verbosity_errors,"Contains sim.jointmode_passive...");
     if (_containsScriptText_old(scriptObject,"sim.jointmode_force"))

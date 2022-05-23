@@ -768,9 +768,9 @@ void CJoint::measureJointVelocity(float simTime)
                 _velCalc_vel=tt::getAngleMinusAlpha(_pos,_velCalc_prevPos)/dt;
             else
                 _velCalc_vel=(_pos-_velCalc_prevPos)/dt;
-            _velCalc_prevPos=_pos;
-            _velCalc_prevSimTime=simTime;
         }
+        _velCalc_prevPos=_pos;
+        _velCalc_prevSimTime=simTime;
         _velCalc_prevPosValid=true;
     }
 }
@@ -2432,7 +2432,10 @@ void CJoint::serialize(CSer& ar)
                     { // Keep for backward compatibility with V4.3 and earlier
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _maxVelAccelJerk[0];
+                        float val;
+                        ar >> val;
+                        if ( (_jointMode==sim_jointmode_dynamic)||_jointHasHybridFunctionality )
+                            _maxVelAccelJerk[0]=val;
                     }
                     if (theName.compare("Dcm")==0)
                     {
@@ -2807,8 +2810,12 @@ void CJoint::serialize(CSer& ar)
                 if (ar.xmlGetNode_int("ctrlMode",_dynCtrlMode,exhaustiveXml))
                     usingDynCtrlMode=true;
                 ar.xmlGetNode_float("maxForce",_targetForce,exhaustiveXml);
-                if (ar.xmlGetNode_float("upperVelocityLimit",_maxVelAccelJerk[0],false)) // for backward compatibility (V4.3 and earlier)
-                    _maxVelAccelJerk[0]*=mult;
+                float val;
+                if (ar.xmlGetNode_float("upperVelocityLimit",val,false)) // for backward compatibility (V4.3 and earlier)
+                {
+                    if ( (_jointMode==sim_jointmode_dynamic)||_jointHasHybridFunctionality )
+                        _maxVelAccelJerk[0]=val*mult;
+                }
                 if (ar.xmlGetNode_float("targetPosition",_targetPos,false)) // for backward compatibility (V4.3 and earlier)
                     _targetPos*=mult;
                 if (ar.xmlGetNode_float("targetVelocity",_targetVel,false)) // for backward compatibility (V4.3 and earlier)

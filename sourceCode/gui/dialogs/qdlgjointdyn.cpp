@@ -59,6 +59,7 @@ void CQDlgJointDyn::refresh()
 
     if (sel&&prismatic)
     {
+        ui->qqCtrlMode_force->setText("Force control");
         ui->qqForceMode_forceLabel->setText("Force [N]");
 
         ui->qqVelocityMode_velocityLabel->setText("Target velocity [m/s]");
@@ -75,23 +76,24 @@ void CQDlgJointDyn::refresh()
     }
     else
     {
-        ui->qqForceMode_forceLabel->setText("Force [N*m]");
+        ui->qqCtrlMode_force->setText("Torque control");
+        ui->qqForceMode_forceLabel->setText("Torque [N*m]");
 
         ui->qqVelocityMode_velocityLabel->setText("Target velocity [deg/s]");
-        ui->qqVelocityMode_forceLabel->setText("Force [N*m]");
+        ui->qqVelocityMode_forceLabel->setText("Torque [N*m]");
 
-        ui->qqPositionMode_positionLabel->setText("Target position [deg]");
-        ui->qqPositionMode_forceLabel->setText("Force [N*m]");
+        ui->qqPositionMode_positionLabel->setText("Target angle [deg]");
+        ui->qqPositionMode_forceLabel->setText("Torque [N*m]");
         ui->qqPositionMode_upperVelLabel->setText("Upper velocity limit [deg/s]");
 
-        ui->qqSpringMode_positionLabel->setText("Zero displacement pos. [deg]");
-        ui->qqSpringMode_forceLabel->setText("Force [N*m]");
+        ui->qqSpringMode_positionLabel->setText("Zero displacement angle [deg]");
+        ui->qqSpringMode_forceLabel->setText("Torque [N*m]");
         //ui->qqKLabel->setText("Spring constant K [N*m/deg]");
         //ui->qqCLabel->setText("Damping coefficient C [N*s*m/deg]");
     }
 
     ui->qqAdjustEngineProperties->setEnabled(dynamic&&noEditModeNoSim);
-//    ui->qqApplyDynamicProperties->setEnabled(dynamic&&bigSel&&noEditModeNoSim);
+    ui->qqApplyParams->setEnabled(dynamic&&bigSel&&noEditModeNoSim);
 
     ui->qqCtrlMode_free->setEnabled(canBeMotorized&&(!it->getHybridFunctionality_old()));
     ui->qqCtrlMode_free->setChecked(dynamic&&(ctrlMode==sim_jointdynctrl_free));
