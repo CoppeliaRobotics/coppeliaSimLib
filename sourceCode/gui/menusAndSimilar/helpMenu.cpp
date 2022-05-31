@@ -48,7 +48,7 @@ void CHelpMenu::addMenu(VMenu* menu)
         debugMenu->appendMenuItem(true,CShape::getDebugObbStructures(),VISUALIZE_OBB_STRUCTURE_DEBUG_CMD,IDSN_VISUALIZE_OBB_STRUCTURE_DEBUG_MENU_ITEM,true);
         menu->appendMenuAndDetach(debugMenu,true,IDSN_DEBUG_MENU_ITEM);
     }
-    if ( CSimFlavor::getBoolVal(13)&&(!CSimFlavor::getBoolVal(14)) )
+    if (CSimFlavor::getBoolVal(19))
     {
         menu->appendMenuSeparator();
         menu->appendMenuItem(true,false,EK_CMD,CSimFlavor::getStringVal(8).c_str());

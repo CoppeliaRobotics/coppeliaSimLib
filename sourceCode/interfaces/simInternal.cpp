@@ -1064,11 +1064,6 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
         App::showSplashScreen();
 #endif
 
-    if (CSimFlavor::getBoolVal(13)&&App::userSettings->floatingLicenseEnabled)
-        CSimFlavor::ifl(App::userSettings->floatingLicenseServer.c_str(),App::userSettings->floatingLicensePort);
-    else
-        CSimFlavor::run(2);
-
     App::createWorldsContainer();
     CFileOperations::createNewScene(true,false);
 
@@ -2481,7 +2476,7 @@ simInt simSetBoolParam_internal(simInt parameter,simBool boolState)
             if ( App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
             {
                 SSimulationThreadCommand cmd;
-                cmd.cmdId=FINAL_EXIT_REQUEST_CMD;
+                cmd.cmdId=EXIT_REQUEST_CMD;
                 App::appendSimulationThreadCommand(cmd);
                 return(1);
             }
@@ -4652,9 +4647,7 @@ simInt simSaveScene_internal(const simChar* filename)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
     if (App::currentWorld->environment->getSceneLocked())
     {
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
@@ -12285,7 +12278,7 @@ simVoid simQuitSimulator_internal(simBool ignoredArgument)
 {
     TRACE_C_API;
     SSimulationThreadCommand cmd;
-    cmd.cmdId=FINAL_EXIT_REQUEST_CMD;
+    cmd.cmdId=EXIT_REQUEST_CMD;
     App::appendSimulationThreadCommand(cmd);
 }
 

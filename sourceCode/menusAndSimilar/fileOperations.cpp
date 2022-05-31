@@ -690,7 +690,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             if (!displayed)
             {
                 SSimulationThreadCommand cmd;
-                cmd.cmdId=FINAL_EXIT_REQUEST_CMD;
+                cmd.cmdId=EXIT_REQUEST_CMD;
                 App::appendSimulationThreadCommand(cmd);
             }
         }
@@ -1563,7 +1563,7 @@ void CFileOperations::addMenu(VMenu* menu)
     if (CSimFlavor::getIntVal(2)==2)
     {
         menu->appendMenuSeparator();
-        if (CSimFlavor::getBoolVal(14))
+        if (CSimFlavor::getBoolVal(16))
         {
             menu->appendMenuItem(fileOpOk,false,FILE_OPERATION_SAVE_SCENE_FOCMD,IDS_SAVE_SCENE_MENU_ITEM);
             VMenu* saveSceneMenu=new VMenu();
@@ -1579,15 +1579,6 @@ void CFileOperations::addMenu(VMenu* menu)
             saveModelMenu->appendMenuItem(fileOpOk&&justModelSelected,false,FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD,IDS_MODEL_AS_XML___MENU_ITEM);
             menu->appendMenuAndDetach(saveModelMenu,fileOpOk&&justModelSelected,IDS_SAVE_MODEL_AS_MENU_ITEM);
         }
-        else
-            menu->appendMenuItem(false,false,0,CSimFlavor::getStringVal(10).c_str());
-    }
-
-    if (CSimFlavor::getIntVal(2)==3)
-    {
-        menu->appendMenuSeparator();
-        if (CSimFlavor::getBoolVal(14))
-            menu->appendMenuItem(fileOpOk,false,FILE_OPERATION_SAVE_SCENE_FOCMD,IDS_SAVE_SCENE_MENU_ITEM);
         else
             menu->appendMenuItem(false,false,0,CSimFlavor::getStringVal(10).c_str());
     }

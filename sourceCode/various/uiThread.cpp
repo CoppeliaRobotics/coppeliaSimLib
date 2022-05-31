@@ -144,6 +144,8 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     if (cmdIn->cmdId==DETECT_VISION_SENSOR_ENTITY_UITHREADCMD)
         ((CVisionSensor*)cmdIn->objectParams[0])->detectVisionSensorEntity_executedViaUiThread(cmdIn->intParams[0],cmdIn->boolParams[0],cmdIn->boolParams[1],cmdIn->boolParams[2],cmdIn->boolParams[3]);
 
+    if (cmdIn->cmdId==CHKFLTLIC_UITHREADCMD)
+        cmdOut->intParams.push_back(CSimFlavor::getIntVal(3));
 
 #ifdef SIM_WITH_GUI
     if ( (App::mainWindow!=nullptr)&&(cmdIn->cmdId==MENUBAR_COLOR_UITHREADCMD) )

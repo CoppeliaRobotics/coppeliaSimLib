@@ -188,6 +188,7 @@ public:
     int xmlExportSplitSize;
     bool xmlExportKnownFormats;
 
+    std::string license;
     bool floatingLicenseEnabled;
     std::string floatingLicenseServer;
     int floatingLicensePort;

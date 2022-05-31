@@ -168,7 +168,7 @@ bool handleSignal(int signal)
 {
     App::logMsg(sim_verbosity_loadinfos,"external exit request: %i",signal);
     SSimulationThreadCommand cmd;
-    cmd.cmdId=FINAL_EXIT_REQUEST_CMD;
+    cmd.cmdId=EXIT_REQUEST_CMD;
     App::appendSimulationThreadCommand(cmd);
     return true; // don't propagate the signal further
 }

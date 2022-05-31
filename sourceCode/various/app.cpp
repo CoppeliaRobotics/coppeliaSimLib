@@ -637,8 +637,6 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
     if (CSimFlavor::getBoolVal(17))
     {
         SSimulationThreadCommand cmd;
-        cmd.cmdId=PLUS_HFLM_CMD;
-        App::appendSimulationThreadCommand(cmd,10000);
         CSimFlavor::run(4);
         cmd.cmdId=PLUS_CVU_CMD;
         App::appendSimulationThreadCommand(cmd,1500);
@@ -651,6 +649,13 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
         appendSimulationThreadCommand(cmd,1000);
         cmd.cmdId=DISPLAY_WARNING_IF_DEBUGGING_CMD;
         appendSimulationThreadCommand(cmd,3000);
+    }
+
+    CSimFlavor::run(7);
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=CHKLICM_CMD;
+        appendSimulationThreadCommand(cmd,5000);
     }
 #endif
 
@@ -665,6 +670,8 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
 
     // The UI thread sits here during the whole application:
     _processGuiEventsUntilQuit();
+
+    CSimFlavor::run(8);
 
 #ifdef SIM_WITH_GUI
     if (mainWindow!=nullptr)

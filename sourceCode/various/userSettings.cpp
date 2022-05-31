@@ -181,6 +181,7 @@
 #define _USR_CONNECTION_ADDRESS "conParam1"
 #define _USR_CONNECTION_PORT "conParam2"
 
+#define _USR_LICENSE "license"
 #define _USR_FLOAT_LICENSE_ENABLED "floatingLicenseEnabled"
 #define _USR_FLOAT_LICENSE_SERVER_ADDRESS "floatingLicenseServer"
 #define _USR_FLOAT_LICENSE_SERVER_PORT "floatingLicensePort"
@@ -381,6 +382,7 @@ CUserSettings::CUserSettings()
 
     forceBugFix_rel30002=false;
 
+    license="";
     floatingLicenseEnabled=false;
     floatingLicenseServer="127.0.0.1";
     floatingLicensePort=20249;
@@ -758,12 +760,13 @@ void CUserSettings::saveUserSettings()
     c.addRandomLine("");
     c.addRandomLine("");
 
-    c.addRandomLine("// Floating license / dongle license");
+    c.addRandomLine("// License");
     c.addRandomLine("// =================================================");
-    c.addBoolean(_USR_FLOAT_LICENSE_ENABLED,floatingLicenseEnabled,"");
-    c.addString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer,"");
-    c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort,"");
+    c.addString(_USR_LICENSE,license,"");
     c.addBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen,"");
+//    c.addBoolean(_USR_FLOAT_LICENSE_ENABLED,floatingLicenseEnabled,"");
+//    c.addString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer,"");
+//    c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort,"");
 
     std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME);
     c.writeConfiguration(filenameAndPath.c_str());
@@ -1074,11 +1077,12 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_XML_EXPORT_SPLIT_SIZE,xmlExportSplitSize);
     c.getBoolean(_USR_XML_EXPORT_KNOWN_FORMATS,xmlExportKnownFormats);
 
-    // Floating license / dongle license section:
+    // License section:
     // *****************************
+    c.getString(_USR_LICENSE,license);
+    c.getBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen);
     c.getBoolean(_USR_FLOAT_LICENSE_ENABLED,floatingLicenseEnabled);
     c.getString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer);
     c.getInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort);
-    c.getBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen);
 }
 

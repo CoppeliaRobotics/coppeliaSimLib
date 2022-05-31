@@ -189,6 +189,31 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId==FINAL_EXIT_REQUEST_CMD)
         App::postExitRequest();
+    if (cmd.cmdId==EXIT_REQUEST_CMD)
+    {
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=CHKFLTLIC_UITHREADCMD;
+        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        int dl=0;
+        int res=cmdOut.intParams[0];
+        if (res>0)
+        {
+            if (res!=1)
+            {
+                while (true)
+                {
+                    cmdOut.intParams.clear();
+                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                    if (cmdOut.intParams[0]!=2)
+                        break;
+                }
+            }
+            dl=3000;
+        }
+        cmd.cmdId=FINAL_EXIT_REQUEST_CMD;
+        appendSimulationThreadCommand(cmd,dl);
+    }
 
     if (cmd.cmdId==EDU_EXPIRED_CMD)
     {
@@ -212,11 +237,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
 
 #ifdef SIM_WITH_GUI
-    if (cmd.cmdId==PLUS_HFLM_CMD)
-    {
-        if (CSimFlavor::hflm())
-            appendSimulationThreadCommand(cmd,1000);
-    }
     if (cmd.cmdId==PLUS_CVU_CMD)
     {
         SUIThreadCommand cmdIn;
@@ -4619,6 +4639,23 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         App::appendSimulationThreadCommand(cmd,200);
     }
 
+    if (cmd.cmdId==CHKLICM_CMD)
+    {
+        std::string v=CSimFlavor::getStringVal(19);
+        if (v.size()>0)
+        {
+            if (v[v.size()-1]!=' ')
+                App::logMsg(sim_verbosity_errors,v.c_str());
+            else
+            {
+    #ifdef SIM_WITH_GUI
+                App::uiThread->messageBox_critical(App::mainWindow,CSimFlavor::getStringVal(20).c_str(),v.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+    #endif
+            }
+        }
+        App::appendSimulationThreadCommand(cmd,10000);
+    }
+
     if (cmd.cmdId==REFRESH_DIALOGS_CMD)
     {
         SUIThreadCommand cmdIn;
@@ -4777,7 +4814,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
         {
             // First repost a same command:
             App::appendSimulationThreadCommand(cmd,1000);
-            if ( CSimFlavor::getBoolVal(14)&&(App::userSettings->autoSaveDelay>0)&&(!App::currentWorld->environment->getSceneLocked()) )
+            if ( CSimFlavor::getBoolVal(16)&&(App::userSettings->autoSaveDelay>0)&&(!App::currentWorld->environment->getSceneLocked()) )
             {
                 if (VDateTime::getSecondsSince1970()>(App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970+App::userSettings->autoSaveDelay*60))
                 {
