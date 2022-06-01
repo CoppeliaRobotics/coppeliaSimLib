@@ -39,15 +39,6 @@ void CSimFlavor::ekd()
 {
 }
 
-void CSimFlavor::ifl(const char* s,int p)
-{
-}
-
-bool CSimFlavor::hflm()
-{
-    return(false);
-}
-
 void CSimFlavor::run(int w)
 {
 }

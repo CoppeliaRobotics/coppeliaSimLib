@@ -4653,7 +4653,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     #endif
             }
         }
-        App::appendSimulationThreadCommand(cmd,10000);
+        App::appendSimulationThreadCommand(cmd,CSimFlavor::getIntVal(4));
     }
 
     if (cmd.cmdId==REFRESH_DIALOGS_CMD)

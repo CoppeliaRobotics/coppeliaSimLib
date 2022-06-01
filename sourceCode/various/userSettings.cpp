@@ -735,7 +735,8 @@ void CUserSettings::saveUserSettings()
     c.addFloat(_USR_DYNAMIC_ACTIVITY_RANGE,dynamicActivityRange,"");
     c.addFloat(_USR_TRANSLATION_STEP_SIZE,_translationStepSize,"");
     c.addFloat(_USR_ROTATION_STEP_SIZE,_rotationStepSize*radToDeg_f,"");
-    c.addInteger(_USR_PROCESSOR_CORE_AFFINITY,CThreadPool_old::getProcessorCoreAffinity(),"recommended to keep 0 (-1:os default, 0:all threads on same core, m: affinity mask (bit1=core1, bit2=core2, etc.))");
+    if (CThreadPool_old::getProcessorCoreAffinity()!=0)
+        c.addInteger(_USR_PROCESSOR_CORE_AFFINITY,CThreadPool_old::getProcessorCoreAffinity(),"recommended to keep 0 (-1:os default, 0:all threads on same core, m: affinity mask (bit1=core1, bit2=core2, etc.))");
     c.addInteger(_USR_FREE_SERVER_PORT_START,freeServerPortStart,"");
     c.addInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange,"");
     c.addInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,_abortScriptExecutionButton,"in seconds. Zero to disable.");
@@ -763,10 +764,14 @@ void CUserSettings::saveUserSettings()
     c.addRandomLine("// License");
     c.addRandomLine("// =================================================");
     c.addString(_USR_LICENSE,license,"");
-    c.addBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen,"");
-//    c.addBoolean(_USR_FLOAT_LICENSE_ENABLED,floatingLicenseEnabled,"");
-//    c.addString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer,"");
-//    c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort,"");
+    if (keepDongleOpen)
+        c.addBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen,"");
+    if (floatingLicenseEnabled)
+    {
+        c.addBoolean(_USR_FLOAT_LICENSE_ENABLED,floatingLicenseEnabled,"");
+        c.addString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer,"");
+        c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort,"");
+    }
 
     std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME);
     c.writeConfiguration(filenameAndPath.c_str());

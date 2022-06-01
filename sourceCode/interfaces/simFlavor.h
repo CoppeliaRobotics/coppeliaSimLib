@@ -12,8 +12,6 @@ public:
     static int handleReadOpenFile(int f,char* b);
     static void setHld(void* w);
     static void ekd();
-    static void ifl(const char* s,int p);
-    static bool hflm();
     static void run(int w);
     static int getIntVal(int w);
     static int getIntVal_2int(int w,int v1,int v2);
