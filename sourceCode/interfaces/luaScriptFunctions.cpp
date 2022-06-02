@@ -158,7 +158,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.invertMatrix",_simInvertMatrix,                        "sim.invertMatrix(float[12] matrix)",true},
     {"sim.multiplyMatrices",_simMultiplyMatrices,                "float[12] resultMatrix=sim.multiplyMatrices(float[12] matrixIn1,float[12] matrixIn2)",true},
     {"sim.interpolateMatrices",_simInterpolateMatrices,          "float[12] resultMatrix=sim.interpolateMatrices(float[12] matrixIn1,float[12] matrixIn2,float interpolFactor)",true},
-    {"sim.multiplyVector",_simMultiplyVector,                    "float[] resultVectors=sim.multiplyVector(float[7] pose,float[] inVectors)\nfloat[] resultVectors=sim.multiplyVector(float[12] matrix,float[] inVectors)",true},
+    {"sim.multiplyVector",_simMultiplyVector,                    "float[] resultVectors=sim.multiplyVector(float[12] matrix,float[] inVectors)\nfloat[] resultVectors=sim.multiplyVector(float[7] pose,float[] inVectors)",true},
     {"sim.getObjectChild",_simGetObjectChild,                    "int childObjectHandle=sim.getObjectChild(int objectHandle,int index)",true},
     {"sim.getObjectParent",_simGetObjectParent,                  "int parentObjectHandle=sim.getObjectParent(int objectHandle)",true},
     {"sim.setObjectParent",_simSetObjectParent,                  "sim.setObjectParent(int objectHandle,int parentObjectHandle,bool keepInPlace=true)",true},
@@ -306,8 +306,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setScriptInt32Param",_simSetScriptInt32Param,          "sim.setScriptInt32Param(int scriptHandle,int parameterID,int parameter)",true},
     {"sim.getScriptStringParam",_simGetScriptStringParam,        "buffer parameter=sim.getScriptStringParam(int scriptHandle,int parameterID)",true},
     {"sim.setScriptStringParam",_simSetScriptStringParam,        "sim.setScriptStringParam(int scriptHandle,int parameterID,buffer parameter)",true},
-    {"sim.getRotationAxis",_simGetRotationAxis,                  "float[3] axis,float angle=sim.getRotationAxis(float[12] matrixStart,float[12] matrixGoal)",true},
-    {"sim.rotateAroundAxis",_simRotateAroundAxis,                "float[12] matrixOut=sim.rotateAroundAxis(float[12] matrixIn,float[3] axis,float[3] axisPos,float angle)",true},
+    {"sim.getRotationAxis",_simGetRotationAxis,                  "float[3] axis,float angle=sim.getRotationAxis(float[12] matrixStart,float[12] matrixGoal)\nfloat[3] axis,float angle=sim.getRotationAxis(float[7] poseStart,float[7] poseGoal)",true},
+    {"sim.rotateAroundAxis",_simRotateAroundAxis,                "float[12] matrixOut=sim.rotateAroundAxis(float[12] matrixIn,float[3] axis,float[3] axisPos,float angle)\nfloat[7] poseOut=sim.rotateAroundAxis(float[7] poseIn,float[3] axis,float[3] axisPos,float angle)",true},
     {"sim.launchExecutable",_simLaunchExecutable,                "sim.launchExecutable(string filename,string parameters='',int showStatus=1)",true},
     {"sim.getJointForce",_simGetJointForce,                      "float forceOrTorque=sim.getJointForce(int jointHandle)",true},
     {"sim.getJointTargetForce",_simGetJointTargetForce,          "float forceOrTorque=sim.getJointTargetForce(int jointHandle)",true},
@@ -9918,20 +9918,56 @@ int _simGetRotationAxis(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getRotationAxis");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,12,lua_arg_number,12))
+    if (checkInputArguments(L,&errorString,lua_arg_number,7,lua_arg_number,7))
     {
         float inM0[12];
         float inM1[12];
-        float outAxis[3];
-        float angle;
-        getFloatsFromTable(L,1,12,inM0);
-        getFloatsFromTable(L,2,12,inM1);
-        if (simGetRotationAxis_internal(inM0,inM1,outAxis,&angle)!=-1)
-        {
-            pushFloatTableOntoStack(L,3,outAxis);
-            luaWrap_lua_pushnumber(L,angle);
-            LUA_END(2);
+
+        C4X4Matrix mStart;
+        C4X4Matrix mGoal;
+        if (luaWrap_lua_rawlen(L,1)>=12)
+        { // we have a matrix
+            getFloatsFromTable(L,1,12,inM0);
+            getFloatsFromTable(L,2,12,inM1);
+            mStart.copyFromInterface(inM0);
+            mGoal.copyFromInterface(inM1);
         }
+        else
+        { // we have a pose
+            getFloatsFromTable(L,1,7,inM0);
+            getFloatsFromTable(L,2,7,inM1);
+            C7Vector p;
+            p.setInternalData(inM0,true);
+            mStart=p.getMatrix();
+            p.setInternalData(inM1,true);
+            mGoal=p.getMatrix();
+        }
+
+        // Following few lines taken from the quaternion interpolation part:
+        C4Vector AA(mStart.M.getQuaternion());
+        C4Vector BB(mGoal.M.getQuaternion());
+        if (AA(0)*BB(0)+AA(1)*BB(1)+AA(2)*BB(2)+AA(3)*BB(3)<0.0f)
+            AA=AA*-1.0f;
+        C4Vector r((AA.getInverse()*BB).getAngleAndAxis());
+
+        C3Vector v(r(1),r(2),r(3));
+        v=AA*v;
+
+        float axis[3];
+        axis[0]=v(0);
+        axis[1]=v(1);
+        axis[2]=v(2);
+        float l=sqrt(v(0)*v(0)+v(1)*v(1)+v(2)*v(2));
+        if (l!=0.0f)
+        {
+            axis[0]/=l;
+            axis[1]/=l;
+            axis[2]/=l;
+        }
+
+        pushFloatTableOntoStack(L,3,axis);
+        luaWrap_lua_pushnumber(L,r(0));
+        LUA_END(2);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -9943,20 +9979,58 @@ int _simRotateAroundAxis(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.rotateAroundAxis");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,12,lua_arg_number,3,lua_arg_number,3,lua_arg_number,0))
+    if (checkInputArguments(L,&errorString,lua_arg_number,7,lua_arg_number,3,lua_arg_number,3,lua_arg_number,0))
     {
         float inM[12];
         float axis[3];
-        float pos[3];
+        float ppos[3];
         float outM[12];
-        getFloatsFromTable(L,1,12,inM);
         getFloatsFromTable(L,2,3,axis);
-        getFloatsFromTable(L,3,3,pos);
-        if (simRotateAroundAxis_internal(inM,axis,pos,luaToFloat(L,4),outM)!=-1)
-        {
-            pushFloatTableOntoStack(L,12,outM);
-            LUA_END(1);
+        getFloatsFromTable(L,3,3,ppos);
+
+        C7Vector tr;
+        if (luaWrap_lua_rawlen(L,1)>=12)
+        { // we have a matrix
+            getFloatsFromTable(L,1,12,inM);
+            C4X4Matrix m;
+            m.copyFromInterface(inM);
+            tr=m.getTransformation();
         }
+        else
+        { // we have a pose
+            getFloatsFromTable(L,1,7,inM);
+            tr.setInternalData(inM,true);
+        }
+        C3Vector ax(axis);
+        C3Vector pos(ppos);
+
+        float alpha=-atan2(ax(1),ax(0));
+        float beta=atan2(-sqrt(ax(0)*ax(0)+ax(1)*ax(1)),ax(2));
+        tr.X-=pos;
+        C7Vector r;
+        r.X.clear();
+        r.Q.setEulerAngles(0.0f,0.0f,alpha);
+        tr=r*tr;
+        r.Q.setEulerAngles(0.0f,beta,0.0f);
+        tr=r*tr;
+        r.Q.setEulerAngles(0.0f,0.0f,luaToFloat(L,4));
+        tr=r*tr;
+        r.Q.setEulerAngles(0.0f,-beta,0.0f);
+        tr=r*tr;
+        r.Q.setEulerAngles(0.0f,0.0f,-alpha);
+        tr=r*tr;
+        tr.X+=pos;
+        if (luaWrap_lua_rawlen(L,1)>=12)
+        { // we have a matrix
+            tr.getMatrix().copyToInterface(outM);
+            pushFloatTableOntoStack(L,12,outM);
+        }
+        else
+        { // we have a pose
+            tr.getInternalData(outM,true);
+            pushFloatTableOntoStack(L,7,outM);
+        }
+        LUA_END(1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

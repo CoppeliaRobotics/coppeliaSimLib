@@ -1912,6 +1912,7 @@ simInt simSetJointPosition_internal(simInt objectHandle,simFloat position)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
+        // info: do not try to trigger a sysCall_jointCallback call for that function, it really doesn't make sense
         it->setPosition(position,false);
         it->setKinematicMotionType(0,true); // reset
         return(1);

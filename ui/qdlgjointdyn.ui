@@ -474,7 +474,7 @@
     <string>Apply to selection</string>
    </property>
   </widget>
-  <widget class="QGroupBox" name="qqGroup2_3">
+  <widget class="QGroupBox" name="qqGroupFree">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -515,7 +515,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="qqGroup2_4">
+  <widget class="QGroupBox" name="qqGroupForce">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -579,7 +579,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="qqGroup2_5">
+  <widget class="QGroupBox" name="qqGroupVelocity">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -651,7 +651,7 @@
      <rect>
       <x>30</x>
       <y>70</y>
-      <width>231</width>
+      <width>291</width>
       <height>18</height>
      </rect>
     </property>
@@ -682,7 +682,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="qqGroup2_6">
+  <widget class="QGroupBox" name="qqGroupPosition">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -877,7 +877,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="qqGroup2_7">
+  <widget class="QGroupBox" name="qqGroupSpring">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -1026,7 +1026,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="qqGroup2_8">
+  <widget class="QGroupBox" name="qqGroupCustom">
    <property name="enabled">
     <bool>true</bool>
    </property>

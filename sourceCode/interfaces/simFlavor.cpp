@@ -133,13 +133,6 @@ bool CSimFlavor::getBoolVal(int w)
     return(false);
 }
 
-bool CSimFlavor::getBoolVal_int(int w,int v)
-{
-    if (w==0)
-        return(false);
-    return(false);
-}
-
 bool CSimFlavor::getBoolVal_str(int w,const char* str)
 {
     if (w==0)
