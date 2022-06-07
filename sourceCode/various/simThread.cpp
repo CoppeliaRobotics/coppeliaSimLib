@@ -4649,6 +4649,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             else
             {
     #ifdef SIM_WITH_GUI
+                App::logMsg(sim_verbosity_errors,v.c_str());
                 App::uiThread->messageBox_critical(App::mainWindow,CSimFlavor::getStringVal(20).c_str(),v.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     #endif
             }
