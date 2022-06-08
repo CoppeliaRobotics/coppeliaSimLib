@@ -28,6 +28,7 @@ public:
     static std::string generateUniqueReadableString();
     static void replaceSubstring(std::string& str,const char* subStr,const char* replacementSubStr);
     static void regexReplace(std::string& str,const char* regexStr,const char* regexReplacementSubStr);
+    static void removeComments(std::string& line);
     static void pushFloatToBuffer(float d,std::vector<char>& data);
     static float popFloatFromBuffer(std::vector<char>& data);
     static void pushIntToBuffer(int d,std::vector<char>& data);

@@ -189,6 +189,7 @@ public:
     bool xmlExportKnownFormats;
 
     std::string license;
+    std::string licenseEndpoint;
     bool floatingLicenseEnabled;
     std::string floatingLicenseServer;
     int floatingLicensePort;

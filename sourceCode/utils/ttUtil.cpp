@@ -287,6 +287,20 @@ void CTTUtil::regexReplace(std::string& str,const char* regexStr,const char* reg
     str=std::regex_replace(str,std::regex(regexStr),regexReplacementSubStr);
 }
 
+void CTTUtil::removeComments(std::string& line)
+{
+    replaceSubstring(line,"://","doubleptslashslash");
+    for (size_t i=0;i<line.length()-1;i++)
+    {
+        if ( (line[i]=='/')&&(line[i+1]=='/') )
+        {
+            line.erase(line.begin()+i,line.end());
+            break;
+        }
+    }
+    replaceSubstring(line,"doubleptslashslash","://");
+}
+
 void CTTUtil::pushFloatToBuffer(float d,std::vector<char>& data)
 {
     for (size_t i=0;i<sizeof(float);i++)

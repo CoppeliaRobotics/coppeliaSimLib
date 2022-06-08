@@ -182,6 +182,7 @@
 #define _USR_CONNECTION_PORT "conParam2"
 
 #define _USR_LICENSE "license"
+#define _USR_LICENSE_ENDPOINT "licenseEndpoint"
 #define _USR_FLOAT_LICENSE_ENABLED "floatingLicenseEnabled"
 #define _USR_FLOAT_LICENSE_SERVER_ADDRESS "floatingLicenseServer"
 #define _USR_FLOAT_LICENSE_SERVER_PORT "floatingLicensePort"
@@ -383,6 +384,7 @@ CUserSettings::CUserSettings()
     forceBugFix_rel30002=false;
 
     license="";
+    licenseEndpoint="";
     floatingLicenseEnabled=false;
     floatingLicenseServer="127.0.0.1";
     floatingLicensePort=20249;
@@ -764,6 +766,8 @@ void CUserSettings::saveUserSettings()
     c.addRandomLine("// License");
     c.addRandomLine("// =================================================");
     c.addString(_USR_LICENSE,license,"");
+    if (licenseEndpoint.size()>0)
+        c.addString(_USR_LICENSE_ENDPOINT,licenseEndpoint,"");
     if (keepDongleOpen)
         c.addBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen,"");
     if (floatingLicenseEnabled)
@@ -1085,6 +1089,7 @@ void CUserSettings::loadUserSettings()
     // License section:
     // *****************************
     c.getString(_USR_LICENSE,license);
+    c.getString(_USR_LICENSE_ENDPOINT,licenseEndpoint);
     c.getBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen);
     c.getBoolean(_USR_FLOAT_LICENSE_ENABLED,floatingLicenseEnabled);
     c.getString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer);
