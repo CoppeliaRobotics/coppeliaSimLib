@@ -119,7 +119,8 @@ void VFile::reportAndHandleFileExceptionError(VFILE_EXCEPTION_TYPE e)
 #endif
 #ifdef SIM_WITH_GUI
     // stl file exceptions:
-    QMessageBox::critical(nullptr,IDSN_FILE_EXCEPTION_ERROR,e.what());
+    if (App::isQtAppBuilt())
+        QMessageBox::critical(nullptr,IDSN_FILE_EXCEPTION_ERROR,e.what());
 #endif
 }
 

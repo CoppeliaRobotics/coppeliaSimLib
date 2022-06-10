@@ -80,6 +80,11 @@ bool App::canInitSimThread()
     return(_canInitSimThread);
 }
 
+bool App::isQtAppBuilt()
+{
+    return(App::qtApp!=nullptr);
+}
+
 // Following simulation thread split into 'simThreadInit', 'simThreadDestroy' and 'simStep' is courtesy of Stephen James:
 SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
 {

@@ -94,6 +94,7 @@ public:
     static void setExitCode(int c);
     static int getExitCode();
     static bool isOnline();
+    static bool isQtAppBuilt();
 
     static void undoRedo_sceneChanged(const char* txt);
     static void undoRedo_sceneChangedGradual(const char* txt);
