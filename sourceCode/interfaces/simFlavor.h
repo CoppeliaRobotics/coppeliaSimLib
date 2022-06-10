@@ -7,7 +7,6 @@ class CSimFlavor
 {
 public:
     static int ver();
-    static bool init();
     static void getAboutStr(std::string& title,std::string& txt);
     static int handleReadOpenFile(int f,char* b);
     static void setHld(void* w);

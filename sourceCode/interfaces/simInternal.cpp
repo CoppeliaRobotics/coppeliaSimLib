@@ -1004,8 +1004,6 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
     str+=flav+", ";
     str+=SIM_PLATFORM;
     App::logMsg(sim_verbosity_loadinfos,str.c_str());
-    CSimFlavor::init();
-
     CSimFlavor::run(0);
 
     TRACE_C_API;
@@ -1051,11 +1049,7 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
         App::setBrowserEnabled(false);
     }
     App::setIcon();
-    if (!CSimFlavor::getBoolVal(11))
-        COglSurface::_hierarchyEnabled=false;
 #endif
-
-    CSimFlavor::run(1);
 
     App::setApplicationName(CSimFlavor::getStringVal(2).c_str());
 

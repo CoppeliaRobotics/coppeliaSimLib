@@ -114,12 +114,12 @@ VFile::~VFile()
 
 void VFile::reportAndHandleFileExceptionError(VFILE_EXCEPTION_TYPE e)
 {
+#ifdef SIM_LIB
+    App::logMsg(sim_verbosity_errors,"file exception error: %s",e.what());
+#endif
 #ifdef SIM_WITH_GUI
     // stl file exceptions:
     QMessageBox::critical(nullptr,IDSN_FILE_EXCEPTION_ERROR,e.what());
-#endif
-#ifdef SIM_LIB
-    App::logMsg(sim_verbosity_errors,"file exception error: %s",e.what());
 #endif
 }
 

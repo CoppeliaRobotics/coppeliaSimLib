@@ -290,14 +290,9 @@ void CTTUtil::regexReplace(std::string& str,const char* regexStr,const char* reg
 void CTTUtil::removeComments(std::string& line)
 {
     replaceSubstring(line,"://","doubleptslashslash");
-    for (size_t i=0;i<line.length()-1;i++)
-    {
-        if ( (line[i]=='/')&&(line[i+1]=='/') )
-        {
-            line.erase(line.begin()+i,line.end());
-            break;
-        }
-    }
+    size_t p=line.find("//");
+    if (p!=std::string::npos)
+        line.erase(p);
     replaceSubstring(line,"doubleptslashslash","://");
 }
 

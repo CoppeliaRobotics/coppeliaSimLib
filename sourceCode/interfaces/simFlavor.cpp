@@ -13,11 +13,6 @@ int CSimFlavor::ver()
     return(-1);
 }
 
-bool CSimFlavor::init()
-{
-    return(true);
-}
-
 void CSimFlavor::getAboutStr(std::string& title,std::string& txt)
 {
     title=IDS_ABOUT_SIM;
@@ -113,8 +108,6 @@ bool CSimFlavor::getBoolVal(int w)
     if (w==9)
         return(true);
     if (w==10)
-        return(true);
-    if (w==11)
         return(true);
     if (w==12)
         return(true);
