@@ -556,39 +556,7 @@ bool CDlgCont::processCommand(int commandID)
         }
         if (commandID==TOGGLE_SETTINGS_DLG_CMD)
         {
-            if (CSimFlavor::getBoolVal(11))
-                toggle(SETTINGS_DLG);
-            else
-            {
-                IF_UI_EVENT_CAN_READ_DATA
-                {
-                    CQDlgOpenGlSettings theDialog(App::mainWindow);
-
-                    theDialog.offscreenContextType=App::userSettings->offscreenContextType;
-                    theDialog.fboType=App::userSettings->fboType;
-                    theDialog.vboOperation=App::userSettings->vboOperation;
-                    theDialog.idleFps=App::userSettings->getIdleFps();
-                    theDialog.refresh();
-                    if (theDialog.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL)
-                    {
-                        SSimulationThreadCommand cmd;
-                        cmd.cmdId=SET_OPENGLSETTINGS_USERSETTINGSGUITRIGGEREDCMD;
-                        cmd.intParams.push_back(theDialog.offscreenContextType);
-                        cmd.intParams.push_back(theDialog.fboType);
-                        cmd.intParams.push_back(theDialog.vboOperation);
-
-                        cmd.intParams.push_back(App::userSettings->visionSensorsUseGuiThread_windowed);
-                        cmd.boolParams.push_back(App::userSettings->oglCompatibilityTweak1);
-                        cmd.boolParams.push_back(App::userSettings->useGlFinish);
-                        cmd.boolParams.push_back(App::userSettings->useGlFinish_visionSensors);
-                        cmd.intParams.push_back(theDialog.idleFps);
-                        cmd.boolParams.push_back(App::userSettings->forceFboViaExt);
-                        cmd.intParams.push_back(App::userSettings->desiredOpenGlMajor);
-                        cmd.intParams.push_back(App::userSettings->desiredOpenGlMinor);
-                        App::appendSimulationThreadCommand(cmd);
-                    }
-                }
-            }
+            toggle(SETTINGS_DLG);
             return(true);
         }
         if (commandID==TOGGLE_DUMMY_DLG_CMD)

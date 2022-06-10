@@ -896,12 +896,9 @@ void CMainWindow::createDefaultMenuBar()
 
         if (editModeContainer->getEditModeType()==NO_EDIT_MODE)
         {
-            if (CSimFlavor::getBoolVal(11))
-            {
-                _addSystemMenu=new VMenu();
-                _menubar->appendMenuAndDetach(_addSystemMenu,menuBarEnabled,(std::string(IDS_ADD_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
-                connect(_addSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowAddSystemMenu()));
-            }
+            _addSystemMenu=new VMenu();
+            _menubar->appendMenuAndDetach(_addSystemMenu,menuBarEnabled,(std::string(IDS_ADD_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
+            connect(_addSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowAddSystemMenu()));
             _simulationSystemMenu=new VMenu();
             _menubar->appendMenuAndDetach(_simulationSystemMenu,menuBarEnabled,(std::string(IDS_SIMULATION_MENU_ITEM)+DUMMY_SPACE_QMENUBAR_QT5).c_str());
             connect(_simulationSystemMenu->getQMenu(),SIGNAL(aboutToShow()),this,SLOT(_aboutToShowSimulationSystemMenu()));
@@ -974,13 +971,10 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionCameraZoom,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionCameraZoom,CAMERA_ZOOM_NAVIGATION_CMD);
 
-        if (CSimFlavor::getBoolVal(11))
-        {
-            _toolbarActionCameraAngle=_toolbar1->addAction(QIcon(":/toolbarFiles/cameraAngle.png"),tr(IDS_TOOLBAR_TOOLTIP_CAMERA_OPENING_ANGLE));
-            _toolbarActionCameraAngle->setCheckable(true);
-            connect(_toolbarActionCameraAngle,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionCameraAngle,CAMERA_ANGLE_NAVIGATION_CMD);
-        }
+        _toolbarActionCameraAngle=_toolbar1->addAction(QIcon(":/toolbarFiles/cameraAngle.png"),tr(IDS_TOOLBAR_TOOLTIP_CAMERA_OPENING_ANGLE));
+        _toolbarActionCameraAngle->setCheckable(true);
+        connect(_toolbarActionCameraAngle,SIGNAL(triggered()),_signalMapper,SLOT(map()));
+        _signalMapper->setMapping(_toolbarActionCameraAngle,CAMERA_ANGLE_NAVIGATION_CMD);
 
         _toolbarActionCameraSizeToScreen=_toolbar1->addAction(QIcon(":/toolbarFiles/cameraResize.png"),tr(IDS_TOOLBAR_TOOLTIP_CAMERA_FIT_TO_SCREEN));
         _toolbarActionCameraSizeToScreen->setCheckable(false);
@@ -989,13 +983,10 @@ void CMainWindow::_createDefaultToolBars()
 
         _toolbar1->addSeparator();
 
-        if (CSimFlavor::getBoolVal(11))
-        {
-            _toolbarActionClickSelection=_toolbar1->addAction(QIcon(":/toolbarFiles/clickSelection.png"),tr(IDS_TOOLBAR_TOOLTIP_CLICK_SELECTION));
-            _toolbarActionClickSelection->setCheckable(true);
-            connect(_toolbarActionClickSelection,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionClickSelection,OBJECT_SELECTION_SELECTION_CMD);
-        }
+        _toolbarActionClickSelection=_toolbar1->addAction(QIcon(":/toolbarFiles/clickSelection.png"),tr(IDS_TOOLBAR_TOOLTIP_CLICK_SELECTION));
+        _toolbarActionClickSelection->setCheckable(true);
+        connect(_toolbarActionClickSelection,SIGNAL(triggered()),_signalMapper,SLOT(map()));
+        _signalMapper->setMapping(_toolbarActionClickSelection,OBJECT_SELECTION_SELECTION_CMD);
 
         _toolbarActionObjectShift=_toolbar1->addAction(QIcon(":/toolbarFiles/objectShift.png"),tr(IDS_TOOLBAR_TOOLTIP_OBJECT_SHIFT));
         _toolbarActionObjectShift->setCheckable(true);
@@ -1014,13 +1005,10 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionAssemble,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionAssemble,SCENE_OBJECT_OPERATION_ASSEMBLE_SOOCMD);
 
-        if (CSimFlavor::getBoolVal(11))
-        {
-            _toolbarActionTransferDna=_toolbar1->addAction(QIcon(":/toolbarFiles/transferDna.png"),tr(IDSN_TRANSFER_DNA));
-            _toolbarActionTransferDna->setCheckable(false);
-            connect(_toolbarActionTransferDna,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionTransferDna,SCENE_OBJECT_OPERATION_TRANSFER_DNA_SOOCMD);
-        }
+        _toolbarActionTransferDna=_toolbar1->addAction(QIcon(":/toolbarFiles/transferDna.png"),tr(IDSN_TRANSFER_DNA));
+        _toolbarActionTransferDna->setCheckable(false);
+        connect(_toolbarActionTransferDna,SIGNAL(triggered()),_signalMapper,SLOT(map()));
+        _signalMapper->setMapping(_toolbarActionTransferDna,SCENE_OBJECT_OPERATION_TRANSFER_DNA_SOOCMD);
 
         _toolbar1->addSeparator();
 
@@ -1035,13 +1023,10 @@ void CMainWindow::_createDefaultToolBars()
         _signalMapper->setMapping(_toolbarActionRedo,SCENE_OBJECT_OPERATION_REDO_SOOCMD);
         _toolbar1->addSeparator();
 
-        if (CSimFlavor::getBoolVal(11))
-        {
-            _toolbarActionDynamicContentVisualization=_toolbar1->addAction(QIcon(":/toolbarFiles/dynamics.png"),tr(IDS_TOOLBAR_TOOLTIP_VISUALIZE_DYNAMIC_CONTENT));
-            _toolbarActionDynamicContentVisualization->setCheckable(true);
-            connect(_toolbarActionDynamicContentVisualization,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionDynamicContentVisualization,SIMULATION_COMMANDS_TOGGLE_DYNAMIC_CONTENT_VISUALIZATION_SCCMD);
-        }
+        _toolbarActionDynamicContentVisualization=_toolbar1->addAction(QIcon(":/toolbarFiles/dynamics.png"),tr(IDS_TOOLBAR_TOOLTIP_VISUALIZE_DYNAMIC_CONTENT));
+        _toolbarActionDynamicContentVisualization->setCheckable(true);
+        connect(_toolbarActionDynamicContentVisualization,SIGNAL(triggered()),_signalMapper,SLOT(map()));
+        _signalMapper->setMapping(_toolbarActionDynamicContentVisualization,SIMULATION_COMMANDS_TOGGLE_DYNAMIC_CONTENT_VISUALIZATION_SCCMD);
 
         _engineSelectCombo=new QComboBox();
 
@@ -1074,79 +1059,73 @@ void CMainWindow::_createDefaultToolBars()
         _toolbar1->addWidget(_engineSelectCombo);
         connect(_engineSelectCombo,SIGNAL(activated(int)),this,SLOT(_engineSelectedViaToolbar(int)));
 
-        if (CSimFlavor::getBoolVal(11))
-        {
-            _enginePrecisionCombo=new QComboBox();
+        _enginePrecisionCombo=new QComboBox();
 
-            #ifdef WIN_SIM
-                _enginePrecisionCombo->setMinimumWidth(120);
-                _enginePrecisionCombo->setMaximumWidth(120);
-                _enginePrecisionCombo->setMinimumHeight(24);
-                _enginePrecisionCombo->setMaximumHeight(24);
-            #endif
-            #ifdef MAC_SIM
-                _enginePrecisionCombo->setMinimumWidth(125);
-                _enginePrecisionCombo->setMaximumWidth(125);
-                _enginePrecisionCombo->setMinimumHeight(24);
-                _enginePrecisionCombo->setMaximumHeight(24);
-            #endif
-            #ifdef LIN_SIM
-                _enginePrecisionCombo->setMinimumWidth(120);
-                _enginePrecisionCombo->setMaximumWidth(120);
-                _enginePrecisionCombo->setMinimumHeight(24);
-                _enginePrecisionCombo->setMaximumHeight(24);
-            #endif
+        #ifdef WIN_SIM
+            _enginePrecisionCombo->setMinimumWidth(120);
+            _enginePrecisionCombo->setMaximumWidth(120);
+            _enginePrecisionCombo->setMinimumHeight(24);
+            _enginePrecisionCombo->setMaximumHeight(24);
+        #endif
+        #ifdef MAC_SIM
+            _enginePrecisionCombo->setMinimumWidth(125);
+            _enginePrecisionCombo->setMaximumWidth(125);
+            _enginePrecisionCombo->setMinimumHeight(24);
+            _enginePrecisionCombo->setMaximumHeight(24);
+        #endif
+        #ifdef LIN_SIM
+            _enginePrecisionCombo->setMinimumWidth(120);
+            _enginePrecisionCombo->setMaximumWidth(120);
+            _enginePrecisionCombo->setMinimumHeight(24);
+            _enginePrecisionCombo->setMaximumHeight(24);
+        #endif
 
-            _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_veryprecise).c_str());
-            _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_precise).c_str());
-            _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_balanced).c_str());
-            _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_fast).c_str());
-            _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_veryfast).c_str());
-            _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_custom).c_str());
-            _enginePrecisionCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DYNAMICS_SETTINGS);
-            _toolbar1->addWidget(_enginePrecisionCombo);
-            connect(_enginePrecisionCombo,SIGNAL(activated(int)),this,SLOT(_enginePrecisionViaToolbar(int)));
-        }
+        _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_veryprecise).c_str());
+        _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_precise).c_str());
+        _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_balanced).c_str());
+        _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_fast).c_str());
+        _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_veryfast).c_str());
+        _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_custom).c_str());
+        _enginePrecisionCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DYNAMICS_SETTINGS);
+        _toolbar1->addWidget(_enginePrecisionCombo);
+        connect(_enginePrecisionCombo,SIGNAL(activated(int)),this,SLOT(_enginePrecisionViaToolbar(int)));
 
-        if (CSimFlavor::getBoolVal(11))
-        {
-            _timeStepConfigCombo=new QComboBox();
+        _timeStepConfigCombo=new QComboBox();
 
-            #ifdef WIN_SIM
-                _timeStepConfigCombo->setMinimumWidth(135);
-                _timeStepConfigCombo->setMaximumWidth(135);
-                _timeStepConfigCombo->setMinimumHeight(24);
-                _timeStepConfigCombo->setMaximumHeight(24);
-            #endif
-            #ifdef MAC_SIM
-                _timeStepConfigCombo->setMinimumWidth(140);
-                _timeStepConfigCombo->setMaximumWidth(140);
-                _timeStepConfigCombo->setMinimumHeight(24);
-                _timeStepConfigCombo->setMaximumHeight(24);
-            #endif
-            #ifdef LIN_SIM
-                _timeStepConfigCombo->setMinimumWidth(135);
-                _timeStepConfigCombo->setMaximumWidth(135);
-                _timeStepConfigCombo->setMinimumHeight(24);
-                _timeStepConfigCombo->setMaximumHeight(24);
-            #endif
+        #ifdef WIN_SIM
+            _timeStepConfigCombo->setMinimumWidth(135);
+            _timeStepConfigCombo->setMaximumWidth(135);
+            _timeStepConfigCombo->setMinimumHeight(24);
+            _timeStepConfigCombo->setMaximumHeight(24);
+        #endif
+        #ifdef MAC_SIM
+            _timeStepConfigCombo->setMinimumWidth(140);
+            _timeStepConfigCombo->setMaximumWidth(140);
+            _timeStepConfigCombo->setMinimumHeight(24);
+            _timeStepConfigCombo->setMaximumHeight(24);
+        #endif
+        #ifdef LIN_SIM
+            _timeStepConfigCombo->setMinimumWidth(135);
+            _timeStepConfigCombo->setMaximumWidth(135);
+            _timeStepConfigCombo->setMinimumHeight(24);
+            _timeStepConfigCombo->setMaximumHeight(24);
+        #endif
 
-            _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_200));
-            _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_100));
-            _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_50));
-            _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_25));
-            _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_10));
+        _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_200));
+        _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_100));
+        _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_50));
+        _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_25));
+        _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_10));
 
-            float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us(5))/1000.0f);
-            std::string txt("dt=");
-            txt+=tt::FNb(0,dt,1,false);
-            txt+=IDSN_TIME_STEP_CONFIG_CUSTOM;
-            _timeStepConfigCombo->addItem(txt.c_str());
+        float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us(5))/1000.0f);
+        std::string txt("dt=");
+        txt+=tt::FNb(0,dt,1,false);
+        txt+=IDSN_TIME_STEP_CONFIG_CUSTOM;
+        _timeStepConfigCombo->addItem(txt.c_str());
 
-            _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP);
-            _toolbar1->addWidget(_timeStepConfigCombo);
-            connect(_timeStepConfigCombo,SIGNAL(activated(int)),this,SLOT(_timeStepConfigViaToolbar(int)));
-        }
+        _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP);
+        _toolbar1->addWidget(_timeStepConfigCombo);
+        connect(_timeStepConfigCombo,SIGNAL(activated(int)),this,SLOT(_timeStepConfigViaToolbar(int)));
 
         _toolbarActionStart=_toolbar1->addAction(QIcon(":/toolbarFiles/start.png"),tr(IDS_TOOLBAR_TOOLTIP_SIMULATION_START));
         _toolbarActionStart->setCheckable(true);
@@ -1163,29 +1142,20 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionStop,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionStop,SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD);
 
-        if (CSimFlavor::getBoolVal(11))
-        {
-            _toolbarActionRealTime=_toolbar1->addAction(QIcon(":/toolbarFiles/realTime.png"),tr(IDS_TOOLBAR_TOOLTIP_REALTIMESIMULATION));
-            _toolbarActionRealTime->setCheckable(true);
-            connect(_toolbarActionRealTime,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionRealTime,SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD);
-        }
+        _toolbarActionRealTime=_toolbar1->addAction(QIcon(":/toolbarFiles/realTime.png"),tr(IDS_TOOLBAR_TOOLTIP_REALTIMESIMULATION));
+        _toolbarActionRealTime->setCheckable(true);
+        connect(_toolbarActionRealTime,SIGNAL(triggered()),_signalMapper,SLOT(map()));
+        _signalMapper->setMapping(_toolbarActionRealTime,SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD);
 
-        if (CSimFlavor::getBoolVal(11))
-        {
-            _toolbarActionReduceSpeed=_toolbar1->addAction(QIcon(":/toolbarFiles/reduceSpeed.png"),tr(IDSN_SLOW_DOWN_SIMULATION));
-            _toolbarActionReduceSpeed->setCheckable(false);
-            connect(_toolbarActionReduceSpeed,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionReduceSpeed,SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD);
-        }
+        _toolbarActionReduceSpeed=_toolbar1->addAction(QIcon(":/toolbarFiles/reduceSpeed.png"),tr(IDSN_SLOW_DOWN_SIMULATION));
+        _toolbarActionReduceSpeed->setCheckable(false);
+        connect(_toolbarActionReduceSpeed,SIGNAL(triggered()),_signalMapper,SLOT(map()));
+        _signalMapper->setMapping(_toolbarActionReduceSpeed,SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD);
 
-        if (CSimFlavor::getBoolVal(11))
-        {
-            _toolbarActionIncreaseSpeed=_toolbar1->addAction(QIcon(":/toolbarFiles/increaseSpeed.png"),tr(IDSN_SPEED_UP_SIMULATION));
-            _toolbarActionIncreaseSpeed->setCheckable(false);
-            connect(_toolbarActionIncreaseSpeed,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionIncreaseSpeed,SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD);
-        }
+        _toolbarActionIncreaseSpeed=_toolbar1->addAction(QIcon(":/toolbarFiles/increaseSpeed.png"),tr(IDSN_SPEED_UP_SIMULATION));
+        _toolbarActionIncreaseSpeed->setCheckable(false);
+        connect(_toolbarActionIncreaseSpeed,SIGNAL(triggered()),_signalMapper,SLOT(map()));
+        _signalMapper->setMapping(_toolbarActionIncreaseSpeed,SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD);
 
         _toolbarActionToggleVisualization=_toolbar1->addAction(QIcon(":/toolbarFiles/toggleVisualization.png"),tr(IDSN_TOGGLE_VISUALIZATION));
         _toolbarActionToggleVisualization->setCheckable(true);
@@ -1209,14 +1179,11 @@ void CMainWindow::_createDefaultToolBars()
             _toolbar2->setMovable(false); // 14/7/2013: since Qt5.1.0 the toolbar looks just plain white when undocked under MacOS
         #endif
 
-        if (CSimFlavor::getBoolVal(11))
-        {
-            _toolbarActionSimulationSettings=_toolbar2->addAction(QIcon(":/toolbarFiles/simulationSettings.png"),tr(IDSN_SIMULATION_SETTINGS));
-            _toolbarActionSimulationSettings->setCheckable(true);
-            connect(_toolbarActionSimulationSettings,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionSimulationSettings,TOGGLE_SIMULATION_DLG_CMD);
-            _toolbar2->addSeparator();
-        }
+        _toolbarActionSimulationSettings=_toolbar2->addAction(QIcon(":/toolbarFiles/simulationSettings.png"),tr(IDSN_SIMULATION_SETTINGS));
+        _toolbarActionSimulationSettings->setCheckable(true);
+        connect(_toolbarActionSimulationSettings,SIGNAL(triggered()),_signalMapper,SLOT(map()));
+        _signalMapper->setMapping(_toolbarActionSimulationSettings,TOGGLE_SIMULATION_DLG_CMD);
+        _toolbar2->addSeparator();
 
         if (CSimFlavor::getBoolVal(12))
         {
@@ -1273,21 +1240,15 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionModelBrowser,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionModelBrowser,TOGGLE_BROWSER_DLG_CMD);
 
-        if (CSimFlavor::getBoolVal(11))
-        {
-            _toolbarActionSceneHierarchy=_toolbar2->addAction(QIcon(":/toolbarFiles/sceneHierarchy.png"),tr(IDSN_SCENE_HIERARCHY));
-            _toolbarActionSceneHierarchy->setCheckable(true);
-            connect(_toolbarActionSceneHierarchy,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionSceneHierarchy,TOGGLE_HIERARCHY_DLG_CMD);
-        }
+        _toolbarActionSceneHierarchy=_toolbar2->addAction(QIcon(":/toolbarFiles/sceneHierarchy.png"),tr(IDSN_SCENE_HIERARCHY));
+        _toolbarActionSceneHierarchy->setCheckable(true);
+        connect(_toolbarActionSceneHierarchy,SIGNAL(triggered()),_signalMapper,SLOT(map()));
+        _signalMapper->setMapping(_toolbarActionSceneHierarchy,TOGGLE_HIERARCHY_DLG_CMD);
 
-        if (CSimFlavor::getBoolVal(11))
-        {
-            _toolbarActionLayers=_toolbar2->addAction(QIcon(":/toolbarFiles/layers.png"),tr(IDS_LAYERS));
-            _toolbarActionLayers->setCheckable(true);
-            connect(_toolbarActionLayers,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionLayers,TOGGLE_LAYERS_DLG_CMD);
-        }
+        _toolbarActionLayers=_toolbar2->addAction(QIcon(":/toolbarFiles/layers.png"),tr(IDS_LAYERS));
+        _toolbarActionLayers->setCheckable(true);
+        connect(_toolbarActionLayers,SIGNAL(triggered()),_signalMapper,SLOT(map()));
+        _signalMapper->setMapping(_toolbarActionLayers,TOGGLE_LAYERS_DLG_CMD);
 
         _toolbarActionAviRecorder=_toolbar2->addAction(QIcon(":/toolbarFiles/aviRecorder.png"),tr(IDSN_AVI_RECORDER));
         _toolbarActionAviRecorder->setCheckable(true);
@@ -1295,7 +1256,7 @@ void CMainWindow::_createDefaultToolBars()
         _signalMapper->setMapping(_toolbarActionAviRecorder,TOGGLE_AVI_RECORDER_DLG_CMD);
 
         _toolbarActionUserSettings=_toolbar2->addAction(QIcon(":/toolbarFiles/userSettings.png"),tr(IDSN_USER_SETTINGS));
-        _toolbarActionUserSettings->setCheckable(CSimFlavor::getBoolVal(11));
+        _toolbarActionUserSettings->setCheckable(true);
         connect(_toolbarActionUserSettings,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionUserSettings,TOGGLE_SETTINGS_DLG_CMD);
  
@@ -1685,8 +1646,7 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionCameraShift->setEnabled(noSelector);
         _toolbarActionCameraRotate->setEnabled(noSelector);
         _toolbarActionCameraZoom->setEnabled(noSelector);
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionCameraAngle->setEnabled(noSelector);
+        _toolbarActionCameraAngle->setEnabled(noSelector);
         _toolbarActionCameraSizeToScreen->setEnabled(allowFitToView&&noSelector);
 
         if (disassembleEnabled)
@@ -1695,8 +1655,7 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionAssemble->setIcon(QIcon(":/toolbarFiles/assemble.png"));
         _toolbarActionAssemble->setEnabled(assembleEnabled||disassembleEnabled);
 
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionTransferDna->setEnabled(transferDnaAllowed);
+        _toolbarActionTransferDna->setEnabled(transferDnaAllowed);
 
         _toolbarActionObjectShift->setEnabled(noUiNorMultishapeEditMode&&noSelector&&_toolbarButtonObjectShiftEnabled);
         bool rot=true;
@@ -1704,29 +1663,22 @@ void CMainWindow::_actualizetoolbarButtonState()
             rot=editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()==0;
         _toolbarActionObjectRotate->setEnabled(noUiNorMultishapeEditMode&&rot&&noSelector&&_toolbarButtonObjectRotateEnabled);
 
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionClickSelection->setEnabled(noSelector);
+        _toolbarActionClickSelection->setEnabled(noSelector);
 
         _toolbarActionUndo->setEnabled(App::currentWorld->undoBufferContainer->canUndo()&&noSelector);
         _toolbarActionRedo->setEnabled(App::currentWorld->undoBufferContainer->canRedo()&&noSelector);
 
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionDynamicContentVisualization->setEnabled((!App::currentWorld->simulation->isSimulationStopped())&&noSelector);
+        _toolbarActionDynamicContentVisualization->setEnabled((!App::currentWorld->simulation->isSimulationStopped())&&noSelector);
 
         _engineSelectCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&App::currentWorld->dynamicsContainer->getDynamicsEnabled()&&noSelector);
-        if (CSimFlavor::getBoolVal(11))
-            _enginePrecisionCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&App::currentWorld->dynamicsContainer->getDynamicsEnabled()&&noSelector);
-        if (CSimFlavor::getBoolVal(11))
-            _timeStepConfigCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
+        _enginePrecisionCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&App::currentWorld->dynamicsContainer->getDynamicsEnabled()&&noSelector);
+        _timeStepConfigCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
         _toolbarActionStart->setEnabled(_toolbarButtonPlayEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&(!App::currentWorld->simulation->isSimulationRunning())&&noSelector);
         _toolbarActionPause->setEnabled(_toolbarButtonPauseEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationRunning()&&noSelector);
         _toolbarActionStop->setEnabled(_toolbarButtonStopEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&(!App::currentWorld->simulation->isSimulationStopped())&&noSelector);
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionRealTime->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionReduceSpeed->setEnabled(App::currentWorld->simulation->canGoSlower()&&noSelector);
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionIncreaseSpeed->setEnabled(App::currentWorld->simulation->canGoFaster()&&noSelector);
+        _toolbarActionRealTime->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
+        _toolbarActionReduceSpeed->setEnabled(App::currentWorld->simulation->canGoSlower()&&noSelector);
+        _toolbarActionIncreaseSpeed->setEnabled(App::currentWorld->simulation->canGoFaster()&&noSelector);
         _toolbarActionToggleVisualization->setEnabled(App::currentWorld->simulation->isSimulationRunning()&&noSelector);
 
         _toolbarActionPageSelector->setEnabled((!oglSurface->isViewSelectionActive()));
@@ -1735,15 +1687,12 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionCameraShift->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerashift);
         _toolbarActionCameraRotate->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerarotate);
         _toolbarActionCameraZoom->setChecked((getMouseMode()&0x00ff)==sim_navigation_camerazoom);
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionCameraAngle->setChecked((getMouseMode()&0x00ff)==sim_navigation_cameraangle);
+        _toolbarActionCameraAngle->setChecked((getMouseMode()&0x00ff)==sim_navigation_cameraangle);
         _toolbarActionObjectShift->setChecked((getMouseMode()&0x00ff)==sim_navigation_objectshift);
         _toolbarActionObjectRotate->setChecked((getMouseMode()&0x00ff)==sim_navigation_objectrotate);
 
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionClickSelection->setChecked((getMouseMode()&0x0300)==sim_navigation_clickselection);
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionDynamicContentVisualization->setChecked(App::currentWorld->simulation->getDynamicContentVisualizationOnly());
+        _toolbarActionClickSelection->setChecked((getMouseMode()&0x0300)==sim_navigation_clickselection);
+        _toolbarActionDynamicContentVisualization->setChecked(App::currentWorld->simulation->getDynamicContentVisualizationOnly());
 
         int ver;
         int eng=App::currentWorld->dynamicsContainer->getDynamicEngineType(&ver);
@@ -1760,52 +1709,47 @@ void CMainWindow::_actualizetoolbarButtonState()
         if (eng==sim_physics_mujoco)
             _engineSelectCombo->setCurrentIndex(5);
 
-        if (CSimFlavor::getBoolVal(11))
+        _enginePrecisionCombo->setCurrentIndex(App::currentWorld->dynamicsContainer->getDynamicsSettingsMode());
+        if (App::currentWorld->simulation->isSimulationStopped())
         {
-            _enginePrecisionCombo->setCurrentIndex(App::currentWorld->dynamicsContainer->getDynamicsSettingsMode());
-            if (App::currentWorld->simulation->isSimulationStopped())
-            {
-                _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP);
-                _timeStepConfigCombo->setItemText(0,tr(IDSN_TIME_STEP_CONFIG_200));
-                _timeStepConfigCombo->setItemText(1,tr(IDSN_TIME_STEP_CONFIG_100));
-                _timeStepConfigCombo->setItemText(2,tr(IDSN_TIME_STEP_CONFIG_50));
-                _timeStepConfigCombo->setItemText(3,tr(IDSN_TIME_STEP_CONFIG_25));
-                _timeStepConfigCombo->setItemText(4,tr(IDSN_TIME_STEP_CONFIG_10));
+            _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP);
+            _timeStepConfigCombo->setItemText(0,tr(IDSN_TIME_STEP_CONFIG_200));
+            _timeStepConfigCombo->setItemText(1,tr(IDSN_TIME_STEP_CONFIG_100));
+            _timeStepConfigCombo->setItemText(2,tr(IDSN_TIME_STEP_CONFIG_50));
+            _timeStepConfigCombo->setItemText(3,tr(IDSN_TIME_STEP_CONFIG_25));
+            _timeStepConfigCombo->setItemText(4,tr(IDSN_TIME_STEP_CONFIG_10));
 
-    //          _timeStepConfigCombo->setItemText(5,tr(IDSN_TIME_STEP_CONFIG_CUSTOM));
-                float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us(5))/1000.0f);
-                std::string txt("dt=");
-                txt+=tt::FNb(0,dt,1,false);
-                txt+=IDSN_TIME_STEP_CONFIG_CUSTOM;
-                _timeStepConfigCombo->setItemText(5,txt.c_str());
+//          _timeStepConfigCombo->setItemText(5,tr(IDSN_TIME_STEP_CONFIG_CUSTOM));
+            float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us(5))/1000.0f);
+            std::string txt("dt=");
+            txt+=tt::FNb(0,dt,1,false);
+            txt+=IDSN_TIME_STEP_CONFIG_CUSTOM;
+            _timeStepConfigCombo->setItemText(5,txt.c_str());
 
-                _timeStepConfigCombo->setCurrentIndex(App::currentWorld->simulation->getDefaultSimulationParameterIndex());
-            }
-            else
-            {
-                _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DT_SIMULATION_TIME_STEP_AND_PPF);
-                float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000.0f);
-                std::string txt("dt=");
-                txt+=tt::FNb(0,dt,1,false);
-                txt+=" ms, ppf=";
-                txt+=tt::FNb(App::currentWorld->simulation->getSimulationPassesPerRendering_speedModified());
-                _timeStepConfigCombo->setItemText(App::currentWorld->simulation->getDefaultSimulationParameterIndex(),txt.c_str());
-            }
+            _timeStepConfigCombo->setCurrentIndex(App::currentWorld->simulation->getDefaultSimulationParameterIndex());
+        }
+        else
+        {
+            _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DT_SIMULATION_TIME_STEP_AND_PPF);
+            float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000.0f);
+            std::string txt("dt=");
+            txt+=tt::FNb(0,dt,1,false);
+            txt+=" ms, ppf=";
+            txt+=tt::FNb(App::currentWorld->simulation->getSimulationPassesPerRendering_speedModified());
+            _timeStepConfigCombo->setItemText(App::currentWorld->simulation->getDefaultSimulationParameterIndex(),txt.c_str());
         }
 
         _toolbarActionStart->setChecked(App::currentWorld->simulation->isSimulationRunning());
         _toolbarActionPause->setChecked(App::currentWorld->simulation->isSimulationPaused());
 
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionRealTime->setChecked(App::currentWorld->simulation->getRealTimeSimulation());
+        _toolbarActionRealTime->setChecked(App::currentWorld->simulation->getRealTimeSimulation());
 
         _toolbarActionToggleVisualization->setChecked(!getOpenGlDisplayEnabled());
         _toolbarActionPageSelector->setChecked(oglSurface->isPageSelectionActive());
     }
     if (_toolbar2!=nullptr)
     { // We enable/disable some buttons:
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionSimulationSettings->setEnabled(noEditMode&&noSelector);
+        _toolbarActionSimulationSettings->setEnabled(noEditMode&&noSelector);
 
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionObjectProperties->setEnabled(_toolbarButtonObjPropEnabled&&noEditMode&&noSelector);
@@ -1822,17 +1766,14 @@ void CMainWindow::_actualizetoolbarButtonState()
 
         _toolbarActionModelBrowser->setEnabled(noEditMode&&noSelector&&_toolbarButtonBrowserEnabled);
 
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionSceneHierarchy->setEnabled(noEditMode&&noSelector&&_toolbarButtonHierarchyEnabled&&((!App::userSettings->sceneHierarchyHiddenDuringSimulation)||App::currentWorld->simulation->isSimulationStopped()) );
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionLayers->setEnabled(true);
+        _toolbarActionSceneHierarchy->setEnabled(noEditMode&&noSelector&&_toolbarButtonHierarchyEnabled&&((!App::userSettings->sceneHierarchyHiddenDuringSimulation)||App::currentWorld->simulation->isSimulationStopped()) );
+        _toolbarActionLayers->setEnabled(true);
 
         _toolbarActionAviRecorder->setEnabled(noEditMode&&noSelector&&(CAuxLibVideo::video_recorderGetEncoderString!=nullptr));
         _toolbarActionUserSettings->setEnabled(noEditMode&&noSelector);
 
         // Now we check/uncheck some buttons:
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionSimulationSettings->setChecked(dlgCont->isVisible(SIMULATION_DLG));
+        _toolbarActionSimulationSettings->setChecked(dlgCont->isVisible(SIMULATION_DLG));
 
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionObjectProperties->setChecked(dlgCont->isVisible(OBJECT_DLG));
@@ -1849,10 +1790,8 @@ void CMainWindow::_actualizetoolbarButtonState()
 
         _toolbarActionModelBrowser->setChecked(dlgCont->isVisible(BROWSER_DLG));
 
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionSceneHierarchy->setChecked(dlgCont->isVisible(HIERARCHY_DLG));
-        if (CSimFlavor::getBoolVal(11))
-            _toolbarActionLayers->setChecked(dlgCont->isVisible(LAYERS_DLG));
+        _toolbarActionSceneHierarchy->setChecked(dlgCont->isVisible(HIERARCHY_DLG));
+        _toolbarActionLayers->setChecked(dlgCont->isVisible(LAYERS_DLG));
 
         _toolbarActionAviRecorder->setChecked(dlgCont->isVisible(AVI_RECORDER_DLG));
         _toolbarActionUserSettings->setChecked(dlgCont->isVisible(SETTINGS_DLG));

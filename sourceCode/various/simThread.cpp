@@ -314,63 +314,60 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             }
         }
 
-        if (CSimFlavor::getBoolVal(11))
+        if (cmd.cmdId==CALL_USER_CONFIG_CALLBACK_CMD)
         {
-            if (cmd.cmdId==CALL_USER_CONFIG_CALLBACK_CMD)
+            CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,cmd.intParams[0]);
+            if ( (script!=nullptr)&&(script->getContainsUserConfigCallbackFunction()) )
+            { // we have a user config callback
+                script->systemCallScript(sim_syscb_userconfig,nullptr,nullptr);
+            }
+            else
             {
-                CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,cmd.intParams[0]);
-                if ( (script!=nullptr)&&(script->getContainsUserConfigCallbackFunction()) )
-                { // we have a user config callback
-                    script->systemCallScript(sim_syscb_userconfig,nullptr,nullptr);
-                }
-                else
+                SUIThreadCommand cmdIn;
+                SUIThreadCommand cmdOut;
+                cmdIn.cmdId=OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_UITHREADCMD;
+                cmdIn.intParams.push_back(cmd.intParams[0]);
+                // Make sure we have a script param object:
+                CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+                if (object->getUserScriptParameterObject()==nullptr)
+                    object->setUserScriptParameterObject(new CUserParameters());
                 {
-                    SUIThreadCommand cmdIn;
-                    SUIThreadCommand cmdOut;
-                    cmdIn.cmdId=OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_UITHREADCMD;
-                    cmdIn.intParams.push_back(cmd.intParams[0]);
-                    // Make sure we have a script param object:
-                    CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
-                    if (object->getUserScriptParameterObject()==nullptr)
-                        object->setUserScriptParameterObject(new CUserParameters());
-                    {
-                        // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
-                        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-                        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-                    }
+                    // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
+                    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 }
             }
-            if (cmd.cmdId==OPEN_SCRIPT_EDITOR_CMD)
+        }
+        if (cmd.cmdId==OPEN_SCRIPT_EDITOR_CMD)
+        {
+            if (App::getEditModeType()==NO_EDIT_MODE)
             {
-                if (App::getEditModeType()==NO_EDIT_MODE)
+                CScriptObject* it=App::worldContainer->getScriptFromHandle(cmd.intParams[0]);
+                if ((it!=nullptr)&&(App::mainWindow!=nullptr))
                 {
-                    CScriptObject* it=App::worldContainer->getScriptFromHandle(cmd.intParams[0]);
-                    if ((it!=nullptr)&&(App::mainWindow!=nullptr))
-                    {
-                        if (it->getScriptType()==sim_scripttype_customizationscript)
-                            App::mainWindow->codeEditorContainer->openCustomizationScript(cmd.intParams[0],-1);
-                        else
-                            App::mainWindow->codeEditorContainer->openSimulationScript(cmd.intParams[0],-1);
-                    }
+                    if (it->getScriptType()==sim_scripttype_customizationscript)
+                        App::mainWindow->codeEditorContainer->openCustomizationScript(cmd.intParams[0],-1);
+                    else
+                        App::mainWindow->codeEditorContainer->openSimulationScript(cmd.intParams[0],-1);
                 }
             }
+        }
 
-            if (cmd.cmdId==OPEN_MODAL_MODEL_PROPERTIES_CMD)
+        if (cmd.cmdId==OPEN_MODAL_MODEL_PROPERTIES_CMD)
+        {
+            if (App::getEditModeType()==NO_EDIT_MODE)
             {
-                if (App::getEditModeType()==NO_EDIT_MODE)
+                SUIThreadCommand cmdIn;
+                SUIThreadCommand cmdOut;
+                cmdIn.cmdId=OPEN_MODAL_MODEL_PROPERTIES_UITHREADCMD;
+                cmdIn.intParams.push_back(cmd.intParams[0]);
                 {
-                    SUIThreadCommand cmdIn;
-                    SUIThreadCommand cmdOut;
-                    cmdIn.cmdId=OPEN_MODAL_MODEL_PROPERTIES_UITHREADCMD;
-                    cmdIn.intParams.push_back(cmd.intParams[0]);
-                    {
-                        // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
-                        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-                        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-                    }
-                    App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
-                    App::setFullDialogRefreshFlag();
+                    // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
+                    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 }
+                App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
+                App::setFullDialogRefreshFlag();
             }
         }
 

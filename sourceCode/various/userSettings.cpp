@@ -500,8 +500,6 @@ void CUserSettings::setIdleFps_session(int fps)
 
 int CUserSettings::getAbortScriptExecutionTiming()
 {
-    if (!CSimFlavor::getBoolVal(11))
-        return(0);
     return(_abortScriptExecutionButton);
 }
 

@@ -40,14 +40,11 @@ void CHelpMenu::addMenu(VMenu* menu)
     tmp=CSimFlavor::getStringVal(7);
     if (tmp.size()>0)
         menu->appendMenuItem(true,false,CREDITS_CMD,tmp.c_str());
-    if (CSimFlavor::getBoolVal(11))
-    {
-        VMenu* debugMenu=new VMenu();
-        debugMenu->appendMenuItem(true,!CViewableBase::getFrustumCullingEnabled(),DISABLE_FRUSTUM_CULLING_DEBUG_CMD,IDSN_DISABLE_FRUSTUM_CULLING_DEBUG_MENU_ITEM,true);
-        debugMenu->appendMenuItem(true,!CDistanceRoutine::getDistanceCachingEnabled(),DISABLE_DISTANCE_CACHING_DEBUG_CMD,IDSN_DISABLE_DISTANCE_CACHING_DEBUG_MENU_ITEM,true);
-        debugMenu->appendMenuItem(true,CShape::getDebugObbStructures(),VISUALIZE_OBB_STRUCTURE_DEBUG_CMD,IDSN_VISUALIZE_OBB_STRUCTURE_DEBUG_MENU_ITEM,true);
-        menu->appendMenuAndDetach(debugMenu,true,IDSN_DEBUG_MENU_ITEM);
-    }
+    VMenu* debugMenu=new VMenu();
+    debugMenu->appendMenuItem(true,!CViewableBase::getFrustumCullingEnabled(),DISABLE_FRUSTUM_CULLING_DEBUG_CMD,IDSN_DISABLE_FRUSTUM_CULLING_DEBUG_MENU_ITEM,true);
+    debugMenu->appendMenuItem(true,!CDistanceRoutine::getDistanceCachingEnabled(),DISABLE_DISTANCE_CACHING_DEBUG_CMD,IDSN_DISABLE_DISTANCE_CACHING_DEBUG_MENU_ITEM,true);
+    debugMenu->appendMenuItem(true,CShape::getDebugObbStructures(),VISUALIZE_OBB_STRUCTURE_DEBUG_CMD,IDSN_VISUALIZE_OBB_STRUCTURE_DEBUG_MENU_ITEM,true);
+    menu->appendMenuAndDetach(debugMenu,true,IDSN_DEBUG_MENU_ITEM);
     if (CSimFlavor::getBoolVal(19))
     {
         menu->appendMenuSeparator();

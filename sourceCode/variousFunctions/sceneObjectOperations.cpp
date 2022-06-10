@@ -2281,12 +2281,9 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
         menu->appendMenuItem(App::currentWorld->undoBufferContainer->canUndo(),false,SCENE_OBJECT_OPERATION_UNDO_SOOCMD,IDSN_UNDO);
         menu->appendMenuItem(App::currentWorld->undoBufferContainer->canRedo(),false,SCENE_OBJECT_OPERATION_REDO_SOOCMD,IDSN_REDO);
         menu->appendMenuSeparator();
-        if (CSimFlavor::getBoolVal(11))
-        {
-            menu->appendMenuItem(selItems>1,false,SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD,IDS_MAKE_LAST_SELECTED_OBJECTS_PARENT_MENU_ITEM);
-            menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_MAKE_ORPHANS_SOOCMD,IDS_MAKE_SELECTED_OBJECT_S__ORPHAN_MENU_ITEM);
-            menu->appendMenuSeparator();
-        }
+        menu->appendMenuItem(selItems>1,false,SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD,IDS_MAKE_LAST_SELECTED_OBJECTS_PARENT_MENU_ITEM);
+        menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_MAKE_ORPHANS_SOOCMD,IDS_MAKE_SELECTED_OBJECT_S__ORPHAN_MENU_ITEM);
+        menu->appendMenuSeparator();
         if (CSimFlavor::getBoolVal(12))
         {
 //          menu->appendMenuItem((selItems>1)&&noSim,false,SCENE_OBJECT_OPERATION_REPLACE_OBJECTS_SOOCMD,IDS_REPLACE_OBJECTS_MENU_ITEM);
@@ -2322,11 +2319,8 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
         menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_DELETE_OBJECTS_SOOCMD,IDS_DELETE_SELECTED_OBJECTS_MENU_ITEM);
         menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_OBJECT_FULL_CUT_SOOCMD,IDS_CUT_SELECTED_OBJECTS_MENU_ITEM);
         menu->appendMenuSeparator();
-        if (CSimFlavor::getBoolVal(11))
-        {
-            menu->appendMenuItem(true,false,SCENE_OBJECT_OPERATION_SELECT_ALL_OBJECTS_SOOCMD,IDSN_SELECT_ALL_MENU_ITEM);
-            menu->appendMenuSeparator();
-        }
+        menu->appendMenuItem(true,false,SCENE_OBJECT_OPERATION_SELECT_ALL_OBJECTS_SOOCMD,IDSN_SELECT_ALL_MENU_ITEM);
+        menu->appendMenuSeparator();
 
         if (CSimFlavor::getBoolVal(12))
         {
