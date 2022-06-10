@@ -104,10 +104,13 @@ bool CConfReaderAndWriter::getString(const char* variableName,std::string& varia
     if (ind==-1)
         return(false);
     variable=_values[ind];
-    if ( ( (variable[0]=='\"')&&(variable[variable.size()-1]=='\"') )||( (variable[0]=='\'')&&(variable[variable.size()-1]=='\'') ) )
+    if (variable.size()>0)
     {
-        variable.pop_back();
-        variable.erase(variable.begin(),variable.begin()+1);
+        if ( ( (variable[0]=='\"')&&(variable[variable.size()-1]=='\"') )||( (variable[0]=='\'')&&(variable[variable.size()-1]=='\'') ) )
+        {
+            variable.pop_back();
+            variable.erase(variable.begin(),variable.begin()+1);
+        }
     }
     return(true);
 }

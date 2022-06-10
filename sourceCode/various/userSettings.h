@@ -8,11 +8,6 @@ public:
     CUserSettings();
     virtual ~CUserSettings();
 
-    static bool getBooleanFromFileDirectly(const char* varName,bool& varValue);
-    static bool getIntegerFromFileDirectly(const char* varName,int& varValue);
-    static bool getFloatFromFileDirectly(const char* varName,float& varValue);
-    static bool getStringFromFileDirectly(const char* varName,std::string& varValue);
-
     void setUndoRedoEnabled(bool isEnabled);
     bool getUndoRedoEnabled();
     bool getUndoRedoOnlyPartialWithCameras();
