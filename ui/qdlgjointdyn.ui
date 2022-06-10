@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>590</height>
+    <height>320</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>560</y>
+     <y>290</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -474,604 +474,11 @@
     <string>Apply to selection</string>
    </property>
   </widget>
-  <widget class="QGroupBox" name="qqGroupFree">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>411</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <widget class="QRadioButton" name="qqCtrlMode_free">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>141</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Free (no control)</string>
-    </property>
-    <property name="autoExclusive">
-     <bool>false</bool>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="qqGroupForce">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>60</y>
-     <width>411</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <widget class="QLineEdit" name="qqForceMode_force">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>30</y>
-      <width>81</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="qqForceMode_forceLabel">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>30</y>
-      <width>281</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Force/torque</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="qqCtrlMode_force">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>131</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Force control</string>
-    </property>
-    <property name="autoExclusive">
-     <bool>false</bool>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="qqGroupVelocity">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>130</y>
-     <width>411</width>
-     <height>101</height>
-    </rect>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <widget class="QLineEdit" name="qqVelocityMode_velocity">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>30</y>
-      <width>81</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqVelocityMode_force">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>50</y>
-      <width>81</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="qqVelocityMode_forceLabel">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>50</y>
-      <width>281</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Force/torque</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="qqVelocityMode_velocityLabel">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>30</y>
-      <width>261</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Target velocity [xxx]</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqVelocityMode_motorLock">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>70</y>
-      <width>291</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Lock motor when target velocity is zero</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="qqCtrlMode_velocity">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>131</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Velocity control</string>
-    </property>
-    <property name="autoExclusive">
-     <bool>false</bool>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="qqGroupPosition">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>240</y>
-     <width>411</width>
-     <height>121</height>
-    </rect>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <widget class="QLineEdit" name="qqP">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>90</y>
-      <width>61</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqPositionMode_cb">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>90</y>
-      <width>41</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>CB</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="qqPositionMode_forceLabel">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>50</y>
-      <width>281</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Force/torque</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqPositionMode_position">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>30</y>
-      <width>81</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="qqPositionMode_upperVelLabel">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>70</y>
-      <width>271</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Upper velocity limit [xxx]</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqD">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>90</y>
-      <width>61</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_5">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>90</y>
-      <width>21</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>I</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="qqCtrlMode_position">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>261</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Position control</string>
-    </property>
-    <property name="autoExclusive">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqPositionMode_force">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>50</y>
-      <width>81</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>90</y>
-      <width>21</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>P</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqPositionMode_upperVel">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>70</y>
-      <width>81</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="qqPositionMode_positionLabel">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>30</y>
-      <width>271</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Target position [xxx]</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_6">
-    <property name="geometry">
-     <rect>
-      <x>250</x>
-      <y>90</y>
-      <width>16</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>D</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqI">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>90</y>
-      <width>61</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="qqGroupSpring">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>370</y>
-     <width>411</width>
-     <height>101</height>
-    </rect>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <widget class="QLabel" name="qqSpringMode_forceLabel">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>50</y>
-      <width>281</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Force/torque</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="qqCtrlMode_spring">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>231</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Spring-damper control</string>
-    </property>
-    <property name="autoExclusive">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqSpringMode_force">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>50</y>
-      <width>81</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="qqCLabel">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>70</y>
-      <width>21</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>C</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqC">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>70</y>
-      <width>61</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="qqKLabel">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>70</y>
-      <width>21</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>K</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqSpringMode_cb">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>70</y>
-      <width>41</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>CB</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqK">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>70</y>
-      <width>61</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="qqSpringMode_positionLabel">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>30</y>
-      <width>271</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Target position [xxx]</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqSpringMode_position">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>30</y>
-      <width>81</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="qqGroupCustom">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>480</y>
-     <width>411</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <widget class="QRadioButton" name="qqCtrlMode_custom">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>121</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Custom control</string>
-    </property>
-    <property name="autoExclusive">
-     <bool>false</bool>
-    </property>
-   </widget>
-  </widget>
   <widget class="QToolButton" name="qqAdjustEngineProperties">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>530</y>
+     <x>190</x>
+     <y>260</y>
      <width>231</width>
      <height>18</height>
     </rect>
@@ -1083,30 +490,522 @@
     <string>Edit engine specific properties</string>
    </property>
   </widget>
+  <widget class="QStackedWidget" name="qqStack">
+   <property name="geometry">
+    <rect>
+     <x>-1</x>
+     <y>30</y>
+     <width>421</width>
+     <height>221</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>3</number>
+   </property>
+   <widget class="QWidget" name="page">
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>391</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>The joint is not controlled</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_2">
+    <widget class="QLabel" name="qqForceMode_forceLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>301</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Constant torque</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqForceMode_force">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>0</y>
+       <width>81</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_3">
+    <widget class="QLineEdit" name="qqVelocityMode_velocity">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>0</y>
+       <width>81</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqVelocityMode_force">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>20</y>
+       <width>81</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="qqVelocityMode_motorLock">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>291</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Lock motor when target velocity is zero</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqVelocityMode_velocityLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>261</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Target velocity [xxx]</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqVelocityMode_forceLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>281</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Max. force/torque</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_4">
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>60</y>
+       <width>71</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>P</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqPositionMode_forceLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>281</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Max. force/torque</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqD">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>100</y>
+       <width>76</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqPositionMode_upperVel">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>120</y>
+       <width>76</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqPositionMode_positionLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>271</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Target position [xxx]</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqPositionMode_upperVelLabel">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>120</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Upper velocity limit [xxx]</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="qqPositionMode_cb">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>60</y>
+       <width>71</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>CB</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>80</y>
+       <width>81</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>I</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqPositionMode_force">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>20</y>
+       <width>81</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>100</y>
+       <width>71</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>D</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqI">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>80</y>
+       <width>76</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqP">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>60</y>
+       <width>76</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqPositionMode_position">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>0</y>
+       <width>81</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="qqPositionMode_ruckig">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>140</y>
+       <width>191</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Motion profile control</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="qqPositionMode_pid">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>131</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>PID control</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqPositionMode_maxJerk">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>200</y>
+       <width>76</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqPositionMode_maxVelLabel">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>160</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Max. velocity</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqPositionMode_maxAccelLabel">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>180</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Max. acceleration</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqPositionMode_maxJerkLabel">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>200</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Max. jerk</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqPositionMode_maxVel">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>160</y>
+       <width>76</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqPositionMode_maxAccel">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>180</y>
+       <width>76</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_5">
+    <widget class="QCheckBox" name="qqSpringMode_cb">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>20</y>
+       <width>41</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>CB</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqSpringMode_positionLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>271</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Target position [xxx]</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqKLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>21</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>K</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqK">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>20</y>
+       <width>61</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqCLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>21</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>C</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqC">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>40</y>
+       <width>61</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqSpringMode_position">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>0</y>
+       <width>81</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_6">
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>391</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>A custom controller can be written in the joint callback function</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QComboBox" name="qqCombo">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>10</y>
+     <width>111</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="qqModeLabel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>271</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Control mode</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
-  <tabstop>qqCtrlMode_free</tabstop>
-  <tabstop>qqCtrlMode_force</tabstop>
+  <tabstop>qqCombo</tabstop>
   <tabstop>qqForceMode_force</tabstop>
-  <tabstop>qqCtrlMode_velocity</tabstop>
   <tabstop>qqVelocityMode_velocity</tabstop>
   <tabstop>qqVelocityMode_force</tabstop>
   <tabstop>qqVelocityMode_motorLock</tabstop>
-  <tabstop>qqCtrlMode_position</tabstop>
   <tabstop>qqPositionMode_position</tabstop>
   <tabstop>qqPositionMode_force</tabstop>
-  <tabstop>qqPositionMode_upperVel</tabstop>
+  <tabstop>qqPositionMode_pid</tabstop>
   <tabstop>qqP</tabstop>
+  <tabstop>qqPositionMode_cb</tabstop>
   <tabstop>qqI</tabstop>
   <tabstop>qqD</tabstop>
-  <tabstop>qqPositionMode_cb</tabstop>
-  <tabstop>qqCtrlMode_spring</tabstop>
+  <tabstop>qqPositionMode_upperVel</tabstop>
+  <tabstop>qqPositionMode_ruckig</tabstop>
+  <tabstop>qqPositionMode_maxVel</tabstop>
+  <tabstop>qqPositionMode_maxAccel</tabstop>
+  <tabstop>qqPositionMode_maxJerk</tabstop>
   <tabstop>qqSpringMode_position</tabstop>
-  <tabstop>qqSpringMode_force</tabstop>
   <tabstop>qqK</tabstop>
-  <tabstop>qqC</tabstop>
   <tabstop>qqSpringMode_cb</tabstop>
-  <tabstop>qqCtrlMode_custom</tabstop>
+  <tabstop>qqC</tabstop>
   <tabstop>qqAdjustEngineProperties</tabstop>
   <tabstop>qqApplyParams</tabstop>
  </tabstops>

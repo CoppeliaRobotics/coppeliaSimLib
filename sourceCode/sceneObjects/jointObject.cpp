@@ -75,6 +75,10 @@ void CJoint::_commonInit()
     _objectType=sim_object_joint_type;
     _localObjectSpecialProperty=0;
 
+    _maxVelAccelJerk[0]=piValTimes2;
+    _maxVelAccelJerk[1]=piValTimes2;
+    _maxVelAccelJerk[2]=piValTimes2;
+
     _jointType=sim_joint_revolute_subtype;
     _screwPitch=0.0f;
     _sphericalTransf.setIdentity();
@@ -90,6 +94,7 @@ void CJoint::_commonInit()
     _intrinsicTransformationError.setIdentity();
 
     _dynCtrlMode=sim_jointdynctrl_free;
+    _dynPositionCtrlMode=0; // PID by default
     _motorLock=false;
     _targetForce=1000.0f; // This value has to be adjusted according to the joint type
     _dynCtrl_pid[0]=0.1f;
@@ -780,6 +785,10 @@ void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
     _velCalc_prevPosValid=false;
     _velCalc_vel=0.0f;
+
+    _dynPosCtrl_currentVelAccel[0]=0.0;
+    _dynPosCtrl_currentVelAccel[1]=0.0;
+
     _initialPosition=_pos;
     _initialSphericalJointTransformation=_sphericalTransf;
     setIntrinsicTransformationError(C7Vector::identityTransformation);
@@ -789,6 +798,7 @@ void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
     _initialJointMode=_jointMode;
 
     _initialDynCtrlMode=_dynCtrlMode;
+    _initialDynPositionCtrlMode=_dynPositionCtrlMode;
     _initialDynCtrl_lockAtVelZero=_motorLock;
     _initialDynCtrl_force=_targetForce;
     _initialDynCtrl_pid[0]=_dynCtrl_pid[0];
@@ -1477,8 +1487,9 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
                 // 1. We prepare the in/out stacks:
                 CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
                 inStack->pushTableOntoStack();
-                inStack->pushStringOntoStack("kinematic",0);
-                inStack->pushBoolOntoStack(false);
+
+                inStack->pushStringOntoStack("mode",0);
+                inStack->pushInt32OntoStack(sim_jointmode_kinematic);
                 inStack->insertDataIntoStackTable();
                 inStack->pushStringOntoStack("first",0);
                 inStack->pushBoolOntoStack(init);
@@ -1564,62 +1575,72 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
         }
         if (handleHere)
         { // we have the built-in control (position PID or spring-damper KC)
-            float P=_dynCtrl_pid[0];
-            float I=_dynCtrl_pid[1];
-            float D=_dynCtrl_pid[2];
-            if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
-            {
-                P=_dynCtrl_kc[0]/_targetForce;
-                I=0.0f;
-                D=_dynCtrl_kc[1]/_targetForce;
-            }
-
-            if (init)
-                _dynCtrl_pid_cumulErr=0.0f;
-
-            float e=errorV;
-
-            // Proportional part:
-            float ctrl=e*P;
-
-            // Integral part:
-            if (I!=0.0f) // so that if we turn the integral part on, we don't try to catch up all the past errors!
-                _dynCtrl_pid_cumulErr+=e*dynStepSize; // '*dynStepSize'  was forgotten and added on 7/5/2014. The I term is corrected during load operation.
-            else
-                _dynCtrl_pid_cumulErr=0.0f; // added on 2009/11/29
-            ctrl+=_dynCtrl_pid_cumulErr*I;
-
-            // Derivative part:
-            if (!init) // this condition was forgotten. Added on 7/5/2014
-                ctrl+=(e-_dynCtrl_pid_lastErr)*D/dynStepSize; // '/dynStepSize' was forgotten and added on 7/5/2014. The D term is corrected during load operation.
-            _dynCtrl_pid_lastErr=e;
-
-            if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
-            { // "spring" mode, i.e. force modulation mode
-                float vel=fabs(_targetVel);
-                if (ctrl<0.0f)
-                    vel=-vel;
-
-                velAndForce[1]=fabs(ctrl)*_targetForce;
-
-                // Following 2 lines new since 7/5/2014:
-                if (velAndForce[1]>_targetForce)
+            if ( (_dynPositionCtrlMode==1)&&(_dynCtrlMode==sim_jointdynctrl_position) )
+            { // motion profile
+                double cp=double(currentPos);
+                double tp=cp+double(errorV);
+                double maxVelAccelJerk[3]={double(_maxVelAccelJerk[0]),double(_maxVelAccelJerk[1]),double(_maxVelAccelJerk[2])};
+                unsigned char sel=1;
+                double dummy=0.0;
+                int ruckObj=CPluginContainer::ruckigPlugin_pos(-1,1,dynStepSize,-1,&cp,_dynPosCtrl_currentVelAccel,_dynPosCtrl_currentVelAccel+1,maxVelAccelJerk,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&tp,&dummy);
+                if (ruckObj>=0)
+                {
+                    CPluginContainer::ruckigPlugin_step(ruckObj,dynStepSize,&dummy,_dynPosCtrl_currentVelAccel,_dynPosCtrl_currentVelAccel+1,&dummy);
+                    CPluginContainer::ruckigPlugin_remove(ruckObj);
                     velAndForce[1]=_targetForce;
-
-                velAndForce[0]=vel;
+                    velAndForce[0]=float(_dynPosCtrl_currentVelAccel[0]);
+                }
             }
             else
-            { // regular position control (i.e. built-in PID)
-                // We calculate the velocity needed to reach the position in one time step:
-                float vel=ctrl/dynStepSize;
-                float maxVel=_maxVelAccelJerk[0];
-                if (vel>maxVel)
-                    vel=maxVel;
-                if (vel<-maxVel)
-                    vel=-maxVel;
+            { // PID or spring
+                float P=_dynCtrl_pid[0];
+                float I=_dynCtrl_pid[1];
+                float D=_dynCtrl_pid[2];
+                if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
+                {
+                    P=_dynCtrl_kc[0];
+                    I=0.0f;
+                    D=_dynCtrl_kc[1];
+                }
 
-                velAndForce[1]=_targetForce;
-                velAndForce[0]=vel;
+                if (init)
+                    _dynCtrl_pid_cumulErr=0.0f;
+
+                float e=errorV;
+
+                // Proportional part:
+                float ctrl=e*P;
+
+                // Integral part:
+                if (I!=0.0f) // so that if we turn the integral part on, we don't try to catch up all the past errors!
+                    _dynCtrl_pid_cumulErr+=e*dynStepSize; // '*dynStepSize'  was forgotten and added on 7/5/2014. The I term is corrected during load operation.
+                else
+                    _dynCtrl_pid_cumulErr=0.0f; // added on 2009/11/29
+                ctrl+=_dynCtrl_pid_cumulErr*I;
+
+                // Derivative part:
+                ctrl-=_velCalc_vel*D;
+
+                if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
+                { // "spring" mode, i.e. force modulation mode
+                    velAndForce[0]=fabs(_targetVel);
+                    if (ctrl<0.0f)
+                        velAndForce[0]=-velAndForce[0];
+                    velAndForce[1]=fabs(ctrl);
+                }
+                else
+                { // regular position control (i.e. built-in PID)
+                    // We calculate the velocity needed to reach the position in one time step:
+                    float vel=ctrl/dynStepSize;
+                    float maxVel=_maxVelAccelJerk[0];
+                    if (vel>maxVel)
+                        vel=maxVel;
+                    if (vel<-maxVel)
+                        vel=-maxVel;
+
+                    velAndForce[1]=_targetForce;
+                    velAndForce[0]=vel;
+                }
             }
         }
     }
@@ -1857,6 +1878,7 @@ CSceneObject* CJoint::copyYourself()
     _color.copyYourselfInto(&newJoint->_color);
 
     newJoint->_dynCtrlMode=_dynCtrlMode;
+    newJoint->_dynPositionCtrlMode=_dynPositionCtrlMode;
     newJoint->_motorLock=_motorLock;
     newJoint->_targetForce=_targetForce;
 
@@ -2113,6 +2135,10 @@ void CJoint::serialize(CSer& ar)
             ar << _dynCtrlMode;
             ar.flush();
 
+            ar.storeDataName("Dpm");
+            ar << _dynPositionCtrlMode;
+            ar.flush();
+
             ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
@@ -2121,6 +2147,7 @@ void CJoint::serialize(CSer& ar)
             std::string theName="";
             bool kAndCSpringParameterPresent=false; // for backward compatibility (7/5/2014)
             bool usingDynCtrlMode=false;
+            _dynPositionCtrlMode=0; // set to PID, which is default for older ser. versions without "Dpm" tag
             bool motorEnabled_old,ctrlEnabled_old,springMode_old;
             while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
@@ -2444,6 +2471,12 @@ void CJoint::serialize(CSer& ar)
                         ar >> _dynCtrlMode;
                         usingDynCtrlMode=true;
                     }
+                    if (theName.compare("Dpm")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dynPositionCtrlMode;
+                    }
 
                     if (noHit)
                         ar.loadUnknownData();
@@ -2577,6 +2610,8 @@ void CJoint::serialize(CSer& ar)
 
             ar.xmlPushNewNode("dynamics");
             ar.xmlAddNode_int("ctrlMode",_dynCtrlMode);
+            ar.xmlAddNode_comment(" 'posController' tag: can be 'pid' or 'motionProfile' ",exhaustiveXml);
+            ar.xmlAddNode_enum("posController",_dynPositionCtrlMode,0,"pid",1,"motionProfile");
             ar.xmlAddNode_float("maxForce",_targetForce);
             ar.xmlAddNode_float("upperVelocityLimit",_maxVelAccelJerk[0]*mult); // for backward compatibility (V4.3 and earlier)
             ar.xmlAddNode_3float("pidValues",_dynCtrl_pid[0],_dynCtrl_pid[1],_dynCtrl_pid[2]);
@@ -2680,6 +2715,7 @@ void CJoint::serialize(CSer& ar)
         }
         else
         {
+            _dynPositionCtrlMode=0; // set to PID, which is default for older ser. versions without "Dpm" tag
             bool usingDynCtrlMode=false;
             bool motorEnabled_old,ctrlEnabled_old,springMode_old;
             float mult=1.0f;
@@ -2809,6 +2845,9 @@ void CJoint::serialize(CSer& ar)
             {
                 if (ar.xmlGetNode_int("ctrlMode",_dynCtrlMode,exhaustiveXml))
                     usingDynCtrlMode=true;
+
+                ar.xmlGetNode_enum("posController",_dynPositionCtrlMode,exhaustiveXml,"pid",0,"motionProfile",1);
+
                 ar.xmlGetNode_float("maxForce",_targetForce,exhaustiveXml);
                 float val;
                 if (ar.xmlGetNode_float("upperVelocityLimit",val,false)) // for backward compatibility (V4.3 and earlier)
@@ -3006,6 +3045,8 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int theMode)
     }
     if (theMode==sim_jointmode_dynamic)
     {
+        if ( (_jointMode!=theMode)&&( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb)||(_dynCtrlMode==sim_jointdynctrl_force) ) )
+            setTargetVelocity(1000.0f); // just a very high value
         setHybridFunctionality_old(false);
         setScrewPitch(0.0f);
 // REMOVED FOLLOWING ON 24/7/2015: causes problem when switching modes. The physics engine plugin will now not set limits if the range>=360
@@ -3282,8 +3323,8 @@ void CJoint::setDynCtrlMode(int mode)
     if (mode!=_dynCtrlMode)
     {
         _dynCtrlMode=mode;
-        if (_dynCtrlMode==sim_jointdynctrl_force)
-            setTargetVelocity(1000.0f);
+        if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb)||(_dynCtrlMode==sim_jointdynctrl_force) )
+            setTargetVelocity(1000.0f); // just a very high value
         if (_dynCtrlMode==sim_jointdynctrl_velocity)
         {
             if (_jointType==sim_joint_prismatic_subtype)
@@ -3292,6 +3333,17 @@ void CJoint::setDynCtrlMode(int mode)
                 setTargetVelocity(piValD2_f);
         }
     }
+}
+
+int CJoint::getDynPosCtrlMode() const
+{
+    return(_dynPositionCtrlMode);
+}
+
+void CJoint::setDynPosCtrlMode(int mode)
+{
+    if (mode!=_dynPositionCtrlMode)
+        _dynPositionCtrlMode=mode;
 }
 
 float CJoint::getTargetVelocity() const

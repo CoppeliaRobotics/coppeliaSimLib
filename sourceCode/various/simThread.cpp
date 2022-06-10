@@ -2964,6 +2964,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     if ( (it!=nullptr)&&(last->getJointType()==it->getJointType())&&((it->getJointMode()==last->getJointMode())||(last->getHybridFunctionality_old()&&it->getHybridFunctionality_old())) )
                     {
                         it->setDynCtrlMode(last->getDynCtrlMode());
+                        it->setDynPosCtrlMode(last->getDynPosCtrlMode());
                         it->setTargetForce(last->getTargetForce(false),false);
                         it->setTargetVelocity(last->getTargetVelocity());
                         it->setMotorLock(last->getMotorLock());
@@ -2982,14 +2983,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
         }
-        if (cmd.cmdId==SET_UPPERVELLIMIT_JOINTDYNGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_MOTIONPROFILEVALS_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
                 float maxVelAccelJerk[3];
                 it->getMaxVelAccelJerk(maxVelAccelJerk);
-                maxVelAccelJerk[0]=cmd.floatParams[0];
+                maxVelAccelJerk[cmd.intParams[1]]=cmd.floatParams[0];
                 it->setMaxVelAccelJerk(maxVelAccelJerk);
             }
         }
@@ -3016,6 +3017,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setDynCtrlMode(cmd.intParams[1]);
+        }
+        if (cmd.cmdId==SET_JOINTPOSCTRLMODETYPE_JOINTDYNGUITRIGGEREDCMD)
+        {
+            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+            if (it!=nullptr)
+                it->setDynPosCtrlMode(cmd.intParams[1]);
         }
         if (cmd.cmdId==TOGGLE_LOCKMOTOR_JOINTDYNGUITRIGGEREDCMD)
         {
