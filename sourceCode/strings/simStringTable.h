@@ -929,12 +929,9 @@
 #define IDS_SHAPE_IS_NON_STATIC_AND_RESPONDABLE "Shape is non-static and respondable."
 #define IDS_SHAPE_IS_NON_STATIC_AND_NON_RESPONDABLE "Shape is non-static and non-respondable."
 #define IDS_JOINT_OPERATES_IN_DYNAMIC_MODE "Joint operates in dynamic mode"
-#define IDS_JOINT_OPERATES_IN_HYBRID_FASHION "Joint operates in hybrid fashion"
+#define IDS_JOINT_OPERATES_IN_HYBRID_FASHION "Joint operates in hybrid fashion (deprecated)"
 #define IDS_FORCE_SENSOR_IS_BREAKABLE "Force sensor is breakable."
 #define IDS_FORCE_SENSOR_IS_NOT_BREAKABLE "Force sensor is not breakable."
-
-#define IDS__MOTOR_DISABLED_ "(motor disabled)"
-#define IDS__MOTOR_ENABLED_ "(motor enabled)"
 
 #define IDS_READING_NEWER_SERIALIZATION_FILE_WARNING "The file you are about to read was created with a newer version of CoppeliaSim. Some functionality might not be available or not working properly."
 #define IDS_MAKING_NON_PURE_CONCAVE_SHAPE_RESPONDABLE_WARNING "The shape you made respondable is not a pure shape, nor a convex shape. It is a random non-convex shape that will perform much worse than pure shapes or convex shapes. Additionally, calculations with non-pure non-convex respondable shapes are much more time-consuming. For collision response calculations, it is recomended to use pure shapes whenever possible, or if that is not possible, convex shapes."

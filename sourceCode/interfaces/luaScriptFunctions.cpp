@@ -115,9 +115,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setObjectOrientation",_simSetObjectOrientation,        "sim.setObjectOrientation(int objectHandle,int relativeToObjectHandle,float[3] eulerAngles)",true},
     {"sim.getJointPosition",_simGetJointPosition,                "float position=sim.getJointPosition(int objectHandle)",true},
     {"sim.setJointPosition",_simSetJointPosition,                "sim.setJointPosition(int objectHandle,float position)",true},
-    {"sim.setJointTargetPosition",_simSetJointTargetPosition,    "sim.setJointTargetPosition(int objectHandle,float targetPosition,float[3] maxVelAccelJerk={})",true},
+    {"sim.setJointTargetPosition",_simSetJointTargetPosition,    "sim.setJointTargetPosition(int objectHandle,float targetPosition,float[] motionParams={})",true},
     {"sim.getJointTargetPosition",_simGetJointTargetPosition,    "float targetPosition=sim.getJointTargetPosition(int objectHandle)",true},
-    {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "sim.setJointTargetVelocity(int objectHandle,float targetVelocity,float[2] maxAccelJerk={},float initVelocity=nil)",true},
+    {"sim.setJointTargetVelocity",_simSetJointTargetVelocity,    "sim.setJointTargetVelocity(int objectHandle,float targetVelocity,float[] motionParams={})",true},
     {"sim.getJointTargetVelocity",_simGetJointTargetVelocity,    "float targetVelocity=sim.getJointTargetVelocity(int objectHandle)",true},
     {"sim.removeObjects",_simRemoveObjects,                      "sim.removeObjects(int[1..*] objectHandles)",true},
     {"sim.removeModel",_simRemoveModel,                          "int objectCount=sim.removeModel(int objectHandle)",true},
@@ -1152,6 +1152,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.jointfloatparam_maxaccel",sim_jointfloatparam_maxaccel,true},
     {"sim.jointfloatparam_maxjerk",sim_jointfloatparam_maxjerk,true},
     {"sim.jointintparam_dynctrlmode",sim_jointintparam_dynctrlmode,true},
+    {"sim.jointintparam_dynvelctrltype",sim_jointintparam_dynvelctrltype,true},
+    {"sim.jointintparam_dynposctrltype",sim_jointintparam_dynposctrltype,true},
 
     // shapes
     {"sim.shapefloatparam_init_velocity_x",sim_shapefloatparam_init_velocity_x,true},
@@ -3176,10 +3178,25 @@ int _simSetJointTargetPosition(luaWrap_lua_State* L)
                 CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(h);
                 if (joint!=nullptr)
                 {
-                    float maxVelAccelJerk[3];
-                    joint->getMaxVelAccelJerk(maxVelAccelJerk);
-                    getFloatsFromTable(L,3,std::min<size_t>(luaWrap_lua_rawlen(L,3),3),maxVelAccelJerk);
-                    joint->setMaxVelAccelJerk(maxVelAccelJerk);
+                    if (joint->getDynPosCtrlType()==0)
+                    { // PID
+                        float maxVelPID[4];
+                        float maxVelAccelJerk[3];
+                        joint->getMaxVelAccelJerk(maxVelAccelJerk); // just for max. vel.
+                        joint->getMaxVelAccelJerk(maxVelPID); // just for max. vel.
+                        joint->getPid(maxVelPID[1],maxVelPID[2],maxVelPID[3]);
+                        getFloatsFromTable(L,3,std::min<size_t>(luaWrap_lua_rawlen(L,3),4),maxVelPID);
+                        maxVelAccelJerk[0]=maxVelPID[0];
+                        joint->setMaxVelAccelJerk(maxVelAccelJerk);
+                        joint->setPid(maxVelPID[1],maxVelPID[2],maxVelPID[3]);
+                    }
+                    else
+                    { // Motion profile
+                        float maxVelAccelJerk[3];
+                        joint->getMaxVelAccelJerk(maxVelAccelJerk);
+                        getFloatsFromTable(L,3,std::min<size_t>(luaWrap_lua_rawlen(L,3),3),maxVelAccelJerk);
+                        joint->setMaxVelAccelJerk(maxVelAccelJerk);
+                    }
                 }
             }
             retVal=simSetJointTargetPosition_internal(h,luaToFloat(L,2));

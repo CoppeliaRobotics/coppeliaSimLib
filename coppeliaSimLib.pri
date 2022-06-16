@@ -492,6 +492,7 @@ HEADERS += $$PWD/sourceCode/interfaces/sim.h \
     $$PWD/sourceCode/interfaces/pathPlanningInterface.h \
     $$PWD/sourceCode/interfaces/dummyClasses.h \
     $$PWD/sourceCode/interfaces/simFlavor.h \
+    $$PWD/sourceCode/interfaces/gm.h \
     
 HEADERS += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackObject.h \
@@ -908,7 +909,9 @@ SOURCES += $$PWD/sourceCode/interfaces/sim.cpp \
     $$PWD/sourceCode/interfaces/luaScriptFunctions.cpp \
     $$PWD/sourceCode/interfaces/pathPlanningInterface.cpp \
 
-SOURCES += $$PWD/sourceCode/interfaces/simFlavor.cpp
+SOURCES += $$PWD/sourceCode/interfaces/simFlavor.cpp \
+    $$PWD/sourceCode/interfaces/gm.cpp \
+
 
 SOURCES += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackObject.cpp \

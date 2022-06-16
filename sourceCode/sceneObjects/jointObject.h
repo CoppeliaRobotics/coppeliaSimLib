@@ -157,7 +157,8 @@ public:
     bool getMotorLock() const;
     float getTargetForce(bool signedValue) const;
     int getDynCtrlMode() const;
-    int getDynPosCtrlMode() const;
+    int getDynVelCtrlType() const;
+    int getDynPosCtrlType() const;
     float getEngineFloatParam(int what,bool* ok) const;
     int getEngineIntParam(int what,bool* ok) const;
     bool getEngineBoolParam(int what,bool* ok) const;
@@ -216,7 +217,8 @@ public:
     void setKc(float k_param,float c_param);
     void setTargetForce(float f,bool isSigned);
     void setDynCtrlMode(int mode);
-    void setDynPosCtrlMode(int mode);
+    void setDynVelCtrlType(int mode);
+    void setDynPosCtrlType(int mode);
 
     void setBulletFloatParams(const std::vector<float>& p);
     void setOdeFloatParams(const std::vector<float>& p);
@@ -307,7 +309,8 @@ protected:
     int _initialJointMode;
 
     int _initialDynCtrlMode;
-    int _initialDynPositionCtrlMode;
+    int _initialDynVelocityCtrlType;
+    int _initialDynPositionCtrlType;
     bool _initialDynCtrl_lockAtVelZero;
     float _initialDynCtrl_force;
     float _initialDynCtrl_pid[3];
@@ -323,6 +326,7 @@ protected:
     bool _velCalc_prevPosValid;
 
     double _dynPosCtrl_currentVelAccel[2];
+    double _dynVelCtrl_currentVelAccel[2];
 
     float _cumulatedForceOrTorque;
     float _cumulativeForceOrTorqueTmp;
@@ -358,7 +362,8 @@ protected:
 
     float _dynCtrl_kc[2];
     int _dynCtrlMode;
-    int _dynPositionCtrlMode; // pid (0) or Ruckig (1)
+    int _dynPositionCtrlType; // pid (0) or Ruckig (1)
+    int _dynVelocityCtrlType; // built-in velocity mode (0) or Ruckig (1)
 
     bool _jointHasHybridFunctionality;
 

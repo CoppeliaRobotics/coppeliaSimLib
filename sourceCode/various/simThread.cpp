@@ -2961,7 +2961,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     if ( (it!=nullptr)&&(last->getJointType()==it->getJointType())&&((it->getJointMode()==last->getJointMode())||(last->getHybridFunctionality_old()&&it->getHybridFunctionality_old())) )
                     {
                         it->setDynCtrlMode(last->getDynCtrlMode());
-                        it->setDynPosCtrlMode(last->getDynPosCtrlMode());
+                        it->setDynPosCtrlType(last->getDynPosCtrlType());
                         it->setTargetForce(last->getTargetForce(false),false);
                         it->setTargetVelocity(last->getTargetVelocity());
                         it->setMotorLock(last->getMotorLock());
@@ -3019,8 +3019,20 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDynPosCtrlMode(cmd.intParams[1]);
+                it->setDynPosCtrlType(cmd.intParams[1]);
         }
+        if (cmd.cmdId==TOGGLE_JOINTVELCTRLMODETYPE_JOINTDYNGUITRIGGEREDCMD)
+        {
+            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+            if (it!=nullptr)
+            {
+                if (it->getDynVelCtrlType()==0)
+                    it->setDynVelCtrlType(1);
+                else
+                    it->setDynVelCtrlType(0);
+            }
+        }
+
         if (cmd.cmdId==TOGGLE_LOCKMOTOR_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
@@ -4659,6 +4671,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             }
         }
         App::appendSimulationThreadCommand(cmd,CSimFlavor::getIntVal(4));
+    }
+
+    if (cmd.cmdId==CHKINST_CMD)
+    {
+        if (CSimFlavor::getBoolVal(20))
+        {
+            cmd.cmdId=EXIT_REQUEST_CMD;
+            App::appendSimulationThreadCommand(cmd);
+        }
     }
 
     if (cmd.cmdId==REFRESH_DIALOGS_CMD)

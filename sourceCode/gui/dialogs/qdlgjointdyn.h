@@ -50,6 +50,12 @@ private slots:
 
     void on_qqPositionMode_maxJerk_editingFinished();
 
+    void on_qqVelocityMode_ruckig_clicked();
+
+    void on_qqVelocityMode_maxAccel_editingFinished();
+
+    void on_qqVelocityMode_maxJerk_editingFinished();
+
 private:
     bool inMainRefreshRoutine;
 

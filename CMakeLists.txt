@@ -585,6 +585,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/interfaces/pathPlanningInterface.cpp
 
     sourceCode/interfaces/simFlavor.cpp
+    sourceCode/interfaces/gm.cpp
 
     sourceCode/interfaces/interfaceStack/interfaceStack.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackObject.cpp

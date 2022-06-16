@@ -403,7 +403,7 @@ protected:
     C7Vector _initialLocalPose;
     C7Vector _initialAbsPose;
 
-    int _dynamicFlag; // 1=respondableShape, 2=nonStaticShape, 4=dynJointNoMotor, 8=dynJointMotor, 16=dynJointPosCtrl, 32=dynForceSensor, 64=dynDummy
+    int _dynamicFlag; // 1=respondableShape, 2=nonStaticShape, 4=dynJoint, 32=dynForceSensor, 64=dynDummy
 
     float _measuredAngularVelocity_velocityMeasurement;
     C3Vector _measuredAngularVelocity3_velocityMeasurement;

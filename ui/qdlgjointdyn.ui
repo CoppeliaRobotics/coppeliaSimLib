@@ -500,7 +500,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_2">
@@ -603,6 +603,68 @@
      </property>
      <property name="text">
       <string>Max. force/torque</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqVelocityMode_maxAccelLabel">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>80</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Max. acceleration</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqVelocityMode_maxJerk">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>100</y>
+       <width>76</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qqVelocityMode_maxJerkLabel">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>100</y>
+       <width>191</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Max. jerk</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="qqVelocityMode_maxAccel">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>80</y>
+       <width>76</width>
+       <height>18</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="qqVelocityMode_ruckig">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>211</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Motion profile control</string>
      </property>
     </widget>
    </widget>

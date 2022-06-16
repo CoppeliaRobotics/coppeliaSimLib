@@ -25,11 +25,12 @@ void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
         {
             if (joint->getDynamicFlag()==4)
-                ogl::setMaterialColor(0.0f,0.3f,1.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
-            if (joint->getDynamicFlag()==8)
-                ogl::setMaterialColor(1.0f,0.0f,0.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
-            if (joint->getDynamicFlag()==16)
-                ogl::setMaterialColor(0.9f,0.9f,0.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+            {
+                if (joint->getDynCtrlMode()==sim_jointdynctrl_free)
+                    ogl::setMaterialColor(0.0f,0.3f,1.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+                else
+                    ogl::setMaterialColor(1.0f,0.0f,0.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+            }
         }
         else
             joint->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);

@@ -62,7 +62,7 @@ volatile int App::_quitLevel=0;
 bool App::_consoleMsgsToFile=false;
 VFile* App::_consoleMsgsFile=nullptr;
 VArchive* App::_consoleMsgsArchive=nullptr;
-
+CGm* App::gm=nullptr;
 
 int App::sc=1;
 #ifdef SIM_WITH_QT
@@ -661,6 +661,11 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
         SSimulationThreadCommand cmd;
         cmd.cmdId=CHKLICM_CMD;
         appendSimulationThreadCommand(cmd,5000);
+    }
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=CHKINST_CMD;
+        appendSimulationThreadCommand(cmd,20000);
     }
 #endif
 

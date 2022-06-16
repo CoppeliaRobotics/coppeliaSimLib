@@ -1221,11 +1221,6 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
                             txt+=IDS_JOINT_OPERATES_IN_DYNAMIC_MODE;
                         else
                             txt+=IDS_JOINT_OPERATES_IN_HYBRID_FASHION;
-                        txt+=' ';
-                        if (so->getDynCtrlMode()!=sim_jointdynctrl_free)
-                            txt+=IDS__MOTOR_ENABLED_;
-                        else
-                            txt+=IDS__MOTOR_DISABLED_;
                     }
                     if (it->getObjectType()==sim_object_forcesensor_type)
                     {

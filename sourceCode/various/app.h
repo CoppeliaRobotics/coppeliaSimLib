@@ -6,6 +6,7 @@
 #include "userSettings.h"
 #include "vMutex.h"
 #include "worldContainer.h"
+#include "gm.h"
 #ifdef SIM_WITH_QT
     #include "simQApp.h"
     #include "simAndUiThreadSync.h"
@@ -111,6 +112,7 @@ public:
     static CWorld* currentWorld; // actually worldContainer->currentWorld
     static CUiThread* uiThread;
     static CSimThread* simThread;
+    static CGm* gm;
 
     static int operationalUIParts;
     static int sc;

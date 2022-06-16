@@ -31,9 +31,7 @@
 #include <unordered_map>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
-#ifdef SIM_PLUS
 #include "gm.h"
-#endif
 #ifdef SIM_WITH_GUI
     #include <QSplashScreen>
 #endif
@@ -967,11 +965,11 @@ void _segHandler(int sig)
 #endif
 simInt simRunSimulator_internal(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)(),simInt stopDelay,const simChar* sceneOrModelToLoad,bool launchSimThread)
 {
-#ifdef SIM_PLUS
-    CGm gm(SIM_FL);
-    if (gm.fi())
+    CGm gm;
+    App::gm=&gm;
+    App::gm->fi();
+    if (!gm.fo())
         return(0);
-#endif
     firstSimulationStopDelay=stopDelay;
     initialSceneOrModelToLoad=sceneOrModelToLoad;
     if ( (options&sim_autostart)!=0 )
@@ -9177,6 +9175,16 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                 parameter[0]=joint->getDynCtrlMode();
                 retVal=1;
             }
+            if (parameterID==sim_jointintparam_dynvelctrltype)
+            {
+                parameter[0]=joint->getDynVelCtrlType();
+                retVal=1;
+            }
+            if (parameterID==sim_jointintparam_dynposctrltype)
+            {
+                parameter[0]=joint->getDynPosCtrlType();
+                retVal=1;
+            }
         }
         if (shape!=nullptr)
         {
@@ -9551,6 +9559,16 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             if (parameterID==sim_jointintparam_dynctrlmode)
             {
                 joint->setDynCtrlMode(parameter);
+                retVal=1;
+            }
+            if (parameterID==sim_jointintparam_dynvelctrltype)
+            {
+                joint->setDynVelCtrlType(parameter);
+                retVal=1;
+            }
+            if (parameterID==sim_jointintparam_dynposctrltype)
+            {
+                joint->setDynPosCtrlType(parameter);
                 retVal=1;
             }
         }
