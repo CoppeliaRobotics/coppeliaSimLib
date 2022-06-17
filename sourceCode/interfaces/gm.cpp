@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gm.h"
+
 CGm::CGm()
 {
 }
