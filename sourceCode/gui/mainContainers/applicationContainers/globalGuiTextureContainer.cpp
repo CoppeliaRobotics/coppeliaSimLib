@@ -4,6 +4,7 @@
 #include "imgLoaderSaver.h"
 #include "oGL.h"
 #include "rendering.h"
+#include "simFlavor.h"
 
 CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
 {
@@ -199,12 +200,20 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
     dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/cur_ctrl.tga",xres,yres,rgba,nullptr);
     addObject(CURSOR_CTRL_BUTTON,xres,yres,rgba,false,true,dat);
     delete[] dat;
-    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/eduWaterMark.tga",xres,yres,rgba,nullptr);
-    addObject(EDU_TAG,xres,yres,rgba,false,true,dat);
+    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/eduWatermark.tga",xres,yres,rgba,nullptr);
+    addObject(WATERMARK_START,xres,yres,rgba,false,true,dat);
     delete[] dat;
-    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/evalWaterMark.tga",xres,yres,rgba,nullptr);
-    addObject(EVAL_TAG,xres,yres,rgba,false,true,dat);
+    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/evalWatermark.tga",xres,yres,rgba,nullptr);
+    addObject(WATERMARK_START+1,xres,yres,rgba,false,true,dat);
     delete[] dat;
+
+    dat=CImageLoaderSaver::loadQTgaImageData("_watermark_.tga",xres,yres,rgba,nullptr);
+    if (dat!=nullptr)
+    {
+        addObject(WATERMARK_START+2,xres,yres,rgba,false,true,dat);
+        delete[] dat;
+        CSimFlavor::run(9);
+    }
 }
 
 CGlobalGuiTextureContainer::~CGlobalGuiTextureContainer()

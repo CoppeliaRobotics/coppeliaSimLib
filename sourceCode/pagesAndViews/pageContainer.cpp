@@ -387,11 +387,8 @@ void CPageContainer::renderCurrentPage(bool hideWatermark)
     if ( (!hideWatermark)&&(App::mainWindow!=nullptr)&&(!App::mainWindow->simulationRecorder->getIsRecording()) )
     {
         int tagId=CSimFlavor::getIntVal(0);
-        // if compiling CoppeliaSim yourself, and using the mesh calculation plugin, you must use the EDU_TAG below!
-        if (tagId==0)
-            displayContainerPageWatermark(_pagePosition,_pageSize,EDU_TAG);
-        if (tagId==1)
-            displayContainerPageWatermark(_pagePosition,_pageSize,EVAL_TAG);
+        if (tagId>=0)
+            displayContainerPageWatermark(_pagePosition,_pageSize,WATERMARK_START+tagId);
     }
 }
 

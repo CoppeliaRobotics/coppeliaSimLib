@@ -20,7 +20,7 @@
         <file>targaFiles/dummy.tga</file>
         <file>targaFiles/dynamics.tga</file>
         <file>targaFiles/edge.tga</file>
-        <file>targaFiles/eduWaterMark.tga</file>
+        <file>targaFiles/eduWatermark.tga</file>
         <file>targaFiles/folder.tga</file>
         <file>targaFiles/ftsensor.tga</file>
         <file>targaFiles/graph.tga</file>
@@ -55,7 +55,7 @@
         <file>targaFiles/camera.tga</file>
         <file>targaFiles/mirror.tga</file>
         <file>targaFiles/clipplane.tga</file>
-        <file>targaFiles/evalWaterMark.tga</file>
+        <file>targaFiles/evalWatermark.tga</file>
         <file>targaFiles/convexm.tga</file>
         <file>targaFiles/convexs.tga</file>
         <file>targaFiles/customizationScript.tga</file>

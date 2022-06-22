@@ -207,8 +207,6 @@ unsigned char* CTGAFormat::getQ_ImageData(const char* fileAndPathName,int& resX,
     }
     catch(VFILE_EXCEPTION_TYPE e)
     {
-        App::logMsg(sim_verbosity_errors,"failed loading resource: %s",fileAndPathName);
-        VFile::reportAndHandleFileExceptionError(e);
     }
     return(retVal);
 }
