@@ -4673,15 +4673,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         App::appendSimulationThreadCommand(cmd,CSimFlavor::getIntVal(4));
     }
 
-    if (cmd.cmdId==CHKINST_CMD)
-    {
-        if (CSimFlavor::getBoolVal(20))
-        {
-            cmd.cmdId=EXIT_REQUEST_CMD;
-            App::appendSimulationThreadCommand(cmd);
-        }
-    }
-
     if (cmd.cmdId==REFRESH_DIALOGS_CMD)
     {
         SUIThreadCommand cmdIn;

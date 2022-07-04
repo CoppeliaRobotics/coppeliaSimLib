@@ -662,11 +662,6 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
         cmd.cmdId=CHKLICM_CMD;
         appendSimulationThreadCommand(cmd,5000);
     }
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=CHKINST_CMD;
-        appendSimulationThreadCommand(cmd,20000);
-    }
 #endif
 
     std::string msg=CSimFlavor::getStringVal(18);

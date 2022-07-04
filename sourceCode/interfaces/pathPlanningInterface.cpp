@@ -5,7 +5,7 @@
 #include "nonHolonomicPathPlanning_old.h"
 #include "holonomicPathPlanning_old.h"
 
-CDummyNonHolonomicPathPlanning* CPathPlanningInterface::createNonHolonomicPathPlanningObject(int theStartDummyID,int theGoalDummyID,
+void* CPathPlanningInterface::createNonHolonomicPathPlanningObject(int theStartDummyID,int theGoalDummyID,
                             int theRobotCollectionID,int theObstacleCollectionID,float theAngularCoeff,
                             float theSteeringAngleCoeff,float theMaxSteeringAngleVariation,float theMaxSteeringAngle,
                             float theStepSize,const float theSearchMinVal[2],const float theSearchRange[2],
@@ -14,10 +14,10 @@ CDummyNonHolonomicPathPlanning* CPathPlanningInterface::createNonHolonomicPathPl
     CNonHolonomicPathPlanning_old* p=new CNonHolonomicPathPlanning_old(theStartDummyID,theGoalDummyID,theRobotCollectionID,
             theObstacleCollectionID,-1,theAngularCoeff,theSteeringAngleCoeff,theMaxSteeringAngleVariation,theMaxSteeringAngle,theStepSize,
             theSearchMinVal,theSearchRange,theDirectionConstraints,clearanceAndMaxDistance);
-    return((CDummyNonHolonomicPathPlanning*)p);
+    return((void*)p);
 }
 
-CDummyHolonomicPathPlanning* CPathPlanningInterface::createHolonomicPathPlanningObject(int theStartDummyID,int theGoalDummyID,
+void* CPathPlanningInterface::createHolonomicPathPlanningObject(int theStartDummyID,int theGoalDummyID,
                             int theRobotCollectionID,int theObstacleCollectionID,int thePlanningType,
                             float theAngularCoeff,float theStepSize,const float theSearchMinVal[4],const float theSearchRange[4],
                             const int theDirectionConstraints[4],const float clearanceAndMaxDistance[2],const float gammaAxis[3])
@@ -25,21 +25,21 @@ CDummyHolonomicPathPlanning* CPathPlanningInterface::createHolonomicPathPlanning
     CHolonomicPathPlanning_old* p=new CHolonomicPathPlanning_old(theStartDummyID,theGoalDummyID,theRobotCollectionID,
             theObstacleCollectionID,-1,thePlanningType,theAngularCoeff,theStepSize,
             theSearchMinVal,theSearchRange,theDirectionConstraints,clearanceAndMaxDistance,C3Vector(gammaAxis));
-    return((CDummyHolonomicPathPlanning*)p);
+    return((void*)p);
 }
 
 
-void CPathPlanningInterface::destroyPathPlanningObject(CDummyPathPlanning* obj)
+void CPathPlanningInterface::destroyPathPlanningObject(void* obj)
 {
     delete (CPathPlanning_old*)obj;
 }
 
-int CPathPlanningInterface::searchPath(CDummyPathPlanning* obj,int maxTimeInMsPerPass)
+int CPathPlanningInterface::searchPath(void* obj,int maxTimeInMsPerPass)
 {
     return(((CPathPlanning_old*)obj)->searchPath(maxTimeInMsPerPass));
 }
 
-int CPathPlanningInterface::getPathNodeCount(CDummyPathPlanning* obj,char fromStart)
+int CPathPlanningInterface::getPathNodeCount(void* obj,char fromStart)
 {
     if (((CPathPlanning_old*)obj)->isHolonomic)
     {
@@ -55,17 +55,17 @@ int CPathPlanningInterface::getPathNodeCount(CDummyPathPlanning* obj,char fromSt
     }
 }
 
-char CPathPlanningInterface::setPartialPath(CDummyPathPlanning* obj)
+char CPathPlanningInterface::setPartialPath(void* obj)
 {
     return(((CPathPlanning_old*)obj)->setPartialPath());
 }
 
-int CPathPlanningInterface::smoothFoundPath(CDummyPathPlanning* obj,int steps,int maxTimePerPass)
+int CPathPlanningInterface::smoothFoundPath(void* obj,int steps,int maxTimePerPass)
 {
     return(((CPathPlanning_old*)obj)->smoothFoundPath(steps,maxTimePerPass));
 }
 
-float* CPathPlanningInterface::getFoundPath(CDummyPathPlanning* obj,int* nodeCount)
+float* CPathPlanningInterface::getFoundPath(void* obj,int* nodeCount)
 {
     float* retVal=nullptr;
     std::vector<float> data;
@@ -80,7 +80,7 @@ float* CPathPlanningInterface::getFoundPath(CDummyPathPlanning* obj,int* nodeCou
     return(retVal);
 }
 
-float* CPathPlanningInterface::getSearchTree(CDummyPathPlanning* obj,int* segmentCount,char fromStart)
+float* CPathPlanningInterface::getSearchTree(void* obj,int* segmentCount,char fromStart)
 {
     float* retVal=nullptr;
     std::vector<float> data;

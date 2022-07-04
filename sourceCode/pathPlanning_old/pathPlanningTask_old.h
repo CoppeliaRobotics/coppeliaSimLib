@@ -94,7 +94,7 @@ protected:
     int _steppedSearchTemp_initTimeInMs;
     int _steppedSearchTemp_maxSubTimeInMs;
     bool _steppedSearchTemp_showProgressDlg;
-    CDummyPathPlanning* _steppedSearchTemp_theTask;
+    void* _steppedSearchTemp_theTask;
     int _steppedSearchTemp_foundPathStatus; // 0=not yet, 1=partial, 2=full
     int _steppedSearchTemp_currentSmoothingPass;
 

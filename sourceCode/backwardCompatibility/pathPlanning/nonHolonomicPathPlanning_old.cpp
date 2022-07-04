@@ -24,8 +24,8 @@ CNonHolonomicPathPlanning_old::CNonHolonomicPathPlanning_old(int theStartDummyID
     maxSteeringAngle=theMaxSteeringAngle;
     minTurningRadius=stepSize/(2.0f*sin(maxSteeringAngle/2.0f));
     _startDummyID=theStartDummyID;
-    CDummyDummy* startDummy=(CDummyDummy*)_simGetObject_internal(_startDummyID);
-    CDummyDummy* goalDummy=(CDummyDummy*)_simGetObject_internal(theGoalDummyID);
+    CXDummy* startDummy=(CXDummy*)_simGetObject_internal(_startDummyID);
+    CXDummy* goalDummy=(CXDummy*)_simGetObject_internal(theGoalDummyID);
     if ( (startDummy==nullptr)||(goalDummy==nullptr) )
         return;
     _simGetObjectCumulativeTransformation_internal(startDummy,_startDummyCTM.X.data,_startDummyCTM.Q.data,false);
@@ -107,7 +107,7 @@ int CNonHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
         return(0);
 
     // Following since 2010/08/19 so that we can move the "robot" while we search:
-    CDummyDummy* startDummy=(CDummyDummy*)_simGetObject_internal(_startDummyID);
+    CXDummy* startDummy=(CXDummy*)_simGetObject_internal(_startDummyID);
     if (startDummy==nullptr)
         return(0);
     C7Vector dumSavedConf;
@@ -268,7 +268,7 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::getClosestNode(std::ve
     return(nullptr);
 }
 
-CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNonHolonomicPathNode_old*>* currentList,CNonHolonomicPathNode_old* toBeExtended,CNonHolonomicPathNode_old* extention,bool forward,CDummyDummy* startDummy)
+CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNonHolonomicPathNode_old*>* currentList,CNonHolonomicPathNode_old* toBeExtended,CNonHolonomicPathNode_old* extention,bool forward,CXDummy* startDummy)
 {   // Return value is !=nullptr if extention was performed to some extent
     bool specialCase=( (fromStart==currentList[0])&&(toBeExtended==fromStart[0])&&(_startConfInterferenceState!=SIM_MAX_FLOAT) );
     float lastClosest_specialCase=_startConfInterferenceState;
@@ -384,7 +384,7 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNo
     return(toBeExtended);
 }
 
-CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::connect(std::vector<CNonHolonomicPathNode_old*>* currentList,std::vector<CNonHolonomicPathNode_old*>* nextList,CNonHolonomicPathNode_old* toBeExtended,CNonHolonomicPathNode_old* extention,bool forward,bool connect,bool test,CDummyDummy* startDummy)
+CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::connect(std::vector<CNonHolonomicPathNode_old*>* currentList,std::vector<CNonHolonomicPathNode_old*>* nextList,CNonHolonomicPathNode_old* toBeExtended,CNonHolonomicPathNode_old* extention,bool forward,bool connect,bool test,CXDummy* startDummy)
 {   // if connect is true the return value indicates that connection can be performed!
     // other wise return value different from null means that toBeExtended could be extended to some extent!
     // if test is true, nothing is changed in the lists, we just check if connection could be made!
@@ -573,7 +573,7 @@ int CNonHolonomicPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
         return(1);
     if (invalidData)
         return(0);
-    CDummyDummy* startDummy=(CDummyDummy*)_simGetObject_internal(_startDummyID);
+    CXDummy* startDummy=(CXDummy*)_simGetObject_internal(_startDummyID);
     if (startDummy==nullptr)
         return(0);
 

@@ -967,9 +967,6 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
 {
     CGm gm;
     App::gm=&gm;
-    App::gm->fi();
-    if (!gm.fo())
-        return(0);
     firstSimulationStopDelay=stopDelay;
     initialSceneOrModelToLoad=sceneOrModelToLoad;
     if ( (options&sim_autostart)!=0 )
@@ -8109,7 +8106,6 @@ simInt simImportShape_internal(simInt fileformat,const simChar* pathAndFilename,
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
-
 
 simInt simImportMesh_internal(simInt fileformat,const simChar* pathAndFilename,simInt options,simFloat identicalVerticeTolerance,simFloat scalingFactor,simFloat*** vertices,simInt** verticesSizes,simInt*** indices,simInt** indicesSizes,simFloat*** reserved,simChar*** names)
 {

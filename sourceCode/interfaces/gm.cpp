@@ -10,18 +10,7 @@ CGm::~CGm()
 {
 }
 
-bool CGm::fi()
+void CGm::ll(const char*)
 {
-    return(true);
-}
-
-bool CGm::fo()
-{
-    return(true);
-}
-
-bool CGm::fic(const char*)
-{
-    return(true);
 }
 

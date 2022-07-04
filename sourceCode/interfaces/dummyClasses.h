@@ -1,67 +1,42 @@
 
 #pragma once
 
-class CDummy3DObject  
+class CXSceneObject
 {
 public:
 };
 
-class CDummyShape : public CDummy3DObject
+class CXShape : public CXSceneObject
 {
 public:
 };
 
-class CDummyJoint : public CDummy3DObject
+class CXJoint : public CXSceneObject
 {
 public:
 };
 
-class CDummyForceSensor : public CDummy3DObject
+class CXForceSensor : public CXSceneObject
 {
 public:
 };
 
-class CDummyDummy : public CDummy3DObject
+class CXDummy : public CXSceneObject
 {
 public:
 };
 
-class CDummyGeomProxy
+class CXGeomProxy
 {
 public:
 };
 
-class CDummyGeomWrap
+class CXGeomWrap
 {
 public:
 };
 
-class CDummyGeometric
-{
-public:
-};
-
-class CDummyPathPlanning
-{
-public:
-};
-
-class CDummyIkGroup
-{
-public:
-};
-
-class CDummyNonHolonomicPathPlanning : public CDummyPathPlanning
-{
-public:
-};
-
-class CDummyHolonomicPathPlanning : public CDummyPathPlanning
-{
-public:
-};
-
-class CDummyMpObject
+class CXGeometric
 {
 public:
 };

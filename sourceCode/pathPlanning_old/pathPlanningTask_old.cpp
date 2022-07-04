@@ -741,13 +741,13 @@ bool CPathPlanningTask::initiateSteppedSearch(bool showProgressDlg,float maxTime
     if (pathPlanningType==sim_pathplanning_nonholonomic)
     {
         float maxSteeringAngle=2.0f*CMath::robustAsin(stepSize/minTurningCircleDiameter);
-        CDummyNonHolonomicPathPlanning* p=CPathPlanningInterface::createNonHolonomicPathPlanningObject(_startDummyID,_goalDummyID,_robotEntityID,
+        void* p=CPathPlanningInterface::createNonHolonomicPathPlanningObject(_startDummyID,_goalDummyID,_robotEntityID,
             _obstacleEntityID,angularCoeff,1.0f,0.01f,maxSteeringAngle,stepSize,searchMinValue,searchRange,searchDirection,clearanceAndMaxDistance);
         _steppedSearchTemp_theTask=p;
     }
     if (pathPlanningType==sim_pathplanning_holonomic)
     {
-        CDummyHolonomicPathPlanning* p=CPathPlanningInterface::createHolonomicPathPlanningObject(_startDummyID,_goalDummyID,_robotEntityID,_obstacleEntityID,holonomicTaskType,
+        void* p=CPathPlanningInterface::createHolonomicPathPlanningObject(_startDummyID,_goalDummyID,_robotEntityID,_obstacleEntityID,holonomicTaskType,
             angularCoeff,stepSize,searchMinValue,searchRange,searchDirection,clearanceAndMaxDistance,_gammaAxis.getNormalized().data);
         _steppedSearchTemp_theTask=p;
     }
@@ -764,7 +764,7 @@ int CPathPlanningTask::performSteppedSearch()
         return(retVal);
     if (pathPlanningType==sim_pathplanning_nonholonomic)
     {
-        CDummyNonHolonomicPathPlanning* p=(CDummyNonHolonomicPathPlanning*)_steppedSearchTemp_theTask;
+        void* p=(void*)_steppedSearchTemp_theTask;
         int timeDiv=_steppedSearchTemp_maxTimeInMs/_steppedSearchTemp_maxSubTimeInMs;
         if (timeDiv<1)
             timeDiv=1;
@@ -853,7 +853,7 @@ int CPathPlanningTask::performSteppedSearch()
     }
     if (pathPlanningType==sim_pathplanning_holonomic)
     {
-        CDummyHolonomicPathPlanning* p=(CDummyHolonomicPathPlanning*)_steppedSearchTemp_theTask;
+        void* p=(void*)_steppedSearchTemp_theTask;
         int timeDiv=_steppedSearchTemp_maxTimeInMs/_steppedSearchTemp_maxSubTimeInMs;
         if (timeDiv<1)
             timeDiv=1;

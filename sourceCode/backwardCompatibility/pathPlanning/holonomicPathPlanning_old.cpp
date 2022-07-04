@@ -34,8 +34,8 @@ CHolonomicPathPlanning_old::CHolonomicPathPlanning_old(int theStartDummyID,int t
     planningType=thePlanningType;
     startDummyID=theStartDummyID;
     goalDummyID=theGoalDummyID;
-    CDummyDummy* startDummy=(CDummyDummy*)_simGetObject_internal(startDummyID);
-    CDummyDummy* goalDummy=(CDummyDummy*)_simGetObject_internal(goalDummyID);
+    CXDummy* startDummy=(CXDummy*)_simGetObject_internal(startDummyID);
+    CXDummy* goalDummy=(CXDummy*)_simGetObject_internal(goalDummyID);
     if ( (startDummy==nullptr)||(goalDummy==nullptr) )
         return;
 
@@ -159,7 +159,7 @@ int CHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
         return(0);
     if ( (fromStart.size()==0)||(fromGoal.size()==0)||(foundPath.size()!=0) )
         return(0);
-    CDummyDummy* startDummy=(CDummyDummy*)_simGetObject_internal(startDummyID);
+    CXDummy* startDummy=(CXDummy*)_simGetObject_internal(startDummyID);
     if (startDummy==nullptr)
         return(0);
     // Following since 2010/08/19 so that we can move the "robot" while we search:
@@ -492,7 +492,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
     return(nullptr);
 }
 
-CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomicPathNode_old*>* nodeList,CHolonomicPathNode_old* toBeExtended,CHolonomicPathNode_old* extention,bool connect,CDummyDummy* dummy)
+CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomicPathNode_old*>* nodeList,CHolonomicPathNode_old* toBeExtended,CHolonomicPathNode_old* extention,bool connect,CXDummy* dummy)
 {   // Return value is !=nullptr if extention was performed and connect is false
     // If connect is true, then return value indicates that connection can be performed!
     bool specialCase=( (fromStart==nodeList[0])&&(toBeExtended==fromStart[0])&&(_startConfInterferenceState!=SIM_MAX_FLOAT) );
@@ -979,7 +979,7 @@ int CHolonomicPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
         return(1);
     if (invalidData)
         return(0);
-    CDummyDummy* startDummy=(CDummyDummy*)_simGetObject_internal(startDummyID);
+    CXDummy* startDummy=(CXDummy*)_simGetObject_internal(startDummyID);
     if (startDummy==nullptr)
         return(0);
 

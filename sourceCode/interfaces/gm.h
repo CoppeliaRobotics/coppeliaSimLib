@@ -8,7 +8,5 @@ public:
     CGm();
     ~CGm();
 
-    bool fi();
-    bool fo();
-    bool fic(const char*);
+    void ll(const char*);
 };

@@ -37,7 +37,7 @@ private:
     bool doCollide(float* dist);
 
     CHolonomicPathNode_old* getClosestNode(std::vector<CHolonomicPathNode_old*>& nodes,CHolonomicPathNode_old* sample);
-    CHolonomicPathNode_old* extend(std::vector<CHolonomicPathNode_old*>* nodeList,CHolonomicPathNode_old* toBeExtended,CHolonomicPathNode_old* extention,bool connect,CDummyDummy* dummy);
+    CHolonomicPathNode_old* extend(std::vector<CHolonomicPathNode_old*>* nodeList,CHolonomicPathNode_old* toBeExtended,CHolonomicPathNode_old* extention,bool connect,CXDummy* dummy);
     int getVector(CHolonomicPathNode_old* fromPoint,CHolonomicPathNode_old* toPoint,float vect[7],float e,float& artificialLength,bool dontDivide);
     bool addVector(C3Vector& pos,C4Vector& orient,float vect[7]);
     bool areDirectionConstraintsRespected(float vect[7]);

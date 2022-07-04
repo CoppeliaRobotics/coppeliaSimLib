@@ -42,6 +42,7 @@ const bool DYNAMIC_NEWTON_DEFAULT_EXACT_SOLVER[5]={true,true,true,true,true};
 const bool DYNAMIC_NEWTON_DEFAULT_HIGH_JOINT_ACCURACY[5]={true,true,true,true,true};
 const float DYNAMIC_NEWTON_DEFAULT_CONTACT_MERGE_TOLERANCE[5]={0.01f,0.01f,0.01f,0.01f,0.01f};
 
+const float DYNAMIC_MUJOCO_DEFAULT_STEP_SIZE[5]={0.005f,0.005f,0.005f,0.005f,0.005f};
 //TODOMUJOCO
 
 CDynamicsContainer::CDynamicsContainer()
@@ -535,7 +536,13 @@ float CDynamicsContainer::getEngineFloatParam(int what,bool* ok)
         int w=what-sim_newton_global_stepsize+simi_newton_global_stepsize;
         return(fp[w]);
     }
-    //TODOMUJOCO
+    if ((what>sim_mujoco_global_float_start)&&(what<sim_mujoco_global_float_end))
+    {
+        std::vector<float> fp;
+        getMujocoFloatParams(fp); // use this routine, since default params are not in _xxxFloatParams
+        int w=what-sim_mujoco_global_stepsize+simi_mujoco_global_stepsize;
+        return(fp[w]);
+    }
     if (ok!=nullptr)
         ok[0]=false;
     return(0.0);
@@ -993,12 +1000,8 @@ void CDynamicsContainer::getMujocoDefaultFloatParams(std::vector<float>& p,int d
 {
     //TODOMUJOCO
     p.clear();
-    p.push_back(DYNAMIC_BULLET_DEFAULT_STEP_SIZE[defType]); // simi_bullet_global_stepsize
-    p.push_back(DYNAMIC_BULLET_DEFAULT_INTERNAL_SCALING_FACTOR[defType]); // simi_bullet_global_internalscalingfactor
-    p.push_back(DYNAMIC_BULLET_DEFAULT_COLLISION_MARGIN_FACTOR[defType]); // simi_bullet_global_collisionmarginfactor
-    p.push_back(0.0); // free
-    p.push_back(0.0); // free
-    // BULLET_FLOAT_PARAM_CNT_CURRENT=5
+    p.push_back(DYNAMIC_MUJOCO_DEFAULT_STEP_SIZE[defType]); // simi_mujoco_global_stepsize
+    // MUJOCO_FLOAT_PARAM_CNT_CURRENT=5
 }
 void CDynamicsContainer::setMujocoFloatParams(const std::vector<float>& p,bool setDirect)
 {
