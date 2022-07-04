@@ -584,9 +584,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/interfaces/luaScriptFunctions.cpp
     sourceCode/interfaces/pathPlanningInterface.cpp
 
-    sourceCode/interfaces/simFlavor.cpp
-    sourceCode/interfaces/gm.cpp
-
     sourceCode/interfaces/interfaceStack/interfaceStack.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackObject.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackNull.cpp
@@ -672,6 +669,13 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/customUserInterfaces/buttonBlock.cpp
     sourceCode/customUserInterfaces/softButton.cpp
 )
+
+if(NOT PLUS)
+    target_sources(coppeliaSim PRIVATE
+        sourceCode/interfaces/simFlavor.cpp
+        sourceCode/interfaces/gm.cpp
+    )
+endif()
 
 if(WITH_QT)
     target_sources(coppeliaSim PRIVATE
