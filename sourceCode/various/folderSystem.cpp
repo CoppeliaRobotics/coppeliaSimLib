@@ -188,6 +188,11 @@ std::string CFolderSystem::getPythonPath() const
     return(_executablePath+"/python");
 }
 
+std::string CFolderSystem::getMujocoPath() const
+{
+    return(_executablePath+"/mujoco");
+}
+
 void CFolderSystem::setTexturesPath(const char* path)
 {
     _texturesPath=path;

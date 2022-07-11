@@ -4416,6 +4416,11 @@ simChar* simGetStringParam_internal(simInt parameter)
             validParam=true;
             retVal=App::folders->getPythonPath();
         }
+        if (parameter==sim_stringparam_mujocodir)
+        {
+            validParam=true;
+            retVal=App::folders->getMujocoPath();
+        }
         if (parameter==sim_stringparam_scene_path_and_name)
         {
             validParam=true;

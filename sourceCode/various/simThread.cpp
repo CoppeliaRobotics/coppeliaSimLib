@@ -2944,11 +2944,17 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
                 it->setTargetVelocity(cmd.floatParams[0]);
         }
-        if (cmd.cmdId==SET_MAXFORCE_JOINTDYNGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_FORCE_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setTargetForce(cmd.floatParams[0],true);
+        }
+        if (cmd.cmdId==SET_MAXFORCE_JOINTDYNGUITRIGGEREDCMD)
+        {
+            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+            if (it!=nullptr)
+                it->setTargetForce(cmd.floatParams[0],false);
         }
         if (cmd.cmdId==APPLY_PARAMS_JOINTDYNGUITRIGGEREDCMD)
         {
@@ -2962,7 +2968,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         it->setDynCtrlMode(last->getDynCtrlMode());
                         it->setDynPosCtrlType(last->getDynPosCtrlType());
-                        it->setTargetForce(last->getTargetForce(false),false);
+                        it->setTargetForce(last->getTargetForce(true),true);
                         it->setTargetVelocity(last->getTargetVelocity());
                         it->setMotorLock(last->getMotorLock());
                         it->setTargetPosition(last->getTargetPosition());

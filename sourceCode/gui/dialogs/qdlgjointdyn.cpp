@@ -150,7 +150,7 @@ void CQDlgJointDyn::refresh()
             ui->qqVelocityMode_maxAccel->setText(tt::getEString(false,maxVelAccelJerk[1],3).c_str());
             ui->qqVelocityMode_maxJerk->setText(tt::getEString(false,maxVelAccelJerk[2],3).c_str());
         }
-        ui->qqVelocityMode_force->setText(tt::getEString(false,it->getTargetForce(true),4).c_str());
+        ui->qqVelocityMode_force->setText(tt::getEString(false,it->getTargetForce(false),4).c_str());
         ui->qqVelocityMode_motorLock->setChecked(it->getMotorLock());
         ui->qqVelocityMode_ruckig->setChecked(it->getDynVelCtrlType()==1);
         ui->qqVelocityMode_maxAccel->setEnabled(it->getDynVelCtrlType()==1);
@@ -175,7 +175,7 @@ void CQDlgJointDyn::refresh()
             ui->qqPositionMode_position->setText(tt::getAngleEString(true,it->getTargetPosition(),4).c_str());
         else
             ui->qqPositionMode_position->setText(tt::getEString(true,it->getTargetPosition(),4).c_str());
-        ui->qqPositionMode_force->setText(tt::getEString(false,it->getTargetForce(true),4).c_str());
+        ui->qqPositionMode_force->setText(tt::getEString(false,it->getTargetForce(false),4).c_str());
         float maxVelAccelJerk[3];
         it->getMaxVelAccelJerk(maxVelAccelJerk);
         if (it->getJointType()==sim_joint_revolute_subtype)
@@ -388,7 +388,7 @@ void CQDlgJointDyn::on_qqForceMode_force_editingFinished()
         float newVal=ui->qqForceMode_force->text().toFloat(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_MAXFORCE_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_FORCE_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

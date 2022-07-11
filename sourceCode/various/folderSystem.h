@@ -36,6 +36,7 @@ public:
     std::string getSceneTempDataPath() const;
     std::string getLuaPath() const;
     std::string getPythonPath() const;
+    std::string getMujocoPath() const;
 
 private:
 #ifdef SIM_WITH_QT

@@ -903,6 +903,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_additionalpythonpath",sim_stringparam_additionalpythonpath,true},
     {"sim.stringparam_luadir",sim_stringparam_luadir,true},
     {"sim.stringparam_pythondir",sim_stringparam_pythondir,true},
+    {"sim.stringparam_mujocodir",sim_stringparam_mujocodir,true},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal,true},

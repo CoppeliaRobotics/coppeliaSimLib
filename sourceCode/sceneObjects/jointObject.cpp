@@ -578,7 +578,11 @@ void CJoint::setTargetVelocity(float v)
     {
         bool diff=(_targetVel!=v);
         if (diff)
+        {
             _targetVel=v;
+            if (_targetVel*_targetForce<0.0f)
+                setTargetForce(-_targetForce,true);
+        }
     }
 }
 
@@ -586,19 +590,20 @@ void CJoint::setTargetForce(float f,bool isSigned)
 {
     if (_jointType!=sim_joint_spherical_subtype)
     {
-        if (isSigned)
+        if (!isSigned)
         {
-            if (_targetVel*f<0.0f)
-                setTargetVelocity(-_targetVel);
-            f=fabs(f);
+            if (f<0.0f)
+                f=0.0f;
+            if (f*_targetVel<0.0f)
+                f=-f;
         }
-        if (_jointType==sim_joint_revolute_subtype)
-            f=tt::getLimitedFloat(0.0f,+100000000000.0f,f);
-        if (_jointType==sim_joint_prismatic_subtype)
-            f=tt::getLimitedFloat(0.0f,+10000000000.0f,f);
         bool diff=(_targetForce!=f);
         if (diff)
+        {
             _targetForce=f;
+            if (f*_targetVel<0.0f)
+                setTargetVelocity(-_targetVel);
+        }
     }
 }
 
@@ -854,7 +859,7 @@ void CJoint::simulationEnded()
             setDynPosCtrlType(_initialDynPositionCtrlType);
 
             setMotorLock(_initialDynCtrl_lockAtVelZero);
-            setTargetForce(_initialDynCtrl_force,false);
+            setTargetForce(_initialDynCtrl_force,true);
 
             setPid(_initialDynCtrl_pid[0],_initialDynCtrl_pid[1],_initialDynCtrl_pid[2]);
             setKc(_initialDynCtrl_kc[0],_initialDynCtrl_kc[1]);
@@ -1457,7 +1462,8 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
     {
         velAndForce[0]=10000.0f;
         velAndForce[1]=_targetForce;
-
+        if (_targetForce<0.0f)
+            velAndForce[0]=-10000.0f; // make sure they have same sign
     }
     else if (_dynCtrlMode==sim_jointdynctrl_velocity)
     {
@@ -1485,6 +1491,8 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
                         CPluginContainer::ruckigPlugin_remove(ruckObj);
                         velAndForce[0]=float(_dynVelCtrl_currentVelAccel[0]);
                         velAndForce[1]=_targetForce;
+                        if (velAndForce[0]*velAndForce[1]<0.0f)
+                            velAndForce[1]=-velAndForce[1]; // make sure they have same sign
                     }
                 }
             }
@@ -1498,6 +1506,8 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
 
             velAndForce[0]=float(_dynVelCtrl_currentVelAccel[0]);
             velAndForce[1]=_targetForce;
+            if (velAndForce[0]*velAndForce[1]<0.0f)
+                velAndForce[1]=-velAndForce[1]; // make sure they have same sign
         }
     }
     else
@@ -1580,8 +1590,8 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
                 inStack->pushStringOntoStack("targetVel",0);
                 inStack->pushFloatOntoStack(_targetVel);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("maxForce",0);
-                inStack->pushFloatOntoStack(_targetForce);
+                inStack->pushStringOntoStack("maxForce",0); // deprecated
+                inStack->pushFloatOntoStack(fabs(_targetForce));
                 inStack->insertDataIntoStackTable();
                 inStack->pushStringOntoStack("force",0);
                 inStack->pushFloatOntoStack(_targetForce);
@@ -1613,6 +1623,8 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
                         outStack->moveStackItemToTop(0);
                     outStack->getStackMapFloatValue("force",velAndForce[1]);
                     outStack->getStackMapFloatValue("velocity",velAndForce[0]);
+                    if (velAndForce[0]*velAndForce[1]<0.0f)
+                        velAndForce[1]=-velAndForce[1]; // make sure they have same sign
                 }
                 App::worldContainer->interfaceStackContainer->destroyStack(outStack);
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
@@ -1634,8 +1646,10 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
                 {
                     int res=CPluginContainer::ruckigPlugin_step(ruckObj,dynStepSize,&dummy,_dynPosCtrl_currentVelAccel,_dynPosCtrl_currentVelAccel+1,&dummy);
                     CPluginContainer::ruckigPlugin_remove(ruckObj);
-                    velAndForce[1]=_targetForce;
                     velAndForce[0]=float(_dynPosCtrl_currentVelAccel[0]);
+                    velAndForce[1]=_targetForce;
+                    if (velAndForce[0]*velAndForce[1]<0.0f)
+                        velAndForce[1]=-velAndForce[1]; // make sure they have same sign
                 }
             }
             else
@@ -1674,6 +1688,8 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
                     if (ctrl<0.0f)
                         velAndForce[0]=-velAndForce[0];
                     velAndForce[1]=fabs(ctrl);
+                    if (velAndForce[0]*velAndForce[1]<0.0f)
+                        velAndForce[1]=-velAndForce[1]; // make sure they have same sign
                 }
                 else
                 { // regular position control (i.e. built-in PID)
@@ -1685,8 +1701,10 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
                     if (vel<-maxVel)
                         vel=-maxVel;
 
-                    velAndForce[1]=_targetForce;
                     velAndForce[0]=vel;
+                    velAndForce[1]=_targetForce;
+                    if (velAndForce[0]*velAndForce[1]<0.0f)
+                        velAndForce[1]=-velAndForce[1]; // make sure they have same sign
                 }
             }
         }
@@ -2330,6 +2348,8 @@ void CJoint::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _targetVel >> _targetForce;
+                        if (_targetVel*_targetForce<0.0f)
+                            _targetForce=-_targetForce;
                     }
                     if (theName.compare("Dpc")==0)
                     { // keep for backward compatibility (7/5/2014)
@@ -2911,6 +2931,8 @@ void CJoint::serialize(CSer& ar)
                 ar.xmlGetNode_enum("velController",_dynVelocityCtrlType,exhaustiveXml,"none",0,"motionProfile",1);
 
                 ar.xmlGetNode_float("maxForce",_targetForce,exhaustiveXml);
+                if (_targetVel*_targetForce<0.0f)
+                    _targetForce=-_targetForce;
                 float val;
                 if (ar.xmlGetNode_float("upperVelocityLimit",val,false)) // for backward compatibility (V4.3 and earlier)
                 {
@@ -3480,11 +3502,8 @@ void CJoint::setMaxVelAccelJerk(const float maxVelAccelJerk[3])
 float CJoint::getTargetForce(bool signedValue) const
 {
     float retVal=_targetForce;
-    if (signedValue)
-    {
-        if (_targetVel<0.0f)
-            retVal=-retVal;
-    }
+    if (!signedValue)
+        retVal=fabs(retVal);
     return(retVal);
 }
 

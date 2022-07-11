@@ -343,7 +343,7 @@ protected:
     float _posMin;
     float _posRange;
     float _pos;
-    float _targetVel;
+    float _targetVel; // signed. Should be same sign as _targetForce (however _targetVel has precedence when conflict)
     float _targetPos;
     int _jointMode;
     int _dependencyMasterJointHandle;
@@ -356,7 +356,7 @@ protected:
     CColorObject _color_removeSoon;
 
     bool _motorLock;
-    float _targetForce;
+    float _targetForce; // signed. Should be same sign as _targetVel (however _targetVel has precedence when conflict)
     float _dynCtrl_pid[3];
     float _dynCtrl_pid_cumulErr;
 

@@ -680,10 +680,13 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             }
             if ((ci!=-1)&&(!displayed))
             {
-                if (VMESSAGEBOX_REPLY_CANCEL==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_ANOTHER_INSTANCE_STILL_NOT_SAVED_WANNA_LEAVE_ANYWAY_MESSAGE,VMESSAGEBOX_OK_CANCEL,VMESSAGEBOX_REPLY_OK))
+                if (CSimFlavor::getBoolVal(16))
                 {
-                    App::worldContainer->switchToWorld(ci);
-                    displayed=true;
+                    if (VMESSAGEBOX_REPLY_CANCEL==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,IDS_ANOTHER_INSTANCE_STILL_NOT_SAVED_WANNA_LEAVE_ANYWAY_MESSAGE,VMESSAGEBOX_OK_CANCEL,VMESSAGEBOX_REPLY_OK))
+                    {
+                        App::worldContainer->switchToWorld(ci);
+                        displayed=true;
+                    }
                 }
             }
 #endif
