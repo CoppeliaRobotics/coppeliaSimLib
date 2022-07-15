@@ -505,9 +505,9 @@ SIM_DLLEXPORT simChar* simReceiveData(simInt dataHeader,const simChar* dataName,
 {
     return(simReceiveData_internal(dataHeader,dataName,antennaHandle,index,dataLength,senderID,dataHeaderR,dataNameR));
 }
-SIM_DLLEXPORT simInt simAddDrawingObject(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission)
+SIM_DLLEXPORT simInt simAddDrawingObject(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* color,const simFloat* setToNULL,const simFloat* setToNULL2,const simFloat* setToNULL3)
 {
-    return(simAddDrawingObject_internal(objectType,size,duplicateTolerance,parentObjectHandle,maxItemCount,ambient_diffuse,setToNULL,specular,emission));
+    return(simAddDrawingObject_internal(objectType,size,duplicateTolerance,parentObjectHandle,maxItemCount,color,setToNULL,setToNULL2,setToNULL3));
 }
 SIM_DLLEXPORT simInt simRemoveDrawingObject(simInt objectHandle)
 {
@@ -517,9 +517,9 @@ SIM_DLLEXPORT simInt simAddDrawingObjectItem(simInt objectHandle,const simFloat*
 {
     return(simAddDrawingObjectItem_internal(objectHandle,itemData));
 }
-SIM_DLLEXPORT simInt simAddParticleObject(simInt objectType,simFloat size,simFloat density,const simVoid* params,simFloat lifeTime,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission)
+SIM_DLLEXPORT simInt simAddParticleObject(simInt objectType,simFloat size,simFloat density,const simVoid* params,simFloat lifeTime,simInt maxItemCount,const simFloat* color,const simFloat* setToNULL,const simFloat* setToNULL2,const simFloat* setToNULL3)
 {
-    return(simAddParticleObject_internal(objectType,size,density,params,lifeTime,maxItemCount,ambient_diffuse,setToNULL,specular,emission));
+    return(simAddParticleObject_internal(objectType,size,density,params,lifeTime,maxItemCount,color,setToNULL,setToNULL2,setToNULL3));
 }
 SIM_DLLEXPORT simInt simRemoveParticleObject(simInt objectHandle)
 {

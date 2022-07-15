@@ -775,18 +775,43 @@ void CUserSettings::saveUserSettings()
         c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort,"");
     }
 
-    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME);
-    c.writeConfiguration(filenameAndPath.c_str());
+
+    c.writeConfiguration(_getUserSettingsFile().c_str());
+}
+
+std::string CUserSettings::_getUserSettingsFile()
+{ // The CFolderSystem object might not yet be set-up
+    std::string retVal;
+    std::string usrSet("CoppeliaSim");
+    usrSet+=USER_SETTINGS_FILENAME;
+    const char* home=std::getenv("HOME");
+#ifdef WIN_SIM
+    const char* appData=std::getenv("appdata");
+    if (appData!=nullptr)
+        retVal=std::string(appData)+"/"+usrSet;
+#endif
+#ifdef LIN_SIM
+    const char* xdghome=std::getenv("XDG_CONFIG_HOME");
+    if (xdghome==nullptr)
+        xdghome=home;
+    if (xdghome!=nullptr)
+        retVal=std::string(xdghome)+"/"+usrSet;
+#endif
+#ifdef MAC_SIM
+    if (home!=nullptr)
+        retVal=home+"/."+usrSet;
+#endif
+    if (retVal.size()==0)
+        retVal=VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME; // fallback to CoppeliaSim's system folder
+    return(retVal);
 }
 
 void CUserSettings::loadUserSettings()
 {
     CConfReaderAndWriter c;
 
-    // The CFolderSystem object might not yet be set-up
-    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME);
     // Following call might fail.
-    if (!c.readConfiguration(filenameAndPath.c_str()))
+    if (!c.readConfiguration(_getUserSettingsFile().c_str()))
         saveUserSettings();
 
     // Debugging section:

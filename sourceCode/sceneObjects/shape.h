@@ -91,10 +91,12 @@ public:
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();
 
-    bool getStartInDynamicSleeping();
+    bool getStartInDynamicSleeping() const;
     void setStartInDynamicSleeping(bool sleeping);
-    bool getShapeIsDynamicallyStatic();
+    bool getShapeIsDynamicallyStatic() const;
     void setShapeIsDynamicallyStatic(bool sta);
+    bool getShapeIsDynamicallyKinematic() const;
+    void setShapeIsDynamicallyKinematic(bool kin);
 
     C3Vector getInitialDynamicLinearVelocity();
     void setInitialDynamicLinearVelocity(const C3Vector& vel);
@@ -172,6 +174,7 @@ protected:
     // Variables which need to be serialized
     bool _startInDynamicSleeping;
     bool _shapeIsDynamicallyStatic;
+    bool _shapeIsDynamicallyKinematic; // for static shapes that move (used by e.g. Mujoco)
     bool _shapeIsDynamicallyRespondable;
     bool _parentFollowsDynamic;
     bool _containsTransparentComponents; // to be able to order shapes according to transparency

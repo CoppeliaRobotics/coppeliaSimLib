@@ -882,6 +882,7 @@ void CShape::commonInit()
     _containsTransparentComponents=false;
     _startInDynamicSleeping=false;
     _shapeIsDynamicallyStatic=true;
+    _shapeIsDynamicallyKinematic=false;
     _setAutomaticallyToNonStaticIfGetsParent=false;
     _shapeIsDynamicallyRespondable=false; // keep false, otherwise too many "default" problems
     _dynamicCollisionMask=0xffff;
@@ -975,7 +976,7 @@ void CShape::setSetAutomaticallyToNonStaticIfGetsParent(bool autoNonStatic)
     _setAutomaticallyToNonStaticIfGetsParent=autoNonStatic;
 }
 
-bool CShape::getStartInDynamicSleeping()
+bool CShape::getStartInDynamicSleeping() const
 {
     return(_startInDynamicSleeping);
 }
@@ -985,7 +986,7 @@ void CShape::setStartInDynamicSleeping(bool sleeping)
     _startInDynamicSleeping=sleeping;
 }
 
-bool CShape::getShapeIsDynamicallyStatic()
+bool CShape::getShapeIsDynamicallyStatic() const
 {
     return(_shapeIsDynamicallyStatic);
 }
@@ -995,6 +996,16 @@ void CShape::setShapeIsDynamicallyStatic(bool sta)
     _shapeIsDynamicallyStatic=sta;
     if (!sta)
         _setAutomaticallyToNonStaticIfGetsParent=false;
+}
+
+bool CShape::getShapeIsDynamicallyKinematic() const
+{
+    return(_shapeIsDynamicallyKinematic);
+}
+
+void CShape::setShapeIsDynamicallyKinematic(bool kin)
+{
+    _shapeIsDynamicallyKinematic=kin;
 }
 
 void CShape::setInsideAndOutsideFacesSameColor_DEPRECATED(bool s)
@@ -1225,6 +1236,7 @@ void CShape::serialize(CSer& ar)
 
             ar.storeDataName("Sss");
             unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_shapeIsDynamicallyKinematic);
     //      SIM_SET_CLEAR_BIT(nothing,0,_explicitTracing); removed on 13/09/2011
     //      SIM_SET_CLEAR_BIT(nothing,1,_visibleEdges); removed on 11/11/2012
     //      SIM_SET_CLEAR_BIT(nothing,2,_culling); removed on 11/11/2012
@@ -1332,6 +1344,7 @@ void CShape::serialize(CSer& ar)
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
+                        _shapeIsDynamicallyKinematic=SIM_IS_BIT_SET(nothing,0);
                         _startInDynamicSleeping=SIM_IS_BIT_SET(nothing,6);
                         _shapeIsDynamicallyStatic=!SIM_IS_BIT_SET(nothing,7);
                     }
@@ -1411,6 +1424,7 @@ void CShape::serialize(CSer& ar)
                 ar.xmlAddNode_floats("initialAngularVelocity",vel.data,3);
                 ar.xmlPushNewNode("switches");
                 ar.xmlAddNode_bool("static",_shapeIsDynamicallyStatic);
+                ar.xmlAddNode_bool("kinematic",_shapeIsDynamicallyKinematic);
                 ar.xmlAddNode_bool("respondable",_shapeIsDynamicallyRespondable);
                 // ar.xmlAddNode_bool("parentFollows",_parentFollowsDynamic); removed on 01/05/2020
                 ar.xmlAddNode_bool("startSleeping",_startInDynamicSleeping);
@@ -1477,6 +1491,7 @@ void CShape::serialize(CSer& ar)
                     if (ar.xmlPushChildNode("switches"))
                     {
                         ar.xmlGetNode_bool("static",_shapeIsDynamicallyStatic);
+                        ar.xmlGetNode_bool("kinematic",_shapeIsDynamicallyKinematic);
                         ar.xmlGetNode_bool("respondable",_shapeIsDynamicallyRespondable);
                         // ar.xmlGetNode_bool("parentFollows",_parentFollowsDynamic);  removed on 01/05/2020
                         ar.xmlGetNode_bool("startSleeping",_startInDynamicSleeping);
@@ -2088,6 +2103,7 @@ CSceneObject* CShape::copyYourself()
     newShape->_dynMaterial=_dynMaterial->copyYourself();
 
     // Various:
+    newShape->_shapeIsDynamicallyKinematic=_shapeIsDynamicallyKinematic;
     newShape->_startInDynamicSleeping=_startInDynamicSleeping;
     newShape->_shapeIsDynamicallyStatic=_shapeIsDynamicallyStatic;
     newShape->_shapeIsDynamicallyRespondable=_shapeIsDynamicallyRespondable;

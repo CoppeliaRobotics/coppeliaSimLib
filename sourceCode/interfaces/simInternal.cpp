@@ -6282,7 +6282,7 @@ simInt simScaleObjects_internal(const simInt* objectHandles,simInt objectCount,s
     return(-1);
 }
 
-simInt simAddDrawingObject_internal(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission)
+simInt simAddDrawingObject_internal(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* color,const simFloat* setToNULL,const simFloat* setToNULL2,const simFloat* setToNULL3)
 {
     TRACE_C_API;
 
@@ -6300,15 +6300,15 @@ simInt simAddDrawingObject_internal(simInt objectType,simFloat size,simFloat dup
         if ( (objectType&sim_drawing_persistent)==0 )
             creatorHandle=_currentScriptHandle;
         CDrawingObject* it=new CDrawingObject(objectType,size,duplicateTolerance,parentObjectHandle,maxItemCount,creatorHandle);
-        if (ambient_diffuse!=nullptr)
-            it->color.setColor(ambient_diffuse,sim_colorcomponent_ambient_diffuse);
-        if (specular!=nullptr)
-            it->color.setColor(specular,sim_colorcomponent_specular);
-        if (emission!=nullptr)
+        if (color!=nullptr)
+            it->color.setColor(color,sim_colorcomponent_ambient_diffuse);
+        if (setToNULL2!=nullptr)
+            it->color.setColor(setToNULL2,sim_colorcomponent_specular);
+        if (setToNULL3!=nullptr)
         {
-            it->color.setColor(emission,sim_colorcomponent_emission);
+            it->color.setColor(setToNULL3,sim_colorcomponent_emission);
             if ((objectType&sim_drawing_auxchannelcolor1)!=0)
-                it->color.setColor(emission+3,sim_colorcomponent_auxiliary);
+                it->color.setColor(setToNULL3+3,sim_colorcomponent_auxiliary);
         }
         int retVal=App::currentWorld->drawingCont->addObject(it);
         return(retVal);
@@ -6376,7 +6376,7 @@ simInt simAddDrawingObjectItem_internal(simInt objectHandle,const simFloat* item
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
-simInt simAddParticleObject_internal(simInt objectType,simFloat size,simFloat massOverVolume,const simVoid* params,simFloat lifeTime,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission)
+simInt simAddParticleObject_internal(simInt objectType,simFloat size,simFloat massOverVolume,const simVoid* params,simFloat lifeTime,simInt maxItemCount,const simFloat* color,const simFloat* setToNULL,const simFloat* setToNull2,const simFloat* setToNull3)
 {
     TRACE_C_API;
 
@@ -6390,7 +6390,7 @@ simInt simAddParticleObject_internal(simInt objectType,simFloat size,simFloat ma
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
             return(-1);
         }
-        int retVal=CPluginContainer::dyn_addParticleObject(objectType,size,massOverVolume,params,lifeTime,maxItemCount,ambient_diffuse,nullptr,specular,emission);
+        int retVal=CPluginContainer::dyn_addParticleObject(objectType,size,massOverVolume,params,lifeTime,maxItemCount,color,nullptr,setToNull2,setToNull3);
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -9203,6 +9203,13 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                     parameter[0]=1;
                 retVal=1;
             }
+            if (parameterID==sim_shapeintparam_kinematic)
+            {
+                parameter[0]=0;
+                if (shape->getShapeIsDynamicallyKinematic())
+                    parameter[0]=1;
+                retVal=1;
+            }
             if (parameterID==sim_shapeintparam_respondable)
             {
                 parameter[0]=0;
@@ -9583,6 +9590,11 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
             if (parameterID==sim_shapeintparam_static)
             {
                 shape->setShapeIsDynamicallyStatic(parameter!=0);
+                retVal=1;
+            }
+            if (parameterID==sim_shapeintparam_kinematic)
+            {
+                shape->setShapeIsDynamicallyKinematic(parameter!=0);
                 retVal=1;
             }
             if (parameterID==sim_shapeintparam_respondable)

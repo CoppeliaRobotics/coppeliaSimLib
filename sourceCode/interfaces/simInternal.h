@@ -135,10 +135,10 @@ simInt simSetJointTargetVelocity_internal(simInt objectHandle,simFloat targetVel
 simInt simGetJointTargetVelocity_internal(simInt objectHandle,simFloat* targetVelocity);
 simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,simInt options);
 simInt simScaleObjects_internal(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo);
-simInt simAddDrawingObject_internal(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission);
+simInt simAddDrawingObject_internal(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* color,const simFloat* setToNULL,const simFloat* setToNULL2,const simFloat* setToNULL3);
 simInt simRemoveDrawingObject_internal(simInt objectHandle);
 simInt simAddDrawingObjectItem_internal(simInt objectHandle,const simFloat* itemData);
-simInt simAddParticleObject_internal(simInt objectType,simFloat size,simFloat density,const simVoid* params,simFloat lifeTime,simInt maxItemCount,const simFloat* ambient_diffuse,const simFloat* setToNULL,const simFloat* specular,const simFloat* emission);
+simInt simAddParticleObject_internal(simInt objectType,simFloat size,simFloat density,const simVoid* params,simFloat lifeTime,simInt maxItemCount,const simFloat* color,const simFloat* setToNULL,const simFloat* setToNULL2,const simFloat* setToNULL3);
 simInt simRemoveParticleObject_internal(simInt objectHandle);
 simInt simAddParticleObjectItem_internal(simInt objectHandle,const simFloat* itemData);
 simFloat simGetObjectSizeFactor_internal(simInt objectHandle);

@@ -2114,16 +2114,16 @@ bool CWorld::_saveSimpleXmlScene(CSer& ar)
 
 void CWorld::_simulationAboutToStart()
 {
-    buttonBlockContainer->simulationAboutToStart();
+    buttonBlockContainer->simulationAboutToStart(); // old
+    sceneObjects->simulationAboutToStart();
     dynamicsContainer->simulationAboutToStart();
     embeddedScriptContainer->simulationAboutToStart();
-    sceneObjects->simulationAboutToStart();
     pageContainer->simulationAboutToStart();
-    collisions->simulationAboutToStart();
-    distances->simulationAboutToStart();
+    collisions->simulationAboutToStart(); // old
+    distances->simulationAboutToStart(); // old
     collections->simulationAboutToStart();
-    ikGroups->simulationAboutToStart();
-    pathPlanning->simulationAboutToStart();
+    ikGroups->simulationAboutToStart(); // old
+    pathPlanning->simulationAboutToStart(); // old
     simulation->simulationAboutToStart();
 }
 

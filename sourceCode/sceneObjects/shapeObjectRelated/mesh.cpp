@@ -767,7 +767,7 @@ void CMesh::setHeightfieldData(const std::vector<float>& heights,int xCount,int 
 
 float* CMesh::getHeightfieldData(int& xCount,int& yCount,float& minHeight,float& maxHeight)
 {
-    setHeightfieldDiamonds(0);
+    setHeightfieldDiamonds(App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_mujoco);
     if ( (_purePrimitive!=sim_primitiveshape_heightfield)||(_heightfieldHeights.size()==0) )
         return(nullptr);
     xCount=_heightfieldXCount;
@@ -784,23 +784,30 @@ float* CMesh::getHeightfieldData(int& xCount,int& yCount,float& minHeight,float&
     return(&_heightfieldHeights[0]);
 }
 
-void CMesh::setHeightfieldDiamonds(int d)
+void CMesh::setHeightfieldDiamonds(bool d)
 { 
     if (_purePrimitive==sim_primitiveshape_heightfield)
     {
         for (size_t i=0;i<_indices.size()/6;i++)
         {
-            if (d==0)
-            {
-                _indices[6*i+1]=_indices[6*i+3];
-                _indices[6*i+5]=_indices[6*i+2];
-            }
-            if (d==1)
+            if (d)
             {
                 _indices[6*i+1]=_indices[6*i+4];
                 _indices[6*i+5]=_indices[6*i+0];
             }
+            else
+            {
+                _indices[6*i+1]=_indices[6*i+3];
+                _indices[6*i+5]=_indices[6*i+2];
+            }
         }
+        decreaseVertexBufferRefCnt(_vertexBufferId);
+        decreaseNormalBufferRefCnt(_normalBufferId);
+        decreaseEdgeBufferRefCnt(_edgeBufferId);
+
+        _vertexBufferId=-1;
+        _normalBufferId=-1;
+        _edgeBufferId=-1;
     }
 }
 
