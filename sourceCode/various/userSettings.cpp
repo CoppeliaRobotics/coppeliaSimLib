@@ -775,14 +775,13 @@ void CUserSettings::saveUserSettings()
         c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort,"");
     }
 
-
     c.writeConfiguration(_getUserSettingsFile().c_str());
 }
 
 std::string CUserSettings::_getUserSettingsFile()
 { // The CFolderSystem object might not yet be set-up
     std::string retVal;
-    std::string usrSet("CoppeliaSim");
+    std::string usrSet("CoppeliaSim/");
     usrSet+=USER_SETTINGS_FILENAME;
     const char* home=std::getenv("HOME");
 #ifdef WIN_SIM
