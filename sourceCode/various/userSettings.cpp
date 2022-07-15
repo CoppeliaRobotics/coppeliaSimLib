@@ -791,14 +791,14 @@ std::string CUserSettings::_getUserSettingsFile()
 #endif
 #ifdef LIN_SIM
     const char* xdghome=std::getenv("XDG_CONFIG_HOME");
-    if (xdghome==nullptr)
-        xdghome=home;
     if (xdghome!=nullptr)
         retVal=std::string(xdghome)+"/"+usrSet;
+    else if (home!=nullptr)
+        retVal=std::string(home)+"/."+usrSet;
 #endif
 #ifdef MAC_SIM
     if (home!=nullptr)
-        retVal=home+"/."+usrSet;
+        retVal=std::string(home)+"/."+usrSet;
 #endif
     if (retVal.size()==0)
         retVal=VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME; // fallback to CoppeliaSim's system folder
