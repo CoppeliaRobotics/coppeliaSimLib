@@ -315,7 +315,7 @@ WLibrary VVarious::openLibrary(const char* filename)
     {
         auto err = dlerror();
         if (err)
-            fprintf(stderr, "error: dlopen: %s\n", err);
+            fprintf(stderr, "error: dlopen(%s): %s\n", filename, err);
     }
     return lib;
 #endif
@@ -323,7 +323,7 @@ WLibrary VVarious::openLibrary(const char* filename)
     WLibrary lib=new QLibrary(filename);
     if (!lib->load())
     {
-        qCritical() << "error: library load:" << lib->errorString();
+        qCritical() << "error: library (" << filename << ") load:" << lib->errorString();
         delete lib;
         lib=nullptr;
     }
