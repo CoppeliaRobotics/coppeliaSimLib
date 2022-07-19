@@ -20,11 +20,13 @@
 #ifdef SIM_WITH_QT
     #include <QUrl>
     #include <QProcess>
+    #include <QDebug>
 #else
     #ifndef WIN_SIM
         #include <dlfcn.h>
         #include <stdlib.h>
     #endif
+    #include <stdio.h>
 #endif
 
 bool VVarious::executeExternalApplication(const char* file,const char* arguments,const char* switchToDirectory,int showFlag)
@@ -308,12 +310,20 @@ WLibrary VVarious::openLibrary(const char* filename)
 #ifdef WIN_SIM
     return LoadLibraryA(filename);
 #else
-    return dlopen(filename,RTLD_LAZY);
+    auto lib = dlopen(filename,RTLD_LAZY);
+    if (!lib)
+    {
+        auto err = dlerror();
+        if (err)
+            fprintf(stderr, "error: dlopen: %s\n", err);
+    }
+    return lib;
 #endif
 #else
     WLibrary lib=new QLibrary(filename);
     if (!lib->load())
     {
+        qCritical() << "error: library load:" << lib->errorString();
         delete lib;
         lib=nullptr;
     }
@@ -328,12 +338,18 @@ void VVarious::closeLibrary(WLibrary lib)
     if (lib!=0)
         FreeLibrary(lib);
 #else
-        dlclose(lib);
+    if (dlclose(lib) != 0)
+    {
+        auto err = dlerror();
+        if (err)
+            fprintf(stderr, "error: dlclose: %s\n", err);
+    }
 #endif
 #else
     if (lib!=nullptr)
     {
-        lib->unload();
+        if (!lib->unload())
+            qCritical() << "error: library unload:" << lib->errorString();
         delete lib;
     }
 #endif
