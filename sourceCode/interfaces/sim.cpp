@@ -1583,6 +1583,18 @@ SIM_DLLEXPORT simVoid _simGetLocalInertiaFrame(const simVoid* geomInfo,simFloat*
 {
     return(_simGetLocalInertiaFrame_internal(geomInfo,pos,quat));
 }
+SIM_DLLEXPORT simFloat _simGetLocalInertiaInfo(const simVoid* object,simFloat* pos,simFloat* quat,simFloat* diagI)
+{
+    return(_simGetLocalInertiaInfo_internal(object,pos,quat,diagI));
+}
+SIM_DLLEXPORT simFloat _simGetMass(const simVoid* geomInfo)
+{
+    return(_simGetMass_internal(geomInfo));
+}
+SIM_DLLEXPORT simVoid _simGetPrincipalMomentOfInertia(const simVoid* geomInfo,simFloat* inertia)
+{
+    return(_simGetPrincipalMomentOfInertia_internal(geomInfo,inertia));
+}
 SIM_DLLEXPORT simInt _simGetPurePrimitiveType(const simVoid* geomInfo)
 {
     return(_simGetPurePrimitiveType_internal(geomInfo));
@@ -1622,14 +1634,6 @@ SIM_DLLEXPORT const simFloat* _simGetHeightfieldData(const simVoid* geometric,si
 SIM_DLLEXPORT simVoid _simGetCumulativeMeshes(const simVoid* geomInfo,simFloat** vertices,simInt* verticesSize,simInt** indices,simInt* indicesSize)
 {
     return(_simGetCumulativeMeshes_internal(geomInfo,vertices,verticesSize,indices,indicesSize));
-}
-SIM_DLLEXPORT simFloat _simGetMass(const simVoid* geomInfo)
-{
-    return(_simGetMass_internal(geomInfo));
-}
-SIM_DLLEXPORT simVoid _simGetPrincipalMomentOfInertia(const simVoid* geomInfo,simFloat* inertia)
-{
-    return(_simGetPrincipalMomentOfInertia_internal(geomInfo,inertia));
 }
 SIM_DLLEXPORT simVoid _simGetGravity(simFloat* gravity)
 {

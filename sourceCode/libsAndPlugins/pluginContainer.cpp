@@ -167,6 +167,9 @@ int CPlugin::load()
                 dynPlugin_getParticleData=(ptr_dynPlugin_getParticleData)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getParticleData"));
                 dynPlugin_getContactForce=(ptr_dynPlugin_getContactForce)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getContactForce"));
                 dynPlugin_getDynamicStepDivider=(ptr_dynPlugin_getDynamicStepDivider)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getDynamicStepDivider"));
+                mujocoPlugin_computeInertia=(ptr_mujocoPlugin_computeInertia)(VVarious::resolveLibraryFuncName(lib,"mujocoPlugin_computeInertia"));
+                if (mujocoPlugin_computeInertia!=nullptr)
+                    CPluginContainer::mujocoEngine=this;
 
                 // For the geom plugin:
                 geomPlugin_releaseBuffer=(ptr_geomPlugin_releaseBuffer)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_releaseBuffer"));
@@ -385,6 +388,7 @@ ptrVHACD CPluginContainer::_vhacdAddress=nullptr;
 ptrMeshDecimator CPluginContainer::_meshDecimatorAddress=nullptr;
 
 CPlugin* CPluginContainer::currentDynEngine=nullptr;
+CPlugin* CPluginContainer::mujocoEngine=nullptr;
 CPlugin* CPluginContainer::currentGeomPlugin=nullptr;
 CPlugin* CPluginContainer::currentIkPlugin=nullptr;
 CPlugin* CPluginContainer::currentCodeEditor=nullptr;
@@ -871,6 +875,14 @@ int CPluginContainer::dyn_getDynamicStepDivider()
     if (currentDynEngine!=nullptr)
         return(currentDynEngine->dynPlugin_getDynamicStepDivider());
     return(0);
+}
+
+float CPluginContainer::dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vector& diagI)
+{ // returns the mass-less diagonal inertia, relative to the shape's ref frame. Returned mass is for a density of 1000
+    float mass=0.0;
+    if ( (mujocoEngine!=nullptr)&&(mujocoEngine->mujocoPlugin_computeInertia!=nullptr) )
+        mass=mujocoEngine->mujocoPlugin_computeInertia(shapeHandle,tr.X.data,tr.Q.data,diagI.data);
+    return(mass);
 }
 
 bool CPluginContainer::isGeomPluginAvailable()

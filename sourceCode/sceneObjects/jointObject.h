@@ -240,7 +240,7 @@ public:
     void getDynamicJointErrorsFull(C3Vector& linear,C3Vector& angular) const;
 
     bool handleMotion(int scriptType);
-    int handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos,float effort,float dynStepSize,float errorV,float velAndForce[2]);
+    int handleDynJoint(int flags,int loopCnt,int totalLoops,float currentPosVelAccel[3],float effort,float dynStepSize,float errorV,float velAndForce[2]);
 
     void setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp,float simTime);
 
@@ -355,7 +355,7 @@ protected:
     CColorObject _color;
     CColorObject _color_removeSoon;
 
-    bool _motorLock;
+    bool _motorLock; // deprecated, should not be used anymore
     float _targetForce; // signed. Should be same sign as _targetVel (however _targetVel has precedence when conflict)
     float _dynCtrl_pid[3];
     float _dynCtrl_pid_cumulErr;

@@ -16233,6 +16233,12 @@ const simVoid* _simGetGeomWrapFromGeomProxy_internal(const simVoid* geomData)
     return(((CShape*)geomData)->getMeshWrapper());
 }
 
+simFloat _simGetMass_internal(const simVoid* geomInfo)
+{
+    TRACE_C_API;
+    return(((CMeshWrapper*)geomInfo)->getMass());
+}
+
 simVoid _simGetLocalInertiaFrame_internal(const simVoid* geomInfo,simFloat* pos,simFloat* quat)
 {
     TRACE_C_API;
@@ -16247,6 +16253,20 @@ simVoid _simGetPrincipalMomentOfInertia_internal(const simVoid* geomInfo,simFloa
     ((CMeshWrapper*)geomInfo)->getPrincipalMomentsOfInertia().getInternalData(inertia);
 }
 
+simFloat _simGetLocalInertiaInfo_internal(const simVoid* object,simFloat* pos,simFloat* quat,simFloat* diagI)
+{ // returns the diag inertia (with mass!)
+    CShape* shape=(CShape*)object;
+    CMeshWrapper* geomInfo=shape->getMeshWrapper();
+    C7Vector tr(geomInfo->getLocalInertiaFrame());
+    C3Vector diag(geomInfo->getPrincipalMomentsOfInertia());
+//    CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),tr,diag);
+    tr.X.getInternalData(pos);
+    tr.Q.getInternalData(quat);
+    float m=geomInfo->getMass();
+    diag=diag*m;
+    diag.getInternalData(diagI);
+    return(m);
+}
 
 simInt _simGetPurePrimitiveType_internal(const simVoid* geomInfo)
 {
@@ -16386,12 +16406,6 @@ const simVoid* _simGetGeomProxyFromShape_internal(const simVoid* shape)
 {
     TRACE_C_API;
     return(shape);
-}
-
-simFloat _simGetMass_internal(const simVoid* geomInfo)
-{
-    TRACE_C_API;
-    return(((CMeshWrapper*)geomInfo)->getMass());
 }
 
 simBool _simIsShapeDynamicallyStatic_internal(const simVoid* shape)
@@ -16797,7 +16811,8 @@ simBool _simGetDistanceBetweenEntitiesIfSmaller_internal(simInt entity1ID,simInt
 simInt _simHandleJointControl_internal(const simVoid* joint,simInt auxV,const simInt* inputValuesInt,const simFloat* inputValuesFloat,simFloat* outputValues)
 {
     TRACE_C_API;
-    return(((CJoint*)joint)->handleDynJoint((auxV&1)!=0,inputValuesInt[0],inputValuesInt[1],inputValuesFloat[0],inputValuesFloat[1],inputValuesFloat[2],inputValuesFloat[3],outputValues));
+    float currentPosVelAccel[3]={inputValuesFloat[0],inputValuesFloat[4],inputValuesFloat[5]};
+    return(((CJoint*)joint)->handleDynJoint(auxV,inputValuesInt[0],inputValuesInt[1],currentPosVelAccel,inputValuesFloat[1],inputValuesFloat[2],inputValuesFloat[3],outputValues));
 }
 
 simInt _simGetJointCallbackCallOrder_internal(const simVoid* joint)

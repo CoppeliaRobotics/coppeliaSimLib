@@ -1452,9 +1452,10 @@ bool CJoint::getDynamicForceOrTorque(float& forceOrTorque,bool dynamicStepValue)
     }
 }
 
-int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos,float effort,float dynStepSize,float errorV,float velAndForce[2])
+int CJoint::handleDynJoint(int flags,int loopCnt,int totalLoops,float currentPosVelAccel[3],float effort,float dynStepSize,float errorV,float velAndForce[2])
 { // constant callback for every dynamically enabled joint, except for spherical joints. retVal: bit0 set: motor on, bit1 set: motor locked
     // Called before a dyn step. After the step, setDynamicMotorReflectedPosition_useOnlyFromDynamicPart is called
+    // flags: bit0: init (first time called), bit1: currentPosVelAccel[1] is valid, bit2: currentPosVelAccel[2] is valid
     int retVal=1;
     if (_dynCtrlMode==sim_jointdynctrl_free)
         retVal=0;
@@ -1543,7 +1544,7 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
                 inStack->pushInt32OntoStack(sim_jointmode_dynamic);
                 inStack->insertDataIntoStackTable();
                 inStack->pushStringOntoStack("first",0);
-                inStack->pushBoolOntoStack(init);
+                inStack->pushBoolOntoStack((flags&1)!=0);
                 inStack->insertDataIntoStackTable();
                 inStack->pushStringOntoStack("revolute",0);
                 inStack->pushBoolOntoStack(rev);
@@ -1567,10 +1568,19 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
                 inStack->pushInt32OntoStack(totalLoops);
                 inStack->insertDataIntoStackTable();
                 inStack->pushStringOntoStack("currentPos",0);
-                inStack->pushFloatOntoStack(currentPos);
+                inStack->pushFloatOntoStack(currentPosVelAccel[0]);
                 inStack->insertDataIntoStackTable();
                 inStack->pushStringOntoStack("currentVel",0);
-                inStack->pushFloatOntoStack(_velCalc_vel);
+                float cv=_velCalc_vel;
+                if ((flags&2)!=0)
+                    cv=currentPosVelAccel[1];
+                inStack->pushFloatOntoStack(cv);
+                inStack->insertDataIntoStackTable();
+                if ((flags&4)!=0)
+                {
+                    inStack->pushStringOntoStack("currentAccel",0);
+                    inStack->pushFloatOntoStack(currentPosVelAccel[2]);
+                }
                 inStack->insertDataIntoStackTable();
                 inStack->pushStringOntoStack("targetPos",0);
                 inStack->pushFloatOntoStack(_targetPos);
@@ -1636,7 +1646,7 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
         { // we have the built-in control (position PID or spring-damper KC)
             if ( (_dynPositionCtrlType==1)&&(_dynCtrlMode==sim_jointdynctrl_position) )
             { // motion profile
-                double cp=double(currentPos);
+                double cp=double(currentPosVelAccel[0]);
                 double tp=cp+double(errorV);
                 double maxVelAccelJerk[3]={double(_maxVelAccelJerk[0]),double(_maxVelAccelJerk[1]),double(_maxVelAccelJerk[2])};
                 unsigned char sel=1;
@@ -1664,7 +1674,7 @@ int CJoint::handleDynJoint(bool init,int loopCnt,int totalLoops,float currentPos
                     D=_dynCtrl_kc[1];
                 }
 
-                if (init)
+                if ((flags&1)!=0)
                     _dynCtrl_pid_cumulErr=0.0f;
 
                 float e=errorV;
@@ -3470,7 +3480,7 @@ float CJoint::getTargetVelocity() const
 }
 
 bool CJoint::getMotorLock() const
-{
+{ // deprecated. Should not be used anymore
     return(_motorLock);
 }
 

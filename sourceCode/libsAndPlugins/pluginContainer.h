@@ -31,6 +31,7 @@ typedef void** (__cdecl *ptr_dynPlugin_getParticles)(int,int*,int*,float**);
 typedef char (__cdecl *ptr_dynPlugin_getParticleData)(const void*,float*,float*,int*,float**);
 typedef char (__cdecl *ptr_dynPlugin_getContactForce)(int,int,int,int*,float*);
 typedef int (__cdecl *ptr_dynPlugin_getDynamicStepDivider)(void);
+typedef float (__cdecl *ptr_mujocoPlugin_computeInertia)(int,float*,float*,float*);
 
 
 typedef void (__cdecl *ptr_geomPlugin_releaseBuffer)(void* buff);
@@ -218,6 +219,7 @@ public:
     ptr_dynPlugin_getParticleData dynPlugin_getParticleData;
     ptr_dynPlugin_getContactForce dynPlugin_getContactForce;
     ptr_dynPlugin_getDynamicStepDivider dynPlugin_getDynamicStepDivider;
+    ptr_mujocoPlugin_computeInertia mujocoPlugin_computeInertia;
 
     ptr_geomPlugin_releaseBuffer geomPlugin_releaseBuffer;
     ptr_geomPlugin_createMesh geomPlugin_createMesh;
@@ -413,6 +415,7 @@ public:
 
     // physics engines:
     static CPlugin* currentDynEngine;
+    static CPlugin* mujocoEngine;
     static bool dyn_startSimulation(int engine,int version,const float floatParams[20],const int intParams[20]);
     static bool dyn_isInitialized();
     static bool dyn_isDynamicContentAvailable();
@@ -428,6 +431,8 @@ public:
     static float* dyn_getContactPoints(int* count);
     static void** dyn_getParticles(int index,int* particlesCount,int* objectType,float** cols);
     static int dyn_getDynamicStepDivider();
+    static float dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vector& diagI);
+
 
     // geom plugin:
     static CPlugin* currentGeomPlugin;

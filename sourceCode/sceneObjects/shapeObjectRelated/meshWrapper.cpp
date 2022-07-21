@@ -242,7 +242,7 @@ C3Vector CMeshWrapper::getPrincipalMomentsOfInertia() const
 }
 
 void CMeshWrapper::setPrincipalMomentsOfInertia(const C3Vector& inertia)
-{
+{ // massless inertia
     _principalMomentsOfInertia=inertia;
     _principalMomentsOfInertia(0)=tt::getLimitedFloat(0.0f,10000.0f,_principalMomentsOfInertia(0));
     _principalMomentsOfInertia(1)=tt::getLimitedFloat(0.0f,10000.0f,_principalMomentsOfInertia(1));

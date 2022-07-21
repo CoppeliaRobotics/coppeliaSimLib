@@ -1697,6 +1697,24 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         }
     }
 
+    /*
+    // For automatic calculation of inertia and mass for all loaded scenes/models:
+    for (size_t i=0;i<loadedObjectList.size();i++)
+    {
+        if (loadedObjectList[i]->getObjectType()==sim_object_shape_type)
+        {
+            CShape* it=(CShape*)loadedObjectList[i];
+            C7Vector localTr;
+            C3Vector diagI; // massless
+            float mass=CPluginContainer::dyn_computeInertia(it->getObjectHandle(),localTr,diagI);
+            float desiredDensity=1000.0;
+            mass=desiredDensity*mass/1000.0;
+            it->getMeshWrapper()->setPrincipalMomentsOfInertia(diagI);
+            it->getMeshWrapper()->setLocalInertiaFrame(localTr);
+            it->getMeshWrapper()->setMass(mass);
+        }
+    }
+    */
     return(true);
 }
 

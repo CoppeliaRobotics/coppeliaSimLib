@@ -3340,20 +3340,40 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             for (size_t i=0;i<cmd.intParams.size();i++)
             {
                 CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
-                if ((it!=nullptr)&&it->getMeshWrapper()->isConvex())
+                if (it!=nullptr)
                 {
-                    std::vector<float> vert;
-                    std::vector<int> ind;
-                    it->getMeshWrapper()->getCumulativeMeshes(vert,&ind,nullptr);
-                    C3Vector com;
-                    C3X3Matrix tensor;
-                    float mass=CVolInt::getMassCenterOfMassAndInertiaTensor(&vert[0],(int)vert.size()/3,&ind[0],(int)ind.size()/3,cmd.floatParams[0],com,tensor);
-                    C4Vector rot;
-                    C3Vector pmoment;
-                    CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,pmoment);
-                    it->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
-                    it->getMeshWrapper()->setLocalInertiaFrame(C7Vector(rot,com));
-                    it->getMeshWrapper()->setMass(mass);
+                    C7Vector localTr;
+                    C3Vector diagI; // massless
+                    bool doIt=false;
+                    float mass=CPluginContainer::dyn_computeInertia(it->getObjectHandle(),localTr,diagI);
+                    float desiredDensity=cmd.floatParams[0];
+                    if (mass>0.0)
+                    {
+                        doIt=true;
+                        mass=desiredDensity*mass/1000.0;
+                    }
+                    else
+                    { // fallback algo
+                        if (it->getMeshWrapper()->isConvex())
+                        {
+                            doIt=true;
+                            std::vector<float> vert;
+                            std::vector<int> ind;
+                            it->getMeshWrapper()->getCumulativeMeshes(vert,&ind,nullptr);
+                            C3Vector com;
+                            C3X3Matrix tensor;
+                            float mass=CVolInt::getMassCenterOfMassAndInertiaTensor(&vert[0],(int)vert.size()/3,&ind[0],(int)ind.size()/3,desiredDensity,com,tensor);
+                            C4Vector rot;
+                            CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,diagI);
+                            localTr=C7Vector(rot,com);
+                        }
+                    }
+                    if (doIt)
+                    {
+                        it->getMeshWrapper()->setPrincipalMomentsOfInertia(diagI);
+                        it->getMeshWrapper()->setLocalInertiaFrame(localTr);
+                        it->getMeshWrapper()->setMass(mass);
+                    }
                 }
             }
         }

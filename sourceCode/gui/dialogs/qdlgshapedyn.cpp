@@ -93,7 +93,7 @@ void CQDlgShapeDyn::refresh()
     ui->qqDynamic->setEnabled(sel&&noEditModeAndNoSim&&notHeightfield);
     ui->qqSleepModeStart->setVisible(App::userSettings->showOldDlgs);
     ui->qqSleepModeStart->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqComputeMassProperties->setEnabled(sel&&noEditModeAndNoSim&&lastSelIsNotStatic&&lastSelIsConvex);
+    ui->qqComputeMassProperties->setEnabled(sel&&noEditModeAndNoSim&&lastSelIsNotStatic);
     ui->qqMass->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
     ui->qqMassD2->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
     ui->qqMassT2->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
@@ -723,7 +723,7 @@ void CQDlgShapeDyn::on_qqComputeMassProperties_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float density=(float)QInputDialog::getDouble(this,"Body density","Uniform density",500.0,0.1,30000.0,1,&ok);
+        float density=(float)QInputDialog::getDouble(this,"Body density","Uniform density",1000.0,0.1,30000.0,1,&ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;

@@ -151,6 +151,7 @@ void CQDlgJointDyn::refresh()
             ui->qqVelocityMode_maxJerk->setText(tt::getEString(false,maxVelAccelJerk[2],3).c_str());
         }
         ui->qqVelocityMode_force->setText(tt::getEString(false,it->getTargetForce(false),4).c_str());
+        ui->qqVelocityMode_motorLock->setVisible(it->getMotorLock());
         ui->qqVelocityMode_motorLock->setChecked(it->getMotorLock());
         ui->qqVelocityMode_ruckig->setChecked(it->getDynVelCtrlType()==1);
         ui->qqVelocityMode_maxAccel->setEnabled(it->getDynVelCtrlType()==1);
@@ -160,6 +161,7 @@ void CQDlgJointDyn::refresh()
     {
         ui->qqVelocityMode_velocity->setText("");
         ui->qqVelocityMode_force->setText("");
+        ui->qqVelocityMode_motorLock->setVisible(false);
         ui->qqVelocityMode_motorLock->setChecked(false);
         ui->qqVelocityMode_ruckig->setChecked(false);
         ui->qqVelocityMode_maxAccel->setText("");

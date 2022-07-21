@@ -1767,7 +1767,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Compute mass &amp;&amp; inertia properties for selected convex shapes</string>
+     <string>Compute mass &amp;&amp; inertia properties for selected shapes</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="qqSleepModeStart">
