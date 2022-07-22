@@ -146,17 +146,17 @@ void ogl::setTextColor(float r,float g,float b)
 {
     float buff[4]={r,g,b,1.0f};
 //    glColor4fv(buff);
-    float bl[4]={0.0f,0.0f,0.0f,1.0f};
-//    glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,bl); // 13.07.2022
-//    glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,bl); // 13.07.2022
+    float bl[4]={0.0f,0.0f,0.0f,0.0f};
+    glMateriali(GL_FRONT_AND_BACK,GL_SHININESS,128); // 13.07.2022
+    glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,bl); // 13.07.2022
     glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,buff);
 //      if (App::userSettings->specificGpuTweak)
     { // Following needed with some graphic card to see text when there is a background! This is probably a bug in the driver
         glBegin(GL_QUADS);
         glEnd();
 //        glColor4fv(buff);
-//        glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,bl); // 13.07.2022
-//        glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,bl); // 13.07.2022
+        glMateriali(GL_FRONT_AND_BACK,GL_SHININESS,128); // 13.07.2022
+        glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,bl); // 13.07.2022
         glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,buff);
     }
 }
