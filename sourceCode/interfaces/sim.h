@@ -67,11 +67,14 @@ SIM_DLLEXPORT simInt simGetJointType(simInt objectHandle);
 SIM_DLLEXPORT simInt simBuildIdentityMatrix(simFloat* matrix);
 SIM_DLLEXPORT simInt simBuildMatrix(const simFloat* position,const simFloat* eulerAngles,simFloat* matrix);
 SIM_DLLEXPORT simInt simBuildPose(const simFloat* position,const simFloat* eulerAngles,simFloat* pose);
-SIM_DLLEXPORT simInt simBuildMatrixQ(const simFloat* position,const simFloat* quaternion,simFloat* matrix);
 SIM_DLLEXPORT simInt simGetEulerAnglesFromMatrix(const simFloat* matrix,simFloat* eulerAngles);
-SIM_DLLEXPORT simInt simGetQuaternionFromMatrix(const simFloat* matrix,simFloat* quaternion);
 SIM_DLLEXPORT simInt simInvertMatrix(simFloat* matrix);
 SIM_DLLEXPORT simInt simMultiplyMatrices(const simFloat* matrixIn1,const simFloat* matrixIn2,simFloat* matrixOut);
+SIM_DLLEXPORT simInt simMultiplyPoses(const simFloat* poseIn1,const simFloat* poseIn2,simFloat* poseOut);
+SIM_DLLEXPORT simInt simInvertPose(simFloat* pose);
+SIM_DLLEXPORT simInt simInterpolatePoses(const simFloat* poseIn1,const simFloat* poseIn2,simFloat interpolFactor,simFloat* poseOut);
+SIM_DLLEXPORT simInt simPoseToMatrix(const simFloat* poseIn,simFloat* matrixOut);
+SIM_DLLEXPORT simInt simMatrixToPose(const simFloat* matrixIn,simFloat* poseOut);
 SIM_DLLEXPORT simInt simInterpolateMatrices(const simFloat* matrixIn1,const simFloat* matrixIn2,simFloat interpolFactor,simFloat* matrixOut);
 SIM_DLLEXPORT simInt simTransformVector(const simFloat* matrix,simFloat* vect);
 SIM_DLLEXPORT simInt simReservedCommand(simInt v,simInt w);
@@ -731,6 +734,8 @@ SIM_DLLEXPORT simBool _simIsDynamicMotorTorqueModulationEnabled(const simVoid* j
 SIM_DLLEXPORT simVoid _simGetMotorPid(const simVoid* joint,simFloat* pParam,simFloat* iParam,simFloat* dParam);
 SIM_DLLEXPORT simInt _simGetContactCallbackCount();
 SIM_DLLEXPORT const void* _simGetContactCallback(simInt index);
+SIM_DLLEXPORT simInt simBuildMatrixQ(const simFloat* position,const simFloat* quaternion,simFloat* matrix);
+SIM_DLLEXPORT simInt simGetQuaternionFromMatrix(const simFloat* matrix,simFloat* quaternion);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

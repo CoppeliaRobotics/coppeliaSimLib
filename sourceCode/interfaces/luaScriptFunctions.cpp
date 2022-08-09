@@ -156,8 +156,13 @@ const SLuaCommands simLuaCommands[]=
     {"sim.buildPose",_simBuildPose,                              "float[7] pose=sim.buildPose(float[3] position,float[3] eulerAnglesOrAxis,int mode=0,float[3] axis2=nil)",true},
     {"sim.getEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"float[3] eulerAngles=sim.getEulerAnglesFromMatrix(float[12] matrix)",true},
     {"sim.invertMatrix",_simInvertMatrix,                        "sim.invertMatrix(float[12] matrix)",true},
+    {"sim.invertPose",_simInvertPose,                            "sim.invertPose(float[7] pose)",true},
     {"sim.multiplyMatrices",_simMultiplyMatrices,                "float[12] resultMatrix=sim.multiplyMatrices(float[12] matrixIn1,float[12] matrixIn2)",true},
+    {"sim.multiplyPoses",_simMultiplyPoses,                      "float[7] resultPose=sim.multiplyPoses(float[7] poseIn1,float[7] poseIn2)",true},
     {"sim.interpolateMatrices",_simInterpolateMatrices,          "float[12] resultMatrix=sim.interpolateMatrices(float[12] matrixIn1,float[12] matrixIn2,float interpolFactor)",true},
+    {"sim.interpolatePoses",_simInterpolatePoses,                "float[7] resultPose=sim.interpolatePoses(float[7] poseIn1,float[7] poseIn2,float interpolFactor)",true},
+    {"sim.poseToMatrix",_simPoseToMatrix,                        "float[12] matrix=sim.poseToMatrix(float[7] pose)",true},
+    {"sim.matrixToPose",_simMatrixToPose,                        "float[7] pose=sim.matrixToPose(float[12] matrix)",true},
     {"sim.multiplyVector",_simMultiplyVector,                    "float[] resultVectors=sim.multiplyVector(float[12] matrix,float[] inVectors)\nfloat[] resultVectors=sim.multiplyVector(float[7] pose,float[] inVectors)",true},
     {"sim.getObjectChild",_simGetObjectChild,                    "int childObjectHandle=sim.getObjectChild(int objectHandle,int index)",true},
     {"sim.getObjectParent",_simGetObjectParent,                  "int parentObjectHandle=sim.getObjectParent(int objectHandle)",true},
@@ -4116,6 +4121,28 @@ int _simInvertMatrix(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simInvertPose(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.invertPose");
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,7))
+    {
+        float arr[7];
+        getFloatsFromTable(L,1,7,arr);
+        retVal=simInvertPose_internal(arr);
+        for (int i=0;i<7;i++)
+        {
+            luaWrap_lua_pushnumber(L,arr[i]);
+            luaWrap_lua_rawseti(L,1,i+1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
 int _simMultiplyMatrices(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -4139,6 +4166,29 @@ int _simMultiplyMatrices(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
+int _simMultiplyPoses(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.multiplyPoses");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,7,lua_arg_number,7))
+    {
+        float inP0[7];
+        float inP1[7];
+        float outP[7];
+        getFloatsFromTable(L,1,7,inP0);
+        getFloatsFromTable(L,2,7,inP1);
+        if (simMultiplyPoses_internal(inP0,inP1,outP)!=-1)
+        {
+            pushFloatTableOntoStack(L,7,outP);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
 int _simInterpolateMatrices(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -4154,6 +4204,71 @@ int _simInterpolateMatrices(luaWrap_lua_State* L)
         if (simInterpolateMatrices_internal(inM0,inM1,luaToFloat(L,3),outM)!=-1)
         {
             pushFloatTableOntoStack(L,12,outM);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simInterpolatePoses(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.interpolatePoses");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,7,lua_arg_number,7,lua_arg_number,0))
+    {
+        float inP0[7];
+        float inP1[7];
+        float outP[7];
+        getFloatsFromTable(L,1,7,inP0);
+        getFloatsFromTable(L,2,7,inP1);
+        if (simInterpolatePoses_internal(inP0,inP1,luaToFloat(L,3),outP)!=-1)
+        {
+            pushFloatTableOntoStack(L,7,outP);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simPoseToMatrix(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.poseToMatrix");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,7))
+    {
+        float inP[7];
+        float outM[12];
+        getFloatsFromTable(L,1,7,inP);
+        if (simPoseToMatrix_internal(inP,outM)!=-1)
+        {
+            pushFloatTableOntoStack(L,12,outM);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simMatrixToPose(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.matrixToPose");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,12))
+    {
+        float inM[12];
+        float outP[7];
+        getFloatsFromTable(L,1,12,inM);
+        if (simMatrixToPose_internal(inM,outP)!=-1)
+        {
+            pushFloatTableOntoStack(L,7,outP);
             LUA_END(1);
         }
     }

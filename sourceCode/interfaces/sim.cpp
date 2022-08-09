@@ -205,17 +205,9 @@ SIM_DLLEXPORT simInt simBuildPose(const simFloat* position,const simFloat* euler
 {
     return(simBuildPose_internal(position,eulerAngles,pose));
 }
-SIM_DLLEXPORT simInt simBuildMatrixQ(const simFloat* position,const simFloat* quaternion,simFloat* matrix)
-{
-    return(simBuildMatrixQ_internal(position,quaternion,matrix));
-}
 SIM_DLLEXPORT simInt simGetEulerAnglesFromMatrix(const simFloat* matrix,simFloat* eulerAngles)
 {
     return(simGetEulerAnglesFromMatrix_internal(matrix,eulerAngles));
-}
-SIM_DLLEXPORT simInt simGetQuaternionFromMatrix(const simFloat* matrix,simFloat* quaternion)
-{
-    return(simGetQuaternionFromMatrix_internal(matrix,quaternion));
 }
 SIM_DLLEXPORT simInt simInvertMatrix(simFloat* matrix)
 {
@@ -224,6 +216,26 @@ SIM_DLLEXPORT simInt simInvertMatrix(simFloat* matrix)
 SIM_DLLEXPORT simInt simMultiplyMatrices(const simFloat* matrixIn1,const simFloat* matrixIn2,simFloat* matrixOut)
 {
     return(simMultiplyMatrices_internal(matrixIn1,matrixIn2,matrixOut));
+}
+SIM_DLLEXPORT simInt simMultiplyPoses(const simFloat* poseIn1,const simFloat* poseIn2,simFloat* poseOut)
+{
+    return(simMultiplyPoses_internal(poseIn1,poseIn2,poseOut));
+}
+SIM_DLLEXPORT simInt simInvertPose(simFloat* pose)
+{
+    return(simInvertPose_internal(pose));
+}
+SIM_DLLEXPORT simInt simInterpolatePoses(const simFloat* poseIn1,const simFloat* poseIn2,simFloat interpolFactor,simFloat* poseOut)
+{
+    return(simInterpolatePoses_internal(poseIn1,poseIn2,interpolFactor,poseOut));
+}
+SIM_DLLEXPORT simInt simPoseToMatrix(const simFloat* poseIn,simFloat* matrixOut)
+{
+    return(simPoseToMatrix_internal(poseIn,matrixOut));
+}
+SIM_DLLEXPORT simInt simMatrixToPose(const simFloat* matrixIn,simFloat* poseOut)
+{
+    return(simMatrixToPose_internal(matrixIn,poseOut));
 }
 SIM_DLLEXPORT simInt simInterpolateMatrices(const simFloat* matrixIn1,const simFloat* matrixIn2,simFloat interpolFactor,simFloat* matrixOut)
 {
@@ -2809,6 +2821,14 @@ SIM_DLLEXPORT simInt _simGetContactCallbackCount()
 SIM_DLLEXPORT const void* _simGetContactCallback(simInt index)
 {
     return(nullptr);
+}
+SIM_DLLEXPORT simInt simBuildMatrixQ(const simFloat* position,const simFloat* quaternion,simFloat* matrix)
+{
+    return(simBuildMatrixQ_internal(position,quaternion,matrix));
+}
+SIM_DLLEXPORT simInt simGetQuaternionFromMatrix(const simFloat* matrix,simFloat* quaternion)
+{
+    return(simGetQuaternionFromMatrix_internal(matrix,quaternion));
 }
 // Deprecated end
 

@@ -109,7 +109,11 @@ void CPersistentDataContainer::_readFromFile(std::vector<std::string>& dataNames
 {
     dataNames.clear();
     dataValues.clear();
-    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+_filename.c_str());
+
+    std::string filenameAndPath=CFolderSystem::getUserSettingsPath();
+    filenameAndPath+="/";
+    filenameAndPath+=_filename;
+//    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+_filename.c_str());
     if (VFile::doesFileExist(filenameAndPath.c_str()))
     {
         try
@@ -129,7 +133,10 @@ void CPersistentDataContainer::_readFromFile(std::vector<std::string>& dataNames
 
 void CPersistentDataContainer::_writeToFile(std::vector<std::string>& dataNames,std::vector<std::string>& dataValues)
 {
-    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+_filename.c_str());
+    std::string filenameAndPath=CFolderSystem::getUserSettingsPath();
+    filenameAndPath+="/";
+    filenameAndPath+=_filename;
+//    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+_filename.c_str());
     try
     {
         VFile myFile(filenameAndPath.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);

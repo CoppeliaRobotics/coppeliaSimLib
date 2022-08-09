@@ -193,6 +193,35 @@ std::string CFolderSystem::getMujocoPath() const
     return(_executablePath+"/mujoco");
 }
 
+std::string CFolderSystem::getUserSettingsPath()
+{ // static since needed before construction
+    static std::string userSettingsFolder;
+    if (userSettingsFolder.size()==0)
+    {
+        std::string usrSet("CoppeliaSim");
+        const char* home=std::getenv("HOME");
+    #ifdef WIN_SIM
+        const char* appData=std::getenv("appdata");
+        if (appData!=nullptr)
+            userSettingsFolder=std::string(appData)+"/"+usrSet;
+    #endif
+    #ifdef LIN_SIM
+        const char* xdghome=std::getenv("XDG_CONFIG_HOME");
+        if (xdghome!=nullptr)
+            xdghome=home;
+        if (xdghome!=nullptr)
+            userSettingsFolder=std::string(xdghome)+"/"+usrSet;
+    #endif
+    #ifdef MAC_SIM
+        if (home!=nullptr)
+            userSettingsFolder=std::string(home)+"/"+usrSet;
+    #endif
+        if (userSettingsFolder.size()==0)
+            userSettingsFolder=VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME; // fallback to CoppeliaSim's system folder
+    }
+    return(userSettingsFolder);
+}
+
 void CFolderSystem::setTexturesPath(const char* path)
 {
     _texturesPath=path;

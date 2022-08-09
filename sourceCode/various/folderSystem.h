@@ -12,6 +12,7 @@ public:
 
     static std::string getPathFromFull(const char* full); // no final backslash or slash is returned
     static std::string getNameFromFull(const char* full);
+    static std::string getUserSettingsPath();
 
     std::string getExecutablePath() const;
     std::string getSystemPath() const;

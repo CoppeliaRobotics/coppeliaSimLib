@@ -775,7 +775,13 @@ void CUserSettings::saveUserSettings()
         c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort,"");
     }
 
-    c.writeConfiguration(_getUserSettingsFile().c_str());
+    std::string file(CFolderSystem::getUserSettingsPath());
+    file+="/";
+    file+=USER_SETTINGS_FILENAME;
+    c.writeConfiguration(file.c_str());
+    std::string txt("wrote user settings to ");
+    txt+=file;
+    App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
 }
 
 std::string CUserSettings::_getUserSettingsFile()
@@ -809,8 +815,10 @@ void CUserSettings::loadUserSettings()
 {
     CConfReaderAndWriter c;
 
-    // Following call might fail.
-    if (!c.readConfiguration(_getUserSettingsFile().c_str()))
+    std::string file(CFolderSystem::getUserSettingsPath());
+    file+="/";
+    file+=USER_SETTINGS_FILENAME;
+    if (!c.readConfiguration(file.c_str()))
         saveUserSettings();
 
     // Debugging section:

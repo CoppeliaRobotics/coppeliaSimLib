@@ -2351,20 +2351,6 @@ simInt simBuildPose_internal(const simFloat* position,const simFloat* eulerAngle
     return(1);
 }
 
-simInt simBuildMatrixQ_internal(const simFloat* position,const simFloat* quaternion,simFloat* matrix)
-{
-    // CoppeliaSim quaternion, internally: w x y z
-    // CoppeliaSim quaternion, at interfaces: x y z w
-    TRACE_C_API;
-
-    C4X4Matrix m;
-    C4Vector q(quaternion[3],quaternion[0],quaternion[1],quaternion[2]);
-    m.M=q.getMatrix();
-    m.X.set(position);
-    m.copyToInterface(matrix);
-    return(1);
-}
-
 simInt simGetEulerAnglesFromMatrix_internal(const simFloat* matrix,simFloat* eulerAngles)
 {
     TRACE_C_API;
@@ -2372,22 +2358,6 @@ simInt simGetEulerAnglesFromMatrix_internal(const simFloat* matrix,simFloat* eul
     C4X4Matrix m;
     m.copyFromInterface(matrix);
     m.M.getEulerAngles().copyTo(eulerAngles);
-    return(1);
-}
-
-simInt simGetQuaternionFromMatrix_internal(const simFloat* matrix,simFloat* quaternion)
-{
-    // CoppeliaSim quaternion, internally: w x y z
-    // CoppeliaSim quaternion, at interfaces: x y z w
-    TRACE_C_API;
-
-    C4X4Matrix m;
-    m.copyFromInterface(matrix);
-    C4Vector q(m.M.getQuaternion());
-    quaternion[0]=q(1);
-    quaternion[1]=q(2);
-    quaternion[2]=q(3);
-    quaternion[3]=q(0);
     return(1);
 }
 
@@ -2399,6 +2369,17 @@ simInt simInvertMatrix_internal(simFloat* matrix)
     m.copyFromInterface(matrix);
     m.inverse();
     m.copyToInterface(matrix);
+    return(1);
+}
+
+simInt simInvertPose_internal(simFloat* pose)
+{
+    TRACE_C_API;
+
+    C7Vector p;
+    p.setInternalData(pose,true);
+    p.inverse();
+    p.getInternalData(pose,true);
     return(1);
 }
 
@@ -2414,6 +2395,38 @@ simInt simMultiplyMatrices_internal(const simFloat* matrixIn1,const simFloat* ma
     return(1);
 }
 
+simInt simMultiplyPoses_internal(const simFloat* poseIn1,const simFloat* poseIn2,simFloat* poseOut)
+{
+    TRACE_C_API;
+
+    C7Vector pIn1;
+    pIn1.setInternalData(poseIn1,true);
+    C7Vector pIn2;
+    pIn2.setInternalData(poseIn2,true);
+    (pIn1*pIn2).getInternalData(poseOut,true);
+    return(1);
+}
+
+simInt simPoseToMatrix_internal(const simFloat* poseIn,simFloat* matrixOut)
+{
+    TRACE_C_API;
+
+    C7Vector pIn;
+    pIn.setInternalData(poseIn,true);
+    pIn.getMatrix().copyToInterface(matrixOut);
+    return(1);
+}
+
+simInt simMatrixToPose_internal(const simFloat* matrixIn,simFloat* poseOut)
+{
+    TRACE_C_API;
+
+    C4X4Matrix mIn;
+    mIn.copyFromInterface(matrixIn);
+    mIn.getTransformation().getInternalData(poseOut,true);
+    return(1);
+}
+
 simInt simInterpolateMatrices_internal(const simFloat* matrixIn1,const simFloat* matrixIn2,simFloat interpolFactor,simFloat* matrixOut)
 {
     TRACE_C_API;
@@ -2425,6 +2438,20 @@ simInt simInterpolateMatrices_internal(const simFloat* matrixIn1,const simFloat*
     C7Vector tr;
     tr.buildInterpolation(mIn1.getTransformation(),mIn2.getTransformation(),interpolFactor);
     (tr.getMatrix()).copyToInterface(matrixOut);
+    return(1);
+}
+
+simInt simInterpolatePoses_internal(const simFloat* poseIn1,const simFloat* poseIn2,simFloat interpolFactor,simFloat* poseOut)
+{
+    TRACE_C_API;
+
+    C7Vector pIn1;
+    pIn1.setInternalData(poseIn1,true);
+    C7Vector pIn2;
+    pIn2.setInternalData(poseIn2,true);
+    C7Vector tr;
+    tr.buildInterpolation(pIn1,pIn2,interpolFactor);
+    tr.getInternalData(poseOut,true);
     return(1);
 }
 
@@ -23413,3 +23440,30 @@ simVoid* simSendModuleMessage_internal(simInt message,simInt* auxiliaryData,simV
     void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(message,auxiliaryData,customData,replyData);
     return(retVal);
 }
+
+simInt simBuildMatrixQ_internal(const simFloat* position,const simFloat* quaternion,simFloat* matrix)
+{ // deprecated on 09.08.2022
+    TRACE_C_API;
+
+    C4X4Matrix m;
+    C4Vector q(quaternion[3],quaternion[0],quaternion[1],quaternion[2]);
+    m.M=q.getMatrix();
+    m.X.set(position);
+    m.copyToInterface(matrix);
+    return(1);
+}
+
+simInt simGetQuaternionFromMatrix_internal(const simFloat* matrix,simFloat* quaternion)
+{ // deprecated on 09.08.2022
+    TRACE_C_API;
+
+    C4X4Matrix m;
+    m.copyFromInterface(matrix);
+    C4Vector q(m.M.getQuaternion());
+    quaternion[0]=q(1);
+    quaternion[1]=q(2);
+    quaternion[2]=q(3);
+    quaternion[3]=q(0);
+    return(1);
+}
+
