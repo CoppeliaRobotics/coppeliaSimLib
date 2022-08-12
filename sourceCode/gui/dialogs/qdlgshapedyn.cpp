@@ -175,7 +175,16 @@ void CQDlgShapeDyn::on_qqAdjustEngineProperties_clicked()
         CShape* it=App::currentWorld->sceneObjects->getLastSelectionShape();
         if (it!=nullptr)
         {
-            CPropBrowserEngineMaterial dlg(this);//App::mainWindow);
+            if (true)
+            {
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=SET_MATERIAL_SHAPEDYNGUITRIGGEREDCMD;
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
+            App::appendSimulationThreadCommand(cmd);
+            }
+            else
+            {
+            CPropBrowserEngineMaterial dlg(this);
             dlg.setModal(true);
             dlg.exec();
             SSimulationThreadCommand cmd;
@@ -210,6 +219,7 @@ void CQDlgShapeDyn::on_qqAdjustEngineProperties_clicked()
             iParams.clear();
             fParams.clear();
             App::appendSimulationThreadCommand(cmd);
+            }
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }

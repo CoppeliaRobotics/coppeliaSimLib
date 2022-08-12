@@ -909,6 +909,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_luadir",sim_stringparam_luadir,true},
     {"sim.stringparam_pythondir",sim_stringparam_pythondir,true},
     {"sim.stringparam_mujocodir",sim_stringparam_mujocodir,true},
+    {"sim.stringparam_usersettingsdir",sim_stringparam_usersettingsdir,true},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal,true},
@@ -1397,8 +1398,10 @@ const SLuaVariables simLuaVariables[]=
     {"sim.vortex_body_primlinearaxisfrictionmodel",sim_vortex_body_primlinearaxisfrictionmodel,true},
     {"sim.vortex_body_seclinearaxisfrictionmodel",sim_vortex_body_seclinearaxisfrictionmodel,true},
     {"sim.vortex_body_primangulararaxisfrictionmodel",sim_vortex_body_primangulararaxisfrictionmodel,true},
-    {"sim.vortex_body_secmangulararaxisfrictionmodel",sim_vortex_body_secmangulararaxisfrictionmodel,true},
-    {"sim.vortex_body_normalmangulararaxisfrictionmodel",sim_vortex_body_normalmangulararaxisfrictionmodel,true},
+    {"sim.vortex_body_secmangulararaxisfrictionmodel",sim_vortex_body_secmangulararaxisfrictionmodel,false}, // wrong spelling
+    {"sim.vortex_body_secangularaxisfrictionmodel",sim_vortex_body_secangularaxisfrictionmodel,true},
+    {"sim.vortex_body_normalmangulararaxisfrictionmodel",sim_vortex_body_normalmangulararaxisfrictionmodel,false}, // wrong spelling
+    {"sim.vortex_body_normalangularaxisfrictionmodel",sim_vortex_body_normalangularaxisfrictionmodel,true},
     {"sim.vortex_body_bitcoded",sim_vortex_body_bitcoded,true},
     {"sim.vortex_body_autosleepsteplivethreshold",sim_vortex_body_autosleepsteplivethreshold,true},
     {"sim.vortex_body_materialuniqueid",sim_vortex_body_materialuniqueid,true},

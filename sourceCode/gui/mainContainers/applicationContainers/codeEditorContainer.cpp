@@ -649,14 +649,19 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
     return(retVal);
 }
 
-std::string CCodeEditorContainer::openModalTextEditor(const char* initText,const char* xml,int windowSizeAndPos[4]) const
+std::string CCodeEditorContainer::openModalTextEditor(const char* initText,const char* xml,int windowSizeAndPos[4],bool oldXml/*=false*/) const
 {
     std::string retVal;
     if (CPluginContainer::isCodeEditorPluginAvailable())
     {
         std::string newXml;
         if (xml!=nullptr)
-            newXml=translateXml(xml,"");
+        {
+            if (oldXml)
+                newXml=translateXml(xml,"");
+            else
+                newXml=xml;
+        }
         int posAndSize[4];
         CPluginContainer::codeEditor_openModal(initText,newXml.c_str(),retVal,posAndSize);
         if (windowSizeAndPos!=nullptr)

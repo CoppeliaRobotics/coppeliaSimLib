@@ -225,7 +225,9 @@ bool CUndoBufferCont::memorizeState()
         static bool displayedMessage=false;
         if (!displayedMessage)
         {
-            if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,"Undo / redo",IDS_INFO_UNDO_REDO_TAKES_TOO_LONG,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_NO))
+            std::string tmp("It seems that the undo/redo functionality takes too long to execute and slows down CoppeliaSim. You might have a large scene loaded. Do you wish to disable the undo/redo functionality for current session? (in future, you can disable the undo/redo functionality manually in the user settings dialog, or you can change the threshold level for this warning in ");
+            tmp+=App::folders->getUserSettingsPath()+"/usrset.txt";
+            if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,"Undo / redo",tmp.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_NO))
                 App::userSettings->setUndoRedoEnabled(false);
             displayedMessage=true;
         }

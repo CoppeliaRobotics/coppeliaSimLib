@@ -1,0 +1,187 @@
+#include "annJson.h"
+#include "tt.h"
+#include "ttUtil.h"
+
+CAnnJson::CAnnJson(QJsonObject* mainObject)
+{
+    _mainObject=mainObject;
+    _cnt=0;
+}
+
+CAnnJson::~CAnnJson()
+{
+}
+
+std::string CAnnJson::_nbKey(const char* key)
+{
+    std::string retVal("__key");
+    retVal+=tt::FNb(4,_cnt++);
+    retVal+="__";
+    retVal+=key;
+    return(retVal);
+}
+
+void CAnnJson::_addAnnotation(const char* nbKey,const char* annotation)
+{
+    if (annotation!=nullptr)
+        _keysAndAnnotations[nbKey]=annotation;
+    else
+        _keysAndAnnotations[nbKey]="";
+}
+
+void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,const QJsonObject& value,const char* annotation/*=nullptr*/)
+{
+    std::string l(_nbKey(key));
+    jsonObj[l.c_str()]=value;
+    _addAnnotation(l.c_str(),annotation);
+}
+
+void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,const QJsonArray& value,const char* annotation/*=nullptr*/)
+{
+    std::string l(_nbKey(key));
+    jsonObj[l.c_str()]=value;
+    _addAnnotation(l.c_str(),annotation);
+}
+
+void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,bool value,const char* annotation/*=nullptr*/)
+{
+    std::string l(_nbKey(key));
+    jsonObj[l.c_str()]=value;
+    _addAnnotation(l.c_str(),annotation);
+}
+
+void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,int value,const char* annotation/*=nullptr*/)
+{
+    std::string l(_nbKey(key));
+    jsonObj[l.c_str()]=value;
+    _addAnnotation(l.c_str(),annotation);
+}
+
+void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,double value,const char* annotation/*=nullptr*/)
+{
+    std::string l(_nbKey(key));
+    jsonObj[l.c_str()]=value;
+    _addAnnotation(l.c_str(),annotation);
+}
+
+void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,const double* v,size_t cnt,const char* annotation/*=nullptr*/)
+{
+    QJsonArray arr;
+    for (size_t i=0;i<cnt;i++)
+        arr.push_back(v[i]);
+    std::string l(_nbKey(key));
+    jsonObj[l.c_str()]=arr;
+    _addAnnotation(l.c_str(),annotation);
+}
+
+void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,const char* value,const char* annotation/*=nullptr*/)
+{
+    std::string l(_nbKey(key));
+    jsonObj[l.c_str()]=value;
+    _addAnnotation(l.c_str(),annotation);
+}
+
+std::string CAnnJson::stripComments(const char* jsonTxt)
+{
+    std::string input(jsonTxt);
+    std::string retVal;
+    std::string line;
+    while (CTTUtil::extractLine(input,line))
+    {
+        CTTUtil::removeComments(line);
+        retVal+=line+"\n";
+    }
+    return(retVal);
+}
+
+bool CAnnJson::getValue(QJsonObject& jsonObj,const char* key,QJsonValue::Type type,QJsonValue& value,std::string* errMsg/*=nullptr*/)
+{
+    bool retVal=false;
+    std::string msg;
+    if (jsonObj.contains(key))
+    {
+        if (jsonObj[key].type()==type)
+        {
+            value=jsonObj[key];
+            retVal=true;
+        }
+        else
+            msg=std::string("Key '")+key+"' has not correct type and will be ignored.";
+    }
+    else
+        msg=std::string("Key '")+key+"' was not found and will be ignored.";
+    if ( (!retVal)&&(errMsg!=nullptr) )
+    {
+        if (errMsg->size()>0)
+            errMsg[0]+="\n";
+        errMsg[0]+=msg;
+    }
+    return(retVal);
+}
+
+bool CAnnJson::getArrayDoubleValues(QJsonObject& jsonObj,const char* key,size_t cnt,double* vals,std::string* errMsg/*=nullptr*/)
+{
+    bool retVal=false;
+    std::string msg;
+    if (jsonObj.contains(key))
+    {
+        if (jsonObj[key].type()==QJsonValue::Array)
+        {
+            QJsonArray arr=jsonObj[key].toArray();
+            if (arr.size()>=cnt)
+            {
+                retVal=true;
+                for (size_t i=0;i<cnt;i++)
+                {
+                    if (arr[i].type()==QJsonValue::Double)
+                        vals[i]=arr[i].toDouble();
+                    else
+                    {
+                        msg=std::string("Key '")+key+"' contains items with wrong type and will be ignored.";
+                        break;
+                    }
+                }
+            }
+            else
+                msg=std::string("Key '")+key+"' has not correct size and will be ignored.";
+        }
+        else
+            msg=std::string("Key '")+key+"' has not correct type and will be ignored.";
+    }
+    else
+        msg=std::string("Key '")+key+"' was not found and will be ignored.";
+    if ( (!retVal)&&(errMsg!=nullptr) )
+    {
+        if (errMsg->size()>0)
+            errMsg[0]+="\n";
+        errMsg[0]+=msg;
+    }
+    return(retVal);
+}
+
+std::string CAnnJson::getAnnotatedString()
+{
+    QJsonDocument doc(_mainObject[0]);
+    std::string json(doc.toJson(QJsonDocument::Indented).toStdString());
+    std::string retVal;
+    std::string line;
+    while (CTTUtil::extractLine(json,line))
+    {
+        size_t p1=line.find("__key");
+        if (p1!=std::string::npos)
+        {
+            size_t p2=line.find("__",p1+2);
+            size_t p3=line.find("\"",p2);
+            std::string nbKey(line.begin()+p1,line.begin()+p3);
+            std::string key(line.begin()+p2+2,line.begin()+p3);
+            line.replace(p1,p3-p1,key);
+            if (_keysAndAnnotations[nbKey].size()>0)
+            {
+                line+="    //";
+                line+=_keysAndAnnotations[nbKey];
+            }
+        }
+        retVal+=line+"\n";
+    }
+    return(retVal);
+}

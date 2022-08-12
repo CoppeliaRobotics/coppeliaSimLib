@@ -37,7 +37,7 @@ public:
     int openSimulationScript(int scriptHandle,int callingScriptHandle); // main and child scripts
     int openCustomizationScript(int scriptHandle,int callingScriptHandle); // customization scripts
     int openConsole(const char* title,int maxLines,int mode,const int position[2],const int size[2],const int textColor[3],const int backColor[3],int callingScriptHandle);
-    std::string openModalTextEditor(const char* initText,const char* xml,int windowSizeAndPos[4]) const; // modal C func. sim.openTextEditor
+    std::string openModalTextEditor(const char* initText,const char* xml,int windowSizeAndPos[4],bool oldXml=false) const; // modal C func. sim.openTextEditor
     int openTextEditor(const char* initText,const char* xml,const char* callback,int callingScriptHandle,bool isSimulationScript); // deprec. func. sim.openTextEditor
     bool close(int handle,int posAndSize[4],std::string* txt,std::string* callback);
     void applyChanges(int handle) const;

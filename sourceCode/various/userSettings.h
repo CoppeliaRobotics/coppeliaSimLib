@@ -191,8 +191,6 @@ public:
     bool keepDongleOpen;
 
 private:
-    std::string _getUserSettingsFile();
-
     bool _supportOldApiNotation;
     void _setIntVector3(int v[3],int a,int b,int c);
     bool _undoRedoEnabled;

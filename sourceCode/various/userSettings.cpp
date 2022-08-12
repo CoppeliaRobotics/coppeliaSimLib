@@ -784,33 +784,6 @@ void CUserSettings::saveUserSettings()
     App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
 }
 
-std::string CUserSettings::_getUserSettingsFile()
-{ // The CFolderSystem object might not yet be set-up
-    std::string retVal;
-    std::string usrSet("CoppeliaSim/");
-    usrSet+=USER_SETTINGS_FILENAME;
-    const char* home=std::getenv("HOME");
-#ifdef WIN_SIM
-    const char* appData=std::getenv("appdata");
-    if (appData!=nullptr)
-        retVal=std::string(appData)+"/"+usrSet;
-#endif
-#ifdef LIN_SIM
-    const char* xdghome=std::getenv("XDG_CONFIG_HOME");
-    if (xdghome!=nullptr)
-        xdghome=home;
-    if (xdghome!=nullptr)
-        retVal=std::string(xdghome)+"/"+usrSet;
-#endif
-#ifdef MAC_SIM
-    if (home!=nullptr)
-        retVal=std::string(home)+"/"+usrSet;
-#endif
-    if (retVal.size()==0)
-        retVal=VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+USER_SETTINGS_FILENAME; // fallback to CoppeliaSim's system folder
-    return(retVal);
-}
-
 void CUserSettings::loadUserSettings()
 {
     CConfReaderAndWriter c;
@@ -831,10 +804,10 @@ void CUserSettings::loadUserSettings()
         if (l>=sim_verbosity_none)
         {
             App::setConsoleVerbosity(l);
-            App::logMsg(sim_verbosity_warnings,"console verbosity overridden to '%s' via system/usrset.txt.",_overrideConsoleVerbosity.c_str());
+            App::logMsg(sim_verbosity_warnings,"console verbosity overridden to '%s' via usrset.txt.",_overrideConsoleVerbosity.c_str());
         }
         else
-            App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in system/usrset.txt: %s.",_overrideConsoleVerbosity.c_str());
+            App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in usrset.txt: %s.",_overrideConsoleVerbosity.c_str());
     }
     c.getString(_USR_STATUSBAR_VERBOSITY,_overrideStatusbarVerbosity);
     if (_overrideStatusbarVerbosity.compare("default")!=0)
@@ -843,10 +816,10 @@ void CUserSettings::loadUserSettings()
         if (l>=sim_verbosity_none)
         {
             App::setStatusbarVerbosity(l);
-            App::logMsg(sim_verbosity_warnings,"statusbar verbosity overridden to '%s' via system/usrset.txt.",_overrideStatusbarVerbosity.c_str());
+            App::logMsg(sim_verbosity_warnings,"statusbar verbosity overridden to '%s' via usrset.txt.",_overrideStatusbarVerbosity.c_str());
         }
         else
-            App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in system/usrset.txt: %s.",_overrideStatusbarVerbosity.c_str());
+            App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in usrset.txt: %s.",_overrideStatusbarVerbosity.c_str());
     }
     c.getString(_USR_LOG_FILTER,_consoleLogFilter);
     App::setConsoleLogFilter(_consoleLogFilter.c_str());
@@ -858,10 +831,10 @@ void CUserSettings::loadUserSettings()
         if (l>=sim_verbosity_none)
         {
             App::setDlgVerbosity(l);
-            App::logMsg(sim_verbosity_warnings,"dialog verbosity overridden to '%s' via system/usrset.txt.",_overrideDialogVerbosity.c_str());
+            App::logMsg(sim_verbosity_warnings,"dialog verbosity overridden to '%s' via usrset.txt.",_overrideDialogVerbosity.c_str());
         }
         else
-            App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in system/usrset.txt: %s.",_overrideDialogVerbosity.c_str());
+            App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in usrset.txt: %s.",_overrideDialogVerbosity.c_str());
     }
 
     c.getBoolean(_USR_UNDECORATED_STATUSBAR_MSGS,undecoratedStatusbarMessages);

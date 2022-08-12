@@ -4448,6 +4448,11 @@ simChar* simGetStringParam_internal(simInt parameter)
             validParam=true;
             retVal=App::folders->getMujocoPath();
         }
+        if (parameter==sim_stringparam_usersettingsdir)
+        {
+            validParam=true;
+            retVal=App::folders->getUserSettingsPath();
+        }
         if (parameter==sim_stringparam_scene_path_and_name)
         {
             validParam=true;
@@ -12170,7 +12175,11 @@ simInt simCheckExecAuthorization_internal(const simChar* what,const simChar* arg
             if (auth)
                 retVal=1;
             else
-                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_EXEC_UNSAFE_FAILED);
+            {
+                std::string tmp("function was hindered to execute for your safety. You can enable its execution and every other unsafe function with 'executeUnsafe=true' in ");
+                tmp+=App::folders->getUserSettingsPath()+"/usrset.txt, at your own risk!";
+                CApiErrors::setLastWarningOrError(__func__,tmp.c_str());
+            }
         }
         return(retVal);
     }
@@ -12732,7 +12741,9 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
-                CApiErrors::setLastWarningOrError(__func__,"targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
+                std::string tmp("targeting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in ");
+                tmp+=App::folders->getUserSettingsPath()+"/usrset.txt";
+                CApiErrors::setLastWarningOrError(__func__,tmp.c_str());
                 return(-1);
             }
 
@@ -12842,7 +12853,9 @@ simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagN
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
-                CApiErrors::setLastWarningOrError(__func__,"targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
+                std::string tmp("targeting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in ");
+                tmp+=App::folders->getUserSettingsPath()+"/usrset.txt";
+                CApiErrors::setLastWarningOrError(__func__,tmp.c_str());
                 return(nullptr);
             }
             CScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
@@ -12930,7 +12943,9 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
             std::vector<std::string> allTags;
             if (!App::userSettings->compatibilityFix1)
             {
-                CApiErrors::setLastWarningOrError(__func__,"targetting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in 'system/usrset.txt'");
+                std::string tmp("targeting a script is not supported anymore. Please adjust your code. Temporarily (until next release), you can keep backward compatibility by adding 'compatibilityFix1=true' in ");
+                tmp+=App::folders->getUserSettingsPath()+"/usrset.txt";
+                CApiErrors::setLastWarningOrError(__func__,tmp.c_str());
                 return(nullptr);
             }
             CScriptObject* script=App::worldContainer->getScriptFromHandle(objectHandle);
@@ -15437,7 +15452,7 @@ simChar* simOpenTextEditor_internal(const simChar* initText,const simChar* xml,s
 #ifdef SIM_WITH_GUI
     if (App::mainWindow!=nullptr)
     {
-        std::string txt=App::mainWindow->codeEditorContainer->openModalTextEditor(initText,xml,various);
+        std::string txt=App::mainWindow->codeEditorContainer->openModalTextEditor(initText,xml,various,true);
         retVal=new char[txt.size()+1];
         for (size_t i=0;i<txt.size();i++)
             retVal[i]=txt[i];
@@ -16038,6 +16053,7 @@ simChar* simGetPersistentDataTags_internal(simInt* tagCount)
 
 simInt simEventNotification_internal(const simChar* event)
 {
+    //printf("event: %s\n",event);
     TRACE_C_API;
     int retVal=-1;
 

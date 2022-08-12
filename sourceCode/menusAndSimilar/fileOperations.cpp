@@ -317,7 +317,8 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                         {
                                             std::string msg("The scene/model will possibly be saved as several separate files, all with the '");
                                             msg+=prefix;
-                                            msg+="' prefix. Existing files with the same prefix will be erased or overwritten. To avoid this, it is recommended to either save XML scenes/models in individual folders, or to set the 'xmlExportSplitSize' variable in 'system/usrset.txt' to 0 to generate a single file.\n(this warning can be disabled via the 'suppressXmlOverwriteMsg' variable in 'system/usrset.txt')\n\nProceed anyway?";
+                                            msg+="' prefix. Existing files with the same prefix will be erased or overwritten. To avoid this, it is recommended to either save XML scenes/models in individual folders, or to set the 'xmlExportSplitSize' variable in ";
+                                            msg+=App::folders->getUserSettingsPath()+"/usrset.txt to 0 to generate a single file.\n(this warning can be disabled via the 'suppressXmlOverwriteMsg' variable in usrset.txt)\n\nProceed anyway?";
                                             abort=(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,msg.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
                                         }
                                     }
@@ -332,7 +333,8 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                         {
                                             std::string msg("The scene/model will possibly be saved as several separate files, all with the '");
                                             msg+=prefix;
-                                            msg+="' prefix. Existing files with the same prefix will be erased or overwritten. To avoid this, it is recommended to save XML scenes/models in individual folders.\n(this warning can be disabled via the 'suppressXmlOverwriteMsg' variable in 'system/usrset.txt')\n\nProceed anyway?";
+                                            msg+="' prefix. Existing files with the same prefix will be erased or overwritten. To avoid this, it is recommended to save XML scenes/models in individual folders.\n(this warning can be disabled via the 'suppressXmlOverwriteMsg' variable in ";
+                                            msg+=App::folders->getUserSettingsPath()+"/usrset.txt)\n\nProceed anyway?";
                                             abort=(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,msg.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
                                         }
                                     }
@@ -1689,7 +1691,8 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                         {
                             std::string msg("The scene/model will possibly be saved as several separate files, all with the '");
                             msg+=prefix;
-                            msg+="' prefix. Existing files with the same prefix will be erased or overwritten. To avoid this, it is recommended to either save XML scenes/models in individual folders, or to set the 'xmlExportSplitSize' variable in 'system/usrset.txt' to 0 to generate a single file.\n(this warning can be disabled via the 'suppressXmlOverwriteMsg' variable in 'system/usrset.txt')\n\nProceed anyway?";
+                            msg+="' prefix. Existing files with the same prefix will be erased or overwritten. To avoid this, it is recommended to either save XML scenes/models in individual folders, or to set the 'xmlExportSplitSize' variable in ";
+                            msg+=App::folders->getUserSettingsPath()+"/usrset.txt to 0 to generate a single file.\n(this warning can be disabled via the 'suppressXmlOverwriteMsg' variable in usrset.txt)\n\nProceed anyway?";
                             abort=(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,msg.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
                         }
                     }
@@ -1704,7 +1707,8 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                         {
                             std::string msg("The scene/model will possibly be saved as several separate files, all with the '");
                             msg+=prefix;
-                            msg+="' prefix. Existing files with the same prefix will be erased or overwritten. To avoid this, it is recommended to save XML scenes/models in individual folders.\n(this warning can be disabled via the 'suppressXmlOverwriteMsg' variable in 'system/usrset.txt')\n\nProceed anyway?";
+                            msg+="' prefix. Existing files with the same prefix will be erased or overwritten. To avoid this, it is recommended to save XML scenes/models in individual folders.\n(this warning can be disabled via the 'suppressXmlOverwriteMsg' variable in ";
+                            msg+=App::folders->getUserSettingsPath()+"/usrset.txt)\n\nProceed anyway?";
                             abort=(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SAVE,msg.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
                         }
                     }

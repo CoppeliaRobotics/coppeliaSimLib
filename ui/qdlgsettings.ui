@@ -293,7 +293,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Additional parameters can be adjusted in file system/usrset.txt</string>
+    <string>Additional parameters can be adjusted in file usrset.txt</string>
    </property>
   </widget>
  </widget>

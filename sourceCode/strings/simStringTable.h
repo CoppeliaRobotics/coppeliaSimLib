@@ -846,7 +846,6 @@
 #define IDS_INTEGRAL            "Integral"
 #define IDS_CUMULATIVE          "Cumulative"
 
-#define IDS_INFO_UNDO_REDO_TAKES_TOO_LONG "It seems that the undo/redo functionality takes too long to execute and slows down CoppeliaSim. You might have a slow computer or a large scene loaded. Do you wish to disable the undo/redo functionality for current session? (in future you can disable the undo/redo functionality manually in the user settings dialog, or you can change the threshold level for this warning in the 'system/usrset.txt' file)"
 #define IDS_SHAPE_IS_PURE_PRIMITIVE_INFO_MESSAGE "The shape you are about to edit is a pure primitive shape. Modifying this shape will transform it into a regular shape that won't perform as fast/stable anymore during dynamics calculations. Do you want to proceed?"
 #define IDS_MERGING_SOME_PURE_SHAPES_PROCEED_INFO_MESSAGE "You are about to merge pure (and non-pure) shapes. Doing so will result in a non-pure shape. Do you want to proceed anyway? "
 

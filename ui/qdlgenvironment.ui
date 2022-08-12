@@ -183,7 +183,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>See also variable 'triCountInOBB' in 'system/usrset.txt'</string>
+     <string>See also variable 'triCountInOBB' in usrset.txt</string>
     </property>
    </widget>
   </widget>

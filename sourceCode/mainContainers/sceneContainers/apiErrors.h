@@ -177,7 +177,6 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_RUCKIG_OBJECT_INEXISTANT "Ruckig object does not exist."
 #define SIM_ERROR_RUCKIG_CYCLETIME_ERROR "specified cycle time is not a multiple of the base cycle time."
 #define SIM_ERROR_STRING_NOT_RECOGNIZED_AS_FUNC_OR_CONST "string not recognized as function or constant."
-#define SIM_ERROR_EXEC_UNSAFE_FAILED "function was hindered to execute for your safety. You can enable its execution and every other unsafe function with 'executeUnsafe=true' in system/usrset.txt, at your own risk!"
 
 // Class is fully static
 class CApiErrors

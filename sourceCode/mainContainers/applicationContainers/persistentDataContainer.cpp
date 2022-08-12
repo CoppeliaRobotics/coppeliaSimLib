@@ -147,7 +147,7 @@ void CPersistentDataContainer::_writeToFile(std::vector<std::string>& dataNames,
     }
     catch(VFILE_EXCEPTION_TYPE e)
     {
-        // silent error since 3/2/2012: when the system folder dowesn't exist, we don't want an error!!    VFile::reportAndHandleFileExceptionError(e);
+        // silent error since 3/2/2012: when the system folder doesn't exist, we don't want an error!!    VFile::reportAndHandleFileExceptionError(e);
     }
 }
 

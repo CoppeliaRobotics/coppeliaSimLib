@@ -118,6 +118,24 @@ enum { /* Newton body bit params */
     simi_newton_body_fastmoving=1
 };
 
+enum { /* Mujoco body float params */
+    simi_mujoco_body_friction1=0,
+    simi_mujoco_body_friction2,
+    simi_mujoco_body_friction3,
+    simi_mujoco_body_solref1,
+    simi_mujoco_body_solref2,
+    simi_mujoco_body_solimp1,
+    simi_mujoco_body_solimp2,
+    simi_mujoco_body_solimp3,
+    simi_mujoco_body_solimp4,
+    simi_mujoco_body_solimp5,
+    simi_mujoco_body_solmix
+};
+
+enum { /* Mujoco body int params */
+    simi_mujoco_body_condim=0
+};
+
 class CDynMaterialObject
 {
 public:
@@ -165,6 +183,11 @@ public:
     void setNewtonFloatParams(const std::vector<float>& p);
     void getNewtonIntParams(std::vector<int>& p);
     void setNewtonIntParams(const std::vector<int>& p);
+
+    void getMujocoFloatParams(std::vector<float>& p);
+    void setMujocoFloatParams(const std::vector<float>& p);
+    void getMujocoIntParams(std::vector<int>& p);
+    void setMujocoIntParams(const std::vector<int>& p);
     // ---------------------
 
     
@@ -189,6 +212,9 @@ protected:
 
     std::vector<float> _newtonFloatParams;
     std::vector<int> _newtonIntParams;
+
+    std::vector<float> _mujocoFloatParams;
+    std::vector<int> _mujocoIntParams;
     // ---------------------
 
 };

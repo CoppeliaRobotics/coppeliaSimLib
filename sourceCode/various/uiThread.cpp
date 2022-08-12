@@ -865,7 +865,8 @@ bool CUiThread::checkExecuteUnsafeOk(const char* what,const char* arg,const char
         msg+=" The identifying string will be:\n\n";
         msg=msg+idStr+"<scriptHash>";
     }
-    msg+="\n\nYou can enable execution of unsafe commands by default with 'executeUnsafe=true' in system/usrset.txt, at your own risk.";
+    msg+="\n\nYou can enable execution of unsafe commands by default with 'executeUnsafe=true' in ";
+    msg+=App::folders->getUserSettingsPath()+"/usrset.txt, at your own risk.";
     return messageBox_warning(App::mainWindow,"Execute unsafe",msg.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_NO)==VMESSAGEBOX_REPLY_YES;
 }
 

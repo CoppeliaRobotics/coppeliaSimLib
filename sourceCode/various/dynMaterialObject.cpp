@@ -26,6 +26,8 @@ void CDynMaterialObject::_setDefaultParameters()
     _vortexIntParams.clear();
     _newtonFloatParams.clear();
     _newtonIntParams.clear();
+    _mujocoFloatParams.clear();
+    _mujocoIntParams.clear();
 
     // Bullet parameters:
     // ----------------------------------------------------
@@ -139,6 +141,28 @@ void CDynMaterialObject::_setDefaultParameters()
     _newtonIntParams.push_back(newtonBitCoded); // simi_newton_body_bitcoded
     // NEWTON_SHAPE_INT_PARAM_CNT_CURRENT=1
     // ----------------------------------------------------
+
+    // Mujoco parameters:
+    // ----------------------------------------------------
+    _mujocoFloatParams.push_back(1.f); // simi_mujoco_body_friction1
+    _mujocoFloatParams.push_back(0.005f); // simi_mujoco_body_friction2
+    _mujocoFloatParams.push_back(0.0001f); // simi_mujoco_body_friction3
+    _mujocoFloatParams.push_back(0.02f); // simi_mujoco_body_solref1
+    _mujocoFloatParams.push_back(1.0f); // simi_mujoco_body_solref2
+    _mujocoFloatParams.push_back(0.9f); // simi_mujoco_body_solimp1
+    _mujocoFloatParams.push_back(0.95f); // simi_mujoco_body_solimp2
+    _mujocoFloatParams.push_back(0.001f); // simi_mujoco_body_solimp3
+    _mujocoFloatParams.push_back(0.05f); // simi_mujoco_body_solimp4
+    _mujocoFloatParams.push_back(2.0f); // simi_mujoco_body_solimp5
+    _mujocoFloatParams.push_back(1.0f); // simi_mujoco_body_solmix
+    _mujocoFloatParams.push_back(0.0f); // free
+
+    _mujocoIntParams.push_back(3); // simi_mujoco_body_condim
+    int mujocoBitCoded=0; // not used for now
+    _mujocoIntParams.push_back(mujocoBitCoded);
+    _mujocoIntParams.push_back(0); // free
+    // ----------------------------------------------------
+
 }
 
 CDynMaterialObject::~CDynMaterialObject()
@@ -194,6 +218,11 @@ float CDynMaterialObject::getEngineFloatParam(int what,bool* ok)
         int w=what-sim_newton_body_staticfriction+simi_newton_body_staticfriction;
         return(_newtonFloatParams[w]);
     }
+    if ((what>sim_mujoco_body_float_start)&&(what<sim_mujoco_body_float_end))
+    {
+        int w=what-sim_mujoco_body_friction1+simi_mujoco_body_friction1;
+        return(_mujocoFloatParams[w]);
+    }
     if (ok!=nullptr)
         ok[0]=false;
     return(0.0);
@@ -222,6 +251,11 @@ int CDynMaterialObject::getEngineIntParam(int what,bool* ok)
     {
         int w=what-sim_newton_body_bitcoded+simi_newton_body_bitcoded;
         return(_newtonIntParams[w]);
+    }
+    if ((what>sim_mujoco_body_int_start)&&(what<sim_mujoco_body_int_end))
+    {
+        int w=what-sim_mujoco_body_condim+simi_mujoco_body_condim;
+        return(_mujocoIntParams[w]);
     }
     if (ok!=nullptr)
         ok[0]=false;
@@ -260,6 +294,13 @@ bool CDynMaterialObject::getEngineBoolParam(int what,bool* ok)
         int w=(what-sim_newton_body_fastmoving);
         while (w>0) {b*=2; w--;}
         return((_newtonIntParams[simi_newton_body_bitcoded]&b)!=0);
+    }
+    if ((what>sim_mujoco_body_bool_start)&&(what<sim_mujoco_body_bool_end))
+    {
+        // no bool params for now
+        if (ok!=nullptr)
+            ok[0]=false;
+        return(0);
     }
     if (ok!=nullptr)
         ok[0]=false;
@@ -304,6 +345,15 @@ bool CDynMaterialObject::setEngineFloatParam(int what,float v)
         setNewtonFloatParams(fp);
         return(true);
     }
+    if ((what>sim_mujoco_body_float_start)&&(what<sim_mujoco_body_float_end))
+    {
+        int w=what-sim_mujoco_body_friction1+simi_mujoco_body_friction1;
+        std::vector<float> fp;
+        getMujocoFloatParams(fp);
+        fp[w]=v;
+        setMujocoFloatParams(fp);
+        return(true);
+    }
     return(false);
 }
 
@@ -343,6 +393,15 @@ bool CDynMaterialObject::setEngineIntParam(int what,int v)
         getNewtonIntParams(ip);
         ip[w]=v;
         setNewtonIntParams(ip);
+        return(true);
+    }
+    if ((what>sim_mujoco_body_int_start)&&(what<sim_mujoco_body_int_end))
+    {
+        int w=what-sim_mujoco_body_condim+simi_mujoco_body_condim;
+        std::vector<int> ip;
+        getMujocoIntParams(ip);
+        ip[w]=v;
+        setMujocoIntParams(ip);
         return(true);
     }
     return(false);
@@ -385,6 +444,11 @@ bool CDynMaterialObject::setEngineBoolParam(int what,bool v)
         if (!v)
             _newtonIntParams[simi_newton_body_bitcoded]-=b;
         return(true);
+    }
+    if ((what>sim_mujoco_body_bool_start)&&(what<sim_mujoco_body_bool_end))
+    {
+        // no bool params yet
+        return(false);
     }
     return(false);
 }
@@ -526,6 +590,28 @@ void CDynMaterialObject::setNewtonIntParams(const std::vector<int>& p)
         _newtonIntParams[i]=p[i];
 }
 
+void CDynMaterialObject::getMujocoFloatParams(std::vector<float>& p)
+{
+    p.assign(_mujocoFloatParams.begin(),_mujocoFloatParams.end());
+}
+
+void CDynMaterialObject::setMujocoFloatParams(const std::vector<float>& p)
+{
+    for (size_t i=0;i<p.size();i++)
+        _mujocoFloatParams[i]=p[i];
+}
+
+void CDynMaterialObject::getMujocoIntParams(std::vector<int>& p)
+{
+    p.assign(_mujocoIntParams.begin(),_mujocoIntParams.end());
+}
+
+void CDynMaterialObject::setMujocoIntParams(const std::vector<int>& p)
+{
+    for (size_t i=0;i<p.size();i++)
+        _mujocoIntParams[i]=p[i];
+}
+
 std::string CDynMaterialObject::getDefaultMaterialName(int defMatId)
 {
     if (defMatId==sim_dynmat_default)
@@ -660,42 +746,6 @@ void CDynMaterialObject::generateDefaultMaterial(int defMatId)
         setEngineFloatParam(sim_newton_body_kineticfriction,1.0f);
         setEngineFloatParam(sim_newton_body_restitution,0.0f);
     }
-/*
-    setObjectName("bulletMaterial_sticky_special"); // Bullet sticky contact
-    setEngineFloatParam(sim_bullet_body_oldfriction,1.0f);
-    setEngineFloatParam(sim_bullet_body_friction,0.25f);
-    setEngineBoolParam(sim_bullet_body_sticky,true);
-
-    setObjectName("vortexMaterial_axisXWithoutFriction");
-    setEngineFloatParam(sim_vortex_body_primaxisvectorx,1.0f);
-    setEngineFloatParam(sim_vortex_body_primaxisvectory,0.0f);
-    setEngineFloatParam(sim_vortex_body_primaxisvectorz,0.0f);
-    setEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis,false);
-    setEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel,sim_vortex_bodyfrictionmodel_none);
-
-    setObjectName("vortexMaterial_axisYWithoutFriction");
-    setEngineFloatParam(sim_vortex_body_primaxisvectorx,0.0f);
-    setEngineFloatParam(sim_vortex_body_primaxisvectory,1.0f);
-    setEngineFloatParam(sim_vortex_body_primaxisvectorz,0.0f);
-    setEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis,false);
-    setEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel,sim_vortex_bodyfrictionmodel_none);
-
-    setObjectName("vortexMaterial_axisZWithoutFriction");
-    setEngineFloatParam(sim_vortex_body_primaxisvectorx,0.0f);
-    setEngineFloatParam(sim_vortex_body_primaxisvectory,0.0f);
-    setEngineFloatParam(sim_vortex_body_primaxisvectorz,1.0f);
-    setEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis,false);
-    setEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel,sim_vortex_bodyfrictionmodel_none);
-
-    setObjectName("vortexMaterial_pureShapesAsVxConvexMesh");
-    setEngineBoolParam(sim_vortex_body_pureshapesasconvex,true);
-
-    setObjectName("vortexMaterial_convexShapesAsVxTriangleMeshBVTree");
-    setEngineBoolParam(sim_vortex_body_convexshapesasrandom,true);
-
-    setObjectName("vortexMaterial_randomShapesAsVxTriangleMeshUVGrid");
-    setEngineBoolParam(sim_vortex_body_randomshapesasterrain,true);
-*/
 }
 
 CDynMaterialObject* CDynMaterialObject::copyYourself()
@@ -703,6 +753,7 @@ CDynMaterialObject* CDynMaterialObject::copyYourself()
     CDynMaterialObject* newObj=new CDynMaterialObject();
     newObj->_objectID=_objectID;
     newObj->_objectName=_objectName;
+
     newObj->_bulletFloatParams.assign(_bulletFloatParams.begin(),_bulletFloatParams.end());
     newObj->_bulletIntParams.assign(_bulletIntParams.begin(),_bulletIntParams.end());
 
@@ -715,6 +766,9 @@ CDynMaterialObject* CDynMaterialObject::copyYourself()
 
     newObj->_newtonFloatParams.assign(_newtonFloatParams.begin(),_newtonFloatParams.end());
     newObj->_newtonIntParams.assign(_newtonIntParams.begin(),_newtonIntParams.end());
+
+    newObj->_mujocoFloatParams.assign(_mujocoFloatParams.begin(),_mujocoFloatParams.end());
+    newObj->_mujocoIntParams.assign(_mujocoIntParams.begin(),_mujocoIntParams.end());
 
     return(newObj);
 }
@@ -792,6 +846,14 @@ void CDynMaterialObject::serialize(CSer& ar)
                 ar << _odeFloatParams[i];
             for (int i=0;i<int(_odeIntParams.size());i++)
                 ar << _odeIntParams[i];
+            ar.flush();
+
+            ar.storeDataName("Mj1"); // mujoco params:
+            ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
+            for (int i=0;i<int(_mujocoFloatParams.size());i++)
+                ar << _mujocoFloatParams[i];
+            for (int i=0;i<int(_mujocoIntParams.size());i++)
+                ar << _mujocoIntParams[i];
             ar.flush();
 
             ar.storeDataName(SER_END_OF_OBJECT);
@@ -980,6 +1042,37 @@ void CDynMaterialObject::serialize(CSer& ar)
                         }
                         newtonDataLoaded=true;
                     }
+                    if (theName.compare("Mj1")==0)
+                    { // mujoco params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_mujocoFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_mujocoIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _mujocoFloatParams already!
+                            ar >> vf;
+                            _mujocoFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _mujocoIntParams already!
+                            ar >> vi;
+                            _mujocoIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
                     if (theName=="Var")
                     { // keep for backw. compat. (09/03/2016)
                         noHit=false;
@@ -1145,8 +1238,21 @@ void CDynMaterialObject::serialize(CSer& ar)
             ar.xmlAddNode_float("restitution",getEngineFloatParam(sim_newton_body_restitution,nullptr));
             ar.xmlAddNode_float("lineardrag",getEngineFloatParam(sim_newton_body_lineardrag,nullptr));
             ar.xmlAddNode_float("angulardrag",getEngineFloatParam(sim_newton_body_angulardrag,nullptr));
-
             ar.xmlAddNode_bool("fastmoving",getEngineBoolParam(sim_newton_body_fastmoving,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("mujoco");
+            ar.xmlAddNode_3float("friction",getEngineFloatParam(sim_mujoco_body_friction1,nullptr),getEngineFloatParam(sim_mujoco_body_friction2,nullptr),getEngineFloatParam(sim_mujoco_body_friction3,nullptr));
+            ar.xmlAddNode_2float("solref",getEngineFloatParam(sim_mujoco_body_solref1,nullptr),getEngineFloatParam(sim_mujoco_body_solref2,nullptr));
+            float si[5];
+            si[0]=getEngineFloatParam(sim_mujoco_body_solimp1,nullptr);
+            si[1]=getEngineFloatParam(sim_mujoco_body_solimp2,nullptr);
+            si[2]=getEngineFloatParam(sim_mujoco_body_solimp3,nullptr);
+            si[3]=getEngineFloatParam(sim_mujoco_body_solimp4,nullptr);
+            si[4]=getEngineFloatParam(sim_mujoco_body_solimp5,nullptr);
+            ar.xmlAddNode_floats("solimp",si,5);
+            ar.xmlAddNode_float("solmix",getEngineFloatParam(sim_mujoco_body_solmix,nullptr));
+            ar.xmlAddNode_int("condim",getEngineIntParam(sim_mujoco_body_condim,nullptr));
             ar.xmlPopNode();
 
             ar.xmlPopNode();
@@ -1263,6 +1369,34 @@ void CDynMaterialObject::serialize(CSer& ar)
                     if (ar.xmlGetNode_bool("fastmoving",vb,exhaustiveXml)) setEngineBoolParam(sim_newton_body_fastmoving,vb);
                     ar.xmlPopNode();
                 }
+
+                if (ar.xmlPushChildNode("mujoco",exhaustiveXml))
+                {
+                    float vv[5];
+                    if (ar.xmlGetNode_floats("friction",vv,3,exhaustiveXml))
+                    {
+                        setEngineFloatParam(sim_mujoco_body_friction1,vv[0]);
+                        setEngineFloatParam(sim_mujoco_body_friction2,vv[1]);
+                        setEngineFloatParam(sim_mujoco_body_friction3,vv[2]);
+                    }
+                    if (ar.xmlGetNode_floats("solref",vv,2,exhaustiveXml))
+                    {
+                        setEngineFloatParam(sim_mujoco_body_solref1,vv[0]);
+                        setEngineFloatParam(sim_mujoco_body_solref2,vv[1]);
+                    }
+                    if (ar.xmlGetNode_floats("solimp",vv,5,exhaustiveXml))
+                    {
+                        setEngineFloatParam(sim_mujoco_body_solimp1,vv[0]);
+                        setEngineFloatParam(sim_mujoco_body_solimp2,vv[1]);
+                        setEngineFloatParam(sim_mujoco_body_solimp3,vv[2]);
+                        setEngineFloatParam(sim_mujoco_body_solimp4,vv[3]);
+                        setEngineFloatParam(sim_mujoco_body_solimp5,vv[4]);
+                    }
+                    if (ar.xmlGetNode_float("solmix",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_body_solmix,v);
+                    if (ar.xmlGetNode_int("condim",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_body_condim,vi);
+                    ar.xmlPopNode();
+                }
+
                 ar.xmlPopNode();
             }
         }
