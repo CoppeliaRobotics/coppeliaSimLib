@@ -108,96 +108,80 @@ void CJoint::_commonInit()
 
     // Bullet parameters
     // ----------------------------------------------------
-    // next is index 0:
     _bulletFloatParams.push_back(0.2f); // simi_bullet_joint_stoperp
     _bulletFloatParams.push_back(0.0f); // simi_bullet_joint_stopcfm
     _bulletFloatParams.push_back(0.0f); // simi_bullet_joint_normalcfm
     _bulletFloatParams.push_back(0.0f); // Free
     _bulletFloatParams.push_back(0.0f); // Free
-    // BULLET_JOINT_FLOAT_PARAM_CNT_CURRENT=5
 
-    // next is index 0:
     _bulletIntParams.push_back(0); // Free
-    // BULLET_JOINT_INT_PARAM_CNT_CURRENT=1
     // ----------------------------------------------------
 
     // ODE parameters
     // ----------------------------------------------------
-    // next is index 0:
     _odeFloatParams.push_back(0.6f); // simi_ode_joint_stoperp
     _odeFloatParams.push_back(0.00001f); // simi_ode_joint_stopcfm
     _odeFloatParams.push_back(0.0f); // simi_ode_joint_bounce
     _odeFloatParams.push_back(1.0f); // simi_ode_joint_fudgefactor
     _odeFloatParams.push_back(0.00001f); // simi_ode_joint_normalcfm
-    // ODE_JOINT_FLOAT_PARAM_CNT_CURRENT=5
 
-    // next is index 0:
     _odeIntParams.push_back(0); // Free
-    // ODE_JOINT_INT_PARAM_CNT_CURRENT=1
     // ----------------------------------------------------
 
-    // Vortex parameters (neg. stiffness --> INF):
+    // Vortex parameters:
     // ----------------------------------------------------
-    // next is index 0:
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_lowerlimitdamping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_upperlimitdamping
-    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_lowerlimitstiffness
-    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_upperlimitstiffness
+    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_lowerlimitstiffness
+    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_upperlimitstiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_lowerlimitrestitution
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_upperlimitrestitution
-    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_lowerlimitmaxforce
-    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_upperlimitmaxforce
+    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_lowerlimitmaxforce
+    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_upperlimitmaxforce
     _vortexFloatParams.push_back(0.001f); // simi_vortex_joint_motorconstraintfrictioncoeff
     _vortexFloatParams.push_back(10.0f); // simi_vortex_joint_motorconstraintfrictionmaxforce
-    // next is index 10:
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_motorconstraintfrictionloss
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0loss
-    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_p0stiffness
+    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_p0stiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0damping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0frictionmaxforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0frictionloss
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1loss
-    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_p1stiffness
+    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_p1stiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1damping
-    // next is index 20:
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1frictionmaxforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1frictionloss
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2loss
-    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_p2stiffness
+    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_p2stiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2damping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2frictionmaxforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2frictionloss
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0loss
-    // next is index 30:
-    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_a0stiffness
+    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_a0stiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0damping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0frictionmaxforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0frictionloss
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1loss
-    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_a1stiffness
+    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_a1stiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1damping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1frictionmaxforce
-    // next is index 40:
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1frictionloss
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2loss
-    _vortexFloatParams.push_back(-1.0f); // simi_vortex_joint_a2stiffness
+    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_a2stiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2damping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2frictionmaxforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2frictionloss
-    // next is index 47:
     _vortexFloatParams.push_back(1.0f); // simi_vortex_joint_dependencyfactor
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_dependencyoffset
     _vortexFloatParams.push_back(0.0f); // reserved for future ext.
     _vortexFloatParams.push_back(0.0f); // reserved for future ext.
-    // VORTEX_JOINT_FLOAT_PARAM_CNT_CURRENT=51
 
-    // next is index 0:
     _vortexIntParams.push_back(simi_vortex_joint_proportionalmotorfriction); // simi_vortex_joint_bitcoded
     _vortexIntParams.push_back(0); // simi_vortex_joint_relaxationenabledbc. 1 bit per dof
     _vortexIntParams.push_back(0); // simi_vortex_joint_frictionenabledbc. 1 bit per dof
@@ -205,20 +189,49 @@ void CJoint::_commonInit()
     _vortexIntParams.push_back(-1); // simi_vortex_joint_objectid
     _vortexIntParams.push_back(-1); // simi_vortex_joint_dependentobjectid
     _vortexIntParams.push_back(0); // reserved for future ext.
-    // VORTEX_JOINT_INT_PARAM_CNT_CURRENT=7
     // ----------------------------------------------------
 
-    // Newton parameters (neg. stiffness --> INF):
+    // Newton parameters
     // ----------------------------------------------------
-    // next is index 0:
     _newtonFloatParams.push_back(1.0f); // simi_newton_joint_dependencyfactor
     _newtonFloatParams.push_back(0.0f); // simi_newton_joint_dependencyoffset
-    // NEWTON_JOINT_FLOAT_PARAM_CNT_CURRENT=2
 
-    // next is index 0:
     _newtonIntParams.push_back(-1); // simi_newton_joint_objectid. The ID is redefined in each session
     _newtonIntParams.push_back(-1); // simi_newton_joint_dependentobjectid
-    // NEWTON_JOINT_INT_PARAM_CNT_CURRENT=2
+    // ----------------------------------------------------
+
+    // Mujoco parameters
+    // ----------------------------------------------------
+    _mujocoFloatParams.push_back(0.02f); //sim_mujoco_joint_solreflimit1
+    _mujocoFloatParams.push_back(1.0); //sim_mujoco_joint_solreflimit2
+    _mujocoFloatParams.push_back(0.9f); //sim_mujoco_joint_solimplimit1
+    _mujocoFloatParams.push_back(0.95f); //sim_mujoco_joint_solimplimit2
+    _mujocoFloatParams.push_back(0.001f); //sim_mujoco_joint_solimplimit3
+    _mujocoFloatParams.push_back(0.5f); //sim_mujoco_joint_solimplimit4
+    _mujocoFloatParams.push_back(2.0f); //sim_mujoco_joint_solimplimit5
+    _mujocoFloatParams.push_back(0.0); // sim_mujoco_joint_frictionloss
+    _mujocoFloatParams.push_back(0.02f); //sim_mujoco_joint_solreffriction1
+    _mujocoFloatParams.push_back(1.0); //sim_mujoco_joint_solreffriction2
+    _mujocoFloatParams.push_back(0.9f); //sim_mujoco_joint_solimpfriction1
+    _mujocoFloatParams.push_back(0.95f); //sim_mujoco_joint_solimpfriction2
+    _mujocoFloatParams.push_back(0.001f); //sim_mujoco_joint_solimpfriction3
+    _mujocoFloatParams.push_back(0.5f); //sim_mujoco_joint_solimpfriction4
+    _mujocoFloatParams.push_back(2.0f); //sim_mujoco_joint_solimpfriction5
+    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_stiffness
+    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_damping
+    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_springref
+    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_springdamper1
+    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_springdamper2
+    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_armature
+    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_margin
+    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_polycoef1
+    _mujocoFloatParams.push_back(1.0); //sim_mujoco_joint_polycoef2
+    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_polycoef3
+    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_polycoef4
+    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_polycoef5
+
+    _mujocoIntParams.push_back(-1); // sim_mujoco_joint_objectid. The ID is redefined in each session
+    _mujocoIntParams.push_back(-1); // sim_mujoco_joint_dependentobjectid
     // ----------------------------------------------------
 
     _ikWeight_old=1.0f;
@@ -357,6 +370,15 @@ bool CJoint::setEngineFloatParam(int what,float v)
         setNewtonFloatParams(fp);
         return(true);
     }
+    if ((what>sim_mujoco_joint_float_start)&&(what<sim_mujoco_joint_float_end))
+    {
+        int w=what-sim_mujoco_joint_solreflimit1+simi_mujoco_joint_solreflimit1;
+        std::vector<float> fp;
+        getMujocoFloatParams(fp);
+        fp[w]=v;
+        setMujocoFloatParams(fp);
+        return(true);
+    }
     return(false);
 }
 
@@ -392,6 +414,15 @@ bool CJoint::setEngineIntParam(int what,int v)
         setNewtonIntParams(ip);
         return(true);
     }
+    if ((what>sim_mujoco_joint_int_start)&&(what<sim_mujoco_joint_int_end))
+    {
+        int w=what-sim_mujoco_joint_objectid+simi_mujoco_joint_objectid;
+        std::vector<int> ip;
+        getMujocoIntParams(ip);
+        ip[w]=v;
+        setMujocoIntParams(ip);
+        return(true);
+    }
     return(false);
 }
 
@@ -423,6 +454,11 @@ bool CJoint::setEngineBoolParam(int what,bool v)
     {
         // no bool params for now
         // search for njb11032016
+        return(false);
+    }
+    if ((what>sim_mujoco_joint_bool_start)&&(what<sim_mujoco_joint_bool_end))
+    {
+        // no bool params for now
         return(false);
     }
     return(false);
@@ -543,6 +579,25 @@ void CJoint::setNewtonFloatParams(const std::vector<float>& pp)
         _newtonFloatParams.assign(p.begin(),p.end());
 }
 
+void CJoint::setMujocoFloatParams(const std::vector<float>& pp)
+{
+    std::vector<float> p(pp);
+    bool diff=(_mujocoFloatParams.size()!=p.size());
+    if (!diff)
+    {
+        for (size_t i=0;i<p.size();i++)
+        {
+            if (_mujocoFloatParams[i]!=p[i])
+            {
+                diff=true;
+                break;
+            }
+        }
+    }
+    if (diff)
+        _mujocoFloatParams.assign(p.begin(),p.end());
+}
+
 void CJoint::copyEnginePropertiesTo(CJoint* target)
 {
     std::vector<float> fp;
@@ -570,6 +625,12 @@ void CJoint::copyEnginePropertiesTo(CJoint* target)
     target->setNewtonFloatParams(fp);
     getNewtonIntParams(ip);
     target->setNewtonIntParams(ip);
+
+    // Mujoco:
+    getMujocoFloatParams(fp);
+    target->setMujocoFloatParams(fp);
+    getMujocoIntParams(ip);
+    target->setMujocoIntParams(ip);
 }
 
 void CJoint::setTargetVelocity(float v)
@@ -1979,6 +2040,9 @@ CSceneObject* CJoint::copyYourself()
     newJoint->_newtonFloatParams.assign(_newtonFloatParams.begin(),_newtonFloatParams.end());
     newJoint->_newtonIntParams.assign(_newtonIntParams.begin(),_newtonIntParams.end());
 
+    newJoint->_mujocoFloatParams.assign(_mujocoFloatParams.begin(),_mujocoFloatParams.end());
+    newJoint->_mujocoIntParams.assign(_mujocoIntParams.begin(),_mujocoIntParams.end());
+
     newJoint->_initialValuesInitialized=_initialValuesInitialized;
     newJoint->_initialPosition=_initialPosition;
     newJoint->_initialSphericalJointTransformation=_initialSphericalJointTransformation;
@@ -2201,6 +2265,14 @@ void CJoint::serialize(CSer& ar)
                 ar << _newtonFloatParams[i];
             for (int i=0;i<int(_newtonIntParams.size());i++)
                 ar << _newtonIntParams[i];
+            ar.flush();
+
+            ar.storeDataName("Mj1"); // mujoco params:
+            ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
+            for (int i=0;i<int(_mujocoFloatParams.size());i++)
+                ar << _mujocoFloatParams[i];
+            for (int i=0;i<int(_mujocoIntParams.size());i++)
+                ar << _mujocoIntParams[i];
             ar.flush();
 
             ar.storeDataName("Ruc");
@@ -2528,6 +2600,37 @@ void CJoint::serialize(CSer& ar)
                             ar >> vi;
                         }
                     }
+                    if (theName.compare("Mj1")==0)
+                    { // Mujoco params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_mujocoFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_mujocoIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _mujocoFloatParams already!
+                            ar >> vf;
+                            _mujocoFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _mujocoIntParams already!
+                            ar >> vi;
+                            _mujocoIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
                     if (theName.compare("Cco")==0)
                     { // Keep this for backward compatibility (6/8/2014)
                         noHit=false;
@@ -2611,6 +2714,7 @@ void CJoint::serialize(CSer& ar)
 
             if (ar.getSerializationVersionThatWroteThisFile()<17)
                 CTTUtil::scaleColorUp_(_color.getColorsPtr());
+            _fixVortexInfVals();
             computeBoundingBox();
         }
     }
@@ -2799,6 +2903,42 @@ void CJoint::serialize(CSer& ar)
 
             ar.xmlAddNode_int("objectid",getEngineIntParam(sim_newton_joint_objectid,nullptr));
             ar.xmlAddNode_int("dependentobjectid",getEngineIntParam(sim_newton_joint_dependentobjectid,nullptr));
+            ar.xmlPopNode();
+
+            ar.xmlPushNewNode("mujoco");
+            float v[5];
+            v[0]=getEngineFloatParam(sim_mujoco_joint_solreflimit1,nullptr);
+            v[1]=getEngineFloatParam(sim_mujoco_joint_solreflimit2,nullptr);
+            ar.xmlAddNode_floats("solrefLimit",v,2);
+            v[0]=getEngineFloatParam(sim_mujoco_joint_solimplimit1,nullptr);
+            v[1]=getEngineFloatParam(sim_mujoco_joint_solimplimit2,nullptr);
+            v[2]=getEngineFloatParam(sim_mujoco_joint_solimplimit3,nullptr);
+            v[3]=getEngineFloatParam(sim_mujoco_joint_solimplimit4,nullptr);
+            v[4]=getEngineFloatParam(sim_mujoco_joint_solimplimit5,nullptr);
+            ar.xmlAddNode_floats("solimpLimit",v,5);
+            v[0]=getEngineFloatParam(sim_mujoco_joint_solreffriction1,nullptr);
+            v[1]=getEngineFloatParam(sim_mujoco_joint_solreffriction2,nullptr);
+            ar.xmlAddNode_floats("solrefFriction",v,2);
+            v[0]=getEngineFloatParam(sim_mujoco_joint_solimpfriction1,nullptr);
+            v[1]=getEngineFloatParam(sim_mujoco_joint_solimpfriction2,nullptr);
+            v[2]=getEngineFloatParam(sim_mujoco_joint_solimpfriction3,nullptr);
+            v[3]=getEngineFloatParam(sim_mujoco_joint_solimpfriction4,nullptr);
+            v[4]=getEngineFloatParam(sim_mujoco_joint_solimpfriction5,nullptr);
+            ar.xmlAddNode_floats("solimpFriction",v,5);
+            ar.xmlAddNode_float("frictionloss",getEngineFloatParam(sim_mujoco_joint_frictionloss,nullptr));
+            ar.xmlAddNode_float("stiffness",getEngineFloatParam(sim_mujoco_joint_stiffness,nullptr));
+            ar.xmlAddNode_float("damping",getEngineFloatParam(sim_mujoco_joint_damping,nullptr));
+            ar.xmlAddNode_float("springref",getEngineFloatParam(sim_mujoco_joint_springref,nullptr));
+            v[0]=sim_mujoco_joint_springdamper1;
+            v[2]=sim_mujoco_joint_springdamper2;
+            ar.xmlAddNode_floats("springdamper",v,2);
+
+            ar.xmlAddNode_float("armature",getEngineFloatParam(sim_mujoco_joint_armature,nullptr));
+            ar.xmlAddNode_float("margin",getEngineFloatParam(sim_mujoco_joint_margin,nullptr));
+            ar.xmlAddNode_int("dependentObjectId",getEngineIntParam(sim_mujoco_joint_dependentobjectid,nullptr));
+            for (size_t j=0;j<5;j++)
+                v[j]=getEngineFloatParam(sim_mujoco_joint_polycoef1+j,nullptr);
+            ar.xmlAddNode_floats("polycoef",v,5);
             ar.xmlPopNode();
 
             ar.xmlPopNode();
@@ -3058,6 +3198,48 @@ void CJoint::serialize(CSer& ar)
                         if (ar.xmlGetNode_int("dependentobjectid",vi,exhaustiveXml)) setEngineIntParam(sim_newton_joint_dependentobjectid,vi);
                         ar.xmlPopNode();
                     }
+                    if (ar.xmlPushChildNode("mujoco",exhaustiveXml))
+                    {
+                        float w[5];
+                        if (ar.xmlGetNode_floats("solrefLimit",w,2,exhaustiveXml))
+                        {
+                            setEngineFloatParam(sim_mujoco_joint_solreflimit1,w[0]);
+                            setEngineFloatParam(sim_mujoco_joint_solreflimit2,w[1]);
+                        }
+                        if (ar.xmlGetNode_floats("solimpLimit",w,5,exhaustiveXml))
+                        {
+                            for (size_t j=0;j<5;j++)
+                                setEngineFloatParam(sim_mujoco_joint_solimplimit1+j,w[j]);
+                        }
+                        if (ar.xmlGetNode_floats("solrefFriction",w,2,exhaustiveXml))
+                        {
+                            setEngineFloatParam(sim_mujoco_joint_solreffriction1,w[0]);
+                            setEngineFloatParam(sim_mujoco_joint_solreffriction2,w[1]);
+                        }
+                        if (ar.xmlGetNode_floats("solimpFriction",w,5,exhaustiveXml))
+                        {
+                            for (size_t j=0;j<5;j++)
+                                setEngineFloatParam(sim_mujoco_joint_solimpfriction1+j,w[j]);
+                        }
+                        if (ar.xmlGetNode_float("frictionloss",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_joint_frictionloss,v);
+                        if (ar.xmlGetNode_float("stiffness",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_joint_stiffness,v);
+                        if (ar.xmlGetNode_float("damping",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_joint_damping,v);
+                        if (ar.xmlGetNode_float("springref",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_joint_springref,v);
+                        if (ar.xmlGetNode_floats("springdamper",w,2,exhaustiveXml))
+                        {
+                            setEngineFloatParam(sim_mujoco_joint_springdamper1,w[0]);
+                            setEngineFloatParam(sim_mujoco_joint_springdamper2,w[1]);
+                        }
+                        if (ar.xmlGetNode_float("armature",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_joint_armature,v);
+                        if (ar.xmlGetNode_float("margin",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_joint_margin,v);
+                        if (ar.xmlGetNode_floats("polycoef",w,5,exhaustiveXml))
+                        {
+                            for (size_t j=0;j<5;j++)
+                                setEngineFloatParam(sim_mujoco_joint_polycoef1+j,w[j]);
+                        }
+                        if (ar.xmlGetNode_int("dependentObjectId",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_joint_dependentobjectid,vi);
+                        ar.xmlPopNode();
+                    }
                     ar.xmlPopNode();
                 }
 
@@ -3077,6 +3259,7 @@ void CJoint::serialize(CSer& ar)
                     }
                 }
             }
+            _fixVortexInfVals();
             computeBoundingBox();
         }
     }
@@ -3096,6 +3279,10 @@ void CJoint::performObjectLoadingMapping(const std::vector<int>* map,bool loadin
     ip[0]=_objectHandle;
     ip[1]=CWorld::getLoadingMapping(map,ip[1]); // Newton dependency joint
     setNewtonIntParams(ip);
+    getMujocoIntParams(ip);
+    ip[0]=_objectHandle;
+    ip[1]=CWorld::getLoadingMapping(map,ip[1]); // Mujoco dependency joint
+    setMujocoIntParams(ip);
 }
 
 void CJoint::setJointMode(int theMode)
@@ -3343,12 +3530,19 @@ void CJoint::announceObjectWillBeErased(const CSceneObject* object,bool copyBuff
         ip[5]=-1;
         setVortexIntParams(ip);
     }
-    if (_newtonIntParams[1]==object->getObjectHandle()) // that's the Vortex dependency joint
+    if (_newtonIntParams[1]==object->getObjectHandle()) // that's the Newton dependency joint
     {
         std::vector<int> ip;
         getNewtonIntParams(ip);
         ip[1]=-1;
         setNewtonIntParams(ip);
+    }
+    if (_mujocoIntParams[1]==object->getObjectHandle()) // that's the Mujoco dependency joint
+    {
+        std::vector<int> ip;
+        getMujocoIntParams(ip);
+        ip[1]=-1;
+        setMujocoIntParams(ip);
     }
 
     // We check if the joint is listed in the _directDependentJoints:
@@ -3546,6 +3740,11 @@ float CJoint::getEngineFloatParam(int what,bool* ok) const
         int w=what-sim_newton_joint_dependencyfactor+simi_newton_joint_dependencyfactor;
         return(_newtonFloatParams[w]);
     }
+    if ((what>sim_mujoco_joint_float_start)&&(what<sim_mujoco_joint_float_end))
+    {
+        int w=what-sim_mujoco_joint_solreflimit1+simi_mujoco_joint_solreflimit1;
+        return(_mujocoFloatParams[w]);
+    }
     if (ok!=nullptr)
         ok[0]=false;
     return(0.0f);
@@ -3580,6 +3779,11 @@ int CJoint::getEngineIntParam(int what,bool* ok) const
     {
         int w=what-sim_newton_joint_objectid+simi_newton_joint_objectid;
         return(_newtonIntParams[w]);
+    }
+    if ((what>sim_mujoco_joint_int_start)&&(what<sim_mujoco_joint_int_end))
+    {
+        int w=what-sim_mujoco_joint_objectid+simi_mujoco_joint_objectid;
+        return(_mujocoIntParams[w]);
     }
     if (ok!=nullptr)
         ok[0]=false;
@@ -3617,6 +3821,13 @@ bool CJoint::getEngineBoolParam(int what,bool* ok) const
     {
         // No bool params for now
         // search for njb11032016
+        if (ok!=nullptr)
+            ok[0]=false;
+        return(0);
+    }
+    if ((what>sim_mujoco_joint_bool_start)&&(what<sim_mujoco_joint_bool_end))
+    {
+        // No bool params for now
         if (ok!=nullptr)
             ok[0]=false;
         return(0);
@@ -3666,6 +3877,16 @@ void CJoint::getNewtonIntParams(std::vector<int>& p) const
     p.assign(_newtonIntParams.begin(),_newtonIntParams.end());
 }
 
+void CJoint::getMujocoFloatParams(std::vector<float>& p) const
+{
+    p.assign(_mujocoFloatParams.begin(),_mujocoFloatParams.end());
+}
+
+void CJoint::getMujocoIntParams(std::vector<int>& p) const
+{
+    p.assign(_mujocoIntParams.begin(),_mujocoIntParams.end());
+}
+
 int CJoint::getVortexDependentJointId() const
 {
     return(_vortexIntParams[5]);
@@ -3674,6 +3895,10 @@ int CJoint::getVortexDependentJointId() const
 int CJoint::getNewtonDependentJointId() const
 {
     return(_newtonIntParams[1]);
+}
+int CJoint::getMujocoDependentJointId() const
+{
+    return(_mujocoIntParams[1]);
 }
 
 float CJoint::getPosition() const
@@ -3875,6 +4100,24 @@ void CJoint::setNewtonIntParams(const std::vector<int>& p)
         _newtonIntParams.assign(p.begin(),p.end());
 }
 
+void CJoint::setMujocoIntParams(const std::vector<int>& p)
+{
+    bool diff=(_mujocoIntParams.size()!=p.size());
+    if (!diff)
+    {
+        for (size_t i=0;i<p.size();i++)
+        {
+            if (_mujocoIntParams[i]!=p[i])
+            {
+                diff=true;
+                break;
+            }
+        }
+    }
+    if (diff)
+        _mujocoIntParams.assign(p.begin(),p.end());
+}
+
 void CJoint::setMotorLock(bool e)
 {
     bool diff=(_motorLock!=e);
@@ -3906,4 +4149,14 @@ CColorObject* CJoint::getColor(bool part2)
     if (part2)
         return(&_color_removeSoon);
     return(&_color);
+}
+
+void CJoint::_fixVortexInfVals()
+{ // to fix a past complication (i.e. neg. val. of unsigned would be inf)
+    for (size_t i=0;i<47;i++)
+    {
+        if (_vortexFloatParams[i]<0.0)
+            _vortexFloatParams[i]=FLT_MAX;
+    }
+    // values at index 47 and later are signed
 }

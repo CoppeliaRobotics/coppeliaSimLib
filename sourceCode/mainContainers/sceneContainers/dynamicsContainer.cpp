@@ -1644,6 +1644,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
+            _fixVortexInfVals();
         }
     }
     else
@@ -1831,6 +1832,7 @@ void CDynamicsContainer::serialize(CSer& ar)
 
                 ar.xmlPopNode();
             }
+            _fixVortexInfVals();
         }
     }
 }
@@ -1877,5 +1879,14 @@ void CDynamicsContainer::renderYour3DStuff_overlay(CViewableBase* renderingObjec
                 }
             }
         }
+    }
+}
+
+void CDynamicsContainer::_fixVortexInfVals()
+{ // to fix a past complication (i.e. neg. val. of unsigned would be inf)
+    for (size_t i=3;i<9;i++)
+    { // only in this range unsigned or had the inf. probl.
+        if (_vortexFloatParams[i]<0.0)
+            _vortexFloatParams[i]=FLT_MAX;
     }
 }

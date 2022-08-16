@@ -39,13 +39,11 @@ void CDynMaterialObject::_setDefaultParameters()
     _bulletFloatParams.push_back(0.1f); // simi_bullet_body_nondefaultcollisionmargingfactor
     _bulletFloatParams.push_back(0.002f); // simi_bullet_body_nondefaultcollisionmargingfactorconvex
     _bulletFloatParams.push_back(0.0f); // free
-    // BULLET_SHAPE_FLOAT_PARAM_CNT_CURRENT=8
 
     int bulletBitCoded=simi_bullet_body_usenondefaultcollisionmarginconvex;
     // above is bit-coded: 1=_bulletStickyContact, 2=_bulletNonDefaultCollisionMargin, 4=_bulletNonDefaultCollisionMargin_forConvexAndNonPureShape, 8=_bulletAutoShrinkConvexMesh
     _bulletIntParams.push_back(bulletBitCoded); // simi_bullet_body_bitcoded
     _bulletIntParams.push_back(0); // free
-    // BULLET_SHAPE_INT_PARAM_CNT_CURRENT=2
     // ----------------------------------------------------
 
     // ODE parameters:
@@ -56,14 +54,11 @@ void CDynMaterialObject::_setDefaultParameters()
     _odeFloatParams.push_back(0.0f); // simi_ode_body_lineardamping
     _odeFloatParams.push_back(0.0f); // simi_ode_body_angulardamping
     _odeFloatParams.push_back(0.0f); // free
-    // ODE_SHAPE_FLOAT_PARAM_CNT_CURRENT=6
-
 
     _odeIntParams.push_back(64); // simi_ode_body_maxcontacts
     int odeBitCoded=0; // not used for now
     _odeIntParams.push_back(odeBitCoded);
     _odeIntParams.push_back(0); // free
-    // ODE_SHAPE_INT_PARAM_CNT_CURRENT=3
     // ----------------------------------------------------
 
     // Vortex parameters:
@@ -73,13 +68,11 @@ void CDynMaterialObject::_setDefaultParameters()
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_primangularaxisfriction
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_secangularaxisfriction
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_normalangularaxisfriction
-
     _vortexFloatParams.push_back(1.1f); // simi_vortex_body_primlinearaxisstaticfrictionscale
     _vortexFloatParams.push_back(1.1f); // simi_vortex_body_seclinearaxisstaticfrictionscale
     _vortexFloatParams.push_back(1.0f); // simi_vortex_body_primangularaxisstaticfrictionscale
     _vortexFloatParams.push_back(1.0f); // simi_vortex_body_secangularaxisstaticfrictionscale
     _vortexFloatParams.push_back(1.0f); // simi_vortex_body_normalangularaxisstaticfrictionscale
-
     _vortexFloatParams.push_back(0.00000001f); // simi_vortex_body_compliance
     _vortexFloatParams.push_back(10000000.0f); // simi_vortex_body_damping (was 0.0f)
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_restitution
@@ -87,44 +80,37 @@ void CDynMaterialObject::_setDefaultParameters()
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_adhesiveforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_linearvelocitydamping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_angularvelocitydamping
-
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_primlinearaxisslide
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_seclinearaxisslide
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_primangularaxisslide
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_secangularaxisslide
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_normalangularaxisslide
-
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_primlinearaxisslip
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_seclinearaxisslip
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_primangularaxisslip
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_secangularaxisslip
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_normalangularaxisslip
-
     _vortexFloatParams.push_back(0.14f); // simi_vortex_body_autosleeplinearspeedthreshold
     _vortexFloatParams.push_back(0.045f); // simi_vortex_body_autosleeplinearaccelthreshold
     _vortexFloatParams.push_back(0.03f); // simi_vortex_body_autosleepangularspeedthreshold
     _vortexFloatParams.push_back(0.045f); // simi_vortex_body_autosleepangularaccelthreshold
-
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_skinthickness (was 0.002 before)
     _vortexFloatParams.push_back(0.01f); // simi_vortex_body_autoangulardampingtensionratio
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_primaxisvectorx
     _vortexFloatParams.push_back(0.0f); // simi_vortex_body_primaxisvectory
     _vortexFloatParams.push_back(1.0f); // simi_vortex_body_primaxisvectorz --> by default, primary axis aligned with Z axis (if possible)
-    // VORTEX_SHAPE_FLOAT_PARAM_CNT_CURRENT=36
 
     _vortexIntParams.push_back(sim_vortex_bodyfrictionmodel_scaledboxfast); // simi_vortex_body_primlinearaxisfrictionmodel
     _vortexIntParams.push_back(sim_vortex_bodyfrictionmodel_scaledboxfast); // simi_vortex_body_seclinearaxisfrictionmodel
     _vortexIntParams.push_back(sim_vortex_bodyfrictionmodel_none); // simi_vortex_body_primangulararaxisfrictionmodel
     _vortexIntParams.push_back(sim_vortex_bodyfrictionmodel_none); // simi_vortex_body_secmangulararaxisfrictionmodel
     _vortexIntParams.push_back(sim_vortex_bodyfrictionmodel_none); // simi_vortex_body_normalmangulararaxisfrictionmodel
-
     _vortexIntParams.push_back(simi_vortex_body_fastmoving+simi_vortex_body_seclinaxissameasprimlinaxis+simi_vortex_body_secangaxissameasprimangaxis+simi_vortex_body_normangaxissameasprimangaxis); // simi_vortex_body_bitcoded
                                                 // bit coded: 0set=treat pure shapes as convex shapes, 1set=treat convex shapes as random shapes, 2set=threat random shapes as terrain, 3set=fast moving, 4set=auto-slip,
                                                 // 5set=sec. lin. axis uses same values as prim. lin. axis, 6set=sec. ang. axis uses same values as prim. ang. axis, 7set=norm. ang. axis uses same values as prim. ang. axis (bits 5-7 are not taken into account on the plugin side: they just serve as setting memory)
                                                 // 8set=auto angular damping is on
     _vortexIntParams.push_back(10); // simi_vortex_body_autosleepsteplivethreshold
     _vortexIntParams.push_back(_uniqueID); // simi_vortex_body_materialuniqueid: the material unique ID. The ID is redefined in each session
-    // VORTEX_SHAPE_INT_PARAM_CNT_CURRENT=8
     // ----------------------------------------------------
 
     // Newton parameters:
@@ -134,12 +120,10 @@ void CDynMaterialObject::_setDefaultParameters()
     _newtonFloatParams.push_back(0.0f); // simi_newton_body_restitution
     _newtonFloatParams.push_back(0.0f); // simi_newton_body_lineardrag
     _newtonFloatParams.push_back(0.0f); // simi_newton_body_angulardrag
-    // NEWTON_SHAPE_FLOAT_PARAM_CNT_CURRENT=5
 
     int newtonBitCoded=0;
     // newtonBitCoded|=simi_newton_body_fastmoving; // for fast-moving objects
     _newtonIntParams.push_back(newtonBitCoded); // simi_newton_body_bitcoded
-    // NEWTON_SHAPE_INT_PARAM_CNT_CURRENT=1
     // ----------------------------------------------------
 
     // Mujoco parameters:
@@ -162,7 +146,6 @@ void CDynMaterialObject::_setDefaultParameters()
     _mujocoIntParams.push_back(mujocoBitCoded);
     _mujocoIntParams.push_back(0); // free
     // ----------------------------------------------------
-
 }
 
 CDynMaterialObject::~CDynMaterialObject()
@@ -1136,6 +1119,7 @@ void CDynMaterialObject::serialize(CSer& ar)
                 _newtonFloatParams[simi_newton_body_staticfriction]=averageFriction;
                 _newtonFloatParams[simi_newton_body_kineticfriction]=averageFriction;
             }
+            _fixVortexInfVals();
         }
     }
     else
@@ -1399,6 +1383,17 @@ void CDynMaterialObject::serialize(CSer& ar)
 
                 ar.xmlPopNode();
             }
+            _fixVortexInfVals();
         }
     }
+}
+
+void CDynMaterialObject::_fixVortexInfVals()
+{ // to fix a past complication (i.e. neg. val. of unsigned would be inf)
+    for (size_t i=0;i<33;i++)
+    {
+        if (_vortexFloatParams[i]<0.0)
+            _vortexFloatParams[i]=FLT_MAX;
+    }
+    // values at index 33 and later are signed
 }

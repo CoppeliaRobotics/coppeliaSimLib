@@ -119,7 +119,7 @@ bool CAnnJson::getValue(QJsonObject& jsonObj,const char* key,QJsonValue::Type ty
     return(retVal);
 }
 
-bool CAnnJson::getArrayDoubleValues(QJsonObject& jsonObj,const char* key,size_t cnt,double* vals,std::string* errMsg/*=nullptr*/)
+bool CAnnJson::getValue(QJsonObject& jsonObj,const char* key,double* vals,size_t cnt,std::string* errMsg/*=nullptr*/)
 {
     bool retVal=false;
     std::string msg;

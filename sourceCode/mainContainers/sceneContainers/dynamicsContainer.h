@@ -219,6 +219,7 @@ public:
     CColorObject contactPointColor;
 
 protected:
+    void _fixVortexInfVals();
     void _resetWarningFlags();
 
     unsigned char _pureSpheroidNotSupportedMark;

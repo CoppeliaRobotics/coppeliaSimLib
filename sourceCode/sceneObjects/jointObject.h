@@ -110,6 +110,42 @@ enum { /* Newton joint int params */
 //     /* if you add something here, search for njb11032016 */
 // };
 
+enum { /* Mujoco joint float params */
+    simi_mujoco_joint_solreflimit1=0,
+    simi_mujoco_joint_solreflimit2,
+    simi_mujoco_joint_solimplimit1,
+    simi_mujoco_joint_solimplimit2,
+    simi_mujoco_joint_solimplimit3,
+    simi_mujoco_joint_solimplimit4,
+    simi_mujoco_joint_solimplimit5,
+    simi_mujoco_joint_frictionloss,
+    simi_mujoco_joint_solreffriction1,
+    simi_mujoco_joint_solreffriction2,
+    simi_mujoco_joint_solimpfriction1,
+    simi_mujoco_joint_solimpfriction2,
+    simi_mujoco_joint_solimpfriction3,
+    simi_mujoco_joint_solimpfriction4,
+    simi_mujoco_joint_solimpfriction5,
+    simi_mujoco_joint_stiffness,
+    simi_mujoco_joint_damping,
+    simi_mujoco_joint_springref,
+    simi_mujoco_joint_springdamper1,
+    simi_mujoco_joint_springdamper2,
+    simi_mujoco_joint_armature,
+    simi_mujoco_joint_margin,
+    simi_mujoco_joint_polycoef1,
+    simi_mujoco_joint_polycoef2,
+    simi_mujoco_joint_polycoef3,
+    simi_mujoco_joint_polycoef4,
+    simi_mujoco_joint_polycoef5,
+};
+
+enum { /* Mujoco joint int params */
+    simi_mujoco_joint_objectid=0,
+    simi_mujoco_joint_dependentobjectid
+};
+
+
 class CJoint : public CSceneObject
 {
 public:
@@ -170,8 +206,11 @@ public:
     void getVortexIntParams(std::vector<int>& p) const;
     void getNewtonFloatParams(std::vector<float>& p) const;
     void getNewtonIntParams(std::vector<int>& p) const;
+    void getMujocoFloatParams(std::vector<float>& p) const;
+    void getMujocoIntParams(std::vector<int>& p) const;
     int getVortexDependentJointId() const;
     int getNewtonDependentJointId() const;
+    int getMujocoDependentJointId() const;
     void getMaxVelAccelJerk(float maxVelAccelJerk[3]) const;
     float getScrewPitch() const;
     int getJointType() const;
@@ -224,10 +263,12 @@ public:
     void setOdeFloatParams(const std::vector<float>& p);
     void setVortexFloatParams(const std::vector<float>& p);
     void setNewtonFloatParams(const std::vector<float>& p);
+    void setMujocoFloatParams(const std::vector<float>& p);
     void setBulletIntParams(const std::vector<int>& p);
     void setOdeIntParams(const std::vector<int>& p);
     void setVortexIntParams(const std::vector<int>& p);
     void setNewtonIntParams(const std::vector<int>& p);
+    void setMujocoIntParams(const std::vector<int>& p);
 
     bool setJointMode_noDynMotorTargetPosCorrection(int theMode);
 
@@ -281,6 +322,8 @@ public:
     float getVelocity_DEPRECATED();
 
 protected:
+    void _fixVortexInfVals();
+
     void _rectifyDependentJoints();
     void _commonInit();
 
@@ -379,6 +422,9 @@ protected:
 
     std::vector<float> _newtonFloatParams;
     std::vector<int> _newtonIntParams;
+
+    std::vector<float> _mujocoFloatParams;
+    std::vector<int> _mujocoIntParams;
 
     C7Vector _intrinsicTransformationError; // from physics engine
 

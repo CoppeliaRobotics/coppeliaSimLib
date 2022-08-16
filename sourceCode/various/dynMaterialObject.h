@@ -192,6 +192,7 @@ public:
 
     
 protected:
+    void _fixVortexInfVals();
     void _setDefaultParameters();
     static int _nextUniqueID;
 

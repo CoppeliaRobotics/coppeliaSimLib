@@ -296,6 +296,22 @@ void CTTUtil::removeComments(std::string& line)
     replaceSubstring(line,"doubleptslashslash","://");
 }
 
+int CTTUtil::lineCountAtOffset(const char* str,int offset)
+{
+    int retVal=0;
+    std::string all(str);
+    std::string line;
+    while (extractLine(all,line))
+    {
+        retVal++;
+        offset-=line.size();
+        if (offset<=0)
+            break;
+        offset--; // line feed
+    }
+    return(retVal);
+}
+
 void CTTUtil::pushFloatToBuffer(float d,std::vector<char>& data)
 {
     for (size_t i=0;i<sizeof(float);i++)

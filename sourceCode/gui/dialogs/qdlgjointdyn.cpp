@@ -556,7 +556,16 @@ void CQDlgJointDyn::on_qqAdjustEngineProperties_clicked()
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (it!=nullptr)
         {
-            CPropBrowserEngineJoint dlg(this);// App::mainWindow);
+            if (true)
+            {
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=SET_ENGINEPARAMS_JOINTDYNGUITRIGGEREDCMD;
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
+            App::appendSimulationThreadCommand(cmd);
+            }
+            else
+            {
+            CPropBrowserEngineJoint dlg(this);
             dlg.setModal(true);
             dlg.exec(); // items are set in here
             // We however still need to modify the sim thread resources:
@@ -590,6 +599,7 @@ void CQDlgJointDyn::on_qqAdjustEngineProperties_clicked()
             iParams.clear();
             fParams.clear();
             App::appendSimulationThreadCommand(cmd);
+            }
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }

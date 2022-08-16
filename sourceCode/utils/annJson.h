@@ -24,7 +24,7 @@ public:
 
     static std::string stripComments(const char* jsonTxt);
     static bool getValue(QJsonObject& jsonObj,const char* key,QJsonValue::Type type,QJsonValue& value,std::string* errMsg=nullptr);
-    static bool getArrayDoubleValues(QJsonObject& jsonObj,const char* key,size_t cnt,double* vals,std::string* errMsg=nullptr);
+    static bool getValue(QJsonObject& jsonObj,const char* key,double* vals,size_t cnt,std::string* errMsg=nullptr);
 
 protected:
     std::string _nbKey(const char* key);
