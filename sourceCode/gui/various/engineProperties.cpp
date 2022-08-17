@@ -67,7 +67,21 @@ void CEngineProperties::editObjectProperties(int objectHandle)
         {
             std::string xml("<editor title=\"");
             xml+=title;
-            xml+="\" lang=\"json\" line-numbers=\"true\"/>";
+            xml+="\" lang=\"json\" line-numbers=\"true\" ";
+            if (App::userSettings->scriptEditorFont.compare("")!=0) // defaults are decided in the code editor plugin
+            {
+                xml+="font=\"";
+                xml+=App::userSettings->scriptEditorFont+"\" ";
+            }
+            int fontSize=12;
+            #ifdef MAC_SIM
+                fontSize=16; // bigger fonts here
+            #endif
+            if (App::userSettings->scriptEditorFontSize!=-1)
+                fontSize=App::userSettings->scriptEditorFontSize;
+            xml+="font-size=\"";
+            xml+=std::to_string(fontSize)+"\" ";
+            xml+="/>";
             modifiedText=App::mainWindow->codeEditorContainer->openModalTextEditor(modifiedText.c_str(),xml.c_str(),nullptr);
             //printf("Modified text:\n%s\n",modifiedText.c_str());
         }
