@@ -416,6 +416,7 @@ if(WITH_GUI)
         sourceCode/gui/menusAndSimilar/helpMenu.cpp
 
         sourceCode/gui/various/simRecorder.cpp
+        sourceCode/gui/various/engineProperties.cpp
 
         sourceCode/gui/libs/auxLibVideo.cpp
     )

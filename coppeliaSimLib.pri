@@ -742,6 +742,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/menusAndSimilar/helpMenu.h \
 
     HEADERS += $$PWD/sourceCode/gui/various/simRecorder.h \
+        $$PWD/sourceCode/gui/various/engineProperties.h \
 
     HEADERS += $$PWD/sourceCode/gui/libs/auxLibVideo.h \
 }
@@ -1160,6 +1161,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/menusAndSimilar/helpMenu.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/various/simRecorder.cpp \
+        $$PWD/sourceCode/gui/various/engineProperties.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/libs/auxLibVideo.cpp \
 }

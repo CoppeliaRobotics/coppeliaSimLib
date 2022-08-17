@@ -43,7 +43,33 @@ const bool DYNAMIC_NEWTON_DEFAULT_HIGH_JOINT_ACCURACY[5]={true,true,true,true,tr
 const float DYNAMIC_NEWTON_DEFAULT_CONTACT_MERGE_TOLERANCE[5]={0.01f,0.01f,0.01f,0.01f,0.01f};
 
 const float DYNAMIC_MUJOCO_DEFAULT_STEP_SIZE[5]={0.005f,0.005f,0.005f,0.005f,0.005f};
-//TODOMUJOCO
+const int DYNAMIC_MUJOCO_DEFAULT_ITERATIONS[5]={100,100,100,100,100};
+const int DYNAMIC_MUJOCO_DEFAULT_INTEGRATOR[5]={0,0,0,0,0};
+const int DYNAMIC_MUJOCO_DEFAULT_SOLVER[5]={2,2,2,2,2};
+const int DYNAMIC_MUJOCO_DEFAULT_NJMAX[5]={1000,1000,1000,1000,1000};
+const int DYNAMIC_MUJOCO_DEFAULT_NCONMAX[5]={500,500,500,500,500};
+const bool DYNAMIC_MUJOCO_DEFAULT_COMPUTEINERTIAS[5]={false,false,false,false,false};
+const bool DYNAMIC_MUJOCO_DEFAULT_MULTITHREADED[5]={true,true,true,true,true};
+const int DYNAMIC_MUJOCO_DEFAULT_CONE[5]={0,0,0,0,0};
+const bool DYNAMIC_MUJOCO_DEFAULT_MULTICCD[5]={false,false,false,false,false};
+const float DYNAMIC_MUJOCO_DEFAULT_IMPRATIO[5]={1.0,1.0,1.0,1.0,1.0};
+const float DYNAMIC_MUJOCO_DEFAULT_WIND1[5]={0.0,0.0,0.0,0.0,0.0};
+const float DYNAMIC_MUJOCO_DEFAULT_WIND2[5]={0.0,0.0,0.0,0.0,0.0};
+const float DYNAMIC_MUJOCO_DEFAULT_WIND3[5]={0.0,0.0,0.0,0.0,0.0};
+const float DYNAMIC_MUJOCO_DEFAULT_DENSITY[5]={0.0,0.0,0.0,0.0,0.0};
+const float DYNAMIC_MUJOCO_DEFAULT_VISCOSITY[5]={0.0,0.0,0.0,0.0,0.0};
+const bool DYNAMIC_MUJOCO_DEFAULT_BALANCEINERTIA[5]={true,true,true,true,true};
+const float DYNAMIC_MUJOCO_DEFAULT_BOUNDMASS[5]={0.0,0.0,0.0,0.0,0.0};
+const float DYNAMIC_MUJOCO_DEFAULT_BOUNDINERTIA[5]={0.000001f,0.000001f,0.000001f,0.000001f,0.000001f};
+const bool DYNAMIC_MUJOCO_DEFAULT_OVERRIDECONTACT[5]={false,false,false,false,false};
+const float DYNAMIC_MUJOCO_DEFAULT_OVERRIDEMARGIN[5]={0.0,0.0,0.0,0.0,0.0};
+const float DYNAMIC_MUJOCO_DEFAULT_OVERRIDESOLREF1[5]={0.02f,0.02f,0.02f,0.02f,0.02f};
+const float DYNAMIC_MUJOCO_DEFAULT_OVERRIDESOLREF2[5]={1.0,1.0,1.0,1.0,1.0};
+const float DYNAMIC_MUJOCO_DEFAULT_OVERRIDESOLIMP1[5]={0.9f,0.9f,0.9f,0.9f,0.9f};
+const float DYNAMIC_MUJOCO_DEFAULT_OVERRIDESOLIMP2[5]={0.95f,0.95f,0.95f,0.95f,0.95f};
+const float DYNAMIC_MUJOCO_DEFAULT_OVERRIDESOLIMP3[5]={0.001f,0.001f,0.001f,0.001f,0.001f};
+const float DYNAMIC_MUJOCO_DEFAULT_OVERRIDESOLIMP4[5]={0.5f,0.5f,0.5f,0.5f,0.5f};
+const float DYNAMIC_MUJOCO_DEFAULT_OVERRIDESOLIMP5[5]={2.0,2.0,2.0,2.0,2.0};
 
 CDynamicsContainer::CDynamicsContainer()
 {
@@ -62,9 +88,11 @@ CDynamicsContainer::CDynamicsContainer()
     getNewtonDefaultFloatParams(_newtonFloatParams,_dynamicsSettingsMode);
     getNewtonDefaultIntParams(_newtonIntParams,_dynamicsSettingsMode);
 
+    getMujocoDefaultFloatParams(_mujocoFloatParams,_dynamicsSettingsMode);
+    getMujocoDefaultIntParams(_mujocoIntParams,_dynamicsSettingsMode);
+
     _dynamicEngineToUse=sim_physics_bullet; // Bullet is default
     _dynamicEngineVersionToUse=0; // this is Bullet 2.78
-    // _dynamicEngineVersionToUse=283; // this is Bullet 2.83
 
     contactPointColor.setColorsAllBlack();
     contactPointColor.setColor(1.0f,1.0f,0.0f,sim_colorcomponent_emission);
@@ -449,7 +477,7 @@ bool CDynamicsContainer::setCurrentDynamicStepSize(float s)
         if (_dynamicEngineToUse==sim_physics_newton)
             setEngineFloatParam(sim_newton_global_stepsize,s,false);
         if (_dynamicEngineToUse==sim_physics_mujoco)
-            setEngineFloatParam(sim_bullet_global_stepsize,s,false); //TODOMUJOCO
+            setEngineFloatParam(sim_mujoco_global_stepsize,s,false);
         return(_dynamicsSettingsMode==dynset_custom);
     }
     return(false);
@@ -466,7 +494,7 @@ float CDynamicsContainer::getCurrentDynamicStepSize()
     if (_dynamicEngineToUse==sim_physics_newton)
         return(getEngineFloatParam(sim_newton_global_stepsize,nullptr));
     if (_dynamicEngineToUse==sim_physics_mujoco)
-        return(getEngineFloatParam(sim_bullet_global_stepsize,nullptr)); //TODOMUJOCO
+        return(getEngineFloatParam(sim_mujoco_global_stepsize,nullptr));
     return(0.0f);
 }
 
@@ -483,7 +511,7 @@ bool CDynamicsContainer::setCurrentIterationCount(int c)
         if (_dynamicEngineToUse==sim_physics_newton)
             setEngineIntParam(sim_newton_global_constraintsolvingiterations,c,false);
         if (_dynamicEngineToUse==sim_physics_mujoco)
-            setEngineIntParam(sim_bullet_global_constraintsolvingiterations,c,false); //TODOMUJOCO
+            setEngineIntParam(sim_mujoco_global_iterations,c,false);
         return(_dynamicsSettingsMode==dynset_custom);
     }
     return(false);
@@ -500,7 +528,7 @@ int CDynamicsContainer::getCurrentIterationCount()
     if (_dynamicEngineToUse==sim_physics_newton)
         return(getEngineIntParam(sim_newton_global_constraintsolvingiterations,nullptr));
     if (_dynamicEngineToUse==sim_physics_mujoco)
-        return(getEngineIntParam(sim_bullet_global_constraintsolvingiterations,nullptr)); //TODOMUJOCO
+        return(getEngineIntParam(sim_mujoco_global_iterations,nullptr));
     return(0);
 }
 
@@ -580,7 +608,13 @@ int CDynamicsContainer::getEngineIntParam(int what,bool* ok)
         int w=what-sim_newton_global_constraintsolvingiterations+simi_newton_global_constraintsolvingiterations;
         return(ip[w]);
     }
-//TODOMUJOCO
+    if ((what>sim_mujoco_global_int_start)&&(what<sim_mujoco_global_int_end))
+    {
+        std::vector<int> ip;
+        getMujocoIntParams(ip); // use this routine, since default params are not in _xxxIntParams
+        int w=what-sim_mujoco_global_bitcoded+simi_mujoco_global_bitcoded;
+        return(ip[w]);
+    }
     if (ok!=nullptr)
         ok[0]=false;
     return(0);
@@ -626,7 +660,15 @@ bool CDynamicsContainer::getEngineBoolParam(int what,bool* ok)
         getNewtonIntParams(ip); // use this routine, since default params are not in _xxxIntParams
         return((ip[simi_newton_global_bitcoded]&b)!=0);
     }
-    //TODOMUJOCO
+    if ((what>sim_mujoco_global_bool_start)&&(what<sim_mujoco_global_bool_end))
+    {
+        int b=1;
+        int w=(what-sim_mujoco_global_computeinertias);
+        while (w>0) {b*=2; w--;}
+        std::vector<int> ip;
+        getMujocoIntParams(ip); // use this routine, since default params are not in _xxxIntParams
+        return((ip[simi_mujoco_global_bitcoded]&b)!=0);
+    }
     if (ok!=nullptr)
         ok[0]=false;
     return(0);
@@ -670,7 +712,15 @@ bool CDynamicsContainer::setEngineFloatParam(int what,float v,bool setDirect)
         setNewtonFloatParams(fp,setDirect);
         return(true);
     }
-    //TODOMUJOCO
+    if ((what>sim_mujoco_global_float_start)&&(what<sim_mujoco_global_float_end))
+    {
+        int w=what-sim_mujoco_global_stepsize+simi_mujoco_global_stepsize;
+        std::vector<float> fp;
+        getMujocoFloatParams(fp);
+        fp[w]=v;
+        setMujocoFloatParams(fp,setDirect);
+        return(true);
+    }
     return(false);
 }
 
@@ -712,7 +762,15 @@ bool CDynamicsContainer::setEngineIntParam(int what,int v,bool setDirect)
         setNewtonIntParams(ip,setDirect);
         return(true);
     }
-    //TODOMUJOCO
+    if ((what>sim_mujoco_global_int_start)&&(what<sim_mujoco_global_int_end))
+    {
+        int w=what-sim_mujoco_global_bitcoded+simi_mujoco_global_bitcoded;
+        std::vector<int> ip;
+        getMujocoIntParams(ip);
+        ip[w]=v;
+        setMujocoIntParams(ip,setDirect);
+        return(true);
+    }
     return(false);
 }
 
@@ -770,7 +828,19 @@ bool CDynamicsContainer::setEngineBoolParam(int what,bool v,bool setDirect)
         setNewtonIntParams(ip,setDirect);
         return(true);
     }
-    //TODOMUJOCO
+    if ((what>sim_mujoco_global_bool_start)&&(what<sim_mujoco_global_bool_end))
+    {
+        int b=1;
+        int w=(what-sim_mujoco_global_computeinertias);
+        while (w>0) {b*=2; w--;}
+        std::vector<int> ip;
+        getMujocoIntParams(ip);
+        ip[simi_mujoco_global_bitcoded]|=b;
+        if (!v)
+            ip[simi_mujoco_global_bitcoded]-=b;
+        setMujocoIntParams(ip,setDirect);
+        return(true);
+    }
     return(false);
 }
 
@@ -988,58 +1058,67 @@ void CDynamicsContainer::setNewtonIntParams(const std::vector<int>& p,bool setDi
 }
 
 
+
 void CDynamicsContainer::getMujocoFloatParams(std::vector<float>& p)
 {
-//TODOMUJOCO
     if (_dynamicsSettingsMode==dynset_custom)
-        p.assign(_bulletFloatParams.begin(),_bulletFloatParams.end());
+        p.assign(_mujocoFloatParams.begin(),_mujocoFloatParams.end());
     else
         getMujocoDefaultFloatParams(p,_dynamicsSettingsMode);
 }
 void CDynamicsContainer::getMujocoDefaultFloatParams(std::vector<float>& p,int defType)
 {
-    //TODOMUJOCO
     p.clear();
-    p.push_back(DYNAMIC_MUJOCO_DEFAULT_STEP_SIZE[defType]); // simi_mujoco_global_stepsize
-    // MUJOCO_FLOAT_PARAM_CNT_CURRENT=5
+    p.push_back(DYNAMIC_NEWTON_DEFAULT_STEP_SIZE[defType]); // simi_mujoco_global_stepsize
+    p.push_back(DYNAMIC_NEWTON_DEFAULT_CONTACT_MERGE_TOLERANCE[defType]); // simi_mujoco_global_contactmergetolerance
 }
 void CDynamicsContainer::setMujocoFloatParams(const std::vector<float>& p,bool setDirect)
 {
-    //TODOMUJOCO
     if ((_dynamicsSettingsMode==dynset_custom)||setDirect)
-        _bulletFloatParams.assign(p.begin(),p.end());
-    _bulletFloatParams[simi_bullet_global_stepsize]=tt::getLimitedFloat(0.00001f,1.0f,_bulletFloatParams[simi_bullet_global_stepsize]); // step size
-    _bulletFloatParams[simi_bullet_global_internalscalingfactor]=tt::getLimitedFloat(0.0001f,10000.0f,_bulletFloatParams[simi_bullet_global_internalscalingfactor]); // internal scaling factor
-    _bulletFloatParams[simi_bullet_global_collisionmarginfactor]=tt::getLimitedFloat(0.001f,100.0f,_bulletFloatParams[simi_bullet_global_collisionmarginfactor]); // collision margin factor
+        _mujocoFloatParams.assign(p.begin(),p.end());
+    _mujocoFloatParams[simi_mujoco_global_stepsize]=tt::getLimitedFloat(0.00001f,1.0f,_mujocoFloatParams[simi_mujoco_global_stepsize]);
 }
+
 void CDynamicsContainer::getMujocoIntParams(std::vector<int>& p)
 {
-    //TODOMUJOCO
     if (_dynamicsSettingsMode==dynset_custom)
-        p.assign(_bulletIntParams.begin(),_bulletIntParams.end());
+        p.assign(_mujocoIntParams.begin(),_mujocoIntParams.end());
     else
         getMujocoDefaultIntParams(p,_dynamicsSettingsMode);
 }
 void CDynamicsContainer::getMujocoDefaultIntParams(std::vector<int>& p,int defType)
 {
-    //TODOMUJOCO
     p.clear();
-    p.push_back(DYNAMIC_BULLET_DEFAULT_CONSTRAINT_SOLVING_ITERATIONS[defType]); // simi_bullet_global_constraintsolvingiterations
-    int v=0;
-    if (DYNAMIC_BULLET_DEFAULT_FULL_INTERNAL_SCALING[defType])
-        v|=simi_bullet_global_fullinternalscaling;
-    p.push_back(v); // simi_bullet_global_bitcoded
-    p.push_back(sim_bullet_constraintsolvertype_sequentialimpulse); // simi_bullet_global_constraintsolvertype
-    // BULLET_INT_PARAM_CNT_CURRENT=3
-}
-void CDynamicsContainer::setMujocoIntParams(const std::vector<int>& p,bool setDirect)
-{
-    //TODOMUJOCO
-    if ((_dynamicsSettingsMode==dynset_custom)||setDirect)
-        _bulletIntParams.assign(p.begin(),p.end());
-    _bulletIntParams[simi_bullet_global_constraintsolvingiterations]=tt::getLimitedFloat(1,10000,_bulletIntParams[simi_bullet_global_constraintsolvingiterations]); // constr. solv. iterations
+    int options;
+    if (DYNAMIC_MUJOCO_DEFAULT_COMPUTEINERTIAS[defType])
+        options|=simi_mujoco_global_computeinertias;
+    if (DYNAMIC_MUJOCO_DEFAULT_MULTITHREADED[defType])
+        options|=simi_mujoco_global_multithreaded;
+    if (DYNAMIC_MUJOCO_DEFAULT_MULTICCD[defType])
+        options|=simi_mujoco_global_multiccd;
+    if (DYNAMIC_MUJOCO_DEFAULT_BALANCEINERTIA[defType])
+        options|=simi_mujoco_global_balanceinertias;
+    if (DYNAMIC_MUJOCO_DEFAULT_OVERRIDECONTACT[defType])
+        options|=simi_mujoco_global_overridecontacts;
+    p.push_back(options); // sim_mujoco_global_bitcoded
+    p.push_back(DYNAMIC_MUJOCO_DEFAULT_ITERATIONS[defType]);
+    p.push_back(DYNAMIC_MUJOCO_DEFAULT_INTEGRATOR[defType]);
+    p.push_back(DYNAMIC_MUJOCO_DEFAULT_SOLVER[defType]);
+    p.push_back(DYNAMIC_MUJOCO_DEFAULT_NJMAX[defType]);
+    p.push_back(DYNAMIC_MUJOCO_DEFAULT_NCONMAX[defType]);
+    p.push_back(DYNAMIC_MUJOCO_DEFAULT_CONE[defType]);
 }
 
+void CDynamicsContainer::setMujocoIntParams(const std::vector<int>& p,bool setDirect)
+{
+    if ((_dynamicsSettingsMode==dynset_custom)||setDirect)
+        _mujocoIntParams.assign(p.begin(),p.end());
+    _mujocoIntParams[simi_mujoco_global_iterations]=tt::getLimitedInt(1,1000,_mujocoIntParams[simi_mujoco_global_iterations]);
+    _mujocoIntParams[simi_mujoco_global_integrator]=tt::getLimitedInt(0,2,_mujocoIntParams[simi_mujoco_global_integrator]);
+    _mujocoIntParams[simi_mujoco_global_solver]=tt::getLimitedInt(0,2,_mujocoIntParams[simi_mujoco_global_solver]);
+    _mujocoIntParams[simi_mujoco_global_njmax]=tt::getLimitedInt(100,50000,_mujocoIntParams[simi_mujoco_global_njmax]);
+    _mujocoIntParams[simi_mujoco_global_nconmax]=tt::getLimitedInt(100,50000,_mujocoIntParams[simi_mujoco_global_nconmax]);
+}
 
 float CDynamicsContainer::getPositionScalingFactorDyn()
 {
@@ -1061,21 +1140,7 @@ float CDynamicsContainer::getPositionScalingFactorDyn()
             return(_vortexFloatParams[simi_vortex_global_internalscalingfactor]);
         return(DYNAMIC_VORTEX_DEFAULT_INTERNAL_SCALING_FACTOR[_dynamicsSettingsMode]);
     }
-    if (_dynamicEngineToUse==sim_physics_newton)
-    {
-        return(1.0f);
-        //if (_dynamicsSettingsMode==dynset_custom)
-        //  return(_newtonFloatParams[1]);
-        //return(DYNAMIC_NEWTON_DEFAULT_INTERNAL_SCALING_FACTOR[_dynamicsSettingsMode]);
-    }
-    if (_dynamicEngineToUse==sim_physics_mujoco)
-    {
-        //TODOMUJOCO
-        if (_dynamicsSettingsMode==dynset_custom)
-            return(_bulletFloatParams[simi_bullet_global_internalscalingfactor]);
-        return(DYNAMIC_BULLET_DEFAULT_INTERNAL_SCALING_FACTOR[_dynamicsSettingsMode]);
-    }
-    return(1.0f);
+    return(1.0);
 }
 
 float CDynamicsContainer::getGravityScalingFactorDyn()
@@ -1098,21 +1163,7 @@ float CDynamicsContainer::getGravityScalingFactorDyn()
             return(_vortexFloatParams[simi_vortex_global_internalscalingfactor]);
         return(DYNAMIC_VORTEX_DEFAULT_INTERNAL_SCALING_FACTOR[_dynamicsSettingsMode]);
     }
-    if (_dynamicEngineToUse==sim_physics_newton)
-    {
-        return(1.0f);
-        //if (_dynamicsSettingsMode==dynset_custom)
-        //  return(_newtonFloatParams[1]);
-        //return(DYNAMIC_NEWTON_DEFAULT_INTERNAL_SCALING_FACTOR[_dynamicsSettingsMode]);
-    }
-    if (_dynamicEngineToUse==sim_physics_mujoco)
-    {
-        //TODOMUJOCO
-        if (_dynamicsSettingsMode==dynset_custom)
-            return(_bulletFloatParams[simi_bullet_global_internalscalingfactor]);
-        return(DYNAMIC_BULLET_DEFAULT_INTERNAL_SCALING_FACTOR[_dynamicsSettingsMode]);
-    }
-    return(1.0f);
+    return(1.0);
 }
 
 float CDynamicsContainer::getLinearVelocityScalingFactorDyn()
@@ -1135,21 +1186,7 @@ float CDynamicsContainer::getLinearVelocityScalingFactorDyn()
             return(_vortexFloatParams[simi_vortex_global_internalscalingfactor]);
         return(DYNAMIC_VORTEX_DEFAULT_INTERNAL_SCALING_FACTOR[_dynamicsSettingsMode]);
     }
-    if (_dynamicEngineToUse==sim_physics_newton)
-    {
-        return(1.0f);
-        //if (_dynamicsSettingsMode==dynset_custom)
-        //  return(_newtonFloatParams[1]);
-        //return(DYNAMIC_NEWTON_DEFAULT_INTERNAL_SCALING_FACTOR[_dynamicsSettingsMode]);
-    }
-    if (_dynamicEngineToUse==sim_physics_mujoco)
-    {
-        //TODOMUJOCO
-        if (_dynamicsSettingsMode==dynset_custom)
-            return(_bulletFloatParams[simi_bullet_global_internalscalingfactor]);
-        return(DYNAMIC_BULLET_DEFAULT_INTERNAL_SCALING_FACTOR[_dynamicsSettingsMode]);
-    }
-    return(1.0f);
+    return(1.0);
 }
 
 float CDynamicsContainer::getMassScalingFactorDyn()
@@ -1170,27 +1207,13 @@ float CDynamicsContainer::getMassScalingFactorDyn()
             full=DYNAMIC_ODE_DEFAULT_FULL_INTERNAL_SCALING[_dynamicsSettingsMode];
     }
     if (_dynamicEngineToUse==sim_physics_vortex)
-    {
         full=true;
-    }
-    if (_dynamicEngineToUse==sim_physics_newton)
-    {
-        full=true;
-    }
-    if (_dynamicEngineToUse==sim_physics_mujoco)
-    {
-        //TODOMUJOCO
-        if (_dynamicsSettingsMode==dynset_custom)
-            full=(_bulletIntParams[simi_bullet_global_bitcoded]&simi_bullet_global_fullinternalscaling);
-        else
-            full=DYNAMIC_BULLET_DEFAULT_FULL_INTERNAL_SCALING[_dynamicsSettingsMode];
-    }
     if (full)
     {
         float f=getPositionScalingFactorDyn();
         return(f*f*f);
     }
-    return(1.0f);
+    return(1.0);
 }
 
 float CDynamicsContainer::getMasslessInertiaScalingFactorDyn()
@@ -1217,21 +1240,7 @@ float CDynamicsContainer::getForceScalingFactorDyn()
             full=DYNAMIC_ODE_DEFAULT_FULL_INTERNAL_SCALING[_dynamicsSettingsMode];
     }
     if (_dynamicEngineToUse==sim_physics_vortex)
-    {
         full=true;
-    }
-    if (_dynamicEngineToUse==sim_physics_newton)
-    {
-        full=true;
-    }
-    if (_dynamicEngineToUse==sim_physics_mujoco)
-    {
-        //TODOMUJOCO
-        if (_dynamicsSettingsMode==dynset_custom)
-            full=(_bulletIntParams[simi_bullet_global_bitcoded]&simi_bullet_global_fullinternalscaling);
-        else
-            full=DYNAMIC_BULLET_DEFAULT_FULL_INTERNAL_SCALING[_dynamicsSettingsMode];
-    }
 
     float f=getPositionScalingFactorDyn();
     if (full)
@@ -1257,21 +1266,7 @@ float CDynamicsContainer::getTorqueScalingFactorDyn()
             full=DYNAMIC_ODE_DEFAULT_FULL_INTERNAL_SCALING[_dynamicsSettingsMode];
     }
     if (_dynamicEngineToUse==sim_physics_vortex)
-    {
         full=true;
-    }
-    if (_dynamicEngineToUse==sim_physics_newton)
-    {
-        full=true;
-    }
-    if (_dynamicEngineToUse==sim_physics_mujoco)
-    {
-        //TODOMUJOCO
-        if (_dynamicsSettingsMode==dynset_custom)
-            full=(_bulletIntParams[simi_bullet_global_bitcoded]&simi_bullet_global_fullinternalscaling);
-        else
-            full=DYNAMIC_BULLET_DEFAULT_FULL_INTERNAL_SCALING[_dynamicsSettingsMode];
-    }
 
     float f=getPositionScalingFactorDyn();
     if (full)
@@ -1349,17 +1344,13 @@ void CDynamicsContainer::serialize(CSer& ar)
                 ar << _newtonIntParams[i];
             ar.flush();
 
-
-            //TODOMUJOCO
-            /*
-            ar.storeDataName("Muj"); // mujoco params:
-            ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
-            for (int i=0;i<int(_newtonFloatParams.size());i++)
-                ar << _newtonFloatParams[i];
-            for (int i=0;i<int(_newtonIntParams.size());i++)
-                ar << _newtonIntParams[i];
+            ar.storeDataName("Mj1");
+            ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
+            for (int i=0;i<int(_mujocoFloatParams.size());i++)
+                ar << _mujocoFloatParams[i];
+            for (int i=0;i<int(_mujocoIntParams.size());i++)
+                ar << _mujocoIntParams[i];
             ar.flush();
-            */
 
             ar.storeDataName("Var");
             unsigned char dummy=0;
@@ -1514,6 +1505,37 @@ void CDynamicsContainer::serialize(CSer& ar)
                             ar >> vi;
                         }
                     }
+                    if (theName.compare("Mj1")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_mujocoFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_mujocoIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _mujocoFloatParams already!
+                            ar >> vf;
+                            _mujocoFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _mujocoIntParams already!
+                            ar >> vi;
+                            _mujocoIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
                     if (theName.compare("BuN")==0)
                     { // Bullet params:
                         noHit=false;
@@ -1577,40 +1599,6 @@ void CDynamicsContainer::serialize(CSer& ar)
                         }
                     }
 
-                    //TODOMUJOCO
-                    /*
-                    if (theName.compare("Muj")==0)
-                    { // Mujoco params:
-                        noHit=false;
-                        ar >> byteQuantity;
-                        int cnt1,cnt2;
-                        ar >> cnt1 >> cnt2;
-
-                        int cnt1_b=std::min<int>(int(_newtonFloatParams.size()),cnt1);
-                        int cnt2_b=std::min<int>(int(_newtonIntParams.size()),cnt2);
-
-                        float vf;
-                        int vi;
-                        for (int i=0;i<cnt1_b;i++)
-                        { // new versions will always have same or more items in _newtonFloatParams already!
-                            ar >> vf;
-                            _newtonFloatParams[i]=vf;
-                        }
-                        for (int i=0;i<cnt1-cnt1_b;i++)
-                        { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vf;
-                        }
-                        for (int i=0;i<cnt2_b;i++)
-                        { // new versions will always have same or more items in _newtonIntParams already!
-                            ar >> vi;
-                            _newtonIntParams[i]=vi;
-                        }
-                        for (int i=0;i<cnt2-cnt2_b;i++)
-                        { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vi;
-                        }
-                    }
-                    */
                     if (theName.compare("Var")==0)
                     {
                         noHit=false;
@@ -1716,17 +1704,32 @@ void CDynamicsContainer::serialize(CSer& ar)
             ar.xmlAddNode_bool("highjointaccuracy",getEngineBoolParam(sim_newton_global_highjointaccuracy,nullptr));
             ar.xmlPopNode();
 
-            //TODOMUJOCO
-            /*
             ar.xmlPushNewNode("mujoco");
-            ar.xmlAddNode_float("stepsize",getEngineFloatParam(sim_newton_global_stepsize,nullptr));
-            ar.xmlAddNode_float("contactmergetolerance",getEngineFloatParam(sim_newton_global_contactmergetolerance,nullptr));
-            ar.xmlAddNode_int("constraintsolvingiterations",getEngineIntParam(sim_newton_global_constraintsolvingiterations,nullptr));
-            ar.xmlAddNode_bool("multithreading",getEngineBoolParam(sim_newton_global_multithreading,nullptr));
-            ar.xmlAddNode_bool("exactsolver",getEngineBoolParam(sim_newton_global_exactsolver,nullptr));
-            ar.xmlAddNode_bool("highjointaccuracy",getEngineBoolParam(sim_newton_global_highjointaccuracy,nullptr));
+            ar.xmlAddNode_float("stepsize",getEngineFloatParam(sim_mujoco_global_stepsize,nullptr));
+            ar.xmlAddNode_float("impratio",getEngineFloatParam(sim_mujoco_global_impratio,nullptr));
+            float w[5];
+            for (size_t j=0;j<3;j++)
+                w[j]=getEngineFloatParam(sim_mujoco_global_wind1+j,nullptr);
+            ar.xmlAddNode_floats("wind",w,3);
+            ar.xmlAddNode_float("density",getEngineFloatParam(sim_mujoco_global_density,nullptr));
+            ar.xmlAddNode_float("viscosity",getEngineFloatParam(sim_mujoco_global_viscosity,nullptr));
+            ar.xmlAddNode_float("boundmass",getEngineFloatParam(sim_mujoco_global_boundmass,nullptr));
+            ar.xmlAddNode_float("boundinertia",getEngineFloatParam(sim_mujoco_global_boundinertia,nullptr));
+            ar.xmlAddNode_float("overridemargin",getEngineFloatParam(sim_mujoco_global_overridemargin,nullptr));
+            for (size_t j=0;j<2;j++)
+                w[j]=getEngineFloatParam(sim_mujoco_global_overridesolref1+j,nullptr);
+            ar.xmlAddNode_floats("overridesolref",w,2);
+            for (size_t j=0;j<5;j++)
+                w[j]=getEngineFloatParam(sim_mujoco_global_overridesolimp1+j,nullptr);
+            ar.xmlAddNode_floats("overridesolimp",w,5);
+            ar.xmlAddNode_int("bitcoded",getEngineIntParam(sim_mujoco_global_bitcoded,nullptr));
+            ar.xmlAddNode_int("iterations",getEngineIntParam(sim_mujoco_global_iterations,nullptr));
+            ar.xmlAddNode_int("integrator",getEngineIntParam(sim_mujoco_global_integrator,nullptr));
+            ar.xmlAddNode_int("solver",getEngineIntParam(sim_mujoco_global_solver,nullptr));
+            ar.xmlAddNode_int("njmax",getEngineIntParam(sim_mujoco_global_njmax,nullptr));
+            ar.xmlAddNode_int("nconmax",getEngineIntParam(sim_mujoco_global_nconmax,nullptr));
+            ar.xmlAddNode_int("cone",getEngineIntParam(sim_mujoco_global_cone,nullptr));
             ar.xmlPopNode();
-            */
 
             ar.xmlPopNode();
         }
@@ -1816,20 +1819,40 @@ void CDynamicsContainer::serialize(CSer& ar)
                     ar.xmlPopNode();
                 }
 
-                //TODOMUJOCO
-                /*
                 if (ar.xmlPushChildNode("mujoco"))
                 {
-                    if (ar.xmlGetNode_float("stepsize",v,exhaustiveXml)) setEngineFloatParam(sim_newton_global_stepsize,v,true);
-                    if (ar.xmlGetNode_float("contactmergetolerance",v,exhaustiveXml)) setEngineFloatParam(sim_newton_global_contactmergetolerance,v,true);
-                    if (ar.xmlGetNode_int("constraintsolvingiterations",vi,exhaustiveXml)) setEngineIntParam(sim_newton_global_constraintsolvingiterations,vi,true);
-                    if (ar.xmlGetNode_bool("multithreading",vb,exhaustiveXml)) setEngineBoolParam(sim_newton_global_multithreading,vb,true);
-                    if (ar.xmlGetNode_bool("exactsolver",vb,exhaustiveXml)) setEngineBoolParam(sim_newton_global_exactsolver,vb,true);
-                    if (ar.xmlGetNode_bool("highjointaccuracy",vb,exhaustiveXml)) setEngineBoolParam(sim_newton_global_highjointaccuracy,vb,true);
+                    if (ar.xmlGetNode_float("stepsize",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_stepsize,v,true);
+                    if (ar.xmlGetNode_float("impratio",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_impratio,v,true);
+                    float w[5];
+                    if (ar.xmlGetNode_floats("wind",w,3,exhaustiveXml))
+                    {
+                        for (size_t j=0;j<3;j++)
+                            setEngineFloatParam(sim_mujoco_global_wind1+j,w[j],true);
+                    }
+                    if (ar.xmlGetNode_float("density",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_density,v,true);
+                    if (ar.xmlGetNode_float("viscosity",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_viscosity,v,true);
+                    if (ar.xmlGetNode_float("boundmass",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_boundmass,v,true);
+                    if (ar.xmlGetNode_float("boundinertia",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_boundinertia,v,true);
+                    if (ar.xmlGetNode_float("overridemargin",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_overridemargin,v,true);
+                    if (ar.xmlGetNode_floats("overridesolref",w,2,exhaustiveXml))
+                    {
+                        for (size_t j=0;j<2;j++)
+                            setEngineFloatParam(sim_mujoco_global_overridesolref1+j,w[j],true);
+                    }
+                    if (ar.xmlGetNode_floats("overridesolimp",w,5,exhaustiveXml))
+                    {
+                        for (size_t j=0;j<5;j++)
+                            setEngineFloatParam(sim_mujoco_global_overridesolimp1+j,w[j],true);
+                    }
+                    if (ar.xmlGetNode_int("bitcoded",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_bitcoded,vi,true);
+                    if (ar.xmlGetNode_int("iterations",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_iterations,vi,true);
+                    if (ar.xmlGetNode_int("integrator",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_integrator,vi,true);
+                    if (ar.xmlGetNode_int("solver",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_solver,vi,true);
+                    if (ar.xmlGetNode_int("njmax",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_njmax,vi,true);
+                    if (ar.xmlGetNode_int("nconmax",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_nconmax,vi,true);
+                    if (ar.xmlGetNode_int("cone",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_cone,vi,true);
                     ar.xmlPopNode();
                 }
-                */
-
                 ar.xmlPopNode();
             }
             _fixVortexInfVals();

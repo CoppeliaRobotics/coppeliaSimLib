@@ -81,6 +81,16 @@ void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,const char* value,co
     _addAnnotation(l.c_str(),annotation);
 }
 
+QJsonObject* CAnnJson::getMainObject()
+{
+    return(_mainObject);
+}
+
+void CAnnJson::setMainObject(QJsonObject* obj)
+{
+    _mainObject=obj;
+}
+
 std::string CAnnJson::stripComments(const char* jsonTxt)
 {
     std::string input(jsonTxt);

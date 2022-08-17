@@ -22,6 +22,9 @@ public:
 
     std::string getAnnotatedString();
 
+    QJsonObject* getMainObject();
+    void setMainObject(QJsonObject* obj);
+
     static std::string stripComments(const char* jsonTxt);
     static bool getValue(QJsonObject& jsonObj,const char* key,QJsonValue::Type type,QJsonValue& value,std::string* errMsg=nullptr);
     static bool getValue(QJsonObject& jsonObj,const char* key,double* vals,size_t cnt,std::string* errMsg=nullptr);

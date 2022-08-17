@@ -149,9 +149,7 @@ std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* ca
 
             editorNode->SetAttribute("resizable",toBoolStr(true));
             editorNode->SetAttribute("placement","absolute");
-            if (App::userSettings->scriptEditorFont.compare("")==0)
-                editorNode->SetAttribute("font","Courier");
-            else
+            if (App::userSettings->scriptEditorFont.compare("")!=0) // defaults are decided in the code editor plugin
                 editorNode->SetAttribute("font",App::userSettings->scriptEditorFont.c_str());
             editorNode->SetAttribute("font-bold",toBoolStr(App::userSettings->scriptEditorBoldFont));
             editorNode->SetAttribute("toolbar",toBoolStr(false));
@@ -340,9 +338,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     editorNode->SetAttribute("resizable",toBoolStr(true));
                     editorNode->SetAttribute("closeable",toBoolStr(true));
                     editorNode->SetAttribute("placement","absolute");
-                    if (App::userSettings->scriptEditorFont.compare("")==0)
-                        editorNode->SetAttribute("font","Courier");
-                    else
+                    if (App::userSettings->scriptEditorFont.compare("")!=0) // defaults are decided in the code editor plugin
                         editorNode->SetAttribute("font",App::userSettings->scriptEditorFont.c_str());
                     editorNode->SetAttribute("font-bold",toBoolStr(App::userSettings->scriptEditorBoldFont));
                     editorNode->SetAttribute("toolbar",toBoolStr(true));
@@ -474,9 +470,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     editorNode->SetAttribute("resizable",toBoolStr(true));
                     editorNode->SetAttribute("closeable",toBoolStr(true));
                     editorNode->SetAttribute("placement","absolute");
-                    if (App::userSettings->scriptEditorFont.compare("")==0)
-                        editorNode->SetAttribute("font","Courier");
-                    else
+                    if (App::userSettings->scriptEditorFont.compare("")!=0) // defaults are decided in the code editor plugin
                         editorNode->SetAttribute("font",App::userSettings->scriptEditorFont.c_str());
                     editorNode->SetAttribute("font-bold",toBoolStr(App::userSettings->scriptEditorBoldFont));
                     editorNode->SetAttribute("toolbar",toBoolStr(true));
@@ -593,9 +587,7 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
         editorNode->SetAttribute("resizable",toBoolStr(true));
         editorNode->SetAttribute("closeable",toBoolStr((mode&4)!=0));
         editorNode->SetAttribute("placement","absolute");
-        if (App::userSettings->scriptEditorFont.compare("")==0)
-            editorNode->SetAttribute("font","Courier");
-        else
+        if (App::userSettings->scriptEditorFont.compare("")!=0) // defaults are decided in the code editor plugin
             editorNode->SetAttribute("font",App::userSettings->scriptEditorFont.c_str());
         editorNode->SetAttribute("font-bold",toBoolStr(App::userSettings->scriptEditorBoldFont));
         editorNode->SetAttribute("toolbar",toBoolStr(false));

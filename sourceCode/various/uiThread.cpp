@@ -516,60 +516,6 @@ void CUiThread::showOrHideProgressBar(bool show,float pos,const char* txt)
 #endif
 }
 
-/*
-bool CUiThread::showOrHideEmergencyStop(bool show,const char* txt)
-{
-    TRACE_INTERNAL;
-#ifdef SIM_WITH_GUI
-    if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
-    { // make sure we are not in headless mode
-        if (VThread::isCurrentThreadTheUiThread())
-        { // we are in the UI thread. We execute the command now:
-            bool buttonWasPressed=false;
-            static CQDlgStopScripts* _emergencyStopDlg=nullptr;
-            if (show)
-            {
-                if (_emergencyStopDlg==nullptr)
-                {
-                    CQDlgStopScripts::stopScriptNow=false;
-                    _emergencyStopDlg=new CQDlgStopScripts(App::mainWindow);
-                    _emergencyStopDlg->setScriptName(txt);
-                    _emergencyStopDlg->show();
-                }
-                buttonWasPressed=CQDlgStopScripts::stopScriptNow;
-                if (buttonWasPressed)
-                {
-                    delete _emergencyStopDlg;
-                    _emergencyStopDlg=nullptr;
-                    CQDlgStopScripts::stopScriptNow=false;
-                }
-            }
-            else
-            {
-                if (_emergencyStopDlg!=nullptr)
-                {
-                    delete _emergencyStopDlg;
-                    _emergencyStopDlg=nullptr;
-                }
-            }
-            return(buttonWasPressed);
-        }
-        else
-        { // We are NOT in the UI thread. We execute the command via the UI thread:
-            SUIThreadCommand cmdIn;
-            SUIThreadCommand cmdOut;
-            cmdIn.cmdId=SHOW_HIDE_EMERGENCY_STOP_BUTTON_UITHREADCMD;
-            cmdIn.boolParams.push_back(show);
-            cmdIn.stringParams.push_back(txt);
-            executeCommandViaUiThread(&cmdIn,&cmdOut);
-            return(cmdOut.boolParams[0]);
-        }
-    }
-#endif
-    return(false);
-}
-*/
-
 bool CUiThread::showOrHideEmergencyStop(bool show,const char* txt)
 {
     TRACE_INTERNAL;

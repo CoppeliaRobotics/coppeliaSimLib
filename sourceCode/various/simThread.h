@@ -57,8 +57,5 @@ private:
     void _handleAutoSaveSceneCommand(SSimulationThreadCommand cmd);
     void _displayVariousWaningMessagesDuringSimulation();
     int _prepareSceneForRenderIfNeeded();
-
-    void _editShapeMaterial(int shapeHandle);
-    void _editJointDynProp(int jointHandle);
 #endif
 };

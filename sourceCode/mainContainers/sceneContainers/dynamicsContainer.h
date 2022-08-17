@@ -75,25 +75,43 @@ enum { /* Newton global bit params */
     simi_newton_global_highjointaccuracy=4,
 };
 
-
-//TODOMUJOCO
 enum { /* Mujoco global float params */
     simi_mujoco_global_stepsize=0,
-//    simi_mujoco_global_contactmergetolerance
+    simi_mujoco_global_impratio,
+    simi_mujoco_global_wind1,
+    simi_mujoco_global_wind2,
+    simi_mujoco_global_wind3,
+    simi_mujoco_global_density,
+    simi_mujoco_global_viscosity,
+    simi_mujoco_global_boundmass,
+    simi_mujoco_global_boundinertia,
+    simi_mujoco_global_overridemargin,
+    simi_mujoco_global_overridesolref1,
+    simi_mujoco_global_overridesolref2,
+    simi_mujoco_global_overridesolimp1,
+    simi_mujoco_global_overridesolimp2,
+    simi_mujoco_global_overridesolimp3,
+    simi_mujoco_global_overridesolimp4,
+    simi_mujoco_global_overridesolimp5
 };
 
 enum { /* Mujoco global int params */
-//    simi_mujoco_global_constraintsolvingiterations=0,
-    simi_mujoco_global_bitcoded
+    simi_mujoco_global_bitcoded=0,
+    simi_mujoco_global_iterations,
+    simi_mujoco_global_integrator,
+    simi_mujoco_global_solver,
+    simi_mujoco_global_njmax,
+    simi_mujoco_global_nconmax,
+    simi_mujoco_global_cone
 };
 
 enum { /* Mujoco global bit params */
-//    simi_mujoco_global_multithreading=1,
-//    simi_mujoco_global_exactsolver=2,
-//    simi_mujoco_global_highjointaccuracy=4,
+    simi_mujoco_global_computeinertias=1,
+    simi_mujoco_global_multithreaded=2,
+    simi_mujoco_global_multiccd=4,
+    simi_mujoco_global_balanceinertias=8,
+    simi_mujoco_global_overridecontacts=16
 };
-
-
 
 enum {
     dynset_first        =0,
@@ -245,7 +263,6 @@ protected:
     int _dynamicsSettingsMode;
     bool _displayContactPoints;
 
-
     std::vector<float> _bulletFloatParams;
     std::vector<int> _bulletIntParams;
 
@@ -257,4 +274,7 @@ protected:
 
     std::vector<float> _newtonFloatParams;
     std::vector<int> _newtonIntParams;
+
+    std::vector<float> _mujocoFloatParams;
+    std::vector<int> _mujocoIntParams;
 };
