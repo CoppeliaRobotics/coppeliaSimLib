@@ -1059,37 +1059,6 @@ void CMainWindow::_createDefaultToolBars()
         _toolbar1->addWidget(_engineSelectCombo);
         connect(_engineSelectCombo,SIGNAL(activated(int)),this,SLOT(_engineSelectedViaToolbar(int)));
 
-        _enginePrecisionCombo=new QComboBox();
-
-        #ifdef WIN_SIM
-            _enginePrecisionCombo->setMinimumWidth(120);
-            _enginePrecisionCombo->setMaximumWidth(120);
-            _enginePrecisionCombo->setMinimumHeight(24);
-            _enginePrecisionCombo->setMaximumHeight(24);
-        #endif
-        #ifdef MAC_SIM
-            _enginePrecisionCombo->setMinimumWidth(125);
-            _enginePrecisionCombo->setMaximumWidth(125);
-            _enginePrecisionCombo->setMinimumHeight(24);
-            _enginePrecisionCombo->setMaximumHeight(24);
-        #endif
-        #ifdef LIN_SIM
-            _enginePrecisionCombo->setMinimumWidth(120);
-            _enginePrecisionCombo->setMaximumWidth(120);
-            _enginePrecisionCombo->setMinimumHeight(24);
-            _enginePrecisionCombo->setMaximumHeight(24);
-        #endif
-
-        _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_veryprecise).c_str());
-        _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_precise).c_str());
-        _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_balanced).c_str());
-        _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_fast).c_str());
-        _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_veryfast).c_str());
-        _enginePrecisionCombo->addItem(CDynamicsContainer::getDynamicsSettingsModeStr(dynset_custom).c_str());
-        _enginePrecisionCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DYNAMICS_SETTINGS);
-        _toolbar1->addWidget(_enginePrecisionCombo);
-        connect(_enginePrecisionCombo,SIGNAL(activated(int)),this,SLOT(_enginePrecisionViaToolbar(int)));
-
         _timeStepConfigCombo=new QComboBox();
 
         #ifdef WIN_SIM
@@ -1671,7 +1640,6 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionDynamicContentVisualization->setEnabled((!App::currentWorld->simulation->isSimulationStopped())&&noSelector);
 
         _engineSelectCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&App::currentWorld->dynamicsContainer->getDynamicsEnabled()&&noSelector);
-        _enginePrecisionCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&App::currentWorld->dynamicsContainer->getDynamicsEnabled()&&noSelector);
         _timeStepConfigCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
         _toolbarActionStart->setEnabled(_toolbarButtonPlayEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&(!App::currentWorld->simulation->isSimulationRunning())&&noSelector);
         _toolbarActionPause->setEnabled(_toolbarButtonPauseEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationRunning()&&noSelector);
@@ -1709,7 +1677,6 @@ void CMainWindow::_actualizetoolbarButtonState()
         if (eng==sim_physics_mujoco)
             _engineSelectCombo->setCurrentIndex(5);
 
-        _enginePrecisionCombo->setCurrentIndex(App::currentWorld->dynamicsContainer->getDynamicsSettingsMode());
         if (App::currentWorld->simulation->isSimulationStopped())
         {
             _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP);
@@ -1865,12 +1832,6 @@ void CMainWindow::_engineSelectedViaToolbar(int index)
         App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD);
     if (index==5)
         App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD);
-}
-
-void CMainWindow::_enginePrecisionViaToolbar(int index)
-{
-    App::currentWorld->dynamicsContainer->setDynamicsSettingsMode(index);
-    App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
 }
 
 void CMainWindow::_timeStepConfigViaToolbar(int index)

@@ -862,6 +862,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.floatparam_stereo_distance",sim_floatparam_stereo_distance,true},
     {"sim.floatparam_dynamic_step_size",sim_floatparam_dynamic_step_size,true},
     {"sim.floatparam_mouse_wheel_zoom_factor",sim_floatparam_mouse_wheel_zoom_factor,true},
+    {"sim.floatparam_physicstimestep",sim_floatparam_physicstimestep,true},
+
     // Array parameters:
     {"sim.arrayparam_gravity",sim_arrayparam_gravity,true},
     {"sim.arrayparam_fog",sim_arrayparam_fog,true},

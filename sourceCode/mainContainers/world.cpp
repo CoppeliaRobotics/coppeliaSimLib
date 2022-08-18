@@ -1334,13 +1334,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     { // This needs to be done AFTER simulation settings are loaded!
                         float step=float(simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
                         float bulletStepSize=step/float(mainSettings->dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012);
-                        float odeStepSize=step/float(mainSettings->dynamicsODEStepSizeDivider_forBackwardCompatibility_03_01_2012);
-                        if (fabs(step-0.05f)>0.002f)
-                            dynamicsContainer->setDynamicsSettingsMode(dynset_custom); // use custom settings
-                        // Following has an effect only when using custom parameters (custom parameters might already be enabled before above line!):
-
-                        dynamicsContainer->setEngineFloatParam(sim_bullet_global_stepsize,bulletStepSize,false);
-                        dynamicsContainer->setEngineFloatParam(sim_ode_global_stepsize,odeStepSize,false);
+                        dynamicsContainer->setCurrentDynamicStepSize(bulletStepSize);
                     }
                     //************************************************
                 }

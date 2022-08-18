@@ -882,7 +882,7 @@ void CShape::commonInit()
     _containsTransparentComponents=false;
     _startInDynamicSleeping=false;
     _shapeIsDynamicallyStatic=true;
-    _shapeIsDynamicallyKinematic=false;
+    _shapeIsDynamicallyKinematic=true;
     _setAutomaticallyToNonStaticIfGetsParent=false;
     _shapeIsDynamicallyRespondable=false; // keep false, otherwise too many "default" problems
     _dynamicCollisionMask=0xffff;
@@ -1236,9 +1236,8 @@ void CShape::serialize(CSer& ar)
 
             ar.storeDataName("Sss");
             unsigned char nothing=0;
-            SIM_SET_CLEAR_BIT(nothing,0,_shapeIsDynamicallyKinematic);
-    //      SIM_SET_CLEAR_BIT(nothing,0,_explicitTracing); removed on 13/09/2011
-    //      SIM_SET_CLEAR_BIT(nothing,1,_visibleEdges); removed on 11/11/2012
+    //        SIM_SET_CLEAR_BIT(nothing,0,_shapeIsDynamicallyKinematic); reserved since 2022
+            SIM_SET_CLEAR_BIT(nothing,1,!_shapeIsDynamicallyKinematic);
     //      SIM_SET_CLEAR_BIT(nothing,2,_culling); removed on 11/11/2012
     //      SIM_SET_CLEAR_BIT(nothing,3,tracing); removed on 13/09/2011
     //      SIM_SET_CLEAR_BIT(nothing,4,_shapeWireframe); removed on 11/11/2012
@@ -1344,7 +1343,7 @@ void CShape::serialize(CSer& ar)
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        _shapeIsDynamicallyKinematic=SIM_IS_BIT_SET(nothing,0);
+                        _shapeIsDynamicallyKinematic=!SIM_IS_BIT_SET(nothing,1);
                         _startInDynamicSleeping=SIM_IS_BIT_SET(nothing,6);
                         _shapeIsDynamicallyStatic=!SIM_IS_BIT_SET(nothing,7);
                     }

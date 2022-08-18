@@ -206,7 +206,6 @@ private:
     QAction* _toolbarActionRedo;
     QAction* _toolbarActionDynamicContentVisualization;
     QComboBox* _engineSelectCombo;
-    QComboBox* _enginePrecisionCombo;
     QComboBox* _timeStepConfigCombo;
     QAction* _toolbarActionStart;
     QAction* _toolbarActionPause;
@@ -281,7 +280,6 @@ private:
 
 public slots:
     void _engineSelectedViaToolbar(int index);
-    void _enginePrecisionViaToolbar(int index);
     void _timeStepConfigViaToolbar(int index);
 
     void _simPopupMessageHandler(int id);

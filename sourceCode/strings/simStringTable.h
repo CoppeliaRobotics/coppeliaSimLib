@@ -866,7 +866,6 @@
 #define IDS_TOOLBAR_TOOLTIP_OBJECT_ROTATE "Object/item rotate"
 
 #define IDS_TOOLBAR_TOOLTIP_DYNAMICS_ENGINE "Dynamics engine"
-#define IDS_TOOLBAR_TOOLTIP_DYNAMICS_SETTINGS "Dynamics settings"
 #define IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP "Simulation time step"
 #define IDS_TOOLBAR_TOOLTIP_DT_SIMULATION_TIME_STEP_AND_PPF "dt=Simulation time step, ppf=simulation Passes Per Frame"
 

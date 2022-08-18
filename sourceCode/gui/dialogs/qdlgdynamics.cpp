@@ -41,6 +41,15 @@ void CQDlgDynamics::refresh()
     ui->qqGravityX->setEnabled(noEditMode&&en);
     ui->qqGravityY->setEnabled(noEditMode&&en);
     ui->qqGravityZ->setEnabled(noEditMode&&en);
+    ui->qqTimestep->setEnabled(noEditMode&&en);
+
+    if (App::currentWorld->dynamicsContainer->getSettingsAreDefault())
+        ui->qqInfo->setText("");
+    else
+    {
+        ui->qqInfo->setText("Detected non-default settings!");
+        ui->qqInfo->setStyleSheet("QLabel { color : red; }");
+    }
 
     ui->qqEnabled->setChecked(en);
     ui->qqEngineCombo->clear();
@@ -64,6 +73,8 @@ void CQDlgDynamics::refresh()
         ui->qqEngineCombo->setCurrentIndex(4);
     if (eng==sim_physics_mujoco)
         ui->qqEngineCombo->setCurrentIndex(5);
+
+    ui->qqTimestep->setText(tt::getEString(false,App::currentWorld->dynamicsContainer->getCurrentDynamicStepSize(),3).c_str());
 
     ui->qqContactPoints->setChecked(App::currentWorld->dynamicsContainer->getDisplayContactPoints());
 
@@ -130,12 +141,20 @@ void CQDlgDynamics::on_qqAdjustEngine_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
+        if (true)
+        {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=SET_ENGINEPARAMS_DYNAMICSGUITRIGGEREDCMD;
+        App::appendSimulationThreadCommand(cmd);
+        }
+        else
+        {
         CPropBrowserEngineGeneral dlg(this);
         dlg.setModal(true);
         dlg.exec(); // items are set in here
         SSimulationThreadCommand cmd;
         cmd.cmdId=SET_ALLGLOBALPARAMS_DYNAMICSGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentWorld->dynamicsContainer->getDynamicsSettingsMode());
+        cmd.intParams.push_back(5);
         std::vector<int> iParams;
         std::vector<float> fParams;
         App::currentWorld->dynamicsContainer->getBulletIntParams(iParams);
@@ -163,6 +182,7 @@ void CQDlgDynamics::on_qqAdjustEngine_clicked()
         iParams.clear();
         fParams.clear();
         App::appendSimulationThreadCommand(cmd);
+        }
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -227,6 +247,26 @@ void CQDlgDynamics::on_qqGravityZ_editingFinished()
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_GRAVITY_DYNAMICSGUITRIGGEREDCMD;
             cmd.posParams.push_back(vect);
+            App::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        }
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    }
+}
+
+void CQDlgDynamics::on_qqTimestep_editingFinished()
+{
+    if (!ui->qqTimestep->isModified())
+        return;
+    IF_UI_EVENT_CAN_READ_DATA
+    {
+        bool ok;
+        float newVal=ui->qqTimestep->text().toFloat(&ok);
+        if (ok)
+        {
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=SET_TIMESTEP_DYNAMICSGUITRIGGEREDCMD;
+            cmd.floatParams.push_back(newVal);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }

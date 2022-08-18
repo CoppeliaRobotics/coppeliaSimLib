@@ -4201,6 +4201,18 @@ simInt simSetFloatParam_internal(simInt parameter,simFloat floatState)
             }
             return(0);
         }
+        if (parameter==sim_floatparam_physicstimestep)
+        {
+            if (App::currentWorld->dynamicsContainer==nullptr)
+                return(-1);
+            if (App::currentWorld->simulation->isSimulationStopped())
+            {
+                App::currentWorld->dynamicsContainer->setCurrentDynamicStepSize(floatState);
+                return(1);
+            }
+            return(0);
+        }
+
         if (parameter==sim_floatparam_stereo_distance)
         {
 #ifdef SIM_WITH_GUI
@@ -4247,6 +4259,13 @@ simInt simGetFloatParam_internal(simInt parameter,simFloat* floatState)
             if (App::currentWorld->simulation==nullptr)
                 return(-1);
             floatState[0]=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+            return(1);
+        }
+        if (parameter==sim_floatparam_physicstimestep)
+        {
+            if (App::currentWorld->dynamicsContainer==nullptr)
+                return(-1);
+            floatState[0]=App::currentWorld->dynamicsContainer->getCurrentDynamicStepSize();
             return(1);
         }
         if (parameter==sim_floatparam_stereo_distance)
@@ -14860,7 +14879,7 @@ simInt simSetEngineFloatParam_internal(simInt paramId,simInt objectHandle,const 
         if (success)
         {
             if (it==nullptr)
-                success=App::currentWorld->dynamicsContainer->setEngineFloatParam(paramId,val,false);
+                success=App::currentWorld->dynamicsContainer->setEngineFloatParam(paramId,val);
             else
             {
                 if (it->getObjectType()==sim_object_joint_type)
@@ -14911,7 +14930,7 @@ simInt simSetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const 
         if (success)
         {
             if (it==nullptr)
-                success=App::currentWorld->dynamicsContainer->setEngineIntParam(paramId,val,false);
+                success=App::currentWorld->dynamicsContainer->setEngineIntParam(paramId,val);
             else
             {
                 if (it->getObjectType()==sim_object_joint_type)
@@ -14962,7 +14981,7 @@ simInt simSetEngineBoolParam_internal(simInt paramId,simInt objectHandle,const s
         if (success)
         {
             if (it==nullptr)
-                success=App::currentWorld->dynamicsContainer->setEngineBoolParam(paramId,val,false);
+                success=App::currentWorld->dynamicsContainer->setEngineBoolParam(paramId,val);
             else
             {
                 if (it->getObjectType()==sim_object_joint_type)
@@ -16302,7 +16321,8 @@ simFloat _simGetLocalInertiaInfo_internal(const simVoid* object,simFloat* pos,si
     CMeshWrapper* geomInfo=shape->getMeshWrapper();
     C7Vector tr(geomInfo->getLocalInertiaFrame());
     C3Vector diag(geomInfo->getPrincipalMomentsOfInertia());
-//    CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),tr,diag);
+    if (App::currentWorld->dynamicsContainer->getComputeInertias())
+        CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),tr,diag);
     tr.X.getInternalData(pos);
     tr.Q.getInternalData(quat);
     float m=geomInfo->getMass();

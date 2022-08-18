@@ -34,8 +34,6 @@ protected:
     void handlePropertyChanges(QtProperty *_prop);
     void enableNotifications(bool enable);
 
-    QtVariantProperty* p_configuration;
-
     QtVariantProperty* p_bulletTimeStep;
     QtVariantProperty* p_bulletConstraintSolvType;
     QtVariantProperty* p_bulletConstraintSolvIterat;

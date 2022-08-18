@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>155</height>
+    <height>191</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
      <x>10</x>
      <y>10</y>
      <width>411</width>
-     <height>71</height>
+     <height>91</height>
     </rect>
    </property>
    <property name="title">
@@ -36,7 +36,7 @@
      <rect>
       <x>10</x>
       <y>25</y>
-      <width>241</width>
+      <width>221</width>
       <height>18</height>
      </rect>
     </property>
@@ -44,15 +44,15 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Dynamics enabled, engine to use</string>
+     <string>Dynamics enabled, engine</string>
     </property>
    </widget>
    <widget class="QComboBox" name="qqEngineCombo">
     <property name="geometry">
      <rect>
-      <x>250</x>
+      <x>230</x>
       <y>25</y>
-      <width>151</width>
+      <width>171</width>
       <height>18</height>
      </rect>
     </property>
@@ -61,7 +61,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>45</y>
+      <y>65</y>
       <width>221</width>
       <height>18</height>
      </rect>
@@ -77,7 +77,7 @@
     <property name="geometry">
      <rect>
       <x>230</x>
-      <y>45</y>
+      <y>65</y>
       <width>171</width>
       <height>18</height>
      </rect>
@@ -86,12 +86,35 @@
      <string>Adjust engine parameters</string>
     </property>
    </widget>
+   <widget class="QLineEdit" name="qqTimestep">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>45</y>
+      <width>81</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>45</y>
+      <width>211</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Dynamics time step</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>90</y>
+     <y>110</y>
      <width>411</width>
      <height>51</height>
     </rect>
@@ -172,10 +195,24 @@
     </property>
    </widget>
   </widget>
+  <widget class="QLabel" name="qqInfo">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>165</y>
+     <width>391</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Settings are default</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>qqEnabled</tabstop>
   <tabstop>qqEngineCombo</tabstop>
+  <tabstop>qqTimestep</tabstop>
   <tabstop>qqContactPoints</tabstop>
   <tabstop>qqAdjustEngine</tabstop>
   <tabstop>qqGravityX</tabstop>

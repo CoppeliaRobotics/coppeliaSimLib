@@ -36,6 +36,8 @@ private slots:
 
     void on_qqGravityZ_editingFinished();
 
+    void on_qqTimestep_editingFinished();
+
 private:
     Ui::CQDlgDynamics *ui;
 };

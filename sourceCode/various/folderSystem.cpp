@@ -210,11 +210,11 @@ std::string CFolderSystem::getUserSettingsPath()
         if (xdghome!=nullptr)
             xdghome=home;
         if (xdghome!=nullptr)
-            userSettingsFolder=std::string(xdghome)+"/"+usrSet;
+            userSettingsFolder=std::string(xdghome)+"/."+usrSet;
     #endif
     #ifdef MAC_SIM
         if (home!=nullptr)
-            userSettingsFolder=std::string(home)+"/"+usrSet;
+            userSettingsFolder=std::string(home)+"/."+usrSet;
     #endif
         if (userSettingsFolder.size()==0)
             userSettingsFolder=VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME; // fallback to CoppeliaSim's system folder

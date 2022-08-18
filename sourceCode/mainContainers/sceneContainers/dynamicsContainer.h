@@ -17,7 +17,8 @@ enum { /* Bullet global int params */
 };
 
 enum { /* Bullet global bit params */
-    simi_bullet_global_fullinternalscaling=1
+    simi_bullet_global_fullinternalscaling=1,
+    simi_bullet_global_computeinertias=2
 };
 
 enum { /* Ode global float params */
@@ -35,7 +36,8 @@ enum { /* Ode global int params */
 
 enum { /* Ode global bit params */
     simi_ode_global_fullinternalscaling=1,
-    simi_ode_global_quickstep=2
+    simi_ode_global_quickstep=2,
+    simi_ode_global_computeinertias=4
 };
 
 enum { /* Vortex global float params */
@@ -56,7 +58,8 @@ enum { /* Vortex global int params */
 
 enum { /* Vortex global bit params */
     simi_vortex_global_autosleep=1,
-    simi_vortex_global_multithreading=2
+    simi_vortex_global_multithreading=2,
+    simi_vortex_global_computeinertias=16
 };
 
 enum { /* Newton global float params */
@@ -73,6 +76,7 @@ enum { /* Newton global bit params */
     simi_newton_global_multithreading=1,
     simi_newton_global_exactsolver=2,
     simi_newton_global_highjointaccuracy=4,
+    simi_newton_global_computeinertias=8,
 };
 
 enum { /* Mujoco global float params */
@@ -92,7 +96,9 @@ enum { /* Mujoco global float params */
     simi_mujoco_global_overridesolimp2,
     simi_mujoco_global_overridesolimp3,
     simi_mujoco_global_overridesolimp4,
-    simi_mujoco_global_overridesolimp5
+    simi_mujoco_global_overridesolimp5,
+    simi_mujoco_global_kinmass,
+    simi_mujoco_global_kininertia
 };
 
 enum { /* Mujoco global int params */
@@ -102,7 +108,8 @@ enum { /* Mujoco global int params */
     simi_mujoco_global_solver,
     simi_mujoco_global_njmax,
     simi_mujoco_global_nconmax,
-    simi_mujoco_global_cone
+    simi_mujoco_global_cone,
+    simi_mujoco_global_overridekin
 };
 
 enum { /* Mujoco global bit params */
@@ -111,18 +118,6 @@ enum { /* Mujoco global bit params */
     simi_mujoco_global_multiccd=4,
     simi_mujoco_global_balanceinertias=8,
     simi_mujoco_global_overridecontacts=16
-};
-
-enum {
-    dynset_first        =0,
-    dynset_veryprecise  =dynset_first,
-    dynset_precise      =1,
-    dynset_balanced     =2,
-    dynset_fast         =3,
-    dynset_veryfast     =4,
-    dynset_custom       =5,
-    dynset_default      =dynset_balanced,
-    dynset_last         =dynset_custom
 };
 
 class CViewableBase;
@@ -139,11 +134,11 @@ public:
     void renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib);
 
     void handleDynamics(float dt);
-    bool getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float* contactInfo);
+    bool getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float* contactInfo) const;
 
     void addWorldIfNotThere();
     void removeWorld();
-    bool isWorldThere();
+    bool isWorldThere() const;
 
     void markForWarningDisplay_pureSpheroidNotSupported();
     void markForWarningDisplay_pureConeNotSupported();
@@ -160,83 +155,89 @@ public:
     bool displayStaticShapeOnDynamicConstructionWarningRequired();
     bool displayVortexPluginIsDemoRequired();
 
+    void checkIfEngineSettingsAreDefault();
+    bool getSettingsAreDefault() const;
+
+
     void setDynamicEngineType(int t,int version);
-    int getDynamicEngineType(int* version);
-    bool setCurrentDynamicStepSize(float s); // will modify the current engine's step size if setting is custom
-    float getCurrentDynamicStepSize();
-    bool setCurrentIterationCount(int c); // will modify the current engine's it. count if setting is custom
-    int getCurrentIterationCount();
+    int getDynamicEngineType(int* version) const;
+    bool setCurrentDynamicStepSize(float s);
+    float getCurrentDynamicStepSize() const;
+    bool setCurrentIterationCount(int c);
+    int getCurrentIterationCount() const;
+    bool getComputeInertias() const;
     void setDynamicsEnabled(bool e);
-    bool getDynamicsEnabled();
+    bool getDynamicsEnabled() const;
     void setGravity(const C3Vector& gr);
-    C3Vector getGravity();
+    C3Vector getGravity() const;
 
-    void setDynamicsSettingsMode(int dynSetMode);
-    int getDynamicsSettingsMode();
-    static std::string getDynamicsSettingsModeStr(int dynSetMode);
-
-    float getPositionScalingFactorDyn();
-    float getLinearVelocityScalingFactorDyn();
-    float getMassScalingFactorDyn();
-    float getMasslessInertiaScalingFactorDyn();
-    float getForceScalingFactorDyn();
-    float getTorqueScalingFactorDyn();
-    float getGravityScalingFactorDyn();
-
+    float getPositionScalingFactorDyn() const;
+    float getLinearVelocityScalingFactorDyn() const;
+    float getMassScalingFactorDyn() const;
+    float getMasslessInertiaScalingFactorDyn() const;
+    float getForceScalingFactorDyn() const;
+    float getTorqueScalingFactorDyn() const;
+    float getGravityScalingFactorDyn() const;
 
     void setDisplayContactPoints(bool d);
-    bool getDisplayContactPoints();
+    bool getDisplayContactPoints() const;
 
     void setTempDisabledWarnings(int mask);
-    int getTempDisabledWarnings();
+    int getTempDisabledWarnings() const;
 
-    bool getCurrentlyInDynamicsCalculations();
+    bool getCurrentlyInDynamicsCalculations() const;
 
-    float getEngineFloatParam(int what,bool* ok);
-    int getEngineIntParam(int what,bool* ok);
-    bool getEngineBoolParam(int what,bool* ok);
-    bool setEngineFloatParam(int what,float v,bool setDirect);
-    bool setEngineIntParam(int what,int v,bool setDirect);
-    bool setEngineBoolParam(int what,bool v,bool setDirect);
+    float getEngineFloatParam(int what,bool* ok,bool getDefault=false) const;
+    int getEngineIntParam(int what,bool* ok,bool getDefault=false) const;
+    bool getEngineBoolParam(int what,bool* ok,bool getDefault=false) const;
+    bool setEngineFloatParam(int what,float v);
+    bool setEngineIntParam(int what,int v);
+    bool setEngineBoolParam(int what,bool v);
 
-    void getBulletFloatParams(std::vector<float>& p);
-    void setBulletFloatParams(const std::vector<float>& p,bool setDirect);
-    void getBulletIntParams(std::vector<int>& p);
-    void setBulletIntParams(const std::vector<int>& p,bool setDirect);
-    void getBulletDefaultFloatParams(std::vector<float>& p,int defType);
-    void getBulletDefaultIntParams(std::vector<int>& p,int defType);
+    void getBulletFloatParams(std::vector<float>& p,bool getDefault=false) const;
+    void setBulletFloatParams(const std::vector<float>& p);
+    void getBulletIntParams(std::vector<int>& p,bool getDefault=false) const;
+    void setBulletIntParams(const std::vector<int>& p);
 
-    void getOdeFloatParams(std::vector<float>& p);
-    void setOdeFloatParams(const std::vector<float>& p,bool setDirect);
-    void getOdeIntParams(std::vector<int>& p);
-    void setOdeIntParams(const std::vector<int>& p,bool setDirect);
-    void getOdeDefaultFloatParams(std::vector<float>& p,int defType);
-    void getOdeDefaultIntParams(std::vector<int>& p,int defType);
+    void getBulletDefaultFloatParams(std::vector<float>& p,int defType=-1) const;
+    void getBulletDefaultIntParams(std::vector<int>& p,int defType=-1) const;
 
-    void getVortexFloatParams(std::vector<float>& p);
-    void setVortexFloatParams(const std::vector<float>& p,bool setDirect);
-    void getVortexIntParams(std::vector<int>& p);
-    void setVortexIntParams(const std::vector<int>& p,bool setDirect);
-    void getVortexDefaultFloatParams(std::vector<float>& p,int defType);
-    void getVortexDefaultIntParams(std::vector<int>& p,int defType);
+    void getOdeFloatParams(std::vector<float>& p,bool getDefault=false) const;
+    void setOdeFloatParams(const std::vector<float>& p);
+    void getOdeIntParams(std::vector<int>& p,bool getDefault=false) const;
+    void setOdeIntParams(const std::vector<int>& p);
 
-    void getNewtonFloatParams(std::vector<float>& p);
-    void setNewtonFloatParams(const std::vector<float>& p,bool setDirect);
-    void getNewtonIntParams(std::vector<int>& p);
-    void setNewtonIntParams(const std::vector<int>& p,bool setDirect);
-    void getNewtonDefaultFloatParams(std::vector<float>& p,int defType);
-    void getNewtonDefaultIntParams(std::vector<int>& p,int defType);
+    void getOdeDefaultFloatParams(std::vector<float>& p,int defType=-1) const;
+    void getOdeDefaultIntParams(std::vector<int>& p,int defType=-1) const;
 
-    void getMujocoFloatParams(std::vector<float>& p);
-    void setMujocoFloatParams(const std::vector<float>& p,bool setDirect);
-    void getMujocoIntParams(std::vector<int>& p);
-    void setMujocoIntParams(const std::vector<int>& p,bool setDirect);
-    void getMujocoDefaultFloatParams(std::vector<float>& p,int defType);
-    void getMujocoDefaultIntParams(std::vector<int>& p,int defType);
+    void getVortexFloatParams(std::vector<float>& p,bool getDefault=false) const;
+    void setVortexFloatParams(const std::vector<float>& p);
+    void getVortexIntParams(std::vector<int>& p,bool getDefault=false) const;
+    void setVortexIntParams(const std::vector<int>& p);
+
+    void getVortexDefaultFloatParams(std::vector<float>& p,int defType=-1) const;
+    void getVortexDefaultIntParams(std::vector<int>& p,int defType=-1) const;
+
+    void getNewtonFloatParams(std::vector<float>& p,bool getDefault=false) const;
+    void setNewtonFloatParams(const std::vector<float>& p);
+    void getNewtonIntParams(std::vector<int>& p,bool getDefault=false) const;
+    void setNewtonIntParams(const std::vector<int>& p);
+
+    void getNewtonDefaultFloatParams(std::vector<float>& p,int defType=-1) const;
+    void getNewtonDefaultIntParams(std::vector<int>& p,int defType=-1) const;
+
+    void getMujocoFloatParams(std::vector<float>& p,bool getDefault=false) const;
+    void setMujocoFloatParams(const std::vector<float>& p);
+    void getMujocoIntParams(std::vector<int>& p,bool getDefault=false) const;
+    void setMujocoIntParams(const std::vector<int>& p);
+
+    void getMujocoDefaultFloatParams(std::vector<float>& p,int defType=-1) const;
+    void getMujocoDefaultIntParams(std::vector<int>& p,int defType=-1) const;
 
     CColorObject contactPointColor;
 
 protected:
+    bool _engineFloatsAreSimilar(const std::vector<float>& arr1,const std::vector<float>& arr2) const;
     void _fixVortexInfVals();
     void _resetWarningFlags();
 
@@ -259,9 +260,11 @@ protected:
     bool _dynamicsEnabled;
     int _dynamicEngineToUse;
     int _dynamicEngineVersionToUse;
+    float _stepSize;
     C3Vector _gravity;
-    int _dynamicsSettingsMode;
     bool _displayContactPoints;
+
+    bool _engineSettingsAreDefault;
 
     std::vector<float> _bulletFloatParams;
     std::vector<int> _bulletIntParams;

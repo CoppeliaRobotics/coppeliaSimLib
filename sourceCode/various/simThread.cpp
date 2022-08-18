@@ -1302,17 +1302,20 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             App::currentWorld->dynamicsContainer->setGravity(cmd.posParams[0]);
         }
+        if (cmd.cmdId==SET_TIMESTEP_DYNAMICSGUITRIGGEREDCMD)
+        {
+            App::currentWorld->dynamicsContainer->setCurrentDynamicStepSize(cmd.floatParams[0]);
+        }
         if (cmd.cmdId==SET_ALLGLOBALPARAMS_DYNAMICSGUITRIGGEREDCMD)
         {
-            App::currentWorld->dynamicsContainer->setDynamicsSettingsMode(cmd.intParams[0]);
-            App::currentWorld->dynamicsContainer->setBulletIntParams(cmd.intVectorParams[0],false);
-            App::currentWorld->dynamicsContainer->setBulletFloatParams(cmd.floatVectorParams[0],false);
-            App::currentWorld->dynamicsContainer->setOdeIntParams(cmd.intVectorParams[1],false);
-            App::currentWorld->dynamicsContainer->setOdeFloatParams(cmd.floatVectorParams[1],false);
-            App::currentWorld->dynamicsContainer->setVortexIntParams(cmd.intVectorParams[2],false);
-            App::currentWorld->dynamicsContainer->setVortexFloatParams(cmd.floatVectorParams[2],false);
-            App::currentWorld->dynamicsContainer->setNewtonIntParams(cmd.intVectorParams[3],false);
-            App::currentWorld->dynamicsContainer->setNewtonFloatParams(cmd.floatVectorParams[3],false);
+            App::currentWorld->dynamicsContainer->setBulletIntParams(cmd.intVectorParams[0]);
+            App::currentWorld->dynamicsContainer->setBulletFloatParams(cmd.floatVectorParams[0]);
+            App::currentWorld->dynamicsContainer->setOdeIntParams(cmd.intVectorParams[1]);
+            App::currentWorld->dynamicsContainer->setOdeFloatParams(cmd.floatVectorParams[1]);
+            App::currentWorld->dynamicsContainer->setVortexIntParams(cmd.intVectorParams[2]);
+            App::currentWorld->dynamicsContainer->setVortexFloatParams(cmd.floatVectorParams[2]);
+            App::currentWorld->dynamicsContainer->setNewtonIntParams(cmd.intVectorParams[3]);
+            App::currentWorld->dynamicsContainer->setNewtonFloatParams(cmd.floatVectorParams[3]);
         }
 
         if (cmd.cmdId==TOGGLE_EXPLICITHANDLING_PROXSENSORGUITRIGGEREDCMD)
@@ -3404,6 +3407,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CEngineProperties prop;
             prop.editObjectProperties(cmd.intParams[0]);
+        }
+        if (cmd.cmdId==SET_ENGINEPARAMS_DYNAMICSGUITRIGGEREDCMD)
+        {
+            CEngineProperties prop;
+            prop.editObjectProperties(-1);
         }
         if (cmd.cmdId==DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD)
         {
