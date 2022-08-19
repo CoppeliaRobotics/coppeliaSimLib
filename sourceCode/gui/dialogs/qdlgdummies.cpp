@@ -81,16 +81,17 @@ void CQDlgDummies::refresh()
 
         if (it->getLinkedDummyHandle()!=-1)
         {
-            ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_DYNAMICS_LOOP_CLOSURE,QVariant(sim_dummy_linktype_dynamics_loop_closure));
+            ui->qqLinkTypeCombo->addItem("Dynamics, overlap constraint",QVariant(sim_dummylink_dynloopclosure));
+            ui->qqLinkTypeCombo->addItem("Dynamics, tendon constraint",QVariant(sim_dummylink_dyntendon));
             // Following for backward compatibility:
             if ( (it->getLinkType()==sim_dummy_linktype_ik_tip_target)||App::userSettings->showOldDlgs )
-                ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_IK_TIP_TARGET,QVariant(sim_dummy_linktype_ik_tip_target));
+                ui->qqLinkTypeCombo->addItem("IK, tip-target (deprecated)",QVariant(sim_dummy_linktype_ik_tip_target));
             if (it->getLinkType()==sim_dummy_linktype_gcs_loop_closure)
-                ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_GCS_LOOP_CLOSURE,QVariant(sim_dummy_linktype_gcs_loop_closure));
+                ui->qqLinkTypeCombo->addItem("GCS, overlap constraint (deprecated)",QVariant(sim_dummy_linktype_gcs_loop_closure));
             if (it->getLinkType()==sim_dummy_linktype_gcs_tip)
-                ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_GCS_TIP,QVariant(sim_dummy_linktype_gcs_tip));
+                ui->qqLinkTypeCombo->addItem("GCS, tip (deprecated)",QVariant(sim_dummy_linktype_gcs_tip));
             if (it->getLinkType()==sim_dummy_linktype_gcs_target)
-                ui->qqLinkTypeCombo->addItem(IDS_DUMMY_LINK_TYPE_GCS_TARGET,QVariant(sim_dummy_linktype_gcs_target));
+                ui->qqLinkTypeCombo->addItem("GCS, target (deprecated)",QVariant(sim_dummy_linktype_gcs_target));
 
             // Here we select the appropriate item:
             for (int i=0;i<ui->qqLinkTypeCombo->count();i++)

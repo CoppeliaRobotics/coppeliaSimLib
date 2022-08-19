@@ -18,7 +18,7 @@ CDummy::CDummy()
     _assignedToParentPath=false;
     _assignedToParentPathOrientation=false;
     _linkedDummyHandle=-1;
-    _linkType=sim_dummy_linktype_dynamics_loop_closure;
+    _linkType=sim_dummylink_dynloopclosure;
 
     _visibilityLayer=DUMMY_LAYER;
     _objectAlias=IDSOGL_DUMMY;
@@ -359,7 +359,7 @@ void CDummy::serialize(CSer& ar)
             if (before2009_12_16)
             {
                 if (_linkedDummyHandle==-1)
-                    _linkType=sim_dummy_linktype_dynamics_loop_closure;
+                    _linkType=sim_dummylink_dynloopclosure;
             }
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
@@ -393,8 +393,8 @@ void CDummy::serialize(CSer& ar)
                 ar.xmlAddNode_string("linkedDummyAlias",str.c_str());
             }
 
-            ar.xmlAddNode_comment(" 'linkType' tag: can be 'dynamics_loopClosure'' ",exhaustiveXml);
-            ar.xmlAddNode_enum("linkType",_linkType,sim_dummy_linktype_dynamics_loop_closure,"dynamics_loopClosure",sim_dummy_linktype_dynamics_force_constraint,"dynamics_forceConstraint",sim_dummy_linktype_ik_tip_target,"ik_tipTarget");
+            ar.xmlAddNode_comment(" 'linkType' tag: can be 'dynamics_loopClosure' or 'dynamics_tendon'",exhaustiveXml);
+            ar.xmlAddNode_enum("linkType",_linkType,sim_dummylink_dynloopclosure,"dynamics_loopClosure",sim_dummy_linktype_dynamics_force_constraint,"dynamics_forceConstraint",sim_dummy_linktype_ik_tip_target,"ik_tipTarget",sim_dummylink_dyntendon,"dynamics_tendon");
 
             if (exhaustiveXml)
             {
@@ -431,7 +431,7 @@ void CDummy::serialize(CSer& ar)
                 ar.xmlGetNode_string("linkedDummyAlias",_linkedDummyLoadAlias,exhaustiveXml);
                 ar.xmlGetNode_string("linkedDummy",_linkedDummyLoadName_old,exhaustiveXml);
             }
-            ar.xmlGetNode_enum("linkType",_linkType,exhaustiveXml,"dynamics_loopClosure",sim_dummy_linktype_dynamics_loop_closure,"dynamics_forceConstraint",sim_dummy_linktype_dynamics_force_constraint,"ik_tipTarget",sim_dummy_linktype_ik_tip_target);
+            ar.xmlGetNode_enum("linkType",_linkType,exhaustiveXml,"dynamics_loopClosure",sim_dummylink_dynloopclosure,"dynamics_forceConstraint",sim_dummy_linktype_dynamics_force_constraint,"ik_tipTarget",sim_dummy_linktype_ik_tip_target,"dynamics_tendon",sim_dummylink_dyntendon);
 
             if (exhaustiveXml&&ar.xmlPushChildNode("switches"))
             {
@@ -516,7 +516,7 @@ void CDummy::setLinkedDummyHandle(int handle,bool check)
                     newLinkedDummy->setLinkType(sim_dummy_linktype_gcs_target,false);
                 if (_linkType==sim_dummy_linktype_gcs_target)
                     newLinkedDummy->setLinkType(sim_dummy_linktype_gcs_tip,false);
-                if ( (_linkType==sim_dummy_linktype_ik_tip_target)||(_linkType==sim_dummy_linktype_gcs_loop_closure)||(_linkType==sim_dummy_linktype_dynamics_loop_closure)||(_linkType==sim_dummy_linktype_dynamics_force_constraint) )
+                if ( (_linkType==sim_dummy_linktype_ik_tip_target)||(_linkType==sim_dummy_linktype_gcs_loop_closure)||(_linkType==sim_dummylink_dynloopclosure)||(_linkType==sim_dummylink_dyntendon)||(_linkType==sim_dummy_linktype_dynamics_force_constraint) )
                     newLinkedDummy->setLinkType(_linkType,false);
             }
             else
@@ -551,7 +551,7 @@ bool CDummy::setLinkType(int lt,bool check)
                 it->setLinkType(sim_dummy_linktype_gcs_target,false);
             if (lt==sim_dummy_linktype_gcs_target)
                 it->setLinkType(sim_dummy_linktype_gcs_tip,false);
-            if ( (lt==sim_dummy_linktype_ik_tip_target)||(lt==sim_dummy_linktype_gcs_loop_closure)||(lt==sim_dummy_linktype_dynamics_loop_closure)||(lt==sim_dummy_linktype_dynamics_force_constraint) )
+            if ( (lt==sim_dummy_linktype_ik_tip_target)||(lt==sim_dummy_linktype_gcs_loop_closure)||(lt==sim_dummylink_dynloopclosure)||(lt==sim_dummylink_dyntendon)||(lt==sim_dummy_linktype_dynamics_force_constraint) )
                 it->setLinkType(lt,false);
         }
         App::setRefreshHierarchyViewFlag();

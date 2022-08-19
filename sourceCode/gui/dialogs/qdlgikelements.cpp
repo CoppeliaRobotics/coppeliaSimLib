@@ -211,11 +211,11 @@ void CQDlgIkElements::refresh()
         {
             CDummy* target=App::currentWorld->sceneObjects->getDummyFromHandle(tip->getLinkedDummyHandle());
             if (target==nullptr)
-                ui->qqTargetString->setText(IDS_WARNING_TIP_DUMMY_NOT_LINKED);
+                ui->qqTargetString->setText("tip dummy is not linked!");
             else
             {
                 if (tip->getLinkType()!=sim_dummy_linktype_ik_tip_target)
-                    ui->qqTargetString->setText(IDS_WARNING_WRONG_DUMMY_LINK_TYPE);
+                    ui->qqTargetString->setText("wrong dummy link type!");
                 else
                     ui->qqTargetString->setText(target->getObjectAlias_printPath().c_str());
             }

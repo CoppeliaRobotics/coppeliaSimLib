@@ -1705,7 +1705,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 CDummy* it2=App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[1]);
                 if (it2!=nullptr)
+                {
+                    bool n=(it->getLinkedDummyHandle()==-1);
                     it->setLinkedDummyHandle(it2->getObjectHandle(),true);
+                    if (n)
+                        it->setLinkType(sim_dummylink_dynloopclosure,true);
+                }
                 else
                     it->setLinkedDummyHandle(-1,true);
             }

@@ -1651,7 +1651,7 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
                                 glLineWidth(3.0);
                                 glDisable(GL_LINE_STIPPLE);
                             }
-                            if ( (positions[7*i+6]==sim_dummy_linktype_dynamics_loop_closure)||(positions[7*i+6]==sim_dummy_linktype_dynamics_force_constraint) )
+                            if ( (positions[7*i+6]==sim_dummylink_dynloopclosure)||(positions[7*i+6]==sim_dummy_linktype_dynamics_force_constraint)||(positions[7*i+6]==sim_dummylink_dyntendon) )
                                 ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorBlue);
                             if ( (positions[7*i+6]==sim_dummy_linktype_gcs_loop_closure)||(positions[7*i+6]==sim_dummy_linktype_gcs_tip)||(positions[7*i+6]==sim_dummy_linktype_gcs_target) )
                                 ogl::setMaterialColor(sim_colorcomponent_emission,0.0f,0.6f,0.0f);

@@ -61,6 +61,9 @@ void CDynamicsContainer::simulationAboutToStart()
     // Keep following (important that it is initialized BEFORE simHandleDynamics is called!!)
     if (getDynamicsEnabled())
         addWorldIfNotThere();
+
+    if (!_engineSettingsAreDefault)
+        App::logMsg(sim_verbosity_scriptwarnings,"Detected non-default dynamics settings.");
 }
 
 void CDynamicsContainer::simulationEnded()

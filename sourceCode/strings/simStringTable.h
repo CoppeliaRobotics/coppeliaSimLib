@@ -945,14 +945,6 @@
 #define IDSN_SURE_TO_REMOVE_CUSTOMIZATION_SCRIPT_WARNING "The operation you are about to perform will remove the customization script. Are you sure you want to proceed?"
 #define IDSN_CUSTOM_CONTACT_IS_SLOW_AND_NOT_RECOMENDED_WARNING "Performing custom collision/contact response handling is not recomended for compatibility reasons (e.g. models created by others will perform differently in this scene). Remember also that this mechanism will slow down the simulation."
 
-#define IDS_DUMMY_LINK_TYPE_DYNAMICS_LOOP_CLOSURE "Dynamics, overlap constraint"
-#define IDS_DUMMY_LINK_TYPE_GCS_LOOP_CLOSURE "GCS, overlap constraint (deprecated)"
-#define IDS_DUMMY_LINK_TYPE_GCS_TIP "GCS, tip (deprecated)"
-#define IDS_DUMMY_LINK_TYPE_GCS_TARGET "GCS, target (deprecated)"
-#define IDS_DUMMY_LINK_TYPE_IK_TIP_TARGET "IK, tip-target (deprecated)"
-#define IDS_WARNING_TIP_DUMMY_NOT_LINKED "tip dummy is not linked!"
-#define IDS_WARNING_WRONG_DUMMY_LINK_TYPE "wrong dummy link type!"
-
 #define IDSN_EXPORT_DYNAMIC_CONTENT "Dynamic content..."
 #define IDS_SCENE_IS_LOCKED_WARNING_NO_SCRIPT_VIEWING "Script viewing/edition unavailable (scene is locked)"
 

@@ -64,7 +64,7 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ogl::colorGreen);
             if (_linkType==sim_dummy_linktype_ik_tip_target)
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ogl::colorRed);
-            if ((_linkType==sim_dummy_linktype_dynamics_loop_closure)||(_linkType==sim_dummy_linktype_dynamics_force_constraint))
+            if ((_linkType==sim_dummylink_dynloopclosure)||(_linkType==sim_dummy_linktype_dynamics_force_constraint)||(_linkType==sim_dummylink_dyntendon))
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ogl::colorBlue);
             ogl::buffer.clear();
             ogl::addBuffer3DPoints(0.0f,0.0f,0.0f);

@@ -1055,7 +1055,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.primitiveshape_heightfield",sim_primitiveshape_heightfield,true},
     {"sim.primitiveshape_capsule",sim_primitiveshape_capsule,true},
     // dummy-dummy link types
-    {"sim.dummy_linktype_dynamics_loop_closure",sim_dummy_linktype_dynamics_loop_closure,true},
+    {"sim.dummylink_dynloopclosure",sim_dummylink_dynloopclosure,true},
+    {"sim.dummylink_dyntendon",sim_dummylink_dyntendon,true},
     // color components
     {"sim.colorcomponent_ambient",sim_colorcomponent_ambient,true},
     {"sim.colorcomponent_ambient_diffuse",sim_colorcomponent_ambient_diffuse,true},
@@ -1717,6 +1718,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.pure_primitive_heightfield",sim_primitiveshape_heightfield,false},
     {"sim.jointmode_passive",sim_jointmode_kinematic,false},
     {"sim.jointmode_force",sim_jointmode_dynamic,false},
+    {"sim.dummy_linktype_dynamics_loop_closure",sim_dummylink_dynloopclosure,false},
 
     {"",-1}
 };
@@ -14459,7 +14461,7 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_pure_primitive_cylinder",sim_primitiveshape_cylinder,false},
     {"sim_pure_primitive_cone",sim_primitiveshape_cone,false},
     {"sim_pure_primitive_heightfield",sim_primitiveshape_heightfield,false},
-    {"sim_dummy_linktype_dynamics_loop_closure",sim_dummy_linktype_dynamics_loop_closure,false},
+    {"sim_dummy_linktype_dynamics_loop_closure",sim_dummylink_dynloopclosure,false},
     {"sim_dummy_linktype_dynamics_force_constraint",sim_dummy_linktype_dynamics_force_constraint,false},
     {"sim_dummy_linktype_gcs_loop_closure",sim_dummy_linktype_gcs_loop_closure,false},
     {"sim_dummy_linktype_gcs_tip",sim_dummy_linktype_gcs_tip,false},

@@ -230,9 +230,9 @@ void CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfte
 
 void CSceneObjectContainer::eraseObjects(const std::vector<int>& objectHandles,bool generateBeforeAfterDeleteCallback)
 {
-    deselectObjects();
     if (objectHandles.size()>0)
     {
+        deselectObjects();
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         if (generateBeforeAfterDeleteCallback)
         {

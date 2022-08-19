@@ -1676,10 +1676,10 @@ void CMainWindow::_actualizetoolbarButtonState()
             _engineSelectCombo->setCurrentIndex(4);
         if (eng==sim_physics_mujoco)
             _engineSelectCombo->setCurrentIndex(5);
-        if (App::currentWorld->dynamicsContainer->getSettingsAreDefault())
-            _engineSelectCombo->setStyleSheet("QComboBox {}");
-        else
-            _engineSelectCombo->setStyleSheet("QComboBox { color : red; }");
+        //if (App::currentWorld->dynamicsContainer->getSettingsAreDefault())
+        //    _engineSelectCombo->setStyleSheet("QComboBox {}");
+        //else
+        //    _engineSelectCombo->setStyleSheet("QComboBox { color : red; }");
 
 
         if (App::currentWorld->simulation->isSimulationStopped())

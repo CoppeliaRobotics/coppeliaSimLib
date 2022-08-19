@@ -576,51 +576,6 @@ bool CSceneObjectOperations::processCommand(int commandID)
         return(true);
     }
 
-    if ((commandID==SCENE_OBJECT_OPERATION_UNLINK_DUMMIES_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_IK_TIP_TARGET_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_GCS_LOOP_CLOSURE_SOOCMD)||
-        (commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_GCS_TIP_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_GCS_TARGET_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_DYNAMICS_LOOP_CLOSURE_SOOCMD))
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            if (sel.size()==2)
-            {
-                CDummy* a=App::currentWorld->sceneObjects->getDummyFromHandle(sel[0]);
-                CDummy* b=App::currentWorld->sceneObjects->getDummyFromHandle(sel[1]);
-                if ((a!=nullptr)&&(b!=nullptr))
-                {
-                    if (commandID==SCENE_OBJECT_OPERATION_UNLINK_DUMMIES_SOOCMD)
-                    {
-                        a->setLinkedDummyHandle(-1,true);
-                        App::logMsg(sim_verbosity_msgs,"Unlinking selected dummies... Done.");
-                    }
-                    else
-                    {
-                        a->setLinkedDummyHandle(b->getObjectHandle(),true);
-                        if (commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_IK_TIP_TARGET_SOOCMD)
-                            b->setLinkType(sim_dummy_linktype_ik_tip_target,true);
-                        if (commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_GCS_LOOP_CLOSURE_SOOCMD)
-                            b->setLinkType(sim_dummy_linktype_gcs_loop_closure,true);
-                        if (commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_GCS_TIP_SOOCMD)
-                            b->setLinkType(sim_dummy_linktype_gcs_tip,true);
-                        if (commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_GCS_TARGET_SOOCMD)
-                            b->setLinkType(sim_dummy_linktype_gcs_target,true);
-                        if (commandID==SCENE_OBJECT_OPERATION_LINK_DUMMIES_DYNAMICS_LOOP_CLOSURE_SOOCMD)
-                            b->setLinkType(sim_dummy_linktype_dynamics_loop_closure,true);
-                        App::logMsg(sim_verbosity_msgs,"Linking selected dummies... Done.");
-                    }
-                }
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
     if (commandID==SCENE_OBJECT_OPERATION_SELECT_ALL_OBJECTS_SOOCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
@@ -2290,28 +2245,6 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
             menu->appendMenuItem((shapesInRootSel>0)&&noSim,false,SCENE_OBJECT_OPERATION_MORPH_INTO_CONVEX_SHAPES_SOOCMD,IDS_CONVEX_MORPH_MENU_ITEM);
             menu->appendMenuItem((shapesInRootSel>0)&&noSim,false,SCENE_OBJECT_OPERATION_MORPH_INTO_CONVEX_DECOMPOSITION_SOOCMD,IDS_CONVEX_DECOMPOSITION_MORPH_MENU_ITEM);
             menu->appendMenuItem(lastSelIsShape&&(selItems==1)&&noSim&&lastSelIsNonPureShape,false,SCENE_OBJECT_OPERATION_DECIMATE_SHAPE_SOOCMD,IDS_MESH_DECIMATION_MENU_ITEM);
-//            menu->appendMenuItem(lastSelIsShape&&(selItems==1)&&noSim&&lastSelIsNonPureShape&&lastSelIsNonGrouping,false,SCENE_OBJECT_OPERATION_EXTRACT_SHAPE_INSIDE_SOOCMD,IDS_REMOVE_SHAPE_INSIDE_MENU_ITEM);
-
-            if ((selItems==2)&&(selDummies==2))
-            { // we have 2 selected dummies we might want to link/unlink:
-                CDummy* dumA=App::currentWorld->sceneObjects->getDummyFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
-                CDummy* dumB=App::currentWorld->sceneObjects->getDummyFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(1));
-                if ((dumA!=nullptr)&&(dumB!=nullptr))
-                {
-                    if (dumA->getLinkedDummyHandle()==dumB->getObjectHandle())
-                        menu->appendMenuItem(true,false,SCENE_OBJECT_OPERATION_UNLINK_DUMMIES_SOOCMD,IDS_UNLINK_SELECTED_DUMMIES_MENU_ITEM);
-                    else
-                    {
-                        VMenu* dummyLinking=new VMenu();
-                        dummyLinking->appendMenuItem(true,false,SCENE_OBJECT_OPERATION_LINK_DUMMIES_IK_TIP_TARGET_SOOCMD,IDS_DUMMY_LINK_TYPE_IK_TIP_TARGET);
-                        dummyLinking->appendMenuItem(true,false,SCENE_OBJECT_OPERATION_LINK_DUMMIES_GCS_LOOP_CLOSURE_SOOCMD,IDS_DUMMY_LINK_TYPE_GCS_LOOP_CLOSURE);
-                        dummyLinking->appendMenuItem(true,false,SCENE_OBJECT_OPERATION_LINK_DUMMIES_GCS_TIP_SOOCMD,IDS_DUMMY_LINK_TYPE_GCS_TIP);
-                        dummyLinking->appendMenuItem(true,false,SCENE_OBJECT_OPERATION_LINK_DUMMIES_GCS_TARGET_SOOCMD,IDS_DUMMY_LINK_TYPE_GCS_TARGET);
-                        dummyLinking->appendMenuItem(true,false,SCENE_OBJECT_OPERATION_LINK_DUMMIES_DYNAMICS_LOOP_CLOSURE_SOOCMD,IDS_DUMMY_LINK_TYPE_DYNAMICS_LOOP_CLOSURE);
-                        menu->appendMenuAndDetach(dummyLinking,true,IDS_LINK_SELECTED_DUMMIES_LINK_TYPE_MENU_ITEM);
-                    }
-                }
-            }
         }
         menu->appendMenuSeparator();
         menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_OBJECT_FULL_COPY_SOOCMD,IDS_COPY_SELECTED_OBJECTS_MENU_ITEM);

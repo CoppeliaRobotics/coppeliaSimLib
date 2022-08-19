@@ -4366,7 +4366,7 @@ const SNewApiMapping _simApiMapping[]=
     "sim_pure_primitive_cylinder","sim.primitiveshape_cylinder",
     "sim_pure_primitive_cone","sim.primitiveshape_cone",
     "sim_pure_primitive_heightfield","sim.primitiveshape_heightfield",
-    "sim_dummy_linktype_dynamics_loop_closure","sim.dummy_linktype_dynamics_loop_closure",
+    "sim_dummy_linktype_dynamics_loop_closure","sim_dummylink_dynloopclosure",
     "sim_dummy_linktype_dynamics_force_constraint","sim.dummy_linktype_dynamics_force_constraint",
     "sim_dummy_linktype_gcs_loop_closure","sim.dummy_linktype_gcs_loop_closure",
     "sim_dummy_linktype_gcs_tip","sim.dummy_linktype_gcs_tip",
@@ -6892,6 +6892,10 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+
+    if (_containsScriptText_old(scriptObject,"sim.dummy_linktype"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.dummy_linktype...");
+
 
     if (_containsScriptText_old(scriptObject,"sim.jointmode_passive"))
         App::logMsg(sim_verbosity_errors,"Contains sim.jointmode_passive...");
