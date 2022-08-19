@@ -394,15 +394,15 @@ float CDynamicsContainer::getCurrentDynamicStepSize() const
 bool CDynamicsContainer::getComputeInertias() const
 {
     if (_dynamicEngineToUse==sim_physics_bullet)
-        return(getEngineFloatParam(sim_bullet_global_computeinertias,nullptr));
+        return(getEngineBoolParam(sim_bullet_global_computeinertias,nullptr));
     if (_dynamicEngineToUse==sim_physics_ode)
-        return(getEngineFloatParam(sim_ode_global_computeinertias,nullptr));
+        return(getEngineBoolParam(sim_ode_global_computeinertias,nullptr));
     if (_dynamicEngineToUse==sim_physics_vortex)
-        return(getEngineFloatParam(sim_vortex_global_computeinertias,nullptr));
+        return(getEngineBoolParam(sim_vortex_global_computeinertias,nullptr));
     if (_dynamicEngineToUse==sim_physics_newton)
-        return(getEngineFloatParam(sim_newton_global_computeinertias,nullptr));
+        return(getEngineBoolParam(sim_newton_global_computeinertias,nullptr));
     if (_dynamicEngineToUse==sim_physics_mujoco)
-        return(getEngineFloatParam(sim_mujoco_global_computeinertias,nullptr));
+        return(getEngineBoolParam(sim_mujoco_global_computeinertias,nullptr));
     return(false);
 }
 

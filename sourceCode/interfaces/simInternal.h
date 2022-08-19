@@ -411,8 +411,6 @@ simVoid _simAddForceSensorCumulativeForcesAndTorques_internal(simVoid* forceSens
 simVoid _simAddJointCumulativeForcesOrTorques_internal(simVoid* joint,simFloat forceOrTorque,int totalPassesCount,simFloat simTime);
 const simVoid* _simGetGeomWrapFromGeomProxy_internal(const simVoid* geomData);
 simFloat _simGetMass_internal(const simVoid* geomInfo);
-simVoid _simGetPrincipalMomentOfInertia_internal(const simVoid* geomInfo,simFloat* inertia);
-simVoid _simGetLocalInertiaFrame_internal(const simVoid* geomInfo,simFloat* pos,simFloat* quat);
 simFloat _simGetLocalInertiaInfo_internal(const simVoid* object,simFloat* pos,simFloat* quat,simFloat* diagI);
 simInt _simGetPurePrimitiveType_internal(const simVoid* geomInfo);
 simBool _simIsGeomWrapGeometric_internal(const simVoid* geomInfo);
@@ -673,4 +671,6 @@ simVoid* simBroadcastMessage_internal(simInt* auxiliaryData,simVoid* customData,
 simVoid* simSendModuleMessage_internal(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData);
 simInt simBuildMatrixQ_internal(const simFloat* position,const simFloat* quaternion,simFloat* matrix);
 simInt simGetQuaternionFromMatrix_internal(const simFloat* matrix,simFloat* quaternion);
+simVoid _simGetPrincipalMomentOfInertia_internal(const simVoid* geomInfo,simFloat* inertia);
+simVoid _simGetLocalInertiaFrame_internal(const simVoid* geomInfo,simFloat* pos,simFloat* quat);
 #endif // !defined(simInternal_INCLUDED_)

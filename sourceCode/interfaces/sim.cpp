@@ -1591,10 +1591,6 @@ SIM_DLLEXPORT const simVoid* _simGetGeomWrapFromGeomProxy(const simVoid* geomDat
 {
     return(_simGetGeomWrapFromGeomProxy_internal(geomData));
 }
-SIM_DLLEXPORT simVoid _simGetLocalInertiaFrame(const simVoid* geomInfo,simFloat* pos,simFloat* quat)
-{
-    return(_simGetLocalInertiaFrame_internal(geomInfo,pos,quat));
-}
 SIM_DLLEXPORT simFloat _simGetLocalInertiaInfo(const simVoid* object,simFloat* pos,simFloat* quat,simFloat* diagI)
 {
     return(_simGetLocalInertiaInfo_internal(object,pos,quat,diagI));
@@ -1602,10 +1598,6 @@ SIM_DLLEXPORT simFloat _simGetLocalInertiaInfo(const simVoid* object,simFloat* p
 SIM_DLLEXPORT simFloat _simGetMass(const simVoid* geomInfo)
 {
     return(_simGetMass_internal(geomInfo));
-}
-SIM_DLLEXPORT simVoid _simGetPrincipalMomentOfInertia(const simVoid* geomInfo,simFloat* inertia)
-{
-    return(_simGetPrincipalMomentOfInertia_internal(geomInfo,inertia));
 }
 SIM_DLLEXPORT simInt _simGetPurePrimitiveType(const simVoid* geomInfo)
 {
@@ -2829,6 +2821,14 @@ SIM_DLLEXPORT simInt simBuildMatrixQ(const simFloat* position,const simFloat* qu
 SIM_DLLEXPORT simInt simGetQuaternionFromMatrix(const simFloat* matrix,simFloat* quaternion)
 {
     return(simGetQuaternionFromMatrix_internal(matrix,quaternion));
+}
+SIM_DLLEXPORT simVoid _simGetLocalInertiaFrame(const simVoid* geomInfo,simFloat* pos,simFloat* quat)
+{
+    return(_simGetLocalInertiaFrame_internal(geomInfo,pos,quat));
+}
+SIM_DLLEXPORT simVoid _simGetPrincipalMomentOfInertia(const simVoid* geomInfo,simFloat* inertia)
+{
+    return(_simGetPrincipalMomentOfInertia_internal(geomInfo,inertia));
 }
 // Deprecated end
 

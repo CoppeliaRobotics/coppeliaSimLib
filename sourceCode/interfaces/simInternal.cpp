@@ -16301,20 +16301,6 @@ simFloat _simGetMass_internal(const simVoid* geomInfo)
     return(((CMeshWrapper*)geomInfo)->getMass());
 }
 
-simVoid _simGetLocalInertiaFrame_internal(const simVoid* geomInfo,simFloat* pos,simFloat* quat)
-{
-    TRACE_C_API;
-    C7Vector tr(((CMeshWrapper*)geomInfo)->getLocalInertiaFrame());
-    tr.Q.getInternalData(quat);
-    tr.X.getInternalData(pos);
-}
-
-simVoid _simGetPrincipalMomentOfInertia_internal(const simVoid* geomInfo,simFloat* inertia)
-{
-    TRACE_C_API;
-    ((CMeshWrapper*)geomInfo)->getPrincipalMomentsOfInertia().getInternalData(inertia);
-}
-
 simFloat _simGetLocalInertiaInfo_internal(const simVoid* object,simFloat* pos,simFloat* quat,simFloat* diagI)
 { // returns the diag inertia (with mass!)
     CShape* shape=(CShape*)object;
@@ -23501,5 +23487,19 @@ simInt simGetQuaternionFromMatrix_internal(const simFloat* matrix,simFloat* quat
     quaternion[2]=q(3);
     quaternion[3]=q(0);
     return(1);
+}
+
+simVoid _simGetLocalInertiaFrame_internal(const simVoid* geomInfo,simFloat* pos,simFloat* quat)
+{ // deprecated on 19.08.2022
+    TRACE_C_API;
+    C7Vector tr(((CMeshWrapper*)geomInfo)->getLocalInertiaFrame());
+    tr.Q.getInternalData(quat);
+    tr.X.getInternalData(pos);
+}
+
+simVoid _simGetPrincipalMomentOfInertia_internal(const simVoid* geomInfo,simFloat* inertia)
+{ // deprecated on 19.08.2022
+    TRACE_C_API;
+    ((CMeshWrapper*)geomInfo)->getPrincipalMomentsOfInertia().getInternalData(inertia);
 }
 
