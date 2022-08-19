@@ -45,6 +45,8 @@ private slots:
 
     void on_qqIncrement_editingFinished();
 
+    void on_qqEditEngine_clicked();
+
 private:
     Ui::CQDlgDummies *ui;
 };

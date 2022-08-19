@@ -5,6 +5,31 @@
 #include "7Vector.h"
 #include "sceneObject.h"
 
+enum { /* Mujoco dummy float params */
+    simi_mujoco_dummy_range1=0,
+    simi_mujoco_dummy_range2,
+    simi_mujoco_dummy_solreflimit1,
+    simi_mujoco_dummy_solreflimit2,
+    simi_mujoco_dummy_solimplimit1,
+    simi_mujoco_dummy_solimplimit2,
+    simi_mujoco_dummy_solimplimit3,
+    simi_mujoco_dummy_solimplimit4,
+    simi_mujoco_dummy_solimplimit5,
+    simi_mujoco_dummy_margin,
+    simi_mujoco_dummy_springlength,
+    simi_mujoco_dummy_stiffness,
+    simi_mujoco_dummy_damping,
+};
+
+enum { /* Mujoco dummy int params */
+    simi_mujoco_dummy_bitcoded=0,
+};
+
+enum { /* Mujoco dummy bool params */
+    simi_mujoco_dummy_limited=1,
+};
+
+
 class CDummy : public CSceneObject
 {
 public:
@@ -70,7 +95,22 @@ public:
     void setVirtualDistanceOffsetOnPath(float off);
     void setVirtualDistanceOffsetOnPath_variationWhenCopy(float off);
 
+    float getEngineFloatParam(int what,bool* ok) const;
+    int getEngineIntParam(int what,bool* ok) const;
+    bool getEngineBoolParam(int what,bool* ok) const;
+    bool setEngineFloatParam(int what,float v);
+    bool setEngineIntParam(int what,int v);
+    bool setEngineBoolParam(int what,bool v);
+
+    void copyEnginePropertiesTo(CDummy* target);
+
 protected:
+    void getMujocoFloatParams(std::vector<float>& p) const;
+    void getMujocoIntParams(std::vector<int>& p) const;
+    void setMujocoFloatParams(const std::vector<float>& p);
+    void setMujocoIntParams(const std::vector<int>& p);
+
+    void _reflectPropToLinkedDummy() const;
     void _setLinkedDummyHandle_sendOldIk(int h) const;
     void _setLinkType_sendOldIk(int t) const;
 
@@ -86,4 +126,7 @@ protected:
     int _linkType;
     bool _assignedToParentPath;
     bool _assignedToParentPathOrientation;
+
+    std::vector<float> _mujocoFloatParams;
+    std::vector<int> _mujocoIntParams;
 };

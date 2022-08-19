@@ -44,6 +44,16 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
             }
             title="Dynamic engine properties for joint ";
         }
+        if (object->getObjectType()==sim_object_dummy_type)
+        {
+            _writeDummy(engine,objectHandle,annJson);
+            for (size_t i=sim_physics_bullet;i<=sim_physics_mujoco;i++)
+            {
+                if (i!=engine)
+                    _writeDummy(i,objectHandle,annJson);
+            }
+            title="Dynamic engine properties for dummy ";
+        }
         title+=object->getObjectAlias_printPath();
     }
     else
@@ -117,6 +127,11 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
         {
             for (size_t i=sim_physics_bullet;i<=sim_physics_mujoco;i++)
                 _readJoint(i,objectHandle,annJson,&allErrors);
+        }
+        if (object->getObjectType()==sim_object_dummy_type)
+        {
+            for (size_t i=sim_physics_bullet;i<=sim_physics_mujoco;i++)
+                _readDummy(i,objectHandle,annJson,&allErrors);
         }
     }
     else
@@ -1767,6 +1782,136 @@ void CEngineProperties::_getGlobalFloatParams(int item,double* w,size_t cnt,std:
     {
         if (additionalComment!=nullptr)
             comment=additionalComment;
+    }
+}
+
+void CEngineProperties::_writeDummy(int engine,int dummyHandle,CAnnJson& annJson) const
+{
+    CDummy* dummy=App::currentWorld->sceneObjects->getDummyFromHandle(dummyHandle);
+
+    if (engine==sim_physics_bullet)
+    {
+        QJsonObject jbullet;
+        annJson.addJson(annJson.getMainObject()[0],"bullet",jbullet);
+    }
+
+    if (engine==sim_physics_ode)
+    {
+        QJsonObject jode;
+        annJson.addJson(annJson.getMainObject()[0],"ode",jode);
+    }
+
+    if (engine==sim_physics_newton)
+    {
+        QJsonObject jnewton;
+        annJson.addJson(annJson.getMainObject()[0],"newton",jnewton);
+    }
+
+    if (engine==sim_physics_mujoco)
+    {
+        QJsonObject jmujoco;
+        QJsonObject jmujocoLimits;
+        annJson.addJson(jmujocoLimits,"limited",dummy->getEngineBoolParam(sim_mujoco_dummy_limited,nullptr));
+        double v[5];
+        v[0]=dummy->getEngineFloatParam(sim_mujoco_dummy_range1,nullptr);
+        v[1]=dummy->getEngineFloatParam(sim_mujoco_dummy_range2,nullptr);
+        annJson.addJson(jmujocoLimits,"range",v,2);
+        v[0]=dummy->getEngineFloatParam(sim_mujoco_dummy_solreflimit1,nullptr);
+        v[1]=dummy->getEngineFloatParam(sim_mujoco_dummy_solreflimit2,nullptr);
+        annJson.addJson(jmujocoLimits,"solref",v,2);
+        for (size_t j=0;j<5;j++)
+            v[j]=dummy->getEngineFloatParam(sim_mujoco_dummy_solimplimit1+j,nullptr);
+        annJson.addJson(jmujocoLimits,"solimp",v,5);
+        annJson.addJson(jmujoco,"limits",jmujocoLimits);
+        QJsonObject jmujocoSpring;
+        annJson.addJson(jmujocoSpring,"stiffness",dummy->getEngineFloatParam(sim_mujoco_dummy_stiffness,nullptr));
+        annJson.addJson(jmujocoSpring,"damping",dummy->getEngineFloatParam(sim_mujoco_dummy_damping,nullptr));
+        annJson.addJson(jmujocoSpring,"springLength",dummy->getEngineFloatParam(sim_mujoco_dummy_springlength,nullptr));
+        annJson.addJson(jmujoco,"spring",jmujocoSpring);
+        annJson.addJson(jmujoco,"margin",dummy->getEngineFloatParam(sim_mujoco_dummy_margin,nullptr));
+        annJson.addJson(annJson.getMainObject()[0],"mujoco",jmujoco);
+    }
+
+    if (engine==sim_physics_vortex)
+    {
+        QJsonObject jvortex;
+        annJson.addJson(annJson.getMainObject()[0],"vortex",jvortex);
+    }
+}
+
+void CEngineProperties::_readDummy(int engine,int dummyHandle,CAnnJson& annJson,std::string* allErrors) const
+{
+    CDummy* dummy=App::currentWorld->sceneObjects->getDummyFromHandle(dummyHandle);
+    QJsonValue val;
+
+    if (engine==sim_physics_bullet)
+    {
+        if (annJson.getValue(annJson.getMainObject()[0],"bullet",QJsonValue::Object,val,allErrors))
+        {
+        }
+    }
+
+    if (engine==sim_physics_ode)
+    {
+        if (annJson.getValue(annJson.getMainObject()[0],"ode",QJsonValue::Object,val,allErrors))
+        {
+        }
+    }
+
+    if (engine==sim_physics_newton)
+    {
+        if (annJson.getValue(annJson.getMainObject()[0],"newton",QJsonValue::Object,val,allErrors))
+        {
+        }
+    }
+
+    if (engine==sim_physics_mujoco)
+    {
+        if (annJson.getValue(annJson.getMainObject()[0],"mujoco",QJsonValue::Object,val,allErrors))
+        {
+            QJsonObject mujoco(val.toObject());
+            double w[5];
+            if (annJson.getValue(mujoco,"limits",QJsonValue::Object,val,allErrors))
+            {
+                QJsonObject sub(val.toObject());
+                if (annJson.getValue(sub,"limited",QJsonValue::Bool,val,allErrors))
+                    dummy->setEngineBoolParam(sim_mujoco_dummy_limited,val.toBool());
+                if (annJson.getValue(sub,"range",w,2,allErrors))
+                {
+                    dummy->setEngineFloatParam(sim_mujoco_dummy_range1,w[0]);
+                    dummy->setEngineFloatParam(sim_mujoco_dummy_range2,w[1]);
+                }
+                if (annJson.getValue(sub,"solref",w,2,allErrors))
+                {
+                    dummy->setEngineFloatParam(sim_mujoco_dummy_solreflimit1,w[0]);
+                    dummy->setEngineFloatParam(sim_mujoco_dummy_solreflimit2,w[1]);
+                }
+                if (annJson.getValue(sub,"solimp",w,5,allErrors))
+                {
+                    for (size_t j=0;j<5;j++)
+                        dummy->setEngineFloatParam(sim_mujoco_dummy_solimplimit1+j,w[j]);
+                }
+            }
+            if (annJson.getValue(mujoco,"spring",QJsonValue::Object,val,allErrors))
+            {
+                QJsonObject sub(val.toObject());
+                if (annJson.getValue(sub,"stiffness",QJsonValue::Double,val,allErrors))
+                    dummy->setEngineFloatParam(sim_mujoco_dummy_stiffness,val.toDouble());
+                if (annJson.getValue(sub,"damping",QJsonValue::Double,val,allErrors))
+                    dummy->setEngineFloatParam(sim_mujoco_dummy_damping,val.toDouble());
+                if (annJson.getValue(sub,"springLength",QJsonValue::Double,val,allErrors))
+                    dummy->setEngineFloatParam(sim_mujoco_dummy_springlength,val.toDouble());
+            }
+            if (annJson.getValue(mujoco,"margin",QJsonValue::Double,val,allErrors))
+                dummy->setEngineFloatParam(sim_mujoco_dummy_margin,val.toDouble());
+        }
+    }
+
+    if (engine==sim_physics_vortex)
+    {
+        if (annJson.getValue(annJson.getMainObject()[0],"vortex",QJsonValue::Object,val,allErrors))
+        {
+        }
     }
 }
 

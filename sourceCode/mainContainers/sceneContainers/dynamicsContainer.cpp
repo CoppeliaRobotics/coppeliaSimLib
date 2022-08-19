@@ -1581,6 +1581,7 @@ void CDynamicsContainer::serialize(CSer& ar)
             ar.xmlAddNode_int("constraintsolvertype",getEngineIntParam(sim_bullet_global_constraintsolvertype,nullptr));
 
             ar.xmlAddNode_bool("fullinternalscaling",getEngineBoolParam(sim_bullet_global_fullinternalscaling,nullptr));
+            ar.xmlAddNode_bool("computeinertias",getEngineBoolParam(sim_bullet_global_computeinertias,nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("ode");
@@ -1595,6 +1596,7 @@ void CDynamicsContainer::serialize(CSer& ar)
 
             ar.xmlAddNode_bool("fullinternalscaling",getEngineBoolParam(sim_ode_global_fullinternalscaling,nullptr));
             ar.xmlAddNode_bool("quickstep",getEngineBoolParam(sim_ode_global_quickstep,nullptr));
+            ar.xmlAddNode_bool("computeinertias",getEngineBoolParam(sim_ode_global_computeinertias,nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("vortex");
@@ -1611,6 +1613,7 @@ void CDynamicsContainer::serialize(CSer& ar)
 
             ar.xmlAddNode_bool("autosleep",getEngineBoolParam(sim_vortex_global_autosleep,nullptr));
             ar.xmlAddNode_bool("multithreading",getEngineBoolParam(sim_vortex_global_multithreading,nullptr));
+            ar.xmlAddNode_bool("computeinertias",getEngineBoolParam(sim_vortex_global_computeinertias,nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("newton");
@@ -1621,6 +1624,7 @@ void CDynamicsContainer::serialize(CSer& ar)
             ar.xmlAddNode_bool("multithreading",getEngineBoolParam(sim_newton_global_multithreading,nullptr));
             ar.xmlAddNode_bool("exactsolver",getEngineBoolParam(sim_newton_global_exactsolver,nullptr));
             ar.xmlAddNode_bool("highjointaccuracy",getEngineBoolParam(sim_newton_global_highjointaccuracy,nullptr));
+            ar.xmlAddNode_bool("computeinertias",getEngineBoolParam(sim_newton_global_computeinertias,nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("mujoco");
@@ -1642,7 +1646,6 @@ void CDynamicsContainer::serialize(CSer& ar)
             ar.xmlAddNode_floats("overridesolimp",w,5);
             ar.xmlAddNode_float("kinmass",getEngineFloatParam(sim_mujoco_global_kinmass,nullptr));
             ar.xmlAddNode_float("kininertia",getEngineFloatParam(sim_mujoco_global_kininertia,nullptr));
-            ar.xmlAddNode_int("bitcoded",getEngineIntParam(sim_mujoco_global_bitcoded,nullptr));
             ar.xmlAddNode_int("iterations",getEngineIntParam(sim_mujoco_global_iterations,nullptr));
             ar.xmlAddNode_int("integrator",getEngineIntParam(sim_mujoco_global_integrator,nullptr));
             ar.xmlAddNode_int("solver",getEngineIntParam(sim_mujoco_global_solver,nullptr));
@@ -1650,6 +1653,11 @@ void CDynamicsContainer::serialize(CSer& ar)
             ar.xmlAddNode_int("nconmax",getEngineIntParam(sim_mujoco_global_nconmax,nullptr));
             ar.xmlAddNode_int("cone",getEngineIntParam(sim_mujoco_global_cone,nullptr));
             ar.xmlAddNode_int("overridekin",getEngineIntParam(sim_mujoco_global_overridekin,nullptr));
+            ar.xmlAddNode_bool("computeinertias",getEngineBoolParam(sim_mujoco_global_computeinertias,nullptr));
+            ar.xmlAddNode_bool("multithreaded",getEngineBoolParam(sim_mujoco_global_multithreaded,nullptr));
+            ar.xmlAddNode_bool("multiccd",getEngineBoolParam(sim_mujoco_global_multiccd,nullptr));
+            ar.xmlAddNode_bool("balanceinertias",getEngineBoolParam(sim_mujoco_global_balanceinertias,nullptr));
+            ar.xmlAddNode_bool("overridecontacts",getEngineBoolParam(sim_mujoco_global_overridecontacts,nullptr));
             ar.xmlPopNode();
 
             ar.xmlPopNode();
@@ -1703,6 +1711,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                     if (ar.xmlGetNode_int("constraintsolvertype",vi,exhaustiveXml)) setEngineIntParam(sim_bullet_global_constraintsolvertype,vi);
 
                     if (ar.xmlGetNode_bool("fullinternalscaling",vb,exhaustiveXml)) setEngineBoolParam(sim_bullet_global_fullinternalscaling,vb);
+                    if (ar.xmlGetNode_bool("computeinertias",vb,exhaustiveXml)) setEngineBoolParam(sim_bullet_global_computeinertias,vb);
                     ar.xmlPopNode();
                 }
 
@@ -1722,6 +1731,7 @@ void CDynamicsContainer::serialize(CSer& ar)
 
                     if (ar.xmlGetNode_bool("fullinternalscaling",vb,exhaustiveXml)) setEngineBoolParam(sim_ode_global_fullinternalscaling,vb);
                     if (ar.xmlGetNode_bool("quickstep",vb,exhaustiveXml)) setEngineBoolParam(sim_ode_global_quickstep,vb);
+                    if (ar.xmlGetNode_bool("computeinertias",vb,exhaustiveXml)) setEngineBoolParam(sim_ode_global_computeinertias,vb);
                     ar.xmlPopNode();
                 }
 
@@ -1743,6 +1753,7 @@ void CDynamicsContainer::serialize(CSer& ar)
 
                     if (ar.xmlGetNode_bool("autosleep",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_global_autosleep,vb);
                     if (ar.xmlGetNode_bool("multithreading",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_global_multithreading,vb);
+                    if (ar.xmlGetNode_bool("computeinertias",vb,exhaustiveXml)) setEngineBoolParam(sim_vortex_global_computeinertias,vb);
                     ar.xmlPopNode();
                 }
 
@@ -1758,6 +1769,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                     if (ar.xmlGetNode_bool("multithreading",vb,exhaustiveXml)) setEngineBoolParam(sim_newton_global_multithreading,vb);
                     if (ar.xmlGetNode_bool("exactsolver",vb,exhaustiveXml)) setEngineBoolParam(sim_newton_global_exactsolver,vb);
                     if (ar.xmlGetNode_bool("highjointaccuracy",vb,exhaustiveXml)) setEngineBoolParam(sim_newton_global_highjointaccuracy,vb);
+                    if (ar.xmlGetNode_bool("computeinertias",vb,exhaustiveXml)) setEngineBoolParam(sim_newton_global_computeinertias,vb);
                     ar.xmlPopNode();
                 }
 
@@ -1787,7 +1799,6 @@ void CDynamicsContainer::serialize(CSer& ar)
                     }
                     if (ar.xmlGetNode_float("kinmass",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_kinmass,v);
                     if (ar.xmlGetNode_float("kininertia",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_kininertia,v);
-                    if (ar.xmlGetNode_int("bitcoded",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_bitcoded,vi);
                     if (ar.xmlGetNode_int("iterations",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_iterations,vi);
                     if (ar.xmlGetNode_int("integrator",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_integrator,vi);
                     if (ar.xmlGetNode_int("solver",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_solver,vi);
@@ -1795,7 +1806,11 @@ void CDynamicsContainer::serialize(CSer& ar)
                     if (ar.xmlGetNode_int("nconmax",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_nconmax,vi);
                     if (ar.xmlGetNode_int("cone",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_cone,vi);
                     if (ar.xmlGetNode_int("overridekin",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_overridekin,vi);
-
+                    if (ar.xmlGetNode_bool("computeinertias",vb,exhaustiveXml)) setEngineBoolParam(sim_mujoco_global_computeinertias,vb);
+                    if (ar.xmlGetNode_bool("multithreaded",vb,exhaustiveXml)) setEngineBoolParam(sim_mujoco_global_multithreaded,vb);
+                    if (ar.xmlGetNode_bool("multiccd",vb,exhaustiveXml)) setEngineBoolParam(sim_mujoco_global_multiccd,vb);
+                    if (ar.xmlGetNode_bool("balanceinertias",vb,exhaustiveXml)) setEngineBoolParam(sim_mujoco_global_balanceinertias,vb);
+                    if (ar.xmlGetNode_bool("overridecontacts",vb,exhaustiveXml)) setEngineBoolParam(sim_mujoco_global_overridecontacts,vb);
                     ar.xmlPopNode();
                 }
                 ar.xmlPopNode();

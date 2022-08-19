@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>178</height>
+    <height>193</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>90</y>
+     <y>110</y>
      <width>411</width>
      <height>51</height>
     </rect>
@@ -80,7 +80,7 @@
      <x>10</x>
      <y>10</y>
      <width>411</width>
-     <height>71</height>
+     <height>91</height>
     </rect>
    </property>
    <property name="title">
@@ -141,12 +141,28 @@
      <number>50</number>
     </property>
    </widget>
+   <widget class="QToolButton" name="qqEditEngine">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>65</y>
+      <width>251</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Edit engine specific properties</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="qqTrajectoryGroup">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>180</y>
+     <y>190</y>
      <width>411</width>
      <height>161</height>
     </rect>
@@ -313,7 +329,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>150</y>
+     <y>170</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -771,15 +787,16 @@
  <tabstops>
   <tabstop>qqLinkedDummyCombo</tabstop>
   <tabstop>qqLinkTypeCombo</tabstop>
+  <tabstop>qqEditEngine</tabstop>
+  <tabstop>qqSize</tabstop>
+  <tabstop>qqColor</tabstop>
+  <tabstop>qqApplyMainProperties</tabstop>
   <tabstop>qqfollowParentOrientation</tabstop>
   <tabstop>qqFollow</tabstop>
   <tabstop>qqFree</tabstop>
   <tabstop>qqFixed</tabstop>
   <tabstop>qqOffset</tabstop>
   <tabstop>qqIncrement</tabstop>
-  <tabstop>qqSize</tabstop>
-  <tabstop>qqColor</tabstop>
-  <tabstop>qqApplyMainProperties</tabstop>
  </tabstops>
  <resources/>
  <connections/>

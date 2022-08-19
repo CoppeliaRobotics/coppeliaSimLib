@@ -14699,7 +14699,7 @@ simInt simDebugStack_internal(simInt stackHandle,simInt cIndex)
 
 simFloat simGetEngineFloatParam_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
-    // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
+    // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint, shape or dummy parameter
     // this function doesn't generate any error messages
     TRACE_C_API;
     CSceneObject* it=(CSceneObject*)object;
@@ -14714,7 +14714,7 @@ simFloat simGetEngineFloatParam_internal(simInt paramId,simInt objectHandle,cons
                 it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (it!=nullptr)
                 {
-                    if ( (it->getObjectType()!=sim_object_joint_type)&&(it->getObjectType()!=sim_object_shape_type) )
+                    if ( (it->getObjectType()!=sim_object_joint_type)&&(it->getObjectType()!=sim_object_shape_type)&&(it->getObjectType()!=sim_object_dummy_type) )
                         success=false;
                 }
                 else
@@ -14738,6 +14738,11 @@ simFloat simGetEngineFloatParam_internal(simInt paramId,simInt objectHandle,cons
                     CDynMaterialObject* mat=shape->getDynMaterial();
                     retVal=mat->getEngineFloatParam(paramId,&success);
                 }
+                if (it->getObjectType()==sim_object_dummy_type)
+                {
+                    CDummy* dummy=(CDummy*)it;
+                    retVal=dummy->getEngineFloatParam(paramId,&success);
+                }
             }
         }
         if (ok!=nullptr)
@@ -14751,7 +14756,7 @@ simFloat simGetEngineFloatParam_internal(simInt paramId,simInt objectHandle,cons
 
 simInt simGetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
-    // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
+    // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint, shape or dummy parameter
     // this function doesn't generate any error messages
     TRACE_C_API;
     CSceneObject* it=(CSceneObject*)object;
@@ -14766,7 +14771,7 @@ simInt simGetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const 
                 it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (it!=nullptr)
                 {
-                    if ( (it->getObjectType()!=sim_object_joint_type)&&(it->getObjectType()!=sim_object_shape_type) )
+                    if ( (it->getObjectType()!=sim_object_joint_type)&&(it->getObjectType()!=sim_object_shape_type)&&(it->getObjectType()!=sim_object_dummy_type) )
                         success=false;
                 }
                 else
@@ -14790,6 +14795,11 @@ simInt simGetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const 
                     CDynMaterialObject* mat=shape->getDynMaterial();
                     retVal=mat->getEngineIntParam(paramId,&success);
                 }
+                if (it->getObjectType()==sim_object_dummy_type)
+                {
+                    CDummy* dummy=(CDummy*)it;
+                    retVal=dummy->getEngineIntParam(paramId,&success);
+                }
             }
         }
         if (ok!=nullptr)
@@ -14803,7 +14813,7 @@ simInt simGetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const 
 
 simBool simGetEngineBoolParam_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
-    // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
+    // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint, shape or dummy parameter
     // this function doesn't generate any error messages
     TRACE_C_API;
     CSceneObject* it=(CSceneObject*)object;
@@ -14818,7 +14828,7 @@ simBool simGetEngineBoolParam_internal(simInt paramId,simInt objectHandle,const 
                 it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (it!=nullptr)
                 {
-                    if ( (it->getObjectType()!=sim_object_joint_type)&&(it->getObjectType()!=sim_object_shape_type) )
+                    if ( (it->getObjectType()!=sim_object_joint_type)&&(it->getObjectType()!=sim_object_shape_type)&&(it->getObjectType()!=sim_object_dummy_type) )
                         success=false;
                 }
                 else
@@ -14842,6 +14852,11 @@ simBool simGetEngineBoolParam_internal(simInt paramId,simInt objectHandle,const 
                     CDynMaterialObject* mat=shape->getDynMaterial();
                     retVal=mat->getEngineBoolParam(paramId,&success);
                 }
+                if (it->getObjectType()==sim_object_dummy_type)
+                {
+                    CDummy* dummy=(CDummy*)it;
+                    retVal=dummy->getEngineBoolParam(paramId,&success);
+                }
             }
         }
         if (ok!=nullptr)
@@ -14855,7 +14870,7 @@ simBool simGetEngineBoolParam_internal(simInt paramId,simInt objectHandle,const 
 
 simInt simSetEngineFloatParam_internal(simInt paramId,simInt objectHandle,const simVoid* object,simFloat val)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
-    // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
+    // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint, shape or dummy parameter
     // this function doesn't generate any error messages
     TRACE_C_API;
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -14869,7 +14884,7 @@ simInt simSetEngineFloatParam_internal(simInt paramId,simInt objectHandle,const 
                 it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (it!=nullptr)
                 {
-                    if ( (it->getObjectType()!=sim_object_joint_type)&&(it->getObjectType()!=sim_object_shape_type) )
+                    if ( (it->getObjectType()!=sim_object_joint_type)&&(it->getObjectType()!=sim_object_shape_type)&&(it->getObjectType()!=sim_object_dummy_type) )
                         success=false;
                 }
                 else
@@ -14893,6 +14908,11 @@ simInt simSetEngineFloatParam_internal(simInt paramId,simInt objectHandle,const 
                     CDynMaterialObject* mat=shape->getDynMaterial();
                     success=mat->setEngineFloatParam(paramId,val);
                 }
+                if (it->getObjectType()==sim_object_dummy_type)
+                {
+                    CDummy* dummy=(CDummy*)it;
+                    success=dummy->setEngineFloatParam(paramId,val);
+                }
             }
         }
         if (success)
@@ -14906,7 +14926,7 @@ simInt simSetEngineFloatParam_internal(simInt paramId,simInt objectHandle,const 
 
 simInt simSetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const simVoid* object,simInt val)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
-    // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
+    // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint, shape or dummy parameter
     // this function doesn't generate any error messages
     TRACE_C_API;
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -14920,7 +14940,7 @@ simInt simSetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const 
                 it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (it!=nullptr)
                 {
-                    if ( (it->getObjectType()!=sim_object_joint_type)&&(it->getObjectType()!=sim_object_shape_type) )
+                    if ( (it->getObjectType()!=sim_object_joint_type)&&(it->getObjectType()!=sim_object_shape_type)&&(it->getObjectType()!=sim_object_dummy_type) )
                         success=false;
                 }
                 else
@@ -14944,6 +14964,11 @@ simInt simSetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const 
                     CDynMaterialObject* mat=shape->getDynMaterial();
                     success=mat->setEngineIntParam(paramId,val);
                 }
+                if (it->getObjectType()==sim_object_dummy_type)
+                {
+                    CDummy* dummy=(CDummy*)it;
+                    success=dummy->setEngineIntParam(paramId,val);
+                }
             }
         }
         if (success)
@@ -14957,7 +14982,7 @@ simInt simSetEngineInt32Param_internal(simInt paramId,simInt objectHandle,const 
 
 simInt simSetEngineBoolParam_internal(simInt paramId,simInt objectHandle,const simVoid* object,simBool val)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
-    // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint or shape parameter
+    // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint, shape or dummy parameter
     // this function doesn't generate any error messages
     TRACE_C_API;
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -14971,7 +14996,7 @@ simInt simSetEngineBoolParam_internal(simInt paramId,simInt objectHandle,const s
                 it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (it!=nullptr)
                 {
-                    if ( (it->getObjectType()!=sim_object_joint_type)&&(it->getObjectType()!=sim_object_shape_type) )
+                    if ( (it->getObjectType()!=sim_object_joint_type)&&(it->getObjectType()!=sim_object_shape_type)&&(it->getObjectType()!=sim_object_dummy_type) )
                         success=false;
                 }
                 else
@@ -14994,6 +15019,11 @@ simInt simSetEngineBoolParam_internal(simInt paramId,simInt objectHandle,const s
                     CShape* shape=(CShape*)it;
                     CDynMaterialObject* mat=shape->getDynMaterial();
                     success=mat->setEngineBoolParam(paramId,val);
+                }
+                if (it->getObjectType()==sim_object_dummy_type)
+                {
+                    CDummy* dummy=(CDummy*)it;
+                    success=dummy->setEngineBoolParam(paramId,val);
                 }
             }
         }

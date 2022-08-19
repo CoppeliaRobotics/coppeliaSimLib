@@ -44,6 +44,7 @@ void CQDlgDummies::refresh()
     ui->qqLinkedDummyCombo->clear();
     ui->qqLinkTypeCombo->setEnabled(sel&&(it->getLinkedDummyHandle()!=-1)&&noEditModeNoSim);
     ui->qqLinkTypeCombo->clear();
+    ui->qqEditEngine->setEnabled(sel&&noEditModeNoSim);
 
     ui->qqfollowParentOrientation->setEnabled(sel&&noEditModeNoSim);
     ui->qqFollow->setEnabled(sel&&noEditModeNoSim);
@@ -279,5 +280,22 @@ void CQDlgDummies::on_qqIncrement_editingFinished()
         App::appendSimulationThreadCommand(SET_COPYINCREMENT_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    }
+}
+
+void CQDlgDummies::on_qqEditEngine_clicked()
+{
+    IF_UI_EVENT_CAN_WRITE_DATA
+    {
+        CDummy* it=App::currentWorld->sceneObjects->getLastSelectionDummy();
+        if (it!=nullptr)
+        {
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=SET_ENGINEPARAMS_DUMMYGUITRIGGEREDCMD;
+            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
+            App::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        }
     }
 }

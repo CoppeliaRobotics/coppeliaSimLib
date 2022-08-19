@@ -2909,22 +2909,22 @@ void CJoint::serialize(CSer& ar)
             float v[5];
             v[0]=getEngineFloatParam(sim_mujoco_joint_solreflimit1,nullptr);
             v[1]=getEngineFloatParam(sim_mujoco_joint_solreflimit2,nullptr);
-            ar.xmlAddNode_floats("solrefLimit",v,2);
+            ar.xmlAddNode_floats("solreflimit",v,2);
             v[0]=getEngineFloatParam(sim_mujoco_joint_solimplimit1,nullptr);
             v[1]=getEngineFloatParam(sim_mujoco_joint_solimplimit2,nullptr);
             v[2]=getEngineFloatParam(sim_mujoco_joint_solimplimit3,nullptr);
             v[3]=getEngineFloatParam(sim_mujoco_joint_solimplimit4,nullptr);
             v[4]=getEngineFloatParam(sim_mujoco_joint_solimplimit5,nullptr);
-            ar.xmlAddNode_floats("solimpLimit",v,5);
+            ar.xmlAddNode_floats("solimplimit",v,5);
             v[0]=getEngineFloatParam(sim_mujoco_joint_solreffriction1,nullptr);
             v[1]=getEngineFloatParam(sim_mujoco_joint_solreffriction2,nullptr);
-            ar.xmlAddNode_floats("solrefFriction",v,2);
+            ar.xmlAddNode_floats("solreffriction",v,2);
             v[0]=getEngineFloatParam(sim_mujoco_joint_solimpfriction1,nullptr);
             v[1]=getEngineFloatParam(sim_mujoco_joint_solimpfriction2,nullptr);
             v[2]=getEngineFloatParam(sim_mujoco_joint_solimpfriction3,nullptr);
             v[3]=getEngineFloatParam(sim_mujoco_joint_solimpfriction4,nullptr);
             v[4]=getEngineFloatParam(sim_mujoco_joint_solimpfriction5,nullptr);
-            ar.xmlAddNode_floats("solimpFriction",v,5);
+            ar.xmlAddNode_floats("solimpfriction",v,5);
             ar.xmlAddNode_float("frictionloss",getEngineFloatParam(sim_mujoco_joint_frictionloss,nullptr));
             ar.xmlAddNode_float("stiffness",getEngineFloatParam(sim_mujoco_joint_stiffness,nullptr));
             ar.xmlAddNode_float("damping",getEngineFloatParam(sim_mujoco_joint_damping,nullptr));
@@ -2935,7 +2935,7 @@ void CJoint::serialize(CSer& ar)
 
             ar.xmlAddNode_float("armature",getEngineFloatParam(sim_mujoco_joint_armature,nullptr));
             ar.xmlAddNode_float("margin",getEngineFloatParam(sim_mujoco_joint_margin,nullptr));
-            ar.xmlAddNode_int("dependentObjectId",getEngineIntParam(sim_mujoco_joint_dependentobjectid,nullptr));
+            ar.xmlAddNode_int("dependentobjectid",getEngineIntParam(sim_mujoco_joint_dependentobjectid,nullptr));
             for (size_t j=0;j<5;j++)
                 v[j]=getEngineFloatParam(sim_mujoco_joint_polycoef1+j,nullptr);
             ar.xmlAddNode_floats("polycoef",v,5);
@@ -3201,22 +3201,22 @@ void CJoint::serialize(CSer& ar)
                     if (ar.xmlPushChildNode("mujoco",exhaustiveXml))
                     {
                         float w[5];
-                        if (ar.xmlGetNode_floats("solrefLimit",w,2,exhaustiveXml))
+                        if (ar.xmlGetNode_floats("solreflimit",w,2,exhaustiveXml))
                         {
                             setEngineFloatParam(sim_mujoco_joint_solreflimit1,w[0]);
                             setEngineFloatParam(sim_mujoco_joint_solreflimit2,w[1]);
                         }
-                        if (ar.xmlGetNode_floats("solimpLimit",w,5,exhaustiveXml))
+                        if (ar.xmlGetNode_floats("solimplimit",w,5,exhaustiveXml))
                         {
                             for (size_t j=0;j<5;j++)
                                 setEngineFloatParam(sim_mujoco_joint_solimplimit1+j,w[j]);
                         }
-                        if (ar.xmlGetNode_floats("solrefFriction",w,2,exhaustiveXml))
+                        if (ar.xmlGetNode_floats("solreffriction",w,2,exhaustiveXml))
                         {
                             setEngineFloatParam(sim_mujoco_joint_solreffriction1,w[0]);
                             setEngineFloatParam(sim_mujoco_joint_solreffriction2,w[1]);
                         }
-                        if (ar.xmlGetNode_floats("solimpFriction",w,5,exhaustiveXml))
+                        if (ar.xmlGetNode_floats("solimpfriction",w,5,exhaustiveXml))
                         {
                             for (size_t j=0;j<5;j++)
                                 setEngineFloatParam(sim_mujoco_joint_solimpfriction1+j,w[j]);
@@ -3237,7 +3237,7 @@ void CJoint::serialize(CSer& ar)
                             for (size_t j=0;j<5;j++)
                                 setEngineFloatParam(sim_mujoco_joint_polycoef1+j,w[j]);
                         }
-                        if (ar.xmlGetNode_int("dependentObjectId",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_joint_dependentobjectid,vi);
+                        if (ar.xmlGetNode_int("dependentobjectid",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_joint_dependentobjectid,vi);
                         ar.xmlPopNode();
                     }
                     ar.xmlPopNode();

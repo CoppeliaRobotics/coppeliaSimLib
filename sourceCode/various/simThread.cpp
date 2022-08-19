@@ -1694,6 +1694,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         it->getDummyColor()->copyYourselfInto(it2->getDummyColor());
                         it2->setDummySize(it->getDummySize());
+                        it->copyEnginePropertiesTo(it2);
                     }
                 }
             }
@@ -3365,6 +3366,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             prop.editObjectProperties(cmd.intParams[0]);
         }
         if (cmd.cmdId==SET_ENGINEPARAMS_JOINTDYNGUITRIGGEREDCMD)
+        {
+            CEngineProperties prop;
+            prop.editObjectProperties(cmd.intParams[0]);
+        }
+        if (cmd.cmdId==SET_ENGINEPARAMS_DUMMYGUITRIGGEREDCMD)
         {
             CEngineProperties prop;
             prop.editObjectProperties(cmd.intParams[0]);

@@ -31,11 +31,194 @@ CDummy::CDummy()
 
     _dummyColor.setDefaultValues();
     _dummyColor.setColor(1.0f,0.8f,0.55f,sim_colorcomponent_ambient_diffuse);
+
+    // Mujoco parameters
+    // ----------------------------------------------------
+    _mujocoFloatParams.push_back(0.0); // simi_mujoco_dummy_range1
+    _mujocoFloatParams.push_back(0.0); // simi_mujoco_dummy_range2
+    _mujocoFloatParams.push_back(0.02f); // simi_mujoco_dummy_solreflimit1
+    _mujocoFloatParams.push_back(1.0); // simi_mujoco_dummy_solreflimit2
+    _mujocoFloatParams.push_back(0.9); // simi_mujoco_dummy_solimplimit1
+    _mujocoFloatParams.push_back(0.95); // simi_mujoco_dummy_solimplimit2
+    _mujocoFloatParams.push_back(0.001); // simi_mujoco_dummy_solimplimit3
+    _mujocoFloatParams.push_back(0.05); // simi_mujoco_dummy_solimplimit4
+    _mujocoFloatParams.push_back(2.0); // simi_mujoco_dummy_solimplimit5
+    _mujocoFloatParams.push_back(0.0); // simi_mujoco_dummy_margin
+    _mujocoFloatParams.push_back(-1.0); // simi_mujoco_dummy_springlength
+    _mujocoFloatParams.push_back(0.0); // simi_mujoco_dummy_stiffness
+    _mujocoFloatParams.push_back(0.0); // simi_mujoco_dummy_damping
+
+    _mujocoIntParams.push_back(0); // simi_mujoco_dummy_bitcoded
+    // ----------------------------------------------------
+
     computeBoundingBox();
 }
 
 CDummy::~CDummy()
 {
+}
+
+void CDummy::copyEnginePropertiesTo(CDummy* target)
+{
+    std::vector<float> fp;
+    std::vector<int> ip;
+
+    // Mujoco:
+    getMujocoFloatParams(fp);
+    target->setMujocoFloatParams(fp);
+    getMujocoIntParams(ip);
+    target->setMujocoIntParams(ip);
+}
+
+float CDummy::getEngineFloatParam(int what,bool* ok) const
+{
+    if (ok!=nullptr)
+        ok[0]=true;
+    if ((what>sim_mujoco_dummy_float_start)&&(what<sim_mujoco_dummy_float_end))
+    {
+        int w=what-sim_mujoco_dummy_range1+simi_mujoco_dummy_range1;
+        return(_mujocoFloatParams[w]);
+    }
+    if (ok!=nullptr)
+        ok[0]=false;
+    return(0.0f);
+}
+
+int CDummy::getEngineIntParam(int what,bool* ok) const
+{
+    if (ok!=nullptr)
+        ok[0]=true;
+    if ((what>sim_mujoco_dummy_int_start)&&(what<sim_mujoco_dummy_int_end))
+    {
+        int w=what-sim_mujoco_dummy_bitcoded+simi_mujoco_dummy_bitcoded;
+        return(_mujocoIntParams[w]);
+    }
+    if (ok!=nullptr)
+        ok[0]=false;
+    return(0);
+}
+
+bool CDummy::getEngineBoolParam(int what,bool* ok) const
+{
+    if (ok!=nullptr)
+        ok[0]=true;
+    if ((what>sim_mujoco_dummy_bool_start)&&(what<sim_mujoco_dummy_bool_end))
+    {
+        int b=1;
+        int w=(what-sim_mujoco_dummy_limited);
+        while (w>0) {b*=2; w--;}
+        return((_mujocoIntParams[simi_mujoco_dummy_bitcoded]&b)!=0);
+    }
+    if (ok!=nullptr)
+        ok[0]=false;
+    return(0);
+}
+
+void CDummy::getMujocoFloatParams(std::vector<float>& p) const
+{
+    p.assign(_mujocoFloatParams.begin(),_mujocoFloatParams.end());
+}
+
+void CDummy::getMujocoIntParams(std::vector<int>& p) const
+{
+    p.assign(_mujocoIntParams.begin(),_mujocoIntParams.end());
+}
+
+bool CDummy::setEngineFloatParam(int what,float v)
+{
+    if ((what>sim_mujoco_dummy_float_start)&&(what<sim_mujoco_dummy_float_end))
+    {
+        int w=what-sim_mujoco_dummy_range1+simi_mujoco_dummy_range1;
+        std::vector<float> fp;
+        getMujocoFloatParams(fp);
+        fp[w]=v;
+        setMujocoFloatParams(fp);
+        return(true);
+    }
+    return(false);
+}
+
+bool CDummy::setEngineIntParam(int what,int v)
+{
+    if ((what>sim_mujoco_dummy_int_start)&&(what<sim_mujoco_dummy_int_end))
+    {
+        int w=what-sim_mujoco_dummy_bitcoded+simi_mujoco_dummy_bitcoded;
+        std::vector<int> ip;
+        getMujocoIntParams(ip);
+        ip[w]=v;
+        setMujocoIntParams(ip);
+        return(true);
+    }
+    return(false);
+}
+
+bool CDummy::setEngineBoolParam(int what,bool v)
+{
+    if ((what>sim_mujoco_dummy_bool_start)&&(what<sim_mujoco_dummy_bool_end))
+    {
+        int b=1;
+        int w=(what-sim_mujoco_dummy_limited);
+        while (w>0) {b*=2; w--;}
+        _mujocoIntParams[simi_mujoco_dummy_bitcoded]|=b;
+        if (!v)
+            _mujocoIntParams[simi_mujoco_dummy_bitcoded]-=b;
+        return(true);
+    }
+    return(false);
+}
+
+void CDummy::setMujocoFloatParams(const std::vector<float>& pp)
+{
+    std::vector<float> p(pp);
+    bool diff=(_mujocoFloatParams.size()!=p.size());
+    if (!diff)
+    {
+        for (size_t i=0;i<p.size();i++)
+        {
+            if (_mujocoFloatParams[i]!=p[i])
+            {
+                diff=true;
+                break;
+            }
+        }
+    }
+    if (diff)
+    {
+        _mujocoFloatParams.assign(p.begin(),p.end());
+        _reflectPropToLinkedDummy();
+    }
+}
+
+void CDummy::_reflectPropToLinkedDummy() const
+{ // will not infinitely recurse since once identical, it stops
+    if ( (_linkedDummyHandle!=-1)&&((_linkType==sim_dummylink_dynloopclosure)||(_linkType==sim_dummylink_dyntendon)) )
+    {
+  //      CDummy* l=App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
+  //      l->setMujocoFloatParams(_mujocoFloatParams);
+  //      l->setMujocoIntParams(_mujocoIntParams);
+ //       problem here!
+    }
+}
+
+void CDummy::setMujocoIntParams(const std::vector<int>& p)
+{
+    bool diff=(_mujocoIntParams.size()!=p.size());
+    if (!diff)
+    {
+        for (size_t i=0;i<p.size();i++)
+        {
+            if (_mujocoIntParams[i]!=p[i])
+            {
+                diff=true;
+                break;
+            }
+        }
+    }
+    if (diff)
+    {
+        _mujocoIntParams.assign(p.begin(),p.end());
+        _reflectPropToLinkedDummy();
+    }
 }
 
 std::string CDummy::getObjectTypeInfo() const
@@ -130,6 +313,9 @@ CSceneObject* CDummy::copyYourself()
         newDummy->_virtualDistanceOffsetOnPath_variationWhenCopy=_virtualDistanceOffsetOnPath_variationWhenCopy;
         _virtualDistanceOffsetOnPath_variationWhenCopy=0.0f; // we reset the original object!!
     }
+
+    newDummy->_mujocoFloatParams.assign(_mujocoFloatParams.begin(),_mujocoFloatParams.end());
+    newDummy->_mujocoIntParams.assign(_mujocoIntParams.begin(),_mujocoIntParams.end());
 
     return(newDummy);
 }
@@ -282,6 +468,14 @@ void CDummy::serialize(CSer& ar)
             ar << _linkType;
             ar.flush();
 
+            ar.storeDataName("Mj1"); // mujoco params:
+            ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
+            for (int i=0;i<int(_mujocoFloatParams.size());i++)
+                ar << _mujocoFloatParams[i];
+            for (int i=0;i<int(_mujocoIntParams.size());i++)
+                ar << _mujocoIntParams[i];
+            ar.flush();
+
             ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
@@ -352,6 +546,37 @@ void CDummy::serialize(CSer& ar)
                         ar >> _modelAcknowledgement; // this is now the CSceneObject's variable!!! (was Dummy's variable before)
                     }
     //****************************************************************************
+                    if (theName.compare("Mj1")==0)
+                    { // Mujoco params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_mujocoFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_mujocoIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _mujocoFloatParams already!
+                            ar >> vf;
+                            _mujocoFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _mujocoIntParams already!
+                            ar >> vi;
+                            _mujocoIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
                     if (noHit)
                         ar.loadUnknownData();
                 }
@@ -419,6 +644,27 @@ void CDummy::serialize(CSer& ar)
                 ar.xmlAddNode_ints("object",rgb,3);
             }
             ar.xmlPopNode();
+            ar.xmlPushNewNode("dynamics");
+            ar.xmlPushNewNode("engines");
+            ar.xmlPushNewNode("mujoco");
+            float v[5];
+            for (size_t i=0;i<2;i++)
+                v[i]=getEngineFloatParam(sim_mujoco_dummy_range1+i,nullptr);
+            ar.xmlAddNode_floats("range",v,2);
+            for (size_t i=0;i<2;i++)
+                v[i]=getEngineFloatParam(sim_mujoco_dummy_solreflimit1+i,nullptr);
+            ar.xmlAddNode_floats("solreflimit",v,2);
+            for (size_t i=0;i<5;i++)
+                v[i]=getEngineFloatParam(sim_mujoco_dummy_solimplimit1+i,nullptr);
+            ar.xmlAddNode_floats("solimplimit",v,5);
+            ar.xmlAddNode_float("margin",getEngineFloatParam(sim_mujoco_dummy_margin,nullptr));
+            ar.xmlAddNode_float("springlength",getEngineFloatParam(sim_mujoco_dummy_springlength,nullptr));
+            ar.xmlAddNode_float("stiffness",getEngineFloatParam(sim_mujoco_dummy_stiffness,nullptr));
+            ar.xmlAddNode_float("damping",getEngineFloatParam(sim_mujoco_dummy_damping,nullptr));
+            ar.xmlAddNode_bool("limited",getEngineBoolParam(sim_mujoco_dummy_limited,nullptr));
+            ar.xmlPopNode(); // mujoco
+            ar.xmlPopNode(); // engines
+            ar.xmlPopNode(); // dynamics
         }
         else
         {
@@ -458,6 +704,42 @@ void CDummy::serialize(CSer& ar)
                         _dummyColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
+            }
+
+            if (ar.xmlPushChildNode("dynamics",exhaustiveXml))
+            {
+                if (ar.xmlPushChildNode("engines",exhaustiveXml))
+                {
+                    if (ar.xmlPushChildNode("mujoco",exhaustiveXml))
+                    {
+                        float w[5];
+                        if (ar.xmlGetNode_floats("range",w,2,exhaustiveXml))
+                        {
+                            for (size_t j=0;j<2;j++)
+                                setEngineFloatParam(sim_mujoco_dummy_range1+j,w[j]);
+                        }
+                        if (ar.xmlGetNode_floats("solreflimit",w,2,exhaustiveXml))
+                        {
+                            for (size_t j=0;j<2;j++)
+                                setEngineFloatParam(sim_mujoco_dummy_solreflimit1+j,w[j]);
+                        }
+                        if (ar.xmlGetNode_floats("solimplimit",w,5,exhaustiveXml))
+                        {
+                            for (size_t j=0;j<5;j++)
+                                setEngineFloatParam(sim_mujoco_dummy_solimplimit1+j,w[j]);
+                        }
+                        float v;
+                        if (ar.xmlGetNode_float("margin",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_dummy_margin,v);
+                        if (ar.xmlGetNode_float("springlength",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_dummy_springlength,v);
+                        if (ar.xmlGetNode_float("stiffness",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_dummy_stiffness,v);
+                        if (ar.xmlGetNode_float("damping",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_dummy_damping,v);
+                        bool bv;
+                        if (ar.xmlGetNode_bool("limited",bv,exhaustiveXml)) setEngineBoolParam(sim_mujoco_dummy_limited,bv);
+                        ar.xmlPopNode(); // mujoco
+                    }
+                    ar.xmlPopNode(); // engines
+                }
+                ar.xmlPopNode(); // dynamics
             }
             computeBoundingBox();
         }
@@ -525,6 +807,7 @@ void CDummy::setLinkedDummyHandle(int handle,bool check)
     }
     if (_linkedDummyHandleOld!=_linkedDummyHandle)
     {
+        _reflectPropToLinkedDummy();
         if (getObjectCanSync())
             _setLinkedDummyHandle_sendOldIk(_linkedDummyHandle);
         App::setRefreshHierarchyViewFlag();
@@ -554,6 +837,7 @@ bool CDummy::setLinkType(int lt,bool check)
             if ( (lt==sim_dummy_linktype_ik_tip_target)||(lt==sim_dummy_linktype_gcs_loop_closure)||(lt==sim_dummylink_dynloopclosure)||(lt==sim_dummylink_dyntendon)||(lt==sim_dummy_linktype_dynamics_force_constraint) )
                 it->setLinkType(lt,false);
         }
+        _reflectPropToLinkedDummy();
         App::setRefreshHierarchyViewFlag();
         App::setFullDialogRefreshFlag();
     }

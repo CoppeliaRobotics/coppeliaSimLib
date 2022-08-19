@@ -22,4 +22,6 @@ private:
     void _readJoint(int engine,int jointHandle,CAnnJson& annJson,std::string* allErrors) const;
     void _writeShape(int engine,int shaoeHandle,CAnnJson& annJson) const;
     void _readShape(int engine,int shapeHandle,CAnnJson& annJson,std::string* allErrors) const;
+    void _writeDummy(int engine,int dummyHandle,CAnnJson& annJson) const;
+    void _readDummy(int engine,int dummyHandle,CAnnJson& annJson,std::string* allErrors) const;
 };
