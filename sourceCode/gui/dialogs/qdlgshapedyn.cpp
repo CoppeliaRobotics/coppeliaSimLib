@@ -2,7 +2,6 @@
 #include "ui_qdlgshapedyn.h"
 #include "tt.h"
 #include "gV.h"
-#include "propBrowser_engineProp_material.h"
 #include "simStrings.h"
 #include "app.h"
 #include "qdlginertiatensor.h"
@@ -175,51 +174,10 @@ void CQDlgShapeDyn::on_qqAdjustEngineProperties_clicked()
         CShape* it=App::currentWorld->sceneObjects->getLastSelectionShape();
         if (it!=nullptr)
         {
-            if (true)
-            {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_MATERIAL_SHAPEDYNGUITRIGGEREDCMD;
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(cmd);
-            }
-            else
-            {
-            CPropBrowserEngineMaterial dlg(this);
-            dlg.setModal(true);
-            dlg.exec();
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_ENGINEPARAMS_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
-            CDynMaterialObject* mat=it->getDynMaterial();
-            cmd.stringParams.push_back(mat->getObjectName());
-            std::vector<int> iParams;
-            std::vector<float> fParams;
-            mat->getBulletIntParams(iParams);
-            mat->getBulletFloatParams(fParams);
-            cmd.intVectorParams.push_back(iParams);
-            cmd.floatVectorParams.push_back(fParams);
-            iParams.clear();
-            fParams.clear();
-            mat->getOdeIntParams(iParams);
-            mat->getOdeFloatParams(fParams);
-            cmd.intVectorParams.push_back(iParams);
-            cmd.floatVectorParams.push_back(fParams);
-            iParams.clear();
-            fParams.clear();
-            mat->getVortexIntParams(iParams);
-            mat->getVortexFloatParams(fParams);
-            cmd.intVectorParams.push_back(iParams);
-            cmd.floatVectorParams.push_back(fParams);
-            iParams.clear();
-            fParams.clear();
-            mat->getNewtonIntParams(iParams);
-            mat->getNewtonFloatParams(fParams);
-            cmd.intVectorParams.push_back(iParams);
-            cmd.floatVectorParams.push_back(fParams);
-            iParams.clear();
-            fParams.clear();
-            App::appendSimulationThreadCommand(cmd);
-            }
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }

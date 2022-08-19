@@ -2,7 +2,6 @@
 #include "ui_qdlgjointdyn.h"
 #include "tt.h"
 #include "gV.h"
-#include "propBrowser_engineProp_joint.h"
 #include "qdlgjoints.h"
 #include "app.h"
 #include "simStringTable.h"
@@ -556,50 +555,10 @@ void CQDlgJointDyn::on_qqAdjustEngineProperties_clicked()
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (it!=nullptr)
         {
-            if (true)
-            {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ENGINEPARAMS_JOINTDYNGUITRIGGEREDCMD;
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(cmd);
-            }
-            else
-            {
-            CPropBrowserEngineJoint dlg(this);
-            dlg.setModal(true);
-            dlg.exec(); // items are set in here
-            // We however still need to modify the sim thread resources:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_ALLENGINEPARAMS_JOINTDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(it->getObjectHandle());
-            std::vector<int> iParams;
-            std::vector<float> fParams;
-            it->getBulletIntParams(iParams);
-            it->getBulletFloatParams(fParams);
-            cmd.intVectorParams.push_back(iParams);
-            cmd.floatVectorParams.push_back(fParams);
-            iParams.clear();
-            fParams.clear();
-            it->getOdeIntParams(iParams);
-            it->getOdeFloatParams(fParams);
-            cmd.intVectorParams.push_back(iParams);
-            cmd.floatVectorParams.push_back(fParams);
-            iParams.clear();
-            fParams.clear();
-            it->getVortexIntParams(iParams);
-            it->getVortexFloatParams(fParams);
-            cmd.intVectorParams.push_back(iParams);
-            cmd.floatVectorParams.push_back(fParams);
-            iParams.clear();
-            fParams.clear();
-            it->getNewtonIntParams(iParams);
-            it->getNewtonFloatParams(fParams);
-            cmd.intVectorParams.push_back(iParams);
-            cmd.floatVectorParams.push_back(fParams);
-            iParams.clear();
-            fParams.clear();
-            App::appendSimulationThreadCommand(cmd);
-            }
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }

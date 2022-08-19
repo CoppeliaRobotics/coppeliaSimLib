@@ -250,9 +250,6 @@ endif()
 
 if(WITH_GUI)
     target_include_directories(coppeliaSim PRIVATE
-        sourceCode/gui/qtPropertyBrowserRelated
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles
         sourceCode/gui/dialogs
         sourceCode/gui/dialogs/other
         sourceCode/gui/platform
@@ -359,23 +356,6 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgtranslation.cpp
         sourceCode/gui/dialogs/qdlgrotation.cpp
         sourceCode/gui/dialogs/qdlgtranslationrotationcont.cpp
-
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtbuttonpropertybrowser.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qteditorfactory.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtgroupboxpropertybrowser.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertybrowser.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertybrowserutils.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertymanager.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qttreepropertybrowser.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtvariantproperty.cpp
-
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/buttoneditfactory.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/buttoneditmanager.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/pushbuttonedit.cpp
-
-        sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_material.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_general.cpp
-        sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_joint.cpp
 
         sourceCode/gui/dialogs/other/editboxdelegate.cpp
         sourceCode/gui/dialogs/other/toolDlgWrapper.cpp

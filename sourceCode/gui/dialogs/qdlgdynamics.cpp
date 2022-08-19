@@ -3,7 +3,6 @@
 #include "tt.h"
 #include "app.h"
 #include "gV.h"
-#include "propBrowser_engineProp_general.h"
 #include "simStrings.h"
 
 CQDlgDynamics::CQDlgDynamics(QWidget *parent) :
@@ -38,10 +37,10 @@ void CQDlgDynamics::refresh()
     ui->qqEngineCombo->setEnabled(noEditModeNoSim&&en);
     ui->qqContactPoints->setEnabled(noEditMode&&en);
     ui->qqAdjustEngine->setEnabled(noEditModeNoSim&&en);
+    ui->qqTimestep->setEnabled(noEditModeNoSim&&en);
     ui->qqGravityX->setEnabled(noEditMode&&en);
     ui->qqGravityY->setEnabled(noEditMode&&en);
     ui->qqGravityZ->setEnabled(noEditMode&&en);
-    ui->qqTimestep->setEnabled(noEditMode&&en);
 
     if (App::currentWorld->dynamicsContainer->getSettingsAreDefault())
         ui->qqInfo->setText("");
@@ -141,48 +140,9 @@ void CQDlgDynamics::on_qqAdjustEngine_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        if (true)
-        {
         SSimulationThreadCommand cmd;
         cmd.cmdId=SET_ENGINEPARAMS_DYNAMICSGUITRIGGEREDCMD;
         App::appendSimulationThreadCommand(cmd);
-        }
-        else
-        {
-        CPropBrowserEngineGeneral dlg(this);
-        dlg.setModal(true);
-        dlg.exec(); // items are set in here
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=SET_ALLGLOBALPARAMS_DYNAMICSGUITRIGGEREDCMD;
-        cmd.intParams.push_back(5);
-        std::vector<int> iParams;
-        std::vector<float> fParams;
-        App::currentWorld->dynamicsContainer->getBulletIntParams(iParams);
-        App::currentWorld->dynamicsContainer->getBulletFloatParams(fParams);
-        cmd.intVectorParams.push_back(iParams);
-        cmd.floatVectorParams.push_back(fParams);
-        iParams.clear();
-        fParams.clear();
-        App::currentWorld->dynamicsContainer->getOdeIntParams(iParams);
-        App::currentWorld->dynamicsContainer->getOdeFloatParams(fParams);
-        cmd.intVectorParams.push_back(iParams);
-        cmd.floatVectorParams.push_back(fParams);
-        iParams.clear();
-        fParams.clear();
-        App::currentWorld->dynamicsContainer->getVortexIntParams(iParams);
-        App::currentWorld->dynamicsContainer->getVortexFloatParams(fParams);
-        cmd.intVectorParams.push_back(iParams);
-        cmd.floatVectorParams.push_back(fParams);
-        iParams.clear();
-        fParams.clear();
-        App::currentWorld->dynamicsContainer->getNewtonIntParams(iParams);
-        App::currentWorld->dynamicsContainer->getNewtonFloatParams(fParams);
-        cmd.intVectorParams.push_back(iParams);
-        cmd.floatVectorParams.push_back(fParams);
-        iParams.clear();
-        fParams.clear();
-        App::appendSimulationThreadCommand(cmd);
-        }
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

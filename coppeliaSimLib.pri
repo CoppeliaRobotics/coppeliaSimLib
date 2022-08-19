@@ -221,9 +221,6 @@ WITH_SERIAL {
 }
 
 WITH_GUI {
-    INCLUDEPATH += $$PWD/"sourceCode/gui/qtPropertyBrowserRelated"
-    INCLUDEPATH += $$PWD/"sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles"
-    INCLUDEPATH += $$PWD/"sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles"
     INCLUDEPATH += $$PWD/"sourceCode/gui/dialogs"
     INCLUDEPATH += $$PWD/"sourceCode/gui/dialogs/other"
     INCLUDEPATH += $$PWD/"sourceCode/gui/platform"
@@ -692,23 +689,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/other/dlgCont.h \
         $$PWD/sourceCode/gui/dialogs/other/qsim_openglwidget.h \
 
-    HEADERS += $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtbuttonpropertybrowser.h \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qteditorfactory.h \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtgroupboxpropertybrowser.h \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertybrowser.h \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertybrowserutils_p.h \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertymanager.h \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qttreepropertybrowser.h \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtvariantproperty.h \
-
-    HEADERS += $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/buttoneditfactory.h \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/buttoneditmanager.h \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/pushbuttonedit.h \
-
-    HEADERS += $$PWD/sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_material.h \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_general.h \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_joint.h \
-
     HEADERS += $$PWD/sourceCode/gui/platform/vMessageBox.h \
         $$PWD/sourceCode/gui/platform/vMenubar.h \
         $$PWD/sourceCode/gui/platform/vFileDialog.h \
@@ -1104,23 +1084,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgtranslation.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgrotation.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgtranslationrotationcont.cpp \
-
-    SOURCES += $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtbuttonpropertybrowser.cpp \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qteditorfactory.cpp \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtgroupboxpropertybrowser.cpp \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertybrowser.cpp \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertybrowserutils.cpp \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtpropertymanager.cpp \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qttreepropertybrowser.cpp \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserFiles/qtvariantproperty.cpp \
-
-    SOURCES += $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/buttoneditfactory.cpp \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/buttoneditmanager.cpp \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/qtPropertyBrowserRelatedFiles/pushbuttonedit.cpp \
-
-    SOURCES += $$PWD/sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_material.cpp \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_general.cpp \
-        $$PWD/sourceCode/gui/qtPropertyBrowserRelated/propBrowser_engineProp_joint.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/dialogs/other/editboxdelegate.cpp \
         $$PWD/sourceCode/gui/dialogs/other/toolDlgWrapper.cpp \

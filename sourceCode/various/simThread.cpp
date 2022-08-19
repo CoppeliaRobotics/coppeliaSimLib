@@ -1306,18 +1306,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             App::currentWorld->dynamicsContainer->setCurrentDynamicStepSize(cmd.floatParams[0]);
         }
-        if (cmd.cmdId==SET_ALLGLOBALPARAMS_DYNAMICSGUITRIGGEREDCMD)
-        {
-            App::currentWorld->dynamicsContainer->setBulletIntParams(cmd.intVectorParams[0]);
-            App::currentWorld->dynamicsContainer->setBulletFloatParams(cmd.floatVectorParams[0]);
-            App::currentWorld->dynamicsContainer->setOdeIntParams(cmd.intVectorParams[1]);
-            App::currentWorld->dynamicsContainer->setOdeFloatParams(cmd.floatVectorParams[1]);
-            App::currentWorld->dynamicsContainer->setVortexIntParams(cmd.intVectorParams[2]);
-            App::currentWorld->dynamicsContainer->setVortexFloatParams(cmd.floatVectorParams[2]);
-            App::currentWorld->dynamicsContainer->setNewtonIntParams(cmd.intVectorParams[3]);
-            App::currentWorld->dynamicsContainer->setNewtonFloatParams(cmd.floatVectorParams[3]);
-        }
-
         if (cmd.cmdId==TOGGLE_EXPLICITHANDLING_PROXSENSORGUITRIGGEREDCMD)
         {
             CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
@@ -3049,21 +3037,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
                 it->setMotorLock(!it->getMotorLock());
         }
-        if (cmd.cmdId==SET_ALLENGINEPARAMS_JOINTDYNGUITRIGGEREDCMD)
-        {
-            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                it->setBulletIntParams(cmd.intVectorParams[0]);
-                it->setBulletFloatParams(cmd.floatVectorParams[0]);
-                it->setOdeIntParams(cmd.intVectorParams[1]);
-                it->setOdeFloatParams(cmd.floatVectorParams[1]);
-                it->setVortexIntParams(cmd.intVectorParams[2]);
-                it->setVortexFloatParams(cmd.floatVectorParams[2]);
-                it->setNewtonIntParams(cmd.intVectorParams[3]);
-                it->setNewtonFloatParams(cmd.floatVectorParams[3]);
-            }
-        }
         if (cmd.cmdId==APPLY_ALLENGINEPARAMS_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
@@ -3379,23 +3352,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         it->getMeshWrapper()->setMass(mass);
                     }
                 }
-            }
-        }
-        if (cmd.cmdId==SET_ENGINEPARAMS_SHAPEDYNGUITRIGGEREDCMD)
-        { // old
-            CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                CDynMaterialObject* mat=it->getDynMaterial();
-                mat->setObjectName(cmd.stringParams[0].c_str());
-                mat->setBulletIntParams(cmd.intVectorParams[0]);
-                mat->setBulletFloatParams(cmd.floatVectorParams[0]);
-                mat->setOdeIntParams(cmd.intVectorParams[1]);
-                mat->setOdeFloatParams(cmd.floatVectorParams[1]);
-                mat->setVortexIntParams(cmd.intVectorParams[2]);
-                mat->setVortexFloatParams(cmd.floatVectorParams[2]);
-                mat->setNewtonIntParams(cmd.intVectorParams[3]);
-                mat->setNewtonFloatParams(cmd.floatVectorParams[3]);
             }
         }
         if (cmd.cmdId==SET_MATERIAL_SHAPEDYNGUITRIGGEREDCMD)
