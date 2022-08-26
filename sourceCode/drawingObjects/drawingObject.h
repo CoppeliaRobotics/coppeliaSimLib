@@ -18,6 +18,7 @@ public:
     long long int getObjectUid() const;
     int getObjectId() const;
     bool addItem(const float* itemData);
+    void addItems(const float* itemData,size_t itemCnt);
     void setItems(const float* itemData,size_t itemCnt);
     int getObjectType() const;
     bool announceObjectWillBeErased(const CSceneObject* object);

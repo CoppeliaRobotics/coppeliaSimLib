@@ -159,15 +159,18 @@ bool CDummy::setEngineBoolParam(int what,bool v)
         int b=1;
         int w=(what-sim_mujoco_dummy_limited);
         while (w>0) {b*=2; w--;}
-        _mujocoIntParams[simi_mujoco_dummy_bitcoded]|=b;
+
+        int bitCoded=getEngineIntParam(sim_mujoco_dummy_bitcoded,nullptr);
+        bitCoded|=b;
         if (!v)
-            _mujocoIntParams[simi_mujoco_dummy_bitcoded]-=b;
+            bitCoded-=b;
+        setEngineIntParam(sim_mujoco_dummy_bitcoded,bitCoded);
         return(true);
     }
     return(false);
 }
 
-void CDummy::setMujocoFloatParams(const std::vector<float>& pp)
+void CDummy::setMujocoFloatParams(const std::vector<float>& pp,bool reflectToLinkedDummy/*=true*/)
 {
     std::vector<float> p(pp);
     bool diff=(_mujocoFloatParams.size()!=p.size());
@@ -185,22 +188,12 @@ void CDummy::setMujocoFloatParams(const std::vector<float>& pp)
     if (diff)
     {
         _mujocoFloatParams.assign(p.begin(),p.end());
-        _reflectPropToLinkedDummy();
+        if (reflectToLinkedDummy)
+            _reflectPropToLinkedDummy();
     }
 }
 
-void CDummy::_reflectPropToLinkedDummy() const
-{ // will not infinitely recurse since once identical, it stops
-    if ( (_linkedDummyHandle!=-1)&&((_linkType==sim_dummylink_dynloopclosure)||(_linkType==sim_dummylink_dyntendon)) )
-    {
-  //      CDummy* l=App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
-  //      l->setMujocoFloatParams(_mujocoFloatParams);
-  //      l->setMujocoIntParams(_mujocoIntParams);
- //       problem here!
-    }
-}
-
-void CDummy::setMujocoIntParams(const std::vector<int>& p)
+void CDummy::setMujocoIntParams(const std::vector<int>& p,bool reflectToLinkedDummy/*=true*/)
 {
     bool diff=(_mujocoIntParams.size()!=p.size());
     if (!diff)
@@ -217,7 +210,18 @@ void CDummy::setMujocoIntParams(const std::vector<int>& p)
     if (diff)
     {
         _mujocoIntParams.assign(p.begin(),p.end());
-        _reflectPropToLinkedDummy();
+        if (reflectToLinkedDummy)
+            _reflectPropToLinkedDummy();
+    }
+}
+
+void CDummy::_reflectPropToLinkedDummy() const
+{ // will not infinitely recurse since once identical, it stops
+    if ( (_linkedDummyHandle!=-1)&&((_linkType==sim_dummylink_dynloopclosure)||(_linkType==sim_dummylink_dyntendon)) )
+    {
+        CDummy* l=App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
+        l->setMujocoFloatParams(_mujocoFloatParams,false);
+        l->setMujocoIntParams(_mujocoIntParams,false);
     }
 }
 

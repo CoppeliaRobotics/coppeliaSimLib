@@ -791,6 +791,9 @@ void CUserSettings::loadUserSettings()
     std::string file(CFolderSystem::getUserSettingsPath());
     file+="/";
     file+=USER_SETTINGS_FILENAME;
+    std::string tmp("user settings file is ");
+    tmp+=file;
+    App::logMsg(sim_verbosity_loadinfos,tmp.c_str());
     if (!c.readConfiguration(file.c_str()))
         saveUserSettings();
 

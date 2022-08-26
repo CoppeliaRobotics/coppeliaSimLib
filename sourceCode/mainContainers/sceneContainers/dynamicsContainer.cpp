@@ -1651,6 +1651,7 @@ void CDynamicsContainer::serialize(CSer& ar)
             ar.xmlAddNode_int("solver",getEngineIntParam(sim_mujoco_global_solver,nullptr));
             ar.xmlAddNode_int("njmax",getEngineIntParam(sim_mujoco_global_njmax,nullptr));
             ar.xmlAddNode_int("nconmax",getEngineIntParam(sim_mujoco_global_nconmax,nullptr));
+            ar.xmlAddNode_int("nstack",getEngineIntParam(sim_mujoco_global_nstack,nullptr));
             ar.xmlAddNode_int("cone",getEngineIntParam(sim_mujoco_global_cone,nullptr));
             ar.xmlAddNode_int("overridekin",getEngineIntParam(sim_mujoco_global_overridekin,nullptr));
             ar.xmlAddNode_bool("computeinertias",getEngineBoolParam(sim_mujoco_global_computeinertias,nullptr));
@@ -1804,6 +1805,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                     if (ar.xmlGetNode_int("solver",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_solver,vi);
                     if (ar.xmlGetNode_int("njmax",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_njmax,vi);
                     if (ar.xmlGetNode_int("nconmax",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_nconmax,vi);
+                    if (ar.xmlGetNode_int("nstack",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_nstack,vi);
                     if (ar.xmlGetNode_int("cone",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_cone,vi);
                     if (ar.xmlGetNode_int("overridekin",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_overridekin,vi);
                     if (ar.xmlGetNode_bool("computeinertias",vb,exhaustiveXml)) setEngineBoolParam(sim_mujoco_global_computeinertias,vb);
@@ -2046,9 +2048,10 @@ void CDynamicsContainer::getMujocoDefaultIntParams(std::vector<int>& p,int defTy
     p.push_back(100); // simi_mujoco_global_iterations
     p.push_back(0); // simi_mujoco_global_integrator, Euler
     p.push_back(2); // simi_mujoco_global_solver, Newton
-    p.push_back(1000); // simi_mujoco_global_njmax
-    p.push_back(500); // simi_mujoco_global_nconmax
+    p.push_back(5000); // simi_mujoco_global_njmax
+    p.push_back(2000); // simi_mujoco_global_nconmax
     p.push_back(0); // simi_mujoco_global_cone, pyramidal
     p.push_back(0); // simi_mujoco_global_overridekin, do not override
+    p.push_back(-1); // simi_mujoco_global_nstack
 }
 

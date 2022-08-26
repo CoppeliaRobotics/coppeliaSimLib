@@ -4080,7 +4080,6 @@ const SNewApiMapping _simApiMapping[]=
     "sim_handleflag_extended","sim.handleflag_extended",
     "sim_handleflag_greyscale","sim.handleflag_greyscale",
     "sim_handleflag_codedstring","sim.handleflag_codedstring",
-    "sim_handleflag_wxyzquaternion","sim.handleflag_wxyzquaternion",
     "sim_handleflag_model","sim.handleflag_model",
     "sim_handleflag_rawvalue","sim.handleflag_rawvalue",
     "sim_objectspecialproperty_collidable","sim.objectspecialproperty_collidable",

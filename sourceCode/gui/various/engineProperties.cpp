@@ -1405,10 +1405,12 @@ void CEngineProperties::_writeGlobal(int engine,CAnnJson& annJson) const
         annJson.addJson(jmujoco,"njMax",iv,comment.c_str());
         iv=_getGlobalIntParam(sim_mujoco_global_nconmax,comment);
         annJson.addJson(jmujoco,"nconMax",iv,comment.c_str());
+        iv=_getGlobalIntParam(sim_mujoco_global_nstack,comment);
+        annJson.addJson(jmujoco,"nstack",iv,comment.c_str());
         iv=_getGlobalIntParam(sim_mujoco_global_cone,comment,"0=pyramidal, 1=elliptic");
         annJson.addJson(jmujoco,"cone",iv,comment.c_str());
         QJsonObject jmujocoKinematic;
-        iv=_getGlobalIntParam(sim_mujoco_global_overridekin,comment,"0=do not override,1=all disabled,2=all enabled");
+        iv=_getGlobalIntParam(sim_mujoco_global_overridekin,comment,"0=do not override, 1=all disabled, 2=all enabled");
         annJson.addJson(jmujocoKinematic,"overrideFlags",iv,comment.c_str());
         fv=_getGlobalFloatParam(sim_mujoco_global_kinmass,comment);
         annJson.addJson(jmujocoKinematic,"mass",fv,comment.c_str());
@@ -1572,6 +1574,8 @@ void CEngineProperties::_readGlobal(int engine,CAnnJson& annJson,std::string* al
                 App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_njmax,val.toInt());
             if (annJson.getValue(mujoco,"nconMax",QJsonValue::Double,val,allErrors))
                 App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_nconmax,val.toInt());
+            if (annJson.getValue(mujoco,"nstack",QJsonValue::Double,val,allErrors))
+                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_nstack,val.toInt());
             if (annJson.getValue(mujoco,"cone",QJsonValue::Double,val,allErrors))
                 App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_cone,val.toInt());
             if (annJson.getValue(mujoco,"kinematicBodies",QJsonValue::Object,val,allErrors))

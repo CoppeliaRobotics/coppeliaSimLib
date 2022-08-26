@@ -222,7 +222,7 @@ void CJoint::_commonInit()
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_springref
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_springdamper1
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_springdamper2
-    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_armature
+    _mujocoFloatParams.push_back(0.02f); //sim_mujoco_joint_armature
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_margin
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_polycoef1
     _mujocoFloatParams.push_back(1.0); //sim_mujoco_joint_polycoef2
@@ -2267,7 +2267,7 @@ void CJoint::serialize(CSer& ar)
                 ar << _newtonIntParams[i];
             ar.flush();
 
-            ar.storeDataName("Mj1"); // mujoco params:
+            ar.storeDataName("Mj2"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
             for (int i=0;i<int(_mujocoFloatParams.size());i++)
                 ar << _mujocoFloatParams[i];
@@ -2600,7 +2600,7 @@ void CJoint::serialize(CSer& ar)
                             ar >> vi;
                         }
                     }
-                    if (theName.compare("Mj1")==0)
+                    if (theName.compare("Mj2")==0)
                     { // Mujoco params:
                         noHit=false;
                         ar >> byteQuantity;

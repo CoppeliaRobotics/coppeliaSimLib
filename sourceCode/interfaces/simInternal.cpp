@@ -1527,6 +1527,8 @@ simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
 simInt simGetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHandle,simFloat* pose)
 {
     TRACE_C_API;
+    // CoppeliaSim quaternion, internally: w x y z
+    // CoppeliaSim quaternion, at interfaces (default): x y z w
 
     if (!isSimulatorInitialized(__func__))
         return(-1);
@@ -1571,7 +1573,7 @@ simInt simGetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHand
         }
         if (inverse)
             tr.inverse();
-        tr.getInternalData(pose,true);
+        tr.getInternalData(pose,(handleFlags&sim_handleflag_wxyzquat)==0);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -1613,7 +1615,7 @@ simInt simSetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHand
         if (it->getDynamicFlag()>1) // for non-static shapes, and other objects that are in the dyn. world
             it->setDynamicsResetFlag(true,true);
         C7Vector tr;
-        tr.setInternalData(pose,true);
+        tr.setInternalData(pose,(handleFlags&sim_handleflag_wxyzquat)==0);
         if (inverse)
             tr.inverse();
         CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
@@ -11613,15 +11615,7 @@ simInt simGetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
                 }
             }
         }
-        if ((handleFlags&sim_handleflag_wxyzquaternion)!=0)
-            tr.Q.getInternalData(quaternion);
-        else
-        {
-            quaternion[0]=tr.Q(1);
-            quaternion[1]=tr.Q(2);
-            quaternion[2]=tr.Q(3);
-            quaternion[3]=tr.Q(0);
-        }
+        tr.Q.getInternalData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -11663,15 +11657,7 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
         if (relObj==nullptr)
         {
             C4Vector q;
-            if ((handleFlags&sim_handleflag_wxyzquaternion)!=0)
-                q.setInternalData(quaternion);
-            else
-            {
-                q(0)=quaternion[3];
-                q(1)=quaternion[0];
-                q(2)=quaternion[1];
-                q(3)=quaternion[2];
-            }
+            q.setInternalData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),q.getEulerAngles());
         }
         else
@@ -11679,15 +11665,7 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
             if ( (it->getParent()==relObj)&&((handleFlags&sim_handleflag_reljointbaseframe)==0) )
             { // special here, in order to not lose precision in a series of get/set
                 C7Vector tr(it->getLocalTransformation());
-                if ((handleFlags&sim_handleflag_wxyzquaternion)!=0)
-                    tr.Q.setInternalData(quaternion);
-                else
-                {
-                    tr.Q(0)=quaternion[3];
-                    tr.Q(1)=quaternion[0];
-                    tr.Q(2)=quaternion[1];
-                    tr.Q(3)=quaternion[2];
-                }
+                tr.Q.setInternalData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
                 it->setLocalTransformation(tr);
             }
             else
@@ -11699,15 +11677,7 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
                 else
                     relTr=relObj->getFullCumulativeTransformation();
                 C7Vector x(relTr.getInverse()*absTr);
-                if ((handleFlags&sim_handleflag_wxyzquaternion)!=0)
-                    x.Q.setInternalData(quaternion);
-                else
-                {
-                    x.Q(0)=quaternion[3];
-                    x.Q(1)=quaternion[0];
-                    x.Q(2)=quaternion[1];
-                    x.Q(3)=quaternion[2];
-                }
+                x.Q.setInternalData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
                 absTr=relTr*x;
                 App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),absTr.Q.getEulerAngles());
             }

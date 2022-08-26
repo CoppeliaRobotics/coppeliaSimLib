@@ -192,6 +192,11 @@ void CDrawingObject::adjustForScaling(float xScale,float yScale,float zScale)
 void CDrawingObject::setItems(const float* itemData,size_t itemCnt)
 {
     addItem(nullptr);
+    addItems(itemData,itemCnt);
+}
+
+void CDrawingObject::addItems(const float* itemData,size_t itemCnt)
+{
     size_t off=size_t(verticesPerItem*3+quaternionsPerItem*4+colorsPerItem*3+otherFloatsPerItem);
     for (size_t i=0;i<itemCnt;i++)
         addItem(itemData+off*i);

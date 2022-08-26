@@ -107,8 +107,8 @@ public:
 protected:
     void getMujocoFloatParams(std::vector<float>& p) const;
     void getMujocoIntParams(std::vector<int>& p) const;
-    void setMujocoFloatParams(const std::vector<float>& p);
-    void setMujocoIntParams(const std::vector<int>& p);
+    void setMujocoFloatParams(const std::vector<float>& p,bool reflectToLinkedDummy=true);
+    void setMujocoIntParams(const std::vector<int>& p,bool reflectToLinkedDummy=true);
 
     void _reflectPropToLinkedDummy() const;
     void _setLinkedDummyHandle_sendOldIk(int h) const;
