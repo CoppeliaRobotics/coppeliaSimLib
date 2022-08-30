@@ -1594,7 +1594,21 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         vars["message"]=msg;
         vars["origin"]=originName?originName:"CoppeliaSim";
         vars["verbosity"]="unknown";
-        vars["color"]="#383838";
+        if (qtApp!=nullptr)
+        {
+            QColor col=qtApp->style()->standardPalette().windowText().color();
+            int rgb[3];
+            col.getRgb(rgb+0,rgb+1,rgb+2);
+            int incr=56;
+            if (rgb[0]>128)
+                incr=-incr;
+            for (int i=1;i<3;i++)
+                rgb[i]+=incr;
+            col.setRgb(rgb[0],rgb[1],rgb[2]);
+            vars["color"]=col.name().toStdString();
+        }
+        else
+            vars["color"]="#383838";
         int64_t t=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         std::stringstream ss; ss<<std::fixed<<std::setprecision(3)<<0.001*t;
         vars["time"]=ss.str();

@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <vector>
 #include <string>
+#include <map>
 
 class CAnnJson
 {

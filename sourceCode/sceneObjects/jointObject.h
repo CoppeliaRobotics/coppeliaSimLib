@@ -281,7 +281,7 @@ public:
     void getDynamicJointErrorsFull(C3Vector& linear,C3Vector& angular) const;
 
     bool handleMotion(int scriptType);
-    int handleDynJoint(int flags,int loopCnt,int totalLoops,float currentPosVelAccel[3],float effort,float dynStepSize,float errorV,float velAndForce[2]);
+    int handleDynJoint(int flags,const int intVals[3],float currentPosVelAccel[3],float effort,float dynStepSize,float errorV,float velAndForce[2]);
 
     void setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp,float simTime);
 

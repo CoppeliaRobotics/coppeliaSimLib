@@ -1140,7 +1140,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.jointfloatparam_spherical_qy",sim_jointfloatparam_spherical_qy,true},
     {"sim.jointfloatparam_spherical_qz",sim_jointfloatparam_spherical_qz,true},
     {"sim.jointfloatparam_spherical_qw",sim_jointfloatparam_spherical_qw,true},
-    {"sim.jointfloatparam_upper_limit",sim_jointfloatparam_upper_limit,true},
     {"sim.jointfloatparam_kc_k",sim_jointfloatparam_kc_k,true},
     {"sim.jointfloatparam_kc_c",sim_jointfloatparam_kc_c,true},
     {"sim.jointfloatparam_error_x",sim_jointfloatparam_error_x,true},
@@ -1827,6 +1826,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.jointfloatparam_pid_p",sim_jointfloatparam_pid_p,false},
     {"sim.jointfloatparam_pid_i",sim_jointfloatparam_pid_i,false},
     {"sim.jointfloatparam_pid_d",sim_jointfloatparam_pid_d,false},
+    {"sim.jointfloatparam_upper_limit",sim_jointfloatparam_upper_limit,false},
 
     {"",-1}
 };

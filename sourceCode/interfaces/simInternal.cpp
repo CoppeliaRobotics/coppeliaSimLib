@@ -16861,7 +16861,7 @@ simInt _simHandleJointControl_internal(const simVoid* joint,simInt auxV,const si
 {
     TRACE_C_API;
     float currentPosVelAccel[3]={inputValuesFloat[0],inputValuesFloat[4],inputValuesFloat[5]};
-    return(((CJoint*)joint)->handleDynJoint(auxV,inputValuesInt[0],inputValuesInt[1],currentPosVelAccel,inputValuesFloat[1],inputValuesFloat[2],inputValuesFloat[3],outputValues));
+    return(((CJoint*)joint)->handleDynJoint(auxV,inputValuesInt,currentPosVelAccel,inputValuesFloat[1],inputValuesFloat[2],inputValuesFloat[3],outputValues));
 }
 
 simInt _simGetJointCallbackCallOrder_internal(const simVoid* joint)

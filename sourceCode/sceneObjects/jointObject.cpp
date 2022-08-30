@@ -1541,10 +1541,13 @@ bool CJoint::getDynamicForceOrTorque(float& forceOrTorque,bool dynamicStepValue)
     }
 }
 
-int CJoint::handleDynJoint(int flags,int loopCnt,int totalLoops,float currentPosVelAccel[3],float effort,float dynStepSize,float errorV,float velAndForce[2])
+int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAccel[3],float effort,float dynStepSize,float errorV,float velAndForce[2])
 { // constant callback for every dynamically enabled joint, except for spherical joints. retVal: bit0 set: motor on, bit1 set: motor locked
     // Called before a dyn step. After the step, setDynamicMotorReflectedPosition_useOnlyFromDynamicPart is called
     // flags: bit0: init (first time called), bit1: currentPosVelAccel[1] is valid, bit2: currentPosVelAccel[2] is valid
+    int loopCnt=intVals[0];
+    int totalLoops=intVals[1];
+    int rk4=intVals[2];
     int retVal=1;
     if (_dynCtrlMode==sim_jointdynctrl_free)
         retVal=0;
@@ -1659,6 +1662,12 @@ int CJoint::handleDynJoint(int flags,int loopCnt,int totalLoops,float currentPos
                 inStack->pushStringOntoStack("currentPos",0);
                 inStack->pushFloatOntoStack(currentPosVelAccel[0]);
                 inStack->insertDataIntoStackTable();
+                if (rk4>0)
+                {
+                    inStack->pushStringOntoStack("rk4pass",0);
+                    inStack->pushInt32OntoStack(rk4);
+                    inStack->insertDataIntoStackTable();
+                }
                 inStack->pushStringOntoStack("currentVel",0);
                 float cv=_velCalc_vel;
                 if ((flags&2)!=0)

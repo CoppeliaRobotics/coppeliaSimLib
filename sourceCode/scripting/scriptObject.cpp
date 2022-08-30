@@ -6892,6 +6892,10 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
     }
     */
 
+
+    if (_containsScriptText_old(scriptObject,"sim.jointfloatparam_upper_limit"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.jointfloatparam_upper_limit...");
+
     if (_containsScriptText_old(scriptObject,"sim.dummy_linktype"))
         App::logMsg(sim_verbosity_errors,"Contains sim.dummy_linktype...");
 
