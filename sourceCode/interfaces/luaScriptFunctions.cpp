@@ -1128,9 +1128,6 @@ const SLuaVariables simLuaVariables[]=
     // joints
     {"sim.jointintparam_motor_enabled",sim_jointintparam_motor_enabled,true},
     {"sim.jointintparam_ctrl_enabled",sim_jointintparam_ctrl_enabled,true},
-    {"sim.jointfloatparam_pid_p",sim_jointfloatparam_pid_p,true},
-    {"sim.jointfloatparam_pid_i",sim_jointfloatparam_pid_i,true},
-    {"sim.jointfloatparam_pid_d",sim_jointfloatparam_pid_d,true},
     {"sim.jointfloatparam_intrinsic_x",sim_jointfloatparam_intrinsic_x,true},
     {"sim.jointfloatparam_intrinsic_y",sim_jointfloatparam_intrinsic_y,true},
     {"sim.jointfloatparam_intrinsic_z",sim_jointfloatparam_intrinsic_z,true},
@@ -1260,6 +1257,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.bullet_joint_stoperp",sim_bullet_joint_stoperp,true},
     {"sim.bullet_joint_stopcfm",sim_bullet_joint_stopcfm,true},
     {"sim.bullet_joint_normalcfm",sim_bullet_joint_normalcfm,true},
+    {"sim.bullet_joint_pospid1",sim_bullet_joint_pospid1,true},
+    {"sim.bullet_joint_pospid2",sim_bullet_joint_pospid2,true},
+    {"sim.bullet_joint_pospid3",sim_bullet_joint_pospid3,true},
     {"sim.bullet_body_restitution",sim_bullet_body_restitution,true},
     {"sim.bullet_body_oldfriction",sim_bullet_body_oldfriction,true},
     {"sim.bullet_body_friction",sim_bullet_body_friction,true},
@@ -1287,6 +1287,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.ode_joint_bounce",sim_ode_joint_bounce,true},
     {"sim.ode_joint_fudgefactor",sim_ode_joint_fudgefactor,true},
     {"sim.ode_joint_normalcfm",sim_ode_joint_normalcfm,true},
+    {"sim.ode_joint_pospid1",sim_ode_joint_pospid1,true},
+    {"sim.ode_joint_pospid2",sim_ode_joint_pospid2,true},
+    {"sim.ode_joint_pospid3",sim_ode_joint_pospid3,true},
     {"sim.ode_body_friction",sim_ode_body_friction,true},
     {"sim.ode_body_softerp",sim_ode_body_softerp,true},
     {"sim.ode_body_softcfm",sim_ode_body_softcfm,true},
@@ -1363,6 +1366,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.vortex_joint_dependentobjectid",sim_vortex_joint_dependentobjectid,true},
     {"sim.vortex_joint_motorfrictionenabled",sim_vortex_joint_motorfrictionenabled,true},
     {"sim.vortex_joint_proportionalmotorfriction",sim_vortex_joint_proportionalmotorfriction,true},
+    {"sim.vortex_joint_pospid1",sim_vortex_joint_pospid1,true},
+    {"sim.vortex_joint_pospid2",sim_vortex_joint_pospid2,true},
+    {"sim.vortex_joint_pospid3",sim_vortex_joint_pospid3,true},
     {"sim.vortex_body_primlinearaxisfriction",sim_vortex_body_primlinearaxisfriction,true},
     {"sim.vortex_body_seclinearaxisfriction",sim_vortex_body_seclinearaxisfriction,true},
     {"sim.vortex_body_primangularaxisfriction",sim_vortex_body_primangularaxisfriction,true},
@@ -1430,6 +1436,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.newton_joint_dependencyoffset",sim_newton_joint_dependencyoffset,true},
     {"sim.newton_joint_objectid",sim_newton_joint_objectid,true},
     {"sim.newton_joint_dependentobjectid",sim_newton_joint_dependentobjectid,true},
+    {"sim.newton_joint_pospid1",sim_newton_joint_pospid1,true},
+    {"sim.newton_joint_pospid2",sim_newton_joint_pospid2,true},
+    {"sim.newton_joint_pospid3",sim_newton_joint_pospid3,true},
     {"sim.newton_body_staticfriction",sim_newton_body_staticfriction,true},
     {"sim.newton_body_kineticfriction",sim_newton_body_kineticfriction,true},
     {"sim.newton_body_restitution",sim_newton_body_restitution,true},
@@ -1498,6 +1507,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.mujoco_joint_polycoef4",sim_mujoco_joint_polycoef4,true},
     {"sim.mujoco_joint_polycoef5",sim_mujoco_joint_polycoef5,true},
     {"sim.mujoco_joint_dependentobjectid",sim_mujoco_joint_dependentobjectid,true},
+    {"sim.mujoco_joint_pospid1",sim_mujoco_joint_pospid1,true},
+    {"sim.mujoco_joint_pospid2",sim_mujoco_joint_pospid2,true},
+    {"sim.mujoco_joint_pospid3",sim_mujoco_joint_pospid3,true},
     {"sim.mujoco_body_friction1",sim_mujoco_body_friction1,true},
     {"sim.mujoco_body_friction2",sim_mujoco_body_friction2,true},
     {"sim.mujoco_body_friction3",sim_mujoco_body_friction3,true},
@@ -1812,6 +1824,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.ode_global_stepsize",sim_ode_global_stepsize,false},
     {"sim.vortex_global_stepsize",sim_vortex_global_stepsize,false},
     {"sim.newton_global_stepsize",sim_newton_global_stepsize,false},
+    {"sim.jointfloatparam_pid_p",sim_jointfloatparam_pid_p,false},
+    {"sim.jointfloatparam_pid_i",sim_jointfloatparam_pid_i,false},
+    {"sim.jointfloatparam_pid_d",sim_jointfloatparam_pid_d,false},
 
     {"",-1}
 };
@@ -3295,7 +3310,7 @@ int _simSetJointTargetPosition(luaWrap_lua_State* L)
                         getFloatsFromTable(L,3,std::min<size_t>(luaWrap_lua_rawlen(L,3),4),maxVelPID);
                         maxVelAccelJerk[0]=maxVelPID[0];
                         joint->setMaxVelAccelJerk(maxVelAccelJerk);
-                        joint->setPid(maxVelPID[1],maxVelPID[2],maxVelPID[3]);
+                        joint->setPid_old(maxVelPID[1],maxVelPID[2],maxVelPID[3]); // for backward compatibility
                     }
                     else
                     { // Motion profile

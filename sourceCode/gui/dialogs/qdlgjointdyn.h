@@ -27,10 +27,6 @@ private slots:
     void on_qqVelocityMode_motorLock_clicked();
     void on_qqPositionMode_position_editingFinished();
     void on_qqPositionMode_force_editingFinished();
-    void on_qqPositionMode_upperVel_editingFinished();
-    void on_qqP_editingFinished();
-    void on_qqI_editingFinished();
-    void on_qqD_editingFinished();
     void on_qqPositionMode_cb_clicked();
     void on_qqSpringMode_position_editingFinished();
     void on_qqK_editingFinished();
@@ -39,8 +35,6 @@ private slots:
     void on_qqAdjustEngineProperties_clicked();
 
     void on_qqCombo_currentIndexChanged(int index);
-
-    void on_qqPositionMode_pid_clicked();
 
     void on_qqPositionMode_ruckig_clicked();
 

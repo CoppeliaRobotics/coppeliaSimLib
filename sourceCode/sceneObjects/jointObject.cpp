@@ -94,13 +94,10 @@ void CJoint::_commonInit()
     _intrinsicTransformationError.setIdentity();
 
     _dynCtrlMode=sim_jointdynctrl_free;
-    _dynPositionCtrlType=0; // PID by default
-    _dynVelocityCtrlType=0; // engine velocity mode by default
+    _dynPositionCtrlType=0; // engine velocity mode + Pos PID, by default
+    _dynVelocityCtrlType=0; // engine velocity mode, by default
     _motorLock=false;
     _targetForce=1000.0f; // This value has to be adjusted according to the joint type
-    _dynCtrl_pid[0]=0.1f;
-    _dynCtrl_pid[1]=0.0f;
-    _dynCtrl_pid[2]=0.0f;
     _dynCtrl_kc[0]=0.1f;
     _dynCtrl_kc[1]=0.0f;
 
@@ -111,8 +108,11 @@ void CJoint::_commonInit()
     _bulletFloatParams.push_back(0.2f); // simi_bullet_joint_stoperp
     _bulletFloatParams.push_back(0.0f); // simi_bullet_joint_stopcfm
     _bulletFloatParams.push_back(0.0f); // simi_bullet_joint_normalcfm
-    _bulletFloatParams.push_back(0.0f); // Free
-    _bulletFloatParams.push_back(0.0f); // Free
+    _bulletFloatParams.push_back(0.0f); // free but 0.0 by default
+    _bulletFloatParams.push_back(0.0f); // free but 0.0 by default
+    _bulletFloatParams.push_back(0.1f); // simi_bullet_joint_pospid1
+    _bulletFloatParams.push_back(0.0f); // simi_bullet_joint_pospid2
+    _bulletFloatParams.push_back(0.0f); // simi_bullet_joint_pospid3
 
     _bulletIntParams.push_back(0); // Free
     // ----------------------------------------------------
@@ -124,6 +124,9 @@ void CJoint::_commonInit()
     _odeFloatParams.push_back(0.0f); // simi_ode_joint_bounce
     _odeFloatParams.push_back(1.0f); // simi_ode_joint_fudgefactor
     _odeFloatParams.push_back(0.00001f); // simi_ode_joint_normalcfm
+    _odeFloatParams.push_back(0.1f); // simi_ode_joint_pospid1
+    _odeFloatParams.push_back(0.0f); // simi_ode_joint_pospid2
+    _odeFloatParams.push_back(0.0f); // simi_ode_joint_pospid3
 
     _odeIntParams.push_back(0); // Free
     // ----------------------------------------------------
@@ -179,8 +182,11 @@ void CJoint::_commonInit()
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2frictionloss
     _vortexFloatParams.push_back(1.0f); // simi_vortex_joint_dependencyfactor
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_dependencyoffset
-    _vortexFloatParams.push_back(0.0f); // reserved for future ext.
-    _vortexFloatParams.push_back(0.0f); // reserved for future ext.
+    _vortexFloatParams.push_back(0.0f); // free but 0.0 by default
+    _vortexFloatParams.push_back(0.0f); // free but 0.0 by default
+    _vortexFloatParams.push_back(0.1f); // simi_vortex_joint_pospid1
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_pospid2
+    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_pospid3
 
     _vortexIntParams.push_back(simi_vortex_joint_proportionalmotorfriction); // simi_vortex_joint_bitcoded
     _vortexIntParams.push_back(0); // simi_vortex_joint_relaxationenabledbc. 1 bit per dof
@@ -195,6 +201,9 @@ void CJoint::_commonInit()
     // ----------------------------------------------------
     _newtonFloatParams.push_back(1.0f); // simi_newton_joint_dependencyfactor
     _newtonFloatParams.push_back(0.0f); // simi_newton_joint_dependencyoffset
+    _newtonFloatParams.push_back(0.1f); // simi_newton_joint_pospid1
+    _newtonFloatParams.push_back(0.0f); // simi_newton_joint_pospid2
+    _newtonFloatParams.push_back(0.0f); // simi_newton_joint_pospid3
 
     _newtonIntParams.push_back(-1); // simi_newton_joint_objectid. The ID is redefined in each session
     _newtonIntParams.push_back(-1); // simi_newton_joint_dependentobjectid
@@ -229,6 +238,9 @@ void CJoint::_commonInit()
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_polycoef3
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_polycoef4
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_polycoef5
+    _mujocoFloatParams.push_back(0.1f); // simi_mujoco_joint_pospid1
+    _mujocoFloatParams.push_back(0.0f); // simi_mujoco_joint_pospid2
+    _mujocoFloatParams.push_back(0.0f); // simi_mujoco_joint_pospid3
 
     _mujocoIntParams.push_back(-1); // sim_mujoco_joint_objectid. The ID is redefined in each session
     _mujocoIntParams.push_back(-1); // sim_mujoco_joint_dependentobjectid
@@ -668,17 +680,37 @@ void CJoint::setTargetForce(float f,bool isSigned)
     }
 }
 
-void CJoint::setPid(float p_param,float i_param,float d_param)
-{
-    p_param=tt::getLimitedFloat(-1000.0f,1000.0f,p_param);
-    i_param=tt::getLimitedFloat(-1000.0f,1000.0f,i_param);
-    d_param=tt::getLimitedFloat(-1000.0f,1000.0f,d_param);
-    bool diff=(_dynCtrl_pid[0]!=p_param)||(_dynCtrl_pid[1]!=i_param)||(_dynCtrl_pid[2]!=d_param);
-    if (diff)
+void CJoint::setPid_old(float p_param,float i_param,float d_param)
+{ // old, back-compatibility function
+    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_bullet)
     {
-        _dynCtrl_pid[0]=p_param;
-        _dynCtrl_pid[1]=i_param;
-        _dynCtrl_pid[2]=d_param;
+        setEngineFloatParam(sim_bullet_joint_pospid1,p_param);
+        setEngineFloatParam(sim_bullet_joint_pospid2,i_param);
+        setEngineFloatParam(sim_bullet_joint_pospid3,d_param);
+    }
+    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_ode)
+    {
+        setEngineFloatParam(sim_ode_joint_pospid1,p_param);
+        setEngineFloatParam(sim_ode_joint_pospid2,i_param);
+        setEngineFloatParam(sim_ode_joint_pospid3,d_param);
+    }
+    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_vortex)
+    {
+        setEngineFloatParam(sim_vortex_joint_pospid1,p_param);
+        setEngineFloatParam(sim_vortex_joint_pospid2,i_param);
+        setEngineFloatParam(sim_vortex_joint_pospid3,d_param);
+    }
+    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_newton)
+    {
+        setEngineFloatParam(sim_newton_joint_pospid1,p_param);
+        setEngineFloatParam(sim_newton_joint_pospid2,i_param);
+        setEngineFloatParam(sim_newton_joint_pospid3,d_param);
+    }
+    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_mujoco)
+    {
+        setEngineFloatParam(sim_mujoco_joint_pospid1,p_param);
+        setEngineFloatParam(sim_mujoco_joint_pospid2,i_param);
+        setEngineFloatParam(sim_mujoco_joint_pospid3,d_param);
     }
 }
 
@@ -871,9 +903,6 @@ void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
     _initialDynPositionCtrlType=_dynPositionCtrlType;
     _initialDynCtrl_lockAtVelZero=_motorLock;
     _initialDynCtrl_force=_targetForce;
-    _initialDynCtrl_pid[0]=_dynCtrl_pid[0];
-    _initialDynCtrl_pid[1]=_dynCtrl_pid[1];
-    _initialDynCtrl_pid[2]=_dynCtrl_pid[2];
     _initialDynCtrl_kc[0]=_dynCtrl_kc[0];
     _initialDynCtrl_kc[1]=_dynCtrl_kc[1];
 
@@ -922,7 +951,6 @@ void CJoint::simulationEnded()
             setMotorLock(_initialDynCtrl_lockAtVelZero);
             setTargetForce(_initialDynCtrl_force,true);
 
-            setPid(_initialDynCtrl_pid[0],_initialDynCtrl_pid[1],_initialDynCtrl_pid[2]);
             setKc(_initialDynCtrl_kc[0],_initialDynCtrl_kc[1]);
 
             setHybridFunctionality_old(_initialHybridOperation);
@@ -1725,9 +1753,8 @@ int CJoint::handleDynJoint(int flags,int loopCnt,int totalLoops,float currentPos
             }
             else
             { // PID or spring
-                float P=_dynCtrl_pid[0];
-                float I=_dynCtrl_pid[1];
-                float D=_dynCtrl_pid[2];
+                float P,I,D;
+                getPid(P,I,D);
                 if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
                 {
                     P=_dynCtrl_kc[0];
@@ -2050,9 +2077,6 @@ CSceneObject* CJoint::copyYourself()
     newJoint->_initialTargetVelocity=_initialTargetVelocity;
     newJoint->_initialDynCtrl_lockAtVelZero=_initialDynCtrl_lockAtVelZero;
     newJoint->_initialDynCtrl_force=_initialDynCtrl_force;
-    newJoint->_initialDynCtrl_pid[0]=_initialDynCtrl_pid[0];
-    newJoint->_initialDynCtrl_pid[1]=_initialDynCtrl_pid[1];
-    newJoint->_initialDynCtrl_pid[2]=_initialDynCtrl_pid[2];
     newJoint->_initialDynCtrl_kc[0]=_initialDynCtrl_kc[0];
     newJoint->_initialDynCtrl_kc[1]=_initialDynCtrl_kc[1];
     newJoint->_initialJointMode=_initialJointMode;
@@ -2071,7 +2095,6 @@ CSceneObject* CJoint::copyYourself()
     {
         newJoint->_maxVelAccelJerk[i]=_maxVelAccelJerk[i];
         newJoint->_initialMaxVelAccelJerk[i]=_initialMaxVelAccelJerk[i];
-        newJoint->_dynCtrl_pid[i]=_dynCtrl_pid[i];
     }
 
     return(newJoint);
@@ -2207,14 +2230,17 @@ void CJoint::serialize(CSer& ar)
             ar << _targetVel << _targetForce;
             ar.flush();
 
+            float P,I,D;
+            getPid(P,I,D);
             // Following for backward compatibility (7/5/2014):
-            // Keep this before "Dp2"!
+            // Keep this before "Dp2"
             ar.storeDataName("Dpc");
-            ar << _dynCtrl_pid[0] << (_dynCtrl_pid[1]*0.005f) << (_dynCtrl_pid[2]/0.005f);
+            ar << P << (I*0.005f) << (D/0.005f);
             ar.flush();
-
+            // Following for backward compatibility (29/8/2022):
+            // Keep this before "Mj3"
             ar.storeDataName("Dp2");
-            ar << _dynCtrl_pid[0] << _dynCtrl_pid[1] << _dynCtrl_pid[2];
+            ar << P << I << D;
             ar.flush();
 
             ar.storeDataName("Spp");
@@ -2267,7 +2293,7 @@ void CJoint::serialize(CSer& ar)
                 ar << _newtonIntParams[i];
             ar.flush();
 
-            ar.storeDataName("Mj2"); // mujoco params:
+            ar.storeDataName("Mj3"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
             for (int i=0;i<int(_mujocoFloatParams.size());i++)
                 ar << _mujocoFloatParams[i];
@@ -2437,17 +2463,20 @@ void CJoint::serialize(CSer& ar)
                     { // keep for backward compatibility (7/5/2014)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _dynCtrl_pid[0] >> _dynCtrl_pid[1] >> _dynCtrl_pid[2];
-                        _dynCtrl_pid[1]/=0.005f;
-                        _dynCtrl_pid[2]*=0.005f;
+                        float P,I,D;
+                        ar >> P >> I >> D;
+                        I/=0.005f;
+                        D*=0.005f;
+                        setPid_old(P,I,D);
                     }
                     if (theName.compare("Dp2")==0)
-                    {
+                    { // keep for backward compatibility (29/8/2022)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _dynCtrl_pid[0] >> _dynCtrl_pid[1] >> _dynCtrl_pid[2];
+                        float P,I,D;
+                        ar >> P >> I >> D;
+                        setPid_old(P,I,D);
                     }
-
                     if (theName.compare("Spp")==0)
                     {
                         noHit=false;
@@ -2600,7 +2629,7 @@ void CJoint::serialize(CSer& ar)
                             ar >> vi;
                         }
                     }
-                    if (theName.compare("Mj2")==0)
+                    if (theName.compare("Mj3")==0)
                     { // Mujoco params:
                         noHit=false;
                         ar >> byteQuantity;
@@ -2694,18 +2723,21 @@ void CJoint::serialize(CSer& ar)
                 { // for backward compatibility (7/5/2014):
                     if (motorEnabled_old&&ctrlEnabled_old&&springMode_old)
                     { // we have a joint that behaves as a spring. We need to compute the corresponding K and C parameters, and adjust the max. force/torque (since that was not limited before):
-                        _dynCtrl_kc[0]=_targetForce*_dynCtrl_pid[0];
-                        _dynCtrl_kc[1]=_targetForce*_dynCtrl_pid[2];
+                        float P,I,D;
+                        getPid(P,I,D);
+                        _dynCtrl_kc[0]=_targetForce*P;
+                        _dynCtrl_kc[1]=_targetForce*D;
                         float maxTolerablePorDParam=1.0f;
                         if (_jointType==sim_joint_revolute_subtype)
                             maxTolerablePorDParam=1.0f/piValTimes2_f;
-                        float maxPorD=std::max<float>(fabs(_dynCtrl_pid[0]),fabs(_dynCtrl_pid[2]));
+                        float maxPorD=std::max<float>(fabs(P),fabs(D));
                         if (maxPorD>maxTolerablePorDParam)
                         { // we shift the limit up
                             float corr=maxTolerablePorDParam/maxPorD;
-                            _dynCtrl_pid[0]*=corr;
-                            _dynCtrl_pid[1]*=corr;
-                            _dynCtrl_pid[2]*=corr;
+                            P*=corr;
+                            I*=corr;
+                            D*=corr;
+                            setPid_old(P,I,D);
                             _targetForce/=corr;
                         }
                     }
@@ -2809,8 +2841,12 @@ void CJoint::serialize(CSer& ar)
             ar.xmlAddNode_comment(" 'velController' tag: can be 'none' or 'motionProfile' ",exhaustiveXml);
             ar.xmlAddNode_enum("velController",_dynVelocityCtrlType,0,"none",1,"motionProfile");
             ar.xmlAddNode_float("maxForce",_targetForce);
+            ar.xmlAddNode_comment(" 'upperVelocityLimit' tag only used for backward compatibility",exhaustiveXml);
             ar.xmlAddNode_float("upperVelocityLimit",_maxVelAccelJerk[0]*mult); // for backward compatibility (V4.3 and earlier)
-            ar.xmlAddNode_3float("pidValues",_dynCtrl_pid[0],_dynCtrl_pid[1],_dynCtrl_pid[2]);
+            float P,I,D;
+            getPid(P,I,D);
+            ar.xmlAddNode_comment(" 'pidValues' tag only used for backward compatibility",exhaustiveXml);
+            ar.xmlAddNode_3float("pidValues",P,I,D); // for backward compatibility (V4.3 and earlier)
             ar.xmlAddNode_2float("kcValues",_dynCtrl_kc[0],_dynCtrl_kc[1]);
 
             ar.xmlPushNewNode("switches");
@@ -2820,11 +2856,16 @@ void CJoint::serialize(CSer& ar)
             ar.xmlAddNode_bool("lockInVelocityControl",_motorLock);
             ar.xmlPopNode();
 
+            float v[5];
             ar.xmlPushNewNode("engines");
             ar.xmlPushNewNode("bullet");
             ar.xmlAddNode_float("stoperp",getEngineFloatParam(sim_bullet_joint_stoperp,nullptr));
             ar.xmlAddNode_float("stopcfm",getEngineFloatParam(sim_bullet_joint_stopcfm,nullptr));
             ar.xmlAddNode_float("normalcfm",getEngineFloatParam(sim_bullet_joint_normalcfm,nullptr));
+            v[0]=getEngineFloatParam(sim_bullet_joint_pospid1,nullptr);
+            v[1]=getEngineFloatParam(sim_bullet_joint_pospid2,nullptr);
+            v[2]=getEngineFloatParam(sim_bullet_joint_pospid3,nullptr);
+            ar.xmlAddNode_floats("posPid",v,3);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("ode");
@@ -2833,6 +2874,10 @@ void CJoint::serialize(CSer& ar)
             ar.xmlAddNode_float("bounce",getEngineFloatParam(sim_ode_joint_bounce,nullptr));
             ar.xmlAddNode_float("fudgefactor",getEngineFloatParam(sim_ode_joint_fudgefactor,nullptr));
             ar.xmlAddNode_float("normalcfm",getEngineFloatParam(sim_ode_joint_normalcfm,nullptr));
+            v[0]=getEngineFloatParam(sim_ode_joint_pospid1,nullptr);
+            v[1]=getEngineFloatParam(sim_ode_joint_pospid2,nullptr);
+            v[2]=getEngineFloatParam(sim_ode_joint_pospid3,nullptr);
+            ar.xmlAddNode_floats("posPid",v,3);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("vortex");
@@ -2885,8 +2930,11 @@ void CJoint::serialize(CSer& ar)
             ar.xmlAddNode_float("a2frictionloss",getEngineFloatParam(sim_vortex_joint_a2frictionloss,nullptr));
             ar.xmlAddNode_float("dependencyfactor",getEngineFloatParam(sim_vortex_joint_dependencyfactor,nullptr));
             ar.xmlAddNode_float("dependencyoffset",getEngineFloatParam(sim_vortex_joint_dependencyoffset,nullptr));
+            v[0]=getEngineFloatParam(sim_vortex_joint_pospid1,nullptr);
+            v[1]=getEngineFloatParam(sim_vortex_joint_pospid2,nullptr);
+            v[2]=getEngineFloatParam(sim_vortex_joint_pospid3,nullptr);
+            ar.xmlAddNode_floats("posPid",v,3);
 
-            //ar.xmlAddNode_int("bitcoded",getEngineIntParam(sim_vortex_joint_bitcoded,nullptr));
             ar.xmlAddNode_int("relaxationenabledbc",getEngineIntParam(sim_vortex_joint_relaxationenabledbc,nullptr));
             ar.xmlAddNode_int("frictionenabledbc",getEngineIntParam(sim_vortex_joint_frictionenabledbc,nullptr));
             ar.xmlAddNode_int("frictionproportionalbc",getEngineIntParam(sim_vortex_joint_frictionproportionalbc,nullptr));
@@ -2900,13 +2948,16 @@ void CJoint::serialize(CSer& ar)
             ar.xmlPushNewNode("newton");
             ar.xmlAddNode_float("dependencyfactor",getEngineFloatParam(sim_newton_joint_dependencyfactor,nullptr));
             ar.xmlAddNode_float("dependencyoffset",getEngineFloatParam(sim_newton_joint_dependencyoffset,nullptr));
+            v[0]=getEngineFloatParam(sim_newton_joint_pospid1,nullptr);
+            v[1]=getEngineFloatParam(sim_newton_joint_pospid2,nullptr);
+            v[2]=getEngineFloatParam(sim_newton_joint_pospid3,nullptr);
+            ar.xmlAddNode_floats("posPid",v,3);
 
             ar.xmlAddNode_int("objectid",getEngineIntParam(sim_newton_joint_objectid,nullptr));
             ar.xmlAddNode_int("dependentobjectid",getEngineIntParam(sim_newton_joint_dependentobjectid,nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("mujoco");
-            float v[5];
             v[0]=getEngineFloatParam(sim_mujoco_joint_solreflimit1,nullptr);
             v[1]=getEngineFloatParam(sim_mujoco_joint_solreflimit2,nullptr);
             ar.xmlAddNode_floats("solreflimit",v,2);
@@ -2939,6 +2990,10 @@ void CJoint::serialize(CSer& ar)
             for (size_t j=0;j<5;j++)
                 v[j]=getEngineFloatParam(sim_mujoco_joint_polycoef1+j,nullptr);
             ar.xmlAddNode_floats("polycoef",v,5);
+            v[0]=getEngineFloatParam(sim_mujoco_joint_pospid1,nullptr);
+            v[1]=getEngineFloatParam(sim_mujoco_joint_pospid2,nullptr);
+            v[2]=getEngineFloatParam(sim_mujoco_joint_pospid3,nullptr);
+            ar.xmlAddNode_floats("posPid",v,3);
             ar.xmlPopNode();
 
             ar.xmlPopNode();
@@ -3093,7 +3148,9 @@ void CJoint::serialize(CSer& ar)
                     _targetPos*=mult;
                 if (ar.xmlGetNode_float("targetVelocity",_targetVel,false)) // for backward compatibility (V4.3 and earlier)
                     _targetVel*=mult;
-                ar.xmlGetNode_3float("pidValues",_dynCtrl_pid[0],_dynCtrl_pid[1],_dynCtrl_pid[2],exhaustiveXml);
+                float P,I,D;
+                ar.xmlGetNode_3float("pidValues",P,I,D,exhaustiveXml);
+                setPid_old(P,I,D);
                 ar.xmlGetNode_2float("kcValues",_dynCtrl_kc[0],_dynCtrl_kc[1],exhaustiveXml);
 
                 if (ar.xmlPushChildNode("switches",exhaustiveXml))
@@ -3112,22 +3169,37 @@ void CJoint::serialize(CSer& ar)
                     bool vb;
                     if (ar.xmlPushChildNode("bullet",exhaustiveXml))
                     {
+                        float w[3];
                         if (ar.xmlGetNode_float("stoperp",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_joint_stoperp,v);
                         if (ar.xmlGetNode_float("stopcfm",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_joint_stopcfm,v);
                         if (ar.xmlGetNode_float("normalcfm",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_joint_normalcfm,v);
+                        if (ar.xmlGetNode_floats("posPid",w,3,exhaustiveXml))
+                        {
+                            setEngineFloatParam(sim_bullet_joint_pospid1,w[0]);
+                            setEngineFloatParam(sim_bullet_joint_pospid2,w[1]);
+                            setEngineFloatParam(sim_bullet_joint_pospid3,w[2]);
+                        }
                         ar.xmlPopNode();
                     }
                     if (ar.xmlPushChildNode("ode",exhaustiveXml))
                     {
+                        float w[3];
                         if (ar.xmlGetNode_float("stoperp",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_stoperp,v);
                         if (ar.xmlGetNode_float("stopcfm",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_stopcfm,v);
                         if (ar.xmlGetNode_float("bounce",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_bounce,v);
                         if (ar.xmlGetNode_float("fudgefactor",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_fudgefactor,v);
                         if (ar.xmlGetNode_float("normalcfm",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_normalcfm,v);
+                        if (ar.xmlGetNode_floats("posPid",w,3,exhaustiveXml))
+                        {
+                            setEngineFloatParam(sim_ode_joint_pospid1,w[0]);
+                            setEngineFloatParam(sim_ode_joint_pospid2,w[1]);
+                            setEngineFloatParam(sim_ode_joint_pospid3,w[2]);
+                        }
                         ar.xmlPopNode();
                     }
                     if (ar.xmlPushChildNode("vortex",exhaustiveXml))
                     {
+                        float w[3];
                         if (ar.xmlGetNode_float("lowerlimitdamping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_lowerlimitdamping,v);
                         if (ar.xmlGetNode_float("upperlimitdamping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_upperlimitdamping,v);
                         if (ar.xmlGetNode_float("lowerlimitstiffness",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_lowerlimitstiffness,v);
@@ -3177,6 +3249,12 @@ void CJoint::serialize(CSer& ar)
                         if (ar.xmlGetNode_float("a2frictionloss",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_a2frictionloss,v);
                         if (ar.xmlGetNode_float("dependencyfactor",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_dependencyfactor,v);
                         if (ar.xmlGetNode_float("dependencyoffset",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_dependencyoffset,v);
+                        if (ar.xmlGetNode_floats("posPid",w,3,exhaustiveXml))
+                        {
+                            setEngineFloatParam(sim_vortex_joint_pospid1,w[0]);
+                            setEngineFloatParam(sim_vortex_joint_pospid2,w[1]);
+                            setEngineFloatParam(sim_vortex_joint_pospid3,w[2]);
+                        }
 
                         //if (ar.xmlGetNode_int("bitcoded")) setEngineIntParam(sim_vortex_joint_bitcoded,vi);
                         if (ar.xmlGetNode_int("relaxationenabledbc",vi,exhaustiveXml)) setEngineIntParam(sim_vortex_joint_relaxationenabledbc,vi);
@@ -3191,11 +3269,18 @@ void CJoint::serialize(CSer& ar)
                     }
                     if (ar.xmlPushChildNode("newton",exhaustiveXml))
                     {
+                        float w[3];
                         if (ar.xmlGetNode_float("dependencyfactor",v,exhaustiveXml)) setEngineFloatParam(sim_newton_joint_dependencyfactor,v);
                         if (ar.xmlGetNode_float("dependencyoffset",v,exhaustiveXml)) setEngineFloatParam(sim_newton_joint_dependencyoffset,v);
 
                         if (ar.xmlGetNode_int("objectid",vi,exhaustiveXml)) setEngineIntParam(sim_newton_joint_objectid,vi);
                         if (ar.xmlGetNode_int("dependentobjectid",vi,exhaustiveXml)) setEngineIntParam(sim_newton_joint_dependentobjectid,vi);
+                        if (ar.xmlGetNode_floats("posPid",w,3,exhaustiveXml))
+                        {
+                            setEngineFloatParam(sim_newton_joint_pospid1,w[0]);
+                            setEngineFloatParam(sim_newton_joint_pospid2,w[1]);
+                            setEngineFloatParam(sim_newton_joint_pospid3,w[2]);
+                        }
                         ar.xmlPopNode();
                     }
                     if (ar.xmlPushChildNode("mujoco",exhaustiveXml))
@@ -3238,6 +3323,15 @@ void CJoint::serialize(CSer& ar)
                                 setEngineFloatParam(sim_mujoco_joint_polycoef1+j,w[j]);
                         }
                         if (ar.xmlGetNode_int("dependentobjectid",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_joint_dependentobjectid,vi);
+
+                        if (ar.xmlGetNode_floats("posPid",w,3,exhaustiveXml))
+                        {
+                            setEngineFloatParam(sim_mujoco_joint_pospid1,w[0]);
+                            setEngineFloatParam(sim_mujoco_joint_pospid2,w[1]);
+                            setEngineFloatParam(sim_mujoco_joint_pospid3,w[2]);
+                        }
+
+
                         ar.xmlPopNode();
                     }
                     ar.xmlPopNode();
@@ -3945,9 +4039,36 @@ C7Vector CJoint::getFullLocalTransformation() const
 
 void CJoint::getPid(float& p_param,float& i_param,float& d_param) const
 {
-    p_param=_dynCtrl_pid[0];
-    i_param=_dynCtrl_pid[1];
-    d_param=_dynCtrl_pid[2];
+    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_bullet)
+    {
+        p_param=getEngineFloatParam(sim_bullet_joint_pospid1,nullptr);
+        i_param=getEngineFloatParam(sim_bullet_joint_pospid2,nullptr);
+        d_param=getEngineFloatParam(sim_bullet_joint_pospid3,nullptr);
+    }
+    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_ode)
+    {
+        p_param=getEngineFloatParam(sim_ode_joint_pospid1,nullptr);
+        i_param=getEngineFloatParam(sim_ode_joint_pospid2,nullptr);
+        d_param=getEngineFloatParam(sim_ode_joint_pospid3,nullptr);
+    }
+    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_vortex)
+    {
+        p_param=getEngineFloatParam(sim_vortex_joint_pospid1,nullptr);
+        i_param=getEngineFloatParam(sim_vortex_joint_pospid2,nullptr);
+        d_param=getEngineFloatParam(sim_vortex_joint_pospid3,nullptr);
+    }
+    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_newton)
+    {
+        p_param=getEngineFloatParam(sim_newton_joint_pospid1,nullptr);
+        i_param=getEngineFloatParam(sim_newton_joint_pospid2,nullptr);
+        d_param=getEngineFloatParam(sim_newton_joint_pospid3,nullptr);
+    }
+    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_mujoco)
+    {
+        p_param=getEngineFloatParam(sim_mujoco_joint_pospid1,nullptr);
+        i_param=getEngineFloatParam(sim_mujoco_joint_pospid2,nullptr);
+        d_param=getEngineFloatParam(sim_mujoco_joint_pospid3,nullptr);
+    }
 }
 
 void CJoint::getKc(float& k_param,float& c_param) const

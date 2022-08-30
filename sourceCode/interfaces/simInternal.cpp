@@ -9862,7 +9862,7 @@ simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
         if (joint!=nullptr)
         {
             if ((parameterID==sim_jointfloatparam_pid_p)||(parameterID==sim_jointfloatparam_pid_i)||(parameterID==sim_jointfloatparam_pid_d))
-            {
+            { // deprecated parameter
                 float pp,ip,dp;
                 joint->getPid(pp,ip,dp);
                 if (parameterID==sim_jointfloatparam_pid_p)
@@ -10318,7 +10318,7 @@ simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
         if (joint!=nullptr)
         {
             if ((parameterID==sim_jointfloatparam_pid_p)||(parameterID==sim_jointfloatparam_pid_i)||(parameterID==sim_jointfloatparam_pid_d))
-            {
+            { // deprecated parameter
                 float pp,ip,dp;
                 joint->getPid(pp,ip,dp);
                 if (parameterID==sim_jointfloatparam_pid_p)
@@ -10327,7 +10327,7 @@ simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
                     ip=parameter;
                 if (parameterID==sim_jointfloatparam_pid_d)
                     dp=parameter;
-                joint->setPid(pp,ip,dp);
+                joint->setPid_old(pp,ip,dp);
                 retVal=1;
             }
             if ((parameterID==sim_jointfloatparam_kc_k)||(parameterID==sim_jointfloatparam_kc_c))

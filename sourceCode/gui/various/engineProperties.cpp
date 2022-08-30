@@ -158,6 +158,10 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         annJson.addJson(jbullet,"normalCfm",joint->getEngineFloatParam(sim_bullet_joint_normalcfm,nullptr));
         annJson.addJson(jbullet,"stopErp",joint->getEngineFloatParam(sim_bullet_joint_stoperp,nullptr));
         annJson.addJson(jbullet,"stopCfm",joint->getEngineFloatParam(sim_bullet_joint_stopcfm,nullptr));
+        double v[3];
+        for (size_t j=0;j<3;j++)
+            v[j]=joint->getEngineFloatParam(sim_bullet_joint_pospid1+j,nullptr);
+        annJson.addJson(jbullet,"posPid",v,3);
         annJson.addJson(annJson.getMainObject()[0],"bullet",jbullet);
     }
 
@@ -169,6 +173,10 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         annJson.addJson(jode,"stopCfm",joint->getEngineFloatParam(sim_ode_joint_stopcfm,nullptr));
         annJson.addJson(jode,"bounce",joint->getEngineFloatParam(sim_ode_joint_bounce,nullptr));
         annJson.addJson(jode,"fudge",joint->getEngineFloatParam(sim_ode_joint_fudgefactor,nullptr));
+        double v[3];
+        for (size_t j=0;j<3;j++)
+            v[j]=joint->getEngineFloatParam(sim_ode_joint_pospid1+j,nullptr);
+        annJson.addJson(jode,"posPid",v,3);
         annJson.addJson(annJson.getMainObject()[0],"ode",jode);
     }
 
@@ -187,6 +195,10 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         annJson.addJson(jnewtonDependency,"mult",joint->getEngineFloatParam(sim_newton_joint_dependencyfactor,nullptr));
         annJson.addJson(jnewtonDependency,"offset",joint->getEngineFloatParam(sim_newton_joint_dependencyoffset,nullptr));
         annJson.addJson(jnewton,"dependency",jnewtonDependency);
+        double v[3];
+        for (size_t j=0;j<3;j++)
+            v[j]=joint->getEngineFloatParam(sim_newton_joint_pospid1+j,nullptr);
+        annJson.addJson(jnewton,"posPid",v,3);
         annJson.addJson(annJson.getMainObject()[0],"newton",jnewton);
     }
 
@@ -234,6 +246,9 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
             v[j]=joint->getEngineFloatParam(sim_mujoco_joint_polycoef1+j,nullptr);
         annJson.addJson(jmujocoDependency,"polyCoef",v,5);
         annJson.addJson(jmujoco,"dependency",jmujocoDependency);
+        for (size_t j=0;j<3;j++)
+            v[j]=joint->getEngineFloatParam(sim_mujoco_joint_pospid1+j,nullptr);
+        annJson.addJson(jmujoco,"posPid",v,3);
         annJson.addJson(annJson.getMainObject()[0],"mujoco",jmujoco);
     }
 
@@ -389,6 +404,11 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         annJson.addJson(jvortexZaxisOrientation,"friction",jvortexZaxisOrientationFric);
         annJson.addJson(jvortex,"zAxisOrient",jvortexZaxisOrientation);
 
+        double v[3];
+        for (size_t j=0;j<3;j++)
+            v[j]=joint->getEngineFloatParam(sim_vortex_joint_pospid1+j,nullptr);
+        annJson.addJson(jvortex,"posPid",v,3);
+
         annJson.addJson(annJson.getMainObject()[0],"vortex",jvortex);
     }
 }
@@ -402,6 +422,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
     {
         if (annJson.getValue(annJson.getMainObject()[0],"bullet",QJsonValue::Object,val,allErrors))
         {
+            double w[3];
             QJsonObject bullet(val.toObject());
             if (annJson.getValue(bullet,"normalCfm",QJsonValue::Double,val,allErrors))
                 joint->setEngineFloatParam(sim_bullet_joint_normalcfm,val.toDouble());
@@ -409,6 +430,11 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                 joint->setEngineFloatParam(sim_bullet_joint_stoperp,val.toDouble());
             if (annJson.getValue(bullet,"stopCfm",QJsonValue::Double,val,allErrors))
                 joint->setEngineFloatParam(sim_bullet_joint_stopcfm,val.toDouble());
+            if (annJson.getValue(bullet,"posPid",w,3,allErrors))
+            {
+                for (size_t j=0;j<3;j++)
+                    joint->setEngineFloatParam(sim_bullet_joint_pospid1+j,w[j]);
+            }
         }
     }
 
@@ -416,6 +442,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
     {
         if (annJson.getValue(annJson.getMainObject()[0],"ode",QJsonValue::Object,val,allErrors))
         {
+            double w[3];
             QJsonObject ode(val.toObject());
             if (annJson.getValue(ode,"normalCfm",QJsonValue::Double,val,allErrors))
                 joint->setEngineFloatParam(sim_ode_joint_normalcfm,val.toDouble());
@@ -427,6 +454,11 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                 joint->setEngineFloatParam(sim_ode_joint_bounce,val.toDouble());
             if (annJson.getValue(ode,"fudge",QJsonValue::Double,val,allErrors))
                 joint->setEngineFloatParam(sim_ode_joint_fudgefactor,val.toDouble());
+            if (annJson.getValue(ode,"posPid",w,3,allErrors))
+            {
+                for (size_t j=0;j<3;j++)
+                    joint->setEngineFloatParam(sim_ode_joint_pospid1+j,w[j]);
+            }
         }
     }
 
@@ -464,6 +496,12 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                     joint->setEngineFloatParam(sim_newton_joint_dependencyfactor,val.toDouble());
                 if (annJson.getValue(sub,"offset",QJsonValue::Double,val,allErrors))
                     joint->setEngineFloatParam(sim_newton_joint_dependencyoffset,val.toDouble());
+            }
+            double w[3];
+            if (annJson.getValue(newton,"posPid",w,3,allErrors))
+            {
+                for (size_t j=0;j<3;j++)
+                    joint->setEngineFloatParam(sim_newton_joint_pospid1+j,w[j]);
             }
         }
     }
@@ -553,6 +591,11 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                     for (size_t j=0;j<5;j++)
                         joint->setEngineFloatParam(sim_mujoco_joint_polycoef1+j,w[j]);
                 }
+            }
+            if (annJson.getValue(mujoco,"posPid",w,3,allErrors))
+            {
+                for (size_t j=0;j<3;j++)
+                    joint->setEngineFloatParam(sim_mujoco_joint_pospid1+j,w[j]);
             }
         }
     }
@@ -914,6 +957,12 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                     if (annJson.getValue(sub2,"loss",QJsonValue::Double,val,allErrors))
                         joint->setEngineFloatParam(sim_vortex_joint_a2frictionloss,val.toDouble());
                 }
+            }
+            double w[3];
+            if (annJson.getValue(vortex,"posPid",w,3,allErrors))
+            {
+                for (size_t j=0;j<3;j++)
+                    joint->setEngineFloatParam(sim_vortex_joint_pospid1+j,w[j]);
             }
         }
     }

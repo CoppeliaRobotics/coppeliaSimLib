@@ -90,7 +90,6 @@ void CQDlgJointDyn::refresh()
 
         ui->qqPositionMode_positionLabel->setText("Target position [m]");
         ui->qqPositionMode_forceLabel->setText("Max. force [N]");
-        ui->qqPositionMode_upperVelLabel->setText("Upper velocity limit [m/s]");
         ui->qqPositionMode_maxVelLabel->setText("Max. velocity [m/s]");
         ui->qqPositionMode_maxAccelLabel->setText("Max. acceleration [m/s^2]");
         ui->qqPositionMode_maxJerkLabel->setText("Max. jerk [m/s^3]");
@@ -111,7 +110,6 @@ void CQDlgJointDyn::refresh()
 
         ui->qqPositionMode_positionLabel->setText("Target angle [deg]");
         ui->qqPositionMode_forceLabel->setText("Max. torque [N*m]");
-        ui->qqPositionMode_upperVelLabel->setText("Upper velocity limit [deg/s]");
         ui->qqPositionMode_maxVelLabel->setText("Max. velocity [deg/s]");
         ui->qqPositionMode_maxAccelLabel->setText("Max. acceleration [deg/s^2]");
         ui->qqPositionMode_maxJerkLabel->setText("Max. jerk [deg/s^3]");
@@ -169,7 +167,6 @@ void CQDlgJointDyn::refresh()
 
     if (dynamic&&(ctrlMode==sim_jointdynctrl_position))
     {
-        ui->qqPositionMode_pid->setChecked(it->getDynPosCtrlType()==0);
         ui->qqPositionMode_ruckig->setChecked(it->getDynPosCtrlType()==1);
 
         if (it->getJointType()==sim_joint_revolute_subtype)
@@ -181,47 +178,31 @@ void CQDlgJointDyn::refresh()
         it->getMaxVelAccelJerk(maxVelAccelJerk);
         if (it->getJointType()==sim_joint_revolute_subtype)
         {
-            ui->qqPositionMode_upperVel->setText(tt::getAngleEString(false,maxVelAccelJerk[0],3).c_str());
             ui->qqPositionMode_maxVel->setText(tt::getAngleEString(false,maxVelAccelJerk[0],3).c_str());
             ui->qqPositionMode_maxAccel->setText(tt::getAngleEString(false,maxVelAccelJerk[1],3).c_str());
             ui->qqPositionMode_maxJerk->setText(tt::getAngleEString(false,maxVelAccelJerk[2],3).c_str());
         }
         else
         {
-            ui->qqPositionMode_upperVel->setText(tt::getEString(false,maxVelAccelJerk[0],3).c_str());
             ui->qqPositionMode_maxVel->setText(tt::getEString(false,maxVelAccelJerk[0],3).c_str());
             ui->qqPositionMode_maxAccel->setText(tt::getEString(false,maxVelAccelJerk[1],3).c_str());
             ui->qqPositionMode_maxJerk->setText(tt::getEString(false,maxVelAccelJerk[2],3).c_str());
         }
 
-        ui->qqPositionMode_upperVel->setEnabled(it->getDynPosCtrlType()==0);
-        ui->qqP->setEnabled(it->getDynPosCtrlType()==0);
-        ui->qqI->setEnabled(it->getDynPosCtrlType()==0);
-        ui->qqD->setEnabled(it->getDynPosCtrlType()==0);
         ui->qqPositionMode_cb->setEnabled(it->getDynPosCtrlType()==0);
 
-        ui->qqPositionMode_maxVel->setEnabled(it->getDynPosCtrlType()==1);
+        // Always enabled   ui->qqPositionMode_maxVel->setEnabled(it->getDynPosCtrlType()==1);
         ui->qqPositionMode_maxAccel->setEnabled(it->getDynPosCtrlType()==1);
         ui->qqPositionMode_maxJerk->setEnabled(it->getDynPosCtrlType()==1);
-
-        float pp,ip,dp;
-        it->getPid(pp,ip,dp);
-        ui->qqP->setText(tt::getFString(false,pp,3).c_str());
-        ui->qqI->setText(tt::getFString(false,ip,3).c_str());
-        ui->qqD->setText(tt::getFString(false,dp,3).c_str());
         ui->qqPositionMode_cb->setChecked(it->getDynCtrlMode()==sim_jointdynctrl_positioncb);
     }
     else
     {
         ui->qqPositionMode_position->setText("");
         ui->qqPositionMode_force->setText("");
-        ui->qqPositionMode_upperVel->setText("");
         ui->qqPositionMode_maxVel->setText("");
         ui->qqPositionMode_maxAccel->setText("");
         ui->qqPositionMode_maxJerk->setText("");
-        ui->qqP->setText("");
-        ui->qqI->setText("");
-        ui->qqD->setText("");
     }
 
     if (dynamic&&(ctrlMode==sim_jointdynctrl_spring))
@@ -257,84 +238,6 @@ void CQDlgJointDyn::on_qqApplyParams_clicked()
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgJointDyn::on_qqP_editingFinished()
-{
-    if (!ui->qqP->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        bool ok;
-        float newVal=ui->qqP->text().toFloat(&ok);
-        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
-        if (ok&&(it!=nullptr))
-        {
-            float pp,ip,dp;
-            it->getPid(pp,ip,dp);
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_PIDVALUES_JOINTDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(it->getObjectHandle());
-            cmd.floatParams.push_back(newVal);
-            cmd.floatParams.push_back(ip);
-            cmd.floatParams.push_back(dp);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgJointDyn::on_qqI_editingFinished()
-{
-    if (!ui->qqI->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        bool ok;
-        float newVal=ui->qqI->text().toFloat(&ok);
-        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
-        if (ok&&(it!=nullptr))
-        {
-            float pp,ip,dp;
-            it->getPid(pp,ip,dp);
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_PIDVALUES_JOINTDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(it->getObjectHandle());
-            cmd.floatParams.push_back(pp);
-            cmd.floatParams.push_back(newVal);
-            cmd.floatParams.push_back(dp);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgJointDyn::on_qqD_editingFinished()
-{
-    if (!ui->qqD->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        bool ok;
-        float newVal=ui->qqD->text().toFloat(&ok);
-        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
-        if (ok&&(it!=nullptr))
-        {
-            float pp,ip,dp;
-            it->getPid(pp,ip,dp);
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_PIDVALUES_JOINTDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(it->getObjectHandle());
-            cmd.floatParams.push_back(pp);
-            cmd.floatParams.push_back(ip);
-            cmd.floatParams.push_back(newVal);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
@@ -480,26 +383,6 @@ void CQDlgJointDyn::on_qqPositionMode_force_editingFinished()
     }
 }
 
-void CQDlgJointDyn::on_qqPositionMode_upperVel_editingFinished()
-{
-    if (!ui->qqPositionMode_upperVel->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
-        bool ok;
-        float newVal=ui->qqPositionMode_upperVel->text().toFloat(&ok);
-        if (ok&&(it!=nullptr))
-        {
-            if (it->getJointType()!=sim_joint_prismatic_subtype)
-                newVal*=gv::userToRad;
-            App::appendSimulationThreadCommand(SET_MOTIONPROFILEVALS_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),0,newVal);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
 void CQDlgJointDyn::on_qqPositionMode_cb_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
@@ -580,22 +463,12 @@ void CQDlgJointDyn::on_qqCombo_currentIndexChanged(int index)
     }
 }
 
-void CQDlgJointDyn::on_qqPositionMode_pid_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(SET_JOINTPOSCTRLMODETYPE_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),0);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
 void CQDlgJointDyn::on_qqPositionMode_ruckig_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(SET_JOINTCTRLMODE_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),sim_jointdynctrl_position); // make sure it is not sim_jointdynctrl_positioncb
-        App::appendSimulationThreadCommand(SET_JOINTPOSCTRLMODETYPE_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),1);
+        App::appendSimulationThreadCommand(SET_JOINTPOSCTRLMODETOGGLE_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

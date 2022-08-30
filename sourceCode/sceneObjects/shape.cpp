@@ -1000,12 +1000,17 @@ void CShape::setShapeIsDynamicallyStatic(bool sta)
 
 bool CShape::getShapeIsDynamicallyKinematic() const
 {
-    return(_shapeIsDynamicallyKinematic);
+    bool retVal=_shapeIsDynamicallyKinematic;
+    if (_objectAlias=="Floor")
+        retVal=false;
+    return(retVal);
 }
 
 void CShape::setShapeIsDynamicallyKinematic(bool kin)
 {
     _shapeIsDynamicallyKinematic=kin;
+    if (_objectAlias=="Floor")
+        _shapeIsDynamicallyKinematic=false;
 }
 
 void CShape::setInsideAndOutsideFacesSameColor_DEPRECATED(bool s)
@@ -1372,6 +1377,8 @@ void CShape::serialize(CSer& ar)
             }
             actualizeContainsTransparentComponent();
             computeBoundingBox();
+            if (_objectAlias=="Floor")
+                _shapeIsDynamicallyKinematic=false;
         }
     }
     else

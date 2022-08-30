@@ -98,7 +98,7 @@ enum { /* Mujoco global float params */
     simi_mujoco_global_overridesolimp4,
     simi_mujoco_global_overridesolimp5,
     simi_mujoco_global_kinmass,
-    simi_mujoco_global_kininertia
+    simi_mujoco_global_kininertia,
 };
 
 enum { /* Mujoco global int params */

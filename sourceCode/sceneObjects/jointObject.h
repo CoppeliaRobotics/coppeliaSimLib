@@ -5,30 +5,24 @@
 enum { /* Bullet joint float params */
     simi_bullet_joint_stoperp=0,
     simi_bullet_joint_stopcfm,
-    simi_bullet_joint_normalcfm
+    simi_bullet_joint_normalcfm,
+    simi_bullet_joint_free1,
+    simi_bullet_joint_free2,
+    simi_bullet_joint_pospid1,
+    simi_bullet_joint_pospid2,
+    simi_bullet_joint_pospid3,
 };
-
-// enum { /* Bullet joint int params */
-//     /* if you add something here, search for bji11032016 */
-// };
-// enum { /* Bullet joint bit params */
-//     /* if you add something here, search for bjb11032016 */
-// };
 
 enum { /* Ode joint float params */
     simi_ode_joint_stoperp=0,
     simi_ode_joint_stopcfm,
     simi_ode_joint_bounce,
     simi_ode_joint_fudgefactor,
-    simi_ode_joint_normalcfm
+    simi_ode_joint_normalcfm,
+    simi_ode_joint_pospid1,
+    simi_ode_joint_pospid2,
+    simi_ode_joint_pospid3,
 };
-
-// enum { /* Ode joint int params */
-//     /* if you add something here, search for oji11032016 */
-// };
-// enum { /* Ode joint bit params */
-//     /* if you add something here, search for ojb11032016 */
-// };
 
 enum { /* Vortex joint float params */
     simi_vortex_joint_lowerlimitdamping=0,
@@ -79,7 +73,12 @@ enum { /* Vortex joint float params */
     simi_vortex_joint_a2frictionmaxforce,
     simi_vortex_joint_a2frictionloss,
     simi_vortex_joint_dependencyfactor,
-    simi_vortex_joint_dependencyoffset
+    simi_vortex_joint_dependencyoffset,
+    simi_vortex_joint_free1,
+    simi_vortex_joint_free2,
+    simi_vortex_joint_pospid1,
+    simi_vortex_joint_pospid2,
+    simi_vortex_joint_pospid3,
 };
 
 enum { /* Vortex joint int params */
@@ -98,17 +97,16 @@ enum { /* Vortex joint bit params */
 
 enum { /* Newton joint float params */
     simi_newton_joint_dependencyfactor=0,
-    simi_newton_joint_dependencyoffset
+    simi_newton_joint_dependencyoffset,
+    simi_newton_joint_pospid1,
+    simi_newton_joint_pospid2,
+    simi_newton_joint_pospid3,
 };
 
 enum { /* Newton joint int params */
     simi_newton_joint_objectid=0,
     simi_newton_joint_dependentobjectid
 };
-
-// enum { /* Newton joint bit params */
-//     /* if you add something here, search for njb11032016 */
-// };
 
 enum { /* Mujoco joint float params */
     simi_mujoco_joint_solreflimit1=0,
@@ -138,6 +136,9 @@ enum { /* Mujoco joint float params */
     simi_mujoco_joint_polycoef3,
     simi_mujoco_joint_polycoef4,
     simi_mujoco_joint_polycoef5,
+    simi_mujoco_joint_pospid1,
+    simi_mujoco_joint_pospid2,
+    simi_mujoco_joint_pospid3,
 };
 
 enum { /* Mujoco joint int params */
@@ -252,7 +253,6 @@ public:
 
     void setTargetVelocity(float v);
     void setTargetPosition(float pos);
-    void setPid(float p_param,float i_param,float d_param);
     void setKc(float k_param,float c_param);
     void setTargetForce(float f,bool isSigned);
     void setDynCtrlMode(int mode);
@@ -320,6 +320,7 @@ public:
     float getMaxAcceleration_DEPRECATED();
     void setVelocity_DEPRECATED(float vel);
     float getVelocity_DEPRECATED();
+    void setPid_old(float p_param,float i_param,float d_param);
 
 protected:
     void _fixVortexInfVals();
@@ -356,7 +357,6 @@ protected:
     int _initialDynPositionCtrlType;
     bool _initialDynCtrl_lockAtVelZero;
     float _initialDynCtrl_force;
-    float _initialDynCtrl_pid[3];
     float _initialDynCtrl_kc[3];
 
     bool _initialHybridOperation;
@@ -400,12 +400,11 @@ protected:
 
     bool _motorLock; // deprecated, should not be used anymore
     float _targetForce; // signed. Should be same sign as _targetVel (however _targetVel has precedence when conflict)
-    float _dynCtrl_pid[3];
     float _dynCtrl_pid_cumulErr;
 
     float _dynCtrl_kc[2];
     int _dynCtrlMode;
-    int _dynPositionCtrlType; // pid (0) or Ruckig (1)
+    int _dynPositionCtrlType; // built-in velocity mode + pos PID (0) or Ruckig (1)
     int _dynVelocityCtrlType; // built-in velocity mode (0) or Ruckig (1)
 
     bool _jointHasHybridFunctionality;

@@ -2973,9 +2973,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         float maxVelAccelJerk[3];
                         last->getMaxVelAccelJerk(maxVelAccelJerk);
                         it->setMaxVelAccelJerk(maxVelAccelJerk);
-                        float pp,ip,dp;
-                        last->getPid(pp,ip,dp);
-                        it->setPid(pp,ip,dp);
                         float kp,cp;
                         last->getKc(kp,cp);
                         it->setKc(kp,cp);
@@ -3001,12 +2998,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
                 it->setTargetPosition(cmd.floatParams[0]);
         }
-        if (cmd.cmdId==SET_PIDVALUES_JOINTDYNGUITRIGGEREDCMD)
-        {
-            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->setPid(cmd.floatParams[0],cmd.floatParams[1],cmd.floatParams[2]);
-        }
         if (cmd.cmdId==SET_KCVALUES_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
@@ -3019,11 +3010,16 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
                 it->setDynCtrlMode(cmd.intParams[1]);
         }
-        if (cmd.cmdId==SET_JOINTPOSCTRLMODETYPE_JOINTDYNGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_JOINTPOSCTRLMODETOGGLE_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDynPosCtrlType(cmd.intParams[1]);
+            {
+                if (it->getDynPosCtrlType()==0)
+                    it->setDynPosCtrlType(1);
+                else
+                    it->setDynPosCtrlType(0);
+            }
         }
         if (cmd.cmdId==TOGGLE_JOINTVELCTRLMODETYPE_JOINTDYNGUITRIGGEREDCMD)
         {
