@@ -884,6 +884,8 @@ void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
     _velCalc_prevPosValid=false;
     _velCalc_vel=0.0f;
+    _dynCtrl_previousVelForce[0]=0.0;
+    _dynCtrl_previousVelForce[1]=0.0;
 
     _dynPosCtrl_currentVelAccel[0]=0.0;
     _dynPosCtrl_currentVelAccel[1]=0.0;
@@ -1569,38 +1571,54 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
         }
         if (_dynVelocityCtrlType==1)
         { // motion profile
-            if ( (_targetVel!=0.0f)||(fabs(_dynVelCtrl_currentVelAccel[0])>0.00001)||(fabs(_dynVelCtrl_currentVelAccel[1])>0.00001) )
+            if (dynStepSize!=0.0)
             {
-                if ( ( fabs(_dynVelCtrl_currentVelAccel[0]-double(_targetVel))>0.00001 )||(fabs(_dynVelCtrl_currentVelAccel[1])>0.00001) )
-                { // target velocity has not been reached yet
-                    double maxVelAccelJerk[3]={double(_maxVelAccelJerk[0]),double(_maxVelAccelJerk[1]),double(_maxVelAccelJerk[2])};
-                    double targetVel=double(_targetVel);
-                    double pos=0.0;
-                    unsigned char sel=1;
-                    int ruckObj=CPluginContainer::ruckigPlugin_vel(-1,1,double(dynStepSize),-1,&pos,_dynVelCtrl_currentVelAccel,_dynVelCtrl_currentVelAccel+1,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&targetVel);
-                    if (ruckObj>=0)
-                    {
-                        int res=CPluginContainer::ruckigPlugin_step(ruckObj,double(dynStepSize),&pos,_dynVelCtrl_currentVelAccel,_dynVelCtrl_currentVelAccel+1,&pos);
-                        CPluginContainer::ruckigPlugin_remove(ruckObj);
-                        velAndForce[0]=float(_dynVelCtrl_currentVelAccel[0]);
-                        velAndForce[1]=_targetForce;
-                        if (velAndForce[0]*velAndForce[1]<0.0f)
-                            velAndForce[1]=-velAndForce[1]; // make sure they have same sign
+                double dynVelCtrlCurrentVelAccel[2]={_dynVelCtrl_currentVelAccel[0],_dynVelCtrl_currentVelAccel[1]};
+                if ( (_targetVel!=0.0f)||(fabs(dynVelCtrlCurrentVelAccel[0])>0.00001)||(fabs(dynVelCtrlCurrentVelAccel[1])>0.00001) )
+                {
+                    if ( ( fabs(dynVelCtrlCurrentVelAccel[0]-double(_targetVel))>0.00001 )||(fabs(dynVelCtrlCurrentVelAccel[1])>0.00001) )
+                    { // target velocity has not been reached yet
+                        double maxVelAccelJerk[3]={double(_maxVelAccelJerk[0]),double(_maxVelAccelJerk[1]),double(_maxVelAccelJerk[2])};
+                        double targetVel=double(_targetVel);
+                        double pos=0.0;
+                        unsigned char sel=1;
+                        int ruckObj=CPluginContainer::ruckigPlugin_vel(-1,1,double(dynStepSize),-1,&pos,dynVelCtrlCurrentVelAccel,dynVelCtrlCurrentVelAccel+1,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&targetVel);
+                        if (ruckObj>=0)
+                        {
+                            int res=CPluginContainer::ruckigPlugin_step(ruckObj,double(dynStepSize),&pos,dynVelCtrlCurrentVelAccel,dynVelCtrlCurrentVelAccel+1,&pos);
+                            CPluginContainer::ruckigPlugin_remove(ruckObj);
+                            velAndForce[0]=float(dynVelCtrlCurrentVelAccel[0]);
+                            velAndForce[1]=_targetForce;
+                            if (velAndForce[0]*velAndForce[1]<0.0f)
+                                velAndForce[1]=-velAndForce[1]; // make sure they have same sign
+                        }
                     }
                 }
+                else
+                {
+                    dynVelCtrlCurrentVelAccel[0]=0.0;
+                    dynVelCtrlCurrentVelAccel[1]=0.0;
+                    if (_motorLock)
+                        retVal|=2;
+                }
+
+                velAndForce[0]=float(dynVelCtrlCurrentVelAccel[0]);
+                velAndForce[1]=_targetForce;
+                if (velAndForce[0]*velAndForce[1]<0.0f)
+                    velAndForce[1]=-velAndForce[1]; // make sure they have same sign
+                if ( (rk4==0)||(rk4==4) )
+                {
+                    _dynVelCtrl_currentVelAccel[0]=dynVelCtrlCurrentVelAccel[0];
+                    _dynVelCtrl_currentVelAccel[1]=dynVelCtrlCurrentVelAccel[1];
+                }
+                _dynCtrl_previousVelForce[0]=velAndForce[0];
+                _dynCtrl_previousVelForce[1]=velAndForce[1];
             }
             else
-            {
-                _dynVelCtrl_currentVelAccel[0]=0.0;
-                _dynVelCtrl_currentVelAccel[1]=0.0;
-                if (_motorLock)
-                    retVal|=2;
+            { // in case of RK4, pass1 (dt=0)
+                velAndForce[0]=_dynCtrl_previousVelForce[0];
+                velAndForce[1]=_dynCtrl_previousVelForce[1];
             }
-
-            velAndForce[0]=float(_dynVelCtrl_currentVelAccel[0]);
-            velAndForce[1]=_targetForce;
-            if (velAndForce[0]*velAndForce[1]<0.0f)
-                velAndForce[1]=-velAndForce[1]; // make sure they have same sign
         }
     }
     else
@@ -1742,77 +1760,93 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
         }
         if (handleHere)
         { // we have the built-in control (position PID or spring-damper KC)
-            if ( (_dynPositionCtrlType==1)&&(_dynCtrlMode==sim_jointdynctrl_position) )
-            { // motion profile
-                double cp=double(currentPosVelAccel[0]);
-                double tp=cp+double(errorV);
-                double maxVelAccelJerk[3]={double(_maxVelAccelJerk[0]),double(_maxVelAccelJerk[1]),double(_maxVelAccelJerk[2])};
-                unsigned char sel=1;
-                double dummy=0.0;
-                int ruckObj=CPluginContainer::ruckigPlugin_pos(-1,1,dynStepSize,-1,&cp,_dynPosCtrl_currentVelAccel,_dynPosCtrl_currentVelAccel+1,maxVelAccelJerk,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&tp,&dummy);
-                if (ruckObj>=0)
-                {
-                    int res=CPluginContainer::ruckigPlugin_step(ruckObj,dynStepSize,&dummy,_dynPosCtrl_currentVelAccel,_dynPosCtrl_currentVelAccel+1,&dummy);
-                    CPluginContainer::ruckigPlugin_remove(ruckObj);
-                    velAndForce[0]=float(_dynPosCtrl_currentVelAccel[0]);
-                    velAndForce[1]=_targetForce;
-                    if (velAndForce[0]*velAndForce[1]<0.0f)
-                        velAndForce[1]=-velAndForce[1]; // make sure they have same sign
+            if (dynStepSize!=0.0)
+            {
+                if ( (_dynPositionCtrlType==1)&&(_dynCtrlMode==sim_jointdynctrl_position) )
+                { // motion profile
+                    double dynPosCtrlCurrentVelAccel[2]={_dynPosCtrl_currentVelAccel[0],_dynPosCtrl_currentVelAccel[1]};
+                    double cp=double(currentPosVelAccel[0]);
+                    double tp=cp+double(errorV);
+                    double maxVelAccelJerk[3]={double(_maxVelAccelJerk[0]),double(_maxVelAccelJerk[1]),double(_maxVelAccelJerk[2])};
+                    unsigned char sel=1;
+                    double dummy=0.0;
+                    int ruckObj=CPluginContainer::ruckigPlugin_pos(-1,1,dynStepSize,-1,&cp,dynPosCtrlCurrentVelAccel,dynPosCtrlCurrentVelAccel+1,maxVelAccelJerk,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&tp,&dummy);
+                    if (ruckObj>=0)
+                    {
+                        int res=CPluginContainer::ruckigPlugin_step(ruckObj,dynStepSize,&dummy,dynPosCtrlCurrentVelAccel,dynPosCtrlCurrentVelAccel+1,&dummy);
+                        CPluginContainer::ruckigPlugin_remove(ruckObj);
+                        velAndForce[0]=float(dynPosCtrlCurrentVelAccel[0]);
+                        velAndForce[1]=_targetForce;
+                        if (velAndForce[0]*velAndForce[1]<0.0f)
+                            velAndForce[1]=-velAndForce[1]; // make sure they have same sign
+                    }
+                    if ( (rk4==0)||(rk4==4) )
+                    {
+                        _dynPosCtrl_currentVelAccel[0]=dynPosCtrlCurrentVelAccel[0];
+                        _dynPosCtrl_currentVelAccel[1]=dynPosCtrlCurrentVelAccel[1];
+                    }
                 }
+                else
+                { // PID or spring
+                    float P,I,D;
+                    getPid(P,I,D);
+                    if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
+                    {
+                        P=_dynCtrl_kc[0];
+                        I=0.0f;
+                        D=_dynCtrl_kc[1];
+                    }
+
+                    if ((flags&1)!=0)
+                        _dynCtrl_pid_cumulErr=0.0f;
+
+                    float e=errorV;
+
+                    // Proportional part:
+                    float ctrl=e*P;
+
+                    // Integral part:
+                    if ( (I!=0.0)&&(rk4==0) ) // so that if we turn the integral part on, we don't try to catch up all the past errors!
+                        _dynCtrl_pid_cumulErr+=e*dynStepSize;
+                    else
+                        _dynCtrl_pid_cumulErr=0.0f; // added on 2009/11/29
+                    ctrl+=_dynCtrl_pid_cumulErr*I;
+
+                    // Derivative part:
+                    ctrl-=_velCalc_vel*D;
+
+                    if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
+                    { // "spring" mode, i.e. force modulation mode
+                        velAndForce[0]=fabs(_targetVel);
+                        if (ctrl<0.0f)
+                            velAndForce[0]=-velAndForce[0];
+                        velAndForce[1]=fabs(ctrl);
+                        if (velAndForce[0]*velAndForce[1]<0.0f)
+                            velAndForce[1]=-velAndForce[1]; // make sure they have same sign
+                    }
+                    else
+                    { // regular position control (i.e. built-in PID)
+                        // We calculate the velocity needed to reach the position in one time step:
+                        float vel=ctrl/dynStepSize;
+                        float maxVel=_maxVelAccelJerk[0];
+                        if (vel>maxVel)
+                            vel=maxVel;
+                        if (vel<-maxVel)
+                            vel=-maxVel;
+
+                        velAndForce[0]=vel;
+                        velAndForce[1]=_targetForce;
+                        if (velAndForce[0]*velAndForce[1]<0.0f)
+                            velAndForce[1]=-velAndForce[1]; // make sure they have same sign
+                    }
+                }
+                _dynCtrl_previousVelForce[0]=velAndForce[0];
+                _dynCtrl_previousVelForce[1]=velAndForce[1];
             }
             else
-            { // PID or spring
-                float P,I,D;
-                getPid(P,I,D);
-                if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
-                {
-                    P=_dynCtrl_kc[0];
-                    I=0.0f;
-                    D=_dynCtrl_kc[1];
-                }
-
-                if ((flags&1)!=0)
-                    _dynCtrl_pid_cumulErr=0.0f;
-
-                float e=errorV;
-
-                // Proportional part:
-                float ctrl=e*P;
-
-                // Integral part:
-                if (I!=0.0f) // so that if we turn the integral part on, we don't try to catch up all the past errors!
-                    _dynCtrl_pid_cumulErr+=e*dynStepSize; // '*dynStepSize'  was forgotten and added on 7/5/2014. The I term is corrected during load operation.
-                else
-                    _dynCtrl_pid_cumulErr=0.0f; // added on 2009/11/29
-                ctrl+=_dynCtrl_pid_cumulErr*I;
-
-                // Derivative part:
-                ctrl-=_velCalc_vel*D;
-
-                if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
-                { // "spring" mode, i.e. force modulation mode
-                    velAndForce[0]=fabs(_targetVel);
-                    if (ctrl<0.0f)
-                        velAndForce[0]=-velAndForce[0];
-                    velAndForce[1]=fabs(ctrl);
-                    if (velAndForce[0]*velAndForce[1]<0.0f)
-                        velAndForce[1]=-velAndForce[1]; // make sure they have same sign
-                }
-                else
-                { // regular position control (i.e. built-in PID)
-                    // We calculate the velocity needed to reach the position in one time step:
-                    float vel=ctrl/dynStepSize;
-                    float maxVel=_maxVelAccelJerk[0];
-                    if (vel>maxVel)
-                        vel=maxVel;
-                    if (vel<-maxVel)
-                        vel=-maxVel;
-
-                    velAndForce[0]=vel;
-                    velAndForce[1]=_targetForce;
-                    if (velAndForce[0]*velAndForce[1]<0.0f)
-                        velAndForce[1]=-velAndForce[1]; // make sure they have same sign
-                }
+            { // in case of RK4, pass1 (dt=0)
+                velAndForce[0]=_dynCtrl_previousVelForce[0];
+                velAndForce[1]=_dynCtrl_previousVelForce[1];
             }
         }
     }

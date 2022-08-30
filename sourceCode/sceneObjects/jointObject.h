@@ -370,6 +370,7 @@ protected:
 
     double _dynPosCtrl_currentVelAccel[2];
     double _dynVelCtrl_currentVelAccel[2];
+    float _dynCtrl_previousVelForce[2];
 
     float _cumulatedForceOrTorque;
     float _cumulativeForceOrTorqueTmp;
