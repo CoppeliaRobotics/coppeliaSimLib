@@ -1594,6 +1594,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         vars["message"]=msg;
         vars["origin"]=originName?originName:"CoppeliaSim";
         vars["verbosity"]="unknown";
+#ifdef SIM_WITH_GUI
         if (qtApp!=nullptr)
         {
             QColor col=qtApp->style()->standardPalette().windowText().color();
@@ -1608,6 +1609,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
             vars["color"]=col.name().toStdString();
         }
         else
+#endif
             vars["color"]="#383838";
         int64_t t=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         std::stringstream ss; ss<<std::fixed<<std::setprecision(3)<<0.001*t;
