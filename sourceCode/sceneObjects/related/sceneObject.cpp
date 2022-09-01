@@ -97,7 +97,7 @@ CSceneObject::CSceneObject()
     _sizeValues[0]=1.0f;
     _sizeValues[1]=1.0f;
     _sizeValues[2]=1.0f;
-    _dynamicsResetFlag=true;
+    _dynamicsResetFlag=false;
 }
 
 CSceneObject::~CSceneObject() 
@@ -1612,6 +1612,7 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     _initialValuesInitialized=true;
     _modelProperty=(_modelProperty|sim_modelproperty_not_reset)-sim_modelproperty_not_reset;
     setDynamicFlag(0);
+    _dynamicsResetFlag=false;
 
     _measuredAngularVelocity_velocityMeasurement=0.0f;
     _measuredAngularVelocity3_velocityMeasurement.clear();

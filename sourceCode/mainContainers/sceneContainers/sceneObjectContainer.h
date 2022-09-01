@@ -55,6 +55,9 @@ public:
     void getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix) const;
     bool canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const;
     void setSuffix1ToSuffix2(int suffix1,int suffix2);
+    int getObjectCreationCounter() const;
+    int getObjectDestructionCounter() const;
+    int getHierarchyChangeCounter() const;
 
     void setTextureDependencies();
     void removeSceneDependencies();
@@ -114,6 +117,9 @@ private:
     bool _objectActualizationEnabled;
     int _nextObjectHandle;
 
+    int _objectCreationCounter;
+    int _objectDestructionCounter;
+    int _hierarchyChangeCounter;
 };
 
 

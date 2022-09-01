@@ -199,6 +199,9 @@ std::string CFolderSystem::getUserSettingsPath()
     if (userSettingsFolder.size()==0)
     {
         std::string usrSet("CoppeliaSim");
+        char *ps=std::getenv("COPPELIASIM_USER_SETTINGS_FOLDER_SUFFIX");
+        if (ps!=nullptr)
+            usrSet+=ps;
         const char* home=std::getenv("HOME");
     #ifdef WIN_SIM
         const char* appData=std::getenv("appdata");

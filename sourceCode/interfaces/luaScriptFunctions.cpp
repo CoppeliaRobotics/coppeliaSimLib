@@ -856,6 +856,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.intparam_dynamic_iteration_count",sim_intparam_dynamic_iteration_count,true},
     {"sim.intparam_mouseclickcounterdown",sim_intparam_mouseclickcounterdown,true},
     {"sim.intparam_mouseclickcounterup",sim_intparam_mouseclickcounterup,true},
+    {"sim.intparam_objectcreationcounter",sim_intparam_objectcreationcounter,true},
+    {"sim.intparam_objectdestructioncounter",sim_intparam_objectdestructioncounter,true},
+    {"sim.intparam_hierarchychangecounter",sim_intparam_hierarchychangecounter,true},
 
     // Float parameters:
     {"sim.floatparam_rand",sim_floatparam_rand,true},
@@ -932,6 +935,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.verbosity_traceall",sim_verbosity_traceall,true},
     {"sim.verbosity_default",sim_verbosity_default,true},
     {"sim.verbosity_undecorated",sim_verbosity_undecorated,true},
+    {"sim.verbosity_onlyterminal",sim_verbosity_onlyterminal,true},
 
     // module info:
     {"sim.moduleinfo_extversionstr",sim_moduleinfo_extversionstr,true},
@@ -1471,6 +1475,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.mujoco_global_njmax",sim_mujoco_global_njmax,true},
     {"sim.mujoco_global_nconmax",sim_mujoco_global_nconmax,true},
     {"sim.mujoco_global_nstack",sim_mujoco_global_nstack,true},
+    {"sim.mujoco_global_rebuildtrigger",sim_mujoco_global_rebuildtrigger,true},
     {"sim.mujoco_global_cone",sim_mujoco_global_cone,true},
     {"sim.mujoco_global_overridekin",sim_mujoco_global_overridekin,true},
     {"sim.mujoco_global_computeinertias",sim_mujoco_global_computeinertias,true},

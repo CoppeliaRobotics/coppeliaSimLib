@@ -1654,6 +1654,7 @@ void CDynamicsContainer::serialize(CSer& ar)
             ar.xmlAddNode_int("nstack",getEngineIntParam(sim_mujoco_global_nstack,nullptr));
             ar.xmlAddNode_int("cone",getEngineIntParam(sim_mujoco_global_cone,nullptr));
             ar.xmlAddNode_int("overridekin",getEngineIntParam(sim_mujoco_global_overridekin,nullptr));
+            ar.xmlAddNode_int("rebuildtrigger",getEngineIntParam(sim_mujoco_global_rebuildtrigger,nullptr));
             ar.xmlAddNode_bool("computeinertias",getEngineBoolParam(sim_mujoco_global_computeinertias,nullptr));
             ar.xmlAddNode_bool("multithreaded",getEngineBoolParam(sim_mujoco_global_multithreaded,nullptr));
             ar.xmlAddNode_bool("multiccd",getEngineBoolParam(sim_mujoco_global_multiccd,nullptr));
@@ -1808,6 +1809,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                     if (ar.xmlGetNode_int("nstack",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_nstack,vi);
                     if (ar.xmlGetNode_int("cone",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_cone,vi);
                     if (ar.xmlGetNode_int("overridekin",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_overridekin,vi);
+                    if (ar.xmlGetNode_int("rebuildtrigger",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_global_rebuildtrigger,vi);
                     if (ar.xmlGetNode_bool("computeinertias",vb,exhaustiveXml)) setEngineBoolParam(sim_mujoco_global_computeinertias,vb);
                     if (ar.xmlGetNode_bool("multithreaded",vb,exhaustiveXml)) setEngineBoolParam(sim_mujoco_global_multithreaded,vb);
                     if (ar.xmlGetNode_bool("multiccd",vb,exhaustiveXml)) setEngineBoolParam(sim_mujoco_global_multiccd,vb);
@@ -2053,5 +2055,6 @@ void CDynamicsContainer::getMujocoDefaultIntParams(std::vector<int>& p,int defTy
     p.push_back(0); // simi_mujoco_global_cone, pyramidal
     p.push_back(0); // simi_mujoco_global_overridekin, do not override
     p.push_back(-1); // simi_mujoco_global_nstack
+    p.push_back(1+2+4+8+16+32); // simi_mujoco_global_rebuildtrigger
 }
 

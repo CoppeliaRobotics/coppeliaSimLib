@@ -1679,7 +1679,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         }
         if (statusbarVerbosity==-1)
             statusbarVerbosity=_statusbarVerbosity;
-        if ( (statusbarVerbosity>=realVerbosityLevel)&&(uiThread!=nullptr)&&(simThread!=nullptr) )
+        if ( (statusbarVerbosity>=realVerbosityLevel)&&(uiThread!=nullptr)&&(simThread!=nullptr)&&((verbosityLevel&sim_verbosity_onlyterminal)==0) )
         {
             vars["message"]=_getHtmlEscapedString(vars["message"].c_str());
             std::string statusbarTxt=replaceVars(decorateMsg?statusbarLogFormat:statusbarLogFormatUndecorated,vars);

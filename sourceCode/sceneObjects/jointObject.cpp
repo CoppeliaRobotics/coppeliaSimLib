@@ -2510,7 +2510,8 @@ void CJoint::serialize(CSer& ar)
                         ar >> P >> I >> D;
                         I/=0.005f;
                         D*=0.005f;
-                        setPid_old(P,I,D);
+                        if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)<sim_physics_mujoco)
+                            setPid_old(P,I,D);
                     }
                     if (theName.compare("Dp2")==0)
                     { // keep for backward compatibility (29/8/2022)
@@ -2518,7 +2519,8 @@ void CJoint::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float P,I,D;
                         ar >> P >> I >> D;
-                        setPid_old(P,I,D);
+                        if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)<sim_physics_mujoco)
+                            setPid_old(P,I,D);
                     }
                     if (theName.compare("Spp")==0)
                     {
@@ -2780,7 +2782,8 @@ void CJoint::serialize(CSer& ar)
                             P*=corr;
                             I*=corr;
                             D*=corr;
-                            setPid_old(P,I,D);
+                            if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)<sim_physics_mujoco)
+                                setPid_old(P,I,D);
                             _targetForce/=corr;
                         }
                     }
@@ -3193,7 +3196,8 @@ void CJoint::serialize(CSer& ar)
                     _targetVel*=mult;
                 float P,I,D;
                 ar.xmlGetNode_3float("pidValues",P,I,D,exhaustiveXml);
-                setPid_old(P,I,D);
+                if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)<sim_physics_mujoco)
+                    setPid_old(P,I,D);
                 ar.xmlGetNode_2float("kcValues",_dynCtrl_kc[0],_dynCtrl_kc[1],exhaustiveXml);
 
                 if (ar.xmlPushChildNode("switches",exhaustiveXml))

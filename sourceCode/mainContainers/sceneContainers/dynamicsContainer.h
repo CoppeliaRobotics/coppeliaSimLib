@@ -109,7 +109,9 @@ enum { /* Mujoco global int params */
     simi_mujoco_global_njmax,
     simi_mujoco_global_nconmax,
     simi_mujoco_global_cone,
-    simi_mujoco_global_overridekin
+    simi_mujoco_global_overridekin,
+    simi_mujoco_global_nstack,
+    simi_mujoco_global_rebuildtrigger,
 };
 
 enum { /* Mujoco global bit params */

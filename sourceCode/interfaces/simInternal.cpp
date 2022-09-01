@@ -3876,6 +3876,22 @@ simInt simGetInt32Param_internal(simInt parameter,simInt* intState)
 #endif
             return(retVal);
         }
+
+        if (parameter==sim_intparam_objectcreationcounter)
+        {
+            intState[0]=App::currentWorld->sceneObjects->getObjectCreationCounter();
+            return(1);
+        }
+        if (parameter==sim_intparam_objectdestructioncounter)
+        {
+            intState[0]=App::currentWorld->sceneObjects->getObjectDestructionCounter();
+            return(1);
+        }
+        if (parameter==sim_intparam_hierarchychangecounter)
+        {
+            intState[0]=App::currentWorld->sceneObjects->getHierarchyChangeCounter();
+            return(1);
+        }
         if (parameter==sim_intparam_bugfix1)
         {
             intState[0]=App::userSettings->bugFix1;

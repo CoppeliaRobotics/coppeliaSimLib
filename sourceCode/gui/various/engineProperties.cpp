@@ -1448,6 +1448,8 @@ void CEngineProperties::_writeGlobal(int engine,CAnnJson& annJson) const
         annJson.addJson(jmujoco,"solver",iv,comment.c_str());
         iv=_getGlobalIntParam(sim_mujoco_global_iterations,comment);
         annJson.addJson(jmujoco,"integrations",iv,comment.c_str());
+        iv=_getGlobalIntParam(sim_mujoco_global_rebuildtrigger,comment,"bit coded: bit0=object added, bit1=object removed, bit2=hierarchy changed, bit3=dynamic refresh flag found,  bit4=xml injections, bit5=CoppeliaSim particles");
+        annJson.addJson(jmujoco,"rebuildTrigger",iv,comment.c_str());
         bv=_getGlobalBoolParam(sim_mujoco_global_computeinertias,comment);
         annJson.addJson(jmujoco,"computeInertias",bv,comment.c_str());
         iv=_getGlobalIntParam(sim_mujoco_global_njmax,comment);
@@ -1617,6 +1619,8 @@ void CEngineProperties::_readGlobal(int engine,CAnnJson& annJson,std::string* al
                 App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_solver,val.toInt());
             if (annJson.getValue(mujoco,"integrations",QJsonValue::Double,val,allErrors))
                 App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_iterations,val.toInt());
+            if (annJson.getValue(mujoco,"rebuildTrigger",QJsonValue::Double,val,allErrors))
+                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_rebuildtrigger,val.toInt());
             if (annJson.getValue(mujoco,"computeInertias",QJsonValue::Bool,val,allErrors))
                 App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_mujoco_global_computeinertias,val.toBool());
             if (annJson.getValue(mujoco,"njMax",QJsonValue::Double,val,allErrors))

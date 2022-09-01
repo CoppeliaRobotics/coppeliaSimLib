@@ -15,6 +15,9 @@ CSceneObjectContainer::CSceneObjectContainer()
 {
     _objectActualizationEnabled=true;
     _nextObjectHandle=SIM_IDSTART_SCENEOBJECT;
+    _objectCreationCounter=0;
+    _objectDestructionCounter=0;
+    _hierarchyChangeCounter=0;
 }
 
 CSceneObjectContainer::~CSceneObjectContainer()
@@ -395,6 +398,21 @@ void CSceneObjectContainer::setSuffix1ToSuffix2(int suffix1,int suffix2)
             setObjectName_old(obj,tt::generateNewName_hash(name1.c_str(),suffix2+1).c_str(),true);
         }
     }
+}
+
+int CSceneObjectContainer::getObjectCreationCounter() const
+{
+    return(_objectCreationCounter);
+}
+
+int CSceneObjectContainer::getObjectDestructionCounter() const
+{
+    return(_objectDestructionCounter);
+}
+
+int CSceneObjectContainer::getHierarchyChangeCounter() const
+{
+    return(_hierarchyChangeCounter);
 }
 
 void CSceneObjectContainer::setTextureDependencies()
@@ -1095,6 +1113,7 @@ void CSceneObjectContainer::setObjectParent(CSceneObject* object,CSceneObject* n
     CSceneObject* oldParent=object->getParent();
     if (oldParent!=newParent)
     {
+        _hierarchyChangeCounter++;
         C7Vector absTr(object->getCumulativeTransformation());
         if (oldParent!=nullptr)
         {
@@ -2192,6 +2211,8 @@ void CSceneObjectContainer::_addObject(CSceneObject* object)
 
     if (object->setObjectCanSync(true))
         object->buildUpdateAndPopulateSynchronizationObject(nullptr);
+
+    _objectCreationCounter++;
 }
 
 void CSceneObjectContainer::_removeObject(CSceneObject* object)
@@ -2205,6 +2226,8 @@ void CSceneObjectContainer::_removeObject(CSceneObject* object)
     actualizeObjectInformation();
     App::setFullDialogRefreshFlag();
     App::setRebuildHierarchyFlag();
+
+    _objectDestructionCounter++;
 }
 
 void CSceneObjectContainer::buildUpdateAndPopulateSynchronizationObjects()
