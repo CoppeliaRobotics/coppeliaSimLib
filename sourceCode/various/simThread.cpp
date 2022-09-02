@@ -4765,8 +4765,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                     {
                         if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_question(App::mainWindow,CSimFlavor::getStringVal(11).c_str(),CSimFlavor::getStringVal(12).c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_NO))
                         {
-                            std::string testScene=App::folders->getExecutablePath()+"/";
-                            testScene.append("AUTO_SAVED_INSTANCE_1.");
+                            std::string testScene=App::folders->getAutoSavedScenesPath()+"/1.";
                             testScene+=SIM_SCENE_EXTENSION;
                             if (CFileOperations::loadScene(testScene.c_str(),false,false))
                             {
@@ -4776,8 +4775,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                             int instanceNb=2;
                             while (true)
                             {
-                                testScene=App::folders->getExecutablePath()+"/";
-                                testScene.append("AUTO_SAVED_INSTANCE_");
+                                testScene=App::folders->getAutoSavedScenesPath()+"/";
                                 testScene+=tt::FNb(instanceNb);
                                 testScene+=".";
                                 testScene+=SIM_SCENE_EXTENSION;
@@ -4821,8 +4819,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                 if (VDateTime::getSecondsSince1970()>(App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970+App::userSettings->autoSaveDelay*60))
                 {
                     std::string savedLoc=App::currentWorld->mainSettings->getScenePathAndName();
-                    std::string testScene=App::folders->getExecutablePath()+"/";
-                    testScene+="AUTO_SAVED_INSTANCE_";
+                    std::string testScene=App::folders->getAutoSavedScenesPath()+"/";
                     testScene+=tt::FNb(App::worldContainer->getCurrentWorldIndex()+1);
                     testScene+=".";
                     testScene+=SIM_SCENE_EXTENSION;

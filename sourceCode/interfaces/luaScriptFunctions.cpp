@@ -916,6 +916,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_pythondir",sim_stringparam_pythondir,true},
     {"sim.stringparam_mujocodir",sim_stringparam_mujocodir,true},
     {"sim.stringparam_usersettingsdir",sim_stringparam_usersettingsdir,true},
+    {"sim.stringparam_systemdir",sim_stringparam_systemdir,true},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal,true},

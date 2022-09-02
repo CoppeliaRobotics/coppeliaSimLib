@@ -444,8 +444,7 @@ App::~App()
     // Remove any remaining auto-saved file:
     for (int i=1;i<30;i++)
     {
-        std::string testScene=App::folders->getExecutablePath()+"/";
-        testScene.append("AUTO_SAVED_INSTANCE_");
+        std::string testScene(App::folders->getAutoSavedScenesPath()+"/");
         testScene+=tt::FNb(i);
         testScene+=".";
         testScene+=SIM_SCENE_EXTENSION;

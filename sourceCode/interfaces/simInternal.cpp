@@ -4489,6 +4489,11 @@ simChar* simGetStringParam_internal(simInt parameter)
             validParam=true;
             retVal=App::folders->getUserSettingsPath();
         }
+        if (parameter==sim_stringparam_systemdir)
+        {
+            validParam=true;
+            retVal=App::folders->getSystemPath();
+        }
         if (parameter==sim_stringparam_scene_path_and_name)
         {
             validParam=true;

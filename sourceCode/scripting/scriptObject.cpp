@@ -2383,25 +2383,25 @@ int CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(void* LL)
 std::string CScriptObject::getSearchPath_lua()
 {
     std::string retVal;
-    retVal+=App::folders->getExecutablePath();
+    retVal+=App::folders->getInterpretersRootPath();
     retVal+="/?.lua;";
-    retVal+=App::folders->getExecutablePath();
+    retVal+=App::folders->getInterpretersRootPath();
     retVal+="/lua/?.lua;"; // present by default, but also needed for the code editor
-    retVal+=App::folders->getExecutablePath();
+    retVal+=App::folders->getInterpretersRootPath();
     retVal+="/bwf/?.lua";
 #ifdef WIN_SIM
     retVal+=";";
-    retVal+=App::folders->getExecutablePath();
+    retVal+=App::folders->getInterpretersRootPath();
     retVal+="/luar/?.lua";
 #endif
 #ifdef LIN_SIM
     retVal+=";";
-    retVal+=App::folders->getExecutablePath();
+    retVal+=App::folders->getInterpretersRootPath();
     retVal+="/luar/?.lua";
 #endif
 #ifdef MAC_SIM
     retVal+=";";
-    retVal+=App::folders->getExecutablePath();
+    retVal+=App::folders->getInterpretersRootPath();
     retVal+="/luarocks/share/lua/5.3/?.lua";
 #endif
     if (App::currentWorld->mainSettings->getScenePathAndName().compare("")!=0)
@@ -2423,15 +2423,15 @@ std::string CScriptObject::getSearchCPath_lua()
 {
     std::string retVal;
 #ifdef WIN_SIM
-    retVal+=App::folders->getExecutablePath();
+    retVal+=App::folders->getInterpretersRootPath();
     retVal+="/luar/?.dll";
 #endif
 #ifdef LIN_SIM
-    retVal+=App::folders->getExecutablePath();
+    retVal+=App::folders->getInterpretersRootPath();
     retVal+="/luar/?.so";
 #endif
 #ifdef MAC_SIM
-    retVal+=App::folders->getExecutablePath();
+    retVal+=App::folders->getInterpretersRootPath();
     retVal+="/luarocks/lib/lua/5.3/?.so";
 #endif
     return(retVal);
@@ -2440,9 +2440,9 @@ std::string CScriptObject::getSearchCPath_lua()
 std::string CScriptObject::getSearchPath_python()
 {
     std::string retVal;
-    retVal+=App::folders->getExecutablePath();
+    retVal+=App::folders->getInterpretersRootPath();
     retVal+="/?.py;";
-    retVal+=App::folders->getExecutablePath();
+    retVal+=App::folders->getInterpretersRootPath();
     retVal+="/python/?.py;";
     if (App::currentWorld->mainSettings->getScenePathAndName().compare("")!=0)
     {

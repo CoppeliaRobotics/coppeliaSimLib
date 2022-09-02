@@ -16,6 +16,8 @@ public:
 
     std::string getExecutablePath() const;
     std::string getAddOnPath() const;
+    std::string getInterpretersRootPath() const;
+    std::string getAutoSavedScenesPath() const;
     std::string getSystemPath() const;
     std::string getResourcesPath() const;
     std::string getScenesDefaultPath() const;

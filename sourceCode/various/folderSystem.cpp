@@ -24,7 +24,7 @@ CFolderSystem::CFolderSystem()
 #else
     _resourcesPath=_executablePath;
 #endif
-    _systemPath=_executablePath+"/system";
+    _systemPath=_resourcesPath+"/system";
     _scenesPath=_resourcesPath+"/scenes";
     _modelsPath=_resourcesPath+"/models";
     _importExportPath=_resourcesPath+"/cadFiles";
@@ -125,9 +125,19 @@ std::string CFolderSystem::getAddOnPath() const
     return(_addOnPath);
 }
 
+std::string CFolderSystem::getInterpretersRootPath() const
+{
+    return(_resourcesPath);
+}
+
 std::string CFolderSystem::getSystemPath() const
 {
     return(_systemPath);
+}
+
+std::string CFolderSystem::getAutoSavedScenesPath() const
+{
+    return(getUserSettingsPath()+"/autoSavedScenes");
 }
 
 std::string CFolderSystem::getResourcesPath() const
@@ -185,17 +195,17 @@ std::string CFolderSystem::getTexturesPath() const
 
 std::string CFolderSystem::getLuaPath() const
 {
-    return(_executablePath+"/lua");
+    return(_resourcesPath+"/lua");
 }
 
 std::string CFolderSystem::getPythonPath() const
 {
-    return(_executablePath+"/python");
+    return(_resourcesPath+"/python");
 }
 
 std::string CFolderSystem::getMujocoPath() const
 {
-    return(_executablePath+"/mujoco");
+    return(_resourcesPath+"/mujoco");
 }
 
 std::string CFolderSystem::getUserSettingsPath()

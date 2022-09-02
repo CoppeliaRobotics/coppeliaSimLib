@@ -59,12 +59,7 @@ bool CHelpMenu::processCommand(int commandID)
 
         if ( ((SIM_PROGRAM_REVISION_NB)==0) || (!App::isOnline()) )
         {
-            std::string tmp;
-            #ifdef MAC_SIM
-                tmp=App::folders->getExecutablePath()+"/../Resources/"+"helpFiles"+"/"+"index.html";
-            #else
-                tmp=App::folders->getExecutablePath()+"/"+"helpFiles"+"/"+"index.html";
-            #endif
+            std::string tmp(App::folders->getResourcesPath()+"/helpFiles/index.html");
             App::logMsg(sim_verbosity_msgs,"Opening the locally stored user manual...");
             VVarious::openOfflineUrl(tmp.c_str());
         }
