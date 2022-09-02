@@ -149,7 +149,6 @@ public:
     void markForWarningDisplay_pureHollowShapeNotSupported();
     void markForWarningDisplay_physicsEngineNotSupported();
     void markForWarningDisplay_vortexPluginIsDemo();
-    void markForWarningDisplay_newtonDynamicRandomMeshNotSupported();
 
     void displayWarningsIfNeeded();
     bool displayNonDefaultParameterWarningRequired();
@@ -247,7 +246,6 @@ protected:
     unsigned char _pureConeNotSupportedMark;
     unsigned char _pureHollowShapeNotSupportedMark;
     unsigned char _physicsEngineNotSupportedWarning;
-    unsigned char _newtonDynamicRandomMeshNotSupportedMark;
 
     unsigned char _containsNonPureNonConvexShapes;
     unsigned char _containsStaticShapesOnDynamicConstruction;

@@ -79,7 +79,6 @@ void CDynamicsContainer::_resetWarningFlags()
     _containsNonPureNonConvexShapes=0;
     _containsStaticShapesOnDynamicConstruction=0;
     _pureSpheroidNotSupportedMark=0;
-    _newtonDynamicRandomMeshNotSupportedMark=0;
     _pureConeNotSupportedMark=0;
     _pureHollowShapeNotSupportedMark=0;
     _physicsEngineNotSupportedWarning=0;
@@ -168,12 +167,6 @@ void CDynamicsContainer::markForWarningDisplay_pureSpheroidNotSupported()
 {
     if (_pureSpheroidNotSupportedMark==0)
         _pureSpheroidNotSupportedMark++;
-}
-
-void CDynamicsContainer::markForWarningDisplay_newtonDynamicRandomMeshNotSupported()
-{
-    if (_newtonDynamicRandomMeshNotSupportedMark==0)
-        _newtonDynamicRandomMeshNotSupportedMark++;
 }
 
 void CDynamicsContainer::markForWarningDisplay_pureConeNotSupported()
@@ -320,29 +313,6 @@ void CDynamicsContainer::displayWarningsIfNeeded()
     #endif
 
             _physicsEngineNotSupportedWarning++;
-        }
-        if ( (_newtonDynamicRandomMeshNotSupportedMark==1)&&((_tempDisabledWarnings&256)==0) )
-        {
-    #ifdef SIM_WITH_GUI
-            CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
-            std::string val;
-            cont.readData("NEWTONNONCONVEX_WARNING_NO_SHOW",val);
-            int intVal=0;
-            tt::getValidInt(val.c_str(),intVal);
-            if (intVal<3)
-            {
-                if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_DYNAMIC_CONTENT,IDS_WARNING_WITH_NEWTON_NON_CONVEX_DYNAMIC_MESH,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X,true))
-                {
-                    intVal++;
-                    val=tt::FNb(intVal);
-                    cont.writeData("NEWTONNONCONVEX_WARNING_NO_SHOW",val,!App::userSettings->doNotWritePersistentData);
-                }
-            }
-
-    #else
-            App::logMsg(sim_verbosity_warnings,IDS_WARNING_WITH_NEWTON_NON_CONVEX_DYNAMIC_MESH);
-    #endif
-            _newtonDynamicRandomMeshNotSupportedMark++;
         }
     }
 }

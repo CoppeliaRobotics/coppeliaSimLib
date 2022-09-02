@@ -438,7 +438,7 @@ App::~App()
     uiThread=nullptr;
 
     // Clear the TAG that CoppeliaSim crashed! (because if we arrived here, we didn't crash!)
-    CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+    CPersistentDataContainer cont;
     cont.writeData("SIMSETTINGS_SIM_CRASHED","No",!App::userSettings->doNotWritePersistentData);
 
     // Remove any remaining auto-saved file:

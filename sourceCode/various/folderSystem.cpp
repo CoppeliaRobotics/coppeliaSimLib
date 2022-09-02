@@ -24,15 +24,15 @@ CFolderSystem::CFolderSystem()
 #else
     _resourcesPath=_executablePath;
 #endif
-    _systemPath=_executablePath+"/"+SIM_SYSTEM_DIRECTORY_NAME;
-    _scenesPath=_resourcesPath+"/"+CSimFlavor::getStringVal(13);// if scenes can't be found, it will use the last used directory somehow!
-    _modelsPath=_resourcesPath+"/"+CSimFlavor::getStringVal(14);
-    _importExportPath=_resourcesPath+"/"+SIM_IMPORTEXPORT_DIRECTORY_NAME;
+    _systemPath=_executablePath+"/system";
+    _scenesPath=_resourcesPath+"/scenes";
+    _modelsPath=_resourcesPath+"/models";
+    _importExportPath=_resourcesPath+"/cadFiles";
+    _addOnPath=_resourcesPath+"/addOns";
     _videosPath=_resourcesPath;
     _otherFilesPath=_resourcesPath;
     _scenesDefaultPath=_scenesPath;
     _modelsDefaultPath=_modelsPath;
-
     if (App::userSettings->defaultDirectoryForScenes.length()!=0)
         setScenesPath(App::userSettings->defaultDirectoryForScenes.c_str());
     if (App::userSettings->defaultDirectoryForModels.length()!=0)
@@ -118,6 +118,11 @@ std::string CFolderSystem::getNameFromFull(const char* full)
 std::string CFolderSystem::getExecutablePath() const
 {
     return(_executablePath);
+}
+
+std::string CFolderSystem::getAddOnPath() const
+{
+    return(_addOnPath);
 }
 
 std::string CFolderSystem::getSystemPath() const
@@ -220,7 +225,13 @@ std::string CFolderSystem::getUserSettingsPath()
             userSettingsFolder=std::string(home)+"/."+usrSet;
     #endif
         if (userSettingsFolder.size()==0)
-            userSettingsFolder=VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME; // fallback to CoppeliaSim's system folder
+        { // fallback
+#ifdef MAC_SIM
+            userSettingsFolder=VVarious::getModulePath()+"/../Resources/system";
+#else
+            userSettingsFolder=VVarious::getModulePath()+"/system";
+#endif
+        }
     }
     return(userSettingsFolder);
 }

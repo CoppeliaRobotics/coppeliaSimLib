@@ -15,6 +15,7 @@ public:
     static std::string getUserSettingsPath();
 
     std::string getExecutablePath() const;
+    std::string getAddOnPath() const;
     std::string getSystemPath() const;
     std::string getResourcesPath() const;
     std::string getScenesDefaultPath() const;
@@ -45,6 +46,7 @@ private:
 #endif
     std::string _executablePath;
     std::string _systemPath;
+    std::string _addOnPath;
     std::string _resourcesPath;
     std::string _scenesPath;
     std::string _modelsPath;

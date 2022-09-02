@@ -15,7 +15,6 @@
 #include "easyLock.h"
 #include "mesh.h"
 #include "threadPool_old.h"
-#include "volInt.h"
 #include "graphingRoutines_old.h"
 #include "simStringTable_openGl.h"
 #include "simFlavor.h"
@@ -3323,32 +3322,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     C7Vector localTr;
                     C3Vector diagI; // massless
-                    bool doIt=false;
                     float mass=CPluginContainer::dyn_computeInertia(it->getObjectHandle(),localTr,diagI);
                     float desiredDensity=cmd.floatParams[0];
                     if (mass>0.0)
                     {
-                        doIt=true;
                         mass=desiredDensity*mass/1000.0;
-                    }
-                    else
-                    { // fallback algo
-                        if (it->getMeshWrapper()->isConvex())
-                        {
-                            doIt=true;
-                            std::vector<float> vert;
-                            std::vector<int> ind;
-                            it->getMeshWrapper()->getCumulativeMeshes(vert,&ind,nullptr);
-                            C3Vector com;
-                            C3X3Matrix tensor;
-                            float mass=CVolInt::getMassCenterOfMassAndInertiaTensor(&vert[0],(int)vert.size()/3,&ind[0],(int)ind.size()/3,desiredDensity,com,tensor);
-                            C4Vector rot;
-                            CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,diagI);
-                            localTr=C7Vector(rot,com);
-                        }
-                    }
-                    if (doIt)
-                    {
                         it->getMeshWrapper()->setPrincipalMomentsOfInertia(diagI);
                         it->getMeshWrapper()->setLocalInertiaFrame(localTr);
                         it->getMeshWrapper()->setMass(mass);
@@ -4776,7 +4754,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
             // First post the next command in the sequence:
             cmd.intParams[0]=1;
             App::appendSimulationThreadCommand(cmd,1000);
-            CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+            CPersistentDataContainer cont;
             std::string val;
             cont.readData("SIMSETTINGS_SIM_CRASHED",val);
             if (val=="Yes")
@@ -4831,7 +4809,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
             // First post the auto-save command:
             cmd.intParams[0]=2;
             App::appendSimulationThreadCommand(cmd,1000);
-            CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+            CPersistentDataContainer cont;
             cont.writeData("SIMSETTINGS_SIM_CRASHED","Yes",!App::userSettings->doNotWritePersistentData);
         }
         else if (cmd.intParams[0]==2)
@@ -4877,7 +4855,7 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
 
     if (displayNonStandardParams)
     {
-        CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+        CPersistentDataContainer cont;
         std::string val;
         cont.readData("SIMSETTINGS_WARNING_NO_SHOW",val);
         int intVal=0;
@@ -4903,7 +4881,7 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
 
     if (displayNonPureNonConvexShapeUseWarning)
     {
-        CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+        CPersistentDataContainer cont;
         std::string val;
         cont.readData("NONPURESHAPEFORDYNAMICS_WARNING_NO_SHOW",val);
         int intVal=0;
@@ -4921,7 +4899,7 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
 
     if (displayStaticShapeOnDynamicConstructionWarning)
     {
-        CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+        CPersistentDataContainer cont;
         std::string val;
         cont.readData("STATICSHAPEONTOPOFDYNAMICCONSTRUCTION_WARNING_NO_SHOW",val);
         int intVal=0;

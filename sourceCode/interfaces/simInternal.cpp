@@ -18,7 +18,6 @@
 #include "vDateTime.h"
 #include "ttUtil.h"
 #include "vVarious.h"
-#include "volInt.h"
 #include "imgLoaderSaver.h"
 #include "apiErrors.h"
 #include "sigHandler.h"
@@ -12157,7 +12156,7 @@ simInt simCheckExecAuthorization_internal(const simChar* what,const simChar* arg
                     y=x+std::to_string(it->getSimpleHash());
                     std::hash<std::string> hasher;
                     y=std::to_string(hasher(y))+"EXECUNSAFE";
-                    CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+                    CPersistentDataContainer cont;
                     std::string val;
                     if (cont.readData(y.c_str(),val))
                         auth=true;
@@ -12171,7 +12170,7 @@ simInt simCheckExecAuthorization_internal(const simChar* what,const simChar* arg
                     auth=true;
                     if (it!=nullptr)
                     {
-                        CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+                        CPersistentDataContainer cont;
                         cont.writeData(y.c_str(),"OK",true);
                     }
                 }
@@ -13738,21 +13737,16 @@ simInt simComputeMassAndInertia_internal(simInt shapeHandle,simFloat density)
         if (isShape(__func__,shapeHandle))
         {
             CShape* shape=(CShape*)App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-            if (shape->getMeshWrapper()->isConvex())
+            C7Vector localTr;
+            C3Vector diagI; // massless
+            float mass=CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),localTr,diagI);
+            if (mass>0.0)
             {
-                std::vector<float> vert;
-                std::vector<int> ind;
-                shape->getMeshWrapper()->getCumulativeMeshes(vert,&ind,nullptr);
-                C3Vector com;
-                C3X3Matrix tensor;
-                float mass=CVolInt::getMassCenterOfMassAndInertiaTensor(&vert[0],(int)vert.size()/3,&ind[0],(int)ind.size()/3,density,com,tensor);
-                C4Vector rot;
-                C3Vector pmoment;
-                CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,pmoment);
-                shape->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
-                shape->getMeshWrapper()->setLocalInertiaFrame(C7Vector(rot,com));
+                mass=density*mass/1000.0;
+                shape->getMeshWrapper()->setPrincipalMomentsOfInertia(diagI);
+                shape->getMeshWrapper()->setLocalInertiaFrame(localTr);
                 shape->getMeshWrapper()->setMass(mass);
-                App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
+                App::undoRedo_sceneChanged("");
                 return(1);
             }
             return(0);
@@ -16383,8 +16377,6 @@ simVoid _simMakeDynamicAnnouncement_internal(int announceType)
         App::currentWorld->dynamicsContainer->markForWarningDisplay_pureConeNotSupported();
     if (announceType==sim_announce_purespheroidnotsupported)
         App::currentWorld->dynamicsContainer->markForWarningDisplay_pureSpheroidNotSupported();
-    if (announceType==sim_announce_newtondynamicrandommeshnotsupported)
-        App::currentWorld->dynamicsContainer->markForWarningDisplay_newtonDynamicRandomMeshNotSupported();
     if (announceType==sim_announce_containsnonpurenonconvexshapes)
         App::currentWorld->dynamicsContainer->markForWarningDisplay_containsNonPureNonConvexShapes();
     if (announceType==sim_announce_containsstaticshapesondynamicconstruction)

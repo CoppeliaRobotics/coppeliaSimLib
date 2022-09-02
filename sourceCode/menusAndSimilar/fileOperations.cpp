@@ -117,7 +117,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             if (!VThread::isCurrentThreadTheUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 CSimFlavor::run(2);
-                CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+                CPersistentDataContainer cont;
                 std::string filenameAndPath;
                 int recentScenesCnt=0;
                 for (int i=0;i<10;i++)
@@ -227,7 +227,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         int modelBase=App::currentWorld->sceneObjects->getLastSelectionHandle();
 
                         // Display a warning if needed
-                        CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+                        CPersistentDataContainer cont;
                         std::string val;
                         cont.readData("SIMSETTINGS_MODEL_SAVE_OFFSET_WARNING",val);
                         int intVal=0;
@@ -1411,7 +1411,7 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,float pointSpacing,const
 
 void CFileOperations::addToRecentlyOpenedScenes(std::string filenameAndPath)
 {
-    CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+    CPersistentDataContainer cont;
     std::string recentScenes[10];
     int sameIndex=-1;
     for (int i=0;i<10;i++)
@@ -1448,7 +1448,7 @@ void CFileOperations::addToRecentlyOpenedScenes(std::string filenameAndPath)
 
 void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPath)
 {
-    CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+    CPersistentDataContainer cont;
     std::string recentScenes[10];
     int sameIndex=-1;
     for (int i=0;i<10;i++)
@@ -1523,7 +1523,7 @@ void CFileOperations::addMenu(VMenu* menu)
     menu->appendMenuItem(fileOpOk,false,FILE_OPERATION_OPEN_SCENE_FOCMD,IDS_OPEN_SCENE___MENU_ITEM);
 
     // recent scene files:
-    CPersistentDataContainer cont(SIM_FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
+    CPersistentDataContainer cont;
     std::string recentScenes[10];
     int recentScenesCnt=0;
     for (int i=0;i<10;i++)

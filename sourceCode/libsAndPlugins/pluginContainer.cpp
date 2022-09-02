@@ -7,6 +7,7 @@
 #include "ttUtil.h"
 #include "apiErrors.h"
 #include "collisionRoutines.h"
+#include "volInt.h"
 #include <algorithm>
 
 CPlugin::CPlugin(const char* filename,const char* pluginName)
@@ -882,6 +883,24 @@ float CPluginContainer::dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vector
     float mass=0.0;
     if ( (mujocoEngine!=nullptr)&&(mujocoEngine->mujocoPlugin_computeInertia!=nullptr) )
         mass=mujocoEngine->mujocoPlugin_computeInertia(shapeHandle,tr.X.data,tr.Q.data,diagI.data);
+
+    if (mass==0.0)
+    { // fallback algo
+        CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        if (it->getMeshWrapper()->isConvex())
+        {
+            std::vector<float> vert;
+            std::vector<int> ind;
+            it->getMeshWrapper()->getCumulativeMeshes(vert,&ind,nullptr);
+            C3Vector com;
+            C3X3Matrix tensor;
+            mass=CVolInt::getMassCenterOfMassAndInertiaTensor(&vert[0],(int)vert.size()/3,&ind[0],(int)ind.size()/3,1000.0,com,tensor);
+            C4Vector rot;
+            CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,diagI);
+            tr=C7Vector(rot,com);
+        }
+    }
+
     return(mass);
 }
 

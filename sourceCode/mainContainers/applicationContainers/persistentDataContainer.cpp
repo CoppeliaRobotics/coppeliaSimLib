@@ -6,7 +6,7 @@
 
 CPersistentDataContainer::CPersistentDataContainer()
 {
-    _filename="persistentData.dat";
+    _filename="settings.dat";
     initializeWithDataFromFile();
 }
 
@@ -113,7 +113,6 @@ void CPersistentDataContainer::_readFromFile(std::vector<std::string>& dataNames
     std::string filenameAndPath=CFolderSystem::getUserSettingsPath();
     filenameAndPath+="/";
     filenameAndPath+=_filename;
-//    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+_filename.c_str());
     if (VFile::doesFileExist(filenameAndPath.c_str()))
     {
         try
@@ -136,7 +135,6 @@ void CPersistentDataContainer::_writeToFile(std::vector<std::string>& dataNames,
     std::string filenameAndPath=CFolderSystem::getUserSettingsPath();
     filenameAndPath+="/";
     filenameAndPath+=_filename;
-//    std::string filenameAndPath(VVarious::getModulePath()+"/"+SIM_SYSTEM_DIRECTORY_NAME+"/"+_filename.c_str());
     try
     {
         VFile myFile(filenameAndPath.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);

@@ -72,7 +72,7 @@ int CAddOnScriptContainer::_insertAddOns()
 {
     int addOnsCount=0;
     VFileFinder finder;
-    finder.searchFilesWithExtension(App::folders->getExecutablePath().c_str(),ADDON_EXTENTION);
+    finder.searchFilesWithExtension(App::folders->getAddOnPath().c_str(),ADDON_EXTENTION);
     int cnt=0;
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
     while (foundItem!=nullptr)
@@ -96,7 +96,7 @@ int CAddOnScriptContainer::_insertAddOns()
         }
         if (at.size()>1)
         {
-            std::string fp(App::folders->getExecutablePath()+"/");
+            std::string fp(App::folders->getAddOnPath()+"/");
             fp+=foundItem->name;
             CScriptObject* defScript=new CScriptObject(sim_scripttype_addonscript);
             if (defScript->setScriptTextFromFile(fp.c_str()))
@@ -136,7 +136,7 @@ int CAddOnScriptContainer::_insertAddOns()
         std::string fp(additionalScripts[addScr]);
         if (!VVarious::isAbsolutePath(fp.c_str()))
         {
-            fp=App::folders->getExecutablePath()+"/";
+            fp=App::folders->getAddOnPath()+"/";
             fp+=additionalScripts[addScr];
         }
         std::string fileName_noExtension(VVarious::splitPath_fileBase(fp.c_str()));
@@ -184,7 +184,7 @@ int CAddOnScriptContainer::_prepareAddOnFunctionNames_old()
 {
     int addOnsCount=0;
     VFileFinder finder;
-    finder.searchFilesWithExtension(App::folders->getExecutablePath().c_str(),ADDON_EXTENTION);
+    finder.searchFilesWithExtension(App::folders->getAddOnPath().c_str(),ADDON_EXTENTION);
     int cnt=0;
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
     while (foundItem!=nullptr)
@@ -307,12 +307,12 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                 }
                 if (index!=-1)
                 {   // execute the add-on function here!!
-                    std::string fp1(App::folders->getExecutablePath()+"/");
+                    std::string fp1(App::folders->getAddOnPath()+"/");
                     fp1+=ADDON_FUNCTION_PREFIX1;
                     fp1+=_allAddOnFunctionNames_old[index];
                     fp1+=".";
                     fp1+=ADDON_EXTENTION;
-                    std::string fp2(App::folders->getExecutablePath()+"/");
+                    std::string fp2(App::folders->getAddOnPath()+"/");
                     fp2+=ADDON_FUNCTION_PREFIX2;
                     fp2+=_allAddOnFunctionNames_old[index];
                     fp2+=".";

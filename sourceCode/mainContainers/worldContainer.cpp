@@ -256,7 +256,7 @@ void CWorldContainer::initialize()
     serialPortContainer=new CSerialPortContainer();
 #endif
 
-    persistentDataContainer=new CPersistentDataContainer();
+    persistentDataContainer=new CPersistentDataContainer("persistentData.dat");
     interfaceStackContainer=new CInterfaceStackContainer();
     scriptCustomFuncAndVarContainer=new CScriptCustomFuncAndVarContainer();
     customAppData_old=new CCustomData_old();

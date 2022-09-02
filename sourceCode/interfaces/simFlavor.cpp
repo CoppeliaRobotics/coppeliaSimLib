@@ -167,10 +167,6 @@ std::string CSimFlavor::getStringVal(int w)
             return("It seems that CoppeliaSim crashed in last session (or you might be running several instances of CoppeliaSim in parallel). Would you like to try to recover auto-saved scenes? (see also CoppeliaSim's installation folder for backuped scenes)");
         #endif
     }
-    if (w==13)
-        return("scenes");
-    if (w==14)
-        return("models");
     if (w==15)
         return("non-mobile");
     if (w==16)
