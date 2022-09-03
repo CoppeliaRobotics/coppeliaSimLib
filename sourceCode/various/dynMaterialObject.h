@@ -129,11 +129,13 @@ enum { /* Mujoco body float params */
     simi_mujoco_body_solimp3,
     simi_mujoco_body_solimp4,
     simi_mujoco_body_solimp5,
-    simi_mujoco_body_solmix
+    simi_mujoco_body_solmix,
+    simi_mujoco_body_margin,
 };
 
 enum { /* Mujoco body int params */
-    simi_mujoco_body_condim=0
+    simi_mujoco_body_condim=0,
+    simi_mujoco_body_priority,
 };
 
 class CDynMaterialObject

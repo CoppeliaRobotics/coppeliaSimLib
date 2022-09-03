@@ -1037,6 +1037,8 @@ void CEngineProperties::_writeShape(int engine,int shapeHandle,CAnnJson& annJson
         annJson.addJson(jmujoco,"solimp",v,5);
         annJson.addJson(jmujoco,"condim",mat->getEngineIntParam(sim_mujoco_body_condim,nullptr));
         annJson.addJson(jmujoco,"solmix",mat->getEngineFloatParam(sim_mujoco_body_solmix,nullptr));
+        annJson.addJson(jmujoco,"margin",mat->getEngineFloatParam(sim_mujoco_body_margin,nullptr));
+        annJson.addJson(jmujoco,"priority",mat->getEngineIntParam(sim_mujoco_body_priority,nullptr));
         annJson.addJson(annJson.getMainObject()[0],"mujoco",jmujoco);
     }
 
@@ -1228,6 +1230,10 @@ void CEngineProperties::_readShape(int engine,int shapeHandle,CAnnJson& annJson,
                 mat->setEngineIntParam(sim_mujoco_body_condim,val.toInt());
             if (annJson.getValue(mujoco,"solmix",QJsonValue::Double,val,allErrors))
                 mat->setEngineFloatParam(sim_mujoco_body_solmix,val.toDouble());
+            if (annJson.getValue(mujoco,"margin",QJsonValue::Double,val,allErrors))
+                mat->setEngineFloatParam(sim_mujoco_body_margin,val.toDouble());
+            if (annJson.getValue(mujoco,"priority",QJsonValue::Double,val,allErrors))
+                mat->setEngineIntParam(sim_mujoco_body_priority,val.toInt());
         }
     }
 

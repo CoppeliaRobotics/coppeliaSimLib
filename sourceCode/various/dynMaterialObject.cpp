@@ -139,12 +139,12 @@ void CDynMaterialObject::_setDefaultParameters()
     _mujocoFloatParams.push_back(0.05f); // simi_mujoco_body_solimp4
     _mujocoFloatParams.push_back(2.0f); // simi_mujoco_body_solimp5
     _mujocoFloatParams.push_back(1.0f); // simi_mujoco_body_solmix
-    _mujocoFloatParams.push_back(0.0f); // free
+    _mujocoFloatParams.push_back(0.0f); // simi_mujoco_body_margin
 
     _mujocoIntParams.push_back(3); // simi_mujoco_body_condim
     int mujocoBitCoded=0; // not used for now
     _mujocoIntParams.push_back(mujocoBitCoded);
-    _mujocoIntParams.push_back(0); // free
+    _mujocoIntParams.push_back(0); // simi_mujoco_body_priority
     // ----------------------------------------------------
 }
 
@@ -1236,7 +1236,9 @@ void CDynMaterialObject::serialize(CSer& ar)
             si[4]=getEngineFloatParam(sim_mujoco_body_solimp5,nullptr);
             ar.xmlAddNode_floats("solimp",si,5);
             ar.xmlAddNode_float("solmix",getEngineFloatParam(sim_mujoco_body_solmix,nullptr));
+            ar.xmlAddNode_float("margin",getEngineFloatParam(sim_mujoco_body_margin,nullptr));
             ar.xmlAddNode_int("condim",getEngineIntParam(sim_mujoco_body_condim,nullptr));
+            ar.xmlAddNode_int("priority",getEngineIntParam(sim_mujoco_body_priority,nullptr));
             ar.xmlPopNode();
 
             ar.xmlPopNode();
@@ -1377,7 +1379,9 @@ void CDynMaterialObject::serialize(CSer& ar)
                         setEngineFloatParam(sim_mujoco_body_solimp5,vv[4]);
                     }
                     if (ar.xmlGetNode_float("solmix",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_body_solmix,v);
+                    if (ar.xmlGetNode_float("margin",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_body_margin,v);
                     if (ar.xmlGetNode_int("condim",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_body_condim,vi);
+                    if (ar.xmlGetNode_int("priority",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_body_priority,vi);
                     ar.xmlPopNode();
                 }
 
