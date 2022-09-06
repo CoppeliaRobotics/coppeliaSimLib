@@ -1226,27 +1226,22 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SET_TIMESTEP_SIMULATIONGUITRIGGEREDCMD)
         {
             if (App::currentWorld->simulation->isSimulationStopped())
-                App::currentWorld->simulation->setSimulationTimeStep_raw_us(cmd.uint64Params[0]);
+                App::currentWorld->simulation->setTimeStep(cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_PPF_SIMULATIONGUITRIGGEREDCMD)
         {
             if (App::currentWorld->simulation->isSimulationStopped())
-                App::currentWorld->simulation->setSimulationPassesPerRendering_raw(cmd.intParams[0]);
+                App::currentWorld->simulation->setPassesPerRendering(cmd.intParams[0]);
         }
         if (cmd.cmdId==TOGGLE_REALTIME_SIMULATIONGUITRIGGEREDCMD)
         {
             if (App::currentWorld->simulation->isSimulationStopped())
-                App::currentWorld->simulation->setRealTimeSimulation(!App::currentWorld->simulation->getRealTimeSimulation());
+                App::currentWorld->simulation->setIsRealTimeSimulation(!App::currentWorld->simulation->getIsRealTimeSimulation());
         }
         if (cmd.cmdId==SET_REALTIMEFACTOR_SIMULATIONGUITRIGGEREDCMD)
         {
             if (App::currentWorld->simulation->isSimulationStopped())
-                App::currentWorld->simulation->setRealTimeCoefficient_raw(cmd.floatParams[0]);
-        }
-        if (cmd.cmdId==TOGGLE_TRYCATCHINGUP_SIMULATIONGUITRIGGEREDCMD)
-        {
-            if (App::currentWorld->simulation->isSimulationStopped())
-                App::currentWorld->simulation->setCatchUpIfLate(!App::currentWorld->simulation->getCatchUpIfLate());
+                App::currentWorld->simulation->setRealTimeCoeff(cmd.floatParams[0]);
         }
         if (cmd.cmdId==TOGGLE_PAUSEATTIME_SIMULATIONGUITRIGGEREDCMD)
         {
@@ -1256,7 +1251,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SET_PAUSETIME_SIMULATIONGUITRIGGEREDCMD)
         {
             if (App::currentWorld->simulation->isSimulationStopped())
-                App::currentWorld->simulation->setPauseTime_us(cmd.uint64Params[0]);
+                App::currentWorld->simulation->setPauseTime(cmd.floatParams[0]);
         }
         if (cmd.cmdId==TOGGLE_PAUSEATERROR_SIMULATIONGUITRIGGEREDCMD)
         {
@@ -1276,13 +1271,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (App::currentWorld->simulation->isSimulationStopped())
                 App::currentWorld->simulation->setFullscreenAtSimulationStart(!App::currentWorld->simulation->getFullscreenAtSimulationStart());
         }
-        if (cmd.cmdId==SET_TIMESTEPSCHEME_SIMULATIONGUITRIGGEREDCMD)
-        {
-            if (App::currentWorld->simulation->isSimulationStopped())
-                App::currentWorld->simulation->setDefaultSimulationParameterIndex(cmd.intParams[0]);
-        }
-
-
         if (cmd.cmdId==TOGGLE_DYNAMICS_DYNAMICSGUITRIGGEREDCMD)
         {
             App::currentWorld->dynamicsContainer->setDynamicsEnabled(!App::currentWorld->dynamicsContainer->getDynamicsEnabled());
@@ -1303,7 +1291,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_TIMESTEP_DYNAMICSGUITRIGGEREDCMD)
         {
-            App::currentWorld->dynamicsContainer->setCurrentDynamicStepSize(cmd.floatParams[0]);
+            App::currentWorld->dynamicsContainer->setDesiredStepSize(cmd.floatParams[0]);
         }
         if (cmd.cmdId==TOGGLE_EXPLICITHANDLING_PROXSENSORGUITRIGGEREDCMD)
         {
@@ -4838,35 +4826,13 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
 {
     TRACE_INTERNAL;
 
-    bool displayNonStandardParams=App::currentWorld->simulation->getDisplayWarningAboutNonDefaultParameters();
     bool displayNonPureNonConvexShapeUseWarning=false;
     bool displayStaticShapeOnDynamicConstructionWarning=false;
 
     App::currentWorld->dynamicsContainer->displayWarningsIfNeeded(); // Warnings when something not supported by the dynamics engine
     displayNonPureNonConvexShapeUseWarning=App::currentWorld->dynamicsContainer->displayNonPureNonConvexShapeWarningRequired()||displayNonPureNonConvexShapeUseWarning;
     if (App::currentWorld->dynamicsContainer->isWorldThere())
-    {
-        displayNonStandardParams=App::currentWorld->dynamicsContainer->displayNonDefaultParameterWarningRequired()||displayNonStandardParams;
         displayStaticShapeOnDynamicConstructionWarning=App::currentWorld->dynamicsContainer->displayStaticShapeOnDynamicConstructionWarningRequired()||displayStaticShapeOnDynamicConstructionWarning;
-    }
-
-    if (displayNonStandardParams)
-    {
-        CPersistentDataContainer cont;
-        std::string val;
-        cont.readData("SIMSETTINGS_WARNING_NO_SHOW",val);
-        int intVal=0;
-        tt::getValidInt(val.c_str(),intVal);
-        if (intVal<3)
-        {
-            if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_SIMULATION_PARAMETERS,IDSN_NON_STANDARD_SIM_PARAMS_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X,true))
-            {
-                intVal++;
-                val=tt::FNb(intVal);
-                cont.writeData("SIMSETTINGS_WARNING_NO_SHOW",val,!App::userSettings->doNotWritePersistentData);
-            }
-        }
-    }
 
     if (App::currentWorld->dynamicsContainer->displayVortexPluginIsDemoRequired())
 #ifdef WIN_SIM
@@ -4921,7 +4887,7 @@ int CSimThread::_prepareSceneForRenderIfNeeded()
     if (App::currentWorld->simulation->getSimulationState()&sim_simulation_advancing)
     {
         frameCount++;
-        render=(frameCount>=App::currentWorld->simulation->getSimulationPassesPerRendering_speedModified());
+        render=(frameCount>=App::currentWorld->simulation->getPassesPerRendering());
         if (render)
             frameCount=0;
     }

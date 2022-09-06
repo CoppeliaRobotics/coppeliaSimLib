@@ -682,36 +682,19 @@ void CJoint::setTargetForce(float f,bool isSigned)
 
 void CJoint::setPid_old(float p_param,float i_param,float d_param)
 { // old, back-compatibility function
-    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_bullet)
-    {
-        setEngineFloatParam(sim_bullet_joint_pospid1,p_param);
-        setEngineFloatParam(sim_bullet_joint_pospid2,i_param);
-        setEngineFloatParam(sim_bullet_joint_pospid3,d_param);
-    }
-    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_ode)
-    {
-        setEngineFloatParam(sim_ode_joint_pospid1,p_param);
-        setEngineFloatParam(sim_ode_joint_pospid2,i_param);
-        setEngineFloatParam(sim_ode_joint_pospid3,d_param);
-    }
-    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_vortex)
-    {
-        setEngineFloatParam(sim_vortex_joint_pospid1,p_param);
-        setEngineFloatParam(sim_vortex_joint_pospid2,i_param);
-        setEngineFloatParam(sim_vortex_joint_pospid3,d_param);
-    }
-    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_newton)
-    {
-        setEngineFloatParam(sim_newton_joint_pospid1,p_param);
-        setEngineFloatParam(sim_newton_joint_pospid2,i_param);
-        setEngineFloatParam(sim_newton_joint_pospid3,d_param);
-    }
-    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_mujoco)
-    {
-        setEngineFloatParam(sim_mujoco_joint_pospid1,p_param);
-        setEngineFloatParam(sim_mujoco_joint_pospid2,i_param);
-        setEngineFloatParam(sim_mujoco_joint_pospid3,d_param);
-    }
+    setEngineFloatParam(sim_bullet_joint_pospid1,p_param);
+    setEngineFloatParam(sim_bullet_joint_pospid2,i_param);
+    setEngineFloatParam(sim_bullet_joint_pospid3,d_param);
+    setEngineFloatParam(sim_ode_joint_pospid1,p_param);
+    setEngineFloatParam(sim_ode_joint_pospid2,i_param);
+    setEngineFloatParam(sim_ode_joint_pospid3,d_param);
+    setEngineFloatParam(sim_vortex_joint_pospid1,p_param);
+    setEngineFloatParam(sim_vortex_joint_pospid2,i_param);
+    setEngineFloatParam(sim_vortex_joint_pospid3,d_param);
+    setEngineFloatParam(sim_newton_joint_pospid1,p_param);
+    setEngineFloatParam(sim_newton_joint_pospid2,i_param);
+    setEngineFloatParam(sim_newton_joint_pospid3,d_param);
+    // Not for Mujoco!
 }
 
 void CJoint::setKc(float k_param,float c_param)
@@ -866,7 +849,7 @@ void CJoint::measureJointVelocity(float simTime)
     if (_jointType!=sim_joint_spherical_subtype)
     {
         float dt=simTime-_velCalc_prevSimTime;
-        if (_velCalc_prevPosValid&&(dt>0.0001f))
+        if (_velCalc_prevPosValid&&(dt>0.00001f))
         {
             if (_isCyclic)
                 _velCalc_vel=tt::getAngleMinusAlpha(_pos,_velCalc_prevPos)/dt;
@@ -1787,7 +1770,7 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                     }
                 }
                 else
-                { // PID or spring
+                { // pos ctrl or spring
                     float P,I,D;
                     getPid(P,I,D);
                     if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
@@ -1809,7 +1792,7 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                     if ( (I!=0.0)&&(rk4==0) ) // so that if we turn the integral part on, we don't try to catch up all the past errors!
                         _dynCtrl_pid_cumulErr+=e*dynStepSize;
                     else
-                        _dynCtrl_pid_cumulErr=0.0f; // added on 2009/11/29
+                        _dynCtrl_pid_cumulErr=0.0f;
                     ctrl+=_dynCtrl_pid_cumulErr*I;
 
                     // Derivative part:
@@ -1825,9 +1808,8 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                             velAndForce[1]=-velAndForce[1]; // make sure they have same sign
                     }
                     else
-                    { // regular position control (i.e. built-in PID)
-                        // We calculate the velocity needed to reach the position in one time step:
-                        float vel=ctrl/dynStepSize;
+                    { // regular position control
+                        float vel=ctrl/0.005f; // was ctrl/dynStepSize, but has to be step size independent
                         float maxVel=_maxVelAccelJerk[0];
                         if (vel>maxVel)
                             vel=maxVel;
@@ -2274,7 +2256,7 @@ void CJoint::serialize(CSer& ar)
             ar.flush();
 
             float P,I,D;
-            getPid(P,I,D);
+            getPid(P,I,D,sim_physics_bullet);
             // Following for backward compatibility (7/5/2014):
             // Keep this before "Dp2"
             ar.storeDataName("Dpc");
@@ -2295,52 +2277,50 @@ void CJoint::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Od1"); // keep this for file backw. compat. (09/03/2016)
-            // ar << _odeStopERP << _odeStopCFM << _odeBounce << _odeFudgeFactor << _odeNormalCFM;
             ar << _odeFloatParams[simi_ode_joint_stoperp] << _odeFloatParams[simi_ode_joint_stopcfm] << _odeFloatParams[simi_ode_joint_bounce] << _odeFloatParams[simi_ode_joint_fudgefactor] << _odeFloatParams[simi_ode_joint_normalcfm];
             ar.flush();
 
             ar.storeDataName("Bt1"); // keep this for file backw. compat. (09/03/2016)
-            // ar << _bulletStopERP << _bulletStopCFM << _bulletNormalCFM;
             ar << _bulletFloatParams[simi_bullet_joint_stoperp] << _bulletFloatParams[simi_bullet_joint_stopcfm] << _bulletFloatParams[simi_bullet_joint_normalcfm];
             ar.flush();
 
             ar.storeDataName("BtN"); // Bullet params, keep this after "Bt1"
             ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
-            for (int i=0;i<int(_bulletFloatParams.size());i++)
+            for (size_t i=0;i<_bulletFloatParams.size();i++)
                 ar << _bulletFloatParams[i];
-            for (int i=0;i<int(_bulletIntParams.size());i++)
+            for (size_t i=0;i<_bulletIntParams.size();i++)
                 ar << _bulletIntParams[i];
             ar.flush();
 
             ar.storeDataName("OdN"); // ODE params, keep this after "Od1"
             ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
-            for (int i=0;i<int(_odeFloatParams.size());i++)
+            for (size_t i=0;i<_odeFloatParams.size();i++)
                 ar << _odeFloatParams[i];
-            for (int i=0;i<int(_odeIntParams.size());i++)
+            for (size_t i=0;i<_odeIntParams.size();i++)
                 ar << _odeIntParams[i];
             ar.flush();
 
             ar.storeDataName("Vo2"); // vortex params:
             ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
-            for (int i=0;i<int(_vortexFloatParams.size());i++)
+            for (size_t i=0;i<_vortexFloatParams.size();i++)
                 ar << _vortexFloatParams[i];
-            for (int i=0;i<int(_vortexIntParams.size());i++)
+            for (size_t i=0;i<_vortexIntParams.size();i++)
                 ar << _vortexIntParams[i];
             ar.flush();
 
             ar.storeDataName("Nw1"); // newton params:
             ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
-            for (int i=0;i<int(_newtonFloatParams.size());i++)
+            for (size_t i=0;i<_newtonFloatParams.size();i++)
                 ar << _newtonFloatParams[i];
-            for (int i=0;i<int(_newtonIntParams.size());i++)
+            for (size_t i=0;i<_newtonIntParams.size();i++)
                 ar << _newtonIntParams[i];
             ar.flush();
 
             ar.storeDataName("Mj3"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
-            for (int i=0;i<int(_mujocoFloatParams.size());i++)
+            for (size_t i=0;i<_mujocoFloatParams.size();i++)
                 ar << _mujocoFloatParams[i];
-            for (int i=0;i<int(_mujocoIntParams.size());i++)
+            for (size_t i=0;i<_mujocoIntParams.size();i++)
                 ar << _mujocoIntParams[i];
             ar.flush();
 
@@ -2510,8 +2490,7 @@ void CJoint::serialize(CSer& ar)
                         ar >> P >> I >> D;
                         I/=0.005f;
                         D*=0.005f;
-                        if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)<sim_physics_mujoco)
-                            setPid_old(P,I,D);
+                        setPid_old(P,I,D);
                     }
                     if (theName.compare("Dp2")==0)
                     { // keep for backward compatibility (29/8/2022)
@@ -2519,8 +2498,7 @@ void CJoint::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float P,I,D;
                         ar >> P >> I >> D;
-                        if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)<sim_physics_mujoco)
-                            setPid_old(P,I,D);
+                        setPid_old(P,I,D);
                     }
                     if (theName.compare("Spp")==0)
                     {
@@ -2769,7 +2747,7 @@ void CJoint::serialize(CSer& ar)
                     if (motorEnabled_old&&ctrlEnabled_old&&springMode_old)
                     { // we have a joint that behaves as a spring. We need to compute the corresponding K and C parameters, and adjust the max. force/torque (since that was not limited before):
                         float P,I,D;
-                        getPid(P,I,D);
+                        getPid(P,I,D,sim_physics_bullet);
                         _dynCtrl_kc[0]=_targetForce*P;
                         _dynCtrl_kc[1]=_targetForce*D;
                         float maxTolerablePorDParam=1.0f;
@@ -2782,8 +2760,7 @@ void CJoint::serialize(CSer& ar)
                             P*=corr;
                             I*=corr;
                             D*=corr;
-                            if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)<sim_physics_mujoco)
-                                setPid_old(P,I,D);
+                            setPid_old(P,I,D);
                             _targetForce/=corr;
                         }
                     }
@@ -2890,7 +2867,7 @@ void CJoint::serialize(CSer& ar)
             ar.xmlAddNode_comment(" 'upperVelocityLimit' tag only used for backward compatibility",exhaustiveXml);
             ar.xmlAddNode_float("upperVelocityLimit",_maxVelAccelJerk[0]*mult); // for backward compatibility (V4.3 and earlier)
             float P,I,D;
-            getPid(P,I,D);
+            getPid(P,I,D,sim_physics_bullet);
             ar.xmlAddNode_comment(" 'pidValues' tag only used for backward compatibility",exhaustiveXml);
             ar.xmlAddNode_3float("pidValues",P,I,D); // for backward compatibility (V4.3 and earlier)
             ar.xmlAddNode_2float("kcValues",_dynCtrl_kc[0],_dynCtrl_kc[1]);
@@ -3196,8 +3173,7 @@ void CJoint::serialize(CSer& ar)
                     _targetVel*=mult;
                 float P,I,D;
                 ar.xmlGetNode_3float("pidValues",P,I,D,exhaustiveXml);
-                if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)<sim_physics_mujoco)
-                    setPid_old(P,I,D);
+                setPid_old(P,I,D);
                 ar.xmlGetNode_2float("kcValues",_dynCtrl_kc[0],_dynCtrl_kc[1],exhaustiveXml);
 
                 if (ar.xmlPushChildNode("switches",exhaustiveXml))
@@ -4084,33 +4060,35 @@ C7Vector CJoint::getFullLocalTransformation() const
     return(_localTransformation*getIntrinsicTransformation(true));
 }
 
-void CJoint::getPid(float& p_param,float& i_param,float& d_param) const
+void CJoint::getPid(float& p_param,float& i_param,float& d_param,int engine/*=-1 --> current engine*/) const
 {
-    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_bullet)
+    if (engine==-1)
+        engine=App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr);
+    if (engine==sim_physics_bullet)
     {
         p_param=getEngineFloatParam(sim_bullet_joint_pospid1,nullptr);
         i_param=getEngineFloatParam(sim_bullet_joint_pospid2,nullptr);
         d_param=getEngineFloatParam(sim_bullet_joint_pospid3,nullptr);
     }
-    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_ode)
+    if (engine==sim_physics_ode)
     {
         p_param=getEngineFloatParam(sim_ode_joint_pospid1,nullptr);
         i_param=getEngineFloatParam(sim_ode_joint_pospid2,nullptr);
         d_param=getEngineFloatParam(sim_ode_joint_pospid3,nullptr);
     }
-    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_vortex)
+    if (engine==sim_physics_vortex)
     {
         p_param=getEngineFloatParam(sim_vortex_joint_pospid1,nullptr);
         i_param=getEngineFloatParam(sim_vortex_joint_pospid2,nullptr);
         d_param=getEngineFloatParam(sim_vortex_joint_pospid3,nullptr);
     }
-    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_newton)
+    if (engine==sim_physics_newton)
     {
         p_param=getEngineFloatParam(sim_newton_joint_pospid1,nullptr);
         i_param=getEngineFloatParam(sim_newton_joint_pospid2,nullptr);
         d_param=getEngineFloatParam(sim_newton_joint_pospid3,nullptr);
     }
-    if (App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_mujoco)
+    if (engine==sim_physics_mujoco)
     {
         p_param=getEngineFloatParam(sim_mujoco_joint_pospid1,nullptr);
         i_param=getEngineFloatParam(sim_mujoco_joint_pospid2,nullptr);

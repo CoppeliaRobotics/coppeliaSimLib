@@ -192,7 +192,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.saveModel",_simSaveModel,                              "sim.saveModel(int modelBaseHandle,string filename)\nbuffer serializedModel=sim.saveModel(int modelBaseHandle)",true},
     {"sim.getObjectSelection",_simGetObjectSelection,            "int[] selectedObjectHandles=sim.getObjectSelection()",true},
     {"sim.setObjectSelection",_simSetObjectSelection,            "sim.setObjectSelection(float[] objectHandles)",true},
-    {"sim.getRealTimeSimulation",_simGetRealTimeSimulation,      "int result=sim.getRealTimeSimulation()",true},
+    {"sim.getIsRealTimeSimulation",_simGetRealTimeSimulation,      "int result=sim.getIsRealTimeSimulation()",true},
     {"sim.setNavigationMode",_simSetNavigationMode,              "sim.setNavigationMode(int navigationMode)",true},
     {"sim.getNavigationMode",_simGetNavigationMode,              "int navigationMode=sim.getNavigationMode()",true},
     {"sim.setPage",_simSetPage,                                  "sim.setPage(int pageIndex)",true},
@@ -849,7 +849,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.intparam_program_revision",sim_intparam_program_revision,true},
     {"sim.intparam_mouse_buttons",sim_intparam_mouse_buttons,true},
     {"sim.intparam_dynamic_warning_disabled_mask",sim_intparam_dynamic_warning_disabled_mask,true},
-    {"sim.intparam_simulation_warning_disabled_mask",sim_intparam_simulation_warning_disabled_mask,true},
     {"sim.intparam_scene_index",sim_intparam_scene_index,true},
     {"sim.intparam_motionplanning_seed",sim_intparam_motionplanning_seed,true},
     {"sim.intparam_speedmodifier",sim_intparam_speedmodifier,true},
@@ -1836,6 +1835,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.jointfloatparam_pid_i",sim_jointfloatparam_pid_i,false},
     {"sim.jointfloatparam_pid_d",sim_jointfloatparam_pid_d,false},
     {"sim.jointfloatparam_upper_limit",sim_jointfloatparam_upper_limit,false},
+    {"sim.intparam_simulation_warning_disabled_mask",sim_intparam_simulation_warning_disabled_mask,false},
 
     {"",-1}
 };
@@ -5180,7 +5180,7 @@ int _simSetObjectSelection(luaWrap_lua_State* L)
 int _simGetRealTimeSimulation(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getRealTimeSimulation");
+    LUA_START("sim.getIsRealTimeSimulation");
 
     int retVal=simGetRealTimeSimulation_internal();
 
@@ -12885,8 +12885,8 @@ int _simHandleSensingStart(luaWrap_lua_State* L)
         }
 
         // Following is for velocity measurement:
-        float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
-        float t=dt+float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+        float dt=App::currentWorld->simulation->getTimeStep();
+        float t=dt+App::currentWorld->simulation->getSimulationTime();
         for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
             App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(t);
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
@@ -13697,7 +13697,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simAddObjectToSelection",_simAddObjectToSelection,        "Deprecated. Use sim.setObjectSelection instead",false},
     {"simRemoveObjectFromSelection",_simRemoveObjectFromSelection,"Deprecated. Use sim.setObjectSelection instead",false},
     {"simGetObjectSelection",_simGetObjectSelection,            "Use the newer sim.getObjectSelection notation",false},
-    {"simGetRealTimeSimulation",_simGetRealTimeSimulation,      "Use the newer sim.getRealTimeSimulation notation",false},
+    {"simGetRealTimeSimulation",_simGetRealTimeSimulation,      "Use the newer sim.getIsRealTimeSimulation notation",false},
     {"simSetNavigationMode",_simSetNavigationMode,              "Use the newer sim.setNavigationMode notation",false},
     {"simGetNavigationMode",_simGetNavigationMode,              "Use the newer sim.getNavigationMode notation",false},
     {"simSetPage",_simSetPage,                                  "Use the newer sim.setPage notation",false},
@@ -15864,7 +15864,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
                 mem->accel=accel;
                 mem->vdl=vdl;
                 mem->currentPos=currentPos;
-                mem->lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+                mem->lastTime=App::currentWorld->simulation->getSimulationTime();
                 mem->maxVelocity=maxVelocity;
                 mem->currentVel=currentVel;
                 mem->startTr=startTr;
@@ -15907,7 +15907,7 @@ int _sim_moveToPos_2(luaWrap_lua_State* L)
         {
             bool err=false;
             bool movementFinished=false;
-            float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+            float currentTime=App::currentWorld->simulation->getSimulationTime()+App::currentWorld->simulation->getTimeStep();
             float dt=currentTime-mem->lastTime;
             mem->lastTime=currentTime;
 
@@ -16159,9 +16159,9 @@ int _sim_moveToJointPos_1(luaWrap_lua_State* L)
                     jointVirtualDistances[i]=0.0f;
                 }
             }
-            float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+            float lastTime=App::currentWorld->simulation->getSimulationTime();
             bool movementFinished=false;
-            float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
+            float dt=App::currentWorld->simulation->getTimeStep(); // this is the time left if we leave here
 
             if (maxVirtualDist==0.0f)
                 luaWrap_lua_pushinteger(L,-1);
@@ -16222,7 +16222,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
             int tableLen=int(mem->jointHandles.size());
             bool err=false;
             bool movementFinished=false;
-            float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+            float currentTime=App::currentWorld->simulation->getSimulationTime()+App::currentWorld->simulation->getTimeStep();
             float dt=currentTime-mem->lastTime;
             float minTimeLeft=dt;
             mem->lastTime=currentTime;
@@ -17922,7 +17922,7 @@ int _sim_moveToObj_1(luaWrap_lua_State* L)
         { // do the job here!
             C7Vector startTr(object->getCumulativeTransformation());
             float currentVel=0.0f;
-            float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+            float lastTime=App::currentWorld->simulation->getSimulationTime();
             float vdl=1.0f;
             // vld is the totalvirtual distance
             float currentPos=0.0f;
@@ -17975,7 +17975,7 @@ int _sim_moveToObj_2(luaWrap_lua_State* L)
         if (mem!=nullptr)
         {
             bool movementFinished=false;
-            float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+            float currentTime=App::currentWorld->simulation->getSimulationTime()+App::currentWorld->simulation->getTimeStep();
             float dt=currentTime-mem->lastTime;
             mem->lastTime=currentTime;
 
@@ -18702,10 +18702,10 @@ int _simSendData(luaWrap_lua_State* L)
                                 emissionAngle2=tt::getLimitedFloat(0.0f,piValTimes2_f,emissionAngle2);
                                 persistence=tt::getLimitedFloat(0.0f,99999999999999.9f,persistence);
                                 if (persistence==0.0f)
-                                    persistence=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())*1.5f/1000000.0f;
+                                    persistence=App::currentWorld->simulation->getTimeStep()*1.5f;
 
                                 App::currentWorld->embeddedScriptContainer->broadcastDataContainer.broadcastData(currentScriptID,targetID,dataHeader,dataName,
-                                    float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+persistence,actionRadius,antennaHandle,
+                                    App::currentWorld->simulation->getSimulationTime()+persistence,actionRadius,antennaHandle,
                                     emissionAngle1,emissionAngle2,data,(int)dataLength);
                                 retVal=1;
                             }
@@ -18804,7 +18804,7 @@ int _simReceiveData(luaWrap_lua_State* L)
             int theDataLength;
             int theSenderID;
             std::string theDataName;
-            char* data0=App::currentWorld->embeddedScriptContainer->broadcastDataContainer.receiveData(currentScriptID,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f,
+            char* data0=App::currentWorld->embeddedScriptContainer->broadcastDataContainer.receiveData(currentScriptID,App::currentWorld->simulation->getSimulationTime(),
                     dataHeader,dataName,antennaHandle,theDataLength,index,theSenderID,theDataHeader,theDataName);
             if (data0!=nullptr)
             {
@@ -18891,7 +18891,7 @@ int _sim_followPath_1(luaWrap_lua_State* L)
             float bezierPathLength=path->pathContainer->getBezierVirtualPathLength();
             double pos=posOnPath*bezierPathLength;
             float vel=0.0f;
-            float lastTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+            float lastTime=App::currentWorld->simulation->getSimulationTime();
             bool movementFinished=(bezierPathLength==0.0f);
             if (movementFinished)
                 luaWrap_lua_pushinteger(L,-1);
@@ -18941,9 +18941,9 @@ int _sim_followPath_2(luaWrap_lua_State* L)
         {
             if ( (App::currentWorld->sceneObjects->getObjectFromHandle(mem->objID)==mem->object)&&(App::currentWorld->sceneObjects->getPathFromHandle(mem->pathID)==mem->path) ) // make sure the objects are still valid (running in a thread)
             {
-                float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f; // this is the time left if we leave here
+                float dt=App::currentWorld->simulation->getTimeStep(); // this is the time left if we leave here
                 bool movementFinished=false;
-                float currentTime=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+                float currentTime=App::currentWorld->simulation->getSimulationTime()+App::currentWorld->simulation->getTimeStep();
                 dt=currentTime-mem->lastTime;
                 mem->lastTime=currentTime;
                 if (mem->accel==0.0f)

@@ -277,7 +277,6 @@
 #define IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN "Do not show this message again"
 #define IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X "Do not show this message again (you will however have to check this checkbox a total of 3 times)"
 #define IDSN_SIMULATION_PARAMETERS "Simulation parameters"
-#define IDSN_NON_STANDARD_SIM_PARAMS_WARNING "This simulation will run with custom simulation parameters. Be aware that you might experience slowdowns or accuracy problems, and some scenes or models will not perform as expected. Whenever possible, it is recommended to keep default simulation parameters (e.g. simulation time step or dynamics settings)."
 
 
 // Script execution order:
@@ -325,7 +324,6 @@
 #define IDSN_CONE "Cone"
 
 #define IDSN_OBJECT_PROPERTIES_MENU_ITEM "Scene object properties"
-#define IDSN_DYNAMICS_PROPERTIES_MENU_ITEM "Dynamics properties"
 #define IDSN_ALL_CUTTABLE_OBJECTS_IN_SCENE "all cuttable objects in the scene"
 #define IDSN_ALL_DETECTABLE_OBJECTS_IN_SCENE "all detectable objects in the scene"
 #define IDSN_NONE "none"
@@ -418,14 +416,6 @@
 #define IDSN_CHECK_ROBOT_OBSTACLE_COLLISION "Check robot - obstacle collision"
 #define IDSN_CHECK_ROBOT_OBSTACLE_MINIMUM_DISTANCE "Check robot - obstacle minimum distance"
 #define IDSN_CHECK_ROBOT_OBSTACLE_MINIMUM_AND_MAXIMUM_DISTANCE "Check robot - obstacle minimum & maximum distance"
-
-// Preconfigured simulation step sizes:
-#define IDSN_TIME_STEP_CONFIG_200 "dt=200 ms"
-#define IDSN_TIME_STEP_CONFIG_100 "dt=100 ms"
-#define IDSN_TIME_STEP_CONFIG_50 "dt=50 ms (default)"
-#define IDSN_TIME_STEP_CONFIG_25 "dt=25 ms"
-#define IDSN_TIME_STEP_CONFIG_10 "dt=10 ms"
-#define IDSN_TIME_STEP_CONFIG_CUSTOM " ms (custom)"
 
 #define IDS_ALL_PAGES           "All pages"
 
@@ -866,8 +856,6 @@
 #define IDS_TOOLBAR_TOOLTIP_OBJECT_ROTATE "Object/item rotate"
 
 #define IDS_TOOLBAR_TOOLTIP_DYNAMICS_ENGINE "Dynamics engine"
-#define IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP "Simulation time step"
-#define IDS_TOOLBAR_TOOLTIP_DT_SIMULATION_TIME_STEP_AND_PPF "dt=Simulation time step, ppf=simulation Passes Per Frame"
 
 #define IDS_TOOLBAR_TOOLTIP_CLICK_SELECTION "Click selection"
 #define IDS_TOOLBAR_TOOLTIP_PATH_POINT_CREATION "Path point creation"

@@ -35,7 +35,7 @@ CQDlgIk::~CQDlgIk()
 void CQDlgIk::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(CALCULATION_DLG);
+    App::mainWindow->dlgCont->close(CALCULATION_DLG_OLD);
     App::mainWindow->dlgCont->close(IKELEMENT_DLG);
 }
 

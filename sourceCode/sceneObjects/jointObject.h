@@ -223,7 +223,7 @@ public:
     int getDependencyMasterJointHandle() const;
     float getDependencyJointMult() const;
     float getDependencyJointOffset() const;
-    void getPid(float& p_param,float& i_param,float& d_param) const;
+    void getPid(float& p_param,float& i_param,float& d_param,int engine=-1) const;
     void getKc(float& k_param,float& c_param) const;
     float getTargetPosition() const;
     CColorObject* getColor(bool part2);

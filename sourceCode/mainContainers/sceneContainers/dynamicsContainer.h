@@ -151,7 +151,6 @@ public:
     void markForWarningDisplay_vortexPluginIsDemo();
 
     void displayWarningsIfNeeded();
-    bool displayNonDefaultParameterWarningRequired();
     bool displayNonPureNonConvexShapeWarningRequired();
     bool displayStaticShapeOnDynamicConstructionWarningRequired();
     bool displayVortexPluginIsDemoRequired();
@@ -162,10 +161,11 @@ public:
 
     void setDynamicEngineType(int t,int version);
     int getDynamicEngineType(int* version) const;
-    bool setCurrentDynamicStepSize(float s);
-    float getCurrentDynamicStepSize() const;
-    bool setCurrentIterationCount(int c);
-    int getCurrentIterationCount() const;
+    bool setDesiredStepSize(float s);
+    float getDesiredStepSize() const;
+    float getEffectiveStepSize() const;
+    bool setIterationCount(int c);
+    int getIterationCount() const;
     bool getComputeInertias() const;
     void setDynamicsEnabled(bool e);
     bool getDynamicsEnabled() const;
@@ -249,7 +249,6 @@ protected:
 
     unsigned char _containsNonPureNonConvexShapes;
     unsigned char _containsStaticShapesOnDynamicConstruction;
-    unsigned char _nonDefaultEngineSettingsWarning;
     unsigned char _vortexPluginIsDemoWarning;
 
     int _tempDisabledWarnings; // bits in the same order as above messages

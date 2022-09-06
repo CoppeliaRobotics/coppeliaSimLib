@@ -76,7 +76,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     _toolbarButtonHierarchyEnabled=true;
     _toolbarButtonBrowserEnabled=true;
     _toolbarButtonObjPropEnabled=true;
-    _toolbarButtonCalcModulesEnabled=true;
+    _toolbarButtonCalcModulesEnabled_OLD=true;
 
     _toolbarButtonPlayEnabled=true;
     _toolbarButtonPauseEnabled=true;
@@ -403,15 +403,15 @@ bool CMainWindow::getObjPropToggleViaGuiEnabled()
     return(_toolbarButtonObjPropEnabled);
 }
 
-void CMainWindow::setCalcModulesToggleViaGuiEnabled(bool e)
+void CMainWindow::setCalcModulesToggleViaGuiEnabled_OLD(bool e)
 {
-    _toolbarButtonCalcModulesEnabled=e;
+    _toolbarButtonCalcModulesEnabled_OLD=e;
     _actualizetoolbarButtonState();
 }
 
-bool CMainWindow::getCalcModulesToggleViaGuiEnabled()
+bool CMainWindow::getCalcModulesToggleViaGuiEnabled_OLD()
 {
-    return(_toolbarButtonCalcModulesEnabled);
+    return(_toolbarButtonCalcModulesEnabled_OLD);
 }
 
 void CMainWindow::setPlayViaGuiEnabled(bool e)
@@ -687,7 +687,7 @@ void CMainWindow::refreshDialogs_uiThread()
         else
         { // We display the simulation time instead:
             title=IDS____SIMULATION_TIME__;
-            title+=gv::getHourMinuteSecondMilisecondStr(float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f);
+            title+=gv::getHourMinuteSecondMilisecondStr(App::currentWorld->simulation->getSimulationTime());
         }
         title+=" (";
         title+=tt::FNb(0,_fps,1,false);
@@ -1059,43 +1059,6 @@ void CMainWindow::_createDefaultToolBars()
         _toolbar1->addWidget(_engineSelectCombo);
         connect(_engineSelectCombo,SIGNAL(activated(int)),this,SLOT(_engineSelectedViaToolbar(int)));
 
-        _timeStepConfigCombo=new QComboBox();
-
-        #ifdef WIN_SIM
-            _timeStepConfigCombo->setMinimumWidth(135);
-            _timeStepConfigCombo->setMaximumWidth(135);
-            _timeStepConfigCombo->setMinimumHeight(24);
-            _timeStepConfigCombo->setMaximumHeight(24);
-        #endif
-        #ifdef MAC_SIM
-            _timeStepConfigCombo->setMinimumWidth(140);
-            _timeStepConfigCombo->setMaximumWidth(140);
-            _timeStepConfigCombo->setMinimumHeight(24);
-            _timeStepConfigCombo->setMaximumHeight(24);
-        #endif
-        #ifdef LIN_SIM
-            _timeStepConfigCombo->setMinimumWidth(135);
-            _timeStepConfigCombo->setMaximumWidth(135);
-            _timeStepConfigCombo->setMinimumHeight(24);
-            _timeStepConfigCombo->setMaximumHeight(24);
-        #endif
-
-        _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_200));
-        _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_100));
-        _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_50));
-        _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_25));
-        _timeStepConfigCombo->addItem(tr(IDSN_TIME_STEP_CONFIG_10));
-
-        float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us(5))/1000.0f);
-        std::string txt("dt=");
-        txt+=tt::FNb(0,dt,1,false);
-        txt+=IDSN_TIME_STEP_CONFIG_CUSTOM;
-        _timeStepConfigCombo->addItem(txt.c_str());
-
-        _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP);
-        _toolbar1->addWidget(_timeStepConfigCombo);
-        connect(_timeStepConfigCombo,SIGNAL(activated(int)),this,SLOT(_timeStepConfigViaToolbar(int)));
-
         _toolbarActionStart=_toolbar1->addAction(QIcon(":/toolbarFiles/start.png"),tr(IDS_TOOLBAR_TOOLTIP_SIMULATION_START));
         _toolbarActionStart->setCheckable(true);
         connect(_toolbarActionStart,SIGNAL(triggered()),_signalMapper,SLOT(map()));
@@ -1162,12 +1125,12 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionObjectProperties,TOGGLE_OBJECT_DLG_CMD);
         }
 
-        if (CSimFlavor::getBoolVal(12))
+        if (App::userSettings->showOldDlgs&&CSimFlavor::getBoolVal(12))
         {
-            _toolbarActionCalculationModules=_toolbar2->addAction(QIcon(":/toolbarFiles/calcmods.png"),tr(IDSN_DYNAMICS_PROPERTIES_MENU_ITEM));
-            _toolbarActionCalculationModules->setCheckable(true);
-            connect(_toolbarActionCalculationModules,SIGNAL(triggered()),_signalMapper,SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionCalculationModules,TOGGLE_CALCULATION_DLG_CMD);
+            _toolbarActionCalculationModules_OLD=_toolbar2->addAction(QIcon(":/toolbarFiles/calcmods.png"),"Old dialogs");
+            _toolbarActionCalculationModules_OLD->setCheckable(true);
+            connect(_toolbarActionCalculationModules_OLD,SIGNAL(triggered()),_signalMapper,SLOT(map()));
+            _signalMapper->setMapping(_toolbarActionCalculationModules_OLD,TOGGLE_CALCULATION_DLG_CMD_OLD);
             _toolbar2->addSeparator();
         }
 
@@ -1640,7 +1603,6 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionDynamicContentVisualization->setEnabled((!App::currentWorld->simulation->isSimulationStopped())&&noSelector);
 
         _engineSelectCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&App::currentWorld->dynamicsContainer->getDynamicsEnabled()&&noSelector);
-        _timeStepConfigCombo->setEnabled((editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped()&&noSelector);
         _toolbarActionStart->setEnabled(_toolbarButtonPlayEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&(!App::currentWorld->simulation->isSimulationRunning())&&noSelector);
         _toolbarActionPause->setEnabled(_toolbarButtonPauseEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationRunning()&&noSelector);
         _toolbarActionStop->setEnabled(_toolbarButtonStopEnabled&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&(!App::currentWorld->simulation->isSimulationStopped())&&noSelector);
@@ -1676,45 +1638,11 @@ void CMainWindow::_actualizetoolbarButtonState()
             _engineSelectCombo->setCurrentIndex(4);
         if (eng==sim_physics_mujoco)
             _engineSelectCombo->setCurrentIndex(5);
-        //if (App::currentWorld->dynamicsContainer->getSettingsAreDefault())
-        //    _engineSelectCombo->setStyleSheet("QComboBox {}");
-        //else
-        //    _engineSelectCombo->setStyleSheet("QComboBox { color : red; }");
-
-
-        if (App::currentWorld->simulation->isSimulationStopped())
-        {
-            _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_SIMULATION_TIME_STEP);
-            _timeStepConfigCombo->setItemText(0,tr(IDSN_TIME_STEP_CONFIG_200));
-            _timeStepConfigCombo->setItemText(1,tr(IDSN_TIME_STEP_CONFIG_100));
-            _timeStepConfigCombo->setItemText(2,tr(IDSN_TIME_STEP_CONFIG_50));
-            _timeStepConfigCombo->setItemText(3,tr(IDSN_TIME_STEP_CONFIG_25));
-            _timeStepConfigCombo->setItemText(4,tr(IDSN_TIME_STEP_CONFIG_10));
-
-//          _timeStepConfigCombo->setItemText(5,tr(IDSN_TIME_STEP_CONFIG_CUSTOM));
-            float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us(5))/1000.0f);
-            std::string txt("dt=");
-            txt+=tt::FNb(0,dt,1,false);
-            txt+=IDSN_TIME_STEP_CONFIG_CUSTOM;
-            _timeStepConfigCombo->setItemText(5,txt.c_str());
-
-            _timeStepConfigCombo->setCurrentIndex(App::currentWorld->simulation->getDefaultSimulationParameterIndex());
-        }
-        else
-        {
-            _timeStepConfigCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DT_SIMULATION_TIME_STEP_AND_PPF);
-            float dt=(float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000.0f);
-            std::string txt("dt=");
-            txt+=tt::FNb(0,dt,1,false);
-            txt+=" ms, ppf=";
-            txt+=tt::FNb(App::currentWorld->simulation->getSimulationPassesPerRendering_speedModified());
-            _timeStepConfigCombo->setItemText(App::currentWorld->simulation->getDefaultSimulationParameterIndex(),txt.c_str());
-        }
 
         _toolbarActionStart->setChecked(App::currentWorld->simulation->isSimulationRunning());
         _toolbarActionPause->setChecked(App::currentWorld->simulation->isSimulationPaused());
 
-        _toolbarActionRealTime->setChecked(App::currentWorld->simulation->getRealTimeSimulation());
+        _toolbarActionRealTime->setChecked(App::currentWorld->simulation->getIsRealTimeSimulation());
 
         _toolbarActionToggleVisualization->setChecked(!getOpenGlDisplayEnabled());
         _toolbarActionPageSelector->setChecked(oglSurface->isPageSelectionActive());
@@ -1725,8 +1653,8 @@ void CMainWindow::_actualizetoolbarButtonState()
 
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionObjectProperties->setEnabled(_toolbarButtonObjPropEnabled&&noEditMode&&noSelector);
-        if (CSimFlavor::getBoolVal(12))
-            _toolbarActionCalculationModules->setEnabled(_toolbarButtonCalcModulesEnabled&&noEditMode&&noSelector);
+        if (App::userSettings->showOldDlgs&&CSimFlavor::getBoolVal(12))
+            _toolbarActionCalculationModules_OLD->setEnabled(_toolbarButtonCalcModulesEnabled_OLD&&noEditMode&&noSelector);
         if (CSimFlavor::getBoolVal(12)&&App::userSettings->showOldDlgs)
             _toolbarActionCollections->setEnabled(noEditMode&&noSelector);
         if (CSimFlavor::getBoolVal(12))
@@ -1749,8 +1677,8 @@ void CMainWindow::_actualizetoolbarButtonState()
 
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionObjectProperties->setChecked(dlgCont->isVisible(OBJECT_DLG));
-        if (CSimFlavor::getBoolVal(12))
-            _toolbarActionCalculationModules->setChecked(dlgCont->isVisible(CALCULATION_DLG));
+        if (App::userSettings->showOldDlgs&&CSimFlavor::getBoolVal(12))
+            _toolbarActionCalculationModules_OLD->setChecked(dlgCont->isVisible(CALCULATION_DLG_OLD));
         if (CSimFlavor::getBoolVal(12)&&App::userSettings->showOldDlgs)
             _toolbarActionCollections->setChecked(dlgCont->isVisible(COLLECTION_DLG));
         if (CSimFlavor::getBoolVal(12))
@@ -1837,12 +1765,6 @@ void CMainWindow::_engineSelectedViaToolbar(int index)
         App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD);
     if (index==5)
         App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD);
-}
-
-void CMainWindow::_timeStepConfigViaToolbar(int index)
-{
-    App::currentWorld->simulation->setDefaultSimulationParameterIndex(index);
-    App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
 }
 
 void CMainWindow::_simPopupMessageHandler(int id)
@@ -2210,7 +2132,7 @@ void CMainWindow::closeTemporarilyDialogsForPageSelector()
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(LUA_SCRIPT_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(OBJECT_DLG,_dialogsClosedTemporarily_pageSelector);
-        _closeDialogTemporarilyIfOpened(CALCULATION_DLG,_dialogsClosedTemporarily_pageSelector);
+        _closeDialogTemporarilyIfOpened(CALCULATION_DLG_OLD,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(TRANSLATION_ROTATION_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(BROWSER_DLG,_dialogsClosedTemporarily_pageSelector);
 
@@ -2261,7 +2183,7 @@ void CMainWindow::closeTemporarilyDialogsForViewSelector()
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(LUA_SCRIPT_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(OBJECT_DLG,_dialogsClosedTemporarily_viewSelector);
-        _closeDialogTemporarilyIfOpened(CALCULATION_DLG,_dialogsClosedTemporarily_viewSelector);
+        _closeDialogTemporarilyIfOpened(CALCULATION_DLG_OLD,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(TRANSLATION_ROTATION_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(BROWSER_DLG,_dialogsClosedTemporarily_viewSelector);
 
@@ -2330,7 +2252,7 @@ void CMainWindow::closeTemporarilyNonEditModeDialogs()
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(LUA_SCRIPT_DLG,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(OBJECT_DLG,_dialogsClosedTemporarily_editModes);
-        _closeDialogTemporarilyIfOpened(CALCULATION_DLG,_dialogsClosedTemporarily_editModes);
+        _closeDialogTemporarilyIfOpened(CALCULATION_DLG_OLD,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(BROWSER_DLG,_dialogsClosedTemporarily_editModes);
 
         dlgCont->close(COLOR_DLG);

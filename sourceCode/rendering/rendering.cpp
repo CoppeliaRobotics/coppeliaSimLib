@@ -151,7 +151,7 @@ void makeColorCurrent(const CColorObject* visParam,bool forceNonTransparent,bool
         {
             float t=0.0f;
             if (visParam->getUseSimulationTime()&&(!App::currentWorld->simulation->isSimulationStopped()))
-                t=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+                t=App::currentWorld->simulation->getSimulationTime();
             if (!visParam->getUseSimulationTime())
                 t=float(VDateTime::getTimeInMs())/1000.0f;
             t+=visParam->getFlashPhase()/visParam->getFlashFrequency();

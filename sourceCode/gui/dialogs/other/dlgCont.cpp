@@ -32,7 +32,7 @@ void CDlgCont::initialize(QWidget* pWindow)
     dialogs.push_back(new CToolDlgWrapper(SHAPE_DYN_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(SHAPE_EDITION_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(OBJECT_DLG,0));
-    dialogs.push_back(new CToolDlgWrapper(CALCULATION_DLG,0));
+    dialogs.push_back(new CToolDlgWrapper(CALCULATION_DLG_OLD,0));
     dialogs.push_back(new CToolDlgWrapper(JOINT_DYN_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(TRANSLATION_ROTATION_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(PATH_EDITION_DLG,0));
@@ -45,7 +45,7 @@ void CDlgCont::initialize(QWidget* pWindow)
     dialogs.push_back(new CToolDlgWrapper(MIRROR_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(PROXIMITY_SENSOR_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(VISION_SENSOR_DLG,0));
-    dialogs.push_back(new CToolDlgWrapper(MILL_DLG,0));
+    dialogs.push_back(new CToolDlgWrapper(MILL_DLG_OLD,0));
     dialogs.push_back(new CToolDlgWrapper(FORCE_SENSOR_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(GRAPH_DLG,0));
     dialogs.push_back(new CToolDlgWrapper(SETTINGS_DLG,0));
@@ -295,7 +295,7 @@ void CDlgCont::keyPress(int key)
     if (key==CTRL_D_KEY)
         processCommand(OPEN_OBJECT_DLG_OBJECT_SPECIFIC_PART_CMD);
     if (key==CTRL_G_KEY)
-        processCommand(OPEN_CALCULATION_DLG_CMD);
+        processCommand(OPEN_CALCULATION_DLG_CMD_OLD);
 }
 
 void CDlgCont::addMenu(VMenu* menu)
@@ -309,7 +309,8 @@ void CDlgCont::addMenu(VMenu* menu)
     if ( (CSimFlavor::getIntVal(2)==-1)||(CSimFlavor::getIntVal(2)==1)||(CSimFlavor::getIntVal(2)==2) )
     {
         menu->appendMenuItem(App::mainWindow->getObjPropToggleViaGuiEnabled()&&noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(OBJECT_DLG),TOGGLE_OBJECT_DLG_CMD,IDSN_OBJECT_PROPERTIES_MENU_ITEM,true);
-        menu->appendMenuItem(App::mainWindow->getCalcModulesToggleViaGuiEnabled()&&noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(CALCULATION_DLG),TOGGLE_CALCULATION_DLG_CMD,IDSN_DYNAMICS_PROPERTIES_MENU_ITEM,true);
+        if (App::userSettings->showOldDlgs)
+            menu->appendMenuItem(App::mainWindow->getCalcModulesToggleViaGuiEnabled_OLD()&&noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(CALCULATION_DLG_OLD),TOGGLE_CALCULATION_DLG_CMD_OLD,"Old dialogs",true);
         menu->appendMenuSeparator();
         menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(LUA_SCRIPT_DLG),TOGGLE_LUA_SCRIPT_DLG_CMD,IDSN_SCRIPTS,true);
         if (App::userSettings->showOldDlgs)
@@ -401,7 +402,7 @@ bool CDlgCont::processCommand(int commandID)
         }
         if (commandID==OPEN_MILL_DLG_CMD)
         {
-            openOrBringToFront(MILL_DLG);
+            openOrBringToFront(MILL_DLG_OLD);
             return(true);
         }
         if (commandID==OPEN_OBJECT_DLG_CMD)
@@ -541,7 +542,7 @@ bool CDlgCont::processCommand(int commandID)
         }
         if (commandID==TOGGLE_MILL_DLG_CMD)
         {
-            toggle(MILL_DLG);
+            toggle(MILL_DLG_OLD);
             return(true);
         }
         if (commandID==TOGGLE_FORCE_SENSOR_DLG_CMD)
@@ -639,15 +640,15 @@ bool CDlgCont::processCommand(int commandID)
             toggle(OBJECT_DLG);
             return(true);
         }
-        if (commandID==TOGGLE_CALCULATION_DLG_CMD)
+        if (commandID==TOGGLE_CALCULATION_DLG_CMD_OLD)
         {
-            toggle(CALCULATION_DLG);
+            toggle(CALCULATION_DLG_OLD);
             return(true);
         }
-        if (commandID==OPEN_CALCULATION_DLG_CMD)
+        if (commandID==OPEN_CALCULATION_DLG_CMD_OLD)
         {
             if (App::getEditModeType()==NO_EDIT_MODE)
-                openOrBringToFront(CALCULATION_DLG);
+                openOrBringToFront(CALCULATION_DLG_OLD);
             return(true);
         }
     }

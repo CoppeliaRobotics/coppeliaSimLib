@@ -94,8 +94,8 @@ public:
     bool getBrowserToggleViaGuiEnabled();
     void setObjPropToggleViaGuiEnabled(bool e);
     bool getObjPropToggleViaGuiEnabled();
-    void setCalcModulesToggleViaGuiEnabled(bool e);
-    bool getCalcModulesToggleViaGuiEnabled();
+    void setCalcModulesToggleViaGuiEnabled_OLD(bool e);
+    bool getCalcModulesToggleViaGuiEnabled_OLD();
     void setPlayViaGuiEnabled(bool e);
     bool getPlayViaGuiEnabled();
     void setPauseViaGuiEnabled(bool e);
@@ -206,7 +206,6 @@ private:
     QAction* _toolbarActionRedo;
     QAction* _toolbarActionDynamicContentVisualization;
     QComboBox* _engineSelectCombo;
-    QComboBox* _timeStepConfigCombo;
     QAction* _toolbarActionStart;
     QAction* _toolbarActionPause;
     QAction* _toolbarActionStop;
@@ -217,7 +216,7 @@ private:
     QAction* _toolbarActionPageSelector;
     QAction* _toolbarActionSimulationSettings;
     QAction* _toolbarActionObjectProperties;
-    QAction* _toolbarActionCalculationModules;
+    QAction* _toolbarActionCalculationModules_OLD;
     QAction* _toolbarActionCollections;
     QAction* _toolbarActionScripts;
     QAction* _toolbarActionShapeEdition;
@@ -270,7 +269,7 @@ private:
     bool _toolbarButtonPauseEnabled;
     bool _toolbarButtonStopEnabled;
     bool _toolbarButtonObjPropEnabled;
-    bool _toolbarButtonCalcModulesEnabled;
+    bool _toolbarButtonCalcModulesEnabled_OLD;
 
     int lastInstance;
     int timeCounter;
@@ -280,7 +279,6 @@ private:
 
 public slots:
     void _engineSelectedViaToolbar(int index);
-    void _timeStepConfigViaToolbar(int index);
 
     void _simPopupMessageHandler(int id);
     void _simMessageHandler(int id);

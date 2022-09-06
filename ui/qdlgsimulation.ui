@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>314</height>
+    <height>426</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>230</y>
+     <y>330</y>
      <width>411</width>
      <height>71</height>
     </rect>
@@ -70,44 +70,15 @@
      <x>10</x>
      <y>10</y>
      <width>411</width>
-     <height>131</height>
+     <height>71</height>
     </rect>
    </property>
    <property name="title">
-    <string>Main settings</string>
+    <string>Time steps</string>
    </property>
    <property name="flat">
     <bool>false</bool>
    </property>
-   <widget class="QCheckBox" name="qqPauseOnScriptError">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>85</y>
-      <width>251</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Pause on script error</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>271</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Simulation passes per frame (ppf)</string>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="qqTimeStep">
     <property name="geometry">
      <rect>
@@ -118,7 +89,72 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLineEdit" name="qqPauseTime">
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>25</y>
+      <width>331</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Simulation dt</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqDynTimeStep">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>45</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="qqDynamicsDtLabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>45</y>
+      <width>331</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Dynamics dt</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="qqInfo">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>405</y>
+     <width>411</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Settings are default</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>230</y>
+     <width>411</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Dynamics</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QLineEdit" name="qqGravityZ">
     <property name="geometry">
      <rect>
       <x>340</x>
@@ -128,11 +164,131 @@
      </rect>
     </property>
    </widget>
+   <widget class="QLineEdit" name="qqGravityY">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>65</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>65</y>
+      <width>191</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Gravity vector</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="qqAdjustEngine">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>45</y>
+      <width>176</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Adjust engine parameters</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqContactPoints">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>45</y>
+      <width>211</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Display contact points</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqGravityX">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>65</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqEnabled">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>25</y>
+      <width>211</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Dynamics enabled, engine</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="qqEngineCombo">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>25</y>
+      <width>176</width>
+      <height>18</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_4">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>90</y>
+     <width>411</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Simulation</string>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
+   <widget class="QCheckBox" name="qqFullscreen">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>105</y>
+      <width>271</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Full screen at simulation start</string>
+    </property>
+   </widget>
    <widget class="QLineEdit" name="qqScriptExecutionPasses">
     <property name="geometry">
      <rect>
       <x>340</x>
-      <y>45</y>
+      <y>25</y>
       <width>56</width>
       <height>18</height>
      </rect>
@@ -151,38 +307,15 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Pause when simulation time higher than [s]</string>
+     <string>Pause when simulation time higher than</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>250</x>
-      <y>25</y>
-      <width>91</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Time step [s]</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="qqConfigCombo">
+   <widget class="QCheckBox" name="qqPauseOnScriptError">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>25</y>
-      <width>201</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqFullscreen">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>105</y>
-      <width>271</width>
+      <y>85</y>
+      <width>251</width>
       <height>18</height>
      </rect>
     </property>
@@ -190,76 +323,48 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Full screen at simulation start</string>
+     <string>Pause on script error</string>
     </property>
    </widget>
-  </widget>
-  <widget class="QGroupBox" name="bla">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>150</y>
-     <width>411</width>
-     <height>71</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Real-time simulation</string>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <widget class="QLineEdit" name="qqMultiplicationCoefficient">
+   <widget class="QLineEdit" name="qqPauseTime">
     <property name="geometry">
      <rect>
       <x>340</x>
-      <y>25</y>
+      <y>65</y>
       <width>56</width>
       <height>18</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>25</y>
-      <width>141</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Multiplication factor</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqCatchUp">
+   <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>45</y>
-      <width>271</width>
+      <y>25</y>
+      <width>331</width>
       <height>18</height>
      </rect>
     </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
     <property name="text">
-     <string>Try catching up when behind</string>
+     <string>Simulation passes per frame (ppf)</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="qqMultiplicationCoefficient">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>45</y>
+      <width>56</width>
+      <height>18</height>
+     </rect>
     </property>
    </widget>
    <widget class="QCheckBox" name="qqRealTime">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>25</y>
-      <width>121</width>
+      <y>45</y>
+      <width>331</width>
       <height>18</height>
      </rect>
     </property>
@@ -267,22 +372,28 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Enabled</string>
+     <string>Real-time simulation, multiplication factor</string>
     </property>
    </widget>
   </widget>
  </widget>
  <tabstops>
-  <tabstop>qqConfigCombo</tabstop>
   <tabstop>qqTimeStep</tabstop>
+  <tabstop>qqDynTimeStep</tabstop>
   <tabstop>qqScriptExecutionPasses</tabstop>
+  <tabstop>qqRealTime</tabstop>
+  <tabstop>qqMultiplicationCoefficient</tabstop>
   <tabstop>qqPauseWhenTimeHigher</tabstop>
   <tabstop>qqPauseTime</tabstop>
   <tabstop>qqPauseOnScriptError</tabstop>
   <tabstop>qqFullscreen</tabstop>
-  <tabstop>qqRealTime</tabstop>
-  <tabstop>qqMultiplicationCoefficient</tabstop>
-  <tabstop>qqCatchUp</tabstop>
+  <tabstop>qqEnabled</tabstop>
+  <tabstop>qqEngineCombo</tabstop>
+  <tabstop>qqContactPoints</tabstop>
+  <tabstop>qqAdjustEngine</tabstop>
+  <tabstop>qqGravityX</tabstop>
+  <tabstop>qqGravityY</tabstop>
+  <tabstop>qqGravityZ</tabstop>
   <tabstop>qqResetScene</tabstop>
   <tabstop>qqRemoveNewObjects</tabstop>
  </tabstops>

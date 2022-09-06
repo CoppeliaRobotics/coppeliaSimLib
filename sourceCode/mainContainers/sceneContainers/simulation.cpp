@@ -11,12 +11,6 @@
 #include "persistentDataContainer.h"
 #include "simFlavor.h"
 
-const quint64 SIMULATION_DEFAULT_TIME_STEP_US[5]={200000,100000,50000,25000,10000};
-const int SIMULATION_DEFAULT_PASSES_PER_RENDERING[5]={1,1,1,1,1};
-
-const int SIMULATION_SPEED_MODIFIER_SEQUENCE[10]={1,2,5,10,20,40,80,160,320,640};
-const int SIMULATION_SPEED_MODIFIER_START_INDEX[6]={5,4,3,2,1,3};
-
 CSimulation::CSimulation()
 {
     _stopRequestCounter=0;
@@ -32,50 +26,63 @@ void CSimulation::setUpDefaultValues()
 {
     _dynamicContentVisualizationOnly=false;
     _simulationState=sim_simulation_stopped;
-    _simulationTime_us=0;
+    _simulationTime=0.0;
 
-    simulationTime_real_us=0;
-    simulationTime_real_noCatchUp_us=0;
-    clearSimulationTimeHistory_us();
+    simulationTime_real=0.0;
+    simulationTime_real_noCatchUp=0.0;
+    _clearSimulationTimeHistory();
 
-    _defaultSimulationParameterIndex=2; // 2 is for default values
-    _simulationTimeStep_us=SIMULATION_DEFAULT_TIME_STEP_US[_defaultSimulationParameterIndex];
-    _simulationPassesPerRendering=SIMULATION_DEFAULT_PASSES_PER_RENDERING[_defaultSimulationParameterIndex]; 
-    _speedModifierIndexOffset=0;
+    _simulationTimeStep=0.05f;
+    _simulationPassesPerRendering=1;
     _desiredFasterOrSlowerSpeed=0;
     _realTimeCoefficient=1.0;
     _simulationStepCount=0;
-    _simulationTimeToPause_us=10000000;
+    _simulationTimeToPause=10.0f;
     _pauseAtSpecificTime=false;
     _pauseAtError=true;
     _pauseOnErrorRequested=false;
     _hierarchyWasEnabledBeforeSimulation=false;
-    _catchUpIfLate=false;
-    _avoidBlocking=false;
     _initialValuesInitialized=false;
     _resetSimulationAtEnd=true;
     _removeNewObjectsAtSimulationEnd=true;
     _realTimeSimulation=false;
     _fullscreenAtSimulationStart=false;
+    _speedModifierCount=0;
 }
 
-int CSimulation::getSpeedModifier_forCalcPassPerRendering()
+int CSimulation::getSpeedModifierCount() const
 {
-    if (isSimulationStopped()||(_speedModifierIndexOffset<=0))
-        return(1);
-    return(1<<_speedModifierIndexOffset);
+    return(_speedModifierCount);
 }
 
-double CSimulation::_getSpeedModifier_forRealTimeCoefficient()
+void CSimulation::setSpeedModifierCount(int sm)
 {
-    if (isSimulationStopped()||(_speedModifierIndexOffset==0))
-        return(1.0);
+    while (sm!=_speedModifierCount)
+    {
+        if (sm>_speedModifierCount)
+        {
+            if (!_goFasterOrSlower(1))
+                break;
+        }
+        else
+        {
+            if (!_goFasterOrSlower(-1))
+                break;
+        }
+    }
+}
 
-    int indStart=SIMULATION_SPEED_MODIFIER_START_INDEX[_defaultSimulationParameterIndex];
-    int ind=indStart+_speedModifierIndexOffset;
-    double init=double(SIMULATION_SPEED_MODIFIER_SEQUENCE[indStart]);
-    double now=double(SIMULATION_SPEED_MODIFIER_SEQUENCE[ind]);
-    return(now/init);
+double CSimulation::_getSpeedModifier_forRealTimeCoefficient() const
+{
+    float retVal=1.0;
+    if (!isSimulationStopped())
+    {
+        if (_speedModifierCount>=0)
+            retVal=pow(2.0,double(_speedModifierCount));
+        else
+            retVal=_simulationTimeStep/_initialSimulationTimeStep;
+    }
+    return(retVal);
 }
 
 void CSimulation::setFullscreenAtSimulationStart(bool f)
@@ -83,19 +90,9 @@ void CSimulation::setFullscreenAtSimulationStart(bool f)
     _fullscreenAtSimulationStart=f;
 }
 
-bool CSimulation::getFullscreenAtSimulationStart()
+bool CSimulation::getFullscreenAtSimulationStart() const
 {
     return(_fullscreenAtSimulationStart);
-}
-
-void CSimulation::setAvoidBlocking(bool avoidBlocking)
-{
-    _avoidBlocking=avoidBlocking;
-}
-
-bool CSimulation::getAvoidBlocking()
-{
-    return(_avoidBlocking);
 }
 
 void CSimulation::setRemoveNewObjectsAtSimulationEnd(bool r)
@@ -103,7 +100,7 @@ void CSimulation::setRemoveNewObjectsAtSimulationEnd(bool r)
     _removeNewObjectsAtSimulationEnd=r;
 }
 
-bool CSimulation::getRemoveNewObjectsAtSimulationEnd()
+bool CSimulation::getRemoveNewObjectsAtSimulationEnd() const
 {
     return(_removeNewObjectsAtSimulationEnd);
 }
@@ -113,28 +110,17 @@ void CSimulation::setResetSceneAtSimulationEnd(bool r)
     _resetSimulationAtEnd=r;    
 }
 
-bool CSimulation::getResetSceneAtSimulationEnd()
+bool CSimulation::getResetSceneAtSimulationEnd() const
 {
     return(_resetSimulationAtEnd);
-}
-
-bool CSimulation::getDisplayWarningAboutNonDefaultParameters()
-{
-    if (isSimulationRunning()&&(_defaultSimulationParameterIndex!=2)&&(!_displayedWarningAboutNonDefaultParameters)&&((_disableWarningsFlags&1)==0) )
-    {
-        _displayedWarningAboutNonDefaultParameters=true;
-        return(true);
-    }
-    return(false);
 }
 
 void CSimulation::simulationAboutToStart()
 { // careful here: this is called by this through App::wc->simulationAboutToStart!!
     _initialValuesInitialized=true;
     _initialPauseAtSpecificTime=_pauseAtSpecificTime;
-    _speedModifierIndexOffset=0;
-    _displayedWarningAboutNonDefaultParameters=false;
-    _disableWarningsFlags=0;
+    _speedModifierCount=0;
+    _initialSimulationTimeStep=_simulationTimeStep;
     _dynamicContentVisualizationOnly=false;
     _desiredFasterOrSlowerSpeed=0;
     _stopRequestCounterAtSimulationStart=_stopRequestCounter;
@@ -145,6 +131,8 @@ void CSimulation::simulationAboutToStart()
             App::mainWindow->dlgCont->processCommand(CLOSE_HIERARCHY_DLG_CMD);
         }
     #endif
+    if ( (!App::currentWorld->dynamicsContainer->getSettingsAreDefault())||(!getSettingsAreDefault()) )
+        App::logMsg(sim_verbosity_scriptwarnings,"Detected non-default settings (time steps and/or dyn. engine global settings).");
 }
 
 void CSimulation::simulationEnded()
@@ -161,13 +149,11 @@ void CSimulation::simulationEnded()
     #endif
     if (_initialValuesInitialized)
     {
-        _pauseAtSpecificTime=_initialPauseAtSpecificTime; // we do not reset this!
-        if (_resetSimulationAtEnd)
-        {
-        }
+        _pauseAtSpecificTime=_initialPauseAtSpecificTime;
+        _simulationTimeStep=_initialSimulationTimeStep;
     }
-    _speedModifierIndexOffset=0;
     _initialValuesInitialized=false;
+    _speedModifierCount=0;
     _desiredFasterOrSlowerSpeed=0;
 
     #ifdef SIM_WITH_GUI
@@ -176,27 +162,7 @@ void CSimulation::simulationEnded()
     #endif
 }
 
-void CSimulation::setDisableWarningsFlags(int mask)
-{
-    _disableWarningsFlags=mask;
-}
-
-int CSimulation::getDisableWarningsFlags()
-{
-    return(_disableWarningsFlags);
-}
-
-void CSimulation::setCatchUpIfLate(bool c)
-{
-    _catchUpIfLate=c;
-}
-
-bool CSimulation::getCatchUpIfLate()
-{
-    return(_catchUpIfLate);
-}
-
-bool CSimulation::getDynamicContentVisualizationOnly()
+bool CSimulation::getDynamicContentVisualizationOnly() const
 {
     return(_dynamicContentVisualizationOnly);
 }
@@ -209,41 +175,36 @@ void CSimulation::setDynamicContentVisualizationOnly(bool dynOnly)
     App::setToolbarRefreshFlag();
 }
 
-void CSimulation::setDefaultSimulationParameterIndex(int d)
+bool CSimulation::canGoSlower() const
 {
-    d=tt::getLimitedInt(0,5,d);
-    _defaultSimulationParameterIndex=d;
-    App::setFullDialogRefreshFlag(); // so that the recorder dlg gets correctly refreshed
+    bool retVal=false;
+    if (isSimulationRunning())
+    {
+        if (_speedModifierCount>0)
+            retVal=true;
+        else
+        {
+            float newDt=_getNewTimeStep(_speedModifierCount-1);
+            retVal=(newDt!=0.0);
+        }
+    }
+    return(retVal);
 }
 
-int CSimulation::getDefaultSimulationParameterIndex()
+bool CSimulation::canGoFaster() const
 {
-    return(_defaultSimulationParameterIndex);
+    bool retVal=false;
+    if (isSimulationRunning())
+        retVal=(_speedModifierCount<6);
+    return(retVal);
 }
 
-
-bool CSimulation::canGoSlower()
+bool CSimulation::getSettingsAreDefault() const
 {
-    if (!isSimulationRunning())
-        return(false);
-    if (App::getEditModeType()!=NO_EDIT_MODE)
-        return(false);
-
-    int indStart=SIMULATION_SPEED_MODIFIER_START_INDEX[_defaultSimulationParameterIndex];
-    int ind=indStart+_speedModifierIndexOffset;
-    return(ind>0);
-}
-
-bool CSimulation::canGoFaster()
-{
-    if (!isSimulationRunning())
-        return(false);
-    if (App::getEditModeType()!=NO_EDIT_MODE)
-        return(false);
-
-    int indStart=SIMULATION_SPEED_MODIFIER_START_INDEX[_defaultSimulationParameterIndex];
-    int ind=indStart+_speedModifierIndexOffset;
-    return(ind<9);
+    float dt=_simulationTimeStep;
+    if (!isSimulationStopped())
+        dt=_initialSimulationTimeStep;
+    return(fabs(dt-0.05)<0.0001);
 }
 
 bool CSimulation::startOrResumeSimulation()
@@ -254,15 +215,13 @@ bool CSimulation::startOrResumeSimulation()
         App::setFullScreen(_fullscreenAtSimulationStart);
         CThreadPool_old::setSimulationEmergencyStop(false);
         CThreadPool_old::setRequestSimulationStop(false);
-//        CScriptObject::emergencyStopButtonPressed=false;
         App::worldContainer->simulationAboutToStart();
-        _speedModifierIndexOffset=0;
         _pauseOnErrorRequested=false;
-        _realTimeCorrection_us=0;
-        _setSimulationTime_us(0);
-        simulationTime_real_us=0;
-        simulationTime_real_noCatchUp_us=0;
-        clearSimulationTimeHistory_us();
+        _realTimeCorrection=0.0;
+        _setSimulationTime(0.0);
+        simulationTime_real=0.0;
+        simulationTime_real_noCatchUp=0.0;
+        _clearSimulationTimeHistory();
         _requestToStop=false;
         _requestToPause=false; 
         simulationTime_real_lastInMs=(int)VDateTime::getTimeInMs();
@@ -274,7 +233,7 @@ bool CSimulation::startOrResumeSimulation()
     {
         App::worldContainer->simulationAboutToResume();
 
-        _realTimeCorrection_us=0;
+        _realTimeCorrection=0.0;
         setSimulationState(sim_simulation_advancing_firstafterpause);
         simulationTime_real_lastInMs=(int)VDateTime::getTimeInMs();
         _requestToPause=false;
@@ -336,9 +295,9 @@ bool CSimulation::isSimulationPaused() const
     return(getSimulationState()==sim_simulation_paused);
 }
 
-void CSimulation::adjustRealTimeTimer_us(quint64 deltaTime)
+void CSimulation::adjustRealTimeTimer(float deltaTime)
 {
-    _realTimeCorrection_us+=deltaTime;
+    _realTimeCorrection+=deltaTime;
 }
 
 void CSimulation::advanceSimulationByOneStep()
@@ -354,7 +313,7 @@ void CSimulation::advanceSimulationByOneStep()
     }
     else
     {
-        if ( _pauseAtSpecificTime&&(getSimulationTime_us()>=_simulationTimeToPause_us) )
+        if ( _pauseAtSpecificTime&&(getSimulationTime()>=_simulationTimeToPause) )
         {
             pauseSimulation();
             _pauseAtSpecificTime=false;
@@ -365,19 +324,19 @@ void CSimulation::advanceSimulationByOneStep()
 
     _simulationStepCount++;
     if (_simulationStepCount==1)
-        _realTimeCorrection_us=0;
+        _realTimeCorrection=0.0;
 
-    _setSimulationTime_us(getSimulationTime_us()+getSimulationTimeStep_speedModified_us());
+    _setSimulationTime(getSimulationTime()+getTimeStep());
 
     int ct=(int)VDateTime::getTimeInMs();
-    quint64 drt=quint64((double(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))*1000.0+double(_realTimeCorrection_us))*getRealTimeCoefficient_speedModified());
-    simulationTime_real_us+=drt;
-    simulationTime_real_noCatchUp_us+=drt;
-    if ( (!_catchUpIfLate)&&(simulationTime_real_noCatchUp_us>getSimulationTime_us()+getSimulationTimeStep_speedModified_us()) )
-        simulationTime_real_noCatchUp_us=getSimulationTime_us()+getSimulationTimeStep_speedModified_us();
-    _realTimeCorrection_us=0;
+    float drt=(float(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))/1000.0f+_realTimeCorrection)*getRealTimeCoeff();
+    simulationTime_real+=drt;
+    simulationTime_real_noCatchUp+=drt;
+    if (simulationTime_real_noCatchUp>getSimulationTime()+getTimeStep())
+        simulationTime_real_noCatchUp=getSimulationTime()+getTimeStep();
+    _realTimeCorrection=0.0f;
     simulationTime_real_lastInMs=ct;
-    addToSimulationTimeHistory_us(getSimulationTime_us(),simulationTime_real_us);
+    _addToSimulationTimeHistory(getSimulationTime(),simulationTime_real);
 
     if (getSimulationState()==sim_simulation_advancing_firstafterstop)
         setSimulationState(sim_simulation_advancing_running);
@@ -422,12 +381,12 @@ void CSimulation::advanceSimulationByOneStep()
     }
     while (_desiredFasterOrSlowerSpeed>0)
     {
-        goFasterOrSlower(1);
+        _goFasterOrSlower(1);
         _desiredFasterOrSlowerSpeed--;
     }
     while (_desiredFasterOrSlowerSpeed<0)
     {
-        goFasterOrSlower(-1);
+        _goFasterOrSlower(-1);
         _desiredFasterOrSlowerSpeed++;
     }
 }
@@ -437,81 +396,60 @@ int CSimulation::getSimulationState() const
     return(_simulationState);
 }
 
-void CSimulation::setSimulationTimeStep_raw_us(quint64 dt)
+void CSimulation::setTimeStep(float dt)
 {
-    if (isSimulationStopped()&&(_defaultSimulationParameterIndex==5))
+    if (isSimulationStopped())
     {
-        if (dt<100)
-            dt=100;
-        if (dt>10000000)
-            dt=10000000;
-        _simulationTimeStep_us=dt;
-        App::setFullDialogRefreshFlag(); // so that the recorder dlg gets correctly refreshed
+        if (dt<0.0001f)
+            dt=0.0001f;
+        if (dt>10.0f)
+            dt=10.0f;
+        _simulationTimeStep=dt;
+        App::setFullDialogRefreshFlag();
     }
 }
 
-quint64 CSimulation::getSimulationTimeStep_raw_us(int parameterIndex)
-{ // parameterIndex is -1 by default
-    if (parameterIndex==-1)
-        parameterIndex=_defaultSimulationParameterIndex;
-    if (parameterIndex==5)
-        return(_simulationTimeStep_us);
-    return(SIMULATION_DEFAULT_TIME_STEP_US[parameterIndex]);
-}
-
-quint64 CSimulation::getSimulationTimeStep_speedModified_us(int parameterIndex)
-{ // parameterIndex is -1 by default
-    quint64 v=getSimulationTimeStep_raw_us(parameterIndex);
-
-    if (isSimulationStopped()||(_speedModifierIndexOffset>=0))
-        return(v);
-
-    int indStart=SIMULATION_SPEED_MODIFIER_START_INDEX[_defaultSimulationParameterIndex];
-    int ind=indStart+_speedModifierIndexOffset;
-    quint64 init=SIMULATION_SPEED_MODIFIER_SEQUENCE[indStart];
-    quint64 now=SIMULATION_SPEED_MODIFIER_SEQUENCE[ind];
-
-    v*=now;
-    v/=init;
-    return(v);
-}
-
-int CSimulation::getSimulationPassesPerRendering_speedModified()
+float CSimulation::getTimeStep() const
 {
-    return(getSimulationPassesPerRendering_raw()*getSpeedModifier_forCalcPassPerRendering());
+    return(_simulationTimeStep);
 }
 
-double CSimulation::getRealTimeCoefficient_speedModified()
+int CSimulation::getPassesPerRendering() const
 {
-    return(_getRealTimeCoefficient_raw()*_getSpeedModifier_forRealTimeCoefficient());
+    int retVal=_simulationPassesPerRendering;
+    if (_speedModifierCount>0)
+        retVal*=int(pow(2.0,double(_speedModifierCount))+0.1);
+    return(retVal);
 }
 
-void CSimulation::setRealTimeSimulation(bool realTime)
+double CSimulation::getRealTimeCoeff() const
+{
+    return(_realTimeCoefficient*_getSpeedModifier_forRealTimeCoefficient());
+}
+
+void CSimulation::setIsRealTimeSimulation(bool realTime)
 {
     if (isSimulationStopped())
         _realTimeSimulation=realTime;
 }
 
-bool CSimulation::isRealTimeCalculationStepNeeded()
+bool CSimulation::isRealTimeCalculationStepNeeded() const
 {
-    if (!_realTimeSimulation)
-        return(false);
-    if (!isSimulationRunning())
-        return(false);
-    quint64 crt=simulationTime_real_noCatchUp_us+quint64(double(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))*getRealTimeCoefficient_speedModified()*1000.0);
-    return (getSimulationTime_us()+getSimulationTimeStep_speedModified_us()<crt);
+    bool retVal=false;
+    if (_realTimeSimulation&&isSimulationRunning())
+    {
+        float crt=simulationTime_real_noCatchUp+float(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))*getRealTimeCoeff()/1000.0f;
+        retVal=(getSimulationTime()+getTimeStep()<crt);
+    }
+    return(retVal);
 }
 
-bool CSimulation::getRealTimeSimulation()
+bool CSimulation::getIsRealTimeSimulation() const
 {
     return(_realTimeSimulation);
 }
 
-double CSimulation::_getRealTimeCoefficient_raw()
-{
-    return(_realTimeCoefficient);
-}
-void CSimulation::setRealTimeCoefficient_raw(double coeff)
+void CSimulation::setRealTimeCoeff(double coeff)
 {
     if (coeff<0.0)
         coeff=0.0;
@@ -520,27 +458,20 @@ void CSimulation::setRealTimeCoefficient_raw(double coeff)
     _realTimeCoefficient=coeff;
 }
 
-void CSimulation::setSimulationPassesPerRendering_raw(int n)
+void CSimulation::setPassesPerRendering(int n)
 {
-    if (_defaultSimulationParameterIndex==5)
+    if (isSimulationStopped())
     {
         tt::limitValue(1,200,n);
         _simulationPassesPerRendering=n;
     }
 }
 
-int CSimulation::getSimulationPassesPerRendering_raw()
-{
-    if (_defaultSimulationParameterIndex==5)
-        return(_simulationPassesPerRendering);
-    return(SIMULATION_DEFAULT_PASSES_PER_RENDERING[_defaultSimulationParameterIndex]);
-}
-
 void CSimulation::pushGenesisEvents() const
 {
     auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SIMULATIONCHANGED,-1,nullptr,false);
     data->appendMapObject_stringInt32("state",getSimulationState());
-    data->appendMapObject_stringInt32("time",getSimulationTime_us()/1000);
+    data->appendMapObject_stringInt32("time",int(getSimulationTime()*1000.0f));
 
     App::worldContainer->pushEvent(event);
 }
@@ -561,34 +492,38 @@ void CSimulation::setSimulationState(int state)
     }
 }
 
-void CSimulation::clearSimulationTimeHistory_us()
+void CSimulation::_clearSimulationTimeHistory()
 {
-    simulationTime_history_us.clear();
-    simulationTime_real_history_us.clear();
+    simulationTime_history.clear();
+    simulationTime_real_history.clear();
 }
 
-void CSimulation::addToSimulationTimeHistory_us(quint64 simTime,quint64 simTimeReal)
+void CSimulation::_addToSimulationTimeHistory(float simTime,float simTimeReal)
 {
-    simulationTime_history_us.push_back(simTime);
-    simulationTime_real_history_us.push_back(simTimeReal);
-    if (simulationTime_history_us.size()>10)
+    simulationTime_history.push_back(simTime);
+    simulationTime_real_history.push_back(simTimeReal);
+    if (simulationTime_history.size()>10)
     {
-        simulationTime_history_us.erase(simulationTime_history_us.begin());
-        simulationTime_real_history_us.erase(simulationTime_real_history_us.begin());
+        simulationTime_history.erase(simulationTime_history.begin());
+        simulationTime_real_history.erase(simulationTime_real_history.begin());
     }
 }
 
-bool CSimulation::getSimulationTimeHistoryDurations_us(quint64& simTime,quint64& simTimeReal)
+bool CSimulation::_getSimulationTimeHistoryDurations(float& simTime,float& simTimeReal) const
 {
-    if (simulationTime_history_us.size()<2)
+    bool retVal=false;
+    if (simulationTime_history.size()<2)
     {
-        simTime=0;
-        simTimeReal=0;
-        return(false);
+        simTime=0.0;
+        simTimeReal=0.0;
     }
-    simTime=simulationTime_history_us[simulationTime_history_us.size()-1]-simulationTime_history_us[0];
-    simTimeReal=simulationTime_real_history_us[simulationTime_real_history_us.size()-1]-simulationTime_real_history_us[0];
-    return(true);
+    else
+    {
+        simTime=simulationTime_history[simulationTime_history.size()-1]-simulationTime_history[0];
+        simTimeReal=simulationTime_real_history[simulationTime_real_history.size()-1]-simulationTime_real_history[0];
+        retVal=true;
+    }
+    return(retVal);
 }
 
 void CSimulation::setPauseAtError(bool br)
@@ -596,7 +531,7 @@ void CSimulation::setPauseAtError(bool br)
     _pauseAtError=br;
 }
 
-bool CSimulation::getPauseAtError()
+bool CSimulation::getPauseAtError() const
 {
     return(_pauseAtError);
 }
@@ -610,33 +545,21 @@ void CSimulation::pauseOnErrorRequested()
     }
 }
 
-/*
-bool CSimulation::getPauseOnErrorRequested()
+void CSimulation::setPauseTime(float time)
 {
-    if (_pauseOnErrorRequested)
-    {
-        _pauseOnErrorRequested=false;
-        return(true);
-    }
-    return(false);
-}
-*/
-
-void CSimulation::setPauseTime_us(quint64 time)
-{
-    if (time<1000)
-        time=1000;
-    if (time>604800000000000)
-        time=604800000000000;
-    _simulationTimeToPause_us=time;
+    if (time<0.001f)
+        time=0.001f;
+    if (time>604800.0f)
+        time=604800.0f;
+    _simulationTimeToPause=time;
 }
 
-quint64 CSimulation::getPauseTime_us()
+float CSimulation::getPauseTime() const
 {
-    return (_simulationTimeToPause_us);
+    return (_simulationTimeToPause);
 }
 
-bool CSimulation::getPauseAtSpecificTime()
+bool CSimulation::getPauseAtSpecificTime() const
 {
     return(_pauseAtSpecificTime);
 }
@@ -646,74 +569,91 @@ void CSimulation::setPauseAtSpecificTime(bool e)
     _pauseAtSpecificTime=e;
 }
 
-quint64 CSimulation::getSimulationTime_us() const
+float CSimulation::getSimulationTime() const
 {
-    return(_simulationTime_us);
+    return(_simulationTime);
 }
 
-void CSimulation::_setSimulationTime_us(quint64 t)
+void CSimulation::_setSimulationTime(float t)
 {
-    bool diff=(_simulationTime_us!=t);
+    bool diff=(_simulationTime!=t);
     if (diff)
     {
-        _simulationTime_us=t;
+        _simulationTime=t;
         if (App::worldContainer->getEventsEnabled())
         {
             const char* cmd="time";
             auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SIMULATIONCHANGED,-1,cmd,true);
-            data->appendMapObject_stringInt32(cmd,_simulationTime_us/1000);
+            data->appendMapObject_stringInt32(cmd,int(_simulationTime)*1000);
             App::worldContainer->pushEvent(event);
         }
     }
 }
 
-quint64 CSimulation::getSimulationTime_real_us() const
+float CSimulation::getSimulationTime_real() const
 {
-    return(simulationTime_real_us);
+    return(simulationTime_real);
 }
 
-bool CSimulation::goFasterOrSlower(int action)
+float CSimulation::_getNewTimeStep(int newSpeedModifierCount) const
 {
-    if (action==0)
-        return(true);
+    float ddt=App::currentWorld->dynamicsContainer->getEffectiveStepSize();
+    float dt=_simulationTimeStep;
+    if (!isSimulationStopped())
+        dt=_initialSimulationTimeStep;
+    for (int i=0;i<-newSpeedModifierCount;i++)
+    {
+        dt*=0.5f;
+        if ((dt*1.01f-ddt)<0.0)
+            return(0.0);
+        if ( fmod(dt*1.00001f,ddt)>ddt*0.01f )
+        {
+            float oldDt=dt;
+            dt=ddt;
+            while (dt+ddt<oldDt)
+                dt+=ddt;
+        }
+    }
+    return(dt);
+}
+
+bool CSimulation::_goFasterOrSlower(int action)
+{
+    bool retVal=false;
     if (action<0)
     { // We wanna go slower
-        if (canGoSlower())
+        if (_speedModifierCount>0)
         {
-            _speedModifierIndexOffset--;
-            App::setLightDialogRefreshFlag();
-            App::setToolbarRefreshFlag();
-            return(true);
+            _speedModifierCount--;
+            retVal=true;
+        }
+        else
+        {
+            float newDt=_getNewTimeStep(_speedModifierCount-1);
+            if (newDt!=0.0)
+            {
+                _speedModifierCount--;
+                _simulationTimeStep=newDt;
+                retVal=true;
+            }
         }
     }
     if (action>0)
     { // We wanna go faster
         if (canGoFaster())
         {
-            _speedModifierIndexOffset++;
-            App::setLightDialogRefreshFlag();
-            App::setToolbarRefreshFlag();
-            return(true);
+            _speedModifierCount++;
+            if (_speedModifierCount<=0)
+                _simulationTimeStep=_getNewTimeStep(_speedModifierCount);
+            retVal=true;
         }
     }
-    return(false);
-}
-
-int CSimulation::getSpeedModifierIndexOffset()
-{
-    return(_speedModifierIndexOffset);
-}
-
-bool CSimulation::setSpeedModifierIndexOffset(int offset)
-{
-    while (true)
+    if (retVal)
     {
-        if (!goFasterOrSlower(offset-_speedModifierIndexOffset))
-            return(false);
-        if (offset==_speedModifierIndexOffset)
-            return(true);
+        App::setLightDialogRefreshFlag();
+        App::setToolbarRefreshFlag();
     }
-    return(false);
+    return(retVal);
 }
 
 void CSimulation::incrementStopRequestCounter()
@@ -721,12 +661,12 @@ void CSimulation::incrementStopRequestCounter()
     _stopRequestCounter++;
 }
 
-int CSimulation::getStopRequestCounter()
+int CSimulation::getStopRequestCounter() const
 {
     return(_stopRequestCounter);
 }
 
-bool CSimulation::didStopRequestCounterChangeSinceSimulationStart()
+bool CSimulation::didStopRequestCounterChangeSinceSimulationStart() const
 {
     return(_stopRequestCounter!=_stopRequestCounterAtSimulationStart);
 }
@@ -740,8 +680,8 @@ bool CSimulation::processCommand(int commandID)
             bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
             if (App::currentWorld->simulation->isSimulationStopped()&&noEditMode )
             {
-                App::currentWorld->simulation->setRealTimeSimulation(!App::currentWorld->simulation->getRealTimeSimulation());
-                if (App::currentWorld->simulation->getRealTimeSimulation())
+                App::currentWorld->simulation->setIsRealTimeSimulation(!App::currentWorld->simulation->getIsRealTimeSimulation());
+                if (App::currentWorld->simulation->getIsRealTimeSimulation())
                     App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_REAL_TIME_MODE);
                 else
                     App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE);
@@ -948,54 +888,52 @@ bool CSimulation::processCommand(int commandID)
     return(false);
 }
 
-bool CSimulation::getInfo(std::string& txtLeft,std::string& txtRight,int& index)
+bool CSimulation::getInfo(std::string& txtLeft,std::string& txtRight,int& index) const
 {
-    if (isSimulationStopped())
-        return(false);
-    if (index==0)
+    bool retVal=false;
+    if (!isSimulationStopped())
     {
-        txtLeft="Simulation time:";
-        if (_realTimeSimulation)
+        if (index==0)
         {
-            txtRight="";//"&&fg060";
-            quint64 st_,str_;
-            if (getSimulationTimeHistoryDurations_us(st_,str_))
+            txtLeft="Simulation time:";
+            if (_realTimeSimulation)
             {
-                double st=double(st_)/1000000.0;
-                double str=double(str_)/1000000.0;
-                if (abs((st-str)/str)>0.1)
-                    txtRight="&&fg930"; // When current simulation speed is too slow
+                txtRight="";
+                float st,str;
+                if (_getSimulationTimeHistoryDurations(st,str))
+                {
+                    if (abs((st-str)/str)>0.1f)
+                        txtRight="&&fg930"; // When current simulation speed is too slow
+                    else
+                    {
+                        if ( abs(getSimulationTime()-simulationTime_real) > 10.0f*getTimeStep() )
+                            txtRight="&&fg930"; // When simulation is behind
+                    }
+                }
+                txtRight+=gv::getHourMinuteSecondMilisecondStr(getSimulationTime()+0.0001f)+" &&fg@@@(real time: ";
+                if (abs(getRealTimeCoeff()-1.0)<0.01f)
+                    txtRight+=gv::getHourMinuteSecondMilisecondStr(simulationTime_real+0.0001f)+")";
                 else
                 {
-                    if ( abs((long long int)(getSimulationTime_us()-simulationTime_real_us)) > (long long int)(10*getSimulationTimeStep_speedModified_us()) )
-                        txtRight="&&fg930"; // When simulation is behind
+                    txtRight+=gv::getHourMinuteSecondMilisecondStr(simulationTime_real+0.0001f)+" (x";
+                    txtRight+=tt::FNb(0,float(getRealTimeCoeff()),3,false)+"))";
                 }
+                if (simulationTime_real!=0.0)
+                    txtRight+=" (real time fact="+tt::FNb(0,getSimulationTime()/simulationTime_real,2,false)+")";
+                txtRight+=" (dt="+tt::FNb(0,getTimeStep()*1000.0f,1,false)+" ms)";
             }
-            txtRight+=gv::getHourMinuteSecondMilisecondStr(double(getSimulationTime_us())/1000000.0+0.0001)+" &&fg@@@(real time: ";
-            if (abs(getRealTimeCoefficient_speedModified()-1.0)<0.01)
-                txtRight+=gv::getHourMinuteSecondMilisecondStr(double(simulationTime_real_us)/1000000.0+0.0001)+")";
             else
             {
-                txtRight+=gv::getHourMinuteSecondMilisecondStr(double(simulationTime_real_us)/1000000.0+0.0001)+" (x";
-                txtRight+=tt::FNb(0,float(getRealTimeCoefficient_speedModified()),3,false)+"))";
+                txtRight="&&fg@@@"+gv::getHourMinuteSecondMilisecondStr(getSimulationTime()+0.0001f);
+                txtRight+=" (dt="+tt::FNb(0,getTimeStep()*1000.0f,1,false)+" ms, ppf="+std::to_string(getPassesPerRendering())+")";
             }
-            if (simulationTime_real_us!=0)
-                txtRight+=" (real time fact="+tt::FNb(0,double(getSimulationTime_us())/double(simulationTime_real_us),2,false)+")";
-            txtRight+=" (dt="+tt::FNb(0,double(getSimulationTimeStep_speedModified_us())/1000.0,1,false)+" ms)";
+            retVal=true;
         }
         else
-        {
-            txtRight="&&fg@@@"+gv::getHourMinuteSecondMilisecondStr(double(getSimulationTime_us())/1000000.0+0.0001);
-            txtRight+=" (dt="+tt::FNb(0,double(getSimulationTimeStep_speedModified_us())/1000.0,1,false)+" ms)";
-        }
+            index=0;
+        index++;
     }
-    else
-    {
-        index=0;
-        return(false);
-    }
-    index++;
-    return(true);
+    return(retVal);
 }
 
 void CSimulation::serialize(CSer& ar)
@@ -1005,28 +943,32 @@ void CSimulation::serialize(CSer& ar)
         if (ar.isStoring())
         {       // Storing
             ar.storeDataName("Sts"); // for backward compatibility (03/03/2016), keep before St2
-            ar << float(_simulationTimeStep_us)/1000000.0f;
+            ar << _simulationTimeStep;
             ar.flush();
 
-            ar.storeDataName("St2");
-            ar << _simulationTimeStep_us;
+            ar.storeDataName("St2"); // for backward compatibility (05/09/2022), keep before St3
+            ar << quint64(_simulationTimeStep*1000000.0f);
+            ar.flush();
+
+            ar.storeDataName("St3");
+            ar << _simulationTimeStep;
             ar.flush();
 
             ar.storeDataName("Spr");
             ar << _simulationPassesPerRendering;
             ar.flush();
 
-            ar.storeDataName("Spi");
-            ar << _defaultSimulationParameterIndex;
+            ar.storeDataName("Spi"); // for backward compatibility (05/09/2022)
+            ar << int(5);
             ar.flush();
 
             ar.storeDataName("Ss2");
             unsigned char nothing=0;
             SIM_SET_CLEAR_BIT(nothing,0,_realTimeSimulation);
-            SIM_SET_CLEAR_BIT(nothing,1,_avoidBlocking);
+            // 06.09.2022 SIM_SET_CLEAR_BIT(nothing,1,_avoidBlocking);
             SIM_SET_CLEAR_BIT(nothing,2,_pauseAtSpecificTime);
             SIM_SET_CLEAR_BIT(nothing,3,_pauseAtError);
-            SIM_SET_CLEAR_BIT(nothing,4,_catchUpIfLate);
+            // 06.09.2022 SIM_SET_CLEAR_BIT(nothing,4,_catchUpIfLate);
             SIM_SET_CLEAR_BIT(nothing,5,_fullscreenAtSimulationStart);
             SIM_SET_CLEAR_BIT(nothing,6,!_resetSimulationAtEnd);
             SIM_SET_CLEAR_BIT(nothing,7,!_removeNewObjectsAtSimulationEnd);
@@ -1043,11 +985,15 @@ void CSimulation::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Pat"); // for backward compatibility (03/03/2016), keep before Pa2
-            ar << float(_simulationTimeToPause_us)/1000000.0f;
+            ar << _simulationTimeToPause;
             ar.flush();
 
-            ar.storeDataName("Pa2");
-            ar << _simulationTimeToPause_us;
+            ar.storeDataName("Pa2"); // for backward compatibility (05/09/2022), keep before Pa3
+            ar << quint64(_simulationTimeToPause*1000000.0f);
+            ar.flush();
+
+            ar.storeDataName("Pa3");
+            ar << _simulationTimeToPause;
             ar.flush();
 
             ar.storeDataName(SER_END_OF_OBJECT);
@@ -1056,6 +1002,8 @@ void CSimulation::serialize(CSer& ar)
         {       // Loading
             int byteQuantity;
             std::string theName="";
+            int oldDefautParamsIndex;
+            bool usingOldDefaultParams=true;
             while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
                 theName=ar.readDataName();
@@ -1066,15 +1014,22 @@ void CSimulation::serialize(CSer& ar)
                     { // for backward compatibility (03/03/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        float stp;
-                        ar >> stp;
-                        _simulationTimeStep_us=quint64(stp*1000000.1f);
+                        ar >> _simulationTimeStep;
                     }
                     if (theName.compare("St2")==0)
+                    { // for backward compatibility (05/09/2022)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        quint64 stp;
+                        ar >> stp;
+                        _simulationTimeStep=float(stp)/1000000.0f;
+                    }
+                    if (theName.compare("St3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _simulationTimeStep_us;
+                        ar >> _simulationTimeStep;
+                        usingOldDefaultParams=false;
                     }
                     if (theName.compare("Spr")==0)
                     {
@@ -1086,7 +1041,7 @@ void CSimulation::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _defaultSimulationParameterIndex;
+                        ar >> oldDefautParamsIndex;
                     }
                     if (theName=="Sst")
                     { // for backward compatibility (still in serialization version 15 or before)
@@ -1095,17 +1050,16 @@ void CSimulation::serialize(CSer& ar)
                         unsigned char nothing;
                         ar >> nothing;
                         _realTimeSimulation=SIM_IS_BIT_SET(nothing,0);
-                        _avoidBlocking=SIM_IS_BIT_SET(nothing,1);
                         _pauseAtSpecificTime=SIM_IS_BIT_SET(nothing,2);
                         _pauseAtError=SIM_IS_BIT_SET(nothing,3);
-                        _catchUpIfLate=SIM_IS_BIT_SET(nothing,4);
+                        // 06.09.2022 _catchUpIfLate=SIM_IS_BIT_SET(nothing,4);
                         bool defaultSimulationTimeStep=SIM_IS_BIT_SET(nothing,5);
                         _resetSimulationAtEnd=!SIM_IS_BIT_SET(nothing,6);
                         _removeNewObjectsAtSimulationEnd=!SIM_IS_BIT_SET(nothing,7);
                         if (defaultSimulationTimeStep)
-                            _defaultSimulationParameterIndex=2; // for default parameters
+                            oldDefautParamsIndex=2; // for default parameters
                         else
-                            _defaultSimulationParameterIndex=5; // for custom parameters
+                            oldDefautParamsIndex=5; // for custom parameters
                     }
                     if (theName=="Ss2")
                     {
@@ -1114,10 +1068,10 @@ void CSimulation::serialize(CSer& ar)
                         unsigned char nothing;
                         ar >> nothing;
                         _realTimeSimulation=SIM_IS_BIT_SET(nothing,0);
-                        _avoidBlocking=SIM_IS_BIT_SET(nothing,1);
+                        // 06.09.2022 _avoidBlocking=SIM_IS_BIT_SET(nothing,1);
                         _pauseAtSpecificTime=SIM_IS_BIT_SET(nothing,2);
                         _pauseAtError=SIM_IS_BIT_SET(nothing,3);
-                        _catchUpIfLate=SIM_IS_BIT_SET(nothing,4);
+                        // 06.09.2022 _catchUpIfLate=SIM_IS_BIT_SET(nothing,4);
                         _fullscreenAtSimulationStart=SIM_IS_BIT_SET(nothing,5);
                         _resetSimulationAtEnd=!SIM_IS_BIT_SET(nothing,6);
                         _removeNewObjectsAtSimulationEnd=!SIM_IS_BIT_SET(nothing,7);
@@ -1141,18 +1095,32 @@ void CSimulation::serialize(CSer& ar)
                     { // for backward compatibility (03/03/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        float w;
-                        ar >> w;
-                        _simulationTimeToPause_us=quint64(w)*1000000;
+                        ar >> _simulationTimeToPause;
                     }
                     if (theName.compare("Pa2")==0)
+                    { // for backward compatibility (05/09/2022)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        quint64 p;
+                        ar >> p;
+                        _simulationTimeToPause=float(p)/1000000.0f;
+                    }
+                    if (theName.compare("Pa3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _simulationTimeToPause_us;
+                        ar >> _simulationTimeToPause;
                     }
                     if (noHit)
                         ar.loadUnknownData();
+                }
+            }
+            if (usingOldDefaultParams)
+            {
+                if ( (oldDefautParamsIndex>=0)&&(oldDefautParamsIndex<5) )
+                {
+                    const float SIMULATION_DEFAULT_TIME_STEP_OLD[5]={0.2f,0.1f,0.05f,0.025f,0.01f};
+                    _simulationTimeStep=SIMULATION_DEFAULT_TIME_STEP_OLD[oldDefautParamsIndex];
                 }
             }
         }
@@ -1162,28 +1130,34 @@ void CSimulation::serialize(CSer& ar)
         bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
         if (ar.isStoring())
         {
+            ar.xmlAddNode_double("simTimeStep",_simulationTimeStep);
+
+            ar.xmlAddNode_comment(" 'simulationTimeStep' tag: used for backward compatibility",exhaustiveXml);
+            ar.xmlAddNode_double("simulationTimeStep",_simulationTimeStep);
             if (exhaustiveXml)
-                ar.xmlAddNode_ulonglong("simulationTimeStep_ns",_simulationTimeStep_us);
-            else
-                ar.xmlAddNode_double("simulationTimeStep",double(_simulationTimeStep_us)/1000000.0);
+            {
+                ar.xmlAddNode_comment(" 'simulationTimeStep_ns' tag: used for backward compatibility",exhaustiveXml);
+                ar.xmlAddNode_ulonglong("simulationTimeStep_ns",quint64(_simulationTimeStep*1000000.0f)); // for backward compatibility (05.09.2022)
+            }
 
             ar.xmlAddNode_int("simulationPassesPerRendering",_simulationPassesPerRendering);
 
-            ar.xmlAddNode_comment(" 'simulationMode' tag: can be '200ms', '100ms', '50ms', '25ms', '10ms' or 'custom' ",exhaustiveXml);
-            ar.xmlAddNode_enum("simulationMode",_defaultSimulationParameterIndex,0,"200ms",1,"100ms",2,"50ms",3,"25ms",4,"10ms",5,"custom");
+            ar.xmlAddNode_comment(" 'simulationMode' tag: used for backward compatibility",exhaustiveXml);
+            ar.xmlAddNode_int("simulationMode",5); // for backward compatibility (05.09.2022)
 
             ar.xmlAddNode_double("realTimeCoefficient",_realTimeCoefficient);
+
+            ar.xmlAddNode_double("simulationTimeToPause",_simulationTimeToPause);
             if (exhaustiveXml)
-                ar.xmlAddNode_ulonglong("simulationTimeToPause_ns",_simulationTimeToPause_us);
-            else
-                ar.xmlAddNode_double("simulationTimeToPause",double(_simulationTimeToPause_us)/1000000.0);
+            {
+                ar.xmlAddNode_comment(" 'simulationTimeToPause_ns' tag: used for backward compatibility",exhaustiveXml);
+                ar.xmlAddNode_ulonglong("simulationTimeToPause_ns",quint64(_simulationTimeToPause*1000000.0f)); // for backward compatibility (05.09.2022)
+            }
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("realTime",_realTimeSimulation);
-            ar.xmlAddNode_bool("avoidBlocking",_avoidBlocking);
             ar.xmlAddNode_bool("pauseAtTime",_pauseAtSpecificTime);
             ar.xmlAddNode_bool("pauseAtError",_pauseAtError);
-            ar.xmlAddNode_bool("catchUpIfLate",_catchUpIfLate);
             if (exhaustiveXml)
                 ar.xmlAddNode_bool("fullScreen",_fullscreenAtSimulationStart);
             ar.xmlAddNode_bool("resetAtEnd",_resetSimulationAtEnd);
@@ -1192,49 +1166,52 @@ void CSimulation::serialize(CSer& ar)
         }
         else
         {
+            int oldDefautParamsIndex;
+            bool usingOldDefaultParams=true;
             if (exhaustiveXml)
-                ar.xmlGetNode_ulonglong("simulationTimeStep_ns",_simulationTimeStep_us);
-            else
-            {
-                double d;
-                if (ar.xmlGetNode_double("simulationTimeStep",d,exhaustiveXml))
-                {
-                    tt::limitDoubleValue(0.00001,10.0,d);
-                    _simulationTimeStep_us=(unsigned long long)(d*1000000.9);
-                }
+            { // for backward compatibility (05.09.2022)
+                quint64 step;
+                ar.xmlGetNode_ulonglong("simulationTimeStep_ns",step);
+                _simulationTimeStep=float(step)/1000000.0f;
             }
+            ar.xmlGetNode_float("simulationTimeStep",_simulationTimeStep,exhaustiveXml);
+            if (ar.xmlGetNode_float("simTimeStep",_simulationTimeStep,exhaustiveXml))
+                usingOldDefaultParams=false;
 
             if (ar.xmlGetNode_int("simulationPassesPerRendering",_simulationPassesPerRendering,exhaustiveXml))
                 tt::limitValue(1,100,_simulationPassesPerRendering);
 
-            ar.xmlGetNode_enum("simulationMode",_defaultSimulationParameterIndex,exhaustiveXml,"200ms",0,"100ms",1,"50ms",2,"25ms",3,"10ms",4,"custom",5);
+            ar.xmlGetNode_enum("simulationMode",oldDefautParamsIndex,exhaustiveXml,"200ms",0,"100ms",1,"50ms",2,"25ms",3,"10ms",4,"custom",5);
 
             if (ar.xmlGetNode_double("realTimeCoefficient",_realTimeCoefficient,exhaustiveXml))
                 tt::limitDoubleValue(0.01,100.0,_realTimeCoefficient);
+
             if (exhaustiveXml)
-                ar.xmlGetNode_ulonglong("simulationTimeToPause_ns",_simulationTimeToPause_us);
-            else
-            {
-                double d;
-                if (ar.xmlGetNode_double("simulationTimeToPause_ns",d,exhaustiveXml))
-                {
-                    tt::limitDoubleValue(0.0001,10000000.0,d);
-                    _simulationTimeToPause_us=(unsigned long long)(d*1000000.9);
-                }
+            { // for backward compatibility (05.09.2022)
+                quint64 p;
+                ar.xmlGetNode_ulonglong("simulationTimeToPause_ns",p);
+                _simulationTimeToPause=float(p)/1000000.0f;
             }
+            ar.xmlGetNode_float("simulationTimeToPause",_simulationTimeToPause,exhaustiveXml);
 
             if (ar.xmlPushChildNode("switches",exhaustiveXml))
             {
                 ar.xmlGetNode_bool("realTime",_realTimeSimulation,exhaustiveXml);
-                ar.xmlGetNode_bool("avoidBlocking",_avoidBlocking,exhaustiveXml);
                 ar.xmlGetNode_bool("pauseAtTime",_pauseAtSpecificTime,exhaustiveXml);
                 ar.xmlGetNode_bool("pauseAtError",_pauseAtError,exhaustiveXml);
-                ar.xmlGetNode_bool("catchUpIfLate",_catchUpIfLate,exhaustiveXml);
                 if (exhaustiveXml)
                     ar.xmlGetNode_bool("fullScreen",_fullscreenAtSimulationStart,exhaustiveXml);
                 ar.xmlGetNode_bool("resetAtEnd",_resetSimulationAtEnd,exhaustiveXml);
                 ar.xmlGetNode_bool("removeNewObjectsAtEnd",_removeNewObjectsAtSimulationEnd,exhaustiveXml);
                 ar.xmlPopNode();
+            }
+            if (usingOldDefaultParams)
+            {
+                if ( (oldDefautParamsIndex>=0)&&(oldDefautParamsIndex<5) )
+                {
+                    const float SIMULATION_DEFAULT_TIME_STEP_OLD[5]={0.2f,0.1f,0.05f,0.025f,0.01f};
+                    _simulationTimeStep=SIMULATION_DEFAULT_TIME_STEP_OLD[oldDefautParamsIndex];
+                }
             }
         }
     }
@@ -1254,14 +1231,9 @@ bool CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* sc
             {
                 CThreadPool_old::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
                 CThreadPool_old::setSimulationEmergencyStop(true);
-  //              if (getSimulationState()!=sim_simulation_advancing_lastbeforestop)
-  //                  setSimulationState(sim_simulation_advancing_abouttostop);
             }
             retVal=true;
-//            CScriptObject::emergencyStopButtonPressed=true;
         }
-//        else
-//            CScriptObject::emergencyStopButtonPressed=false;
     }
     return(retVal);
 }
@@ -1290,7 +1262,7 @@ void CSimulation::addMenu(VMenu* menu)
     menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_newton,SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD,IDS_SWITCH_TO_NEWTON_ENGINE_MENU_ITEM,true);
     menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_mujoco,SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD,IDS_SWITCH_TO_MUJOCO_ENGINE_MENU_ITEM,true);
     menu->appendMenuSeparator();
-    menu->appendMenuItem(noEditMode&&simStopped,App::currentWorld->simulation->getRealTimeSimulation(),SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD,IDSN_REAL_TIME_SIMULATION,true);
+    menu->appendMenuItem(noEditMode&&simStopped,App::currentWorld->simulation->getIsRealTimeSimulation(),SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD,IDSN_REAL_TIME_SIMULATION,true);
     menu->appendMenuItem(canGoSlower,false,SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD,IDSN_SLOW_DOWN_SIMULATION);
     menu->appendMenuItem(canGoFaster,false,SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD,IDSN_SPEED_UP_SIMULATION);
     menu->appendMenuItem(simRunning&&(!(App::mainWindow->oglSurface->isPageSelectionActive()||App::mainWindow->oglSurface->isViewSelectionActive())),!App::mainWindow->getOpenGlDisplayEnabled(),SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,IDSN_TOGGLE_VISUALIZATION,true);
@@ -1317,8 +1289,3 @@ void CSimulation::keyPress(int key)
 }
 
 #endif
-
-volatile int CSimulation::emergencyStopButtonThreadForMainScriptsLaunched=0;
-
-
-

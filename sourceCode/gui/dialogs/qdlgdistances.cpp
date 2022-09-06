@@ -31,7 +31,7 @@ CQDlgDistances::~CQDlgDistances()
 void CQDlgDistances::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(CALCULATION_DLG);
+    App::mainWindow->dlgCont->close(CALCULATION_DLG_OLD);
 }
 
 void CQDlgDistances::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)

@@ -170,7 +170,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float _dynamicsBULLETStepSize,_dynamicsODEStepSize;
                         ar >> _dynamicsBULLETStepSize >> _dynamicsODEStepSize;
-                        App::currentWorld->dynamicsContainer->setCurrentDynamicStepSize(_dynamicsBULLETStepSize);
+                        App::currentWorld->dynamicsContainer->setDesiredStepSize(_dynamicsBULLETStepSize);
                     }
 
                     if (theName.compare("Va4")==0)

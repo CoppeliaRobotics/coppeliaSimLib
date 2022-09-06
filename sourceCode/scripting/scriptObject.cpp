@@ -1819,7 +1819,7 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     // ---------------------------------
     if (_scriptType==sim_scripttype_mainscript)
     { // corresponding calls for plugins:
-        int data[4]={0,int(App::currentWorld->simulation->getSimulationTime_us()/1000),0,0};
+        int data[4]={0,int(App::currentWorld->simulation->getSimulationTime()*1000.0f),0,0};
         if (callType==sim_syscb_init)
             CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationinit,data,nullptr,nullptr);
         if (callType==sim_syscb_actuation)
@@ -1857,7 +1857,7 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     }
     if (_scriptType==sim_scripttype_mainscript)
     { // corresponding calls for plugins:
-        int data[4]={1,int(App::currentWorld->simulation->getSimulationTime_us()/1000),0,0};
+        int data[4]={1,int(App::currentWorld->simulation->getSimulationTime()*1000.0f),0,0};
         if (callType==sim_syscb_init)
             CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationinit,data,nullptr,nullptr);
         if (callType==sim_syscb_actuation)
@@ -3630,7 +3630,7 @@ const SNewApiMapping _simApiMapping[]=
     "simAddObjectToSelection","sim.addObjectToSelection",
     "simRemoveObjectFromSelection","sim.removeObjectFromSelection",
     "simGetObjectSelection","sim.getObjectSelection",
-    "simGetRealTimeSimulation","sim.getRealTimeSimulation",
+    "simGetRealTimeSimulation","sim.getIsRealTimeSimulation",
     "simSetNavigationMode","sim.setNavigationMode",
     "simGetNavigationMode","sim.getNavigationMode",
     "simSetPage","sim.setPage",

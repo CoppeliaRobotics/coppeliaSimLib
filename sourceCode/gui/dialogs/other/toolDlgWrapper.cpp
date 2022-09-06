@@ -16,7 +16,6 @@
 #include "qdlgcollisions.h"
 #include "qdlgdistances.h"
 #include "qdlgscripts.h"
-#include "qdlgdynamics.h"
 #include "qdlgcameras.h"
 #include "qdlglights.h"
 #include "qdlgdummies.h"
@@ -29,7 +28,7 @@
 #include "qdlgproximitysensors.h"
 #include "qdlgdetectionvolume.h"
 #include "qdlgobjectdialogcontainer.h"
-#include "qdlgcalcdialogcontainer.h"
+#include "qdlgcalcdialogcontainer_OLD.h"
 #include "qdlgshapeeditioncontainer.h"
 #include "qdlgjoints.h"
 #include "qdlgjointdyn.h"
@@ -152,8 +151,8 @@ void CToolDlgWrapper::setVisible(bool visible,QWidget* parentWindow)
                 toolDialog=new CQDlgShapeEditionContainer(App::mainWindow);
             if (dialogType==OBJECT_DLG)
                 toolDialog=new CQDlgObjectDialogContainer(App::mainWindow);
-            if (dialogType==CALCULATION_DLG)
-                toolDialog=new CQDlgCalcDialogContainer(App::mainWindow);
+            if (dialogType==CALCULATION_DLG_OLD)
+                toolDialog=new CQDlgCalcDialogContainer_OLD(App::mainWindow);
             if (dialogType==JOINT_DYN_DLG)
                 toolDialog=new CQDlgJointDyn(App::mainWindow);
             if (dialogType==TRANSLATION_ROTATION_DLG)

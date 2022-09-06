@@ -305,7 +305,6 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgdistances.cpp
         sourceCode/gui/dialogs/qdlgentityvsentityselection.cpp
         sourceCode/gui/dialogs/qdlgscripts.cpp
-        sourceCode/gui/dialogs/qdlgdynamics.cpp
         sourceCode/gui/dialogs/qdlgscaling.cpp
         sourceCode/gui/dialogs/qdlgcameras.cpp
         sourceCode/gui/dialogs/qdlglights.cpp
@@ -330,7 +329,7 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgproxsensdetectionparam.cpp
         sourceCode/gui/dialogs/qdlgobjectdialogcontainer.cpp
         sourceCode/gui/dialogs/qdlgshapeeditioncontainer.cpp
-        sourceCode/gui/dialogs/qdlgcalcdialogcontainer.cpp
+        sourceCode/gui/dialogs/qdlgcalcdialogcontainer_OLD.cpp
         sourceCode/gui/dialogs/qdlgheightfielddimension.cpp
         sourceCode/gui/dialogs/qdlgstopscripts.cpp
         sourceCode/gui/dialogs/qdlgtextureloadoptions.cpp

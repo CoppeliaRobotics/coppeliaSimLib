@@ -2596,7 +2596,7 @@ simInt simSetBoolParam_internal(simInt parameter,simBool boolState)
         {
 #ifdef SIM_WITH_GUI
             if (App::mainWindow!=nullptr)
-                App::mainWindow->setCalcModulesToggleViaGuiEnabled(boolState!=0);
+                App::mainWindow->setCalcModulesToggleViaGuiEnabled_OLD(boolState!=0);
             else
 #endif
                 return(-1);
@@ -2873,7 +2873,7 @@ simInt simSetBoolParam_internal(simInt parameter,simBool boolState)
                 return(-1);
             if (App::currentWorld->simulation->isSimulationStopped())
             {
-                App::currentWorld->simulation->setRealTimeSimulation(boolState!=0);
+                App::currentWorld->simulation->setIsRealTimeSimulation(boolState!=0);
                 return(1);
             }
             return(0);
@@ -2956,7 +2956,7 @@ simInt simGetBoolParam_internal(simInt parameter)
             int retVal=0;
             if (App::currentWorld->simulation==nullptr)
                 return(-1);
-            if (App::currentWorld->simulation->getRealTimeSimulation())
+            if (App::currentWorld->simulation->getIsRealTimeSimulation())
                 retVal=1;
             return(retVal);
         }
@@ -3115,7 +3115,7 @@ simInt simGetBoolParam_internal(simInt parameter)
                 return(-1);
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->getCalcModulesToggleViaGuiEnabled())
+            if ((App::mainWindow!=nullptr)&&App::mainWindow->getCalcModulesToggleViaGuiEnabled_OLD())
                 retVal=1;
 #endif
             return(retVal);
@@ -3712,7 +3712,7 @@ simInt simSetInt32Param_internal(simInt parameter,simInt intState)
                 return(-1);
             if (App::currentWorld->simulation->isSimulationStopped())
                 return(-1);
-            App::currentWorld->simulation->setSpeedModifierIndexOffset(intState);
+            App::currentWorld->simulation->setSpeedModifierCount(intState);
             return(1);
         }
         if (parameter==sim_intparam_dynamic_iteration_count)
@@ -3721,7 +3721,7 @@ simInt simSetInt32Param_internal(simInt parameter,simInt intState)
                 return(-1);
             if (App::currentWorld->simulation->isSimulationStopped())
                 return(-1);
-            if (App::currentWorld->dynamicsContainer->setCurrentIterationCount(intState))
+            if (App::currentWorld->dynamicsContainer->setIterationCount(intState))
                 return(1);
             return(-1);
         }
@@ -3754,12 +3754,9 @@ simInt simSetInt32Param_internal(simInt parameter,simInt intState)
             return(1);
         }
         if (parameter==sim_intparam_simulation_warning_disabled_mask)
-        {
-            if (App::currentWorld->simulation==nullptr)
-                return(-1);
-            App::currentWorld->simulation->setDisableWarningsFlags(intState);
+        { // deprecated. Does nothing, and doesn't generate an error
             return(1);
-       }
+        }
 
         if ( (parameter==sim_intparam_prox_sensor_select_down)||(parameter==sim_intparam_prox_sensor_select_up) )
         {
@@ -3791,14 +3788,14 @@ simInt simGetUInt64Param_internal(simInt parameter,simUInt64* intState)
         {
             if (App::currentWorld->simulation==nullptr)
                 return(-1);
-            intState[0]=App::currentWorld->simulation->getSimulationTimeStep_speedModified_us()*1000;
+            intState[0]=quint64(App::currentWorld->simulation->getTimeStep()*1000000000.0f);
             return(1);
         }
         if (parameter==sim_uint64param_simulation_time_ns)
         {
             if (App::currentWorld->simulation==nullptr)
                 return(-1);
-            intState[0]=App::currentWorld->simulation->getSimulationTime_us()*1000;
+            intState[0]=quint64(App::currentWorld->simulation->getSimulationTime()*1000000000.0f);
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
@@ -4075,10 +4072,8 @@ simInt simGetInt32Param_internal(simInt parameter,simInt* intState)
             return(1);
         }
         if (parameter==sim_intparam_simulation_warning_disabled_mask)
-        {
-            if (App::currentWorld->simulation==nullptr)
-                return(-1);
-            intState[0]=App::currentWorld->simulation->getDisableWarningsFlags();
+        { // deprecated. Does nothing, and doesn't generate an error
+            intState[0]=0;
             return(1);
         }
 
@@ -4132,14 +4127,14 @@ simInt simGetInt32Param_internal(simInt parameter,simInt* intState)
                 return(-1);
             if (App::currentWorld->simulation->isSimulationStopped())
                 return(-1);
-            intState[0]=App::currentWorld->simulation->getSpeedModifierIndexOffset();
+            intState[0]=App::currentWorld->simulation->getSpeedModifierCount();
             return(1);
         }
         if (parameter==sim_intparam_dynamic_iteration_count)
         {
             if (App::currentWorld->dynamicsContainer==nullptr)
                 return(-1);
-            intState[0]=App::currentWorld->dynamicsContainer->getCurrentIterationCount();
+            intState[0]=App::currentWorld->dynamicsContainer->getIterationCount();
             return(1);
         }
         if (parameter==sim_intparam_scene_index)
@@ -4213,7 +4208,7 @@ simInt simSetFloatParam_internal(simInt parameter,simFloat floatState)
                 return(-1);
             if (App::currentWorld->simulation->isSimulationStopped())
             {
-                App::currentWorld->simulation->setSimulationTimeStep_raw_us(quint64(floatState*1000000.0f));
+                App::currentWorld->simulation->setTimeStep(floatState);
                 return(1);
             }
             return(0);
@@ -4224,7 +4219,7 @@ simInt simSetFloatParam_internal(simInt parameter,simFloat floatState)
                 return(-1);
             if (App::currentWorld->simulation->isSimulationStopped())
             {
-                App::currentWorld->dynamicsContainer->setCurrentDynamicStepSize(floatState);
+                App::currentWorld->dynamicsContainer->setDesiredStepSize(floatState);
                 return(1);
             }
             return(0);
@@ -4247,7 +4242,7 @@ simInt simSetFloatParam_internal(simInt parameter,simFloat floatState)
                 return(-1);
             if (App::currentWorld->simulation->isSimulationStopped())
             {
-                if (App::currentWorld->dynamicsContainer->setCurrentDynamicStepSize(floatState))
+                if (App::currentWorld->dynamicsContainer->setDesiredStepSize(floatState))
                     return(1);
             }
             return(0);
@@ -4275,14 +4270,14 @@ simInt simGetFloatParam_internal(simInt parameter,simFloat* floatState)
         {
             if (App::currentWorld->simulation==nullptr)
                 return(-1);
-            floatState[0]=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
+            floatState[0]=App::currentWorld->simulation->getTimeStep();
             return(1);
         }
-        if (parameter==sim_floatparam_physicstimestep)
+        if ( (parameter==sim_floatparam_physicstimestep)||(parameter==sim_floatparam_dynamic_step_size) )
         {
             if (App::currentWorld->dynamicsContainer==nullptr)
                 return(-1);
-            floatState[0]=App::currentWorld->dynamicsContainer->getCurrentDynamicStepSize();
+            floatState[0]=App::currentWorld->dynamicsContainer->getEffectiveStepSize();
             return(1);
         }
         if (parameter==sim_floatparam_stereo_distance)
@@ -4295,13 +4290,6 @@ simInt simGetFloatParam_internal(simInt parameter,simFloat* floatState)
             }
 #endif
             return(0);
-        }
-        if (parameter==sim_floatparam_dynamic_step_size)
-        {
-            if (App::currentWorld->dynamicsContainer==nullptr)
-                return(-1);
-            floatState[0]=App::currentWorld->dynamicsContainer->getCurrentDynamicStepSize();
-            return(1);
         }
         if (parameter==sim_floatparam_mouse_wheel_zoom_factor)
         {
@@ -4580,10 +4568,7 @@ simFloat simGetSimulationTime_internal()
         return(-1.0f);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        float retVal=float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
-        return(retVal);
-    }
+        return(App::currentWorld->simulation->getSimulationTime());
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1.0f);
 }
@@ -5026,7 +5011,7 @@ simInt simHandleMainScript_internal()
         {
             App::worldContainer->calcInfo->simulationPassStart();
 
-            App::currentWorld->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f); // remove invalid elements
+            App::currentWorld->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(App::currentWorld->simulation->getSimulationTime()); // remove invalid elements
             CThreadPool_old::prepareAllThreadsForResume_calledBeforeMainScript();
 
             if (it->systemCallMainScript(-1,nullptr,nullptr)>0)
@@ -5688,9 +5673,7 @@ simInt simSetSimulationTimeStep_internal(simFloat timeStep)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5699,7 +5682,7 @@ simInt simSetSimulationTimeStep_internal(simFloat timeStep)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
             return(-1);
         }
-        App::currentWorld->simulation->setSimulationTimeStep_raw_us(quint64(timeStep*1000000.0f));
+        App::currentWorld->simulation->setTimeStep(timeStep);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5714,10 +5697,7 @@ simFloat simGetSimulationTimeStep_internal()
         return(-1.0f);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        float retVal=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
-        return(retVal);
-    }
+        return(App::currentWorld->simulation->getTimeStep());
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1.0f);
 }
@@ -5733,7 +5713,7 @@ simInt simGetRealTimeSimulation_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (App::currentWorld->simulation->getRealTimeSimulation())
+        if (App::currentWorld->simulation->getIsRealTimeSimulation())
         {
             return(1);
         }
@@ -5751,13 +5731,11 @@ simInt simAdjustRealTimeTimer_internal(simInt instanceIndex,simFloat deltaTime)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::currentWorld->simulation->adjustRealTimeTimer_us(quint64(deltaTime*1000000.0f));
+        App::currentWorld->simulation->adjustRealTimeTimer(deltaTime);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5781,7 +5759,7 @@ simInt simIsRealTimeSimulationStepNeeded_internal()
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
             return(-1);
         }
-        if (!App::currentWorld->simulation->getRealTimeSimulation())
+        if (!App::currentWorld->simulation->getIsRealTimeSimulation())
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_REAL_TIME);
             return(-1);
@@ -5807,7 +5785,7 @@ simInt simGetSimulationPassesPerRenderingPass_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal=App::currentWorld->simulation->getSimulationPassesPerRendering_speedModified();
+        int retVal=App::currentWorld->simulation->getPassesPerRendering();
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5819,15 +5797,13 @@ simInt simSetSimulationPassesPerRenderingPass_internal(int p)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         p=tt::getLimitedInt(1,512,p);
-        App::currentWorld->simulation->setSimulationPassesPerRendering_raw(p);
-        return(App::currentWorld->simulation->getSimulationPassesPerRendering_raw());
+        App::currentWorld->simulation->setPassesPerRendering(p);
+        return(App::currentWorld->simulation->getPassesPerRendering());
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -6515,7 +6491,7 @@ simInt simAddParticleObjectItem_internal(simInt objectHandle,const simFloat* ite
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal=-1;
-        if (CPluginContainer::dyn_addParticleObjectItem(objectHandle,itemData,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f)!=0)
+        if (CPluginContainer::dyn_addParticleObjectItem(objectHandle,itemData,App::currentWorld->simulation->getSimulationTime())!=0)
             retVal=1;
         else
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_INEXISTANT);
@@ -11848,25 +11824,6 @@ simInt simIsDynamicallyEnabled_internal(simInt objectHandle)
             if ( (joint->getJointMode()==sim_jointmode_dynamic)&&(it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisdynamicallysimulated) )
                 retVal=1; // we do not consider a joint dyn. enabled when in deprecated hybrid mode
         }
-        /*
-        if (it->getObjectType()==sim_object_shape_type)
-        {
-            if (((CShape*)it)->xxxxx())
-                retVal=1;
-        }
-        if (it->getObjectType()==sim_object_joint_type)
-        {
-            float dummyVal;
-            if (((CJoint*)it)->getDynamicForceOrTorque(dummyVal,false))
-                retVal=1;
-        }
-        if (it->getObjectType()==sim_object_forcesensor_type)
-        {
-            C3Vector dummyVal;
-            if (((CForceSensor*)it)->getDynamicForces(dummyVal,false))
-                retVal=1;
-        }
-        */
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -17066,8 +17023,8 @@ simInt simHandleVarious_internal()
         }
 
         // Following is for velocity measurement:
-        float dt=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())/1000000.0f;
-        float t=dt+float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f;
+        float dt=App::currentWorld->simulation->getTimeStep();
+        float t=dt+App::currentWorld->simulation->getSimulationTime();
         for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
             App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(t);
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
@@ -19817,10 +19774,10 @@ simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dat
         emissionAngle2=tt::getLimitedFloat(0.0f,piValTimes2_f,emissionAngle2);
         persistence=tt::getLimitedFloat(0.0f,99999999999999.9f,persistence);
         if (persistence==0.0f)
-            persistence=float(App::currentWorld->simulation->getSimulationTimeStep_speedModified_us())*1.5f/1000000.0f;
+            persistence=App::currentWorld->simulation->getTimeStep()*1.5f;
         std::string datN(dataName);
         App::currentWorld->embeddedScriptContainer->broadcastDataContainer.broadcastData(0,targetID,dataHeader,datN,
-                        float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f+persistence,actionRadius,antennaHandle,
+                        App::currentWorld->simulation->getSimulationTime()+persistence,actionRadius,antennaHandle,
                         emissionAngle1,emissionAngle2,data,dataLength);
         return(1);
     }
@@ -19868,7 +19825,7 @@ simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simIn
         int theSenderID;
         int theDataHeader;
         std::string theDataName;
-        char* data0=App::currentWorld->embeddedScriptContainer->broadcastDataContainer.receiveData(0,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f,
+        char* data0=App::currentWorld->embeddedScriptContainer->broadcastDataContainer.receiveData(0,App::currentWorld->simulation->getSimulationTime(),
                 dataHeader,datNm,antennaHandle,dataLength[0],theIndex,theSenderID,theDataHeader,theDataName);
         char* retData=nullptr;
         if (data0!=nullptr)

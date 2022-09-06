@@ -61,9 +61,6 @@ void CDynamicsContainer::simulationAboutToStart()
     // Keep following (important that it is initialized BEFORE simHandleDynamics is called!!)
     if (getDynamicsEnabled())
         addWorldIfNotThere();
-
-    if (!_engineSettingsAreDefault)
-        App::logMsg(sim_verbosity_scriptwarnings,"Detected non-default dynamics settings.");
 }
 
 void CDynamicsContainer::simulationEnded()
@@ -82,7 +79,6 @@ void CDynamicsContainer::_resetWarningFlags()
     _pureConeNotSupportedMark=0;
     _pureHollowShapeNotSupportedMark=0;
     _physicsEngineNotSupportedWarning=0;
-    _nonDefaultEngineSettingsWarning=0;
     _vortexPluginIsDemoWarning=0;
 }
 
@@ -109,7 +105,7 @@ void CDynamicsContainer::handleDynamics(float dt)
     if (getDynamicsEnabled())
     {
         _currentlyInDynamicsCalculations=true;
-        CPluginContainer::dyn_step(dt,float(App::currentWorld->simulation->getSimulationTime_us())/1000000.0f);
+        CPluginContainer::dyn_step(dt,App::currentWorld->simulation->getSimulationTime());
         _currentlyInDynamicsCalculations=false;
     }
 
@@ -235,19 +231,6 @@ bool CDynamicsContainer::displayStaticShapeOnDynamicConstructionWarningRequired(
     return(false);
 }
 
-bool CDynamicsContainer::displayNonDefaultParameterWarningRequired()
-{
-    if (!_engineSettingsAreDefault)
-    {
-        if ( (_nonDefaultEngineSettingsWarning==0)&&((_tempDisabledWarnings&64)==0) )
-        {
-            _nonDefaultEngineSettingsWarning++;
-            return(true);
-        }
-    }
-    return(false);
-}
-
 void CDynamicsContainer::displayWarningsIfNeeded()
 {
     if (App::getConsoleVerbosity()>=sim_verbosity_warnings)
@@ -341,7 +324,7 @@ bool CDynamicsContainer::getDisplayContactPoints() const
     return(_displayContactPoints);
 }
 
-bool CDynamicsContainer::setCurrentDynamicStepSize(float s)
+bool CDynamicsContainer::setDesiredStepSize(float s)
 {
     bool retVal=false;
     if (App::currentWorld->simulation->isSimulationStopped())
@@ -359,9 +342,20 @@ bool CDynamicsContainer::setCurrentDynamicStepSize(float s)
     return(retVal);
 }
 
-float CDynamicsContainer::getCurrentDynamicStepSize() const
+float CDynamicsContainer::getDesiredStepSize() const
 {
     return(_stepSize);
+}
+
+float CDynamicsContainer::getEffectiveStepSize() const
+{
+    float retVal=_stepSize;
+    float sim=App::currentWorld->simulation->getTimeStep();
+    int dynPasses=int((sim/retVal)+0.5f);
+    if (dynPasses<1)
+        dynPasses=1;
+    retVal=sim/float(dynPasses);
+    return(retVal);
 }
 
 bool CDynamicsContainer::getComputeInertias() const
@@ -379,7 +373,7 @@ bool CDynamicsContainer::getComputeInertias() const
     return(false);
 }
 
-bool CDynamicsContainer::setCurrentIterationCount(int c)
+bool CDynamicsContainer::setIterationCount(int c)
 {
     bool retVal=false;
     if (App::currentWorld->simulation->isSimulationStopped())
@@ -399,7 +393,7 @@ bool CDynamicsContainer::setCurrentIterationCount(int c)
     return(retVal);
 }
 
-int CDynamicsContainer::getCurrentIterationCount() const
+int CDynamicsContainer::getIterationCount() const
 {
     if (_dynamicEngineToUse==sim_physics_bullet)
         return(getEngineIntParam(sim_bullet_global_constraintsolvingiterations,nullptr));

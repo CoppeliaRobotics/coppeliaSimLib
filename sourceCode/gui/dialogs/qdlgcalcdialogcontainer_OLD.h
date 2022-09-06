@@ -5,16 +5,16 @@
 #include <QVBoxLayout>
 
 namespace Ui {
-    class CQDlgCalcDialogContainer;
+    class CQDlgCalcDialogContainer_OLD;
 }
 
-class CQDlgCalcDialogContainer : public CDlgEx
+class CQDlgCalcDialogContainer_OLD : public CDlgEx
 {
     Q_OBJECT
 
 public:
-    explicit CQDlgCalcDialogContainer(QWidget *parent = 0);
-    ~CQDlgCalcDialogContainer();
+    explicit CQDlgCalcDialogContainer_OLD(QWidget *parent = 0);
+    ~CQDlgCalcDialogContainer_OLD();
 
     void refresh();
     void dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
@@ -24,8 +24,8 @@ public:
     int desiredPage;
     int topBorderWidth;
 
-    CDlgEx* pageDlgs[4];
-    int originalHeights[4];
+    CDlgEx* pageDlgs[3];
+    int originalHeights[3];
 
 
 private slots:
@@ -35,10 +35,8 @@ private slots:
 
     void on_qqIk_clicked();
 
-    void on_qqDynamics_clicked();
-
 private:
-    Ui::CQDlgCalcDialogContainer *ui;
+    Ui::CQDlgCalcDialogContainer_OLD *ui;
 };
 
 #endif // QDLGCALCDIALOGCONTAINER_H

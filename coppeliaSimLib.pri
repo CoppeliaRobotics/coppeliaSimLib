@@ -268,7 +268,6 @@ WITH_GUI {
     $$PWD/ui/qdlgdistances.ui \
     $$PWD/ui/qdlgentityvsentityselection.ui \
     $$PWD/ui/qdlgscripts.ui \
-    $$PWD/ui/qdlgdynamics.ui \
     $$PWD/ui/qdlgscaling.ui \
     $$PWD/ui/qdlgcameras.ui \
     $$PWD/ui/qdlglights.ui \
@@ -293,7 +292,7 @@ WITH_GUI {
     $$PWD/ui/qdlgproxsensdetectionparam.ui \
     $$PWD/ui/qdlgobjectdialogcontainer.ui \
     $$PWD/ui/qdlgshapeeditioncontainer.ui \
-    $$PWD/ui/qdlgcalcdialogcontainer.ui \
+    $$PWD/ui/qdlgcalcdialogcontainer_OLD.ui \
     $$PWD/ui/qdlgheightfielddimension.ui \
     $$PWD/ui/qdlgstopscripts.ui \
     $$PWD/ui/qdlgtextureloadoptions.ui \
@@ -630,7 +629,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgdistances.h \
         $$PWD/sourceCode/gui/dialogs/qdlgentityvsentityselection.h \
         $$PWD/sourceCode/gui/dialogs/qdlgscripts.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgdynamics.h \
         $$PWD/sourceCode/gui/dialogs/qdlgscaling.h \
         $$PWD/sourceCode/gui/dialogs/qdlgcameras.h \
         $$PWD/sourceCode/gui/dialogs/qdlglights.h \
@@ -655,7 +653,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgproxsensdetectionparam.h \
         $$PWD/sourceCode/gui/dialogs/qdlgobjectdialogcontainer.h \
         $$PWD/sourceCode/gui/dialogs/qdlgshapeeditioncontainer.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgcalcdialogcontainer.h \
+        $$PWD/sourceCode/gui/dialogs/qdlgcalcdialogcontainer_OLD.h \
         $$PWD/sourceCode/gui/dialogs/qdlgheightfielddimension.h \
         $$PWD/sourceCode/gui/dialogs/qdlgstopscripts.h \
         $$PWD/sourceCode/gui/dialogs/qdlgtextureloadoptions.h \
@@ -1033,7 +1031,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgdistances.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgentityvsentityselection.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgscripts.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgdynamics.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgscaling.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgcameras.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlglights.cpp \
@@ -1058,7 +1055,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgproxsensdetectionparam.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgobjectdialogcontainer.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgshapeeditioncontainer.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgcalcdialogcontainer.cpp \
+        $$PWD/sourceCode/gui/dialogs/qdlgcalcdialogcontainer_OLD.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgheightfielddimension.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgstopscripts.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgtextureloadoptions.cpp \
