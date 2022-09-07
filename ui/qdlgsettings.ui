@@ -255,7 +255,7 @@
      <rect>
       <x>10</x>
       <y>110</y>
-      <width>231</width>
+      <width>151</width>
       <height>18</height>
      </rect>
     </property>
@@ -263,7 +263,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust OpenGL settings</string>
+     <string>OpenGL settings</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="qqHideHierarchy">
@@ -293,7 +293,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Additional parameters can be adjusted in file usrset.txt</string>
+    <string>Additional parameters can be adjusted in usrset.txt, see thee terminal for details</string>
    </property>
   </widget>
  </widget>

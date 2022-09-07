@@ -92,7 +92,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust fog parameters</string>
+     <string>Fog parameters</string>
     </property>
    </widget>
   </widget>

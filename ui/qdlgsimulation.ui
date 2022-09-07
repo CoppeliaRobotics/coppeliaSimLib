@@ -197,7 +197,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Adjust engine parameters</string>
+     <string>Engine properties</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="qqContactPoints">

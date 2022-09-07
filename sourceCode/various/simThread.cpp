@@ -522,7 +522,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             if ( (!App::currentWorld->simulation->isSimulationStopped())&&(!App::isFullScreen())&&(App::mainWindow!=nullptr) )
             {
-                _displayVariousWaningMessagesDuringSimulation();
+                App::currentWorld->dynamicsContainer->displayWarningsIfNeeded();
                 App::appendSimulationThreadCommand(cmd,500);
             }
         }
@@ -4820,63 +4820,6 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
     }
     else
         App::appendSimulationThreadCommand(cmd,1000); // repost the same message a bit later
-}
-
-void CSimThread::_displayVariousWaningMessagesDuringSimulation()
-{
-    TRACE_INTERNAL;
-
-    bool displayNonPureNonConvexShapeUseWarning=false;
-    bool displayStaticShapeOnDynamicConstructionWarning=false;
-
-    App::currentWorld->dynamicsContainer->displayWarningsIfNeeded(); // Warnings when something not supported by the dynamics engine
-    displayNonPureNonConvexShapeUseWarning=App::currentWorld->dynamicsContainer->displayNonPureNonConvexShapeWarningRequired()||displayNonPureNonConvexShapeUseWarning;
-    if (App::currentWorld->dynamicsContainer->isWorldThere())
-        displayStaticShapeOnDynamicConstructionWarning=App::currentWorld->dynamicsContainer->displayStaticShapeOnDynamicConstructionWarningRequired()||displayStaticShapeOnDynamicConstructionWarning;
-
-    if (App::currentWorld->dynamicsContainer->displayVortexPluginIsDemoRequired())
-#ifdef WIN_SIM
-        App::uiThread->messageBox_information(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-#endif
-#ifdef LIN_SIM
-        App::uiThread->messageBox_information(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-#endif
-
-    if (displayNonPureNonConvexShapeUseWarning)
-    {
-        CPersistentDataContainer cont;
-        std::string val;
-        cont.readData("NONPURESHAPEFORDYNAMICS_WARNING_NO_SHOW",val);
-        int intVal=0;
-        tt::getValidInt(val.c_str(),intVal);
-        if (intVal<3)
-        {
-            if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_DYNAMIC_CONTENT,IDSN_USING_NON_PURE_NON_CONVEX_SHAPES_FOR_DYNAMICS_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X,true))
-            {
-                intVal++;
-                val=tt::FNb(intVal);
-                cont.writeData("NONPURESHAPEFORDYNAMICS_WARNING_NO_SHOW",val,!App::userSettings->doNotWritePersistentData);
-            }
-        }
-    }
-
-    if (displayStaticShapeOnDynamicConstructionWarning)
-    {
-        CPersistentDataContainer cont;
-        std::string val;
-        cont.readData("STATICSHAPEONTOPOFDYNAMICCONSTRUCTION_WARNING_NO_SHOW",val);
-        int intVal=0;
-        tt::getValidInt(val.c_str(),intVal);
-        if (intVal<3)
-        {
-            if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_DYNAMIC_CONTENT,IDSN_USING_STATIC_SHAPE_ON_TOP_OF_DYNAMIC_CONSTRUCTION_WARNING,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN_3X,true))
-            {
-                intVal++;
-                val=tt::FNb(intVal);
-                cont.writeData("STATICSHAPEONTOPOFDYNAMICCONSTRUCTION_WARNING_NO_SHOW",val,!App::userSettings->doNotWritePersistentData);
-            }
-        }
-    }
 }
 
 int CSimThread::_prepareSceneForRenderIfNeeded()

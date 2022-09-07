@@ -189,16 +189,6 @@ void CDynamicsContainer::markForWarningDisplay_vortexPluginIsDemo()
         _vortexPluginIsDemoWarning++;
 }
 
-bool CDynamicsContainer::displayVortexPluginIsDemoRequired()
-{
-    if ( (_vortexPluginIsDemoWarning==1)&&((_tempDisabledWarnings&128)==0) )
-    {
-        _vortexPluginIsDemoWarning++;
-        return(true);
-    }
-    return(false);
-}
-
 void CDynamicsContainer::markForWarningDisplay_containsNonPureNonConvexShapes()
 {
     if (_containsNonPureNonConvexShapes==0)
@@ -211,93 +201,63 @@ void CDynamicsContainer::markForWarningDisplay_containsStaticShapesOnDynamicCons
         _containsStaticShapesOnDynamicConstruction++;
 }
 
-bool CDynamicsContainer::displayNonPureNonConvexShapeWarningRequired()
-{
-    if ( (_containsNonPureNonConvexShapes==1)&&((_tempDisabledWarnings&16)==0) )
-    {
-        _containsNonPureNonConvexShapes++;
-        return(true);
-    }
-    return(false);
-}
-
-bool CDynamicsContainer::displayStaticShapeOnDynamicConstructionWarningRequired()
-{
-    if ( (_containsStaticShapesOnDynamicConstruction==1)&&((_tempDisabledWarnings&32)==0) )
-    {
-        _containsStaticShapesOnDynamicConstruction++;
-        return(true);
-    }
-    return(false);
-}
-
 void CDynamicsContainer::displayWarningsIfNeeded()
 {
     if (App::getConsoleVerbosity()>=sim_verbosity_warnings)
     {
         if ( (_pureSpheroidNotSupportedMark==1)&&((_tempDisabledWarnings&1)==0) )
         {
-    #ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_warning(App::mainWindow,IDSN_PURE_SPHEROID,IDS_WARNING_WHEN_PURE_SPHEROID_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-    #else
-            App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_PURE_SPHEROID_NOT_SUPPORTED);
-    #endif
+            App::logMsg(sim_verbosity_warnings,"Detected a dynamically enabled, primitive non-spherical spheroid shape, that cannot be simulated with currently selected engine. The shape will be handled as a primitive sphere.");
             _pureSpheroidNotSupportedMark++;
         }
         if ( (_pureConeNotSupportedMark==1)&&((_tempDisabledWarnings&2)==0) )
         {
-    #ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_warning(App::mainWindow,IDSN_PURE_CONE,IDS_WARNING_WHEN_PURE_CONE_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-    #else
-            App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_PURE_CONE_NOT_SUPPORTED);
-    #endif
+            App::logMsg(sim_verbosity_warnings,"Detected a dynamically enabled, primitive cone shape, that cannot be simulated with currently selected engine. The shape will be handled as a primitive cylinder.");
             _pureConeNotSupportedMark++;
         }
         if ( (_pureHollowShapeNotSupportedMark==1)&&((_tempDisabledWarnings&4)==0) )
         {
-    #ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_warning(App::mainWindow,IDSN_PURE_HOLLOW_SHAPES,IDS_WARNING_WHEN_PURE_HOLLOW_SHAPE_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-    #else
-            App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_PURE_HOLLOW_SHAPE_NOT_SUPPORTED);
-    #endif
+            App::logMsg(sim_verbosity_warnings,"Detected a dynamically enabled, primitive hollow shape, that cannot be simulated with currently selected engine. The shape will be handled as a convex shape.");
             _pureHollowShapeNotSupportedMark++;
         }
         if ( (_physicsEngineNotSupportedWarning==1)&&((_tempDisabledWarnings&8)==0) )
         {
             if (_dynamicEngineToUse==sim_physics_vortex)
             {
-    #ifdef WIN_SIM
-        #ifdef SIM_WITH_GUI
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WHEN_VORTEX_PLUGIN_NOT_FOUND,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-        #else
-                App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_VORTEX_PLUGIN_NOT_FOUND);
-        #endif
-    #endif
-    #ifdef LIN_SIM
-        #ifdef SIM_WITH_GUI
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WHEN_VORTEX_PLUGIN_NOT_FOUND,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-        #else
-                App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_VORTEX_PLUGIN_NOT_FOUND);
-        #endif
-    #endif
-    #ifdef MAC_SIM
-        #ifdef SIM_WITH_GUI
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-        #else
-                App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED);
-        #endif
-    #endif
+#ifndef MAC_SIM
+                App::logMsg(sim_verbosity_warnings,"The Vortex plugin was not found. Copy files from CoppeliaSim/vortexPlugin/ to CoppeliaSim/ to enable the plugin.");
+#else
+                App::logMsg(sim_verbosity_warnings,"The Vortex engine is not yet supported on this platform.");
+#endif
             }
             else
-    #ifdef SIM_WITH_GUI
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_PHYSICS_ENGINE,IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-    #else
-                App::logMsg(sim_verbosity_warnings,IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED);
-    #endif
-
+                App::logMsg(sim_verbosity_warnings,"The physics engine currently selected is not supported (you might be missing a required plugin). Simulation will not run correctly.");
             _physicsEngineNotSupportedWarning++;
         }
     }
+
+    if ( (_containsNonPureNonConvexShapes==1)&&((_tempDisabledWarnings&16)==0) )
+    {
+        _containsNonPureNonConvexShapes++;
+        if ( (_dynamicEngineToUse==sim_physics_newton)||(_dynamicEngineToUse==sim_physics_mujoco) )
+            App::logMsg(sim_verbosity_warnings,"Detected dynamically enabled, non-convex shapes. Those will be handled by the physics engine as convex shapes.");
+        else
+            App::logMsg(sim_verbosity_warnings,"Detected dynamically enabled, non-convex shapes. Those might drastically slow down simulation, and introduce unstable behaviour.");
+    }
+
+    if ( (_containsStaticShapesOnDynamicConstruction==1)&&((_tempDisabledWarnings&32)==0) )
+    {
+        _containsStaticShapesOnDynamicConstruction++;
+        App::logMsg(sim_verbosity_warnings,"Detected a static, dynamically enabled and respondable shape, built on top of non-static, dynamically enabled shape. This might lead to strange and unrealistic behaviour.");
+    }
+
+#ifndef MAC_SIM
+    if ( (_vortexPluginIsDemoWarning==1)&&((_tempDisabledWarnings&128)==0) )
+    {
+        _vortexPluginIsDemoWarning++;
+        App::logMsg(sim_verbosity_warnings,"Detected an unregistered version of the Vortex engine. You may obtain a free license for the Vortex engine by downloading Vortex Studio Academic (2020a) here:\n\nwww.cm-labs.com");
+    }
+#endif
 }
 
 void CDynamicsContainer::setDynamicEngineType(int t,int version)

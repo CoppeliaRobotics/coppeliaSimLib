@@ -187,7 +187,7 @@
     <enum>Qt::StrongFocus</enum>
    </property>
    <property name="text">
-    <string>Adjust fog color</string>
+    <string>Fog color</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="qqDensity_2">

@@ -207,7 +207,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust light color</string>
+     <string>Light color</string>
     </property>
    </widget>
    <widget class="QToolButton" name="qqCasingColor">
@@ -223,7 +223,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust casing color</string>
+     <string>Casing color</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="qqSize">

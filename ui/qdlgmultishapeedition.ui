@@ -124,7 +124,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust color</string>
+     <string>Color</string>
     </property>
    </widget>
    <widget class="QToolButton" name="qqTexture">
@@ -140,7 +140,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust texture</string>
+     <string>Texture</string>
     </property>
    </widget>
   </widget>

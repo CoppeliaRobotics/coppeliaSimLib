@@ -477,9 +477,9 @@
   <widget class="QToolButton" name="qqAdjustEngineProperties">
    <property name="geometry">
     <rect>
-     <x>190</x>
+     <x>260</x>
      <y>180</y>
-     <width>231</width>
+     <width>161</width>
      <height>18</height>
     </rect>
    </property>
@@ -487,7 +487,7 @@
     <enum>Qt::StrongFocus</enum>
    </property>
    <property name="text">
-    <string>Edit engine specific properties</string>
+    <string>Engine properties</string>
    </property>
   </widget>
   <widget class="QStackedWidget" name="qqStack">

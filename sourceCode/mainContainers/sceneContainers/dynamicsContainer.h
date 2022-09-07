@@ -151,9 +151,6 @@ public:
     void markForWarningDisplay_vortexPluginIsDemo();
 
     void displayWarningsIfNeeded();
-    bool displayNonPureNonConvexShapeWarningRequired();
-    bool displayStaticShapeOnDynamicConstructionWarningRequired();
-    bool displayVortexPluginIsDemoRequired();
 
     void checkIfEngineSettingsAreDefault();
     bool getSettingsAreDefault() const;

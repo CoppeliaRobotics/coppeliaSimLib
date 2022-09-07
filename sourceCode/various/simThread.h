@@ -55,7 +55,6 @@ private:
 private:
     void _handleClickRayIntersection_old(SSimulationThreadCommand cmd);
     void _handleAutoSaveSceneCommand(SSimulationThreadCommand cmd);
-    void _displayVariousWaningMessagesDuringSimulation();
     int _prepareSceneForRenderIfNeeded();
 #endif
 };

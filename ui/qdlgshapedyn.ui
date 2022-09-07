@@ -324,7 +324,7 @@
      <rect>
       <x>10</x>
       <y>65</y>
-      <width>191</width>
+      <width>151</width>
       <height>18</height>
      </rect>
     </property>
@@ -332,7 +332,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Edit material</string>
+     <string>Engine properties</string>
     </property>
    </widget>
   </widget>

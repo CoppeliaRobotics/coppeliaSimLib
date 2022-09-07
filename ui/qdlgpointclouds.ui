@@ -47,7 +47,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust color for next insertion</string>
+     <string>Color for next insertion</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="qqRandomColors">

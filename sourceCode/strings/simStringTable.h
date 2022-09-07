@@ -29,9 +29,6 @@
 #define IDSN_COMPOUND_RANDOM_SHAPE "Compound random shape"
 #define IDSN_SIMPLE_CONVEX_SHAPE "Simple convex shape"
 #define IDSN_SIMPLE_RANDOM_SHAPE "Simple random shape"
-#define IDSN_PURE_HOLLOW_SHAPES_ONLY_WITH_VORTEX "Remember that pure hollow shapes are only supported by the Vortex physics engine."
-#define IDSN_PURE_HOLLOW_SHAPES "Pure hollow shapes"
-#define IDSN_PHYSICS_ENGINE "Physics engine"
 
 
 #define IDSN_MAP_COORD_IMPORTED "imported"
@@ -228,8 +225,6 @@
 #define IDSN_DYNAMIC_CONTENT "Dynamics content" //addedOn 24/02/2012
 #define IDSN_RENDERING "Rendering" //addedOn 06/02/2013
 #define IDSN_RENDERING_TOO_SLOW "It appears that your graphic card takes too much time to render a simple scene. This could be because your graphic card is very old, because your graphic card uses old/faulty drivers (or drivers not from the manufacturer), or because your graphic card overrides some application settings: 'vertical synchronization' (vsync) is disabled by CoppeliaSim, but some graphic card settings might override this (often the case with Nvidia cards)."
-#define IDSN_USING_NON_PURE_NON_CONVEX_SHAPES_FOR_DYNAMICS_WARNING "It appears that the dynamic content includes non-pure non-convex shapes. This is never recommended since this will drastically slow down the simulation, and in addition to that, non-pure non-convex shapes are not as stable as pure shapes or convex shapes. To find the incriminating shape(s), make sure to inspect the dynamic scene content by using the dedicated toolbar button." //addedOn 24/02/2012
-#define IDSN_USING_STATIC_SHAPE_ON_TOP_OF_DYNAMIC_CONSTRUCTION_WARNING "It appears that there is at least one static respondable shape built on top of a dynamic tree structure. This is never recommended since it might lead to some strange and unrealistic behaviour. To find the incriminating shape(s), make sure to inspect the dynamic scene content by using the dedicated toolbar button." //addedOn 24/02/2012
 #define IDS_CLOSE_SCENE_MENU_ITEM "Close scene" //addedOn 4/3/2012
 #define IDS_SHAPE_EDITION_TOOLBAR_TIP "Toggle shape edit mode (make sure to have a single shape object selected)" //addedOn 11/3/2012
 #define IDS_PATH_EDITION_TOOLBAR_TIP "Toggle path edit mode (make sure to have a single path object selected)" //addedOn 11/3/2012
@@ -864,10 +859,6 @@
 #define IDS_TOOLBAR_TOOLTIP_REALTIMESIMULATION "Toggle real-time mode"
 #define IDS_TOOLBAR_TOOLTIP_SWITCH_TO_PAGE "Switch to a different page"
 
-#define IDSN_PURE_SPHEROID "Pure spheroid"
-#define IDSN_PURE_CONE "Pure cone"
-
-#define IDS_WARNING_WHEN_PURE_SPHEROID_NOT_SUPPORTED "The scene contains one or several pure spheroids that cannot be simulated with currently selected dynamics engine. The spheroid(s) will be approximated by spheres for this simulation."
 #define IDS_GROUPING_PURE_AND_NON_PURE_SHAPES_PROCEED_INFO_MESSAGE "You are about to group pure and non-pure shapes. Doing so will result in a non-pure shape. Do you want to proceed anyway? "
 
 
@@ -938,13 +929,7 @@
 #define IDS_OBJECTS_NOT_COLLIDABLE_WARNING "One or more selected objects have their 'collidable' property disabled. Make sure you enable that property (in the object common properties dialog) in order for this collision object to be operational."
 #define IDS_OBJECTS_NOT_MEASURABLE_WARNING "One or more selected objects have their 'measurable' property disabled. Make sure you enable that property (in the object common properties dialog) in order for this distance object to be operational."
 
-#define IDS_WARNING_WHEN_PURE_CONE_NOT_SUPPORTED "The scene contains one or several pure cones that cannot be simulated with currently selected dynamics engine. The cone(s) will be approximated by cylinders for this simulation."
 #define IDS_WARNING_ODE_NOT_USING_QUICKSTEP "You selected not to use the 'quickstep' method. This is only recommended for scenes with very little dynamic content, otherwise you might experience sudden crashes."
-#define IDS_WARNING_WHEN_PURE_HOLLOW_SHAPE_NOT_SUPPORTED "The scene contains one or several pure hollow shapes that cannot be simulated with currently selected dynamics engine. The pure shape(s) will be filled (i.e. non-hollow) for this simulation."
-#define IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED "The physics engine currently selected is not supported (you might be missing a required plugin). Simulation will not run correctly."
-#define IDS_WARNING_WHEN_VORTEX_PLUGIN_NOT_FOUND "The Vortex plugin was not found. Copy files from CoppeliaSim/vortexPlugin/ to CoppeliaSim/ to enable the plugin."
-#define IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED "The Vortex engine is not yet supported on this platform.\n\nThe Vortex engine is currently supported on Windows and Linux."
-#define IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN "You are running an unregistered version of the Vortex engine: dynamics is disabled.\nYou may obtain a free license for the Vortex engine by downloading Vortex Studio Academic (2020a) here:\n\nwww.cm-labs.com\n\nOnce Vortex Studio is installed and registered, you will be able to run\nCoppeliaSim simulations with the Vortex engine."
 
 #define IDS_SWITCH_TO_BULLET_2_78_ENGINE_MENU_ITEM "Using the Bullet physics engine (V2.78)"
 #define IDS_SWITCH_TO_BULLET_2_83_ENGINE_MENU_ITEM "Using the Bullet physics engine (V2.83)"

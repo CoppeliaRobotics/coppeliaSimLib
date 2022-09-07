@@ -53,7 +53,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Show dynamic properties dialog</string>
+     <string>Dynamic properties dialog</string>
     </property>
     <property name="checkable">
      <bool>true</bool>
@@ -92,7 +92,7 @@
       <rect>
        <x>10</x>
        <y>25</y>
-       <width>181</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -100,7 +100,7 @@
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="text">
-      <string>Adjust color</string>
+      <string>Color</string>
      </property>
     </widget>
    </widget>
@@ -1151,7 +1151,7 @@
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="text">
-      <string>Adjust texture</string>
+      <string>Texture</string>
      </property>
     </widget>
     <widget class="QToolButton" name="qqGeometry">
@@ -1167,7 +1167,7 @@
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="text">
-      <string>View/modify geometry</string>
+      <string>Geometry</string>
      </property>
     </widget>
     <widget class="QToolButton" name="qqDirtTexture">

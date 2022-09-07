@@ -372,9 +372,9 @@
    <widget class="QToolButton" name="qqColorA">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>290</x>
       <y>25</y>
-      <width>181</width>
+      <width>111</width>
       <height>18</height>
      </rect>
     </property>
@@ -382,7 +382,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust color</string>
+     <string>Color</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="qqSize">

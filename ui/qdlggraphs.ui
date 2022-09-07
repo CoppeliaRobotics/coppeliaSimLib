@@ -368,7 +368,7 @@
     <enum>Qt::StrongFocus</enum>
    </property>
    <property name="text">
-    <string>Adjust grid color</string>
+    <string>Grid color</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="qqBufferSize">
@@ -439,7 +439,7 @@
     <enum>Qt::StrongFocus</enum>
    </property>
    <property name="text">
-    <string>Adjust background color</string>
+    <string>Background color</string>
    </property>
   </widget>
   <widget class="QToolButton" name="qqRemoveAll">

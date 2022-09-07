@@ -50,7 +50,7 @@
    <widget class="QLineEdit" name="qqSize">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>150</x>
       <y>25</y>
       <width>81</width>
       <height>18</height>
@@ -60,9 +60,9 @@
    <widget class="QToolButton" name="qqColor">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>260</x>
       <y>25</y>
-      <width>161</width>
+      <width>141</width>
       <height>18</height>
      </rect>
     </property>
@@ -70,7 +70,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Adjust dummy color</string>
+     <string>Color</string>
     </property>
    </widget>
   </widget>
@@ -144,9 +144,9 @@
    <widget class="QToolButton" name="qqEditEngine">
     <property name="geometry">
      <rect>
-      <x>150</x>
+      <x>260</x>
       <y>65</y>
-      <width>251</width>
+      <width>141</width>
       <height>18</height>
      </rect>
     </property>
@@ -154,7 +154,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Edit engine specific properties</string>
+     <string>Engine properties</string>
     </property>
    </widget>
   </widget>
