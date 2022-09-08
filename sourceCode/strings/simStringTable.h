@@ -839,7 +839,7 @@
 #define IDS_ODE                 "ODE"
 #define IDS_VORTEX              "Vortex"
 #define IDS_NEWTON              "Newton"
-#define IDS_MUJOCO              "Mujoco"
+#define IDS_MUJOCO              "MuJoCo"
 
 #define IDS_TOOLBAR_TOOLTIP_CAMERA_SHIFT "Camera pan"
 #define IDS_TOOLBAR_TOOLTIP_CAMERA_FIT_TO_SCREEN "Fit to view"
@@ -936,7 +936,7 @@
 #define IDS_SWITCH_TO_ODE_ENGINE_MENU_ITEM "Using the ODE physics engine"
 #define IDS_SWITCH_TO_VORTEX_ENGINE_MENU_ITEM "Using the Vortex physics engine"
 #define IDS_SWITCH_TO_NEWTON_ENGINE_MENU_ITEM "Using the Newton physics engine"
-#define IDS_SWITCH_TO_MUJOCO_ENGINE_MENU_ITEM "Using the Mujoco physics engine"
+#define IDS_SWITCH_TO_MUJOCO_ENGINE_MENU_ITEM "Using the MuJoCo physics engine"
 
 #define IDS_WANNA_SAVE_THE_SCENE_WARNING "Do you wish to save the changes?"
 #define IDS_USING_EXISTING_TEXTURE_COORDINATES "Texture coordinates from a previous import operation were found and will be used"

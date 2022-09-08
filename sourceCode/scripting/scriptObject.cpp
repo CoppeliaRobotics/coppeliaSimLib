@@ -2503,12 +2503,10 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     setScriptNameIndexToInterpreterState_lua_old(L,_getScriptNameIndexNumber_old());
 
     // --------------------------------------------
-    // append some paths to the Lua path variable:
+    // prepend some paths to the Lua path variable:
     luaWrap_lua_getglobal(L,"package");
     luaWrap_lua_getfield(L,-1,"path");
-    std::string cur_path=luaWrap_lua_tostring(L,-1);
-    cur_path+=";";
-    cur_path+=getSearchPath_lua().c_str();
+    std::string cur_path=getSearchPath_lua()+";"+luaWrap_lua_tostring(L,-1);
     boost::replace_all(cur_path,"\\","/");
     luaWrap_lua_pop(L,1);
     luaWrap_lua_pushstring(L,cur_path.c_str());
@@ -2517,12 +2515,10 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     // --------------------------------------------
 
     // --------------------------------------------
-    // append some paths to the Lua cpath variable:
+    // prepend some paths to the Lua cpath variable:
     luaWrap_lua_getglobal(L,"package");
     luaWrap_lua_getfield(L,-1,"cpath");
-    cur_path=luaWrap_lua_tostring(L,-1);
-    cur_path+=";";
-    cur_path+=getSearchCPath_lua().c_str();
+    cur_path=getSearchCPath_lua()+";"+luaWrap_lua_tostring(L,-1);
     boost::replace_all(cur_path,"\\","/");
     luaWrap_lua_pop(L,1);
     luaWrap_lua_pushstring(L,cur_path.c_str());
