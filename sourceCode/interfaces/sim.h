@@ -390,6 +390,7 @@ SIM_DLLEXPORT simVoid _simDisableDynamicTreeForManipulation(const simVoid* objec
 SIM_DLLEXPORT simBool _simIsShapeDynamicallyRespondable(const simVoid* shape);
 SIM_DLLEXPORT simInt _simGetDynamicCollisionMask(const simVoid* shape);
 SIM_DLLEXPORT const simVoid* _simGetLastParentForLocalGlobalCollidable(const simVoid* shape);
+SIM_DLLEXPORT simVoid _simSetJointVelocity(const simVoid* joint,simFloat vel);
 SIM_DLLEXPORT simVoid _simSetJointPosition(const simVoid* joint,simFloat pos);
 SIM_DLLEXPORT simFloat _simGetJointPosition(const simVoid* joint);
 SIM_DLLEXPORT simVoid _simSetDynamicMotorPositionControlTargetPosition(const simVoid* joint,simFloat pos);

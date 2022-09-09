@@ -245,6 +245,7 @@ public:
     void setDependencyMasterJointHandle(int depJointID);
     void setDependencyJointMult(float coeff);
     void setDependencyJointOffset(float off);
+    void setVelocity(float vel);
     void setPosition(float pos,bool setDirect);
     void setSphericalTransformation(const C4Vector& tr);
     void setJointMode(int theMode);

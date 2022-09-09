@@ -80,6 +80,7 @@ void CDynamicsContainer::_resetWarningFlags()
     _pureHollowShapeNotSupportedMark=0;
     _physicsEngineNotSupportedWarning=0;
     _vortexPluginIsDemoWarning=0;
+    _stringsNotSupportedWarning=0;
 }
 
 void CDynamicsContainer::setTempDisabledWarnings(int mask)
@@ -255,9 +256,26 @@ void CDynamicsContainer::displayWarningsIfNeeded()
     if ( (_vortexPluginIsDemoWarning==1)&&((_tempDisabledWarnings&128)==0) )
     {
         _vortexPluginIsDemoWarning++;
-        App::logMsg(sim_verbosity_warnings,"Detected an unregistered version of the Vortex engine. You may obtain a free license for the Vortex engine by downloading Vortex Studio Academic (2020a) here:\n\nwww.cm-labs.com");
+        App::logMsg(sim_verbosity_warnings,"Detected an unregistered version of the Vortex engine. You may obtain a free license for the Vortex engine by downloading Vortex Studio Academic (2020a) here:\nwww.cm-labs.com");
     }
 #endif
+
+    if ( (_stringsNotSupportedWarning==0) )
+    {
+        if (_dynamicEngineToUse!=sim_physics_mujoco)
+        {
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
+            {
+                CDummy* it=App::currentWorld->sceneObjects->getDummyFromIndex(i);
+                if ( (it->getLinkedDummyHandle()!=-1)&&(it->getLinkType()==sim_dummylink_dyntendon) )
+                {
+                    App::logMsg(sim_verbosity_warnings,"Detected tendon constraints, which are only supported with the MuJoCo engine");
+                    _stringsNotSupportedWarning++;
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void CDynamicsContainer::setDynamicEngineType(int t,int version)

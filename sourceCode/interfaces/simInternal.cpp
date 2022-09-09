@@ -16790,6 +16790,12 @@ simVoid _simDisableDynamicTreeForManipulation_internal(const simVoid* object,sim
     ((CSceneObject*)object)->temporarilyDisableDynamicTree();
 }
 
+simVoid _simSetJointVelocity_internal(const simVoid* joint,simFloat vel)
+{
+    TRACE_C_API;
+    ((CJoint*)joint)->setVelocity(vel);
+}
+
 simVoid _simSetJointPosition_internal(const simVoid* joint,simFloat pos)
 {
     TRACE_C_API;
@@ -16961,7 +16967,8 @@ simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData
 
         inStack->insertKeyInt32IntoStackTable("passCnt",intData[1]);
         inStack->insertKeyInt32IntoStackTable("totalPasses",intData[2]);
-        inStack->insertKeyFloatIntoStackTable("dynStepSize",floatData[0]);
+        inStack->insertKeyFloatIntoStackTable("dynStepSize",floatData[0]); // deprecated
+        inStack->insertKeyFloatIntoStackTable("dt",floatData[0]);
         inStack->insertKeyBoolIntoStackTable("afterStep",intData[3]!=0);
         App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_dyncallback,inStack,nullptr,nullptr);
         App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_dyncallback,inStack,nullptr,nullptr);

@@ -385,6 +385,7 @@ simVoid _simDisableDynamicTreeForManipulation_internal(const simVoid* object,sim
 simBool _simIsShapeDynamicallyRespondable_internal(const simVoid* shape);
 simInt _simGetDynamicCollisionMask_internal(const simVoid* shape);
 const simVoid* _simGetLastParentForLocalGlobalCollidable_internal(const simVoid* shape);
+simVoid _simSetJointVelocity_internal(const simVoid* joint,simFloat vel);
 simVoid _simSetJointPosition_internal(const simVoid* joint,simFloat pos);
 simFloat _simGetJointPosition_internal(const simVoid* joint);
 simVoid _simSetDynamicMotorPositionControlTargetPosition_internal(const simVoid* joint,simFloat pos);

@@ -862,6 +862,12 @@ void CJoint::measureJointVelocity(float simTime)
     }
 }
 
+void CJoint::setVelocity(float v)
+{ // sets the velocity, and overrides next velocity measurement in measureJointVelocity
+    _velCalc_vel=v;
+    _velCalc_prevPosValid=false; // if false, will use _velCalc_vel as current vel in sim.getJointVelocity
+}
+
 void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
@@ -1660,7 +1666,10 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                 inStack->pushStringOntoStack("totalPasses",0);
                 inStack->pushInt32OntoStack(totalLoops);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("currentPos",0);
+                inStack->pushStringOntoStack("currentPos",0); // deprecated
+                inStack->pushFloatOntoStack(currentPosVelAccel[0]);
+                inStack->insertDataIntoStackTable();
+                inStack->pushStringOntoStack("pos",0);
                 inStack->pushFloatOntoStack(currentPosVelAccel[0]);
                 inStack->insertDataIntoStackTable();
                 if (rk4>0)
@@ -1669,22 +1678,28 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                     inStack->pushInt32OntoStack(rk4);
                     inStack->insertDataIntoStackTable();
                 }
-                inStack->pushStringOntoStack("currentVel",0);
                 float cv=_velCalc_vel;
                 if ((flags&2)!=0)
                     cv=currentPosVelAccel[1];
+                inStack->pushStringOntoStack("currentVel",0); // deprecated
+                inStack->pushFloatOntoStack(cv);
+                inStack->insertDataIntoStackTable();
+                inStack->pushStringOntoStack("vel",0);
                 inStack->pushFloatOntoStack(cv);
                 inStack->insertDataIntoStackTable();
                 if ((flags&4)!=0)
                 {
-                    inStack->pushStringOntoStack("currentAccel",0);
+                    inStack->pushStringOntoStack("accel",0);
                     inStack->pushFloatOntoStack(currentPosVelAccel[2]);
+                    inStack->insertDataIntoStackTable();
                 }
-                inStack->insertDataIntoStackTable();
                 inStack->pushStringOntoStack("targetPos",0);
                 inStack->pushFloatOntoStack(_targetPos);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("errorValue",0);
+                inStack->pushStringOntoStack("errorValue",0); // deprecated
+                inStack->pushFloatOntoStack(errorV);
+                inStack->insertDataIntoStackTable();
+                inStack->pushStringOntoStack("error",0);
                 inStack->pushFloatOntoStack(errorV);
                 inStack->insertDataIntoStackTable();
                 inStack->pushStringOntoStack("effort",0);
@@ -1731,7 +1746,8 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                     if (s>1)
                         outStack->moveStackItemToTop(0);
                     outStack->getStackMapFloatValue("force",velAndForce[1]);
-                    outStack->getStackMapFloatValue("velocity",velAndForce[0]);
+                    outStack->getStackMapFloatValue("velocity",velAndForce[0]); // deprecated
+                    outStack->getStackMapFloatValue("vel",velAndForce[0]);
                     if (velAndForce[0]*velAndForce[1]<0.0f)
                         velAndForce[1]=-velAndForce[1]; // make sure they have same sign
                 }
@@ -1742,7 +1758,7 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                 handleHere=(_dynCtrlMode!=sim_jointdynctrl_callback);
         }
         if (handleHere)
-        { // we have the built-in control (position PID or spring-damper KC)
+        { // we have the built-in control (position or spring-damper KC)
             if (dynStepSize!=0.0)
             {
                 if ( (_dynPositionCtrlType==1)&&(_dynCtrlMode==sim_jointdynctrl_position) )
@@ -1796,7 +1812,10 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                     ctrl+=_dynCtrl_pid_cumulErr*I;
 
                     // Derivative part:
-                    ctrl-=_velCalc_vel*D;
+                    float cv=_velCalc_vel;
+                    if ((flags&2)!=0)
+                        cv=currentPosVelAccel[1];
+                    ctrl-=cv*D;
 
                     if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
                     { // "spring" mode, i.e. force modulation mode
@@ -1832,6 +1851,7 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
             }
         }
     }
+    // Joint position and velocity is updated later, via _simSetJointPosition and _simSetJointVelocity from the physics engine
     return(retVal);
 }
 
@@ -1876,11 +1896,17 @@ bool CJoint::handleMotion(int scriptType)
             inStack->pushFloatOntoStack(_posMin+_posRange);
             inStack->insertDataIntoStackTable();
 
-            inStack->pushStringOntoStack("currentPos",0);
+            inStack->pushStringOntoStack("currentPos",0); // deprecated
+            inStack->pushFloatOntoStack(_pos);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("pos",0);
             inStack->pushFloatOntoStack(_pos);
             inStack->insertDataIntoStackTable();
 
-            inStack->pushStringOntoStack("currentVel",0);
+            inStack->pushStringOntoStack("currentVel",0); // deprecated
+            inStack->pushFloatOntoStack(_velCalc_vel);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("vel",0);
             inStack->pushFloatOntoStack(_velCalc_vel);
             inStack->insertDataIntoStackTable();
 
@@ -1904,7 +1930,10 @@ bool CJoint::handleMotion(int scriptType)
                 inStack->insertDataIntoStackTable();
             }
 
-            inStack->pushStringOntoStack("errorValue",0);
+            inStack->pushStringOntoStack("errorValue",0); // deprecated
+            inStack->pushFloatOntoStack(errorV);
+            inStack->insertDataIntoStackTable();
+            inStack->pushStringOntoStack("error",0);
             inStack->pushFloatOntoStack(errorV);
             inStack->insertDataIntoStackTable();
             inStack->pushStringOntoStack("maxVel",0);
@@ -1927,15 +1956,15 @@ bool CJoint::handleMotion(int scriptType)
                 if (s>1)
                     outStack->moveStackItemToTop(0);
                 float pos;
-                if (outStack->getStackMapFloatValue("position",pos))
+                if ( outStack->getStackMapFloatValue("pos",pos)||outStack->getStackMapFloatValue("position",pos) ) // "position" is deprecated
                     setPosition(pos,false);
+
                 bool immobile=false;
                 float cv,ca;
-                if (outStack->getStackMapFloatValue("velocity",cv))
+                if ( outStack->getStackMapFloatValue("vel",cv)||outStack->getStackMapFloatValue("velocity",cv) ) // "velocity" is deprecated
                 {
-                    _velCalc_vel=cv;
-                    _velCalc_prevPosValid=false; // if false, will use _velCalc_vel as current vel in sim.getJointVelocity
-                    if (outStack->getStackMapFloatValue("acceleration",ca))
+                    setVelocity(cv);
+                    if ( outStack->getStackMapFloatValue("accel",ca)||outStack->getStackMapFloatValue("acceleration",ca) ) // "acceleration" is deprecated
                         immobile=( (cv==0.0f)&&(ca==0.0f) );
                 }
                 outStack->getStackMapBoolValue("immobile",immobile);

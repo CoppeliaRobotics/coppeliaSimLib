@@ -247,6 +247,7 @@ protected:
     unsigned char _containsNonPureNonConvexShapes;
     unsigned char _containsStaticShapesOnDynamicConstruction;
     unsigned char _vortexPluginIsDemoWarning;
+    unsigned char _stringsNotSupportedWarning;
 
     int _tempDisabledWarnings; // bits in the same order as above messages
 

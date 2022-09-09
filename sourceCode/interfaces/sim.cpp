@@ -1491,6 +1491,10 @@ SIM_DLLEXPORT const simVoid* _simGetLastParentForLocalGlobalCollidable(const sim
 {
     return(_simGetLastParentForLocalGlobalCollidable_internal(shape));
 }
+SIM_DLLEXPORT simVoid _simSetJointVelocity(const simVoid* joint,simFloat vel)
+{
+    return(_simSetJointVelocity_internal(joint,vel));
+}
 SIM_DLLEXPORT simVoid _simSetJointPosition(const simVoid* joint,simFloat pos)
 {
     return(_simSetJointPosition_internal(joint,pos));
