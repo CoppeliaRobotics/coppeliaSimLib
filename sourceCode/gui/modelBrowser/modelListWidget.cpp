@@ -4,6 +4,7 @@
 #include "imgLoaderSaver.h"
 #include "app.h"
 #include "simFlavor.h"
+#include "sha256.h"
 #include <QMimeData>
 #include <QScrollBar>
 
@@ -189,13 +190,16 @@ void CModelListWidget::setFolder(const char* folderPath)
         }
         // 2. Check if a thumbnail file exists:
         clearAll();
-        std::string thmbFile(folderPath);
-        thmbFile+="/";
-        thmbFile+=SIM_MODEL_THUMBNAILFILE_NAME;
+ //       std::string thmbFile(folderPath);
+
+        std::string fn(sha256(folderPath));
+        fn=CFolderSystem::getUserSettingsPath()+"/modelThumbnails/"+fn;
+//        thmbFile+="/";
+//        thmbFile+=SIM_MODEL_THUMBNAILFILE_NAME;
         bool thumbnailFileExistsAndWasLoaded=false;
-        if (VFile::doesFileExist(thmbFile.c_str()))
+        if (VFile::doesFileExist(fn.c_str()))
         {
-            CSer serObj(thmbFile.c_str(),CSer::filetype_csim_bin_thumbnails_file);
+            CSer serObj(fn.c_str(),CSer::filetype_csim_bin_thumbnails_file);
             int serializationVersion;
             unsigned short csimVersionThatWroteThis;
             int licenseTypeThatWroteThis;
@@ -272,10 +276,10 @@ void CModelListWidget::setFolder(const char* folderPath)
                 }
             }
             // 4. Serialize the thumbnail file for fast access in future:
-            std::string thmbFile(_folderPath);
-            thmbFile+="/";
-            thmbFile+=SIM_MODEL_THUMBNAILFILE_NAME;
-            CSer serObj(thmbFile.c_str(),CSer::filetype_csim_bin_thumbnails_file);
+//            std::string thmbFile(_folderPath);
+ //           thmbFile+="/";
+ //           thmbFile+=SIM_MODEL_THUMBNAILFILE_NAME;
+            CSer serObj(fn.c_str(),CSer::filetype_csim_bin_thumbnails_file);
             serObj.writeOpenBinary(App::userSettings->compressFiles);
             serializePart1(serObj);
             serializePart2(serObj);

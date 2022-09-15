@@ -646,6 +646,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/utils/base64.cpp
     sourceCode/utils/cbor.cpp
     sourceCode/utils/annJson.cpp
+    sourceCode/utils/sha256.cpp
 
     sourceCode/customUserInterfaces/buttonBlock.cpp
     sourceCode/customUserInterfaces/softButton.cpp
