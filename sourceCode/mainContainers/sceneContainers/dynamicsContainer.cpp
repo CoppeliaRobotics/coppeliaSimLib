@@ -110,6 +110,9 @@ void CDynamicsContainer::handleDynamics(float dt)
         _currentlyInDynamicsCalculations=false;
     }
 
+    for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
+        App::currentWorld->sceneObjects->getShapeFromIndex(i)->decrementRespondableSuspendCount();
+
     if (CPluginContainer::dyn_isDynamicContentAvailable())
         App::worldContainer->calcInfo->dynamicsEnd(CPluginContainer::dyn_getDynamicStepDivider(),true);
     else
@@ -249,7 +252,7 @@ void CDynamicsContainer::displayWarningsIfNeeded()
     if ( (_containsStaticShapesOnDynamicConstruction==1)&&((_tempDisabledWarnings&32)==0) )
     {
         _containsStaticShapesOnDynamicConstruction++;
-        App::logMsg(sim_verbosity_warnings,"Detected a static, dynamically enabled and respondable shape, built on top of non-static, dynamically enabled shape. This might lead to strange and unrealistic behaviour.");
+        App::logMsg(sim_verbosity_warnings,"Detected a static, respondable shape, built on top of a non-static tree. This might lead to strange and unrealistic behaviour.");
     }
 
 #ifndef MAC_SIM

@@ -49,6 +49,7 @@ CDummy::CDummy()
     _mujocoFloatParams.push_back(0.0); // simi_mujoco_dummy_damping
 
     _mujocoIntParams.push_back(0); // simi_mujoco_dummy_bitcoded
+    _mujocoIntParams.push_back(-1); // simi_mujoco_dummy_proxyjointid
     // ----------------------------------------------------
 
     computeBoundingBox();
@@ -768,6 +769,10 @@ void CDummy::performObjectLoadingMapping(const std::vector<int>* map,bool loadin
 { // New_Object_ID=map[Old_Object_ID]
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
     _linkedDummyHandle=CWorld::getLoadingMapping(map,_linkedDummyHandle);
+    std::vector<int> ip;
+    getMujocoIntParams(ip);
+    ip[1]=CWorld::getLoadingMapping(map,ip[1]); // Mujoco proxy joint
+    setMujocoIntParams(ip);
 }
 
 void CDummy::setLinkedDummyHandle(int handle,bool check)
@@ -854,6 +859,13 @@ void CDummy::announceObjectWillBeErased(const CSceneObject* object,bool copyBuff
     CSceneObject::announceObjectWillBeErased(object,copyBuffer);
     if (_linkedDummyHandle==object->getObjectHandle())
         setLinkedDummyHandle(-1,!copyBuffer);
+    if (_mujocoIntParams[1]==object->getObjectHandle()) // that's the Mujoco proxy joint
+    {
+        std::vector<int> ip;
+        getMujocoIntParams(ip);
+        ip[1]=-1;
+        setMujocoIntParams(ip);
+    }
 }
 
 void CDummy::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)

@@ -73,6 +73,9 @@ public:
     void setVisibleEdges(bool v);
     float getShadingAngle() const;
     void setShadingAngle(float a);
+    void setRespondableSuspendCount(int cnt);
+    void decrementRespondableSuspendCount();
+
 
     bool getHideEdgeBorders_OLD() const;
     void setHideEdgeBorders_OLD(bool v);
@@ -188,6 +191,7 @@ protected:
     C3Vector _dynamicAngularVelocity;
     C3Vector _additionalForce;
     C3Vector _additionalTorque;
+    int _respondableSuspendCount;
 
     bool _rigidBodyWasAlreadyPutToSleepOnce;
 

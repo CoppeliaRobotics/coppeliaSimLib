@@ -885,6 +885,7 @@ void CShape::commonInit()
     _shapeIsDynamicallyKinematic=true;
     _setAutomaticallyToNonStaticIfGetsParent=false;
     _shapeIsDynamicallyRespondable=false; // keep false, otherwise too many "default" problems
+    _respondableSuspendCount=0;
     _dynamicCollisionMask=0xffff;
     _lastParentForLocalGlobalRespondable=nullptr;
     _initialDynamicLinearVelocity.clear();
@@ -963,7 +964,7 @@ void CShape::setRespondable(bool r)
 
 bool CShape::getRespondable()
 {
-    return(_shapeIsDynamicallyRespondable);
+    return( _shapeIsDynamicallyRespondable&&(_respondableSuspendCount==0) );
 }
 
 bool CShape::getSetAutomaticallyToNonStaticIfGetsParent()
@@ -1144,9 +1145,9 @@ void CShape::initializeInitialValues(bool simulationAlreadyRunning)
     _dynamicAngularVelocity.clear();
     _additionalForce.clear();
     _additionalTorque.clear();
-
     _initialInitialDynamicLinearVelocity=_initialDynamicLinearVelocity;
     _initialInitialDynamicAngularVelocity=_initialDynamicAngularVelocity;
+    _respondableSuspendCount=0;
 
     actualizeContainsTransparentComponent(); // added on 2010/11/22 to correct at least each time a simulation starts, when those values where not set correctly
 }
@@ -1173,6 +1174,7 @@ void CShape::simulationEnded()
     _dynamicAngularVelocity.clear();
     _additionalForce.clear();
     _additionalTorque.clear();
+    _respondableSuspendCount=0;
     CSceneObject::simulationEnded();
 }
 
@@ -1833,6 +1835,17 @@ void CShape::setShadingAngle(float a)
             pushObjectRefreshEvent();
         }
     }
+}
+
+void CShape::setRespondableSuspendCount(int cnt)
+{
+    _respondableSuspendCount=cnt;
+}
+
+void CShape::decrementRespondableSuspendCount()
+{
+    if (_respondableSuspendCount>0)
+        _respondableSuspendCount--;
 }
 
 bool CShape::getHideEdgeBorders_OLD() const

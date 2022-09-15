@@ -23,6 +23,7 @@ enum { /* Mujoco dummy float params */
 
 enum { /* Mujoco dummy int params */
     simi_mujoco_dummy_bitcoded=0,
+    simi_mujoco_dummy_proxyjointid,
 };
 
 enum { /* Mujoco dummy bool params */

@@ -57,8 +57,27 @@ void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,int value,const char
     _addAnnotation(l.c_str(),annotation);
 }
 
+double CAnnJson::_round(double d) const
+{
+    if ( (fabs(d)>1e-35)&&(fabs(d)<1e35) )
+    {
+        double c=1.0;
+        while (fabs(d)*c>=10.0)
+            c/=10.0;
+        while (fabs(d)*c<1.0)
+            c*=10.0;
+        c*=1000.00;
+        d*=c;
+        d+=0.5*d/fabs(d);
+        d=double(int(d));
+        d/=c;
+    }
+    return(d);
+}
+
 void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,double value,const char* annotation/*=nullptr*/)
 {
+    value=_round(value);
     std::string l(_nbKey(key));
     jsonObj[l.c_str()]=value;
     _addAnnotation(l.c_str(),annotation);
@@ -68,7 +87,7 @@ void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,const double* v,size
 {
     QJsonArray arr;
     for (size_t i=0;i<cnt;i++)
-        arr.push_back(v[i]);
+        arr.push_back(_round(v[i]));
     std::string l(_nbKey(key));
     jsonObj[l.c_str()]=arr;
     _addAnnotation(l.c_str(),annotation);

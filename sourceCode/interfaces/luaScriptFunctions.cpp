@@ -1202,6 +1202,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.shapeintparam_edge_borders_hidden",sim_shapeintparam_edge_borders_hidden,true},
     {"sim.shapeintparam_component_cnt",sim_shapeintparam_component_cnt,true},
     {"sim.shapeintparam_sleepmodestart",sim_shapeintparam_sleepmodestart,true},
+    {"sim.shapeintparam_respondablesuspendcnt",sim_shapeintparam_respondablesuspendcnt,true},
     // proximity sensors
     {"sim.proxintparam_ray_invisibility",sim_proxintparam_ray_invisibility,true},
     {"sim.proxintparam_volume_type",sim_proxintparam_volume_type,true},
@@ -1543,6 +1544,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.mujoco_dummy_stiffness",sim_mujoco_dummy_stiffness,true},
     {"sim.mujoco_dummy_damping",sim_mujoco_dummy_damping,true},
     {"sim.mujoco_dummy_bitcoded",sim_mujoco_dummy_bitcoded,true},
+    {"sim.mujoco_dummy_proxyjointid",sim_mujoco_dummy_proxyjointid,true},
     {"sim.mujoco_dummy_limited",sim_mujoco_dummy_limited,true},
     // Vortex friction models
     {"sim.vortex_bodyfrictionmodel_box",sim_vortex_bodyfrictionmodel_box,true},
@@ -3309,23 +3311,14 @@ int _simSetJointTargetPosition(luaWrap_lua_State* L)
                 CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(h);
                 if (joint!=nullptr)
                 {
-                    if (joint->getDynPosCtrlType()==0)
-                    { // PID
-                        float maxVelPID[4];
-                        float maxVelAccelJerk[3];
-                        joint->getMaxVelAccelJerk(maxVelAccelJerk); // just for max. vel.
-                        joint->getMaxVelAccelJerk(maxVelPID); // just for max. vel.
-                        joint->getPid(maxVelPID[1],maxVelPID[2],maxVelPID[3]);
-                        getFloatsFromTable(L,3,std::min<size_t>(luaWrap_lua_rawlen(L,3),4),maxVelPID);
-                        maxVelAccelJerk[0]=maxVelPID[0];
-                        joint->setMaxVelAccelJerk(maxVelAccelJerk);
-                        joint->setPid_old(maxVelPID[1],maxVelPID[2],maxVelPID[3]); // for backward compatibility
-                    }
-                    else
-                    { // Motion profile
+                    if ( (joint->getJointMode()==sim_jointmode_kinematic)||(joint->getJointMode()==sim_jointmode_dynamic) )
+                    {
                         float maxVelAccelJerk[3];
                         joint->getMaxVelAccelJerk(maxVelAccelJerk);
-                        getFloatsFromTable(L,3,std::min<size_t>(luaWrap_lua_rawlen(L,3),3),maxVelAccelJerk);
+                        int cnt=1; // only max. vel. with primitive, built-in controller
+                        if ( (joint->getJointMode()==sim_jointmode_kinematic)||(joint->getDynPosCtrlType()==1) )
+                            cnt=3; // Motion profile (max. vel, max. accel and max. jerk)
+                        getFloatsFromTable(L,3,std::min<size_t>(luaWrap_lua_rawlen(L,3),cnt),maxVelAccelJerk);
                         joint->setMaxVelAccelJerk(maxVelAccelJerk);
                     }
                 }
@@ -3417,10 +3410,16 @@ int _simSetJointTargetVelocity(luaWrap_lua_State* L)
                 CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(h);
                 if (joint!=nullptr)
                 {
-                    float maxVelAccelJerk[3];
-                    joint->getMaxVelAccelJerk(maxVelAccelJerk);
-                    getFloatsFromTable(L,3,std::min<size_t>(luaWrap_lua_rawlen(L,3),2),maxVelAccelJerk+1);
-                    joint->setMaxVelAccelJerk(maxVelAccelJerk);
+                    if ( (joint->getJointMode()==sim_jointmode_kinematic)||(joint->getJointMode()==sim_jointmode_dynamic) )
+                    {
+                        if ( (joint->getJointMode()==sim_jointmode_kinematic)||(joint->getDynPosCtrlType()==1) )
+                        {
+                            float maxVelAccelJerk[3];
+                            joint->getMaxVelAccelJerk(maxVelAccelJerk);
+                            getFloatsFromTable(L,3,std::min<size_t>(luaWrap_lua_rawlen(L,3),2),maxVelAccelJerk+1);
+                            joint->setMaxVelAccelJerk(maxVelAccelJerk);
+                        }
+                    }
                     res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
                     if (res==2)
                     {

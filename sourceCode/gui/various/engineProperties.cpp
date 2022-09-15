@@ -188,8 +188,9 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         std::string nameAndPath("");
         if (h>=0)
         {
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(h);
-            nameAndPath=obj->getObjectAlias_shortPath();
+            CJoint* obj=App::currentWorld->sceneObjects->getJointFromHandle(h);
+            if (obj!=nullptr)
+                nameAndPath=obj->getObjectAlias_shortPath();
         }
         annJson.addJson(jnewtonDependency,"joint",nameAndPath.c_str(),"specify the full, unique path");
         annJson.addJson(jnewtonDependency,"mult",joint->getEngineFloatParam(sim_newton_joint_dependencyfactor,nullptr));
@@ -205,6 +206,8 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
     if (engine==sim_physics_mujoco)
     {
         QJsonObject jmujoco;
+        annJson.addJson(jmujoco,"armature",joint->getEngineFloatParam(sim_mujoco_joint_armature,nullptr));
+        annJson.addJson(jmujoco,"margin",joint->getEngineFloatParam(sim_mujoco_joint_margin,nullptr));
         QJsonObject jmujocoLimits;
         double v[5];
         v[0]=joint->getEngineFloatParam(sim_mujoco_joint_solreflimit1,nullptr);
@@ -231,15 +234,14 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         v[1]=joint->getEngineFloatParam(sim_mujoco_joint_springdamper2,nullptr);
         annJson.addJson(jmujocoSpring,"springDamper",v,2);
         annJson.addJson(jmujoco,"spring",jmujocoSpring);
-        annJson.addJson(jmujoco,"armature",joint->getEngineFloatParam(sim_mujoco_joint_armature,nullptr));
-        annJson.addJson(jmujoco,"margin",joint->getEngineFloatParam(sim_mujoco_joint_margin,nullptr));
         QJsonObject jmujocoDependency;
         int h=joint->getEngineIntParam(sim_mujoco_joint_dependentobjectid,nullptr);
         std::string nameAndPath;
         if (h>=0)
         {
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(h);
-            nameAndPath=obj->getObjectAlias_shortPath();
+            CJoint* obj=App::currentWorld->sceneObjects->getJointFromHandle(h);
+            if (obj!=nullptr)
+                nameAndPath=obj->getObjectAlias_shortPath();
         }
         annJson.addJson(jmujocoDependency,"joint",nameAndPath.c_str(),"specify the full, unique path");
         for (size_t j=0;j<5;j++)
@@ -277,8 +279,9 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         std::string nameAndPath;
         if (h>=0)
         {
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(h);
-            nameAndPath=obj->getObjectAlias_shortPath();
+            CJoint* obj=App::currentWorld->sceneObjects->getJointFromHandle(h);
+            if (obj!=nullptr)
+                nameAndPath=obj->getObjectAlias_shortPath();
         }
         annJson.addJson(jvortexDependency,"joint",nameAndPath.c_str(),"specify the full, unique path");
         annJson.addJson(jvortexDependency,"mult",joint->getEngineFloatParam(sim_vortex_joint_dependencyfactor,nullptr));
@@ -486,7 +489,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                         {
                             if (allErrors->size()>0)
                                 allErrors[0]+="\n";
-                            allErrors[0]+="Key 'dependentJoint' does not point to a valid joint object and will be ignored.";
+                            allErrors[0]+="Key 'dependency/joint' does not point to a valid joint object and will be ignored.";
                         }
                     }
                     else
@@ -511,6 +514,10 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
         if (annJson.getValue(annJson.getMainObject()[0],"mujoco",QJsonValue::Object,val,allErrors))
         {
             QJsonObject mujoco(val.toObject());
+            if (annJson.getValue(mujoco,"armature",QJsonValue::Double,val,allErrors))
+                joint->setEngineFloatParam(sim_mujoco_joint_armature,val.toDouble());
+            if (annJson.getValue(mujoco,"margin",QJsonValue::Double,val,allErrors))
+                joint->setEngineFloatParam(sim_mujoco_joint_margin,val.toDouble());
             double w[5];
             if (annJson.getValue(mujoco,"limits",QJsonValue::Object,val,allErrors))
             {
@@ -557,10 +564,6 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                     joint->setEngineFloatParam(sim_mujoco_joint_springdamper2,w[1]);
                 }
             }
-            if (annJson.getValue(mujoco,"armature",QJsonValue::Double,val,allErrors))
-                joint->setEngineFloatParam(sim_mujoco_joint_armature,val.toDouble());
-            if (annJson.getValue(mujoco,"margin",QJsonValue::Double,val,allErrors))
-                joint->setEngineFloatParam(sim_mujoco_joint_margin,val.toDouble());
             if (annJson.getValue(mujoco,"dependency",QJsonValue::Object,val,allErrors))
             {
                 QJsonObject sub(val.toObject());
@@ -580,7 +583,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                         {
                             if (allErrors->size()>0)
                                 allErrors[0]+="\n";
-                            allErrors[0]+="Key 'dependentJoint' does not point to a valid joint object and will be ignored.";
+                            allErrors[0]+="Key 'dependency/joint' does not point to a valid joint object and will be ignored.";
                         }
                     }
                     else
@@ -659,7 +662,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                         {
                             if (allErrors->size()>0)
                                 allErrors[0]+="\n";
-                            allErrors[0]+="Key 'dependentJoint' does not point to a valid joint object and will be ignored.";
+                            allErrors[0]+="Key 'dependency/joint' does not point to a valid joint object and will be ignored.";
                         }
                     }
                     else
@@ -1892,6 +1895,17 @@ void CEngineProperties::_writeDummy(int engine,int dummyHandle,CAnnJson& annJson
         annJson.addJson(jmujocoSpring,"springLength",dummy->getEngineFloatParam(sim_mujoco_dummy_springlength,nullptr));
         annJson.addJson(jmujoco,"spring",jmujocoSpring);
         annJson.addJson(jmujoco,"margin",dummy->getEngineFloatParam(sim_mujoco_dummy_margin,nullptr));
+        QJsonObject jmujocoDependency;
+        int h=dummy->getEngineIntParam(sim_mujoco_dummy_proxyjointid,nullptr);
+        std::string nameAndPath;
+        if (h>=0)
+        {
+            CJoint* obj=App::currentWorld->sceneObjects->getJointFromHandle(h);
+            if (obj!=nullptr)
+                nameAndPath=obj->getObjectAlias_shortPath();
+        }
+        annJson.addJson(jmujocoDependency,"joint",nameAndPath.c_str(),"specify the full, unique path");
+        annJson.addJson(jmujoco,"jointProxy",jmujocoDependency);
         annJson.addJson(annJson.getMainObject()[0],"mujoco",jmujoco);
     }
 
@@ -1967,6 +1981,32 @@ void CEngineProperties::_readDummy(int engine,int dummyHandle,CAnnJson& annJson,
             }
             if (annJson.getValue(mujoco,"margin",QJsonValue::Double,val,allErrors))
                 dummy->setEngineFloatParam(sim_mujoco_dummy_margin,val.toDouble());
+            if (annJson.getValue(mujoco,"jointProxy",QJsonValue::Object,val,allErrors))
+            {
+                QJsonObject sub(val.toObject());
+                if (annJson.getValue(sub,"joint",QJsonValue::String,val,allErrors))
+                {
+                    int h=-1;
+                    std::string str(val.toString().toStdString());
+                    if (str.size()>0)
+                    {
+                        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,str.c_str(),0,nullptr);
+                        if ( (obj!=nullptr)&&(obj->getObjectType()==sim_object_joint_type) )
+                        {
+                            h=obj->getObjectHandle();
+                            dummy->setEngineIntParam(sim_mujoco_dummy_proxyjointid,h);
+                        }
+                        else
+                        {
+                            if (allErrors->size()>0)
+                                allErrors[0]+="\n";
+                            allErrors[0]+="Key 'jointProxy/joint' does not point to a valid joint object and will be ignored.";
+                        }
+                    }
+                    else
+                        dummy->setEngineIntParam(sim_mujoco_dummy_proxyjointid,h);
+                }
+            }
         }
     }
 

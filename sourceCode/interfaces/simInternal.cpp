@@ -214,6 +214,7 @@ void simulatorInit()
 #endif
 
      // Load the system plugins first:
+    /*
     for (size_t i=0;i<theNames.size();i++)
     {
         if ( (theNames[i].compare("Geometric")==0)||boost::algorithm::starts_with(theNames[i],"Dynamics") )
@@ -224,6 +225,7 @@ void simulatorInit()
             theDirAndNames[i]=""; // mark as 'already loaded'
         }
     }
+    */
 
      // Now load the other plugins too:
     for (size_t i=0;i<theNames.size();i++)
@@ -9651,6 +9653,11 @@ simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
                 shape->setShapeIsDynamicallyKinematic(parameter!=0);
                 retVal=1;
             }
+            if (parameterID==sim_shapeintparam_respondablesuspendcnt)
+            {
+                shape->setRespondableSuspendCount(parameter);
+                retVal=1;
+            }
             if (parameterID==sim_shapeintparam_respondable)
             {
                 shape->setRespondable(parameter!=0);
@@ -16279,18 +16286,26 @@ simFloat _simGetMass_internal(const simVoid* geomInfo)
 }
 
 simFloat _simGetLocalInertiaInfo_internal(const simVoid* object,simFloat* pos,simFloat* quat,simFloat* diagI)
-{ // returns the diag inertia (with mass!)
+{ // returns the diag inertia (with mass!). diagI can be NULL
     CShape* shape=(CShape*)object;
     CMeshWrapper* geomInfo=shape->getMeshWrapper();
     C7Vector tr(geomInfo->getLocalInertiaFrame());
-    C3Vector diag(geomInfo->getPrincipalMomentsOfInertia());
-    if (App::currentWorld->dynamicsContainer->getComputeInertias())
-        CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),tr,diag);
-    tr.X.getInternalData(pos);
-    tr.Q.getInternalData(quat);
     float m=geomInfo->getMass();
-    diag=diag*m;
-    diag.getInternalData(diagI);
+    if (diagI!=nullptr)
+    {
+        C3Vector diag(geomInfo->getPrincipalMomentsOfInertia());
+        if (App::currentWorld->dynamicsContainer->getComputeInertias())
+            CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),tr,diag);
+        tr.X.getInternalData(pos);
+        tr.Q.getInternalData(quat);
+        diag=diag*m;
+        diag.getInternalData(diagI);
+    }
+    else
+    {
+        tr.X.getInternalData(pos);
+        tr.Q.getInternalData(quat);
+    }
     return(m);
 }
 

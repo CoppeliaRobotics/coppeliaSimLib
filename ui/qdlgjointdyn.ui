@@ -954,19 +954,22 @@
   <tabstop>qqCombo</tabstop>
   <tabstop>qqForceMode_force</tabstop>
   <tabstop>qqVelocityMode_velocity</tabstop>
-  <tabstop>qqVelocityMode_force</tabstop>
-  <tabstop>qqVelocityMode_motorLock</tabstop>
   <tabstop>qqPositionMode_position</tabstop>
-  <tabstop>qqPositionMode_force</tabstop>
-  <tabstop>qqPositionMode_cb</tabstop>
-  <tabstop>qqPositionMode_ruckig</tabstop>
-  <tabstop>qqPositionMode_maxVel</tabstop>
-  <tabstop>qqPositionMode_maxAccel</tabstop>
-  <tabstop>qqPositionMode_maxJerk</tabstop>
   <tabstop>qqSpringMode_position</tabstop>
+  <tabstop>qqVelocityMode_force</tabstop>
+  <tabstop>qqPositionMode_force</tabstop>
   <tabstop>qqK</tabstop>
-  <tabstop>qqSpringMode_cb</tabstop>
+  <tabstop>qqVelocityMode_ruckig</tabstop>
+  <tabstop>qqPositionMode_maxVel</tabstop>
   <tabstop>qqC</tabstop>
+  <tabstop>qqVelocityMode_maxAccel</tabstop>
+  <tabstop>qqPositionMode_ruckig</tabstop>
+  <tabstop>qqPositionMode_cb</tabstop>
+  <tabstop>qqSpringMode_cb</tabstop>
+  <tabstop>qqVelocityMode_maxJerk</tabstop>
+  <tabstop>qqPositionMode_maxAccel</tabstop>
+  <tabstop>qqVelocityMode_motorLock</tabstop>
+  <tabstop>qqPositionMode_maxJerk</tabstop>
   <tabstop>qqAdjustEngineProperties</tabstop>
   <tabstop>qqApplyParams</tabstop>
  </tabstops>

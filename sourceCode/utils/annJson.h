@@ -31,6 +31,7 @@ public:
     static bool getValue(QJsonObject& jsonObj,const char* key,double* vals,size_t cnt,std::string* errMsg=nullptr);
 
 protected:
+    double _round(double d) const;
     std::string _nbKey(const char* key);
     void _addAnnotation(const char* nbKey,const char* annotation);
 
