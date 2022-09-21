@@ -401,7 +401,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
         if (hasScript)
         { // User params:
             CUserParameters* params=it->getUserScriptParameterObject();
-            if ( ((params!=nullptr)&&(params->userParamEntries.size()>0)) || ((customizationScript!=nullptr)&&customizationScript->getContainsUserConfigCallbackFunction()) )
+            if ( ((params!=nullptr)&&(params->userParamEntries.size()>0)) || ((customizationScript!=nullptr)&&customizationScript->hasFunction(sim_syscb_userconfig)) )
             {
                 if (!dontDisplay)
                 {

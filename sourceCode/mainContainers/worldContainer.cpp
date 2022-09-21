@@ -88,12 +88,7 @@ int CWorldContainer::createNewWorld()
 
     // Inform scripts about future switch to new world (only if there is already at least one world):
     if (currentWorld!=nullptr)
-    {
-        currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
-        addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
-        if (sandboxScript!=nullptr)
-            sandboxScript->systemCallScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
-    }
+        callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
 
     // Inform plugins about future switch to new world (only if there is already at least one world):
     if (currentWorld!=nullptr)
@@ -127,10 +122,8 @@ int CWorldContainer::createNewWorld()
 
     // Inform scripts about performed switch to new world:
     pushGenesisEvents();
-    currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
-    addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
-    if (sandboxScript!=nullptr)
-        sandboxScript->systemCallScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+
+    callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
 
     // Inform plugins about performed switch to new world:
     int dat[4]={getCurrentWorldIndex(),currentWorld->environment->getSceneUniqueID(),0,0};
@@ -169,10 +162,7 @@ int CWorldContainer::destroyCurrentWorld()
             nextWorldIndex=int(_worlds.size())-2;
 
         // Inform scripts about future world switch:
-        currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
-        addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
-        if (sandboxScript!=nullptr)
-            sandboxScript->systemCallScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+        callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
 
         // Inform plugins about future world switch:
         int pluginData[4]={-1,_worlds[nextWorldIndex]->environment->getSceneUniqueID(),0,0};
@@ -213,10 +203,8 @@ int CWorldContainer::destroyCurrentWorld()
 
         // Inform scripts about performed world switch:
         pushGenesisEvents();
-        currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
-        addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
-        if (sandboxScript!=nullptr)
-            sandboxScript->systemCallScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+
+        callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
 
         // Inform plugins about performed world switch:
         int pluginData[4]={_currentWorldIndex,currentWorld->environment->getSceneUniqueID(),0,0};
@@ -313,10 +301,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
         return(false);
 
     // Inform scripts about future world switch:
-    currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
-    addOnScriptContainer->callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
-    if (sandboxScript!=nullptr)
-        sandboxScript->systemCallScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+    callScripts(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
 
     // Inform plugins about future world switch:
     int pluginData[4]={_currentWorldIndex,_worlds[newWorldIndex]->environment->getSceneUniqueID(),0,0};
@@ -345,10 +330,8 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
 
     // Inform scripts about performed world switch:
     pushGenesisEvents();
-    currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
-    addOnScriptContainer->callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
-    if (sandboxScript!=nullptr)
-        sandboxScript->systemCallScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+
+    callScripts(sim_syscb_afterinstanceswitch,nullptr,nullptr);
 
     // Inform plugins about performed world switch:
     pluginData[0]=_currentWorldIndex;
@@ -408,22 +391,56 @@ CScriptObject* CWorldContainer::getScriptFromHandle(int scriptHandle) const
     return(retVal);
 }
 
-void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack)
+int CWorldContainer::getContactFuncCount() const
+{
+    return(currentWorld->embeddedScriptContainer->getContactFuncCount()+addOnScriptContainer->getContactFuncCount());
+}
+
+int CWorldContainer::getDynFuncCount() const
+{
+    return(currentWorld->embeddedScriptContainer->getDynFuncCount()+addOnScriptContainer->getDynFuncCount());
+}
+
+int CWorldContainer::getEventFuncCount() const
+{
+    return(currentWorld->embeddedScriptContainer->getEventFuncCount()+addOnScriptContainer->getEventFuncCount());
+}
+
+int CWorldContainer::getJointFuncCount() const
+{
+    return(currentWorld->embeddedScriptContainer->getJointFuncCount()+addOnScriptContainer->getJointFuncCount());
+}
+
+void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch/*=nullptr*/)
 {
     TRACE_INTERNAL;
-    currentWorld->embeddedScriptContainer->callScripts(callType,inStack);
-    addOnScriptContainer->callScripts(callType,inStack,nullptr);
-    if (sandboxScript!=nullptr)
-        sandboxScript->systemCallScript(callType,inStack,nullptr);
+    bool doNotInterrupt=!CScriptObject::isSystemCallbackInterruptible(callType);
+    if (CScriptObject::isSystemCallbackInReverseOrder(callType))
+    { // reverse order
+        if ( (sandboxScript!=nullptr)&&(sandboxScript->hasFunction(callType)) )
+            sandboxScript->systemCallScript(callType,inStack,outStack);
+        if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
+            addOnScriptContainer->callScripts(callType,inStack,outStack);
+        if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
+            currentWorld->embeddedScriptContainer->callScripts(callType,inStack,outStack,objectBranch);
+    }
+    else
+    { // regular order, from unimportant, to most important
+        currentWorld->embeddedScriptContainer->callScripts(callType,inStack,outStack,objectBranch);
+        if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
+            addOnScriptContainer->callScripts(callType,inStack,outStack);
+        if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
+        {
+            if ( (sandboxScript!=nullptr)&&(sandboxScript->hasFunction(callType)) )
+                sandboxScript->systemCallScript(callType,inStack,outStack);
+        }
+    }
 }
 
 void CWorldContainer::broadcastMsg(CInterfaceStack* inStack,int options)
 {
     TRACE_INTERNAL;
-    currentWorld->embeddedScriptContainer->callScripts(sim_syscb_msg,inStack);
-    addOnScriptContainer->callScripts(sim_syscb_msg,inStack,nullptr);
-    if (sandboxScript!=nullptr)
-        sandboxScript->systemCallScript(sim_syscb_msg,inStack,nullptr);
+    callScripts(sim_syscb_msg,inStack,nullptr);
 }
 
 long long int CWorldContainer::_eventSeq=0;
@@ -591,7 +608,7 @@ void CWorldContainer::setMergeEvents(bool b)
 
 bool CWorldContainer::getEventsEnabled() const
 {
-    return(CScriptObject::getTotalEventCallbackFunctions()>0);
+    return(getEventFuncCount()>0);
 }
 
 void CWorldContainer::getGenesisEvents(CInterfaceStack* stack)
@@ -670,7 +687,7 @@ void CWorldContainer::dispatchEvents()
         _prepareEventsForDispatch(tmpEvents);
 
         // Dispatch events:
-        callScripts(sim_syscb_event,tmpEvents->eventsStack);
+        callScripts(sim_syscb_event,tmpEvents->eventsStack,nullptr);
 
         interfaceStackContainer->destroyStack(tmpEvents->eventsStack);
         delete tmpEvents;

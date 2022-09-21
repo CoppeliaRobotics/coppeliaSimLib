@@ -210,7 +210,7 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
         stack->pushInt32OntoStack(newObject->getObjectHandle());
         stack->insertDataIntoStackTable();
         stack->insertDataIntoStackTable();
-        App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
+        App::worldContainer->callScripts(sim_syscb_aftercreate,stack,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
     App::worldContainer->setModificationFlag(2); // object created
@@ -256,7 +256,7 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int>& objectHandles,b
             stack->pushStringOntoStack("allObjects",0);
             stack->pushBoolOntoStack(objectHandles.size()==getObjectCount());
             stack->insertDataIntoStackTable();
-            App::worldContainer->callScripts(sim_syscb_beforedelete,stack);
+            App::worldContainer->callScripts(sim_syscb_beforedelete,stack,nullptr);
         }
 
         for (size_t i=0;i<objectHandles.size();i++)
@@ -276,7 +276,7 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int>& objectHandles,b
         App::worldContainer->setModificationFlag(1); // object erased
 
         if (generateBeforeAfterDeleteCallback)
-            App::worldContainer->callScripts(sim_syscb_afterdelete,stack);
+            App::worldContainer->callScripts(sim_syscb_afterdelete,stack,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
 }

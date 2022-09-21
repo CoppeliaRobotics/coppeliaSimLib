@@ -342,10 +342,10 @@ const SLuaCommands simLuaCommands[]=
     {"sim.destroyCollection",_simDestroyCollection,              "sim.destroyCollection(int collectionHandle)",true},
     {"sim.addItemToCollection",_simAddItemToCollection,          "sim.addItemToCollection(int collectionHandle,int what,int objectHandle,int options)",true},
     {"sim.getCollectionObjects",_simGetCollectionObjects,        "int[] objectHandles=sim.getCollectionObjects(int collectionHandle)",true},
-    {"sim.handleCustomizationScripts",_simHandleCustomizationScripts,"int count=sim.handleCustomizationScripts(int callType)",true},
     {"sim.handleAddOnScripts",_simHandleAddOnScripts,            "int count=sim.handleAddOnScripts(int callType)",true},
     {"sim.handleSandboxScript",_simHandleSandboxScript,          "sim.handleSandboxScript(int callType)",true},
-    {"sim.handleChildScripts",_simHandleChildScripts,            "int executedScriptCount=sim.handleChildScripts(int callType)",true},
+    {"sim.handleChildScripts",_simHandleChildScripts,            "int calledScripts=sim.handleChildScripts(int callType)",true},
+    {"sim.handleEmbeddedScripts",_simHandleEmbeddedScripts,      "int calledScripts=sim.handleEmbeddedScripts(int callType)",true},
     {"sim.reorientShapeBoundingBox",_simReorientShapeBoundingBox,"int result=sim.reorientShapeBoundingBox(int shapeHandle,int relativeToHandle)",true},
     {"sim.handleVisionSensor",_simHandleVisionSensor,            "int detectionCount,float[] auxPacket1,float[] auxPacket2=sim.handleVisionSensor(int sensorHandle)",true},
     {"sim.readVisionSensor",_simReadVisionSensor,                "int result,float[] auxPacket1,float[] auxPacket2=sim.readVisionSensor(int sensorHandle)",true},
@@ -595,6 +595,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getVisionSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"Deprecated. Use sim.getVisionSensorDepth instead",false},
     {"sim.createPureShape",_simCreatePureShape,                  "Deprecated. Use sim.createPrimitiveShape instead",false},
     {"sim.getScriptHandle",_simGetScriptHandle,                  "Deprecated. Use sim.getScript instead",false},
+    {"sim.handleCustomizationScripts",_simHandleCustomizationScripts,"Deprecated. Use sim.handleEmbeddedScripts instead",false},
 
     {"",nullptr,"",false}
 };
@@ -695,15 +696,11 @@ const SLuaVariables simLuaVariables[]=
     {"sim.syscb_aftercopy",sim_syscb_aftercopy,true},
     {"sim.syscb_aos_suspend",sim_syscb_aos_suspend,true},
     {"sim.syscb_aos_resume",sim_syscb_aos_resume,true},
-    {"sim.syscb_jointcallback",sim_syscb_jointcallback,true},
+    {"sim.syscb_joint",sim_syscb_joint,true},
     {"sim.syscb_vision",sim_syscb_vision,true},
     {"sim.syscb_trigger",sim_syscb_trigger,true},
-    {"sim.syscb_contactcallback",sim_syscb_contactcallback,true},
-    {"sim.syscb_dyncallback",sim_syscb_dyncallback,true},
-    {"sim.syscb_customcallback1",sim_syscb_customcallback1,true},
-    {"sim.syscb_customcallback2",sim_syscb_customcallback2,true},
-    {"sim.syscb_customcallback3",sim_syscb_customcallback3,true},
-    {"sim.syscb_customcallback4",sim_syscb_customcallback4,true},
+    {"sim.syscb_contact",sim_syscb_contact,true},
+    {"sim.syscb_dyn",sim_syscb_dyn,true},
     {"sim.syscb_beforedelete",sim_syscb_beforedelete,true},
     {"sim.syscb_afterdelete",sim_syscb_afterdelete,true},
     {"sim.syscb_aftercreate",sim_syscb_aftercreate,true},
@@ -1838,6 +1835,13 @@ const SLuaVariables simLuaVariables[]=
     {"sim.jointfloatparam_pid_d",sim_jointfloatparam_pid_d,false},
     {"sim.jointfloatparam_upper_limit",sim_jointfloatparam_upper_limit,false},
     {"sim.intparam_simulation_warning_disabled_mask",sim_intparam_simulation_warning_disabled_mask,false},
+    {"sim.syscb_contactcallback",sim_syscb_contactcallback,false},
+    {"sim.syscb_dyncallback",sim_syscb_dyncallback,false},
+    {"sim.syscb_customcallback1",sim_syscb_customcallback1,false},
+    {"sim.syscb_customcallback2",sim_syscb_customcallback2,false},
+    {"sim.syscb_customcallback3",sim_syscb_customcallback3,false},
+    {"sim.syscb_customcallback4",sim_syscb_customcallback4,false},
+    {"sim.syscb_jointcallback",sim_syscb_jointcallback,false},
 
     {"",-1}
 };
@@ -2403,8 +2407,7 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
             { // only the main script can call this function
                 CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
                 CScriptObject::buildFromInterpreterStack_lua(L,inStack,2,0); // skip the first arg
-                int startT=(int)VDateTime::getTimeInMs();
-                retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,callType,inStack,nullptr,nullptr);
+                retVal=App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(sim_scripttype_childscript,callType,inStack,nullptr);
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
             }
             /*
@@ -2412,6 +2415,42 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
             else
                 errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
                 */
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simHandleEmbeddedScripts(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.handleEmbeddedScripts");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int callType=luaWrap_lua_tointeger(L,1);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
+        if (it!=nullptr)
+        {
+            if (it->getScriptType()==sim_scripttype_mainscript)
+            { // only the main script can call this function
+                CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
+                CScriptObject::buildFromInterpreterStack_lua(L,inStack,2,0); // skip the first arg
+                if (!App::userSettings->enableOldScriptTraversal)
+                    retVal=App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(-1,callType,inStack,nullptr);
+                else
+                {
+                    retVal=App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(sim_scripttype_childscript,callType,inStack,nullptr);
+                    App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(sim_scripttype_customizationscript,callType,inStack,nullptr);
+                }
+                App::worldContainer->interfaceStackContainer->destroyStack(inStack);
+            }
+            else
+                errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
         }
     }
 
@@ -10887,7 +10926,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
             funcName=funcAndScriptName;
 
         CScriptObject* script=nullptr;
-        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
+        if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
         { // script is identified by its ID
             script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
         }
@@ -11323,7 +11362,14 @@ int _simHandleJointMotion(luaWrap_lua_State* L)
     if (it!=nullptr)
     {
         if (it->getScriptType()==sim_scripttype_mainscript)
-            App::currentWorld->embeddedScriptContainer->handleCascadedJointMotionExecution();
+        {
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
+            {
+                CJoint* it=App::currentWorld->sceneObjects->getJointFromIndex(i);
+                if (it->getJointMode()==sim_jointmode_kinematic)
+                    it->handleMotion();
+            }
+        }
         else
             errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
     }
@@ -12074,35 +12120,6 @@ int _simGetCollectionObjects(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simHandleCustomizationScripts(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.handleCustomizationScripts");
-
-    int retVal=-1;
-    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
-    if (itScrObj->getScriptType()==sim_scripttype_mainscript)
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        {
-            int callType=luaToInt(L,1);
-            retVal=0;
-            if (App::getEditModeType()==NO_EDIT_MODE)
-            {
-                retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,callType,nullptr,nullptr,nullptr);
-                App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
-            }
-        }
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
 }
 
 int _simHandleAddOnScripts(luaWrap_lua_State* L)
@@ -19307,7 +19324,7 @@ int _simResumeThreads(luaWrap_lua_State* L)
             int loc=luaWrap_lua_tointeger(L,1);
 
             int startT=(int)VDateTime::getTimeInMs();
-            retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript|sim_scripttype_threaded_old,loc,nullptr,nullptr,nullptr);
+            retVal=App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(sim_scripttype_childscript|sim_scripttype_threaded_old,loc,nullptr,nullptr);
             // Following line important: when erasing a running threaded script object, with above cascaded
             // call, the thread will never resume nor be able to end. Next line basically runs all
             // that were not yet ran:
@@ -19335,7 +19352,7 @@ int _simLaunchThreadedChildScripts(luaWrap_lua_State* L)
         if (it->getScriptType()==sim_scripttype_mainscript)
         {
             int startT=(int)VDateTime::getTimeInMs();
-            retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript|sim_scripttype_threaded_old,sim_scriptthreadresume_launch,nullptr,nullptr,nullptr);
+            retVal=App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(sim_scripttype_childscript|sim_scripttype_threaded_old,sim_scriptthreadresume_launch,nullptr,nullptr);
         }
         else
             errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
@@ -21679,6 +21696,35 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
             }
         }
     }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simHandleCustomizationScripts(luaWrap_lua_State* L)
+{ // deprecated on 19.09.2022
+    TRACE_LUA_API;
+    LUA_START("sim.handleCustomizationScripts");
+
+    int retVal=-1;
+    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    CScriptObject* itScrObj=App::worldContainer->getScriptFromHandle(currentScriptID);
+    if (itScrObj->getScriptType()==sim_scripttype_mainscript)
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        {
+            int callType=luaToInt(L,1);
+            retVal=0;
+            if (App::getEditModeType()==NO_EDIT_MODE)
+            {
+                retVal=App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(sim_scripttype_customizationscript,callType,nullptr,nullptr);
+                App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
+            }
+        }
+    }
+    else
+        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);

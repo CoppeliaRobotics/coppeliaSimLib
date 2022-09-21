@@ -365,7 +365,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->embeddedScriptContainer->insertScript(scriptObj);
             scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
             scriptObj->setScriptText("graph=require('graph_customization')");
-            scriptObj->setExecutionPriority(sim_scriptexecorder_last);
+            newObject->setScriptExecPriority(sim_scriptexecorder_last);
 
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());

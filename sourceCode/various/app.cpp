@@ -192,11 +192,7 @@ void App::simulationThreadLoop()
     if ( App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
     {
         App::worldContainer->dispatchEvents();
-        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_nonsimulation,nullptr,nullptr,nullptr);
-        App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
-        App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_nonsimulation,nullptr,nullptr);
-        if (App::worldContainer->sandboxScript!=nullptr)
-            App::worldContainer->sandboxScript->systemCallScript(sim_syscb_nonsimulation,nullptr,nullptr);
+        App::worldContainer->callScripts(sim_syscb_nonsimulation,nullptr,nullptr);
     }
     if (App::currentWorld->simulation->isSimulationPaused())
     {
@@ -205,13 +201,7 @@ void App::simulationThreadLoop()
         {
             App::worldContainer->dispatchEvents();
             if (mainScript->systemCallMainScript(sim_syscb_suspended,nullptr,nullptr)==0)
-            { // For backward compatibility for scenes that have customized main script (e.g. BR)
-                App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_suspended,nullptr,nullptr,nullptr);
-                App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
-                App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_suspended,nullptr,nullptr);
-                if (App::worldContainer->sandboxScript!=nullptr)
-                    App::worldContainer->sandboxScript->systemCallScript(sim_syscb_suspended,nullptr,nullptr);
-            }
+                App::worldContainer->callScripts(sim_syscb_suspended,nullptr,nullptr);
         }
     }
 
@@ -220,6 +210,7 @@ void App::simulationThreadLoop()
         _workThreadLoopCallback();
 
     App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
+    App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
 
     // Keep for backward compatibility:
     if (!App::currentWorld->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts after the main script was called

@@ -428,7 +428,6 @@ simInt _simGetTimeDiffInMs_internal(simInt previousTime);
 simBool _simDoEntitiesCollide_internal(simInt entity1ID,simInt entity2ID,simInt* cacheBuffer,simBool overrideCollidableFlagIfShape1,simBool overrideCollidableFlagIfShape2,simBool pathOrMotionPlanningRoutineCalling);
 simBool _simGetDistanceBetweenEntitiesIfSmaller_internal(simInt entity1ID,simInt entity2ID,simFloat* distance,simFloat* ray,simInt* cacheBuffer,simBool overrideMeasurableFlagIfNonCollection1,simBool overrideMeasurableFlagIfNonCollection2,simBool pathPlanningRoutineCalling);
 simInt _simHandleJointControl_internal(const simVoid* joint,simInt auxV,const simInt* inputValuesInt,const simFloat* inputValuesFloat,simFloat* outputValues);
-simInt _simGetJointCallbackCallOrder_internal(const simVoid* joint);
 simInt _simGetJointDynCtrlMode_internal(const simVoid* joint);
 simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simInt engine,simInt* dataInt,simFloat* dataFloat);
 const simVoid* _simGetIkGroupObject_internal(int ikGroupID);

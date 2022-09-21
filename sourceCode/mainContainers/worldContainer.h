@@ -73,7 +73,11 @@ public:
     bool isWorldSwitchingLocked() const;
     void getAllSceneNames(std::vector<std::string>& l) const;
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
-    void callScripts(int callType,CInterfaceStack* inStack);
+    int getContactFuncCount() const;
+    int getDynFuncCount() const;
+    int getEventFuncCount() const;
+    int getJointFuncCount() const;
+    void callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr);
     void broadcastMsg(CInterfaceStack* inStack,int options);
 
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareNakedEvent(const char* event,int handle,long long int uid,bool mergeable);

@@ -93,8 +93,6 @@ public:
     bool isSceneSwitchPersistentScript() const;
     int getNumberOfPasses() const;
     void setNumberOfPasses(int p);
-    void setExecutionPriority(int order);
-    int getExecutionPriority() const;
     void setTreeTraversalDirection(int dir);
     int getTreeTraversalDirection() const;
     void flagForDestruction();
@@ -117,15 +115,14 @@ public:
     int getScriptState() const;
     void setScriptState(int state);
 
+    void setScriptExecPriority(int priority);
+    int getScriptExecPriority() const;
+
+
     bool addCommandToOutsideCommandQueue(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count);
     int extractCommandFromOutsideCommandQueue(int auxVals[4],float aux2Vals[8],int& aux2Count);
 
-    bool getContainsJointCallbackFunction() const;
-    bool getContainsContactCallbackFunction() const;
-    bool getContainsDynCallbackFunction() const;
-    bool getContainsVisionCallbackFunction() const;
-    bool getContainsTriggerCallbackFunction() const;
-    bool getContainsUserConfigCallbackFunction() const;
+    bool hasFunction(int callType) const;
 
     std::string getFilenameForExternalScriptEditor() const;
     void fromFileToBuffer(); // when using an external editor
@@ -152,15 +149,16 @@ public:
     bool hasFunctionHook(const char* sysFunc) const;
     int registerFunctionHook(const char* sysFunc,const char* userFunc,bool before);
 
-    static int getTotalEventCallbackFunctions();
     static void getMatchingFunctions(const char* txt,std::vector<std::string>& v);
     static void getMatchingConstants(const char* txt,std::vector<std::string>& v);
     static std::string getFunctionCalltip(const char* txt);
     static int isFunctionOrConstDeprecated(const char* txt);
     static bool canCallSystemCallback(int scriptType,bool threadedOld,int callType);
-    static std::string getSystemCallbackString(int calltype,bool callTips);
+    static bool isSystemCallbackInReverseOrder(int callType);
+    static bool isSystemCallbackInterruptible(int callType);
+    static std::string getSystemCallbackString(int calltype,int what);
     static std::vector<int> getAllSystemCallbacks(int scriptType,bool threadedOld);
-    static std::vector<std::string> getAllSystemCallbackStrings(int scriptType,bool callTips,bool threadedOld);
+    static std::vector<std::string> getAllSystemCallbackStrings(int scriptType,int what);
 
     static void setInExternalCall(int scriptHandle);
     static int getInExternalCall();
@@ -215,6 +213,8 @@ public:
     int resumeThreadedChildScriptIfLocationMatch_oldThreads(int resumeLocation);
     void setLastError_old(const char* err);
     std::string getAndClearLastError_old();
+    void setExecutionPriority_old(int order);
+    int getExecutionPriority_old() const;
     static void setScriptNameIndexToInterpreterState_lua_old(void* LL,int index);
     static int getScriptNameIndexFromInterpreterState_lua_old(void* LL);
     // *****************************************
@@ -224,7 +224,7 @@ protected:
     bool _killInterpreterState();
     void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg,bool runtimeError);
     bool _loadCode();
-    int ___loadCode(const char* code,const char* functionsToFind,bool* functionsFound,std::string* errorMsg);
+    int ___loadCode(const char* code,const char* functionsToFind,std::vector<bool>& functionsFound,std::string* errorMsg);
     int _callSystemScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int _callScriptFunction(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
     int _callScriptFunc(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
@@ -237,12 +237,12 @@ protected:
     int _scriptType;
     bool _scriptIsDisabled;
     int _scriptState;
-    int _executionPriority;
     int _executionDepth;
     int _treeTraversalDirection;
     int _objectHandleAttachedTo;
     int _autoStartAddOn;
     int _addOnUiMenuHandle;
+    int _scriptExecPriority; // only for add-ons. Not saved
     std::string _addOnFilePath;
 
     bool _calledInThisSimulationStep;
@@ -266,13 +266,8 @@ protected:
 
     int _timeOfScriptExecutionStart;
     std::string _lastStackTraceback;
-    bool _containsJointCallbackFunction;
-    bool _containsContactCallbackFunction;
-    bool _containsDynCallbackFunction;
-    bool _containsVisionCallbackFunction;
-    bool _containsTriggerCallbackFunction;
-    bool _containsUserConfigCallbackFunction;
-    bool _containsEventCallbackFunction;
+
+    std::vector<bool> _containedSystemCallbacks;
     void _printContext(const char* str,size_t p);
 
     std::string _addOnName;
@@ -289,7 +284,6 @@ protected:
 
     static int _nextIdForExternalScriptEditor;
     static int _scriptUniqueCounter;
-    static int _totalEventCallbackFunctions;
     static std::vector<int> _externalScriptCalls;
 
     // Lua specific:
@@ -355,6 +349,7 @@ protected:
     VTHREAD_ID_TYPE _threadedScript_associatedFiberOrThreadID_oldThreads;
     bool _threadedExecutionUnderWay_oldThreads;
     bool _executeJustOnce_oldThreads;
+    int _executionPriority_old;
     void _launchThreadedChildScriptNow_oldThreads();
     static std::map<std::string,std::string> _newApiMap_old;
     static VMutex _globalMutex_oldThreads;

@@ -9,6 +9,11 @@
 
 CAddOnScriptContainer::CAddOnScriptContainer()
 {
+    _nextScriptHandle=SIM_IDSTART_ADDONSCRIPT;
+    _contactFuncCount=0;
+    _dynFuncCount=0;
+    _eventFuncCount=0;
+    _jointFuncCount=0;
     _insertAddOns();
     _prepareAddOnFunctionNames_old();
 }
@@ -16,6 +21,46 @@ CAddOnScriptContainer::CAddOnScriptContainer()
 CAddOnScriptContainer::~CAddOnScriptContainer()
 {
     removeAllAddOns(); // But add-ons should already have been removed at this stage
+}
+
+int CAddOnScriptContainer::getContactFuncCount() const
+{
+    return(_contactFuncCount);
+}
+
+void CAddOnScriptContainer::setContactFuncCount(int cnt)
+{
+    _contactFuncCount=cnt;
+}
+
+int CAddOnScriptContainer::getDynFuncCount() const
+{
+    return(_dynFuncCount);
+}
+
+void CAddOnScriptContainer::setDynFuncCount(int cnt)
+{
+    _dynFuncCount=cnt;
+}
+
+int CAddOnScriptContainer::getEventFuncCount() const
+{
+    return(_eventFuncCount);
+}
+
+void CAddOnScriptContainer::setEventFuncCount(int cnt)
+{
+    _eventFuncCount=cnt;
+}
+
+int CAddOnScriptContainer::getJointFuncCount() const
+{
+    return(_jointFuncCount);
+}
+
+void CAddOnScriptContainer::setJointFuncCount(int cnt)
+{
+    _jointFuncCount=cnt;
 }
 
 void CAddOnScriptContainer::simulationAboutToStart()
@@ -58,14 +103,9 @@ CScriptObject* CAddOnScriptContainer::getAddOnFromName(const char* name) const
 
 int CAddOnScriptContainer::_insertAddOn(CScriptObject* script)
 {
-    // We make sure the id is unique:
-    int newHandle=SIM_IDSTART_ADDONSCRIPT;
-    while (getAddOnFromID(newHandle)!=nullptr)
-        newHandle++;
-    script->setScriptHandle(newHandle);
+    script->setScriptHandle(_nextScriptHandle++);
     _addOns.push_back(script);
-
-    return(newHandle);
+    return(_nextScriptHandle-1);
 }
 
 int CAddOnScriptContainer::_insertAddOns()
@@ -224,11 +264,32 @@ bool CAddOnScriptContainer::shouldTemporarilySuspendMainScript()
 int CAddOnScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack)
 {
     int retVal=0;
+    std::vector<CScriptObject*> scripts;
+    std::vector<CScriptObject*> scripts_normal;
+    std::vector<CScriptObject*> scripts_last;
     for (size_t i=0;i<_addOns.size();i++)
     {
         CScriptObject* it=_addOns[i];
-        if (it->systemCallScript(callType,inStack,outStack)==1)
-            retVal++;
+        if (it->getScriptExecPriority()==sim_scriptexecorder_first)
+            scripts.push_back(it);
+        if (it->getScriptExecPriority()==sim_scriptexecorder_normal)
+            scripts_normal.push_back(it);
+        if (it->getScriptExecPriority()==sim_scriptexecorder_last)
+            scripts_last.push_back(it);
+    }
+    scripts.insert(scripts.end(),scripts_normal.begin(),scripts_normal.end());
+    scripts.insert(scripts.end(),scripts_last.begin(),scripts_last.end());
+    bool interruptible=CScriptObject::isSystemCallbackInterruptible(callType);
+    for (size_t i=0;i<scripts.size();i++)
+    {
+        CScriptObject* it=scripts[i];
+        if (it->hasFunction(callType))
+        {
+            if (it->systemCallScript(callType,inStack,outStack)==1)
+                retVal++;
+        }
+        if (interruptible&&(outStack!=nullptr)&&(outStack->getStackSize()!=0))
+            break;
     }
     return(retVal);
 }

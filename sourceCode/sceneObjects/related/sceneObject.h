@@ -133,8 +133,10 @@ public:
     void setIsInScene(bool s);
     void setParentPtr(CSceneObject* parent);
 
-    int getScriptExecutionOrder(int scriptType) const;
-    int getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds);
+    size_t getScriptsToExecute(std::vector<int>& scriptHandles,int scriptType);
+    size_t getScriptsToExecute_branch(std::vector<int>& scriptHandles,int scriptType);
+    int getScriptExecutionOrder_old(int scriptType) const;
+    int getScriptsToExecute_old(int scriptType,int parentTraversalDirection,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds);
 
     void scalePosition(float scalingFactor);
     void getAllObjectsRecursive(std::vector<CSceneObject*>* objectList,bool baseIncluded=true,bool start=true) const;
@@ -212,6 +214,9 @@ public:
     float getSizeFactor() const;
     void setSizeValues(const float s[3]);
     void getSizeValues(float s[3]) const;
+
+    void setScriptExecPriority(int p);
+    int getScriptExecPriority() const;
 
 
     void setDynamicsResetFlag(bool reset,bool fullHierarchyTree);
@@ -328,6 +333,7 @@ protected:
     int _collectionSelfCollisionIndicator;
     int _localObjectSpecialProperty;
     int _modelProperty;
+    int _scriptExecPriority; // sim_scriptexecorder_first, etc.
     int _calculatedModelProperty;
     int _calculatedObjectProperty;
     std::string _modelAcknowledgement;

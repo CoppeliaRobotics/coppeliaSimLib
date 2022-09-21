@@ -34,6 +34,7 @@ CSceneObject::CSceneObject()
     _modelInvisible=false;
     _parentObject=nullptr;
     _childOrder=-1;
+    _scriptExecPriority=sim_scriptexecorder_normal;
     _localTransformation.setIdentity();
     _parentObjectHandle_forSerializationOnly=-1;
     _objectHandle=-1;
@@ -651,6 +652,15 @@ void CSceneObject::getSizeValues(float s[3]) const
     s[2]=_sizeValues[2];
 }
 
+void CSceneObject::setScriptExecPriority(int p)
+{
+    _scriptExecPriority=p;
+}
+
+int CSceneObject::getScriptExecPriority() const
+{
+    return(_scriptExecPriority);
+}
 
 int CSceneObject::getParentCount() const
 {
@@ -1351,6 +1361,7 @@ CSceneObject* CSceneObject::copyYourself()
     theNewObject->_localObjectSpecialProperty=_localObjectSpecialProperty;
     theNewObject->_modelProperty=_modelProperty;
     theNewObject->_extensionString=_extensionString;
+    theNewObject->_scriptExecPriority=_scriptExecPriority;
 
     theNewObject->_dnaString=_dnaString;
     theNewObject->_copyString=_copyString;
@@ -1855,13 +1866,13 @@ std::string CSceneObject::getUniquePersistentIdString() const
     return(_uniquePersistentIdString);
 }
 
-int CSceneObject::getScriptExecutionOrder(int scriptType) const
-{
+int CSceneObject::getScriptExecutionOrder_old(int scriptType) const
+{ // old, for backward compatibility (19.09.2022)
     if (scriptType==sim_scripttype_customizationscript)
     {
         CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,_objectHandle);
         if (it!=nullptr)
-            return(it->getExecutionPriority());
+            return(it->getExecutionPriority_old());
     }
     else if ((scriptType&sim_scripttype_childscript)!=0)
     {
@@ -1869,13 +1880,100 @@ int CSceneObject::getScriptExecutionOrder(int scriptType) const
         if (it!=nullptr)
         {
             if ( it->getThreadedExecution_oldThreads()==((scriptType&sim_scripttype_threaded_old)!=0) )
-                return(it->getExecutionPriority());
+                return(it->getExecutionPriority_old());
         }
     }
     return(sim_scriptexecorder_normal);
 }
 
-int CSceneObject::getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds)
+size_t CSceneObject::getScriptsToExecute(std::vector<int>& scriptHandles,int scriptType)
+{ // returns all non-disabled scripts, from leaf to root. With scriptType==-1, returns child and customization scripts
+    size_t retVal=0;
+    if ((getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)==0)
+    {
+        // handle children first:
+        std::vector<CSceneObject*> children;
+        std::vector<CSceneObject*> childrenNormalPriority;
+        std::vector<CSceneObject*> childrenLastPriority;
+        for (size_t i=0;i<getChildCount();i++)
+        {
+            CSceneObject* it=getChildFromIndex(i);
+            int p=it->getScriptExecPriority();
+            if (p==sim_scriptexecorder_first)
+                children.push_back(it);
+            if (p==sim_scriptexecorder_normal)
+                childrenNormalPriority.push_back(it);
+            if (p==sim_scriptexecorder_last)
+                childrenLastPriority.push_back(it);
+        }
+        children.insert(children.end(),childrenNormalPriority.begin(),childrenNormalPriority.end());
+        children.insert(children.end(),childrenLastPriority.begin(),childrenLastPriority.end());
+        for (size_t i=0;i<children.size();i++)
+            retVal+=children[i]->getScriptsToExecute(scriptHandles,scriptType);
+
+        // now itself:
+        if (!App::currentWorld->simulation->isSimulationStopped())
+        {
+            if ( (scriptType==-1)||((scriptType&0x0f)==sim_scripttype_childscript) )
+            { // child script
+                CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,_objectHandle);
+                if ( (it!=nullptr)&&(!it->getScriptIsDisabled()) )
+                {
+                    if ( (scriptType==-1)||(it->getThreadedExecution_oldThreads()==((scriptType&sim_scripttype_threaded_old)!=0)) )
+                    { // take also old, threaded scripts into account!
+                        scriptHandles.push_back(it->getScriptHandle());
+                        retVal++;
+                    }
+                }
+            }
+        }
+        if ( (scriptType==-1)||(scriptType==sim_scripttype_customizationscript) )
+        { // customization script
+            CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,_objectHandle);
+            if ( (it!=nullptr)&&(!it->getScriptIsDisabled()) )
+            {
+                scriptHandles.push_back(it->getScriptHandle());
+                retVal++;
+            }
+        }
+    }
+    return(retVal);
+}
+
+size_t CSceneObject::getScriptsToExecute_branch(std::vector<int>& scriptHandles,int scriptType)
+{ // returns all non-disabled scripts, from leaf to root, in that branch. With scriptType==-1, returns child and customization scripts
+    size_t retVal=0;
+    if ((getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)==0)
+    {
+        if (!App::currentWorld->simulation->isSimulationStopped())
+        {
+            if ( (scriptType==-1)||(scriptType==sim_scripttype_childscript) )
+            { // child script
+                CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,_objectHandle);
+                if ( (it!=nullptr)&&(!it->getScriptIsDisabled()) )
+                {
+                    scriptHandles.push_back(it->getScriptHandle());
+                    retVal++;
+                }
+            }
+        }
+        if ( (scriptType==-1)||(scriptType==sim_scripttype_customizationscript) )
+        { // customization script
+            CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,_objectHandle);
+            if ( (it!=nullptr)&&(!it->getScriptIsDisabled()) )
+            {
+                scriptHandles.push_back(it->getScriptHandle());
+                retVal++;
+            }
+        }
+    }
+    CSceneObject* parent=getParent();
+    if (parent!=nullptr)
+        retVal+=parent->getScriptsToExecute_branch(scriptHandles,scriptType);
+    return(retVal);
+}
+
+int CSceneObject::getScriptsToExecute_old(int scriptType,int parentTraversalDirection,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds)
 {
     int cnt=0;
     CScriptObject* attachedScript=nullptr;
@@ -1917,12 +2015,12 @@ int CSceneObject::getScriptsToExecute(int scriptType,int parentTraversalDirectio
         for (size_t i=0;i<getChildCount();i++)
         {
             CSceneObject* it=getChildFromIndex(i);
-            toHandle[it->getScriptExecutionOrder(scriptType)]->push_back(it);
+            toHandle[it->getScriptExecutionOrder_old(scriptType)]->push_back(it);
         }
         for (size_t i=0;i<toHandle.size();i++)
         {
             for (size_t j=0;j<toHandle[i]->size();j++)
-                cnt+=toHandle[i]->at(j)->getScriptsToExecute(scriptType,traversalDir,scripts,uniqueIds);
+                cnt+=toHandle[i]->at(j)->getScriptsToExecute_old(scriptType,traversalDir,scripts,uniqueIds);
         }
 
         if ( (traversalDir==sim_scripttreetraversal_reverse)&&(attachedScript!=nullptr)&&(!attachedScript->getScriptIsDisabled()) )
@@ -2084,6 +2182,10 @@ void CSceneObject::serialize(CSer& ar)
 
             ar.storeDataName("Lar");
             ar << _visibilityLayer;
+            ar.flush();
+
+            ar.storeDataName("Sep");
+            ar << _scriptExecPriority;
             ar.flush();
 
             ar.storeDataName("Cor");
@@ -2404,6 +2506,12 @@ void CSceneObject::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _visibilityLayer;
+                    }
+                    if (theName.compare("Sep")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _scriptExecPriority;
                     }
                     if (theName.compare("Cor")==0)
                     {
@@ -2728,6 +2836,8 @@ void CSceneObject::serialize(CSer& ar)
             {
                 ar.xmlAddNode_float("sizeFactor",_sizeFactor);
 
+                ar.xmlAddNode_int("scriptExecPriority",_scriptExecPriority);
+
                 ar.xmlAddNode_floats("sizeValues",_sizeValues,3);
 
                 std::string str(base64_encode((unsigned char*)_dnaString.c_str(),_dnaString.size()));
@@ -3004,10 +3114,13 @@ void CSceneObject::serialize(CSer& ar)
                 }
 
                 if (exhaustiveXml)
+                {
                     ar.xmlGetNode_float("sizeFactor",_sizeFactor,exhaustiveXml);
-
-                if (exhaustiveXml)
+                    ar.xmlGetNode_int("scriptExecPriority",_scriptExecPriority,exhaustiveXml);
                     ar.xmlGetNode_floats("sizeValues",_sizeValues,3,exhaustiveXml);
+                    ar.xmlGetNode_float("transparentObjectDistanceOffset",_transparentObjectDistanceOffset,exhaustiveXml);
+                    ar.xmlGetNode_int("authorizedViewableObjects",_authorizedViewableObjects,exhaustiveXml);
+                }
 
                 if (exhaustiveXml&&ar.xmlGetNode_string("dnaString_base64Coded",_dnaString))
                     _dnaString=base64_decode(_dnaString);
@@ -3015,11 +3128,6 @@ void CSceneObject::serialize(CSer& ar)
                 if (exhaustiveXml&&ar.xmlGetNode_string("uniquePersistentString_base64Coded",_uniquePersistentIdString))
                     _uniquePersistentIdString=base64_decode(_uniquePersistentIdString);
 
-                if (exhaustiveXml)
-                    ar.xmlGetNode_float("transparentObjectDistanceOffset",_transparentObjectDistanceOffset,exhaustiveXml);
-
-                if (exhaustiveXml)
-                    ar.xmlGetNode_int("authorizedViewableObjects",_authorizedViewableObjects,exhaustiveXml);
 
                 ar.xmlGetNode_string("extensionString",_extensionString,exhaustiveXml);
 

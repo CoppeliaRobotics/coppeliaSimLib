@@ -306,7 +306,7 @@ void simulatorLoop()
             }
         }
         else
-            App::worldContainer->callScripts(sim_syscb_realtimeidle,nullptr);
+            App::worldContainer->callScripts(sim_syscb_realtimeidle,nullptr,nullptr);
     }
     if ( (simGetSimulationState_internal()==sim_simulation_stopped)&&wasRunning&&firstSimulationAutoQuit )
     {
@@ -10752,7 +10752,7 @@ simInt simGetScriptInt32Param_internal(simInt scriptHandle,simInt parameterID,si
         int retVal=-1;
         if (parameterID==sim_scriptintparam_execorder)
         {
-            parameter[0]=it->getExecutionPriority();
+            parameter[0]=it->getScriptExecPriority();
             retVal=1;
         }
         if (parameterID==sim_scriptintparam_execcount)
@@ -10802,7 +10802,7 @@ simInt simSetScriptInt32Param_internal(simInt scriptHandle,simInt parameterID,si
         int retVal=-1;
         if (parameterID==sim_scriptintparam_execorder)
         {
-            it->setExecutionPriority(parameter);
+            it->setScriptExecPriority(parameter);
             retVal=1;
         }
         if (parameterID==sim_scriptintparam_execcount)
@@ -12627,7 +12627,7 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
         if (data==nullptr)
             dataSize=0;
 
-        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
+        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_EMBEDDEDSCRIPT) )
         { // here we have an object
             if (!doesObjectExist(__func__,objectHandle))
                 return(-1);
@@ -12715,7 +12715,7 @@ simInt simWriteCustomDataBlock_internal(simInt objectHandle,const simChar* tagNa
         }
 
         // ---------------------- Old -----------------------------
-        if (objectHandle>=SIM_IDSTART_LUASCRIPT)
+        if (objectHandle>=SIM_IDSTART_EMBEDDEDSCRIPT)
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
@@ -12799,7 +12799,7 @@ simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagN
         }
 
         std::string rrr;
-        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
+        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_EMBEDDEDSCRIPT) )
         { // Here we have an object
             if (!doesObjectExist(__func__,objectHandle))
                 return(nullptr);
@@ -12827,7 +12827,7 @@ simChar* simReadCustomDataBlock_internal(simInt objectHandle,const simChar* tagN
         }
 
         // ---------------------- Old -----------------------------
-        if (objectHandle>=SIM_IDSTART_LUASCRIPT)
+        if (objectHandle>=SIM_IDSTART_EMBEDDEDSCRIPT)
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
@@ -12880,7 +12880,7 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
         char* retBuffer=nullptr;
         tagCount[0]=0;
         std::string tags;
-        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
+        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_EMBEDDEDSCRIPT) )
         { // here we have an object
             if (!doesObjectExist(__func__,objectHandle))
                 return(nullptr);
@@ -12916,7 +12916,7 @@ simChar* simReadCustomDataBlockTags_internal(simInt objectHandle,simInt* tagCoun
         }
 
         // ---------------------- Old -----------------------------
-        if (objectHandle>=SIM_IDSTART_LUASCRIPT)
+        if (objectHandle>=SIM_IDSTART_EMBEDDEDSCRIPT)
         { // here we have a script
             std::vector<std::string> allTags;
             if (!App::userSettings->compatibilityFix1)
@@ -13545,7 +13545,7 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
     TRACE_C_API;
     CScriptObject* script=nullptr;
     std::string funcName;
-    if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
+    if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
     { // script is identified by its ID
         std::string funcNameAtScriptName(functionNameAtScriptName);
         size_t p=funcNameAtScriptName.find('@');
@@ -15712,7 +15712,7 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
     {
         CScriptObject* script=nullptr;
         std::string stringToExecute;
-        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
+        if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
         { // script is identified by its ID
             std::string strAtScriptName(stringAtScriptName);
             size_t p=strAtScriptName.rfind('@');
@@ -15821,7 +15821,7 @@ simChar* simGetApiFunc_internal(simInt scriptHandleOrType,const simChar* apiWord
     {
         int scriptType=-1;
         bool threaded=false;
-        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
+        if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
         { // script is identified by its ID
             CScriptObject* script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
             if (script!=nullptr)
@@ -15877,7 +15877,7 @@ simChar* simGetApiInfo_internal(simInt scriptHandleOrType,const simChar* apiWord
     {
         int scriptType=-1;
         bool threaded=false;
-        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
+        if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
         { // script is identified by its ID
             CScriptObject* script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
             if (script!=nullptr)
@@ -16528,7 +16528,7 @@ const simVoid* _simGetParentObject_internal(const simVoid* object)
 }
 
 simVoid _simDynReportObjectCumulativeTransformation_internal(simVoid* obj,const simFloat* pos,const simFloat* quat,simFloat simTime)
-{ // obj is always a shape
+{ // obj is always a shape. Used by the physics engines. The joints and force sensors's internal errors are updated accordingly
     TRACE_C_API;
     CSceneObject* object=(CSceneObject*)obj;
     CSceneObject* parent=object->getParent();
@@ -16642,12 +16642,6 @@ simFloat _simGetDynamicMotorUpperLimitVelocity_internal(const simVoid* joint)
     float maxVelAccelJerk[3];
     ((CJoint*)joint)->getMaxVelAccelJerk(maxVelAccelJerk);
     return(maxVelAccelJerk[0]);
-}
-
-simVoid _simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(simVoid* joint,simFloat pos,simFloat simTime)
-{
-    TRACE_C_API;
-    ((CJoint*)joint)->setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(pos,simTime);
 }
 
 simVoid _simSetJointSphericalTransformation_internal(simVoid* joint,const simFloat* quat,simFloat simTime)
@@ -16806,15 +16800,21 @@ simVoid _simDisableDynamicTreeForManipulation_internal(const simVoid* object,sim
 }
 
 simVoid _simSetJointVelocity_internal(const simVoid* joint,simFloat vel)
-{
+{ // only used by MuJoCo. Other engines have the joint velocity computed via _simSetDynamicMotorReflectedPositionFromDynamicEngine
     TRACE_C_API;
     ((CJoint*)joint)->setVelocity(vel);
 }
 
 simVoid _simSetJointPosition_internal(const simVoid* joint,simFloat pos)
-{
+{ // only used by MuJoCo. Other engines have the joint position set via _simSetDynamicMotorReflectedPositionFromDynamicEngine
     TRACE_C_API;
     ((CJoint*)joint)->setPosition(pos,false);
+}
+
+simVoid _simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(simVoid* joint,simFloat pos,simFloat simTime)
+{ // only from non-MuJoCo engines. MuJoCo uses above 2 functions instead
+    TRACE_C_API;
+    ((CJoint*)joint)->setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(pos,simTime);
 }
 
 simFloat _simGetJointPosition_internal(const simVoid* joint)
@@ -16860,22 +16860,6 @@ simInt _simHandleJointControl_internal(const simVoid* joint,simInt auxV,const si
     return(((CJoint*)joint)->handleDynJoint(auxV,inputValuesInt,currentPosVelAccel,inputValuesFloat[1],inputValuesFloat[2],inputValuesFloat[3],outputValues));
 }
 
-simInt _simGetJointCallbackCallOrder_internal(const simVoid* joint)
-{
-    TRACE_C_API;
-    int retVal=sim_scriptexecorder_normal;
-    CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,((CJoint*)joint)->getObjectHandle());
-    if (it!=nullptr)
-        retVal=it->getExecutionPriority();
-    else
-    {
-        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,((CJoint*)joint)->getObjectHandle());
-        if (it!=nullptr)
-            retVal=it->getExecutionPriority();
-    }
-    return(retVal);
-}
-
 simInt _simGetJointDynCtrlMode_internal(const simVoid* joint)
 {
     TRACE_C_API;
@@ -16888,79 +16872,79 @@ simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simI
     TRACE_C_API;
 
     // 1. We handle the new calling method:
-    if ( ((engine&1024)==0)&&App::currentWorld->embeddedScriptContainer->isContactCallbackFunctionAvailable() ) // the engine flag 1024 means: the calling thread is not the simulation thread. We would have problems with the scripts
+    if (App::worldContainer->getContactFuncCount()>0)
     {
-        CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
-        inStack->pushTableOntoStack();
-        inStack->insertKeyInt32IntoStackTable("handle1",objHandle1);
-        inStack->insertKeyInt32IntoStackTable("handle2",objHandle2);
-        inStack->insertKeyInt32IntoStackTable("engine",engine);
-        CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
-        int retInfo=0;
-        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_contactcallback,inStack,outStack,&retInfo);
-        if (retInfo>0)
-            App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_contactcallback,inStack,outStack,&retInfo);
-        App::worldContainer->interfaceStackContainer->destroyStack(inStack);
-
-        bool ignoreContact;
-        if (outStack->getStackMapBoolValue("ignoreContact",ignoreContact))
+        if ((engine&1024)==0) // the engine flag 1024 means: the calling thread is not the simulation thread. We would have problems with the scripts
         {
-            dataInt[0]=0;
-            if (!ignoreContact)
+            CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
+            inStack->pushTableOntoStack();
+            inStack->insertKeyInt32IntoStackTable("handle1",objHandle1);
+            inStack->insertKeyInt32IntoStackTable("handle2",objHandle2);
+            inStack->insertKeyInt32IntoStackTable("engine",engine);
+            CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
+            App::worldContainer->callScripts(sim_syscb_contact,inStack,outStack);
+            App::worldContainer->interfaceStackContainer->destroyStack(inStack);
+
+            bool ignoreContact;
+            if (outStack->getStackMapBoolValue("ignoreContact",ignoreContact))
             {
-                bool collisionResponse=false;
-                outStack->getStackMapBoolValue("collisionResponse",collisionResponse);
-                if (collisionResponse)
+                dataInt[0]=0;
+                if (!ignoreContact)
                 {
-                    if (engine==sim_physics_ode)
+                    bool collisionResponse=false;
+                    outStack->getStackMapBoolValue("collisionResponse",collisionResponse);
+                    if (collisionResponse)
                     {
-                        outStack->getStackMapInt32Value("ode.maxContacts",dataInt[1]);
-                        outStack->getStackMapInt32Value("ode.contactMode",dataInt[2]);
+                        if (engine==sim_physics_ode)
+                        {
+                            outStack->getStackMapInt32Value("ode.maxContacts",dataInt[1]);
+                            outStack->getStackMapInt32Value("ode.contactMode",dataInt[2]);
+                        }
+                        if (engine==sim_physics_bullet)
+                        {
+                            outStack->getStackMapFloatValue("bullet.friction",dataFloat[0]);
+                            outStack->getStackMapFloatValue("bullet.restitution",dataFloat[1]);
+                        }
+                        if (engine==sim_physics_ode)
+                        {
+                            outStack->getStackMapFloatValue("ode.mu",dataFloat[0]);
+                            outStack->getStackMapFloatValue("ode.mu2",dataFloat[1]);
+                            outStack->getStackMapFloatValue("ode.bounce",dataFloat[2]);
+                            outStack->getStackMapFloatValue("ode.bounceVel",dataFloat[3]);
+                            outStack->getStackMapFloatValue("ode.softCfm",dataFloat[4]);
+                            outStack->getStackMapFloatValue("ode.softErp",dataFloat[5]);
+                            outStack->getStackMapFloatValue("ode.motion1",dataFloat[6]);
+                            outStack->getStackMapFloatValue("ode.motion2",dataFloat[7]);
+                            outStack->getStackMapFloatValue("ode.motionN",dataFloat[8]);
+                            outStack->getStackMapFloatValue("ode.slip1",dataFloat[9]);
+                            outStack->getStackMapFloatValue("ode.slip2",dataFloat[10]);
+                            outStack->getStackMapFloatArray("ode.fDir1",dataFloat+11,3);
+                        }
+                        if (engine==sim_physics_vortex)
+                        {
+                            //outStack->getStackMapFloatValue("vortex.xxxx",dataFloat[0]);
+                        }
+                        if (engine==sim_physics_newton)
+                        {
+                            outStack->getStackMapFloatValue("newton.staticFriction",dataFloat[0]);
+                            outStack->getStackMapFloatValue("newton.kineticFriction",dataFloat[1]);
+                            outStack->getStackMapFloatValue("newton.restitution",dataFloat[2]);
+                        }
+                        if (engine==sim_physics_mujoco)
+                        {
+                        }
+                        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+                        return(1); // collision
                     }
-                    if (engine==sim_physics_bullet)
+                    else
                     {
-                        outStack->getStackMapFloatValue("bullet.friction",dataFloat[0]);
-                        outStack->getStackMapFloatValue("bullet.restitution",dataFloat[1]);
+                        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+                        return(0); // no collision
                     }
-                    if (engine==sim_physics_ode)
-                    {
-                        outStack->getStackMapFloatValue("ode.mu",dataFloat[0]);
-                        outStack->getStackMapFloatValue("ode.mu2",dataFloat[1]);
-                        outStack->getStackMapFloatValue("ode.bounce",dataFloat[2]);
-                        outStack->getStackMapFloatValue("ode.bounceVel",dataFloat[3]);
-                        outStack->getStackMapFloatValue("ode.softCfm",dataFloat[4]);
-                        outStack->getStackMapFloatValue("ode.softErp",dataFloat[5]);
-                        outStack->getStackMapFloatValue("ode.motion1",dataFloat[6]);
-                        outStack->getStackMapFloatValue("ode.motion2",dataFloat[7]);
-                        outStack->getStackMapFloatValue("ode.motionN",dataFloat[8]);
-                        outStack->getStackMapFloatValue("ode.slip1",dataFloat[9]);
-                        outStack->getStackMapFloatValue("ode.slip2",dataFloat[10]);
-                        outStack->getStackMapFloatArray("ode.fDir1",dataFloat+11,3);
-                    }
-                    if (engine==sim_physics_vortex)
-                    {
-                        //outStack->getStackMapFloatValue("vortex.xxxx",dataFloat[0]);
-                    }
-                    if (engine==sim_physics_newton)
-                    {
-                        outStack->getStackMapFloatValue("newton.staticFriction",dataFloat[0]);
-                        outStack->getStackMapFloatValue("newton.kineticFriction",dataFloat[1]);
-                        outStack->getStackMapFloatValue("newton.restitution",dataFloat[2]);
-                    }
-                    if (engine==sim_physics_mujoco)
-                    {
-                    }
-                    App::worldContainer->interfaceStackContainer->destroyStack(outStack);
-                    return(1); // collision
-                }
-                else
-                {
-                    App::worldContainer->interfaceStackContainer->destroyStack(outStack);
-                    return(0); // no collision
                 }
             }
+            App::worldContainer->interfaceStackContainer->destroyStack(outStack);
         }
-        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
     }
     return(-1); // we let CoppeliaSim handle the contact
 }
@@ -16975,7 +16959,7 @@ simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData
 {
     TRACE_C_API;
 
-    if (App::currentWorld->embeddedScriptContainer->isDynCallbackFunctionAvailable())
+    if (App::worldContainer->getDynFuncCount()>0)
     { // to make it a bit faster than blindly parsing the whole object hierarchy
         CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
         inStack->pushTableOntoStack();
@@ -16985,8 +16969,7 @@ simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData
         inStack->insertKeyFloatIntoStackTable("dynStepSize",floatData[0]); // deprecated
         inStack->insertKeyFloatIntoStackTable("dt",floatData[0]);
         inStack->insertKeyBoolIntoStackTable("afterStep",intData[3]!=0);
-        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,sim_syscb_dyncallback,inStack,nullptr,nullptr);
-        App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_dyncallback,inStack,nullptr,nullptr);
+        App::worldContainer->callScripts(sim_syscb_dyn,inStack,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(inStack);
     }
 }
@@ -17514,7 +17497,7 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         std::string arrayName;
-        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
+        if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
         { // script is identified by its ID
             std::string arrNameAtScriptName(arrayNameAtScriptName);
             size_t p=arrNameAtScriptName.find('@');
@@ -17602,7 +17585,7 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
     CScriptObject* script=nullptr;
 
     std::string variableName;
-    if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
+    if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
     { // script is identified by its ID
         std::string varNameAtScriptName(variableNameAtScriptName);
         size_t p=varNameAtScriptName.find('@');
@@ -18738,7 +18721,7 @@ simInt simHandleCustomizationScripts_internal(simInt callType)
         int retVal=0;
         if (App::getEditModeType()==NO_EDIT_MODE)
         {
-            retVal=App::currentWorld->embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,callType,nullptr,nullptr,nullptr);
+            retVal=App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(sim_scripttype_customizationscript,callType,nullptr,nullptr);
             App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
         }
         return(retVal);
@@ -18753,7 +18736,7 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
     CScriptObject* script=nullptr;
 
     std::string funcName;
-    if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
+    if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
     { // script is identified by its ID
         std::string funcNameAtScriptName(functionNameAtScriptName);
         size_t p=funcNameAtScriptName.find('@');
@@ -21373,7 +21356,7 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
     {
         CScriptObject* script=nullptr;
         std::string variableName;
-        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
+        if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
         { // script is identified by its ID
             std::string varNameAtScriptName(variableNameAtScriptName);
             size_t p=varNameAtScriptName.find('@');
@@ -22863,7 +22846,7 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         }
         if (attributeID==sim_scriptattribute_executionorder)
         {
-            it->setExecutionPriority(intOrBoolVal);
+            it->setExecutionPriority_old(intOrBoolVal);
             retVal=1;
         }
         if (attributeID==sim_scriptattribute_executioncount)
@@ -22933,7 +22916,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
         }
         if (attributeID==sim_scriptattribute_executionorder)
         {
-            intOrBoolVal[0]=it->getExecutionPriority();
+            intOrBoolVal[0]=it->getExecutionPriority_old();
             retVal=1;
         }
         if (attributeID==sim_scriptattribute_executioncount)

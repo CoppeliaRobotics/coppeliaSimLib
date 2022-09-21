@@ -1269,7 +1269,7 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection,bool s
         stack->pushStringOntoStack("objectHandles",0);
         stack->pushInt32ArrayOntoStack(&newObjectHandles[0],newObjectHandles.size());
         stack->insertDataIntoStackTable();
-        App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
+        App::worldContainer->callScripts(sim_syscb_aftercreate,stack,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
 }
@@ -1589,7 +1589,7 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool sh
         stack->pushStringOntoStack("objectHandles",0);
         stack->pushInt32ArrayOntoStack(&newObjectHandles[0],newObjectHandles.size());
         stack->insertDataIntoStackTable();
-        App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
+        App::worldContainer->callScripts(sim_syscb_aftercreate,stack,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
 

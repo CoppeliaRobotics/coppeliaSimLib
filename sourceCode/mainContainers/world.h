@@ -79,7 +79,6 @@ public:
 
     void pushGenesisEvents();
 
-
     // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);
     void announceCollectionWillBeErased(int collectionHandle);

@@ -1612,29 +1612,107 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
     }
     else
     { // position, spring and callback
-        bool rev=(_jointType==sim_joint_revolute_subtype);
-        bool cycl=_isCyclic;
-        float lowL=_posMin;
-        float highL=_posMin+_posRange;
-        bool tryScript=((_dynCtrlMode==sim_jointdynctrl_callback)||(_dynCtrlMode==sim_jointdynctrl_positioncb)||(_dynCtrlMode==sim_jointdynctrl_springcb));
-        bool handleHere=( (_dynCtrlMode==sim_jointdynctrl_position)||(_dynCtrlMode==sim_jointdynctrl_spring) );
-        if (tryScript)
-        {
-            CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,getObjectHandle());
-            if ( (script!=nullptr)&&(!script->getScriptIsDisabled()) )
+        if ( (_dynCtrlMode==sim_jointdynctrl_position)||(_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_positioncb)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
+        { // we have the built-in control (position or spring-damper KC)
+            if (dynStepSize!=0.0)
+            {
+                if ( (_dynPositionCtrlType==1)&&(_dynCtrlMode==sim_jointdynctrl_position) )
+                { // motion profile
+                    double dynPosCtrlCurrentVelAccel[2]={_dynPosCtrl_currentVelAccel[0],_dynPosCtrl_currentVelAccel[1]};
+                    double cp=double(currentPosVelAccel[0]);
+                    double tp=cp+double(errorV);
+                    double maxVelAccelJerk[3]={double(_maxVelAccelJerk[0]),double(_maxVelAccelJerk[1]),double(_maxVelAccelJerk[2])};
+                    unsigned char sel=1;
+                    double dummy=0.0;
+                    int ruckObj=CPluginContainer::ruckigPlugin_pos(-1,1,dynStepSize,-1,&cp,dynPosCtrlCurrentVelAccel,dynPosCtrlCurrentVelAccel+1,maxVelAccelJerk,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&tp,&dummy);
+                    if (ruckObj>=0)
+                    {
+                        int res=CPluginContainer::ruckigPlugin_step(ruckObj,dynStepSize,&dummy,dynPosCtrlCurrentVelAccel,dynPosCtrlCurrentVelAccel+1,&dummy);
+                        CPluginContainer::ruckigPlugin_remove(ruckObj);
+                        velAndForce[0]=float(dynPosCtrlCurrentVelAccel[0]);
+                        velAndForce[1]=_targetForce;
+                        if (velAndForce[0]*velAndForce[1]<0.0f)
+                            velAndForce[1]=-velAndForce[1]; // make sure they have same sign
+                    }
+                    if ( (rk4==0)||(rk4==4) )
+                    {
+                        _dynPosCtrl_currentVelAccel[0]=dynPosCtrlCurrentVelAccel[0];
+                        _dynPosCtrl_currentVelAccel[1]=dynPosCtrlCurrentVelAccel[1];
+                    }
+                }
+                else
+                { // pos ctrl or spring
+                    float P,I,D;
+                    getPid(P,I,D);
+                    if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
+                    {
+                        P=_dynCtrl_kc[0];
+                        I=0.0f;
+                        D=_dynCtrl_kc[1];
+                    }
 
-            {
-                if (!script->getContainsJointCallbackFunction())
-                    script=nullptr;
+                    if ((flags&1)!=0)
+                        _dynCtrl_pid_cumulErr=0.0f;
+
+                    float e=errorV;
+
+                    // Proportional part:
+                    float ctrl=e*P;
+
+                    // Integral part:
+                    if ( (I!=0.0)&&(rk4==0) ) // so that if we turn the integral part on, we don't try to catch up all the past errors!
+                        _dynCtrl_pid_cumulErr+=e*dynStepSize;
+                    else
+                        _dynCtrl_pid_cumulErr=0.0f;
+                    ctrl+=_dynCtrl_pid_cumulErr*I;
+
+                    // Derivative part:
+                    float cv=_velCalc_vel;
+                    if ((flags&2)!=0)
+                        cv=currentPosVelAccel[1];
+                    ctrl-=cv*D;
+
+                    if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
+                    { // "spring" mode, i.e. force modulation mode
+                        velAndForce[0]=fabs(_targetVel);
+                        if (ctrl<0.0f)
+                            velAndForce[0]=-velAndForce[0];
+                        velAndForce[1]=fabs(ctrl);
+                        if (velAndForce[0]*velAndForce[1]<0.0f)
+                            velAndForce[1]=-velAndForce[1]; // make sure they have same sign
+                    }
+                    else
+                    { // regular position control
+                        float vel=ctrl/0.005f; // was ctrl/dynStepSize, but has to be step size independent
+                        float maxVel=_maxVelAccelJerk[0];
+                        if (vel>maxVel)
+                            vel=maxVel;
+                        if (vel<-maxVel)
+                            vel=-maxVel;
+
+                        velAndForce[0]=vel;
+                        velAndForce[1]=_targetForce;
+                        if (velAndForce[0]*velAndForce[1]<0.0f)
+                            velAndForce[1]=-velAndForce[1]; // make sure they have same sign
+                    }
+                }
+                _dynCtrl_previousVelForce[0]=velAndForce[0];
+                _dynCtrl_previousVelForce[1]=velAndForce[1];
             }
-            CScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,getObjectHandle());
-            if ( (cScript!=nullptr)&&(!cScript->getScriptIsDisabled()) )
-            {
-                if (!cScript->getContainsJointCallbackFunction())
-                    cScript=nullptr;
+            else
+            { // in case of RK4, pass1 (dt=0)
+                velAndForce[0]=_dynCtrl_previousVelForce[0];
+                velAndForce[1]=_dynCtrl_previousVelForce[1];
             }
-            if ( (script!=nullptr)||(cScript!=nullptr) )
-            { // a child or customization scripts want to handle the joint (new calling method)
+        }
+        if ((_dynCtrlMode==sim_jointdynctrl_callback)||(_dynCtrlMode==sim_jointdynctrl_positioncb)||(_dynCtrlMode==sim_jointdynctrl_springcb))
+        { // joint callback (and hybrid joint pos/spring + callback, old, for backward compatibility)
+            bool rev=(_jointType==sim_joint_revolute_subtype);
+            bool cycl=_isCyclic;
+            float lowL=_posMin;
+            float highL=_posMin+_posRange;
+            if (App::worldContainer->getJointFuncCount()>0)
+            { // a script might want to handle the joint
                 // 1. We prepare the in/out stacks:
                 CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
                 inStack->pushTableOntoStack();
@@ -1735,11 +1813,27 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                 CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
 
                 // 2. Call the script(s):
-                if (script!=nullptr)
+                // First, the old callback functions:
+                CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,_objectHandle);
+                if ( (script!=nullptr)&&(!script->getScriptIsDisabled())&&script->hasFunction(sim_syscb_jointcallback) )
                     script->systemCallScript(sim_syscb_jointcallback,inStack,outStack);
-                if ( (cScript!=nullptr)&&(outStack->getStackSize()==0) )
-                    cScript->systemCallScript(sim_syscb_jointcallback,inStack,outStack);
-                // 3. Collect the return values:
+                if (outStack->getStackSize()==0)
+                {
+                    script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,_objectHandle);
+                    if ( (script!=nullptr)&&(!script->getScriptIsDisabled())&&script->hasFunction(sim_syscb_jointcallback) )
+                        script->systemCallScript(sim_syscb_jointcallback,inStack,outStack);
+                }
+                // Now the regular callback:
+                if ( (outStack->getStackSize()==0)&&(_dynCtrlMode==sim_jointdynctrl_callback) )
+                    App::worldContainer->callScripts(sim_syscb_joint,inStack,outStack,this); // this should only work with the callback mode! (and not with the old hybrid pos callback mode)
+
+                // 3. Set default values:
+                if (_dynCtrlMode==sim_jointdynctrl_callback)
+                { // do not overwrite those with the old sim_jointdynctrl_positioncb and sim_jointdynctrl_springcb
+                    velAndForce[0]=0.0;
+                    velAndForce[1]=0.0;
+                }
+                // 4. Collect the return values:
                 if (outStack->getStackSize()>0)
                 {
                     int s=outStack->getStackSize();
@@ -1754,119 +1848,18 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                 App::worldContainer->interfaceStackContainer->destroyStack(outStack);
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
             }
-            else
-                handleHere=(_dynCtrlMode!=sim_jointdynctrl_callback);
-        }
-        if (handleHere)
-        { // we have the built-in control (position or spring-damper KC)
-            if (dynStepSize!=0.0)
-            {
-                if ( (_dynPositionCtrlType==1)&&(_dynCtrlMode==sim_jointdynctrl_position) )
-                { // motion profile
-                    double dynPosCtrlCurrentVelAccel[2]={_dynPosCtrl_currentVelAccel[0],_dynPosCtrl_currentVelAccel[1]};
-                    double cp=double(currentPosVelAccel[0]);
-                    double tp=cp+double(errorV);
-                    double maxVelAccelJerk[3]={double(_maxVelAccelJerk[0]),double(_maxVelAccelJerk[1]),double(_maxVelAccelJerk[2])};
-                    unsigned char sel=1;
-                    double dummy=0.0;
-                    int ruckObj=CPluginContainer::ruckigPlugin_pos(-1,1,dynStepSize,-1,&cp,dynPosCtrlCurrentVelAccel,dynPosCtrlCurrentVelAccel+1,maxVelAccelJerk,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&tp,&dummy);
-                    if (ruckObj>=0)
-                    {
-                        int res=CPluginContainer::ruckigPlugin_step(ruckObj,dynStepSize,&dummy,dynPosCtrlCurrentVelAccel,dynPosCtrlCurrentVelAccel+1,&dummy);
-                        CPluginContainer::ruckigPlugin_remove(ruckObj);
-                        velAndForce[0]=float(dynPosCtrlCurrentVelAccel[0]);
-                        velAndForce[1]=_targetForce;
-                        if (velAndForce[0]*velAndForce[1]<0.0f)
-                            velAndForce[1]=-velAndForce[1]; // make sure they have same sign
-                    }
-                    if ( (rk4==0)||(rk4==4) )
-                    {
-                        _dynPosCtrl_currentVelAccel[0]=dynPosCtrlCurrentVelAccel[0];
-                        _dynPosCtrl_currentVelAccel[1]=dynPosCtrlCurrentVelAccel[1];
-                    }
-                }
-                else
-                { // pos ctrl or spring
-                    float P,I,D;
-                    getPid(P,I,D);
-                    if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
-                    {
-                        P=_dynCtrl_kc[0];
-                        I=0.0f;
-                        D=_dynCtrl_kc[1];
-                    }
-
-                    if ((flags&1)!=0)
-                        _dynCtrl_pid_cumulErr=0.0f;
-
-                    float e=errorV;
-
-                    // Proportional part:
-                    float ctrl=e*P;
-
-                    // Integral part:
-                    if ( (I!=0.0)&&(rk4==0) ) // so that if we turn the integral part on, we don't try to catch up all the past errors!
-                        _dynCtrl_pid_cumulErr+=e*dynStepSize;
-                    else
-                        _dynCtrl_pid_cumulErr=0.0f;
-                    ctrl+=_dynCtrl_pid_cumulErr*I;
-
-                    // Derivative part:
-                    float cv=_velCalc_vel;
-                    if ((flags&2)!=0)
-                        cv=currentPosVelAccel[1];
-                    ctrl-=cv*D;
-
-                    if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
-                    { // "spring" mode, i.e. force modulation mode
-                        velAndForce[0]=fabs(_targetVel);
-                        if (ctrl<0.0f)
-                            velAndForce[0]=-velAndForce[0];
-                        velAndForce[1]=fabs(ctrl);
-                        if (velAndForce[0]*velAndForce[1]<0.0f)
-                            velAndForce[1]=-velAndForce[1]; // make sure they have same sign
-                    }
-                    else
-                    { // regular position control
-                        float vel=ctrl/0.005f; // was ctrl/dynStepSize, but has to be step size independent
-                        float maxVel=_maxVelAccelJerk[0];
-                        if (vel>maxVel)
-                            vel=maxVel;
-                        if (vel<-maxVel)
-                            vel=-maxVel;
-
-                        velAndForce[0]=vel;
-                        velAndForce[1]=_targetForce;
-                        if (velAndForce[0]*velAndForce[1]<0.0f)
-                            velAndForce[1]=-velAndForce[1]; // make sure they have same sign
-                    }
-                }
-                _dynCtrl_previousVelForce[0]=velAndForce[0];
-                _dynCtrl_previousVelForce[1]=velAndForce[1];
-            }
-            else
-            { // in case of RK4, pass1 (dt=0)
-                velAndForce[0]=_dynCtrl_previousVelForce[0];
-                velAndForce[1]=_dynCtrl_previousVelForce[1];
-            }
         }
     }
     // Joint position and velocity is updated later, via _simSetJointPosition and _simSetJointVelocity from the physics engine
     return(retVal);
 }
 
-bool CJoint::handleMotion(int scriptType)
-{ // retVal true: a joint callback function is present and returned values
-    bool retVal=false;
+void CJoint::handleMotion()
+{
     if ( (_jointMode==sim_jointmode_kinematic)&&(_jointType!=sim_joint_spherical_subtype)&&((_kinematicMotionType&3)!=0) )
     {
-        CScriptObject* script;
-        if (scriptType==-1)
-            script=App::currentWorld->embeddedScriptContainer->getMainScript();
-        else
-            script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType,_objectHandle);
-        if ( (script!=nullptr)&&(!script->getScriptIsDisabled())&&script->getContainsJointCallbackFunction() )
-        {
+        if (App::worldContainer->getJointFuncCount()>0)
+        { // a script might want to handle the joint
             bool rev=(_jointType==sim_joint_revolute_subtype);
             float errorV;
             if (rev&&_isCyclic)
@@ -1947,7 +1940,9 @@ bool CJoint::handleMotion(int scriptType)
             inStack->insertDataIntoStackTable();
 
             CInterfaceStack* outStack=App::worldContainer->interfaceStackContainer->createStack();
-            script->systemCallScript(sim_syscb_jointcallback,inStack,outStack);
+
+            // Call the script(s):
+            App::worldContainer->callScripts(sim_syscb_joint,inStack,outStack,this);
 
             if (outStack->getStackSize()>0)
             {
@@ -1970,13 +1965,11 @@ bool CJoint::handleMotion(int scriptType)
                 outStack->getStackMapBoolValue("immobile",immobile);
                 if (immobile)
                     _kinematicMotionType=16;
-                retVal=true;
             }
             App::worldContainer->interfaceStackContainer->destroyStack(outStack);
             App::worldContainer->interfaceStackContainer->destroyStack(inStack);
         }
     }
-    return(retVal);
 }
 
 void CJoint::setKinematicMotionType(int t,bool reset,float initVel/*=0.0f*/)

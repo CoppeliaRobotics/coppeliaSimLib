@@ -243,7 +243,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene,int selectionMode)
         stack->insertDataIntoStackTable();
     }
     stack->insertDataIntoStackTable();
-    App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
+    App::worldContainer->callScripts(sim_syscb_aftercreate,stack,nullptr);
     App::worldContainer->interfaceStackContainer->destroyStack(stack);
 
     return(1);
@@ -287,7 +287,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         stack->insertDataIntoStackTable();
     }
     stack->insertDataIntoStackTable();
-    App::worldContainer->callScripts(sim_syscb_beforecopy,stack); // could destroy or create objects in there!
+    App::worldContainer->callScripts(sim_syscb_beforecopy,stack,nullptr); // could destroy or create objects in there!
 
     // Copy objects in hierarchial order!
     std::vector<CSceneObject*> selObj;
@@ -331,7 +331,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         objectBuffer.push_back(it);
     }
 
-    App::worldContainer->callScripts(sim_syscb_aftercopy,stack);
+    App::worldContainer->callScripts(sim_syscb_aftercopy,stack,nullptr);
     App::worldContainer->interfaceStackContainer->destroyStack(stack);
     // sceneObjects are copied. We need to prepare the parenting info:
     for (size_t i=0;i<selObj.size();i++)

@@ -317,7 +317,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==CALL_USER_CONFIG_CALLBACK_CMD)
         {
             CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,cmd.intParams[0]);
-            if ( (script!=nullptr)&&(script->getContainsUserConfigCallbackFunction()) )
+            if ( (script!=nullptr)&&(script->hasFunction(sim_syscb_userconfig)) )
             { // we have a user config callback
                 script->systemCallScript(sim_syscb_userconfig,nullptr,nullptr);
             }
@@ -3373,10 +3373,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_EXECORDER_SCRIPTGUITRIGGEREDCMD)
         {
-            int scriptID=cmd.intParams[0];
-            CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptID);
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setExecutionPriority(cmd.intParams[1]);
+                it->setScriptExecPriority(cmd.intParams[1]);
         }
         if (cmd.cmdId==SET_TREETRAVERSALDIR_SCRIPTGUITRIGGEREDCMD)
         {

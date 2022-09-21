@@ -2037,10 +2037,6 @@ SIM_DLLEXPORT simInt simCallScriptFunction(simInt scriptHandleOrType,const simCh
 {
     return(simCallScriptFunction_internal(scriptHandleOrType,functionNameAtScriptName,data,reservedSetToNull));
 }
-SIM_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* joint)
-{
-    return(_simGetJointCallbackCallOrder_internal(joint));
-}
 SIM_DLLEXPORT simInt _simGetJointDynCtrlMode(const simVoid* joint)
 {
     return(_simGetJointDynCtrlMode_internal(joint));
@@ -2833,6 +2829,10 @@ SIM_DLLEXPORT simVoid _simGetLocalInertiaFrame(const simVoid* geomInfo,simFloat*
 SIM_DLLEXPORT simVoid _simGetPrincipalMomentOfInertia(const simVoid* geomInfo,simFloat* inertia)
 {
     return(_simGetPrincipalMomentOfInertia_internal(geomInfo,inertia));
+}
+SIM_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* joint)
+{
+    return(1); // not needed anymore
 }
 // Deprecated end
 

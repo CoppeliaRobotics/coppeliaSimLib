@@ -22,7 +22,6 @@
 
 int CScriptObject::_scriptUniqueCounter=-1;
 int CScriptObject::_nextIdForExternalScriptEditor=-1;
-int CScriptObject::_totalEventCallbackFunctions=0;
 std::vector<int> CScriptObject::_externalScriptCalls;
 
 CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
@@ -34,6 +33,7 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     _scriptTextExec="";
     _numberOfPasses=0;
     _addOnUiMenuHandle=-1;
+    _scriptExecPriority=sim_scriptexecorder_normal;
 
     // Old
     // ***********************************************************
@@ -53,12 +53,12 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     _compatibilityMode_oldLua=false;
     _customObjectData_old=nullptr;
     _customObjectData_tempData_old=nullptr;
+    _executionPriority_old=sim_scriptexecorder_normal;
     // ***********************************************************
 
     _scriptIsDisabled=false;
     _scriptState=scriptState_unloaded;
     _flaggedForDestruction=false;
-    _executionPriority=sim_scriptexecorder_normal;
     _executionDepth=0;
     _autoStartAddOn=-1;
     _treeTraversalDirection=0; // reverse by default
@@ -68,13 +68,7 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     _previousEditionWindowPosAndSize[3]=800;
     _outsideCommandQueue=new COutsideCommandQueueForScript();
     _scriptType=scriptTypeOrMinusOneForSerialization;
-    _containsJointCallbackFunction=false;
-    _containsContactCallbackFunction=false;
-    _containsDynCallbackFunction=false;
-    _containsVisionCallbackFunction=false;
-    _containsTriggerCallbackFunction=false;
-    _containsUserConfigCallbackFunction=false;
-    _containsEventCallbackFunction=false;
+    _containedSystemCallbacks.resize(sim_syscb_endoflist,false);
     _timeOfScriptExecutionStart=-1;
     _interpreterState=nullptr;
 
@@ -240,40 +234,40 @@ void CScriptObject::fromBufferToFile() const
     }
 }
 
-std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
-{
+std::string CScriptObject::getSystemCallbackString(int calltype,int what)
+{ // what: 0=function string, 1=string for code completion, if not deprecated, 2=string for code completion and calltip, if not deprecated
     if (calltype==sim_syscb_info)
     {
         std::string r("sysCall_info");
-        if (callTips)
+        if (what==2)
             r+=" - Called even before the script is initialized.";
         return(r);
     }
     if (calltype==sim_syscb_init)
     {
         std::string r("sysCall_init");
-        if (callTips)
+        if (what==2)
             r+=" - Called when the script is initialized.";
         return(r);
     }
     if (calltype==sim_syscb_cleanup)
     {
         std::string r("sysCall_cleanup");
-        if (callTips)
+        if (what==2)
             r+=" - Called when the script is destroyed.";
         return(r);
     }
     if (calltype==sim_syscb_nonsimulation)
     {
         std::string r("sysCall_nonSimulation");
-        if (callTips)
+        if (what==2)
             r+=" - Called when simulation is not running.";
         return(r);
     }
     if (calltype==sim_syscb_beforemainscript)
     {
         std::string r("sysCall_beforeMainScript");
-        if (callTips)
+        if (what==2)
             r+=" - Called just before the main script is called.";
         return(r);
     }
@@ -281,162 +275,161 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
     if (calltype==sim_syscb_beforesimulation)
     {
         std::string r("sysCall_beforeSimulation");
-        if (callTips)
+        if (what==2)
             r+=" - Called just before simulation starts.";
         return(r);
     }
     if (calltype==sim_syscb_aftersimulation)
     {
         std::string r("sysCall_afterSimulation");
-        if (callTips)
+        if (what==2)
             r+=" - Called just after simulation ended.";
         return(r);
     }
     if (calltype==sim_syscb_actuation)
     {
         std::string r("sysCall_actuation");
-        if (callTips)
+        if (what==2)
             r+=" - Called in the actuation phase.";
         return(r);
     }
     if (calltype==sim_syscb_sensing)
     {
         std::string r("sysCall_sensing");
-        if (callTips)
+        if (what==2)
             r+=" - Called in the sensing phase.";
         return(r);
     }
     if (calltype==sim_syscb_suspended)
     {
         std::string r("sysCall_suspended");
-        if (callTips)
+        if (what==2)
             r+=" - Called when simulation is suspended.";
         return(r);
     }
     if (calltype==sim_syscb_suspend)
     {
         std::string r("sysCall_suspend");
-        if (callTips)
+        if (what==2)
             r+=" - Called just before simulation gets suspended.";
         return(r);
     }
     if (calltype==sim_syscb_resume)
     {
         std::string r("sysCall_resume");
-        if (callTips)
+        if (what==2)
             r+=" - Called just before simulation resumes.";
         return(r);
     }
     if (calltype==sim_syscb_beforeinstanceswitch)
     {
         std::string r("sysCall_beforeInstanceSwitch");
-        if (callTips)
+        if (what==2)
             r+=" - Called just before an instance switch.";
         return(r);
     }
     if (calltype==sim_syscb_afterinstanceswitch)
     {
         std::string r("sysCall_afterInstanceSwitch");
-        if (callTips)
+        if (what==2)
             r+=" - Called just after an instance switch.";
         return(r);
     }
     if (calltype==sim_syscb_beforecopy)
     {
         std::string r("sysCall_beforeCopy");
-        if (callTips)
+        if (what==2)
             r+=" - Called just before objects are copied.";
         return(r);
     }
     if (calltype==sim_syscb_aftercopy)
     {
         std::string r("sysCall_afterCopy");
-        if (callTips)
+        if (what==2)
             r+=" - Called just after objects were copied.";
         return(r);
     }
     if (calltype==sim_syscb_beforedelete)
     {
         std::string r("sysCall_beforeDelete");
-        if (callTips)
+        if (what==2)
             r+=" - Called just before objects are deleted.";
         return(r);
     }
     if (calltype==sim_syscb_afterdelete)
     {
         std::string r("sysCall_afterDelete");
-        if (callTips)
+        if (what==2)
             r+=" - Called just after objects were deleted.";
         return(r);
     }
     if (calltype==sim_syscb_aftercreate)
     {
         std::string r("sysCall_afterCreate");
-        if (callTips)
+        if (what==2)
             r+=" - Called just after objects were created.";
         return(r);
     }
     if (calltype==sim_syscb_aos_suspend)
     {
         std::string r("sysCall_addOnScriptSuspend");
-        if (callTips)
+        if (what==2)
             r+=" - Called just before the add-on script execution gets suspended.";
         return(r);
     }
     if (calltype==sim_syscb_aos_resume)
     {
         std::string r("sysCall_addOnScriptResume");
-        if (callTips)
+        if (what==2)
             r+=" - Called just before the add-on script execution resumes.";
         return(r);
     }
-
-    if (calltype==sim_syscb_jointcallback)
+    if (calltype==sim_syscb_joint)
     {
-        std::string r("sysCall_jointCallback");
-        if (callTips)
+        std::string r("sysCall_joint");
+        if (what==2)
             r+=" - Called for motion handling of kinematic joints, or for custom control of dynamic joints.";
         return(r);
     }
     if (calltype==sim_syscb_vision)
     {
         std::string r("sysCall_vision");
-        if (callTips)
+        if (what==2)
             r+=" - Called when a vision sensor requests image processing.";
         return(r);
     }
     if (calltype==sim_syscb_userconfig)
     {
         std::string r("sysCall_userConfig");
-        if (callTips)
+        if (what==2)
             r+=" - Called when the user double-clicks a user parameter icon.";
         return(r);
     }
     if (calltype==sim_syscb_moduleentry)
     {
         std::string r("sysCall_moduleEntry");
-        if (callTips)
+        if (what==2)
             r+=" - Called when the user selects a module menu entry.";
         return(r);
     }
     if (calltype==sim_syscb_trigger)
     {
         std::string r("sysCall_trigger");
-        if (callTips)
+        if (what==2)
             r+=" - Called when the sensor is triggered.";
         return(r);
     }
-    if (calltype==sim_syscb_contactcallback)
+    if (calltype==sim_syscb_contact)
     {
-        std::string r("sysCall_contactCallback");
-        if (callTips)
+        std::string r("sysCall_contact");
+        if (what==2)
             r+=" - Called by the physics engine when two respondable shapes are contacting.";
         return(r);
     }
-    if (calltype==sim_syscb_dyncallback)
+    if (calltype==sim_syscb_dyn)
     {
-        std::string r("sysCall_dynCallback");
-        if (callTips)
+        std::string r("sysCall_dyn");
+        if (what==2)
             r+=" - Called by the physics engine twice per dynamic simulation pass.";
         return(r);
     }
@@ -444,49 +437,49 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
     {
         std::string r("sysCall_customCallback");
         r+=std::to_string(calltype-sim_syscb_customcallback1+1);
-        if (callTips)
+        if (what==2)
             r+=" - Can be called by a customized main script.";
         return(r);
     }
     if (calltype==sim_syscb_event)
     {
         std::string r("sysCall_event");
-        if (callTips)
+        if (what==2)
             r+=" - Called asynchronously with buffered events.";
         return(r);
     }
     if (calltype==sim_syscb_ext)
     {
         std::string r("sysCall_ext");
-        if (callTips)
+        if (what==2)
             r+=" - Calls (and shadows) user callbacks.";
         return(r);
     }
     if (calltype==sim_syscb_realtimeidle)
     {
         std::string r("sysCall_realTimeIdle");
-        if (callTips)
+        if (what==2)
             r+=" - Called when in real-time mode and idle.";
         return(r);
     }
     if (calltype==sim_syscb_beforesave)
     {
         std::string r("sysCall_beforeSave");
-        if (callTips)
+        if (what==2)
             r+=" - Called just before the scene is saved.";
         return(r);
     }
     if (calltype==sim_syscb_aftersave)
     {
         std::string r("sysCall_afterSave");
-        if (callTips)
+        if (what==2)
             r+=" - Called just after the scene was saved.";
         return(r);
     }
     if (calltype==sim_syscb_msg)
     {
         std::string r("sysCall_msg");
-        if (callTips)
+        if (what==2)
             r+=" - Called via sim.broadcastMsg.";
         return(r);
     }
@@ -494,16 +487,42 @@ std::string CScriptObject::getSystemCallbackString(int calltype,bool callTips)
 
     // Old:
     if (calltype==sim_syscb_aos_run_old)
-        return("sysCall_addOnScriptRun");
+    {
+        std::string r("sysCall_addOnScriptRun");
+        if (what>=1)
+            return(""); // deprecated
+        return(r);
+    }
     if (calltype==sim_syscb_threadmain)
-        return("sysCall_threadmain");
+    {
+        std::string r("sysCall_threadmain");
+        if (what>=1)
+            return(""); // deprecated
+        return(r);
+    }
+    if (calltype==sim_syscb_jointcallback)
+    { // for backw. compat.
+        std::string r("sysCall_jointCallback");
+        if (what>=1)
+            return(""); // deprecated
+        return(r);
+    }
+    if (calltype==sim_syscb_contactcallback)
+    { // for backw. compat.
+        std::string r("sysCall_contactCallback");
+        if (what>=1)
+            return(""); // deprecated
+        return(r);
+    }
+    if (calltype==sim_syscb_dyncallback)
+    { // for backward compatibility
+        std::string r("sysCall_dynCallback");
+        if (what>=1)
+            return(""); // deprecated
+        return(r);
+    }
 
     return("");
-}
-
-int CScriptObject::getTotalEventCallbackFunctions()
-{
-    return(_totalEventCallbackFunctions);
 }
 
 void CScriptObject::getMatchingFunctions(const char* txt,std::vector<std::string>& v)
@@ -534,7 +553,7 @@ void CScriptObject::getMatchingFunctions(const char* txt,std::vector<std::string
         }
     }
 
-    std::vector<std::string> sysCb=getAllSystemCallbackStrings(-1,false,false);
+    std::vector<std::string> sysCb=getAllSystemCallbackStrings(-1,1);
     for (size_t i=0;i<sysCb.size();i++)
     {
         std::string n(sysCb[i]);
@@ -601,8 +620,8 @@ std::string CScriptObject::getFunctionCalltip(const char* txt)
     }
 
     // Check system callback calltips:
-    std::vector<std::string> sysCb=getAllSystemCallbackStrings(-1,false,false);
-    std::vector<std::string> sysCbCt=getAllSystemCallbackStrings(-1,true,false);
+    std::vector<std::string> sysCb=getAllSystemCallbackStrings(-1,1);
+    std::vector<std::string> sysCbCt=getAllSystemCallbackStrings(-1,2);
     for (size_t i=0;i<sysCb.size();i++)
     {
         if (sysCb[i].compare(func)==0)
@@ -659,17 +678,20 @@ int CScriptObject::isFunctionOrConstDeprecated(const char* txt)
             return(1);
     }
 
-    // Check also callback functions:
-    std::vector<std::string> sysCb=getAllSystemCallbackStrings(-1,false,false);
-    for (size_t i=0;i<sysCb.size();i++)
-    {
-        std::string n(sysCb[i]);
-        if (n.compare(func)==0)
-            return(0);
-    }
-
     // Check plugin functions and variables:
     return(App::worldContainer->scriptCustomFuncAndVarContainer->isFuncOrConstDeprecated(func.c_str()));
+}
+
+bool CScriptObject::isSystemCallbackInReverseOrder(int callType)
+{
+    bool retVal=( (callType==sim_syscb_contactcallback)||(callType==sim_syscb_contact) );
+    return(retVal);
+}
+
+bool CScriptObject::isSystemCallbackInterruptible(int callType)
+{
+    bool retVal=( (callType==sim_syscb_contactcallback)||(callType==sim_syscb_contact)||(callType==sim_syscb_joint) );
+    return(retVal);
 }
 
 bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int callType)
@@ -759,15 +781,21 @@ bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int ca
     }
     if ( (scriptType==sim_scripttype_customizationscript)||((!threadedOld)&&(scriptType==sim_scripttype_childscript)) )
     {
-        if (callType==sim_syscb_jointcallback)
+        if (callType==sim_syscb_jointcallback) // backw. compat.
+            return(true);
+        if (callType==sim_syscb_joint)
             return(true);
         if (callType==sim_syscb_vision)
             return(true);
         if (callType==sim_syscb_trigger)
             return(true);
-        if (callType==sim_syscb_contactcallback)
+        if (callType==sim_syscb_contactcallback) // backw. compat.
             return(true);
-        if (callType==sim_syscb_dyncallback)
+        if (callType==sim_syscb_contact)
+            return(true);
+        if (callType==sim_syscb_dyncallback) // backw. compat.
+            return(true);
+        if (callType==sim_syscb_dyn)
             return(true);
         if (callType==sim_syscb_userconfig)
             return(true);
@@ -802,9 +830,12 @@ std::vector<int> CScriptObject::getAllSystemCallbacks(int scriptType,bool thread
                  //sim_syscb_aos_run_old, // for backward compatibility
                  sim_syscb_aos_suspend,
                  sim_syscb_aos_resume,
-                 sim_syscb_jointcallback,
-                 sim_syscb_contactcallback,
-                 sim_syscb_dyncallback,
+                 sim_syscb_jointcallback, // backw. compat.
+                 sim_syscb_joint,
+                 sim_syscb_contactcallback, // backw. comp.
+                 sim_syscb_contact,
+                 sim_syscb_dyncallback, // backw. comp.
+                 sim_syscb_dyn,
                  sim_syscb_vision,
                  sim_syscb_trigger,
                  sim_syscb_customcallback1,
@@ -854,43 +885,22 @@ int CScriptObject::getInExternalCall()
     return(-1);
 }
 
-std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptType,bool callTips,bool threadedOld)
-{
-    std::vector<int> ct=getAllSystemCallbacks(scriptType,threadedOld);
+std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptType,int what)
+{ // what: 0=function string, 1=string for code completion, if not deprecated, 2=string for code completion and calltip, if not deprecated
+    std::vector<int> ct=getAllSystemCallbacks(scriptType,false);
     std::vector<std::string> retVal;
     for (size_t i=0;i<ct.size();i++)
-        retVal.push_back(getSystemCallbackString(ct[i],callTips));
+    {
+        std::string str(getSystemCallbackString(ct[i],what));
+        if (str.size()>0)
+            retVal.push_back(str);
+    }
     return(retVal);
 }
 
-bool CScriptObject::getContainsJointCallbackFunction() const
-{
-    return(_containsJointCallbackFunction);
-}
-
-bool CScriptObject::getContainsContactCallbackFunction() const
-{
-    return(_containsContactCallbackFunction);
-}
-
-bool CScriptObject::getContainsDynCallbackFunction() const
-{
-    return(_containsDynCallbackFunction);
-}
-
-bool CScriptObject::getContainsVisionCallbackFunction() const
-{
-    return(_containsVisionCallbackFunction);
-}
-
-bool CScriptObject::getContainsTriggerCallbackFunction() const
-{
-    return(_containsTriggerCallbackFunction);
-}
-
-bool CScriptObject::getContainsUserConfigCallbackFunction() const
-{
-    return(_containsUserConfigCallbackFunction);
+bool CScriptObject::hasFunction(int callType) const
+{ // when the script is not initialized, we need to return true
+    return( (_scriptState!=scriptState_initialized)||_containedSystemCallbacks[callType] );
 }
 
 std::string CScriptObject::getAndClearLastStackTraceback()
@@ -978,6 +988,32 @@ void CScriptObject::setScriptState(int state)
     _scriptState=state;
 }
 
+void CScriptObject::setScriptExecPriority(int priority)
+{
+    if (_objectHandleAttachedTo!=-1)
+    {
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
+        if (it!=nullptr)
+            it->setScriptExecPriority(priority);
+    }
+    if (_scriptType==sim_scripttype_addonscript)
+        _scriptExecPriority=priority;
+}
+
+int CScriptObject::getScriptExecPriority() const
+{
+    int retVal=sim_scriptexecorder_normal;
+    if (_objectHandleAttachedTo!=-1)
+    {
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
+        if (it!=nullptr)
+            retVal=it->getScriptExecPriority();
+    }
+    if (_scriptType==sim_scripttype_addonscript)
+        retVal=_scriptExecPriority;
+    return(retVal);
+}
+
 void CScriptObject::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     if (isSimulationScript())
@@ -1023,16 +1059,6 @@ void CScriptObject::simulationAboutToEnd()
 { // Added this on 7/8/2014.
     if (isSimulationScript())
         resetScript(); // this has to happen while simulation is still running!!
-}
-
-void CScriptObject::setExecutionPriority(int order)
-{
-    _executionPriority=tt::getLimitedInt(sim_scriptexecorder_first,sim_scriptexecorder_last,order);
-}
-
-int CScriptObject::getExecutionPriority() const
-{
-    return(_executionPriority);
 }
 
 void CScriptObject::setTreeTraversalDirection(int dir)
@@ -1410,7 +1436,7 @@ int CScriptObject::systemCallScript(int callType,const CInterfaceStack* inStack,
             { // Regular system function calls
                 if ( ((_scriptState&scriptState_error)==0)||(callType==sim_syscb_cleanup) )
                 {
-                    if ( (callType!=sim_syscb_event)||_containsEventCallbackFunction )
+                    if ( (callType!=sim_syscb_event)||_containedSystemCallbacks[sim_syscb_event] )
                     {
                         retVal=_callSystemScriptFunction(callType,inStack,outStack);
                         if (_scriptType==sim_scripttype_sandboxscript)
@@ -1488,7 +1514,7 @@ void CScriptObject::_handleInfoCallback()
     }
 }
 
-int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool* functionsFound,std::string* errorMsg)
+int CScriptObject::___loadCode(const char* code,const char* functionsToFind,std::vector<bool>& functionsFound,std::string* errorMsg)
 { // retVal: -1=compil error, 0=runtime error, 1=no error
     int retVal=-1;
 
@@ -1635,7 +1661,7 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,bool
             std::vector<int> sysCb=getAllSystemCallbacks(-1,false);
             for (size_t i=0;i<sysCb.size();i++)
             {
-                std::string str=getSystemCallbackString(sysCb[i],false);
+                std::string str=getSystemCallbackString(sysCb[i],0);
                 luaWrap_lua_getglobal(L,str.c_str());
                 _compatibilityMode_oldLua=!luaWrap_lua_isfunction(L,-1);
                 luaWrap_lua_pop(L,1);
@@ -1705,17 +1731,11 @@ bool CScriptObject::_loadCode()
         if (_initInterpreterState(&intStateErr))
         {
             std::string functions;
-            bool functionsPresent[7];
-            functions+=getSystemCallbackString(sim_syscb_jointcallback,false)+'\0';
-            functions+=getSystemCallbackString(sim_syscb_contactcallback,false)+'\0';
-            functions+=getSystemCallbackString(sim_syscb_dyncallback,false)+'\0';
-            functions+=getSystemCallbackString(sim_syscb_vision,false)+'\0';
-            functions+=getSystemCallbackString(sim_syscb_trigger,false)+'\0';
-            functions+=getSystemCallbackString(sim_syscb_userconfig,false)+'\0';
-            functions+=getSystemCallbackString(sim_syscb_event,false)+'\0';
+            for (size_t i=0;i<sim_syscb_endoflist;i++)
+                functions+=getSystemCallbackString(i,0)+'\0';
             functions+='\0';
             std::string errMsg;
-            int r=___loadCode(_scriptTextExec.c_str(),functions.c_str(),functionsPresent,&errMsg);
+            int r=___loadCode(_scriptTextExec.c_str(),functions.c_str(),_containedSystemCallbacks,&errMsg);
             if (r>=0)
             {
                 if (r==0)
@@ -1734,15 +1754,29 @@ bool CScriptObject::_loadCode()
                     else
                     {
                         _scriptState=scriptState_uninitialized;
-                        _containsJointCallbackFunction=functionsPresent[0];
-                        _containsContactCallbackFunction=functionsPresent[1];
-                        _containsDynCallbackFunction=functionsPresent[2];
-                        _containsVisionCallbackFunction=functionsPresent[3];
-                        _containsTriggerCallbackFunction=functionsPresent[4];
-                        _containsUserConfigCallbackFunction=functionsPresent[5];
-                        _containsEventCallbackFunction=functionsPresent[6];
-                        if (_containsEventCallbackFunction)
-                            _totalEventCallbackFunctions++;
+                        // Below funcs are speed-sensitive:
+                        if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
+                        {
+                            if (_containedSystemCallbacks[sim_syscb_event])
+                                App::currentWorld->embeddedScriptContainer->setEventFuncCount(App::currentWorld->embeddedScriptContainer->getEventFuncCount()+1);
+                            if ( (_containedSystemCallbacks[sim_syscb_dyn])||(_containedSystemCallbacks[sim_syscb_dyncallback]) )
+                                App::currentWorld->embeddedScriptContainer->setDynFuncCount(App::currentWorld->embeddedScriptContainer->getDynFuncCount()+1);
+                            if ( (_containedSystemCallbacks[sim_syscb_contact])||(_containedSystemCallbacks[sim_syscb_contactcallback]) )
+                                App::currentWorld->embeddedScriptContainer->setContactFuncCount(App::currentWorld->embeddedScriptContainer->getContactFuncCount()+1);
+                            if ( (_containedSystemCallbacks[sim_syscb_joint])||(_containedSystemCallbacks[sim_syscb_jointcallback]) )
+                                App::currentWorld->embeddedScriptContainer->setJointFuncCount(App::currentWorld->embeddedScriptContainer->getJointFuncCount()+1);
+                        }
+                        if (_scriptType==sim_scripttype_addonscript)
+                        {
+                            if (_containedSystemCallbacks[sim_syscb_event])
+                                App::worldContainer->addOnScriptContainer->setEventFuncCount(App::worldContainer->addOnScriptContainer->getEventFuncCount()+1);
+                            if ( (_containedSystemCallbacks[sim_syscb_dyn])||(_containedSystemCallbacks[sim_syscb_dyncallback]) )
+                                App::worldContainer->addOnScriptContainer->setDynFuncCount(App::worldContainer->addOnScriptContainer->getDynFuncCount()+1);
+                            if ( (_containedSystemCallbacks[sim_syscb_contact])||(_containedSystemCallbacks[sim_syscb_contactcallback]) )
+                                App::worldContainer->addOnScriptContainer->setContactFuncCount(App::worldContainer->addOnScriptContainer->getContactFuncCount()+1);
+                            if ( (_containedSystemCallbacks[sim_syscb_joint])||(_containedSystemCallbacks[sim_syscb_jointcallback]) )
+                                App::worldContainer->addOnScriptContainer->setJointFuncCount(App::worldContainer->addOnScriptContainer->getJointFuncCount()+1);
+                        }
                     }
                 }
                 _numberOfPasses++;
@@ -1832,16 +1866,16 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
 
     // Following to make sure we get updates on the presence of sim_syscb_userconfig:
     luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
-    std::string tmp(getSystemCallbackString(sim_syscb_userconfig,false));
+    std::string tmp(getSystemCallbackString(sim_syscb_userconfig,0));
     luaWrap_lua_getglobal(L,tmp.c_str());
-    _containsUserConfigCallbackFunction=(luaWrap_lua_isfunction(L,-1)||hasFunctionHook(tmp.c_str()));
+    _containedSystemCallbacks[sim_syscb_userconfig]=(luaWrap_lua_isfunction(L,-1)||hasFunctionHook(tmp.c_str()));
     luaWrap_lua_pop(L,1);
 
     std::string errMsg;
     if (_executionDepth==0)
         _timeOfScriptExecutionStart=int(VDateTime::getTimeInMs());
     _executionDepth++;
-    int retVal=_callScriptFunction(getSystemCallbackString(callType,false).c_str(),inStack,outStack,&errMsg);
+    int retVal=_callScriptFunction(getSystemCallbackString(callType,0).c_str(),inStack,outStack,&errMsg);
     _executionDepth--;
     if (_executionDepth==0)
         _timeOfScriptExecutionStart=-1;
@@ -2254,15 +2288,33 @@ bool CScriptObject::_killInterpreterState()
     _scriptState|=scriptState_ended; // set the ended state
     _scriptTextExec.clear();
     _executionDepth=0;
-    if (_containsEventCallbackFunction)
-        _totalEventCallbackFunctions--;
-    _containsJointCallbackFunction=false;
-    _containsContactCallbackFunction=false;
-    _containsDynCallbackFunction=false;
-    _containsVisionCallbackFunction=false;
-    _containsTriggerCallbackFunction=false;
-    _containsUserConfigCallbackFunction=false;
-    _containsEventCallbackFunction=false;
+
+    // Below funcs are speed-sensitive:
+    if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
+    {
+        if (_containedSystemCallbacks[sim_syscb_event])
+            App::currentWorld->embeddedScriptContainer->setEventFuncCount(App::currentWorld->embeddedScriptContainer->getEventFuncCount()-1);
+        if ( (_containedSystemCallbacks[sim_syscb_dyn])||(_containedSystemCallbacks[sim_syscb_dyncallback]) )
+            App::currentWorld->embeddedScriptContainer->setDynFuncCount(App::currentWorld->embeddedScriptContainer->getDynFuncCount()-1);
+        if ( (_containedSystemCallbacks[sim_syscb_contact])||(_containedSystemCallbacks[sim_syscb_contactcallback]) )
+            App::currentWorld->embeddedScriptContainer->setContactFuncCount(App::currentWorld->embeddedScriptContainer->getContactFuncCount()-1);
+        if ( (_containedSystemCallbacks[sim_syscb_joint])||(_containedSystemCallbacks[sim_syscb_jointcallback]) )
+            App::currentWorld->embeddedScriptContainer->setJointFuncCount(App::currentWorld->embeddedScriptContainer->getJointFuncCount()+1);
+    }
+    if (_scriptType==sim_scripttype_addonscript)
+    {
+        if (_containedSystemCallbacks[sim_syscb_event])
+            App::worldContainer->addOnScriptContainer->setEventFuncCount(App::worldContainer->addOnScriptContainer->getEventFuncCount()-1);
+        if ( (_containedSystemCallbacks[sim_syscb_dyn])||(_containedSystemCallbacks[sim_syscb_dyncallback]) )
+            App::worldContainer->addOnScriptContainer->setDynFuncCount(App::worldContainer->addOnScriptContainer->getDynFuncCount()-1);
+        if ( (_containedSystemCallbacks[sim_syscb_contact])||(_containedSystemCallbacks[sim_syscb_contactcallback]) )
+            App::worldContainer->addOnScriptContainer->setContactFuncCount(App::worldContainer->addOnScriptContainer->getContactFuncCount()-1);
+        if ( (_containedSystemCallbacks[sim_syscb_joint])||(_containedSystemCallbacks[sim_syscb_jointcallback]) )
+            App::worldContainer->addOnScriptContainer->setJointFuncCount(App::worldContainer->addOnScriptContainer->getJointFuncCount()+1);
+    }
+
+    _containedSystemCallbacks.clear();
+    _containedSystemCallbacks.resize(sim_syscb_endoflist,false);
     _flaggedForDestruction=false;
     _functionHooks_before.clear();
     _functionHooks_after.clear();
@@ -2282,23 +2334,21 @@ CScriptObject* CScriptObject::copyYourself()
     it->_objectHandleAttachedTo=_objectHandleAttachedTo;
     it->_threadedExecution_oldThreads=_threadedExecution_oldThreads;
     it->_scriptIsDisabled=_scriptIsDisabled;
-    it->_executionPriority=_executionPriority;
     it->_treeTraversalDirection=_treeTraversalDirection;
     it->setScriptText(getScriptText());
+    it->_initialValuesInitialized=_initialValuesInitialized;
+    it->_scriptExecPriority=_scriptExecPriority;
 
     it->_executeJustOnce_oldThreads=_executeJustOnce_oldThreads;
-
+    it->_executionPriority_old=_executionPriority_old;
     delete it->_customObjectData_old;
     it->_customObjectData_old=nullptr;
     if (_customObjectData_old!=nullptr)
         it->_customObjectData_old=_customObjectData_old->copyYourself();
-
     delete it->_customObjectData_tempData_old;
     it->_customObjectData_tempData_old=nullptr;
     if (_customObjectData_tempData_old!=nullptr)
         it->_customObjectData_tempData_old=_customObjectData_tempData_old->copyYourself();
-
-    it->_initialValuesInitialized=_initialValuesInitialized;
     return(it);
 }
 
@@ -2920,8 +2970,9 @@ void CScriptObject::serialize(CSer& ar)
             ar << nothing;
             ar.flush();
 
+            // Keep for backward compatibility (19.09.2022)
             ar.storeDataName("Seo");
-            ar << _executionPriority;
+            ar << _executionPriority_old;
             ar.flush();
 
             ar.storeDataName("Ttd");
@@ -2984,10 +3035,10 @@ void CScriptObject::serialize(CSer& ar)
                     }
 
                     if (theName.compare("Seo")==0)
-                    {
+                    { // For backward compatibility (19.09.2022)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _executionPriority;
+                        ar >> _executionPriority_old;
                     }
 
                     if (theName.compare("Ste")==0)
@@ -3118,7 +3169,8 @@ void CScriptObject::serialize(CSer& ar)
                 ar.xmlAddNode_bool("executeOnce",_executeJustOnce_oldThreads);
             ar.xmlPopNode();
 
-            ar.xmlAddNode_int("executionOrder",_executionPriority);
+            ar.xmlAddNode_comment(" 'executionOrder' tag: for backward compatibility only ",exhaustiveXml);
+            ar.xmlAddNode_int("executionOrder",_executionPriority_old); // for backward compatibility 19.09.2022
             ar.xmlAddNode_int("treeTraversalDirection",_treeTraversalDirection);
 
             std::string tmp(_scriptText.c_str());
@@ -3159,7 +3211,7 @@ void CScriptObject::serialize(CSer& ar)
                 ar.xmlPopNode();
             }
 
-            ar.xmlGetNode_int("executionOrder",_executionPriority,exhaustiveXml);
+            ar.xmlGetNode_int("executionOrder",_executionPriority_old,exhaustiveXml); // for backward compatibility 19.09.2022
             ar.xmlGetNode_int("treeTraversalDirection",_treeTraversalDirection,exhaustiveXml);
 
             if (ar.xmlGetNode_cdata("scriptText",_scriptText,exhaustiveXml)&&(_scriptType==sim_scripttype_mainscript)&&_mainScriptIsDefaultMainScript_old) // for backward compatibility 16.11.2020
@@ -5343,6 +5395,14 @@ void CScriptObject::setRaiseErrors_backCompatibility(bool raise)
 {
     _raiseErrors_backCompatibility=raise;
 }
+void CScriptObject::setExecutionPriority_old(int order)
+{
+    _executionPriority_old=tt::getLimitedInt(sim_scriptexecorder_first,sim_scriptexecorder_last,order);
+}
+int CScriptObject::getExecutionPriority_old() const
+{
+    return(_executionPriority_old);
+}
 bool CScriptObject::getRaiseErrors_backCompatibility() const
 {
     return(_raiseErrors_backCompatibility);
@@ -5548,16 +5608,16 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
             if (_executionDepth==0)
                 _timeOfScriptExecutionStart=-1;
             _scriptState=scriptState_initialized;
-            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_vision,false).c_str());
-            _containsVisionCallbackFunction=luaWrap_lua_isfunction(L,-1);
-            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_trigger,false).c_str());
-            _containsTriggerCallbackFunction=luaWrap_lua_isfunction(L,-1);
+            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_vision,0).c_str());
+            _containedSystemCallbacks[sim_syscb_vision]=luaWrap_lua_isfunction(L,-1);
+            luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_trigger,0).c_str());
+            _containedSystemCallbacks[sim_syscb_trigger]=luaWrap_lua_isfunction(L,-1);
 
             int calls[2]={sim_syscb_threadmain,sim_syscb_cleanup};
             for (size_t callIndex=0;callIndex<2;callIndex++)
             {
                 // Push the function name onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
-                std::string funcName(getSystemCallbackString(calls[callIndex],false));
+                std::string funcName(getSystemCallbackString(calls[callIndex],0));
                 luaWrap_lua_getglobal(L,funcName.c_str());
                 if (luaWrap_lua_isfunction(L,-1))
                 { // ok, the function exists!
@@ -6888,6 +6948,12 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
     }
     */
 
+    if (_containsScriptText_old(scriptObject,"sysCall_jointCallback"))
+        App::logMsg(sim_verbosity_errors,"Contains sysCall_jointCallback...");
+    if (_containsScriptText_old(scriptObject,"sysCall_contactCallback"))
+        App::logMsg(sim_verbosity_errors,"Contains sysCall_contactCallback...");
+    if (_containsScriptText_old(scriptObject,"sysCall_dynCallback"))
+        App::logMsg(sim_verbosity_errors,"Contains sysCall_dynCallback...");
 
     if (_containsScriptText_old(scriptObject,"sim.jointfloatparam_upper_limit"))
         App::logMsg(sim_verbosity_errors,"Contains sim.jointfloatparam_upper_limit...");

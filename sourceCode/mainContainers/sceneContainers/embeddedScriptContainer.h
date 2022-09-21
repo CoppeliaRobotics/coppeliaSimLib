@@ -39,22 +39,34 @@ public:
     void addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(SLuaCallBack* object);
     bool addCommandToOutsideCommandQueues(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count);
 
-    int handleCascadedScriptExecution(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,int* retInfo);
-    void handleCascadedJointMotionExecution();
+    int callChildAndEmbeddedScripts(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr);
     bool shouldTemporarilySuspendMainScript();
-    bool isContactCallbackFunctionAvailable();
-    bool isDynCallbackFunctionAvailable();
+    int getContactFuncCount() const;
+    void setContactFuncCount(int cnt);
+    int getDynFuncCount() const;
+    void setDynFuncCount(int cnt);
+    int getEventFuncCount() const;
+    void setEventFuncCount(int cnt);
+    int getJointFuncCount() const;
+    void setJointFuncCount(int cnt);
 
-    void callScripts(int callType,CInterfaceStack* inStack);
+    void callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr);
     void sceneOrModelAboutToBeSaved_old(int modelBase);
+    int getEquivalentScriptExecPriority_old(int objectHandle) const;
 
     std::vector<CScriptObject*> allScripts;
 
     CBroadcastDataContainer broadcastDataContainer;
 
 protected:
-    int _getScriptsToExecute(int scriptType,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds) const;
+    size_t _getScriptsToExecute(std::vector<int>& scriptHandles,int scriptType) const;
+    int _getScriptsToExecute_old(int scriptType,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds) const;
 
+    int _nextScriptHandle;
+    int _contactFuncCount;
+    int _dynFuncCount;
+    int _eventFuncCount;
+    int _jointFuncCount;
     std::vector<SScriptCallBack*> _callbackStructureToDestroyAtEndOfSimulation_new;
     std::vector<SLuaCallBack*> _callbackStructureToDestroyAtEndOfSimulation_old;
 };

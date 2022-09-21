@@ -437,7 +437,6 @@ SIM_DLLEXPORT simInt _simHandleCustomContact(simInt objHandle1,simInt objHandle2
 SIM_DLLEXPORT const simVoid* _simGetIkGroupObject(int ikGroupID);
 SIM_DLLEXPORT simInt _simMpHandleIkGroupObject(const simVoid* ikGroup);
 SIM_DLLEXPORT simFloat _simGetPureHollowScaling(const simVoid* geometric);
-SIM_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* joint);
 SIM_DLLEXPORT simInt _simGetJointDynCtrlMode(const simVoid* joint);
 SIM_DLLEXPORT simVoid _simDynCallback(const simInt* intData,const simFloat* floatData);
 
@@ -737,6 +736,7 @@ SIM_DLLEXPORT simInt simBuildMatrixQ(const simFloat* position,const simFloat* qu
 SIM_DLLEXPORT simInt simGetQuaternionFromMatrix(const simFloat* matrix,simFloat* quaternion);
 SIM_DLLEXPORT simVoid _simGetPrincipalMomentOfInertia(const simVoid* geomInfo,simFloat* inertia);
 SIM_DLLEXPORT simVoid _simGetLocalInertiaFrame(const simVoid* geomInfo,simFloat* pos,simFloat* quat);
+SIM_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* joint);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

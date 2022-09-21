@@ -84,6 +84,7 @@
 #define _USR_SUPPORT_old_THREADED_SCRIPTS "keepOldThreadedScripts"
 #define _USR_SUPPORT_old_API_NOTATION "supportOldApiNotation"
 #define _USR_ENABLE_old_MIRROR_OBJECTS "enableOldMirrorObjects"
+#define _USR_ENABLE_OLD_SCRIPT_TRAVERSAL "enableOldScriptTraversal"
 #define _USR_ALLOW_old_EDU_RELEASE "allowOldEduRelease"
 #define _USR_THREADED_SCRIPTS_GRACE_TIME "threadedScriptsStoppingGraceTime"
 
@@ -345,6 +346,7 @@ CUserSettings::CUserSettings()
     enableOldRenderableBehaviour=false;
     keepOldThreadedScripts=false;
     _supportOldApiNotation=true;
+    enableOldScriptTraversal=false;
     enableOldMirrorObjects=false;
     allowOldEduRelease=-1;
     threadedScriptsStoppingGraceTime=0;
@@ -721,6 +723,7 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour,"");
     c.addBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts,"");
     c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
+    c.addBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal,"");
     c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
 
 
@@ -995,6 +998,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour);
     c.getBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts);
     c.getBoolean(_USR_SUPPORT_old_API_NOTATION,_supportOldApiNotation);
+    c.getBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal);
     c.getBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects);
     c.getInteger(_USR_ALLOW_old_EDU_RELEASE,allowOldEduRelease);
     c.getInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime);

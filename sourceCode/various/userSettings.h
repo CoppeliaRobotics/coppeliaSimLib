@@ -78,6 +78,7 @@ public:
     bool enableOldRenderableBehaviour;
     bool keepOldThreadedScripts;
     bool enableOldMirrorObjects;
+    bool enableOldScriptTraversal;
     int allowOldEduRelease;
     int threadedScriptsStoppingGraceTime;
     bool displayBoundingBoxeWhenObjectSelected;

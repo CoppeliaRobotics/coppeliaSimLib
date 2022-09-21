@@ -61,31 +61,30 @@ void CQDlgScripts::refresh()
     ui->qqTreeTraversalDirection->clear();
 
     CScriptObject* theScript=App::worldContainer->getScriptFromHandle(getSelectedObjectID());
-    ui->qqExecutionOrder->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
+    CSceneObject* associatedObject=nullptr;
+    if (theScript!=nullptr)
+        associatedObject=App::currentWorld->sceneObjects->getObjectFromHandle(App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(theScript->getScriptHandle()));
+    ui->qqExecutionOrder->setEnabled( (associatedObject!=nullptr)&&noEditModeAndNoSim );
     ui->qqTreeTraversalDirection->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
+    ui->qqTreeTraversalDirection->setVisible(App::userSettings->enableOldScriptTraversal);
+    ui->qqTreeTraversalText->setVisible(App::userSettings->enableOldScriptTraversal);
     ui->qqDisabled->setEnabled((theScript!=nullptr)&&noEditMode&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqExecuteOnce->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&(theScript->getScriptType()==sim_scripttype_childscript)&&theScript->getThreadedExecution_oldThreads());
     ui->qqExecuteOnce->setVisible(App::userSettings->keepOldThreadedScripts);
 
     if (theScript!=nullptr)
     {
-        if ( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) )
+        if (associatedObject!=nullptr)
         {
             ui->qqExecutionOrder->addItem(IDSN_FIRST,QVariant(sim_scriptexecorder_first));
             ui->qqExecutionOrder->addItem(IDSN_NORMAL,QVariant(sim_scriptexecorder_normal));
             ui->qqExecutionOrder->addItem(IDSN_LAST,QVariant(sim_scriptexecorder_last));
-            ui->qqExecutionOrder->setCurrentIndex(theScript->getExecutionPriority());
+            ui->qqExecutionOrder->setCurrentIndex(associatedObject->getScriptExecPriority());
 
             ui->qqTreeTraversalDirection->addItem(IDSN_REVERSE_TRAVERSAL,QVariant(sim_scripttreetraversal_reverse));
             ui->qqTreeTraversalDirection->addItem(IDSN_FORWARD_TRAVERSAL,QVariant(sim_scripttreetraversal_forward));
             ui->qqTreeTraversalDirection->addItem(IDSN_PARENT_TRAVERSAL,QVariant(sim_scripttreetraversal_parent));
             ui->qqTreeTraversalDirection->setCurrentIndex(theScript->getTreeTraversalDirection());
-
-            int objIdAttached=-1;
-            if (theScript->getScriptType()==sim_scripttype_childscript)
-                objIdAttached=theScript->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
-            if (theScript->getScriptType()==sim_scripttype_customizationscript)
-                objIdAttached=theScript->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customizationscript);
         }
 
         ui->qqDisabled->setChecked(theScript->getScriptIsDisabled());
@@ -258,10 +257,14 @@ void CQDlgScripts::on_qqExecutionOrder_currentIndexChanged(int index)
         IF_UI_EVENT_CAN_READ_DATA
         {
             int scriptID=getSelectedObjectID();
-            int executionOrder=ui->qqExecutionOrder->itemData(ui->qqExecutionOrder->currentIndex()).toInt();
-            App::appendSimulationThreadCommand(SET_EXECORDER_SCRIPTGUITRIGGEREDCMD,scriptID,executionOrder);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            int objectId=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(scriptID);
+            if (objectId!=-1)
+            {
+                int executionOrder=ui->qqExecutionOrder->itemData(ui->qqExecutionOrder->currentIndex()).toInt();
+                App::appendSimulationThreadCommand(SET_EXECORDER_SCRIPTGUITRIGGEREDCMD,objectId,executionOrder);
+                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            }
         }
     }
 }

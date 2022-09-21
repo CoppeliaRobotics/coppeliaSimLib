@@ -5,7 +5,6 @@
 #define SIM_MODEL_EXTENSION "ttm"
 #define SIM_XML_SCENE_EXTENSION "simscene.xml"
 #define SIM_XML_MODEL_EXTENSION "simmodel.xml"
-#define SIM_MODEL_THUMBNAILFILE_NAME "simModelThumbnails.ttmt"
 #define SIM_WEBPAGE_ADDRESS_TXT "www.coppeliarobotics.com"
 #define SIM_WEBPAGE_EMAIL_TXT "info@coppeliarobotics.com"
 #define SIM_COMPANY_NAME_TXT "Coppelia Robotics AG"

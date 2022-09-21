@@ -201,13 +201,13 @@ void CWorld::saveScene(CSer& ar)
 {
     if (ar.getFileType()==CSer::filetype_csim_xml_simplescene_file)
     {
-        App::worldContainer->callScripts(sim_syscb_beforesave,nullptr);
+        App::worldContainer->callScripts(sim_syscb_beforesave,nullptr,nullptr);
         _saveSimpleXmlScene(ar);
-        App::worldContainer->callScripts(sim_syscb_aftersave,nullptr);
+        App::worldContainer->callScripts(sim_syscb_aftersave,nullptr,nullptr);
         return;
     }
 
-    App::worldContainer->callScripts(sim_syscb_beforesave,nullptr);
+    App::worldContainer->callScripts(sim_syscb_beforesave,nullptr,nullptr);
 
     // **** Following needed to save existing calculation structures:
     environment->setSaveExistingCalculationStructuresTemp(false);
@@ -568,7 +568,7 @@ void CWorld::saveScene(CSer& ar)
         ar.storeDataName(SER_END_OF_FILE);
     CMesh::clearTempVerticesIndicesNormalsAndEdges();
 
-    App::worldContainer->callScripts(sim_syscb_aftersave,nullptr);
+    App::worldContainer->callScripts(sim_syscb_aftersave,nullptr,nullptr);
 }
 
 bool CWorld::loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
@@ -602,10 +602,7 @@ void CWorld::simulationAboutToStart()
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforesimulation,nullptr,nullptr,nullptr);
-    App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_beforesimulation,nullptr,nullptr);
-    if (App::worldContainer->sandboxScript!=nullptr)
-        App::worldContainer->sandboxScript->systemCallScript(sim_syscb_beforesimulation,nullptr,nullptr);
+    App::worldContainer->callScripts(sim_syscb_beforesimulation,nullptr,nullptr);
 
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
     for (size_t i=0;i<sceneObjects->getObjectCount();i++)
@@ -738,10 +735,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
 
     App::undoRedo_sceneChanged(""); // keeps this (additional objects were removed, and object positions were reset)
 
-    embeddedScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_aftersimulation,nullptr,nullptr,nullptr);
-    App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_aftersimulation,nullptr,nullptr);
-    if (App::worldContainer->sandboxScript!=nullptr)
-        App::worldContainer->sandboxScript->systemCallScript(sim_syscb_aftersimulation,nullptr,nullptr);
+    App::worldContainer->callScripts(sim_syscb_aftersimulation,nullptr,nullptr);
 }
 
 void CWorld::setEnableRemoteWorldsSync(bool enabled)
@@ -1623,7 +1617,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
             stack->insertDataIntoStackTable();
         }
         stack->insertDataIntoStackTable();
-        App::worldContainer->callScripts(sim_syscb_aftercreate,stack);
+        App::worldContainer->callScripts(sim_syscb_aftercreate,stack,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
 
@@ -1686,6 +1680,20 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     theObj->setUserScriptParameterObject(params->copyYourself());
                     params->userParamEntries.clear();
                 }
+            }
+        }
+    }
+
+    // Following for backward compatibility for script exec priorities:
+    if (ar.getCoppeliaSimVersionThatWroteThisFile()<40400)
+    {
+        for (size_t i=0;i<loadedObjectList.size();i++)
+        {
+            int p=embeddedScriptContainer->getEquivalentScriptExecPriority_old(loadedObjectList[i]->getObjectHandle());
+            if (p>=sim_scriptexecorder_first)
+            {
+                CSceneObject* it=sceneObjects->getObjectFromHandle(loadedObjectList[i]->getObjectHandle());
+                it->setScriptExecPriority(p);
             }
         }
     }
