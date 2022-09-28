@@ -208,6 +208,8 @@ simInt simGetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,si
 simInt simSetObjectInt32Param_internal(simInt objectHandle,simInt parameterID,simInt parameter);
 simInt simGetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,simFloat* parameter);
 simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,simFloat parameter);
+simFloat* simGetObjectFloatArrayParam_internal(simInt objectHandle,simInt parameterID,simInt* size);
+simInt simSetObjectFloatArrayParam_internal(simInt objectHandle,simInt parameterID,const simFloat* params,simInt size);
 simChar* simGetObjectStringParam_internal(simInt objectHandle,simInt parameterID,simInt* parameterLength);
 simInt simSetObjectStringParam_internal(simInt objectHandle,simInt parameterID,const simChar* parameter,simInt parameterLength);
 simInt simGetScriptInt32Param_internal(simInt scriptHandle,simInt parameterID,simInt* parameter);

@@ -53,11 +53,12 @@ public:
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
 
-    void handleTrackingAndHeadAlwaysUp();
+    void handleCameraTracking();
     void commonInit();
     void setRemoteCameraMode(int m);
     int getRemoteCameraMode() const;
     void setPerspectiveOperation(bool p);
+    int getPerspectiveOperation() const;
     int getViewOrientation() const;
     void setViewOrientation(int ori,bool setPositionAlso=false);
     void setCameraSize(float size);
@@ -68,15 +69,18 @@ public:
     int getTrackedObjectHandle() const;
     void setUseParentObjectAsManipulationProxy(bool useParent);
     bool getUseParentObjectAsManipulationProxy() const;
-    void setCameraManipulationModePermissions(int p); // bit coded: own x, own y, own z, full rotation, tilting, never tilting
-    int getCameraManipulationModePermissions() const; // bit coded: own x, own y, own z, full rotation, tilting, never tilting
+
+    void setAllowTranslation(bool allow);
+    bool getAllowTranslation() const;
+    void setAllowRotation(bool allow);
+    bool getAllowRotation() const;
+
     bool getIsMainCamera();
     std::string getTrackedObjectLoadAlias() const;
     std::string getTrackedObjectLoadName_old() const;
 
     void shiftCameraInCameraManipulationMode(const C3Vector& newLocalPos);
     void rotateCameraInCameraManipulationMode(const C7Vector& newLocalConf);
-    void tiltCameraInCameraManipulationMode(float tiltAmount);
 
     void frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPerspectiveProjection,std::vector<int>* selectedObjects,bool useSystemSelection,bool includeModelObjects,float scalingFactor,CSView* optionalView);
     CColorObject* getColor(bool secondPart);
@@ -91,7 +95,8 @@ protected:
     bool _allowPicking;
     bool _renderModeDuringSimulation;
     bool _renderModeDuringRecording;
-    int _cameraManipulationModePermissions;
+    bool _allowTranslation;
+    bool _allowRotation;
     CColorObject _color;
     CColorObject _color_removeSoon;
 

@@ -1846,24 +1846,6 @@ void CSView::cameraAndObjectMotion()
             App::mainWindow->editModeContainer->getShapeEditMode()->selectionFromEdgeToVertexEditMode(&vertexSel);
     }
 
-    // Camera/object/vertice/path point 2D rotation
-    // ****************************************************************************
-    if (navigationMode==sim_navigation_cameratilt)//||
-    {
-        // Camera 2D rotation
-        //-------------------
-            C7Vector camOld(camera->getLocalTransformation());
-            camera->tiltCameraInCameraManipulationMode(-float(previousMousePosition.x-mousePosition.x)*0.5f*degToRad_f);
-
-            if (cameraParentProxy!=nullptr)
-            { // We manipulate the parent object instead:
-                C7Vector camNew(camera->getLocalTransformation());
-                camera->setLocalTransformation(camOld); // we reset to initial
-                cameraParentProxy->setLocalTransformation(cameraParentProxy->getFullLocalTransformation()*camNew*camOld.getInverse());
-            }
-    }
-    // ****************************************************************************
-
     // Camera/object 3D rotation..
     // ****************************************************************************
     if ( (navigationMode==sim_navigation_camerarotate)||

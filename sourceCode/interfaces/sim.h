@@ -214,6 +214,8 @@ SIM_DLLEXPORT simInt simGetObjectInt32Param(simInt objectHandle,simInt ParamID,s
 SIM_DLLEXPORT simInt simSetObjectInt32Param(simInt objectHandle,simInt ParamID,simInt Param);
 SIM_DLLEXPORT simInt simGetObjectFloatParam(simInt objectHandle,simInt ParamID,simFloat* Param);
 SIM_DLLEXPORT simInt simSetObjectFloatParam(simInt objectHandle,simInt ParamID,simFloat Param);
+SIM_DLLEXPORT simFloat* simGetObjectFloatArrayParam(simInt objectHandle,simInt parameterID,simInt* size);
+SIM_DLLEXPORT simInt simSetObjectFloatArrayParam(simInt objectHandle,simInt parameterID,const simFloat* params,simInt size);
 SIM_DLLEXPORT simChar* simGetObjectStringParam(simInt objectHandle,simInt ParamID,simInt* ParamLength);
 SIM_DLLEXPORT simInt simSetObjectStringParam(simInt objectHandle,simInt ParamID,const simChar* Param,simInt ParamLength);
 SIM_DLLEXPORT simInt simGetScriptInt32Param(simInt ScriptHandle,simInt ParamID,simInt* Param);

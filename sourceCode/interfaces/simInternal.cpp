@@ -10625,6 +10625,139 @@ simInt simSetObjectFloatParam_internal(simInt objectHandle,simInt parameterID,si
     return(-1);
 }
 
+simFloat* simGetObjectFloatArrayParam_internal(simInt objectHandle,simInt parameterID,simInt* size)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(nullptr);
+
+    if (!doesObjectExist(__func__,objectHandle))
+        return(nullptr);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        float* retVal=nullptr; // Means the parameter was not retrieved
+        CVisionSensor* vision=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
+        CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        CForceSensor* forceSensor=App::currentWorld->sceneObjects->getForceSensorFromHandle(objectHandle);
+        CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
+        CLight* light=App::currentWorld->sceneObjects->getLightFromHandle(objectHandle);
+        CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(objectHandle);
+        CDummy* dummy=App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
+        if (parameterID<sim_objparam_end)
+        { // for all scene objects
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            if (it!=nullptr)
+            {
+            }
+        }
+        if (light!=nullptr)
+        {
+        }
+        if (vision!=nullptr)
+        {
+            if (parameterID==sim_visionfarrayparam_viewfrustum)
+            {
+                C3Vector nearV,farV;
+                vision->getVolumeVectors(nearV,farV);
+                retVal=new float[6];
+                for (size_t i=0;i<3;i++)
+                {
+                    retVal[i]=nearV(i);
+                    retVal[i+3]=farV(i);
+                }
+                if (size!=nullptr)
+                    size[0]=6;
+            }
+        }
+        if (camera!=nullptr)
+        {
+            if (parameterID==sim_camerafarrayparam_viewfrustum)
+            {
+                C3Vector nearV,farV;
+                camera->getVolumeVectors(nearV,farV);
+                retVal=new float[6];
+                for (size_t i=0;i<3;i++)
+                {
+                    retVal[i]=nearV(i);
+                    retVal[i+3]=farV(i);
+                }
+                if (size!=nullptr)
+                    size[0]=6;
+            }
+        }
+        if (joint!=nullptr)
+        {
+        }
+        if (shape!=nullptr)
+        {
+        }
+        if (forceSensor!=nullptr)
+        {
+        }
+        if (dummy!=nullptr)
+        {
+        }
+
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(nullptr);
+}
+
+simInt simSetObjectFloatArrayParam_internal(simInt objectHandle,simInt parameterID,const simFloat* params,simInt size)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    if (!doesObjectExist(__func__,objectHandle))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal=0; // Means the parameter was not set
+        CVisionSensor* vision=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
+        CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
+        CLight* light=App::currentWorld->sceneObjects->getLightFromHandle(objectHandle);
+        CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(objectHandle);
+        CDummy* dummy=App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
+        if (parameterID<sim_objparam_end)
+        { // for all scene objects
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            if (it!=nullptr)
+            {
+            }
+        }
+        if (light!=nullptr)
+        {
+        }
+        if (vision!=nullptr)
+        {
+        }
+        if (camera!=nullptr)
+        {
+        }
+        if (joint!=nullptr)
+        {
+        }
+        if (shape!=nullptr)
+        {
+        }
+        if (dummy!=nullptr)
+        {
+        }
+        if (retVal==0)
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_SET_PARAMETER);
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
 simChar* simGetObjectStringParam_internal(simInt objectHandle,simInt parameterID,simInt* parameterLength)
 {
     TRACE_C_API;
@@ -17024,7 +17157,7 @@ simInt simHandleVarious_internal()
         for (size_t i=0;i<App::currentWorld->sceneObjects->getCameraCount();i++)
         {
             CCamera*  it=App::currentWorld->sceneObjects->getCameraFromIndex(i);
-            it->handleTrackingAndHeadAlwaysUp();
+            it->handleCameraTracking();
         }
 
         // Following is for velocity measurement:

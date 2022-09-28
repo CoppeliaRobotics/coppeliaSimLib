@@ -590,7 +590,7 @@ void CMainWindow::simThread_prepareToRenderScene()
         for (size_t i=0;i<App::currentWorld->sceneObjects->getCameraCount();i++)
         {
             CCamera*  it=App::currentWorld->sceneObjects->getCameraFromIndex(i);
-            it->handleTrackingAndHeadAlwaysUp();
+            it->handleCameraTracking();
         }
     }
 

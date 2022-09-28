@@ -34,13 +34,11 @@ void CQDlgCameras::refresh()
     bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     CCamera* it=App::currentWorld->sceneObjects->getLastSelectionCamera();
 
-    ui->qqAlongX->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqAlongY->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqAlongZ->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqAllowRotation->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqColorA->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqFarClipping->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqNearClipping->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqFullRotation->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqAllowRotation->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqShowVolume->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqLocalLights->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqLocalLights->setVisible(App::userSettings->showOldDlgs);
@@ -52,22 +50,23 @@ void CQDlgCameras::refresh()
     ui->qqShowFog->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqShowFog->setVisible(App::userSettings->showOldDlgs);
     ui->qqSize->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqTilting->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqTrackedCombo->setEnabled((it!=nullptr)&&noEditModeNoSim);
     ui->qqRenderModeCombo->setEnabled((it!=nullptr)&&noEditModeNoSim);
 
     ui->qqTrackedCombo->clear();
     ui->qqRenderModeCombo->clear();
+    ui->qqCameraType->setText("");
 
     if (it!=nullptr)
     {
+        if (it->getPerspectiveOperation()==0)
+            ui->qqCameraType->setText("Orthographic projection mode camera");
+        if (it->getPerspectiveOperation()==1)
+            ui->qqCameraType->setText("Perspective projection mode camera");
         ui->qqManipProxy->setChecked(it->getUseParentObjectAsManipulationProxy());
         ui->qqShowVolume->setChecked(it->getShowVolume());
-        ui->qqFullRotation->setChecked((it->getCameraManipulationModePermissions()&0x008)!=0);
-        ui->qqTilting->setChecked((it->getCameraManipulationModePermissions()&0x010)!=0);
-        ui->qqAlongX->setChecked((it->getCameraManipulationModePermissions()&0x001)!=0);
-        ui->qqAlongY->setChecked((it->getCameraManipulationModePermissions()&0x002)!=0);
-        ui->qqAlongZ->setChecked((it->getCameraManipulationModePermissions()&0x004)!=0);
+        ui->qqAllowRotation->setChecked(it->getAllowRotation());
+        ui->qqAllowTranslation->setChecked(it->getAllowTranslation());
         ui->qqPerspectiveProjectionAngle->setText(tt::getAngleFString(false,it->getViewAngle(),1).c_str());
         ui->qqOrthographicProjectionSize->setText(tt::getEString(false,it->getOrthoViewSize(),2).c_str());
         ui->qqSize->setText(tt::getEString(false,it->getCameraSize(),2).c_str());
@@ -145,15 +144,12 @@ void CQDlgCameras::refresh()
     }
     else
     {
-        ui->qqAlongX->setChecked(false);
-        ui->qqAlongY->setChecked(false);
-        ui->qqAlongZ->setChecked(false);
-        ui->qqFullRotation->setChecked(false);
+        ui->qqAllowTranslation->setChecked(false);
+        ui->qqAllowRotation->setChecked(false);
         ui->qqShowVolume->setChecked(false);
         ui->qqLocalLights->setChecked(false);
         ui->qqManipProxy->setChecked(false);
         ui->qqShowFog->setChecked(false);
-        ui->qqTilting->setChecked(false);
         ui->qqAllowPicking->setChecked(false);
         ui->qqFarClipping->setText("");
         ui->qqNearClipping->setText("");
@@ -269,51 +265,21 @@ void CQDlgCameras::on_qqManipProxy_clicked()
     }
 }
 
-void CQDlgCameras::on_qqAlongX_clicked()
+void CQDlgCameras::on_qqAllowTranslation_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_SHIFTALONGX_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        App::appendSimulationThreadCommand(TOGGLE_ALLOWTRANSLATION_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
-void CQDlgCameras::on_qqAlongY_clicked()
+void CQDlgCameras::on_qqAllowRotation_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_SHIFTALONGY_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgCameras::on_qqAlongZ_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_SHIFTALONGZ_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgCameras::on_qqFullRotation_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_FULLROTATION_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgCameras::on_qqTilting_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_TILTING_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        App::appendSimulationThreadCommand(TOGGLE_ALLOWROTATION_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

@@ -305,6 +305,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setObjectInt32Param",_simSetObjectInt32Param,          "sim.setObjectInt32Param(int objectHandle,int parameterID,int parameter)",true},
     {"sim.getObjectFloatParam",_simGetObjectFloatParam,          "float parameter=sim.getObjectFloatParam(int objectHandle,int parameterID)",true},
     {"sim.setObjectFloatParam",_simSetObjectFloatParam,          "sim.setObjectFloatParam(int objectHandle,int parameterID,float parameter)",true},
+    {"sim.getObjectFloatArrayParam",_simGetObjectFloatArrayParam,"float[] params=sim.getObjectFloatArrayParam(int objectHandle,int parameterID)",true},
+    {"sim.setObjectFloatArrayParam",_simSetObjectFloatArrayParam,"sim.setObjectFloatArrayParam(int objectHandle,int parameterID,float[] params)",true},
     {"sim.getObjectStringParam",_simGetObjectStringParam,        "buffer parameter=sim.getObjectStringParam(int objectHandle,int parameterID)",true},
     {"sim.setObjectStringParam",_simSetObjectStringParam,        "sim.setObjectStringParam(int objectHandle,int parameterID,buffer parameter)",true},
     {"sim.getScriptInt32Param",_simGetScriptInt32Param,          "int parameter=sim.getScriptInt32Param(int scriptHandle,int parameterID)",true},
@@ -973,7 +975,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.navigation_camerashift",sim_navigation_camerashift,true},
     {"sim.navigation_camerarotate",sim_navigation_camerarotate,true},
     {"sim.navigation_camerazoom",sim_navigation_camerazoom,true},
-    {"sim.navigation_cameratilt",sim_navigation_cameratilt,true},
     {"sim.navigation_cameraangle",sim_navigation_cameraangle,true},
     {"sim.navigation_objectshift",sim_navigation_objectshift,true},
     {"sim.navigation_objectrotate",sim_navigation_objectrotate,true},
@@ -1127,6 +1128,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.visionintparam_pov_blur_sampled",sim_visionintparam_pov_blur_sampled,true},
     {"sim.visionintparam_render_mode",sim_visionintparam_render_mode,true},
     {"sim.visionintparam_perspective_operation",sim_visionintparam_perspective_operation,true},
+    {"sim.visionfarrayparam_viewfrustum",sim_visionfarrayparam_viewfrustum,true},
+
     // joints
     {"sim.jointintparam_motor_enabled",sim_jointintparam_motor_enabled,true},
     {"sim.jointintparam_ctrl_enabled",sim_jointintparam_ctrl_enabled,true},
@@ -1235,6 +1238,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.cameraintparam_perspective_operation",sim_cameraintparam_perspective_operation,true},
     {"sim.cameraintparam_trackedobject",sim_cameraintparam_trackedobject,true},
     {"sim.cameraintparam_remotecameramode",sim_cameraintparam_remotecameramode,true},
+    {"sim.camerafarrayparam_viewfrustum",sim_camerafarrayparam_viewfrustum,true},
 
     // dummies
     {"sim.dummyintparam_link_type",sim_dummyintparam_link_type,true},
@@ -1842,6 +1846,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.syscb_customcallback3",sim_syscb_customcallback3,false},
     {"sim.syscb_customcallback4",sim_syscb_customcallback4,false},
     {"sim.syscb_jointcallback",sim_syscb_jointcallback,false},
+    {"sim.navigation_cameratilt",sim_navigation_cameratilt,false},
 
     {"",-1}
 };
@@ -10086,6 +10091,47 @@ int _simSetObjectFloatParam(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simGetObjectFloatArrayParam(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectFloatArrayParam");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int s;
+        float* params=simGetObjectFloatArrayParam_internal(luaToInt(L,1),luaToInt(L,2),&s);
+        if (params!=nullptr)
+        {
+            pushFloatTableOntoStack(L,s,params);
+            delete [] params;
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetObjectFloatArrayParam(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setObjectFloatArrayParam");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,1))
+    {
+        size_t cnt=luaWrap_lua_rawlen(L,3);
+        std::vector<float> arr;
+        arr.resize(cnt);
+        getFloatsFromTable(L,3,cnt,&arr[0]);
+        retVal=simSetObjectFloatArrayParam_internal(luaToInt(L,1),luaToInt(L,2),&arr[0],int(cnt));
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
 int _simGetObjectStringParam(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -12897,7 +12943,7 @@ int _simHandleSensingStart(luaWrap_lua_State* L)
         for (size_t i=0;i<App::currentWorld->sceneObjects->getCameraCount();i++)
         {
             CCamera*  it=App::currentWorld->sceneObjects->getCameraFromIndex(i);
-            it->handleTrackingAndHeadAlwaysUp();
+            it->handleCameraTracking();
         }
 
         // Following is for velocity measurement:

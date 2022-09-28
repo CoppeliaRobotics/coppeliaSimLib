@@ -797,6 +797,14 @@ SIM_DLLEXPORT simInt simSetObjectFloatParam(simInt objectHandle,simInt ParamID,s
 {
     return(simSetObjectFloatParam_internal(objectHandle,ParamID,Param));
 }
+SIM_DLLEXPORT simFloat* simGetObjectFloatArrayParam(simInt objectHandle,simInt ParamID,simInt* size)
+{
+    return(simGetObjectFloatArrayParam_internal(objectHandle,ParamID,size));
+}
+SIM_DLLEXPORT simInt simSetObjectFloatArrayParam(simInt objectHandle,simInt ParamID,const simFloat* params,simInt size)
+{
+    return(simSetObjectFloatArrayParam_internal(objectHandle,ParamID,params,size));
+}
 SIM_DLLEXPORT simChar* simGetObjectStringParam(simInt objectHandle,simInt ParamID,simInt* ParamLength)
 {
     return(simGetObjectStringParam_internal(objectHandle,ParamID,ParamLength));

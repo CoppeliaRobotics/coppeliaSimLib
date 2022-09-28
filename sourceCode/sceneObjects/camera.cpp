@@ -759,7 +759,8 @@ void CCamera::commonInit()
     _attributesForRendering=sim_displayattribute_renderpass;
     _textureNameForExtGeneratedView=(unsigned int)-1;
 
-    _cameraManipulationModePermissions=0x1f;
+    _allowTranslation=true;
+    _allowRotation=true;
 
     _objectMovementPreferredAxes=0x013;
 
@@ -780,25 +781,44 @@ void CCamera::commonInit()
     computeVolumeVectors();
 }
 
-void CCamera::setCameraManipulationModePermissions(int p)
-{ // bit coded: own x, own y, own z, full rotation, tilting, never tilting
-    // full rotation requires free x, y and z movement
-    // never tilting and tilting cannot be activated together
-    p&=0x03f;
-    if (((_cameraManipulationModePermissions&0x008)==0)&&(p&0x008))
-        p|=0x007; // we want full rotation! x,y and z have to be enabled
-    if (((_cameraManipulationModePermissions&0x020)==0)&&(p&0x020))
-        p&=0x02f; // we want to never tilt! disable manipulation tilting
-    if (((_cameraManipulationModePermissions&0x010)==0)&&(p&0x010))
-        p&=0x01f; // we want to tilt during manip! disable "never tilting"
-    if ((p&0x007)!=0x007)
-        p&=0x037; // We restrain x,y or z translation. disable full rotation
-    _cameraManipulationModePermissions=p;
+void CCamera::setAllowTranslation(bool allow)
+{
+    if (_allowTranslation!=allow)
+    {
+        _allowTranslation=allow;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="allowTranslation";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringBool(cmd,_allowTranslation);
+            App::worldContainer->pushEvent(event);
+        }
+    }
 }
 
-int CCamera::getCameraManipulationModePermissions() const
-{ // bit coded: own x, own y, own z, full rotation, tilting, never tilting
-    return(_cameraManipulationModePermissions);
+bool CCamera::getAllowTranslation() const
+{
+    return(_allowTranslation);
+}
+
+void CCamera::setAllowRotation(bool allow)
+{
+    if (_allowRotation!=allow)
+    {
+        _allowRotation=allow;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="allowRotation";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+            data->appendMapObject_stringBool(cmd,_allowRotation);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
+bool CCamera::getAllowRotation() const
+{
+    return(_allowRotation);
 }
 
 bool CCamera::getIsMainCamera()
@@ -824,29 +844,14 @@ void CCamera::shiftCameraInCameraManipulationMode(const C3Vector& newLocalPos)
     C4X4Matrix newLocal(oldLocal);
     newLocal.X=newLocalPos;
     C4X4Matrix tr(oldLocal.getInverse()*newLocal);
-    if ((_cameraManipulationModePermissions&0x001)==0)
-        tr.X(0)=0.0f;
-    if ((_cameraManipulationModePermissions&0x002)==0)
-        tr.X(1)=0.0f;
-    if ((_cameraManipulationModePermissions&0x004)==0)
-        tr.X(2)=0.0f;
+    if (!_allowTranslation)
+        tr.X.clear();
     setLocalTransformation(oldLocal*tr);
 }
 void CCamera::rotateCameraInCameraManipulationMode(const C7Vector& newLocalConf)
 {
-    if (_cameraManipulationModePermissions&0x008)
+    if (_allowRotation)
         setLocalTransformation(newLocalConf);
-}
-void CCamera::tiltCameraInCameraManipulationMode(float tiltAmount)
-{
-    if (_cameraManipulationModePermissions&0x010)
-    {
-        C4X4Matrix oldLocal(_localTransformation.getMatrix());
-        C3X3Matrix rot;
-        rot.buildZRotation(tiltAmount);
-        oldLocal.M=oldLocal.M*rot;
-        setLocalTransformation(oldLocal);
-    }
 }
 
 void CCamera::computeBoundingBox()
@@ -869,19 +874,13 @@ CCamera::~CCamera()
     }
 }
 
-void CCamera::handleTrackingAndHeadAlwaysUp()
+void CCamera::handleCameraTracking()
 {
     TRACE_INTERNAL;
-    // 1. First tracking:
-    // Check if the tracked object is not parented with that camera
-    // (camera would follow the object which would follow the camera which...)
     CSceneObject* tr=App::currentWorld->sceneObjects->getObjectFromHandle(_trackedObjectHandle);
     if ((tr==nullptr)||(tr==this)||tr->isObjectParentedWith(this))
-    {
         _trackedObjectHandle=-1;
-        tr=nullptr;
-    }
-    if (tr!=nullptr)
+    else
     {
         C7Vector tracked(tr->getFullCumulativeTransformation());
         C7Vector self(getFullCumulativeTransformation());
@@ -898,24 +897,21 @@ void CCamera::handleTrackingAndHeadAlwaysUp()
             self.Q=rot2*self.Q;
             C7Vector parentInv(getFullParentCumulativeTransformation().getInverse());
             setLocalTransformation(parentInv*self);
-        }
-    }
 
-    // 2. Now permanent head up:
-    if (_cameraManipulationModePermissions&0x020)
-    { // We have to keep head up
-        C7Vector cameraCTM(getCumulativeTransformation());
-        C3X3Matrix trM2(cameraCTM.Q);
-        if ( (fabs(trM2.axis[2](0))>0.00001f)||(fabs(trM2.axis[2](1))>0.00001f) )
-        { // We have to do it:
-            float val=1.0f;
-            if (trM2.axis[1](2)<0.0f)
-                val=-1.0f;
-            C3Vector rotAx(trM2.axis[2]^C3Vector(0.0f,0.0f,val));
-            C3Vector target(C4Vector(piValue_f/2.0f,rotAx)*trM2.axis[2]);
-            C4Vector rot(trM2.axis[1],target);
-            cameraCTM.Q=rot*cameraCTM.Q;
-            setLocalTransformation(getFullParentCumulativeTransformation().getInverse()*cameraCTM);
+            // Keep head up:
+            C7Vector cameraCTM(getCumulativeTransformation());
+            C3X3Matrix trM2(cameraCTM.Q);
+            if ( (fabs(trM2.axis[2](0))>0.00001f)||(fabs(trM2.axis[2](1))>0.00001f) )
+            { // We have to do it:
+                float val=1.0f;
+                if (trM2.axis[1](2)<0.0f)
+                    val=-1.0f;
+                C3Vector rotAx(trM2.axis[2]^C3Vector(0.0f,0.0f,val));
+                C3Vector target(C4Vector(piValue_f/2.0f,rotAx)*trM2.axis[2]);
+                C4Vector rot(trM2.axis[1],target);
+                cameraCTM.Q=rot*cameraCTM.Q;
+                setLocalTransformation(getFullParentCumulativeTransformation().getInverse()*cameraCTM);
+            }
         }
     }
 }
@@ -980,7 +976,7 @@ void CCamera::setTrackedObjectHandle(int trackedObjHandle)
         if (App::currentWorld->sceneObjects->getObjectFromHandle(trackedObjHandle)!=nullptr)
         {
             _trackedObjectHandle=trackedObjHandle;
-            handleTrackingAndHeadAlwaysUp();
+            handleCameraTracking();
         }
         else
             _trackedObjectHandle=-1;
@@ -1002,6 +998,8 @@ void CCamera::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 
     if (_perspectiveOperation!=-1)
         data->appendMapObject_stringBool("perspectiveMode",_perspectiveOperation!=0);
+    data->appendMapObject_stringBool("allowTranslation",_allowTranslation);
+    data->appendMapObject_stringBool("allowRotation",_allowRotation);
     data->appendMapObject_stringFloat("nearClippingPlane",_nearClippingPlane);
     data->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
     data->appendMapObject_stringFloat("viewAngle",_viewAngle);
@@ -1048,7 +1046,8 @@ CSceneObject* CCamera::copyYourself()
     newCamera->_showFogIfAvailable=_showFogIfAvailable;
     newCamera->_trackedObjectHandle=_trackedObjectHandle;
     newCamera->_useParentObjectAsManipulationProxy=_useParentObjectAsManipulationProxy;
-    newCamera->_cameraManipulationModePermissions=_cameraManipulationModePermissions;
+    newCamera->_allowTranslation=_allowTranslation;
+    newCamera->_allowRotation=_allowRotation;
     newCamera->_useLocalLights=_useLocalLights;
     newCamera->_allowPicking=_allowPicking;
     newCamera->_showVolume=_showVolume;
@@ -1137,6 +1136,11 @@ int CCamera::getRemoteCameraMode() const
     return(_remoteCameraMode);
 }
 
+int CCamera::getPerspectiveOperation() const
+{
+    return(_perspectiveOperation);
+}
+
 void CCamera::setPerspectiveOperation(bool p)
 {
     int v=_perspectiveOperation;
@@ -1155,7 +1159,7 @@ void CCamera::setPerspectiveOperation(bool p)
         {
             const char* cmd="perspectiveMode";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringFloat(cmd,_perspectiveOperation);
+            data->appendMapObject_stringBool(cmd,_perspective);
             App::worldContainer->pushEvent(event);
         }
     }
@@ -1314,8 +1318,13 @@ void CCamera::serialize(CSer& ar)
             ar << _nearClippingPlane << _farClippingPlane;
             ar.flush();
 
-            ar.storeDataName("Cmp");
-            ar << _cameraManipulationModePermissions;
+            ar.storeDataName("Cmp"); // keep for backward compatibility (28.09.2022)
+            int tmp=0;
+            if (_allowTranslation)
+                tmp|=7;
+            if (_allowRotation)
+                tmp|=24;
+            ar << tmp;
             ar.flush();
 
             ar.storeDataName("Rmd");
@@ -1391,16 +1400,6 @@ void CCamera::serialize(CSer& ar)
                         unsigned char nothing;
                         ar >> nothing;
                         _useParentObjectAsManipulationProxy=SIM_IS_BIT_SET(nothing,0);
-                        bool headUp=SIM_IS_BIT_SET(nothing,1);
-                        bool keepHeadAlwaysUp=SIM_IS_BIT_SET(nothing,2);
-                        if (headUp)
-                            _cameraManipulationModePermissions&=0x02f;
-                        else
-                            _cameraManipulationModePermissions|=0x010;
-                        if (keepHeadAlwaysUp)
-                            _cameraManipulationModePermissions|=0x020;
-                        else
-                            _cameraManipulationModePermissions&=0x01f;
                     }
                     if (theName=="Ca2")
                     {
@@ -1486,10 +1485,13 @@ void CCamera::serialize(CSer& ar)
                         _color.serialize(ar,0);
                     }
                     if (theName.compare("Cmp")==0)
-                    {
+                    { // for backward compatibility (29.09.2022)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _cameraManipulationModePermissions;
+                        int tmp;
+                        ar >> tmp;
+                        _allowTranslation=((tmp&0x07)!=0);
+                        _allowRotation=((tmp&0x08)!=0);
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -1553,10 +1555,11 @@ void CCamera::serialize(CSer& ar)
             if (exhaustiveXml)
                 ar.xmlAddNode_int("remoteCameraMode",_remoteCameraMode);
 
-            if (exhaustiveXml)
-                ar.xmlAddNode_int("manipulationPermissions",_cameraManipulationModePermissions);
-
             ar.xmlPushNewNode("switches");
+            if (exhaustiveXml)
+                ar.xmlAddNode_bool("allowTranslation",_allowTranslation);
+            if (exhaustiveXml)
+                ar.xmlAddNode_bool("allowRotation",_allowRotation);
             if (exhaustiveXml)
                 ar.xmlAddNode_bool("useParentAsManipulationProxy",_useParentObjectAsManipulationProxy);
             if (exhaustiveXml)
@@ -1615,9 +1618,6 @@ void CCamera::serialize(CSer& ar)
             if (exhaustiveXml)
                 ar.xmlGetNode_int("remoteCameraMode",_remoteCameraMode);
 
-            if (exhaustiveXml)
-                ar.xmlGetNode_int("manipulationPermissions",_cameraManipulationModePermissions);
-
             if (ar.xmlPushChildNode("switches",exhaustiveXml))
             {
                 bool p;
@@ -1628,6 +1628,8 @@ void CCamera::serialize(CSer& ar)
                     else
                         _perspectiveOperation=0;
                 }
+                ar.xmlGetNode_bool("allowTranslation",_allowTranslation,exhaustiveXml);
+                ar.xmlGetNode_bool("allowRotation",_allowRotation,exhaustiveXml);
                 ar.xmlGetNode_bool("useParentAsManipulationProxy",_useParentObjectAsManipulationProxy,exhaustiveXml);
                 ar.xmlGetNode_bool("useLocalLights",_useLocalLights,exhaustiveXml);
                 ar.xmlGetNode_bool("allowPicking",_allowPicking,exhaustiveXml);
@@ -1976,7 +1978,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             // Display the sphere for rotation and shift-operations:
             //-----------------------------------------------------------------------------------------------------
             if (mouseIsDown&&(!passiveSubView)&&(pass==RENDERPASS)&&(selectionStatus==NOSELECTION)&&( (navigationMode==sim_navigation_camerarotate)||
-                (navigationMode==sim_navigation_camerashift)||(navigationMode==sim_navigation_cameratilt)||
+                (navigationMode==sim_navigation_camerashift)||
                 (navigationMode==sim_navigation_objectshift)||
                 (navigationMode==sim_navigation_objectrotate) ) )
             {
@@ -1986,8 +1988,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                 glLoadName(-1);
                 ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
                 if ((navigationMode==sim_navigation_camerarotate)||
-                    (navigationMode==sim_navigation_camerashift)||
-                    (navigationMode==sim_navigation_cameratilt))
+                    (navigationMode==sim_navigation_camerashift))
                 {
                     ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorRed);
                     glPushMatrix();
@@ -2016,7 +2017,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                     float clippNear=_nearClippingPlane;
                     if (!isPerspective)
                         clippNear=ORTHO_CAMERA_NEAR_CLIPPING_PLANE;
-                    if ( (mousePosDepth==clippNear)&&(navigationMode!=sim_navigation_cameratilt) )
+                    if (mousePosDepth==clippNear)
                     { // We should display a differentiated thing here (kind of half-error!)
                         C7Vector cct(getCumulativeTransformation());
                         C7Vector icct(cct.getInverse());
@@ -2974,8 +2975,8 @@ void CCamera::performDepthPerception(CSView* subView,bool isPerspective)
         clippNear=ORTHO_CAMERA_NEAR_CLIPPING_PLANE;
     }
 
-    if ( (pixel[0]>=(1.0f-2.0f*std::numeric_limits<float>::epsilon())) || ((mouseMode&0x00ff)==sim_navigation_cameratilt) )
-    { // The cursor hit the far clipping plane or we are in a tilting mode:
+    if (pixel[0]>=(1.0f-2.0f*std::numeric_limits<float>::epsilon()))
+    { // The cursor hit the far clipping plane:
         subView->setMousePositionDepth(clippNear);
         float p[3];
         p[0]=m[0][3]+m[0][2]*clippNear;

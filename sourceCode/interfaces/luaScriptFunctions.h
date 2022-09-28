@@ -310,6 +310,8 @@ extern int _simGetObjectInt32Param(luaWrap_lua_State* L);
 extern int _simSetObjectInt32Param(luaWrap_lua_State* L);
 extern int _simGetObjectFloatParam(luaWrap_lua_State* L);
 extern int _simSetObjectFloatParam(luaWrap_lua_State* L);
+extern int _simGetObjectFloatArrayParam(luaWrap_lua_State* L);
+extern int _simSetObjectFloatArrayParam(luaWrap_lua_State* L);
 extern int _simGetObjectStringParam(luaWrap_lua_State* L);
 extern int _simSetObjectStringParam(luaWrap_lua_State* L);
 extern int _simGetScriptInt32Param(luaWrap_lua_State* L);

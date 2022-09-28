@@ -36,15 +36,9 @@ private slots:
 
     void on_qqManipProxy_clicked();
 
-    void on_qqAlongX_clicked();
+    void on_qqAllowTranslation_clicked();
 
-    void on_qqAlongY_clicked();
-
-    void on_qqAlongZ_clicked();
-
-    void on_qqFullRotation_clicked();
-
-    void on_qqTilting_clicked();
+    void on_qqAllowRotation_clicked();
 
     void on_qqColorA_clicked();
 

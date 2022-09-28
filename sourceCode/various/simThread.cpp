@@ -448,8 +448,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CToolBarCommand::processCommand(cmd.cmdId);
         if (cmd.cmdId==CAMERA_ZOOM_NAVIGATION_CMD)
             CToolBarCommand::processCommand(cmd.cmdId);
-        if (cmd.cmdId==CAMERA_TILT_NAVIGATION_CMD)
-            CToolBarCommand::processCommand(cmd.cmdId);
         if (cmd.cmdId==CAMERA_ANGLE_NAVIGATION_CMD)
             CToolBarCommand::processCommand(cmd.cmdId);
         if (cmd.cmdId==OBJECT_SHIFT_NAVIGATION_CMD)
@@ -584,35 +582,17 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (cam!=nullptr)
                 cam->setUseParentObjectAsManipulationProxy(!cam->getUseParentObjectAsManipulationProxy());
         }
-        if (cmd.cmdId==TOGGLE_SHIFTALONGX_CAMERAGUITRIGGEREDCMD)
+        if (cmd.cmdId==TOGGLE_ALLOWTRANSLATION_CAMERAGUITRIGGEREDCMD)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
             if (cam!=nullptr)
-                cam->setCameraManipulationModePermissions(cam->getCameraManipulationModePermissions()^0x001);
+                cam->setAllowTranslation(!cam->getAllowTranslation());
         }
-        if (cmd.cmdId==TOGGLE_SHIFTALONGY_CAMERAGUITRIGGEREDCMD)
+        if (cmd.cmdId==TOGGLE_ALLOWROTATION_CAMERAGUITRIGGEREDCMD)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
             if (cam!=nullptr)
-                cam->setCameraManipulationModePermissions(cam->getCameraManipulationModePermissions()^0x002);
-        }
-        if (cmd.cmdId==TOGGLE_SHIFTALONGZ_CAMERAGUITRIGGEREDCMD)
-        {
-            CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
-            if (cam!=nullptr)
-                cam->setCameraManipulationModePermissions(cam->getCameraManipulationModePermissions()^0x004);
-        }
-        if (cmd.cmdId==TOGGLE_FULLROTATION_CAMERAGUITRIGGEREDCMD)
-        {
-            CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
-            if (cam!=nullptr)
-                cam->setCameraManipulationModePermissions(cam->getCameraManipulationModePermissions()^0x008);
-        }
-        if (cmd.cmdId==TOGGLE_TILTING_CAMERAGUITRIGGEREDCMD)
-        {
-            CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
-            if (cam!=nullptr)
-                cam->setCameraManipulationModePermissions(cam->getCameraManipulationModePermissions()^0x010);
+                cam->setAllowRotation(!cam->getAllowRotation());
         }
         if (cmd.cmdId==SET_SIZE_CAMERAGUITRIGGEREDCMD)
         {
