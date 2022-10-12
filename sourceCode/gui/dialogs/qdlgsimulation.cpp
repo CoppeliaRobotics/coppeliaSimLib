@@ -37,13 +37,13 @@ void CQDlgSimulation::refresh()
     ui->qqResetScene->setEnabled(noEditMode);
     ui->qqRemoveNewObjects->setEnabled(noEditMode);
 
-    ui->qqEngineCombo->setEnabled(noEditModeNoSim);
-    ui->qqContactPoints->setEnabled(noEditMode);
-    ui->qqAdjustEngine->setEnabled(noEditModeNoSim);
-    ui->qqDynTimeStep->setEnabled(noEditModeNoSim);
-    ui->qqGravityX->setEnabled(noEditModeNoSim);
-    ui->qqGravityY->setEnabled(noEditModeNoSim);
-    ui->qqGravityZ->setEnabled(noEditModeNoSim);
+    ui->qqEngineCombo->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqContactPoints->setEnabled(noEditMode&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqAdjustEngine->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqDynTimeStep->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqGravityX->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqGravityY->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqGravityZ->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
 
     ui->qqRealTime->setChecked(App::currentWorld->simulation->getIsRealTimeSimulation());
     ui->qqTimeStep->setText(tt::getDString(false,double(App::currentWorld->simulation->getTimeStep()),4).c_str());

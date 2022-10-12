@@ -405,7 +405,7 @@ void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack
             if (!App::currentWorld->simulation->isSimulationStopped())
             {
                 CScriptObject* script=getMainScript();
-                if ( (script!=nullptr)&&(script->hasFunction(callType)) )
+                if ( (script!=nullptr)&&(script->hasFunction(callType)||script->getOldCallMode()) )
                     script->systemCallMainScript(callType,inStack,outStack);
             }
             if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
@@ -419,7 +419,7 @@ void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack
                 if (!App::currentWorld->simulation->isSimulationStopped())
                 {
                     CScriptObject* script=getMainScript();
-                    if ( (script!=nullptr)&&(script->hasFunction(callType)) )
+                    if ( (script!=nullptr)&&(script->hasFunction(callType)||script->getOldCallMode()) )
                         script->systemCallMainScript(callType,inStack,outStack);
                 }
             }
@@ -589,7 +589,7 @@ int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int cal
                     else
                         cnt+=script->resumeThreadedChildScriptIfLocationMatch_oldThreads(callTypeOrResumeLocation);
                 }
-                else if (script->hasFunction(callTypeOrResumeLocation))
+                else if (script->hasFunction(callTypeOrResumeLocation)||script->getOldCallMode())
                 { // has the function
                     if (script->systemCallScript(callTypeOrResumeLocation,inStack,outStack)==1)
                     {
@@ -605,7 +605,7 @@ int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int cal
                         compatCall=sim_syscb_dyncallback;
                     if (callTypeOrResumeLocation==sim_syscb_contact)
                         compatCall=sim_syscb_contactcallback;
-                    if ( (compatCall!=-1)&&(script->hasFunction(compatCall)) )
+                    if ( (compatCall!=-1)&&script->hasFunction(compatCall) )
                     {
                         if (script->systemCallScript(compatCall,inStack,outStack)==1)
                         {

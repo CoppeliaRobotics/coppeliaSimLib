@@ -769,7 +769,28 @@ void CJoint::setDependencyMasterJointHandle(int depJointID)
                 App::currentWorld->sceneObjects->actualizeObjectInformation();
                 setPosition(getPosition(),false);
             }
+            _sendDependencyChange();
         }
+    }
+}
+
+void CJoint::_sendDependencyChange() const
+{
+    if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+    {
+        const char* cmd="dependency";
+        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
+        if (_dependencyMasterJointHandle!=-1)
+        {
+            CSceneObject* master=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
+            if (master!=nullptr)
+            {
+                data->appendMapObject_stringInt64("masterUid",master->getObjectUid());
+                data->appendMapObject_stringFloat("mult",_dependencyJointMult);
+                data->appendMapObject_stringFloat("off",_dependencyJointOffset);
+            }
+        }
+        App::worldContainer->pushEvent(event);
     }
 }
 
@@ -798,6 +819,7 @@ void CJoint::setDependencyJointMult(float coeff)
             if (getObjectCanSync())
                 _setDependencyJointMult_sendOldIk(coeff);
             setPosition(getPosition(),false);
+            _sendDependencyChange();
         }
     }
 }
@@ -827,6 +849,7 @@ void CJoint::setDependencyJointOffset(float off)
             if (getObjectCanSync())
                 _setDependencyJointOffset_sendOldIk(off);
             setPosition(getPosition(),false);
+            _sendDependencyChange();
         }
     }
 }
@@ -2065,6 +2088,19 @@ void CJoint::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     _color_removeSoon.getColor(c+3,sim_colorcomponent_specular);
     _color_removeSoon.getColor(c+6,sim_colorcomponent_emission);
     colors->appendArrayObject_floatArray(c,9);
+
+    CInterfaceStackTable* dependency=new CInterfaceStackTable();
+    data->appendMapObject_stringObject("dependency",dependency);
+    if (_dependencyMasterJointHandle!=-1)
+    {
+        CSceneObject* master=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
+        if (master!=nullptr)
+        {
+            dependency->appendMapObject_stringInt64("masterUid",master->getObjectUid());
+            dependency->appendMapObject_stringFloat("mult",_dependencyJointMult);
+            dependency->appendMapObject_stringFloat("off",_dependencyJointOffset);
+        }
+    }
 }
 
 CSceneObject* CJoint::copyYourself()

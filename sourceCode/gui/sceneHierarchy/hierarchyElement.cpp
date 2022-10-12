@@ -403,6 +403,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
             CUserParameters* params=it->getUserScriptParameterObject();
             if ( ((params!=nullptr)&&(params->userParamEntries.size()>0)) || ((customizationScript!=nullptr)&&customizationScript->hasFunction(sim_syscb_userconfig)) )
             {
+//                printf("Object %s, param1: %s, %i\n",it->getObjectAlias().c_str(),params->userParamEntries[0].name.c_str(),params->userParamEntries.size());
                 if (!dontDisplay)
                 {
                     App::worldContainer->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);

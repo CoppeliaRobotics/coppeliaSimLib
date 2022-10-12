@@ -900,7 +900,12 @@ std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptTy
 
 bool CScriptObject::hasFunction(int callType) const
 { // when the script is not initialized, we need to return true
-    return( (_scriptState!=scriptState_initialized)||_containedSystemCallbacks[callType]||_compatibilityMode_oldLua );
+    return( (_scriptState!=scriptState_initialized)||_containedSystemCallbacks[callType] );//  ||_compatibilityMode_oldLua );
+}
+
+bool CScriptObject::getOldCallMode() const
+{
+    return(_compatibilityMode_oldLua);
 }
 
 std::string CScriptObject::getAndClearLastStackTraceback()

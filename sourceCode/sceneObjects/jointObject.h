@@ -328,6 +328,7 @@ protected:
 
     void _rectifyDependentJoints();
     void _commonInit();
+    void _sendDependencyChange() const;
 
     void _setPositionIntervalMin_sendOldIk(float min) const;
     void _setPositionIntervalRange_sendOldIk(float range) const;

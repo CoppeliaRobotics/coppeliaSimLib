@@ -123,6 +123,7 @@ public:
     int extractCommandFromOutsideCommandQueue(int auxVals[4],float aux2Vals[8],int& aux2Count);
 
     bool hasFunction(int callType) const;
+    bool getOldCallMode() const;
 
     std::string getFilenameForExternalScriptEditor() const;
     void fromFileToBuffer(); // when using an external editor

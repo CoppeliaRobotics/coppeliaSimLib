@@ -283,7 +283,7 @@ int CAddOnScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CIn
     for (size_t i=0;i<scripts.size();i++)
     {
         CScriptObject* it=scripts[i];
-        if (it->hasFunction(callType))
+        if ( it->hasFunction(callType)||it->getOldCallMode() )
         {
             if (it->systemCallScript(callType,inStack,outStack)==1)
                 retVal++;
