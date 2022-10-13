@@ -158,9 +158,6 @@ SIM_DLLEXPORT simInt simClearInt32Signal(const simChar* signalName);
 SIM_DLLEXPORT simInt simSetFloatSignal(const simChar* signalName,simFloat signalValue);
 SIM_DLLEXPORT simInt simGetFloatSignal(const simChar* signalName,simFloat* signalValue);
 SIM_DLLEXPORT simInt simClearFloatSignal(const simChar* signalName);
-SIM_DLLEXPORT simInt simSetDoubleSignal(const simChar* signalName,simDouble signalValue);
-SIM_DLLEXPORT simInt simGetDoubleSignal(const simChar* signalName,simDouble* signalValue);
-SIM_DLLEXPORT simInt simClearDoubleSignal(const simChar* signalName);
 SIM_DLLEXPORT simInt simSetStringSignal(const simChar* signalName,const simChar* signalValue,simInt stringLength);
 SIM_DLLEXPORT simChar* simGetStringSignal(const simChar* signalName,simInt* stringLength);
 SIM_DLLEXPORT simInt simClearStringSignal(const simChar* signalName);
@@ -739,6 +736,9 @@ SIM_DLLEXPORT simInt simGetQuaternionFromMatrix(const simFloat* matrix,simFloat*
 SIM_DLLEXPORT simVoid _simGetPrincipalMomentOfInertia(const simVoid* geomInfo,simFloat* inertia);
 SIM_DLLEXPORT simVoid _simGetLocalInertiaFrame(const simVoid* geomInfo,simFloat* pos,simFloat* quat);
 SIM_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* joint);
+SIM_DLLEXPORT simInt simSetDoubleSignal(const simChar* signalName,simDouble signalValue);
+SIM_DLLEXPORT simInt simGetDoubleSignal(const simChar* signalName,simDouble* signalValue);
+SIM_DLLEXPORT simInt simClearDoubleSignal(const simChar* signalName);
 // Deprecated end
 
 #endif // !defined(sim_INCLUDED_)

@@ -32,18 +32,20 @@ void CSignalContainer::announceScriptStateWillBeErased(int scriptHandle,bool sim
                 i++;
         }
         i=0;
-        while (i<_doubleSignalCreatorHandles.size())
-        {
-            if (_doubleSignalCreatorHandles[i]==scriptHandle)
-                clearDoubleSignal(_doubleSignalNames[i].c_str());
-            else
-                i++;
-        }
-        i=0;
         while (i<_stringSignalCreatorHandles.size())
         {
             if (_stringSignalCreatorHandles[i]==scriptHandle)
                 clearStringSignal(_stringSignalNames[i].c_str());
+            else
+                i++;
+        }
+
+        // Old:
+        i=0;
+        while (i<_doubleSignalCreatorHandles_old.size())
+        {
+            if (_doubleSignalCreatorHandles_old[i]==scriptHandle)
+                clearDoubleSignal_old(_doubleSignalNames_old[i].c_str());
             else
                 i++;
         }
@@ -171,64 +173,6 @@ int CSignalContainer::clearAllFloatSignals()
     return(retVal);
 }
 
-void CSignalContainer::setDoubleSignal(const char* signalName,double value,int creatorHandle)
-{
-    if ((signalName==nullptr)||(strlen(signalName)==0))
-        return;
-    int index=_getDoubleSignalIndex(signalName);
-    if (index==-1)
-    {
-        _doubleSignalNames.push_back(signalName);
-        _doubleSignalValues.push_back(value);
-        _doubleSignalCreatorHandles.push_back(creatorHandle);
-    }
-    else
-        _doubleSignalValues[index]=value;
-}
-
-bool CSignalContainer::getDoubleSignal(const char* signalName,double& value)
-{
-    if ((signalName==nullptr)||(strlen(signalName)==0))
-        return(false);
-    int index=_getDoubleSignalIndex(signalName);
-    if (index==-1)
-        return(false);
-    value=_doubleSignalValues[index];
-    return(true);
-}
-
-bool CSignalContainer::getDoubleSignalNameAtIndex(int index,std::string& signalName)
-{
-    if ( (index<0)||(index>=int(_doubleSignalNames.size())) )
-        return(false);
-    signalName=_doubleSignalNames[index];
-    return(true);
-}
-
-int CSignalContainer::clearDoubleSignal(const char* signalName)
-{
-    if ((signalName==nullptr)||(strlen(signalName)==0))
-        return(0);
-    int index=_getDoubleSignalIndex(signalName);
-    if (index!=-1)
-    {
-        _doubleSignalNames.erase(_doubleSignalNames.begin()+index);
-        _doubleSignalValues.erase(_doubleSignalValues.begin()+index);
-        _doubleSignalCreatorHandles.erase(_doubleSignalCreatorHandles.begin()+index);
-        return(1);
-    }
-    return(0);
-}
-
-int CSignalContainer::clearAllDoubleSignals()
-{
-    int retVal=int(_doubleSignalNames.size());
-    _doubleSignalNames.clear();
-    _doubleSignalValues.clear();
-    _doubleSignalCreatorHandles.clear();
-    return(retVal);
-}
-
 void CSignalContainer::setStringSignal(const char* signalName,const std::string& value,int creatorHandle)
 {
     if ((signalName==nullptr)||(strlen(signalName)==0))
@@ -308,16 +252,6 @@ int CSignalContainer::_getFloatSignalIndex(const char* signalName)
     return(-1);
 }
 
-int CSignalContainer::_getDoubleSignalIndex(const char* signalName)
-{
-    for (size_t i=0;i<_doubleSignalNames.size();i++)
-    {
-        if (_doubleSignalNames[i].compare(signalName)==0)
-            return(int(i));
-    }
-    return(-1);
-}
-
 int CSignalContainer::_getStringSignalIndex(const char* signalName)
 {
     for (size_t i=0;i<_stringSignalNames.size();i++)
@@ -327,4 +261,74 @@ int CSignalContainer::_getStringSignalIndex(const char* signalName)
     }
     return(-1);
 }
+
+// Old:
+void CSignalContainer::setDoubleSignal_old(const char* signalName,double value,int creatorHandle)
+{
+    if ((signalName==nullptr)||(strlen(signalName)==0))
+        return;
+    int index=_getDoubleSignalIndex_old(signalName);
+    if (index==-1)
+    {
+        _doubleSignalNames_old.push_back(signalName);
+        _doubleSignalValues_old.push_back(value);
+        _doubleSignalCreatorHandles_old.push_back(creatorHandle);
+    }
+    else
+        _doubleSignalValues_old[index]=value;
+}
+
+bool CSignalContainer::getDoubleSignal_old(const char* signalName,double& value)
+{
+    if ((signalName==nullptr)||(strlen(signalName)==0))
+        return(false);
+    int index=_getDoubleSignalIndex_old(signalName);
+    if (index==-1)
+        return(false);
+    value=_doubleSignalValues_old[index];
+    return(true);
+}
+
+bool CSignalContainer::getDoubleSignalNameAtIndex_old(int index,std::string& signalName)
+{
+    if ( (index<0)||(index>=int(_doubleSignalNames_old.size())) )
+        return(false);
+    signalName=_doubleSignalNames_old[index];
+    return(true);
+}
+
+int CSignalContainer::clearDoubleSignal_old(const char* signalName)
+{
+    if ((signalName==nullptr)||(strlen(signalName)==0))
+        return(0);
+    int index=_getDoubleSignalIndex_old(signalName);
+    if (index!=-1)
+    {
+        _doubleSignalNames_old.erase(_doubleSignalNames_old.begin()+index);
+        _doubleSignalValues_old.erase(_doubleSignalValues_old.begin()+index);
+        _doubleSignalCreatorHandles_old.erase(_doubleSignalCreatorHandles_old.begin()+index);
+        return(1);
+    }
+    return(0);
+}
+
+int CSignalContainer::clearAllDoubleSignals_old()
+{
+    int retVal=int(_doubleSignalNames_old.size());
+    _doubleSignalNames_old.clear();
+    _doubleSignalValues_old.clear();
+    _doubleSignalCreatorHandles_old.clear();
+    return(retVal);
+}
+
+int CSignalContainer::_getDoubleSignalIndex_old(const char* signalName)
+{
+    for (size_t i=0;i<_doubleSignalNames_old.size();i++)
+    {
+        if (_doubleSignalNames_old[i].compare(signalName)==0)
+            return(int(i));
+    }
+    return(-1);
+}
+
 

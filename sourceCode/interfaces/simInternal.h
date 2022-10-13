@@ -152,9 +152,6 @@ simInt simClearInt32Signal_internal(const simChar* signalName);
 simInt simSetFloatSignal_internal(const simChar* signalName,simFloat signalValue);
 simInt simGetFloatSignal_internal(const simChar* signalName,simFloat* signalValue);
 simInt simClearFloatSignal_internal(const simChar* signalName);
-simInt simSetDoubleSignal_internal(const simChar* signalName,simDouble signalValue);
-simInt simGetDoubleSignal_internal(const simChar* signalName,simDouble* signalValue);
-simInt simClearDoubleSignal_internal(const simChar* signalName);
 simInt simSetStringSignal_internal(const simChar* signalName,const simChar* signalValue,simInt stringLength);
 simChar* simGetStringSignal_internal(const simChar* signalName,simInt* stringLength);
 simInt simClearStringSignal_internal(const simChar* signalName);
@@ -675,4 +672,7 @@ simInt simBuildMatrixQ_internal(const simFloat* position,const simFloat* quatern
 simInt simGetQuaternionFromMatrix_internal(const simFloat* matrix,simFloat* quaternion);
 simVoid _simGetPrincipalMomentOfInertia_internal(const simVoid* geomInfo,simFloat* inertia);
 simVoid _simGetLocalInertiaFrame_internal(const simVoid* geomInfo,simFloat* pos,simFloat* quat);
+simInt simSetDoubleSignalOld_internal(const simChar* signalName,simDouble signalValue);
+simInt simGetDoubleSignalOld_internal(const simChar* signalName,simDouble* signalValue);
+simInt simClearDoubleSignalOld_internal(const simChar* signalName);
 #endif // !defined(simInternal_INCLUDED_)

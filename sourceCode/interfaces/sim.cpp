@@ -573,18 +573,6 @@ SIM_DLLEXPORT simInt simClearFloatSignal(const simChar* signalName)
 {
     return(simClearFloatSignal_internal(signalName));
 }
-SIM_DLLEXPORT simInt simSetDoubleSignal(const simChar* signalName,simDouble signalValue)
-{
-    return(simSetDoubleSignal_internal(signalName,signalValue));
-}
-SIM_DLLEXPORT simInt simGetDoubleSignal(const simChar* signalName,simDouble* signalValue)
-{
-    return(simGetDoubleSignal_internal(signalName,signalValue));
-}
-SIM_DLLEXPORT simInt simClearDoubleSignal(const simChar* signalName)
-{
-    return(simClearDoubleSignal_internal(signalName));
-}
 SIM_DLLEXPORT simInt simSetStringSignal(const simChar* signalName,const simChar* signalValue,simInt stringLength)
 {
     return(simSetStringSignal_internal(signalName,signalValue,stringLength));
@@ -2841,6 +2829,18 @@ SIM_DLLEXPORT simVoid _simGetPrincipalMomentOfInertia(const simVoid* geomInfo,si
 SIM_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* joint)
 {
     return(1); // not needed anymore
+}
+SIM_DLLEXPORT simInt simSetDoubleSignal(const simChar* signalName,simDouble signalValue)
+{
+    return(simSetDoubleSignalOld_internal(signalName,signalValue));
+}
+SIM_DLLEXPORT simInt simGetDoubleSignal(const simChar* signalName,simDouble* signalValue)
+{
+    return(simGetDoubleSignalOld_internal(signalName,signalValue));
+}
+SIM_DLLEXPORT simInt simClearDoubleSignal(const simChar* signalName)
+{
+    return(simClearDoubleSignalOld_internal(signalName));
 }
 // Deprecated end
 

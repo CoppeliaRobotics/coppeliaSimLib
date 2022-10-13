@@ -6952,6 +6952,12 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+    if (_containsScriptText_old(scriptObject,"sim.getDoubleSignal"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getDoubleSignal...");
+    if (_containsScriptText_old(scriptObject,"sim.setDoubleSignal"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setDoubleSignal...");
+    if (_containsScriptText_old(scriptObject,"sim.clearDoubleSignal"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.clearDoubleSignal...");
 
     if (_containsScriptText_old(scriptObject,"sysCall_jointCallback"))
         App::logMsg(sim_verbosity_errors,"Contains sysCall_jointCallback...");

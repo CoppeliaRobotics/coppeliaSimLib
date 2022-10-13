@@ -6656,64 +6656,6 @@ simInt simClearFloatSignal_internal(const simChar* signalName)
     return(-1);
 }
 
-simInt simSetDoubleSignal_internal(const simChar* signalName,simDouble signalValue)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        App::currentWorld->signalContainer->setDoubleSignal(signalName,signalValue,_currentScriptHandle);
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simGetDoubleSignal_internal(const simChar* signalName,simDouble* signalValue)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal=0;
-
-        if (App::currentWorld->signalContainer->getDoubleSignal(signalName,signalValue[0]))
-            retVal=1;
-
-        return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-simInt simClearDoubleSignal_internal(const simChar* signalName)
-{
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal;
-
-        if (signalName==nullptr)
-            retVal=App::currentWorld->signalContainer->clearAllDoubleSignals();
-        else
-            retVal=App::currentWorld->signalContainer->clearDoubleSignal(signalName);
-
-        return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 simInt simSetStringSignal_internal(const simChar* signalName,const simChar* signalValue,simInt stringLength)
 {
     TRACE_C_API;
@@ -6802,7 +6744,7 @@ simChar* simGetSignalName_internal(simInt signalIndex,simInt signalType)
         if (signalType==2)
             res=App::currentWorld->signalContainer->getStringSignalNameAtIndex(signalIndex,sigName);
         if (signalType==3)
-            res=App::currentWorld->signalContainer->getDoubleSignalNameAtIndex(signalIndex,sigName);
+            res=App::currentWorld->signalContainer->getDoubleSignalNameAtIndex_old(signalIndex,sigName);
 
         if (res)
         {
@@ -23614,5 +23556,63 @@ simVoid _simGetPrincipalMomentOfInertia_internal(const simVoid* geomInfo,simFloa
 { // deprecated on 19.08.2022
     TRACE_C_API;
     ((CMeshWrapper*)geomInfo)->getPrincipalMomentsOfInertia().getInternalData(inertia);
+}
+
+simInt simSetDoubleSignalOld_internal(const simChar* signalName,simDouble signalValue)
+{ // deprecated on 13.10.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        App::currentWorld->signalContainer->setDoubleSignal_old(signalName,signalValue,_currentScriptHandle);
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetDoubleSignalOld_internal(const simChar* signalName,simDouble* signalValue)
+{ // deprecated on 13.10.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal=0;
+
+        if (App::currentWorld->signalContainer->getDoubleSignal_old(signalName,signalValue[0]))
+            retVal=1;
+
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simClearDoubleSignalOld_internal(const simChar* signalName)
+{ // deprecated on 13.10.2022
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal;
+
+        if (signalName==nullptr)
+            retVal=App::currentWorld->signalContainer->clearAllDoubleSignals_old();
+        else
+            retVal=App::currentWorld->signalContainer->clearDoubleSignal_old(signalName);
+
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
 }
 

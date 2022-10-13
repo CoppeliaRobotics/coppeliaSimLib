@@ -247,9 +247,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setFloatSignal",_simSetFloatSignal,                    "sim.setFloatSignal(string signalName,float signalValue)",true},
     {"sim.getFloatSignal",_simGetFloatSignal,                    "float signalValue=sim.getFloatSignal(string signalName)",true},
     {"sim.clearFloatSignal",_simClearFloatSignal,                "sim.clearFloatSignal(string signalName)",true},
-    {"sim.setDoubleSignal",_simSetDoubleSignal,                  "sim.setDoubleSignal(string signalName,float signalValue)",true},
-    {"sim.getDoubleSignal",_simGetDoubleSignal,                  "float signalValue=sim.getDoubleSignal(string signalName)",true},
-    {"sim.clearDoubleSignal",_simClearDoubleSignal,              "clearDoubleSignal(string signalName)",true},
     {"sim.setStringSignal",_simSetStringSignal,                  "sim.setStringSignal(string signalName,buffer signalValue)",true},
     {"sim.getStringSignal",_simGetStringSignal,                  "buffer signalValue=sim.getStringSignal(string signalName)",true},
     {"sim.clearStringSignal",_simClearStringSignal,              "clearStringSignal(string signalName)",true},
@@ -598,6 +595,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.createPureShape",_simCreatePureShape,                  "Deprecated. Use sim.createPrimitiveShape instead",false},
     {"sim.getScriptHandle",_simGetScriptHandle,                  "Deprecated. Use sim.getScript instead",false},
     {"sim.handleCustomizationScripts",_simHandleCustomizationScripts,"Deprecated. Use sim.handleEmbeddedScripts instead",false},
+    {"sim.setDoubleSignal",_simSetDoubleSignal,                  "Deprecated. Use sim.setFloatSignal instead",false},
+    {"sim.getDoubleSignal",_simGetDoubleSignal,                  "Deprecated. Use sim.getFloatSignal instead",false},
+    {"sim.clearDoubleSignal",_simClearDoubleSignal,              "Deprecated. Use sim.clearFloatSignal instead",false},
 
     {"",nullptr,"",false}
 };
@@ -8472,63 +8472,6 @@ int _simClearFloatSignal(luaWrap_lua_State* L)
             retVal=simClearFloatSignal_internal(nullptr); // actually deprecated. No need for that
         else
             retVal=simClearFloatSignal_internal(luaWrap_lua_tostring(L,1));
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simSetDoubleSignal(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setDoubleSignal");
-
-    int retVal=-1; //error
-    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
-    {
-        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-        retVal=simSetDoubleSignal_internal(luaWrap_lua_tostring(L,1),luaToDouble(L,2));
-        setCurrentScriptInfo_cSide(-1,-1);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetDoubleSignal(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getDoubleSignal");
-
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-    {
-        double doubleVal;
-        if (simGetDoubleSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str(),&doubleVal)==1)
-        {
-            luaWrap_lua_pushnumber(L,doubleVal);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simClearDoubleSignal(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.clearDoubleSignal");
-
-    int retVal=-1; //error
-    int res=checkOneGeneralInputArgument(L,1,lua_arg_string,0,true,true,&errorString);
-    if (res>=0)
-    {
-        if (res!=2)
-            retVal=simClearDoubleSignal_internal(nullptr); // actually deprecated. No need for that
-        else
-            retVal=simClearDoubleSignal_internal(luaWrap_lua_tostring(L,1));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -21771,6 +21714,63 @@ int _simHandleCustomizationScripts(luaWrap_lua_State* L)
     }
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simSetDoubleSignal(luaWrap_lua_State* L)
+{ // deprecated on 13.10.2022
+    TRACE_LUA_API;
+    LUA_START("sim.setDoubleSignal");
+
+    int retVal=-1; //error
+    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
+    {
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        retVal=simSetDoubleSignalOld_internal(luaWrap_lua_tostring(L,1),luaToDouble(L,2));
+        setCurrentScriptInfo_cSide(-1,-1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetDoubleSignal(luaWrap_lua_State* L)
+{ // deprecated on 13.10.2022
+    TRACE_LUA_API;
+    LUA_START("sim.getDoubleSignal");
+
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        double doubleVal;
+        if (simGetDoubleSignalOld_internal(std::string(luaWrap_lua_tostring(L,1)).c_str(),&doubleVal)==1)
+        {
+            luaWrap_lua_pushnumber(L,doubleVal);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simClearDoubleSignal(luaWrap_lua_State* L)
+{ // deprecated on 13.10.2022
+    TRACE_LUA_API;
+    LUA_START("sim.clearDoubleSignal");
+
+    int retVal=-1; //error
+    int res=checkOneGeneralInputArgument(L,1,lua_arg_string,0,true,true,&errorString);
+    if (res>=0)
+    {
+        if (res!=2)
+            retVal=simClearDoubleSignalOld_internal(nullptr); // actually deprecated. No need for that
+        else
+            retVal=simClearDoubleSignalOld_internal(luaWrap_lua_tostring(L,1));
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
