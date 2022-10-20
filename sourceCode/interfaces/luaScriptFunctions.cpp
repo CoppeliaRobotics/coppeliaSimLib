@@ -8294,7 +8294,10 @@ int _simAddParticleObject(luaWrap_lua_State* L)
                         }
                         if (okToGo)
                         {
-                            retVal=simAddParticleObject_internal(objType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,nullptr,specular,emission);
+                            if (!App::currentWorld->simulation->isSimulationRunning())
+                                errorString=SIM_ERROR_SIMULATION_NOT_RUNNING;
+                            else
+                                retVal=CPluginContainer::dyn_addParticleObject(objType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,nullptr,specular,emission);
                         }
                     }
                     delete[] ((char*)params);
@@ -8315,7 +8318,10 @@ int _simRemoveParticleObject(luaWrap_lua_State* L)
 
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simRemoveParticleObject_internal(luaToInt(L,1));
+    {
+        if (CPluginContainer::dyn_removeParticleObject(luaToInt(L,1))!=0)
+            retVal=1;
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -8337,12 +8343,21 @@ int _simAddParticleObjectItem(luaWrap_lua_State* L)
         {
             float vertex[20]; // we should have enough here!
             getFloatsFromTable(L,2,d,vertex);
-            retVal=simAddParticleObjectItem_internal(particleObjHandle,vertex);
+
+            if (CPluginContainer::dyn_addParticleObjectItem(particleObjHandle,vertex,App::currentWorld->simulation->getSimulationTime())!=0)
+                retVal=1;
+            else
+                errorString=SIM_ERROR_OBJECT_INEXISTANT;
         }
         else
         {
             if (res>=0)
-                retVal=simAddParticleObjectItem_internal(particleObjHandle,nullptr);
+            {
+                if (CPluginContainer::dyn_addParticleObjectItem(particleObjHandle,nullptr,App::currentWorld->simulation->getSimulationTime())!=0)
+                    retVal=1;
+                else
+                    errorString=SIM_ERROR_OBJECT_INEXISTANT;
+            }
         }
     }
 

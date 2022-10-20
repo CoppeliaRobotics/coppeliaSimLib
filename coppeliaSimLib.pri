@@ -484,6 +484,8 @@ HEADERS += $$PWD/sourceCode/strings/simStringTable.h \
 
 HEADERS += $$PWD/sourceCode/interfaces/sim.h \
     $$PWD/sourceCode/interfaces/simInternal.h \
+    $$PWD/sourceCode/interfaces/sim-old.h \
+    $$PWD/sourceCode/interfaces/simInternal-old.h \
     $$PWD/sourceCode/interfaces/luaScriptFunctions.h \
     $$PWD/sourceCode/interfaces/pathPlanningInterface.h \
     $$PWD/sourceCode/interfaces/dummyClasses.h \
@@ -886,6 +888,8 @@ SOURCES += $$PWD/sourceCode/serialization/ser.cpp \
 
 SOURCES += $$PWD/sourceCode/interfaces/sim.cpp \
     $$PWD/sourceCode/interfaces/simInternal.cpp \
+    $$PWD/sourceCode/interfaces/sim-old.cpp \
+    $$PWD/sourceCode/interfaces/simInternal-old.cpp \
     $$PWD/sourceCode/interfaces/luaScriptFunctions.cpp \
     $$PWD/sourceCode/interfaces/pathPlanningInterface.cpp \
 

@@ -552,14 +552,14 @@ int CIkGroup_old::computeGroupIk(bool independentComputation)
     return(retVal);
 }
 
-float*  CIkGroup_old::getLastJacobianData(int matrixSize[2])
+const float*  CIkGroup_old::getLastJacobianData(int matrixSize[2])
 {
     const CMatrix* m=getLastJacobian();
-    if (m==nullptr)
+    if ( (m==nullptr)||(m->data.size()==0) )
         return(nullptr);
     matrixSize[0]=int(m->cols);
     matrixSize[1]=int(m->rows);
-    return(m->data);
+    return(m->data.data());
 }
 
 

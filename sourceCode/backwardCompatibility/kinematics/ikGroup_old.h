@@ -53,7 +53,7 @@ public:
     int generateIkPath(int jointCnt,const int* jointHandles,int ptCnt,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,std::vector<float>& path);
 
     bool computeOnlyJacobian(int options);
-    float* getLastJacobianData(int matrixSize[2]);
+    const float* getLastJacobianData(int matrixSize[2]);
     float* getLastManipulabilityValue(int matrixSize[2]);
 
 protected:

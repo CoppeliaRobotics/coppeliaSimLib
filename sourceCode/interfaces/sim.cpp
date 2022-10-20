@@ -1,5 +1,6 @@
 #include "sim.h"
 #include "simInternal.h"
+#include "app.h"
 
 SIM_DLLEXPORT simInt simRunSimulator(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)())
 {
@@ -36,14 +37,6 @@ SIM_DLLEXPORT simInt simGetInt32Param(simInt parameter,simInt* intState)
 SIM_DLLEXPORT simInt simGetUInt64Param(simInt parameter,simUInt64* intState)
 {
     return(simGetUInt64Param_internal(parameter,intState));
-}
-SIM_DLLEXPORT simInt simSetFloatParam(simInt parameter,simFloat floatState)
-{
-    return(simSetFloatParam_internal(parameter,floatState));
-}
-SIM_DLLEXPORT simInt simGetFloatParam(simInt parameter,simFloat* floatState)
-{
-    return(simGetFloatParam_internal(parameter,floatState));
 }
 SIM_DLLEXPORT simInt simSetStringParam(simInt parameter,const simChar* str)
 {
@@ -101,78 +94,6 @@ SIM_DLLEXPORT simInt simSetObjectAlias(simInt objectHandle,const simChar* object
 {
     return(simSetObjectAlias_internal(objectHandle,objectAlias,options));
 }
-SIM_DLLEXPORT simInt simGetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,simFloat* matrix)
-{
-    return(simGetObjectMatrix_internal(objectHandle,relativeToObjectHandle,matrix));
-}
-SIM_DLLEXPORT simInt simSetObjectMatrix(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* matrix)
-{
-    return(simSetObjectMatrix_internal(objectHandle,relativeToObjectHandle,matrix));
-}
-SIM_DLLEXPORT simInt simGetObjectPose(simInt objectHandle,simInt relativeToObjectHandle,simFloat* pose)
-{
-    return(simGetObjectPose_internal(objectHandle,relativeToObjectHandle,pose));
-}
-SIM_DLLEXPORT simInt simSetObjectPose(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* pose)
-{
-    return(simSetObjectPose_internal(objectHandle,relativeToObjectHandle,pose));
-}
-SIM_DLLEXPORT simInt simGetObjectPosition(simInt objectHandle,simInt relativeToObjectHandle,simFloat* position)
-{
-    return(simGetObjectPosition_internal(objectHandle,relativeToObjectHandle,position));
-}
-SIM_DLLEXPORT simInt simSetObjectPosition(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* position)
-{
-    return(simSetObjectPosition_internal(objectHandle,relativeToObjectHandle,position));
-}
-SIM_DLLEXPORT simInt simGetObjectOrientation(simInt objectHandle,simInt relativeToObjectHandle,simFloat* eulerAngles)
-{
-    return(simGetObjectOrientation_internal(objectHandle,relativeToObjectHandle,eulerAngles));
-}
-SIM_DLLEXPORT simInt simGetObjectQuaternion(simInt objectHandle,simInt relativeToObjectHandle,simFloat* quaternion)
-{
-    return(simGetObjectQuaternion_internal(objectHandle,relativeToObjectHandle,quaternion));
-}
-SIM_DLLEXPORT simInt simSetObjectQuaternion(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* quaternion)
-{
-    return(simSetObjectQuaternion_internal(objectHandle,relativeToObjectHandle,quaternion));
-}
-SIM_DLLEXPORT simInt simSetObjectOrientation(simInt objectHandle,simInt relativeToObjectHandle,const simFloat* eulerAngles)
-{
-    return(simSetObjectOrientation_internal(objectHandle,relativeToObjectHandle,eulerAngles));
-}
-SIM_DLLEXPORT simInt simGetJointPosition(simInt objectHandle,simFloat* position)
-{
-    return(simGetJointPosition_internal(objectHandle,position));
-}
-SIM_DLLEXPORT simInt simSetJointPosition(simInt objectHandle,simFloat position)
-{
-    return(simSetJointPosition_internal(objectHandle,position));
-}
-SIM_DLLEXPORT simInt simSetJointTargetPosition(simInt objectHandle,simFloat targetPosition)
-{
-    return(simSetJointTargetPosition_internal(objectHandle,targetPosition));
-}
-SIM_DLLEXPORT simInt simGetJointTargetPosition(simInt objectHandle,simFloat* targetPosition)
-{
-    return(simGetJointTargetPosition_internal(objectHandle,targetPosition));
-}
-SIM_DLLEXPORT simInt simGetObjectChildPose(simInt objectHandle,simFloat* pose)
-{
-    return(simGetObjectChildPose_internal(objectHandle,pose));
-}
-SIM_DLLEXPORT simInt simSetObjectChildPose(simInt objectHandle,const simFloat* pose)
-{
-    return(simSetObjectChildPose_internal(objectHandle,pose));
-}
-SIM_DLLEXPORT simInt simGetJointInterval(simInt objectHandle,simBool* cyclic,simFloat* interval)
-{
-    return(simGetJointInterval_internal(objectHandle,cyclic,interval));
-}
-SIM_DLLEXPORT simInt simSetJointInterval(simInt objectHandle,simBool cyclic,const simFloat* interval)
-{
-    return(simSetJointInterval_internal(objectHandle,cyclic,interval));
-}
 SIM_DLLEXPORT simInt simGetObjectParent(simInt objectHandle)
 {
     return(simGetObjectParent_internal(objectHandle));
@@ -193,73 +114,13 @@ SIM_DLLEXPORT simInt simGetJointType(simInt objectHandle)
 {
     return(simGetJointType_internal(objectHandle));
 }
-SIM_DLLEXPORT simInt simBuildIdentityMatrix(simFloat* matrix)
-{
-    return(simBuildIdentityMatrix_internal(matrix));
-}
-SIM_DLLEXPORT simInt simBuildMatrix(const simFloat* position,const simFloat* eulerAngles,simFloat* matrix)
-{
-    return(simBuildMatrix_internal(position,eulerAngles,matrix));
-}
-SIM_DLLEXPORT simInt simBuildPose(const simFloat* position,const simFloat* eulerAngles,simFloat* pose)
-{
-    return(simBuildPose_internal(position,eulerAngles,pose));
-}
-SIM_DLLEXPORT simInt simGetEulerAnglesFromMatrix(const simFloat* matrix,simFloat* eulerAngles)
-{
-    return(simGetEulerAnglesFromMatrix_internal(matrix,eulerAngles));
-}
-SIM_DLLEXPORT simInt simInvertMatrix(simFloat* matrix)
-{
-    return(simInvertMatrix_internal(matrix));
-}
-SIM_DLLEXPORT simInt simMultiplyMatrices(const simFloat* matrixIn1,const simFloat* matrixIn2,simFloat* matrixOut)
-{
-    return(simMultiplyMatrices_internal(matrixIn1,matrixIn2,matrixOut));
-}
-SIM_DLLEXPORT simInt simMultiplyPoses(const simFloat* poseIn1,const simFloat* poseIn2,simFloat* poseOut)
-{
-    return(simMultiplyPoses_internal(poseIn1,poseIn2,poseOut));
-}
-SIM_DLLEXPORT simInt simInvertPose(simFloat* pose)
-{
-    return(simInvertPose_internal(pose));
-}
-SIM_DLLEXPORT simInt simInterpolatePoses(const simFloat* poseIn1,const simFloat* poseIn2,simFloat interpolFactor,simFloat* poseOut)
-{
-    return(simInterpolatePoses_internal(poseIn1,poseIn2,interpolFactor,poseOut));
-}
-SIM_DLLEXPORT simInt simPoseToMatrix(const simFloat* poseIn,simFloat* matrixOut)
-{
-    return(simPoseToMatrix_internal(poseIn,matrixOut));
-}
-SIM_DLLEXPORT simInt simMatrixToPose(const simFloat* matrixIn,simFloat* poseOut)
-{
-    return(simMatrixToPose_internal(matrixIn,poseOut));
-}
-SIM_DLLEXPORT simInt simInterpolateMatrices(const simFloat* matrixIn1,const simFloat* matrixIn2,simFloat interpolFactor,simFloat* matrixOut)
-{
-    return(simInterpolateMatrices_internal(matrixIn1,matrixIn2,interpolFactor,matrixOut));
-}
-SIM_DLLEXPORT simInt simTransformVector(const simFloat* matrix,simFloat* vect)
-{
-    return(simTransformVector_internal(matrix,vect));
-}
 SIM_DLLEXPORT simInt simReservedCommand(simInt v,simInt w)
 {
     return(simReservedCommand_internal(v,w));
 }
-SIM_DLLEXPORT simFloat simGetSimulationTime()
-{
-    return(simGetSimulationTime_internal());
-}
 SIM_DLLEXPORT simInt simGetSimulationState()
 {
     return(simGetSimulationState_internal());
-}
-SIM_DLLEXPORT simFloat simGetSystemTime()
-{
-    return(float(simGetSystemTime_internal()));
 }
 SIM_DLLEXPORT simInt simLoadScene(const simChar* filename)
 {
@@ -297,18 +158,6 @@ SIM_DLLEXPORT simInt simSetObjectSel(const simInt* handles,simInt cnt)
 {
     return(simSetObjectSel_internal(handles,cnt));
 }
-SIM_DLLEXPORT simInt simHandleProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector)
-{
-    return(simHandleProximitySensor_internal(sensorHandle,detectedPoint,detectedObjectHandle,normalVector));
-}
-SIM_DLLEXPORT simInt simReadProximitySensor(simInt sensorHandle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector)
-{
-    return(simReadProximitySensor_internal(sensorHandle,detectedPoint,detectedObjectHandle,normalVector));
-}
-SIM_DLLEXPORT simInt simHandleDynamics(simFloat deltaTime)
-{
-    return(simHandleDynamics_internal(deltaTime));
-}
 SIM_DLLEXPORT simInt simAssociateScriptWithObject(simInt scriptHandle,simInt associatedObjectHandle)
 {
     return(simAssociateScriptWithObject_internal(scriptHandle,associatedObjectHandle));
@@ -337,18 +186,6 @@ SIM_DLLEXPORT simInt simResetProximitySensor(simInt sensorHandle)
 {
     return(simResetProximitySensor_internal(sensorHandle));
 }
-SIM_DLLEXPORT simInt simCheckProximitySensor(simInt sensorHandle,simInt entityHandle,simFloat* detectedPoint)
-{
-    return(simCheckProximitySensor_internal(sensorHandle,entityHandle,detectedPoint));
-}
-SIM_DLLEXPORT simInt simCheckProximitySensorEx(simInt sensorHandle,simInt entityHandle,simInt detectionMode,simFloat detectionThreshold,simFloat maxAngle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector)
-{
-    return(simCheckProximitySensorEx_internal(sensorHandle,entityHandle,detectionMode,detectionThreshold,maxAngle,detectedPoint,detectedObjectHandle,normalVector));
-}
-SIM_DLLEXPORT simInt simCheckProximitySensorEx2(simInt sensorHandle,simFloat* vertexPointer,simInt itemType,simInt itemCount,simInt detectionMode,simFloat detectionThreshold,simFloat maxAngle,simFloat* detectedPoint,simFloat* normalVector)
-{
-    return(simCheckProximitySensorEx2_internal(sensorHandle,vertexPointer,itemType,itemCount,detectionMode,detectionThreshold,maxAngle,detectedPoint,normalVector));
-}
 SIM_DLLEXPORT simChar* simCreateBuffer(simInt size)
 {
     return(simCreateBuffer_internal(size));
@@ -361,22 +198,6 @@ SIM_DLLEXPORT simInt simCheckCollision(simInt entity1Handle,simInt entity2Handle
 {
     return(simCheckCollision_internal(entity1Handle,entity2Handle));
 }
-SIM_DLLEXPORT simInt simCheckCollisionEx(simInt entity1Handle,simInt entity2Handle,simFloat** intersectionSegments)
-{
-    return(simCheckCollisionEx_internal(entity1Handle,entity2Handle,intersectionSegments));
-}
-SIM_DLLEXPORT simInt simCheckDistance(simInt entity1Handle,simInt entity2Handle,simFloat threshold,simFloat* distanceData)
-{
-    return(simCheckDistance_internal(entity1Handle,entity2Handle,threshold,distanceData));
-}
-SIM_DLLEXPORT simInt simSetSimulationTimeStep(simFloat timeStep)
-{
-    return(simSetSimulationTimeStep_internal(timeStep));
-}
-SIM_DLLEXPORT simFloat simGetSimulationTimeStep()
-{
-    return(simGetSimulationTimeStep_internal());
-}
 SIM_DLLEXPORT simInt simGetRealTimeSimulation()
 {
     return(simGetRealTimeSimulation_internal());
@@ -384,10 +205,6 @@ SIM_DLLEXPORT simInt simGetRealTimeSimulation()
 SIM_DLLEXPORT simInt simIsRealTimeSimulationStepNeeded()
 {
     return(simIsRealTimeSimulationStepNeeded_internal());
-}
-SIM_DLLEXPORT simInt simAdjustRealTimeTimer(simInt instanceIndex,simFloat deltaTime)
-{
-    return(simAdjustRealTimeTimer_internal(instanceIndex,deltaTime));
 }
 SIM_DLLEXPORT simInt simGetSimulationPassesPerRenderingPass()
 {
@@ -421,14 +238,6 @@ SIM_DLLEXPORT simChar* simGetModuleName(simInt index,simUChar* moduleVersion)
 {
     return(simGetModuleName_internal(index,moduleVersion));
 }
-SIM_DLLEXPORT simInt simFloatingViewAdd(simFloat posX,simFloat posY,simFloat sizeX,simFloat sizeY,simInt options)
-{
-    return(simFloatingViewAdd_internal(posX,posY,sizeX,sizeY,options));
-}
-SIM_DLLEXPORT simInt simFloatingViewRemove(simInt floatingViewHandle)
-{
-    return(simFloatingViewRemove_internal(floatingViewHandle));
-}
 SIM_DLLEXPORT simInt simAdjustView(simInt viewHandleOrIndex,simInt associatedViewableObjectHandle,simInt options,const simChar* viewLabel)
 {
     return(simAdjustView_internal(viewHandleOrIndex,associatedViewableObjectHandle,options,viewLabel));
@@ -437,37 +246,17 @@ SIM_DLLEXPORT simInt simSetLastError(const simChar* funcName,const simChar* erro
 {
     return(simSetLastError_internal(funcName,errorMessage));
 }
-SIM_DLLEXPORT simInt simHandleGraph(simInt graphHandle,simFloat simulationTime)
-{
-    return(simHandleGraph_internal(graphHandle,simulationTime));
-}
 SIM_DLLEXPORT simInt simResetGraph(simInt graphHandle)
 {
     return(simResetGraph_internal(graphHandle));
-}
-SIM_DLLEXPORT simInt simAddGraphStream(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simFloat* color,simFloat cyclicRange)
-{
-    return(simAddGraphStream_internal(graphHandle,streamName,unitStr,options,color,cyclicRange));
 }
 SIM_DLLEXPORT simInt simDestroyGraphCurve(simInt graphHandle,simInt curveId)
 {
     return(simDestroyGraphCurve_internal(graphHandle,curveId));
 }
-SIM_DLLEXPORT simInt simSetGraphStreamTransformation(simInt graphHandle,simInt streamId,simInt trType,simFloat mult,simFloat off,simInt movingAvgPeriod)
-{
-    return(simSetGraphStreamTransformation_internal(graphHandle,streamId,trType,mult,off,movingAvgPeriod));
-}
 SIM_DLLEXPORT simInt simDuplicateGraphCurveToStatic(simInt graphHandle,simInt curveId,const simChar* curveName)
 {
     return(simDuplicateGraphCurveToStatic_internal(graphHandle,curveId,curveName));
-}
-SIM_DLLEXPORT simInt simAddGraphCurve(simInt graphHandle,const simChar* curveName,simInt dim,const simInt* streamIds,const simFloat* defaultValues,const simChar* unitStr,simInt options,const simFloat* color,simInt curveWidth)
-{
-    return(simAddGraphCurve_internal(graphHandle,curveName,dim,streamIds,defaultValues,unitStr,options,color,curveWidth));
-}
-SIM_DLLEXPORT simInt simSetGraphStreamValue(simInt graphHandle,simInt streamId,simFloat value)
-{
-    return(simSetGraphStreamValue_internal(graphHandle,streamId,value));
 }
 SIM_DLLEXPORT simInt simSetNavigationMode(simInt navigationMode)
 {
@@ -497,53 +286,17 @@ SIM_DLLEXPORT simInt simRegisterScriptFuncHook(simInt scriptHandle,const simChar
 {
     return(simRegisterScriptFuncHook_internal(scriptHandle,funcToHook,userFunction,executeBefore,options));
 }
-SIM_DLLEXPORT simInt simSetJointTargetVelocity(simInt objectHandle,simFloat targetVelocity)
-{
-    return(simSetJointTargetVelocity_internal(objectHandle,targetVelocity));
-}
-SIM_DLLEXPORT simInt simGetJointTargetVelocity(simInt objectHandle,simFloat* targetVelocity)
-{
-    return(simGetJointTargetVelocity_internal(objectHandle,targetVelocity));
-}
 SIM_DLLEXPORT simInt simCopyPasteObjects(simInt* objectHandles,simInt objectCount,simInt options)
 {
     return(simCopyPasteObjects_internal(objectHandles,objectCount,options));
-}
-SIM_DLLEXPORT simInt simScaleObjects(const simInt* objectHandles,simInt objectCount,simFloat scalingFactor,simBool scalePositionsToo)
-{
-    return(simScaleObjects_internal(objectHandles,objectCount,scalingFactor,scalePositionsToo));
 }
 SIM_DLLEXPORT simChar* simReceiveData(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR)
 {
     return(simReceiveData_internal(dataHeader,dataName,antennaHandle,index,dataLength,senderID,dataHeaderR,dataNameR));
 }
-SIM_DLLEXPORT simInt simAddDrawingObject(simInt objectType,simFloat size,simFloat duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simFloat* color,const simFloat* setToNULL,const simFloat* setToNULL2,const simFloat* setToNULL3)
-{
-    return(simAddDrawingObject_internal(objectType,size,duplicateTolerance,parentObjectHandle,maxItemCount,color,setToNULL,setToNULL2,setToNULL3));
-}
 SIM_DLLEXPORT simInt simRemoveDrawingObject(simInt objectHandle)
 {
     return(simRemoveDrawingObject_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simAddDrawingObjectItem(simInt objectHandle,const simFloat* itemData)
-{
-    return(simAddDrawingObjectItem_internal(objectHandle,itemData));
-}
-SIM_DLLEXPORT simInt simAddParticleObject(simInt objectType,simFloat size,simFloat density,const simVoid* params,simFloat lifeTime,simInt maxItemCount,const simFloat* color,const simFloat* setToNULL,const simFloat* setToNULL2,const simFloat* setToNULL3)
-{
-    return(simAddParticleObject_internal(objectType,size,density,params,lifeTime,maxItemCount,color,setToNULL,setToNULL2,setToNULL3));
-}
-SIM_DLLEXPORT simInt simRemoveParticleObject(simInt objectHandle)
-{
-    return(simRemoveParticleObject_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simAddParticleObjectItem(simInt objectHandle,const simFloat* itemData)
-{
-    return(simAddParticleObjectItem_internal(objectHandle,itemData));
-}
-SIM_DLLEXPORT simFloat simGetObjectSizeFactor(simInt objectHandle)
-{
-    return(simGetObjectSizeFactor_internal(objectHandle));
 }
 SIM_DLLEXPORT simInt simAnnounceSceneContentChange()
 {
@@ -560,14 +313,6 @@ SIM_DLLEXPORT simInt simGetInt32Signal(const simChar* signalName,simInt* signalV
 SIM_DLLEXPORT simInt simClearInt32Signal(const simChar* signalName)
 {
     return(simClearInt32Signal_internal(signalName));
-}
-SIM_DLLEXPORT simInt simSetFloatSignal(const simChar* signalName,simFloat signalValue)
-{
-    return(simSetFloatSignal_internal(signalName,signalValue));
-}
-SIM_DLLEXPORT simInt simGetFloatSignal(const simChar* signalName,simFloat* signalValue)
-{
-    return(simGetFloatSignal_internal(signalName,signalValue));
 }
 SIM_DLLEXPORT simInt simClearFloatSignal(const simChar* signalName)
 {
@@ -605,46 +350,6 @@ SIM_DLLEXPORT simInt simGetObjectSpecialProperty(simInt objectHandle)
 {
     return(simGetObjectSpecialProperty_internal(objectHandle));
 }
-SIM_DLLEXPORT simInt simReadForceSensor(simInt objectHandle,simFloat* forceVector,simFloat* torqueVector)
-{
-    return(simReadForceSensor_internal(objectHandle,forceVector,torqueVector));
-}
-SIM_DLLEXPORT simInt simGetShapeVertex(simInt shapeHandle,simInt groupElementIndex,simInt vertexIndex,simFloat* relativePosition)
-{
-    return(simGetShapeVertex_internal(shapeHandle,groupElementIndex,vertexIndex,relativePosition));
-}
-SIM_DLLEXPORT simInt simGetShapeTriangle(simInt shapeHandle,simInt groupElementIndex,simInt triangleIndex,simInt* vertexIndices,simFloat* triangleNormals)
-{
-    return(simGetShapeTriangle_internal(shapeHandle,groupElementIndex,triangleIndex,vertexIndices,triangleNormals));
-}
-SIM_DLLEXPORT simInt simSetLightParameters(simInt objectHandle,simInt state,const simFloat* setToNULL,const simFloat* diffusePart,const simFloat* specularPart)
-{
-    return(simSetLightParameters_internal(objectHandle,state,setToNULL,diffusePart,specularPart));
-}
-SIM_DLLEXPORT simInt simGetLightParameters(simInt objectHandle,simFloat* setToNULL,simFloat* diffusePart,simFloat* specularPart)
-{
-    return(simGetLightParameters_internal(objectHandle,setToNULL,diffusePart,specularPart));
-}
-SIM_DLLEXPORT simInt simGetVelocity(simInt shapeHandle,simFloat* linearVelocity,simFloat* angularVelocity)
-{
-    return(simGetVelocity_internal(shapeHandle,linearVelocity,angularVelocity));
-}
-SIM_DLLEXPORT simInt simGetObjectVelocity(simInt objectHandle,simFloat* linearVelocity,simFloat* angularVelocity)
-{
-    return(simGetObjectVelocity_internal(objectHandle,linearVelocity,angularVelocity));
-}
-SIM_DLLEXPORT simInt simGetJointVelocity(simInt jointHandle,simFloat* velocity)
-{
-    return(simGetJointVelocity_internal(jointHandle,velocity));
-}
-SIM_DLLEXPORT simInt simAddForceAndTorque(simInt shapeHandle,const simFloat* force,const simFloat* torque)
-{
-    return(simAddForceAndTorque_internal(shapeHandle,force,torque));
-}
-SIM_DLLEXPORT simInt simAddForce(simInt shapeHandle,const simFloat* position,const simFloat* force)
-{
-    return(simAddForce_internal(shapeHandle,position,force));
-}
 SIM_DLLEXPORT simInt simSetExplicitHandling(simInt objectHandle,int explicitFlags)
 {
     return(simSetExplicitHandling_internal(objectHandle,explicitFlags));
@@ -668,22 +373,6 @@ SIM_DLLEXPORT simInt simSetModelProperty(simInt objectHandle,simInt modelPropert
 SIM_DLLEXPORT simInt simGetModelProperty(simInt objectHandle)
 {
     return(simGetModelProperty_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simSetObjectColor(simInt objectHandle,simInt index,simInt colorComponent,const simFloat* rgbData)
-{
-    return(simSetObjectColor_internal(objectHandle,index,colorComponent,rgbData));
-}
-SIM_DLLEXPORT simInt simGetObjectColor(simInt objectHandle,simInt index,simInt colorComponent,simFloat* rgbData)
-{
-    return(simGetObjectColor_internal(objectHandle,index,colorComponent,rgbData));
-}
-SIM_DLLEXPORT simInt simSetShapeColor(simInt shapeHandle,const simChar* colorName,simInt colorComponent,const simFloat* rgbData)
-{
-    return(simSetShapeColor_internal(shapeHandle,colorName,colorComponent,rgbData));
-}
-SIM_DLLEXPORT simInt simGetShapeColor(simInt shapeHandle,const simChar* colorName,simInt colorComponent,simFloat* rgbData)
-{
-    return(simGetShapeColor_internal(shapeHandle,colorName,colorComponent,rgbData));
 }
 SIM_DLLEXPORT simInt simResetDynamicObject(simInt objectHandle)
 {
@@ -717,14 +406,6 @@ SIM_DLLEXPORT simInt simSerialCheck(simInt portHandle)
 {
     return(simSerialCheck_internal(portHandle));
 }
-SIM_DLLEXPORT simInt simGetContactInfo(simInt dynamicPass,simInt objectHandle,simInt index,simInt* objectHandles,simFloat* contactInfo)
-{
-    return(simGetContactInfo_internal(dynamicPass,objectHandle,index,objectHandles,contactInfo));
-}
-SIM_DLLEXPORT simInt simAuxiliaryConsoleOpen(const simChar* title,simInt maxLines,simInt mode,const simInt* position,const simInt* size,const simFloat* textColor,const simFloat* backgroundColor)
-{
-    return(simAuxiliaryConsoleOpen_internal(title,maxLines,mode,position,size,textColor,backgroundColor));
-}
 SIM_DLLEXPORT simInt simAuxiliaryConsoleClose(simInt consoleHandle)
 {
     return(simAuxiliaryConsoleClose_internal(consoleHandle));
@@ -737,38 +418,6 @@ SIM_DLLEXPORT simInt simAuxiliaryConsolePrint(simInt consoleHandle,const simChar
 {
     return(simAuxiliaryConsolePrint_internal(consoleHandle,text));
 }
-SIM_DLLEXPORT simInt simImportShape(simInt fileformat,const simChar* pathAndFilename,simInt options,simFloat identicalVerticeTolerance,simFloat scalingFactor)
-{
-    return(simImportShape_internal(fileformat,pathAndFilename,options,identicalVerticeTolerance,scalingFactor));
-}
-SIM_DLLEXPORT simInt simImportMesh(simInt fileformat,const simChar* pathAndFilename,simInt options,simFloat identicalVerticeTolerance,simFloat scalingFactor,simFloat*** vertices,simInt** verticesSizes,simInt*** indices,simInt** indicesSizes,simFloat*** reserved,simChar*** names)
-{
-    return(simImportMesh_internal(fileformat,pathAndFilename,options,identicalVerticeTolerance,scalingFactor,vertices,verticesSizes,indices,indicesSizes,reserved,names));
-}
-SIM_DLLEXPORT simInt simExportMesh(simInt fileformat,const simChar* pathAndFilename,simInt options,simFloat scalingFactor,simInt elementCount,const simFloat** vertices,const simInt* verticesSizes,const simInt** indices,const simInt* indicesSizes,simFloat** reserved,const simChar** names)
-{
-    return(simExportMesh_internal(fileformat,pathAndFilename,options,scalingFactor,elementCount,vertices,verticesSizes,indices,indicesSizes,reserved,names));
-}
-SIM_DLLEXPORT simInt simCreateMeshShape(simInt options,simFloat shadingAngle,const simFloat* vertices,simInt verticesSize,const simInt* indices,simInt indicesSize,simFloat* reserved)
-{
-    return(simCreateMeshShape_internal(options,shadingAngle,vertices,verticesSize,indices,indicesSize,reserved));
-}
-SIM_DLLEXPORT simInt simCreatePrimitiveShape(simInt primitiveType,const simFloat* sizes,simInt options)
-{
-    return(simCreatePrimitiveShape_internal(primitiveType,sizes,options));
-}
-SIM_DLLEXPORT simInt simCreateHeightfieldShape(simInt options,simFloat shadingAngle,simInt xPointCount,simInt yPointCount,simFloat xSize,const simFloat* heights)
-{
-    return(simCreateHeightfieldShape_internal(options,shadingAngle,xPointCount,yPointCount,xSize,heights));
-}
-SIM_DLLEXPORT simInt simGetShapeMesh(simInt shapeHandle,simFloat** vertices,simInt* verticesSize,simInt** indices,simInt* indicesSize,simFloat** normals)
-{
-    return(simGetShapeMesh_internal(shapeHandle,vertices,verticesSize,indices,indicesSize,normals));
-}
-SIM_DLLEXPORT simInt simCreateJoint(simInt jointType,simInt jointMode,simInt options,const simFloat* sizes,const simFloat* reservedA,const simFloat* reservedB)
-{
-    return(simCreateJoint_internal(jointType,jointMode,options,sizes,reservedA,reservedB));
-}
 SIM_DLLEXPORT simInt simGetObjectInt32Param(simInt objectHandle,simInt ParamID,simInt* Param)
 {
     return(simGetObjectInt32Param_internal(objectHandle,ParamID,Param));
@@ -776,22 +425,6 @@ SIM_DLLEXPORT simInt simGetObjectInt32Param(simInt objectHandle,simInt ParamID,s
 SIM_DLLEXPORT simInt simSetObjectInt32Param(simInt objectHandle,simInt ParamID,simInt Param)
 {
     return(simSetObjectInt32Param_internal(objectHandle,ParamID,Param));
-}
-SIM_DLLEXPORT simInt simGetObjectFloatParam(simInt objectHandle,simInt ParamID,simFloat* Param)
-{
-    return(simGetObjectFloatParam_internal(objectHandle,ParamID,Param));
-}
-SIM_DLLEXPORT simInt simSetObjectFloatParam(simInt objectHandle,simInt ParamID,simFloat Param)
-{
-    return(simSetObjectFloatParam_internal(objectHandle,ParamID,Param));
-}
-SIM_DLLEXPORT simFloat* simGetObjectFloatArrayParam(simInt objectHandle,simInt ParamID,simInt* size)
-{
-    return(simGetObjectFloatArrayParam_internal(objectHandle,ParamID,size));
-}
-SIM_DLLEXPORT simInt simSetObjectFloatArrayParam(simInt objectHandle,simInt ParamID,const simFloat* params,simInt size)
-{
-    return(simSetObjectFloatArrayParam_internal(objectHandle,ParamID,params,size));
 }
 SIM_DLLEXPORT simChar* simGetObjectStringParam(simInt objectHandle,simInt ParamID,simInt* ParamLength)
 {
@@ -821,30 +454,6 @@ SIM_DLLEXPORT simInt simSetSimulationPassesPerRenderingPass(simInt p)
 {
     return(simSetSimulationPassesPerRenderingPass_internal(p));
 }
-SIM_DLLEXPORT simInt simGetRotationAxis(const simFloat* matrixStart,const simFloat* matrixGoal,simFloat* axis,simFloat* angle)
-{
-    return(simGetRotationAxis_internal(matrixStart,matrixGoal,axis,angle));
-}
-SIM_DLLEXPORT simInt simRotateAroundAxis(const simFloat* matrixIn,const simFloat* axis,const simFloat* axisPos,simFloat angle,simFloat* matrixOut)
-{
-    return(simRotateAroundAxis_internal(matrixIn,axis,axisPos,angle,matrixOut));
-}
-SIM_DLLEXPORT simInt simGetJointForce(simInt jointHandle,simFloat* forceOrTorque)
-{
-    return(simGetJointForce_internal(jointHandle,forceOrTorque));
-}
-SIM_DLLEXPORT simInt simGetJointTargetForce(simInt jointHandle,simFloat* forceOrTorque)
-{
-    return(simGetJointTargetForce_internal(jointHandle,forceOrTorque));
-}
-SIM_DLLEXPORT simInt simSetJointTargetForce(simInt objectHandle,simFloat forceOrTorque,simBool signedValue)
-{
-    return(simSetJointTargetForce_internal(objectHandle,forceOrTorque,signedValue));
-}
-SIM_DLLEXPORT simInt simCameraFitToView(simInt viewHandleOrIndex,simInt objectCount,const simInt* objectHandles,simInt options,simFloat scaling)
-{
-    return(simCameraFitToView_internal(viewHandleOrIndex,objectCount,objectHandles,options,scaling));
-}
 SIM_DLLEXPORT simInt simPersistentDataWrite(const simChar* dataName,const simChar* dataValue,simInt dataLength,simInt options)
 {
     return(simPersistentDataWrite_internal(dataName,dataValue,dataLength,options));
@@ -857,37 +466,13 @@ SIM_DLLEXPORT simInt simIsHandle(simInt generalObjectHandle,simInt generalObject
 {
     return(simIsHandle_internal(generalObjectHandle,generalObjectType));
 }
-SIM_DLLEXPORT simInt simHandleVisionSensor(simInt visionSensorHandle,simFloat** auxValues,simInt** auxValuesCount)
-{
-    return(simHandleVisionSensor_internal(visionSensorHandle,auxValues,auxValuesCount));
-}
-SIM_DLLEXPORT simInt simReadVisionSensor(simInt visionSensorHandle,simFloat** auxValues,simInt** auxValuesCount)
-{
-    return(simReadVisionSensor_internal(visionSensorHandle,auxValues,auxValuesCount));
-}
 SIM_DLLEXPORT simInt simResetVisionSensor(simInt visionSensorHandle)
 {
     return(simResetVisionSensor_internal(visionSensorHandle));
 }
-SIM_DLLEXPORT simInt simCheckVisionSensor(simInt visionSensorHandle,simInt entityHandle,simFloat** auxValues,simInt** auxValuesCount)
-{
-    return(simCheckVisionSensor_internal(visionSensorHandle,entityHandle,auxValues,auxValuesCount));
-}
-SIM_DLLEXPORT simFloat* simCheckVisionSensorEx(simInt visionSensorHandle,simInt entityHandle,simBool returnImage)
-{
-    return(simCheckVisionSensorEx_internal(visionSensorHandle,entityHandle,returnImage));
-}
-SIM_DLLEXPORT simUChar* simGetVisionSensorImg(simInt sensorHandle,simInt options,simFloat rgbaCutOff,const simInt* pos,const simInt* size,simInt* resolution)
-{
-    return(simGetVisionSensorImg_internal(sensorHandle,options,rgbaCutOff,pos,size,resolution));
-}
 SIM_DLLEXPORT simInt simSetVisionSensorImg(simInt sensorHandle,const simUChar* img,simInt options,const simInt* pos,const simInt* size)
 {
     return(simSetVisionSensorImg_internal(sensorHandle,img,options,pos,size));
-}
-SIM_DLLEXPORT simFloat* simGetVisionSensorDepth(simInt sensorHandle,simInt options,const simInt* pos,const simInt* size,simInt* resolution)
-{
-    return(simGetVisionSensorDepth_internal(sensorHandle,options,pos,size,resolution));
 }
 SIM_DLLEXPORT simInt simRuckigPos(simInt dofs,simDouble baseCycleTime,simInt flags,const simDouble* currentPos,const simDouble* currentVel,const simDouble* currentAccel,const simDouble* maxVel,const simDouble* maxAccel,const simDouble* maxJerk,const simBool* selection,const simDouble* targetPos,const simDouble* targetVel,simDouble* reserved1,simInt* reserved2)
 {
@@ -905,10 +490,6 @@ SIM_DLLEXPORT simInt simRuckigRemove(simInt objHandle)
 {
     return(simRuckigRemove_internal(objHandle));
 }
-SIM_DLLEXPORT simInt simCreateDummy(simFloat size,const simFloat* reserved)
-{
-    return(simCreateDummy_internal(size,reserved));
-}
 SIM_DLLEXPORT simInt simGroupShapes(const simInt* shapeHandles,simInt shapeCount)
 {
     return(simGroupShapes_internal(shapeHandles,shapeCount));
@@ -916,22 +497,6 @@ SIM_DLLEXPORT simInt simGroupShapes(const simInt* shapeHandles,simInt shapeCount
 SIM_DLLEXPORT simInt* simUngroupShape(simInt shapeHandle,simInt* shapeCount)
 {
     return(simUngroupShape_internal(shapeHandle,shapeCount));
-}
-SIM_DLLEXPORT simInt simCreateProximitySensor(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved)
-{
-    return(simCreateProximitySensor_internal(sensorType,subType,options,intParams,floatParams,reserved));
-}
-SIM_DLLEXPORT simInt simCreateForceSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved)
-{
-    return(simCreateForceSensor_internal(options,intParams,floatParams,reserved));
-}
-SIM_DLLEXPORT simInt simCreateVisionSensor(simInt options,const simInt* intParams,const simFloat* floatParams,const simFloat* reserved)
-{
-    return(simCreateVisionSensor_internal(options,intParams,floatParams,reserved));
-}
-SIM_DLLEXPORT simInt simConvexDecompose(simInt shapeHandle,simInt options,const simInt* intParams,const simFloat* floatParams)
-{
-    return(simConvexDecompose_internal(shapeHandle,options,intParams,floatParams));
 }
 SIM_DLLEXPORT simVoid simQuitSimulator(simBool ignoredArgument)
 {
@@ -949,14 +514,6 @@ SIM_DLLEXPORT simChar* simReadTexture(simInt textureId,simInt options,simInt pos
 {
     return(simReadTexture_internal(textureId,options,posX,posY,sizeX,sizeY));
 }
-SIM_DLLEXPORT simInt simWriteTexture(simInt textureId,simInt options,const simChar* data,simInt posX,simInt posY,simInt sizeX,simInt sizeY,simFloat interpol)
-{
-    return(simWriteTexture_internal(textureId,options,data,posX,posY,sizeX,sizeY,interpol));
-}
-SIM_DLLEXPORT simInt simCreateTexture(const simChar* fileName,simInt options,const simFloat* planeSizes,const simFloat* scalingUV,const simFloat* xy_g,simInt fixedResolution,simInt* textureId,simInt* resolution,const simVoid* reserved)
-{
-    return(simCreateTexture_internal(fileName,options,planeSizes,scalingUV,xy_g,fixedResolution,textureId,resolution,reserved));
-}
 SIM_DLLEXPORT simInt simWriteCustomDataBlock(simInt objectHandle,const simChar* tagName,const simChar* data,simInt dataSize)
 {
     return(simWriteCustomDataBlock_internal(objectHandle,tagName,data,dataSize));
@@ -969,10 +526,6 @@ SIM_DLLEXPORT simChar* simReadCustomDataBlockTags(simInt objectHandle,simInt* ta
 {
     return(simReadCustomDataBlockTags_internal(objectHandle,tagCount));
 }
-SIM_DLLEXPORT simInt simGetShapeGeomInfo(simInt shapeHandle,simInt* intData,simFloat* floatData,simVoid* reserved)
-{
-    return(simGetShapeGeomInfo_internal(shapeHandle,intData,floatData,reserved));
-}
 SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType)
 {
     return(simGetObjects_internal(index,objectType));
@@ -980,14 +533,6 @@ SIM_DLLEXPORT simInt simGetObjects(simInt index,simInt objectType)
 SIM_DLLEXPORT simInt* simGetObjectsInTree(simInt treeBaseHandle,simInt objectType,simInt options,simInt* objectCount)
 {
     return(simGetObjectsInTree_internal(treeBaseHandle,objectType,options,objectCount));
-}
-SIM_DLLEXPORT simInt simScaleObject(simInt objectHandle,simFloat xScale,simFloat yScale,simFloat zScale,simInt options)
-{
-    return(simScaleObject_internal(objectHandle,xScale,yScale,zScale,options));
-}
-SIM_DLLEXPORT simInt simSetShapeTexture(simInt shapeHandle,simInt textureId,simInt mappingMode,simInt options,const simFloat* uvScaling,const simFloat* position,const simFloat* orientation)
-{
-    return(simSetShapeTexture_internal(shapeHandle,textureId,mappingMode,options,uvScaling,position,orientation));
 }
 SIM_DLLEXPORT simInt simGetShapeTextureId(simInt shapeHandle)
 {
@@ -1025,20 +570,6 @@ SIM_DLLEXPORT simUChar* simGetScaledImage(const simUChar* imageIn,const simInt* 
 {
     return(simGetScaledImage_internal(imageIn,resolutionIn,resolutionOut,options,reserved));
 }
-SIM_DLLEXPORT simInt simTransformImage(simUChar* image,const simInt* resolution,simInt options,const simFloat* floatParams,const simInt* intParams,simVoid* reserved)
-{
-    return(simTransformImage_internal(image,resolution,options,floatParams,intParams,reserved));
-}
-
-
-SIM_DLLEXPORT simInt simGetQHull(const simFloat* inVertices,simInt inVerticesL,simFloat** verticesOut,simInt* verticesOutL,simInt** indicesOut,simInt* indicesOutL,simInt reserved1,const simFloat* reserved2)
-{
-    return(simGetQHull_internal(inVertices,inVerticesL,verticesOut,verticesOutL,indicesOut,indicesOutL,reserved1,reserved2));
-}
-SIM_DLLEXPORT simInt simGetDecimatedMesh(const simFloat* inVertices,simInt inVerticesL,const simInt* inIndices,simInt inIndicesL,simFloat** verticesOut,simInt* verticesOutL,simInt** indicesOut,simInt* indicesOutL,simFloat decimationPercent,simInt reserved1,const simFloat* reserved2)
-{
-    return(simGetDecimatedMesh_internal(inVertices,inVerticesL,inIndices,inIndicesL,verticesOut,verticesOutL,indicesOut,indicesOutL,decimationPercent,reserved1,reserved2));
-}
 SIM_DLLEXPORT simInt simCallScriptFunctionEx(simInt scriptHandleOrType,const simChar* functionNameAtScriptName,simInt stackId)
 {
     return(simCallScriptFunctionEx_internal(scriptHandleOrType,functionNameAtScriptName,stackId));
@@ -1046,10 +577,6 @@ SIM_DLLEXPORT simInt simCallScriptFunctionEx(simInt scriptHandleOrType,const sim
 SIM_DLLEXPORT simChar* simGetExtensionString(simInt objectHandle,simInt index,const char* key)
 {
     return(simGetExtensionString_internal(objectHandle,index,key));
-}
-SIM_DLLEXPORT simInt simComputeMassAndInertia(simInt shapeHandle,simFloat density)
-{
-    return(simComputeMassAndInertia_internal(shapeHandle,density));
 }
 SIM_DLLEXPORT simInt simCreateStack()
 {
@@ -1191,10 +718,6 @@ SIM_DLLEXPORT simInt simDebugStack(simInt stackHandle,simInt cIndex)
 {
     return(simDebugStack_internal(stackHandle,cIndex));
 }
-SIM_DLLEXPORT simFloat simGetEngineFloatParam(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
-{
-    return(simGetEngineFloatParam_internal(paramId,objectHandle,object,ok));
-}
 SIM_DLLEXPORT simInt simGetEngineInt32Param(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
 {
     return(simGetEngineInt32Param_internal(paramId,objectHandle,object,ok));
@@ -1202,10 +725,6 @@ SIM_DLLEXPORT simInt simGetEngineInt32Param(simInt paramId,simInt objectHandle,c
 SIM_DLLEXPORT simBool simGetEngineBoolParam(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
 {
     return(simGetEngineBoolParam_internal(paramId,objectHandle,object,ok));
-}
-SIM_DLLEXPORT simInt simSetEngineFloatParam(simInt paramId,simInt objectHandle,const simVoid* object,simFloat val)
-{
-    return(simSetEngineFloatParam_internal(paramId,objectHandle,object,val));
 }
 SIM_DLLEXPORT simInt simSetEngineInt32Param(simInt paramId,simInt objectHandle,const simVoid* object,simInt val)
 {
@@ -1215,50 +734,6 @@ SIM_DLLEXPORT simInt simSetEngineBoolParam(simInt paramId,simInt objectHandle,co
 {
     return(simSetEngineBoolParam_internal(paramId,objectHandle,object,val));
 }
-SIM_DLLEXPORT simInt simCreateOctree(simFloat voxelSize,simInt options,simFloat pointSize,simVoid* reserved)
-{
-    return(simCreateOctree_internal(voxelSize,options,pointSize,reserved));
-}
-SIM_DLLEXPORT simInt simCreatePointCloud(simFloat maxVoxelSize,simInt maxPtCntPerVoxel,simInt options,simFloat pointSize,simVoid* reserved)
-{
-    return(simCreatePointCloud_internal(maxVoxelSize,maxPtCntPerVoxel,options,pointSize,reserved));
-}
-SIM_DLLEXPORT simInt simSetPointCloudOptions(simInt pointCloudHandle,simFloat maxVoxelSize,simInt maxPtCntPerVoxel,simInt options,simFloat pointSize,simVoid* reserved)
-{
-    return(simSetPointCloudOptions_internal(pointCloudHandle,maxVoxelSize,maxPtCntPerVoxel,options,pointSize,reserved));
-}
-SIM_DLLEXPORT simInt simGetPointCloudOptions(simInt pointCloudHandle,simFloat* maxVoxelSize,simInt* maxPtCntPerVoxel,simInt* options,simFloat* pointSize,simVoid* reserved)
-{
-    return(simGetPointCloudOptions_internal(pointCloudHandle,maxVoxelSize,maxPtCntPerVoxel,options,pointSize,reserved));
-}
-SIM_DLLEXPORT simInt simInsertVoxelsIntoOctree(simInt octreeHandle,simInt options,const simFloat* pts,simInt ptCnt,const simUChar* color,const simUInt* tag,simVoid* reserved)
-{
-    return(simInsertVoxelsIntoOctree_internal(octreeHandle,options,pts,ptCnt,color,tag,reserved));
-}
-SIM_DLLEXPORT simInt simRemoveVoxelsFromOctree(simInt octreeHandle,simInt options,const simFloat* pts,simInt ptCnt,simVoid* reserved)
-{
-    return(simRemoveVoxelsFromOctree_internal(octreeHandle,options,pts,ptCnt,reserved));
-}
-SIM_DLLEXPORT simInt simInsertPointsIntoPointCloud(simInt pointCloudHandle,simInt options,const simFloat* pts,simInt ptCnt,const simUChar* color,simVoid* optionalValues)
-{
-    return(simInsertPointsIntoPointCloud_internal(pointCloudHandle,options,pts,ptCnt,color,optionalValues));
-}
-SIM_DLLEXPORT simInt simRemovePointsFromPointCloud(simInt pointCloudHandle,simInt options,const simFloat* pts,simInt ptCnt,simFloat tolerance,simVoid* reserved)
-{
-    return(simRemovePointsFromPointCloud_internal(pointCloudHandle,options,pts,ptCnt,tolerance,reserved));
-}
-SIM_DLLEXPORT simInt simIntersectPointsWithPointCloud(simInt pointCloudHandle,simInt options,const simFloat* pts,simInt ptCnt,simFloat tolerance,simVoid* reserved)
-{
-    return(simIntersectPointsWithPointCloud_internal(pointCloudHandle,options,pts,ptCnt,tolerance,reserved));
-}
-SIM_DLLEXPORT const float* simGetOctreeVoxels(simInt octreeHandle,simInt* ptCnt,simVoid* reserved)
-{
-    return(simGetOctreeVoxels_internal(octreeHandle,ptCnt,reserved));
-}
-SIM_DLLEXPORT const float* simGetPointCloudPoints(simInt pointCloudHandle,simInt* ptCnt,simVoid* reserved)
-{
-    return(simGetPointCloudPoints_internal(pointCloudHandle,ptCnt,reserved));
-}
 SIM_DLLEXPORT simInt simInsertObjectIntoOctree(simInt octreeHandle,simInt objectHandle,simInt options,const simUChar* color,simUInt tag,simVoid* reserved)
 {
     return(simInsertObjectIntoOctree_internal(octreeHandle,objectHandle,options,color,tag,reserved));
@@ -1266,18 +741,6 @@ SIM_DLLEXPORT simInt simInsertObjectIntoOctree(simInt octreeHandle,simInt object
 SIM_DLLEXPORT simInt simSubtractObjectFromOctree(simInt octreeHandle,simInt objectHandle,simInt options,simVoid* reserved)
 {
     return(simSubtractObjectFromOctree_internal(octreeHandle,objectHandle,options,reserved));
-}
-SIM_DLLEXPORT simInt simInsertObjectIntoPointCloud(simInt pointCloudHandle,simInt objectHandle,simInt options,simFloat gridSize,const simUChar* color,simVoid* optionalValues)
-{
-    return(simInsertObjectIntoPointCloud_internal(pointCloudHandle,objectHandle,options,gridSize,color,optionalValues));
-}
-SIM_DLLEXPORT simInt simSubtractObjectFromPointCloud(simInt pointCloudHandle,simInt objectHandle,simInt options,simFloat tolerance,simVoid* reserved)
-{
-    return(simSubtractObjectFromPointCloud_internal(pointCloudHandle,objectHandle,options,tolerance,reserved));
-}
-SIM_DLLEXPORT simInt simCheckOctreePointOccupancy(simInt octreeHandle,simInt options,const simFloat* points,simInt ptCnt,simUInt* tag,simUInt64* location,simVoid* reserved)
-{
-    return(simCheckOctreePointOccupancy_internal(octreeHandle,options,points,ptCnt,tag,location,reserved));
 }
 SIM_DLLEXPORT simChar* simOpenTextEditor(const simChar* initText,const simChar* xml,simInt* various)
 {
@@ -1335,49 +798,13 @@ SIM_DLLEXPORT simInt simEventNotification(const simChar* event)
 {
     return(simEventNotification_internal(event));
 }
-SIM_DLLEXPORT simInt simApplyTexture(simInt shapeHandle,const simFloat* textureCoordinates,simInt textCoordSize,const simUChar* texture,const simInt* textureResolution,simInt options)
-{
-    return(simApplyTexture_internal(shapeHandle,textureCoordinates,textCoordSize,texture,textureResolution,options));
-}
-SIM_DLLEXPORT simInt simSetJointDependency(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat multCoeff)
-{
-    return(simSetJointDependency_internal(jointHandle,masterJointHandle,offset,multCoeff));
-}
-SIM_DLLEXPORT simInt simGetJointDependency(simInt jointHandle,simInt* masterJointHandle,simFloat* offset,simFloat* multCoeff)
-{
-    return(simGetJointDependency_internal(jointHandle,masterJointHandle,offset,multCoeff));
-}
 SIM_DLLEXPORT simInt simAddLog(const simChar* pluginName,simInt verbosityLevel,const simChar* logMsg)
 {
     return(simAddLog_internal(pluginName,verbosityLevel,logMsg));
 }
-SIM_DLLEXPORT simInt simGetShapeMass(simInt shapeHandle,simFloat* mass)
-{
-    return(simGetShapeMass_internal(shapeHandle,mass));
-}
-SIM_DLLEXPORT simInt simSetShapeMass(simInt shapeHandle,simFloat mass)
-{
-    return(simSetShapeMass_internal(shapeHandle,mass));
-}
-SIM_DLLEXPORT simInt simGetShapeInertia(simInt shapeHandle,simFloat* inertiaMatrix,simFloat* transformationMatrix)
-{
-    return(simGetShapeInertia_internal(shapeHandle,inertiaMatrix,transformationMatrix));
-}
-SIM_DLLEXPORT simInt simSetShapeInertia(simInt shapeHandle,const simFloat* inertiaMatrix,const simFloat* transformationMatrix)
-{
-    return(simSetShapeInertia_internal(shapeHandle,inertiaMatrix,transformationMatrix));
-}
 SIM_DLLEXPORT simInt simIsDynamicallyEnabled(simInt objectHandle)
 {
     return(simIsDynamicallyEnabled_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simGenerateShapeFromPath(const simFloat* path,simInt pathSize,const simFloat* section,simInt sectionSize,simInt options,const simFloat* upVector,simFloat reserved)
-{
-    return(simGenerateShapeFromPath_internal(path,pathSize,section,sectionSize,options,upVector,reserved));
-}
-SIM_DLLEXPORT simFloat simGetClosestPosOnPath(const simFloat* path,simInt pathSize,const simFloat* pathLengths,const simFloat* absPt)
-{
-    return(simGetClosestPosOnPath_internal(path,pathSize,pathLengths,absPt));
 }
 SIM_DLLEXPORT simInt simInitScript(simInt scriptHandle)
 {
@@ -1431,26 +858,6 @@ SIM_DLLEXPORT const simVoid* _simGetObject(int objID)
 {
     return(_simGetObject_internal(objID));
 }
-SIM_DLLEXPORT simVoid _simGetObjectLocalTransformation(const simVoid* object,simFloat* pos,simFloat* quat,simBool excludeFirstJointTransformation)
-{
-    return(_simGetObjectLocalTransformation_internal(object,pos,quat,excludeFirstJointTransformation));
-}
-SIM_DLLEXPORT simVoid _simSetObjectLocalTransformation(simVoid* object,const simFloat* pos,const simFloat* quat,simFloat simTime)
-{
-    return(_simSetObjectLocalTransformation_internal(object,pos,quat,simTime));
-}
-SIM_DLLEXPORT simVoid _simDynReportObjectCumulativeTransformation(simVoid* object,const simFloat* pos,const simFloat* quat,simFloat simTime)
-{
-    return(_simDynReportObjectCumulativeTransformation_internal(object,pos,quat,simTime));
-}
-SIM_DLLEXPORT simVoid _simSetObjectCumulativeTransformation(simVoid* object,const simFloat* pos,const simFloat* quat,simBool keepChildrenInPlace)
-{
-    return(_simSetObjectCumulativeTransformation_internal(object,pos,quat,keepChildrenInPlace));
-}
-SIM_DLLEXPORT simVoid _simGetObjectCumulativeTransformation(const simVoid* object,simFloat* pos,simFloat* quat,simBool excludeFirstJointTransformation)
-{
-    return(_simGetObjectCumulativeTransformation_internal(object,pos,quat,excludeFirstJointTransformation));
-}
 SIM_DLLEXPORT simBool _simIsShapeDynamicallyStatic(const simVoid* shape)
 {
     return(_simIsShapeDynamicallyStatic_internal(shape));
@@ -1487,38 +894,6 @@ SIM_DLLEXPORT const simVoid* _simGetLastParentForLocalGlobalCollidable(const sim
 {
     return(_simGetLastParentForLocalGlobalCollidable_internal(shape));
 }
-SIM_DLLEXPORT simVoid _simSetJointVelocity(const simVoid* joint,simFloat vel)
-{
-    return(_simSetJointVelocity_internal(joint,vel));
-}
-SIM_DLLEXPORT simVoid _simSetJointPosition(const simVoid* joint,simFloat pos)
-{
-    return(_simSetJointPosition_internal(joint,pos));
-}
-SIM_DLLEXPORT simFloat _simGetJointPosition(const simVoid* joint)
-{
-    return(_simGetJointPosition_internal(joint));
-}
-SIM_DLLEXPORT simVoid _simSetDynamicMotorPositionControlTargetPosition(const simVoid* joint,simFloat pos)
-{
-    return(_simSetDynamicMotorPositionControlTargetPosition_internal(joint,pos));
-}
-SIM_DLLEXPORT simVoid _simGetInitialDynamicVelocity(const simVoid* shape,simFloat* vel)
-{
-    return(_simGetInitialDynamicVelocity_internal(shape,vel));
-}
-SIM_DLLEXPORT simVoid _simSetInitialDynamicVelocity(simVoid* shape,const simFloat* vel)
-{
-    return(_simSetInitialDynamicVelocity_internal(shape,vel));
-}
-SIM_DLLEXPORT simVoid _simGetInitialDynamicAngVelocity(const simVoid* shape,simFloat* angularVel)
-{
-    return(_simGetInitialDynamicAngVelocity_internal(shape,angularVel));
-}
-SIM_DLLEXPORT simVoid _simSetInitialDynamicAngVelocity(simVoid* shape,const simFloat* angularVel)
-{
-    return(_simSetInitialDynamicAngVelocity_internal(shape,angularVel));
-}
 SIM_DLLEXPORT simBool _simGetStartSleeping(const simVoid* shape)
 {
     return(_simGetStartSleeping_internal(shape));
@@ -1535,69 +910,17 @@ SIM_DLLEXPORT simVoid _simSetDynamicsFullRefreshFlag(const simVoid* object,simBo
 {
     return(_simSetDynamicsFullRefreshFlag_internal(object,flag));
 }
-SIM_DLLEXPORT simVoid _simSetShapeDynamicVelocity(simVoid* shape,const simFloat* linear,const simFloat* angular,simFloat simTime)
-{
-    return(_simSetShapeDynamicVelocity_internal(shape,linear,angular,simTime));
-}
-SIM_DLLEXPORT simVoid _simGetAdditionalForceAndTorque(const simVoid* shape,simFloat* force,simFloat* torque)
-{
-    return(_simGetAdditionalForceAndTorque_internal(shape,force,torque));
-}
 SIM_DLLEXPORT simVoid _simClearAdditionalForceAndTorque(const simVoid* shape)
 {
     return(_simClearAdditionalForceAndTorque_internal(shape));
-}
-SIM_DLLEXPORT simBool _simGetJointPositionInterval(const simVoid* joint,simFloat* minValue,simFloat* rangeValue)
-{
-    return(_simGetJointPositionInterval_internal(joint,minValue,rangeValue));
 }
 SIM_DLLEXPORT simInt _simGetJointType(const simVoid* joint)
 {
     return(_simGetJointType_internal(joint));
 }
-SIM_DLLEXPORT simFloat _simGetDynamicMotorTargetPosition(const simVoid* joint)
-{
-    return(_simGetDynamicMotorTargetPosition_internal(joint));
-}
-SIM_DLLEXPORT simFloat _simGetDynamicMotorTargetVelocity(const simVoid* joint)
-{
-    return(_simGetDynamicMotorTargetVelocity_internal(joint));
-}
-SIM_DLLEXPORT simFloat _simGetDynamicMotorMaxForce(const simVoid* joint)
-{
-    return(_simGetDynamicMotorMaxForce_internal(joint));
-}
-SIM_DLLEXPORT simFloat _simGetDynamicMotorUpperLimitVelocity(const simVoid* joint)
-{
-    return(_simGetDynamicMotorUpperLimitVelocity_internal(joint));
-}
-SIM_DLLEXPORT simVoid _simSetDynamicMotorReflectedPositionFromDynamicEngine(simVoid* joint,simFloat pos,simFloat simTime)
-{
-    return(_simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(joint,pos,simTime));
-}
-SIM_DLLEXPORT simVoid _simSetJointSphericalTransformation(simVoid* joint,const simFloat* quat,simFloat simTime)
-{
-    return(_simSetJointSphericalTransformation_internal(joint,quat,simTime));
-}
-SIM_DLLEXPORT simVoid _simAddForceSensorCumulativeForcesAndTorques(simVoid* forceSensor,const simFloat* force,const simFloat* torque,int totalPassesCount,simFloat simTime)
-{
-    return(_simAddForceSensorCumulativeForcesAndTorques_internal(forceSensor,force,torque,totalPassesCount,simTime));
-}
-SIM_DLLEXPORT simVoid _simAddJointCumulativeForcesOrTorques(simVoid* joint,simFloat forceOrTorque,int totalPassesCount,simFloat simTime)
-{
-    return(_simAddJointCumulativeForcesOrTorques_internal(joint,forceOrTorque,totalPassesCount,simTime));
-}
 SIM_DLLEXPORT const simVoid* _simGetGeomWrapFromGeomProxy(const simVoid* geomData)
 {
     return(_simGetGeomWrapFromGeomProxy_internal(geomData));
-}
-SIM_DLLEXPORT simFloat _simGetLocalInertiaInfo(const simVoid* object,simFloat* pos,simFloat* quat,simFloat* diagI)
-{
-    return(_simGetLocalInertiaInfo_internal(object,pos,quat,diagI));
-}
-SIM_DLLEXPORT simFloat _simGetMass(const simVoid* geomInfo)
-{
-    return(_simGetMass_internal(geomInfo));
 }
 SIM_DLLEXPORT simInt _simGetPurePrimitiveType(const simVoid* geomInfo)
 {
@@ -1619,29 +942,9 @@ SIM_DLLEXPORT simVoid _simGetAllGeometrics(const simVoid* geomInfo,simVoid** all
 {
     return(_simGetAllGeometrics_internal(geomInfo,allGeometrics));
 }
-SIM_DLLEXPORT simVoid _simGetPurePrimitiveSizes(const simVoid* geometric,simFloat* sizes)
-{
-    return(_simGetPurePrimitiveSizes_internal(geometric,sizes));
-}
 SIM_DLLEXPORT simVoid _simMakeDynamicAnnouncement(int announceType)
 {
     return(_simMakeDynamicAnnouncement_internal(announceType));
-}
-SIM_DLLEXPORT simVoid _simGetVerticesLocalFrame(const simVoid* geometric,simFloat* pos,simFloat* quat)
-{
-    return(_simGetVerticesLocalFrame_internal(geometric,pos,quat));
-}
-SIM_DLLEXPORT const simFloat* _simGetHeightfieldData(const simVoid* geometric,simInt* xCount,simInt* yCount,simFloat* minHeight,simFloat* maxHeight)
-{
-    return(_simGetHeightfieldData_internal(geometric,xCount,yCount,minHeight,maxHeight));
-}
-SIM_DLLEXPORT simVoid _simGetCumulativeMeshes(const simVoid* geomInfo,simFloat** vertices,simInt* verticesSize,simInt** indices,simInt* indicesSize)
-{
-    return(_simGetCumulativeMeshes_internal(geomInfo,vertices,verticesSize,indices,indicesSize));
-}
-SIM_DLLEXPORT simVoid _simGetGravity(simFloat* gravity)
-{
-    return(_simGetGravity_internal(gravity));
 }
 SIM_DLLEXPORT simInt _simGetTimeDiffInMs(simInt previousTime)
 {
@@ -1651,17 +954,9 @@ SIM_DLLEXPORT simBool _simDoEntitiesCollide(simInt entity1ID,simInt entity2ID,si
 {
     return(_simDoEntitiesCollide_internal(entity1ID,entity2ID,cacheBuffer,overrideCollidableFlagIfShape1,overrideCollidableFlagIfShape2,pathOrMotionPlanningRoutineCalling));
 }
-SIM_DLLEXPORT simBool _simGetDistanceBetweenEntitiesIfSmaller(simInt entity1ID,simInt entity2ID,simFloat* distance,simFloat* ray,simInt* cacheBuffer,simBool overrideMeasurableFlagIfNonCollection1,simBool overrideMeasurableFlagIfNonCollection2,simBool pathPlanningRoutineCalling)
+SIM_DLLEXPORT simInt simFloatingViewRemove(simInt floatingViewHandle)
 {
-    return(_simGetDistanceBetweenEntitiesIfSmaller_internal(entity1ID,entity2ID,distance,ray,cacheBuffer,overrideMeasurableFlagIfNonCollection1,overrideMeasurableFlagIfNonCollection2,pathPlanningRoutineCalling));
-}
-SIM_DLLEXPORT simInt _simHandleJointControl(const simVoid* joint,simInt auxV,const simInt* inputValuesInt,const simFloat* inputValuesFloat,simFloat* outputValues)
-{
-    return(_simHandleJointControl_internal(joint,auxV,inputValuesInt,inputValuesFloat,outputValues));
-}
-SIM_DLLEXPORT simInt _simHandleCustomContact(simInt objHandle1,simInt objHandle2,simInt engine,simInt* dataInt,simFloat* dataFloat)
-{
-    return(_simHandleCustomContact_internal(objHandle1,objHandle2,engine,dataInt,dataFloat));
+    return(simFloatingViewRemove_internal(floatingViewHandle));
 }
 SIM_DLLEXPORT const simVoid* _simGetIkGroupObject(int ikGroupID)
 {
@@ -1671,15 +966,6 @@ SIM_DLLEXPORT simInt _simMpHandleIkGroupObject(const simVoid* ikGroup)
 {
     return(_simMpHandleIkGroupObject_internal(ikGroup));
 }
-SIM_DLLEXPORT simFloat _simGetPureHollowScaling(const simVoid* geometric)
-{
-    return(_simGetPureHollowScaling_internal(geometric));
-}
-SIM_DLLEXPORT simVoid _simDynCallback(const simInt* intData,const simFloat* floatData)
-{
-    _simDynCallback_internal(intData,floatData);
-}
-
 // Following courtesy of Stephen James:
 // Functions to allow an external application to have control of CoppeliaSim's thread loop
 SIM_DLLEXPORT simInt simExtLaunchUIThread(const simChar* applicationName,simInt options,const simChar* sceneOrModelOrUiToLoad, const simChar* applicationDir_)
@@ -1710,13 +996,567 @@ SIM_DLLEXPORT simInt simExtSimThreadDestroy()
 {
     return(simExtSimThreadDestroy_internal());
 }
-SIM_DLLEXPORT simInt simExtCallScriptFunction(simInt scriptHandleOrType, const simChar* functionNameAtScriptName,
+
+#ifdef switchToDouble
+SIM_DLLEXPORT simInt simSetFloatParam_D(simInt parameter,simDouble floatState)
+{
+    return(simSetFloatParam_internal(parameter,floatState));
+}
+SIM_DLLEXPORT simInt simGetFloatParam_D(simInt parameter,simDouble* floatState)
+{
+    return(simGetFloatParam_internal(parameter,floatState));
+}
+SIM_DLLEXPORT simInt simGetObjectMatrix_D(simInt objectHandle,simInt relativeToObjectHandle,simDouble* matrix)
+{
+    return(simGetObjectMatrix_internal(objectHandle,relativeToObjectHandle,matrix));
+}
+SIM_DLLEXPORT simInt simSetObjectMatrix_D(simInt objectHandle,simInt relativeToObjectHandle,const simDouble* matrix)
+{
+    return(simSetObjectMatrix_internal(objectHandle,relativeToObjectHandle,matrix));
+}
+SIM_DLLEXPORT simInt simGetObjectPose_D(simInt objectHandle,simInt relativeToObjectHandle,simDouble* pose)
+{
+    return(simGetObjectPose_internal(objectHandle,relativeToObjectHandle,pose));
+}
+SIM_DLLEXPORT simInt simSetObjectPose_D(simInt objectHandle,simInt relativeToObjectHandle,const simDouble* pose)
+{
+    return(simSetObjectPose_internal(objectHandle,relativeToObjectHandle,pose));
+}
+SIM_DLLEXPORT simInt simGetObjectPosition_D(simInt objectHandle,simInt relativeToObjectHandle,simDouble* position)
+{
+    return(simGetObjectPosition_internal(objectHandle,relativeToObjectHandle,position));
+}
+SIM_DLLEXPORT simInt simSetObjectPosition_D(simInt objectHandle,simInt relativeToObjectHandle,const simDouble* position)
+{
+    return(simSetObjectPosition_internal(objectHandle,relativeToObjectHandle,position));
+}
+SIM_DLLEXPORT simInt simGetObjectOrientation_D(simInt objectHandle,simInt relativeToObjectHandle,simDouble* eulerAngles)
+{
+    return(simGetObjectOrientation_internal(objectHandle,relativeToObjectHandle,eulerAngles));
+}
+SIM_DLLEXPORT simInt simGetObjectQuaternion_D(simInt objectHandle,simInt relativeToObjectHandle,simDouble* quaternion)
+{
+    return(simGetObjectQuaternion_internal(objectHandle,relativeToObjectHandle,quaternion));
+}
+SIM_DLLEXPORT simInt simSetObjectQuaternion_D(simInt objectHandle,simInt relativeToObjectHandle,const simDouble* quaternion)
+{
+    return(simSetObjectQuaternion_internal(objectHandle,relativeToObjectHandle,quaternion));
+}
+SIM_DLLEXPORT simInt simSetObjectOrientation_D(simInt objectHandle,simInt relativeToObjectHandle,const simDouble* eulerAngles)
+{
+    return(simSetObjectOrientation_internal(objectHandle,relativeToObjectHandle,eulerAngles));
+}
+SIM_DLLEXPORT simInt simGetJointPosition_D(simInt objectHandle,simDouble* position)
+{
+    return(simGetJointPosition_internal(objectHandle,position));
+}
+SIM_DLLEXPORT simInt simSetJointPosition_D(simInt objectHandle,simDouble position)
+{
+    return(simSetJointPosition_internal(objectHandle,position));
+}
+SIM_DLLEXPORT simInt simSetJointTargetPosition_D(simInt objectHandle,simDouble targetPosition)
+{
+    return(simSetJointTargetPosition_internal(objectHandle,targetPosition));
+}
+SIM_DLLEXPORT simInt simGetJointTargetPosition_D(simInt objectHandle,simDouble* targetPosition)
+{
+    return(simGetJointTargetPosition_internal(objectHandle,targetPosition));
+}
+SIM_DLLEXPORT simInt simGetObjectChildPose_D(simInt objectHandle,simDouble* pose)
+{
+    return(simGetObjectChildPose_internal(objectHandle,pose));
+}
+SIM_DLLEXPORT simInt simSetObjectChildPose_D(simInt objectHandle,const simDouble* pose)
+{
+    return(simSetObjectChildPose_internal(objectHandle,pose));
+}
+SIM_DLLEXPORT simInt simGetJointInterval_D(simInt objectHandle,simBool* cyclic,simDouble* interval)
+{
+    return(simGetJointInterval_internal(objectHandle,cyclic,interval));
+}
+SIM_DLLEXPORT simInt simSetJointInterval_D(simInt objectHandle,simBool cyclic,const simDouble* interval)
+{
+    return(simSetJointInterval_internal(objectHandle,cyclic,interval));
+}
+SIM_DLLEXPORT simInt simBuildIdentityMatrix_D(simDouble* matrix)
+{
+    return(simBuildIdentityMatrix_internal(matrix));
+}
+SIM_DLLEXPORT simInt simBuildMatrix_D(const simDouble* position,const simDouble* eulerAngles,simDouble* matrix)
+{
+    return(simBuildMatrix_internal(position,eulerAngles,matrix));
+}
+SIM_DLLEXPORT simInt simBuildPose_D(const simDouble* position,const simDouble* eulerAngles,simDouble* pose)
+{
+    return(simBuildPose_internal(position,eulerAngles,pose));
+}
+SIM_DLLEXPORT simInt simGetEulerAnglesFromMatrix_D(const simDouble* matrix,simDouble* eulerAngles)
+{
+    return(simGetEulerAnglesFromMatrix_internal(matrix,eulerAngles));
+}
+SIM_DLLEXPORT simInt simInvertMatrix_D(simDouble* matrix)
+{
+    return(simInvertMatrix_internal(matrix));
+}
+SIM_DLLEXPORT simInt simMultiplyMatrices_D(const simDouble* matrixIn1,const simDouble* matrixIn2,simDouble* matrixOut)
+{
+    return(simMultiplyMatrices_internal(matrixIn1,matrixIn2,matrixOut));
+}
+SIM_DLLEXPORT simInt simMultiplyPoses_D(const simDouble* poseIn1,const simDouble* poseIn2,simDouble* poseOut)
+{
+    return(simMultiplyPoses_internal(poseIn1,poseIn2,poseOut));
+}
+SIM_DLLEXPORT simInt simInvertPose_D(simDouble* pose)
+{
+    return(simInvertPose_internal(pose));
+}
+SIM_DLLEXPORT simInt simInterpolatePoses_D(const simDouble* poseIn1,const simDouble* poseIn2,simDouble interpolFactor,simDouble* poseOut)
+{
+    return(simInterpolatePoses_internal(poseIn1,poseIn2,interpolFactor,poseOut));
+}
+SIM_DLLEXPORT simInt simPoseToMatrix_D(const simDouble* poseIn,simDouble* matrixOut)
+{
+    return(simPoseToMatrix_internal(poseIn,matrixOut));
+}
+SIM_DLLEXPORT simInt simMatrixToPose_D(const simDouble* matrixIn,simDouble* poseOut)
+{
+    return(simMatrixToPose_internal(matrixIn,poseOut));
+}
+SIM_DLLEXPORT simInt simInterpolateMatrices_D(const simDouble* matrixIn1,const simDouble* matrixIn2,simDouble interpolFactor,simDouble* matrixOut)
+{
+    return(simInterpolateMatrices_internal(matrixIn1,matrixIn2,interpolFactor,matrixOut));
+}
+SIM_DLLEXPORT simInt simTransformVector_D(const simDouble* matrix,simDouble* vect)
+{
+    return(simTransformVector_internal(matrix,vect));
+}
+SIM_DLLEXPORT simDouble simGetSimulationTime_D()
+{
+    return(simGetSimulationTime_internal());
+}
+SIM_DLLEXPORT simDouble simGetSystemTime_D()
+{
+    return(double(simGetSystemTime_internal()));
+}
+SIM_DLLEXPORT simInt simHandleProximitySensor_D(simInt sensorHandle,simDouble* detectedPoint,simInt* detectedObjectHandle,simDouble* normalVector)
+{
+    return(simHandleProximitySensor_internal(sensorHandle,detectedPoint,detectedObjectHandle,normalVector));
+}
+SIM_DLLEXPORT simInt simReadProximitySensor_D(simInt sensorHandle,simDouble* detectedPoint,simInt* detectedObjectHandle,simDouble* normalVector)
+{
+    return(simReadProximitySensor_internal(sensorHandle,detectedPoint,detectedObjectHandle,normalVector));
+}
+SIM_DLLEXPORT simInt simHandleDynamics_D(simDouble deltaTime)
+{
+    return(simHandleDynamics_internal(deltaTime));
+}
+SIM_DLLEXPORT simInt simCheckProximitySensor_D(simInt sensorHandle,simInt entityHandle,simDouble* detectedPoint)
+{
+    return(simCheckProximitySensor_internal(sensorHandle,entityHandle,detectedPoint));
+}
+SIM_DLLEXPORT simInt simCheckProximitySensorEx_D(simInt sensorHandle,simInt entityHandle,simInt detectionMode,simDouble detectionThreshold,simDouble maxAngle,simDouble* detectedPoint,simInt* detectedObjectHandle,simDouble* normalVector)
+{
+    return(simCheckProximitySensorEx_internal(sensorHandle,entityHandle,detectionMode,detectionThreshold,maxAngle,detectedPoint,detectedObjectHandle,normalVector));
+}
+SIM_DLLEXPORT simInt simCheckProximitySensorEx2_D(simInt sensorHandle,simDouble* vertexPointer,simInt itemType,simInt itemCount,simInt detectionMode,simDouble detectionThreshold,simDouble maxAngle,simDouble* detectedPoint,simDouble* normalVector)
+{
+    return(simCheckProximitySensorEx2_internal(sensorHandle,vertexPointer,itemType,itemCount,detectionMode,detectionThreshold,maxAngle,detectedPoint,normalVector));
+}
+SIM_DLLEXPORT simInt simCheckCollisionEx_D(simInt entity1Handle,simInt entity2Handle,simDouble** intersectionSegments)
+{
+    return(simCheckCollisionEx_internal(entity1Handle,entity2Handle,intersectionSegments));
+}
+SIM_DLLEXPORT simInt simCheckDistance_D(simInt entity1Handle,simInt entity2Handle,simDouble threshold,simDouble* distanceData)
+{
+    return(simCheckDistance_internal(entity1Handle,entity2Handle,threshold,distanceData));
+}
+SIM_DLLEXPORT simInt simSetSimulationTimeStep_D(simDouble timeStep)
+{
+    return(simSetSimulationTimeStep_internal(timeStep));
+}
+SIM_DLLEXPORT simDouble simGetSimulationTimeStep_D()
+{
+    return(simGetSimulationTimeStep_internal());
+}
+SIM_DLLEXPORT simInt simAdjustRealTimeTimer_D(simInt instanceIndex,simDouble deltaTime)
+{
+    return(simAdjustRealTimeTimer_internal(instanceIndex,deltaTime));
+}
+SIM_DLLEXPORT simInt simFloatingViewAdd_D(simDouble posX,simDouble posY,simDouble sizeX,simDouble sizeY,simInt options)
+{
+    return(simFloatingViewAdd_internal(posX,posY,sizeX,sizeY,options));
+}
+SIM_DLLEXPORT simInt simFloatingViewRemove_D(simInt floatingViewHandle)
+{
+    return(simFloatingViewRemove_internal(floatingViewHandle));
+}
+SIM_DLLEXPORT simInt simHandleGraph_D(simInt graphHandle,simDouble simulationTime)
+{
+    return(simHandleGraph_internal(graphHandle,simulationTime));
+}
+SIM_DLLEXPORT simInt simAddGraphStream_D(simInt graphHandle,const simChar* streamName,const simChar* unitStr,simInt options,const simDouble* color,simDouble cyclicRange)
+{
+    return(simAddGraphStream_internal(graphHandle,streamName,unitStr,options,color,cyclicRange));
+}
+SIM_DLLEXPORT simInt simSetGraphStreamTransformation_D(simInt graphHandle,simInt streamId,simInt trType,simDouble mult,simDouble off,simInt movingAvgPeriod)
+{
+    return(simSetGraphStreamTransformation_internal(graphHandle,streamId,trType,mult,off,movingAvgPeriod));
+}
+SIM_DLLEXPORT simInt simAddGraphCurve_D(simInt graphHandle,const simChar* curveName,simInt dim,const simInt* streamIds,const simDouble* defaultValues,const simChar* unitStr,simInt options,const simDouble* color,simInt curveWidth)
+{
+    return(simAddGraphCurve_internal(graphHandle,curveName,dim,streamIds,defaultValues,unitStr,options,color,curveWidth));
+}
+SIM_DLLEXPORT simInt simSetGraphStreamValue_D(simInt graphHandle,simInt streamId,simDouble value)
+{
+    return(simSetGraphStreamValue_internal(graphHandle,streamId,value));
+}
+SIM_DLLEXPORT simInt simSetJointTargetVelocity_D(simInt objectHandle,simDouble targetVelocity)
+{
+    return(simSetJointTargetVelocity_internal(objectHandle,targetVelocity));
+}
+SIM_DLLEXPORT simInt simGetJointTargetVelocity_D(simInt objectHandle,simDouble* targetVelocity)
+{
+    return(simGetJointTargetVelocity_internal(objectHandle,targetVelocity));
+}
+SIM_DLLEXPORT simInt simScaleObjects_D(const simInt* objectHandles,simInt objectCount,simDouble scalingFactor,simBool scalePositionsToo)
+{
+    return(simScaleObjects_internal(objectHandles,objectCount,scalingFactor,scalePositionsToo));
+}
+SIM_DLLEXPORT simInt simAddDrawingObject_D(simInt objectType,simDouble size,simDouble duplicateTolerance,simInt parentObjectHandle,simInt maxItemCount,const simDouble* color,const simDouble* setToNULL,const simDouble* setToNULL2,const simDouble* setToNULL3)
+{
+    return(simAddDrawingObject_internal(objectType,size,duplicateTolerance,parentObjectHandle,maxItemCount,color,setToNULL,setToNULL2,setToNULL3));
+}
+SIM_DLLEXPORT simInt simAddDrawingObjectItem_D(simInt objectHandle,const simDouble* itemData)
+{
+    return(simAddDrawingObjectItem_internal(objectHandle,itemData));
+}
+SIM_DLLEXPORT simDouble simGetObjectSizeFactor_D(simInt objectHandle)
+{
+    return(simGetObjectSizeFactor_internal(objectHandle));
+}
+SIM_DLLEXPORT simInt simSetFloatSignal_D(const simChar* signalName,simDouble signalValue)
+{
+    return(simSetFloatSignal_internal(signalName,signalValue));
+}
+SIM_DLLEXPORT simInt simGetFloatSignal_D(const simChar* signalName,simDouble* signalValue)
+{
+    return(simGetFloatSignal_internal(signalName,signalValue));
+}
+SIM_DLLEXPORT simInt simReadForceSensor_D(simInt objectHandle,simDouble* forceVector,simDouble* torqueVector)
+{
+    return(simReadForceSensor_internal(objectHandle,forceVector,torqueVector));
+}
+SIM_DLLEXPORT simInt simSetLightParameters_D(simInt objectHandle,simInt state,const simDouble* setToNULL,const simDouble* diffusePart,const simDouble* specularPart)
+{
+    return(simSetLightParameters_internal(objectHandle,state,setToNULL,diffusePart,specularPart));
+}
+SIM_DLLEXPORT simInt simGetLightParameters_D(simInt objectHandle,simDouble* setToNULL,simDouble* diffusePart,simDouble* specularPart)
+{
+    return(simGetLightParameters_internal(objectHandle,setToNULL,diffusePart,specularPart));
+}
+SIM_DLLEXPORT simInt simGetVelocity_D(simInt shapeHandle,simDouble* linearVelocity,simDouble* angularVelocity)
+{
+    return(simGetVelocity_internal(shapeHandle,linearVelocity,angularVelocity));
+}
+SIM_DLLEXPORT simInt simGetObjectVelocity_D(simInt objectHandle,simDouble* linearVelocity,simDouble* angularVelocity)
+{
+    return(simGetObjectVelocity_internal(objectHandle,linearVelocity,angularVelocity));
+}
+SIM_DLLEXPORT simInt simGetJointVelocity_D(simInt jointHandle,simDouble* velocity)
+{
+    return(simGetJointVelocity_internal(jointHandle,velocity));
+}
+SIM_DLLEXPORT simInt simAddForceAndTorque_D(simInt shapeHandle,const simDouble* force,const simDouble* torque)
+{
+    return(simAddForceAndTorque_internal(shapeHandle,force,torque));
+}
+SIM_DLLEXPORT simInt simAddForce_D(simInt shapeHandle,const simDouble* position,const simDouble* force)
+{
+    return(simAddForce_internal(shapeHandle,position,force));
+}
+SIM_DLLEXPORT simInt simSetObjectColor_D(simInt objectHandle,simInt index,simInt colorComponent,const simDouble* rgbData)
+{
+    return(simSetObjectColor_internal(objectHandle,index,colorComponent,rgbData));
+}
+SIM_DLLEXPORT simInt simGetObjectColor_D(simInt objectHandle,simInt index,simInt colorComponent,simDouble* rgbData)
+{
+    return(simGetObjectColor_internal(objectHandle,index,colorComponent,rgbData));
+}
+SIM_DLLEXPORT simInt simSetShapeColor_D(simInt shapeHandle,const simChar* colorName,simInt colorComponent,const simDouble* rgbData)
+{
+    return(simSetShapeColor_internal(shapeHandle,colorName,colorComponent,rgbData));
+}
+SIM_DLLEXPORT simInt simGetShapeColor_D(simInt shapeHandle,const simChar* colorName,simInt colorComponent,simDouble* rgbData)
+{
+    return(simGetShapeColor_internal(shapeHandle,colorName,colorComponent,rgbData));
+}
+SIM_DLLEXPORT simInt simGetContactInfo_D(simInt dynamicPass,simInt objectHandle,simInt index,simInt* objectHandles,simDouble* contactInfo)
+{
+    return(simGetContactInfo_internal(dynamicPass,objectHandle,index,objectHandles,contactInfo));
+}
+SIM_DLLEXPORT simInt simAuxiliaryConsoleOpen_D(const simChar* title,simInt maxLines,simInt mode,const simInt* position,const simInt* size,const simDouble* textColor,const simDouble* backgroundColor)
+{
+    return(simAuxiliaryConsoleOpen_internal(title,maxLines,mode,position,size,textColor,backgroundColor));
+}
+SIM_DLLEXPORT simInt simImportShape_D(simInt fileformat,const simChar* pathAndFilename,simInt options,simDouble identicalVerticeTolerance,simDouble scalingFactor)
+{
+    return(simImportShape_internal(fileformat,pathAndFilename,options,identicalVerticeTolerance,scalingFactor));
+}
+SIM_DLLEXPORT simInt simImportMesh_D(simInt fileformat,const simChar* pathAndFilename,simInt options,simDouble identicalVerticeTolerance,simDouble scalingFactor,simDouble*** vertices,simInt** verticesSizes,simInt*** indices,simInt** indicesSizes,simDouble*** reserved,simChar*** names)
+{
+    return(simImportMesh_internal(fileformat,pathAndFilename,options,identicalVerticeTolerance,scalingFactor,vertices,verticesSizes,indices,indicesSizes,reserved,names));
+}
+SIM_DLLEXPORT simInt simExportMesh_D(simInt fileformat,const simChar* pathAndFilename,simInt options,simDouble scalingFactor,simInt elementCount,const simDouble** vertices,const simInt* verticesSizes,const simInt** indices,const simInt* indicesSizes,simDouble** reserved,const simChar** names)
+{
+    return(simExportMesh_internal(fileformat,pathAndFilename,options,scalingFactor,elementCount,vertices,verticesSizes,indices,indicesSizes,reserved,names));
+}
+SIM_DLLEXPORT simInt simCreateMeshShape_D(simInt options,simDouble shadingAngle,const simDouble* vertices,simInt verticesSize,const simInt* indices,simInt indicesSize,simDouble* reserved)
+{
+    return(simCreateMeshShape_internal(options,shadingAngle,vertices,verticesSize,indices,indicesSize,reserved));
+}
+SIM_DLLEXPORT simInt simCreatePrimitiveShape_D(simInt primitiveType,const simDouble* sizes,simInt options)
+{
+    return(simCreatePrimitiveShape_internal(primitiveType,sizes,options));
+}
+SIM_DLLEXPORT simInt simCreateHeightfieldShape_D(simInt options,simDouble shadingAngle,simInt xPointCount,simInt yPointCount,simDouble xSize,const simDouble* heights)
+{
+    return(simCreateHeightfieldShape_internal(options,shadingAngle,xPointCount,yPointCount,xSize,heights));
+}
+SIM_DLLEXPORT simInt simGetShapeMesh_D(simInt shapeHandle,simDouble** vertices,simInt* verticesSize,simInt** indices,simInt* indicesSize,simDouble** normals)
+{
+    return(simGetShapeMesh_internal(shapeHandle,vertices,verticesSize,indices,indicesSize,normals));
+}
+SIM_DLLEXPORT simInt simCreateJoint_D(simInt jointType,simInt jointMode,simInt options,const simDouble* sizes,const simDouble* reservedA,const simDouble* reservedB)
+{
+    return(simCreateJoint_internal(jointType,jointMode,options,sizes,reservedA,reservedB));
+}
+SIM_DLLEXPORT simInt simGetObjectFloatParam_D(simInt objectHandle,simInt ParamID,simDouble* Param)
+{
+    return(simGetObjectFloatParam_internal(objectHandle,ParamID,Param));
+}
+SIM_DLLEXPORT simInt simSetObjectFloatParam_D(simInt objectHandle,simInt ParamID,simDouble Param)
+{
+    return(simSetObjectFloatParam_internal(objectHandle,ParamID,Param));
+}
+SIM_DLLEXPORT simDouble* simGetObjectFloatArrayParam_D(simInt objectHandle,simInt ParamID,simInt* size)
+{
+    return(simGetObjectFloatArrayParam_internal(objectHandle,ParamID,size));
+}
+SIM_DLLEXPORT simInt simSetObjectFloatArrayParam_D(simInt objectHandle,simInt ParamID,const simDouble* params,simInt size)
+{
+    return(simSetObjectFloatArrayParam_internal(objectHandle,ParamID,params,size));
+}
+SIM_DLLEXPORT simInt simGetRotationAxis_D(const simDouble* matrixStart,const simDouble* matrixGoal,simDouble* axis,simDouble* angle)
+{
+    return(simGetRotationAxis_internal(matrixStart,matrixGoal,axis,angle));
+}
+SIM_DLLEXPORT simInt simRotateAroundAxis_D(const simDouble* matrixIn,const simDouble* axis,const simDouble* axisPos,simDouble angle,simDouble* matrixOut)
+{
+    return(simRotateAroundAxis_internal(matrixIn,axis,axisPos,angle,matrixOut));
+}
+SIM_DLLEXPORT simInt simGetJointForce_D(simInt jointHandle,simDouble* forceOrTorque)
+{
+    return(simGetJointForce_internal(jointHandle,forceOrTorque));
+}
+SIM_DLLEXPORT simInt simGetJointTargetForce_D(simInt jointHandle,simDouble* forceOrTorque)
+{
+    return(simGetJointTargetForce_internal(jointHandle,forceOrTorque));
+}
+SIM_DLLEXPORT simInt simSetJointTargetForce_D(simInt objectHandle,simDouble forceOrTorque,simBool signedValue)
+{
+    return(simSetJointTargetForce_internal(objectHandle,forceOrTorque,signedValue));
+}
+SIM_DLLEXPORT simInt simCameraFitToView_D(simInt viewHandleOrIndex,simInt objectCount,const simInt* objectHandles,simInt options,simDouble scaling)
+{
+    return(simCameraFitToView_internal(viewHandleOrIndex,objectCount,objectHandles,options,scaling));
+}
+SIM_DLLEXPORT simInt simHandleVisionSensor_D(simInt visionSensorHandle,simDouble** auxValues,simInt** auxValuesCount)
+{
+    return(simHandleVisionSensor_internal(visionSensorHandle,auxValues,auxValuesCount));
+}
+SIM_DLLEXPORT simInt simReadVisionSensor_D(simInt visionSensorHandle,simDouble** auxValues,simInt** auxValuesCount)
+{
+    return(simReadVisionSensor_internal(visionSensorHandle,auxValues,auxValuesCount));
+}
+SIM_DLLEXPORT simInt simCheckVisionSensor_D(simInt visionSensorHandle,simInt entityHandle,simDouble** auxValues,simInt** auxValuesCount)
+{
+    return(simCheckVisionSensor_internal(visionSensorHandle,entityHandle,auxValues,auxValuesCount));
+}
+SIM_DLLEXPORT simDouble* simCheckVisionSensorEx_D(simInt visionSensorHandle,simInt entityHandle,simBool returnImage)
+{
+    return(simCheckVisionSensorEx_internal(visionSensorHandle,entityHandle,returnImage));
+}
+SIM_DLLEXPORT simUChar* simGetVisionSensorImg_D(simInt sensorHandle,simInt options,simDouble rgbaCutOff,const simInt* pos,const simInt* size,simInt* resolution)
+{
+    return(simGetVisionSensorImg_internal(sensorHandle,options,rgbaCutOff,pos,size,resolution));
+}
+SIM_DLLEXPORT simDouble* simGetVisionSensorDepth_D(simInt sensorHandle,simInt options,const simInt* pos,const simInt* size,simInt* resolution)
+{
+    return(simGetVisionSensorDepth_internal(sensorHandle,options,pos,size,resolution));
+}
+SIM_DLLEXPORT simInt simCreateDummy_D(simDouble size,const simDouble* reserved)
+{
+    return(simCreateDummy_internal(size,reserved));
+}
+SIM_DLLEXPORT simInt simCreateForceSensor_D(simInt options,const simInt* intParams,const simDouble* floatParams,const simDouble* reserved)
+{
+    return(simCreateForceSensor_internal(options,intParams,floatParams,reserved));
+}
+SIM_DLLEXPORT simInt simCreateProximitySensor_D(simInt sensorType,simInt subType,simInt options,const simInt* intParams,const simDouble* floatParams,const simDouble* reserved)
+{
+    return(simCreateProximitySensor_internal(sensorType,subType,options,intParams,floatParams,reserved));
+}
+SIM_DLLEXPORT simInt simCreateVisionSensor_D(simInt options,const simInt* intParams,const simDouble* floatParams,const simDouble* reserved)
+{
+    return(simCreateVisionSensor_internal(options,intParams,floatParams,reserved));
+}
+SIM_DLLEXPORT simInt simConvexDecompose_D(simInt shapeHandle,simInt options,const simInt* intParams,const simDouble* floatParams)
+{
+    return(simConvexDecompose_internal(shapeHandle,options,intParams,floatParams));
+}
+SIM_DLLEXPORT simInt simCreateTexture_D(const simChar* fileName,simInt options,const simDouble* planeSizes,const simDouble* scalingUV,const simDouble* xy_g,simInt fixedResolution,simInt* textureId,simInt* resolution,const simVoid* reserved)
+{
+    return(simCreateTexture_internal(fileName,options,planeSizes,scalingUV,xy_g,fixedResolution,textureId,resolution,reserved));
+}
+SIM_DLLEXPORT simInt simWriteTexture_D(simInt textureId,simInt options,const simChar* data,simInt posX,simInt posY,simInt sizeX,simInt sizeY,simDouble interpol)
+{
+    return(simWriteTexture_internal(textureId,options,data,posX,posY,sizeX,sizeY,interpol));
+}
+SIM_DLLEXPORT simInt simGetShapeGeomInfo_D(simInt shapeHandle,simInt* intData,simDouble* floatData,simVoid* reserved)
+{
+    return(simGetShapeGeomInfo_internal(shapeHandle,intData,floatData,reserved));
+}
+SIM_DLLEXPORT simInt simScaleObject_D(simInt objectHandle,simDouble xScale,simDouble yScale,simDouble zScale,simInt options)
+{
+    return(simScaleObject_internal(objectHandle,xScale,yScale,zScale,options));
+}
+SIM_DLLEXPORT simInt simSetShapeTexture_D(simInt shapeHandle,simInt textureId,simInt mappingMode,simInt options,const simDouble* uvScaling,const simDouble* position,const simDouble* orientation)
+{
+    return(simSetShapeTexture_internal(shapeHandle,textureId,mappingMode,options,uvScaling,position,orientation));
+}
+SIM_DLLEXPORT simInt simTransformImage_D(simUChar* image,const simInt* resolution,simInt options,const simDouble* floatParams,const simInt* intParams,simVoid* reserved)
+{
+    return(simTransformImage_internal(image,resolution,options,floatParams,intParams,reserved));
+}
+SIM_DLLEXPORT simInt simGetQHull_D(const simDouble* inVertices,simInt inVerticesL,simDouble** verticesOut,simInt* verticesOutL,simInt** indicesOut,simInt* indicesOutL,simInt reserved1,const simDouble* reserved2)
+{
+    return(simGetQHull_internal(inVertices,inVerticesL,verticesOut,verticesOutL,indicesOut,indicesOutL,reserved1,reserved2));
+}
+SIM_DLLEXPORT simInt simGetDecimatedMesh_D(const simDouble* inVertices,simInt inVerticesL,const simInt* inIndices,simInt inIndicesL,simDouble** verticesOut,simInt* verticesOutL,simInt** indicesOut,simInt* indicesOutL,simDouble decimationPercent,simInt reserved1,const simDouble* reserved2)
+{
+    return(simGetDecimatedMesh_internal(inVertices,inVerticesL,inIndices,inIndicesL,verticesOut,verticesOutL,indicesOut,indicesOutL,decimationPercent,reserved1,reserved2));
+}
+SIM_DLLEXPORT simInt simComputeMassAndInertia_D(simInt shapeHandle,simDouble density)
+{
+    return(simComputeMassAndInertia_internal(shapeHandle,density));
+}
+SIM_DLLEXPORT simDouble simGetEngineFloatParam_D(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
+{
+    return(simGetEngineFloatParam_internal(paramId,objectHandle,object,ok));
+}
+SIM_DLLEXPORT simInt simSetEngineFloatParam_D(simInt paramId,simInt objectHandle,const simVoid* object,simDouble val)
+{
+    return(simSetEngineFloatParam_internal(paramId,objectHandle,object,val));
+}
+SIM_DLLEXPORT simInt simCreateOctree_D(simDouble voxelSize,simInt options,simDouble pointSize,simVoid* reserved)
+{
+    return(simCreateOctree_internal(voxelSize,options,pointSize,reserved));
+}
+SIM_DLLEXPORT simInt simCreatePointCloud_D(simDouble maxVoxelSize,simInt maxPtCntPerVoxel,simInt options,simDouble pointSize,simVoid* reserved)
+{
+    return(simCreatePointCloud_internal(maxVoxelSize,maxPtCntPerVoxel,options,pointSize,reserved));
+}
+SIM_DLLEXPORT simInt simSetPointCloudOptions_D(simInt pointCloudHandle,simDouble maxVoxelSize,simInt maxPtCntPerVoxel,simInt options,simDouble pointSize,simVoid* reserved)
+{
+    return(simSetPointCloudOptions_internal(pointCloudHandle,maxVoxelSize,maxPtCntPerVoxel,options,pointSize,reserved));
+}
+SIM_DLLEXPORT simInt simGetPointCloudOptions_D(simInt pointCloudHandle,simDouble* maxVoxelSize,simInt* maxPtCntPerVoxel,simInt* options,simDouble* pointSize,simVoid* reserved)
+{
+    return(simGetPointCloudOptions_internal(pointCloudHandle,maxVoxelSize,maxPtCntPerVoxel,options,pointSize,reserved));
+}
+SIM_DLLEXPORT simInt simInsertVoxelsIntoOctree_D(simInt octreeHandle,simInt options,const simDouble* pts,simInt ptCnt,const simUChar* color,const simUInt* tag,simVoid* reserved)
+{
+    return(simInsertVoxelsIntoOctree_internal(octreeHandle,options,pts,ptCnt,color,tag,reserved));
+}
+SIM_DLLEXPORT simInt simRemoveVoxelsFromOctree_D(simInt octreeHandle,simInt options,const simDouble* pts,simInt ptCnt,simVoid* reserved)
+{
+    return(simRemoveVoxelsFromOctree_internal(octreeHandle,options,pts,ptCnt,reserved));
+}
+SIM_DLLEXPORT simInt simInsertPointsIntoPointCloud_D(simInt pointCloudHandle,simInt options,const simDouble* pts,simInt ptCnt,const simUChar* color,simVoid* optionalValues)
+{
+    return(simInsertPointsIntoPointCloud_internal(pointCloudHandle,options,pts,ptCnt,color,optionalValues));
+}
+SIM_DLLEXPORT simInt simRemovePointsFromPointCloud_D(simInt pointCloudHandle,simInt options,const simDouble* pts,simInt ptCnt,simDouble tolerance,simVoid* reserved)
+{
+    return(simRemovePointsFromPointCloud_internal(pointCloudHandle,options,pts,ptCnt,tolerance,reserved));
+}
+SIM_DLLEXPORT simInt simIntersectPointsWithPointCloud_D(simInt pointCloudHandle,simInt options,const simDouble* pts,simInt ptCnt,simDouble tolerance,simVoid* reserved)
+{
+    return(simIntersectPointsWithPointCloud_internal(pointCloudHandle,options,pts,ptCnt,tolerance,reserved));
+}
+SIM_DLLEXPORT const simDouble* simGetOctreeVoxels_D(simInt octreeHandle,simInt* ptCnt,simVoid* reserved)
+{
+    return(simGetOctreeVoxels_internal(octreeHandle,ptCnt,reserved));
+}
+SIM_DLLEXPORT const simDouble* simGetPointCloudPoints_D(simInt pointCloudHandle,simInt* ptCnt,simVoid* reserved)
+{
+    return(simGetPointCloudPoints_internal(pointCloudHandle,ptCnt,reserved));
+}
+SIM_DLLEXPORT simInt simInsertObjectIntoPointCloud_D(simInt pointCloudHandle,simInt objectHandle,simInt options,simDouble gridSize,const simUChar* color,simVoid* optionalValues)
+{
+    return(simInsertObjectIntoPointCloud_internal(pointCloudHandle,objectHandle,options,gridSize,color,optionalValues));
+}
+SIM_DLLEXPORT simInt simSubtractObjectFromPointCloud_D(simInt pointCloudHandle,simInt objectHandle,simInt options,simDouble tolerance,simVoid* reserved)
+{
+    return(simSubtractObjectFromPointCloud_internal(pointCloudHandle,objectHandle,options,tolerance,reserved));
+}
+SIM_DLLEXPORT simInt simCheckOctreePointOccupancy_D(simInt octreeHandle,simInt options,const simDouble* points,simInt ptCnt,simUInt* tag,simUInt64* location,simVoid* reserved)
+{
+    return(simCheckOctreePointOccupancy_internal(octreeHandle,options,points,ptCnt,tag,location,reserved));
+}
+SIM_DLLEXPORT simInt simApplyTexture_D(simInt shapeHandle,const simDouble* textureCoordinates,simInt textCoordSize,const simUChar* texture,const simInt* textureResolution,simInt options)
+{
+    return(simApplyTexture_internal(shapeHandle,textureCoordinates,textCoordSize,texture,textureResolution,options));
+}
+SIM_DLLEXPORT simInt simSetJointDependency_D(simInt jointHandle,simInt masterJointHandle,simDouble offset,simDouble multCoeff)
+{
+    return(simSetJointDependency_internal(jointHandle,masterJointHandle,offset,multCoeff));
+}
+SIM_DLLEXPORT simInt simGetJointDependency_D(simInt jointHandle,simInt* masterJointHandle,simDouble* offset,simDouble* multCoeff)
+{
+    return(simGetJointDependency_internal(jointHandle,masterJointHandle,offset,multCoeff));
+}
+SIM_DLLEXPORT simInt simGetShapeMass_D(simInt shapeHandle,simDouble* mass)
+{
+    return(simGetShapeMass_internal(shapeHandle,mass));
+}
+SIM_DLLEXPORT simInt simSetShapeMass_D(simInt shapeHandle,simDouble mass)
+{
+    return(simSetShapeMass_internal(shapeHandle,mass));
+}
+SIM_DLLEXPORT simInt simGetShapeInertia_D(simInt shapeHandle,simDouble* inertiaMatrix,simDouble* transformationMatrix)
+{
+    return(simGetShapeInertia_internal(shapeHandle,inertiaMatrix,transformationMatrix));
+}
+SIM_DLLEXPORT simInt simSetShapeInertia_D(simInt shapeHandle,const simDouble* inertiaMatrix,const simDouble* transformationMatrix)
+{
+    return(simSetShapeInertia_internal(shapeHandle,inertiaMatrix,transformationMatrix));
+}
+SIM_DLLEXPORT simInt simGenerateShapeFromPath_D(const simDouble* path,simInt pathSize,const simDouble* section,simInt sectionSize,simInt options,const simDouble* upVector,simDouble reserved)
+{
+    return(simGenerateShapeFromPath_internal(path,pathSize,section,sectionSize,options,upVector,reserved));
+}
+SIM_DLLEXPORT simDouble simGetClosestPosOnPath_D(const simDouble* path,simInt pathSize,const simDouble* pathLengths,const simDouble* absPt)
+{
+    return(simGetClosestPosOnPath_internal(path,pathSize,pathLengths,absPt));
+}
+SIM_DLLEXPORT simInt simExtCallScriptFunction_D(simInt scriptHandleOrType, const simChar* functionNameAtScriptName,
                                                const simInt* inIntData, simInt inIntCnt,
-                                               const simFloat* inFloatData, simInt inFloatCnt,
+                                               const simDouble* inFloatData, simInt inFloatCnt,
                                                const simChar** inStringData, simInt inStringCnt,
                                                const simChar* inBufferData, simInt inBufferCnt,
                                                simInt** outIntData, simInt* outIntCnt,
-                                               simFloat** outFloatData, simInt* outFloatCnt,
+                                               simDouble** outFloatData, simInt* outFloatCnt,
                                                simChar*** outStringData, simInt* outStringCnt,
                                                simChar** outBufferData, simInt* outBufferSize)
 {
@@ -1726,1121 +1566,150 @@ SIM_DLLEXPORT simInt simExtCallScriptFunction(simInt scriptHandleOrType, const s
                                              outIntData, outIntCnt, outFloatData, outFloatCnt,
                                              outStringData, outStringCnt, outBufferData, outBufferSize));
 }
+SIM_DLLEXPORT simVoid _simGetObjectLocalTransformation_D(const simVoid* object,simDouble* pos,simDouble* quat,simBool excludeFirstJointTransformation)
+{
+    return(_simGetObjectLocalTransformation_internal(object,pos,quat,excludeFirstJointTransformation));
+}
+SIM_DLLEXPORT simVoid _simSetObjectLocalTransformation_D(simVoid* object,const simDouble* pos,const simDouble* quat,simDouble simTime)
+{
+    return(_simSetObjectLocalTransformation_internal(object,pos,quat,simTime));
+}
+SIM_DLLEXPORT simVoid _simDynReportObjectCumulativeTransformation_D(simVoid* object,const simDouble* pos,const simDouble* quat,simDouble simTime)
+{
+    return(_simDynReportObjectCumulativeTransformation_internal(object,pos,quat,simTime));
+}
+SIM_DLLEXPORT simVoid _simSetObjectCumulativeTransformation_D(simVoid* object,const simDouble* pos,const simDouble* quat,simBool keepChildrenInPlace)
+{
+    return(_simSetObjectCumulativeTransformation_internal(object,pos,quat,keepChildrenInPlace));
+}
+SIM_DLLEXPORT simVoid _simGetObjectCumulativeTransformation_D(const simVoid* object,simDouble* pos,simDouble* quat,simBool excludeFirstJointTransformation)
+{
+    return(_simGetObjectCumulativeTransformation_internal(object,pos,quat,excludeFirstJointTransformation));
+}
+SIM_DLLEXPORT simVoid _simSetJointVelocity_D(const simVoid* joint,simDouble vel)
+{
+    return(_simSetJointVelocity_internal(joint,vel));
+}
+SIM_DLLEXPORT simVoid _simSetJointPosition_D(const simVoid* joint,simDouble pos)
+{
+    return(_simSetJointPosition_internal(joint,pos));
+}
+SIM_DLLEXPORT simDouble _simGetJointPosition_D(const simVoid* joint)
+{
+    return(_simGetJointPosition_internal(joint));
+}
+SIM_DLLEXPORT simVoid _simSetDynamicMotorPositionControlTargetPosition_D(const simVoid* joint,simDouble pos)
+{
+    return(_simSetDynamicMotorPositionControlTargetPosition_internal(joint,pos));
+}
+SIM_DLLEXPORT simVoid _simGetInitialDynamicVelocity_D(const simVoid* shape,simDouble* vel)
+{
+    return(_simGetInitialDynamicVelocity_internal(shape,vel));
+}
+SIM_DLLEXPORT simVoid _simSetInitialDynamicVelocity_D(simVoid* shape,const simDouble* vel)
+{
+    return(_simSetInitialDynamicVelocity_internal(shape,vel));
+}
+SIM_DLLEXPORT simVoid _simGetInitialDynamicAngVelocity_D(const simVoid* shape,simDouble* angularVel)
+{
+    return(_simGetInitialDynamicAngVelocity_internal(shape,angularVel));
+}
+SIM_DLLEXPORT simVoid _simSetInitialDynamicAngVelocity_D(simVoid* shape,const simDouble* angularVel)
+{
+    return(_simSetInitialDynamicAngVelocity_internal(shape,angularVel));
+}
+SIM_DLLEXPORT simVoid _simSetShapeDynamicVelocity_D(simVoid* shape,const simDouble* linear,const simDouble* angular,simDouble simTime)
+{
+    return(_simSetShapeDynamicVelocity_internal(shape,linear,angular,simTime));
+}
+SIM_DLLEXPORT simVoid _simGetAdditionalForceAndTorque_D(const simVoid* shape,simDouble* force,simDouble* torque)
+{
+    return(_simGetAdditionalForceAndTorque_internal(shape,force,torque));
+}
+SIM_DLLEXPORT simBool _simGetJointPositionInterval_D(const simVoid* joint,simDouble* minValue,simDouble* rangeValue)
+{
+    return(_simGetJointPositionInterval_internal(joint,minValue,rangeValue));
+}
+SIM_DLLEXPORT simDouble _simGetDynamicMotorTargetPosition_D(const simVoid* joint)
+{
+    return(_simGetDynamicMotorTargetPosition_internal(joint));
+}
+SIM_DLLEXPORT simDouble _simGetDynamicMotorTargetVelocity_D(const simVoid* joint)
+{
+    return(_simGetDynamicMotorTargetVelocity_internal(joint));
+}
+SIM_DLLEXPORT simDouble _simGetDynamicMotorMaxForce_D(const simVoid* joint)
+{
+    return(_simGetDynamicMotorMaxForce_internal(joint));
+}
+SIM_DLLEXPORT simDouble _simGetDynamicMotorUpperLimitVelocity_D(const simVoid* joint)
+{
+    return(_simGetDynamicMotorUpperLimitVelocity_internal(joint));
+}
+SIM_DLLEXPORT simVoid _simSetDynamicMotorReflectedPositionFromDynamicEngine_D(simVoid* joint,simDouble pos,simDouble simTime)
+{
+    return(_simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(joint,pos,simTime));
+}
+SIM_DLLEXPORT simVoid _simSetJointSphericalTransformation_D(simVoid* joint,const simDouble* quat,simDouble simTime)
+{
+    return(_simSetJointSphericalTransformation_internal(joint,quat,simTime));
+}
+SIM_DLLEXPORT simVoid _simAddForceSensorCumulativeForcesAndTorques_D(simVoid* forceSensor,const simDouble* force,const simDouble* torque,int totalPassesCount,simDouble simTime)
+{
+    return(_simAddForceSensorCumulativeForcesAndTorques_internal(forceSensor,force,torque,totalPassesCount,simTime));
+}
+SIM_DLLEXPORT simVoid _simAddJointCumulativeForcesOrTorques_D(simVoid* joint,simDouble forceOrTorque,int totalPassesCount,simDouble simTime)
+{
+    return(_simAddJointCumulativeForcesOrTorques_internal(joint,forceOrTorque,totalPassesCount,simTime));
+}
+SIM_DLLEXPORT simDouble _simGetLocalInertiaInfo_D(const simVoid* object,simDouble* pos,simDouble* quat,simDouble* diagI)
+{
+    return(_simGetLocalInertiaInfo_internal(object,pos,quat,diagI));
+}
+SIM_DLLEXPORT simDouble _simGetMass_D(const simVoid* geomInfo)
+{
+    return(_simGetMass_internal(geomInfo));
+}
+SIM_DLLEXPORT simVoid _simGetPurePrimitiveSizes_D(const simVoid* geometric,simDouble* sizes)
+{
+    return(_simGetPurePrimitiveSizes_internal(geometric,sizes));
+}
+SIM_DLLEXPORT simVoid _simGetVerticesLocalFrame_D(const simVoid* geometric,simDouble* pos,simDouble* quat)
+{
+    return(_simGetVerticesLocalFrame_internal(geometric,pos,quat));
+}
+SIM_DLLEXPORT const simDouble* _simGetHeightfieldData_D(const simVoid* geometric,simInt* xCount,simInt* yCount,simDouble* minHeight,simDouble* maxHeight)
+{
+    return(_simGetHeightfieldData_internal(geometric,xCount,yCount,minHeight,maxHeight));
+}
+SIM_DLLEXPORT simVoid _simGetCumulativeMeshes_D(const simVoid* geomInfo,simDouble** vertices,simInt* verticesSize,simInt** indices,simInt* indicesSize)
+{
+    return(_simGetCumulativeMeshes_internal(geomInfo,vertices,verticesSize,indices,indicesSize));
+}
+SIM_DLLEXPORT simVoid _simGetGravity_D(simDouble* gravity)
+{
+    return(_simGetGravity_internal(gravity));
+}
+SIM_DLLEXPORT simBool _simGetDistanceBetweenEntitiesIfSmaller_D(simInt entity1ID,simInt entity2ID,simDouble* distance,simDouble* ray,simInt* cacheBuffer,simBool overrideMeasurableFlagIfNonCollection1,simBool overrideMeasurableFlagIfNonCollection2,simBool pathPlanningRoutineCalling)
+{
+    return(_simGetDistanceBetweenEntitiesIfSmaller_internal(entity1ID,entity2ID,distance,ray,cacheBuffer,overrideMeasurableFlagIfNonCollection1,overrideMeasurableFlagIfNonCollection2,pathPlanningRoutineCalling));
+}
+SIM_DLLEXPORT simInt _simHandleJointControl_D(const simVoid* joint,simInt auxV,const simInt* inputValuesInt,const simDouble* inputValuesFloat,simDouble* outputValues)
+{
+    return(_simHandleJointControl_internal(joint,auxV,inputValuesInt,inputValuesFloat,outputValues));
+}
+SIM_DLLEXPORT simInt _simHandleCustomContact_D(simInt objHandle1,simInt objHandle2,simInt engine,simInt* dataInt,simDouble* dataFloat)
+{
+    return(_simHandleCustomContact_internal(objHandle1,objHandle2,engine,dataInt,dataFloat));
+}
+SIM_DLLEXPORT simDouble _simGetPureHollowScaling_D(const simVoid* geometric)
+{
+    return(_simGetPureHollowScaling_internal(geometric));
+}
+SIM_DLLEXPORT simVoid _simDynCallback_D(const simInt* intData,const simDouble* floatData)
+{
+    _simDynCallback_internal(intData,floatData);
+}
+#endif
 
-
-// Deprecated begin
-SIM_DLLEXPORT simInt simGetMaterialId(const simChar* materialName)
-{
-    return(simGetMaterialId_internal(materialName));
-}
-SIM_DLLEXPORT simInt simGetShapeMaterial(simInt shapeHandle)
-{
-    return(simGetShapeMaterial_internal(shapeHandle));
-}
-SIM_DLLEXPORT simInt simHandleVarious()
-{
-    return(simHandleVarious_internal());
-}
-SIM_DLLEXPORT simInt simSerialPortOpen(simInt portNumber,simInt baudRate,simVoid* reserved1,simVoid* reserved2)
-{
-    return(simSerialPortOpen_internal(portNumber,baudRate,reserved1,reserved2));
-}
-SIM_DLLEXPORT simInt simSerialPortClose(simInt portNumber)
-{
-    return(simSerialPortClose_internal(portNumber));
-}
-SIM_DLLEXPORT simInt simSerialPortSend(simInt portNumber,const simChar* data,simInt dataLength)
-{
-    return(simSerialPortSend_internal(portNumber,data,dataLength));
-}
-SIM_DLLEXPORT simInt simSerialPortRead(simInt portNumber,simChar* buffer,simInt dataLengthToRead)
-{
-    return(simSerialPortRead_internal(portNumber,buffer,dataLengthToRead));
-}
-SIM_DLLEXPORT simInt simJointGetForce(simInt jointHandle,simFloat* forceOrTorque)
-{
-    return(simGetJointForce_internal(jointHandle,forceOrTorque));
-}
-SIM_DLLEXPORT simInt simGetPathPlanningHandle(const simChar* pathPlanningObjectName)
-{
-    return(simGetPathPlanningHandle_internal(pathPlanningObjectName));
-}
-SIM_DLLEXPORT simInt simGetMotionPlanningHandle(const simChar* motionPlanningObjectName)
-{
-    return(simGetMotionPlanningHandle_internal(motionPlanningObjectName));
-}
-SIM_DLLEXPORT simInt simGetMpConfigForTipPose(simInt motionPlanningObjectHandle,simInt options,simFloat closeNodesDistance,simInt trialCount,const simFloat* tipPose,simInt maxTimeInMs,simFloat* outputJointPositions,const simFloat* referenceConfigs,simInt referenceConfigCount,const simFloat* jointWeights,const simInt* jointBehaviour,simInt correctionPasses)
-{
-    return(simGetMpConfigForTipPose_internal(motionPlanningObjectHandle,options,closeNodesDistance,trialCount,tipPose,maxTimeInMs,outputJointPositions,referenceConfigs,referenceConfigCount,jointWeights,jointBehaviour,correctionPasses));
-}
-SIM_DLLEXPORT simFloat* simFindMpPath(simInt motionPlanningObjectHandle,const simFloat* startConfig,const simFloat* goalConfig,simInt options,simFloat stepSize,simInt* outputConfigsCnt,simInt maxTimeInMs,simFloat* reserved,const simInt* auxIntParams,const simFloat* auxFloatParams)
-{
-    return(simFindMpPath_internal(motionPlanningObjectHandle,startConfig,goalConfig,options,stepSize,outputConfigsCnt,maxTimeInMs,reserved,auxIntParams,auxFloatParams));
-}
-SIM_DLLEXPORT simFloat* simSimplifyMpPath(simInt motionPlanningObjectHandle,const simFloat* pathBuffer,simInt configCnt,simInt options,simFloat stepSize,simInt increment,simInt* outputConfigsCnt,simInt maxTimeInMs,simFloat* reserved,const simInt* auxIntParams,const simFloat* auxFloatParams)
-{
-    return(simSimplifyMpPath_internal(motionPlanningObjectHandle,pathBuffer,configCnt,options,stepSize,increment,outputConfigsCnt,maxTimeInMs,reserved,auxIntParams,auxFloatParams));
-}
-SIM_DLLEXPORT simFloat* simFindIkPath(simInt motionPlanningObjectHandle,const simFloat* startConfig,const simFloat* goalPose,simInt options,simFloat stepSize,simInt* outputConfigsCnt,simFloat* reserved,const simInt* auxIntParams,const simFloat* auxFloatParams)
-{
-    return(simFindIkPath_internal(motionPlanningObjectHandle,startConfig,goalPose,options,stepSize,outputConfigsCnt,reserved,auxIntParams,auxFloatParams));
-}
-SIM_DLLEXPORT simFloat* simGetMpConfigTransition(simInt motionPlanningObjectHandle,const simFloat* startConfig,const simFloat* goalConfig,simInt options,const simInt* select,simFloat calcStepSize,simFloat maxOutStepSize,simInt wayPointCnt,const simFloat* wayPoints,simInt* outputConfigsCnt,const simInt* auxIntParams,const simFloat* auxFloatParams)
-{
-    return(simGetMpConfigTransition_internal(motionPlanningObjectHandle,startConfig,goalConfig,options,select,calcStepSize,maxOutStepSize,wayPointCnt,wayPoints,outputConfigsCnt,auxIntParams,auxFloatParams));
-}
-SIM_DLLEXPORT simInt simCreateMotionPlanning(simInt jointCnt,const simInt* jointHandles,const simInt* jointRangeSubdivisions,const simFloat* jointMetricWeights,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
-{
-    return(simCreateMotionPlanning_internal(jointCnt,jointHandles,jointRangeSubdivisions,jointMetricWeights,options,intParams,floatParams,reserved));
-}
-SIM_DLLEXPORT simInt simRemoveMotionPlanning(simInt motionPlanningHandle)
-{
-    return(simRemoveMotionPlanning_internal(motionPlanningHandle));
-}
-SIM_DLLEXPORT simInt simSearchPath(simInt pathPlanningObjectHandle,simFloat maximumSearchTime)
-{
-    return(simSearchPath_internal(pathPlanningObjectHandle,maximumSearchTime));
-}
-SIM_DLLEXPORT simInt simInitializePathSearch(simInt pathPlanningObjectHandle,simFloat maximumSearchTime,simFloat searchTimeStep)
-{
-    return(simInitializePathSearch_internal(pathPlanningObjectHandle,maximumSearchTime,searchTimeStep));
-}
-SIM_DLLEXPORT simInt simPerformPathSearchStep(simInt temporaryPathSearchObject,simBool abortSearch)
-{
-    return(simPerformPathSearchStep_internal(temporaryPathSearchObject,abortSearch));
-}
-SIM_DLLEXPORT simInt simLockInterface(simBool locked)
-{
-    return(simLockInterface_internal(locked));
-}
-SIM_DLLEXPORT simInt simCopyPasteSelectedObjects()
-{
-    return(simCopyPasteSelectedObjects_internal());
-}
-SIM_DLLEXPORT simInt simResetPath(simInt pathHandle)
-{
-    return(simResetPath_internal(pathHandle));
-}
-SIM_DLLEXPORT simInt simHandlePath(simInt pathHandle,simFloat deltaTime)
-{
-    return(simHandlePath_internal(pathHandle,deltaTime));
-}
-SIM_DLLEXPORT simInt simResetJoint(simInt jointHandle)
-{
-    return(simResetJoint_internal(jointHandle));
-}
-SIM_DLLEXPORT simInt simHandleJoint(simInt jointHandle,simFloat deltaTime)
-{
-    return(simHandleJoint_internal(jointHandle,deltaTime));
-}
-SIM_DLLEXPORT simInt simAppendScriptArrayEntry(const simChar* reservedSetToNull,simInt scriptHandleOrType,const simChar* arrayNameAtScriptName,const simChar* keyName,const simChar* data,const simInt* what)
-{
-    return(simAppendScriptArrayEntry_internal(reservedSetToNull,scriptHandleOrType,arrayNameAtScriptName,keyName,data,what));
-}
-SIM_DLLEXPORT simInt simClearScriptVariable(const simChar* reservedSetToNull,simInt scriptHandleOrType,const simChar* variableNameAtScriptName)
-{
-    return(simClearScriptVariable_internal(reservedSetToNull,scriptHandleOrType,variableNameAtScriptName));
-}
-SIM_DLLEXPORT simVoid _simGetJointOdeParameters(const simVoid* joint,simFloat* stopERP,simFloat* stopCFM,simFloat* bounce,simFloat* fudge,simFloat* normalCFM)
-{
-    return(_simGetJointOdeParameters_internal(joint,stopERP,stopCFM,bounce,fudge,normalCFM));
-}
-SIM_DLLEXPORT simVoid _simGetJointBulletParameters(const simVoid* joint,simFloat* stopERP,simFloat* stopCFM,simFloat* normalCFM)
-{
-    return(_simGetJointBulletParameters_internal(joint,stopERP,stopCFM,normalCFM));
-}
-SIM_DLLEXPORT simVoid _simGetOdeMaxContactFrictionCFMandERP(const simVoid* geomInfo,simInt* maxContacts,simFloat* friction,simFloat* cfm,simFloat* erp)
-{
-    return(_simGetOdeMaxContactFrictionCFMandERP_internal(geomInfo,maxContacts,friction,cfm,erp));
-}
-SIM_DLLEXPORT simBool _simGetBulletCollisionMargin(const simVoid* geomInfo,simFloat* margin,simInt* otherProp)
-{
-    return(_simGetBulletCollisionMargin_internal(geomInfo,margin,otherProp));
-}
-SIM_DLLEXPORT simBool _simGetBulletStickyContact(const simVoid* geomInfo)
-{
-    return(_simGetBulletStickyContact_internal(geomInfo));
-}
-SIM_DLLEXPORT simFloat _simGetBulletRestitution(const simVoid* geomInfo)
-{
-    return(_simGetBulletRestitution_internal(geomInfo));
-}
-SIM_DLLEXPORT simVoid _simGetVortexParameters(const simVoid* object,simInt version,simFloat* floatParams,simInt* intParams)
-{
-    _simGetVortexParameters_internal(object,version,floatParams,intParams);
-}
-SIM_DLLEXPORT simVoid _simGetNewtonParameters(const simVoid* object,simInt* version,simFloat* floatParams,simInt* intParams)
-{
-    _simGetNewtonParameters_internal(object,version,floatParams,intParams);
-}
-SIM_DLLEXPORT simVoid _simGetDamping(const simVoid* geomInfo,simFloat* linDamping,simFloat* angDamping)
-{
-    return(_simGetDamping_internal(geomInfo,linDamping,angDamping));
-}
-SIM_DLLEXPORT simFloat _simGetFriction(const simVoid* geomInfo)
-{
-    return(_simGetFriction_internal(geomInfo));
-}
-SIM_DLLEXPORT simInt simAddSceneCustomData(simInt header,const simChar* data,simInt dataLength)
-{
-    return(simAddSceneCustomData_internal(header,data,dataLength));
-}
-SIM_DLLEXPORT simInt simGetSceneCustomDataLength(simInt header)
-{
-    return(simGetSceneCustomDataLength_internal(header));
-}
-SIM_DLLEXPORT simInt simGetSceneCustomData(simInt header,simChar* data)
-{
-    return(simGetSceneCustomData_internal(header,data));
-}
-SIM_DLLEXPORT simInt simAddObjectCustomData(simInt objectHandle,simInt header,const simChar* data,simInt dataLength)
-{
-    return(simAddObjectCustomData_internal(objectHandle,header,data,dataLength));
-}
-SIM_DLLEXPORT simInt simGetObjectCustomDataLength(simInt objectHandle,simInt header)
-{
-    return(simGetObjectCustomDataLength_internal(objectHandle,header));
-}
-SIM_DLLEXPORT simInt simGetObjectCustomData(simInt objectHandle,simInt header,simChar* data)
-{
-    return(simGetObjectCustomData_internal(objectHandle,header,data));
-}
-SIM_DLLEXPORT simInt simCreateUI(const simChar* uiName,simInt menuAttributes,const simInt* clientSize,const simInt* cellSize,simInt* buttonHandles)
-{
-    return(simCreateUI_internal(uiName,menuAttributes,clientSize,cellSize,buttonHandles));
-}
-SIM_DLLEXPORT simInt simCreateUIButton(simInt uiHandle,const simInt* position,const simInt* size,simInt buttonProperty)
-{
-    return(simCreateUIButton_internal(uiHandle,position,size,buttonProperty));
-}
-SIM_DLLEXPORT simInt simGetUIHandle(const simChar* uiName)
-{
-    return(simGetUIHandle_internal(uiName));
-}
-SIM_DLLEXPORT simInt simGetUIProperty(simInt uiHandle)
-{
-    return(simGetUIProperty_internal(uiHandle));
-}
-SIM_DLLEXPORT simInt simGetUIEventButton(simInt uiHandle,simInt* auxiliaryValues)
-{
-    return(simGetUIEventButton_internal(uiHandle,auxiliaryValues));
-}
-SIM_DLLEXPORT simInt simSetUIProperty(simInt uiHandle,simInt elementProperty)
-{
-    return(simSetUIProperty_internal(uiHandle,elementProperty));
-}
-SIM_DLLEXPORT simInt simGetUIButtonProperty(simInt uiHandle,simInt buttonHandle)
-{
-    return(simGetUIButtonProperty_internal(uiHandle,buttonHandle));
-}
-SIM_DLLEXPORT simInt simSetUIButtonProperty(simInt uiHandle,simInt buttonHandle,simInt buttonProperty)
-{
-    return(simSetUIButtonProperty_internal(uiHandle,buttonHandle,buttonProperty));
-}
-SIM_DLLEXPORT simInt simGetUIButtonSize(simInt uiHandle,simInt buttonHandle,simInt* size)
-{
-    return(simGetUIButtonSize_internal(uiHandle,buttonHandle,size));
-}
-SIM_DLLEXPORT simInt simSetUIButtonLabel(simInt uiHandle,simInt buttonHandle,const simChar* upStateLabel,const simChar* downStateLabel)
-{
-    return(simSetUIButtonLabel_internal(uiHandle,buttonHandle,upStateLabel,downStateLabel));
-}
-SIM_DLLEXPORT simChar* simGetUIButtonLabel(simInt uiHandle,simInt buttonHandle)
-{
-    return(simGetUIButtonLabel_internal(uiHandle,buttonHandle));
-}
-SIM_DLLEXPORT simInt simSetUISlider(simInt uiHandle,simInt buttonHandle,simInt position)
-{
-    return(simSetUISlider_internal(uiHandle,buttonHandle,position));
-}
-SIM_DLLEXPORT simInt simGetUISlider(simInt uiHandle,simInt buttonHandle)
-{
-    return(simGetUISlider_internal(uiHandle,buttonHandle));
-}
-SIM_DLLEXPORT simInt simSetUIButtonColor(simInt uiHandle,simInt buttonHandle,const simFloat* upStateColor,const simFloat* downStateColor,const simFloat* labelColor)
-{
-    return(simSetUIButtonColor_internal(uiHandle,buttonHandle,upStateColor,downStateColor,labelColor));
-}
-SIM_DLLEXPORT simInt simSetUIButtonTexture(simInt uiHandle,simInt buttonHandle,const simInt* size,const simChar* textureData)
-{
-    return(simSetUIButtonTexture_internal(uiHandle,buttonHandle,size,textureData));
-}
-SIM_DLLEXPORT simInt simCreateUIButtonArray(simInt uiHandle,simInt buttonHandle)
-{
-    return(simCreateUIButtonArray_internal(uiHandle,buttonHandle));
-}
-SIM_DLLEXPORT simInt simSetUIButtonArrayColor(simInt uiHandle,simInt buttonHandle,const simInt* position,const simFloat* color)
-{
-    return(simSetUIButtonArrayColor_internal(uiHandle,buttonHandle,position,color));
-}
-SIM_DLLEXPORT simInt simDeleteUIButtonArray(simInt uiHandle,simInt buttonHandle)
-{
-    return(simDeleteUIButtonArray_internal(uiHandle,buttonHandle));
-}
-SIM_DLLEXPORT simInt simRemoveUI(simInt uiHandle)
-{
-    return(simRemoveUI_internal(uiHandle));
-}
-SIM_DLLEXPORT simInt simSetUIPosition(simInt uiHandle,const simInt* position)
-{
-    return(simSetUIPosition_internal(uiHandle,position));
-}
-SIM_DLLEXPORT simInt simGetUIPosition(simInt uiHandle,simInt* position)
-{
-    return(simGetUIPosition_internal(uiHandle,position));
-}
-SIM_DLLEXPORT simInt simLoadUI(const simChar* filename,int maxCount,int* uiHandles)
-{
-    return(simLoadUI_internal(filename,maxCount,uiHandles));
-}
-SIM_DLLEXPORT simInt simSaveUI(int count,const int* uiHandles,const simChar* filename)
-{
-    return(simSaveUI_internal(count,uiHandles,filename));
-}
-SIM_DLLEXPORT simInt simHandleGeneralCallbackScript(simInt callbackId,simInt callbackTag,simVoid* additionalData)
-{
-    return(simHandleGeneralCallbackScript_internal(callbackId,callbackTag,additionalData));
-}
-SIM_DLLEXPORT simInt simRegisterCustomLuaFunction(const simChar* funcName,const simChar* callTips,const simInt* inputArgumentTypes,simVoid(*callBack)(struct SLuaCallBack* p))
-{
-    return(simRegisterCustomLuaFunction_internal(funcName,callTips,inputArgumentTypes,callBack));
-}
-SIM_DLLEXPORT simInt simRegisterCustomLuaVariable(const simChar* varName,const simChar* varValue)
-{
-    return(simRegisterScriptVariable_internal(varName,varValue,0));
-}
-SIM_DLLEXPORT simInt simRegisterContactCallback(simInt(*callBack)(simInt,simInt,simInt,simInt*,simFloat*))
-{
-    return(simRegisterContactCallback_internal(callBack));
-}
-SIM_DLLEXPORT simInt simRegisterJointCtrlCallback(simInt(*callBack)(simInt,simInt,simInt,const simInt*,const simFloat*,simFloat*))
-{
-    return(simRegisterJointCtrlCallback_internal(callBack));
-}
-SIM_DLLEXPORT simInt simGetMechanismHandle(const simChar* mechanismName)
-{
-    return(simGetMechanismHandle_internal(mechanismName));
-}
-SIM_DLLEXPORT simInt simHandleMechanism(simInt mechanismHandle)
-{
-    return(simHandleMechanism_internal(mechanismHandle));
-}
-SIM_DLLEXPORT simInt simHandleCustomizationScripts(simInt callType)
-{
-    return(simHandleCustomizationScripts_internal(callType));
-}
-SIM_DLLEXPORT simInt simCallScriptFunction(simInt scriptHandleOrType,const simChar* functionNameAtScriptName,SLuaCallBack* data,const simChar* reservedSetToNull)
-{
-    return(simCallScriptFunction_internal(scriptHandleOrType,functionNameAtScriptName,data,reservedSetToNull));
-}
-SIM_DLLEXPORT simInt _simGetJointDynCtrlMode(const simVoid* joint)
-{
-    return(_simGetJointDynCtrlMode_internal(joint));
-}
-SIM_DLLEXPORT simInt simSetVisionSensorFilter(simInt visionSensorHandle,simInt filterIndex,simInt options,const simInt* pSizes,const simUChar* bytes,const simInt* ints,const simFloat* floats,const simUChar* custom)
-{
-    return(simSetVisionSensorFilter_internal(visionSensorHandle,filterIndex,options,pSizes,bytes,ints,floats,custom));
-}
-SIM_DLLEXPORT simInt simGetVisionSensorFilter(simInt visionSensorHandle,simInt filterIndex,simInt* options,simInt* pSizes,simUChar** bytes,simInt** ints,simFloat** floats,simUChar** custom)
-{
-    return(simGetVisionSensorFilter_internal(visionSensorHandle,filterIndex,options,pSizes,bytes,ints,floats,custom));
-}
-SIM_DLLEXPORT simChar* simGetScriptSimulationParameter(simInt scriptHandle,const simChar* parameterName,simInt* parameterLength)
-{
-    return(simGetScriptSimulationParameter_internal(scriptHandle,parameterName,parameterLength));
-}
-SIM_DLLEXPORT simInt simSetScriptSimulationParameter(simInt scriptHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength)
-{
-    return(simSetScriptSimulationParameter_internal(scriptHandle,parameterName,parameterValue,parameterLength));
-}
-SIM_DLLEXPORT simInt simSetJointForce(simInt objectHandle,simFloat forceOrTorque)
-{
-    return(simSetJointMaxForce_internal(objectHandle,forceOrTorque));
-}
-SIM_DLLEXPORT simInt simHandleMill(simInt millHandle,simFloat* removedSurfaceAndVolume)
-{
-    return(-1);
-}
-SIM_DLLEXPORT simInt simResetMill(simInt millHandle)
-{
-    return(-1);
-}
-SIM_DLLEXPORT simInt simResetMilling(simInt objectHandle)
-{
-    return(-1);
-}
-SIM_DLLEXPORT simInt simApplyMilling(simInt objectHandle)
-{
-    return(-1);
-}
-SIM_DLLEXPORT simBool _simGetParentFollowsDynamic(const simVoid* shape)
-{
-    return(false);
-}
-SIM_DLLEXPORT simInt simGetNameSuffix(const simChar* name)
-{
-    return(simGetNameSuffix_internal(name));
-}
-SIM_DLLEXPORT simInt simSetNameSuffix(simInt nameSuffixNumber)
-{
-    return(simSetNameSuffix_internal(nameSuffixNumber));
-}
-SIM_DLLEXPORT simInt simAddStatusbarMessage(const simChar* message)
-{
-    return(simAddStatusbarMessage_internal(message));
-}
-SIM_DLLEXPORT simChar* simGetScriptRawBuffer(simInt scriptHandle,simInt bufferHandle)
-{
-    return(simGetScriptRawBuffer_internal(scriptHandle,bufferHandle));
-}
-SIM_DLLEXPORT simInt simSetScriptRawBuffer(simInt scriptHandle,const simChar* buffer,simInt bufferSize)
-{
-    return(simSetScriptRawBuffer_internal(scriptHandle,buffer,bufferSize));
-}
-SIM_DLLEXPORT simInt simReleaseScriptRawBuffer(simInt scriptHandle,simInt bufferHandle)
-{
-    return(simReleaseScriptRawBuffer_internal(scriptHandle,bufferHandle));
-}
-SIM_DLLEXPORT simInt simSetShapeMassAndInertia(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation)
-{
-    return(simSetShapeMassAndInertia_internal(shapeHandle,mass,inertiaMatrix,centerOfMass,transformation));
-}
-SIM_DLLEXPORT simInt simGetShapeMassAndInertia(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation)
-{
-    return(simGetShapeMassAndInertia_internal(shapeHandle,mass,inertiaMatrix,centerOfMass,transformation));
-}
-SIM_DLLEXPORT simInt simCheckIkGroup(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat* jointValues,const simInt* jointOptions)
-{
-    return(simCheckIkGroup_internal(ikGroupHandle,jointCnt,jointHandles,jointValues,jointOptions));
-}
-SIM_DLLEXPORT simInt simCreateIkGroup(simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
-{
-    return(simCreateIkGroup_internal(options,intParams,floatParams,reserved));
-}
-SIM_DLLEXPORT simInt simRemoveIkGroup(simInt ikGroupHandle)
-{
-    return(simRemoveIkGroup_internal(ikGroupHandle));
-}
-SIM_DLLEXPORT simInt simCreateIkElement(simInt ikGroupHandle,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
-{
-    return(simCreateIkElement_internal(ikGroupHandle,options,intParams,floatParams,reserved));
-}
-SIM_DLLEXPORT simInt simExportIk(const simChar* pathAndFilename,simInt reserved1,simVoid* reserved2)
-{
-    return(simExportIk_internal(pathAndFilename,reserved1,reserved2));
-}
-SIM_DLLEXPORT simInt simComputeJacobian(simInt ikGroupHandle,simInt options,simVoid* reserved)
-{
-    return(simComputeJacobian_internal(ikGroupHandle,options,reserved));
-}
-SIM_DLLEXPORT simInt simGetConfigForTipPose(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat thresholdDist,simInt maxTimeInMs,simFloat* retConfig,const simFloat* metric,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,const simFloat* lowLimits,const simFloat* ranges,simVoid* reserved)
-{
-    return(simGetConfigForTipPose_internal(ikGroupHandle,jointCnt,jointHandles,thresholdDist,maxTimeInMs,retConfig,metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,reserved));
-}
-SIM_DLLEXPORT simFloat* simGenerateIkPath(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simInt ptCnt,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,simVoid* reserved)
-{
-    return(simGenerateIkPath_internal(ikGroupHandle,jointCnt,jointHandles,ptCnt,collisionPairCnt,collisionPairs,jointOptions,reserved));
-}
-SIM_DLLEXPORT simInt simGetIkGroupHandle(const simChar* ikGroupName)
-{
-    return(simGetIkGroupHandle_internal(ikGroupName));
-}
-SIM_DLLEXPORT simFloat* simGetIkGroupMatrix(simInt ikGroupHandle,simInt options,simInt* matrixSize)
-{
-    return(simGetIkGroupMatrix_internal(ikGroupHandle,options,matrixSize));
-}
-SIM_DLLEXPORT simInt simHandleIkGroup(simInt ikGroupHandle)
-{
-    return(simHandleIkGroup_internal(ikGroupHandle));
-}
-SIM_DLLEXPORT simInt simSetIkGroupProperties(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved)
-{
-    return(simSetIkGroupProperties_internal(ikGroupHandle,resolutionMethod,maxIterations,damping,reserved));
-}
-SIM_DLLEXPORT simInt simSetIkElementProperties(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved)
-{
-    return(simSetIkElementProperties_internal(ikGroupHandle,tipDummyHandle,constraints,precision,weight,reserved));
-}
-SIM_DLLEXPORT simInt simSetThreadIsFree(simBool freeMode)
-{
-    return(simSetThreadIsFree_internal(freeMode));
-}
-SIM_DLLEXPORT simInt simTubeOpen(simInt dataHeader,const simChar* dataName,simInt readBufferSize,simBool notUsedButKeepZero)
-{
-    return(simTubeOpen_internal(dataHeader,dataName,readBufferSize,notUsedButKeepZero));
-}
-SIM_DLLEXPORT simInt simTubeClose(simInt tubeHandle)
-{
-    return(simTubeClose_internal(tubeHandle));
-}
-SIM_DLLEXPORT simInt simTubeWrite(simInt tubeHandle,const simChar* data,simInt dataLength)
-{
-    return(simTubeWrite_internal(tubeHandle,data,dataLength));
-}
-SIM_DLLEXPORT simChar* simTubeRead(simInt tubeHandle,simInt* dataLength)
-{
-    return(simTubeRead_internal(tubeHandle,dataLength));
-}
-SIM_DLLEXPORT simInt simTubeStatus(simInt tubeHandle,simInt* readPacketsCount,simInt* writePacketsCount)
-{
-    return(simTubeStatus_internal(tubeHandle,readPacketsCount,writePacketsCount));
-}
-SIM_DLLEXPORT simInt simSendData(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence)
-{
-    return(simSendData_internal(targetID,dataHeader,dataName,data,dataLength,antennaHandle,actionRadius,emissionAngle1,emissionAngle2,persistence));
-}
-SIM_DLLEXPORT simInt simGetPositionOnPath(simInt pathHandle,simFloat relativeDistance,simFloat* position)
-{
-    return(simGetPositionOnPath_internal(pathHandle,relativeDistance,position));
-}
-SIM_DLLEXPORT simInt simGetOrientationOnPath(simInt pathHandle,simFloat relativeDistance,simFloat* eulerAngles)
-{
-    return(simGetOrientationOnPath_internal(pathHandle,relativeDistance,eulerAngles));
-}
-SIM_DLLEXPORT simInt simGetDataOnPath(simInt pathHandle,simFloat relativeDistance,simInt dataType,simInt* intData,simFloat* floatData)
-{
-    return(simGetDataOnPath_internal(pathHandle,relativeDistance,dataType,intData,floatData));
-}
-SIM_DLLEXPORT simInt simGetClosestPositionOnPath(simInt pathHandle,simFloat* absolutePosition,simFloat* pathPosition)
-{
-    return(simGetClosestPositionOnPath_internal(pathHandle,absolutePosition,pathPosition));
-}
-SIM_DLLEXPORT simInt simGetPathPosition(simInt objectHandle,simFloat* position)
-{
-    return(simGetPathPosition_internal(objectHandle,position));
-}
-SIM_DLLEXPORT simInt simSetPathPosition(simInt objectHandle,simFloat position)
-{
-    return(simSetPathPosition_internal(objectHandle,position));
-}
-SIM_DLLEXPORT simInt simGetPathLength(simInt objectHandle,simFloat* length)
-{
-    return(simGetPathLength_internal(objectHandle,length));
-}
-SIM_DLLEXPORT simInt simCreatePath(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
-{
-    return(simCreatePath_internal(attributes,intParams,floatParams,color));
-}
-SIM_DLLEXPORT simInt simInsertPathCtrlPoints(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData)
-{
-    return(simInsertPathCtrlPoints_internal(pathHandle,options,startIndex,ptCnt,ptData));
-}
-SIM_DLLEXPORT simInt simCutPathCtrlPoints(simInt pathHandle,simInt startIndex,simInt ptCnt)
-{
-    return(simCutPathCtrlPoints_internal(pathHandle,startIndex,ptCnt));
-}
-SIM_DLLEXPORT simInt simGetThreadId()
-{
-    return(simGetThreadId_internal());
-}
-SIM_DLLEXPORT simInt simSwitchThread()
-{
-    return(simSwitchThread_internal());
-}
-SIM_DLLEXPORT simInt simLockResources(simInt lockType,simInt reserved)
-{
-    return(simLockResources_internal(lockType,reserved));
-}
-SIM_DLLEXPORT simInt simUnlockResources(simInt lockHandle)
-{
-    return(simUnlockResources_internal(lockHandle));
-}
-SIM_DLLEXPORT simChar* simGetUserParameter(simInt objectHandle,const simChar* parameterName,simInt* parameterLength)
-{
-    return(simGetUserParameter_internal(objectHandle,parameterName,parameterLength));
-}
-SIM_DLLEXPORT simInt simSetUserParameter(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength)
-{
-    return(simSetUserParameter_internal(objectHandle,parameterName,parameterValue,parameterLength));
-}
-SIM_DLLEXPORT simInt simSetPathTargetNominalVelocity(simInt objectHandle,simFloat targetNominalVelocity)
-{
-    return(simSetPathTargetNominalVelocity_internal(objectHandle,targetNominalVelocity));
-}
-SIM_DLLEXPORT simInt simGetCollectionHandle(const simChar* collectionName)
-{
-    return(simGetCollectionHandle_internal(collectionName));
-}
-SIM_DLLEXPORT simInt simRemoveCollection(simInt collectionHandle)
-{
-    return(simRemoveCollection_internal(collectionHandle));
-}
-SIM_DLLEXPORT simInt simEmptyCollection(simInt collectionHandle)
-{
-    return(simEmptyCollection_internal(collectionHandle));
-}
-SIM_DLLEXPORT simChar* simGetCollectionName(simInt collectionHandle)
-{
-    return(simGetCollectionName_internal(collectionHandle));
-}
-SIM_DLLEXPORT simInt simSetCollectionName(simInt collectionHandle,const simChar* collectionName)
-{
-    return(simSetCollectionName_internal(collectionHandle,collectionName));
-}
-SIM_DLLEXPORT simInt simCreateCollection(const simChar* collectionName,simInt options)
-{
-    return(simCreateCollection_internal(collectionName,options));
-}
-SIM_DLLEXPORT simInt simAddObjectToCollection(simInt collectionHandle,simInt objectHandle,simInt what,simInt options)
-{
-    return(simAddObjectToCollection_internal(collectionHandle,objectHandle,what,options));
-}
-SIM_DLLEXPORT simInt simGetCollisionHandle(const simChar* collisionObjectName)
-{
-    return(simGetCollisionHandle_internal(collisionObjectName));
-}
-SIM_DLLEXPORT simInt simGetDistanceHandle(const simChar* distanceObjectName)
-{
-    return(simGetDistanceHandle_internal(distanceObjectName));
-}
-SIM_DLLEXPORT simInt simResetCollision(simInt collisionObjectHandle)
-{
-    return(simResetCollision_internal(collisionObjectHandle));
-}
-SIM_DLLEXPORT simInt simResetDistance(simInt distanceObjectHandle)
-{
-    return(simResetDistance_internal(distanceObjectHandle));
-}
-SIM_DLLEXPORT simInt simHandleCollision(simInt collisionObjectHandle)
-{
-    return(simHandleCollision_internal(collisionObjectHandle));
-}
-SIM_DLLEXPORT simInt simReadCollision(simInt collisionObjectHandle)
-{
-    return(simReadCollision_internal(collisionObjectHandle));
-}
-SIM_DLLEXPORT simInt simHandleDistance(simInt distanceObjectHandle,simFloat* smallestDistance)
-{
-    return(simHandleDistance_internal(distanceObjectHandle,smallestDistance));
-}
-SIM_DLLEXPORT simInt simReadDistance(simInt distanceObjectHandle,simFloat* smallestDistance)
-{
-    return(simReadDistance_internal(distanceObjectHandle,smallestDistance));
-}
-SIM_DLLEXPORT simInt simAddBanner(const simChar* label,simFloat size,simInt options,const simFloat* positionAndEulerAngles,simInt parentObjectHandle,const simFloat* labelColors,const simFloat* backgroundColors)
-{
-    return(simAddBanner_internal(label,size,options,positionAndEulerAngles,parentObjectHandle,labelColors,backgroundColors));
-}
-SIM_DLLEXPORT simInt simRemoveBanner(simInt bannerID)
-{
-    return(simRemoveBanner_internal(bannerID));
-}
-SIM_DLLEXPORT simInt simAddGhost(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color)
-{
-    return(simAddGhost_internal(ghostGroup,objectHandle,options,startTime,endTime,color));
-}
-SIM_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation)
-{
-    return(simModifyGhost_internal(ghostGroup,ghostId,operation,floatValue,options,optionsMask,colorOrTransformation));
-}
-SIM_DLLEXPORT simInt simSetGraphUserData(simInt graphHandle,const simChar* streamName,simFloat data)
-{
-    return(simSetGraphUserData_internal(graphHandle,streamName,data));
-}
-SIM_DLLEXPORT simInt simAddPointCloud(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals)
-{
-    return(simAddPointCloud_internal(pageMask,layerMask,objectHandle,options,pointSize,ptCnt,pointCoordinates,defaultColors,pointColors,pointNormals));
-}
-SIM_DLLEXPORT simInt simModifyPointCloud(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam)
-{
-    return(simModifyPointCloud_internal(pointCloudHandle,operation,intParam,floatParam));
-}
-SIM_DLLEXPORT simInt simCopyMatrix(const simFloat* matrixIn,simFloat* matrixOut)
-{
-    return(simCopyMatrix_internal(matrixIn,matrixOut));
-}
-SIM_DLLEXPORT simInt simGetObjectIntParameter(simInt objectHandle,simInt ParamID,simInt* Param)
-{
-    return(simGetObjectInt32Param_internal(objectHandle,ParamID,Param));
-}
-SIM_DLLEXPORT simInt simSetObjectIntParameter(simInt objectHandle,simInt ParamID,simInt Param)
-{
-    return(simSetObjectInt32Param_internal(objectHandle,ParamID,Param));
-}
-SIM_DLLEXPORT simInt simGetObjectInt32Parameter(simInt objectHandle,simInt ParamID,simInt* Param)
-{
-    return(simGetObjectInt32Param_internal(objectHandle,ParamID,Param));
-}
-SIM_DLLEXPORT simInt simSetObjectInt32Parameter(simInt objectHandle,simInt ParamID,simInt Param)
-{
-    return(simSetObjectInt32Param_internal(objectHandle,ParamID,Param));
-}
-SIM_DLLEXPORT simInt simGetObjectFloatParameter(simInt objectHandle,simInt ParamID,simFloat* Param)
-{
-    return(simGetObjectFloatParam_internal(objectHandle,ParamID,Param));
-}
-SIM_DLLEXPORT simInt simSetObjectFloatParameter(simInt objectHandle,simInt ParamID,simFloat Param)
-{
-    return(simSetObjectFloatParam_internal(objectHandle,ParamID,Param));
-}
-SIM_DLLEXPORT simChar* simGetObjectStringParameter(simInt objectHandle,simInt ParamID,simInt* ParamLength)
-{
-    return(simGetObjectStringParam_internal(objectHandle,ParamID,ParamLength));
-}
-SIM_DLLEXPORT simInt simSetObjectStringParameter(simInt objectHandle,simInt ParamID,const simChar* Param,simInt ParamLength)
-{
-    return(simSetObjectStringParam_internal(objectHandle,ParamID,Param,ParamLength));
-}
-SIM_DLLEXPORT simInt simSetBooleanParameter(simInt parameter,simBool boolState)
-{
-    return(simSetBoolParam_internal(parameter,boolState));
-}
-SIM_DLLEXPORT simInt simGetBooleanParameter(simInt parameter)
-{
-    return(simGetBoolParam_internal(parameter));
-}
-SIM_DLLEXPORT simInt simSetBoolParameter(simInt parameter,simBool boolState)
-{
-    return(simSetBoolParam_internal(parameter,boolState));
-}
-SIM_DLLEXPORT simInt simGetBoolParameter(simInt parameter)
-{
-    return(simGetBoolParam_internal(parameter));
-}
-SIM_DLLEXPORT simInt simSetIntegerParameter(simInt parameter,simInt intState)
-{
-    return(simSetInt32Param_internal(parameter,intState));
-}
-SIM_DLLEXPORT simInt simGetIntegerParameter(simInt parameter,simInt* intState)
-{
-    return(simGetInt32Param_internal(parameter,intState));
-}
-SIM_DLLEXPORT simInt simSetInt32Parameter(simInt parameter,simInt intState)
-{
-    return(simSetInt32Param_internal(parameter,intState));
-}
-SIM_DLLEXPORT simInt simGetInt32Parameter(simInt parameter,simInt* intState)
-{
-    return(simGetInt32Param_internal(parameter,intState));
-}
-SIM_DLLEXPORT simInt simGetUInt64Parameter(simInt parameter,simUInt64* intState)
-{
-    return(simGetUInt64Param_internal(parameter,intState));
-}
-SIM_DLLEXPORT simInt simSetFloatingParameter(simInt parameter,simFloat floatState)
-{
-    return(simSetFloatParam_internal(parameter,floatState));
-}
-SIM_DLLEXPORT simInt simGetFloatingParameter(simInt parameter,simFloat* floatState)
-{
-    return(simGetFloatParam_internal(parameter,floatState));
-}
-SIM_DLLEXPORT simInt simSetFloatParameter(simInt parameter,simFloat floatState)
-{
-    return(simSetFloatParam_internal(parameter,floatState));
-}
-SIM_DLLEXPORT simInt simGetFloatParameter(simInt parameter,simFloat* floatState)
-{
-    return(simGetFloatParam_internal(parameter,floatState));
-}
-SIM_DLLEXPORT simInt simSetStringParameter(simInt parameter,const simChar* str)
-{
-    return(simSetStringParam_internal(parameter,str));
-}
-SIM_DLLEXPORT simChar* simGetStringParameter(simInt parameter)
-{
-    return(simGetStringParam_internal(parameter));
-}
-SIM_DLLEXPORT simInt simSetArrayParameter(simInt parameter,const simVoid* arrayOfValues)
-{
-    return(simSetArrayParam_internal(parameter,arrayOfValues));
-}
-SIM_DLLEXPORT simInt simGetArrayParameter(simInt parameter,simVoid* arrayOfValues)
-{
-    return(simGetArrayParam_internal(parameter,arrayOfValues));
-}
-SIM_DLLEXPORT simFloat simGetEngineFloatParameter(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
-{
-    return(simGetEngineFloatParam_internal(paramId,objectHandle,object,ok));
-}
-SIM_DLLEXPORT simInt simGetEngineInt32Parameter(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
-{
-    return(simGetEngineInt32Param_internal(paramId,objectHandle,object,ok));
-}
-SIM_DLLEXPORT simBool simGetEngineBoolParameter(simInt paramId,simInt objectHandle,const simVoid* object,simBool* ok)
-{
-    return(simGetEngineBoolParam_internal(paramId,objectHandle,object,ok));
-}
-SIM_DLLEXPORT simInt simSetEngineFloatParameter(simInt paramId,simInt objectHandle,const simVoid* object,simFloat val)
-{
-    return(simSetEngineFloatParam_internal(paramId,objectHandle,object,val));
-}
-SIM_DLLEXPORT simInt simSetEngineInt32Parameter(simInt paramId,simInt objectHandle,const simVoid* object,simInt val)
-{
-    return(simSetEngineInt32Param_internal(paramId,objectHandle,object,val));
-}
-SIM_DLLEXPORT simInt simSetEngineBoolParameter(simInt paramId,simInt objectHandle,const simVoid* object,simBool val)
-{
-    return(simSetEngineBoolParam_internal(paramId,objectHandle,object,val));
-}
-SIM_DLLEXPORT simInt simIsHandleValid(simInt generalObjectHandle,simInt generalObjectType)
-{
-    return(simIsHandle_internal(generalObjectHandle,generalObjectType));
-}
-SIM_DLLEXPORT simInt simAddModuleMenuEntry(const simChar* entryLabel,simInt itemCount,simInt* itemHandles)
-{
-    return(simAddModuleMenuEntry_internal(entryLabel,itemCount,itemHandles));
-}
-SIM_DLLEXPORT simInt simSetModuleMenuItemState(simInt itemHandle,simInt state,const simChar* label)
-{
-    return(simSetModuleMenuItemState_internal(itemHandle,state,label));
-}
-SIM_DLLEXPORT simInt simSetIntegerSignal(const simChar* signalName,simInt signalValue)
-{
-    return(simSetInt32Signal_internal(signalName,signalValue));
-}
-SIM_DLLEXPORT simInt simGetIntegerSignal(const simChar* signalName,simInt* signalValue)
-{
-    return(simGetInt32Signal_internal(signalName,signalValue));
-}
-SIM_DLLEXPORT simInt simClearIntegerSignal(const simChar* signalName)
-{
-    return(simClearInt32Signal_internal(signalName));
-}
-SIM_DLLEXPORT simChar* simGetObjectName(simInt objectHandle)
-{
-    return(simGetObjectName_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simSetObjectName(simInt objectHandle,const simChar* objectName)
-{
-    return(simSetObjectName_internal(objectHandle,objectName));
-}
-SIM_DLLEXPORT simChar* simGetScriptName(simInt scriptHandle)
-{
-    return(simGetScriptName_internal(scriptHandle));
-}
-SIM_DLLEXPORT simInt simGetScriptHandle(const simChar* scriptName)
-{
-    return(simGetScriptHandle_internal(scriptName));
-}
-SIM_DLLEXPORT simInt simSetScriptVariable(simInt scriptHandleOrType,const simChar* variableNameAtScriptName,simInt stackHandle)
-{
-    return(simSetScriptVariable_internal(scriptHandleOrType,variableNameAtScriptName,stackHandle));
-}
-SIM_DLLEXPORT simInt simGetObjectHandle(const simChar* objectAlias)
-{
-    return(simGetObjectHandleEx_internal(objectAlias,-1,-1,0));
-}
-SIM_DLLEXPORT simInt simGetObjectHandleEx(const simChar* objectAlias,simInt index,simInt proxy,simInt options)
-{
-    return(simGetObjectHandleEx_internal(objectAlias,index,proxy,options));
-}
-SIM_DLLEXPORT simInt simGetScript(simInt index)
-{
-    return(simGetScript_internal(index));
-}
-SIM_DLLEXPORT simInt simGetScriptAssociatedWithObject(simInt objectHandle)
-{
-    return(simGetScriptAssociatedWithObject_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simGetCustomizationScriptAssociatedWithObject(simInt objectHandle)
-{
-    return(simGetCustomizationScriptAssociatedWithObject_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simGetObjectAssociatedWithScript(simInt scriptHandle)
-{
-    return(simGetObjectAssociatedWithScript_internal(scriptHandle));
-}
-SIM_DLLEXPORT simChar* simGetObjectConfiguration(simInt objectHandle)
-{
-    return(simGetObjectConfiguration_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simSetObjectConfiguration(const simChar* data)
-{
-    return(simSetObjectConfiguration_internal(data));
-}
-SIM_DLLEXPORT simChar* simGetConfigurationTree(simInt objectHandle)
-{
-    return(simGetConfigurationTree_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simSetConfigurationTree(const simChar* data)
-{
-    return(simSetConfigurationTree_internal(data));
-}
-SIM_DLLEXPORT simInt simEnableEventCallback(simInt eventCallbackType,const simChar* plugin,simInt reserved)
-{
-    return(simEnableEventCallback_internal(eventCallbackType,plugin,reserved));
-}
-SIM_DLLEXPORT simInt simSetObjectSizeValues(simInt objectHandle,const simFloat* sizeValues)
-{
-    return(simSetObjectSizeValues_internal(objectHandle,sizeValues));
-}
-SIM_DLLEXPORT simInt simGetObjectSizeValues(simInt objectHandle,simFloat* sizeValues)
-{
-    return(simGetObjectSizeValues_internal(objectHandle,sizeValues));
-}
-SIM_DLLEXPORT simInt simRMLPosition(simInt dofs,simDouble timeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simDouble* newPosVelAccel,simVoid* auxData)
-{
-    return(simRMLPosition_internal(dofs,timeStep,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,newPosVelAccel,auxData));
-}
-SIM_DLLEXPORT simInt simRMLVelocity(simInt dofs,simDouble timeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simDouble* newPosVelAccel,simVoid* auxData)
-{
-    return(simRMLVelocity_internal(dofs,timeStep,flags,currentPosVelAccel,maxAccelJerk,selection,targetVel,newPosVelAccel,auxData));
-}
-SIM_DLLEXPORT simInt simRMLPos(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simVoid* auxData)
-{
-    return(simRMLPos_internal(dofs,smallestTimeStep,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,auxData));
-}
-SIM_DLLEXPORT simInt simRMLVel(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simVoid* auxData)
-{
-    return(simRMLVel_internal(dofs,smallestTimeStep,flags,currentPosVelAccel,maxAccelJerk,selection,targetVel,auxData));
-}
-SIM_DLLEXPORT simInt simRMLStep(simInt handle,simDouble timeStep,simDouble* newPosVelAccel,simVoid* auxData,simVoid* reserved)
-{
-    return(simRMLStep_internal(handle,timeStep,newPosVelAccel,auxData,reserved));
-}
-SIM_DLLEXPORT simInt simRMLRemove(simInt handle)
-{
-    return(simRMLRemove_internal(handle));
-}
-SIM_DLLEXPORT simInt simGetSystemTimeInMilliseconds()
-{
-    return(simGetSystemTimeInMs_internal(-2));
-}
-SIM_DLLEXPORT simUInt simGetSystemTimeInMs(simInt previousTime)
-{
-    return(simGetSystemTimeInMs_internal(previousTime));
-}
-SIM_DLLEXPORT simChar* simFileDialog(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext)
-{
-    return(simFileDialog_internal(mode,title,startPath,initName,extName,ext));
-}
-SIM_DLLEXPORT simInt simMsgBox(simInt dlgType,simInt buttons,const simChar* title,const simChar* message)
-{
-    return(simMsgBox_internal(dlgType,buttons,title,message));
-}
-SIM_DLLEXPORT simInt simDisplayDialog(const simChar* titleText,const simChar* mainText,simInt dialogType,const simChar* initialText,const simFloat* titleColors,const simFloat* dialogColors,simInt* elementHandle)
-{
-    return(simDisplayDialog_internal(titleText,mainText,dialogType,initialText,titleColors,dialogColors,elementHandle));
-}
-SIM_DLLEXPORT simInt simGetDialogResult(simInt genericDialogHandle)
-{
-    return(simGetDialogResult_internal(genericDialogHandle));
-}
-SIM_DLLEXPORT simChar* simGetDialogInput(simInt genericDialogHandle)
-{
-    return(simGetDialogInput_internal(genericDialogHandle));
-}
-SIM_DLLEXPORT simInt simEndDialog(simInt genericDialogHandle)
-{
-    return(simEndDialog_internal(genericDialogHandle));
-}
-SIM_DLLEXPORT simInt simIsObjectInSelection(simInt objectHandle)
-{
-    return(simIsObjectInSelection_internal(objectHandle));
-}
-SIM_DLLEXPORT simInt simAddObjectToSelection(simInt what,simInt objectHandle)
-{
-    return(simAddObjectToSelection_internal(what,objectHandle));
-}
-SIM_DLLEXPORT simInt simRemoveObjectFromSelection(simInt what,simInt objectHandle)
-{
-    return(simRemoveObjectFromSelection_internal(what,objectHandle));
-}
-SIM_DLLEXPORT simInt simGetObjectSelectionSize()
-{
-    return(simGetObjectSelectionSize_internal());
-}
-SIM_DLLEXPORT simInt simGetObjectLastSelection()
-{
-    return(simGetObjectLastSelection_internal());
-}
-SIM_DLLEXPORT simInt simGetObjectSelection(simInt* objectHandles)
-{
-    return(simGetObjectSelection_internal(objectHandles));
-}
-SIM_DLLEXPORT simInt simScaleSelectedObjects(simFloat scalingFactor,simBool scalePositionsToo)
-{
-    return(simScaleSelectedObjects_internal(scalingFactor,scalePositionsToo));
-}
-SIM_DLLEXPORT simInt simDeleteSelectedObjects()
-{
-    return(simDeleteSelectedObjects_internal());
-}
-SIM_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength)
-{
-    return(simSetNamedStringParam_internal(paramName,stringParam,paramLength));
-}
-SIM_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength)
-{
-    return(simGetNamedStringParam_internal(paramName,paramLength));
-}
-SIM_DLLEXPORT simInt simGetObjectUniqueIdentifier(simInt objectHandle,simInt* uniqueIdentifier)
-{
-    return(simGetObjectUniqueIdentifier_internal(objectHandle,uniqueIdentifier));
-}
-SIM_DLLEXPORT simVoid _simSetDynamicJointLocalTransformationPart2(simVoid* joint,const simFloat* pos,const simFloat* quat)
-{
-    return(_simSetDynamicJointLocalTransformationPart2_internal(joint,pos,quat));
-}
-SIM_DLLEXPORT simVoid _simSetDynamicForceSensorLocalTransformationPart2(simVoid* forceSensor,const simFloat* pos,const simFloat* quat)
-{
-    return(_simSetDynamicForceSensorLocalTransformationPart2_internal(forceSensor,pos,quat));
-}
-SIM_DLLEXPORT simVoid _simSetDynamicJointLocalTransformationPart2IsValid(simVoid* joint,simBool valid)
-{
-    return(_simSetDynamicJointLocalTransformationPart2IsValid_internal(joint,valid));
-}
-SIM_DLLEXPORT simVoid _simSetDynamicForceSensorLocalTransformationPart2IsValid(simVoid* forceSensor,simBool valid)
-{
-    return(_simSetDynamicForceSensorLocalTransformationPart2IsValid_internal(forceSensor,valid));
-}
-SIM_DLLEXPORT simInt simBreakForceSensor(simInt objectHandle)
-{
-    return(simBreakForceSensor_internal(objectHandle));
-}
-SIM_DLLEXPORT simBool _simIsForceSensorBroken(const simVoid* forceSensor)
-{
-    return(_simIsForceSensorBroken_internal(forceSensor));
-}
-SIM_DLLEXPORT simVoid _simGetDynamicForceSensorLocalTransformationPart2(const simVoid* forceSensor,simFloat* pos,simFloat* quat)
-{
-    return(_simGetDynamicForceSensorLocalTransformationPart2_internal(forceSensor,pos,quat));
-}
-SIM_DLLEXPORT simInt simGetJointMatrix(simInt objectHandle,simFloat* matrix)
-{
-    return(simGetJointMatrix_internal(objectHandle,matrix));
-}
-SIM_DLLEXPORT simInt simSetSphericalJointMatrix(simInt objectHandle,const simFloat* matrix)
-{
-    return(simSetSphericalJointMatrix_internal(objectHandle,matrix));
-}
-SIM_DLLEXPORT simInt simSetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal)
-{
-    return(simSetScriptAttribute_internal(scriptHandle,attributeID,floatVal,intOrBoolVal));
-}
-SIM_DLLEXPORT simInt simGetScriptAttribute(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal)
-{
-    return(simGetScriptAttribute_internal(scriptHandle,attributeID,floatVal,intOrBoolVal));
-}
-SIM_DLLEXPORT simInt simSetScriptText(simInt scriptHandle,const simChar* scriptText)
-{
-    return(simSetScriptText_internal(scriptHandle,scriptText));
-}
-SIM_DLLEXPORT const simChar* simGetScriptText(simInt scriptHandle)
-{
-    return(simGetScriptText_internal(scriptHandle));
-}
-SIM_DLLEXPORT simInt simGetScriptProperty(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle)
-{
-    return(simGetScriptProperty_internal(scriptHandle,scriptProperty,associatedObjectHandle));
-}
-SIM_DLLEXPORT simInt simGetJointMaxForce(simInt jointHandle,simFloat* forceOrTorque)
-{
-    return(simGetJointMaxForce_internal(jointHandle,forceOrTorque));
-}
-SIM_DLLEXPORT simInt simSetJointMaxForce(simInt objectHandle,simFloat forceOrTorque)
-{
-    return(simSetJointMaxForce_internal(objectHandle,forceOrTorque));
-}
-SIM_DLLEXPORT simVoid _simSetGeomProxyDynamicsFullRefreshFlag(simVoid* geomData,simBool flag)
-{
-}
-SIM_DLLEXPORT simBool _simGetGeomProxyDynamicsFullRefreshFlag(const simVoid* geomData)
-{
-    return(0);
-}
-SIM_DLLEXPORT simInt simRemoveObject(simInt objectHandle)
-{
-    return(simRemoveObject_internal(objectHandle));
-}
-SIM_DLLEXPORT simVoid _simSetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape,simBool tag)
-{
-}
-SIM_DLLEXPORT simBool _simGetShapeIsStaticAndNotRespondableButDynamicTag(const simVoid* shape)
-{
-    return(0);
-}
-SIM_DLLEXPORT simInt simGetVisionSensorResolution(simInt visionSensorHandle,simInt* resolution)
-{
-    return(simGetVisionSensorResolution_internal(visionSensorHandle,resolution));
-}
-SIM_DLLEXPORT simFloat* simGetVisionSensorImage(simInt visionSensorHandle)
-{
-    return(simGetVisionSensorImage_internal(visionSensorHandle));
-}
-SIM_DLLEXPORT simUChar* simGetVisionSensorCharImage(simInt visionSensorHandle,simInt* resolutionX,simInt* resolutionY)
-{
-    return(simGetVisionSensorCharImage_internal(visionSensorHandle,resolutionX,resolutionY));
-}
-SIM_DLLEXPORT simInt simSetVisionSensorImage(simInt visionSensorHandle,const simFloat* image)
-{
-    return(simSetVisionSensorImage_internal(visionSensorHandle,image));
-}
-SIM_DLLEXPORT simInt simSetVisionSensorCharImage(simInt visionSensorHandle,const simUChar* image)
-{
-    return(simSetVisionSensorCharImage_internal(visionSensorHandle,image));
-}
-SIM_DLLEXPORT simFloat* simGetVisionSensorDepthBuffer(simInt visionSensorHandle)
-{
-    return(simGetVisionSensorDepthBuffer_internal(visionSensorHandle));
-}
-SIM_DLLEXPORT simInt simCreatePureShape(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision)
-{
-    return(simCreatePureShape_internal(primitiveType,options,sizes,mass,precision));
-}
-SIM_DLLEXPORT simVoid* simBroadcastMessage(simInt* auxiliaryData,simVoid* customData,simInt* replyData)
-{
-    return(simBroadcastMessage_internal(auxiliaryData,customData,replyData));
-}
-SIM_DLLEXPORT simVoid* simSendModuleMessage(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData)
-{
-    return(simSendModuleMessage_internal(message,auxiliaryData,customData,replyData));
-}
-SIM_DLLEXPORT simBool _simIsDynamicMotorEnabled(const simVoid* joint)
-{
-    return(0);
-}
-SIM_DLLEXPORT simBool _simIsDynamicMotorPositionCtrlEnabled(const simVoid* joint)
-{
-    return(0);
-}
-SIM_DLLEXPORT simBool _simIsDynamicMotorTorqueModulationEnabled(const simVoid* joint)
-{
-    return(0);
-}
-SIM_DLLEXPORT simVoid _simGetMotorPid(const simVoid* joint,simFloat* pParam,simFloat* iParam,simFloat* dParam)
-{
-}
-SIM_DLLEXPORT simInt _simGetContactCallbackCount()
-{
-    return(0);
-}
-SIM_DLLEXPORT const void* _simGetContactCallback(simInt index)
-{
-    return(nullptr);
-}
-SIM_DLLEXPORT simInt simBuildMatrixQ(const simFloat* position,const simFloat* quaternion,simFloat* matrix)
-{
-    return(simBuildMatrixQ_internal(position,quaternion,matrix));
-}
-SIM_DLLEXPORT simInt simGetQuaternionFromMatrix(const simFloat* matrix,simFloat* quaternion)
-{
-    return(simGetQuaternionFromMatrix_internal(matrix,quaternion));
-}
-SIM_DLLEXPORT simVoid _simGetLocalInertiaFrame(const simVoid* geomInfo,simFloat* pos,simFloat* quat)
-{
-    return(_simGetLocalInertiaFrame_internal(geomInfo,pos,quat));
-}
-SIM_DLLEXPORT simVoid _simGetPrincipalMomentOfInertia(const simVoid* geomInfo,simFloat* inertia)
-{
-    return(_simGetPrincipalMomentOfInertia_internal(geomInfo,inertia));
-}
-SIM_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* joint)
-{
-    return(1); // not needed anymore
-}
-SIM_DLLEXPORT simInt simSetDoubleSignal(const simChar* signalName,simDouble signalValue)
-{
-    return(simSetDoubleSignalOld_internal(signalName,signalValue));
-}
-SIM_DLLEXPORT simInt simGetDoubleSignal(const simChar* signalName,simDouble* signalValue)
-{
-    return(simGetDoubleSignalOld_internal(signalName,signalValue));
-}
-SIM_DLLEXPORT simInt simClearDoubleSignal(const simChar* signalName)
-{
-    return(simClearDoubleSignalOld_internal(signalName));
-}
-// Deprecated end
-
+#include "sim-old.cpp"
