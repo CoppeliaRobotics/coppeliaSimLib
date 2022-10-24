@@ -1,10 +1,6 @@
-
-// This file requires some serious refactoring!!
-
 #pragma once
 
-#include "VPoint.h"
-#include "softButton.h" 
+#include "softButton.h"
 
 class CButtonBlockContainer;
 

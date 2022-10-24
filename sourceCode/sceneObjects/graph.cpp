@@ -2499,8 +2499,6 @@ void CGraph::serialize(CSer& ar)
     }
 }
 
-VPoint CGraph::currentWinSize;
-
 void CGraph::display(CViewableBase* renderingObject,int displayAttrib)
 { // This is a quite ugly routine which requires refactoring!
     EASYLOCK(_objectMutex);

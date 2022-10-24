@@ -1,10 +1,15 @@
-
-// This file requires some serious refactoring!!
-
 #pragma once
 
 #include "textureProperty.h"
-#include "VPoint.h"
+
+class VPoint
+{
+public:
+    VPoint()    {}
+    VPoint(int initX,int initY) { x=initX; y=initY; }
+    virtual ~VPoint()   {}
+    int x,y;
+};
 
 class CSoftButton  
 {

@@ -194,25 +194,31 @@ void CLight::setLightSize(float size)
     }
 }
 
-float CLight::getLightSize()
+float CLight::getLightSize() const
 {
     return(_lightSize);
 }
 
-float CLight::getAttenuationFactor(short type)
+float CLight::getAttenuationFactor(int type) const
 {
-    if (type==CONSTANT_ATTENUATION) return(constantAttenuation);
-    if (type==LINEAR_ATTENUATION) return(linearAttenuation);
-    if (type==QUADRATIC_ATTENUATION) return(quadraticAttenuation);
-    return(0);
+    float retVal=0.0;
+    if (type==CONSTANT_ATTENUATION)
+        retVal=constantAttenuation;
+    if (type==LINEAR_ATTENUATION)
+        retVal=linearAttenuation;
+    if (type==QUADRATIC_ATTENUATION)
+        retVal=quadraticAttenuation;
+    return(retVal);
 }
 
-void CLight::setAttenuationFactor(float value,short type)
+void CLight::setAttenuationFactor(int type,float value)
 {
-    tt::limitValue(0.0,1000.0,value);
-    if (type==CONSTANT_ATTENUATION) constantAttenuation=value;
-    if (type==LINEAR_ATTENUATION) linearAttenuation=value;
-    if (type==QUADRATIC_ATTENUATION) quadraticAttenuation=value;
+    if (type==CONSTANT_ATTENUATION)
+        constantAttenuation=value;
+    if (type==LINEAR_ATTENUATION)
+        linearAttenuation=value;
+    if (type==QUADRATIC_ATTENUATION)
+        quadraticAttenuation=value;
 }
 
 void CLight::setLightActive(bool active)
@@ -223,7 +229,7 @@ void CLight::setLightActive(bool active)
 }
 
 
-bool CLight::getLightActive()
+bool CLight::getLightActive() const
 {
     return(lightActive);
 }
@@ -233,7 +239,7 @@ void CLight::setSpotExponent(int e)
     _spotExponent=tt::getLimitedInt(0,128,e);
 }
 
-int CLight::getSpotExponent()
+int CLight::getSpotExponent() const
 {
     return(_spotExponent);
 }
@@ -243,13 +249,13 @@ void CLight::setSpotCutoffAngle(float co)
     _spotCutoffAngle=tt::getLimitedFloat(5.0f*degToRad_f,90.0f*degToRad_f,co);
 }
 
-float CLight::getSpotCutoffAngle()
+float CLight::getSpotCutoffAngle() const
 {
     return(_spotCutoffAngle);
 }
 
 
-int  CLight::getLightType()
+int  CLight::getLightType() const
 {
     return(_lightType);
 }
@@ -391,7 +397,7 @@ void  CLight::setLightIsLocal(bool l)
     _lightIsLocal=l;
 }
 
-bool  CLight::getLightIsLocal()
+bool  CLight::getLightIsLocal() const
 {
     return(_lightIsLocal);
 }
@@ -620,11 +626,11 @@ void CLight::serialize(CSer& ar)
             if (ar.xmlPushChildNode("attenuationFactors",exhaustiveXml))
             {
                 if (ar.xmlGetNode_float("constant",constantAttenuation,exhaustiveXml))
-                    setAttenuationFactor(constantAttenuation,CONSTANT_ATTENUATION);
+                    setAttenuationFactor(CONSTANT_ATTENUATION,constantAttenuation);
                 if (ar.xmlGetNode_float("linear",linearAttenuation,exhaustiveXml))
-                    setAttenuationFactor(linearAttenuation,LINEAR_ATTENUATION);
+                    setAttenuationFactor(LINEAR_ATTENUATION,linearAttenuation);
                 if (ar.xmlGetNode_float("quadratic",quadraticAttenuation,exhaustiveXml))
-                    setAttenuationFactor(quadraticAttenuation,QUADRATIC_ATTENUATION);
+                    setAttenuationFactor(QUADRATIC_ATTENUATION,quadraticAttenuation);
                 ar.xmlPopNode();
             }
 

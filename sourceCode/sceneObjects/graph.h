@@ -9,7 +9,6 @@
 #include "graphDataComb_old.h"
 #include "staticGraphCurve_old.h"
 #include "sView.h"
-#include "VPoint.h"
 
 class CGraph : public CSceneObject  
 {
@@ -160,7 +159,6 @@ protected:
     bool trackingValueIsStatic;
     float trackingValue[2];
     float squareDistFromTrackingValue;
-    static VPoint currentWinSize;
 #ifdef SIM_WITH_GUI
 public:
     void lookAt(int windowSize[2],CSView* subView,bool timeGraph,bool drawText,bool passiveSubView,bool oneOneProportionForXYGraph);

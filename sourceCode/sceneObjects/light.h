@@ -43,19 +43,19 @@ public:
     bool isPotentiallyRenderable() const;
 
     void setLightActive(bool active);
-    bool getLightActive();
-    float getAttenuationFactor(short type);
-    void setAttenuationFactor(float value,short type);
+    bool getLightActive() const;
+    float getAttenuationFactor(int type) const;
+    void setAttenuationFactor(int type,float value);
     void setLightSize(float size);
-    float getLightSize();
+    float getLightSize() const;
     void setSpotExponent(int e);
-    int getSpotExponent();
+    int getSpotExponent() const;
     void setSpotCutoffAngle(float co);
-    float getSpotCutoffAngle();
-    int getLightType();
+    float getSpotCutoffAngle() const;
+    int getLightType() const;
 
     void setLightIsLocal(bool l);
-    bool getLightIsLocal();
+    bool getLightIsLocal() const;
 
     static void setMaxAvailableOglLights(int c);
     static int getMaxAvailableOglLights();

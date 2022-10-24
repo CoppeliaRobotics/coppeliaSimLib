@@ -15,7 +15,6 @@
 #include "global.h"
 #include "dlgCont.h"
 #include "simRecorder.h"
-#include "VPoint.h"
 #include "oglSurface.h"
 #include "editModeContainer.h"
 #include "codeEditorContainer.h"
@@ -239,8 +238,8 @@ private:
     bool _hasStereo;
     float _stereoDistance;
     bool _leftEye;
-    VPoint _mouseRenderingPos;
-    VPoint _clientArea;
+    int _mouseRenderingPos[2];
+    int _clientArea[2];
     int _focusObject;
     int _currentCursor;
     int _mouseWheelEventTime;

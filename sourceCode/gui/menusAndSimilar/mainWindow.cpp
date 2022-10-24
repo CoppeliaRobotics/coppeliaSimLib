@@ -45,8 +45,8 @@ CMainWindow::CMainWindow() : QMainWindow()
     TRACE_INTERNAL;
     QsciScintilla obj; // somehow required to avoid a crash on exit (Windows), when copy was used in the code editor...
     _focusObject=FOCUS_ON_PAGE;
-    _clientArea.x=1024;
-    _clientArea.y=768;
+    _clientArea[0]=1024;
+    _clientArea[1]=768;
     _toolbar1=nullptr;
     _toolbar2=nullptr;
     _menubar=nullptr;
@@ -549,8 +549,8 @@ QSignalMapper* CMainWindow::getPopupSignalMapper()
 
 void CMainWindow::_setClientArea(int x,int y)
 {
-    _clientArea.x=x;
-    _clientArea.y=y;
+    _clientArea[0]=x;
+    _clientArea[1]=y;
     simulationRecorder->setRecordingSizeChanged(x,y);
 }
 
@@ -755,7 +755,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
             oglDebugTime=oglDebugTimeNow;
         }
 
-        int mp[2]={_mouseRenderingPos.x,_mouseRenderingPos.y};
+        int mp[2]={_mouseRenderingPos[0],_mouseRenderingPos[1]};
 
         CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_renderingpass,nullptr,nullptr,nullptr);
 
@@ -828,7 +828,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
     }
 
     if (simulationRecorder->getIsRecording())
-        simulationRecorder->recordFrameIfNeeded(_clientArea.x,_clientArea.y,0,0);
+        simulationRecorder->recordFrameIfNeeded(_clientArea[0],_clientArea[1],0,0);
 
     if (swapTheBuffers) // condition added on 31/1/2012... might help because some VMWare installations crash when disabling the rendering
     {
@@ -1278,8 +1278,8 @@ void CMainWindow::dropEvent(QDropEvent* dEvent)
 
 void CMainWindow::onLeftMouseButtonDoubleClickTT(int xPos,int yPos)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    _mouseRenderingPos.x=xPos;
-    _mouseRenderingPos.y=_clientArea.y-yPos;
+    _mouseRenderingPos[0]=xPos;
+    _mouseRenderingPos[1]=_clientArea[1]-yPos;
     int selectionStatus=NOSELECTION;
     int mm=getMouseMode();
     if ( (getKeyDownState()&2)&&(mm&sim_navigation_shiftselection) )
@@ -1287,15 +1287,15 @@ void CMainWindow::onLeftMouseButtonDoubleClickTT(int xPos,int yPos)
     else if ( (getKeyDownState()&1)&&(mm&sim_navigation_ctrlselection) )
         selectionStatus=CTRLSELECTION;
     if (getOpenGlDisplayEnabled())
-        oglSurface->leftMouseButtonDoubleClick(_mouseRenderingPos.x,_mouseRenderingPos.y,selectionStatus);
+        oglSurface->leftMouseButtonDoubleClick(_mouseRenderingPos[0],_mouseRenderingPos[1],selectionStatus);
     setOpenGlDisplayEnabled(true); // enable the display again
 }
 
 
 void CMainWindow::onLeftMouseButtonDownTT(int xPos,int yPos)
 { // keys: bit0: ctrl, bit1: shift
-    _mouseRenderingPos.x=xPos;
-    _mouseRenderingPos.y=_clientArea.y-yPos;
+    _mouseRenderingPos[0]=xPos;
+    _mouseRenderingPos[1]=_clientArea[1]-yPos;
     setMouseButtonState(getMouseButtonState()|1);
     int mm=getMouseMode();
     int selectionStatus=NOSELECTION;
@@ -1307,15 +1307,15 @@ void CMainWindow::onLeftMouseButtonDownTT(int xPos,int yPos)
         selectionStatus=CTRLSELECTION;
     oglSurface->clearCaughtElements(0xffff-sim_left_button);
     if (getOpenGlDisplayEnabled())
-        oglSurface->leftMouseButtonDown(_mouseRenderingPos.x,_mouseRenderingPos.y,selectionStatus);
+        oglSurface->leftMouseButtonDown(_mouseRenderingPos[0],_mouseRenderingPos[1],selectionStatus);
     setOpenGlDisplayEnabled(true); // Enable the display again
     setCurrentCursor(oglSurface->getCursor(xPos,yPos));
 }
 
 void CMainWindow::onMiddleMouseButtonDownTT(int xPos,int yPos)
 {
-    _mouseRenderingPos.x=xPos;
-    _mouseRenderingPos.y=_clientArea.y-yPos;
+    _mouseRenderingPos[0]=xPos;
+    _mouseRenderingPos[1]=_clientArea[1]-yPos;
     oglSurface->clearCaughtElements(0xffff-sim_middle_button);
     setMouseButtonState(getMouseButtonState()|8);
     int upperMouseMode=((getMouseMode()&0xff00)|sim_navigation_clickselection)-sim_navigation_clickselection; // sim_navigation_clickselection because otherwise we have a problem (12/06/2011)
@@ -1325,30 +1325,30 @@ void CMainWindow::onMiddleMouseButtonDownTT(int xPos,int yPos)
         setMouseMode(upperMouseMode|sim_navigation_passive);
 
     if (getOpenGlDisplayEnabled())
-        oglSurface->middleMouseButtonDown(_mouseRenderingPos.x,_mouseRenderingPos.y);
+        oglSurface->middleMouseButtonDown(_mouseRenderingPos[0],_mouseRenderingPos[1]);
     setOpenGlDisplayEnabled(true); // Enable the display again
 }
 
 void CMainWindow::onRightMouseButtonDownTT(int xPos,int yPos)
 {
     setMouseButtonState(getMouseButtonState()|4);
-    _mouseRenderingPos.x=xPos;
-    _mouseRenderingPos.y=_clientArea.y-yPos;
+    _mouseRenderingPos[0]=xPos;
+    _mouseRenderingPos[1]=_clientArea[1]-yPos;
     if (App::userSettings->navigationBackwardCompatibility)
         App::setLightDialogRefreshFlag();
     oglSurface->clearCaughtElements(0xffff-sim_right_button);
     if (getOpenGlDisplayEnabled())
-        oglSurface->rightMouseButtonDown(_mouseRenderingPos.x,_mouseRenderingPos.y);
+        oglSurface->rightMouseButtonDown(_mouseRenderingPos[0],_mouseRenderingPos[1]);
     setOpenGlDisplayEnabled(true); // Enable the display again
 }
 
 void CMainWindow::onLeftMouseButtonUpTT(int xPos,int yPos)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    _mouseRenderingPos.x=xPos;
-    _mouseRenderingPos.y=_clientArea.y-yPos;
+    _mouseRenderingPos[0]=xPos;
+    _mouseRenderingPos[1]=_clientArea[1]-yPos;
     App::setLightDialogRefreshFlag(); // to refresh dlgs when an object has been dragged for instance
     if (oglSurface->getCaughtElements()&sim_left_button)
-        oglSurface->leftMouseButtonUp(_mouseRenderingPos.x,_mouseRenderingPos.y);
+        oglSurface->leftMouseButtonUp(_mouseRenderingPos[0],_mouseRenderingPos[1]);
     oglSurface->clearCaughtElements(0xffff-sim_left_button);
     setMouseButtonState(getMouseButtonState()&(0xffff-1));
     setCurrentCursor(oglSurface->getCursor(xPos,yPos));
@@ -1356,21 +1356,21 @@ void CMainWindow::onLeftMouseButtonUpTT(int xPos,int yPos)
 
 void CMainWindow::onMiddleMouseButtonUpTT(int xPos,int yPos)
 { // Middle mouse button up is exclusively reserved for rotation
-    _mouseRenderingPos.x=xPos;
-    _mouseRenderingPos.y=_clientArea.y-yPos;
+    _mouseRenderingPos[0]=xPos;
+    _mouseRenderingPos[1]=_clientArea[1]-yPos;
     if (oglSurface->getCaughtElements()&sim_middle_button)
-        oglSurface->middleMouseButtonUp(_mouseRenderingPos.x,_mouseRenderingPos.y);
+        oglSurface->middleMouseButtonUp(_mouseRenderingPos[0],_mouseRenderingPos[1]);
     oglSurface->clearCaughtElements(0xffff-sim_middle_button);
 }
 
 void CMainWindow::onRightMouseButtonUpTT(int xPos,int yPos)
 { // Right mouse button up is exclusively reserved for pop-up menu
-    _mouseRenderingPos.x=xPos;
-    _mouseRenderingPos.y=_clientArea.y-yPos;
+    _mouseRenderingPos[0]=xPos;
+    _mouseRenderingPos[1]=_clientArea[1]-yPos;
     if (oglSurface->getCaughtElements()&sim_right_button)
     {
         QPoint glob(openglWidget->mapToGlobal(QPoint(xPos,yPos)));
-        oglSurface->rightMouseButtonUp(_mouseRenderingPos.x,_mouseRenderingPos.y,glob.x(),glob.y(),this);
+        oglSurface->rightMouseButtonUp(_mouseRenderingPos[0],_mouseRenderingPos[1],glob.x(),glob.y(),this);
     }
     oglSurface->clearCaughtElements(0xffff-sim_right_button);
     setMouseButtonState(getMouseButtonState()&(0xffff-4));
@@ -1378,19 +1378,19 @@ void CMainWindow::onRightMouseButtonUpTT(int xPos,int yPos)
 
 void CMainWindow::getMouseRenderingPos(int pos[2])
 {
-    pos[0]=_mouseRenderingPos.x;
-    pos[1]=_mouseRenderingPos.y;
+    pos[0]=_mouseRenderingPos[0];
+    pos[1]=_mouseRenderingPos[1];
 }
 
 void CMainWindow::onWheelRotateTT(int delta,int xPos,int yPos)
 {
-    _mouseRenderingPos.x=xPos;
-    _mouseRenderingPos.y=_clientArea.y-yPos;
+    _mouseRenderingPos[0]=xPos;
+    _mouseRenderingPos[1]=_clientArea[1]-yPos;
     setMouseButtonState(getMouseButtonState()|2);
     if (getMouseMode()&sim_navigation_camerazoomwheel)
     {
         if (getOpenGlDisplayEnabled())
-            oglSurface->mouseWheel(delta,_mouseRenderingPos.x,_mouseRenderingPos.y);
+            oglSurface->mouseWheel(delta,_mouseRenderingPos[0],_mouseRenderingPos[1]);
     }
     _mouseWheelEventTime=(int)VDateTime::getTimeInMs();
 }
@@ -1398,8 +1398,8 @@ void CMainWindow::onWheelRotateTT(int delta,int xPos,int yPos)
 void CMainWindow::onMouseMoveTT(int xPos,int yPos)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     _mouseRayValid=false;
-    _mouseRenderingPos.x=xPos;
-    _mouseRenderingPos.y=_clientArea.y-yPos;
+    _mouseRenderingPos[0]=xPos;
+    _mouseRenderingPos[1]=_clientArea[1]-yPos;
     int cur=-1;
     if (getOpenGlDisplayEnabled())
     {
@@ -1407,8 +1407,8 @@ void CMainWindow::onMouseMoveTT(int xPos,int yPos)
         if (App::userSettings->navigationBackwardCompatibility)
             bts=sim_right_button|sim_left_button;
 
-        oglSurface->mouseMove(_mouseRenderingPos.x,_mouseRenderingPos.y,(oglSurface->getCaughtElements()&bts)==0);
-        cur=oglSurface->getCursor(_mouseRenderingPos.x,_mouseRenderingPos.y);
+        oglSurface->mouseMove(_mouseRenderingPos[0],_mouseRenderingPos[1],(oglSurface->getCaughtElements()&bts)==0);
+        cur=oglSurface->getCursor(_mouseRenderingPos[0],_mouseRenderingPos[1]);
     }
     if ((_mouseButtonsState&1)==0)
         setCurrentCursor(cur);
@@ -1416,11 +1416,11 @@ void CMainWindow::onMouseMoveTT(int xPos,int yPos)
 
 int CMainWindow::modelDragMoveEvent(int xPos,int yPos,C3Vector* desiredModelPosition)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    _mouseRenderingPos.x=xPos;
-    _mouseRenderingPos.y=_clientArea.y-yPos;
+    _mouseRenderingPos[0]=xPos;
+    _mouseRenderingPos[1]=_clientArea[1]-yPos;
     if (getOpenGlDisplayEnabled())
     {
-        int ret=oglSurface->modelDragMoveEvent(_mouseRenderingPos.x,_mouseRenderingPos.y,desiredModelPosition);
+        int ret=oglSurface->modelDragMoveEvent(_mouseRenderingPos[0],_mouseRenderingPos[1],desiredModelPosition);
         return(ret);
     }
     return(1); // We can drop the model at the default location
@@ -1700,8 +1700,8 @@ void CMainWindow::_actualizetoolbarButtonState()
 
 void CMainWindow::_recomputeClientSizeAndPos()
 {
-    if ( windowHandle()&&windowHandle()->isExposed()&&(_clientArea.x!=0)&&(_clientArea.y!=0) ) // Added the two last args to avoid a collaps of the hierarchy when switching to another app (2011/01/26)
-        oglSurface->setSurfaceSizeAndPosition(_clientArea.x,_clientArea.y+App::userSettings->renderingSurfaceVResize,0,App::userSettings->renderingSurfaceVShift);
+    if ( windowHandle()&&windowHandle()->isExposed()&&(_clientArea[0]!=0)&&(_clientArea[1]!=0) ) // Added the two last args to avoid a collaps of the hierarchy when switching to another app (2011/01/26)
+        oglSurface->setSurfaceSizeAndPosition(_clientArea[0],_clientArea[1]+App::userSettings->renderingSurfaceVResize,0,App::userSettings->renderingSurfaceVShift);
 }
 
 void CMainWindow::_dropFilesIntoScene(const std::vector<std::string>& tttFiles,const std::vector<std::string>& ttmFiles)

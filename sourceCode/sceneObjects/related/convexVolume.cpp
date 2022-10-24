@@ -3,7 +3,6 @@
 #include "tt.h"
 #include "global.h"
 #include "4X4Matrix.h"
-#include "6Vector.h"
 #include <algorithm>
 
 CConvexVolume::CConvexVolume()
@@ -604,8 +603,10 @@ void CConvexVolume::addAPlane(std::vector<float>* volume,std::vector<float>* nor
     volume->push_back(-(m.M.axis[2]*m.X));
     if (normals!=nullptr)
     {
-        C6Vector v(m.X,m.X+(m.M.axis[2]*nL));
-        for (int i=0;i<6;i++)
+        for (int i=0;i<3;i++)
+            normals->push_back(m.X(i));
+        C3Vector v(m.X+(m.M.axis[2]*nL));
+        for (int i=0;i<3;i++)
             normals->push_back(v(i));
     }
 }

@@ -1626,19 +1626,19 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CLight* it=App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setAttenuationFactor(cmd.floatParams[0],CONSTANT_ATTENUATION);
+                it->setAttenuationFactor(CONSTANT_ATTENUATION,cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_LINATTENUATION_LIGHTGUITRIGGEREDCMD)
         {
             CLight* it=App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setAttenuationFactor(cmd.floatParams[0],LINEAR_ATTENUATION);
+                it->setAttenuationFactor(LINEAR_ATTENUATION,cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_QUADATTENUATION_LIGHTGUITRIGGEREDCMD)
         {
             CLight* it=App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setAttenuationFactor(cmd.floatParams[0],QUADRATIC_ATTENUATION);
+                it->setAttenuationFactor(QUADRATIC_ATTENUATION,cmd.floatParams[0]);
         }
 
 

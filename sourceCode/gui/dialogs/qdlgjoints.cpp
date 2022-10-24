@@ -66,10 +66,7 @@ void CQDlgJoints::refresh()
     ui->qqCyclic->setEnabled(sel&&revolute&&noEditModeNoSim);
     ui->qqPitch->setEnabled(sel&&revolute&&noEditModeNoSim&&(!dynamic)&&(!it->getIsCyclic()));
     ui->qqMinimum->setEnabled(sel&&(!spherical)&&(!it->getIsCyclic())&&noEditModeNoSim);
-    if (spherical)
-        ui->qqRange->setEnabled(sel&&(!dynamic)&&noEditModeNoSim);
-    else
-        ui->qqRange->setEnabled(sel&&(!it->getIsCyclic())&&noEditModeNoSim);
+    ui->qqRange->setEnabled((!spherical)&&sel&&(!it->getIsCyclic())&&noEditModeNoSim);
     ui->qqPosition->setEnabled(sel&&(!spherical));
     ui->qqApplyConfig->setEnabled(sel&&bigSel&&noEditModeNoSim);
 
@@ -119,10 +116,7 @@ void CQDlgJoints::refresh()
         if (spherical)
         {
             ui->qqMinimum->setText("");
-            if (dynamic)
-                ui->qqRange->setText("");
-            else
-                ui->qqRange->setText(tt::getAngleEString(false,it->getPositionRange(),3).c_str());
+            ui->qqRange->setText("");
             ui->qqPosition->setText("");
             C3Vector euler(it->getSphericalTransformation().getEulerAngles());
             ui->qqLength->setText("");

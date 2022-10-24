@@ -3553,29 +3553,16 @@ void CJoint::_rectifyDependentJoints()
 }
 
 void CJoint::setSphericalTransformation(const C4Vector& tr)
-{
-    C4Vector transf(tr);
-    if (_posRange<piValue_f*0.99f)
-    {
-        C3X3Matrix theTr(transf);
-        C3Vector zReset(0.0f,0.0f,1.0f);
-        float angle=zReset.getAngle(theTr.axis[2]);
-        if (angle>_posRange)
-        { // We have to limit the movement:
-            C3Vector rotAxis((theTr.axis[2]^zReset).getNormalized());
-            C4Vector rot(angle-_posRange,rotAxis);
-            transf=rot*transf;
-        }
-    }
-    bool diff=(_sphericalTransf!=transf);
+{ // spherical joints don't have a range anymore since 22.10.2022 (didn't really make sense)
+    bool diff=(_sphericalTransf!=tr);
     if (diff)
     {
-        _sphericalTransf=transf;
+        _sphericalTransf=tr;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="quaternion";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            float q[4]={transf(1),transf(2),transf(3),transf(0)};
+            float q[4]={_sphericalTransf(1),_sphericalTransf(2),_sphericalTransf(3),_sphericalTransf(0)};
             data->appendMapObject_stringFloatArray(cmd,q,4);
             C7Vector trr(getIntrinsicTransformation(true));
             float p[7]={trr.X(0),trr.X(1),trr.X(2),trr.Q(1),trr.Q(2),trr.Q(3),trr.Q(0)};
@@ -3583,7 +3570,7 @@ void CJoint::setSphericalTransformation(const C4Vector& tr)
             App::worldContainer->pushEvent(event);
         }
         if (getObjectCanSync())
-            _setSphericalTransformation_sendOldIk(transf);
+            _setSphericalTransformation_sendOldIk(_sphericalTransf);
     }
 }
 

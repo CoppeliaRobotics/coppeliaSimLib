@@ -383,7 +383,7 @@ protected:
     int _jointType;
     float _length;
     float _diameter;
-    C4Vector _sphericalTransf;
+    C4Vector _sphericalTransf; // spherical joints don't have a range anymore since 22.10.2022
     bool _isCyclic;
     float _screwPitch;
     float _posMin;
