@@ -279,8 +279,6 @@ public:
     void setAbsoluteTransformation(const C4Vector& q);
     void setAbsoluteTransformation(const C3Vector& x);
 
-    void getCumulativeTransformationMatrix(float m[4][4]) const;
-
     int getIkPluginCounterpartHandle() const;
 
     std::string getDisplayName() const;

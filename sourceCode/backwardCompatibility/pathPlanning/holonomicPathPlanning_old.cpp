@@ -115,8 +115,8 @@ void CHolonomicPathPlanning_old::getSearchTreeData(std::vector<float>& data,bool
             start=_startDummyCTM*start;
             goal=_startDummyCTM*goal;
             float d[6];
-            start.copyTo(d);
-            goal.copyTo(d+3);
+            start.getData(d);
+            goal.getData(d+3);
             for (int j=0;j<6;j++)
                 data.push_back(d[j]);
         }
@@ -130,8 +130,8 @@ void CHolonomicPathPlanning_old::getSearchTreeData(std::vector<float>& data,bool
             start=_startDummyCTM*start;
             goal=_startDummyCTM*goal;
             float d[6];
-            start.copyTo(d);
-            goal.copyTo(d+3);
+            start.getData(d);
+            goal.getData(d+3);
             for (int j=0;j<6;j++)
                 data.push_back(d[j]);
         }
@@ -145,8 +145,8 @@ void CHolonomicPathPlanning_old::getSearchTreeData(std::vector<float>& data,bool
             start=_startDummyCTM*start;
             goal=_startDummyCTM*goal;
             float d[6];
-            start.copyTo(d);
-            goal.copyTo(d+3);
+            start.getData(d);
+            goal.getData(d+3);
             for (int j=0;j<6;j++)
                 data.push_back(d[j]);
         }

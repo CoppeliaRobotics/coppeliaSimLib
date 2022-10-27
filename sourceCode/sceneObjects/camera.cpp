@@ -1251,7 +1251,7 @@ void CCamera::setViewOrientation(int ori,bool setPositionAlso)
         C7Vector tot(getFullCumulativeTransformation());
         tot.Q.setEulerAngles(C3Vector(alpha*degToRad_f,beta*degToRad_f,gamma*degToRad_f));
         if (setPositionAlso)
-            tot.X.set(x,y,z);
+            tot.X.setData(x,y,z);
         C7Vector parentInv(getFullParentCumulativeTransformation().getInverse());
         setLocalTransformation(parentInv*tot);
     }
@@ -1947,11 +1947,9 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             // The following 6 instructions have the same effect as gluLookAt()
             m4.inverse();
             m4.rotateAroundY(piValue_f);
-            float m4_[4][4];
-            m4.copyTo(m4_);
-            CMeshManip::transposeMatrix_4x4Array(m4_);
-            glLoadMatrixf((float*)m4_);
-
+            CMatrix m4_(m4);
+            m4_.transpose();
+            glLoadMatrixf(m4_.data.data());
 
             if (pass==RENDERPASS)
             {
@@ -2955,8 +2953,7 @@ void CCamera::performDepthPerception(CSView* subView,bool isPerspective)
     float farDivFarMinusNear=_farClippingPlane/(_farClippingPlane-_nearClippingPlane);
     if (!isPerspective)
         farDivFarMinusNear=ORTHO_CAMERA_FAR_CLIPPING_PLANE/(ORTHO_CAMERA_FAR_CLIPPING_PLANE-ORTHO_CAMERA_NEAR_CLIPPING_PLANE);
-    float m[4][4];
-    getCumulativeTransformationMatrix(m);
+    C4X4Matrix m(getCumulativeTransformation());
 
     int mouseRelativePosition[2];
     subView->getMouseRelativePosition(mouseRelativePosition);
@@ -2979,9 +2976,7 @@ void CCamera::performDepthPerception(CSView* subView,bool isPerspective)
     { // The cursor hit the far clipping plane:
         subView->setMousePositionDepth(clippNear);
         float p[3];
-        p[0]=m[0][3]+m[0][2]*clippNear;
-        p[1]=m[1][3]+m[1][2]*clippNear;
-        p[2]=m[2][3]+m[2][2]*clippNear;
+        (m.X+m.M.axis[2]*clippNear).getData(p);
         subView->setCenterPosition(p);
     }
     else
@@ -3028,9 +3023,8 @@ void CCamera::performDepthPerception(CSView* subView,bool isPerspective)
             }
         }
         float p[3];
-        p[0]=m[0][3]+m[0][2]*subView->getMousePositionDepth()+m[0][1]*yShift+m[0][0]*xShift;
-        p[1]=m[1][3]+m[1][2]*subView->getMousePositionDepth()+m[1][1]*yShift+m[1][0]*xShift;
-        p[2]=m[2][3]+m[2][2]*subView->getMousePositionDepth()+m[2][1]*yShift+m[2][0]*xShift;
+
+        (m.X+m.M.axis[2]*subView->getMousePositionDepth()+m.M.axis[1]*yShift+m.M.axis[0]*xShift).getData(p);
         subView->setCenterPosition(p);
     }
 }

@@ -1575,16 +1575,3 @@ void CMeshManip::getTrianglesFromPolygons(const std::vector<std::vector<int> >& 
         }
     }
 }
-
-void CMeshManip::transposeMatrix_4x4Array(float m[4][4])
-{   
-#define SWAP(a,b) {temp=(a);(a)=(b);(b)=temp;}
-    float temp;
-    SWAP(m[0][1],m[1][0]);
-    SWAP(m[0][2],m[2][0]);
-    SWAP(m[0][3],m[3][0]);
-    SWAP(m[1][2],m[2][1]);
-    SWAP(m[1][3],m[3][1]);
-    SWAP(m[2][3],m[3][2]);
-#undef SWAP
-}

@@ -3908,7 +3908,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     C7Vector m;
                     m.setIdentity();
                     if (t==1)
-                        m.X.set(translationValues);
+                        m.X.setData(translationValues);
                     if (transfMode==2)
                         tr=tr*m;
                     else

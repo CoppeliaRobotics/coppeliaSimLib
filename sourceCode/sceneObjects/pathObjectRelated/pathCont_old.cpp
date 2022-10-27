@@ -883,7 +883,7 @@ void CPathCont_old::copyPointsToClipboard()
         for (size_t j=0;j<3;j++)
             txt+=tt::getEString(false,tr(j),4)+",";
         float q[4];
-        tr.Q.getInternalData(q,true);
+        tr.Q.getData(q,true);
         for (size_t j=0;j<4;j++)
         {
             txt+=tt::getEString(false,q[j],4);
@@ -901,7 +901,7 @@ void CPathCont_old::copyPointsToClipboard()
         for (size_t j=0;j<3;j++)
             txt+=tt::getEString(false,tr(j),4)+",";
         float q[4];
-        tr.Q.getInternalData(q,true);
+        tr.Q.getData(q,true);
         for (size_t j=0;j<4;j++)
         {
             txt+=tt::getEString(false,q[j],4);
@@ -963,7 +963,7 @@ void CPathCont_old::createEquivalent(int pathHandle)
         for (size_t j=0;j<3;j++)
             txt+=tt::getEString(false,tr(j),4)+",";
         float q[4];
-        tr.Q.getInternalData(q,true);
+        tr.Q.getData(q,true);
         for (size_t j=0;j<4;j++)
         {
             txt+=tt::getEString(false,q[j],4);

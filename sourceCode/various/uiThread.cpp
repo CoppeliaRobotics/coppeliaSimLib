@@ -1002,7 +1002,7 @@ bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesI
             retVal=(theDialog.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL);
             if (retVal)
             {
-                sizes.set(theDialog.xSize,theDialog.ySize,theDialog.zSize);
+                sizes.setData(theDialog.xSize,theDialog.ySize,theDialog.zSize);
                 subdiv[0]=theDialog.subdivX;
                 subdiv[1]=theDialog.subdivY;
                 subdiv[2]=theDialog.subdivZ;

@@ -1205,10 +1205,9 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
         // The following 6 instructions have the same effect as gluLookAt()
         m4.inverse();
         m4.rotateAroundY(piValue_f);
-        float m4_[4][4];
-        m4.copyTo(m4_);
-        CMeshManip::transposeMatrix_4x4Array(m4_);
-        glLoadMatrixf((float*)m4_);
+        CMatrix m4_(m4);
+        m4_.transpose();
+        glLoadMatrixf(m4_.data.data());
 
         if (_renderMode==sim_rendermode_opengl)
         { // visible

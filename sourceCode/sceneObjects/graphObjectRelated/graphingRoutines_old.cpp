@@ -986,8 +986,8 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
             C3Vector d1(dist+3);
             d0*=graphInv;
             d1*=graphInv;
-            d0.copyTo(dist);
-            d1.copyTo(dist+3);
+            d0.getData(dist);
+            d1.getData(dist+3);
             if (dataIndex==GRAPH_DISTANCE_SEG1_X_REL)
                 value=dist[0];
             if (dataIndex==GRAPH_DISTANCE_SEG1_Y_REL)

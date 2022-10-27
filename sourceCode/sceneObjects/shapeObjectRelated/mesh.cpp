@@ -1147,7 +1147,7 @@ void CMesh::_recomputeNormals()
             C3Vector totN;
             float nb=1.0f;
             C3Vector nActual;
-            nActual.set(&_normals[3*(indexToNormals[i]->at(j))]);
+            nActual.setData(&_normals[3*(indexToNormals[i]->at(j))]);
             totN=nActual;
             for (int k=0;k<int(indexToNormals[i]->size());k++)
             {

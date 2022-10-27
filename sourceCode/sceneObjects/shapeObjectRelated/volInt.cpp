@@ -265,7 +265,7 @@ float CVolInt::getMassCenterOfMassAndInertiaTensor(const float* vertices,int ptC
     r[0]=T1[0]/T0;
     r[1]=T1[1]/T0;
     r[2]=T1[2]/T0;
-    centerOfMass.set((float)r[0],(float)r[1],(float)r[2]);
+    centerOfMass.setData((float)r[0],(float)r[1],(float)r[2]);
 
     // compute inertia tensor
     J[0][0]=_density*(T2[1]+T2[2]);

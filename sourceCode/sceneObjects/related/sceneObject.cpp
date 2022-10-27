@@ -131,7 +131,7 @@ void CSceneObject::measureVelocity(float dt)
         if (AA(0)*BB(0)+AA(1)*BB(1)+AA(2)*BB(2)+AA(3)*BB(3)<0.0f)
             AA=AA*-1.0f;
         C4Vector r((AA.getInverse()*BB).getAngleAndAxis());
-        _measuredAngularVelocityAxis_velocityMeasurement.set(r(1),r(2),r(3));
+        _measuredAngularVelocityAxis_velocityMeasurement.setData(r(1),r(2),r(3));
         _measuredAngularVelocityAxis_velocityMeasurement=AA*_measuredAngularVelocityAxis_velocityMeasurement;
         _measuredAngularVelocityAxis_velocityMeasurement.normalize();
         _measuredAngularVelocityAxis_velocityMeasurement*=r(0)/dt;
@@ -3456,11 +3456,6 @@ void CSceneObject::checkReferencesToOriginal(const std::map<std::string,int>& al
                 _customReferencedOriginalHandles[i].generalObjectHandle=-1;
         }
     }
-}
-
-void CSceneObject::getCumulativeTransformationMatrix(float m[4][4]) const
-{
-    getCumulativeTransformation().copyTo(m);
 }
 
 void CSceneObject::setAbsoluteTransformation(const C7Vector& v)

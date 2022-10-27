@@ -1774,7 +1774,7 @@ void CConvexVolume::removeEdgesNotInsideVolume(std::vector<float>& edges,std::ve
         for (int pl=0;pl<int(planes.size())/4;pl++)
         {
             C4X4Matrix m;
-            m.M.axis[2].set(&planes[4*pl+0]);
+            m.M.axis[2].setData(&planes[4*pl+0]);
             if (fabs(m.M.axis[2]*C3Vector::unitXVector)<0.9f)
                 m.M.axis[0]=(C3Vector::unitXVector^m.M.axis[2]).getNormalized();
             else

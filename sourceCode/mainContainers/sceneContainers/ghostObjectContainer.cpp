@@ -93,7 +93,7 @@ int CGhostObjectContainer::modifyGhost(int groupId,int ghostId,int operation,flo
     C7Vector transf;
     if ((operation>=11)&&(operation<=12))
     {
-        transf.X.set(colorOrTransformation);
+        transf.X.setData(colorOrTransformation);
         // the quaternions are differently ordered at the interfaces!
         transf.Q(0)=colorOrTransformation[6];
         transf.Q(1)=colorOrTransformation[3];

@@ -2021,7 +2021,7 @@ simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const
         if (mass<0.0000001f)
             mass=0.0000001f;
         C3X3Matrix m;
-        m.copyFromInterface(inertiaMatrix);
+        m.setData(inertiaMatrix);
         m.axis[0](1)=m.axis[1](0);
         m.axis[0](2)=m.axis[2](0);
         m.axis[1](2)=m.axis[2](1);
@@ -2032,7 +2032,7 @@ simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const
         if (transformation==nullptr)
             tr.setIdentity();
         else
-            tr.copyFromInterface(transformation);
+            tr.setData(transformation);
 
         C4Vector rot;
         C3Vector pmoment;
@@ -2073,11 +2073,11 @@ simInt simGetShapeMassAndInertia_internal(simInt shapeHandle,simFloat* mass,simF
         if (transformation==nullptr)
             ref.setIdentity();
         else
-            ref.copyFromInterface(transformation);
+            ref.setData(transformation);
         C3X3Matrix m(CMeshWrapper::getNewTensor(it->getMeshWrapper()->getPrincipalMomentsOfInertia(),ref.getTransformation().getInverse()*tr));
         m*=mass[0]; // in CoppeliaSim we work with the "massless inertia"
-        m.copyToInterface(inertiaMatrix);
-        (ref.getTransformation().getInverse()*tr).X.copyTo(centerOfMass);
+        m.getData(inertiaMatrix);
+        (ref.getTransformation().getInverse()*tr).X.getData(centerOfMass);
 
         return(1);
     }
@@ -2953,7 +2953,7 @@ simInt simGetPositionOnPath_internal(simInt pathHandle,simFloat relativeDistance
             if (it->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(relativeDistance,tr))
             {
                 tr=it->getCumulativeTransformation()*tr;
-                tr.X.copyTo(position);
+                tr.X.getData(position);
                 return(1);
             }
             else
@@ -2969,7 +2969,7 @@ simInt simGetPositionOnPath_internal(simInt pathHandle,simFloat relativeDistance
             {
                 tr=ctrlPt->getTransformation();
                 tr=it->getCumulativeTransformation()*tr;
-                tr.X.copyTo(position);
+                tr.X.getData(position);
                 return(1);
             }
             else
@@ -3003,7 +3003,7 @@ simInt simGetOrientationOnPath_internal(simInt pathHandle,simFloat relativeDista
             if (it->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(relativeDistance,tr))
             {
                 tr=it->getCumulativeTransformation()*tr;
-                C3Vector(tr.Q.getEulerAngles()).copyTo(eulerAngles);
+                C3Vector(tr.Q.getEulerAngles()).getData(eulerAngles);
                 return(1);
             }
             else
@@ -3019,7 +3019,7 @@ simInt simGetOrientationOnPath_internal(simInt pathHandle,simFloat relativeDista
             {
                 tr=ctrlPt->getTransformation();
                 tr=it->getCumulativeTransformation()*tr;
-                C3Vector(tr.Q.getEulerAngles()).copyTo(eulerAngles);
+                C3Vector(tr.Q.getEulerAngles()).getData(eulerAngles);
                 return(1);
             }
             else
@@ -5720,8 +5720,8 @@ simVoid _simGetDynamicForceSensorLocalTransformationPart2_internal(const simVoid
     TRACE_C_API;
     C7Vector tr;
     tr.setIdentity();
-    tr.X.getInternalData(pos);
-    tr.Q.getInternalData(quat);
+    tr.X.getData(pos);
+    tr.Q.getData(quat);
 }
 
 simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix)
@@ -5741,7 +5741,7 @@ simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix)
         C7Vector trFull(it->getFullLocalTransformation());
         C7Vector trPart1(it->getLocalTransformation());
         C7Vector tr(trPart1.getInverse()*trFull);
-        tr.getMatrix().copyToInterface(matrix);
+        tr.getMatrix().getData(matrix);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5768,7 +5768,7 @@ simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* m
             return(-1);
         }
         C4X4Matrix m;
-        m.copyFromInterface(matrix);
+        m.setData(matrix);
         it->setSphericalTransformation(C4Vector(m.M.getQuaternion()));
         return(1);
     }
@@ -6468,8 +6468,8 @@ simInt simBuildMatrixQ_internal(const simFloat* position,const simFloat* quatern
     C4X4Matrix m;
     C4Vector q(quaternion[3],quaternion[0],quaternion[1],quaternion[2]);
     m.M=q.getMatrix();
-    m.X.set(position);
-    m.copyToInterface(matrix);
+    m.X.setData(position);
+    m.getData(matrix);
     return(1);
 }
 
@@ -6478,7 +6478,7 @@ simInt simGetQuaternionFromMatrix_internal(const simFloat* matrix,simFloat* quat
     TRACE_C_API;
 
     C4X4Matrix m;
-    m.copyFromInterface(matrix);
+    m.setData(matrix);
     C4Vector q(m.M.getQuaternion());
     quaternion[0]=q(1);
     quaternion[1]=q(2);
@@ -6491,14 +6491,14 @@ simVoid _simGetLocalInertiaFrame_internal(const simVoid* geomInfo,simFloat* pos,
 { // deprecated on 19.08.2022
     TRACE_C_API;
     C7Vector tr(((CMeshWrapper*)geomInfo)->getLocalInertiaFrame());
-    tr.Q.getInternalData(quat);
-    tr.X.getInternalData(pos);
+    tr.Q.getData(quat);
+    tr.X.getData(pos);
 }
 
 simVoid _simGetPrincipalMomentOfInertia_internal(const simVoid* geomInfo,simFloat* inertia)
 { // deprecated on 19.08.2022
     TRACE_C_API;
-    ((CMeshWrapper*)geomInfo)->getPrincipalMomentsOfInertia().getInternalData(inertia);
+    ((CMeshWrapper*)geomInfo)->getPrincipalMomentsOfInertia().getData(inertia);
 }
 
 simInt simSetDoubleSignalOld_internal(const simChar* signalName,simDouble signalValue)

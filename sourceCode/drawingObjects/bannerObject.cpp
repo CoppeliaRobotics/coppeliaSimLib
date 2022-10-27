@@ -46,7 +46,7 @@ CBannerObject::CBannerObject(const char* label,int options,int sceneObjID,const 
     _relativeConfig.setIdentity();
     if (relConfig!=nullptr)
     {
-        _relativeConfig.X.set(relConfig);
+        _relativeConfig.X.setData(relConfig);
         _relativeConfig.Q.setEulerAngles(relConfig[3],relConfig[4],relConfig[5]);
     }
 }

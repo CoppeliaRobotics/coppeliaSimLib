@@ -683,7 +683,7 @@ void CMeshWrapper::findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vecto
     m(2,1)=tensor(1,2);
     Eigen::EigenSolver<Eigen::Matrix3f> es(m);
     Eigen::Vector3cf eigenVals=es.eigenvalues();
-    principalMoments.set(eigenVals(0).real(),eigenVals(1).real(),eigenVals(2).real());
+    principalMoments.setData(eigenVals(0).real(),eigenVals(1).real(),eigenVals(2).real());
     Eigen::Vector3cf eigenVect1=es.eigenvectors().col(0);
     C3Vector eVect1(eigenVect1(0).real(),eigenVect1(1).real(),eigenVect1(2).real());
     Eigen::Vector3cf eigenVect2=es.eigenvectors().col(1);

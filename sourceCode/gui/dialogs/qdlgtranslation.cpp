@@ -704,7 +704,7 @@ void CQDlgTranslation::_transformTranslation(C7Vector& tr,bool self,int axis)
         TX[axis]=translationValues[axis];
     C7Vector m;
     m.setIdentity();
-    m.X.set(TX);
+    m.X.setData(TX);
     if (self)
         tr=tr*m;
     else

@@ -4200,9 +4200,9 @@ int _simBuildPose(luaWrap_lua_State* L)
                         if (i3>2) i3=0;
                         C3Vector a2;
                         if (a1(2)<0.8f)
-                            a2.set(0.0f,0.0f,1.0f);
+                            a2.setData(0.0f,0.0f,1.0f);
                         else
-                            a2.set(1.0f,0.0f,0.0f);
+                            a2.setData(1.0f,0.0f,0.0f);
                         m.axis[i1]=a1;
                         m.axis[i3]=(a1^a2).getNormalized();
                         m.axis[i2]=m.axis[i3]^a1;
@@ -4233,7 +4233,7 @@ int _simBuildPose(luaWrap_lua_State* L)
                     tr[0]=pos[0];
                     tr[1]=pos[1];
                     tr[2]=pos[2];
-                    m.getQuaternion().getInternalData(tr+3,true);
+                    m.getQuaternion().getData(tr+3,true);
                     pushFloatTableOntoStack(L,7,tr);
                     LUA_END(1);
                 }
@@ -4461,23 +4461,23 @@ int _simMultiplyVector(luaWrap_lua_State* L)
         { // we have a matrix
             getFloatsFromTable(L,1,12,matr);
             C4X4Matrix m;
-            m.copyFromInterface(matr);
+            m.setData(matr);
             for (size_t i=0;i<cnt;i++)
             {
                 C3Vector v(&vect[3*i]);
-                (m*v).copyTo(&vect[3*i]);
+                (m*v).getData(&vect[3*i]);
             }
         }
         else
         { // we have a pose
             getFloatsFromTable(L,1,7,matr);
             C7Vector tr;
-            tr.X.set(matr);
-            tr.Q.setInternalData(matr+3,true);
+            tr.X.setData(matr);
+            tr.Q.setData(matr+3,true);
             for (size_t i=0;i<cnt;i++)
             {
                 C3Vector v(&vect[3*i]);
-                (tr*v).copyTo(&vect[3*i]);
+                (tr*v).getData(&vect[3*i]);
             }
         }
 
@@ -10232,17 +10232,17 @@ int _simGetRotationAxis(luaWrap_lua_State* L)
         { // we have a matrix
             getFloatsFromTable(L,1,12,inM0);
             getFloatsFromTable(L,2,12,inM1);
-            mStart.copyFromInterface(inM0);
-            mGoal.copyFromInterface(inM1);
+            mStart.setData(inM0);
+            mGoal.setData(inM1);
         }
         else
         { // we have a pose
             getFloatsFromTable(L,1,7,inM0);
             getFloatsFromTable(L,2,7,inM1);
             C7Vector p;
-            p.setInternalData(inM0,true);
+            p.setData(inM0,true);
             mStart=p.getMatrix();
-            p.setInternalData(inM1,true);
+            p.setData(inM1,true);
             mGoal=p.getMatrix();
         }
 
@@ -10296,13 +10296,13 @@ int _simRotateAroundAxis(luaWrap_lua_State* L)
         { // we have a matrix
             getFloatsFromTable(L,1,12,inM);
             C4X4Matrix m;
-            m.copyFromInterface(inM);
+            m.setData(inM);
             tr=m.getTransformation();
         }
         else
         { // we have a pose
             getFloatsFromTable(L,1,7,inM);
-            tr.setInternalData(inM,true);
+            tr.setData(inM,true);
         }
         C3Vector ax(axis);
         C3Vector pos(ppos);
@@ -10325,12 +10325,12 @@ int _simRotateAroundAxis(luaWrap_lua_State* L)
         tr.X+=pos;
         if (luaWrap_lua_rawlen(L,1)>=12)
         { // we have a matrix
-            tr.getMatrix().copyToInterface(outM);
+            tr.getMatrix().getData(outM);
             pushFloatTableOntoStack(L,12,outM);
         }
         else
         { // we have a pose
-            tr.getInternalData(outM,true);
+            tr.getData(outM,true);
             pushFloatTableOntoStack(L,7,outM);
         }
         LUA_END(1);
@@ -15817,7 +15817,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
 
             C7Vector targetTr(startTr);
             if (posAndOrient&1)
-                targetTr.X.set(posTarget);
+                targetTr.X.setData(posTarget);
             if (posAndOrient&2)
                 targetTr.Q.setEulerAngles(eulerTarget[0],eulerTarget[1],eulerTarget[2]);
             float currentVel=0.0f;

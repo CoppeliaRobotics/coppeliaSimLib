@@ -141,14 +141,14 @@ void CDrawingObject::adjustForFrameChange(const C7Vector& preCorrection)
         {
             C3Vector v(&_data[floatsPerItem*i+j*3+0]);
             v*=preCorrection;
-            v.copyTo(&_data[floatsPerItem*i+j*3+0]);
+            v.getData(&_data[floatsPerItem*i+j*3+0]);
         }
         int off=verticesPerItem*3;
         for (int j=0;j<quaternionsPerItem;j++)
         {
             C4Vector q(&_data[floatsPerItem*i+off+j*4+0]);
             q=preCorrection.Q*q;
-            q.getInternalData(&_data[floatsPerItem*i+off+j*4+0]);
+            q.getData(&_data[floatsPerItem*i+off+j*4+0]);
         }
     }
     _initBufferedEventData();
@@ -170,7 +170,7 @@ void CDrawingObject::adjustForScaling(float xScale,float yScale,float zScale)
             v(0)*=xScale;
             v(1)*=yScale;
             v(2)*=zScale;
-            v.copyTo(&_data[floatsPerItem*i+j*3+0]);
+            v.getData(&_data[floatsPerItem*i+j*3+0]);
         }
         int off=verticesPerItem*3;
         if (_objectType&sim_drawing_itemcolors)

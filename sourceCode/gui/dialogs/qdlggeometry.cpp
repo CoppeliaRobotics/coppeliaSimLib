@@ -343,7 +343,7 @@ void CQDlgGeometry::_readRotation(int index)
         rotationVal[index]=newVal*gv::userToRad;
         C4Vector tr(rotationVal[0],rotationVal[1],rotationVal[2]);
         C3Vector euler(tr.getEulerAngles());
-        euler.copyTo(rotationVal);
+        euler.getData(rotationVal);
     }
 }
 

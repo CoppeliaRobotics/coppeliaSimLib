@@ -33,7 +33,6 @@ public:
     static void centerAndScale(std::vector<float>* vertices,float x,float y,float z,float sf);
     static void getNormals(const std::vector <float>* vertices,const std::vector<int>* indices,std::vector<float>* normals);
     static void getTrianglesFromPolygons(const std::vector<std::vector<int> >& polygons,std::vector<int>& indices);
-    static void transposeMatrix_4x4Array(float m[4][4]);
 
 private:
     static void _setExtractionExploration(std::vector<unsigned char>* exploration,int index,unsigned char bit,int &allBits,int &twoBits);

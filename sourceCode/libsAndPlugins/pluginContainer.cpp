@@ -952,7 +952,7 @@ void* CPluginContainer::geomPlugin_createMesh(const float* vertices,int vertices
         float* _tr=nullptr;
         if (meshOrigin!=nullptr)
         {
-            meshOrigin->getInternalData(tr);
+            meshOrigin->getData(tr);
             _tr=tr;
         }
         retVal=currentGeomPlugin->geomPlugin_createMesh(vertices,verticesSize,indices,indicesSize,_tr,triangleEdgeMaxLength,maxTrianglesInBoundingBox);
@@ -1012,7 +1012,7 @@ void* CPluginContainer::geomPlugin_createOctreeFromPoints(const float* points,in
         float* _tr=nullptr;
         if (octreeOrigin!=nullptr)
         {
-            octreeOrigin->getInternalData(tr);
+            octreeOrigin->getData(tr);
             _tr=tr;
         }
         retVal=currentGeomPlugin->geomPlugin_createOctreeFromPoints(points,pointCnt,_tr,cellS,rgbData,usrData);
@@ -1028,7 +1028,7 @@ void* CPluginContainer::geomPlugin_createOctreeFromColorPoints(const float* poin
         float* _tr=nullptr;
         if (octreeOrigin!=nullptr)
         {
-            octreeOrigin->getInternalData(tr);
+            octreeOrigin->getData(tr);
             _tr=tr;
         }
         retVal=currentGeomPlugin->geomPlugin_createOctreeFromColorPoints(points,pointCnt,_tr,cellS,rgbData,usrData);
@@ -1041,12 +1041,12 @@ void* CPluginContainer::geomPlugin_createOctreeFromMesh(const void* meshObbStruc
     if (currentGeomPlugin!=nullptr)
     {
         float _meshTr[7];
-        meshTransformation.getInternalData(_meshTr);
+        meshTransformation.getData(_meshTr);
         float tr[7];
         float* _tr=nullptr;
         if (octreeOrigin!=nullptr)
         {
-            octreeOrigin->getInternalData(tr);
+            octreeOrigin->getData(tr);
             _tr=tr;
         }
         retVal=currentGeomPlugin->geomPlugin_createOctreeFromMesh(meshObbStruct,_meshTr,_tr,cellS,rgbData,usrData);
@@ -1059,12 +1059,12 @@ void* CPluginContainer::geomPlugin_createOctreeFromOctree(const void* otherOctre
     if (currentGeomPlugin!=nullptr)
     {
         float _otherOcTr[7];
-        otherOctreeTransformation.getInternalData(_otherOcTr);
+        otherOctreeTransformation.getData(_otherOcTr);
         float tr[7];
         float* _tr=nullptr;
         if (newOctreeOrigin!=nullptr)
         {
-            newOctreeOrigin->getInternalData(tr);
+            newOctreeOrigin->getData(tr);
             _tr=tr;
         }
         retVal=currentGeomPlugin->geomPlugin_createOctreeFromOctree(otherOctreeStruct,_otherOcTr,_tr,newOctreeCellS,rgbData,usrData);
@@ -1178,7 +1178,7 @@ void CPluginContainer::geomPlugin_insertPointsIntoOctree(void* ocStruct,const C7
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        octreeTransformation.getInternalData(_tr);
+        octreeTransformation.getData(_tr);
         currentGeomPlugin->geomPlugin_insertPointsIntoOctree(ocStruct,_tr,points,pointCnt,rgbData,usrData);
     }
 }
@@ -1187,7 +1187,7 @@ void CPluginContainer::geomPlugin_insertColorPointsIntoOctree(void* ocStruct,con
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        octreeTransformation.getInternalData(_tr);
+        octreeTransformation.getData(_tr);
         currentGeomPlugin->geomPlugin_insertColorPointsIntoOctree(ocStruct,_tr,points,pointCnt,rgbData,usrData);
     }
 }
@@ -1196,9 +1196,9 @@ void CPluginContainer::geomPlugin_insertMeshIntoOctree(void* ocStruct,const C7Ve
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        octreeTransformation.getInternalData(_tr1);
+        octreeTransformation.getData(_tr1);
         float _tr2[7];
-        meshTransformation.getInternalData(_tr2);
+        meshTransformation.getData(_tr2);
         currentGeomPlugin->geomPlugin_insertMeshIntoOctree(ocStruct,_tr1,obbStruct,_tr2,rgbData,usrData);
     }
 }
@@ -1207,9 +1207,9 @@ void CPluginContainer::geomPlugin_insertOctreeIntoOctree(void* oc1Struct,const C
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        octree1Transformation.getInternalData(_tr1);
+        octree1Transformation.getData(_tr1);
         float _tr2[7];
-        octree2Transformation.getInternalData(_tr2);
+        octree2Transformation.getData(_tr2);
         currentGeomPlugin->geomPlugin_insertOctreeIntoOctree(oc1Struct,_tr1,oc2Struct,_tr2,rgbData,usrData);
     }
 }
@@ -1219,7 +1219,7 @@ bool CPluginContainer::geomPlugin_removePointsFromOctree(void* ocStruct,const C7
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        octreeTransformation.getInternalData(_tr);
+        octreeTransformation.getData(_tr);
         retVal=currentGeomPlugin->geomPlugin_removePointsFromOctree(ocStruct,_tr,points,pointCnt);
     }
     return(retVal);
@@ -1230,9 +1230,9 @@ bool CPluginContainer::geomPlugin_removeMeshFromOctree(void* ocStruct,const C7Ve
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        octreeTransformation.getInternalData(_tr1);
+        octreeTransformation.getData(_tr1);
         float _tr2[7];
-        meshTransformation.getInternalData(_tr2);
+        meshTransformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_removeMeshFromOctree(ocStruct,_tr1,obbStruct,_tr2);
     }
     return(retVal);
@@ -1243,9 +1243,9 @@ bool CPluginContainer::geomPlugin_removeOctreeFromOctree(void* oc1Struct,const C
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        octree1Transformation.getInternalData(_tr1);
+        octree1Transformation.getData(_tr1);
         float _tr2[7];
-        octree2Transformation.getInternalData(_tr2);
+        octree2Transformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_removeOctreeFromOctree(oc1Struct,_tr1,oc2Struct,_tr2);
     }
     return(retVal);
@@ -1259,7 +1259,7 @@ void* CPluginContainer::geomPlugin_createPtcloudFromPoints(const float* points,i
         float* _tr=nullptr;
         if (ptcloudOrigin!=nullptr)
         {
-            ptcloudOrigin->getInternalData(tr);
+            ptcloudOrigin->getData(tr);
             _tr=tr;
         }
         retVal=currentGeomPlugin->geomPlugin_createPtcloudFromPoints(points,pointCnt,_tr,cellS,maxPointCnt,rgbData,proximityTol);
@@ -1275,7 +1275,7 @@ void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints(const float* poi
         float* _tr=nullptr;
         if (ptcloudOrigin!=nullptr)
         {
-            ptcloudOrigin->getInternalData(tr);
+            ptcloudOrigin->getData(tr);
             _tr=tr;
         }
         retVal=currentGeomPlugin->geomPlugin_createPtcloudFromColorPoints(points,pointCnt,_tr,cellS,maxPointCnt,rgbData,proximityTol);
@@ -1373,7 +1373,7 @@ void CPluginContainer::geomPlugin_insertPointsIntoPtcloud(void* pcStruct,const C
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        ptcloudTransformation.getInternalData(_tr);
+        ptcloudTransformation.getData(_tr);
         currentGeomPlugin->geomPlugin_insertPointsIntoPtcloud(pcStruct,_tr,points,pointCnt,rgbData,proximityTol);
     }
 }
@@ -1382,7 +1382,7 @@ void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud(void* pcStruct,co
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        ptcloudTransformation.getInternalData(_tr);
+        ptcloudTransformation.getData(_tr);
         currentGeomPlugin->geomPlugin_insertColorPointsIntoPtcloud(pcStruct,_tr,points,pointCnt,rgbData,proximityTol);
     }
 }
@@ -1392,7 +1392,7 @@ bool CPluginContainer::geomPlugin_removePointsFromPtcloud(void* pcStruct,const C
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        ptcloudTransformation.getInternalData(_tr);
+        ptcloudTransformation.getData(_tr);
         retVal=currentGeomPlugin->geomPlugin_removePointsFromPtcloud(pcStruct,_tr,points,pointCnt,proximityTol,countRemoved);
     }
     return(retVal);
@@ -1403,9 +1403,9 @@ bool CPluginContainer::geomPlugin_removeOctreeFromPtcloud(void* pcStruct,const C
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        ptcloudTransformation.getInternalData(_tr);
+        ptcloudTransformation.getData(_tr);
         float _tr2[7];
-        octreeTransformation.getInternalData(_tr2);
+        octreeTransformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_removeOctreeFromPtcloud(pcStruct,_tr,ocStruct,_tr2,countRemoved);
     }
     return(retVal);
@@ -1416,7 +1416,7 @@ bool CPluginContainer::geomPlugin_intersectPointsWithPtcloud(void* pcStruct,cons
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        ptcloudTransformation.getInternalData(_tr);
+        ptcloudTransformation.getData(_tr);
         retVal=currentGeomPlugin->geomPlugin_intersectPointsWithPtcloud(pcStruct,_tr,points,pointCnt,proximityTol);
     }
     return(retVal);
@@ -1427,9 +1427,9 @@ bool CPluginContainer::geomPlugin_getMeshMeshCollision(const void* mesh1ObbStruc
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        mesh1Transformation.getInternalData(_tr1);
+        mesh1Transformation.getData(_tr1);
         float _tr2[7];
-        mesh2Transformation.getInternalData(_tr2);
+        mesh2Transformation.getData(_tr2);
         float* _intersections;
         int _intersectionsSize;
         float** _int=nullptr;
@@ -1450,9 +1450,9 @@ bool CPluginContainer::geomPlugin_getMeshOctreeCollision(const void* meshObbStru
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        meshTransformation.getInternalData(_tr1);
+        meshTransformation.getData(_tr1);
         float _tr2[7];
-        octreeTransformation.getInternalData(_tr2);
+        octreeTransformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_getMeshOctreeCollision(meshObbStruct,_tr1,ocStruct,_tr2,meshCaching,ocCaching);
     }
     return(retVal);
@@ -1463,7 +1463,7 @@ bool CPluginContainer::geomPlugin_getMeshTriangleCollision(const void* meshObbSt
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        meshTransformation.getInternalData(_tr);
+        meshTransformation.getData(_tr);
         float* _intersections;
         int _intersectionsSize;
         float** _int=nullptr;
@@ -1484,7 +1484,7 @@ bool CPluginContainer::geomPlugin_getMeshSegmentCollision(const void* meshObbStr
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        meshTransformation.getInternalData(_tr);
+        meshTransformation.getData(_tr);
         float* _intersections;
         int _intersectionsSize;
         float** _int=nullptr;
@@ -1505,9 +1505,9 @@ bool CPluginContainer::geomPlugin_getOctreeOctreeCollision(const void* oc1Struct
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        octree1Transformation.getInternalData(_tr1);
+        octree1Transformation.getData(_tr1);
         float _tr2[7];
-        octree2Transformation.getInternalData(_tr2);
+        octree2Transformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_getOctreeOctreeCollision(oc1Struct,_tr1,oc2Struct,_tr2,oc1Caching,oc2Caching);
     }
     return(retVal);
@@ -1518,9 +1518,9 @@ bool CPluginContainer::geomPlugin_getOctreePtcloudCollision(const void* ocStruct
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        octreeTransformation.getInternalData(_tr1);
+        octreeTransformation.getData(_tr1);
         float _tr2[7];
-        ptcloudTransformation.getInternalData(_tr2);
+        ptcloudTransformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_getOctreePtcloudCollision(ocStruct,_tr1,pcStruct,_tr2,ocCaching,pcCaching);
     }
     return(retVal);
@@ -1531,7 +1531,7 @@ bool CPluginContainer::geomPlugin_getOctreeTriangleCollision(const void* ocStruc
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        octreeTransformation.getInternalData(_tr1);
+        octreeTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getOctreeTriangleCollision(ocStruct,_tr1,p.data,v.data,w.data,caching);
     }
     return(retVal);
@@ -1542,7 +1542,7 @@ bool CPluginContainer::geomPlugin_getOctreeSegmentCollision(const void* ocStruct
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        octreeTransformation.getInternalData(_tr1);
+        octreeTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getOctreeSegmentCollision(ocStruct,_tr1,segmentExtremity.data,segmentVector.data,caching);
     }
     return(retVal);
@@ -1553,7 +1553,7 @@ bool CPluginContainer::geomPlugin_getOctreePointsCollision(const void* ocStruct,
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        octreeTransformation.getInternalData(_tr1);
+        octreeTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getOctreePointsCollision(ocStruct,_tr1,points,pointCount);
     }
     return(retVal);
@@ -1564,7 +1564,7 @@ bool CPluginContainer::geomPlugin_getOctreePointCollision(const void* ocStruct,c
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        octreeTransformation.getInternalData(_tr1);
+        octreeTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getOctreePointCollision(ocStruct,_tr1,point.data,usrData,caching);
     }
     return(retVal);
@@ -1575,9 +1575,9 @@ bool CPluginContainer::geomPlugin_getBoxBoxCollision(const C7Vector& box1Transfo
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        box1Transformation.getInternalData(_tr1);
+        box1Transformation.getData(_tr1);
         float _tr2[7];
-        box2Transformation.getInternalData(_tr2);
+        box2Transformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_getBoxBoxCollision(_tr1,box1HalfSize.data,_tr2,box2HalfSize.data,boxesAreSolid);
     }
     return(retVal);
@@ -1588,7 +1588,7 @@ bool CPluginContainer::geomPlugin_getBoxTriangleCollision(const C7Vector& boxTra
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        boxTransformation.getInternalData(_tr1);
+        boxTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getBoxTriangleCollision(_tr1,boxHalfSize.data,boxIsSolid,p.data,v.data,w.data);
     }
     return(retVal);
@@ -1599,7 +1599,7 @@ bool CPluginContainer::geomPlugin_getBoxSegmentCollision(const C7Vector& boxTran
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        boxTransformation.getInternalData(_tr1);
+        boxTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getBoxSegmentCollision(_tr1,boxHalfSize.data,boxIsSolid,segmentEndPoint.data,segmentVector.data);
     }
     return(retVal);
@@ -1610,7 +1610,7 @@ bool CPluginContainer::geomPlugin_getBoxPointCollision(const C7Vector& boxTransf
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        boxTransformation.getInternalData(_tr1);
+        boxTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getBoxPointCollision(_tr1,boxHalfSize.data,point.data);
     }
     return(retVal);
@@ -1659,18 +1659,18 @@ bool CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(const void* mesh1
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        mesh1Transformation.getInternalData(_tr1);
+        mesh1Transformation.getData(_tr1);
         float _tr2[7];
-        mesh2Transformation.getInternalData(_tr2);
+        mesh2Transformation.getData(_tr2);
         float _minDistSegPt1[3];
         float _minDistSegPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getMeshMeshDistanceIfSmaller(mesh1ObbStruct,_tr1,mesh2ObbStruct,_tr2,&dist,_minDistSegPt1,_minDistSegPt2,mesh1Caching,mesh2Caching);
         if (retVal)
         {
             if (minDistSegPt1!=nullptr)
-                minDistSegPt1->setInternalData(_minDistSegPt1);
+                minDistSegPt1->setData(_minDistSegPt1);
             if (minDistSegPt2!=nullptr)
-                minDistSegPt2->setInternalData(_minDistSegPt2);
+                minDistSegPt2->setData(_minDistSegPt2);
         }
     }
     return(retVal);
@@ -1681,18 +1681,18 @@ bool CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(const void* mes
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        meshTransformation.getInternalData(_tr1);
+        meshTransformation.getData(_tr1);
         float _tr2[7];
-        octreeTransformation.getInternalData(_tr2);
+        octreeTransformation.getData(_tr2);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getMeshOctreeDistanceIfSmaller(meshObbStruct,_tr1,ocStruct,_tr2,&dist,_minDistPt1,_minDistPt2,meshCaching,ocCaching);
         if (retVal)
         {
             if (meshMinDistPt!=nullptr)
-                meshMinDistPt->setInternalData(_minDistPt1);
+                meshMinDistPt->setData(_minDistPt1);
             if (ocMinDistPt!=nullptr)
-                ocMinDistPt->setInternalData(_minDistPt2);
+                ocMinDistPt->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -1703,18 +1703,18 @@ bool CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(const void* me
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        meshTransformation.getInternalData(_tr1);
+        meshTransformation.getData(_tr1);
         float _tr2[7];
-        pcTransformation.getInternalData(_tr2);
+        pcTransformation.getData(_tr2);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getMeshPtcloudDistanceIfSmaller(meshObbStruct,_tr1,pcStruct,_tr2,&dist,_minDistPt1,_minDistPt2,meshCaching,pcCaching);
         if (retVal)
         {
             if (meshMinDistPt!=nullptr)
-                meshMinDistPt->setInternalData(_minDistPt1);
+                meshMinDistPt->setData(_minDistPt1);
             if (pcMinDistPt!=nullptr)
-                pcMinDistPt->setInternalData(_minDistPt2);
+                pcMinDistPt->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -1725,16 +1725,16 @@ bool CPluginContainer::geomPlugin_getMeshTriangleDistanceIfSmaller(const void* m
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        meshTransformation.getInternalData(_tr);
+        meshTransformation.getData(_tr);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getMeshTriangleDistanceIfSmaller(meshObbStruct,_tr,p.data,v.data,w.data,&dist,_minDistPt1,_minDistPt2,caching);
         if (retVal)
         {
             if (minDistSegPt1!=nullptr)
-                minDistSegPt1->setInternalData(_minDistPt1);
+                minDistSegPt1->setData(_minDistPt1);
             if (minDistSegPt2!=nullptr)
-                minDistSegPt2->setInternalData(_minDistPt2);
+                minDistSegPt2->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -1745,16 +1745,16 @@ bool CPluginContainer::geomPlugin_getMeshSegmentDistanceIfSmaller(const void* me
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        meshTransformation.getInternalData(_tr);
+        meshTransformation.getData(_tr);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getMeshSegmentDistanceIfSmaller(meshObbStruct,_tr,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2,caching);
         if (retVal)
         {
             if (minDistSegPt1!=nullptr)
-                minDistSegPt1->setInternalData(_minDistPt1);
+                minDistSegPt1->setData(_minDistPt1);
             if (minDistSegPt2!=nullptr)
-                minDistSegPt2->setInternalData(_minDistPt2);
+                minDistSegPt2->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -1765,13 +1765,13 @@ bool CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(const void* mesh
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        meshTransformation.getInternalData(_tr);
+        meshTransformation.getData(_tr);
         float _minDistPt1[3];
         retVal=currentGeomPlugin->geomPlugin_getMeshPointDistanceIfSmaller(meshObbStruct,_tr,point.data,&dist,_minDistPt1,caching);
         if (retVal)
         {
             if (minDistSegPt!=nullptr)
-                minDistSegPt->setInternalData(_minDistPt1);
+                minDistSegPt->setData(_minDistPt1);
         }
     }
     return(retVal);
@@ -1782,18 +1782,18 @@ bool CPluginContainer::geomPlugin_getOctreeOctreeDistanceIfSmaller(const void* o
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        octree1Transformation.getInternalData(_tr1);
+        octree1Transformation.getData(_tr1);
         float _tr2[7];
-        octree2Transformation.getInternalData(_tr2);
+        octree2Transformation.getData(_tr2);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getOctreeOctreeDistanceIfSmaller(oc1Struct,_tr1,oc2Struct,_tr2,&dist,_minDistPt1,_minDistPt2,oc1Caching,oc2Caching);
         if (retVal)
         {
             if (oc1MinDistPt!=nullptr)
-                oc1MinDistPt->setInternalData(_minDistPt1);
+                oc1MinDistPt->setData(_minDistPt1);
             if (oc2MinDistPt!=nullptr)
-                oc2MinDistPt->setInternalData(_minDistPt2);
+                oc2MinDistPt->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -1804,18 +1804,18 @@ bool CPluginContainer::geomPlugin_getOctreePtcloudDistanceIfSmaller(const void* 
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        octreeTransformation.getInternalData(_tr1);
+        octreeTransformation.getData(_tr1);
         float _tr2[7];
-        pcTransformation.getInternalData(_tr2);
+        pcTransformation.getData(_tr2);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getOctreePtcloudDistanceIfSmaller(ocStruct,_tr1,pcStruct,_tr2,&dist,_minDistPt1,_minDistPt2,ocCaching,pcCaching);
         if (retVal)
         {
             if (ocMinDistPt!=nullptr)
-                ocMinDistPt->setInternalData(_minDistPt1);
+                ocMinDistPt->setData(_minDistPt1);
             if (pcMinDistPt!=nullptr)
-                pcMinDistPt->setInternalData(_minDistPt2);
+                pcMinDistPt->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -1826,16 +1826,16 @@ bool CPluginContainer::geomPlugin_getOctreeTriangleDistanceIfSmaller(const void*
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        octreeTransformation.getInternalData(_tr);
+        octreeTransformation.getData(_tr);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getOctreeTriangleDistanceIfSmaller(ocStruct,_tr,p.data,v.data,w.data,&dist,_minDistPt1,_minDistPt2,ocCaching);
         if (retVal)
         {
             if (ocMinDistPt!=nullptr)
-                ocMinDistPt->setInternalData(_minDistPt1);
+                ocMinDistPt->setData(_minDistPt1);
             if (triMinDistPt!=nullptr)
-                triMinDistPt->setInternalData(_minDistPt2);
+                triMinDistPt->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -1846,16 +1846,16 @@ bool CPluginContainer::geomPlugin_getOctreeSegmentDistanceIfSmaller(const void* 
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        octreeTransformation.getInternalData(_tr);
+        octreeTransformation.getData(_tr);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getOctreeSegmentDistanceIfSmaller(ocStruct,_tr,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2,ocCaching);
         if (retVal)
         {
             if (ocMinDistPt!=nullptr)
-                ocMinDistPt->setInternalData(_minDistPt1);
+                ocMinDistPt->setData(_minDistPt1);
             if (segMinDistPt!=nullptr)
-                segMinDistPt->setInternalData(_minDistPt2);
+                segMinDistPt->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -1866,13 +1866,13 @@ bool CPluginContainer::geomPlugin_getOctreePointDistanceIfSmaller(const void* oc
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        octreeTransformation.getInternalData(_tr);
+        octreeTransformation.getData(_tr);
         float _minDistPt1[3];
         retVal=currentGeomPlugin->geomPlugin_getOctreePointDistanceIfSmaller(ocStruct,_tr,point.data,&dist,_minDistPt1,ocCaching);
         if (retVal)
         {
             if (ocMinDistPt!=nullptr)
-                ocMinDistPt->setInternalData(_minDistPt1);
+                ocMinDistPt->setData(_minDistPt1);
         }
     }
     return(retVal);
@@ -1883,18 +1883,18 @@ bool CPluginContainer::geomPlugin_getPtcloudPtcloudDistanceIfSmaller(const void*
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        pc1Transformation.getInternalData(_tr1);
+        pc1Transformation.getData(_tr1);
         float _tr2[7];
-        pc2Transformation.getInternalData(_tr2);
+        pc2Transformation.getData(_tr2);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getPtcloudPtcloudDistanceIfSmaller(pc1Struct,_tr1,pc2Struct,_tr2,&dist,_minDistPt1,_minDistPt2,pc1Caching,pc2Caching);
         if (retVal)
         {
             if (pc1MinDistPt!=nullptr)
-                pc1MinDistPt->setInternalData(_minDistPt1);
+                pc1MinDistPt->setData(_minDistPt1);
             if (pc2MinDistPt!=nullptr)
-                pc2MinDistPt->setInternalData(_minDistPt2);
+                pc2MinDistPt->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -1905,16 +1905,16 @@ bool CPluginContainer::geomPlugin_getPtcloudTriangleDistanceIfSmaller(const void
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        pcTransformation.getInternalData(_tr);
+        pcTransformation.getData(_tr);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getPtcloudTriangleDistanceIfSmaller(pcStruct,_tr,p.data,v.data,w.data,&dist,_minDistPt1,_minDistPt2,pcCaching);
         if (retVal)
         {
             if (pcMinDistPt!=nullptr)
-                pcMinDistPt->setInternalData(_minDistPt1);
+                pcMinDistPt->setData(_minDistPt1);
             if (triMinDistPt!=nullptr)
-                triMinDistPt->setInternalData(_minDistPt2);
+                triMinDistPt->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -1925,16 +1925,16 @@ bool CPluginContainer::geomPlugin_getPtcloudSegmentDistanceIfSmaller(const void*
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        pcTransformation.getInternalData(_tr);
+        pcTransformation.getData(_tr);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getPtcloudSegmentDistanceIfSmaller(pcStruct,_tr,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2,pcCaching);
         if (retVal)
         {
             if (pcMinDistPt!=nullptr)
-                pcMinDistPt->setInternalData(_minDistPt1);
+                pcMinDistPt->setData(_minDistPt1);
             if (segMinDistPt!=nullptr)
-                segMinDistPt->setInternalData(_minDistPt2);
+                segMinDistPt->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -1945,13 +1945,13 @@ bool CPluginContainer::geomPlugin_getPtcloudPointDistanceIfSmaller(const void* p
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        pcTransformation.getInternalData(_tr);
+        pcTransformation.getData(_tr);
         float _minDistPt1[3];
         retVal=currentGeomPlugin->geomPlugin_getPtcloudPointDistanceIfSmaller(pcStruct,_tr,point.data,&dist,_minDistPt1,pcCaching);
         if (retVal)
         {
             if (pcMinDistPt!=nullptr)
-                pcMinDistPt->setInternalData(_minDistPt1);
+                pcMinDistPt->setData(_minDistPt1);
         }
     }
     return(retVal);
@@ -1962,9 +1962,9 @@ float CPluginContainer::geomPlugin_getApproxBoxBoxDistance(const C7Vector& box1T
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        box1Transformation.getInternalData(_tr1);
+        box1Transformation.getData(_tr1);
         float _tr2[7];
-        box2Transformation.getInternalData(_tr2);
+        box2Transformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_getApproxBoxBoxDistance(_tr1,box1HalfSize.data,_tr2,box2HalfSize.data);
     }
     return(retVal);
@@ -1975,18 +1975,18 @@ bool CPluginContainer::geomPlugin_getBoxBoxDistanceIfSmaller(const C7Vector& box
     if (currentGeomPlugin!=nullptr)
     {
         float _tr1[7];
-        box1Transformation.getInternalData(_tr1);
+        box1Transformation.getData(_tr1);
         float _tr2[7];
-        box2Transformation.getInternalData(_tr2);
+        box2Transformation.getData(_tr2);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getBoxBoxDistanceIfSmaller(_tr1,box1HalfSize.data,_tr2,box2HalfSize.data,boxesAreSolid,&dist,_minDistPt1,_minDistPt2);
         if (retVal)
         {
             if (distSegPt1!=nullptr)
-                distSegPt1->setInternalData(_minDistPt1);
+                distSegPt1->setData(_minDistPt1);
             if (distSegPt2!=nullptr)
-                distSegPt2->setInternalData(_minDistPt2);
+                distSegPt2->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -1997,16 +1997,16 @@ bool CPluginContainer::geomPlugin_getBoxTriangleDistanceIfSmaller(const C7Vector
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        boxTransformation.getInternalData(_tr);
+        boxTransformation.getData(_tr);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getBoxTriangleDistanceIfSmaller(_tr,boxHalfSize.data,boxIsSolid,p.data,v.data,w.data,&dist,_minDistPt1,_minDistPt2);
         if (retVal)
         {
             if (distSegPt1!=nullptr)
-                distSegPt1->setInternalData(_minDistPt1);
+                distSegPt1->setData(_minDistPt1);
             if (distSegPt2!=nullptr)
-                distSegPt2->setInternalData(_minDistPt2);
+                distSegPt2->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -2017,16 +2017,16 @@ bool CPluginContainer::geomPlugin_getBoxSegmentDistanceIfSmaller(const C7Vector&
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        boxTransformation.getInternalData(_tr);
+        boxTransformation.getData(_tr);
         float _minDistPt1[3];
         float _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getBoxSegmentDistanceIfSmaller(_tr,boxHalfSize.data,boxIsSolid,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2);
         if (retVal)
         {
             if (distSegPt1!=nullptr)
-                distSegPt1->setInternalData(_minDistPt1);
+                distSegPt1->setData(_minDistPt1);
             if (distSegPt2!=nullptr)
-                distSegPt2->setInternalData(_minDistPt2);
+                distSegPt2->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -2037,13 +2037,13 @@ bool CPluginContainer::geomPlugin_getBoxPointDistanceIfSmaller(const C7Vector& b
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        boxTransformation.getInternalData(_tr);
+        boxTransformation.getData(_tr);
         float _minDistPt1[3];
         retVal=currentGeomPlugin->geomPlugin_getBoxPointDistanceIfSmaller(_tr,boxHalfSize.data,boxIsSolid,point.data,&dist,_minDistPt1);
         if (retVal)
         {
             if (distSegPt1!=nullptr)
-                distSegPt1->setInternalData(_minDistPt1);
+                distSegPt1->setData(_minDistPt1);
         }
     }
     return(retVal);
@@ -2065,9 +2065,9 @@ bool CPluginContainer::geomPlugin_getTriangleTriangleDistanceIfSmaller(const C3V
         if (retVal)
         {
             if (minDistSegPt1!=nullptr)
-                minDistSegPt1->setInternalData(_minDistPt1);
+                minDistSegPt1->setData(_minDistPt1);
             if (minDistSegPt2!=nullptr)
-                minDistSegPt2->setInternalData(_minDistPt2);
+                minDistSegPt2->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -2083,9 +2083,9 @@ bool CPluginContainer::geomPlugin_getTriangleSegmentDistanceIfSmaller(const C3Ve
         if (retVal)
         {
             if (minDistSegPt1!=nullptr)
-                minDistSegPt1->setInternalData(_minDistPt1);
+                minDistSegPt1->setData(_minDistPt1);
             if (minDistSegPt2!=nullptr)
-                minDistSegPt2->setInternalData(_minDistPt2);
+                minDistSegPt2->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -2100,7 +2100,7 @@ bool CPluginContainer::geomPlugin_getTrianglePointDistanceIfSmaller(const C3Vect
         if (retVal)
         {
             if (minDistSegPt!=nullptr)
-                minDistSegPt->setInternalData(_minDistPt1);
+                minDistSegPt->setData(_minDistPt1);
         }
     }
     return(retVal);
@@ -2116,9 +2116,9 @@ bool CPluginContainer::geomPlugin_getSegmentSegmentDistanceIfSmaller(const C3Vec
         if (retVal)
         {
             if (minDistSegPt1!=nullptr)
-                minDistSegPt1->setInternalData(_minDistPt1);
+                minDistSegPt1->setData(_minDistPt1);
             if (minDistSegPt2!=nullptr)
-                minDistSegPt2->setInternalData(_minDistPt2);
+                minDistSegPt2->setData(_minDistPt2);
         }
     }
     return(retVal);
@@ -2133,7 +2133,7 @@ bool CPluginContainer::geomPlugin_getSegmentPointDistanceIfSmaller(const C3Vecto
         if (retVal)
         {
             if (minDistSegPt!=nullptr)
-                minDistSegPt->setInternalData(_minDistPt1);
+                minDistSegPt->setData(_minDistPt1);
         }
     }
     return(retVal);
@@ -2150,16 +2150,16 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(const std::vec
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        meshTransformation.getInternalData(_tr);
+        meshTransformation.getData(_tr);
         float _detectPt[3];
         float _triN[3];
         retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectMeshIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),obbStruct,_tr,&dist,fast,frontDetection,backDetection,maxAngle,_detectPt,_triN);
         if (retVal)
         {
             if (detectPt!=nullptr)
-                detectPt->setInternalData(_detectPt);
+                detectPt->setData(_detectPt);
             if (triN!=nullptr)
-                triN->setInternalData(_triN);
+                triN->setData(_triN);
         }
     }
     return(retVal);
@@ -2176,16 +2176,16 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectOctreeIfSmaller(const std::v
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        octreeTransformation.getInternalData(_tr);
+        octreeTransformation.getData(_tr);
         float _detectPt[3];
         float _triN[3];
         retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectOctreeIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),ocStruct,_tr,&dist,fast,frontDetection,backDetection,maxAngle,_detectPt,_triN);
         if (retVal)
         {
             if (detectPt!=nullptr)
-                detectPt->setInternalData(_detectPt);
+                detectPt->setData(_detectPt);
             if (triN!=nullptr)
-                triN->setInternalData(_triN);
+                triN->setData(_triN);
         }
     }
     return(retVal);
@@ -2202,13 +2202,13 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectPtcloudIfSmaller(const std::
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        ptcloudTransformation.getInternalData(_tr);
+        ptcloudTransformation.getData(_tr);
         float _detectPt[3];
         retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectPtcloudIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),pcStruct,_tr,&dist,fast,_detectPt);
         if (retVal)
         {
             if (detectPt!=nullptr)
-                detectPt->setInternalData(_detectPt);
+                detectPt->setData(_detectPt);
         }
     }
     return(retVal);
@@ -2230,9 +2230,9 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectTriangleIfSmaller(const std:
         if (retVal)
         {
             if (detectPt!=nullptr)
-                detectPt->setInternalData(_detectPt);
+                detectPt->setData(_detectPt);
             if (triN!=nullptr)
-                triN->setInternalData(_triN);
+                triN->setData(_triN);
         }
     }
     return(retVal);
@@ -2253,7 +2253,7 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectSegmentIfSmaller(const std::
         if (retVal)
         {
             if (detectPt!=nullptr)
-                detectPt->setInternalData(_detectPt);
+                detectPt->setData(_detectPt);
         }
     }
     return(retVal);
@@ -2264,16 +2264,16 @@ bool CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(const C3Vector& r
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        meshTransformation.getInternalData(_tr);
+        meshTransformation.getData(_tr);
         float _detectPt[3];
         float _triN[3];
         retVal=currentGeomPlugin->geomPlugin_raySensorDetectMeshIfSmaller(rayStart.data,rayVect.data,obbStruct,_tr,&dist,forbiddenDist,fast,frontDetection,backDetection,maxAngle,_detectPt,_triN,forbiddenDistTouched);
         if (retVal)
         {
             if (detectPt!=nullptr)
-                detectPt->setInternalData(_detectPt);
+                detectPt->setData(_detectPt);
             if (triN!=nullptr)
-                triN->setInternalData(_triN);
+                triN->setData(_triN);
         }
     }
     return(retVal);
@@ -2284,16 +2284,16 @@ bool CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(const C3Vector&
     if (currentGeomPlugin!=nullptr)
     {
         float _tr[7];
-        octreeTransformation.getInternalData(_tr);
+        octreeTransformation.getData(_tr);
         float _detectPt[3];
         float _triN[3];
         retVal=currentGeomPlugin->geomPlugin_raySensorDetectOctreeIfSmaller(rayStart.data,rayVect.data,ocStruct,_tr,&dist,forbiddenDist,fast,frontDetection,backDetection,maxAngle,_detectPt,_triN,forbiddenDistTouched);
         if (retVal)
         {
             if (detectPt!=nullptr)
-                detectPt->setInternalData(_detectPt);
+                detectPt->setData(_detectPt);
             if (triN!=nullptr)
-                triN->setInternalData(_triN);
+                triN->setData(_triN);
         }
     }
     return(retVal);

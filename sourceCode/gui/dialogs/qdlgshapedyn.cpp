@@ -631,15 +631,15 @@ void CQDlgShapeDyn::on_qqTensorMatrix_clicked()
         tr.X.clear(); // we just wanna reorient the inertia matrix, no shifting!
         C3X3Matrix m(CMeshWrapper::getNewTensor(shape->getMeshWrapper()->getPrincipalMomentsOfInertia(),tr));
         // m is now the absolute inertia tensor centered at the COM
-        m.copyToInterface(theDialog.tensor);
+        m.getData(theDialog.tensor);
         C3Vector com(shape->getMeshWrapper()->getLocalInertiaFrame().X);
         com*=shape->getFullCumulativeTransformation(); // relative to the absolute frame!
-        com.copyTo(theDialog.com);
+        com.getData(theDialog.com);
         theDialog.applyToSelection=false;
         theDialog.refresh();
         if (theDialog.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL)
         {
-            m.copyFromInterface(theDialog.tensor);
+            m.setData(theDialog.tensor);
             C4Vector rot;
             C3Vector pmoment;
             CMeshWrapper::findPrincipalMomentOfInertia(m,rot,pmoment);

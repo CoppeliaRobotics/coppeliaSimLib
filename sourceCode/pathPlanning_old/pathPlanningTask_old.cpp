@@ -836,8 +836,8 @@ int CPathPlanningTask::performSteppedSearch()
                     for (int i=0;i<nodeCount;i++)
                     {
                         C7Vector conf;
-                        conf.X.setInternalData(pathData+0+7*i);
-                        conf.Q.setInternalData(pathData+3+7*i);
+                        conf.X.setData(pathData+0+7*i);
+                        conf.Q.setData(pathData+3+7*i);
                         conf=pathInv*conf;
                         CSimplePathPoint_old* nspp=new CSimplePathPoint_old();
                         nspp->setTransformation(conf,it->pathContainer->getAttributes());
@@ -925,8 +925,8 @@ int CPathPlanningTask::performSteppedSearch()
                     for (int i=0;i<nodeCount;i++)
                     {
                         C7Vector conf;
-                        conf.X.setInternalData(pathData+0+7*i);
-                        conf.Q.setInternalData(pathData+3+7*i);
+                        conf.X.setData(pathData+0+7*i);
+                        conf.Q.setData(pathData+3+7*i);
                         conf=pathInv*conf;
                         CSimplePathPoint_old* nspp=new CSimplePathPoint_old();
                         nspp->setTransformation(conf,it->pathContainer->getAttributes());

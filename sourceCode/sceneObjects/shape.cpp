@@ -207,7 +207,7 @@ void CShape::_computeMeshBoundingBox()
     for (size_t i=0;i<visibleVertices.size()/3;i++)
     {
         if (i==0)
-            _meshBoundingBoxHalfSizes.set(&visibleVertices[3*i+0]);
+            _meshBoundingBoxHalfSizes.setData(&visibleVertices[3*i+0]);
         else
             _meshBoundingBoxHalfSizes.keepMax(C3Vector(&visibleVertices[3*i+0]));
     }
@@ -1899,8 +1899,8 @@ bool CShape::getDistanceToDummy_IfSmaller(CDummy* dummy,float &dist,float ray[7]
     C3Vector rayPart0;
     if (CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(_meshCalculationStructure,getFullCumulativeTransformation(),dummyPos,dist,&rayPart0,&buffer))
     {
-        rayPart0.getInternalData(ray+0);
-        dummyPos.getInternalData(ray+3);
+        rayPart0.getData(ray+0);
+        dummyPos.getData(ray+3);
         ray[6]=dist;
         return(true);
     }

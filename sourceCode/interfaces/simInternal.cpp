@@ -1462,7 +1462,7 @@ simInt simGetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
         }
         if (inverse)
             tr.inverse();
-        tr.getMatrix().copyToInterface(matrix);
+        tr.getMatrix().getData(matrix);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -1504,7 +1504,7 @@ simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
         if (it->getDynamicFlag()>1) // for non-static shapes, and other objects that are in the dyn. world
             it->setDynamicsResetFlag(true,true);
         C4X4Matrix m;
-        m.copyFromInterface(matrix);
+        m.setData(matrix);
         if (inverse)
             m.inverse();
         CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
@@ -1574,7 +1574,7 @@ simInt simGetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHand
         }
         if (inverse)
             tr.inverse();
-        tr.getInternalData(pose,(handleFlags&sim_handleflag_wxyzquat)==0);
+        tr.getData(pose,(handleFlags&sim_handleflag_wxyzquat)==0);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -1616,7 +1616,7 @@ simInt simSetObjectPose_internal(simInt objectHandle,simInt relativeToObjectHand
         if (it->getDynamicFlag()>1) // for non-static shapes, and other objects that are in the dyn. world
             it->setDynamicsResetFlag(true,true);
         C7Vector tr;
-        tr.setInternalData(pose,(handleFlags&sim_handleflag_wxyzquat)==0);
+        tr.setData(pose,(handleFlags&sim_handleflag_wxyzquat)==0);
         if (inverse)
             tr.inverse();
         CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
@@ -1685,7 +1685,7 @@ simInt simGetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
                 }
             }
         }
-        tr.X.copyTo(position);
+        tr.X.getData(position);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -1730,7 +1730,7 @@ simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
                 C7Vector absTr(it->getCumulativeTransformation());
                 C7Vector relTr(relObj->getCumulativeTransformation());
                 C7Vector x(relTr.getInverse()*absTr);
-                x.X.set(position);
+                x.X.setData(position);
                 absTr=relTr*x;
                 App::currentWorld->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(),absTr.X);
             }
@@ -1747,7 +1747,7 @@ simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
                     C7Vector absTr(it->getCumulativeTransformation());
                     C7Vector relTr(relObj->getFullCumulativeTransformation());
                     C7Vector x(relTr.getInverse()*absTr);
-                    x.X.set(position);
+                    x.X.setData(position);
                     absTr=relTr*x;
                     App::currentWorld->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(),absTr.X);
                 }
@@ -1802,7 +1802,7 @@ simInt simGetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
                 tr=relTr.getInverse()*it->getCumulativeTransformation();
             }
         }
-        C3Vector(tr.Q.getEulerAngles()).copyTo(eulerAngles);
+        C3Vector(tr.Q.getEulerAngles()).getData(eulerAngles);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -2064,7 +2064,7 @@ simInt simGetObjectChildPose_internal(simInt objectHandle,simFloat* pose)
             tr=((CJoint*)obj)->getIntrinsicTransformation(true);
         if (obj->getObjectType()==sim_object_forcesensor_type)
             tr=((CForceSensor*)obj)->getIntrinsicTransformation(true);
-        tr.getInternalData(pose,true);
+        tr.getData(pose,true);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -2089,7 +2089,7 @@ simInt simSetObjectChildPose_internal(simInt objectHandle,const simFloat* pose)
             if (it->getJointType()==sim_joint_spherical_subtype)
             {
                 C7Vector tr;
-                tr.setInternalData(pose,true);
+                tr.setData(pose,true);
                 it->setSphericalTransformation(C4Vector(tr.Q));
                 it->setIntrinsicTransformationError(C7Vector::identityTransformation);
             }
@@ -2328,7 +2328,7 @@ simInt simBuildIdentityMatrix_internal(simFloat* matrix)
 
     C4X4Matrix m;
     m.setIdentity();
-    m.copyToInterface(matrix);
+    m.getData(matrix);
     return(1);
 }
 
@@ -2338,8 +2338,8 @@ simInt simBuildMatrix_internal(const simFloat* position,const simFloat* eulerAng
 
     C4X4Matrix m;
     m.M.setEulerAngles(C3Vector(eulerAngles));
-    m.X.set(position);
-    m.copyToInterface(matrix);
+    m.X.setData(position);
+    m.getData(matrix);
     return(1);
 }
 
@@ -2350,7 +2350,7 @@ simInt simBuildPose_internal(const simFloat* position,const simFloat* eulerAngle
     TRACE_C_API;
 
     C7Vector tr(C4Vector(eulerAngles[0],eulerAngles[1],eulerAngles[2]),C3Vector(position));
-    tr.getInternalData(pose,true);
+    tr.getData(pose,true);
     return(1);
 }
 
@@ -2359,8 +2359,8 @@ simInt simGetEulerAnglesFromMatrix_internal(const simFloat* matrix,simFloat* eul
     TRACE_C_API;
 
     C4X4Matrix m;
-    m.copyFromInterface(matrix);
-    m.M.getEulerAngles().copyTo(eulerAngles);
+    m.setData(matrix);
+    m.M.getEulerAngles().getData(eulerAngles);
     return(1);
 }
 
@@ -2369,9 +2369,9 @@ simInt simInvertMatrix_internal(simFloat* matrix)
     TRACE_C_API;
 
     C4X4Matrix m;
-    m.copyFromInterface(matrix);
+    m.setData(matrix);
     m.inverse();
-    m.copyToInterface(matrix);
+    m.getData(matrix);
     return(1);
 }
 
@@ -2380,9 +2380,9 @@ simInt simInvertPose_internal(simFloat* pose)
     TRACE_C_API;
 
     C7Vector p;
-    p.setInternalData(pose,true);
+    p.setData(pose,true);
     p.inverse();
-    p.getInternalData(pose,true);
+    p.getData(pose,true);
     return(1);
 }
 
@@ -2391,10 +2391,10 @@ simInt simMultiplyMatrices_internal(const simFloat* matrixIn1,const simFloat* ma
     TRACE_C_API;
 
     C4X4Matrix mIn1;
-    mIn1.copyFromInterface(matrixIn1);
+    mIn1.setData(matrixIn1);
     C4X4Matrix mIn2;
-    mIn2.copyFromInterface(matrixIn2);
-    (mIn1*mIn2).copyToInterface(matrixOut);
+    mIn2.setData(matrixIn2);
+    (mIn1*mIn2).getData(matrixOut);
     return(1);
 }
 
@@ -2403,10 +2403,10 @@ simInt simMultiplyPoses_internal(const simFloat* poseIn1,const simFloat* poseIn2
     TRACE_C_API;
 
     C7Vector pIn1;
-    pIn1.setInternalData(poseIn1,true);
+    pIn1.setData(poseIn1,true);
     C7Vector pIn2;
-    pIn2.setInternalData(poseIn2,true);
-    (pIn1*pIn2).getInternalData(poseOut,true);
+    pIn2.setData(poseIn2,true);
+    (pIn1*pIn2).getData(poseOut,true);
     return(1);
 }
 
@@ -2415,8 +2415,8 @@ simInt simPoseToMatrix_internal(const simFloat* poseIn,simFloat* matrixOut)
     TRACE_C_API;
 
     C7Vector pIn;
-    pIn.setInternalData(poseIn,true);
-    pIn.getMatrix().copyToInterface(matrixOut);
+    pIn.setData(poseIn,true);
+    pIn.getMatrix().getData(matrixOut);
     return(1);
 }
 
@@ -2425,8 +2425,8 @@ simInt simMatrixToPose_internal(const simFloat* matrixIn,simFloat* poseOut)
     TRACE_C_API;
 
     C4X4Matrix mIn;
-    mIn.copyFromInterface(matrixIn);
-    mIn.getTransformation().getInternalData(poseOut,true);
+    mIn.setData(matrixIn);
+    mIn.getTransformation().getData(poseOut,true);
     return(1);
 }
 
@@ -2435,12 +2435,12 @@ simInt simInterpolateMatrices_internal(const simFloat* matrixIn1,const simFloat*
     TRACE_C_API;
 
     C4X4Matrix mIn1;
-    mIn1.copyFromInterface(matrixIn1);
+    mIn1.setData(matrixIn1);
     C4X4Matrix mIn2;
-    mIn2.copyFromInterface(matrixIn2);
+    mIn2.setData(matrixIn2);
     C7Vector tr;
     tr.buildInterpolation(mIn1.getTransformation(),mIn2.getTransformation(),interpolFactor);
-    (tr.getMatrix()).copyToInterface(matrixOut);
+    (tr.getMatrix()).getData(matrixOut);
     return(1);
 }
 
@@ -2449,12 +2449,12 @@ simInt simInterpolatePoses_internal(const simFloat* poseIn1,const simFloat* pose
     TRACE_C_API;
 
     C7Vector pIn1;
-    pIn1.setInternalData(poseIn1,true);
+    pIn1.setData(poseIn1,true);
     C7Vector pIn2;
-    pIn2.setInternalData(poseIn2,true);
+    pIn2.setData(poseIn2,true);
     C7Vector tr;
     tr.buildInterpolation(pIn1,pIn2,interpolFactor);
-    tr.getInternalData(poseOut,true);
+    tr.getData(poseOut,true);
     return(1);
 }
 
@@ -2463,9 +2463,9 @@ simInt simTransformVector_internal(const simFloat* matrix,simFloat* vect)
     TRACE_C_API;
 
     C4X4Matrix m;
-    m.copyFromInterface(matrix);
+    m.setData(matrix);
     C3Vector v(vect);
-    (m*v).copyTo(vect);
+    (m*v).getData(vect);
     return(1);
 }
 
@@ -3508,7 +3508,7 @@ simInt simGetArrayParam_internal(simInt parameter,simVoid* arrayOfValues)
             if (App::currentWorld->dynamicsContainer==nullptr)
                 return(-1);
             C3Vector g(App::currentWorld->dynamicsContainer->getGravity());
-            g.copyTo((float*)arrayOfValues);
+            g.getData((float*)arrayOfValues);
             return(1);
         }
         if (parameter==sim_arrayparam_fog)
@@ -3587,7 +3587,7 @@ simInt simGetArrayParam_internal(simInt parameter,simVoid* arrayOfValues)
                 C3Vector orig,dir;
                 if (App::mainWindow->getMouseRay(orig,dir))
                 {
-                    orig.getInternalData(((float*)arrayOfValues));
+                    orig.getData(((float*)arrayOfValues));
                     return(1);
                 }
             }
@@ -3605,7 +3605,7 @@ simInt simGetArrayParam_internal(simInt parameter,simVoid* arrayOfValues)
                 C3Vector orig,dir;
                 if (App::mainWindow->getMouseRay(orig,dir))
                 {
-                    dir.getInternalData(((float*)arrayOfValues));
+                    dir.getData(((float*)arrayOfValues));
                     return(1);
                 }
             }
@@ -4945,13 +4945,13 @@ simInt simReadProximitySensor_internal(simInt sensorHandle,simFloat* detectedPoi
         {
             if (detectedPoint!=nullptr)
             {
-                dPt.copyTo(detectedPoint);
+                dPt.getData(detectedPoint);
                 detectedPoint[3]=dPt.getLength();
             }
             if (detectedObjectHandle!=nullptr)
                 detectedObjectHandle[0]=dObjHandle;
             if (normalVector!=nullptr)
-                nVect.copyTo(normalVector);
+                nVect.getData(normalVector);
         }
         return(retVal);
     }
@@ -6857,9 +6857,9 @@ simInt simReadForceSensor_internal(simInt objectHandle,simFloat* forceVector,sim
         {
             it->getDynamicTorques(t,(handleFlags&sim_handleflag_rawvalue)!=0);
             if (forceVector!=nullptr)
-                f.copyTo(forceVector);
+                f.getData(forceVector);
             if (torqueVector!=nullptr)
-                t.copyTo(torqueVector);
+                t.getData(torqueVector);
             retVal|=1;
         }
 
@@ -6947,9 +6947,9 @@ simInt simGetVelocity_internal(simInt shapeHandle,simFloat* linearVelocity,simFl
         C3Vector lv(it->getDynamicLinearVelocity());
         C3Vector av(it->getDynamicAngularVelocity());
         if (linearVelocity!=nullptr)
-            lv.copyTo(linearVelocity);
+            lv.getData(linearVelocity);
         if (angularVelocity!=nullptr)
-            av.copyTo(angularVelocity);
+            av.getData(angularVelocity);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -6982,9 +6982,9 @@ simInt simGetObjectVelocity_internal(simInt objectHandle,simFloat* linearVelocit
         else
             av=it->getMeasuredAngularVelocity3();
         if (linearVelocity!=nullptr)
-            lv.copyTo(linearVelocity);
+            lv.getData(linearVelocity);
         if (angularVelocity!=nullptr)
-            av.copyTo(angularVelocity);
+            av.getData(angularVelocity);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7036,9 +7036,9 @@ simInt simAddForceAndTorque_internal(simInt shapeHandle,const simFloat* force,co
         f.clear();
         t.clear();
         if (force!=nullptr)
-            f.set(force);
+            f.setData(force);
         if (torque!=nullptr)
-            t.set(torque);
+            t.setData(torque);
 
         if ((handleFlags&sim_handleflag_resetforce)!=0)
             it->clearAdditionalForce();
@@ -10805,9 +10805,9 @@ simInt simGetRotationAxis_internal(const simFloat* matrixStart,const simFloat* m
     TRACE_C_API;
 
     C4X4Matrix mStart;
-    mStart.copyFromInterface(matrixStart);
+    mStart.setData(matrixStart);
     C4X4Matrix mGoal;
-    mGoal.copyFromInterface(matrixGoal);
+    mGoal.setData(matrixGoal);
 
     // Following few lines taken from the quaternion interpolation part:
     C4Vector AA(mStart.M.getQuaternion());
@@ -10839,7 +10839,7 @@ simInt simRotateAroundAxis_internal(const simFloat* matrixIn,const simFloat* axi
     TRACE_C_API;
 
     C4X4Matrix mIn;
-    mIn.copyFromInterface(matrixIn);
+    mIn.setData(matrixIn);
     C7Vector m(mIn);
     C3Vector ax(axis);
     C3Vector pos(axisPos);
@@ -10860,7 +10860,7 @@ simInt simRotateAroundAxis_internal(const simFloat* matrixIn,const simFloat* axi
     r.Q.setEulerAngles(0.0f,0.0f,-alpha);
     m=r*m;
     m.X+=pos;
-    m.getMatrix().copyToInterface(matrixOut);
+    m.getMatrix().getData(matrixOut);
 
     return(1);
 }
@@ -11521,7 +11521,7 @@ simInt simGetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
                 }
             }
         }
-        tr.Q.getInternalData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
+        tr.Q.getData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -11563,7 +11563,7 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
         if (relObj==nullptr)
         {
             C4Vector q;
-            q.setInternalData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
+            q.setData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),q.getEulerAngles());
         }
         else
@@ -11571,7 +11571,7 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
             if ( (it->getParent()==relObj)&&((handleFlags&sim_handleflag_reljointbaseframe)==0) )
             { // special here, in order to not lose precision in a series of get/set
                 C7Vector tr(it->getLocalTransformation());
-                tr.Q.setInternalData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
+                tr.Q.setData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
                 it->setLocalTransformation(tr);
             }
             else
@@ -11583,7 +11583,7 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
                 else
                     relTr=relObj->getFullCumulativeTransformation();
                 C7Vector x(relTr.getInverse()*absTr);
-                x.Q.setInternalData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
+                x.Q.setData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
                 absTr=relTr*x;
                 App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),absTr.Q.getEulerAngles());
             }
@@ -11651,7 +11651,7 @@ simInt simGetShapeInertia_internal(simInt shapeHandle,simFloat* inertiaMatrix,si
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
 
         C4X4Matrix tr(it->getMeshWrapper()->getLocalInertiaFrame());
-        tr.copyToInterface(transformationMatrix);
+        tr.getData(transformationMatrix);
 
         C3X3Matrix m;
         m.clear();
@@ -11659,7 +11659,7 @@ simInt simGetShapeInertia_internal(simInt shapeHandle,simFloat* inertiaMatrix,si
         m.axis[1](1)=it->getMeshWrapper()->getPrincipalMomentsOfInertia()(1);
         m.axis[2](2)=it->getMeshWrapper()->getPrincipalMomentsOfInertia()(2);
         m*=it->getMeshWrapper()->getMass(); // in CoppeliaSim we work with the "massless inertia"
-        m.copyToInterface(inertiaMatrix);
+        m.getData(inertiaMatrix);
 
         return(1);
     }
@@ -11681,10 +11681,10 @@ simInt simSetShapeInertia_internal(simInt shapeHandle,const simFloat* inertiaMat
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
 
         C4X4Matrix tr;
-        tr.copyFromInterface(transformationMatrix);
+        tr.setData(transformationMatrix);
 
         C3X3Matrix m;
-        m.copyFromInterface(inertiaMatrix);
+        m.setData(inertiaMatrix);
         m.axis[0](1)=m.axis[1](0);
         m.axis[0](2)=m.axis[2](0);
         m.axis[1](2)=m.axis[2](1);
@@ -11770,7 +11770,7 @@ simInt simGenerateShapeFromPath_internal(const simFloat* pppath,simInt pathSize,
         {
             C3Vector zvect;
             if (upVector!=nullptr)
-                zvect.set(upVector);
+                zvect.setData(upVector);
             else
                 zvect=C3Vector::unitZVector;
             bool closedPath=(options&4)!=0;
@@ -11831,7 +11831,7 @@ simInt simGenerateShapeFromPath_internal(const simFloat* pppath,simInt pathSize,
             std::vector<float> vertices;
             std::vector<int> indices;
             C7Vector tr0;
-            tr0.setInternalData(&path[0]);
+            tr0.setData(&path[0]);
             for (size_t i=0;i<=secVertCnt-1;i++)
             {
                 C3Vector v(section[i*2+0],0.0f,section[i*2+1]);
@@ -11845,7 +11845,7 @@ simInt simGenerateShapeFromPath_internal(const simFloat* pppath,simInt pathSize,
             for (size_t ec=1;ec<elementCount;ec++)
             {
                 C7Vector tr;
-                tr.setInternalData(&path[ec*7]);
+                tr.setData(&path[ec*7]);
                 int forwOff=int(secVertCnt);
                 for (int i=0;i<=int(secVertCnt)-1;i++)
                 {
@@ -13110,7 +13110,7 @@ simInt simSetShapeTexture_internal(simInt shapeHandle,simInt textureId,simInt ma
                     C7Vector tr;
                     tr.setIdentity();
                     if (position!=nullptr)
-                        tr.X.setInternalData(position);
+                        tr.X.setData(position);
                     if (orientation!=nullptr)
                         tr.Q=C4Vector(orientation[0],orientation[1],orientation[2]);
                     tp->setTextureRelativeConfig(tr);
@@ -16194,15 +16194,15 @@ simFloat _simGetLocalInertiaInfo_internal(const simVoid* object,simFloat* pos,si
         C3Vector diag(geomInfo->getPrincipalMomentsOfInertia());
         if (App::currentWorld->dynamicsContainer->getComputeInertias())
             CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),tr,diag);
-        tr.X.getInternalData(pos);
-        tr.Q.getInternalData(quat);
+        tr.X.getData(pos);
+        tr.Q.getData(quat);
         diag=diag*m;
-        diag.getInternalData(diagI);
+        diag.getData(diagI);
     }
     else
     {
-        tr.X.getInternalData(pos);
-        tr.Q.getInternalData(quat);
+        tr.X.getData(pos);
+        tr.Q.getData(quat);
     }
     return(m);
 }
@@ -16218,7 +16218,7 @@ simVoid _simGetPurePrimitiveSizes_internal(const simVoid* geometric,simFloat* si
     TRACE_C_API;
     C3Vector s;
     ((CMesh*)geometric)->getPurePrimitiveSizes(s);
-    s.getInternalData(sizes);
+    s.getData(sizes);
 }
 
 simBool _simIsGeomWrapGeometric_internal(const simVoid* geomInfo)
@@ -16271,8 +16271,8 @@ simVoid _simGetVerticesLocalFrame_internal(const simVoid* geometric,simFloat* po
 {
     TRACE_C_API;
     C7Vector tr(((CMesh*)geometric)->getVerticeLocalFrame());
-    tr.Q.getInternalData(quat);
-    tr.X.getInternalData(pos);
+    tr.Q.getData(quat);
+    tr.X.getData(pos);
 }
 
 const simFloat* _simGetHeightfieldData_internal(const simVoid* geometric,simInt* xCount,simInt* yCount,simFloat* minHeight,simFloat* maxHeight)
@@ -16312,16 +16312,16 @@ simVoid _simGetObjectLocalTransformation_internal(const simVoid* object,simFloat
         tr=((CSceneObject*)object)->getLocalTransformation();
     else
         tr=((CSceneObject*)object)->getFullLocalTransformation();
-    tr.X.getInternalData(pos);
-    tr.Q.getInternalData(quat);
+    tr.X.getData(pos);
+    tr.Q.getData(quat);
 }
 
 simVoid _simSetObjectLocalTransformation_internal(simVoid* object,const simFloat* pos,const simFloat* quat,simFloat simTime)
 {
     TRACE_C_API;
     C7Vector tr;
-    tr.X.setInternalData(pos);
-    tr.Q.setInternalData(quat);
+    tr.X.setData(pos);
+    tr.Q.setData(quat);
     ((CSceneObject*)object)->setLocalTransformation(tr);
 }
 
@@ -16334,9 +16334,9 @@ simVoid _simGetObjectCumulativeTransformation_internal(const simVoid* object,sim
     else
         tr=((CSceneObject*)object)->getFullCumulativeTransformation();
     if (pos!=nullptr)
-        tr.X.getInternalData(pos);
+        tr.X.getData(pos);
     if (quat!=nullptr)
-        tr.Q.getInternalData(quat);
+        tr.Q.getData(quat);
 }
 
 const simVoid* _simGetGeomProxyFromShape_internal(const simVoid* shape)
@@ -16354,7 +16354,7 @@ simBool _simIsShapeDynamicallyStatic_internal(const simVoid* shape)
 simVoid _simGetInitialDynamicVelocity_internal(const simVoid* shape,simFloat* vel)
 {
     TRACE_C_API;
-    ((CShape*)shape)->getInitialDynamicLinearVelocity().getInternalData(vel);
+    ((CShape*)shape)->getInitialDynamicLinearVelocity().getData(vel);
 }
 
 simVoid _simSetInitialDynamicVelocity_internal(simVoid* shape,const simFloat* vel)
@@ -16366,7 +16366,7 @@ simVoid _simSetInitialDynamicVelocity_internal(simVoid* shape,const simFloat* ve
 simVoid _simGetInitialDynamicAngVelocity_internal(const simVoid* shape,simFloat* angularVel)
 {
     TRACE_C_API;
-    ((CShape*)shape)->getInitialDynamicAngularVelocity().getInternalData(angularVel);
+    ((CShape*)shape)->getInitialDynamicAngularVelocity().getData(angularVel);
 }
 
 simVoid _simSetInitialDynamicAngVelocity_internal(simVoid* shape,const simFloat* angularVel)
@@ -16431,8 +16431,8 @@ simVoid _simDynReportObjectCumulativeTransformation_internal(simVoid* obj,const 
     CSceneObject* object=(CSceneObject*)obj;
     CSceneObject* parent=object->getParent();
     C7Vector tr;
-    tr.X.setInternalData(pos);
-    tr.Q.setInternalData(quat);
+    tr.X.setData(pos);
+    tr.Q.setData(quat);
     if (parent!=nullptr)
     {
         if (parent->getObjectType()==sim_object_joint_type)
@@ -16458,8 +16458,8 @@ simVoid _simSetObjectCumulativeTransformation_internal(simVoid* object,const sim
 {
     TRACE_C_API;
     C7Vector tr;
-    tr.X.setInternalData(pos);
-    tr.Q.setInternalData(quat);
+    tr.X.setData(pos);
+    tr.Q.setData(quat);
     App::currentWorld->sceneObjects->setObjectAbsolutePose(((CSceneObject*)object)->getObjectHandle(),tr,keepChildrenInPlace!=0);
 }
 
@@ -16472,8 +16472,8 @@ simVoid _simSetShapeDynamicVelocity_internal(simVoid* shape,const simFloat* line
 simVoid _simGetAdditionalForceAndTorque_internal(const simVoid* shape,simFloat* force,simFloat* torque)
 {
     TRACE_C_API;
-    ((CShape*)shape)->getAdditionalForce().getInternalData(force);
-    ((CShape*)shape)->getAdditionalTorque().getInternalData(torque);
+    ((CShape*)shape)->getAdditionalForce().getData(force);
+    ((CShape*)shape)->getAdditionalTorque().getData(torque);
 }
 
 simVoid _simClearAdditionalForceAndTorque_internal(const simVoid* shape)
@@ -16730,7 +16730,7 @@ simVoid _simSetDynamicMotorPositionControlTargetPosition_internal(const simVoid*
 simVoid _simGetGravity_internal(simFloat* gravity)
 {
     TRACE_C_API;
-    App::currentWorld->dynamicsContainer->getGravity().getInternalData(gravity);
+    App::currentWorld->dynamicsContainer->getGravity().getData(gravity);
 }
 
 simInt _simGetTimeDiffInMs_internal(simInt previousTime)

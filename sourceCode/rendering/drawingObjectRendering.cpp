@@ -224,7 +224,7 @@ void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matri
                     glCols.push_back(1.0f);
             }
 
-            v.set(&_data[drawingObject->floatsPerItem*p+0]);
+            v.setData(&_data[drawingObject->floatsPerItem*p+0]);
             ogl::addBuffer3DPoints(v.data);
         }
         if (ogl::buffer.size()!=0)
@@ -252,7 +252,7 @@ void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matri
             int p=_startItem+i;
             if (p>=_maxItemCount)
                 p-=_maxItemCount;
-            v.set(&_data[drawingObject->floatsPerItem*p+0]);
+            v.setData(&_data[drawingObject->floatsPerItem*p+0]);
             if ( (_objectType&sim_drawing_itemcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
             {
                 glCols.push_back(_data[drawingObject->floatsPerItem*p+3+0]);
@@ -318,7 +318,7 @@ void _drawTrianglePoints(CDrawingObject* drawingObject,int displayAttrib,const C
         int p=_startItem+i;
         if (p>=_maxItemCount)
             p-=_maxItemCount;
-        v.set(&_data[drawingObject->floatsPerItem*p+off]);
+        v.setData(&_data[drawingObject->floatsPerItem*p+off]);
         off+=3;
         if (_objectType&sim_drawing_facingcamera)
         {
@@ -392,7 +392,7 @@ void _drawQuadPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         int p=_startItem+i;
         if (p>=_maxItemCount)
             p-=_maxItemCount;
-        v.set(&_data[drawingObject->floatsPerItem*p+off]);
+        v.setData(&_data[drawingObject->floatsPerItem*p+off]);
         off+=3;
         if (_objectType&sim_drawing_facingcamera)
         {
@@ -468,7 +468,7 @@ void _drawDiscPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         int p=_startItem+i;
         if (p>=_maxItemCount)
             p-=_maxItemCount;
-        v.set(&_data[drawingObject->floatsPerItem*p+off]);
+        v.setData(&_data[drawingObject->floatsPerItem*p+off]);
         off+=3;
         if (_objectType&sim_drawing_facingcamera)
         {
@@ -547,7 +547,7 @@ void _drawCubePoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         int p=_startItem+i;
         if (p>=_maxItemCount)
             p-=_maxItemCount;
-        v.set(&_data[drawingObject->floatsPerItem*p+off]);
+        v.setData(&_data[drawingObject->floatsPerItem*p+off]);
         off+=3;
         if (_objectType&sim_drawing_facingcamera)
         {
@@ -656,7 +656,7 @@ void _drawSpherePoints(CDrawingObject* drawingObject,int displayAttrib)
         int p=_startItem+i;
         if (p>=_maxItemCount)
             p-=_maxItemCount;
-        v.set(&_data[drawingObject->floatsPerItem*p+0]);
+        v.setData(&_data[drawingObject->floatsPerItem*p+0]);
         if ( (_objectType&sim_drawing_itemcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
@@ -772,8 +772,8 @@ void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix
 
             glBegin(GL_LINES);
             C3Vector v,w;
-            v.set(&_data[drawingObject->floatsPerItem*p+0]);
-            w.set(&_data[drawingObject->floatsPerItem*p+3]);
+            v.setData(&_data[drawingObject->floatsPerItem*p+0]);
+            w.setData(&_data[drawingObject->floatsPerItem*p+3]);
             glNormal3fv(n.data);
             glVertex3fv(v.data);
             if ( (_objectType&sim_drawing_vertexcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
@@ -804,8 +804,8 @@ void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix
             int p=_startItem+i;
             if (p>=_maxItemCount)
                 p-=_maxItemCount;
-            v.set(&_data[drawingObject->floatsPerItem*p+0]);
-            w.set(&_data[drawingObject->floatsPerItem*p+3]);
+            v.setData(&_data[drawingObject->floatsPerItem*p+0]);
+            w.setData(&_data[drawingObject->floatsPerItem*p+3]);
             if ( (_objectType&(sim_drawing_itemcolors|sim_drawing_vertexcolors)) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
             {
                 rgbaAmb[0]=_data[drawingObject->floatsPerItem*p+6];
@@ -882,7 +882,7 @@ void _drawLineStrip(CDrawingObject* drawingObject,int displayAttrib,const C4X4Ma
         int p=_startItem+i;
         if (p>=_maxItemCount)
             p-=_maxItemCount;
-        v.set(&_data[drawingObject->floatsPerItem*p+0]);
+        v.setData(&_data[drawingObject->floatsPerItem*p+0]);
         if ( (_objectType&(sim_drawing_itemcolors|sim_drawing_vertexcolors)) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
             rgbaAmb[0]=_data[drawingObject->floatsPerItem*p+3];
@@ -925,9 +925,9 @@ void _drawTriangles(CDrawingObject* drawingObject,int displayAttrib)
         int p=_startItem+i;
         if (p>=_maxItemCount)
             p-=_maxItemCount;
-        v.set(&_data[drawingObject->floatsPerItem*p+0]);
-        w.set(&_data[drawingObject->floatsPerItem*p+3]);
-        x.set(&_data[drawingObject->floatsPerItem*p+6]);
+        v.setData(&_data[drawingObject->floatsPerItem*p+0]);
+        w.setData(&_data[drawingObject->floatsPerItem*p+3]);
+        x.setData(&_data[drawingObject->floatsPerItem*p+6]);
         if ( (_objectType&(sim_drawing_itemcolors|sim_drawing_vertexcolors)) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
