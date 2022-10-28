@@ -402,14 +402,10 @@ if(WITH_GUI)
 endif()
 
 target_sources(coppeliaSim PRIVATE
-    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/Vector.cpp
     ${COPPELIASIM_PROGRAMMING_DIR}/simMath/MyMath.cpp
     ${COPPELIASIM_PROGRAMMING_DIR}/simMath/MMatrix.cpp
     ${COPPELIASIM_PROGRAMMING_DIR}/simMath/7Vector.cpp
-    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/6X6Matrix.cpp
-    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/6Vector.cpp
     ${COPPELIASIM_PROGRAMMING_DIR}/simMath/4X4Matrix.cpp
-    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/4X4FullMatrix.cpp
     ${COPPELIASIM_PROGRAMMING_DIR}/simMath/4Vector.cpp
     ${COPPELIASIM_PROGRAMMING_DIR}/simMath/3X3Matrix.cpp
     ${COPPELIASIM_PROGRAMMING_DIR}/simMath/3Vector.cpp
