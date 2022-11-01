@@ -8,7 +8,7 @@ void displayGhost(CShape* shape,const C7Vector& tr,int displayAttributes,int opt
     glPushAttrib(GL_POLYGON_BIT);
 
     glTranslatef(tr.X(0),tr.X(1),tr.X(2));
-    C4Vector axis=tr.Q.getAngleAndAxisNoChecking();
+    C4Vector axis=tr.Q.getAngleAndAxis();
     glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
 
     shape->getMeshWrapper()->displayGhost(shape,displayAttributes,(options&4)!=0,(options&32)!=0,transparencyFactor,color);

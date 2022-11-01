@@ -179,7 +179,7 @@ void _displayInertia(CMeshWrapper* geomWrap,float bboxDiagonal,const float norma
     C7Vector tr(geomWrap->getLocalInertiaFrame());
     glPushMatrix();
     glTranslatef(tr.X(0),tr.X(1),tr.X(2));
-    C4Vector axis=tr.Q.getAngleAndAxisNoChecking();
+    C4Vector axis=tr.Q.getAngleAndAxis();
     glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
 
     ogl::setMaterialColor(ogl::colorRed,ogl::colorBlack,ogl::colorBlack);
@@ -264,7 +264,7 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
     glTranslatef(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
-    C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxisNoChecking();
+    C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxis();
     glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);
@@ -478,7 +478,7 @@ void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,
     glPushAttrib(GL_POLYGON_BIT);
     C7Vector _verticeLocalFrame(geometric->getVerticeLocalFrame());
     glTranslatef(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
-    C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxisNoChecking();
+    C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxis();
     glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);
@@ -519,7 +519,7 @@ void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,b
     glPushAttrib(GL_POLYGON_BIT);
     C7Vector _verticeLocalFrame(geometric->getVerticeLocalFrame());
     glTranslatef(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
-    C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxisNoChecking();
+    C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxis();
     glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);

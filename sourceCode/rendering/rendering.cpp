@@ -538,7 +538,7 @@ void _commonStart(CSceneObject* object,CViewableBase* viewable,int displayAttrib
 
     C7Vector tr=object->getCumulativeTransformation();
     glTranslatef(tr.X(0),tr.X(1),tr.X(2));
-    C4Vector axis=tr.Q.getAngleAndAxisNoChecking();
+    C4Vector axis=tr.Q.getAngleAndAxis();
     glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
 }
 

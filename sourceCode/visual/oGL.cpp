@@ -1396,7 +1396,7 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
         {
             glPushMatrix();
             glTranslatef(tr.X(0),tr.X(1),tr.X(2));
-            C4Vector axis=tr.Q.getAngleAndAxisNoChecking();
+            C4Vector axis=tr.Q.getAngleAndAxis();
             glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
             setMaterialColor(backColor,backColor+6,backColor+9);
             glBegin(GL_QUADS);
@@ -1418,7 +1418,7 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
             lq*=2.0f;
         C3Vector x(tr.X+m.axis[0]*(-lq/2.0f)*textHeight+m.axis[1]*(-outlineFontCenter)*textHeight);
         glTranslatef(x(0),x(1),x(2));
-        C4Vector axis=tr.Q.getAngleAndAxisNoChecking();
+        C4Vector axis=tr.Q.getAngleAndAxis();
         glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
         glEnable(GL_NORMALIZE); // Might be important since normals are also scaled (bad lighting)
         glScalef(textHeight,textHeight,textHeight);

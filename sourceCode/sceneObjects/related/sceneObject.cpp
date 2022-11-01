@@ -3766,7 +3766,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
             rrot.buildZRotation(_objectManipulationModeTotalRotation);
             rrot=tr.M*rrot;
         }
-        C4Vector axis=rrot.getQuaternion().getAngleAndAxisNoChecking();
+        C4Vector axis=rrot.getQuaternion().getAngleAndAxis();
         glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
 
         float a=5.0f*piValue_f/180.0f-_objectManipulationModeTotalRotation;
@@ -3868,7 +3868,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         tr.M*=rot;
         C3Vector totTransl(rot.getTranspose()*_objectManipulationModeTotalTranslation);
         glTranslatef(tr.X(0),tr.X(1),tr.X(2));
-        C4Vector axis=tr.M.getQuaternion().getAngleAndAxisNoChecking();
+        C4Vector axis=tr.M.getQuaternion().getAngleAndAxis();
         glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
 
         glTranslatef(-totTransl(0),-totTransl(1),-totTransl(2));

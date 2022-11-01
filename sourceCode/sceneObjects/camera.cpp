@@ -2288,8 +2288,8 @@ void CCamera::_handleMirrors(int renderingMode,bool noSelection,int pass,int nav
         C7Vector mtr(myMirror->getFullCumulativeTransformation());
         C7Vector mtri(mtr.getInverse());
         C3Vector mtrN(mtr.Q.getMatrix().axis[2]);
-        C4Vector mtrAxis=mtr.Q.getAngleAndAxisNoChecking();
-        C4Vector mtriAxis=mtri.Q.getAngleAndAxisNoChecking();
+        C4Vector mtrAxis=mtr.Q.getAngleAndAxis();
+        C4Vector mtriAxis=mtri.Q.getAngleAndAxis();
         float d=(mtrN*mtr.X);
         C3Vector v0(+myMirror->getMirrorWidth()*0.5f,-myMirror->getMirrorHeight()*0.5f,0.0f);
         C3Vector v1(+myMirror->getMirrorWidth()*0.5f,+myMirror->getMirrorHeight()*0.5f,0.0f);
