@@ -246,7 +246,7 @@ public:
     void setDependencyJointMult(float coeff);
     void setDependencyJointOffset(float off);
     void setVelocity(float vel);
-    void setPosition(float pos,bool setDirect);
+    void setPosition(float pos,const CJoint* masterJoint=nullptr,bool setDirect=false);
     void setSphericalTransformation(const C4Vector& tr);
     void setJointMode(int theMode);
 
@@ -271,7 +271,7 @@ public:
     void setNewtonIntParams(const std::vector<int>& p);
     void setMujocoIntParams(const std::vector<int>& p);
 
-    bool setJointMode_noDynMotorTargetPosCorrection(int theMode);
+    bool setJointMode_noDynMotorTargetPosCorrection(int newMode);
 
     void setMotorLock(bool e);
 
@@ -324,9 +324,9 @@ public:
     void setPid_old(float p_param,float i_param,float d_param);
 
 protected:
+    void updateSelfAsSlave();
     void _fixVortexInfVals();
 
-    void _rectifyDependentJoints();
     void _commonInit();
     void _sendDependencyChange() const;
 

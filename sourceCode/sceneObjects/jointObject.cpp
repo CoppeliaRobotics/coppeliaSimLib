@@ -730,9 +730,8 @@ void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp,f
         // This is because dynamic joints can over or undershoot limits.
         // So we set the position directly, without checking for limits.
         // Turn count is taken care by the physics plugin.
-        setPosition(rfp,true);
+        setPosition(rfp,nullptr,true);
     }
-    _rectifyDependentJoints();
     measureJointVelocity(simTime);
 }
 
@@ -742,30 +741,28 @@ void CJoint::setDependencyMasterJointHandle(int depJointID)
     if (diff)
     {
         _dependencyMasterJointHandle=depJointID;
+        App::currentWorld->sceneObjects->actualizeObjectInformation();
         if (getObjectCanSync())
-            _setDependencyJointHandle_sendOldIk(depJointID);
+            _setDependencyJointHandle_sendOldIk(_dependencyMasterJointHandle);
 
-        if (depJointID==-1)
-            App::currentWorld->sceneObjects->actualizeObjectInformation();
+        if (_dependencyMasterJointHandle==-1)
+            setPosition(getPosition());
         else
-        { // enable it
-            // We now check for an illegal loop:
-            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(depJointID);
+        {
+            // Illegal loop check:
+            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
             CJoint* iterat=it;
             while (iterat->getDependencyMasterJointHandle()!=-1)
             {
-                if (iterat->getJointMode()!=_jointMode)
-                    break; // We might have a loop, but it is interupted by another jointMode!! (e.g. IK dependency VS direct dependency)
                 int joint=iterat->getDependencyMasterJointHandle();
                 if (joint==getObjectHandle())
-                { // We have an illegal loop! We disable it:
+                {
                     iterat->setDependencyMasterJointHandle(-1);
                     break;
                 }
                 iterat=App::currentWorld->sceneObjects->getJointFromHandle(joint);
             }
-            App::currentWorld->sceneObjects->actualizeObjectInformation();
-            setPosition(getPosition(),false);
+            updateSelfAsSlave();
         }
         _sendDependencyChange();
     }
@@ -815,7 +812,7 @@ void CJoint::setDependencyJointMult(float coeff)
             _dependencyJointMult=coeff;
             if (getObjectCanSync())
                 _setDependencyJointMult_sendOldIk(coeff);
-            setPosition(getPosition(),false);
+            updateSelfAsSlave();
             _sendDependencyChange();
         }
     }
@@ -845,7 +842,7 @@ void CJoint::setDependencyJointOffset(float off)
             _dependencyJointOffset=off;
             if (getObjectCanSync())
                 _setDependencyJointOffset_sendOldIk(off);
-            setPosition(getPosition(),false);
+            updateSelfAsSlave();
             _sendDependencyChange();
         }
     }
@@ -949,7 +946,7 @@ void CJoint::simulationEnded()
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
         {
-            setPosition(_initialPosition,false);
+            setPosition(_initialPosition);
             setSphericalTransformation(_initialSphericalJointTransformation);
             setTargetPosition(_initialTargetPosition);
             setTargetVelocity(_initialTargetVelocity);
@@ -990,7 +987,7 @@ void CJoint::resetJoint_DEPRECATED()
         return;
     if (_initialValuesInitialized)
     {
-        setPosition(_initialPosition,false);
+        setPosition(_initialPosition);
         setVelocity_DEPRECATED(_initialVelocity_DEPRECATED);
     }
 }
@@ -1041,7 +1038,7 @@ void CJoint::handleJoint_DEPRECATED(float deltaTime)
             }
             else
                 newPos+=_velocity_DEPRECATED*deltaTime;
-            setPosition(newPos,false);
+            setPosition(newPos);
             _jointPositionForMotionHandling_DEPRECATED=getPosition();
         }
     }
@@ -1074,7 +1071,7 @@ void CJoint::handleJoint_DEPRECATED(float deltaTime)
         }
         _velocity_DEPRECATED=float(velocityDouble);
 
-        setPosition(float(newPos),false);
+        setPosition(float(newPos));
         _jointPositionForMotionHandling_DEPRECATED=getPosition();
     }
 }
@@ -1275,7 +1272,7 @@ void CJoint::setPositionMin(float min)
             }
             if (getObjectCanSync())
                 _setPositionIntervalMin_sendOldIk(min);
-            setPosition(getPosition(),false);
+            setPosition(getPosition());
         }
     }
 }
@@ -1313,7 +1310,7 @@ void CJoint::setPositionRange(float range)
         }
         if (getObjectCanSync())
             _setPositionIntervalRange_sendOldIk(range);
-        setPosition(getPosition(),false);
+        setPosition(getPosition());
         setSphericalTransformation(getSphericalTransformation());
     }
 }
@@ -1368,7 +1365,7 @@ void CJoint::scaleObject(float scalingFactor)
     setScrewPitch(_screwPitch*scalingFactor);
     if (_jointType==sim_joint_prismatic_subtype)
     {
-        setPosition(_pos*scalingFactor,false);
+        setPosition(_pos*scalingFactor);
         _jointPositionForMotionHandling_DEPRECATED*=scalingFactor;
         setPositionMin(_posMin*scalingFactor);
         setPositionRange(_posRange*scalingFactor);
@@ -1445,7 +1442,7 @@ void CJoint::scaleObjectNonIsometrically(float x,float y,float z)
     setScrewPitch(_screwPitch*z);
     if (_jointType==sim_joint_prismatic_subtype)
     {
-        setPosition(_pos*z,false);
+        setPosition(_pos*z);
         setPositionMin(_posMin*z);
         setPositionRange(_posRange*z);
         setDependencyJointOffset(_dependencyJointOffset*z);
@@ -1972,7 +1969,7 @@ void CJoint::handleMotion()
                     outStack->moveStackItemToTop(0);
                 float pos;
                 if ( outStack->getStackMapFloatValue("pos",pos)||outStack->getStackMapFloatValue("position",pos) ) // "position" is deprecated
-                    setPosition(pos,false);
+                    setPosition(pos);
 
                 bool immobile=false;
                 float cv,ca;
@@ -3464,19 +3461,38 @@ void CJoint::setJointMode(int theMode)
         setTargetPosition(getPosition());
 }
 
-bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int theMode)
+bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int newMode)
 {
-    int md;
-    if (theMode==sim_jointmode_kinematic)
+    if (_jointType==sim_joint_spherical_subtype)
     {
-        setDependencyMasterJointHandle(-1);
-        App::currentWorld->sceneObjects->actualizeObjectInformation();
-        md=theMode;
+        if ( (newMode==sim_jointmode_motion_deprecated)||(newMode==sim_jointmode_dependent)||(newMode==sim_jointmode_reserved_previously_ikdependent) )
+            newMode=_jointMode; // above modes forbidden with spherical joints
     }
-    if (theMode==sim_jointmode_motion_deprecated)
+
+    bool diff=(_jointMode!=newMode);
+    if (diff)
     {
-        setDependencyMasterJointHandle(-1);
-        if (_jointMode!=theMode)
+        _jointMode=newMode;
+        if (getObjectCanSync())
+            _setJointMode_sendOldIk(_jointMode);
+        if ( (_jointMode!=sim_jointmode_dependent)&&(_jointMode!=sim_jointmode_reserved_previously_ikdependent) )
+            setDependencyMasterJointHandle(-1);
+        if (_jointMode==sim_jointmode_dynamic)
+        {
+            if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb)||(_dynCtrlMode==sim_jointdynctrl_force) )
+                setTargetVelocity(1000.0f); // just a very high value
+            setHybridFunctionality_old(false);
+            setScrewPitch(0.0f);
+            // REMOVED FOLLOWING ON 24/7/2015: causes problem when switching modes. The physics engine plugin will now not set limits if the range>=360
+            //      if (_jointType==sim_joint_revolute_subtype)
+            //          _posRange=tt::getLimitedFloat(0.0f,piValTimes2_f,_posRange);
+            if (_jointType==sim_joint_spherical_subtype)
+                setPositionRange(piValue_f);
+            _dynVelCtrl_currentVelAccel[0]=double(_velCalc_vel);
+            _dynVelCtrl_currentVelAccel[1]=0.0;
+            _dynCtrl_pid_cumulErr=0.0f;
+        }
+        if (_jointMode==sim_jointmode_motion_deprecated)
         {
             _velocity_DEPRECATED=0.0f;
             _targetVel=0.0f;
@@ -3484,57 +3500,25 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int theMode)
             _unlimitedAcceleration_DEPRECATED=true;
             _invertTargetVelocityAtLimits_DEPRECATED=false;
         }
-        if (_jointType!=sim_joint_spherical_subtype)
-        {
-            App::currentWorld->sceneObjects->actualizeObjectInformation();
-            md=theMode;
-        }
-    }
-    if ((theMode==sim_jointmode_dependent)||(theMode==sim_jointmode_reserved_previously_ikdependent))
-    {
-        if (_jointType!=sim_joint_spherical_subtype)
-        {
-            App::currentWorld->sceneObjects->actualizeObjectInformation();
-            md=theMode;
-        }
-    }
-    if (theMode==sim_jointmode_dynamic)
-    {
-        setDependencyMasterJointHandle(-1);
-        if ( (_jointMode!=theMode)&&( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb)||(_dynCtrlMode==sim_jointdynctrl_force) ) )
-            setTargetVelocity(1000.0f); // just a very high value
-        setHybridFunctionality_old(false);
-        setScrewPitch(0.0f);
-// REMOVED FOLLOWING ON 24/7/2015: causes problem when switching modes. The physics engine plugin will now not set limits if the range>=360
-//      if (_jointType==sim_joint_revolute_subtype)
-//          _posRange=tt::getLimitedFloat(0.0f,piValTimes2_f,_posRange);
-        if (_jointType==sim_joint_spherical_subtype)
-            setPositionRange(piValue_f);
-        if (_jointMode!=theMode)
-        {
-            _dynVelCtrl_currentVelAccel[0]=double(_velCalc_vel);
-            _dynVelCtrl_currentVelAccel[1]=0.0;
-            _dynCtrl_pid_cumulErr=0.0f;
-        }
         App::currentWorld->sceneObjects->actualizeObjectInformation();
-        md=theMode;
-    }
-    if (theMode==sim_jointmode_ik_deprecated)
-    {
-        setDependencyMasterJointHandle(-1);
-        App::currentWorld->sceneObjects->actualizeObjectInformation();
-        md=theMode;
-    }
 
-    bool diff=(_jointMode!=md);
-    if (diff)
-    {
-        _jointMode=md;
-        if (getObjectCanSync())
-            _setJointMode_sendOldIk(_jointMode);
-        setPosition(getPosition(),false);
+        if ( (_jointMode==sim_jointmode_dependent)||(_jointMode==sim_jointmode_reserved_previously_ikdependent) )
+            updateSelfAsSlave();
+        else
+            setPosition(getPosition());
     }
     return(diff);
+}
+
+void CJoint::updateSelfAsSlave()
+{
+    if (_dependencyMasterJointHandle!=-1)
+    {
+        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
+        it->updateSelfAsSlave();
+    }
+    else
+        setPosition(getPosition());
 }
 
 void CJoint::_setJointMode_sendOldIk(int theMode) const
@@ -3545,15 +3529,6 @@ void CJoint::_setJointMode_sendOldIk(int theMode) const
         if ((theMode==sim_jointmode_reserved_previously_ikdependent)||(theMode==sim_jointmode_dependent)||(theMode==sim_jointmode_hybrid_deprecated) )
             theMode=2; // actually ik_jointmode_ik
         CPluginContainer::ikPlugin_setJointMode(_ikPluginCounterpartHandle,theMode);
-    }
-}
-
-void CJoint::_rectifyDependentJoints()
-{
-    for (size_t i=0;i<_directDependentJoints.size();i++)
-    {
-        if ((_directDependentJoints[i]->getJointMode()==sim_jointmode_dependent)||(_directDependentJoints[i]->getJointMode()==sim_jointmode_reserved_previously_ikdependent)) // second part on 3/7/2014
-            _directDependentJoints[i]->setPosition(0.0f,false); // value doesn't matter!
     }
 }
 
@@ -3629,32 +3604,32 @@ void CJoint::_setIkWeight_sendOldIk(float newWeight) const
         CPluginContainer::ikPlugin_setJointIkWeight(_ikPluginCounterpartHandle,_ikWeight_old);
 }
 
-void CJoint::setPosition(float pos,bool setDirect)
+void CJoint::setPosition(float pos,const CJoint* masterJoint/*=nullptr*/,bool setDirect/*=false*/)
 {
-    if (!setDirect)
+    if (masterJoint!=nullptr)
     {
-        if (_isCyclic)
-            pos=tt::getNormalizedAngle(pos);
-        else
+        if (_dependencyMasterJointHandle==masterJoint->getObjectHandle())
+            pos=_dependencyJointOffset+_dependencyJointMult*masterJoint->getPosition();
+    }
+    else
+    {
+        if (_dependencyMasterJointHandle==-1)
         {
-            if (pos>(getPositionMin()+getPositionRange()))
-                pos=getPositionMin()+getPositionRange();
-            if (pos<getPositionMin())
-                pos=getPositionMin();
-        }
-
-        if ( (_jointMode==sim_jointmode_dependent)||(_jointMode==sim_jointmode_reserved_previously_ikdependent) )
-        {
-            float linked=0.0f;
-            if (_dependencyMasterJointHandle!=-1)
+            if (!setDirect)
             {
-                CJoint* anAct=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
-                if (anAct!=nullptr)
-                    linked=_dependencyJointMult*anAct->getPosition();
+                if (_isCyclic)
+                    pos=tt::getNormalizedAngle(pos);
+                else
+                {
+                    if (pos>_posMin+_posRange)
+                        pos=_posMin+_posRange;
+                    if (pos<_posMin)
+                        pos=_posMin;
+                }
             }
-            pos=linked+_dependencyJointOffset;
         }
     }
+
     bool diff=(_pos!=pos);
     if (diff)
     {
@@ -3672,8 +3647,9 @@ void CJoint::setPosition(float pos,bool setDirect)
         }
         if (getObjectCanSync())
             _setPosition_sendOldIk(pos);
-        _rectifyDependentJoints();
         setVelocity_DEPRECATED(getVelocity_DEPRECATED());
+        for (size_t i=0;i<_directDependentJoints.size();i++)
+            _directDependentJoints[i]->setPosition(0.0,this);
     }
 }
 
@@ -3712,7 +3688,6 @@ void CJoint::announceObjectWillBeErased(const CSceneObject* object,bool copyBuff
         setMujocoIntParams(ip);
     }
 
-    // We check if the joint is listed in the _directDependentJoints:
     for (size_t i=0;i<_directDependentJoints.size();i++)
     {
         if (_directDependentJoints[i]==object)

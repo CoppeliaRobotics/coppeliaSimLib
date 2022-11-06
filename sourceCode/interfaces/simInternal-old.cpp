@@ -2438,7 +2438,7 @@ simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const 
             for (size_t i=0;i<sceneJoints.size();i++)
             {
                 if (sceneJoints[i]->getPosition()!=initSceneJointValues[i])
-                    sceneJoints[i]->setPosition(initSceneJointValues[i],false);
+                    sceneJoints[i]->setPosition(initSceneJointValues[i]);
                 if (sceneJoints[i]->getJointMode()!=initSceneJointModes[i])
                     sceneJoints[i]->setJointMode_noDynMotorTargetPosCorrection(initSceneJointModes[i]);
             }

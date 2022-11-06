@@ -54,7 +54,7 @@ void CMemorizedConf_old::restore()
     if (objectType==sim_object_joint_type)
     {
         CJoint* act=(CJoint*)it;
-        act->setPosition(position,false);
+        act->setPosition(position);
         act->setSphericalTransformation(sphericalJointOrientation);
     }
     if (objectType==sim_object_path_type)

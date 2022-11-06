@@ -1905,7 +1905,7 @@ simInt simSetJointPosition_internal(simInt objectHandle,simFloat position)
             return(-1);
         }
         // info: do not try to trigger a sysCall_jointCallback call for that function, it really doesn't make sense
-        it->setPosition(position,false);
+        it->setPosition(position);
         it->setKinematicMotionType(0,true); // reset
         return(1);
     }
@@ -2151,7 +2151,7 @@ simInt simSetJointInterval_internal(simInt objectHandle,simBool cyclic,const sim
             it->setIsCyclic(cyclic!=0);
             it->setPositionMin(interval[0]);
             it->setPositionRange(interval[1]);
-            it->setPosition(previousPos,false);
+            it->setPosition(previousPos);
             return(1);
         }
 //        return(-1);
@@ -16706,7 +16706,7 @@ simVoid _simSetJointVelocity_internal(const simVoid* joint,simFloat vel)
 simVoid _simSetJointPosition_internal(const simVoid* joint,simFloat pos)
 { // only used by MuJoCo. Other engines have the joint position set via _simSetDynamicMotorReflectedPositionFromDynamicEngine
     TRACE_C_API;
-    ((CJoint*)joint)->setPosition(pos,false);
+    ((CJoint*)joint)->setPosition(pos);
 }
 
 simVoid _simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(simVoid* joint,simFloat pos,simFloat simTime)

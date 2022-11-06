@@ -2814,7 +2814,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                it->setPosition(cmd.floatParams[0],false);
+                it->setPosition(cmd.floatParams[0]);
                 it->setTargetPosition(cmd.floatParams[0]);
             }
         }
@@ -2831,7 +2831,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         it->setIsCyclic(last->getIsCyclic());
                         it->setPositionRange(last->getPositionRange());
                         it->setPositionMin(last->getPositionMin());
-                        it->setPosition(last->getPosition(),false);
+                        it->setPosition(last->getPosition());
                         it->setSphericalTransformation(last->getSphericalTransformation());
                         it->setScrewPitch(last->getScrewPitch());
                         it->setIKWeight_old(last->getIKWeight_old());

@@ -2547,7 +2547,7 @@ bool _validationCallback(float* conf)
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(_ikValidationCb_jointHandles[i]);
         joints.push_back(it);
         memorized.push_back(it->getPosition());
-        it->setPosition(conf[i],false);
+        it->setPosition(conf[i]);
     }
     for (size_t i=0;i<_ikValidationCb_collisionPairs.size()/2;i++)
     {
@@ -2567,7 +2567,7 @@ bool _validationCallback(float* conf)
     for (size_t i=0;i<_ikValidationCb_jointHandles.size();i++)
     {
         CJoint* it=joints[i];
-        it->setPosition(memorized[i],false);
+        it->setPosition(memorized[i]);
     }
     return(collisionFree);
 }
