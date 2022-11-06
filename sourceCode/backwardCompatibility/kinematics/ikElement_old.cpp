@@ -277,7 +277,7 @@ bool CIkElement_old::announceObjectWillBeErased(int objID,bool copyBuffer)
     return(false);
 }
 
-void CIkElement_old::performObjectLoadingMapping(const std::vector<int>* map)
+void CIkElement_old::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     _tipHandle=CWorld::getLoadingMapping(map,_tipHandle);
     _baseHandle=CWorld::getLoadingMapping(map,_baseHandle);

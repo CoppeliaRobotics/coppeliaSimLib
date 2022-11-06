@@ -262,7 +262,7 @@ bool CDistanceObject_old::announceCollectionWillBeErased(int collectionHandle,bo
     return(false);
 }
 
-void CDistanceObject_old::performObjectLoadingMapping(const std::vector<int>* map)
+void CDistanceObject_old::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     if (_entity1Handle<SIM_IDSTART_COLLECTION)
         _entity1Handle=CWorld::getLoadingMapping(map,_entity1Handle);
@@ -270,7 +270,7 @@ void CDistanceObject_old::performObjectLoadingMapping(const std::vector<int>* ma
         _entity2Handle=CWorld::getLoadingMapping(map,_entity2Handle);
 }
 
-void CDistanceObject_old::performCollectionLoadingMapping(const std::vector<int>* map)
+void CDistanceObject_old::performCollectionLoadingMapping(const std::map<int,int>* map)
 {
     if (_entity1Handle>=SIM_IDSTART_COLLECTION)
         _entity1Handle=CWorld::getLoadingMapping(map,_entity1Handle);

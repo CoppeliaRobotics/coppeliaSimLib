@@ -52,8 +52,8 @@ public:
     void setViewToAppearOn(int theView);
     int getViewToAppearOn();
     int getFreeButtonHandle();
-    void performSceneObjectLoadingMapping(const std::vector<int>* map);
-    void performTextureObjectLoadingMapping(const std::vector<int>* map);
+    void performSceneObjectLoadingMapping(const std::map<int,int>* map);
+    void performTextureObjectLoadingMapping(const std::map<int,int>* map);
     bool announceSceneObjectWillBeErased(int objectID,bool copyBuffer);
     void setTextureDependencies();
     void removeAllVisionSensorTextures();

@@ -63,7 +63,7 @@ public:
 
     CScriptObject* copyYourself();
     void serialize(CSer& ar);
-    void performSceneObjectLoadingMapping(const std::vector<int>* map);
+    void performSceneObjectLoadingMapping(const std::map<int,int>* map);
     bool announceSceneObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     int flagScriptForRemoval();
     void setObjectHandleThatScriptIsAttachedTo(int newObjectHandle);

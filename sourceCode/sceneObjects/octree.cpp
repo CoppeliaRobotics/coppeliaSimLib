@@ -706,29 +706,29 @@ void COctree::announceDistanceWillBeErased(int distanceID,bool copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID,copyBuffer);
 }
 
-void COctree::performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void COctree::performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map,loadingAmodel);
 }
-void COctree::performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void COctree::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
 }
-void COctree::performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void COctree::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollisionLoadingMapping(map,loadingAmodel);
 }
-void COctree::performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void COctree::performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performDistanceLoadingMapping(map,loadingAmodel);
 }
 
-void COctree::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void COctree::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void COctree::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
+void COctree::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
@@ -1074,8 +1074,8 @@ void COctree::serialize(CSer& ar)
     }
 }
 
-void COctree::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // New_Object_ID=map[Old_Object_ID]
+void COctree::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
 }
 

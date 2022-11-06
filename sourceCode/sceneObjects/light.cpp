@@ -337,33 +337,33 @@ void CLight::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID,copyBuffer);
 }
 
-void CLight::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // New_Object_ID=map[Old_Object_ID]
+void CLight::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
 }
-void CLight::performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CLight::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
 }
-void CLight::performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CLight::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollisionLoadingMapping(map,loadingAmodel);
 }
-void CLight::performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CLight::performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performDistanceLoadingMapping(map,loadingAmodel);
 }
-void CLight::performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CLight::performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map,loadingAmodel);
 }
 
-void CLight::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CLight::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CLight::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
+void CLight::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }

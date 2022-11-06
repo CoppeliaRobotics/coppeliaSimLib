@@ -21,7 +21,7 @@ public:
     void setUpDefaultPages(bool createASingleView=false);
     void announceObjectWillBeErased(int objectID);
     void serialize(CSer& ar);
-    void performObjectLoadingMapping(const std::vector<int>* map);
+    void performObjectLoadingMapping(const std::map<int,int>* map);
     CSPage* getPage(int pageIndex) const;
     int getMainCameraHandle() const;
 

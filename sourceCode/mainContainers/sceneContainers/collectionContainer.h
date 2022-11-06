@@ -34,7 +34,7 @@ public:
     void getMeasurableObjectsFromCollection(int collectionHandle,std::vector<CSceneObject*>& objects) const;
     void getDetectableObjectsFromCollection(int collectionHandle,std::vector<CSceneObject*>& objects,int detectableMask) const;
 
-    void performObjectLoadingMapping(const std::vector<int>* map);
+    void performObjectLoadingMapping(const std::map<int,int>* map);
 
     void addCollectionToSelection(int collectionHandle) const;
 

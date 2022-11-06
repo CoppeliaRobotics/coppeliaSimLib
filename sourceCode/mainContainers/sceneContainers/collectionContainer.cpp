@@ -247,7 +247,7 @@ void CCollectionContainer::addCollectionToSelection(int collectionHandle) const
     }
 }
 
-void CCollectionContainer::performObjectLoadingMapping(const std::vector<int>* map)
+void CCollectionContainer::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     for (size_t i=0;i<getObjectCount();i++)
         getObjectFromIndex(i)->performObjectLoadingMapping(map);

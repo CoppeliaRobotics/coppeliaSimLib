@@ -220,13 +220,13 @@ void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vecto
     componentIndex++;
 }
 
-void CMesh::performSceneObjectLoadingMapping(const std::vector<int>* map)
+void CMesh::performSceneObjectLoadingMapping(const std::map<int,int>* map)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty!=nullptr)
         _textureProperty->performObjectLoadingMapping(map);
 }
 
-void CMesh::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CMesh::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty!=nullptr)
         _textureProperty->performTextureObjectLoadingMapping(map);

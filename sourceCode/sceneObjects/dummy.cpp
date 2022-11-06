@@ -382,32 +382,32 @@ void CDummy::announceDistanceWillBeErased(int distanceID,bool copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID,copyBuffer);
 }
 
-void CDummy::performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CDummy::performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map,loadingAmodel);
 }
 
-void CDummy::performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CDummy::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
 }
 
-void CDummy::performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CDummy::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollisionLoadingMapping(map,loadingAmodel);
 }
 
-void CDummy::performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CDummy::performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performDistanceLoadingMapping(map,loadingAmodel);
 }
 
-void CDummy::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CDummy::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CDummy::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
+void CDummy::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
@@ -765,8 +765,8 @@ void CDummy::loadUnknownObjectType(CSer& ar)
     }
 }
 
-void CDummy::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // New_Object_ID=map[Old_Object_ID]
+void CDummy::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
     _linkedDummyHandle=CWorld::getLoadingMapping(map,_linkedDummyHandle);
     std::vector<int> ip;

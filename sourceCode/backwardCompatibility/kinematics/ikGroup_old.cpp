@@ -324,13 +324,13 @@ void CIkGroup_old::serialize(CSer &ar)
     }
 }
 
-void CIkGroup_old::performObjectLoadingMapping(const std::vector<int>* map)
+void CIkGroup_old::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     for (size_t i=0;i<getIkElementCount();i++)
         getIkElementFromIndex(i)->performObjectLoadingMapping(map);
 }
 
-void CIkGroup_old::performIkGroupLoadingMapping(const std::vector<int>* map)
+void CIkGroup_old::performIkGroupLoadingMapping(const std::map<int,int>* map)
 {
     _doOnFailOrSuccessOf=CWorld::getLoadingMapping(map,_doOnFailOrSuccessOf);
 }

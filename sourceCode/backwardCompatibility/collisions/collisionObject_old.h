@@ -27,8 +27,8 @@ public:
     void _setCollisionResult(bool result,int calcTime,int obj1Handle,int obj2Handle,const std::vector<float>& intersect);
 
     void serialize(CSer& ar);
-    void performObjectLoadingMapping(const std::vector<int>* map);
-    void performCollectionLoadingMapping(const std::vector<int>* map);
+    void performObjectLoadingMapping(const std::map<int,int>* map);
+    void performCollectionLoadingMapping(const std::map<int,int>* map);
     bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
     bool announceCollectionWillBeErased(int collectionHandle,bool copyBuffer);
     CCollisionObject_old* copyYourself();

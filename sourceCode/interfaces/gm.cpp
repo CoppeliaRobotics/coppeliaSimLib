@@ -14,3 +14,6 @@ void CGm::ll(const char*)
 {
 }
 
+void CGm::rl()
+{
+}

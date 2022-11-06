@@ -1,3 +1,4 @@
+#include "app.h"
 #include "graphCurve.h"
 
 CGraphCurve::CGraphCurve()
@@ -629,14 +630,7 @@ bool CGraphCurve::announceScriptWillBeErased(int scriptHandle,bool simulationScr
     return( (scriptHandle==_scriptHandle)&&(!sceneSwitchPersistentScript) );
 }
 
-void CGraphCurve::performScriptLoadingMapping(const std::vector<int>* map)
-{ // If (map[2*i+0]==old_script_handle) then new_script_handle=map[2*i+1]
-    for (size_t i=0;i<map->size()/2;i++)
-    {
-        if (_scriptHandle==map->at(2*i+0))
-        {
-            _scriptHandle=map->at(2*i+1);
-            break;
-        }
-    }
+void CGraphCurve::performScriptLoadingMapping(const std::map<int,int>* map)
+{
+    _scriptHandle=CWorld::getLoadingMapping(map,_scriptHandle);
 }

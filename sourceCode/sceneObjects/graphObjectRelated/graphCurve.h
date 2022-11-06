@@ -19,7 +19,7 @@ public:
     bool getCurveData_xyz(CGraphDataStream* streams[3],int* index,int bufferSize,int startPt,int ptCnt,std::string* label,std::vector<float>& xVals,int* curveType,float col[3],float minMax[6],int* curveWidth) const;
     void makeStatic(CGraphDataStream* streams[3],int bufferSize,int startPt,int ptCnt);
     bool announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer);
-    void performScriptLoadingMapping(const std::vector<int>* map);
+    void performScriptLoadingMapping(const std::map<int,int>* map);
 
     void setId(int id);
     int getId() const;

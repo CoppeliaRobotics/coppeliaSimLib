@@ -94,16 +94,16 @@ void CViewableBase::announceCollisionWillBeErased(int collisionID,bool copyBuffe
 void CViewableBase::announceDistanceWillBeErased(int distanceID,bool copyBuffer)
 {
 }
-void CViewableBase::performObjectLoadingMapping(const std::vector<int>* map)
+void CViewableBase::performObjectLoadingMapping(const std::map<int,int>* map)
 {
 }
-void CViewableBase::performCollectionLoadingMapping(const std::vector<int>* map)
+void CViewableBase::performCollectionLoadingMapping(const std::map<int,int>* map)
 {
 }
-void CViewableBase::performCollisionLoadingMapping(const std::vector<int>* map)
+void CViewableBase::performCollisionLoadingMapping(const std::map<int,int>* map)
 {
 }
-void CViewableBase::performDistanceLoadingMapping(const std::vector<int>* map)
+void CViewableBase::performDistanceLoadingMapping(const std::map<int,int>* map)
 {
 }
 std::string CViewableBase::getObjectTypeInfo() const

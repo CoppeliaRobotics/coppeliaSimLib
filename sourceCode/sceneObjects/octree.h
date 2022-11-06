@@ -26,12 +26,12 @@ public:
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
-    void performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::vector<int>* map);
-    void performDynMaterialObjectLoadingMapping(const std::vector<int>* map);
+    void performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int,int>* map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int,int>* map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -45,7 +45,7 @@ public:
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
 
-    void performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
+    void performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
 
     // Various functions
     void setCellSize(float theNewSize);

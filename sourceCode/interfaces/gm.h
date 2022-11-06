@@ -9,4 +9,5 @@ public:
     ~CGm();
 
     void ll(const char*);
+    void rl();
 };

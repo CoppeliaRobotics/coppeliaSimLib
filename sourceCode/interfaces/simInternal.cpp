@@ -15067,7 +15067,7 @@ simInt simInsertPointsIntoPointCloud_internal(simInt pointCloudHandle,simInt opt
         if (optionalValues!=nullptr)
             optionalValuesBits=((int*)optionalValues)[0];
         if (optionalValuesBits&1)
-            it->setInsertionDistanceTolerance(((float*)optionalValues)[1]);
+            it->setInsertionDistanceTolerance((floatDouble)((floatFloat*)optionalValues)[1]);
         it->insertPoints(pts,ptCnt,options&1,color,options&2);
         it->setInsertionDistanceTolerance(insertionToleranceSaved);
         int retVal=int(it->getPoints()->size())/3;
@@ -15259,7 +15259,7 @@ simInt simInsertObjectIntoPointCloud_internal(simInt pointCloudHandle,simInt obj
         if (optionalValues!=nullptr)
             optionalValuesBits=((int*)optionalValues)[0];
         if (optionalValuesBits&1)
-            it->setInsertionDistanceTolerance(((float*)optionalValues)[1]);
+            it->setInsertionDistanceTolerance((floatDouble)((floatFloat*)optionalValues)[1]);
         it->insertObject(App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle));
         it->setInsertionDistanceTolerance(insertionToleranceSaved);
         it->setBuildResolution(savedGridSize);

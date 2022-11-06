@@ -25,13 +25,13 @@ struct SLuaVariables
 void _registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback);
 
 void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,size_t floatCount,float* arrayField);
-void getDoublesFromTable(luaWrap_lua_State* L,int tablePos,size_t doubleCount,double* arrayField);
+void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,size_t doubleCount,double* arrayField);
 bool getIntsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,int* arrayField);
 bool getUIntsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,unsigned int* arrayField);
 bool getUCharsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,unsigned char* arrayField);
-void getBoolsFromTable(luaWrap_lua_State* L,int tablePos,size_t boolCount,char* arrayField);
+void getCharBoolsFromTable(luaWrap_lua_State* L,int tablePos,size_t boolCount,char* arrayField);
 void pushFloatTableOntoStack(luaWrap_lua_State* L,size_t floatCount,const float* arrayField);
-void pushDoubleTableOntoStack(luaWrap_lua_State* L,size_t doubleCount,const double* arrayField);
+void pushFloatTableOntoStack(luaWrap_lua_State* L,size_t doubleCount,const double* arrayField);
 void pushIntTableOntoStack(luaWrap_lua_State* L,size_t intCount,const int* arrayField);
 void pushUIntTableOntoStack(luaWrap_lua_State* L,size_t intCount,const unsigned int* arrayField);
 void pushUCharTableOntoStack(luaWrap_lua_State* L,size_t intCount,const unsigned char* arrayField);
@@ -45,7 +45,7 @@ bool luaToBool(luaWrap_lua_State* L,int pos);
 
 void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* warningString,bool cSideErrorOrWarningReporting);
 void _raiseErrorIfNeeded(luaWrap_lua_State* L,const char* functionName,const char* errorString,bool cSideErrorReporting);
-bool doesEntityExist(luaWrap_lua_State* L,std::string* errStr,int identifier);
+bool doesEntityExist(std::string* errStr,int identifier);
 bool checkInputArguments(luaWrap_lua_State* L,std::string* errStr,
                          int type1=lua_arg_empty,int type1Cnt_zeroIfNotTable=-2,
                          int type2=lua_arg_empty,int type2Cnt_zeroIfNotTable=-2,
@@ -64,35 +64,8 @@ bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* 
 
 int _genericFunctionHandler(luaWrap_lua_State* L,CScriptCustomFunction* func,std::string& raiseErrorWithMsg);
 
-// Old:
-// **********************************************
-void moduleCommonPart_old(luaWrap_lua_State* L,int action,std::string* errorString);
-int getCorrectType_old(const std::string& buff);
-void pushCorrectTypeOntoLuaStack_old(luaWrap_lua_State* L,const std::string& buff);
-void getScriptChain_old(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles);
-int _genericFunctionHandler_old(luaWrap_lua_State* L,CScriptCustomFunction* func);
-bool readCustomFunctionDataFromStack_old(luaWrap_lua_State* L,int ind,int dataType,
-                                     std::vector<char>& inBoolVector,
-                                     std::vector<int>& inIntVector,
-                                     std::vector<float>& inFloatVector,
-                                     std::vector<double>& inDoubleVector,
-                                     std::vector<std::string>& inStringVector,
-                                     std::vector<std::string>& inCharVector,
-                                    std::vector<int>& inInfoVector);
-void writeCustomFunctionDataOntoStack_old(luaWrap_lua_State* L,int dataType,int dataSize,
-                                      unsigned char* boolData,int& boolDataPos,
-                                      int* intData,int& intDataPos,
-                                      float* floatData,int& floatDataPos,
-                                      double* doubleData,int& doubleDataPos,
-                                      char* stringData,int& stringDataPos,
-                                      char* charData,int& charDataPos);
-// **********************************************
-
 const extern SLuaCommands simLuaCommands[];
-const extern SLuaCommands simLuaCommandsOldApi[];
-
 const extern SLuaVariables simLuaVariables[];
-const extern SLuaVariables simLuaVariablesOldApi[];
 
 extern int _simHandleChildScripts(luaWrap_lua_State* L);
 extern int _simHandleEmbeddedScripts(luaWrap_lua_State* L);
@@ -439,6 +412,28 @@ extern int _simBroadcastMsg(luaWrap_lua_State* L);
 extern int _simHandleJointMotion(luaWrap_lua_State* L);
 
 // DEPRECATED
+void moduleCommonPart_old(luaWrap_lua_State* L,int action,std::string* errorString);
+int getCorrectType_old(const std::string& buff);
+void pushCorrectTypeOntoLuaStack_old(luaWrap_lua_State* L,const std::string& buff);
+void getScriptChain_old(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std::vector<int>& scriptHandles);
+int _genericFunctionHandler_old(luaWrap_lua_State* L,CScriptCustomFunction* func);
+bool readCustomFunctionDataFromStack_old(luaWrap_lua_State* L,int ind,int dataType,
+                                     std::vector<char>& inBoolVector,
+                                     std::vector<int>& inIntVector,
+                                     std::vector<float>& inFloatVector,
+                                     std::vector<double>& inDoubleVector,
+                                     std::vector<std::string>& inStringVector,
+                                     std::vector<std::string>& inCharVector,
+                                    std::vector<int>& inInfoVector);
+void writeCustomFunctionDataOntoStack_old(luaWrap_lua_State* L,int dataType,int dataSize,
+                                      unsigned char* boolData,int& boolDataPos,
+                                      int* intData,int& intDataPos,
+                                      float* floatData,int& floatDataPos,
+                                      double* doubleData,int& doubleDataPos,
+                                      char* stringData,int& stringDataPos,
+                                      char* charData,int& charDataPos);
+const extern SLuaCommands simLuaCommandsOldApi[];
+const extern SLuaVariables simLuaVariablesOldApi[];
 extern int _simAddStatusbarMessage(luaWrap_lua_State* L);
 extern int _simGetNameSuffix(luaWrap_lua_State* L);
 extern int _simSetNameSuffix(luaWrap_lua_State* L);

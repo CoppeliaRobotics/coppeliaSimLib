@@ -160,22 +160,22 @@ std::string CGraphData_old::getName() const
     return(name); 
 }
 
-void CGraphData_old::performObjectLoadingMapping(const std::vector<int>* map)
+void CGraphData_old::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     if ( (dataType>GRAPH_SCENEOBJECT_START)&&(dataType<GRAPH_SCENEOBJECT_END) )
         dataObjectID=CWorld::getLoadingMapping(map,dataObjectID);
 }
-void CGraphData_old::performCollisionLoadingMapping(const std::vector<int>* map)
+void CGraphData_old::performCollisionLoadingMapping(const std::map<int,int>* map)
 {
     if ( (dataType>GRAPH_COLLISION_START)&&(dataType<GRAPH_COLLISION_END) )
         dataObjectID=CWorld::getLoadingMapping(map,dataObjectID);
 }
-void CGraphData_old::performDistanceLoadingMapping(const std::vector<int>* map)
+void CGraphData_old::performDistanceLoadingMapping(const std::map<int,int>* map)
 {
     if ( (dataType>GRAPH_DISTANCE_START)&&(dataType<GRAPH_DISTANCE_END) )
         dataObjectID=CWorld::getLoadingMapping(map,dataObjectID);
 }
-void CGraphData_old::performIkLoadingMapping(const std::vector<int>* map)
+void CGraphData_old::performIkLoadingMapping(const std::map<int,int>* map)
 {
     if ( (dataType>GRAPH_IK_START)&&(dataType<GRAPH_IK_END) )
         dataObjectID=CWorld::getLoadingMapping(map,dataObjectID);

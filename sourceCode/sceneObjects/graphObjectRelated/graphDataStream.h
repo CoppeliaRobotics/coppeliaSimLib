@@ -21,7 +21,7 @@ public:
     bool getExportValue(int startPt,int relPos,float* val,std::string* label) const;
     void makeStatic(int startPt,int ptCnt,const std::vector<float>& times);
     bool announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer);
-    void performScriptLoadingMapping(const std::vector<int>* map);
+    void performScriptLoadingMapping(const std::map<int,int>* map);
 
     void setId(int id);
     int getId() const;

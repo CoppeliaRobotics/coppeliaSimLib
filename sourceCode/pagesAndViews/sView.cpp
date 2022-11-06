@@ -366,7 +366,7 @@ bool CSView::announceObjectWillBeErased(int objectID)
     return(false);
 }
 
-void CSView::performObjectLoadingMapping(const std::vector<int>* map)
+void CSView::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     linkedObjectID=CWorld::getLoadingMapping(map,linkedObjectID);
 }

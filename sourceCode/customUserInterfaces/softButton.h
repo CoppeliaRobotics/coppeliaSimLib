@@ -18,8 +18,8 @@ public:
     virtual ~CSoftButton();
 
     void announceSceneObjectWillBeErased(int objID);
-    void performTextureObjectLoadingMapping(const std::vector<int>* map);
-    void performSceneObjectLoadingMapping(const std::vector<int>* map);
+    void performTextureObjectLoadingMapping(const std::map<int,int>* map);
+    void performSceneObjectLoadingMapping(const std::map<int,int>* map);
     void setTextureDependencies(int buttonBlockID);
 
     float backgroundColor[3];

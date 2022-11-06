@@ -18,7 +18,7 @@ public:
     int removeGhost(int groupId,int ghostId); // -1,-1 to remove all objects
     int modifyGhost(int groupId,int ghostId,int operation,float floatValue,int theOptions,int theOptionsMask,const float* colorOrTransformation);
     void announceObjectWillBeErased(int objID);
-    void performObjectLoadingMapping(const std::vector<int>* map);
+    void performObjectLoadingMapping(const std::map<int,int>* map);
     void serialize(CSer& ar);
 
 protected:

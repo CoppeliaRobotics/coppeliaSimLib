@@ -738,39 +738,36 @@ void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp,f
 
 void CJoint::setDependencyMasterJointHandle(int depJointID)
 {
-    if ( (_jointType!=sim_joint_spherical_subtype)&&(getJointMode()==sim_jointmode_dependent) )
+    bool diff=(_dependencyMasterJointHandle!=depJointID);
+    if (diff)
     {
-        bool diff=(_dependencyMasterJointHandle!=depJointID);
-        if (diff)
-        {
-            _dependencyMasterJointHandle=depJointID;
-            if (getObjectCanSync())
-                _setDependencyJointHandle_sendOldIk(depJointID);
+        _dependencyMasterJointHandle=depJointID;
+        if (getObjectCanSync())
+            _setDependencyJointHandle_sendOldIk(depJointID);
 
-            if (depJointID==-1)
-                App::currentWorld->sceneObjects->actualizeObjectInformation();
-            else
-            { // enable it
-                // We now check for an illegal loop:
-                CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(depJointID);
-                CJoint* iterat=it;
-                while (iterat->getDependencyMasterJointHandle()!=-1)
-                {
-                    if (iterat->getJointMode()!=_jointMode)
-                        break; // We might have a loop, but it is interupted by another jointMode!! (e.g. IK dependency VS direct dependency)
-                    int joint=iterat->getDependencyMasterJointHandle();
-                    if (joint==getObjectHandle())
-                    { // We have an illegal loop! We disable it:
-                        iterat->setDependencyMasterJointHandle(-1);
-                        break;
-                    }
-                    iterat=App::currentWorld->sceneObjects->getJointFromHandle(joint);
+        if (depJointID==-1)
+            App::currentWorld->sceneObjects->actualizeObjectInformation();
+        else
+        { // enable it
+            // We now check for an illegal loop:
+            CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(depJointID);
+            CJoint* iterat=it;
+            while (iterat->getDependencyMasterJointHandle()!=-1)
+            {
+                if (iterat->getJointMode()!=_jointMode)
+                    break; // We might have a loop, but it is interupted by another jointMode!! (e.g. IK dependency VS direct dependency)
+                int joint=iterat->getDependencyMasterJointHandle();
+                if (joint==getObjectHandle())
+                { // We have an illegal loop! We disable it:
+                    iterat->setDependencyMasterJointHandle(-1);
+                    break;
                 }
-                App::currentWorld->sceneObjects->actualizeObjectInformation();
-                setPosition(getPosition(),false);
+                iterat=App::currentWorld->sceneObjects->getJointFromHandle(joint);
             }
-            _sendDependencyChange();
+            App::currentWorld->sceneObjects->actualizeObjectInformation();
+            setPosition(getPosition(),false);
         }
+        _sendDependencyChange();
     }
 }
 
@@ -2201,32 +2198,32 @@ void CJoint::announceDistanceWillBeErased(int distanceID,bool copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID,copyBuffer);
 }
 
-void CJoint::performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CJoint::performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map,loadingAmodel);
 }
 
-void CJoint::performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CJoint::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
 }
 
-void CJoint::performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CJoint::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollisionLoadingMapping(map,loadingAmodel);
 }
 
-void CJoint::performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CJoint::performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performDistanceLoadingMapping(map,loadingAmodel);
 }
 
-void CJoint::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CJoint::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CJoint::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
+void CJoint::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
@@ -3440,8 +3437,8 @@ void CJoint::serialize(CSer& ar)
     }
 }
 
-void CJoint::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // New_Object_ID=map[Old_Object_ID]
+void CJoint::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
     _dependencyMasterJointHandle=CWorld::getLoadingMapping(map,_dependencyMasterJointHandle);
     // following few for dyn joint dep, so that the correct object handle is set
@@ -3472,11 +3469,13 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int theMode)
     int md;
     if (theMode==sim_jointmode_kinematic)
     {
+        setDependencyMasterJointHandle(-1);
         App::currentWorld->sceneObjects->actualizeObjectInformation();
         md=theMode;
     }
     if (theMode==sim_jointmode_motion_deprecated)
     {
+        setDependencyMasterJointHandle(-1);
         if (_jointMode!=theMode)
         {
             _velocity_DEPRECATED=0.0f;
@@ -3501,6 +3500,7 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int theMode)
     }
     if (theMode==sim_jointmode_dynamic)
     {
+        setDependencyMasterJointHandle(-1);
         if ( (_jointMode!=theMode)&&( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb)||(_dynCtrlMode==sim_jointdynctrl_force) ) )
             setTargetVelocity(1000.0f); // just a very high value
         setHybridFunctionality_old(false);
@@ -3521,6 +3521,7 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int theMode)
     }
     if (theMode==sim_jointmode_ik_deprecated)
     {
+        setDependencyMasterJointHandle(-1);
         App::currentWorld->sceneObjects->actualizeObjectInformation();
         md=theMode;
     }
@@ -3540,7 +3541,11 @@ void CJoint::_setJointMode_sendOldIk(int theMode) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
+    {
+        if ((theMode==sim_jointmode_reserved_previously_ikdependent)||(theMode==sim_jointmode_dependent)||(theMode==sim_jointmode_hybrid_deprecated) )
+            theMode=2; // actually ik_jointmode_ik
         CPluginContainer::ikPlugin_setJointMode(_ikPluginCounterpartHandle,theMode);
+    }
 }
 
 void CJoint::_rectifyDependentJoints()

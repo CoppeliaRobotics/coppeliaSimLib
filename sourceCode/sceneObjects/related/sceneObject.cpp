@@ -1034,7 +1034,7 @@ void CSceneObject::getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoo
     }
 }
 
-void CSceneObject::performGcsLoadingMapping(const std::vector<int>* map)
+void CSceneObject::performGcsLoadingMapping(const std::map<int,int>* map)
 {
 }
 
@@ -1116,7 +1116,7 @@ void CSceneObject::announceDistanceWillBeErased(int distanceID,bool copyBuffer)
         }
     }
 }
-void CSceneObject::performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CSceneObject::performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     for (size_t i=0;i<_customReferencedHandles.size();i++)
     {
@@ -1133,7 +1133,7 @@ void CSceneObject::performIkLoadingMapping(const std::vector<int>* map,bool load
     }
 }
 
-void CSceneObject::performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CSceneObject::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     if ( (_authorizedViewableObjects>=0)&&(_authorizedViewableObjects>=SIM_IDSTART_COLLECTION) )
         _authorizedViewableObjects=CWorld::getLoadingMapping(map,_authorizedViewableObjects);
@@ -1152,7 +1152,7 @@ void CSceneObject::performCollectionLoadingMapping(const std::vector<int>* map,b
     }
 }
 
-void CSceneObject::performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CSceneObject::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     for (size_t i=0;i<_customReferencedHandles.size();i++)
     {
@@ -1169,7 +1169,7 @@ void CSceneObject::performCollisionLoadingMapping(const std::vector<int>* map,bo
     }
 }
 
-void CSceneObject::performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CSceneObject::performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     for (size_t i=0;i<_customReferencedHandles.size();i++)
     {
@@ -1186,11 +1186,11 @@ void CSceneObject::performDistanceLoadingMapping(const std::vector<int>* map,boo
     }
 }
 
-void CSceneObject::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CSceneObject::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
 }
 
-void CSceneObject::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
+void CSceneObject::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
 {
 }
 
@@ -3219,7 +3219,7 @@ void CSceneObject::serialize(CSer& ar)
     }
 }
 
-void CSceneObject::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CSceneObject::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     int newParentID=CWorld::getLoadingMapping(map,_parentObjectHandle_forSerializationOnly);
     App::currentWorld->sceneObjects->setObjectParent(this,App::currentWorld->sceneObjects->getObjectFromHandle(newParentID),false);
@@ -3242,7 +3242,7 @@ void CSceneObject::performObjectLoadingMapping(const std::vector<int>* map,bool 
     }
 }
 
-void CSceneObject::performScriptLoadingMapping(const std::vector<int>* map)
+void CSceneObject::performScriptLoadingMapping(const std::map<int,int>* map)
 {
 
 }

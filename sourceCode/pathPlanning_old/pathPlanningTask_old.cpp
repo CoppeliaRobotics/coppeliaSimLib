@@ -536,7 +536,7 @@ void CPathPlanningTask::serialize(CSer& ar)
     }
 }
 
-void CPathPlanningTask::performObjectLoadingMapping(const std::vector<int>* map)
+void CPathPlanningTask::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     _startDummyID=CWorld::getLoadingMapping(map,_startDummyID);
     _goalDummyID=CWorld::getLoadingMapping(map,_goalDummyID);
@@ -546,7 +546,7 @@ void CPathPlanningTask::performObjectLoadingMapping(const std::vector<int>* map)
     if (_obstacleEntityID<SIM_IDSTART_COLLECTION)
         _obstacleEntityID=CWorld::getLoadingMapping(map,_obstacleEntityID);
 }
-void CPathPlanningTask::performCollectionLoadingMapping(const std::vector<int>* map)
+void CPathPlanningTask::performCollectionLoadingMapping(const std::map<int,int>* map)
 {
     if (_robotEntityID>=SIM_IDSTART_COLLECTION)
         _robotEntityID=CWorld::getLoadingMapping(map,_robotEntityID);

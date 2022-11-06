@@ -18,10 +18,10 @@ public:
     virtual void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     virtual void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     virtual void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
-    virtual void performObjectLoadingMapping(const std::vector<int>* map);
-    virtual void performCollectionLoadingMapping(const std::vector<int>* map);
-    virtual void performCollisionLoadingMapping(const std::vector<int>* map);
-    virtual void performDistanceLoadingMapping(const std::vector<int>* map);
+    virtual void performObjectLoadingMapping(const std::map<int,int>* map);
+    virtual void performCollectionLoadingMapping(const std::map<int,int>* map);
+    virtual void performCollisionLoadingMapping(const std::map<int,int>* map);
+    virtual void performDistanceLoadingMapping(const std::map<int,int>* map);
     virtual void simulationAboutToStart();
     virtual void simulationEnded();
 

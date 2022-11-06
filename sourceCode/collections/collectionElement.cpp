@@ -83,7 +83,7 @@ bool CCollectionElement::isSame(CCollectionElement* it) const
     return(it->getIsAdditive()==_additive);
 }
 
-void CCollectionElement::performObjectLoadingMapping(const std::vector<int>* map)
+void CCollectionElement::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     _mainObjectHandle=CWorld::getLoadingMapping(map,_mainObjectHandle);
 }

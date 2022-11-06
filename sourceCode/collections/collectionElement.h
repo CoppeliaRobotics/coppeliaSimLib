@@ -14,7 +14,7 @@ public:
     void addOrRemoveAnObject(std::vector<int>* theObjects,int objectHandle) const;
     bool isSame(CCollectionElement* it) const;
     void serialize(CSer& ar);
-    void performObjectLoadingMapping(const std::vector<int>* map);
+    void performObjectLoadingMapping(const std::map<int,int>* map);
     CCollectionElement* copyYourself() const;
 
 

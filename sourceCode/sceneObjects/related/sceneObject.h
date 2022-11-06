@@ -53,9 +53,9 @@ public:
     virtual void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     virtual void announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript,bool copyBuffer);
 
-    virtual void performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
-    virtual void performScriptLoadingMapping(const std::vector<int>* map);
-    virtual void performTextureObjectLoadingMapping(const std::vector<int>* map);
+    virtual void performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
+    virtual void performScriptLoadingMapping(const std::map<int,int>* map);
+    virtual void performTextureObjectLoadingMapping(const std::map<int,int>* map);
 
 
     // Old:
@@ -64,12 +64,12 @@ public:
     virtual void announceCollectionWillBeErased(int collectionID,bool copyBuffer);
     virtual void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     virtual void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
-    virtual void performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
-    virtual void performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
-    virtual void performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
-    virtual void performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel);
-    virtual void performGcsLoadingMapping(const std::vector<int>* map);
-    virtual void performDynMaterialObjectLoadingMapping(const std::vector<int>* map);
+    virtual void performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
+    virtual void performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
+    virtual void performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
+    virtual void performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
+    virtual void performGcsLoadingMapping(const std::map<int,int>* map);
+    virtual void performDynMaterialObjectLoadingMapping(const std::map<int,int>* map);
     // -----------
 
     virtual void simulationAboutToStart();

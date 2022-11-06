@@ -49,10 +49,10 @@ public:
 
     void serialize(CSer& ar,void* it);
     CGraphData_old* copyYourself();
-    void performObjectLoadingMapping(const std::vector<int>* map);
-    void performCollisionLoadingMapping(const std::vector<int>* map);
-    void performDistanceLoadingMapping(const std::vector<int>* map);
-    void performIkLoadingMapping(const std::vector<int>* map);
+    void performObjectLoadingMapping(const std::map<int,int>* map);
+    void performCollisionLoadingMapping(const std::map<int,int>* map);
+    void performDistanceLoadingMapping(const std::map<int,int>* map);
+    void performIkLoadingMapping(const std::map<int,int>* map);
     bool announceObjectWillBeErased(int objID,bool copyBuffer);
     bool announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     bool announceDistanceWillBeErased(int distanceID,bool copyBuffer);

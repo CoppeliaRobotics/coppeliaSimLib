@@ -62,19 +62,19 @@ void CMeshWrapper::displayGhost(CShape* geomData,int displayAttrib,bool original
         childList[i]->displayGhost(geomData,displayAttrib,originalColors,backfaceCulling,transparency,newColors);
 }
 
-void CMeshWrapper::performSceneObjectLoadingMapping(const std::vector<int>* map)
+void CMeshWrapper::performSceneObjectLoadingMapping(const std::map<int,int>* map)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->performSceneObjectLoadingMapping(map);
 }
 
-void CMeshWrapper::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CMeshWrapper::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->performTextureObjectLoadingMapping(map);
 }
 
-void CMeshWrapper::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
+void CMeshWrapper::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
 {
     _dynMaterialId_old=CWorld::getLoadingMapping(map,_dynMaterialId_old);
 }

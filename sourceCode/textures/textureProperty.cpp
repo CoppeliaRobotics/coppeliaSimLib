@@ -456,13 +456,13 @@ bool CTextureProperty::announceObjectWillBeErased(const CSceneObject* object)
     return(false);
 }
 
-void CTextureProperty::performObjectLoadingMapping(const std::vector<int>* map)
-{ // New_Object_ID=map[Old_Object_ID]
+void CTextureProperty::performObjectLoadingMapping(const std::map<int,int>* map)
+{
     if (_textureOrVisionSensorObjectID<=SIM_IDEND_SCENEOBJECT)
         _textureOrVisionSensorObjectID=CWorld::getLoadingMapping(map,_textureOrVisionSensorObjectID); // texture is a vision sensor texture object
 }
 
-void CTextureProperty::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CTextureProperty::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     if (_textureOrVisionSensorObjectID>=SIM_IDSTART_TEXTURE)
         _textureOrVisionSensorObjectID=CWorld::getLoadingMapping(map,_textureOrVisionSensorObjectID); // texture is a regular texture object

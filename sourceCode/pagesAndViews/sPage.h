@@ -18,7 +18,7 @@ public:
     bool setPageType(int newType);
     int getPageType() const;
     void announceObjectWillBeErased(int objectID);
-    void performObjectLoadingMapping(const std::vector<int>* map);
+    void performObjectLoadingMapping(const std::map<int,int>* map);
     void getPageSizeAndPosition(int& sizeX,int& sizeY,int& posX,int& posY) const;
     void setPageSizeAndPosition(int sizeX,int sizeY,int posX,int posY);
     CSView* getView(size_t viewIndex);

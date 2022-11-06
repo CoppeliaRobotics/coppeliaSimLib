@@ -88,7 +88,7 @@ public:
     void announce2DElementButtonWillBeErased(int elementID,int buttonID);
 
     static void appendLoadOperationIssue(int verbosity,const char* text,int objectId);
-    static int getLoadingMapping(const std::vector<int>* map,int oldVal);
+    static int getLoadingMapping(const std::map<int,int>* map,int oldVal);
 
 
     CUndoBufferCont* undoBufferContainer;
@@ -138,8 +138,6 @@ private:
         std::vector<CScriptObject*>* loadedLuaScriptList) const;
     bool _canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const;
     void _setSuffix1ToSuffix2(int suffix1,int suffix2);
-
-    static void _prepareFastLoadingMapping(std::vector<int>& map);
 
     int _savedMouseMode;
     std::vector<long long int> _initialObjectUniqueIdentifiersForRemovingNewObjects;

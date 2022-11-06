@@ -1,3 +1,4 @@
+#include "app.h"
 #include "graphDataStream.h"
 #include "simConst.h"
 #include "tt.h"
@@ -748,14 +749,7 @@ bool CGraphDataStream::announceScriptWillBeErased(int scriptHandle,bool simulati
     return( (scriptHandle==_scriptHandle)&&(!sceneSwitchPersistentScript) );
 }
 
-void CGraphDataStream::performScriptLoadingMapping(const std::vector<int>* map)
-{ // If (map[2*i+0]==old_script_handle) then new_script_handle=map[2*i+1]
-    for (size_t i=0;i<map->size()/2;i++)
-    {
-        if (_scriptHandle==map->at(2*i+0))
-        {
-            _scriptHandle=map->at(2*i+1);
-            break;
-        }
-    }
+void CGraphDataStream::performScriptLoadingMapping(const std::map<int,int>* map)
+{
+    _scriptHandle=CWorld::getLoadingMapping(map,_scriptHandle);
 }

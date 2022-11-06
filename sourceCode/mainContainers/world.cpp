@@ -766,30 +766,28 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     bool objectIsACopy=(((loadedLuaScriptList->size()!=0)||forceModelAsCopy)&&model); // scenes are not treated like copies!
 
     // Texture data:
-    std::vector<int> textureMapping;
+    std::map<int,int> textureMapping;
     for (size_t i=0;i<loadedTextureObjectList.size();i++)
     {
-        textureMapping.push_back(loadedTextureObjectList[i]->getObjectID());
+        int oldHandle=loadedTextureObjectList[i]->getObjectID();
         CTextureObject* handler=textureContainer->getObject(textureContainer->addObjectWithSuffixOffset(loadedTextureObjectList[i],objectIsACopy,suffixOffset)); // if a same object is found, the object is destroyed in addObject!
         if (handler!=loadedTextureObjectList[i])
             loadedTextureObjectList[i]=handler; // this happens when a similar object is already present
-        textureMapping.push_back(handler->getObjectID());
+        textureMapping[oldHandle]=handler->getObjectID();
     }
-    _prepareFastLoadingMapping(textureMapping);
 
 
     setEnableRemoteWorldsSync(false); // do not trigger object creation in plugins, etc. when adding objects to world
 
     // We add all sceneObjects:
     sceneObjects->enableObjectActualization(false);
-    std::vector<int> objectMapping;
+    std::map<int,int> objectMapping;
     for (size_t i=0;i<loadedObjectList->size();i++)
     {
         loadedObjectList->at(i)->performTextureObjectLoadingMapping(&textureMapping);
-        objectMapping.push_back(loadedObjectList->at(i)->getObjectHandle()); // Old ID
+        int oldHandle=loadedObjectList->at(i)->getObjectHandle();
         sceneObjects->addObjectToSceneWithSuffixOffset(loadedObjectList->at(i),objectIsACopy,suffixOffset,false);
-        objectMapping.push_back(loadedObjectList->at(i)->getObjectHandle()); // New ID
-
+        objectMapping[oldHandle]=loadedObjectList->at(i)->getObjectHandle();
         if (loadedObjectList->at(i)->getObjectType()==sim_object_shape_type)
         {
             CShape* shape=(CShape*)loadedObjectList->at(i);
@@ -820,7 +818,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
             shape->getMeshWrapper()->setDynMaterialId_old(-1);
         }
     }
-    _prepareFastLoadingMapping(objectMapping);
     sceneObjects->enableObjectActualization(true);
     sceneObjects->actualizeObjectInformation();
 
@@ -831,70 +828,63 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     // Old:
     // -----------------
     // We add all the collections:
-    std::vector<int> collectionMapping;
+    std::map<int,int> collectionMapping;
     for (size_t i=0;i<loadedCollectionList->size();i++)
     {
-        collectionMapping.push_back(loadedCollectionList->at(i)->getCollectionHandle()); // Old ID
+        int oldHandle=loadedCollectionList->at(i)->getCollectionHandle();
         collections->addCollectionWithSuffixOffset(loadedCollectionList->at(i),objectIsACopy,suffixOffset);
-        collectionMapping.push_back(loadedCollectionList->at(i)->getCollectionHandle()); // New ID
+        collectionMapping[oldHandle]=loadedCollectionList->at(i)->getCollectionHandle();
     }
-    _prepareFastLoadingMapping(collectionMapping);
     // We add all the collisions:
-    std::vector<int> collisionMapping;
+    std::map<int,int> collisionMapping;
     for (size_t i=0;i<loadedCollisionList->size();i++)
     {
-        collisionMapping.push_back(loadedCollisionList->at(i)->getObjectHandle()); // Old ID
+        int oldHandle=loadedCollisionList->at(i)->getObjectHandle();
         collisions->addObjectWithSuffixOffset(loadedCollisionList->at(i),objectIsACopy,suffixOffset);
-        collisionMapping.push_back(loadedCollisionList->at(i)->getObjectHandle()); // New ID
+        collisionMapping[oldHandle]=loadedCollisionList->at(i)->getObjectHandle();
     }
-    _prepareFastLoadingMapping(collisionMapping);
     // We add all the distances:
-    std::vector<int> distanceMapping;
+    std::map<int,int> distanceMapping;
     for (size_t i=0;i<loadedDistanceList->size();i++)
     {
-        distanceMapping.push_back(loadedDistanceList->at(i)->getObjectHandle()); // Old ID
+        int oldHandle=loadedDistanceList->at(i)->getObjectHandle();
         distances->addObjectWithSuffixOffset(loadedDistanceList->at(i),objectIsACopy,suffixOffset);
-        distanceMapping.push_back(loadedDistanceList->at(i)->getObjectHandle()); // New ID
+        distanceMapping[oldHandle]=loadedDistanceList->at(i)->getObjectHandle();
     }
-    _prepareFastLoadingMapping(distanceMapping);
     // We add all the ik groups:
-    std::vector<int> ikGroupMapping;
+    std::map<int,int> ikGroupMapping;
     for (size_t i=0;i<loadedIkGroupList->size();i++)
     {
-        ikGroupMapping.push_back(loadedIkGroupList->at(i)->getObjectHandle()); // Old ID
+        int oldHandle=loadedIkGroupList->at(i)->getObjectHandle();
         ikGroups->addIkGroupWithSuffixOffset(loadedIkGroupList->at(i),objectIsACopy,suffixOffset);
-        ikGroupMapping.push_back(loadedIkGroupList->at(i)->getObjectHandle()); // New ID
+        ikGroupMapping[oldHandle]=loadedIkGroupList->at(i)->getObjectHandle();
     }
-    _prepareFastLoadingMapping(ikGroupMapping);
     // We add all the path planning tasks:
-    std::vector<int> pathPlanningTaskMapping;
+    std::map<int,int> pathPlanningTaskMapping;
     for (size_t i=0;i<loadedPathPlanningTaskList->size();i++)
     {
-        pathPlanningTaskMapping.push_back(loadedPathPlanningTaskList->at(i)->getObjectID()); // Old ID
+        int oldHandle=loadedPathPlanningTaskList->at(i)->getObjectID();
         pathPlanning->addObjectWithSuffixOffset(loadedPathPlanningTaskList->at(i),objectIsACopy,suffixOffset);
-        pathPlanningTaskMapping.push_back(loadedPathPlanningTaskList->at(i)->getObjectID()); // New ID
+        pathPlanningTaskMapping[oldHandle]=loadedPathPlanningTaskList->at(i)->getObjectID();
     }
-    _prepareFastLoadingMapping(pathPlanningTaskMapping);
     // We add all the button blocks:
-    std::vector<int> buttonBlockMapping;
+    std::map<int,int> buttonBlockMapping;
     for (size_t i=0;i<loadedButtonBlockList->size();i++)
     {
-        buttonBlockMapping.push_back(loadedButtonBlockList->at(i)->getBlockID()); // Old ID
+        int oldHandle=loadedButtonBlockList->at(i)->getBlockID();
         buttonBlockContainer->insertBlockWithSuffixOffset(loadedButtonBlockList->at(i),objectIsACopy,suffixOffset);
-        buttonBlockMapping.push_back(loadedButtonBlockList->at(i)->getBlockID()); // New ID
+        buttonBlockMapping[oldHandle]=loadedButtonBlockList->at(i)->getBlockID();
     }
-    _prepareFastLoadingMapping(buttonBlockMapping);
     // -----------------
 
     // We add all the scripts:
-    std::vector<int> luaScriptMapping;
+    std::map<int,int> luaScriptMapping;
     for (size_t i=0;i<loadedLuaScriptList->size();i++)
     {
-        luaScriptMapping.push_back(loadedLuaScriptList->at(i)->getScriptHandle()); // Old ID
+        int oldHandle=loadedLuaScriptList->at(i)->getScriptHandle();
         embeddedScriptContainer->insertScript(loadedLuaScriptList->at(i));
-        luaScriptMapping.push_back(loadedLuaScriptList->at(i)->getScriptHandle()); // New ID
+        luaScriptMapping[oldHandle]=loadedLuaScriptList->at(i)->getScriptHandle();
     }
-    _prepareFastLoadingMapping(luaScriptMapping);
 
     sceneObjects->enableObjectActualization(false);
 
@@ -908,7 +898,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         it->performCollisionLoadingMapping(&collisionMapping,model);
         it->performDistanceLoadingMapping(&distanceMapping,model);
         it->performIkLoadingMapping(&ikGroupMapping,model);
-        // Needs to be done before! it->performTextureObjectLoadingMapping(&textureMapping);
     }
     // We do the mapping for the collections (OLD):
     for (size_t i=0;i<loadedCollectionList->size();i++)
@@ -1587,7 +1576,6 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
     // loadedObjectList
     // loadedCollectionList
     // ...
-
     addGeneralObjectsToWorldAndPerformMappings(&loadedObjectList,
                                         &loadedCollectionList,
                                         &loadedCollisionList,
@@ -2359,30 +2347,6 @@ void CWorld::_setSuffix1ToSuffix2(int suffix1,int suffix2)
     pathPlanning->setSuffix1ToSuffix2(suffix1,suffix2);
 }
 
-void CWorld::_prepareFastLoadingMapping(std::vector<int>& map)
-{
-    std::vector<int> mapC(map);
-    map.clear();
-    int minVal=0;
-    int maxVal=0;
-    for (size_t i=0;i<mapC.size()/2;i++)
-    {
-        int v=mapC[2*i+0];
-        if ( (v<minVal)||(i==0) )
-            minVal=v;
-        if ( (v>maxVal)||(i==0) )
-            maxVal=v;
-    }
-    map.push_back(minVal);
-    if (mapC.size()!=0)
-    {
-        for (int i=0;i<maxVal-minVal+1;i++)
-            map.push_back(-1);
-        for (size_t i=0;i<mapC.size()/2;i++)
-            map[1+mapC[2*i+0]-minVal]=mapC[2*i+1];
-    }
-}
-
 void CWorld::appendLoadOperationIssue(int verbosity,const char* text,int objectId)
 {
     if (text==nullptr)
@@ -2397,9 +2361,11 @@ void CWorld::appendLoadOperationIssue(int verbosity,const char* text,int objectI
     }
 }
 
-int CWorld::getLoadingMapping(const std::vector<int>* map,int oldVal)
+int CWorld::getLoadingMapping(const std::map<int,int>* map,int oldVal)
 {
-    if ( (oldVal<0)||((oldVal-map->at(0))>int(map->size())-2) )
-        return(-1);
-    return(map->at(oldVal+1-map->at(0)));
+    int retVal=-1;
+    auto it=map->find(oldVal);
+    if (it!=map->end())
+        retVal=it->second;
+    return(retVal);
 }

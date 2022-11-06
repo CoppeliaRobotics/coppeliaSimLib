@@ -284,33 +284,33 @@ void CPath_old::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID,copyBuffer);
 }
 
-void CPath_old::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // New_Object_ID=map[Old_Object_ID]
+void CPath_old::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
 }
-void CPath_old::performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CPath_old::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
 }
-void CPath_old::performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CPath_old::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollisionLoadingMapping(map,loadingAmodel);
 }
-void CPath_old::performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CPath_old::performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performDistanceLoadingMapping(map,loadingAmodel);
 }
-void CPath_old::performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CPath_old::performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map,loadingAmodel);
 }
 
-void CPath_old::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CPath_old::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CPath_old::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
+void CPath_old::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }

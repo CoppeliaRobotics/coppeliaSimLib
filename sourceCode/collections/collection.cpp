@@ -201,7 +201,7 @@ bool CCollection::setCollectionName(const char* newName,bool check)
     return(diff);
 }
 
-void CCollection::performObjectLoadingMapping(const std::vector<int>* map)
+void CCollection::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     for (size_t i=0;i<getElementCount();i++)
         getElementFromIndex(i)->performObjectLoadingMapping(map);

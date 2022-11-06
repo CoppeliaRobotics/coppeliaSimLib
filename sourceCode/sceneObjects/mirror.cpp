@@ -249,37 +249,37 @@ void CMirror::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID,copyBuffer);
 }
 
-void CMirror::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // New_Object_ID=map[Old_Object_ID]
+void CMirror::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
     if (_clippingObjectOrCollection<SIM_IDSTART_COLLECTION)
         _clippingObjectOrCollection=CWorld::getLoadingMapping(map,_clippingObjectOrCollection);
 }
-void CMirror::performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CMirror::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
     if (_clippingObjectOrCollection>=SIM_IDSTART_COLLECTION)
         _clippingObjectOrCollection=CWorld::getLoadingMapping(map,_clippingObjectOrCollection);
 }
-void CMirror::performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CMirror::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollisionLoadingMapping(map,loadingAmodel);
 }
-void CMirror::performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CMirror::performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performDistanceLoadingMapping(map,loadingAmodel);
 }
-void CMirror::performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CMirror::performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map,loadingAmodel);
 }
 
-void CMirror::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CMirror::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CMirror::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
+void CMirror::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }

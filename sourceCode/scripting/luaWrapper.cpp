@@ -153,7 +153,6 @@ const char* luaWrap_lua_tolstring(luaWrap_lua_State* L,int idx,size_t* len)
     return(lua_tolstring((lua_State*)L,idx,len));
 }
 
-
 int luaWrap_lua_isnumber(luaWrap_lua_State* L,int idx)
 {
     return(lua_isnumber((lua_State*)L,idx));

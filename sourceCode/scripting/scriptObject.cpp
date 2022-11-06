@@ -1263,7 +1263,7 @@ void CScriptObject::setAddOnName(const char* name)
     _addOnName=name;
 }
 
-void CScriptObject::performSceneObjectLoadingMapping(const std::vector<int>* map)
+void CScriptObject::performSceneObjectLoadingMapping(const std::map<int,int>* map)
 {
     if (App::currentWorld->sceneObjects!=nullptr)
         _objectHandleAttachedTo=CWorld::getLoadingMapping(map,_objectHandleAttachedTo);

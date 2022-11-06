@@ -1879,12 +1879,12 @@ void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,size_t floatCount,floa
     }
 }
 
-void getDoublesFromTable(luaWrap_lua_State* L,int tablePos,size_t doubleCount,double* arrayField)
+void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,size_t doubleCount,double* arrayField)
 {
     for (size_t i=0;i<doubleCount;i++)
     {
         luaWrap_lua_rawgeti(L,tablePos,int(i+1));
-        arrayField[i]=luaWrap_lua_tonumber(L,-1);
+        arrayField[i]=luaToDouble(L,-1);
         luaWrap_lua_pop(L,1); // we pop one element from the stack;
     }
 }
@@ -1915,10 +1915,7 @@ bool getUIntsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,unsigne
             luaWrap_lua_pop(L,1); // we pop one element from the stack;
             return(false); // Not a number!!
         }
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,-1);
-        if (na<0.0)
-            na=0.0;
-        arrayField[i]=(unsigned int)na;
+        arrayField[i]=(unsigned int)luaToInt(L,-1);
         luaWrap_lua_pop(L,1); // we pop one element from the stack;
     }
     return(true);
@@ -1934,16 +1931,13 @@ bool getUCharsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,unsign
             luaWrap_lua_pop(L,1); // we pop one element from the stack;
             return(false); // Not a number!!
         }
-        luaWrap_lua_Number na=luaWrap_lua_tonumber(L,-1);
-        if (na<0.0)
-            na=0.0;
-        arrayField[i]=(unsigned char)na;
+        arrayField[i]=(unsigned char)luaToInt(L,-1);
         luaWrap_lua_pop(L,1); // we pop one element from the stack;
     }
     return(true);
 }
 
-void getBoolsFromTable(luaWrap_lua_State* L,int tablePos,size_t boolCount,char* arrayField)
+void getCharBoolsFromTable(luaWrap_lua_State* L,int tablePos,size_t boolCount,char* arrayField)
 {
     for (size_t i=0;i<boolCount;i++)
     {
@@ -1964,7 +1958,7 @@ void pushFloatTableOntoStack(luaWrap_lua_State* L,size_t floatCount,const float*
     }
 }
 
-void pushDoubleTableOntoStack(luaWrap_lua_State* L,size_t doubleCount,const double* arrayField)
+void pushFloatTableOntoStack(luaWrap_lua_State* L,size_t doubleCount,const double* arrayField)
 {
     luaWrap_lua_newtable(L);
     int newTablePos=luaWrap_lua_gettop(L);
@@ -2252,7 +2246,7 @@ bool checkInputArguments(luaWrap_lua_State* L,std::string* errStr,
     return(true);
 }
 
-bool doesEntityExist(luaWrap_lua_State* L,std::string* errStr,int identifier)
+bool doesEntityExist(std::string* errStr,int identifier)
 {
     if (identifier>=SIM_IDSTART_COLLECTION)
     {
@@ -2361,7 +2355,7 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
 //    it->printInterpreterStack();
 
     luaWrap_lua_pushvalue(L,luaWrap_lua_upvalueindex(1));
-    int id=luaWrap_lua_tointeger(L,-1)-1;
+    int id=luaToInt(L,-1)-1;
     luaWrap_lua_pop(L,1); // we have to pop the pushed value to get the original stack state
 
 
@@ -2403,7 +2397,7 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int callType=luaWrap_lua_tointeger(L,1);
+        int callType=luaToInt(L,1);
         int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
         if (it!=nullptr)
@@ -2436,7 +2430,7 @@ int _simHandleEmbeddedScripts(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int callType=luaWrap_lua_tointeger(L,1);
+        int callType=luaToInt(L,1);
         int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
         if (it!=nullptr)
@@ -2580,7 +2574,7 @@ int _simHandleVisionSensor(luaWrap_lua_State* L)
             }
             for (int i=tableCount;i<2;i++)
             {
-                pushFloatTableOntoStack(L,0,nullptr); // return at least 2 aux packets, even empty
+                pushIntTableOntoStack(L,0,nullptr); // return at least 2 aux packets, even empty
                 tableCount++;
             }
             LUA_END(1+tableCount);
@@ -2621,7 +2615,7 @@ int _simReadVisionSensor(luaWrap_lua_State* L)
             }
             for (int i=tableCount;i<2;i++)
             {
-                pushFloatTableOntoStack(L,0,nullptr); // return at least 2 aux packets, even empty
+                pushIntTableOntoStack(L,0,nullptr); // return at least 2 aux packets, even empty
                 tableCount++;
             }
             LUA_END(1+tableCount);
@@ -3001,7 +2995,7 @@ int _simCheckVisionSensor(luaWrap_lua_State* L)
             }
             for (int i=tableCount;i<2;i++)
             {
-                pushFloatTableOntoStack(L,0,nullptr); // return at least 2 aux packets, even empty
+                pushIntTableOntoStack(L,0,nullptr); // return at least 2 aux packets, even empty
                 tableCount++;
             }
             LUA_END(1+tableCount);
@@ -3107,7 +3101,7 @@ int _simGetObjectUid(luaWrap_lua_State* L)
     long long int retVal=-1; // means error
 
     if (checkInputArguments(L,&errorString,lua_arg_integer,0))
-        retVal=simGetObjectUid_internal(luaWrap_lua_tointeger(L,1));
+        retVal=simGetObjectUid_internal(luaToInt(L,1));
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
@@ -3145,7 +3139,7 @@ int _simGetScript(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_integer,0))
     {
-        int scriptType=luaWrap_lua_tointeger(L,1);
+        int scriptType=luaToInt(L,1);
         if (scriptType==sim_handle_self)
             retVal=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         else
@@ -3160,7 +3154,7 @@ int _simGetScript(luaWrap_lua_State* L)
             if ( (scriptType==sim_scripttype_childscript)||(scriptType==sim_scripttype_customizationscript) )
             {
                 if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_integer,0))
-                    objectHandle=luaWrap_lua_tointeger(L,2);
+                    objectHandle=luaToInt(L,2);
             }
             if ( ( (scriptName.size()>0)||(objectHandle>=0) )||((scriptType==sim_scripttype_mainscript)||(scriptType==sim_scripttype_sandboxscript)) )
             {
@@ -3219,7 +3213,7 @@ int _simRemoveScript(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         if (handle==sim_handle_self)
             handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         if (sim_handle_all!=handle)
@@ -3589,9 +3583,9 @@ int _simCheckCollision(luaWrap_lua_State* L)
     {
         int entity1Handle=luaToInt(L,1);
         int entity2Handle=luaToInt(L,2);
-        if (doesEntityExist(L,&errorString,entity1Handle))
+        if (doesEntityExist(&errorString,entity1Handle))
         {
-            if ( (entity2Handle==sim_handle_all)||doesEntityExist(L,&errorString,entity2Handle) )
+            if ( (entity2Handle==sim_handle_all)||doesEntityExist(&errorString,entity2Handle) )
             {
                 if (entity2Handle==sim_handle_all)
                     entity2Handle=-1;
@@ -3632,7 +3626,7 @@ int _simCheckCollisionEx(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    pushFloatTableOntoStack(L,0,nullptr);
+    pushIntTableOntoStack(L,0,nullptr); // empty table
     LUA_END(2);
 }
 
@@ -3653,9 +3647,9 @@ int _simCheckDistance(luaWrap_lua_State* L)
             float threshold=-1.0f;
             if (res==2)
                 threshold=luaToFloat(L,3);
-            if (doesEntityExist(L,&errorString,entity1Handle))
+            if (doesEntityExist(&errorString,entity1Handle))
             {
-                if ( (entity2Handle==sim_handle_all)||doesEntityExist(L,&errorString,entity2Handle) )
+                if ( (entity2Handle==sim_handle_all)||doesEntityExist(&errorString,entity2Handle) )
                 {
                     if (entity2Handle==sim_handle_all)
                         entity2Handle=-1;
@@ -3948,7 +3942,7 @@ int _simAddLog(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int v=luaWrap_lua_tointeger(L,1);
+        int v=luaToInt(L,1);
         int res=checkOneGeneralInputArgument(L,2,lua_arg_string,0,false,true,&errorString);
         if (res>0)
         {
@@ -4017,7 +4011,7 @@ int _simGetObjectMatrix(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         float arr[12];
-        if (simGetObjectMatrix_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),arr)==1)
+        if (simGetObjectMatrix_internal(luaToInt(L,1),luaToInt(L,2),arr)==1)
         {
             pushFloatTableOntoStack(L,12,arr); // Success
             LUA_END(1);
@@ -4038,7 +4032,7 @@ int _simSetObjectMatrix(luaWrap_lua_State* L)
     {
         float arr[12];
         getFloatsFromTable(L,3,12,arr);
-        retVal=simSetObjectMatrix_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),arr);
+        retVal=simSetObjectMatrix_internal(luaToInt(L,1),luaToInt(L,2),arr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4054,7 +4048,7 @@ int _simGetObjectPose(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         float arr[7];
-        if (simGetObjectPose_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),arr)==1)
+        if (simGetObjectPose_internal(luaToInt(L,1),luaToInt(L,2),arr)==1)
         {
             pushFloatTableOntoStack(L,7,arr); // Success
             LUA_END(1);
@@ -4075,7 +4069,7 @@ int _simSetObjectPose(luaWrap_lua_State* L)
     {
         float arr[7];
         getFloatsFromTable(L,3,7,arr);
-        retVal=simSetObjectPose_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),arr);
+        retVal=simSetObjectPose_internal(luaToInt(L,1),luaToInt(L,2),arr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4091,7 +4085,7 @@ int _simGetObjectChildPose(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         float arr[7];
-        if (simGetObjectChildPose_internal(luaWrap_lua_tointeger(L,1),arr)==1)
+        if (simGetObjectChildPose_internal(luaToInt(L,1),arr)==1)
         {
             pushFloatTableOntoStack(L,7,arr); // Success
             LUA_END(1);
@@ -4111,7 +4105,7 @@ int _simSetObjectChildPose(luaWrap_lua_State* L)
     {
         float arr[7];
         getFloatsFromTable(L,2,7,arr);
-        simSetObjectChildPose_internal(luaWrap_lua_tointeger(L,1),arr);
+        simSetObjectChildPose_internal(luaToInt(L,1),arr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4496,7 +4490,7 @@ int _simGetObjectParent(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simGetObjectParent_internal(luaWrap_lua_tointeger(L,1));
+        retVal=simGetObjectParent_internal(luaToInt(L,1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -4510,7 +4504,7 @@ int _simGetObjectChild(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simGetObjectChild_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
+        retVal=simGetObjectChild_internal(luaToInt(L,1),luaToInt(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -4530,8 +4524,8 @@ int _simSetObjectParent(luaWrap_lua_State* L)
         if (res>=0)
         {
             if (res==2)
-                keepInPlace=luaWrap_lua_toboolean(L,3);
-            retVal=simSetObjectParent_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),keepInPlace);
+                keepInPlace=luaToBool(L,3);
+            retVal=simSetObjectParent_internal(luaToInt(L,1),luaToInt(L,2),keepInPlace);
         }
     }
 
@@ -4547,7 +4541,7 @@ int _simGetObjectType(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simGetObjectType_internal(luaWrap_lua_tointeger(L,1));
+        retVal=simGetObjectType_internal(luaToInt(L,1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -4561,7 +4555,7 @@ int _simGetJointType(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simGetJointType_internal(luaWrap_lua_tointeger(L,1));
+        retVal=simGetJointType_internal(luaToInt(L,1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -4575,7 +4569,7 @@ int _simSetBoolParam(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_bool,0))
-        retVal=simSetBoolParam_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_toboolean(L,2));
+        retVal=simSetBoolParam_internal(luaToInt(L,1),luaToBool(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -4589,7 +4583,7 @@ int _simGetBoolParam(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int retVal=simGetBoolParam_internal(luaWrap_lua_tointeger(L,1));
+        int retVal=simGetBoolParam_internal(luaToInt(L,1));
         if (retVal!=-1)
         {
             luaWrap_lua_pushboolean(L,retVal!=0);
@@ -4609,8 +4603,8 @@ int _simSetInt32Param(luaWrap_lua_State* L)
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int paramIndex=luaWrap_lua_tointeger(L,1);
-        int v=luaWrap_lua_tointeger(L,2);
+        int paramIndex=luaToInt(L,1);
+        int v=luaToInt(L,2);
         if (paramIndex==sim_intparam_error_report_mode)
         { // for backward compatibility (2020)
             CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
@@ -4639,7 +4633,7 @@ int _simGetInt32Param(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int paramIndex=luaWrap_lua_tointeger(L,1);
+        int paramIndex=luaToInt(L,1);
         if (paramIndex==sim_intparam_error_report_mode)
         { // for backward compatibility (2020)
             CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
@@ -4675,7 +4669,7 @@ int _simSetFloatParam(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetFloatParam_internal(luaWrap_lua_tointeger(L,1),luaToFloat(L,2));
+        retVal=simSetFloatParam_internal(luaToInt(L,1),luaToFloat(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -4690,7 +4684,7 @@ int _simGetFloatParam(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         float v;
-        int retVal=simGetFloatParam_internal(luaWrap_lua_tointeger(L,1),&v);
+        int retVal=simGetFloatParam_internal(luaToInt(L,1),&v);
         if (retVal!=-1)
         {
             luaWrap_lua_pushnumber(L,v);
@@ -4723,7 +4717,7 @@ int _simGetStringParam(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int param=luaWrap_lua_tointeger(L,1);
+        int param=luaToInt(L,1);
         if (sim_stringparam_addonpath==param)
         {
             std::string s;
@@ -4757,7 +4751,7 @@ int _simSetArrayParam(luaWrap_lua_State* L)
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_table,0))
     {
-        int parameter=luaWrap_lua_tointeger(L,1);
+        int parameter=luaToInt(L,1);
         if (true)
         { // for now all array parameters are tables of 3 floats
             float theArray[3];
@@ -4778,7 +4772,7 @@ int _simGetArrayParam(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int parameter=luaWrap_lua_tointeger(L,1);
+        int parameter=luaToInt(L,1);
         if (true)
         { // for now all parameters are tables of 3 floats
             float theArray[3];
@@ -4825,7 +4819,7 @@ int _simRemoveModel(luaWrap_lua_State* L)
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int objId=luaWrap_lua_tointeger(L,1);
+        int objId=luaToInt(L,1);
         int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if (!it->getThreadedExecution_oldThreads())
@@ -4903,7 +4897,7 @@ int _simSetObjectAlias(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
-        retVal=simSetObjectAlias_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tostring(L,2),0);
+        retVal=simSetObjectAlias_internal(luaToInt(L,1),luaWrap_lua_tostring(L,2),0);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
@@ -4918,7 +4912,7 @@ int _simGetJointInterval(luaWrap_lua_State* L)
     {
         simBool cyclic;
         simFloat interval[2];
-        if (simGetJointInterval_internal(luaWrap_lua_tointeger(L,1),&cyclic,interval)==1)
+        if (simGetJointInterval_internal(luaToInt(L,1),&cyclic,interval)==1)
         {
             luaWrap_lua_pushboolean(L,cyclic!=0);
             pushFloatTableOntoStack(L,2,interval);
@@ -4940,7 +4934,7 @@ int _simSetJointInterval(luaWrap_lua_State* L)
     {
         float interval[2];
         getFloatsFromTable(L,3,2,interval);
-        retVal=simSetJointInterval_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_toboolean(L,2),interval);
+        retVal=simSetJointInterval_internal(luaToInt(L,1),luaToBool(L,2),interval);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5052,7 +5046,7 @@ int _simLoadModel(luaWrap_lua_State* L)
         {
             bool onlyThumbnails=false;
             if (res==2)
-                onlyThumbnails=luaWrap_lua_toboolean(L,2);
+                onlyThumbnails=luaToBool(L,2);
             size_t dataLength;
             const char* data=((char*)luaWrap_lua_tolstring(L,1,&dataLength));
             if (dataLength<1000)
@@ -5129,12 +5123,12 @@ int _simSaveModel(luaWrap_lua_State* L)
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int model=luaWrap_lua_tointeger(L,1);
+        int model=luaToInt(L,1);
         int res=checkOneGeneralInputArgument(L,2,lua_arg_string,0,true,true,&errorString);
         if (res>=0)
         {
             if (res==2)
-                retVal=simSaveModel_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tostring(L,2));
+                retVal=simSaveModel_internal(luaToInt(L,1),luaWrap_lua_tostring(L,2));
             else
             { // here we don't save to file, but to buffer:
 
@@ -5280,8 +5274,8 @@ int _simGetExtensionString(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int objHandle=luaWrap_lua_tointeger(L,1);
-        int index=luaWrap_lua_tointeger(L,2);
+        int objHandle=luaToInt(L,1);
+        int index=luaToInt(L,2);
         int res=checkOneGeneralInputArgument(L,3,lua_arg_string,0,true,true,&errorString);
         if (res>=0)
         {
@@ -5311,8 +5305,8 @@ int _simComputeMassAndInertia(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int shapeHandle=luaWrap_lua_tointeger(L,1);
-        float density=luaWrap_lua_tonumber(L,2);
+        int shapeHandle=luaToInt(L,1);
+        float density=luaToFloat(L,2);
         retVal=simComputeMassAndInertia_internal(shapeHandle,density);
     }
 
@@ -5330,12 +5324,12 @@ int _simTest(luaWrap_lua_State* L)
         std::string cmd=luaWrap_lua_tostring(L,1);
         if (cmd.compare("sim.cborEvents")==0)
         {
-            App::worldContainer->setCborEvents(luaWrap_lua_toboolean(L,2));
+            App::worldContainer->setCborEvents(luaToBool(L,2));
             LUA_END(0);
         }
         if (cmd.compare("sim.mergeEvents")==0)
         {
-            App::worldContainer->setMergeEvents(luaWrap_lua_toboolean(L,2));
+            App::worldContainer->setMergeEvents(luaToBool(L,2));
             LUA_END(0);
         }
         if (cmd.compare("sim.fetchCreationEvents")==0)
@@ -5387,7 +5381,7 @@ int _simTextEditorClose(luaWrap_lua_State* L)
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
-            int handle=luaWrap_lua_tointeger(L,1);
+            int handle=luaToInt(L,1);
             int posAndSize[4];
             std::string txt;
             if (App::mainWindow->codeEditorContainer->close(handle,posAndSize,&txt,nullptr))
@@ -5418,8 +5412,8 @@ int _simTextEditorShow(luaWrap_lua_State* L)
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
-            int handle=luaWrap_lua_tointeger(L,1);
-            bool showState=(luaWrap_lua_toboolean(L,2)!=0);
+            int handle=luaToInt(L,1);
+            bool showState=luaToBool(L,2);
             retVal=App::mainWindow->codeEditorContainer->showOrHide(handle,showState);
             luaWrap_lua_pushinteger(L,retVal);
             LUA_END(1);
@@ -5444,7 +5438,7 @@ int _simTextEditorGetInfo(luaWrap_lua_State* L)
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
-            int handle=luaWrap_lua_tointeger(L,1);
+            int handle=luaToInt(L,1);
             int state=App::mainWindow->codeEditorContainer->getShowState(handle);
             if (state>=0)
             {
@@ -5474,10 +5468,10 @@ int _simSetJointDependency(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
-        int jointHandle=luaWrap_lua_tointeger(L,1);
-        int masterJointHandle=luaWrap_lua_tointeger(L,2);
-        float off=luaWrap_lua_tonumber(L,3);
-        float coeff=luaWrap_lua_tonumber(L,4);
+        int jointHandle=luaToInt(L,1);
+        int masterJointHandle=luaToInt(L,2);
+        float off=luaToFloat(L,3);
+        float coeff=luaToFloat(L,4);
         retVal=simSetJointDependency_internal(jointHandle,masterJointHandle,off,coeff);
         if (retVal>=0)
         {
@@ -5498,7 +5492,7 @@ int _simGetJointDependency(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int jointHandle=luaWrap_lua_tointeger(L,1);
+        int jointHandle=luaToInt(L,1);
         int masterJointHandle;
         float off;
         float coeff;
@@ -5526,7 +5520,7 @@ int _simGetStackTraceback(luaWrap_lua_State* L)
     if (luaWrap_lua_gettop(L)!=0)
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
-            scriptHandle=luaWrap_lua_tointeger(L,1);
+            scriptHandle=luaToInt(L,1);
     }
     else
         scriptHandle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
@@ -5694,7 +5688,7 @@ int _simSetThreadSwitchTiming(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int timeInMs=luaWrap_lua_tointeger(L,1);
+        int timeInMs=luaToInt(L,1);
         int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if (it!=nullptr)
@@ -5736,12 +5730,12 @@ int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L)
             int retVal;
             if (luaWrap_lua_isnumber(L,1))
             {
-                int a=luaWrap_lua_tointeger(L,1);
+                int a=luaToInt(L,1);
                 retVal=it->changeAutoYieldingForbidLevel(a,true);
             }
             else
             {
-                bool allow=luaWrap_lua_toboolean(L,1);
+                bool allow=luaToBool(L,1);
                 if (allow)
                     retVal=it->changeAutoYieldingForbidLevel(-1,false);
                 else
@@ -5800,12 +5794,12 @@ int _simSetThreadSwitchAllowed(luaWrap_lua_State* L)
             int retVal;
             if (luaWrap_lua_isnumber(L,1))
             {
-                int a=luaWrap_lua_tointeger(L,1);
+                int a=luaToInt(L,1);
                 retVal=it->changeOverallYieldingForbidLevel(a,true);
             }
             else
             {
-                bool allow=luaWrap_lua_toboolean(L,1);
+                bool allow=luaToBool(L,1);
                 int a=1;
                 if (allow)
                     a=-1;
@@ -6093,7 +6087,7 @@ int _simPackInt32Table(luaWrap_lua_State* L)
                         for (int i=0;i<count;i++)
                         {
                             luaWrap_lua_rawgeti(L,1,i+1+startIndex);
-                            int v=luaWrap_lua_tointeger(L,-1);
+                            int v=luaToInt(L,-1);
                             data[4*i+0]=((char*)&v)[0];
                             data[4*i+1]=((char*)&v)[1];
                             data[4*i+2]=((char*)&v)[2];
@@ -6152,10 +6146,7 @@ int _simPackUInt32Table(luaWrap_lua_State* L)
                         for (int i=0;i<count;i++)
                         {
                             luaWrap_lua_rawgeti(L,1,i+1+startIndex);
-                            luaWrap_lua_Number na=luaWrap_lua_tonumber(L,-1);
-                            if (na<0.0)
-                                na=0.0;
-                            unsigned int v=(unsigned int)na;
+                            unsigned int v=(unsigned int)luaToInt(L,-1);
                             data[4*i+0]=((char*)&v)[0];
                             data[4*i+1]=((char*)&v)[1];
                             data[4*i+2]=((char*)&v)[2];
@@ -6214,7 +6205,7 @@ int _simPackFloatTable(luaWrap_lua_State* L)
                         for (int i=0;i<count;i++)
                         {
                             luaWrap_lua_rawgeti(L,1,i+1+startIndex);
-                            float v=(float)luaWrap_lua_tonumber(L,-1);
+                            float v=luaToFloat(L,-1);
                             data[4*i+0]=((char*)&v)[0];
                             data[4*i+1]=((char*)&v)[1];
                             data[4*i+2]=((char*)&v)[2];
@@ -6273,7 +6264,7 @@ int _simPackDoubleTable(luaWrap_lua_State* L)
                         for (int i=0;i<count;i++)
                         {
                             luaWrap_lua_rawgeti(L,1,i+1+startIndex);
-                            double v=luaWrap_lua_tonumber(L,-1);
+                            double v=luaToDouble(L,-1);
                             data[sizeof(double)*i+0]=((char*)&v)[0];
                             data[sizeof(double)*i+1]=((char*)&v)[1];
                             data[sizeof(double)*i+2]=((char*)&v)[2];
@@ -6336,7 +6327,7 @@ int _simPackUInt8Table(luaWrap_lua_State* L)
                         for (int i=0;i<count;i++)
                         {
                             luaWrap_lua_rawgeti(L,1,i+1+startIndex);
-                            unsigned char v=(unsigned char)luaWrap_lua_tointeger(L,-1);
+                            unsigned char v=(unsigned char)luaToInt(L,-1);
                             data[i]=((char*)&v)[0];
                             luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
@@ -6392,7 +6383,7 @@ int _simPackUInt16Table(luaWrap_lua_State* L)
                         for (int i=0;i<count;i++)
                         {
                             luaWrap_lua_rawgeti(L,1,i+1+startIndex);
-                            unsigned short v=(unsigned short)luaWrap_lua_tointeger(L,-1);
+                            unsigned short v=(unsigned short)luaToInt(L,-1);
                             data[2*i+0]=((char*)&v)[0];
                             data[2*i+1]=((char*)&v)[1];
                             luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
@@ -6657,7 +6648,7 @@ int _simUnpackDoubleTable(luaWrap_lua_State* L)
                             ((char*)&v)[7]=data[sizeof(double)*(i+startIndex)+7];
                             theDoubles[i]=v;
                         }
-                        pushDoubleTableOntoStack(L,count,theDoubles);
+                        pushFloatTableOntoStack(L,count,theDoubles);
                         delete[] theDoubles;
                         LUA_END(1);
                     }
@@ -8582,7 +8573,7 @@ int _simGetObjectProperty(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simGetObjectProperty_internal(luaWrap_lua_tointeger(L,1));
+        retVal=simGetObjectProperty_internal(luaToInt(L,1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -8596,7 +8587,7 @@ int _simSetObjectProperty(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetObjectProperty_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
+        retVal=simSetObjectProperty_internal(luaToInt(L,1),luaToInt(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -8610,7 +8601,7 @@ int _simGetObjectSpecialProperty(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simGetObjectSpecialProperty_internal(luaWrap_lua_tointeger(L,1));
+        retVal=simGetObjectSpecialProperty_internal(luaToInt(L,1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -8624,7 +8615,7 @@ int _simSetObjectSpecialProperty(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetObjectSpecialProperty_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
+        retVal=simSetObjectSpecialProperty_internal(luaToInt(L,1),luaToInt(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -8638,7 +8629,7 @@ int _simGetModelProperty(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simGetModelProperty_internal(luaWrap_lua_tointeger(L,1));
+        retVal=simGetModelProperty_internal(luaToInt(L,1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -8652,7 +8643,7 @@ int _simSetModelProperty(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetModelProperty_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
+        retVal=simSetModelProperty_internal(luaToInt(L,1),luaToInt(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -10440,28 +10431,28 @@ int _simRMLPos(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
         int dofs=luaToInt(L,1);
-        double timeStep=luaWrap_lua_tonumber(L,2);
+        double timeStep=luaToDouble(L,2);
         int flags=luaToInt(L,3);
         int res=checkOneGeneralInputArgument(L,4,lua_arg_number,dofs*3,false,false,&errorString);
         if (res==2)
         {
             double* currentPosVelAccel=new double[dofs*3];
-            getDoublesFromTable(L,4,dofs*3,currentPosVelAccel);
+            getFloatsFromTable(L,4,dofs*3,currentPosVelAccel);
             res=checkOneGeneralInputArgument(L,5,lua_arg_number,dofs*3,false,false,&errorString);
             if (res==2)
             {
                 double* maxVelAccelJerk=new double[dofs*3];
-                getDoublesFromTable(L,5,dofs*3,maxVelAccelJerk);
+                getFloatsFromTable(L,5,dofs*3,maxVelAccelJerk);
                 res=checkOneGeneralInputArgument(L,6,lua_arg_bool,dofs,false,false,&errorString);
                 if (res==2)
                 {
                     char* selection=new char[dofs];
-                    getBoolsFromTable(L,6,dofs,selection);
+                    getCharBoolsFromTable(L,6,dofs,selection);
                     res=checkOneGeneralInputArgument(L,7,lua_arg_number,dofs*2,false,false,&errorString);
                     if (res==2)
                     {
                         double* targetPosVel=new double[dofs*2];
-                        getDoublesFromTable(L,7,dofs*2,targetPosVel);
+                        getFloatsFromTable(L,7,dofs*2,targetPosVel);
 
                         unsigned char auxData[1+4];
                         auxData[0]=1;
@@ -10496,7 +10487,7 @@ int _simRMLStep(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int handle=luaToInt(L,1);
-        double timeStep=luaWrap_lua_tonumber(L,2);
+        double timeStep=luaToDouble(L,2);
 
         // Get the Dofs of this object:
         int dofs=-1;
@@ -10518,7 +10509,7 @@ int _simRMLStep(luaWrap_lua_State* L)
             if (retVal>=0)
             {
                 luaWrap_lua_pushinteger(L,retVal);
-                pushDoubleTableOntoStack(L,dofs*3,newPosVelAccel);
+                pushFloatTableOntoStack(L,dofs*3,newPosVelAccel);
                 luaWrap_lua_pushnumber(L,((double*)(auxData+1))[0]);
                 delete[] newPosVelAccel;
                 LUA_END(3);
@@ -10559,28 +10550,28 @@ int _simRMLVel(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
         int dofs=luaToInt(L,1);
-        double timeStep=luaWrap_lua_tonumber(L,2);
+        double timeStep=luaToDouble(L,2);
         int flags=luaToInt(L,3);
         int res=checkOneGeneralInputArgument(L,4,lua_arg_number,dofs*3,false,false,&errorString);
         if (res==2)
         {
             double* currentPosVelAccel=new double[dofs*3];
-            getDoublesFromTable(L,4,dofs*3,currentPosVelAccel);
+            getFloatsFromTable(L,4,dofs*3,currentPosVelAccel);
             res=checkOneGeneralInputArgument(L,5,lua_arg_number,dofs*2,false,false,&errorString);
             if (res==2)
             {
                 double* maxAccelJerk=new double[dofs*2];
-                getDoublesFromTable(L,5,dofs*2,maxAccelJerk);
+                getFloatsFromTable(L,5,dofs*2,maxAccelJerk);
                 res=checkOneGeneralInputArgument(L,6,lua_arg_bool,dofs,false,false,&errorString);
                 if (res==2)
                 {
                     char* selection=new char[dofs];
-                    getBoolsFromTable(L,6,dofs,selection);
+                    getCharBoolsFromTable(L,6,dofs,selection);
                     res=checkOneGeneralInputArgument(L,7,lua_arg_number,dofs,false,false,&errorString);
                     if (res==2)
                     {
                         double* targetVel=new double[dofs];
-                        getDoublesFromTable(L,7,dofs,targetVel);
+                        getFloatsFromTable(L,7,dofs,targetVel);
 
                         unsigned char auxData[1+4];
                         auxData[0]=1;
@@ -10615,7 +10606,7 @@ int _simRuckigPos(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
         int dofs=luaToInt(L,1);
-        double timeStep=luaWrap_lua_tonumber(L,2);
+        double timeStep=luaToDouble(L,2);
         int flags=luaToInt(L,3);
         int maxVelAccelJerkCnt=dofs*3;
         if ( (flags>=0)&&((flags&sim_ruckig_minvel)!=0) )
@@ -10626,11 +10617,11 @@ int _simRuckigPos(luaWrap_lua_State* L)
         {
             std::vector<double> currentPosVelAccel;
             currentPosVelAccel.resize(dofs*3);
-            getDoublesFromTable(L,4,dofs*3,&currentPosVelAccel[0]);
+            getFloatsFromTable(L,4,dofs*3,&currentPosVelAccel[0]);
 
             std::vector<double> maxVelAccelJerk;
             maxVelAccelJerk.resize(maxVelAccelJerkCnt);
-            getDoublesFromTable(L,5,maxVelAccelJerkCnt,&maxVelAccelJerk[0]);
+            getFloatsFromTable(L,5,maxVelAccelJerkCnt,&maxVelAccelJerk[0]);
 
             std::vector<double> minMaxVel;
             std::vector<double> minMaxAccel;
@@ -10657,11 +10648,11 @@ int _simRuckigPos(luaWrap_lua_State* L)
 
             std::vector<char> selection;
             selection.resize(dofs);
-            getBoolsFromTable(L,6,dofs,&selection[0]);
+            getCharBoolsFromTable(L,6,dofs,&selection[0]);
 
             std::vector<double> targetPosVel;
             targetPosVel.resize(dofs*2);
-            getDoublesFromTable(L,7,dofs*2,&targetPosVel[0]);
+            getFloatsFromTable(L,7,dofs*2,&targetPosVel[0]);
 
             setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
             int retVal=simRuckigPos_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&minMaxVel[0],&minMaxAccel[0],&maxJerk[0],(unsigned char*)(&selection[0]),&targetPosVel[0],&targetPosVel[dofs],nullptr,nullptr);
@@ -10687,7 +10678,7 @@ int _simRuckigVel(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
         int dofs=luaToInt(L,1);
-        double timeStep=luaWrap_lua_tonumber(L,2);
+        double timeStep=luaToDouble(L,2);
         int flags=luaToInt(L,3);
         int maxAccelJerkCnt=dofs*2;
         if ( (flags>=0)&&((flags&sim_ruckig_minaccel)!=0) )
@@ -10696,11 +10687,11 @@ int _simRuckigVel(luaWrap_lua_State* L)
         {
             std::vector<double> currentPosVelAccel;
             currentPosVelAccel.resize(dofs*3);
-            getDoublesFromTable(L,4,dofs*3,&currentPosVelAccel[0]);
+            getFloatsFromTable(L,4,dofs*3,&currentPosVelAccel[0]);
 
             std::vector<double> maxAccelJerk;
             maxAccelJerk.resize(maxAccelJerkCnt);
-            getDoublesFromTable(L,5,maxAccelJerkCnt,&maxAccelJerk[0]);
+            getFloatsFromTable(L,5,maxAccelJerkCnt,&maxAccelJerk[0]);
 
             std::vector<double> minMaxAccel;
             std::vector<double> maxJerk;
@@ -10719,11 +10710,11 @@ int _simRuckigVel(luaWrap_lua_State* L)
 
             std::vector<char> selection;
             selection.resize(dofs);
-            getBoolsFromTable(L,6,dofs,&selection[0]);
+            getCharBoolsFromTable(L,6,dofs,&selection[0]);
 
             std::vector<double> targetVel;
             targetVel.resize(dofs);
-            getDoublesFromTable(L,7,dofs,&targetVel[0]);
+            getFloatsFromTable(L,7,dofs,&targetVel[0]);
 
             setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
             int retVal=simRuckigVel_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&minMaxAccel[0],&maxJerk[0],(unsigned char*)(&selection[0]),&targetVel[0],nullptr,nullptr);
@@ -10751,7 +10742,7 @@ int _simRuckigStep(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int handle=luaToInt(L,1);
-        double timeStep=luaWrap_lua_tonumber(L,2);
+        double timeStep=luaToDouble(L,2);
         int dofs=CPluginContainer::ruckigPlugin_dofs(handle);
         if (dofs<0)
             dofs=1; // will be caught later down
@@ -10762,9 +10753,9 @@ int _simRuckigStep(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     if (newPosVelAccel.size()>0)
-        pushDoubleTableOntoStack(L,newPosVelAccel.size(),&newPosVelAccel[0]);
+        pushFloatTableOntoStack(L,newPosVelAccel.size(),&newPosVelAccel[0]);
     else
-        pushDoubleTableOntoStack(L,0,nullptr);
+        pushIntTableOntoStack(L,0,nullptr); // empty table
     luaWrap_lua_pushnumber(L,syncTime);
     LUA_END(3);
 }
@@ -10901,7 +10892,7 @@ int _simUnloadModule(luaWrap_lua_State* L)
 
     int retVal=0; // error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simUnloadModule_internal(luaWrap_lua_tointeger(L,1));
+        retVal=simUnloadModule_internal(luaToInt(L,1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -10916,7 +10907,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
         std::string funcAndScriptName(luaWrap_lua_tostring(L,1));
-        int scriptHandleOrType=luaWrap_lua_tointeger(L,2);
+        int scriptHandleOrType=luaToInt(L,2);
 
         std::string scriptDescription;
         std::string funcName;
@@ -11067,7 +11058,7 @@ int _simGetShapeMass(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         float mass;
         int result=simGetShapeMass_internal(handle,&mass);
         if (result!=-1)
@@ -11088,7 +11079,7 @@ int _simSetShapeMass(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         float mass=luaToFloat(L,2);
         simSetShapeMass_internal(handle,mass);
     }
@@ -11104,7 +11095,7 @@ int _simGetShapeInertia(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         float inertiaMatrix[9];
         float transformation[12];
         int result=simGetShapeInertia_internal(handle,inertiaMatrix,transformation);
@@ -11127,7 +11118,7 @@ int _simSetShapeInertia(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,9,lua_arg_number,12))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         float inertiaMatrix[9];
         getFloatsFromTable(L,2,9,inertiaMatrix);
         float transformation[12];
@@ -11146,7 +11137,7 @@ int _simIsDynamicallyEnabled(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         int res=simIsDynamicallyEnabled_internal(handle);
         if (res>=0)
         {
@@ -11178,7 +11169,7 @@ int _simGenerateShapeFromPath(luaWrap_lua_State* L)
         if (res>=0)
         {
             if (res==2)
-                options=luaWrap_lua_tointeger(L,3);
+                options=luaToInt(L,3);
             res=checkOneGeneralInputArgument(L,4,lua_arg_number,3,true,true,&errorString);
             if (res>=0)
             {
@@ -11240,7 +11231,7 @@ int _simInitScript(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int scriptHandle=luaWrap_lua_tointeger(L,1);
+        int scriptHandle=luaToInt(L,1);
         int r=simInitScript_internal(scriptHandle);
         if (r>=0)
         {
@@ -11260,7 +11251,7 @@ int _simModuleEntry(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_integer,0))
     {
-        int itemHandle=luaWrap_lua_tointeger(L,1);
+        int itemHandle=luaToInt(L,1);
         const char* label=nullptr;
         std::string _label;
         int state=-1;
@@ -11276,7 +11267,7 @@ int _simModuleEntry(luaWrap_lua_State* L)
             if (res>=0)
             {
                 if (res==2)
-                    state=luaWrap_lua_tointeger(L,3);
+                    state=luaToInt(L,3);
                 setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                 int h=simModuleEntry_internal(itemHandle,label,state);
                 setCurrentScriptInfo_cSide(-1,-1);
@@ -11301,7 +11292,7 @@ int _simPushUserEvent(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_integer,0,lua_arg_integer,0))
     {
         std::string eventStr(luaWrap_lua_tostring(L,1));
-        int handle=luaWrap_lua_tointeger(L,2);
+        int handle=luaToInt(L,2);
         long long int uid=luaWrap_lua_tointeger(L,3);
         if (luaWrap_lua_istable(L,4))
         {
@@ -11310,7 +11301,7 @@ int _simPushUserEvent(luaWrap_lua_State* L)
             if (res>=0)
             {
                 if (res==2)
-                    options=luaWrap_lua_tointeger(L,5);
+                    options=luaToInt(L,5);
                 if (App::worldContainer->getEventsEnabled())
                 {
                     auto [event,data]=App::worldContainer->prepareNakedEvent(eventStr.c_str(),handle,uid,(options&1)!=0);
@@ -11342,7 +11333,7 @@ int _simBroadcastMsg(luaWrap_lua_State* L)
         if (res>=0)
         {
             if (res==2)
-                options=luaWrap_lua_tointeger(L,2);
+                options=luaToInt(L,2);
             CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
             CScriptObject::buildFromInterpreterStack_lua(L,stack,1,0);
             stack->pushInt32OntoStack(CScriptObject::getScriptHandleFromInterpreterState_lua(L),false);
@@ -11412,7 +11403,7 @@ int _simGroupShapes(luaWrap_lua_State* L)
         {
             bool mergeShapes=false;
             if (res==2)
-                mergeShapes=luaWrap_lua_toboolean(L,2);
+                mergeShapes=luaToBool(L,2);
             int tableSize=int(luaWrap_lua_rawlen(L,1));
             int* theTable=new int[tableSize];
             getIntsFromTable(L,1,tableSize,theTable);
@@ -11435,7 +11426,7 @@ int _simUngroupShape(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int shapeHandle=luaWrap_lua_tointeger(L,1);
+        int shapeHandle=luaToInt(L,1);
         int count;
         int* handles=simUngroupShape_internal(shapeHandle,&count);
         if (handles!=nullptr)
@@ -11459,8 +11450,8 @@ int _simConvexDecompose(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int shapeHandle=luaWrap_lua_tointeger(L,1);
-        int options=luaWrap_lua_tointeger(L,2);
+        int shapeHandle=luaToInt(L,1);
+        int options=luaToInt(L,2);
         int intParams[10];
         float floatParams[10];
         bool goOn=true;
@@ -12200,8 +12191,8 @@ int _simGetEngineFloatParam(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int paramId=luaWrap_lua_tointeger(L,1);
-        int objectHandle=luaWrap_lua_tointeger(L,2);
+        int paramId=luaToInt(L,1);
+        int objectHandle=luaToInt(L,2);
         simBool ok;
         float paramVal=simGetEngineFloatParam_internal(paramId,objectHandle,nullptr,&ok);
         if (ok>0)
@@ -12222,8 +12213,8 @@ int _simGetEngineInt32Param(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int paramId=luaWrap_lua_tointeger(L,1);
-        int objectHandle=luaWrap_lua_tointeger(L,2);
+        int paramId=luaToInt(L,1);
+        int objectHandle=luaToInt(L,2);
         simBool ok;
         int paramVal=simGetEngineInt32Param_internal(paramId,objectHandle,nullptr,&ok);
         if (ok>0)
@@ -12244,8 +12235,8 @@ int _simGetEngineBoolParam(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int paramId=luaWrap_lua_tointeger(L,1);
-        int objectHandle=luaWrap_lua_tointeger(L,2);
+        int paramId=luaToInt(L,1);
+        int objectHandle=luaToInt(L,2);
         simBool ok;
         simBool paramVal=simGetEngineBoolParam_internal(paramId,objectHandle,nullptr,&ok);
         if (ok>0)
@@ -12267,8 +12258,8 @@ int _simSetEngineFloatParam(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
-        int paramId=luaWrap_lua_tointeger(L,1);
-        int objectHandle=luaWrap_lua_tointeger(L,2);
+        int paramId=luaToInt(L,1);
+        int objectHandle=luaToInt(L,2);
         float paramVal=luaToFloat(L,3);
         retVal=simSetEngineFloatParam_internal(paramId,objectHandle,nullptr,paramVal);
     }
@@ -12286,9 +12277,9 @@ int _simSetEngineInt32Param(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
-        int paramId=luaWrap_lua_tointeger(L,1);
-        int objectHandle=luaWrap_lua_tointeger(L,2);
-        int paramVal=luaWrap_lua_tointeger(L,3);
+        int paramId=luaToInt(L,1);
+        int objectHandle=luaToInt(L,2);
+        int paramVal=luaToInt(L,3);
         retVal=simSetEngineInt32Param_internal(paramId,objectHandle,nullptr,paramVal);
     }
 
@@ -12305,9 +12296,9 @@ int _simSetEngineBoolParam(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_bool,0))
     {
-        int paramId=luaWrap_lua_tointeger(L,1);
-        int objectHandle=luaWrap_lua_tointeger(L,2);
-        simBool paramVal=(simBool)luaWrap_lua_toboolean(L,3);
+        int paramId=luaToInt(L,1);
+        int objectHandle=luaToInt(L,2);
+        bool paramVal=luaToBool(L,3);
         retVal=simSetEngineBoolParam_internal(paramId,objectHandle,nullptr,paramVal);
     }
 
@@ -12324,9 +12315,9 @@ int _simCreateOctree(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
-        float voxelSize=(float)luaWrap_lua_tonumber(L,1);
-        int options=luaWrap_lua_tointeger(L,2);
-        float pointSize=(float)luaWrap_lua_tonumber(L,3);
+        float voxelSize=luaToFloat(L,1);
+        int options=luaToInt(L,2);
+        float pointSize=luaToFloat(L,3);
         retVal=simCreateOctree_internal(voxelSize,options,pointSize,nullptr);
     }
 
@@ -12343,10 +12334,10 @@ int _simCreatePointCloud(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
-        float maxVoxelSize=(float)luaWrap_lua_tonumber(L,1);
-        int maxPtCntPerVoxel=luaWrap_lua_tointeger(L,2);
-        int options=luaWrap_lua_tointeger(L,3);
-        float pointSize=(float)luaWrap_lua_tonumber(L,4);
+        float maxVoxelSize=luaToFloat(L,1);
+        int maxPtCntPerVoxel=luaToInt(L,2);
+        int options=luaToInt(L,3);
+        float pointSize=luaToFloat(L,4);
         retVal=simCreatePointCloud_internal(maxVoxelSize,maxPtCntPerVoxel,options,pointSize,nullptr);
     }
 
@@ -12363,11 +12354,11 @@ int _simSetPointCloudOptions(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
-        float maxVoxelSize=(float)luaWrap_lua_tonumber(L,2);
-        int maxPtCntPerVoxel=luaWrap_lua_tointeger(L,3);
-        int options=luaWrap_lua_tointeger(L,4);
-        float pointSize=(float)luaWrap_lua_tonumber(L,5);
+        int handle=luaToInt(L,1);
+        float maxVoxelSize=luaToFloat(L,2);
+        int maxPtCntPerVoxel=luaToInt(L,3);
+        int options=luaToInt(L,4);
+        float pointSize=luaToFloat(L,5);
         retVal=simSetPointCloudOptions_internal(handle,maxVoxelSize,maxPtCntPerVoxel,options,pointSize,nullptr);
     }
 
@@ -12383,7 +12374,7 @@ int _simGetPointCloudOptions(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         float maxVoxelSize;
         int maxPtCntPerVoxel;
         int options;
@@ -12411,8 +12402,8 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
-        int options=luaWrap_lua_tointeger(L,2);
+        int handle=luaToInt(L,1);
+        int options=luaToInt(L,2);
         int ptCnt=int(luaWrap_lua_rawlen(L,3))/3;
         std::vector<float> pts;
         pts.resize(ptCnt*3);
@@ -12465,8 +12456,8 @@ int _simRemoveVoxelsFromOctree(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
-        int options=luaWrap_lua_tointeger(L,2);
+        int handle=luaToInt(L,1);
+        int options=luaToInt(L,2);
         int res=checkOneGeneralInputArgument(L,3,lua_arg_number,3,false,true,&errorString);
         if (res>=1)
         {
@@ -12496,10 +12487,10 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
-        int options=luaWrap_lua_tointeger(L,2);
+        int handle=luaToInt(L,1);
+        int options=luaToInt(L,2);
         int ptCnt=int(luaWrap_lua_rawlen(L,3))/3;
-        float optionalValues[2];
+        floatFloat optionalValues[2];
         ((int*)optionalValues)[0]=1; // duplicate tolerance bit
         optionalValues[1]=0.0f; // duplicate tolerance
         std::vector<float> pts;
@@ -12524,7 +12515,7 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State* L)
             {
                 if (res==2)
                 {
-                    optionalValues[1]=(float)luaWrap_lua_tonumber(L,5); // duplicate tolerance
+                    optionalValues[1]=(floatFloat)luaToDouble(L,5); // duplicate tolerance
                     retVal=simInsertPointsIntoPointCloud_internal(handle,options,&pts[0],ptCnt,cols,optionalValues);
                 }
                 else
@@ -12546,15 +12537,15 @@ int _simRemovePointsFromPointCloud(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
-        int options=luaWrap_lua_tointeger(L,2);
+        int handle=luaToInt(L,1);
+        int options=luaToInt(L,2);
         int res=checkOneGeneralInputArgument(L,3,lua_arg_number,3,false,true,&errorString);
         if (res>=1)
         {
             int res2=checkOneGeneralInputArgument(L,4,lua_arg_number,0,false,false,&errorString);
             if (res2==2)
             {
-                float tolerance=(float)luaWrap_lua_tonumber(L,4);
+                float tolerance=luaToFloat(L,4);
                 if (res==2)
                 { // remove some points
                     int ptCnt=int(luaWrap_lua_rawlen(L,3))/3;
@@ -12582,15 +12573,15 @@ int _simIntersectPointsWithPointCloud(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
-        int options=luaWrap_lua_tointeger(L,2);
+        int handle=luaToInt(L,1);
+        int options=luaToInt(L,2);
         int res=checkOneGeneralInputArgument(L,3,lua_arg_number,3,false,true,&errorString);
         if (res>=1)
         {
             int res2=checkOneGeneralInputArgument(L,4,lua_arg_number,0,false,false,&errorString);
             if (res2==2)
             {
-                float tolerance=(float)luaWrap_lua_tonumber(L,4);
+                float tolerance=luaToFloat(L,4);
                 if (res==2)
                 { // intersect some points
                     int ptCnt=int(luaWrap_lua_rawlen(L,3))/3;
@@ -12617,7 +12608,7 @@ int _simGetOctreeVoxels(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         int ptCnt=-1;
         const float* p=simGetOctreeVoxels_internal(handle,&ptCnt,nullptr);
         if (ptCnt>=0)
@@ -12638,7 +12629,7 @@ int _simGetPointCloudPoints(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         int ptCnt=-1;
         const float* p=simGetPointCloudPoints_internal(handle,&ptCnt,nullptr);
         if (ptCnt>=0)
@@ -12660,9 +12651,9 @@ int _simInsertObjectIntoOctree(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
-        int handle1=luaWrap_lua_tointeger(L,1);
-        int handle2=luaWrap_lua_tointeger(L,2);
-        int options=luaWrap_lua_tointeger(L,3);
+        int handle1=luaToInt(L,1);
+        int handle2=luaToInt(L,2);
+        int options=luaToInt(L,3);
         unsigned char col[3];
         unsigned char* c=nullptr;
         int tag=0;
@@ -12676,7 +12667,7 @@ int _simInsertObjectIntoOctree(luaWrap_lua_State* L)
             }
             res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,true,&errorString);
             if (res==2)
-                tag=(unsigned int)luaWrap_lua_tonumber(L,5);
+                tag=(unsigned int)luaToInt(L,5);
             retVal=simInsertObjectIntoOctree_internal(handle1,handle2,options,c,tag,nullptr);
         }
     }
@@ -12694,9 +12685,9 @@ int _simSubtractObjectFromOctree(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
-        int handle1=luaWrap_lua_tointeger(L,1);
-        int handle2=luaWrap_lua_tointeger(L,2);
-        int options=luaWrap_lua_tointeger(L,3);
+        int handle1=luaToInt(L,1);
+        int handle2=luaToInt(L,2);
+        int options=luaToInt(L,3);
         retVal=simSubtractObjectFromOctree_internal(handle1,handle2,options,nullptr);
     }
 
@@ -12713,11 +12704,11 @@ int _simInsertObjectIntoPointCloud(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
-        int handle1=luaWrap_lua_tointeger(L,1);
-        int handle2=luaWrap_lua_tointeger(L,2);
-        int options=luaWrap_lua_tointeger(L,3);
-        float gridSize=(float)luaWrap_lua_tonumber(L,4);
-        float optionalValues[2];
+        int handle1=luaToInt(L,1);
+        int handle2=luaToInt(L,2);
+        int options=luaToInt(L,3);
+        float gridSize=luaToFloat(L,4);
+        floatFloat optionalValues[2];
         ((int*)optionalValues)[0]=1; // duplicate tolerance bit
         optionalValues[1]=0.0; // duplicate tolerance
         unsigned char col[3];
@@ -12735,7 +12726,7 @@ int _simInsertObjectIntoPointCloud(luaWrap_lua_State* L)
             {
                 if (res==2)
                 {
-                    optionalValues[1]=(float)luaWrap_lua_tonumber(L,6); // duplicate tolerance
+                    optionalValues[1]=(floatFloat)luaToDouble(L,6); // duplicate tolerance
                     retVal=simInsertObjectIntoPointCloud_internal(handle1,handle2,options,gridSize,c,optionalValues);
                 }
                 else
@@ -12757,10 +12748,10 @@ int _simSubtractObjectFromPointCloud(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
-        int handle1=luaWrap_lua_tointeger(L,1);
-        int handle2=luaWrap_lua_tointeger(L,2);
-        int options=luaWrap_lua_tointeger(L,3);
-        float tolerance=luaWrap_lua_tonumber(L,4);
+        int handle1=luaToInt(L,1);
+        int handle2=luaToInt(L,2);
+        int options=luaToInt(L,3);
+        float tolerance=luaToFloat(L,4);
         retVal=simSubtractObjectFromPointCloud_internal(handle1,handle2,options,tolerance,nullptr);
     }
 
@@ -12777,8 +12768,8 @@ int _simCheckOctreePointOccupancy(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
-        int options=luaWrap_lua_tointeger(L,2);
+        int handle=luaToInt(L,1);
+        int options=luaToInt(L,2);
         int ptCnt=int(luaWrap_lua_rawlen(L,3))/3;
         std::vector<float> points;
         points.resize(ptCnt*3);
@@ -12814,7 +12805,7 @@ int _simPackTable(luaWrap_lua_State* L)
             {
                 int scheme=0;
                 if (res==2)
-                    scheme=luaWrap_lua_tointeger(L,2);
+                    scheme=luaToInt(L,2);
                 CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
                 CScriptObject::buildFromInterpreterStack_lua(L,stack,1,1);
                 std::string s;
@@ -12968,7 +12959,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
             int res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,false,false,&errorString);
             if (res==2)
             {
-                int tInMs=int(luaWrap_lua_tonumber(L,2)*1000.0);
+                int tInMs=int(luaToDouble(L,2)*1000.0);
                 VThread::sleep(tInMs);
             }
             LUA_END(0);
@@ -12987,8 +12978,8 @@ int _simAuxFunc(luaWrap_lua_State* L)
         {
             if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0))
             {
-                int graphHandle=luaWrap_lua_tointeger(L,2);
-                int curveType=luaWrap_lua_tointeger(L,3);
+                int graphHandle=luaToInt(L,2);
+                int curveType=luaToInt(L,3);
                 std::string curveName(luaWrap_lua_tostring(L,4));
                 CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
                 if (it!=nullptr)
@@ -13004,8 +12995,8 @@ int _simAuxFunc(luaWrap_lua_State* L)
         {
             if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0))
             {
-                int graphHandle=luaWrap_lua_tointeger(L,2);
-                int curveType=luaWrap_lua_tointeger(L,3);
+                int graphHandle=luaToInt(L,2);
+                int curveType=luaToInt(L,3);
                 std::string curveName(luaWrap_lua_tostring(L,4));
                 CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
                 if (it!=nullptr)
@@ -13021,8 +13012,8 @@ int _simAuxFunc(luaWrap_lua_State* L)
         {
             if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0))
             {
-                int graphHandle=luaWrap_lua_tointeger(L,2);
-                int curveType=luaWrap_lua_tointeger(L,3);
+                int graphHandle=luaToInt(L,2);
+                int curveType=luaToInt(L,3);
                 std::string curveName(luaWrap_lua_tostring(L,4));
                 CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
                 if (it!=nullptr)
@@ -13038,8 +13029,8 @@ int _simAuxFunc(luaWrap_lua_State* L)
         {
             if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0,lua_arg_bool,0,lua_arg_string,0))
             {
-                int objHandle=luaWrap_lua_tointeger(L,2);
-                bool childAttr=luaWrap_lua_toboolean(L,3);
+                int objHandle=luaToInt(L,2);
+                bool childAttr=luaToBool(L,3);
                 std::string matchValues(luaWrap_lua_tostring(L,4));
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
                 if (it!=nullptr)
@@ -13055,8 +13046,8 @@ int _simAuxFunc(luaWrap_lua_State* L)
         {
             if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0,lua_arg_bool,0))
             {
-                int objHandle=luaWrap_lua_tointeger(L,2);
-                bool childAttr=luaWrap_lua_toboolean(L,3);
+                int objHandle=luaToInt(L,2);
+                bool childAttr=luaToBool(L,3);
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
                 if (it!=nullptr)
                 {
@@ -13086,7 +13077,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
                     getIntsFromTable(L,4,vc,&lines[0]);
                     int col[3];
                     getIntsFromTable(L,5,3,col);
-                    int lineWidth=luaWrap_lua_tointeger(L,6);
+                    int lineWidth=luaToInt(L,6);
                     QImage qimg((const unsigned char*)img,res[0],res[1],res[0]*3,QImage::Format_RGB888);
                     QPixmap pix(QPixmap::fromImage(qimg));
                     QPainter paint(&pix);
@@ -13131,7 +13122,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
                     getIntsFromTable(L,4,vc,&rects[0]);
                     int col[3];
                     getIntsFromTable(L,5,3,col);
-                    int lineWidth=luaWrap_lua_tointeger(L,6);
+                    int lineWidth=luaToInt(L,6);
                     QImage qimg((const unsigned char*)img,res[0],res[1],res[0]*3,QImage::Format_RGB888);
                     QPixmap pix(QPixmap::fromImage(qimg));
                     QPainter paint(&pix);
@@ -13173,7 +13164,7 @@ int _simSetReferencedHandles(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int objHandle=(luaWrap_lua_tointeger(L,1));
+        int objHandle=luaToInt(L,1);
         if (luaWrap_lua_istable(L,2))
         {
             int cnt=(int)luaWrap_lua_rawlen(L,2);
@@ -13203,7 +13194,7 @@ int _simGetReferencedHandles(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int objHandle=(luaWrap_lua_tointeger(L,1));
+        int objHandle=luaToInt(L,1);
         int* handles;
         int cnt=simGetReferencedHandles_internal(objHandle,&handles,nullptr,nullptr);
         if (cnt>=0)
@@ -13224,9 +13215,9 @@ int _simGetGraphCurve(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
-        int graphHandle=(luaWrap_lua_tointeger(L,1));
-        int graphType=(luaWrap_lua_tointeger(L,2));
-        int index=(luaWrap_lua_tointeger(L,3));
+        int graphHandle=luaToInt(L,1);
+        int graphType=luaToInt(L,2);
+        int index=luaToInt(L,3);
         CGraph* graph=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
         if (graph!=nullptr)
         {
@@ -13246,11 +13237,11 @@ int _simGetGraphCurve(luaWrap_lua_State* L)
                 if (xVals.size()>0)
                     pushFloatTableOntoStack(L,(int)xVals.size(),&xVals[0]);
                 else
-                    pushFloatTableOntoStack(L,0,nullptr);
+                    pushIntTableOntoStack(L,0,nullptr); // empty table
                 if (yVals.size()>0)
                     pushFloatTableOntoStack(L,(int)yVals.size(),&yVals[0]);
                 else
-                    pushFloatTableOntoStack(L,0,nullptr);
+                    pushIntTableOntoStack(L,0,nullptr); // empty table
                 pushFloatTableOntoStack(L,6,minMax);
                 luaWrap_lua_pushinteger(L,curveId);
                 luaWrap_lua_pushinteger(L,curveWidth);
@@ -13271,7 +13262,7 @@ int _simGetGraphInfo(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int graphHandle=(luaWrap_lua_tointeger(L,1));
+        int graphHandle=luaToInt(L,1);
         CGraph* graph=App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
         if (graph!=nullptr)
         {
@@ -13295,8 +13286,8 @@ int _simGetShapeViz(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int shapeHandle=luaWrap_lua_tointeger(L,1);
-        int index=luaWrap_lua_tointeger(L,2);
+        int shapeHandle=luaToInt(L,1);
+        int index=luaToInt(L,2);
         SShapeVizInfo info;
         int ret=simGetShapeViz_internal(shapeHandle+sim_handleflag_extended,index,&info);
         if (ret>0)
@@ -13348,7 +13339,7 @@ int _simExecuteScriptString(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
         std::string strAndScriptName(luaWrap_lua_tostring(L,1));
-        int scriptHandleOrType=luaWrap_lua_tointeger(L,2);
+        int scriptHandleOrType=luaToInt(L,2);
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         int retVal=simExecuteScriptString_internal(scriptHandleOrType,strAndScriptName.c_str(),stack->getId());
         if (retVal>=0)
@@ -13384,7 +13375,7 @@ int _simGetApiFunc(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
     {
-        int scriptHandleOrType=luaWrap_lua_tointeger(L,1);
+        int scriptHandleOrType=luaToInt(L,1);
         std::string apiWord(luaWrap_lua_tostring(L,2));
         char* str=simGetApiFunc_internal(scriptHandleOrType,apiWord.c_str());
         std::vector<std::string> strTable;
@@ -13417,7 +13408,7 @@ int _simGetApiInfo(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
     {
-        int scriptHandleOrType=luaWrap_lua_tointeger(L,1);
+        int scriptHandleOrType=luaToInt(L,1);
         std::string apiWord(luaWrap_lua_tostring(L,2));
         char* str=simGetApiInfo_internal(scriptHandleOrType,apiWord.c_str());
         if (str!=nullptr)
@@ -13443,7 +13434,7 @@ int _simGetModuleInfo(luaWrap_lua_State* L)
         char* stringInfo;
         int intInfo;
         std::string moduleName(luaWrap_lua_tostring(L,1));
-        int infoType=luaWrap_lua_tointeger(L,2);
+        int infoType=luaToInt(L,2);
         int res=simGetModuleInfo_internal(moduleName.c_str(),infoType,&stringInfo,&intInfo);
         if (res>=0)
         {
@@ -13474,13 +13465,13 @@ int _simSetModuleInfo(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
         std::string moduleName(luaWrap_lua_tostring(L,1));
-        int infoType=luaWrap_lua_tointeger(L,2);
+        int infoType=luaToInt(L,2);
         if ( (infoType==sim_moduleinfo_verbosity)||(infoType==sim_moduleinfo_statusbarverbosity) )
         {
             int res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,false,false,&errorString);
             if (res==2)
             {
-                int verbosity=luaWrap_lua_tointeger(L,3);
+                int verbosity=luaToInt(L,3);
                 simSetModuleInfo_internal(moduleName.c_str(),infoType,nullptr,verbosity);
             }
             else
@@ -13543,7 +13534,7 @@ int _simRegisterScriptFuncHook(luaWrap_lua_State* L)
     {
         const char* systemFunc=luaWrap_lua_tostring(L,1);
         const char* userFunc=luaWrap_lua_tostring(L,2);
-        bool execBefore=luaWrap_lua_toboolean(L,3);
+        bool execBefore=luaToBool(L,3);
         retVal=simRegisterScriptFuncHook_internal(CScriptObject::getScriptHandleFromInterpreterState_lua(L),systemFunc,userFunc,execBefore,0);
     }
 
@@ -15536,8 +15527,8 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_bool,0))
     {
-        int h=luaWrap_lua_tointeger(L,1);
-        bool ignoreCb=luaWrap_lua_toboolean(L,2);
+        int h=luaToInt(L,1);
+        bool ignoreCb=luaToBool(L,2);
         int res=0;
         std::string txt;
         std::string cb;
@@ -15714,8 +15705,8 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     { // Those are the arguments that are always required! (the rest can be ignored or set to nil!
-        int objID=luaWrap_lua_tointeger(L,1);
-        int relativeToObjID=luaWrap_lua_tointeger(L,2);
+        int objID=luaToInt(L,1);
+        int relativeToObjID=luaToInt(L,2);
         float posTarget[3];
         float eulerTarget[3];
         float maxVelocity;
@@ -15913,7 +15904,7 @@ int _sim_moveToPos_2(luaWrap_lua_State* L)
     LUA_START("sim._moveToPos_2");
     if (checkInputArguments(L,&errorString,lua_arg_integer,0))
     {
-        int h=luaWrap_lua_tointeger(L,1);
+        int h=luaToInt(L,1);
         simMoveToPosData_old* mem=nullptr;
         for (size_t i=0;i<_memHandles_old.size();i++)
         {
@@ -16016,7 +16007,7 @@ int _sim_del(luaWrap_lua_State* L)
     LUA_START("sim._del");
     if (checkInputArguments(L,&errorString,lua_arg_integer,0))
     {
-        int h=luaWrap_lua_tointeger(L,1);
+        int h=luaToInt(L,1);
         for (size_t i=0;i<_memHandles_old.size();i++)
         {
             if (_memHandles_old[i]==h)
@@ -16227,7 +16218,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_integer,0))
     {
-        int h=luaWrap_lua_tointeger(L,1);
+        int h=luaToInt(L,1);
         simMoveToJointPosData_old* mem=nullptr;
         for (size_t i=0;i<_memHandles_old.size();i++)
         {
@@ -16463,28 +16454,28 @@ int _simRMLPosition(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
         int dofs=luaToInt(L,1);
-        double timeStep=luaWrap_lua_tonumber(L,2);
+        double timeStep=luaToDouble(L,2);
         int flags=luaToInt(L,3);
         int res=checkOneGeneralInputArgument(L,4,lua_arg_number,dofs*3,false,false,&errorString);
         if (res==2)
         {
             double* currentPosVelAccel=new double[dofs*3];
-            getDoublesFromTable(L,4,dofs*3,currentPosVelAccel);
+            getFloatsFromTable(L,4,dofs*3,currentPosVelAccel);
             res=checkOneGeneralInputArgument(L,5,lua_arg_number,dofs*3,false,false,&errorString);
             if (res==2)
             {
                 double* maxVelAccelJerk=new double[dofs*3];
-                getDoublesFromTable(L,5,dofs*3,maxVelAccelJerk);
+                getFloatsFromTable(L,5,dofs*3,maxVelAccelJerk);
                 res=checkOneGeneralInputArgument(L,6,lua_arg_bool,dofs,false,false,&errorString);
                 if (res==2)
                 {
                     char* selection=new char[dofs];
-                    getBoolsFromTable(L,6,dofs,selection);
+                    getCharBoolsFromTable(L,6,dofs,selection);
                     res=checkOneGeneralInputArgument(L,7,lua_arg_number,dofs*2,false,false,&errorString);
                     if (res==2)
                     {
                         double* targetPosVel=new double[dofs*2];
-                        getDoublesFromTable(L,7,dofs*2,targetPosVel);
+                        getFloatsFromTable(L,7,dofs*2,targetPosVel);
 
                         double* newPosVelAccel=new double[dofs*3];
                         unsigned char auxData[1+8+8];
@@ -16493,7 +16484,7 @@ int _simRMLPosition(luaWrap_lua_State* L)
                         if (retVal>=0)
                         {
                             luaWrap_lua_pushinteger(L,retVal);
-                            pushDoubleTableOntoStack(L,dofs*3,newPosVelAccel);
+                            pushFloatTableOntoStack(L,dofs*3,newPosVelAccel);
                             luaWrap_lua_pushnumber(L,((double*)(auxData+1))[0]);
                         }
                         delete[] newPosVelAccel;
@@ -16530,28 +16521,28 @@ int _simRMLVelocity(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
         int dofs=luaToInt(L,1);
-        double timeStep=luaWrap_lua_tonumber(L,2);
+        double timeStep=luaToDouble(L,2);
         int flags=luaToInt(L,3);
         int res=checkOneGeneralInputArgument(L,4,lua_arg_number,dofs*3,false,false,&errorString);
         if (res==2)
         {
             double* currentPosVelAccel=new double[dofs*3];
-            getDoublesFromTable(L,4,dofs*3,currentPosVelAccel);
+            getFloatsFromTable(L,4,dofs*3,currentPosVelAccel);
             res=checkOneGeneralInputArgument(L,5,lua_arg_number,dofs*2,false,false,&errorString);
             if (res==2)
             {
                 double* maxAccelJerk=new double[dofs*2];
-                getDoublesFromTable(L,5,dofs*2,maxAccelJerk);
+                getFloatsFromTable(L,5,dofs*2,maxAccelJerk);
                 res=checkOneGeneralInputArgument(L,6,lua_arg_bool,dofs,false,false,&errorString);
                 if (res==2)
                 {
                     char* selection=new char[dofs];
-                    getBoolsFromTable(L,6,dofs,selection);
+                    getCharBoolsFromTable(L,6,dofs,selection);
                     res=checkOneGeneralInputArgument(L,7,lua_arg_number,dofs,false,false,&errorString);
                     if (res==2)
                     {
                         double* targetVel=new double[dofs];
-                        getDoublesFromTable(L,7,dofs,targetVel);
+                        getFloatsFromTable(L,7,dofs,targetVel);
 
                         double* newPosVelAccel=new double[dofs*3];
                         unsigned char auxData[1+8+8];
@@ -16560,7 +16551,7 @@ int _simRMLVelocity(luaWrap_lua_State* L)
                         if (retVal>=0)
                         {
                             luaWrap_lua_pushinteger(L,retVal);
-                            pushDoubleTableOntoStack(L,dofs*3,newPosVelAccel);
+                            pushFloatTableOntoStack(L,dofs*3,newPosVelAccel);
                             luaWrap_lua_pushnumber(L,((double*)(auxData+1))[0]);
                         }
                         delete[] newPosVelAccel;
@@ -17047,7 +17038,7 @@ int _simCreateUIButtonArray(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simCreateUIButtonArray_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
+        retVal=simCreateUIButtonArray_internal(luaToInt(L,1),luaToInt(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -17066,7 +17057,7 @@ int _simSetUIButtonArrayColor(luaWrap_lua_State* L)
         float col[3];
         getIntsFromTable(L,3,2,pos);
         getFloatsFromTable(L,4,3,col);
-        retVal=simSetUIButtonArrayColor_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),pos,col);
+        retVal=simSetUIButtonArrayColor_internal(luaToInt(L,1),luaToInt(L,2),pos,col);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -17081,7 +17072,7 @@ int _simDeleteUIButtonArray(luaWrap_lua_State* L)
     int retVal=-1;// error
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simDeleteUIButtonArray_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
+        retVal=simDeleteUIButtonArray_internal(luaToInt(L,1),luaToInt(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -17100,7 +17091,7 @@ int _simCreateUI(luaWrap_lua_State* L)
         int cellSize[2];
         getIntsFromTable(L,3,2,clientSize);
         getIntsFromTable(L,4,2,cellSize);
-        int menuAttributes=luaWrap_lua_tointeger(L,2);
+        int menuAttributes=luaToInt(L,2);
         int b=0;
         for (int i=0;i<8;i++)
         {
@@ -17137,7 +17128,7 @@ int _simCreateUIButton(luaWrap_lua_State* L)
         int size[2];
         getIntsFromTable(L,2,2,pos);
         getIntsFromTable(L,3,2,size);
-        retVal=simCreateUIButton_internal(luaWrap_lua_tointeger(L,1),pos,size,luaWrap_lua_tointeger(L,4));
+        retVal=simCreateUIButton_internal(luaToInt(L,1),pos,size,luaToInt(L,4));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -17189,7 +17180,7 @@ int _simRemoveUI(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simRemoveUI_internal(luaWrap_lua_tointeger(L,1));
+        retVal=simRemoveUI_internal(luaToInt(L,1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -17431,7 +17422,7 @@ int _simReleaseScriptRawBuffer(luaWrap_lua_State* L)
     int retVal=-1; //error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         if (handle==sim_handle_self)
             handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         if ( (handle!=sim_handle_tree)&&(handle!=sim_handle_chain) )
@@ -17504,7 +17495,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
     {
         bool goOn=true;
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         if (handle==sim_handle_self)
         {
             handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
@@ -17628,7 +17619,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0))
     {
         bool goOn=true;
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         if (handle==sim_handle_self)
         {
             handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
@@ -17733,7 +17724,7 @@ int _simSetNameSuffix(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int nb=luaWrap_lua_tointeger(L,1);
+        int nb=luaToInt(L,1);
         CScriptObject::setScriptNameIndexToInterpreterState_lua_old(L,nb);
         retVal=1;
     }
@@ -17789,7 +17780,7 @@ int _simSetShapeMassAndInertia(luaWrap_lua_State* L)
     int result=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,9,lua_arg_number,3))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         float mass=luaToFloat(L,2);
         float inertiaMatrix[9];
         getFloatsFromTable(L,3,9,inertiaMatrix);
@@ -17821,7 +17812,7 @@ int _simGetShapeMassAndInertia(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         float* transf=nullptr;
         float transformation[12];
         int res=checkOneGeneralInputArgument(L,2,lua_arg_number,12,true,true,&errorString);
@@ -17873,8 +17864,8 @@ int _sim_moveToObj_1(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     { // Those are the arguments that are always required! (the rest can be ignored or set to nil!
-        int objID=luaWrap_lua_tointeger(L,1);
-        int targetObjID=luaWrap_lua_tointeger(L,2);
+        int objID=luaToInt(L,1);
+        int targetObjID=luaToInt(L,2);
         float maxVelocity=0.1f;
         float relativeDistanceOnPath=-1.0f;
         int positionAndOrOrientation=3; // position and orientation (default value)
@@ -17982,7 +17973,7 @@ int _sim_moveToObj_2(luaWrap_lua_State* L)
     LUA_START("sim._moveToObj_2");
     if (checkInputArguments(L,&errorString,lua_arg_integer,0))
     {
-        int h=luaWrap_lua_tointeger(L,1);
+        int h=luaToInt(L,1);
         simMoveToObjData_old* mem=nullptr;
         for (size_t i=0;i<_memHandles_old.size();i++)
         {
@@ -18237,7 +18228,7 @@ int _simComputeJacobian(luaWrap_lua_State* L)
 
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simComputeJacobian_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),nullptr);
+        retVal=simComputeJacobian_internal(luaToInt(L,1),luaToInt(L,2),nullptr);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -18251,13 +18242,13 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,1,lua_arg_number,0,lua_arg_number,0))
     {
-        int ikGroupHandle=luaWrap_lua_tointeger(L,1);
+        int ikGroupHandle=luaToInt(L,1);
         std::vector<int> jointHandles;
         int jointCnt=int(luaWrap_lua_rawlen(L,2));
         jointHandles.resize(jointCnt);
         getIntsFromTable(L,2,jointCnt,&jointHandles[0]);
-        float thresholdDist=luaWrap_lua_tonumber(L,3);
-        int maxTimeInMs=luaWrap_lua_tointeger(L,4);
+        float thresholdDist=luaToFloat(L,3);
+        int maxTimeInMs=luaToInt(L,4);
         float metric[4]={1.0,1.0,1.0,0.1f};
         int res=checkOneGeneralInputArgument(L,5,lua_arg_number,4,true,true,&errorString);
         if (res>=0)
@@ -18340,12 +18331,12 @@ int _simGenerateIkPath(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,1,lua_arg_number,0))
     {
-        int ikGroupHandle=luaWrap_lua_tointeger(L,1);
+        int ikGroupHandle=luaToInt(L,1);
         std::vector<int> jointHandles;
         int jointCnt=int(luaWrap_lua_rawlen(L,2));
         jointHandles.resize(jointCnt);
         getIntsFromTable(L,2,jointCnt,&jointHandles[0]);
-        int ptCnt=luaWrap_lua_tonumber(L,3);
+        int ptCnt=luaToInt(L,3);
         int res=checkOneGeneralInputArgument(L,4,lua_arg_number,-1,true,true,&errorString);
         if (res>=0)
         {
@@ -18633,12 +18624,12 @@ int _simSendData(luaWrap_lua_State* L)
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0))
         {
-            int targetID=luaWrap_lua_tointeger(L,1);
+            int targetID=luaToInt(L,1);
             if ( (targetID<=0)&&(targetID!=sim_handle_all)&&(targetID!=sim_handle_tree)&&(targetID!=sim_handle_chain) )
                 errorString=SIM_ERROR_INVALID_TARGET_HANDLE;
             else
             {
-                int dataHeader=luaWrap_lua_tointeger(L,2);
+                int dataHeader=luaToInt(L,2);
                 if (dataHeader<0)
                     errorString=SIM_ERROR_INVALID_DATA_HEADER;
                 else
@@ -18663,7 +18654,7 @@ int _simSendData(luaWrap_lua_State* L)
                             bool err=false;
                             int res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
                             if (res==2)
-                                antennaHandle=luaWrap_lua_tointeger(L,5);
+                                antennaHandle=luaToInt(L,5);
                             err=err||((res!=0)&&(res!=2));
                             if (!err)
                             {
@@ -18760,7 +18751,7 @@ int _simReceiveData(luaWrap_lua_State* L)
         int res=checkOneGeneralInputArgument(L,1,lua_arg_number,0,true,false,&errorString);
         if (res==2)
         {
-            dataHeader=luaWrap_lua_tointeger(L,1);
+            dataHeader=luaToInt(L,1);
             if (dataHeader<0)
                 dataHeader=-1;
         }
@@ -18784,7 +18775,7 @@ int _simReceiveData(luaWrap_lua_State* L)
             int res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,false,&errorString);
             if (res==2)
             {
-                antennaHandle=luaWrap_lua_tointeger(L,3);
+                antennaHandle=luaToInt(L,3);
                 if ( (antennaHandle<0)&&(antennaHandle!=sim_handle_default)&&((antennaHandle!=sim_handle_self)||(it->getScriptType()!=sim_scripttype_childscript)) )
                 {
                     errorString=SIM_ERROR_INVALID_ANTENNA_HANDLE;
@@ -18812,7 +18803,7 @@ int _simReceiveData(luaWrap_lua_State* L)
             int res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
             if (res==2)
             {
-                index=luaWrap_lua_tointeger(L,4);
+                index=luaToInt(L,4);
                 if (index<0)
                     index=-1;
             }
@@ -18863,8 +18854,8 @@ int _sim_followPath_1(luaWrap_lua_State* L)
     LUA_START("sim._followPath_1");
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     { // Those are the arguments that are always required! (the rest can be ignored or set to nil!
-        int objID=luaWrap_lua_tointeger(L,1);
-        int pathID=luaWrap_lua_tointeger(L,2);
+        int objID=luaToInt(L,1);
+        int pathID=luaToInt(L,2);
         float posOnPath=luaToFloat(L,4);
         int positionAndOrOrientation=abs(luaToInt(L,3));
         if (positionAndOrOrientation==0)
@@ -18947,7 +18938,7 @@ int _sim_followPath_2(luaWrap_lua_State* L)
     LUA_START("sim._followPath_2");
     if (checkInputArguments(L,&errorString,lua_arg_integer,0))
     {
-        int h=luaWrap_lua_tointeger(L,1);
+        int h=luaToInt(L,1);
         simFollowPath_old* mem=nullptr;
         for (size_t i=0;i<_memHandles_old.size();i++)
         {
@@ -19302,7 +19293,7 @@ int _simSetThreadResumeLocation(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        if (CThreadPool_old::setThreadResumeLocation(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2)))
+        if (CThreadPool_old::setThreadResumeLocation(luaToInt(L,1),luaToInt(L,2)))
             retVal=1;
         else
             retVal=0;
@@ -19325,7 +19316,7 @@ int _simResumeThreads(luaWrap_lua_State* L)
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
-            int loc=luaWrap_lua_tointeger(L,1);
+            int loc=luaToInt(L,1);
 
             int startT=(int)VDateTime::getTimeInMs();
             retVal=App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(sim_scripttype_childscript|sim_scripttype_threaded_old,loc,nullptr,nullptr);
@@ -19386,7 +19377,7 @@ int _simGetUserParameter(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         if (handle==sim_handle_self)
         {
             handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
@@ -19428,7 +19419,7 @@ int _simSetUserParameter(luaWrap_lua_State* L)
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_string,0))
     {
-        int handle=luaWrap_lua_tointeger(L,1);
+        int handle=luaToInt(L,1);
         if (handle==sim_handle_self)
         {
             handle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
@@ -19625,7 +19616,7 @@ int _simSetCollectionName(luaWrap_lua_State* L)
     int retVal=-1;// error
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
-        retVal=simSetCollectionName_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tostring(L,2));
+        retVal=simSetCollectionName_internal(luaToInt(L,1),luaWrap_lua_tostring(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -20114,7 +20105,7 @@ int _simSetGraphUserData(luaWrap_lua_State* L)
     int retVal=-1; // for error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_number,0))
     {
-        int graphHandle=luaWrap_lua_tointeger(L,1);
+        int graphHandle=luaToInt(L,1);
         std::string dataName(luaWrap_lua_tostring(L,2));
         float data=luaToFloat(L,3);
         retVal=simSetGraphUserData_internal(graphHandle,dataName.c_str(),data);
@@ -20326,7 +20317,7 @@ int _simSetObjectName(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
-        retVal=simSetObjectName_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tostring(L,2));
+        retVal=simSetObjectName_internal(luaToInt(L,1),luaWrap_lua_tostring(L,2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -20365,7 +20356,7 @@ int _simSetScriptVariable(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
         std::string varAndScriptName(luaWrap_lua_tostring(L,1));
-        int scriptHandleOrType=luaWrap_lua_tointeger(L,2);
+        int scriptHandleOrType=luaToInt(L,2);
         int numberOfArguments=luaWrap_lua_gettop(L);
         if (numberOfArguments>=3)
         {
@@ -20589,7 +20580,7 @@ int _simHandleModule(luaWrap_lua_State* L)
     if ( (res==0)||(res==2) )
     {
         if (res==2)
-            sensingPart=(luaWrap_lua_toboolean(L,2)!=0);
+            sensingPart=luaToBool(L,2);
         if (sensingPart)
             moduleCommonPart_old(L,sim_message_eventcallback_modulehandleinsensingpart,&errorString);
         else
@@ -20655,7 +20646,7 @@ int _simGetLastError(luaWrap_lua_State* L)
     if (luaWrap_lua_gettop(L)!=0)
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
-            scriptHandle=luaWrap_lua_tointeger(L,1);
+            scriptHandle=luaToInt(L,1);
     }
     else
         scriptHandle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
@@ -20738,7 +20729,7 @@ int _simIsObjectInSelection(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simIsObjectInSelection_internal(luaWrap_lua_tointeger(L,1));
+        retVal=simIsObjectInSelection_internal(luaToInt(L,1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -20762,7 +20753,7 @@ int _simAddObjectToSelection(luaWrap_lua_State* L)
         if (!luaWrap_lua_istable(L,1))
         { // It is not a table!
             if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0)) // we don't generate an error
-                retVal=simAddObjectToSelection_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
+                retVal=simAddObjectToSelection_internal(luaToInt(L,1),luaToInt(L,2));
             else
             { // Maybe we have a special case with one argument only?
                 // nil is a valid argument!
@@ -20772,8 +20763,8 @@ int _simAddObjectToSelection(luaWrap_lua_State* L)
                 {
                     if (checkInputArguments(L,&errorString,lua_arg_number,0))
                     {
-                        if (luaWrap_lua_tointeger(L,1)==sim_handle_all)
-                            retVal=simAddObjectToSelection_internal(luaWrap_lua_tointeger(L,1),-1);
+                        if (luaToInt(L,1)==sim_handle_all)
+                            retVal=simAddObjectToSelection_internal(luaToInt(L,1),-1);
                         else
                             checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0); // we just generate an error
                     }
@@ -20819,13 +20810,13 @@ int _simRemoveObjectFromSelection(luaWrap_lua_State* L)
         if (!luaWrap_lua_istable(L,1))
         { // It is not a table!
             if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0)) // we don't generate an error
-                retVal=simRemoveObjectFromSelection_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
+                retVal=simRemoveObjectFromSelection_internal(luaToInt(L,1),luaToInt(L,2));
             else
             {
                 if (checkInputArguments(L,&errorString,lua_arg_number,0))
                 {
-                    if (luaWrap_lua_tointeger(L,1)==sim_handle_all)
-                        retVal=simRemoveObjectFromSelection_internal(luaWrap_lua_tointeger(L,1),-1);
+                    if (luaToInt(L,1)==sim_handle_all)
+                        retVal=simRemoveObjectFromSelection_internal(luaToInt(L,1),-1);
                     else
                         checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0); // we just generate an error
                 }
@@ -20910,7 +20901,7 @@ int _simSetSphericalJointMatrix(luaWrap_lua_State* L)
     {
         float arr[12];
         getFloatsFromTable(L,2,12,arr);
-        retVal=simSetSphericalJointMatrix_internal(luaWrap_lua_tointeger(L,1),arr);
+        retVal=simSetSphericalJointMatrix_internal(luaToInt(L,1),arr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -20926,7 +20917,7 @@ int _simGetJointMatrix(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         float arr[12];
-        if (simGetJointMatrix_internal(luaWrap_lua_tointeger(L,1),arr)==1)
+        if (simGetJointMatrix_internal(luaToInt(L,1),arr)==1)
         {
             pushFloatTableOntoStack(L,12,arr); // Success
             LUA_END(1);
@@ -20947,7 +20938,7 @@ int _sim_getObjectHandle(luaWrap_lua_State* L)
     bool checkWithString=true;
     if (checkInputArguments(L,nullptr,lua_arg_integer,0)) // do not output error if not string
     { // argument sim.handle_self
-        if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
+        if (luaToInt(L,1)==sim_handle_self)
         {
             checkWithString=false;
             int a=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
@@ -21112,7 +21103,7 @@ int _simRemoveObject(luaWrap_lua_State* L)
     int retVal=-1;// error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int objId=luaWrap_lua_tointeger(L,1);
+        int objId=luaToInt(L,1);
         int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if (!it->getThreadedExecution_oldThreads())
@@ -21649,7 +21640,7 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
         {
             if (checkInputArguments(L,nullptr,lua_arg_integer,0))
             { // script type arg.
-                int scriptType=luaWrap_lua_tointeger(L,1);
+                int scriptType=luaToInt(L,1);
                 if (scriptType!=sim_handle_self)
                 {
                     int objectHandle=-1;
@@ -21662,7 +21653,7 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
                     if ( (scriptType==sim_scripttype_childscript)||(scriptType==sim_scripttype_customizationscript) )
                     {
                         if (checkInputArguments(L,nullptr,lua_arg_integer,0,lua_arg_integer,0))
-                            objectHandle=luaWrap_lua_tointeger(L,2); // back compatibility actually
+                            objectHandle=luaToInt(L,2); // back compatibility actually
                         else
                         {
                             if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0))
@@ -21671,7 +21662,7 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
                                 if (scriptName.size()==0)
                                 {
                                     if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_string,0,lua_arg_integer,0))
-                                        objectHandle=luaWrap_lua_tointeger(L,3);
+                                        objectHandle=luaToInt(L,3);
                                 }
                             }
                         }

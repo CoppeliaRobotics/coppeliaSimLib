@@ -192,7 +192,7 @@ void CGhostObjectContainer::announceObjectWillBeErased(int objID)
     }
 }
 
-void CGhostObjectContainer::performObjectLoadingMapping(const std::vector<int>* map)
+void CGhostObjectContainer::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     for (size_t i=0;i<_allObjects.size();i++)
         _allObjects[i]->objectHandle=CWorld::getLoadingMapping(map,_allObjects[i]->objectHandle);

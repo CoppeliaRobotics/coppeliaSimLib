@@ -73,7 +73,7 @@ public:
     void getGraphSize(float size[2]) const;
     void serialize(CSer& ar);
     bool announceObjectWillBeErased(int objectID);
-    void performObjectLoadingMapping(const std::vector<int>* map);
+    void performObjectLoadingMapping(const std::map<int,int>* map);
     void setViewSizeAndPosition(int sizeX,int sizeY,int posX,int posY);
     void getViewSize(int size[2]) const;
     void getViewPosition(int pos[2]) const;

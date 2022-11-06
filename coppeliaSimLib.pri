@@ -2,6 +2,10 @@ TARGET = coppeliaSim
 TEMPLATE = lib
 DEFINES += SIM_LIB
 
+# luaToFloat should later be turned into luaToDouble
+DEFINES += floatFloat=float # floatFloat should later be turned into float
+DEFINES += floatDouble=float # floatDouble should later be turned into double
+
 CONFIG += shared plugin debug_and_release
 CONFIG += WITH_QT # can be compiled without Qt, but then it should be headless, and some functionality won't be there, check TODO_SIM_WITH_QT
 

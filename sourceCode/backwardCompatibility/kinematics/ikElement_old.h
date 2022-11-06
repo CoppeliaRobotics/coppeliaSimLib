@@ -22,7 +22,7 @@ public:
     CIkElement_old* copyYourself() const;
     void serialize(CSer& ar);
     bool announceObjectWillBeErased(int objID,bool copyBuffer);
-    void performObjectLoadingMapping(const std::vector<int>* map);
+    void performObjectLoadingMapping(const std::map<int,int>* map);
 
     int getTargetHandle() const;
     int getIkPluginCounterpartHandle() const;

@@ -181,7 +181,7 @@ void CSPage::announceObjectWillBeErased(int objectID)
             i++;
     }
 }
-void CSPage::performObjectLoadingMapping(const std::vector<int>* map)
+void CSPage::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     for (int i=0;i<int(_allViews.size());i++)
         _allViews[i]->performObjectLoadingMapping(map);

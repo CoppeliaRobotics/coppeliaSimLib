@@ -555,7 +555,7 @@ void CButtonBlock::removeAllObjectAttachements()
     objectIDAttachedTo=-1;
 }
 
-void CButtonBlock::performSceneObjectLoadingMapping(const std::vector<int>* map)
+void CButtonBlock::performSceneObjectLoadingMapping(const std::map<int,int>* map)
 {
     if (App::currentWorld->sceneObjects!=nullptr)
     {
@@ -567,7 +567,7 @@ void CButtonBlock::performSceneObjectLoadingMapping(const std::vector<int>* map)
         allButtons[i]->performSceneObjectLoadingMapping(map);
 }
 
-void CButtonBlock::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CButtonBlock::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     if (App::currentWorld->sceneObjects!=nullptr)
     {

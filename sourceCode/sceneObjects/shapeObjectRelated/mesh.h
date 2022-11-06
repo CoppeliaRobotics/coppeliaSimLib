@@ -16,8 +16,8 @@ public:
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();
     void display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
-    void performSceneObjectLoadingMapping(const std::vector<int>* map);
-    void performTextureObjectLoadingMapping(const std::vector<int>* map);
+    void performSceneObjectLoadingMapping(const std::map<int,int>* map);
+    void performTextureObjectLoadingMapping(const std::map<int,int>* map);
     void announceSceneObjectWillBeErased(const CSceneObject* object);
     void setTextureDependencies(int shapeID);
     bool getContainsTransparentComponents() const;

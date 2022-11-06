@@ -19,9 +19,9 @@ public:
     virtual ~CMeshWrapper();
 
     virtual void prepareVerticesIndicesNormalsAndEdgesForSerialization();
-    virtual void performSceneObjectLoadingMapping(const std::vector<int>* map);
-    virtual void performTextureObjectLoadingMapping(const std::vector<int>* map);
-    void performDynMaterialObjectLoadingMapping(const std::vector<int>* map);
+    virtual void performSceneObjectLoadingMapping(const std::map<int,int>* map);
+    virtual void performTextureObjectLoadingMapping(const std::map<int,int>* map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int,int>* map);
     virtual void announceSceneObjectWillBeErased(const CSceneObject* object);
     virtual void setTextureDependencies(int shapeID);
     virtual bool getContainsTransparentComponents() const;

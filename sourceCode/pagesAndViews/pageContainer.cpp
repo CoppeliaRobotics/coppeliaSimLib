@@ -299,7 +299,7 @@ void CPageContainer::serialize(CSer& ar)
     }
 }
 
-void CPageContainer::performObjectLoadingMapping(const std::vector<int>* map)
+void CPageContainer::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     for (int i=0;i<PAGES_COUNT;i++)
     {

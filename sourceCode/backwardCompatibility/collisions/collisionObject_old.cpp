@@ -297,7 +297,7 @@ int CCollisionObject_old::readCollision(int collObjHandles[2]) const
     return(0); // was -1 until 16/6/2015
 }
 
-void CCollisionObject_old::performObjectLoadingMapping(const std::vector<int>* map)
+void CCollisionObject_old::performObjectLoadingMapping(const std::map<int,int>* map)
 {
     if (_entity1Handle<SIM_IDSTART_COLLECTION)
         _entity1Handle=CWorld::getLoadingMapping(map,_entity1Handle);
@@ -305,7 +305,7 @@ void CCollisionObject_old::performObjectLoadingMapping(const std::vector<int>* m
         _entity2Handle=CWorld::getLoadingMapping(map,_entity2Handle);
 }
 
-void CCollisionObject_old::performCollectionLoadingMapping(const std::vector<int>* map)
+void CCollisionObject_old::performCollectionLoadingMapping(const std::map<int,int>* map)
 {
     if (_entity1Handle>=SIM_IDSTART_COLLECTION)
         _entity1Handle=CWorld::getLoadingMapping(map,_entity1Handle);

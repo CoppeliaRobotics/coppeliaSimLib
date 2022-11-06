@@ -17,7 +17,7 @@ public:
     void addCollectionElement(CCollectionElement* collectionElement);
     void removeCollectionElementFromHandle(int collectionElementHandle);
     void serialize(CSer& ar);
-    void performObjectLoadingMapping(const std::vector<int>* map);
+    void performObjectLoadingMapping(const std::map<int,int>* map);
     bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
     bool announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     CCollection* copyYourself() const;

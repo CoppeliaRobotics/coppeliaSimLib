@@ -308,37 +308,37 @@ void CProxSensor::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID,copyBuffer);
 }
 
-void CProxSensor::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CProxSensor::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
     if (_sensableObject<SIM_IDSTART_COLLECTION)
         _sensableObject=CWorld::getLoadingMapping(map,_sensableObject);
 }
-void CProxSensor::performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CProxSensor::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
     if (_sensableObject>=SIM_IDSTART_COLLECTION)
         _sensableObject=CWorld::getLoadingMapping(map,_sensableObject);
 }
-void CProxSensor::performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CProxSensor::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollisionLoadingMapping(map,loadingAmodel);
 }
-void CProxSensor::performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CProxSensor::performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performDistanceLoadingMapping(map,loadingAmodel);
 }
-void CProxSensor::performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CProxSensor::performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map,loadingAmodel);
 }
 
-void CProxSensor::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CProxSensor::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CProxSensor::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
+void CProxSensor::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }

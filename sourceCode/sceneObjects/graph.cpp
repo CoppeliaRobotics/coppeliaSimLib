@@ -1867,15 +1867,15 @@ void CGraph::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
     }
 }
 
-void CGraph::performObjectLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // New_Object_ID=map[Old_Object_ID]
+void CGraph::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
     for (size_t i=0;i<dataStreams_old.size();i++)
         dataStreams_old[i]->performObjectLoadingMapping(map);
 }
 
-void CGraph::performScriptLoadingMapping(const std::vector<int>* map)
-{ // If (map[2*i+0]==old_script_handle) then new_script_handle=map[2*i+1]
+void CGraph::performScriptLoadingMapping(const std::map<int,int>* map)
+{
     CSceneObject::performScriptLoadingMapping(map);
     for (size_t i=0;i<_dataStreams.size();i++)
         _dataStreams[i]->performScriptLoadingMapping(map);
@@ -1883,35 +1883,35 @@ void CGraph::performScriptLoadingMapping(const std::vector<int>* map)
         _curves[i]->performScriptLoadingMapping(map);
 }
 
-void CGraph::performCollectionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CGraph::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
 }
-void CGraph::performCollisionLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CGraph::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performCollisionLoadingMapping(map,loadingAmodel);
     for (int i=0;i<int(dataStreams_old.size());i++)
         dataStreams_old[i]->performCollisionLoadingMapping(map);
 }
-void CGraph::performDistanceLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
-{ // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
+void CGraph::performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+{
     CSceneObject::performDistanceLoadingMapping(map,loadingAmodel);
     for (int i=0;i<int(dataStreams_old.size());i++)
         dataStreams_old[i]->performDistanceLoadingMapping(map);
 }
-void CGraph::performIkLoadingMapping(const std::vector<int>* map,bool loadingAmodel)
+void CGraph::performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map,loadingAmodel);
     for (int i=0;i<int(dataStreams_old.size());i++)
         dataStreams_old[i]->performIkLoadingMapping(map);
 }
 
-void CGraph::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CGraph::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CGraph::performDynMaterialObjectLoadingMapping(const std::vector<int>* map)
+void CGraph::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }

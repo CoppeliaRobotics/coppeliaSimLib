@@ -111,7 +111,7 @@ void CSoftButton::announceSceneObjectWillBeErased(int objID)
     }
 }
 
-void CSoftButton::performSceneObjectLoadingMapping(const std::vector<int>* map)
+void CSoftButton::performSceneObjectLoadingMapping(const std::map<int,int>* map)
 {
     if (App::currentWorld->sceneObjects!=nullptr)
     {
@@ -120,7 +120,7 @@ void CSoftButton::performSceneObjectLoadingMapping(const std::vector<int>* map)
     }
 }
 
-void CSoftButton::performTextureObjectLoadingMapping(const std::vector<int>* map)
+void CSoftButton::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     if (App::currentWorld->sceneObjects!=nullptr)
     {

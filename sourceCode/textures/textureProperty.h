@@ -16,8 +16,8 @@ public:
     CTextureProperty* copyYourself();
     void serialize(CSer& ar);
     bool announceObjectWillBeErased(const CSceneObject* object);
-    void performObjectLoadingMapping(const std::vector<int>* map);
-    void performTextureObjectLoadingMapping(const std::vector<int>* map);
+    void performObjectLoadingMapping(const std::map<int,int>* map);
+    void performTextureObjectLoadingMapping(const std::map<int,int>* map);
     void addTextureDependencies(int objID,int objSubID);
     void scaleObject(float scalingFactor);
     void setInterpolateColors(bool ic);
