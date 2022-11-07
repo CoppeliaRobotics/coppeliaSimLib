@@ -632,6 +632,13 @@ void CMainWindow::callDialogFunction(const SUIThreadCommand* cmdIn,SUIThreadComm
 
 void CMainWindow::refreshDialogs_uiThread()
 {
+    static std::string scenePath;
+    std::string p(App::currentWorld->mainSettings->getScenePathAndName());
+    if (scenePath!=p)
+    {
+        scenePath=p;
+        setWindowFilePath(scenePath.c_str());
+    }
     void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_guipass,nullptr,nullptr,nullptr);
     delete[] (char*)returnVal;
 
