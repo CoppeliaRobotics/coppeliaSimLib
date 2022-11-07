@@ -180,8 +180,8 @@ void CJoint::_commonInit()
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2frictionmaxforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2frictionloss
-    _vortexFloatParams.push_back(1.0f); // simi_vortex_joint_dependencyfactor
-    _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_dependencyoffset
+    _vortexFloatParams.push_back(0.0f); // deprecated. simi_vortex_joint_dependencyfactor
+    _vortexFloatParams.push_back(0.0f); // deprecated. simi_vortex_joint_dependencyoffset
     _vortexFloatParams.push_back(0.0f); // free but 0.0 by default
     _vortexFloatParams.push_back(0.0f); // free but 0.0 by default
     _vortexFloatParams.push_back(0.1f); // simi_vortex_joint_pospid1
@@ -192,21 +192,21 @@ void CJoint::_commonInit()
     _vortexIntParams.push_back(0); // simi_vortex_joint_relaxationenabledbc. 1 bit per dof
     _vortexIntParams.push_back(0); // simi_vortex_joint_frictionenabledbc. 1 bit per dof
     _vortexIntParams.push_back(1+2+4+8+16+32); // simi_vortex_joint_frictionproportionalbc. 1 bit per dof
-    _vortexIntParams.push_back(-1); // simi_vortex_joint_objectid
-    _vortexIntParams.push_back(-1); // simi_vortex_joint_dependentobjectid
+    _vortexIntParams.push_back(-1); // deprecated. simi_vortex_joint_objectid
+    _vortexIntParams.push_back(-1); // deprecated. simi_vortex_joint_dependentobjectid
     _vortexIntParams.push_back(0); // reserved for future ext.
     // ----------------------------------------------------
 
     // Newton parameters
     // ----------------------------------------------------
-    _newtonFloatParams.push_back(1.0f); // simi_newton_joint_dependencyfactor
-    _newtonFloatParams.push_back(0.0f); // simi_newton_joint_dependencyoffset
+    _newtonFloatParams.push_back(0.0f); // deprecated. simi_newton_joint_dependencyfactor
+    _newtonFloatParams.push_back(0.0f); // deprecated. simi_newton_joint_dependencyoffset
     _newtonFloatParams.push_back(0.1f); // simi_newton_joint_pospid1
     _newtonFloatParams.push_back(0.0f); // simi_newton_joint_pospid2
     _newtonFloatParams.push_back(0.0f); // simi_newton_joint_pospid3
 
-    _newtonIntParams.push_back(-1); // simi_newton_joint_objectid. The ID is redefined in each session
-    _newtonIntParams.push_back(-1); // simi_newton_joint_dependentobjectid
+    _newtonIntParams.push_back(-1); // deprecated. simi_newton_joint_objectid. The ID is redefined in each session
+    _newtonIntParams.push_back(-1); // deprecated. simi_newton_joint_dependentobjectid
     // ----------------------------------------------------
 
     // Mujoco parameters
@@ -233,8 +233,8 @@ void CJoint::_commonInit()
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_springdamper2
     _mujocoFloatParams.push_back(0.02f); //sim_mujoco_joint_armature
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_margin
-    _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_polycoef1
-    _mujocoFloatParams.push_back(1.0); //sim_mujoco_joint_polycoef2
+    _mujocoFloatParams.push_back(0.0); //deprecated. sim_mujoco_joint_polycoef1
+    _mujocoFloatParams.push_back(0.0); //deprecated. sim_mujoco_joint_polycoef2
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_polycoef3
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_polycoef4
     _mujocoFloatParams.push_back(0.0); //sim_mujoco_joint_polycoef5
@@ -242,8 +242,8 @@ void CJoint::_commonInit()
     _mujocoFloatParams.push_back(0.0f); // simi_mujoco_joint_pospid2
     _mujocoFloatParams.push_back(0.0f); // simi_mujoco_joint_pospid3
 
-    _mujocoIntParams.push_back(-1); // sim_mujoco_joint_objectid. The ID is redefined in each session
-    _mujocoIntParams.push_back(-1); // sim_mujoco_joint_dependentobjectid
+    _mujocoIntParams.push_back(-1); // deprecated. sim_mujoco_joint_objectid. The ID is redefined in each session
+    _mujocoIntParams.push_back(-1); // deprecated. sim_mujoco_joint_dependentobjectid
     // ----------------------------------------------------
 
     _ikWeight_old=1.0f;
@@ -371,6 +371,13 @@ bool CJoint::setEngineFloatParam(int what,float v)
         getVortexFloatParams(fp);
         fp[w]=v;
         setVortexFloatParams(fp);
+        // For backward compatibility:
+        // ------------------
+        if (what==sim_vortex_joint_dependencyoffset)
+            _dependencyJointOffset=v;
+        if (what==sim_vortex_joint_dependencyfactor)
+            _dependencyJointMult=v;
+        // ------------------
         return(true);
     }
     if ((what>sim_newton_joint_float_start)&&(what<sim_newton_joint_float_end))
@@ -380,6 +387,13 @@ bool CJoint::setEngineFloatParam(int what,float v)
         getNewtonFloatParams(fp);
         fp[w]=v;
         setNewtonFloatParams(fp);
+        // For backward compatibility:
+        // ------------------
+        if (what==sim_newton_joint_dependencyoffset)
+            _dependencyJointOffset=v;
+        if (what==sim_newton_joint_dependencyfactor)
+            _dependencyJointMult=v;
+        // ------------------
         return(true);
     }
     if ((what>sim_mujoco_joint_float_start)&&(what<sim_mujoco_joint_float_end))
@@ -389,6 +403,13 @@ bool CJoint::setEngineFloatParam(int what,float v)
         getMujocoFloatParams(fp);
         fp[w]=v;
         setMujocoFloatParams(fp);
+        // For backward compatibility:
+        // ------------------
+        if (what==sim_mujoco_joint_polycoef1)
+            _dependencyJointOffset=v;
+        if (what==sim_mujoco_joint_polycoef2)
+            _dependencyJointMult=v;
+        // ------------------
         return(true);
     }
     return(false);
@@ -868,10 +889,12 @@ void CJoint::measureJointVelocity(float simTime)
         float dt=simTime-_velCalc_prevSimTime;
         if (_velCalc_prevPosValid&&(dt>0.00001f))
         {
+            float v;
             if (_isCyclic)
-                _velCalc_vel=tt::getAngleMinusAlpha(_pos,_velCalc_prevPos)/dt;
+                v=tt::getAngleMinusAlpha(_pos,_velCalc_prevPos)/dt;
             else
-                _velCalc_vel=(_pos-_velCalc_prevPos)/dt;
+                v=(_pos-_velCalc_prevPos)/dt;
+            setVelocity(v);
         }
         _velCalc_prevPos=_pos;
         _velCalc_prevSimTime=simTime;
@@ -879,17 +902,33 @@ void CJoint::measureJointVelocity(float simTime)
     }
 }
 
-void CJoint::setVelocity(float v)
+void CJoint::setVelocity(float v,const CJoint* masterJoint/*=nullptr*/)
 { // sets the velocity, and overrides next velocity measurement in measureJointVelocity
-    _velCalc_vel=v;
-    _velCalc_prevPosValid=false; // if false, will use _velCalc_vel as current vel in sim.getJointVelocity
+    if (masterJoint!=nullptr)
+    {
+        if (_dependencyMasterJointHandle==masterJoint->getObjectHandle())
+        {
+            _velCalc_vel=_dependencyJointMult*masterJoint->getMeasuredJointVelocity();
+            _velCalc_prevPosValid=false;
+        }
+    }
+    else
+    {
+        if (_dependencyMasterJointHandle==-1)
+        {
+            _velCalc_vel=v;
+            _velCalc_prevPosValid=false; // if false, will use _velCalc_vel as current vel in sim.getJointVelocity
+        }
+    }
+    // Handle dependent joints:
+    for (size_t i=0;i<_directDependentJoints.size();i++)
+        _directDependentJoints[i]->setVelocity(0.0,this);
 }
 
 void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
-    _velCalc_prevPosValid=false;
-    _velCalc_vel=0.0f;
+    setVelocity(0.0);
     _dynCtrl_previousVelForce[0]=0.0;
     _dynCtrl_previousVelForce[1]=0.0;
 
@@ -3438,20 +3477,56 @@ void CJoint::performObjectLoadingMapping(const std::map<int,int>* map,bool loadi
 {
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
     _dependencyMasterJointHandle=CWorld::getLoadingMapping(map,_dependencyMasterJointHandle);
-    // following few for dyn joint dep, so that the correct object handle is set
+    // following to support the old way joint dependencies for the dynamic engines were specified:
+    std::vector<float> fp;
+    getMujocoFloatParams(fp);
     std::vector<int> ip;
-    getVortexIntParams(ip);
-    ip[4]=_objectHandle;
-    ip[5]=CWorld::getLoadingMapping(map,ip[5]); // Vortex dependency joint
-    setVortexIntParams(ip);
-    getNewtonIntParams(ip);
-    ip[0]=_objectHandle;
-    ip[1]=CWorld::getLoadingMapping(map,ip[1]); // Newton dependency joint
-    setNewtonIntParams(ip);
     getMujocoIntParams(ip);
-    ip[0]=_objectHandle;
-    ip[1]=CWorld::getLoadingMapping(map,ip[1]); // Mujoco dependency joint
+    ip[0]=-1;
+    int masterJ=CWorld::getLoadingMapping(map,ip[1]);
+    float off=fp[simi_mujoco_joint_polycoef1];
+    float mult=fp[simi_mujoco_joint_polycoef2];
+    ip[1]=-1;
+    //setMujocoFloatParams(fp); not here! Mujoco allows to specifiy more complex relationships than linear!
     setMujocoIntParams(ip);
+
+    getVortexFloatParams(fp);
+    getVortexIntParams(ip);
+    ip[4]=-1;
+    if (masterJ==-1)
+    {
+        masterJ=CWorld::getLoadingMapping(map,ip[5]);
+        off=fp[simi_vortex_joint_dependencyoffset];
+        mult=fp[simi_vortex_joint_dependencyfactor];
+    }
+    ip[5]=-1;
+    fp[simi_vortex_joint_dependencyoffset]=0.0;
+    fp[simi_vortex_joint_dependencyfactor]=0.0;
+    setVortexFloatParams(fp);
+    setVortexIntParams(ip);
+
+    getNewtonFloatParams(fp);
+    getNewtonIntParams(ip);
+    ip[0]=-1;
+    if (masterJ==-1)
+    {
+        masterJ=CWorld::getLoadingMapping(map,ip[1]);
+        off=fp[simi_newton_joint_dependencyoffset];
+        mult=fp[simi_newton_joint_dependencyfactor];
+    }
+    ip[1]=-1;
+    fp[simi_newton_joint_dependencyoffset]=0.0;
+    fp[simi_newton_joint_dependencyfactor]=0.0;
+    setNewtonFloatParams(fp);
+    setNewtonIntParams(ip);
+
+    if ( (masterJ!=-1)&&(_dependencyMasterJointHandle==-1) )
+    {
+        _dependencyMasterJointHandle=masterJ;
+        _dependencyJointOffset=off;
+        _dependencyJointMult=mult;
+        _jointMode=sim_jointmode_dependent;
+    }
 }
 
 void CJoint::setJointMode(int theMode)
@@ -3648,9 +3723,10 @@ void CJoint::setPosition(float pos,const CJoint* masterJoint/*=nullptr*/,bool se
         if (getObjectCanSync())
             _setPosition_sendOldIk(pos);
         setVelocity_DEPRECATED(getVelocity_DEPRECATED());
-        for (size_t i=0;i<_directDependentJoints.size();i++)
-            _directDependentJoints[i]->setPosition(0.0,this);
     }
+    // Execute this even if this joint didn't change. Maybe a slave joint change its parameters (off or mult)
+    for (size_t i=0;i<_directDependentJoints.size();i++)
+        _directDependentJoints[i]->setPosition(0.0,this);
 }
 
 void CJoint::_setPosition_sendOldIk(float pos) const
@@ -3875,16 +3951,37 @@ float CJoint::getEngineFloatParam(int what,bool* ok) const
     if ((what>sim_vortex_joint_float_start)&&(what<sim_vortex_joint_float_end))
     {
         int w=what-sim_vortex_joint_lowerlimitdamping+simi_vortex_joint_lowerlimitdamping;
+        // For backward compatibility:
+        // ------------------
+        if (what==sim_vortex_joint_dependencyoffset)
+            return(_dependencyJointOffset);
+        if (what==sim_vortex_joint_dependencyfactor)
+            return(_dependencyJointMult);
+        // ------------------
         return(_vortexFloatParams[w]);
     }
     if ((what>sim_newton_joint_float_start)&&(what<sim_newton_joint_float_end))
     {
         int w=what-sim_newton_joint_dependencyfactor+simi_newton_joint_dependencyfactor;
+        // For backward compatibility:
+        // ------------------
+        if (what==sim_newton_joint_dependencyoffset)
+            return(_dependencyJointOffset);
+        if (what==sim_newton_joint_dependencyfactor)
+            return(_dependencyJointMult);
+        // ------------------
         return(_newtonFloatParams[w]);
     }
     if ((what>sim_mujoco_joint_float_start)&&(what<sim_mujoco_joint_float_end))
     {
         int w=what-sim_mujoco_joint_solreflimit1+simi_mujoco_joint_solreflimit1;
+        // For backward compatibility:
+        // ------------------
+        if (what==sim_mujoco_joint_polycoef1)
+            return(_dependencyJointOffset);
+        if (what==sim_mujoco_joint_polycoef2)
+            return(_dependencyJointMult);
+        // ------------------
         return(_mujocoFloatParams[w]);
     }
     if (ok!=nullptr)

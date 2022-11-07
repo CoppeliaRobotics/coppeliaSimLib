@@ -183,6 +183,7 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
     if (engine==sim_physics_newton)
     {
         QJsonObject jnewton;
+        /*
         QJsonObject jnewtonDependency;
         int h=joint->getEngineIntParam(sim_newton_joint_dependentobjectid,nullptr);
         std::string nameAndPath("");
@@ -196,6 +197,7 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         annJson.addJson(jnewtonDependency,"mult",joint->getEngineFloatParam(sim_newton_joint_dependencyfactor,nullptr));
         annJson.addJson(jnewtonDependency,"offset",joint->getEngineFloatParam(sim_newton_joint_dependencyoffset,nullptr));
         annJson.addJson(jnewton,"dependency",jnewtonDependency);
+        */
         double v[3];
         for (size_t j=0;j<3;j++)
             v[j]=joint->getEngineFloatParam(sim_newton_joint_pospid1+j,nullptr);
@@ -235,6 +237,7 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         annJson.addJson(jmujocoSpring,"springDamper",v,2);
         annJson.addJson(jmujoco,"spring",jmujocoSpring);
         QJsonObject jmujocoDependency;
+        /*
         int h=joint->getEngineIntParam(sim_mujoco_joint_dependentobjectid,nullptr);
         std::string nameAndPath;
         if (h>=0)
@@ -244,6 +247,7 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
                 nameAndPath=obj->getObjectAlias_shortPath();
         }
         annJson.addJson(jmujocoDependency,"joint",nameAndPath.c_str(),"specify the full, unique path");
+        */
         for (size_t j=0;j<5;j++)
             v[j]=joint->getEngineFloatParam(sim_mujoco_joint_polycoef1+j,nullptr);
         annJson.addJson(jmujocoDependency,"polyCoef",v,5);
@@ -274,6 +278,7 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         annJson.addJson(jvortexAxisLimits,"lowerMaxForce",joint->getEngineFloatParam(sim_vortex_joint_lowerlimitmaxforce,nullptr));
         annJson.addJson(jvortexAxisLimits,"upperMaxForce",joint->getEngineFloatParam(sim_vortex_joint_upperlimitmaxforce,nullptr));
         annJson.addJson(jvortex,"axisLimits",jvortexAxisLimits);
+        /*
         QJsonObject jvortexDependency;
         int h=joint->getEngineIntParam(sim_vortex_joint_dependentobjectid,nullptr);
         std::string nameAndPath;
@@ -287,6 +292,7 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         annJson.addJson(jvortexDependency,"mult",joint->getEngineFloatParam(sim_vortex_joint_dependencyfactor,nullptr));
         annJson.addJson(jvortexDependency,"offset",joint->getEngineFloatParam(sim_vortex_joint_dependencyoffset,nullptr));
         annJson.addJson(jvortex,"dependency",jvortexDependency);
+        */
 
         int vval;
         vval=joint->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,nullptr);
@@ -470,6 +476,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
         if (annJson.getValue(annJson.getMainObject()[0],"newton",QJsonValue::Object,val,allErrors))
         {
             QJsonObject newton(val.toObject());
+            /*
             if (annJson.getValue(newton,"dependency",QJsonValue::Object,val,allErrors))
             {
                 QJsonObject sub(val.toObject());
@@ -500,6 +507,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                 if (annJson.getValue(sub,"offset",QJsonValue::Double,val,allErrors))
                     joint->setEngineFloatParam(sim_newton_joint_dependencyoffset,val.toDouble());
             }
+            */
             double w[3];
             if (annJson.getValue(newton,"posPid",w,3,allErrors))
             {
@@ -567,6 +575,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
             if (annJson.getValue(mujoco,"dependency",QJsonValue::Object,val,allErrors))
             {
                 QJsonObject sub(val.toObject());
+                /*
                 if (annJson.getValue(sub,"joint",QJsonValue::String,val,allErrors))
                 {
                     int h=-1;
@@ -589,6 +598,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                     else
                         joint->setEngineIntParam(sim_mujoco_joint_dependentobjectid,h);
                 }
+                */
                 if (annJson.getValue(sub,"polyCoef",w,5,allErrors))
                 {
                     for (size_t j=0;j<5;j++)
@@ -643,6 +653,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                 if (annJson.getValue(sub,"upperMaxForce",QJsonValue::Double,val,allErrors))
                     joint->setEngineFloatParam(sim_vortex_joint_upperlimitmaxforce,val.toDouble());
             }
+            /*
             if (annJson.getValue(vortex,"dependency",QJsonValue::Object,val,allErrors))
             {
                 QJsonObject sub(val.toObject());
@@ -673,6 +684,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                 if (annJson.getValue(sub,"offset",QJsonValue::Double,val,allErrors))
                     joint->setEngineFloatParam(sim_vortex_joint_dependencyoffset,val.toDouble());
             }
+            */
             if (annJson.getValue(vortex,"xAxisPos",QJsonValue::Object,val,allErrors))
             {
                 QJsonObject sub(val.toObject());

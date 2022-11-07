@@ -72,8 +72,8 @@ enum { /* Vortex joint float params */
     simi_vortex_joint_a2frictioncoeff,
     simi_vortex_joint_a2frictionmaxforce,
     simi_vortex_joint_a2frictionloss,
-    simi_vortex_joint_dependencyfactor,
-    simi_vortex_joint_dependencyoffset,
+    simi_vortex_joint_dependencyfactor, // deprecated
+    simi_vortex_joint_dependencyoffset, // deprecated
     simi_vortex_joint_free1,
     simi_vortex_joint_free2,
     simi_vortex_joint_pospid1,
@@ -86,8 +86,8 @@ enum { /* Vortex joint int params */
     simi_vortex_joint_relaxationenabledbc,
     simi_vortex_joint_frictionenabledbc,
     simi_vortex_joint_frictionproportionalbc,
-    simi_vortex_joint_objectid,
-    simi_vortex_joint_dependentobjectid
+    simi_vortex_joint_objectid, // deprecated
+    simi_vortex_joint_dependentobjectid // deprecated
 };
 
 enum { /* Vortex joint bit params */
@@ -96,16 +96,16 @@ enum { /* Vortex joint bit params */
 };
 
 enum { /* Newton joint float params */
-    simi_newton_joint_dependencyfactor=0,
-    simi_newton_joint_dependencyoffset,
+    simi_newton_joint_dependencyfactor=0, // deprecated
+    simi_newton_joint_dependencyoffset, // deprecated
     simi_newton_joint_pospid1,
     simi_newton_joint_pospid2,
     simi_newton_joint_pospid3,
 };
 
 enum { /* Newton joint int params */
-    simi_newton_joint_objectid=0,
-    simi_newton_joint_dependentobjectid
+    simi_newton_joint_objectid=0, // deprecated
+    simi_newton_joint_dependentobjectid // deprecated
 };
 
 enum { /* Mujoco joint float params */
@@ -131,8 +131,8 @@ enum { /* Mujoco joint float params */
     simi_mujoco_joint_springdamper2,
     simi_mujoco_joint_armature,
     simi_mujoco_joint_margin,
-    simi_mujoco_joint_polycoef1,
-    simi_mujoco_joint_polycoef2,
+    simi_mujoco_joint_polycoef1, // deprecated
+    simi_mujoco_joint_polycoef2, // deprecated
     simi_mujoco_joint_polycoef3,
     simi_mujoco_joint_polycoef4,
     simi_mujoco_joint_polycoef5,
@@ -142,8 +142,8 @@ enum { /* Mujoco joint float params */
 };
 
 enum { /* Mujoco joint int params */
-    simi_mujoco_joint_objectid=0,
-    simi_mujoco_joint_dependentobjectid
+    simi_mujoco_joint_objectid=0, // deprecated
+    simi_mujoco_joint_dependentobjectid // deprecated
 };
 
 
@@ -245,7 +245,7 @@ public:
     void setDependencyMasterJointHandle(int depJointID);
     void setDependencyJointMult(float coeff);
     void setDependencyJointOffset(float off);
-    void setVelocity(float vel);
+    void setVelocity(float vel,const CJoint* masterJoint=nullptr);
     void setPosition(float pos,const CJoint* masterJoint=nullptr,bool setDirect=false);
     void setSphericalTransformation(const C4Vector& tr);
     void setJointMode(int theMode);
