@@ -180,7 +180,7 @@ void _displayInertia(CMeshWrapper* geomWrap,float bboxDiagonal,const float norma
     glPushMatrix();
     glTranslatef(tr.X(0),tr.X(1),tr.X(2));
     C4Vector axis=tr.Q.getAngleAndAxis();
-    glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+    glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
     ogl::setMaterialColor(ogl::colorRed,ogl::colorBlack,ogl::colorBlack);
 
@@ -265,7 +265,7 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
     glPushAttrib(GL_POLYGON_BIT);
     glTranslatef(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
     C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxis();
-    glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+    glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);
 
@@ -479,7 +479,7 @@ void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,
     C7Vector _verticeLocalFrame(geometric->getVerticeLocalFrame());
     glTranslatef(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
     C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxis();
-    glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+    glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);
 
@@ -520,7 +520,7 @@ void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,b
     C7Vector _verticeLocalFrame(geometric->getVerticeLocalFrame());
     glTranslatef(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
     C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxis();
-    glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+    glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);
 

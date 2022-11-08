@@ -56,7 +56,7 @@ bool CDistanceRoutine::getOctreesHaveCoherentMovement(COctree* octree1,COctree* 
             { // we have positional coherency
                 C4Vector q1(tr1.Q.getInverse()*tr2.Q);
                 C4Vector q2(_objectCoherency[i].object1Tr.Q.getInverse()*_objectCoherency[i].object2Tr.Q);
-                retVal=q1.getAngleBetweenQuaternions(q2)<20.0f*piValue_f/180.0f; // this is angular coherency
+                retVal=q1.getAngleBetweenQuaternions(q2)<20.0f*piValue/180.0f; // this is angular coherency
             }
             _objectCoherency.erase(_objectCoherency.begin()+i);
             break;

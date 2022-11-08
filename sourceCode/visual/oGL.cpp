@@ -627,7 +627,7 @@ void ogl::drawCylinder(float d,float l,int div,int openEnds,bool smooth)
     float r=d/2.0f;
     float halfL=l/2.0f;
     float xVal1,yVal1,xVal2,yVal2;
-    float incr=piValue_f*2.0f/((float)div);
+    float incr=piValue*2.0f/((float)div);
     for (int i=0;i<div;i++)
     {
         xVal1=r*(float)cos(angle);
@@ -678,7 +678,7 @@ void ogl::drawCircle(float d,int div)
     float angle=0.0f;
     float r=d/2.0f;
     float xVal1,yVal1,xVal2,yVal2;
-    float incr=piValue_f*2.0f/((float)div);
+    float incr=piValue*2.0f/((float)div);
     glBegin(GL_LINES);
     for (int i=0;i<div;i++)
     {
@@ -699,7 +699,7 @@ void ogl::drawDisk(float d,int div)
     float angle=0.0f;
     float r=d/2.0f;
     float xVal1,yVal1,xVal2,yVal2;
-    float incr=piValue_f*2.0f/((float)div);
+    float incr=piValue*2.0f/((float)div);
     for (int i=0;i<div;i++)
     {
         xVal1=r*(float)cos(angle);
@@ -722,7 +722,7 @@ void ogl::drawCone(float d,float l,int div,bool openEnds,bool smooth)
     float r=d/2.0f;
     float halfL=l/2.0f;
     float xVal1,yVal1,xVal2,yVal2;
-    float incr=piValue_f*2.0f/((float)div);
+    float incr=piValue*2.0f/((float)div);
     float t2=(float)sin(atan(r/l));
     float t1=sqrtf(1.0f-t2*t2);
     for (int i=0;i<div;i++)
@@ -764,8 +764,8 @@ void ogl::drawSphere(float r,int sides,int faces,bool smooth)
 {
     if (sides<3) sides=3;
     if (faces<2) faces=2;
-    float sa=2.0f*piValue_f/((float)sides);
-    float fa=piValue_f/((float)faces);
+    float sa=2.0f*piValue/((float)sides);
+    float fa=piValue/((float)faces);
     float p0[3],p1[3],p2[3],p3[3];
     for (int i=0;i<sides;i++)
     {
@@ -901,7 +901,7 @@ void ogl::drawReference(float size,bool line,bool setColors,bool emissiveColor,c
 
 void ogl::perspectiveSpecial(float fovy,float aspect,float zNear,float zFar)
 {   // Same function as gluPerspective
-   float ymax=zNear*(float)tan(fovy*piValue_f/360.0f);
+   float ymax=zNear*(float)tan(fovy*piValue/360.0f);
    float ymin=-ymax;
    float xmin=ymin*aspect;
    float xmax=ymax*aspect;
@@ -1397,7 +1397,7 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
             glPushMatrix();
             glTranslatef(tr.X(0),tr.X(1),tr.X(2));
             C4Vector axis=tr.Q.getAngleAndAxis();
-            glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+            glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
             setMaterialColor(backColor,backColor+6,backColor+9);
             glBegin(GL_QUADS);
             glNormal3f(0.0f,0.0f,1.0f);
@@ -1419,7 +1419,7 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
         C3Vector x(tr.X+m.axis[0]*(-lq/2.0f)*textHeight+m.axis[1]*(-outlineFontCenter)*textHeight);
         glTranslatef(x(0),x(1),x(2));
         C4Vector axis=tr.Q.getAngleAndAxis();
-        glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+        glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
         glEnable(GL_NORMALIZE); // Might be important since normals are also scaled (bad lighting)
         glScalef(textHeight,textHeight,textHeight);
         setMaterialColor(textColor,textColor+6,textColor+9);
@@ -1440,7 +1440,7 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
             glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
             glPushMatrix();
             glTranslatef(tr.X(0),tr.X(1),tr.X(2));
-            glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+            glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
             setMaterialColor(backColor,backColor+6,backColor+9);
             glBegin(GL_QUADS);
             glNormal3f(0.0f,0.0f,1.0f);

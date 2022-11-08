@@ -15,6 +15,16 @@ double CInterfaceStackNumber::getValue() const
     return(_value);
 }
 
+void CInterfaceStackNumber::setValue(long long int v)
+{
+    _value=(double)v;
+}
+
+void CInterfaceStackNumber::setValue(double v)
+{
+    _value=v;
+}
+
 CInterfaceStackObject* CInterfaceStackNumber::copyYourself() const
 {
     CInterfaceStackNumber* retVal=new CInterfaceStackNumber(_value);

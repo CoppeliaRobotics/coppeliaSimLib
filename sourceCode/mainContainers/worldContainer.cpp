@@ -5,6 +5,7 @@
 #include "tt.h"
 #include "ttUtil.h"
 #include "interfaceStackString.h"
+#include "interfaceStackNumber.h"
 
 CWorldContainer::CWorldContainer()
 {
@@ -444,6 +445,7 @@ void CWorldContainer::broadcastMsg(CInterfaceStack* inStack,int options)
 }
 
 long long int CWorldContainer::_eventSeq=0;
+long long int CWorldContainer::_mergedEventSeq=0;
 
 void CWorldContainer::pushSceneObjectRemoveEvent(const CSceneObject* object)
 {
@@ -784,6 +786,18 @@ void CWorldContainer::_prepareEventsForDispatch(SBufferedEvents* events) const
     {
         _combineDuplicateEvents(events);
         _mergeEvents(events);
+
+        // adjust the seq number:
+        CInterfaceStackTable* buff=(CInterfaceStackTable*)events->eventsStack->getStackObjectFromIndex(0);
+        if (!buff->isEmpty())
+        {
+            for (size_t i=0;i<buff->getArraySize();i++)
+            {
+                CInterfaceStackTable* s=(CInterfaceStackTable*)buff->getArrayItemAtIndex(i);
+                CInterfaceStackNumber* n=(CInterfaceStackNumber*)s->getMapObject("seq");
+                n->setValue(_mergedEventSeq++);
+            }
+        }
     }
 
     if (_cborEvents)

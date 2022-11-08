@@ -5,7 +5,7 @@ _CIkElement_old::_CIkElement_old()
 {
     _baseHandle=-1;
     _constraintBaseHandle=-1;
-    _minAngularPrecision=0.1f*degToRad_f;
+    _minAngularPrecision=0.1f*degToRad;
     _minLinearPrecision=0.0005f;
     _enabled=true;
     _constraints=sim_ik_x_constraint|sim_ik_y_constraint|sim_ik_z_constraint;

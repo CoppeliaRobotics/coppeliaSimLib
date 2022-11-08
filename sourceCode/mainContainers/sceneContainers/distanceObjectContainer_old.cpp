@@ -232,7 +232,7 @@ float CDistanceObjectContainer_old::handleAllDistances(bool exceptExplicitHandli
     if (!App::currentWorld->mainSettings->distanceCalculationEnabled)
         return(-1.0f);
 
-    float retVal=SIM_MAX_FLOAT;
+    float retVal=FLOAT_MAX;
     bool retPos=false;
     for (size_t i=0;i<getObjectCount();i++)
     {

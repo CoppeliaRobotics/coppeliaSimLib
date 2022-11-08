@@ -338,7 +338,7 @@ void CConvexVolume::serialize(CSer& ar)
             ar.xmlAddNode_2float("xySizeClose",xSize,ySize);
             ar.xmlAddNode_2float("xySizeFar",xSizeFar,ySizeFar);
             ar.xmlAddNode_2float("closeFarRadius",radius,radiusFar);
-            ar.xmlAddNode_float("angle",angle*180.0f/piValue_f);
+            ar.xmlAddNode_float("angle",angle*180.0f/piValue);
             ar.xmlAddNode_float("insideAngleScaling",insideAngleThing);
             ar.xmlAddNode_2int("closeFarFaceCount",faceNumber,faceNumberFar);
             ar.xmlAddNode_2int("closeFarSubdivisions",subdivisions,subdivisionsFar);
@@ -375,7 +375,7 @@ void CConvexVolume::serialize(CSer& ar)
                 setRadiusFar(w,false);
             }
             if (ar.xmlGetNode_float("angle",v,exhaustiveXml))
-                setAngle(v*piValue_f/180.0f,false);
+                setAngle(v*piValue/180.0f,false);
             if (ar.xmlGetNode_float("insideAngleScaling",v,exhaustiveXml))
                 setInsideAngleThing(v,false);
             if (ar.xmlGetNode_2int("closeFarFaceCount",k,l,exhaustiveXml))
@@ -450,13 +450,13 @@ bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
         minV(1)=-ySize/2.0f;
         maxV(1)=ySize/2.0f;
         float tmp;
-        if (angle<piValue_f*1.03f)
+        if (angle<piValue*1.03f)
             tmp=(radius+range)*sin(angle*0.5f);
         else
             tmp=radius+range;
         minV(0)=-tmp;
         maxV(0)=tmp;
-        if (angle<piValue_f*1.03f)
+        if (angle<piValue*1.03f)
         {
             minV(2)=0.0f;
             if (offset<0.0f)
@@ -478,7 +478,7 @@ bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
     if (_volumeType==CONE_TYPE_CONVEX_VOLUME)
     {
         float tmp;
-        if (angle<piValue_f*1.03f)
+        if (angle<piValue*1.03f)
             tmp=(radius+range)*sin(angle*0.5f);
         else
             tmp=radius+range;
@@ -486,7 +486,7 @@ bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
         maxV(0)=tmp;
         minV(1)=-tmp;
         maxV(1)=tmp;
-        if (angle<piValue_f*1.03f)
+        if (angle<piValue*1.03f)
         {
             minV(2)=0.0f;
             if (offset<0.0f)
@@ -741,13 +741,13 @@ float CConvexVolume::getRadiusFar() const
 
 void CConvexVolume::setAngle(float theAngle,bool recomputeVolume/*=true*/)
 {
-    tt::limitValue(0.001f*degToRad_f,piValTimes2_f,theAngle);
+    tt::limitValue(0.001f*degToRad,piValT2,theAngle);
     if ( (_volumeType==DISC_TYPE_CONVEX_VOLUME)||(_volumeType==CONE_TYPE_CONVEX_VOLUME) )
     {
-        if ( (theAngle>piValue_f)&&(theAngle<piValue_f*1.01f) )
-            theAngle=piValue_f;
-        if (theAngle>=piValue_f*1.01f)
-            theAngle=piValTimes2_f;
+        if ( (theAngle>piValue)&&(theAngle<piValue*1.01f) )
+            theAngle=piValue;
+        if (theAngle>=piValue*1.01f)
+            theAngle=piValT2;
     }
     angle=theAngle;
     solveInterferences();
@@ -763,8 +763,8 @@ void CConvexVolume::setInsideAngleThing(float theAngle,bool recomputeVolume/*=tr
     insideAngleThing=theAngle;
     if (theAngle!=0.0f)
     {
-        if (angle>piValue_f*1.01f)
-            angle=piValue_f;
+        if (angle>piValue*1.01f)
+            angle=piValue;
     }
     solveInterferences();
     if (recomputeVolume)
@@ -849,7 +849,7 @@ void CConvexVolume::setFaceNumber(int theFaceNumber,bool recomputeVolume/*=true*
         tt::limitValue(3,PROXSENSOR_MAX_FACE_NUMBER,theFaceNumber);
     if (_volumeType==DISC_TYPE_CONVEX_VOLUME)
     {
-        if (angle>piValue_f*1.01f)
+        if (angle>piValue*1.01f)
             tt::limitValue(3,PROXSENSOR_MAX_FACE_NUMBER,theFaceNumber);
     }
     if (_volumeType==CONE_TYPE_CONVEX_VOLUME)
@@ -925,7 +925,7 @@ void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,floa
             offset=0.0f;
             range=0.2f;
             radius=0.1f;
-            angle=piValD2_f;
+            angle=piValD2;
             ySize=0.05f;
             ySizeFar=0.1f;
             faceNumber=16;
@@ -950,7 +950,7 @@ void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,floa
             offset=0.0f;
             radius=0.1f;
             range=0.3f-radius;
-            angle=piValD2_f;
+            angle=piValD2;
             faceNumber=32;
             subdivisions=1;
             subdivisionsFar=16;
@@ -971,7 +971,7 @@ void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,floa
             offset=0.0f;
             range=0.05f;
             radius=0.0f;
-            angle=30.0f*degToRad_f;
+            angle=30.0f*degToRad;
             ySize=0.015f;
             ySizeFar=0.015f;
             faceNumber=1;
@@ -996,7 +996,7 @@ void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,floa
             offset=0.0f;
             radius=0.0f;    // no outside volume here
             range=0.05f;
-            angle=30.0f*degToRad_f;
+            angle=30.0f*degToRad;
             faceNumber=16;
             subdivisions=1;
             subdivisionsFar=4;
@@ -1017,7 +1017,7 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
     }
     if (_volumeType==CYLINDER_TYPE_CONVEX_VOLUME)
     {
-        float alpha=piValue_f/faceNumber;
+        float alpha=piValue/faceNumber;
         for (int i=0;i<faceNumber;i++)
         {
             add3Values(edges,m,+cos(alpha)*radius,-sin(alpha)*radius,offset);
@@ -1026,7 +1026,7 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
             add3Values(edges,m,+cos(alpha)*radiusFar,+sin(alpha)*radiusFar,offset+range);
             add3Values(edges,m,+cos(alpha)*radiusFar,+sin(alpha)*radiusFar,offset+range);
             add3Values(edges,m,+cos(alpha)*radiusFar,-sin(alpha)*radiusFar,offset+range);
-            tr.buildZRotation(piValTimes2_f/faceNumber);
+            tr.buildZRotation(piValT2/faceNumber);
             m=m*tr;
         }
     }
@@ -1066,11 +1066,11 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
         float angleStart=angle/2.0f;
         float angleStart2=angleStart*insideAngleThing;
         float dA=angleStart/faceNumber;
-        float dAd=dA*radToDeg_f;
+        float dAd=dA*radToDeg;
         if (insidePart)
         {
             dA=angleStart2/faceNumber;
-            dAd=dA*radToDeg_f;
+            dAd=dA*radToDeg;
         }
         float radiusSinAngleStart=radius*sin(angleStart);
         float radiusSinAngleStartDa=radius*sin(angleStart-dA);
@@ -1093,7 +1093,7 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
                     add3Values(edges,m,bbb,i*halfSize,aaa);
                     add3Values(edges,m,bb2,i*halfSize,aaa);
 
-                    if (angle<piValue_f*0.999f)
+                    if (angle<piValue*0.999f)
                     {
                         add3Values(edges,m,-bbb,-i*halfSize,aaa);
                         add3Values(edges,m,-bbb,i*halfSize,aaa);
@@ -1115,11 +1115,11 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
                         add3Values(edges,m,radiusSinAngleStart,+halfSize,radiusCosAngleStart);
                         add3Values(edges,m,radiusSinAngleStart,+halfSize,radiusCosAngleStart);
                         add3Values(edges,m,radiusSinAngleStartDa,+halfSize,radiusCosAngleStartDa);
-                        tr.buildYRotation(-dAd*degToRad_f);
+                        tr.buildYRotation(-dAd*degToRad);
                         m=m*tr;
                     }
                     m=mSaved2;
-                    tr.buildZRotation(piValue_f);
+                    tr.buildZRotation(piValue);
                     m=m*tr;
                 }
             }
@@ -1132,11 +1132,11 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
         }
         // The far part:
         float dA2=angleStart/faceNumberFar;
-        float dAd2=dA2*radToDeg_f;
+        float dAd2=dA2*radToDeg;
         if (insidePart)
         {
             dA2=(angleStart-angleStart2)/faceNumberFar;
-            dAd2=dA2*radToDeg_f;
+            dAd2=dA2*radToDeg;
         }
         float r=radius+range;
         float radiusSinAngleStart2=r*sin(angleStart);
@@ -1160,11 +1160,11 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
                     add3Values(edges,m,radiusSinAngleStartDa2,-halfSize,radiusCosAngleStartDa2);
                     add3Values(edges,m,radiusSinAngleStartDa2,+halfSize,radiusCosAngleStartDa2);
                 }
-                tr.buildYRotation(-dAd2*degToRad_f);
+                tr.buildYRotation(-dAd2*degToRad);
                 m=m*tr;
             }
             m=mSaved2;
-            tr.buildZRotation(piValue_f);
+            tr.buildZRotation(piValue);
             m=m*tr;
         }
         m=mSaved;
@@ -1177,7 +1177,7 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
 
         // The borders:
         mSaved=m;
-        if (angle<piValue_f*1.03f)
+        if (angle<piValue*1.03f)
         {
             for (int i=0;i<2;i++)
             {
@@ -1194,7 +1194,7 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
                     add3Values(edges,m,aaa*tan(angleStart2),-halfSize,aaa);
                     add3Values(edges,m,aaa*tan(angleStart2),+halfSize,aaa);
                 }
-                tr.buildZRotation(piValue_f);
+                tr.buildZRotation(piValue);
                 m=m*tr;
             }
         }
@@ -1208,12 +1208,12 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
         m=m*tr;
         float aD2=angle/2.0f;
         float aD4=insideAngleThing*aD2;
-        if (angle>piValue_f*1.01f)
+        if (angle>piValue*1.01f)
         {
-            aD2=piValue_f/2.0f; // Then we draw 2 hemishperes
+            aD2=piValue/2.0f; // Then we draw 2 hemishperes
             insidePart=false;
         }
-        float piDF=piValue_f/faceNumber;
+        float piDF=piValue/faceNumber;
         float cPiDF=cos(piDF);
         float sPiDF=sin(piDF);
         float sAD2=sin(aD2);
@@ -1231,7 +1231,7 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
             for (int i=0;i<faceNumber;i++)
             {
                 // The edges:
-                if (angle<piValue_f*0.999f)
+                if (angle<piValue*0.999f)
                 {
                     if (insidePart)
                         add3Values(edges,m,rp*tAD2*cPiDF,rp*tAD2*sPiDF,rp);
@@ -1250,7 +1250,7 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
                 {
                     if (insidePart)
                     {
-                        if (angle<piValue_f*0.999f)
+                        if (angle<piValue*0.999f)
                         {
                             add3Values(edges,m,rp*tAD2*cPiDF,-rp*tAD2*sPiDF,rp);
                             add3Values(edges,m,rp*tAD2*cPiDF,+rp*tAD2*sPiDF,rp);
@@ -1287,15 +1287,15 @@ void CConvexVolume::computeVolumeEdges(std::vector<float>& edges)
                     add3Values(edges,m,R*sin(aD2-j*da)*cPiDF,+R*sin(aD2-j*da)*sPiDF,R*cos(aD2-j*da));
                     add3Values(edges,m,R*sin(aD2-(j+1)*da)*cPiDF,+R*sin(aD2-(j+1)*da)*sPiDF,R*cos(aD2-(j+1)*da));
                 }
-                tr.buildZRotation(piValue_f*2.0f/faceNumber);
+                tr.buildZRotation(piValue*2.0f/faceNumber);
                 m=m*tr;
             }
-            if (angle<piValue_f*1.01f)
+            if (angle<piValue*1.01f)
                 break;
             // We have to prepare to draw the other hemisphere:
             tr.buildTranslation(0.0f,0.0f,-offset);
             m=m*tr;
-            tr.buildXRotation(piValue_f);
+            tr.buildXRotation(piValue);
             m=m*tr;
             tr.buildTranslation(0.0f,0.0f,-offset);
             m=m*tr;
@@ -1334,11 +1334,11 @@ void CConvexVolume::computeVolumes()
         planesInside.reserve((2+faceNumber)*4);
         m.buildTranslation(0.0f,0.0f,offset+range);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
-        m.buildYRotation(piValue_f);
+        m.buildYRotation(piValue);
         m.translate(0.0f,0.0f,offset);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
-        float alpha=piValue_f/faceNumber;
-        m.buildYRotation(piValue_f/2.0f+atan(cos(alpha)*(radiusFar-radius)/range));
+        float alpha=piValue/faceNumber;
+        m.buildYRotation(piValue/2.0f+atan(cos(alpha)*(radiusFar-radius)/range));
         m.translate(cos(alpha)*(radius+radiusFar)/2.0f,0.0f,offset+range/2.0f);
         for (int i=0;i<faceNumber;i++)
         {
@@ -1351,21 +1351,21 @@ void CConvexVolume::computeVolumes()
         planesInside.reserve(6*4);
         m.buildTranslation(0.0f,0.0f,offset+range);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
-        m.buildYRotation(piValue_f);
+        m.buildYRotation(piValue);
         m.translate(0.0f,0.0f,offset);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
         float alphaV=atan((ySizeFar-ySize)/(2.0f*range));
         float alphaH=atan((xSizeFar-xSize)/(2.0f*range));
-        m.buildXRotation(-piValue_f/2.0f-alphaV);
+        m.buildXRotation(-piValue/2.0f-alphaV);
         m.translate(0.0f,+(ySizeFar+ySize)/4.0f,offset+range/2.0f);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
-        m.buildXRotation(piValue_f/2.0f+alphaV);
+        m.buildXRotation(piValue/2.0f+alphaV);
         m.translate(0.0f,-(ySizeFar+ySize)/4.0f,offset+range/2.0f);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
-        m.buildYRotation(-piValue_f/2.0f-alphaH);
+        m.buildYRotation(-piValue/2.0f-alphaH);
         m.translate(-(xSizeFar+xSize)/4.0f,0.0f,offset+range/2.0f);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
-        m.buildYRotation(piValue_f/2.0f+alphaH);
+        m.buildYRotation(piValue/2.0f+alphaH);
         m.translate(+(xSizeFar+xSize)/4.0f,0.0f,offset+range/2.0f);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
     }
@@ -1374,10 +1374,10 @@ void CConvexVolume::computeVolumes()
         bool insidePart=(insideAngleThing>=0.01f);
         planesInside.reserve((2+faceNumber+faceNumberFar+2)*4);
         // Top and bottom parts:
-        m.buildXRotation(-piValue_f/2.0f);
+        m.buildXRotation(-piValue/2.0f);
         m.translate(0.0f,ySize/2.0f,offset+radius+range/2.0f);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
-        m.buildXRotation(+piValue_f/2.0f);
+        m.buildXRotation(+piValue/2.0f);
         m.translate(0.0f,-ySize/2.0f,offset+radius+range/2.0f);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
         // Far part:
@@ -1424,32 +1424,32 @@ void CConvexVolume::computeVolumes()
             }
             else
             {
-                m.buildYRotation(piValue_f);
+                m.buildYRotation(piValue);
                 m.translate(0.0f,0.0f,offset+radius*cos(0.5f*angle));
                 addAPlane(&planesInside,nInside,normalsLength,m,true);
             }
         }
-        // The closing part (if angle != piValTimes2_f)
-        if (angle<piValue_f*1.03f)
+        // The closing part (if angle != piValT2)
+        if (angle<piValue*1.03f)
         {
-            m.buildYRotation(piValue_f/2.0f);
+            m.buildYRotation(piValue/2.0f);
             m.translate(0.0f,0.0f,radius+range/2.0f);
             m.rotateAroundY(angle/2.0f);
             m.translate(0.0f,0.0f,offset);
             addAPlane(&planesInside,nInside,normalsLength,m,true);
-            m.buildYRotation(-piValue_f/2.0f);
+            m.buildYRotation(-piValue/2.0f);
             m.translate(0.0f,0.0f,radius+range/2.0f);
             m.rotateAroundY(-angle/2.0f);
             m.translate(0.0f,0.0f,offset);
             addAPlane(&planesInside,nInside,normalsLength,m,true);
             if (insidePart)
             {
-                m.buildYRotation(piValue_f/2.0f);
+                m.buildYRotation(piValue/2.0f);
                 m.translate(0.0f,0.0f,radius+range/2.0f);
                 m.rotateAroundY(angle*insideAngleThing/2.0f);
                 m.translate(0.0f,0.0f,offset);
                 addAPlane(&planesOutside,nOutside,normalsLength,m,false);
-                m.buildYRotation(-piValue_f/2.0f);
+                m.buildYRotation(-piValue/2.0f);
                 m.translate(0.0f,0.0f,radius+range/2.0f);
                 m.rotateAroundY(-angle*insideAngleThing/2.0f);
                 m.translate(0.0f,0.0f,offset);
@@ -1463,12 +1463,12 @@ void CConvexVolume::computeVolumes()
         planesInside.reserve((faceNumber+(subdivisions+1)*faceNumber+(subdivisionsFar+1)*faceNumber)*4);
         float aD2=angle/2.0f;
         float aD4=insideAngleThing*aD2;
-        if (angle>piValue_f*1.01f)
+        if (angle>piValue*1.01f)
         {
-            aD2=piValue_f/2.0f; // Then we draw 2 hemishperes
+            aD2=piValue/2.0f; // Then we draw 2 hemishperes
             insidePart=false;
         }
-        float piDF=piValue_f/faceNumber;
+        float piDF=piValue/faceNumber;
         float cPiDF=cos(piDF);
         float sPiDF=sin(piDF);
         float cAD2=cos(aD2);
@@ -1477,29 +1477,29 @@ void CConvexVolume::computeVolumes()
         float alpha=atan(tan(aD2)*cPiDF);
         float alpha2=atan(tan(aD4)*cPiDF);
         // First the sides:
-        if (angle<piValue_f*1.01f)
+        if (angle<piValue*1.01f)
         {
             C4X4Matrix mm;
-            m.buildYRotation(piValue_f/2.0f);
+            m.buildYRotation(piValue/2.0f);
             m.translate(0.0f,0.0f,radius+0.3f*range);
             m.rotateAroundY(alpha);
             m.translate(0.0f,0.0f,offset);
-            mm.buildYRotation(piValue_f/2.0f);
+            mm.buildYRotation(piValue/2.0f);
             mm.translate(0.0f,0.0f,radius+0.3f*range);
             mm.rotateAroundY(alpha2);
             mm.translate(0.0f,0.0f,offset);
             for (int i=0;i<faceNumber;i++)
             {
-                if (angle<piValue_f*0.999f)
+                if (angle<piValue*0.999f)
                     addAPlane(&planesInside,nInside,normalsLength,m,true); // We have something smaller than a hemisphere
                 m.rotateAroundZ(piDF*2.0f);
                 if (insidePart)
                     addAPlane(&planesOutside,nOutside,normalsLength,mm,false);
                 mm.rotateAroundZ(piDF*2.0f);
             }
-            if (angle>=piValue_f*0.999f)
+            if (angle>=piValue*0.999f)
             { // Here we have a 'perfect' hemisphere
-                m.buildYRotation(piValue_f);
+                m.buildYRotation(piValue);
                 m.translate(0.0f,0.0f,offset);
                 addAPlane(&planesInside,nInside,normalsLength,m,true);
             }
@@ -1512,7 +1512,7 @@ void CConvexVolume::computeVolumes()
                 // The close part:
                 if (insidePart)
                 {
-                    m.buildYRotation(piValue_f);
+                    m.buildYRotation(piValue);
                     m.translate(0.0f,0.0f,r*cAD2+offset);
                     addAPlane(&planesInside,nInside,normalsLength,m,true);
                 }
@@ -1527,9 +1527,9 @@ void CConvexVolume::computeVolumes()
                             float p2[3]={r*sin(aD2-(j+1)*da)*cPiDF,+r*sin(aD2-(j+1)*da)*sPiDF,r*cos(aD2-(j+1)*da)};
                             float p3[3]={r*sin(aD2-j*da)*cPiDF,-r*sin(aD2-j*da)*sPiDF,r*cos(aD2-j*da)};
                             m=getTheMatrix(p1,p2,p3,j==subdivisions);
-                            m.rotateAroundZ(2.0f*i*piValue_f/faceNumber);
+                            m.rotateAroundZ(2.0f*i*piValue/faceNumber);
                             if (pass==1)
-                                m.rotateAroundX(piValue_f);
+                                m.rotateAroundX(piValue);
                             m.translate(0.0f,0.0f,offset);
                             addAPlane(&planesOutside,nOutside,normalsLength,m,false);
                         }
@@ -1549,14 +1549,14 @@ void CConvexVolume::computeVolumes()
                         m=getTheMatrix(p1,p2,p3,false);
                     else
                         m=getTheMatrix(p1,p2,p3,j==subdivisionsFar);
-                    m.rotateAroundZ(2.0f*i*piValue_f/faceNumber);
+                    m.rotateAroundZ(2.0f*i*piValue/faceNumber);
                     if (pass==1)
-                        m.rotateAroundX(piValue_f);
+                        m.rotateAroundX(piValue);
                     m.translate(0.0f,0.0f,offset);
                     addAPlane(&planesInside,nInside,normalsLength,m,true);
                 }
             }
-            if (angle<piValue_f*1.01f)
+            if (angle<piValue*1.01f)
                 break;
         }
     }
@@ -1852,8 +1852,8 @@ void CConvexVolume::generateSphereEdges(std::vector<float>& edges,float radius)
 {
     int subDivW=12;
     int subDivV=12;
-    float dw=piValTimes2_f/float(subDivW);
-    float dv=piValue_f/float(subDivV);
+    float dw=piValT2/float(subDivW);
+    float dv=piValue/float(subDivV);
 
     float v0=0.0f;
     float v1=dv;

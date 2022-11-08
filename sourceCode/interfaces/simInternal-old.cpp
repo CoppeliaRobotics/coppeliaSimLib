@@ -2792,9 +2792,9 @@ simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dat
                 return(-1);
             }
         }
-        actionRadius=tt::getLimitedFloat(0.0f,SIM_MAX_FLOAT,actionRadius);
-        emissionAngle1=tt::getLimitedFloat(0.0f,piValue_f,emissionAngle1);
-        emissionAngle2=tt::getLimitedFloat(0.0f,piValTimes2_f,emissionAngle2);
+        actionRadius=tt::getLimitedFloat(0.0f,FLOAT_MAX,actionRadius);
+        emissionAngle1=tt::getLimitedFloat(0.0f,piValue,emissionAngle1);
+        emissionAngle2=tt::getLimitedFloat(0.0f,piValT2,emissionAngle2);
         persistence=tt::getLimitedFloat(0.0f,99999999999999.9f,persistence);
         if (persistence==0.0f)
             persistence=App::currentWorld->simulation->getTimeStep()*1.5f;
@@ -3810,7 +3810,7 @@ simInt simReadDistance_internal(simInt distanceObjectHandle,simFloat* smallestDi
             smallestDistance[0]=d;
             return(1);
         }
-        smallestDistance[0]=SIM_MAX_FLOAT; // new for V3.3.2 rev2
+        smallestDistance[0]=FLOAT_MAX; // new for V3.3.2 rev2
         return(0); // from -1 to 0 for V3.3.2 rev2
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

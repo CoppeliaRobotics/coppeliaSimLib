@@ -27,14 +27,14 @@ CJoint::CJoint(int jointType)
         _objectAlias=IDSOGL_REVOLUTE_JOINT;
         _jointMode=sim_jointmode_dynamic;
         _isCyclic=true;
-        _posRange=piValTimes2_f;
-        _posMin=-piValue_f;
-        _maxStepSize_old=10.0f*degToRad_f;
+        _posRange=piValT2;
+        _posMin=-piValue;
+        _maxStepSize_old=10.0f*degToRad;
         _targetForce=2.5f; // 0.25 m x 1kg x 9.81
-        _maxAcceleration_DEPRECATED=60.0f*degToRad_f;
-        _maxVelAccelJerk[0]=piValTimes2;
-        _maxVelAccelJerk[1]=piValTimes2;
-        _maxVelAccelJerk[2]=piValTimes2;
+        _maxAcceleration_DEPRECATED=60.0f*degToRad;
+        _maxVelAccelJerk[0]=piValT2;
+        _maxVelAccelJerk[1]=piValT2;
+        _maxVelAccelJerk[2]=piValT2;
     }
     if (jointType==sim_joint_prismatic_subtype)
     {
@@ -57,14 +57,14 @@ CJoint::CJoint(int jointType)
         _objectAlias=IDSOGL_SPHERICAL_JOINT;
         _jointMode=sim_jointmode_dynamic;
         _isCyclic=true;
-        _posRange=piValue_f;
+        _posRange=piValue;
         _posMin=0.0f;
-        _maxStepSize_old=10.0f*degToRad_f;
+        _maxStepSize_old=10.0f*degToRad;
         _targetForce=0.0f;
-        _maxAcceleration_DEPRECATED=60.0f*degToRad_f;
-        _maxVelAccelJerk[0]=piValTimes2;
-        _maxVelAccelJerk[1]=piValTimes2;
-        _maxVelAccelJerk[2]=piValTimes2;
+        _maxAcceleration_DEPRECATED=60.0f*degToRad;
+        _maxVelAccelJerk[0]=piValT2;
+        _maxVelAccelJerk[1]=piValT2;
+        _maxVelAccelJerk[2]=piValT2;
     }
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
@@ -75,9 +75,9 @@ void CJoint::_commonInit()
     _objectType=sim_object_joint_type;
     _localObjectSpecialProperty=0;
 
-    _maxVelAccelJerk[0]=piValTimes2;
-    _maxVelAccelJerk[1]=piValTimes2;
-    _maxVelAccelJerk[2]=piValTimes2;
+    _maxVelAccelJerk[0]=piValT2;
+    _maxVelAccelJerk[1]=piValT2;
+    _maxVelAccelJerk[2]=piValT2;
 
     _jointType=sim_joint_revolute_subtype;
     _screwPitch=0.0f;
@@ -135,47 +135,47 @@ void CJoint::_commonInit()
     // ----------------------------------------------------
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_lowerlimitdamping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_upperlimitdamping
-    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_lowerlimitstiffness
-    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_upperlimitstiffness
+    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_lowerlimitstiffness
+    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_upperlimitstiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_lowerlimitrestitution
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_upperlimitrestitution
-    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_lowerlimitmaxforce
-    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_upperlimitmaxforce
+    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_lowerlimitmaxforce
+    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_upperlimitmaxforce
     _vortexFloatParams.push_back(0.001f); // simi_vortex_joint_motorconstraintfrictioncoeff
     _vortexFloatParams.push_back(10.0f); // simi_vortex_joint_motorconstraintfrictionmaxforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_motorconstraintfrictionloss
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0loss
-    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_p0stiffness
+    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_p0stiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0damping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0frictionmaxforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p0frictionloss
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1loss
-    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_p1stiffness
+    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_p1stiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1damping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1frictionmaxforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p1frictionloss
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2loss
-    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_p2stiffness
+    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_p2stiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2damping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2frictionmaxforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_p2frictionloss
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0loss
-    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_a0stiffness
+    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_a0stiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0damping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0frictionmaxforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a0frictionloss
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1loss
-    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_a1stiffness
+    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_a1stiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1damping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1frictionmaxforce
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a1frictionloss
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2loss
-    _vortexFloatParams.push_back(FLT_MAX); // simi_vortex_joint_a2stiffness
+    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_a2stiffness
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2damping
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2frictioncoeff
     _vortexFloatParams.push_back(0.0f); // simi_vortex_joint_a2frictionmaxforce
@@ -251,9 +251,9 @@ void CJoint::_commonInit()
     _length=0.15f;
 
     _isCyclic=true;
-    _posRange=piValTimes2_f;
-    _posMin=-piValue_f;
-    _maxStepSize_old=10.0f*degToRad_f;
+    _posRange=piValT2;
+    _posMin=-piValue;
+    _maxStepSize_old=10.0f*degToRad;
 
     _visibilityLayer=JOINT_LAYER;
     _objectAlias=IDSOGL_JOINT;
@@ -275,7 +275,7 @@ void CJoint::_commonInit()
     _explicitHandling_DEPRECATED=false;
     _unlimitedAcceleration_DEPRECATED=false;
     _invertTargetVelocityAtLimits_DEPRECATED=true;
-    _maxAcceleration_DEPRECATED=60.0f*degToRad_f;
+    _maxAcceleration_DEPRECATED=60.0f*degToRad;
 
     _color.setDefaultValues();
     _color.setColor(1.0f,0.3f,0.1f,sim_colorcomponent_ambient_diffuse);
@@ -1084,8 +1084,8 @@ void CJoint::handleJoint_DEPRECATED(float deltaTime)
     else
     { // Acceleration is not infinite!
         double newPos=double(_jointPositionForMotionHandling_DEPRECATED);
-        float minV=-SIM_MAX_FLOAT;
-        float maxV=+SIM_MAX_FLOAT;
+        float minV=-FLOAT_MAX;
+        float maxV=+FLOAT_MAX;
         if (!_isCyclic)
         {
             minV=_posMin;
@@ -1157,7 +1157,7 @@ void CJoint::setMaxAcceleration_DEPRECATED(float maxAccel)
     if (_jointType==sim_joint_prismatic_subtype)
         tt::limitValue(0.0001f,1000.0f,maxAccel);
     else
-        tt::limitValue(0.001f*degToRad_f,36000.0f*degToRad_f,maxAccel);
+        tt::limitValue(0.001f*degToRad,36000.0f*degToRad,maxAccel);
     _maxAcceleration_DEPRECATED=maxAccel;
     setVelocity_DEPRECATED(getVelocity_DEPRECATED()); // To make sure velocity is within allowed range
 }
@@ -1326,15 +1326,15 @@ void CJoint::_setPositionIntervalMin_sendOldIk(float min) const
 void CJoint::setPositionRange(float range)
 {
     if (_jointType==sim_joint_revolute_subtype)
-        range=tt::getLimitedFloat(0.001f*degToRad_f,10000000.0f*degToRad_f,range);
+        range=tt::getLimitedFloat(0.001f*degToRad,10000000.0f*degToRad,range);
     if (_jointType==sim_joint_prismatic_subtype)
         range=tt::getLimitedFloat(0.0f,1000.0f,range);
     if (_jointType==sim_joint_spherical_subtype)
     {
         if (_jointMode!=sim_jointmode_dynamic)
-            range=tt::getLimitedFloat(0.001f*degToRad_f,10000000.0f*degToRad_f,range);
+            range=tt::getLimitedFloat(0.001f*degToRad,10000000.0f*degToRad,range);
         else
-            range=piValue_f;
+            range=piValue;
     }
     bool diff=(_posRange!=range);
     if (diff)
@@ -2046,8 +2046,8 @@ void CJoint::setIsCyclic(bool isCyclic)
         if (getJointType()==sim_joint_revolute_subtype)
         {
             setScrewPitch(0.0f);
-            setPositionMin(-piValue_f);
-            setPositionRange(piValTimes2_f);
+            setPositionMin(-piValue);
+            setPositionRange(piValT2);
         }
     }
     bool diff=(_isCyclic!=isCyclic);
@@ -2843,7 +2843,7 @@ void CJoint::serialize(CSer& ar)
                         _dynCtrl_kc[1]=_targetForce*D;
                         float maxTolerablePorDParam=1.0f;
                         if (_jointType==sim_joint_revolute_subtype)
-                            maxTolerablePorDParam=1.0f/piValTimes2_f;
+                            maxTolerablePorDParam=1.0f/piValT2;
                         float maxPorD=std::max<float>(fabs(P),fabs(D));
                         if (maxPorD>maxTolerablePorDParam)
                         { // we shift the limit up
@@ -2871,7 +2871,7 @@ void CJoint::serialize(CSer& ar)
         {
             float mult=1.0f;
             if (_jointType!=sim_joint_prismatic_subtype)
-                mult=180.0f/piValue_f;
+                mult=180.0f/piValue;
             ar.xmlAddNode_comment(" 'type' tag: can be 'revolute', 'prismatic' or 'spherical' ",exhaustiveXml);
             ar.xmlAddNode_enum("type",_jointType,sim_joint_revolute_subtype,"revolute",sim_joint_prismatic_subtype,"prismatic",sim_joint_spherical_subtype,"spherical");
             ar.xmlAddNode_comment(" 'mode' tag: can be 'kinematic', 'dependent' or 'dynamic' ",exhaustiveXml);
@@ -2891,7 +2891,7 @@ void CJoint::serialize(CSer& ar)
             {
                 C3Vector euler(_sphericalTransf.getEulerAngles());
                 for (size_t l=0;l<3;l++)
-                    euler(l)*=180.0f/piValue_f;
+                    euler(l)*=180.0f/piValue;
                 ar.xmlAddNode_floats("sphericalEuler",euler.data,3);
             }
 
@@ -3122,7 +3122,7 @@ void CJoint::serialize(CSer& ar)
             if (ar.xmlGetNode_enum("type",_jointType,exhaustiveXml,"revolute",sim_joint_revolute_subtype,"prismatic",sim_joint_prismatic_subtype,"spherical",sim_joint_spherical_subtype))
             {
                 if (_jointType==sim_joint_revolute_subtype)
-                    mult=piValue_f/180.0f;
+                    mult=piValue/180.0f;
             }
 
             ar.xmlGetNode_enum("mode",_jointMode,exhaustiveXml,"kinematic",sim_jointmode_kinematic,"ik",sim_jointmode_ik_deprecated,"dependent",sim_jointmode_dependent,"dynamic",sim_jointmode_dynamic,"passive",sim_jointmode_kinematic,"force",sim_jointmode_dynamic);
@@ -3157,9 +3157,9 @@ void CJoint::serialize(CSer& ar)
                 C3Vector euler;
                 if (ar.xmlGetNode_floats("sphericalEuler",euler.data,3,exhaustiveXml))
                 {
-                    euler(0)*=piValue_f/180.0f;
-                    euler(1)*=piValue_f/180.0f;
-                    euler(2)*=piValue_f/180.0f;
+                    euler(0)*=piValue/180.0f;
+                    euler(1)*=piValue/180.0f;
+                    euler(2)*=piValue/180.0f;
                     _sphericalTransf.setEulerAngles(euler);
                 }
             }
@@ -3560,9 +3560,9 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int newMode)
             setScrewPitch(0.0f);
             // REMOVED FOLLOWING ON 24/7/2015: causes problem when switching modes. The physics engine plugin will now not set limits if the range>=360
             //      if (_jointType==sim_joint_revolute_subtype)
-            //          _posRange=tt::getLimitedFloat(0.0f,piValTimes2_f,_posRange);
+            //          _posRange=tt::getLimitedFloat(0.0f,piValT2,_posRange);
             if (_jointType==sim_joint_spherical_subtype)
-                setPositionRange(piValue_f);
+                setPositionRange(piValue);
             _dynVelCtrl_currentVelAccel[0]=double(_velCalc_vel);
             _dynVelCtrl_currentVelAccel[1]=0.0;
             _dynCtrl_pid_cumulErr=0.0f;
@@ -3639,11 +3639,11 @@ void CJoint::_setSphericalTransformation_sendOldIk(const C4Vector& tr) const
 void CJoint::setMaxStepSize_old(float stepS)
 {
     if (_jointType==sim_joint_revolute_subtype)
-        tt::limitValue(0.01f*degToRad_f,100000.0f,stepS); // high number for screws!
+        tt::limitValue(0.01f*degToRad,100000.0f,stepS); // high number for screws!
     if (_jointType==sim_joint_prismatic_subtype)
         tt::limitValue(0.0001f,1000.0f,stepS);
     if (_jointType==sim_joint_spherical_subtype)
-        tt::limitValue(0.01f*degToRad_f,piValue_f,stepS);
+        tt::limitValue(0.01f*degToRad,piValue,stepS);
     bool diff=(_maxStepSize_old!=stepS);
     if (diff)
     {
@@ -3841,7 +3841,7 @@ void CJoint::setDynCtrlMode(int mode)
             if (_jointType==sim_joint_prismatic_subtype)
                 setTargetVelocity(0.1f);
             else
-                setTargetVelocity(piValD2_f);
+                setTargetVelocity(piValD2);
         }
         _dynVelCtrl_currentVelAccel[0]=double(_velCalc_vel);
         _dynVelCtrl_currentVelAccel[1]=0.0;
@@ -4424,7 +4424,7 @@ void CJoint::_fixVortexInfVals()
     for (size_t i=0;i<47;i++)
     {
         if (_vortexFloatParams[i]<0.0)
-            _vortexFloatParams[i]=FLT_MAX;
+            _vortexFloatParams[i]=FLOAT_MAX;
     }
     // values at index 47 and later are signed
 }

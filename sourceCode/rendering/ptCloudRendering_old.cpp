@@ -12,7 +12,7 @@ void displayPtCloud_old(CPtCloud_old* ptCloud,CSceneObject* it)
         C7Vector tr=it->getCumulativeTransformation();
         glTranslatef(tr.X(0),tr.X(1),tr.X(2));
         C4Vector axis=tr.Q.getAngleAndAxis();
-        glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+        glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
         normalVectorForLinesAndPoints=(tr.Q.getInverse()*C3Vector::unitZVector);
     }
 

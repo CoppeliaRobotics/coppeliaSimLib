@@ -359,7 +359,7 @@ CUserSettings::CUserSettings()
     mouseWheelZoomFactor=1.0f; // default
     dynamicActivityRange=1000.0f;
     _translationStepSize=0.025f;
-    _rotationStepSize=5.0f*degToRad_f;
+    _rotationStepSize=5.0f*degToRad;
     freeServerPortStart=20000;
     _nextfreeServerPortToUse=freeServerPortStart;
     freeServerPortRange=2000;
@@ -429,30 +429,30 @@ float CUserSettings::getTranslationStepSize()
 
 void CUserSettings::setRotationStepSize(float s)
 {
-    if (s<1.5f*degToRad_f)
-        s=1.0f*degToRad_f;
+    if (s<1.5f*degToRad)
+        s=1.0f*degToRad;
     else
     {
-        if (s<3.5f*degToRad_f)
-            s=2.0f*degToRad_f;
+        if (s<3.5f*degToRad)
+            s=2.0f*degToRad;
         else
         {
-            if (s<7.5f*degToRad_f)
-                s=5.0f*degToRad_f;
+            if (s<7.5f*degToRad)
+                s=5.0f*degToRad;
             else
             {
-                if (s<12.5f*degToRad_f)
-                    s=10.0f*degToRad_f;
+                if (s<12.5f*degToRad)
+                    s=10.0f*degToRad;
                 else
                 {
-                    if (s<22.5f*degToRad_f)
-                        s=15.0f*degToRad_f;
+                    if (s<22.5f*degToRad)
+                        s=15.0f*degToRad;
                     else
                     {
-                        if (s<37.5f*degToRad_f)
-                            s=30.0f*degToRad_f;
+                        if (s<37.5f*degToRad)
+                            s=30.0f*degToRad;
                         else
-                            s=45.0f*degToRad_f;
+                            s=45.0f*degToRad;
                     }
                 }
             }
@@ -737,7 +737,7 @@ void CUserSettings::saveUserSettings()
     c.addFloat(_USR_MOUSE_WHEEL_ZOOM_FACTOR,mouseWheelZoomFactor,"");
     c.addFloat(_USR_DYNAMIC_ACTIVITY_RANGE,dynamicActivityRange,"");
     c.addFloat(_USR_TRANSLATION_STEP_SIZE,_translationStepSize,"");
-    c.addFloat(_USR_ROTATION_STEP_SIZE,_rotationStepSize*radToDeg_f,"");
+    c.addFloat(_USR_ROTATION_STEP_SIZE,_rotationStepSize*radToDeg,"");
     if (CThreadPool_old::getProcessorCoreAffinity()!=0)
         c.addInteger(_USR_PROCESSOR_CORE_AFFINITY,CThreadPool_old::getProcessorCoreAffinity(),"recommended to keep 0 (-1:os default, 0:all threads on same core, m: affinity mask (bit1=core1, bit2=core2, etc.))");
     c.addInteger(_USR_FREE_SERVER_PORT_START,freeServerPortStart,"");
@@ -1014,7 +1014,7 @@ void CUserSettings::loadUserSettings()
     if (c.getFloat(_USR_TRANSLATION_STEP_SIZE,_translationStepSize))
         setTranslationStepSize(_translationStepSize);
     if (c.getFloat(_USR_ROTATION_STEP_SIZE,_rotationStepSize))
-        setRotationStepSize(_rotationStepSize*degToRad_f);
+        setRotationStepSize(_rotationStepSize*degToRad);
     int processorCoreAffinity=0;
     if (c.getInteger(_USR_PROCESSOR_CORE_AFFINITY,processorCoreAffinity))
         CThreadPool_old::setProcessorCoreAffinity(processorCoreAffinity);

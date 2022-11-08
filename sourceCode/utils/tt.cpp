@@ -1,5 +1,5 @@
 #include "tt.h"
-#include <float.h>
+#include "mathDefines.h"
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -7,11 +7,6 @@
 #include <QString>
 #else
 #include <algorithm>
-#endif
-
-#ifndef radToDeg_f
-#define radToDeg_f 57.2957795130785499f
-#define degToRad_f 0.017453292519944444f
 #endif
 
 struct filestruct_A
@@ -60,17 +55,17 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
         std::transform(tmpStr.begin(),tmpStr.end(),tmpStr.begin(),::tolower);
         if (tmpStr.compare("inf")==0)
         {
-            f=FLT_MAX;
+            f=FLOAT_MAX;
             return(true);
         }
         if (tmpStr.compare("+inf")==0)
         {
-            f=FLT_MAX;
+            f=FLOAT_MAX;
             return(true);
         }
         if (tmpStr.compare("-inf")==0)
         {
-            f=-FLT_MAX;//FLT_MIN;
+            f=-FLOAT_MAX;
             return(true);
         }
         return(getValidFloat(str.c_str(),f));
@@ -90,7 +85,7 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
             if (infGivesMinusOne)
                 f=-1.0f;
             else
-                f=FLT_MAX;
+                f=FLOAT_MAX;
             return(true);
         }
         if (tmpStr.compare("+inf")==0)
@@ -98,7 +93,7 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
             if (infGivesMinusOne)
                 f=-1.0f;
             else
-                f=FLT_MAX;
+                f=FLOAT_MAX;
             return(true);
         }
         if (tmpStr.compare("-inf")==0)
@@ -124,17 +119,17 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
         tmpStr=tmpStr.left(l);
         if (tmpStr.compare("inf",Qt::CaseInsensitive)==0)
         {
-            f=FLT_MAX;
+            f=FLOAT_MAX;
             return(true);
         }
         if (tmpStr.compare("+inf",Qt::CaseInsensitive)==0)
         {
-            f=FLT_MAX;
+            f=FLOAT_MAX;
             return(true);
         }
         if (tmpStr.compare("-inf",Qt::CaseInsensitive)==0)
         {
-            f=-FLT_MAX;//FLT_MIN;
+            f=-FLOAT_MAX;
             return(true);
         }
 
@@ -156,7 +151,7 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
             if (infGivesMinusOne)
                 f=-1.0f;
             else
-                f=FLT_MAX;
+                f=FLOAT_MAX;
             return(true);
         }
         if (tmpStr.compare("+inf",Qt::CaseInsensitive)==0)
@@ -164,7 +159,7 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
             if (infGivesMinusOne)
                 f=-1.0f;
             else
-                f=FLT_MAX;
+                f=FLOAT_MAX;
             return(true);
         }
         if (tmpStr.compare("-inf",Qt::CaseInsensitive)==0)
@@ -245,12 +240,12 @@ std::string tt::getDString(bool sign,double f,int precision)
 
 std::string tt::getAngleEString(bool sign,float angleInRad,int precision)
 {
-    return(getEString(sign,angleInRad*radToDeg_f,precision));
+    return(getEString(sign,angleInRad*radToDeg,precision));
 }
 
 std::string tt::getAngleFString(bool sign,float angleInRad,int precision)
 {
-    return(getFString(sign,angleInRad*radToDeg_f,precision));
+    return(getFString(sign,angleInRad*radToDeg,precision));
 }
 
 std::string tt::getIString(bool sign,int v)
@@ -275,9 +270,9 @@ std::string tt::floatToEInfString(float f,bool canBeNegative)
 {
     if ((!canBeNegative)&&(f<0.0f))
         return("Infinity");
-    if (f==FLT_MAX)
+    if (f==FLOAT_MAX)
         return("Infinity");
-    if (f==-FLT_MAX) //FLT_MIN)
+    if (f==-FLOAT_MAX)
         return("-Infinity");
 #ifndef SIM_WITH_QT
     return(getEString(false,f,4));
@@ -304,12 +299,12 @@ float tt::floatToUserFloat(float f,float toUserConversion,bool minusValuesGiveIn
 {
     if (f<0.0f)
     {
-        if ((!minusValuesGiveInf)&&(f!=-FLT_MAX)) //FLT_MIN))
+        if ((!minusValuesGiveInf)&&(f!=-FLOAT_MAX))
             return(f*toUserConversion);
     }
     else
     {
-        if (f!=FLT_MAX)
+        if (f!=FLOAT_MAX)
             return(f*toUserConversion);
     }
     return(f);
@@ -319,12 +314,12 @@ float tt::userFloatToFloat(float userFloat,float fromUserConversion,bool minusVa
 {
     if (userFloat<0.0f)
     {
-        if ((!minusValuesGiveInf)&&(userFloat!=-FLT_MAX)) //FLT_MIN))
+        if ((!minusValuesGiveInf)&&(userFloat!=-FLOAT_MAX))
             return(userFloat*fromUserConversion);
     }
     else
     {
-        if (userFloat!=FLT_MAX)
+        if (userFloat!=FLOAT_MAX)
             return(userFloat*fromUserConversion);
     }
     return(userFloat);

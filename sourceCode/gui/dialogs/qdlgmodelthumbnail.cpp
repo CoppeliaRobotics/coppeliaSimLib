@@ -37,8 +37,8 @@ void CQDlgModelThumbnail::okEvent()
 void CQDlgModelThumbnail::initialize()
 {
     defaultDialogInitializationRoutine();
-    rotX=(180.0f-45.0f)*degToRad_f;   // With that angle we have the best visualization (depends on lights in scene)
-    rotY=30.0f*degToRad_f;
+    rotX=(180.0f-45.0f)*degToRad;   // With that angle we have the best visualization (depends on lights in scene)
+    rotY=30.0f*degToRad;
     zoom=1.0f;
     shiftX=0.0f;
     shiftY=0.0f;
@@ -55,7 +55,7 @@ void CQDlgModelThumbnail::initialize()
     rs->setResolution(res);
     rs->setPerspective(true);
     rs->setUseEnvironmentBackgroundColor(false);
-    rs->setViewAngle(THUMBNAIL_THING_VIEW_ANGLE*degToRad_f);
+    rs->setViewAngle(THUMBNAIL_THING_VIEW_ANGLE*degToRad);
     rs->setNearClippingPlane(0.01f);
     rs->setFarClippingPlane(20.0f);
     rs->setVisibilityLayer(0);
@@ -109,7 +109,7 @@ void CQDlgModelThumbnail::actualizeBitmap()
     C3Vector center((maxC+minC)*0.5f);
     C4X4Matrix cameraTr;
     cameraTr.setIdentity();
-    cameraTr.M.buildXRotation(piValD2_f);
+    cameraTr.M.buildXRotation(piValD2);
     C3X3Matrix rot;
     rot.buildZRotation(rotX);
     cameraTr.M=rot*cameraTr.M;
@@ -372,21 +372,21 @@ void CQDlgModelThumbnail::on_qqVShiftM_clicked()
 
 void CQDlgModelThumbnail::on_qqVRotP_clicked()
 {
-    rotY-=7.5f*degToRad_f;
-    if (rotY>90.0f*degToRad_f)
-        rotY=90.0f*degToRad_f;
-    if (rotY<-90.0f*degToRad_f)
-        rotY=-90.0f*degToRad_f;
+    rotY-=7.5f*degToRad;
+    if (rotY>90.0f*degToRad)
+        rotY=90.0f*degToRad;
+    if (rotY<-90.0f*degToRad)
+        rotY=-90.0f*degToRad;
     actualizeBitmap();
 }
 
 void CQDlgModelThumbnail::on_qqVRotM_clicked()
 {
-    rotY+=7.5f*degToRad_f;
-    if (rotY>90.0f*degToRad_f)
-        rotY=90.0f*degToRad_f;
-    if (rotY<-90.0f*degToRad_f)
-        rotY=-90.0f*degToRad_f;
+    rotY+=7.5f*degToRad;
+    if (rotY>90.0f*degToRad)
+        rotY=90.0f*degToRad;
+    if (rotY<-90.0f*degToRad)
+        rotY=-90.0f*degToRad;
     actualizeBitmap();
 }
 
@@ -412,13 +412,13 @@ void CQDlgModelThumbnail::on_qqHShiftP_clicked()
 
 void CQDlgModelThumbnail::on_qqHRotM_clicked()
 {
-    rotX+=7.5f*degToRad_f;
+    rotX+=7.5f*degToRad;
     actualizeBitmap();
 }
 
 void CQDlgModelThumbnail::on_qqHRotP_clicked()
 {
-    rotX-=7.5f*degToRad_f;
+    rotX-=7.5f*degToRad;
     actualizeBitmap();
 }
 

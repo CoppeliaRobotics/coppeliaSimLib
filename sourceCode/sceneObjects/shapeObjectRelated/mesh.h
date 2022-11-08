@@ -31,7 +31,7 @@ public:
     bool checkIfConvex();
     void setConvex(bool convex);
     bool containsOnlyPureConvexShapes();
-    void getCumulativeMeshes(std::vector<float>& vertices,std::vector<int>* indices,std::vector<float>* normals);
+    void getCumulativeMeshes(std::vector<floatDouble>& vertices,std::vector<int>* indices,std::vector<floatDouble>* normals);
     void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
     bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset) const;
     void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList);
@@ -53,8 +53,8 @@ public:
     void setHeightfieldDiamonds(bool d);
 
     int getUniqueID() const;
-    void setMesh(const std::vector<float>& vertices,const std::vector<int>& indices,const std::vector<float>* normals,const C7Vector& transformation);
-    void setMeshDataDirect(const std::vector<float>& vertices,const std::vector<int>& indices,const std::vector<float>& normals,const std::vector<unsigned char>& edges);
+    void setMesh(const std::vector<floatFloat>& vertices,const std::vector<int>& indices,const std::vector<floatFloat>* normals,const C7Vector& transformation);
+    void setMeshDataDirect(const std::vector<floatFloat>& vertices,const std::vector<int>& indices,const std::vector<floatFloat>& normals,const std::vector<unsigned char>& edges);
 
 
 
@@ -88,9 +88,9 @@ public:
     void setWireframe_OLD(bool w);
     bool getWireframe_OLD() const;
 
-    std::vector<float>* getVertices();
+    std::vector<floatFloat>* getVertices();
     std::vector<int>* getIndices();
-    std::vector<float>* getNormals();
+    std::vector<floatFloat>* getNormals();
     std::vector<unsigned char>* getEdges();
     int* getVertexBufferIdPtr();
     int* getNormalBufferIdPtr();
@@ -102,15 +102,15 @@ public:
     // Following few routines in order not to save duplicate data:
     static void clearTempVerticesIndicesNormalsAndEdges();
     static void serializeTempVerticesIndicesNormalsAndEdges(CSer& ar);
-    static int getBufferIndexOfVertices(const std::vector<float>& vert);
-    static int addVerticesToBufferAndReturnIndex(const std::vector<float>& vert);
-    static void getVerticesFromBufferBasedOnIndex(int index,std::vector<float>& vert);
+    static int getBufferIndexOfVertices(const std::vector<floatFloat>& vert);
+    static int addVerticesToBufferAndReturnIndex(const std::vector<floatFloat>& vert);
+    static void getVerticesFromBufferBasedOnIndex(int index,std::vector<floatFloat>& vert);
     static int getBufferIndexOfIndices(const std::vector<int>& ind);
     static int addIndicesToBufferAndReturnIndex(const std::vector<int>& ind);
     static void getIndicesFromBufferBasedOnIndex(int index,std::vector<int>& ind);
-    static int getBufferIndexOfNormals(const std::vector<float>& norm);
-    static int addNormalsToBufferAndReturnIndex(const std::vector<float>& norm);
-    static void getNormalsFromBufferBasedOnIndex(int index,std::vector<float>& norm);
+    static int getBufferIndexOfNormals(const std::vector<floatFloat>& norm);
+    static int addNormalsToBufferAndReturnIndex(const std::vector<floatFloat>& norm);
+    static void getNormalsFromBufferBasedOnIndex(int index,std::vector<floatFloat>& norm);
     static int getBufferIndexOfEdges(const std::vector<unsigned char>& edges);
     static int addEdgesToBufferAndReturnIndex(const std::vector<unsigned char>& edges);
     static void getEdgesFromBufferBasedOnIndex(int index,std::vector<unsigned char>& edges);
@@ -134,9 +134,9 @@ protected:
     static void _savePackedIntegers(CSer& ar,const std::vector<int>& data);
     static void _loadPackedIntegers(CSer& ar,std::vector<int>& data);
 
-    std::vector<float> _vertices;
+    std::vector<floatFloat> _vertices;
     std::vector<int> _indices;
-    std::vector<float> _normals;
+    std::vector<floatFloat> _normals;
     std::vector<unsigned char> _edges;
     
     bool _visibleEdges;
@@ -185,9 +185,9 @@ protected:
     static int _nextUniqueID;
 
 
-    static std::vector<std::vector<float>*> _tempVertices;
+    static std::vector<std::vector<floatFloat>*> _tempVertices;
     static std::vector<std::vector<int>*> _tempIndices;
-    static std::vector<std::vector<float>*> _tempNormals;
+    static std::vector<std::vector<floatFloat>*> _tempNormals;
     static std::vector<std::vector<unsigned char>*> _tempEdges;
 
 #ifdef SIM_WITH_GUI

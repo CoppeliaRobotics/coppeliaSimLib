@@ -60,7 +60,7 @@ void CProxSensor::setRandomizedDetection(bool enable)
             convexVolume->setRange(range);
             convexVolume->setSmallestDistanceEnabled(forbiddenDistEnable);
             convexVolume->setSmallestDistanceAllowed(forbiddenDist);
-            convexVolume->setAngle(60.0f*degToRad_f);
+            convexVolume->setAngle(60.0f*degToRad);
             convexVolume->setFaceNumber(32);
             convexVolume->setSubdivisions(3);
             convexVolume->setSubdivisionsFar(16);
@@ -158,7 +158,7 @@ void CProxSensor::commonInit()
     backFaceDetection=true;
     closestObjectMode=true;
     normalCheck=false;
-    allowedNormal=45.0f*degToRad_f;
+    allowedNormal=45.0f*degToRad;
     _hideDetectionRay=false;
 
     _randomizedDetection=false;
@@ -587,7 +587,7 @@ void CProxSensor::serialize(CSer& ar)
             ar.xmlAddNode_comment(" 'detectionType' tag: can be 'ultrasonic', 'infrared', 'laser', 'inductive' or 'capacitive' ",exhaustiveXml);
             ar.xmlAddNode_enum("detectionType",_sensableType,sim_objectspecialproperty_detectable_ultrasonic,"ultrasonic",sim_objectspecialproperty_detectable_infrared,"infrared",sim_objectspecialproperty_detectable_laser,"laser",sim_objectspecialproperty_detectable_inductive,"inductive",sim_objectspecialproperty_detectable_capacitive,"capacitive");
 
-            ar.xmlAddNode_float("allowedNormalAngle",allowedNormal*180.0f/piValue_f);
+            ar.xmlAddNode_float("allowedNormalAngle",allowedNormal*180.0f/piValue);
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("showVolumeWhenNotDetecting",_showVolume);
@@ -647,7 +647,7 @@ void CProxSensor::serialize(CSer& ar)
             ar.xmlGetNode_enum("detectionType",_sensableType,exhaustiveXml,"ultrasonic",sim_objectspecialproperty_detectable_ultrasonic,"infrared",sim_objectspecialproperty_detectable_infrared,"laser",sim_objectspecialproperty_detectable_laser,"inductive",sim_objectspecialproperty_detectable_inductive,"capacitive",sim_objectspecialproperty_detectable_capacitive);
 
             if (ar.xmlGetNode_float("allowedNormalAngle",allowedNormal,exhaustiveXml))
-                allowedNormal*=piValue_f/180.0f;
+                allowedNormal*=piValue/180.0f;
 
             if (ar.xmlPushChildNode("switches",exhaustiveXml))
             {
@@ -772,7 +772,7 @@ void CProxSensor::calculateFreshRandomizedRays()
     for (int i=0;i<_randomizedDetectionSampleCount;i++)
     {
         float rZ,sZ,cZ;
-        if (angle>1.1f*piValD2_f)
+        if (angle>1.1f*piValD2)
         { // this means we have 360x180 degrees. We compute it as 2 half-spheres, in order to have a perfect direction distribution:
             rZ=acos(1.0f-SIM_RAND_FLOAT);
             sZ=sin(rZ);
@@ -782,11 +782,11 @@ void CProxSensor::calculateFreshRandomizedRays()
         }
         else
         { // this means we have 360xA degrees, where A<=90.
-            rZ=angle*acos(1.0f-SIM_RAND_FLOAT)/piValue_f;
+            rZ=angle*acos(1.0f-SIM_RAND_FLOAT)/piValue;
             sZ=sin(rZ);
             cZ=cos(rZ);
         }
-        float rXY=SIM_RAND_FLOAT*piValTimes2_f;
+        float rXY=SIM_RAND_FLOAT*piValT2;
         float sXY=sin(rXY);
         float cXY=cos(rXY);
         C3Vector v(sZ*cXY,sZ*sXY,cZ);
@@ -831,7 +831,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
 
     int stTime=(int)VDateTime::getTimeInMs();
 
-    float treshhold=SIM_MAX_FLOAT;
+    float treshhold=FLOAT_MAX;
     float minThreshold=-1.0f;
     if (convexVolume->getSmallestDistanceEnabled())
         minThreshold=convexVolume->getSmallestDistanceAllowed();
@@ -943,7 +943,7 @@ void CProxSensor::setBackFaceDetection(bool faceOn)
 
 void CProxSensor::setAllowedNormal(float al)
 {
-    tt::limitValue(0.1f*degToRad_f,90.0f*degToRad_f,al);
+    tt::limitValue(0.1f*degToRad,90.0f*degToRad,al);
     allowedNormal=al;
 }
 float CProxSensor::getAllowedNormal() const

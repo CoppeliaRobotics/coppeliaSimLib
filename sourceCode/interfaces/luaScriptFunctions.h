@@ -24,14 +24,16 @@ struct SLuaVariables
 
 void _registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback);
 
-void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,size_t floatCount,float* arrayField);
-void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,size_t doubleCount,double* arrayField);
+#ifndef NOW_ALL_DOUBLES
+void getDoublesFromTable(luaWrap_lua_State* L,int tablePos,size_t floatCount,float* arrayField);
+void pushDoubleTableOntoStack(luaWrap_lua_State* L,size_t floatCount,const float* arrayField);
+#endif
+void getDoublesFromTable(luaWrap_lua_State* L,int tablePos,size_t doubleCount,double* arrayField);
 bool getIntsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,int* arrayField);
 bool getUIntsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,unsigned int* arrayField);
 bool getUCharsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,unsigned char* arrayField);
 void getCharBoolsFromTable(luaWrap_lua_State* L,int tablePos,size_t boolCount,char* arrayField);
-void pushFloatTableOntoStack(luaWrap_lua_State* L,size_t floatCount,const float* arrayField);
-void pushFloatTableOntoStack(luaWrap_lua_State* L,size_t doubleCount,const double* arrayField);
+void pushDoubleTableOntoStack(luaWrap_lua_State* L,size_t doubleCount,const double* arrayField);
 void pushIntTableOntoStack(luaWrap_lua_State* L,size_t intCount,const int* arrayField);
 void pushUIntTableOntoStack(luaWrap_lua_State* L,size_t intCount,const unsigned int* arrayField);
 void pushUCharTableOntoStack(luaWrap_lua_State* L,size_t intCount,const unsigned char* arrayField);
@@ -304,10 +306,6 @@ extern int _simSetVisionSensorImg(luaWrap_lua_State* L);
 extern int _simGetVisionSensorDepth(luaWrap_lua_State* L);
 extern int _simCheckVisionSensor(luaWrap_lua_State* L);
 extern int _simCheckVisionSensorEx(luaWrap_lua_State* L);
-extern int _simRMLPos(luaWrap_lua_State* L);
-extern int _simRMLVel(luaWrap_lua_State* L);
-extern int _simRMLStep(luaWrap_lua_State* L);
-extern int _simRMLRemove(luaWrap_lua_State* L);
 extern int _simRuckigPos(luaWrap_lua_State* L);
 extern int _simRuckigVel(luaWrap_lua_State* L);
 extern int _simRuckigStep(luaWrap_lua_State* L);
@@ -626,3 +624,7 @@ extern int _simHandleCustomizationScripts(luaWrap_lua_State* L);
 extern int _simSetDoubleSignal(luaWrap_lua_State* L);
 extern int _simGetDoubleSignal(luaWrap_lua_State* L);
 extern int _simClearDoubleSignal(luaWrap_lua_State* L);
+extern int _simRMLPos(luaWrap_lua_State* L);
+extern int _simRMLVel(luaWrap_lua_State* L);
+extern int _simRMLStep(luaWrap_lua_State* L);
+extern int _simRMLRemove(luaWrap_lua_State* L);

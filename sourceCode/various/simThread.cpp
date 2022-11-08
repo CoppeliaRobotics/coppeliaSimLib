@@ -4449,9 +4449,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     C7Vector r;
                     r.setIdentity();
                     if (t==1)
-                        r.Q.setEulerAngles(C3Vector(piValD2_f,0.0f,0.0f));
+                        r.Q.setEulerAngles(C3Vector(piValD2,0.0f,0.0f));
                     if (t==2)
-                        r.Q.setEulerAngles(C3Vector(0.0f,piValD2_f,0.0f));
+                        r.Q.setEulerAngles(C3Vector(0.0f,piValD2,0.0f));
                     shape->setLocalTransformation(conf*r);
                 }
             }
@@ -4673,7 +4673,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         if (App::currentWorld->simulation->getDynamicContentVisualizationOnly())
             displayAttrib|=sim_displayattribute_dynamiccontentonly;
         CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(psh);
-        float dist=SIM_MAX_FLOAT;
+        float dist=FLOAT_MAX;
         bool ptValid=false;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
         {

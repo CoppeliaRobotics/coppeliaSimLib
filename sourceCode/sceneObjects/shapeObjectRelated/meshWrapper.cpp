@@ -704,7 +704,7 @@ void CMeshWrapper::findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vecto
     float w=_getTensorNonDiagonalMeasure(tensor);
 
     // With below settings, we will get an orientational precision of about 0.000128 degrees
-    float stepSize=10.0f*degToRad_f;
+    float stepSize=10.0f*degToRad;
     const float stepSizeMultiplier=0.2f;
     const int resolutionScalePasses=8;
 

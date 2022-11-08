@@ -232,7 +232,7 @@ float CDistanceObject_old::handleDistance()
     if (!CPluginContainer::isGeomPluginAvailable())
         return(-1.0);
     int stTime=(int)VDateTime::getTimeInMs();
-    _distance=SIM_MAX_FLOAT;
+    _distance=FLOAT_MAX;
     if (_thresholdEnabled)
         _distance=_threshold;
     if (CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(_entity1Handle,_entity2Handle,_distance,_distanceResult,_distanceBuffer,_distanceBuffer+2,false,false))

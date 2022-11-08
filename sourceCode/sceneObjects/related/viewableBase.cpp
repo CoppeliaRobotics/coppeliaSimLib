@@ -179,7 +179,7 @@ float CViewableBase::getFarClippingPlane() const
 
 void CViewableBase::setViewAngle(float angle)
 {
-    tt::limitValue(1.0f*degToRad_f,135.0f*degToRad_f,angle); // with 90 degrees, objects disappear!! Really??? Changed to 135 on 2010/11/12
+    tt::limitValue(1.0f*degToRad,135.0f*degToRad,angle); // with 90 degrees, objects disappear!! Really??? Changed to 135 on 2010/11/12
     bool diff=(_viewAngle!=angle);
     if (diff)
     {

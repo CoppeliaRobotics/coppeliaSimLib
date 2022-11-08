@@ -137,7 +137,7 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
         
     if ((antennaPos2-antennaConf1.X).getLength()>_actionRadius)
         return(nullptr); // outside of action radius!
-    if (_emissionAngle1<piValue_f*0.99f)
+    if (_emissionAngle1<piValue*0.99f)
     { // Check if inside the vertical "hearing" area:
         C3Vector relPos(antennaConf1.getInverse()*antennaPos2);
         float h=fabs(relPos(2));
@@ -149,7 +149,7 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
         if (a>=_emissionAngle1*0.5f)
             return(nullptr); // just outside of the vertical active area (border condition)
     }
-    if (_emissionAngle2<piValTimes2_f*0.99f)
+    if (_emissionAngle2<piValT2*0.99f)
     { // Check if inside the horizontal "hearing" area:
         C3Vector relPos(antennaConf1.getInverse()*antennaPos2);
         if (relPos(0)==0.0f)

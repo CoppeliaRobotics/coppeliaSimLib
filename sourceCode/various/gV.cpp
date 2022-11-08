@@ -141,11 +141,11 @@ std::string gv::getSizeStr(bool sign,float sizeInMeter,int leadingZeros)
     return(tt::FNb(leadingZeros,sizeInMeter,4,sign));
 }
 
-float gv::radToUser=radToDeg_f;
-float gv::userToRad=degToRad_f;
-float gv::angularVelToUser=radToDeg_f;
-float gv::userToAngularVel=degToRad_f;
-float gv::angularAccelToUser=radToDeg_f;
-float gv::userToAngularAccel=degToRad_f;
+float gv::radToUser=radToDeg;
+float gv::userToRad=degToRad;
+float gv::angularVelToUser=radToDeg;
+float gv::userToAngularVel=degToRad;
+float gv::angularAccelToUser=radToDeg;
+float gv::userToAngularAccel=degToRad;
 
 

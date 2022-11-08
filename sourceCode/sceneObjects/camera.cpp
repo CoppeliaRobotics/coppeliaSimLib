@@ -497,8 +497,8 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
         std::vector<float> cop(pts);
         //*****************
         float effectiveAngle=getViewAngle()*scalingFactor;
-        if (effectiveAngle>piValue_f)
-            effectiveAngle=piValue_f;
+        if (effectiveAngle>piValue)
+            effectiveAngle=piValue;
 
         if (windowWidthByHeight>1.0f)
             effectiveAngle/=windowWidthByHeight;
@@ -747,7 +747,7 @@ void CCamera::commonInit()
     _renderModeDuringRecording=false;
     _isMainCamera=false;
 
-    _viewAngle=60.0f*degToRad_f;
+    _viewAngle=60.0f*degToRad;
     _orthoViewSize=2.0f;
     _showFogIfAvailable=true;
     _useLocalLights=false;
@@ -891,7 +891,7 @@ void CCamera::handleCameraTracking()
         if ( (fabs(zAxis(0))>0.00001f)||(fabs(zAxis(1))>0.00001f) )
         { // Camera does not look to +Z or -Z:
             C3Vector rotAxis(zAxis^C3Vector(0.0f,0.0f,1.0f));
-            C4Vector rot(piValue_f/2.0f,rotAxis);
+            C4Vector rot(piValue/2.0f,rotAxis);
             zAxis=rot*zAxis;
             C4Vector rot2(self.Q.getAxis(1),zAxis);
             self.Q=rot2*self.Q;
@@ -907,7 +907,7 @@ void CCamera::handleCameraTracking()
                 if (trM2.axis[1](2)<0.0f)
                     val=-1.0f;
                 C3Vector rotAx(trM2.axis[2]^C3Vector(0.0f,0.0f,val));
-                C3Vector target(C4Vector(piValue_f/2.0f,rotAx)*trM2.axis[2]);
+                C3Vector target(C4Vector(piValue/2.0f,rotAx)*trM2.axis[2]);
                 C4Vector rot(trM2.axis[1],target);
                 cameraCTM.Q=rot*cameraCTM.Q;
                 setLocalTransformation(getFullParentCumulativeTransformation().getInverse()*cameraCTM);
@@ -1168,17 +1168,17 @@ void CCamera::setPerspectiveOperation(bool p)
 int CCamera::getViewOrientation() const
 {
     C3X3Matrix m(getFullCumulativeTransformation().Q);
-    if (fabs(m.axis[2].getAngle(C3Vector(-1.0f,0.0f,0.0f))*radToDeg_f)<0.1f)
+    if (fabs(m.axis[2].getAngle(C3Vector(-1.0f,0.0f,0.0f))*radToDeg)<0.1f)
         return(POSITIVE_X_VIEW);
-    if (fabs(m.axis[2].getAngle(C3Vector(+1.0f,0.0f,0.0f))*radToDeg_f)<0.1f)
+    if (fabs(m.axis[2].getAngle(C3Vector(+1.0f,0.0f,0.0f))*radToDeg)<0.1f)
         return(NEGATIVE_X_VIEW);
-    if (fabs(m.axis[2].getAngle(C3Vector(0.0f,-1.0f,0.0f))*radToDeg_f)<0.1f)
+    if (fabs(m.axis[2].getAngle(C3Vector(0.0f,-1.0f,0.0f))*radToDeg)<0.1f)
         return(POSITIVE_Y_VIEW);
-    if (fabs(m.axis[2].getAngle(C3Vector(0.0f,+1.0f,0.0f))*radToDeg_f)<0.1f)
+    if (fabs(m.axis[2].getAngle(C3Vector(0.0f,+1.0f,0.0f))*radToDeg)<0.1f)
         return(NEGATIVE_Y_VIEW);
-    if (fabs(m.axis[2].getAngle(C3Vector(0.0f,0.0f,-1.0f))*radToDeg_f)<0.1f)
+    if (fabs(m.axis[2].getAngle(C3Vector(0.0f,0.0f,-1.0f))*radToDeg)<0.1f)
         return(POSITIVE_Z_VIEW);
-    if (fabs(m.axis[2].getAngle(C3Vector(0.0f,0.0f,+1.0f))*radToDeg_f)<0.1f)
+    if (fabs(m.axis[2].getAngle(C3Vector(0.0f,0.0f,+1.0f))*radToDeg)<0.1f)
         return(NEGATIVE_Z_VIEW);
     return(NO_SPECIFIC_VIEW);
 }
@@ -1249,7 +1249,7 @@ void CCamera::setViewOrientation(int ori,bool setPositionAlso)
     if (done)
     {
         C7Vector tot(getFullCumulativeTransformation());
-        tot.Q.setEulerAngles(C3Vector(alpha*degToRad_f,beta*degToRad_f,gamma*degToRad_f));
+        tot.Q.setEulerAngles(C3Vector(alpha*degToRad,beta*degToRad,gamma*degToRad));
         if (setPositionAlso)
             tot.X.setData(x,y,z);
         C7Vector parentInv(getFullParentCumulativeTransformation().getInverse());
@@ -1545,7 +1545,7 @@ void CCamera::serialize(CSer& ar)
 
             ar.xmlAddNode_float("orthoViewSize",_orthoViewSize);
 
-            ar.xmlAddNode_float("viewAngle",_viewAngle*180.0f/piValue_f);
+            ar.xmlAddNode_float("viewAngle",_viewAngle*180.0f/piValue);
 
             ar.xmlAddNode_2float("clippingPlanes",_nearClippingPlane,_farClippingPlane);
 
@@ -1608,7 +1608,7 @@ void CCamera::serialize(CSer& ar)
             ar.xmlGetNode_float("orthoViewSize",_orthoViewSize,exhaustiveXml);
 
             if (ar.xmlGetNode_float("viewAngle",_viewAngle,exhaustiveXml))
-                _viewAngle*=piValue_f/180.0f;
+                _viewAngle*=piValue/180.0f;
 
             ar.xmlGetNode_2float("clippingPlanes",_nearClippingPlane,_farClippingPlane,exhaustiveXml);
 
@@ -1915,11 +1915,11 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             {
                 if (ratio>1.0f)
                 {
-                    float a=2.0f*(float)atan(tan(_viewAngle/2.0f)/ratio)*radToDeg_f;
+                    float a=2.0f*(float)atan(tan(_viewAngle/2.0f)/ratio)*radToDeg;
                     ogl::perspectiveSpecial(a,ratio,_nearClippingPlane,_farClippingPlane);
                 }
                 else
-                    ogl::perspectiveSpecial(_viewAngle*radToDeg_f,ratio,_nearClippingPlane,_farClippingPlane);
+                    ogl::perspectiveSpecial(_viewAngle*radToDeg,ratio,_nearClippingPlane,_farClippingPlane);
             }
             else
             {
@@ -1946,7 +1946,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
 
             // The following 6 instructions have the same effect as gluLookAt()
             m4.inverse();
-            m4.rotateAroundY(piValue_f);
+            m4.rotateAroundY(piValue);
             CMatrix m4_(m4);
             m4_.transpose();
             glLoadMatrixf(m4_.data.data());
@@ -2328,10 +2328,10 @@ void CCamera::_handleMirrors(int renderingMode,bool noSelection,int pass,int nav
             glClipPlane(GL_CLIP_PLANE0,cpv);
             glPushMatrix();
             glTranslatef(mtr.X(0),mtr.X(1),mtr.X(2));
-            glRotatef(mtrAxis(0)*radToDeg_f,mtrAxis(1),mtrAxis(2),mtrAxis(3));
+            glRotatef(mtrAxis(0)*radToDeg,mtrAxis(1),mtrAxis(2),mtrAxis(3));
             glScalef (1., 1., -1.);
             glTranslatef(mtri.X(0),mtri.X(1),mtri.X(2));
-            glRotatef(mtriAxis(0)*radToDeg_f,mtriAxis(1),mtriAxis(2),mtriAxis(3));
+            glRotatef(mtriAxis(0)*radToDeg,mtriAxis(1),mtriAxis(2),mtriAxis(3));
             glFrontFace (GL_CW);
             CMirror::currentMirrorContentBeingRendered=myMirror->getObjectHandle();
             _drawObjects(renderingMode,pass,currentWinSize,subView,true);
@@ -2866,7 +2866,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
         glPushMatrix();
         glTranslatef(x+info->modelTr.X(0),y+info->modelTr.X(1),info->modelTr.X(2));
         C4Vector axis=info->modelTr.Q.getAngleAndAxis();
-        glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+        glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
         ogl::drawBox(info->modelBoundingBoxSize(0),info->modelBoundingBoxSize(1),info->modelBoundingBoxSize(2),true,nullptr);
         glPopMatrix();
         ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,pink);
@@ -2992,16 +2992,16 @@ void CCamera::performDepthPerception(CSView* subView,bool isPerspective)
             {
                 float tmp=(windowSize[0]/2)/tan(_viewAngle*0.5f);
                 xShift=(-mouseDownRelPos[0]+(windowSize[0]/2))*subView->getMousePositionDepth()/tmp;
-                float angle2=2.0f*(float)atan(tan(_viewAngle/2.0f)/ratio)*radToDeg_f;
-                tmp=(windowSize[1]/2)/tan(angle2*degToRad_f*0.5f);
+                float angle2=2.0f*(float)atan(tan(_viewAngle/2.0f)/ratio)*radToDeg;
+                tmp=(windowSize[1]/2)/tan(angle2*degToRad*0.5f);
                 yShift=(mouseDownRelPos[1]-(windowSize[1]/2))*subView->getMousePositionDepth()/tmp;
             }
             else
             {
                 float tmp=(windowSize[1]/2)/tan(_viewAngle*0.5f);
                 yShift=(mouseDownRelPos[1]-(windowSize[1]/2))*subView->getMousePositionDepth()/tmp;
-                float angle2=2.0f*(float)atan(tan(_viewAngle/2.0f)*ratio)*radToDeg_f;
-                tmp=(windowSize[0]/2)/tan(angle2*degToRad_f*0.5f);
+                float angle2=2.0f*(float)atan(tan(_viewAngle/2.0f)*ratio)*radToDeg;
+                tmp=(windowSize[0]/2)/tan(angle2*degToRad*0.5f);
                 xShift=(-mouseDownRelPos[0]+(windowSize[0]/2))*subView->getMousePositionDepth()/tmp;
             }
         }
@@ -3092,15 +3092,15 @@ void CCamera::_drawOverlay(bool passiveView,bool drawText,bool displ_ref,int win
         C7Vector tr2(getFullCumulativeTransformation());
         tr2.inverse();
         C4X4Matrix m1;
-        m1.buildYRotation(piValue_f);
+        m1.buildYRotation(piValue);
         C7Vector tr0(m1.getTransformation()*tr2);
         float refSize=30.0f*App::sc;
 
         C3Vector euler(tr0.Q.getEulerAngles());
         glPushMatrix();
-        glRotatef(euler(0)*radToDeg_f,1.0,0.0,0.0);
-        glRotatef(euler(1)*radToDeg_f,0.0,1.0,0.0);
-        glRotatef(euler(2)*radToDeg_f,0.0,0.0,1.0);
+        glRotatef(euler(0)*radToDeg,1.0,0.0,0.0);
+        glRotatef(euler(1)*radToDeg,0.0,1.0,0.0);
+        glRotatef(euler(2)*radToDeg,0.0,0.0,1.0);
 
         glLineWidth(App::sc);
         ogl::drawReference(refSize,true,true,true,nullptr);

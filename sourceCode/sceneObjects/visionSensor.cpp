@@ -256,7 +256,7 @@ void CVisionSensor::commonInit()
     _objectType=sim_object_visionsensor_type;
     _nearClippingPlane=0.01f;
     _farClippingPlane=10.0f;
-    _viewAngle=60.0f*degToRad_f;
+    _viewAngle=60.0f*degToRad;
     _orthoViewSize=0.1f;
     _showFogIfAvailable=true;
     _useLocalLights=false;
@@ -1185,11 +1185,11 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
         {
             if (ratio>1.0f)
             {
-                float a=2.0f*(float)atan(tan(_viewAngle/2.0f)/ratio)*radToDeg_f;
+                float a=2.0f*(float)atan(tan(_viewAngle/2.0f)/ratio)*radToDeg;
                 ogl::perspectiveSpecial(a,ratio,_nearClippingPlane,_farClippingPlane);
             }
             else
-                ogl::perspectiveSpecial(_viewAngle*radToDeg_f,ratio,_nearClippingPlane,_farClippingPlane);
+                ogl::perspectiveSpecial(_viewAngle*radToDeg,ratio,_nearClippingPlane,_farClippingPlane);
         }
         else
         {
@@ -1204,7 +1204,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
         C4X4Matrix m4(getFullCumulativeTransformation().getMatrix());
         // The following 6 instructions have the same effect as gluLookAt()
         m4.inverse();
-        m4.rotateAroundY(piValue_f);
+        m4.rotateAroundY(piValue);
         CMatrix m4_(m4);
         m4_.transpose();
         glLoadMatrixf(m4_.data.data());
@@ -2591,7 +2591,7 @@ void CVisionSensor::serialize(CSer& ar)
 
             ar.xmlAddNode_float("orthoViewSize",_orthoViewSize);
 
-            ar.xmlAddNode_float("viewAngle",_viewAngle*180.0f/piValue_f);
+            ar.xmlAddNode_float("viewAngle",_viewAngle*180.0f/piValue);
 
             ar.xmlAddNode_2float("clippingPlanes",_nearClippingPlane,_farClippingPlane);
 
@@ -2679,7 +2679,7 @@ void CVisionSensor::serialize(CSer& ar)
                 setOrthoViewSize(s);
 
             if (ar.xmlGetNode_float("viewAngle",s,exhaustiveXml))
-                setViewAngle(s*piValue_f/180.0f);
+                setViewAngle(s*piValue/180.0f);
 
             if (ar.xmlGetNode_2float("clippingPlanes",s,s2,exhaustiveXml))
             {
@@ -2973,10 +2973,10 @@ void CVisionSensor::_handleMirrors(const std::vector<int>& activeMirrors,int ent
             glClipPlane(GL_CLIP_PLANE0,cpv);
             glPushMatrix();
             glTranslatef(mtr.X(0),mtr.X(1),mtr.X(2));
-            glRotatef(mtrAxis(0)*radToDeg_f,mtrAxis(1),mtrAxis(2),mtrAxis(3));
+            glRotatef(mtrAxis(0)*radToDeg,mtrAxis(1),mtrAxis(2),mtrAxis(3));
             glScalef (1., 1., -1.);
             glTranslatef(mtri.X(0),mtri.X(1),mtri.X(2));
-            glRotatef(mtriAxis(0)*radToDeg_f,mtriAxis(1),mtriAxis(2),mtriAxis(3));
+            glRotatef(mtriAxis(0)*radToDeg,mtriAxis(1),mtriAxis(2),mtriAxis(3));
             glFrontFace (GL_CW);
             CMirror::currentMirrorContentBeingRendered=myMirror->getObjectHandle();
             _drawObjects(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);

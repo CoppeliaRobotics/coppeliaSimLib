@@ -44,7 +44,7 @@ CNonHolonomicPathPlanning_old::CNonHolonomicPathPlanning_old(int theStartDummyID
     robotCollectionID=theRobotCollectionID;
     obstacleCollectionID=theObstacleCollectionID;
 
-    // Following sets the _startConfInterferenceState to SIM_MAX_FLOAT if not colliding or above distance threshold.
+    // Following sets the _startConfInterferenceState to FLOAT_MAX if not colliding or above distance threshold.
     // Otherwise it is set to 0.0 (colliding) or the distance with the obstacle
     // This is used to allow path planning also when in an initial collision state. In that case the initial path segment
     // will follow a distance to obstacle gradient that is increasing until above the collision distance
@@ -131,7 +131,7 @@ int CNonHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
             {
                 randNode=new CNonHolonomicPathNode_old(searchMinVal[0]+searchRange[0]*SIM_RAND_FLOAT,
                                                 searchMinVal[1]+searchRange[1]*SIM_RAND_FLOAT,
-                                                -piValue_f+piValTimes2_f*SIM_RAND_FLOAT);
+                                                -piValue+piValT2*SIM_RAND_FLOAT);
                 savedRandNode=randNode;
             }
             CNonHolonomicPathNode_old* closest=nullptr;
@@ -241,7 +241,7 @@ bool CNonHolonomicPathPlanning_old::setPartialPath()
 
 CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::getClosestNode(std::vector<CNonHolonomicPathNode_old*>& nodes,CNonHolonomicPathNode_old* sample,bool forward,bool forConnection)
 {
-    float minD=SIM_MAX_FLOAT;
+    float minD=FLOAT_MAX;
     int index=-1;
     float dPart2=2.0f*minTurningRadius;
     if (forConnection)
@@ -270,7 +270,7 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::getClosestNode(std::ve
 
 CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNonHolonomicPathNode_old*>* currentList,CNonHolonomicPathNode_old* toBeExtended,CNonHolonomicPathNode_old* extention,bool forward,CXDummy* startDummy)
 {   // Return value is !=nullptr if extention was performed to some extent
-    bool specialCase=( (fromStart==currentList[0])&&(toBeExtended==fromStart[0])&&(_startConfInterferenceState!=SIM_MAX_FLOAT) );
+    bool specialCase=( (fromStart==currentList[0])&&(toBeExtended==fromStart[0])&&(_startConfInterferenceState!=FLOAT_MAX) );
     float lastClosest_specialCase=_startConfInterferenceState;
 
     float dir=1.0f;
@@ -290,8 +290,8 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNo
         float comp=0.0f;
         if (dir<0.0f)
         {
-            comp=piValue_f;
-            diff=phi-theta+piValue_f;
+            comp=piValue;
+            diff=phi-theta+piValue;
         }
         diff=CPathPlanningInterface::getNormalizedAngle(diff);
         if (fabs(diff)>maxSteeringAngle)
@@ -429,8 +429,8 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::connect(std::vector<CN
         float comp=0.0f;
         if (dir<0.0f)
         {
-            comp=piValue_f;
-            diff=phi-theta+piValue_f;
+            comp=piValue;
+            diff=phi-theta+piValue;
         }
         diff=CPathPlanningInterface::getNormalizedAngle(diff);
         if (fabs(diff)>maxSteeringAngle)
@@ -491,7 +491,7 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::connect(std::vector<CN
                 }
                 if ( (dy*dy+dx*dx)<(1.2f*stepSize*stepSize) ) // 1.2f is important!!
                 {
-                    if (fabs(dTheta)<0.06f*degToRad_f) // 0.06 degrees
+                    if (fabs(dTheta)<0.06f*degToRad) // 0.06 degrees
                     {
                         couldReach=true;
                         break;
@@ -707,9 +707,9 @@ void CNonHolonomicPathPlanning_old::getPathData(std::vector<float>& data)
 }
 
 bool CNonHolonomicPathPlanning_old::doCollide(float* dist)
-{// dist can be nullptr. Dist returns the actual distance only when return value is true!! otherwise it is SIM_MAX_FLOAT!!
+{// dist can be nullptr. Dist returns the actual distance only when return value is true!! otherwise it is FLOAT_MAX!!
     if (dist!=nullptr)
-        dist[0]=SIM_MAX_FLOAT;
+        dist[0]=FLOAT_MAX;
     if (obstacleClearanceAndMaxDistance[0]<=0.0f)
     {
         if ( (obstacleCollectionID==-1)&&(!_allIsObstacle) )

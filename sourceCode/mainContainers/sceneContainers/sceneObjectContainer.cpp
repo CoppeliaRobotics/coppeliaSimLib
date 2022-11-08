@@ -1582,7 +1582,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
             if (ar.xmlGetNode_floats("initialLinearVelocity",vel.data,3,false))
                 shape->setInitialDynamicLinearVelocity(vel);
             if (ar.xmlGetNode_floats("initialAngularVelocity",vel.data,3,false))
-                shape->setInitialDynamicAngularVelocity(vel*piValue_f/180.0f);
+                shape->setInitialDynamicAngularVelocity(vel*piValue/180.0f);
             float mass=1.0f;
             if (ar.xmlGetNode_float("mass",mass,false))
             {
@@ -1601,9 +1601,9 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
                 C3Vector euler;
                 if (ar.xmlGetNode_floats("euler",euler.data,3,false))
                 {
-                    euler(0)*=piValue_f/180.0f;
-                    euler(1)*=piValue_f/180.0f;
-                    euler(2)*=piValue_f/180.0f;
+                    euler(0)*=piValue/180.0f;
+                    euler(1)*=piValue/180.0f;
+                    euler(2)*=piValue/180.0f;
                     inertiaFrame.Q.setEulerAngles(euler);
                 }
                 ar.xmlPopNode();
@@ -1720,9 +1720,9 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
             C3Vector euler;
             if (ar.xmlGetNode_floats("euler",euler.data,3,false))
             {
-                euler(0)*=piValue_f/180.0f;
-                euler(1)*=piValue_f/180.0f;
-                euler(2)*=piValue_f/180.0f;
+                euler(0)*=piValue/180.0f;
+                euler(1)*=piValue/180.0f;
+                euler(2)*=piValue/180.0f;
                 tr.Q.setEulerAngles(euler);
             }
             ar.xmlPopNode();
@@ -1885,9 +1885,9 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
                 C3Vector euler;
                 if (ar.xmlGetNode_floats("euler",euler.data,3,false))
                 {
-                    euler(0)*=piValue_f/180.0f;
-                    euler(1)*=piValue_f/180.0f;
-                    euler(2)*=piValue_f/180.0f;
+                    euler(0)*=piValue/180.0f;
+                    euler(1)*=piValue/180.0f;
+                    euler(2)*=piValue/180.0f;
                     tr.Q.setEulerAngles(euler);
                 }
                 ar.xmlPopNode();
@@ -1970,8 +1970,8 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
         float v;
         if (ar.xmlGetNode_float("shadingAngle",v,false))
         { // checkHere
-            retVal->getSingleMesh()->setShadingAngle(v*piValue_f/180.0f);
-            retVal->getSingleMesh()->setEdgeThresholdAngle(v*piValue_f/180.0f);
+            retVal->getSingleMesh()->setShadingAngle(v*piValue/180.0f);
+            retVal->getSingleMesh()->setEdgeThresholdAngle(v*piValue/180.0f);
         }
         retVal->setVisibleEdges(false);
         bool b;
@@ -2059,7 +2059,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
 
     ar.xmlAddNode_int("respondableMask",shape->getDynamicCollisionMask());
     ar.xmlAddNode_floats("initialLinearVelocity",shape->getInitialDynamicLinearVelocity().data,3);
-    C3Vector vel(shape->getInitialDynamicAngularVelocity()*180.0f/piValue_f);
+    C3Vector vel(shape->getInitialDynamicAngularVelocity()*180.0f/piValue);
     ar.xmlAddNode_floats("initialAngularVelocity",vel.data,3);
     ar.xmlAddNode_float("mass",shape->getMeshWrapper()->getMass());
     C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
@@ -2067,7 +2067,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
     ar.xmlPushNewNode("localInertiaFrame");
     ar.xmlAddNode_floats("position",tr.X.data,3);
     C3Vector euler(tr.Q.getEulerAngles());
-    euler*=180.0f/piValue_f;
+    euler*=180.0f/piValue;
     ar.xmlAddNode_floats("euler",euler.data,3);
     ar.xmlPopNode();
 
@@ -2129,7 +2129,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         ar.xmlPushNewNode("localFrame");
         C7Vector tr(x);
         ar.xmlAddNode_floats("position",tr.X.data,3);
-        C3Vector euler(tr.Q.getEulerAngles()*180.0f/piValue_f);
+        C3Vector euler(tr.Q.getEulerAngles()*180.0f/piValue);
         ar.xmlAddNode_floats("euler",euler.data,3);
         ar.xmlPopNode();
     }
@@ -2172,13 +2172,13 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         ar.xmlPushNewNode("localFrame");
         C7Vector tr(frame.getInverse()*shape->getFullCumulativeTransformation()*geom->getVerticeLocalFrame()); // 'geom->getVerticeLocalFrame()' indicates also the origin of primitives
         ar.xmlAddNode_floats("position",tr.X.data,3);
-        C3Vector euler(tr.Q.getEulerAngles()*180.0f/piValue_f);
+        C3Vector euler(tr.Q.getEulerAngles()*180.0f/piValue);
         ar.xmlAddNode_floats("euler",euler.data,3);
         ar.xmlPopNode();
     }
 
     // now the visual attributes:
-    ar.xmlAddNode_float("shadingAngle",geom->getShadingAngle()*180.0f/piValue_f);
+    ar.xmlAddNode_float("shadingAngle",geom->getShadingAngle()*180.0f/piValue);
     ar.xmlAddNode_bool("culling",geom->getCulling());
     ar.xmlAddNode_bool("wireframe",geom->getWireframe_OLD());
 

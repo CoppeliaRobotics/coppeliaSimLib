@@ -121,7 +121,7 @@ void CIkElement_old::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _minAngularPrecision >> _minLinearPrecision;
-                        _minAngularPrecision*=degToRad_f;
+                        _minAngularPrecision*=degToRad;
                     }
                     if (theName.compare("Pr2")==0)
                     {
@@ -191,7 +191,7 @@ void CIkElement_old::serialize(CSer& ar)
 
             ar.xmlPushNewNode("precision");
             ar.xmlAddNode_float("linear",_minLinearPrecision);
-            ar.xmlAddNode_float("angular",_minAngularPrecision*180.0f/piValue_f);
+            ar.xmlAddNode_float("angular",_minAngularPrecision*180.0f/piValue);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("weight");
@@ -233,7 +233,7 @@ void CIkElement_old::serialize(CSer& ar)
             {
                 ar.xmlGetNode_float("linear",_minLinearPrecision,exhaustiveXml);
                 if (ar.xmlGetNode_float("angular",_minAngularPrecision,exhaustiveXml))
-                    _minAngularPrecision*=piValue_f/180.0f;
+                    _minAngularPrecision*=piValue/180.0f;
                 ar.xmlPopNode();
             }
 
@@ -305,7 +305,7 @@ bool CIkElement_old::setMinLinearPrecision(float prec)
 
 bool CIkElement_old::setMinAngularPrecision(float prec)
 { // Overridden from _CIkElement_old
-    tt::limitValue(0.001f*degToRad_f,180.0f*degToRad_f,prec);
+    tt::limitValue(0.001f*degToRad,180.0f*degToRad,prec);
     return(_CIkElement_old::setMinAngularPrecision(prec));
 }
 

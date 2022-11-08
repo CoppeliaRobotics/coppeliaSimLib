@@ -158,7 +158,7 @@ void CSimplePathPoint_old::serialize(CSer& ar)
             else
             {
                 C3Vector euler(_transformation.Q.getEulerAngles());
-                euler*=180.0f/piValue_f;
+                euler*=180.0f/piValue;
                 ar.xmlAddNode_floats("euler",euler.data,3);
             }
             ar.xmlPopNode();
@@ -189,9 +189,9 @@ void CSimplePathPoint_old::serialize(CSer& ar)
                     C3Vector euler;
                     if (ar.xmlGetNode_floats("euler",euler.data,3,exhaustiveXml))
                     {
-                        euler(0)*=piValue_f/180.0f;
-                        euler(1)*=piValue_f/180.0f;
-                        euler(2)*=piValue_f/180.0f;
+                        euler(0)*=piValue/180.0f;
+                        euler(1)*=piValue/180.0f;
+                        euler(2)*=piValue/180.0f;
                         _transformation.Q.setEulerAngles(euler);
                     }
                 }

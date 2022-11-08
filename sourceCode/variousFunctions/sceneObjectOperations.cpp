@@ -1848,7 +1848,7 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                     int convexRecognizedCount=0;
                     for (size_t i=0;i<outputVert.size();i++)
                     {
-                        int handle=simCreateMeshShape_internal(2,20.0f*piValue_f/180.0f,&outputVert[i]->at(0),(int)outputVert[i]->size(),&outputInd[i]->at(0),(int)outputInd[i]->size(),nullptr);
+                        int handle=simCreateMeshShape_internal(2,20.0f*piValue/180.0f,&outputVert[i]->at(0),(int)outputVert[i]->size(),&outputInd[i]->at(0),(int)outputInd[i]->size(),nullptr);
                         CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(handle);
                         if (shape!=nullptr)
                         {
@@ -1934,7 +1934,7 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                 int convexRecognizedCount=0;
                 for (int i=0;i<int(outputVert.size());i++)
                 {
-                    int handle=simCreateMeshShape_internal(2,20.0f*piValue_f/180.0f,&outputVert[i]->at(0),(int)outputVert[i]->size(),&outputInd[i]->at(0),(int)outputInd[i]->size(),nullptr);
+                    int handle=simCreateMeshShape_internal(2,20.0f*piValue/180.0f,&outputVert[i]->at(0),(int)outputVert[i]->size(),&outputInd[i]->at(0),(int)outputInd[i]->size(),nullptr);
                     CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(handle);
                     if (shape!=nullptr)
                     {

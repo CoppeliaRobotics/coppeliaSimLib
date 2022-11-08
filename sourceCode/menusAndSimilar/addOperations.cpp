@@ -142,7 +142,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             if (addedObject==nullptr)
                 addedObject=myNewLight;
             addedObject->setLocalTransformation(C3Vector(0.0f,0.0f,1.0f));
-            addedObject->setLocalTransformation(C4Vector(piValue_f*0.5f,0.0f,0.0f));
+            addedObject->setLocalTransformation(C4Vector(piValue*0.5f,0.0f,0.0f));
             if (camera!=nullptr)
             {
                 if (myNewCamera!=nullptr)
@@ -167,7 +167,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 {
                     C7Vector m;
                     m.X=C3Vector(-1.12f,1.9f,1.08f);
-                    m.Q.setEulerAngles(C3Vector(110.933f*degToRad_f,28.703f*degToRad_f,-10.41f*degToRad_f));
+                    m.Q.setEulerAngles(C3Vector(110.933f*degToRad,28.703f*degToRad,-10.41f*degToRad));
                     myNewCamera->setLocalTransformation(m);
                     subView->setLinkedObjectID(myNewCamera->getObjectHandle(),false);
                 }
@@ -191,7 +191,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_MIRROR);
             CMirror* newObject=new CMirror();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(newObject->getObjectHandle(),C3Vector(piValD2_f,0.0f,0.0f));
+            App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(newObject->getObjectHandle(),C3Vector(piValD2,0.0f,0.0f));
             App::currentWorld->sceneObjects->setObjectAbsolutePosition(newObject->getObjectHandle(),C3Vector(0.0f,0.0f,newObject->getMirrorHeight()*0.5f));
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
@@ -800,7 +800,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the sphere so that it sits on the floor
         float avR=(sizes(0)+sizes(1)+sizes(2))/6.0f;
 
-        shape->getMeshWrapper()->setMass((4.0f*piValue_f/3.0f)*avR*avR*avR*density);
+        shape->getMeshWrapper()->setMass((4.0f*piValue/3.0f)*avR*avR*avR*density);
         shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f));
         float avr2=avR*2.0f;
         shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avr2,sizes(1)/avr2,sizes(2)/avr2);
@@ -835,7 +835,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         if (type==sim_primitiveshape_cone)
             divider=3.0f;
 
-        shape->getMeshWrapper()->setMass(piValue_f*avR*avR*divider*sizes(2)*density);
+        shape->getMeshWrapper()->setMass(piValue*avR*avR*divider*sizes(2)*density);
         if (type==sim_primitiveshape_cone)
             shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*avR*avR/10.0f));
         else
@@ -874,7 +874,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         // For now, approximation:
         float avR=(sizes(0)+sizes(1))/4.0f;
         float l=cylLength+maxs*0.75f;
-        shape->getMeshWrapper()->setMass(piValue_f*avR*avR*l*density);
+        shape->getMeshWrapper()->setMass(piValue*avR*avR*l*density);
         shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((3.0f*avR*avR+l*l)/12.0f,(3.0f*avR*avR+l*l)/12.0f,avR*avR/2.0f));
         float avR2=avR*2.0f;
         shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
@@ -897,7 +897,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
             sides=32;
         if (sides<3)
             sides=3;
-        float sa=2.0f*piValue_f/((float)sides);
+        float sa=2.0f*piValue/((float)sides);
         // The two middle vertices:
         int sideStart=1;
         tt::addToFloatArray(&vertices,0.0f,0.0f,0.0f);
@@ -959,7 +959,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // Now we shift the disc so it sits just above the floor
         float avR=(sizes(0)+sizes(1))/4.0f;
-        shape->getMeshWrapper()->setMass(piValue_f*avR*avR*density*0.001f); // we assume 1mm thickness
+        shape->getMeshWrapper()->setMass(piValue*avR*avR*density*0.001f); // we assume 1mm thickness
         shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0f*(avR*avR)/12.0f,3.0f*(avR*avR)/12.0f,avR*avR/2.0f));
         float avR2=avR*2.0f;
         shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
@@ -972,8 +972,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(shape->getObjectName_old().c_str()).c_str());
         if ((options&2)==0)
         {
-            shape->getSingleMesh()->setShadingAngle(30.0f*degToRad_f);
-            shape->getSingleMesh()->setEdgeThresholdAngle(30.0f*degToRad_f);
+            shape->getSingleMesh()->setShadingAngle(30.0f*degToRad);
+            shape->getSingleMesh()->setEdgeThresholdAngle(30.0f*degToRad);
         }
         if (pure!=0)
             shape->getSingleMesh()->setPurePrimitiveType(type,sizes(0),sizes(1),sizes(2));

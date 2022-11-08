@@ -89,7 +89,7 @@ void CQDlgJoints::refresh()
     {
         if (revolute)
         {
-            ui->qqPitch->setText(tt::getEString(true,it->getScrewPitch()*degToRad_f,2).c_str());
+            ui->qqPitch->setText(tt::getEString(true,it->getScrewPitch()*degToRad,2).c_str());
             if (it->getIsCyclic())
             {
                 ui->qqMinimum->setText("");

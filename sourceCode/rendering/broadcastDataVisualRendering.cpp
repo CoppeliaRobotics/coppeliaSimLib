@@ -9,15 +9,15 @@ void displayEmitterOrReceiver(CBroadcastDataVisual* it)
         glPushMatrix();
         glTranslatef(it->_emitterConf.X(0),it->_emitterConf.X(1),it->_emitterConf.X(2));
         C4Vector axis=it->_emitterConf.Q.getAngleAndAxis();
-        glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+        glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
         float distances[11]={0.0f,0.001f*it->_actionRadius,0.00215f*it->_actionRadius,0.00462f*it->_actionRadius,0.01f*it->_actionRadius,0.0215f*it->_actionRadius,0.0462f*it->_actionRadius,0.1f*it->_actionRadius,0.215f*it->_actionRadius,0.462f*it->_actionRadius,it->_actionRadius};
 
         App::currentWorld->environment->wirelessEmissionVolumeColor.makeCurrentColor(false);
 
-        int vertSubdiv=int(it->_emissionAngle1*24.0f/piValue_f);
+        int vertSubdiv=int(it->_emissionAngle1*24.0f/piValue);
         if (vertSubdiv>12)
             vertSubdiv=12;
-        int horizSubdiv=int(it->_emissionAngle2*48.0f/piValTimes2_f);
+        int horizSubdiv=int(it->_emissionAngle2*48.0f/piValT2);
         if (horizSubdiv>24)
             horizSubdiv=24;
         for (int i=0;i<10;i++)
@@ -39,7 +39,7 @@ void displayEmitterOrReceiver(CBroadcastDataVisual* it)
                     ogl::addBuffer3DPoints(d1*cos(a+dA)*cos(b),d1*cos(a+dA)*sin(b),d1*sin(a+dA));
                     ogl::addBuffer3DPoints(d1*cos(a)*cos(b),d1*cos(a)*sin(b),d1*sin(a));
                     ogl::addBuffer3DPoints(d1*cos(a)*cos(b+dB),d1*cos(a)*sin(b+dB),d1*sin(a));
-                    if ( (j==horizSubdiv-1)&&(it->_emissionAngle2<piValTimes2_f*0.99f) )
+                    if ( (j==horizSubdiv-1)&&(it->_emissionAngle2<piValT2*0.99f) )
                     { // Not 360 degrees. We have to close the edges:
                         ogl::addBuffer3DPoints(d0*cos(a)*cos(b+dB),d0*cos(a)*sin(b+dB),d0*sin(a));
                         ogl::addBuffer3DPoints(d1*cos(a)*cos(b+dB),d1*cos(a)*sin(b+dB),d1*sin(a));
@@ -48,13 +48,13 @@ void displayEmitterOrReceiver(CBroadcastDataVisual* it)
                     }
                     a+=dA;
                 }
-                if (it->_emissionAngle1<piValue_f*0.99f)
+                if (it->_emissionAngle1<piValue*0.99f)
                 { // Not 180 degrees. We have to close the edges:
                     ogl::addBuffer3DPoints(d0*cos(a)*cos(b),d0*cos(a)*sin(b),d0*sin(a));
                     ogl::addBuffer3DPoints(d1*cos(a)*cos(b),d1*cos(a)*sin(b),d1*sin(a));
                     ogl::addBuffer3DPoints(d1*cos(a)*cos(b),d1*cos(a)*sin(b),d1*sin(a));
                     ogl::addBuffer3DPoints(d1*cos(a)*cos(b+dB),d1*cos(a)*sin(b+dB),d1*sin(a));
-                    if ( (j==horizSubdiv-1)&&(it->_emissionAngle2<piValTimes2_f*0.99f) )
+                    if ( (j==horizSubdiv-1)&&(it->_emissionAngle2<piValT2*0.99f) )
                     { // Not 360 degrees. We have to close one edge:
                         ogl::addBuffer3DPoints(d0*cos(a)*cos(b+dB),d0*cos(a)*sin(b+dB),d0*sin(a));
                         ogl::addBuffer3DPoints(d1*cos(a)*cos(b+dB),d1*cos(a)*sin(b+dB),d1*sin(a));

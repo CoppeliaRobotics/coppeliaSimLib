@@ -1568,22 +1568,22 @@ void CSceneObject::setObjectMovementStepSize(int index,float s)
     }
     else
     {
-        if (s<0.05f*degToRad_f)
+        if (s<0.05f*degToRad)
             s=0.0f; // default
-        else if (s<1.5f*degToRad_f)
-            s=1.0f*degToRad_f;
-        else if (s<3.5f*degToRad_f)
-            s=2.0f*degToRad_f;
-        else if (s<7.5f*degToRad_f)
-            s=5.0f*degToRad_f;
-        else if (s<12.5f*degToRad_f)
-            s=10.0f*degToRad_f;
-        else if (s<22.5f*degToRad_f)
-            s=15.0f*degToRad_f;
-        else if (s<37.5f*degToRad_f)
-            s=30.0f*degToRad_f;
+        else if (s<1.5f*degToRad)
+            s=1.0f*degToRad;
+        else if (s<3.5f*degToRad)
+            s=2.0f*degToRad;
+        else if (s<7.5f*degToRad)
+            s=5.0f*degToRad;
+        else if (s<12.5f*degToRad)
+            s=10.0f*degToRad;
+        else if (s<22.5f*degToRad)
+            s=15.0f*degToRad;
+        else if (s<37.5f*degToRad)
+            s=30.0f*degToRad;
         else
-            s=45.0f*degToRad_f;
+            s=45.0f*degToRad;
     }
     bool diff=(_objectMovementStepSize[index]!=s);
     if (diff)
@@ -2731,7 +2731,7 @@ void CSceneObject::serialize(CSer& ar)
                     ar.xmlAddNode_comment(" however, when load operation is finished, the local orientation of the shape might be different (primitive shapes have a fixed orientation) ",exhaustiveXml);
                 }
                 C3Vector euler(tr.Q.getEulerAngles());
-                euler*=180.0f/piValue_f;
+                euler*=180.0f/piValue;
                 ar.xmlAddNode_floats("euler",euler.data,3);
             }
             ar.xmlPopNode();
@@ -2960,9 +2960,9 @@ void CSceneObject::serialize(CSer& ar)
                         C3Vector euler;
                         if (ar.xmlGetNode_floats("euler",euler.data,3,exhaustiveXml))
                         {
-                            euler(0)*=piValue_f/180.0f;
-                            euler(1)*=piValue_f/180.0f;
-                            euler(2)*=piValue_f/180.0f;
+                            euler(0)*=piValue/180.0f;
+                            euler(1)*=piValue/180.0f;
+                            euler(2)*=piValue/180.0f;
                             tr.Q.setEulerAngles(euler);
                         }
                     }
@@ -3708,14 +3708,14 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         C3X3Matrix rot;
         if (axisInfo==0)
         { // rotation around the x-axis
-            rot.buildYRotation(piValD2_f);
+            rot.buildYRotation(piValD2);
             bbsavg(1)=0.0f;
             bbsavg(2)=0.0f;
             halfSize=1.5f*std::max<float>(bbs(1),bbs(2))/2.0f;
         }
         if (axisInfo==1)
         { // rotation around the y-axis
-            rot.buildXRotation(-piValD2_f);
+            rot.buildXRotation(-piValD2);
             bbsavg(0)=0.0f;
             bbsavg(2)=0.0f;
             halfSize=1.5f*std::max<float>(bbs(0),bbs(2))/2.0f;
@@ -3767,9 +3767,9 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
             rrot=tr.M*rrot;
         }
         C4Vector axis=rrot.getQuaternion().getAngleAndAxis();
-        glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+        glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
-        float a=5.0f*piValue_f/180.0f-_objectManipulationModeTotalRotation;
+        float a=5.0f*piValue/180.0f-_objectManipulationModeTotalRotation;
         float oldX=cos(-_objectManipulationModeTotalRotation);
         float oldY=sin(-_objectManipulationModeTotalRotation);
         float h=halfSize*0.9f;
@@ -3787,7 +3787,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
             glVertex3f(oldX*halfSize,oldY*halfSize,0.0f);
             oldX=cos(a);
             oldY=sin(a);
-            a+=5.0f*piValue_f/180.0f;
+            a+=5.0f*piValue/180.0f;
             glVertex3f(oldX*halfSize,oldY*halfSize,0.0f);
             glVertex3f(oldX*h,oldY*h,0.0f);
         }
@@ -3796,7 +3796,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
 
         // Now the graduation:
         ogl::setMaterialColor(sim_colorcomponent_emission,ogl::MANIPULATION_MODE_OVERLAY_GRID_COLOR);
-        a=5.0f*piValue_f/180.0f-_objectManipulationModeTotalRotation;
+        a=5.0f*piValue/180.0f-_objectManipulationModeTotalRotation;
         oldX=cos(-_objectManipulationModeTotalRotation);
         oldY=sin(-_objectManipulationModeTotalRotation);
         for (int i=0;i<72;i++)
@@ -3805,7 +3805,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
             glVertex3f(oldX*halfSize,oldY*halfSize,0.0f);
             oldX=cos(a);
             oldY=sin(a);
-            a+=5.0f*piValue_f/180.0f;
+            a+=5.0f*piValue/180.0f;
             glVertex3f(oldX*halfSize,oldY*halfSize,0.0f);
             if (cnt==0)
                 glVertex3f(oldX*h,oldY*h,0.0f);
@@ -3841,13 +3841,13 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         if (axisInfo==0)
         { // y-z plane
             C3X3Matrix r1;
-            r1.buildZRotation(piValD2_f);
+            r1.buildZRotation(piValD2);
             C3X3Matrix r2;
-            r2.buildXRotation(piValD2_f);
+            r2.buildXRotation(piValD2);
             rot=r1*r2;
         }
         if (axisInfo==1)
-            rot.buildXRotation(piValD2_f); // z-x plane
+            rot.buildXRotation(piValD2); // z-x plane
         if (axisInfo==2)
             rot.setIdentity(); // x-y plane
         if (axisInfo==3)
@@ -3857,19 +3857,19 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         }
         if (axisInfo==4)
         { // y-axis
-            rot.buildZRotation(-piValD2_f);
+            rot.buildZRotation(-piValD2);
             xAxisOnly=true;
         }
         if (axisInfo==5)
         { // y-axis
-            rot.buildYRotation(piValD2_f);
+            rot.buildYRotation(piValD2);
             xAxisOnly=true;
         }
         tr.M*=rot;
         C3Vector totTransl(rot.getTranspose()*_objectManipulationModeTotalTranslation);
         glTranslatef(tr.X(0),tr.X(1),tr.X(2));
         C4Vector axis=tr.M.getQuaternion().getAngleAndAxis();
-        glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+        glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
         glTranslatef(-totTransl(0),-totTransl(1),-totTransl(2));
         C3Vector dir[2]={C3Vector::unitXVector,C3Vector::unitYVector};
@@ -4073,7 +4073,7 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
         ss=App::userSettings->getRotationStepSize();
     if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
     {
-        ss=0.1f*degToRad_f;
+        ss=0.1f*degToRad;
         rotationAmount/=5.0f;
     }
     float axisEffectiveRotationAmount=0.0f;
@@ -4211,13 +4211,13 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
     if (_objectManipulationModeAxisIndex==0)
     { // y-z plane
         C3X3Matrix rot;
-        rot.buildYRotation(piValD2_f);
+        rot.buildYRotation(piValD2);
         originalPlane.M*=rot;
     }
     if (_objectManipulationModeAxisIndex==1)
     { // z-x plane
         C3X3Matrix rot;
-        rot.buildXRotation(piValD2_f);
+        rot.buildXRotation(piValD2);
         originalPlane.M*=rot;
     }
     bool projectOntoXAxis=false;
@@ -4229,14 +4229,14 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
     { // y axis
         projectOntoXAxis=true;
         C3X3Matrix rot;
-        rot.buildZRotation(piValD2_f);
+        rot.buildZRotation(piValD2);
         originalPlane.M*=rot;
     }
     if (_objectManipulationModeAxisIndex==5)
     { // z axis
         projectOntoXAxis=true;
         C3X3Matrix rot;
-        rot.buildYRotation(piValD2_f);
+        rot.buildYRotation(piValD2);
         originalPlane.M*=rot;
     }
 

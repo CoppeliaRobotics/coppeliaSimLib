@@ -53,14 +53,14 @@ void CQDlgSettings::refresh()
     _selectItemOfCombobox(ui->translationStepSize,int((App::userSettings->getTranslationStepSize()+0.0005f)*1000.0f));
 
     ui->rotationStepSize->clear();
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,1.0f*degToRad_f,1).c_str(),QVariant(1));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,2.0f*degToRad_f,1).c_str(),QVariant(2));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,5.0f*degToRad_f,1).c_str(),QVariant(5));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,10.0f*degToRad_f,1).c_str(),QVariant(10));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,15.0f*degToRad_f,1).c_str(),QVariant(15));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,30.0f*degToRad_f,1).c_str(),QVariant(30));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,45.0f*degToRad_f,1).c_str(),QVariant(45));
-    _selectItemOfCombobox(ui->rotationStepSize,int(App::userSettings->getRotationStepSize()*radToDeg_f+0.5f));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,1.0f*degToRad,1).c_str(),QVariant(1));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,2.0f*degToRad,1).c_str(),QVariant(2));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,5.0f*degToRad,1).c_str(),QVariant(5));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,10.0f*degToRad,1).c_str(),QVariant(10));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,15.0f*degToRad,1).c_str(),QVariant(15));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,30.0f*degToRad,1).c_str(),QVariant(30));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,45.0f*degToRad,1).c_str(),QVariant(45));
+    _selectItemOfCombobox(ui->rotationStepSize,int(App::userSettings->getRotationStepSize()*radToDeg+0.5f));
 
     ui->removeIdenticalVerticesCheckbox->setChecked(App::userSettings->identicalVerticesCheck);
     ui->removeIdenticalVerticesTolerance->setText(tt::getEString(false,App::userSettings->identicalVerticesTolerance,2).c_str());
@@ -88,7 +88,7 @@ void CQDlgSettings::on_translationStepSize_activated(int index)
 
 void CQDlgSettings::on_rotationStepSize_activated(int index)
 {
-    App::appendSimulationThreadCommand(SET_ROTATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,float(ui->rotationStepSize->itemData(index).toInt())*degToRad_f);
+    App::appendSimulationThreadCommand(SET_ROTATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,float(ui->rotationStepSize->itemData(index).toInt())*degToRad);
     App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 

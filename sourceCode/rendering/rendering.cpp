@@ -160,7 +160,7 @@ void makeColorCurrent(const CColorObject* visParam,bool forceNonTransparent,bool
             { // Flash is on
                     t=t-1.0f+visParam->getFlashRatio();
                     t/=visParam->getFlashRatio();
-                    t=sin(t*piValue_f);
+                    t=sin(t*piValue);
                     float l=0.0f;
                     float col0[12]={visParam->getColorsPtr()[0],visParam->getColorsPtr()[1],visParam->getColorsPtr()[2],visParam->getColorsPtr()[3],visParam->getColorsPtr()[4],visParam->getColorsPtr()[5],visParam->getColorsPtr()[6],visParam->getColorsPtr()[7],visParam->getColorsPtr()[8],0.0f,0.0f,0.0f};
                     float col1[12]={visParam->getColorsPtr()[0]*l,visParam->getColorsPtr()[1]*l,visParam->getColorsPtr()[2]*l,visParam->getColorsPtr()[3]*l,visParam->getColorsPtr()[4]*l,visParam->getColorsPtr()[5]*l,visParam->getColorsPtr()[6]*l,visParam->getColorsPtr()[7]*l,visParam->getColorsPtr()[8]*l,visParam->getColorsPtr()[9],visParam->getColorsPtr()[10],visParam->getColorsPtr()[11]};
@@ -273,7 +273,7 @@ void _activateNonAmbientLights(int lightHandle,CViewableBase* viewable)
                         glLightf(GL_LIGHT0+activeLightCounter,GL_SPOT_CUTOFF,90.0f);
                     if (light->getLightType()==sim_light_spot_subtype)
                     {
-                        float coa=light->getSpotCutoffAngle()*radToDeg_f;
+                        float coa=light->getSpotCutoffAngle()*radToDeg;
                         if (coa>89.0f) // 90.0f causes problems on MacOS!!!
                         coa=89.0f;
                         glLightf(GL_LIGHT0+activeLightCounter,GL_SPOT_CUTOFF,coa);
@@ -539,7 +539,7 @@ void _commonStart(CSceneObject* object,CViewableBase* viewable,int displayAttrib
     C7Vector tr=object->getCumulativeTransformation();
     glTranslatef(tr.X(0),tr.X(1),tr.X(2));
     C4Vector axis=tr.Q.getAngleAndAxis();
-    glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+    glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 }
 
 void _commonFinish(CSceneObject* object,CViewableBase* viewable)

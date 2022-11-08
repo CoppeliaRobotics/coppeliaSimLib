@@ -26,7 +26,7 @@ double CLinMotionRoutines::getTimeToPosition_negOk(double pos,double speed,doubl
 {
     double delta=speed*speed-2.0*accel*(pos-nextPos);
     if (delta<0.0)
-        return(-SIM_MAX_DOUBLE);
+        return(-0.01*FLOAT_MAX);
     double t0=(-speed+sqrt(delta))/accel;
     double t1=(-speed-sqrt(delta))/accel;
     if ( (t0==0.0)||(t1==0.0) )

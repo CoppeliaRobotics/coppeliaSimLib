@@ -171,7 +171,7 @@ void CPath_old::setShapingType(int theType)
         }
         if (theType==1)
         {
-            float da=piValTimes2_f/16.0f;
+            float da=piValT2/16.0f;
             float a=0.0f;
             for (int i=0;i<16;i++)
             {
@@ -405,7 +405,7 @@ void CPath_old::_generatePathShape()
         {
             if (!_shapingFollowFullOrientation)
             {
-                if (m.M.axis[2].getAngle(upVect)<1.0f*degToRad_f)
+                if (m.M.axis[2].getAngle(upVect)<1.0f*degToRad)
                     upVect=m.M.axis[0]; // This becomes the new up vector
                 else
                 {
@@ -794,7 +794,7 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
     { // z axis
         projectOntoXAxis=true;
         C3X3Matrix rot;
-        rot.buildYRotation(piValD2_f);
+        rot.buildYRotation(piValD2);
         originalPlane.M*=rot;
     }
 

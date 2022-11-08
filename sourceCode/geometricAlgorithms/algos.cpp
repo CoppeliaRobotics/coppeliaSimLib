@@ -123,7 +123,7 @@ C4X4Matrix CAlgos::getMainAxis(const float* vertices,int verticesLength,const in
         for (int i=0;i<div;i++)
         {
             C4Vector savedV(v);
-            C4Vector rot(piValTimes2_f/float(divNb[i]),C3Vector::unitZVector);
+            C4Vector rot(piValT2/float(divNb[i]),C3Vector::unitZVector);
             for (int j=0;j<divNb[i];j++)
             {
                 C4Vector vi(v.getInverse());
@@ -132,7 +132,7 @@ C4X4Matrix CAlgos::getMainAxis(const float* vertices,int verticesLength,const in
                 v=rot*v;
             }
             v=savedV;
-            float aV=piValue_f*0.5f/(float(div)-0.5f);
+            float aV=piValue*0.5f/(float(div)-0.5f);
             float aV2=aV*0.5f/(float(div)-0.5f);
             float aV3=aV2*0.5f/(float(div)-0.5f);
             float aV4=aV3*0.5f/(float(div)-0.5f);
@@ -153,7 +153,7 @@ C4X4Matrix CAlgos::getMainAxis(const float* vertices,int verticesLength,const in
         ogl::setColor(1.0f,1.0f,0.0f,GL_EMISSION);
         C4Vector v;
         v.setIdentity();
-        float aV=piValue_f*0.5f/float(div+1);
+        float aV=piValue*0.5f/float(div+1);
         float aV2=aV/float(div+1);
         float aV3=aV2/float(div+1);
         float aV4=aV3/float(div+1);
@@ -713,7 +713,7 @@ C4X4Matrix CAlgos::getMainAxis(const float* vertices,int verticesLength,const in
     }
 
     C3Vector alternateCenter;
-    float alternateSize=SIM_MAX_FLOAT;
+    float alternateSize=FLOAT_MAX;
     C4Vector bestSmallestDirectionAlternative;
     if (veryPreciseWithTriangles&(indices!=nullptr))
     {
@@ -786,7 +786,7 @@ C4X4Matrix CAlgos::getMainAxis(const float* vertices,int verticesLength,const in
             if (s>ls)
             {
                 n/=s;
-                if (fabs(n.getAngle(ltn)-1.57079633f)<1.0f*degToRad_f)
+                if (fabs(n.getAngle(ltn)-1.57079633f)<1.0f*degToRad)
                 {
                     ltnp=n;
                     ls=s;
@@ -840,7 +840,7 @@ C4X4Matrix CAlgos::getMainAxis(const float* vertices,int verticesLength,const in
         C3X3Matrix m(bestSmallestDirectionAlternative);
         C3Vector biggest;
         C3Vector smallest;
-        float smallestS=SIM_MAX_FLOAT;
+        float smallestS=FLOAT_MAX;
         float biggestS=0.0f;
         for (int i=0;i<3;i++)
         {

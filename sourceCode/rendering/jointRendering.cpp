@@ -80,7 +80,7 @@ void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,float sizeParam)
             C7Vector tr(joint->getIntrinsicTransformation(true));
             glTranslatef(tr.X(0),tr.X(1),tr.X(2));
             C4Vector axis=tr.Q.getAngleAndAxis();
-            glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+            glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
             ogl::drawSphere(joint->getDiameter()/1.5f,16,8,true);
             if (displayAttrib&sim_displayattribute_selected)
@@ -96,7 +96,7 @@ void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,float sizeParam)
             C7Vector tr(joint->getIntrinsicTransformation(true));
             glTranslatef(tr.X(0),tr.X(1),tr.X(2));
             C4Vector axis=tr.Q.getAngleAndAxis();
-            glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+            glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
             ogl::drawCylinder(joint->getDiameter()/2.0f,joint->getLength()*1.2f,8,0,true);
             if (displayAttrib&sim_displayattribute_selected)
@@ -112,7 +112,7 @@ void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,float sizeParam)
             C7Vector tr(joint->getIntrinsicTransformation(true));
             glTranslatef(tr.X(0),tr.X(1),tr.X(2));
             C4Vector axis=tr.Q.getAngleAndAxis();
-            glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+            glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
             ogl::drawBox(joint->getDiameter()/2.0f,joint->getDiameter()/2.0f,joint->getLength()*1.2f,true,nullptr);
             if (displayAttrib&sim_displayattribute_selected)

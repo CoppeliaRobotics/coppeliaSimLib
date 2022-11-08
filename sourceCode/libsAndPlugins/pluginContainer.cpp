@@ -2050,7 +2050,7 @@ bool CPluginContainer::geomPlugin_getBoxPointDistanceIfSmaller(const C7Vector& b
 }
 float CPluginContainer::geomPlugin_getBoxPointDistance(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& point,C3Vector* distSegPt1/*=nullptr*/)
 {
-    float dist=FLT_MAX;
+    float dist=FLOAT_MAX;
     geomPlugin_getBoxPointDistanceIfSmaller(boxTransformation,boxHalfSize,boxIsSolid,point,dist,distSegPt1);
     return(dist);
 }

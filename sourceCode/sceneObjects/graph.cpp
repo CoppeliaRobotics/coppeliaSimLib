@@ -2721,8 +2721,8 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
     labelPos[0]=graphPosition[0]+graphSize[0]-3.0f*pixelSizeCoeff;
     labelPos[1]=graphPosition[1]+graphSize[1]-interline;
 
-    float maxVal[2]={-SIM_MAX_FLOAT,-SIM_MAX_FLOAT};
-    float minVal[2]={+SIM_MAX_FLOAT,+SIM_MAX_FLOAT};
+    float maxVal[2]={-FLOAT_MAX,-FLOAT_MAX};
+    float minVal[2]={+FLOAT_MAX,+FLOAT_MAX};
     if (dontRender)
         trackingValueIndex=-1;
     float ratio=graphSize[1]/graphSize[0];
@@ -3374,8 +3374,8 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
 void CGraph::validateViewValues(int windowSize[2],float graphPosition[2],float graphSize[2],
             bool timeGraph,bool shiftOnly,bool keepProp,bool autoModeForTimeGraphXaxis)
 { // keepProp is false by default, shiftOnly also
-    float minValues[2]={-SIM_MAX_FLOAT,-SIM_MAX_FLOAT};
-    float maxValues[2]={+SIM_MAX_FLOAT,+SIM_MAX_FLOAT};
+    float minValues[2]={-FLOAT_MAX,-FLOAT_MAX};
+    float maxValues[2]={+FLOAT_MAX,+FLOAT_MAX};
     float minGraphSize[2]={0.00001f,0.00001f};
     if (timeGraph)
     {

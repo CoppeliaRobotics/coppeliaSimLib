@@ -994,9 +994,9 @@ void CMeshRoutines::createCapsule(std::vector<float>& vertices,std::vector<int>&
     float yhSize=sizes(1)/2.0f;
     float zhSize=sizes(2)/2.0f;
 
-    float sa=2.0f*piValue_f/((float)sides);
+    float sa=2.0f*piValue/((float)sides);
     int ff=sides/2;
-    float fa=piValD2_f/((float)ff);
+    float fa=piValD2/((float)ff);
 
     float rhSize=std::max<float>(xhSize,yhSize);
 
@@ -1069,8 +1069,8 @@ void CMeshRoutines::createSphere(std::vector<float>& vertices,std::vector<int>& 
     float yhSize=sizes(1)/2.0f;
     float zhSize=sizes(2)/2.0f;
 
-    float sa=2.0f*piValue_f/((float)sides);
-    float fa=piValue_f/((float)faces);
+    float sa=2.0f*piValue/((float)sides);
+    float fa=piValue/((float)faces);
     // We set up the vertices:
     tt::addToFloatArray(&vertices,0.0f,0.0f,1.0f);
     tt::addToFloatArray(&vertices,0.0f,0.0f,-1.0f);
@@ -1124,7 +1124,7 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
 
     float zzz=1.0f/faces;
     float dd=1.0f/((float)discDiv);
-    float sa=2.0f*piValue_f/((float)sides);
+    float sa=2.0f*piValue/((float)sides);
     int sideStart=0;
     // We set up the vertices:
     if (!openEnds)
@@ -1258,7 +1258,7 @@ void CMeshRoutines::createAnnulus(std::vector<float>& vertices,std::vector<int>&
     float R=Dlarge*0.5f;
     float r=Dsmall*0.5f;
 
-    float sa=2.0f*piValue_f/((float)sides);
+    float sa=2.0f*piValue/((float)sides);
 
     // We set up the vertices:
     for (int i=0;i<sides;i++)

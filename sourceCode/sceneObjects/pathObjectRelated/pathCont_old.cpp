@@ -33,7 +33,7 @@ CPathCont_old::CPathCont_old()
     _lineColor.setDefaultValues();
     _lineColor.setColor(0.1f,0.75f,1.0f,sim_colorcomponent_ambient_diffuse);
 
-    _angleVarToDistanceCoeff=0.1f/(90.0f*degToRad_f);
+    _angleVarToDistanceCoeff=0.1f/(90.0f*degToRad);
     _onSpotDistanceToDistanceCoeff=1.0f;
 
 
@@ -705,7 +705,7 @@ bool CPathCont_old::getConfigurationOnBezierCurveClosestTo(C3Vector& pt,C7Vector
         conf=_bezierPathPoints[0]->getTransformation();
         return(true);
     }
-    float d=SIM_MAX_FLOAT;
+    float d=FLOAT_MAX;
     // 2. We search for the closest bezier point (this gives us an approximate distance value to speed-up the calculations later on)
     for (int i=0;i<int(_bezierPathPoints.size());i++)
     {
@@ -764,7 +764,7 @@ bool CPathCont_old::getPositionOnPathClosestTo(const C3Vector& pt,float& distOnP
         distOnPath=0.0f;
         return(true);
     }
-    float d=SIM_MAX_FLOAT;
+    float d=FLOAT_MAX;
     C3Vector pppt(pt);
     for (int i=0;i<int(_bezierPathPoints.size());i++)
     {
@@ -997,7 +997,7 @@ void CPathCont_old::actualizePath()
     if (!_actualizationEnabled)
         return;
     _recomputeBezierPoints();
-    _removeDoubleBezierPoints(0.0001f,0.5f*degToRad_f);
+    _removeDoubleBezierPoints(0.0001f,0.5f*degToRad);
     if (getBezierPathPointCount()<3) // Path cannot be closed if less than 3 Bezier points
         _attributes=(_attributes|sim_pathproperty_closed_path)-sim_pathproperty_closed_path;
     if ((_attributes&sim_pathproperty_automatic_orientation)!=0)
@@ -1085,7 +1085,7 @@ void CPathCont_old::_recomputeBezierPathElementLengths()
         if (_pathLengthCalculationMethod==sim_distcalcmethod_dac_if_nonzero)
         {
             vdl=da;
-            if (da<0.01f*degToRad_f) // Was da==0.0f before (tolerance problem). Changed on 1/4/2011
+            if (da<0.01f*degToRad) // Was da==0.0f before (tolerance problem). Changed on 1/4/2011
                 vdl=dl;
         }
         vdl+=onSpotDl;
@@ -1282,7 +1282,7 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
                         rv=_avp_relativeVelocityAtRotationAxisChange;
                     else
                     {
-                        if (axisA.getAngle(axisB)>60.0f*degToRad_f)
+                        if (axisA.getAngle(axisB)>60.0f*degToRad)
                             rv=_avp_relativeVelocityAtRotationAxisChange;
                     }
                     if (rv<maxOk[i+0])
@@ -1733,7 +1733,7 @@ void CPathCont_old::_recomputeBezierPoints()
                 if ( ((tr0.X-tr1.X).getLength()!=0.0f)&&((tr1.X-tr2.X).getLength()!=0.0f)&&((tr0.X-tr1.X).getNormalized()*(tr1.X-tr2.X).getNormalized()<0.99999f) )
                     linOk=true; // Here we have the Bezier interpolation thing for 3 non-coincident//, non-colinear points
 
-                if ( (tr0.Q.getAngleBetweenQuaternions(tr1.Q)>1.0f*degToRad_f)&&(tr1.Q.getAngleBetweenQuaternions(tr2.Q)>1.0f*degToRad_f) )
+                if ( (tr0.Q.getAngleBetweenQuaternions(tr1.Q)>1.0f*degToRad)&&(tr1.Q.getAngleBetweenQuaternions(tr2.Q)>1.0f*degToRad) )
                 { // We have two pairs of non-identical orientations
                     C4Vector tmpQ((tr0.Q.getInverse()*tr1.Q).getAngleAndAxis());
                     C3Vector axisA(tmpQ(1),tmpQ(2),tmpQ(3)); // tmpQ(0) is the angle!
@@ -2311,7 +2311,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
                 C3Vector trx(ptCont[i]->getTransformation().X);
                 glTranslatef(trx(0),trx(1),trx(2));
                 C4Vector axis=ptCont[i]->getTransformation().Q.getAngleAndAxis();
-                glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+                glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
                 glLoadName(i);
                 if (i==0)
                     ogl::drawSphere(squareSize,6,4,false);
@@ -2329,7 +2329,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
                     C3Vector trx(ptCont[i]->getTransformation().X);
                     glTranslatef(trx(0),trx(1),trx(2));
                     C4Vector axis=ptCont[i]->getTransformation().Q.getAngleAndAxis();
-                    glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+                    glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
                     glLoadName(i);
                     ogl::drawReference(squareSize*2.0f,true,true,true,nullptr);
                     glPopMatrix();
@@ -2368,7 +2368,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
                 C3Vector trx(ptCont[i]->getTransformation().X);
                 glTranslatef(trx(0),trx(1),trx(2));
                 C4Vector axis=ptCont[i]->getTransformation().Q.getAngleAndAxis();
-                glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+                glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
                 if (i==0)
                     ogl::drawSphere(squareSize,6,4,false);
                 else
@@ -2390,7 +2390,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
                     C3Vector trx(ptCont[i]->getTransformation().X);
                     glTranslatef(trx(0),trx(1),trx(2));
                     C4Vector axis=ptCont[i]->getTransformation().Q.getAngleAndAxis();
-                    glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+                    glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
                     ogl::drawReference(squareSize*2.0f,true,true,true,nullptr);
                     glPopMatrix();
                 }
@@ -2409,7 +2409,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
             C3Vector trx(ptCont[i]->getTransformation().X);
             glTranslatef(trx(0),trx(1),trx(2));
             C4Vector axis=ptCont[i]->getTransformation().Q.getAngleAndAxis();
-            glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+            glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
             ogl::drawReference(squareSize*0.5f,true,true,false,nullptr);
             glPopMatrix();
         }

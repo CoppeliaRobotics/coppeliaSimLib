@@ -12,12 +12,12 @@ CHolonomicPathPlanning_old::CHolonomicPathPlanning_old(int theStartDummyID,int t
 {
     isHolonomic=true;
     float angle=C3Vector::unitZVector.getAngle(gammaAxis);
-    if (angle<0.1f*degToRad_f)
+    if (angle<0.1f*degToRad)
         _gammaAxisRotation.setIdentity();
     else
     {
-        if (angle>179.9f*degToRad_f)
-            _gammaAxisRotation.setEulerAngles(piValue_f,0.0f,0.0f);
+        if (angle>179.9f*degToRad)
+            _gammaAxisRotation.setEulerAngles(piValue,0.0f,0.0f);
         else
         {
             C3Vector r((C3Vector::unitZVector^gammaAxis).getNormalized());
@@ -53,7 +53,7 @@ CHolonomicPathPlanning_old::CHolonomicPathPlanning_old(int theStartDummyID,int t
 
     robotCollectionID=theRobotCollectionID;
     obstacleCollectionID=theObstacleCollectionID;
-    // Following sets the _startConfInterferenceState to SIM_MAX_FLOAT if not colliding or above distance threshold.
+    // Following sets the _startConfInterferenceState to FLOAT_MAX if not colliding or above distance threshold.
     // Otherwise it is set to 0.0 (colliding) or the distance with the obstacle
     // This is used to allow path planning also when in an initial collision state. In that case the initial path segment
     // will follow a distance to obstacle gradient that is increasing until above the collision distance
@@ -278,7 +278,7 @@ bool CHolonomicPathPlanning_old::setPartialPath()
 
 CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<CHolonomicPathNode_old*>& nodes,CHolonomicPathNode_old* sample)
 {
-    float minD=SIM_MAX_FLOAT;
+    float minD=FLOAT_MAX;
     int index=-1;
     if (planningType==sim_holonomicpathplanning_xy)
     {
@@ -495,7 +495,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
 CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomicPathNode_old*>* nodeList,CHolonomicPathNode_old* toBeExtended,CHolonomicPathNode_old* extention,bool connect,CXDummy* dummy)
 {   // Return value is !=nullptr if extention was performed and connect is false
     // If connect is true, then return value indicates that connection can be performed!
-    bool specialCase=( (fromStart==nodeList[0])&&(toBeExtended==fromStart[0])&&(_startConfInterferenceState!=SIM_MAX_FLOAT) );
+    bool specialCase=( (fromStart==nodeList[0])&&(toBeExtended==fromStart[0])&&(_startConfInterferenceState!=FLOAT_MAX) );
     float lastClosest_specialCase=_startConfInterferenceState;
     float theVect[7];
     float totalVect[7];
@@ -1330,20 +1330,20 @@ bool CHolonomicPathPlanning_old::areSomeValuesForbidden(float values[7])
         return(false);
     }
     // We check the gamma value here:
-    if (_searchRange[3]>(359.0f*degToRad_f))
+    if (_searchRange[3]>(359.0f*degToRad))
         return(false);
     // Search range is smaller than 360 degrees:
     while (gamma>_searchMinVal[3])
-        gamma-=piValTimes2_f;
+        gamma-=piValT2;
     while (gamma<_searchMinVal[3])
-        gamma+=piValTimes2_f;
+        gamma+=piValT2;
     return(gamma>(_searchMinVal[3]+_searchRange[3]));
 }
 
 bool CHolonomicPathPlanning_old::doCollide(float* dist)
-{// dist can be nullptr. Dist returns the actual distance only when return value is true!! otherwise it is SIM_MAX_FLOAT!!
+{// dist can be nullptr. Dist returns the actual distance only when return value is true!! otherwise it is FLOAT_MAX!!
     if (dist!=nullptr)
-        dist[0]=SIM_MAX_FLOAT;
+        dist[0]=FLOAT_MAX;
     if (obstacleClearanceAndMaxDistance[0]<=0.0f)
     {
         if ( (obstacleCollectionID==-1)&&(!_allIsObstacle) )

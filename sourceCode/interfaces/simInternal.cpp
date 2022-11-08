@@ -4842,7 +4842,7 @@ simInt simHandleProximitySensor_internal(simInt sensorHandle,simFloat* detectedP
 
                 int retVal=0;
                 C3Vector smallest;
-                float smallestL=SIM_MAX_FLOAT;
+                float smallestL=FLOAT_MAX;
                 int detectedObj;
                 C3Vector detectedSurf;
                 bool detected=it->handleSensor(false,detectedObj,detectedSurf);
@@ -4876,7 +4876,7 @@ simInt simHandleProximitySensor_internal(simInt sensorHandle,simFloat* detectedP
             C3Vector allSmallest;
             int detectedObjectID=-1;
             C3Vector detectedSurfaceNormal;
-            float allSmallestL=SIM_MAX_FLOAT;
+            float allSmallestL=FLOAT_MAX;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getProximitySensorCount();i++)
             {
                 int detectedObj;
@@ -5254,7 +5254,7 @@ simInt simCheckProximitySensor_internal(simInt sensorHandle,simInt entityHandle,
             options=options|4;
         if (it->getNormalCheck())
             options=options|8;
-        int retVal=simCheckProximitySensorEx_internal(sensorHandle,entityHandle,options,SIM_MAX_FLOAT,it->getAllowedNormal(),detectedPoint,nullptr,nullptr);
+        int retVal=simCheckProximitySensorEx_internal(sensorHandle,entityHandle,options,FLOAT_MAX,it->getAllowedNormal(),detectedPoint,nullptr,nullptr);
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5289,7 +5289,7 @@ simInt simCheckProximitySensorEx_internal(simInt sensorHandle,simInt entityHandl
             frontFace=true;
         if (detectionThreshold<0.0f)
             detectionThreshold=0.0f;
-        tt::limitValue(0.0f,piValD2_f,maxAngle);
+        tt::limitValue(0.0f,piValD2,maxAngle);
         int detectedObj;
         C3Vector dPoint;
         float minThreshold=-1.0f;
@@ -5353,7 +5353,7 @@ simInt simCheckProximitySensorEx2_internal(simInt sensorHandle,simFloat* vertexP
             frontFace=true;
         if (detectionThreshold<0.0f)
             detectionThreshold=0.0f;
-        tt::limitValue(0.0f,piValD2_f,maxAngle);
+        tt::limitValue(0.0f,piValD2,maxAngle);
         C3Vector dPoint;
         float minThreshold=-1.0f;
         CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorHandle);
@@ -5636,7 +5636,7 @@ simInt simCheckDistance_internal(simInt entity1Handle,simInt entity2Handle,simFl
         int buffer[4];
         App::currentWorld->cacheData->getCacheDataDist(entity1Handle,entity2Handle,buffer);
         if (threshold<=0.0f)
-            threshold=SIM_MAX_FLOAT;
+            threshold=FLOAT_MAX;
         bool result=CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(entity1Handle,entity2Handle,threshold,distanceData,buffer,buffer+2,true,true);
         App::currentWorld->cacheData->setCacheDataDist(entity1Handle,entity2Handle,buffer);
         if (result)
@@ -11900,7 +11900,7 @@ simFloat simGetClosestPosOnPath_internal(const simFloat* path,simInt pathSize,co
 
     if (pathSize>=6)
     {
-        float d=SIM_MAX_FLOAT;
+        float d=FLOAT_MAX;
         C3Vector pppt(absPt);
         for (int i=0;i<(pathSize/3)-1;i++)
         {
@@ -13777,7 +13777,7 @@ simInt simPushInt64OntoStack_internal(simInt stackHandle,simInt64 value)
     return(-1);
 }
 
-simInt simPushFloatOntoStack_internal(simInt stackHandle,simFloat value)
+simInt simPushFloatOntoStack_internal(simInt stackHandle,simFloatFloat value)
 {
     TRACE_C_API;
 
@@ -13915,7 +13915,7 @@ simInt simPushInt64TableOntoStack_internal(simInt stackHandle,const simInt64* va
     return(-1);
 }
 
-simInt simPushFloatTableOntoStack_internal(simInt stackHandle,const simFloat* values,simInt valueCnt)
+simInt simPushFloatTableOntoStack_internal(simInt stackHandle,const simFloatFloat* values,simInt valueCnt)
 {
     TRACE_C_API;
 
@@ -14207,7 +14207,7 @@ simInt simGetStackInt64Value_internal(simInt stackHandle,simInt64* numberValue)
     return(-1);
 }
 
-simInt simGetStackFloatValue_internal(simInt stackHandle,simFloat* numberValue)
+simInt simGetStackFloatValue_internal(simInt stackHandle,simFloatFloat* numberValue)
 {
     TRACE_C_API;
 
@@ -14438,7 +14438,7 @@ simInt simGetStackInt64Table_internal(simInt stackHandle,simInt64* array,simInt 
     return(-1);
 }
 
-simInt simGetStackFloatTable_internal(simInt stackHandle,simFloat* array,simInt count)
+simInt simGetStackFloatTable_internal(simInt stackHandle,simFloatFloat* array,simInt count)
 {
     TRACE_C_API;
 

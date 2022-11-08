@@ -68,7 +68,7 @@ void CQDlgEdgeEdit::on_qqEdgeAngle_editingFinished()
         float newVal=ui->qqEdgeAngle->text().toFloat(&ok);
         if (ok)
         {
-            newVal=tt::getLimitedFloat(1.0f*degToRad_f,180.0f*degToRad_f,newVal*gv::userToRad);
+            newVal=tt::getLimitedFloat(1.0f*degToRad,180.0f*degToRad,newVal*gv::userToRad);
             App::mainWindow->editModeContainer->getShapeEditMode()->setEdgeMaxAngle(newVal);
         }
         refresh();
@@ -85,7 +85,7 @@ void CQDlgEdgeEdit::on_qqDirectionChangeAngle_editingFinished()
         float newVal=ui->qqDirectionChangeAngle->text().toFloat(&ok);
         if (ok)
         {
-            newVal=tt::getLimitedFloat(0.0f*degToRad_f,180.0f*degToRad_f,newVal*gv::userToRad);
+            newVal=tt::getLimitedFloat(0.0f*degToRad,180.0f*degToRad,newVal*gv::userToRad);
             App::mainWindow->editModeContainer->getShapeEditMode()->setEdgeDirectionChangeMaxAngle(newVal);
         }
         refresh();

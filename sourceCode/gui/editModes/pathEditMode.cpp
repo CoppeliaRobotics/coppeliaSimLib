@@ -230,8 +230,8 @@ void CPathEditMode_old::_keepXAxisAndAlignZAxis(std::vector<int>* selection)
         CSimplePathPoint_old* last=_editionPathCont->getSimplePathPoint((*selection)[selection->size()-1]);
         C3Vector zVect(last->getTransformation().getMatrix().M.axis[2]);
         C3X3Matrix posRot,negRot;
-        posRot.buildXRotation(piValue_f/1800.0f);
-        negRot.buildXRotation(-piValue_f/1800.0f);
+        posRot.buildXRotation(piValue/1800.0f);
+        negRot.buildXRotation(-piValue/1800.0f);
         for (int i=0;i<int(selection->size()-1);i++)
         {
             CSimplePathPoint_old* it=_editionPathCont->getSimplePathPoint((*selection)[i]);

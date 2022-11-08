@@ -90,7 +90,7 @@ void CQDlgProxSensDetectionParam::on_qqAngle_editingFinished()
     if (ok)
     {
         angle=(newVal*gv::userToRad);
-        tt::limitValue(0.1f*degToRad_f,90.0f*degToRad_f,angle);
+        tt::limitValue(0.1f*degToRad,90.0f*degToRad,angle);
     }
     refresh();
 }

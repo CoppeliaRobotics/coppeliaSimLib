@@ -138,6 +138,7 @@ private:
     std::string _sessionId;
 
     static long long int _eventSeq;
+    static long long int _mergedEventSeq;
     SBufferedEvents* _bufferedEvents;
     VMutex _eventMutex;
     bool _cborEvents;

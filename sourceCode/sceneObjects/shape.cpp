@@ -388,8 +388,8 @@ bool CShape::_getTubeReferenceFrame(const std::vector<float>& v,C7Vector& tr)
     C3Vector rightPt1(&v[3*indexRight+0]);
     int indexLeft2=-1;
     int indexRight2=-1;
-    float leftDist=SIM_MAX_FLOAT;
-    float rightDist=SIM_MAX_FLOAT;
+    float leftDist=FLOAT_MAX;
+    float rightDist=FLOAT_MAX;
     for (size_t i=0;i<v.size()/3;i++)
     {
         C3Vector pt(&v[3*i+0]);
@@ -420,8 +420,8 @@ bool CShape::_getTubeReferenceFrame(const std::vector<float>& v,C7Vector& tr)
     C3Vector rightPt2(&v[3*indexRight2+0]);
     int indexLeft3=-1;
     int indexRight3=-1;
-    leftDist=SIM_MAX_FLOAT;
-    rightDist=SIM_MAX_FLOAT;
+    leftDist=FLOAT_MAX;
+    rightDist=FLOAT_MAX;
     for (size_t i=0;i<v.size()/3;i++)
     {
         C3Vector pt(&v[3*i+0]);
@@ -433,7 +433,7 @@ bool CShape::_getTubeReferenceFrame(const std::vector<float>& v,C7Vector& tr)
             {
 
                 float a=(leftPt1-pt).getAngle(leftPt2-pt);
-                if ( (a>1.0f*degToRad_f)&&(a<179.0f*degToRad_f) )
+                if ( (a>1.0f*degToRad)&&(a<179.0f*degToRad) )
                 {
                     leftDist=l1;
                     indexLeft3=int(i);
@@ -448,7 +448,7 @@ bool CShape::_getTubeReferenceFrame(const std::vector<float>& v,C7Vector& tr)
             {
 
                 float a=(rightPt1-pt).getAngle(rightPt2-pt);
-                if ( (a>1.0f*degToRad_f)&&(a<179.0f*degToRad_f) )
+                if ( (a>1.0f*degToRad)&&(a<179.0f*degToRad) )
                 {
                     rightDist=l1;
                     indexRight3=int(i);
@@ -465,7 +465,7 @@ bool CShape::_getTubeReferenceFrame(const std::vector<float>& v,C7Vector& tr)
     C3Vector nLeft(((leftPt1-leftPt3)^(leftPt2-leftPt3)).getNormalized());
     C3Vector nRight(((rightPt1-rightPt3)^(rightPt2-rightPt3)).getNormalized());
     float a=nLeft.getAngle(nRight);
-    if ( (a>1.0f*degToRad_f)&&(a<179.0f*degToRad_f) )
+    if ( (a>1.0f*degToRad)&&(a<179.0f*degToRad) )
         return(false); // not precise enough
 
     // 6) Now get all points at each endings that are within 2% of distance to the end planes (relative to the longest distances) and calculate the average positions:
@@ -632,19 +632,19 @@ bool CShape::_getCuboidReferenceFrame(const std::vector<float>& v,const std::vec
     float yDim=dim(1);
     if ((dim(0)>dim(1))&&(dim(0)>dim(2)))
     {
-        rot.buildYRotation(piValD2_f);
+        rot.buildYRotation(piValD2);
         xDim=dim(2);
     }
     if ((dim(1)>dim(0))&&(dim(1)>dim(2)))
     {
-        rot.buildXRotation(piValD2_f);
+        rot.buildXRotation(piValD2);
         yDim=dim(2);
     }
     m.M*=rot;
     // z has the biggest dimension now
     if (yDim<xDim)
     {
-        rot.buildZRotation(piValD2_f);
+        rot.buildZRotation(piValD2);
         m.M*=rot;
     }
     // ok, now we have z,y,x ordered from largest to smallest
@@ -1425,10 +1425,10 @@ void CShape::serialize(CSer& ar)
                 ar.xmlPushNewNode("dynamics");
                 ar.xmlAddNode_int("respondableMask",_dynamicCollisionMask);
                 C3Vector vel=_initialDynamicLinearVelocity;
-                vel*=180.0f/piValue_f;
+                vel*=180.0f/piValue;
                 ar.xmlAddNode_floats("initialLinearVelocity",vel.data,3);
                 vel=_initialDynamicAngularVelocity;
-                vel*=180.0f/piValue_f;
+                vel*=180.0f/piValue;
                 ar.xmlAddNode_floats("initialAngularVelocity",vel.data,3);
                 ar.xmlPushNewNode("switches");
                 ar.xmlAddNode_bool("static",_shapeIsDynamicallyStatic);
@@ -1493,9 +1493,9 @@ void CShape::serialize(CSer& ar)
                     _dynamicCollisionMask=(unsigned short)m;
                     C3Vector vel;
                     ar.xmlGetNode_floats("initialLinearVelocity",vel.data,3);
-                    _initialDynamicLinearVelocity=vel*piValue_f/180.0f;
+                    _initialDynamicLinearVelocity=vel*piValue/180.0f;
                     ar.xmlGetNode_floats("initialAngularVelocity",vel.data,3);
-                    _initialDynamicAngularVelocity=vel*piValue_f/180.0f;
+                    _initialDynamicAngularVelocity=vel*piValue/180.0f;
                     if (ar.xmlPushChildNode("switches"))
                     {
                         ar.xmlGetNode_bool("static",_shapeIsDynamicallyStatic);

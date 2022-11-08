@@ -120,7 +120,7 @@ void displayDrawingObject(CDrawingObject* drawingObject,C7Vector& tr,bool overla
     {
         glTranslatef(tr.X(0),tr.X(1),tr.X(2));
         C4Vector axis=tr.Q.getAngleAndAxis();
-        glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
+        glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
         cameraRTM.setMultResult(tr.getInverse().getMatrix(),cameraCTM);
     }
 

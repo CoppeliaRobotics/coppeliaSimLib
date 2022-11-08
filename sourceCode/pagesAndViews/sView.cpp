@@ -1864,7 +1864,7 @@ void CSView::cameraAndObjectMotion()
                 C3Vector euler=cameraCumulTr.getEulerAngles();
                 euler(2)=atan2(cos(euler(0))*sin(euler(1)),sin(euler(0)));
                 if (!headUp)
-                    euler(2)=euler(2)+piValue_f;
+                    euler(2)=euler(2)+piValue;
                 cameraCTM.Q.setEulerAngles(euler);
                 if (!headUp)
                     aroundY=-aroundY;
@@ -1886,7 +1886,7 @@ void CSView::cameraAndObjectMotion()
         }
         if (navigationMode==sim_navigation_objectrotate)
         {
-            float dX=-float(previousMousePosition.x-mousePosition.x)*degToRad_f;
+            float dX=-float(previousMousePosition.x-mousePosition.x)*degToRad;
 
             aroundX=-aroundX;
             aroundY=-aroundY;
@@ -1951,8 +1951,8 @@ void CSView::cameraAndObjectMotion()
         C7Vector cameraLTM(camera->getLocalTransformation());
         C7Vector cameraCTM(camera->getCumulativeTransformation());
         float ratio=(float)(activeWinSize.x/(float)activeWinSize.y);
-        float scaleFactor=2*mousePositionDepth*(float)tan((camera->getViewAngle()*180.0f/piValTimes2_f)
-            *degToRad_f)/(float)activeWinSize.y;
+        float scaleFactor=2*mousePositionDepth*(float)tan((camera->getViewAngle()*180.0f/piValT2)
+            *degToRad)/(float)activeWinSize.y;
         if (!perspective)
             scaleFactor=camera->getOrthoViewSize()/(float)activeWinSize.y;
         if (ratio>1.0f)
@@ -2185,7 +2185,7 @@ void CSView::cameraAndObjectMotion()
         if (perspective)
         {
             float newViewAngle=camera->getViewAngle()+zoomFactor;
-            tt::limitValue(10.0f*degToRad_f,135.0f*degToRad_f,newViewAngle); // with 90 degrees, objects disappear!! Really??? Changed to 135 on 2010/11/12
+            tt::limitValue(10.0f*degToRad,135.0f*degToRad,newViewAngle); // with 90 degrees, objects disappear!! Really??? Changed to 135 on 2010/11/12
             camera->setViewAngle(newViewAngle);
             if (cameraParentProxy!=nullptr)
             { // We report the same camera opening to all cameras attached to cameraPrentProxy

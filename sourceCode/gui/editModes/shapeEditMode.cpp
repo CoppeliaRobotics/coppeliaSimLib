@@ -21,8 +21,8 @@ CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContai
     _identicalVerticesTolerance=identicalVerticesTolerance;
     showHiddenVerticeAndEdges=false;
     automaticallyFollowEdges=true;
-    edgeMaxAngle=135.0f*degToRad_f;
-    edgeDirectionChangeMaxAngle=45.0f*degToRad_f;
+    edgeMaxAngle=135.0f*degToRad;
+    edgeDirectionChangeMaxAngle=45.0f*degToRad;
 
     _shape->getMeshWrapper()->getCumulativeMeshes(_editionVertices,&_editionIndices,&_editionNormals);
     _editionTextureProperty=_shape->getSingleMesh()->getTextureProperty();
@@ -808,7 +808,7 @@ float CShapeEditMode::getEdgeAngle(int edgeID) // all edit mode routines should 
         }
     }
     if (normalVectors.size()<2)
-        return(piValue_f);
+        return(piValue);
     // now we search for the smallest scalar product (that gives the smallest edge value):
     float smallestScalarProduct=1.0f; // corresponds to 0 degree edge
     for (int i=0;i<int(normalVectors.size()-1);i++)
@@ -1120,7 +1120,7 @@ void CShapeEditMode::addItemToEditModeBuffer(int item,bool disableEdgeFollowing)
                     C3Vector v1(&_editionVertices[3*highVertex+0]);
                     C3Vector v2(&_editionVertices[3*ind[1]+0]);
                     float a2=(v1-v0).getAngle(v2-v1);
-                    if ( (a>highestAngleValue)&&(a2<edgeDirectionChangeMaxAngle)&&(a>(piValue_f-edgeMaxAngle)) ) // a>20.0... added on 2009/05/08
+                    if ( (a>highestAngleValue)&&(a2<edgeDirectionChangeMaxAngle)&&(a>(piValue-edgeMaxAngle)) ) // a>20.0... added on 2009/05/08
                     {
                         highestAngleValue=a;
                         highestAngleIndex=i;

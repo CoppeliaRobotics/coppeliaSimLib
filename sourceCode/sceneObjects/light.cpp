@@ -56,7 +56,7 @@ void CLight::_commonInit()
     _objectType=sim_object_light_type;
     _lightSize=0.10f;
     _spotExponent=5;
-    _spotCutoffAngle=90.0f*degToRad_f;
+    _spotCutoffAngle=90.0f*degToRad;
     _visibilityLayer=CAMERA_LIGHT_LAYER;
     _localObjectSpecialProperty=0;
     _setDefaultColors();    
@@ -246,7 +246,7 @@ int CLight::getSpotExponent() const
 
 void CLight::setSpotCutoffAngle(float co)
 {
-    _spotCutoffAngle=tt::getLimitedFloat(5.0f*degToRad_f,90.0f*degToRad_f,co);
+    _spotCutoffAngle=tt::getLimitedFloat(5.0f*degToRad,90.0f*degToRad,co);
 }
 
 float CLight::getSpotCutoffAngle() const
@@ -569,7 +569,7 @@ void CLight::serialize(CSer& ar)
 
             ar.xmlAddNode_int("spotExponent",_spotExponent);
 
-            ar.xmlAddNode_float("cutoffAngle",_spotCutoffAngle*180.0f/piValue_f);
+            ar.xmlAddNode_float("cutoffAngle",_spotCutoffAngle*180.0f/piValue);
 
             ar.xmlPushNewNode("attenuationFactors");
             ar.xmlAddNode_float("constant",constantAttenuation);
@@ -621,7 +621,7 @@ void CLight::serialize(CSer& ar)
                 setSpotExponent(_spotExponent);
 
             if (ar.xmlGetNode_float("cutoffAngle",_spotCutoffAngle,exhaustiveXml))
-                setSpotCutoffAngle(_spotCutoffAngle*piValue_f/180.0f);
+                setSpotCutoffAngle(_spotCutoffAngle*piValue/180.0f);
 
             if (ar.xmlPushChildNode("attenuationFactors",exhaustiveXml))
             {

@@ -52,7 +52,7 @@ void CSimpleFilter::setFilterType(int t)
         {
             for (int j=-1;j<2;j++)
             {
-                float v=pow(2.7182818f,-(i*i+j*j)/(2.0f*sigma*sigma))/(2.0f*piValue_f*sigma*sigma);
+                float v=pow(2.7182818f,-(i*i+j*j)/(2.0f*sigma*sigma))/(2.0f*piValue*sigma*sigma);
                 _floatParameters[i+1+(j+1)*3]=v;
                 tot+=v;
             }
@@ -72,7 +72,7 @@ void CSimpleFilter::setFilterType(int t)
         {
             for (int j=-2;j<3;j++)
             {
-                float v=pow(2.7182818f,-(i*i+j*j)/(2.0f*sigma*sigma))/(2.0f*piValue_f*sigma*sigma);
+                float v=pow(2.7182818f,-(i*i+j*j)/(2.0f*sigma*sigma))/(2.0f*piValue*sigma*sigma);
                 _floatParameters[i+2+(j+2)*5]=v;
                 tot+=v;
             }
@@ -142,7 +142,7 @@ void CSimpleFilter::setFilterType(int t)
         _intParameters.push_back(32); // number of points along y
         _intParameters.push_back(0); // reserved
         _intParameters.push_back(0); // reserved
-        _floatParameters.push_back(30.0f*piValue_f/180.0f); // vertical scan angle
+        _floatParameters.push_back(30.0f*piValue/180.0f); // vertical scan angle
         _floatParameters.push_back(0.0f); // reserved
         _floatParameters.push_back(0.0f); // reserved
     }
@@ -164,7 +164,7 @@ void CSimpleFilter::setFilterType(int t)
     }
     if (_filterType==sim_filtercomponent_rotate_deprecated)
     {
-        _floatParameters.push_back(45.0f*degToRad_f); // rotation angle
+        _floatParameters.push_back(45.0f*degToRad); // rotation angle
     }
     if (_filterType==sim_filtercomponent_edge_deprecated)
         _floatParameters.push_back(0.1f); // threshold (0 to 1)
@@ -188,7 +188,7 @@ void CSimpleFilter::setFilterType(int t)
         _floatParameters.push_back(0.5f); // y center of mass for trigger
         _floatParameters.push_back(0.25f); // y center of mass tolerance for trigger
         _floatParameters.push_back(0.0f); // orientation for trigger
-        _floatParameters.push_back(90.01f*degToRad_f); // orientation tolerance for trigger
+        _floatParameters.push_back(90.01f*degToRad); // orientation tolerance for trigger
         _floatParameters.push_back(0.9f); // roundness for trigger
     }
 }

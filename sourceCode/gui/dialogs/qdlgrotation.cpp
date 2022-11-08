@@ -106,27 +106,27 @@ void CQDlgRotation::refresh()
         {
             ui->qqOrCombo->addItem(IDS_MANIP_NONE,QVariant(-1));
             ui->qqOrCombo->addItem(IDS_DEFAULT,QVariant(0));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,1.0f*degToRad_f,1).c_str(),QVariant(1000));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,2.0f*degToRad_f,1).c_str(),QVariant(2000));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,5.0f*degToRad_f,1).c_str(),QVariant(5000));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,10.0f*degToRad_f,1).c_str(),QVariant(10000));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,15.0f*degToRad_f,1).c_str(),QVariant(15000));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,30.0f*degToRad_f,1).c_str(),QVariant(30000));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,45.0f*degToRad_f,1).c_str(),QVariant(45000));
+            ui->qqOrCombo->addItem(tt::getAngleFString(false,1.0f*degToRad,1).c_str(),QVariant(1000));
+            ui->qqOrCombo->addItem(tt::getAngleFString(false,2.0f*degToRad,1).c_str(),QVariant(2000));
+            ui->qqOrCombo->addItem(tt::getAngleFString(false,5.0f*degToRad,1).c_str(),QVariant(5000));
+            ui->qqOrCombo->addItem(tt::getAngleFString(false,10.0f*degToRad,1).c_str(),QVariant(10000));
+            ui->qqOrCombo->addItem(tt::getAngleFString(false,15.0f*degToRad,1).c_str(),QVariant(15000));
+            ui->qqOrCombo->addItem(tt::getAngleFString(false,30.0f*degToRad,1).c_str(),QVariant(30000));
+            ui->qqOrCombo->addItem(tt::getAngleFString(false,45.0f*degToRad,1).c_str(),QVariant(45000));
 
             if (App::currentWorld->simulation->isSimulationStopped())
             {
                 if (object->getObjectMovementOptions()&4)
                     _selectItemOfCombobox(ui->qqOrCombo,-1);
                 else
-                    _selectItemOfCombobox(ui->qqOrCombo,int((manipulationRotationStepSize*radToDeg_f+0.0005f)*1000.0f));
+                    _selectItemOfCombobox(ui->qqOrCombo,int((manipulationRotationStepSize*radToDeg+0.0005f)*1000.0f));
             }
             else
             {
                 if (object->getObjectMovementOptions()&8)
                     _selectItemOfCombobox(ui->qqOrCombo,-1);
                 else
-                    _selectItemOfCombobox(ui->qqOrCombo,int((manipulationRotationStepSize*radToDeg_f+0.0005f)*1000.0f));
+                    _selectItemOfCombobox(ui->qqOrCombo,int((manipulationRotationStepSize*radToDeg+0.0005f)*1000.0f));
             }
         }
     }
@@ -656,7 +656,7 @@ void CQDlgRotation::on_qqTransfAlpha_editingFinished()
         if (ok)
         {
             newVal*=gv::userToRad;
-            newVal=fmod(newVal,piValTimes2);
+            newVal=fmod(newVal,piValT2);
             rotAngles[0]=newVal;
         }
         refresh();
@@ -674,7 +674,7 @@ void CQDlgRotation::on_qqTransfBeta_editingFinished()
         if (ok)
         {
             newVal*=gv::userToRad;
-            newVal=fmod(newVal,piValTimes2);
+            newVal=fmod(newVal,piValT2);
             rotAngles[1]=newVal;
         }
         refresh();
@@ -692,7 +692,7 @@ void CQDlgRotation::on_qqTransfGamma_editingFinished()
         if (ok)
         {
             newVal*=gv::userToRad;
-            newVal=fmod(newVal,piValTimes2);
+            newVal=fmod(newVal,piValT2);
             rotAngles[2]=newVal;
         }
         refresh();
@@ -823,7 +823,7 @@ void CQDlgRotation::on_qqOrCombo_activated(int index)
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_ORSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,float(ui->qqOrCombo->itemData(index).toInt())*degToRad_f/1000.0f);
+        App::appendSimulationThreadCommand(SET_ORSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,float(ui->qqOrCombo->itemData(index).toInt())*degToRad/1000.0f);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

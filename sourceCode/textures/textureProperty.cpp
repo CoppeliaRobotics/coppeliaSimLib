@@ -231,14 +231,14 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
                 }
                 if (_textureCoordinateMode==sim_texturemap_cylinder)
                 {
-                    x=((atan2(v[ot3](1),v[ot3](0))/piValue_f)+1.0f)/2.0f;// _textureScalingX doesn't make sense here!  (2.0f*_textureScalingX);
+                    x=((atan2(v[ot3](1),v[ot3](0))/piValue)+1.0f)/2.0f;// _textureScalingX doesn't make sense here!  (2.0f*_textureScalingX);
                     y=(v[ot3](2)/_textureScalingY*ys)+0.5f;
                 }
                 if (_textureCoordinateMode==sim_texturemap_sphere)
                 {
-                    x=((atan2(v[ot3](1),v[ot3](0))/piValue_f)+1.0f)/2.0f; // _textureScalingX doesn't make sense here!   (2.0f*_textureScalingX);
+                    x=((atan2(v[ot3](1),v[ot3](0))/piValue)+1.0f)/2.0f; // _textureScalingX doesn't make sense here!   (2.0f*_textureScalingX);
                     float a2=C3Vector::unitZVector.getAngle(v[ot3]);
-                    y=(1.0f-(a2/piValue_f)); // _textureScalingX doesn't make sense here!  /_textureScalingY;
+                    y=(1.0f-(a2/piValue)); // _textureScalingX doesn't make sense here!  /_textureScalingY;
                 }
                 tc[ot3][0]=x;
                 tc[ot3][1]=y;

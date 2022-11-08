@@ -473,13 +473,13 @@ void CGraphingRoutines_old::getCyclicAndRangeValues(const CGraphData_old* it,boo
     if ((dType==GRAPH_SCENEOBJECT_ALL_ALPHA_ABS)||(dType==GRAPH_SCENEOBJECT_ALL_GAMMA_ABS))
     {
         cyclic=true;
-        range=0.0; // means: piValTimes2;
+        range=0.0; // means: piValT2;
         return;
     }
     if (dType==GRAPH_SCENEOBJECT_ALL_BETA_ABS)
     {
         cyclic=true;
-        range=piValue_f;
+        range=piValue;
         return;
     }
     if (dType==GRAPH_SCENEOBJECT_JOINT_POSITION)
@@ -490,7 +490,7 @@ void CGraphingRoutines_old::getCyclicAndRangeValues(const CGraphData_old* it,boo
             if (act->getIsCyclic())
             {
                 cyclic=true;
-                range=0.0; // means: piValTimes2;
+                range=0.0; // means: piValT2;
                 return;
             }
         }
@@ -1259,9 +1259,9 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
                     else
                     {
                         if (pt(0)>=0.0f) 
-                            az=piValD2_f;
+                            az=piValD2;
                         else 
-                            az=-piValD2_f;
+                            az=-piValD2;
                     }
                     value=az;
                 }

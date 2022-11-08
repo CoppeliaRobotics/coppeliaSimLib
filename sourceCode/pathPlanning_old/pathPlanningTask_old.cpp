@@ -47,15 +47,15 @@ void CPathPlanningTask::setDefaultValues()
     _visualizeSearchArea=true;
     holonomicTaskType=sim_holonomicpathplanning_xy;
     stepSize=0.01f;
-    angularStepSize=5.0f*degToRad_f;
+    angularStepSize=5.0f*degToRad;
     searchMinValue[0]=-0.5f;
     searchMinValue[1]=-0.5f;
     searchMinValue[2]=-0.5f;
-    searchMinValue[3]=-piValue_f;
+    searchMinValue[3]=-piValue;
     searchRange[0]=1.0f;
     searchRange[1]=1.0f;
     searchRange[2]=1.0f;
-    searchRange[3]=piValTimes2_f;
+    searchRange[3]=piValT2;
     searchDirection[0]=0;
     searchDirection[1]=0;
     searchDirection[2]=0;
@@ -191,7 +191,7 @@ void CPathPlanningTask::setStepSize(float size)
 }
 void CPathPlanningTask::setAngularStepSize(float step)
 {
-    tt::limitValue(0.1f*degToRad_f,90.0f*degToRad_f,step);
+    tt::limitValue(0.1f*degToRad,90.0f*degToRad,step);
     angularStepSize=step;
 }
 void CPathPlanningTask::setSearchRange(float searchMin[4],float searchR[4])
@@ -208,7 +208,7 @@ void CPathPlanningTask::setSearchRange(float searchMin[4],float searchR[4])
     float v=tt::getNormalizedAngle(searchMin[3]);
     searchMinValue[3]=v;
     v=searchR[3];
-    tt::limitValue(0.1f*degToRad_f,piValTimes2_f,v);
+    tt::limitValue(0.1f*degToRad,piValT2,v);
     searchRange[3]=v;
 }
 
