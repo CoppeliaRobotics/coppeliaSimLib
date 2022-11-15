@@ -850,6 +850,25 @@ CSer& CSer::operator<< (const int& v)
     return(*this);
 }
 
+#ifdef NEWOPERATION
+CSerTmp& CSer::flt()
+#else
+CSer& CSer::flt()
+#endif
+{
+    return(*this);
+}
+
+#ifdef NEWOPERATION
+CSerTmp& CSer::dbl()
+#else
+CSer& CSer::dbl()
+#endif
+{
+    return(*this);
+}
+
+#ifndef NEWOPERATION
 CSer& CSer::operator<< (const float& v)
 {
     buffer.push_back(((unsigned char*)&v)[0]);
@@ -866,6 +885,7 @@ CSer& CSer::operator<< (const double& v)
         buffer.push_back(tmp[i]);
     return(*this);
 }
+#endif
 
 CSer& CSer::operator<< (const unsigned short& v)
 {
@@ -942,6 +962,7 @@ CSer& CSer::operator>> (int& v)
     return(*this);
 }
 
+#ifndef NEWOPERATION
 CSer& CSer::operator>> (float& v)
 {
     unsigned char* tmp=(unsigned char*)(&v);
@@ -957,6 +978,7 @@ CSer& CSer::operator>> (double& v)
         tmp[i]=_fileBuffer[_fileBufferReadPointer++];
     return(*this);
 }
+#endif
 
 CSer& CSer::operator>> (unsigned short& v)
 {
@@ -1041,6 +1063,7 @@ void CSer::storeDataName(const char* name)
 {
     if (isBinary())
     {
+        while (strlen(name)!=3); // freezes
         if (countingMode!=0)
             counter+=3;
         else

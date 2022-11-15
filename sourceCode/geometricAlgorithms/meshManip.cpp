@@ -153,13 +153,13 @@ bool CMeshManip::extractOneShape(std::vector<float>* vertices,std::vector<int>* 
     }
 }
 
-void CMeshManip::removeNonReferencedVertices(std::vector<float>& vertices,std::vector<int>& indices)
+void CMeshManip::removeNonReferencedVertices(std::vector<floatDouble>& vertices,std::vector<int>& indices)
 {
-    std::vector<float> vertTmp(vertices);
+    std::vector<floatDouble> vertTmp(vertices);
     vertices.clear();
     std::vector<int> mapping(vertTmp.size()/3,-1);
     int freeSlot=0;
-    for (int i=0;i<int(indices.size());i++)
+    for (size_t i=0;i<indices.size();i++)
     {
         if (mapping[indices[i]]==-1)
         {
@@ -198,7 +198,7 @@ void CMeshManip::useOnlyReferencedVertices(std::vector<float>* vertices,std::vec
     }
 }
 
-bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertices,std::vector<int>& indices,std::vector<float>* normals,std::vector<float>* texCoords,bool checkDoubles,float tolerance,bool checkSameTriangles)
+bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<floatDouble>& vertices,std::vector<int>& indices,std::vector<floatDouble>* normals,std::vector<floatDouble>* texCoords,bool checkDoubles,float tolerance,bool checkSameTriangles)
 { // normals and texCoords can be nullptr
     bool noError=true;
 
@@ -263,8 +263,8 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
     {
         std::vector<int> tmpInd(indices);
         indices.clear();
-        std::vector<float> tmpNorm;
-        std::vector<float> tmpTexCoord;
+        std::vector<floatDouble> tmpNorm;
+        std::vector<floatDouble> tmpTexCoord;
         if (normals!=nullptr)
         {
             tmpNorm.assign(normals->begin(),normals->end());
@@ -275,7 +275,7 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
             tmpTexCoord.assign(texCoords->begin(),texCoords->end());
             texCoords->clear();
         }
-        for (int i=0;i<int(tmpInd.size())/3;i++)
+        for (size_t i=0;i<tmpInd.size()/3;i++)
         {
             int ind[3]={tmpInd[3*i+0],tmpInd[3*i+1],tmpInd[3*i+2]};
             if ((ind[0]>=0)&&(ind[1]>=0)&&(ind[2]>=0)&&(ind[0]!=ind[1])&&(ind[0]!=ind[2])&&(ind[1]!=ind[2]))
@@ -321,39 +321,38 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
     {
         std::vector<int> mapping(vertices.size()/3,-1);
         // we first need to merge real duplicates! (e.g. overlapping vertices from the cutting operation)
-        removeDoubleVertices(vertices,mapping,0.0000000005f); 
-        for (int i=0;i<int(indices.size());i++)
+        removeDoubleVertices(vertices,mapping,0.0000000005);
+        for (size_t i=0;i<indices.size();i++)
             indices[i]=mapping[indices[i]];
         mapping.clear();
         removeNonReferencedVertices(vertices,indices); // removeDoubleVertices just returns the mapping, vertices are not touched
         removeDoubleVertices(vertices,mapping,tolerance);
-        for (int i=0;i<int(indices.size());i++)
+        for (size_t i=0;i<indices.size();i++)
             indices[i]=mapping[indices[i]];
         mapping.clear();
         removeNonReferencedVertices(vertices,indices); // removeDoubleVertices just returns the mapping, vertices are not touched
     }
 
-//  removeColinearTriangles(vertices,indices,normals,texCoords,0.0000000005f);
-    removeColinearTriangles(vertices,indices,normals,texCoords,0.00001f);
+    removeColinearTriangles(vertices,indices,normals,texCoords,0.00001);
 
     // Check (for the second time) if some indices are out of range and verify that
     // the 3 indices of a triangle are different
     {
         std::vector<int> tmpInd(indices);
         indices.clear();
-        std::vector<float> tmpNorm;
+        std::vector<floatDouble> tmpNorm;
         if (normals!=nullptr)
         {
             tmpNorm.assign(normals->begin(),normals->end());
             normals->clear();
         }
-        std::vector<float> tmpTexCoord;
+        std::vector<floatDouble> tmpTexCoord;
         if (texCoords!=nullptr)
         {
             tmpTexCoord.assign(texCoords->begin(),texCoords->end());
             texCoords->clear();
         }
-        for (int i=0;i<int(tmpInd.size())/3;i++)
+        for (size_t i=0;i<tmpInd.size()/3;i++)
         {
             int ind[3]={tmpInd[3*i+0],tmpInd[3*i+1],tmpInd[3*i+2]};
             if ((ind[0]>=0)&&(ind[1]>=0)&&(ind[2]>=0)&&(ind[0]!=ind[1])&&(ind[0]!=ind[2])&&(ind[1]!=ind[2]))
@@ -409,19 +408,19 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
         // We remove invalid indices:
         std::vector<int> tmpInd(indices);
         indices.clear();
-        std::vector<float> tmpNorm;
+        std::vector<floatDouble> tmpNorm;
         if (normals!=nullptr)
         {
             tmpNorm.assign(normals->begin(),normals->end());
             normals->clear();
         }
-        std::vector<float> tmpTexCoord;
+        std::vector<floatDouble> tmpTexCoord;
         if (texCoords!=nullptr)
         {
             tmpTexCoord.assign(texCoords->begin(),texCoords->end());
             texCoords->clear();
         }
-        for (int i=0;i<int(tmpInd.size())/3;i++)
+        for (size_t i=0;i<tmpInd.size()/3;i++)
         {
             int ind[3]={tmpInd[3*i+0],tmpInd[3*i+1],tmpInd[3*i+2]};
             if (ind[0]>=0)
@@ -522,20 +521,21 @@ int CMeshManip::removeColinearTriangles(std::vector<float>& vertices,std::vector
     return(initialTri-finalTri);
 }
 
-void CMeshManip::removeDoubleVertices(std::vector<float>& vertices,std::vector<int>& mapping,float tolerance)
+void CMeshManip::removeDoubleVertices(std::vector<floatDouble>& vertices,std::vector<int>& mapping,float tolerance)
 {   // Here we remove vertices which are identical within a certain tolerance.
     // If a vertex is a duplicate, the indices pointing onto it will be remapped.
     mapping.clear();
-    for (int i=0;i<int(vertices.size())/3;i++)
+    for (size_t i=0;i<vertices.size()/3;i++)
         mapping.push_back(i);
 
     float toleranceSquare=tolerance*tolerance;
 
     C3Vector maxV;
     C3Vector minV;
-    for (int i=0;i<int(vertices.size())/3;i++)
+    for (size_t i=0;i<vertices.size()/3;i++)
     {
-        C3Vector p(vertices[3*i+0],vertices[3*i+1],vertices[3*i+2]);
+        C3Vector p;
+        p.setData(&vertices[3*i+0]);
         if (i==0)
         {
             maxV=p;
@@ -550,7 +550,7 @@ void CMeshManip::removeDoubleVertices(std::vector<float>& vertices,std::vector<i
     C3Vector dims(maxV-minV);
     int cells[3]={1,1,1};
     const int desiredCells=50;
-    for (int i=0;i<3;i++)
+    for (size_t i=0;i<3;i++)
     {
         if (dims(i)>tolerance*float(desiredCells)*2.0f)
             cells[i]=desiredCells;
@@ -559,14 +559,15 @@ void CMeshManip::removeDoubleVertices(std::vector<float>& vertices,std::vector<i
 
     std::vector<std::vector<int>*> ind;
     ind.resize(cells[0]*cells[1]*cells[2],nullptr);
-    for (int i=0;i<int(ind.size());i++)
+    for (size_t i=0;i<ind.size();i++)
         ind[i]=new std::vector<int>;
 
-    for (int i=0;i<int(vertices.size())/3;i++)
+    for (size_t i=0;i<vertices.size()/3;i++)
     {
-        C3Vector p(vertices[3*i+0],vertices[3*i+1],vertices[3*i+2]);
+        C3Vector p;
+        p.setData(&vertices[3*i+0]);
         int cellLocation=0;
-        for (int j=0;j<3;j++)
+        for (size_t j=0;j<3;j++)
         {
             if (cells[j]!=1)
             {
@@ -590,7 +591,8 @@ void CMeshManip::removeDoubleVertices(std::vector<float>& vertices,std::vector<i
                     int pind=currentCell->at(l);
                     if (pind!=-1)
                     { // was not yet associated with a closer vertex
-                        C3Vector a_p(vertices[3*pind+0],vertices[3*pind+1],vertices[3*pind+2]);
+                        C3Vector a_p;
+                        a_p.setData(&vertices[3*pind+0]);
                         // Now check vertices of all neighbouring cells:
                         for (int i_=i-1;i_<=i+1;i_++)
                         {
@@ -610,7 +612,8 @@ void CMeshManip::removeDoubleVertices(std::vector<float>& vertices,std::vector<i
                                                     int pind_=currentCell_->at(l_);
                                                     if (pind_!=-1)
                                                     { // was not yet associated with a closer vertex
-                                                        C3Vector b_p(vertices[3*pind_+0],vertices[3*pind_+1],vertices[3*pind_+2]);
+                                                        C3Vector b_p;
+                                                        b_p.setData(&vertices[3*pind_+0]);
                                                         C3Vector dx(b_p-a_p);
                                                         float d=dx*dx;
                                                         if (d<toleranceSquare)
@@ -632,11 +635,11 @@ void CMeshManip::removeDoubleVertices(std::vector<float>& vertices,std::vector<i
         }
     }
 
-    for (int i=0;i<int(ind.size());i++)
+    for (size_t i=0;i<ind.size();i++)
         delete ind[i];
 }
 
-void CMeshManip::removeDoubleIndices(std::vector<float>& vertices,std::vector<int>& indices,bool checkSameWinding)
+void CMeshManip::removeDoubleIndices(std::vector<floatDouble>& vertices,std::vector<int>& indices,bool checkSameWinding)
 { // just sets the double indices to -1, but they are not removed!
     if (indices.size()>1000)
     {
@@ -660,13 +663,16 @@ void CMeshManip::removeDoubleIndices(std::vector<float>& vertices,std::vector<in
 
         C3Vector maxV;
         C3Vector minV;
-        for (int i=0;i<int(indices.size())/3;i++)
+        for (size_t i=0;i<indices.size()/3;i++)
         {
             int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
-            C3Vector p0(vertices[3*ind[0]+0],vertices[3*ind[0]+1],vertices[3*ind[0]+2]);
-            C3Vector p1(vertices[3*ind[1]+0],vertices[3*ind[1]+1],vertices[3*ind[1]+2]);
-            C3Vector p2(vertices[3*ind[2]+0],vertices[3*ind[2]+1],vertices[3*ind[2]+2]);
-            C3Vector p((p0+p1+p2)*0.33f);
+            C3Vector p0;
+            p0.setData(&vertices[3*ind[0]+0]);
+            C3Vector p1;
+            p1.setData(&vertices[3*ind[1]+0]);
+            C3Vector p2;
+            p2.setData(&vertices[3*ind[2]+0]);
+            C3Vector p((p0+p1+p2)*0.33);
             if (i==0)
             {
                 maxV=p;
@@ -678,13 +684,16 @@ void CMeshManip::removeDoubleIndices(std::vector<float>& vertices,std::vector<in
                 minV.keepMin(p);
             }
         }
-        maxV=(maxV+minV)*0.5f;
-        for (int i=0;i<int(indices.size())/3;i++)
+        maxV=(maxV+minV)*0.5;
+        for (size_t i=0;i<indices.size()/3;i++)
         {
             int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
-            C3Vector p0(vertices[3*ind[0]+0],vertices[3*ind[0]+1],vertices[3*ind[0]+2]);
-            C3Vector p1(vertices[3*ind[1]+0],vertices[3*ind[1]+1],vertices[3*ind[1]+2]);
-            C3Vector p2(vertices[3*ind[2]+0],vertices[3*ind[2]+1],vertices[3*ind[2]+2]);
+            C3Vector p0;
+            p0.setData(&vertices[3*ind[0]+0]);
+            C3Vector p1;
+            p1.setData(&vertices[3*ind[1]+0]);
+            C3Vector p2;
+            p2.setData(&vertices[3*ind[2]+0]);
             C3Vector p((p0+p1+p2)*0.33f);
             if (p(0)>maxV(0))
             { // Positive x
@@ -775,50 +784,50 @@ void CMeshManip::removeDoubleIndices(std::vector<float>& vertices,std::vector<in
         removeDoubleIndices(vertices,pxpypz,checkSameWinding);
 
         // We put everything back together:
-        for (int i=0;i<int(mxmymzX.size());i++)
+        for (size_t i=0;i<mxmymzX.size();i++)
         {
             indices[3*mxmymzX[i]+0]=mxmymz[3*i+0];
             indices[3*mxmymzX[i]+1]=mxmymz[3*i+1];
             indices[3*mxmymzX[i]+2]=mxmymz[3*i+2];
         }
-        for (int i=0;i<int(mxmypzX.size());i++)
+        for (size_t i=0;i<mxmypzX.size();i++)
         {
             indices[3*mxmypzX[i]+0]=mxmypz[3*i+0];
             indices[3*mxmypzX[i]+1]=mxmypz[3*i+1];
             indices[3*mxmypzX[i]+2]=mxmypz[3*i+2];
         }
-        for (int i=0;i<int(mxpymzX.size());i++)
+        for (size_t i=0;i<mxpymzX.size();i++)
         {
             indices[3*mxpymzX[i]+0]=mxpymz[3*i+0];
             indices[3*mxpymzX[i]+1]=mxpymz[3*i+1];
             indices[3*mxpymzX[i]+2]=mxpymz[3*i+2];
         }
-        for (int i=0;i<int(mxpypzX.size());i++)
+        for (size_t i=0;i<mxpypzX.size();i++)
         {
             indices[3*mxpypzX[i]+0]=mxpypz[3*i+0];
             indices[3*mxpypzX[i]+1]=mxpypz[3*i+1];
             indices[3*mxpypzX[i]+2]=mxpypz[3*i+2];
         }
 
-        for (int i=0;i<int(pxmymzX.size());i++)
+        for (size_t i=0;i<pxmymzX.size();i++)
         {
             indices[3*pxmymzX[i]+0]=pxmymz[3*i+0];
             indices[3*pxmymzX[i]+1]=pxmymz[3*i+1];
             indices[3*pxmymzX[i]+2]=pxmymz[3*i+2];
         }
-        for (int i=0;i<int(pxmypzX.size());i++)
+        for (size_t i=0;i<pxmypzX.size();i++)
         {
             indices[3*pxmypzX[i]+0]=pxmypz[3*i+0];
             indices[3*pxmypzX[i]+1]=pxmypz[3*i+1];
             indices[3*pxmypzX[i]+2]=pxmypz[3*i+2];
         }
-        for (int i=0;i<int(pxpymzX.size());i++)
+        for (size_t i=0;i<pxpymzX.size();i++)
         {
             indices[3*pxpymzX[i]+0]=pxpymz[3*i+0];
             indices[3*pxpymzX[i]+1]=pxpymz[3*i+1];
             indices[3*pxpymzX[i]+2]=pxpymz[3*i+2];
         }
-        for (int i=0;i<int(pxpypzX.size());i++)
+        for (size_t i=0;i<pxpypzX.size();i++)
         {
             indices[3*pxpypzX[i]+0]=pxpypz[3*i+0];
             indices[3*pxpypzX[i]+1]=pxpypz[3*i+1];
@@ -827,7 +836,7 @@ void CMeshManip::removeDoubleIndices(std::vector<float>& vertices,std::vector<in
     }
     else
     {
-        for (int i=0;i<int(indices.size())/3;i++)
+        for (size_t i=0;i<indices.size()/3;i++)
         {
             int t[3];
             t[0]=indices[3*i+0];
@@ -835,7 +844,7 @@ void CMeshManip::removeDoubleIndices(std::vector<float>& vertices,std::vector<in
             t[2]=indices[3*i+2];
             if (t[0]!=-1)
             {
-                for (int j=i+1;j<int(indices.size())/3;j++)
+                for (size_t j=i+1;j<indices.size()/3;j++)
                 {
                     int t2[3];
                     t2[0]=indices[3*j+0];
@@ -1452,18 +1461,19 @@ bool CMeshManip::mergeWith( std::vector<float>* tVertices,std::vector<int>* tInd
     return(true);
 }
 
-void CMeshManip::reduceToUnit(float vector[3])
+void CMeshManip::reduceToUnit(floatDouble vector[3])
 {
-    float length=sqrtf((vector[0]*vector[0])+(vector[1]*vector[1])+(vector[2]*vector[2]));
-    if (length==0.0) length=1.0;
+    floatDouble length=sqrt((vector[0]*vector[0])+(vector[1]*vector[1])+(vector[2]*vector[2]));
+    if (length==0.0)
+        length=1.0;
     vector[0]=vector[0]/length;
     vector[1]=vector[1]/length;
     vector[2]=vector[2]/length;
 }
 
-void CMeshManip::calcNormal(float v[3][3],float out[3])
+void CMeshManip::calcNormal(floatDouble v[3][3],floatDouble out[3])
 {
-    float v1[3],v2[3];
+    floatDouble v1[3],v2[3];
     v1[0]=v[0][0]-v[1][0];
     v1[1]=v[0][1]-v[1][1];
     v1[2]=v[0][2]-v[1][2];
@@ -1514,15 +1524,14 @@ void CMeshManip::centerAndScale(std::vector<float>* vertices,float x,float y,flo
     }
 }
 
-void CMeshManip::getNormals(const std::vector<float>* vertices,const std::vector<int>* indices,
-                    std::vector<float>* normals)
+void CMeshManip::getNormals(const std::vector<floatDouble>* vertices,const std::vector<int>* indices,
+                    std::vector<floatDouble>* normals)
 {   // This is the vector version of the function!
     // The size of normals is set in this function
-    float v[3][3],n[3];
-    normals->reserve(3*indices->size());
+    floatDouble v[3][3],n[3];
     normals->clear();
     normals->insert(normals->begin(),3*indices->size(),0);
-    for (int i=0;i<int(indices->size())/3;i++)
+    for (size_t i=0;i<indices->size()/3;i++)
     {
         v[0][0]=vertices->at(3*indices->at(3*i)+0);
         v[0][1]=vertices->at(3*indices->at(3*i)+1);

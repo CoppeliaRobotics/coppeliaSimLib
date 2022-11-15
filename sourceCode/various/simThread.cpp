@@ -2286,10 +2286,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             // Keep the text. coords if simple shape:
                             if (!shape->isCompound())
                             {
-                                std::vector<float>* tc=tp->getFixedTextureCoordinates();
+                                std::vector<floatFloat>* tc=tp->getFixedTextureCoordinates();
                                 if (tc!=nullptr)
                                 {
-                                    shape->getSingleMesh()->textureCoords_notCopiedNorSerialized.assign(tc->begin(),tc->end());
+                                    shape->getSingleMesh()->setTextureCoords(tc);
                                     keepTextCoords=true;
                                 }
                             }
@@ -2298,7 +2298,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             components[j]->setTextureProperty(nullptr);
                         }
                         if (!keepTextCoords)
-                            components[j]->textureCoords_notCopiedNorSerialized.clear(); // discard existing texture coordinates
+                            components[j]->setTextureCoords(nullptr); // discard existing texture coordinates
                     }
                 }
             }
@@ -2332,11 +2332,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             // Keep the text. coords if simple shape:
                             if (!shape->isCompound())
                             {
-                                std::vector<float>* tc=tp->getFixedTextureCoordinates();
+                                std::vector<floatFloat>* tc=tp->getFixedTextureCoordinates();
                                 if (tc!=nullptr)
                                 {
                                     useTexCoords=true;
-                                    shape->getSingleMesh()->textureCoords_notCopiedNorSerialized.assign(tc->begin(),tc->end());
+                                    shape->getSingleMesh()->setTextureCoords(tc);
                                 }
                             }
                             App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),-1);
@@ -2344,7 +2344,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             components[j]->setTextureProperty(nullptr);
                         }
                         if (!useTexCoords)
-                            components[j]->textureCoords_notCopiedNorSerialized.clear(); // discard existing texture coordinates
+                            components[j]->setTextureCoords(nullptr); // discard existing texture coordinates
                     }
                 }
             }
@@ -2383,15 +2383,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         bool useTexCoords=false;
                         if (!shape->isCompound())
                         {
-                            if (shape->getSingleMesh()->textureCoords_notCopiedNorSerialized.size()!=0)
+                            if (shape->getSingleMesh()->getTextureCoords()->size()!=0)
                             {
                                 std::vector<float> wvert;
                                 std::vector<int> wind;
                                 shape->getSingleMesh()->getCumulativeMeshes(wvert,&wind,nullptr);
-                                if (shape->getSingleMesh()->textureCoords_notCopiedNorSerialized.size()/2==wind.size())
+                                if (shape->getSingleMesh()->getTextureCoords()->size()/2==wind.size())
                                 { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
-                                    tp->setFixedCoordinates(&shape->getSingleMesh()->textureCoords_notCopiedNorSerialized);
-                                    shape->getSingleMesh()->textureCoords_notCopiedNorSerialized.clear();
+                                    tp->setFixedCoordinates(shape->getSingleMesh()->getTextureCoords());
+                                    shape->getSingleMesh()->setTextureCoords(nullptr);
                                     useTexCoords=true;
                                 }
                             }
@@ -2568,11 +2568,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     std::vector<float> wvert;
                     std::vector<int> wind;
                     geom->getCumulativeMeshes(wvert,&wind,nullptr);
-                    if (geom->textureCoords_notCopiedNorSerialized.size()/2==wind.size())
+                    if (geom->getTextureCoords()->size()/2==wind.size())
                     { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
                         App::uiThread->messageBox_information(App::mainWindow,"Texture coordinates",IDS_USING_EXISTING_TEXTURE_COORDINATES,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                        tp->setFixedCoordinates(&geom->textureCoords_notCopiedNorSerialized);
-                        geom->textureCoords_notCopiedNorSerialized.clear();
+                        tp->setFixedCoordinates(geom->getTextureCoords());
+                        geom->setTextureCoords(nullptr);
                     }
                 }
                 else
@@ -2602,9 +2602,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     if (tp!=nullptr)
                     { // remove the texture
-                        std::vector<float>* tc=tp->getFixedTextureCoordinates();
+                        std::vector<floatFloat>* tc=tp->getFixedTextureCoordinates();
                         if (tc!=nullptr)
-                            geom->textureCoords_notCopiedNorSerialized.assign(tc->begin(),tc->end());
+                            geom->setTextureCoords(tc);
                         App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1],geom->getUniqueID());
                         delete tp;
                         geom->setTextureProperty(nullptr);
@@ -2628,11 +2628,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             std::vector<int> wind;
                             geom->getCumulativeMeshes(wvert,&wind,nullptr);
 
-                            if (geom->textureCoords_notCopiedNorSerialized.size()/2==wind.size())
+                            if (geom->getTextureCoords()->size()/2==wind.size())
                             { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
                                 App::uiThread->messageBox_information(App::mainWindow,"Texture coordinates",IDS_USING_EXISTING_TEXTURE_COORDINATES,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                                tp->setFixedCoordinates(&geom->textureCoords_notCopiedNorSerialized);
-                                geom->textureCoords_notCopiedNorSerialized.clear();
+                                tp->setFixedCoordinates(geom->getTextureCoords());
+                                geom->setTextureCoords(nullptr);
                             }
                         }
                     }
@@ -4370,8 +4370,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     to->addDependentObject(newShape->getObjectHandle(),newShape->getSingleMesh()->getUniqueID());
                     CTextureProperty* tp=new CTextureProperty(to->getObjectID());
                     newShape->getSingleMesh()->setTextureProperty(tp);
-                    tp->setFixedCoordinates(&newShape->getSingleMesh()->textureCoords_notCopiedNorSerialized);
-                    newShape->getSingleMesh()->textureCoords_notCopiedNorSerialized.clear();
+                    tp->setFixedCoordinates(newShape->getSingleMesh()->getTextureCoords());
+                    newShape->getSingleMesh()->setTextureCoords(nullptr);
                 }
             }
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);

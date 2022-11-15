@@ -306,7 +306,7 @@ void CJoint::setHybridFunctionality_old(bool h)
     }
 }
 
-void CJoint::getDynamicJointErrors(float& linear,float& angular) const
+void CJoint::getDynamicJointErrors(floatDouble& linear,floatDouble& angular) const
 {
     linear=0.0f;
     angular=0.0f;
@@ -344,12 +344,12 @@ void CJoint::getDynamicJointErrorsFull(C3Vector& linear,C3Vector& angular) const
         linear=_intrinsicTransformationError.X;
 }
 
-bool CJoint::setEngineFloatParam(int what,float v)
+bool CJoint::setEngineFloatParam(int what,floatDouble v)
 {
     if ((what>sim_bullet_joint_float_start)&&(what<sim_bullet_joint_float_end))
     {
         int w=what-sim_bullet_joint_stoperp+simi_bullet_joint_stoperp;
-        std::vector<float> fp;
+        std::vector<floatDouble> fp;
         getBulletFloatParams(fp);
         fp[w]=v;
         setBulletFloatParams(fp);
@@ -358,7 +358,7 @@ bool CJoint::setEngineFloatParam(int what,float v)
     if ((what>sim_ode_joint_float_start)&&(what<sim_ode_joint_float_end))
     {
         int w=what-sim_ode_joint_stoperp+simi_ode_joint_stoperp;
-        std::vector<float> fp;
+        std::vector<floatDouble> fp;
         getOdeFloatParams(fp);
         fp[w]=v;
         setOdeFloatParams(fp);
@@ -367,7 +367,7 @@ bool CJoint::setEngineFloatParam(int what,float v)
     if ((what>sim_vortex_joint_float_start)&&(what<sim_vortex_joint_float_end))
     {
         int w=what-sim_vortex_joint_lowerlimitdamping+simi_vortex_joint_lowerlimitdamping;
-        std::vector<float> fp;
+        std::vector<floatDouble> fp;
         getVortexFloatParams(fp);
         fp[w]=v;
         setVortexFloatParams(fp);
@@ -383,7 +383,7 @@ bool CJoint::setEngineFloatParam(int what,float v)
     if ((what>sim_newton_joint_float_start)&&(what<sim_newton_joint_float_end))
     {
         int w=what-sim_newton_joint_dependencyfactor+simi_newton_joint_dependencyfactor;
-        std::vector<float> fp;
+        std::vector<floatDouble> fp;
         getNewtonFloatParams(fp);
         fp[w]=v;
         setNewtonFloatParams(fp);
@@ -399,7 +399,7 @@ bool CJoint::setEngineFloatParam(int what,float v)
     if ((what>sim_mujoco_joint_float_start)&&(what<sim_mujoco_joint_float_end))
     {
         int w=what-sim_mujoco_joint_solreflimit1+simi_mujoco_joint_solreflimit1;
-        std::vector<float> fp;
+        std::vector<floatDouble> fp;
         getMujocoFloatParams(fp);
         fp[w]=v;
         setMujocoFloatParams(fp);
@@ -497,9 +497,9 @@ bool CJoint::setEngineBoolParam(int what,bool v)
     return(false);
 }
 
-void CJoint::setBulletFloatParams(const std::vector<float>& pp)
+void CJoint::setBulletFloatParams(const std::vector<floatDouble>& pp)
 {
-    std::vector<float> p(pp);
+    std::vector<floatDouble> p(pp);
     tt::limitValue(0.0f,1.0f,p[simi_bullet_joint_stoperp]); // stop ERP
     tt::limitValue(0.0f,100.0f,p[simi_bullet_joint_stopcfm]); // stop CFM
     tt::limitValue(0.0f,100.0f,p[simi_bullet_joint_normalcfm]); // normal CFM
@@ -519,9 +519,9 @@ void CJoint::setBulletFloatParams(const std::vector<float>& pp)
         _bulletFloatParams.assign(p.begin(),p.end());
 }
 
-void CJoint::setOdeFloatParams(const std::vector<float>& pp)
+void CJoint::setOdeFloatParams(const std::vector<floatDouble>& pp)
 {
-    std::vector<float> p(pp);
+    std::vector<floatDouble> p(pp);
     tt::limitValue(0.0f,1.0f,p[simi_ode_joint_stoperp]); // stop ERP
     tt::limitValue(0.0f,100.0f,p[simi_ode_joint_stopcfm]); // stop CFM
     tt::limitValue(0.0f,100.0f,p[simi_ode_joint_bounce]); // bounce
@@ -543,9 +543,9 @@ void CJoint::setOdeFloatParams(const std::vector<float>& pp)
         _odeFloatParams.assign(p.begin(),p.end());
 }
 
-void CJoint::setVortexFloatParams(const std::vector<float>& pp)
+void CJoint::setVortexFloatParams(const std::vector<floatDouble>& pp)
 {
-    std::vector<float> p(pp);
+    std::vector<floatDouble> p(pp);
     // Forbid zero stiffness for relaxation axes:
     if (p[simi_vortex_joint_p0stiffness]==0.0f)
         p[simi_vortex_joint_p0stiffness]=1e-35f;
@@ -584,9 +584,9 @@ void CJoint::setVortexFloatParams(const std::vector<float>& pp)
         _vortexFloatParams.assign(p.begin(),p.end());
 }
 
-void CJoint::setNewtonFloatParams(const std::vector<float>& pp)
+void CJoint::setNewtonFloatParams(const std::vector<floatDouble>& pp)
 {
-    std::vector<float> p(pp);
+    std::vector<floatDouble> p(pp);
     // Limit offset and factor for dependency equation:
     if (p[simi_newton_joint_dependencyfactor]>10000.0f)
         p[simi_newton_joint_dependencyfactor]=10000.0f;
@@ -612,9 +612,9 @@ void CJoint::setNewtonFloatParams(const std::vector<float>& pp)
         _newtonFloatParams.assign(p.begin(),p.end());
 }
 
-void CJoint::setMujocoFloatParams(const std::vector<float>& pp)
+void CJoint::setMujocoFloatParams(const std::vector<floatDouble>& pp)
 {
-    std::vector<float> p(pp);
+    std::vector<floatDouble> p(pp);
     bool diff=(_mujocoFloatParams.size()!=p.size());
     if (!diff)
     {
@@ -633,7 +633,7 @@ void CJoint::setMujocoFloatParams(const std::vector<float>& pp)
 
 void CJoint::copyEnginePropertiesTo(CJoint* target)
 {
-    std::vector<float> fp;
+    std::vector<floatDouble> fp;
     std::vector<int> ip;
     // Bullet:
     getBulletFloatParams(fp);
@@ -666,7 +666,7 @@ void CJoint::copyEnginePropertiesTo(CJoint* target)
     target->setMujocoIntParams(ip);
 }
 
-void CJoint::setTargetVelocity(float v)
+void CJoint::setTargetVelocity(floatDouble v)
 {
     if (_jointType!=sim_joint_spherical_subtype)
     {
@@ -680,7 +680,7 @@ void CJoint::setTargetVelocity(float v)
     }
 }
 
-void CJoint::setTargetForce(float f,bool isSigned)
+void CJoint::setTargetForce(floatDouble f,bool isSigned)
 {
     if (_jointType!=sim_joint_spherical_subtype)
     {
@@ -701,7 +701,7 @@ void CJoint::setTargetForce(float f,bool isSigned)
     }
 }
 
-void CJoint::setPid_old(float p_param,float i_param,float d_param)
+void CJoint::setPid_old(floatDouble p_param,floatDouble i_param,floatDouble d_param)
 { // old, back-compatibility function
     setEngineFloatParam(sim_bullet_joint_pospid1,p_param);
     setEngineFloatParam(sim_bullet_joint_pospid2,i_param);
@@ -718,11 +718,11 @@ void CJoint::setPid_old(float p_param,float i_param,float d_param)
     // Not for Mujoco!
 }
 
-void CJoint::setKc(float k_param,float c_param)
+void CJoint::setKc(floatDouble k_param,floatDouble c_param)
 {
-    float maxVal=+10000000000.0f;
+    floatDouble maxVal=+10000000000.0;
     if (_jointType==sim_joint_revolute_subtype)
-        maxVal=+100000000000.0f;
+        maxVal=+100000000000.0;
     k_param=tt::getLimitedFloat(-maxVal,maxVal,k_param);
     c_param=tt::getLimitedFloat(-maxVal,maxVal,c_param);
     bool diff=(_dynCtrl_kc[0]!=k_param)||(_dynCtrl_kc[1]!=c_param);
@@ -733,7 +733,7 @@ void CJoint::setKc(float k_param,float c_param)
     }
 }
 
-void CJoint::setTargetPosition(float pos)
+void CJoint::setTargetPosition(floatDouble pos)
 {
     if (_jointType!=sim_joint_spherical_subtype)
     {
@@ -745,7 +745,7 @@ void CJoint::setTargetPosition(float pos)
     }
 }
 
-void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp,float simTime)
+void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(floatDouble rfp,floatDouble simTime)
 {
     {   // When the joint is in dynamic mode we disable the joint limits and allow a cyclic behaviour (revolute joints)
         // This is because dynamic joints can over or undershoot limits.
@@ -822,7 +822,7 @@ void CJoint::_setDependencyJointHandle_sendOldIk(int depJointID) const
     }
 }
 
-void CJoint::setDependencyJointMult(float coeff)
+void CJoint::setDependencyJointMult(floatDouble coeff)
 {
     if (_jointType!=sim_joint_spherical_subtype)
     {
@@ -839,7 +839,7 @@ void CJoint::setDependencyJointMult(float coeff)
     }
 }
 
-void CJoint::_setDependencyJointMult_sendOldIk(float coeff) const
+void CJoint::_setDependencyJointMult_sendOldIk(floatDouble coeff) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
@@ -852,7 +852,7 @@ void CJoint::_setDependencyJointMult_sendOldIk(float coeff) const
     }
 }
 
-void CJoint::setDependencyJointOffset(float off)
+void CJoint::setDependencyJointOffset(floatDouble off)
 {
     if (_jointType!=sim_joint_spherical_subtype)
     {
@@ -869,7 +869,7 @@ void CJoint::setDependencyJointOffset(float off)
     }
 }
 
-void CJoint::_setDependencyJointOffset_sendOldIk(float off) const
+void CJoint::_setDependencyJointOffset_sendOldIk(floatDouble off) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
@@ -882,14 +882,14 @@ void CJoint::_setDependencyJointOffset_sendOldIk(float off) const
     }
 }
 
-void CJoint::measureJointVelocity(float simTime)
+void CJoint::measureJointVelocity(floatDouble simTime)
 {
     if (_jointType!=sim_joint_spherical_subtype)
     {
-        float dt=simTime-_velCalc_prevSimTime;
-        if (_velCalc_prevPosValid&&(dt>0.00001f))
+        floatDouble dt=simTime-_velCalc_prevSimTime;
+        if (_velCalc_prevPosValid&&(dt>0.00001))
         {
-            float v;
+            floatDouble v;
             if (_isCyclic)
                 v=tt::getAngleMinusAlpha(_pos,_velCalc_prevPos)/dt;
             else
@@ -902,7 +902,7 @@ void CJoint::measureJointVelocity(float simTime)
     }
 }
 
-void CJoint::setVelocity(float v,const CJoint* masterJoint/*=nullptr*/)
+void CJoint::setVelocity(floatDouble v,const CJoint* masterJoint/*=nullptr*/)
 { // sets the velocity, and overrides next velocity measurement in measureJointVelocity
     if (masterJoint!=nullptr)
     {
@@ -1031,48 +1031,48 @@ void CJoint::resetJoint_DEPRECATED()
     }
 }
 
-void CJoint::handleJoint_DEPRECATED(float deltaTime)
+void CJoint::handleJoint_DEPRECATED(floatDouble deltaTime)
 { // DEPRECATED. handling the motion here. Not elegant at all. In future, try using the Reflexxes RML library!
     if ( (_jointMode!=sim_jointmode_motion_deprecated)||(!App::currentWorld->mainSettings->jointMotionHandlingEnabled_DEPRECATED) )
         return;
     if (_unlimitedAcceleration_DEPRECATED)
     {
         _velocity_DEPRECATED=_targetVel;
-        if (_velocity_DEPRECATED!=0.0f)
+        if (_velocity_DEPRECATED!=0.0)
         {
-            float newPos=_jointPositionForMotionHandling_DEPRECATED;
+            floatDouble newPos=_jointPositionForMotionHandling_DEPRECATED;
             if (!_isCyclic)
             {
                 if (_invertTargetVelocityAtLimits_DEPRECATED)
                 {
-                    float cycleTime=2.0f*_posRange/_velocity_DEPRECATED;
+                    floatDouble cycleTime=2.0*_posRange/_velocity_DEPRECATED;
                     deltaTime=CMath::robustFmod(deltaTime,cycleTime);
                     while (true)
                     {
                         _velocity_DEPRECATED=_targetVel;
-                        float absDist=_posMin+_posRange-newPos;
-                        if (_velocity_DEPRECATED<0.0f)
+                        floatDouble absDist=_posMin+_posRange-newPos;
+                        if (_velocity_DEPRECATED<0.0)
                             absDist=newPos-_posMin;
                         if (absDist>fabs(_velocity_DEPRECATED)*deltaTime)
                         {
                             newPos+=_velocity_DEPRECATED*deltaTime;
                             break; // We reached the desired deltaTime
                         }
-                        if (_velocity_DEPRECATED<0.0f)
+                        if (_velocity_DEPRECATED<0.0)
                             newPos-=absDist;
                         else
                             newPos+=absDist;
                         deltaTime-=absDist/fabs(_velocity_DEPRECATED);
-                        _targetVel*=-1.0f; // We invert the target velocity
+                        _targetVel*=-1.0; // We invert the target velocity
                     }
                 }
                 else
                 {
                     newPos+=_velocity_DEPRECATED*deltaTime;
-                    float dv=newPos-(_posMin+_posRange);
-                    float dl=_posMin-newPos;
-                    if ( (dl>=0.0f)||(dv>=0.0f) )
-                        _velocity_DEPRECATED=0.0f;
+                    floatDouble dv=newPos-(_posMin+_posRange);
+                    floatDouble dl=_posMin-newPos;
+                    if ( (dl>=0.0)||(dv>=0.0) )
+                        _velocity_DEPRECATED=0.0;
                 }
             }
             else
@@ -1084,23 +1084,23 @@ void CJoint::handleJoint_DEPRECATED(float deltaTime)
     else
     { // Acceleration is not infinite!
         double newPos=double(_jointPositionForMotionHandling_DEPRECATED);
-        float minV=-FLOAT_MAX;
-        float maxV=+FLOAT_MAX;
+        floatDouble minV=-FLOAT_MAX;
+        floatDouble maxV=+FLOAT_MAX;
         if (!_isCyclic)
         {
             minV=_posMin;
             maxV=_posMin+_posRange;
             // Make sure we are within limits:
-            float m=float(CLinMotionRoutines::getMaxVelocityAtPosition(newPos,_maxAcceleration_DEPRECATED,minV,maxV,0.0f,0.0f));
+            floatDouble m=floatDouble(CLinMotionRoutines::getMaxVelocityAtPosition(newPos,_maxAcceleration_DEPRECATED,minV,maxV,0.0,0.0));
             tt::limitValue(-m,m,_velocity_DEPRECATED);
         }
 
         double velocityDouble=double(_velocity_DEPRECATED);
         double deltaTimeDouble=double(deltaTime);
-        while (CLinMotionRoutines::getNextValues(newPos,velocityDouble,_targetVel,_maxAcceleration_DEPRECATED,minV,maxV,0.0f,0.0f,deltaTimeDouble))
+        while (CLinMotionRoutines::getNextValues(newPos,velocityDouble,_targetVel,_maxAcceleration_DEPRECATED,minV,maxV,0.0,0.0,deltaTimeDouble))
         {
             if (_invertTargetVelocityAtLimits_DEPRECATED)
-                _targetVel*=-1.0f;
+                _targetVel*=-1.0;
             else
             {
                 deltaTime=0.0f;
@@ -1108,9 +1108,9 @@ void CJoint::handleJoint_DEPRECATED(float deltaTime)
                 break;
             }
         }
-        _velocity_DEPRECATED=float(velocityDouble);
+        _velocity_DEPRECATED=floatDouble(velocityDouble);
 
-        setPosition(float(newPos));
+        setPosition(floatDouble(newPos));
         _jointPositionForMotionHandling_DEPRECATED=getPosition();
     }
 }
@@ -1150,36 +1150,36 @@ bool CJoint::getInvertTargetVelocityAtLimits_DEPRECATED()
 { // DEPRECATED
     return(_invertTargetVelocityAtLimits_DEPRECATED);
 }
-void CJoint::setMaxAcceleration_DEPRECATED(float maxAccel)
+void CJoint::setMaxAcceleration_DEPRECATED(floatDouble maxAccel)
 { // DEPRECATED
     if (_jointType==sim_joint_spherical_subtype)
         return;
     if (_jointType==sim_joint_prismatic_subtype)
-        tt::limitValue(0.0001f,1000.0f,maxAccel);
+        tt::limitValue(0.0001,1000.0,maxAccel);
     else
-        tt::limitValue(0.001f*degToRad,36000.0f*degToRad,maxAccel);
+        tt::limitValue(0.001*degToRad,36000.0*degToRad,maxAccel);
     _maxAcceleration_DEPRECATED=maxAccel;
     setVelocity_DEPRECATED(getVelocity_DEPRECATED()); // To make sure velocity is within allowed range
 }
 
-float CJoint::getMaxAcceleration_DEPRECATED()
+floatDouble CJoint::getMaxAcceleration_DEPRECATED()
 { // DEPRECATED
     return(_maxAcceleration_DEPRECATED);
 }
 
-void CJoint::setVelocity_DEPRECATED(float vel)
+void CJoint::setVelocity_DEPRECATED(floatDouble vel)
 { // DEPRECATED
     if (_jointType==sim_joint_spherical_subtype)
         return;
-    if ( (vel!=0.0f)&&((_jointType==sim_joint_prismatic_subtype)||(!_isCyclic))&&(!_unlimitedAcceleration_DEPRECATED) )
+    if ( (vel!=0.0)&&((_jointType==sim_joint_prismatic_subtype)||(!_isCyclic))&&(!_unlimitedAcceleration_DEPRECATED) )
     { // We check which is the max allowed:
-        float m=float(CLinMotionRoutines::getMaxVelocityAtPosition(_pos,_maxAcceleration_DEPRECATED,_posMin,_posMin+_posRange,0.0f,0.0f));
+        floatDouble m=floatDouble(CLinMotionRoutines::getMaxVelocityAtPosition(_pos,_maxAcceleration_DEPRECATED,_posMin,_posMin+_posRange,0.0,0.0));
         tt::limitValue(-m,m,vel);
     }
     _velocity_DEPRECATED=vel;
 }
 
-float CJoint::getVelocity_DEPRECATED()
+floatDouble CJoint::getVelocity_DEPRECATED()
 { // DEPRECATED
     return(_velocity_DEPRECATED);
 }
@@ -1216,7 +1216,7 @@ std::string CJoint::getObjectTypeInfoExtended() const
     return(retVal);
 }
 
-float CJoint::getMeasuredJointVelocity() const
+floatDouble CJoint::getMeasuredJointVelocity() const
 {
     return(_velCalc_vel);
 }
@@ -1260,7 +1260,7 @@ void CJoint::computeBoundingBox()
     _setBoundingBox(minV,maxV);
 }
 
-bool CJoint::setScrewPitch(float pitch)
+bool CJoint::setScrewPitch(floatDouble pitch)
 {
     bool retVal=false;
     if (_jointType==sim_joint_revolute_subtype)
@@ -1283,14 +1283,14 @@ bool CJoint::setScrewPitch(float pitch)
     return(retVal);
 }
 
-void CJoint::_setScrewPitch_sendOldIk(float pitch) const
+void CJoint::_setScrewPitch_sendOldIk(floatDouble pitch) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setJointScrewPitch(_ikPluginCounterpartHandle,_screwPitch);
 }
 
-void CJoint::setPositionMin(float min)
+void CJoint::setPositionMin(floatDouble min)
 {
     if (_jointType!=sim_joint_spherical_subtype)
     {
@@ -1316,14 +1316,14 @@ void CJoint::setPositionMin(float min)
     }
 }
 
-void CJoint::_setPositionIntervalMin_sendOldIk(float min) const
+void CJoint::_setPositionIntervalMin_sendOldIk(floatDouble min) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
 }
 
-void CJoint::setPositionRange(float range)
+void CJoint::setPositionRange(floatDouble range)
 {
     if (_jointType==sim_joint_revolute_subtype)
         range=tt::getLimitedFloat(0.001f*degToRad,10000000.0f*degToRad,range);
@@ -1354,14 +1354,14 @@ void CJoint::setPositionRange(float range)
     }
 }
 
-void CJoint::_setPositionIntervalRange_sendOldIk(float range) const
+void CJoint::_setPositionIntervalRange_sendOldIk(floatDouble range) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
 }
 
-void CJoint::setLength(float l)
+void CJoint::setLength(floatDouble l)
 {
     tt::limitValue(0.001f,1000.0f,l);
     bool diff=(_length!=l);
@@ -1379,7 +1379,7 @@ void CJoint::setLength(float l)
     }
 }
 
-void CJoint::setDiameter(float d)
+void CJoint::setDiameter(floatDouble d)
 {
     tt::limitValue(0.0001f,100.0f,d);
     bool diff=(_diameter!=d);
@@ -1397,7 +1397,7 @@ void CJoint::setDiameter(float d)
     }
 }
 
-void CJoint::scaleObject(float scalingFactor)
+void CJoint::scaleObject(floatDouble scalingFactor)
 {
     setDiameter(_diameter*scalingFactor);
     setLength(_length*scalingFactor);
@@ -1468,14 +1468,14 @@ void CJoint::scaleObject(float scalingFactor)
     _dynamicsResetFlag=true;
 
     _lastForceOrTorqueValid_dynStep=false;
-    _lastForceOrTorque_dynStep=0.0f;
+    _lastForceOrTorque_dynStep=0.0;
     _averageForceOrTorqueValid=false;
-    _cumulatedForceOrTorque=0.0f;
+    _cumulatedForceOrTorque=0.0;
 }
 
-void CJoint::scaleObjectNonIsometrically(float x,float y,float z)
+void CJoint::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
-    float diam=sqrt(x*y);
+    floatDouble diam=sqrt(x*y);
     setDiameter(_diameter*diam);
     setLength(_length*z);
     setScrewPitch(_screwPitch*z);
@@ -1545,14 +1545,14 @@ void CJoint::scaleObjectNonIsometrically(float x,float y,float z)
     _dynamicsResetFlag=true;
 }
 
-void CJoint::addCumulativeForceOrTorque(float forceOrTorque,int countForAverage)
+void CJoint::addCumulativeForceOrTorque(floatDouble forceOrTorque,int countForAverage)
 { // The countForAverage mechanism is needed because we need to average all values in a simulation time step (but this is called every dynamic simulation time step!!)
     _lastForceOrTorque_dynStep=forceOrTorque;
     _lastForceOrTorqueValid_dynStep=true;
     _cumulativeForceOrTorqueTmp+=forceOrTorque;
     if (countForAverage>0)
     {
-        _cumulatedForceOrTorque=_cumulativeForceOrTorqueTmp/float(countForAverage);
+        _cumulatedForceOrTorque=_cumulativeForceOrTorqueTmp/floatDouble(countForAverage);
         _averageForceOrTorqueValid=true;
         _cumulativeForceOrTorqueTmp=0.0f;
     }
@@ -1566,7 +1566,7 @@ void CJoint::setForceOrTorqueNotValid()
     _lastForceOrTorque_dynStep=0.0f;
 }
 
-bool CJoint::getDynamicForceOrTorque(float& forceOrTorque,bool dynamicStepValue) const
+bool CJoint::getDynamicForceOrTorque(floatDouble& forceOrTorque,bool dynamicStepValue) const
 {
     if (dynamicStepValue)
     {
@@ -1588,7 +1588,7 @@ bool CJoint::getDynamicForceOrTorque(float& forceOrTorque,bool dynamicStepValue)
     }
 }
 
-int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAccel[3],float effort,float dynStepSize,float errorV,float velAndForce[2])
+int CJoint::handleDynJoint(int flags,const int intVals[3],floatDouble currentPosVelAccel[3],floatDouble effort,floatDouble dynStepSize,floatDouble errorV,floatDouble velAndForce[2])
 { // constant callback for every dynamically enabled joint, except for spherical joints. retVal: bit0 set: motor on, bit1 set: motor locked
     // Called before a dyn step. After the step, setDynamicMotorReflectedPosition_useOnlyFromDynamicPart is called
     // flags: bit0: init (first time called), bit1: currentPosVelAccel[1] is valid, bit2: currentPosVelAccel[2] is valid
@@ -1600,10 +1600,10 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
         retVal=0;
     else if (_dynCtrlMode==sim_jointdynctrl_force)
     {
-        velAndForce[0]=10000.0f;
+        velAndForce[0]=10000.0;
         velAndForce[1]=_targetForce;
         if (_targetForce<0.0f)
-            velAndForce[0]=-10000.0f; // make sure they have same sign
+            velAndForce[0]=-10000.0; // make sure they have same sign
     }
     else if (_dynCtrlMode==sim_jointdynctrl_velocity)
     {
@@ -1611,7 +1611,7 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
         { // engine internal velocity ctrl
             velAndForce[0]=_targetVel;
             velAndForce[1]=_targetForce;
-            if ( _motorLock&&(_targetVel==0.0f) )
+            if ( _motorLock&&(_targetVel==0.0) )
                 retVal|=2;
         }
         if (_dynVelocityCtrlType==1)
@@ -1632,9 +1632,9 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                         {
                             int res=CPluginContainer::ruckigPlugin_step(ruckObj,double(dynStepSize),&pos,dynVelCtrlCurrentVelAccel,dynVelCtrlCurrentVelAccel+1,&pos);
                             CPluginContainer::ruckigPlugin_remove(ruckObj);
-                            velAndForce[0]=float(dynVelCtrlCurrentVelAccel[0]);
+                            velAndForce[0]=floatDouble(dynVelCtrlCurrentVelAccel[0]);
                             velAndForce[1]=_targetForce;
-                            if (velAndForce[0]*velAndForce[1]<0.0f)
+                            if (velAndForce[0]*velAndForce[1]<0.0)
                                 velAndForce[1]=-velAndForce[1]; // make sure they have same sign
                         }
                     }
@@ -1647,9 +1647,9 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                         retVal|=2;
                 }
 
-                velAndForce[0]=float(dynVelCtrlCurrentVelAccel[0]);
+                velAndForce[0]=floatDouble(dynVelCtrlCurrentVelAccel[0]);
                 velAndForce[1]=_targetForce;
-                if (velAndForce[0]*velAndForce[1]<0.0f)
+                if (velAndForce[0]*velAndForce[1]<0.0)
                     velAndForce[1]=-velAndForce[1]; // make sure they have same sign
                 if ( (rk4==0)||(rk4==4) )
                 {
@@ -1685,9 +1685,9 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                     {
                         int res=CPluginContainer::ruckigPlugin_step(ruckObj,dynStepSize,&dummy,dynPosCtrlCurrentVelAccel,dynPosCtrlCurrentVelAccel+1,&dummy);
                         CPluginContainer::ruckigPlugin_remove(ruckObj);
-                        velAndForce[0]=float(dynPosCtrlCurrentVelAccel[0]);
+                        velAndForce[0]=floatDouble(dynPosCtrlCurrentVelAccel[0]);
                         velAndForce[1]=_targetForce;
-                        if (velAndForce[0]*velAndForce[1]<0.0f)
+                        if (velAndForce[0]*velAndForce[1]<0.0)
                             velAndForce[1]=-velAndForce[1]; // make sure they have same sign
                     }
                     if ( (rk4==0)||(rk4==4) )
@@ -1698,32 +1698,32 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                 }
                 else
                 { // pos ctrl or spring
-                    float P,I,D;
+                    floatDouble P,I,D;
                     getPid(P,I,D);
                     if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
                     {
                         P=_dynCtrl_kc[0];
-                        I=0.0f;
+                        I=0.0;
                         D=_dynCtrl_kc[1];
                     }
 
                     if ((flags&1)!=0)
-                        _dynCtrl_pid_cumulErr=0.0f;
+                        _dynCtrl_pid_cumulErr=0.0;
 
-                    float e=errorV;
+                    floatDouble e=errorV;
 
                     // Proportional part:
-                    float ctrl=e*P;
+                    floatDouble ctrl=e*P;
 
                     // Integral part:
                     if ( (I!=0.0)&&(rk4==0) ) // so that if we turn the integral part on, we don't try to catch up all the past errors!
                         _dynCtrl_pid_cumulErr+=e*dynStepSize;
                     else
-                        _dynCtrl_pid_cumulErr=0.0f;
+                        _dynCtrl_pid_cumulErr=0.0;
                     ctrl+=_dynCtrl_pid_cumulErr*I;
 
                     // Derivative part:
-                    float cv=_velCalc_vel;
+                    floatDouble cv=_velCalc_vel;
                     if ((flags&2)!=0)
                         cv=currentPosVelAccel[1];
                     ctrl-=cv*D;
@@ -1731,16 +1731,16 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                     if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
                     { // "spring" mode, i.e. force modulation mode
                         velAndForce[0]=fabs(_targetVel);
-                        if (ctrl<0.0f)
+                        if (ctrl<0.0)
                             velAndForce[0]=-velAndForce[0];
                         velAndForce[1]=fabs(ctrl);
-                        if (velAndForce[0]*velAndForce[1]<0.0f)
+                        if (velAndForce[0]*velAndForce[1]<0.0)
                             velAndForce[1]=-velAndForce[1]; // make sure they have same sign
                     }
                     else
                     { // regular position control
-                        float vel=ctrl/0.005f; // was ctrl/dynStepSize, but has to be step size independent
-                        float maxVel=_maxVelAccelJerk[0];
+                        floatDouble vel=ctrl/0.005; // was ctrl/dynStepSize, but has to be step size independent
+                        floatDouble maxVel=_maxVelAccelJerk[0];
                         if (vel>maxVel)
                             vel=maxVel;
                         if (vel<-maxVel)
@@ -1748,7 +1748,7 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
 
                         velAndForce[0]=vel;
                         velAndForce[1]=_targetForce;
-                        if (velAndForce[0]*velAndForce[1]<0.0f)
+                        if (velAndForce[0]*velAndForce[1]<0.0)
                             velAndForce[1]=-velAndForce[1]; // make sure they have same sign
                     }
                 }
@@ -1765,8 +1765,8 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
         { // joint callback (and hybrid joint pos/spring + callback, old, for backward compatibility)
             bool rev=(_jointType==sim_joint_revolute_subtype);
             bool cycl=_isCyclic;
-            float lowL=_posMin;
-            float highL=_posMin+_posRange;
+            floatDouble lowL=_posMin;
+            floatDouble highL=_posMin+_posRange;
             if (App::worldContainer->getJointFuncCount()>0)
             { // a script might want to handle the joint
                 // 1. We prepare the in/out stacks:
@@ -1812,7 +1812,7 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],float currentPosVelAcc
                     inStack->pushInt32OntoStack(rk4);
                     inStack->insertDataIntoStackTable();
                 }
-                float cv=_velCalc_vel;
+                floatDouble cv=_velCalc_vel;
                 if ((flags&2)!=0)
                     cv=currentPosVelAccel[1];
                 inStack->pushStringOntoStack("currentVel",0); // deprecated
@@ -1917,7 +1917,7 @@ void CJoint::handleMotion()
         if (App::worldContainer->getJointFuncCount()>0)
         { // a script might want to handle the joint
             bool rev=(_jointType==sim_joint_revolute_subtype);
-            float errorV;
+            floatDouble errorV;
             if (rev&&_isCyclic)
                 errorV=tt::getAngleMinusAlpha(_targetPos,_pos);
             else
@@ -2006,12 +2006,12 @@ void CJoint::handleMotion()
                 int s=outStack->getStackSize();
                 if (s>1)
                     outStack->moveStackItemToTop(0);
-                float pos;
+                floatDouble pos;
                 if ( outStack->getStackMapFloatValue("pos",pos)||outStack->getStackMapFloatValue("position",pos) ) // "position" is deprecated
                     setPosition(pos);
 
                 bool immobile=false;
-                float cv,ca;
+                floatDouble cv,ca;
                 if ( outStack->getStackMapFloatValue("vel",cv)||outStack->getStackMapFloatValue("velocity",cv) ) // "velocity" is deprecated
                 {
                     setVelocity(cv);
@@ -2028,7 +2028,7 @@ void CJoint::handleMotion()
     }
 }
 
-void CJoint::setKinematicMotionType(int t,bool reset,float initVel/*=0.0f*/)
+void CJoint::setKinematicMotionType(int t,bool reset,floatDouble initVel/*=0.0*/)
 {
     _kinematicMotionType=_kinematicMotionType&16;
     _kinematicMotionType=_kinematicMotionType|t;
@@ -2097,11 +2097,11 @@ void CJoint::addSpecializedObjectEventData(CInterfaceStackTable* data) const
             break;
     }
     data->appendMapObject_stringString("type",tmp.c_str(),0);
-    float q[4]={_sphericalTransf(1),_sphericalTransf(2),_sphericalTransf(3),_sphericalTransf(0)};
+    floatDouble q[4]={_sphericalTransf(1),_sphericalTransf(2),_sphericalTransf(3),_sphericalTransf(0)};
     data->appendMapObject_stringFloatArray("quaternion",q,4);
     data->appendMapObject_stringFloat("position",_pos);
     C7Vector tr(getIntrinsicTransformation(true));
-    float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+    floatDouble p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
     data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
     data->appendMapObject_stringFloatArray("maxVelAccelJerk",_maxVelAccelJerk,3);
     data->appendMapObject_stringBool("cyclic",_isCyclic);
@@ -2112,7 +2112,7 @@ void CJoint::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 
     CInterfaceStackTable* colors=new CInterfaceStackTable();
     data->appendMapObject_stringObject("colors",colors);
-    float c[9];
+    floatDouble c[9];
     _color.getColor(c,sim_colorcomponent_ambient_diffuse);
     _color.getColor(c+3,sim_colorcomponent_specular);
     _color.getColor(c+6,sim_colorcomponent_emission);
@@ -2276,14 +2276,29 @@ void CJoint::serialize(CSer& ar)
             ar << _jointType;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Jsp");
-            ar << _screwPitch;
+            ar.flt() << (floatFloat)_screwPitch;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_sp");
+            ar.dbl() << _screwPitch;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Jst");
-            ar << _sphericalTransf(0) << _sphericalTransf(1);
-            ar << _sphericalTransf(2) << _sphericalTransf(3);
+            ar.flt() << (floatFloat)_sphericalTransf(0) << (floatFloat)_sphericalTransf(1);
+            ar.flt() << (floatFloat)_sphericalTransf(2) << (floatFloat)_sphericalTransf(3);
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_st");
+            ar.dbl() << _sphericalTransf(0) << _sphericalTransf(1);
+            ar.dbl() << _sphericalTransf(2) << _sphericalTransf(3);
+            ar.flush();
+#endif
 
             ar.storeDataName("Va9");
             unsigned char dummy=0;
@@ -2310,118 +2325,263 @@ void CJoint::serialize(CSer& ar)
             if (ar.setWritingMode())
                 _color.serialize(ar,0);
 
+#ifdef TMPOPERATION
             ar.storeDataName("Pmr");
-            ar << _posMin << _posRange;
+            ar.flt() << (floatFloat)_posMin << (floatFloat)_posRange;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_mr");
+            ar.dbl() << _posMin << _posRange;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Prt");
-            ar << _pos;
+            ar.flt() << (floatFloat)_pos;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_rt");
+            ar.dbl() << _pos;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Mss");
-            ar << _maxStepSize_old;
+            ar.flt() << (floatFloat)_maxStepSize_old;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_ss");
+            ar.dbl() << _maxStepSize_old;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Arg");
-            ar << _length << _diameter;
+            ar.flt() << (floatFloat)_length << (floatFloat)_diameter;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_rg");
+            ar.dbl() << _length << _diameter;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Ikw");
-            ar << _ikWeight_old;
+            ar.flt() << (floatFloat)_ikWeight_old;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_kw");
+            ar.dbl() << _ikWeight_old;
+            ar.flush();
+#endif
 
             ar.storeDataName("Jmd");
             ar << _jointMode;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Jdt");
-            ar << _dependencyMasterJointHandle << _dependencyJointMult << _dependencyJointOffset;
+            ar << _dependencyMasterJointHandle;
+            ar.flt() << (floatFloat)_dependencyJointMult << (floatFloat)_dependencyJointOffset;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_dt");
+            ar << _dependencyMasterJointHandle;
+            ar.dbl() << _dependencyJointMult << _dependencyJointOffset;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Jm3");
-            ar << _maxAcceleration_DEPRECATED << _velocity_DEPRECATED;
+            ar.flt() << (floatFloat)_maxAcceleration_DEPRECATED << (floatFloat)_velocity_DEPRECATED;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_m3");
+            ar.dbl() << _maxAcceleration_DEPRECATED << _velocity_DEPRECATED;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Dmp");
-            ar << _targetVel << _targetForce;
+            ar.flt() << (floatFloat)_targetVel << (floatFloat)_targetForce;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_mp");
+            ar.dbl() << _targetVel << _targetForce;
+            ar.flush();
+#endif
 
-            float P,I,D;
+            floatDouble P,I,D;
             getPid(P,I,D,sim_physics_bullet);
+#ifdef TMPOPERATION
             // Following for backward compatibility (7/5/2014):
             // Keep this before "Dp2"
             ar.storeDataName("Dpc");
-            ar << P << (I*0.005f) << (D/0.005f);
+            ar.flt() << (floatFloat)P << (floatFloat)(I*0.005) << (floatFloat)(D/0.005);
             ar.flush();
+#endif
+
+#ifdef TMPOPERATION
             // Following for backward compatibility (29/8/2022):
             // Keep this before "Mj3"
             ar.storeDataName("Dp2");
-            ar << P << I << D;
+            ar.flt() << (floatFloat)P << (floatFloat)I << (floatFloat)D;
             ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Spp");
-            ar << _dynCtrl_kc[0] << _dynCtrl_kc[1];
+            ar.flt() << (floatFloat)_dynCtrl_kc[0] << (floatFloat)_dynCtrl_kc[1];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_pp");
+            ar.dbl() << _dynCtrl_kc[0] << _dynCtrl_kc[1];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Dtp");
-            ar << _targetPos;
+            ar.flt() << (floatFloat)_targetPos;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_tp");
+            ar.dbl() << _targetPos;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Od1"); // keep this for file backw. compat. (09/03/2016)
-            ar << _odeFloatParams[simi_ode_joint_stoperp] << _odeFloatParams[simi_ode_joint_stopcfm] << _odeFloatParams[simi_ode_joint_bounce] << _odeFloatParams[simi_ode_joint_fudgefactor] << _odeFloatParams[simi_ode_joint_normalcfm];
+            ar.flt() << (floatFloat)_odeFloatParams[simi_ode_joint_stoperp] << (floatFloat)_odeFloatParams[simi_ode_joint_stopcfm] << (floatFloat)_odeFloatParams[simi_ode_joint_bounce] << (floatFloat)_odeFloatParams[simi_ode_joint_fudgefactor] << (floatFloat)_odeFloatParams[simi_ode_joint_normalcfm];
             ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Bt1"); // keep this for file backw. compat. (09/03/2016)
-            ar << _bulletFloatParams[simi_bullet_joint_stoperp] << _bulletFloatParams[simi_bullet_joint_stopcfm] << _bulletFloatParams[simi_bullet_joint_normalcfm];
+            ar.flt() << (floatFloat)_bulletFloatParams[simi_bullet_joint_stoperp] << (floatFloat)_bulletFloatParams[simi_bullet_joint_stopcfm] << (floatFloat)_bulletFloatParams[simi_bullet_joint_normalcfm];
             ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("BtN"); // Bullet params, keep this after "Bt1"
             ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
             for (size_t i=0;i<_bulletFloatParams.size();i++)
-                ar << _bulletFloatParams[i];
+                ar.flt() << (floatFloat)_bulletFloatParams[i];
             for (size_t i=0;i<_bulletIntParams.size();i++)
                 ar << _bulletIntParams[i];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_tN"); // Bullet params, keep this after "Bt1"
+            ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
+            for (size_t i=0;i<_bulletFloatParams.size();i++)
+                ar.dbl() << _bulletFloatParams[i];
+            for (size_t i=0;i<_bulletIntParams.size();i++)
+                ar << _bulletIntParams[i];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("OdN"); // ODE params, keep this after "Od1"
             ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
             for (size_t i=0;i<_odeFloatParams.size();i++)
-                ar << _odeFloatParams[i];
+                ar.flt() << (floatFloat)_odeFloatParams[i];
             for (size_t i=0;i<_odeIntParams.size();i++)
                 ar << _odeIntParams[i];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_dN"); // ODE params, keep this after "Od1"
+            ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
+            for (size_t i=0;i<_odeFloatParams.size();i++)
+                ar.dbl() << _odeFloatParams[i];
+            for (size_t i=0;i<_odeIntParams.size();i++)
+                ar << _odeIntParams[i];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Vo2"); // vortex params:
             ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
             for (size_t i=0;i<_vortexFloatParams.size();i++)
-                ar << _vortexFloatParams[i];
+                ar.flt() << (floatFloat)_vortexFloatParams[i];
             for (size_t i=0;i<_vortexIntParams.size();i++)
                 ar << _vortexIntParams[i];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_o2"); // vortex params:
+            ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
+            for (size_t i=0;i<_vortexFloatParams.size();i++)
+                ar.dbl() << _vortexFloatParams[i];
+            for (size_t i=0;i<_vortexIntParams.size();i++)
+                ar << _vortexIntParams[i];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Nw1"); // newton params:
             ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
             for (size_t i=0;i<_newtonFloatParams.size();i++)
-                ar << _newtonFloatParams[i];
+                ar.flt() << (floatFloat)_newtonFloatParams[i];
             for (size_t i=0;i<_newtonIntParams.size();i++)
                 ar << _newtonIntParams[i];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_w1"); // newton params:
+            ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
+            for (size_t i=0;i<_newtonFloatParams.size();i++)
+                ar.dbl() << _newtonFloatParams[i];
+            for (size_t i=0;i<_newtonIntParams.size();i++)
+                ar << _newtonIntParams[i];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Mj3"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
             for (size_t i=0;i<_mujocoFloatParams.size();i++)
-                ar << _mujocoFloatParams[i];
+                ar.flt() << (floatFloat)_mujocoFloatParams[i];
             for (size_t i=0;i<_mujocoIntParams.size();i++)
                 ar << _mujocoIntParams[i];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_j3"); // mujoco params:
+            ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
+            for (size_t i=0;i<_mujocoFloatParams.size();i++)
+                ar.dbl() << _mujocoFloatParams[i];
+            for (size_t i=0;i<_mujocoIntParams.size();i++)
+                ar << _mujocoIntParams[i];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Ruc");
-            ar << _maxVelAccelJerk[0] << _maxVelAccelJerk[1] << _maxVelAccelJerk[2];
+            ar.flt() << (floatFloat)_maxVelAccelJerk[0] << (floatFloat)_maxVelAccelJerk[1] << (floatFloat)_maxVelAccelJerk[2];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_uc");
+            ar.dbl() << _maxVelAccelJerk[0] << _maxVelAccelJerk[1] << _maxVelAccelJerk[2];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Ulv");
-            ar << _maxVelAccelJerk[0]; // for backward compatibility. Keep after "Ruc"
+            ar.flt() << (floatFloat)_maxVelAccelJerk[0]; // for backward compatibility. Keep after "Ruc"
             ar.flush();
+#endif
 
             ar.storeDataName("Dcm");
             ar << _dynCtrlMode;
@@ -2451,36 +2611,80 @@ void CJoint::serialize(CSer& ar)
                 {
                     bool noHit=true;
                     if (theName.compare("Prt")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat a;
+                        ar.flt() >> a;
+                        _pos=(floatDouble)a;;
+                    }
+                    if (theName.compare("_rt")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _pos;
+                        ar.dbl() >> _pos;
                     }
                     if (theName.compare("Jsp")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat a;
+                        ar.flt() >> a;
+                        _screwPitch=(floatDouble)a;
+                    }
+                    if (theName.compare("_sp")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _screwPitch;
+                        ar.dbl() >> _screwPitch;
                     }
                     if (theName.compare("Jst")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat a,b,c,d;
+                        ar.flt() >> a >> b >> c >> d;
+                        _sphericalTransf(0)=(floatDouble)a;
+                        _sphericalTransf(1)=(floatDouble)b;
+                        _sphericalTransf(2)=(floatDouble)c;
+                        _sphericalTransf(3)=(floatDouble)d;
+                        _sphericalTransf.normalize();
+                    }
+                    if (theName.compare("_st")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _sphericalTransf(0) >> _sphericalTransf(1);
-                        ar >> _sphericalTransf(2) >> _sphericalTransf(3);
+                        ar.dbl() >> _sphericalTransf(0) >> _sphericalTransf(1);
+                        ar.dbl() >> _sphericalTransf(2) >> _sphericalTransf(3);
                         _sphericalTransf.normalize();
                     }
                     if (theName.compare("Mss")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat a;
+                        ar.flt() >> a;
+                        _maxStepSize_old=(floatDouble)a;
+                    }
+                    if (theName.compare("_ss")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _maxStepSize_old;
+                        ar.dbl() >> _maxStepSize_old;
                     }
                     if (theName.compare("Ikw")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat a;
+                        ar.flt() >> a;
+                        _ikWeight_old=(floatDouble)a;
+                    }
+                    if (theName.compare("_kw")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _ikWeight_old;
+                        ar.dbl() >> _ikWeight_old;
                     }
                     if (theName.compare("Cl1")==0)
                     {
@@ -2489,16 +2693,34 @@ void CJoint::serialize(CSer& ar)
                         _color.serialize(ar,0);
                     }
                     if (theName.compare("Arg")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        _length=(floatDouble)bla;
+                        _diameter=(floatDouble)bli;
+                    }
+                    if (theName.compare("_rg")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _length >> _diameter;
+                        ar.dbl() >> _length >> _diameter;
                     }
                     if (theName.compare("Pmr")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        _posMin=(floatDouble)bla;
+                        _posRange=(floatDouble)bli;
+                    }
+                    if (theName.compare("_mr")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _posMin >> _posRange;
+                        ar.dbl() >> _posMin >> _posRange;
                     }
                     if (theName.compare("Va9")==0)
                     {
@@ -2540,10 +2762,21 @@ void CJoint::serialize(CSer& ar)
                         }
                     }
                     if (theName.compare("Jdt")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dependencyMasterJointHandle;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        _dependencyJointMult=(floatDouble)bla;
+                        _dependencyJointOffset=(floatDouble)bli;
+                    }
+                    if (theName.compare("_dt")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _dependencyMasterJointHandle >> _dependencyJointMult >> _dependencyJointOffset;
+                        ar >> _dependencyMasterJointHandle;
+                        ar.dbl() >> _dependencyJointMult >> _dependencyJointOffset;
                     }
                     if (theName.compare("Jtt")==0)
                     {
@@ -2555,47 +2788,79 @@ void CJoint::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        float v;
-                        ar >> _maxAcceleration_DEPRECATED >> _velocity_DEPRECATED >> v;
-                        _targetVel=v;
+                        floatFloat a,b,v;
+                        ar >> a >> b >> v;
+                        _maxAcceleration_DEPRECATED=(floatDouble)a;
+                        _velocity_DEPRECATED=(floatDouble)b;
+                        _targetVel=(floatDouble)v;
                     }
                     if (theName.compare("Jm3")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        _maxAcceleration_DEPRECATED=(floatDouble)bla;
+                        _velocity_DEPRECATED=(floatDouble)bli;
+                    }
+                    if (theName.compare("_m3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _maxAcceleration_DEPRECATED >> _velocity_DEPRECATED;
+                        ar.dbl() >> _maxAcceleration_DEPRECATED >> _velocity_DEPRECATED;
                     }
                     if (theName.compare("Dmp")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        _targetVel=(floatDouble)bla;
+                        _targetForce=(floatDouble)bli;
+                        if (_targetVel*_targetForce<0.0)
+                            _targetForce=-_targetForce;
+                    }
+                    if (theName.compare("_mp")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _targetVel >> _targetForce;
-                        if (_targetVel*_targetForce<0.0f)
+                        ar.dbl() >> _targetVel >> _targetForce;
+                        if (_targetVel*_targetForce<0.0)
                             _targetForce=-_targetForce;
                     }
                     if (theName.compare("Dpc")==0)
                     { // keep for backward compatibility (7/5/2014)
                         noHit=false;
                         ar >> byteQuantity;
-                        float P,I,D;
-                        ar >> P >> I >> D;
-                        I/=0.005f;
-                        D*=0.005f;
-                        setPid_old(P,I,D);
+                        floatFloat P,I,D;
+                        ar.flt() >> P >> I >> D;
+                        I/=0.005;
+                        D*=0.005;
+                        setPid_old((floatDouble)P,(floatDouble)I,(floatDouble)D);
                     }
                     if (theName.compare("Dp2")==0)
                     { // keep for backward compatibility (29/8/2022)
                         noHit=false;
                         ar >> byteQuantity;
-                        float P,I,D;
-                        ar >> P >> I >> D;
-                        setPid_old(P,I,D);
+                        floatFloat P,I,D;
+                        ar.flt() >> P >> I >> D;
+                        setPid_old((floatDouble)P,(floatDouble)I,(floatDouble)D);
                     }
                     if (theName.compare("Spp")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        _dynCtrl_kc[0]=(floatDouble)bla;
+                        _dynCtrl_kc[1]=(floatDouble)bli;
+                        kAndCSpringParameterPresent=true;
+                    }
+                    if (theName.compare("_pp")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _dynCtrl_kc[0] >> _dynCtrl_kc[1];
+                        ar.dbl() >> _dynCtrl_kc[0] >> _dynCtrl_kc[1];
                         kAndCSpringParameterPresent=true;
                     }
 
@@ -2609,17 +2874,56 @@ void CJoint::serialize(CSer& ar)
                     { // keep for backward compat. (09/03/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        // ar >> _odeStopERP >> _odeStopCFM >> _odeBounce >> _odeFudgeFactor >> _odeNormalCFM;
-                        ar >> _odeFloatParams[simi_ode_joint_stoperp] >> _odeFloatParams[simi_ode_joint_stopcfm] >> _odeFloatParams[simi_ode_joint_bounce] >> _odeFloatParams[simi_ode_joint_fudgefactor] >> _odeFloatParams[simi_ode_joint_normalcfm];
+                        floatFloat a,b,c,d,e;
+                        ar.flt() >> a >> b >> c >> d >> e;
+                        _odeFloatParams[simi_ode_joint_stoperp]=(floatDouble)a;
+                        _odeFloatParams[simi_ode_joint_stopcfm]=(floatDouble)b;
+                        _odeFloatParams[simi_ode_joint_bounce]=(floatDouble)c;
+                        _odeFloatParams[simi_ode_joint_fudgefactor]=(floatDouble)d;
+                        _odeFloatParams[simi_ode_joint_normalcfm]=(floatDouble)e;
                     }
                     if (theName.compare("Bt1")==0)
                     { // keep for backward compat. (09/03/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        // ar >> _bulletStopERP >> _bulletStopCFM >> _bulletNormalCFM;
-                        ar >> _bulletFloatParams[simi_bullet_joint_stoperp] >> _bulletFloatParams[simi_bullet_joint_stopcfm] >> _bulletFloatParams[simi_bullet_joint_normalcfm];
+                        floatFloat a,b,c,d,e;
+                        ar.flt() >> a >> b >> c;
+                        _bulletFloatParams[simi_bullet_joint_stoperp]=(floatDouble)a;
+                        _bulletFloatParams[simi_bullet_joint_stopcfm]=(floatDouble)b;
+                        _bulletFloatParams[simi_bullet_joint_normalcfm]=(floatDouble)c;
                     }
                     if (theName.compare("BtN")==0)
+                    { // Bullet params, for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_bulletFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_bulletIntParams.size()),cnt2);
+
+                        floatFloat vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _bulletFloatParams already!
+                            ar.flt() >> vf;
+                            _bulletFloatParams[i]=(floatDouble)vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar.flt() >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _bulletIntParams already!
+                            ar >> vi;
+                            _bulletIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("_tN")==0)
                     { // Bullet params:
                         noHit=false;
                         ar >> byteQuantity;
@@ -2629,16 +2933,16 @@ void CJoint::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_bulletFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_bulletIntParams.size()),cnt2);
 
-                        float vf;
+                        floatDouble vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _bulletFloatParams already!
-                            ar >> vf;
+                            ar.dbl() >> vf;
                             _bulletFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vf;
+                            ar.dbl() >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _bulletIntParams already!
@@ -2651,6 +2955,37 @@ void CJoint::serialize(CSer& ar)
                         }
                     }
                     if (theName.compare("OdN")==0)
+                    { // ODE params, for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_odeFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_odeIntParams.size()),cnt2);
+
+                        floatFloat vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _odeFloatParams already!
+                            ar.flt() >> vf;
+                            _odeFloatParams[i]=(floatDouble)vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar.flt() >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _odeIntParams already!
+                            ar >> vi;
+                            _odeIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("_dN")==0)
                     { // ODE params:
                         noHit=false;
                         ar >> byteQuantity;
@@ -2660,16 +2995,16 @@ void CJoint::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_odeFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_odeIntParams.size()),cnt2);
 
-                        float vf;
+                        floatDouble vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _odeFloatParams already!
-                            ar >> vf;
+                            ar.dbl() >> vf;
                             _odeFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vf;
+                            ar.dbl() >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _odeIntParams already!
@@ -2682,6 +3017,37 @@ void CJoint::serialize(CSer& ar)
                         }
                     }
                     if (theName.compare("Vo2")==0)
+                    { // vortex params, for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_vortexFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_vortexIntParams.size()),cnt2);
+
+                        floatFloat vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _vortexFloatParams already!
+                            ar.flt() >> vf;
+                            _vortexFloatParams[i]=(floatDouble)vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar.flt() >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _vortexIntParams already!
+                            ar >> vi;
+                            _vortexIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("_o2")==0)
                     { // vortex params:
                         noHit=false;
                         ar >> byteQuantity;
@@ -2691,16 +3057,16 @@ void CJoint::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_vortexFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_vortexIntParams.size()),cnt2);
 
-                        float vf;
+                        floatDouble vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _vortexFloatParams already!
-                            ar >> vf;
+                            ar.dbl() >> vf;
                             _vortexFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vf;
+                            ar.dbl() >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _vortexIntParams already!
@@ -2713,6 +3079,37 @@ void CJoint::serialize(CSer& ar)
                         }
                     }
                     if (theName.compare("Nw1")==0)
+                    { // Newton params, for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_newtonFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_newtonIntParams.size()),cnt2);
+
+                        floatFloat vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _newtonFloatParams already!
+                            ar.flt() >> vf;
+                            _newtonFloatParams[i]=(floatDouble)vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar.flt() >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _newtonIntParams already!
+                            ar >> vi;
+                            _newtonIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("_w1")==0)
                     { // Newton params:
                         noHit=false;
                         ar >> byteQuantity;
@@ -2722,16 +3119,16 @@ void CJoint::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_newtonFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_newtonIntParams.size()),cnt2);
 
-                        float vf;
+                        floatDouble vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _newtonFloatParams already!
-                            ar >> vf;
+                            ar.dbl() >> vf;
                             _newtonFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vf;
+                            ar.dbl() >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _newtonIntParams already!
@@ -2744,6 +3141,37 @@ void CJoint::serialize(CSer& ar)
                         }
                     }
                     if (theName.compare("Mj3")==0)
+                    { // Mujoco params, for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_mujocoFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_mujocoIntParams.size()),cnt2);
+
+                        floatFloat vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _mujocoFloatParams already!
+                            ar.flt() >> vf;
+                            _mujocoFloatParams[i]=(floatDouble)vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar.flt() >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _mujocoIntParams already!
+                            ar >> vi;
+                            _mujocoIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("_j3")==0)
                     { // Mujoco params:
                         noHit=false;
                         ar >> byteQuantity;
@@ -2753,16 +3181,16 @@ void CJoint::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_mujocoFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_mujocoIntParams.size()),cnt2);
 
-                        float vf;
+                        floatDouble vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _mujocoFloatParams already!
-                            ar >> vf;
+                            ar.dbl() >> vf;
                             _mujocoFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vf;
+                            ar.dbl() >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _mujocoIntParams already!
@@ -2781,19 +3209,29 @@ void CJoint::serialize(CSer& ar)
                         ar >> _jointCallbackCallOrder_backwardCompatibility;
                     }
                     if (theName.compare("Ruc")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        _maxVelAccelJerk[0]=(floatDouble)bla;
+                        _maxVelAccelJerk[1]=(floatDouble)bli;
+                        _maxVelAccelJerk[2]=(floatDouble)blo;
+                    }
+                    if (theName.compare("_uc")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _maxVelAccelJerk[0] >> _maxVelAccelJerk[1] >> _maxVelAccelJerk[2];
+                        ar.dbl() >> _maxVelAccelJerk[0] >> _maxVelAccelJerk[1] >> _maxVelAccelJerk[2];
                     }
                     if (theName.compare("Ulv")==0)
                     { // Keep for backward compatibility with V4.3 and earlier
                         noHit=false;
                         ar >> byteQuantity;
-                        float val;
-                        ar >> val;
+                        floatFloat val;
+                        ar.flt() >> val;
                         if ( (_jointMode==sim_jointmode_dynamic)||_jointHasHybridFunctionality )
-                            _maxVelAccelJerk[0]=val;
+                            _maxVelAccelJerk[0]=(floatDouble)val;
                     }
                     if (theName.compare("Dcm")==0)
                     {
@@ -2837,17 +3275,17 @@ void CJoint::serialize(CSer& ar)
                 { // for backward compatibility (7/5/2014):
                     if (motorEnabled_old&&ctrlEnabled_old&&springMode_old)
                     { // we have a joint that behaves as a spring. We need to compute the corresponding K and C parameters, and adjust the max. force/torque (since that was not limited before):
-                        float P,I,D;
+                        floatDouble P,I,D;
                         getPid(P,I,D,sim_physics_bullet);
                         _dynCtrl_kc[0]=_targetForce*P;
                         _dynCtrl_kc[1]=_targetForce*D;
-                        float maxTolerablePorDParam=1.0f;
+                        floatDouble maxTolerablePorDParam=1.0;
                         if (_jointType==sim_joint_revolute_subtype)
-                            maxTolerablePorDParam=1.0f/piValT2;
-                        float maxPorD=std::max<float>(fabs(P),fabs(D));
+                            maxTolerablePorDParam=1.0/piValT2;
+                        floatDouble maxPorD=std::max<floatDouble>(fabs(P),fabs(D));
                         if (maxPorD>maxTolerablePorDParam)
                         { // we shift the limit up
-                            float corr=maxTolerablePorDParam/maxPorD;
+                            floatDouble corr=maxTolerablePorDParam/maxPorD;
                             P*=corr;
                             I*=corr;
                             D*=corr;
@@ -2869,9 +3307,9 @@ void CJoint::serialize(CSer& ar)
         bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
         if (ar.isStoring())
         {
-            float mult=1.0f;
+            floatDouble mult=1.0;
             if (_jointType!=sim_joint_prismatic_subtype)
-                mult=180.0f/piValue;
+                mult=180.0/piValue;
             ar.xmlAddNode_comment(" 'type' tag: can be 'revolute', 'prismatic' or 'spherical' ",exhaustiveXml);
             ar.xmlAddNode_enum("type",_jointType,sim_joint_revolute_subtype,"revolute",sim_joint_prismatic_subtype,"prismatic",sim_joint_spherical_subtype,"spherical");
             ar.xmlAddNode_comment(" 'mode' tag: can be 'kinematic', 'dependent' or 'dynamic' ",exhaustiveXml);
@@ -2957,7 +3395,7 @@ void CJoint::serialize(CSer& ar)
             ar.xmlAddNode_float("maxForce",_targetForce);
             ar.xmlAddNode_comment(" 'upperVelocityLimit' tag only used for backward compatibility",exhaustiveXml);
             ar.xmlAddNode_float("upperVelocityLimit",_maxVelAccelJerk[0]*mult); // for backward compatibility (V4.3 and earlier)
-            float P,I,D;
+            floatDouble P,I,D;
             getPid(P,I,D,sim_physics_bullet);
             ar.xmlAddNode_comment(" 'pidValues' tag only used for backward compatibility",exhaustiveXml);
             ar.xmlAddNode_3float("pidValues",P,I,D); // for backward compatibility (V4.3 and earlier)
@@ -2970,7 +3408,7 @@ void CJoint::serialize(CSer& ar)
             ar.xmlAddNode_bool("lockInVelocityControl",_motorLock);
             ar.xmlPopNode();
 
-            float v[5];
+            floatDouble v[5];
             ar.xmlPushNewNode("engines");
             ar.xmlPushNewNode("bullet");
             ar.xmlAddNode_float("stoperp",getEngineFloatParam(sim_bullet_joint_stoperp,nullptr));
@@ -3118,11 +3556,11 @@ void CJoint::serialize(CSer& ar)
         {
             bool usingDynCtrlMode=false;
             bool motorEnabled_old,ctrlEnabled_old,springMode_old;
-            float mult=1.0f;
+            floatDouble mult=1.0;
             if (ar.xmlGetNode_enum("type",_jointType,exhaustiveXml,"revolute",sim_joint_revolute_subtype,"prismatic",sim_joint_prismatic_subtype,"spherical",sim_joint_spherical_subtype))
             {
                 if (_jointType==sim_joint_revolute_subtype)
-                    mult=piValue/180.0f;
+                    mult=piValue/180.0;
             }
 
             ar.xmlGetNode_enum("mode",_jointMode,exhaustiveXml,"kinematic",sim_jointmode_kinematic,"ik",sim_jointmode_ik_deprecated,"dependent",sim_jointmode_dependent,"dynamic",sim_jointmode_dynamic,"passive",sim_jointmode_kinematic,"force",sim_jointmode_dynamic);
@@ -3157,9 +3595,9 @@ void CJoint::serialize(CSer& ar)
                 C3Vector euler;
                 if (ar.xmlGetNode_floats("sphericalEuler",euler.data,3,exhaustiveXml))
                 {
-                    euler(0)*=piValue/180.0f;
-                    euler(1)*=piValue/180.0f;
-                    euler(2)*=piValue/180.0f;
+                    euler(0)*=piValue/180.0;
+                    euler(1)*=piValue/180.0;
+                    euler(2)*=piValue/180.0;
                     _sphericalTransf.setEulerAngles(euler);
                 }
             }
@@ -3190,7 +3628,7 @@ void CJoint::serialize(CSer& ar)
             {
                 int rgb[3];
                 if (ar.xmlGetNode_ints("objectColor",rgb,3,false))
-                    _color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    _color.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
             }
 
             if (ar.xmlPushChildNode("color",false))
@@ -3212,9 +3650,9 @@ void CJoint::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("part1",rgb,3,exhaustiveXml))
-                        _color.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_ambient_diffuse);
+                        _color.setColor(floatDouble(rgb[0])/255.0,floatDouble(rgb[1])/255.0,floatDouble(rgb[2])/255.0,sim_colorcomponent_ambient_diffuse);
                     if (ar.xmlGetNode_ints("part2",rgb,3,exhaustiveXml))
-                        _color_removeSoon.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_ambient_diffuse);
+                        _color_removeSoon.setColor(floatDouble(rgb[0])/255.0,floatDouble(rgb[1])/255.0,floatDouble(rgb[2])/255.0,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -3250,9 +3688,9 @@ void CJoint::serialize(CSer& ar)
                 ar.xmlGetNode_enum("velController",_dynVelocityCtrlType,exhaustiveXml,"none",0,"motionProfile",1);
 
                 ar.xmlGetNode_float("maxForce",_targetForce,exhaustiveXml);
-                if (_targetVel*_targetForce<0.0f)
+                if (_targetVel*_targetForce<0.0)
                     _targetForce=-_targetForce;
-                float val;
+                floatDouble val;
                 if (ar.xmlGetNode_float("upperVelocityLimit",val,false)) // for backward compatibility (V4.3 and earlier)
                 {
                     if ( (_jointMode==sim_jointmode_dynamic)||_jointHasHybridFunctionality )
@@ -3262,7 +3700,7 @@ void CJoint::serialize(CSer& ar)
                     _targetPos*=mult;
                 if (ar.xmlGetNode_float("targetVelocity",_targetVel,false)) // for backward compatibility (V4.3 and earlier)
                     _targetVel*=mult;
-                float P,I,D;
+                floatDouble P,I,D;
                 ar.xmlGetNode_3float("pidValues",P,I,D,exhaustiveXml);
                 setPid_old(P,I,D);
                 ar.xmlGetNode_2float("kcValues",_dynCtrl_kc[0],_dynCtrl_kc[1],exhaustiveXml);
@@ -3278,12 +3716,12 @@ void CJoint::serialize(CSer& ar)
 
                 if (ar.xmlPushChildNode("engines",exhaustiveXml))
                 {
-                    float v;
+                    floatDouble v;
                     int vi;
                     bool vb;
                     if (ar.xmlPushChildNode("bullet",exhaustiveXml))
                     {
-                        float w[3];
+                        floatDouble w[3];
                         if (ar.xmlGetNode_float("stoperp",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_joint_stoperp,v);
                         if (ar.xmlGetNode_float("stopcfm",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_joint_stopcfm,v);
                         if (ar.xmlGetNode_float("normalcfm",v,exhaustiveXml)) setEngineFloatParam(sim_bullet_joint_normalcfm,v);
@@ -3297,7 +3735,7 @@ void CJoint::serialize(CSer& ar)
                     }
                     if (ar.xmlPushChildNode("ode",exhaustiveXml))
                     {
-                        float w[3];
+                        floatDouble w[3];
                         if (ar.xmlGetNode_float("stoperp",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_stoperp,v);
                         if (ar.xmlGetNode_float("stopcfm",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_stopcfm,v);
                         if (ar.xmlGetNode_float("bounce",v,exhaustiveXml)) setEngineFloatParam(sim_ode_joint_bounce,v);
@@ -3313,7 +3751,7 @@ void CJoint::serialize(CSer& ar)
                     }
                     if (ar.xmlPushChildNode("vortex",exhaustiveXml))
                     {
-                        float w[3];
+                        floatDouble w[3];
                         if (ar.xmlGetNode_float("lowerlimitdamping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_lowerlimitdamping,v);
                         if (ar.xmlGetNode_float("upperlimitdamping",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_upperlimitdamping,v);
                         if (ar.xmlGetNode_float("lowerlimitstiffness",v,exhaustiveXml)) setEngineFloatParam(sim_vortex_joint_lowerlimitstiffness,v);
@@ -3383,7 +3821,7 @@ void CJoint::serialize(CSer& ar)
                     }
                     if (ar.xmlPushChildNode("newton",exhaustiveXml))
                     {
-                        float w[3];
+                        floatDouble w[3];
                         if (ar.xmlGetNode_float("dependencyfactor",v,exhaustiveXml)) setEngineFloatParam(sim_newton_joint_dependencyfactor,v);
                         if (ar.xmlGetNode_float("dependencyoffset",v,exhaustiveXml)) setEngineFloatParam(sim_newton_joint_dependencyoffset,v);
 
@@ -3399,7 +3837,7 @@ void CJoint::serialize(CSer& ar)
                     }
                     if (ar.xmlPushChildNode("mujoco",exhaustiveXml))
                     {
-                        float w[5];
+                        floatDouble w[5];
                         if (ar.xmlGetNode_floats("solreflimit",w,2,exhaustiveXml))
                         {
                             setEngineFloatParam(sim_mujoco_joint_solreflimit1,w[0]);
@@ -3478,14 +3916,14 @@ void CJoint::performObjectLoadingMapping(const std::map<int,int>* map,bool loadi
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
     _dependencyMasterJointHandle=CWorld::getLoadingMapping(map,_dependencyMasterJointHandle);
     // following to support the old way joint dependencies for the dynamic engines were specified:
-    std::vector<float> fp;
+    std::vector<floatDouble> fp;
     getMujocoFloatParams(fp);
     std::vector<int> ip;
     getMujocoIntParams(ip);
     ip[0]=-1;
     int masterJ=CWorld::getLoadingMapping(map,ip[1]);
-    float off=fp[simi_mujoco_joint_polycoef1];
-    float mult=fp[simi_mujoco_joint_polycoef2];
+    floatDouble off=fp[simi_mujoco_joint_polycoef1];
+    floatDouble mult=fp[simi_mujoco_joint_polycoef2];
     ip[1]=-1;
     //setMujocoFloatParams(fp); not here! Mujoco allows to specifiy more complex relationships than linear!
     setMujocoIntParams(ip);
@@ -3617,10 +4055,10 @@ void CJoint::setSphericalTransformation(const C4Vector& tr)
         {
             const char* cmd="quaternion";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            float q[4]={_sphericalTransf(1),_sphericalTransf(2),_sphericalTransf(3),_sphericalTransf(0)};
+            floatDouble q[4]={_sphericalTransf(1),_sphericalTransf(2),_sphericalTransf(3),_sphericalTransf(0)};
             data->appendMapObject_stringFloatArray(cmd,q,4);
             C7Vector trr(getIntrinsicTransformation(true));
-            float p[7]={trr.X(0),trr.X(1),trr.X(2),trr.Q(1),trr.Q(2),trr.Q(3),trr.Q(0)};
+            floatDouble p[7]={trr.X(0),trr.X(1),trr.X(2),trr.Q(1),trr.Q(2),trr.Q(3),trr.Q(0)};
             data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
             App::worldContainer->pushEvent(event);
         }
@@ -3636,7 +4074,7 @@ void CJoint::_setSphericalTransformation_sendOldIk(const C4Vector& tr) const
         CPluginContainer::ikPlugin_setSphericalJointQuaternion(_ikPluginCounterpartHandle,tr);
 }
 
-void CJoint::setMaxStepSize_old(float stepS)
+void CJoint::setMaxStepSize_old(floatDouble stepS)
 {
     if (_jointType==sim_joint_revolute_subtype)
         tt::limitValue(0.01f*degToRad,100000.0f,stepS); // high number for screws!
@@ -3653,14 +4091,14 @@ void CJoint::setMaxStepSize_old(float stepS)
     }
 }
 
-void CJoint::_setMaxStepSize_sendOldIk(float stepS) const
+void CJoint::_setMaxStepSize_sendOldIk(floatDouble stepS) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setJointMaxStepSize(_ikPluginCounterpartHandle,_maxStepSize_old);
 }
 
-void CJoint::setIKWeight_old(float newWeight)
+void CJoint::setIKWeight_old(floatDouble newWeight)
 {
     newWeight=tt::getLimitedFloat(-1.0f,1.0f,newWeight);
     bool diff=(_ikWeight_old!=newWeight);
@@ -3672,14 +4110,14 @@ void CJoint::setIKWeight_old(float newWeight)
     }
 }
 
-void CJoint::_setIkWeight_sendOldIk(float newWeight) const
+void CJoint::_setIkWeight_sendOldIk(floatDouble newWeight) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
         CPluginContainer::ikPlugin_setJointIkWeight(_ikPluginCounterpartHandle,_ikWeight_old);
 }
 
-void CJoint::setPosition(float pos,const CJoint* masterJoint/*=nullptr*/,bool setDirect/*=false*/)
+void CJoint::setPosition(floatDouble pos,const CJoint* masterJoint/*=nullptr*/,bool setDirect/*=false*/)
 {
     if (masterJoint!=nullptr)
     {
@@ -3716,7 +4154,7 @@ void CJoint::setPosition(float pos,const CJoint* masterJoint/*=nullptr*/,bool se
             data->appendMapObject_stringFloat(cmd,_pos);
 
             C7Vector tr(getIntrinsicTransformation(true));
-            float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+            floatDouble p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
             data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
             App::worldContainer->pushEvent(event);
         }
@@ -3729,7 +4167,7 @@ void CJoint::setPosition(float pos,const CJoint* masterJoint/*=nullptr*/,bool se
         _directDependentJoints[i]->setPosition(0.0,this);
 }
 
-void CJoint::_setPosition_sendOldIk(float pos) const
+void CJoint::_setPosition_sendOldIk(floatDouble pos) const
 { // Overriden from _CJoint_
     // Synchronize with IK plugin:
     if ( (_ikPluginCounterpartHandle!=-1)&&(_jointType!=sim_joint_spherical_subtype) )
@@ -3886,7 +4324,7 @@ void CJoint::setDynPosCtrlType(int mode)
     }
 }
 
-float CJoint::getTargetVelocity() const
+floatDouble CJoint::getTargetVelocity() const
 {
     return(_targetVel);
 }
@@ -3896,14 +4334,14 @@ bool CJoint::getMotorLock() const
     return(_motorLock);
 }
 
-void CJoint::getMaxVelAccelJerk(float maxVelAccelJerk[3]) const
+void CJoint::getMaxVelAccelJerk(floatDouble maxVelAccelJerk[3]) const
 {
     maxVelAccelJerk[0]=_maxVelAccelJerk[0];
     maxVelAccelJerk[1]=_maxVelAccelJerk[1];
     maxVelAccelJerk[2]=_maxVelAccelJerk[2];
 }
 
-void CJoint::setMaxVelAccelJerk(const float maxVelAccelJerk[3])
+void CJoint::setMaxVelAccelJerk(const floatDouble maxVelAccelJerk[3])
 {
     bool diff=( (_maxVelAccelJerk[0]!=maxVelAccelJerk[0])||(_maxVelAccelJerk[1]!=maxVelAccelJerk[1])||(_maxVelAccelJerk[2]!=maxVelAccelJerk[2]) );
     if (diff)
@@ -3921,9 +4359,9 @@ void CJoint::setMaxVelAccelJerk(const float maxVelAccelJerk[3])
     }
 }
 
-float CJoint::getTargetForce(bool signedValue) const
+floatDouble CJoint::getTargetForce(bool signedValue) const
 {
-    float retVal=_targetForce;
+    floatDouble retVal=_targetForce;
     if (!signedValue)
         retVal=fabs(retVal);
     return(retVal);
@@ -3934,7 +4372,7 @@ bool CJoint::getHybridFunctionality_old() const
     return(_jointHasHybridFunctionality);
 }
 
-float CJoint::getEngineFloatParam(int what,bool* ok) const
+floatDouble CJoint::getEngineFloatParam(int what,bool* ok) const
 {
     if (ok!=nullptr)
         ok[0]=true;
@@ -4076,7 +4514,7 @@ bool CJoint::getEngineBoolParam(int what,bool* ok) const
     return(0);
 }
 
-void CJoint::getBulletFloatParams(std::vector<float>& p) const
+void CJoint::getBulletFloatParams(std::vector<floatDouble>& p) const
 {
     p.assign(_bulletFloatParams.begin(),_bulletFloatParams.end());
 }
@@ -4086,7 +4524,7 @@ void CJoint::getBulletIntParams(std::vector<int>& p) const
     p.assign(_bulletIntParams.begin(),_bulletIntParams.end());
 }
 
-void CJoint::getOdeFloatParams(std::vector<float>& p) const
+void CJoint::getOdeFloatParams(std::vector<floatDouble>& p) const
 {
     p.assign(_odeFloatParams.begin(),_odeFloatParams.end());
 }
@@ -4096,7 +4534,7 @@ void CJoint::getOdeIntParams(std::vector<int>& p) const
     p.assign(_odeIntParams.begin(),_odeIntParams.end());
 }
 
-void CJoint::getVortexFloatParams(std::vector<float>& p) const
+void CJoint::getVortexFloatParams(std::vector<floatDouble>& p) const
 {
     p.assign(_vortexFloatParams.begin(),_vortexFloatParams.end());
 }
@@ -4106,7 +4544,7 @@ void CJoint::getVortexIntParams(std::vector<int>& p) const
     p.assign(_vortexIntParams.begin(),_vortexIntParams.end());
 }
 
-void CJoint::getNewtonFloatParams(std::vector<float>& p) const
+void CJoint::getNewtonFloatParams(std::vector<floatDouble>& p) const
 {
     p.assign(_newtonFloatParams.begin(),_newtonFloatParams.end());
 }
@@ -4116,7 +4554,7 @@ void CJoint::getNewtonIntParams(std::vector<int>& p) const
     p.assign(_newtonIntParams.begin(),_newtonIntParams.end());
 }
 
-void CJoint::getMujocoFloatParams(std::vector<float>& p) const
+void CJoint::getMujocoFloatParams(std::vector<floatDouble>& p) const
 {
     p.assign(_mujocoFloatParams.begin(),_mujocoFloatParams.end());
 }
@@ -4140,12 +4578,12 @@ int CJoint::getMujocoDependentJointId() const
     return(_mujocoIntParams[1]);
 }
 
-float CJoint::getPosition() const
+floatDouble CJoint::getPosition() const
 {
     return(_pos);
 }
 
-float CJoint::getTargetPosition() const
+floatDouble CJoint::getTargetPosition() const
 {
     return(_targetPos);
 }
@@ -4182,7 +4620,7 @@ C7Vector CJoint::getFullLocalTransformation() const
     return(_localTransformation*getIntrinsicTransformation(true));
 }
 
-void CJoint::getPid(float& p_param,float& i_param,float& d_param,int engine/*=-1 --> current engine*/) const
+void CJoint::getPid(floatDouble& p_param,floatDouble& i_param,floatDouble& d_param,int engine/*=-1 --> current engine*/) const
 {
     if (engine==-1)
         engine=App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr);
@@ -4218,18 +4656,18 @@ void CJoint::getPid(float& p_param,float& i_param,float& d_param,int engine/*=-1
     }
 }
 
-void CJoint::getKc(float& k_param,float& c_param) const
+void CJoint::getKc(floatDouble& k_param,floatDouble& c_param) const
 {
     k_param=_dynCtrl_kc[0];
     c_param=_dynCtrl_kc[1];
 }
 
-float CJoint::getLength()  const
+floatDouble CJoint::getLength()  const
 {
     return(_length);
 }
 
-float CJoint::getDiameter() const
+floatDouble CJoint::getDiameter() const
 {
     return(_diameter);
 }
@@ -4239,7 +4677,7 @@ int CJoint::getJointType() const
     return(_jointType);
 }
 
-float CJoint::getScrewPitch() const
+floatDouble CJoint::getScrewPitch() const
 {
     return(_screwPitch);
 }
@@ -4256,22 +4694,22 @@ bool CJoint::getIsCyclic() const
     return(_isCyclic);
 }
 
-float CJoint::getPositionMin() const
+floatDouble CJoint::getPositionMin() const
 {
     return(_posMin);
 }
 
-float CJoint::getPositionRange() const
+floatDouble CJoint::getPositionRange() const
 {
     return(_posRange);
 }
 
-float CJoint::getIKWeight_old() const
+floatDouble CJoint::getIKWeight_old() const
 {
     return(_ikWeight_old);
 }
 
-float CJoint::getMaxStepSize_old() const
+floatDouble CJoint::getMaxStepSize_old() const
 {
     return(_maxStepSize_old);
 }
@@ -4286,12 +4724,12 @@ int CJoint::getDependencyMasterJointHandle() const
     return(_dependencyMasterJointHandle);
 }
 
-float CJoint::getDependencyJointMult() const
+floatDouble CJoint::getDependencyJointMult() const
 {
     return(_dependencyJointMult);
 }
 
-float CJoint::getDependencyJointOffset() const
+floatDouble CJoint::getDependencyJointOffset() const
 {
     return(_dependencyJointOffset);
 }
@@ -4405,7 +4843,7 @@ void CJoint::setIntrinsicTransformationError(const C7Vector& tr)
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,_pos);
             C7Vector tr2(getIntrinsicTransformation(true));
-            float p[7]={tr2.X(0),tr2.X(1),tr2.X(2),tr2.Q(1),tr2.Q(2),tr2.Q(3),tr2.Q(0)};
+            floatDouble p[7]={tr2.X(0),tr2.X(1),tr2.X(2),tr2.Q(1),tr2.Q(2),tr2.Q(3),tr2.Q(0)};
             data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
             App::worldContainer->pushEvent(event);
         }

@@ -229,11 +229,11 @@ void _displayTriangles(CMesh* geometric,int geomModifCounter,CTextureProperty* t
 {
     if ((!App::currentWorld->environment->getShapeTexturesEnabled())||CEnvironment::getShapeTexturesTemporarilyDisabled())
         tp=nullptr;
-    std::vector<float>* textureCoords=nullptr;
+    std::vector<floatFloat>* textureCoords=nullptr;
     int* texCoordBufferIdPtr=nullptr;
-    const std::vector<float>& _vertices=geometric->getVertices()[0];
+    const std::vector<floatFloat>& _vertices=geometric->getVerticesForDisplayAndDisk()[0];
     const std::vector<int>& _indices=geometric->getIndices()[0];
-    const std::vector<float>& _normals=geometric->getNormals()[0];
+    const std::vector<floatFloat>& _normals=geometric->getNormalsForDisplayAndDisk()[0];
     if (tp!=nullptr)
     {
         textureCoords=tp->getTextureCoordinates(geomModifCounter,geometric->getVerticeLocalFrame(),_vertices,_indices);
@@ -395,7 +395,7 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
                 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
             }
-            std::vector<float>& _vertices=geometric->getVertices()[0];
+            std::vector<floatFloat>& _vertices=geometric->getVerticesForDisplayAndDisk()[0];
             std::vector<int>& _indices=geometric->getIndices()[0];
             std::vector<unsigned char>& _edges=geometric->getEdges()[0];
             bool nothingDisplayed=(!_drawEdges(&_vertices[0],(int)_vertices.size()/3,&_indices[0],(int)_indices.size(),&_edges[0],geometric->getEdgeBufferIdPtr()));
@@ -493,9 +493,9 @@ void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,
 
     if ((displayAttrib&sim_displayattribute_colorcodedtriangles)!=0)
     {
-        std::vector<float>& _vertices=geometric->getVertices()[0];
+        std::vector<floatFloat>& _vertices=geometric->getVerticesForDisplayAndDisk()[0];
         std::vector<int>& _indices=geometric->getIndices()[0];
-        std::vector<float>& _normals=geometric->getNormals()[0];
+        std::vector<floatFloat>& _normals=geometric->getNormalsForDisplayAndDisk()[0];
         _drawColorCodedTriangles(&_vertices[0],(int)_vertices.size()/3,&_indices[0],(int)_indices.size(),&_normals[0],geometric->getVertexBufferIdPtr(),geometric->getNormalBufferIdPtr());
     }
     else
@@ -608,7 +608,7 @@ void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,b
                 glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
             }
 
-            std::vector<float>& _vertices=geometric->getVertices()[0];
+            std::vector<floatFloat>& _vertices=geometric->getVerticesForDisplayAndDisk()[0];
             std::vector<int>& _indices=geometric->getIndices()[0];
             std::vector<unsigned char>& _edges=geometric->getEdges()[0];
             bool nothingDisplayed=(!_drawEdges(&_vertices[0],(int)_vertices.size()/3,&_indices[0],(int)_indices.size(),&_edges[0],geometric->getEdgeBufferIdPtr()));

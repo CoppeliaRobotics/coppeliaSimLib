@@ -119,7 +119,7 @@ void decreaseTexCoordBufferRefCnt(int texCoordBufferId)
         _glBufferObjects->removeTexCoordBuffer(texCoordBufferId);
 }
 
-void _drawTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,const float* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId)
+void _drawTriangles(const floatFloat* vertices,int verticesCnt,const int* indices,int indicesCnt,const floatFloat* normals,const floatFloat* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId)
 {
     if (_glBufferObjects!=nullptr)
         _glBufferObjects->drawTriangles(vertices,verticesCnt,indices,indicesCnt,normals,textureCoords,vertexBufferId,normalBufferId,texCoordBufferId);

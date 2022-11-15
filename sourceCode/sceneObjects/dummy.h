@@ -122,7 +122,7 @@ protected:
     std::string _linkedDummyLoadName_old;
 
     CColorObject _dummyColor;
-    float _dummySize;
+    floatDouble _dummySize;
     int _linkedDummyHandle;
     int _linkType;
     bool _assignedToParentPath;

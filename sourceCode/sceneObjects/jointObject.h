@@ -163,8 +163,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(float scalingFactor);
-    void scaleObjectNonIsometrically(float x,float y,float z);
+    void scaleObject(floatDouble scalingFactor);
+    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
     void serialize(CSer& ar);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
@@ -187,84 +187,84 @@ public:
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;
 
-    float getLength() const;
-    float getDiameter() const;
-    float getPosition() const;
-    float getTargetVelocity() const;
+    floatDouble getLength() const;
+    floatDouble getDiameter() const;
+    floatDouble getPosition() const;
+    floatDouble getTargetVelocity() const;
     bool getMotorLock() const;
-    float getTargetForce(bool signedValue) const;
+    floatDouble getTargetForce(bool signedValue) const;
     int getDynCtrlMode() const;
     int getDynVelCtrlType() const;
     int getDynPosCtrlType() const;
-    float getEngineFloatParam(int what,bool* ok) const;
+    floatDouble getEngineFloatParam(int what,bool* ok) const;
     int getEngineIntParam(int what,bool* ok) const;
     bool getEngineBoolParam(int what,bool* ok) const;
-    void getBulletFloatParams(std::vector<float>& p) const;
+    void getBulletFloatParams(std::vector<floatDouble>& p) const;
     void getBulletIntParams(std::vector<int>& p) const;
-    void getOdeFloatParams(std::vector<float>& p) const;
+    void getOdeFloatParams(std::vector<floatDouble>& p) const;
     void getOdeIntParams(std::vector<int>& p) const;
-    void getVortexFloatParams(std::vector<float>& p) const;
+    void getVortexFloatParams(std::vector<floatDouble>& p) const;
     void getVortexIntParams(std::vector<int>& p) const;
-    void getNewtonFloatParams(std::vector<float>& p) const;
+    void getNewtonFloatParams(std::vector<floatDouble>& p) const;
     void getNewtonIntParams(std::vector<int>& p) const;
-    void getMujocoFloatParams(std::vector<float>& p) const;
+    void getMujocoFloatParams(std::vector<floatDouble>& p) const;
     void getMujocoIntParams(std::vector<int>& p) const;
     int getVortexDependentJointId() const;
     int getNewtonDependentJointId() const;
     int getMujocoDependentJointId() const;
-    void getMaxVelAccelJerk(float maxVelAccelJerk[3]) const;
-    float getScrewPitch() const;
+    void getMaxVelAccelJerk(floatDouble maxVelAccelJerk[3]) const;
+    floatDouble getScrewPitch() const;
     int getJointType() const;
     C4Vector getSphericalTransformation() const;
     bool getIsCyclic() const;
-    float getPositionMin() const;
-    float getPositionRange() const;
+    floatDouble getPositionMin() const;
+    floatDouble getPositionRange() const;
     int getJointMode() const;
     int getDependencyMasterJointHandle() const;
-    float getDependencyJointMult() const;
-    float getDependencyJointOffset() const;
-    void getPid(float& p_param,float& i_param,float& d_param,int engine=-1) const;
-    void getKc(float& k_param,float& c_param) const;
-    float getTargetPosition() const;
+    floatDouble getDependencyJointMult() const;
+    floatDouble getDependencyJointOffset() const;
+    void getPid(floatDouble& p_param,floatDouble& i_param,floatDouble& d_param,int engine=-1) const;
+    void getKc(floatDouble& k_param,floatDouble& c_param) const;
+    floatDouble getTargetPosition() const;
     CColorObject* getColor(bool part2);
 
     C7Vector getIntrinsicTransformation(bool includeDynErrorComponent) const;
 
-    float getMeasuredJointVelocity() const;
+    floatDouble getMeasuredJointVelocity() const;
     std::string getDependencyJointLoadAlias() const;
     int getJointCallbackCallOrder_backwardCompatibility() const;
     void setDirectDependentJoints(const std::vector<CJoint*>& joints);
 
-    void setPositionMin(float min);
-    void setPositionRange(float range);
+    void setPositionMin(floatDouble min);
+    void setPositionRange(floatDouble range);
     void setIsCyclic(bool isCyclic);
-    void setLength(float l);
-    void setDiameter(float d);
-    void setMaxVelAccelJerk(const float maxVelAccelJerk[3]);
-    bool setScrewPitch(float pitch);
+    void setLength(floatDouble l);
+    void setDiameter(floatDouble d);
+    void setMaxVelAccelJerk(const floatDouble maxVelAccelJerk[3]);
+    bool setScrewPitch(floatDouble pitch);
     void setDependencyMasterJointHandle(int depJointID);
-    void setDependencyJointMult(float coeff);
-    void setDependencyJointOffset(float off);
-    void setVelocity(float vel,const CJoint* masterJoint=nullptr);
-    void setPosition(float pos,const CJoint* masterJoint=nullptr,bool setDirect=false);
+    void setDependencyJointMult(floatDouble coeff);
+    void setDependencyJointOffset(floatDouble off);
+    void setVelocity(floatDouble vel,const CJoint* masterJoint=nullptr);
+    void setPosition(floatDouble pos,const CJoint* masterJoint=nullptr,bool setDirect=false);
     void setSphericalTransformation(const C4Vector& tr);
     void setJointMode(int theMode);
 
     void setIntrinsicTransformationError(const C7Vector& tr);
 
-    void setTargetVelocity(float v);
-    void setTargetPosition(float pos);
-    void setKc(float k_param,float c_param);
-    void setTargetForce(float f,bool isSigned);
+    void setTargetVelocity(floatDouble v);
+    void setTargetPosition(floatDouble pos);
+    void setKc(floatDouble k_param,floatDouble c_param);
+    void setTargetForce(floatDouble f,bool isSigned);
     void setDynCtrlMode(int mode);
     void setDynVelCtrlType(int mode);
     void setDynPosCtrlType(int mode);
 
-    void setBulletFloatParams(const std::vector<float>& p);
-    void setOdeFloatParams(const std::vector<float>& p);
-    void setVortexFloatParams(const std::vector<float>& p);
-    void setNewtonFloatParams(const std::vector<float>& p);
-    void setMujocoFloatParams(const std::vector<float>& p);
+    void setBulletFloatParams(const std::vector<floatDouble>& p);
+    void setOdeFloatParams(const std::vector<floatDouble>& p);
+    void setVortexFloatParams(const std::vector<floatDouble>& p);
+    void setNewtonFloatParams(const std::vector<floatDouble>& p);
+    void setMujocoFloatParams(const std::vector<floatDouble>& p);
     void setBulletIntParams(const std::vector<int>& p);
     void setOdeIntParams(const std::vector<int>& p);
     void setVortexIntParams(const std::vector<int>& p);
@@ -276,23 +276,23 @@ public:
     void setMotorLock(bool e);
 
 
-    void measureJointVelocity(float simTime);
+    void measureJointVelocity(floatDouble simTime);
 
-    void getDynamicJointErrors(float& linear,float& angular) const;
+    void getDynamicJointErrors(floatDouble& linear,floatDouble& angular) const;
     void getDynamicJointErrorsFull(C3Vector& linear,C3Vector& angular) const;
 
     void handleMotion();
-    int handleDynJoint(int flags,const int intVals[3],float currentPosVelAccel[3],float effort,float dynStepSize,float errorV,float velAndForce[2]);
+    int handleDynJoint(int flags,const int intVals[3],floatDouble currentPosVelAccel[3],floatDouble effort,floatDouble dynStepSize,floatDouble errorV,floatDouble velAndForce[2]);
 
-    void setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp,float simTime);
+    void setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(floatDouble rfp,floatDouble simTime);
 
-    void addCumulativeForceOrTorque(float forceOrTorque,int countForAverage);
-    bool getDynamicForceOrTorque(float& forceOrTorque,bool dynamicStepValue) const;
+    void addCumulativeForceOrTorque(floatDouble forceOrTorque,int countForAverage);
+    bool getDynamicForceOrTorque(floatDouble& forceOrTorque,bool dynamicStepValue) const;
     void setForceOrTorqueNotValid();
 
-    void setKinematicMotionType(int t,bool reset,float initVel=0.0f);
+    void setKinematicMotionType(int t,bool reset,floatDouble initVel=0.0f);
 
-    bool setEngineFloatParam(int what,float v);
+    bool setEngineFloatParam(int what,floatDouble v);
     bool setEngineIntParam(int what,int v);
     bool setEngineBoolParam(int what,bool v);
 
@@ -303,25 +303,25 @@ public:
 
     // DEPRECATED:
     bool getHybridFunctionality_old() const;
-    float getIKWeight_old() const;
-    float getMaxStepSize_old() const;
+    floatDouble getIKWeight_old() const;
+    floatDouble getMaxStepSize_old() const;
     std::string getDependencyJointLoadName_old() const;
-    void setIKWeight_old(float newWeight);
-    void setMaxStepSize_old(float stepS);
+    void setIKWeight_old(floatDouble newWeight);
+    void setMaxStepSize_old(floatDouble stepS);
     void setHybridFunctionality_old(bool h);
     void setExplicitHandling_DEPRECATED(bool explicitHandl);
     bool getExplicitHandling_DEPRECATED();
     void resetJoint_DEPRECATED();
-    void handleJoint_DEPRECATED(float deltaTime);
+    void handleJoint_DEPRECATED(floatDouble deltaTime);
     void setUnlimitedAcceleration_DEPRECATED(bool unlimited);
     bool getUnlimitedAcceleration_DEPRECATED();
     void setInvertTargetVelocityAtLimits_DEPRECATED(bool invert);
     bool getInvertTargetVelocityAtLimits_DEPRECATED();
-    void setMaxAcceleration_DEPRECATED(float maxAccel);
-    float getMaxAcceleration_DEPRECATED();
-    void setVelocity_DEPRECATED(float vel);
-    float getVelocity_DEPRECATED();
-    void setPid_old(float p_param,float i_param,float d_param);
+    void setMaxAcceleration_DEPRECATED(floatDouble maxAccel);
+    floatDouble getMaxAcceleration_DEPRECATED();
+    void setVelocity_DEPRECATED(floatDouble vel);
+    floatDouble getVelocity_DEPRECATED();
+    void setPid_old(floatDouble p_param,floatDouble i_param,floatDouble d_param);
 
 protected:
     void updateSelfAsSlave();
@@ -330,16 +330,16 @@ protected:
     void _commonInit();
     void _sendDependencyChange() const;
 
-    void _setPositionIntervalMin_sendOldIk(float min) const;
-    void _setPositionIntervalRange_sendOldIk(float range) const;
+    void _setPositionIntervalMin_sendOldIk(floatDouble min) const;
+    void _setPositionIntervalRange_sendOldIk(floatDouble range) const;
     void _setPositionIsCyclic_sendOldIk(bool isCyclic) const;
-    void _setScrewPitch_sendOldIk(float pitch) const;
+    void _setScrewPitch_sendOldIk(floatDouble pitch) const;
     void _setDependencyJointHandle_sendOldIk(int depJointID) const;
-    void _setDependencyJointMult_sendOldIk(float coeff) const;
-    void _setDependencyJointOffset_sendOldIk(float off) const;
-    void _setIkWeight_sendOldIk(float newWeight) const;
-    void _setMaxStepSize_sendOldIk(float stepS) const;
-    void _setPosition_sendOldIk(float pos) const;
+    void _setDependencyJointMult_sendOldIk(floatDouble coeff) const;
+    void _setDependencyJointOffset_sendOldIk(floatDouble off) const;
+    void _setIkWeight_sendOldIk(floatDouble newWeight) const;
+    void _setMaxStepSize_sendOldIk(floatDouble stepS) const;
+    void _setPosition_sendOldIk(floatDouble pos) const;
     void _setSphericalTransformation_sendOldIk(const C4Vector& tr) const;
     void _setJointMode_sendOldIk(int theMode) const;
 
@@ -348,9 +348,9 @@ protected:
 
     std::string _dependencyJointLoadAlias;
 
-    float _initialPosition;
-    float _initialTargetPosition;
-    float _initialTargetVelocity;
+    floatDouble _initialPosition;
+    floatDouble _initialTargetPosition;
+    floatDouble _initialTargetVelocity;
     C4Vector _initialSphericalJointTransformation;
     int _initialJointMode;
 
@@ -358,54 +358,54 @@ protected:
     int _initialDynVelocityCtrlType;
     int _initialDynPositionCtrlType;
     bool _initialDynCtrl_lockAtVelZero;
-    float _initialDynCtrl_force;
-    float _initialDynCtrl_kc[3];
+    floatDouble _initialDynCtrl_force;
+    floatDouble _initialDynCtrl_kc[3];
 
     bool _initialHybridOperation;
 
-    float _initialMaxVelAccelJerk[3];
+    floatDouble _initialMaxVelAccelJerk[3];
 
-    float _velCalc_vel;
-    float _velCalc_prevPos;
-    float _velCalc_prevSimTime;
+    floatDouble _velCalc_vel;
+    floatDouble _velCalc_prevPos;
+    floatDouble _velCalc_prevSimTime;
     bool _velCalc_prevPosValid;
 
     double _dynPosCtrl_currentVelAccel[2];
     double _dynVelCtrl_currentVelAccel[2];
-    float _dynCtrl_previousVelForce[2];
+    floatDouble _dynCtrl_previousVelForce[2];
 
-    float _cumulatedForceOrTorque;
-    float _cumulativeForceOrTorqueTmp;
+    floatDouble _cumulatedForceOrTorque;
+    floatDouble _cumulativeForceOrTorqueTmp;
     bool _averageForceOrTorqueValid;
     int _kinematicMotionType; // 0=none, 1=pos ctrl, 2=vel ctrl, bit4 (16): reset motion
-    float _kinematicMotionInitVel;
+    floatDouble _kinematicMotionInitVel;
 
     int _jointType;
-    float _length;
-    float _diameter;
+    floatDouble _length;
+    floatDouble _diameter;
     C4Vector _sphericalTransf; // spherical joints don't have a range anymore since 22.10.2022
     bool _isCyclic;
-    float _screwPitch;
-    float _posMin;
-    float _posRange;
-    float _pos;
-    float _targetVel; // signed. Should be same sign as _targetForce (however _targetVel has precedence when conflict)
-    float _targetPos;
+    floatDouble _screwPitch;
+    floatDouble _posMin;
+    floatDouble _posRange;
+    floatDouble _pos;
+    floatDouble _targetVel; // signed. Should be same sign as _targetForce (however _targetVel has precedence when conflict)
+    floatDouble _targetPos;
     int _jointMode;
     int _dependencyMasterJointHandle;
-    float _dependencyJointMult;
-    float _dependencyJointOffset;
+    floatDouble _dependencyJointMult;
+    floatDouble _dependencyJointOffset;
 
-    float _maxVelAccelJerk[3];
+    floatDouble _maxVelAccelJerk[3];
 
     CColorObject _color;
     CColorObject _color_removeSoon;
 
     bool _motorLock; // deprecated, should not be used anymore
-    float _targetForce; // signed. Should be same sign as _targetVel (however _targetVel has precedence when conflict)
-    float _dynCtrl_pid_cumulErr;
+    floatDouble _targetForce; // signed. Should be same sign as _targetVel (however _targetVel has precedence when conflict)
+    floatDouble _dynCtrl_pid_cumulErr;
 
-    float _dynCtrl_kc[2];
+    floatDouble _dynCtrl_kc[2];
     int _dynCtrlMode;
     int _dynPositionCtrlType; // built-in velocity mode + pos PID (0) or Ruckig (1)
     int _dynVelocityCtrlType; // built-in velocity mode (0) or Ruckig (1)
@@ -413,38 +413,38 @@ protected:
     bool _jointHasHybridFunctionality;
 
 
-    std::vector<float> _bulletFloatParams;
+    std::vector<floatDouble> _bulletFloatParams;
     std::vector<int> _bulletIntParams;
 
-    std::vector<float> _odeFloatParams;
+    std::vector<floatDouble> _odeFloatParams;
     std::vector<int> _odeIntParams;
 
-    std::vector<float> _vortexFloatParams;
+    std::vector<floatDouble> _vortexFloatParams;
     std::vector<int> _vortexIntParams;
 
-    std::vector<float> _newtonFloatParams;
+    std::vector<floatDouble> _newtonFloatParams;
     std::vector<int> _newtonIntParams;
 
-    std::vector<float> _mujocoFloatParams;
+    std::vector<floatDouble> _mujocoFloatParams;
     std::vector<int> _mujocoIntParams;
 
     C7Vector _intrinsicTransformationError; // from physics engine
 
     // Following is the force/torque acquired during a single dyn. calculation step:
-    float _lastForceOrTorque_dynStep;
+    floatDouble _lastForceOrTorque_dynStep;
     bool _lastForceOrTorqueValid_dynStep;
 
     // DEPRECATED:
-    float _maxStepSize_old;
-    float _ikWeight_old;
+    floatDouble _maxStepSize_old;
+    floatDouble _ikWeight_old;
     std::string _dependencyJointLoadName_old;
-    float _jointPositionForMotionHandling_DEPRECATED;
-    float _velocity_DEPRECATED;
+    floatDouble _jointPositionForMotionHandling_DEPRECATED;
+    floatDouble _velocity_DEPRECATED;
     bool _explicitHandling_DEPRECATED;
     bool _unlimitedAcceleration_DEPRECATED;
     bool _invertTargetVelocityAtLimits_DEPRECATED;
-    float _maxAcceleration_DEPRECATED;
+    floatDouble _maxAcceleration_DEPRECATED;
     int _jointCallbackCallOrder_backwardCompatibility;
-    float _initialVelocity_DEPRECATED;
+    floatDouble _initialVelocity_DEPRECATED;
     bool _initialExplicitHandling_DEPRECATED;
 };

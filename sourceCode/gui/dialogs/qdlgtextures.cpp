@@ -53,7 +53,7 @@ void CQDlgTextures::refresh()
             forbidV=(tp->getTextureMapMode()==sim_texturemap_sphere);
         }
         else
-            foundTextureCoordinatesOnShape=(geom->textureCoords_notCopiedNorSerialized.size()!=0);
+            foundTextureCoordinatesOnShape=(geom->getTextureCoords()->size()!=0);
     }
 
     // Common part (plus select/remove, enabled later)

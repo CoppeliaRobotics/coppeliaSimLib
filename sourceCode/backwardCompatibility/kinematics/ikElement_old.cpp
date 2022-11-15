@@ -68,17 +68,31 @@ void CIkElement_old::serialize(CSer& ar)
             ar << _constraintBaseHandle;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Pr2");
-            ar << _minAngularPrecision << _minLinearPrecision;
+            ar.flt() << (floatFloat)_minAngularPrecision << (floatFloat)_minLinearPrecision;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_r2");
+            ar.dbl() << _minAngularPrecision << _minLinearPrecision;
+            ar.flush();
+#endif
 
             ar.storeDataName("Ctr");
             ar << _constraints;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Wgt");
-            ar << _positionWeight << _orientationWeight;
+            ar.flt() << (floatFloat)_positionWeight << (floatFloat)_orientationWeight;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_gt");
+            ar.dbl() << _positionWeight << _orientationWeight;
+            ar.flush();
+#endif
 
             ar.storeDataName("Var");
             unsigned char nothing=0;
@@ -117,17 +131,29 @@ void CIkElement_old::serialize(CSer& ar)
                         ar >> _constraintBaseHandle;
                     }
                     if (theName.compare("Prc")==0)
-                    {
+                    { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _minAngularPrecision >> _minLinearPrecision;
+                        floatFloat a,b;
+                        ar.flt() >> a >> b;
+                        _minAngularPrecision=(floatDouble)a;
+                        _minLinearPrecision=(floatDouble)b;
                         _minAngularPrecision*=degToRad;
                     }
                     if (theName.compare("Pr2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat a,b;
+                        ar.flt() >> a >> b;
+                        _minAngularPrecision=(floatDouble)a;
+                        _minLinearPrecision=(floatDouble)b;
+                    }
+                    if (theName.compare("_r2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _minAngularPrecision >> _minLinearPrecision;
+                        ar.dbl() >> _minAngularPrecision >> _minLinearPrecision;
                     }
                     if (theName.compare("Ctr")==0)
                     {
@@ -136,10 +162,19 @@ void CIkElement_old::serialize(CSer& ar)
                         ar >> _constraints;
                     }
                     if (theName.compare("Wgt")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat a,b;
+                        ar.flt() >> a >> b;
+                        _positionWeight=(floatDouble)a;
+                        _orientationWeight=(floatDouble)b;
+                    }
+                    if (theName.compare("_gt")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _positionWeight >> _orientationWeight;
+                        ar.dbl() >> _positionWeight >> _orientationWeight;
                     }
                     if (theName.compare("Var")==0)
                     {

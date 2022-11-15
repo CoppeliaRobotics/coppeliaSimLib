@@ -61,10 +61,10 @@ protected:
     int _tipHandle;
     int _baseHandle;
     int _constraintBaseHandle;
-    float _minLinearPrecision;
-    float _minAngularPrecision;
+    floatDouble _minLinearPrecision;
+    floatDouble _minAngularPrecision;
     bool _enabled;
     int _constraints; // bit-coded: use sim_x_constraint, etc. values!
-    float _positionWeight;
-    float _orientationWeight;
+    floatDouble _positionWeight;
+    floatDouble _orientationWeight;
 };

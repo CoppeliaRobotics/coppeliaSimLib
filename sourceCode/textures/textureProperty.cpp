@@ -31,13 +31,13 @@ void CTextureProperty::setTextureMapMode(int mode)
         _textureCoordinateMode=mode;
         if (mode==sim_texturemap_cylinder)
         {
-            _textureScalingX=1.0f;
+            _textureScalingX=1.0;
             _repeatU=true;
         }
         if (mode==sim_texturemap_sphere)
         {
-            _textureScalingX=1.0f;
-            _textureScalingY=1.0f;
+            _textureScalingX=1.0;
+            _textureScalingY=1.0;
             _repeatU=true;
             _repeatV=true;
         }
@@ -137,7 +137,7 @@ CTextureObject* CTextureProperty::getStartedTextureObject()
     return(_startedTexture);
 }
 
-std::vector<float>* CTextureProperty::getFixedTextureCoordinates()
+std::vector<floatFloat>* CTextureProperty::getFixedTextureCoordinates()
 {
     if (_fixedTextureCoordinates.size()!=0)
         return(&_fixedTextureCoordinates);
@@ -146,11 +146,11 @@ std::vector<float>* CTextureProperty::getFixedTextureCoordinates()
 
 void CTextureProperty::transformToFixedTextureCoordinates(const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles)
 {
-    std::vector<float>* textCoords=getTextureCoordinates(-1,transf,vertices,triangles);
+    std::vector<floatFloat>* textCoords=getTextureCoordinates(-1,transf,vertices,triangles);
     setFixedCoordinates(textCoords);
 }
 
-std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles)
+std::vector<floatFloat>* CTextureProperty::getTextureCoordinates(int objectStateId,const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles)
 { // can return nullptr if texture needs to be destroyed!
     if (_fixedTextureCoordinates.size()!=0)
     { // We have fixed coordinates!
@@ -186,8 +186,8 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
             it=rend->getTextureObject();
 #endif
     }
-    float xs=1.0f;
-    float ys=1.0f;
+    float xs=1.0;
+    float ys=1.0;
     if (it!=nullptr)
     {
         _objectStateId=objectStateId;
@@ -208,8 +208,8 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
         v[0]*=tr;
         v[1]*=tr;
         v[2]*=tr;
-        float x=0.0f;
-        float y=0.0f;
+        float x=0.0;
+        float y=0.0;
 
         if ((_textureCoordinateMode==sim_texturemap_cylinder)||(_textureCoordinateMode==sim_texturemap_sphere))
         {
@@ -219,7 +219,7 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
             int verticesNotInCenterIndex[3];
             for (int ot3=0;ot3<3;ot3++)
             {
-                if ( (fabs(v[ot3](1))<0.00001f)&&(fabs(v[ot3](0))<0.00001f) )
+                if ( (fabs(v[ot3](1))<0.00001)&&(fabs(v[ot3](0))<0.00001) )
                 { // this vertex is in the center!
                     verticesInCenterIndex[verticesInCenterCnt]=ot3;
                     verticesInCenterCnt++;
@@ -231,14 +231,14 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
                 }
                 if (_textureCoordinateMode==sim_texturemap_cylinder)
                 {
-                    x=((atan2(v[ot3](1),v[ot3](0))/piValue)+1.0f)/2.0f;// _textureScalingX doesn't make sense here!  (2.0f*_textureScalingX);
-                    y=(v[ot3](2)/_textureScalingY*ys)+0.5f;
+                    x=((atan2(v[ot3](1),v[ot3](0))/piValue)+1.0)/2.0;// _textureScalingX doesn't make sense here!  (2.0f*_textureScalingX);
+                    y=(v[ot3](2)/_textureScalingY*ys)+0.5;
                 }
                 if (_textureCoordinateMode==sim_texturemap_sphere)
                 {
-                    x=((atan2(v[ot3](1),v[ot3](0))/piValue)+1.0f)/2.0f; // _textureScalingX doesn't make sense here!   (2.0f*_textureScalingX);
+                    x=((atan2(v[ot3](1),v[ot3](0))/piValue)+1.0)/2.0; // _textureScalingX doesn't make sense here!   (2.0f*_textureScalingX);
                     float a2=C3Vector::unitZVector.getAngle(v[ot3]);
-                    y=(1.0f-(a2/piValue)); // _textureScalingX doesn't make sense here!  /_textureScalingY;
+                    y=(1.0-(a2/piValue)); // _textureScalingX doesn't make sense here!  /_textureScalingY;
                 }
                 tc[ot3][0]=x;
                 tc[ot3][1]=y;
@@ -257,17 +257,17 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
                     float bm=tc[verticesNotInCenterIndex[1]][0];
                     if (am>=bm)
                     {
-                        if (am-bm>0.5f)
-                            tc[verticesInCenterIndex[0]][0]=(am+bm+1.0f)*0.5f;
+                        if (am-bm>0.5)
+                            tc[verticesInCenterIndex[0]][0]=(am+bm+1.0)*0.5;
                         else
-                            tc[verticesInCenterIndex[0]][0]=(am+bm)*0.5f;
+                            tc[verticesInCenterIndex[0]][0]=(am+bm)*0.5;
                     }
                     else
                     {
-                        if (bm-am>0.5f)
-                            tc[verticesInCenterIndex[0]][0]=(am+bm+1.0f)*0.5f;
+                        if (bm-am>0.5)
+                            tc[verticesInCenterIndex[0]][0]=(am+bm+1.0)*0.5;
                         else
-                            tc[verticesInCenterIndex[0]][0]=(am+bm)*0.5f;
+                            tc[verticesInCenterIndex[0]][0]=(am+bm)*0.5;
                     }
                 }
             }
@@ -323,11 +323,11 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
                 }
             }
             
-            if (tc[sorted[0]][0]-tc[sorted[2]][0]>0.5f)
+            if (tc[sorted[0]][0]-tc[sorted[2]][0]>0.5)
             {
-                tc[sorted[2]][0]+=1.0f;
-                if (tc[sorted[0]][0]-tc[sorted[1]][0]>0.5f)
-                    tc[sorted[1]][0]+=1.0f;
+                tc[sorted[2]][0]+=1.0;
+                if (tc[sorted[0]][0]-tc[sorted[1]][0]>0.5)
+                    tc[sorted[1]][0]+=1.0;
             }
 
         }
@@ -363,21 +363,21 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
                     yIndex=1;
                 }
             }
-            tc[0][0]=(v[0](xIndex)/(_textureScalingX*xs))+0.5f;
-            tc[0][1]=(v[0](yIndex)/(_textureScalingY*ys))+0.5f;
-            tc[1][0]=(v[1](xIndex)/(_textureScalingX*xs))+0.5f;
-            tc[1][1]=(v[1](yIndex)/(_textureScalingY*ys))+0.5f;
-            tc[2][0]=(v[2](xIndex)/(_textureScalingX*xs))+0.5f;
-            tc[2][1]=(v[2](yIndex)/(_textureScalingY*ys))+0.5f;
+            tc[0][0]=(v[0](xIndex)/(_textureScalingX*xs))+0.5;
+            tc[0][1]=(v[0](yIndex)/(_textureScalingY*ys))+0.5;
+            tc[1][0]=(v[1](xIndex)/(_textureScalingX*xs))+0.5;
+            tc[1][1]=(v[1](yIndex)/(_textureScalingY*ys))+0.5;
+            tc[2][0]=(v[2](xIndex)/(_textureScalingX*xs))+0.5;
+            tc[2][1]=(v[2](yIndex)/(_textureScalingY*ys))+0.5;
         }
         if (_textureCoordinateMode==sim_texturemap_plane)
         { // sim_texturemap_plane
-            tc[0][0]=(v[0](0)/(_textureScalingX*xs))+0.5f;
-            tc[0][1]=(v[0](1)/(_textureScalingY*ys))+0.5f;
-            tc[1][0]=(v[1](0)/(_textureScalingX*xs))+0.5f;
-            tc[1][1]=(v[1](1)/(_textureScalingY*ys))+0.5f;
-            tc[2][0]=(v[2](0)/(_textureScalingX*xs))+0.5f;
-            tc[2][1]=(v[2](1)/(_textureScalingY*ys))+0.5f;
+            tc[0][0]=(v[0](0)/(_textureScalingX*xs))+0.5;
+            tc[0][1]=(v[0](1)/(_textureScalingY*ys))+0.5;
+            tc[1][0]=(v[1](0)/(_textureScalingX*xs))+0.5;
+            tc[1][1]=(v[1](1)/(_textureScalingY*ys))+0.5;
+            tc[2][0]=(v[2](0)/(_textureScalingX*xs))+0.5;
+            tc[2][1]=(v[2](1)/(_textureScalingY*ys))+0.5;
         }
 
         _calculatedTextureCoordinates.push_back(tc[0][0]);
@@ -481,7 +481,7 @@ void CTextureProperty::setTextureRelativeConfig(const C7Vector& c)
     _texCoordBufferId=-1;
 }
 
-void CTextureProperty::setFixedCoordinates(std::vector<float>* coords)
+void CTextureProperty::setFixedCoordinates(const std::vector<floatFloat>* coords)
 { // nullptr to remove them and have calculated coords
     _fixedTextureCoordinates.clear();
     if ( (coords!=nullptr)&&(coords->size()!=0) )
@@ -546,7 +546,7 @@ void CTextureProperty::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Ftc");
-            for (int i=0;i<int(_fixedTextureCoordinates.size());i++)
+            for (size_t i=0;i<_fixedTextureCoordinates.size();i++)
                 ar << _fixedTextureCoordinates[i];
             ar.flush();
 
@@ -610,8 +610,8 @@ void CTextureProperty::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        _fixedTextureCoordinates.resize(byteQuantity/sizeof(float),0.0f);
-                        for (int i=0;i<int(_fixedTextureCoordinates.size());i++)
+                        _fixedTextureCoordinates.resize(byteQuantity/sizeof(floatFloat),0.0);
+                        for (size_t i=0;i<_fixedTextureCoordinates.size();i++)
                             ar >> _fixedTextureCoordinates[i];
                     }
                     if (theName.compare("Apm")==0)

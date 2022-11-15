@@ -95,9 +95,16 @@ void CIkGroup_old::serialize(CSer &ar)
             ar << _maxIterations;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Dpg");
-            ar << _dampingFactor;
+            ar.flt() << floatFloat(_dampingFactor);
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_pg");
+            ar.dbl() << _dampingFactor;
+            ar.flush();
+#endif
 
             ar.storeDataName("Cmt");
             ar << _calculationMethod;
@@ -163,17 +170,19 @@ void CIkGroup_old::serialize(CSer &ar)
                         ar >> byteQuantity;
                         ar >> _maxIterations;
                     }
-                    // DEPRECATED SINCE 1.4.2020  if (theName.compare("Ctr")==0)
-                    // DEPRECATED SINCE 1.4.2020  if (theName.compare("Wgt")==0)
-                    // DEPRECATED SINCE 1.4.2020  if (theName.compare("Jts")==0)
-                    // DEPRECATED SINCE 1.4.2020  if (theName.compare("Va2")==0)
-                    // DEPRECATED SINCE 1.4.2020  if (theName.compare("Avx")==0)
-                    // DEPRECATED SINCE 1.4.2020  if (theName.compare("Avt")==0)
                     if (theName.compare("Dpg")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _dampingFactor=(floatDouble)bla;
+                    }
+                    if (theName.compare("_pg")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _dampingFactor;
+                        ar.dbl() >> _dampingFactor;
                     }
                     if (theName.compare("Cmt")==0)
                     {

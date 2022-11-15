@@ -4,6 +4,8 @@ DEFINES += SIM_LIB
 
 # Transition to double:
 # --------------------
+DEFINES += TMPOPERATION # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats)
+
 DEFINES += floatFloat=float
 DEFINES += floatDouble=float
 #DEFINES += NOW_ALL_DOUBLES
@@ -24,6 +26,12 @@ DEFINES += floatDouble=float
 #getStackFloatArray
 #getStackMapFloatValue
 #getStackMapFloatArray
+#pushFloatOntoStack
+#insertKeyFloatIntoStackTable
+#getStackFloatValue
+#getStackMapFloatValue
+#appendArrayObject_float
+#appendMapObject_stringFloat
 # --------------------
 
 CONFIG += shared plugin debug_and_release

@@ -60,7 +60,7 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
     {
         C7Vector oldTr(_shape->getCumulativeTransformation());
         CMesh* gc=_shape->getSingleMesh();
-        gc->setPurePrimitiveType(sim_primitiveshape_none,1.0f,1.0f,1.0f); // disable the pure characteristic
+        gc->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0); // disable the pure characteristic
         CMeshManip::checkVerticesIndicesNormalsTexCoords(_editionVertices,_editionIndices,nullptr,&_editionTextureCoords,_identicalVerticesCheck,_identicalVerticesTolerance,_identicalTrianglesCheck);
 
         if (_editionVertices.size()!=0)
@@ -723,7 +723,7 @@ void CShapeEditMode::addTriangle(int ind1,int ind2,int ind3) // all edit mode ro
         index=_edgeCont.addEdge(ind3,ind2);
     }
     _editionIndicesToEdgesIndex.push_back(index);
-    float v[3][3];
+    floatDouble v[3][3];
     v[0][0]=_editionVertices[3*ind1+0];
     v[0][1]=_editionVertices[3*ind1+1];
     v[0][2]=_editionVertices[3*ind1+2];
@@ -733,7 +733,7 @@ void CShapeEditMode::addTriangle(int ind1,int ind2,int ind3) // all edit mode ro
     v[2][0]=_editionVertices[3*ind3+0];
     v[2][1]=_editionVertices[3*ind3+1];
     v[2][2]=_editionVertices[3*ind3+2];
-    float n[3];
+    floatDouble n[3];
     CMeshManip::calcNormal(v,n);
     for (int i=0;i<3;i++)
     {
@@ -742,7 +742,7 @@ void CShapeEditMode::addTriangle(int ind1,int ind2,int ind3) // all edit mode ro
         _editionNormals.push_back(n[2]);
     }
     for (int i=0;i<6;i++)
-        _editionTextureCoords.push_back(0.0f);
+        _editionTextureCoords.push_back(0.0);
 }
 
 void CShapeEditMode::actualizeEditModeEditionEdges() // all edit mode routines should go somewhere else!!!

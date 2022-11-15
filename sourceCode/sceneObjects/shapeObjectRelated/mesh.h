@@ -53,10 +53,7 @@ public:
     void setHeightfieldDiamonds(bool d);
 
     int getUniqueID() const;
-    void setMesh(const std::vector<floatFloat>& vertices,const std::vector<int>& indices,const std::vector<floatFloat>* normals,const C7Vector& transformation);
-    void setMeshDataDirect(const std::vector<floatFloat>& vertices,const std::vector<int>& indices,const std::vector<floatFloat>& normals,const std::vector<unsigned char>& edges);
-
-
+    void setMesh(const std::vector<floatDouble>& vertices,const std::vector<int>& indices,const std::vector<floatDouble>* normals,const C7Vector& transformation);
 
     void setHeightfieldData(const std::vector<float>& heights,int xCount,int yCount);
     float* getHeightfieldData(int& xCount,int& yCount,float& minHeight,float& maxHeight);
@@ -88,14 +85,18 @@ public:
     void setWireframe_OLD(bool w);
     bool getWireframe_OLD() const;
 
-    std::vector<floatFloat>* getVertices();
+    std::vector<floatDouble>* getVertices();
     std::vector<int>* getIndices();
-    std::vector<floatFloat>* getNormals();
+    std::vector<floatDouble>* getNormals();
     std::vector<unsigned char>* getEdges();
     int* getVertexBufferIdPtr();
     int* getNormalBufferIdPtr();
     int* getEdgeBufferIdPtr();
+    const std::vector<floatFloat>* getTextureCoords() const;
+    void setTextureCoords(const std::vector<floatFloat>* tc);
 
+    std::vector<floatFloat>* getVerticesForDisplayAndDisk();
+    std::vector<floatFloat>* getNormalsForDisplayAndDisk();
 
     void copyVisualAttributesTo(CMesh* target);
 
@@ -115,13 +116,9 @@ public:
     static int addEdgesToBufferAndReturnIndex(const std::vector<unsigned char>& edges);
     static void getEdgesFromBufferBasedOnIndex(int index,std::vector<unsigned char>& edges);
 
-
     CColorObject color;
     CColorObject insideColor_DEPRECATED;
     CColorObject edgeColor_DEPRECATED;
-
-    // Do not serialize nor copy following 3:
-    std::vector<float> textureCoords_notCopiedNorSerialized; // 2 values per vertex
 
     std::vector<float> _heightfieldHeights;
     int _heightfieldXCount;
@@ -134,11 +131,15 @@ protected:
     static void _savePackedIntegers(CSer& ar,const std::vector<int>& data);
     static void _loadPackedIntegers(CSer& ar,std::vector<int>& data);
 
-    std::vector<floatFloat> _vertices;
+    std::vector<floatDouble> _vertices;
     std::vector<int> _indices;
-    std::vector<floatFloat> _normals;
+    std::vector<floatDouble> _normals;
     std::vector<unsigned char> _edges;
-    
+    std::vector<floatDouble> _textureCoordsTemp; // 2 values per vertex
+
+    std::vector<floatFloat> _verticesForDisplayAndDisk;
+    std::vector<floatFloat> _normalsForDisplayAndDisk;
+
     bool _visibleEdges;
     bool _hideEdgeBorders_OLD;
     bool _culling;
@@ -185,14 +186,15 @@ protected:
     static int _nextUniqueID;
 
 
-    static std::vector<std::vector<floatFloat>*> _tempVertices;
-    static std::vector<std::vector<int>*> _tempIndices;
-    static std::vector<std::vector<floatFloat>*> _tempNormals;
-    static std::vector<std::vector<unsigned char>*> _tempEdges;
+    // temp, for serialization purpose:
+    static std::vector<std::vector<floatFloat>*> _tempVerticesForDisk;
+    static std::vector<std::vector<int>*> _tempIndicesForDisk;
+    static std::vector<std::vector<floatFloat>*> _tempNormalsForDisk;
+    static std::vector<std::vector<unsigned char>*> _tempEdgesForDisk;
 
 #ifdef SIM_WITH_GUI
 public:
-    bool getNonCalculatedTextureCoordinates(std::vector<float>& texCoords);
+    bool getNonCalculatedTextureCoordinates(std::vector<floatDouble>& texCoords);
 
 #endif
 };

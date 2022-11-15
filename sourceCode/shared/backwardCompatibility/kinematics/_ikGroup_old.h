@@ -84,7 +84,7 @@ protected:
     bool _enabled;
     int _maxIterations;
     int _calculationMethod;
-    float _dampingFactor;
+    floatDouble _dampingFactor;
     bool _ignoreMaxStepSizes;
     bool _restoreIfPositionNotReached;
     bool _restoreIfOrientationNotReached;

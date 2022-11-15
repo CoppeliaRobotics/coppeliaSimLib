@@ -4,23 +4,23 @@
 
 struct SUndoBufferIntArray
 {
-    int _identifier;
-    std::vector<int> _buffer;
-    std::vector<int> _undoBufferDependencyIds;
+    int identifier;
+    std::vector<int> buffer;
+    std::vector<int> undoBufferDependencyIds;
 };
 
 struct SUndoBufferFloatArray
 {
-    int _identifier;
-    std::vector<float> _buffer;
-    std::vector<int> _undoBufferDependencyIds;
+    int identifier;
+    std::vector<floatFloat> buffer;
+    std::vector<int> undoBufferDependencyIds;
 };
 
 struct SUndoBufferUCharArray
 {
-    int _identifier;
-    std::vector<unsigned char> _buffer;
-    std::vector<int> _undoBufferDependencyIds;
+    int identifier;
+    std::vector<unsigned char> buffer;
+    std::vector<int> undoBufferDependencyIds;
 };
 
 class CUndoBufferArrays
@@ -29,14 +29,14 @@ public:
     CUndoBufferArrays();
     virtual ~CUndoBufferArrays();
 
-    int addVertexBuffer(const std::vector<float>& buff,int undoBufferId);
+    int addVertexBuffer(const std::vector<floatFloat>& buff,int undoBufferId);
     int addIndexBuffer(const std::vector<int>& buff,int undoBufferId);
-    int addNormalsBuffer(const std::vector<float>& buff,int undoBufferId);
+    int addNormalsBuffer(const std::vector<floatFloat>& buff,int undoBufferId);
     int addTextureBuffer(const std::vector<unsigned char>& buff,int undoBufferId);
 
-    void getVertexBuffer(int id,std::vector<float>& buff);
+    void getVertexBuffer(int id,std::vector<floatFloat>& buff);
     void getIndexBuffer(int id,std::vector<int>& buff);
-    void getNormalsBuffer(int id,std::vector<float>& buff);
+    void getNormalsBuffer(int id,std::vector<floatFloat>& buff);
     void getTextureBuffer(int id,std::vector<unsigned char>& buff);
 
     void removeDependenciesFromUndoBufferId(int undoBufferId);
@@ -44,7 +44,7 @@ public:
     int getMemorySizeInBytes();
 private:
 
-    bool _areFloatBuffersSame(const std::vector<float>& buff1,const std::vector<float>& buff2);
+    bool _areFloatBuffersSame(const std::vector<floatFloat>& buff1,const std::vector<floatFloat>& buff2);
     bool _areIntBuffersSame(const std::vector<int>& buff1,const std::vector<int>& buff2);
     bool _areUCharBuffersSame(const std::vector<unsigned char>& buff1,const std::vector<unsigned char>& buff2);
 

@@ -7644,16 +7644,12 @@ simInt simGetJointMode_internal(simInt jointHandle,simInt* options)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isJoint(__func__,jointHandle))
-        {
             return(-1);
-        }
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
         int retVal=it->getJointMode();
         options[0]=0;
@@ -15521,14 +15517,15 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
             }
 
             C7Vector tr(geom->getVerticeLocalFrame());
-            const std::vector<float>* wvert=geom->getVertices();
+            const std::vector<floatDouble>* wvert=geom->getVertices();
             const std::vector<int>* wind=geom->getIndices();
-            const std::vector<float>* wnorm=geom->getNormals();
+            const std::vector<floatDouble>* wnorm=geom->getNormals();
             info->verticesSize=int(wvert->size());
-            info->vertices=new float[wvert->size()];
+            info->vertices=new floatDouble[wvert->size()];
             for (size_t i=0;i<wvert->size()/3;i++)
             {
-                C3Vector v((&wvert[0][0])+i*3);
+                C3Vector v;
+                v.setData((&wvert[0][0])+i*3);
                 v=tr*v;
                 info->vertices[3*i+0]=v(0);
                 info->vertices[3*i+1]=v(1);
@@ -15536,11 +15533,12 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
             }
             info->indicesSize=int(wind->size());
             info->indices=new int[wind->size()];
-            info->normals=new float[wind->size()*3];
+            info->normals=new floatDouble[wind->size()*3];
             for (size_t i=0;i<wind->size();i++)
             {
                 info->indices[i]=wind->at(i);
-                C3Vector n(&(wnorm[0])[0]+i*3);
+                C3Vector n;
+                n.setData(&(wnorm[0])[0]+i*3);
                 n=tr.Q*n; // only orientation
                 info->normals[3*i+0]=n(0);
                 info->normals[3*i+1]=n(1);
@@ -15553,7 +15551,7 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
 
             CTextureProperty* tp=geom->getTextureProperty();
             CTextureObject* to=nullptr;
-            const std::vector<float>* tc=nullptr;
+            const std::vector<floatFloat>* tc=nullptr;
             if (tp!=nullptr)
             {
                 to=tp->getTextureObject();
@@ -15569,9 +15567,9 @@ simInt simGetShapeViz_internal(simInt shapeHandle,simInt index,struct SShapeVizI
                 const char* ob=(char*)to->getTextureBufferPointer();
                 for (size_t i=0;i<totBytes;i++)
                     info->texture[i]=ob[i];
-                info->textureCoords=new float[tc->size()];
+                info->textureCoords=new floatDouble[tc->size()];
                 for (size_t i=0;i<tc->size();i++)
-                    info->textureCoords[i]=tc->at(i);
+                    info->textureCoords[i]=(floatDouble)tc->at(i);
                 info->textureApplyMode=tp->getApplyMode();
                 info->textureOptions=0;
                 if (tp->getRepeatU())
@@ -16056,8 +16054,10 @@ simInt simApplyTexture_internal(simInt shapeHandle,const simFloat* textureCoordi
                         tp->setApplyMode(1);
                     else
                         tp->setApplyMode(0);
-                    std::vector<float> c;
-                    c.assign(textureCoordinates,textureCoordinates+textCoordSize);
+                    std::vector<floatFloat> c;
+                    c.resize(textCoordSize);
+                    for (int i=0;i<textCoordSize;i++)
+                        c[i]=(floatFloat)textureCoordinates[i];
                     tp->setFixedCoordinates(&c);
                 }
                 else
@@ -16722,9 +16722,9 @@ simFloat _simGetJointPosition_internal(const simVoid* joint)
 }
 
 simVoid _simSetDynamicMotorPositionControlTargetPosition_internal(const simVoid* joint,simFloat pos)
-{
-    TRACE_C_API;
-    ((CJoint*)joint)->setTargetPosition(pos);
+{ // OLD, for backward compatibility. Only joints in hybrid operation are called here
+    if (_simGetJointMode_internal(joint)!=sim_jointmode_dynamic)
+        ((CJoint*)joint)->setTargetPosition(pos);
 }
 
 simVoid _simGetGravity_internal(simFloat* gravity)

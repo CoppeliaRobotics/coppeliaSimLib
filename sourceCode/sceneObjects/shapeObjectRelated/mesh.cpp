@@ -16,10 +16,11 @@ unsigned int CMesh::_extRendererUniqueObjectID=0;
 unsigned int CMesh::_extRendererUniqueMeshID=0;
 unsigned int CMesh::_extRendererUniqueTextureID=0;
 
-std::vector<std::vector<floatFloat>*> CMesh::_tempVertices;
-std::vector<std::vector<int>*> CMesh::_tempIndices;
-std::vector<std::vector<floatFloat>*> CMesh::_tempNormals;
-std::vector<std::vector<unsigned char>*> CMesh::_tempEdges;
+// temp, for serialization purpose:
+std::vector<std::vector<floatFloat>*> CMesh::_tempVerticesForDisk;
+std::vector<std::vector<int>*> CMesh::_tempIndicesForDisk;
+std::vector<std::vector<floatFloat>*> CMesh::_tempNormalsForDisk;
+std::vector<std::vector<unsigned char>*> CMesh::_tempEdgesForDisk;
 
 CMesh::CMesh()
 {
@@ -137,14 +138,14 @@ void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vecto
         static int a=0;
         a++;
         void* data[40];
-        data[0]=&_vertices[0];
-        int vs=(int)_vertices.size()/3;
+        data[0]=&_verticesForDisplayAndDisk[0];
+        int vs=(int)_verticesForDisplayAndDisk.size()/3;
         data[1]=&vs;
         data[2]=&_indices[0];
         int is=(int)_indices.size()/3;
         data[3]=&is;
-        data[4]=&_normals[0];
-        int ns=(int)_normals.size()/3;
+        data[4]=&_normalsForDisplayAndDisk[0];
+        int ns=(int)_normalsForDisplayAndDisk.size()/3;
         data[5]=&ns;
         data[6]=tr2.X.data;
 
@@ -302,6 +303,9 @@ CMesh* CMesh::copyYourself()
     newIt->_normals.assign(_normals.begin(),_normals.end());
     newIt->_edges.assign(_edges.begin(),_edges.end());
 
+    newIt->_verticesForDisplayAndDisk.assign(_verticesForDisplayAndDisk.begin(),_verticesForDisplayAndDisk.end());
+    newIt->_normalsForDisplayAndDisk.assign(_normalsForDisplayAndDisk.begin(),_normalsForDisplayAndDisk.end());
+
     newIt->_vertexBufferId=_vertexBufferId;
     newIt->_normalBufferId=_normalBufferId;
     newIt->_edgeBufferId=_edgeBufferId;
@@ -346,7 +350,7 @@ void CMesh::scale(float xVal,float yVal,float zVal)
     _verticeLocalFrame.X(2)*=zVal;
 
     C7Vector inverse(_verticeLocalFrame.getInverse());
-    for (int i=0;i<int(_vertices.size())/3;i++)
+    for (size_t i=0;i<_vertices.size()/3;i++)
     {
         C3Vector v;
         v.setData(&_vertices[3*i+0]);
@@ -355,9 +359,12 @@ void CMesh::scale(float xVal,float yVal,float zVal)
         v(1)*=yVal;
         v(2)*=zVal;
         v=inverse.Q*v;
-        _vertices[3*i+0]=(floatFloat)v(0);
-        _vertices[3*i+1]=(floatFloat)v(1);
-        _vertices[3*i+2]=(floatFloat)v(2);
+        _vertices[3*i+0]=v(0);
+        _vertices[3*i+1]=v(1);
+        _vertices[3*i+2]=v(2);
+        _verticesForDisplayAndDisk[3*i+0]=(floatFloat)v(0);
+        _verticesForDisplayAndDisk[3*i+1]=(floatFloat)v(1);
+        _verticesForDisplayAndDisk[3*i+2]=(floatFloat)v(2);
     }
     
     if (_purePrimitive==sim_primitiveshape_heightfield)
@@ -386,24 +393,7 @@ void CMesh::scale(float xVal,float yVal,float zVal)
     _edgeBufferId=-1;
 }
 
-void CMesh::setMeshDataDirect(const std::vector<floatFloat>& vertices,const std::vector<int>& indices,const std::vector<floatFloat>& normals,const std::vector<unsigned char>& edges)
-{
-    _vertices.assign(vertices.begin(),vertices.end());
-    _indices.assign(indices.begin(),indices.end());
-    _normals.assign(normals.begin(),normals.end());
-    _edges.assign(edges.begin(),edges.end());
-    checkIfConvex();
-
-    decreaseVertexBufferRefCnt(_vertexBufferId);
-    decreaseNormalBufferRefCnt(_normalBufferId);
-    decreaseEdgeBufferRefCnt(_edgeBufferId);
-
-    _vertexBufferId=-1;
-    _normalBufferId=-1;
-    _edgeBufferId=-1;
-}
-
-void CMesh::setMesh(const std::vector<floatFloat>& vertices,const std::vector<int>& indices,const std::vector<floatFloat>* normals,const C7Vector& transformation)
+void CMesh::setMesh(const std::vector<floatDouble>& vertices,const std::vector<int>& indices,const std::vector<floatDouble>* normals,const C7Vector& transformation)
 {
     _vertices.assign(vertices.begin(),vertices.end());
     _indices.assign(indices.begin(),indices.end());
@@ -425,6 +415,13 @@ void CMesh::setMesh(const std::vector<floatFloat>& vertices,const std::vector<in
     _vertexBufferId=-1;
     _normalBufferId=-1;
     _edgeBufferId=-1;
+
+    _verticesForDisplayAndDisk.resize(_vertices.size());
+    for (size_t i=0;i<_vertices.size();i++)
+        _verticesForDisplayAndDisk[i]=(floatFloat)_vertices[i];
+    _normalsForDisplayAndDisk.resize(_normals.size());
+    for (size_t i=0;i<_normals.size();i++)
+        _normalsForDisplayAndDisk[i]=(floatFloat)_normals[i];
 }
 
 void CMesh::setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOrHeight)
@@ -984,9 +981,14 @@ void CMesh::setVerticeLocalFrame(const C7Vector& tr)
     _verticeLocalFrame=tr;
 }
 
-std::vector<floatFloat>* CMesh::getVertices()
+std::vector<floatDouble>* CMesh::getVertices()
 {
     return(&_vertices);
+}
+
+std::vector<floatFloat>* CMesh::getVerticesForDisplayAndDisk()
+{
+    return(&_verticesForDisplayAndDisk);
 }
 
 std::vector<int>* CMesh::getIndices()
@@ -994,9 +996,26 @@ std::vector<int>* CMesh::getIndices()
     return(&_indices);
 }
 
-std::vector<floatFloat>* CMesh::getNormals()
+std::vector<floatDouble>* CMesh::getNormals()
 {
     return(&_normals);
+}
+
+std::vector<floatFloat>* CMesh::getNormalsForDisplayAndDisk()
+{
+    return(&_normalsForDisplayAndDisk);
+}
+
+const std::vector<floatFloat>* CMesh::getTextureCoords() const
+{
+    return(&_textureCoordsTemp);
+}
+
+void CMesh::setTextureCoords(const std::vector<floatFloat>* tc)
+{
+    _textureCoordsTemp.clear();
+    if (tc!=nullptr)
+        _textureCoordsTemp.assign(tc->begin(),tc->end());
 }
 
 std::vector<unsigned char>* CMesh::getEdges()
@@ -1063,8 +1082,8 @@ void CMesh::getColorStrings(std::string& colorStrings) const
 void CMesh::flipFaces()
 { // function has virtual/non-virtual counterpart!
     int save;
-    floatFloat normSave;
-    for (int i=0;i<int(_indices.size())/3;i++)
+    floatDouble normSave;
+    for (size_t i=0;i<_indices.size()/3;i++)
     {
         save=_indices[3*i+0];
         _indices[3*i+0]=_indices[3*i+2];
@@ -1093,6 +1112,10 @@ void CMesh::flipFaces()
 
     _normalBufferId=-1;
     _vertexBufferId=-1;
+
+    _normalsForDisplayAndDisk.resize(_normals.size());
+    for (size_t i=0;i<_normals.size();i++)
+        _normalsForDisplayAndDisk[i]=(floatFloat)_normals[i];
 }
 
 void CMesh::actualizeGouraudShadingAndVisibleEdges()
@@ -1106,55 +1129,55 @@ void CMesh::_recomputeNormals()
     _normals.resize(3*_indices.size());
     float maxAngle=_shadingAngle;
     C3Vector v[3];
-    for (int i=0;i<int(_indices.size())/3;i++)
+    for (size_t i=0;i<_indices.size()/3;i++)
     {   // Here we restore first all the normal vectors
-        v[0]=C3Vector::fromFloatPtr(&_vertices[3*(_indices[3*i+0])]);
-        v[1]=C3Vector::fromFloatPtr(&_vertices[3*(_indices[3*i+1])]);
-        v[2]=C3Vector::fromFloatPtr(&_vertices[3*(_indices[3*i+2])]);
+        v[0]=C3Vector(&_vertices[3*(_indices[3*i+0])]);
+        v[1]=C3Vector(&_vertices[3*(_indices[3*i+1])]);
+        v[2]=C3Vector(&_vertices[3*(_indices[3*i+2])]);
 
         C3Vector v1(v[1]-v[0]);
         C3Vector v2(v[2]-v[0]);
         C3Vector n((v1^v2).getNormalized());
 
-        _normals[9*i+0]=(floatFloat)n(0);
-        _normals[9*i+1]=(floatFloat)n(1);
-        _normals[9*i+2]=(floatFloat)n(2);
-        _normals[9*i+3]=(floatFloat)n(0);
-        _normals[9*i+4]=(floatFloat)n(1);
-        _normals[9*i+5]=(floatFloat)n(2);
-        _normals[9*i+6]=(floatFloat)n(0);
-        _normals[9*i+7]=(floatFloat)n(1);
-        _normals[9*i+8]=(floatFloat)n(2);
+        _normals[9*i+0]=n(0);
+        _normals[9*i+1]=n(1);
+        _normals[9*i+2]=n(2);
+        _normals[9*i+3]=n(0);
+        _normals[9*i+4]=n(1);
+        _normals[9*i+5]=n(2);
+        _normals[9*i+6]=n(0);
+        _normals[9*i+7]=n(1);
+        _normals[9*i+8]=n(2);
     }
 
     std::vector<std::vector<int>*> indexToNormals;
-    for (int i=0;i<int(_vertices.size())/3;i++)
+    for (size_t i=0;i<_vertices.size()/3;i++)
     {
         std::vector<int>* sharingNormals=new std::vector<int>;
         indexToNormals.push_back(sharingNormals);
     }
-    for (int i=0;i<int(_indices.size())/3;i++)
+    for (size_t i=0;i<_indices.size()/3;i++)
     {
         indexToNormals[_indices[3*i+0]]->push_back(3*i+0);
         indexToNormals[_indices[3*i+1]]->push_back(3*i+1);
         indexToNormals[_indices[3*i+2]]->push_back(3*i+2);
     }
-    std::vector<floatFloat> changedNorm(_normals.size());
+    std::vector<floatDouble> changedNorm(_normals.size());
 
-    for (int i=0;i<int(indexToNormals.size());i++)
+    for (size_t i=0;i<indexToNormals.size();i++)
     {
-        for (int j=0;j<int(indexToNormals[i]->size());j++)
+        for (size_t j=0;j<indexToNormals[i]->size();j++)
         {
             C3Vector totN;
             float nb=1.0;
             C3Vector nActual;
             nActual.setData(&_normals[3*(indexToNormals[i]->at(j))]);
             totN=nActual;
-            for (int k=0;k<int(indexToNormals[i]->size());k++)
+            for (size_t k=0;k<indexToNormals[i]->size();k++)
             {
                 if (j!=k)
                 {
-                    C3Vector nToCompare(C3Vector::fromFloatPtr(&_normals[3*(indexToNormals[i]->at(k))]));
+                    C3Vector nToCompare(&_normals[3*(indexToNormals[i]->at(k))]);
                     if (nActual.getAngle(nToCompare)<maxAngle)
                     {
                         totN+=nToCompare;
@@ -1162,15 +1185,15 @@ void CMesh::_recomputeNormals()
                     }
                 }
             }
-            changedNorm[3*indexToNormals[i]->at(j)+0]=(floatFloat)(totN(0)/nb);
-            changedNorm[3*indexToNormals[i]->at(j)+1]=(floatFloat)(totN(1)/nb);
-            changedNorm[3*indexToNormals[i]->at(j)+2]=(floatFloat)(totN(2)/nb);
+            changedNorm[3*indexToNormals[i]->at(j)+0]=(totN(0)/nb);
+            changedNorm[3*indexToNormals[i]->at(j)+1]=(totN(1)/nb);
+            changedNorm[3*indexToNormals[i]->at(j)+2]=(totN(2)/nb);
         }
         indexToNormals[i]->clear();
         delete indexToNormals[i];
     }
     // Now we have to replace the modified normals:
-    for (int i=0;i<int(_indices.size())/3;i++)
+    for (size_t i=0;i<_indices.size()/3;i++)
     {
         for (int j=0;j<9;j++)
             _normals[9*i+j]=changedNorm[9*i+j];
@@ -1179,6 +1202,10 @@ void CMesh::_recomputeNormals()
     decreaseNormalBufferRefCnt(_normalBufferId);
 
     _normalBufferId=-1;
+
+    _normalsForDisplayAndDisk.resize(_normals.size());
+    for (size_t i=0;i<_normals.size();i++)
+        _normalsForDisplayAndDisk[i]=(floatFloat)_normals[i];
 }
 
 void CMesh::_computeVisibleEdges()
@@ -1290,36 +1317,36 @@ void CMesh::_loadPackedIntegers(CSer& ar,std::vector<int>& data)
 
 void CMesh::clearTempVerticesIndicesNormalsAndEdges()
 {
-    for (int i=0;i<int(_tempVertices.size());i++)
-        delete _tempVertices[i];
-    _tempVertices.clear();
+    for (size_t i=0;i<_tempVerticesForDisk.size();i++)
+        delete _tempVerticesForDisk[i];
+    _tempVerticesForDisk.clear();
 
-    for (int i=0;i<int(_tempIndices.size());i++)
-        delete _tempIndices[i];
-    _tempIndices.clear();
+    for (size_t i=0;i<_tempIndicesForDisk.size();i++)
+        delete _tempIndicesForDisk[i];
+    _tempIndicesForDisk.clear();
 
-    for (int i=0;i<int(_tempNormals.size());i++)
-        delete _tempNormals[i];
-    _tempNormals.clear();
+    for (size_t i=0;i<_tempNormalsForDisk.size();i++)
+        delete _tempNormalsForDisk[i];
+    _tempNormalsForDisk.clear();
 
-    for (int i=0;i<int(_tempEdges.size());i++)
-        delete _tempEdges[i];
-    _tempEdges.clear();
+    for (size_t i=0;i<_tempEdgesForDisk.size();i++)
+        delete _tempEdgesForDisk[i];
+    _tempEdgesForDisk.clear();
 }
 
 void CMesh::prepareVerticesIndicesNormalsAndEdgesForSerialization()
 { // function has virtual/non-virtual counterpart!
-    _tempVerticesIndexForSerialization=getBufferIndexOfVertices(_vertices);
+    _tempVerticesIndexForSerialization=getBufferIndexOfVertices(_verticesForDisplayAndDisk);
     if (_tempVerticesIndexForSerialization==-1)
-        _tempVerticesIndexForSerialization=addVerticesToBufferAndReturnIndex(_vertices);
+        _tempVerticesIndexForSerialization=addVerticesToBufferAndReturnIndex(_verticesForDisplayAndDisk);
 
     _tempIndicesIndexForSerialization=getBufferIndexOfIndices(_indices);
     if (_tempIndicesIndexForSerialization==-1)
         _tempIndicesIndexForSerialization=addIndicesToBufferAndReturnIndex(_indices);
 
-    _tempNormalsIndexForSerialization=getBufferIndexOfNormals(_normals);
+    _tempNormalsIndexForSerialization=getBufferIndexOfNormals(_normalsForDisplayAndDisk);
     if (_tempNormalsIndexForSerialization==-1)
-        _tempNormalsIndexForSerialization=addNormalsToBufferAndReturnIndex(_normals);
+        _tempNormalsIndexForSerialization=addNormalsToBufferAndReturnIndex(_normalsForDisplayAndDisk);
 
     _tempEdgesIndexForSerialization=getBufferIndexOfEdges(_edges);
     if (_tempEdgesIndexForSerialization==-1)
@@ -1330,44 +1357,44 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
 {
     if (ar.isStoring())
     {       // Storing
-        for (int c=0;c<int(_tempVertices.size());c++)
+        for (int c=0;c<int(_tempVerticesForDisk.size());c++)
         {
             ar.storeDataName("Ver");
-            if (_tempVertices[c]->size()!=0)
+            if (_tempVerticesForDisk[c]->size()!=0)
             {
                 std::vector<unsigned char>* serBuffer=ar.getBufferPointer();
-                unsigned char* ptr = reinterpret_cast<unsigned char*>(&_tempVertices[c]->at(0));
-                serBuffer->insert(serBuffer->end(),ptr,ptr+_tempVertices[c]->size()* sizeof(floatFloat));
+                unsigned char* ptr = reinterpret_cast<unsigned char*>(&_tempVerticesForDisk[c]->at(0));
+                serBuffer->insert(serBuffer->end(),ptr,ptr+_tempVerticesForDisk[c]->size()* sizeof(floatFloat));
             }
             ar.flush();
         }
 
-        for (int c=0;c<int(_tempIndices.size());c++)
+        for (int c=0;c<int(_tempIndicesForDisk.size());c++)
         {
             if (App::userSettings->packIndices)
             { // to save storage space
                 ar.storeDataName("In2");
-                _savePackedIntegers(ar,*_tempIndices[c]);
+                _savePackedIntegers(ar,*_tempIndicesForDisk[c]);
                 ar.flush();
             }
             else
             {
                 ar.storeDataName("Ind");
-                for (int i=0;i<int(_tempIndices[c]->size());i++)
-                    ar << _tempIndices[c]->at(i);
+                for (size_t i=0;i<_tempIndicesForDisk[c]->size();i++)
+                    ar << _tempIndicesForDisk[c]->at(i);
                 ar.flush();
             }
         }
 
-        for (int c=0;c<int(_tempNormals.size());c++)
+        for (int c=0;c<int(_tempNormalsForDisk.size());c++)
         {
             if (App::userSettings->saveApproxNormals)
             {
                 ar.storeDataName("No2");
-                for (int i=0;i<int(_tempNormals[c]->size())/3;i++)
+                for (size_t i=0;i<_tempNormalsForDisk[c]->size()/3;i++)
                 {
                     C3Vector n;
-                    n.setData(&_tempNormals[c]->at(3*i));
+                    n.setData(&_tempNormalsForDisk[c]->at(3*i));
                     n*=15.0;
                     n(0)+=0.5*n(0)/fabs(n(0));
                     n(1)+=0.5*n(1)/fabs(n(1));
@@ -1383,20 +1410,20 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
             else
             {
                 ar.storeDataName("Nor");
-                for (int i=0;i<int(_tempNormals[c]->size());i++)
-                    ar << _tempNormals[c]->at(i);
+                for (size_t i=0;i<_tempNormalsForDisk[c]->size();i++)
+                    ar << _tempNormalsForDisk[c]->at(i);
                 ar.flush();
             }
         }
 
-        for (int c=0;c<int(_tempEdges.size());c++)
+        for (size_t c=0;c<_tempEdgesForDisk.size();c++)
         {
             ar.storeDataName("Ved"); // Recomputing edges at load takes too much time
-            if (_tempEdges[c]->size()!=0)
+            if (_tempEdgesForDisk[c]->size()!=0)
             {
                 std::vector<unsigned char>* serBuffer=ar.getBufferPointer();
-                unsigned char* ptr = &_tempEdges[c]->at(0);
-                serBuffer->insert(serBuffer->end(),ptr,ptr+_tempEdges[c]->size());
+                unsigned char* ptr = &_tempEdgesForDisk[c]->at(0);
+                serBuffer->insert(serBuffer->end(),ptr,ptr+_tempEdgesForDisk[c]->size());
             }
             ar.flush();
         }
@@ -1418,9 +1445,9 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
                     noHit=false;
                     ar >> byteQuantity;
                     std::vector<floatFloat>* arr=new std::vector<floatFloat>;
-                    _tempVertices.push_back(arr);
+                    _tempVerticesForDisk.push_back(arr);
                     arr->resize(byteQuantity/sizeof(floatFloat),0.0);
-                    for (int i=0;i<int(arr->size());i++)
+                    for (size_t i=0;i<arr->size();i++)
                         ar >> arr->at(i);
                 }
                 if (theName.compare("Ind")==0)
@@ -1428,9 +1455,9 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
                     noHit=false;
                     ar >> byteQuantity;
                     std::vector<int>* arr=new std::vector<int>;
-                    _tempIndices.push_back(arr);
+                    _tempIndicesForDisk.push_back(arr);
                     arr->resize(byteQuantity/sizeof(int),0);
-                    for (int i=0;i<int(arr->size());i++)
+                    for (size_t i=0;i<arr->size();i++)
                         ar >> arr->at(i);
                 }
                 if (theName.compare("In2")==0)
@@ -1438,7 +1465,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
                     noHit=false;
                     ar >> byteQuantity;
                     std::vector<int>* arr=new std::vector<int>;
-                    _tempIndices.push_back(arr);
+                    _tempIndicesForDisk.push_back(arr);
                     _loadPackedIntegers(ar,*arr);
                 }
                 if (theName.compare("Nor")==0)
@@ -1446,9 +1473,9 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
                     noHit=false;
                     ar >> byteQuantity;
                     std::vector<floatFloat>* arr=new std::vector<floatFloat>;
-                    _tempNormals.push_back(arr);
+                    _tempNormalsForDisk.push_back(arr);
                     arr->resize(byteQuantity/sizeof(floatFloat),0.0);
-                    for (int i=0;i<int(arr->size());i++)
+                    for (size_t i=0;i<arr->size();i++)
                         ar >> arr->at(i);
                 }
                 if (theName.compare("No2")==0)
@@ -1456,7 +1483,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
                     noHit=false;
                     ar >> byteQuantity;
                     std::vector<floatFloat>* arr=new std::vector<floatFloat>;
-                    _tempNormals.push_back(arr);
+                    _tempNormalsForDisk.push_back(arr);
                     arr->resize(byteQuantity*6/sizeof(floatFloat),0.0);
                     for (int i=0;i<byteQuantity/2;i++)
                     {
@@ -1477,7 +1504,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
                     noHit=false;
                     ar >> byteQuantity;
                     std::vector<unsigned char>* arr=new std::vector<unsigned char>;
-                    _tempEdges.push_back(arr);
+                    _tempEdgesForDisk.push_back(arr);
                     arr->resize(byteQuantity,0);
                     for (int i=0;i<byteQuantity;i++)
                         ar >> arr->at(i);
@@ -1490,14 +1517,14 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
 int CMesh::getBufferIndexOfVertices(const std::vector<floatFloat>& vert)
 {
     int vertl=(int)vert.size();
-    for (int i=0;i<int(_tempVertices.size());i++)
+    for (int i=0;i<int(_tempVerticesForDisk.size());i++)
     {
-        if (int(_tempVertices[i]->size())==vertl)
+        if (int(_tempVerticesForDisk[i]->size())==vertl)
         { // might be same!
             bool same=true;
             for (int j=0;j<vertl;j++)
             {
-                if (vert[j]!=_tempVertices[i]->at(j))
+                if (vert[j]!=_tempVerticesForDisk[i]->at(j))
                 {
                     same=false;
                     break;
@@ -1515,26 +1542,26 @@ int CMesh::addVerticesToBufferAndReturnIndex(const std::vector<floatFloat>& vert
 {
     std::vector<floatFloat>* nvert=new std::vector<floatFloat>;
     nvert->assign(vert.begin(),vert.end());
-    _tempVertices.push_back(nvert);
-    return((int)_tempVertices.size()-1);
+    _tempVerticesForDisk.push_back(nvert);
+    return((int)_tempVerticesForDisk.size()-1);
 }
 
 void CMesh::getVerticesFromBufferBasedOnIndex(int index,std::vector<floatFloat>& vert)
 {
-    vert.assign(_tempVertices[index]->begin(),_tempVertices[index]->end());
+    vert.assign(_tempVerticesForDisk[index]->begin(),_tempVerticesForDisk[index]->end());
 }
 
 int CMesh::getBufferIndexOfIndices(const std::vector<int>& ind)
 {
     int indl=(int)ind.size();
-    for (int i=0;i<int(_tempIndices.size());i++)
+    for (int i=0;i<int(_tempIndicesForDisk.size());i++)
     {
-        if (int(_tempIndices[i]->size())==indl)
+        if (int(_tempIndicesForDisk[i]->size())==indl)
         { // might be same!
             bool same=true;
             for (int j=0;j<indl;j++)
             {
-                if (ind[j]!=_tempIndices[i]->at(j))
+                if (ind[j]!=_tempIndicesForDisk[i]->at(j))
                 {
                     same=false;
                     break;
@@ -1552,26 +1579,26 @@ int CMesh::addIndicesToBufferAndReturnIndex(const std::vector<int>& ind)
 {
     std::vector<int>* nind=new std::vector<int>;
     nind->assign(ind.begin(),ind.end());
-    _tempIndices.push_back(nind);
-    return((int)_tempIndices.size()-1);
+    _tempIndicesForDisk.push_back(nind);
+    return((int)_tempIndicesForDisk.size()-1);
 }
 
 void CMesh::getIndicesFromBufferBasedOnIndex(int index,std::vector<int>& ind)
 {
-    ind.assign(_tempIndices[index]->begin(),_tempIndices[index]->end());
+    ind.assign(_tempIndicesForDisk[index]->begin(),_tempIndicesForDisk[index]->end());
 }
 
 int CMesh::getBufferIndexOfNormals(const std::vector<floatFloat>& norm)
 {
     int norml=(int)norm.size();
-    for (int i=0;i<int(_tempNormals.size());i++)
+    for (int i=0;i<int(_tempNormalsForDisk.size());i++)
     {
-        if (int(_tempNormals[i]->size())==norml)
+        if (int(_tempNormalsForDisk[i]->size())==norml)
         { // might be same!
             bool same=true;
             for (int j=0;j<norml;j++)
             {
-                if (norm[j]!=_tempNormals[i]->at(j))
+                if (norm[j]!=_tempNormalsForDisk[i]->at(j))
                 {
                     same=false;
                     break;
@@ -1589,26 +1616,26 @@ int CMesh::addNormalsToBufferAndReturnIndex(const std::vector<floatFloat>& norm)
 {
     std::vector<floatFloat>* nnorm=new std::vector<floatFloat>;
     nnorm->assign(norm.begin(),norm.end());
-    _tempNormals.push_back(nnorm);
-    return((int)_tempNormals.size()-1);
+    _tempNormalsForDisk.push_back(nnorm);
+    return((int)_tempNormalsForDisk.size()-1);
 }
 
 void CMesh::getNormalsFromBufferBasedOnIndex(int index,std::vector<floatFloat>& norm)
 {
-    norm.assign(_tempNormals[index]->begin(),_tempNormals[index]->end());
+    norm.assign(_tempNormalsForDisk[index]->begin(),_tempNormalsForDisk[index]->end());
 }
 
 int CMesh::getBufferIndexOfEdges(const std::vector<unsigned char>& edges)
 {
     int edgesl=(int)edges.size();
-    for (int i=0;i<int(_tempEdges.size());i++)
+    for (int i=0;i<int(_tempEdgesForDisk.size());i++)
     {
-        if (int(_tempEdges[i]->size())==edgesl)
+        if (int(_tempEdgesForDisk[i]->size())==edgesl)
         { // might be same!
             bool same=true;
             for (int j=0;j<edgesl;j++)
             {
-                if (edges[j]!=_tempEdges[i]->at(j))
+                if (edges[j]!=_tempEdgesForDisk[i]->at(j))
                 {
                     same=false;
                     break;
@@ -1626,13 +1653,13 @@ int CMesh::addEdgesToBufferAndReturnIndex(const std::vector<unsigned char>& edge
 {
     std::vector<unsigned char>* nedges=new std::vector<unsigned char>;
     nedges->assign(edges.begin(),edges.end());
-    _tempEdges.push_back(nedges);
-    return((int)_tempEdges.size()-1);
+    _tempEdgesForDisk.push_back(nedges);
+    return((int)_tempEdgesForDisk.size()-1);
 }
 
 void CMesh::getEdgesFromBufferBasedOnIndex(int index,std::vector<unsigned char>& edges)
 {
-    edges.assign(_tempEdges[index]->begin(),_tempEdges[index]->end());
+    edges.assign(_tempEdgesForDisk[index]->begin(),_tempEdgesForDisk[index]->end());
 }
 
 void CMesh::serialize(CSer& ar,const char* shapeName)
@@ -1663,7 +1690,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             if (App::currentWorld->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
             { // undo/redo serialization:
                 ar.storeDataName("Ver");
-                ar << App::currentWorld->undoBufferContainer->undoBufferArrays.addVertexBuffer(_vertices,App::currentWorld->undoBufferContainer->getNextBufferId());
+                ar << App::currentWorld->undoBufferContainer->undoBufferArrays.addVertexBuffer(_verticesForDisplayAndDisk,App::currentWorld->undoBufferContainer->getNextBufferId());
                 ar.flush();
 
                 ar.storeDataName("Ind");
@@ -1671,7 +1698,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                 ar.flush();
 
                 ar.storeDataName("Nor");
-                ar << App::currentWorld->undoBufferContainer->undoBufferArrays.addNormalsBuffer(_normals,App::currentWorld->undoBufferContainer->getNextBufferId());
+                ar << App::currentWorld->undoBufferContainer->undoBufferArrays.addNormalsBuffer(_normalsForDisplayAndDisk,App::currentWorld->undoBufferContainer->getNextBufferId());
                 ar.flush();
             }
             else
@@ -1780,7 +1807,10 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                             ar >> byteQuantity;
                             int id;
                             ar >> id;
-                            App::currentWorld->undoBufferContainer->undoBufferArrays.getVertexBuffer(id,_vertices);
+                            App::currentWorld->undoBufferContainer->undoBufferArrays.getVertexBuffer(id,_verticesForDisplayAndDisk);
+                            _vertices.resize(_verticesForDisplayAndDisk.size());
+                            for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
+                                _vertices[i]=(floatDouble)_verticesForDisplayAndDisk[i];
                         }
                         if (theName.compare("Ind")==0)
                         {
@@ -1796,7 +1826,10 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                             ar >> byteQuantity;
                             int id;
                             ar >> id;
-                            App::currentWorld->undoBufferContainer->undoBufferArrays.getNormalsBuffer(id,_normals);
+                            App::currentWorld->undoBufferContainer->undoBufferArrays.getNormalsBuffer(id,_normalsForDisplayAndDisk);
+                            _normals.resize(_normalsForDisplayAndDisk.size());
+                            for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
+                                _normals[i]=(floatDouble)_normalsForDisplayAndDisk[i];
                         }
                     }
                     else
@@ -1805,25 +1838,31 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                         { // for backward compatibility (1/7/2014)
                             noHit=false;
                             ar >> byteQuantity;
-                            _vertices.resize(byteQuantity/sizeof(floatFloat),0.0);
-                            for (int i=0;i<int(_vertices.size());i++)
-                                ar >> _vertices[i];
+                            _verticesForDisplayAndDisk.resize(byteQuantity/sizeof(floatFloat),0.0);
+                            for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
+                                ar >> _verticesForDisplayAndDisk[i];
+                            _vertices.resize(_verticesForDisplayAndDisk.size());
+                            for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
+                                _vertices[i]=(floatDouble)_verticesForDisplayAndDisk[i];
                         }
                         if (theName.compare("Ind")==0)
                         { // for backward compatibility (1/7/2014)
                             noHit=false;
                             ar >> byteQuantity;
                             _indices.resize(byteQuantity/sizeof(int),0);
-                            for (int i=0;i<int(_indices.size());i++)
+                            for (size_t i=0;i<_indices.size();i++)
                                 ar >> _indices[i];
                         }
                         if (theName.compare("Nor")==0)
                         { // for backward compatibility (1/7/2014)
                             noHit=false;
                             ar >> byteQuantity;
-                            _normals.resize(byteQuantity/sizeof(floatFloat),0.0);
-                            for (int i=0;i<int(_normals.size());i++)
-                                ar >> _normals[i];
+                            _normalsForDisplayAndDisk.resize(byteQuantity/sizeof(floatFloat),0.0);
+                            for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
+                                ar >> _normalsForDisplayAndDisk[i];
+                            _normals.resize(_normalsForDisplayAndDisk.size());
+                            for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
+                                _normals[i]=(floatDouble)_normalsForDisplayAndDisk[i];
                         }
 
                         if (theName.compare("Vev")==0)
@@ -1832,7 +1871,10 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                             ar >> byteQuantity;
                             int index;
                             ar >> index;
-                            getVerticesFromBufferBasedOnIndex(index,_vertices);
+                            getVerticesFromBufferBasedOnIndex(index,_verticesForDisplayAndDisk);
+                            _vertices.resize(_verticesForDisplayAndDisk.size());
+                            for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
+                                _vertices[i]=(floatDouble)_verticesForDisplayAndDisk[i];
                         }
                         if (theName.compare("Inv")==0)
                         {
@@ -1848,7 +1890,10 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                             ar >> byteQuantity;
                             int index;
                             ar >> index;
-                            getNormalsFromBufferBasedOnIndex(index,_normals);
+                            getNormalsFromBufferBasedOnIndex(index,_normalsForDisplayAndDisk);
+                            _normals.resize(_normalsForDisplayAndDisk.size());
+                            for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
+                                _normals[i]=(floatDouble)_normalsForDisplayAndDisk[i];
                         }
                     }
 
@@ -1862,7 +1907,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                     { // for backward compatibility (1/7/2014)
                         noHit=false;
                         ar >> byteQuantity;
-                        _normals.resize(byteQuantity*6/sizeof(floatFloat),0.0);
+                        _normalsForDisplayAndDisk.resize(byteQuantity*6/sizeof(floatFloat),0.0);
                         for (int i=0;i<byteQuantity/2;i++)
                         {
                             unsigned short w;
@@ -1872,10 +1917,13 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                             char z=((w>>10)&0x001f)-15;
                             C3Vector n((floatDouble)x,(floatDouble)y,(floatDouble)z);
                             n.normalize();
-                            _normals[3*i+0]=(floatFloat)n(0);
-                            _normals[3*i+1]=(floatFloat)n(1);
-                            _normals[3*i+2]=(floatFloat)n(2);
+                            _normalsForDisplayAndDisk[3*i+0]=(floatFloat)n(0);
+                            _normalsForDisplayAndDisk[3*i+1]=(floatFloat)n(1);
+                            _normalsForDisplayAndDisk[3*i+2]=(floatFloat)n(2);
                         }
+                        _normals.resize(_normalsForDisplayAndDisk.size());
+                        for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
+                            _normals[i]=(floatDouble)_normalsForDisplayAndDisk[i];
                     }
                     if (theName.compare("Ved")==0)
                     { // for backward compatibility (1/7/2014)
@@ -2009,15 +2057,15 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("meshData");
-            if (ar.xmlSaveDataInline(_vertices.size()*4+_indices.size()*4+_normals.size()*4+_edges.size()))
+            if (ar.xmlSaveDataInline(_verticesForDisplayAndDisk.size()*4+_indices.size()*4+_normalsForDisplayAndDisk.size()*4+_edges.size()))
             {
-                ar.xmlAddNode_floats("vertices",_vertices);
+                ar.xmlAddNode_floats("vertices",_verticesForDisplayAndDisk);
                 ar.xmlAddNode_ints("indices",_indices);
-                ar.xmlAddNode_floats("normals",_normals);
+                ar.xmlAddNode_floats("normals",_normalsForDisplayAndDisk);
                 ar.xmlAddNode_uchars("edges",_edges);
             }
             else
-                ar.xmlAddNode_meshFile("file",(std::string("mesh_")+std::string(shapeName)+"_"+tt::FNb(ar.getIncrementCounter())).c_str(),&_vertices[0],(int)_vertices.size(),&_indices[0],(int)_indices.size(),&_normals[0],(int)_normals.size(),&_edges[0],(int)_edges.size());
+                ar.xmlAddNode_meshFile("file",(std::string("mesh_")+std::string(shapeName)+"_"+tt::FNb(ar.getIncrementCounter())).c_str(),&_verticesForDisplayAndDisk[0],(int)_verticesForDisplayAndDisk.size(),&_indices[0],(int)_indices.size(),&_normalsForDisplayAndDisk[0],(int)_normalsForDisplayAndDisk.size(),&_edges[0],(int)_edges.size());
             ar.xmlPopNode();
         }
         else
@@ -2074,17 +2122,23 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
 
             if (ar.xmlPushChildNode("meshData"))
             {
-                if (ar.xmlGetNode_floats("vertices",_vertices,false))
+                if (ar.xmlGetNode_floats("vertices",_verticesForDisplayAndDisk,false))
                 {
                     ar.xmlGetNode_ints("indices",_indices);
-                    ar.xmlGetNode_floats("normals",_normals);
+                    ar.xmlGetNode_floats("normals",_normalsForDisplayAndDisk);
                     ar.xmlGetNode_uchars("edges",_edges);
                 }
                 else
                 {
-                    ar.xmlGetNode_meshFile("file",_vertices,_indices,_normals,_edges);
+                    ar.xmlGetNode_meshFile("file",_verticesForDisplayAndDisk,_indices,_normalsForDisplayAndDisk,_edges);
                     actualizeGouraudShadingAndVisibleEdges();
                 }
+                _vertices.resize(_verticesForDisplayAndDisk.size());
+                for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
+                    _vertices[i]=(floatDouble)_verticesForDisplayAndDisk[i];
+                _normals.resize(_normalsForDisplayAndDisk.size());
+                for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
+                    _normals[i]=(floatDouble)_normalsForDisplayAndDisk[i];
                 ar.xmlPopNode();
             }
         }
@@ -2112,18 +2166,20 @@ void CMesh::displayGhost(CShape* geomData,int displayAttrib,bool originalColors,
 }
 
 #ifdef SIM_WITH_GUI
-bool CMesh::getNonCalculatedTextureCoordinates(std::vector<float>& texCoords)
+bool CMesh::getNonCalculatedTextureCoordinates(std::vector<floatDouble>& texCoords)
 {
     if (_textureProperty==nullptr)
         return(false);
     C7Vector dummyTr;
     dummyTr.setIdentity();
-    std::vector<float>* tc=_textureProperty->getTextureCoordinates(-1,dummyTr,_vertices,_indices);
+    std::vector<floatFloat>* tc=_textureProperty->getTextureCoordinates(-1,dummyTr,_vertices,_indices);
     if (tc==nullptr)
         return(false);
     if (!_textureProperty->getFixedCoordinates())
         return(false);
-    texCoords.assign(tc->begin(),tc->end());
+    texCoords.resize(tc->size());
+    for (size_t i=0;i<tc->size();i++)
+        texCoords[i]=(floatDouble)tc->at(i);
     return(true);
 }
 #endif

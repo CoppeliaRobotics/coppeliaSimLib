@@ -222,16 +222,22 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<float>& vert,const std::ve
     removeMeshCalculationStructure();
 
     CMesh* newGeomInfo=new CMesh();
-    std::vector<float> wwert(vert);
+    std::vector<floatDouble> wwert(vert);
     std::vector<int> wwind(ind);
 
     if (textCoord!=nullptr)
-        newGeomInfo->textureCoords_notCopiedNorSerialized.assign(textCoord->begin(),textCoord->end());
+    {
+        std::vector<floatFloat> f;
+        f.resize(textCoord->size());
+        for (size_t i=0;i<textCoord->size();i++)
+            f[i]=(floatFloat)textCoord->at(i);
+        newGeomInfo->setTextureCoords(&f);
+    }
     CMeshManip::removeNonReferencedVertices(wwert,wwind);
     newGeomInfo->setMesh(wwert,wwind,norm,C7Vector::identityTransformation); // will do the convectivity test
 
     newGeomInfo->color.setDefaultValues();
-    newGeomInfo->color.setColor(0.9f,0.9f,0.9f,sim_colorcomponent_ambient_diffuse);
+    newGeomInfo->color.setColor(0.9,0.9,0.9,sim_colorcomponent_ambient_diffuse);
 
     if (_mesh!=nullptr)
     {
@@ -245,7 +251,7 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<float>& vert,const std::ve
     // We align the bounding box:
     if (wwert.size()!=0)
     {
-        std::vector<float> dummyVert(wwert);
+        std::vector<floatDouble> dummyVert(wwert);
         std::vector<int> dummyInd(wwind);
         retVal=CAlgos::alignAndCenterGeometryAndGetTransformation(&dummyVert[0],(int)dummyVert.size(),&dummyInd[0],(int)dummyInd.size(),nullptr,0,true);
         getMeshWrapper()->preMultiplyAllVerticeLocalFrames(retVal.getInverse());
@@ -1965,14 +1971,15 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
         meshData->appendArrayObject(mesh);
 
         C7Vector tr(geom->getVerticeLocalFrame());
-        const std::vector<float>* wvert=geom->getVertices();
+        const std::vector<floatDouble>* wvert=geom->getVertices();
         const std::vector<int>* wind=geom->getIndices();
-        const std::vector<float>* wnorm=geom->getNormals();
-        std::vector<float> vertices;
+        const std::vector<floatDouble>* wnorm=geom->getNormals();
+        std::vector<floatDouble> vertices;
         vertices.resize(wvert->size());
         for (size_t j=0;j<wvert->size()/3;j++)
         {
-            C3Vector v(wvert->data()+j*3);
+            C3Vector v;
+            v.setData(wvert->data()+j*3);
             v=tr*v;
             vertices[3*j+0]=v(0);
             vertices[3*j+1]=v(1);
@@ -1989,11 +1996,12 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
         buff=(const char*)obj.getBuff(l);
         mesh->appendMapObject_stringString("indices",buff,l,true);
 
-        std::vector<float> normals;
+        std::vector<floatDouble> normals;
         normals.resize(wind->size()*3);
         for (size_t j=0;j<wind->size();j++)
         {
-            C3Vector n(&(wnorm[0])[0]+j*3);
+            C3Vector n;
+            n.setData(&(wnorm[0])[0]+j*3);
             n=tr.Q*n; // only orientation
             normals[3*j+0]=n(0);
             normals[3*j+1]=n(1);
@@ -2029,7 +2037,7 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 
         CTextureProperty* tp=geom->getTextureProperty();
         CTextureObject* to=nullptr;
-        const std::vector<float>* tc=nullptr;
+        const std::vector<floatFloat>* tc=nullptr;
         if (tp!=nullptr)
         {
             to=tp->getTextureObject();

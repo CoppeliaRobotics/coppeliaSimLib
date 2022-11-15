@@ -11,7 +11,49 @@
 #define SER_END_OF_FILE "EOF"
 typedef sim::tinyxml2::XMLElement xmlNode;
 
-class CSer
+//#define NEWOPERATION
+class CSerTmp
+{
+public:
+#ifdef NEWOPERATION
+    CSerTmp& operator<< (const float& v)
+    {
+        buffer.push_back(((unsigned char*)&v)[0]);
+        buffer.push_back(((unsigned char*)&v)[1]);
+        buffer.push_back(((unsigned char*)&v)[2]);
+        buffer.push_back(((unsigned char*)&v)[3]);
+        return(*this);
+    }
+    CSerTmp& operator<< (const double& v)
+    {
+        unsigned char* tmp=(unsigned char*)(&v);
+        for (int i=0;i<int(sizeof(v));i++)
+            buffer.push_back(tmp[i]);
+        return(*this);
+    }
+
+    CSerTmp& operator>> (float& v)
+    {
+        unsigned char* tmp=(unsigned char*)(&v);
+        for (int i=0;i<int(sizeof(v));i++)
+            tmp[i]=_fileBuffer[_fileBufferReadPointer++];
+        return(*this);
+    }
+    CSerTmp& operator>> (double& v)
+    {
+        unsigned char* tmp=(unsigned char*)(&v);
+        for (int i=0;i<int(sizeof(v));i++)
+            tmp[i]=_fileBuffer[_fileBufferReadPointer++];
+        return(*this);
+    }
+
+    std::vector<unsigned char> buffer;
+    std::vector<unsigned char> _fileBuffer;
+    int _fileBufferReadPointer;
+#endif
+};
+
+class CSer : public CSerTmp
 {
 public:
 
@@ -48,10 +90,20 @@ public:
     int readOpenBinaryNoHeader();
     void readClose();
 
+#ifdef NEWOPERATION
+    CSerTmp& flt();
+    CSerTmp& dbl();
+#else
+    CSer& flt();
+    CSer& dbl();
+#endif
+
     char getFileType() const;
     CSer& operator<< (const int& v);
+#ifndef NEWOPERATION
     CSer& operator<< (const float& v);
     CSer& operator<< (const double& v);
+#endif
     CSer& operator<< (const unsigned short& v);
     CSer& operator<< (const unsigned int& v);
     CSer& operator<< (const quint64& v);
@@ -61,8 +113,10 @@ public:
     CSer& operator<< (const std::string& v);
 
     CSer& operator>> (int& v);
+#ifndef NEWOPERATION
     CSer& operator>> (float& v);
     CSer& operator>> (double& v);
+#endif
     CSer& operator>> (unsigned short& v);
     CSer& operator>> (unsigned int& v);
     CSer& operator>> (quint64& v);
@@ -212,9 +266,11 @@ private:
     int counter;
     int countingMode;
     bool _coutingModeDisabledExceptForExceptions;
+#ifndef NEWOPERATION
     std::vector<unsigned char> buffer;
     std::vector<unsigned char> _fileBuffer;
     int _fileBufferReadPointer;
+#endif
     bool _foundUnknownCommands;
 
     unsigned short _coppeliaSimVersionThatWroteThis;

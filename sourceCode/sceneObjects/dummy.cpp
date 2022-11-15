@@ -441,9 +441,16 @@ void CDummy::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {       // Storing
+#ifdef TMPOPERATION
             ar.storeDataName("Dy2");
-            ar << _dummySize;
+            ar.flt() << floatFloat(_dummySize);
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_y2");
+            ar.dbl() << _dummySize;
+            ar.flush();
+#endif
 
             ar.storeDataName("Cl0");
             ar.setCountingMode();
@@ -495,10 +502,18 @@ void CDummy::serialize(CSer& ar)
                 {
                     bool noHit=true;
                     if (theName.compare("Dy2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _dummySize=(floatDouble)bla;
+                    }
+                    if (theName.compare("_y2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _dummySize;
+                        ar.dbl() >> _dummySize;
                     }
                     if (theName.compare("Lli")==0)
                     {

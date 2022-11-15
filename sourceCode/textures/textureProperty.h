@@ -29,8 +29,8 @@ public:
     int getTextureObjectID();
     CTextureObject* getTextureObject();
     void transformToFixedTextureCoordinates(const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles);
-    std::vector<float>* getTextureCoordinates(int objectStateId,const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles);
-    std::vector<float>* getFixedTextureCoordinates();
+    std::vector<floatFloat>* getTextureCoordinates(int objectStateId,const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles);
+    std::vector<floatFloat>* getFixedTextureCoordinates();
     C7Vector getTextureRelativeConfig();
     void setTextureRelativeConfig(const C7Vector& c);
     void getTextureScaling(float& x,float& y);
@@ -40,7 +40,7 @@ public:
     void setRepeatV(bool r);
     bool getRepeatV();
 
-    void setFixedCoordinates(std::vector<float>* coords); // nullptr to remove them and have calculated coords
+    void setFixedCoordinates(const std::vector<floatFloat>* coords); // nullptr to remove them and have calculated coords
     bool getFixedCoordinates();
 
     void setTextureMapMode(int mode);
@@ -67,9 +67,9 @@ private:
     float _textureScalingX;
     float _textureScalingY;
     int _texCoordBufferId; // used for VBOs
-    std::vector<float> _fixedTextureCoordinates;
+    std::vector<floatFloat> _fixedTextureCoordinates;
 
     // do not copy nor serialize:
     int _objectStateId;
-    std::vector<float> _calculatedTextureCoordinates;
+    std::vector<floatFloat> _calculatedTextureCoordinates;
 };

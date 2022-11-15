@@ -2097,7 +2097,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         shape->setLocalTransformation(C7Vector::identityTransformation);
 //        shape->setLocalTransformation(geom->getVerticeLocalFrame().getInverse()); // we temporarily want the shape's pose so that the mesh appears at the origin, for export
         ar.xmlAddNode_comment(" one of following tags is required: 'fileName' or 'vertices' and 'indices' ",false);
-        if ( CPluginContainer::isAssimpPluginAvailable()&&(!ar.xmlSaveDataInline(geom->getVertices()->size()+geom->getIndices()->size()*4)) )
+        if ( CPluginContainer::isAssimpPluginAvailable()&&(!ar.xmlSaveDataInline(geom->getVerticesForDisplayAndDisk()->size()+geom->getIndices()->size()*4)) )
         {
             int shapeHandle=shape->getObjectHandle();
             std::string filename(ar.getFilenameBase()+"_mesh_"+originalShapeName+tt::FNb(ar.getIncrementCounter())+".dae");
@@ -2111,15 +2111,16 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         }
         else
         {
-            std::vector<float> v;
+            std::vector<floatFloat> v;
             v.resize(geom->getVertices()->size());
             for (size_t i=0;i<geom->getVertices()->size()/3;i++)
             {
-                C3Vector w(&geom->getVertices()[0][3*i]);
+                C3Vector w;
+                w.setData(&geom->getVertices()[0][3*i]);
                 w*=geom->getVerticeLocalFrame();
-                v[3*i+0]=w(0);
-                v[3*i+1]=w(1);
-                v[3*i+2]=w(2);
+                v[3*i+0]=(floatFloat)w(0);
+                v[3*i+1]=(floatFloat)w(1);
+                v[3*i+2]=(floatFloat)w(2);
             }
             ar.xmlAddNode_floats("vertices",v);
             ar.xmlAddNode_ints("indices",geom->getIndices()[0]);
