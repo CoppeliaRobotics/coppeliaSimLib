@@ -15,6 +15,11 @@ long long int CInterfaceStackInteger::getValue() const
     return(_value);
 }
 
+void CInterfaceStackInteger::setValue(long long int v)
+{
+    _value=v;
+}
+
 CInterfaceStackObject* CInterfaceStackInteger::copyYourself() const
 {
     CInterfaceStackInteger* retVal=new CInterfaceStackInteger(_value);

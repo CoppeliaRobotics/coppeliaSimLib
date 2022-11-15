@@ -5,7 +5,7 @@
 #include "tt.h"
 #include "ttUtil.h"
 #include "interfaceStackString.h"
-#include "interfaceStackNumber.h"
+#include "interfaceStackInteger.h"
 
 CWorldContainer::CWorldContainer()
 {
@@ -753,7 +753,6 @@ void CWorldContainer::_mergeEvents(SBufferedEvents* events) const
                             else
                                 sub->appendArrayOrMapObject(allObjs[2*k+0],allObjs[2*k+1]);
                         }
-//                        data2->removeFromKey(evSum->at(j).dataSubtype.c_str());
                     }
 
                     std::vector<CInterfaceStackObject*> allObjs;
@@ -794,7 +793,7 @@ void CWorldContainer::_prepareEventsForDispatch(SBufferedEvents* events) const
             for (size_t i=0;i<buff->getArraySize();i++)
             {
                 CInterfaceStackTable* s=(CInterfaceStackTable*)buff->getArrayItemAtIndex(i);
-                CInterfaceStackNumber* n=(CInterfaceStackNumber*)s->getMapObject("seq");
+                CInterfaceStackInteger* n=(CInterfaceStackInteger*)s->getMapObject("seq");
                 n->setValue(_mergedEventSeq++);
             }
         }

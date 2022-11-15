@@ -6952,6 +6952,13 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+
+    if (_containsScriptText_old(scriptObject,"simIK.applySceneToIkEnvironment"))
+        App::logMsg(sim_verbosity_errors,"Contains simIK.applySceneToIkEnvironment...");
+
+    if (_containsScriptText_old(scriptObject,"simIK.applyIkEnvironmentToScene"))
+        App::logMsg(sim_verbosity_errors,"Contains simIK.applyIkEnvironmentToScene...");
+
     if (_containsScriptText_old(scriptObject,"sim.getDoubleSignal"))
         App::logMsg(sim_verbosity_errors,"Contains sim.getDoubleSignal...");
     if (_containsScriptText_old(scriptObject,"sim.setDoubleSignal"))
