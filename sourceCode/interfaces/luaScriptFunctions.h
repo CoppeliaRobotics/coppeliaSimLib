@@ -1,5 +1,6 @@
 #pragma once
 
+#include "simTypes.h"
 #include "luaWrapper.h"
 #include <vector>
 
@@ -28,11 +29,13 @@ void _registerTableFunction(luaWrap_lua_State* L,char const* const tableName,cha
 void getDoublesFromTable(luaWrap_lua_State* L,int tablePos,size_t floatCount,float* arrayField);
 void pushDoubleTableOntoStack(luaWrap_lua_State* L,size_t floatCount,const float* arrayField);
 #endif
+void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,size_t floatCount,floatFloat* arrayField);
 void getDoublesFromTable(luaWrap_lua_State* L,int tablePos,size_t doubleCount,double* arrayField);
 bool getIntsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,int* arrayField);
 bool getUIntsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,unsigned int* arrayField);
 bool getUCharsFromTable(luaWrap_lua_State* L,int tablePos,size_t intCount,unsigned char* arrayField);
 void getCharBoolsFromTable(luaWrap_lua_State* L,int tablePos,size_t boolCount,char* arrayField);
+void pushFloatTableOntoStack(luaWrap_lua_State* L,size_t floatCount,const floatFloat* arrayField);
 void pushDoubleTableOntoStack(luaWrap_lua_State* L,size_t doubleCount,const double* arrayField);
 void pushIntTableOntoStack(luaWrap_lua_State* L,size_t intCount,const int* arrayField);
 void pushUIntTableOntoStack(luaWrap_lua_State* L,size_t intCount,const unsigned int* arrayField);
@@ -418,15 +421,15 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CScriptCustomFunction* func
 bool readCustomFunctionDataFromStack_old(luaWrap_lua_State* L,int ind,int dataType,
                                      std::vector<char>& inBoolVector,
                                      std::vector<int>& inIntVector,
-                                     std::vector<float>& inFloatVector,
+                                     std::vector<floatFloat>& inFloatVector,
                                      std::vector<double>& inDoubleVector,
                                      std::vector<std::string>& inStringVector,
                                      std::vector<std::string>& inCharVector,
                                     std::vector<int>& inInfoVector);
 void writeCustomFunctionDataOntoStack_old(luaWrap_lua_State* L,int dataType,int dataSize,
-                                      unsigned char* boolData,int& boolDataPos,
+                                      bool* boolData,int& boolDataPos,
                                       int* intData,int& intDataPos,
-                                      float* floatData,int& floatDataPos,
+                                      floatFloat* floatData,int& floatDataPos,
                                       double* doubleData,int& doubleDataPos,
                                       char* stringData,int& stringDataPos,
                                       char* charData,int& charDataPos);

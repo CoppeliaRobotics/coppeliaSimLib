@@ -61,7 +61,7 @@ CDummy::~CDummy()
 
 void CDummy::copyEnginePropertiesTo(CDummy* target)
 {
-    std::vector<float> fp;
+    std::vector<floatDouble> fp;
     std::vector<int> ip;
 
     // Mujoco:
@@ -71,7 +71,7 @@ void CDummy::copyEnginePropertiesTo(CDummy* target)
     target->setMujocoIntParams(ip);
 }
 
-float CDummy::getEngineFloatParam(int what,bool* ok) const
+floatDouble CDummy::getEngineFloatParam(int what,bool* ok) const
 {
     if (ok!=nullptr)
         ok[0]=true;
@@ -115,7 +115,7 @@ bool CDummy::getEngineBoolParam(int what,bool* ok) const
     return(0);
 }
 
-void CDummy::getMujocoFloatParams(std::vector<float>& p) const
+void CDummy::getMujocoFloatParams(std::vector<floatDouble>& p) const
 {
     p.assign(_mujocoFloatParams.begin(),_mujocoFloatParams.end());
 }
@@ -125,12 +125,12 @@ void CDummy::getMujocoIntParams(std::vector<int>& p) const
     p.assign(_mujocoIntParams.begin(),_mujocoIntParams.end());
 }
 
-bool CDummy::setEngineFloatParam(int what,float v)
+bool CDummy::setEngineFloatParam(int what,floatDouble v)
 {
     if ((what>sim_mujoco_dummy_float_start)&&(what<sim_mujoco_dummy_float_end))
     {
         int w=what-sim_mujoco_dummy_range1+simi_mujoco_dummy_range1;
-        std::vector<float> fp;
+        std::vector<floatDouble> fp;
         getMujocoFloatParams(fp);
         fp[w]=v;
         setMujocoFloatParams(fp);
@@ -171,9 +171,9 @@ bool CDummy::setEngineBoolParam(int what,bool v)
     return(false);
 }
 
-void CDummy::setMujocoFloatParams(const std::vector<float>& pp,bool reflectToLinkedDummy/*=true*/)
+void CDummy::setMujocoFloatParams(const std::vector<floatDouble>& pp,bool reflectToLinkedDummy/*=true*/)
 {
-    std::vector<float> p(pp);
+    std::vector<floatDouble> p(pp);
     bool diff=(_mujocoFloatParams.size()!=p.size());
     if (!diff)
     {
@@ -253,11 +253,11 @@ bool CDummy::isPotentiallyDetectable() const
 
 void CDummy::computeBoundingBox()
 {
-    C3Vector maxV(_dummySize/2.0f,_dummySize/2.0f,_dummySize/2.0f);
-    _setBoundingBox(maxV*-1.0f,maxV);
+    C3Vector maxV(_dummySize/2.0,_dummySize/2.0,_dummySize/2.0);
+    _setBoundingBox(maxV*-1.0,maxV);
 }
 
-void CDummy::scaleObject(float scalingFactor)
+void CDummy::scaleObject(floatDouble scalingFactor)
 {
     setDummySize(_dummySize*scalingFactor);
     _virtualDistanceOffsetOnPath*=scalingFactor;
@@ -266,7 +266,7 @@ void CDummy::scaleObject(float scalingFactor)
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void CDummy::scaleObjectNonIsometrically(float x,float y,float z)
+void CDummy::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
     scaleObject(cbrt(x*y*z));
 }
@@ -287,7 +287,7 @@ void CDummy::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 
     CInterfaceStackTable* colors=new CInterfaceStackTable();
     data->appendMapObject_stringObject("colors",colors);
-    float c[9];
+    floatDouble c[9];
     _dummyColor.getColor(c,sim_colorcomponent_ambient_diffuse);
     _dummyColor.getColor(c+3,sim_colorcomponent_specular);
     _dummyColor.getColor(c+6,sim_colorcomponent_emission);
@@ -354,12 +354,12 @@ void CDummy::setFreeOnPathTrajectory(bool isFree)
     _freeOnPathTrajectory=isFree;
 }
 
-void CDummy::setVirtualDistanceOffsetOnPath(float off)
+void CDummy::setVirtualDistanceOffsetOnPath(floatDouble off)
 {
     _virtualDistanceOffsetOnPath=off;
 }
 
-void CDummy::setVirtualDistanceOffsetOnPath_variationWhenCopy(float off)
+void CDummy::setVirtualDistanceOffsetOnPath_variationWhenCopy(floatDouble off)
 {
     _virtualDistanceOffsetOnPath_variationWhenCopy=off;
 }
@@ -472,21 +472,39 @@ void CDummy::serialize(CSer& ar)
             ar << dummy;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Po5");
-            ar << _virtualDistanceOffsetOnPath << _virtualDistanceOffsetOnPath_variationWhenCopy;
+            ar.flt() << (floatFloat)_virtualDistanceOffsetOnPath << (floatFloat)_virtualDistanceOffsetOnPath_variationWhenCopy;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_o5");
+            ar.dbl() << _virtualDistanceOffsetOnPath << _virtualDistanceOffsetOnPath_variationWhenCopy;
+            ar.flush();
+#endif
 
             ar.storeDataName("Dl2");
             ar << _linkType;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Mj1"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
-            for (int i=0;i<int(_mujocoFloatParams.size());i++)
-                ar << _mujocoFloatParams[i];
-            for (int i=0;i<int(_mujocoIntParams.size());i++)
+            for (size_t i=0;i<_mujocoFloatParams.size();i++)
+                ar.flt() << (floatFloat)_mujocoFloatParams[i];
+            for (size_t i=0;i<_mujocoIntParams.size();i++)
                 ar << _mujocoIntParams[i];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_j1"); // mujoco params:
+            ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
+            for (size_t i=0;i<_mujocoFloatParams.size();i++)
+                ar.dbl() << _mujocoFloatParams[i];
+            for (size_t i=0;i<_mujocoIntParams.size();i++)
+                ar << _mujocoIntParams[i];
+            ar.flush();
+#endif
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -537,19 +555,28 @@ void CDummy::serialize(CSer& ar)
                         _freeOnPathTrajectory=SIM_IS_BIT_SET(dummy,2);
                         _assignedToParentPathOrientation=SIM_IS_BIT_SET(dummy,3);
                     }
-    //************* for backward compatibility (23/02/2011) ****************
                     if (theName.compare("Po4")==0)
-                    {
+                    { // for backward compatibility (23/02/2011)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _virtualDistanceOffsetOnPath;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _virtualDistanceOffsetOnPath=(floatDouble)bla;
                     }
-    //************************************************************************
                     if (theName.compare("Po5")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        _virtualDistanceOffsetOnPath=(floatDouble)bla;
+                        _virtualDistanceOffsetOnPath_variationWhenCopy=(floatDouble)bli;
+                    }
+                    if (theName.compare("_o5")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _virtualDistanceOffsetOnPath >> _virtualDistanceOffsetOnPath_variationWhenCopy;
+                        ar.dbl() >> _virtualDistanceOffsetOnPath >> _virtualDistanceOffsetOnPath_variationWhenCopy;
                     }
 
                     if (theName.compare("Dl2")==0)
@@ -558,15 +585,44 @@ void CDummy::serialize(CSer& ar)
                         ar >> byteQuantity;
                         ar >> _linkType;
                     }
-    //************** for backward compatibility (17/6/2011) **********************
                     if (theName.compare("Ack")==0)
-                    {
+                    { // for backward compatibility (17/6/2011)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _modelAcknowledgement; // this is now the CSceneObject's variable!!! (was Dummy's variable before)
+                        ar >> _modelAcknowledgement;
                     }
-    //****************************************************************************
                     if (theName.compare("Mj1")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_mujocoFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_mujocoIntParams.size()),cnt2);
+
+                        floatFloat vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _mujocoFloatParams already!
+                            ar.flt() >> vf;
+                            _mujocoFloatParams[i]=(floatDouble)vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar.flt() >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _mujocoIntParams already!
+                            ar >> vi;
+                            _mujocoIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("_j1")==0)
                     { // Mujoco params:
                         noHit=false;
                         ar >> byteQuantity;
@@ -576,16 +632,16 @@ void CDummy::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_mujocoFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_mujocoIntParams.size()),cnt2);
 
-                        float vf;
+                        floatDouble vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _mujocoFloatParams already!
-                            ar >> vf;
+                            ar.dbl() >> vf;
                             _mujocoFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vf;
+                            ar.dbl() >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _mujocoIntParams already!
@@ -667,7 +723,7 @@ void CDummy::serialize(CSer& ar)
             ar.xmlPushNewNode("dynamics");
             ar.xmlPushNewNode("engines");
             ar.xmlPushNewNode("mujoco");
-            float v[5];
+            floatDouble v[5];
             for (size_t i=0;i<2;i++)
                 v[i]=getEngineFloatParam(sim_mujoco_dummy_range1+i,nullptr);
             ar.xmlAddNode_floats("range",v,2);
@@ -721,7 +777,7 @@ void CDummy::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("object",rgb,3,exhaustiveXml))
-                        _dummyColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        _dummyColor.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -732,7 +788,7 @@ void CDummy::serialize(CSer& ar)
                 {
                     if (ar.xmlPushChildNode("mujoco",exhaustiveXml))
                     {
-                        float w[5];
+                        floatDouble w[5];
                         if (ar.xmlGetNode_floats("range",w,2,exhaustiveXml))
                         {
                             for (size_t j=0;j<2;j++)
@@ -748,7 +804,7 @@ void CDummy::serialize(CSer& ar)
                             for (size_t j=0;j<5;j++)
                                 setEngineFloatParam(sim_mujoco_dummy_solimplimit1+j,w[j]);
                         }
-                        float v;
+                        floatDouble v;
                         if (ar.xmlGetNode_float("margin",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_dummy_margin,v);
                         if (ar.xmlGetNode_float("springlength",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_dummy_springlength,v);
                         if (ar.xmlGetNode_float("stiffness",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_dummy_stiffness,v);
@@ -930,12 +986,12 @@ bool CDummy::getFreeOnPathTrajectory() const
     return(_freeOnPathTrajectory);
 }
 
-float CDummy::getVirtualDistanceOffsetOnPath() const
+floatDouble CDummy::getVirtualDistanceOffsetOnPath() const
 {
     return(_virtualDistanceOffsetOnPath);
 }
 
-float CDummy::getVirtualDistanceOffsetOnPath_variationWhenCopy() const
+floatDouble CDummy::getVirtualDistanceOffsetOnPath_variationWhenCopy() const
 {
     return(_virtualDistanceOffsetOnPath_variationWhenCopy);
 }
@@ -986,7 +1042,7 @@ bool CDummy::getAssignedToParentPathOrientation() const
     return(_assignedToParentPathOrientation);
 }
 
-float CDummy::getDummySize() const
+floatDouble CDummy::getDummySize() const
 {
     return(_dummySize);
 }
@@ -1006,7 +1062,7 @@ CColorObject* CDummy::getDummyColor()
     return(&_dummyColor);
 }
 
-void CDummy::setDummySize(float s)
+void CDummy::setDummySize(floatDouble s)
 {
     bool diff=(_dummySize!=s);
     if (diff)

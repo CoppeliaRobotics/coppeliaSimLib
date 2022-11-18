@@ -5855,9 +5855,9 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName,SLuaCa
         _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(),true);
 
         // Following probably not needed:
-        pdata->outputBool=new unsigned char[0];
+        pdata->outputBool=new bool[0];
         pdata->outputInt=new int[0];
-        pdata->outputFloat=new float[0];
+        pdata->outputFloat=new floatFloat[0];
         pdata->outputDouble=new double[0];
         pdata->outputChar=new char[0];
         pdata->outputCharBuff=new char[0];
@@ -5875,7 +5875,7 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName,SLuaCa
         // We read all arguments from the stack
         std::vector<char> outBoolVector;
         std::vector<int> outIntVector;
-        std::vector<float> outFloatVector;
+        std::vector<floatFloat> outFloatVector;
         std::vector<double> outDoubleVector;
         std::vector<std::string> outStringVector;
         std::vector<std::string> outCharVector;
@@ -5888,9 +5888,9 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName,SLuaCa
         }
 
         // Now we prepare the output buffers:
-        pdata->outputBool=new unsigned char[outBoolVector.size()];
+        pdata->outputBool=new bool[outBoolVector.size()];
         pdata->outputInt=new int[outIntVector.size()];
-        pdata->outputFloat=new float[outFloatVector.size()];
+        pdata->outputFloat=new floatFloat[outFloatVector.size()];
         pdata->outputDouble=new double[outDoubleVector.size()];
         int charCnt=0;
         for (size_t k=0;k<outStringVector.size();k++)
@@ -6952,6 +6952,11 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+
+    if (_containsScriptText_old(scriptObject,"simIK.result_not_performed"))
+        App::logMsg(sim_verbosity_errors,"Contains simIK.result_not_performed...");
+    if (_containsScriptText_old(scriptObject,"simIK.result_fail"))
+        App::logMsg(sim_verbosity_errors,"Contains simIK.result_fail...");
 
     if (_containsScriptText_old(scriptObject,"simIK.applySceneToIkEnvironment"))
         App::logMsg(sim_verbosity_errors,"Contains simIK.applySceneToIkEnvironment...");

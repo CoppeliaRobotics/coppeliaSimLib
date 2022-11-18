@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "sceneObject.h"
@@ -14,8 +13,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(float scalingFactor);
-    void scaleObjectNonIsometrically(float x,float y,float z);
+    void scaleObject(floatDouble scalingFactor);
+    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -41,12 +40,12 @@ public:
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
 
-    void setMirrorWidth(float w);
-    float getMirrorWidth();
-    void setMirrorHeight(float h);
-    float getMirrorHeight();
-    void setReflectance(float r);
-    float getReflectance();
+    void setMirrorWidth(floatDouble w);
+    floatDouble getMirrorWidth();
+    void setMirrorHeight(floatDouble h);
+    floatDouble getMirrorHeight();
+    void setReflectance(floatDouble r);
+    floatDouble getReflectance();
 
     void setActive(bool a);
     bool getActive();
@@ -60,7 +59,7 @@ public:
     CColorObject* getClipPlaneColor();
 
     // Variables which need to be serialized & copied
-    float mirrorColor[3];
+    floatDouble mirrorColor[3];
     static int currentMirrorContentBeingRendered;
 
 protected:
@@ -68,9 +67,9 @@ protected:
 
     // Variables which need to be serialized & copied
     CColorObject clipPlaneColor;
-    float _mirrorWidth;
-    float _mirrorHeight;
-    float _mirrorReflectance;
+    floatDouble _mirrorWidth;
+    floatDouble _mirrorHeight;
+    floatDouble _mirrorReflectance;
     bool _active;
     bool _isMirror;
     int _clippingObjectOrCollection;

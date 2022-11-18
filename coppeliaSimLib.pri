@@ -6,8 +6,8 @@ DEFINES += SIM_LIB
 # --------------------
 DEFINES += TMPOPERATION # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats)
 
-DEFINES += floatFloat=float
-DEFINES += floatDouble=float
+#DEFINES += floatFloat=float
+#DEFINES += floatDouble=float
 #DEFINES += NOW_ALL_DOUBLES
 # for the switch:
 #simMathReal --> double

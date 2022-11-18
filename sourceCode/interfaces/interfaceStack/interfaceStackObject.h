@@ -1,5 +1,6 @@
 #pragma once
 
+#include "simTypes.h"
 #include <string>
 #include "cbor.h"
 

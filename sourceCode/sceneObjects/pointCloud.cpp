@@ -62,24 +62,24 @@ CColorObject* CPointCloud::getColor()
     return(&color);
 }
 
-std::vector<float>* CPointCloud::getColors()
+std::vector<floatDouble>* CPointCloud::getColors()
 {
     return(&_colors);
 }
 
-std::vector<float>* CPointCloud::getDisplayPoints()
+std::vector<floatDouble>* CPointCloud::getDisplayPoints()
 {
     return(&_displayPoints);
 }
 
-std::vector<float>* CPointCloud::getDisplayColors()
+std::vector<floatDouble>* CPointCloud::getDisplayColors()
 {
     return(&_displayColors);
 }
 
 void CPointCloud::_readPositionsAndColorsAndSetDimensions()
 {
-    std::vector<float> displayPoints_old;
+    std::vector<floatDouble> displayPoints_old;
     std::vector<unsigned char> displayColorsByte_old;
     displayPoints_old.swap(_displayPoints);
     displayColorsByte_old.swap(_displayColorsByte);
@@ -256,7 +256,7 @@ void CPointCloud::_updatePointCloudEvent() const
     }
 }
 
-void CPointCloud::_getCharRGB3Colors(const std::vector<float>& floatRGBA,std::vector<unsigned char>& charRGB)
+void CPointCloud::_getCharRGB3Colors(const std::vector<floatDouble>& floatRGBA,std::vector<unsigned char>& charRGB)
 {
     charRGB.resize(floatRGBA.size()*3/4);
     for (size_t i=0;i<floatRGBA.size()/4;i++)
@@ -267,14 +267,14 @@ void CPointCloud::_getCharRGB3Colors(const std::vector<float>& floatRGBA,std::ve
     }
 }
 
-int CPointCloud::removePoints(const float* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,float distanceTolerance)
+int CPointCloud::removePoints(const floatDouble* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,floatDouble distanceTolerance)
 {
     TRACE_INTERNAL;
     int pointCntRemoved=0;
     if (_pointCloudInfo!=nullptr)
     {
-        const float* _pts=pts;
-        std::vector<float> __pts;
+        const floatDouble* _pts=pts;
+        std::vector<floatDouble> __pts;
         if (!ptsAreRelativeToPointCloud)
         {
             C7Vector tr(getFullCumulativeTransformation().getInverse());
@@ -305,20 +305,20 @@ void CPointCloud::subtractOctree(const COctree* octree)
         subtractOctree(octree->getOctreeInfo(),((COctree*)octree)->getFullCumulativeTransformation());
 }
 
-void CPointCloud::subtractDummy(const CDummy* dummy,float distanceTolerance)
+void CPointCloud::subtractDummy(const CDummy* dummy,floatDouble distanceTolerance)
 {
     TRACE_INTERNAL;
     removePoints(dummy->getFullCumulativeTransformation().X.data,1,false,distanceTolerance);
 }
 
-void CPointCloud::subtractPointCloud(const CPointCloud* pointCloud,float distanceTolerance)
+void CPointCloud::subtractPointCloud(const CPointCloud* pointCloud,floatDouble distanceTolerance)
 {
     TRACE_INTERNAL;
     if (pointCloud->getPointCloudInfo()!=nullptr)
     {
-        const std::vector<float>* _pts=pointCloud->getPoints();
+        const std::vector<floatDouble>* _pts=pointCloud->getPoints();
         C7Vector tr(pointCloud->getFullCumulativeTransformation());
-        std::vector<float> pts;
+        std::vector<floatDouble> pts;
         for (size_t i=0;i<_pts->size()/3;i++)
         {
             C3Vector v(&_pts->at(3*i));
@@ -357,7 +357,7 @@ void CPointCloud::subtractObjects(const std::vector<int>& sel)
     }
 }
 
-void CPointCloud::subtractObject(const CSceneObject* obj,float distanceTolerance)
+void CPointCloud::subtractObject(const CSceneObject* obj,floatDouble distanceTolerance)
 {
     if (obj->getObjectType()==sim_object_octree_type)
         subtractOctree((COctree*)obj);
@@ -367,13 +367,13 @@ void CPointCloud::subtractObject(const CSceneObject* obj,float distanceTolerance
         subtractPointCloud((CPointCloud*)obj,distanceTolerance);
 }
 
-int CPointCloud::intersectPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,float distanceTolerance)
+int CPointCloud::intersectPoints(const floatDouble* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,floatDouble distanceTolerance)
 {
     TRACE_INTERNAL;
     if (_pointCloudInfo!=nullptr)
     {
-        const float* _pts=pts;
-        std::vector<float> __pts;
+        const floatDouble* _pts=pts;
+        std::vector<floatDouble> __pts;
         if (!ptsAreRelativeToPointCloud)
         {
             C7Vector tr(getFullCumulativeTransformation().getInverse());
@@ -397,13 +397,13 @@ int CPointCloud::intersectPoints(const float* pts,int ptsCnt,bool ptsAreRelative
     return(int(_points.size()/3));
 }
 
-void CPointCloud::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,const unsigned char* optionalColors3,bool colorsAreIndividual)
+void CPointCloud::insertPoints(const floatDouble* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,const unsigned char* optionalColors3,bool colorsAreIndividual)
 {
     TRACE_INTERNAL;
     if (ptsCnt<=0)
         return;
-    const float* _pts=pts;
-    std::vector<float> __pts;
+    const floatDouble* _pts=pts;
+    std::vector<floatDouble> __pts;
     if (!ptsAreRelativeToPointCloud)
     {
         __pts.resize(ptsCnt*3);
@@ -437,20 +437,20 @@ void CPointCloud::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeTo
             {
                 for (int i=0;i<ptsCnt;i++)
                 {
-                    _colors.push_back(float(optionalColors3[3*i+0])/255.1f);
-                    _colors.push_back(float(optionalColors3[3*i+1])/255.1f);
-                    _colors.push_back(float(optionalColors3[3*i+2])/255.1f);
-                    _colors.push_back(1.0f);
+                    _colors.push_back(floatDouble(optionalColors3[3*i+0])/255.1);
+                    _colors.push_back(floatDouble(optionalColors3[3*i+1])/255.1);
+                    _colors.push_back(floatDouble(optionalColors3[3*i+2])/255.1);
+                    _colors.push_back(1.0);
                 }
             }
             else
             {
                 for (int i=0;i<ptsCnt;i++)
                 {
-                    _colors.push_back(float(optionalColors3[0])/255.1f);
-                    _colors.push_back(float(optionalColors3[1])/255.1f);
-                    _colors.push_back(float(optionalColors3[2])/255.1f);
-                    _colors.push_back(1.0f);
+                    _colors.push_back(floatDouble(optionalColors3[0])/255.1);
+                    _colors.push_back(floatDouble(optionalColors3[1])/255.1);
+                    _colors.push_back(floatDouble(optionalColors3[2])/255.1);
+                    _colors.push_back(1.0);
                 }
             }
         }
@@ -500,7 +500,7 @@ void CPointCloud::insertShape(CShape* shape)
     unsigned char dummyColor[3];
     const C7Vector tr(getFullCumulativeTransformation());
     void* octree=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->_meshCalculationStructure,shape->getFullCumulativeTransformation(),&tr,_buildResolution,dummyColor,0);
-    std::vector<float> pts;
+    std::vector<floatDouble> pts;
     CPluginContainer::geomPlugin_getOctreeVoxelPositions(octree,pts);
     CPluginContainer::geomPlugin_destroyOctree(octree);
     insertPoints(&pts[0],(int)pts.size()/3,true,nullptr,false);
@@ -511,9 +511,9 @@ void CPointCloud::insertOctree(const COctree* octree)
     TRACE_INTERNAL;
     if (octree->getOctreeInfo()!=nullptr)
     {
-        const std::vector<float>* _pts=octree->getCubePositions();
+        const std::vector<floatDouble>* _pts=octree->getCubePositions();
         C7Vector tr(octree->getFullCumulativeTransformation());
-        std::vector<float> pts;
+        std::vector<floatDouble> pts;
         for (size_t i=0;i<_pts->size()/3;i++)
         {
             C3Vector v(&_pts->at(3*i));
@@ -535,12 +535,12 @@ void CPointCloud::insertDummy(const CDummy* dummy)
 void CPointCloud::insertPointCloud(const CPointCloud* pointCloud)
 {
     TRACE_INTERNAL;
-    const std::vector<float>* _pts=pointCloud->getPoints();
+    const std::vector<floatDouble>* _pts=pointCloud->getPoints();
     std::vector<unsigned char> _cols;
     _cols.resize(_pts->size());
 
     C7Vector tr(pointCloud->getFullCumulativeTransformation());
-    std::vector<float> pts;
+    std::vector<floatDouble> pts;
     for (size_t i=0;i<_pts->size()/3;i++)
     {
         C3Vector v(&_pts->at(3*i));
@@ -595,13 +595,13 @@ void CPointCloud::clear()
     _updatePointCloudEvent();
 }
 
-const std::vector<float>* CPointCloud::getPoints() const
+const std::vector<floatDouble>* CPointCloud::getPoints() const
 {
     TRACE_INTERNAL;
     return(&_points);
 }
 
-std::vector<float>* CPointCloud::getPoints()
+std::vector<floatDouble>* CPointCloud::getPoints()
 {
     TRACE_INTERNAL;
     return(&_points);
@@ -647,7 +647,7 @@ void CPointCloud::computeBoundingBox()
 { // handled elsewhere
 }
 
-void CPointCloud::scaleObject(float scalingFactor)
+void CPointCloud::scaleObject(floatDouble scalingFactor)
 {
     _cellSize*=scalingFactor;
     _buildResolution*=scalingFactor;
@@ -664,9 +664,9 @@ void CPointCloud::scaleObject(float scalingFactor)
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void CPointCloud::scaleObjectNonIsometrically(float x,float y,float z)
+void CPointCloud::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
-    float s=cbrt(x*y*z);
+    floatDouble s=cbrt(x*y*z);
     scaleObject(s);
 }
 
@@ -729,13 +729,13 @@ CSceneObject* CPointCloud::copyYourself()
     return(newPointcloud);
 }
 
-void CPointCloud::setCellSize(float theNewSize)
+void CPointCloud::setCellSize(floatDouble theNewSize)
 {
-    theNewSize=tt::getLimitedFloat(0.001f,1.0,theNewSize);
+    theNewSize=tt::getLimitedFloat(0.001,1.0,theNewSize);
     if (theNewSize!=_cellSize)
     {
         _cellSize=theNewSize;
-        std::vector<float> pts(_points);
+        std::vector<floatDouble> pts(_points);
         std::vector<unsigned char> cols;
         _getCharRGB3Colors(_colors,cols);
         clear();
@@ -744,7 +744,7 @@ void CPointCloud::setCellSize(float theNewSize)
     }
 }
 
-float CPointCloud::getCellSize() const
+floatDouble CPointCloud::getCellSize() const
 { 
     return(_cellSize);
 }
@@ -755,7 +755,7 @@ void CPointCloud::setMaxPointCountPerCell(int cnt)
     if (cnt!=_maxPointCountPerCell)
     {
         _maxPointCountPerCell=cnt;
-        std::vector<float> pts(_points);
+        std::vector<floatDouble> pts(_points);
         std::vector<unsigned char> cols;
         _getCharRGB3Colors(_colors,cols);
         clear();
@@ -779,11 +779,11 @@ void CPointCloud::setShowOctree(bool show)
     _showOctreeStructure=show;
 }
 
-float CPointCloud::getAveragePointCountInCell()
+floatDouble CPointCloud::getAveragePointCountInCell()
 {
     if ( (_points.size()==0)||_doNotUseOctreeStructure )
         return(-1.0);
-    return(float(_points.size()/3)/float(_nonEmptyCells));
+    return(floatDouble(_points.size()/3)/floatDouble(_nonEmptyCells));
 }
 
 int CPointCloud::getPointSize() const
@@ -808,32 +808,32 @@ void CPointCloud::setPointSize(int s)
     }
 }
 
-float CPointCloud::getBuildResolution() const
+floatDouble CPointCloud::getBuildResolution() const
 {
     return(_buildResolution);
 }
 
-void CPointCloud::setBuildResolution(float r)
+void CPointCloud::setBuildResolution(floatDouble r)
 {
-    _buildResolution=tt::getLimitedFloat(0.001f,1.0,r);
+    _buildResolution=tt::getLimitedFloat(0.001,1.0,r);
 }
 
-float CPointCloud::getRemovalDistanceTolerance() const
+floatDouble CPointCloud::getRemovalDistanceTolerance() const
 {
     return(_removalDistanceTolerance);
 }
 
-void CPointCloud::setRemovalDistanceTolerance(float t)
+void CPointCloud::setRemovalDistanceTolerance(floatDouble t)
 {
-    _removalDistanceTolerance=tt::getLimitedFloat(0.0001f,1.0,t);
+    _removalDistanceTolerance=tt::getLimitedFloat(0.0001,1.0,t);
 }
 
-float CPointCloud::getInsertionDistanceTolerance() const
+floatDouble CPointCloud::getInsertionDistanceTolerance() const
 {
     return(_insertionDistanceTolerance);
 }
 
-void CPointCloud::setInsertionDistanceTolerance(float t)
+void CPointCloud::setInsertionDistanceTolerance(floatDouble t)
 {
     _insertionDistanceTolerance=tt::getLimitedFloat(0.0,1.0,t);
 }
@@ -884,7 +884,7 @@ void CPointCloud::setDoNotUseCalculationStructure(bool s)
         _doNotUseOctreeStructure=s;
         if (_points.size()>0)
         {
-            std::vector<float> p(_points);
+            std::vector<floatDouble> p(_points);
             std::vector<unsigned char> c;
             c.reserve(p.size());
             for (size_t i=0;i<p.size()/3;i++)
@@ -899,12 +899,12 @@ void CPointCloud::setDoNotUseCalculationStructure(bool s)
     }
 }
 
-float CPointCloud::getPointDisplayRatio() const
+floatDouble CPointCloud::getPointDisplayRatio() const
 {
     return(_pointDisplayRatio);
 }
 
-void CPointCloud::setPointDisplayRatio(float r)
+void CPointCloud::setPointDisplayRatio(floatDouble r)
 {
     r=tt::getLimitedFloat(0.01f,1.0,r);
     if (r!=_pointDisplayRatio)
@@ -986,29 +986,68 @@ void CPointCloud::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {       // Storing
+#ifdef TMPOPERATION
             ar.storeDataName("Siz");
-            ar << _cellSize << _pointSize;
+            ar.flt() << (floatFloat)_cellSize;
+            ar << _pointSize;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_iz");
+            ar.dbl() << _cellSize;
+            ar << _pointSize;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Sut");
-            ar << _removalDistanceTolerance;
+            ar.flt() << (floatFloat)_removalDistanceTolerance;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_ut");
+            ar.dbl() << _removalDistanceTolerance;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("adt");
-            ar << _insertionDistanceTolerance;
+            ar.flt() << (floatFloat)_insertionDistanceTolerance;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_dt");
+            ar.dbl() << _insertionDistanceTolerance;
+            ar.flush();
+#endif
 
             ar.storeDataName("Nec");
             ar << _nonEmptyCells;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Pdr");
-            ar << _pointDisplayRatio;
+            ar.flt() << (floatFloat)_pointDisplayRatio;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_dr");
+            ar.dbl() << _pointDisplayRatio;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Pcc");
-            ar << _maxPointCountPerCell << _buildResolution;
+            ar << _maxPointCountPerCell;
+            ar.flt() << (floatFloat)_buildResolution;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_cc");
+            ar << _maxPointCountPerCell;
+            ar.dbl() << _buildResolution;
+            ar.flush();
+#endif
 
             ar.storeDataName("Var");
             unsigned char dummy=0;
@@ -1028,30 +1067,47 @@ void CPointCloud::serialize(CSer& ar)
 
             if ( (!_saveCalculationStructure)||_doNotUseOctreeStructure )
             {
+#ifdef TMPOPERATION
                 ar.storeDataName("Pt2");
                 ar << int(_points.size()/3);
                 for (size_t i=0;i<_points.size()/3;i++)
                 {
-                    ar << _points[3*i+0];
-                    ar << _points[3*i+1];
-                    ar << _points[3*i+2];
-                    ar << (unsigned char)(_colors[4*i+0]*255.1f);
-                    ar << (unsigned char)(_colors[4*i+1]*255.1f);
-                    ar << (unsigned char)(_colors[4*i+2]*255.1f);
+                    ar.flt() << (floatFloat)_points[3*i+0];
+                    ar.flt() << (floatFloat)_points[3*i+1];
+                    ar.flt() << (floatFloat)_points[3*i+2];
+                    ar << (unsigned char)(_colors[4*i+0]*255.1);
+                    ar << (unsigned char)(_colors[4*i+1]*255.1);
+                    ar << (unsigned char)(_colors[4*i+2]*255.1);
                 }
                 ar.flush();
+#endif
+#ifdef NEWOPERATION
+                ar.storeDataName("_t2");
+                ar << int(_points.size()/3);
+                for (size_t i=0;i<_points.size()/3;i++)
+                {
+                    ar.dbl() << _points[3*i+0];
+                    ar.dbl() << _points[3*i+1];
+                    ar.dbl() << _points[3*i+2];
+                    ar << (unsigned char)(_colors[4*i+0]*255.1);
+                    ar << (unsigned char)(_colors[4*i+1]*255.1);
+                    ar << (unsigned char)(_colors[4*i+2]*255.1);
+                }
+                ar.flush();
+#endif
             }
             else
             {
                 if (_pointCloudInfo!=nullptr)
                 {
+                    std::vector<unsigned char> data;
+#ifdef TMPOPERATION
                     ar.storeDataName("Mmd");
-                    ar << _boundingBoxMin(0) << _boundingBoxMin(1) << _boundingBoxMin(2);
-                    ar << _boundingBoxMax(0) << _boundingBoxMax(1) << _boundingBoxMax(2);
+                    ar.flt() << (floatFloat)_boundingBoxMin(0) << (floatFloat)_boundingBoxMin(1) << (floatFloat)_boundingBoxMin(2);
+                    ar.flt() << (floatFloat)_boundingBoxMax(0) << (floatFloat)_boundingBoxMax(1) << (floatFloat)_boundingBoxMax(2);
                     ar.flush();
 
-                    std::vector<unsigned char> data;
-                    CPluginContainer::geomPlugin_getPtcloudSerializationData(_pointCloudInfo,data);
+                    CPluginContainer::geomPlugin_getPtcloudSerializationData_float(_pointCloudInfo,data);
                     ar.storeDataName("Co2");
                     ar.setCountingMode(true);
                     for (size_t i=0;i<data.size();i++)
@@ -1063,6 +1119,26 @@ void CPointCloud::serialize(CSer& ar)
                             ar << data[i];
                         ar.flush(false);
                     }
+#endif
+#ifdef NEWOPERATION
+                    ar.storeDataName("_md");
+                    ar.dbl() << _boundingBoxMin(0) << _boundingBoxMin(1) << _boundingBoxMin(2);
+                    ar.dbl() << _boundingBoxMax(0) << _boundingBoxMax(1) << _boundingBoxMax(2);
+                    ar.flush();
+
+                    CPluginContainer::geomPlugin_getPtcloudSerializationData(_pointCloudInfo,data);
+                    ar.storeDataName("_o2");
+                    ar.setCountingMode(true);
+                    for (size_t i=0;i<data.size();i++)
+                        ar << data[i];
+                    ar.flush(false);
+                    if (ar.setWritingMode(true))
+                    {
+                        for (size_t i=0;i<data.size();i++)
+                            ar << data[i];
+                        ar.flush(false);
+                    }
+#endif
                 }
             }
             ar.storeDataName(SER_END_OF_OBJECT);
@@ -1078,22 +1154,48 @@ void CPointCloud::serialize(CSer& ar)
                 {
                     bool noHit=true;
                     if (theName.compare("Siz")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _cellSize=(floatDouble)bla;;
+                        ar >> _pointSize;
+                    }
+                    if (theName.compare("_iz")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _cellSize >> _pointSize;
+                        ar.dbl() >> _cellSize;
+                        ar >> _pointSize;
                     }
                     if (theName.compare("Sut")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _removalDistanceTolerance=(floatDouble)bla;;
+                    }
+                    if (theName.compare("_ut")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _removalDistanceTolerance;
+                        ar.dbl() >> _removalDistanceTolerance;
                     }
                     if (theName.compare("adt")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _insertionDistanceTolerance=(floatDouble)bla;
+                    }
+                    if (theName.compare("_dt")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _insertionDistanceTolerance;
+                        ar.dbl() >> _insertionDistanceTolerance;
                     }
                     if (theName.compare("Nec")==0)
                     {
@@ -1102,32 +1204,77 @@ void CPointCloud::serialize(CSer& ar)
                         ar >> _nonEmptyCells;
                     }
                     if (theName.compare("Pdr")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _pointDisplayRatio=(floatDouble)bla;
+                    }
+                    if (theName.compare("_dr")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _pointDisplayRatio;
+                        ar.dbl() >> _pointDisplayRatio;
                     }
                     if (theName.compare("Pcc")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _maxPointCountPerCell;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _buildResolution=(floatDouble)bla;
+                    }
+                    if (theName.compare("_cc")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _maxPointCountPerCell >> _buildResolution;
+                        ar >> _maxPointCountPerCell;
+                        ar.dbl() >> _buildResolution;
                     }
                     if (theName.compare("Pt2")==0)
-                    {
+                    { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
                         int cnt;
                         ar >> cnt;
-                        std::vector<float> pts;
+                        std::vector<floatDouble> pts;
                         pts.resize(cnt*3);
                         std::vector<unsigned char> cols;
                         cols.resize(cnt*3);
                         for (int i=0;i<cnt;i++)
                         {
-                            ar >> pts[3*i+0];
-                            ar >> pts[3*i+1];
-                            ar >> pts[3*i+2];
+                            floatFloat bla,bli,blo;
+                            ar.flt() >> bla >> bli >> blo;
+                            pts[3*i+0]=(floatDouble)bla;
+                            pts[3*i+1]=(floatDouble)bli;
+                            pts[3*i+2]=(floatDouble)blo;
+                            ar >> cols[3*i+0];
+                            ar >> cols[3*i+1];
+                            ar >> cols[3*i+2];
+                        }
+                        // Now we need to rebuild the pointCloud:
+                        if (cnt>0)
+                            insertPoints(&pts[0],cnt,true,&cols[0],true);
+                        else
+                            clear();
+                    }
+                    if (theName.compare("_t2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt;
+                        ar >> cnt;
+                        std::vector<floatDouble> pts;
+                        pts.resize(cnt*3);
+                        std::vector<unsigned char> cols;
+                        cols.resize(cnt*3);
+                        for (int i=0;i<cnt;i++)
+                        {
+                            ar.dbl() >> pts[3*i+0];
+                            ar.dbl() >> pts[3*i+1];
+                            ar.dbl() >> pts[3*i+2];
                             ar >> cols[3*i+0];
                             ar >> cols[3*i+1];
                             ar >> cols[3*i+2];
@@ -1139,11 +1286,25 @@ void CPointCloud::serialize(CSer& ar)
                             clear();
                     }
                     if (theName.compare("Mmd")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        _boundingBoxMin(0)=(floatDouble)bla;
+                        _boundingBoxMin(1)=(floatDouble)bli;
+                        _boundingBoxMin(2)=(floatDouble)blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        _boundingBoxMax(0)=(floatDouble)bla;
+                        _boundingBoxMax(1)=(floatDouble)bli;
+                        _boundingBoxMax(2)=(floatDouble)blo;
+                    }
+                    if (theName.compare("_md")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _boundingBoxMin(0) >> _boundingBoxMin(1) >> _boundingBoxMin(2);
-                        ar >> _boundingBoxMax(0) >> _boundingBoxMax(1) >> _boundingBoxMax(2);
+                        ar.dbl() >> _boundingBoxMin(0) >> _boundingBoxMin(1) >> _boundingBoxMin(2);
+                        ar.dbl() >> _boundingBoxMax(0) >> _boundingBoxMax(1) >> _boundingBoxMax(2);
                     }
 
                     if (theName.compare("Var")==0)
@@ -1165,10 +1326,24 @@ void CPointCloud::serialize(CSer& ar)
                         color.serialize(ar,0);
                     }
                     if (theName.compare("Co2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        std::vector<unsigned char> data;
+                        data.reserve(byteQuantity);
+                        unsigned char dummy;
+                        for (int i=0;i<byteQuantity;i++)
+                        {
+                            ar >> dummy;
+                            data.push_back(dummy);
+                        }
+                        _pointCloudInfo=CPluginContainer::geomPlugin_getPtcloudFromSerializationData_float(&data[0]);
+                        _readPositionsAndColorsAndSetDimensions();
+                    }
+                    if (theName.compare("_o2")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo never stores calc structures)
-
+                        ar >> byteQuantity;
                         std::vector<unsigned char> data;
                         data.reserve(byteQuantity);
                         unsigned char dummy;
@@ -1250,7 +1425,7 @@ void CPointCloud::serialize(CSer& ar)
                 CSer* w=ar.xmlAddNode_binFile("file",(_objectAlias+"-ptcloud-"+std::to_string(_objectHandle)).c_str());
                 w[0] << int(_points.size());
                 for (size_t i=0;i<_points.size();i++)
-                    w[0] << _points[i];
+                    w[0].flt() << (floatFloat)_points[i]; // keep this as floatFloat
 
                 for (size_t i=0;i<_points.size()/3;i++)
                 {
@@ -1303,7 +1478,7 @@ void CPointCloud::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("object",rgb,3,exhaustiveXml))
-                        color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        color.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -1313,7 +1488,7 @@ void CPointCloud::serialize(CSer& ar)
                 int ptCnt=0;
                 ar.xmlGetNode_int("pointCount",ptCnt);
 
-                std::vector<float> pts;
+                std::vector<floatDouble> pts;
                 std::vector<unsigned char> cols;
                 if (ar.xmlGetNode_floats("points",pts,false))
                     ar.xmlGetNode_uchars("pointColors",cols);
@@ -1323,8 +1498,13 @@ void CPointCloud::serialize(CSer& ar)
                     int cnt;
                     w[0] >> cnt;
                     pts.resize(cnt);
+
                     for (int i=0;i<cnt;i++)
-                        w[0] >> pts[i];
+                    {
+                        floatFloat bla; // keep as floatFloat
+                        w[0].flt() >> bla;
+                        pts[i]=(floatDouble)bla;
+                    }
                     cols.resize(cnt);
                     for (int i=0;i<cnt;i++)
                         w[0] >> cols[i];
@@ -1338,7 +1518,7 @@ void CPointCloud::serialize(CSer& ar)
             }
             else
             {
-                std::vector<float> pts;
+                std::vector<floatDouble> pts;
                 std::vector<unsigned char> cols;
                 if (ar.xmlGetNode_floats("points",pts,exhaustiveXml))
                     ar.xmlGetNode_uchars("pointColors",cols,exhaustiveXml);
@@ -1351,9 +1531,9 @@ void CPointCloud::serialize(CSer& ar)
                         cols.resize(pts.size());
                         for (size_t i=0;i<pts.size()/3;i++)
                         {
-                            cols[3*i+0]=(unsigned char)(color.getColorsPtr()[0]*255.1f);
-                            cols[3*i+1]=(unsigned char)(color.getColorsPtr()[1]*255.1f);
-                            cols[3*i+2]=(unsigned char)(color.getColorsPtr()[2]*255.1f);
+                            cols[3*i+0]=(unsigned char)(color.getColorsPtr()[0]*255.1);
+                            cols[3*i+1]=(unsigned char)(color.getColorsPtr()[1]*255.1);
+                            cols[3*i+2]=(unsigned char)(color.getColorsPtr()[2]*255.1);
                         }
                     }
                     insertPoints(&pts[0],pts.size()/3,true,&cols[0],true);

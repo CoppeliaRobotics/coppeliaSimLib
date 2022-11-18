@@ -1,4 +1,4 @@
-simInt simGetMaterialId_internal(const simChar* materialName)
+int simGetMaterialId_internal(const char* materialName)
 { // DEPRECATED since 29/10/2016.
     TRACE_C_API;
     // For backward compatibility (28/10/2016)
@@ -7,7 +7,7 @@ simInt simGetMaterialId_internal(const simChar* materialName)
     return(-1);
 }
 
-simInt simGetShapeMaterial_internal(simInt shapeHandle)
+int simGetShapeMaterial_internal(int shapeHandle)
 { // DEPRECATED since 29/10/2016.
     TRACE_C_API;
 
@@ -28,7 +28,7 @@ simInt simGetShapeMaterial_internal(simInt shapeHandle)
     return(-1);
 }
 
-simInt simHandleVarious_internal()
+int simHandleVarious_internal()
 { // DEPRECATED since 29/10/2016. use simHandleSimulationStart and simHandleSensingStart instead!
     // HandleVarious should be the last function call before the sensing phase
     TRACE_C_API;
@@ -59,14 +59,14 @@ simInt simHandleVarious_internal()
     return(-1);
 }
 
-simInt simGetMpConfigForTipPose_internal(simInt motionPlanningObjectHandle,simInt options,simFloat closeNodesDistance,simInt trialCount,const simFloat* tipPose,simInt maxTimeInMs,simFloat* outputJointPositions,const simFloat* referenceConfigs,simInt referenceConfigCount,const simFloat* jointWeights,const simInt* jointBehaviour,simInt correctionPasses)
+int simGetMpConfigForTipPose_internal(int motionPlanningObjectHandle,int options,float closeNodesDistance,int trialCount,const float* tipPose,int maxTimeInMs,float* outputJointPositions,const float* referenceConfigs,int referenceConfigCount,const float* jointWeights,const int* jointBehaviour,int correctionPasses)
 { // DEPRECATED since 21/1/2016   referenceConfigs can be nullptr, as well as jointWeights
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
-simInt simResetPath_internal(simInt pathHandle)
+int simResetPath_internal(int pathHandle)
 { // DEPRECATED
     TRACE_C_API;
 
@@ -107,7 +107,7 @@ simInt simResetPath_internal(simInt pathHandle)
     return(-1);
 }
 
-simInt simHandlePath_internal(simInt pathHandle,simFloat deltaTime)
+int simHandlePath_internal(int pathHandle,float deltaTime)
 { // DEPRECATED
     TRACE_C_API;
 
@@ -150,7 +150,7 @@ simInt simHandlePath_internal(simInt pathHandle,simFloat deltaTime)
     return(-1);
 }
 
-simInt simResetJoint_internal(simInt jointHandle)
+int simResetJoint_internal(int jointHandle)
 { // DEPRECATED
     TRACE_C_API;
 
@@ -189,7 +189,7 @@ simInt simResetJoint_internal(simInt jointHandle)
     return(-1);
 }
 
-simInt simHandleJoint_internal(simInt jointHandle,simFloat deltaTime)
+int simHandleJoint_internal(int jointHandle,float deltaTime)
 { // DEPRECATED
     TRACE_C_API;
 
@@ -228,7 +228,7 @@ simInt simHandleJoint_internal(simInt jointHandle,simFloat deltaTime)
     return(-1);
 }
 
-simInt simGetPathPlanningHandle_internal(const simChar* pathPlanningObjectName)
+int simGetPathPlanningHandle_internal(const char* pathPlanningObjectName)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
 
@@ -251,56 +251,56 @@ simInt simGetPathPlanningHandle_internal(const simChar* pathPlanningObjectName)
     return(-1);
 }
 
-simInt simGetMotionPlanningHandle_internal(const simChar* motionPlanningObjectName)
+int simGetMotionPlanningHandle_internal(const char* motionPlanningObjectName)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
-simFloat* simFindMpPath_internal(simInt motionPlanningObjectHandle,const simFloat* startConfig,const simFloat* goalConfig,simInt options,simFloat stepSize,simInt* outputConfigsCnt,simInt maxTimeInMs,simFloat* reserved,const simInt* auxIntParams,const simFloat* auxFloatParams)
+float* simFindMpPath_internal(int motionPlanningObjectHandle,const float* startConfig,const float* goalConfig,int options,float stepSize,int* outputConfigsCnt,int maxTimeInMs,float* reserved,const int* auxIntParams,const float* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
-simFloat* simSimplifyMpPath_internal(simInt motionPlanningObjectHandle,const simFloat* pathBuffer,simInt configCnt,simInt options,simFloat stepSize,simInt increment,simInt* outputConfigsCnt,simInt maxTimeInMs,simFloat* reserved,const simInt* auxIntParams,const simFloat* auxFloatParams)
+float* simSimplifyMpPath_internal(int motionPlanningObjectHandle,const float* pathBuffer,int configCnt,int options,float stepSize,int increment,int* outputConfigsCnt,int maxTimeInMs,float* reserved,const int* auxIntParams,const float* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
-simFloat* simFindIkPath_internal(simInt motionPlanningObjectHandle,const simFloat* startConfig,const simFloat* goalPose,simInt options,simFloat stepSize,simInt* outputConfigsCnt,simFloat* reserved,const simInt* auxIntParams,const simFloat* auxFloatParams)
+float* simFindIkPath_internal(int motionPlanningObjectHandle,const float* startConfig,const float* goalPose,int options,float stepSize,int* outputConfigsCnt,float* reserved,const int* auxIntParams,const float* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
-simFloat* simGetMpConfigTransition_internal(simInt motionPlanningObjectHandle,const simFloat* startConfig,const simFloat* goalConfig,simInt options,const simInt* select,simFloat calcStepSize,simFloat maxOutStepSize,simInt wayPointCnt,const simFloat* wayPoints,simInt* outputConfigsCnt,const simInt* auxIntParams,const simFloat* auxFloatParams)
+float* simGetMpConfigTransition_internal(int motionPlanningObjectHandle,const float* startConfig,const float* goalConfig,int options,const int* select,float calcStepSize,float maxOutStepSize,int wayPointCnt,const float* wayPoints,int* outputConfigsCnt,const int* auxIntParams,const float* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
-simInt simCreateMotionPlanning_internal(simInt jointCnt,const simInt* jointHandles,const simInt* jointRangeSubdivisions,const simFloat* jointMetricWeights,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
+int simCreateMotionPlanning_internal(int jointCnt,const int* jointHandles,const int* jointRangeSubdivisions,const float* jointMetricWeights,int options,const int* intParams,const float* floatParams,const void* reserved)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
-simInt simRemoveMotionPlanning_internal(simInt motionPlanningHandle)
+int simRemoveMotionPlanning_internal(int motionPlanningHandle)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
-simInt simSearchPath_internal(simInt pathPlanningObjectHandle,simFloat maximumSearchTime)
+int simSearchPath_internal(int pathPlanningObjectHandle,float maximumSearchTime)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
 
@@ -325,7 +325,7 @@ simInt simSearchPath_internal(simInt pathPlanningObjectHandle,simFloat maximumSe
 }
 
 
-simInt simInitializePathSearch_internal(simInt pathPlanningObjectHandle,simFloat maximumSearchTime,simFloat searchTimeStep)
+int simInitializePathSearch_internal(int pathPlanningObjectHandle,float maximumSearchTime,float searchTimeStep)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
 
@@ -365,7 +365,7 @@ simInt simInitializePathSearch_internal(simInt pathPlanningObjectHandle,simFloat
     return(-1);
 }
 
-simInt simPerformPathSearchStep_internal(simInt temporaryPathSearchObject,simBool abortSearch)
+int simPerformPathSearchStep_internal(int temporaryPathSearchObject,bool abortSearch)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
 
@@ -418,12 +418,12 @@ simInt simPerformPathSearchStep_internal(simInt temporaryPathSearchObject,simBoo
     return(-1);
 }
 
-simInt simLockInterface_internal(simBool locked)
+int simLockInterface_internal(bool locked)
 { // DEPRECATED since release 3.1.0
     return(0);
 }
 
-simInt simCopyPasteSelectedObjects_internal()
+int simCopyPasteSelectedObjects_internal()
 { // deprecated since 3.1.3
     TRACE_C_API;
 
@@ -454,7 +454,7 @@ simInt simCopyPasteSelectedObjects_internal()
     return(-1);
 }
 
-simInt simSerialPortOpen_internal(simInt portNumber,simInt baudRate,simVoid* reserved1,simVoid* reserved2)
+int simSerialPortOpen_internal(int portNumber,int baudRate,void* reserved1,void* reserved2)
 { // deprecated (10/04/2012)
     TRACE_C_API;
     if (!isSimulatorInitialized(__func__))
@@ -466,7 +466,7 @@ simInt simSerialPortOpen_internal(simInt portNumber,simInt baudRate,simVoid* res
     return(-1);
 }
 
-simInt simSerialPortClose_internal(simInt portNumber)
+int simSerialPortClose_internal(int portNumber)
 { // deprecated (10/04/2012)
     TRACE_C_API;
     if (!isSimulatorInitialized(__func__))
@@ -479,7 +479,7 @@ simInt simSerialPortClose_internal(simInt portNumber)
     return(-1);
 }
 
-simInt simSerialPortSend_internal(simInt portNumber,const simChar* data,simInt dataLength)
+int simSerialPortSend_internal(int portNumber,const char* data,int dataLength)
 { // deprecated (10/04/2012)
     TRACE_C_API;
     if (!isSimulatorInitialized(__func__))
@@ -493,7 +493,7 @@ simInt simSerialPortSend_internal(simInt portNumber,const simChar* data,simInt d
     return(retVal);
 }
 
-simInt simSerialPortRead_internal(simInt portNumber,simChar* buffer,simInt dataLengthToRead)
+int simSerialPortRead_internal(int portNumber,char* buffer,int dataLengthToRead)
 { // deprecated (10/04/2012)
     TRACE_C_API;
     if (!isSimulatorInitialized(__func__))
@@ -507,7 +507,7 @@ simInt simSerialPortRead_internal(simInt portNumber,simChar* buffer,simInt dataL
     return(retVal);
 }
 
-simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simInt scriptHandleOrType,const simChar* arrayNameAtScriptName,const simChar* keyName,const simChar* data,const simInt* what)
+int simAppendScriptArrayEntry_internal(const char* reservedSetToNull,int scriptHandleOrType,const char* arrayNameAtScriptName,const char* keyName,const char* data,const int* what)
 { // deprecated (23/02/2016)
     TRACE_C_API;
     CScriptObject* script=nullptr;
@@ -597,7 +597,7 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
     return(-1);
 }
 
-simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt scriptHandleOrType,const simChar* variableNameAtScriptName)
+int simClearScriptVariable_internal(const char* reservedSetToNull,int scriptHandleOrType,const char* variableNameAtScriptName)
 { // DEPRECATED (23/02/2016)
     TRACE_C_API;
     CScriptObject* script=nullptr;
@@ -681,7 +681,7 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
     return(-1);
 }
 
-simVoid _simGetVortexParameters_internal(const simVoid* object,simInt version,simFloat* floatParams,simInt* intParams)
+void _simGetVortexParameters_internal(const void* object,int version,float* floatParams,int* intParams)
 { // if object is nullptr, we return general engine settings, if object is a shape, we return shape settings, otherwise joint settings
     // Version allows to adjust for future extensions.
     TRACE_C_API;
@@ -777,7 +777,7 @@ simVoid _simGetVortexParameters_internal(const simVoid* object,simInt version,si
         intParams[i]=iparams[i];
 }
 
-simVoid _simGetNewtonParameters_internal(const simVoid* object,simInt* version,simFloat* floatParams,simInt* intParams)
+void _simGetNewtonParameters_internal(const void* object,int* version,float* floatParams,int* intParams)
 { // if object is nullptr, we return general engine settings, if object is a shape, we return shape settings, otherwise joint settings
     // Version allows to adjust for future extensions.
     TRACE_C_API;
@@ -831,7 +831,7 @@ simVoid _simGetNewtonParameters_internal(const simVoid* object,simInt* version,s
         intParams[i]=iparams[i];
 }
 
-simVoid _simGetJointOdeParameters_internal(const simVoid* joint,simFloat* stopERP,simFloat* stopCFM,simFloat* bounce,simFloat* fudge,simFloat* normalCFM)
+void _simGetJointOdeParameters_internal(const void* joint,float* stopERP,float* stopCFM,float* bounce,float* fudge,float* normalCFM)
 {
     TRACE_C_API;
     stopERP[0]=((CJoint*)joint)->getEngineFloatParam(sim_ode_joint_stoperp,nullptr);
@@ -841,7 +841,7 @@ simVoid _simGetJointOdeParameters_internal(const simVoid* joint,simFloat* stopER
     normalCFM[0]=((CJoint*)joint)->getEngineFloatParam(sim_ode_joint_normalcfm,nullptr);
 }
 
-simVoid _simGetJointBulletParameters_internal(const simVoid* joint,simFloat* stopERP,simFloat* stopCFM,simFloat* normalCFM)
+void _simGetJointBulletParameters_internal(const void* joint,float* stopERP,float* stopCFM,float* normalCFM)
 {
     TRACE_C_API;
     stopERP[0]=((CJoint*)joint)->getEngineFloatParam(sim_bullet_joint_stoperp,nullptr);
@@ -849,7 +849,7 @@ simVoid _simGetJointBulletParameters_internal(const simVoid* joint,simFloat* sto
     normalCFM[0]=((CJoint*)joint)->getEngineFloatParam(sim_bullet_joint_normalcfm,nullptr);
 }
 
-CShape* __getShapeFromGeomInfo(const simVoid* geomInfo)
+CShape* __getShapeFromGeomInfo(const void* geomInfo)
 {
     for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
     {
@@ -860,7 +860,7 @@ CShape* __getShapeFromGeomInfo(const simVoid* geomInfo)
     return(nullptr);
 }
 
-simVoid _simGetOdeMaxContactFrictionCFMandERP_internal(const simVoid* geomInfo,simInt* maxContacts,simFloat* friction,simFloat* cfm,simFloat* erp)
+void _simGetOdeMaxContactFrictionCFMandERP_internal(const void* geomInfo,int* maxContacts,float* friction,float* cfm,float* erp)
 {
     TRACE_C_API;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
@@ -871,7 +871,7 @@ simVoid _simGetOdeMaxContactFrictionCFMandERP_internal(const simVoid* geomInfo,s
     erp[0]=mat->getEngineFloatParam(sim_ode_body_softerp,nullptr);
 }
 
-simBool _simGetBulletCollisionMargin_internal(const simVoid* geomInfo,simFloat* margin,simInt* otherProp)
+bool _simGetBulletCollisionMargin_internal(const void* geomInfo,float* margin,int* otherProp)
 {
     TRACE_C_API;
     CMeshWrapper* geomWrap=(CMeshWrapper*)geomInfo;
@@ -903,7 +903,7 @@ simBool _simGetBulletCollisionMargin_internal(const simVoid* geomInfo,simFloat* 
     return(retVal);
 }
 
-simBool _simGetBulletStickyContact_internal(const simVoid* geomInfo)
+bool _simGetBulletStickyContact_internal(const void* geomInfo)
 {
     TRACE_C_API;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
@@ -911,7 +911,7 @@ simBool _simGetBulletStickyContact_internal(const simVoid* geomInfo)
     return(mat->getEngineBoolParam(sim_bullet_body_sticky,nullptr));
 }
 
-simFloat _simGetBulletRestitution_internal(const simVoid* geomInfo)
+float _simGetBulletRestitution_internal(const void* geomInfo)
 {
     TRACE_C_API;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
@@ -919,7 +919,7 @@ simFloat _simGetBulletRestitution_internal(const simVoid* geomInfo)
     return(mat->getEngineFloatParam(sim_bullet_body_restitution,nullptr));
 }
 
-simVoid _simGetDamping_internal(const simVoid* geomInfo,simFloat* linDamping,simFloat* angDamping)
+void _simGetDamping_internal(const void* geomInfo,float* linDamping,float* angDamping)
 {
     TRACE_C_API;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
@@ -938,7 +938,7 @@ simVoid _simGetDamping_internal(const simVoid* geomInfo,simFloat* linDamping,sim
     }
 }
 
-simFloat _simGetFriction_internal(const simVoid* geomInfo)
+float _simGetFriction_internal(const void* geomInfo)
 {
     TRACE_C_API;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
@@ -952,7 +952,7 @@ simFloat _simGetFriction_internal(const simVoid* geomInfo)
     return(0.0f);
 }
 
-simInt simAddSceneCustomData_internal(simInt header,const simChar* data,simInt dataLength)
+int simAddSceneCustomData_internal(int header,const char* data,int dataLength)
 { // deprecated
     TRACE_C_API;
 
@@ -974,7 +974,7 @@ simInt simAddSceneCustomData_internal(simInt header,const simChar* data,simInt d
     return(-1);
 }
 
-simInt simGetSceneCustomDataLength_internal(simInt header)
+int simGetSceneCustomDataLength_internal(int header)
 { // deprecated
     TRACE_C_API;
 
@@ -994,7 +994,7 @@ simInt simGetSceneCustomDataLength_internal(simInt header)
     return(-1);
 }
 
-simInt simGetSceneCustomData_internal(simInt header,simChar* data)
+int simGetSceneCustomData_internal(int header,char* data)
 { // deprecated
     TRACE_C_API;
 
@@ -1018,7 +1018,7 @@ simInt simGetSceneCustomData_internal(simInt header,simChar* data)
 
 
 
-simInt simAddObjectCustomData_internal(simInt objectHandle,simInt header,const simChar* data,simInt dataLength)
+int simAddObjectCustomData_internal(int objectHandle,int header,const char* data,int dataLength)
 { // deprecated
     TRACE_C_API;
 
@@ -1043,7 +1043,7 @@ simInt simAddObjectCustomData_internal(simInt objectHandle,simInt header,const s
     return(-1);
 }
 
-simInt simGetObjectCustomDataLength_internal(simInt objectHandle,simInt header)
+int simGetObjectCustomDataLength_internal(int objectHandle,int header)
 { // deprecated
     TRACE_C_API;
 
@@ -1066,7 +1066,7 @@ simInt simGetObjectCustomDataLength_internal(simInt objectHandle,simInt header)
     return(-1);
 }
 
-simInt simGetObjectCustomData_internal(simInt objectHandle,simInt header,simChar* data)
+int simGetObjectCustomData_internal(int objectHandle,int header,char* data)
 { // deprecated
     TRACE_C_API;
 
@@ -1091,13 +1091,13 @@ simInt simGetObjectCustomData_internal(simInt objectHandle,simInt header,simChar
     return(-1);
 }
 
-simInt simLoadUI_internal(const simChar* filename,int maxCount,int* uiHandles)
+int simLoadUI_internal(const char* filename,int maxCount,int* uiHandles)
 {
     TRACE_C_API;
     return(-1);
 }
 
-simInt simCreateUI_internal(const simChar* elementName,simInt menuAttributes,const simInt* clientSize,const simInt* cellSize,simInt* buttonHandles)
+int simCreateUI_internal(const char* elementName,int menuAttributes,const int* clientSize,const int* cellSize,int* buttonHandles)
 {
     TRACE_C_API;
 
@@ -1167,7 +1167,7 @@ simInt simCreateUI_internal(const simChar* elementName,simInt menuAttributes,con
     return(-1);
 }
 
-simInt simCreateUIButton_internal(simInt elementHandle,const simInt* position,const simInt* size,simInt buttonProperty)
+int simCreateUIButton_internal(int elementHandle,const int* position,const int* size,int buttonProperty)
 {
     TRACE_C_API;
 
@@ -1195,7 +1195,7 @@ simInt simCreateUIButton_internal(simInt elementHandle,const simInt* position,co
     return(-1);
 }
 
-simInt simGetUIHandle_internal(const simChar* elementName)
+int simGetUIHandle_internal(const char* elementName)
 {
     TRACE_C_API;
 
@@ -1218,7 +1218,7 @@ simInt simGetUIHandle_internal(const simChar* elementName)
     return(-1);
 }
 
-simInt simGetUIProperty_internal(simInt elementHandle)
+int simGetUIProperty_internal(int elementHandle)
 {
     TRACE_C_API;
 
@@ -1237,7 +1237,7 @@ simInt simGetUIProperty_internal(simInt elementHandle)
     return(-1);
 }
 
-simInt simGetUIEventButton_internal(simInt elementHandle,simInt* auxiliaryValues)
+int simGetUIEventButton_internal(int elementHandle,int* auxiliaryValues)
 {
     TRACE_C_API;
 
@@ -1259,7 +1259,7 @@ simInt simGetUIEventButton_internal(simInt elementHandle,simInt* auxiliaryValues
     return(-1);
 }
 
-simInt simSetUIProperty_internal(simInt elementHandle,simInt elementProperty)
+int simSetUIProperty_internal(int elementHandle,int elementProperty)
 {
     TRACE_C_API;
 
@@ -1283,7 +1283,7 @@ simInt simSetUIProperty_internal(simInt elementHandle,simInt elementProperty)
     return(-1);
 }
 
-simInt simGetUIButtonSize_internal(simInt elementHandle,simInt buttonHandle,simInt* size)
+int simGetUIButtonSize_internal(int elementHandle,int buttonHandle,int* size)
 {
     TRACE_C_API;
 
@@ -1305,7 +1305,7 @@ simInt simGetUIButtonSize_internal(simInt elementHandle,simInt buttonHandle,simI
 }
 
 
-simInt simGetUIButtonProperty_internal(simInt elementHandle,simInt buttonHandle)
+int simGetUIButtonProperty_internal(int elementHandle,int buttonHandle)
 {
     TRACE_C_API;
 
@@ -1325,7 +1325,7 @@ simInt simGetUIButtonProperty_internal(simInt elementHandle,simInt buttonHandle)
     return(-1);
 }
 
-simInt simSetUIButtonProperty_internal(simInt elementHandle,simInt buttonHandle,simInt buttonProperty)
+int simSetUIButtonProperty_internal(int elementHandle,int buttonHandle,int buttonProperty)
 {
     TRACE_C_API;
 
@@ -1345,7 +1345,7 @@ simInt simSetUIButtonProperty_internal(simInt elementHandle,simInt buttonHandle,
     return(-1);
 }
 
-simInt simSetUIButtonLabel_internal(simInt elementHandle,simInt buttonHandle,const simChar* upStateLabel,const simChar* downStateLabel)
+int simSetUIButtonLabel_internal(int elementHandle,int buttonHandle,const char* upStateLabel,const char* downStateLabel)
 {
     TRACE_C_API;
 
@@ -1368,7 +1368,7 @@ simInt simSetUIButtonLabel_internal(simInt elementHandle,simInt buttonHandle,con
     return(-1);
 }
 
-simChar* simGetUIButtonLabel_internal(simInt elementHandle,simInt buttonHandle)
+char* simGetUIButtonLabel_internal(int elementHandle,int buttonHandle)
 {
     TRACE_C_API;
 
@@ -1391,7 +1391,7 @@ simChar* simGetUIButtonLabel_internal(simInt elementHandle,simInt buttonHandle)
     return(nullptr);
 }
 
-simInt simSetUISlider_internal(simInt elementHandle,simInt buttonHandle,simInt position)
+int simSetUISlider_internal(int elementHandle,int buttonHandle,int position)
 {
     TRACE_C_API;
 
@@ -1416,7 +1416,7 @@ simInt simSetUISlider_internal(simInt elementHandle,simInt buttonHandle,simInt p
     return(-1);
 }
 
-simInt simGetUISlider_internal(simInt elementHandle,simInt buttonHandle)
+int simGetUISlider_internal(int elementHandle,int buttonHandle)
 {
     TRACE_C_API;
 
@@ -1441,7 +1441,7 @@ simInt simGetUISlider_internal(simInt elementHandle,simInt buttonHandle)
     return(-1);
 }
 
-simInt simSetUIButtonColor_internal(simInt elementHandle,simInt buttonHandle,const simFloat* upStateColor,const simFloat* downStateColor,const simFloat* labelColor)
+int simSetUIButtonColor_internal(int elementHandle,int buttonHandle,const float* upStateColor,const float* downStateColor,const float* labelColor)
 {
     TRACE_C_API;
 
@@ -1469,7 +1469,7 @@ simInt simSetUIButtonColor_internal(simInt elementHandle,simInt buttonHandle,con
     return(-1);
 }
 
-simInt simRemoveUI_internal(simInt elementHandle)
+int simRemoveUI_internal(int elementHandle)
 {
     TRACE_C_API;
 
@@ -1496,7 +1496,7 @@ simInt simRemoveUI_internal(simInt elementHandle)
     return(-1);
 }
 
-simInt simCreateUIButtonArray_internal(simInt elementHandle,simInt buttonHandle)
+int simCreateUIButtonArray_internal(int elementHandle,int buttonHandle)
 {
     TRACE_C_API;
 
@@ -1516,7 +1516,7 @@ simInt simCreateUIButtonArray_internal(simInt elementHandle,simInt buttonHandle)
     return(-1);
 }
 
-simInt simSetUIButtonArrayColor_internal(simInt elementHandle,simInt buttonHandle,const simInt* position,const simFloat* color)
+int simSetUIButtonArrayColor_internal(int elementHandle,int buttonHandle,const int* position,const float* color)
 {
     TRACE_C_API;
 
@@ -1540,7 +1540,7 @@ simInt simSetUIButtonArrayColor_internal(simInt elementHandle,simInt buttonHandl
     return(-1);
 }
 
-simInt simDeleteUIButtonArray_internal(simInt elementHandle,simInt buttonHandle)
+int simDeleteUIButtonArray_internal(int elementHandle,int buttonHandle)
 {
     TRACE_C_API;
 
@@ -1560,7 +1560,7 @@ simInt simDeleteUIButtonArray_internal(simInt elementHandle,simInt buttonHandle)
     return(-1);
 }
 
-simInt simSetUIButtonTexture_internal(simInt elementHandle,simInt buttonHandle,const simInt* size,const simChar* textureData)
+int simSetUIButtonTexture_internal(int elementHandle,int buttonHandle,const int* size,const char* textureData)
 {
     TRACE_C_API;
 
@@ -1616,13 +1616,13 @@ simInt simSetUIButtonTexture_internal(simInt elementHandle,simInt buttonHandle,c
     return(-1);
 }
 
-simInt simSaveUI_internal(int count,const int* uiHandles,const simChar* filename)
+int simSaveUI_internal(int count,const int* uiHandles,const char* filename)
 {
     TRACE_C_API;
     return(-1);
 }
 
-simInt simGetUIPosition_internal(simInt elementHandle,simInt* position)
+int simGetUIPosition_internal(int elementHandle,int* position)
 {
     TRACE_C_API;
 
@@ -1645,7 +1645,7 @@ simInt simGetUIPosition_internal(simInt elementHandle,simInt* position)
     return(-1);
 }
 
-simInt simSetUIPosition_internal(simInt elementHandle,const simInt* position)
+int simSetUIPosition_internal(int elementHandle,const int* position)
 {
     TRACE_C_API;
 
@@ -1664,13 +1664,13 @@ simInt simSetUIPosition_internal(simInt elementHandle,const simInt* position)
     return(-1);
 }
 
-simInt simHandleGeneralCallbackScript_internal(simInt callbackId,simInt callbackTag,simVoid* additionalData)
+int simHandleGeneralCallbackScript_internal(int callbackId,int callbackTag,void* additionalData)
 { // Deprecated since release 3.4.1
     TRACE_C_API;
     return(-1);
 }
 
-simInt simRegisterCustomLuaFunction_internal(const simChar* funcName,const simChar* callTips,const simInt* inputArgumentTypes,simVoid(*callBack)(struct SLuaCallBack* p))
+int simRegisterCustomLuaFunction_internal(const char* funcName,const char* callTips,const int* inputArgumentTypes,void(*callBack)(struct SLuaCallBack* p))
 { // deprecated
     TRACE_C_API;
 
@@ -1701,33 +1701,33 @@ simInt simRegisterCustomLuaFunction_internal(const simChar* funcName,const simCh
     return(-1);
 }
 
-simInt simRegisterContactCallback_internal(simInt(*callBack)(simInt,simInt,simInt,simInt*,simFloat*))
+int simRegisterContactCallback_internal(int(*callBack)(int,int,int,int*,float*))
 { // deprecated. Disabled on 18.05.2022
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
-simInt simRegisterJointCtrlCallback_internal(simInt(*callBack)(simInt,simInt,simInt,const simInt*,const simFloat*,simFloat*))
+int simRegisterJointCtrlCallback_internal(int(*callBack)(int,int,int,const int*,const float*,float*))
 { // deprecated. Disabled on 18.05.2022
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
-simInt simGetMechanismHandle_internal(const simChar* mechanismName)
+int simGetMechanismHandle_internal(const char* mechanismName)
 { // deprecated
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
-simInt simHandleMechanism_internal(simInt mechanismHandle)
+int simHandleMechanism_internal(int mechanismHandle)
 { // deprecated
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
-simInt simHandleCustomizationScripts_internal(simInt callType)
+int simHandleCustomizationScripts_internal(int callType)
 { // deprecated
     TRACE_C_API;
 
@@ -1748,7 +1748,7 @@ simInt simHandleCustomizationScripts_internal(simInt callType)
     return(-1);
 }
 
-simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* functionNameAtScriptName,SLuaCallBack* data,const simChar* reservedSetToNull)
+int simCallScriptFunction_internal(int scriptHandleOrType,const char* functionNameAtScriptName,SLuaCallBack* data,const char* reservedSetToNull)
 { // DEPRECATED
     TRACE_C_API;
     CScriptObject* script=nullptr;
@@ -1849,21 +1849,21 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
     return(-1);
 }
 
-simInt simSetVisionSensorFilter_internal(simInt visionSensorHandle,simInt filterIndex,simInt options,const simInt* pSizes,const simUChar* bytes,const simInt* ints,const simFloat* floats,const simUChar* custom)
+int simSetVisionSensorFilter_internal(int visionSensorHandle,int filterIndex,int options,const int* pSizes,const unsigned char* bytes,const int* ints,const float* floats,const unsigned char* custom)
 { // DEPRECATED
     TRACE_C_API;
 
     return(-1);
 }
 
-simInt simGetVisionSensorFilter_internal(simInt visionSensorHandle,simInt filterIndex,simInt* options,simInt* pSizes,simUChar** bytes,simInt** ints,simFloat** floats,simUChar** custom)
+int simGetVisionSensorFilter_internal(int visionSensorHandle,int filterIndex,int* options,int* pSizes,unsigned char** bytes,int** ints,float** floats,unsigned char** custom)
 { // DEPRECATED
     TRACE_C_API;
 
     return(-1);
 }
 
-simChar* simGetScriptSimulationParameter_internal(simInt scriptHandle,const simChar* parameterName,simInt* parameterLength)
+char* simGetScriptSimulationParameter_internal(int scriptHandle,const char* parameterName,int* parameterLength)
 { // DEPRECATED
     TRACE_C_API;
 
@@ -1903,7 +1903,7 @@ simChar* simGetScriptSimulationParameter_internal(simInt scriptHandle,const simC
     return(nullptr);
 }
 
-simInt simSetScriptSimulationParameter_internal(simInt scriptHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength)
+int simSetScriptSimulationParameter_internal(int scriptHandle,const char* parameterName,const char* parameterValue,int parameterLength)
 { // DEPRECATED
     TRACE_C_API;
 
@@ -1942,7 +1942,7 @@ simInt simSetScriptSimulationParameter_internal(simInt scriptHandle,const simCha
     return(-1);
 }
 
-simInt simGetNameSuffix_internal(const simChar* name)
+int simGetNameSuffix_internal(const char* name)
 { // DEPRECATED in 2020
     TRACE_C_API;
 
@@ -1954,7 +1954,7 @@ simInt simGetNameSuffix_internal(const simChar* name)
     return(suffixNumber);
 }
 
-simInt simSetNameSuffix_internal(simInt nameSuffixNumber)
+int simSetNameSuffix_internal(int nameSuffixNumber)
 { // DEPRECATED in 2020
     TRACE_C_API;
 
@@ -1964,7 +1964,7 @@ simInt simSetNameSuffix_internal(simInt nameSuffixNumber)
     return(1);
 }
 
-simInt simAddStatusbarMessage_internal(const simChar* message)
+int simAddStatusbarMessage_internal(const char* message)
 { // DEPRECATED in 2020
     TRACE_C_API;
 
@@ -1990,22 +1990,22 @@ simInt simAddStatusbarMessage_internal(const simChar* message)
     return(-1);
 }
 
-simChar* simGetScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle)
+char* simGetScriptRawBuffer_internal(int scriptHandle,int bufferHandle)
 { // DEPRECATED in 2020
     return(nullptr);
 }
 
-simInt simSetScriptRawBuffer_internal(simInt scriptHandle,const simChar* buffer,simInt bufferSize)
+int simSetScriptRawBuffer_internal(int scriptHandle,const char* buffer,int bufferSize)
 { // DEPRECATED in 2020
     return(-1);
 }
 
-simInt simReleaseScriptRawBuffer_internal(simInt scriptHandle,simInt bufferHandle)
+int simReleaseScriptRawBuffer_internal(int scriptHandle,int bufferHandle)
 { // DEPRECATED in 2020
     return(-1);
 }
 
-simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const simFloat* inertiaMatrix,const simFloat* centerOfMass,const simFloat* transformation)
+int simSetShapeMassAndInertia_internal(int shapeHandle,float mass,const float* inertiaMatrix,const float* centerOfMass,const float* transformation)
 { // DEPRECATED in 2020
     TRACE_C_API;
 
@@ -2052,7 +2052,7 @@ simInt simSetShapeMassAndInertia_internal(simInt shapeHandle,simFloat mass,const
     return(-1);
 }
 
-simInt simGetShapeMassAndInertia_internal(simInt shapeHandle,simFloat* mass,simFloat* inertiaMatrix,simFloat* centerOfMass,const simFloat* transformation)
+int simGetShapeMassAndInertia_internal(int shapeHandle,float* mass,float* inertiaMatrix,float* centerOfMass,const float* transformation)
 { // DEPRECATED in 2020
     TRACE_C_API;
 
@@ -2085,7 +2085,7 @@ simInt simGetShapeMassAndInertia_internal(simInt shapeHandle,simFloat* mass,simF
     return(-1);
 }
 
-simInt simCheckIkGroup_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat* jointValues,const simInt* jointOptions)
+int simCheckIkGroup_internal(int ikGroupHandle,int jointCnt,const int* jointHandles,float* jointValues,const int* jointOptions)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2111,7 +2111,7 @@ simInt simCheckIkGroup_internal(simInt ikGroupHandle,simInt jointCnt,const simIn
     return(-1);
 }
 
-simInt simCreateIkGroup_internal(simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
+int simCreateIkGroup_internal(int options,const int* intParams,const float* floatParams,const void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2141,7 +2141,7 @@ simInt simCreateIkGroup_internal(simInt options,const simInt* intParams,const si
     return(-1);
 }
 
-simInt simRemoveIkGroup_internal(simInt ikGroupHandle)
+int simRemoveIkGroup_internal(int ikGroupHandle)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2163,7 +2163,7 @@ simInt simRemoveIkGroup_internal(simInt ikGroupHandle)
     return(-1);
 }
 
-simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const simInt* intParams,const simFloat* floatParams,const simVoid* reserved)
+int simCreateIkElement_internal(int ikGroupHandle,int options,const int* intParams,const float* floatParams,const void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2207,13 +2207,13 @@ simInt simCreateIkElement_internal(simInt ikGroupHandle,simInt options,const sim
     return(-1);
 }
 
-simInt simExportIk_internal(const simChar* pathAndFilename,simInt reserved1,simVoid* reserved2)
+int simExportIk_internal(const char* pathAndFilename,int reserved1,void* reserved2)
 { // deprecated on 29.09.2020
     CApiErrors::setLastWarningOrError(__func__,"Not supported anymore. Use CoppeliaSim V4.2.0 or earlier.");
     return(-1);
 }
 
-simInt simComputeJacobian_internal(simInt ikGroupHandle,simInt options,simVoid* reserved)
+int simComputeJacobian_internal(int ikGroupHandle,int options,void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2235,7 +2235,7 @@ simInt simComputeJacobian_internal(simInt ikGroupHandle,simInt options,simVoid* 
     return(-1);
 }
 
-simInt simGetConfigForTipPose_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simFloat thresholdDist,simInt maxTimeInMs,simFloat* retConfig,const simFloat* metric,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,const simFloat* lowLimits,const simFloat* ranges,simVoid* reserved)
+int simGetConfigForTipPose_internal(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxTimeInMs,float* retConfig,const float* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const float* lowLimits,const float* ranges,void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2259,7 +2259,7 @@ simInt simGetConfigForTipPose_internal(simInt ikGroupHandle,simInt jointCnt,cons
     return(-1);
 }
 
-simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const simInt* jointHandles,simInt ptCnt,simInt collisionPairCnt,const simInt* collisionPairs,const simInt* jointOptions,simVoid* reserved)
+float* simGenerateIkPath_internal(int ikGroupHandle,int jointCnt,const int* jointHandles,int ptCnt,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2463,7 +2463,7 @@ simFloat* simGenerateIkPath_internal(simInt ikGroupHandle,simInt jointCnt,const 
     return(nullptr);
 }
 
-simInt simGetIkGroupHandle_internal(const simChar* ikGroupName)
+int simGetIkGroupHandle_internal(const char* ikGroupName)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2492,7 +2492,7 @@ simInt simGetIkGroupHandle_internal(const simChar* ikGroupName)
     return(-1);
 }
 
-simFloat* simGetIkGroupMatrix_internal(simInt ikGroupHandle,simInt options,simInt* matrixSize)
+float* simGetIkGroupMatrix_internal(int ikGroupHandle,int options,int* matrixSize)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2518,7 +2518,7 @@ simFloat* simGetIkGroupMatrix_internal(simInt ikGroupHandle,simInt options,simIn
     return(nullptr);
 }
 
-simInt simHandleIkGroup_internal(simInt ikGroupHandle)
+int simHandleIkGroup_internal(int ikGroupHandle)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2551,7 +2551,7 @@ simInt simHandleIkGroup_internal(simInt ikGroupHandle)
     return(-1);
 }
 
-simInt simSetIkGroupProperties_internal(simInt ikGroupHandle,simInt resolutionMethod,simInt maxIterations,simFloat damping,void* reserved)
+int simSetIkGroupProperties_internal(int ikGroupHandle,int resolutionMethod,int maxIterations,float damping,void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2577,7 +2577,7 @@ simInt simSetIkGroupProperties_internal(simInt ikGroupHandle,simInt resolutionMe
     return(-1);
 }
 
-simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHandle,simInt constraints,const simFloat* precision,const simFloat* weight,void* reserved)
+int simSetIkElementProperties_internal(int ikGroupHandle,int tipDummyHandle,int constraints,const float* precision,const float* weight,void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2617,7 +2617,7 @@ simInt simSetIkElementProperties_internal(simInt ikGroupHandle,simInt tipDummyHa
     return(-1);
 }
 
-simInt simSetThreadIsFree_internal(simBool freeMode)
+int simSetThreadIsFree_internal(bool freeMode)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2632,7 +2632,7 @@ simInt simSetThreadIsFree_internal(simBool freeMode)
     return(0);
 }
 
-simInt simTubeOpen_internal(simInt dataHeader,const simChar* dataName,simInt readBufferSize,simBool notUsedButKeepFalse)
+int simTubeOpen_internal(int dataHeader,const char* dataName,int readBufferSize,bool notUsedButKeepFalse)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2651,7 +2651,7 @@ simInt simTubeOpen_internal(simInt dataHeader,const simChar* dataName,simInt rea
     return(-1);
 }
 
-simInt simTubeClose_internal(simInt tubeHandle)
+int simTubeClose_internal(int tubeHandle)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2677,7 +2677,7 @@ simInt simTubeClose_internal(simInt tubeHandle)
     return(-1);
 }
 
-simInt simTubeWrite_internal(simInt tubeHandle,const simChar* data,simInt dataLength)
+int simTubeWrite_internal(int tubeHandle,const char* data,int dataLength)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2703,7 +2703,7 @@ simInt simTubeWrite_internal(simInt tubeHandle,const simChar* data,simInt dataLe
     return(-1);
 }
 
-simChar* simTubeRead_internal(simInt tubeHandle,simInt* dataLength)
+char* simTubeRead_internal(int tubeHandle,int* dataLength)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2722,7 +2722,7 @@ simChar* simTubeRead_internal(simInt tubeHandle,simInt* dataLength)
     return(nullptr);
 }
 
-simInt simTubeStatus_internal(simInt tubeHandle,simInt* readPacketsCount,simInt* writePacketsCount)
+int simTubeStatus_internal(int tubeHandle,int* readPacketsCount,int* writePacketsCount)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2747,7 +2747,7 @@ simInt simTubeStatus_internal(simInt tubeHandle,simInt* readPacketsCount,simInt*
     return(-1);
 }
 
-simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dataName,const simChar* data,simInt dataLength,simInt antennaHandle,simFloat actionRadius,simFloat emissionAngle1,simFloat emissionAngle2,simFloat persistence)
+int simSendData_internal(int targetID,int dataHeader,const char* dataName,const char* data,int dataLength,int antennaHandle,float actionRadius,float emissionAngle1,float emissionAngle2,float persistence)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2808,7 +2808,7 @@ simInt simSendData_internal(simInt targetID,simInt dataHeader,const simChar* dat
     return(-1);
 }
 
-simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simInt antennaHandle,simInt index,simInt* dataLength,simInt* senderID,simInt* dataHeaderR,simChar** dataNameR)
+char* simReceiveData_internal(int dataHeader,const char* dataName,int antennaHandle,int index,int* dataLength,int* senderID,int* dataHeaderR,char** dataNameR)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2874,7 +2874,7 @@ simChar* simReceiveData_internal(simInt dataHeader,const simChar* dataName,simIn
     return(nullptr);
 }
 
-simInt simGetDataOnPath_internal(simInt pathHandle,simFloat relativeDistance,simInt dataType,simInt* intData,simFloat* floatData)
+int simGetDataOnPath_internal(int pathHandle,float relativeDistance,int dataType,int* intData,float* floatData)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2932,7 +2932,7 @@ simInt simGetDataOnPath_internal(simInt pathHandle,simFloat relativeDistance,sim
 }
 
 
-simInt simGetPositionOnPath_internal(simInt pathHandle,simFloat relativeDistance,simFloat* position)
+int simGetPositionOnPath_internal(int pathHandle,float relativeDistance,float* position)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2983,7 +2983,7 @@ simInt simGetPositionOnPath_internal(simInt pathHandle,simFloat relativeDistance
     return(-1);
 }
 
-simInt simGetOrientationOnPath_internal(simInt pathHandle,simFloat relativeDistance,simFloat* eulerAngles)
+int simGetOrientationOnPath_internal(int pathHandle,float relativeDistance,float* eulerAngles)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3033,7 +3033,7 @@ simInt simGetOrientationOnPath_internal(simInt pathHandle,simFloat relativeDista
     return(-1);
 }
 
-simInt simGetClosestPositionOnPath_internal(simInt pathHandle,simFloat* absolutePosition,simFloat* pathPosition)
+int simGetClosestPositionOnPath_internal(int pathHandle,float* absolutePosition,float* pathPosition)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3062,7 +3062,7 @@ simInt simGetClosestPositionOnPath_internal(simInt pathHandle,simFloat* absolute
     return(-1);
 }
 
-simInt simGetPathPosition_internal(simInt objectHandle,simFloat* position)
+int simGetPathPosition_internal(int objectHandle,float* position)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3083,7 +3083,7 @@ simInt simGetPathPosition_internal(simInt objectHandle,simFloat* position)
     return(-1);
 }
 
-simInt simSetPathPosition_internal(simInt objectHandle,simFloat position)
+int simSetPathPosition_internal(int objectHandle,float position)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3104,7 +3104,7 @@ simInt simSetPathPosition_internal(simInt objectHandle,simFloat position)
     return(-1);
 }
 
-simInt simGetPathLength_internal(simInt objectHandle,simFloat* length)
+int simGetPathLength_internal(int objectHandle,float* length)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3125,7 +3125,7 @@ simInt simGetPathLength_internal(simInt objectHandle,simFloat* length)
     return(-1);
 }
 
-simInt simCreatePath_internal(simInt attributes,const simInt* intParams,const simFloat* floatParams,const simFloat* color)
+int simCreatePath_internal(int attributes,const int* intParams,const float* floatParams,const float* color)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3166,7 +3166,7 @@ simInt simCreatePath_internal(simInt attributes,const simInt* intParams,const si
     return(-1);
 }
 
-simInt simInsertPathCtrlPoints_internal(simInt pathHandle,simInt options,simInt startIndex,simInt ptCnt,const simVoid* ptData)
+int simInsertPathCtrlPoints_internal(int pathHandle,int options,int startIndex,int ptCnt,const void* ptData)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3218,7 +3218,7 @@ simInt simInsertPathCtrlPoints_internal(simInt pathHandle,simInt options,simInt 
     return(-1);
 }
 
-simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt ptCnt)
+int simCutPathCtrlPoints_internal(int pathHandle,int startIndex,int ptCnt)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3252,7 +3252,7 @@ simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt 
     return(-1);
 }
 
-simInt simGetThreadId_internal()
+int simGetThreadId_internal()
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3260,7 +3260,7 @@ simInt simGetThreadId_internal()
     return(retVal); // 0=GUI thread, 1=main sim thread, 2-n=aux. sim threads
 }
 
-simInt simSwitchThread_internal()
+int simSwitchThread_internal()
 { // deprecated on 01.10.2020
     TRACE_C_API;
     if (CThreadPool_old::getThreadAutomaticSwitch())
@@ -3271,7 +3271,7 @@ simInt simSwitchThread_internal()
     return(0);
 }
 
-simInt simLockResources_internal(simInt lockType,simInt reserved)
+int simLockResources_internal(int lockType,int reserved)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3303,7 +3303,7 @@ simInt simLockResources_internal(simInt lockType,simInt reserved)
 #endif
 }
 
-simInt simUnlockResources_internal(simInt lockHandle)
+int simUnlockResources_internal(int lockHandle)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3331,7 +3331,7 @@ simInt simUnlockResources_internal(simInt lockHandle)
 #endif
 }
 
-simChar* simGetUserParameter_internal(simInt objectHandle,const simChar* parameterName,simInt* parameterLength)
+char* simGetUserParameter_internal(int objectHandle,const char* parameterName,int* parameterLength)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3363,7 +3363,7 @@ simChar* simGetUserParameter_internal(simInt objectHandle,const simChar* paramet
     return(nullptr);
 }
 
-simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameterName,const simChar* parameterValue,simInt parameterLength)
+int simSetUserParameter_internal(int objectHandle,const char* parameterName,const char* parameterValue,int parameterLength)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3394,7 +3394,7 @@ simInt simSetUserParameter_internal(simInt objectHandle,const simChar* parameter
     return(-1);
 }
 
-simInt simSetPathTargetNominalVelocity_internal(simInt objectHandle,simFloat targetNominalVelocity)
+int simSetPathTargetNominalVelocity_internal(int objectHandle,float targetNominalVelocity)
 { // deprecated probably around 2015 or earlier
     TRACE_C_API;
 
@@ -3415,7 +3415,7 @@ simInt simSetPathTargetNominalVelocity_internal(simInt objectHandle,simFloat tar
     return(-1);
 }
 
-simInt simGetCollectionHandle_internal(const simChar* collectionName)
+int simGetCollectionHandle_internal(const char* collectionName)
 { // deprecated on 17.11.2020
     TRACE_C_API;
 
@@ -3444,7 +3444,7 @@ simInt simGetCollectionHandle_internal(const simChar* collectionName)
     return(-1);
 }
 
-simInt simRemoveCollection_internal(simInt collectionHandle)
+int simRemoveCollection_internal(int collectionHandle)
 { // deprecated on 17.11.2020
     TRACE_C_API;
 
@@ -3499,7 +3499,7 @@ simInt simRemoveCollection_internal(simInt collectionHandle)
     return(-1);
 }
 
-simInt simEmptyCollection_internal(simInt collectionHandle)
+int simEmptyCollection_internal(int collectionHandle)
 { // deprecated on 17.11.2020
     TRACE_C_API;
 
@@ -3527,7 +3527,7 @@ simInt simEmptyCollection_internal(simInt collectionHandle)
     return(-1);
 }
 
-simChar* simGetCollectionName_internal(simInt collectionHandle)
+char* simGetCollectionName_internal(int collectionHandle)
 { // deprecated on 17.11.2020
     TRACE_C_API;
 
@@ -3549,7 +3549,7 @@ simChar* simGetCollectionName_internal(simInt collectionHandle)
     return(nullptr);
 }
 
-simInt simSetCollectionName_internal(simInt collectionHandle,const simChar* collectionName)
+int simSetCollectionName_internal(int collectionHandle,const char* collectionName)
 { // deprecated on 17.11.2020
     TRACE_C_API;
 
@@ -3589,7 +3589,7 @@ simInt simSetCollectionName_internal(simInt collectionHandle,const simChar* coll
 
 }
 
-simInt simCreateCollection_internal(const simChar* collectionName,simInt options)
+int simCreateCollection_internal(const char* collectionName,int options)
 { // deprecated on 17.11.2020
     TRACE_C_API;
 
@@ -3634,7 +3634,7 @@ simInt simCreateCollection_internal(const simChar* collectionName,simInt options
     return(-1);
 }
 
-simInt simAddObjectToCollection_internal(simInt collectionHandle,simInt objectHandle,simInt what,simInt options)
+int simAddObjectToCollection_internal(int collectionHandle,int objectHandle,int what,int options)
 { // deprecated on 17.11.2020
     TRACE_C_API;
 
@@ -3692,7 +3692,7 @@ simInt simAddObjectToCollection_internal(simInt collectionHandle,simInt objectHa
     return(-1);
 }
 
-simInt simHandleCollision_internal(simInt collisionObjectHandle)
+int simHandleCollision_internal(int collisionObjectHandle)
 { // deprecated on 20.11.2020
     TRACE_C_API;
 
@@ -3728,7 +3728,7 @@ simInt simHandleCollision_internal(simInt collisionObjectHandle)
     return(-1);
 }
 
-simInt simReadCollision_internal(simInt collisionObjectHandle)
+int simReadCollision_internal(int collisionObjectHandle)
 { // deprecated on 20.11.2020
     TRACE_C_API;
 
@@ -3751,7 +3751,7 @@ simInt simReadCollision_internal(simInt collisionObjectHandle)
     return(-1);
 }
 
-simInt simHandleDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance)
+int simHandleDistance_internal(int distanceObjectHandle,float* smallestDistance)
 { // deprecated on 20.11.2020
     TRACE_C_API;
 
@@ -3791,7 +3791,7 @@ simInt simHandleDistance_internal(simInt distanceObjectHandle,simFloat* smallest
     return(-1);
 }
 
-simInt simReadDistance_internal(simInt distanceObjectHandle,simFloat* smallestDistance)
+int simReadDistance_internal(int distanceObjectHandle,float* smallestDistance)
 { // deprecated on 20.11.2020
     TRACE_C_API;
 
@@ -3817,7 +3817,7 @@ simInt simReadDistance_internal(simInt distanceObjectHandle,simFloat* smallestDi
     return(-1);
 }
 
-simInt simGetCollisionHandle_internal(const simChar* collisionObjectName)
+int simGetCollisionHandle_internal(const char* collisionObjectName)
 { // deprecated on 20.11.2020
     TRACE_C_API;
 
@@ -3846,7 +3846,7 @@ simInt simGetCollisionHandle_internal(const simChar* collisionObjectName)
     return(-1);
 }
 
-simInt simGetDistanceHandle_internal(const simChar* distanceObjectName)
+int simGetDistanceHandle_internal(const char* distanceObjectName)
 { // deprecated on 20.11.2020
     TRACE_C_API;
 
@@ -3875,7 +3875,7 @@ simInt simGetDistanceHandle_internal(const simChar* distanceObjectName)
     return(-1);
 }
 
-simInt simResetCollision_internal(simInt collisionObjectHandle)
+int simResetCollision_internal(int collisionObjectHandle)
 { // deprecated on 20.11.2020
     TRACE_C_API;
 
@@ -3907,7 +3907,7 @@ simInt simResetCollision_internal(simInt collisionObjectHandle)
     return(-1);
 }
 
-simInt simResetDistance_internal(simInt distanceObjectHandle)
+int simResetDistance_internal(int distanceObjectHandle)
 { // deprecated on 20.11.2020
     TRACE_C_API;
 
@@ -3939,7 +3939,7 @@ simInt simResetDistance_internal(simInt distanceObjectHandle)
     return(-1);
 }
 
-simInt simAddBanner_internal(const simChar* label,simFloat size,simInt options,const simFloat* positionAndEulerAngles,simInt parentObjectHandle,const simFloat* labelColors,const simFloat* backgroundColors)
+int simAddBanner_internal(const char* label,float size,int options,const float* positionAndEulerAngles,int parentObjectHandle,const float* labelColors,const float* backgroundColors)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -3959,7 +3959,7 @@ simInt simAddBanner_internal(const simChar* label,simFloat size,simInt options,c
     return(-1);
 }
 
-simInt simRemoveBanner_internal(simInt bannerID)
+int simRemoveBanner_internal(int bannerID)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -3999,7 +3999,7 @@ simInt simRemoveBanner_internal(simInt bannerID)
     return(-1);
 }
 
-simInt simAddGhost_internal(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color)
+int simAddGhost_internal(int ghostGroup,int objectHandle,int options,float startTime,float endTime,const float* color)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -4017,7 +4017,7 @@ simInt simAddGhost_internal(simInt ghostGroup,simInt objectHandle,simInt options
     return(-1);
 }
 
-simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation)
+int simModifyGhost_internal(int ghostGroup,int ghostId,int operation,float floatValue,int options,int optionsMask,const float* colorOrTransformation)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -4033,7 +4033,7 @@ simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation
     return(-1);
 }
 
-simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* streamName,simFloat data)
+int simSetGraphUserData_internal(int graphHandle,const char* streamName,float data)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -4066,7 +4066,7 @@ simInt simSetGraphUserData_internal(simInt graphHandle,const simChar* streamName
     return(-1);
 }
 
-simInt simAddPointCloud_internal(simInt pageMask,simInt layerMask,simInt objectHandle,simInt options,simFloat pointSize,simInt ptCnt,const simFloat* pointCoordinates,const simChar* defaultColors,const simChar* pointColors,const simFloat* pointNormals)
+int simAddPointCloud_internal(int pageMask,int layerMask,int objectHandle,int options,float pointSize,int ptCnt,const float* pointCoordinates,const char* defaultColors,const char* pointColors,const float* pointNormals)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -4084,7 +4084,7 @@ simInt simAddPointCloud_internal(simInt pageMask,simInt layerMask,simInt objectH
     return(-1);
 }
 
-simInt simModifyPointCloud_internal(simInt pointCloudHandle,simInt operation,const simInt* intParam,const simFloat* floatParam)
+int simModifyPointCloud_internal(int pointCloudHandle,int operation,const int* intParam,const float* floatParam)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -4104,7 +4104,7 @@ simInt simModifyPointCloud_internal(simInt pointCloudHandle,simInt operation,con
     return(-1);
 }
 
-simInt simCopyMatrix_internal(const simFloat* matrixIn,simFloat* matrixOut)
+int simCopyMatrix_internal(const float* matrixIn,float* matrixOut)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -4113,7 +4113,7 @@ simInt simCopyMatrix_internal(const simFloat* matrixIn,simFloat* matrixOut)
     return(1);
 }
 
-simInt simAddModuleMenuEntry_internal(const simChar* entryLabel,simInt itemCount,simInt* itemHandles)
+int simAddModuleMenuEntry_internal(const char* entryLabel,int itemCount,int* itemHandles)
 { // deprecated on 04.05.2021
     TRACE_C_API;
 
@@ -4139,7 +4139,7 @@ simInt simAddModuleMenuEntry_internal(const simChar* entryLabel,simInt itemCount
     return(-1);
 }
 
-simInt simSetModuleMenuItemState_internal(simInt itemHandle,simInt state,const simChar* label)
+int simSetModuleMenuItemState_internal(int itemHandle,int state,const char* label)
 { // deprecated on 04.05.2021
     TRACE_C_API;
 
@@ -4164,7 +4164,7 @@ simInt simSetModuleMenuItemState_internal(simInt itemHandle,simInt state,const s
     return(-1);
 }
 
-simChar* simGetObjectName_internal(simInt objectHandle)
+char* simGetObjectName_internal(int objectHandle)
 { // deprecated on 08.06.2021
     TRACE_C_API;
 
@@ -4198,7 +4198,7 @@ simChar* simGetObjectName_internal(simInt objectHandle)
     return(nullptr);
 }
 
-simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
+int simSetObjectName_internal(int objectHandle,const char* objectName)
 { // deprecated on 08.06.2021
     TRACE_C_API;
 
@@ -4273,7 +4273,7 @@ simInt simSetObjectName_internal(simInt objectHandle,const simChar* objectName)
     return(-1);
 }
 
-simChar* simGetScriptName_internal(simInt scriptHandle)
+char* simGetScriptName_internal(int scriptHandle)
 { // deprecated on 08.06.2021
     TRACE_C_API;
 
@@ -4299,7 +4299,7 @@ simChar* simGetScriptName_internal(simInt scriptHandle)
     return(nullptr);
 }
 
-simInt simGetScriptHandle_internal(const simChar* targetAtScriptName)
+int simGetScriptHandle_internal(const char* targetAtScriptName)
 { // deprecated on 16.06.2021
     TRACE_C_API;
 
@@ -4366,7 +4366,7 @@ simInt simGetScriptHandle_internal(const simChar* targetAtScriptName)
     return(-1);
 }
 
-simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* variableNameAtScriptName,simInt stackHandle)
+int simSetScriptVariable_internal(int scriptHandleOrType,const char* variableNameAtScriptName,int stackHandle)
 { // deprecated on 16.06.2021
     TRACE_C_API;
 
@@ -4476,7 +4476,7 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
     return(-1);
 }
 
-simInt simGetScript_internal(simInt index)
+int simGetScript_internal(int index)
 { // deprecated on 18.06.2021
     TRACE_C_API;
 
@@ -4495,7 +4495,7 @@ simInt simGetScript_internal(simInt index)
     return(-1);
 }
 
-simInt simGetScriptAssociatedWithObject_internal(simInt objectHandle)
+int simGetScriptAssociatedWithObject_internal(int objectHandle)
 { // deprecated on 18.06.2021
     TRACE_C_API;
 
@@ -4516,7 +4516,7 @@ simInt simGetScriptAssociatedWithObject_internal(simInt objectHandle)
     return(-1);
 }
 
-simInt simGetCustomizationScriptAssociatedWithObject_internal(simInt objectHandle)
+int simGetCustomizationScriptAssociatedWithObject_internal(int objectHandle)
 { // deprecated on 18.06.2021
     TRACE_C_API;
 
@@ -4537,7 +4537,7 @@ simInt simGetCustomizationScriptAssociatedWithObject_internal(simInt objectHandl
     return(-1);
 }
 
-simInt simGetObjectAssociatedWithScript_internal(simInt scriptHandle)
+int simGetObjectAssociatedWithScript_internal(int scriptHandle)
 { // deprecated on 18.06.2021
     TRACE_C_API;
 
@@ -4563,7 +4563,7 @@ simInt simGetObjectAssociatedWithScript_internal(simInt scriptHandle)
     return(-1);
 }
 
-simChar* simGetObjectConfiguration_internal(simInt objectHandle)
+char* simGetObjectConfiguration_internal(int objectHandle)
 { // deprecated on 18.06.2021
     TRACE_C_API;
 
@@ -4593,7 +4593,7 @@ simChar* simGetObjectConfiguration_internal(simInt objectHandle)
     return(nullptr);
 }
 
-simInt simSetObjectConfiguration_internal(const simChar* data)
+int simSetObjectConfiguration_internal(const char* data)
 { // deprecated on 18.06.2021
     TRACE_C_API;
 
@@ -4618,7 +4618,7 @@ simInt simSetObjectConfiguration_internal(const simChar* data)
     return(-1);
 }
 
-simChar* simGetConfigurationTree_internal(simInt objectHandle)
+char* simGetConfigurationTree_internal(int objectHandle)
 { // deprecated on 18.06.2021
     TRACE_C_API;
 
@@ -4662,7 +4662,7 @@ simChar* simGetConfigurationTree_internal(simInt objectHandle)
     return(nullptr);
 }
 
-simInt simSetConfigurationTree_internal(const simChar* data)
+int simSetConfigurationTree_internal(const char* data)
 { // deprecated on 18.06.2021
     TRACE_C_API;
 
@@ -4701,7 +4701,7 @@ simInt simSetConfigurationTree_internal(const simChar* data)
     return(-1);
 }
 
-simInt simEnableEventCallback_internal(simInt eventCallbackType,const simChar* plugin,simInt reserved)
+int simEnableEventCallback_internal(int eventCallbackType,const char* plugin,int reserved)
 { // deprecated on 18.06.2021
     TRACE_C_API;
 
@@ -4718,7 +4718,7 @@ simInt simEnableEventCallback_internal(simInt eventCallbackType,const simChar* p
     return(-1);
 }
 
-simInt simSetObjectSizeValues_internal(simInt objectHandle,const simFloat* sizeValues)
+int simSetObjectSizeValues_internal(int objectHandle,const float* sizeValues)
 { // deprecated on 28.06.2021
     TRACE_C_API;
 
@@ -4738,7 +4738,7 @@ simInt simSetObjectSizeValues_internal(simInt objectHandle,const simFloat* sizeV
     return(-1);
 }
 
-simInt simGetObjectSizeValues_internal(simInt objectHandle,simFloat* sizeValues)
+int simGetObjectSizeValues_internal(int objectHandle,float* sizeValues)
 { // deprecated on 28.06.2021
     TRACE_C_API;
 
@@ -4758,7 +4758,7 @@ simInt simGetObjectSizeValues_internal(simInt objectHandle,simFloat* sizeValues)
     return(-1);
 }
 
-simInt simRMLPosition_internal(simInt dofs,simDouble timeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simDouble* newPosVelAccel,simVoid* auxData)
+int simRMLPosition_internal(int dofs,double timeStep,int flags,const double* currentPosVelAccel,const double* maxVelAccelJerk,const bool* selection,const double* targetPosVel,double* newPosVelAccel,void* auxData)
 { // deprecated sometime in 2015-2016
     TRACE_C_API;
 
@@ -4886,7 +4886,7 @@ simInt simRMLPosition_internal(simInt dofs,simDouble timeStep,simInt flags,const
     return(retVal);
 }
 
-simInt simRMLVelocity_internal(simInt dofs,simDouble timeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simDouble* newPosVelAccel,simVoid* auxData)
+int simRMLVelocity_internal(int dofs,double timeStep,int flags,const double* currentPosVelAccel,const double* maxAccelJerk,const bool* selection,const double* targetVel,double* newPosVelAccel,void* auxData)
 { // deprecated sometime in 2015-2016
     TRACE_C_API;
 
@@ -5006,7 +5006,7 @@ simInt simRMLVelocity_internal(simInt dofs,simDouble timeStep,simInt flags,const
     return(retVal);
 }
 
-simInt simRMLPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxVelAccelJerk,const simBool* selection,const simDouble* targetPosVel,simVoid* auxData)
+int simRMLPos_internal(int dofs,double smallestTimeStep,int flags,const double* currentPosVelAccel,const double* maxVelAccelJerk,const bool* selection,const double* targetPosVel,void* auxData)
 { // deprecated on 10.08.2021
     TRACE_C_API;
 
@@ -5101,7 +5101,7 @@ simInt simRMLPos_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,co
     return(replyData[1]);
 }
 
-simInt simRMLVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,const simDouble* currentPosVelAccel,const simDouble* maxAccelJerk,const simBool* selection,const simDouble* targetVel,simVoid* auxData)
+int simRMLVel_internal(int dofs,double smallestTimeStep,int flags,const double* currentPosVelAccel,const double* maxAccelJerk,const bool* selection,const double* targetVel,void* auxData)
 { // deprecated on 10.08.2021
     TRACE_C_API;
 
@@ -5188,7 +5188,7 @@ simInt simRMLVel_internal(simInt dofs,simDouble smallestTimeStep,simInt flags,co
     return(replyData[1]);
 }
 
-simInt simRMLStep_internal(simInt handle,simDouble timeStep,simDouble* newPosVelAccel,simVoid* auxData,simVoid* reserved)
+int simRMLStep_internal(int handle,double timeStep,double* newPosVelAccel,void* auxData,void* reserved)
 { // deprecated on 10.08.2021
     TRACE_C_API;
 
@@ -5247,7 +5247,7 @@ simInt simRMLStep_internal(simInt handle,simDouble timeStep,simDouble* newPosVel
     return(retVal);
 }
 
-simInt simRMLRemove_internal(simInt handle)
+int simRMLRemove_internal(int handle)
 { // deprecated on 10.08.2021
     TRACE_C_API;
 
@@ -5264,7 +5264,7 @@ simInt simRMLRemove_internal(simInt handle)
     return(replyData[1]);
 }
 
-simChar* simFileDialog_internal(simInt mode,const simChar* title,const simChar* startPath,const simChar* initName,const simChar* extName,const simChar* ext)
+char* simFileDialog_internal(int mode,const char* title,const char* startPath,const char* initName,const char* extName,const char* ext)
 { // deprecated on 07.09.2021
     TRACE_C_API;
 #ifdef SIM_WITH_GUI
@@ -5298,7 +5298,7 @@ simChar* simFileDialog_internal(simInt mode,const simChar* title,const simChar* 
 #endif
 }
 
-simInt simMsgBox_internal(simInt dlgType,simInt buttons,const simChar* title,const simChar* message)
+int simMsgBox_internal(int dlgType,int buttons,const char* title,const char* message)
 { // deprecated on 07.09.2021
     TRACE_C_API;
     if (!isSimulatorInitialized(__func__))
@@ -5310,7 +5310,7 @@ simInt simMsgBox_internal(simInt dlgType,simInt buttons,const simChar* title,con
     return(retVal);
 }
 
-simInt simDisplayDialog_internal(const simChar* titleText,const simChar* mainText,simInt dialogType,const simChar* initialText,const simFloat* titleColors,const simFloat* dialogColors,simInt* elementHandle)
+int simDisplayDialog_internal(const char* titleText,const char* mainText,int dialogType,const char* initialText,const float* titleColors,const float* dialogColors,int* elementHandle)
 { // deprecated on 07.09.2021
     TRACE_C_API;
 
@@ -5340,7 +5340,7 @@ simInt simDisplayDialog_internal(const simChar* titleText,const simChar* mainTex
     return(-1);
 }
 
-simInt simGetDialogResult_internal(simInt genericDialogHandle)
+int simGetDialogResult_internal(int genericDialogHandle)
 { // deprecated on 07.09.2021
     TRACE_C_API;
 
@@ -5365,7 +5365,7 @@ simInt simGetDialogResult_internal(simInt genericDialogHandle)
     return(-1);
 }
 
-simChar* simGetDialogInput_internal(simInt genericDialogHandle)
+char* simGetDialogInput_internal(int genericDialogHandle)
 { // deprecated on 07.09.2021
     TRACE_C_API;
 
@@ -5396,7 +5396,7 @@ simChar* simGetDialogInput_internal(simInt genericDialogHandle)
     return(nullptr);
 }
 
-simInt simEndDialog_internal(simInt genericDialogHandle)
+int simEndDialog_internal(int genericDialogHandle)
 { // deprecated on 07.09.2021
     TRACE_C_API;
 
@@ -5417,7 +5417,7 @@ simInt simEndDialog_internal(simInt genericDialogHandle)
     return(-1);
 }
 
-simInt simIsObjectInSelection_internal(simInt objectHandle)
+int simIsObjectInSelection_internal(int objectHandle)
 { // deprecated on 24.09.2021
     TRACE_C_API;
 
@@ -5441,7 +5441,7 @@ simInt simIsObjectInSelection_internal(simInt objectHandle)
     return(-1);
 }
 
-simInt simAddObjectToSelection_internal(simInt what,simInt objectHandle)
+int simAddObjectToSelection_internal(int what,int objectHandle)
 { // deprecated on 24.09.2021
     TRACE_C_API;
 
@@ -5487,7 +5487,7 @@ simInt simAddObjectToSelection_internal(simInt what,simInt objectHandle)
 
 }
 
-simInt simRemoveObjectFromSelection_internal(simInt what,simInt objectHandle)
+int simRemoveObjectFromSelection_internal(int what,int objectHandle)
 { // deprecated on 24.09.2021
     TRACE_C_API;
 
@@ -5535,7 +5535,7 @@ simInt simRemoveObjectFromSelection_internal(simInt what,simInt objectHandle)
 
 }
 
-simInt simGetObjectSelectionSize_internal()
+int simGetObjectSelectionSize_internal()
 { // deprecated on 24.09.2021
     TRACE_C_API;
 
@@ -5551,7 +5551,7 @@ simInt simGetObjectSelectionSize_internal()
     return(-1);
 }
 
-simInt simGetObjectLastSelection_internal()
+int simGetObjectLastSelection_internal()
 { // deprecated on 24.09.2021
     TRACE_C_API;
 
@@ -5571,7 +5571,7 @@ simInt simGetObjectLastSelection_internal()
 }
 
 
-simInt simGetObjectSelection_internal(simInt* objectHandles)
+int simGetObjectSelection_internal(int* objectHandles)
 { // deprecated on 24.09.2021
     TRACE_C_API;
 
@@ -5588,7 +5588,7 @@ simInt simGetObjectSelection_internal(simInt* objectHandles)
     return(-1);
 }
 
-simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePositionsToo)
+int simScaleSelectedObjects_internal(float scalingFactor,bool scalePositionsToo)
 { // deprecated on 24.09.2021
     TRACE_C_API;
 
@@ -5609,7 +5609,7 @@ simInt simScaleSelectedObjects_internal(simFloat scalingFactor,simBool scalePosi
     return(-1);
 }
 
-simInt simDeleteSelectedObjects_internal()
+int simDeleteSelectedObjects_internal()
 { // deprecated on 24.09.2021
     TRACE_C_API;
 
@@ -5632,7 +5632,7 @@ simInt simDeleteSelectedObjects_internal()
     return(-1);
 }
 
-simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueIdentifier)
+int simGetObjectUniqueIdentifier_internal(int objectHandle,int* uniqueIdentifier)
 { // deprecated on 08.10.2021
     TRACE_C_API;
 
@@ -5664,23 +5664,23 @@ simInt simGetObjectUniqueIdentifier_internal(simInt objectHandle,simInt* uniqueI
     return(-1);
 }
 
-simVoid _simSetDynamicJointLocalTransformationPart2_internal(simVoid* joint,const simFloat* pos,const simFloat* quat)
+void _simSetDynamicJointLocalTransformationPart2_internal(void* joint,const float* pos,const float* quat)
 { // deprecated on 08.11.2021
 }
 
-simVoid _simSetDynamicForceSensorLocalTransformationPart2_internal(simVoid* forceSensor,const simFloat* pos,const simFloat* quat)
+void _simSetDynamicForceSensorLocalTransformationPart2_internal(void* forceSensor,const float* pos,const float* quat)
 { // deprecated on 08.11.2021
 }
 
-simVoid _simSetDynamicJointLocalTransformationPart2IsValid_internal(simVoid* joint,simBool valid)
+void _simSetDynamicJointLocalTransformationPart2IsValid_internal(void* joint,bool valid)
 { // deprecated on 08.11.2021
 }
 
-simVoid _simSetDynamicForceSensorLocalTransformationPart2IsValid_internal(simVoid* forceSensor,simBool valid)
+void _simSetDynamicForceSensorLocalTransformationPart2IsValid_internal(void* forceSensor,bool valid)
 { // deprecated on 08.11.2021
 }
 
-simInt simBreakForceSensor_internal(simInt objectHandle)
+int simBreakForceSensor_internal(int objectHandle)
 { // deprecated on 08.11.2021
     TRACE_C_API;
 
@@ -5708,14 +5708,14 @@ simInt simBreakForceSensor_internal(simInt objectHandle)
     return(-1);
 }
 
-simBool _simIsForceSensorBroken_internal(const simVoid* forceSensor)
+bool _simIsForceSensorBroken_internal(const void* forceSensor)
 { // deprecated on 08.11.2021
     TRACE_C_API;
     CSceneObject* child=((CForceSensor*)forceSensor)->getChildFromIndex(0);
     return(child==nullptr);
 }
 
-simVoid _simGetDynamicForceSensorLocalTransformationPart2_internal(const simVoid* forceSensor,simFloat* pos,simFloat* quat)
+void _simGetDynamicForceSensorLocalTransformationPart2_internal(const void* forceSensor,float* pos,float* quat)
 { // deprecated on 08.11.2021
     TRACE_C_API;
     C7Vector tr;
@@ -5724,7 +5724,7 @@ simVoid _simGetDynamicForceSensorLocalTransformationPart2_internal(const simVoid
     tr.Q.getData(quat);
 }
 
-simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix)
+int simGetJointMatrix_internal(int objectHandle,float* matrix)
 { // deprecated on 09.11.2021
     TRACE_C_API;
 
@@ -5748,7 +5748,7 @@ simInt simGetJointMatrix_internal(simInt objectHandle,simFloat* matrix)
     return(-1);
 }
 
-simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* matrix)
+int simSetSphericalJointMatrix_internal(int objectHandle,const float* matrix)
 { // deprecated on 09.11.2021
     TRACE_C_API;
 
@@ -5776,7 +5776,7 @@ simInt simSetSphericalJointMatrix_internal(simInt objectHandle,const simFloat* m
     return(-1);
 }
 
-simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int proxy,int options)
+int simGetObjectHandleEx_internal(const char* objectAlias,int index,int proxy,int options)
 { // deprecated on 03.12.2021
     TRACE_C_API;
 
@@ -5836,7 +5836,7 @@ simInt simGetObjectHandleEx_internal(const simChar* objectAlias,int index,int pr
     return(-1);
 }
 
-simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat floatVal,simInt intOrBoolVal)
+int simSetScriptAttribute_internal(int scriptHandle,int attributeID,float floatVal,int intOrBoolVal)
 { // deprecated on 05.01.2022
     TRACE_C_API;
 
@@ -5892,7 +5892,7 @@ simInt simSetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
     return(-1);
 }
 
-simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,simFloat* floatVal,simInt* intOrBoolVal)
+int simGetScriptAttribute_internal(int scriptHandle,int attributeID,float* floatVal,int* intOrBoolVal)
 { // deprecated on 05.01.2022
     TRACE_C_API;
 
@@ -5966,7 +5966,7 @@ simInt simGetScriptAttribute_internal(simInt scriptHandle,simInt attributeID,sim
     return(-1);
 }
 
-simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
+int simSetScriptText_internal(int scriptHandle,const char* scriptText)
 { // deprecated on 04.02.2022
     TRACE_C_API;
 
@@ -5995,7 +5995,7 @@ simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
     return(-1);
 }
 
-const simChar* simGetScriptText_internal(simInt scriptHandle)
+const char* simGetScriptText_internal(int scriptHandle)
 { // deprecated on 04.02.2022
     TRACE_C_API;
 
@@ -6029,7 +6029,7 @@ const simChar* simGetScriptText_internal(simInt scriptHandle)
     return(nullptr);
 }
 
-simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,simInt* associatedObjectHandle)
+int simGetScriptProperty_internal(int scriptHandle,int* scriptProperty,int* associatedObjectHandle)
 { // deprecated on 04.02.2022
     TRACE_C_API;
 
@@ -6054,7 +6054,7 @@ simInt simGetScriptProperty_internal(simInt scriptHandle,simInt* scriptProperty,
     return(-1);
 }
 
-simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque)
+int simGetJointMaxForce_internal(int jointHandle,float* forceOrTorque)
 { // deprecated on 24.02.2022
     TRACE_C_API;
 
@@ -6075,7 +6075,7 @@ simInt simGetJointMaxForce_internal(simInt jointHandle,simFloat* forceOrTorque)
     return(-1);
 }
 
-simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque)
+int simSetJointMaxForce_internal(int objectHandle,float forceOrTorque)
 { // deprecated on 24.02.2022
     TRACE_C_API;
 
@@ -6096,16 +6096,16 @@ simInt simSetJointMaxForce_internal(simInt objectHandle,simFloat forceOrTorque)
     return(-1);
 }
 
-simVoid _simSetGeomProxyDynamicsFullRefreshFlag_internal(simVoid* geomData,simBool flag)
+void _simSetGeomProxyDynamicsFullRefreshFlag_internal(void* geomData,bool flag)
 { // deprecated on 03.03.2022. Has no effect
 }
 
-simBool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const simVoid* geomData)
+bool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const void* geomData)
 { // deprecated on 03.03.2022. Has no effect
     return(0);
 }
 
-simInt simRemoveObject_internal(simInt objectHandle)
+int simRemoveObject_internal(int objectHandle)
 { // deprecated on 07.03.2022
     TRACE_C_API;
 
@@ -6144,7 +6144,7 @@ simInt simRemoveObject_internal(simInt objectHandle)
     return(-1);
 }
 
-simUInt simGetSystemTimeInMs_internal(simInt previousTime)
+unsigned int simGetSystemTimeInMs_internal(int previousTime)
 { // deprecated on 01.04.2022
     TRACE_C_API;
     unsigned int retVal;
@@ -6160,7 +6160,7 @@ simUInt simGetSystemTimeInMs_internal(simInt previousTime)
     return(retVal);
 }
 
-simInt simGetVisionSensorResolution_internal(simInt sensorHandle,simInt* resolution)
+int simGetVisionSensorResolution_internal(int sensorHandle,int* resolution)
 { // deprecated on 11.04.2022
     TRACE_C_API;
 
@@ -6181,7 +6181,7 @@ simInt simGetVisionSensorResolution_internal(simInt sensorHandle,simInt* resolut
     return(-1);
 }
 
-simFloat* simGetVisionSensorImage_internal(simInt sensorHandle)
+float* simGetVisionSensorImage_internal(int sensorHandle)
 { // deprecated on 11.04.2022
     TRACE_C_API;
 
@@ -6225,7 +6225,7 @@ simFloat* simGetVisionSensorImage_internal(simInt sensorHandle)
     return(nullptr);
 }
 
-simInt simSetVisionSensorImage_internal(simInt sensorHandle,const simFloat* image)
+int simSetVisionSensorImage_internal(int sensorHandle,const floatFloat* image)
 { // deprecated on 11.04.2022
     TRACE_C_API;
 
@@ -6255,7 +6255,7 @@ simInt simSetVisionSensorImage_internal(simInt sensorHandle,const simFloat* imag
     return(-1);
 }
 
-simUChar* simGetVisionSensorCharImage_internal(simInt sensorHandle,simInt* resolutionX,simInt* resolutionY)
+unsigned char* simGetVisionSensorCharImage_internal(int sensorHandle,int* resolutionX,int* resolutionY)
 { // deprecated on 11.04.2022
     TRACE_C_API;
 
@@ -6306,7 +6306,7 @@ simUChar* simGetVisionSensorCharImage_internal(simInt sensorHandle,simInt* resol
     return(nullptr);
 }
 
-simInt simSetVisionSensorCharImage_internal(simInt sensorHandle,const simUChar* image)
+int simSetVisionSensorCharImage_internal(int sensorHandle,const unsigned char* image)
 { // deprecated on 11.04.2022
     TRACE_C_API;
 
@@ -6331,7 +6331,7 @@ simInt simSetVisionSensorCharImage_internal(simInt sensorHandle,const simUChar* 
     return(-1);
 }
 
-simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
+floatFloat* simGetVisionSensorDepthBuffer_internal(int sensorHandle)
 { // deprecated on 11.04.2022
     TRACE_C_API;
 
@@ -6349,13 +6349,13 @@ simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
         CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         int res[2];
         it->getResolution(res);
-        float* buff=new float[res[0]*res[1]];
-        float* depthBuff=it->getDepthBufferPointer();
+        floatFloat* buff=new float[res[0]*res[1]];
+        floatFloat* depthBuff=it->getDepthBufferPointer();
         if ((handleFlags&sim_handleflag_depthbuffermeters)!=0)
         { // Here we need to convert values to distances in meters:
-            float n=it->getNearClippingPlane();
-            float f=it->getFarClippingPlane();
-            float fmn=f-n;
+            floatFloat n=(floatFloat)it->getNearClippingPlane();
+            floatFloat f=(floatFloat)it->getFarClippingPlane();
+            floatFloat fmn=f-n;
             for (int i=0;i<res[0]*res[1];i++)
                 buff[i]=n+fmn*depthBuff[i];
         }
@@ -6370,7 +6370,7 @@ simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
     return(nullptr);
 }
 
-simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision)
+int simCreatePureShape_internal(int primitiveType,int options,const float* sizes,float mass,const int* precision)
 { // deprecated on 27.04.2022
     TRACE_C_API;
 
@@ -6431,7 +6431,7 @@ simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const sim
     return(-1);
 }
 
-simVoid* simBroadcastMessage_internal(simInt* auxiliaryData,simVoid* customData,simInt* replyData)
+void* simBroadcastMessage_internal(int* auxiliaryData,void* customData,int* replyData)
 { // deprecated on 04.05.2022
     TRACE_C_API;
 
@@ -6446,7 +6446,7 @@ simVoid* simBroadcastMessage_internal(simInt* auxiliaryData,simVoid* customData,
     return(retVal);
 }
 
-simVoid* simSendModuleMessage_internal(simInt message,simInt* auxiliaryData,simVoid* customData,simInt* replyData)
+void* simSendModuleMessage_internal(int message,int* auxiliaryData,void* customData,int* replyData)
 { // deprecated on 04.05.2022
     TRACE_C_API;
 
@@ -6461,7 +6461,7 @@ simVoid* simSendModuleMessage_internal(simInt message,simInt* auxiliaryData,simV
     return(retVal);
 }
 
-simInt simBuildMatrixQ_internal(const simFloat* position,const simFloat* quaternion,simFloat* matrix)
+int simBuildMatrixQ_internal(const float* position,const float* quaternion,float* matrix)
 { // deprecated on 09.08.2022
     TRACE_C_API;
 
@@ -6473,7 +6473,7 @@ simInt simBuildMatrixQ_internal(const simFloat* position,const simFloat* quatern
     return(1);
 }
 
-simInt simGetQuaternionFromMatrix_internal(const simFloat* matrix,simFloat* quaternion)
+int simGetQuaternionFromMatrix_internal(const float* matrix,float* quaternion)
 { // deprecated on 09.08.2022
     TRACE_C_API;
 
@@ -6487,7 +6487,7 @@ simInt simGetQuaternionFromMatrix_internal(const simFloat* matrix,simFloat* quat
     return(1);
 }
 
-simVoid _simGetLocalInertiaFrame_internal(const simVoid* geomInfo,simFloat* pos,simFloat* quat)
+void _simGetLocalInertiaFrame_internal(const void* geomInfo,float* pos,float* quat)
 { // deprecated on 19.08.2022
     TRACE_C_API;
     C7Vector tr(((CMeshWrapper*)geomInfo)->getLocalInertiaFrame());
@@ -6495,13 +6495,13 @@ simVoid _simGetLocalInertiaFrame_internal(const simVoid* geomInfo,simFloat* pos,
     tr.X.getData(pos);
 }
 
-simVoid _simGetPrincipalMomentOfInertia_internal(const simVoid* geomInfo,simFloat* inertia)
+void _simGetPrincipalMomentOfInertia_internal(const void* geomInfo,float* inertia)
 { // deprecated on 19.08.2022
     TRACE_C_API;
     ((CMeshWrapper*)geomInfo)->getPrincipalMomentsOfInertia().getData(inertia);
 }
 
-simInt simSetDoubleSignalOld_internal(const simChar* signalName,simDouble signalValue)
+int simSetDoubleSignalOld_internal(const char* signalName,double signalValue)
 { // deprecated on 13.10.2022
     TRACE_C_API;
 
@@ -6517,7 +6517,7 @@ simInt simSetDoubleSignalOld_internal(const simChar* signalName,simDouble signal
     return(-1);
 }
 
-simInt simGetDoubleSignalOld_internal(const simChar* signalName,simDouble* signalValue)
+int simGetDoubleSignalOld_internal(const char* signalName,double* signalValue)
 { // deprecated on 13.10.2022
     TRACE_C_API;
 
@@ -6537,7 +6537,7 @@ simInt simGetDoubleSignalOld_internal(const simChar* signalName,simDouble* signa
     return(-1);
 }
 
-simInt simClearDoubleSignalOld_internal(const simChar* signalName)
+int simClearDoubleSignalOld_internal(const char* signalName)
 { // deprecated on 13.10.2022
     TRACE_C_API;
 
@@ -6559,7 +6559,7 @@ simInt simClearDoubleSignalOld_internal(const simChar* signalName)
     return(-1);
 }
 
-simInt simGetShapeVertex_internal(simInt shapeHandle,simInt groupElementIndex,simInt vertexIndex,simFloat* relativePosition)
+int simGetShapeVertex_internal(int shapeHandle,int groupElementIndex,int vertexIndex,float* relativePosition)
 {
     TRACE_C_API;
 
@@ -6604,7 +6604,7 @@ simInt simGetShapeVertex_internal(simInt shapeHandle,simInt groupElementIndex,si
     return(-1);
 }
 
-simInt simGetShapeTriangle_internal(simInt shapeHandle,simInt groupElementIndex,simInt triangleIndex,simInt* vertexIndices,simFloat* triangleNormals)
+int simGetShapeTriangle_internal(int shapeHandle,int groupElementIndex,int triangleIndex,int* vertexIndices,float* triangleNormals)
 {
     TRACE_C_API;
 

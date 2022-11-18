@@ -34,7 +34,7 @@ unsigned char* CVisionSensor::getRgbBufferPointer()
     return(_rgbBuffer);
 }
 
-float* CVisionSensor::getDepthBufferPointer() const
+floatFloat* CVisionSensor::getDepthBufferPointer() const
 {
     return(_depthBuffer);
 }
@@ -68,15 +68,15 @@ bool CVisionSensor::isPotentiallyRenderable() const
     return(false);
 }
 
-float* CVisionSensor::readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth) const
+floatDouble* CVisionSensor::readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth) const
 {
     if ( (posX<0)||(posY<0)||(sizeX<1)||(sizeY<1)||(posX+sizeX>_resolution[0])||(posY+sizeY>_resolution[1]) )
         return(nullptr);
-    float* buff;
+    floatDouble* buff;
     if (rgbGreyOrDepth==0)
-        buff=new float[sizeX*sizeY*3];
+        buff=new floatDouble[sizeX*sizeY*3];
     else
-        buff=new float[sizeX*sizeY];
+        buff=new floatDouble[sizeX*sizeY];
     int p=0;
     for (int j=posY;j<posY+sizeY;j++)
     {
@@ -84,21 +84,21 @@ float* CVisionSensor::readPortionOfImage(int posX,int posY,int sizeX,int sizeY,i
         {
             if (rgbGreyOrDepth==0)
             { // RGB
-                buff[3*p+0]=float(_rgbBuffer[3*(j*_resolution[0]+i)+0])/255.0f;
-                buff[3*p+1]=float(_rgbBuffer[3*(j*_resolution[0]+i)+1])/255.0f;
-                buff[3*p+2]=float(_rgbBuffer[3*(j*_resolution[0]+i)+2])/255.0f;
+                buff[3*p+0]=floatDouble(_rgbBuffer[3*(j*_resolution[0]+i)+0])/255.0;
+                buff[3*p+1]=floatDouble(_rgbBuffer[3*(j*_resolution[0]+i)+1])/255.0;
+                buff[3*p+2]=floatDouble(_rgbBuffer[3*(j*_resolution[0]+i)+2])/255.0;
             }
             else
             {
                 if (rgbGreyOrDepth==1)
                 { // Greyscale
-                    buff[p]=float(_rgbBuffer[3*(j*_resolution[0]+i)+0])/255.0f;
-                    buff[p]+=float(_rgbBuffer[3*(j*_resolution[0]+i)+1])/255.0f;
-                    buff[p]+=float(_rgbBuffer[3*(j*_resolution[0]+i)+2])/255.0f;
-                    buff[p]/=3.0f;
+                    buff[p]=floatDouble(_rgbBuffer[3*(j*_resolution[0]+i)+0])/255.0;
+                    buff[p]+=floatDouble(_rgbBuffer[3*(j*_resolution[0]+i)+1])/255.0;
+                    buff[p]+=floatDouble(_rgbBuffer[3*(j*_resolution[0]+i)+2])/255.0;
+                    buff[p]/=3.0;
                 }
                 else
-                    buff[p]=_depthBuffer[j*_resolution[0]+i];
+                    buff[p]=floatDouble(_depthBuffer[j*_resolution[0]+i]);
             }
             p++;
         }
@@ -172,7 +172,7 @@ bool CVisionSensor::writePortionOfCharImage(const unsigned char* img,int posX,in
     return(retVal);
 }
 
-unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,float cutoffRgba,int option) const
+unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,floatDouble cutoffRgba,int option) const
 {
     if ( (posX<0)||(posY<0)||(sizeX<1)||(sizeY<1)||(posX+sizeX>_resolution[0])||(posY+sizeY>_resolution[1]) )
         return(nullptr);
@@ -222,7 +222,7 @@ unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX
                     v+=_rgbBuffer[3*(j*_resolution[0]+i)+1];
                     v+=_rgbBuffer[3*(j*_resolution[0]+i)+2];
                     buff[2*p+0]=(unsigned char)(v/3);
-                    if (_depthBuffer[j*_resolution[0]+i]>cutoffRgba)
+                    if (_depthBuffer[j*_resolution[0]+i]>(floatFloat)cutoffRgba)
                         buff[2*p+1]=0;
                     else
                         buff[2*p+1]=255;
@@ -232,7 +232,7 @@ unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX
                     buff[4*p+0]=_rgbBuffer[3*(j*_resolution[0]+i)+0];
                     buff[4*p+1]=_rgbBuffer[3*(j*_resolution[0]+i)+1];
                     buff[4*p+2]=_rgbBuffer[3*(j*_resolution[0]+i)+2];
-                    if (_depthBuffer[j*_resolution[0]+i]>cutoffRgba)
+                    if (_depthBuffer[j*_resolution[0]+i]>(floatFloat)cutoffRgba)
                         buff[4*p+3]=0;
                     else
                         buff[4*p+3]=255;
@@ -280,20 +280,20 @@ void CVisionSensor::commonInit()
 
     _composedFilter=new CComposedFilter();
 
-    _defaultBufferValues[0]=0.0f;
-    _defaultBufferValues[1]=0.0f;
-    _defaultBufferValues[2]=0.0f;
+    _defaultBufferValues[0]=0.0;
+    _defaultBufferValues[1]=0.0;
+    _defaultBufferValues[2]=0.0;
 
     sensorResult.sensorWasTriggered=false;
     sensorResult.sensorResultIsValid=false;
     sensorResult.calcTimeInMs=0;
     sensorAuxiliaryResult.clear();
     color.setDefaultValues();
-    color.setColor(0.05f,0.42f,1.0f,sim_colorcomponent_ambient_diffuse);
+    color.setColor(0.05,0.42,1.0,sim_colorcomponent_ambient_diffuse);
 
     _resolution[0]=256;
     _resolution[1]=256;
-    _visionSensorSize=0.01f;
+    _visionSensorSize=0.01;
     _perspective=false;
     if (_extensionString.size()!=0)
         _extensionString+=" ";
@@ -396,7 +396,7 @@ CVisionSensor::~CVisionSensor()
 
 float CVisionSensor::getCalculationTime() const
 {
-    return(float(sensorResult.calcTimeInMs)*0.001f);
+    return(float(sensorResult.calcTimeInMs)*0.001);
 }
 
 std::string CVisionSensor::getDetectableEntityLoadAlias() const
@@ -413,7 +413,7 @@ void CVisionSensor::_reserveBuffers()
 {
     delete[] _depthBuffer;
     delete[] _rgbBuffer;
-    _depthBuffer=new float[_resolution[0]*_resolution[1]];
+    _depthBuffer=new floatFloat[_resolution[0]*_resolution[1]];
     _rgbBuffer=new unsigned char[3*_resolution[0]*_resolution[1]];
     _clearBuffers();
 #ifdef SIM_WITH_OPENGL
@@ -427,19 +427,19 @@ void CVisionSensor::_clearBuffers()
     {
         if (_useSameBackgroundAsEnvironment)
         {
-            _rgbBuffer[3*i+0]=(unsigned char)(App::currentWorld->environment->fogBackgroundColor[0]*255.1f);
-            _rgbBuffer[3*i+1]=(unsigned char)(App::currentWorld->environment->fogBackgroundColor[1]*255.1f);
-            _rgbBuffer[3*i+2]=(unsigned char)(App::currentWorld->environment->fogBackgroundColor[2]*255.1f);
+            _rgbBuffer[3*i+0]=(unsigned char)(App::currentWorld->environment->fogBackgroundColor[0]*255.1);
+            _rgbBuffer[3*i+1]=(unsigned char)(App::currentWorld->environment->fogBackgroundColor[1]*255.1);
+            _rgbBuffer[3*i+2]=(unsigned char)(App::currentWorld->environment->fogBackgroundColor[2]*255.1);
         }
         else
         {
-            _rgbBuffer[3*i+0]=(unsigned char)(_defaultBufferValues[0]*255.1f);
-            _rgbBuffer[3*i+1]=(unsigned char)(_defaultBufferValues[1]*255.1f);
-            _rgbBuffer[3*i+2]=(unsigned char)(_defaultBufferValues[2]*255.1f);
+            _rgbBuffer[3*i+0]=(unsigned char)(_defaultBufferValues[0]*255.1);
+            _rgbBuffer[3*i+1]=(unsigned char)(_defaultBufferValues[1]*255.1);
+            _rgbBuffer[3*i+2]=(unsigned char)(_defaultBufferValues[2]*255.1);
         }
     }
     for (int i=0;i<_resolution[0]*_resolution[1];i++)
-        _depthBuffer[i]=1.0f;
+        _depthBuffer[i]=1.0;
 }
 
 void CVisionSensor::setResolution(const int r[2])
@@ -582,20 +582,20 @@ void CVisionSensor::resetSensor()
         sensorResult.sensorDataGreen[i]=0;
         sensorResult.sensorDataBlue[i]=0;
         sensorResult.sensorDataIntensity[i]=0;
-        sensorResult.sensorDataDepth[i]=0.0f;
+        sensorResult.sensorDataDepth[i]=0.0;
     }
-    if (!_useExternalImage) // condition added on 2010/12/21
+    if (!_useExternalImage)
         _clearBuffers();
 }
 
-bool CVisionSensor::setExternalImage_old(const float* img,bool imgIsGreyScale,bool noProcessing)
+bool CVisionSensor::setExternalImage_old(const floatFloat* img,bool imgIsGreyScale,bool noProcessing)
 {
     if (imgIsGreyScale)
     {
         int n=_resolution[0]*_resolution[1];
         for (int i=0;i<n;i++)
         {
-            unsigned char v=(unsigned char)(img[i]*255.1f);
+            unsigned char v=(unsigned char)(img[i]*255.1);
             _rgbBuffer[3*i+0]=v;
             _rgbBuffer[3*i+1]=v;
             _rgbBuffer[3*i+2]=v;
@@ -605,7 +605,7 @@ bool CVisionSensor::setExternalImage_old(const float* img,bool imgIsGreyScale,bo
     {
         int n=_resolution[0]*_resolution[1]*3;
         for (int i=0;i<n;i++)
-            _rgbBuffer[i]=(unsigned char)(img[i]*255.1f);
+            _rgbBuffer[i]=(unsigned char)(img[i]*255.1);
     }
     bool returnValue=false;
     if (!noProcessing)
@@ -653,7 +653,7 @@ bool CVisionSensor::setExternalCharImage_old(const unsigned char* img,bool imgIs
     return(returnValue);
 }
 
-void CVisionSensor::setDepthBuffer(const float* img)
+void CVisionSensor::setDepthBuffer(const floatFloat* img)
 {
     int n=_resolution[0]*_resolution[1];
     for (int i=0;i<n;i++)
@@ -673,7 +673,7 @@ bool CVisionSensor::handleSensor()
         sensorResult.sensorDataGreen[i]=0;
         sensorResult.sensorDataBlue[i]=0;
         sensorResult.sensorDataIntensity[i]=0;
-        sensorResult.sensorDataDepth[i]=0.0f;
+        sensorResult.sensorDataDepth[i]=0.0;
     }
     if (!App::currentWorld->mainSettings->visionSensorsEnabled)
         return(false);
@@ -696,7 +696,7 @@ bool CVisionSensor::checkSensor(int entityID,bool overrideRenderableFlagsForNonC
 
     // 1. We save current state:
     SHandlingResult cop;
-    std::vector<std::vector<float> > sensorAuxiliaryResultCop(sensorAuxiliaryResult);
+    std::vector<std::vector<floatDouble>> sensorAuxiliaryResultCop(sensorAuxiliaryResult);
     sensorAuxiliaryResult.clear();
     cop.sensorWasTriggered=sensorResult.sensorWasTriggered;
     cop.sensorResultIsValid=sensorResult.sensorResultIsValid;
@@ -710,7 +710,7 @@ bool CVisionSensor::checkSensor(int entityID,bool overrideRenderableFlagsForNonC
         cop.sensorDataDepth[i]=sensorResult.sensorDataDepth[i];
     }
     unsigned char* copIm=new unsigned char[_resolution[0]*_resolution[1]*3];
-    float* copDep=new float[_resolution[0]*_resolution[1]];
+    floatFloat* copDep=new floatFloat[_resolution[0]*_resolution[1]];
     for (int i=0;i<_resolution[0]*_resolution[1];i++)
     {
         copIm[3*i+0]=_rgbBuffer[3*i+0];
@@ -748,14 +748,14 @@ bool CVisionSensor::checkSensor(int entityID,bool overrideRenderableFlagsForNonC
     return(retVal);
 }
 
-float* CVisionSensor::checkSensorEx(int entityID,bool imageBuffer,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
+floatDouble* CVisionSensor::checkSensorEx(int entityID,bool imageBuffer,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
 { // This function should only be used by simCheckVisionSensor(Ex) functions! It will temporarily buffer current result
     if (_useExternalImage) // added those 2 lines on 2010/12/21
         return(nullptr);
 
     // 1. We save current state:
     SHandlingResult cop;
-    std::vector<std::vector<float> > sensorAuxiliaryResultCop(sensorAuxiliaryResult);
+    std::vector<std::vector<floatDouble> > sensorAuxiliaryResultCop(sensorAuxiliaryResult);
     sensorAuxiliaryResult.clear();
     cop.sensorWasTriggered=sensorResult.sensorWasTriggered;
     cop.sensorResultIsValid=sensorResult.sensorResultIsValid;
@@ -769,7 +769,7 @@ float* CVisionSensor::checkSensorEx(int entityID,bool imageBuffer,bool entityIsM
         cop.sensorDataDepth[i]=sensorResult.sensorDataDepth[i];
     }
     unsigned char* copIm=new unsigned char[_resolution[0]*_resolution[1]*3];
-    float* copDep=new float[_resolution[0]*_resolution[1]];
+    floatFloat* copDep=new floatFloat[_resolution[0]*_resolution[1]];
     for (int i=0;i<_resolution[0]*_resolution[1];i++)
     {
         copIm[3*i+0]=_rgbBuffer[3*i+0];
@@ -781,20 +781,20 @@ float* CVisionSensor::checkSensorEx(int entityID,bool imageBuffer,bool entityIsM
     bool all=(entityID==-1);
     detectEntity(entityID,all,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections); // we don't swap image buffers!
     // 3. Prepare return buffer:
-    float* retBuffer=nullptr;
+    floatDouble* retBuffer=nullptr;
     int l=_resolution[0]*_resolution[1];
     if (imageBuffer)
         l*=3;
-    retBuffer=new float[l];
+    retBuffer=new floatDouble[l];
     if (imageBuffer)
     {
         for (int i=0;i<l;i++)
-            retBuffer[i]=float(_rgbBuffer[i])/255.0f;
+            retBuffer[i]=floatDouble(_rgbBuffer[i])/255.0;
     }
     else
     {
         for (int i=0;i<l;i++)
-            retBuffer[i]=_depthBuffer[i];
+            retBuffer[i]=floatDouble(_depthBuffer[i]);
     }
     // 4. Restore previous state:
     sensorAuxiliaryResult.assign(sensorAuxiliaryResultCop.begin(),sensorAuxiliaryResultCop.end());
@@ -911,9 +911,9 @@ void CVisionSensor::detectEntity2(int entityID,bool detectAll,bool entityIsModel
                 // Convert this depth info into values corresponding to linear depths (if perspective mode):
                 if (_perspective)
                 {
-                    float farMinusNear= _farClippingPlane-_nearClippingPlane;
-                    float farDivFarMinusNear=_farClippingPlane/farMinusNear;
-                    float nearTimesFar=_nearClippingPlane*_farClippingPlane;
+                    floatFloat farMinusNear=(floatFloat)(_farClippingPlane-_nearClippingPlane);
+                    floatFloat farDivFarMinusNear=((floatFloat)(_farClippingPlane))/farMinusNear;
+                    floatFloat nearTimesFar=(floatFloat)(_nearClippingPlane*_farClippingPlane);
                     int v=_resolution[0]*_resolution[1];
                     for (int i=0;i<v;i++)
                         _depthBuffer[i]=((nearTimesFar/(farMinusNear*(farDivFarMinusNear-_depthBuffer[i])))-_nearClippingPlane)/farMinusNear;
@@ -1954,7 +1954,7 @@ CSceneObject* CVisionSensor::copyYourself()
         newVisionSensor->sensorResult.sensorDataGreen[i]=0;
         newVisionSensor->sensorResult.sensorDataBlue[i]=0;
         newVisionSensor->sensorResult.sensorDataIntensity[i]=0;
-        newVisionSensor->sensorResult.sensorDataDepth[i]=0.0f;
+        newVisionSensor->sensorResult.sensorDataDepth[i]=0.0;
     }
     newVisionSensor->sensorAuxiliaryResult.assign(sensorAuxiliaryResult.begin(),sensorAuxiliaryResult.end());
     newVisionSensor->sensorResult.sensorWasTriggered=false;
@@ -2043,21 +2043,13 @@ void CVisionSensor::initializeInitialValues(bool simulationAlreadyRunning)
         sensorResult.sensorDataGreen[i]=0;
         sensorResult.sensorDataBlue[i]=0;
         sensorResult.sensorDataIntensity[i]=0;
-        sensorResult.sensorDataDepth[i]=0.0f;
+        sensorResult.sensorDataDepth[i]=0.0;
     }
     sensorAuxiliaryResult.clear();
     sensorResult.sensorWasTriggered=false;
     sensorResult.sensorResultIsValid=false;
     sensorResult.calcTimeInMs=0;
     _initialExplicitHandling=_explicitHandling;
-    /*
-    else
-    {
-#ifdef SIM_WITH_OPENGL
-        _removeGlContextAndFboAndTextureObjectIfNeeded();
-#endif
-    }
-    */
 }
 
 
@@ -2097,30 +2089,30 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
 
     if (_computeImageBasicStats&&(_renderMode!=sim_rendermode_colorcoded))
     {
-        unsigned int cumulRed=0;
-        unsigned int cumulGreen=0;
-        unsigned int cumulBlue=0;
-        unsigned int cumulIntensity=0;
-        float cumulDepth=0.0f;
+        floatDouble cumulRed=0.0;
+        floatDouble cumulGreen=0.0;
+        floatDouble cumulBlue=0.0;
+        floatDouble cumulIntensity=0.0;
+        floatFloat cumulDepth=0.0;
 
         // Initialize the min/max values with first element:
         for (int i=0;i<2;i++)
         {
-            sensorResult.sensorDataRed[i]=_rgbBuffer[0];
-            sensorResult.sensorDataGreen[i]=_rgbBuffer[1];
-            sensorResult.sensorDataBlue[i]=_rgbBuffer[2];
-            sensorResult.sensorDataIntensity[i]=(_rgbBuffer[0]+_rgbBuffer[1]+_rgbBuffer[2])/3;
+            sensorResult.sensorDataRed[i]=(floatDouble)_rgbBuffer[0];
+            sensorResult.sensorDataGreen[i]=(floatDouble)_rgbBuffer[1];
+            sensorResult.sensorDataBlue[i]=(floatDouble)_rgbBuffer[2];
+            sensorResult.sensorDataIntensity[i]=((floatDouble)(_rgbBuffer[0]+_rgbBuffer[1]+_rgbBuffer[2]))/3.0;
             sensorResult.sensorDataDepth[i]=_depthBuffer[0];
         }
 
         int v=_resolution[0]*_resolution[1];
         for (int i=0;i<v;i++)
         {
-            unsigned int intens=(_rgbBuffer[3*i+0]+_rgbBuffer[3*i+1]+_rgbBuffer[3*i+2])/3;
-            cumulRed+=_rgbBuffer[3*i+0];
-            cumulGreen+=_rgbBuffer[3*i+1];
-            cumulBlue+=_rgbBuffer[3*i+2];
-            cumulDepth+=_depthBuffer[i];
+            floatDouble intens=((floatDouble)(_rgbBuffer[3*i+0]+_rgbBuffer[3*i+1]+_rgbBuffer[3*i+2]))/3.0;
+            cumulRed+=(floatDouble)_rgbBuffer[3*i+0];
+            cumulGreen+=(floatDouble)_rgbBuffer[3*i+1];
+            cumulBlue+=(floatDouble)_rgbBuffer[3*i+2];
+            cumulDepth+=(floatDouble)_depthBuffer[i];
             cumulIntensity+=intens;
             // we actualize min/max values:
             //r = (x < y) ? x : y
@@ -2140,21 +2132,21 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             if (_rgbBuffer[3*i+2]>sensorResult.sensorDataBlue[1])
                 sensorResult.sensorDataBlue[1]=_rgbBuffer[3*i+2];
             // Intensity
-            if (intens<sensorResult.sensorDataIntensity[0])
-                sensorResult.sensorDataIntensity[0]=intens;
-            if (intens>sensorResult.sensorDataIntensity[1])
-                sensorResult.sensorDataIntensity[1]=intens;
+            if ((unsigned char)intens<sensorResult.sensorDataIntensity[0])
+                sensorResult.sensorDataIntensity[0]=(unsigned char)intens;
+            if ((unsigned char)intens>sensorResult.sensorDataIntensity[1])
+                sensorResult.sensorDataIntensity[1]=(unsigned char)intens;
             // Depth
             if (_depthBuffer[i]<sensorResult.sensorDataDepth[0])
                 sensorResult.sensorDataDepth[0]=_depthBuffer[i];
             if (_depthBuffer[i]>sensorResult.sensorDataDepth[1])
                 sensorResult.sensorDataDepth[1]=_depthBuffer[i];
         }
-        unsigned char averageRed=cumulRed/v;
-        unsigned char averageGreen=cumulGreen/v;
-        unsigned char averageBlue=cumulBlue/v;
-        unsigned char averageIntensity=cumulIntensity/v;
-        float averageDepth=cumulDepth/float(v);
+        unsigned char averageRed=(unsigned char)(cumulRed/(floatDouble)v);
+        unsigned char averageGreen=(unsigned char)(cumulGreen/(floatDouble)v);
+        unsigned char averageBlue=(unsigned char)(cumulBlue/(floatDouble)v);
+        unsigned char averageIntensity=(unsigned char)(cumulIntensity/(floatDouble)v);
+        floatFloat averageDepth=cumulDepth/floatFloat(v);
         // We set-up average values:
         sensorResult.sensorDataRed[2]=averageRed;
         sensorResult.sensorDataGreen[2]=averageGreen;
@@ -2163,24 +2155,24 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         sensorResult.sensorDataDepth[2]=averageDepth;
 
         // We prepare the auxiliary values:
-        std::vector<float> defaultResults;
-        defaultResults.push_back(float(sensorResult.sensorDataIntensity[0])/255.0f);
-        defaultResults.push_back(float(sensorResult.sensorDataRed[0])/255.0f);
-        defaultResults.push_back(float(sensorResult.sensorDataGreen[0])/255.0f);
-        defaultResults.push_back(float(sensorResult.sensorDataBlue[0])/255.0f);
-        defaultResults.push_back(sensorResult.sensorDataDepth[0]);
+        std::vector<floatDouble> defaultResults;
+        defaultResults.push_back(floatDouble(sensorResult.sensorDataIntensity[0])/255.0);
+        defaultResults.push_back(floatDouble(sensorResult.sensorDataRed[0])/255.0);
+        defaultResults.push_back(floatDouble(sensorResult.sensorDataGreen[0])/255.0);
+        defaultResults.push_back(floatDouble(sensorResult.sensorDataBlue[0])/255.0);
+        defaultResults.push_back((floatDouble)sensorResult.sensorDataDepth[0]);
 
-        defaultResults.push_back(float(sensorResult.sensorDataIntensity[1])/255.0f);
-        defaultResults.push_back(float(sensorResult.sensorDataRed[1])/255.0f);
-        defaultResults.push_back(float(sensorResult.sensorDataGreen[1])/255.0f);
-        defaultResults.push_back(float(sensorResult.sensorDataBlue[1])/255.0f);
-        defaultResults.push_back(sensorResult.sensorDataDepth[1]);
+        defaultResults.push_back(floatDouble(sensorResult.sensorDataIntensity[1])/255.0);
+        defaultResults.push_back(floatDouble(sensorResult.sensorDataRed[1])/255.0);
+        defaultResults.push_back(floatDouble(sensorResult.sensorDataGreen[1])/255.0);
+        defaultResults.push_back(floatDouble(sensorResult.sensorDataBlue[1])/255.0);
+        defaultResults.push_back((floatDouble)sensorResult.sensorDataDepth[1]);
 
-        defaultResults.push_back(float(sensorResult.sensorDataIntensity[2])/255.0f);
-        defaultResults.push_back(float(sensorResult.sensorDataRed[2])/255.0f);
-        defaultResults.push_back(float(sensorResult.sensorDataGreen[2])/255.0f);
-        defaultResults.push_back(float(sensorResult.sensorDataBlue[2])/255.0f);
-        defaultResults.push_back(sensorResult.sensorDataDepth[2]);
+        defaultResults.push_back(floatDouble(sensorResult.sensorDataIntensity[2])/255.0);
+        defaultResults.push_back(floatDouble(sensorResult.sensorDataRed[2])/255.0);
+        defaultResults.push_back(floatDouble(sensorResult.sensorDataGreen[2])/255.0);
+        defaultResults.push_back(floatDouble(sensorResult.sensorDataBlue[2])/255.0);
+        defaultResults.push_back((floatDouble)sensorResult.sensorDataDepth[2]);
         sensorAuxiliaryResult.push_back(defaultResults);
     }
     else
@@ -2191,11 +2183,11 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             sensorResult.sensorDataGreen[i]=0;
             sensorResult.sensorDataBlue[i]=0;
             sensorResult.sensorDataIntensity[i]=0;
-            sensorResult.sensorDataDepth[i]=0.0f;
+            sensorResult.sensorDataDepth[i]=0.0;
         }
         if (_renderMode!=sim_rendermode_colorcoded)
         {
-            std::vector<float> defaultResults(0.0f,15);
+            std::vector<floatDouble> defaultResults(0.0,15);
             sensorAuxiliaryResult.push_back(defaultResults);
         }
         else
@@ -2211,11 +2203,11 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                 if (id<r)
                     visibleIds[id]=1;
             }
-            std::vector<float> defaultResults;
+            std::vector<floatDouble> defaultResults;
             for (unsigned int i=0;i<r;i++)
             {
                 if (visibleIds[i]!=0)
-                    defaultResults.push_back(i+0.5f);
+                    defaultResults.push_back(floatDouble(i));
             }
             sensorAuxiliaryResult.push_back(defaultResults);
             delete[] visibleIds;
@@ -2283,13 +2275,17 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                         {
                             CInterfaceStackObject* obj2=table->getArrayItemAtIndex(i);
                             if ( (obj2!=nullptr)&&(obj2->getObjectType()==STACK_OBJECT_STRING) )
-                            {
+                            { // the packed values are floatFloat, for backward compatibility
                                 CInterfaceStackString* buff=(CInterfaceStackString*)obj2;
-                                std::vector<float> data;
+                                std::vector<floatFloat> data;
                                 size_t l;
                                 buff->getValue(&l);
-                                data.assign((float*)buff->getValue(nullptr),((float*)buff->getValue(nullptr))+l/4);
-                                sensorAuxiliaryResult.push_back(data);
+                                data.assign((floatFloat*)buff->getValue(nullptr),((floatFloat*)buff->getValue(nullptr))+l/sizeof(floatFloat));
+                                std::vector<floatDouble> data2;
+                                data2.resize(data.size());
+                                for (size_t j=0;j<data.size();j++)
+                                    data2[j]=(floatDouble)data[j];
+                                sensorAuxiliaryResult.push_back(data2);
                             }
                         }
                     }
@@ -2318,7 +2314,13 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             {
                 inStack->pushInt32OntoStack(i+1);
                 if (sensorAuxiliaryResult[i].size()>0)
-                    inStack->pushStringOntoStack((char*)&(sensorAuxiliaryResult[i])[0],sensorAuxiliaryResult[i].size()*sizeof(float));
+                { // the packed data needs to be floatFloat for backward compatibility
+                    std::vector<floatFloat> dat;
+                    dat.resize(sensorAuxiliaryResult[i].size());
+                    for (size_t j=0;j<sensorAuxiliaryResult[i].size();j++)
+                        dat[j]=(floatFloat)sensorAuxiliaryResult[i][j];
+                    inStack->pushStringOntoStack((char*)dat.data(),dat.size()*sizeof(floatFloat));
+                }
                 else
                     inStack->pushStringOntoStack("",0);
                 inStack->insertDataIntoStackTable();

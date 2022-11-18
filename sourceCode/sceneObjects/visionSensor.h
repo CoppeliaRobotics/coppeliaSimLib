@@ -16,7 +16,7 @@ struct SHandlingResult
     unsigned char sensorDataGreen[3]; // min, max, average
     unsigned char sensorDataBlue[3]; // min, max, average
     unsigned char sensorDataIntensity[3]; // min, max, average
-    float sensorDataDepth[3]; // min, max, average
+    floatFloat sensorDataDepth[3]; // min, max, average
     int calcTimeInMs;
 };
 
@@ -68,8 +68,8 @@ public:
     void resetSensor();
     bool handleSensor();
     bool checkSensor(int entityID,bool overrideRenderableFlagsForNonCollections);
-    float* checkSensorEx(int entityID,bool imageBuffer,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
-    void setDepthBuffer(const float* img);
+    floatDouble* checkSensorEx(int entityID,bool imageBuffer,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
+    void setDepthBuffer(const floatFloat* img);
 
     void setIgnoreRGBInfo(bool ignore);
     bool getIgnoreRGBInfo() const;
@@ -86,7 +86,7 @@ public:
     bool getComputeImageBasicStats() const;
 
     unsigned char* getRgbBufferPointer();
-    float* getDepthBufferPointer() const;
+    floatFloat* getDepthBufferPointer() const;
 
     void setDetectableEntityHandle(int entityHandle);
     int getDetectableEntityHandle() const;
@@ -106,8 +106,8 @@ public:
     void setExtWindowSizeAndPos(int sizeX,int sizeY,int posX,int posY);
     void getExtWindowSizeAndPos(int& sizeX,int& sizeY,int& posX,int& posY) const;
 
-    float* readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth) const;
-    unsigned char* readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,float cutoffRgba,int option) const;
+    floatDouble* readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth) const;
+    unsigned char* readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,floatDouble cutoffRgba,int option) const;
     bool writePortionOfCharImage(const unsigned char* img,int posX,int posY,int sizeX,int sizeY,int option);
 
     void setUseEnvironmentBackgroundColor(bool s);
@@ -121,9 +121,9 @@ public:
     CColorObject* getColor();
 
     SHandlingResult sensorResult;
-    std::vector<std::vector<float> > sensorAuxiliaryResult; // e.g. vectors, etc. set by a filter or an extension module's filter
+    std::vector<std::vector<floatDouble>> sensorAuxiliaryResult; // e.g. vectors, etc. set by a filter or an extension module's filter
 
-    bool setExternalImage_old(const float* img,bool imgIsGreyScale,bool noProcessing);
+    bool setExternalImage_old(const floatFloat* img,bool imgIsGreyScale,bool noProcessing);
     bool setExternalCharImage_old(const unsigned char* img,bool imgIsGreyScale,bool noProcessing);
 
 protected:
@@ -144,7 +144,7 @@ protected:
     void _extRenderer_retrieveImage();
 
     unsigned char* _rgbBuffer;
-    float* _depthBuffer;
+    floatFloat* _depthBuffer;
 
     unsigned int _rayTracingTextureName;
 

@@ -30,10 +30,6 @@ public:
     static void regexReplace(std::string& str,const char* regexStr,const char* regexReplacementSubStr);
     static void removeComments(std::string& line);
     static int lineCountAtOffset(const char* str,int offset);
-    static void pushFloatToBuffer(float d,std::vector<char>& data);
-    static float popFloatFromBuffer(std::vector<char>& data);
-    static void pushIntToBuffer(int d,std::vector<char>& data);
-    static int popIntFromBuffer(std::vector<char>& data);
     static bool doStringMatch_wildcard(const char* wildcardStr,const char* otherStr);
 
 };

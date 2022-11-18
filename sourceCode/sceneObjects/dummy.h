@@ -47,8 +47,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(float scalingFactor);
-    void scaleObjectNonIsometrically(float x,float y,float z);
+    void scaleObject(floatDouble scalingFactor);
+    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
     void serialize(CSer& ar);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
@@ -73,11 +73,11 @@ public:
     void performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
 
     bool getFreeOnPathTrajectory() const;
-    float getVirtualDistanceOffsetOnPath() const;
-    float getVirtualDistanceOffsetOnPath_variationWhenCopy() const;
+    floatDouble getVirtualDistanceOffsetOnPath() const;
+    floatDouble getVirtualDistanceOffsetOnPath_variationWhenCopy() const;
     std::string getLinkedDummyLoadAlias() const;
     std::string getLinkedDummyLoadName_old() const;
-    float getDummySize() const;
+    floatDouble getDummySize() const;
     bool getAssignedToParentPath() const;
     bool getAssignedToParentPathOrientation() const;
     int getLinkedDummyHandle() const;
@@ -90,25 +90,25 @@ public:
     bool setAssignedToParentPathOrientation(bool assigned);
     void setLinkedDummyHandle(int handle,bool check);
     bool setLinkType(int lt,bool check);
-    void setDummySize(float s);
+    void setDummySize(floatDouble s);
 
     void setFreeOnPathTrajectory(bool isFree);
-    void setVirtualDistanceOffsetOnPath(float off);
-    void setVirtualDistanceOffsetOnPath_variationWhenCopy(float off);
+    void setVirtualDistanceOffsetOnPath(floatDouble off);
+    void setVirtualDistanceOffsetOnPath_variationWhenCopy(floatDouble off);
 
-    float getEngineFloatParam(int what,bool* ok) const;
+    floatDouble getEngineFloatParam(int what,bool* ok) const;
     int getEngineIntParam(int what,bool* ok) const;
     bool getEngineBoolParam(int what,bool* ok) const;
-    bool setEngineFloatParam(int what,float v);
+    bool setEngineFloatParam(int what,floatDouble v);
     bool setEngineIntParam(int what,int v);
     bool setEngineBoolParam(int what,bool v);
 
     void copyEnginePropertiesTo(CDummy* target);
 
 protected:
-    void getMujocoFloatParams(std::vector<float>& p) const;
+    void getMujocoFloatParams(std::vector<floatDouble>& p) const;
     void getMujocoIntParams(std::vector<int>& p) const;
-    void setMujocoFloatParams(const std::vector<float>& p,bool reflectToLinkedDummy=true);
+    void setMujocoFloatParams(const std::vector<floatDouble>& p,bool reflectToLinkedDummy=true);
     void setMujocoIntParams(const std::vector<int>& p,bool reflectToLinkedDummy=true);
 
     void _reflectPropToLinkedDummy() const;
@@ -116,8 +116,8 @@ protected:
     void _setLinkType_sendOldIk(int t) const;
 
     bool _freeOnPathTrajectory;
-    float _virtualDistanceOffsetOnPath;
-    float _virtualDistanceOffsetOnPath_variationWhenCopy;
+    floatDouble _virtualDistanceOffsetOnPath;
+    floatDouble _virtualDistanceOffsetOnPath_variationWhenCopy;
     std::string _linkedDummyLoadAlias;
     std::string _linkedDummyLoadName_old;
 
@@ -128,6 +128,6 @@ protected:
     bool _assignedToParentPath;
     bool _assignedToParentPathOrientation;
 
-    std::vector<float> _mujocoFloatParams;
+    std::vector<floatDouble> _mujocoFloatParams;
     std::vector<int> _mujocoIntParams;
 };

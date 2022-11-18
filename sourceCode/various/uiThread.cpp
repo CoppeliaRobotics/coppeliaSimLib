@@ -272,7 +272,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
             int auxData[4]={0,0,0,0};
             void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_uipass,auxData,nullptr,nullptr);
             if (replyBuffer!=nullptr)
-                simReleaseBuffer_internal((simChar*)replyBuffer);
+                simReleaseBuffer_internal((char*)replyBuffer);
         }
         if (cmdIn->cmdId==INSTANCE_ABOUT_TO_BE_CREATED_UITHREADCMD)
             App::mainWindow->newInstanceAboutToBeCreated();

@@ -1891,6 +1891,16 @@ void pushDoubleTableOntoStack(luaWrap_lua_State* L,size_t floatCount,const float
 }
 #endif
 
+void getFloatsFromTable(luaWrap_lua_State* L,int tablePos,size_t floatCount,floatFloat* arrayField)
+{
+    for (size_t i=0;i<floatCount;i++)
+    {
+        luaWrap_lua_rawgeti(L,tablePos,int(i+1));
+        arrayField[i]=luaToFloat(L,-1);
+        luaWrap_lua_pop(L,1); // we pop one element from the stack;
+    }
+}
+
 void getDoublesFromTable(luaWrap_lua_State* L,int tablePos,size_t doubleCount,double* arrayField)
 {
     for (size_t i=0;i<doubleCount;i++)
@@ -1956,6 +1966,17 @@ void getCharBoolsFromTable(luaWrap_lua_State* L,int tablePos,size_t boolCount,ch
         luaWrap_lua_rawgeti(L,tablePos,int(i+1));
         arrayField[i]=(char)luaWrap_lua_toboolean(L,-1);
         luaWrap_lua_pop(L,1); // we pop one element from the stack;
+    }
+}
+
+void pushFloatTableOntoStack(luaWrap_lua_State* L,size_t floatCount,const floatFloat* arrayField)
+{
+    luaWrap_lua_newtable(L);
+    int newTablePos=luaWrap_lua_gettop(L);
+    for (size_t i=0;i<floatCount;i++)
+    {
+        luaWrap_lua_pushnumber(L,arrayField[i]);
+        luaWrap_lua_rawseti(L,newTablePos,int(i+1));
     }
 }
 
@@ -3015,7 +3036,7 @@ int _simCheckVisionSensorEx(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_bool,0))
     {
-        simBool returnImage=luaToBool(L,3);
+        bool returnImage=luaToBool(L,3);
         int arg1=luaToInt(L,1);
         int handleFlags=arg1&0xff00000;
         int sensHandle=arg1&0xfffff;
@@ -4911,8 +4932,8 @@ int _simGetJointInterval(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        simBool cyclic;
-        simFloat interval[2];
+        bool cyclic;
+        float interval[2];
         if (simGetJointInterval_internal(luaToInt(L,1),&cyclic,interval)==1)
         {
             luaWrap_lua_pushboolean(L,cyclic!=0);
@@ -10480,7 +10501,7 @@ int _simRuckigPos(luaWrap_lua_State* L)
             getDoublesFromTable(L,7,dofs*2,&targetPosVel[0]);
 
             setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-            int retVal=simRuckigPos_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&minMaxVel[0],&minMaxAccel[0],&maxJerk[0],(unsigned char*)(&selection[0]),&targetPosVel[0],&targetPosVel[dofs],nullptr,nullptr);
+            int retVal=simRuckigPos_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&minMaxVel[0],&minMaxAccel[0],&maxJerk[0],(bool*)selection.data(),&targetPosVel[0],&targetPosVel[dofs],nullptr,nullptr);
             setCurrentScriptInfo_cSide(-1,-1);
 
             if (retVal>=0)
@@ -10542,7 +10563,7 @@ int _simRuckigVel(luaWrap_lua_State* L)
             getDoublesFromTable(L,7,dofs,&targetVel[0]);
 
             setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-            int retVal=simRuckigVel_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&minMaxAccel[0],&maxJerk[0],(unsigned char*)(&selection[0]),&targetVel[0],nullptr,nullptr);
+            int retVal=simRuckigVel_internal(dofs,timeStep,flags,&currentPosVelAccel[0],&currentPosVelAccel[dofs],&currentPosVelAccel[dofs*2],&minMaxAccel[0],&maxJerk[0],(bool*)selection.data(),&targetVel[0],nullptr,nullptr);
             setCurrentScriptInfo_cSide(-1,-1);
 
             if (retVal>=0)
@@ -12018,7 +12039,7 @@ int _simGetEngineFloatParam(luaWrap_lua_State* L)
     {
         int paramId=luaToInt(L,1);
         int objectHandle=luaToInt(L,2);
-        simBool ok;
+        bool ok;
         float paramVal=simGetEngineFloatParam_internal(paramId,objectHandle,nullptr,&ok);
         if (ok>0)
         {
@@ -12040,7 +12061,7 @@ int _simGetEngineInt32Param(luaWrap_lua_State* L)
     {
         int paramId=luaToInt(L,1);
         int objectHandle=luaToInt(L,2);
-        simBool ok;
+        bool ok;
         int paramVal=simGetEngineInt32Param_internal(paramId,objectHandle,nullptr,&ok);
         if (ok>0)
         {
@@ -12062,8 +12083,8 @@ int _simGetEngineBoolParam(luaWrap_lua_State* L)
     {
         int paramId=luaToInt(L,1);
         int objectHandle=luaToInt(L,2);
-        simBool ok;
-        simBool paramVal=simGetEngineBoolParam_internal(paramId,objectHandle,nullptr,&ok);
+        bool ok;
+        bool paramVal=simGetEngineBoolParam_internal(paramId,objectHandle,nullptr,&ok);
         if (ok>0)
         {
             luaWrap_lua_pushboolean(L,paramVal>0);
@@ -15075,7 +15096,7 @@ void getScriptChain_old(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded
 bool readCustomFunctionDataFromStack_old(luaWrap_lua_State* L,int ind,int dataType,
                                      std::vector<char>& inBoolVector,
                                      std::vector<int>& inIntVector,
-                                     std::vector<float>& inFloatVector,
+                                     std::vector<floatFloat>& inFloatVector,
                                      std::vector<double>& inDoubleVector,
                                      std::vector<std::string>& inStringVector,
                                      std::vector<std::string>& inCharVector,
@@ -15098,7 +15119,7 @@ bool readCustomFunctionDataFromStack_old(luaWrap_lua_State* L,int ind,int dataTy
         int dataSize=int(luaWrap_lua_rawlen(L,ind));
         std::vector<char> boolV;
         std::vector<int> intV;
-        std::vector<float> floatV;
+        std::vector<floatFloat> floatV;
         std::vector<double> doubleV;
         std::vector<std::string> stringV;
         for (int i=0;i<dataSize;i++)
@@ -15224,9 +15245,9 @@ bool readCustomFunctionDataFromStack_old(luaWrap_lua_State* L,int ind,int dataTy
 }
 
 void writeCustomFunctionDataOntoStack_old(luaWrap_lua_State* L,int dataType,int dataSize,
-                                      unsigned char* boolData,int& boolDataPos,
+                                      bool* boolData,int& boolDataPos,
                                       int* intData,int& intDataPos,
-                                      float* floatData,int& floatDataPos,
+                                      floatFloat* floatData,int& floatDataPos,
                                       double* doubleData,int& doubleDataPos,
                                       char* stringData,int& stringDataPos,
                                       char* charData,int& charDataPos)
@@ -16305,7 +16326,7 @@ int _simRMLPosition(luaWrap_lua_State* L)
                         double* newPosVelAccel=new double[dofs*3];
                         unsigned char auxData[1+8+8];
                         auxData[0]=1;
-                        retVal=simRMLPosition_internal(dofs,timeStep,flags,currentPosVelAccel,maxVelAccelJerk,(unsigned char*)selection,targetPosVel,newPosVelAccel,auxData);
+                        retVal=simRMLPosition_internal(dofs,timeStep,flags,currentPosVelAccel,maxVelAccelJerk,(bool*)selection,targetPosVel,newPosVelAccel,auxData);
                         if (retVal>=0)
                         {
                             luaWrap_lua_pushinteger(L,retVal);
@@ -16372,7 +16393,7 @@ int _simRMLVelocity(luaWrap_lua_State* L)
                         double* newPosVelAccel=new double[dofs*3];
                         unsigned char auxData[1+8+8];
                         auxData[0]=1;
-                        retVal=simRMLVelocity_internal(dofs,timeStep,flags,currentPosVelAccel,maxAccelJerk,(unsigned char*)selection,targetVel,newPosVelAccel,auxData);
+                        retVal=simRMLVelocity_internal(dofs,timeStep,flags,currentPosVelAccel,maxAccelJerk,(bool*)selection,targetVel,newPosVelAccel,auxData);
                         if (retVal>=0)
                         {
                             luaWrap_lua_pushinteger(L,retVal);
@@ -19268,7 +19289,7 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CScriptCustomFunction* func
     // We first read all arguments from the stack
     std::vector<char> inBoolVector;
     std::vector<int> inIntVector;
-    std::vector<float> inFloatVector;
+    std::vector<floatFloat> inFloatVector;
     std::vector<double> inDoubleVector;
     std::vector<std::string> inStringVector;
     std::vector<std::string> inCharVector;
@@ -19317,9 +19338,9 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CScriptCustomFunction* func
     p->outputArgTypeAndSize=nullptr;
     p->waitUntilZero=0;
     // Now we prepare the input buffers:
-    p->inputBool=new unsigned char[inBoolVector.size()];
+    p->inputBool=new bool[inBoolVector.size()];
     p->inputInt=new int[inIntVector.size()];
-    p->inputFloat=new float[inFloatVector.size()];
+    p->inputFloat=new floatFloat[inFloatVector.size()];
     p->inputDouble=new double[inDoubleVector.size()];
     int charCnt=0;
     for (size_t k=0;k<inStringVector.size();k++)
@@ -21049,7 +21070,7 @@ int _simGetVisionSensorImage(luaWrap_lua_State* L)
                                     sizeX=reso[0];
                                     sizeY=reso[1];
                                 }
-                                float* buffer=rs->readPortionOfImage(posX,posY,sizeX,sizeY,rgbOrGreyOrDepth);
+                                floatDouble* buffer=rs->readPortionOfImage(posX,posY,sizeX,sizeY,rgbOrGreyOrDepth);
                                 if (buffer!=nullptr)
                                 {
                                     if (retType==0)
@@ -21059,7 +21080,7 @@ int _simGetVisionSensorImage(luaWrap_lua_State* L)
                                         char* str=new char[sizeX*sizeY*valPerPix];
                                         int vvv=sizeX*sizeY*valPerPix;
                                         for (int i=0;i<vvv;i++)
-                                            str[i]=char(buffer[i]*255.0001f);
+                                            str[i]=char(buffer[i]*255.0001);
                                         luaWrap_lua_pushlstring(L,(const char*)str,vvv);
                                         delete[] ((char*)str);
                                     }
@@ -21120,8 +21141,8 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
                         // Now we check if the provided table has correct size:
                         if (int(luaWrap_lua_rawlen(L,2))>=res[0]*res[1])
                         {
-                            float* img=new float[res[0]*res[1]];
-                            getDoublesFromTable(L,2,res[0]*res[1],img);
+                            floatFloat* img=new floatFloat[res[0]*res[1]];
+                            getFloatsFromTable(L,2,res[0]*res[1],img);
                             rendSens->setDepthBuffer(img);
                             retVal=1;
                             delete[] img;
@@ -21134,8 +21155,8 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
                         // Now we check if the provided table has correct size:
                         if (int(luaWrap_lua_rawlen(L,2))>=res[0]*res[1]*valPerPix)
                         {
-                            float* img=new float[res[0]*res[1]*valPerPix];
-                            getDoublesFromTable(L,2,res[0]*res[1]*valPerPix,img); // we do the operation directly without going through the c-api
+                            floatFloat* img=new floatFloat[res[0]*res[1]*valPerPix];
+                            getFloatsFromTable(L,2,res[0]*res[1]*valPerPix,img); // we do the operation directly without going through the c-api
                             if (rendSens->setExternalImage_old(img,valPerPix==1,noProcessing))
                                 retVal=1;
                             delete[] img;
@@ -21152,9 +21173,9 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
                     char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
                     if (setDepthBufferInstead)
                     {
-                        if (int(dataLength)>=res[0]*res[1]*sizeof(float))
+                        if (int(dataLength)>=res[0]*res[1]*sizeof(floatFloat))
                         {
-                            rendSens->setDepthBuffer((float*)data);
+                            rendSens->setDepthBuffer((floatFloat*)data);
                             retVal=1;
                         }
                         else
@@ -21164,9 +21185,9 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
                     {
                         if (int(dataLength)>=res[0]*res[1]*valPerPix)
                         {
-                            float* img=new float[res[0]*res[1]*valPerPix];
+                            floatFloat* img=new floatFloat[res[0]*res[1]*valPerPix];
                             for (int i=0;i<res[0]*res[1]*valPerPix;i++)
-                                img[i]=float(data[i])/255.0f;
+                                img[i]=floatFloat(data[i])/255.0;
                             if (rendSens->setExternalImage_old(img,valPerPix==1,noProcessing))
                                 retVal=1;
                             delete[] img;
@@ -21384,19 +21405,25 @@ int _simGetVisionSensorDepthBuffer(luaWrap_lua_State* L)
                                 sizeX=reso[0];
                                 sizeY=reso[1];
                             }
-                            float* buffer=rs->readPortionOfImage(posX,posY,sizeX,sizeY,2);
+                            floatDouble* buffer=rs->readPortionOfImage(posX,posY,sizeX,sizeY,2);
                             if (buffer!=nullptr)
                             {
                                 if (toMeters)
                                 { // Here we need to convert values to distances in meters:
-                                    float n=rs->getNearClippingPlane();
-                                    float f=rs->getFarClippingPlane();
-                                    float fmn=f-n;
+                                    floatDouble n=rs->getNearClippingPlane();
+                                    floatDouble f=rs->getFarClippingPlane();
+                                    floatDouble fmn=f-n;
                                     for (int i=0;i<sizeX*sizeY;i++)
                                         buffer[i]=n+fmn*buffer[i];
                                 }
                                 if (returnString)
-                                    luaWrap_lua_pushlstring(L,(char*)buffer,sizeX*sizeY*sizeof(float));
+                                {
+                                    std::vector<floatFloat> b;
+                                    b.resize(sizeX*sizeY);
+                                    for (size_t i=0;i<sizeX*sizeY;i++)
+                                        b[i]=(floatFloat)buffer[i];
+                                    luaWrap_lua_pushlstring(L,(char*)b.data(),sizeX*sizeY*sizeof(floatFloat));
+                                }
                                 else
                                     pushDoubleTableOntoStack(L,sizeX*sizeY,buffer);
                                 delete[] ((char*)buffer);
@@ -21648,7 +21675,7 @@ int _simRMLPos(luaWrap_lua_State* L)
                         CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
                         if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript))
                             ((int*)(auxData+1))[0]=1; // destroy at simulation end!
-                        retVal=simRMLPos_internal(dofs,timeStep,flags,currentPosVelAccel,maxVelAccelJerk,(unsigned char*)selection,targetPosVel,auxData);
+                        retVal=simRMLPos_internal(dofs,timeStep,flags,currentPosVelAccel,maxVelAccelJerk,(bool*)selection,targetPosVel,auxData);
                         delete[] targetPosVel;
                     }
                     delete[] selection;
@@ -21767,7 +21794,7 @@ int _simRMLVel(luaWrap_lua_State* L)
                         if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript))
                             ((int*)(auxData+1))[0]=1; // destroy at simulation end!
 
-                        retVal=simRMLVel_internal(dofs,timeStep,flags,currentPosVelAccel,maxAccelJerk,(unsigned char*)selection,targetVel,auxData);
+                        retVal=simRMLVel_internal(dofs,timeStep,flags,currentPosVelAccel,maxAccelJerk,(bool*)selection,targetVel,auxData);
                         delete[] targetVel;
                     }
                     delete[] selection;

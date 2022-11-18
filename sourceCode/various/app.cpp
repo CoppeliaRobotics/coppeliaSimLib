@@ -113,7 +113,7 @@ void App::simulationThreadInit()
     int auxData[4]={App::worldContainer->getModificationFlags(true),0,0,0};
     void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,nullptr,nullptr);
     if (replyBuffer!=nullptr)
-        simReleaseBuffer_internal((simChar*)replyBuffer);
+        simReleaseBuffer_internal((char*)replyBuffer);
 #ifdef SIM_WITH_GUI
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
@@ -138,7 +138,7 @@ void App::simulationThreadDestroy()
     int auxData[4]={0,0,0,0};
     void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_lastinstancepass,auxData,nullptr,nullptr);
     if (replyBuffer!=nullptr)
-        simReleaseBuffer_internal((simChar*)replyBuffer);
+        simReleaseBuffer_internal((char*)replyBuffer);
 
     App::worldContainer->addOnScriptContainer->removeAllAddOns();
     App::worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup,nullptr,nullptr);
@@ -181,7 +181,7 @@ void App::simulationThreadLoop()
     int auxData[4]={App::worldContainer->getModificationFlags(true),0,0,0};
     void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,nullptr,nullptr);
     if (replyBuffer!=nullptr)
-        simReleaseBuffer_internal((simChar*)replyBuffer);
+        simReleaseBuffer_internal((char*)replyBuffer);
 #ifdef SIM_WITH_GUI
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;

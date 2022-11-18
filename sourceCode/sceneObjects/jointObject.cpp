@@ -1626,7 +1626,7 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],floatDouble currentPos
                         double maxVelAccelJerk[3]={double(_maxVelAccelJerk[0]),double(_maxVelAccelJerk[1]),double(_maxVelAccelJerk[2])};
                         double targetVel=double(_targetVel);
                         double pos=0.0;
-                        unsigned char sel=1;
+                        bool sel=true;
                         int ruckObj=CPluginContainer::ruckigPlugin_vel(-1,1,double(dynStepSize),-1,&pos,dynVelCtrlCurrentVelAccel,dynVelCtrlCurrentVelAccel+1,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&targetVel);
                         if (ruckObj>=0)
                         {
@@ -1678,7 +1678,7 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],floatDouble currentPos
                     double cp=double(currentPosVelAccel[0]);
                     double tp=cp+double(errorV);
                     double maxVelAccelJerk[3]={double(_maxVelAccelJerk[0]),double(_maxVelAccelJerk[1]),double(_maxVelAccelJerk[2])};
-                    unsigned char sel=1;
+                    bool sel=true;
                     double dummy=0.0;
                     int ruckObj=CPluginContainer::ruckigPlugin_pos(-1,1,dynStepSize,-1,&cp,dynPosCtrlCurrentVelAccel,dynPosCtrlCurrentVelAccel+1,maxVelAccelJerk,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&tp,&dummy);
                     if (ruckObj>=0)
@@ -2789,7 +2789,7 @@ void CJoint::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         floatFloat a,b,v;
-                        ar >> a >> b >> v;
+                        ar.flt() >> a >> b >> v;
                         _maxAcceleration_DEPRECATED=(floatDouble)a;
                         _velocity_DEPRECATED=(floatDouble)b;
                         _targetVel=(floatDouble)v;
@@ -2868,7 +2868,15 @@ void CJoint::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _targetPos;
+                        floatFloat a;
+                        ar.flt() >> a;
+                        _targetPos=(floatDouble)a;
+                    }
+                    if (theName.compare("_tp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar.dbl() >> _targetPos;
                     }
                     if (theName.compare("Od1")==0)
                     { // keep for backward compat. (09/03/2016)

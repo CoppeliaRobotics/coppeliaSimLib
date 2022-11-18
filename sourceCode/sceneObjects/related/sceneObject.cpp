@@ -117,7 +117,7 @@ void CSceneObject::setForceAlwaysVisible_tmp(bool force)
     _forceAlwaysVisible_tmp=force;
 }
 
-void CSceneObject::measureVelocity(float dt)
+void CSceneObject::measureVelocity(floatDouble dt)
 {
     C7Vector abs(getCumulativeTransformation());
     if (_previousPositionOrientationIsValid)
@@ -151,18 +151,18 @@ int CSceneObject::getAuthorizedViewableObjects() const
 }
 
 
-void CSceneObject::setTransparentObjectDistanceOffset(float d)
+void CSceneObject::setTransparentObjectDistanceOffset(floatDouble d)
 {
     _transparentObjectDistanceOffset=d;
 }
 
-float CSceneObject::getTransparentObjectDistanceOffset() const
+floatDouble CSceneObject::getTransparentObjectDistanceOffset() const
 {
     return(_transparentObjectDistanceOffset);
 }
 
 
-float CSceneObject::getMeasuredAngularVelocity() const
+floatDouble CSceneObject::getMeasuredAngularVelocity() const
 {
     return(_measuredAngularVelocity_velocityMeasurement);
 }
@@ -627,25 +627,25 @@ bool CSceneObject::getDynamicsResetFlag() const
 }
 
 
-void CSceneObject::setSizeFactor(float f)
+void CSceneObject::setSizeFactor(floatDouble f)
 {
     f=tt::getLimitedFloat(0.000001f,1000000.0f,f);
     _sizeFactor=f;
 }
 
-float CSceneObject::getSizeFactor() const
+floatDouble CSceneObject::getSizeFactor() const
 {
     return(_sizeFactor);
 }
 
-void CSceneObject::setSizeValues(const float s[3])
+void CSceneObject::setSizeValues(const floatDouble s[3])
 {
     _sizeValues[0]=s[0];
     _sizeValues[1]=s[1];
     _sizeValues[2]=s[2];
 }
 
-void CSceneObject::getSizeValues(float s[3]) const
+void CSceneObject::getSizeValues(floatDouble s[3]) const
 {
     s[0]=_sizeValues[0];
     s[1]=_sizeValues[1];
@@ -896,7 +896,7 @@ void CSceneObject::clearManipulationModeOverlayGridFlag()
     _objectManipulationMode_flaggedForGridOverlay=0;
 }
 
-void CSceneObject::scaleObject(float scalingFactor)
+void CSceneObject::scaleObject(floatDouble scalingFactor)
 {
     _sizeFactor*=scalingFactor;
     _sizeValues[0]*=scalingFactor;
@@ -908,7 +908,7 @@ void CSceneObject::scaleObject(float scalingFactor)
     App::worldContainer->setModificationFlag(256); // object scaled
 }
 
-void CSceneObject::scaleObjectNonIsometrically(float x,float y,float z)
+void CSceneObject::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
     _sizeFactor*=cbrt(x*y*z);
     _sizeValues[0]*=x;
@@ -920,7 +920,7 @@ void CSceneObject::scaleObjectNonIsometrically(float x,float y,float z)
     App::worldContainer->setModificationFlag(256); // object scaled
 }
 
-void CSceneObject::scalePosition(float scalingFactor) 
+void CSceneObject::scalePosition(floatDouble scalingFactor)
 { // This routine will scale an object's position. The object itself keeps the same size.
     C7Vector local(getLocalTransformation());
     setLocalTransformation(local.X*scalingFactor);
@@ -1280,7 +1280,7 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
 {
     data->appendMapObject_stringInt32("layer",_visibilityLayer);
     data->appendMapObject_stringInt32("childOrder",_childOrder);
-    float p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
+    floatDouble p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
     data->appendMapObject_stringFloatArray("pose",p,7);
     data->appendMapObject_stringString("alias",_objectAlias.c_str(),0);
     data->appendMapObject_stringString("oldName",_objectName_old.c_str(),0);
@@ -1540,50 +1540,50 @@ int CSceneObject::getObjectMovementRelativity(int index) const
     return(_objectMovementRelativity[index]);
 }
 
-void CSceneObject::setObjectMovementStepSize(int index,float s)
+void CSceneObject::setObjectMovementStepSize(int index,floatDouble s)
 {
     if (index==0)
     {
         if (s<0.0005)
-            s=0.0f; // default
+            s=0.0; // default
         else
         {
-            float sc=1.0f;
-            if ((s>=0.0075f)&&(s<0.075f))
-                sc=10.0f;
-            if (s>=0.075f)
-                sc=100.0f;
-            if (s<0.0015f*sc)
-                s=0.001f*sc;
-            else if (s<0.00375f*sc)
+            floatDouble sc=1.0;
+            if ((s>=0.0075)&&(s<0.075))
+                sc=10.0;
+            if (s>=0.075)
+                sc=100.0;
+            if (s<0.0015*sc)
+                s=0.001*sc;
+            else if (s<0.00375*sc)
             {
-                if (sc<2.0f)
-                    s=0.002f*sc;
+                if (sc<2.0)
+                    s=0.002*sc;
                 else
-                    s=0.0025f*sc;
+                    s=0.0025*sc;
             }
             else
-                s=0.005f*sc;
+                s=0.005*sc;
         }
     }
     else
     {
-        if (s<0.05f*degToRad)
-            s=0.0f; // default
-        else if (s<1.5f*degToRad)
-            s=1.0f*degToRad;
-        else if (s<3.5f*degToRad)
-            s=2.0f*degToRad;
-        else if (s<7.5f*degToRad)
-            s=5.0f*degToRad;
-        else if (s<12.5f*degToRad)
-            s=10.0f*degToRad;
-        else if (s<22.5f*degToRad)
-            s=15.0f*degToRad;
-        else if (s<37.5f*degToRad)
-            s=30.0f*degToRad;
+        if (s<0.05*degToRad)
+            s=0.0; // default
+        else if (s<1.5*degToRad)
+            s=1.0*degToRad;
+        else if (s<3.5*degToRad)
+            s=2.0*degToRad;
+        else if (s<7.5*degToRad)
+            s=5.0*degToRad;
+        else if (s<12.5*degToRad)
+            s=10.0*degToRad;
+        else if (s<22.5*degToRad)
+            s=15.0*degToRad;
+        else if (s<37.5*degToRad)
+            s=30.0*degToRad;
         else
-            s=45.0f*degToRad;
+            s=45.0*degToRad;
     }
     bool diff=(_objectMovementStepSize[index]!=s);
     if (diff)
@@ -1598,7 +1598,7 @@ void CSceneObject::setObjectMovementStepSize(int index,float s)
     }
 }
 
-float CSceneObject::getObjectMovementStepSize(int index) const
+floatDouble CSceneObject::getObjectMovementStepSize(int index) const
 {
     return(_objectMovementStepSize[index]);
 }
@@ -2090,16 +2090,32 @@ void CSceneObject::serialize(CSer& ar)
             ar << ((unsigned char)57) << ((unsigned char)58) << ((unsigned char)59);
             ar.flush();
 
-            ar.storeDataName("Cfq");
             C7Vector tr=getLocalTransformation();
+#ifdef TMPOPERATION
+            ar.storeDataName("Cfq");
             if (_ignorePosAndCameraOrthoviewSize_forUndoRedo)
                 tr.setIdentity();
-            ar << tr.Q(0) << tr.Q(1) << tr.Q(2) << tr.Q(3) << tr.X(0) << tr.X(1) << tr.X(2);
+            ar.flt() << (floatFloat)tr.Q(0) << (floatFloat)tr.Q(1) << (floatFloat)tr.Q(2) << (floatFloat)tr.Q(3) << (floatFloat)tr.X(0) << (floatFloat)tr.X(1) << (floatFloat)tr.X(2);
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_fq");
+            if (_ignorePosAndCameraOrthoviewSize_forUndoRedo)
+                tr.setIdentity();
+            ar.dbl() << tr.Q(0) << tr.Q(1) << tr.Q(2) << tr.Q(3) << tr.X(0) << tr.X(1) << tr.X(2);
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Alt");
-            ar << _assemblingLocalTransformation.Q(0) << _assemblingLocalTransformation.Q(1) << _assemblingLocalTransformation.Q(2) << _assemblingLocalTransformation.Q(3) << _assemblingLocalTransformation.X(0) << _assemblingLocalTransformation.X(1) << _assemblingLocalTransformation.X(2);
+            ar.flt() << (floatFloat)_assemblingLocalTransformation.Q(0) << (floatFloat)_assemblingLocalTransformation.Q(1) << (floatFloat)_assemblingLocalTransformation.Q(2) << (floatFloat)_assemblingLocalTransformation.Q(3) << (floatFloat)_assemblingLocalTransformation.X(0) << (floatFloat)_assemblingLocalTransformation.X(1) << (floatFloat)_assemblingLocalTransformation.X(2);
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_lt");
+            ar.dbl() << _assemblingLocalTransformation.Q(0) << _assemblingLocalTransformation.Q(1) << _assemblingLocalTransformation.Q(2) << _assemblingLocalTransformation.Q(3) << _assemblingLocalTransformation.X(0) << _assemblingLocalTransformation.X(1) << _assemblingLocalTransformation.X(2);
+            ar.flush();
+#endif
 
             ar.storeDataName("Am2");
             ar << int(_assemblyMatchValuesChild.size());
@@ -2192,21 +2208,53 @@ void CSceneObject::serialize(CSer& ar)
             ar << _childOrder;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Om5");
-            ar << _objectMovementPreferredAxes << _objectMovementRelativity[0] << _objectMovementStepSize[0];
+            ar << _objectMovementPreferredAxes << _objectMovementRelativity[0];
+            ar.flt() << (floatFloat)_objectMovementStepSize[0];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_m5");
+            ar << _objectMovementPreferredAxes << _objectMovementRelativity[0];
+            ar.dbl() << _objectMovementStepSize[0];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Omr");
-            ar << _objectMovementRelativity[1] << _objectMovementStepSize[1];
+            ar << _objectMovementRelativity[1];
+            ar.flt() << (floatFloat)_objectMovementStepSize[1];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_mr");
+            ar << _objectMovementRelativity[1];
+            ar.dbl() << _objectMovementStepSize[1];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Sfa");
-            ar << _sizeFactor;
+            ar.flt() << (floatFloat)_sizeFactor;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_fa");
+            ar.dbl() << _sizeFactor;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Sfb");
-            ar << _sizeValues[0] << _sizeValues[1] << _sizeValues[2];
+            ar.flt() << (floatFloat)_sizeValues[0] << (floatFloat)_sizeValues[1] << (floatFloat)_sizeValues[2];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_fb");
+            ar.dbl() << _sizeValues[0] << _sizeValues[1] << _sizeValues[2];
+            ar.flush();
+#endif
 
             if (_customObjectData.getDataCount()!=0)
             {
@@ -2274,9 +2322,16 @@ void CSceneObject::serialize(CSer& ar)
             ar << _uniquePersistentIdString;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Tdo");
-            ar << _transparentObjectDistanceOffset;
+            ar.flt() << (floatFloat)_transparentObjectDistanceOffset;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_do");
+            ar.dbl() << _transparentObjectDistanceOffset;
+            ar.flush();
+#endif
 
             ar.storeDataName("Avo");
             ar << _authorizedViewableObjects;
@@ -2309,11 +2364,28 @@ void CSceneObject::serialize(CSer& ar)
                         ar >> dummy >> dummy >> dummy;
                     }
                     if (theName.compare("Cfq")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        C7Vector tr;
+                        floatFloat a[7];
+                        for (size_t ai=0;ai<7;ai++)
+                            ar.flt() >> a[ai];
+                        tr.Q(0)=(floatDouble)a[0];
+                        tr.Q(1)=(floatDouble)a[1];
+                        tr.Q(2)=(floatDouble)a[2];
+                        tr.Q(3)=(floatDouble)a[3];
+                        tr.X(0)=(floatDouble)a[4];
+                        tr.X(1)=(floatDouble)a[5];
+                        tr.X(2)=(floatDouble)a[6];
+                        setLocalTransformation(tr);
+                    }
+                    if (theName.compare("_fq")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         C7Vector tr;
-                        ar >> tr.Q(0) >> tr.Q(1) >> tr.Q(2) >> tr.Q(3) >> tr.X(0) >> tr.X(1) >> tr.X(2);
+                        ar.dbl() >> tr.Q(0) >> tr.Q(1) >> tr.Q(2) >> tr.Q(3) >> tr.X(0) >> tr.X(1) >> tr.X(2);
                         setLocalTransformation(tr);
                     }
                     if (theName.compare("Hci")==0)
@@ -2329,10 +2401,31 @@ void CSceneObject::serialize(CSer& ar)
                         ar >> _collectionSelfCollisionIndicator;
                     }
                     if (theName.compare("Alt")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat a[7];
+                        for (size_t ai=0;ai<7;ai++)
+                            ar.flt() >> a[ai];
+                        _assemblingLocalTransformation.Q(0)=(floatDouble)a[0];
+                        _assemblingLocalTransformation.Q(1)=(floatDouble)a[1];
+                        _assemblingLocalTransformation.Q(2)=(floatDouble)a[2];
+                        _assemblingLocalTransformation.Q(3)=(floatDouble)a[3];
+                        _assemblingLocalTransformation.X(0)=(floatDouble)a[4];
+                        _assemblingLocalTransformation.X(1)=(floatDouble)a[5];
+                        _assemblingLocalTransformation.X(2)=(floatDouble)a[6];
+                        if (ar.getSerializationVersionThatWroteThisFile()<20)
+                        {
+                            C3Vector v(_assemblingLocalTransformation.Q(1),_assemblingLocalTransformation.Q(2),_assemblingLocalTransformation.Q(3));
+                            if ( (_assemblingLocalTransformation.X.getLength()>0.0)||(v.getLength()>0.0) )
+                                _assemblingLocalTransformationIsUsed_compatibility=true;
+                        }
+                    }
+                    if (theName.compare("_lt")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _assemblingLocalTransformation.Q(0) >> _assemblingLocalTransformation.Q(1) >> _assemblingLocalTransformation.Q(2) >> _assemblingLocalTransformation.Q(3) >> _assemblingLocalTransformation.X(0) >> _assemblingLocalTransformation.X(1) >> _assemblingLocalTransformation.X(2);
+                        ar.dbl() >> _assemblingLocalTransformation.Q(0) >> _assemblingLocalTransformation.Q(1) >> _assemblingLocalTransformation.Q(2) >> _assemblingLocalTransformation.Q(3) >> _assemblingLocalTransformation.X(0) >> _assemblingLocalTransformation.X(1) >> _assemblingLocalTransformation.X(2);
                         if (ar.getSerializationVersionThatWroteThisFile()<20)
                         {
                             C3Vector v(_assemblingLocalTransformation.Q(1),_assemblingLocalTransformation.Q(2),_assemblingLocalTransformation.Q(3));
@@ -2520,16 +2613,36 @@ void CSceneObject::serialize(CSer& ar)
                         ar >> _childOrder;
                     }
                     if (theName.compare("Om5")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _objectMovementPreferredAxes >> _objectMovementRelativity[0];
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _objectMovementStepSize[0]=(floatDouble)bla;
+                    }
+                    if (theName.compare("_m5")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _objectMovementPreferredAxes >> _objectMovementRelativity[0] >> _objectMovementStepSize[0];
+                        ar >> _objectMovementPreferredAxes >> _objectMovementRelativity[0];
+                        ar.dbl() >> _objectMovementStepSize[0];
                     }
                     if (theName.compare("Omr")==0)
+                    {  // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _objectMovementRelativity[1];
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _objectMovementStepSize[1]=(floatDouble)bla;
+                    }
+                    if (theName.compare("_mr")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _objectMovementRelativity[1] >> _objectMovementStepSize[1];
+                        ar >> _objectMovementRelativity[1];
+                        ar.dbl() >> _objectMovementStepSize[1];
                     }
                     if (theName.compare("Cda")==0)
                     {
@@ -2595,17 +2708,35 @@ void CSceneObject::serialize(CSer& ar)
                         }
                     }
                     if (theName.compare("Sfa")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _sizeFactor=(floatDouble)bla;
+                    }
+                    if (theName.compare("_fa")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _sizeFactor;
+                        ar.dbl() >> _sizeFactor;
                     }
 
                     if (theName.compare("Sfb")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        _sizeValues[0]=(floatDouble)bla;
+                        _sizeValues[1]=(floatDouble)bli;
+                        _sizeValues[2]=(floatDouble)blo;
+                    }
+                    if (theName.compare("_fb")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _sizeValues[0] >> _sizeValues[1] >> _sizeValues[2];
+                        ar.dbl() >> _sizeValues[0] >> _sizeValues[1] >> _sizeValues[2];
                     }
 
                     if (theName.compare("Ack")==0)
@@ -2613,9 +2744,6 @@ void CSceneObject::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _modelAcknowledgement;
-                        if (CSimFlavor::getBoolVal(18))
-                        {
-                        }
                     }
                     if (theName.compare("Ups")==0)
                     {
@@ -2632,10 +2760,18 @@ void CSceneObject::serialize(CSer& ar)
                         ar >> _uniquePersistentIdString;
                     }
                     if (theName.compare("Tdo")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _transparentObjectDistanceOffset=(floatDouble)bla;
+                    }
+                    if (theName.compare("_do")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _transparentObjectDistanceOffset;
+                        ar.dbl() >> _transparentObjectDistanceOffset;
                     }
                     if (theName.compare("Avo")==0)
                     {
@@ -3598,7 +3734,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
     App::setLightDialogRefreshFlag(); // to actualize the position and orientation dialogs!
     bool isPath=false;
     bool isPathPoints=false;
-    float sizeValueForPath=0.0f;
+    floatDouble sizeValueForPath=0.0;
     C3Vector localPositionOnPath;
     localPositionOnPath.clear();
     if (_objectType==sim_object_path_type)
@@ -3646,10 +3782,10 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
             localPositionOnPath+=c;
         }
         if (pathPointsToTakeIntoAccount.size()!=0)
-            localPositionOnPath/=float(pathPointsToTakeIntoAccount.size());
+            localPositionOnPath/=floatDouble(pathPointsToTakeIntoAccount.size());
         else
             return; // Should normally never happen
-        sizeValueForPath=std::max<float>((maxCoord-minCoord).getLength()/3.0f,pc->getSquareSize()*2.0f);
+        sizeValueForPath=std::max<floatDouble>((maxCoord-minCoord).getLength()/3.0f,pc->getSquareSize()*2.0f);
     }
 
     C4X4Matrix tr;
@@ -3693,15 +3829,15 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
 
         bool b=true;
         if (!getGlobalMarkingBoundingBox(ctmi,bbMin,bbMax,b,true,true))
-            bbMax=C3Vector(0.1f,0.1f,0.1f); // shouldn't happen!
+            bbMax=C3Vector(0.1,0.1,0.1); // shouldn't happen!
     }
     else
         getBoundingBox(bbMin,bbMax);
     C3Vector bbs(bbMax-bbMin);
 
-    float halfSize=0.0f;
+    floatDouble halfSize=0.0;
     // add the average size of the bounding box (important for models)
-    C3Vector bbsavg((bbMax+bbMin)*0.5f);
+    C3Vector bbsavg((bbMax+bbMin)*0.5);
     if (_objectManipulationMode_flaggedForGridOverlay&8)
     { // rotation
         // set the orientation according to the rotation axis:
@@ -3709,23 +3845,23 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         if (axisInfo==0)
         { // rotation around the x-axis
             rot.buildYRotation(piValD2);
-            bbsavg(1)=0.0f;
-            bbsavg(2)=0.0f;
-            halfSize=1.5f*std::max<float>(bbs(1),bbs(2))/2.0f;
+            bbsavg(1)=0.0;
+            bbsavg(2)=0.0;
+            halfSize=1.5*std::max<floatDouble>(bbs(1),bbs(2))/2.0;
         }
         if (axisInfo==1)
         { // rotation around the y-axis
             rot.buildXRotation(-piValD2);
-            bbsavg(0)=0.0f;
-            bbsavg(2)=0.0f;
-            halfSize=1.5f*std::max<float>(bbs(0),bbs(2))/2.0f;
+            bbsavg(0)=0.0;
+            bbsavg(2)=0.0;
+            halfSize=1.5*std::max<floatDouble>(bbs(0),bbs(2))/2.0;
         }
         if (axisInfo==2)
         { // rotation around the z-axis
             rot.setIdentity();
-            bbsavg(0)=0.0f;
-            bbsavg(1)=0.0f;
-            halfSize=1.5f*std::max<float>(bbs(0),bbs(1))/2.0f;
+            bbsavg(0)=0.0;
+            bbsavg(1)=0.0;
+            halfSize=1.5*std::max<floatDouble>(bbs(0),bbs(1))/2.0;
         }
 
         if (isPath)
@@ -3739,7 +3875,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
     else
     {
         if (!isPath)
-            halfSize=1.5f*(bbs(0)+bbs(1)+bbs(2))/6.0f;
+            halfSize=1.5*(bbs(0)+bbs(1)+bbs(2))/6.0;
         else
             halfSize=sizeValueForPath;
 
@@ -3769,70 +3905,70 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         C4Vector axis=rrot.getQuaternion().getAngleAndAxis();
         glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
-        float a=5.0f*piValue/180.0f-_objectManipulationModeTotalRotation;
-        float oldX=cos(-_objectManipulationModeTotalRotation);
-        float oldY=sin(-_objectManipulationModeTotalRotation);
-        float h=halfSize*0.9f;
-        float ha=halfSize*0.95f;
+        floatDouble a=5.0*piValue/180.0-_objectManipulationModeTotalRotation;
+        floatDouble oldX=cos(-_objectManipulationModeTotalRotation);
+        floatDouble oldY=sin(-_objectManipulationModeTotalRotation);
+        floatDouble h=halfSize*0.9;
+        floatDouble ha=halfSize*0.95;
         int cnt=1;
 
         // First the flat green circle:
         ogl::setMaterialColor(sim_colorcomponent_emission,ogl::MANIPULATION_MODE_OVERLAY_COLOR);
-        glPolygonOffset(0.5f,0.0f); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
+        glPolygonOffset(0.5,0.0); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
         glEnable(GL_POLYGON_OFFSET_FILL);
         glBegin(GL_QUADS);
         for (int i=0;i<72;i++)
         {
-            glVertex3f(oldX*h,oldY*h,0.0f);
-            glVertex3f(oldX*halfSize,oldY*halfSize,0.0f);
+            glVertex3f(oldX*h,oldY*h,0.0);
+            glVertex3f(oldX*halfSize,oldY*halfSize,0.0);
             oldX=cos(a);
             oldY=sin(a);
-            a+=5.0f*piValue/180.0f;
-            glVertex3f(oldX*halfSize,oldY*halfSize,0.0f);
-            glVertex3f(oldX*h,oldY*h,0.0f);
+            a+=5.0*piValue/180.0;
+            glVertex3f(oldX*halfSize,oldY*halfSize,0.0);
+            glVertex3f(oldX*h,oldY*h,0.0);
         }
         glEnd();
         glDisable(GL_POLYGON_OFFSET_FILL);
 
         // Now the graduation:
         ogl::setMaterialColor(sim_colorcomponent_emission,ogl::MANIPULATION_MODE_OVERLAY_GRID_COLOR);
-        a=5.0f*piValue/180.0f-_objectManipulationModeTotalRotation;
+        a=5.0*piValue/180.0-_objectManipulationModeTotalRotation;
         oldX=cos(-_objectManipulationModeTotalRotation);
         oldY=sin(-_objectManipulationModeTotalRotation);
         for (int i=0;i<72;i++)
         {
             glBegin(GL_LINE_STRIP);
-            glVertex3f(oldX*halfSize,oldY*halfSize,0.0f);
+            glVertex3f(oldX*halfSize,oldY*halfSize,0.0);
             oldX=cos(a);
             oldY=sin(a);
-            a+=5.0f*piValue/180.0f;
-            glVertex3f(oldX*halfSize,oldY*halfSize,0.0f);
+            a+=5.0*piValue/180.0;
+            glVertex3f(oldX*halfSize,oldY*halfSize,0.0);
             if (cnt==0)
-                glVertex3f(oldX*h,oldY*h,0.0f);
+                glVertex3f(oldX*h,oldY*h,0.0);
             else
-                glVertex3f(oldX*ha,oldY*ha,0.0f);
+                glVertex3f(oldX*ha,oldY*ha,0.0);
             cnt++;
             if (cnt==3)
                 cnt=0;
             glEnd();
         }
         // Now the moving part:
-        glLineWidth(3.0f);
-        float h2=halfSize*0.8f;
-        ogl::drawSingle3dLine(-h,0.0f,0.0f,h,0.0f,0.0f,nullptr);
-        ogl::drawSingle3dLine(h,0.0f,0.0f,cos(0.1f)*h2,sin(0.1f)*h2,0.0f,nullptr);
-        ogl::drawSingle3dLine(h,0.0f,0.0f,cos(-0.1f)*h2,sin(-0.1f)*h2,0.0f,nullptr);
+        glLineWidth(3.0);
+        floatDouble h2=halfSize*0.8;
+        ogl::drawSingle3dLine(-h,0.0,0.0,h,0.0,0.0,nullptr);
+        ogl::drawSingle3dLine(h,0.0,0.0,cos(0.1)*h2,sin(0.1)*h2,0.0,nullptr);
+        ogl::drawSingle3dLine(h,0.0,0.0,cos(-0.1)*h2,sin(-0.1)*h2,0.0,nullptr);
         std::string s(gv::getAngleStr(true,_objectManipulationModeTotalRotation));
-        float h3=halfSize*1.1f;
+        floatDouble h3=halfSize*1.1;
 
         if (transparentAndOverlay)
             ogl::setBlending(false);
-        ogl::drawBitmapTextTo3dPosition(h3,0.0f,halfSize*0.05f,s.c_str(),nullptr);
+        ogl::drawBitmapTextTo3dPosition(h3,0.0,halfSize*0.05,s.c_str(),nullptr);
         if (transparentAndOverlay)
             ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-        ogl::drawSingle3dLine(0.0f,-h,0.0f,0.0f,h,0.0f,nullptr);
-        glLineWidth(1.0f);
+        ogl::drawSingle3dLine(0.0,-h,0.0,0.0,h,0.0,nullptr);
+        glLineWidth(1.0);
     }
     else
     { // translation
@@ -3874,37 +4010,37 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         glTranslatef(-totTransl(0),-totTransl(1),-totTransl(2));
         C3Vector dir[2]={C3Vector::unitXVector,C3Vector::unitYVector};
         C3Vector perp[2]={C3Vector::unitYVector,C3Vector::unitXVector};
-        float unt=0.001f;
-        float h=halfSize*2.0f;
+        floatDouble unt=0.001;
+        floatDouble h=halfSize*2.0;
         if (h/unt>20)
-            unt=0.002f;
+            unt=0.002;
         if (h/unt>20)
-            unt=0.005f;
+            unt=0.005;
         if (h/unt>20)
-            unt=0.01f;
+            unt=0.01;
         if (h/unt>20)
-            unt=0.02f;
+            unt=0.02;
         if (h/unt>20)
-            unt=0.05f;
+            unt=0.05;
         if (h/unt>20)
-            unt=0.1f;
+            unt=0.1;
         if (h/unt>20)
-            unt=0.2f;
+            unt=0.2;
         if (h/unt>20)
-            unt=0.5f;
+            unt=0.5;
 
         int grdCnt=int(h/unt);
         C3Vector v;
 
         // First the green bands:
         ogl::setMaterialColor(sim_colorcomponent_emission,ogl::MANIPULATION_MODE_OVERLAY_COLOR);
-        glPolygonOffset(0.5f,0.0f); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
+        glPolygonOffset(0.5,0.0); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
         glEnable(GL_POLYGON_OFFSET_FILL);
         glBegin(GL_QUADS);
         for (int axis=0;axis<2;axis++)
         {
-            v=dir[axis]*-unt*float(grdCnt+1);
-            C3Vector w(perp[axis]*-unt*0.6f);
+            v=dir[axis]*-unt*floatDouble(grdCnt+1);
+            C3Vector w(perp[axis]*-unt*0.6);
             glVertex3f(v(0)+w(0),v(1)+w(1),v(2)+w(2));
             glVertex3f(v(0)-w(0),v(1)-w(1),v(2)-w(2));
             glVertex3f(-v(0)-w(0),-v(1)-w(1),-v(2)-w(2));
@@ -3920,16 +4056,16 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         ogl::buffer.clear();
         for (int axis=0;axis<2;axis++)
         {
-            v=dir[axis]*-unt*float(grdCnt+1);
+            v=dir[axis]*-unt*floatDouble(grdCnt+1);
             ogl::addBuffer3DPoints(v(0),v(1),v(2));
-            v*=-1.0f;
+            v*=-1.0;
             ogl::addBuffer3DPoints(v(0),v(1),v(2));
             for (int i=-grdCnt;i<=grdCnt;i++)
             {
-                C3Vector w(dir[axis]*-unt*float(i));
-                v=perp[axis]*-unt*0.6f;
+                C3Vector w(dir[axis]*-unt*floatDouble(i));
+                v=perp[axis]*-unt*0.6;
                 ogl::addBuffer3DPoints(v(0)+w(0),v(1)+w(1),v(2)+w(2));
-                v*=-1.0f;
+                v*=-1.0;
                 ogl::addBuffer3DPoints(v(0)+w(0),v(1)+w(1),v(2)+w(2));
             }
             if (xAxisOnly)
@@ -3947,28 +4083,28 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         for (int axis=0;axis<2;axis++)
         {
             C3Vector w,s;
-            w=perp[axis]*-unt*0.8f;
-            s=dir[axis]*unt*0.8f;
-            v=dir[axis]*-unt*float(grdCnt+1);
+            w=perp[axis]*-unt*0.8;
+            s=dir[axis]*unt*0.8;
+            v=dir[axis]*-unt*floatDouble(grdCnt+1);
             ogl::addBuffer3DPoints(v(0),v(1),v(2));
-            v*=-1.0f;
+            v*=-1.0;
             ogl::addBuffer3DPoints(v(0)+s(0),v(1)+s(1),v(2)+s(2));
             ogl::addBuffer3DPoints(v(0)+s(0),v(1)+s(1),v(2)+s(2));
             ogl::addBuffer3DPoints(v(0)+w(0),v(1)+w(1),v(2)+w(2));
             ogl::addBuffer3DPoints(v(0)+s(0),v(1)+s(1),v(2)+s(2));
             ogl::addBuffer3DPoints(v(0)-w(0),v(1)-w(1),v(2)-w(2));
             std::string st(gv::getSizeStr(true,totTransl(axis),0));
-            ogl::drawBitmapTextTo3dPosition(v(0)+s(0)*2.0f+w(0)*2.0f,v(1)+s(1)*2.0f+w(1)*2.0f,v(2)+s(2)*2.0f+w(2)*2.0f,st.c_str(),nullptr);
+            ogl::drawBitmapTextTo3dPosition(v(0)+s(0)*2.0+w(0)*2.0,v(1)+s(1)*2.0+w(1)*2.0,v(2)+s(2)*2.0+w(2)*2.0,st.c_str(),nullptr);
             if (xAxisOnly)
                 break;
         }
         if (transparentAndOverlay)
             ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        glLineWidth(3.0f);
+        glLineWidth(3.0);
         if (ogl::buffer.size()!=0)
             ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,nullptr);
         ogl::buffer.clear();
-        glLineWidth(1.0f);
+        glLineWidth(1.0);
     }
     glPopMatrix();
 
@@ -3979,7 +4115,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
     }
 }
 
-bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix& cameraAbsConf,float rotationAmount,bool perspective,int eventID)
+bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix& cameraAbsConf,floatDouble rotationAmount,bool perspective,int eventID)
 { // bits 0-2: position x,y,z (relative to parent frame), bits 3-5: Euler e9,e1,e2 (relative to own frame)
     if ( (!App::currentWorld->simulation->isSimulationStopped())&&(getObjectMovementOptions()&8))
     {
@@ -4009,10 +4145,10 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
         if (otherAxisMemorized>2)
             otherAxisMemorized=0;
         _objectManipulationModeSubTranslation.clear();
-        _objectManipulationModeSubRotation=0.0f;
+        _objectManipulationModeSubRotation=0.0;
         _objectManipulationModeEventId=eventID;
         _objectManipulationModeTotalTranslation.clear();
-        _objectManipulationModeTotalRotation=0.0f;
+        _objectManipulationModeTotalRotation=0.0;
         // Let's first see around which axis we wanna rotate:
         int _objectMovementPreferredAxesTEMP=getObjectMovementPreferredAxes();
         bool specialMode=false;
@@ -4027,11 +4163,11 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
         if (getObjectMovementRelativity(1)==0)
             rotAxes.setIdentity(); // absolute frame
 
-        float ml=0.0f;
+        floatDouble ml=0.0;
         _objectManipulationModeAxisIndex=-1;
         for (int i=0;i<3;i++)
         {
-            float l;
+            floatDouble l;
             if (perspective)
                 l=(cameraAbsConf.X-objAbs.X) *rotAxes.axis[i];
             else
@@ -4068,17 +4204,17 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
     if (_objectManipulationModeAxisIndex==-1)
         return(false); //rotation not allowed
 
-    float ss=getObjectMovementStepSize(1);
-    if (ss==0.0f)
+    floatDouble ss=getObjectMovementStepSize(1);
+    if (ss==0.0)
         ss=App::userSettings->getRotationStepSize();
     if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
     {
-        ss=0.1f*degToRad;
-        rotationAmount/=5.0f;
+        ss=0.1*degToRad;
+        rotationAmount/=5.0;
     }
-    float axisEffectiveRotationAmount=0.0f;
+    floatDouble axisEffectiveRotationAmount=0.0;
     _objectManipulationModeSubRotation+=rotationAmount;
-    float w=fmod(_objectManipulationModeSubRotation,ss);
+    floatDouble w=fmod(_objectManipulationModeSubRotation,ss);
     axisEffectiveRotationAmount=_objectManipulationModeSubRotation-w;
     _objectManipulationModeTotalRotation+=axisEffectiveRotationAmount;
     _objectManipulationModeSubRotation=w;
@@ -4107,7 +4243,7 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
 }
 
 
-bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,float prevPos[2],float pos[2],float screenHalfSizes[2],float halfSizes[2],bool perspective,int eventID)
+bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,floatDouble prevPos[2],floatDouble pos[2],floatDouble screenHalfSizes[2],floatDouble halfSizes[2],bool perspective,int eventID)
 { // bits 0-2: position x,y,z (relative to parent frame), bits 3-5: Euler e9,e1,e2 (relative to own frame)
 
     if ( (!App::currentWorld->simulation->isSimulationStopped())&&(getObjectMovementOptions()&2))
@@ -4147,10 +4283,10 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
         if (otherAxisMemorized>1)
             otherAxisMemorized=0;
         _objectManipulationModeSubTranslation.clear();
-        _objectManipulationModeSubRotation=0.0f;
+        _objectManipulationModeSubRotation=0.0;
         _objectManipulationModeEventId=eventID;
         _objectManipulationModeTotalTranslation.clear();
-        _objectManipulationModeTotalRotation=0.0f;
+        _objectManipulationModeTotalRotation=0.0;
         // Let's first see on which plane we wanna translate:
         int _objectMovementPreferredAxesTEMP=getObjectMovementPreferredAxes();
         bool specialMode=false;
@@ -4165,12 +4301,12 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
             else
                 specialMode=true;
         }
-        float ml=0.0f;
+        floatDouble ml=0.0;
         _objectManipulationModeAxisIndex=-1;
         unsigned char planeComb[3]={6,5,3};
         for (int i=0;i<3;i++)
         {
-            float l;
+            floatDouble l;
             if (perspective)
                 l=(cameraAbsConf.X-objAbs.X)*objAbs.M.axis[i];
             else
@@ -4242,14 +4378,14 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
 
     C4X4Matrix plane(originalPlane);
     C3Vector p[2]; // previous and current point on the plane
-    float d=-(plane.X*plane.M.axis[2]);
-    float screenP[2]={prevPos[0],prevPos[1]};
+    floatDouble d=-(plane.X*plane.M.axis[2]);
+    floatDouble screenP[2]={prevPos[0],prevPos[1]};
     C4X4Matrix cam(cameraAbsConf);
     bool singularityProblem=false;
 
     for (int pass=0;pass<2;pass++)
     {
-        float tt[2];
+        floatDouble tt[2];
         for (int i=0;i<2;i++)
         {
             if (i==1)
@@ -4260,14 +4396,14 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
             C3Vector pp(cam.X);
             if (!perspective)
             {
-                if (fabs(cam.M.axis[2]*plane.M.axis[2])<0.05f)
+                if (fabs(cam.M.axis[2]*plane.M.axis[2])<0.05)
                 {
                     singularityProblem=true;
                     break;
                 }
                 pp-=cam.M.axis[0]*halfSizes[0]*(screenP[0]/screenHalfSizes[0]);
                 pp+=cam.M.axis[1]*halfSizes[1]*(screenP[1]/screenHalfSizes[1]);
-                float t=(-d-(plane.M.axis[2]*pp))/(cam.M.axis[2]*plane.M.axis[2]);
+                floatDouble t=(-d-(plane.M.axis[2]*pp))/(cam.M.axis[2]*plane.M.axis[2]);
                 p[i]=pp+cam.M.axis[2]*t;
             }
             else
@@ -4275,19 +4411,19 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
                 C3Vector v(cam.M.axis[2]+cam.M.axis[0]*tan(-screenP[0])+cam.M.axis[1]*tan(screenP[1]));
                 v.normalize();
                 pp+=v;
-                if (fabs(v*plane.M.axis[2])<0.05f)
+                if (fabs(v*plane.M.axis[2])<0.05)
                 {
                     singularityProblem=true;
                     break;
                 }
-                float t=(-d-(plane.M.axis[2]*pp))/(v*plane.M.axis[2]);
+                floatDouble t=(-d-(plane.M.axis[2]*pp))/(v*plane.M.axis[2]);
                 tt[i]=t;
                 p[i]=pp+v*t;
             }
         }
         if (!singularityProblem)
         {
-            if ((!perspective)||(tt[0]*tt[1]>0.0f))
+            if ((!perspective)||(tt[0]*tt[1]>0.0))
                 break;
             singularityProblem=true;
         }
@@ -4298,10 +4434,10 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
         C4X4Matrix inv(originalPlane.getInverse());
         p[0]*=inv;
         p[1]*=inv;
-        p[0](1)=0.0f;
-        p[0](2)=0.0f;
-        p[1](1)=0.0f;
-        p[1](2)=0.0f;
+        p[0](1)=0.0;
+        p[0](2)=0.0;
+        p[1](1)=0.0;
+        p[1](2)=0.0;
         p[0]*=originalPlane;
         p[1]*=originalPlane;
     }
@@ -4312,8 +4448,8 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
             C4X4Matrix inv(originalPlane.getInverse());
             p[0]*=inv;
             p[1]*=inv;
-            p[0](2)=0.0f;
-            p[1](2)=0.0f;
+            p[0](2)=0.0;
+            p[1](2)=0.0;
             p[0]*=originalPlane;
             p[1]*=originalPlane;
         }
@@ -4325,12 +4461,12 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
     _objectManipulationModeSubTranslation+=v;
     for (int i=0;i<3;i++)
     {
-        float ss=getObjectMovementStepSize(0);
-        if (ss==0.0f)
+        floatDouble ss=getObjectMovementStepSize(0);
+        if (ss==0.0)
             ss=App::userSettings->getTranslationStepSize();
         if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
-            ss=0.001f;
-        float w=fmod(_objectManipulationModeSubTranslation(i),ss);
+            ss=0.001;
+        floatDouble w=fmod(_objectManipulationModeSubTranslation(i),ss);
         v(i)=_objectManipulationModeSubTranslation(i)-w;
         _objectManipulationModeTotalTranslation(i)+=_objectManipulationModeSubTranslation(i)-w;
         _objectManipulationModeSubTranslation(i)=w;
@@ -4475,7 +4611,7 @@ void CSceneObject::setLocalTransformation(const C7Vector& tr)
         {
             const char* cmd="pose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
-            float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+            floatDouble p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
             data->appendMapObject_stringFloatArray(cmd,p,7);
             App::worldContainer->pushEvent(event);
         }
@@ -4494,7 +4630,7 @@ void CSceneObject::setLocalTransformation(const C4Vector& q)
         {
             const char* cmd="pose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
-            float p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
+            floatDouble p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
             data->appendMapObject_stringFloatArray(cmd,p,7);
             App::worldContainer->pushEvent(event);
         }
@@ -4517,7 +4653,7 @@ void CSceneObject::setLocalTransformation(const C3Vector& x)
         {
             const char* cmd="pose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
-            float p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
+            floatDouble p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
             data->appendMapObject_stringFloatArray(cmd,p,7);
             App::worldContainer->pushEvent(event);
         }

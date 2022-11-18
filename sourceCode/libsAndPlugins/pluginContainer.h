@@ -49,6 +49,8 @@ typedef void* (__cdecl *ptr_geomPlugin_createOctreeFromOctree)(const void* other
 typedef void* (__cdecl *ptr_geomPlugin_copyOctree)(const void* ocStruct);
 typedef void* (__cdecl *ptr_geomPlugin_getOctreeFromSerializationData)(const unsigned char* serializationData);
 typedef unsigned char* (__cdecl *ptr_geomPlugin_getOctreeSerializationData)(const void* ocStruct,int* serializationDataSize);
+typedef void* (__cdecl *ptr_geomPlugin_getOctreeFromSerializationData_float)(const unsigned char* serializationData);
+typedef unsigned char* (__cdecl *ptr_geomPlugin_getOctreeSerializationData_float)(const void* ocStruct,int* serializationDataSize);
 typedef void (__cdecl *ptr_geomPlugin_scaleOctree)(void* ocStruct,float f);
 typedef void (__cdecl *ptr_geomPlugin_destroyOctree)(void* ocStruct);
 typedef float* (__cdecl *ptr_geomPlugin_getOctreeVoxelData)(const void* ocStruct,int* voxelCount);
@@ -66,6 +68,8 @@ typedef void* (__cdecl *ptr_geomPlugin_createPtcloudFromColorPoints)(const float
 typedef void* (__cdecl *ptr_geomPlugin_copyPtcloud)(const void* pcStruct);
 typedef void* (__cdecl *ptr_geomPlugin_getPtcloudFromSerializationData)(const unsigned char* serializationData);
 typedef unsigned char* (__cdecl *ptr_geomPlugin_getPtcloudSerializationData)(const void* pcStruct,int* serializationDataSize);
+typedef void* (__cdecl *ptr_geomPlugin_getPtcloudFromSerializationData_float)(const unsigned char* serializationData);
+typedef unsigned char* (__cdecl *ptr_geomPlugin_getPtcloudSerializationData_float)(const void* pcStruct,int* serializationDataSize);
 typedef void (__cdecl *ptr_geomPlugin_scalePtcloud)(void* pcStruct,float f);
 typedef void (__cdecl *ptr_geomPlugin_destroyPtcloud)(void* pcStruct);
 typedef float* (__cdecl *ptr_geomPlugin_getPtcloudPoints)(const void* pcStruct,int* pointCount,float prop);
@@ -170,8 +174,8 @@ typedef char* (__cdecl *ptrCodeEditor_getText)(int handle,int* positionAndSize);
 typedef int (__cdecl *ptrCodeEditor_show)(int handle,int showState);
 typedef int (__cdecl *ptrCodeEditor_close)(int handle,int* positionAndSize);
 
-typedef int (__cdecl *ptrRuckigPlugin_pos)(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetPos,const double* targetVel);
-typedef int (__cdecl *ptrRuckigPlugin_vel)(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetVel);
+typedef int (__cdecl *ptrRuckigPlugin_pos)(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const bool* selection,const double* targetPos,const double* targetVel);
+typedef int (__cdecl *ptrRuckigPlugin_vel)(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const bool* selection,const double* targetVel);
 typedef int (__cdecl *ptrRuckigPlugin_step)(int objHandle,double timeStep,double* newPos,double* newVel,double* newAccel,double* syncTime);
 typedef int (__cdecl *ptrRuckigPlugin_remove)(int objHandle);
 typedef int (__cdecl *ptrRuckigPlugin_dofs)(int objHandle);
@@ -236,6 +240,8 @@ public:
     ptr_geomPlugin_copyOctree geomPlugin_copyOctree;
     ptr_geomPlugin_getOctreeFromSerializationData geomPlugin_getOctreeFromSerializationData;
     ptr_geomPlugin_getOctreeSerializationData geomPlugin_getOctreeSerializationData;
+    ptr_geomPlugin_getOctreeFromSerializationData_float geomPlugin_getOctreeFromSerializationData_float;
+    ptr_geomPlugin_getOctreeSerializationData_float geomPlugin_getOctreeSerializationData_float;
     ptr_geomPlugin_scaleOctree geomPlugin_scaleOctree;
     ptr_geomPlugin_destroyOctree geomPlugin_destroyOctree;
     ptr_geomPlugin_getOctreeVoxelData geomPlugin_getOctreeVoxelData;
@@ -253,6 +259,8 @@ public:
     ptr_geomPlugin_copyPtcloud geomPlugin_copyPtcloud;
     ptr_geomPlugin_getPtcloudFromSerializationData geomPlugin_getPtcloudFromSerializationData;
     ptr_geomPlugin_getPtcloudSerializationData geomPlugin_getPtcloudSerializationData;
+    ptr_geomPlugin_getPtcloudFromSerializationData_float geomPlugin_getPtcloudFromSerializationData_float;
+    ptr_geomPlugin_getPtcloudSerializationData_float geomPlugin_getPtcloudSerializationData_float;
     ptr_geomPlugin_scalePtcloud geomPlugin_scalePtcloud;
     ptr_geomPlugin_destroyPtcloud geomPlugin_destroyPtcloud;
     ptr_geomPlugin_getPtcloudPoints geomPlugin_getPtcloudPoints;
@@ -457,6 +465,8 @@ public:
     static void* geomPlugin_copyOctree(const void* ocStruct);
     static void* geomPlugin_getOctreeFromSerializationData(const unsigned char* serializationData);
     static void geomPlugin_getOctreeSerializationData(const void* ocStruct,std::vector<unsigned char>& serializationData);
+    static void* geomPlugin_getOctreeFromSerializationData_float(const unsigned char* serializationData);
+    static void geomPlugin_getOctreeSerializationData_float(const void* ocStruct,std::vector<unsigned char>& serializationData);
     static void geomPlugin_scaleOctree(void* ocStruct,float f);
     static void geomPlugin_destroyOctree(void* ocStruct);
     static void geomPlugin_getOctreeVoxelPositions(const void* ocStruct,std::vector<float>& voxelPositions);
@@ -478,6 +488,8 @@ public:
     static void* geomPlugin_copyPtcloud(const void* pcStruct);
     static void* geomPlugin_getPtcloudFromSerializationData(const unsigned char* serializationData);
     static void geomPlugin_getPtcloudSerializationData(const void* pcStruct,std::vector<unsigned char>& serializationData);
+    static void* geomPlugin_getPtcloudFromSerializationData_float(const unsigned char* serializationData);
+    static void geomPlugin_getPtcloudSerializationData_float(const void* pcStruct,std::vector<unsigned char>& serializationData);
     static void geomPlugin_scalePtcloud(void* pcStruct,float f);
     static void geomPlugin_destroyPtcloud(void* pcStruct);
     static void geomPlugin_getPtcloudPoints(const void* pcStruct,std::vector<float>& pointData,std::vector<float>* colors=nullptr,float prop=1.0f);
@@ -611,8 +623,8 @@ public:
 
     // Ruckig plugin:
     static CPlugin* currentRuckigPlugin;
-    static int ruckigPlugin_pos(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetPos,const double* targetVel);
-    static int ruckigPlugin_vel(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetVel);
+    static int ruckigPlugin_pos(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const bool* selection,const double* targetPos,const double* targetVel);
+    static int ruckigPlugin_vel(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const bool* selection,const double* targetVel);
     static int ruckigPlugin_step(int objHandle,double timeStep,double* newPos,double* newVel,double* newAccel,double* syncTime);
     static int ruckigPlugin_remove(int objHandle);
     static int ruckigPlugin_dofs(int objHandle);

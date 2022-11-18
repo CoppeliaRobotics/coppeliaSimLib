@@ -15,6 +15,11 @@ public:
     int getParentCount();
 
 private:
+    static void pushFloatToBuffer(floatDouble d,std::vector<char>& data);
+    static floatDouble popFloatFromBuffer(std::vector<char>& data);
+    static void pushIntToBuffer(int d,std::vector<char>& data);
+    static int popIntFromBuffer(std::vector<char>& data);
+
     // General 3D objects:
     C7Vector configuration;
     long long int uniqueID;
@@ -25,5 +30,5 @@ private:
     C4Vector sphericalJointOrientation;
 
     // Joints and paths:
-    float position;
+    floatDouble position;
 };

@@ -342,7 +342,7 @@ int CGlBufferObjects::_buildVertexBuffer(const floatFloat* individualVertices,in
         buff.buffer->create();
         buff.buffer->bind();
         buff.buffer->setUsagePattern(QGLBuffer::StaticDraw);
-        buff.buffer->allocate(individualVertices,3*individualVerticesCnt*sizeof(float));
+        buff.buffer->allocate(individualVertices,3*individualVerticesCnt*sizeof(floatFloat));
         buff.qglBufferInitialized=true;
     }
     else
@@ -388,7 +388,7 @@ int CGlBufferObjects::_buildNormalBuffer(const floatFloat* normals,int normalsCn
         buff.buffer->create();
         buff.buffer->bind();
         buff.buffer->setUsagePattern(QGLBuffer::StaticDraw);
-        buff.buffer->allocate(normals,3*normalsCnt*sizeof(float));
+        buff.buffer->allocate(normals,3*normalsCnt*sizeof(floatFloat));
         buff.qglBufferInitialized=true;
     }
     else
@@ -430,7 +430,7 @@ int CGlBufferObjects::_buildTexCoordBuffer(const floatFloat* texCoords,int texCo
         buff.buffer->create();
         buff.buffer->bind();
         buff.buffer->setUsagePattern(QGLBuffer::StaticDraw);
-        buff.buffer->allocate(texCoords,2*texCoordsCnt*sizeof(float));
+        buff.buffer->allocate(texCoords,2*texCoordsCnt*sizeof(floatFloat));
         buff.qglBufferInitialized=true;
     }
     else

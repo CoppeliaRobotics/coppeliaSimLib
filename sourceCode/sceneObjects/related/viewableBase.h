@@ -12,7 +12,7 @@ public:
     // Following functions need to be implemented in each class derived from CViewableBase
     virtual CSceneObject* copyYourself();
     virtual void display(CViewableBase* renderingObject,int displayAttrib);
-    virtual void scaleObject(float scalingFactor);
+    virtual void scaleObject(floatDouble scalingFactor);
     virtual void serialize(CSer& ar);
     virtual void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     virtual void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -33,14 +33,14 @@ public:
     virtual bool isPotentiallyRenderable() const;
 
 
-    void setNearClippingPlane(float nearPlane);
-    float getNearClippingPlane() const;
-    void setFarClippingPlane(float farPlane);
-    float getFarClippingPlane() const;
-    void setViewAngle(float angle);
-    float getViewAngle() const;
-    void setOrthoViewSize(float theSize);
-    float getOrthoViewSize() const;
+    void setNearClippingPlane(floatDouble nearPlane);
+    floatDouble getNearClippingPlane() const;
+    void setFarClippingPlane(floatDouble farPlane);
+    floatDouble getFarClippingPlane() const;
+    void setViewAngle(floatDouble angle);
+    floatDouble getViewAngle() const;
+    void setOrthoViewSize(floatDouble theSize);
+    floatDouble getOrthoViewSize() const;
 
     void setShowFogIfAvailable(bool showFog);
     bool getShowFogIfAvailable() const;
@@ -50,8 +50,8 @@ public:
 
     void setFrustumCullingTemporarilyDisabled(bool d);
 
-    void setFogTimer(float seconds);
-    float getFogStrength();
+    void setFogTimer(floatDouble seconds);
+    floatDouble getFogStrength();
 
     void setUseLocalLights(bool l);
     bool getuseLocalLights();
@@ -72,18 +72,18 @@ public:
     static bool getFrustumCullingEnabled();
     static void setFrustumCullingEnabled(bool e);
 
-    std::vector<float> viewFrustum;
+    std::vector<floatDouble> viewFrustum;
 
     static bool fogWasActivated;
 
 protected:
     // View frustum culling:
-    bool _isBoxOutsideVolumeApprox(const C4X4Matrix& tr,const C3Vector& s,std::vector<float>* planes);
+    bool _isBoxOutsideVolumeApprox(const C4X4Matrix& tr,const C3Vector& s,std::vector<floatDouble>* planes);
     
-    float _nearClippingPlane;
-    float _farClippingPlane;
-    float _viewAngle;
-    float _orthoViewSize;
+    floatDouble _nearClippingPlane;
+    floatDouble _farClippingPlane;
+    floatDouble _viewAngle;
+    floatDouble _orthoViewSize;
     int _resolution[2];
     bool _perspective;
     bool _showVolume;
@@ -100,11 +100,11 @@ protected:
     bool _currentPerspective;
     bool _frustumCullingTemporarilyDisabled;
 
-    float _initialViewAngle;
-    float _initialOrthoViewSize;
+    floatDouble _initialViewAngle;
+    floatDouble _initialOrthoViewSize;
 
     int _fogTimer;
-    float _fogTimerDuration;
+    floatDouble _fogTimerDuration;
 
     int _disabledColorComponents; // not serialized
 

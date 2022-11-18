@@ -188,6 +188,8 @@ int CPlugin::load()
                 geomPlugin_copyOctree=(ptr_geomPlugin_copyOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_copyOctree"));
                 geomPlugin_getOctreeFromSerializationData=(ptr_geomPlugin_getOctreeFromSerializationData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeFromSerializationData"));
                 geomPlugin_getOctreeSerializationData=(ptr_geomPlugin_getOctreeSerializationData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeSerializationData"));
+                geomPlugin_getOctreeFromSerializationData_float=(ptr_geomPlugin_getOctreeFromSerializationData_float)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeFromSerializationData_float"));
+                geomPlugin_getOctreeSerializationData_float=(ptr_geomPlugin_getOctreeSerializationData_float)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeSerializationData_float"));
                 geomPlugin_scaleOctree=(ptr_geomPlugin_scaleOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_scaleOctree"));
                 geomPlugin_destroyOctree=(ptr_geomPlugin_destroyOctree)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_destroyOctree"));
                 geomPlugin_getOctreeVoxelData=(ptr_geomPlugin_getOctreeVoxelData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getOctreeVoxelData"));
@@ -205,6 +207,8 @@ int CPlugin::load()
                 geomPlugin_copyPtcloud=(ptr_geomPlugin_copyPtcloud)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_copyPtcloud"));
                 geomPlugin_getPtcloudFromSerializationData=(ptr_geomPlugin_getPtcloudFromSerializationData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudFromSerializationData"));
                 geomPlugin_getPtcloudSerializationData=(ptr_geomPlugin_getPtcloudSerializationData)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudSerializationData"));
+                geomPlugin_getPtcloudFromSerializationData_float=(ptr_geomPlugin_getPtcloudFromSerializationData_float)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudFromSerializationData_float"));
+                geomPlugin_getPtcloudSerializationData_float=(ptr_geomPlugin_getPtcloudSerializationData_float)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudSerializationData_float"));
                 geomPlugin_scalePtcloud=(ptr_geomPlugin_scalePtcloud)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_scalePtcloud"));
                 geomPlugin_destroyPtcloud=(ptr_geomPlugin_destroyPtcloud)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_destroyPtcloud"));
                 geomPlugin_getPtcloudPoints=(ptr_geomPlugin_getPtcloudPoints)(VVarious::resolveLibraryFuncName(lib,"geomPlugin_getPtcloudPoints"));
@@ -1098,6 +1102,26 @@ void CPluginContainer::geomPlugin_getOctreeSerializationData(const void* ocStruc
         }
     }
 }
+void* CPluginContainer::geomPlugin_getOctreeFromSerializationData_float(const unsigned char* serializationData)
+{
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+        retVal=currentGeomPlugin->geomPlugin_getOctreeFromSerializationData_float(serializationData);
+    return(retVal);
+}
+void CPluginContainer::geomPlugin_getOctreeSerializationData_float(const void* ocStruct,std::vector<unsigned char>& serializationData)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        int l;
+        unsigned char* data=currentGeomPlugin->geomPlugin_getOctreeSerializationData_float(ocStruct,&l);
+        if (data!=nullptr)
+        {
+            serializationData.assign(data,data+l);
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+    }
+}
 void CPluginContainer::geomPlugin_scaleOctree(void* ocStruct,float f)
 {
     if (currentGeomPlugin!=nullptr)
@@ -1302,6 +1326,26 @@ void CPluginContainer::geomPlugin_getPtcloudSerializationData(const void* pcStru
     {
         int l;
         unsigned char* data=currentGeomPlugin->geomPlugin_getPtcloudSerializationData(pcStruct,&l);
+        if (data!=nullptr)
+        {
+            serializationData.assign(data,data+l);
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+    }
+}
+void* CPluginContainer::geomPlugin_getPtcloudFromSerializationData_float(const unsigned char* serializationData)
+{
+    void* retVal=nullptr;
+    if (currentGeomPlugin!=nullptr)
+        retVal=currentGeomPlugin->geomPlugin_getPtcloudFromSerializationData_float(serializationData);
+    return(retVal);
+}
+void CPluginContainer::geomPlugin_getPtcloudSerializationData_float(const void* pcStruct,std::vector<unsigned char>& serializationData)
+{
+    if (currentGeomPlugin!=nullptr)
+    {
+        int l;
+        unsigned char* data=currentGeomPlugin->geomPlugin_getPtcloudSerializationData_float(pcStruct,&l);
         if (data!=nullptr)
         {
             serializationData.assign(data,data+l);
@@ -2681,7 +2725,7 @@ int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
     return(retVal);
 }
 
-int CPluginContainer::ruckigPlugin_pos(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetPos,const double* targetVel)
+int CPluginContainer::ruckigPlugin_pos(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const bool* selection,const double* targetPos,const double* targetVel)
 {
     int retVal=-2;
     if (currentRuckigPlugin!=nullptr)
@@ -2689,7 +2733,7 @@ int CPluginContainer::ruckigPlugin_pos(int scriptHandle,int dofs,double smallest
     return(retVal);
 }
 
-int CPluginContainer::ruckigPlugin_vel(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const unsigned char* selection,const double* targetVel)
+int CPluginContainer::ruckigPlugin_vel(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const bool* selection,const double* targetVel)
 {
     int retVal=-2;
     if (currentRuckigPlugin!=nullptr)

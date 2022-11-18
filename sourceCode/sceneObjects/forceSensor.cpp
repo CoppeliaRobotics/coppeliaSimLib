@@ -92,19 +92,19 @@ bool CForceSensor::getStillAutomaticallyBreaking()
     _stillAutomaticallyBreaking=false;
     return(retVal);
 }
-void CForceSensor::setForceThreshold(float t)
+void CForceSensor::setForceThreshold(floatDouble t)
 {
-    _forceThreshold=tt::getLimitedFloat(0.0f,10000000000.0f,t);
+    _forceThreshold=tt::getLimitedFloat(0.0,10000000000.0,t);
 }
-float CForceSensor::getForceThreshold() const
+floatDouble CForceSensor::getForceThreshold() const
 {
     return(_forceThreshold);
 }
-void CForceSensor::setTorqueThreshold(float t)
+void CForceSensor::setTorqueThreshold(floatDouble t)
 {
-    _torqueThreshold=tt::getLimitedFloat(0.0f,10000000000.0f,t);
+    _torqueThreshold=tt::getLimitedFloat(0.0,10000000000.0,t);
 }
-float CForceSensor::getTorqueThreshold() const
+floatDouble CForceSensor::getTorqueThreshold() const
 {
     return(_torqueThreshold);
 }
@@ -142,8 +142,8 @@ void CForceSensor::addCumulativeForcesAndTorques(const C3Vector& f,const C3Vecto
     _cumulativeTorquesTmp+=t;
     if (countForAverage>0)
     {
-        _cumulatedForces.push_back(_cumulativeForcesTmp/float(countForAverage));
-        _cumulatedTorques.push_back(_cumulativeTorquesTmp/float(countForAverage));
+        _cumulatedForces.push_back(_cumulativeForcesTmp/floatDouble(countForAverage));
+        _cumulatedTorques.push_back(_cumulativeTorquesTmp/floatDouble(countForAverage));
         _cumulativeForcesTmp.clear();
         _cumulativeTorquesTmp.clear();
         if (int(_cumulatedForces.size())>_valueCountForFilter)
@@ -178,17 +178,17 @@ void CForceSensor::_computeFilteredValues()
                 fo+=_cumulatedForces[i];
                 to+=_cumulatedTorques[i];
             }
-            _filteredDynamicForces=fo/float(_valueCountForFilter);
-            _filteredDynamicTorques=to/float(_valueCountForFilter);
+            _filteredDynamicForces=fo/floatDouble(_valueCountForFilter);
+            _filteredDynamicTorques=to/floatDouble(_valueCountForFilter);
         }
         if (_filterType==1)
         {
-            std::vector<float> fx;
-            std::vector<float> fy;
-            std::vector<float> fz;
-            std::vector<float> tx;
-            std::vector<float> ty;
-            std::vector<float> tz;
+            std::vector<floatDouble> fx;
+            std::vector<floatDouble> fy;
+            std::vector<floatDouble> fz;
+            std::vector<floatDouble> tx;
+            std::vector<floatDouble> ty;
+            std::vector<floatDouble> tz;
             for (int i=0;i<_valueCountForFilter;i++)
             {
                 fx.push_back(_cumulatedForces[i](0));
@@ -327,7 +327,7 @@ void CForceSensor::setIntrinsicTransformationError(const C7Vector& tr)
         {
             const char* cmd="intrinsicPose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+            floatDouble p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
             data->appendMapObject_stringFloatArray(cmd,p,7);
             App::worldContainer->pushEvent(event);
         }
@@ -341,12 +341,12 @@ void CForceSensor::getDynamicErrorsFull(C3Vector& linear,C3Vector& angular) cons
 }
 
 
-float CForceSensor::getDynamicPositionError() const
+floatDouble CForceSensor::getDynamicPositionError() const
 {
     return(_intrinsicTransformationError.X.getLength());
 }
 
-float CForceSensor::getDynamicOrientationError() const
+floatDouble CForceSensor::getDynamicOrientationError() const
 {
     return(_intrinsicTransformationError.Q.getAngleBetweenQuaternions(C4Vector::identityRotation));
 }
@@ -417,13 +417,13 @@ bool CForceSensor::isPotentiallyRenderable() const
 
 void CForceSensor::computeBoundingBox()
 {
-    C3Vector maxV(_forceSensorSize/2.0f,_forceSensorSize/2.0f,_forceSensorSize/2.0f);
-    _setBoundingBox(maxV*-1.0f,maxV);
+    C3Vector maxV(_forceSensorSize/2.0,_forceSensorSize/2.0,_forceSensorSize/2.0);
+    _setBoundingBox(maxV*-1.0,maxV);
 }
 
-void CForceSensor::setForceSensorSize(float s)
+void CForceSensor::setForceSensorSize(floatDouble s)
 {
-    tt::limitValue(0.001f,10.0f,s);
+    tt::limitValue(0.001,10.0,s);
     if (_forceSensorSize!=s)
     {
         _forceSensorSize=s;
@@ -438,12 +438,12 @@ void CForceSensor::setForceSensorSize(float s)
     }
 }
 
-float CForceSensor::getForceSensorSize() const
+floatDouble CForceSensor::getForceSensorSize() const
 {
     return(_forceSensorSize);
 }
 
-void CForceSensor::scaleObject(float scalingFactor)
+void CForceSensor::scaleObject(floatDouble scalingFactor)
 {
     setForceSensorSize(_forceSensorSize*scalingFactor);
     _forceThreshold*=scalingFactor*scalingFactor*scalingFactor;//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
@@ -454,7 +454,7 @@ void CForceSensor::scaleObject(float scalingFactor)
     _lastForceAndTorqueValid_dynStep=false;
 }
 
-void CForceSensor::scaleObjectNonIsometrically(float x,float y,float z)
+void CForceSensor::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
     scaleObject(cbrt(x*y*z));
 }
@@ -474,7 +474,7 @@ void CForceSensor::addSpecializedObjectEventData(CInterfaceStackTable* data) con
 
     CInterfaceStackTable* colors=new CInterfaceStackTable();
     data->appendMapObject_stringObject("colors",colors);
-    float c[9];
+    floatDouble c[9];
     _color.getColor(c,sim_colorcomponent_ambient_diffuse);
     _color.getColor(c+3,sim_colorcomponent_specular);
     _color.getColor(c+6,sim_colorcomponent_emission);
@@ -484,7 +484,7 @@ void CForceSensor::addSpecializedObjectEventData(CInterfaceStackTable* data) con
     _color_removeSoon.getColor(c+6,sim_colorcomponent_emission);
     colors->appendArrayObject_floatArray(c,9);
     C7Vector tr(getIntrinsicTransformation(true));
-    float p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+    floatDouble p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
     data->appendMapObject_stringFloatArray("intrinsicPose",p,7);
     // todo
 }
@@ -573,9 +573,16 @@ void CForceSensor::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {   // Storing.
+#ifdef TMPOPERATION
             ar.storeDataName("Siz");
-            ar << _forceSensorSize;
+            ar.flt() << (floatFloat)_forceSensorSize;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_iz");
+            ar.dbl() << _forceSensorSize;
+            ar.flush();
+#endif
 
             ar.storeDataName("Vab");
             unsigned char dummy=0;
@@ -586,9 +593,18 @@ void CForceSensor::serialize(CSer& ar)
             ar << dummy;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Tri");
-            ar << _forceThreshold << _torqueThreshold << _consecutiveThresholdViolationsForBreaking;
+            ar.flt() << (floatFloat)_forceThreshold << (floatFloat)_torqueThreshold;
+            ar << _consecutiveThresholdViolationsForBreaking;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_ri");
+            ar.dbl() << _forceThreshold << _torqueThreshold;
+            ar << _consecutiveThresholdViolationsForBreaking;
+            ar.flush();
+#endif
 
             ar.storeDataName("Fil");
             ar << _valueCountForFilter << _filterType;
@@ -615,10 +631,18 @@ void CForceSensor::serialize(CSer& ar)
                 {
                     bool noHit=true;
                     if (theName.compare("Siz")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat a;
+                        ar.flt() >> a;
+                        _forceSensorSize=(floatDouble)a;;
+                    }
+                    if (theName.compare("_iz")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _forceSensorSize;
+                        ar.dbl() >> _forceSensorSize;
                     }
                     if (theName.compare("Cl1")==0)
                     {
@@ -636,16 +660,31 @@ void CForceSensor::serialize(CSer& ar)
                         _torqueThresholdEnabled=SIM_IS_BIT_SET(dummy,1);
                     }
                     if (theName.compare("Tri")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        ar >> _consecutiveThresholdViolationsForBreaking;
+                        _forceThreshold=(floatDouble)bla;
+                        _torqueThreshold=(floatDouble)bli;
+                    }
+                    if (theName.compare("_ri")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _forceThreshold >> _torqueThreshold >> _consecutiveThresholdViolationsForBreaking;
+                        ar.dbl() >> _forceThreshold >> _torqueThreshold;
+                        ar >> _consecutiveThresholdViolationsForBreaking;
                     }
                     if (theName.compare("Tre")==0)
-                    {
+                    { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _forceThreshold >> _torqueThreshold >> _consecutiveThresholdViolationsForBreaking;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        ar >> _consecutiveThresholdViolationsForBreaking;
+                        _forceThreshold=(floatDouble)bla;
+                        _torqueThreshold=(floatDouble)bli;
                         _stillAutomaticallyBreaking=true;
                     }
                     if (theName.compare("Fil")==0)
@@ -748,7 +787,7 @@ void CForceSensor::serialize(CSer& ar)
             {
                 int rgb[3];
                 if (ar.xmlGetNode_ints("objectColor",rgb,3,false))
-                    _color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    _color.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
             }
 
             if (ar.xmlPushChildNode("color",false))
@@ -770,9 +809,9 @@ void CForceSensor::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("part1",rgb,3,exhaustiveXml))
-                        _color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        _color.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                     if (ar.xmlGetNode_ints("part2",rgb,3,exhaustiveXml))
-                        _color_removeSoon.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        _color_removeSoon.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }

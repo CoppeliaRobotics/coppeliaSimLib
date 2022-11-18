@@ -341,7 +341,7 @@ int CGraph::addOrUpdateCurve(CGraphCurve* curve)
     return(retVal);
 }
 
-bool CGraph::setDataStreamTransformation(int streamId,int trType,float mult,float off,int movAvgPeriod)
+bool CGraph::setDataStreamTransformation(int streamId,int trType,floatDouble mult,floatDouble off,int movAvgPeriod)
 {
     CGraphDataStream* stream=getGraphDataStream(streamId);
     if (stream!=nullptr)
@@ -353,7 +353,7 @@ bool CGraph::setDataStreamTransformation(int streamId,int trType,float mult,floa
     return(stream!=nullptr);
 }
 
-bool CGraph::setNextValueToInsert(int streamId,float v)
+bool CGraph::setNextValueToInsert(int streamId,floatDouble v)
 {
     CGraphDataStream* stream=getGraphDataStream(streamId);
     if (stream!=nullptr)
@@ -502,7 +502,7 @@ void CGraph::add3DPartners(CGraphDataComb_old* it)
     curves3d_old.push_back(it);
 }
 
-void CGraph::addNextPoint(float time)
+void CGraph::addNextPoint(floatDouble time)
 {
     int nextEntryPosition;
     if (numberOfPoints>=bufferSize)
@@ -533,7 +533,7 @@ void CGraph::addNextPoint(float time)
     for (size_t i=0;i<dataStreams_old.size();i++)
     {
         bool cyclic;
-        float range;
+        floatDouble range;
         CGraphingRoutines_old::getCyclicAndRangeValues(dataStreams_old[i],cyclic,range);
         dataStreams_old[i]->setValue(&m,nextEntryPosition,nextEntryPosition==startingPoint,cyclic,range,times);
         // Here we have to handle a special case: GRAPH_VARIOUS_TIME
@@ -556,13 +556,13 @@ int CGraph::getNumberOfPoints() const
     return(numberOfPoints);
 }
 
-void CGraph::scaleObject(float scalingFactor)
+void CGraph::scaleObject(floatDouble scalingFactor)
 {
     setGraphSize(_graphSize*scalingFactor);
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void CGraph::scaleObjectNonIsometrically(float x,float y,float z)
+void CGraph::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
     scaleObject(cbrt(x*y*z));
 }
@@ -668,14 +668,14 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
     { // time graph curves:
         if (curveIndex<int(dataStreams_old.size()))
         {
-            std::vector<float> timeValues;
-            std::vector<float> staticValues;
+            std::vector<floatDouble> timeValues;
+            std::vector<floatDouble> staticValues;
             CGraphData_old* it=dataStreams_old[curveIndex];
             int pos=0;
             int absIndex;
-            float yVal,xVal;
+            floatDouble yVal,xVal;
             bool cyclic;
-            float range;
+            floatDouble range;
             CGraphingRoutines_old::getCyclicAndRangeValues(it,cyclic,range);
             while (getAbsIndexOfPosition(pos++,absIndex))
             {
@@ -707,16 +707,16 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
     { // x/y graph curves:
         if (curveIndex<int(curves2d_old.size()))
         {
-            std::vector<float> values0;
-            std::vector<float> values1;
+            std::vector<floatDouble> values0;
+            std::vector<floatDouble> values1;
             CGraphDataComb_old* it=curves2d_old[curveIndex];
             int pos=0;
             int absIndex;
-            float val[3];
+            floatDouble val[3];
             CGraphData_old* number1=getGraphData(it->data[0]);
             CGraphData_old* number2=getGraphData(it->data[1]);
             bool cyclic1,cyclic2;
-            float range1,range2;
+            floatDouble range1,range2;
             if (number1!=nullptr)  
                 CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
             if (number2!=nullptr)  
@@ -768,18 +768,18 @@ void CGraph::makeCurveStatic(int curveIndex,int dimensionIndex)
     { // 3D graph curves:
         if (curveIndex<int(curves3d_old.size()))
         {
-            std::vector<float> values0;
-            std::vector<float> values1;
-            std::vector<float> values2;
+            std::vector<floatDouble> values0;
+            std::vector<floatDouble> values1;
+            std::vector<floatDouble> values2;
             CGraphDataComb_old* it=curves3d_old[curveIndex];
             int pos=0;
             int absIndex;
-            float val[3];
+            floatDouble val[3];
             CGraphData_old* number1=getGraphData(it->data[0]);
             CGraphData_old* number2=getGraphData(it->data[1]);
             CGraphData_old* number3=getGraphData(it->data[2]);
             bool cyclic1,cyclic2,cyclic3;
-            float range1,range2,range3;
+            floatDouble range1,range2,range3;
             if (number1!=nullptr)  
                 CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
             if (number2!=nullptr)  
@@ -856,7 +856,7 @@ CStaticGraphCurve_old* CGraph::getStaticCurveFromName(int type,const char* name)
     return(nullptr);
 }
 
-void CGraph::setGraphSize(float theNewSize)
+void CGraph::setGraphSize(floatDouble theNewSize)
 {
     tt::limitValue(0.001f,10.0f,theNewSize);
     if (_graphSize!=theNewSize)
@@ -873,7 +873,7 @@ void CGraph::setGraphSize(float theNewSize)
     }
 }
 
-float CGraph::getGraphSize() const
+floatDouble CGraph::getGraphSize() const
 {
     return(_graphSize);
 }
@@ -983,12 +983,12 @@ void CGraph::exportGraphData(VArchive &ar)
         int absIndex;
         while (getAbsIndexOfPosition(pos,absIndex))
         {
-            float time=times[absIndex];
+            floatDouble time=times[absIndex];
             txt+=tt::getFString(false,time,5);
             for (size_t i=0;i<_dataStreams.size();i++)
             {
                 txt+=",";
-                float val;
+                floatDouble val;
                 if (_dataStreams[i]->getExportValue(startingPoint,pos,&val,nullptr))
                     txt+=tt::getEString(true,val,4);
                 else
@@ -1001,9 +1001,9 @@ void CGraph::exportGraphData(VArchive &ar)
                 CGraphData_old* gr=dataStreams_old[i];
 
                 bool cyclic;
-                float range;
+                floatDouble range;
                 CGraphingRoutines_old::getCyclicAndRangeValues(gr,cyclic,range);
-                float val;
+                floatDouble val;
                 bool dataIsValid=getData(gr,absIndex,val,cyclic,range,true);
                 if (dataIsValid)
                     txt+=tt::getEString(true,val,4);
@@ -1018,7 +1018,7 @@ void CGraph::exportGraphData(VArchive &ar)
     ar.writeString(txt);
 }
 
-bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::vector<float>& xVals,std::vector<float>& yVals,int& curveType,float col[3],float minMax[6],int& curveId,int& curveWidth) const
+bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::vector<floatDouble>& xVals,std::vector<floatDouble>& yVals,int& curveType,floatDouble col[3],floatDouble minMax[6],int& curveId,int& curveWidth) const
 {
     if (graphType==0)
     { // time curves (dyn then static curves)
@@ -1108,10 +1108,10 @@ bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::v
                     int absIndex;
                     while (getAbsIndexOfPosition(pos++,absIndex))
                     {
-                        float xVal=times[absIndex];
-                        float yVal;
+                        floatDouble xVal=times[absIndex];
+                        floatDouble yVal;
                         bool cyclic;
-                        float range;
+                        floatDouble range;
                         CGraphingRoutines_old::getCyclicAndRangeValues(gr,cyclic,range);
                         bool dataIsValid=getData(gr,absIndex,yVal,cyclic,range,true);
                         if (dataIsValid)
@@ -1204,11 +1204,11 @@ bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::v
                     col[2]=it->curveColor.getColorsPtr()[2];
                     int pos=0;
                     int absIndex;
-                    float val[3];
+                    floatDouble val[3];
                     CGraphData_old* number1=getGraphData(it->data[0]);
                     CGraphData_old* number2=getGraphData(it->data[1]);
                     bool cyclic1,cyclic2;
-                    float range1,range2;
+                    floatDouble range1,range2;
                     if (number1!=nullptr)
                         CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
                     if (number2!=nullptr)
@@ -1328,8 +1328,8 @@ bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::v
 
 void CGraph::curveToClipboard(int graphType,const char* curveName) const
 {
-    std::vector<float> xVals;
-    std::vector<float> yVals;
+    std::vector<floatDouble> xVals;
+    std::vector<floatDouble> yVals;
     if (graphType==0)
     { // time curves, non-static
         CGraphDataStream* stream=getGraphDataStream(curveName,false);
@@ -1393,9 +1393,9 @@ void CGraph::curveToClipboard(int graphType,const char* curveName) const
         {
             int pos=0;
             int absIndex;
-            float yVal,xVal;
+            floatDouble yVal,xVal;
             bool cyclic;
-            float range;
+            floatDouble range;
             CGraphingRoutines_old::getCyclicAndRangeValues(it,cyclic,range);
             while (getAbsIndexOfPosition(pos++,absIndex))
             {
@@ -1425,11 +1425,11 @@ void CGraph::curveToClipboard(int graphType,const char* curveName) const
         {
             int pos=0;
             int absIndex;
-            float val[3];
+            floatDouble val[3];
             CGraphData_old* number1=getGraphData(it->data[0]);
             CGraphData_old* number2=getGraphData(it->data[1]);
             bool cyclic1,cyclic2;
-            float range1,range2;
+            floatDouble range1,range2;
             if (number1!=nullptr)
                 CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
             if (number2!=nullptr)
@@ -1546,13 +1546,13 @@ void CGraph::curveToStatic(int graphType,const char* curveName)
         }
         if (it!=nullptr)
         {
-            std::vector<float> timeValues;
-            std::vector<float> staticValues;
+            std::vector<floatDouble> timeValues;
+            std::vector<floatDouble> staticValues;
             int pos=0;
             int absIndex;
-            float yVal,xVal;
+            floatDouble yVal,xVal;
             bool cyclic;
-            float range;
+            floatDouble range;
             CGraphingRoutines_old::getCyclicAndRangeValues(it,cyclic,range);
             while (getAbsIndexOfPosition(pos++,absIndex))
             {
@@ -1593,15 +1593,15 @@ void CGraph::curveToStatic(int graphType,const char* curveName)
         }
         if (it!=nullptr)
         {
-            std::vector<float> values0;
-            std::vector<float> values1;
+            std::vector<floatDouble> values0;
+            std::vector<floatDouble> values1;
             int pos=0;
             int absIndex;
-            float val[3];
+            floatDouble val[3];
             CGraphData_old* number1=getGraphData(it->data[0]);
             CGraphData_old* number2=getGraphData(it->data[1]);
             bool cyclic1,cyclic2;
-            float range1,range2;
+            floatDouble range1,range2;
             if (number1!=nullptr)
                 CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
             if (number2!=nullptr)
@@ -1662,17 +1662,17 @@ void CGraph::curveToStatic(int graphType,const char* curveName)
         }
         if (it!=nullptr)
         {
-            std::vector<float> values0;
-            std::vector<float> values1;
-            std::vector<float> values2;
+            std::vector<floatDouble> values0;
+            std::vector<floatDouble> values1;
+            std::vector<floatDouble> values2;
             int pos=0;
             int absIndex;
-            float val[3];
+            floatDouble val[3];
             CGraphData_old* number1=getGraphData(it->data[0]);
             CGraphData_old* number2=getGraphData(it->data[1]);
             CGraphData_old* number3=getGraphData(it->data[2]);
             bool cyclic1,cyclic2,cyclic3;
-            float range1,range2,range3;
+            floatDouble range1,range2,range3;
             if (number1!=nullptr)
                 CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
             if (number2!=nullptr)
@@ -1939,14 +1939,14 @@ bool CGraph::getCyclic() const
     return(cyclic);
 }
 
-bool CGraph::getData(const CGraphData_old* it,int pos,float& outputValue,bool cyclic,float range,bool doUnitConversion) const
+bool CGraph::getData(const CGraphData_old* it,int pos,floatDouble& outputValue,bool cyclic,floatDouble range,bool doUnitConversion) const
 {
-    float cumulativeValue=0.0f;
+    floatDouble cumulativeValue=0.0f;
     int cumulativeValueCount=0;
     int movingAverageCount=it->getMovingAverageCount();
     for (int i=0;i<movingAverageCount;i++)
     {
-        float tmpVal;
+        floatDouble tmpVal;
         if (it->getValue(pos,tmpVal))
         {
             if (doUnitConversion)
@@ -1967,7 +1967,7 @@ bool CGraph::getData(const CGraphData_old* it,int pos,float& outputValue,bool cy
     }
 
     if (cumulativeValueCount>0)
-        outputValue=cumulativeValue/float(cumulativeValueCount);
+        outputValue=cumulativeValue/floatDouble(cumulativeValueCount);
     return(cumulativeValueCount>0);
 }
 
@@ -2019,9 +2019,16 @@ void CGraph::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {       // Storing
+#ifdef TMPOPERATION
             ar.storeDataName("Ghg");
-            ar << _graphSize;
+            ar.flt() << (floatFloat)_graphSize;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_hg");
+            ar.dbl() << _graphSize;
+            ar.flush();
+#endif
 
             ar.storeDataName("Cl0"); // Colors
             ar.setCountingMode();
@@ -2029,23 +2036,43 @@ void CGraph::serialize(CSer& ar)
             if (ar.setWritingMode())
                 color.serialize(ar,0);
 
+#ifdef TMPOPERATION
             ar.storeDataName("Cl1");
-            ar << backgroundColor[0] << backgroundColor[1] << backgroundColor[2];
-            ar << textColor[0] << textColor[1] << textColor[2];
+            ar.flt() << (floatFloat)backgroundColor[0] << (floatFloat)backgroundColor[1] << (floatFloat)backgroundColor[2];
+            ar.flt() << (floatFloat)textColor[0] << (floatFloat)textColor[1] << (floatFloat)textColor[2];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_l1");
+            ar.dbl() << backgroundColor[0] << backgroundColor[1] << backgroundColor[2];
+            ar.dbl() << textColor[0] << textColor[1] << textColor[2];
+            ar.flush();
+#endif
 
             ar.storeDataName("Gbv");
             ar << bufferSize << numberOfPoints;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Gtd"); // Should always come after bufferSize!!!
             for (int i=0;i<numberOfPoints;i++)
             {
                 int absIndex;
                 getAbsIndexOfPosition(i,absIndex);
-                ar << times[absIndex];
+                ar.flt() << (floatFloat)times[absIndex];
             }
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_td"); // Should always come after bufferSize!!!
+            for (int i=0;i<numberOfPoints;i++)
+            {
+                int absIndex;
+                getAbsIndexOfPosition(i,absIndex);
+                ar.dbl() << times[absIndex];
+            }
+            ar.flush();
+#endif
 
             for (size_t i=0;i<_dataStreams.size();i++)
             {
@@ -2065,10 +2092,8 @@ void CGraph::serialize(CSer& ar)
                     _curves[i]->serialize(ar,startingPoint,numberOfPoints,bufferSize);
             }
 
-            // Old:
-            //------------
             for (int i=0;i<int(dataStreams_old.size());i++)
-            {
+            { // old
                 ar.storeDataName("Ghd");
                 ar.setCountingMode();
                 dataStreams_old[i]->serialize(ar,this);
@@ -2076,7 +2101,7 @@ void CGraph::serialize(CSer& ar)
                     dataStreams_old[i]->serialize(ar,this);
             }
             for (int i=0;i<int(curves3d_old.size());i++)
-            {
+            { // old
                 ar.storeDataName("Gh3");
                 ar.setCountingMode();
                 curves3d_old[i]->serialize(ar);
@@ -2084,23 +2109,21 @@ void CGraph::serialize(CSer& ar)
                     curves3d_old[i]->serialize(ar);
             }
             for (int i=0;i<int(curves2d_old.size());i++)
-            {
+            { // old
                 ar.storeDataName("Gh2");
                 ar.setCountingMode();
                 curves2d_old[i]->serialize(ar);
                 if (ar.setWritingMode())
                     curves2d_old[i]->serialize(ar);
             }
-
             for (int i=0;i<int(staticStreamsAndCurves_old.size());i++)
-            {
+            { // old
                 ar.storeDataName("Sta");
                 ar.setCountingMode();
                 staticStreamsAndCurves_old[i]->serialize(ar);
                 if (ar.setWritingMode())
                     staticStreamsAndCurves_old[i]->serialize(ar);
             }
-            //------------
 
             ar.storeDataName("Gps");
             unsigned char nothing=0;
@@ -2126,10 +2149,18 @@ void CGraph::serialize(CSer& ar)
                 {
                     bool noHit=true;
                     if (theName.compare("Ghg")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _graphSize=(floatDouble)bla;
+                    }
+                    if (theName.compare("_hg")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _graphSize;
+                        ar.dbl() >> _graphSize;
                     }
                     if (theName.compare("Cl0")==0)
                     {
@@ -2138,11 +2169,25 @@ void CGraph::serialize(CSer& ar)
                         color.serialize(ar,0);
                     }
                     if (theName.compare("Cl1")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        backgroundColor[0]=(floatDouble)bla;
+                        backgroundColor[1]=(floatDouble)bli;
+                        backgroundColor[2]=(floatDouble)blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        textColor[0]=(floatDouble)bla;
+                        textColor[1]=(floatDouble)bli;
+                        textColor[2]=(floatDouble)blo;
+                    }
+                    if (theName.compare("_l1")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> backgroundColor[0] >> backgroundColor[1] >> backgroundColor[2];
-                        ar >> textColor[0] >> textColor[1] >> textColor[2];
+                        ar.dbl() >> backgroundColor[0] >> backgroundColor[1] >> backgroundColor[2];
+                        ar.dbl() >> textColor[0] >> textColor[1] >> textColor[2];
                     }
                     if (theName.compare("Gbv")==0)
                     {
@@ -2151,17 +2196,30 @@ void CGraph::serialize(CSer& ar)
                         ar >> bufferSize >> numberOfPoints;
                     }
                     if (theName.compare("Gtd")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        times.clear();
+                        for (int i=0;i<bufferSize;i++)
+                            times.push_back(0.0);
+                        for (int i=0;i<byteQuantity/int(sizeof(floatFloat));i++)
+                        {
+                            floatFloat aVal;
+                            ar.flt() >> aVal;
+                            times[i]=(floatDouble)aVal;
+                        }
+                    }
+                    if (theName.compare("_td")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        times.reserve(bufferSize);
                         times.clear();
                         for (int i=0;i<bufferSize;i++)
-                            times.push_back(0.0f);
-                        for (int i=0;i<byteQuantity/int(sizeof(float));i++)
+                            times.push_back(0.0);
+                        for (int i=0;i<byteQuantity/int(sizeof(floatDouble));i++)
                         {
-                            float aVal;
-                            ar >> aVal;
+                            floatDouble aVal;
+                            ar.dbl() >> aVal;
                             times[i]=aVal;
                         }
                     }
@@ -2300,7 +2358,7 @@ void CGraph::serialize(CSer& ar)
 
             if (exhaustiveXml)
             {
-                std::vector<float> tmp;
+                std::vector<floatDouble> tmp;
                 for (int i=0;i<numberOfPoints;i++)
                 {
                     int absIndex;
@@ -2372,18 +2430,18 @@ void CGraph::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("object",rgb,3,exhaustiveXml))
-                        color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        color.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                     if (ar.xmlGetNode_ints("background",rgb,3,exhaustiveXml))
                     {
-                        backgroundColor[0]=float(rgb[0])/255.1f;
-                        backgroundColor[1]=float(rgb[1])/255.1f;
-                        backgroundColor[2]=float(rgb[2])/255.1f;
+                        backgroundColor[0]=floatDouble(rgb[0])/255.1;
+                        backgroundColor[1]=floatDouble(rgb[1])/255.1;
+                        backgroundColor[2]=floatDouble(rgb[2])/255.1;
                     }
                     if (ar.xmlGetNode_ints("text",rgb,3,exhaustiveXml))
                     {
-                        textColor[0]=float(rgb[0])/255.1f;
-                        textColor[1]=float(rgb[1])/255.1f;
-                        textColor[2]=float(rgb[2])/255.1f;
+                        textColor[0]=floatDouble(rgb[0])/255.1;
+                        textColor[1]=floatDouble(rgb[1])/255.1;
+                        textColor[2]=floatDouble(rgb[2])/255.1;
                     }
                 }
                 ar.xmlPopNode();
@@ -2512,8 +2570,8 @@ void CGraph::lookAt(int windowSize[2],CSView* subView,bool timeGraph,bool drawTe
     int currentWinSize[2];
     int mouseRelativePosition[2];
     int mouseDownRelativePosition[2];
-    float graphPos[2]={-2.0f,-2.0f};
-    float graphSize[2]={4.0f,4.0f};
+    floatDouble graphPos[2]={-2.0,-2.0};
+    floatDouble graphSize[2]={4.0,4.0};
     int selectionStatus=NOSELECTION;
     bool autoMode=true;
     bool timeGraphYaxisAutoMode=true;
@@ -2588,37 +2646,37 @@ void CGraph::lookAt(int windowSize[2],CSView* subView,bool timeGraph,bool drawTe
     glEnable(GL_DEPTH_TEST);
 }
 
-void CGraph::drawGrid(int windowSize[2],float graphPosition[2],float graphSize[2])
+void CGraph::drawGrid(int windowSize[2],floatDouble graphPosition[2],floatDouble graphSize[2])
 {
-    float interline=((float)ogl::getInterline())*graphSize[1]/(float)windowSize[1];
-    float labelPos[2];
-    labelPos[0]=graphPosition[0]+3.0f*graphSize[0]/(float)windowSize[0];
-    labelPos[1]=graphPosition[1]+0.3f*interline;
+    floatDouble interline=((floatDouble)ogl::getInterline())*graphSize[1]/(floatDouble)windowSize[1];
+    floatDouble labelPos[2];
+    labelPos[0]=graphPosition[0]+3.0*graphSize[0]/(floatDouble)windowSize[0];
+    labelPos[1]=graphPosition[1]+0.3*interline;
 
     // First compute the x- and y-grid start and the x- and y-grid spacing
     int minNbOfLines[2]={8*windowSize[0]/1024,8*windowSize[1]/768};
     int maxNbOfLines[2]={2*minNbOfLines[0],2*minNbOfLines[1]};
 
-    float gridStartX=graphPosition[0];
-    float a=(float)((int)log10f(graphSize[0]));
-    if (graphSize[0]<1.0f)
-        a=a-1.0f;
-    float gridSpacingX=(float)pow(10.0f,a);
+    floatDouble gridStartX=graphPosition[0];
+    floatDouble a=(floatDouble)((int)log10f(graphSize[0]));
+    if (graphSize[0]<1.0)
+        a=a-1.0;
+    floatDouble gridSpacingX=(floatDouble)pow(10.0,a);
     while((graphSize[0]/gridSpacingX)<minNbOfLines[0])
-        gridSpacingX=gridSpacingX/2.0f;
+        gridSpacingX=gridSpacingX/2.0;
     while((graphSize[0]/gridSpacingX)>maxNbOfLines[0])
-        gridSpacingX=gridSpacingX*2.0f;
+        gridSpacingX=gridSpacingX*2.0;
     gridStartX=(((int)(gridStartX/gridSpacingX))*gridSpacingX)-gridSpacingX;
 
-    float gridStartY=graphPosition[1];
-    a=(float)((int)log10f(graphSize[1]));
-    if (graphSize[1]<1.0f)
-        a=a-1.0f;
-    float gridSpacingY=(float)pow(10.0f,a);
+    floatDouble gridStartY=graphPosition[1];
+    a=(floatDouble)((int)log10f(graphSize[1]));
+    if (graphSize[1]<1.0)
+        a=a-1.0;
+    floatDouble gridSpacingY=(floatDouble)pow(10.0,a);
     while ((graphSize[1]/gridSpacingY)<minNbOfLines[1])
-        gridSpacingY=gridSpacingY/2.0f;
+        gridSpacingY=gridSpacingY/2.0;
     while ((graphSize[1]/gridSpacingY)>maxNbOfLines[1])
-        gridSpacingY=gridSpacingY*2.0f;
+        gridSpacingY=gridSpacingY*2.0;
     gridStartY=(((int)(gridStartY/gridSpacingY))*gridSpacingY)-gridSpacingY;
 
     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,textColor);
@@ -2630,11 +2688,11 @@ void CGraph::drawGrid(int windowSize[2],float graphPosition[2],float graphSize[2
         for (int i=0;i<60;i++)
         {
                 ogl::addBuffer2DPoints(gridStartX+gridSpacingX*i,gridStartY);
-                ogl::addBuffer2DPoints(gridStartX+gridSpacingX*i,gridStartY+60.0f*gridSpacingY);
+                ogl::addBuffer2DPoints(gridStartX+gridSpacingX*i,gridStartY+60.0*gridSpacingY);
                 ogl::addBuffer2DPoints(gridStartX,gridStartY+gridSpacingY*i);
-                ogl::addBuffer2DPoints(gridStartX+60.0f*gridSpacingX,gridStartY+gridSpacingY*i);
+                ogl::addBuffer2DPoints(gridStartX+60.0*gridSpacingX,gridStartY+gridSpacingY*i);
         }
-        ogl::drawRandom2dLines(&ogl::buffer[0],(int)ogl::buffer.size()/2,false,0.0f);
+        ogl::drawRandom2dLines(&ogl::buffer[0],(int)ogl::buffer.size()/2,false,0.0);
         ogl::buffer.clear();
         glDisable(GL_LINE_STIPPLE);
     }
@@ -2646,10 +2704,10 @@ void CGraph::drawGrid(int windowSize[2],float graphPosition[2],float graphSize[2
             tmp=gv::getTimeStr(gridStartX+gridSpacingX*i);
             ogl::drawBitmapTextTo2dPosition(gridStartX+gridSpacingX*i,labelPos[1],tmp.c_str());
             int d=0;
-            if (fabs(gridSpacingY)>0.0f)
+            if (fabs(gridSpacingY)>0.0)
             {
-                float l=log10f(fabs(gridSpacingY));
-                d=int(1.5f-l);
+                floatDouble l=log10f(fabs(gridSpacingY));
+                d=int(1.5-l);
                 if (d<0)
                     d=0;
                 tmp=tt::FNb(0,gridStartY+gridSpacingY*i,d,false);
@@ -2659,20 +2717,20 @@ void CGraph::drawGrid(int windowSize[2],float graphPosition[2],float graphSize[2
     }
 }
 
-void CGraph::drawOverlay(int windowSize[2],float graphPosition[2],float graphSize[2],int mouseMode,CSView* subView,bool passiveSubView)
+void CGraph::drawOverlay(int windowSize[2],floatDouble graphPosition[2],floatDouble graphSize[2],int mouseMode,CSView* subView,bool passiveSubView)
 {
     // Draw the selection square
     if ( (subView!=nullptr)&&(!passiveSubView)&&subView->isMouseDown()&&(subView->getSelectionStatus()==SHIFTSELECTION) )
     {
-        float downRelPos[2];
-        float relPos[2];
+        floatDouble downRelPos[2];
+        floatDouble relPos[2];
         int aux[2];
         subView->getMouseDownRelativePosition(aux);
-        downRelPos[0]=graphPosition[0]+((float)aux[0]/(float)windowSize[0])*graphSize[0];
-        downRelPos[1]=graphPosition[1]+((float)aux[1]/(float)windowSize[1])*graphSize[1];
+        downRelPos[0]=graphPosition[0]+((floatDouble)aux[0]/(floatDouble)windowSize[0])*graphSize[0];
+        downRelPos[1]=graphPosition[1]+((floatDouble)aux[1]/(floatDouble)windowSize[1])*graphSize[1];
         subView->getMouseRelativePosition(aux);
-        relPos[0]=graphPosition[0]+((float)aux[0]/(float)windowSize[0])*graphSize[0];
-        relPos[1]=graphPosition[1]+((float)aux[1]/(float)windowSize[1])*graphSize[1];
+        relPos[0]=graphPosition[0]+((floatDouble)aux[0]/(floatDouble)windowSize[0])*graphSize[0];
+        relPos[1]=graphPosition[1]+((floatDouble)aux[1]/(floatDouble)windowSize[1])*graphSize[1];
         ogl::setAlpha(0.2f);
         if ((relPos[0]>downRelPos[0])&&(downRelPos[1]>relPos[1]))
         {
@@ -2710,25 +2768,25 @@ void CGraph::drawOverlay(int windowSize[2],float graphPosition[2],float graphSiz
 
 
 
-void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize[2],
+void CGraph::drawValues(int windowSize[2],floatDouble graphPosition[2],floatDouble graphSize[2],
                         int mousePosition[2],bool mouseIsDown,bool dontRender,
                         bool autoMode,bool timeGraphYaxisAutoMode,bool drawText,bool passiveSubView,bool timeGraph,CSView* subView)
 { // This is a quite ugly routine which requires refactoring!
     static bool markSelectedStream=false;
-    float interline=((float)ogl::getInterline())*graphSize[1]/(float)windowSize[1];
-    float labelPos[2];
-    float pixelSizeCoeff=graphSize[0]/(float)windowSize[0];
-    labelPos[0]=graphPosition[0]+graphSize[0]-3.0f*pixelSizeCoeff;
+    floatDouble interline=((floatDouble)ogl::getInterline())*graphSize[1]/(floatDouble)windowSize[1];
+    floatDouble labelPos[2];
+    floatDouble pixelSizeCoeff=graphSize[0]/(floatDouble)windowSize[0];
+    labelPos[0]=graphPosition[0]+graphSize[0]-3.0*pixelSizeCoeff;
     labelPos[1]=graphPosition[1]+graphSize[1]-interline;
 
-    float maxVal[2]={-FLOAT_MAX,-FLOAT_MAX};
-    float minVal[2]={+FLOAT_MAX,+FLOAT_MAX};
+    floatDouble maxVal[2]={-FLOAT_MAX,-FLOAT_MAX};
+    floatDouble minVal[2]={+FLOAT_MAX,+FLOAT_MAX};
     if (dontRender)
         trackingValueIndex=-1;
-    float ratio=graphSize[1]/graphSize[0];
-    float relMousePos[2];
-    relMousePos[0]=graphPosition[0]+graphSize[0]*((float)mousePosition[0]/(float)windowSize[0]);
-    relMousePos[1]=graphPosition[1]+graphSize[1]*((float)mousePosition[1]/(float)windowSize[1]);
+    floatDouble ratio=graphSize[1]/graphSize[0];
+    floatDouble relMousePos[2];
+    relMousePos[0]=graphPosition[0]+graphSize[0]*((floatDouble)mousePosition[0]/(floatDouble)windowSize[0]);
+    relMousePos[1]=graphPosition[1]+graphSize[1]*((floatDouble)mousePosition[1]/(floatDouble)windowSize[1]);
     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
     if (App::userSettings->antiAliasing)
     {
@@ -2743,7 +2801,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
     { // Display of time graph curves here:
         ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
         std::string tmp(IDSOGL_TIME_GRAPH_CURVES_);
-        float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
+        floatDouble tl=floatDouble(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
         ogl::setMaterialColor(sim_colorcomponent_emission,textColor);
         ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
         labelPos[1]=labelPos[1]-interline;
@@ -2759,21 +2817,21 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     if (it->getLinkPoints())
                     {
                         if ((trackingValueIndex==i)&&markSelectedStream&&(!trackingValueIsStatic))
-                            glLineWidth(3.0f); // we are tracking that curve!
+                            glLineWidth(3.0); // we are tracking that curve!
                     }
                     else
                     {
                         if ((trackingValueIndex==i)&&markSelectedStream&&(!trackingValueIsStatic))
-                            glPointSize(6.0f); // we are tracking that curve!
+                            glPointSize(6.0); // we are tracking that curve!
                         else
-                            glPointSize(4.0f);
+                            glPointSize(4.0);
                     }
                     int pos=0;
                     int absIndex;
-                    float yVal,xVal;
+                    floatDouble yVal,xVal;
 
                     bool cyclic;
-                    float range;
+                    floatDouble range;
                     CGraphingRoutines_old::getCyclicAndRangeValues(it,cyclic,range);
 
                     while (getAbsIndexOfPosition(pos++,absIndex))
@@ -2786,17 +2844,17 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     if (ogl::buffer.size()!=0)
                     {
                         if (it->getLinkPoints())
-                            ogl::drawRandom2dLines(&ogl::buffer[0],(int)ogl::buffer.size()/2,true,0.0f);
+                            ogl::drawRandom2dLines(&ogl::buffer[0],(int)ogl::buffer.size()/2,true,0.0);
                         else
-                            ogl::drawRandom2dPoints(&ogl::buffer[0],(int)ogl::buffer.size()/2,0.0f);
+                            ogl::drawRandom2dPoints(&ogl::buffer[0],(int)ogl::buffer.size()/2,0.0);
                     }
                     ogl::buffer.clear();
-                    glPointSize(1.0f);
-                    glLineWidth(1.0f);
+                    glPointSize(1.0);
+                    glLineWidth(1.0);
                     if (it->getLabel())
                     {
                         tmp=it->getName()+" ("+CGraphingRoutines_old::getDataUnit(it)+")";
-                        float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
+                        floatDouble tl=floatDouble(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
                         ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
                         labelPos[1]=labelPos[1]-interline;
                     }
@@ -2806,9 +2864,9 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                 { // We don't display the curve, we just get its min-max values
                     int pos=0;
                     int absIndex;
-                    float yVal,xVal;
+                    floatDouble yVal,xVal;
                     bool cyclic;
-                    float range;
+                    floatDouble range;
                     CGraphingRoutines_old::getCyclicAndRangeValues(it,cyclic,range);
                     while (getAbsIndexOfPosition(pos++,absIndex))
                     {
@@ -2830,9 +2888,9 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                                 {
                                     if (trackingValueIndex!=-1)
                                     {
-                                        float d1=(relMousePos[0]-xVal)*ratio;
-                                        float d2=relMousePos[1]-yVal;
-                                        float dist=d1*d1+d2*d2;
+                                        floatDouble d1=(relMousePos[0]-xVal)*ratio;
+                                        floatDouble d2=relMousePos[1]-yVal;
+                                        floatDouble dist=d1*d1+d2*d2;
                                         if (dist<squareDistFromTrackingValue)
                                         {
                                             trackingValue[0]=xVal;
@@ -2846,8 +2904,8 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                                     {
                                         trackingValue[0]=xVal;
                                         trackingValue[1]=yVal;
-                                        float d1=(relMousePos[0]-xVal)*ratio;
-                                        float d2=relMousePos[1]-yVal;
+                                        floatDouble d1=(relMousePos[0]-xVal)*ratio;
+                                        floatDouble d2=relMousePos[1]-yVal;
                                         squareDistFromTrackingValue=d1*d1+d2*d2;
                                         trackingValueIndex=i;
                                         trackingValueIsStatic=false;
@@ -2861,9 +2919,9 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
         }
 
         // We have the static curves here:
-        float vOffset=2.0f*graphSize[1]/float(windowSize[1]);
+        floatDouble vOffset=2.0*graphSize[1]/floatDouble(windowSize[1]);
         if (dontRender)
-            vOffset=0.0f;
+            vOffset=0.0;
         for (int i=0;i<int(staticStreamsAndCurves_old.size());i++)
         {
             if (staticStreamsAndCurves_old[i]->getCurveType()==0)
@@ -2875,23 +2933,23 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     if (it->getLinkPoints())
                     {
                         if ((trackingValueIndex==i)&&markSelectedStream&&trackingValueIsStatic)
-                            glLineWidth(3.0f); // we are tracking that curve!
+                            glLineWidth(3.0); // we are tracking that curve!
                         glLineStipple(1,0xE187);
                         glEnable(GL_LINE_STIPPLE);
                     }
                     else
                     {
                         if ((trackingValueIndex==i)&&markSelectedStream&&trackingValueIsStatic)
-                            glPointSize(6.0f); // we are tracking that curve!
+                            glPointSize(6.0); // we are tracking that curve!
                         else
-                            glPointSize(4.0f);
+                            glPointSize(4.0);
                     }
                 }
                 ogl::buffer.clear();
                 for (int ka=0;ka<int(it->values.size()/2);ka++)
                 {
-                    float xVal=it->values[2*ka+0];
-                    float yVal=it->values[2*ka+1]+vOffset;
+                    floatDouble xVal=it->values[2*ka+0];
+                    floatDouble yVal=it->values[2*ka+1]+vOffset;
                     ogl::addBuffer2DPoints(xVal,yVal);
                     if (dontRender)
                     { // min/max and value tracking
@@ -2907,9 +2965,9 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                                 {
                                     if ((xVal>=minVal[0])&&(xVal<=maxVal[0])) // only in the active time slice!
                                     {
-                                        float d1=(relMousePos[0]-xVal)*ratio;
-                                        float d2=relMousePos[1]-yVal;
-                                        float dist=d1*d1+d2*d2;
+                                        floatDouble d1=(relMousePos[0]-xVal)*ratio;
+                                        floatDouble d2=relMousePos[1]-yVal;
+                                        floatDouble dist=d1*d1+d2*d2;
                                         if (dist<squareDistFromTrackingValue)
                                         {
                                             trackingValue[0]=xVal;
@@ -2926,8 +2984,8 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                                     {
                                         trackingValue[0]=xVal;
                                         trackingValue[1]=yVal-vOffset;
-                                        float d1=(relMousePos[0]-xVal)*ratio;
-                                        float d2=relMousePos[1]-yVal;
+                                        floatDouble d1=(relMousePos[0]-xVal)*ratio;
+                                        floatDouble d2=relMousePos[1]-yVal;
                                         squareDistFromTrackingValue=d1*d1+d2*d2;
                                         trackingValueIndex=i;
                                         trackingValueIsStatic=true;
@@ -2942,19 +3000,19 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     if (ogl::buffer.size()!=0)
                     {
                         if (it->getLinkPoints())
-                            ogl::drawRandom2dLines(&ogl::buffer[0],(int)ogl::buffer.size()/2,true,0.0f);
+                            ogl::drawRandom2dLines(&ogl::buffer[0],(int)ogl::buffer.size()/2,true,0.0);
                         else
-                            ogl::drawRandom2dPoints(&ogl::buffer[0],(int)ogl::buffer.size()/2,0.0f);
+                            ogl::drawRandom2dPoints(&ogl::buffer[0],(int)ogl::buffer.size()/2,0.0);
                     }
                     ogl::buffer.clear();
 
-                    glPointSize(1.0f);
-                    glLineWidth(1.0f);
+                    glPointSize(1.0);
+                    glLineWidth(1.0);
                     glDisable(GL_LINE_STIPPLE);
                     if (it->getLabel())
                     {
                         tmp=it->getName()+" [STATIC]";
-                        float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
+                        floatDouble tl=floatDouble(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
                         ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
                         labelPos[1]-=interline;
                     }
@@ -2966,7 +3024,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
     { // Display of xy graph curves here:
         ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
         std::string tmp(IDSOGL_X_Y_GRAPH_CURVES_);
-        float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
+        floatDouble tl=floatDouble(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
         ogl::setMaterialColor(sim_colorcomponent_emission,textColor);
         ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
         labelPos[1]=labelPos[1]-interline;
@@ -2981,24 +3039,24 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     if (it->getLinkPoints())
                     {
                         if ((trackingValueIndex==i)&&markSelectedStream&&(!trackingValueIsStatic))
-                            glLineWidth(3.0f); // we are tracking that curve!
+                            glLineWidth(3.0); // we are tracking that curve!
                     }
                     else
                     {
                         if ((trackingValueIndex==i)&&markSelectedStream&&(!trackingValueIsStatic))
-                            glPointSize(6.0f); // we are tracking that curve!
+                            glPointSize(6.0); // we are tracking that curve!
                         else
-                            glPointSize(4.0f);
+                            glPointSize(4.0);
                     }
                     ogl::buffer.clear();
                     int pos=0;
                     int absIndex;
-                    float val[3];
+                    floatDouble val[3];
                     CGraphData_old* number1=getGraphData(it->data[0]);
                     CGraphData_old* number2=getGraphData(it->data[1]);
 
                     bool cyclic1,cyclic2;
-                    float range1,range2;
+                    floatDouble range1,range2;
                     if (number1!=nullptr)
                         CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
                     if (number2!=nullptr)
@@ -3028,20 +3086,20 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     if (ogl::buffer.size()!=0)
                     {
                         if (it->getLinkPoints())
-                            ogl::drawRandom2dLines(&ogl::buffer[0],(int)ogl::buffer.size()/2,true,0.0f);
+                            ogl::drawRandom2dLines(&ogl::buffer[0],(int)ogl::buffer.size()/2,true,0.0);
                         else
-                            ogl::drawRandom2dPoints(&ogl::buffer[0],(int)ogl::buffer.size()/2,0.0f);
+                            ogl::drawRandom2dPoints(&ogl::buffer[0],(int)ogl::buffer.size()/2,0.0);
                     }
                     ogl::buffer.clear();
 
-                    glPointSize(1.0f);
-                    glLineWidth(1.0f);
+                    glPointSize(1.0);
+                    glLineWidth(1.0);
                     if ( it->getLabel() )
                     {
                         if ( (number1!=nullptr)&&(number2!=nullptr) )
                         {
                             tmp=it->getName()+" (x: "+CGraphingRoutines_old::getDataUnit(number1)+") (y: "+CGraphingRoutines_old::getDataUnit(number2)+")";
-                            float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
+                            floatDouble tl=floatDouble(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
                             ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
                             labelPos[1]=labelPos[1]-interline;
                         }
@@ -3051,11 +3109,11 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                 { // We don't display the curve, we just take the max-min values:
                     int pos=0;
                     int absIndex;
-                    float val[3];
+                    floatDouble val[3];
                     CGraphData_old* number1=getGraphData(it->data[0]);
                     CGraphData_old* number2=getGraphData(it->data[1]);
                     bool cyclic1,cyclic2;
-                    float range1,range2;
+                    floatDouble range1,range2;
                     if (number1!=nullptr)
                         CGraphingRoutines_old::getCyclicAndRangeValues(number1,cyclic1,range1);
                     if (number2!=nullptr)
@@ -3096,9 +3154,9 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                                     {
                                         if (trackingValueIndex!=-1)
                                         {
-                                            float d1=(relMousePos[0]-val[0])*ratio;
-                                            float d2=relMousePos[1]-val[1];
-                                            float dist=d1*d1+d2*d2;
+                                            floatDouble d1=(relMousePos[0]-val[0])*ratio;
+                                            floatDouble d2=relMousePos[1]-val[1];
+                                            floatDouble dist=d1*d1+d2*d2;
                                             if (dist<squareDistFromTrackingValue)
                                             {
                                                 trackingValue[0]=val[0];
@@ -3112,8 +3170,8 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                                         {
                                             trackingValue[0]=val[0];
                                             trackingValue[1]=val[1];
-                                            float d1=(relMousePos[0]-val[0])*ratio;
-                                            float d2=relMousePos[1]-val[1];
+                                            floatDouble d1=(relMousePos[0]-val[0])*ratio;
+                                            floatDouble d2=relMousePos[1]-val[1];
                                             squareDistFromTrackingValue=d1*d1+d2*d2;
                                             trackingValueIndex=i;
                                             trackingValueIsStatic=false;
@@ -3128,9 +3186,9 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
         }
 
         // We have the static curves here:
-        float vOffset=2.0f*graphSize[1]/float(windowSize[1]);
+        floatDouble vOffset=2.0*graphSize[1]/floatDouble(windowSize[1]);
         if (dontRender)
-            vOffset=0.0f;
+            vOffset=0.0;
         for (int i=0;i<int(staticStreamsAndCurves_old.size());i++)
         {
             if (staticStreamsAndCurves_old[i]->getCurveType()==1)
@@ -3142,23 +3200,23 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                     if (it->getLinkPoints())
                     {
                         if ((trackingValueIndex==i)&&markSelectedStream&&trackingValueIsStatic)
-                            glLineWidth(3.0f); // we are tracking that curve!
+                            glLineWidth(3.0); // we are tracking that curve!
                         glLineStipple(1,0xE187);
                         glEnable(GL_LINE_STIPPLE);
                     }
                     else
                     {
                         if ((trackingValueIndex==i)&&markSelectedStream&&trackingValueIsStatic)
-                            glPointSize(6.0f); // we are tracking that curve!
+                            glPointSize(6.0); // we are tracking that curve!
                         else
-                            glPointSize(4.0f);
+                            glPointSize(4.0);
                     }
                 }
                 ogl::buffer.clear();
                 for (int ka=0;ka<int(it->values.size()/2);ka++)
                 {
-                    float xVal=it->values[2*ka+0];
-                    float yVal=it->values[2*ka+1]+vOffset;
+                    floatDouble xVal=it->values[2*ka+0];
+                    floatDouble yVal=it->values[2*ka+1]+vOffset;
                     ogl::addBuffer2DPoints(xVal,yVal);
 
                     if (dontRender)
@@ -3177,9 +3235,9 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                             {
                                 if (trackingValueIndex!=-1)
                                 {
-                                    float d1=(relMousePos[0]-xVal)*ratio;
-                                    float d2=relMousePos[1]-yVal;
-                                    float dist=d1*d1+d2*d2;
+                                    floatDouble d1=(relMousePos[0]-xVal)*ratio;
+                                    floatDouble d2=relMousePos[1]-yVal;
+                                    floatDouble dist=d1*d1+d2*d2;
                                     if (dist<squareDistFromTrackingValue)
                                     {
                                         trackingValue[0]=xVal;
@@ -3193,8 +3251,8 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                                 {
                                     trackingValue[0]=xVal;
                                     trackingValue[1]=yVal-vOffset;
-                                    float d1=(relMousePos[0]-xVal)*ratio;
-                                    float d2=relMousePos[1]-yVal;
+                                    floatDouble d1=(relMousePos[0]-xVal)*ratio;
+                                    floatDouble d2=relMousePos[1]-yVal;
                                     squareDistFromTrackingValue=d1*d1+d2*d2;
                                     trackingValueIndex=i;
                                     trackingValueIsStatic=true;
@@ -3213,13 +3271,13 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                             ogl::drawRandom2dPoints(&ogl::buffer[0],(int)ogl::buffer.size()/2,0.0f);
                     }
                     ogl::buffer.clear();
-                    glPointSize(1.0f);
-                    glLineWidth(1.0f);
+                    glPointSize(1.0);
+                    glLineWidth(1.0);
                     glDisable(GL_LINE_STIPPLE);
                     if (it->getLabel())
                     {
                         tmp=it->getName()+" [STATIC]";
-                        float tl=float(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
+                        floatDouble tl=floatDouble(ogl::getTextLengthInPixels(tmp.c_str()))*pixelSizeCoeff;
                         ogl::drawBitmapTextTo2dPosition(labelPos[0]-tl,labelPos[1],tmp.c_str());
                         labelPos[1]=labelPos[1]-interline;
                     }
@@ -3236,7 +3294,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
     // Data tracking:
     bool markSelectedStreamSaved=markSelectedStream;
     markSelectedStream=false;
-    float sensitivity=30.0f;
+    floatDouble sensitivity=30.0;
     if ( (!passiveSubView)&&(!mouseIsDown)&&dontRender )
     {
         if ( (trackingValueIndex!=-1)&&((sqrtf(squareDistFromTrackingValue)*windowSize[1]/graphSize[1])<sensitivity) )
@@ -3250,10 +3308,10 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
         {
             if ( (mousePosition[0]>=0)&&(mousePosition[0]<windowSize[0])&&(mousePosition[1]>=0)&&(mousePosition[1]<windowSize[1]) )
             {
-                float squareSize=5.0f;
-                float r[2];
-                r[0]=squareSize*graphSize[0]/(float)windowSize[0];
-                r[1]=squareSize*graphSize[1]/(float)windowSize[1];
+                floatDouble squareSize=5.0;
+                floatDouble r[2];
+                r[0]=squareSize*graphSize[0]/(floatDouble)windowSize[0];
+                r[1]=squareSize*graphSize[1]/(floatDouble)windowSize[1];
                 ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
                 ogl::setMaterialColor(sim_colorcomponent_emission,textColor);
                 std::string tmp;
@@ -3267,12 +3325,12 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                         tmp=" ("+tt::getEString(false,trackingValue[0],5)+" ; ";
                         tmp+=tt::getEString(false,trackingValue[1],5)+")";
                         tmp=it->getName()+tmp;
-                        float l0=r[0]*2.5f;
-                        if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5f)
-                            l0=-r[0]*2.5f-graphSize[0]*float(ogl::getTextLengthInPixels(tmp.c_str()))/float(windowSize[0]);
-                        float l1=r[1]*2.5f;
-                        if (trackingValue[1]-graphPosition[1]>graphSize[1]*0.5f)
-                            l1=-r[1]*2.5f;
+                        floatDouble l0=r[0]*2.5;
+                        if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5)
+                            l0=-r[0]*2.5-graphSize[0]*floatDouble(ogl::getTextLengthInPixels(tmp.c_str()))/floatDouble(windowSize[0]);
+                        floatDouble l1=r[1]*2.5;
+                        if (trackingValue[1]-graphPosition[1]>graphSize[1]*0.5)
+                            l1=-r[1]*2.5;
                         ogl::drawBitmapTextTo2dPosition(trackingValue[0]+l0,trackingValue[1]+l1,tmp.c_str());
                         ogl::setMaterialColor(sim_colorcomponent_emission,it->ambientColor);
                         if (markSelectedStreamSaved&&(subView!=nullptr))
@@ -3284,12 +3342,12 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                         tmp=" [STATIC] ("+tt::getEString(false,trackingValue[0],5)+" ; ";
                         tmp+=tt::getEString(false,trackingValue[1],5)+")";
                         tmp=it->getName()+tmp;
-                        float l0=r[0]*2.5f;
-                        if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5f)
-                            l0=-r[0]*2.5f-graphSize[0]*float(ogl::getTextLengthInPixels(tmp.c_str()))/float(windowSize[0]);
-                        float l1=r[1]*2.5f;
-                        if (trackingValue[1]-graphPosition[1]>graphSize[1]*0.5f)
-                            l1=-r[1]*2.5f;
+                        floatDouble l0=r[0]*2.5;
+                        if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5)
+                            l0=-r[0]*2.5-graphSize[0]*floatDouble(ogl::getTextLengthInPixels(tmp.c_str()))/floatDouble(windowSize[0]);
+                        floatDouble l1=r[1]*2.5;
+                        if (trackingValue[1]-graphPosition[1]>graphSize[1]*0.5)
+                            l1=-r[1]*2.5;
                         ogl::drawBitmapTextTo2dPosition(trackingValue[0]+l0,trackingValue[1]+l1,tmp.c_str());
                         ogl::setMaterialColor(sim_colorcomponent_emission,it->ambientColor);
                     }
@@ -3302,12 +3360,12 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                         tmp=" ("+tt::getEString(false,trackingValue[0],5)+" ; ";
                         tmp+=tt::getEString(false,trackingValue[1],5)+")";
                         tmp=it->getName()+tmp;
-                        float l0=r[0]*2.5f;
-                        if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5f)
-                            l0=-r[0]*2.5f-graphSize[0]*float(ogl::getTextLengthInPixels(tmp.c_str()))/float(windowSize[0]);
-                        float l1=r[1]*2.5f;
-                        if (trackingValue[1]-graphPosition[1]>graphSize[1]*0.5f)
-                            l1=-r[1]*2.5f;
+                        floatDouble l0=r[0]*2.5;
+                        if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5)
+                            l0=-r[0]*2.5-graphSize[0]*floatDouble(ogl::getTextLengthInPixels(tmp.c_str()))/floatDouble(windowSize[0]);
+                        floatDouble l1=r[1]*2.5;
+                        if (trackingValue[1]-graphPosition[1]>graphSize[1]*0.5)
+                            l1=-r[1]*2.5;
                         ogl::drawBitmapTextTo2dPosition(trackingValue[0]+l0,trackingValue[1]+l1,tmp.c_str());
                         ogl::setMaterialColor(sim_colorcomponent_emission,it->curveColor.getColorsPtr());
                         if (markSelectedStreamSaved&&(subView!=nullptr))
@@ -3319,12 +3377,12 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                         tmp=" [STATIC] ("+tt::getEString(false,trackingValue[0],5)+" ; ";
                         tmp+=tt::getEString(false,trackingValue[1],5)+")";
                         tmp=it->getName()+tmp;
-                        float l0=r[0]*2.5f;
-                        if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5f)
-                            l0=-r[0]*2.5f-graphSize[0]*float(ogl::getTextLengthInPixels(tmp.c_str()))/float(windowSize[0]);
-                        float l1=r[1]*2.5f;
-                        if (trackingValue[1]-graphPosition[1]>graphSize[1]*0.5f)
-                            l1=-r[1]*2.5f;
+                        floatDouble l0=r[0]*2.5;
+                        if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5)
+                            l0=-r[0]*2.5-graphSize[0]*floatDouble(ogl::getTextLengthInPixels(tmp.c_str()))/floatDouble(windowSize[0]);
+                        floatDouble l1=r[1]*2.5;
+                        if (trackingValue[1]-graphPosition[1]>graphSize[1]*0.5)
+                            l1=-r[1]*2.5;
                         ogl::drawBitmapTextTo2dPosition(trackingValue[0]+l0,trackingValue[1]+l1,tmp.c_str());
                         ogl::setMaterialColor(sim_colorcomponent_emission,it->ambientColor);
                     }
@@ -3335,7 +3393,7 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
                 ogl::addBuffer2DPoints(trackingValue[0]+r[0],trackingValue[1]+r[1]);
                 ogl::addBuffer2DPoints(trackingValue[0]-r[0],trackingValue[1]+r[1]);
                 ogl::addBuffer2DPoints(trackingValue[0]-r[0],trackingValue[1]-r[1]);
-                ogl::drawRandom2dLines(&ogl::buffer[0],(int)ogl::buffer.size()/2,true,0.0f);
+                ogl::drawRandom2dLines(&ogl::buffer[0],(int)ogl::buffer.size()/2,true,0.0);
                 ogl::buffer.clear();
             }
         }
@@ -3343,49 +3401,49 @@ void CGraph::drawValues(int windowSize[2],float graphPosition[2],float graphSize
 
     if (dontRender)
     { // into a running time graph!
-        float size[2]={maxVal[0]-minVal[0],maxVal[1]-minVal[1]};
+        floatDouble size[2]={maxVal[0]-minVal[0],maxVal[1]-minVal[1]};
         if (timeGraph)
         {
             if (autoMode)
             { // for the x axis:
-                graphPosition[0]=minVal[0]-0.05f*size[0];
-                graphSize[0]=1.1f*size[0];
+                graphPosition[0]=minVal[0]-0.05*size[0];
+                graphSize[0]=1.1*size[0];
             }
             if (timeGraphYaxisAutoMode)
             { // for the y axis:
-                graphPosition[1]=minVal[1]-0.05f*size[1];
-                graphSize[1]=1.1f*size[1];
+                graphPosition[1]=minVal[1]-0.05*size[1];
+                graphSize[1]=1.1*size[1];
             }
         }
         else
         {
             if (autoMode)
             {
-                graphPosition[0]=minVal[0]-0.05f*size[0];
-                graphPosition[1]=minVal[1]-0.05f*size[1];
-                graphSize[0]=1.1f*size[0];
-                graphSize[1]=1.1f*size[1];
+                graphPosition[0]=minVal[0]-0.05*size[0];
+                graphPosition[1]=minVal[1]-0.05*size[1];
+                graphSize[0]=1.1*size[0];
+                graphSize[1]=1.1*size[1];
             }
         }
         validateViewValues(windowSize,graphPosition,graphSize,timeGraph,false,false,autoMode);
     }
 }
 
-void CGraph::validateViewValues(int windowSize[2],float graphPosition[2],float graphSize[2],
+void CGraph::validateViewValues(int windowSize[2],floatDouble graphPosition[2],floatDouble graphSize[2],
             bool timeGraph,bool shiftOnly,bool keepProp,bool autoModeForTimeGraphXaxis)
 { // keepProp is false by default, shiftOnly also
-    float minValues[2]={-FLOAT_MAX,-FLOAT_MAX};
-    float maxValues[2]={+FLOAT_MAX,+FLOAT_MAX};
-    float minGraphSize[2]={0.00001f,0.00001f};
+    floatDouble minValues[2]={-FLOAT_MAX,-FLOAT_MAX};
+    floatDouble maxValues[2]={+FLOAT_MAX,+FLOAT_MAX};
+    floatDouble minGraphSize[2]={0.00001,0.00001};
     if (timeGraph)
     {
         if (autoModeForTimeGraphXaxis)
         {
             if (numberOfPoints<2)
             {
-                minValues[0]=0.0f;
-                maxValues[0]=1.0f;
-                minGraphSize[0]=1.0f;
+                minValues[0]=0.0;
+                maxValues[0]=1.0;
+                minGraphSize[0]=1.0;
             }
             else
             {
@@ -3397,7 +3455,7 @@ void CGraph::validateViewValues(int windowSize[2],float graphPosition[2],float g
             }
         }
     }
-    float maxGraphSize[2]={maxValues[0]-minValues[0],maxValues[1]-minValues[1]};
+    floatDouble maxGraphSize[2]={maxValues[0]-minValues[0],maxValues[1]-minValues[1]};
     if (shiftOnly)
     {
         if (graphPosition[0]<minValues[0])
@@ -3412,9 +3470,9 @@ void CGraph::validateViewValues(int windowSize[2],float graphPosition[2],float g
     else
     {
         if (graphSize[0]<minGraphSize[0])
-            graphPosition[0]=graphPosition[0]+0.5f*(graphSize[0]-minGraphSize[0]);
+            graphPosition[0]=graphPosition[0]+0.5*(graphSize[0]-minGraphSize[0]);
         if (graphSize[1]<minGraphSize[1])
-            graphPosition[1]=graphPosition[1]+0.5f*(graphSize[1]-minGraphSize[1]);
+            graphPosition[1]=graphPosition[1]+0.5*(graphSize[1]-minGraphSize[1]);
 
         if (graphPosition[0]<minValues[0])
             graphPosition[0]=minValues[0];
@@ -3436,15 +3494,15 @@ void CGraph::validateViewValues(int windowSize[2],float graphPosition[2],float g
 
     if (keepProp)
     {
-        float prop[2]={((float)windowSize[0])/graphSize[0],((float)windowSize[1])/graphSize[1]};
-        float coeff=prop[1]/prop[0];
-        float nys=graphSize[1]*coeff;
-        float nxs=graphSize[0]/coeff;
-        if (coeff>1.0f)
+        floatDouble prop[2]={((floatDouble)windowSize[0])/graphSize[0],((floatDouble)windowSize[1])/graphSize[1]};
+        floatDouble coeff=prop[1]/prop[0];
+        floatDouble nys=graphSize[1]*coeff;
+        floatDouble nxs=graphSize[0]/coeff;
+        if (coeff>1.0)
         {   // We have to zoom out on the y-axis
             if (nys<maxGraphSize[1])
             {   // We zoom out on the y-axis
-                graphPosition[1]=graphPosition[1]-(nys-graphSize[1])/2.0f;
+                graphPosition[1]=graphPosition[1]-(nys-graphSize[1])/2.0;
                 if (graphPosition[1]<minValues[1])
                     graphPosition[1]=minValues[1];
                 if ((graphPosition[1]+nys)>maxValues[1])
@@ -3453,7 +3511,7 @@ void CGraph::validateViewValues(int windowSize[2],float graphPosition[2],float g
             }
             else
             {   // We zoom in on the x-axis
-                graphPosition[0]=graphPosition[0]-(nxs-graphSize[0])/2.0f;
+                graphPosition[0]=graphPosition[0]-(nxs-graphSize[0])/2.0;
                 graphSize[0]=nxs;
             }
         }
@@ -3461,7 +3519,7 @@ void CGraph::validateViewValues(int windowSize[2],float graphPosition[2],float g
         {   // We have to zoom in on the y-axis
             if (nxs<maxGraphSize[0])
             {   // We zoom out on the x-axis
-                graphPosition[0]=graphPosition[0]-(nxs-graphSize[0])/2.0f;
+                graphPosition[0]=graphPosition[0]-(nxs-graphSize[0])/2.0;
                 if (graphPosition[0]<minValues[0])
                     graphPosition[0]=minValues[0];
                 if ((graphPosition[0]+nxs)>maxValues[0])
@@ -3470,7 +3528,7 @@ void CGraph::validateViewValues(int windowSize[2],float graphPosition[2],float g
             }
             else
             {   // We zoom in on the y-axis
-                graphPosition[1]=graphPosition[1]-(nys-graphSize[1])/2.0f;
+                graphPosition[1]=graphPosition[1]-(nys-graphSize[1])/2.0;
                 graphSize[1]=nys;
             }
         }

@@ -57,9 +57,9 @@ CColorObject* CCamera::getColor(bool secondPart)
     return(&_color);
 }
 
-void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPerspectiveProjection,std::vector<int>* selectedObjects,bool useSystemSelection,bool includeModelObjects,float scalingFactor,CSView* optionalView)
+void CCamera::frameSceneOrSelectedObjects(floatDouble windowWidthByHeight,bool forPerspectiveProjection,std::vector<int>* selectedObjects,bool useSystemSelection,bool includeModelObjects,floatDouble scalingFactor,CSView* optionalView)
 {
-    std::vector<float> pts;
+    std::vector<floatDouble> pts;
     C7Vector camTr(getFullCumulativeTransformation());
     C7Vector camTrInv(camTr.getInverse());
     int editMode=NO_EDIT_MODE;
@@ -267,7 +267,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                 done=true;
                 CShape* shape=(CShape*)it;
                 C7Vector trr(camTrInv*shape->getFullCumulativeTransformation());
-                std::vector<float> wvert;
+                std::vector<floatDouble> wvert;
                 shape->getMeshWrapper()->getCumulativeMeshes(wvert,nullptr,nullptr);
                 for (int j=0;j<int(wvert.size())/3;j++)
                 {
@@ -283,7 +283,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                 done=true;
                 CPointCloud* ptCloud=(CPointCloud*)it;
                 C7Vector trr(camTrInv*ptCloud->getFullCumulativeTransformation());
-                std::vector<float>* wvert=ptCloud->getPoints();
+                std::vector<floatDouble>* wvert=ptCloud->getPoints();
                 for (int j=0;j<int(wvert->size())/3;j++)
                 {
                     C3Vector vq(&(wvert[0])[3*j+0]);
@@ -298,7 +298,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                 done=true;
                 COctree* octree=(COctree*)it;
                 C7Vector trr(camTrInv*octree->getFullCumulativeTransformation());
-                std::vector<float>* wvert=octree->getCubePositions();
+                std::vector<floatDouble>* wvert=octree->getCubePositions();
                 for (int j=0;j<int(wvert->size())/3;j++)
                 {
                     C3Vector vq(&(wvert[0])[3*j+0]);
@@ -322,9 +322,9 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                     CGraphData_old* part2=gr->getGraphData(gr->curves3d_old[k]->data[2]);
                     int pos=0;
                     int absIndex;
-                    float point[3];
+                    floatDouble point[3];
                     bool cyclic0,cyclic1,cyclic2;
-                    float range0,range1,range2;
+                    floatDouble range0,range1,range2;
                     if (part0!=nullptr)    
                         CGraphingRoutines_old::getCyclicAndRangeValues(part0,cyclic0,range0);
                     if (part1!=nullptr)    
@@ -437,7 +437,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
 
     if (getTrackedObjectHandle()!=-1)
     { // When tracking an object, we should stay on the current view axis. To do this, we simply reflect all points left/right/top/bottom relative to the camera!
-        std::vector<float> ptsC(pts);
+        std::vector<floatDouble> ptsC(pts);
         pts.clear();
         for (int i=0;i<int(ptsC.size())/3;i++)
         {
@@ -458,7 +458,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
     }
 /* // Here trying to scale the points, instead of camera angle/camera ortho view size
    //
-    float qwmin,qwmax;
+    floatDouble qwmin,qwmax;
     for (int i=0;i<int(pts.size())/3;i++)
     {
         if (i==0)
@@ -475,7 +475,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
         }
     }
 
-    float qwavg=(qwmax+qwmin)*0.5f;
+    floatDouble qwavg=(qwmax+qwmin)*0.5f;
     for (int i=0;i<int(pts.size())/3;i++)
     {
         pts[3*i+0]*=1.0f/scalingFactor;
@@ -485,26 +485,26 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
 */
     C3Vector relativeCameraTranslation;
     relativeCameraTranslation.clear();
-    float nearClippingPlaneCorrection=0.0f;
-    float farClippingPlaneCorrection=0.0f;
-    float viewSizeCorrection=0.0f;
+    floatDouble nearClippingPlaneCorrection=0.0;
+    floatDouble farClippingPlaneCorrection=0.0;
+    floatDouble viewSizeCorrection=0.0;
     if (forPerspectiveProjection)
     {
         C3Vector relativeCameraTranslation_verticalAdjustment;
         C3Vector relativeCameraTranslation_horizontalAdjustment;
         relativeCameraTranslation_verticalAdjustment.clear();
         relativeCameraTranslation_horizontalAdjustment.clear();
-        std::vector<float> cop(pts);
+        std::vector<floatDouble> cop(pts);
         //*****************
-        float effectiveAngle=getViewAngle()*scalingFactor;
+        floatDouble effectiveAngle=getViewAngle()*scalingFactor;
         if (effectiveAngle>piValue)
             effectiveAngle=piValue;
 
-        if (windowWidthByHeight>1.0f)
+        if (windowWidthByHeight>1.0)
             effectiveAngle/=windowWidthByHeight;
 
         C4X4Matrix lowerLimit;
-        lowerLimit.buildXRotation(effectiveAngle*0.5f);
+        lowerLimit.buildXRotation(effectiveAngle*0.5);
         C4X4Matrix lowerLimitInv(lowerLimit.getInverse());
         C3Vector minw;
         C3Vector maxw;
@@ -535,7 +535,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
         }
 
         C4X4Matrix upperLimit;
-        upperLimit.buildXRotation(-effectiveAngle*0.5f);
+        upperLimit.buildXRotation(-effectiveAngle*0.5);
         C4X4Matrix upperLimitInv(upperLimit.getInverse());
         for (int i=0;i<int(pts.size())/3;i++)
         {
@@ -554,7 +554,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
         }
 
         cm=getFullLocalTransformation().getMatrix()*lowerLimit;
-        float dist=-maxw(1)/sin(effectiveAngle);
+        floatDouble dist=-maxw(1)/sin(effectiveAngle);
         relativeCameraTranslation_verticalAdjustment+=cm.M.axis[2]*dist;
 
     // ***************** left-right
@@ -649,7 +649,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                 maxw.keepMax(w);
             }
         }
-        float zCorr=0.0f;
+        floatDouble zCorr=0.0;
         if (minw(2)<getNearClippingPlane())
             zCorr=minw(2)-getNearClippingPlane();
         relativeCameraTranslation+=cm.M.axis[2]*zCorr; // zCorr is negative or 0
@@ -675,22 +675,22 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                 maxw.keepMax(w);
             }
         }
-        C3Vector center((minw+maxw)/2.0f);
+        C3Vector center((minw+maxw)/2.0);
         // Move the camera to look at the center of those points (just 2 translations) + backshift if needed:
-        float backShift=0.0f;
+        floatDouble backShift=0.0;
         if (minw(2)<getNearClippingPlane())
             backShift=minw(2)-getNearClippingPlane();
         C4X4Matrix cm(getFullLocalTransformation().getMatrix());
         relativeCameraTranslation=cm.M.axis[0]*center(0)+cm.M.axis[1]*center(1)+cm.M.axis[2]*backShift;
-        if (maxw(2)>((getFarClippingPlane()+backShift)/1.2f))
-            farClippingPlaneCorrection=(maxw(2)-(getFarClippingPlane()+backShift))*1.2f;
-        float vs=getOrthoViewSize();
-        float dx=(maxw(0)-minw(0))/scalingFactor;
-        float dy=(maxw(1)-minw(1))/scalingFactor;
-        float rap=9999999.0f;
-        if (dy!=0.0f)
+        if (maxw(2)>((getFarClippingPlane()+backShift)/1.2))
+            farClippingPlaneCorrection=(maxw(2)-(getFarClippingPlane()+backShift))*1.2;
+        floatDouble vs=getOrthoViewSize();
+        floatDouble dx=(maxw(0)-minw(0))/scalingFactor;
+        floatDouble dy=(maxw(1)-minw(1))/scalingFactor;
+        floatDouble rap=9999999.0;
+        if (dy!=0.0)
             rap=dx/dy;
-        if (windowWidthByHeight>1.0f)
+        if (windowWidthByHeight>1.0)
         {
             if (rap>=windowWidthByHeight)
                 viewSizeCorrection=dx-vs;
@@ -888,10 +888,10 @@ void CCamera::handleCameraTracking()
         self.Q=rot1*self.Q;
         // We check if the camera looks to +Z or -Z:
         C3Vector zAxis(self.Q.getAxis(2));
-        if ( (fabs(zAxis(0))>0.00001f)||(fabs(zAxis(1))>0.00001f) )
+        if ( (fabs(zAxis(0))>0.00001)||(fabs(zAxis(1))>0.00001) )
         { // Camera does not look to +Z or -Z:
-            C3Vector rotAxis(zAxis^C3Vector(0.0f,0.0f,1.0f));
-            C4Vector rot(piValue/2.0f,rotAxis);
+            C3Vector rotAxis(zAxis^C3Vector(0.0,0.0,1.0));
+            C4Vector rot(piValue/2.0,rotAxis);
             zAxis=rot*zAxis;
             C4Vector rot2(self.Q.getAxis(1),zAxis);
             self.Q=rot2*self.Q;
@@ -901,13 +901,13 @@ void CCamera::handleCameraTracking()
             // Keep head up:
             C7Vector cameraCTM(getCumulativeTransformation());
             C3X3Matrix trM2(cameraCTM.Q);
-            if ( (fabs(trM2.axis[2](0))>0.00001f)||(fabs(trM2.axis[2](1))>0.00001f) )
+            if ( (fabs(trM2.axis[2](0))>0.00001)||(fabs(trM2.axis[2](1))>0.00001) )
             { // We have to do it:
-                float val=1.0f;
-                if (trM2.axis[1](2)<0.0f)
-                    val=-1.0f;
-                C3Vector rotAx(trM2.axis[2]^C3Vector(0.0f,0.0f,val));
-                C3Vector target(C4Vector(piValue/2.0f,rotAx)*trM2.axis[2]);
+                floatDouble val=1.0;
+                if (trM2.axis[1](2)<0.0)
+                    val=-1.0;
+                C3Vector rotAx(trM2.axis[2]^C3Vector(0.0,0.0,val));
+                C3Vector target(C4Vector(piValue/2.0,rotAx)*trM2.axis[2]);
                 C4Vector rot(trM2.axis[1],target);
                 cameraCTM.Q=rot*cameraCTM.Q;
                 setLocalTransformation(getFullParentCumulativeTransformation().getInverse()*cameraCTM);
@@ -917,7 +917,7 @@ void CCamera::handleCameraTracking()
 }
 
 
-void CCamera::scaleObject(float scalingFactor)
+void CCamera::scaleObject(floatDouble scalingFactor)
 {
     setCameraSize(_cameraSize*scalingFactor);
     setNearClippingPlane(_nearClippingPlane*scalingFactor);
@@ -927,12 +927,12 @@ void CCamera::scaleObject(float scalingFactor)
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void CCamera::scaleObjectNonIsometrically(float x,float y,float z)
+void CCamera::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
     scaleObject(cbrt(x*y*z));
 }
 
-void CCamera::setCameraSize(float size)
+void CCamera::setCameraSize(floatDouble size)
 {
     tt::limitValue(0.001f,100.0f,size);
     if (_cameraSize!=size)
@@ -949,7 +949,7 @@ void CCamera::setCameraSize(float size)
     }
 }
 
-float CCamera::getCameraSize() const
+floatDouble CCamera::getCameraSize() const
 {
     return(_cameraSize);
 }
@@ -1015,7 +1015,7 @@ void CCamera::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 
     CInterfaceStackTable* colors=new CInterfaceStackTable();
     data->appendMapObject_stringObject("colors",colors);
-    float c[9];
+    floatDouble c[9];
     _color.getColor(c,sim_colorcomponent_ambient_diffuse);
     _color.getColor(c+3,sim_colorcomponent_specular);
     _color.getColor(c+6,sim_colorcomponent_emission);
@@ -1184,7 +1184,7 @@ int CCamera::getViewOrientation() const
 }
 void CCamera::setViewOrientation(int ori,bool setPositionAlso)
 { // setPositionAlso is false by default
-    float alpha,beta,gamma,x,y,z;
+    floatDouble alpha,beta,gamma,x,y,z;
     bool done=false;
     if (ori==POSITIVE_X_VIEW)
     {
@@ -1303,20 +1303,46 @@ void CCamera::serialize(CSer& ar)
             int trck=-1;
             if (_trackedObjectHandle!=-1)
                 trck=_trackedObjectHandle;
+
+#ifdef TMPOPERATION
             ar.storeDataName("Cp4");
-            ar << trck << _cameraSize;
+            ar << trck;
+            ar.flt() << (floatFloat)_cameraSize;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_p4");
+            ar << trck;
+            ar.dbl() << _cameraSize;
+            ar.flush();
+#endif
 
+            floatDouble ovs=_orthoViewSize;
+#ifdef TMPOPERATION
             ar.storeDataName("Cp3");
-            float ovs=_orthoViewSize;
             if (_ignorePosAndCameraOrthoviewSize_forUndoRedo)
-                ovs=1.0f;
-            ar << ovs << _viewAngle;
+                ovs=1.0;
+            ar.flt() << (floatFloat)ovs << (floatFloat)_viewAngle;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_p3");
+            if (_ignorePosAndCameraOrthoviewSize_forUndoRedo)
+                ovs=1.0;
+            ar.dbl() << ovs << _viewAngle;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Ccp");
-            ar << _nearClippingPlane << _farClippingPlane;
+            ar.flt() << (floatFloat)_nearClippingPlane << (floatFloat)_farClippingPlane;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_cp");
+            ar.dbl() << _nearClippingPlane << _farClippingPlane;
+            ar.flush();
+#endif
 
             ar.storeDataName("Cmp"); // keep for backward compatibility (28.09.2022)
             int tmp=0;
@@ -1376,22 +1402,50 @@ void CCamera::serialize(CSer& ar)
                 {
                     bool noHit=true;
                     if (theName.compare("Cp4")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _trackedObjectHandle;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _cameraSize=(floatDouble)bla;
+                    }
+                    if (theName.compare("_p4")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _trackedObjectHandle >> _cameraSize;
+                        ar >> _trackedObjectHandle;
+                        ar.dbl() >> _cameraSize;
                     }
                     if (theName.compare("Cp3")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        _orthoViewSize=(floatDouble)bla;
+                        _viewAngle=(floatDouble)bli;
+                    }
+                    if (theName.compare("_p3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _orthoViewSize >> _viewAngle;
+                        ar.dbl() >> _orthoViewSize >> _viewAngle;
                     }
                     if (theName.compare("Ccp")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        _nearClippingPlane=(floatDouble)bla;
+                        _farClippingPlane=(floatDouble)bli;
+                    }
+                    if (theName.compare("_cp")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _nearClippingPlane >> _farClippingPlane;
+                        ar.dbl() >> _nearClippingPlane >> _farClippingPlane;
                     }
                     if (theName=="Caz")
                     { // keep for backward compatibility (2010/07/13)
@@ -1463,17 +1517,18 @@ void CCamera::serialize(CSer& ar)
                     { // Keep for backward compatibility (3/2/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        float povFocalDistance, povAperture;
+                        floatFloat povFocalDistance, povAperture;
                         int povBlurSamples;
-                        ar >> povFocalDistance >> povAperture >> povBlurSamples;
+                        ar.flt() >> povFocalDistance >> povAperture;
+                        ar >> povBlurSamples;
                         _extensionString="povray {focalBlur {";
                         if (povFocalBlurEnabled_backwardCompatibility_3_2_2016)
                             _extensionString+="true} focalDist {";
                         else
                             _extensionString+="false} focalDist {";
-                        _extensionString+=tt::FNb(0,povFocalDistance,3,false);
+                        _extensionString+=tt::FNb(0,(floatDouble)povFocalDistance,3,false);
                         _extensionString+="} aperture {";
-                        _extensionString+=tt::FNb(0,povAperture,3,false);
+                        _extensionString+=tt::FNb(0,(floatDouble)povAperture,3,false);
                         _extensionString+="} blurSamples {";
                         _extensionString+=tt::FNb(0,povBlurSamples,false);
                         _extensionString+="}}";
@@ -1545,7 +1600,7 @@ void CCamera::serialize(CSer& ar)
 
             ar.xmlAddNode_float("orthoViewSize",_orthoViewSize);
 
-            ar.xmlAddNode_float("viewAngle",_viewAngle*180.0f/piValue);
+            ar.xmlAddNode_float("viewAngle",_viewAngle*180.0/piValue);
 
             ar.xmlAddNode_2float("clippingPlanes",_nearClippingPlane,_farClippingPlane);
 
@@ -1586,7 +1641,7 @@ void CCamera::serialize(CSer& ar)
             {
                 int rgb[3];
                 for (size_t l=0;l<3;l++)
-                    rgb[l]=int(_color.getColorsPtr()[l]*255.1f);
+                    rgb[l]=int(_color.getColorsPtr()[l]*255.1);
                 ar.xmlAddNode_ints("objectColor",rgb,3);
             }
         }
@@ -1608,7 +1663,7 @@ void CCamera::serialize(CSer& ar)
             ar.xmlGetNode_float("orthoViewSize",_orthoViewSize,exhaustiveXml);
 
             if (ar.xmlGetNode_float("viewAngle",_viewAngle,exhaustiveXml))
-                _viewAngle*=piValue/180.0f;
+                _viewAngle*=piValue/180.0;
 
             ar.xmlGetNode_2float("clippingPlanes",_nearClippingPlane,_farClippingPlane,exhaustiveXml);
 
@@ -1651,7 +1706,7 @@ void CCamera::serialize(CSer& ar)
             {
                 int rgb[3];
                 if (ar.xmlGetNode_ints("objectColor",rgb,3,false))
-                    _color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    _color.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
             }
 
             if (ar.xmlPushChildNode("color",false))
@@ -1673,9 +1728,9 @@ void CCamera::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("part1",rgb,3,exhaustiveXml))
-                        _color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        _color.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                     if (ar.xmlGetNode_ints("part2",rgb,3,exhaustiveXml))
-                        _color_removeSoon.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        _color_removeSoon.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -1910,12 +1965,12 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             if (pass!=PICKPASS)
                 glRenderMode(GL_RENDER);
 
-            float ratio=(float)(currentWinSize[0]/(float)currentWinSize[1]);
+            floatDouble ratio=(floatDouble)(currentWinSize[0]/(floatDouble)currentWinSize[1]);
             if (isPerspective)
             {
-                if (ratio>1.0f)
+                if (ratio>1.0)
                 {
-                    float a=2.0f*(float)atan(tan(_viewAngle/2.0f)/ratio)*radToDeg;
+                    floatDouble a=2.0*(floatDouble)atan(tan(_viewAngle/2.0)/ratio)*radToDeg;
                     ogl::perspectiveSpecial(a,ratio,_nearClippingPlane,_farClippingPlane);
                 }
                 else
@@ -1980,9 +2035,9 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                 (navigationMode==sim_navigation_objectshift)||
                 (navigationMode==sim_navigation_objectrotate) ) )
             {
-                float centerPos[3];
+                floatDouble centerPos[3];
                 subView->getCenterPosition(centerPos);
-                float mousePosDepth=subView->getMousePositionDepth();
+                floatDouble mousePosDepth=subView->getMousePositionDepth();
                 glLoadName(-1);
                 ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
                 if ((navigationMode==sim_navigation_camerarotate)||
@@ -1991,20 +2046,20 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                     ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorRed);
                     glPushMatrix();
                     glTranslatef(centerPos[0],centerPos[1],centerPos[2]);
-                    float sphereRadius=10.0f;
+                    floatDouble sphereRadius=10.0;
                     if (isPerspective)
                     {
-                        if (ratio>1.0f)
-                            sphereRadius=mousePosDepth*tan(_viewAngle*0.5f)*sphereRadius/currentWinSize[0];
+                        if (ratio>1.0)
+                            sphereRadius=mousePosDepth*tan(_viewAngle*0.5)*sphereRadius/currentWinSize[0];
                         else
-                            sphereRadius=mousePosDepth*tan(_viewAngle*0.5f)*sphereRadius/currentWinSize[1];
+                            sphereRadius=mousePosDepth*tan(_viewAngle*0.5)*sphereRadius/currentWinSize[1];
                     }
                     else
                     {
-                        if (ratio>1.0f)
-                            sphereRadius=_orthoViewSize*0.5f*sphereRadius/currentWinSize[0];
+                        if (ratio>1.0)
+                            sphereRadius=_orthoViewSize*0.f*sphereRadius/currentWinSize[0];
                         else
-                            sphereRadius=_orthoViewSize*0.5f*sphereRadius/currentWinSize[1];
+                            sphereRadius=_orthoViewSize*0.5*sphereRadius/currentWinSize[1];
                     }
                     App::currentWorld->environment->temporarilyDeactivateFog();
 
@@ -2012,7 +2067,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                     glPopMatrix();
 
                     // Following is a bit dirty, but quick ;)
-                    float clippNear=_nearClippingPlane;
+                    floatDouble clippNear=_nearClippingPlane;
                     if (!isPerspective)
                         clippNear=ORTHO_CAMERA_NEAR_CLIPPING_PLANE;
                     if (mousePosDepth==clippNear)
@@ -2021,14 +2076,14 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                         C7Vector icct(cct.getInverse());
                         C3Vector c(centerPos);
                         C3Vector rc(icct*c);
-                        float di=2.0f;
+                        floatDouble di=2.0;
                         for (int jk=0;jk<2;jk++)
                         {
-                            for (float i0=-di;i0<2.2f*di;i0+=2.0f*di)
+                            for (floatDouble i0=-di;i0<2.2*di;i0+=2.0*di)
                             {
-                                for (float j0=-di;j0<2.2f*di;j0+=2.0f*di)
+                                for (floatDouble j0=-di;j0<2.2*di;j0+=2.0*di)
                                 {
-                                    c=rc+C3Vector(i0*sphereRadius,j0*sphereRadius,0.0f);
+                                    c=rc+C3Vector(i0*sphereRadius,j0*sphereRadius,0.0);
                                     c=cct*c;
                                     glPushMatrix();
                                     glTranslatef(c(0),c(1),c(2));
@@ -2036,7 +2091,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                                     glPopMatrix();
                                 }
                             }
-                            di*=2.0f;
+                            di*=2.0;
                         }
                     }
                     else
@@ -2266,7 +2321,7 @@ void CCamera::_handleMirrors(int renderingMode,bool noSelection,int pass,int nav
     int drawOk=1;
 
     std::vector<int> allMirrors;
-    std::vector<float> allMirrorDist;
+    std::vector<floatDouble> allMirrorDist;
     for (size_t mir=0;mir<App::currentWorld->sceneObjects->getMirrorCount();mir++)
     {
         CMirror* myMirror=App::currentWorld->sceneObjects->getMirrorFromIndex(mir);
@@ -2290,7 +2345,7 @@ void CCamera::_handleMirrors(int renderingMode,bool noSelection,int pass,int nav
         C3Vector mtrN(mtr.Q.getMatrix().axis[2]);
         C4Vector mtrAxis=mtr.Q.getAngleAndAxis();
         C4Vector mtriAxis=mtri.Q.getAngleAndAxis();
-        float d=(mtrN*mtr.X);
+        floatDouble d=(mtrN*mtr.X);
         C3Vector v0(+myMirror->getMirrorWidth()*0.5f,-myMirror->getMirrorHeight()*0.5f,0.0f);
         C3Vector v1(+myMirror->getMirrorWidth()*0.5f,+myMirror->getMirrorHeight()*0.5f,0.0f);
         C3Vector v2(-myMirror->getMirrorWidth()*0.5f,+myMirror->getMirrorHeight()*0.5f,0.0f);
@@ -2384,20 +2439,20 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bo
     data[3]=tr.X.data;
     data[4]=tr.Q.data;
     int options=0;
-    float xAngle_size;
-    float yAngle_size;
-    float ratio=(float)(resolution[0]/(float)resolution[1]);
-    float nearClip,farClip;
+    floatDouble xAngle_size;
+    floatDouble yAngle_size;
+    floatDouble ratio=(floatDouble)(resolution[0]/(floatDouble)resolution[1]);
+    floatDouble nearClip,farClip;
     if (perspective)
     {
-        if (ratio>1.0f)
+        if (ratio>1.0)
         {
             xAngle_size=_viewAngle;
-            yAngle_size=2.0f*(float)atan(tan(_viewAngle/2.0f)/ratio);
+            yAngle_size=2.0*(floatDouble)atan(tan(_viewAngle/2.0)/ratio);
         }
         else
         {
-            xAngle_size=2.0f*(float)atan(tan(_viewAngle/2.0f)*ratio);
+            xAngle_size=2.0*(floatDouble)atan(tan(_viewAngle/2.0)*ratio);
             yAngle_size=_viewAngle;
         }
         nearClip=_nearClippingPlane;
@@ -2406,7 +2461,7 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bo
     else
     {
         options|=1;
-        if (ratio>1.0f)
+        if (ratio>1.0)
         {
             xAngle_size=_orthoViewSize;
             yAngle_size=_orthoViewSize/ratio;
@@ -2428,9 +2483,9 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bo
     data[11]=App::currentWorld->environment->ambientLightColor;
     data[12]=App::currentWorld->environment->fogBackgroundColor;
     int fogType=App::currentWorld->environment->getFogType();
-    float fogStart=App::currentWorld->environment->getFogStart();
-    float fogEnd=App::currentWorld->environment->getFogEnd();
-    float fogDensity=App::currentWorld->environment->getFogDensity();
+    floatDouble fogStart=App::currentWorld->environment->getFogStart();
+    floatDouble fogEnd=App::currentWorld->environment->getFogEnd();
+    floatDouble fogDensity=App::currentWorld->environment->getFogDensity();
     bool fogEnabled=App::currentWorld->environment->getFogEnabled();
     data[13]=&fogType;
     data[14]=&fogStart;
@@ -2444,10 +2499,10 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bo
 
     // Following actually free since CoppeliaSim 3.3.0
     // But the older PovRay plugin version crash without this:
-    float povFogDist=4.0f;
-    float povFogTransp=0.5f;
+    floatDouble povFogDist=4.0;
+    floatDouble povFogTransp=0.5;
     bool povFocalBlurEnabled=false;
-    float povFocalLength,povAperture;
+    floatDouble povFocalLength,povAperture;
     int povBlurSamples;
     data[22]=&povFogDist;
     data[23]=&povFogTransp;
@@ -2470,21 +2525,21 @@ void CCamera::_extRenderer_prepareLights()
             void* data[20];
             int lightType=light->getLightType();
             data[0]=&lightType;
-            float cutoffAngle=light->getSpotCutoffAngle();
+            floatDouble cutoffAngle=light->getSpotCutoffAngle();
             data[1]=&cutoffAngle;
             int spotExponent=light->getSpotExponent();
             data[2]=&spotExponent;
             data[3]=light->getColor(true)->getColorsPtr();
-            float constAttenuation=light->getAttenuationFactor(CONSTANT_ATTENUATION);
+            floatDouble constAttenuation=light->getAttenuationFactor(CONSTANT_ATTENUATION);
             data[4]=&constAttenuation;
-            float linAttenuation=light->getAttenuationFactor(LINEAR_ATTENUATION);
+            floatDouble linAttenuation=light->getAttenuationFactor(LINEAR_ATTENUATION);
             data[5]=&linAttenuation;
-            float quadAttenuation=light->getAttenuationFactor(QUADRATIC_ATTENUATION);
+            floatDouble quadAttenuation=light->getAttenuationFactor(QUADRATIC_ATTENUATION);
             data[6]=&quadAttenuation;
             C7Vector tr(light->getFullCumulativeTransformation());
             data[7]=tr.X.data;
             data[8]=tr.Q.data;
-            float lightSize=light->getLightSize();
+            floatDouble lightSize=light->getLightSize();
             data[9]=&lightSize;
             bool lightIsVisible=light->getShouldObjectBeDisplayed(_objectHandle,0);
             data[11]=&lightIsVisible;
@@ -2493,7 +2548,7 @@ void CCamera::_extRenderer_prepareLights()
 
             // Following actually free since CoppeliaSim 3.3.0
             // But the older PovRay plugin version crash without this:
-            float povFadeXDist=0.0;
+            floatDouble povFadeXDist=0.0;
             bool povNoShadow=false;
             data[10]=&povFadeXDist;
             data[12]=&povNoShadow;
@@ -2513,11 +2568,11 @@ void CCamera::_extRenderer_prepareMirrors()
         {
             bool active=mirror->getActive()&&(!App::currentWorld->mainSettings->mirrorsDisabled);
             C7Vector tr=mirror->getCumulativeTransformation();
-            float w_=mirror->getMirrorWidth()/2.0f;
-            float h_=mirror->getMirrorHeight()/2.0f;
-            float vertices[18]={w_,-h_,0.0005f,w_,h_,0.0005f,-w_,-h_,0.0005f,-w_,-h_,0.0005f,w_,h_,0.0005f,-w_,h_,0.0005f};
+            floatDouble w_=mirror->getMirrorWidth()/2.0;
+            floatDouble h_=mirror->getMirrorHeight()/2.0;
+            floatDouble vertices[18]={w_,-h_,0.0005,w_,h_,0.0005,-w_,-h_,0.0005,-w_,-h_,0.0005,w_,h_,0.0005,-w_,h_,0.0005};
             int verticesCnt=6;
-            float normals[18]={0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f};
+            floatDouble normals[18]={0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0};
             for (int i=0;i<6;i++)
             {
                 C3Vector v(vertices+i*3);
@@ -2535,29 +2590,29 @@ void CCamera::_extRenderer_prepareMirrors()
             data[0]=vertices;
             data[1]=&verticesCnt;
             data[2]=normals;
-            float colors[15];
+            floatDouble colors[15];
             colors[0]=mirror->mirrorColor[0];
             colors[1]=mirror->mirrorColor[1];
             colors[2]=mirror->mirrorColor[2];
-            colors[6]=0.0f;
-            colors[7]=0.0f;
-            colors[8]=0.0f;
-            colors[9]=0.0f;
-            colors[10]=0.0f;
-            colors[11]=0.0f;
-            colors[12]=0.0f;
-            colors[13]=0.0f;
-            colors[14]=0.0f;
+            colors[6]=0.0;
+            colors[7]=0.0;
+            colors[8]=0.0;
+            colors[9]=0.0;
+            colors[10]=0.0;
+            colors[11]=0.0;
+            colors[12]=0.0;
+            colors[13]=0.0;
+            colors[14]=0.0;
             data[3]=colors;
             bool translucid=false;
             data[4]=&translucid;
-            float opacityFactor=1.0f;
+            floatDouble opacityFactor=1.0;
             data[5]=&opacityFactor;
             const char* povMaterial={"mirror"};
             data[6]=(char*)povMaterial;
             data[7]=&active;
             CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_triangles,data);
-            C3Vector shift=tr.Q.getMatrix().axis[2]*(-0.001f);
+            C3Vector shift=tr.Q.getMatrix().axis[2]*(-0.001);
             for (int i=0;i<6;i++)
             {
                 C3Vector v(vertices+i*3);
@@ -2649,7 +2704,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             C3Vector minV,maxV;
             bool first=true;
             viewBoxObject->getGlobalMarkingBoundingBox(getFullCumulativeTransformation().getInverse(),minV,maxV,first,true,true);
-            float shift=ORTHO_CAMERA_FAR_CLIPPING_PLANE-0.505f*(maxV(2)-minV(2)); // just a bit more than half!
+            floatDouble shift=ORTHO_CAMERA_FAR_CLIPPING_PLANE-0.505*(maxV(2)-minV(2)); // just a bit more than half!
             cam.X+=cam.Q.getMatrix().axis[2]*shift;
         }
         C7Vector newLocal(viewBoxObject->getFullParentCumulativeTransformation().getInverse()*cam);
@@ -2658,18 +2713,18 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
     }
 
     // For those special drawing routines that require the window size and other info:
-    float verticalViewSizeOrAngle;
-    float ratio=(float)(currentWinSize[0]/(float)currentWinSize[1]);
+    floatDouble verticalViewSizeOrAngle;
+    floatDouble ratio=(floatDouble)(currentWinSize[0]/(floatDouble)currentWinSize[1]);
     if (_currentPerspective)
     {
-        if (ratio>1.0f)
-            verticalViewSizeOrAngle=2.0f*(float)atan(tan(_viewAngle/2.0f)/ratio);
+        if (ratio>1.0)
+            verticalViewSizeOrAngle=2.0*(floatDouble)atan(tan(_viewAngle/2.0)/ratio);
         else
             verticalViewSizeOrAngle=_viewAngle;
     }
     else
     {
-        if (ratio>1.0f)
+        if (ratio>1.0)
             verticalViewSizeOrAngle=_orthoViewSize/ratio;
         else
             verticalViewSizeOrAngle=_orthoViewSize;
@@ -2855,12 +2910,12 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
     SModelThumbnailInfo* info=App::mainWindow->openglWidget->getModelDragAndDropInfo();
     if ((pass==RENDERPASS)&&(info!=nullptr))
     {
-        float ss=info->modelNonDefaultTranslationStepSize;
+        floatDouble ss=info->modelNonDefaultTranslationStepSize;
         if (ss==0.0)
             ss=App::userSettings->getTranslationStepSize();
-        float x=info->desiredDropPos(0)-fmod(info->desiredDropPos(0),ss);
-        float y=info->desiredDropPos(1)-fmod(info->desiredDropPos(1),ss);
-        const float pink[3]={1.0,1.0,0.0};
+        floatDouble x=info->desiredDropPos(0)-fmod(info->desiredDropPos(0),ss);
+        floatDouble y=info->desiredDropPos(1)-fmod(info->desiredDropPos(1),ss);
+        const floatDouble pink[3]={1.0,1.0,0.0};
         ogl::setMaterialColor(pink,ogl::colorBlack,ogl::colorBlack);
         ogl::setBlending(false);
         glPushMatrix();
@@ -2893,7 +2948,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
 CSceneObject* CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<CSceneObject*>& toRender)
 {
     std::vector<int> transparentObjects;
-    std::vector<float> transparentObjectDist;
+    std::vector<floatDouble> transparentObjectDist;
     C7Vector camTrInv(getCumulativeTransformation().getInverse());
     CSceneObject* viewBoxObject=nullptr;
     for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
@@ -2950,7 +3005,7 @@ void CCamera::performDepthPerception(CSView* subView,bool isPerspective)
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT,viewport);
     GLfloat pixel[1];
-    float farDivFarMinusNear=_farClippingPlane/(_farClippingPlane-_nearClippingPlane);
+    floatDouble farDivFarMinusNear=_farClippingPlane/(_farClippingPlane-_nearClippingPlane);
     if (!isPerspective)
         farDivFarMinusNear=ORTHO_CAMERA_FAR_CLIPPING_PLANE/(ORTHO_CAMERA_FAR_CLIPPING_PLANE-ORTHO_CAMERA_NEAR_CLIPPING_PLANE);
     C4X4Matrix m(getCumulativeTransformation());
@@ -2964,65 +3019,65 @@ void CCamera::performDepthPerception(CSView* subView,bool isPerspective)
     else
         subView->setMousePositionDepth(ORTHO_CAMERA_NEAR_CLIPPING_PLANE+pixel[0]*(ORTHO_CAMERA_FAR_CLIPPING_PLANE-ORTHO_CAMERA_NEAR_CLIPPING_PLANE));
 
-    float clippFar=_farClippingPlane;
-    float clippNear=_nearClippingPlane;
+    floatDouble clippFar=_farClippingPlane;
+    floatDouble clippNear=_nearClippingPlane;
     if (!isPerspective)
     {
         clippFar=ORTHO_CAMERA_FAR_CLIPPING_PLANE;
         clippNear=ORTHO_CAMERA_NEAR_CLIPPING_PLANE;
     }
 
-    if (pixel[0]>=(1.0f-2.0f*std::numeric_limits<float>::epsilon()))
+    if (pixel[0]>=(1.0-2.0*std::numeric_limits<floatDouble>::epsilon()))
     { // The cursor hit the far clipping plane:
         subView->setMousePositionDepth(clippNear);
-        float p[3];
+        floatDouble p[3];
         (m.X+m.M.axis[2]*clippNear).getData(p);
         subView->setCenterPosition(p);
     }
     else
     {
-        float yShift;
-        float xShift;
-        float ratio=(float)(windowSize[0]/(float)windowSize[1]);
+        floatDouble yShift;
+        floatDouble xShift;
+        floatDouble ratio=(floatDouble)(windowSize[0]/(floatDouble)windowSize[1]);
         int mouseDownRelPos[2];
         subView->getMouseDownRelativePosition(mouseDownRelPos);
         if (isPerspective)
         {
-            if (ratio>1.0f)
+            if (ratio>1.0)
             {
-                float tmp=(windowSize[0]/2)/tan(_viewAngle*0.5f);
+                floatDouble tmp=(windowSize[0]/2)/tan(_viewAngle*0.5);
                 xShift=(-mouseDownRelPos[0]+(windowSize[0]/2))*subView->getMousePositionDepth()/tmp;
-                float angle2=2.0f*(float)atan(tan(_viewAngle/2.0f)/ratio)*radToDeg;
-                tmp=(windowSize[1]/2)/tan(angle2*degToRad*0.5f);
+                floatDouble angle2=2.0*(floatDouble)atan(tan(_viewAngle/2.0)/ratio)*radToDeg;
+                tmp=(windowSize[1]/2)/tan(angle2*degToRad*0.5);
                 yShift=(mouseDownRelPos[1]-(windowSize[1]/2))*subView->getMousePositionDepth()/tmp;
             }
             else
             {
-                float tmp=(windowSize[1]/2)/tan(_viewAngle*0.5f);
+                floatDouble tmp=(windowSize[1]/2)/tan(_viewAngle*0.5);
                 yShift=(mouseDownRelPos[1]-(windowSize[1]/2))*subView->getMousePositionDepth()/tmp;
-                float angle2=2.0f*(float)atan(tan(_viewAngle/2.0f)*ratio)*radToDeg;
-                tmp=(windowSize[0]/2)/tan(angle2*degToRad*0.5f);
+                floatDouble angle2=2.0*(floatDouble)atan(tan(_viewAngle/2.0)*ratio)*radToDeg;
+                tmp=(windowSize[0]/2)/tan(angle2*degToRad*0.5);
                 xShift=(-mouseDownRelPos[0]+(windowSize[0]/2))*subView->getMousePositionDepth()/tmp;
             }
         }
         else
         {
-            if (ratio>1.0f)
+            if (ratio>1.0)
             {
-                float tmp=windowSize[0]/_orthoViewSize;
+                floatDouble tmp=windowSize[0]/_orthoViewSize;
                 xShift=(-mouseDownRelPos[0]+(windowSize[0]/2))/tmp;
                 tmp=windowSize[1]/(_orthoViewSize/ratio);
                 yShift=(+mouseDownRelPos[1]-(windowSize[1]/2))/tmp;
             }
             else
             {
-                float tmp=windowSize[1]/_orthoViewSize;
+                floatDouble tmp=windowSize[1]/_orthoViewSize;
                 yShift=(mouseDownRelPos[1]-(windowSize[1]/2))/tmp;
                 tmp=windowSize[0]/(_orthoViewSize*ratio);
                 xShift=(-mouseDownRelPos[0]+(windowSize[0]/2))/tmp;
             }
         }
-        float p[3];
+        floatDouble p[3];
 
         (m.X+m.M.axis[2]*subView->getMousePositionDepth()+m.M.axis[1]*yShift+m.M.axis[0]*xShift).getData(p);
         subView->setCenterPosition(p);
@@ -3088,13 +3143,13 @@ void CCamera::_drawOverlay(bool passiveView,bool drawText,bool displ_ref,int win
 
     if (App::userSettings->displayWorldReference&&displ_ref)
     {
-        glTranslatef(float(windowSize[0]-60.0f*App::sc),40.0f*App::sc,0.0f);
+        glTranslatef(floatDouble(windowSize[0]-60.0*App::sc),40.0*App::sc,0.0);
         C7Vector tr2(getFullCumulativeTransformation());
         tr2.inverse();
         C4X4Matrix m1;
         m1.buildYRotation(piValue);
         C7Vector tr0(m1.getTransformation()*tr2);
-        float refSize=30.0f*App::sc;
+        floatDouble refSize=30.0*App::sc;
 
         C3Vector euler(tr0.Q.getEulerAngles());
         glPushMatrix();
