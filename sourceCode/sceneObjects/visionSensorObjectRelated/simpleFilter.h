@@ -1,5 +1,4 @@
 // Needed for backward compatibility
-
 #pragma once
 
 #include "ser.h"
@@ -25,7 +24,7 @@ protected:
     std::string _customFilterName;
     int _filterVersion;
     std::vector<int> _intParameters;
-    std::vector<float> _floatParameters;
+    std::vector<floatDouble> _floatParameters;
     std::vector<unsigned char> _byteParameters;
     std::vector<unsigned char> _customFilterParameters;
     int _uniqueID;

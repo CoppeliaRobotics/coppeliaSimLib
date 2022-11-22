@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "ser.h"
@@ -29,8 +28,8 @@ public:
     std::string getObjectName();
     void setObjectName(std::string newName);
     bool isTaskValid();
-    bool performSearch(bool showProgressDlg,float maxTime);
-    bool initiateSteppedSearch(bool showProgressDlg,float maxTime,float subDt);
+    bool performSearch(bool showProgressDlg,floatDouble maxTime);
+    bool initiateSteppedSearch(bool showProgressDlg,floatDouble maxTime,floatDouble subDt);
     int performSteppedSearch();
 
     void setShowSearchTrees(bool s);
@@ -41,14 +40,14 @@ public:
     void setGoalDummyID(int theID);
     void setPathID(int theID);
     void setHolonomicTaskType(int type);
-    void setStepSize(float size);
-    void setAngularStepSize(float step);
-    void setSearchRange(float searchMin[4],float searchR[4]);
-    void setMaxTime(float mTime);
+    void setStepSize(floatDouble size);
+    void setAngularStepSize(floatDouble step);
+    void setSearchRange(floatDouble searchMin[4],floatDouble searchR[4]);
+    void setMaxTime(floatDouble mTime);
     void setSearchDirection(int dir[4]);
     void setCollisionDetection(bool c);
-    void setObstacleClearance(float c);
-    void setMinTurningCircleDiameter(float d);
+    void setObstacleClearance(floatDouble c);
+    void setMinTurningCircleDiameter(floatDouble d);
 
     int getGoalDummyID();
     int getPathID();
@@ -57,23 +56,23 @@ public:
     void setObstacleEntityID(int theID);
     int getObstacleEntityID();
 
-    void setObstacleMaxDistance(float c);
-    float getObstacleMaxDistance();
+    void setObstacleMaxDistance(floatDouble c);
+    floatDouble getObstacleMaxDistance();
     void setObstacleMaxDistanceEnabled(bool e);
     bool getObstacleMaxDistanceEnabled();
 
 
     int getHolonomicTaskType();
-    float getStepSize();
-    float getAngularStepSize();
-    void getSearchRange(float searchMin[4],float searchR[4]);
-    float getMaxTime();
+    floatDouble getStepSize();
+    floatDouble getAngularStepSize();
+    void getSearchRange(floatDouble searchMin[4],floatDouble searchR[4]);
+    floatDouble getMaxTime();
     void getSearchDirection(int dir[4]);
     bool getCollisionDetection();
-    float getObstacleClearance();
+    floatDouble getObstacleClearance();
     int getPathPlanningType();
     int getStartDummyID();
-    float getMinTurningCircleDiameter();
+    floatDouble getMinTurningCircleDiameter();
 
     void setPostProcessingPassCount(int p);
     int getPostProcessingPassCount();
@@ -110,20 +109,20 @@ protected:
     int _obstacleEntityID;
     int _pathID;
     int holonomicTaskType;
-    float stepSize;
-    float angularStepSize;
-    float searchMinValue[4];
-    float searchRange[4];
+    floatDouble stepSize;
+    floatDouble angularStepSize;
+    floatDouble searchMinValue[4];
+    floatDouble searchRange[4];
     int searchDirection[4];
     C3Vector _gammaAxis;
 
-    float maximumTime;
+    floatDouble maximumTime;
     int _objectID;
     bool collisionDetection;
     bool _visualizeSearchArea;
-    float obstacleClearance;
-    float _obstacleMaxDistance;
+    floatDouble obstacleClearance;
+    floatDouble _obstacleMaxDistance;
     bool _obstacleMaxDistanceEnabled;
-    float minTurningCircleDiameter;
+    floatDouble minTurningCircleDiameter;
     std::string objectName;
 };

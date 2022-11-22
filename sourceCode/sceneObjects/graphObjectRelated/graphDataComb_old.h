@@ -15,8 +15,8 @@ public:
     bool getVisible();
     void setVisibleOnTopOfEverything(bool v);
     bool getVisibleOnTopOfEverything();
-    void set3DCurveWidth(float width);
-    float get3DCurveWidth();
+    void set3DCurveWidth(floatDouble width);
+    floatDouble get3DCurveWidth();
     void setLinkPoints(bool l);
     bool getLinkPoints();
     void setIdentifier(int newIdentifier);
@@ -41,7 +41,7 @@ protected:
     int identifier;
     bool visible;
     bool visibleOnTopOfEverything; // only for 3D curves!
-    float threeDCurveWidth; // only for 3D curves!
+    floatDouble threeDCurveWidth; // only for 3D curves!
     bool linkPoints;
     bool label;
     bool _curveRelativeToWorld; // only for 3D curves!

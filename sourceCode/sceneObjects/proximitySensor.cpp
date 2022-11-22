@@ -46,11 +46,11 @@ void CProxSensor::setRandomizedDetection(bool enable)
     if ( (sensorType==sim_proximitysensor_ray_subtype)&&(enable!=_randomizedDetection) )
     {
         _randomizedDetection=enable;
-        float off=convexVolume->getOffset();
-        float radius=convexVolume->getRadius();
-        float range=convexVolume->getRange();
+        floatDouble off=convexVolume->getOffset();
+        floatDouble radius=convexVolume->getRadius();
+        floatDouble range=convexVolume->getRange();
         bool forbiddenDistEnable=convexVolume->getSmallestDistanceEnabled();
-        float forbiddenDist=convexVolume->getSmallestDistanceAllowed();
+        floatDouble forbiddenDist=convexVolume->getSmallestDistanceAllowed();
 
         if (enable)
         {
@@ -384,13 +384,27 @@ void CProxSensor::serialize(CSer& ar)
             if (ar.setWritingMode())
                 convexVolume->serialize(ar);
 
+#ifdef TMPOPERATION
             ar.storeDataName("Sns");
-            ar << _proxSensorSize;
+            ar.flt() << (floatFloat)_proxSensorSize;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_ns");
+            ar.dbl() << _proxSensorSize;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Al2");
-            ar << allowedNormal;
+            ar.flt() << (floatFloat)allowedNormal;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_l2");
+            ar.dbl() << allowedNormal;
+            ar.flush();
+#endif
 
             ar.storeDataName("Pr4");
             unsigned char nothing=0;
@@ -422,9 +436,6 @@ void CProxSensor::serialize(CSer& ar)
             if (ar.setWritingMode())
                 volumeColor.serialize(ar,0);
 
-            //ar.storeDataName("Cl2");
-            //ar.storeDataName("Cl4");
-
             ar.storeDataName("Cl3");
             ar.setCountingMode();
             detectionRayColor.serialize(ar,1);
@@ -445,7 +456,6 @@ void CProxSensor::serialize(CSer& ar)
         {       // Loading
             int byteQuantity;
             std::string theName="";
-//            bool occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09=false;
             while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
                 theName=ar.readDataName();
@@ -468,10 +478,18 @@ void CProxSensor::serialize(CSer& ar)
                         convexVolume->serialize(ar);
                     }
                     if (theName.compare("Sns")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _proxSensorSize=(floatDouble)bla;
+                    }
+                    if (theName.compare("_ns")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _proxSensorSize;
+                        ar.dbl() >> _proxSensorSize;
                     }
                     if (theName.compare("Sox")==0)
                     {
@@ -486,10 +504,18 @@ void CProxSensor::serialize(CSer& ar)
                         ar >> _sensableType;
                     }
                     if (theName.compare("Al2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        allowedNormal=(floatDouble)bla;
+                    }
+                    if (theName.compare("_l2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> allowedNormal;
+                        ar.dbl() >> allowedNormal;
                     }
                     if (theName=="Pr4")
                     {
@@ -513,7 +539,6 @@ void CProxSensor::serialize(CSer& ar)
                         ar >> nothing;
 //                        _checkOcclusions=SIM_IS_BIT_SET(nothing,0);
                         _randomizedDetection=SIM_IS_BIT_SET(nothing,1);
-//                        occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09=true;
                     }
                     if (theName.compare("Rad")==0)
                     {
@@ -527,8 +552,6 @@ void CProxSensor::serialize(CSer& ar)
                         ar >> byteQuantity; 
                         volumeColor.serialize(ar,0);
                     }
-                    // if (theName.compare("Cl2")==0)
-                    //if (theName.compare("Cl4")==0)
                     if (theName.compare("Cl3")==0)
                     {
                         noHit=false;
@@ -539,8 +562,6 @@ void CProxSensor::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
-//            if (!occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09)
-//                _checkOcclusions=false;
 
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
@@ -692,11 +713,11 @@ void CProxSensor::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("passiveVolume",rgb,3,false))
-                        volumeColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        volumeColor.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                     if (ar.xmlGetNode_ints("volume",rgb,3,false))
-                        volumeColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        volumeColor.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                     if (ar.xmlGetNode_ints("detectionRay",rgb,3,false))
-                        detectionRayColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        detectionRayColor.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -768,10 +789,10 @@ void CProxSensor::calculateFreshRandomizedRays()
     _randomizedVectors.clear();
     _randomizedVectorDetectionStates.clear();
     // Build the random rays (only direction)
-    float angle=convexVolume->getAngle();
+    floatDouble angle=convexVolume->getAngle();
     for (int i=0;i<_randomizedDetectionSampleCount;i++)
     {
-        float rZ,sZ,cZ;
+        floatDouble rZ,sZ,cZ;
         if (angle>1.1f*piValD2)
         { // this means we have 360x180 degrees. We compute it as 2 half-spheres, in order to have a perfect direction distribution:
             rZ=acos(1.0f-SIM_RAND_FLOAT);
@@ -786,9 +807,9 @@ void CProxSensor::calculateFreshRandomizedRays()
             sZ=sin(rZ);
             cZ=cos(rZ);
         }
-        float rXY=SIM_RAND_FLOAT*piValT2;
-        float sXY=sin(rXY);
-        float cXY=cos(rXY);
+        floatDouble rXY=SIM_RAND_FLOAT*piValT2;
+        floatDouble sXY=sin(rXY);
+        floatDouble cXY=cos(rXY);
         C3Vector v(sZ*cXY,sZ*sXY,cZ);
         _randomizedVectors.push_back(v);
         _randomizedVectorDetectionStates.push_back(0.0f);
@@ -800,7 +821,7 @@ const std::vector<C3Vector>* CProxSensor::getPointerToRandomizedRays() const
     return(&_randomizedVectors);
 }
 
-std::vector<float>* CProxSensor::getPointerToRandomizedRayDetectionStates()
+std::vector<floatDouble>* CProxSensor::getPointerToRandomizedRayDetectionStates()
 {
     return(&_randomizedVectorDetectionStates);
 }
@@ -831,8 +852,8 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
 
     int stTime=(int)VDateTime::getTimeInMs();
 
-    float treshhold=FLOAT_MAX;
-    float minThreshold=-1.0f;
+    floatDouble treshhold=FLOAT_MAX;
+    floatDouble minThreshold=-1.0f;
     if (convexVolume->getSmallestDistanceEnabled())
         minThreshold=convexVolume->getSmallestDistanceAllowed();
 
@@ -915,9 +936,9 @@ int CProxSensor::readSensor(C3Vector& detectPt,int& detectedObjectHandle,C3Vecto
     return(-1);
 }
 
-float CProxSensor::getCalculationTime() const
+floatDouble CProxSensor::getCalculationTime() const
 {
-    return(float(_calcTimeInMs)*0.001f);
+    return(floatDouble(_calcTimeInMs)*0.001f);
 }
 
 bool CProxSensor::getFrontFaceDetection() const
@@ -941,12 +962,12 @@ void CProxSensor::setBackFaceDetection(bool faceOn)
         frontFaceDetection=true;
 }
 
-void CProxSensor::setAllowedNormal(float al)
+void CProxSensor::setAllowedNormal(floatDouble al)
 {
     tt::limitValue(0.1f*degToRad,90.0f*degToRad,al);
     allowedNormal=al;
 }
-float CProxSensor::getAllowedNormal() const
+floatDouble CProxSensor::getAllowedNormal() const
 {
     return(allowedNormal);
 }
@@ -969,7 +990,7 @@ bool CProxSensor::getClosestObjectMode()
     return(closestObjectMode);
 }
 
-void CProxSensor::setProxSensorSize(float newSize)
+void CProxSensor::setProxSensorSize(floatDouble newSize)
 {
     tt::limitValue(0.0001f,10.0f,newSize);
     bool diff=(_proxSensorSize!=newSize);
@@ -987,7 +1008,7 @@ void CProxSensor::setProxSensorSize(float newSize)
     }
 }
 
-float CProxSensor::getProxSensorSize()
+floatDouble CProxSensor::getProxSensorSize()
 {
     return(_proxSensorSize);
 }
@@ -1000,16 +1021,16 @@ bool CProxSensor::getSensedData(C3Vector& pt)
     return(true);
 }
 
-void CProxSensor::scaleObject(float scalingFactor)
+void CProxSensor::scaleObject(floatDouble scalingFactor)
 {
     convexVolume->scaleVolume(scalingFactor);
     setProxSensorSize(_proxSensorSize*scalingFactor);
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void CProxSensor::scaleObjectNonIsometrically(float x,float y,float z)
+void CProxSensor::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
-    float xp,yp,zp;
+    floatDouble xp,yp,zp;
     convexVolume->scaleVolumeNonIsometrically(x,y,z,xp,yp,zp);
     setProxSensorSize(_proxSensorSize*cbrt(xp*yp*zp));
     CSceneObject::scaleObjectNonIsometrically(xp,yp,zp);

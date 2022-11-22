@@ -1,5 +1,6 @@
 #pragma once
 
+#include "simTypes.h"
 #include "ser.h"
 
 class CStaticGraphCurve_old
@@ -7,7 +8,7 @@ class CStaticGraphCurve_old
 public:
     
     CStaticGraphCurve_old();
-    CStaticGraphCurve_old(int type,std::vector<float>* xVals,std::vector<float>* yVals,std::vector<float>* zVals);
+    CStaticGraphCurve_old(int type,std::vector<floatDouble>* xVals,std::vector<floatDouble>* yVals,std::vector<floatDouble>* zVals);
     virtual ~CStaticGraphCurve_old();
 
     // Various
@@ -18,8 +19,8 @@ public:
     void setName(std::string theName);
     void setLabel(bool l);
     bool getLabel();
-    void setCurveWidth(float w);
-    float getCurveWidth();
+    void setCurveWidth(floatDouble w);
+    floatDouble getCurveWidth();
     void setRelativeToWorld(bool r);
     bool getRelativeToWorld();
 
@@ -27,14 +28,14 @@ public:
     CStaticGraphCurve_old* copyYourself();
     
     // Variables which need to be serialized & copied 
-    std::vector <float> values;
-    float ambientColor[3];
-    float emissiveColor[3];
+    std::vector <floatDouble> values;
+    floatDouble ambientColor[3];
+    floatDouble emissiveColor[3];
 
 protected:
     // Variables which need to be serialized & copied 
     int _curveType;
-    float _curveWidth; // for 3D curves only!
+    floatDouble _curveWidth; // for 3D curves only!
     bool _linkPoints;
     bool _label;
     bool _relativeToWorld;

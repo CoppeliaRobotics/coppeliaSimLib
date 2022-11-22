@@ -9,18 +9,18 @@ class CShape : public CSceneObject
 public:
 
     CShape();
-    CShape(const std::vector<float>& allHeights,int xSize,int ySize,float dx,float zSize); // heightfield
-    CShape(const C7Vector* transformation,const std::vector<float>& vert,const std::vector<int>& ind,const std::vector<float>* normals,const std::vector<float>* textCoord); // mesh
+    CShape(const std::vector<floatDouble>& allHeights,int xSize,int ySize,floatDouble dx,floatDouble zSize); // heightfield
+    CShape(const C7Vector* transformation,const std::vector<floatDouble>& vert,const std::vector<int>& ind,const std::vector<floatDouble>* normals,const std::vector<floatDouble>* textCoord); // mesh
     CShape(const C7Vector& transformation,CMeshWrapper* newGeomInfo);
     virtual ~CShape();
 
-    C7Vector reinitMesh(const C7Vector* transformation,const std::vector<float>& vert,const std::vector<int>& ind,const std::vector<float>* normals,const std::vector<float>* textCoord);
+    C7Vector reinitMesh(const C7Vector* transformation,const std::vector<floatDouble>& vert,const std::vector<int>& ind,const std::vector<floatDouble>* normals,const std::vector<floatDouble>* textCoord);
     C7Vector reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeomInfo);
     void setNewMesh(CMeshWrapper* newGeomInfo);
     void invertFrontBack();
     C3Vector getBoundingBoxHalfSizes() const;
-    void scaleMesh(float xVal,float yVal,float zVal);
-    void scaleMesh(float x,float y,float z,float& xp,float& yp,float& zp);
+    void scaleMesh(floatDouble xVal,floatDouble yVal,floatDouble zVal);
+    void scaleMesh(floatDouble x,floatDouble y,floatDouble z,floatDouble& xp,floatDouble& yp,floatDouble& zp);
 
     int getMeshModificationCounter();
     CMeshWrapper* getMeshWrapper() const;
@@ -38,8 +38,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(float scalingFactor);
-    void scaleObjectNonIsometrically(float x,float y,float z);
+    void scaleObject(floatDouble scalingFactor);
+    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -71,8 +71,8 @@ public:
     void setCulling(bool culState);
     bool getVisibleEdges() const;
     void setVisibleEdges(bool v);
-    float getShadingAngle() const;
-    void setShadingAngle(float a);
+    floatDouble getShadingAngle() const;
+    void setShadingAngle(floatDouble a);
     void setRespondableSuspendCount(int cnt);
     void decrementRespondableSuspendCount();
 
@@ -106,9 +106,9 @@ public:
     C3Vector getInitialDynamicAngularVelocity();
     void setInitialDynamicAngularVelocity(const C3Vector& vel);
     bool isCompound() const;
-    void setColor(const char* colorName,int colorComponent,float r,float g,float b);
-    void setColor(const char* colorName,int colorComponent,const float* rgbData);
-    bool getColor(const char* colorName,int colorComponent,float* rgbData);
+    void setColor(const char* colorName,int colorComponent,floatDouble r,floatDouble g,floatDouble b);
+    void setColor(const char* colorName,int colorComponent,const floatDouble* rgbData);
+    bool getColor(const char* colorName,int colorComponent,floatDouble* rgbData);
     void setRespondable(bool r);
     bool getRespondable();
     void setDynamicCollisionMask(unsigned short m);
@@ -133,14 +133,14 @@ public:
     void clearLastParentForLocalGlobalRespondable();
 
     // Distance measurement functions
-    bool getShapeShapeDistance_IfSmaller(CShape* it,float &dist,float ray[7],int buffer[2]);
-    bool getDistanceToDummy_IfSmaller(CDummy* it,float &dist,float ray[7],int& buffer);
+    bool getShapeShapeDistance_IfSmaller(CShape* it,floatDouble &dist,floatDouble ray[7],int buffer[2]);
+    bool getDistanceToDummy_IfSmaller(CDummy* it,floatDouble &dist,floatDouble ray[7],int& buffer);
 
     // Collision detection functions
     bool isMeshCalculationStructureInitialized();
     void initializeMeshCalculationStructureIfNeeded();
     void removeMeshCalculationStructure();
-    bool doesShapeCollideWithShape(CShape* collidee,std::vector<float>* intersections);
+    bool doesShapeCollideWithShape(CShape* collidee,std::vector<floatDouble>* intersections);
 
     // Bounding box functions
     void alignBoundingBoxWithMainAxis();
@@ -162,11 +162,11 @@ public:
 
 protected:
     void _serializeBackCompatibility(CSer& ar);
-    C7Vector _acceptNewGeometry(const std::vector<float>& vert,const std::vector<int>& ind,const std::vector<float>* textCoord,const std::vector<float>* norm);
+    C7Vector _acceptNewGeometry(const std::vector<floatDouble>& vert,const std::vector<int>& ind,const std::vector<floatDouble>* textCoord,const std::vector<floatDouble>* norm);
     C7Vector _recomputeOrientation(C7Vector& m,bool alignWithMainAxis);
     C7Vector _recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& error);
-    static bool _getTubeReferenceFrame(const std::vector<float>& v,C7Vector& tr);
-    static bool _getCuboidReferenceFrame(const std::vector<float>& v,const std::vector<int>& ind,C7Vector& tr);
+    static bool _getTubeReferenceFrame(const std::vector<floatDouble>& v,C7Vector& tr);
+    static bool _getCuboidReferenceFrame(const std::vector<floatDouble>& v,const std::vector<int>& ind,C7Vector& tr);
     void _computeMeshBoundingBox();
 
     bool _reorientGeometry(int type); // 0=main axis, 1=world, 2=tube, 3=cuboid

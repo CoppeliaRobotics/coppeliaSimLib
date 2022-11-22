@@ -1,5 +1,4 @@
 // Needed for backward compatibility
-
 #include "simpleFilter.h"
 #include "simConst.h"
 #include "MyMath.h"
@@ -36,23 +35,23 @@ void CSimpleFilter::setFilterType(int t)
     // Now set default parameter values
     if (_filterType==sim_filtercomponent_uniformimage_deprecated)
     {
-        _floatParameters.push_back(1.0f); // r
-        _floatParameters.push_back(1.0f); // g
-        _floatParameters.push_back(1.0f); // b
+        _floatParameters.push_back(1.0); // r
+        _floatParameters.push_back(1.0); // g
+        _floatParameters.push_back(1.0); // b
     }
     if (_filterType==sim_filtercomponent_3x3filter_deprecated)
     {
         _intParameters.push_back(1); // number of passes
         // We calculate a Gaussian blur:
         // 9 matrix elements, plus one element for the multiplication factor
-        _floatParameters.resize(9+1,1.0f);
-        const float sigma=2.0f;
-        float tot=0.0f;
+        _floatParameters.resize(9+1,1.0);
+        const floatDouble sigma=2.0;
+        floatDouble tot=0.0;
         for (int i=-1;i<2;i++)
         {
             for (int j=-1;j<2;j++)
             {
-                float v=pow(2.7182818f,-(i*i+j*j)/(2.0f*sigma*sigma))/(2.0f*piValue*sigma*sigma);
+                floatDouble v=pow(2.7182818,-(i*i+j*j)/(2.0*sigma*sigma))/(2.0*piValue*sigma*sigma);
                 _floatParameters[i+1+(j+1)*3]=v;
                 tot+=v;
             }
@@ -65,14 +64,14 @@ void CSimpleFilter::setFilterType(int t)
         _intParameters.push_back(1); // number of passes
         // We calculate a Gaussian blur:
         // 25 matrix elements, plus one element for the multiplication factor
-        _floatParameters.resize(25+1,1.0f);
-        const float sigma=2.0f;
-        float tot=0.0f;
+        _floatParameters.resize(25+1,1.0);
+        const floatDouble sigma=2.0;
+        floatDouble tot=0.0;
         for (int i=-2;i<3;i++)
         {
             for (int j=-2;j<3;j++)
             {
-                float v=pow(2.7182818f,-(i*i+j*j)/(2.0f*sigma*sigma))/(2.0f*piValue*sigma*sigma);
+                floatDouble v=pow(2.7182818,-(i*i+j*j)/(2.0*sigma*sigma))/(2.0*piValue*sigma*sigma);
                 _floatParameters[i+2+(j+2)*5]=v;
                 tot+=v;
             }
@@ -83,9 +82,9 @@ void CSimpleFilter::setFilterType(int t)
     if (_filterType==sim_filtercomponent_keeporremovecolors_deprecated)
     {
         _byteParameters.push_back(1+2); // bit 0: keep (otherwise remove), bit 1: rgb (otherwise hsl), bit 2: copy removed part to buffer 1
-        _floatParameters.push_back(0.5f); // r or h value
-        _floatParameters.push_back(0.5f); // g or s value
-        _floatParameters.push_back(0.5f); // b or l value
+        _floatParameters.push_back(0.5); // r or h value
+        _floatParameters.push_back(0.5); // g or s value
+        _floatParameters.push_back(0.5); // b or l value
         _floatParameters.push_back(0.25); // r or h tolerance (x --> +-x)
         _floatParameters.push_back(0.25); // g or s tolerance (x --> +-x)
         _floatParameters.push_back(0.25); // b or l tolerance (x --> +-x)
@@ -93,42 +92,42 @@ void CSimpleFilter::setFilterType(int t)
     if (_filterType==sim_filtercomponent_scaleandoffsetcolors_deprecated)
     {
         _byteParameters.push_back(2); // bit 0: not used yet, bit 1: rgb (otherwise hsl)
-        _floatParameters.push_back(0.0f); // r or h offset (before scaling)
-        _floatParameters.push_back(0.0f); // g or s offset (before scaling)
-        _floatParameters.push_back(0.0f); // b or l offset (before scaling)
-        _floatParameters.push_back(1.2f); // r or h scale
-        _floatParameters.push_back(1.2f); // g or s scale
-        _floatParameters.push_back(1.2f); // b or l scale
-        _floatParameters.push_back(0.0f); // r or h offset (after scaling)
-        _floatParameters.push_back(0.0f); // g or s offset (after scaling)
-        _floatParameters.push_back(0.0f); // b or l offset (after scaling)
+        _floatParameters.push_back(0.0); // r or h offset (before scaling)
+        _floatParameters.push_back(0.0); // g or s offset (before scaling)
+        _floatParameters.push_back(0.0); // b or l offset (before scaling)
+        _floatParameters.push_back(1.2); // r or h scale
+        _floatParameters.push_back(1.2); // g or s scale
+        _floatParameters.push_back(1.2); // b or l scale
+        _floatParameters.push_back(0.0); // r or h offset (after scaling)
+        _floatParameters.push_back(0.0); // g or s offset (after scaling)
+        _floatParameters.push_back(0.0); // b or l offset (after scaling)
     }
     if (_filterType==sim_filtercomponent_correlationwithbuffer1_deprecated)
     {
         _byteParameters.push_back(8+16); // 8: overlay display, 16: greyscale calculations
-        _floatParameters.push_back(0.5f); // sub-image size X (template)
-        _floatParameters.push_back(0.5f); // sub-image size Y (template)
-        _floatParameters.push_back(1.0f); // search frame X
-        _floatParameters.push_back(1.0f); // search frame Y
+        _floatParameters.push_back(0.5); // sub-image size X (template)
+        _floatParameters.push_back(0.5); // sub-image size Y (template)
+        _floatParameters.push_back(1.0); // search frame X
+        _floatParameters.push_back(1.0); // search frame Y
     }
     if (_filterType==sim_filtercomponent_shift_deprecated)
     {
         _byteParameters.push_back(0); // bit 0: if set, then no wrapping
-        _floatParameters.push_back(0.5f); // x-shift (-1 to 1)
-        _floatParameters.push_back(0.5f); // y-shift (-1 to 1)
+        _floatParameters.push_back(0.5); // x-shift (-1 to 1)
+        _floatParameters.push_back(0.5); // y-shift (-1 to 1)
     }
     if (_filterType==sim_filtercomponent_circularcut_deprecated)
     {
         _byteParameters.push_back(0); // bit 0: if set, cut part is copied to buffer 1
-        _floatParameters.push_back(1.0f); // circle radius relative to smallest half-size
+        _floatParameters.push_back(1.0); // circle radius relative to smallest half-size
     }
     if (_filterType==sim_filtercomponent_colorsegmentation_deprecated)
-        _floatParameters.push_back(0.3f); // max color-color distance
+        _floatParameters.push_back(0.3); // max color-color distance
     if (_filterType==sim_filtercomponent_blobextraction_deprecated)
     {
         _byteParameters.push_back(1); // bit0: use different color for each blob
-        _floatParameters.push_back(0.1f); // threshold
-        _floatParameters.push_back(0.0f); // min blob size
+        _floatParameters.push_back(0.1); // threshold
+        _floatParameters.push_back(0.0); // min blob size
     }
     if (_filterType==sim_filtercomponent_imagetocoord_deprecated)
     {
@@ -142,54 +141,54 @@ void CSimpleFilter::setFilterType(int t)
         _intParameters.push_back(32); // number of points along y
         _intParameters.push_back(0); // reserved
         _intParameters.push_back(0); // reserved
-        _floatParameters.push_back(30.0f*piValue/180.0f); // vertical scan angle
-        _floatParameters.push_back(0.0f); // reserved
-        _floatParameters.push_back(0.0f); // reserved
+        _floatParameters.push_back(30.0*piValue/180.0); // vertical scan angle
+        _floatParameters.push_back(0.0); // reserved
+        _floatParameters.push_back(0.0); // reserved
     }
 
     if (_filterType==sim_filtercomponent_pixelchange_deprecated)
     {
-        _floatParameters.push_back(0.1f); // threshold in percent
+        _floatParameters.push_back(0.1); // threshold in percent
     }
     if (_filterType==sim_filtercomponent_rectangularcut_deprecated)
     {
         _byteParameters.push_back(0); // bit 0: if set, cut part is copied to buffer 1
-        _floatParameters.push_back(0.9f); // x-size (0-1)
-        _floatParameters.push_back(0.9f); // y-size (0-1)
+        _floatParameters.push_back(0.9); // x-size (0-1)
+        _floatParameters.push_back(0.9); // y-size (0-1)
     }
     if (_filterType==sim_filtercomponent_resize_deprecated)
     {
-        _floatParameters.push_back(1.2f); // x-scale
-        _floatParameters.push_back(1.2f); // y-scale
+        _floatParameters.push_back(1.2); // x-scale
+        _floatParameters.push_back(1.2); // y-scale
     }
     if (_filterType==sim_filtercomponent_rotate_deprecated)
     {
-        _floatParameters.push_back(45.0f*degToRad); // rotation angle
+        _floatParameters.push_back(45.0*degToRad); // rotation angle
     }
     if (_filterType==sim_filtercomponent_edge_deprecated)
-        _floatParameters.push_back(0.1f); // threshold (0 to 1)
+        _floatParameters.push_back(0.1); // threshold (0 to 1)
     if (_filterType==sim_filtercomponent_intensityscale_deprecated)
     {
         _intParameters.push_back(1); // 0=grey scale, 1=intensity scale
-        _floatParameters.push_back(0.0f); // scale start
-        _floatParameters.push_back(1.0f); // scale end
+        _floatParameters.push_back(0.0); // scale start
+        _floatParameters.push_back(1.0); // scale end
     }
     if (_filterType==sim_filtercomponent_binary_deprecated)
     {
         _byteParameters.push_back(4+8); // 4:trigger enabled, 8:overlay display
-        _floatParameters.push_back(0.1f); // threshold
-        _floatParameters.push_back(0.0f); // free to use
-        _floatParameters.push_back(0.0f); // free to use
-        _floatParameters.push_back(0.0f); // free to use
-        _floatParameters.push_back(0.5f); // '1' proportion for trigger
-        _floatParameters.push_back(0.25f); // '1' proportion tolerance for trigger
-        _floatParameters.push_back(0.5f); // x center of mass for trigger
-        _floatParameters.push_back(0.25f); // x center of mass tolerance for trigger
-        _floatParameters.push_back(0.5f); // y center of mass for trigger
-        _floatParameters.push_back(0.25f); // y center of mass tolerance for trigger
-        _floatParameters.push_back(0.0f); // orientation for trigger
-        _floatParameters.push_back(90.01f*degToRad); // orientation tolerance for trigger
-        _floatParameters.push_back(0.9f); // roundness for trigger
+        _floatParameters.push_back(0.1); // threshold
+        _floatParameters.push_back(0.0); // free to use
+        _floatParameters.push_back(0.0); // free to use
+        _floatParameters.push_back(0.0); // free to use
+        _floatParameters.push_back(0.5); // '1' proportion for trigger
+        _floatParameters.push_back(0.25); // '1' proportion tolerance for trigger
+        _floatParameters.push_back(0.5); // x center of mass for trigger
+        _floatParameters.push_back(0.25); // x center of mass tolerance for trigger
+        _floatParameters.push_back(0.5); // y center of mass for trigger
+        _floatParameters.push_back(0.25); // y center of mass tolerance for trigger
+        _floatParameters.push_back(0.0); // orientation for trigger
+        _floatParameters.push_back(90.01*degToRad); // orientation tolerance for trigger
+        _floatParameters.push_back(0.9); // roundness for trigger
     }
 }
 
@@ -215,7 +214,7 @@ void CSimpleFilter::serialize(CSer& ar)
                     noHit=false;
                     ar >> byteQuantity;
                     ar >> _filterType;
-                    setFilterType(_filterType); // to reserve default space of byte-, int- and float-parameters!
+                    setFilterType(_filterType); // to reserve default space of byte-, int- and floatFloat-parameters!
                     // above command overwrites header, id and name!!
                     ar >> _customFilterHeader >> _customFilterID;
                 }
@@ -265,12 +264,12 @@ void CSimpleFilter::serialize(CSer& ar)
                     ar >> byteQuantity;
                     int s;
                     ar >> s;
-                    float ddd;
+                    floatFloat ddd;
                     for (int i=0;i<s;i++)
                     {
-                        ar >> ddd;
+                        ar.flt() >> ddd;
                         if (i<int(_floatParameters.size())) // make sure we use the latest vector size
-                            _floatParameters[i]=ddd;
+                            _floatParameters[i]=(floatDouble)ddd;
                     }
                 }
                 if (theName.compare("Cfp")==0)

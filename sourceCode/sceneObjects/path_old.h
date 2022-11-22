@@ -15,8 +15,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(float scalingFactor);
-    void scaleObjectNonIsometrically(float x,float y,float z);
+    void scaleObject(floatDouble scalingFactor);
+    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -44,7 +44,7 @@ public:
     void setExplicitHandling(bool explicitHandl);
     bool getExplicitHandling();
     void resetPath();
-    void handlePath(float deltaTime);
+    void handlePath(floatDouble deltaTime);
 
     void setShapingEnabled(bool isEnabled);
     bool getShapingEnabled();
@@ -53,26 +53,26 @@ public:
     bool getShapingFollowFullOrientation();
     void setShapingSectionClosed(bool closed);
     bool getShapingSectionClosed();
-    void setShapingElementMaxLength(float l);
-    float getShapingElementMaxLength();
+    void setShapingElementMaxLength(floatDouble l);
+    floatDouble getShapingElementMaxLength();
     void setShapingType(int theType);
     int getShapingType();
     void setShapingThroughConvexHull(bool c);
     bool getShapingThroughConvexHull();
     CShape* getShape() const;
 
-    void setShapingScaling(float s);
-    float getShapingScaling() const;
+    void setShapingScaling(floatDouble s);
+    floatDouble getShapingScaling() const;
     CColorObject* getShapingColor();
 
     // Variables which need to be copied and serialized:
     CPathCont_old* pathContainer;
-    std::vector<float> shapingCoordinates;
+    std::vector<floatDouble> shapingCoordinates;
 
     // Other variables:
-    std::vector<float> _pathShapeVertices;
+    std::vector<floatDouble> _pathShapeVertices;
     std::vector<int> _pathShapeIndices;
-    std::vector<float> _pathShapeNormals;
+    std::vector<floatDouble> _pathShapeNormals;
 
 protected:
     void _generatePathShape();
@@ -85,9 +85,9 @@ protected:
     bool _shapingFollowFullOrientation;
     bool _shapingSectionClosed;
     bool _shapingConvexHull;
-    float _shapingElementMaxLength;
+    floatDouble _shapingElementMaxLength;
     int _shapingType;
-    float _shapingScaling;
+    floatDouble _shapingScaling;
 
     // Other variables:
     unsigned short _pathModifID;
@@ -96,6 +96,6 @@ protected:
 
 #ifdef SIM_WITH_GUI
 public:
-    bool transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,float prevPos[2],float pos[2],float screenHalfSizes[2],float halfSizes[2],bool perspective,int eventID);
+    bool transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,floatDouble prevPos[2],floatDouble pos[2],floatDouble screenHalfSizes[2],floatDouble halfSizes[2],bool perspective,int eventID);
 #endif
 };

@@ -4,7 +4,7 @@ DEFINES += SIM_LIB
 
 # Transition to double:
 # --------------------
-DEFINES += TMPOPERATION # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats)
+DEFINES += TMPOPERATION # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats). Same for CMakeLists.txt
 
 #DEFINES += floatFloat=float
 #DEFINES += floatDouble=float

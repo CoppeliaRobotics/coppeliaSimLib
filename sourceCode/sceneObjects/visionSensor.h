@@ -31,8 +31,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(float scalingFactor);
-    void scaleObjectNonIsometrically(float x,float y,float z);
+    void scaleObject(floatDouble scalingFactor);
+    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -61,8 +61,8 @@ public:
 
     void setResolution(const int r[2]); // override
 
-    void setVisionSensorSize(float s);
-    float getVisionSensorSize() const;
+    void setVisionSensorSize(floatDouble s);
+    floatDouble getVisionSensorSize() const;
     void setExplicitHandling(bool explicitHandl);
     bool getExplicitHandling() const;
     void resetSensor();
@@ -95,8 +95,8 @@ public:
     bool detectEntity(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
     void detectEntity2(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
     void renderForDetection(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections,const std::vector<int>& activeMirrors);
-    void setDefaultBufferValues(const float v[3]);
-    void getDefaultBufferValues(float v[3]) const;
+    void setDefaultBufferValues(const floatDouble v[3]);
+    void getDefaultBufferValues(floatDouble v[3]) const;
 
     void setUseExternalImage(bool u);
     bool getUseExternalImage() const;
@@ -112,7 +112,7 @@ public:
 
     void setUseEnvironmentBackgroundColor(bool s);
     bool getUseEnvironmentBackgroundColor() const;
-    float getCalculationTime() const;
+    floatDouble getCalculationTime() const;
     std::string getDetectableEntityLoadAlias() const;
     std::string getDetectableEntityLoadName_old() const;
 
@@ -154,11 +154,11 @@ protected:
     // Variables which need to be serialized & copied (don't forget the vars from the CViewableBase class!)
     CColorObject color;
     int _detectableEntityHandle;
-    float _visionSensorSize;
+    floatDouble _visionSensorSize;
     bool _explicitHandling;
     bool _useExternalImage;
     bool _useSameBackgroundAsEnvironment;
-    float _defaultBufferValues[3];
+    floatDouble _defaultBufferValues[3];
     bool _ignoreRGBInfo;
     bool _ignoreDepthInfo;
     bool _computeImageBasicStats;

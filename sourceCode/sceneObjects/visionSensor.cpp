@@ -394,9 +394,9 @@ CVisionSensor::~CVisionSensor()
     delete _composedFilter;
 }
 
-float CVisionSensor::getCalculationTime() const
+floatDouble CVisionSensor::getCalculationTime() const
 {
-    return(float(sensorResult.calcTimeInMs)*0.001);
+    return(floatDouble(sensorResult.calcTimeInMs)*0.001);
 }
 
 std::string CVisionSensor::getDetectableEntityLoadAlias() const
@@ -461,7 +461,7 @@ bool CVisionSensor::getUseEnvironmentBackgroundColor() const
     return(_useSameBackgroundAsEnvironment);
 }
 
-void CVisionSensor::setVisionSensorSize(const float s)
+void CVisionSensor::setVisionSensorSize(const floatDouble s)
 {
     if (_visionSensorSize!=s)
     {
@@ -477,7 +477,7 @@ void CVisionSensor::setVisionSensorSize(const float s)
     }
 }
 
-float CVisionSensor::getVisionSensorSize() const
+floatDouble CVisionSensor::getVisionSensorSize() const
 {
     return(_visionSensorSize);
 }
@@ -558,13 +558,13 @@ int CVisionSensor::getDetectableEntityHandle() const
     return(_detectableEntityHandle);
 }
 
-void CVisionSensor::setDefaultBufferValues(const float v[3])
+void CVisionSensor::setDefaultBufferValues(const floatDouble v[3])
 {
     for (int i=0;i<3;i++)
         _defaultBufferValues[i]=v[i];
 }
 
-void CVisionSensor::getDefaultBufferValues(float v[3]) const
+void CVisionSensor::getDefaultBufferValues(floatDouble v[3]) const
 {
     for (int i=0;i<3;i++)
         v[i]=_defaultBufferValues[i];
@@ -956,19 +956,19 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     data[3]=tr.X.data;
     data[4]=tr.Q.data;
     int options=0;
-    float xAngle_size;
-    float yAngle_size;
-    float ratio=(float)(_resolution[0]/(float)_resolution[1]);
+    floatDouble xAngle_size;
+    floatDouble yAngle_size;
+    floatDouble ratio=(floatDouble)(_resolution[0]/(floatDouble)_resolution[1]);
     if (_perspective)
     {
         if (ratio>1.0f)
         {
             xAngle_size=_viewAngle;
-            yAngle_size=2.0f*(float)atan(tan(_viewAngle/2.0f)/ratio);
+            yAngle_size=2.0f*(floatDouble)atan(tan(_viewAngle/2.0f)/ratio);
         }
         else
         {
-            xAngle_size=2.0f*(float)atan(tan(_viewAngle/2.0f)*ratio);
+            xAngle_size=2.0f*(floatDouble)atan(tan(_viewAngle/2.0f)*ratio);
             yAngle_size=_viewAngle;
         }
     }
@@ -995,9 +995,9 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     data[11]=App::currentWorld->environment->ambientLightColor;
     data[12]=App::currentWorld->environment->fogBackgroundColor;
     int fogType=App::currentWorld->environment->getFogType();
-    float fogStart=App::currentWorld->environment->getFogStart();
-    float fogEnd=App::currentWorld->environment->getFogEnd();
-    float fogDensity=App::currentWorld->environment->getFogDensity();
+    floatDouble fogStart=App::currentWorld->environment->getFogStart();
+    floatDouble fogEnd=App::currentWorld->environment->getFogEnd();
+    floatDouble fogDensity=App::currentWorld->environment->getFogDensity();
     bool fogEnabled=App::currentWorld->environment->getFogEnabled();
     data[13]=&fogType;
     data[14]=&fogStart;
@@ -1011,10 +1011,10 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
 
     // Following actually free since CoppeliaSim 3.3.0
     // But the older PovRay plugin version crash without this:
-    float povFogDist=4.0f;
-    float povFogTransp=0.5f;
+    floatDouble povFogDist=4.0f;
+    floatDouble povFogTransp=0.5f;
     bool povFocalBlurEnabled=false;
-    float povFocalLength,povAperture;
+    floatDouble povFocalLength,povAperture;
     int povBlurSamples;
     data[22]=&povFogDist;
     data[23]=&povFogTransp;
@@ -1037,21 +1037,21 @@ void CVisionSensor::_extRenderer_prepareLights()
             void* data[20];
             int lightType=light->getLightType();
             data[0]=&lightType;
-            float cutoffAngle=light->getSpotCutoffAngle();
+            floatDouble cutoffAngle=light->getSpotCutoffAngle();
             data[1]=&cutoffAngle;
             int spotExponent=light->getSpotExponent();
             data[2]=&spotExponent;
             data[3]=light->getColor(true)->getColorsPtr();
-            float constAttenuation=light->getAttenuationFactor(CONSTANT_ATTENUATION);
+            floatDouble constAttenuation=light->getAttenuationFactor(CONSTANT_ATTENUATION);
             data[4]=&constAttenuation;
-            float linAttenuation=light->getAttenuationFactor(LINEAR_ATTENUATION);
+            floatDouble linAttenuation=light->getAttenuationFactor(LINEAR_ATTENUATION);
             data[5]=&linAttenuation;
-            float quadAttenuation=light->getAttenuationFactor(QUADRATIC_ATTENUATION);
+            floatDouble quadAttenuation=light->getAttenuationFactor(QUADRATIC_ATTENUATION);
             data[6]=&quadAttenuation;
             C7Vector tr(light->getFullCumulativeTransformation());
             data[7]=tr.X.data;
             data[8]=tr.Q.data;
-            float lightSize=light->getLightSize();
+            floatDouble lightSize=light->getLightSize();
             data[9]=&lightSize;
             bool lightIsVisible=light->getShouldObjectBeDisplayed(_objectHandle,0);
             data[11]=&lightIsVisible;
@@ -1060,7 +1060,7 @@ void CVisionSensor::_extRenderer_prepareLights()
 
             // Following actually free since CoppeliaSim 3.3.0
             // But the older PovRay plugin version crash without this:
-            float povFadeXDist=0.0;
+            floatDouble povFadeXDist=0.0;
             bool povNoShadow=false;
             data[10]=&povFadeXDist;
             data[12]=&povNoShadow;
@@ -1080,11 +1080,11 @@ void CVisionSensor::_extRenderer_prepareMirrors()
         {
             bool active=mirror->getActive()&&(!App::currentWorld->mainSettings->mirrorsDisabled);
             C7Vector tr=mirror->getCumulativeTransformation();
-            float w_=mirror->getMirrorWidth()/2.0f;
-            float h_=mirror->getMirrorHeight()/2.0f;
-            float vertices[18]={w_,-h_,0.0005f,w_,h_,0.0005f,-w_,-h_,0.0005f,-w_,-h_,0.0005f,w_,h_,0.0005f,-w_,h_,0.0005f};
+            floatDouble w_=mirror->getMirrorWidth()/2.0f;
+            floatDouble h_=mirror->getMirrorHeight()/2.0f;
+            floatDouble vertices[18]={w_,-h_,0.0005f,w_,h_,0.0005f,-w_,-h_,0.0005f,-w_,-h_,0.0005f,w_,h_,0.0005f,-w_,h_,0.0005f};
             int verticesCnt=6;
-            float normals[18]={0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f};
+            floatDouble normals[18]={0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f};
             for (int i=0;i<6;i++)
             {
                 C3Vector v(vertices+i*3);
@@ -1102,7 +1102,7 @@ void CVisionSensor::_extRenderer_prepareMirrors()
             data[0]=vertices;
             data[1]=&verticesCnt;
             data[2]=normals;
-            float colors[15];
+            floatDouble colors[15];
             colors[0]=mirror->mirrorColor[0];
             colors[1]=mirror->mirrorColor[1];
             colors[2]=mirror->mirrorColor[2];
@@ -1118,7 +1118,7 @@ void CVisionSensor::_extRenderer_prepareMirrors()
             data[3]=colors;
             bool translucid=false;
             data[4]=&translucid;
-            float opacityFactor=1.0f;
+            floatDouble opacityFactor=1.0f;
             data[5]=&opacityFactor;
             const char* povMaterial={"mirror"};
             data[6]=(char*)povMaterial;
@@ -1180,12 +1180,12 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
         glLoadIdentity();
         glRenderMode(GL_RENDER);
 
-        float ratio=(float)(currentWinSize[0]/(float)currentWinSize[1]);
+        floatDouble ratio=(floatDouble)(currentWinSize[0]/(floatDouble)currentWinSize[1]);
         if (_perspective)
         {
             if (ratio>1.0f)
             {
-                float a=2.0f*(float)atan(tan(_viewAngle/2.0f)/ratio)*radToDeg;
+                floatDouble a=2.0f*(floatDouble)atan(tan(_viewAngle/2.0f)/ratio)*radToDeg;
                 ogl::perspectiveSpecial(a,ratio,_nearClippingPlane,_farClippingPlane);
             }
             else
@@ -1324,7 +1324,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
             C3Vector minV,maxV;
             bool first=true;
             viewBoxObject->getGlobalMarkingBoundingBox(getFullCumulativeTransformation().getInverse(),minV,maxV,first,true,false);
-            float shift=getFarClippingPlane()-0.505f*(maxV(2)-minV(2)); // just a bit more than half!
+            floatDouble shift=getFarClippingPlane()-0.505f*(maxV(2)-minV(2)); // just a bit more than half!
             cam.X+=cam.Q.getMatrix().axis[2]*shift;
         }
         C7Vector newLocal(viewBoxObject->getFullParentCumulativeTransformation().getInverse()*cam);
@@ -1472,7 +1472,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool d
     CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(entityID);
     CCollection* collection=nullptr;
     std::vector<int> transparentObjects;
-    std::vector<float> transparentObjectsDist;
+    std::vector<floatDouble> transparentObjectsDist;
     C7Vector camTrInv(getCumulativeTransformation().getInverse());
     CSceneObject* viewBoxObject=nullptr;
 
@@ -1609,7 +1609,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(int entityID,bo
     CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(entityID);
     CCollection* collection=nullptr;
     std::vector<int> transparentObjects;
-    std::vector<float> transparentObjectsDist;
+    std::vector<floatDouble> transparentObjectsDist;
     C7Vector camTrInv(getCumulativeTransformation().getInverse());
     CSceneObject* viewBoxObject=nullptr;
 
@@ -1869,7 +1869,7 @@ int CVisionSensor::_getActiveMirrors(int entityID,bool detectAll,bool entityIsMo
     return(retVal);
 }
 
-void CVisionSensor::scaleObject(float scalingFactor)
+void CVisionSensor::scaleObject(floatDouble scalingFactor)
 {
     setNearClippingPlane(_nearClippingPlane*scalingFactor);
     setFarClippingPlane(_farClippingPlane*scalingFactor);
@@ -1878,11 +1878,11 @@ void CVisionSensor::scaleObject(float scalingFactor)
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void CVisionSensor::scaleObjectNonIsometrically(float x,float y,float z)
+void CVisionSensor::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
     setNearClippingPlane(_nearClippingPlane*z);
     setFarClippingPlane(_farClippingPlane*z);
-    float avg=sqrt(x*y);
+    floatDouble avg=sqrt(x*y);
     setOrthoViewSize(_orthoViewSize*avg);
     setVisionSensorSize(_visionSensorSize*cbrt(x*y*z));
     CSceneObject::scaleObjectNonIsometrically(avg,avg,z);
@@ -2228,7 +2228,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         inStack->insertKeyInt32IntoStackTable("handle",getObjectHandle());
         int res[2]={_resolution[0],_resolution[1]};
         inStack->insertKeyInt32ArrayIntoStackTable("resolution",res,2);
-        float clip[2]={getNearClippingPlane(),getFarClippingPlane()};
+        floatDouble clip[2]={getNearClippingPlane(),getFarClippingPlane()};
         inStack->insertKeyFloatArrayIntoStackTable("clippingPlanes",clip,2);
 
         inStack->insertKeyFloatIntoStackTable("viewAngle",getViewAngle());
@@ -2374,10 +2374,18 @@ void CVisionSensor::serialize(CSer& ar)
     {
         if (ar.isStoring())
         { // Storing
+#ifdef TMPOPERATION
             ar.storeDataName("Ccp");
-            ar << _orthoViewSize << _viewAngle;
-            ar << _nearClippingPlane << _farClippingPlane;
+            ar.flt() << (floatFloat)_orthoViewSize << (floatFloat)_viewAngle;
+            ar.flt() << (floatFloat)_nearClippingPlane << (floatFloat)_farClippingPlane;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_cp");
+            ar.dbl() << _orthoViewSize << _viewAngle;
+            ar.dbl() << _nearClippingPlane << _farClippingPlane;
+            ar.flush();
+#endif
 
             ar.storeDataName("Res");
             ar << _resolution[0] << _resolution[1];
@@ -2387,13 +2395,27 @@ void CVisionSensor::serialize(CSer& ar)
             ar << _detectableEntityHandle;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Db2");
-            ar << _defaultBufferValues[0] << _defaultBufferValues[1] << _defaultBufferValues[2];
+            ar.flt() << (floatFloat)_defaultBufferValues[0] << (floatFloat)_defaultBufferValues[1] << (floatFloat)_defaultBufferValues[2];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_b2");
+            ar.dbl() << _defaultBufferValues[0] << _defaultBufferValues[1] << _defaultBufferValues[2];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Si2");
-            ar << _visionSensorSize;
+            ar.flt() << (floatFloat)_visionSensorSize;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_i2");
+            ar.dbl() << _visionSensorSize;
+            ar.flush();
+#endif
 
             ar.storeDataName("Rmd");
             ar << _renderMode;
@@ -2432,11 +2454,6 @@ void CVisionSensor::serialize(CSer& ar)
             if (ar.setWritingMode())
                 color.serialize(ar,0);
 
-            // old ar.storeDataName("Cl2");
-    // RESERVED     ar.storeDataName("Cl3");
-    // RESERVED     ar.storeDataName("Cl4");
-    //            ar.storeDataName("Cfr");
-
             ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
@@ -2451,11 +2468,22 @@ void CVisionSensor::serialize(CSer& ar)
                 {
                     bool noHit=true;
                     if (theName.compare("Ccp")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo,blu;
+                        ar.flt() >> bla >> bli >> blo >> blu;
+                        _orthoViewSize=(floatDouble)bla;
+                        _viewAngle=(floatDouble)bli;
+                        _nearClippingPlane=(floatDouble)blo;
+                        _farClippingPlane=(floatDouble)blu;
+                    }
+                    if (theName.compare("_cp")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _orthoViewSize >> _viewAngle;
-                        ar >> _nearClippingPlane >> _farClippingPlane;
+                        ar.dbl() >> _orthoViewSize >> _viewAngle;
+                        ar.dbl() >> _nearClippingPlane >> _farClippingPlane;
                     }
                     if (theName.compare("Res")==0)
                     {
@@ -2470,23 +2498,43 @@ void CVisionSensor::serialize(CSer& ar)
                         ar >> _detectableEntityHandle;
                     }
                     if (theName.compare("Db2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        for (size_t i=0;i<3;i++)
+                        {
+                            ar.flt() >> bla;
+                            _defaultBufferValues[i]=(floatDouble)bla;
+                        }
+                    }
+                    if (theName.compare("_b2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _defaultBufferValues[0] >> _defaultBufferValues[1] >> _defaultBufferValues[2];
+                        ar.dbl() >> _defaultBufferValues[0] >> _defaultBufferValues[1] >> _defaultBufferValues[2];
                     }
                     if (theName.compare("Siz")==0)
                     { // for backward compatibility
                         noHit=false;
                         ar >> byteQuantity;
-                        float dum;
-                        ar >> _visionSensorSize >> dum >> dum;
+                        floatFloat dum,bla;
+                        ar.flt() >> dum >> bla >> bla;
+                        _visionSensorSize=(floatDouble)dum;
                     }
                     if (theName.compare("Si2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _visionSensorSize=(floatDouble)bla;
+                    }
+                    if (theName.compare("_i2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _visionSensorSize;
+                        ar.dbl() >> _visionSensorSize;
                     }
                     if (theName.compare("Rmd")==0)
                     {
@@ -2543,17 +2591,18 @@ void CVisionSensor::serialize(CSer& ar)
                     { // Keep for backward compatibility (3/2/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        float povFocalDistance, povAperture;
+                        floatFloat povFocalDistance, povAperture;
                         int povBlurSamples;
-                        ar >> povFocalDistance >> povAperture >> povBlurSamples;
+                        ar.flt() >> povFocalDistance >> povAperture;
+                        ar >> povBlurSamples;
                         _extensionString="povray {focalBlur {";
                         if (povFocalBlurEnabled_backwardCompatibility_3_2_2016)
                             _extensionString+="true} focalDist {";
                         else
                             _extensionString+="false} focalDist {";
-                        _extensionString+=tt::FNb(0,povFocalDistance,3,false);
+                        _extensionString+=tt::FNb(0,(floatDouble)povFocalDistance,3,false);
                         _extensionString+="} aperture {";
-                        _extensionString+=tt::FNb(0,povAperture,3,false);
+                        _extensionString+=tt::FNb(0,(floatDouble)povAperture,3,false);
                         _extensionString+="} blurSamples {";
                         _extensionString+=tt::FNb(0,povBlurSamples,false);
                         _extensionString+="}}";
@@ -2673,7 +2722,7 @@ void CVisionSensor::serialize(CSer& ar)
             if (ar.xmlGetNode_floats("size",x.data,3,false))
                 setVisionSensorSize(x(0));
 
-            float s,s2;
+            floatDouble s,s2;
             if (ar.xmlGetNode_float("objectSize",s,false))
                 setVisionSensorSize(s);
 
@@ -2698,9 +2747,9 @@ void CVisionSensor::serialize(CSer& ar)
                 int rgb[3];
                 if (ar.xmlGetNode_ints("defaultBufferValues",rgb,3,exhaustiveXml))
                 {
-                    _defaultBufferValues[0]=float(rgb[0])/255.0f;
-                    _defaultBufferValues[1]=float(rgb[1])/255.0f;
-                    _defaultBufferValues[2]=float(rgb[2])/255.0f;
+                    _defaultBufferValues[0]=floatDouble(rgb[0])/255.0;
+                    _defaultBufferValues[1]=floatDouble(rgb[1])/255.0;
+                    _defaultBufferValues[2]=floatDouble(rgb[2])/255.0;
                 }
             }
 
@@ -2748,7 +2797,7 @@ void CVisionSensor::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("passive",rgb,3,exhaustiveXml))
-                        color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        color.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -2765,7 +2814,7 @@ void CVisionSensor::serialize(CSer& ar)
             {
                 int rgb[3];
                 if (ar.xmlGetNode_ints("objectColor",rgb,3,false))
-                    color.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                    color.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
             }
 
 
@@ -2917,7 +2966,7 @@ void CVisionSensor::_handleMirrors(const std::vector<int>& activeMirrors,int ent
     int drawOk=1;
 
     std::vector<int> allMirrors;
-    std::vector<float> allMirrorDist;
+    std::vector<floatDouble> allMirrorDist;
     for (int mir=0;mir<int(activeMirrors.size());mir++)
     {
         CMirror* myMirror=App::currentWorld->sceneObjects->getMirrorFromHandle(activeMirrors[mir]);
@@ -2937,7 +2986,7 @@ void CVisionSensor::_handleMirrors(const std::vector<int>& activeMirrors,int ent
         C3Vector mtrN(mtr.Q.getMatrix().axis[2]);
         C4Vector mtrAxis=mtr.Q.getAngleAndAxis();
         C4Vector mtriAxis=mtri.Q.getAngleAndAxis();
-        float d=(mtrN*mtr.X);
+        floatDouble d=(mtrN*mtr.X);
         C3Vector v0(+myMirror->getMirrorWidth()*0.5f,-myMirror->getMirrorHeight()*0.5f,0.0f);
         C3Vector v1(+myMirror->getMirrorWidth()*0.5f,+myMirror->getMirrorHeight()*0.5f,0.0f);
         C3Vector v2(-myMirror->getMirrorWidth()*0.5f,+myMirror->getMirrorHeight()*0.5f,0.0f);
@@ -3047,15 +3096,15 @@ void CVisionSensor::lookAt(CSView* viewObject,int viewPos[2],int viewSize[2])
 
     if ( (_contextFboAndTexture!=nullptr)||getApplyExternalRenderedImage() )
     {
-        float r0=float(currentWinSize[1])/float(currentWinSize[0]);
-        float r1=float(_resolution[1])/float(_resolution[0]);
+        floatDouble r0=floatDouble(currentWinSize[1])/floatDouble(currentWinSize[0]);
+        floatDouble r1=floatDouble(_resolution[1])/floatDouble(_resolution[0]);
         int c0[2];
         int c1[2];
         if (r1>=r0)
         {
             c0[1]=0;
             c1[1]=currentWinSize[1];
-            int d=int(float(currentWinSize[1])/r1);
+            int d=int(floatDouble(currentWinSize[1])/r1);
             c0[0]=(currentWinSize[0]-d)/2;
             c1[0]=c0[0]+d;
 
@@ -3064,13 +3113,13 @@ void CVisionSensor::lookAt(CSView* viewObject,int viewPos[2],int viewSize[2])
         {
             c0[0]=0;
             c1[0]=currentWinSize[0];
-            int d=int(float(currentWinSize[0])*r1);
+            int d=int(floatDouble(currentWinSize[0])*r1);
             c0[1]=(currentWinSize[1]-d)/2;
             c1[1]=c0[1]+d;
         }
 
         ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
-        float texCorners[4]={0.0f,0.0f,1.0f,1.0f};
+        floatDouble texCorners[4]={0.0f,0.0f,1.0f,1.0f};
 
         if (getApplyExternalRenderedImage())
         {

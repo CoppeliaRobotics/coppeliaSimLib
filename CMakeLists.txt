@@ -115,6 +115,7 @@ else()
 endif()
 
 target_compile_definitions(coppeliaSim PRIVATE SIM_LIB)
+target_compile_definitions(coppeliaSim PRIVATE TMPOPERATION) # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats)
 
 if(WITH_GUI)
     find_package(Qt5 COMPONENTS Widgets REQUIRED)

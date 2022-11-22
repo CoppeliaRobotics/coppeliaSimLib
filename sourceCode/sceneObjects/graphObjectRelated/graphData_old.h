@@ -17,10 +17,10 @@ public:
     void setDataObjectID(int newID);
     void setDataObjectAuxID(int newID);
 
-    void setZoomFactor(float newZoomFactor);
-    float getZoomFactor() const;
-    void setAddCoeff(float newCoeff);
-    float getAddCoeff() const;
+    void setZoomFactor(floatDouble newZoomFactor);
+    floatDouble getZoomFactor() const;
+    void setAddCoeff(floatDouble newCoeff);
+    floatDouble getAddCoeff() const;
     void setVisible(bool v);
     bool getVisible() const;
     void setIdentifier(int newIdentifier);
@@ -35,13 +35,13 @@ public:
     void setDerivativeIntegralAndCumulative(int val);
     int getDerivativeIntegralAndCumulative() const;
 
-    void setValue(const C7Vector* graphCTM,int absIndex,bool firstValue,bool cyclic,float range,const std::vector<float>& times);
-    void setValueDirect(int absIndex,float theValue,bool firstValue,bool cyclic,float range,const std::vector<float>& times);
-    bool getValue(int absIndex,float& v) const;
-    bool getValueRaw(int absIndex,float& v) const;
+    void setValue(const C7Vector* graphCTM,int absIndex,bool firstValue,bool cyclic,floatDouble range,const std::vector<floatDouble>& times);
+    void setValueDirect(int absIndex,floatDouble theValue,bool firstValue,bool cyclic,floatDouble range,const std::vector<floatDouble>& times);
+    bool getValue(int absIndex,floatDouble& v) const;
+    bool getValueRaw(int absIndex,floatDouble& v) const;
 
     int getDataLength();
-    void setUserData(float data);
+    void setUserData(floatDouble data);
     void clearUserData();
 
     void setMovingAverageCount(int c);
@@ -59,19 +59,19 @@ public:
     bool announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
     
     // Variables which need to be serialized & copied 
-    float ambientColor[3];
+    floatDouble ambientColor[3];
 
 protected:
     // Variables which need to be serialized & copied 
-    std::vector <float> _floatData;
-    std::vector <float> _transformedFloatData;
+    std::vector <floatDouble> _floatData;
+    std::vector <floatDouble> _transformedFloatData;
     std::vector <unsigned char> _floatDataValidFlags;
     std::vector <unsigned char> _transformedFloatDataValidFlags;
     int dataType;
     int dataObjectID;
     int dataObjectAuxID;
-    float zoomFactor;
-    float addCoeff;
+    floatDouble zoomFactor;
+    floatDouble addCoeff;
     int identifier;
     bool visible;
     bool linkPoints;
@@ -82,7 +82,7 @@ protected:
 
 private:
     int _lifeID;
-    float _userData;
+    floatDouble _userData;
     bool _userDataValid;
     int _movingAverageCount;
 };

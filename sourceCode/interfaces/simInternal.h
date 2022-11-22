@@ -262,7 +262,7 @@ int simReorientShapeBoundingBox_internal(int shapeHandle,int relativeToHandle,in
 int simSaveImage_internal(const unsigned char* image,const int* resolution,int options,const char* filename,int quality,void* reserved);
 unsigned char* simLoadImage_internal(int* resolution,int options,const char* filename,void* reserved);
 unsigned char* simGetScaledImage_internal(const unsigned char* imageIn,const int* resolutionIn,int* resolutionOut,int options,void* reserved);
-int simTransformImage_internal(unsigned char* image,const int* resolution,int options,const float* floatParams,const int* intParams,void* reserved);
+int simTransformImage_internal(unsigned char* image,const int* resolution,int options,const floatDouble* floatParams,const int* intParams,void* reserved);
 int simGetQHull_internal(const float* inVertices,int inVerticesL,float** verticesOut,int* verticesOutL,int** indicesOut,int* indicesOutL,int reserved1,const float* reserved2);
 int simGetDecimatedMesh_internal(const float* inVertices,int inVerticesL,const int* inIndices,int inIndicesL,float** verticesOut,int* verticesOutL,int** indicesOut,int* indicesOutL,float decimationPercent,int reserved1,const float* reserved2);
 int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* functionNameAtScriptName,int stackId);

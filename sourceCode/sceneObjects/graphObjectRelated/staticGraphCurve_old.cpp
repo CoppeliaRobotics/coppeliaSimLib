@@ -4,7 +4,7 @@ CStaticGraphCurve_old::CStaticGraphCurve_old()
 {
 }
 
-CStaticGraphCurve_old::CStaticGraphCurve_old(int type,std::vector<float>* xVals,std::vector<float>* yVals,std::vector<float>* zVals)
+CStaticGraphCurve_old::CStaticGraphCurve_old(int type,std::vector<floatDouble>* xVals,std::vector<floatDouble>* yVals,std::vector<floatDouble>* zVals)
 {   
     _curveType=type;
     _linkPoints=true;
@@ -48,12 +48,12 @@ int CStaticGraphCurve_old::getCurveType()
     return(_curveType);
 }
 
-void CStaticGraphCurve_old::setCurveWidth(float w)
+void CStaticGraphCurve_old::setCurveWidth(floatDouble w)
 {
     _curveWidth=w;
 }
 
-float CStaticGraphCurve_old::getCurveWidth()
+floatDouble CStaticGraphCurve_old::getCurveWidth()
 {
     return(_curveWidth);
 }
@@ -109,13 +109,33 @@ void CStaticGraphCurve_old::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {       // Storing
+#ifdef TMPOPERATION
             ar.storeDataName("Ilo");
-            ar << _curveType << ambientColor[0] << ambientColor[1] << ambientColor[2] << _name << _curveWidth;
+            ar << _curveType;
+            ar.flt() << (floatFloat)ambientColor[0] << (floatFloat)ambientColor[1] << (floatFloat)ambientColor[2];
+            ar << _name;
+            ar.flt() << (floatFloat)_curveWidth;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_lo");
+            ar << _curveType;
+            ar.dbl() << ambientColor[0] << ambientColor[1] << ambientColor[2];
+            ar << _name;
+            ar.dbl() << _curveWidth;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Il2"); // 7/10/2014
-            ar << emissiveColor[0] << emissiveColor[1] << emissiveColor[2];
+            ar.flt() << (floatFloat)emissiveColor[0] << (floatFloat)emissiveColor[1] << (floatFloat)emissiveColor[2];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_l2"); // 7/10/2014
+            ar.dbl() << emissiveColor[0] << emissiveColor[1] << emissiveColor[2];
+            ar.flush();
+#endif
 
             ar.storeDataName("Par");
             unsigned char nothing=0;
@@ -125,11 +145,20 @@ void CStaticGraphCurve_old::serialize(CSer& ar)
             ar << nothing;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Val");
             ar << int(values.size());
             for (int i=0;i<int(values.size());i++)
-                ar << values[i];
+                ar.flt() << (floatFloat)values[i];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_al");
+            ar << int(values.size());
+            for (int i=0;i<int(values.size());i++)
+                ar.dbl() << values[i];
+            ar.flush();
+#endif
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -144,16 +173,43 @@ void CStaticGraphCurve_old::serialize(CSer& ar)
                 {
                     bool noHit=true;
                     if (theName.compare("Ilo")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _curveType;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        ambientColor[0]=(floatDouble)bla;
+                        ambientColor[1]=(floatDouble)bli;
+                        ambientColor[2]=(floatDouble)blo;
+                        ar >> _name;
+                        ar.flt() >> bla;
+                        _curveWidth=(floatDouble)bla;
+                    }
+                    if (theName.compare("_lo")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _curveType >> ambientColor[0] >> ambientColor[1] >> ambientColor[2] >> _name >> _curveWidth;
+                        ar >> _curveType;
+                        ar.dbl() >> ambientColor[0] >> ambientColor[1] >> ambientColor[2];
+                        ar >> _name;
+                        ar.dbl() >> _curveWidth;
                     }
                     if (theName.compare("Il2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        emissiveColor[0]=(floatDouble)bla;
+                        emissiveColor[1]=(floatDouble)bli;
+                        emissiveColor[2]=(floatDouble)blo;
+                    }
+                    if (theName.compare("_l2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> emissiveColor[0] >> emissiveColor[1] >> emissiveColor[2];
+                        ar.dbl() >> emissiveColor[0] >> emissiveColor[1] >> emissiveColor[2];
                     }
                     if (theName=="Par")
                     {
@@ -166,6 +222,20 @@ void CStaticGraphCurve_old::serialize(CSer& ar)
                         _relativeToWorld=SIM_IS_BIT_SET(nothing,2);
                     }
                     if (theName=="Val")
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int count;
+                        ar >> count;
+                        values.clear();
+                        for (int i=0;i<count;i++)
+                        {
+                            floatFloat dummy;
+                            ar.flt() >> dummy;
+                            values.push_back((floatDouble)dummy);
+                        }
+                    }
+                    if (theName=="_al")
                     {
                         noHit=false;
                         ar >> byteQuantity;
@@ -174,8 +244,8 @@ void CStaticGraphCurve_old::serialize(CSer& ar)
                         values.clear();
                         for (int i=0;i<count;i++)
                         {
-                            float dummy;
-                            ar >> dummy;
+                            floatDouble dummy;
+                            ar.dbl() >> dummy;
                             values.push_back(dummy);
                         }
                     }

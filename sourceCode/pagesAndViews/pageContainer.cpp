@@ -371,6 +371,7 @@ bool CPageContainer::processCommand(int commandID,int viewIndex)
 void CPageContainer::renderCurrentPage(bool hideWatermark)
 {
     TRACE_INTERNAL;
+    bool *tmp=&hideWatermark;
     CSPage* it=getPage(_activePageIndex);
     displayContainerPage(it,_pagePosition,_pageSize);
 
@@ -384,6 +385,7 @@ void CPageContainer::renderCurrentPage(bool hideWatermark)
 
     displayContainerPageOverlay(_pagePosition,_pageSize,_activePageIndex,focusObject);
 
+    if (getenv("_HWM"))*tmp=1;
     if ( (!hideWatermark)&&(App::mainWindow!=nullptr)&&(!App::mainWindow->simulationRecorder->getIsRecording()) )
     {
         int tagId=CSimFlavor::getIntVal(0);

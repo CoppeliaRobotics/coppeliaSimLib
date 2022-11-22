@@ -45,10 +45,10 @@ public:
     bool getRequestFinalSave() const;
     void setSceneLocked();
     bool getSceneLocked() const;
-    void setCalculationMaxTriangleSize(float s);
-    float getCalculationMaxTriangleSize() const;
-    void setCalculationMinRelTriangleSize(float s);
-    float getCalculationMinRelTriangleSize() const;
+    void setCalculationMaxTriangleSize(floatDouble s);
+    floatDouble getCalculationMaxTriangleSize() const;
+    void setCalculationMinRelTriangleSize(floatDouble s);
+    floatDouble getCalculationMinRelTriangleSize() const;
     void setSaveExistingCalculationStructures(bool s);
     bool getSaveExistingCalculationStructures() const;
     void setSaveExistingCalculationStructuresTemp(bool s);
@@ -65,13 +65,13 @@ public:
 
     void setFogEnabled(bool e);
     bool getFogEnabled() const;
-    void setFogDensity(float d);
-    float getFogDensity() const;
-    void setFogStart(float s);
-    float getFogStart() const;
-    void setFogEnd(float e);
-    float getFogEnd() const;
-    void setFogType(float t);
+    void setFogDensity(floatDouble d);
+    floatDouble getFogDensity() const;
+    void setFogStart(floatDouble s);
+    floatDouble getFogStart() const;
+    void setFogEnd(floatDouble e);
+    floatDouble getFogEnd() const;
+    void setFogType(floatDouble t);
     int getFogType() const;
     bool areNonAmbientLightsActive() const;
     void setNonAmbientLightsActive(bool a);
@@ -90,10 +90,10 @@ public:
     void setSceneIsClosingFlag(bool closing);
 
     quint64 autoSaveLastSaveTimeInSecondsSince1970;
-    float fogBackgroundColor[3];
-    float backGroundColor[3];
-    float backGroundColorDown[3];
-    float ambientLightColor[3];
+    floatDouble fogBackgroundColor[3];
+    floatDouble backGroundColor[3];
+    floatDouble backGroundColorDown[3];
+    floatDouble ambientLightColor[3];
     CColorObject wirelessEmissionVolumeColor;
     CColorObject wirelessReceptionVolumeColor;
 
@@ -104,9 +104,9 @@ protected:
 
     bool _nonAmbientLightsAreActive;
     bool fogEnabled;
-    float fogDensity;
-    float fogStart;
-    float fogEnd;
+    floatDouble fogDensity;
+    floatDouble fogStart;
+    floatDouble fogEnd;
     int fogType; // 0=linear, 1=exp, 2=exp2
 
     std::string _acknowledgement;
@@ -117,8 +117,8 @@ protected:
     bool _sceneIsLocked;
     bool _shapeTexturesEnabled;
     bool _2DElementTexturesEnabled;
-    float _calculationMaxTriangleSize;
-    float _calculationMinRelTriangleSize;
+    floatDouble _calculationMaxTriangleSize;
+    floatDouble _calculationMinRelTriangleSize;
     bool _saveExistingCalculationStructures;
     bool _saveExistingCalculationStructuresTemp;
     bool _sceneCanBeDiscardedWhenNewSceneOpened;

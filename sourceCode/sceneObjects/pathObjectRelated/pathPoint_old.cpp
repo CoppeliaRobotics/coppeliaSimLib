@@ -22,24 +22,24 @@ C7Vector CPathPoint_old::getTransformation()
     return(_transformation);
 }
 
-void CPathPoint_old::setMaxRelAbsVelocity(float t)
+void CPathPoint_old::setMaxRelAbsVelocity(floatDouble t)
 {
     tt::limitValue(0.0f,1.0f,t);
     _maxRelAbsVelocity=t;
 }
 
-float CPathPoint_old::getMaxRelAbsVelocity()
+floatDouble CPathPoint_old::getMaxRelAbsVelocity()
 {
     return(_maxRelAbsVelocity);
 }
 
-void CPathPoint_old::setOnSpotDistance(float d)
+void CPathPoint_old::setOnSpotDistance(floatDouble d)
 {
     tt::limitValue(0.0f,1000.0f,d);
     _onSpotDistance=d;
 }
 
-float CPathPoint_old::getOnSpotDistance()
+floatDouble CPathPoint_old::getOnSpotDistance()
 {
     return(_onSpotDistance);
 }
@@ -54,13 +54,13 @@ unsigned short CPathPoint_old::getAuxFlags()
     return(_auxFlags);
 }
 
-void CPathPoint_old::setAuxChannels(const float c[4])
+void CPathPoint_old::setAuxChannels(const floatDouble c[4])
 {
     for (int i=0;i<4;i++)
         _auxChannels[i]=c[i];
 }
 
-void CPathPoint_old::getAuxChannels(float c[4])
+void CPathPoint_old::getAuxChannels(floatDouble c[4])
 {
     for (int i=0;i<4;i++)
         c[i]=_auxChannels[i];

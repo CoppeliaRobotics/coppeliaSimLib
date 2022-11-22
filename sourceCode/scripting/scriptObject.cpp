@@ -2661,7 +2661,7 @@ void CScriptObject::_hookFunction_lua(void* LL,void* arr)
 
 //        luaWrap_luaL_dostring(L,"return coroutine.isyieldable()");
         luaWrap_luaL_dostring(L,"return coroutine.running()"); // sec. ret. val. is false --> can yield
-        if (!luaWrap_lua_toboolean(L,-1))
+        if (luaWrap_lua_toboolean(L,-1)==0)
         {
             if (it->shouldAutoYield())
             {

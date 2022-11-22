@@ -25,8 +25,8 @@ public:
     bool getIsRealTimeSimulation() const;
     void serialize(CSer& ar);
 
-    float getSimulationTime() const;
-    float getSimulationTime_real() const;
+    floatDouble getSimulationTime() const;
+    floatDouble getSimulationTime_real() const;
     void setResetSceneAtSimulationEnd(bool r);
     bool getResetSceneAtSimulationEnd() const;
     void setRemoveNewObjectsAtSimulationEnd(bool r);
@@ -46,8 +46,8 @@ public:
     void setSpeedModifierCount(int sm);
     int getSpeedModifierCount() const;
 
-    void setTimeStep(float dt);
-    float getTimeStep() const;
+    void setTimeStep(floatDouble dt);
+    floatDouble getTimeStep() const;
 
     void setPassesPerRendering(int n);
     int getPassesPerRendering() const;
@@ -58,7 +58,7 @@ public:
     bool getDynamicContentVisualizationOnly() const;
     void setDynamicContentVisualizationOnly(bool dynOnly);
 
-    void adjustRealTimeTimer(float deltaTime);
+    void adjustRealTimeTimer(floatDouble deltaTime);
 
     void setFullscreenAtSimulationStart(bool f);
     bool getFullscreenAtSimulationStart() const;
@@ -74,8 +74,8 @@ public:
     void setPauseAtError(bool br);
     bool getPauseAtError() const;
     void pauseOnErrorRequested();
-    void setPauseTime(float time);
-    float getPauseTime() const;
+    void setPauseTime(floatDouble time);
+    floatDouble getPauseTime() const;
     bool getPauseAtSpecificTime() const;
     void setPauseAtSpecificTime(bool e);
     int getSimulationState() const;
@@ -87,12 +87,12 @@ public:
 #endif
 
 private:
-    float _getNewTimeStep(int newSpeedModifierCount) const;
+    floatDouble _getNewTimeStep(int newSpeedModifierCount) const;
     bool _goFasterOrSlower(int action);
-    void _setSimulationTime(float t);
+    void _setSimulationTime(floatDouble t);
     void _clearSimulationTimeHistory();
-    void _addToSimulationTimeHistory(float simTime,float simTimeReal);
-    bool _getSimulationTimeHistoryDurations(float& simTime,float& simTimeReal) const;
+    void _addToSimulationTimeHistory(floatDouble simTime,floatDouble simTimeReal);
+    bool _getSimulationTimeHistoryDurations(floatDouble& simTime,floatDouble& simTimeReal) const;
 
     double _getSpeedModifier_forRealTimeCoefficient() const;
 
@@ -101,19 +101,19 @@ private:
 
     bool _fullscreenAtSimulationStart;
 
-    float _simulationTime;
-    float simulationTime_real;
-    float simulationTime_real_noCatchUp;
+    floatDouble _simulationTime;
+    floatDouble simulationTime_real;
+    floatDouble simulationTime_real_noCatchUp;
 
     int simulationTime_real_lastInMs;
-    float _realTimeCorrection;
+    floatDouble _realTimeCorrection;
 
     int _simulationStepCount;
 
     int _disableWarningsFlags;
 
     int _simulationPassesPerRendering;
-    float _simulationTimeStep;
+    floatDouble _simulationTimeStep;
     int _speedModifierCount;
     int _desiredFasterOrSlowerSpeed;
 
@@ -123,7 +123,7 @@ private:
     bool _realTimeSimulation;
     double _realTimeCoefficient;
 
-    float _simulationTimeToPause;
+    floatDouble _simulationTimeToPause;
     bool _pauseAtSpecificTime;
     bool _pauseAtError;
     bool _pauseOnErrorRequested;
@@ -135,11 +135,11 @@ private:
     bool _requestToPause; // added on 2010/01/13 (simPauseSimulation didn't work in the first simulation pass)
 
     // Following is needed to determine if we are really in real-time mode
-    std::vector<float> simulationTime_history;
-    std::vector<float> simulationTime_real_history;
+    std::vector<floatDouble> simulationTime_history;
+    std::vector<floatDouble> simulationTime_real_history;
 
     bool _initialValuesInitialized;
-    float _initialSimulationTimeStep;
+    floatDouble _initialSimulationTimeStep;
     bool _initialPauseAtSpecificTime;
     bool _dynamicContentVisualizationOnly;
 

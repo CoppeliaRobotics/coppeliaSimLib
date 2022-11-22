@@ -13331,7 +13331,7 @@ unsigned char* simGetScaledImage_internal(const unsigned char* imageIn,const int
     return(nullptr);
 }
 
-int simTransformImage_internal(unsigned char* image,const int* resolution,int options,const float* floatParams,const int* intParams,void* reserved)
+int simTransformImage_internal(unsigned char* image,const int* resolution,int options,const floatDouble* floatParams,const int* intParams,void* reserved)
 {
     TRACE_C_API;
 

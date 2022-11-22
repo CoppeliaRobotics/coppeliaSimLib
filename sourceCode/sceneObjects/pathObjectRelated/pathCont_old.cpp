@@ -61,34 +61,34 @@ int CPathCont_old::getPathLengthCalculationMethod()
     return(_pathLengthCalculationMethod);
 }
 
-void CPathCont_old::setAvpTurningCircleRadiusForHalfVelocity(float radius)
+void CPathCont_old::setAvpTurningCircleRadiusForHalfVelocity(floatDouble radius)
 {
     radius=tt::getLimitedFloat(0.0001f,1000.0f,radius);
     _avp_turningCircleRadiusForHalfVelocity=radius;
     actualizePath();
 }
-float CPathCont_old::getAvpTurningCircleRadiusForHalfVelocity()
+floatDouble CPathCont_old::getAvpTurningCircleRadiusForHalfVelocity()
 {
     return(_avp_turningCircleRadiusForHalfVelocity);
 }
 
-void CPathCont_old::setAvpRelativeVelocityAtRotationAxisChange(float relVel)
+void CPathCont_old::setAvpRelativeVelocityAtRotationAxisChange(floatDouble relVel)
 {
     relVel=tt::getLimitedFloat(0.01f,1.0f,relVel);
     _avp_relativeVelocityAtRotationAxisChange=relVel;
     actualizePath();
 }
-float CPathCont_old::getAvpRelativeVelocityAtRotationAxisChange()
+floatDouble CPathCont_old::getAvpRelativeVelocityAtRotationAxisChange()
 {
     return(_avp_relativeVelocityAtRotationAxisChange);
 }
-void CPathCont_old::setAvpRelativeAcceleration(float relAccel)
+void CPathCont_old::setAvpRelativeAcceleration(floatDouble relAccel)
 {
     relAccel=tt::getLimitedFloat(0.00001f,10000.0f,relAccel);
     _avp_relativeAcceleration=relAccel;
     actualizePath();
 }
-float CPathCont_old::getAvpRelativeAcceleration()
+floatDouble CPathCont_old::getAvpRelativeAcceleration()
 {
     return(_avp_relativeAcceleration);
 }
@@ -98,31 +98,31 @@ unsigned short CPathCont_old::getPathModifID()
     return(_pathModifID);
 }
 
-void CPathCont_old::setAngleVarToDistanceCoeff(float f)
+void CPathCont_old::setAngleVarToDistanceCoeff(floatDouble f)
 {
     tt::limitValue(0.0001f,1000.0f,f);
     _angleVarToDistanceCoeff=f;
     actualizePath();
 }
 
-float CPathCont_old::getAngleVarToDistanceCoeff()
+floatDouble CPathCont_old::getAngleVarToDistanceCoeff()
 {
     return(_angleVarToDistanceCoeff);
 }
 
-void CPathCont_old::setOnSpotDistanceToDistanceCoeff(float f)
+void CPathCont_old::setOnSpotDistanceToDistanceCoeff(floatDouble f)
 {
     tt::limitValue(0.0001f,1000.0f,f);
     _onSpotDistanceToDistanceCoeff=f;
     actualizePath();
 }
 
-float CPathCont_old::getOnSpotDistanceToDistanceCoeff()
+floatDouble CPathCont_old::getOnSpotDistanceToDistanceCoeff()
 {
     return(_onSpotDistanceToDistanceCoeff);
 }
 
-void CPathCont_old::scaleObject(float scalingFactor)
+void CPathCont_old::scaleObject(floatDouble scalingFactor)
 {
     for (int i=0;i<int(_simplePathPoints.size());i++)
         _simplePathPoints[i]->scaleYourself(scalingFactor);
@@ -148,9 +148,9 @@ void CPathCont_old::scaleObject(float scalingFactor)
     actualizePath();
 }
 
-void CPathCont_old::scaleObjectNonIsometrically(float x,float y,float z)
+void CPathCont_old::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
-    float xyz=cbrt(x*y*z);
+    floatDouble xyz=cbrt(x*y*z);
     for (int i=0;i<int(_simplePathPoints.size());i++)
         _simplePathPoints[i]->scaleYourselfNonIsometrically(x,y,z);
 
@@ -243,7 +243,7 @@ bool CPathCont_old::_getBezierPointsForVirtualDistance(double& l,int& index0,int
     return(false);
 }
 
-void CPathCont_old::handlePath(CPath_old* it,float deltaTime)
+void CPathCont_old::handlePath(CPath_old* it,floatDouble deltaTime)
 { // DEPRECATED
     if (App::currentWorld->mainSettings->pathMotionHandlingEnabled_DEPRECATED)
     { // we should not forget to call _handleAttachedDummies even when the path motion is disabled!!
@@ -254,7 +254,7 @@ void CPathCont_old::handlePath(CPath_old* it,float deltaTime)
 }
 
 
-void CPathCont_old::handlePath_keepObjectUnchanged(float deltaTime,double& pos_,float& nomVel_,float& targetNomVel_,float maxAccel,bool invertVelocity,bool infiniteAccel)
+void CPathCont_old::handlePath_keepObjectUnchanged(floatDouble deltaTime,double& pos_,floatDouble& nomVel_,floatDouble& targetNomVel_,floatDouble maxAccel,bool invertVelocity,bool infiniteAccel)
 { // This function should not change any values in this object (so that the path can be handled by simFollowPath functions or such!)
     if (deltaTime<=0.0f)
         return;
@@ -284,8 +284,8 @@ void CPathCont_old::handlePath_keepObjectUnchanged(float deltaTime,double& pos_,
         {
             CBezierPathPoint_old* lowP=_bezierPathPoints[pIndex0];
             CBezierPathPoint_old* highP=_bezierPathPoints[pIndex1];
-            float lowPos=lowP->virtualCumulativeLength;
-            float highPos=highP->virtualCumulativeLength;
+            floatDouble lowPos=lowP->virtualCumulativeLength;
+            floatDouble highPos=highP->virtualCumulativeLength;
             if (pIndex0==0)
                 lowPos=0.0f;
             CLinMotionRoutines::getNextValuesForPath(newPos,nominalVel,targetNomVel_,maxAccel,lowPos,highPos,lowP->getMaxRelAbsVelocity(),highP->getMaxRelAbsVelocity(),timeSlice);
@@ -320,7 +320,7 @@ void CPathCont_old::handlePath_keepObjectUnchanged(float deltaTime,double& pos_,
             timeSlice=0.0f; // Here we have a situation where the path has zero length
     }
 
-    nomVel_=float(nominalVel);
+    nomVel_=floatDouble(nominalVel);
     pos_=newPos;
     // Adjust the pos:
     if (_attributes&sim_pathproperty_closed_path)
@@ -356,9 +356,9 @@ void CPathCont_old::_handleAttachedDummies(CPath_old* it)
                 }
                 else
                 { // The dummy is fixed
-                    float dl=float(_position)+dum->getVirtualDistanceOffsetOnPath();
+                    floatDouble dl=floatDouble(_position)+dum->getVirtualDistanceOffsetOnPath();
                     int ind;
-                    float t;
+                    floatDouble t;
                     if (_getPointOnBezierCurveAtVirtualDistance(dl,ind,t))
                         dum->setLocalTransformation(_getInterpolatedBezierCurvePoint(ind,t));
                 }
@@ -565,7 +565,7 @@ void CPathCont_old::_computeAutomaticOrientation(const std::vector<CPathPoint_ol
     {
         if (fixedOrientationLevels[i]==2)
         {
-            float cumulL=0.0f; // cumulative distance (colinear paths can go back and forth!!!)
+            floatDouble cumulL=0.0f; // cumulative distance (colinear paths can go back and forth!!!)
             C4X4Matrix m0=tr[i];
             if (indexOfFirstFound==-1)
                 indexOfFirstFound=i;
@@ -588,17 +588,17 @@ void CPathCont_old::_computeAutomaticOrientation(const std::vector<CPathPoint_ol
                     m1=tr[adjustedJIndex];
                     // Now we go from m0 (i) to m1 (adjustedJIndex) and interpolating orientation according to the cumulative distance
                     mtemp=tr[i];
-                    float totL=0.0f;
+                    floatDouble totL=0.0f;
                     for (int k=i+1;k<j;k++)
                     {
                         int adjustedKIndex=k;
                         if (k>=int(tr.size()))
                             adjustedKIndex-=(int)tr.size();
                         C4X4Matrix mtemp2=tr[adjustedKIndex];
-                        float l=(mtemp2.X-mtemp.X).getLength();
+                        floatDouble l=(mtemp2.X-mtemp.X).getLength();
                         mtemp=mtemp2;
                         totL+=l;
-                        float t=totL/cumulL;
+                        floatDouble t=totL/cumulL;
                         C3Vector interpolatedY;
                         if (!m0.M.axis[1].isColinear(m1.M.axis[1],0.999f))
                         {
@@ -705,11 +705,11 @@ bool CPathCont_old::getConfigurationOnBezierCurveClosestTo(C3Vector& pt,C7Vector
         conf=_bezierPathPoints[0]->getTransformation();
         return(true);
     }
-    float d=FLOAT_MAX;
+    floatDouble d=FLOAT_MAX;
     // 2. We search for the closest bezier point (this gives us an approximate distance value to speed-up the calculations later on)
     for (int i=0;i<int(_bezierPathPoints.size());i++)
     {
-        float dd=(pt-_bezierPathPoints[i]->getTransformation().X).getLength();
+        floatDouble dd=(pt-_bezierPathPoints[i]->getTransformation().X).getLength();
         if (dd<d)
         {
             d=dd;
@@ -738,14 +738,14 @@ bool CPathCont_old::getConfigurationOnBezierCurveClosestTo(C3Vector& pt,C7Vector
             C3Vector theSearchedPt;
             if (CMeshRoutines::getMinDistBetweenSegmentAndPoint_IfSmaller(v0,vd,pt,d,theSearchedPt))
             {
-                float vdL=vd.getLength();
+                floatDouble vdL=vd.getLength();
                 if (vdL==0.0f)
                 { // Coinciding points:
                     conf=bez0->getTransformation();
                 }
                 else
                 {
-                    float l=(theSearchedPt-v0).getLength();
+                    floatDouble l=(theSearchedPt-v0).getLength();
                     conf.buildInterpolation(bez0->getTransformation(),bez1->getTransformation(),l/vdL);
                 }
             }
@@ -754,7 +754,7 @@ bool CPathCont_old::getConfigurationOnBezierCurveClosestTo(C3Vector& pt,C7Vector
     return(true);
 }
 
-bool CPathCont_old::getPositionOnPathClosestTo(const C3Vector& pt,float& distOnPath)
+bool CPathCont_old::getPositionOnPathClosestTo(const C3Vector& pt,floatDouble& distOnPath)
 {
     // 1. Handling of special cases:
     if (_bezierPathPoints.size()==0)
@@ -764,7 +764,7 @@ bool CPathCont_old::getPositionOnPathClosestTo(const C3Vector& pt,float& distOnP
         distOnPath=0.0f;
         return(true);
     }
-    float d=FLOAT_MAX;
+    floatDouble d=FLOAT_MAX;
     C3Vector pppt(pt);
     for (int i=0;i<int(_bezierPathPoints.size());i++)
     {
@@ -787,15 +787,15 @@ bool CPathCont_old::getPositionOnPathClosestTo(const C3Vector& pt,float& distOnP
         C3Vector theSearchedPt;
         if (CMeshRoutines::getMinDistBetweenSegmentAndPoint_IfSmaller(v0,vd,pppt,d,theSearchedPt))
         {
-            float vdL=vd.getLength();
+            floatDouble vdL=vd.getLength();
             if (vdL==0.0f)
             { // Coinciding points:
                 distOnPath=bez0->virtualCumulativeLength;
             }
             else
             {
-                float l=(theSearchedPt-v0).getLength();
-                float c=l/vdL;
+                floatDouble l=(theSearchedPt-v0).getLength();
+                floatDouble c=l/vdL;
                 if ( (i!=0)||((_attributes&sim_pathproperty_closed_path)==0) ) // added this condtion on 22/02/2012: bezier point 0 has the total virtual cumulative length (bezier path length!) for closed paths!
                     distOnPath=bez0->virtualCumulativeLength*(1.0f-c)+bez1->virtualCumulativeLength*c;
                 else
@@ -882,7 +882,7 @@ void CPathCont_old::copyPointsToClipboard()
         C7Vector tr(_simplePathPoints[i]->getTransformation());
         for (size_t j=0;j<3;j++)
             txt+=tt::getEString(false,tr(j),4)+",";
-        float q[4];
+        floatDouble q[4];
         tr.Q.getData(q,true);
         for (size_t j=0;j<4;j++)
         {
@@ -900,7 +900,7 @@ void CPathCont_old::copyPointsToClipboard()
         C7Vector tr(_bezierPathPoints[i]->getTransformation());
         for (size_t j=0;j<3;j++)
             txt+=tt::getEString(false,tr(j),4)+",";
-        float q[4];
+        floatDouble q[4];
         tr.Q.getData(q,true);
         for (size_t j=0;j<4;j++)
         {
@@ -936,7 +936,7 @@ void CPathCont_old::copyPointsToClipboard()
     for (size_t i=0;i<_bezierPathPoints.size();i++)
     {
 //        txt+="{";
-        float c[4];
+        floatDouble c[4];
         _bezierPathPoints[i]->getAuxChannels(c);
         for (size_t j=0;j<4;j++)
         {
@@ -962,7 +962,7 @@ void CPathCont_old::createEquivalent(int pathHandle)
         C7Vector tr(_simplePathPoints[i]->getTransformation());
         for (size_t j=0;j<3;j++)
             txt+=tt::getEString(false,tr(j),4)+",";
-        float q[4];
+        floatDouble q[4];
         tr.Q.getData(q,true);
         for (size_t j=0;j<4;j++)
         {
@@ -980,7 +980,7 @@ void CPathCont_old::createEquivalent(int pathHandle)
     App::worldContainer->sandboxScript->executeScriptString(txt.c_str(),nullptr);
 }
 
-CBezierPathPoint_old* CPathCont_old::_addBezierPathPoint(const C7Vector& transf,float maxRelAbsVelocity,float onSpotDistance,unsigned short auxFlags,const float auxChannels[4])
+CBezierPathPoint_old* CPathCont_old::_addBezierPathPoint(const C7Vector& transf,floatDouble maxRelAbsVelocity,floatDouble onSpotDistance,unsigned short auxFlags,const floatDouble auxChannels[4])
 {
     CBezierPathPoint_old* it=new CBezierPathPoint_old(transf);
     it->setMaxRelAbsVelocity(maxRelAbsVelocity);
@@ -1017,7 +1017,7 @@ void CPathCont_old::enableActualization(bool enable)
     _actualizationEnabled=enable;
 }
 
-int CPathCont_old::_removeDoubleBezierPoints(float linTol,float angTol)
+int CPathCont_old::_removeDoubleBezierPoints(floatDouble linTol,floatDouble angTol)
 { // ret val is the number of removed points
     int retVal=0;
     for (int i=0;i<int(_bezierPathPoints.size())-1;i++)
@@ -1048,10 +1048,10 @@ int CPathCont_old::_removeDoubleBezierPoints(float linTol,float angTol)
 
 void CPathCont_old::_recomputeBezierPathElementLengths()
 {
-    float cumulLength=0.0f;
-    float cumulAngle=0.0f;
-    float cumulOnSpotDistance=0.0f;
-    float virtualCumulLength=0.0f;
+    floatDouble cumulLength=0.0f;
+    floatDouble cumulAngle=0.0f;
+    floatDouble cumulOnSpotDistance=0.0f;
+    floatDouble virtualCumulLength=0.0f;
     for (int i=0;i<int(_bezierPathPoints.size());i++)
     {
         CBezierPathPoint_old* it0=_bezierPathPoints[i+0];
@@ -1062,16 +1062,16 @@ void CPathCont_old::_recomputeBezierPathElementLengths()
             it1=_bezierPathPoints[i+1];
         C7Vector tr0(it0->getTransformation());
         C7Vector tr1(it1->getTransformation());
-        float dl=(tr0.X-tr1.X).getLength();
-        float da=tr0.Q.getAngleBetweenQuaternions(tr1.Q)*_angleVarToDistanceCoeff;
-        float onSpotDl=fabs(it0->getOnSpotDistance()-it1->getOnSpotDistance())*_onSpotDistanceToDistanceCoeff;
-        float vdl=dl;
+        floatDouble dl=(tr0.X-tr1.X).getLength();
+        floatDouble da=tr0.Q.getAngleBetweenQuaternions(tr1.Q)*_angleVarToDistanceCoeff;
+        floatDouble onSpotDl=fabs(it0->getOnSpotDistance()-it1->getOnSpotDistance())*_onSpotDistanceToDistanceCoeff;
+        floatDouble vdl=dl;
         if (_pathLengthCalculationMethod==sim_distcalcmethod_dl)
             vdl=dl;
         if (_pathLengthCalculationMethod==sim_distcalcmethod_dac)
             vdl=da;
         if (_pathLengthCalculationMethod==sim_distcalcmethod_max_dl_dac)
-            vdl=std::max<float>(dl,da);
+            vdl=std::max<floatDouble>(dl,da);
         if (_pathLengthCalculationMethod==sim_distcalcmethod_dl_and_dac)
             vdl=dl+da;
         if (_pathLengthCalculationMethod==sim_distcalcmethod_sqrt_dl2_and_dac2)
@@ -1124,7 +1124,7 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
         return;
 
     // 1. Set all velocities as requested by the interpolation:
-    std::vector<float> maxOk;
+    std::vector<floatDouble> maxOk;
     for (int i=0;i<int(_bezierPathPoints.size());i++)
         maxOk.push_back(_bezierPathPoints[i]->getMaxRelAbsVelocity());
 
@@ -1234,10 +1234,10 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
                         v1=nextVectors[i+0]; // we get the next non-zero vector
                     if ((v0.getLength()!=0.0f)&&(v1.getLength()!=0.0f))
                     { // unless we have a completely coincident trajectory (e.g. on-spot rotation), this should always pass:
-                        float angle=v0.getAngle(v1);
-                        float len=std::min<float>(v0.getLength(),v1.getLength());
-                        float lengthByAngle=len/angle;
-                        float rv=lengthByAngle/(2.0f*_avp_turningCircleRadiusForHalfVelocity);
+                        floatDouble angle=v0.getAngle(v1);
+                        floatDouble len=std::min<floatDouble>(v0.getLength(),v1.getLength());
+                        floatDouble lengthByAngle=len/angle;
+                        floatDouble rv=lengthByAngle/(2.0f*_avp_turningCircleRadiusForHalfVelocity);
                         if (rv<maxOk[i+0])
                             maxOk[i+0]=rv;
                     }
@@ -1277,7 +1277,7 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
                     C3Vector axisA(tmpQ(1),tmpQ(2),tmpQ(3)); // tmpQ(0) is the angle!
                     tmpQ=v1.getAngleAndAxis();
                     C3Vector axisB(tmpQ(1),tmpQ(2),tmpQ(3)); // tmpQ(0) is the angle!
-                    float rv=1.0f;
+                    floatDouble rv=1.0f;
                     if ((tb.Q.getAngleBetweenQuaternions(t0.Q)==0.0f)||(t0.Q.getAngleBetweenQuaternions(ta.Q)==0.0f))
                         rv=_avp_relativeVelocityAtRotationAxisChange;
                     else
@@ -1297,8 +1297,8 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
     for (int i=0;i<int(maxOk.size());i++)
     {
         // 1. Forward direction:
-        float cumulPos=0.0f;
-        float cumulAngle=0.0f;
+        floatDouble cumulPos=0.0f;
+        floatDouble cumulAngle=0.0f;
         for (int j=1;j<int(maxOk.size());j++)
         {
             int k=i+j;
@@ -1311,7 +1311,7 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
             }
             cumulPos+=_bezierPathPoints[k]->virtualSegmentLength;
             cumulAngle+=_bezierPathPoints[k]->segmentAngleVariation*_angleVarToDistanceCoeff;
-            float w=sqrtf(2.0f*cumulPos*_avp_relativeAcceleration+maxOk[i]*maxOk[i]);
+            floatDouble w=sqrtf(2.0f*cumulPos*_avp_relativeAcceleration+maxOk[i]*maxOk[i]);
             if (maxOk[k]>w)
                 maxOk[k]=w; // We limit the vel. at this pos
             else
@@ -1334,7 +1334,7 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
             cumulPos+=_bezierPathPoints[oldK]->virtualSegmentLength; 
             cumulAngle+=_bezierPathPoints[oldK]->segmentAngleVariation*_angleVarToDistanceCoeff; 
             oldK=k;
-            float w=sqrtf(2.0f*cumulPos*_avp_relativeAcceleration+maxOk[i]*maxOk[i]);
+            floatDouble w=sqrtf(2.0f*cumulPos*_avp_relativeAcceleration+maxOk[i]*maxOk[i]);
             if (maxOk[k]>w)
                 maxOk[k]=w; // We limit the vel. at this pos
             else
@@ -1365,7 +1365,7 @@ bool CPathCont_old::_getNextBezierPathPointIndex(int currentIndex,int& nextIndex
     return(true);
 }
 
-float CPathCont_old::getBezierVirtualPathLength()
+floatDouble CPathCont_old::getBezierVirtualPathLength()
 {
     if (_bezierPathPoints.size()<2)
         return(0.0f);
@@ -1374,7 +1374,7 @@ float CPathCont_old::getBezierVirtualPathLength()
     return(_bezierPathPoints[_bezierPathPoints.size()-1]->virtualCumulativeLength);
 }
 
-float CPathCont_old::getBezierNormalPathLength()
+floatDouble CPathCont_old::getBezierNormalPathLength()
 {
     if (_bezierPathPoints.size()<2)
         return(0.0f);
@@ -1383,7 +1383,7 @@ float CPathCont_old::getBezierNormalPathLength()
     return(_bezierPathPoints[_bezierPathPoints.size()-1]->cumulativeLength);
 }
 
-float CPathCont_old::getBezierAngularPathLength()
+floatDouble CPathCont_old::getBezierAngularPathLength()
 {
     if (_bezierPathPoints.size()<2)
         return(0.0f);
@@ -1392,7 +1392,7 @@ float CPathCont_old::getBezierAngularPathLength()
     return(_bezierPathPoints[_bezierPathPoints.size()-1]->cumulativeAngle);
 }
 
-void CPathCont_old::_getInterpolatedBezierCurveData(int index0,float t,int& auxFlags,float auxChannels[4])
+void CPathCont_old::_getInterpolatedBezierCurveData(int index0,floatDouble t,int& auxFlags,floatDouble auxChannels[4])
 {
     int index1=index0+1;
     if (index1>=int(_bezierPathPoints.size()))
@@ -1401,8 +1401,8 @@ void CPathCont_old::_getInterpolatedBezierCurveData(int index0,float t,int& auxF
         auxFlags=_bezierPathPoints[index0]->getAuxFlags();
     else
         auxFlags=_bezierPathPoints[index1]->getAuxFlags();
-    float ac0[4];
-    float ac1[4];
+    floatDouble ac0[4];
+    floatDouble ac1[4];
     _bezierPathPoints[index0]->getAuxChannels(ac0);
     _bezierPathPoints[index1]->getAuxChannels(ac1);
     for (int i=0;i<4;i++)
@@ -1410,7 +1410,7 @@ void CPathCont_old::_getInterpolatedBezierCurveData(int index0,float t,int& auxF
 }
 
 
-C7Vector CPathCont_old::_getInterpolatedBezierCurvePoint(int index0,float t)
+C7Vector CPathCont_old::_getInterpolatedBezierCurvePoint(int index0,floatDouble t)
 {
     C7Vector retVal;
     int index1=index0+1;
@@ -1420,7 +1420,7 @@ C7Vector CPathCont_old::_getInterpolatedBezierCurvePoint(int index0,float t)
     return(retVal);
 }
 
-bool CPathCont_old::_getPointOnBezierCurveAtVirtualDistance(float& l,int& index0,float& t)
+bool CPathCont_old::_getPointOnBezierCurveAtVirtualDistance(floatDouble& l,int& index0,floatDouble& t)
 {
     if (_bezierPathPoints.size()<2)
     {
@@ -1437,7 +1437,7 @@ bool CPathCont_old::_getPointOnBezierCurveAtVirtualDistance(float& l,int& index0
         l=0.0f;
         return(true);
     }
-    float totLength=getBezierVirtualPathLength();
+    floatDouble totLength=getBezierVirtualPathLength();
     if (totLength==0.0f)
     { // Path length is 0
         index0=0;
@@ -1460,9 +1460,9 @@ bool CPathCont_old::_getPointOnBezierCurveAtVirtualDistance(float& l,int& index0
     {
         if (_bezierPathPoints[nIndex]->virtualCumulativeLength>=l)
         { // We found the position
-            float dl=_bezierPathPoints[nIndex]->virtualSegmentLength;
+            floatDouble dl=_bezierPathPoints[nIndex]->virtualSegmentLength;
             index0=cIndex;
-            float ps=l-_bezierPathPoints[cIndex]->virtualCumulativeLength;
+            floatDouble ps=l-_bezierPathPoints[cIndex]->virtualCumulativeLength;
             if (passCnt==0)
                 ps=l;
             if (dl==0.0f)
@@ -1477,11 +1477,11 @@ bool CPathCont_old::_getPointOnBezierCurveAtVirtualDistance(float& l,int& index0
     return(false);
 }
 
-bool CPathCont_old::getAuxDataOnBezierCurveAtNormalizedVirtualDistance(float l,int& auxFlags,float auxChannels[4])
+bool CPathCont_old::getAuxDataOnBezierCurveAtNormalizedVirtualDistance(floatDouble l,int& auxFlags,floatDouble auxChannels[4])
 { // l is between 0 and 1!
-    float ll=l*getBezierVirtualPathLength();
+    floatDouble ll=l*getBezierVirtualPathLength();
     int index;
-    float t;
+    floatDouble t;
     if (!_getPointOnBezierCurveAtVirtualDistance(ll,index,t))
         return(false);
     _getInterpolatedBezierCurveData(index,t,auxFlags,auxChannels);
@@ -1489,18 +1489,18 @@ bool CPathCont_old::getAuxDataOnBezierCurveAtNormalizedVirtualDistance(float l,i
 }
 
 
-bool CPathCont_old::getTransformationOnBezierCurveAtNormalizedVirtualDistance(float l,C7Vector& tr)
+bool CPathCont_old::getTransformationOnBezierCurveAtNormalizedVirtualDistance(floatDouble l,C7Vector& tr)
 { // l is between 0 and 1!
-    float ll=l*getBezierVirtualPathLength();
+    floatDouble ll=l*getBezierVirtualPathLength();
     int index;
-    float t;
+    floatDouble t;
     if (!_getPointOnBezierCurveAtVirtualDistance(ll,index,t)) 
         return(false);
     tr=_getInterpolatedBezierCurvePoint(index,t);
     return(true);
 }
 
-bool CPathCont_old::getPointOnBezierCurveAtNormalDistance(float& l,int& index0,float& t)
+bool CPathCont_old::getPointOnBezierCurveAtNormalDistance(floatDouble& l,int& index0,floatDouble& t)
 {
     if (_bezierPathPoints.size()<2)
     {
@@ -1517,7 +1517,7 @@ bool CPathCont_old::getPointOnBezierCurveAtNormalDistance(float& l,int& index0,f
         l=0.0f;
         return(true);
     }
-    float totLength=getBezierNormalPathLength();
+    floatDouble totLength=getBezierNormalPathLength();
     if (totLength==0.0f)
     { // Path length is 0
         index0=0;
@@ -1539,9 +1539,9 @@ bool CPathCont_old::getPointOnBezierCurveAtNormalDistance(float& l,int& index0,f
     {
         if (_bezierPathPoints[nIndex]->cumulativeLength>=l)
         { // We found the position
-            float dl=_bezierPathPoints[nIndex]->segmentLength;
+            floatDouble dl=_bezierPathPoints[nIndex]->segmentLength;
             index0=cIndex;
-            float ps=l-_bezierPathPoints[cIndex]->cumulativeLength;
+            floatDouble ps=l-_bezierPathPoints[cIndex]->cumulativeLength;
             if (passCnt==0)
                 ps=l;
             if (dl==0.0f)
@@ -1569,8 +1569,8 @@ void CPathCont_old::setPosition(double p)
     _position=p;
 
     int ind;
-    float t;
-    float l=float(_position);
+    floatDouble t;
+    floatDouble l=floatDouble(_position);
     if (_getPointOnBezierCurveAtVirtualDistance(l,ind,t))
         _startPosition=_getInterpolatedBezierCurvePoint(ind,t).X;
     // Following is not elegant at all. Change later! (maybe simply merge the CPathCont_old and CPath_old)
@@ -1594,9 +1594,9 @@ double CPathCont_old::getPosition()
 
 double CPathCont_old::getPosition_linearComponentOnly()
 {
-    float t;
+    floatDouble t;
     int index0,index1;
-    float posCop=float(_position);
+    floatDouble posCop=floatDouble(_position);
     if (_getPointOnBezierCurveAtVirtualDistance(posCop,index0,t))
     {
         index1=index0;
@@ -1605,7 +1605,7 @@ double CPathCont_old::getPosition_linearComponentOnly()
             if (index1>=getBezierPathPointCount())
                 index1=0;
         }
-        float cumul=0.0f;
+        floatDouble cumul=0.0f;
         if (index0!=0)
             cumul=_bezierPathPoints[index0]->cumulativeLength;
         return(cumul+_bezierPathPoints[index1]->segmentLength*t);
@@ -1616,9 +1616,9 @@ double CPathCont_old::getPosition_linearComponentOnly()
 
 double CPathCont_old::getPosition_angularComponentOnly()
 {
-    float t;
+    floatDouble t;
     int index0,index1;
-    float posCop=float(_position);
+    floatDouble posCop=floatDouble(_position);
     if (_getPointOnBezierCurveAtVirtualDistance(posCop,index0,t))
     {
         index1=index0;
@@ -1627,7 +1627,7 @@ double CPathCont_old::getPosition_angularComponentOnly()
             if (index1>=getBezierPathPointCount())
                 index1=0;
         }
-        float cumul=0.0f;
+        floatDouble cumul=0.0f;
         if (index0!=0)
             cumul=_bezierPathPoints[index0]->cumulativeAngle;
         return(cumul+_bezierPathPoints[index1]->segmentAngleVariation*t);
@@ -1638,24 +1638,24 @@ double CPathCont_old::getPosition_angularComponentOnly()
     }
 }
 
-void CPathCont_old::setNominalVelocity(float v)
+void CPathCont_old::setNominalVelocity(floatDouble v)
 { 
     tt::limitValue(-1000.0f,1000.0f,v);
     _nominalVelocity=v; 
 }
 
-float CPathCont_old::getNominalVelocity()
+floatDouble CPathCont_old::getNominalVelocity()
 {
     return(_nominalVelocity);
 }
 
-void CPathCont_old::setTargetNominalVelocity(float v)
+void CPathCont_old::setTargetNominalVelocity(floatDouble v)
 {
     tt::limitValue(-1000.0f,1000.0f,v);
     _targetNominalVelocity=v;
 }
 
-float CPathCont_old::getTargetNominalVelocity()
+floatDouble CPathCont_old::getTargetNominalVelocity()
 {
     return(_targetNominalVelocity);
 }
@@ -1666,7 +1666,7 @@ void CPathCont_old::_recomputeBezierPoints()
     //  check if at least 3 POINTS!!!
     if (_simplePathPoints.size()==0)
         return;
-    float auxChannels[4];
+    floatDouble auxChannels[4];
     if (_simplePathPoints.size()==1)
     {
         CSimplePathPoint_old* itm=_simplePathPoints[0];
@@ -1716,9 +1716,9 @@ void CPathCont_old::_recomputeBezierPoints()
             C7Vector tr1(itm->getTransformation());
             C7Vector tr2(ita->getTransformation());
 
-            float auxChannels0[4];
-            float auxChannels1[4];
-            float auxChannels2[4];
+            floatDouble auxChannels0[4];
+            floatDouble auxChannels1[4];
+            floatDouble auxChannels2[4];
             itb->getAuxChannels(auxChannels0);
             itm->getAuxChannels(auxChannels1);
             ita->getAuxChannels(auxChannels2);
@@ -1756,42 +1756,42 @@ void CPathCont_old::_recomputeBezierPoints()
                     trm.buildInterpolation(tr0,tr1,0.5f);
                     trn.buildInterpolation(tr1,tr2,0.5f);
                     
-                    float mxRelVel_m=(itb->getMaxRelAbsVelocity()+itm->getMaxRelAbsVelocity())*0.5f;
-                    float mxRelVel_n=(itm->getMaxRelAbsVelocity()+ita->getMaxRelAbsVelocity())*0.5f;
-                    float onSpot_m=(itb->getOnSpotDistance()+itm->getOnSpotDistance())*0.5f;
-                    float onSpot_n=(itm->getOnSpotDistance()+ita->getOnSpotDistance())*0.5f;
-                    float bf[2];
+                    floatDouble mxRelVel_m=(itb->getMaxRelAbsVelocity()+itm->getMaxRelAbsVelocity())*0.5f;
+                    floatDouble mxRelVel_n=(itm->getMaxRelAbsVelocity()+ita->getMaxRelAbsVelocity())*0.5f;
+                    floatDouble onSpot_m=(itb->getOnSpotDistance()+itm->getOnSpotDistance())*0.5f;
+                    floatDouble onSpot_n=(itm->getOnSpotDistance()+ita->getOnSpotDistance())*0.5f;
+                    floatDouble bf[2];
                     itm->getBezierFactors(bf[0],bf[1]);
                     C7Vector tri,trj;
                     tri.buildInterpolation(trm,tr1,1.0f-bf[0]);
                     trj.buildInterpolation(trn,tr1,1.0f-bf[1]);
                     
-                    float mxRelVel_i=mxRelVel_m*bf[0]+itm->getMaxRelAbsVelocity()*(1.0f-bf[0]);
-                    float mxRelVel_j=mxRelVel_n*bf[1]+itm->getMaxRelAbsVelocity()*(1.0f-bf[1]);
-                    float onSpot_i=onSpot_m*bf[0]+itm->getOnSpotDistance()*(1.0f-bf[0]);
-                    float onSpot_j=onSpot_n*bf[1]+itm->getOnSpotDistance()*(1.0f-bf[1]);
+                    floatDouble mxRelVel_i=mxRelVel_m*bf[0]+itm->getMaxRelAbsVelocity()*(1.0f-bf[0]);
+                    floatDouble mxRelVel_j=mxRelVel_n*bf[1]+itm->getMaxRelAbsVelocity()*(1.0f-bf[1]);
+                    floatDouble onSpot_i=onSpot_m*bf[0]+itm->getOnSpotDistance()*(1.0f-bf[0]);
+                    floatDouble onSpot_j=onSpot_n*bf[1]+itm->getOnSpotDistance()*(1.0f-bf[1]);
 
-                    float aatb=0.5f+(1.0f-bf[0])*0.5f;
-                    float aata=bf[1]*0.5f;
+                    floatDouble aatb=0.5f+(1.0f-bf[0])*0.5f;
+                    floatDouble aata=bf[1]*0.5f;
 
-                    float auxChannelsInterpol[4];
+                    floatDouble auxChannelsInterpol[4];
                     for (int o=0;o<4;o++)
                         auxChannelsInterpol[o]=auxChannels0[o]*(1.0f-aatb)+auxChannels1[o]*aatb;
 
                     _addBezierPathPoint(tri,mxRelVel_i,onSpot_i,auxFlags1,auxChannelsInterpol); // first point in the bezier curve section
 
                     int divCount=itm->getBezierPointCount()-1;
-                    float ppp0=1.0f-aatb;
-                    float pppt=ppp0+aata;
+                    floatDouble ppp0=1.0f-aatb;
+                    floatDouble pppt=ppp0+aata;
                     for (int k=1;k<divCount;k++)
                     {
-                        float t=float(k)*(1.0f/float(divCount));
+                        floatDouble t=floatDouble(k)*(1.0f/floatDouble(divCount));
                         C7Vector x0,x1,trpt;
                         x0.buildInterpolation(tri,tr1,t);
                         x1.buildInterpolation(tr1,trj,t);
 
-                        float pppt0=aatb+t*pppt;
-                        float pppt1=pppt0-1.0f;
+                        floatDouble pppt0=aatb+t*pppt;
+                        floatDouble pppt1=pppt0-1.0f;
                         for (int o=0;o<4;o++)
                         {
                             if (pppt0<=1.0f)
@@ -1800,14 +1800,14 @@ void CPathCont_old::_recomputeBezierPoints()
                                 auxChannelsInterpol[o]=auxChannels1[o]*(1.0f-pppt1)+auxChannels2[o]*pppt1;
                         }
 
-                        float mxRelVel_x0=mxRelVel_i*(1.0f-t)+itm->getMaxRelAbsVelocity()*t;
-                        float mxRelVel_x1=itm->getMaxRelAbsVelocity()*(1.0f-t)+mxRelVel_j*t;
-                        float onSpot_x0=onSpot_i*(1.0f-t)+itm->getOnSpotDistance()*t;
-                        float onSpot_x1=itm->getOnSpotDistance()*(1.0f-t)+onSpot_j*t;
+                        floatDouble mxRelVel_x0=mxRelVel_i*(1.0f-t)+itm->getMaxRelAbsVelocity()*t;
+                        floatDouble mxRelVel_x1=itm->getMaxRelAbsVelocity()*(1.0f-t)+mxRelVel_j*t;
+                        floatDouble onSpot_x0=onSpot_i*(1.0f-t)+itm->getOnSpotDistance()*t;
+                        floatDouble onSpot_x1=itm->getOnSpotDistance()*(1.0f-t)+onSpot_j*t;
                         trpt.buildInterpolation(x0,x1,t);
 
-                        float mxRelVel_trpt=mxRelVel_x0*(1.0f-t)+mxRelVel_x1*(t);
-                        float onSpot_trpt=onSpot_x0*(1.0f-t)+onSpot_x1*(t);
+                        floatDouble mxRelVel_trpt=mxRelVel_x0*(1.0f-t)+mxRelVel_x1*(t);
+                        floatDouble onSpot_trpt=onSpot_x0*(1.0f-t)+onSpot_x1*(t);
                         _addBezierPathPoint(trpt,mxRelVel_trpt,onSpot_trpt,auxFlags1,auxChannelsInterpol);
                     }
 
@@ -1825,7 +1825,7 @@ void CPathCont_old::_recomputeBezierPoints()
     }
 }
 
-C3Vector CPathCont_old::_getPointOnBezierCubic(const C3Vector& ptBefore,const C3Vector& ptMiddle,const C3Vector& ptAfter,C3Vector& dir,float t)
+C3Vector CPathCont_old::_getPointOnBezierCubic(const C3Vector& ptBefore,const C3Vector& ptMiddle,const C3Vector& ptAfter,C3Vector& dir,floatDouble t)
 {
     C3Vector x0,x1,retVal;
     x0.buildInterpolation(ptBefore,ptMiddle,t);
@@ -1835,7 +1835,7 @@ C3Vector CPathCont_old::_getPointOnBezierCubic(const C3Vector& ptBefore,const C3
     return(retVal);
 }
 
-C4Vector CPathCont_old::_getOrientationOnBezierCubic(const C4Vector& orBefore,const C4Vector& orMiddle,const C4Vector& orAfter,float t)
+C4Vector CPathCont_old::_getOrientationOnBezierCubic(const C4Vector& orBefore,const C4Vector& orMiddle,const C4Vector& orAfter,floatDouble t)
 {
     C4Vector x0,x1,retVal;
     x0.buildInterpolation(orBefore,orMiddle,t);
@@ -1878,12 +1878,12 @@ int CPathCont_old::getLineSize()
     return(_lineSize);
 }
 
-void CPathCont_old::setSquareSize(float size)
+void CPathCont_old::setSquareSize(floatDouble size)
 {
     tt::limitValue(0.0001f,1.0f,size);
     _squareSize=size;   
 }
-float CPathCont_old::getSquareSize()
+floatDouble CPathCont_old::getSquareSize()
 {
     return(_squareSize);
 }
@@ -1891,7 +1891,7 @@ float CPathCont_old::getSquareSize()
 void CPathCont_old::initializeInitialValues(bool simulationAlreadyRunning)
 {
     _initialValuesInitialized=true;
-    _initialPosition=float(_position);
+    _initialPosition=floatDouble(_position);
     _nominalVelocity=0.0f;
     _initialNominalVelocity=_nominalVelocity;
     _initialTargetNominalVelocity=_targetNominalVelocity;
@@ -1911,7 +1911,7 @@ void CPathCont_old::simulationEnded()
     _initialValuesInitialized=false;
 }
 
-void CPathCont_old::setMaxAcceleration(float maxAccel)
+void CPathCont_old::setMaxAcceleration(floatDouble maxAccel)
 {
     tt::limitValue(0.0001f,1000.0f,maxAccel);
     _maxAcceleration=maxAccel;
@@ -1919,7 +1919,7 @@ void CPathCont_old::setMaxAcceleration(float maxAccel)
 // folloiwng is done is actualizePath!  setVelocity(getVelocity()); // To make sure velocity is within allowed range
 }
 
-float CPathCont_old::getMaxAcceleration()
+floatDouble CPathCont_old::getMaxAcceleration()
 {
     return(_maxAcceleration);
 }
@@ -2025,9 +2025,18 @@ void CPathCont_old::serialize(CSer& ar)
                     _simplePathPoints[i]->serialize(ar);
             }
 
+#ifdef TMPOPERATION
             ar.storeDataName("Si2");
-            ar << _lineSize << _squareSize;
+            ar << _lineSize;
+            ar.flt() << (floatFloat)_squareSize;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_i2");
+            ar << _lineSize;
+            ar.dbl() << _squareSize;
+            ar.flush();
+#endif
 
             ar.storeDataName("At2");
             ar << _attributes;
@@ -2039,22 +2048,53 @@ void CPathCont_old::serialize(CSer& ar)
             if (ar.setWritingMode())
                 _lineColor.serialize(ar,1);
 
+#ifdef TMPOPERATION
             ar.storeDataName("Jm2");
-            ar << float(_position) << _maxAcceleration << _nominalVelocity << _targetNominalVelocity;
+            ar.flt() << (floatFloat)_position << (floatFloat)_maxAcceleration << (floatFloat)_nominalVelocity << (floatFloat)_targetNominalVelocity;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_m2");
+            ar.dbl() << _position << _maxAcceleration << _nominalVelocity << _targetNominalVelocity;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Av3");
-            ar << _angleVarToDistanceCoeff << _pathLengthCalculationMethod;
+            ar.flt() << (floatFloat)_angleVarToDistanceCoeff;
+            ar << _pathLengthCalculationMethod;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_v3");
+            ar.dbl() << _angleVarToDistanceCoeff;
+            ar << _pathLengthCalculationMethod;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Av9");
-            ar << _onSpotDistanceToDistanceCoeff;
+            ar.flt() << (floatFloat)_onSpotDistanceToDistanceCoeff;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_v9");
+            ar.dbl() << _onSpotDistanceToDistanceCoeff;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Av2");
-            ar << _avp_turningCircleRadiusForHalfVelocity << _avp_relativeVelocityAtRotationAxisChange;
-            ar << _avp_relativeAcceleration;
+            ar.flt() << (floatFloat)_avp_turningCircleRadiusForHalfVelocity << (floatFloat)_avp_relativeVelocityAtRotationAxisChange;
+            ar.flt() << (floatFloat)_avp_relativeAcceleration;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_v2");
+            ar.dbl() << _avp_turningCircleRadiusForHalfVelocity << _avp_relativeVelocityAtRotationAxisChange;
+            ar.dbl() << _avp_relativeAcceleration;
+            ar.flush();
+#endif
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -2078,10 +2118,20 @@ void CPathCont_old::serialize(CSer& ar)
                         _simplePathPoints.push_back(newPoint);
                     }
                     if (theName.compare("Si2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar >> _lineSize;
+                        ar.flt() >> bla;
+                        _squareSize=(floatDouble)bla;
+                    }
+                    if (theName.compare("_i2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _lineSize >> _squareSize;
+                        ar >> _lineSize;
+                        ar.dbl() >> _squareSize;
                     }
                     if (theName.compare("At2")==0)
                     {
@@ -2096,31 +2146,67 @@ void CPathCont_old::serialize(CSer& ar)
                         _lineColor.serialize(ar,1);
                     }
                     if (theName.compare("Jm2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo,blu;
+                        ar.flt() >> bla >> bli >> blo >> blu;
+                        _position=double(bla);
+                        _maxAcceleration=(floatDouble)bli;
+                        _nominalVelocity=(floatDouble)blo;
+                        _targetNominalVelocity=(floatDouble)blu;
+                    }
+                    if (theName.compare("_m2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        float dummyPos;
-                        ar >> dummyPos >> _maxAcceleration >> _nominalVelocity >> _targetNominalVelocity;
-                        _position=double(dummyPos);
+                        ar.dbl() >> _position >> _maxAcceleration >> _nominalVelocity >> _targetNominalVelocity;
                     }
                     if (theName.compare("Av3")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _angleVarToDistanceCoeff=(floatDouble)bla;
+                        ar >> _pathLengthCalculationMethod;
+                    }
+                    if (theName.compare("_v3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _angleVarToDistanceCoeff >> _pathLengthCalculationMethod;
+                        ar.dbl() >> _angleVarToDistanceCoeff;
+                        ar >> _pathLengthCalculationMethod;
                     }
                     if (theName.compare("Av9")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _onSpotDistanceToDistanceCoeff=(floatDouble)bla;
+                    }
+                    if (theName.compare("_v9")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _onSpotDistanceToDistanceCoeff;
+                        ar.dbl() >> _onSpotDistanceToDistanceCoeff;
                     }
                     if (theName.compare("Av2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        _avp_turningCircleRadiusForHalfVelocity=(floatDouble)bla;
+                        _avp_relativeVelocityAtRotationAxisChange=(floatDouble)bli;
+                        _avp_relativeAcceleration=(floatDouble)blo;
+                    }
+                    if (theName.compare("_v2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _avp_turningCircleRadiusForHalfVelocity >> _avp_relativeVelocityAtRotationAxisChange;
-                        ar >> _avp_relativeAcceleration;
+                        ar.dbl() >> _avp_turningCircleRadiusForHalfVelocity >> _avp_relativeVelocityAtRotationAxisChange >> _avp_relativeAcceleration;
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -2136,7 +2222,7 @@ void CPathCont_old::serialize(CSer& ar)
         {
             ar.xmlAddNode_int("lineSize",_lineSize);
             ar.xmlAddNode_float("pointSize",_squareSize);
-            ar.xmlAddNode_float("positionAlongPath",float(_position));
+            ar.xmlAddNode_float("positionAlongPath",_position);
             ar.xmlAddNode_comment(" 'pathLengthCalcMethod' tag: can be 'dl', 'dac', 'max_dl_dac', 'dl_and_dac', 'sqrt_dl2_and_dac2', 'dl_if_nonzero' or 'dac_if_nonzero' ",exhaustiveXml);
             ar.xmlAddNode_enum("pathLengthCalcMethod",_pathLengthCalculationMethod,sim_distcalcmethod_dl,"dl",sim_distcalcmethod_dac,"dac",sim_distcalcmethod_max_dl_dac,"max_dl_dac",sim_distcalcmethod_dl_and_dac,"dl_and_dac",sim_distcalcmethod_sqrt_dl2_and_dac2,"sqrt_dl2_and_dac2",sim_distcalcmethod_dl_if_nonzero,"dl_if_nonzero",sim_distcalcmethod_dac_if_nonzero,"dac_if_nonzero");
 
@@ -2174,7 +2260,7 @@ void CPathCont_old::serialize(CSer& ar)
         {
             ar.xmlGetNode_int("lineSize",_lineSize,exhaustiveXml);
             ar.xmlGetNode_float("pointSize",_squareSize,exhaustiveXml);
-            float p;
+            floatDouble p;
             if (ar.xmlGetNode_float("positionAlongPath",p,exhaustiveXml))
                 _position=(double)p;
             if (exhaustiveXml)
@@ -2207,7 +2293,7 @@ void CPathCont_old::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("line",rgb,3,exhaustiveXml))
-                        _lineColor.setColor(float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f,sim_colorcomponent_ambient_diffuse);
+                        _lineColor.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -2254,14 +2340,14 @@ void CPathCont_old::render(bool pathEditMode,int displayAttrib,bool pathIsOnlySe
     _draw(((std::vector<CPathPoint_old*>*)&_bezierPathPoints)[0],pathEditMode,false,((_attributes&sim_pathproperty_show_line)!=0)||pathEditMode,false,false,((_attributes&sim_pathproperty_show_orientation)!=0)||pathEditMode,_lineSize,_squareSize,pathIsOnlySelectedObject,objectID);
 }
 
-void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode,bool isPath,bool showLine,bool stripplePts,bool showSquare,bool showOrientation,int lineSize,float squareSize,bool pathIsOnlySelectedObject,int objectID)
+void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode,bool isPath,bool showLine,bool stripplePts,bool showSquare,bool showOrientation,int lineSize,floatDouble squareSize,bool pathIsOnlySelectedObject,int objectID)
 {
     if (showLine||(pathEditMode&&isPath))
     {
         if (!isPath)
-            glLineWidth((float)lineSize);
+            glLineWidth((floatDouble)lineSize);
         else
-            glLineWidth(float(lineSize)+2); // added on 2010/09/03
+            glLineWidth(floatDouble(lineSize)+2); // added on 2010/09/03
         glLineStipple(1,0x00ff);
         if (stripplePts)
             glEnable(GL_LINE_STIPPLE);

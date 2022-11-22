@@ -1964,7 +1964,7 @@ void getCharBoolsFromTable(luaWrap_lua_State* L,int tablePos,size_t boolCount,ch
     for (size_t i=0;i<boolCount;i++)
     {
         luaWrap_lua_rawgeti(L,tablePos,int(i+1));
-        arrayField[i]=(char)luaWrap_lua_toboolean(L,-1);
+        arrayField[i]=(char)luaToBool(L,-1);
         luaWrap_lua_pop(L,1); // we pop one element from the stack;
     }
 }

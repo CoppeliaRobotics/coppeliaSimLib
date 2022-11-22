@@ -568,7 +568,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_JOINT)==0)
         {
-            ar >> byteQuantity; 
+            ar >> byteQuantity;
             CJoint* myNewObject=new CJoint();
             myNewObject->serialize(ar);
             noHit=false;
@@ -576,7 +576,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_GRAPH)==0)
         {
-            ar >> byteQuantity; 
+            ar >> byteQuantity;
             CGraph* myNewObject=new CGraph();
             myNewObject->serialize(ar);
             noHit=false;
@@ -584,7 +584,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_CAMERA)==0)
         {
-            ar >> byteQuantity; 
+            ar >> byteQuantity;
             CCamera* myNewObject=new CCamera();
             myNewObject->serialize(ar);
             noHit=false;
@@ -592,7 +592,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_LIGHT)==0)
         {
-            ar >> byteQuantity; 
+            ar >> byteQuantity;
             CLight* myNewObject=new CLight();
             myNewObject->serialize(ar);
             noHit=false;
@@ -610,7 +610,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_OCTREE)==0)
         {
-            ar >> byteQuantity; 
+            ar >> byteQuantity;
             COctree* myNewObject=new COctree();
             myNewObject->serialize(ar);
             noHit=false;
@@ -618,7 +618,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_POINTCLOUD)==0)
         {
-            ar >> byteQuantity; 
+            ar >> byteQuantity;
             CPointCloud* myNewObject=new CPointCloud();
             myNewObject->serialize(ar);
             noHit=false;
@@ -626,7 +626,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_DUMMY)==0)
         {
-            ar >> byteQuantity; 
+            ar >> byteQuantity;
             CDummy* myNewObject=new CDummy();
             myNewObject->serialize(ar);
             noHit=false;
@@ -634,7 +634,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_PROXIMITYSENSOR)==0)
         {
-            ar >> byteQuantity; 
+            ar >> byteQuantity;
             CProxSensor* myNewObject=new CProxSensor();
             myNewObject->serialize(ar);
             noHit=false;
@@ -642,7 +642,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_VISIONSENSOR)==0)
         {
-            ar >> byteQuantity; 
+            ar >> byteQuantity;
             CVisionSensor* myNewObject=new CVisionSensor();
             myNewObject->serialize(ar);
             noHit=false;
@@ -670,7 +670,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (theName.compare(SER_FORCESENSOR)==0)
         {
-            ar >> byteQuantity; 
+            ar >> byteQuantity;
             CForceSensor* myNewObject=new CForceSensor();
             myNewObject->serialize(ar);
             noHit=false;

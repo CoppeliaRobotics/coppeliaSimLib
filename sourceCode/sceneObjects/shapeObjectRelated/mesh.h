@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "meshWrapper.h"
@@ -12,7 +11,7 @@ public:
 
     void display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
     void display_colorCoded(CShape* geomData,int objectId,int displayAttrib);
-    void displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors);
+    void displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,floatDouble transparency,const floatDouble* newColors);
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();
     void display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
@@ -22,9 +21,9 @@ public:
     void setTextureDependencies(int shapeID);
     bool getContainsTransparentComponents() const;
     CMesh* copyYourself();
-    void scale(float xVal,float yVal,float zVal);
+    void scale(floatDouble xVal,floatDouble yVal,floatDouble zVal);
     int getPurePrimitiveType() const;
-    void setPurePrimitiveType(int theType,float xOrDiameter,float y,float zOrHeight);
+    void setPurePrimitiveType(int theType,floatDouble xOrDiameter,floatDouble y,floatDouble zOrHeight);
     bool isMesh() const;
     bool isPure() const;
     bool isConvex() const;
@@ -32,18 +31,18 @@ public:
     void setConvex(bool convex);
     bool containsOnlyPureConvexShapes();
     void getCumulativeMeshes(std::vector<floatDouble>& vertices,std::vector<int>* indices,std::vector<floatDouble>* normals);
-    void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
-    bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset) const;
+    void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const floatDouble* rgbData,int& rgbDataOffset);
+    bool getColor(const char* colorName,int colorComponent,floatDouble* rgbData,int& rgbDataOffset) const;
     void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList);
     CMesh* getShapeComponentAtIndex(int& index);
     int getComponentCount() const;
     void serialize(CSer& ar,const char* shapeName);
     void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     void flipFaces();
-    float getShadingAngle() const;
-    void setShadingAngle(float angle);
-    float getEdgeThresholdAngle() const;
-    void setEdgeThresholdAngle(float angle);
+    floatDouble getShadingAngle() const;
+    void setShadingAngle(floatDouble angle);
+    floatDouble getEdgeThresholdAngle() const;
+    void setEdgeThresholdAngle(floatDouble angle);
     void setHideEdgeBorders_OLD(bool v);
     bool getHideEdgeBorders_OLD() const;
     int getTextureCount() const;
@@ -55,11 +54,11 @@ public:
     int getUniqueID() const;
     void setMesh(const std::vector<floatDouble>& vertices,const std::vector<int>& indices,const std::vector<floatDouble>* normals,const C7Vector& transformation);
 
-    void setHeightfieldData(const std::vector<float>& heights,int xCount,int yCount);
-    float* getHeightfieldData(int& xCount,int& yCount,float& minHeight,float& maxHeight);
+    void setHeightfieldData(const std::vector<floatDouble>& heights,int xCount,int yCount);
+    floatDouble* getHeightfieldData(int& xCount,int& yCount,floatDouble& minHeight,floatDouble& maxHeight);
     void getPurePrimitiveSizes(C3Vector& s) const;
-    void setPurePrimitiveInsideScaling_OLD(float s);
-    float getPurePrimitiveInsideScaling_OLD() const;
+    void setPurePrimitiveInsideScaling_OLD(floatDouble s);
+    floatDouble getPurePrimitiveInsideScaling_OLD() const;
 
     void setConvexVisualAttributes();
 
@@ -120,7 +119,7 @@ public:
     CColorObject insideColor_DEPRECATED;
     CColorObject edgeColor_DEPRECATED;
 
-    std::vector<float> _heightfieldHeights;
+    std::vector<floatDouble> _heightfieldHeights;
     int _heightfieldXCount;
     int _heightfieldYCount;
 
@@ -147,18 +146,18 @@ protected:
     bool _insideAndOutsideFacesSameColor_DEPRECATED;
     bool _wireframe_OLD;
     int _edgeWidth_DEPRERCATED;
-    float _shadingAngle;
-    float _edgeThresholdAngle;
+    floatDouble _shadingAngle;
+    floatDouble _edgeThresholdAngle;
 
     C7Vector _verticeLocalFrame; // frame relative to the shape. All vertices are transformed by it. This frame also represents the configuration of the origin frame of pure shapes!!!!
     CTextureProperty* _textureProperty;
     int _uniqueID;
 
     int _purePrimitive;
-    float _purePrimitiveXSizeOrDiameter;
-    float _purePrimitiveYSize;
-    float _purePrimitiveZSizeOrHeight;
-    float _purePrimitiveInsideScaling;
+    floatDouble _purePrimitiveXSizeOrDiameter;
+    floatDouble _purePrimitiveYSize;
+    floatDouble _purePrimitiveZSizeOrHeight;
+    floatDouble _purePrimitiveInsideScaling;
 
     int _tempVerticesIndexForSerialization;
     int _tempIndicesIndexForSerialization;

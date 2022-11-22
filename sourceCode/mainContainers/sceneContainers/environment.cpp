@@ -210,22 +210,22 @@ bool CEnvironment::getSaveExistingCalculationStructuresTemp() const
     return(_saveExistingCalculationStructuresTemp);
 }
 
-void CEnvironment::setCalculationMaxTriangleSize(float s)
+void CEnvironment::setCalculationMaxTriangleSize(floatDouble s)
 {
     _calculationMaxTriangleSize=tt::getLimitedFloat(0.01f,100.0f,s);
 }
 
-float CEnvironment::getCalculationMaxTriangleSize() const
+floatDouble CEnvironment::getCalculationMaxTriangleSize() const
 {
     return(_calculationMaxTriangleSize);
 }
 
-void CEnvironment::setCalculationMinRelTriangleSize(float s)
+void CEnvironment::setCalculationMinRelTriangleSize(floatDouble s)
 {
     _calculationMinRelTriangleSize=tt::getLimitedFloat(0.001f,1.0f,s);
 }
 
-float CEnvironment::getCalculationMinRelTriangleSize() const
+floatDouble CEnvironment::getCalculationMinRelTriangleSize() const
 {
     return(_calculationMinRelTriangleSize);
 }
@@ -309,40 +309,40 @@ bool CEnvironment::getFogEnabled() const
     return(fogEnabled);
 }
 
-void CEnvironment::setFogDensity(float d)
+void CEnvironment::setFogDensity(floatDouble d)
 {
     tt::limitValue(0.0f,1000.0f,d);
     fogDensity=d;
 }
 
-float CEnvironment::getFogDensity() const
+floatDouble CEnvironment::getFogDensity() const
 {
     return(fogDensity);
 }
 
-void CEnvironment::setFogStart(float s)
+void CEnvironment::setFogStart(floatDouble s)
 {
     tt::limitValue(0.0f,1000.0f,s); // "inverted" is allowed in opengl!
     fogStart=s;
 }
 
-float CEnvironment::getFogStart() const
+floatDouble CEnvironment::getFogStart() const
 {
     return(fogStart);
 }
 
-void CEnvironment::setFogEnd(float e)
+void CEnvironment::setFogEnd(floatDouble e)
 {
     tt::limitValue(0.01f,1000.0f,e); // "inverted" is allowed in opengl!
     fogEnd=e;
 }
 
-float CEnvironment::getFogEnd() const
+floatDouble CEnvironment::getFogEnd() const
 {
     return(fogEnd);
 }
 
-void CEnvironment::setFogType(float t)
+void CEnvironment::setFogType(floatDouble t)
 {
     tt::limitValue(0,2,t);
     fogType=t;
@@ -371,38 +371,82 @@ void CEnvironment::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {       // Storing
+#ifdef TMPOPERATION
             ar.storeDataName("Fdn");
-            ar << fogEnd;
+            ar.flt() << (floatFloat)fogEnd;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_dn");
+            ar.dbl() << fogEnd;
+            ar.flush();
+#endif
 
             ar.storeDataName("Vil");
             ar << _activeLayers;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Fd2");
-            ar << fogType << fogStart << fogDensity;
+            ar << fogType;
+            ar.flt() << (floatFloat)fogStart << (floatFloat)fogDensity;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_d2");
+            ar << fogType;
+            ar.dbl() << fogStart << fogDensity;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Clc");
-            ar << backGroundColor[0] << backGroundColor[1] << backGroundColor[2];
+            ar.flt() << (floatFloat)backGroundColor[0] << (floatFloat)backGroundColor[1] << (floatFloat)backGroundColor[2];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_lc");
+            ar.dbl() << backGroundColor[0] << backGroundColor[1] << backGroundColor[2];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Cld");
-            ar << backGroundColorDown[0] << backGroundColorDown[1] << backGroundColorDown[2];
+            ar.flt() << (floatFloat)backGroundColorDown[0] << (floatFloat)backGroundColorDown[1] << (floatFloat)backGroundColorDown[2];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_ld");
+            ar.dbl() << backGroundColorDown[0] << backGroundColorDown[1] << backGroundColorDown[2];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Fbg");
-            ar << fogBackgroundColor[0] << fogBackgroundColor[1] << fogBackgroundColor[2];
+            ar.flt() << (floatFloat)fogBackgroundColor[0] << (floatFloat)fogBackgroundColor[1] << (floatFloat)fogBackgroundColor[2];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_bg");
+            ar.dbl() << fogBackgroundColor[0] << fogBackgroundColor[1] << fogBackgroundColor[2];
+            ar.flush();
+#endif
 
             // Keep for backward/forward compatibility (5/10/2014):
             ar.storeDataName("Alc");
-            ar << ambientLightColor[0]*0.5f << ambientLightColor[1]*0.5f << ambientLightColor[2]*0.5f;
+            ar.flt() << (floatFloat)(ambientLightColor[0]*0.5) << (floatFloat)(ambientLightColor[1]*0.5) << (floatFloat)(ambientLightColor[2]*0.5);
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Al2");
-            ar << ambientLightColor[0] << ambientLightColor[1] << ambientLightColor[2];
+            ar.flt() << (floatFloat)ambientLightColor[0] << (floatFloat)ambientLightColor[1] << (floatFloat)ambientLightColor[2];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_l2");
+            ar.dbl() << ambientLightColor[0] << ambientLightColor[1] << ambientLightColor[2];
+            ar.flush();
+#endif
 
             ar.storeDataName("Var");
             unsigned char dummy=0;
@@ -428,13 +472,27 @@ void CEnvironment::serialize(CSer& ar)
             ar << _acknowledgement;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Mt2");
-            ar << _calculationMaxTriangleSize;
+            ar.flt() << (floatFloat)_calculationMaxTriangleSize;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_t2");
+            ar.dbl() << _calculationMaxTriangleSize;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Mrs");
-            ar << _calculationMinRelTriangleSize;
+            ar.flt() << (floatFloat)_calculationMinRelTriangleSize;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_rs");
+            ar.dbl() << _calculationMinRelTriangleSize;
+            ar.flush();
+#endif
 
             ar.storeDataName("Rst");
             ar << _extensionString;
@@ -469,10 +527,18 @@ void CEnvironment::serialize(CSer& ar)
                 {
                     bool noHit=true;
                     if (theName.compare("Fdn")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        fogEnd=(floatDouble)bla;
+                    }
+                    if (theName.compare("_dn")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> fogEnd;
+                        ar.dbl() >> fogEnd;
                     }
                     if (theName.compare("Vil")==0)
                     {
@@ -481,10 +547,21 @@ void CEnvironment::serialize(CSer& ar)
                         ar >> _activeLayers;
                     }
                     if (theName.compare("Fd2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> fogType;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        fogStart=(floatDouble)bla;
+                        fogDensity=(floatDouble)bli;
+                    }
+                    if (theName.compare("_d2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> fogType >> fogStart >> fogDensity;
+                        ar >> fogType;
+                        ar.dbl() >> fogStart >> fogDensity;
                     }
                     if (theName.compare("Var")==0)
                     {
@@ -518,47 +595,94 @@ void CEnvironment::serialize(CSer& ar)
     // free                    _showPalletRepository=SIM_IS_BIT_SET(dummy,1);
                     }
                     if (theName.compare("Clc")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        backGroundColor[0]=(floatDouble)bla;
+                        backGroundColor[1]=(floatDouble)bli;
+                        backGroundColor[2]=(floatDouble)blo;
+                        backGroundColorDown[0]=backGroundColor[0];
+                        backGroundColorDown[1]=backGroundColor[1];
+                        backGroundColorDown[2]=backGroundColor[2];
+                    }
+                    if (theName.compare("_lc")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> backGroundColor[0] >> backGroundColor[1] >> backGroundColor[2];
+                        ar.dbl() >> backGroundColor[0] >> backGroundColor[1] >> backGroundColor[2];
                         backGroundColorDown[0]=backGroundColor[0];
                         backGroundColorDown[1]=backGroundColor[1];
                         backGroundColorDown[2]=backGroundColor[2];
                     }
                     if (theName.compare("Cld")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        backGroundColorDown[0]=(floatDouble)bla;
+                        backGroundColorDown[1]=(floatDouble)bli;
+                        backGroundColorDown[2]=(floatDouble)blo;
+                    }
+                    if (theName.compare("_ld")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> backGroundColorDown[0] >> backGroundColorDown[1] >> backGroundColorDown[2];
+                        ar.dbl() >> backGroundColorDown[0] >> backGroundColorDown[1] >> backGroundColorDown[2];
                     }
                     if (theName.compare("Fbg")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        fogBackgroundColor[0]=(floatDouble)bla;
+                        fogBackgroundColor[1]=(floatDouble)bli;
+                        fogBackgroundColor[2]=(floatDouble)blo;
+                    }
+                    if (theName.compare("_bg")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> fogBackgroundColor[0] >> fogBackgroundColor[1] >> fogBackgroundColor[2];
+                        ar.dbl() >> fogBackgroundColor[0] >> fogBackgroundColor[1] >> fogBackgroundColor[2];
                     }
                     if (theName.compare("Alc")==0)
                     { // keep for backward/forward compatibility (5/10/2014)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> ambientLightColor[0] >> ambientLightColor[1] >> ambientLightColor[2];
-                        ambientLightColor[0]*=2.0f;
-                        ambientLightColor[1]*=2.0f;
-                        ambientLightColor[2]*=2.0f;
-                        float mx=std::max<float>(std::max<float>(ambientLightColor[0],ambientLightColor[1]),ambientLightColor[2]);
-                        if (mx>0.4f)
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        ambientLightColor[0]=(floatDouble)bla;
+                        ambientLightColor[1]=(floatDouble)bli;
+                        ambientLightColor[2]=(floatDouble)blo;
+                        ambientLightColor[0]*=2.0;
+                        ambientLightColor[1]*=2.0;
+                        ambientLightColor[2]*=2.0;
+                        floatDouble mx=std::max<floatDouble>(std::max<floatDouble>(ambientLightColor[0],ambientLightColor[1]),ambientLightColor[2]);
+                        if (mx>0.4)
                         {
-                            ambientLightColor[0]=ambientLightColor[0]*0.4f/mx;
-                            ambientLightColor[1]=ambientLightColor[1]*0.4f/mx;
-                            ambientLightColor[2]=ambientLightColor[2]*0.4f/mx;
+                            ambientLightColor[0]=ambientLightColor[0]*0.4/mx;
+                            ambientLightColor[1]=ambientLightColor[1]*0.4/mx;
+                            ambientLightColor[2]=ambientLightColor[2]*0.4/mx;
                         }
                     }
                     if (theName.compare("Al2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        ambientLightColor[0]=(floatDouble)bla;
+                        ambientLightColor[1]=(floatDouble)bli;
+                        ambientLightColor[2]=(floatDouble)blo;
+                    }
+                    if (theName.compare("_l2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> ambientLightColor[0] >> ambientLightColor[1] >> ambientLightColor[2];
+                        ar.dbl() >> ambientLightColor[0] >> ambientLightColor[1] >> ambientLightColor[2];
                     }
                     if (theName.compare("Ack")==0)
                     {
@@ -573,20 +697,37 @@ void CEnvironment::serialize(CSer& ar)
                     { // keep for backward compatibility (2010/07/07)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _calculationMaxTriangleSize;
-                        _calculationMaxTriangleSize=0.3f;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _calculationMaxTriangleSize=0.3;
                     }
                     if (theName.compare("Mt2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _calculationMaxTriangleSize=(floatDouble)bla;
+                    }
+                    if (theName.compare("_t2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _calculationMaxTriangleSize;
+                        ar.dbl() >> _calculationMaxTriangleSize;
                     }
                     if (theName.compare("Mrs")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _calculationMinRelTriangleSize=(floatDouble)bla;
+                    }
+                    if (theName.compare("_rs")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _calculationMinRelTriangleSize;
+                        ar.dbl() >> _calculationMinRelTriangleSize;
                     }
                     if (theName.compare("Rst")==0)
                     {
@@ -598,12 +739,12 @@ void CEnvironment::serialize(CSer& ar)
                     { // Keep for backward compatibility (3/2/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        float povDist,povTransp;
-                        ar >> povDist >> povTransp;
+                        floatFloat povDist,povTransp;
+                        ar.flt() >> povDist >> povTransp;
                         _extensionString="povray {fogDist {";
-                        _extensionString+=tt::FNb(0,povDist,3,false);
+                        _extensionString+=tt::FNb(0,(floatDouble)povDist,3,false);
                         _extensionString+="} fogTransp {";
-                        _extensionString+=tt::FNb(0,povTransp,3,false);
+                        _extensionString+=tt::FNb(0,(floatDouble)povTransp,3,false);
                         _extensionString+="}}";
                     }
                     if (theName.compare("Evc")==0)
@@ -634,8 +775,8 @@ void CEnvironment::serialize(CSer& ar)
 
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-                float avg=(ambientLightColor[0]+ambientLightColor[1]+ambientLightColor[2])/3.0f;
-                if (avg>0.21f)
+                floatDouble avg=(ambientLightColor[0]+ambientLightColor[1]+ambientLightColor[2])/3.0;
+                if (avg>0.21)
                     CTTUtil::scaleLightDown_(ambientLightColor);
             }
         }
@@ -737,23 +878,23 @@ void CEnvironment::serialize(CSer& ar)
                 int rgb[3];
                 if (ar.xmlGetNode_ints("ambientLight",rgb,3,exhaustiveXml))
                 {
-                    ambientLightColor[0]=float(rgb[0])/255.0f;
-                    ambientLightColor[1]=float(rgb[1])/255.0f;
-                    ambientLightColor[2]=float(rgb[2])/255.0f;
+                    ambientLightColor[0]=floatDouble(rgb[0])/255.0;
+                    ambientLightColor[1]=floatDouble(rgb[1])/255.0;
+                    ambientLightColor[2]=floatDouble(rgb[2])/255.0;
                 }
                 if (ar.xmlPushChildNode("backgroundColor",exhaustiveXml))
                 {
                     if (ar.xmlGetNode_ints("down",rgb,3,exhaustiveXml))
                     {
-                        backGroundColorDown[0]=float(rgb[0])/255.0f;
-                        backGroundColorDown[1]=float(rgb[1])/255.0f;
-                        backGroundColorDown[2]=float(rgb[2])/255.0f;
+                        backGroundColorDown[0]=floatDouble(rgb[0])/255.0;
+                        backGroundColorDown[1]=floatDouble(rgb[1])/255.0;
+                        backGroundColorDown[2]=floatDouble(rgb[2])/255.0;
                     }
                     if (ar.xmlGetNode_ints("up",rgb,3,exhaustiveXml))
                     {
-                        backGroundColor[0]=float(rgb[0])/255.0f;
-                        backGroundColor[1]=float(rgb[1])/255.0f;
-                        backGroundColor[2]=float(rgb[2])/255.0f;
+                        backGroundColor[0]=floatDouble(rgb[0])/255.0;
+                        backGroundColor[1]=floatDouble(rgb[1])/255.0;
+                        backGroundColor[2]=floatDouble(rgb[2])/255.0;
                     }
                     ar.xmlPopNode();
                 }
@@ -780,9 +921,9 @@ void CEnvironment::serialize(CSer& ar)
                     int rgb[3];
                     if (ar.xmlGetNode_ints("color",rgb,3,exhaustiveXml))
                     {
-                        fogBackgroundColor[0]=float(rgb[0])/255.0f;
-                        fogBackgroundColor[1]=float(rgb[1])/255.0f;
-                        fogBackgroundColor[2]=float(rgb[2])/255.0f;
+                        fogBackgroundColor[0]=floatDouble(rgb[0])/255.0;
+                        fogBackgroundColor[1]=floatDouble(rgb[1])/255.0;
+                        fogBackgroundColor[2]=floatDouble(rgb[2])/255.0;
                     }
                 }
                 ar.xmlPopNode();

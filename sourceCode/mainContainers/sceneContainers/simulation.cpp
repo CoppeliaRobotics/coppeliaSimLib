@@ -74,7 +74,7 @@ void CSimulation::setSpeedModifierCount(int sm)
 
 double CSimulation::_getSpeedModifier_forRealTimeCoefficient() const
 {
-    float retVal=1.0;
+    floatDouble retVal=1.0;
     if (!isSimulationStopped())
     {
         if (_speedModifierCount>=0)
@@ -184,7 +184,7 @@ bool CSimulation::canGoSlower() const
             retVal=true;
         else
         {
-            float newDt=_getNewTimeStep(_speedModifierCount-1);
+            floatDouble newDt=_getNewTimeStep(_speedModifierCount-1);
             retVal=(newDt!=0.0);
         }
     }
@@ -201,7 +201,7 @@ bool CSimulation::canGoFaster() const
 
 bool CSimulation::getSettingsAreDefault() const
 {
-    float dt=_simulationTimeStep;
+    floatDouble dt=_simulationTimeStep;
     if (!isSimulationStopped())
         dt=_initialSimulationTimeStep;
     return(fabs(dt-0.05)<0.0001);
@@ -295,7 +295,7 @@ bool CSimulation::isSimulationPaused() const
     return(getSimulationState()==sim_simulation_paused);
 }
 
-void CSimulation::adjustRealTimeTimer(float deltaTime)
+void CSimulation::adjustRealTimeTimer(floatDouble deltaTime)
 {
     _realTimeCorrection+=deltaTime;
 }
@@ -329,7 +329,7 @@ void CSimulation::advanceSimulationByOneStep()
     _setSimulationTime(getSimulationTime()+getTimeStep());
 
     int ct=(int)VDateTime::getTimeInMs();
-    float drt=(float(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))/1000.0f+_realTimeCorrection)*getRealTimeCoeff();
+    floatDouble drt=(floatDouble(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))/1000.0f+_realTimeCorrection)*getRealTimeCoeff();
     simulationTime_real+=drt;
     simulationTime_real_noCatchUp+=drt;
     if (simulationTime_real_noCatchUp>getSimulationTime()+getTimeStep())
@@ -396,7 +396,7 @@ int CSimulation::getSimulationState() const
     return(_simulationState);
 }
 
-void CSimulation::setTimeStep(float dt)
+void CSimulation::setTimeStep(floatDouble dt)
 {
     if (isSimulationStopped())
     {
@@ -409,7 +409,7 @@ void CSimulation::setTimeStep(float dt)
     }
 }
 
-float CSimulation::getTimeStep() const
+floatDouble CSimulation::getTimeStep() const
 {
     return(_simulationTimeStep);
 }
@@ -438,7 +438,7 @@ bool CSimulation::isRealTimeCalculationStepNeeded() const
     bool retVal=false;
     if (_realTimeSimulation&&isSimulationRunning())
     {
-        float crt=simulationTime_real_noCatchUp+float(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))*getRealTimeCoeff()/1000.0f;
+        floatDouble crt=simulationTime_real_noCatchUp+floatDouble(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))*getRealTimeCoeff()/1000.0f;
         retVal=(getSimulationTime()+getTimeStep()<crt);
     }
     return(retVal);
@@ -498,7 +498,7 @@ void CSimulation::_clearSimulationTimeHistory()
     simulationTime_real_history.clear();
 }
 
-void CSimulation::_addToSimulationTimeHistory(float simTime,float simTimeReal)
+void CSimulation::_addToSimulationTimeHistory(floatDouble simTime,floatDouble simTimeReal)
 {
     simulationTime_history.push_back(simTime);
     simulationTime_real_history.push_back(simTimeReal);
@@ -509,7 +509,7 @@ void CSimulation::_addToSimulationTimeHistory(float simTime,float simTimeReal)
     }
 }
 
-bool CSimulation::_getSimulationTimeHistoryDurations(float& simTime,float& simTimeReal) const
+bool CSimulation::_getSimulationTimeHistoryDurations(floatDouble& simTime,floatDouble& simTimeReal) const
 {
     bool retVal=false;
     if (simulationTime_history.size()<2)
@@ -545,7 +545,7 @@ void CSimulation::pauseOnErrorRequested()
     }
 }
 
-void CSimulation::setPauseTime(float time)
+void CSimulation::setPauseTime(floatDouble time)
 {
     if (time<0.001f)
         time=0.001f;
@@ -554,7 +554,7 @@ void CSimulation::setPauseTime(float time)
     _simulationTimeToPause=time;
 }
 
-float CSimulation::getPauseTime() const
+floatDouble CSimulation::getPauseTime() const
 {
     return (_simulationTimeToPause);
 }
@@ -569,12 +569,12 @@ void CSimulation::setPauseAtSpecificTime(bool e)
     _pauseAtSpecificTime=e;
 }
 
-float CSimulation::getSimulationTime() const
+floatDouble CSimulation::getSimulationTime() const
 {
     return(_simulationTime);
 }
 
-void CSimulation::_setSimulationTime(float t)
+void CSimulation::_setSimulationTime(floatDouble t)
 {
     bool diff=(_simulationTime!=t);
     if (diff)
@@ -590,15 +590,15 @@ void CSimulation::_setSimulationTime(float t)
     }
 }
 
-float CSimulation::getSimulationTime_real() const
+floatDouble CSimulation::getSimulationTime_real() const
 {
     return(simulationTime_real);
 }
 
-float CSimulation::_getNewTimeStep(int newSpeedModifierCount) const
+floatDouble CSimulation::_getNewTimeStep(int newSpeedModifierCount) const
 {
-    float ddt=App::currentWorld->dynamicsContainer->getEffectiveStepSize();
-    float dt=_simulationTimeStep;
+    floatDouble ddt=App::currentWorld->dynamicsContainer->getEffectiveStepSize();
+    floatDouble dt=_simulationTimeStep;
     if (!isSimulationStopped())
         dt=_initialSimulationTimeStep;
     for (int i=0;i<-newSpeedModifierCount;i++)
@@ -608,7 +608,7 @@ float CSimulation::_getNewTimeStep(int newSpeedModifierCount) const
             return(0.0);
         if ( fmod(dt*1.00001f,ddt)>ddt*0.01f )
         {
-            float oldDt=dt;
+            floatDouble oldDt=dt;
             dt=ddt;
             while (dt+ddt<oldDt)
                 dt+=ddt;
@@ -629,7 +629,7 @@ bool CSimulation::_goFasterOrSlower(int action)
         }
         else
         {
-            float newDt=_getNewTimeStep(_speedModifierCount-1);
+            floatDouble newDt=_getNewTimeStep(_speedModifierCount-1);
             if (newDt!=0.0)
             {
                 _speedModifierCount--;
@@ -899,7 +899,7 @@ bool CSimulation::getInfo(std::string& txtLeft,std::string& txtRight,int& index)
             if (_realTimeSimulation)
             {
                 txtRight="";
-                float st,str;
+                floatDouble st,str;
                 if (_getSimulationTimeHistoryDurations(st,str))
                 {
                     if (abs((st-str)/str)>0.1f)
@@ -916,7 +916,7 @@ bool CSimulation::getInfo(std::string& txtLeft,std::string& txtRight,int& index)
                 else
                 {
                     txtRight+=gv::getHourMinuteSecondMilisecondStr(simulationTime_real+0.0001f)+" (x";
-                    txtRight+=tt::FNb(0,float(getRealTimeCoeff()),3,false)+"))";
+                    txtRight+=tt::FNb(0,floatDouble(getRealTimeCoeff()),3,false)+"))";
                 }
                 if (simulationTime_real!=0.0)
                     txtRight+=" (real time fact="+tt::FNb(0,getSimulationTime()/simulationTime_real,2,false)+")";
@@ -943,16 +943,23 @@ void CSimulation::serialize(CSer& ar)
         if (ar.isStoring())
         {       // Storing
             ar.storeDataName("Sts"); // for backward compatibility (03/03/2016), keep before St2
-            ar << _simulationTimeStep;
+            ar.flt() << (floatFloat)_simulationTimeStep;
             ar.flush();
 
             ar.storeDataName("St2"); // for backward compatibility (05/09/2022), keep before St3
             ar << quint64(_simulationTimeStep*1000000.0f);
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("St3");
-            ar << _simulationTimeStep;
+            ar.flt() << (floatFloat)_simulationTimeStep;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_t3");
+            ar.dbl() << _simulationTimeStep;
+            ar.flush();
+#endif
 
             ar.storeDataName("Spr");
             ar << _simulationPassesPerRendering;
@@ -977,24 +984,31 @@ void CSimulation::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Rtc"); // for backward compatibility (03/03/2016), keep before Rt2
-            ar << float(_realTimeCoefficient);
+            ar.flt() << floatFloat(_realTimeCoefficient);
             ar.flush();
 
             ar.storeDataName("Rt2");
-            ar << _realTimeCoefficient;
+            ar.dbl() << _realTimeCoefficient;
             ar.flush();
 
             ar.storeDataName("Pat"); // for backward compatibility (03/03/2016), keep before Pa2
-            ar << _simulationTimeToPause;
+            ar.flt() << (floatFloat)_simulationTimeToPause;
             ar.flush();
 
             ar.storeDataName("Pa2"); // for backward compatibility (05/09/2022), keep before Pa3
-            ar << quint64(_simulationTimeToPause*1000000.0f);
+            ar << quint64(_simulationTimeToPause*1000000.0);
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Pa3");
-            ar << _simulationTimeToPause;
+            ar.flt() << (floatFloat)_simulationTimeToPause;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_a3");
+            ar.dbl() << _simulationTimeToPause;
+            ar.flush();
+#endif
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -1014,7 +1028,9 @@ void CSimulation::serialize(CSer& ar)
                     { // for backward compatibility (03/03/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _simulationTimeStep;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _simulationTimeStep=(floatDouble)bla;
                     }
                     if (theName.compare("St2")==0)
                     { // for backward compatibility (05/09/2022)
@@ -1022,13 +1038,22 @@ void CSimulation::serialize(CSer& ar)
                         ar >> byteQuantity;
                         quint64 stp;
                         ar >> stp;
-                        _simulationTimeStep=float(stp)/1000000.0f;
+                        _simulationTimeStep=float(stp)/1000000.0;
                     }
                     if (theName.compare("St3")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _simulationTimeStep=(floatDouble)bla;
+                        usingOldDefaultParams=false;
+                    }
+                    if (theName.compare("_t3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _simulationTimeStep;
+                        ar.dbl() >> _simulationTimeStep;
                         usingOldDefaultParams=false;
                     }
                     if (theName.compare("Spr")==0)
@@ -1081,21 +1106,23 @@ void CSimulation::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _realTimeCoefficient;
+                        ar.dbl() >> _realTimeCoefficient;
                     }
                     if (theName.compare("Rtc")==0)
                     { // for backward compatibility (03/03/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        float v;
-                        ar >> v;
+                        floatFloat v;
+                        ar.flt() >> v;
                         _realTimeCoefficient=double(v);
                     }
                     if (theName.compare("Pat")==0)
                     { // for backward compatibility (03/03/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _simulationTimeToPause;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _simulationTimeToPause=(floatDouble)bla;
                     }
                     if (theName.compare("Pa2")==0)
                     { // for backward compatibility (05/09/2022)
@@ -1103,13 +1130,21 @@ void CSimulation::serialize(CSer& ar)
                         ar >> byteQuantity;
                         quint64 p;
                         ar >> p;
-                        _simulationTimeToPause=float(p)/1000000.0f;
+                        _simulationTimeToPause=float(p)/1000000.0;
                     }
                     if (theName.compare("Pa3")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _simulationTimeToPause=(floatDouble)bla;
+                    }
+                    if (theName.compare("_a3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _simulationTimeToPause;
+                        ar.dbl() >> _simulationTimeToPause;
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -1119,7 +1154,7 @@ void CSimulation::serialize(CSer& ar)
             {
                 if ( (oldDefautParamsIndex>=0)&&(oldDefautParamsIndex<5) )
                 {
-                    const float SIMULATION_DEFAULT_TIME_STEP_OLD[5]={0.2f,0.1f,0.05f,0.025f,0.01f};
+                    const floatDouble SIMULATION_DEFAULT_TIME_STEP_OLD[5]={0.2,0.1,0.05,0.025,0.01};
                     _simulationTimeStep=SIMULATION_DEFAULT_TIME_STEP_OLD[oldDefautParamsIndex];
                 }
             }
@@ -1172,7 +1207,7 @@ void CSimulation::serialize(CSer& ar)
             { // for backward compatibility (05.09.2022)
                 quint64 step;
                 ar.xmlGetNode_ulonglong("simulationTimeStep_ns",step);
-                _simulationTimeStep=float(step)/1000000.0f;
+                _simulationTimeStep=floatDouble(step)/1000000.0;
             }
             ar.xmlGetNode_float("simulationTimeStep",_simulationTimeStep,exhaustiveXml);
             if (ar.xmlGetNode_float("simTimeStep",_simulationTimeStep,exhaustiveXml))
@@ -1190,7 +1225,7 @@ void CSimulation::serialize(CSer& ar)
             { // for backward compatibility (05.09.2022)
                 quint64 p;
                 ar.xmlGetNode_ulonglong("simulationTimeToPause_ns",p);
-                _simulationTimeToPause=float(p)/1000000.0f;
+                _simulationTimeToPause=floatDouble(p)/1000000.0;
             }
             ar.xmlGetNode_float("simulationTimeToPause",_simulationTimeToPause,exhaustiveXml);
 
@@ -1209,7 +1244,7 @@ void CSimulation::serialize(CSer& ar)
             {
                 if ( (oldDefautParamsIndex>=0)&&(oldDefautParamsIndex<5) )
                 {
-                    const float SIMULATION_DEFAULT_TIME_STEP_OLD[5]={0.2f,0.1f,0.05f,0.025f,0.01f};
+                    const floatDouble SIMULATION_DEFAULT_TIME_STEP_OLD[5]={0.2,0.1,0.05,0.025,0.01};
                     _simulationTimeStep=SIMULATION_DEFAULT_TIME_STEP_OLD[oldDefautParamsIndex];
                 }
             }

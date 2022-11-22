@@ -24,7 +24,7 @@ void CSimplePathPoint_old::commonInit()
         _auxChannels[i]=0.0f;
 }
 
-void CSimplePathPoint_old::setBezierFactors(float fBefore,float fAfter)
+void CSimplePathPoint_old::setBezierFactors(floatDouble fBefore,floatDouble fAfter)
 { // 0.99f is so that we don't have dedoubled bezier points!
     tt::limitValue(0.1f,0.99f,fBefore);
     tt::limitValue(0.1f,0.99f,fAfter);
@@ -32,7 +32,7 @@ void CSimplePathPoint_old::setBezierFactors(float fBefore,float fAfter)
     _bezierFactorAfter=fAfter;
 }
 
-void CSimplePathPoint_old::getBezierFactors(float& fBefore,float& fAfter)
+void CSimplePathPoint_old::getBezierFactors(floatDouble& fBefore,floatDouble& fAfter)
 {
     fBefore=_bezierFactorBefore;
     fAfter=_bezierFactorAfter;
@@ -51,12 +51,12 @@ int CSimplePathPoint_old::getBezierPointCount()
     return(_bezierPointCount);
 }
 
-void CSimplePathPoint_old::scaleYourself(float scalingFactor)
+void CSimplePathPoint_old::scaleYourself(floatDouble scalingFactor)
 {
     _transformation.X=_transformation.X*scalingFactor;
 }
 
-void CSimplePathPoint_old::scaleYourselfNonIsometrically(float x,float y,float z)
+void CSimplePathPoint_old::scaleYourselfNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
     _transformation.X(0)=_transformation.X(0)*x;
     _transformation.X(1)=_transformation.X(1)*y;
@@ -85,23 +85,54 @@ void CSimplePathPoint_old::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {       // Storing
+#ifdef TMPOPERATION
             ar.storeDataName("At2");
-            ar << _transformation(0) << _transformation(1) << _transformation(2) << _transformation(3);
-            ar << _transformation(4) << _transformation(5) << _transformation(6);
-            ar << _bezierFactorBefore << _bezierFactorAfter << _bezierPointCount << _maxRelAbsVelocity;
+            ar.flt() << (floatFloat)_transformation(0) << (floatFloat)_transformation(1) << (floatFloat)_transformation(2) << (floatFloat)_transformation(3);
+            ar.flt() << (floatFloat)_transformation(4) << (floatFloat)_transformation(5) << (floatFloat)_transformation(6);
+            ar.flt() << (floatFloat)_bezierFactorBefore << (floatFloat)_bezierFactorAfter;
+            ar << _bezierPointCount;
+            ar.flt() << (floatFloat)_maxRelAbsVelocity;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_t2");
+            ar.dbl() << _transformation(0) << _transformation(1) << _transformation(2) << _transformation(3);
+            ar.dbl() << _transformation(4) << _transformation(5) << _transformation(6);
+            ar.dbl() << _bezierFactorBefore << _bezierFactorAfter;
+            ar << _bezierPointCount;
+            ar.dbl() << _maxRelAbsVelocity;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("At3");
-            ar << _onSpotDistance;
+            ar.flt() << (floatFloat)_onSpotDistance;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_t3");
+            ar.dbl() << _onSpotDistance;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("At4");
             ar << _auxFlags;
-            ar << _auxChannels[0];
-            ar << _auxChannels[1];
-            ar << _auxChannels[2];
-            ar << _auxChannels[3];
+            ar.flt() << (floatFloat)_auxChannels[0];
+            ar.flt() << (floatFloat)_auxChannels[1];
+            ar.flt() << (floatFloat)_auxChannels[2];
+            ar.flt() << (floatFloat)_auxChannels[3];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_t4");
+            ar << _auxFlags;
+            ar.dbl() << _auxChannels[0];
+            ar.dbl() << _auxChannels[1];
+            ar.dbl() << _auxChannels[2];
+            ar.dbl() << _auxChannels[3];
+            ar.flush();
+#endif
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -116,28 +147,64 @@ void CSimplePathPoint_old::serialize(CSer& ar)
                 {
                     bool noHit=true;
                     if (theName.compare("At2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla[7];
+                        ar.flt() >> bla[0] >> bla[1] >> bla[2] >> bla[3];
+                        ar.flt() >> bla[4] >> bla[5] >> bla[6];
+                        for (size_t i=0;i<7;i++)
+                            _transformation(i)=(floatDouble)bla[i];
+                        ar.flt() >> bla[0] >> bla[1];
+                        _bezierFactorBefore=(floatDouble)bla[0];
+                        _bezierFactorAfter=(floatDouble)bla[1];
+                        ar >> _bezierPointCount;
+                        ar.flt() >> bla[0];
+                        _maxRelAbsVelocity=(floatDouble)bla[0];
+                    }
+                    if (theName.compare("_t2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _transformation(0) >> _transformation(1) >> _transformation(2) >> _transformation(3);
-                        ar >> _transformation(4) >> _transformation(5) >> _transformation(6);
-                        ar >> _bezierFactorBefore >> _bezierFactorAfter >> _bezierPointCount >> _maxRelAbsVelocity;
+                        ar.dbl() >> _transformation(0) >> _transformation(1) >> _transformation(2) >> _transformation(3);
+                        ar.dbl() >> _transformation(4) >> _transformation(5) >> _transformation(6);
+                        ar.dbl() >> _bezierFactorBefore >> _bezierFactorAfter;
+                        ar >> _bezierPointCount;
+                        ar.dbl() >> _maxRelAbsVelocity;
                     }
                     if (theName.compare("At3")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _onSpotDistance=(floatDouble)bla;
+                    }
+                    if (theName.compare("_t3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _onSpotDistance;
+                        ar.dbl() >> _onSpotDistance;
                     }
                     if (theName.compare("At4")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _auxFlags;
+                        floatFloat bla;
+                        for (size_t i=0;i<4;i++)
+                        {
+                            ar.flt() >> bla;
+                            _auxChannels[i]=(floatDouble)bla;
+                        }
+                    }
+                    if (theName.compare("_t4")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _auxFlags;
-                        ar >> _auxChannels[0];
-                        ar >> _auxChannels[1];
-                        ar >> _auxChannels[2];
-                        ar >> _auxChannels[3];
+                        for (size_t i=0;i<4;i++)
+                            ar.dbl() >> _auxChannels[i];
                     }
 
                     if (noHit)

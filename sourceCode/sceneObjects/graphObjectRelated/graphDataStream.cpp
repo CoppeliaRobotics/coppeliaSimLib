@@ -9,7 +9,7 @@ CGraphDataStream::CGraphDataStream()
     _scriptHandle=-1;
 }
 
-CGraphDataStream::CGraphDataStream(const char* streamName,const char* unitStr,int options,const float* color,float cyclicRange,int scriptHandle)
+CGraphDataStream::CGraphDataStream(const char* streamName,const char* unitStr,int options,const floatDouble* color,floatDouble cyclicRange,int scriptHandle)
 {
     _streamName=streamName;
     setBasics(unitStr,options,color,cyclicRange,scriptHandle);
@@ -21,7 +21,7 @@ CGraphDataStream::~CGraphDataStream()
 {
 }
 
-void CGraphDataStream::setBasics(const char* unitStr,int options,const float* color,float cyclicRange,int scriptHandle)
+void CGraphDataStream::setBasics(const char* unitStr,int options,const floatDouble* color,floatDouble cyclicRange,int scriptHandle)
 {
     _unitStr.clear();
     if (unitStr!=nullptr)
@@ -46,7 +46,7 @@ void CGraphDataStream::setBasics(const char* unitStr,int options,const float* co
     }
 }
 
-bool CGraphDataStream::setTransformation(int trType,float mult,float off,int movAvgPeriod)
+bool CGraphDataStream::setTransformation(int trType,floatDouble mult,floatDouble off,int movAvgPeriod)
 {
     bool retVal=(_transformationType!=trType);
     retVal=retVal||(_transformationMult!=mult);
@@ -117,12 +117,12 @@ bool CGraphDataStream::getIsStatic() const
     return(_static);
 }
 
-float CGraphDataStream::getCyclicRange() const
+floatDouble CGraphDataStream::getCyclicRange() const
 {
     return(_cyclicRange);
 }
 
-const float* CGraphDataStream::getColorPtr() const
+const floatDouble* CGraphDataStream::getColorPtr() const
 {
     return(_color);
 }
@@ -132,7 +132,7 @@ int CGraphDataStream::getScriptHandle() const
     return(_scriptHandle);
 }
 
-void CGraphDataStream::setNextValueToInsert(float v)
+void CGraphDataStream::setNextValueToInsert(floatDouble v)
 {
     if (!_static)
     {
@@ -141,7 +141,7 @@ void CGraphDataStream::setNextValueToInsert(float v)
     }
 }
 
-void CGraphDataStream::insertNextValue(int absIndex,bool firstValue,const std::vector<float>& times)
+void CGraphDataStream::insertNextValue(int absIndex,bool firstValue,const std::vector<floatDouble>& times)
 {
     if (!_static)
     {
@@ -180,7 +180,7 @@ void CGraphDataStream::insertNextValue(int absIndex,bool firstValue,const std::v
                     prevIndex=_values.size()-1;
                 else
                     prevIndex=absIndex-1;
-                float dt=(times[absIndex]-times[prevIndex]);
+                floatDouble dt=(times[absIndex]-times[prevIndex]);
                 if (_transformationType==sim_stream_transf_raw)
                 {
                     _transformedValues[absIndex]=_values[absIndex];
@@ -259,11 +259,11 @@ void CGraphDataStream::insertNextValue(int absIndex,bool firstValue,const std::v
     _nextValueToInsertIsValid=false;
 }
 
-bool CGraphDataStream::getTransformedValue(int startPt,int pos,float& retVal) const
+bool CGraphDataStream::getTransformedValue(int startPt,int pos,floatDouble& retVal) const
 {
     if (_static)
         return(false);
-    float cumulativeValue=0.0f;
+    floatDouble cumulativeValue=0.0f;
     int cumulativeValueCount=0;
     for (int i=0;i<_movingAveragePeriod;i++)
     {
@@ -284,11 +284,11 @@ bool CGraphDataStream::getTransformedValue(int startPt,int pos,float& retVal) co
         }
     }
     if (cumulativeValueCount>0)
-        retVal=cumulativeValue/float(cumulativeValueCount);
+        retVal=cumulativeValue/floatDouble(cumulativeValueCount);
     return(cumulativeValueCount>0);
 }
 
-bool CGraphDataStream::getCurveData(bool staticCurve,int* index,int startPt,int ptCnt,const std::vector<float>& times,std::string* label,std::vector<float>& xVals,std::vector<float>& yVals,int* curveType,float col[3],float minMax[6]) const
+bool CGraphDataStream::getCurveData(bool staticCurve,int* index,int startPt,int ptCnt,const std::vector<floatDouble>& times,std::string* label,std::vector<floatDouble>& xVals,std::vector<floatDouble>& yVals,int* curveType,floatDouble col[3],floatDouble minMax[6]) const
 {
     if (_visible&&(staticCurve==_static))
     {
@@ -323,10 +323,10 @@ bool CGraphDataStream::getCurveData(bool staticCurve,int* index,int startPt,int 
                     int absIndex=startPt+cnt;
                     if (absIndex>=int(_values.size())) // i.e. bufferSize
                         absIndex-=int(_values.size());
-                    float yVal;
+                    floatDouble yVal;
                     if (getTransformedValue(startPt,absIndex,yVal))
                     {
-                        float xVal=times[absIndex];
+                        floatDouble xVal=times[absIndex];
                         xVals.push_back(xVal);
                         yVals.push_back(yVal);
                         if (minMax!=nullptr)
@@ -359,8 +359,8 @@ bool CGraphDataStream::getCurveData(bool staticCurve,int* index,int startPt,int 
                     curveType[0]+=2; // static
                 for (size_t i=0;i<_staticCurveValues.size()/2;i++)
                 {
-                    float xVal=_staticCurveValues[2*i+0];
-                    float yVal=_staticCurveValues[2*i+1];
+                    floatDouble xVal=_staticCurveValues[2*i+0];
+                    floatDouble yVal=_staticCurveValues[2*i+1];
                     xVals.push_back(xVal);
                     yVals.push_back(yVal);
                     if (minMax!=nullptr)
@@ -394,7 +394,7 @@ bool CGraphDataStream::getCurveData(bool staticCurve,int* index,int startPt,int 
     return(false);
 }
 
-bool CGraphDataStream::getExportValue(int startPt,int relPos,float* val,std::string* label) const
+bool CGraphDataStream::getExportValue(int startPt,int relPos,floatDouble* val,std::string* label) const
 { // only for non-static curves!
     if (label!=nullptr)
     {
@@ -413,13 +413,13 @@ bool CGraphDataStream::getExportValue(int startPt,int relPos,float* val,std::str
     return(true);
 }
 
-void CGraphDataStream::makeStatic(int startPt,int ptCnt,const std::vector<float>& times)
+void CGraphDataStream::makeStatic(int startPt,int ptCnt,const std::vector<floatDouble>& times)
 {
     if (!_static)
     {
-        std::vector<float> xVals;
-        std::vector<float> yVals;
-        std::vector<float> zVals;
+        std::vector<floatDouble> xVals;
+        std::vector<floatDouble> yVals;
+        std::vector<floatDouble> zVals;
         _staticCurveValues.clear();
         getCurveData(false,nullptr,startPt,ptCnt,times,nullptr,xVals,yVals,nullptr,nullptr,nullptr);
         for (size_t i=0;i<xVals.size();i++)
@@ -453,13 +453,33 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar << _scriptHandle;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Col");
-            ar << _color[0] << _color[1] << _color[2];
+            ar.flt() << (floatFloat)_color[0] << (floatFloat)_color[1] << (floatFloat)_color[2];
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_ol");
+            ar.dbl() << _color[0] << _color[1] << _color[2];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Var");
-            ar << _transformationType << _transformationMult << _transformationOff << _movingAveragePeriod << _cyclicRange;
+            ar << _transformationType;
+            ar.flt() << (floatFloat)_transformationMult << (floatFloat)_transformationOff;
+            ar << _movingAveragePeriod;
+            ar.flt() << (floatFloat)_cyclicRange;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_ar");
+            ar << _transformationType;
+            ar.dbl() << _transformationMult << _transformationOff;
+            ar << _movingAveragePeriod;
+            ar.dbl() << _cyclicRange;
+            ar.flush();
+#endif
 
             ar.storeDataName("Pa0");
             unsigned char nothing=0;
@@ -473,13 +493,14 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
 
             if (!_static)
             {
+#ifdef TMPOPERATION
                 ar.storeDataName("Pts");
                 for (int i=0;i<ptCnt;i++)
                 {
                     int absIndex=startPt+i;
                     if (absIndex>=bufferSize)
                         absIndex-=bufferSize;
-                    ar << _values[absIndex] << _transformedValues[absIndex] ;
+                    ar.flt() << (floatFloat)_values[absIndex] << (floatFloat)_transformedValues[absIndex] ;
                     if ((_valuesValidityFlags[absIndex/8]&(1<<(absIndex&7)))!=0)
                         ar << (unsigned char)1;
                     else
@@ -490,14 +511,43 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         ar << (unsigned char)0;
                 }
                 ar.flush();
+#endif
+#ifdef NEWOPERATION
+                ar.storeDataName("_ts");
+                for (int i=0;i<ptCnt;i++)
+                {
+                    int absIndex=startPt+i;
+                    if (absIndex>=bufferSize)
+                        absIndex-=bufferSize;
+                    ar.dbl() << _values[absIndex] << _transformedValues[absIndex] ;
+                    if ((_valuesValidityFlags[absIndex/8]&(1<<(absIndex&7)))!=0)
+                        ar << (unsigned char)1;
+                    else
+                        ar << (unsigned char)0;
+                    if ((_transformedValuesValidityFlags[absIndex/8]&(1<<(absIndex&7)))!=0)
+                        ar << (unsigned char)1;
+                    else
+                        ar << (unsigned char)0;
+                }
+                ar.flush();
+#endif
             }
             else
             {
+#ifdef TMPOPERATION
                 ar.storeDataName("Sps");
                 ar << int(_staticCurveValues.size());
                 for (size_t i=0;i<_staticCurveValues.size();i++)
-                    ar << _staticCurveValues[i];
+                    ar.flt() << (floatFloat)_staticCurveValues[i];
                 ar.flush();
+#endif
+#ifdef NEWOPERATION
+                ar.storeDataName("_ps");
+                ar << int(_staticCurveValues.size());
+                for (size_t i=0;i<_staticCurveValues.size();i++)
+                    ar.dbl() << _staticCurveValues[i];
+                ar.flush();
+#endif
             }
 
             ar.storeDataName(SER_END_OF_OBJECT);
@@ -531,17 +581,44 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         ar >> _scriptHandle;
                     }
                     if (theName.compare("Col")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        _color[0]=(floatDouble)bla;
+                        _color[1]=(floatDouble)bli;
+                        _color[2]=(floatDouble)blo;
+                    }
+                    if (theName.compare("_ol")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _color[0] >> _color[1] >> _color[2];
+                        ar.dbl() >> _color[0] >> _color[1] >> _color[2];
                     }
                     if (theName.compare("Var")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        float dummy;
+                        ar >> byteQuantity;
+                        ar >> _transformationType;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        _transformationMult=(floatDouble)bla;
+                        _transformationOff=(floatDouble)bli;
+                        ar >> _movingAveragePeriod;
+                        ar.flt() >> bla;
+                        _cyclicRange=(floatDouble)bla;;
+                    }
+                    if (theName.compare("_ar")==0)
                     {
                         noHit=false;
                         float dummy;
                         ar >> byteQuantity;
-                        ar >> _transformationType >> _transformationMult >> _transformationOff >> _movingAveragePeriod >> _cyclicRange;
+                        ar >> _transformationType;
+                        ar.dbl() >> _transformationMult >> _transformationOff;
+                        ar >> _movingAveragePeriod;
+                        ar.dbl() >> _cyclicRange;
                     }
                     if (theName=="Pa0")
                     {
@@ -556,6 +633,29 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         _static=SIM_IS_BIT_SET(nothing,4);
                     }
                     if (theName.compare("Pts")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        _values.resize(bufferSize,0.0);
+                        _transformedValues.resize(bufferSize,0.0);
+                        _valuesValidityFlags.resize(1+bufferSize/8,0);
+                        _transformedValuesValidityFlags.resize(1+bufferSize/8,0);
+                        for (int i=0;i<ptCnt;i++)
+                        {
+                            floatFloat bla,bli;
+                            ar.flt() >> bla >> bli;
+                            _values[i]=(floatDouble)bla;
+                            _transformedValues[i]=(floatDouble)bli;
+                            unsigned char b;
+                            ar >> b;
+                            if (b!=0)
+                                _valuesValidityFlags[i/8]|=(1<<(i&7));
+                            ar >> b;
+                            if (b!=0)
+                                _transformedValuesValidityFlags[i/8]|=(1<<(i&7));
+                        }
+                    }
+                    if (theName.compare("_ts")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
@@ -565,7 +665,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         _transformedValuesValidityFlags.resize(1+bufferSize/8,0);
                         for (int i=0;i<ptCnt;i++)
                         {
-                            ar >> _values[i] >> _transformedValues[i];
+                            ar.dbl() >> _values[i] >> _transformedValues[i];
                             unsigned char b;
                             ar >> b;
                             if (b!=0)
@@ -576,6 +676,20 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         }
                     }
                     if (theName.compare("Sps")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt;
+                        ar >> cnt;
+                        _staticCurveValues.resize(cnt);
+                        floatFloat bla;
+                        for (int i=0;i<cnt;i++)
+                        {
+                            ar.flt() >> bla;
+                            _staticCurveValues[i]=(floatDouble)bla;
+                        }
+                    }
+                    if (theName.compare("_ps")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
@@ -583,7 +697,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         ar >> cnt;
                         _staticCurveValues.resize(cnt);
                         for (int i=0;i<cnt;i++)
-                            ar >> _staticCurveValues[i];
+                            ar.dbl() >> _staticCurveValues[i];
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -616,7 +730,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar.xmlAddNode_bool("static",_static);
             ar.xmlPopNode();
 
-            std::vector<float> tmp;
+            std::vector<floatDouble> tmp;
             if (!_static)
             {
                 for (int i=0;i<ptCnt;i++)

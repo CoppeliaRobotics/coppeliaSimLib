@@ -152,7 +152,7 @@ CLight::~CLight()
 {
 }
 
-void CLight::scaleObject(float scalingFactor)
+void CLight::scaleObject(floatDouble scalingFactor)
 {
     setLightSize(_lightSize*scalingFactor);
     linearAttenuation/=scalingFactor;
@@ -161,7 +161,7 @@ void CLight::scaleObject(float scalingFactor)
     std::string val;
     if (tt::getValueOfKey("fadeXDist@povray",_extensionString.c_str(),val))
     {
-        float f;
+        floatDouble f;
         if (tt::getValidFloat(val.c_str(),f))
         {
             f*=scalingFactor;
@@ -172,14 +172,14 @@ void CLight::scaleObject(float scalingFactor)
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void CLight::scaleObjectNonIsometrically(float x,float y,float z)
+void CLight::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
     scaleObject(cbrt(x*y*z));
 }
 
-void CLight::setLightSize(float size)
+void CLight::setLightSize(floatDouble size)
 {
-    tt::limitValue(0.001f,100.0f,size);
+    tt::limitValue(0.001,100.0,size);
     if (_lightSize!=size)
     {
         _lightSize=size;
@@ -194,14 +194,14 @@ void CLight::setLightSize(float size)
     }
 }
 
-float CLight::getLightSize() const
+floatDouble CLight::getLightSize() const
 {
     return(_lightSize);
 }
 
-float CLight::getAttenuationFactor(int type) const
+floatDouble CLight::getAttenuationFactor(int type) const
 {
-    float retVal=0.0;
+    floatDouble retVal=0.0;
     if (type==CONSTANT_ATTENUATION)
         retVal=constantAttenuation;
     if (type==LINEAR_ATTENUATION)
@@ -211,7 +211,7 @@ float CLight::getAttenuationFactor(int type) const
     return(retVal);
 }
 
-void CLight::setAttenuationFactor(int type,float value)
+void CLight::setAttenuationFactor(int type,floatDouble value)
 {
     if (type==CONSTANT_ATTENUATION)
         constantAttenuation=value;
@@ -244,12 +244,12 @@ int CLight::getSpotExponent() const
     return(_spotExponent);
 }
 
-void CLight::setSpotCutoffAngle(float co)
+void CLight::setSpotCutoffAngle(floatDouble co)
 {
-    _spotCutoffAngle=tt::getLimitedFloat(5.0f*degToRad,90.0f*degToRad,co);
+    _spotCutoffAngle=tt::getLimitedFloat(5.0*degToRad,90.0*degToRad,co);
 }
 
-float CLight::getSpotCutoffAngle() const
+floatDouble CLight::getSpotCutoffAngle() const
 {
     return(_spotCutoffAngle);
 }
@@ -275,7 +275,7 @@ void CLight::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 
     CInterfaceStackTable* colors=new CInterfaceStackTable();
     data->appendMapObject_stringObject("colors",colors);
-    float c[9];
+    floatDouble c[9];
     objectColor.getColor(c,sim_colorcomponent_ambient_diffuse);
     objectColor.getColor(c+3,sim_colorcomponent_specular);
     objectColor.getColor(c+6,sim_colorcomponent_emission);
@@ -427,17 +427,42 @@ void CLight::serialize(CSer& ar)
         if (ar.isStoring())
         { // Storing
 
+#ifdef TMPOPERATION
             ar.storeDataName("Cp2");
-            ar << _lightType << _spotExponent << _lightSize;
+            ar << _lightType;
+            ar << _spotExponent;
+            ar.flt() << (floatFloat)_lightSize;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_p2");
+            ar << _lightType;
+            ar << _spotExponent;
+            ar.dbl() << _lightSize;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Cp3");
-            ar << _spotCutoffAngle;
+            ar.flt() << (floatFloat)_spotCutoffAngle;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_p3");
+            ar.dbl() << _spotCutoffAngle;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Caf");
-            ar << constantAttenuation << linearAttenuation << quadraticAttenuation;
+            ar.flt() << (floatFloat)constantAttenuation << (floatFloat)linearAttenuation << (floatFloat)quadraticAttenuation;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_af");
+            ar.dbl() << constantAttenuation << linearAttenuation << quadraticAttenuation;
+            ar.flush();
+#endif
 
             ar.storeDataName("Cas");
             unsigned char nothing=0;
@@ -466,7 +491,7 @@ void CLight::serialize(CSer& ar)
             int byteQuantity;
             std::string theName="";
             bool povShadow_backwardCompatibility_3_2_2016=true;
-            float povFadeXDist_backwardCompatibility_3_2_2016=-1.0;
+            floatDouble povFadeXDist_backwardCompatibility_3_2_2016=-1.0;
             while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
                 theName=ar.readDataName();
@@ -474,28 +499,60 @@ void CLight::serialize(CSer& ar)
                 {
                     bool noHit=true;
                     if (theName.compare("Cp2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _lightType;
+                        ar >> _spotExponent;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _lightSize=(floatDouble)bla;
+                    }
+                    if (theName.compare("_p2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _lightType >> _spotExponent >> _lightSize;
+                        ar >> _lightType;
+                        ar >> _spotExponent;
+                        ar.dbl() >> _lightSize;
                     }
                     if (theName.compare("Cp3")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _spotCutoffAngle=(floatDouble)bla;
+                    }
+                    if (theName.compare("_p3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _spotCutoffAngle;
+                        ar.dbl() >> _spotCutoffAngle;
                     }
                     if (theName.compare("Caf")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla,bli,blo;
+                        ar.flt() >> bla >> bli >> blo;
+                        constantAttenuation=(floatDouble)bla;
+                        linearAttenuation=(floatDouble)bli;
+                        quadraticAttenuation=(floatDouble)blo;
+                    }
+                    if (theName.compare("_af")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> constantAttenuation >> linearAttenuation >> quadraticAttenuation;
+                        ar.dbl() >> constantAttenuation >> linearAttenuation >> quadraticAttenuation;
                     }
                     if (theName.compare("Pfd")==0)
                     { // keep for backward compatibility (3/2/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> povFadeXDist_backwardCompatibility_3_2_2016;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        povFadeXDist_backwardCompatibility_3_2_2016=(floatDouble)bla;
                     }
                     if (theName=="Cas")
                     {
@@ -569,7 +626,7 @@ void CLight::serialize(CSer& ar)
 
             ar.xmlAddNode_int("spotExponent",_spotExponent);
 
-            ar.xmlAddNode_float("cutoffAngle",_spotCutoffAngle*180.0f/piValue);
+            ar.xmlAddNode_float("cutoffAngle",_spotCutoffAngle*180.0/piValue);
 
             ar.xmlPushNewNode("attenuationFactors");
             ar.xmlAddNode_float("constant",constantAttenuation);
@@ -597,14 +654,14 @@ void CLight::serialize(CSer& ar)
             {
                 int rgb[3];
                 for (size_t l=0;l<3;l++)
-                    rgb[l]=int(objectColor.getColorsPtr()[l]*255.1f);
+                    rgb[l]=int(objectColor.getColorsPtr()[l]*255.1);
                 ar.xmlAddNode_ints("object",rgb,3);
                 ar.xmlPushNewNode("light");
                 for (size_t l=0;l<3;l++)
-                    rgb[l]=int(lightColor.getColorsPtr()[3+l]*255.1f);
+                    rgb[l]=int(lightColor.getColorsPtr()[3+l]*255.1);
                 ar.xmlAddNode_ints("ambientDiffuse",rgb,3);
                 for (size_t l=0;l<3;l++)
-                    rgb[l]=int(lightColor.getColorsPtr()[6+l]*255.1f);
+                    rgb[l]=int(lightColor.getColorsPtr()[6+l]*255.1);
                 ar.xmlAddNode_ints("specular",rgb,3);
                 ar.xmlPopNode();
             }
@@ -661,13 +718,13 @@ void CLight::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("object",rgb,3,exhaustiveXml))
-                        objectColor.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_ambient_diffuse);
+                        objectColor.setColor(floatDouble(rgb[0])/255.0,floatDouble(rgb[1])/255.0,floatDouble(rgb[2])/255.0,sim_colorcomponent_ambient_diffuse);
                     if (ar.xmlPushChildNode("light",exhaustiveXml))
                     {
                         if (ar.xmlGetNode_ints("ambientDiffuse",rgb,3,exhaustiveXml))
-                            lightColor.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_diffuse);
+                            lightColor.setColor(floatDouble(rgb[0])/255.0,floatDouble(rgb[1])/255.0,floatDouble(rgb[2])/255.0,sim_colorcomponent_diffuse);
                         if (ar.xmlGetNode_ints("specular",rgb,3,exhaustiveXml))
-                            lightColor.setColor(float(rgb[0])/255.0f,float(rgb[1])/255.0f,float(rgb[2])/255.0f,sim_colorcomponent_specular);
+                            lightColor.setColor(floatDouble(rgb[0])/255.0,floatDouble(rgb[1])/255.0,floatDouble(rgb[2])/255.0,sim_colorcomponent_specular);
                         ar.xmlPopNode();
                     }
                 }

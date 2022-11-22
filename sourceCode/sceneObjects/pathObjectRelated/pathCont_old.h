@@ -41,8 +41,8 @@ public:
     // Visual aspect:
     void setLineSize(int size);
     int getLineSize();
-    void setSquareSize(float size);
-    float getSquareSize();
+    void setSquareSize(floatDouble size);
+    floatDouble getSquareSize();
 
     void setPosition(double p);
     double getPosition();
@@ -51,49 +51,49 @@ public:
     double getPosition_angularComponentOnly();
 
 
-    void setNominalVelocity(float v);
-    float getNominalVelocity();
-    void setTargetNominalVelocity(float v);
-    float getTargetNominalVelocity();
-    void setAngleVarToDistanceCoeff(float f);               // Triggers an actualizePath call!
-    float getAngleVarToDistanceCoeff();
-    void setOnSpotDistanceToDistanceCoeff(float f);             // Triggers an actualizePath call!
-    float getOnSpotDistanceToDistanceCoeff();
+    void setNominalVelocity(floatDouble v);
+    floatDouble getNominalVelocity();
+    void setTargetNominalVelocity(floatDouble v);
+    floatDouble getTargetNominalVelocity();
+    void setAngleVarToDistanceCoeff(floatDouble f);               // Triggers an actualizePath call!
+    floatDouble getAngleVarToDistanceCoeff();
+    void setOnSpotDistanceToDistanceCoeff(floatDouble f);             // Triggers an actualizePath call!
+    floatDouble getOnSpotDistanceToDistanceCoeff();
 
-    void setMaxAcceleration(float maxAccel);
-    float getMaxAcceleration();
+    void setMaxAcceleration(floatDouble maxAccel);
+    floatDouble getMaxAcceleration();
 
 //****************************
 
-    void scaleObject(float scalingFactor);
-    void scaleObjectNonIsometrically(float x,float y,float z);
+    void scaleObject(floatDouble scalingFactor);
+    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
     void resetPath(CPath_old* it);
-    void handlePath(CPath_old* it,float deltaTime);
-    void handlePath_keepObjectUnchanged(float deltaTime,double& pos_,float& nomVel_,float& targetNomVel_,float maxAccel,bool invertVelocity,bool infiniteAccel); // so that the path can be handled by simFollowPath functions or such!
-    float getBezierVirtualPathLength();
-    float getBezierNormalPathLength();
-    float getBezierAngularPathLength();
+    void handlePath(CPath_old* it,floatDouble deltaTime);
+    void handlePath_keepObjectUnchanged(floatDouble deltaTime,double& pos_,floatDouble& nomVel_,floatDouble& targetNomVel_,floatDouble maxAccel,bool invertVelocity,bool infiniteAccel); // so that the path can be handled by simFollowPath functions or such!
+    floatDouble getBezierVirtualPathLength();
+    floatDouble getBezierNormalPathLength();
+    floatDouble getBezierAngularPathLength();
     bool getConfigurationOnBezierCurveClosestTo(C3Vector& pt,C7Vector& conf);
     
-    bool getPositionOnPathClosestTo(const C3Vector& pt,float& distOnPath);
+    bool getPositionOnPathClosestTo(const C3Vector& pt,floatDouble& distOnPath);
 
     unsigned short getPathModifID();
 
-    bool getPointOnBezierCurveAtNormalDistance(float& l,int& index0,float& t);
-    C7Vector _getInterpolatedBezierCurvePoint(int index0,float t);
-    void _getInterpolatedBezierCurveData(int index0,float t,int& auxFlags,float auxChannels[4]);
+    bool getPointOnBezierCurveAtNormalDistance(floatDouble& l,int& index0,floatDouble& t);
+    C7Vector _getInterpolatedBezierCurvePoint(int index0,floatDouble t);
+    void _getInterpolatedBezierCurveData(int index0,floatDouble t,int& auxFlags,floatDouble auxChannels[4]);
 
-    bool getTransformationOnBezierCurveAtNormalizedVirtualDistance(float l,C7Vector& tr);
-    bool getAuxDataOnBezierCurveAtNormalizedVirtualDistance(float l,int& auxFlags,float auxChannels[4]);
+    bool getTransformationOnBezierCurveAtNormalizedVirtualDistance(floatDouble l,C7Vector& tr);
+    bool getAuxDataOnBezierCurveAtNormalizedVirtualDistance(floatDouble l,int& auxFlags,floatDouble auxChannels[4]);
 
     bool invertSimplePathPointOrder(const std::vector<int>& selectedPoints);
 
-    void setAvpTurningCircleRadiusForHalfVelocity(float radius);
-    float getAvpTurningCircleRadiusForHalfVelocity();
-    void setAvpRelativeVelocityAtRotationAxisChange(float relVel);
-    float getAvpRelativeVelocityAtRotationAxisChange();
-    void setAvpRelativeAcceleration(float relAccel);
-    float getAvpRelativeAcceleration();
+    void setAvpTurningCircleRadiusForHalfVelocity(floatDouble radius);
+    floatDouble getAvpTurningCircleRadiusForHalfVelocity();
+    void setAvpRelativeVelocityAtRotationAxisChange(floatDouble relVel);
+    floatDouble getAvpRelativeVelocityAtRotationAxisChange();
+    void setAvpRelativeAcceleration(floatDouble relAccel);
+    floatDouble getAvpRelativeAcceleration();
 
     void setPathLengthCalculationMethod(int m);                             // Triggers an actualizePath()!
     int getPathLengthCalculationMethod();
@@ -102,26 +102,26 @@ public:
     CColorObject _lineColor;
 
 protected:
-    int _removeDoubleBezierPoints(float linTol,float angTol);               // Called from actualizePath()-routine
+    int _removeDoubleBezierPoints(floatDouble linTol,floatDouble angTol);               // Called from actualizePath()-routine
     void _computeAutomaticOrientation(const std::vector<CPathPoint_old*>& pc);  // Called from actualizePath()-routine
     void _recomputeBezierPathElementLengths();                              // Called from actualizePath()-routine
     void _recomputeBezierPathMaxVelocities();                               // Called from actualizePath()-routine
 
     bool _getNextBezierPathPointIndex(int currentIndex,int& nextIndex);
-    bool _getPointOnBezierCurveAtVirtualDistance(float& l,int& index0,float& t);
+    bool _getPointOnBezierCurveAtVirtualDistance(floatDouble& l,int& index0,floatDouble& t);
 
     bool _getBezierPointsForVirtualDistance(double& l,int& index0,int& index1,bool forwardDirection);
 
 
     void _handleAttachedDummies(CPath_old* it);
 
-    C3Vector _getPointOnBezierCubic(const C3Vector& ptBefore,const C3Vector& ptMiddle,const C3Vector& ptAfter,C3Vector& dir,float t);
-    C4Vector _getOrientationOnBezierCubic(const C4Vector& orBefore,const C4Vector& orMiddle,const C4Vector& orAfter,float t);
+    C3Vector _getPointOnBezierCubic(const C3Vector& ptBefore,const C3Vector& ptMiddle,const C3Vector& ptAfter,C3Vector& dir,floatDouble t);
+    C4Vector _getOrientationOnBezierCubic(const C4Vector& orBefore,const C4Vector& orMiddle,const C4Vector& orAfter,floatDouble t);
     void _getDistinctConsecutivePoints(const std::vector<CPathPoint_old*>& ptCont,std::vector<C4X4Matrix>& tr,std::vector<std::vector<int> >& ptIndices);
     void _applyDistinctConsecutivePoints(const std::vector<CPathPoint_old*>& ptCont,std::vector<C4X4Matrix>& tr,std::vector<std::vector<int> >& ptIndices);
     void _recomputeBezierPoints();
     void _removeAllBezierPathPoints();
-    CBezierPathPoint_old* _addBezierPathPoint(const C7Vector& transf,float maxRelAbsVelocity,float onSpotDistance,unsigned short auxFlags,const float auxChannels[4]);
+    CBezierPathPoint_old* _addBezierPathPoint(const C7Vector& transf,floatDouble maxRelAbsVelocity,floatDouble onSpotDistance,unsigned short auxFlags,const floatDouble auxChannels[4]);
 
     std::vector<CSimplePathPoint_old*> _simplePathPoints;
     std::vector<CBezierPathPoint_old*> _bezierPathPoints;
@@ -130,30 +130,30 @@ protected:
 
     // Variables needed for the reset procedure of the path. Do not serialize
     bool _initialValuesInitialized;
-    float _initialNominalVelocity;
-    float _initialPosition;
-    float _initialTargetNominalVelocity;
+    floatDouble _initialNominalVelocity;
+    floatDouble _initialPosition;
+    floatDouble _initialTargetNominalVelocity;
 
     // Path state and other:
-    double _position; // This one is double!!!!
-    float _nominalVelocity;
-    float _targetNominalVelocity;
+    double _position;
+    floatDouble _nominalVelocity;
+    floatDouble _targetNominalVelocity;
 
-    float _maxAcceleration;
+    floatDouble _maxAcceleration;
     int _pathLengthCalculationMethod;
 
     // Variables for the automatic velocity profile calculation:
-    float _avp_turningCircleRadiusForHalfVelocity;
-    float _avp_relativeVelocityAtRotationAxisChange;
-    float _avp_relativeAcceleration;
+    floatDouble _avp_turningCircleRadiusForHalfVelocity;
+    floatDouble _avp_relativeVelocityAtRotationAxisChange;
+    floatDouble _avp_relativeAcceleration;
 //***********************************
 
-    float _angleVarToDistanceCoeff;
-    float _onSpotDistanceToDistanceCoeff;
+    floatDouble _angleVarToDistanceCoeff;
+    floatDouble _onSpotDistanceToDistanceCoeff;
 
     int _attributes;
     int _lineSize;
-    float _squareSize;
+    floatDouble _squareSize;
 
 
     bool _actualizationEnabled;
@@ -168,6 +168,6 @@ public:
     void render(bool pathEditMode,int displayAttrib,bool pathIsOnlySelectedObject,int objectID);
 
 protected:
-    void _draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode,bool isPath,bool showLine,bool stripplePts,bool showSquare,bool showOrientation,int lineSize,float squareSize,bool pathIsOnlySelectedObject,int objectID);
+    void _draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode,bool isPath,bool showLine,bool stripplePts,bool showSquare,bool showOrientation,int lineSize,floatDouble squareSize,bool pathIsOnlySelectedObject,int objectID);
 #endif
 };

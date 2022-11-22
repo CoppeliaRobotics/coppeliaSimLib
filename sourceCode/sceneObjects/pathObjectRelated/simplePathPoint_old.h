@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "pathPoint_old.h"
@@ -13,17 +12,17 @@ public:
     void commonInit();
     void serialize(CSer& ar);
     CSimplePathPoint_old* copyYourself();
-    void scaleYourself(float scalingFactor);
-    void scaleYourselfNonIsometrically(float x,float y,float z);
+    void scaleYourself(floatDouble scalingFactor);
+    void scaleYourselfNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
 
-    void setBezierFactors(float fBefore,float fAfter);
-    void getBezierFactors(float& fBefore,float& fAfter);
+    void setBezierFactors(floatDouble fBefore,floatDouble fAfter);
+    void getBezierFactors(floatDouble& fBefore,floatDouble& fAfter);
     void setBezierPointCount(int c);
     int getBezierPointCount();
 
 protected:
 
-    float _bezierFactorBefore;
-    float _bezierFactorAfter;
+    floatDouble _bezierFactorBefore;
+    floatDouble _bezierFactorAfter;
     int _bezierPointCount;
 };

@@ -253,9 +253,16 @@ void CMill::serialize(CSer& ar)
             if (ar.setWritingMode())
                 convexVolume->serialize(ar);
 
+#ifdef TMPOPERATION
             ar.storeDataName("Sns");
-            ar << _size;
+            ar.flt() << (floatFloat)_size;
             ar.flush();
+#endif
+#ifdef NEWOPERATION
+            ar.storeDataName("_ns");
+            ar.dbl() << _size;
+            ar.flush();
+#endif
 
             ar.storeDataName("Pra");
             unsigned char nothing=0;
@@ -309,10 +316,18 @@ void CMill::serialize(CSer& ar)
                         convexVolume->serialize(ar);
                     }
                     if (theName.compare("Sns")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        ar.flt() >> bla;
+                        _size=(floatDouble)bla;
+                    }
+                    if (theName.compare("_ns")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _size;
+                        ar.dbl() >> _size;
                     }
                     if (theName.compare("Sox")==0)
                     {
@@ -447,7 +462,7 @@ void CMill::resetMill(bool exceptExplicitHandling)
     }
 }
 
-int CMill::handleMill(bool exceptExplicitHandling,float& milledSurface,float& milledVolume,bool justForInitialization)
+int CMill::handleMill(bool exceptExplicitHandling,floatDouble& milledSurface,floatDouble& milledVolume,bool justForInitialization)
 {
     if (exceptExplicitHandling&&getExplicitHandling())
         return(0); // We don't want to handle those
@@ -472,9 +487,9 @@ int CMill::handleMill(bool exceptExplicitHandling,float& milledSurface,float& mi
     return(_milledObjectCount);
 }
 
-float CMill::getCalculationTime() const
+floatDouble CMill::getCalculationTime() const
 {
-    return(float(_calcTimeInMs)*0.001f);
+    return(floatDouble(_calcTimeInMs)*0.001f);
 }
 
 bool CMill::getMillDataIsValid() const
@@ -489,17 +504,17 @@ CColorObject* CMill::getColor(bool getActiveColor)
     return(&passiveVolumeColor);
 }
 
-void CMill::setSize(float newSize)
+void CMill::setSize(floatDouble newSize)
 {
     tt::limitValue(0.0001f,10.0f,newSize);
     _size=newSize;
 }
-float CMill::getSize() const
+floatDouble CMill::getSize() const
 {
     return(_size);
 }
 
-bool CMill::getMilledSurface(float& surf) const
+bool CMill::getMilledSurface(floatDouble& surf) const
 {
     if (!_millDataValid)
         return(false);
@@ -507,7 +522,7 @@ bool CMill::getMilledSurface(float& surf) const
     return(true);
 }
 
-bool CMill::getMilledVolume(float& vol) const
+bool CMill::getMilledVolume(floatDouble& vol) const
 {
     if (!_millDataValid)
         return(false);
@@ -523,16 +538,16 @@ bool CMill::getMilledCount(int& milledCount) const
     return(true);
 }
 
-void CMill::scaleObject(float scalingFactor)
+void CMill::scaleObject(floatDouble scalingFactor)
 {
     _size*=scalingFactor;
     convexVolume->scaleVolume(scalingFactor);
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void CMill::scaleObjectNonIsometrically(float x,float y,float z)
+void CMill::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
 {
-    float xp,yp,zp;
+    floatDouble xp,yp,zp;
     convexVolume->scaleVolumeNonIsometrically(x,y,z,xp,yp,zp);
     _size*=cbrt(xp*yp*zp);
     CSceneObject::scaleObjectNonIsometrically(xp,yp,zp);

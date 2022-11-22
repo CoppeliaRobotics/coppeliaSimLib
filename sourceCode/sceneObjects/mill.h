@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "sceneObject.h"
@@ -17,8 +16,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(float scalingFactor);
-    void scaleObjectNonIsometrically(float x,float y,float z);
+    void scaleObject(floatDouble scalingFactor);
+    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -48,17 +47,17 @@ public:
     void setMillableObject(int objectID);
     int getMillableObject() const;
 
-    int handleMill(bool exceptExplicitHandling,float& milledSurface,float& milledVolume,bool justForInitialization);
+    int handleMill(bool exceptExplicitHandling,floatDouble& milledSurface,floatDouble& milledVolume,bool justForInitialization);
     void resetMill(bool exceptExplicitHandling);
 
     void commonInit();
-    bool getMilledSurface(float& surf) const;
-    bool getMilledVolume(float& vol) const;
+    bool getMilledSurface(floatDouble& surf) const;
+    bool getMilledVolume(floatDouble& vol) const;
     bool getMilledCount(int& milledCount) const;
 
 
-    void setSize(float newSize);
-    float getSize() const;
+    void setSize(floatDouble newSize);
+    floatDouble getSize() const;
 
 
     void setMillType(int theType);
@@ -67,7 +66,7 @@ public:
     void setExplicitHandling(bool setExplicit);
     bool getExplicitHandling() const;
 
-    float getCalculationTime() const;
+    floatDouble getCalculationTime() const;
     bool getMillDataIsValid() const;
 
     CColorObject* getColor(bool getActiveColor);
@@ -80,13 +79,13 @@ protected:
     // Variables which need to be serialized & copied
     CColorObject activeVolumeColor;
     CColorObject passiveVolumeColor;
-    float _size;
+    floatDouble _size;
     bool _explicitHandling;
     int _millType;
     int _millableObject; // scene object handle or collection handle
     bool _millDataValid;
-    float _milledSurface;
-    float _milledVolume;
+    floatDouble _milledSurface;
+    floatDouble _milledVolume;
     int _milledObjectCount;
     int _calcTimeInMs;
 
