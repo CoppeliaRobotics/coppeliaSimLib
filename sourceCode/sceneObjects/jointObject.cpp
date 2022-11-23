@@ -2281,7 +2281,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_screwPitch;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_sp");
             ar.dbl() << _screwPitch;
             ar.flush();
@@ -2293,7 +2293,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_sphericalTransf(2) << (floatFloat)_sphericalTransf(3);
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_st");
             ar.dbl() << _sphericalTransf(0) << _sphericalTransf(1);
             ar.dbl() << _sphericalTransf(2) << _sphericalTransf(3);
@@ -2330,7 +2330,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_posMin << (floatFloat)_posRange;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_mr");
             ar.dbl() << _posMin << _posRange;
             ar.flush();
@@ -2341,7 +2341,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_pos;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_rt");
             ar.dbl() << _pos;
             ar.flush();
@@ -2352,7 +2352,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_maxStepSize_old;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ss");
             ar.dbl() << _maxStepSize_old;
             ar.flush();
@@ -2363,7 +2363,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_length << (floatFloat)_diameter;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_rg");
             ar.dbl() << _length << _diameter;
             ar.flush();
@@ -2374,7 +2374,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_ikWeight_old;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_kw");
             ar.dbl() << _ikWeight_old;
             ar.flush();
@@ -2390,7 +2390,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_dependencyJointMult << (floatFloat)_dependencyJointOffset;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_dt");
             ar << _dependencyMasterJointHandle;
             ar.dbl() << _dependencyJointMult << _dependencyJointOffset;
@@ -2402,7 +2402,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_maxAcceleration_DEPRECATED << (floatFloat)_velocity_DEPRECATED;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_m3");
             ar.dbl() << _maxAcceleration_DEPRECATED << _velocity_DEPRECATED;
             ar.flush();
@@ -2413,7 +2413,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_targetVel << (floatFloat)_targetForce;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_mp");
             ar.dbl() << _targetVel << _targetForce;
             ar.flush();
@@ -2442,7 +2442,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_dynCtrl_kc[0] << (floatFloat)_dynCtrl_kc[1];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_pp");
             ar.dbl() << _dynCtrl_kc[0] << _dynCtrl_kc[1];
             ar.flush();
@@ -2453,7 +2453,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_targetPos;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_tp");
             ar.dbl() << _targetPos;
             ar.flush();
@@ -2480,7 +2480,7 @@ void CJoint::serialize(CSer& ar)
                 ar << _bulletIntParams[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_tN"); // Bullet params, keep this after "Bt1"
             ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
             for (size_t i=0;i<_bulletFloatParams.size();i++)
@@ -2499,7 +2499,7 @@ void CJoint::serialize(CSer& ar)
                 ar << _odeIntParams[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_dN"); // ODE params, keep this after "Od1"
             ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
             for (size_t i=0;i<_odeFloatParams.size();i++)
@@ -2518,7 +2518,7 @@ void CJoint::serialize(CSer& ar)
                 ar << _vortexIntParams[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_o2"); // vortex params:
             ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
             for (size_t i=0;i<_vortexFloatParams.size();i++)
@@ -2537,7 +2537,7 @@ void CJoint::serialize(CSer& ar)
                 ar << _newtonIntParams[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_w1"); // newton params:
             ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
             for (size_t i=0;i<_newtonFloatParams.size();i++)
@@ -2556,7 +2556,7 @@ void CJoint::serialize(CSer& ar)
                 ar << _mujocoIntParams[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_j3"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
             for (size_t i=0;i<_mujocoFloatParams.size();i++)
@@ -2571,7 +2571,7 @@ void CJoint::serialize(CSer& ar)
             ar.flt() << (floatFloat)_maxVelAccelJerk[0] << (floatFloat)_maxVelAccelJerk[1] << (floatFloat)_maxVelAccelJerk[2];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_uc");
             ar.dbl() << _maxVelAccelJerk[0] << _maxVelAccelJerk[1] << _maxVelAccelJerk[2];
             ar.flush();

@@ -955,7 +955,7 @@ void CSimulation::serialize(CSer& ar)
             ar.flt() << (floatFloat)_simulationTimeStep;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_t3");
             ar.dbl() << _simulationTimeStep;
             ar.flush();
@@ -1004,7 +1004,7 @@ void CSimulation::serialize(CSer& ar)
             ar.flt() << (floatFloat)_simulationTimeToPause;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_a3");
             ar.dbl() << _simulationTimeToPause;
             ar.flush();

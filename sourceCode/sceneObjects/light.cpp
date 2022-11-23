@@ -434,7 +434,7 @@ void CLight::serialize(CSer& ar)
             ar.flt() << (floatFloat)_lightSize;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_p2");
             ar << _lightType;
             ar << _spotExponent;
@@ -447,7 +447,7 @@ void CLight::serialize(CSer& ar)
             ar.flt() << (floatFloat)_spotCutoffAngle;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_p3");
             ar.dbl() << _spotCutoffAngle;
             ar.flush();
@@ -458,7 +458,7 @@ void CLight::serialize(CSer& ar)
             ar.flt() << (floatFloat)constantAttenuation << (floatFloat)linearAttenuation << (floatFloat)quadraticAttenuation;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_af");
             ar.dbl() << constantAttenuation << linearAttenuation << quadraticAttenuation;
             ar.flush();

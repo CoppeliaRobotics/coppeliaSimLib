@@ -2380,7 +2380,7 @@ void CVisionSensor::serialize(CSer& ar)
             ar.flt() << (floatFloat)_nearClippingPlane << (floatFloat)_farClippingPlane;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_cp");
             ar.dbl() << _orthoViewSize << _viewAngle;
             ar.dbl() << _nearClippingPlane << _farClippingPlane;
@@ -2400,7 +2400,7 @@ void CVisionSensor::serialize(CSer& ar)
             ar.flt() << (floatFloat)_defaultBufferValues[0] << (floatFloat)_defaultBufferValues[1] << (floatFloat)_defaultBufferValues[2];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_b2");
             ar.dbl() << _defaultBufferValues[0] << _defaultBufferValues[1] << _defaultBufferValues[2];
             ar.flush();
@@ -2411,7 +2411,7 @@ void CVisionSensor::serialize(CSer& ar)
             ar.flt() << (floatFloat)_visionSensorSize;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_i2");
             ar.dbl() << _visionSensorSize;
             ar.flush();

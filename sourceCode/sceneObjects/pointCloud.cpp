@@ -992,7 +992,7 @@ void CPointCloud::serialize(CSer& ar)
             ar << _pointSize;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_iz");
             ar.dbl() << _cellSize;
             ar << _pointSize;
@@ -1004,7 +1004,7 @@ void CPointCloud::serialize(CSer& ar)
             ar.flt() << (floatFloat)_removalDistanceTolerance;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ut");
             ar.dbl() << _removalDistanceTolerance;
             ar.flush();
@@ -1015,7 +1015,7 @@ void CPointCloud::serialize(CSer& ar)
             ar.flt() << (floatFloat)_insertionDistanceTolerance;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_dt");
             ar.dbl() << _insertionDistanceTolerance;
             ar.flush();
@@ -1030,7 +1030,7 @@ void CPointCloud::serialize(CSer& ar)
             ar.flt() << (floatFloat)_pointDisplayRatio;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_dr");
             ar.dbl() << _pointDisplayRatio;
             ar.flush();
@@ -1042,7 +1042,7 @@ void CPointCloud::serialize(CSer& ar)
             ar.flt() << (floatFloat)_buildResolution;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_cc");
             ar << _maxPointCountPerCell;
             ar.dbl() << _buildResolution;
@@ -1081,7 +1081,7 @@ void CPointCloud::serialize(CSer& ar)
                 }
                 ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
                 ar.storeDataName("_t2");
                 ar << int(_points.size()/3);
                 for (size_t i=0;i<_points.size()/3;i++)
@@ -1120,7 +1120,7 @@ void CPointCloud::serialize(CSer& ar)
                         ar.flush(false);
                     }
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
                     ar.storeDataName("_md");
                     ar.dbl() << _boundingBoxMin(0) << _boundingBoxMin(1) << _boundingBoxMin(2);
                     ar.dbl() << _boundingBoxMax(0) << _boundingBoxMax(1) << _boundingBoxMax(2);

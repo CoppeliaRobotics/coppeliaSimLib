@@ -457,7 +457,7 @@ void CGraphData_old::serialize(CSer& ar,void* it)
             ar.flt() << (floatFloat)ambientColor[0] << (floatFloat)ambientColor[1] << (floatFloat)ambientColor[2];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ol");
             ar.dbl() << ambientColor[0] << ambientColor[1] << ambientColor[2];
             ar.flush();
@@ -469,7 +469,7 @@ void CGraphData_old::serialize(CSer& ar,void* it)
             ar.flt() << (floatFloat)zoomFactor << dum << (floatFloat)addCoeff;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ar");
             ar.dbl() << zoomFactor << addCoeff;
             ar.flush();
@@ -501,7 +501,7 @@ void CGraphData_old::serialize(CSer& ar,void* it)
             }
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_t9"); // Should always come after nullValue
             for (int i=0;i<cg->getNumberOfPoints();i++)
             {
@@ -522,7 +522,7 @@ void CGraphData_old::serialize(CSer& ar,void* it)
             }
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_fd");
             for (int i=0;i<cg->getNumberOfPoints();i++)
             {

@@ -111,7 +111,7 @@ void CConvexVolume::serialize(CSer& ar)
             ar.flt() << (floatFloat)radius << (floatFloat)radiusFar << (floatFloat)angle;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_s3");
             ar.dbl() << offset << range << xSize << ySize << xSizeFar << ySizeFar;
             ar.dbl() << radius << radiusFar << angle;
@@ -123,7 +123,7 @@ void CConvexVolume::serialize(CSer& ar)
             ar.flt() << (floatFloat)insideAngleThing;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ia");
             ar.dbl() << insideAngleThing;
             ar.flush();
@@ -138,7 +138,7 @@ void CConvexVolume::serialize(CSer& ar)
             ar.flt() << (floatFloat)_smallestDistanceAllowed;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_tf");
             ar.dbl() << _smallestDistanceAllowed;
             ar.flush();
@@ -159,7 +159,7 @@ void CConvexVolume::serialize(CSer& ar)
                 ar.flt() << (floatFloat)planesInside[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_c0");
             ar << int(planesInside.size());
             for (int i=0;i<int(planesInside.size());i++)
@@ -174,7 +174,7 @@ void CConvexVolume::serialize(CSer& ar)
                 ar.flt() << (floatFloat)planesOutside[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_c1");
             ar << int(planesOutside.size());
             for (int i=0;i<int(planesOutside.size());i++)
@@ -189,7 +189,7 @@ void CConvexVolume::serialize(CSer& ar)
                 ar.flt() << (floatFloat)normalsInside[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_c2");
             ar << int(normalsInside.size());
             for (int i=0;i<int(normalsInside.size());i++)
@@ -204,7 +204,7 @@ void CConvexVolume::serialize(CSer& ar)
                 ar.flt() << (floatFloat)normalsOutside[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_c3");
             ar << int(normalsOutside.size());
             for (int i=0;i<int(normalsOutside.size());i++)
@@ -219,7 +219,7 @@ void CConvexVolume::serialize(CSer& ar)
                 ar.flt() << (floatFloat)volumeEdges[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_c4");
             ar << int(volumeEdges.size());
             for (int i=0;i<int(volumeEdges.size());i++)
@@ -234,7 +234,7 @@ void CConvexVolume::serialize(CSer& ar)
                 ar.flt() << (floatFloat)nonDetectingVolumeEdges[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_c5");
             ar << int(nonDetectingVolumeEdges.size());
             for (int i=0;i<int(nonDetectingVolumeEdges.size());i++)

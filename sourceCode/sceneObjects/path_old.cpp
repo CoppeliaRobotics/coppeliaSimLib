@@ -558,7 +558,7 @@ void CPath_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)_shapingScaling;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ss");
             ar.dbl() << _shapingScaling;
             ar.flush();
@@ -570,7 +570,7 @@ void CPath_old::serialize(CSer& ar)
             ar << _shapingType;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ha");
             ar.dbl() << _shapingElementMaxLength;
             ar << _shapingType;
@@ -590,7 +590,7 @@ void CPath_old::serialize(CSer& ar)
                 ar.flt() << (floatFloat)shapingCoordinates[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ec");
             ar << int(shapingCoordinates.size());
             for (int i=0;i<int(shapingCoordinates.size());i++)

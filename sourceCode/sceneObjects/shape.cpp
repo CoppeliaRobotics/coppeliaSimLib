@@ -1247,7 +1247,7 @@ void CShape::serialize(CSer& ar)
             ar.flt() << (floatFloat)_initialDynamicAngularVelocity(0) << (floatFloat)_initialDynamicAngularVelocity(1) << (floatFloat)_initialDynamicAngularVelocity(2);
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_dv");
             ar.dbl() << _initialDynamicLinearVelocity(0) << _initialDynamicLinearVelocity(1) << _initialDynamicLinearVelocity(2);
             ar.dbl() << _initialDynamicAngularVelocity(0) << _initialDynamicAngularVelocity(1) << _initialDynamicAngularVelocity(2);

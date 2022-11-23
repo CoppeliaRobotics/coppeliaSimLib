@@ -768,7 +768,7 @@ void COctree::serialize(CSer& ar)
             ar << _pointSize;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_iz");
             ar.dbl() << _cellSize;
             ar << _pointSize;
@@ -810,7 +810,7 @@ void COctree::serialize(CSer& ar)
                     }
                     ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
                     ar.storeDataName("_t2");
                     ar << int(_voxelPositions.size()/3);
                     for (size_t i=0;i<_voxelPositions.size()/3;i++)
@@ -847,7 +847,7 @@ void COctree::serialize(CSer& ar)
                         ar.flush(false);
                     }
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
                     ar.storeDataName("_m2");
                     ar.dbl() << _boundingBoxMin(0) << _boundingBoxMin(1) << _boundingBoxMin(2);
                     ar.dbl() << _boundingBoxMax(0) << _boundingBoxMax(1) << _boundingBoxMax(2);

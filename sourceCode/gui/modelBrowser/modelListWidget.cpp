@@ -46,7 +46,7 @@ void CModelListWidget::clearAll()
     clear();
 }
 
-void CModelListWidget::addThumbnail(CThumbnail* thumbN,const char* nameWithExtension,unsigned int creationTime,unsigned char modelOrFolder,bool validFileformat,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
+void CModelListWidget::addThumbnail(CThumbnail* thumbN,const char* nameWithExtension,unsigned int creationTime,unsigned char modelOrFolder,bool validFileformat,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,floatDouble* optionalModelNonDefaultTranslationStepSize)
 {
     SModelThumbnailInfo info;
     info.thumbnail=thumbN;
@@ -115,7 +115,7 @@ void CModelListWidget::_addThumbnailItemToList(int index)
     insertItem(index,item);
 }
 
-CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int& result,C7Vector& modelTr,C3Vector& modelBoundingBoxSize,float& modelNonDefaultTranslationStepSize)
+CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int& result,C7Vector& modelTr,C3Vector& modelBoundingBoxSize,floatDouble& modelNonDefaultTranslationStepSize)
 { // result: -1=model not recognized, 0=model has no thumbnail, 1=model has thumbnail
     result=-1;
     CThumbnail* retThumbnail=nullptr;
@@ -255,7 +255,7 @@ void CModelListWidget::setFolder(const char* folderPath)
                     int result;
                     C7Vector modelTr;
                     C3Vector modelBBs;
-                    float ndss;
+                    floatDouble ndss;
                     CThumbnail* thumbnail=loadModelThumbnail(nameAndPath.c_str(),result,modelTr,modelBBs,ndss);
                     if (thumbnail!=nullptr)
                         addThumbnail(thumbnail,allModelNames[i].c_str(),allModelCreationTimes[i],1,result>=0,&modelTr,&modelBBs,&ndss);
@@ -290,6 +290,7 @@ void CModelListWidget::serializePart1(CSer& ar)
         ar << _folderPath;
         ar.flush();
 
+#ifdef TMPOPERATION
         ar.storeDataName("Tn5");
         ar << int(_allThumbnailsInfo.size());
         for (size_t i=0;i<_allThumbnailsInfo.size();i++)
@@ -299,12 +300,30 @@ void CModelListWidget::serializePart1(CSer& ar)
             ar << _allThumbnailsInfo[i].modelOrFolder;
             ar << _allThumbnailsInfo[i].validFileFormat;
             for (int j=0;j<7;j++)
-                ar << _allThumbnailsInfo[i].modelTr(j);
+                ar.flt() << (floatFloat)_allThumbnailsInfo[i].modelTr(j);
             for (int j=0;j<3;j++)
-                ar << _allThumbnailsInfo[i].modelBoundingBoxSize(j);
-            ar << _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
+                ar.flt() << (floatFloat)_allThumbnailsInfo[i].modelBoundingBoxSize(j);
+            ar.flt() << (floatFloat)_allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
         }
         ar.flush();
+#endif
+#ifdef DOUBLESERIALIZATIONOPERATION
+        ar.storeDataName("_n5");
+        ar << int(_allThumbnailsInfo.size());
+        for (size_t i=0;i<_allThumbnailsInfo.size();i++)
+        {
+            ar << _allThumbnailsInfo[i].nameWithExtension;
+            ar << _allThumbnailsInfo[i].creationTime;
+            ar << _allThumbnailsInfo[i].modelOrFolder;
+            ar << _allThumbnailsInfo[i].validFileFormat;
+            for (int j=0;j<7;j++)
+                ar.dbl() << _allThumbnailsInfo[i].modelTr(j);
+            for (int j=0;j<3;j++)
+                ar.dbl() << _allThumbnailsInfo[i].modelBoundingBoxSize(j);
+            ar.dbl() << _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
+        }
+        ar.flush();
+#endif
 
         ar.storeDataName(SER_END_OF_OBJECT);
     }
@@ -374,6 +393,41 @@ void CModelListWidget::serializePart1(CSer& ar)
                     }
                 }
                 if (theName.compare("Tn5")==0)
+                { // for backward comp. (flt->dbl)
+                    noHit=false;
+                    ar >> byteQuantity;
+                    int thmbCnt;
+                    ar >> thmbCnt;
+                    _allThumbnailsInfo.resize(thmbCnt);
+                    for (int i=0;i<thmbCnt;i++)
+                    {
+                        std::string dum;
+                        ar >> dum;
+                        _allThumbnailsInfo[i].nameWithExtension=dum;
+                        unsigned int dum2;
+                        ar >> dum2;
+                        _allThumbnailsInfo[i].creationTime=dum2;
+                        unsigned char dum3;
+                        ar >> dum3;
+                        _allThumbnailsInfo[i].modelOrFolder=dum3;
+                        ar >> dum3;
+                        _allThumbnailsInfo[i].validFileFormat=dum3;
+                        floatFloat bla;
+                        for (int j=0;j<7;j++)
+                        {
+                            ar.flt() >> bla;
+                            _allThumbnailsInfo[i].modelTr(j)=(floatDouble)bla;
+                        }
+                        for (int j=0;j<3;j++)
+                        {
+                            ar.flt() >> bla;
+                            _allThumbnailsInfo[i].modelBoundingBoxSize(j)=(floatDouble)bla;
+                        }
+                        ar.flt() >> bla;
+                        _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize=(floatDouble)bla;
+                    }
+                }
+                if (theName.compare("_n5")==0)
                 {
                     noHit=false;
                     ar >> byteQuantity;
@@ -394,10 +448,10 @@ void CModelListWidget::serializePart1(CSer& ar)
                         ar >> dum3;
                         _allThumbnailsInfo[i].validFileFormat=dum3;
                         for (int j=0;j<7;j++)
-                            ar >> _allThumbnailsInfo[i].modelTr(j);
+                            ar.dbl() >> _allThumbnailsInfo[i].modelTr(j);
                         for (int j=0;j<3;j++)
-                            ar >> _allThumbnailsInfo[i].modelBoundingBoxSize(j);
-                        ar >> _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
+                            ar.dbl() >> _allThumbnailsInfo[i].modelBoundingBoxSize(j);
+                        ar.dbl() >> _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
                     }
                 }
                 if (noHit)

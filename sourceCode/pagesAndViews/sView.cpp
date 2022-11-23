@@ -1,4 +1,3 @@
-
 // This file requires some serious refactoring!
 
 #include "simInternal.h"
@@ -117,13 +116,13 @@ void CSView::setDefaultValues()
     _caughtElements=0;
 }
 
-void CSView::setCenterPosition(float pos[3])
+void CSView::setCenterPosition(floatDouble pos[3])
 {
     centerPosition[0]=pos[0];
     centerPosition[1]=pos[1];
     centerPosition[2]=pos[2];
 }
-void CSView::getCenterPosition(float pos[3]) const
+void CSView::getCenterPosition(floatDouble pos[3]) const
 {
     pos[0]=centerPosition[0];
     pos[1]=centerPosition[1];
@@ -332,25 +331,25 @@ bool CSView::getCanBeResized() const
     return(_canBeResized);
 }
 
-void CSView::setGraphPosition(float x,float y)
+void CSView::setGraphPosition(floatDouble x,floatDouble y)
 {
     graphPosition[0]=x;
     graphPosition[1]=y;
 }
 
-void CSView::getGraphPosition(float position[2]) const
+void CSView::getGraphPosition(floatDouble position[2]) const
 {
     position[0]=graphPosition[0];
     position[1]=graphPosition[1];
 }
 
-void CSView::setGraphSize(float x,float y)
+void CSView::setGraphSize(floatDouble x,floatDouble y)
 {
     graphSize[0]=x;
     graphSize[1]=y;
 }
 
-void CSView::getGraphSize(float size[2]) const
+void CSView::getGraphSize(floatDouble size[2]) const
 {
     size[0]=graphSize[0];
     size[1]=graphSize[1];
@@ -746,10 +745,18 @@ void CSView::serialize(CSer& ar)
             ar << linkedObjectID;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Gps");
-            ar << graphPosition[0] << graphPosition[1];
-            ar << graphSize[0] << graphSize[1];
+            ar.flt() << (floatFloat)graphPosition[0] << (floatFloat)graphPosition[1];
+            ar.flt() << (floatFloat)graphSize[0] << (floatFloat)graphSize[1];
             ar.flush();
+#endif
+#ifdef DOUBLESERIALIZATIONOPERATION
+            ar.storeDataName("_ps");
+            ar.dbl() << graphPosition[0] << graphPosition[1];
+            ar.dbl() << graphSize[0] << graphSize[1];
+            ar.flush();
+#endif
 
             ar.storeDataName("Rem");
             ar << _renderingMode;
@@ -803,8 +810,20 @@ void CSView::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> graphPosition[0] >> graphPosition[1];
-                        ar >> graphSize[0] >> graphSize[1];
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        graphPosition[0]=(floatDouble)bla;
+                        graphPosition[1]=(floatDouble)bli;
+                        ar.flt() >> bla >> bli;
+                        graphSize[0]=(floatDouble)bla;
+                        graphSize[1]=(floatDouble)bli;
+                    }
+                    if (theName.compare("_ps")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar.dbl() >> graphPosition[0] >> graphPosition[1];
+                        ar.dbl() >> graphSize[0] >> graphSize[1];
                     }
                     if (theName.compare("Rem")==0)
                     {
@@ -1004,11 +1023,11 @@ void CSView::clearCaughtElements(int keepMask)
     _caughtElements&=keepMask;
 }
 
-void CSView::setMousePositionDepth(float depth)
+void CSView::setMousePositionDepth(floatDouble depth)
 {
     mousePositionDepth=depth;
 }
-float CSView::getMousePositionDepth() const
+floatDouble CSView::getMousePositionDepth() const
 {
     return(mousePositionDepth);
 }
@@ -1034,7 +1053,7 @@ bool CSView::mouseWheel(int deltaZ,int x,int y)
     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
     if (it!=nullptr)
     {
-        deltaZ=int(float(deltaZ)*App::userSettings->mouseWheelZoomFactor*1.001f);
+        deltaZ=int(floatDouble(deltaZ)*App::userSettings->mouseWheelZoomFactor*1.001f);
         if (it->getObjectType()==sim_object_camera_type)
         {
             CSceneObject* cameraParentProxy=nullptr;
@@ -1042,7 +1061,7 @@ bool CSView::mouseWheel(int deltaZ,int x,int y)
                 cameraParentProxy=((CCamera*)it)->getParent();
             if (!perspectiveDisplay)
             {
-                ((CCamera*)it)->setOrthoViewSize(((CCamera*)it)->getOrthoViewSize()*(1.0f+float(deltaZ)/1920.0f));
+                ((CCamera*)it)->setOrthoViewSize(((CCamera*)it)->getOrthoViewSize()*(1.0f+floatDouble(deltaZ)/1920.0f));
                 if (cameraParentProxy!=nullptr)
                 { // We report the same camera opening to all cameras attached to cameraParentProxy
                     for (size_t i=0;i<cameraParentProxy->getChildCount();i++)
@@ -1063,10 +1082,10 @@ bool CSView::mouseWheel(int deltaZ,int x,int y)
                 int timeDiffInMs=VDateTime::getTimeDiffInMs(lastTime,ct);
                 if (timeDiffInMs<100)
                     timeDiffInMs=100;
-                float rl=float(deltaZ/120);
-                float vel=rl/timeDiffInMs;
-                static float previousRl=rl;
-                static float fact=1.0f;
+                floatDouble rl=floatDouble(deltaZ/120);
+                floatDouble vel=rl/timeDiffInMs;
+                static floatDouble previousRl=rl;
+                static floatDouble fact=1.0f;
                 if (previousRl*rl<0)
                     fact=1.0f;
                 fact+=fabs(vel)/0.02f;
@@ -1078,7 +1097,7 @@ bool CSView::mouseWheel(int deltaZ,int x,int y)
                 lastTime=ct;
                 C4X4Matrix local(((CCamera*)it)->getFullLocalTransformation().getMatrix());
                 C4X4Matrix localNew(local);
-                localNew.X-=localNew.M.axis[2]*0.01f*(((CCamera*)it)->getNearClippingPlane()/0.05f)*fact*float(deltaZ)/120.0f; // Added *(((CCamera*)it)->getNearClippingPlane()/0.05f) on 23/02/2011 to make smaller displacements when near clip. plane is closer
+                localNew.X-=localNew.M.axis[2]*0.01f*(((CCamera*)it)->getNearClippingPlane()/0.05f)*fact*floatDouble(deltaZ)/120.0f; // Added *(((CCamera*)it)->getNearClippingPlane()/0.05f) on 23/02/2011 to make smaller displacements when near clip. plane is closer
                 ((CCamera*)it)->shiftCameraInCameraManipulationMode(localNew.X);
                 if (cameraParentProxy!=nullptr)
                 { // We manipulate the parent object instead:
@@ -1091,8 +1110,8 @@ bool CSView::mouseWheel(int deltaZ,int x,int y)
         }
         if ( (it->getObjectType()==sim_object_graph_type)&&(!App::currentWorld->simulation->isSimulationRunning()) )
         {
-            float zoomFact=float(deltaZ/120)*0.1f;
-            float centerPos[2]={graphPosition[0]+graphSize[0]/2.0f,graphPosition[1]+graphSize[1]/2.0f};
+            floatDouble zoomFact=floatDouble(deltaZ/120)*0.1f;
+            floatDouble centerPos[2]={graphPosition[0]+graphSize[0]/2.0f,graphPosition[1]+graphSize[1]/2.0f};
             graphSize[0]=graphSize[0]*(1.0f+zoomFact);
             graphSize[1]=graphSize[1]*(1.0f+zoomFact);
             graphPosition[0]=centerPos[0]-graphSize[0]/2.0f;
@@ -1147,30 +1166,30 @@ void CSView::_handleClickRayIntersection_old(int x,int y,bool mouseDown)
 
     C7Vector tr;
     tr.X.clear();
-    float t[2]={(1.0f-float(x)/float(_viewSize[0]))-0.5f,(1.0f-float(y)/float(_viewSize[1]))-0.5f};
-    float ratio=(float)(_viewSize[0]/(float)_viewSize[1]);
+    floatDouble t[2]={(1.0f-floatDouble(x)/floatDouble(_viewSize[0]))-0.5f,(1.0f-floatDouble(y)/floatDouble(_viewSize[1]))-0.5f};
+    floatDouble ratio=(floatDouble)(_viewSize[0]/(floatDouble)_viewSize[1]);
     if (perspectiveDisplay)
     {
-        float va[2];
+        floatDouble va[2];
         if (ratio>1.0f)
         {
             va[0]=cam->getViewAngle();
-            va[1]=2.0f*(float)atan(tan(cam->getViewAngle()/2.0f)/ratio);
+            va[1]=2.0f*(floatDouble)atan(tan(cam->getViewAngle()/2.0f)/ratio);
         }
         else
         {
-            va[0]=2.0f*(float)atan(tan(cam->getViewAngle()/2.0f)*ratio);
+            va[0]=2.0f*(floatDouble)atan(tan(cam->getViewAngle()/2.0f)*ratio);
             va[1]=cam->getViewAngle();
         }
-        float a0=atan(2.0f*t[0]*tan(va[0]*0.5f));
-        float a1=atan(2.0f*t[1]*tan(va[1]*0.5f));
+        floatDouble a0=atan(2.0f*t[0]*tan(va[0]*0.5f));
+        floatDouble a1=atan(2.0f*t[1]*tan(va[1]*0.5f));
 
         C4Vector q(C3Vector(0.0f,0.0f,1.0f),C3Vector(tan(a0),-tan(a1),1.0f));
         tr.Q=q;
     }
     else
     {
-        float va[2];
+        floatDouble va[2];
         if (ratio>1.0f)
         {
             va[0]=cam->getOrthoViewSize();
@@ -1181,8 +1200,8 @@ void CSView::_handleClickRayIntersection_old(int x,int y,bool mouseDown)
             va[0]=cam->getOrthoViewSize()*ratio;
             va[1]=cam->getOrthoViewSize();
         }
-        float a0=va[0]*t[0];
-        float a1=va[1]*(-t[1]);
+        floatDouble a0=va[0]*t[0];
+        floatDouble a1=va[1]*(-t[1]);
         tr.X=C3Vector(a0,a1,0.0f);
     }
 
@@ -1303,30 +1322,30 @@ void CSView::mouseMove(int x,int y,bool passiveAndFocused)
             {
                 C4X4Matrix tr;
                 tr.setIdentity();
-                float t[2]={(1.0f-float(x)/float(_viewSize[0]))-0.5f,(1.0f-float(y)/float(_viewSize[1]))-0.5f};
-                float ratio=(float)(_viewSize[0]/(float)_viewSize[1]);
+                floatDouble t[2]={(1.0f-floatDouble(x)/floatDouble(_viewSize[0]))-0.5f,(1.0f-floatDouble(y)/floatDouble(_viewSize[1]))-0.5f};
+                floatDouble ratio=(floatDouble)(_viewSize[0]/(floatDouble)_viewSize[1]);
                 if (perspectiveDisplay)
                 {
-                    float va[2];
+                    floatDouble va[2];
                     if (ratio>1.0f)
                     {
                         va[0]=cam->getViewAngle();
-                        va[1]=2.0f*(float)atan(tan(cam->getViewAngle()/2.0f)/ratio);
+                        va[1]=2.0f*(floatDouble)atan(tan(cam->getViewAngle()/2.0f)/ratio);
                     }
                     else
                     {
-                        va[0]=2.0f*(float)atan(tan(cam->getViewAngle()/2.0f)*ratio);
+                        va[0]=2.0f*(floatDouble)atan(tan(cam->getViewAngle()/2.0f)*ratio);
                         va[1]=cam->getViewAngle();
                     }
-                    float a0=atan(2.0f*t[0]*tan(va[0]*0.5f));
-                    float a1=atan(2.0f*t[1]*tan(va[1]*0.5f));
+                    floatDouble a0=atan(2.0f*t[0]*tan(va[0]*0.5f));
+                    floatDouble a1=atan(2.0f*t[1]*tan(va[1]*0.5f));
 
                     C4Vector q(C3Vector(0.0f,0.0f,1.0f),C3Vector(tan(a0),-tan(a1),1.0f));
                     tr.M=q.getMatrix();
                 }
                 else
                 {
-                    float va[2];
+                    floatDouble va[2];
                     if (ratio>1.0f)
                     {
                         va[0]=cam->getOrthoViewSize();
@@ -1337,8 +1356,8 @@ void CSView::mouseMove(int x,int y,bool passiveAndFocused)
                         va[0]=cam->getOrthoViewSize()*ratio;
                         va[1]=cam->getOrthoViewSize();
                     }
-                    float a0=va[0]*t[0];
-                    float a1=va[1]*(-t[1]);
+                    floatDouble a0=va[0]*t[0];
+                    floatDouble a1=va[1]*(-t[1]);
                     tr.X=C3Vector(a0,a1,0.0f);
                 }
                 tr=cam->getFullCumulativeTransformation().getMatrix()*tr;
@@ -1373,21 +1392,21 @@ int CSView::modelDragMoveEvent(int x,int y,C3Vector* desiredModelPosition)
         bool viewIsPerspective=perspectiveDisplay;
 
 
-        float pos[2]={float(relPos[0]),float(relPos[1])};
-        float screenHalfSizes[2]={float(viewSize[0])/2.0f,float(viewSize[1])/2.0f};
-        float halfSizes[2];
-        float ratio=screenHalfSizes[0]/screenHalfSizes[1];
+        floatDouble pos[2]={floatDouble(relPos[0]),floatDouble(relPos[1])};
+        floatDouble screenHalfSizes[2]={floatDouble(viewSize[0])/2.0f,floatDouble(viewSize[1])/2.0f};
+        floatDouble halfSizes[2];
+        floatDouble ratio=screenHalfSizes[0]/screenHalfSizes[1];
         if (viewIsPerspective)
         {
             if (ratio>1.0f)
             {
-                float a=2.0f*(float)atan(tan(thecam->getViewAngle()/2.0f)/ratio);
+                floatDouble a=2.0f*(floatDouble)atan(tan(thecam->getViewAngle()/2.0f)/ratio);
                 halfSizes[0]=thecam->getViewAngle()/2.0f;
                 halfSizes[1]=a/2.0f;
             }
             else
             {
-                float a=2.0f*(float)atan(tan(thecam->getViewAngle()/2.0f)*ratio);
+                floatDouble a=2.0f*(floatDouble)atan(tan(thecam->getViewAngle()/2.0f)*ratio);
                 halfSizes[0]=a/2.0f;
                 halfSizes[1]=thecam->getViewAngle()/2.0f;
             }
@@ -1420,8 +1439,8 @@ int CSView::modelDragMoveEvent(int x,int y,C3Vector* desiredModelPosition)
         C4X4Matrix originalPlane(objAbs); // x-y plane
         C4X4Matrix plane(originalPlane);
         C3Vector p; // point on the plane
-        float d=-(plane.X*plane.M.axis[2]);
-        float screenP[2]={pos[0],pos[1]};
+        floatDouble d=-(plane.X*plane.M.axis[2]);
+        floatDouble screenP[2]={pos[0],pos[1]};
         C4X4Matrix cam(thecam->getCumulativeTransformation().getMatrix());
         bool singularityProblem=false;
 
@@ -1432,7 +1451,7 @@ int CSView::modelDragMoveEvent(int x,int y,C3Vector* desiredModelPosition)
                 singularityProblem=true;
             pp-=cam.M.axis[0]*halfSizes[0]*(screenP[0]/screenHalfSizes[0]);
             pp+=cam.M.axis[1]*halfSizes[1]*(screenP[1]/screenHalfSizes[1]);
-            float t=(-d-(plane.M.axis[2]*pp))/(cam.M.axis[2]*plane.M.axis[2]);
+            floatDouble t=(-d-(plane.M.axis[2]*pp))/(cam.M.axis[2]*plane.M.axis[2]);
             p=pp+cam.M.axis[2]*t;
         }
         else
@@ -1442,7 +1461,7 @@ int CSView::modelDragMoveEvent(int x,int y,C3Vector* desiredModelPosition)
             pp+=v;
             if (fabs(v*plane.M.axis[2])<0.005f)
                 singularityProblem=true;
-            float t=(-d-(plane.M.axis[2]*pp))/(v*plane.M.axis[2]);
+            floatDouble t=(-d-(plane.M.axis[2]*pp))/(v*plane.M.axis[2]);
             p=pp+v*t;
         }
         if (!singularityProblem)
@@ -1726,8 +1745,8 @@ void CSView::graphMotion()
         posDifference=posDifference-zoomTrigger;
     if ((selectionStatus!=SHIFTSELECTION)&&(selectionStatus!=CTRLSELECTION))
     {
-        float xShift=(mousePreviousRelativePosition[0]-mouseRelativePosition[0])*graphSize[0]/(float)_viewSize[0];
-        float yShift=(mousePreviousRelativePosition[1]-mouseRelativePosition[1])*graphSize[1]/(float)_viewSize[1];
+        floatDouble xShift=(mousePreviousRelativePosition[0]-mouseRelativePosition[0])*graphSize[0]/(floatDouble)_viewSize[0];
+        floatDouble yShift=(mousePreviousRelativePosition[1]-mouseRelativePosition[1])*graphSize[1]/(floatDouble)_viewSize[1];
         graphPosition[0]=graphPosition[0]+xShift;
         graphPosition[1]=graphPosition[1]+yShift;
         graph->validateViewValues(_viewSize,graphPosition,graphSize,graphIsTimeGraph,true,false,false);
@@ -1735,17 +1754,17 @@ void CSView::graphMotion()
 
     if (selectionStatus==SHIFTSELECTION)
     {
-        float x1=graphPosition[0]+((float)mouseDownRelativePosition[0]/(float)_viewSize[0])*graphSize[0];
-        float y1=graphPosition[1]+((float)mouseDownRelativePosition[1]/(float)_viewSize[1])*graphSize[1];
-        float x2=graphPosition[0]+((float)mouseRelativePosition[0]/(float)_viewSize[0])*graphSize[0];
-        float y2=graphPosition[1]+((float)mouseRelativePosition[1]/(float)_viewSize[1])*graphSize[1];
+        floatDouble x1=graphPosition[0]+((floatDouble)mouseDownRelativePosition[0]/(floatDouble)_viewSize[0])*graphSize[0];
+        floatDouble y1=graphPosition[1]+((floatDouble)mouseDownRelativePosition[1]/(floatDouble)_viewSize[1])*graphSize[1];
+        floatDouble x2=graphPosition[0]+((floatDouble)mouseRelativePosition[0]/(floatDouble)_viewSize[0])*graphSize[0];
+        floatDouble y2=graphPosition[1]+((floatDouble)mouseRelativePosition[1]/(floatDouble)_viewSize[1])*graphSize[1];
         tt::limitValue(graphPosition[0],graphPosition[0]+graphSize[0],x1);
         tt::limitValue(graphPosition[1],graphPosition[1]+graphSize[1],y1);
         tt::limitValue(graphPosition[0],graphPosition[0]+graphSize[0],x2);
         tt::limitValue(graphPosition[1],graphPosition[1]+graphSize[1],y2);
         if ((x1>x2)&&(y2>y1))
         { // Gradually zooming out
-            float centerPos[2]={graphPosition[0]+graphSize[0]/2.0f,graphPosition[1]+graphSize[1]/2.0f};
+            floatDouble centerPos[2]={graphPosition[0]+graphSize[0]/2.0f,graphPosition[1]+graphSize[1]/2.0f};
             graphSize[0]=graphSize[0]*(1.0f+0.00005f*posDifference);
             graphSize[1]=graphSize[1]*(1.0f+0.00005f*posDifference);
             graphPosition[0]=centerPos[0]-graphSize[0]/2.0f;
@@ -1754,7 +1773,7 @@ void CSView::graphMotion()
         }
         if ((x1>x2)&&(y2<y1))
         { // Gradually zooming in
-            float centerPos[2]={graphPosition[0]+graphSize[0]/2.0f,graphPosition[1]+graphSize[1]/2.0f};
+            floatDouble centerPos[2]={graphPosition[0]+graphSize[0]/2.0f,graphPosition[1]+graphSize[1]/2.0f};
             graphSize[0]=graphSize[0]*(1.0f-0.00005f*posDifference);
             graphSize[1]=graphSize[1]*(1.0f-0.00005f*posDifference);
             graphPosition[0]=centerPos[0]-graphSize[0]/2.0f;
@@ -1808,7 +1827,7 @@ void CSView::cameraAndObjectMotion()
     VPoint mouseDownPosition(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
     VPoint previousMousePosition(mousePreviousRelativePosition[0],mousePreviousRelativePosition[1]);
     int navigationMode=App::getMouseMode()&0x00ff;
-    float zoomSensitivity=0.000005f;
+    floatDouble zoomSensitivity=0.000005f;
 
     // Needed later...
     int yPosDifference=mouseDownPosition.y-mousePosition.y;
@@ -1851,8 +1870,8 @@ void CSView::cameraAndObjectMotion()
     if ( (navigationMode==sim_navigation_camerarotate)||
         (navigationMode==sim_navigation_objectrotate) )
     {
-        float aroundX=(previousMousePosition.y-mousePosition.y)*0.005f;
-        float aroundY=(previousMousePosition.x-mousePosition.x)*0.005f;
+        floatDouble aroundX=(previousMousePosition.y-mousePosition.y)*0.005f;
+        floatDouble aroundY=(previousMousePosition.x-mousePosition.x)*0.005f;
         C3Vector cp(centerPosition[0],centerPosition[1],centerPosition[2]);
         C7Vector cameraCTM=camera->getCumulativeTransformation();
         if ( (navigationMode==sim_navigation_camerarotate)&&(mousePositionDepth>0.0f) )
@@ -1886,7 +1905,7 @@ void CSView::cameraAndObjectMotion()
         }
         if (navigationMode==sim_navigation_objectrotate)
         {
-            float dX=-float(previousMousePosition.x-mousePosition.x)*degToRad;
+            floatDouble dX=-floatDouble(previousMousePosition.x-mousePosition.x)*degToRad;
 
             aroundX=-aroundX;
             aroundY=-aroundY;
@@ -1950,15 +1969,15 @@ void CSView::cameraAndObjectMotion()
     {
         C7Vector cameraLTM(camera->getLocalTransformation());
         C7Vector cameraCTM(camera->getCumulativeTransformation());
-        float ratio=(float)(activeWinSize.x/(float)activeWinSize.y);
-        float scaleFactor=2*mousePositionDepth*(float)tan((camera->getViewAngle()*180.0f/piValT2)
-            *degToRad)/(float)activeWinSize.y;
+        floatDouble ratio=(floatDouble)(activeWinSize.x/(floatDouble)activeWinSize.y);
+        floatDouble scaleFactor=2*mousePositionDepth*(floatDouble)tan((camera->getViewAngle()*180.0f/piValT2)
+            *degToRad)/(floatDouble)activeWinSize.y;
         if (!perspective)
-            scaleFactor=camera->getOrthoViewSize()/(float)activeWinSize.y;
+            scaleFactor=camera->getOrthoViewSize()/(floatDouble)activeWinSize.y;
         if (ratio>1.0f)
             scaleFactor=scaleFactor/ratio;
         int ct=(int)VDateTime::getTimeInMs();
-        float zoomFactor=(float)(yPosDifference*yPosDifference*zoomSensitivity)*(float(VDateTime::getTimeDiffInMs(mouseDownTimings))/50.0f);
+        floatDouble zoomFactor=(floatDouble)(yPosDifference*yPosDifference*zoomSensitivity)*(floatDouble(VDateTime::getTimeDiffInMs(mouseDownTimings))/50.0f);
         mouseDownTimings=ct;
         if (yPosDifference>0)
             zoomFactor=-zoomFactor;
@@ -1967,9 +1986,9 @@ void CSView::cameraAndObjectMotion()
         if (navigationMode==sim_navigation_camerazoom)
             scaleFactor=0.0f;
 
-        float deltaX=-(previousMousePosition.x-mousePosition.x)*scaleFactor;
-        float deltaY=(previousMousePosition.y-mousePosition.y)*scaleFactor;
-        float deltaZ=-zoomFactor;
+        floatDouble deltaX=-(previousMousePosition.x-mousePosition.x)*scaleFactor;
+        floatDouble deltaY=(previousMousePosition.y-mousePosition.y)*scaleFactor;
+        floatDouble deltaZ=-zoomFactor;
 
         C3Vector relativeTransl(cameraLTM.getAxis(0)*deltaX+cameraLTM.getAxis(1)*deltaY+cameraLTM.getAxis(2)*deltaZ);
         C3Vector absoluteTransl(cameraCTM.getAxis(0)*deltaX+cameraCTM.getAxis(1)*deltaY+cameraCTM.getAxis(2)*deltaZ);
@@ -2034,22 +2053,22 @@ void CSView::cameraAndObjectMotion()
                 {
                     bool shiftedMaster=false;
                     C7Vector oldTr(masterObj->getCumulativeTransformation());
-                    float prevPos[2]={float(previousMousePosition.x),float(previousMousePosition.y)};
-                    float pos[2]={float(mousePosition.x),float(mousePosition.y)};
-                    float screenHalfSizes[2]={float(activeWinSize.x)/2.0f,float(activeWinSize.y)/2.0f};
-                    float halfSizes[2];
-                    float ratio=screenHalfSizes[0]/screenHalfSizes[1];
+                    floatDouble prevPos[2]={floatDouble(previousMousePosition.x),floatDouble(previousMousePosition.y)};
+                    floatDouble pos[2]={floatDouble(mousePosition.x),floatDouble(mousePosition.y)};
+                    floatDouble screenHalfSizes[2]={floatDouble(activeWinSize.x)/2.0f,floatDouble(activeWinSize.y)/2.0f};
+                    floatDouble halfSizes[2];
+                    floatDouble ratio=screenHalfSizes[0]/screenHalfSizes[1];
                     if (perspective)
                     {
                         if (ratio>1.0f)
                         {
-                            float a=2.0f*(float)atan(tan(camera->getViewAngle()/2.0f)/ratio);
+                            floatDouble a=2.0f*(floatDouble)atan(tan(camera->getViewAngle()/2.0f)/ratio);
                             halfSizes[0]=camera->getViewAngle()/2.0f;
                             halfSizes[1]=a/2.0f;
                         }
                         else
                         {
-                            float a=2.0f*(float)atan(tan(camera->getViewAngle()/2.0f)*ratio);
+                            floatDouble a=2.0f*(floatDouble)atan(tan(camera->getViewAngle()/2.0f)*ratio);
                             halfSizes[0]=a/2.0f;
                             halfSizes[1]=camera->getViewAngle()/2.0f;
                         }
@@ -2121,22 +2140,22 @@ void CSView::cameraAndObjectMotion()
             }
             if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
             { // Path point shifting
-                float prevPos[2]={float(previousMousePosition.x),float(previousMousePosition.y)};
-                float pos[2]={float(mousePosition.x),float(mousePosition.y)};
-                float screenHalfSizes[2]={float(activeWinSize.x)/2.0f,float(activeWinSize.y)/2.0f};
-                float halfSizes[2];
-                float ratio=screenHalfSizes[0]/screenHalfSizes[1];
+                floatDouble prevPos[2]={floatDouble(previousMousePosition.x),floatDouble(previousMousePosition.y)};
+                floatDouble pos[2]={floatDouble(mousePosition.x),floatDouble(mousePosition.y)};
+                floatDouble screenHalfSizes[2]={floatDouble(activeWinSize.x)/2.0f,floatDouble(activeWinSize.y)/2.0f};
+                floatDouble halfSizes[2];
+                floatDouble ratio=screenHalfSizes[0]/screenHalfSizes[1];
                 if (perspective)
                 {
                     if (ratio>1.0f)
                     {
-                        float a=2.0f*(float)atan(tan(camera->getViewAngle()/2.0f)/ratio);
+                        floatDouble a=2.0f*(floatDouble)atan(tan(camera->getViewAngle()/2.0f)/ratio);
                         halfSizes[0]=camera->getViewAngle()/2.0f;
                         halfSizes[1]=a/2.0f;
                     }
                     else
                     {
-                        float a=2.0f*(float)atan(tan(camera->getViewAngle()/2.0f)*ratio);
+                        floatDouble a=2.0f*(floatDouble)atan(tan(camera->getViewAngle()/2.0f)*ratio);
                         halfSizes[0]=a/2.0f;
                         halfSizes[1]=camera->getViewAngle()/2.0f;
                     }
@@ -2181,10 +2200,10 @@ void CSView::cameraAndObjectMotion()
     // ****************************************************************************
     if (navigationMode==sim_navigation_cameraangle)
     {
-        float zoomFactor=(float)(previousMousePosition.y-mousePosition.y)*0.005f;
+        floatDouble zoomFactor=(floatDouble)(previousMousePosition.y-mousePosition.y)*0.005f;
         if (perspective)
         {
-            float newViewAngle=camera->getViewAngle()+zoomFactor;
+            floatDouble newViewAngle=camera->getViewAngle()+zoomFactor;
             tt::limitValue(10.0f*degToRad,135.0f*degToRad,newViewAngle); // with 90 degrees, objects disappear!! Really??? Changed to 135 on 2010/11/12
             camera->setViewAngle(newViewAngle);
             if (cameraParentProxy!=nullptr)

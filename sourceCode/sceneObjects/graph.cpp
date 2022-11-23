@@ -2024,7 +2024,7 @@ void CGraph::serialize(CSer& ar)
             ar.flt() << (floatFloat)_graphSize;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_hg");
             ar.dbl() << _graphSize;
             ar.flush();
@@ -2042,7 +2042,7 @@ void CGraph::serialize(CSer& ar)
             ar.flt() << (floatFloat)textColor[0] << (floatFloat)textColor[1] << (floatFloat)textColor[2];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_l1");
             ar.dbl() << backgroundColor[0] << backgroundColor[1] << backgroundColor[2];
             ar.dbl() << textColor[0] << textColor[1] << textColor[2];
@@ -2063,7 +2063,7 @@ void CGraph::serialize(CSer& ar)
             }
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_td"); // Should always come after bufferSize!!!
             for (int i=0;i<numberOfPoints;i++)
             {

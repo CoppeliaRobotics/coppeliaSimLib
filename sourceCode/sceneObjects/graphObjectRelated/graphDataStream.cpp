@@ -458,7 +458,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar.flt() << (floatFloat)_color[0] << (floatFloat)_color[1] << (floatFloat)_color[2];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ol");
             ar.dbl() << _color[0] << _color[1] << _color[2];
             ar.flush();
@@ -472,7 +472,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar.flt() << (floatFloat)_cyclicRange;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ar");
             ar << _transformationType;
             ar.dbl() << _transformationMult << _transformationOff;
@@ -512,7 +512,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                 }
                 ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
                 ar.storeDataName("_ts");
                 for (int i=0;i<ptCnt;i++)
                 {
@@ -541,7 +541,7 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                     ar.flt() << (floatFloat)_staticCurveValues[i];
                 ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
                 ar.storeDataName("_ps");
                 ar << int(_staticCurveValues.size());
                 for (size_t i=0;i<_staticCurveValues.size();i++)

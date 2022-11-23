@@ -1,4 +1,3 @@
-
 #include "simInternal.h"
 #include "textureProperty.h"
 #include "tt.h"
@@ -98,7 +97,7 @@ void CTextureProperty::addTextureDependencies(int objID,int objSubID)
         it->addDependentObject(objID,objSubID);
 }
 
-void CTextureProperty::scaleObject(float scalingFactor)
+void CTextureProperty::scaleObject(floatDouble scalingFactor)
 {
     _objectStateId=-1; // Force a new calculation of texture coordinates
 
@@ -144,13 +143,13 @@ std::vector<floatFloat>* CTextureProperty::getFixedTextureCoordinates()
     return(nullptr);
 }
 
-void CTextureProperty::transformToFixedTextureCoordinates(const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles)
+void CTextureProperty::transformToFixedTextureCoordinates(const C7Vector& transf,const std::vector<floatDouble>& vertices,const std::vector<int>& triangles)
 {
     std::vector<floatFloat>* textCoords=getTextureCoordinates(-1,transf,vertices,triangles);
     setFixedCoordinates(textCoords);
 }
 
-std::vector<floatFloat>* CTextureProperty::getTextureCoordinates(int objectStateId,const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles)
+std::vector<floatFloat>* CTextureProperty::getTextureCoordinates(int objectStateId,const C7Vector& transf,const std::vector<floatDouble>& vertices,const std::vector<int>& triangles)
 { // can return nullptr if texture needs to be destroyed!
     if (_fixedTextureCoordinates.size()!=0)
     { // We have fixed coordinates!
@@ -186,30 +185,30 @@ std::vector<floatFloat>* CTextureProperty::getTextureCoordinates(int objectState
             it=rend->getTextureObject();
 #endif
     }
-    float xs=1.0;
-    float ys=1.0;
+    floatDouble xs=1.0;
+    floatDouble ys=1.0;
     if (it!=nullptr)
     {
         _objectStateId=objectStateId;
         int sizeX,sizeY;
         it->getTextureSize(sizeX,sizeY);
         if (sizeX>=sizeY)
-            ys=float(sizeY)/float(sizeX);
+            ys=floatDouble(sizeY)/floatDouble(sizeX);
         else
-            xs=float(sizeX)/float(sizeY);
+            xs=floatDouble(sizeX)/floatDouble(sizeY);
     }
 
     for (size_t i=0;i<triangles.size()/3;i++)
     {
         int ind3[3]={triangles[3*i+0],triangles[3*i+1],triangles[3*i+2]};
-        float tc[3][2];
+        floatDouble tc[3][2];
 
         C3Vector v[3]={&vertices[3*ind3[0]],&vertices[3*ind3[1]],&vertices[3*ind3[2]]};
         v[0]*=tr;
         v[1]*=tr;
         v[2]*=tr;
-        float x=0.0;
-        float y=0.0;
+        floatDouble x=0.0;
+        floatDouble y=0.0;
 
         if ((_textureCoordinateMode==sim_texturemap_cylinder)||(_textureCoordinateMode==sim_texturemap_sphere))
         {
@@ -237,7 +236,7 @@ std::vector<floatFloat>* CTextureProperty::getTextureCoordinates(int objectState
                 if (_textureCoordinateMode==sim_texturemap_sphere)
                 {
                     x=((atan2(v[ot3](1),v[ot3](0))/piValue)+1.0)/2.0; // _textureScalingX doesn't make sense here!   (2.0f*_textureScalingX);
-                    float a2=C3Vector::unitZVector.getAngle(v[ot3]);
+                    floatDouble a2=C3Vector::unitZVector.getAngle(v[ot3]);
                     y=(1.0-(a2/piValue)); // _textureScalingX doesn't make sense here!  /_textureScalingY;
                 }
                 tc[ot3][0]=x;
@@ -253,8 +252,8 @@ std::vector<floatFloat>* CTextureProperty::getTextureCoordinates(int objectState
             {
                 if (verticesInCenterCnt==1)
                 {
-                    float am=tc[verticesNotInCenterIndex[0]][0];
-                    float bm=tc[verticesNotInCenterIndex[1]][0];
+                    floatDouble am=tc[verticesNotInCenterIndex[0]][0];
+                    floatDouble bm=tc[verticesNotInCenterIndex[1]][0];
                     if (am>=bm)
                     {
                         if (am-bm>0.5)
@@ -499,13 +498,13 @@ bool CTextureProperty::getFixedCoordinates()
     return(_fixedTextureCoordinates.size()!=0);
 }
 
-void CTextureProperty::getTextureScaling(float& x,float& y)
+void CTextureProperty::getTextureScaling(floatDouble& x,floatDouble& y)
 {
     x=_textureScalingX;
     y=_textureScalingY;
 }
 
-void CTextureProperty::setTextureScaling(float x,float y)
+void CTextureProperty::setTextureScaling(floatDouble x,floatDouble y)
 {
     _textureScalingX=x;
     _textureScalingY=y;
@@ -536,18 +535,35 @@ void CTextureProperty::serialize(CSer& ar)
             ar << nothing;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Tob");
-            ar << _textureOrVisionSensorObjectID << _textureCoordinateMode << _textureScalingX << _textureScalingY;
+            ar << _textureOrVisionSensorObjectID << _textureCoordinateMode;
+            ar.flt() << (floatFloat)_textureScalingX << (floatFloat)_textureScalingY;
             ar.flush();
+#endif
+#ifdef DOUBLESERIALIZATIONOPERATION
+            ar.storeDataName("_ob");
+            ar << _textureOrVisionSensorObjectID << _textureCoordinateMode;
+            ar.dbl() << _textureScalingX << _textureScalingY;
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Trc");
-            ar << _textureRelativeConfig.Q(0) << _textureRelativeConfig.Q(1) << _textureRelativeConfig.Q(2) << _textureRelativeConfig.Q(3);
-            ar << _textureRelativeConfig.X(0) << _textureRelativeConfig.X(1) << _textureRelativeConfig.X(2);
+            ar.flt() << (floatFloat)_textureRelativeConfig.Q(0) << (floatFloat)_textureRelativeConfig.Q(1) << (floatFloat)_textureRelativeConfig.Q(2) << (floatFloat)_textureRelativeConfig.Q(3);
+            ar.flt() << (floatFloat)_textureRelativeConfig.X(0) << (floatFloat)_textureRelativeConfig.X(1) << (floatFloat)_textureRelativeConfig.X(2);
             ar.flush();
+#endif
+#ifdef DOUBLESERIALIZATIONOPERATION
+            ar.storeDataName("_rc");
+            ar.dbl() << _textureRelativeConfig.Q(0) << _textureRelativeConfig.Q(1) << _textureRelativeConfig.Q(2) << _textureRelativeConfig.Q(3);
+            ar.dbl() << _textureRelativeConfig.X(0) << _textureRelativeConfig.X(1) << _textureRelativeConfig.X(2);
+            ar.flush();
+#endif
 
             ar.storeDataName("Ftc");
             for (size_t i=0;i<_fixedTextureCoordinates.size();i++)
-                ar << _fixedTextureCoordinates[i];
+                ar.flt() << _fixedTextureCoordinates[i];
             ar.flush();
 
             ar.storeDataName("Apm");
@@ -593,17 +609,44 @@ void CTextureProperty::serialize(CSer& ar)
                         _repeatV=SIM_IS_BIT_SET(nothing,3);
                     }
                     if (theName.compare("Tob")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _textureOrVisionSensorObjectID >> _textureCoordinateMode;
+                        floatFloat bla,bli;
+                        ar.flt() >> bla >> bli;
+                        _textureScalingX=(floatDouble)bla;
+                        _textureScalingY=(floatDouble)bli;
+                    }
+                    if (theName.compare("_ob")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _textureOrVisionSensorObjectID >> _textureCoordinateMode >> _textureScalingX >> _textureScalingY;
+                        ar >> _textureOrVisionSensorObjectID >> _textureCoordinateMode;
+                        ar.dbl() >> _textureScalingX >> _textureScalingY;
                     }
                     if (theName.compare("Trc")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        for (size_t i=0;i<4;i++)
+                        {
+                            ar.flt() >> bla;
+                            _textureRelativeConfig.Q(i)=(floatDouble)bla;
+                        }
+                        for (size_t i=0;i<3;i++)
+                        {
+                            ar.flt() >> bla;
+                            _textureRelativeConfig.X(i)=(floatDouble)bla;
+                        }
+                    }
+                    if (theName.compare("_rc")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _textureRelativeConfig.Q(0) >> _textureRelativeConfig.Q(1) >> _textureRelativeConfig.Q(2) >> _textureRelativeConfig.Q(3);
-                        ar >> _textureRelativeConfig.X(0) >> _textureRelativeConfig.X(1) >> _textureRelativeConfig.X(2);
+                        ar.dbl() >> _textureRelativeConfig.Q(0) >> _textureRelativeConfig.Q(1) >> _textureRelativeConfig.Q(2) >> _textureRelativeConfig.Q(3);
+                        ar.dbl() >> _textureRelativeConfig.X(0) >> _textureRelativeConfig.X(1) >> _textureRelativeConfig.X(2);
                     }
 
                     if (theName.compare("Ftc")==0)
@@ -612,7 +655,7 @@ void CTextureProperty::serialize(CSer& ar)
                         ar >> byteQuantity;
                         _fixedTextureCoordinates.resize(byteQuantity/sizeof(floatFloat),0.0);
                         for (size_t i=0;i<_fixedTextureCoordinates.size();i++)
-                            ar >> _fixedTextureCoordinates[i];
+                            ar.flt() >> _fixedTextureCoordinates[i];
                     }
                     if (theName.compare("Apm")==0)
                     {

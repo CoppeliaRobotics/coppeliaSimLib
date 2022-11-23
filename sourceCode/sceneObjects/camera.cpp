@@ -1310,7 +1310,7 @@ void CCamera::serialize(CSer& ar)
             ar.flt() << (floatFloat)_cameraSize;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_p4");
             ar << trck;
             ar.dbl() << _cameraSize;
@@ -1325,7 +1325,7 @@ void CCamera::serialize(CSer& ar)
             ar.flt() << (floatFloat)ovs << (floatFloat)_viewAngle;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_p3");
             if (_ignorePosAndCameraOrthoviewSize_forUndoRedo)
                 ovs=1.0;
@@ -1338,7 +1338,7 @@ void CCamera::serialize(CSer& ar)
             ar.flt() << (floatFloat)_nearClippingPlane << (floatFloat)_farClippingPlane;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_cp");
             ar.dbl() << _nearClippingPlane << _farClippingPlane;
             ar.flush();

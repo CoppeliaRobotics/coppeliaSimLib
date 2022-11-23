@@ -323,7 +323,7 @@ void CDistanceObject_old::serialize(CSer& ar)
             ar.flt() << floatFloat(_threshold);
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_rh");
             ar.dbl() << _threshold;
             ar.flush();

@@ -1,9 +1,8 @@
-
 #pragma once
 
 #include "ser.h"
 
-enum { /* Bullet body float params */
+enum { /* Bullet body floatDouble params */
     simi_bullet_body_restitution=0,
     simi_bullet_body_oldfriction,
     simi_bullet_body_friction,
@@ -24,7 +23,7 @@ enum { /* Bullet body bit params */
     simi_bullet_body_autoshrinkconvex=8
 };
 
-enum { /* Ode body float params */
+enum { /* Ode body floatDouble params */
     simi_ode_body_friction=0,
     simi_ode_body_softerp,
     simi_ode_body_softcfm,
@@ -40,7 +39,7 @@ enum { /* Ode body int params */
 //     /* if you add something here, search for obb11032016 */
 // };
 
-enum { /* Vortex body float params */
+enum { /* Vortex body floatDouble params */
     simi_vortex_body_primlinearaxisfriction=0,
     simi_vortex_body_seclinearaxisfriction,
     simi_vortex_body_primangularaxisfriction,
@@ -102,7 +101,7 @@ enum { /* Vortex body bit params */
     simi_vortex_body_autoangulardamping=256
 };
 
-enum { /* Newton body float params */
+enum { /* Newton body floatDouble params */
     simi_newton_body_staticfriction=0,
     simi_newton_body_kineticfriction,
     simi_newton_body_restitution,
@@ -118,7 +117,7 @@ enum { /* Newton body bit params */
     simi_newton_body_fastmoving=1
 };
 
-enum { /* Mujoco body float params */
+enum { /* Mujoco body floatDouble params */
     simi_mujoco_body_friction1=0,
     simi_mujoco_body_friction2,
     simi_mujoco_body_friction3,
@@ -159,35 +158,35 @@ public:
 
     // Engine properties
     // ---------------------
-    float getEngineFloatParam(int what,bool* ok);
+    floatDouble getEngineFloatParam(int what,bool* ok);
     int getEngineIntParam(int what,bool* ok);
     bool getEngineBoolParam(int what,bool* ok);
-    bool setEngineFloatParam(int what,float v);
+    bool setEngineFloatParam(int what,floatDouble v);
     bool setEngineIntParam(int what,int v);
     bool setEngineBoolParam(int what,bool v);
 
-    void getBulletFloatParams(std::vector<float>& p);
-    void setBulletFloatParams(const std::vector<float>& p);
+    void getBulletFloatParams(std::vector<floatDouble>& p);
+    void setBulletFloatParams(const std::vector<floatDouble>& p);
     void getBulletIntParams(std::vector<int>& p);
     void setBulletIntParams(const std::vector<int>& p);
 
-    void getOdeFloatParams(std::vector<float>& p);
-    void setOdeFloatParams(const std::vector<float>& p);
+    void getOdeFloatParams(std::vector<floatDouble>& p);
+    void setOdeFloatParams(const std::vector<floatDouble>& p);
     void getOdeIntParams(std::vector<int>& p);
     void setOdeIntParams(const std::vector<int>& p);
 
-    void getVortexFloatParams(std::vector<float>& p);
-    void setVortexFloatParams(const std::vector<float>& p);
+    void getVortexFloatParams(std::vector<floatDouble>& p);
+    void setVortexFloatParams(const std::vector<floatDouble>& p);
     void getVortexIntParams(std::vector<int>& p);
     void setVortexIntParams(const std::vector<int>& p);
 
-    void getNewtonFloatParams(std::vector<float>& p);
-    void setNewtonFloatParams(const std::vector<float>& p);
+    void getNewtonFloatParams(std::vector<floatDouble>& p);
+    void setNewtonFloatParams(const std::vector<floatDouble>& p);
     void getNewtonIntParams(std::vector<int>& p);
     void setNewtonIntParams(const std::vector<int>& p);
 
-    void getMujocoFloatParams(std::vector<float>& p);
-    void setMujocoFloatParams(const std::vector<float>& p);
+    void getMujocoFloatParams(std::vector<floatDouble>& p);
+    void setMujocoFloatParams(const std::vector<floatDouble>& p);
     void getMujocoIntParams(std::vector<int>& p);
     void setMujocoIntParams(const std::vector<int>& p);
     // ---------------------
@@ -204,19 +203,19 @@ protected:
 
     // Engine properties
     // ---------------------
-    std::vector<float> _bulletFloatParams;
+    std::vector<floatDouble> _bulletFloatParams;
     std::vector<int> _bulletIntParams;
 
-    std::vector<float> _odeFloatParams;
+    std::vector<floatDouble> _odeFloatParams;
     std::vector<int> _odeIntParams;
 
-    std::vector<float> _vortexFloatParams;
+    std::vector<floatDouble> _vortexFloatParams;
     std::vector<int> _vortexIntParams;
 
-    std::vector<float> _newtonFloatParams;
+    std::vector<floatDouble> _newtonFloatParams;
     std::vector<int> _newtonIntParams;
 
-    std::vector<float> _mujocoFloatParams;
+    std::vector<floatDouble> _mujocoFloatParams;
     std::vector<int> _mujocoIntParams;
     // ---------------------
 

@@ -352,7 +352,7 @@ void CPathPlanningTask::serialize(CSer& ar)
         ar.flt() << (floatFloat)stepSize << (floatFloat)angularStepSize;
         ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
         ar.storeDataName("_ss");
         ar.dbl() << stepSize << angularStepSize;
         ar.flush();
@@ -364,7 +364,7 @@ void CPathPlanningTask::serialize(CSer& ar)
             ar.flt() << (floatFloat)searchMinValue[i] << (floatFloat)searchRange[i];
         ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
         ar.storeDataName("_n2");
         for (int i=0;i<4;i++)
             ar.dbl() << searchMinValue[i] << searchRange[i];
@@ -376,7 +376,7 @@ void CPathPlanningTask::serialize(CSer& ar)
         ar.flt() << (floatFloat)minTurningCircleDiameter;
         ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
         ar.storeDataName("_td");
         ar.dbl() << minTurningCircleDiameter;
         ar.flush();
@@ -395,7 +395,7 @@ void CPathPlanningTask::serialize(CSer& ar)
         ar.flt() << (floatFloat)maximumTime;
         ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
         ar.storeDataName("_xt");
         ar.dbl() << maximumTime;
         ar.flush();
@@ -421,7 +421,7 @@ void CPathPlanningTask::serialize(CSer& ar)
         ar.flt() << (floatFloat)obstacleClearance;
         ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
         ar.storeDataName("_cl");
         ar.dbl() << obstacleClearance;
         ar.flush();
@@ -432,7 +432,7 @@ void CPathPlanningTask::serialize(CSer& ar)
         ar.flt() << (floatFloat)_obstacleMaxDistance;
         ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
         ar.storeDataName("_md");
         ar.dbl() << _obstacleMaxDistance;
         ar.flush();
@@ -447,7 +447,7 @@ void CPathPlanningTask::serialize(CSer& ar)
         ar.flt() << (floatFloat)_gammaAxis(0) << (floatFloat)_gammaAxis(1) << (floatFloat)_gammaAxis(2);
         ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
         ar.storeDataName("_aa");
         ar.dbl() << _gammaAxis(0) << _gammaAxis(1) << _gammaAxis(2);
         ar.flush();

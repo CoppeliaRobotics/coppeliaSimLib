@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "ser.h"
@@ -16,7 +15,7 @@ public:
     void display(int posX,int posY,const char* name,int sc);
     void setUncompressedThumbnailImage(const char* uncompressedRGBAImage,bool rgba,bool verticalFlip);
     void setCompressedThumbnailImage(const char* compressedRGBImage);
-    void setUncompressedThumbnailImageFromFloat(const float* uncompressedRGBAImage);
+    void setUncompressedThumbnailImageFromFloat(const floatDouble* uncompressedRGBAImage);
     void clearThumbnailImage();
     void setRandomImage();
     bool hasImage();
@@ -24,7 +23,7 @@ public:
     char* getPointerToUncompressedImage();
     bool copyUncompressedImageToBuffer(char* buffer);
     void serialize(CSer& ar,bool forceCompressedSaving=false);
-    void serializeAdditionalModelInfos(CSer& ar,C7Vector& modelTr,C3Vector& modelBBSize,float& modelNonDefaultTranslationStepSize);
+    void serializeAdditionalModelInfos(CSer& ar,C7Vector& modelTr,C3Vector& modelBBSize,floatDouble& modelNonDefaultTranslationStepSize);
     CThumbnail* copyYourself();
     void copyFrom(CThumbnail* it);
 

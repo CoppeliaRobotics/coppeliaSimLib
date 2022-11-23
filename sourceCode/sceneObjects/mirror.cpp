@@ -320,7 +320,7 @@ void CMirror::serialize(CSer& ar)
             ar.flt() << (floatFloat)_mirrorWidth << (floatFloat)_mirrorHeight;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_sz");
             ar.dbl() << _mirrorWidth << _mirrorHeight;
             ar.flush();
@@ -342,7 +342,7 @@ void CMirror::serialize(CSer& ar)
             ar.flt() << (floatFloat)_mirrorReflectance << (floatFloat)mirrorColor[0] << (floatFloat)mirrorColor[1] << (floatFloat)mirrorColor[2];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_cr");
             ar.dbl() << _mirrorReflectance << mirrorColor[0] << mirrorColor[1] << mirrorColor[2];
             ar.flush();

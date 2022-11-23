@@ -12,7 +12,7 @@ CGhostObjectContainer::~CGhostObjectContainer()
     removeGhost(-1,-1);
 }
 
-int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOptions,float theStartTime,float theEndTime,const float theColor[12])
+int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOptions,floatDouble theStartTime,floatDouble theEndTime,const floatDouble theColor[12])
 {
     // options: bit0 set (1): model instead of object
     // options: bit1 set (2): real-time playback
@@ -65,7 +65,7 @@ int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOp
     return(retVal);
 }
 
-int CGhostObjectContainer::modifyGhost(int groupId,int ghostId,int operation,float floatValue,int theOptions,int theOptionsMask,const float* colorOrTransformation)
+int CGhostObjectContainer::modifyGhost(int groupId,int ghostId,int operation,floatDouble floatValue,int theOptions,int theOptionsMask,const floatDouble* colorOrTransformation)
 {
     // operation:
     // 0: returns the number of the specified ghost occurences (if ghost(s) exist(s)), otherwise 0
@@ -204,6 +204,7 @@ void CGhostObjectContainer::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {
+#ifdef TMPOPERATION
             ar.storeDataName("V02");
             ar << int(_allObjects.size());
             for (size_t i=0;i<_allObjects.size();i++)
@@ -212,15 +213,35 @@ void CGhostObjectContainer::serialize(CSer& ar)
                 ar << _allObjects[i]->ghostId;
                 ar << _allObjects[i]->objectHandle;
                 ar << _allObjects[i]->options;
-                ar << _allObjects[i]->startTime;
-                ar << _allObjects[i]->endTime;
+                ar.flt() << (floatFloat)_allObjects[i]->startTime;
+                ar.flt() << (floatFloat)_allObjects[i]->endTime;
                 ar << _allObjects[i]->transparencyFactor;
                 for (int j=0;j<12;j++)
-                    ar << _allObjects[i]->color[j];
-                ar << _allObjects[i]->tr.X(0) << _allObjects[i]->tr.X(1) << _allObjects[i]->tr.X(2);
-                ar << _allObjects[i]->tr.Q(0) << _allObjects[i]->tr.Q(1) << _allObjects[i]->tr.Q(2) << _allObjects[i]->tr.Q(3);
+                    ar.flt() << (floatFloat)_allObjects[i]->color[j];
+                ar.flt() << (floatFloat)_allObjects[i]->tr.X(0) << (floatFloat)_allObjects[i]->tr.X(1) << (floatFloat)_allObjects[i]->tr.X(2);
+                ar.flt() << (floatFloat)_allObjects[i]->tr.Q(0) << (floatFloat)_allObjects[i]->tr.Q(1) << (floatFloat)_allObjects[i]->tr.Q(2) << (floatFloat)_allObjects[i]->tr.Q(3);
             }
             ar.flush();
+#endif
+#ifdef DOUBLESERIALIZATIONOPERATION
+            ar.storeDataName("_02");
+            ar << int(_allObjects.size());
+            for (size_t i=0;i<_allObjects.size();i++)
+            {
+                ar << _allObjects[i]->groupId;
+                ar << _allObjects[i]->ghostId;
+                ar << _allObjects[i]->objectHandle;
+                ar << _allObjects[i]->options;
+                ar.dbl() << _allObjects[i]->startTime;
+                ar.dbl() << _allObjects[i]->endTime;
+                ar << _allObjects[i]->transparencyFactor;
+                for (int j=0;j<12;j++)
+                    ar.dbl() << _allObjects[i]->color[j];
+                ar.dbl() << _allObjects[i]->tr.X(0) << _allObjects[i]->tr.X(1) << _allObjects[i]->tr.X(2);
+                ar.dbl() << _allObjects[i]->tr.Q(0) << _allObjects[i]->tr.Q(1) << _allObjects[i]->tr.Q(2) << _allObjects[i]->tr.Q(3);
+            }
+            ar.flush();
+#endif
 
             ar.storeDataName(SER_NEXT_STEP);
         }
@@ -244,20 +265,68 @@ void CGhostObjectContainer::serialize(CSer& ar)
                         for (int i=0;i<ghostCnt;i++)
                         {
                             CGhostObject* go=new CGhostObject();
+                            floatFloat bla,bli,blo,blu;
                             ar >> go->groupId;
                             ar >> go->ghostId;
                             ar >> go->objectHandle;
                             ar >> go->options;
-                            ar >> go->startTime;
-                            ar >> go->endTime;
+                            ar.flt() >> bla;
+                            go->startTime=(floatDouble)bla;
+                            ar.flt() >> bla;
+                            go->endTime=(floatDouble)bla;
                             for (int j=0;j<12;j++)
-                                ar >> go->color[j];
-                            ar >> go->tr.X(0) >> go->tr.X(1) >> go->tr.X(2);
-                            ar >> go->tr.Q(0) >> go->tr.Q(1) >> go->tr.Q(2) >> go->tr.Q(3);
+                            {
+                                ar.flt() >> bla;
+                                go->color[j]=(floatDouble)bla;;
+                            }
+                            ar.flt() >> bla >> bli >> blo;
+                            go->tr.X(0)=(floatDouble)bla;
+                            go->tr.X(1)=(floatDouble)bli;
+                            go->tr.X(2)=(floatDouble)blo;
+                            ar.flt() >> bla >> bli >> blo >> blu;
+                            go->tr.Q(0)=(floatDouble)bla;
+                            go->tr.Q(1)=(floatDouble)bli;
+                            go->tr.Q(2)=(floatDouble)blo;
+                            go->tr.Q(3)=(floatDouble)blu;
                             _allObjects.push_back(go);
                         }
                     }
                     if (theName.compare("V02")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int ghostCnt;
+                        ar >> ghostCnt;
+                        for (int i=0;i<ghostCnt;i++)
+                        {
+                            CGhostObject* go=new CGhostObject();
+                            ar >> go->groupId;
+                            ar >> go->ghostId;
+                            ar >> go->objectHandle;
+                            ar >> go->options;
+                            floatFloat bla,bli,blo,blu;
+                            ar.flt() >> bla >> bli;
+                            go->startTime=(floatDouble)bla;
+                            go->endTime=(floatDouble)bli;
+                            ar >> go->transparencyFactor;
+                            for (int j=0;j<12;j++)
+                            {
+                                ar.flt() >> bla;
+                                go->color[j]=(floatDouble)bla;
+                            }
+                            ar.flt() >> bla >> bli >> blo;
+                            go->tr.X(0)=(floatDouble)bla;
+                            go->tr.X(1)=(floatDouble)bli;
+                            go->tr.X(2)=(floatDouble)blo;
+                            ar.flt() >> bla >> bli >> blo >> blu;
+                            go->tr.Q(0)=(floatDouble)bla;
+                            go->tr.Q(1)=(floatDouble)bli;
+                            go->tr.Q(2)=(floatDouble)blo;
+                            go->tr.Q(3)=(floatDouble)blu;
+                            _allObjects.push_back(go);
+                        }
+                    }
+                    if (theName.compare("_02")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
@@ -270,13 +339,13 @@ void CGhostObjectContainer::serialize(CSer& ar)
                             ar >> go->ghostId;
                             ar >> go->objectHandle;
                             ar >> go->options;
-                            ar >> go->startTime;
-                            ar >> go->endTime;
+                            ar.dbl() >> go->startTime;
+                            ar.dbl() >> go->endTime;
                             ar >> go->transparencyFactor;
                             for (int j=0;j<12;j++)
-                                ar >> go->color[j];
-                            ar >> go->tr.X(0) >> go->tr.X(1) >> go->tr.X(2);
-                            ar >> go->tr.Q(0) >> go->tr.Q(1) >> go->tr.Q(2) >> go->tr.Q(3);
+                                ar.dbl() >> go->color[j];
+                            ar.dbl() >> go->tr.X(0) >> go->tr.X(1) >> go->tr.X(2);
+                            ar.dbl() >> go->tr.Q(0) >> go->tr.Q(1) >> go->tr.Q(2) >> go->tr.Q(3);
                             _allObjects.push_back(go);
                         }
                     }

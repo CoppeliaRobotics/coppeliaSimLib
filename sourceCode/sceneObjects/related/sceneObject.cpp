@@ -2098,7 +2098,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.flt() << (floatFloat)tr.Q(0) << (floatFloat)tr.Q(1) << (floatFloat)tr.Q(2) << (floatFloat)tr.Q(3) << (floatFloat)tr.X(0) << (floatFloat)tr.X(1) << (floatFloat)tr.X(2);
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_fq");
             if (_ignorePosAndCameraOrthoviewSize_forUndoRedo)
                 tr.setIdentity();
@@ -2111,7 +2111,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.flt() << (floatFloat)_assemblingLocalTransformation.Q(0) << (floatFloat)_assemblingLocalTransformation.Q(1) << (floatFloat)_assemblingLocalTransformation.Q(2) << (floatFloat)_assemblingLocalTransformation.Q(3) << (floatFloat)_assemblingLocalTransformation.X(0) << (floatFloat)_assemblingLocalTransformation.X(1) << (floatFloat)_assemblingLocalTransformation.X(2);
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_lt");
             ar.dbl() << _assemblingLocalTransformation.Q(0) << _assemblingLocalTransformation.Q(1) << _assemblingLocalTransformation.Q(2) << _assemblingLocalTransformation.Q(3) << _assemblingLocalTransformation.X(0) << _assemblingLocalTransformation.X(1) << _assemblingLocalTransformation.X(2);
             ar.flush();
@@ -2214,7 +2214,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.flt() << (floatFloat)_objectMovementStepSize[0];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_m5");
             ar << _objectMovementPreferredAxes << _objectMovementRelativity[0];
             ar.dbl() << _objectMovementStepSize[0];
@@ -2227,7 +2227,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.flt() << (floatFloat)_objectMovementStepSize[1];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_mr");
             ar << _objectMovementRelativity[1];
             ar.dbl() << _objectMovementStepSize[1];
@@ -2239,7 +2239,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.flt() << (floatFloat)_sizeFactor;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_fa");
             ar.dbl() << _sizeFactor;
             ar.flush();
@@ -2250,7 +2250,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.flt() << (floatFloat)_sizeValues[0] << (floatFloat)_sizeValues[1] << (floatFloat)_sizeValues[2];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_fb");
             ar.dbl() << _sizeValues[0] << _sizeValues[1] << _sizeValues[2];
             ar.flush();
@@ -2327,7 +2327,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.flt() << (floatFloat)_transparentObjectDistanceOffset;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_do");
             ar.dbl() << _transparentObjectDistanceOffset;
             ar.flush();

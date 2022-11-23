@@ -100,7 +100,7 @@ void CIkGroup_old::serialize(CSer &ar)
             ar.flt() << floatFloat(_dampingFactor);
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_pg");
             ar.dbl() << _dampingFactor;
             ar.flush();

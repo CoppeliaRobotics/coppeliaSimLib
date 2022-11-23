@@ -149,7 +149,7 @@ void CGraphDataComb_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)threeDCurveWidth;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_dw");
             ar.dbl() << threeDCurveWidth;
             ar.flush();

@@ -32,6 +32,7 @@ DEFINES += TMPOPERATION # <-- remove once we release V4.6 (i.e. V4.5 needs to su
 #getStackMapFloatValue
 #appendArrayObject_float
 #appendMapObject_stringFloat
+#xmlAddNode_double and similar
 # --------------------
 
 CONFIG += shared plugin debug_and_release

@@ -12,12 +12,11 @@
 #define SER_END_OF_FILE "EOF"
 typedef sim::tinyxml2::XMLElement xmlNode;
 
-//#define NEWOPERATION
 class CSerTmp
 {
 public:
-#ifdef NEWOPERATION
-    CSerTmp& operator<< (const float& v)
+#ifdef DOUBLESERIALIZATIONOPERATION
+    CSerTmp& operator<< (const floatFloat& v)
     {
         buffer.push_back(((unsigned char*)&v)[0]);
         buffer.push_back(((unsigned char*)&v)[1]);
@@ -33,7 +32,7 @@ public:
         return(*this);
     }
 
-    CSerTmp& operator>> (float& v)
+    CSerTmp& operator>> (floatFloat& v)
     {
         unsigned char* tmp=(unsigned char*)(&v);
         for (int i=0;i<int(sizeof(v));i++)
@@ -91,7 +90,7 @@ public:
     int readOpenBinaryNoHeader();
     void readClose();
 
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
     CSerTmp& flt();
     CSerTmp& dbl();
 #else
@@ -101,8 +100,8 @@ public:
 
     char getFileType() const;
     CSer& operator<< (const int& v);
-#ifndef NEWOPERATION
-    CSer& operator<< (const float& v);
+#ifndef DOUBLESERIALIZATIONOPERATION
+    CSer& operator<< (const floatFloat& v);
     CSer& operator<< (const double& v);
 #endif
     CSer& operator<< (const unsigned short& v);
@@ -114,8 +113,8 @@ public:
     CSer& operator<< (const std::string& v);
 
     CSer& operator>> (int& v);
-#ifndef NEWOPERATION
-    CSer& operator>> (float& v);
+#ifndef DOUBLESERIALIZATIONOPERATION
+    CSer& operator>> (floatFloat& v);
     CSer& operator>> (double& v);
 #endif
     CSer& operator>> (unsigned short& v);
@@ -178,7 +177,7 @@ public:
     void xmlAddNode_binFile(const char* name,const char* localFilenameSuffix,const unsigned char* buff,size_t buffSize);
     CSer* xmlAddNode_binFile(const char* name,const char* localFilenameSuffix);
     void xmlAddNode_imageFile(const char* name,const char* localFilenameSuffix,const unsigned char* img,int resX,int resY,bool rgba);
-    void xmlAddNode_meshFile(const char* name,const char* localFilenameSuffix,const float* vertices,int vl,const int* indices,int il,const float* normals,int nl,const unsigned char* edges,int el);
+    void xmlAddNode_meshFile(const char* name,const char* localFilenameSuffix,const floatFloat* vertices,int vl,const int* indices,int il,const floatFloat* normals,int nl,const unsigned char* edges,int el);
     void xmlAddNode_string(const char* name,const char* str);
     void xmlAddNode_strings(const char* name,const std::vector<std::string>& vals);
     void xmlAddNode_cdata(const char* name,const char* str);
@@ -192,12 +191,12 @@ public:
     void xmlAddNode_uint(const char* name,unsigned int val);
     void xmlAddNode_ulonglong(const char* name,unsigned long long val);
     void xmlAddNode_uchars(const char* name,const std::vector<unsigned char>& vals);
-    void xmlAddNode_float(const char* name,float val);
-    void xmlAddNode_2float(const char* name,float val1,float val2);
-    void xmlAddNode_3float(const char* name,float val1,float val2,float val3);
-    void xmlAddNode_4float(const char* name,float val1,float val2,float val3,float val4);
-    void xmlAddNode_floats(const char* name,const float* vals,size_t cnt);
-    void xmlAddNode_floats(const char* name,const std::vector<float>& vals);
+    void xmlAddNode_float(const char* name,floatDouble val);
+    void xmlAddNode_2float(const char* name,floatDouble val1,floatDouble val2);
+    void xmlAddNode_3float(const char* name,floatDouble val1,floatDouble val2,floatDouble val3);
+    void xmlAddNode_4float(const char* name,floatDouble val1,floatDouble val2,floatDouble val3,floatDouble val4);
+    void xmlAddNode_floats(const char* name,const floatDouble* vals,size_t cnt);
+    void xmlAddNode_floats(const char* name,const std::vector<floatDouble>& vals);
     void xmlAddNode_double(const char* name,double val);
 
     void xmlGetAllChildNodeNames(std::vector<std::string>& allNames);
@@ -214,7 +213,7 @@ public:
     bool xmlGetNode_binFile(const char* name,std::string& buffer,bool required=true);
     CSer* xmlGetNode_binFile(const char* name,bool required=true);
     bool xmlGetNode_imageFile(const char* name,std::vector<unsigned char>& image,int* resX=nullptr,int* resY=nullptr,bool* rgba=nullptr,bool required=true);
-    bool xmlGetNode_meshFile(const char* name,std::vector<float>& vertices,std::vector<int>& indices,std::vector<float>& normals,std::vector<unsigned char>& edges,bool required=true);
+    bool xmlGetNode_meshFile(const char* name,std::vector<floatFloat>& vertices,std::vector<int>& indices,std::vector<floatFloat>& normals,std::vector<unsigned char>& edges,bool required=true);
     bool xmlGetNode_string(const char* name,std::string& val,bool required=true);
     bool xmlGetNode_strings(const char* name,std::vector<std::string>& vals,bool required=true);
     bool xmlGetNode_cdata(const char* name,std::string& val,bool required=true);
@@ -228,12 +227,12 @@ public:
     bool xmlGetNode_uint(const char* name,unsigned int& val,bool required=true);
     bool xmlGetNode_ulonglong(const char* name,unsigned long long& val,bool required=true);
     bool xmlGetNode_uchars(const char* name,std::vector<unsigned char>& vals,bool required=true);
-    bool xmlGetNode_float(const char* name,float& val,bool required=true);
-    bool xmlGetNode_2float(const char* name,float& val1,float& val2,bool required=true);
-    bool xmlGetNode_3float(const char* name,float& val1,float& val2,float& val3,bool required=true);
-    bool xmlGetNode_4float(const char* name,float& val1,float& val2,float& val3,float& val4,bool required=true);
-    bool xmlGetNode_floats(const char* name,float* vals,size_t cnt,bool required=true);
-    bool xmlGetNode_floats(const char* name,std::vector<float>& vals,bool required=true);
+    bool xmlGetNode_float(const char* name,floatDouble& val,bool required=true);
+    bool xmlGetNode_2float(const char* name,floatDouble& val1,floatDouble& val2,bool required=true);
+    bool xmlGetNode_3float(const char* name,floatDouble& val1,floatDouble& val2,floatDouble& val3,bool required=true);
+    bool xmlGetNode_4float(const char* name,floatDouble& val1,floatDouble& val2,floatDouble& val3,floatDouble& val4,bool required=true);
+    bool xmlGetNode_floats(const char* name,floatDouble* vals,size_t cnt,bool required=true);
+    bool xmlGetNode_floats(const char* name,std::vector<floatDouble>& vals,bool required=true);
     bool xmlGetNode_double(const char* name,double& val,bool required=true);
     static int XML_XSERIALIZATION_VERSION;
     static char getFileTypeFromName(const char* filename);
@@ -267,7 +266,7 @@ private:
     int counter;
     int countingMode;
     bool _coutingModeDisabledExceptForExceptions;
-#ifndef NEWOPERATION
+#ifndef DOUBLESERIALIZATIONOPERATION
     std::vector<unsigned char> buffer;
     std::vector<unsigned char> _fileBuffer;
     int _fileBufferReadPointer;

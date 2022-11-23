@@ -1,4 +1,3 @@
-
 // This file requires some serious refactoring!
 
 #pragma once
@@ -67,10 +66,10 @@ public:
     void setFitViewToSelection(bool doIt);
     bool getFitViewToSelection() const;
 
-    void setGraphPosition(float x,float y);
-    void getGraphPosition(float position[2]) const;
-    void setGraphSize(float x,float y);
-    void getGraphSize(float size[2]) const;
+    void setGraphPosition(floatDouble x,floatDouble y);
+    void getGraphPosition(floatDouble position[2]) const;
+    void setGraphSize(floatDouble x,floatDouble y);
+    void getGraphSize(floatDouble size[2]) const;
     void serialize(CSer& ar);
     bool announceObjectWillBeErased(int objectID);
     void performObjectLoadingMapping(const std::map<int,int>* map);
@@ -79,8 +78,8 @@ public:
     void getViewPosition(int pos[2]) const;
     int getSelectionStatus() const;
     bool processCommand(int commandID,int subViewIndex);
-    void setCenterPosition(float pos[3]);
-    void getCenterPosition(float pos[3]) const;
+    void setCenterPosition(floatDouble pos[3]);
+    void getCenterPosition(floatDouble pos[3]) const;
     void setViewIndex(size_t ind);
     size_t getViewIndex() const;
     void setTrackedGraphCurveIndex(int ind);
@@ -90,9 +89,9 @@ public:
 
     CSView* copyYourself(); // special! Only used when copy and pasting viewable objects in the copy buffer that are associated with a floating view!
     // Following two lines are only used when copy and pasting viewable objects are associated with a floating view!
-    float _relativeViewPosition[2];
-    float _relativeViewPositionOffset;
-    float _relativeViewSize[2];
+    floatDouble _relativeViewPosition[2];
+    floatDouble _relativeViewPositionOffset;
+    floatDouble _relativeViewSize[2];
 
 
 private:
@@ -113,8 +112,8 @@ private:
     bool _canBeClosed;
     bool _canBeShifted;
     bool _canBeResized;
-    float graphPosition[2];
-    float graphSize[2];
+    floatDouble graphPosition[2];
+    floatDouble graphSize[2];
     bool _fitSceneToView;
     bool _fitSelectionToView;
     
@@ -142,8 +141,8 @@ private:
     bool mouseJustWentUpFlag;
     bool _mouseMovedWhileDownFlag;
 
-    float centerPosition[3];
-    float mousePositionDepth;
+    floatDouble centerPosition[3];
+    floatDouble mousePositionDepth;
 
     bool subviewIsPassive;
     int _trackedCurveIndex;
@@ -181,8 +180,8 @@ public:
     bool rightMouseButtonDown(int x,int y,bool _subViewIsPassive);
     bool rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* mainWindow,int subViewIndex);
     bool leftMouseButtonDoubleClick(int x,int y,int selStatus);
-    void setMousePositionDepth(float depth);
-    float getMousePositionDepth() const;
+    void setMousePositionDepth(floatDouble depth);
+    floatDouble getMousePositionDepth() const;
     void clearMouseJustWentDownAndUpFlag();
     void handleCameraOrGraphMotion();
     int getCaughtElements() const;

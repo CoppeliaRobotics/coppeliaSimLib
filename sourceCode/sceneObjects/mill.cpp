@@ -258,7 +258,7 @@ void CMill::serialize(CSer& ar)
             ar.flt() << (floatFloat)_size;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ns");
             ar.dbl() << _size;
             ar.flush();

@@ -376,7 +376,7 @@ void CEnvironment::serialize(CSer& ar)
             ar.flt() << (floatFloat)fogEnd;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_dn");
             ar.dbl() << fogEnd;
             ar.flush();
@@ -392,7 +392,7 @@ void CEnvironment::serialize(CSer& ar)
             ar.flt() << (floatFloat)fogStart << (floatFloat)fogDensity;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_d2");
             ar << fogType;
             ar.dbl() << fogStart << fogDensity;
@@ -404,7 +404,7 @@ void CEnvironment::serialize(CSer& ar)
             ar.flt() << (floatFloat)backGroundColor[0] << (floatFloat)backGroundColor[1] << (floatFloat)backGroundColor[2];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_lc");
             ar.dbl() << backGroundColor[0] << backGroundColor[1] << backGroundColor[2];
             ar.flush();
@@ -415,7 +415,7 @@ void CEnvironment::serialize(CSer& ar)
             ar.flt() << (floatFloat)backGroundColorDown[0] << (floatFloat)backGroundColorDown[1] << (floatFloat)backGroundColorDown[2];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ld");
             ar.dbl() << backGroundColorDown[0] << backGroundColorDown[1] << backGroundColorDown[2];
             ar.flush();
@@ -426,7 +426,7 @@ void CEnvironment::serialize(CSer& ar)
             ar.flt() << (floatFloat)fogBackgroundColor[0] << (floatFloat)fogBackgroundColor[1] << (floatFloat)fogBackgroundColor[2];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_bg");
             ar.dbl() << fogBackgroundColor[0] << fogBackgroundColor[1] << fogBackgroundColor[2];
             ar.flush();
@@ -442,7 +442,7 @@ void CEnvironment::serialize(CSer& ar)
             ar.flt() << (floatFloat)ambientLightColor[0] << (floatFloat)ambientLightColor[1] << (floatFloat)ambientLightColor[2];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_l2");
             ar.dbl() << ambientLightColor[0] << ambientLightColor[1] << ambientLightColor[2];
             ar.flush();
@@ -477,7 +477,7 @@ void CEnvironment::serialize(CSer& ar)
             ar.flt() << (floatFloat)_calculationMaxTriangleSize;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_t2");
             ar.dbl() << _calculationMaxTriangleSize;
             ar.flush();
@@ -488,7 +488,7 @@ void CEnvironment::serialize(CSer& ar)
             ar.flt() << (floatFloat)_calculationMinRelTriangleSize;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_rs");
             ar.dbl() << _calculationMinRelTriangleSize;
             ar.flush();

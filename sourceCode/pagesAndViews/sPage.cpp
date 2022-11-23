@@ -1,4 +1,3 @@
-
 // This file requires some serious refactoring!
 
 #include "simInternal.h"
@@ -522,8 +521,8 @@ void CSPage::getViewSizeAndPosition(int sViewSize[2],int sViewPos[2],size_t subV
     if (subViewIndex>=getRegularViewCount())
     { // We have a floating window here:
         // Positions and sizes are relative now (2009/05/22)
-        int fvs[2]={int(_allViewAuxSizesAndPos[4*subViewIndex+0]*float(_pageSize[0])),int(_allViewAuxSizesAndPos[4*subViewIndex+1]*float(_pageSize[1]))};
-        int fvp[2]={int(_allViewAuxSizesAndPos[4*subViewIndex+2]*float(_pageSize[0])),int(_allViewAuxSizesAndPos[4*subViewIndex+3]*float(_pageSize[1]))};
+        int fvs[2]={int(_allViewAuxSizesAndPos[4*subViewIndex+0]*floatDouble(_pageSize[0])),int(_allViewAuxSizesAndPos[4*subViewIndex+1]*floatDouble(_pageSize[1]))};
+        int fvp[2]={int(_allViewAuxSizesAndPos[4*subViewIndex+2]*floatDouble(_pageSize[0])),int(_allViewAuxSizesAndPos[4*subViewIndex+3]*floatDouble(_pageSize[1]))};
         // Make sure we are not smaller than the minimum size (2009/05/22):
         if (fvs[0]<FLOATING_VIEW_MIN_SIZE)
             fvs[0]=FLOATING_VIEW_MIN_SIZE;
@@ -538,7 +537,7 @@ void CSPage::getViewSizeAndPosition(int sViewSize[2],int sViewPos[2],size_t subV
     }
 }
 
-void CSPage::getFloatingViewRelativeSizeAndPosition(float sViewSize[2],float sViewPos[2],size_t subViewIndex) const
+void CSPage::getFloatingViewRelativeSizeAndPosition(floatDouble sViewSize[2],floatDouble sViewPos[2],size_t subViewIndex) const
 {
     if (subViewIndex>=getRegularViewCount())
     { // We have a floating window here:
@@ -618,7 +617,7 @@ size_t CSPage::getRegularViewCount() const
     return(0);
 }
 
-void CSPage::addFloatingView(CSView* theFloatingView,float relSize[2],float relPos[2])
+void CSPage::addFloatingView(CSView* theFloatingView,floatDouble relSize[2],floatDouble relPos[2])
 {
     _allViews.push_back(theFloatingView);
     _allViewAuxSizesAndPos.push_back(relSize[0]);
@@ -669,20 +668,36 @@ void CSPage::serialize(CSer& ar)
                         _allViews[i]->serialize(ar);
                 }
             }
-            // Positions and sizes are relative now (2009/05/22)
+#ifdef TMPOPERATION
             ar.storeDataName("Fvr");
             ar << totViewsToSaveCnt*4;
             for (size_t i=0;i<_allViews.size();i++)
             {
                 if ( (i<getRegularViewCount())||(!_allViews[i]->getDoNotSaveFloatingView()) )
                 {
-                    ar << _allViewAuxSizesAndPos[4*i+0];
-                    ar << _allViewAuxSizesAndPos[4*i+1];
-                    ar << _allViewAuxSizesAndPos[4*i+2];
-                    ar << _allViewAuxSizesAndPos[4*i+3];
+                    ar.flt() << (floatFloat)_allViewAuxSizesAndPos[4*i+0];
+                    ar.flt() << (floatFloat)_allViewAuxSizesAndPos[4*i+1];
+                    ar.flt() << (floatFloat)_allViewAuxSizesAndPos[4*i+2];
+                    ar.flt() << (floatFloat)_allViewAuxSizesAndPos[4*i+3];
                 }
             }
             ar.flush();
+#endif
+#ifdef DOUBLESERIALIZATIONOPERATION
+            ar.storeDataName("_vr");
+            ar << totViewsToSaveCnt*4;
+            for (size_t i=0;i<_allViews.size();i++)
+            {
+                if ( (i<getRegularViewCount())||(!_allViews[i]->getDoNotSaveFloatingView()) )
+                {
+                    ar.dbl() << _allViewAuxSizesAndPos[4*i+0];
+                    ar.dbl() << _allViewAuxSizesAndPos[4*i+1];
+                    ar.dbl() << _allViewAuxSizesAndPos[4*i+2];
+                    ar.dbl() << _allViewAuxSizesAndPos[4*i+3];
+                }
+            }
+            ar.flush();
+#endif
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -721,15 +736,28 @@ void CSPage::serialize(CSer& ar)
                         _allViews.push_back(theSubView);
                     }
                     if (theName.compare("Fvr")==0)
-                    { // Positions and sizes are relative now (2009/05/22)
+                    { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
                         int n;
                         ar >> n;
                         for (int i=0;i<n;i++)
                         {
-                            float dummy;
-                            ar >> dummy;
+                            floatFloat dummy;
+                            ar.flt() >> dummy;
+                            _allViewAuxSizesAndPos.push_back((floatDouble)dummy);
+                        }
+                    }
+                    if (theName.compare("_vr")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int n;
+                        ar >> n;
+                        for (int i=0;i<n;i++)
+                        {
+                            floatDouble dummy;
+                            ar.dbl() >> dummy;
                             _allViewAuxSizesAndPos.push_back(dummy);
                         }
                     }
@@ -738,7 +766,7 @@ void CSPage::serialize(CSer& ar)
                 }
             }
             // Following is to correct for a bug where deleted views would still have their sizes and pos stored (19/7/2011):
-            std::vector<float> copy(_allViewAuxSizesAndPos);
+            std::vector<floatDouble> copy(_allViewAuxSizesAndPos);
             _allViewAuxSizesAndPos.assign(copy.begin(),copy.begin()+4*_allViews.size());
         }
     }
@@ -765,7 +793,7 @@ void CSPage::serialize(CSer& ar)
                     ar.xmlPopNode();
                 }
             }
-            std::vector<float> tmp;
+            std::vector<floatDouble> tmp;
             for (size_t i=0;i<_allViews.size();i++)
             {
                 if ( (i<getRegularViewCount())||(!_allViews[i]->getDoNotSaveFloatingView()) )
@@ -911,7 +939,7 @@ void CSPage::swapViews(size_t index1,size_t index2,bool alsoSizeAndPosInfo)
             for (size_t i=0;i<4;i++)
             {
                 // Positions and sizes are relative now (2009/05/22)
-                float v=_allViewAuxSizesAndPos[4*index1+i];
+                floatDouble v=_allViewAuxSizesAndPos[4*index1+i];
                 _allViewAuxSizesAndPos[4*index1+i]=_allViewAuxSizesAndPos[4*index2+i];
                 _allViewAuxSizesAndPos[4*index2+i]=v;
             }
@@ -1186,10 +1214,10 @@ void CSPage::mouseMove(int x,int y,bool passiveAndFocused)
             int vs[2];
             int vp[2];
             // Positions and sizes are relative now (2009/05/22)
-            vs[0]=int(_allViewAuxSizesAndPos[4*viewIndexOfResizingAction+0]*float(_pageSize[0])+0.5f);
-            vs[1]=int(_allViewAuxSizesAndPos[4*viewIndexOfResizingAction+1]*float(_pageSize[1])+0.5f);
-            vp[0]=int(_allViewAuxSizesAndPos[4*viewIndexOfResizingAction+2]*float(_pageSize[0])+0.5f);
-            vp[1]=int(_allViewAuxSizesAndPos[4*viewIndexOfResizingAction+3]*float(_pageSize[1])+0.5f);
+            vs[0]=int(_allViewAuxSizesAndPos[4*viewIndexOfResizingAction+0]*floatDouble(_pageSize[0])+0.5f);
+            vs[1]=int(_allViewAuxSizesAndPos[4*viewIndexOfResizingAction+1]*floatDouble(_pageSize[1])+0.5f);
+            vp[0]=int(_allViewAuxSizesAndPos[4*viewIndexOfResizingAction+2]*floatDouble(_pageSize[0])+0.5f);
+            vp[1]=int(_allViewAuxSizesAndPos[4*viewIndexOfResizingAction+3]*floatDouble(_pageSize[1])+0.5f);
             // Make sure we are not smaller than the minimum size (2009/05/22):
             if (vs[0]<FLOATING_VIEW_MIN_SIZE)
                 vs[0]=FLOATING_VIEW_MIN_SIZE;
@@ -1277,11 +1305,11 @@ void CSPage::mouseMove(int x,int y,bool passiveAndFocused)
             {
                 if ((auxViewResizingAction!=AUX_VIEW_SHIFTING)&&(auxViewResizingAction!=AUX_VIEW_CLOSING_BUTTON))
                 {
-                    _allViewAuxSizesAndPos[4*viewIndexOfResizingAction+0]=float(vs[0])/float(_pageSize[0]);
-                    _allViewAuxSizesAndPos[4*viewIndexOfResizingAction+1]=float(vs[1])/float(_pageSize[1]);
+                    _allViewAuxSizesAndPos[4*viewIndexOfResizingAction+0]=floatDouble(vs[0])/floatDouble(_pageSize[0]);
+                    _allViewAuxSizesAndPos[4*viewIndexOfResizingAction+1]=floatDouble(vs[1])/floatDouble(_pageSize[1]);
                 }
-                _allViewAuxSizesAndPos[4*viewIndexOfResizingAction+2]=float(vp[0])/float(_pageSize[0]);
-                _allViewAuxSizesAndPos[4*viewIndexOfResizingAction+3]=float(vp[1])/float(_pageSize[1]);
+                _allViewAuxSizesAndPos[4*viewIndexOfResizingAction+2]=floatDouble(vp[0])/floatDouble(_pageSize[0]);
+                _allViewAuxSizesAndPos[4*viewIndexOfResizingAction+3]=floatDouble(vp[1])/floatDouble(_pageSize[1]);
             }
 
             previousMouseRelativePosition[0]=x;

@@ -389,7 +389,7 @@ void CProxSensor::serialize(CSer& ar)
             ar.flt() << (floatFloat)_proxSensorSize;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ns");
             ar.dbl() << _proxSensorSize;
             ar.flush();
@@ -400,7 +400,7 @@ void CProxSensor::serialize(CSer& ar)
             ar.flt() << (floatFloat)allowedNormal;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_l2");
             ar.dbl() << allowedNormal;
             ar.flush();

@@ -135,7 +135,7 @@ void CThumbnail::setUncompressedThumbnailImage(const char* uncompressedRGBAImage
     _compressData=false;
 }
 
-void CThumbnail::setUncompressedThumbnailImageFromFloat(const float* uncompressedRGBAImage)
+void CThumbnail::setUncompressedThumbnailImageFromFloat(const floatDouble* uncompressedRGBAImage)
 {
     setRandomImage();
     for (int i=0;i<128*128*4;i++)
@@ -202,19 +202,30 @@ void CThumbnail::copyFrom(CThumbnail* it)
     _compressData=it->_compressData;
 }
 
-void  CThumbnail::serializeAdditionalModelInfos(CSer& ar,C7Vector& modelTr,C3Vector& modelBBSize,float& modelNonDefaultTranslationStepSize)
+void  CThumbnail::serializeAdditionalModelInfos(CSer& ar,C7Vector& modelTr,C3Vector& modelBBSize,floatDouble& modelNonDefaultTranslationStepSize)
 {
     if (ar.isBinary())
     {
         if (ar.isStoring())
         { // Storing
+#ifdef TMPOPERATION
             ar.storeDataName("Mo2");
             for (int i=0;i<7;i++)
-                ar << modelTr(i);
+                ar.flt() << (floatFloat)modelTr(i);
             for (int i=0;i<3;i++)
-                ar << modelBBSize(i);
-            ar << modelNonDefaultTranslationStepSize;
+                ar.flt() << (floatFloat)modelBBSize(i);
+            ar.flt() << (floatFloat)modelNonDefaultTranslationStepSize;
             ar.flush();
+#endif
+#ifdef DOUBLESERIALIZATIONOPERATION
+            ar.storeDataName("_o2");
+            for (int i=0;i<7;i++)
+                ar.dbl() << modelTr(i);
+            for (int i=0;i<3;i++)
+                ar.dbl() << modelBBSize(i);
+            ar.dbl() << modelNonDefaultTranslationStepSize;
+            ar.flush();
+#endif
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -229,14 +240,32 @@ void  CThumbnail::serializeAdditionalModelInfos(CSer& ar,C7Vector& modelTr,C3Vec
                 {
                     bool noHit=true;
                     if (theName.compare("Mo2")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        floatFloat bla;
+                        for (int i=0;i<7;i++)
+                        {
+                            ar.flt() >> bla;
+                            modelTr(i)=(floatDouble)bla;
+                        }
+                        for (int i=0;i<3;i++)
+                        {
+                            ar.flt() >> bla;
+                            modelBBSize(i)=(floatDouble)bla;
+                        }
+                        ar.flt() >> bla;
+                        modelNonDefaultTranslationStepSize=(floatDouble)bla;
+                    }
+                    if (theName.compare("_o2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         for (int i=0;i<7;i++)
-                            ar >> modelTr(i);
+                            ar.dbl() >> modelTr(i);
                         for (int i=0;i<3;i++)
-                            ar >> modelBBSize(i);
-                        ar >> modelNonDefaultTranslationStepSize;
+                            ar.dbl() >> modelBBSize(i);
+                        ar.dbl() >> modelNonDefaultTranslationStepSize;
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -348,7 +377,7 @@ void CThumbnail::serialize(CSer& ar,bool forceCompressedSaving/*=false*/)
                                 }
                             }
                             for (int j=0;j<128*128;j++)
-                                _thumbnailRGBAImage[4*j+3]=char(float((unsigned char)(_thumbnailRGBAImage[4*j+3]))/0.22508f);
+                                _thumbnailRGBAImage[4*j+3]=char(floatDouble((unsigned char)(_thumbnailRGBAImage[4*j+3]))/0.22508f);
                         }
                     }
                     if (theName.compare("Tm2")==0)

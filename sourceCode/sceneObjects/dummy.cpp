@@ -446,7 +446,7 @@ void CDummy::serialize(CSer& ar)
             ar.flt() << floatFloat(_dummySize);
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_y2");
             ar.dbl() << _dummySize;
             ar.flush();
@@ -477,7 +477,7 @@ void CDummy::serialize(CSer& ar)
             ar.flt() << (floatFloat)_virtualDistanceOffsetOnPath << (floatFloat)_virtualDistanceOffsetOnPath_variationWhenCopy;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_o5");
             ar.dbl() << _virtualDistanceOffsetOnPath << _virtualDistanceOffsetOnPath_variationWhenCopy;
             ar.flush();
@@ -496,7 +496,7 @@ void CDummy::serialize(CSer& ar)
                 ar << _mujocoIntParams[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_j1"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
             for (size_t i=0;i<_mujocoFloatParams.size();i++)

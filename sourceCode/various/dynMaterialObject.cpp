@@ -1,4 +1,3 @@
-
 #include "simInternal.h"
 #include "dynMaterialObject.h"
 #include "app.h"
@@ -177,7 +176,7 @@ std::string CDynMaterialObject::getIndividualName()
     return("<individual (i.e. not shared)>");
 }
 
-float CDynMaterialObject::getEngineFloatParam(int what,bool* ok)
+floatDouble CDynMaterialObject::getEngineFloatParam(int what,bool* ok)
 {
     if (ok!=nullptr)
         ok[0]=true;
@@ -290,12 +289,12 @@ bool CDynMaterialObject::getEngineBoolParam(int what,bool* ok)
     return(0);
 }
 
-bool CDynMaterialObject::setEngineFloatParam(int what,float v)
+bool CDynMaterialObject::setEngineFloatParam(int what,floatDouble v)
 {
     if ((what>sim_bullet_body_float_start)&&(what<sim_bullet_body_float_end))
     {
         int w=what-sim_bullet_body_restitution+simi_bullet_body_restitution;
-        std::vector<float> fp;
+        std::vector<floatDouble> fp;
         getBulletFloatParams(fp);
         fp[w]=v;
         setBulletFloatParams(fp);
@@ -304,7 +303,7 @@ bool CDynMaterialObject::setEngineFloatParam(int what,float v)
     if ((what>sim_ode_body_float_start)&&(what<sim_ode_body_float_end))
     {
         int w=what-sim_ode_body_friction+simi_ode_body_friction;
-        std::vector<float> fp;
+        std::vector<floatDouble> fp;
         getOdeFloatParams(fp);
         fp[w]=v;
         setOdeFloatParams(fp);
@@ -313,7 +312,7 @@ bool CDynMaterialObject::setEngineFloatParam(int what,float v)
     if ((what>sim_vortex_body_float_start)&&(what<sim_vortex_body_float_end))
     {
         int w=what-sim_vortex_body_primlinearaxisfriction+simi_vortex_body_primlinearaxisfriction;
-        std::vector<float> fp;
+        std::vector<floatDouble> fp;
         getVortexFloatParams(fp);
         fp[w]=v;
         setVortexFloatParams(fp);
@@ -322,7 +321,7 @@ bool CDynMaterialObject::setEngineFloatParam(int what,float v)
     if ((what>sim_newton_body_float_start)&&(what<sim_newton_body_float_end))
     {
         int w=what-sim_newton_body_staticfriction+simi_newton_body_staticfriction;
-        std::vector<float> fp;
+        std::vector<floatDouble> fp;
         getNewtonFloatParams(fp);
         fp[w]=v;
         setNewtonFloatParams(fp);
@@ -331,7 +330,7 @@ bool CDynMaterialObject::setEngineFloatParam(int what,float v)
     if ((what>sim_mujoco_body_float_start)&&(what<sim_mujoco_body_float_end))
     {
         int w=what-sim_mujoco_body_friction1+simi_mujoco_body_friction1;
-        std::vector<float> fp;
+        std::vector<floatDouble> fp;
         getMujocoFloatParams(fp);
         fp[w]=v;
         setMujocoFloatParams(fp);
@@ -436,12 +435,12 @@ bool CDynMaterialObject::setEngineBoolParam(int what,bool v)
     return(false);
 }
 
-void CDynMaterialObject::getBulletFloatParams(std::vector<float>& p)
+void CDynMaterialObject::getBulletFloatParams(std::vector<floatDouble>& p)
 {
     p.assign(_bulletFloatParams.begin(),_bulletFloatParams.end());
 }
 
-void CDynMaterialObject::setBulletFloatParams(const std::vector<float>& p)
+void CDynMaterialObject::setBulletFloatParams(const std::vector<floatDouble>& p)
 {
     for (size_t i=0;i<p.size();i++)
         _bulletFloatParams[i]=p[i];
@@ -467,12 +466,12 @@ void CDynMaterialObject::setBulletIntParams(const std::vector<int>& p)
 }
 
 
-void CDynMaterialObject::getOdeFloatParams(std::vector<float>& p)
+void CDynMaterialObject::getOdeFloatParams(std::vector<floatDouble>& p)
 {
     p.assign(_odeFloatParams.begin(),_odeFloatParams.end());
 }
 
-void CDynMaterialObject::setOdeFloatParams(const std::vector<float>& p)
+void CDynMaterialObject::setOdeFloatParams(const std::vector<floatDouble>& p)
 {
     for (size_t i=0;i<p.size();i++)
         _odeFloatParams[i]=p[i];
@@ -497,12 +496,12 @@ void CDynMaterialObject::setOdeIntParams(const std::vector<int>& p)
 }
 
 
-void CDynMaterialObject::getVortexFloatParams(std::vector<float>& p)
+void CDynMaterialObject::getVortexFloatParams(std::vector<floatDouble>& p)
 {
     p.assign(_vortexFloatParams.begin(),_vortexFloatParams.end());
 }
 
-void CDynMaterialObject::setVortexFloatParams(const std::vector<float>& p)
+void CDynMaterialObject::setVortexFloatParams(const std::vector<floatDouble>& p)
 {
     int l=int(p.size());
     if (l>int(_vortexFloatParams.size()))
@@ -540,12 +539,12 @@ void CDynMaterialObject::setVortexIntParams(const std::vector<int>& p)
     _vortexIntParams[simi_vortex_body_materialuniqueid]=_uniqueID;
 }
 
-void CDynMaterialObject::getNewtonFloatParams(std::vector<float>& p)
+void CDynMaterialObject::getNewtonFloatParams(std::vector<floatDouble>& p)
 {
     p.assign(_newtonFloatParams.begin(),_newtonFloatParams.end());
 }
 
-void CDynMaterialObject::setNewtonFloatParams(const std::vector<float>& p)
+void CDynMaterialObject::setNewtonFloatParams(const std::vector<floatDouble>& p)
 {
     int l=int(p.size());
     if (l>int(_newtonFloatParams.size()))
@@ -573,12 +572,12 @@ void CDynMaterialObject::setNewtonIntParams(const std::vector<int>& p)
         _newtonIntParams[i]=p[i];
 }
 
-void CDynMaterialObject::getMujocoFloatParams(std::vector<float>& p)
+void CDynMaterialObject::getMujocoFloatParams(std::vector<floatDouble>& p)
 {
     p.assign(_mujocoFloatParams.begin(),_mujocoFloatParams.end());
 }
 
-void CDynMaterialObject::setMujocoFloatParams(const std::vector<float>& p)
+void CDynMaterialObject::setMujocoFloatParams(const std::vector<floatDouble>& p)
 {
     for (size_t i=0;i<p.size();i++)
         _mujocoFloatParams[i]=p[i];
@@ -776,31 +775,56 @@ void CDynMaterialObject::serialize(CSer& ar)
             ar << dummy;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("Bul"); // keep for file write backw. compat. (09/03/2016)
-            // ar << _bulletRestitution << _bulletFriction << _bulletLinearDamping << _bulletAngularDamping << _bulletNonDefaultCollisionMarginFactor << _bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape;
-            ar << _bulletFloatParams[simi_bullet_body_restitution] << _bulletFloatParams[simi_bullet_body_oldfriction] << _bulletFloatParams[simi_bullet_body_lineardamping] << _bulletFloatParams[simi_bullet_body_angulardamping] << _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor] << _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex];
+            ar.flt() << (floatFloat)_bulletFloatParams[simi_bullet_body_restitution] << (floatFloat)_bulletFloatParams[simi_bullet_body_oldfriction] << (floatFloat)_bulletFloatParams[simi_bullet_body_lineardamping] << (floatFloat)_bulletFloatParams[simi_bullet_body_angulardamping] << (floatFloat)_bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor] << (floatFloat)_bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex];
             ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Od2"); // keep for file write backw. compat. (09/03/2016)
-            // ar << _odeMaxContacts << _odeFriction << _odeSoftERP << _odeSoftCFM << _odeLinearDamping << _odeAngularDamping;
-            ar << _odeIntParams[simi_ode_body_maxcontacts] << _odeFloatParams[simi_ode_body_friction] << _odeFloatParams[simi_ode_body_softerp] << _odeFloatParams[simi_ode_body_softcfm] << _odeFloatParams[simi_ode_body_lineardamping] << _odeFloatParams[simi_ode_body_angulardamping];
+            ar << _odeIntParams[simi_ode_body_maxcontacts];
+            ar.flt() << (floatFloat)_odeFloatParams[simi_ode_body_friction] << (floatFloat)_odeFloatParams[simi_ode_body_softerp] << (floatFloat)_odeFloatParams[simi_ode_body_softcfm] << (floatFloat)_odeFloatParams[simi_ode_body_lineardamping] << (floatFloat)_odeFloatParams[simi_ode_body_angulardamping];
             ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Vo4"); // vortex params:
             ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
             for (int i=0;i<int(_vortexFloatParams.size());i++)
-                ar << _vortexFloatParams[i];
+                ar.flt() << (floatFloat)_vortexFloatParams[i];
             for (int i=0;i<int(_vortexIntParams.size());i++)
                 ar << _vortexIntParams[i];
             ar.flush();
+#endif
+#ifdef DOUBLESERIALIZATIONOPERATION
+            ar.storeDataName("_o4"); // vortex params:
+            ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
+            for (int i=0;i<int(_vortexFloatParams.size());i++)
+                ar.dbl() << _vortexFloatParams[i];
+            for (int i=0;i<int(_vortexIntParams.size());i++)
+                ar << _vortexIntParams[i];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Nw1"); // newton params:
             ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
             for (int i=0;i<int(_newtonFloatParams.size());i++)
-                ar << _newtonFloatParams[i];
+                ar.flt() << (floatFloat)_newtonFloatParams[i];
             for (int i=0;i<int(_newtonIntParams.size());i++)
                 ar << _newtonIntParams[i];
             ar.flush();
+#endif
+#ifdef DOUBLESERIALIZATIONOPERATION
+            ar.storeDataName("_w1"); // newton params:
+            ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
+            for (int i=0;i<int(_newtonFloatParams.size());i++)
+                ar.dbl() << _newtonFloatParams[i];
+            for (int i=0;i<int(_newtonIntParams.size());i++)
+                ar << _newtonIntParams[i];
+            ar.flush();
+#endif
 
             ar.storeDataName("Var"); // keep for file write backw. compat. (09/03/2016)
             unsigned char nothing=0;
@@ -815,29 +839,62 @@ void CDynMaterialObject::serialize(CSer& ar)
             ar << nothing;
             ar.flush();
 
+#ifdef TMPOPERATION
             ar.storeDataName("BuN"); // Bullet params, keep after "Bul" and "Var"
             ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
             for (int i=0;i<int(_bulletFloatParams.size());i++)
-                ar << _bulletFloatParams[i];
+                ar.flt() << (floatFloat)_bulletFloatParams[i];
             for (int i=0;i<int(_bulletIntParams.size());i++)
                 ar << _bulletIntParams[i];
             ar.flush();
+#endif
+#ifdef DOUBLESERIALIZATIONOPERATION
+            ar.storeDataName("_uN"); // Bullet params, keep after "Bul" and "Var"
+            ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
+            for (int i=0;i<int(_bulletFloatParams.size());i++)
+                ar.dbl() << _bulletFloatParams[i];
+            for (int i=0;i<int(_bulletIntParams.size());i++)
+                ar << _bulletIntParams[i];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("OdN"); // Ode params, keep after "Od2"
             ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
             for (int i=0;i<int(_odeFloatParams.size());i++)
-                ar << _odeFloatParams[i];
+                ar.flt() << (floatFloat)_odeFloatParams[i];
             for (int i=0;i<int(_odeIntParams.size());i++)
                 ar << _odeIntParams[i];
             ar.flush();
+#endif
+#ifdef DOUBLESERIALIZATIONOPERATION
+            ar.storeDataName("_dN"); // Ode params, keep after "Od2"
+            ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
+            for (int i=0;i<int(_odeFloatParams.size());i++)
+                ar.dbl() << _odeFloatParams[i];
+            for (int i=0;i<int(_odeIntParams.size());i++)
+                ar << _odeIntParams[i];
+            ar.flush();
+#endif
 
+#ifdef TMPOPERATION
             ar.storeDataName("Mj1"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
             for (int i=0;i<int(_mujocoFloatParams.size());i++)
-                ar << _mujocoFloatParams[i];
+                ar.flt() << (floatFloat)_mujocoFloatParams[i];
             for (int i=0;i<int(_mujocoIntParams.size());i++)
                 ar << _mujocoIntParams[i];
             ar.flush();
+#endif
+#ifdef DOUBLESERIALIZATIONOPERATION
+            ar.storeDataName("_j1"); // mujoco params:
+            ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
+            for (int i=0;i<int(_mujocoFloatParams.size());i++)
+                ar.dbl() << _mujocoFloatParams[i];
+            for (int i=0;i<int(_mujocoIntParams.size());i++)
+                ar << _mujocoIntParams[i];
+            ar.flush();
+#endif
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -871,34 +928,79 @@ void CDynMaterialObject::serialize(CSer& ar)
                         ar >> byteQuantity;
                         unsigned char dummy;
                         ar >> dummy;
-                        // _isIndividualTag=SIM_IS_BIT_SET(dummy,0);
                     }
                     if (theName.compare("Bul")==0)
                     { // keep for backw. compat. (09/03/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        // ar >> _bulletRestitution >> _bulletFriction >> _bulletLinearDamping >> _bulletAngularDamping >> _bulletNonDefaultCollisionMarginFactor >> _bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape;
-                        float fric;
-                        ar >> _bulletFloatParams[simi_bullet_body_restitution] >> fric >> _bulletFloatParams[simi_bullet_body_lineardamping] >> _bulletFloatParams[simi_bullet_body_angulardamping] >> _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor] >> _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex];
+                        floatFloat fric,bla,bli,blo,blu,ble;
+                        ar.flt() >> bla >> fric >> bli >> blo >> blu >> ble;
+                        _bulletFloatParams[simi_bullet_body_restitution]=(floatDouble)bla;
+                        _bulletFloatParams[simi_bullet_body_lineardamping]=(floatDouble)bli;
+                        _bulletFloatParams[simi_bullet_body_angulardamping]=(floatDouble)blo;
+                        _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor]=(floatDouble)blu;
+                        _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex]=(floatDouble)ble;
                         _bulletFloatParams[simi_bullet_body_oldfriction]=fric;
-                        _bulletFloatParams[simi_bullet_body_friction]=tt::getLimitedFloat(0.0f,1.0f,fric); // sticky contacts have disappeared for the new Bullet, now everything is "sticky", so make sure it is not too sticky!
+                        _bulletFloatParams[simi_bullet_body_friction]=tt::getLimitedFloat(0.0,1.0,fric); // sticky contacts have disappeared for the new Bullet, now everything is "sticky", so make sure it is not too sticky!
                     }
                     if (theName.compare("Ode")==0)
                     { // for backward compatibility (13/8/2015)
                         noHit=false;
                         ar >> byteQuantity;
-                        // ar >> _odeMaxContacts >> _odeFriction >> _odeSoftERP >> _odeSoftCFM >> _odeLinearDamping >> _odeAngularDamping;
-                        ar >> _odeIntParams[simi_ode_body_maxcontacts] >> _odeFloatParams[simi_ode_body_friction] >> _odeFloatParams[simi_ode_body_softerp] >> _odeFloatParams[simi_ode_body_softcfm] >> _odeFloatParams[simi_ode_body_lineardamping] >> _odeFloatParams[simi_ode_body_angulardamping];
+                        ar >> _odeIntParams[simi_ode_body_maxcontacts];
+                        floatFloat bla,bli,blo,blu,ble;
+                        ar.flt() >> bla >> bli >> blo >> blu >> ble;
+                        _odeFloatParams[simi_ode_body_friction]=(floatDouble)bla;
+                        _odeFloatParams[simi_ode_body_softerp]=(floatDouble)bli;
+                        _odeFloatParams[simi_ode_body_softcfm]=(floatDouble)blo;
+                        _odeFloatParams[simi_ode_body_lineardamping]=(floatDouble)blu;
+                        _odeFloatParams[simi_ode_body_angulardamping]=(floatDouble)ble;;
                         _odeIntParams[0]=64;
                     }
                     if (theName.compare("Od2")==0)
                     { // keep for backw. compat. (09/03/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        // ar >> _odeMaxContacts >> _odeFriction >> _odeSoftERP >> _odeSoftCFM >> _odeLinearDamping >> _odeAngularDamping;
-                        ar >> _odeIntParams[0] >> _odeFloatParams[0] >> _odeFloatParams[1] >> _odeFloatParams[2] >> _odeFloatParams[3] >> _odeFloatParams[4];
+                        ar >> _odeIntParams[0];
+                        floatFloat bla;
+                        for (size_t i=0;i<5;i++)
+                        {
+                            ar.flt() >> bla;
+                            _odeFloatParams[i]=(floatDouble)bla;
+                        }
                     }
                     if (theName.compare("BuN")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_bulletFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_bulletIntParams.size()),cnt2);
+
+                        floatFloat vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _bulletFloatParams already!
+                            ar.flt() >> vf;
+                            _bulletFloatParams[i]=(floatDouble)vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar.flt() >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _bulletIntParams already!
+                            ar >> vi;
+                            _bulletIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("_uN")==0)
                     { // Bullet params:
                         noHit=false;
                         ar >> byteQuantity;
@@ -908,16 +1010,16 @@ void CDynMaterialObject::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_bulletFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_bulletIntParams.size()),cnt2);
 
-                        float vf;
+                        floatDouble vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _bulletFloatParams already!
-                            ar >> vf;
+                            ar.dbl() >> vf;
                             _bulletFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vf;
+                            ar.dbl() >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _bulletIntParams already!
@@ -930,6 +1032,37 @@ void CDynMaterialObject::serialize(CSer& ar)
                         }
                     }
                     if (theName.compare("OdN")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_odeFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_odeIntParams.size()),cnt2);
+
+                        floatFloat vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _odeFloatParams already!
+                            ar.flt() >> vf;
+                            _odeFloatParams[i]=(floatDouble)vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar.flt() >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _odeIntParams already!
+                            ar >> vi;
+                            _odeIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("_dN")==0)
                     { // Ode params:
                         noHit=false;
                         ar >> byteQuantity;
@@ -939,16 +1072,16 @@ void CDynMaterialObject::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_odeFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_odeIntParams.size()),cnt2);
 
-                        float vf;
+                        floatDouble vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _odeFloatParams already!
-                            ar >> vf;
+                            ar.dbl() >> vf;
                             _odeFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vf;
+                            ar.dbl() >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _odeIntParams already!
@@ -961,6 +1094,39 @@ void CDynMaterialObject::serialize(CSer& ar)
                         }
                     }
                     if (theName.compare("Vo4")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_vortexFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_vortexIntParams.size()),cnt2);
+
+                        floatFloat vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _vortexFloatParams already!
+                            ar.flt() >> vf;
+                            _vortexFloatParams[i]=(floatDouble)vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar.flt() >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _vortexIntParams already!
+                            ar >> vi;
+                            _vortexIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                            // was there by mistake until 5/8/2015: _vortexIntParams[i]=vi;
+                        }
+                        vortexDataLoaded=true;
+                    }
+                    if (theName.compare("_o4")==0)
                     { // vortex params:
                         noHit=false;
                         ar >> byteQuantity;
@@ -970,16 +1136,16 @@ void CDynMaterialObject::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_vortexFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_vortexIntParams.size()),cnt2);
 
-                        float vf;
+                        floatDouble vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _vortexFloatParams already!
-                            ar >> vf;
+                            ar.dbl() >> vf;
                             _vortexFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vf;
+                            ar.dbl() >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _vortexIntParams already!
@@ -994,6 +1160,38 @@ void CDynMaterialObject::serialize(CSer& ar)
                         vortexDataLoaded=true;
                     }
                     if (theName.compare("Nw1")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_newtonFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_newtonIntParams.size()),cnt2);
+
+                        floatFloat vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _newtonFloatParams already!
+                            ar.flt() >> vf;
+                            _newtonFloatParams[i]=(floatDouble)vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar.flt() >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _newtonIntParams already!
+                            ar >> vi;
+                            _newtonIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                        newtonDataLoaded=true;
+                    }
+                    if (theName.compare("_w1")==0)
                     { // newton params:
                         noHit=false;
                         ar >> byteQuantity;
@@ -1003,16 +1201,16 @@ void CDynMaterialObject::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_newtonFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_newtonIntParams.size()),cnt2);
 
-                        float vf;
+                        floatDouble vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _newtonFloatParams already!
-                            ar >> vf;
+                            ar.dbl() >> vf;
                             _newtonFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vf;
+                            ar.dbl() >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _newtonIntParams already!
@@ -1026,6 +1224,37 @@ void CDynMaterialObject::serialize(CSer& ar)
                         newtonDataLoaded=true;
                     }
                     if (theName.compare("Mj1")==0)
+                    { // for backward comp. (flt->dbl)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=std::min<int>(int(_mujocoFloatParams.size()),cnt1);
+                        int cnt2_b=std::min<int>(int(_mujocoIntParams.size()),cnt2);
+
+                        floatFloat vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _mujocoFloatParams already!
+                            ar.flt() >> vf;
+                            _mujocoFloatParams[i]=(floatDouble)vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar.flt() >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _mujocoIntParams already!
+                            ar >> vi;
+                            _mujocoIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("_j1")==0)
                     { // mujoco params:
                         noHit=false;
                         ar >> byteQuantity;
@@ -1035,16 +1264,16 @@ void CDynMaterialObject::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_mujocoFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_mujocoIntParams.size()),cnt2);
 
-                        float vf;
+                        floatDouble vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _mujocoFloatParams already!
-                            ar >> vf;
+                            ar.dbl() >> vf;
                             _mujocoFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar >> vf;
+                            ar.dbl() >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _mujocoIntParams already!
@@ -1071,9 +1300,6 @@ void CDynMaterialObject::serialize(CSer& ar)
                             _bulletIntParams[simi_bullet_body_bitcoded]|=simi_bullet_body_autoshrinkconvex;
                         if (nothing&8)
                             _bulletIntParams[simi_bullet_body_bitcoded]|=simi_bullet_body_usenondefaultcollisionmarginconvex;
-                        // Following is done after everything was loaded:
-                        //  if (_bulletIntParams[simi_bullet_body_bitcoded]&simi_bullet_body_sticky)
-                        //  _bulletFloatParams[simi_bullet_body_friction]=0.25f; // sticky contacts have disappeared for the new Bullet, we need to adjust for that
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -1082,7 +1308,7 @@ void CDynMaterialObject::serialize(CSer& ar)
             if (!vortexDataLoaded)
             { // keep for backward compatibility (16/10/2013)
                 // Try to guess the friction we would need for Vortex:
-                float averageFriction=0.0f;
+                floatDouble averageFriction=0.0f;
                 if (_bulletFloatParams[simi_bullet_body_oldfriction]>1.0f)
                     averageFriction+=1.0f;
                 else
@@ -1106,7 +1332,7 @@ void CDynMaterialObject::serialize(CSer& ar)
             if (!newtonDataLoaded)
             { // keep for backward compatibility (5/8/2015)
                 // Try to guess the friction we would need for Newton:
-                float averageFriction=0.0f;
+                floatDouble averageFriction=0.0f;
                 if (_bulletFloatParams[simi_bullet_body_oldfriction]>1.0f)
                     averageFriction+=1.0f;
                 else
@@ -1228,7 +1454,7 @@ void CDynMaterialObject::serialize(CSer& ar)
             ar.xmlPushNewNode("mujoco");
             ar.xmlAddNode_3float("friction",getEngineFloatParam(sim_mujoco_body_friction1,nullptr),getEngineFloatParam(sim_mujoco_body_friction2,nullptr),getEngineFloatParam(sim_mujoco_body_friction3,nullptr));
             ar.xmlAddNode_2float("solref",getEngineFloatParam(sim_mujoco_body_solref1,nullptr),getEngineFloatParam(sim_mujoco_body_solref2,nullptr));
-            float si[5];
+            floatDouble si[5];
             si[0]=getEngineFloatParam(sim_mujoco_body_solimp1,nullptr);
             si[1]=getEngineFloatParam(sim_mujoco_body_solimp2,nullptr);
             si[2]=getEngineFloatParam(sim_mujoco_body_solimp3,nullptr);
@@ -1251,7 +1477,7 @@ void CDynMaterialObject::serialize(CSer& ar)
                 ar.xmlGetNode_string("name",_objectName);
             }
 
-            float v;
+            floatDouble v;
             int vi;
             bool vb;
             if (ar.xmlPushChildNode("engines",exhaustiveXml))
@@ -1358,7 +1584,7 @@ void CDynMaterialObject::serialize(CSer& ar)
 
                 if (ar.xmlPushChildNode("mujoco",exhaustiveXml))
                 {
-                    float vv[5];
+                    floatDouble vv[5];
                     if (ar.xmlGetNode_floats("friction",vv,3,exhaustiveXml))
                     {
                         setEngineFloatParam(sim_mujoco_body_friction1,vv[0]);

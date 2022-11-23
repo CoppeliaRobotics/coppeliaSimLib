@@ -117,7 +117,7 @@ void CStaticGraphCurve_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)_curveWidth;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_lo");
             ar << _curveType;
             ar.dbl() << ambientColor[0] << ambientColor[1] << ambientColor[2];
@@ -131,7 +131,7 @@ void CStaticGraphCurve_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)emissiveColor[0] << (floatFloat)emissiveColor[1] << (floatFloat)emissiveColor[2];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_l2"); // 7/10/2014
             ar.dbl() << emissiveColor[0] << emissiveColor[1] << emissiveColor[2];
             ar.flush();
@@ -152,7 +152,7 @@ void CStaticGraphCurve_old::serialize(CSer& ar)
                 ar.flt() << (floatFloat)values[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_al");
             ar << int(values.size());
             for (int i=0;i<int(values.size());i++)

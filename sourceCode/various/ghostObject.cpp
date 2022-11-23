@@ -1,4 +1,3 @@
-
 #include "ghostObject.h"
 #include "app.h"
 #include "ghostRendering.h"
@@ -8,7 +7,7 @@ CGhostObject::CGhostObject()
     transparencyFactor=0;
 }
 
-CGhostObject::CGhostObject(int theGroupId,int theObjectHandle,C7Vector theTr,int theOptions,float theStartTime,float theEndTime,const float theColor[12])
+CGhostObject::CGhostObject(int theGroupId,int theObjectHandle,C7Vector theTr,int theOptions,floatDouble theStartTime,floatDouble theEndTime,const floatDouble theColor[12])
 {
     // options: bit0 set (1): model instead of object
     // options: bit1 set (2): real-time playback
@@ -66,7 +65,7 @@ CGhostObject* CGhostObject::copyYourself()
     return(newGhost);
 }
 
-void CGhostObject::render(int displayAttributes,float simulationTime,float realTime)
+void CGhostObject::render(int displayAttributes,floatDouble simulationTime,floatDouble realTime)
 {
     if ((options&16)!=0)
         return; // invisible
@@ -79,6 +78,6 @@ void CGhostObject::render(int displayAttributes,float simulationTime,float realT
     {
         CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
         if (shape!=nullptr)
-            displayGhost(shape,tr,displayAttributes,options,float(transparencyFactor)/255.0f,color);
+            displayGhost(shape,tr,displayAttributes,options,floatDouble(transparencyFactor)/255.0f,color);
     }
 }

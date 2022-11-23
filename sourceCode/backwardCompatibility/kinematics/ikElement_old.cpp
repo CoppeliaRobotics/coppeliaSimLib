@@ -73,7 +73,7 @@ void CIkElement_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)_minAngularPrecision << (floatFloat)_minLinearPrecision;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_r2");
             ar.dbl() << _minAngularPrecision << _minLinearPrecision;
             ar.flush();
@@ -88,7 +88,7 @@ void CIkElement_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)_positionWeight << (floatFloat)_orientationWeight;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_gt");
             ar.dbl() << _positionWeight << _orientationWeight;
             ar.flush();

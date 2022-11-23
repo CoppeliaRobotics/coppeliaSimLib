@@ -442,7 +442,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
             ar.flt() << (floatFloat)_mass;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_as");
             ar.dbl() << _mass;
             ar.flush();
@@ -459,7 +459,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
             ar.flt() << (floatFloat)_principalMomentsOfInertia(0) << (floatFloat)_principalMomentsOfInertia(1) << (floatFloat)_principalMomentsOfInertia(2);
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ne");
             ar.dbl() << _localInertiaFrame(0) << _localInertiaFrame(1) << _localInertiaFrame(2) << _localInertiaFrame(3);
             ar.dbl() << _localInertiaFrame(4) << _localInertiaFrame(5) << _localInertiaFrame(6);
@@ -473,7 +473,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
             ar.flt() << (floatFloat)_transformationsSinceGrouping(4) << (floatFloat)_transformationsSinceGrouping(5) << (floatFloat)_transformationsSinceGrouping(6);
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_tb");
             ar.dbl() << _transformationsSinceGrouping(0) << _transformationsSinceGrouping(1) << _transformationsSinceGrouping(2) << _transformationsSinceGrouping(3);
             ar.dbl() << _transformationsSinceGrouping(4) << _transformationsSinceGrouping(5) << _transformationsSinceGrouping(6);

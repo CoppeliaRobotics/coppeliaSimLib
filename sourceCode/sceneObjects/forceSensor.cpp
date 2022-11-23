@@ -578,7 +578,7 @@ void CForceSensor::serialize(CSer& ar)
             ar.flt() << (floatFloat)_forceSensorSize;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_iz");
             ar.dbl() << _forceSensorSize;
             ar.flush();
@@ -599,7 +599,7 @@ void CForceSensor::serialize(CSer& ar)
             ar << _consecutiveThresholdViolationsForBreaking;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_ri");
             ar.dbl() << _forceThreshold << _torqueThreshold;
             ar << _consecutiveThresholdViolationsForBreaking;

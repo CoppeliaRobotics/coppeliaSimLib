@@ -94,7 +94,7 @@ void CSimplePathPoint_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)_maxRelAbsVelocity;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_t2");
             ar.dbl() << _transformation(0) << _transformation(1) << _transformation(2) << _transformation(3);
             ar.dbl() << _transformation(4) << _transformation(5) << _transformation(6);
@@ -109,7 +109,7 @@ void CSimplePathPoint_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)_onSpotDistance;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_t3");
             ar.dbl() << _onSpotDistance;
             ar.flush();
@@ -124,7 +124,7 @@ void CSimplePathPoint_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)_auxChannels[3];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_t4");
             ar << _auxFlags;
             ar.dbl() << _auxChannels[0];

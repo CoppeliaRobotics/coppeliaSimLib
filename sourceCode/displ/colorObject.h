@@ -12,39 +12,39 @@ public:
     void makeCurrentColor2(bool forceNonTransparent,bool useAuxiliaryComponent) const;
     void setDefaultValues();
     void setColorsAllBlack();
-    void setColor(const float theColor[3],unsigned char colorMode);
-    void setColor(float r,float g,float b,unsigned char colorMode);
+    void setColor(const floatDouble theColor[3],unsigned char colorMode);
+    void setColor(floatDouble r,floatDouble g,floatDouble b,unsigned char colorMode);
     void pushShapeColorChangeEvent(int objectHandle,int colorIndex);
-    static void pushColorChangeEvent(int objectHandle,float col1[9],float col2[9]=nullptr,float col3[9]=nullptr,float col4[9]=nullptr);
-    void getNewColors(float cols[9]) const;
+    static void pushColorChangeEvent(int objectHandle,floatDouble col1[9],floatDouble col2[9]=nullptr,floatDouble col3[9]=nullptr,floatDouble col4[9]=nullptr);
+    void getNewColors(floatDouble cols[9]) const;
     void copyYourselfInto(CColorObject* it) const;
     void serialize(CSer& ar,int objType); // 0=3d mesh, 1=3d lines, 2=3d points, 3=3d light, 4=2d thing
     void setConvexColors();
 
-    void getColor(float col[3],unsigned char colorMode) const;
-    void getColors(float col[15]) const;
-    const float* getColorsPtr() const;
-    float* getColorsPtr();
+    void getColor(floatDouble col[3],unsigned char colorMode) const;
+    void getColors(floatDouble col[15]) const;
+    const floatDouble* getColorsPtr() const;
+    floatDouble* getColorsPtr();
     bool getTranslucid() const;
-    float getOpacity() const;
+    floatDouble getOpacity() const;
     int getShininess() const;
     std::string getColorName() const;
     std::string getExtensionString() const;
 
     void setFlash(bool flashIsOn);
     bool getFlash() const;
-    void setFlashFrequency(float f);
-    float getFlashFrequency() const;
-    void setFlashRatio(float f);
-    float getFlashRatio() const;
-    void setFlashPhase(float f);
-    float getFlashPhase() const;
+    void setFlashFrequency(floatDouble f);
+    floatDouble getFlashFrequency() const;
+    void setFlashRatio(floatDouble f);
+    floatDouble getFlashRatio() const;
+    void setFlashPhase(floatDouble f);
+    floatDouble getFlashPhase() const;
     void setUseSimulationTime(bool sim);
     bool getUseSimulationTime() const;
 
-    void setColors(const float col[15]);
+    void setColors(const floatDouble col[15]);
     void setTranslucid(bool e);
-    void setOpacity(float e);
+    void setOpacity(floatDouble e);
     void setShininess(int e);
     void setColorName(const char* nm);
     void setExtensionString(const char* nm);
@@ -53,16 +53,16 @@ private:
     bool _isSame(const CColorObject* it) const;
     std::string _getPatternStringFromPatternId_backwardCompatibility_3_2_2016(int id);
 
-    float _colors[15];
+    floatDouble _colors[15];
     int _shininess;
-    float _opacity;
+    floatDouble _opacity;
     bool _translucid;
     std::string _colorName;
     std::string _extensionString;
 
     bool _useSimulationTime;
-    float _flashFrequency;
-    float _flashRatio;
-    float _flashPhase;
+    floatDouble _flashFrequency;
+    floatDouble _flashRatio;
+    floatDouble _flashPhase;
     bool _flash;
 };

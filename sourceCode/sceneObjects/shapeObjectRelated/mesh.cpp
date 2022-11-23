@@ -1726,7 +1726,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar.flt() << (floatFloat)_purePrimitiveXSizeOrDiameter << (floatFloat)_purePrimitiveYSize << (floatFloat)_purePrimitiveZSizeOrHeight;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_pr");
             ar << _purePrimitive;
             ar.dbl() << _purePrimitiveXSizeOrDiameter << _purePrimitiveYSize << _purePrimitiveZSizeOrHeight;
@@ -1738,7 +1738,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar.flt() << (floatFloat)_purePrimitiveInsideScaling;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_p2");
             ar.dbl() << _purePrimitiveInsideScaling;
             ar.flush();
@@ -1750,7 +1750,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar.flt() << (floatFloat)_verticeLocalFrame(4) << (floatFloat)_verticeLocalFrame(5) << (floatFloat)_verticeLocalFrame(6);
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_pf");
             ar.dbl() << _verticeLocalFrame(0) << _verticeLocalFrame(1) << _verticeLocalFrame(2) << _verticeLocalFrame(3);
             ar.dbl() << _verticeLocalFrame(4) << _verticeLocalFrame(5) << _verticeLocalFrame(6);
@@ -1763,7 +1763,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar << _edgeWidth_DEPRERCATED;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_sa"); // write this always before Gs2
             ar.dbl() << _shadingAngle;
             ar << _edgeWidth_DEPRERCATED;
@@ -1775,7 +1775,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar.flt() << (floatFloat)_edgeThresholdAngle;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_s2");
             ar.dbl() << _edgeThresholdAngle;
             ar.flush();
@@ -1810,7 +1810,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                 ar.flt() << (floatFloat)_heightfieldHeights[i];
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_fd"); // Has to come after PURE TYPE!
             ar << _heightfieldXCount << _heightfieldYCount;
             for (size_t i=0;i<_heightfieldHeights.size();i++)
@@ -2170,9 +2170,9 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar.xmlPushNewNode("meshData");
             if (ar.xmlSaveDataInline(_verticesForDisplayAndDisk.size()*4+_indices.size()*4+_normalsForDisplayAndDisk.size()*4+_edges.size()))
             {
-                ar.xmlAddNode_floats("vertices",_verticesForDisplayAndDisk);
+                ar.xmlAddNode_floats("vertices",_verticesForDisplayAndDisk); // keep floatFloat
                 ar.xmlAddNode_ints("indices",_indices);
-                ar.xmlAddNode_floats("normals",_normalsForDisplayAndDisk);
+                ar.xmlAddNode_floats("normals",_normalsForDisplayAndDisk); // keep floatFloat
                 ar.xmlAddNode_uchars("edges",_edges);
             }
             else
@@ -2233,10 +2233,10 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
 
             if (ar.xmlPushChildNode("meshData"))
             {
-                if (ar.xmlGetNode_floats("vertices",_verticesForDisplayAndDisk,false))
+                if (ar.xmlGetNode_floats("vertices",_verticesForDisplayAndDisk,false)) // floatFloat
                 {
                     ar.xmlGetNode_ints("indices",_indices);
-                    ar.xmlGetNode_floats("normals",_normalsForDisplayAndDisk);
+                    ar.xmlGetNode_floats("normals",_normalsForDisplayAndDisk); // floatFloat
                     ar.xmlGetNode_uchars("edges",_edges);
                 }
                 else

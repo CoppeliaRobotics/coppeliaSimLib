@@ -2031,7 +2031,7 @@ void CPathCont_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)_squareSize;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_i2");
             ar << _lineSize;
             ar.dbl() << _squareSize;
@@ -2053,7 +2053,7 @@ void CPathCont_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)_position << (floatFloat)_maxAcceleration << (floatFloat)_nominalVelocity << (floatFloat)_targetNominalVelocity;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_m2");
             ar.dbl() << _position << _maxAcceleration << _nominalVelocity << _targetNominalVelocity;
             ar.flush();
@@ -2065,7 +2065,7 @@ void CPathCont_old::serialize(CSer& ar)
             ar << _pathLengthCalculationMethod;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_v3");
             ar.dbl() << _angleVarToDistanceCoeff;
             ar << _pathLengthCalculationMethod;
@@ -2077,7 +2077,7 @@ void CPathCont_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)_onSpotDistanceToDistanceCoeff;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_v9");
             ar.dbl() << _onSpotDistanceToDistanceCoeff;
             ar.flush();
@@ -2089,7 +2089,7 @@ void CPathCont_old::serialize(CSer& ar)
             ar.flt() << (floatFloat)_avp_relativeAcceleration;
             ar.flush();
 #endif
-#ifdef NEWOPERATION
+#ifdef DOUBLESERIALIZATIONOPERATION
             ar.storeDataName("_v2");
             ar.dbl() << _avp_turningCircleRadiusForHalfVelocity << _avp_relativeVelocityAtRotationAxisChange;
             ar.dbl() << _avp_relativeAcceleration;
