@@ -2526,7 +2526,7 @@ int _simHandleProximitySensor(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    float dummy[3]={0.0f,0.0f,0.0f};
+    float dummy[3]={0.0,0.0,0.0};
     luaWrap_lua_pushnumber(L,0.0);
     pushDoubleTableOntoStack(L,3,dummy);
     luaWrap_lua_pushinteger(L,-1);
@@ -2560,7 +2560,7 @@ int _simReadProximitySensor(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     luaWrap_lua_pushnumber(L,0.0);
-    float ft[3]={0.0f,0.0f,0.0f};
+    float ft[3]={0.0,0.0,0.0};
     pushDoubleTableOntoStack(L,3,ft);
     luaWrap_lua_pushinteger(L,-1);
     pushDoubleTableOntoStack(L,3,ft);
@@ -2686,7 +2686,7 @@ int _simGetVisionSensorImg(luaWrap_lua_State* L)
     {
         int sensorHandle=luaToInt(L,1);
         int options=0;
-        float rgbaCutOff=0.0f;
+        float rgbaCutOff=0.0;
         int pos[2]={0,0};
         int size[2]={0,0};
         int res;
@@ -2897,7 +2897,7 @@ int _simCheckProximitySensor(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    float dummy[3]={0.0f,0.0f,0.0f};
+    float dummy[3]={0.0,0.0,0.0};
     luaWrap_lua_pushnumber(L,0.0);
     pushDoubleTableOntoStack(L,3,dummy);
     luaWrap_lua_pushinteger(L,-1);
@@ -2930,7 +2930,7 @@ int _simCheckProximitySensorEx(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    float dummy[3]={0.0f,0.0f,0.0f};
+    float dummy[3]={0.0,0.0,0.0};
     luaWrap_lua_pushnumber(L,0.0);
     pushDoubleTableOntoStack(L,3,dummy);
     luaWrap_lua_pushinteger(L,-1);
@@ -2981,7 +2981,7 @@ int _simCheckProximitySensorEx2(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    float dummy[3]={0.0f,0.0f,0.0f};
+    float dummy[3]={0.0,0.0,0.0};
     luaWrap_lua_pushnumber(L,0.0);
     pushDoubleTableOntoStack(L,3,dummy);
     pushDoubleTableOntoStack(L,3,dummy);
@@ -3559,7 +3559,7 @@ int _simGetSimulationTime(luaWrap_lua_State* L)
     LUA_START("sim.getSimulationTime");
 
     float theTime=simGetSimulationTime_internal();
-    if (theTime>=0.0f)
+    if (theTime>=0.0)
     {
         luaWrap_lua_pushnumber(L,theTime);
         LUA_END(1);
@@ -3657,7 +3657,7 @@ int _simCheckDistance(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.checkDistance");
     int retVal=-1;
-    float distanceData[7]={0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
+    float distanceData[7]={0.0,0.0,0.0,0.0,0.0,0.0,0.0};
     int tb[2]={-1,-1};
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
@@ -3666,7 +3666,7 @@ int _simCheckDistance(luaWrap_lua_State* L)
         int res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,true,&errorString);
         if (res>=0)
         {
-            float threshold=-1.0f;
+            float threshold=-1.0;
             if (res==2)
                 threshold=luaToFloat(L,3);
             if (doesEntityExist(&errorString,entity1Handle))
@@ -3680,7 +3680,7 @@ int _simCheckDistance(luaWrap_lua_State* L)
                     {
                         int buffer[4];
                         App::currentWorld->cacheData->getCacheDataDist(entity1Handle,entity2Handle,buffer);
-                        if (threshold<=0.0f)
+                        if (threshold<=0.0)
                             threshold=FLOAT_MAX;
                         bool result=CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(entity1Handle,entity2Handle,threshold,distanceData,buffer,buffer+2,true,true);
                         App::currentWorld->cacheData->setCacheDataDist(entity1Handle,entity2Handle,buffer);
@@ -3718,7 +3718,7 @@ int _simGetSimulatorMessage(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getSimulatorMessage");
     int auxVals[4]={0,0,0,0};
-    float aux2Vals[8]={0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
+    float aux2Vals[8]={0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
     int aux2Cnt=0;
     CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
     int commandID=it->extractCommandFromOutsideCommandQueue(auxVals,aux2Vals,aux2Cnt);
@@ -3776,7 +3776,7 @@ int _simAddGraphStream(luaWrap_lua_State* L)
                 options=luaToInt(L,4);
             if ( (res==0)||(res==2) )
             {
-                float col[3]={1.0f,0.0f,0.0f};
+                float col[3]={1.0,0.0,0.0};
                 res=checkOneGeneralInputArgument(L,5,lua_arg_number,3,true,false,&errorString);
                 if (res==2)
                     getDoublesFromTable(L,5,3,col);
@@ -3824,13 +3824,13 @@ int _simSetGraphStreamTransformation(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_integer,0,lua_arg_integer,0))
     {
-        float mult=1.0f;
+        float mult=1.0;
         int res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
         if (res==2)
             mult=luaToFloat(L,4);
         if ( (res==0)||(res==2) )
         {
-            float off=0.0f;
+            float off=0.0;
             res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
             if (res==2)
                 off=luaToFloat(L,5);
@@ -3914,7 +3914,7 @@ int _simAddGraphCurve(luaWrap_lua_State* L)
                             options=luaToInt(L,7);
                         if ( (res==0)||(res==2) )
                         {
-                            float col[3]={1.0f,1.0f,0.0f};
+                            float col[3]={1.0,1.0,0.0};
                             res=checkOneGeneralInputArgument(L,8,lua_arg_number,3,true,false,&errorString);
                             if (res==2)
                                 getDoublesFromTable(L,8,3,col);
@@ -4215,10 +4215,10 @@ int _simBuildPose(luaWrap_lua_State* L)
                         int i3=i2+1;
                         if (i3>2) i3=0;
                         C3Vector a2;
-                        if (a1(2)<0.8f)
-                            a2.setData(0.0f,0.0f,1.0f);
+                        if (a1(2)<0.8)
+                            a2.setData(0.0,0.0,1.0);
                         else
-                            a2.setData(1.0f,0.0f,0.0f);
+                            a2.setData(1.0,0.0,0.0);
                         m.axis[i1]=a1;
                         m.axis[i3]=(a1^a2).getNormalized();
                         m.axis[i2]=m.axis[i3]^a1;
@@ -7505,7 +7505,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         {
             float mult=luaToFloat(L,3);
             float off=luaToFloat(L,4);
-            bool noScalingNorOffset=( (mult==1.0f)&&(off==0.0f) );
+            bool noScalingNorOffset=( (mult==1.0)&&(off==0.0) );
             const unsigned char* data=(const unsigned char*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             dataLength-=(dataLength % 3);
@@ -7601,7 +7601,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         {
             float mult=luaToFloat(L,3);
             float off=luaToFloat(L,4);
-            bool noScalingNorOffset=( (mult==1.0f)&&(off==0.0f) );
+            bool noScalingNorOffset=( (mult==1.0)&&(off==0.0) );
             const unsigned char* data=(const unsigned char*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             dataLength-=(dataLength % 4);
@@ -7701,7 +7701,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         {
             float mult=luaToFloat(L,3);
             float off=luaToFloat(L,4);
-            bool noScalingNorOffset=( (mult==1.0f)&&(off==0.0f) );
+            bool noScalingNorOffset=( (mult==1.0)&&(off==0.0) );
             const unsigned char* data=(const unsigned char*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             dataLength-=(dataLength % 4);
@@ -7801,7 +7801,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         {
             float mult=luaToFloat(L,3);
             float off=luaToFloat(L,4);
-            bool noScalingNorOffset=( (mult==1.0f)&&(off==0.0f) );
+            bool noScalingNorOffset=( (mult==1.0)&&(off==0.0) );
             const unsigned char* data=(const unsigned char*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             if (dataLength!=0)
@@ -7909,7 +7909,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         {
             float mult=luaToFloat(L,3);
             float off=luaToFloat(L,4);
-            bool noScalingNorOffset=( (mult==1.0f)&&(off==0.0f) );
+            bool noScalingNorOffset=( (mult==1.0)&&(off==0.0) );
             const unsigned char* data=(const unsigned char*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             dataLength-=(dataLength % 3);
@@ -7930,7 +7930,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                        {
                            for (size_t i=0;i<dataLength;i++)
                            {
-                               float v=off+(float(data[3*i+0])+float(data[3*i+1])+float(data[3*i+2]))*mult/3.0f;
+                               float v=off+(float(data[3*i+0])+float(data[3*i+1])+float(data[3*i+2]))*mult/3.0;
                                dat[i]=(v<0.0)?(0):((v>255.499)?(255):((unsigned char)v));
                            }
                        }
@@ -7938,7 +7938,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                        {
                            for (size_t i=0;i<dataLength;i++)
                            {
-                               float v=off+(float(data[3*i+0])+float(data[3*i+1])+float(data[3*i+2]))*mult/3.0f;
+                               float v=off+(float(data[3*i+0])+float(data[3*i+1])+float(data[3*i+2]))*mult/3.0;
                                dat[i]=(unsigned char)v;
                            }
                        }
@@ -8100,9 +8100,9 @@ int _simAddDrawingObject(luaWrap_lua_State* L)
                                         if (res==2)
                                         {
                                             // following 3 are default aux colors:
-                                            emissionC[3]=0.5f;
-                                            emissionC[4]=0.0f;
-                                            emissionC[5]=0.0f;
+                                            emissionC[3]=0.5;
+                                            emissionC[4]=0.0;
+                                            emissionC[5]=0.0;
                                             if (int(luaWrap_lua_rawlen(L,9))<6)
                                                 getDoublesFromTable(L,9,3,emissionC);
                                             else
@@ -8384,7 +8384,7 @@ int _simGetObjectSizeFactor(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getObjectSizeFactor");
 
-    float retVal=-1.0f; // means error
+    float retVal=-1.0; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetObjectSizeFactor_internal(luaToInt(L,1));
 
@@ -8678,8 +8678,8 @@ int _simReadForceSensor(luaWrap_lua_State* L)
     LUA_START("sim.readForceSensor");
 
     int retVal=-1;
-    float force[3]={0.0f,0.0f,0.0f};
-    float torque[3]={0.0f,0.0f,0.0f};
+    float force[3]={0.0,0.0,0.0};
+    float torque[3]={0.0,0.0,0.0};
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simReadForceSensor_internal(luaToInt(L,1),force,torque);
 
@@ -8696,9 +8696,9 @@ int _simGetLightParameters(luaWrap_lua_State* L)
     LUA_START("sim.getLightParameters");
 
     int retVal=-1;
-    float ambientOld[3]={0.0f,0.0f,0.0f};
-    float diffuse[3]={0.0f,0.0f,0.0f};
-    float specular[3]={0.0f,0.0f,0.0f};
+    float ambientOld[3]={0.0,0.0,0.0};
+    float diffuse[3]={0.0,0.0,0.0};
+    float specular[3]={0.0,0.0,0.0};
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         retVal=simGetLightParameters_internal(luaToInt(L,1),nullptr,diffuse,specular);
 
@@ -8722,8 +8722,8 @@ int _simSetLightParameters(luaWrap_lua_State* L)
         int state=luaToInt(L,2);
         float* diffuseP=nullptr;
         float* specularP=nullptr;
-        float diffuse_[3]={0.0f,0.0f,0.0f};
-        float specular_[3]={0.0f,0.0f,0.0f};
+        float diffuse_[3]={0.0,0.0,0.0};
+        float specular_[3]={0.0,0.0,0.0};
         int res=checkOneGeneralInputArgument(L,3,lua_arg_number,3,true,true,&errorString);
         if (res!=-1)
         {
@@ -8759,8 +8759,8 @@ int _simGetVelocity(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getVelocity");
 
-    float linVel[3]={0.0f,0.0f,0.0f};
-    float angVel[3]={0.0f,0.0f,0.0f};
+    float linVel[3]={0.0,0.0,0.0};
+    float angVel[3]={0.0,0.0,0.0};
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         simGetVelocity_internal(luaToInt(L,1),linVel,angVel);
 
@@ -8775,8 +8775,8 @@ int _simGetObjectVelocity(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getObjectVelocity");
 
-    float linVel[3]={0.0f,0.0f,0.0f};
-    float angVel[3]={0.0f,0.0f,0.0f};
+    float linVel[3]={0.0,0.0,0.0};
+    float angVel[3]={0.0,0.0,0.0};
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
         simGetObjectVelocity_internal(luaToInt(L,1),linVel,angVel);
 
@@ -8814,8 +8814,8 @@ int _simAddForceAndTorque(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        float f[3]={0.0f,0.0f,0.0f};
-        float t[3]={0.0f,0.0f,0.0f};
+        float f[3]={0.0,0.0,0.0};
+        float t[3]={0.0,0.0,0.0};
         bool err=false;
         int res=checkOneGeneralInputArgument(L,2,lua_arg_number,3,true,true,&errorString);
         if (res==2)
@@ -8988,11 +8988,11 @@ int _simSetShapeColor(luaWrap_lua_State* L)
                     getDoublesFromTable(L,4,floatsInTableExpected,&rgbData[0]);
                     if (correctColors&&(colorComponent==0)&&(!transformColor) )
                     {
-                        rgbData[0]=(rgbData[0]+0.25f)/0.85f;
-                        rgbData[1]=(rgbData[1]+0.25f)/0.85f;
-                        rgbData[2]=(rgbData[2]+0.25f)/0.85f;
+                        rgbData[0]=(rgbData[0]+0.25)/0.85;
+                        rgbData[1]=(rgbData[1]+0.25)/0.85;
+                        rgbData[2]=(rgbData[2]+0.25)/0.85;
                         float mx=std::max<float>(std::max<float>(rgbData[0],rgbData[1]),rgbData[2]);
-                        if (mx>1.0f)
+                        if (mx>1.0)
                         {
                             rgbData[0]/=mx;
                             rgbData[1]/=mx;
@@ -9062,7 +9062,7 @@ int _simGetShapeColor(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
-    float dummy[3]={0.0f,0.0f,0.0f};
+    float dummy[3]={0.0,0.0,0.0};
     pushDoubleTableOntoStack(L,3,dummy);
     LUA_END(2);
 }
@@ -9311,7 +9311,7 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
                 res=checkOneGeneralInputArgument(L,6,lua_arg_number,3,true,true,&errorString);
                 if (res>=0)
                 {
-                    float tc_[3]={0.0f,0.0f,0.0f};
+                    float tc_[3]={0.0,0.0,0.0};
                     if (res==2)
                     {
                         getDoublesFromTable(L,6,3,tc_);
@@ -9320,7 +9320,7 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
                     res=checkOneGeneralInputArgument(L,7,lua_arg_number,3,true,true,&errorString);
                     if (res>=0)
                     {
-                        float bc_[3]={0.0f,0.0f,0.0f};
+                        float bc_[3]={0.0,0.0,0.0};
                         if (res==2)
                         {
                             getDoublesFromTable(L,7,3,bc_);
@@ -9764,7 +9764,7 @@ int _simCreateDummy(luaWrap_lua_State* L)
     {
         float size=luaToFloat(L,1);
         float* color=nullptr;
-        float c[12]={0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f};
+        float c[12]={0.0,0.0,0.0,0.0,0.0,0.0,0.25,0.25,0.25,0.0,0.0,0.0};
         int res=checkOneGeneralInputArgument(L,2,lua_arg_number,3,true,true,&errorString);
         if (res>=0)
         {
@@ -9947,7 +9947,7 @@ int _simCameraFitToView(luaWrap_lua_State* L)
     {
         int* objPtr=nullptr;
         int options=0;
-        float scaling=1.0f;
+        float scaling=1.0;
         int tableLen=2;
         if (luaWrap_lua_istable(L,2))
         {
@@ -10262,8 +10262,8 @@ int _simGetRotationAxis(luaWrap_lua_State* L)
         // Following few lines taken from the quaternion interpolation part:
         C4Vector AA(mStart.M.getQuaternion());
         C4Vector BB(mGoal.M.getQuaternion());
-        if (AA(0)*BB(0)+AA(1)*BB(1)+AA(2)*BB(2)+AA(3)*BB(3)<0.0f)
-            AA=AA*-1.0f;
+        if (AA(0)*BB(0)+AA(1)*BB(1)+AA(2)*BB(2)+AA(3)*BB(3)<0.0)
+            AA=AA*-1.0;
         C4Vector r((AA.getInverse()*BB).getAngleAndAxis());
 
         C3Vector v(r(1),r(2),r(3));
@@ -10274,7 +10274,7 @@ int _simGetRotationAxis(luaWrap_lua_State* L)
         axis[1]=v(1);
         axis[2]=v(2);
         float l=sqrt(v(0)*v(0)+v(1)*v(1)+v(2)*v(2));
-        if (l!=0.0f)
+        if (l!=0.0)
         {
             axis[0]/=l;
             axis[1]/=l;
@@ -10325,15 +10325,15 @@ int _simRotateAroundAxis(luaWrap_lua_State* L)
         tr.X-=pos;
         C7Vector r;
         r.X.clear();
-        r.Q.setEulerAngles(0.0f,0.0f,alpha);
+        r.Q.setEulerAngles(0.0,0.0,alpha);
         tr=r*tr;
-        r.Q.setEulerAngles(0.0f,beta,0.0f);
+        r.Q.setEulerAngles(0.0,beta,0.0);
         tr=r*tr;
-        r.Q.setEulerAngles(0.0f,0.0f,luaToFloat(L,4));
+        r.Q.setEulerAngles(0.0,0.0,luaToFloat(L,4));
         tr=r*tr;
-        r.Q.setEulerAngles(0.0f,-beta,0.0f);
+        r.Q.setEulerAngles(0.0,-beta,0.0);
         tr=r*tr;
-        r.Q.setEulerAngles(0.0f,0.0f,-alpha);
+        r.Q.setEulerAngles(0.0,0.0,-alpha);
         tr=r*tr;
         tr.X+=pos;
         if (luaWrap_lua_rawlen(L,1)>=12)
@@ -10767,7 +10767,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
             funcName=funcAndScriptName;
 
         CScriptObject* script=nullptr;
-        if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
+        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
             script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
         }
@@ -11025,7 +11025,7 @@ int _simGenerateShapeFromPath(luaWrap_lua_State* L)
                     getDoublesFromTable(L,4,3,tmp);
                     zvect=tmp;
                 }
-                int h=simGenerateShapeFromPath_internal(&ppath[0],int(ppath.size()),&section[0],int(section.size()),options,zvect,0.0f);
+                int h=simGenerateShapeFromPath_internal(&ppath[0],int(ppath.size()),&section[0],int(section.size()),options,zvect,0.0);
                 if (h>=0)
                 {
                     luaWrap_lua_pushinteger(L,h);
@@ -11324,8 +11324,8 @@ int _simConvexDecompose(luaWrap_lua_State* L)
             }
         }
         intParams[4]=0;
-        floatParams[3]=0.0f;
-        floatParams[4]=0.0f;
+        floatParams[3]=0.0;
+        floatParams[4]=0.0;
         if (goOn)
             retVal=simConvexDecompose_internal(shapeHandle,options,intParams,floatParams);
     }
@@ -11480,7 +11480,7 @@ int _simWriteTexture(luaWrap_lua_State* L)
             int posY=0;
             int sizeX=0;
             int sizeY=0;
-            float interpol=0.0f;
+            float interpol=0.0;
             // Now check the optional arguments:
             int res;
             res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,false,&errorString);
@@ -11743,7 +11743,7 @@ int _simGetShapeGeomInfo(luaWrap_lua_State* L)
 
     int retVal=-1; // means error
     int intData[5]={0,0,0,0,0};
-    float floatData[5]={0.0f,0.0f,0.0f,0.0f,0.0f};
+    float floatData[5]={0.0,0.0,0.0,0.0,0.0};
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int handle=luaToInt(L,1);
@@ -12338,7 +12338,7 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State* L)
         int ptCnt=int(luaWrap_lua_rawlen(L,3))/3;
         floatFloat optionalValues[2];
         ((int*)optionalValues)[0]=1; // duplicate tolerance bit
-        optionalValues[1]=0.0f; // duplicate tolerance
+        optionalValues[1]=0.0; // duplicate tolerance
         std::vector<float> pts;
         pts.resize(ptCnt*3);
         unsigned char* cols=nullptr;
@@ -12712,9 +12712,9 @@ int _simHandleSimulationStart(luaWrap_lua_State* L)
     {
         // Following is for velocity measurement (initial):
         for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
-            App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(0.0f);
+            App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(0.0);
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-            App::currentWorld->sceneObjects->getObjectFromIndex(i)->measureVelocity(0.0f);
+            App::currentWorld->sceneObjects->getObjectFromIndex(i)->measureVelocity(0.0);
     }
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
@@ -13671,7 +13671,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetShapeMassAndInertia",_simGetShapeMassAndInertia,    "Deprecated. Use sim.getShapeMass and/or sim.getShapeInertia instead",false},
     {"simGroupShapes",_simGroupShapes,                          "Use the newer sim.groupShapes notation",false},
     {"simUngroupShape",_simUngroupShape,                        "Use the newer sim.ungroupShape notation",false},
-    {"simConvexDecompose",_simConvexDecompose,                  "Use the newer sim.convexDecompose notation",false},
     {"simQuitSimulator",_simQuitSimulator,                      "Use the newer sim.quitSimulator notation",false},
     {"simGetThreadId",_simGetThreadId,                          "Use the newer sim.getThreadId notation",false},
     {"simSetShapeMaterial",_simSetShapeMaterial,                "Use the newer sim.setShapeMaterial notation",false},
@@ -15558,8 +15557,8 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
         float maxVelocity;
         CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
         CSceneObject* relToObject=nullptr;
-        float accel=0.0f; // means infinite accel!! (default value)
-        float angleToLinearCoeff=0.1f/(90.0f*degToRad); // (default value)
+        float accel=0.0; // means infinite accel!! (default value)
+        float angleToLinearCoeff=0.1/(90.0*degToRad); // (default value)
         int distCalcMethod=sim_distcalcmethod_dl_if_nonzero; // (default value)
         bool foundError=false;
         if ((!foundError)&&(object==nullptr))
@@ -15657,7 +15656,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
                 targetTr.X.setData(posTarget);
             if (posAndOrient&2)
                 targetTr.Q.setEulerAngles(eulerTarget[0],eulerTarget[1],eulerTarget[2]);
-            float currentVel=0.0f;
+            float currentVel=0.0;
             CVThreadData* threadData=CThreadPool_old::getCurrentThreadData();
 
             float dl=(targetTr.X-startTr.X).getLength();
@@ -15676,20 +15675,20 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
             if (distCalcMethod==sim_distcalcmethod_dl_if_nonzero)
             {
                 vdl=dl;
-                if (dl<0.00005f) // Was dl==0.0f before (tolerance problem). Changed on 1/4/2011
+                if (dl<0.00005) // Was dl==0.0 before (tolerance problem). Changed on 1/4/2011
                     vdl=da;
             }
             if (distCalcMethod==sim_distcalcmethod_dac_if_nonzero)
             {
                 vdl=da;
-                if (da<0.01f*degToRad) // Was da==0.0f before (tolerance problem). Changed on 1/4/2011
+                if (da<0.01*degToRad) // Was da==0.0 before (tolerance problem). Changed on 1/4/2011
                     vdl=dl;
             }
             // vld is the totalvirtual distance
-            float currentPos=0.0f;
+            float currentPos=0.0;
             bool movementFinished=false;
 
-            if (vdl==0.0f)
+            if (vdl==0.0)
             { // if the path length is 0 (the two positions might still be not-coincident, depending on the calculation method!)
                 if (App::currentWorld->sceneObjects->getObjectFromHandle(objID)==object) // make sure the object is still valid (running in a thread)
                 {
@@ -15768,19 +15767,19 @@ int _sim_moveToPos_2(luaWrap_lua_State* L)
             float dt=currentTime-mem->lastTime;
             mem->lastTime=currentTime;
 
-            if (mem->accel==0.0f)
+            if (mem->accel==0.0)
             { // Means infinite acceleration
                 float timeNeeded=(mem->vdl-mem->currentPos)/mem->maxVelocity;
                 mem->currentVel=mem->maxVelocity;
                 if (timeNeeded>dt)
                 {
                     mem->currentPos+=dt*mem->maxVelocity;
-                    dt=0.0f; // this is what is left
+                    dt=0.0; // this is what is left
                 }
                 else
                 {
                     mem->currentPos=mem->vdl;
-                    if (timeNeeded>=0.0f)
+                    if (timeNeeded>=0.0)
                         dt-=timeNeeded;
                 }
             }
@@ -15789,20 +15788,20 @@ int _sim_moveToPos_2(luaWrap_lua_State* L)
                 double p=mem->currentPos;
                 double v=mem->currentVel;
                 double t=dt;
-                CLinMotionRoutines::getNextValues(p,v,mem->maxVelocity,mem->accel,0.0f,mem->vdl,0.0f,0.0f,t);
+                CLinMotionRoutines::getNextValues(p,v,mem->maxVelocity,mem->accel,0.0,mem->vdl,0.0,0.0,t);
                 mem->currentPos=float(p);
                 mem->currentVel=float(v);
                 dt=float(t);
             }
 
             // Now check if we are within tolerances:
-            if (fabs(mem->currentPos-mem->vdl)<=0.00001f)//tol[0])
+            if (fabs(mem->currentPos-mem->vdl)<=0.00001)//tol[0])
                 movementFinished=true;
 
             // Set the new configuration of the object:
             float ll=mem->currentPos/mem->vdl;
-            if (ll>1.0f)
-                ll=1.0f;
+            if (ll>1.0)
+                ll=1.0;
             C7Vector newAbs;
             newAbs.buildInterpolation(mem->startTr,mem->targetTr,ll);
             if (App::currentWorld->sceneObjects->getObjectFromHandle(mem->objID)==mem->object) // make sure the object is still valid (running in a thread)
@@ -15877,10 +15876,10 @@ int _sim_moveToJointPos_1(luaWrap_lua_State* L)
     { // Ok we have 2 tables with same sizes.
         int tableLen=(int)luaWrap_lua_rawlen(L,1);
         bool sameTimeFinish=true;
-        float maxVelocity=0.0f;
-        float accel=0.0f; // means infinite accel!! (default value)
+        float maxVelocity=0.0;
+        float accel=0.0; // means infinite accel!! (default value)
         bool accelTablePresent=false;
-        float angleToLinearCoeff=1.0f;
+        float angleToLinearCoeff=1.0;
         bool foundError=false;
         // Now check the other arguments:
         int res;
@@ -15934,7 +15933,7 @@ int _sim_moveToJointPos_1(luaWrap_lua_State* L)
                 foundError=(res==-1);
             }
             else
-                angleToLinearCoeff=1.0f; // no conversion!
+                angleToLinearCoeff=1.0; // no conversion!
         }
         if (!foundError)
         { // do the job here!
@@ -15969,12 +15968,12 @@ int _sim_moveToJointPos_1(luaWrap_lua_State* L)
                         jointAccels[i]=fabs(jointAccels[i]);
                 }
             }
-            float maxVirtualDist=0.0f;
+            float maxVirtualDist=0.0;
             int maxVirtualDistIndex=0;
             for (int i=0;i<tableLen;i++)
             {
-                jointCurrentVirtualPositions[i]=0.0f;
-                jointCurrentVirtualVelocities[i]=0.0f;
+                jointCurrentVirtualPositions[i]=0.0;
+                jointCurrentVirtualVelocities[i]=0.0;
                 if (sameTimeFinish)
                     jointMaxVelocities[i]=maxVelocity;
                 if (!accelTablePresent)
@@ -16011,16 +16010,16 @@ int _sim_moveToJointPos_1(luaWrap_lua_State* L)
                 else
                 {
                     // Following are default values in case the joint doesn't exist or is spherical:
-                    jointStartPositions[i]=0.0f;
-                    jointTargetPositions[i]=0.0f;
-                    jointVirtualDistances[i]=0.0f;
+                    jointStartPositions[i]=0.0;
+                    jointTargetPositions[i]=0.0;
+                    jointVirtualDistances[i]=0.0;
                 }
             }
             float lastTime=App::currentWorld->simulation->getSimulationTime();
             bool movementFinished=false;
             float dt=App::currentWorld->simulation->getTimeStep(); // this is the time left if we leave here
 
-            if (maxVirtualDist==0.0f)
+            if (maxVirtualDist==0.0)
                 luaWrap_lua_pushinteger(L,-1);
             else
             {
@@ -16090,19 +16089,19 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
                 // Does the main joint still exist?
                 if (App::currentWorld->sceneObjects->getJointFromHandle(mem->jointHandles[mem->maxVirtualDistIndex])!=nullptr)
                 {
-                    if (mem->accel==0.0f)
+                    if (mem->accel==0.0)
                     { // means infinite accel
                         float timeNeeded=(mem->jointVirtualDistances[mem->maxVirtualDistIndex]-mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex])/mem->maxVelocity;
                         mem->jointCurrentVirtualVelocities[mem->maxVirtualDistIndex]=mem->maxVelocity;
                         if (timeNeeded>timeLeftLocal)
                         {
                             mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex]+=timeLeftLocal*mem->maxVelocity;
-                            timeLeftLocal=0.0f; // this is what is left
+                            timeLeftLocal=0.0; // this is what is left
                         }
                         else
                         {
                             mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex]=mem->jointVirtualDistances[mem->maxVirtualDistIndex];
-                            if (timeNeeded>=0.0f)
+                            if (timeNeeded>=0.0)
                                 timeLeftLocal-=timeNeeded;
                         }
                     }
@@ -16111,7 +16110,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
                         double p=mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex];
                         double v=mem->jointCurrentVirtualVelocities[mem->maxVirtualDistIndex];
                         double t=timeLeftLocal;
-                        CLinMotionRoutines::getNextValues(p,v,mem->maxVelocity,mem->accel,0.0f,mem->jointVirtualDistances[mem->maxVirtualDistIndex],0.0f,0.0f,t);
+                        CLinMotionRoutines::getNextValues(p,v,mem->maxVelocity,mem->accel,0.0,mem->jointVirtualDistances[mem->maxVirtualDistIndex],0.0,0.0,t);
                         mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex]=float(p);
                         mem->jointCurrentVirtualVelocities[mem->maxVirtualDistIndex]=float(v);
                         timeLeftLocal=float(t);
@@ -16119,7 +16118,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
                     minTimeLeft=timeLeftLocal;
                     // 2. We adjust the other joints accordingly:
                     float f=1;
-                    if (mem->jointVirtualDistances[mem->maxVirtualDistIndex]!=0.0f)
+                    if (mem->jointVirtualDistances[mem->maxVirtualDistIndex]!=0.0)
                         f=mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex]/mem->jointVirtualDistances[mem->maxVirtualDistIndex];
                     for (int i=0;i<tableLen;i++)
                     {
@@ -16127,7 +16126,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
                             mem->jointCurrentVirtualPositions[i]=mem->jointVirtualDistances[i]*f;
                     }
                     // 3. Check if within tolerance:
-                    if (fabs(mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex]-mem->jointVirtualDistances[mem->maxVirtualDistIndex])<=0.00001f)
+                    if (fabs(mem->jointCurrentVirtualPositions[mem->maxVirtualDistIndex]-mem->jointVirtualDistances[mem->maxVirtualDistIndex])<=0.00001)
                         movementFinished=true;
                 }
                 else
@@ -16143,22 +16142,22 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
                     if (App::currentWorld->sceneObjects->getJointFromHandle(mem->jointHandles[i])!=nullptr)
                     {
                         // Check if within tolerance (before):
-                        if (fabs(mem->jointCurrentVirtualPositions[i]-mem->jointVirtualDistances[i])>0.00001f)
+                        if (fabs(mem->jointCurrentVirtualPositions[i]-mem->jointVirtualDistances[i])>0.00001)
                         {
                             float timeLeftLocal=dt;
-                            if (mem->jointAccels[i]==0.0f)
+                            if (mem->jointAccels[i]==0.0)
                             { // means infinite accel
                                 float timeNeeded=(mem->jointVirtualDistances[i]-mem->jointCurrentVirtualPositions[i])/mem->jointMaxVelocities[i];
                                 mem->jointCurrentVirtualVelocities[i]=mem->jointMaxVelocities[i];
                                 if (timeNeeded>timeLeftLocal)
                                 {
                                     mem->jointCurrentVirtualPositions[i]+=timeLeftLocal*mem->jointMaxVelocities[i];
-                                    timeLeftLocal=0.0f; // this is what is left
+                                    timeLeftLocal=0.0; // this is what is left
                                 }
                                 else
                                 {
                                     mem->jointCurrentVirtualPositions[i]=mem->jointVirtualDistances[i];
-                                    if (timeNeeded>=0.0f)
+                                    if (timeNeeded>=0.0)
                                         timeLeftLocal-=timeNeeded;
                                 }
                             }
@@ -16167,7 +16166,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
                                 double p=mem->jointCurrentVirtualPositions[i];
                                 double v=mem->jointCurrentVirtualVelocities[i];
                                 double t=timeLeftLocal;
-                                CLinMotionRoutines::getNextValues(p,v,mem->jointMaxVelocities[i],mem->jointAccels[i],0.0f,mem->jointVirtualDistances[i],0.0f,0.0f,t);
+                                CLinMotionRoutines::getNextValues(p,v,mem->jointMaxVelocities[i],mem->jointAccels[i],0.0,mem->jointVirtualDistances[i],0.0,0.0,t);
                                 mem->jointCurrentVirtualPositions[i]=float(p);
                                 mem->jointCurrentVirtualVelocities[i]=float(v);
                                 timeLeftLocal=float(t);
@@ -16175,7 +16174,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
                             if (timeLeftLocal<minTimeLeft)
                                 minTimeLeft=timeLeftLocal;
                             // Check if within tolerance (after):
-                            if (fabs(mem->jointCurrentVirtualPositions[i]-mem->jointVirtualDistances[i])>0.00001f)
+                            if (fabs(mem->jointCurrentVirtualPositions[i]-mem->jointVirtualDistances[i])>0.00001)
                                 withinTolerance=false;
                         }
                     }
@@ -16189,7 +16188,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
             for (int i=0;i<tableLen;i++)
             {
                 CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(mem->jointHandles[i]);
-                if ( (joint!=nullptr)&&(joint->getJointType()!=sim_joint_spherical_subtype)&&(mem->jointVirtualDistances[i]!=0.0f) )
+                if ( (joint!=nullptr)&&(joint->getJointType()!=sim_joint_spherical_subtype)&&(mem->jointVirtualDistances[i]!=0.0) )
                 {
                     joint->setTargetPosition(mem->jointStartPositions[i]+(mem->jointTargetPositions[i]-mem->jointStartPositions[i])*mem->jointCurrentVirtualPositions[i]/mem->jointVirtualDistances[i]);
                     if (joint->getJointMode()==sim_jointmode_kinematic)
@@ -16469,8 +16468,8 @@ int _simSearchPath(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int pathPlanningObjectHandle=luaToInt(L,1);
-        float maximumSearchTime=tt::getLimitedFloat(0.001f,36000.0f,luaToFloat(L,2));
-        float subDt=0.05f; // 50 ms at a time (default)
+        float maximumSearchTime=tt::getLimitedFloat(0.001,36000.0,luaToFloat(L,2));
+        float subDt=0.05; // 50 ms at a time (default)
         bool foundError=false;
         // Now check the optional argument:
         int res;
@@ -16479,7 +16478,7 @@ int _simSearchPath(luaWrap_lua_State* L)
             res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,true,true,&errorString);
             if (res==2)
             { // get the data
-                subDt=tt::getLimitedFloat(0.001f,std::min<float>(1.0f,maximumSearchTime),luaToFloat(L,3));
+                subDt=tt::getLimitedFloat(0.001,std::min<float>(1.0,maximumSearchTime),luaToFloat(L,3));
             }
             foundError=(res==-1);
         }
@@ -17712,12 +17711,12 @@ int _sim_moveToObj_1(luaWrap_lua_State* L)
     { // Those are the arguments that are always required! (the rest can be ignored or set to nil!
         int objID=luaToInt(L,1);
         int targetObjID=luaToInt(L,2);
-        float maxVelocity=0.1f;
-        float relativeDistanceOnPath=-1.0f;
+        float maxVelocity=0.1;
+        float relativeDistanceOnPath=-1.0;
         int positionAndOrOrientation=3; // position and orientation (default value)
         CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
         CSceneObject* targetObject=App::currentWorld->sceneObjects->getObjectFromHandle(targetObjID);
-        float accel=0.0f; // means infinite accel!! (default value)
+        float accel=0.0; // means infinite accel!! (default value)
         bool foundError=false;
         if ((!foundError)&&((object==nullptr)||(targetObject==nullptr)))
         {
@@ -17747,7 +17746,7 @@ int _sim_moveToObj_1(luaWrap_lua_State* L)
             res=checkOneGeneralInputArgument(L,4,lua_arg_number,0,true,true,&errorString);
             if (res==2)
             { // get the data
-                relativeDistanceOnPath=tt::getLimitedFloat(0.0f,1.0f,luaToFloat(L,4));
+                relativeDistanceOnPath=tt::getLimitedFloat(0.0,1.0,luaToFloat(L,4));
                 if (targetObject->getObjectType()!=sim_object_path_type)
                 {
                     errorString=SIM_ERROR_TARGET_OBJECT_IS_NOT_A_PATH;
@@ -17778,12 +17777,12 @@ int _sim_moveToObj_1(luaWrap_lua_State* L)
         if (!foundError)
         { // do the job here!
             C7Vector startTr(object->getCumulativeTransformation());
-            float currentVel=0.0f;
+            float currentVel=0.0;
             float lastTime=App::currentWorld->simulation->getSimulationTime();
-            float vdl=1.0f;
+            float vdl=1.0;
             // vld is the totalvirtual distance
-            float currentPos=0.0f;
-            float previousLL=0.0f;
+            float currentPos=0.0;
+            float previousLL=0.0;
 
             _memHandles_old.push_back(_nextMemHandle_old);
             simMoveToObjData_old* mem=new simMoveToObjData_old();
@@ -17836,19 +17835,19 @@ int _sim_moveToObj_2(luaWrap_lua_State* L)
             float dt=currentTime-mem->lastTime;
             mem->lastTime=currentTime;
 
-            if (mem->accel==0.0f)
+            if (mem->accel==0.0)
             { // Means infinite acceleration
                 float timeNeeded=(mem->vdl-mem->currentPos)/mem->maxVelocity;
                 mem->currentVel=mem->maxVelocity;
                 if (timeNeeded>dt)
                 {
                     mem->currentPos+=dt*mem->maxVelocity;
-                    dt=0.0f; // this is what is left
+                    dt=0.0; // this is what is left
                 }
                 else
                 {
                     mem->currentPos=mem->vdl;
-                    if (timeNeeded>=0.0f)
+                    if (timeNeeded>=0.0)
                         dt-=timeNeeded;
                 }
             }
@@ -17857,25 +17856,25 @@ int _sim_moveToObj_2(luaWrap_lua_State* L)
                 double p=mem->currentPos;
                 double v=mem->currentVel;
                 double t=dt;
-                CLinMotionRoutines::getNextValues(p,v,mem->maxVelocity,mem->accel,0.0f,mem->vdl,0.0f,0.0f,t);
+                CLinMotionRoutines::getNextValues(p,v,mem->maxVelocity,mem->accel,0.0,mem->vdl,0.0,0.0,t);
                 mem->currentPos=float(p);
                 mem->currentVel=float(v);
                 dt=float(t);
             }
 
             // Now check if we are within tolerances:
-            if (fabs(mem->currentPos-mem->vdl)<=0.00001f)
+            if (fabs(mem->currentPos-mem->vdl)<=0.00001)
                 movementFinished=true;
 
             // Set the new configuration of the object:
             float ll=mem->currentPos/mem->vdl;
-            if (ll>1.0f)
-                ll=1.0f;
+            if (ll>1.0)
+                ll=1.0;
             if ((App::currentWorld->sceneObjects->getObjectFromHandle(mem->objID)==mem->object)&&(App::currentWorld->sceneObjects->getObjectFromHandle(mem->targetObjID)==mem->targetObject)) // make sure the objects are still valid (running in a thread)
             {
                 C7Vector targetTr(mem->targetObject->getCumulativeTransformation());
                 bool goOn=true;
-                if (mem->relativeDistanceOnPath>=0.0f)
+                if (mem->relativeDistanceOnPath>=0.0)
                 { // we should have a path here
                     if (mem->targetObject->getObjectType()==sim_object_path_type)
                     {
@@ -17883,7 +17882,7 @@ int _sim_moveToObj_2(luaWrap_lua_State* L)
                         if ( ((CPath_old*)mem->targetObject)->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(mem->relativeDistanceOnPath,pathLoc))
                             targetTr*=pathLoc;
                         else
-                            mem->relativeDistanceOnPath=-1.0f; // the path is empty!
+                            mem->relativeDistanceOnPath=-1.0; // the path is empty!
                     }
                     else
                         goOn=false;
@@ -17891,7 +17890,7 @@ int _sim_moveToObj_2(luaWrap_lua_State* L)
                 if (goOn)
                 {
                     C7Vector newAbs;
-                    newAbs.buildInterpolation(mem->startTr,targetTr,(ll-mem->previousLL)/(1.0f-mem->previousLL));
+                    newAbs.buildInterpolation(mem->startTr,targetTr,(ll-mem->previousLL)/(1.0-mem->previousLL));
                     mem->startTr=newAbs;
                     C7Vector parentInv(mem->object->getFullParentCumulativeTransformation().getInverse());
                     C7Vector currentTr(mem->object->getCumulativeTransformation());
@@ -18095,7 +18094,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
         getIntsFromTable(L,2,jointCnt,&jointHandles[0]);
         float thresholdDist=luaToFloat(L,3);
         int maxTimeInMs=luaToInt(L,4);
-        float metric[4]={1.0,1.0,1.0,0.1f};
+        float metric[4]={1.0,1.0,1.0,0.1};
         int res=checkOneGeneralInputArgument(L,5,lua_arg_number,4,true,true,&errorString);
         if (res>=0)
         {
@@ -18493,10 +18492,10 @@ int _simSendData(luaWrap_lua_State* L)
                         {
                             // Following are default values:
                             int antennaHandle=sim_handle_self;
-                            float actionRadius=100.0f;
+                            float actionRadius=100.0;
                             float emissionAngle1=piValue;
                             float emissionAngle2=piValT2;
-                            float persistence=0.0f;
+                            float persistence=0.0;
                             bool err=false;
                             int res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,false,&errorString);
                             if (res==2)
@@ -18554,12 +18553,12 @@ int _simSendData(luaWrap_lua_State* L)
                             }
                             if (!err)
                             {
-                                actionRadius=tt::getLimitedFloat(0.0f,FLOAT_MAX,actionRadius);
-                                emissionAngle1=tt::getLimitedFloat(0.0f,piValue,emissionAngle1);
-                                emissionAngle2=tt::getLimitedFloat(0.0f,piValT2,emissionAngle2);
-                                persistence=tt::getLimitedFloat(0.0f,99999999999999.9f,persistence);
-                                if (persistence==0.0f)
-                                    persistence=App::currentWorld->simulation->getTimeStep()*1.5f;
+                                actionRadius=tt::getLimitedFloat(0.0,FLOAT_MAX,actionRadius);
+                                emissionAngle1=tt::getLimitedFloat(0.0,piValue,emissionAngle1);
+                                emissionAngle2=tt::getLimitedFloat(0.0,piValT2,emissionAngle2);
+                                persistence=tt::getLimitedFloat(0.0,99999999999999.9,persistence);
+                                if (persistence==0.0)
+                                    persistence=App::currentWorld->simulation->getTimeStep()*1.5;
 
                                 App::currentWorld->embeddedScriptContainer->broadcastDataContainer.broadcastData(currentScriptID,targetID,dataHeader,dataName,
                                     App::currentWorld->simulation->getSimulationTime()+persistence,actionRadius,antennaHandle,
@@ -18709,7 +18708,7 @@ int _sim_followPath_1(luaWrap_lua_State* L)
         float maxVelocity=luaToFloat(L,5);
         CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
         CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(pathID);
-        float accel=0.0f; // means infinite accel!! (default value)
+        float accel=0.0; // means infinite accel!! (default value)
         bool foundError=false;
         if ((!foundError)&&(object==nullptr))
         {
@@ -18725,11 +18724,11 @@ int _sim_followPath_1(luaWrap_lua_State* L)
         {
             if (path->pathContainer->getAttributes()&sim_pathproperty_closed_path)
             {
-                if (posOnPath<0.0f)
-                    posOnPath=0.0f;
+                if (posOnPath<0.0)
+                    posOnPath=0.0;
             }
             else
-                posOnPath=tt::getLimitedFloat(0.0f,1.0f,posOnPath);
+                posOnPath=tt::getLimitedFloat(0.0,1.0,posOnPath);
         }
 
         // Now check the optional arguments:
@@ -18747,9 +18746,9 @@ int _sim_followPath_1(luaWrap_lua_State* L)
         { // do the job here!
             float bezierPathLength=path->pathContainer->getBezierVirtualPathLength();
             double pos=posOnPath*bezierPathLength;
-            float vel=0.0f;
+            float vel=0.0;
             float lastTime=App::currentWorld->simulation->getSimulationTime();
-            bool movementFinished=(bezierPathLength==0.0f);
+            bool movementFinished=(bezierPathLength==0.0);
             if (movementFinished)
                 luaWrap_lua_pushinteger(L,-1);
             else
@@ -18803,9 +18802,9 @@ int _sim_followPath_2(luaWrap_lua_State* L)
                 float currentTime=App::currentWorld->simulation->getSimulationTime()+App::currentWorld->simulation->getTimeStep();
                 dt=currentTime-mem->lastTime;
                 mem->lastTime=currentTime;
-                if (mem->accel==0.0f)
+                if (mem->accel==0.0)
                 { // Means infinite acceleration
-                    mem->path->pathContainer->handlePath_keepObjectUnchanged(dt,mem->pos,mem->vel,mem->maxVelocity,1.0f,false,true);
+                    mem->path->pathContainer->handlePath_keepObjectUnchanged(dt,mem->pos,mem->vel,mem->maxVelocity,1.0,false,true);
                 }
                 else
                 {
@@ -18813,7 +18812,7 @@ int _sim_followPath_2(luaWrap_lua_State* L)
                 }
 
                 // Now check if we are within tolerances:
-                if ( ((fabs(mem->pos-mem->bezierPathLength)<=0.00001f)&&(mem->maxVelocity>=0.0f)) || ((fabs(mem->pos-0.0f)<=0.00001f)&&(mem->maxVelocity<=0.0f)) )
+                if ( ((fabs(mem->pos-mem->bezierPathLength)<=0.00001)&&(mem->maxVelocity>=0.0)) || ((fabs(mem->pos-0.0)<=0.00001)&&(mem->maxVelocity<=0.0)) )
                     movementFinished=true;
 
                 // Set the new configuration of the object:
@@ -18917,7 +18916,7 @@ int _simGetClosestPositionOnPath(luaWrap_lua_State* L)
     {
         float coord[3];
         getDoublesFromTable(L,2,3,coord);
-        float dist=0.0f;
+        float dist=0.0;
         if (simGetClosestPositionOnPath_internal(luaToInt(L,1),coord,&dist)!=-1)
         {
             luaWrap_lua_pushnumber(L,dist);
@@ -19003,11 +19002,11 @@ int _simInsertPathCtrlPoints(luaWrap_lua_State* L)
             float* data=new float[ptCnt*floatOrIntCountPerPoint];
             getDoublesFromTable(L,5,ptCnt*floatOrIntCountPerPoint,data);
             for (int i=0;i<ptCnt;i++)
-                ((int*)(data+floatOrIntCountPerPoint*i+8))[0]=int(data[floatOrIntCountPerPoint*i+8]+0.5f);
+                ((int*)(data+floatOrIntCountPerPoint*i+8))[0]=int(data[floatOrIntCountPerPoint*i+8]+0.5);
             if (options&2)
             {
                 for (int i=0;i<ptCnt;i++)
-                    ((int*)(data+floatOrIntCountPerPoint*i+11))[0]=int(data[floatOrIntCountPerPoint*i+11]+0.5f);
+                    ((int*)(data+floatOrIntCountPerPoint*i+11))[0]=int(data[floatOrIntCountPerPoint*i+11]+0.5);
             }
             retVal=simInsertPathCtrlPoints_internal(pathHandle,options,startIndex,ptCnt,data);
             delete[] data;
@@ -19980,7 +19979,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
             options=(options|1)-1; // cloud is automatically removed at the end of the simulation (i.e. is not persistent)
         float pointSize=luaToFloat(L,5);
         int pointCnt=(int)luaWrap_lua_rawlen(L,6)/3;
-        std::vector<float> pointCoordinates(pointCnt*3,0.0f);
+        std::vector<float> pointCoordinates(pointCnt*3,0.0);
         getDoublesFromTable(L,6,pointCnt*3,&pointCoordinates[0]);
         int res;
         res=checkOneGeneralInputArgument(L,7,lua_arg_number,12,true,true,&errorString);
@@ -20851,9 +20850,9 @@ int _simSetScriptAttribute(luaWrap_lua_State* L)
         if (res==2)
         {
             if ( (attribID==sim_customizationscriptattribute_activeduringsimulation)||(attribID==sim_childscriptattribute_automaticcascadingcalls)||(attribID==sim_scriptattribute_enabled)||(attribID==sim_customizationscriptattribute_cleanupbeforesave) )
-                retVal=simSetScriptAttribute_internal(scriptID,attribID,0.0f,luaToBool(L,3));
+                retVal=simSetScriptAttribute_internal(scriptID,attribID,0.0,luaToBool(L,3));
             if ( (attribID==sim_scriptattribute_executionorder)||(attribID==sim_scriptattribute_executioncount)||(attribID==sim_scriptattribute_debuglevel) )
-                retVal=simSetScriptAttribute_internal(scriptID,attribID,0.0f,luaToInt(L,3));
+                retVal=simSetScriptAttribute_internal(scriptID,attribID,0.0,luaToInt(L,3));
         }
     }
 
@@ -21228,7 +21227,7 @@ int _simGetVisionSensorCharImage(luaWrap_lua_State* L)
         int posY=0;
         int sizeX=0;
         int sizeY=0;
-        float rgbaCutOff=0.0f;
+        float rgbaCutOff=0.0;
         // Now check the optional arguments:
         int res;
         res=checkOneGeneralInputArgument(L,2,lua_arg_number,0,true,false,&errorString);
@@ -21269,13 +21268,13 @@ int _simGetVisionSensorCharImage(luaWrap_lua_State* L)
                                 int options=0;
                                 if (valPerPix==1)
                                     options=options|1;
-                                if (rgbaCutOff>0.0f)
+                                if (rgbaCutOff>0.0)
                                     options=options|2;
                                 unsigned char* buffer=rs->readPortionOfCharImage(posX,posY,sizeX,sizeY,rgbaCutOff,valPerPix==1);
                                 if (buffer!=nullptr)
                                 {
                                     int vvv=sizeX*sizeY*valPerPix;
-                                    if (rgbaCutOff>0.0f)
+                                    if (rgbaCutOff>0.0)
                                     {
                                         if (valPerPix==1)
                                             vvv=sizeX*sizeY*2;

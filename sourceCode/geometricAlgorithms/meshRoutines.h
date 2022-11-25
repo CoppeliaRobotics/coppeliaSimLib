@@ -31,7 +31,7 @@ public:
         // Return value of true means: the dist is smaller
         // The segment can be degenerated (point)
         float d;
-        if ((lv0(0)==0.0f)&&(lv0(1)==0.0f)&&(lv0(2)==0.0f))
+        if ((lv0(0)==0.0)&&(lv0(1)==0.0)&&(lv0(2)==0.0))
         { // We have a degenerated segment here (point):
             C3Vector v(dummyPos-lp0);
             d=v.getLength();
@@ -45,7 +45,7 @@ public:
         }
         // dist between lines described by segment and dummyPos
         float t=getMinDistPtBetweenPointAndLine(dummyPos,lp0,lv0);
-        if ((t>=0.0f)&&(t<=1.0f))
+        if ((t>=0.0)&&(t<=1.0))
         {
             C3Vector v(dummyPos-lp0-(lv0*t));
             d=v.getLength();

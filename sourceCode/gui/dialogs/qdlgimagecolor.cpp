@@ -49,7 +49,7 @@ void CQDlgImageColor::on_qqRed_editingFinished()
     bool ok;
     float newVal=ui->qqRed->text().toFloat(&ok);
     if (ok)
-        red=tt::getLimitedFloat(0.0f,1.0f,newVal);
+        red=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
 }
 
@@ -60,7 +60,7 @@ void CQDlgImageColor::on_qqGreen_editingFinished()
     bool ok;
     float newVal=ui->qqGreen->text().toFloat(&ok);
     if (ok)
-        green=tt::getLimitedFloat(0.0f,1.0f,newVal);
+        green=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
 }
 
@@ -71,7 +71,7 @@ void CQDlgImageColor::on_qqBlue_editingFinished()
     bool ok;
     float newVal=ui->qqBlue->text().toFloat(&ok);
     if (ok)
-        blue=tt::getLimitedFloat(0.0f,1.0f,newVal);
+        blue=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
 }
 

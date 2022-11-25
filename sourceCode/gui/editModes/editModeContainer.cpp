@@ -471,8 +471,8 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
                                 {
                                     int viewSize[2];
                                     theView->getViewSize(viewSize);
-                                    theCamera->frameSceneOrSelectedObjects(float(viewSize[0])/float(viewSize[1]),theView->getPerspectiveDisplay(),nullptr,true,true,0.7f,nullptr);
-                                    theCamera->setFogTimer(4.0f);
+                                    theCamera->frameSceneOrSelectedObjects(float(viewSize[0])/float(viewSize[1]),theView->getPerspectiveDisplay(),nullptr,true,true,0.7,nullptr);
+                                    theCamera->setFogTimer(4.0);
                                 }
                             }
                         }
@@ -503,8 +503,8 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
                                     {
                                         int viewSize[2];
                                         theView->getViewSize(viewSize);
-                                        theCamera->frameSceneOrSelectedObjects(float(viewSize[0])/float(viewSize[1]),theView->getPerspectiveDisplay(),nullptr,true,true,0.7f,nullptr);
-                                        theCamera->setFogTimer(4.0f);
+                                        theCamera->frameSceneOrSelectedObjects(float(viewSize[0])/float(viewSize[1]),theView->getPerspectiveDisplay(),nullptr,true,true,0.7,nullptr);
+                                        theCamera->setFogTimer(4.0);
                                     }
                                 }
                             }
@@ -548,8 +548,8 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
                             {
                                 int viewSize[2];
                                 theView->getViewSize(viewSize);
-                                theCamera->frameSceneOrSelectedObjects(float(viewSize[0])/float(viewSize[1]),theView->getPerspectiveDisplay(),nullptr,true,true,0.7f,nullptr);
-                                theCamera->setFogTimer(4.0f);
+                                theCamera->frameSceneOrSelectedObjects(float(viewSize[0])/float(viewSize[1]),theView->getPerspectiveDisplay(),nullptr,true,true,0.7,nullptr);
+                                theCamera->setFogTimer(4.0);
                             }
                         }
                     }

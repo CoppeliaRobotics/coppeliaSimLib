@@ -23,15 +23,15 @@ int CPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
     return(0);
 }
 
-void CPathPlanning_old::getPathData(std::vector<float>& data)
+void CPathPlanning_old::getPathData(std::vector<floatDouble>& data)
 {
 }
 
-void CPathPlanning_old::getSearchTreeData(std::vector<float>& data,bool fromStart)
+void CPathPlanning_old::getSearchTreeData(std::vector<floatDouble>& data,bool fromStart)
 {
 }
 
-bool CPathPlanning_old::doCollide(float* dist)
+bool CPathPlanning_old::doCollide(floatDouble* dist)
 { // dist can be nullptr
     return(false);
 }

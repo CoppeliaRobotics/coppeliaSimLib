@@ -920,6 +920,7 @@ void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle,bool simu
 {
     // Inform plugins about this event:
     int pluginData[4]={scriptHandle,0,0,0};
+    printf("Handle of script to destroy: %i\n",scriptHandle);
     void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptstatedestroyed,pluginData,nullptr,nullptr);
     delete[] (char*)pluginReturnVal;
 

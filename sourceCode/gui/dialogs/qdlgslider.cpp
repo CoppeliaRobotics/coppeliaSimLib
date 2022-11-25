@@ -34,8 +34,8 @@ void CQDlgSlider::refresh()
         txt+=tt::getIString(false,triCnt);
         txt+=" triangles.";
         ui->qqText1->setText(txt.c_str());
-        decimationPercent=tt::getLimitedFloat(0.1f,0.9f,decimationPercent);
-        ui->qqSlider->setSliderPosition(int(decimationPercent*1000.0f));
+        decimationPercent=tt::getLimitedFloat(0.1,0.9,decimationPercent);
+        ui->qqSlider->setSliderPosition(int(decimationPercent*1000.0));
         _displayDecimationText();
     }
 }
@@ -55,7 +55,7 @@ void CQDlgSlider::on_qqSlider_sliderMoved(int position)
 {
     if (opMode==0)
     {
-        decimationPercent=float(position)/1000.0f;
+        decimationPercent=float(position)/1000.0;
         _displayDecimationText();
     }
 }
@@ -63,7 +63,7 @@ void CQDlgSlider::on_qqSlider_sliderMoved(int position)
 void CQDlgSlider::_displayDecimationText()
 {
     std::string txt="Decimate by ";
-    txt+=tt::getIString(false,int(decimationPercent*100.0f));
+    txt+=tt::getIString(false,int(decimationPercent*100.0));
     txt+="% (resulting shape will contain about ";
     txt+=tt::getIString(false,int(float(triCnt)*decimationPercent));
     txt+=" triangles)";

@@ -226,7 +226,7 @@ void CIkElement_old::serialize(CSer& ar)
 
             ar.xmlPushNewNode("precision");
             ar.xmlAddNode_float("linear",_minLinearPrecision);
-            ar.xmlAddNode_float("angular",_minAngularPrecision*180.0f/piValue);
+            ar.xmlAddNode_float("angular",_minAngularPrecision*180.0/piValue);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("weight");
@@ -268,7 +268,7 @@ void CIkElement_old::serialize(CSer& ar)
             {
                 ar.xmlGetNode_float("linear",_minLinearPrecision,exhaustiveXml);
                 if (ar.xmlGetNode_float("angular",_minAngularPrecision,exhaustiveXml))
-                    _minAngularPrecision*=piValue/180.0f;
+                    _minAngularPrecision*=piValue/180.0;
                 ar.xmlPopNode();
             }
 
@@ -332,27 +332,27 @@ int CIkElement_old::getTargetHandle() const
     return(linkedDummyHandle); // this should be the target!
 }
 
-bool CIkElement_old::setMinLinearPrecision(float prec)
+bool CIkElement_old::setMinLinearPrecision(floatDouble prec)
 { // Overridden from _CIkElement_old
-    tt::limitValue(0.00001f,1.0f,prec);
+    tt::limitValue(0.00001,1.0,prec);
     return(_CIkElement_old::setMinLinearPrecision(prec));
 }
 
-bool CIkElement_old::setMinAngularPrecision(float prec)
+bool CIkElement_old::setMinAngularPrecision(floatDouble prec)
 { // Overridden from _CIkElement_old
-    tt::limitValue(0.001f*degToRad,180.0f*degToRad,prec);
+    tt::limitValue(0.001*degToRad,180.0*degToRad,prec);
     return(_CIkElement_old::setMinAngularPrecision(prec));
 }
 
-bool CIkElement_old::setPositionWeight(float weight)
+bool CIkElement_old::setPositionWeight(floatDouble weight)
 { // Overridden from _CIkElement_old
-    tt::limitValue(0.001f,1.0f,weight);
+    tt::limitValue(0.001,1.0,weight);
     return(_CIkElement_old::setPositionWeight(weight));
 }
 
-bool CIkElement_old::setOrientationWeight(float weight)
+bool CIkElement_old::setOrientationWeight(floatDouble weight)
 { // Overridden from _CIkElement_old
-    tt::limitValue(0.001f,1.0f,weight);
+    tt::limitValue(0.001,1.0,weight);
     return(_CIkElement_old::setOrientationWeight(weight));
 }
 
@@ -451,7 +451,7 @@ void CIkElement_old::_setAlternativeBaseForConstraints_send(int h) const
     }
 }
 
-void CIkElement_old::_setMinLinearPrecision_send(float f) const
+void CIkElement_old::_setMinLinearPrecision_send(floatDouble f) const
 { // Overridden from _CIkElement_old
     _CIkElement_old::_setMinLinearPrecision_send(f);
 
@@ -460,7 +460,7 @@ void CIkElement_old::_setMinLinearPrecision_send(float f) const
         CPluginContainer::ikPlugin_setIkElementPrecision(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,f,_minAngularPrecision);
 }
 
-void CIkElement_old::_setMinAngularPrecision_send(float f) const
+void CIkElement_old::_setMinAngularPrecision_send(floatDouble f) const
 { // Overridden from _CIkElement_old
     _CIkElement_old::_setMinAngularPrecision_send(f);
 
@@ -469,7 +469,7 @@ void CIkElement_old::_setMinAngularPrecision_send(float f) const
         CPluginContainer::ikPlugin_setIkElementPrecision(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,_minLinearPrecision,f);
 }
 
-void CIkElement_old::_setPositionWeight_send(float f) const
+void CIkElement_old::_setPositionWeight_send(floatDouble f) const
 { // Overridden from _CIkElement_old
     _CIkElement_old::_setPositionWeight_send(f);
 
@@ -478,7 +478,7 @@ void CIkElement_old::_setPositionWeight_send(float f) const
         CPluginContainer::ikPlugin_setIkElementWeights(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,f,_orientationWeight);
 }
 
-void CIkElement_old::_setOrientationWeight_send(float f) const
+void CIkElement_old::_setOrientationWeight_send(floatDouble f) const
 { // Overridden from _CIkElement_old
     _CIkElement_old::_setOrientationWeight_send(f);
 

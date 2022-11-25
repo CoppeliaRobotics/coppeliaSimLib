@@ -41,26 +41,26 @@ void CQDlgSettings::refresh()
     ui->qqAdjustOpenGl->setEnabled(noEditModeAndNoSim);
 
     ui->translationStepSize->clear();
-    ui->translationStepSize->addItem(tt::getFString(false,0.001f,3).c_str(),QVariant(1));
-    ui->translationStepSize->addItem(tt::getFString(false,0.002f,3).c_str(),QVariant(2));
-    ui->translationStepSize->addItem(tt::getFString(false,0.005f,3).c_str(),QVariant(5));
-    ui->translationStepSize->addItem(tt::getFString(false,0.01f,3).c_str(),QVariant(10));
-    ui->translationStepSize->addItem(tt::getFString(false,0.025f,3).c_str(),QVariant(25));
-    ui->translationStepSize->addItem(tt::getFString(false,0.05f,3).c_str(),QVariant(50));
-    ui->translationStepSize->addItem(tt::getFString(false,0.1f,3).c_str(),QVariant(100));
-    ui->translationStepSize->addItem(tt::getFString(false,0.25f,3).c_str(),QVariant(250));
-    ui->translationStepSize->addItem(tt::getFString(false,0.5f,3).c_str(),QVariant(500));
-    _selectItemOfCombobox(ui->translationStepSize,int((App::userSettings->getTranslationStepSize()+0.0005f)*1000.0f));
+    ui->translationStepSize->addItem(tt::getFString(false,0.001,3).c_str(),QVariant(1));
+    ui->translationStepSize->addItem(tt::getFString(false,0.002,3).c_str(),QVariant(2));
+    ui->translationStepSize->addItem(tt::getFString(false,0.005,3).c_str(),QVariant(5));
+    ui->translationStepSize->addItem(tt::getFString(false,0.01,3).c_str(),QVariant(10));
+    ui->translationStepSize->addItem(tt::getFString(false,0.025,3).c_str(),QVariant(25));
+    ui->translationStepSize->addItem(tt::getFString(false,0.05,3).c_str(),QVariant(50));
+    ui->translationStepSize->addItem(tt::getFString(false,0.1,3).c_str(),QVariant(100));
+    ui->translationStepSize->addItem(tt::getFString(false,0.25,3).c_str(),QVariant(250));
+    ui->translationStepSize->addItem(tt::getFString(false,0.5,3).c_str(),QVariant(500));
+    _selectItemOfCombobox(ui->translationStepSize,int((App::userSettings->getTranslationStepSize()+0.0005)*1000.0));
 
     ui->rotationStepSize->clear();
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,1.0f*degToRad,1).c_str(),QVariant(1));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,2.0f*degToRad,1).c_str(),QVariant(2));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,5.0f*degToRad,1).c_str(),QVariant(5));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,10.0f*degToRad,1).c_str(),QVariant(10));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,15.0f*degToRad,1).c_str(),QVariant(15));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,30.0f*degToRad,1).c_str(),QVariant(30));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,45.0f*degToRad,1).c_str(),QVariant(45));
-    _selectItemOfCombobox(ui->rotationStepSize,int(App::userSettings->getRotationStepSize()*radToDeg+0.5f));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,1.0*degToRad,1).c_str(),QVariant(1));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,2.0*degToRad,1).c_str(),QVariant(2));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,5.0*degToRad,1).c_str(),QVariant(5));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,10.0*degToRad,1).c_str(),QVariant(10));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,15.0*degToRad,1).c_str(),QVariant(15));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,30.0*degToRad,1).c_str(),QVariant(30));
+    ui->rotationStepSize->addItem(tt::getAngleFString(false,45.0*degToRad,1).c_str(),QVariant(45));
+    _selectItemOfCombobox(ui->rotationStepSize,int(App::userSettings->getRotationStepSize()*radToDeg+0.5));
 
     ui->removeIdenticalVerticesCheckbox->setChecked(App::userSettings->identicalVerticesCheck);
     ui->removeIdenticalVerticesTolerance->setText(tt::getEString(false,App::userSettings->identicalVerticesTolerance,2).c_str());
@@ -82,7 +82,7 @@ void CQDlgSettings::refresh()
 
 void CQDlgSettings::on_translationStepSize_activated(int index)
 {
-    App::appendSimulationThreadCommand(SET_TRANSLATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,float(ui->translationStepSize->itemData(index).toInt())/1000.0f);
+    App::appendSimulationThreadCommand(SET_TRANSLATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,float(ui->translationStepSize->itemData(index).toInt())/1000.0);
     App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
@@ -107,10 +107,10 @@ void CQDlgSettings::on_removeIdenticalVerticesTolerance_editingFinished()
     newVal=ui->removeIdenticalVerticesTolerance->text().toFloat(&ok);
     if (ok)
     {
-        if (newVal>=0.0f)
+        if (newVal>=0.0)
         {
-            if (newVal>0.5f)
-                newVal=0.5f;
+            if (newVal>0.5)
+                newVal=0.5;
             App::appendSimulationThreadCommand(SET_IDENTICALVERTICESTOLERANCE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,newVal);
         }
     }

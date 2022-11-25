@@ -2002,7 +2002,7 @@ int CSceneObject::getScriptsToExecute_old(int scriptType,int parentTraversalDire
         {
             cnt++;
             scripts.push_back(attachedScript);
-            uniqueIds.push_back(attachedScript->getScriptUniqueID());
+            uniqueIds.push_back(attachedScript->getScriptHandle());
         }
 
         std::vector<CSceneObject*> orderFirst;
@@ -2027,7 +2027,7 @@ int CSceneObject::getScriptsToExecute_old(int scriptType,int parentTraversalDire
         {
             cnt++;
             scripts.push_back(attachedScript);
-            uniqueIds.push_back(attachedScript->getScriptUniqueID());
+            uniqueIds.push_back(attachedScript->getScriptHandle());
         }
     }
     return(cnt);

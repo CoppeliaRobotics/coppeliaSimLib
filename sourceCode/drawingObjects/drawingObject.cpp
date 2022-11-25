@@ -5,7 +5,7 @@
 #include "easyLock.h"
 #include "drawingObjectRendering.h"
 
-float CDrawingObject::getSize() const
+floatDouble CDrawingObject::getSize() const
 {
     return(_size);
 }
@@ -30,28 +30,28 @@ int CDrawingObject::getExpectedFloatsPerItem() const
     return(retVal);
 }
 
-std::vector<float>* CDrawingObject::getDataPtr()
+std::vector<floatDouble>* CDrawingObject::getDataPtr()
 {
     return(&_data);
 }
 
-CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateTolerance,int sceneObjId,int maxItemCount,int creatorHandle)
+CDrawingObject::CDrawingObject(int theObjectType,floatDouble size,floatDouble duplicateTolerance,int sceneObjId,int maxItemCount,int creatorHandle)
 {
     _rebuildRemoteItems=true;
     _creatorHandle=creatorHandle;
-    float tr=0.0f;
+    floatDouble tr=0.0;
     if (theObjectType&sim_drawing_50percenttransparency)
-        tr+=0.5f;
+        tr+=0.5;
     if (theObjectType&sim_drawing_25percenttransparency)
-        tr+=0.25f;
+        tr+=0.25;
     if (theObjectType&sim_drawing_12percenttransparency)
-        tr+=0.125f;
+        tr+=0.125;
     color.setDefaultValues();
 
-    if (tr!=0.0f)
+    if (tr!=0.0)
     {
         color.setTranslucid(true);
-        color.setOpacity(1.0f-tr);
+        color.setOpacity(1.0-tr);
     }
 
     _objectId=-1;
@@ -59,7 +59,7 @@ CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateToler
     _objectUid=-1;
     _sceneObjectUid=-1;
 
-    size=tt::getLimitedFloat(0.0001f,100.0f,size);
+    size=tt::getLimitedFloat(0.0001,100.0,size);
     _size=size;
     if (maxItemCount==0)
         maxItemCount=100000;
@@ -82,8 +82,8 @@ CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateToler
         if (tmp==sim_drawing_triangles)
             theObjectType-=sim_drawing_itemsizes;
     }
-    if (duplicateTolerance<0.0f)
-        duplicateTolerance=0.0f;
+    if (duplicateTolerance<0.0)
+        duplicateTolerance=0.0;
     _duplicateTolerance=duplicateTolerance;
     _objectType=theObjectType;
     _setItemSizes();
@@ -155,9 +155,9 @@ void CDrawingObject::adjustForFrameChange(const C7Vector& preCorrection)
     pushAppendNewPointEvent();
 }
 
-void CDrawingObject::adjustForScaling(float xScale,float yScale,float zScale)
+void CDrawingObject::adjustForScaling(floatDouble xScale,floatDouble yScale,floatDouble zScale)
 {
-    float avgScaling=(xScale+yScale+zScale)/3.0f;
+    floatDouble avgScaling=(xScale+yScale+zScale)/3.0;
     int tmp=_objectType&0x001f;
     if ((tmp!=sim_drawing_points)&&(tmp!=sim_drawing_lines)&&(tmp!=sim_drawing_linestrip))
         _size*=avgScaling;
@@ -189,20 +189,20 @@ void CDrawingObject::adjustForScaling(float xScale,float yScale,float zScale)
     pushAppendNewPointEvent();
 }
 
-void CDrawingObject::setItems(const float* itemData,size_t itemCnt)
+void CDrawingObject::setItems(const floatDouble* itemData,size_t itemCnt)
 {
     addItem(nullptr);
     addItems(itemData,itemCnt);
 }
 
-void CDrawingObject::addItems(const float* itemData,size_t itemCnt)
+void CDrawingObject::addItems(const floatDouble* itemData,size_t itemCnt)
 {
     size_t off=size_t(verticesPerItem*3+quaternionsPerItem*4+colorsPerItem*3+otherFloatsPerItem);
     for (size_t i=0;i<itemCnt;i++)
         addItem(itemData+off*i);
 }
 
-bool CDrawingObject::addItem(const float* itemData)
+bool CDrawingObject::addItem(const floatDouble* itemData)
 {
     EASYLOCK(_objectMutex);
     if (itemData==nullptr)
@@ -245,7 +245,7 @@ bool CDrawingObject::addItem(const float* itemData)
             trInv=it->getCumulativeTransformation().getInverse();
     }
 
-    if ( (_duplicateTolerance>0.0f)&&(verticesPerItem==1) )
+    if ( (_duplicateTolerance>0.0)&&(verticesPerItem==1) )
     { // Check for duplicates
         C3Vector v(itemData);
         v*=trInv;
@@ -264,7 +264,7 @@ bool CDrawingObject::addItem(const float* itemData)
     { // The buffer is not yet full!
         newPos=int(_data.size())/floatsPerItem;
         for (int i=0;i<floatsPerItem;i++)
-            _data.push_back(0.0f);
+            _data.push_back(0.0);
     }
 
     if (_sceneObjectId!=-2)
@@ -293,15 +293,15 @@ bool CDrawingObject::addItem(const float* itemData)
             {
                 C3X3Matrix m;
                 m.axis[2]=C3Vector(itemData+off2);
-                if (m.axis[2](0)<0.1f)
+                if (m.axis[2](0)<0.1)
                 {
-                    C3Vector v(1.0f,0.0f,0.0f);
+                    C3Vector v(1.0,0.0,0.0);
                     m.axis[1]=(m.axis[2]^v).getNormalized();
                     m.axis[0]=m.axis[1]^m.axis[2];
                 }
                 else
                 {
-                    C3Vector v(0.0f,1.0f,0.0f);
+                    C3Vector v(0.0,1.0,0.0);
                     m.axis[0]=(v^m.axis[2]).getNormalized();
                     m.axis[1]=m.axis[2]^m.axis[0];
                 }
@@ -485,7 +485,7 @@ void CDrawingObject::_initBufferedEventData()
     _rebuildRemoteItems=true;
 }
 
-void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<float>& quaternions,std::vector<float>& colors) const
+void CDrawingObject::_getEventData(std::vector<floatDouble>& vertices,std::vector<floatDouble>& quaternions,std::vector<floatDouble>& colors) const
 {
     size_t w=0;
     if (_objectType&sim_drawing_itemcolors)
@@ -547,7 +547,7 @@ void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<floa
             w=2;
         if (t==sim_drawing_triangles)
             w=3;
-        const float* c=color.getColorsPtr();
+        const floatDouble* c=color.getColorsPtr();
         for (size_t itemCnt=0;itemCnt<_bufferedEventData.size()/size_t(floatsPerItem);itemCnt++)
         {
             for (size_t j=0;j<w;j++)
@@ -611,9 +611,9 @@ void CDrawingObject::pushAppendNewPointEvent()
     {
         auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_objectUid,nullptr,false);
 
-        std::vector<float> points;
-        std::vector<float> normals;
-        std::vector<float> colors;
+        std::vector<floatDouble> points;
+        std::vector<floatDouble> normals;
+        std::vector<floatDouble> colors;
         _getEventData(points,normals,colors);
 
         CCbor obj(nullptr,0);

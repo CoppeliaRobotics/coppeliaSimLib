@@ -9,21 +9,21 @@
 
 CSoftButton::CSoftButton(std::string theLabel,int w,int h,int theLength,int theHeight)
 {
-    backgroundColor[0]=0.7f;
-    backgroundColor[1]=0.7f;
-    backgroundColor[2]=0.7f;
-    downBackgroundColor[0]=0.7f; 
-    downBackgroundColor[1]=0.7f;
-    downBackgroundColor[2]=0.7f;
-    textColor[0]=0.0f;
-    textColor[1]=0.0f;
-    textColor[2]=0.0f;
+    backgroundColor[0]=0.7;
+    backgroundColor[1]=0.7;
+    backgroundColor[2]=0.7;
+    downBackgroundColor[0]=0.7;
+    downBackgroundColor[1]=0.7;
+    downBackgroundColor[2]=0.7;
+    textColor[0]=0.0;
+    textColor[1]=0.0;
+    textColor[2]=0.0;
     label=theLabel;
     downLabel=theLabel;
     _textureProperty=nullptr;
     arrayColors=nullptr;
     _buttonAttributes=sim_buttonproperty_button|sim_buttonproperty_enabled|sim_buttonproperty_horizontallycentered|sim_buttonproperty_verticallycentered;
-    sliderPos=0.0f;
+    sliderPos=0.0;
     if (theLength<1)
         theLength=1;
     length=theLength;
@@ -43,15 +43,15 @@ void CSoftButton::setAttributes(int attr)
     int afterProperty=attr&(0xffff-0x0007);
     if ( (afterType==sim_buttonproperty_editbox)&&(beforeType!=sim_buttonproperty_editbox) )
     {
-        downBackgroundColor[0]=1.0f;
-        downBackgroundColor[1]=1.0f;
-        downBackgroundColor[2]=1.0f;
+        downBackgroundColor[0]=1.0;
+        downBackgroundColor[1]=1.0;
+        downBackgroundColor[2]=1.0;
     }
     if ( (afterType!=sim_buttonproperty_editbox)&&(beforeType==sim_buttonproperty_editbox) )
     {
-        downBackgroundColor[0]=0.7f;
-        downBackgroundColor[1]=0.7f;
-        downBackgroundColor[2]=0.7f;
+        downBackgroundColor[0]=0.7;
+        downBackgroundColor[1]=0.7;
+        downBackgroundColor[2]=0.7;
     }
     if (afterType!=sim_buttonproperty_button)
         _buttonAttributes&=(0xffff-sim_buttonproperty_staydown-sim_buttonproperty_isdown-sim_buttonproperty_rollupaction-sim_buttonproperty_closeaction-sim_buttonproperty_downupevent);
@@ -155,7 +155,7 @@ void CSoftButton::enableArray(bool enable)
     {
         arrayColors=new floatDouble[length*height*3];
         for (int i=0;i<length*height*3;i++)
-            arrayColors[i]=0.0f;
+            arrayColors[i]=0.0;
     }
 }
 
@@ -199,7 +199,7 @@ void CSoftButton::adjustHeight(int newHeight)
 }
 void CSoftButton::setSliderPos(floatDouble pos)
 {
-    tt::limitValue(-1.0f,1.0f,pos);
+    tt::limitValue(-1.0,1.0,pos);
     sliderPos=pos;
 }
 floatDouble CSoftButton::getSliderPos()
@@ -378,7 +378,7 @@ void CSoftButton::drawArray(VPoint p,VPoint s)
     if (arrayColors==nullptr)
         return;
 
-    ogl::setAlpha(0.5f);
+    ogl::setAlpha(0.5);
     if (_buttonAttributes&sim_buttonproperty_transparent)
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
@@ -418,13 +418,13 @@ void CSoftButton::drawArray(VPoint p,VPoint s)
             {
                 int y=pos[1]-j*dx[1];
 
-                ogl::setMaterialColor(sim_colorcomponent_emission,arrayColors[3*(i+j*length)+0]*1.5f,arrayColors[3*(i+j*length)+1]*1.5f,arrayColors[3*(i+j*length)+2]*1.5f);
+                ogl::setMaterialColor(sim_colorcomponent_emission,arrayColors[3*(i+j*length)+0]*1.5,arrayColors[3*(i+j*length)+1]*1.5,arrayColors[3*(i+j*length)+2]*1.5);
                 glBegin(GL_LINE_STRIP);
                 glVertex3i(x+1,y-dx[1]+1,0);
                 glVertex3i(x+1,y,0);
                 glVertex3i(x+dx[0],y,0);
                 glEnd();
-                ogl::setMaterialColor(sim_colorcomponent_emission,arrayColors[3*(i+j*length)+0]*0.66f,arrayColors[3*(i+j*length)+1]*0.66f,arrayColors[3*(i+j*length)+2]*0.66f);
+                ogl::setMaterialColor(sim_colorcomponent_emission,arrayColors[3*(i+j*length)+0]*0.66,arrayColors[3*(i+j*length)+1]*0.66,arrayColors[3*(i+j*length)+2]*0.66);
                 glBegin(GL_LINE_STRIP);
                 glVertex3i(x+dx[0],y,0);
                 glVertex3i(x+dx[0],y-dx[1]+1,0);

@@ -181,7 +181,7 @@ void CPathEditMode_old::_insertNewPoint(int insertPosition)
     {
         it=new CSimplePathPoint_old();
         C7Vector tr(it->getTransformation());
-        tr.X(2)=0.1f;
+        tr.X(2)=0.1;
         it->setTransformation(tr,_editionPathCont->getAttributes());
     }
     else
@@ -230,8 +230,8 @@ void CPathEditMode_old::_keepXAxisAndAlignZAxis(std::vector<int>* selection)
         CSimplePathPoint_old* last=_editionPathCont->getSimplePathPoint((*selection)[selection->size()-1]);
         C3Vector zVect(last->getTransformation().getMatrix().M.axis[2]);
         C3X3Matrix posRot,negRot;
-        posRot.buildXRotation(piValue/1800.0f);
-        negRot.buildXRotation(-piValue/1800.0f);
+        posRot.buildXRotation(piValue/1800.0);
+        negRot.buildXRotation(-piValue/1800.0);
         for (int i=0;i<int(selection->size()-1);i++)
         {
             CSimplePathPoint_old* it=_editionPathCont->getSimplePathPoint((*selection)[i]);
@@ -438,7 +438,7 @@ void CPathEditMode_old::makeDummies()
         SSimulationThreadCommand cmd;
         cmd.cmdId=PATHEDIT_MAKEDUMMY_GUITRIGGEREDCMD;
         cmd.stringParams.push_back("ExtractedDummy");
-        cmd.floatParams.push_back(0.02f); // so that we can see them over the ctrl pts!
+        cmd.floatParams.push_back(0.02); // so that we can see them over the ctrl pts!
         cmd.transfParams.push_back(_path->getFullCumulativeTransformation()*it->getTransformation());
         App::appendSimulationThreadCommand(cmd);
     }

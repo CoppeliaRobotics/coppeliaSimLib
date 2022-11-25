@@ -22,12 +22,12 @@ std::vector<SMouseOrKeyboardOrResizeEvent> _bufferedMouseOrKeyboardOrResizeEvent
 #ifdef USING_QOPENGLWIDGET
 COpenglWidget::COpenglWidget(QWidget *parent) : QOpenGLWidget(parent)
 #else
-COpenglWidget::COpenglWidget(QWidget *parent) : QGLWidget(QGLFormat((App::userSettings->stereoDist<=0.0f) ? (QGL::DoubleBuffer) : (QGL::StereoBuffers)),parent)
+COpenglWidget::COpenglWidget(QWidget *parent) : QGLWidget(QGLFormat((App::userSettings->stereoDist<=0.0) ? (QGL::DoubleBuffer) : (QGL::StereoBuffers)),parent)
 #endif
 {
     TRACE_INTERNAL;
 #ifdef USING_QOPENGLWIDGET
-    if (App::userSettings->stereoDist>0.0f)
+    if (App::userSettings->stereoDist>0.0)
     {
         QSurfaceFormat s(QSurfaceFormat::StereoBuffers);
         s.setRenderableType(QSurfaceFormat::OpenGL);
@@ -571,8 +571,8 @@ void COpenglWidget::_computeMousePos(int inX,int inY,int& outX,int& outY)
     float sx=windowHandle()->devicePixelRatio();
     float sy=windowHandle()->devicePixelRatio();
 #endif
-    outX=int(float(inX)*sx+0.5f);
-    outY=int(float(inY)*sy+0.5f);
+    outX=int(float(inX)*sx+0.5);
+    outY=int(float(inY)*sy+0.5);
     _lastGlobalMousePos[0]=QCursor::pos().x();
     _lastGlobalMousePos[1]=QCursor::pos().y();
 }

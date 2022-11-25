@@ -31,9 +31,9 @@ bool CToolBarCommand::processCommand(int commandID)
                             int viewSize[2];
                             view->getViewSize(viewSize);
 
-                            cam->frameSceneOrSelectedObjects(float(viewSize[0])/float(viewSize[1]),view->getPerspectiveDisplay(),nullptr,true,true,1.0f,view);
+                            cam->frameSceneOrSelectedObjects(float(viewSize[0])/float(viewSize[1]),view->getPerspectiveDisplay(),nullptr,true,true,1.0,view);
                             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-                            cam->setFogTimer(4.0f);
+                            cam->setFogTimer(4.0);
                         }
                     }
                 }

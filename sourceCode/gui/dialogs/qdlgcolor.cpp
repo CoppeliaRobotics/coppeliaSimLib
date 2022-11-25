@@ -30,7 +30,7 @@ void CQDlgColor::refresh()
     }
 
     QImage img(70,240,QImage::Format_RGB32);
-    QRgb value=qRgb(int(redState*255.5f),int(greenState*255.5f),int(blueState*255.5f));
+    QRgb value=qRgb(int(redState*255.5),int(greenState*255.5),int(blueState*255.5));
     for (int i=0;i<240;i++)
     {
         for (int j=0;j<70;j++)
@@ -47,12 +47,12 @@ void CQDlgColor::refresh()
     ui->qqSaturationValue->setText(tt::getFString(false,saturationState,2).c_str());
     ui->qqLuminosityValue->setText(tt::getFString(false,luminosityState,2).c_str());
 
-    ui->qqRedSlider->setSliderPosition(int(redState*100.5f));
-    ui->qqGreenSlider->setSliderPosition(int(greenState*100.5f));
-    ui->qqBlueSlider->setSliderPosition(int(blueState*100.5f));
-    ui->qqHueSlider->setSliderPosition(int(hueState*100.5f));
-    ui->qqSaturationSlider->setSliderPosition(int(saturationState*100.5f));
-    ui->qqLuminositySlider->setSliderPosition(int(luminosityState*100.5f));
+    ui->qqRedSlider->setSliderPosition(int(redState*100.5));
+    ui->qqGreenSlider->setSliderPosition(int(greenState*100.5));
+    ui->qqBlueSlider->setSliderPosition(int(blueState*100.5));
+    ui->qqHueSlider->setSliderPosition(int(hueState*100.5));
+    ui->qqSaturationSlider->setSliderPosition(int(saturationState*100.5));
+    ui->qqLuminositySlider->setSliderPosition(int(luminosityState*100.5));
 
     inRefreshPart=false;
 }
@@ -205,7 +205,7 @@ void CQDlgColor::on_qqRedValue_editingFinished()
         float newVal=ui->qqRedValue->text().toFloat(&ok);
         if (ok)
         {
-            tt::limitValue(0.0f,1.0f,newVal);
+            tt::limitValue(0.0,1.0,newVal);
             redState=newVal;
             computeHSLValues();
             _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
@@ -238,7 +238,7 @@ void CQDlgColor::on_qqGreenValue_editingFinished()
         float newVal=ui->qqGreenValue->text().toFloat(&ok);
         if (ok)
         {
-            tt::limitValue(0.0f,1.0f,newVal);
+            tt::limitValue(0.0,1.0,newVal);
             greenState=newVal;
             computeHSLValues();
             _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
@@ -271,7 +271,7 @@ void CQDlgColor::on_qqBlueValue_editingFinished()
         float newVal=ui->qqBlueValue->text().toFloat(&ok);
         if (ok)
         {
-            tt::limitValue(0.0f,1.0f,newVal);
+            tt::limitValue(0.0,1.0,newVal);
             blueState=newVal;
             computeHSLValues();
             _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
@@ -304,7 +304,7 @@ void CQDlgColor::on_qqHueValue_editingFinished()
         float newVal=ui->qqHueValue->text().toFloat(&ok);
         if (ok)
         {
-            tt::limitValue(0.0f,1.0f,newVal);
+            tt::limitValue(0.0,1.0,newVal);
             hueState=newVal;
             computeRGBValues();
             _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
@@ -337,7 +337,7 @@ void CQDlgColor::on_qqSaturationValue_editingFinished()
         float newVal=ui->qqSaturationValue->text().toFloat(&ok);
         if (ok)
         {
-            tt::limitValue(0.0f,1.0f,newVal);
+            tt::limitValue(0.0,1.0,newVal);
             saturationState=newVal;
             computeRGBValues();
             _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
@@ -370,7 +370,7 @@ void CQDlgColor::on_qqLuminosityValue_editingFinished()
         float newVal=ui->qqLuminosityValue->text().toFloat(&ok);
         if (ok)
         {
-            tt::limitValue(0.0f,1.0f,newVal);
+            tt::limitValue(0.0,1.0,newVal);
             luminosityState=newVal;
             computeRGBValues();
             _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
@@ -399,7 +399,7 @@ void CQDlgColor::on_qqRedSlider_sliderMoved(int position)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        redState=float(position)/100.0f;
+        redState=float(position)/100.0;
         computeHSLValues();
         _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
         if (!isModal())
@@ -425,7 +425,7 @@ void CQDlgColor::on_qqGreenSlider_sliderMoved(int position)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        greenState=float(position)/100.0f;
+        greenState=float(position)/100.0;
         computeHSLValues();
         _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
         if (!isModal())
@@ -451,7 +451,7 @@ void CQDlgColor::on_qqBlueSlider_sliderMoved(int position)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        blueState=float(position)/100.0f;
+        blueState=float(position)/100.0;
         computeHSLValues();
         _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
         if (!isModal())
@@ -477,7 +477,7 @@ void CQDlgColor::on_qqHueSlider_sliderMoved(int position)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        hueState=float(position)/100.0f;
+        hueState=float(position)/100.0;
         computeRGBValues();
         _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
         if (!isModal())
@@ -503,7 +503,7 @@ void CQDlgColor::on_qqSaturationSlider_sliderMoved(int position)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        saturationState=float(position)/100.0f;
+        saturationState=float(position)/100.0;
         computeRGBValues();
         _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
         if (!isModal())
@@ -529,7 +529,7 @@ void CQDlgColor::on_qqLuminositySlider_sliderMoved(int position)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        luminosityState=float(position)/100.0f;
+        luminosityState=float(position)/100.0;
         computeRGBValues();
         _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
         if (!isModal())

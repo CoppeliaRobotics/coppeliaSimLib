@@ -32,11 +32,11 @@ public:
     bool setDoOnFailOrSuccessOf(int groupID,bool check);
     bool setMaxIterations(int maxIter);
     bool setCalculationMethod(int theMethod);
-    bool setDampingFactor(float theFactor);
+    bool setDampingFactor(floatDouble theFactor);
 
     std::string getUniquePersistentIdString() const;
     int getIkPluginCounterpartHandle() const;
-    float getCalculationTime() const;
+    floatDouble getCalculationTime() const;
     int getCalculationResult() const;
     const CMatrix* getLastJacobian() const;
     void resetCalculationResult();
@@ -48,27 +48,27 @@ public:
     void setAllInvolvedJointsToNewJointMode(int jointMode) const;
 
     int computeGroupIk(bool independentComputation);
-    int getConfigForTipPose(int jointCnt,const int* jointHandles,float thresholdDist,int maxTimeInMs,float* retConfig,const float* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const float* lowLimits,const float* ranges,std::string& errorMsg);
-    int checkIkGroup(int jointCnt,const int* jointHandles,float* jointValues,const int* jointOptions);
-    int generateIkPath(int jointCnt,const int* jointHandles,int ptCnt,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,std::vector<float>& path);
+    int getConfigForTipPose(int jointCnt,const int* jointHandles,floatDouble thresholdDist,int maxTimeInMs,floatDouble* retConfig,const floatDouble* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const floatDouble* lowLimits,const floatDouble* ranges,std::string& errorMsg);
+    int checkIkGroup(int jointCnt,const int* jointHandles,floatDouble* jointValues,const int* jointOptions);
+    int generateIkPath(int jointCnt,const int* jointHandles,int ptCnt,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,std::vector<floatDouble>& path);
 
     bool computeOnlyJacobian(int options);
-    const float* getLastJacobianData(int matrixSize[2]);
-    float* getLastManipulabilityValue(int matrixSize[2]);
+    const floatDouble* getLastJacobianData(int matrixSize[2]);
+    floatDouble* getLastManipulabilityValue(int matrixSize[2]);
 
 protected:
     // Overridden from _CIkGroup_old:
     void _addIkElement(CIkElement_old* anElement);
     void _removeIkElement(int ikElementHandle);
 
-    float _getDeterminant(const CMatrix& m,const std::vector<int>* activeRows,const std::vector<int>* activeColumns) const;
+    floatDouble _getDeterminant(const CMatrix& m,const std::vector<int>* activeRows,const std::vector<int>* activeColumns) const;
 
 private:
     // Overridden from _CIkGroup_old:
     void _setEnabled_send(bool e) const;
     void _setMaxIterations_send(int it) const;
     void _setCalculationMethod_send(int m) const;
-    void _setDampingFactor_send(float f) const;
+    void _setDampingFactor_send(floatDouble f) const;
     void _setIgnoreMaxStepSizes_send(bool e) const;
     void _setRestoreIfPositionNotReached_send(bool e) const;
     void _setRestoreIfOrientationNotReached_send(bool e) const;

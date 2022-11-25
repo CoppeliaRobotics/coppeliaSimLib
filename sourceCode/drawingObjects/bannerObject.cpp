@@ -14,7 +14,7 @@ void CBannerObject::setCreatedFromScript(bool c)
     _createdFromScript=c;
 }
 
-CBannerObject::CBannerObject(const char* label,int options,int sceneObjID,const float relConfig[6],const float labelCol[12],const float backCol[12],float height)
+CBannerObject::CBannerObject(const char* label,int options,int sceneObjID,const floatDouble relConfig[6],const floatDouble labelCol[12],const floatDouble backCol[12],floatDouble height)
 {
     _visible=true;
     _label=label;
@@ -22,11 +22,11 @@ CBannerObject::CBannerObject(const char* label,int options,int sceneObjID,const 
     _createdFromScript=false;
     color.setColorsAllBlack();
     backColor.setColorsAllBlack();
-    float col[15];
+    floatDouble col[15];
     backColor.getColors(col);
-    col[0]=1.0f;
-    col[1]=1.0f;
-    col[2]=1.0f;
+    col[0]=1.0;
+    col[1]=1.0;
+    col[2]=1.0;
     backColor.setColors(col);
     if (labelCol!=nullptr)
     {
@@ -86,9 +86,9 @@ void CBannerObject::adjustForFrameChange(const C7Vector& preCorrection)
     _relativeConfig*=preCorrection;
 }
 
-void CBannerObject::adjustForScaling(float xScale,float yScale,float zScale)
+void CBannerObject::adjustForScaling(floatDouble xScale,floatDouble yScale,floatDouble zScale)
 {
-    float avgScaling=(xScale+yScale+zScale)/3.0f;
+    floatDouble avgScaling=(xScale+yScale+zScale)/3.0;
     _relativeConfig.X*=avgScaling;
 }
 
@@ -107,7 +107,7 @@ bool CBannerObject::announceObjectWillBeErased(int objID)
     return(_sceneObjectID==objID);
 }
 
-void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM,const int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
+void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM,const int windowSize[2],floatDouble verticalViewSizeOrAngle,bool perspective)
 {
     if (_visible)
     {
@@ -160,7 +160,7 @@ void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayA
             return;
 
         tr*=_relativeConfig;
-        float* bckColor=nullptr;
+        floatDouble* bckColor=nullptr;
         if ((_options&sim_banner_nobackground)==0)
             bckColor=backColor.getColorsPtr();
 

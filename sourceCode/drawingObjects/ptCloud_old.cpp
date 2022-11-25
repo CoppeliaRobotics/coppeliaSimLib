@@ -1,9 +1,8 @@
-
 #include "ptCloud_old.h"
 #include "app.h"
 #include "ptCloudRendering_old.h"
 
-CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int parentHandle,int options,float pointSize,int ptCnt,const float* vertices,const unsigned char* colors,const float* normals,const unsigned char* defaultColors)
+CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int parentHandle,int options,floatDouble pointSize,int ptCnt,const floatDouble* vertices,const unsigned char* colors,const floatDouble* normals,const unsigned char* defaultColors)
 {
     _pageMask=pageMask;
     _layerMask=layerMask;
@@ -15,30 +14,30 @@ CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int parentHandle,int optio
     {
         for (int i=0;i<4;i++)
         {
-            _defaultColors[4*i+0]=float(defaultColors[3*i+0])/255.0f;
-            _defaultColors[4*i+1]=float(defaultColors[3*i+1])/255.0f;
-            _defaultColors[4*i+2]=float(defaultColors[3*i+2])/255.0f;
-            _defaultColors[4*i+3]=1.0f;
+            _defaultColors[4*i+0]=floatDouble(defaultColors[3*i+0])/255.0;
+            _defaultColors[4*i+1]=floatDouble(defaultColors[3*i+1])/255.0;
+            _defaultColors[4*i+2]=floatDouble(defaultColors[3*i+2])/255.0;
+            _defaultColors[4*i+3]=1.0;
         }
     }
     else
     {
-        _defaultColors[0]=0.5f;
-        _defaultColors[1]=0.5f;
-        _defaultColors[2]=0.5f;
-        _defaultColors[3]=1.0f;
-        _defaultColors[4]=0.25f;
-        _defaultColors[5]=0.25f;
-        _defaultColors[6]=0.25f;
-        _defaultColors[7]=1.0f;
-        _defaultColors[8]=0.25f;
-        _defaultColors[9]=0.25f;
-        _defaultColors[10]=0.25f;
-        _defaultColors[11]=1.0f;
-        _defaultColors[12]=0.0f;
-        _defaultColors[13]=0.0f;
-        _defaultColors[14]=0.0f;
-        _defaultColors[15]=1.0f;
+        _defaultColors[0]=0.5;
+        _defaultColors[1]=0.5;
+        _defaultColors[2]=0.5;
+        _defaultColors[3]=1.0;
+        _defaultColors[4]=0.25;
+        _defaultColors[5]=0.25;
+        _defaultColors[6]=0.25;
+        _defaultColors[7]=1.0;
+        _defaultColors[8]=0.25;
+        _defaultColors[9]=0.25;
+        _defaultColors[10]=0.25;
+        _defaultColors[11]=1.0;
+        _defaultColors[12]=0.0;
+        _defaultColors[13]=0.0;
+        _defaultColors[14]=0.0;
+        _defaultColors[15]=1.0;
     }
 
     if (colors!=nullptr)
@@ -46,9 +45,9 @@ CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int parentHandle,int optio
         _colors.resize(ptCnt*3);
         for (int i=0;i<ptCnt;i++)
         {
-            _colors[3*i+0]=float(colors[3*i+0])/255.0f;
-            _colors[3*i+1]=float(colors[3*i+1])/255.0f;
-            _colors[3*i+2]=float(colors[3*i+2])/255.0f;
+            _colors[3*i+0]=floatDouble(colors[3*i+0])/255.0;
+            _colors[3*i+1]=floatDouble(colors[3*i+1])/255.0;
+            _colors[3*i+2]=floatDouble(colors[3*i+2])/255.0;
         }
     }
     if (normals!=nullptr)
@@ -142,7 +141,7 @@ void CPtCloud_old::pushAddEvent()
 
         data->appendMapObject_stringString("type","point",0);
 
-        float c[9];
+        floatDouble c[9];
         c[0]=_defaultColors[0];
         c[1]=_defaultColors[1];
         c[2]=_defaultColors[2];

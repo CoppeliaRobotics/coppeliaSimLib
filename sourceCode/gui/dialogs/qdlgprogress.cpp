@@ -17,10 +17,10 @@ CQDlgProgress::~CQDlgProgress()
 
 void CQDlgProgress::updateProgress(float p,const char* txt)
 {
-    if (p<0.0f)
+    if (p<0.0)
         ui->qqBar->setMaximum(0);
     else
-        ui->qqBar->setValue(int(p*100.0f));
+        ui->qqBar->setValue(int(p*100.0));
     ui->qqText->setText(txt);
 }
 

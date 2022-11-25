@@ -69,7 +69,7 @@ void CQDlgColorPulsation::on_qqFrequency_editingFinished()
     if (ok)
     {
         pulsationFrequency=newVal;
-        pulsationFrequency=tt::getLimitedFloat(0.001f,1000.0f,pulsationFrequency);
+        pulsationFrequency=tt::getLimitedFloat(0.001,1000.0,pulsationFrequency);
     }
     refresh();
 }
@@ -83,7 +83,7 @@ void CQDlgColorPulsation::on_qqPhase_editingFinished()
     if (ok)
     {
         pulsationPhase=newVal;
-        pulsationPhase=tt::getLimitedFloat(0.0f,0.999f,pulsationPhase);
+        pulsationPhase=tt::getLimitedFloat(0.0,0.999,pulsationPhase);
     }
     refresh();
 }
@@ -97,7 +97,7 @@ void CQDlgColorPulsation::on_qqRatio_editingFinished()
     if (ok)
     {
         pulsationRatio=newVal;
-        pulsationRatio=tt::getLimitedFloat(0.01f,1.0f,pulsationRatio);
+        pulsationRatio=tt::getLimitedFloat(0.01,1.0,pulsationRatio);
     }
     refresh();
 }

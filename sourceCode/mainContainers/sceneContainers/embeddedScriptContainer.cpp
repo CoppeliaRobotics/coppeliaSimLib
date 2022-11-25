@@ -10,7 +10,6 @@
 
 CEmbeddedScriptContainer::CEmbeddedScriptContainer()
 {
-    _nextScriptHandle=SIM_IDSTART_EMBEDDEDSCRIPT;
     _contactFuncCount=0;
     _dynFuncCount=0;
     _eventFuncCount=0;
@@ -294,10 +293,9 @@ CScriptObject* CEmbeddedScriptContainer::getMainScript() const
 
 int CEmbeddedScriptContainer::insertScript(CScriptObject* script)
 {
-    script->setScriptHandle(_nextScriptHandle++);
     allScripts.push_back(script);
     App::worldContainer->setModificationFlag(8192);
-    return(_nextScriptHandle-1);
+    return(script->getScriptHandle());
 }
 
 int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,bool lua,bool oldThreadedScript/*=false*/)
@@ -534,16 +532,6 @@ int CEmbeddedScriptContainer::_getScriptsToExecute_old(int scriptType,std::vecto
     return(int(scripts.size()));
 }
 
-bool CEmbeddedScriptContainer::doesScriptWithUniqueIdExist(int id) const
-{
-    for (size_t i=0;i<allScripts.size();i++)
-    {
-        if (allScripts[i]->getScriptUniqueID()==id)
-            return(true);
-    }
-    return(false);
-}
-
 bool CEmbeddedScriptContainer::shouldTemporarilySuspendMainScript()
 {
     bool retVal=false;
@@ -626,7 +614,7 @@ int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int cal
         _getScriptsToExecute_old(scriptType,scripts,uniqueIds);
         for (size_t i=0;i<scripts.size();i++)
         {
-            if (doesScriptWithUniqueIdExist(uniqueIds[i]))
+            if (getScriptFromHandle(uniqueIds[i]))
             { // the script could have been erased in the mean time
                 CScriptObject* script=scripts[i];
                 if (!script->getScriptIsDisabled())

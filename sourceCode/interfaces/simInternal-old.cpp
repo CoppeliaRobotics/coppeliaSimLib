@@ -515,7 +515,7 @@ int simAppendScriptArrayEntry_internal(const char* reservedSetToNull,int scriptH
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         std::string arrayName;
-        if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
+        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
             std::string arrNameAtScriptName(arrayNameAtScriptName);
             size_t p=arrNameAtScriptName.find('@');
@@ -603,7 +603,7 @@ int simClearScriptVariable_internal(const char* reservedSetToNull,int scriptHand
     CScriptObject* script=nullptr;
 
     std::string variableName;
-    if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
+    if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
     { // script is identified by its ID
         std::string varNameAtScriptName(variableNameAtScriptName);
         size_t p=varNameAtScriptName.find('@');
@@ -1754,7 +1754,7 @@ int simCallScriptFunction_internal(int scriptHandleOrType,const char* functionNa
     CScriptObject* script=nullptr;
 
     std::string funcName;
-    if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
+    if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
     { // script is identified by its ID
         std::string funcNameAtScriptName(functionNameAtScriptName);
         size_t p=funcNameAtScriptName.find('@');
@@ -4374,7 +4374,7 @@ int simSetScriptVariable_internal(int scriptHandleOrType,const char* variableNam
     {
         CScriptObject* script=nullptr;
         std::string variableName;
-        if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
+        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
             std::string varNameAtScriptName(variableNameAtScriptName);
             size_t p=varNameAtScriptName.find('@');

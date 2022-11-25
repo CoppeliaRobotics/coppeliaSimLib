@@ -52,9 +52,7 @@ public:
     void simulationEnded();
 
     int getScriptHandle() const;
-    int getScriptUniqueID() const;
     size_t getSimpleHash() const;
-    void setScriptHandle(int newHandle);
 
     std::string getDescriptiveName() const;
     std::string getShortDescriptiveName() const;
@@ -233,8 +231,7 @@ protected:
     void _handleInfoCallback();
 
 
-    int _scriptHandle;
-    int _scriptUniqueId;
+    int _scriptHandle; // is unique since 25.11.2022
     int _scriptType;
     bool _scriptIsDisabled;
     int _scriptState;
@@ -284,7 +281,7 @@ protected:
 
 
     static int _nextIdForExternalScriptEditor;
-    static int _scriptUniqueCounter;
+    static int _nextScriptHandle;
     static std::vector<int> _externalScriptCalls;
 
     // Lua specific:
@@ -323,6 +320,7 @@ protected:
     void _adjustScriptText13_old(CScriptObject* scriptObject,bool doIt);
     void _adjustScriptText14_old(CScriptObject* scriptObject,bool doIt);
     void _adjustScriptText15_old(CScriptObject* scriptObject,bool doIt);
+    void _adjustScriptText16_old(CScriptObject* scriptObject,bool doIt);
     void _detectDeprecated_old(CScriptObject* scriptObject);
     void _insertScriptText_old(CScriptObject* scriptObject,bool toFront,const char* txt);
     bool _replaceScriptText_old(CScriptObject* scriptObject,const char* oldTxt,const char* newTxt);

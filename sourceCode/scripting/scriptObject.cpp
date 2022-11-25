@@ -20,14 +20,13 @@
 // Old:
 #include "threadPool_old.h"
 
-int CScriptObject::_scriptUniqueCounter=-1;
+int CScriptObject::_nextScriptHandle=SIM_IDSTART_LUASCRIPT;
 int CScriptObject::_nextIdForExternalScriptEditor=-1;
 std::vector<int> CScriptObject::_externalScriptCalls;
 
 CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
 {
-    _scriptHandle=-1;
-    _scriptUniqueId=_scriptUniqueCounter++;
+    _scriptHandle=_nextScriptHandle++;
     _objectHandleAttachedTo=-1;
     _scriptText="";
     _scriptTextExec="";
@@ -82,7 +81,6 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
 
     if (_scriptType==sim_scripttype_sandboxscript)
     {
-        _scriptHandle=SIM_IDSTART_SANDBOXSCRIPT;
         if (_initInterpreterState(nullptr))
             _raiseErrors_backCompatibility=true; // Old
     }
@@ -1162,20 +1160,10 @@ int CScriptObject::getScriptHandle() const
     return(_scriptHandle);
 }
 
-int CScriptObject::getScriptUniqueID() const
-{
-    return(_scriptUniqueId);
-}
-
 size_t CScriptObject::getSimpleHash() const
 {
     std::hash<std::string> hasher;
     return(hasher(_scriptText));
-}
-
-void CScriptObject::setScriptHandle(int newHandle)
-{
-    _scriptHandle=newHandle;
 }
 
 bool CScriptObject::isEmbeddedScript() const
@@ -2335,7 +2323,7 @@ bool CScriptObject::_killInterpreterState()
 CScriptObject* CScriptObject::copyYourself()
 {
     CScriptObject* it=new CScriptObject(_scriptType);
-    it->_scriptHandle=_scriptHandle;
+    //it->_scriptHandle=_scriptHandle;
     it->_objectHandleAttachedTo=_objectHandleAttachedTo;
     it->_threadedExecution_oldThreads=_threadedExecution_oldThreads;
     it->_scriptIsDisabled=_scriptIsDisabled;
@@ -2950,7 +2938,7 @@ void CScriptObject::serialize(CSer& ar)
         if (ar.isStoring())
         {       // Storing
             ar.storeDataName("Si2");
-            ar << _scriptHandle << _objectHandleAttachedTo << _scriptType;
+            ar << int(0) << _objectHandleAttachedTo << _scriptType;
             ar.flush();
 
             // Keep following close to the beginning!
@@ -3029,7 +3017,8 @@ void CScriptObject::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _scriptHandle >> _objectHandleAttachedTo >> _scriptType;
+                        int dummy;
+                        ar >> dummy >> _objectHandleAttachedTo >> _scriptType;
                     }
 
                     if (theName.compare("Ttd")==0)
@@ -3137,6 +3126,7 @@ void CScriptObject::serialize(CSer& ar)
             _adjustScriptText13_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40200);
             _adjustScriptText14_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40201);
             _adjustScriptText15_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<=40300);
+            _adjustScriptText16_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<=40500);
 
             if (CSimFlavor::getBoolVal(18))
                 _detectDeprecated_old(this);
@@ -3195,9 +3185,10 @@ void CScriptObject::serialize(CSer& ar)
         }
         else
         {
+            int previousScriptHandle=-1;
             if (exhaustiveXml)
             {
-                ar.xmlGetNode_int("handle",_scriptHandle);
+                ar.xmlGetNode_int("handle",previousScriptHandle);
                 ar.xmlGetNode_int("objectHandle",_objectHandleAttachedTo);
 
                 ar.xmlGetNode_enum("type",_scriptType,true,"mainScript",sim_scripttype_mainscript,"childScript",sim_scripttype_childscript,"customizationScript",sim_scripttype_customizationscript);
@@ -6939,6 +6930,36 @@ void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject,bool doI
     _replaceScriptText_old(scriptObject,"sim.rml_only_time_sync","sim.ruckig_timesync");
     _replaceScriptText_old(scriptObject,"sim.rml_only_phase_sync","sim.ruckig_phasesync");
     _replaceScriptText_old(scriptObject,"sim.rml_no_sync","sim.ruckig_nosync");
+}
+
+void CScriptObject::_adjustScriptText16_old(CScriptObject* scriptObject,bool doIt)
+{   // for release 4.4.0 and earlier:
+    if (!doIt)
+        return;
+
+    _replaceScriptText_old(scriptObject,"simIK.getJointIkWeight","simIK.getJointWeight");
+    _replaceScriptText_old(scriptObject,"simIK.setJointIkWeight","simIK.setJointWeight");
+    _replaceScriptText_old(scriptObject,"simIK.getIkGroupHandle","simIK.getGroupHandle");
+    _replaceScriptText_old(scriptObject,"simIK.doesIkGroupExist","simIK.doesGroupExist");
+    _replaceScriptText_old(scriptObject,"simIK.createIkGroup","simIK.createGroup");
+    _replaceScriptText_old(scriptObject,"simIK.getIkGroupFlags","simIK.getGroupFlags");
+    _replaceScriptText_old(scriptObject,"simIK.setIkGroupFlags","simIK.setGroupFlags");
+    _replaceScriptText_old(scriptObject,"simIK.getIkGroupCalculation","simIK.getGroupCalculation");
+    _replaceScriptText_old(scriptObject,"simIK.setIkGroupCalculation","simIK.setGroupCalculation");
+    _replaceScriptText_old(scriptObject,"simIK.getIkGroupJointLimitHits","simIK.getGroupJointLimitHits");
+    _replaceScriptText_old(scriptObject,"simIK.addIkElement","simIK.addElement");
+    _replaceScriptText_old(scriptObject,"simIK.getIkElementFlags","simIK.getElementFlags");
+    _replaceScriptText_old(scriptObject,"simIK.setIkElementFlags","simIK.setElementFlags");
+    _replaceScriptText_old(scriptObject,"simIK.getIkElementBase","simIK.getElementBase");
+    _replaceScriptText_old(scriptObject,"simIK.setIkElementBase","simIK.setElementBase");
+    _replaceScriptText_old(scriptObject,"simIK.getIkElementConstraints","simIK.getElementConstraints");
+    _replaceScriptText_old(scriptObject,"simIK.setIkElementConstraints","simIK.setElementConstraints");
+    _replaceScriptText_old(scriptObject,"simIK.getIkElementPrecision","simIK.getElementPrecision");
+    _replaceScriptText_old(scriptObject,"simIK.setIkElementPrecision","simIK.setElementPrecision");
+    _replaceScriptText_old(scriptObject,"simIK.getIkElementWeights","simIK.getElementWeights");
+    _replaceScriptText_old(scriptObject,"simIK.setIkElementWeights","simIK.setElementWeights");
+    _replaceScriptText_old(scriptObject,"simIK.handleIkGroup","simIK.handleGroup");
+    _replaceScriptText_old(scriptObject,"simIK.addIkElementFromScene","simIK.addElementFromScene");
 }
 
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)

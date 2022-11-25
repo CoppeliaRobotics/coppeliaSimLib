@@ -169,7 +169,7 @@ void CQDlg2D3DGraphProperties::refresh()
     ui->qqAlwaysOnTop->setChecked((graphData!=nullptr)&&(graphData->getVisibleOnTopOfEverything()));
 
     if ((graphData!=nullptr)&&(!_xyGraph))
-        ui->qqWidth->setText(tt::getIString(false,int(graphData->get3DCurveWidth()+0.1f)).c_str());
+        ui->qqWidth->setText(tt::getIString(false,int(graphData->get3DCurveWidth()+0.1)).c_str());
     else
         ui->qqWidth->setText("");
 

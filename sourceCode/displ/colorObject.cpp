@@ -67,28 +67,28 @@ void CColorObject::setDefaultValues()
 {
     floatDouble col[15];
     for (size_t i=0;i<15;i++)
-        col[i]=0.0f;
+        col[i]=0.0;
     for (size_t i=6;i<9;i++)
-        col[i]=0.25f;
-    col[12]=0.5f; // temperature channel
+        col[i]=0.25;
+    col[12]=0.5; // temperature channel
     setColors(col);
     setTranslucid(false);
-    setOpacity(0.5f);
+    setOpacity(0.5);
     setShininess(48);
     setColorName("");
     setExtensionString("povray { pattern {default}}");
     _flash=false;
     _useSimulationTime=false;
-    _flashFrequency=2.0f;
-    _flashRatio=0.5f;
-    _flashPhase=0.0f;
+    _flashFrequency=2.0;
+    _flashRatio=0.5;
+    _flashPhase=0.0;
 }
 
 void CColorObject::setColorsAllBlack()
 {
     floatDouble col[15];
     for (size_t i=0;i<15;i++)
-        col[i]=0.0f;
+        col[i]=0.0;
     setColors(col);
 }
 
@@ -154,9 +154,9 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle,int colorIndex)
         getColor(c+3,sim_colorcomponent_specular);
         getColor(c+6,sim_colorcomponent_emission);
         sdata->appendMapObject_stringFloatArray("color",c,9);
-        floatDouble transp=0.0f;
+        floatDouble transp=0.0;
         if (_translucid)
-            transp=1.0f-_opacity;
+            transp=1.0-_opacity;
         sdata->appendMapObject_stringFloat("transparency",transp);
         sdata->appendMapObject_stringInt32("index",colorIndex);
         App::worldContainer->pushEvent(event);
@@ -193,9 +193,9 @@ void CColorObject::setConvexColors()
     setDefaultValues();
     floatDouble col[15];
     getColors(col);
-    col[0]=0.72f;
-    col[1]=0.88f;
-    col[2]=0.35f;
+    col[0]=0.72;
+    col[1]=0.88;
+    col[2]=0.35;
     setColors(col);
 }
 
@@ -228,18 +228,18 @@ void CColorObject::serialize(CSer& ar,int objType)
                 c[i]=_colors[i];
             if (objType<3)
             {
-                c[0]=(c[0]*0.85f)-0.125f;
-                c[1]=(c[1]*0.85f)-0.125f;
-                c[2]=(c[2]*0.85f)-0.125f;
-                c[3]=0.25f;
-                c[4]=0.25f;
-                c[5]=0.25f;
+                c[0]=(c[0]*0.85)-0.125;
+                c[1]=(c[1]*0.85)-0.125;
+                c[2]=(c[2]*0.85)-0.125;
+                c[3]=0.25;
+                c[4]=0.25;
+                c[5]=0.25;
             }
             if (objType==3)
             {
-                c[0]=c[3]/2.0f;
-                c[1]=c[4]/2.0f;
-                c[2]=c[5]/2.0f;
+                c[0]=c[3]/2.0;
+                c[1]=c[4]/2.0;
+                c[2]=c[5]/2.0;
             }
             for (int i=0;i<15;i++)
                 ar.flt() << (floatFloat)c[i];

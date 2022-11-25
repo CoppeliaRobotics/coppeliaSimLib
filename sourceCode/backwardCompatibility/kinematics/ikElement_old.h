@@ -29,10 +29,10 @@ public:
     void setIkGroupPluginCounterpartHandle(int h);
 
     // Overridden from _CIkElement_old:
-    bool setMinLinearPrecision(float prec);
-    bool setMinAngularPrecision(float prec);
-    bool setPositionWeight(float weight);
-    bool setOrientationWeight(float weight);
+    bool setMinLinearPrecision(floatDouble prec);
+    bool setMinAngularPrecision(floatDouble prec);
+    bool setPositionWeight(floatDouble weight);
+    bool setOrientationWeight(floatDouble weight);
 
     std::string getTipLoadName() const;
     std::string getBaseLoadName() const;
@@ -48,10 +48,10 @@ private:
     void _setEnabled_send(bool e) const;
     void _setBase_send(int h) const;
     void _setAlternativeBaseForConstraints_send(int h) const;
-    void _setMinLinearPrecision_send(float f) const;
-    void _setMinAngularPrecision_send(float f) const;
-    void _setPositionWeight_send(float f) const;
-    void _setOrientationWeight_send(float f) const;
+    void _setMinLinearPrecision_send(floatDouble f) const;
+    void _setMinAngularPrecision_send(floatDouble f) const;
+    void _setPositionWeight_send(floatDouble f) const;
+    void _setOrientationWeight_send(floatDouble f) const;
     void _setConstraints_send(int c) const;
 
     int _ikGroupPluginCounterpartHandle;

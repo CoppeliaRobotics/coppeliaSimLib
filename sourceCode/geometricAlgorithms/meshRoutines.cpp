@@ -278,15 +278,15 @@ bool CMeshRoutines::getConvexHull(const float* verticesIn,int verticesInLength,s
 
             C3Vector dim(maxV-minV);
 
-            if (!_removeColinearTrianglePoints(verticesOut,indicesOut,(dim(0)+dim(1)+dim(2))*0.002f/3.0f))
+            if (!_removeColinearTrianglePoints(verticesOut,indicesOut,(dim(0)+dim(1)+dim(2))*0.002/3.0))
             { // The QHull algo often generates very thin triangles, that actually look like a line.
                 // This is problematic in many aspects. So if this is the case, the incriminating vertices
                 // are removed and a new QHull calculation takes place
 
                 // We merge close vertices, in order to have less problems with tolerances (1% of the dimension of the hull):
-                CMeshManip::checkVerticesIndicesNormalsTexCoords(*verticesOut,*indicesOut,nullptr,nullptr,true,(dim(0)+dim(1)+dim(2))*0.001f/3.0f,false);
+                CMeshManip::checkVerticesIndicesNormalsTexCoords(*verticesOut,*indicesOut,nullptr,nullptr,true,(dim(0)+dim(1)+dim(2))*0.001/3.0,false);
 
-                if (checkIfConvex(*verticesOut,*indicesOut,0.001f)) // 0.1%
+                if (checkIfConvex(*verticesOut,*indicesOut,0.001)) // 0.1%
                     break; // ok, the hull is watertight and "very" convex
             }
 
@@ -483,7 +483,7 @@ int CMeshRoutines::convexDecompose(const float* vertices,int verticesLength,cons
             }
         }
         C3Vector extent(mmax-mmin);
-        if ((_ind->size()>=12)&&(std::min<float>(std::min<float>(extent(0),extent(1)),extent(2))>0.0001f))
+        if ((_ind->size()>=12)&&(std::min<float>(std::min<float>(extent(0),extent(1)),extent(2))>0.0001))
         {
             verticesList.push_back(_vert);
             indicesList.push_back(_ind);
@@ -570,7 +570,7 @@ bool CMeshRoutines::checkIfConvex(const std::vector<float>& vertices,const std::
         }
     }
     C3Vector boxDim(maxV-minV);
-    float toleratedDist=distanceToleranceInPercent*(boxDim(0)+boxDim(1)+boxDim(2))/3.0f;
+    float toleratedDist=distanceToleranceInPercent*(boxDim(0)+boxDim(1)+boxDim(2))/3.0;
     std::vector<float> planeDefinitions;
 
     for (int tri=0;tri<int(indices.size()/3);tri++)
@@ -583,11 +583,11 @@ bool CMeshRoutines::checkIfConvex(const std::vector<float>& vertices,const std::
         C3Vector v1(p2-p0);
         C3Vector v2(p2-p1);
         C3Vector n0(v0^v1);
-        C3Vector n1(v2^(v1*-1.0f));
+        C3Vector n1(v2^(v1*-1.0));
         C3Vector n2(v1^v2);
         n0=n0.getNormalized()+n1.getNormalized()+n2.getNormalized();
         n0.normalize();
-        float d=n0*((p0+p1+p2)*(0.33333333f));
+        float d=n0*((p0+p1+p2)*(0.33333333));
         planeDefinitions.push_back(n0(0));
         planeDefinitions.push_back(n0(1));
         planeDefinitions.push_back(n0(2));
@@ -677,9 +677,9 @@ void CMeshRoutines::createCube(std::vector<float>& vertices,std::vector<int>& in
     int divX=subdivisions[0];
     int divY=subdivisions[1];
     int divZ=subdivisions[2];
-    float xhSize=sizes(0)/2.0f;
-    float yhSize=sizes(1)/2.0f;
-    float zhSize=sizes(2)/2.0f;
+    float xhSize=sizes(0)/2.0;
+    float yhSize=sizes(1)/2.0;
+    float zhSize=sizes(2)/2.0;
     float xs=sizes(0)/((float)divX);
     float ys=sizes(1)/((float)divY);
     float zs=sizes(2)/((float)divZ);
@@ -990,19 +990,19 @@ void CMeshRoutines::createCapsule(std::vector<float>& vertices,std::vector<int>&
 { // sizes[0]&sizes[1]: diameters, sizes[2]: tube length
     vertices.clear();
     indices.clear();
-    float xhSize=sizes(0)/2.0f;
-    float yhSize=sizes(1)/2.0f;
-    float zhSize=sizes(2)/2.0f;
+    float xhSize=sizes(0)/2.0;
+    float yhSize=sizes(1)/2.0;
+    float zhSize=sizes(2)/2.0;
 
-    float sa=2.0f*piValue/((float)sides);
+    float sa=2.0*piValue/((float)sides);
     int ff=sides/2;
     float fa=piValD2/((float)ff);
 
     float rhSize=std::max<float>(xhSize,yhSize);
 
     // We set up the vertices:
-    tt::addToFloatArray(&vertices,0.0f,0.0f,rhSize+zhSize);
-    tt::addToFloatArray(&vertices,0.0f,0.0f,-rhSize-zhSize);
+    tt::addToFloatArray(&vertices,0.0,0.0,rhSize+zhSize);
+    tt::addToFloatArray(&vertices,0.0,0.0,-rhSize-zhSize);
     for (int i=0;i<sides;i++)
     {
         for (int j=1;j<=ff;j++)
@@ -1065,15 +1065,15 @@ void CMeshRoutines::createSphere(std::vector<float>& vertices,std::vector<int>& 
 {
     vertices.clear();
     indices.clear();
-    float xhSize=sizes(0)/2.0f;
-    float yhSize=sizes(1)/2.0f;
-    float zhSize=sizes(2)/2.0f;
+    float xhSize=sizes(0)/2.0;
+    float yhSize=sizes(1)/2.0;
+    float zhSize=sizes(2)/2.0;
 
-    float sa=2.0f*piValue/((float)sides);
+    float sa=2.0*piValue/((float)sides);
     float fa=piValue/((float)faces);
     // We set up the vertices:
-    tt::addToFloatArray(&vertices,0.0f,0.0f,1.0f);
-    tt::addToFloatArray(&vertices,0.0f,0.0f,-1.0f);
+    tt::addToFloatArray(&vertices,0.0,0.0,1.0);
+    tt::addToFloatArray(&vertices,0.0,0.0,-1.0);
     for (int i=0;i<sides;i++)
     {
         for (int j=1;j<faces;j++)
@@ -1118,20 +1118,20 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
 {
     vertices.clear();
     indices.clear();
-    float xhSize=sizes(0)/2.0f;
-    float yhSize=sizes(1)/2.0f;
-    float zhSize=sizes(2)/2.0f;
+    float xhSize=sizes(0)/2.0;
+    float yhSize=sizes(1)/2.0;
+    float zhSize=sizes(2)/2.0;
 
-    float zzz=1.0f/faces;
-    float dd=1.0f/((float)discDiv);
-    float sa=2.0f*piValue/((float)sides);
+    float zzz=1.0/faces;
+    float dd=1.0/((float)discDiv);
+    float sa=2.0*piValue/((float)sides);
     int sideStart=0;
     // We set up the vertices:
     if (!openEnds)
     { // The two middle vertices:
         sideStart=2;
-        tt::addToFloatArray(&vertices,0.0f,0.0f,0.5f);  
-        tt::addToFloatArray(&vertices,0.0f,0.0f,-0.5f);
+        tt::addToFloatArray(&vertices,0.0,0.0,0.5);
+        tt::addToFloatArray(&vertices,0.0,0.0,-0.5);
     }
 
     if (cone)
@@ -1139,7 +1139,7 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
         for (int i=0;i<sides;i++)
         { // The side vertices:
             for (int j=0;j<faces+1;j++)
-                tt::addToFloatArray(&vertices,(float)cos(sa*i)*j/faces,(float)sin(sa*i)*j/faces,0.5f-j*zzz);    
+                tt::addToFloatArray(&vertices,(float)cos(sa*i)*j/faces,(float)sin(sa*i)*j/faces,0.5-j*zzz);
         }
     }
     else
@@ -1147,7 +1147,7 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
         for (int i=0;i<sides;i++)
         { // The side vertices:
             for (int j=0;j<faces+1;j++)
-                tt::addToFloatArray(&vertices,(float)cos(sa*i),(float)sin(sa*i),0.5f-j*zzz);    
+                tt::addToFloatArray(&vertices,(float)cos(sa*i),(float)sin(sa*i),0.5-j*zzz);
         }
     }
 
@@ -1157,11 +1157,11 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
     { // The disc subdivision vertices:
         for (int i=1;i<discDiv;i++)
             for (int j=0;j<sides;j++)
-                tt::addToFloatArray(&vertices,(1.0f-dd*i)*(float)cos(sa*j),(1.0f-dd*i)*(float)sin(sa*j),0.5f);  
+                tt::addToFloatArray(&vertices,(1.0-dd*i)*(float)cos(sa*j),(1.0-dd*i)*(float)sin(sa*j),0.5);
         dsbStart=(int)vertices.size()/3;
         for (int i=1;i<discDiv;i++)
             for (int j=0;j<sides;j++)
-                tt::addToFloatArray(&vertices,(1.0f-dd*i)*(float)cos(sa*j),(1.0f-dd*i)*(float)sin(sa*j),-0.5f); 
+                tt::addToFloatArray(&vertices,(1.0-dd*i)*(float)cos(sa*j),(1.0-dd*i)*(float)sin(sa*j),-0.5);
     }
 
 
@@ -1235,7 +1235,7 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
 
     if (cone)
     { // We have a degenerate cylinder, we need to remove degenerate triangles and double vertices:
-        CMeshManip::checkVerticesIndicesNormalsTexCoords(vertices,indices,nullptr,nullptr,true,0.0000001f,false);
+        CMeshManip::checkVerticesIndicesNormalsTexCoords(vertices,indices,nullptr,nullptr,true,0.0000001,false);
     }
 
     // Now we scale the cylinder:
@@ -1244,7 +1244,7 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
         C3Vector p(vertices[3*i+0],vertices[3*i+1],vertices[3*i+2]);
         p(0)=p(0)*xhSize;
         p(1)=p(1)*yhSize;
-        p(2)=p(2)*2.0f*zhSize;
+        p(2)=p(2)*2.0*zhSize;
         vertices[3*i+0]=p(0);
         vertices[3*i+1]=p(1);
         vertices[3*i+2]=p(2);
@@ -1255,10 +1255,10 @@ void CMeshRoutines::createAnnulus(std::vector<float>& vertices,std::vector<int>&
 {
     vertices.clear();
     indices.clear();
-    float R=Dlarge*0.5f;
-    float r=Dsmall*0.5f;
+    float R=Dlarge*0.5;
+    float r=Dsmall*0.5;
 
-    float sa=2.0f*piValue/((float)sides);
+    float sa=2.0*piValue/((float)sides);
 
     // We set up the vertices:
     for (int i=0;i<sides;i++)
@@ -1295,7 +1295,7 @@ void CMeshRoutines::createAnnulus(std::vector<float>& vertices,std::vector<int>&
 
 bool CMeshRoutines::_removeColinearTrianglePoints(std::vector<float>* vertices,std::vector<int>* indices,float toleranceDist)
 {
-    float onLineSquareTolerance=toleranceDist*0.1f*toleranceDist*0.1f;
+    float onLineSquareTolerance=toleranceDist*0.1*toleranceDist*0.1;
     std::vector<float> vert(vertices->begin(),vertices->end());
     std::vector<bool> okVertices(vert.size()/3,true);
     bool retVal=false;
@@ -1319,7 +1319,7 @@ bool CMeshRoutines::_removeColinearTrianglePoints(std::vector<float>* vertices,s
             C3Vector y(pt3-pt2);
             float r1=x*dir;
             float r2=y*dir;
-            if ((r1>=0.0f)&&(r2<=0.0f))
+            if ((r1>=0.0)&&(r2<=0.0))
             {
                 float dd=(x*x)-(r1*r1);
                 if (dd<onLineSquareTolerance)

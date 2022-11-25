@@ -36,12 +36,12 @@ void CDistanceObject_old::_commonInit()
     _objectHandle=-1;
     _displaySegment=true;
     _explicitHandling=false;
-    _threshold=0.5f;
+    _threshold=0.5;
     _thresholdEnabled=false;
     _segmentWidth=2;
     _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
     for (size_t i=0;i<7;i++)
-        _distanceResult[i]=0.0f;
+        _distanceResult[i]=0.0;
     _distanceBuffer[0]=-1;
     _distanceBuffer[1]=-1;
     _distanceBuffer[2]=-1;
@@ -105,7 +105,7 @@ floatDouble CDistanceObject_old::readDistance() const
 {
     if (_distanceIsValid)
         return(_distance);
-    return(-1.0f); // keep this negative. Indicates an invalid distance
+    return(-1.0); // keep this negative. Indicates an invalid distance
 }
 
 std::string CDistanceObject_old::getUniquePersistentIdString() const
@@ -211,7 +211,7 @@ bool CDistanceObject_old::setObjectName(const char* newName,bool check)
 
 bool CDistanceObject_old::setThreshold(floatDouble tr)
 {
-    tt::limitValue(0.0001f,10000.0f,tr);
+    tt::limitValue(0.0001,10000.0,tr);
     bool diff=(_threshold!=tr);
     if (diff)
         _threshold=tr;

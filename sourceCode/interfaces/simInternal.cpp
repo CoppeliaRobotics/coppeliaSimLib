@@ -12521,7 +12521,7 @@ int simWriteCustomDataBlock_internal(int objectHandle,const char* tagName,const 
         if (data==nullptr)
             dataSize=0;
 
-        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_EMBEDDEDSCRIPT) )
+        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
         { // here we have an object
             if (!doesObjectExist(__func__,objectHandle))
                 return(-1);
@@ -12609,7 +12609,7 @@ int simWriteCustomDataBlock_internal(int objectHandle,const char* tagName,const 
         }
 
         // ---------------------- Old -----------------------------
-        if (objectHandle>=SIM_IDSTART_EMBEDDEDSCRIPT)
+        if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
@@ -12693,7 +12693,7 @@ char* simReadCustomDataBlock_internal(int objectHandle,const char* tagName,int* 
         }
 
         std::string rrr;
-        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_EMBEDDEDSCRIPT) )
+        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
         { // Here we have an object
             if (!doesObjectExist(__func__,objectHandle))
                 return(nullptr);
@@ -12721,7 +12721,7 @@ char* simReadCustomDataBlock_internal(int objectHandle,const char* tagName,int* 
         }
 
         // ---------------------- Old -----------------------------
-        if (objectHandle>=SIM_IDSTART_EMBEDDEDSCRIPT)
+        if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
@@ -12774,7 +12774,7 @@ char* simReadCustomDataBlockTags_internal(int objectHandle,int* tagCount)
         char* retBuffer=nullptr;
         tagCount[0]=0;
         std::string tags;
-        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_EMBEDDEDSCRIPT) )
+        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
         { // here we have an object
             if (!doesObjectExist(__func__,objectHandle))
                 return(nullptr);
@@ -12810,7 +12810,7 @@ char* simReadCustomDataBlockTags_internal(int objectHandle,int* tagCount)
         }
 
         // ---------------------- Old -----------------------------
-        if (objectHandle>=SIM_IDSTART_EMBEDDEDSCRIPT)
+        if (objectHandle>=SIM_IDSTART_LUASCRIPT)
         { // here we have a script
             std::vector<std::string> allTags;
             if (!App::userSettings->compatibilityFix1)
@@ -13439,7 +13439,7 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
     TRACE_C_API;
     CScriptObject* script=nullptr;
     std::string funcName;
-    if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
+    if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
     { // script is identified by its ID
         std::string funcNameAtScriptName(functionNameAtScriptName);
         size_t p=funcNameAtScriptName.find('@');
@@ -15608,7 +15608,7 @@ int simExecuteScriptString_internal(int scriptHandleOrType,const char* stringAtS
     {
         CScriptObject* script=nullptr;
         std::string stringToExecute;
-        if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
+        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
             std::string strAtScriptName(stringAtScriptName);
             size_t p=strAtScriptName.rfind('@');
@@ -15717,7 +15717,7 @@ char* simGetApiFunc_internal(int scriptHandleOrType,const char* apiWord)
     {
         int scriptType=-1;
         bool threaded=false;
-        if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
+        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
             CScriptObject* script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
             if (script!=nullptr)
@@ -15773,7 +15773,7 @@ char* simGetApiInfo_internal(int scriptHandleOrType,const char* apiWord)
     {
         int scriptType=-1;
         bool threaded=false;
-        if (scriptHandleOrType>=SIM_IDSTART_EMBEDDEDSCRIPT)
+        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
             CScriptObject* script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
             if (script!=nullptr)

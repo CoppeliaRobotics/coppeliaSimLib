@@ -38,12 +38,12 @@ void CQDlgPrimitives::initialize(int type,const C3Vector* sizes)
     }
     else
     {
-        xSize=0.1f;
-        ySize=0.1f;
+        xSize=0.1;
+        ySize=0.1;
         if (type==sim_primitiveshape_capsule)
-            zSize=0.2f;
+            zSize=0.2;
         else
-            zSize=0.1f;
+            zSize=0.1;
     }
     subdivX=0;
     subdivY=0;
@@ -57,7 +57,7 @@ void CQDlgPrimitives::initialize(int type,const C3Vector* sizes)
     smooth=true;
     openEnds=false;
     dynamic=( (type!=sim_primitiveshape_plane)&&(type!=sim_primitiveshape_disc)&&(type!=sim_primitiveshape_cone) );
-    density=1000.0f;
+    density=1000.0;
     primitiveType=type;
     sizesAreLocked=(sizes!=nullptr);
     _correctDependentValues();
@@ -332,12 +332,12 @@ void CQDlgPrimitives::on_qqXSize_editingFinished()
     float newVal=ui->qqXSize->text().toFloat(&ok);
     if (ok)
     {
-        tt::limitValue(0.0001f,1000.0f,newVal);
+        tt::limitValue(0.0001,1000.0,newVal);
         xSize=newVal;
         if (primitiveType==sim_primitiveshape_capsule)
         {
-            if (xSize>zSize-0.0001f)
-                xSize=zSize-0.0001f;
+            if (xSize>zSize-0.0001)
+                xSize=zSize-0.0001;
         }
         _correctDependentValues();
     }
@@ -352,12 +352,12 @@ void CQDlgPrimitives::on_qqYSize_editingFinished()
     float newVal=ui->qqYSize->text().toFloat(&ok);
     if (ok)
     {
-        tt::limitValue(0.0001f,1000.0f,newVal);
+        tt::limitValue(0.0001,1000.0,newVal);
         ySize=newVal;
         if (primitiveType==sim_primitiveshape_capsule)
         {
-            if (ySize>zSize-0.0001f)
-                ySize=zSize-0.0001f;
+            if (ySize>zSize-0.0001)
+                ySize=zSize-0.0001;
         }
         _correctDependentValues();
     }
@@ -372,13 +372,13 @@ void CQDlgPrimitives::on_qqZSize_editingFinished()
     float newVal=ui->qqZSize->text().toFloat(&ok);
     if (ok)
     {
-        tt::limitValue(0.0001f,1000.0f,newVal);
+        tt::limitValue(0.0001,1000.0,newVal);
         zSize=newVal;
         if (primitiveType==sim_primitiveshape_capsule)
         {
             float mmax=std::max<float>(xSize,ySize);
-            if (zSize<mmax+0.0001f)
-                zSize=mmax+0.0001f;
+            if (zSize<mmax+0.0001)
+                zSize=mmax+0.0001;
         }
         _correctDependentValues();
     }
@@ -530,8 +530,8 @@ void CQDlgPrimitives::_correctDependentValues()
     if (primitiveType==sim_primitiveshape_capsule)
     {
         float mmax=std::max<float>(xSize,ySize);
-        if (zSize<mmax+0.0001f)
-            zSize=mmax+0.0001f;
+        if (zSize<mmax+0.0001)
+            zSize=mmax+0.0001;
     }
 }
 
@@ -544,7 +544,7 @@ void CQDlgPrimitives::on_qqDensity_editingFinished()
     if (ok)
     {
         density=newVal;
-        tt::limitValue(0.1f,100000.0f,density);
+        tt::limitValue(0.1,100000.0,density);
     }
     refresh();
 }

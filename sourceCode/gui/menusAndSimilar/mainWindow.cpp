@@ -52,7 +52,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     _menubar=nullptr;
     _fullscreen=false;
     _hasStereo=false;
-    _stereoDistance=0.0f;
+    _stereoDistance=0.0;
     _leftEye=true;
     _openGlDisplayEnabled=true;
     _mouseMode=DEFAULT_MOUSE_MODE;
@@ -92,7 +92,7 @@ CMainWindow::CMainWindow() : QMainWindow()
         newInstanceAboutToBeCreated();
 
     // Required for MacOS apparently:
-    if ( (App::userSettings->highResDisplay==1)||((devicePixelRatio()>1.2f)&&(App::userSettings->highResDisplay==-1)) )
+    if ( (App::userSettings->highResDisplay==1)||((devicePixelRatio()>1.2)&&(App::userSettings->highResDisplay==-1)) )
         App::sc=2;
 
     dlgCont=new CDlgCont(this);
@@ -142,7 +142,7 @@ CMainWindow::CMainWindow() : QMainWindow()
 
 // --- OpenGl widget ---
     openglWidget=new COpenglWidget();
-    if (App::userSettings->stereoDist>0.0f)
+    if (App::userSettings->stereoDist>0.0)
     {
         if (openglWidget->format().stereo())
         {
@@ -735,7 +735,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
 { // Called only from the rendering thread!!!
     TRACE_INTERNAL;
     int startTime=(int)VDateTime::getTimeInMs();
-    _fps=1.0f/(float(VDateTime::getTimeDiffInMs(lastTimeRenderingStarted,startTime))/1000.0f);
+    _fps=1.0/(float(VDateTime::getTimeDiffInMs(lastTimeRenderingStarted,startTime))/1000.0);
     lastTimeRenderingStarted=startTime;
 
     if (_fullDialogRefreshFlag)
@@ -821,7 +821,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
             openglWidget->makeContextCurrent();
             glDisable(GL_SCISSOR_TEST);
             glViewport(-2000,-2000,4000,4000);
-            glClearColor(0.0f,0.0f,0.0f,1.0f);
+            glClearColor(0.0,0.0,0.0,1.0);
             glClear(GL_COLOR_BUFFER_BIT);
             if (App::userSettings->useGlFinish) // false by default!
                 glFinish(); // Might be important later (synchronization problems)

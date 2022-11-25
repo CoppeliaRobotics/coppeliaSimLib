@@ -1,11 +1,12 @@
 #pragma once
 
+#include "simTypes.h"
 #include <vector>
 
 class CPtCloud_old  
 {
 public:
-    CPtCloud_old(int pageMask,int layerMask,int parentHandle,int options,float pointSize,int ptCnt,const float* vertices,const unsigned char* colors,const float* normals,const unsigned char* defaultColors);
+    CPtCloud_old(int pageMask,int layerMask,int parentHandle,int options,floatDouble pointSize,int ptCnt,const floatDouble* vertices,const unsigned char* colors,const floatDouble* normals,const unsigned char* defaultColors);
     virtual ~CPtCloud_old();
 
     void draw(int displayAttrib);
@@ -25,9 +26,9 @@ public:
     int _parentHandle;
     long long int _parentUniqueId;
     int _options;
-    float _pointSize;
-    std::vector<float> _vertices;
-    std::vector<float> _colors;
-    std::vector<float> _normals;
-    float _defaultColors[16];
+    floatDouble _pointSize;
+    std::vector<floatDouble> _vertices;
+    std::vector<floatDouble> _colors;
+    std::vector<floatDouble> _normals;
+    floatDouble _defaultColors[16];
 };

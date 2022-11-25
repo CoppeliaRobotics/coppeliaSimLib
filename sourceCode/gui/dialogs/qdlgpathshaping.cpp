@@ -237,7 +237,7 @@ void CQDlgPathShaping::on_qqCoordinates_textChanged()
         while (_extractOneFloat(str,tmp))
             cmd.floatParams.push_back(tmp);
         if (cmd.floatParams.size()&1)
-            cmd.floatParams.push_back(0.0f); // no odd number!
+            cmd.floatParams.push_back(0.0); // no odd number!
         App::appendSimulationThreadCommand(cmd);
         //App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         //App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -267,6 +267,6 @@ bool CQDlgPathShaping::_extractOneFloat(std::string& txt,float& val)
     if (!brokenOut)
         txt="";
     if (!tt::getValidFloat(nb.c_str(),val))
-        val=0.0f;
+        val=0.0;
     return(true);
 }

@@ -102,11 +102,11 @@ void CPathPlanningInterface::releaseBuffer(void* buff)
 
 float CPathPlanningInterface::getNormalizedAngle(float angle)
 { // Returns an angle between -PI and +PI
-    angle=fmod(angle,6.28318531f);
-    if (angle<-3.14159266f)
-        angle+=6.28318531f;
-    else if (angle>+3.14159266f)
-        angle-=6.28318531f;
+    angle=fmod(angle,6.28318531);
+    if (angle<-3.14159266)
+        angle+=6.28318531;
+    else if (angle>+3.14159266)
+        angle-=6.28318531;
     return(angle);
 }
 

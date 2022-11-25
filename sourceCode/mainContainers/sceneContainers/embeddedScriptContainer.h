@@ -25,7 +25,6 @@ public:
     CScriptObject* getScriptFromObjectAttachedTo(int scriptType,int objectHandle) const;
 
     int getScriptsFromObjectAttachedTo(int objectHandle,std::vector<CScriptObject*>& scripts) const;
-    bool doesScriptWithUniqueIdExist(int id) const;
 
     void killAllSimulationLuaStates();
     int insertDefaultScript(int scriptType,bool threaded,bool lua,bool oldThreadedScript=false);
@@ -62,7 +61,6 @@ protected:
     size_t _getScriptsToExecute(std::vector<int>& scriptHandles,int scriptType) const;
     int _getScriptsToExecute_old(int scriptType,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds) const;
 
-    int _nextScriptHandle;
     int _contactFuncCount;
     int _dynFuncCount;
     int _eventFuncCount;

@@ -4,7 +4,7 @@
 #include "vDateTime.h"
 #include "broadcastDataVisualRendering.h"
 
-CBroadcastDataVisual::CBroadcastDataVisual(float timeOutSimulationTime,float actionRadius,const C7Vector& emitterConf,float emissionAngle1,float emissionAngle2)
+CBroadcastDataVisual::CBroadcastDataVisual(floatDouble timeOutSimulationTime,floatDouble actionRadius,const C7Vector& emitterConf,floatDouble emissionAngle1,floatDouble emissionAngle2)
 { // displayed if not timed out
     _timeOutSimulationTime=timeOutSimulationTime;
     _actionRadius=actionRadius;
@@ -16,17 +16,17 @@ CBroadcastDataVisual::CBroadcastDataVisual(float timeOutSimulationTime,float act
 
 CBroadcastDataVisual::CBroadcastDataVisual(const C3Vector& emitterPos,const C3Vector& receiverPos)
 { // receiving. Displayed exactly once
-    _timeOutSimulationTime=0.0f;
+    _timeOutSimulationTime=0.0;
     _emitterConf.X=emitterPos;
     _receiverPos=receiverPos;
     _emitter=false;
 }
 
-bool CBroadcastDataVisual::doesRequireDestruction(float simulationTime)
+bool CBroadcastDataVisual::doesRequireDestruction(floatDouble simulationTime)
 {
     if (_emitter)
         return(simulationTime>_timeOutSimulationTime);
-    return(_timeOutSimulationTime!=0.0f);
+    return(_timeOutSimulationTime!=0.0);
 }
 
 bool CBroadcastDataVisual::isReceiver()
@@ -42,5 +42,5 @@ void CBroadcastDataVisual::visualize()
 {
     displayEmitterOrReceiver(this);
     if (!_emitter)
-        _timeOutSimulationTime=1.0f; // indicates that this object will be destroyed
+        _timeOutSimulationTime=1.0; // indicates that this object will be destroyed
 }

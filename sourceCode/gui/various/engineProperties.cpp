@@ -1746,7 +1746,7 @@ float CEngineProperties::_getGlobalFloatParam(int item,std::string& comment,cons
     if ( (retVal==0.0)||(def==0.0) )
         similar=(retVal==def);
     else
-        similar=fabs((def-retVal)/def)<0.01f;
+        similar=fabs((def-retVal)/def)<0.01;
     comment.clear();
     if (!similar)
     {
@@ -1834,7 +1834,7 @@ void CEngineProperties::_getGlobalFloatParams(int item,double* w,size_t cnt,std:
         }
         else
         {
-            if (fabs((def[i]-w[i])/def[i])>0.01f)
+            if (fabs((def[i]-w[i])/def[i])>0.01)
                 similar=false;
         }
     }

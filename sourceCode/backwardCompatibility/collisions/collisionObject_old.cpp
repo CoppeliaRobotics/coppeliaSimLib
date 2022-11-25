@@ -47,7 +47,7 @@ void CCollisionObject_old::_commonInit()
     _initialValuesInitialized=false;
     _calcTimeInMs=0;
     _contourColor.setColorsAllBlack();
-    _contourColor.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_emission);
+    _contourColor.setColor(1.0,1.0,1.0,sim_colorcomponent_emission);
 }
 
 void CCollisionObject_old::initializeInitialValues(bool simulationAlreadyRunning)
@@ -270,7 +270,7 @@ bool CCollisionObject_old::handleCollision()
     int stT=(int)VDateTime::getTimeInMs();
     int collObjs[2];
     bool res=false;
-    std::vector<float> collCont;
+    std::vector<floatDouble> collCont;
     if (_detectAllCollisions)
         res=CCollisionRoutine::doEntitiesCollide(_entity1Handle,_entity2Handle,&collCont,false,false,collObjs);
     else
@@ -506,7 +506,7 @@ void CCollisionObject_old::_clearCollisionResult()
     setIntersections(nullptr);
 }
 
-void CCollisionObject_old::_setCollisionResult(bool result,int calcTime,int obj1Handle,int obj2Handle,const std::vector<float>& intersect)
+void CCollisionObject_old::_setCollisionResult(bool result,int calcTime,int obj1Handle,int obj2Handle,const std::vector<floatDouble>& intersect)
 {
     _collisionResult=result;
     _collisionResultValid=true;
@@ -526,9 +526,9 @@ bool CCollisionObject_old::getCollisionResult() const
     return(_collisionResult);
 }
 
-float CCollisionObject_old::getCalculationTime() const
+floatDouble CCollisionObject_old::getCalculationTime() const
 {
-    return(float(_calcTimeInMs)*0.001f);
+    return(floatDouble(_calcTimeInMs)*0.001);
 }
 
 int CCollisionObject_old::getObjectHandle() const
@@ -576,7 +576,7 @@ int CCollisionObject_old::getContourWidth() const
     return(_countourWidth);
 }
 
-const std::vector<float>* CCollisionObject_old::getIntersections() const
+const std::vector<floatDouble>* CCollisionObject_old::getIntersections() const
 {
     return(&_intersections);
 }
@@ -635,7 +635,7 @@ bool CCollisionObject_old::setContourWidth(int w)
     return(diff);
 }
 
-bool CCollisionObject_old::setIntersections(const std::vector<float>* intersections)
+bool CCollisionObject_old::setIntersections(const std::vector<floatDouble>* intersections)
 {
     bool diff=false;
     if (intersections==nullptr)

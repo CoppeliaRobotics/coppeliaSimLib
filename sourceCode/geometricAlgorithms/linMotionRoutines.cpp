@@ -5,9 +5,9 @@
 #include "mathDefines.h"
 #include <algorithm>
 
-const double LIN_MOTION_POSITION_TOLERANCE  =0.000001f;
-const double LIN_MOTION_TIME_TOLERANCE      =0.000001f;
-const double LIN_MOTION_VELOCITY_TOLERANCE  =0.000001f;
+const double LIN_MOTION_POSITION_TOLERANCE  =0.000001;
+const double LIN_MOTION_TIME_TOLERANCE      =0.000001;
+const double LIN_MOTION_VELOCITY_TOLERANCE  =0.000001;
 
 CLinMotionRoutines::CLinMotionRoutines()
 {
@@ -93,64 +93,64 @@ bool CLinMotionRoutines::getNextValues(double& position,double& velocity,
     // Handle trivial cases:
     if (deltaTime<LIN_MOTION_TIME_TOLERANCE)
     {
-        deltaTime=0.0f;
+        deltaTime=0.0;
         return(false);
     }
-    if ( (velocity==targetVelocity)&&(velocity==0.0f) )
+    if ( (velocity==targetVelocity)&&(velocity==0.0) )
     {
-        deltaTime=0.0f;
+        deltaTime=0.0;
         return(false);
     }
     if (position==lowerLimitPosition)
     {
         // Make sure the allowed velocity is respected:
-        if (velocity!=0.0f)
+        if (velocity!=0.0)
         {
             if (fabs(velocity)>lowerMaxAbsVel)
                 velocity=lowerMaxAbsVel*(fabs(velocity)/velocity);
         }
-        if (velocity<0.0f)
+        if (velocity<0.0)
             return(true);
-        if (velocity==0.0f)
+        if (velocity==0.0)
         {
-            if (targetVelocity<0.0f)
+            if (targetVelocity<0.0)
                 return(true);
         }
     }
     if (position==upperLimitPosition)
     {
         // Make sure the allowed velocity is respected:
-        if (velocity!=0.0f)
+        if (velocity!=0.0)
         {
             if (fabs(velocity)>upperMaxAbsVel)
                 velocity=upperMaxAbsVel*(fabs(velocity)/velocity);
         }
-        if (velocity>0.0f)
+        if (velocity>0.0)
             return(true);
-        if (velocity==0.0f)
+        if (velocity==0.0)
         {
-            if (targetVelocity>0.0f)
+            if (targetVelocity>0.0)
                 return(true);
         }
     }
     // We divide the task into two sub-tasks if targetVelocity*velocity is negative:
-    if (targetVelocity*velocity<0.0f)
+    if (targetVelocity*velocity<0.0)
     { // 1.0.0 We first try to go to zero. The only thing that limits us here is the deltaTime that might not be enough to reach zero or a limit.
         // signedAccel means speeding down!
         double nextLimitMaxSpeed=lowerMaxAbsVel;
         double nextLimitPos=lowerLimitPosition;
         double signedAccel=accelAbs;
-        if (velocity>0.0f)
+        if (velocity>0.0)
         {
             nextLimitMaxSpeed=upperMaxAbsVel;
             nextLimitPos=upperLimitPosition;
-            signedAccel*=-1.0f;
+            signedAccel*=-1.0;
         }
         // How long to reach zero vel.?
-        double t=getTimeToVelocity_lvp(fabs(velocity),-accelAbs,0.0f); // t=(v1-v0)/a
+        double t=getTimeToVelocity_lvp(fabs(velocity),-accelAbs,0.0); // t=(v1-v0)/a
         // Will we reach a limit before zero vel.? How long to next limit?
         double t2=getTimeToPosition_negOk(position,velocity,signedAccel,nextLimitPos);
-        if ( (t2>=0.0f)&&(t2<t) )
+        if ( (t2>=0.0)&&(t2<t) )
         { // 1.A.0 We will reach a limit before we reach zero velocity!
             t=t2;
             if (t>deltaTime)
@@ -168,14 +168,14 @@ bool CLinMotionRoutines::getNextValues(double& position,double& velocity,
                 double dist=getDistanceForTimeStep_lvp(velocity,signedAccel,deltaTime); // d=v0t+0.5*at^2
                 velocity=getNextVelocityForTimeStep_lvp(velocity,signedAccel,deltaTime); // v=v0+at
                 position+=dist;
-                deltaTime=0.0f;
+                deltaTime=0.0;
                 return(false); // We end here
             }
             else
             { // 1.B.B We can reach zero velocity and even go further. We do this in 2 steps:
                 // 1. We go to zero velocity:
                 double dist=getDistanceForTimeStep_lvp(velocity,signedAccel,t); // d=v0t+0.5*at^2
-                velocity=0.0f;
+                velocity=0.0;
                 position+=dist;
                 deltaTime-=t;
                 // 2. We continue and accelerate from zero:
@@ -192,11 +192,11 @@ bool CLinMotionRoutines::getNextValues(double& position,double& velocity,
             double nextLimitMaxSpeed=lowerMaxAbsVel;
             double nextLimitPos=lowerLimitPosition;
             double signedAccel=accelAbs;
-            if (velocity>0.0f)
+            if (velocity>0.0)
             {
                 nextLimitMaxSpeed=upperMaxAbsVel;
                 nextLimitPos=upperLimitPosition;
-                signedAccel*=-1.0f;
+                signedAccel*=-1.0;
             }
             // 1. Can we keep the speed until we reach next limit?
             if (fabs(velocity)<=nextLimitMaxSpeed)
@@ -256,17 +256,17 @@ bool CLinMotionRoutines::getNextValues(double& position,double& velocity,
             double nextLimitMaxSpeed=lowerMaxAbsVel;
             double nextLimitPos=lowerLimitPosition;
             double signedAccel=accelAbs;
-            if (velocity+targetVelocity>0.0f)
+            if (velocity+targetVelocity>0.0)
             {
                 nextLimitMaxSpeed=upperMaxAbsVel;
                 nextLimitPos=upperLimitPosition;
-                signedAccel*=-1.0f;
+                signedAccel*=-1.0;
             }
             // What is the time to target velocity?
             double t=getTimeToVelocity_lvp(fabs(velocity),-accelAbs,fabs(targetVelocity)); // t=(v1-v0)/a
             // What is the time to the next limit?
             double t2=getTimeToPosition_negOk(position,velocity,signedAccel,nextLimitPos);
-            if ( (t2>=0.0f)&&(t2<t) )
+            if ( (t2>=0.0)&&(t2<t) )
             { // 2.A.A We will reach a limit before we reach target velocity!
                 t=t2;
                 if (t>deltaTime)
@@ -291,7 +291,7 @@ bool CLinMotionRoutines::getNextValues(double& position,double& velocity,
                     double dist=getDistanceForTimeStep_lvp(velocity,signedAccel,deltaTime); // d=v0t+0.5*at^2
                     velocity=getNextVelocityForTimeStep_lvp(velocity,signedAccel,deltaTime); // v=v0+at
                     position+=dist;
-                    deltaTime=0.0f;
+                    deltaTime=0.0;
                     return(false); // We end here
                 }
                 else
@@ -312,11 +312,11 @@ bool CLinMotionRoutines::getNextValues(double& position,double& velocity,
             double nextLimitMaxSpeed=lowerMaxAbsVel;
             double nextLimitPos=lowerLimitPosition;
             double signedAccel=accelAbs;
-            if (targetVelocity>0.0f)
+            if (targetVelocity>0.0)
             {
                 nextLimitMaxSpeed=upperMaxAbsVel;
                 nextLimitPos=upperLimitPosition;
-                signedAccel*=-1.0f;
+                signedAccel*=-1.0;
             }
             // Can we speed-up?
             if (fabs(velocity)>=nextLimitMaxSpeed)
@@ -335,10 +335,10 @@ bool CLinMotionRoutines::getNextValues(double& position,double& velocity,
             { // 2.C.B.1
                 double t=getTimeToVelocity_lvp(fabs(velocity),-accelAbs,nextLimitMaxSpeed); // t=(v1-v0)/a
                 double absD=getDistanceForTimeStep_lvp(fabs(velocity),-accelAbs,t); // d=v0t+0.5*at^2
-                double halfDist=(fabs(nextLimitPos-position)-absD)*0.5f;
-                if (halfDist>0.0f)
+                double halfDist=(fabs(nextLimitPos-position)-absD)*0.5;
+                if (halfDist>0.0)
                 { 
-                    double t2=getTimeToPosition_negOk(0.0f,fabs(velocity),accelAbs,halfDist);
+                    double t2=getTimeToPosition_negOk(0.0,fabs(velocity),accelAbs,halfDist);
                     maxSpeed=getNextVelocityForTimeStep_lvp(velocity,-signedAccel,t2);
                 }
             }
@@ -355,10 +355,10 @@ bool CLinMotionRoutines::getNextValues(double& position,double& velocity,
                 else
                 {
                     double absD=getDistanceForTimeStep_lvp(fabs(velocity),accelAbs,t); // d=v0t+0.5*at^2
-                    double halfDist=(fabs(nextLimitPos-position)-absD)*0.5f;
-                    if (halfDist>0.0f)
+                    double halfDist=(fabs(nextLimitPos-position)-absD)*0.5;
+                    if (halfDist>0.0)
                     { 
-                        t2=getTimeToPosition_negOk(0.0f,nextLimitMaxSpeed,accelAbs,halfDist);
+                        t2=getTimeToPosition_negOk(0.0,nextLimitMaxSpeed,accelAbs,halfDist);
                         maxSpeed=getNextVelocityForTimeStep_lvp(nextLimitMaxSpeed,accelAbs,t2)*(targetVelocity/fabs(targetVelocity));
                     }
                 }
@@ -400,13 +400,13 @@ double CLinMotionRoutines::getMaxVelocityAtPosition(double position,double accel
 { // Returns an absolute velocity
     double d0=position-lowerLimitPosition;
     double d1=upperLimitPosition-position;
-    double dt0=getTimeToPosition_negOk(0.0f,lowerMaxAbsVel,accelAbs,d0);
-    double dt1=getTimeToPosition_negOk(0.0f,upperMaxAbsVel,accelAbs,d1);
+    double dt0=getTimeToPosition_negOk(0.0,lowerMaxAbsVel,accelAbs,d0);
+    double dt1=getTimeToPosition_negOk(0.0,upperMaxAbsVel,accelAbs,d1);
     double v0=lowerMaxAbsVel;
-    if (dt0>0.0f)
+    if (dt0>0.0)
         v0=getNextVelocityForTimeStep_lvp(lowerMaxAbsVel,accelAbs,dt0);
     double v1=upperMaxAbsVel;
-    if (dt1>0.0f)
+    if (dt1>0.0)
         v1=getNextVelocityForTimeStep_lvp(upperMaxAbsVel,accelAbs,dt1);
     return(std::min<double>(v0,v1));
 }
@@ -415,17 +415,17 @@ double CLinMotionRoutines::getCurrentVelocityOnPath(double position,double nomin
                                       double lowerMaxRelVel,double upperMaxRelVel)
 {
     // Handle trivial cases:
-    if (nominalVelocity==0.0f)
-        return(0.0f); // Nominal velocity is zero --> velocity is zero
-    if (lowerMaxRelVel+upperMaxRelVel==0.0f)
-        return(0.0f); // relative velocities are both zero --> velocity is zero
+    if (nominalVelocity==0.0)
+        return(0.0); // Nominal velocity is zero --> velocity is zero
+    if (lowerMaxRelVel+upperMaxRelVel==0.0)
+        return(0.0); // relative velocities are both zero --> velocity is zero
     if (lowerMaxRelVel==upperMaxRelVel)
         return(lowerMaxRelVel*nominalVelocity); // relative velocities are same --> velocity is rel*nominal
     // Here we have the cases where we accelerate or decelerate:
     double d=upperLimitPosition-lowerLimitPosition;
     if (d==0.0)
     { // Two coincident points->jump in velocity
-        if (nominalVelocity>0.0f)
+        if (nominalVelocity>0.0)
             return(upperMaxRelVel*nominalVelocity);
         else
             return(lowerMaxRelVel*nominalVelocity);
@@ -447,7 +447,7 @@ double CLinMotionRoutines::getCurrentVelocityOnPath(double position,double nomin
         absVel=getNextVelocityForTimeStep_lvp(lowerMaxRelVel*fabs(nominalVelocity),a,t0);
     else
         absVel=getNextVelocityForTimeStep_lvp(upperMaxRelVel*fabs(nominalVelocity),-a,t1);
-    if (nominalVelocity>0.0f)
+    if (nominalVelocity>0.0)
         return(absVel);
     return(-absVel);
 }
@@ -468,12 +468,12 @@ bool CLinMotionRoutines::getNextValuesForPath(double& position,
     // 2. Handle trivial cases:
     if (deltaTime<LIN_MOTION_TIME_TOLERANCE)
     {
-        deltaTime=0.0f;
+        deltaTime=0.0;
         return(false);
     }
     if (position-lowerLimitPosition<LIN_MOTION_POSITION_TOLERANCE)
     {
-        if (nominalVelocity<0.0f)
+        if (nominalVelocity<0.0)
         {
             position=lowerLimitPosition;
             velocity=lowerMaxRelVel*nominalVelocity;
@@ -482,7 +482,7 @@ bool CLinMotionRoutines::getNextValuesForPath(double& position,
     }
     if (upperLimitPosition-position<LIN_MOTION_POSITION_TOLERANCE)
     {
-        if (nominalVelocity>0.0f)
+        if (nominalVelocity>0.0)
         {
             position=upperLimitPosition;
             velocity=upperMaxRelVel*nominalVelocity;
@@ -491,20 +491,20 @@ bool CLinMotionRoutines::getNextValuesForPath(double& position,
     }
     if (fabs(nominalVelocity)<LIN_MOTION_VELOCITY_TOLERANCE)
     {
-        deltaTime=0.0f;
-        velocity=0.0f;
+        deltaTime=0.0;
+        velocity=0.0;
         return(false);
     }
     if ( (lowerMaxRelVel*fabs(nominalVelocity)<LIN_MOTION_VELOCITY_TOLERANCE)&&(upperMaxRelVel*fabs(nominalVelocity)<LIN_MOTION_VELOCITY_TOLERANCE) )
     {
-        deltaTime=0.0f;
-        velocity=0.0f;
+        deltaTime=0.0;
+        velocity=0.0;
         return(false);
     }
     // 3. We search the next value (regular cases):
     double v2,d;
     double nextLimitPos,oppositeLimitPos;
-    if (nominalVelocity>=0.0f)
+    if (nominalVelocity>=0.0)
     {
         nextLimitPos=upperLimitPosition;
         oppositeLimitPos=lowerLimitPosition;
@@ -534,9 +534,9 @@ bool CLinMotionRoutines::getNextValuesForPath(double& position,
     if (oldPos==position)
     { // We reached the float/double resolution
         if (dist>0.0)
-            position*=(1.0f+DBL_EPSILON);
+            position*=(1.0+DBL_EPSILON);
         if (dist<0.0)
-            position*=(1.0f-DBL_EPSILON);
+            position*=(1.0-DBL_EPSILON);
     }
     deltaTime-=t;
     return(deltaTime>LIN_MOTION_TIME_TOLERANCE); // We end here
@@ -544,28 +544,28 @@ bool CLinMotionRoutines::getNextValuesForPath(double& position,
 
 void CLinMotionRoutines::adjustNominalVelocity(double& nominalVelocity,double targetNominalVelocity,double acceleration,double deltaTime)
 {
-    if (deltaTime<LIN_MOTION_TIME_TOLERANCE*0.1f)
+    if (deltaTime<LIN_MOTION_TIME_TOLERANCE*0.1)
         return;
-    if (acceleration==0.0f)
+    if (acceleration==0.0)
         return;
     if (fabs(nominalVelocity-targetNominalVelocity)<LIN_MOTION_VELOCITY_TOLERANCE)
     {
         nominalVelocity=targetNominalVelocity;
         return;
     }
-    if (nominalVelocity*targetNominalVelocity<0.0f)
+    if (nominalVelocity*targetNominalVelocity<0.0)
     { // We are changing direction! We perform this in 2 steps:
         // 1. Slow down:
-        double t=getTimeToVelocity_lvp(fabs(nominalVelocity),-acceleration,0.0f);
+        double t=getTimeToVelocity_lvp(fabs(nominalVelocity),-acceleration,0.0);
         if (t<=deltaTime)
         { // We go to zero and then do the rest:
-            nominalVelocity=0.0f;
+            nominalVelocity=0.0;
             deltaTime-=t;
             adjustNominalVelocity(nominalVelocity,targetNominalVelocity,acceleration,deltaTime); // Here we continue
         }
         else
         { // We don't even reach zero:
-            if (nominalVelocity>=0.0f)
+            if (nominalVelocity>=0.0)
                 nominalVelocity=getNextVelocityForTimeStep_lvp(nominalVelocity,-acceleration,deltaTime);
             else
                 nominalVelocity=getNextVelocityForTimeStep_lvp(nominalVelocity,+acceleration,deltaTime);
@@ -585,9 +585,9 @@ void CLinMotionRoutines::adjustNominalVelocity(double& nominalVelocity,double ta
             else
             { // We don't reach the target velocity:
                 double v=nominalVelocity;
-                if (v==0.0f)
+                if (v==0.0)
                     v=targetNominalVelocity;
-                if (v>=0.0f)
+                if (v>=0.0)
                     nominalVelocity=getNextVelocityForTimeStep_lvp(nominalVelocity,+acceleration,deltaTime);
                 else
                     nominalVelocity=getNextVelocityForTimeStep_lvp(nominalVelocity,-acceleration,deltaTime);
@@ -604,7 +604,7 @@ void CLinMotionRoutines::adjustNominalVelocity(double& nominalVelocity,double ta
             }
             else
             { // We don't reach the target velocity:
-                if (nominalVelocity>=0.0f)
+                if (nominalVelocity>=0.0)
                     nominalVelocity=getNextVelocityForTimeStep_lvp(nominalVelocity,-acceleration,deltaTime);
                 else
                     nominalVelocity=getNextVelocityForTimeStep_lvp(nominalVelocity,+acceleration,deltaTime);

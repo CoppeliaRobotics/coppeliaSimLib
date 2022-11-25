@@ -48,7 +48,7 @@ void CBroadcastDataContainer::simulationEnded()
     eraseAllObjects();
 }
 
-void CBroadcastDataContainer::broadcastData(int emitterID,int targetID,int dataHeader,std::string& dataName,float timeOutSimulationTime,float actionRadius,int antennaHandle,float emissionAngle1,float emissionAngle2,const char* data,int dataLength)
+void CBroadcastDataContainer::broadcastData(int emitterID,int targetID,int dataHeader,std::string& dataName,floatDouble timeOutSimulationTime,floatDouble actionRadius,int antennaHandle,floatDouble emissionAngle1,floatDouble emissionAngle2,const char* data,int dataLength)
 { // Called by the SIM or UI thread
     EASYLOCK(_objectMutex);
     CBroadcastData* it=new CBroadcastData(emitterID,targetID,dataHeader,dataName,timeOutSimulationTime,actionRadius,antennaHandle,emissionAngle1,emissionAngle2,data,dataLength);
@@ -74,7 +74,7 @@ void CBroadcastDataContainer::broadcastData(int emitterID,int targetID,int dataH
     }
 }
 
-char* CBroadcastDataContainer::receiveData(int receiverID,float simulationTime,int dataHeader,std::string& dataName,int antennaHandle,int& dataLength,int index,int& senderID,int& dataHeaderR,std::string& dataNameR)
+char* CBroadcastDataContainer::receiveData(int receiverID,floatDouble simulationTime,int dataHeader,std::string& dataName,int antennaHandle,int& dataLength,int index,int& senderID,int& dataHeaderR,std::string& dataNameR)
 {
     EASYLOCK(_objectMutex);
     int originalIndex=index;
@@ -144,7 +144,7 @@ void CBroadcastDataContainer::removeObject(int index)
     _allObjects.erase(_allObjects.begin()+index);
 }
 
-void CBroadcastDataContainer::removeTimedOutObjects(float simulationTime)
+void CBroadcastDataContainer::removeTimedOutObjects(floatDouble simulationTime)
 {
     EASYLOCK(_objectMutex);
     for (int i=0;i<int(_allObjects.size());i++)

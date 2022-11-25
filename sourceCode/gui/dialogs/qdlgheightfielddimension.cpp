@@ -9,10 +9,10 @@ CQDlgHeightfieldDimension::CQDlgHeightfieldDimension(QWidget *parent) :
     ui(new Ui::CQDlgHeightfieldDimension)
 {
     ui->setupUi(this);
-    xSize=1.0f;
-    ySize=1.0f;
-    zScaling=1.0f;
-    xSizeTimesThisGivesYSize=1.0f;
+    xSize=1.0;
+    ySize=1.0;
+    zScaling=1.0;
+    xSizeTimesThisGivesYSize=1.0;
 }
 
 CQDlgHeightfieldDimension::~CQDlgHeightfieldDimension()
@@ -45,7 +45,7 @@ void CQDlgHeightfieldDimension::on_qqSizeX_editingFinished()
     float newVal=ui->qqSizeX->text().toFloat(&ok);
     if (ok)
     {
-        tt::limitValue(0.01f,10000.0f,newVal);
+        tt::limitValue(0.01,10000.0,newVal);
         xSize=newVal;
         ySize=newVal*xSizeTimesThisGivesYSize;
     }
@@ -60,7 +60,7 @@ void CQDlgHeightfieldDimension::on_qqSizeY_editingFinished()
     float newVal=ui->qqSizeY->text().toFloat(&ok);
     if (ok)
     {
-        tt::limitValue(0.01f,10000.0f,newVal);
+        tt::limitValue(0.01,10000.0,newVal);
         ySize=newVal;
         xSize=newVal/xSizeTimesThisGivesYSize;
     }
@@ -75,7 +75,7 @@ void CQDlgHeightfieldDimension::on_qqScalingZ_editingFinished()
     float newVal=ui->qqScalingZ->text().toFloat(&ok);
     if (ok)
     {
-        tt::limitValue(0.001f,1000.0f,newVal);
+        tt::limitValue(0.001,1000.0,newVal);
         zScaling=newVal;
     }
     refresh();

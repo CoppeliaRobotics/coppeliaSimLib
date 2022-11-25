@@ -11,7 +11,7 @@ CQDlgScaling::CQDlgScaling(QWidget *parent) :
 {
     ui->setupUi(this);
     inPlace=false;
-    factor=2.0f;
+    factor=2.0;
 }
 
 CQDlgScaling::~CQDlgScaling()
@@ -65,7 +65,7 @@ void CQDlgScaling::on_qqScalingFactor_editingFinished()
     float newVal=ui->qqScalingFactor->text().toFloat(&ok);
     if (ok)
     {
-        tt::limitValue(0.001f,1000.0f,newVal);
+        tt::limitValue(0.001,1000.0,newVal);
         factor=newVal;
     }
     refresh();

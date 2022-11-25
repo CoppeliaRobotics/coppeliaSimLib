@@ -4,10 +4,10 @@
 #include <algorithm>
 
 CNonHolonomicPathPlanning_old::CNonHolonomicPathPlanning_old(int theStartDummyID,int theGoalDummyID,
-                        int theRobotCollectionID,int theObstacleCollectionID,int ikGroupID,float theAngularCoeff,
-                        float theSteeringAngleCoeff,float theMaxSteeringAngleVariation,float theMaxSteeringAngle,
-                        float theStepSize,const float theSearchMinVal[2],const float theSearchRange[2],
-                        const int theDirectionConstraints[2],const float clearanceAndMaxDistance[2])
+                        int theRobotCollectionID,int theObstacleCollectionID,int ikGroupID,floatDouble theAngularCoeff,
+                        floatDouble theSteeringAngleCoeff,floatDouble theMaxSteeringAngleVariation,floatDouble theMaxSteeringAngle,
+                        floatDouble theStepSize,const floatDouble theSearchMinVal[2],const floatDouble theSearchRange[2],
+                        const int theDirectionConstraints[2],const floatDouble clearanceAndMaxDistance[2])
 {
     isHolonomic=false;
     _allIsObstacle=(theObstacleCollectionID==-1);
@@ -22,7 +22,7 @@ CNonHolonomicPathPlanning_old::CNonHolonomicPathPlanning_old(int theStartDummyID
     steeringAngleCoeff=theSteeringAngleCoeff;
     maxSteeringAngleVariation=theMaxSteeringAngleVariation;
     maxSteeringAngle=theMaxSteeringAngle;
-    minTurningRadius=stepSize/(2.0f*sin(maxSteeringAngle/2.0f));
+    minTurningRadius=stepSize/(2.0*sin(maxSteeringAngle/2.0));
     _startDummyID=theStartDummyID;
     CXDummy* startDummy=(CXDummy*)_simGetObject_internal(_startDummyID);
     CXDummy* goalDummy=(CXDummy*)_simGetObject_internal(theGoalDummyID);
@@ -36,10 +36,10 @@ CNonHolonomicPathPlanning_old::CNonHolonomicPathPlanning_old(int theStartDummyID
     _simGetObjectCumulativeTransformation_internal(goalDummy,tmpTr.X.data,tmpTr.Q.data,false);
     C7Vector gd(startDummyCTMInv*tmpTr);
     C3Vector gdEuler(gd.Q.getEulerAngles());
-    gdEuler(0)=0.0f;
-    gdEuler(1)=0.0f;
-    gd.X(2)=0.0f;//startDummyLocal.X(2);
-    fromStart.push_back(new CNonHolonomicPathNode_old(0.0f,0.0f,0.0f));//startDummyLocal.X(0),startDummyLocal.X(1),startDummyLocalEuler(2)));
+    gdEuler(0)=0.0;
+    gdEuler(1)=0.0;
+    gd.X(2)=0.0;//startDummyLocal.X(2);
+    fromStart.push_back(new CNonHolonomicPathNode_old(0.0,0.0,0.0));//startDummyLocal.X(0),startDummyLocal.X(1),startDummyLocalEuler(2)));
     fromGoal.push_back(new CNonHolonomicPathNode_old(gd.X(0),gd.X(1),gdEuler(2)));
     robotCollectionID=theRobotCollectionID;
     obstacleCollectionID=theObstacleCollectionID;
@@ -73,12 +73,12 @@ CNonHolonomicPathPlanning_old::~CNonHolonomicPathPlanning_old()
     foundPath.clear();
 }
 
-void CNonHolonomicPathPlanning_old::setStepSize(float size)
+void CNonHolonomicPathPlanning_old::setStepSize(floatDouble size)
 {
     stepSize=size;
 }
 
-void CNonHolonomicPathPlanning_old::getSearchTreeData(std::vector<float>& data,bool fromTheStart)
+void CNonHolonomicPathPlanning_old::getSearchTreeData(std::vector<floatDouble>& data,bool fromTheStart)
 {
     std::vector<CNonHolonomicPathNode_old*>* cont;
     if (fromTheStart)
@@ -87,11 +87,11 @@ void CNonHolonomicPathPlanning_old::getSearchTreeData(std::vector<float>& data,b
         cont=&fromGoal;
     for (int i=1;i<int(cont->size());i++)
     {
-        C3Vector start((*cont)[i]->values[0],(*cont)[i]->values[1],0.0f);
-        C3Vector goal((*cont)[i]->parent->values[0],(*cont)[i]->parent->values[1],0.0f);
+        C3Vector start((*cont)[i]->values[0],(*cont)[i]->values[1],0.0);
+        C3Vector goal((*cont)[i]->parent->values[0],(*cont)[i]->parent->values[1],0.0);
         start=_startDummyCTM*start;
         goal=_startDummyCTM*goal;
-        float d[6];
+        floatDouble d[6];
         start.getData(d);
         goal.getData(d+3);
         for (int j=0;j<6;j++)
@@ -213,7 +213,7 @@ int CNonHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
     if (maxTimePerPass==61855195)
         return(131183);
 
-    _simSetObjectLocalTransformation_internal(startDummy,dumSavedConf.X.data,dumSavedConf.Q.data,0.0f);
+    _simSetObjectLocalTransformation_internal(startDummy,dumSavedConf.X.data,dumSavedConf.Q.data,0.0);
 
     return(pathWasFound);
 }
@@ -241,21 +241,21 @@ bool CNonHolonomicPathPlanning_old::setPartialPath()
 
 CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::getClosestNode(std::vector<CNonHolonomicPathNode_old*>& nodes,CNonHolonomicPathNode_old* sample,bool forward,bool forConnection)
 {
-    float minD=FLOAT_MAX;
+    floatDouble minD=FLOAT_MAX;
     int index=-1;
-    float dPart2=2.0f*minTurningRadius;
+    floatDouble dPart2=2.0*minTurningRadius;
     if (forConnection)
-        dPart2=6.0f*minTurningRadius;
+        dPart2=6.0*minTurningRadius;
     for (int i=0;i<int(nodes.size());i++)
     {
-        float vect[3];
+        floatDouble vect[3];
         vect[0]=sample->values[0]-nodes[i]->values[0];
         vect[1]=sample->values[1]-nodes[i]->values[1];
         vect[2]=sample->values[2]-nodes[i]->values[2];
-        float dPart1=vect[0]*vect[0]+vect[1]*vect[1];
+        floatDouble dPart1=vect[0]*vect[0]+vect[1]*vect[1];
         if ( (dPart1>dPart2))
         {
-            float d=dPart1;//+fabs(vect[2])*0.01f;
+            floatDouble d=dPart1;//+fabs(vect[2])*0.01;
             if (d<minD)
             {
                 minD=d;
@@ -271,24 +271,24 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::getClosestNode(std::ve
 CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNonHolonomicPathNode_old*>* currentList,CNonHolonomicPathNode_old* toBeExtended,CNonHolonomicPathNode_old* extention,bool forward,CXDummy* startDummy)
 {   // Return value is !=nullptr if extention was performed to some extent
     bool specialCase=( (fromStart==currentList[0])&&(toBeExtended==fromStart[0])&&(_startConfInterferenceState!=FLOAT_MAX) );
-    float lastClosest_specialCase=_startConfInterferenceState;
+    floatDouble lastClosest_specialCase=_startConfInterferenceState;
 
-    float dir=1.0f;
+    floatDouble dir=1.0;
     if (!forward)
-        dir=-1.0f;
+        dir=-1.0;
     int directionCounter=0;
     bool awayDirection=false; 
     int i;
     for (i=0;i<1000;i++)
     {
-        float theta=toBeExtended->values[2];
-        float dy=extention->values[1]-toBeExtended->values[1];
-        float dx=extention->values[0]-toBeExtended->values[0];
-        float sqDist=dx*dx+dy*dy;
-        float phi=atan2(dy,dx);
-        float diff=phi-theta;
-        float comp=0.0f;
-        if (dir<0.0f)
+        floatDouble theta=toBeExtended->values[2];
+        floatDouble dy=extention->values[1]-toBeExtended->values[1];
+        floatDouble dx=extention->values[0]-toBeExtended->values[0];
+        floatDouble sqDist=dx*dx+dy*dy;
+        floatDouble phi=atan2(dy,dx);
+        floatDouble diff=phi-theta;
+        floatDouble comp=0.0;
+        if (dir<0.0)
         {
             comp=piValue;
             diff=phi-theta+piValue;
@@ -296,24 +296,24 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNo
         diff=CPathPlanningInterface::getNormalizedAngle(diff);
         if (fabs(diff)>maxSteeringAngle)
         {
-            if (diff<0.0f)
+            if (diff<0.0)
                 diff=-maxSteeringAngle;
             else
                 diff=maxSteeringAngle;
         }
-        float x=toBeExtended->values[0]+stepSize*cos(theta+diff+comp);
-        float y=toBeExtended->values[1]+stepSize*sin(theta+diff+comp);
-        float t=toBeExtended->values[2]+diff;
+        floatDouble x=toBeExtended->values[0]+stepSize*cos(theta+diff+comp);
+        floatDouble y=toBeExtended->values[1]+stepSize*sin(theta+diff+comp);
+        floatDouble t=toBeExtended->values[2]+diff;
         // 1. Valid values?
         if ( (x>searchMinVal[0])&&(x<searchMinVal[0]+searchRange[0])&&
                 (y>searchMinVal[1])&&(y<searchMinVal[1]+searchRange[1]) )
         { // new values are valid
-            C3Vector trEuler(0.0f,0.0f,t);
-            C7Vector tr(C4Vector(trEuler),C3Vector(0.0f,0.0f,0.0f));
+            C3Vector trEuler(0.0,0.0,t);
+            C7Vector tr(C4Vector(trEuler),C3Vector(0.0,0.0,0.0));
             tr.X(0)=x;
             tr.X(1)=y;
             C7Vector tmpTr(_startDummyLTM*tr);
-            _simSetObjectLocalTransformation_internal(startDummy,tmpTr.X.data,tmpTr.Q.data,0.0f);
+            _simSetObjectLocalTransformation_internal(startDummy,tmpTr.X.data,tmpTr.Q.data,0.0);
             if (!specialCase)
             {
                 if (!doCollide(nullptr))
@@ -325,7 +325,7 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNo
                     // close enough?
                     dy=extention->values[1]-y;
                     dx=extention->values[0]-x;
-                    float sqDist2=dx*dx+dy*dy;
+                    floatDouble sqDist2=dx*dx+dy*dy;
                     bool awayDirection2=(sqDist2>sqDist);
                     if (i==0)
                         awayDirection=awayDirection2;
@@ -344,7 +344,7 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNo
             }
             else
             { // we have a special case here!
-                float d;
+                floatDouble d;
                 doCollide(&d);
                 if (d>=lastClosest_specialCase)
                 { // This is acceptable (we extend a colliding state, but slowly moving away from the collision)
@@ -356,7 +356,7 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNo
                     // close enough?
                     dy=extention->values[1]-y;
                     dx=extention->values[0]-x;
-                    float sqDist2=dx*dx+dy*dy;
+                    floatDouble sqDist2=dx*dx+dy*dy;
                     bool awayDirection2=(sqDist2>sqDist);
                     if (i==0)
                         awayDirection=awayDirection2;
@@ -409,25 +409,25 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::connect(std::vector<CN
     }
 
 
-    float dir=1.0f;
+    floatDouble dir=1.0;
     if (!forward)
-        dir=-1.0f;
+        dir=-1.0;
     bool couldReach=false;
     int directionCounter=0;
     bool awayDirection=false; // 'false' not needed but for warning supression
     for (int i=0;i<1000;i++)
     {
-        float theta=currentHandle->values[2];
-        float deltaTheta=nextHandle->values[2]-theta;
-        float dy=nextHandle->values[1]-currentHandle->values[1];
-        float dx=nextHandle->values[0]-currentHandle->values[0];
-        float sqDist=dx*dx+dy*dy;
-        float phi=0.0f;
-        if ( (fabs(dx)>0.0001f)||(fabs(dy)>0.0001f) )
+        floatDouble theta=currentHandle->values[2];
+        floatDouble deltaTheta=nextHandle->values[2]-theta;
+        floatDouble dy=nextHandle->values[1]-currentHandle->values[1];
+        floatDouble dx=nextHandle->values[0]-currentHandle->values[0];
+        floatDouble sqDist=dx*dx+dy*dy;
+        floatDouble phi=0.0;
+        if ( (fabs(dx)>0.0001)||(fabs(dy)>0.0001) )
             phi=atan2(dy,dx);
-        float diff=phi-theta;
-        float comp=0.0f;
-        if (dir<0.0f)
+        floatDouble diff=phi-theta;
+        floatDouble comp=0.0;
+        if (dir<0.0)
         {
             comp=piValue;
             diff=phi-theta+piValue;
@@ -435,26 +435,26 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::connect(std::vector<CN
         diff=CPathPlanningInterface::getNormalizedAngle(diff);
         if (fabs(diff)>maxSteeringAngle)
         {
-            if (diff<0.0f)
+            if (diff<0.0)
                 diff=-maxSteeringAngle;
             else
                 diff=maxSteeringAngle;
         }
         deltaTheta=CPathPlanningInterface::getNormalizedAngle(deltaTheta);
-        float nSa=diff;
-        float x=currentHandle->values[0]+stepSize*cos(theta+nSa+comp);
-        float y=currentHandle->values[1]+stepSize*sin(theta+nSa+comp);
-        float t=currentHandle->values[2]+nSa;
+        floatDouble nSa=diff;
+        floatDouble x=currentHandle->values[0]+stepSize*cos(theta+nSa+comp);
+        floatDouble y=currentHandle->values[1]+stepSize*sin(theta+nSa+comp);
+        floatDouble t=currentHandle->values[2]+nSa;
         // 1. Valid values?
         if ( (x>searchMinVal[0])&&(x<searchMinVal[0]+searchRange[0])&&
                 (y>searchMinVal[1])&&(y<searchMinVal[1]+searchRange[1]) )
         { // new values are valid
-            C3Vector trEuler(0.0f,0.0f,t);
-            C7Vector tr(C4Vector(trEuler),C3Vector(0.0f,0.0f,0.0f));
+            C3Vector trEuler(0.0,0.0,t);
+            C7Vector tr(C4Vector(trEuler),C3Vector(0.0,0.0,0.0));
             tr.X(0)=x;
             tr.X(1)=y;
             C7Vector tmpTr(_startDummyLTM*tr);
-            _simSetObjectLocalTransformation_internal(startDummy,tmpTr.X.data,tmpTr.Q.data,0.0f);
+            _simSetObjectLocalTransformation_internal(startDummy,tmpTr.X.data,tmpTr.Q.data,0.0);
             if (!doCollide(nullptr))
             {
                 if (test)
@@ -473,12 +473,12 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::connect(std::vector<CN
                         lastHandleFromStart=newNode;
                 }
                 // close enough?
-                float dTheta=nextHandle->values[2]-t;
+                floatDouble dTheta=nextHandle->values[2]-t;
                 dTheta=CPathPlanningInterface::getNormalizedAngle(dTheta);
                 dy=nextHandle->values[1]-y;
                 dx=nextHandle->values[0]-x;
 
-                float sqDist2=dx*dx+dy*dy;
+                floatDouble sqDist2=dx*dx+dy*dy;
                 bool awayDirection2=(sqDist2>sqDist);
                 if (i==0)
                     awayDirection=awayDirection2;
@@ -489,9 +489,9 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::connect(std::vector<CN
                     if (directionCounter>1)
                         break;
                 }
-                if ( (dy*dy+dx*dx)<(1.2f*stepSize*stepSize) ) // 1.2f is important!!
+                if ( (dy*dy+dx*dx)<(1.2*stepSize*stepSize) ) // 1.2 is important!!
                 {
-                    if (fabs(dTheta)<0.06f*degToRad) // 0.06 degrees
+                    if (fabs(dTheta)<0.06*degToRad) // 0.06 degrees
                     {
                         couldReach=true;
                         break;
@@ -512,7 +512,7 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::connect(std::vector<CN
         tmpHandle=currentHandle;
         currentHandle=nextHandle;
         nextHandle=tmpHandle;
-        dir*=-1.0f;
+        dir*=-1.0;
     }
     if (test)
     {
@@ -606,18 +606,18 @@ int CNonHolonomicPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
             startP=nullptr; // since 2010/09/09
             if (randomPass==0)
             { // We calculate lowIndex and highIndex!
-                float span=float(foundPath.size())/float(numberOfRandomConnectionTries_forSteppedSmoothing);
+                floatDouble span=floatDouble(foundPath.size())/floatDouble(numberOfRandomConnectionTries_forSteppedSmoothing);
                 while ( (span<5)&&(numberOfRandomConnectionTries_forSteppedSmoothing>1) )
                 {
                     numberOfRandomConnectionTries_forSteppedSmoothing--;
                     if (numberOfRandomConnectionTriesLeft_forSteppedSmoothing>=numberOfRandomConnectionTries_forSteppedSmoothing)
                         numberOfRandomConnectionTriesLeft_forSteppedSmoothing=numberOfRandomConnectionTries_forSteppedSmoothing-1;
-                    span=float(foundPath.size())/float(numberOfRandomConnectionTries_forSteppedSmoothing);
+                    span=floatDouble(foundPath.size())/floatDouble(numberOfRandomConnectionTries_forSteppedSmoothing);
                 }
                 if (numberOfRandomConnectionTries_forSteppedSmoothing<=1)
                     return(1); // finished!
-                lowIndex=int(span*float(numberOfRandomConnectionTriesLeft_forSteppedSmoothing+0));
-                highIndex=int(span*float(numberOfRandomConnectionTriesLeft_forSteppedSmoothing+1));
+                lowIndex=int(span*floatDouble(numberOfRandomConnectionTriesLeft_forSteppedSmoothing+0));
+                highIndex=int(span*floatDouble(numberOfRandomConnectionTriesLeft_forSteppedSmoothing+1));
                 if (highIndex>=int(foundPath.size())) // probably not needed
                     highIndex--;
                 if (foundPathSameStraightLineID_forSteppedSmoothing[lowIndex]!=foundPathSameStraightLineID_forSteppedSmoothing[highIndex])
@@ -630,8 +630,8 @@ int CNonHolonomicPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
             { // We randomly chose lowIndex and highIndex!
                 for (int i=0;i<5;i++)
                 { // so that if we have only very few ids, we don't stay stuck here
-                    int ra=int((SIM_RAND_FLOAT*float(foundPath.size()))-0.5f);
-                    int rb=int((SIM_RAND_FLOAT*float(foundPath.size()))-0.5f);
+                    int ra=int((SIM_RAND_FLOAT*floatDouble(foundPath.size()))-0.5);
+                    int rb=int((SIM_RAND_FLOAT*floatDouble(foundPath.size()))-0.5);
                     if ( (ra!=rb)&&(abs(ra-rb)>1)&&(foundPathSameStraightLineID_forSteppedSmoothing[ra]!=foundPathSameStraightLineID_forSteppedSmoothing[rb]) )
                     {
                         lowIndex=std::min<int>(ra,rb);
@@ -672,7 +672,7 @@ int CNonHolonomicPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
                 }
                 else
                     delete newPathElementsBetweenAndIncludingLowAndHigh[0]; // Impossible to connect, we have to erase the only element in the list
-                _simSetObjectLocalTransformation_internal(startDummy,startDummyOriginalLocalTr.X.data,startDummyOriginalLocalTr.Q.data,0.0f); // Restore the original transformation
+                _simSetObjectLocalTransformation_internal(startDummy,startDummyOriginalLocalTr.X.data,startDummyOriginalLocalTr.Q.data,0.0); // Restore the original transformation
             }
         }
     }
@@ -680,7 +680,7 @@ int CNonHolonomicPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
 }
 
 
-void CNonHolonomicPathPlanning_old::getPathData(std::vector<float>& data)
+void CNonHolonomicPathPlanning_old::getPathData(std::vector<floatDouble>& data)
 {
     data.clear();
     if (invalidData)
@@ -706,18 +706,18 @@ void CNonHolonomicPathPlanning_old::getPathData(std::vector<float>& data)
     }
 }
 
-bool CNonHolonomicPathPlanning_old::doCollide(float* dist)
+bool CNonHolonomicPathPlanning_old::doCollide(floatDouble* dist)
 {// dist can be nullptr. Dist returns the actual distance only when return value is true!! otherwise it is FLOAT_MAX!!
     if (dist!=nullptr)
         dist[0]=FLOAT_MAX;
-    if (obstacleClearanceAndMaxDistance[0]<=0.0f)
+    if (obstacleClearanceAndMaxDistance[0]<=0.0)
     {
         if ( (obstacleCollectionID==-1)&&(!_allIsObstacle) )
             return(false);
         if (_simDoEntitiesCollide_internal(robotCollectionID,obstacleCollectionID,buffer,false,false,true)!=0)
         {
             if (dist!=nullptr)
-                dist[0]=0.0f;
+                dist[0]=0.0;
             return(true);
         }
         return(false);
@@ -726,10 +726,10 @@ bool CNonHolonomicPathPlanning_old::doCollide(float* dist)
     {
         if ( (obstacleCollectionID==-1)&&(!_allIsObstacle) )
             return(false);
-        if (obstacleClearanceAndMaxDistance[1]<=0.0f)
+        if (obstacleClearanceAndMaxDistance[1]<=0.0)
         { // no max distance, only min. distance:
-            float ray[7];
-            float theDist=obstacleClearanceAndMaxDistance[0];
+            floatDouble ray[7];
+            floatDouble theDist=obstacleClearanceAndMaxDistance[0];
             if (_simGetDistanceBetweenEntitiesIfSmaller_internal(robotCollectionID,obstacleCollectionID,&theDist,ray,buffer,false,false,true)!=0)
             {
                 if (dist!=nullptr)
@@ -740,8 +740,8 @@ bool CNonHolonomicPathPlanning_old::doCollide(float* dist)
         }
         else
         { // min. distance and max. distance:
-            float ray[7];
-            float theDist=obstacleClearanceAndMaxDistance[1];
+            floatDouble ray[7];
+            floatDouble theDist=obstacleClearanceAndMaxDistance[1];
             if (_simGetDistanceBetweenEntitiesIfSmaller_internal(robotCollectionID,obstacleCollectionID,&theDist,ray,buffer,false,false,true)!=0)
             {
                 if (theDist>=obstacleClearanceAndMaxDistance[0])

@@ -285,7 +285,7 @@ void CQDlgMaterial::on_qqOpacity_editingFinished()
             float newVal=ui->qqOpacity->text().toFloat(&ok);
             if (ok&&(allowedParts&128))
             {
-                float s=tt::getLimitedFloat(0.0f,1.0f,newVal);
+                float s=tt::getLimitedFloat(0.0,1.0,newVal);
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_TRANSPARENCYFACT_MATERIALGUITRIGGEREDCMD;
                 cmd.intParams.push_back(_objType);

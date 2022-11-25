@@ -6,8 +6,8 @@
 #include "simStrings.h"
 
 int CQDlgTranslation::coordMode=0; //0=abs,1=rel to parent
-float CQDlgTranslation::translationValues[3]={0.0f,0.0f,0.0f};
-float CQDlgTranslation::scalingValues[3]={1.0f,1.0f,1.0f};
+float CQDlgTranslation::translationValues[3]={0.0,0.0,0.0};
+float CQDlgTranslation::scalingValues[3]={1.0,1.0,1.0};
 int CQDlgTranslation::translateMode=0; //0=abs,1=rel to parent,2=rel to self
 int CQDlgTranslation::scaleMode=0; //0=abs,1=rel to parent
 int CQDlgTranslation::currentTab=0; //0=mouse transl., 1=pos, 2=transl., 3=scaling
@@ -113,22 +113,22 @@ void CQDlgTranslation::refresh()
             ui->qqPosCombo->addItem(IDS_MANIP_NONE,QVariant(-1));
             ui->qqPosCombo->addItem(IDS_DEFAULT,QVariant(0));
 
-            ui->qqPosCombo->addItem(tt::getFString(false,0.001f,3).c_str(),QVariant(1));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.002f,3).c_str(),QVariant(2));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.005f,3).c_str(),QVariant(5));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.01f,3).c_str(),QVariant(10));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.025f,3).c_str(),QVariant(25));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.05f,3).c_str(),QVariant(50));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.1f,3).c_str(),QVariant(100));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.25f,3).c_str(),QVariant(250));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.5f,3).c_str(),QVariant(500));
+            ui->qqPosCombo->addItem(tt::getFString(false,0.001,3).c_str(),QVariant(1));
+            ui->qqPosCombo->addItem(tt::getFString(false,0.002,3).c_str(),QVariant(2));
+            ui->qqPosCombo->addItem(tt::getFString(false,0.005,3).c_str(),QVariant(5));
+            ui->qqPosCombo->addItem(tt::getFString(false,0.01,3).c_str(),QVariant(10));
+            ui->qqPosCombo->addItem(tt::getFString(false,0.025,3).c_str(),QVariant(25));
+            ui->qqPosCombo->addItem(tt::getFString(false,0.05,3).c_str(),QVariant(50));
+            ui->qqPosCombo->addItem(tt::getFString(false,0.1,3).c_str(),QVariant(100));
+            ui->qqPosCombo->addItem(tt::getFString(false,0.25,3).c_str(),QVariant(250));
+            ui->qqPosCombo->addItem(tt::getFString(false,0.5,3).c_str(),QVariant(500));
 
             if (App::currentWorld->simulation->isSimulationStopped())
             {
                 if (object->getObjectMovementOptions()&1)
                     _selectItemOfCombobox(ui->qqPosCombo,-1);
                 else
-                    _selectItemOfCombobox(ui->qqPosCombo,int((manipulationTranslationStepSize+0.0005f)*1000.0f));
+                    _selectItemOfCombobox(ui->qqPosCombo,int((manipulationTranslationStepSize+0.0005)*1000.0));
 
             }
             else
@@ -136,7 +136,7 @@ void CQDlgTranslation::refresh()
                 if (object->getObjectMovementOptions()&2)
                     _selectItemOfCombobox(ui->qqPosCombo,-1);
                 else
-                    _selectItemOfCombobox(ui->qqPosCombo,int((manipulationTranslationStepSize+0.0005f)*1000.0f));
+                    _selectItemOfCombobox(ui->qqPosCombo,int((manipulationTranslationStepSize+0.0005)*1000.0));
             }
         }
 
@@ -868,7 +868,7 @@ void CQDlgTranslation::on_qqTransfX_editingFinished()
         float newVal=ui->qqTransfX->text().toFloat(&ok);
         if (ok)
         {
-            tt::limitValue(-1000000.0f,+1000000.0f,newVal);
+            tt::limitValue(-1000000.0,+1000000.0,newVal);
             translationValues[0]=newVal;
         }
         refresh();
@@ -885,7 +885,7 @@ void CQDlgTranslation::on_qqTransfY_editingFinished()
         float newVal=ui->qqTransfY->text().toFloat(&ok);
         if (ok)
         {
-            tt::limitValue(-1000000.0f,+1000000.0f,newVal);
+            tt::limitValue(-1000000.0,+1000000.0,newVal);
             translationValues[1]=newVal;
         }
         refresh();
@@ -902,7 +902,7 @@ void CQDlgTranslation::on_qqTransfZ_editingFinished()
         float newVal=ui->qqTransfZ->text().toFloat(&ok);
         if (ok)
         {
-            tt::limitValue(-1000000.0f,+1000000.0f,newVal);
+            tt::limitValue(-1000000.0,+1000000.0,newVal);
             translationValues[2]=newVal;
         }
         refresh();
@@ -928,7 +928,7 @@ void CQDlgTranslation::on_qqTransfSX_editingFinished()
         float newVal=ui->qqTransfSX->text().toFloat(&ok);
         if (ok)
         {
-            tt::limitValue(-1000000.0f,1000000.0f,newVal);
+            tt::limitValue(-1000000.0,1000000.0,newVal);
             scalingValues[0]=newVal;
         }
         refresh();
@@ -945,7 +945,7 @@ void CQDlgTranslation::on_qqTransfSY_editingFinished()
         float newVal=ui->qqTransfSY->text().toFloat(&ok);
         if (ok)
         {
-            tt::limitValue(-1000000.0f,1000000.0f,newVal);
+            tt::limitValue(-1000000.0,1000000.0,newVal);
             scalingValues[1]=newVal;
         }
         refresh();
@@ -962,7 +962,7 @@ void CQDlgTranslation::on_qqTransfSZ_editingFinished()
         float newVal=ui->qqTransfSZ->text().toFloat(&ok);
         if (ok)
         {
-            tt::limitValue(-1000000.0f,1000000.0f,newVal);
+            tt::limitValue(-1000000.0,1000000.0,newVal);
             scalingValues[2]=newVal;
         }
         refresh();
@@ -1163,7 +1163,7 @@ void CQDlgTranslation::on_qqPosCombo_activated(int index)
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_POSSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,float(ui->qqPosCombo->itemData(index).toInt())/1000.0f);
+        App::appendSimulationThreadCommand(SET_POSSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,float(ui->qqPosCombo->itemData(index).toInt())/1000.0);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

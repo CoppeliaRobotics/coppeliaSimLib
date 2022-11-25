@@ -18,7 +18,7 @@ CQDlgCommonProperties::CQDlgCommonProperties(QWidget *parent) :
     _dlgType=GENERAL_PROPERTIES_DLG;
     ui->setupUi(this);
     inPlaceState=false;
-    scalingState=0.5f;
+    scalingState=0.5;
     inMainRefreshRoutine=false;
 }
 

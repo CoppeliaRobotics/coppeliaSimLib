@@ -34,7 +34,7 @@ CSimRecorder::CSimRecorder(const char* initialPath)
     _pathAndFilename="";
     _manualStart=true;
     _encoderIndex=0;
-    _simulationTimeOfLastFrame=-1.0f;
+    _simulationTimeOfLastFrame=-1.0;
 }
 
 CSimRecorder::~CSimRecorder()
@@ -306,7 +306,7 @@ bool CSimRecorder::startRecording(bool manualStart)
 {
     if (_recorderEnabled)
     {
-        _simulationTimeOfLastFrame=-1.0f;
+        _simulationTimeOfLastFrame=-1.0;
         _manualStart=manualStart;
         _isRecording=true;
         _frameCount=0;
@@ -390,7 +390,7 @@ int CSimRecorder::getFrameRate()
 {
     if (_autoFrameRate)
     {
-        int frate=int((1.0f/App::currentWorld->simulation->getTimeStep())+0.5f);
+        int frate=int((1.0/App::currentWorld->simulation->getTimeStep())+0.5);
         return(tt::getLimitedInt(1,120,frate)); // the recorder probably doesn't support that high (120)
     }
     return(_frameRate);

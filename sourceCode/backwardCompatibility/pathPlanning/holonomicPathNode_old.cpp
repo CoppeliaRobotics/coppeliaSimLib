@@ -19,11 +19,11 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(int theType,const C7Vector& conf,
     _nodeType=theType;
     values=nullptr;
     int s=getSize();
-    values=new float[s];
+    values=new floatDouble[s];
     setAllValues(conf.X,conf.Q);
 }
 
-CHolonomicPathNode_old::CHolonomicPathNode_old(int theType,float searchMin[4],float searchRange[4],const C4Vector& rotAxisRot,const C4Vector& rotAxisRotInv)
+CHolonomicPathNode_old::CHolonomicPathNode_old(int theType,floatDouble searchMin[4],floatDouble searchRange[4],const C4Vector& rotAxisRot,const C4Vector& rotAxisRotInv)
 {
     _rotAxisRot=rotAxisRot;
     _rotAxisRotInv=rotAxisRotInv;
@@ -32,33 +32,33 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(int theType,float searchMin[4],fl
     values=nullptr;
     if (theType==sim_holonomicpathplanning_xy)
     {
-        values=new float[2];
+        values=new floatDouble[2];
         values[0]=searchMin[0]+searchRange[0]*SIM_RAND_FLOAT;
         values[1]=searchMin[1]+searchRange[1]*SIM_RAND_FLOAT;
     }
     if (theType==sim_holonomicpathplanning_xg)
     {
-        values=new float[2];
+        values=new floatDouble[2];
         values[0]=searchMin[0]+searchRange[0]*SIM_RAND_FLOAT;
         values[1]=CPathPlanningInterface::getNormalizedAngle(searchMin[3]+searchRange[3]*SIM_RAND_FLOAT);
     }
     if (theType==sim_holonomicpathplanning_xyz)
     {
-        values=new float[3];
+        values=new floatDouble[3];
         values[0]=searchMin[0]+searchRange[0]*SIM_RAND_FLOAT;
         values[1]=searchMin[1]+searchRange[1]*SIM_RAND_FLOAT;
         values[2]=searchMin[2]+searchRange[2]*SIM_RAND_FLOAT;
     }
     if (theType==sim_holonomicpathplanning_xyg)
     {
-        values=new float[3];
+        values=new floatDouble[3];
         values[0]=searchMin[0]+searchRange[0]*SIM_RAND_FLOAT;
         values[1]=searchMin[1]+searchRange[1]*SIM_RAND_FLOAT;
         values[2]=CPathPlanningInterface::getNormalizedAngle(searchMin[3]+searchRange[3]*SIM_RAND_FLOAT);
     }
     if (theType==sim_holonomicpathplanning_abg)
     {
-        values=new float[4];
+        values=new floatDouble[4];
         C4Vector d;
         d.buildRandomOrientation();
         values[0]=d(0);
@@ -68,7 +68,7 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(int theType,float searchMin[4],fl
     }
     if (theType==sim_holonomicpathplanning_xyzg)
     {
-        values=new float[4];
+        values=new floatDouble[4];
         values[0]=searchMin[0]+searchRange[0]*SIM_RAND_FLOAT;
         values[1]=searchMin[1]+searchRange[1]*SIM_RAND_FLOAT;
         values[2]=searchMin[2]+searchRange[2]*SIM_RAND_FLOAT;
@@ -76,7 +76,7 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(int theType,float searchMin[4],fl
     }
     if (theType==sim_holonomicpathplanning_xabg)
     {
-        values=new float[5];
+        values=new floatDouble[5];
         values[0]=searchMin[0]+searchRange[0]*SIM_RAND_FLOAT;
         C4Vector d;
         d.buildRandomOrientation();
@@ -87,7 +87,7 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(int theType,float searchMin[4],fl
     }
     if (theType==sim_holonomicpathplanning_xyabg)
     {
-        values=new float[6];
+        values=new floatDouble[6];
         values[0]=searchMin[0]+searchRange[0]*SIM_RAND_FLOAT;
         values[1]=searchMin[1]+searchRange[1]*SIM_RAND_FLOAT;
         C4Vector d;
@@ -99,7 +99,7 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(int theType,float searchMin[4],fl
     }
     if (theType==sim_holonomicpathplanning_xyzabg)
     {
-        values=new float[7];
+        values=new floatDouble[7];
         values[0]=searchMin[0]+searchRange[0]*SIM_RAND_FLOAT;
         values[1]=searchMin[1]+searchRange[1]*SIM_RAND_FLOAT;
         values[2]=searchMin[2]+searchRange[2]*SIM_RAND_FLOAT;
@@ -199,7 +199,7 @@ void CHolonomicPathNode_old::getAllValues(C3Vector& pos,C4Vector& orient)
     if (_nodeType==sim_holonomicpathplanning_xg)
     {
         pos(0)=values[0];
-        orient=_rotAxisRot*(C4Vector(C3Vector(0.0f,0.0f,values[1]))*_rotAxisRotInv);
+        orient=_rotAxisRot*(C4Vector(C3Vector(0.0,0.0,values[1]))*_rotAxisRotInv);
     }
     if (_nodeType==sim_holonomicpathplanning_xyz)
     {
@@ -211,7 +211,7 @@ void CHolonomicPathNode_old::getAllValues(C3Vector& pos,C4Vector& orient)
     {
         pos(0)=values[0];
         pos(1)=values[1];
-        orient=_rotAxisRot*(C4Vector(C3Vector(0.0f,0.0f,values[2]))*_rotAxisRotInv);
+        orient=_rotAxisRot*(C4Vector(C3Vector(0.0,0.0,values[2]))*_rotAxisRotInv);
     }
     if (_nodeType==sim_holonomicpathplanning_abg)
     {
@@ -225,7 +225,7 @@ void CHolonomicPathNode_old::getAllValues(C3Vector& pos,C4Vector& orient)
         pos(0)=values[0];
         pos(1)=values[1];
         pos(2)=values[2];
-        orient=_rotAxisRot*(C4Vector(C3Vector(0.0f,0.0f,values[3]))*_rotAxisRotInv);
+        orient=_rotAxisRot*(C4Vector(C3Vector(0.0,0.0,values[3]))*_rotAxisRotInv);
     }
     if (_nodeType==sim_holonomicpathplanning_xabg)
     {
@@ -261,13 +261,13 @@ CHolonomicPathNode_old* CHolonomicPathNode_old::copyYourself()
     CHolonomicPathNode_old* newNode=new CHolonomicPathNode_old(_rotAxisRot,_rotAxisRotInv);
     newNode->_nodeType=_nodeType;
     int s=getSize();
-    newNode->values=new float[s];
+    newNode->values=new floatDouble[s];
     for (int i=0;i<s;i++)
         newNode->values[i]=values[i];
     return(newNode);
 }
 
-void CHolonomicPathNode_old::setAllValues(float* v)
+void CHolonomicPathNode_old::setAllValues(floatDouble* v)
 {
     int s=getSize();
     for (int i=0;i<s;i++)

@@ -47,7 +47,6 @@ private:
     int _insertAddOn(CScriptObject* script);
     int _insertAddOns();
 
-    int _nextScriptHandle;
     int _contactFuncCount;
     int _dynFuncCount;
     int _eventFuncCount;

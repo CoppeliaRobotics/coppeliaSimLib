@@ -9,7 +9,6 @@
 
 CAddOnScriptContainer::CAddOnScriptContainer()
 {
-    _nextScriptHandle=SIM_IDSTART_ADDONSCRIPT;
     _contactFuncCount=0;
     _dynFuncCount=0;
     _eventFuncCount=0;
@@ -103,9 +102,8 @@ CScriptObject* CAddOnScriptContainer::getAddOnFromName(const char* name) const
 
 int CAddOnScriptContainer::_insertAddOn(CScriptObject* script)
 {
-    script->setScriptHandle(_nextScriptHandle++);
     _addOns.push_back(script);
-    return(_nextScriptHandle-1);
+    return(script->getScriptHandle());
 }
 
 int CAddOnScriptContainer::_insertAddOns()

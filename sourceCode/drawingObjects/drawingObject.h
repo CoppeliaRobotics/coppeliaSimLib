@@ -9,7 +9,7 @@ class CSceneObject;
 class CDrawingObject  
 {
 public:
-    CDrawingObject(int theObjectType,float size,float duplicateTolerance,int sceneObjId,int maxItemCount,int creatorHandle);
+    CDrawingObject(int theObjectType,floatDouble size,floatDouble duplicateTolerance,int sceneObjId,int maxItemCount,int creatorHandle);
     virtual ~CDrawingObject();
 
     void draw(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM);
@@ -17,26 +17,26 @@ public:
     void setObjectUniqueId();
     long long int getObjectUid() const;
     int getObjectId() const;
-    bool addItem(const float* itemData);
-    void addItems(const float* itemData,size_t itemCnt);
-    void setItems(const float* itemData,size_t itemCnt);
+    bool addItem(const floatDouble* itemData);
+    void addItems(const floatDouble* itemData,size_t itemCnt);
+    void setItems(const floatDouble* itemData,size_t itemCnt);
     int getObjectType() const;
     bool announceObjectWillBeErased(const CSceneObject* object);
     bool announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     void adjustForFrameChange(const C7Vector& preCorrection);
-    void adjustForScaling(float xScale,float yScale,float zScale);
+    void adjustForScaling(floatDouble xScale,floatDouble yScale,floatDouble zScale);
 
     void pushAddEvent();
     void pushAppendNewPointEvent();
 
     int getSceneObjectId() const;
 
-    float getSize() const;
+    floatDouble getSize() const;
     int getMaxItemCount() const;
     int getStartItem() const;
     int getExpectedFloatsPerItem() const;
 
-    std::vector<float>* getDataPtr();
+    std::vector<floatDouble>* getDataPtr();
 
     CColorObject color;
 
@@ -48,7 +48,7 @@ public:
 
 protected:
     void _initBufferedEventData();
-    void _getEventData(std::vector<float>& vertices,std::vector<float>& quaternions,std::vector<float>& colors) const;
+    void _getEventData(std::vector<floatDouble>& vertices,std::vector<floatDouble>& quaternions,std::vector<floatDouble>& colors) const;
 
     void _setItemSizes();
 
@@ -57,15 +57,15 @@ protected:
     int _sceneObjectId;
     long long int _sceneObjectUid;
     int _objectType;
-    float _size;
+    floatDouble _size;
     int _maxItemCount;
     int _startItem;
-    float _duplicateTolerance;
+    floatDouble _duplicateTolerance;
     int _creatorHandle;
     bool _rebuildRemoteItems;
 
     VMutex _objectMutex;
 
-    std::vector<float> _data;
-    std::vector<float> _bufferedEventData;
+    std::vector<floatDouble> _data;
+    std::vector<floatDouble> _bufferedEventData;
 };

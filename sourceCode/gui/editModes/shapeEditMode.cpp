@@ -21,8 +21,8 @@ CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContai
     _identicalVerticesTolerance=identicalVerticesTolerance;
     showHiddenVerticeAndEdges=false;
     automaticallyFollowEdges=true;
-    edgeMaxAngle=135.0f*degToRad;
-    edgeDirectionChangeMaxAngle=45.0f*degToRad;
+    edgeMaxAngle=135.0*degToRad;
+    edgeDirectionChangeMaxAngle=45.0*degToRad;
 
     _shape->getMeshWrapper()->getCumulativeMeshes(_editionVertices,&_editionIndices,&_editionNormals);
     _editionTextureProperty=_shape->getSingleMesh()->getTextureProperty();
@@ -41,7 +41,7 @@ CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContai
         }
     }
     if (_editionTextureCoords.size()==0)
-        _editionTextureCoords.resize(_editionIndices.size()*2,0.0f); // when we work with no textures, we just use dummy texture coordinates
+        _editionTextureCoords.resize(_editionIndices.size()*2,0.0); // when we work with no textures, we just use dummy texture coordinates
 
     actualizeEditModeEditionEdges();
 }
@@ -264,11 +264,11 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
     if ((displayAttrib&sim_displayattribute_colorcodedpickpass)==0)
     {
-        ogl::setMaterialColor(0.5f,0.5f,0.8f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
+        ogl::setMaterialColor(0.5,0.5,0.8,0.25,0.25,0.25,0.0,0.0,0.0);
         glPushAttrib(GL_POLYGON_BIT);
 
 
-        glPolygonOffset(0.5f,0.0f);
+        glPolygonOffset(0.5,0.0);
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
         glLoadName(-1);
@@ -319,7 +319,7 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
         std::vector<bool> drawn(_editionVertices.size()/3,false);
 
         // First we display the selected vertices:
-        glPointSize(4.0f);
+        glPointSize(4.0);
         if (showHiddenVerticeAndEdges)
         {
             glDepthMask(GL_FALSE);
@@ -346,7 +346,7 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
             }
         }
         glDisable(GL_POLYGON_OFFSET_POINT);
-        glPointSize(1.0f); // Important to reset it
+        glPointSize(1.0); // Important to reset it
         glLoadName(-1);
         glDepthMask(GL_TRUE);
         glEnable(GL_DEPTH_TEST);
@@ -355,7 +355,7 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
     else
     {
         glPushAttrib(GL_POLYGON_BIT);
-        glPolygonOffset(0.5f,0.0f);
+        glPolygonOffset(0.5,0.0);
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
         glDisable(GL_DITHER);
@@ -368,7 +368,7 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
         glEnd();
 
         glDisable(GL_POLYGON_OFFSET_FILL);
-        glPointSize(4.0f);
+        glPointSize(4.0);
         if (showHiddenVerticeAndEdges)
         {
             glDepthMask(GL_FALSE);
@@ -384,7 +384,7 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
         }
 
         glDisable(GL_POLYGON_OFFSET_POINT);
-        glPointSize(1.0f); // Important to reset it
+        glPointSize(1.0); // Important to reset it
         glDepthMask(GL_TRUE);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_DITHER);
@@ -398,7 +398,7 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
     {
         glPushAttrib(GL_POLYGON_BIT);
         glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-        glPolygonOffset(0.5f,0.0f); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
+        glPolygonOffset(0.5,0.0); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
         glEnable(GL_POLYGON_OFFSET_FILL);
 
         if (_editionTextureProperty!=nullptr)
@@ -413,12 +413,12 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
             if (alreadyInEditModeBuffer(i))
             {
                 if (editModeBuffer[editModeBuffer.size()-1]==i)
-                    ogl::setMaterialColor(1.0f,1.0f,1.0f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
+                    ogl::setMaterialColor(1.0,1.0,1.0,0.25,0.25,0.25,0.0,0.0,0.0);
                 else
-                    ogl::setMaterialColor(1.0f,1.0f,0.0f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
+                    ogl::setMaterialColor(1.0,1.0,0.0,0.25,0.25,0.25,0.0,0.0,0.0);
             }
             else
-                ogl::setMaterialColor(0.8f,0.5f,0.5f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
+                ogl::setMaterialColor(0.8,0.5,0.5,0.25,0.25,0.25,0.0,0.0,0.0);
 
             glBegin(GL_TRIANGLES);
             if (_editionTextureProperty!=nullptr)
@@ -456,12 +456,12 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
             if (alreadyInEditModeBuffer(i))
             {
                 if (editModeBuffer[editModeBuffer.size()-1]==i)
-                    ogl::setMaterialColor(1.0f,1.0f,1.0f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
+                    ogl::setMaterialColor(1.0,1.0,1.0,0.25,0.25,0.25,0.0,0.0,0.0);
                 else
-                    ogl::setMaterialColor(1.0f,1.0f,0.0f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
+                    ogl::setMaterialColor(1.0,1.0,0.0,0.25,0.25,0.25,0.0,0.0,0.0);
             }
             else
-                ogl::setMaterialColor(0.5f,0.5f,0.8f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
+                ogl::setMaterialColor(0.5,0.5,0.8,0.25,0.25,0.25,0.0,0.0,0.0);
 
             glBegin(GL_TRIANGLES);
             if (_editionTextureProperty!=nullptr)
@@ -537,13 +537,13 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
     if ((displayAttrib&sim_displayattribute_colorcodedpickpass)==0)
     {
-        float selColor[3]={1.0f,1.0f,0.0f};
-        float nselColor[3]={1.0f,0.0f,0.0f};
-        ogl::setMaterialColor(0.5f,0.5f,0.8f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
+        float selColor[3]={1.0,1.0,0.0};
+        float nselColor[3]={1.0,0.0,0.0};
+        ogl::setMaterialColor(0.5,0.5,0.8,0.25,0.25,0.25,0.0,0.0,0.0);
         glPushAttrib(GL_POLYGON_BIT);
 
 
-        glPolygonOffset(0.5f,0.0f); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
+        glPolygonOffset(0.5,0.0); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
         glEnable(GL_POLYGON_OFFSET_FILL); //
         glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
         glLoadName(-1);
@@ -591,9 +591,9 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
         }
         std::vector<bool> usedEdges(_edgeCont.allEdges.size()/2,false);
         if (displayAttrib&sim_displayattribute_pickpass)
-            glLineWidth(6.0f);
+            glLineWidth(6.0);
         else
-            glLineWidth(2.0f);
+            glLineWidth(2.0);
         if (showHiddenVerticeAndEdges)
         {
             glDepthMask(GL_FALSE);
@@ -610,9 +610,9 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
         }
 
         if (displayAttrib&sim_displayattribute_pickpass)
-            glLineWidth(6.0f);
+            glLineWidth(6.0);
         else
-            glLineWidth(1.0f);
+            glLineWidth(1.0);
 
         // Now non-selected edges:
         ogl::setMaterialColor(sim_colorcomponent_emission,nselColor);
@@ -626,7 +626,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
             }
         }
 
-        glLineWidth(1.0f);
+        glLineWidth(1.0);
 
         glLoadName(-1);
         glDepthMask(GL_TRUE);
@@ -636,7 +636,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
     else
     {
         glPushAttrib(GL_POLYGON_BIT);
-        glPolygonOffset(0.5f,0.0f); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
+        glPolygonOffset(0.5,0.0); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
         glEnable(GL_POLYGON_OFFSET_FILL); //
         glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
         glDisable(GL_DITHER);
@@ -649,7 +649,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
         glEnd();
 
         glDisable(GL_POLYGON_OFFSET_FILL);
-        glLineWidth(6.0f);
+        glLineWidth(6.0);
         if (showHiddenVerticeAndEdges)
         {
             glDepthMask(GL_FALSE);
@@ -665,7 +665,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
             ogl::drawSingle3dLine(&_editionVertices[3*ind[0]+0],&_editionVertices[3*ind[1]+0],nullptr);
         }
 
-        glLineWidth(1.0f);
+        glLineWidth(1.0);
         glDepthMask(GL_TRUE);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_DITHER);
@@ -810,7 +810,7 @@ float CShapeEditMode::getEdgeAngle(int edgeID) // all edit mode routines should 
     if (normalVectors.size()<2)
         return(piValue);
     // now we search for the smallest scalar product (that gives the smallest edge value):
-    float smallestScalarProduct=1.0f; // corresponds to 0 degree edge
+    float smallestScalarProduct=1.0; // corresponds to 0 degree edge
     for (int i=0;i<int(normalVectors.size()-1);i++)
     {
         C3Vector v(normalVectors[i]);
@@ -1106,7 +1106,7 @@ void CShapeEditMode::addItemToEditModeBuffer(int item,bool disableEdgeFollowing)
                 std::vector<int> nextEdges;
                 getNextEdges(lowVertex,highVertex,nextEdges);
                 int highestAngleIndex=0;
-                float highestAngleValue=0.0f;
+                float highestAngleValue=0.0;
                 bool foundValid=false;
                 for (int i=0;i<int(nextEdges.size());i++)
                 {
@@ -1772,7 +1772,7 @@ void CShapeEditMode::subdivideTriangles()
     if (_editModeType&TRIANGLE_EDIT_MODE)
     {
         deselectEditModeBuffer();
-        CMeshManip::reduceTriangleSize(_editionVertices,_editionIndices,&_editionNormals,&_editionTextureCoords,0.0f,0.00001f); // 0.0 simple uses the half of the max edge!
+        CMeshManip::reduceTriangleSize(_editionVertices,_editionIndices,&_editionNormals,&_editionTextureCoords,0.0,0.00001); // 0.0 simple uses the half of the max edge!
         actualizeEditModeEditionEdges();
     }
 }
@@ -1828,7 +1828,7 @@ void CShapeEditMode::makeDummies()
 //            SSimulationThreadCommand cmd;
 //            cmd.cmdId=PATHEDIT_MAKEDUMMY_GUITRIGGEREDCMD;
 //            cmd.stringParams.push_back("ExtractedDummy");
-//            cmd.floatParams.push_back(0.01f);
+//            cmd.floatParams.push_back(0.01);
 //            cmd.transfParams.push_back(v);
 //            App::appendSimulationThreadCommand(cmd);
         }

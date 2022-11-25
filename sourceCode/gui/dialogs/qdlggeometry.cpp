@@ -124,12 +124,12 @@ bool CQDlgGeometry::needsDestruction()
 void CQDlgGeometry::_initialize(int shapeHandle)
 {
     _shapeHandle=shapeHandle;
-    scaleVal[0]=1.0f;
-    scaleVal[1]=1.0f;
-    scaleVal[2]=1.0f;
-    rotationVal[0]=0.0f;
-    rotationVal[1]=0.0f;
-    rotationVal[2]=0.0f;
+    scaleVal[0]=1.0;
+    scaleVal[1]=1.0;
+    scaleVal[2]=1.0;
+    rotationVal[0]=0.0;
+    rotationVal[1]=0.0;
+    rotationVal[2]=0.0;
     _setCurrentSizes();
     keepProp=true;
     isPureShape=true;
@@ -160,9 +160,9 @@ void CQDlgGeometry::_setCurrentSizes()
     if (shape!=nullptr)
     {
         C3Vector bbhalfSizes(shape->getBoundingBoxHalfSizes());
-        sizeVal[0]=2.0f*bbhalfSizes(0);
-        sizeVal[1]=2.0f*bbhalfSizes(1);
-        sizeVal[2]=2.0f*bbhalfSizes(2);
+        sizeVal[0]=2.0*bbhalfSizes(0);
+        sizeVal[1]=2.0*bbhalfSizes(1);
+        sizeVal[2]=2.0*bbhalfSizes(2);
     }
 }
 
@@ -213,12 +213,12 @@ void CQDlgGeometry::_readSize(int index)
         float newVal=ww[index]->text().toFloat(&ok);
         if (ok)
         {
-            newVal=tt::getLimitedFloat(0.0001f,1000.0f,newVal);
-            float sc=1.0f;
+            newVal=tt::getLimitedFloat(0.0001,1000.0,newVal);
+            float sc=1.0;
 
             C3Vector bbhalfSizes(shape->getBoundingBoxHalfSizes());
 
-            if ((sizeVal[index]!=0.0f)&&(bbhalfSizes(index)!=0.0f)) // imagine we have a plane that has dims x*y*0!
+            if ((sizeVal[index]!=0.0)&&(bbhalfSizes(index)!=0.0)) // imagine we have a plane that has dims x*y*0!
 
                 sc=newVal/sizeVal[index];
             if (keepProp)
@@ -228,8 +228,8 @@ void CQDlgGeometry::_readSize(int index)
             }
             else
             {
-                if (bbhalfSizes(index)==0.0f)
-                    newVal=0.0f; // imagine we have a plane that has dims x*y*0!
+                if (bbhalfSizes(index)==0.0)
+                    newVal=0.0; // imagine we have a plane that has dims x*y*0!
                 sizeVal[index]=newVal;
             }
 
@@ -284,18 +284,18 @@ void CQDlgGeometry::_readScaling(int index)
         if (!keepProp)
         { // imagine we have a plane that has dims x*y*0!
             C3Vector bbhalfSizes(shape->getBoundingBoxHalfSizes());
-            if (bbhalfSizes(index)==0.0f)
-                newVal=1.0f;
+            if (bbhalfSizes(index)==0.0)
+                newVal=1.0;
         }
         if (ok)
         {
             if ((newVal>=0)||isPureShape||isConvex) // pure or convex shapes should never be flipped!
-                newVal=tt::getLimitedFloat(0.0001f,1000.0f,newVal);
+                newVal=tt::getLimitedFloat(0.0001,1000.0,newVal);
             else
-                newVal=tt::getLimitedFloat(-1000.0f,-0.0001f,newVal);
+                newVal=tt::getLimitedFloat(-1000.0,-0.0001,newVal);
 
-            float sc=1.0f;
-            if (scaleVal[index]!=0.0f)
+            float sc=1.0;
+            if (scaleVal[index]!=0.0)
                 sc=newVal/scaleVal[index];
             if (keepProp)
             {
@@ -354,9 +354,9 @@ void CQDlgGeometry::on_qqKeepProp_clicked()
         if (isLinkedDataValid())
         {
             keepProp=!keepProp;
-            scaleVal[0]=1.0f;
-            scaleVal[1]=1.0f;
-            scaleVal[2]=1.0f;
+            scaleVal[0]=1.0;
+            scaleVal[1]=1.0;
+            scaleVal[2]=1.0;
             _setCurrentSizes(); // to reset sizes
             insideRefreshTriggered=true;
             refresh();

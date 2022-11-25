@@ -18,24 +18,24 @@ CQDlgConvexDecomposition::CQDlgConvexDecomposition(QWidget *parent) :
     addFacesPoints=true;
     nClusters=1;
     maxHullVertices=200; // from 100 to 200 on 5/2/2014
-    maxConcavity=100.0f;
-    smallClusterThreshold=0.25f;
+    maxConcavity=100.0;
+    smallClusterThreshold=0.25;
     maxTrianglesInDecimatedMesh=500;
-    maxConnectDist=30.0f;
+    maxConnectDist=30.0;
 
     // VHACD params:
     resolution=100000;
     depth=20;
-    concavity=0.0025f;
+    concavity=0.0025;
     planeDownsampling=4;
     convexHullDownsampling=4;
-    alpha=0.05f;
-    beta=0.05f;
-    gamma=0.00125f;
+    alpha=0.05;
+    beta=0.05;
+    gamma=0.00125;
     pca=false;
     voxelBasedMode=true;
     maxNumVerticesPerCH=64;
-    minVolumePerCH=0.0001f;
+    minVolumePerCH=0.0001;
 
     ui->setupUi(this);
 }
@@ -131,7 +131,7 @@ void CQDlgConvexDecomposition::on_qqConcavity_editingFinished()
     bool ok;
     float newVal=ui->qqConcavity->text().toFloat(&ok);
     if (ok)
-        maxConcavity=tt::getLimitedFloat(0.01f,100000.0f,newVal);
+        maxConcavity=tt::getLimitedFloat(0.01,100000.0,newVal);
     refresh();
 }
 
@@ -142,7 +142,7 @@ void CQDlgConvexDecomposition::on_qqConnectDist_editingFinished()
     bool ok;
     float newVal=ui->qqConnectDist->text().toFloat(&ok);
     if (ok)
-        maxConnectDist=tt::getLimitedFloat(0.001f,1000.0f,newVal);
+        maxConnectDist=tt::getLimitedFloat(0.001,1000.0,newVal);
     refresh();
 }
 
@@ -175,7 +175,7 @@ void CQDlgConvexDecomposition::on_qqSmallClusterThreshold_editingFinished()
     bool ok;
     float newVal=ui->qqSmallClusterThreshold->text().toFloat(&ok);
     if (ok)
-        smallClusterThreshold=tt::getLimitedFloat(0.01f,1.0f,newVal);
+        smallClusterThreshold=tt::getLimitedFloat(0.01,1.0,newVal);
     refresh();
 }
 
@@ -237,7 +237,7 @@ void CQDlgConvexDecomposition::on_qqConcavity_2_editingFinished()
     bool ok;
     float newVal=ui->qqConcavity_2->text().toFloat(&ok);
     if (ok)
-        concavity=tt::getLimitedFloat(0.0f,1.0f,newVal);
+        concavity=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
 }
 
@@ -270,7 +270,7 @@ void CQDlgConvexDecomposition::on_qqAlpha_editingFinished()
     bool ok;
     float newVal=ui->qqAlpha->text().toFloat(&ok);
     if (ok)
-        alpha=tt::getLimitedFloat(0.0f,1.0f,newVal);
+        alpha=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
 }
 
@@ -281,7 +281,7 @@ void CQDlgConvexDecomposition::on_qqBeta_editingFinished()
     bool ok;
     float newVal=ui->qqBeta->text().toFloat(&ok);
     if (ok)
-        beta=tt::getLimitedFloat(0.0f,1.0f,newVal);
+        beta=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
 }
 
@@ -292,7 +292,7 @@ void CQDlgConvexDecomposition::on_qqGamma_editingFinished()
     bool ok;
     float newVal=ui->qqGamma->text().toFloat(&ok);
     if (ok)
-        gamma=tt::getLimitedFloat(0.0f,1.0f,newVal);
+        gamma=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
 }
 
@@ -314,7 +314,7 @@ void CQDlgConvexDecomposition::on_qqMinVolumePerCh_editingFinished()
     bool ok;
     float newVal=ui->qqMinVolumePerCh->text().toFloat(&ok);
     if (ok)
-        minVolumePerCH=tt::getLimitedFloat(0.0f,0.01f,newVal);
+        minVolumePerCH=tt::getLimitedFloat(0.0,0.01,newVal);
     refresh();
 }
 
