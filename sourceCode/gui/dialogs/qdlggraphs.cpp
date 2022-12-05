@@ -318,7 +318,7 @@ void CQDlgGraphs::on_qqObjectSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqObjectSize->text().toFloat(&ok);
+        double newVal=ui->qqObjectSize->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_OBJECTSIZE_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -390,7 +390,7 @@ void CQDlgGraphs::on_qqTransformationCoeff_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqTransformationCoeff->text().toFloat(&ok);
+        double newVal=ui->qqTransformationCoeff->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_VALUEMULTIPLIER_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID(),newVal);
@@ -407,7 +407,7 @@ void CQDlgGraphs::on_qqTransformationOffset_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqTransformationOffset->text().toFloat(&ok);
+        double newVal=ui->qqTransformationOffset->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_VALUEOFFSET_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID(),newVal);

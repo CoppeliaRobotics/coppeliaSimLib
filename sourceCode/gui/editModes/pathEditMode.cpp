@@ -236,7 +236,7 @@ void CPathEditMode_old::_keepXAxisAndAlignZAxis(std::vector<int>* selection)
         {
             CSimplePathPoint_old* it=_editionPathCont->getSimplePathPoint((*selection)[i]);
             C4X4Matrix m=it->getTransformation().getMatrix();
-            float d=(m.M.axis[2]-zVect).getLength();
+            double d=(m.M.axis[2]-zVect).getLength();
             bool positiveRot=true;
             for (int j=0;j<4000;j++)
             {
@@ -244,7 +244,7 @@ void CPathEditMode_old::_keepXAxisAndAlignZAxis(std::vector<int>* selection)
                     m.M=m.M*posRot;
                 else
                     m.M=m.M*negRot;
-                float dp=(m.M.axis[2]-zVect).getLength();
+                double dp=(m.M.axis[2]-zVect).getLength();
                 if (dp>d)
                     positiveRot=!positiveRot;
                 d=dp;

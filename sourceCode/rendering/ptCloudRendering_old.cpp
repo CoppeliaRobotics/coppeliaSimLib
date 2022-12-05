@@ -10,13 +10,13 @@ void displayPtCloud_old(CPtCloud_old* ptCloud,CSceneObject* it)
     if (it!=nullptr)
     {
         C7Vector tr=it->getCumulativeTransformation();
-        glTranslatef(tr.X(0),tr.X(1),tr.X(2));
+        glTranslated(tr.X(0),tr.X(1),tr.X(2));
         C4Vector axis=tr.Q.getAngleAndAxis();
-        glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+        glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
         normalVectorForLinesAndPoints=(tr.Q.getInverse()*C3Vector::unitZVector);
     }
 
-    glPointSize(ptCloud->_pointSize);
+    glPointSize((float)ptCloud->_pointSize);
 
     if (ptCloud->_normals.size()==0)
         ogl::setMaterialColor(ptCloud->_defaultColors,ogl::colorBlack,ptCloud->_defaultColors+12);
@@ -37,7 +37,7 @@ void displayPtCloud_old(CPtCloud_old* ptCloud,CSceneObject* it)
         else
             ogl::drawRandom3dPointsEx(&ptCloud->_vertices[0],(int)ptCloud->_vertices.size()/3,&ptCloud->_normals[0],&ptCloud->_colors[0],nullptr,(ptCloud->_options&4)!=0,normalVectorForLinesAndPoints.data,3);
     }
-    glPointSize(1.0f);
+    glPointSize(1.0);
 
     glPopMatrix();
 }

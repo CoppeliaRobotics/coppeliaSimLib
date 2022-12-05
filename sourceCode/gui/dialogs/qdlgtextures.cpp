@@ -81,7 +81,7 @@ void CQDlgTextures::refresh()
     {
         C7Vector v(tp->getTextureRelativeConfig());
         C3Vector euler(v.Q.getEulerAngles());
-        float scalingX,scalingY;
+        double scalingX,scalingY;
         tp->getTextureScaling(scalingX,scalingY);
         if (applyTexture3D)
         {
@@ -308,7 +308,7 @@ void CQDlgTextures::_setTextureConfig(int index)
 {
     QLineEdit* ww[6]={ui->qqX,ui->qqY,ui->qqZ,ui->qqAlpha,ui->qqBeta,ui->qqGamma};
     bool ok;
-    float newVal=ww[index]->text().toFloat(&ok);
+    double newVal=ww[index]->text().toFloat(&ok);
     if (ok)
     {
         SSimulationThreadCommand cmd;
@@ -330,7 +330,7 @@ void CQDlgTextures::_setTextureScaling(int index)
 {
     QLineEdit* ww[2]={ui->qqU,ui->qqV};
     bool ok;
-    float newVal=ww[index]->text().toFloat(&ok);
+    double newVal=ww[index]->text().toFloat(&ok);
     if (ok)
     {
         SSimulationThreadCommand cmd;

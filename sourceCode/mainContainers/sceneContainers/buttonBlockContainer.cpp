@@ -111,18 +111,18 @@ void CButtonBlockContainer::updateInfoWindowColorStyle(int colorStyle)
     colorStyle=2; // otherwise not always visible on Ubuntu somehow
 #endif
     bool background=(colorStyle==2);
-    float txtCol[3];
+    double txtCol[3];
     if ((colorStyle==0)||(colorStyle==2))
     {
-        txtCol[0]=0.0f;
-        txtCol[1]=0.0f;
-        txtCol[2]=0.0f;
+        txtCol[0]=0.0;
+        txtCol[1]=0.0;
+        txtCol[2]=0.0;
     }
     if (colorStyle==1)
     {
-        txtCol[0]=1.0f;
-        txtCol[1]=1.0f;
-        txtCol[2]=1.0f;
+        txtCol[0]=1.0;
+        txtCol[1]=1.0;
+        txtCol[2]=1.0;
     }
     for (int i=0;i<20;i++)
     {
@@ -919,8 +919,8 @@ bool CButtonBlockContainer::mouseUp(int xCoord,int yCoord,int currentView)
         {
             if (bb->getButtonType()==sim_buttonproperty_slider)
             {
-                App::currentWorld->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,caughtBlock,caughtButton,bb->getAttributes(),int(500.0f*(bb->getSliderPos()+1.0f)),nullptr,0);
-                int auxVals[2]={bb->getAttributes(),int(500.0f*(bb->getSliderPos()+1.0f))};
+                App::currentWorld->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,caughtBlock,caughtButton,bb->getAttributes(),int(500.0*(bb->getSliderPos()+1.0)),nullptr,0);
+                int auxVals[2]={bb->getAttributes(),int(500.0*(bb->getSliderPos()+1.0))};
                 aa->setLastEventButtonID(caughtButton,auxVals);
                 caughtBlock=-1;
                 caughtButton=-1;
@@ -1052,20 +1052,20 @@ bool CButtonBlockContainer::mouseMove(int xCoord,int yCoord)
             { // We have to move the slider
                 if (!bb->getVertical())
                 { // Horizontal slider
-                    float buttXSize=((float)((aa->getButtonWidthRetina()+2)*bb->getLength()-2))*(1.0f-(float)BUTTON_SLIDER_X_SIZE);
-                    float dx=(xCoord-mousePos.x)*2.0f/buttXSize;
+                    double buttXSize=((double)((aa->getButtonWidthRetina()+2)*bb->getLength()-2))*(1.0-(double)BUTTON_SLIDER_X_SIZE);
+                    double dx=(xCoord-mousePos.x)*2.0/buttXSize;
                     bb->setSliderPos(bb->getSliderPos()+dx);
                 }
                 else
                 { // Vertical slider
-                    float buttYSize=((float)((aa->getButtonHeightRetina()+2)*bb->getHeight()-2))*(1.0f-(float)BUTTON_SLIDER_X_SIZE);
-                    float dy=(yCoord-mousePos.y)*2.0f/buttYSize;
+                    double buttYSize=((double)((aa->getButtonHeightRetina()+2)*bb->getHeight()-2))*(1.0-(double)BUTTON_SLIDER_X_SIZE);
+                    double dy=(yCoord-mousePos.y)*2.0/buttYSize;
                     bb->setSliderPos(bb->getSliderPos()-dy);
                 }
                 mousePos.x=xCoord;
                 mousePos.y=yCoord;
-                App::currentWorld->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,caughtBlock,caughtButton,bb->getAttributes(),int(500.0f*(bb->getSliderPos()+1.0f)),nullptr,0);
-                int auxVals[2]={bb->getAttributes(),int(500.0f*(bb->getSliderPos()+1.0f))};
+                App::currentWorld->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,caughtBlock,caughtButton,bb->getAttributes(),int(500.0*(bb->getSliderPos()+1.0)),nullptr,0);
+                int auxVals[2]={bb->getAttributes(),int(500.0*(bb->getSliderPos()+1.0))};
                 aa->setLastEventButtonID(caughtButton,auxVals);
                 return(true);
             }

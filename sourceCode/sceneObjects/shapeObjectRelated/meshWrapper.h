@@ -25,13 +25,13 @@ public:
     virtual void announceSceneObjectWillBeErased(const CSceneObject* object);
     virtual void setTextureDependencies(int shapeID);
     virtual bool getContainsTransparentComponents() const;
-    virtual void displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,floatDouble transparency,const floatDouble* newColors);
+    virtual void displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors);
     virtual void display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
     virtual void display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
     virtual void display_colorCoded(CShape* geomData,int objectId,int displayAttrib);
     virtual CMeshWrapper* copyYourself();
-    virtual void scale(floatDouble xVal,floatDouble yVal,floatDouble zVal);
-    virtual void setPurePrimitiveType(int theType,floatDouble xOrDiameter,floatDouble y,floatDouble zOrHeight);
+    virtual void scale(double xVal,double yVal,double zVal);
+    virtual void setPurePrimitiveType(int theType,double xOrDiameter,double y,double zOrHeight);
     virtual int getPurePrimitiveType() const;
     virtual bool isMesh() const;
     virtual bool isPure() const;
@@ -39,19 +39,19 @@ public:
     virtual bool checkIfConvex();
     virtual void setConvex(bool convex);
     virtual bool containsOnlyPureConvexShapes();
-    virtual void getCumulativeMeshes(std::vector<floatDouble>& vertices,std::vector<int>* indices,std::vector<floatDouble>* normals);
-    virtual void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const floatDouble* rgbData,int& rgbDataOffset);
-    virtual bool getColor(const char* colorName,int colorComponent,floatDouble* rgbData,int& rgbDataOffset) const;
+    virtual void getCumulativeMeshes(std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals);
+    virtual void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
+    virtual bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset) const;
     virtual void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList);
     virtual CMesh* getShapeComponentAtIndex(int& index);
     virtual int getComponentCount() const;
     virtual void serialize(CSer& ar,const char* shapeName);
     virtual void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     virtual void flipFaces();
-    virtual floatDouble getShadingAngle() const;
-    virtual void setShadingAngle(floatDouble angle);
-    virtual floatDouble getEdgeThresholdAngle() const;
-    virtual void setEdgeThresholdAngle(floatDouble angle);
+    virtual double getShadingAngle() const;
+    virtual void setShadingAngle(double angle);
+    virtual double getEdgeThresholdAngle() const;
+    virtual void setEdgeThresholdAngle(double angle);
     virtual void setHideEdgeBorders_OLD(bool v);
     virtual bool getHideEdgeBorders_OLD() const;
     virtual int getTextureCount() const;
@@ -60,12 +60,12 @@ public:
     virtual void getColorStrings(std::string& colorStrings) const;
 
     void serializeWrapperInfos(CSer& ar,const char* shapeName);
-    void scaleWrapperInfos(floatDouble xVal,floatDouble yVal,floatDouble zVal);
-    void scaleMassAndInertia(floatDouble xVal,floatDouble yVal,floatDouble zVal);
+    void scaleWrapperInfos(double xVal,double yVal,double zVal);
+    void scaleMassAndInertia(double xVal,double yVal,double zVal);
     void copyWrapperInfos(CMeshWrapper* target);
     void setDefaultInertiaParams();
-    void setMass(floatDouble m);
-    floatDouble getMass() const;
+    void setMass(double m);
+    double getMass() const;
     void setName(std::string newName);
     std::string getName() const;
 
@@ -88,11 +88,11 @@ public:
     std::vector<CMeshWrapper*> childList;
 
 protected:
-    static floatDouble _getTensorNonDiagonalMeasure(const C3X3Matrix& tensor);
+    static double _getTensorNonDiagonalMeasure(const C3X3Matrix& tensor);
 
     std::string _name;
 
-    floatDouble _mass;
+    double _mass;
 
     int _dynMaterialId_old;
 

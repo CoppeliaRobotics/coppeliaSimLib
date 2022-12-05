@@ -36,7 +36,7 @@ public:
 
     void addCallbackStructureObjectToDestroyAtTheEndOfSimulation_new(SScriptCallBack* object);
     void addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(SLuaCallBack* object);
-    bool addCommandToOutsideCommandQueues(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count);
+    bool addCommandToOutsideCommandQueues(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const double aux2Vals[8],int aux2Count);
 
     int callChildAndEmbeddedScripts(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr);
     bool shouldTemporarilySuspendMainScript();

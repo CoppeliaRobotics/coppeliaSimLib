@@ -42,7 +42,7 @@ void CQDlgHeightfieldDimension::on_qqSizeX_editingFinished()
     if (!ui->qqSizeX->isModified())
         return;
     bool ok;
-    float newVal=ui->qqSizeX->text().toFloat(&ok);
+    double newVal=ui->qqSizeX->text().toFloat(&ok);
     if (ok)
     {
         tt::limitValue(0.01,10000.0,newVal);
@@ -57,7 +57,7 @@ void CQDlgHeightfieldDimension::on_qqSizeY_editingFinished()
     if (!ui->qqSizeY->isModified())
         return;
     bool ok;
-    float newVal=ui->qqSizeY->text().toFloat(&ok);
+    double newVal=ui->qqSizeY->text().toFloat(&ok);
     if (ok)
     {
         tt::limitValue(0.01,10000.0,newVal);
@@ -72,7 +72,7 @@ void CQDlgHeightfieldDimension::on_qqScalingZ_editingFinished()
     if (!ui->qqScalingZ->isModified())
         return;
     bool ok;
-    float newVal=ui->qqScalingZ->text().toFloat(&ok);
+    double newVal=ui->qqScalingZ->text().toFloat(&ok);
     if (ok)
     {
         tt::limitValue(0.001,1000.0,newVal);

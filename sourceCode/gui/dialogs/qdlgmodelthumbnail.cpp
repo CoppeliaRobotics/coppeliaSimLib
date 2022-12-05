@@ -90,11 +90,11 @@ void CQDlgModelThumbnail::actualizeBitmap()
             it->getBoundingBox(minV,maxV);
             tr.X*=(maxV+minV)*0.5;
             C3Vector hs((maxV-minV)*0.5);
-            for (float x=-1.0;x<2.0;x+=2.0)
+            for (double x=-1.0;x<2.0;x+=2.0)
             {
-                for (float y=-1.0;y<2.0;y+=2.0)
+                for (double y=-1.0;y<2.0;y+=2.0)
                 {
-                    for (float z=-1.0;z<2.0;z+=2.0)
+                    for (double z=-1.0;z<2.0;z+=2.0)
                     {
                         C3Vector w(hs(0)*x,hs(1)*y,hs(2)*z);
                         w*=tr;
@@ -116,16 +116,16 @@ void CQDlgModelThumbnail::actualizeBitmap()
     rot.buildXRotation(rotY);
     cameraTr.M*=rot;
     cameraTr.X=center;
-    float d=-9999.0;
-    float maxDist=0.0;
-    float minDist=9999.0;
-    float maxPerpX=0.0;
-    float maxPerpY=0.0;
-    for (float x=-1.0;x<2.0;x+=2.0)
+    double d=-9999.0;
+    double maxDist=0.0;
+    double minDist=9999.0;
+    double maxPerpX=0.0;
+    double maxPerpY=0.0;
+    for (double x=-1.0;x<2.0;x+=2.0)
     {
-        for (float y=-1.0;y<2.0;y+=2.0)
+        for (double y=-1.0;y<2.0;y+=2.0)
         {
-            for (float z=-1.0;z<2.0;z+=2.0)
+            for (double z=-1.0;z<2.0;z+=2.0)
             {
                 C3Vector w(hs(0)*x,hs(1)*y,hs(2)*z);
                 w+=center;
@@ -134,9 +134,9 @@ void CQDlgModelThumbnail::actualizeBitmap()
                     maxPerpX=fabs(w(0));
                 if (fabs(w(1))>maxPerpY)
                     maxPerpY=fabs(w(1));
-                float a=fabs(w(0))/tan(THUMBNAIL_THING_VIEW_ANGLE*degToRad*0.5);
-                float b=fabs(w(1))/tan(THUMBNAIL_THING_VIEW_ANGLE*degToRad*0.5);
-                float c=std::max<float>(a,b)-w(2);
+                double a=fabs(w(0))/tan(THUMBNAIL_THING_VIEW_ANGLE*degToRad*0.5);
+                double b=fabs(w(1))/tan(THUMBNAIL_THING_VIEW_ANGLE*degToRad*0.5);
+                double c=std::max<double>(a,b)-w(2);
                 if (c>d)
                     d=c;
                 if (w(2)>maxDist)
@@ -151,7 +151,7 @@ void CQDlgModelThumbnail::actualizeBitmap()
     cameraTr.X+=cameraTr.M.axis[0]*shiftX*maxPerpX;
     cameraTr.X+=cameraTr.M.axis[1]*shiftY*maxPerpY;
 
-    float dddd=minDist+d*zoom*0.5;
+    double dddd=minDist+d*zoom*0.5;
     if (dddd<0.0001)
         dddd=0.0001;
     rs->setNearClippingPlane(dddd);

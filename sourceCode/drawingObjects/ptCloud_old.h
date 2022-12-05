@@ -6,7 +6,7 @@
 class CPtCloud_old  
 {
 public:
-    CPtCloud_old(int pageMask,int layerMask,int parentHandle,int options,floatDouble pointSize,int ptCnt,const floatDouble* vertices,const unsigned char* colors,const floatDouble* normals,const unsigned char* defaultColors);
+    CPtCloud_old(int pageMask,int layerMask,int parentHandle,int options,double pointSize,int ptCnt,const double* vertices,const unsigned char* colors,const double* normals,const unsigned char* defaultColors);
     virtual ~CPtCloud_old();
 
     void draw(int displayAttrib);
@@ -26,9 +26,9 @@ public:
     int _parentHandle;
     long long int _parentUniqueId;
     int _options;
-    floatDouble _pointSize;
-    std::vector<floatDouble> _vertices;
-    std::vector<floatDouble> _colors;
-    std::vector<floatDouble> _normals;
-    floatDouble _defaultColors[16];
+    double _pointSize;
+    std::vector<double> _vertices;
+    std::vector<float> _colors;
+    std::vector<double> _normals;
+    float _defaultColors[16];
 };

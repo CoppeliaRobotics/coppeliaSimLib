@@ -4,5 +4,5 @@
 
 void displayBackground(const int* viewSize,bool fogEnabled,const float* fogBackgroundColor,const float* backGroundColorDown,const float* backGroundColor);
 void enableAmbientLight(bool on,const float* ambientLightColor);
-void activateFog(const float* fogBackgroundColor,int fogType,float dd,float farClipp,float fogStart,float fogEnd,float fogDensity);
+void activateFog(const float* fogBackgroundColor,int fogType,double dd,double farClipp,double fogStart,double fogEnd,double fogDensity);
 void enableFog(bool on);

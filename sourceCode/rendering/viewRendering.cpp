@@ -41,7 +41,7 @@ void displayView(CSView* view,CSceneObject* it,int mainWindowXPos,bool clipWithM
         if ( (xMax<mainWindowXPos)&&clipWithMainWindowXPos )
             xMax=mainWindowXPos;
         glScissor(xMax,_viewPosition[1],_viewSize[0],_viewSize[1]);
-        glClearColor(0.75f,0.75f,0.75f,1.0f);
+        glClearColor(0.75,0.75,0.75,1.0);
         glClear(GL_COLOR_BUFFER_BIT);
         glDisable(GL_SCISSOR_TEST);
     }

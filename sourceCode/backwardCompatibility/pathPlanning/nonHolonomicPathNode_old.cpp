@@ -15,7 +15,7 @@ CNonHolonomicPathNode_old::CNonHolonomicPathNode_old(CNonHolonomicPathNode_old* 
     values[2]=aNode->values[2];
 }
 
-CNonHolonomicPathNode_old::CNonHolonomicPathNode_old(floatDouble a,floatDouble b,floatDouble c)
+CNonHolonomicPathNode_old::CNonHolonomicPathNode_old(double a,double b,double c)
 {
     parent=0;
     values[0]=a;

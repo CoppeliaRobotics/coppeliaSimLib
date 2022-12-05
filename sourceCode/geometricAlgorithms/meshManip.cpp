@@ -1,9 +1,9 @@
 #include "meshManip.h"
 #include <algorithm>
 
-CMeshManip::CMeshManip(float* vertices,int verticesNb,int* indices,int indicesNb)
+CMeshManip::CMeshManip(double* vertices,int verticesNb,int* indices,int indicesNb)
 {
-#define SWAP(a,b) {float temp=(a);(a)=(b);(b)=temp;}
+#define SWAP(a,b) {double temp=(a);(a)=(b);(b)=temp;}
     // We first prepare the edges:
     edges.clear();
     for (int i=0;i<verticesNb/3;i++)
@@ -51,7 +51,7 @@ CMeshManip::~CMeshManip()
 }
 
 
-bool CMeshManip::extractOneShape(std::vector<float>* vertices,std::vector<int>* indices,std::vector<float>* sVertices,std::vector<int>* sIndices)
+bool CMeshManip::extractOneShape(std::vector<double>* vertices,std::vector<int>* indices,std::vector<double>* sVertices,std::vector<int>* sIndices)
 {   // This is the vector version of the routine!
     // Return value is true if the result is 2 shapes
     // Return value is false if the result is only one shape
@@ -131,7 +131,7 @@ bool CMeshManip::extractOneShape(std::vector<float>* vertices,std::vector<int>* 
         // Now the 'extracted' part of the mesh:
         std::vector<int> ind(indices->begin(),indices->end());
         indices->clear();
-        std::vector<float> vert(vertices->begin(),vertices->end());
+        std::vector<double> vert(vertices->begin(),vertices->end());
         vertices->clear();
         for (int i=0;i<int(alreadyExploredTriangles.size());i++)
         {
@@ -153,9 +153,9 @@ bool CMeshManip::extractOneShape(std::vector<float>* vertices,std::vector<int>* 
     }
 }
 
-void CMeshManip::removeNonReferencedVertices(std::vector<floatDouble>& vertices,std::vector<int>& indices)
+void CMeshManip::removeNonReferencedVertices(std::vector<double>& vertices,std::vector<int>& indices)
 {
-    std::vector<floatDouble> vertTmp(vertices);
+    std::vector<double> vertTmp(vertices);
     vertices.clear();
     std::vector<int> mapping(vertTmp.size()/3,-1);
     int freeSlot=0;
@@ -175,7 +175,7 @@ void CMeshManip::removeNonReferencedVertices(std::vector<floatDouble>& vertices,
     }
 }
 
-void CMeshManip::useOnlyReferencedVertices(std::vector<float>* vertices,std::vector<float>* sVertices,std::vector<int>* sIndices)
+void CMeshManip::useOnlyReferencedVertices(std::vector<double>* vertices,std::vector<double>* sVertices,std::vector<int>* sIndices)
 { // This is the vector version of the routine!
     // Now we have to remap the vertices and indices (some vertices have to be removed)
     sVertices->reserve(vertices->size());
@@ -198,7 +198,7 @@ void CMeshManip::useOnlyReferencedVertices(std::vector<float>* vertices,std::vec
     }
 }
 
-bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<floatDouble>& vertices,std::vector<int>& indices,std::vector<floatDouble>* normals,std::vector<floatDouble>* texCoords,bool checkDoubles,float tolerance,bool checkSameTriangles)
+bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<double>* texCoords,bool checkDoubles,double tolerance,bool checkSameTriangles)
 { // normals and texCoords can be nullptr
     bool noError=true;
 
@@ -263,8 +263,8 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<floatDouble>& 
     {
         std::vector<int> tmpInd(indices);
         indices.clear();
-        std::vector<floatDouble> tmpNorm;
-        std::vector<floatDouble> tmpTexCoord;
+        std::vector<double> tmpNorm;
+        std::vector<double> tmpTexCoord;
         if (normals!=nullptr)
         {
             tmpNorm.assign(normals->begin(),normals->end());
@@ -340,13 +340,13 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<floatDouble>& 
     {
         std::vector<int> tmpInd(indices);
         indices.clear();
-        std::vector<floatDouble> tmpNorm;
+        std::vector<double> tmpNorm;
         if (normals!=nullptr)
         {
             tmpNorm.assign(normals->begin(),normals->end());
             normals->clear();
         }
-        std::vector<floatDouble> tmpTexCoord;
+        std::vector<double> tmpTexCoord;
         if (texCoords!=nullptr)
         {
             tmpTexCoord.assign(texCoords->begin(),texCoords->end());
@@ -408,13 +408,13 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<floatDouble>& 
         // We remove invalid indices:
         std::vector<int> tmpInd(indices);
         indices.clear();
-        std::vector<floatDouble> tmpNorm;
+        std::vector<double> tmpNorm;
         if (normals!=nullptr)
         {
             tmpNorm.assign(normals->begin(),normals->end());
             normals->clear();
         }
-        std::vector<floatDouble> tmpTexCoord;
+        std::vector<double> tmpTexCoord;
         if (texCoords!=nullptr)
         {
             tmpTexCoord.assign(texCoords->begin(),texCoords->end());
@@ -459,10 +459,10 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<floatDouble>& 
     return(noError);
 }
 
-int CMeshManip::removeColinearTriangles(std::vector<float>& vertices,std::vector<int>& indices,std::vector<float>* normals,std::vector<float>* texCoords,float tolerance)
+int CMeshManip::removeColinearTriangles(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<double>* texCoords,double tolerance)
 { // return value indicates the number of removed triangles. Call removeDoubleVertices beforehand. normals and texCoords can be nullptr
     int initialTri=(int)indices.size()/3;
-    float onLineSquareTolerance=tolerance*0.1*tolerance*0.1;
+    double onLineSquareTolerance=tolerance*0.1*tolerance*0.1;
     for (int i=0;i<int(indices.size())/3;i++)
     {
         C3Vector pt1(&vertices[3*indices[3*i+0]+0]);
@@ -473,8 +473,8 @@ int CMeshManip::removeColinearTriangles(std::vector<float>& vertices,std::vector
             C3Vector dir((pt2-pt1).getNormalized());
             // Now we check if pt3 is on the line formed by pt1-pt2 (not segment but line!)
             C3Vector x(pt3-pt1);
-            float r=x*dir;
-            float dd=(x*x)-(r*r);
+            double r=x*dir;
+            double dd=(x*x)-(r*r);
             if (dd<onLineSquareTolerance)
                 indices[3*i+0]=-1; // we disable this triangle
         }
@@ -485,13 +485,13 @@ int CMeshManip::removeColinearTriangles(std::vector<float>& vertices,std::vector
     // 3. We remove invalid indices:
     std::vector<int> tmpInd(indices);
     indices.clear();
-    std::vector<float> tmpNorm;
+    std::vector<double> tmpNorm;
     if (normals!=nullptr)
     {
         tmpNorm.assign(normals->begin(),normals->end());
         normals->clear();
     }
-    std::vector<float> tmpTexCoord;
+    std::vector<double> tmpTexCoord;
     if (texCoords!=nullptr)
     {
         tmpTexCoord.assign(texCoords->begin(),texCoords->end());
@@ -521,14 +521,14 @@ int CMeshManip::removeColinearTriangles(std::vector<float>& vertices,std::vector
     return(initialTri-finalTri);
 }
 
-void CMeshManip::removeDoubleVertices(std::vector<floatDouble>& vertices,std::vector<int>& mapping,float tolerance)
+void CMeshManip::removeDoubleVertices(std::vector<double>& vertices,std::vector<int>& mapping,double tolerance)
 {   // Here we remove vertices which are identical within a certain tolerance.
     // If a vertex is a duplicate, the indices pointing onto it will be remapped.
     mapping.clear();
     for (size_t i=0;i<vertices.size()/3;i++)
         mapping.push_back(i);
 
-    float toleranceSquare=tolerance*tolerance;
+    double toleranceSquare=tolerance*tolerance;
 
     C3Vector maxV;
     C3Vector minV;
@@ -552,7 +552,7 @@ void CMeshManip::removeDoubleVertices(std::vector<floatDouble>& vertices,std::ve
     const int desiredCells=50;
     for (size_t i=0;i<3;i++)
     {
-        if (dims(i)>tolerance*float(desiredCells)*2.0)
+        if (dims(i)>tolerance*double(desiredCells)*2.0)
             cells[i]=desiredCells;
     }
     int mult[3]={1,cells[0],cells[0]*cells[1]};
@@ -571,7 +571,7 @@ void CMeshManip::removeDoubleVertices(std::vector<floatDouble>& vertices,std::ve
         {
             if (cells[j]!=1)
             {
-                int v=int(((p(j)-minV(j))/dims(j))*float(cells[j]));
+                int v=int(((p(j)-minV(j))/dims(j))*double(cells[j]));
                 if (v>=cells[j])
                     v=cells[j]-1;
                 cellLocation+=mult[j]*v;
@@ -615,7 +615,7 @@ void CMeshManip::removeDoubleVertices(std::vector<floatDouble>& vertices,std::ve
                                                         C3Vector b_p;
                                                         b_p.setData(&vertices[3*pind_+0]);
                                                         C3Vector dx(b_p-a_p);
-                                                        float d=dx*dx;
+                                                        double d=dx*dx;
                                                         if (d<toleranceSquare)
                                                         { // that point is c loser than the tolerance. We want to merge it!
                                                             currentCell_->at(l_)=-1; // processed!
@@ -639,7 +639,7 @@ void CMeshManip::removeDoubleVertices(std::vector<floatDouble>& vertices,std::ve
         delete ind[i];
 }
 
-void CMeshManip::removeDoubleIndices(std::vector<floatDouble>& vertices,std::vector<int>& indices,bool checkSameWinding)
+void CMeshManip::removeDoubleIndices(std::vector<double>& vertices,std::vector<int>& indices,bool checkSameWinding)
 { // just sets the double indices to -1, but they are not removed!
     if (indices.size()>1000)
     {
@@ -874,13 +874,13 @@ void CMeshManip::removeDoubleIndices(std::vector<floatDouble>& vertices,std::vec
     }
 }
 
-bool CMeshManip::reduceTriangleSize(std::vector<float>& vertices,std::vector<int>& indices,std::vector<float>* normals,std::vector<float>* texCoords,float maxEdgeSize,float verticeMergeTolerance)
+bool CMeshManip::reduceTriangleSize(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<double>* texCoords,double maxEdgeSize,double verticeMergeTolerance)
 { // return value true is success, false means there is nothing left!
     // if maxEdgeSize is 0.0, then half of the maximum triangle edge is used as maxEdgeSize!
     // if verticeMergeTolerance is 0.0, vertices are not merged!
     // normals or texCoords can be nullptr
     // 1. We search for the largest triangle edge:      
-    float l=maxEdgeSize;
+    double l=maxEdgeSize;
     if (l<=0.0)
     {
         for (int i=0;i<int(indices.size()/3);i++)
@@ -889,7 +889,7 @@ bool CMeshManip::reduceTriangleSize(std::vector<float>& vertices,std::vector<int
             C3Vector v0(vertices[3*ind[0]+0],vertices[3*ind[0]+1],vertices[3*ind[0]+2]);
             C3Vector v1(vertices[3*ind[1]+0],vertices[3*ind[1]+1],vertices[3*ind[1]+2]);
             C3Vector v2(vertices[3*ind[2]+0],vertices[3*ind[2]+1],vertices[3*ind[2]+2]);
-            float lt=(v0-v1).getLength();
+            double lt=(v0-v1).getLength();
             if (lt>l)
                 l=lt;
             lt=(v0-v2).getLength();
@@ -913,7 +913,7 @@ bool CMeshManip::reduceTriangleSize(std::vector<float>& vertices,std::vector<int
     return(indices.size()!=0);
 }
 
-int CMeshManip::_reduceTriangleSizePass(std::vector<float>& vertices,std::vector<int>& indices,std::vector<float>* normals,std::vector<float>* texCoords,float maxEdgeSize)
+int CMeshManip::_reduceTriangleSizePass(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<double>* texCoords,double maxEdgeSize)
 { // normals or texCoords are optional. Return val is the nb of added triangles
     //// We mark the triangles that need to be cut:
     int originalIndicesSize=int(indices.size());
@@ -924,12 +924,12 @@ int CMeshManip::_reduceTriangleSizePass(std::vector<float>& vertices,std::vector
         C3Vector v0(vertices[3*ind[0]+0],vertices[3*ind[0]+1],vertices[3*ind[0]+2]);
         C3Vector v1(vertices[3*ind[1]+0],vertices[3*ind[1]+1],vertices[3*ind[1]+2]);
         C3Vector v2(vertices[3*ind[2]+0],vertices[3*ind[2]+1],vertices[3*ind[2]+2]);
-        float s[3];
+        double s[3];
         s[0]=(v0-v1).getLength();
         s[1]=(v0-v2).getLength();
         s[2]=(v1-v2).getLength();
         int maxInd=0;
-        float maxVal=0.0;
+        double maxVal=0.0;
         for (int j=0;j<3;j++)
         {
             if (s[j]>maxVal)
@@ -942,8 +942,8 @@ int CMeshManip::_reduceTriangleSizePass(std::vector<float>& vertices,std::vector
         { // We have to divide this edge
             C3Vector w[3];
             int vertInd[3];
-            float texCoordsX[3];
-            float texCoordsY[3];
+            double texCoordsX[3];
+            double texCoordsY[3];
             C3Vector n0,n1,n2;
             if (maxInd==0)
             {
@@ -1002,7 +1002,7 @@ int CMeshManip::_reduceTriangleSizePass(std::vector<float>& vertices,std::vector
             // Now we divide w[1]-w[2] and create a new vertex nw --> new triangle becomes w[0]-w[1]-nw
             C3Vector nw((w[1]+w[2])*0.5);
             // we do the same with the texture coord:
-            float ntc[2];
+            double ntc[2];
             ntc[0]=(texCoordsX[1]+texCoordsX[2])*0.5;
             ntc[1]=(texCoordsY[1]+texCoordsY[2])*0.5;
             // we do the same with normals:
@@ -1059,7 +1059,7 @@ int CMeshManip::_reduceTriangleSizePass(std::vector<float>& vertices,std::vector
     return(trianglesAdded);
 }
 
-bool CMeshManip::correctTriangleWinding(std::vector<float>* vertices,std::vector<int>* indices)
+bool CMeshManip::correctTriangleWinding(std::vector<double>* vertices,std::vector<int>* indices)
 {   // First create an edge list
     // The smallest index specifying the edge gives the position in edges array
     // eg. insertion of edge (4;6) belonging to triangle 3
@@ -1134,7 +1134,7 @@ bool CMeshManip::correctTriangleWinding(std::vector<float>* vertices,std::vector
     // Now creat an array giving the state of a triangle:
     // false : not yet touched; true : the triangle was checked and corrected
     std::vector<unsigned char> exploredState(indices->size()/3,0);
-    std::vector<float> normals(indices->size());
+    std::vector<double> normals(indices->size());
     // Now we have to recursively explore the triangles.
     // To avoid using too much memory, the recursion is coded
     // using an array keeping track of the triangles:
@@ -1191,18 +1191,18 @@ bool CMeshManip::correctTriangleWinding(std::vector<float>* vertices,std::vector
                         int k=0;
                         while ((indices->at(3*actualTriangle+k)==actualEdge[0])||(indices->at(3*actualTriangle+k)==actualEdge[1]))
                             k++;
-                        float px=vertices->at(3*indices->at(3*actualTriangle+k)+0);
-                        float py=vertices->at(3*indices->at(3*actualTriangle+k)+1);
-                        float pz=vertices->at(3*indices->at(3*actualTriangle+k)+2);
-                        float pxCopy=px;
-                        float pyCopy=py;
-                        float pzCopy=pz;
-                        float lx=vertices->at(3*actualEdge[0]+0);
-                        float ly=vertices->at(3*actualEdge[0]+1);
-                        float lz=vertices->at(3*actualEdge[0]+2);
-                        float lvx=vertices->at(3*actualEdge[1]+0)-vertices->at(3*actualEdge[0]+0);
-                        float lvy=vertices->at(3*actualEdge[1]+1)-vertices->at(3*actualEdge[0]+1);
-                        float lvz=vertices->at(3*actualEdge[1]+2)-vertices->at(3*actualEdge[0]+2);
+                        double px=vertices->at(3*indices->at(3*actualTriangle+k)+0);
+                        double py=vertices->at(3*indices->at(3*actualTriangle+k)+1);
+                        double pz=vertices->at(3*indices->at(3*actualTriangle+k)+2);
+                        double pxCopy=px;
+                        double pyCopy=py;
+                        double pzCopy=pz;
+                        double lx=vertices->at(3*actualEdge[0]+0);
+                        double ly=vertices->at(3*actualEdge[0]+1);
+                        double lz=vertices->at(3*actualEdge[0]+2);
+                        double lvx=vertices->at(3*actualEdge[1]+0)-vertices->at(3*actualEdge[0]+0);
+                        double lvy=vertices->at(3*actualEdge[1]+1)-vertices->at(3*actualEdge[0]+1);
+                        double lvz=vertices->at(3*actualEdge[1]+2)-vertices->at(3*actualEdge[0]+2);
                         getProjectionOfPointOnLine(lx,ly,lz,lvx,lvy,lvz,px,py,pz);
                         C3Vector r(px-pxCopy,py-pyCopy,pz-pzCopy);
                         lastDir=n^r;
@@ -1216,18 +1216,18 @@ bool CMeshManip::correctTriangleWinding(std::vector<float>* vertices,std::vector
                     int k=0;
                     while ((indices->at(3*actualTriangle+k)==actualEdge[0])||(indices->at(3*actualTriangle+k)==actualEdge[1]))
                         k++;
-                    float px=vertices->at(3*indices->at(3*actualTriangle+k)+0);
-                    float py=vertices->at(3*indices->at(3*actualTriangle+k)+1);
-                    float pz=vertices->at(3*indices->at(3*actualTriangle+k)+2);
-                    float pxCopy=px;
-                    float pyCopy=py;
-                    float pzCopy=pz;
-                    float lx=vertices->at(3*actualEdge[0]+0);
-                    float ly=vertices->at(3*actualEdge[0]+1);
-                    float lz=vertices->at(3*actualEdge[0]+2);
-                    float lvx=vertices->at(3*actualEdge[1]+0)-vertices->at(3*actualEdge[0]+0);
-                    float lvy=vertices->at(3*actualEdge[1]+1)-vertices->at(3*actualEdge[0]+1);
-                    float lvz=vertices->at(3*actualEdge[1]+2)-vertices->at(3*actualEdge[0]+2);
+                    double px=vertices->at(3*indices->at(3*actualTriangle+k)+0);
+                    double py=vertices->at(3*indices->at(3*actualTriangle+k)+1);
+                    double pz=vertices->at(3*indices->at(3*actualTriangle+k)+2);
+                    double pxCopy=px;
+                    double pyCopy=py;
+                    double pzCopy=pz;
+                    double lx=vertices->at(3*actualEdge[0]+0);
+                    double ly=vertices->at(3*actualEdge[0]+1);
+                    double lz=vertices->at(3*actualEdge[0]+2);
+                    double lvx=vertices->at(3*actualEdge[1]+0)-vertices->at(3*actualEdge[0]+0);
+                    double lvy=vertices->at(3*actualEdge[1]+1)-vertices->at(3*actualEdge[0]+1);
+                    double lvz=vertices->at(3*actualEdge[1]+2)-vertices->at(3*actualEdge[0]+2);
                     getProjectionOfPointOnLine(lx,ly,lz,lvx,lvy,lvz,px,py,pz);
                     C3Vector r(px-pxCopy,py-pyCopy,pz-pzCopy);
                     C3Vector thisDir(n^r);
@@ -1289,18 +1289,18 @@ bool CMeshManip::correctTriangleWinding(std::vector<float>* vertices,std::vector
                     int k=0;
                     while ((indices->at(3*actualTriangle+k)==actualEdge[0])||(indices->at(3*actualTriangle+k)==actualEdge[1]))
                         k++;
-                    float px=vertices->at(3*indices->at(3*actualTriangle+k)+0);
-                    float py=vertices->at(3*indices->at(3*actualTriangle+k)+1);
-                    float pz=vertices->at(3*indices->at(3*actualTriangle+k)+2);
-                    float pxCopy=px;
-                    float pyCopy=py;
-                    float pzCopy=pz;
-                    float lx=vertices->at(3*actualEdge[0]+0);
-                    float ly=vertices->at(3*actualEdge[0]+1);
-                    float lz=vertices->at(3*actualEdge[0]+2);
-                    float lvx=vertices->at(3*actualEdge[1]+0)-vertices->at(3*actualEdge[0]+0);
-                    float lvy=vertices->at(3*actualEdge[1]+1)-vertices->at(3*actualEdge[0]+1);
-                    float lvz=vertices->at(3*actualEdge[1]+2)-vertices->at(3*actualEdge[0]+2);
+                    double px=vertices->at(3*indices->at(3*actualTriangle+k)+0);
+                    double py=vertices->at(3*indices->at(3*actualTriangle+k)+1);
+                    double pz=vertices->at(3*indices->at(3*actualTriangle+k)+2);
+                    double pxCopy=px;
+                    double pyCopy=py;
+                    double pzCopy=pz;
+                    double lx=vertices->at(3*actualEdge[0]+0);
+                    double ly=vertices->at(3*actualEdge[0]+1);
+                    double lz=vertices->at(3*actualEdge[0]+2);
+                    double lvx=vertices->at(3*actualEdge[1]+0)-vertices->at(3*actualEdge[0]+0);
+                    double lvy=vertices->at(3*actualEdge[1]+1)-vertices->at(3*actualEdge[0]+1);
+                    double lvz=vertices->at(3*actualEdge[1]+2)-vertices->at(3*actualEdge[0]+2);
                     getProjectionOfPointOnLine(lx,ly,lz,lvx,lvy,lvz,px,py,pz);
                     C3Vector r(px-pxCopy,py-pyCopy,pz-pzCopy);
                     C3Vector nAux(normals[3*actualTriangle+0],normals[3*actualTriangle+1],normals[3*actualTriangle+2]); 
@@ -1394,17 +1394,17 @@ int CMeshManip::_getNeighbour(int actualTriangle,std::vector<int>* indices,
     return(found);
 }
 
-bool CMeshManip::isInsideOut(std::vector<float>* vertices,std::vector<int>* indices)
+bool CMeshManip::isInsideOut(std::vector<double>* vertices,std::vector<int>* indices)
 {
     C3Vector a,b,c,m,n,v,w,d;
     C3Vector center(0.0,0.0,0.0);
-    float total=0.0;
+    double total=0.0;
     for (int i=0;i<int(vertices->size())/3;i++)
     {
         C3Vector adp(vertices->at(3*i+0),vertices->at(3*i+1),vertices->at(3*i+2));
         center+=adp;
     }
-    center/=(float)(vertices->size()/3);
+    center/=(double)(vertices->size()/3);
     for (int i=0;i<int(indices->size())/3;i++)
     {
         for (int j=0;j<3;j++)
@@ -1434,18 +1434,18 @@ void CMeshManip::setInsideOut(std::vector<int>* indices)
     }
 }
 
-void CMeshManip::getProjectionOfPointOnLine(float x,float y,float z,
-                                    float vx,float vy,float vz,
-                                    float &px,float &py,float &pz)
+void CMeshManip::getProjectionOfPointOnLine(double x,double y,double z,
+                                    double vx,double vy,double vz,
+                                    double &px,double &py,double &pz)
 {
-    float t=( vx*(px-x)+vy*(py-y)+vz*(pz-z) ) / ( vx*vx+vy*vy+vz*vz );
+    double t=( vx*(px-x)+vy*(py-y)+vz*(pz-z) ) / ( vx*vx+vy*vy+vz*vz );
     px=x+t*vx;
     py=y+t*vy;
     pz=z+t*vz;
 }
 
-bool CMeshManip::mergeWith( std::vector<float>* tVertices,std::vector<int>* tIndices,std::vector<float>* tNormals,
-                    std::vector<float>* sVertices,std::vector<int>* sIndices,std::vector<float>* sNormals)
+bool CMeshManip::mergeWith( std::vector<double>* tVertices,std::vector<int>* tIndices,std::vector<double>* tNormals,
+                    std::vector<double>* sVertices,std::vector<int>* sIndices,std::vector<double>* sNormals)
 {   // s will be merged with t. tNormals and sNormals can be nullptr (but have to be nullptr at the same time)
     // Rewrite later with correct stl function!!
     int pos=(int)tVertices->size()/3;
@@ -1461,9 +1461,9 @@ bool CMeshManip::mergeWith( std::vector<float>* tVertices,std::vector<int>* tInd
     return(true);
 }
 
-void CMeshManip::reduceToUnit(floatDouble vector[3])
+void CMeshManip::reduceToUnit(double vector[3])
 {
-    floatDouble length=sqrt((vector[0]*vector[0])+(vector[1]*vector[1])+(vector[2]*vector[2]));
+    double length=sqrt((vector[0]*vector[0])+(vector[1]*vector[1])+(vector[2]*vector[2]));
     if (length==0.0)
         length=1.0;
     vector[0]=vector[0]/length;
@@ -1471,9 +1471,9 @@ void CMeshManip::reduceToUnit(floatDouble vector[3])
     vector[2]=vector[2]/length;
 }
 
-void CMeshManip::calcNormal(floatDouble v[3][3],floatDouble out[3])
+void CMeshManip::calcNormal(double v[3][3],double out[3])
 {
-    floatDouble v1[3],v2[3];
+    double v1[3],v2[3];
     v1[0]=v[0][0]-v[1][0];
     v1[1]=v[0][1]-v[1][1];
     v1[2]=v[0][2]-v[1][2];
@@ -1486,7 +1486,7 @@ void CMeshManip::calcNormal(floatDouble v[3][3],floatDouble out[3])
     reduceToUnit(out);
 }
 
-void CMeshManip::getSize(std::vector<float>* vertices,float x[2],float y[2],float z[2],bool &start)
+void CMeshManip::getSize(std::vector<double>* vertices,double x[2],double y[2],double z[2],bool &start)
 {
     for (int i=0;i<int(vertices->size())/3;i++)
     {
@@ -1511,7 +1511,7 @@ void CMeshManip::getSize(std::vector<float>* vertices,float x[2],float y[2],floa
         }
     }
 }
-void CMeshManip::centerAndScale(std::vector<float>* vertices,float x,float y,float z,float sf)
+void CMeshManip::centerAndScale(std::vector<double>* vertices,double x,double y,double z,double sf)
 {
     for (int i=0;i<int(vertices->size())/3;i++)
     {
@@ -1524,11 +1524,11 @@ void CMeshManip::centerAndScale(std::vector<float>* vertices,float x,float y,flo
     }
 }
 
-void CMeshManip::getNormals(const std::vector<floatDouble>* vertices,const std::vector<int>* indices,
-                    std::vector<floatDouble>* normals)
+void CMeshManip::getNormals(const std::vector<double>* vertices,const std::vector<int>* indices,
+                    std::vector<double>* normals)
 {   // This is the vector version of the function!
     // The size of normals is set in this function
-    floatDouble v[3][3],n[3];
+    double v[3][3],n[3];
     normals->clear();
     normals->insert(normals->begin(),3*indices->size(),0);
     for (size_t i=0;i<indices->size()/3;i++)

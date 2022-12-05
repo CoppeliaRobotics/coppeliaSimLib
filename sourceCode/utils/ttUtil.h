@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include "simTypes.h"
 
 class CTTUtil  
 { // FULLY STATIC!!
@@ -18,8 +19,6 @@ public:
     static bool removeSpacesAtBeginningAndEnd(std::string& line);
     static std::string getFormattedString(const char* a=nullptr,const char* b=nullptr,const char* c=nullptr,const char* d=nullptr,const char* e=nullptr,const char* f=nullptr,const char* g=nullptr,const char* h=nullptr);
     static std::string getLowerCaseString(const char* str);
-    static void scaleLightDown_(float& r,float& g,float& b);
-    static void scaleColorUp_(float& r,float& g,float& b);
     static void scaleLightDown_(float* rgb);
     static void scaleColorUp_(float* rgb);
     static std::string decode64(const std::string &data);

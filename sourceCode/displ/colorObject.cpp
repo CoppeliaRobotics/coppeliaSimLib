@@ -33,39 +33,39 @@ bool CColorObject::getUseSimulationTime() const
     return(_useSimulationTime);
 }
 
-void CColorObject::setFlashFrequency(floatDouble f)
+void CColorObject::setFlashFrequency(float f)
 {
     _flashFrequency=f;
 }
 
-floatDouble CColorObject::getFlashFrequency() const
+float CColorObject::getFlashFrequency() const
 {
     return(_flashFrequency);
 }
 
-void CColorObject::setFlashRatio(floatDouble f)
+void CColorObject::setFlashRatio(float f)
 {
     _flashRatio=f;
 }
 
-floatDouble CColorObject::getFlashRatio() const
+float CColorObject::getFlashRatio() const
 {
     return(_flashRatio);
 }
 
-void CColorObject::setFlashPhase(floatDouble f)
+void CColorObject::setFlashPhase(float f)
 {
     _flashPhase=f;
 }
 
-floatDouble CColorObject::getFlashPhase() const
+float CColorObject::getFlashPhase() const
 {
     return(_flashPhase);
 }
 
 void CColorObject::setDefaultValues()
 {
-    floatDouble col[15];
+    float col[15];
     for (size_t i=0;i<15;i++)
         col[i]=0.0;
     for (size_t i=6;i<9;i++)
@@ -86,13 +86,13 @@ void CColorObject::setDefaultValues()
 
 void CColorObject::setColorsAllBlack()
 {
-    floatDouble col[15];
+    float col[15];
     for (size_t i=0;i<15;i++)
         col[i]=0.0;
     setColors(col);
 }
 
-void CColorObject::getColor(floatDouble col[3],unsigned char colorMode) const
+void CColorObject::getColor(float col[3],unsigned char colorMode) const
 {
     int offset=0;
     if (colorMode==sim_colorcomponent_ambient_diffuse)
@@ -105,12 +105,12 @@ void CColorObject::getColor(floatDouble col[3],unsigned char colorMode) const
         offset=9;
     else if (colorMode==sim_colorcomponent_auxiliary)
         offset=12;
-    const floatDouble* ptr=getColorsPtr();
+    const float* ptr=getColorsPtr();
     for (size_t i=0;i<3;i++)
         col[i]=ptr[offset+i];
 }
 
-void CColorObject::getNewColors(floatDouble cols[9]) const
+void CColorObject::getNewColors(float cols[9]) const
 {
     for (size_t i=0;i<3;i++)
     {
@@ -120,7 +120,7 @@ void CColorObject::getNewColors(floatDouble cols[9]) const
     }
 }
 
-void CColorObject::setColor(const floatDouble theColor[3],unsigned char colorMode)
+void CColorObject::setColor(const float theColor[3],unsigned char colorMode)
 {
     int offset=0;
     if (colorMode==sim_colorcomponent_ambient_diffuse)
@@ -133,7 +133,7 @@ void CColorObject::setColor(const floatDouble theColor[3],unsigned char colorMod
         offset=9;
     else if (colorMode==sim_colorcomponent_auxiliary)
         offset=12;
-    floatDouble col[15];
+    float col[15];
     getColors(col);
     for (size_t i=0;i<3;i++)
         col[offset+i]=theColor[i];
@@ -148,13 +148,13 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle,int colorIndex)
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(objectHandle,false,cmd,false);
         CInterfaceStackTable* sdata=new CInterfaceStackTable();
         data->appendMapObject_stringObject(cmd,sdata);
-        floatDouble c[9];
+        float c[9];
         int w=sim_colorcomponent_ambient_diffuse;
         getColor(c+0,w);
         getColor(c+3,sim_colorcomponent_specular);
         getColor(c+6,sim_colorcomponent_emission);
         sdata->appendMapObject_stringFloatArray("color",c,9);
-        floatDouble transp=0.0;
+        float transp=0.0;
         if (_translucid)
             transp=1.0-_opacity;
         sdata->appendMapObject_stringFloat("transparency",transp);
@@ -163,7 +163,7 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle,int colorIndex)
     }
 }
 
-void CColorObject::pushColorChangeEvent(int objectHandle,floatDouble col1[9],floatDouble col2[9],floatDouble col3[9],floatDouble col4[9])
+void CColorObject::pushColorChangeEvent(int objectHandle,float col1[9],float col2[9],float col3[9],float col4[9])
 {
     if ( (objectHandle!=-1)&&App::worldContainer->getEventsEnabled() )
     {
@@ -182,16 +182,16 @@ void CColorObject::pushColorChangeEvent(int objectHandle,floatDouble col1[9],flo
     }
 }
 
-void CColorObject::setColor(floatDouble r,floatDouble g,floatDouble b,unsigned char colorMode)
+void CColorObject::setColor(float r,float g,float b,unsigned char colorMode)
 {
-    floatDouble col[3]={r,g,b};
+    float col[3]={r,g,b};
     setColor(col,colorMode);
 }
 
 void CColorObject::setConvexColors()
 {
     setDefaultValues();
-    floatDouble col[15];
+    float col[15];
     getColors(col);
     col[0]=0.72;
     col[1]=0.88;
@@ -223,7 +223,7 @@ void CColorObject::serialize(CSer& ar,int objType)
         {       // Storing
             // Keep following for backward compatibility (5/10/2014):
             ar.storeDataName("Cl2");
-            floatDouble c[15];
+            float c[15];
             for (int i=0;i<15;i++)
                 c[i]=_colors[i];
             if (objType<3)
@@ -242,36 +242,21 @@ void CColorObject::serialize(CSer& ar,int objType)
                 c[2]=c[5]/2.0;
             }
             for (int i=0;i<15;i++)
-                ar.flt() << (floatFloat)c[i];
+                ar << c[i];
             ar.flush();
 
-#ifdef TMPOPERATION
             ar.storeDataName("Cl3");
             for (int i=0;i<15;i++)
-                ar.flt() << (floatFloat)_colors[i];
+                ar << _colors[i];
             ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_l3");
-            for (int i=0;i<15;i++)
-                ar.dbl() << _colors[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("Sh2");
             ar << _shininess;
             ar.flush();
 
-#ifdef TMPOPERATION
             ar.storeDataName("Trf");
-            ar.flt() << (floatFloat)_opacity;
+            ar << _opacity;
             ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_rf");
-            ar.dbl() << _opacity;
-            ar.flush();
-#endif
 
             ar.storeDataName("Var");
             unsigned char dummy=0;
@@ -284,16 +269,9 @@ void CColorObject::serialize(CSer& ar,int objType)
             ar << dummy;
             ar.flush();
 
-#ifdef TMPOPERATION
             ar.storeDataName("Fi3");
-            ar.flt() << (floatFloat)_flashFrequency << (floatFloat)_flashRatio << (floatFloat)_flashPhase;
+            ar << _flashFrequency << _flashRatio << _flashPhase;
             ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_i3");
-            ar.dbl() << _flashFrequency << _flashRatio << _flashPhase;
-            ar.flush();
-#endif
 
             ar.storeDataName("Cnm");
             ar << _colorName;
@@ -320,11 +298,7 @@ void CColorObject::serialize(CSer& ar,int objType)
                         noHit=false;
                         ar >> byteQuantity;
                         for (int i=0;i<12;i++)
-                        {
-                            floatFloat bla;
-                            ar.flt() >> bla;
-                            _colors[i]=(floatDouble)bla;
-                        }
+                            ar >> _colors[i];
                     }
 
                     if (theName.compare("Cl2")==0)
@@ -332,18 +306,14 @@ void CColorObject::serialize(CSer& ar,int objType)
                         noHit=false;
                         ar >> byteQuantity;
                         for (int i=0;i<15;i++)
-                        {
-                            floatFloat bla;
-                            ar.flt() >> bla;
-                            _colors[i]=(floatDouble)bla;
-                        }
+                            ar >> _colors[i];
                      }
 
                     if ( (theName.compare("Cls")==0)||(theName.compare("Cl2")==0) )
                     { // for backward compatibility (5/10/2014)
                         if (objType<3)
                         {
-                            floatDouble avgDiff=(_colors[3]+_colors[4]+_colors[5])/3.0;
+                            float avgDiff=(_colors[3]+_colors[4]+_colors[5])/3.0;
                             _colors[0]=(_colors[0]+avgDiff*0.5)/0.85;
                             _colors[1]=(_colors[1]+avgDiff*0.5)/0.85;
                             _colors[2]=(_colors[2]+avgDiff*0.5)/0.85;
@@ -352,7 +322,7 @@ void CColorObject::serialize(CSer& ar,int objType)
                             _colors[1]*=App::userSettings->colorAdjust_backCompatibility;
                             _colors[2]*=App::userSettings->colorAdjust_backCompatibility;
 
-                            floatDouble mx=std::max<floatDouble>(std::max<floatDouble>(_colors[0],_colors[1]),_colors[2]);
+                            float mx=std::max<float>(std::max<float>(_colors[0],_colors[1]),_colors[2]);
                             if (mx>1.0)
                             {
                                 _colors[0]/=mx;
@@ -368,7 +338,7 @@ void CColorObject::serialize(CSer& ar,int objType)
                             _colors[0]=0.0;
                             _colors[1]=0.0;
                             _colors[2]=0.0;
-                            floatDouble avgDiff=(_colors[3]+_colors[4]+_colors[5])/3.0;
+                            float avgDiff=(_colors[3]+_colors[4]+_colors[5])/3.0;
                             _colors[3]=avgDiff;
                             _colors[4]=avgDiff;
                             _colors[5]=avgDiff;
@@ -376,22 +346,11 @@ void CColorObject::serialize(CSer& ar,int objType)
                     }
 
                     if (theName.compare("Cl3")==0)
-                    { // for backward comp. (flt->dbl)
-                        noHit=false;
-                        ar >> byteQuantity;
-                        floatFloat bla;
-                        for (int i=0;i<15;i++)
-                        {
-                            ar.flt() >> bla;
-                            _colors[i]=(floatDouble)bla;
-                        }
-                    }
-                    if (theName.compare("_l3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         for (int i=0;i<15;i++)
-                            ar.dbl() >> _colors[i];
+                            ar >> _colors[i];
                     }
 
                     if (theName.compare("Shi")==0)
@@ -409,18 +368,10 @@ void CColorObject::serialize(CSer& ar,int objType)
                         ar >> _shininess;
                     }
                     if (theName.compare("Trf")==0)
-                    { // for backward comp. (flt->dbl)
-                        noHit=false;
-                        ar >> byteQuantity;
-                        floatFloat bla;
-                        ar.flt() >> bla;
-                        _opacity=(floatDouble)bla;
-                    }
-                    if (theName.compare("_rf")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _opacity;
+                        ar >> _opacity;
                     }
                     if (theName.compare("Var")==0)
                     {
@@ -433,20 +384,10 @@ void CColorObject::serialize(CSer& ar,int objType)
                         _useSimulationTime=SIM_IS_BIT_SET(dummy,5);
                     }
                     if (theName.compare("Fi3")==0)
-                    { // for backward comp. (flt->dbl)
-                        noHit=false;
-                        ar >> byteQuantity;
-                        floatFloat bla,bli,blo;
-                        ar.flt() >> bla >> bli >> blo;
-                        _flashFrequency=(floatDouble)bla;
-                        _flashRatio=(floatDouble)bli;
-                        _flashPhase=(floatDouble)blo;
-                    }
-                    if (theName.compare("_i3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _flashFrequency >> _flashRatio >> _flashPhase;
+                        ar >> _flashFrequency >> _flashRatio >> _flashPhase;
                     }
                     if (theName.compare("Cnm")==0)
                     {
@@ -694,7 +635,7 @@ bool CColorObject::getTranslucid() const
     return(_translucid);
 }
 
-floatDouble CColorObject::getOpacity() const
+float CColorObject::getOpacity() const
 {
     return(_opacity);
 }
@@ -714,18 +655,18 @@ std::string CColorObject::getExtensionString() const
     return(_extensionString);
 }
 
-void CColorObject::getColors(floatDouble col[15]) const
+void CColorObject::getColors(float col[15]) const
 {
     for (size_t i=0;i<15;i++)
         col[i]=_colors[i];
 }
 
-const floatDouble* CColorObject::getColorsPtr() const
+const float* CColorObject::getColorsPtr() const
 {
     return(_colors);
 }
 
-floatDouble* CColorObject::getColorsPtr()
+float* CColorObject::getColorsPtr()
 {
     return(_colors);
 }
@@ -749,7 +690,7 @@ bool CColorObject::_isSame(const CColorObject* it) const
     return(retVal);
 }
 
-void CColorObject::setColors(const floatDouble col[15])
+void CColorObject::setColors(const float col[15])
 {
     bool diff=false;
     for (size_t i=0;i<15;i++)
@@ -774,7 +715,7 @@ void CColorObject::setTranslucid(bool e)
         _translucid=e;
 }
 
-void CColorObject::setOpacity(floatDouble e)
+void CColorObject::setOpacity(float e)
 {
     bool diff=(_opacity!=e);
     if (diff)

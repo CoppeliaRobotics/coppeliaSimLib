@@ -22,7 +22,7 @@ public:
 
     bool inMainRefreshRoutine;
 
-    bool _extractOneFloat(std::string& txt,float& val);
+    bool _extractOneFloat(std::string& txt,double& val);
 
     static bool showWindow;
 

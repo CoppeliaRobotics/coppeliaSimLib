@@ -22,12 +22,12 @@ public:
     void setPageSizeAndPosition(int sizeX,int sizeY,int posX,int posY);
     CSView* getView(size_t viewIndex);
     void getViewSizeAndPosition(int sViewSize[2],int sViewPos[2],size_t subViewIndex) const;
-    void getFloatingViewRelativeSizeAndPosition(floatDouble sViewSize[2],floatDouble sViewPos[2],size_t subViewIndex) const;
+    void getFloatingViewRelativeSizeAndPosition(double sViewSize[2],double sViewPos[2],size_t subViewIndex) const;
     void setViewSizesAndPositions();
     size_t getRegularViewCount() const;
     size_t getViewCount() const;
     void addFloatingView();
-    void addFloatingView(CSView* theFloatingView,floatDouble relSize[2],floatDouble relPos[2]);
+    void addFloatingView(CSView* theFloatingView,double relSize[2],double relPos[2]);
     void getBorderCorrectedFloatingViewPosition(int posX,int posY,int sizeX,int sizeY,int& newPosX,int& newPosY) const;
     bool removeFloatingView(size_t viewIndex);
     int getViewIndexFromViewUniqueID(int uniqueID) const;
@@ -39,9 +39,9 @@ private:
     int _lastMouseDownViewIndex;
     std::vector<CSView*> _allViews;
     // Positions and sizes are relative now (2009/05/22)
-    std::vector<floatDouble> _allViewAuxSizesAndPos;
+    std::vector<double> _allViewAuxSizesAndPos;
 
-    std::vector<floatDouble> _initialAuxViewSizesAndPos;
+    std::vector<double> _initialAuxViewSizesAndPos;
     std::vector<int> _initialAuxViewUniqueIDs;
     bool _initialValuesInitialized;
 
@@ -55,7 +55,7 @@ private:
     int auxViewResizingAction;
     int viewIndexOfResizingAction;
     // Positions and sizes are relative now (2009/05/22)
-    floatDouble floatingViewAddOffset;
+    double floatingViewAddOffset;
 
 #ifdef SIM_WITH_GUI
 public:

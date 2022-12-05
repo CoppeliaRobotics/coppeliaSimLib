@@ -20,8 +20,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(floatDouble scalingFactor);
-    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
+    void scaleObject(double scalingFactor);
+    void scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
@@ -48,12 +48,12 @@ public:
     void performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
 
     // Various functions
-    void setCellSize(floatDouble theNewSize);
-    floatDouble getCellSize() const;
-    void setCellSizeForDisplay(floatDouble theNewSizeForDisplay);
-    floatDouble getCellSizeForDisplay() const;
+    void setCellSize(double theNewSize);
+    double getCellSize() const;
+    void setCellSizeForDisplay(double theNewSizeForDisplay);
+    double getCellSizeForDisplay() const;
 
-    void insertPoints(const floatDouble* pts,int ptsCnt,bool ptsAreRelativeToOctree,const unsigned char* optionalColors3,bool colorsAreIndividual,const unsigned int* optionalTags,unsigned int theTagWhenOptionalTagsIsNull);
+    void insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOctree,const unsigned char* optionalColors3,bool colorsAreIndividual,const unsigned int* optionalTags,unsigned int theTagWhenOptionalTagsIsNull);
     void insertShape(CShape* shape,unsigned int theTag);
     void insertOctree(const COctree* octree,unsigned int theTag);
     void insertDummy(const CDummy* dummy,unsigned int theTag);
@@ -62,7 +62,7 @@ public:
     void insertObjects(const std::vector<int>& sel);
     void insertObject(const CSceneObject* obj,unsigned int theTag);
 
-    void subtractPoints(const floatDouble* pts,int ptsCnt,bool ptsAreRelativeToOctree);
+    void subtractPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOctree);
     void subtractShape(CShape* shape);
     void subtractOctree(const COctree* octree);
     void subtractDummy(const CDummy* dummy);
@@ -84,8 +84,8 @@ public:
     void setSaveCalculationStructure(bool s);
     int getPointSize() const;
     void setPointSize(int s);
-    const std::vector<floatDouble>* getCubePositions() const;
-    std::vector<floatDouble>* getCubePositions();
+    const std::vector<double>* getCubePositions() const;
+    std::vector<double>* getCubePositions();
     const void* getOctreeInfo() const;
     void* getOctreeInfo();
     void getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) const;
@@ -95,8 +95,8 @@ public:
     int getVertexBufferId() const;
     void setNormalBufferId(int id);
     int getNormalBufferId() const;
-    floatDouble* getCubeVertices();
-    floatDouble* getColors();
+    float* getCubeVertices();
+    float* getColors();
 
 protected:
     void _updateOctreeEvent() const;
@@ -104,11 +104,11 @@ protected:
 
     // Variables which need to be serialized & copied
     CColorObject color;
-    floatDouble _cellSize;
+    double _cellSize;
     int _pointSize;
     void* _octreeInfo;
-    std::vector<floatDouble> _voxelPositions;
-    std::vector<floatDouble> _colors;
+    std::vector<double> _voxelPositions;
+    std::vector<float> _colors;
     std::vector<unsigned char> _colorsByte;
     bool _showOctreeStructure;
     bool _useRandomColors;
@@ -117,8 +117,8 @@ protected:
     bool _colorIsEmissive;
 
     // following only for display:
-    floatDouble _cubeVertices[24*3];
-    floatDouble _cellSizeForDisplay;
+    float _cubeVertices[24*3];
+    double _cellSizeForDisplay;
     int _vertexBufferId;
     int _normalBufferId;
 };

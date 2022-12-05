@@ -90,7 +90,7 @@
 #define SERX_COLLECTION                 "collection"
 #define SERX_LUA_SCRIPT                 "script"
 
-#define IK_DIVISION_FACTOR 100.0f // needed for better stability of resolutions!
+#define IK_DIVISION_FACTOR 100.0 // needed for better stability of resolutions!
 #define SELECTION_BUFFER_SIZE 100000    // Specifies how many objects can be selected at the (from 10000 to 100000 on 14/6/2011)
 
 #define NON_OBJECT_PICKING_ID_BANNER_START SIM_IDSTART_COLLECTION
@@ -99,8 +99,8 @@
 
 #define BUTTON_MIN_X_SIZE 2         // In pixels
 #define BUTTON_MIN_Y_SIZE 2         // In pixels
-#define BUTTON_SLIDER_X_SIZE 0.2f   // Percentage of button x-size
-#define BUTTON_SLIDER_Y_SIZE 0.8f   // Percentage of button y-size
+#define BUTTON_SLIDER_X_SIZE 0.2   // Percentage of button x-size
+#define BUTTON_SLIDER_Y_SIZE 0.8   // Percentage of button y-size
 #define MAX_X_BUTTONS 256           // Maximum number of buttons in a block (x)
 #define MAX_Y_BUTTONS 256           // Maximum number of buttons in a block (y)
 #define BROWSER_HIERARCHY_TITLE_BAR_HEIGHT 16

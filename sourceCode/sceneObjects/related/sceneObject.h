@@ -1,7 +1,6 @@
 #pragma once
 
 #include "colorObject.h"
-#include "extIkSer.h"
 #include "3Vector.h"
 #include "4Vector.h"
 #include "7Vector.h"
@@ -46,8 +45,8 @@ public:
     virtual void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     virtual CSceneObject* copyYourself();
     virtual void removeSceneDependencies();
-    virtual void scaleObject(floatDouble scalingFactor);
-    virtual void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
+    virtual void scaleObject(double scalingFactor);
+    virtual void scaleObjectNonIsometrically(double x,double y,double z);
     virtual void serialize(CSer& ar);
 
     virtual void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
@@ -138,7 +137,7 @@ public:
     int getScriptExecutionOrder_old(int scriptType) const;
     int getScriptsToExecute_old(int scriptType,int parentTraversalDirection,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds);
 
-    void scalePosition(floatDouble scalingFactor);
+    void scalePosition(double scalingFactor);
     void getAllObjectsRecursive(std::vector<CSceneObject*>* objectList,bool baseIncluded=true,bool start=true) const;
     void getChain(std::vector<CSceneObject*>& objectList,bool tipIncluded=true,bool start=true) const;
 
@@ -176,8 +175,8 @@ public:
     int getObjectMovementOptions() const;
     void setObjectMovementRelativity(int index,int p);
     int getObjectMovementRelativity(int index) const;
-    void setObjectMovementStepSize(int index,floatDouble s);
-    floatDouble getObjectMovementStepSize(int index) const;
+    void setObjectMovementStepSize(int index,double s);
+    double getObjectMovementStepSize(int index) const;
 
     void writeCustomDataBlock(bool tmpData,const char* dataName,const char* data,size_t dataLength);
     std::string readCustomDataBlock(bool tmpData,const char* dataName) const;
@@ -201,8 +200,8 @@ public:
 
     void temporarilyDisableDynamicTree();
 
-    void setTransparentObjectDistanceOffset(floatDouble d);
-    floatDouble getTransparentObjectDistanceOffset() const;
+    void setTransparentObjectDistanceOffset(double d);
+    double getTransparentObjectDistanceOffset() const;
 
     void setAuthorizedViewableObjects(int objOrCollHandle);
     int getAuthorizedViewableObjects() const;
@@ -210,10 +209,10 @@ public:
     void setMechanismID(int id);
     int getMechanismID() const;
 
-    void setSizeFactor(floatDouble f);
-    floatDouble getSizeFactor() const;
-    void setSizeValues(const floatDouble s[3]);
-    void getSizeValues(floatDouble s[3]) const;
+    void setSizeFactor(double f);
+    double getSizeFactor() const;
+    void setSizeValues(const double s[3]);
+    void getSizeValues(double s[3]) const;
 
     void setScriptExecPriority(int p);
     int getScriptExecPriority() const;
@@ -267,8 +266,8 @@ public:
     void setCollectionSelfCollisionIndicator(int c);
     int getCollectionSelfCollisionIndicator() const;
 
-    void measureVelocity(floatDouble dt); // should be called just after the main script was called!!!
-    floatDouble getMeasuredAngularVelocity() const;
+    void measureVelocity(double dt); // should be called just after the main script was called!!!
+    double getMeasuredAngularVelocity() const;
     C3Vector getMeasuredLinearVelocity() const;
     C3Vector getMeasuredAngularVelocity3() const;
     C3Vector getMeasuredAngularVelocityAxis() const;
@@ -368,26 +367,26 @@ protected:
 
     int _objectMovementPreferredAxes; //bits 0-2: position x,y,z, bits 3-5: Euler e9,e1,e2
     int _objectMovementOptions; // bit0=transl not ok when sim. stopped, bit1=transl not ok when sim. running, bit2&bit3: same but for rotations, bit4: manualShift forbidden, bit5: manualRot forbidden, bit6-bit8: forbidden local translation axes, bit9-bit11: forbidden local rotation axes
-    floatDouble _objectMovementStepSize[2]; // 0.0= use app default
+    double _objectMovementStepSize[2]; // 0.0= use app default
     int _objectMovementRelativity[2]; //0=world, 1=parent, 2=own frame
     C3Vector _boundingBoxMin;
     C3Vector _boundingBoxMax;
 
-    floatDouble _sizeFactor; // just used so that scripts can also adjust for scaling
-    floatDouble _sizeValues[3];
+    double _sizeFactor; // just used so that scripts can also adjust for scaling
+    double _sizeValues[3];
     bool _dynamicsTemporarilyDisabled;
     bool _dynamicsResetFlag;
 
-    floatDouble _transparentObjectDistanceOffset;
+    double _transparentObjectDistanceOffset;
 
     VMutex _objectMutex;
     C3Vector _objectManipulationModeSubTranslation;
-    floatDouble _objectManipulationModeSubRotation;
+    double _objectManipulationModeSubRotation;
     int _objectManipulationModeEventId;
     int _objectManipulationModeAxisIndex;
     C3Vector _objectManipulationModeRelativePositionOfClickedPoint;
     C3Vector _objectManipulationModeTotalTranslation;
-    floatDouble _objectManipulationModeTotalRotation;
+    double _objectManipulationModeTotalRotation;
     unsigned char _objectManipulationMode_flaggedForGridOverlay; // is the rotation or translation axis index + 8 if it is a rotation, or +16 if it is a translation
     CCustomData _customObjectData;
     CCustomData _customObjectData_tempData; // this one is not serialized (but copied)!
@@ -409,7 +408,7 @@ protected:
 
     int _dynamicFlag; // 1=respondableShape, 2=nonStaticShape, 4=dynJoint, 32=dynForceSensor, 64=dynDummy
 
-    floatDouble _measuredAngularVelocity_velocityMeasurement;
+    double _measuredAngularVelocity_velocityMeasurement;
     C3Vector _measuredAngularVelocity3_velocityMeasurement;
     C3Vector _measuredAngularVelocityAxis_velocityMeasurement;
     C3Vector _measuredLinearVelocity_velocityMeasurement;
@@ -420,8 +419,8 @@ protected:
 #ifdef SIM_WITH_GUI
 public:
     void displayManipulationModeOverlayGrid(bool transparentAndOverlay);
-    bool setLocalTransformationFromObjectRotationMode(const C4X4Matrix& cameraAbsConf,floatDouble rotationAmount,bool perspective,int eventID);
-    bool setLocalTransformationFromObjectTranslationMode(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,floatDouble prevPos[2],floatDouble pos[2],floatDouble screenHalfSizes[2],floatDouble halfSizes[2],bool perspective,int eventID);
+    bool setLocalTransformationFromObjectRotationMode(const C4X4Matrix& cameraAbsConf,double rotationAmount,bool perspective,int eventID);
+    bool setLocalTransformationFromObjectTranslationMode(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,double prevPos[2],double pos[2],double screenHalfSizes[2],double halfSizes[2],bool perspective,int eventID);
 #endif
 
 private:

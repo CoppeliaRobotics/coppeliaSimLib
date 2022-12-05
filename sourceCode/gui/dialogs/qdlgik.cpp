@@ -307,7 +307,7 @@ void CQDlgIk::on_qqDamping_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqDamping->text().toFloat(&ok);
+        double newVal=ui->qqDamping->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_DAMPING_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID(),-1,newVal);

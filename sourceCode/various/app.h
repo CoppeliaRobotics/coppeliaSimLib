@@ -55,7 +55,7 @@ public:
     static std::string getAdditionalAddOnScript2();
 
     static bool executeUiThreadCommand(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
-    static void appendSimulationThreadCommand(int cmdId,int intP1=-1,int intP2=-1,float floatP1=0.0,float floatP2=0.0,const char* stringP1=nullptr,const char* stringP2=nullptr,int executionDelay=0);
+    static void appendSimulationThreadCommand(int cmdId,int intP1=-1,int intP2=-1,double floatP1=0.0,double floatP2=0.0,const char* stringP1=nullptr,const char* stringP2=nullptr,int executionDelay=0);
     static void appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay=0);
 
     static int getEditModeType(); // helper

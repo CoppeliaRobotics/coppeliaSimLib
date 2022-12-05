@@ -12,17 +12,17 @@ public:
     void commonInit();
     void serialize(CSer& ar);
     CSimplePathPoint_old* copyYourself();
-    void scaleYourself(floatDouble scalingFactor);
-    void scaleYourselfNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
+    void scaleYourself(double scalingFactor);
+    void scaleYourselfNonIsometrically(double x,double y,double z);
 
-    void setBezierFactors(floatDouble fBefore,floatDouble fAfter);
-    void getBezierFactors(floatDouble& fBefore,floatDouble& fAfter);
+    void setBezierFactors(double fBefore,double fAfter);
+    void getBezierFactors(double& fBefore,double& fAfter);
     void setBezierPointCount(int c);
     int getBezierPointCount();
 
 protected:
 
-    floatDouble _bezierFactorBefore;
-    floatDouble _bezierFactorAfter;
+    double _bezierFactorBefore;
+    double _bezierFactorAfter;
     int _bezierPointCount;
 };

@@ -208,7 +208,7 @@ void CQDlgVisionSensors::on_qqNearPlane_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqNearPlane->text().toFloat(&ok);
+        double newVal=ui->qqNearPlane->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_NEARCLIPPING_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -225,7 +225,7 @@ void CQDlgVisionSensors::on_qqFarPlane_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqFarPlane->text().toFloat(&ok);
+        double newVal=ui->qqFarPlane->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_FARCLIPPING_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -242,7 +242,7 @@ void CQDlgVisionSensors::on_qqPerspectiveAngleOrOrthographicSize_editingFinished
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqPerspectiveAngleOrOrthographicSize->text().toFloat(&ok);
+        double newVal=ui->qqPerspectiveAngleOrOrthographicSize->text().toFloat(&ok);
         if (ok)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getLastSelectionVisionSensor();
@@ -329,7 +329,7 @@ void CQDlgVisionSensors::on_qqSizeX_editingFinished()
         if (it!=nullptr)
         {
             bool ok;
-            float newVal=ui->qqSizeX->text().toFloat(&ok);
+            double newVal=ui->qqSizeX->text().toFloat(&ok);
             if (ok)
             {
                 SSimulationThreadCommand cmd;

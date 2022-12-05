@@ -6,10 +6,10 @@
 #include "holonomicPathPlanning_old.h"
 
 void* CPathPlanningInterface::createNonHolonomicPathPlanningObject(int theStartDummyID,int theGoalDummyID,
-                            int theRobotCollectionID,int theObstacleCollectionID,float theAngularCoeff,
-                            float theSteeringAngleCoeff,float theMaxSteeringAngleVariation,float theMaxSteeringAngle,
-                            float theStepSize,const float theSearchMinVal[2],const float theSearchRange[2],
-                            const int theDirectionConstraints[2],const float clearanceAndMaxDistance[2])
+                            int theRobotCollectionID,int theObstacleCollectionID,double theAngularCoeff,
+                            double theSteeringAngleCoeff,double theMaxSteeringAngleVariation,double theMaxSteeringAngle,
+                            double theStepSize,const double theSearchMinVal[2],const double theSearchRange[2],
+                            const int theDirectionConstraints[2],const double clearanceAndMaxDistance[2])
 {
     CNonHolonomicPathPlanning_old* p=new CNonHolonomicPathPlanning_old(theStartDummyID,theGoalDummyID,theRobotCollectionID,
             theObstacleCollectionID,-1,theAngularCoeff,theSteeringAngleCoeff,theMaxSteeringAngleVariation,theMaxSteeringAngle,theStepSize,
@@ -19,8 +19,8 @@ void* CPathPlanningInterface::createNonHolonomicPathPlanningObject(int theStartD
 
 void* CPathPlanningInterface::createHolonomicPathPlanningObject(int theStartDummyID,int theGoalDummyID,
                             int theRobotCollectionID,int theObstacleCollectionID,int thePlanningType,
-                            float theAngularCoeff,float theStepSize,const float theSearchMinVal[4],const float theSearchRange[4],
-                            const int theDirectionConstraints[4],const float clearanceAndMaxDistance[2],const float gammaAxis[3])
+                            double theAngularCoeff,double theStepSize,const double theSearchMinVal[4],const double theSearchRange[4],
+                            const int theDirectionConstraints[4],const double clearanceAndMaxDistance[2],const double gammaAxis[3])
 {
     CHolonomicPathPlanning_old* p=new CHolonomicPathPlanning_old(theStartDummyID,theGoalDummyID,theRobotCollectionID,
             theObstacleCollectionID,-1,thePlanningType,theAngularCoeff,theStepSize,
@@ -65,30 +65,30 @@ int CPathPlanningInterface::smoothFoundPath(void* obj,int steps,int maxTimePerPa
     return(((CPathPlanning_old*)obj)->smoothFoundPath(steps,maxTimePerPass));
 }
 
-float* CPathPlanningInterface::getFoundPath(void* obj,int* nodeCount)
+double* CPathPlanningInterface::getFoundPath(void* obj,int* nodeCount)
 {
-    float* retVal=nullptr;
-    std::vector<float> data;
+    double* retVal=nullptr;
+    std::vector<double> data;
     ((CPathPlanning_old*)obj)->getPathData(data);
     nodeCount[0]=(int)data.size()/7;
     if (nodeCount[0]!=0)
     {
-        retVal=new float[nodeCount[0]*7];
+        retVal=new double[nodeCount[0]*7];
         for (int i=0;i<nodeCount[0]*7;i++)
             retVal[i]=data[i];
     }
     return(retVal);
 }
 
-float* CPathPlanningInterface::getSearchTree(void* obj,int* segmentCount,char fromStart)
+double* CPathPlanningInterface::getSearchTree(void* obj,int* segmentCount,char fromStart)
 {
-    float* retVal=nullptr;
-    std::vector<float> data;
+    double* retVal=nullptr;
+    std::vector<double> data;
     ((CPathPlanning_old*)obj)->getSearchTreeData(data,fromStart!=0);
     segmentCount[0]=(int)data.size()/6;
     if (segmentCount[0]!=0)
     {
-        retVal=new float[segmentCount[0]*6];
+        retVal=new double[segmentCount[0]*6];
         for (int i=0;i<segmentCount[0]*6;i++)
             retVal[i]=data[i];
     }
@@ -100,7 +100,7 @@ void CPathPlanningInterface::releaseBuffer(void* buff)
     delete[] ((char*)buff);
 }
 
-float CPathPlanningInterface::getNormalizedAngle(float angle)
+double CPathPlanningInterface::getNormalizedAngle(double angle)
 { // Returns an angle between -PI and +PI
     angle=fmod(angle,6.28318531);
     if (angle<-3.14159266)

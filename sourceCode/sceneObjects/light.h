@@ -14,8 +14,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(floatDouble scalingFactor);
-    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
+    void scaleObject(double scalingFactor);
+    void scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -43,14 +43,14 @@ public:
 
     void setLightActive(bool active);
     bool getLightActive() const;
-    floatDouble getAttenuationFactor(int type) const;
-    void setAttenuationFactor(int type,floatDouble value);
-    void setLightSize(floatDouble size);
-    floatDouble getLightSize() const;
+    double getAttenuationFactor(int type) const;
+    void setAttenuationFactor(int type,double value);
+    void setLightSize(double size);
+    double getLightSize() const;
     void setSpotExponent(int e);
     int getSpotExponent() const;
-    void setSpotCutoffAngle(floatDouble co);
-    floatDouble getSpotCutoffAngle() const;
+    void setSpotCutoffAngle(double co);
+    double getSpotCutoffAngle() const;
     int getLightType() const;
 
     void setLightIsLocal(bool l);
@@ -70,12 +70,12 @@ protected:
     CColorObject objectColor;
     CColorObject lightColor;
     bool lightActive;
-    floatDouble constantAttenuation;
-    floatDouble linearAttenuation;
-    floatDouble quadraticAttenuation;
+    double constantAttenuation;
+    double linearAttenuation;
+    double quadraticAttenuation;
     int _spotExponent;
-    floatDouble _spotCutoffAngle;
-    floatDouble _lightSize;
+    double _spotCutoffAngle;
+    double _lightSize;
     int _lightType;
     bool _lightIsLocal;
 

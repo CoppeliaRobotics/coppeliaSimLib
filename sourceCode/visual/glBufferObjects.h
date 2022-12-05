@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <QGLBuffer>
@@ -6,7 +5,7 @@
 struct SBuffwid
 {
     QGLBuffer* buffer;
-    std::vector<floatFloat>* data;
+    std::vector<float>* data;
     int refCnt;
     int verticesCnt;
     int lastTimeUsedInMs;
@@ -21,9 +20,9 @@ public:
     CGlBufferObjects();
     virtual ~CGlBufferObjects();
 
-    void drawTriangles(const floatFloat* vertices,int verticesCnt,const int* indices,int indicesCnt,const floatFloat* normals,const floatFloat* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId);
-    void drawColorCodedTriangles(const floatFloat* vertices,int verticesCnt,const int* indices,int indicesCnt,const floatFloat* normals,int* vertexBufferId,int* normalBufferId);
-    bool drawEdges(const floatFloat* vertices,int verticesCnt,const int* indices,int indicesCnt,const unsigned char* edges,int* edgeBufferId);
+    void drawTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,const float* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId);
+    void drawColorCodedTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,int* vertexBufferId,int* normalBufferId);
+    bool drawEdges(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const unsigned char* edges,int* edgeBufferId);
 
     void removeVertexBuffer(int vertexBufferId);
     void removeNormalBuffer(int normalBufferId);
@@ -43,10 +42,10 @@ protected:
     void _updateAllBufferLastTimeUsed(int currentTimeInMs);
 
 
-    int _buildVertexBuffer(const floatFloat* individualVertices,int individualVerticesCnt);
-    int _buildNormalBuffer(const floatFloat* normals,int normalsCnt);
-    int _buildTexCoordBuffer(const floatFloat* texCoords,int texCoordsCnt);
-    int _buildEdgeBuffer(const floatFloat* individualVertices,int individualVerticesCnt);
+    int _buildVertexBuffer(const float* individualVertices,int individualVerticesCnt);
+    int _buildNormalBuffer(const float* normals,int normalsCnt);
+    int _buildTexCoordBuffer(const float* texCoords,int texCoordsCnt);
+    int _buildEdgeBuffer(const float* individualVertices,int individualVerticesCnt);
 
     SBuffwid* _bindVertexBuffer(int vertexBufferId,int& verticesCnt,int currentTimeInMs);
     SBuffwid* _bindNormalBuffer(int normalBufferId,int currentTimeInMs);
@@ -63,8 +62,8 @@ protected:
     void _removeTexCoordBuffer(int texCoordBufferId);
     void _removeEdgeBuffer(int edgeBufferId);
 
-    void _fromSharedToIndividualVertices(const floatFloat* sharedVertices,int sharedVerticesCnt,const int* sharedIndices,int sharedIndicesCnt,std::vector<floatFloat>& individualVertices);
-    void _fromSharedToIndividualEdges(const floatFloat* sharedVertices,int sharedVerticesCnt,const int* sharedIndices,int sharedIndicesCnt,const unsigned char* edges,std::vector<floatFloat>& individualVertices);
+    void _fromSharedToIndividualVertices(const float* sharedVertices,int sharedVerticesCnt,const int* sharedIndices,int sharedIndicesCnt,std::vector<float>& individualVertices);
+    void _fromSharedToIndividualEdges(const float* sharedVertices,int sharedVerticesCnt,const int* sharedIndices,int sharedIndicesCnt,const unsigned char* edges,std::vector<float>& individualVertices);
 
 
     bool _buffersAreSupported;

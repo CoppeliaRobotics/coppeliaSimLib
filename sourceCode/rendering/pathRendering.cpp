@@ -9,7 +9,7 @@ void displayPath(CPath_old* path,CViewableBase* renderingObject,int displayAttri
 
     // Bounding box display:
     if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(path,displayAttrib,true,path->pathContainer->getSquareSize()*2.0f);
+        _displayBoundingBox(path,displayAttrib,true,path->pathContainer->getSquareSize()*2.0);
 
     C3Vector normalVectorForLinesAndPoints(path->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -56,8 +56,8 @@ void displayPath(CPath_old* path,CViewableBase* renderingObject,int displayAttri
                 glBegin(GL_TRIANGLES);
                 for (int i=0;i<int(path->_pathShapeIndices.size());i++)
                 {
-                    glNormal3fv(&path->_pathShapeNormals[3*i]);
-                    glVertex3fv(&path->_pathShapeVertices[3*(path->_pathShapeIndices[i])]);
+                    glNormal3dv(&path->_pathShapeNormals[3*i]);
+                    glVertex3dv(&path->_pathShapeVertices[3*(path->_pathShapeIndices[i])]);
                 }
                 glEnd();
             }

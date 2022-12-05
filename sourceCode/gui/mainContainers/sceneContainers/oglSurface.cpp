@@ -498,7 +498,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
             glViewport(surfacePosition[0],surfacePosition[1],surfaceSize[0],surfaceSize[1]);
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            glOrtho(0.0f,surfaceSize[0],0.0f,surfaceSize[1],-100.0f,100.0f);
+            glOrtho(0.0,surfaceSize[0],0.0,surfaceSize[1],-100.0,100.0);
             glMatrixMode (GL_MODELVIEW);
             glLoadIdentity();
             glDisable(GL_DEPTH_TEST);
@@ -529,24 +529,24 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
                 hierarchyTitle+=objName+")";
             }
 
-            float txtCol[3]={0.2f,0.2f,0.2f};
+            float txtCol[3]={0.2,0.2,0.2};
             float* bkgrndCol=ogl::TITLE_BAR_COLOR;
             VPoint size(_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*App::sc);
             VPoint pos(b+size.x/2,surfaceSize[1]-size.y/2);
             int buttonAttrib=sim_buttonproperty_label|sim_buttonproperty_enabled|sim_buttonproperty_verticallycentered;
-            ogl::drawButton(pos,size,txtCol,bkgrndCol,bkgrndCol,hierarchyTitle,buttonAttrib,false,0,0.0f,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
+            ogl::drawButton(pos,size,txtCol,bkgrndCol,bkgrndCol,hierarchyTitle,buttonAttrib,false,0,0.0,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
             pos.x=b+_hierarchyWidth+(-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH/2)*App::sc-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH;
             size.x=BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH*App::sc;
             float* bkgrndCol2=ogl::TITLE_BAR_BUTTON_COLOR;
             buttonAttrib=sim_buttonproperty_button|sim_buttonproperty_enabled|sim_buttonproperty_horizontallycentered|sim_buttonproperty_verticallycentered;
             if (_hierarchyClosingButtonDown)
                 buttonAttrib|=sim_buttonproperty_isdown;
-            ogl::drawButton(pos,size,txtCol,bkgrndCol2,bkgrndCol2,"&&Check",buttonAttrib,false,0,0.0f,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
+            ogl::drawButton(pos,size,txtCol,bkgrndCol2,bkgrndCol2,"&&Check",buttonAttrib,false,0,0.0,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
 
             ogl::setMaterialColor(sim_colorcomponent_emission,ogl::SEPARATION_LINE_COLOR);
-            glLineWidth(1.0f);
+            glLineWidth(1.0);
             ogl::drawSingle2dLine_i(b,surfaceSize[1]+(-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT-1)*App::sc,b+_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]+(-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT-1)*App::sc);
-            glLineWidth(1.0f);
+            glLineWidth(1.0);
 
             glEnable(GL_DEPTH_TEST);
         }
@@ -559,12 +559,12 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
             glViewport(surfacePosition[0],surfacePosition[1],surfaceSize[0],surfaceSize[1]);
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            glOrtho(0.0f,surfaceSize[0],0.0f,surfaceSize[1],-100.0f,100.0f);
+            glOrtho(0.0,surfaceSize[0],0.0,surfaceSize[1],-100.0,100.0);
             glDisable(GL_DEPTH_TEST);
             ogl::setMaterialColor(sim_colorcomponent_emission,ogl::SEPARATION_LINE_COLOR);
-            glLineWidth(2.0f);
+            glLineWidth(2.0);
             ogl::drawSingle2dLine_i(b+_hierarchyWidth-1,0,b+_hierarchyWidth-1,surfaceSize[1]);
-            glLineWidth(1.0f);
+            glLineWidth(1.0);
             glEnable(GL_DEPTH_TEST);
         }
     }
@@ -607,17 +607,17 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 
         glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER,0.0f);
+        glAlphaFunc(GL_GREATER,0.0);
         ogl::disableLighting_useWithCare(); // only temporarily
-        glColor3f(1.0f, 1.0f, 1.0f);
+        glColor3f(1.0, 1.0, 1.0);
         glBegin(GL_QUADS);
-        glTexCoord2f(0.0f,0.0f);
+        glTexCoord2f(0.0,0.0);
         glVertex3i(mousePos[0]+pc[0]-16,mousePos[1]+pc[1]-16,0);
-        glTexCoord2f(1.0f,0.0f);
+        glTexCoord2f(1.0,0.0);
         glVertex3i(mousePos[0]+pc[0]+16,mousePos[1]+pc[1]-16,0);
-        glTexCoord2f(1.0f,1.0f);
+        glTexCoord2f(1.0,1.0);
         glVertex3i(mousePos[0]+pc[0]+16,mousePos[1]+pc[1]+16,0);
-        glTexCoord2f(0.0f,1.0f);
+        glTexCoord2f(0.0,1.0);
         glVertex3i(mousePos[0]+pc[0]-16,mousePos[1]+pc[1]+16,0);
         glEnd();
         App::worldContainer->globalGuiTextureCont->endTextureDisplay();
@@ -650,13 +650,13 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
 
                 int off[2]={+24,-16};
                 glBegin(GL_QUADS);
-                glTexCoord2f(0.0f,0.0f);
+                glTexCoord2f(0.0,0.0);
                 glVertex3i(mousePos[0]-16+off[0],mousePos[1]-16+off[1],0);
-                glTexCoord2f(1.0f,0.0f);
+                glTexCoord2f(1.0,0.0);
                 glVertex3i(mousePos[0]+16+off[0],mousePos[1]-16+off[1],0);
-                glTexCoord2f(1.0f,1.0f);
+                glTexCoord2f(1.0,1.0);
                 glVertex3i(mousePos[0]+16+off[0],mousePos[1]+16+off[1],0);
-                glTexCoord2f(0.0f,1.0f);
+                glTexCoord2f(0.0,1.0);
                 glVertex3i(mousePos[0]-16+off[0],mousePos[1]+16+off[1],0);
                 glEnd();
                 App::worldContainer->globalGuiTextureCont->endTextureDisplay();
@@ -671,13 +671,13 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
 
                     int off[2]={+24+24,-16};
                     glBegin(GL_QUADS);
-                    glTexCoord2f(0.0f,0.0f);
+                    glTexCoord2f(0.0,0.0);
                     glVertex3i(mousePos[0]-16+off[0],mousePos[1]-16+off[1],0);
-                    glTexCoord2f(1.0f,0.0f);
+                    glTexCoord2f(1.0,0.0);
                     glVertex3i(mousePos[0]+16+off[0],mousePos[1]-16+off[1],0);
-                    glTexCoord2f(1.0f,1.0f);
+                    glTexCoord2f(1.0,1.0);
                     glVertex3i(mousePos[0]+16+off[0],mousePos[1]+16+off[1],0);
-                    glTexCoord2f(0.0f,1.0f);
+                    glTexCoord2f(0.0,1.0);
                     glVertex3i(mousePos[0]-16+off[0],mousePos[1]+16+off[1],0);
                     glEnd();
                     App::worldContainer->globalGuiTextureCont->endTextureDisplay();
@@ -692,13 +692,13 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
 
                     int off[2]={+24+24,-16};
                     glBegin(GL_QUADS);
-                    glTexCoord2f(0.0f,0.0f);
+                    glTexCoord2f(0.0,0.0);
                     glVertex3i(mousePos[0]-16+off[0],mousePos[1]-16+off[1],0);
-                    glTexCoord2f(1.0f,0.0f);
+                    glTexCoord2f(1.0,0.0);
                     glVertex3i(mousePos[0]+16+off[0],mousePos[1]-16+off[1],0);
-                    glTexCoord2f(1.0f,1.0f);
+                    glTexCoord2f(1.0,1.0);
                     glVertex3i(mousePos[0]+16+off[0],mousePos[1]+16+off[1],0);
-                    glTexCoord2f(0.0f,1.0f);
+                    glTexCoord2f(0.0,1.0);
                     glVertex3i(mousePos[0]-16+off[0],mousePos[1]+16+off[1],0);
                     glEnd();
                     App::worldContainer->globalGuiTextureCont->endTextureDisplay();
@@ -763,16 +763,16 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
             glEnable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D,_oglTextureName);
 
-            glColor3f(1.0f,1.0f,1.0f);
+            glColor3f(1.0,1.0,1.0);
 
             glBegin(GL_QUADS);
-            glTexCoord2f(0.0f,0.0f);
+            glTexCoord2f(0.0,0.0);
             glVertex3i(0,0,0);
-            glTexCoord2f(0.0f,1.0f);
+            glTexCoord2f(0.0,1.0);
             glVertex3i(0,surfaceSize[1],0);
-            glTexCoord2f(1.0f,1.0f);
+            glTexCoord2f(1.0,1.0);
             glVertex3i(surfaceSize[0],surfaceSize[1],0);
-            glTexCoord2f(1.0f,0.0f);
+            glTexCoord2f(1.0,0.0);
             glVertex3i(surfaceSize[0],0,0);
             glEnd();
 

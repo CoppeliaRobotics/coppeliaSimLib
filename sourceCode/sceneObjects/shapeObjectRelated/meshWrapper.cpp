@@ -10,7 +10,7 @@
 
 CMeshWrapper::CMeshWrapper()
 {
-    _mass=1.0f;
+    _mass=1.0;
     _name="sub__0";
 
     _dynMaterialId_old=-1; // not used anymore since V3.4.0
@@ -56,7 +56,7 @@ void CMeshWrapper::display_colorCoded(CShape* geomData,int objectId,int displayA
         childList[i]->display_colorCoded(geomData,objectId,displayAttrib);
 }
 
-void CMeshWrapper::displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,floatDouble transparency,const floatDouble* newColors)
+void CMeshWrapper::displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->displayGhost(geomData,displayAttrib,originalColors,backfaceCulling,transparency,newColors);
@@ -131,23 +131,23 @@ bool CMeshWrapper::getContainsTransparentComponents() const
     return(false);
 }
 
-floatDouble CMeshWrapper::getShadingAngle() const
+double CMeshWrapper::getShadingAngle() const
 { // function has virtual/non-virtual counterpart!
     return(childList[0]->getShadingAngle()); // we just return the first angle we encounter! Normally never used
 }
 
-void CMeshWrapper::setShadingAngle(floatDouble angle)
+void CMeshWrapper::setShadingAngle(double angle)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->setShadingAngle(angle);
 }
 
-floatDouble CMeshWrapper::getEdgeThresholdAngle() const
+double CMeshWrapper::getEdgeThresholdAngle() const
 { // function has virtual/non-virtual counterpart!
     return(childList[0]->getEdgeThresholdAngle()); // we just return the first angle we encounter! Normally never used
 }
 
-void CMeshWrapper::setEdgeThresholdAngle(floatDouble angle)
+void CMeshWrapper::setEdgeThresholdAngle(double angle)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->setEdgeThresholdAngle(angle);
@@ -188,12 +188,12 @@ void CMeshWrapper::copyWrapperInfos(CMeshWrapper* target)
         target->childList.push_back(childList[i]->copyYourself());
 }
 
-void CMeshWrapper::setMass(floatDouble m)
+void CMeshWrapper::setMass(double m)
 {
-    _mass=tt::getLimitedFloat(0.000000001f,100000.0f,m);
+    _mass=tt::getLimitedFloat(0.000000001,100000.0,m);
 }
 
-floatDouble CMeshWrapper::getMass() const
+double CMeshWrapper::getMass() const
 {
     return(_mass);
 }
@@ -201,9 +201,9 @@ floatDouble CMeshWrapper::getMass() const
 void CMeshWrapper::setDefaultInertiaParams()
 {
     _localInertiaFrame.setIdentity();
-    _principalMomentsOfInertia(0)=0.001f;
-    _principalMomentsOfInertia(1)=0.001f;
-    _principalMomentsOfInertia(2)=0.001f;
+    _principalMomentsOfInertia(0)=0.001;
+    _principalMomentsOfInertia(1)=0.001;
+    _principalMomentsOfInertia(2)=0.001;
 }
 
 void CMeshWrapper::setName(std::string newName)
@@ -244,14 +244,14 @@ C3Vector CMeshWrapper::getPrincipalMomentsOfInertia() const
 void CMeshWrapper::setPrincipalMomentsOfInertia(const C3Vector& inertia)
 { // massless inertia
     _principalMomentsOfInertia=inertia;
-    _principalMomentsOfInertia(0)=tt::getLimitedFloat(0.0f,10000.0f,_principalMomentsOfInertia(0));
-    _principalMomentsOfInertia(1)=tt::getLimitedFloat(0.0f,10000.0f,_principalMomentsOfInertia(1));
-    _principalMomentsOfInertia(2)=tt::getLimitedFloat(0.0f,10000.0f,_principalMomentsOfInertia(2));
-    if (_principalMomentsOfInertia.getLength()==0.0f)
-        _principalMomentsOfInertia(0)=0.001f; // make sure we don't have a zero vector (problems with Bullet? and CoppeliaSim!)
+    _principalMomentsOfInertia(0)=tt::getLimitedFloat(0.0,10000.0,_principalMomentsOfInertia(0));
+    _principalMomentsOfInertia(1)=tt::getLimitedFloat(0.0,10000.0,_principalMomentsOfInertia(1));
+    _principalMomentsOfInertia(2)=tt::getLimitedFloat(0.0,10000.0,_principalMomentsOfInertia(2));
+    if (_principalMomentsOfInertia.getLength()==0.0)
+        _principalMomentsOfInertia(0)=0.001; // make sure we don't have a zero vector (problems with Bullet? and CoppeliaSim!)
 }
 
-void CMeshWrapper::scale(floatDouble xVal,floatDouble yVal,floatDouble zVal)
+void CMeshWrapper::scale(double xVal,double yVal,double zVal)
 { // function has virtual/non-virtual counterpart!
     // iso-scaling for compound shapes!! (should normally already be xVal=yVal=zVal)
     scaleWrapperInfos(xVal,xVal,xVal);
@@ -263,7 +263,7 @@ void CMeshWrapper::prepareVerticesIndicesNormalsAndEdgesForSerialization()
         childList[i]->prepareVerticesIndicesNormalsAndEdgesForSerialization();
 }
 
-void CMeshWrapper::scaleWrapperInfos(floatDouble xVal,floatDouble yVal,floatDouble zVal)
+void CMeshWrapper::scaleWrapperInfos(double xVal,double yVal,double zVal)
 {
     scaleMassAndInertia(xVal,yVal,zVal);
 
@@ -277,11 +277,11 @@ void CMeshWrapper::scaleWrapperInfos(floatDouble xVal,floatDouble yVal,floatDoub
 
     for (size_t i=0;i<childList.size();i++)
         childList[i]->scale(xVal,yVal,zVal);
-    if ((xVal<0.0f)||(yVal<0.0f)||(zVal<0.0f)) // that effectively flips faces!
+    if ((xVal<0.0)||(yVal<0.0)||(zVal<0.0)) // that effectively flips faces!
         checkIfConvex();
 }
 
-void CMeshWrapper::scaleMassAndInertia(floatDouble xVal,floatDouble yVal,floatDouble zVal)
+void CMeshWrapper::scaleMassAndInertia(double xVal,double yVal,double zVal)
 {
     _mass*=xVal*yVal*zVal;
     _principalMomentsOfInertia(0)*=yVal*zVal;
@@ -289,7 +289,7 @@ void CMeshWrapper::scaleMassAndInertia(floatDouble xVal,floatDouble yVal,floatDo
     _principalMomentsOfInertia(2)*=xVal*yVal;
 }
 
-void CMeshWrapper::setPurePrimitiveType(int theType,floatDouble xOrDiameter,floatDouble y,floatDouble zOrHeight)
+void CMeshWrapper::setPurePrimitiveType(int theType,double xOrDiameter,double y,double zOrHeight)
 { // function has virtual/non-virtual counterpart!
     // Following added on 14/03/2011 because a compound shape composed by pure and non pure shapes would decompose as pure shapes with wrong orientation!
     if (theType==sim_primitiveshape_none)
@@ -347,7 +347,7 @@ void CMeshWrapper::setConvex(bool convex)
     { // convex shape handling in Bullet includes a very large margin. We can:
         // 1. shrink the dynamic model using _bulletAutoShrinkConvexMesh. This adds some initial preprocessing time, can lead to crashes, and edges and points appear shifted inwards. Faces react correctly.
         // 2. reduce the margin (what we do here). Erwin from Bullet doesn't recommend it (doesn't say why), but I got the best (still not good!!) results with it
-        _bulletNonDefaultCollisionMarginFactor=0.002f;
+        _bulletNonDefaultCollisionMarginFactor=0.002;
         _bulletNonDefaultCollisionMargin=true;
     }
     else
@@ -355,19 +355,19 @@ void CMeshWrapper::setConvex(bool convex)
         */
 }
 
-void CMeshWrapper::getCumulativeMeshes(std::vector<floatDouble>& vertices,std::vector<int>* indices,std::vector<floatDouble>* normals)
+void CMeshWrapper::getCumulativeMeshes(std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->getCumulativeMeshes(vertices,indices,normals);
 }
 
-void CMeshWrapper::setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const floatDouble* rgbData,int& rgbDataOffset)
+void CMeshWrapper::setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->setColor(shape,elementIndex,colorName,colorComponent,rgbData,rgbDataOffset);
 }
 
-bool CMeshWrapper::getColor(const char* colorName,int colorComponent,floatDouble* rgbData,int& rgbDataOffset) const
+bool CMeshWrapper::getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset) const
 { // function has virtual/non-virtual counterpart!
     bool retVal=false;
     for (size_t i=0;i<childList.size();i++)
@@ -439,14 +439,14 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Mas");
-            ar.flt() << (floatFloat)_mass;
+            ar << (float)_mass;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_as");
-            ar.dbl() << _mass;
+            ar << _mass;
             ar.flush();
-#endif
+
 
             ar.storeDataName("Dmi");
             ar << _dynMaterialId_old;
@@ -454,31 +454,31 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Ine");
-            ar.flt() << (floatFloat)_localInertiaFrame(0) << (floatFloat)_localInertiaFrame(1) << (floatFloat)_localInertiaFrame(2) << (floatFloat)_localInertiaFrame(3);
-            ar.flt() << (floatFloat)_localInertiaFrame(4) << (floatFloat)_localInertiaFrame(5) << (floatFloat)_localInertiaFrame(6);
-            ar.flt() << (floatFloat)_principalMomentsOfInertia(0) << (floatFloat)_principalMomentsOfInertia(1) << (floatFloat)_principalMomentsOfInertia(2);
-            ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_ne");
-            ar.dbl() << _localInertiaFrame(0) << _localInertiaFrame(1) << _localInertiaFrame(2) << _localInertiaFrame(3);
-            ar.dbl() << _localInertiaFrame(4) << _localInertiaFrame(5) << _localInertiaFrame(6);
-            ar.dbl() << _principalMomentsOfInertia(0) << _principalMomentsOfInertia(1) << _principalMomentsOfInertia(2);
+            ar << (float)_localInertiaFrame(0) << (float)_localInertiaFrame(1) << (float)_localInertiaFrame(2) << (float)_localInertiaFrame(3);
+            ar << (float)_localInertiaFrame(4) << (float)_localInertiaFrame(5) << (float)_localInertiaFrame(6);
+            ar << (float)_principalMomentsOfInertia(0) << (float)_principalMomentsOfInertia(1) << (float)_principalMomentsOfInertia(2);
             ar.flush();
 #endif
 
+            ar.storeDataName("_ne");
+            ar << _localInertiaFrame(0) << _localInertiaFrame(1) << _localInertiaFrame(2) << _localInertiaFrame(3);
+            ar << _localInertiaFrame(4) << _localInertiaFrame(5) << _localInertiaFrame(6);
+            ar << _principalMomentsOfInertia(0) << _principalMomentsOfInertia(1) << _principalMomentsOfInertia(2);
+            ar.flush();
+
+
 #ifdef TMPOPERATION
             ar.storeDataName("Vtb");
-            ar.flt() << (floatFloat)_transformationsSinceGrouping(0) << (floatFloat)_transformationsSinceGrouping(1) << (floatFloat)_transformationsSinceGrouping(2) << (floatFloat)_transformationsSinceGrouping(3);
-            ar.flt() << (floatFloat)_transformationsSinceGrouping(4) << (floatFloat)_transformationsSinceGrouping(5) << (floatFloat)_transformationsSinceGrouping(6);
+            ar << (float)_transformationsSinceGrouping(0) << (float)_transformationsSinceGrouping(1) << (float)_transformationsSinceGrouping(2) << (float)_transformationsSinceGrouping(3);
+            ar << (float)_transformationsSinceGrouping(4) << (float)_transformationsSinceGrouping(5) << (float)_transformationsSinceGrouping(6);
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_tb");
-            ar.dbl() << _transformationsSinceGrouping(0) << _transformationsSinceGrouping(1) << _transformationsSinceGrouping(2) << _transformationsSinceGrouping(3);
-            ar.dbl() << _transformationsSinceGrouping(4) << _transformationsSinceGrouping(5) << _transformationsSinceGrouping(6);
+            ar << _transformationsSinceGrouping(0) << _transformationsSinceGrouping(1) << _transformationsSinceGrouping(2) << _transformationsSinceGrouping(3);
+            ar << _transformationsSinceGrouping(4) << _transformationsSinceGrouping(5) << _transformationsSinceGrouping(6);
             ar.flush();
-#endif
+
 
             ar.storeDataName("Var");
             unsigned char nothing=0;
@@ -521,20 +521,22 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
-                        ar.flt() >> bla;
-                        _mass=(floatDouble)bla;
-                        if (_mass==0.0f) // to catch an old bug
+                        float bla;
+                        ar >> bla;
+                        _mass=(double)bla;
+                        if (_mass==0.0) // to catch an old bug
                             _mass=0.001;
                     }
+
                     if (theName.compare("_as")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _mass;
-                        if (_mass==0.0f) // to catch an old bug
+                        ar >> _mass;
+                        if (_mass==0.0) // to catch an old bug
                             _mass=0.001;
                     }
+
                     if (theName.compare("Dmi")==0)
                     {
                         noHit=false;
@@ -545,45 +547,49 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
+                        float bla;
                         for (size_t i=0;i<7;i++)
                         {
-                            ar.flt() >> bla;
-                            _localInertiaFrame(i)=(floatDouble)bla;
+                            ar >> bla;
+                            _localInertiaFrame(i)=(double)bla;
                         }
                         for (size_t i=0;i<3;i++)
                         {
-                            ar.flt() >> bla;
-                            _principalMomentsOfInertia(i)=(floatDouble)bla;
+                            ar >> bla;
+                            _principalMomentsOfInertia(i)=(double)bla;
                         }
                     }
+
                     if (theName.compare("_ne")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _localInertiaFrame(0) >> _localInertiaFrame(1) >> _localInertiaFrame(2) >> _localInertiaFrame(3);
-                        ar.dbl() >> _localInertiaFrame(4) >> _localInertiaFrame(5) >> _localInertiaFrame(6);
-                        ar.dbl() >> _principalMomentsOfInertia(0) >> _principalMomentsOfInertia(1) >> _principalMomentsOfInertia(2);
+                        ar >> _localInertiaFrame(0) >> _localInertiaFrame(1) >> _localInertiaFrame(2) >> _localInertiaFrame(3);
+                        ar >> _localInertiaFrame(4) >> _localInertiaFrame(5) >> _localInertiaFrame(6);
+                        ar >> _principalMomentsOfInertia(0) >> _principalMomentsOfInertia(1) >> _principalMomentsOfInertia(2);
                     }
+
 
                     if (theName.compare("Vtb")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
+                        float bla;
                         for (size_t i=0;i<7;i++)
                         {
-                            ar.flt() >> bla;
-                            _transformationsSinceGrouping(i)=(floatDouble)bla;
+                            ar >> bla;
+                            _transformationsSinceGrouping(i)=(double)bla;
                         }
                     }
+
                     if (theName.compare("_tb")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _transformationsSinceGrouping(0) >> _transformationsSinceGrouping(1) >> _transformationsSinceGrouping(2) >> _transformationsSinceGrouping(3);
-                        ar.dbl() >> _transformationsSinceGrouping(4) >> _transformationsSinceGrouping(5) >> _transformationsSinceGrouping(6);
+                        ar >> _transformationsSinceGrouping(0) >> _transformationsSinceGrouping(1) >> _transformationsSinceGrouping(2) >> _transformationsSinceGrouping(3);
+                        ar >> _transformationsSinceGrouping(4) >> _transformationsSinceGrouping(5) >> _transformationsSinceGrouping(6);
                     }
+
 
                     if (theName=="Var")
                     {
@@ -753,11 +759,11 @@ void CMeshWrapper::findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vecto
     C3X3Matrix rot;
     C3X3Matrix tens(tensor);
     rot.setIdentity();
-    floatDouble w=_getTensorNonDiagonalMeasure(tensor);
+    double w=_getTensorNonDiagonalMeasure(tensor);
 
     // With below settings, we will get an orientational precision of about 0.000128 degrees
-    floatDouble stepSize=10.0f*degToRad;
-    const floatDouble stepSizeMultiplier=0.2f;
+    double stepSize=10.0*degToRad;
+    const double stepSizeMultiplier=0.2;
     const int resolutionScalePasses=8;
 
     C3X3Matrix drot;
@@ -776,7 +782,7 @@ void CMeshWrapper::findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vecto
             { // error reduction loop for a given axis
                 rot=rot*drot;
                 tens=drot.getTranspose()*tens*drot;
-                floatDouble w2=_getTensorNonDiagonalMeasure(tens);
+                double w2=_getTensorNonDiagonalMeasure(tens);
                 if (w2>=w)
                 { // it got worse
                     dirChangeCnt++;
@@ -798,7 +804,7 @@ void CMeshWrapper::findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vecto
     //*/
 }
 
-floatDouble CMeshWrapper::_getTensorNonDiagonalMeasure(const C3X3Matrix& tensor)
+double CMeshWrapper::_getTensorNonDiagonalMeasure(const C3X3Matrix& tensor)
 {
     C3Vector v(tensor.axis[1](0),tensor.axis[2](0),tensor.axis[2](1));
     return(v*v);

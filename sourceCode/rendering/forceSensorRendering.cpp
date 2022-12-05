@@ -16,12 +16,12 @@ void displayForceSensor(CForceSensor* forceSensor,CViewableBase* renderingObject
     {
         _enableAuxClippingPlanes(forceSensor->getObjectHandle());
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
-            ogl::setMaterialColor(0.0f,0.6f,0.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+            ogl::setMaterialColor(0.0,0.6,0.0,0.5,0.5,0.5,0.0,0.0,0.0);
         else
             forceSensor->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
         _displayForceSensor(forceSensor,displayAttrib,true,forceSensor->getForceSensorSize());
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
-            ogl::setMaterialColor(0.2f,0.2f,0.2f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+            ogl::setMaterialColor(0.2,0.2,0.2,0.5,0.5,0.5,0.0,0.0,0.0);
         else
             forceSensor->getColor(true)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
         _displayForceSensor(forceSensor,displayAttrib,false,forceSensor->getForceSensorSize());
@@ -32,7 +32,7 @@ void displayForceSensor(CForceSensor* forceSensor,CViewableBase* renderingObject
     _commonFinish(forceSensor,renderingObject);
 }
 
-void _displayForceSensor(CForceSensor* forceSensor,int displayAttrib,bool partOne,float sizeParam)
+void _displayForceSensor(CForceSensor* forceSensor,int displayAttrib,bool partOne,double sizeParam)
 {
     if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
     {
@@ -50,15 +50,15 @@ void _displayForceSensor(CForceSensor* forceSensor,int displayAttrib,bool partOn
 
     glPushMatrix();
     if (partOne)
-        ogl::drawCylinder(forceSensor->getForceSensorSize(),forceSensor->getForceSensorSize()*0.5f,16,0,true);
+        ogl::drawCylinder(forceSensor->getForceSensorSize(),forceSensor->getForceSensorSize()*0.5,16,0,true);
     else
     {
         C7Vector tr(forceSensor->getIntrinsicTransformation(true));
-        glTranslatef(tr.X(0),tr.X(1),tr.X(2));
+        glTranslated(tr.X(0),tr.X(1),tr.X(2));
         C4Vector axis=tr.Q.getAngleAndAxis();
-        glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+        glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
-        ogl::drawCylinder(forceSensor->getForceSensorSize()/5.0f,forceSensor->getForceSensorSize(),16,0,true);
+        ogl::drawCylinder(forceSensor->getForceSensorSize()/5.0,forceSensor->getForceSensorSize(),16,0,true);
         if (displayAttrib&sim_displayattribute_selected)
             _drawReference(forceSensor,sizeParam);
     }

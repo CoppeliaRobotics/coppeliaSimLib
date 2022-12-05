@@ -175,7 +175,7 @@ void CQDlgPathShaping::on_qqMaxLength_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqMaxLength->text().toFloat(&ok);
+        double newVal=ui->qqMaxLength->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_ELEMENTMAXLENGTH_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -215,7 +215,7 @@ void CQDlgPathShaping::on_qqScalingFactor_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqScalingFactor->text().toFloat(&ok);
+        double newVal=ui->qqScalingFactor->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SCALINGFACTOR_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -233,7 +233,7 @@ void CQDlgPathShaping::on_qqCoordinates_textChanged()
         cmd.cmdId=SET_COORDINATES_PATH_OLD_SHAPINGGUITRIGGEREDCMD;
         cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
         std::string str(ui->qqCoordinates->toPlainText().toStdString());
-        float tmp;
+        double tmp;
         while (_extractOneFloat(str,tmp))
             cmd.floatParams.push_back(tmp);
         if (cmd.floatParams.size()&1)
@@ -244,7 +244,7 @@ void CQDlgPathShaping::on_qqCoordinates_textChanged()
     }
 }
 
-bool CQDlgPathShaping::_extractOneFloat(std::string& txt,float& val)
+bool CQDlgPathShaping::_extractOneFloat(std::string& txt,double& val)
 {
     if (txt=="")
         return(false);

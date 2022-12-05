@@ -17,23 +17,23 @@ unsigned int CMesh::_extRendererUniqueMeshID=0;
 unsigned int CMesh::_extRendererUniqueTextureID=0;
 
 // temp, for serialization purpose:
-std::vector<std::vector<floatFloat>*> CMesh::_tempVerticesForDisk;
+std::vector<std::vector<float>*> CMesh::_tempVerticesForDisk;
 std::vector<std::vector<int>*> CMesh::_tempIndicesForDisk;
-std::vector<std::vector<floatFloat>*> CMesh::_tempNormalsForDisk;
+std::vector<std::vector<float>*> CMesh::_tempNormalsForDisk;
 std::vector<std::vector<unsigned char>*> CMesh::_tempEdgesForDisk;
 
 CMesh::CMesh()
 {
     color.setDefaultValues();
-    color.setColor(0.9f,0.9f,0.9f,sim_colorcomponent_ambient_diffuse);
+    color.setColor(0.9,0.9,0.9,sim_colorcomponent_ambient_diffuse);
     edgeColor_DEPRECATED.setColorsAllBlack();
     insideColor_DEPRECATED.setDefaultValues();
 
     _purePrimitive=sim_primitiveshape_none;
-    _purePrimitiveXSizeOrDiameter=0.0f;
-    _purePrimitiveYSize=0.0f;
-    _purePrimitiveZSizeOrHeight=0.0f;
-    _purePrimitiveInsideScaling=0.0f; // no inside part
+    _purePrimitiveXSizeOrDiameter=0.0;
+    _purePrimitiveYSize=0.0;
+    _purePrimitiveZSizeOrHeight=0.0;
+    _purePrimitiveInsideScaling=0.0; // no inside part
 
     _heightfieldXCount=0;
     _heightfieldYCount=0;
@@ -52,7 +52,7 @@ CMesh::CMesh()
     _displayInverted_DEPRECATED=false;
     _wireframe_OLD=false;
     _insideAndOutsideFacesSameColor_DEPRECATED=true;
-    _shadingAngle=0.5f*degToRad;
+    _shadingAngle=0.5*degToRad;
     _edgeThresholdAngle=_shadingAngle;
     _uniqueID=_nextUniqueID++;
 
@@ -156,7 +156,7 @@ void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vecto
         data[20]=&_extRendererObjectId;
         bool translucid=color.getTranslucid();
         data[21]=&translucid;
-        floatDouble transparencyF=color.getOpacity();
+        double transparencyF=color.getOpacity();
         data[22]=&transparencyF;
         data[23]=&_culling;
         data[24]=&_extRendererMeshId;
@@ -181,11 +181,11 @@ void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vecto
         if ((!App::currentWorld->environment->getShapeTexturesEnabled())||CEnvironment::getShapeTexturesTemporarilyDisabled())
             tp=nullptr;
         bool textured=false;
-        std::vector<floatFloat>* textureCoords=nullptr;
+        std::vector<float>* textureCoords=nullptr;
         if (tp!=nullptr)
         {
             textured=true;
-            textureCoords=tp->getTextureCoordinates(geomData->getMeshModificationCounter(),_verticeLocalFrame,_vertices,_indices);
+            textureCoords=tp->getTextureCoordinates(geomData->getMeshModificationCounter(),_verticeLocalFrame,_verticesForDisplayAndDisk,_indices);
             if (textureCoords==nullptr)
                 return; // Should normally never happen
             data[9]=&(textureCoords[0])[0];
@@ -320,15 +320,15 @@ CMesh* CMesh::copyYourself()
     return(newIt);
 }
 
-void CMesh::scale(floatDouble xVal,floatDouble yVal,floatDouble zVal)
+void CMesh::scale(double xVal,double yVal,double zVal)
 { // function has virtual/non-virtual counterpart!
     // Following should not really be needed (normally already done by the calling function)
     //--------------------
     if (_purePrimitive==sim_primitiveshape_plane)
-        zVal=1.0f;
+        zVal=1.0;
     if (_purePrimitive==sim_primitiveshape_disc)
     {
-        zVal=1.0f;
+        zVal=1.0;
         yVal=xVal;
     }
     if ( (_purePrimitive==sim_primitiveshape_cylinder)||(_purePrimitive==sim_primitiveshape_cone)||(_purePrimitive==sim_primitiveshape_heightfield) )
@@ -362,9 +362,9 @@ void CMesh::scale(floatDouble xVal,floatDouble yVal,floatDouble zVal)
         _vertices[3*i+0]=v(0);
         _vertices[3*i+1]=v(1);
         _vertices[3*i+2]=v(2);
-        _verticesForDisplayAndDisk[3*i+0]=(floatFloat)v(0);
-        _verticesForDisplayAndDisk[3*i+1]=(floatFloat)v(1);
-        _verticesForDisplayAndDisk[3*i+2]=(floatFloat)v(2);
+        _verticesForDisplayAndDisk[3*i+0]=(float)v(0);
+        _verticesForDisplayAndDisk[3*i+1]=(float)v(1);
+        _verticesForDisplayAndDisk[3*i+2]=(float)v(2);
     }
     
     if (_purePrimitive==sim_primitiveshape_heightfield)
@@ -374,14 +374,10 @@ void CMesh::scale(floatDouble xVal,floatDouble yVal,floatDouble zVal)
     }
 
     if (_textureProperty!=nullptr)
-    {
-        //if ( (fabs(xVal-yVal)>fabs(xVal*0.01f))||(fabs(xVal-zVal)>fabs(xVal*0.01f)) ) // if we do not have iso scaling, we transform the texture from text. coord. calculated into fixed text. coords:
-        //    _textureProperty->transformToFixedTextureCoordinates(_verticeLocalFrame,_vertices,_indices);
         _textureProperty->scaleObject(xVal);
-    }
     if ((xVal!=yVal)||(xVal!=zVal))
         actualizeGouraudShadingAndVisibleEdges(); // we need to recompute the normals and edges
-    if ((xVal<0.0f)||(yVal<0.0f)||(zVal<0.0f)) // that effectively flips faces!
+    if ((xVal<0.0)||(yVal<0.0)||(zVal<0.0)) // that effectively flips faces!
         checkIfConvex();
 
     decreaseVertexBufferRefCnt(_vertexBufferId);
@@ -393,7 +389,7 @@ void CMesh::scale(floatDouble xVal,floatDouble yVal,floatDouble zVal)
     _edgeBufferId=-1;
 }
 
-void CMesh::setMesh(const std::vector<floatDouble>& vertices,const std::vector<int>& indices,const std::vector<floatDouble>* normals,const C7Vector& transformation)
+void CMesh::setMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals,const C7Vector& transformation)
 {
     _vertices.assign(vertices.begin(),vertices.end());
     _indices.assign(indices.begin(),indices.end());
@@ -418,13 +414,13 @@ void CMesh::setMesh(const std::vector<floatDouble>& vertices,const std::vector<i
 
     _verticesForDisplayAndDisk.resize(_vertices.size());
     for (size_t i=0;i<_vertices.size();i++)
-        _verticesForDisplayAndDisk[i]=(floatFloat)_vertices[i];
+        _verticesForDisplayAndDisk[i]=(float)_vertices[i];
     _normalsForDisplayAndDisk.resize(_normals.size());
     for (size_t i=0;i<_normals.size();i++)
-        _normalsForDisplayAndDisk[i]=(floatFloat)_normals[i];
+        _normalsForDisplayAndDisk[i]=(float)_normals[i];
 }
 
-void CMesh::setPurePrimitiveType(int theType,floatDouble xOrDiameter,floatDouble y,floatDouble zOrHeight)
+void CMesh::setPurePrimitiveType(int theType,double xOrDiameter,double y,double zOrHeight)
 { // function has virtual/non-virtual counterpart!
     _purePrimitive=theType;
     _purePrimitiveXSizeOrDiameter=xOrDiameter;
@@ -442,7 +438,7 @@ void CMesh::setPurePrimitiveType(int theType,floatDouble xOrDiameter,floatDouble
     }
 
     if ( (theType!=sim_primitiveshape_cuboid)&&(theType!=sim_primitiveshape_spheroid)&&(theType!=sim_primitiveshape_cylinder)&&(theType!=sim_primitiveshape_capsule) )
-        _purePrimitiveInsideScaling=0.0f; // no inside part!
+        _purePrimitiveInsideScaling=0.0; // no inside part!
 }
 
 int CMesh::getPurePrimitiveType() const
@@ -482,7 +478,7 @@ void CMesh::setConvex(bool convex)
     { // convex shape handling in Bullet includes a very large margin. We can:
         // 1. shrink the dynamic model using _bulletAutoShrinkConvexMesh. This adds some initial preprocessing time, can lead to crashes, and edges and points appear shifted inwards. Faces react correctly.
         // 2. reduce the margin (what we do here). Erwin from Bullet doesn't recommend it (doesn't say why), but I got the best (still not good!!) results with it
-        _bulletNonDefaultCollisionMarginFactor=0.002f;
+        _bulletNonDefaultCollisionMarginFactor=0.002;
         _bulletNonDefaultCollisionMargin=true;
     }
     else
@@ -490,7 +486,7 @@ void CMesh::setConvex(bool convex)
         */
 }
 
-void CMesh::getCumulativeMeshes(std::vector<floatDouble>& vertices,std::vector<int>* indices,std::vector<floatDouble>* normals)
+void CMesh::getCumulativeMeshes(std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals)
 { // function has virtual/non-virtual counterpart!
     size_t offset=vertices.size()/3;
     for (size_t i=0;i<_vertices.size()/3;i++)
@@ -522,7 +518,7 @@ void CMesh::getCumulativeMeshes(std::vector<floatDouble>& vertices,std::vector<i
     }
 }
 
-void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const floatDouble* rgbData,int& rgbDataOffset)
+void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset)
 { // function has virtual/non-virtual counterpart!
     if ( (colorName==nullptr)||(color.getColorName().compare(colorName)==0)||(strcmp(colorName,"@compound")==0) )
     {
@@ -537,7 +533,7 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
         if (colorComponent==sim_colorcomponent_transparency)
         {
             color.setOpacity(rgbData[rgbDataOffset+0]);
-            color.setTranslucid(rgbData[rgbDataOffset+0]<1.0f);
+            color.setTranslucid(rgbData[rgbDataOffset+0]<1.0);
             if (compoundColors)
                 rgbDataOffset+=1;
         }
@@ -561,7 +557,7 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
         if (colorComponent==4)
         {
             insideColor_DEPRECATED.setOpacity(rgbData[rgbDataOffset+0]);
-            insideColor_DEPRECATED.setTranslucid(rgbData[rgbDataOffset+0]<1.0f);
+            insideColor_DEPRECATED.setTranslucid(rgbData[rgbDataOffset+0]<1.0);
         }
         if (colorComponent==5)
         { // auxiliary components
@@ -590,24 +586,24 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
         { // color
             if (colorComponent<4)
             { // regular components
-                floatDouble hsl[3];
+                float hsl[3];
                 tt::rgbToHsl(color.getColorsPtr()+colorComponent*3,hsl);
-                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0f);
-                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[rgbDataOffset+1]);
-                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[rgbDataOffset+2]);
+                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0);
+                hsl[1]=tt::getLimitedFloat(0.0,1.0,hsl[1]+rgbData[rgbDataOffset+1]);
+                hsl[2]=tt::getLimitedFloat(0.0,1.0,hsl[2]+rgbData[rgbDataOffset+2]);
                 tt::hslToRgb(hsl,color.getColorsPtr()+colorComponent*3);
             }
             if (colorComponent==4)
             {
-                color.setOpacity(tt::getLimitedFloat(0.0f,1.0f,color.getOpacity()+rgbData[rgbDataOffset+0]));
+                color.setOpacity(tt::getLimitedFloat(0.0,1.0,color.getOpacity()+rgbData[rgbDataOffset+0]));
             }
             if (colorComponent==5)
             { // auxiliary components
-                floatDouble hsl[3];
+                float hsl[3];
                 tt::rgbToHsl(color.getColorsPtr()+12,hsl);
-                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0f);
-                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[rgbDataOffset+1]);
-                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[rgbDataOffset+2]);
+                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0);
+                hsl[1]=tt::getLimitedFloat(0.0,1.0,hsl[1]+rgbData[rgbDataOffset+1]);
+                hsl[2]=tt::getLimitedFloat(0.0,1.0,hsl[2]+rgbData[rgbDataOffset+2]);
                 tt::hslToRgb(hsl,color.getColorsPtr()+12);
             }
         }
@@ -615,24 +611,24 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
         { // OLD, deprecated (inside color)
             if (colorComponent<4)
             { // regular components
-                floatDouble hsl[3];
+                float hsl[3];
                 tt::rgbToHsl(insideColor_DEPRECATED.getColorsPtr()+colorComponent*3,hsl);
-                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0f);
-                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[rgbDataOffset+1]);
-                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[rgbDataOffset+2]);
+                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0);
+                hsl[1]=tt::getLimitedFloat(0.0,1.0,hsl[1]+rgbData[rgbDataOffset+1]);
+                hsl[2]=tt::getLimitedFloat(0.0,1.0,hsl[2]+rgbData[rgbDataOffset+2]);
                 tt::hslToRgb(hsl,insideColor_DEPRECATED.getColorsPtr()+colorComponent*3);
             }
             if (colorComponent==4)
             {
-                insideColor_DEPRECATED.setOpacity(tt::getLimitedFloat(0.0f,1.0f,insideColor_DEPRECATED.getOpacity()+rgbData[rgbDataOffset+0]));
+                insideColor_DEPRECATED.setOpacity(tt::getLimitedFloat(0.0,1.0,insideColor_DEPRECATED.getOpacity()+rgbData[rgbDataOffset+0]));
             }
             if (colorComponent==5)
             { // auxiliary components
-                floatDouble hsl[3];
+                float hsl[3];
                 tt::rgbToHsl(insideColor_DEPRECATED.getColorsPtr()+12,hsl);
-                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0f);
-                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[rgbDataOffset+1]);
-                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[rgbDataOffset+2]);
+                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0);
+                hsl[1]=tt::getLimitedFloat(0.0,1.0,hsl[1]+rgbData[rgbDataOffset+1]);
+                hsl[2]=tt::getLimitedFloat(0.0,1.0,hsl[2]+rgbData[rgbDataOffset+2]);
                 tt::hslToRgb(hsl,insideColor_DEPRECATED.getColorsPtr()+12);
             }
         }
@@ -640,20 +636,20 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
         { // OLD, deprecated (edge color)
             if (colorComponent<4)
             { // regular components
-                floatDouble hsl[3];
+                float hsl[3];
                 tt::rgbToHsl(edgeColor_DEPRECATED.getColorsPtr()+colorComponent*3,hsl);
-                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0f);
-                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[rgbDataOffset+1]);
-                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[rgbDataOffset+2]);
+                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0);
+                hsl[1]=tt::getLimitedFloat(0.0,1.0,hsl[1]+rgbData[rgbDataOffset+1]);
+                hsl[2]=tt::getLimitedFloat(0.0,1.0,hsl[2]+rgbData[rgbDataOffset+2]);
                 tt::hslToRgb(hsl,edgeColor_DEPRECATED.getColorsPtr()+colorComponent*3);
             }
             if (colorComponent==5)
             { // auxiliary components
-                floatDouble hsl[3];
+                float hsl[3];
                 tt::rgbToHsl(edgeColor_DEPRECATED.getColorsPtr()+12,hsl);
-                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0f);
-                hsl[1]=tt::getLimitedFloat(0.0f,1.0f,hsl[1]+rgbData[rgbDataOffset+1]);
-                hsl[2]=tt::getLimitedFloat(0.0f,1.0f,hsl[2]+rgbData[rgbDataOffset+2]);
+                hsl[0]=fmod(hsl[0]+rgbData[rgbDataOffset+0],1.0);
+                hsl[1]=tt::getLimitedFloat(0.0,1.0,hsl[1]+rgbData[rgbDataOffset+1]);
+                hsl[2]=tt::getLimitedFloat(0.0,1.0,hsl[2]+rgbData[rgbDataOffset+2]);
                 tt::hslToRgb(hsl,edgeColor_DEPRECATED.getColorsPtr()+12);
             }
         }
@@ -661,7 +657,7 @@ void CMesh::setColor(const CShape* shape,int& elementIndex,const char* colorName
     elementIndex++;
 }
 
-bool CMesh::getColor(const char* colorName,int colorComponent,floatDouble* rgbData,int& rgbDataOffset) const
+bool CMesh::getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset) const
 { // function has virtual/non-virtual counterpart!
     if ( (colorName==nullptr)||(color.getColorName().compare(colorName)==0)||(strcmp(colorName,"@compound")==0) )
     {
@@ -755,7 +751,7 @@ int CMesh::getUniqueID() const
     return(_uniqueID);
 }
 
-void CMesh::setHeightfieldData(const std::vector<floatDouble>& heights,int xCount,int yCount)
+void CMesh::setHeightfieldData(const std::vector<double>& heights,int xCount,int yCount)
 {
     _heightfieldHeights.clear();
     _heightfieldHeights.insert(_heightfieldHeights.end(),heights.begin(),heights.end());
@@ -763,15 +759,15 @@ void CMesh::setHeightfieldData(const std::vector<floatDouble>& heights,int xCoun
     _heightfieldYCount=yCount;
 }
 
-floatDouble* CMesh::getHeightfieldData(int& xCount,int& yCount,floatDouble& minHeight,floatDouble& maxHeight)
+double* CMesh::getHeightfieldData(int& xCount,int& yCount,double& minHeight,double& maxHeight)
 {
     setHeightfieldDiamonds(App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_mujoco);
     if ( (_purePrimitive!=sim_primitiveshape_heightfield)||(_heightfieldHeights.size()==0) )
         return(nullptr);
     xCount=_heightfieldXCount;
     yCount=_heightfieldYCount;
-    minHeight=+99999999.0f;
-    maxHeight=-99999999.0f;
+    minHeight=+99999999.0;
+    maxHeight=-99999999.0;
     for (int i=0;i<int(_heightfieldHeights.size());i++)
     {
         if (_heightfieldHeights[i]<minHeight)
@@ -816,12 +812,12 @@ void CMesh::getPurePrimitiveSizes(C3Vector& s) const
     s(2)=_purePrimitiveZSizeOrHeight;
 }
 
-void CMesh::setPurePrimitiveInsideScaling_OLD(floatDouble s)
+void CMesh::setPurePrimitiveInsideScaling_OLD(double s)
 {
-    _purePrimitiveInsideScaling=tt::getLimitedFloat(0.0f,0.99999f,s);
+    _purePrimitiveInsideScaling=tt::getLimitedFloat(0.0,0.99999,s);
 }
 
-floatDouble CMesh::getPurePrimitiveInsideScaling_OLD() const
+double CMesh::getPurePrimitiveInsideScaling_OLD() const
 {
     return(_purePrimitiveInsideScaling);
 }
@@ -829,8 +825,8 @@ floatDouble CMesh::getPurePrimitiveInsideScaling_OLD() const
 void CMesh::setConvexVisualAttributes()
 {
     _hideEdgeBorders_OLD=false;
-    setShadingAngle(0.0f);
-    setEdgeThresholdAngle(0.0f);
+    setShadingAngle(0.0);
+    setEdgeThresholdAngle(0.0);
     setVisibleEdges(false);
     color.setConvexColors();
     edgeColor_DEPRECATED.setColorsAllBlack();
@@ -929,14 +925,14 @@ void CMesh::copyVisualAttributesTo(CMesh* target)
     target->_edgeThresholdAngle=_edgeThresholdAngle;
 }
 
-floatDouble CMesh::getShadingAngle() const
+double CMesh::getShadingAngle() const
 { // function has virtual/non-virtual counterpart!
     return(_shadingAngle);
 }
 
-void CMesh::setShadingAngle(floatDouble angle)
+void CMesh::setShadingAngle(double angle)
 { // function has virtual/non-virtual counterpart!
-    tt::limitValue(0.0f,89.0f*degToRad,angle);
+    tt::limitValue(0.0,89.0*degToRad,angle);
     if (_shadingAngle!=angle)
     {
         _shadingAngle=angle;
@@ -946,14 +942,14 @@ void CMesh::setShadingAngle(floatDouble angle)
     }
 }
 
-floatDouble CMesh::getEdgeThresholdAngle() const
+double CMesh::getEdgeThresholdAngle() const
 { // function has virtual/non-virtual counterpart!
     return(_edgeThresholdAngle);
 }
 
-void CMesh::setEdgeThresholdAngle(floatDouble angle)
+void CMesh::setEdgeThresholdAngle(double angle)
 { // function has virtual/non-virtual counterpart!
-    tt::limitValue(0.0f,89.0f*degToRad,angle);
+    tt::limitValue(0.0,89.0*degToRad,angle);
     if (_edgeThresholdAngle!=angle)
     {
         _edgeThresholdAngle=angle;
@@ -981,12 +977,12 @@ void CMesh::setVerticeLocalFrame(const C7Vector& tr)
     _verticeLocalFrame=tr;
 }
 
-std::vector<floatDouble>* CMesh::getVertices()
+std::vector<double>* CMesh::getVertices()
 {
     return(&_vertices);
 }
 
-std::vector<floatFloat>* CMesh::getVerticesForDisplayAndDisk()
+std::vector<float>* CMesh::getVerticesForDisplayAndDisk()
 {
     return(&_verticesForDisplayAndDisk);
 }
@@ -996,22 +992,22 @@ std::vector<int>* CMesh::getIndices()
     return(&_indices);
 }
 
-std::vector<floatDouble>* CMesh::getNormals()
+std::vector<double>* CMesh::getNormals()
 {
     return(&_normals);
 }
 
-std::vector<floatFloat>* CMesh::getNormalsForDisplayAndDisk()
+std::vector<float>* CMesh::getNormalsForDisplayAndDisk()
 {
     return(&_normalsForDisplayAndDisk);
 }
 
-const std::vector<floatFloat>* CMesh::getTextureCoords() const
+const std::vector<float>* CMesh::getTextureCoords() const
 {
     return(&_textureCoordsTemp);
 }
 
-void CMesh::setTextureCoords(const std::vector<floatFloat>* tc)
+void CMesh::setTextureCoords(const std::vector<float>* tc)
 {
     _textureCoordsTemp.clear();
     if (tc!=nullptr)
@@ -1082,7 +1078,7 @@ void CMesh::getColorStrings(std::string& colorStrings) const
 void CMesh::flipFaces()
 { // function has virtual/non-virtual counterpart!
     int save;
-    floatDouble normSave;
+    double normSave;
     for (size_t i=0;i<_indices.size()/3;i++)
     {
         save=_indices[3*i+0];
@@ -1115,7 +1111,7 @@ void CMesh::flipFaces()
 
     _normalsForDisplayAndDisk.resize(_normals.size());
     for (size_t i=0;i<_normals.size();i++)
-        _normalsForDisplayAndDisk[i]=(floatFloat)_normals[i];
+        _normalsForDisplayAndDisk[i]=(float)_normals[i];
 }
 
 void CMesh::actualizeGouraudShadingAndVisibleEdges()
@@ -1127,7 +1123,7 @@ void CMesh::actualizeGouraudShadingAndVisibleEdges()
 void CMesh::_recomputeNormals()
 {
     _normals.resize(3*_indices.size());
-    floatDouble maxAngle=_shadingAngle;
+    double maxAngle=_shadingAngle;
     C3Vector v[3];
     for (size_t i=0;i<_indices.size()/3;i++)
     {   // Here we restore first all the normal vectors
@@ -1162,14 +1158,14 @@ void CMesh::_recomputeNormals()
         indexToNormals[_indices[3*i+1]]->push_back(3*i+1);
         indexToNormals[_indices[3*i+2]]->push_back(3*i+2);
     }
-    std::vector<floatDouble> changedNorm(_normals.size());
+    std::vector<double> changedNorm(_normals.size());
 
     for (size_t i=0;i<indexToNormals.size();i++)
     {
         for (size_t j=0;j<indexToNormals[i]->size();j++)
         {
             C3Vector totN;
-            floatDouble nb=1.0;
+            double nb=1.0;
             C3Vector nActual;
             nActual.setData(&_normals[3*(indexToNormals[i]->at(j))]);
             totN=nActual;
@@ -1205,14 +1201,14 @@ void CMesh::_recomputeNormals()
 
     _normalsForDisplayAndDisk.resize(_normals.size());
     for (size_t i=0;i<_normals.size();i++)
-        _normalsForDisplayAndDisk[i]=(floatFloat)_normals[i];
+        _normalsForDisplayAndDisk[i]=(float)_normals[i];
 }
 
 void CMesh::_computeVisibleEdges()
 {
     if (_indices.size()==0)
         return;
-    floatDouble softAngle=_edgeThresholdAngle;
+    double softAngle=_edgeThresholdAngle;
     _edges.clear();
     std::vector<int> eIDs;
     CMeshRoutines::getEdgeFeatures(&_vertices[0],(int)_vertices.size(),&_indices[0],(int)_indices.size(),nullptr,&eIDs,nullptr,softAngle,true,_hideEdgeBorders_OLD);
@@ -1364,7 +1360,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
             {
                 std::vector<unsigned char>* serBuffer=ar.getBufferPointer();
                 unsigned char* ptr = reinterpret_cast<unsigned char*>(&_tempVerticesForDisk[c]->at(0));
-                serBuffer->insert(serBuffer->end(),ptr,ptr+_tempVerticesForDisk[c]->size()* sizeof(floatFloat));
+                serBuffer->insert(serBuffer->end(),ptr,ptr+_tempVerticesForDisk[c]->size()* sizeof(float));
             }
             ar.flush();
         }
@@ -1388,32 +1384,10 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
 
         for (size_t c=0;c<_tempNormalsForDisk.size();c++)
         {
-            if (App::userSettings->saveApproxNormals)
-            {
-                ar.storeDataName("No2");
-                for (size_t i=0;i<_tempNormalsForDisk[c]->size()/3;i++)
-                {
-                    C3Vector n;
-                    n.setData(&_tempNormalsForDisk[c]->at(3*i));
-                    n*=15.0;
-                    n(0)+=0.5*n(0)/fabs(n(0));
-                    n(1)+=0.5*n(1)/fabs(n(1));
-                    n(2)+=0.5*n(2)/fabs(n(2));
-                    char x=char(n(0));
-                    char y=char(n(1));
-                    char z=char(n(2));
-                    unsigned short w=(x+15)+((y+15)<<5)+((z+15)<<10);
-                    ar << w;
-                }
-                ar.flush();
-            }
-            else
-            {
-                ar.storeDataName("Nor");
-                for (size_t i=0;i<_tempNormalsForDisk[c]->size();i++)
-                    ar.flt() << (floatFloat)_tempNormalsForDisk[c]->at(i);
-                ar.flush();
-            }
+            ar.storeDataName("Nor");
+            for (size_t i=0;i<_tempNormalsForDisk[c]->size();i++)
+                ar << (float)_tempNormalsForDisk[c]->at(i);
+            ar.flush();
         }
 
         for (size_t c=0;c<_tempEdgesForDisk.size();c++)
@@ -1444,11 +1418,11 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
                 {
                     noHit=false;
                     ar >> byteQuantity;
-                    std::vector<floatFloat>* arr=new std::vector<floatFloat>;
+                    std::vector<float>* arr=new std::vector<float>;
                     _tempVerticesForDisk.push_back(arr);
-                    arr->resize(byteQuantity/sizeof(floatFloat),0.0);
+                    arr->resize(byteQuantity/sizeof(float),0.0);
                     for (size_t i=0;i<arr->size();i++)
-                        ar.flt() >> arr->at(i);
+                        ar >> arr->at(i);
                 }
                 if (theName.compare("Ind")==0)
                 {
@@ -1472,19 +1446,19 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
                 {
                     noHit=false;
                     ar >> byteQuantity;
-                    std::vector<floatFloat>* arr=new std::vector<floatFloat>;
+                    std::vector<float>* arr=new std::vector<float>;
                     _tempNormalsForDisk.push_back(arr);
-                    arr->resize(byteQuantity/sizeof(floatFloat),0.0);
+                    arr->resize(byteQuantity/sizeof(float),0.0);
                     for (size_t i=0;i<arr->size();i++)
-                        ar.flt() >> arr->at(i);
+                        ar >> arr->at(i);
                 }
                 if (theName.compare("No2")==0)
-                {
+                { // approx. normals. For backward compatibility
                     noHit=false;
                     ar >> byteQuantity;
-                    std::vector<floatFloat>* arr=new std::vector<floatFloat>;
+                    std::vector<float>* arr=new std::vector<float>;
                     _tempNormalsForDisk.push_back(arr);
-                    arr->resize(byteQuantity*6/sizeof(floatFloat),0.0);
+                    arr->resize(byteQuantity*6/sizeof(float),0.0);
                     for (int i=0;i<byteQuantity/2;i++)
                     {
                         unsigned short w;
@@ -1492,11 +1466,11 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
                         char x=(w&0x001f)-15;
                         char y=((w>>5)&0x001f)-15;
                         char z=((w>>10)&0x001f)-15;
-                        C3Vector n((floatDouble)x,(floatDouble)y,(floatDouble)z);
+                        C3Vector n((double)x,(double)y,(double)z);
                         n.normalize();
-                        arr->at(3*i+0)=(floatFloat)n(0);
-                        arr->at(3*i+1)=(floatFloat)n(1);
-                        arr->at(3*i+2)=(floatFloat)n(2);
+                        arr->at(3*i+0)=(float)n(0);
+                        arr->at(3*i+1)=(float)n(1);
+                        arr->at(3*i+2)=(float)n(2);
                     }
                 }
                 if (theName.compare("Ved")==0)
@@ -1514,7 +1488,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
     }
 }
 
-int CMesh::getBufferIndexOfVertices(const std::vector<floatFloat>& vert)
+int CMesh::getBufferIndexOfVertices(const std::vector<float>& vert)
 {
     int vertl=(int)vert.size();
     for (int i=0;i<int(_tempVerticesForDisk.size());i++)
@@ -1538,15 +1512,15 @@ int CMesh::getBufferIndexOfVertices(const std::vector<floatFloat>& vert)
     return(-1); // not found
 }
 
-int CMesh::addVerticesToBufferAndReturnIndex(const std::vector<floatFloat>& vert)
+int CMesh::addVerticesToBufferAndReturnIndex(const std::vector<float>& vert)
 {
-    std::vector<floatFloat>* nvert=new std::vector<floatFloat>;
+    std::vector<float>* nvert=new std::vector<float>;
     nvert->assign(vert.begin(),vert.end());
     _tempVerticesForDisk.push_back(nvert);
     return((int)_tempVerticesForDisk.size()-1);
 }
 
-void CMesh::getVerticesFromBufferBasedOnIndex(int index,std::vector<floatFloat>& vert)
+void CMesh::getVerticesFromBufferBasedOnIndex(int index,std::vector<float>& vert)
 {
     vert.assign(_tempVerticesForDisk[index]->begin(),_tempVerticesForDisk[index]->end());
 }
@@ -1588,7 +1562,7 @@ void CMesh::getIndicesFromBufferBasedOnIndex(int index,std::vector<int>& ind)
     ind.assign(_tempIndicesForDisk[index]->begin(),_tempIndicesForDisk[index]->end());
 }
 
-int CMesh::getBufferIndexOfNormals(const std::vector<floatFloat>& norm)
+int CMesh::getBufferIndexOfNormals(const std::vector<float>& norm)
 {
     int norml=(int)norm.size();
     for (int i=0;i<int(_tempNormalsForDisk.size());i++)
@@ -1612,15 +1586,15 @@ int CMesh::getBufferIndexOfNormals(const std::vector<floatFloat>& norm)
     return(-1); // not found
 }
 
-int CMesh::addNormalsToBufferAndReturnIndex(const std::vector<floatFloat>& norm)
+int CMesh::addNormalsToBufferAndReturnIndex(const std::vector<float>& norm)
 {
-    std::vector<floatFloat>* nnorm=new std::vector<floatFloat>;
+    std::vector<float>* nnorm=new std::vector<float>;
     nnorm->assign(norm.begin(),norm.end());
     _tempNormalsForDisk.push_back(nnorm);
     return((int)_tempNormalsForDisk.size()-1);
 }
 
-void CMesh::getNormalsFromBufferBasedOnIndex(int index,std::vector<floatFloat>& norm)
+void CMesh::getNormalsFromBufferBasedOnIndex(int index,std::vector<float>& norm)
 {
     norm.assign(_tempNormalsForDisk[index]->begin(),_tempNormalsForDisk[index]->end());
 }
@@ -1723,63 +1697,63 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
 #ifdef TMPOPERATION
             ar.storeDataName("Ppr");
             ar << _purePrimitive;
-            ar.flt() << (floatFloat)_purePrimitiveXSizeOrDiameter << (floatFloat)_purePrimitiveYSize << (floatFloat)_purePrimitiveZSizeOrHeight;
+            ar << (float)_purePrimitiveXSizeOrDiameter << (float)_purePrimitiveYSize << (float)_purePrimitiveZSizeOrHeight;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_pr");
             ar << _purePrimitive;
-            ar.dbl() << _purePrimitiveXSizeOrDiameter << _purePrimitiveYSize << _purePrimitiveZSizeOrHeight;
+            ar << _purePrimitiveXSizeOrDiameter << _purePrimitiveYSize << _purePrimitiveZSizeOrHeight;
             ar.flush();
-#endif
+
 
 #ifdef TMPOPERATION
             ar.storeDataName("Pp2");
-            ar.flt() << (floatFloat)_purePrimitiveInsideScaling;
+            ar << (float)_purePrimitiveInsideScaling;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_p2");
-            ar.dbl() << _purePrimitiveInsideScaling;
+            ar << _purePrimitiveInsideScaling;
             ar.flush();
-#endif
+
 
 #ifdef TMPOPERATION
             ar.storeDataName("Ppf");
-            ar.flt() << (floatFloat)_verticeLocalFrame(0) << (floatFloat)_verticeLocalFrame(1) << (floatFloat)_verticeLocalFrame(2) << (floatFloat)_verticeLocalFrame(3);
-            ar.flt() << (floatFloat)_verticeLocalFrame(4) << (floatFloat)_verticeLocalFrame(5) << (floatFloat)_verticeLocalFrame(6);
+            ar << (float)_verticeLocalFrame(0) << (float)_verticeLocalFrame(1) << (float)_verticeLocalFrame(2) << (float)_verticeLocalFrame(3);
+            ar << (float)_verticeLocalFrame(4) << (float)_verticeLocalFrame(5) << (float)_verticeLocalFrame(6);
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_pf");
-            ar.dbl() << _verticeLocalFrame(0) << _verticeLocalFrame(1) << _verticeLocalFrame(2) << _verticeLocalFrame(3);
-            ar.dbl() << _verticeLocalFrame(4) << _verticeLocalFrame(5) << _verticeLocalFrame(6);
+            ar << _verticeLocalFrame(0) << _verticeLocalFrame(1) << _verticeLocalFrame(2) << _verticeLocalFrame(3);
+            ar << _verticeLocalFrame(4) << _verticeLocalFrame(5) << _verticeLocalFrame(6);
             ar.flush();
-#endif
+
 
 #ifdef TMPOPERATION
             ar.storeDataName("Gsa"); // write this always before Gs2
-            ar.flt() << (floatFloat)_shadingAngle;
-            ar << _edgeWidth_DEPRERCATED;
-            ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_sa"); // write this always before Gs2
-            ar.dbl() << _shadingAngle;
+            ar << (float)_shadingAngle;
             ar << _edgeWidth_DEPRERCATED;
             ar.flush();
 #endif
 
+            ar.storeDataName("_sa"); // write this always before Gs2
+            ar << _shadingAngle;
+            ar << _edgeWidth_DEPRERCATED;
+            ar.flush();
+
+
 #ifdef TMPOPERATION
             ar.storeDataName("Gs2");
-            ar.flt() << (floatFloat)_edgeThresholdAngle;
+            ar << (float)_edgeThresholdAngle;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_s2");
-            ar.dbl() << _edgeThresholdAngle;
+            ar << _edgeThresholdAngle;
             ar.flush();
-#endif
+
 
             ar.storeDataName("Var");
             unsigned char nothing=0;
@@ -1807,16 +1781,16 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar.storeDataName("Hfd"); // Has to come after PURE TYPE!
             ar << _heightfieldXCount << _heightfieldYCount;
             for (size_t i=0;i<_heightfieldHeights.size();i++)
-                ar.flt() << (floatFloat)_heightfieldHeights[i];
+                ar << (float)_heightfieldHeights[i];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_fd"); // Has to come after PURE TYPE!
             ar << _heightfieldXCount << _heightfieldYCount;
             for (size_t i=0;i<_heightfieldHeights.size();i++)
-                ar.dbl() << _heightfieldHeights[i];
+                ar << _heightfieldHeights[i];
             ar.flush();
-#endif
+
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -1859,7 +1833,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                             App::currentWorld->undoBufferContainer->undoBufferArrays.getVertexBuffer(id,_verticesForDisplayAndDisk);
                             _vertices.resize(_verticesForDisplayAndDisk.size());
                             for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
-                                _vertices[i]=(floatDouble)_verticesForDisplayAndDisk[i];
+                                _vertices[i]=(double)_verticesForDisplayAndDisk[i];
                         }
                         if (theName.compare("Ind")==0)
                         {
@@ -1878,7 +1852,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                             App::currentWorld->undoBufferContainer->undoBufferArrays.getNormalsBuffer(id,_normalsForDisplayAndDisk);
                             _normals.resize(_normalsForDisplayAndDisk.size());
                             for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
-                                _normals[i]=(floatDouble)_normalsForDisplayAndDisk[i];
+                                _normals[i]=(double)_normalsForDisplayAndDisk[i];
                         }
                     }
                     else
@@ -1887,12 +1861,12 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                         { // for backward compatibility (1/7/2014)
                             noHit=false;
                             ar >> byteQuantity;
-                            _verticesForDisplayAndDisk.resize(byteQuantity/sizeof(floatFloat),0.0);
+                            _verticesForDisplayAndDisk.resize(byteQuantity/sizeof(float),0.0);
                             for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
-                                ar.flt() >> _verticesForDisplayAndDisk[i];
+                                ar >> _verticesForDisplayAndDisk[i];
                             _vertices.resize(_verticesForDisplayAndDisk.size());
                             for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
-                                _vertices[i]=(floatDouble)_verticesForDisplayAndDisk[i];
+                                _vertices[i]=(double)_verticesForDisplayAndDisk[i];
                         }
                         if (theName.compare("Ind")==0)
                         { // for backward compatibility (1/7/2014)
@@ -1906,12 +1880,12 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                         { // for backward compatibility (1/7/2014)
                             noHit=false;
                             ar >> byteQuantity;
-                            _normalsForDisplayAndDisk.resize(byteQuantity/sizeof(floatFloat),0.0);
+                            _normalsForDisplayAndDisk.resize(byteQuantity/sizeof(float),0.0);
                             for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
-                                ar.flt() >> _normalsForDisplayAndDisk[i];
+                                ar >> _normalsForDisplayAndDisk[i];
                             _normals.resize(_normalsForDisplayAndDisk.size());
                             for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
-                                _normals[i]=(floatDouble)_normalsForDisplayAndDisk[i];
+                                _normals[i]=(double)_normalsForDisplayAndDisk[i];
                         }
 
                         if (theName.compare("Vev")==0)
@@ -1923,7 +1897,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                             getVerticesFromBufferBasedOnIndex(index,_verticesForDisplayAndDisk);
                             _vertices.resize(_verticesForDisplayAndDisk.size());
                             for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
-                                _vertices[i]=(floatDouble)_verticesForDisplayAndDisk[i];
+                                _vertices[i]=(double)_verticesForDisplayAndDisk[i];
                         }
                         if (theName.compare("Inv")==0)
                         {
@@ -1942,7 +1916,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                             getNormalsFromBufferBasedOnIndex(index,_normalsForDisplayAndDisk);
                             _normals.resize(_normalsForDisplayAndDisk.size());
                             for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
-                                _normals[i]=(floatDouble)_normalsForDisplayAndDisk[i];
+                                _normals[i]=(double)_normalsForDisplayAndDisk[i];
                         }
                     }
 
@@ -1956,7 +1930,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                     { // for backward compatibility (1/7/2014)
                         noHit=false;
                         ar >> byteQuantity;
-                        _normalsForDisplayAndDisk.resize(byteQuantity*6/sizeof(floatFloat),0.0);
+                        _normalsForDisplayAndDisk.resize(byteQuantity*6/sizeof(float),0.0);
                         for (int i=0;i<byteQuantity/2;i++)
                         {
                             unsigned short w;
@@ -1964,15 +1938,15 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                             char x=(w&0x001f)-15;
                             char y=((w>>5)&0x001f)-15;
                             char z=((w>>10)&0x001f)-15;
-                            C3Vector n((floatDouble)x,(floatDouble)y,(floatDouble)z);
+                            C3Vector n((double)x,(double)y,(double)z);
                             n.normalize();
-                            _normalsForDisplayAndDisk[3*i+0]=(floatFloat)n(0);
-                            _normalsForDisplayAndDisk[3*i+1]=(floatFloat)n(1);
-                            _normalsForDisplayAndDisk[3*i+2]=(floatFloat)n(2);
+                            _normalsForDisplayAndDisk[3*i+0]=(float)n(0);
+                            _normalsForDisplayAndDisk[3*i+1]=(float)n(1);
+                            _normalsForDisplayAndDisk[3*i+2]=(float)n(2);
                         }
                         _normals.resize(_normalsForDisplayAndDisk.size());
                         for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
-                            _normals[i]=(floatDouble)_normalsForDisplayAndDisk[i];
+                            _normals[i]=(double)_normalsForDisplayAndDisk[i];
                     }
                     if (theName.compare("Ved")==0)
                     { // for backward compatibility (1/7/2014)
@@ -1995,83 +1969,93 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _purePrimitive;
-                        floatFloat bla,bli,blo;
-                        ar.flt() >> bla >> bli >> blo;
-                        _purePrimitiveXSizeOrDiameter=(floatDouble)bla;
-                        _purePrimitiveYSize=(floatDouble)bli;
-                        _purePrimitiveZSizeOrHeight=(floatDouble)blo;
+                        float bla,bli,blo;
+                        ar >> bla >> bli >> blo;
+                        _purePrimitiveXSizeOrDiameter=(double)bla;
+                        _purePrimitiveYSize=(double)bli;
+                        _purePrimitiveZSizeOrHeight=(double)blo;
                     }
+
                     if (theName.compare("_pr")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _purePrimitive;
-                        ar.dbl() >> _purePrimitiveXSizeOrDiameter >> _purePrimitiveYSize >> _purePrimitiveZSizeOrHeight;
+                        ar >> _purePrimitiveXSizeOrDiameter >> _purePrimitiveYSize >> _purePrimitiveZSizeOrHeight;
                     }
+
                     if (theName.compare("Pp2")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
-                        ar.flt() >> bla;
-                        _purePrimitiveInsideScaling=(floatDouble)bla;
+                        float bla;
+                        ar >> bla;
+                        _purePrimitiveInsideScaling=(double)bla;
                     }
+
                     if (theName.compare("_p2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _purePrimitiveInsideScaling;
+                        ar >> _purePrimitiveInsideScaling;
                     }
+
                     if (theName.compare("Ppf")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
+                        float bla;
                         for (size_t i=0;i<7;i++)
                         {
-                            ar.flt() >> bla;
-                            _verticeLocalFrame(i)=(floatDouble)bla;
+                            ar >> bla;
+                            _verticeLocalFrame(i)=(double)bla;
                         }
                     }
+
                     if (theName.compare("_pf")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _verticeLocalFrame(0) >> _verticeLocalFrame(1) >> _verticeLocalFrame(2) >> _verticeLocalFrame(3);
-                        ar.dbl() >> _verticeLocalFrame(4) >> _verticeLocalFrame(5) >> _verticeLocalFrame(6);
+                        ar >> _verticeLocalFrame(0) >> _verticeLocalFrame(1) >> _verticeLocalFrame(2) >> _verticeLocalFrame(3);
+                        ar >> _verticeLocalFrame(4) >> _verticeLocalFrame(5) >> _verticeLocalFrame(6);
                     }
+
                     if (theName.compare("Gsa")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
-                        ar.flt() >> bla;
+                        float bla;
+                        ar >> bla;
                         ar >> _edgeWidth_DEPRERCATED;
-                        _shadingAngle=(floatDouble)bla;
+                        _shadingAngle=(double)bla;
                         _edgeThresholdAngle=_shadingAngle;
                     }
+
                     if (theName.compare("_sa")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _shadingAngle;
+                        ar >> _shadingAngle;
                         ar >> _edgeWidth_DEPRERCATED;
                         _edgeThresholdAngle=_shadingAngle;
                     }
+
                     if (theName.compare("Gs2")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
-                        ar.flt() >> bla;
-                        _edgeThresholdAngle=(floatDouble)bla;
+                        float bla;
+                        ar >> bla;
+                        _edgeThresholdAngle=(double)bla;
                     }
+
                     if (theName.compare("_s2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _edgeThresholdAngle;
+                        ar >> _edgeThresholdAngle;
                     }
+
                     if (theName=="Var")
                     {
                         noHit=false;
@@ -2103,11 +2087,12 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                         ar >> _heightfieldXCount >> _heightfieldYCount;
                         for (int i=0;i<_heightfieldXCount*_heightfieldYCount;i++)
                         {
-                            floatFloat dummy;
-                            ar.flt() >> dummy;
-                            _heightfieldHeights.push_back((floatDouble)dummy);
+                            float dummy;
+                            ar >> dummy;
+                            _heightfieldHeights.push_back((double)dummy);
                         }
                     }
+
                     if (theName.compare("_fd")==0)
                     {
                         noHit=false;
@@ -2115,11 +2100,12 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                         ar >> _heightfieldXCount >> _heightfieldYCount;
                         for (int i=0;i<_heightfieldXCount*_heightfieldYCount;i++)
                         {
-                            floatDouble dummy;
-                            ar.dbl() >> dummy;
+                            double dummy;
+                            ar >> dummy;
                             _heightfieldHeights.push_back(dummy);
                         }
                     }
+
                     if (noHit)
                         ar.loadUnknownData();
                 }
@@ -2130,8 +2116,8 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
     {
         if (ar.isStoring())
         {
-            ar.xmlAddNode_float("shadingAngle",_shadingAngle*180.0f/piValue);
-            ar.xmlAddNode_float("edgeThresholdAngle",_edgeThresholdAngle*180.0f/piValue);
+            ar.xmlAddNode_float("shadingAngle",_shadingAngle*180.0/piValue);
+            ar.xmlAddNode_float("edgeThresholdAngle",_edgeThresholdAngle*180.0/piValue);
 
             ar.xmlPushNewNode("color");
             color.serialize(ar,0);
@@ -2170,9 +2156,9 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar.xmlPushNewNode("meshData");
             if (ar.xmlSaveDataInline(_verticesForDisplayAndDisk.size()*4+_indices.size()*4+_normalsForDisplayAndDisk.size()*4+_edges.size()))
             {
-                ar.xmlAddNode_floats("vertices",_verticesForDisplayAndDisk); // keep floatFloat
+                ar.xmlAddNode_floats("vertices",_verticesForDisplayAndDisk); // keep float
                 ar.xmlAddNode_ints("indices",_indices);
-                ar.xmlAddNode_floats("normals",_normalsForDisplayAndDisk); // keep floatFloat
+                ar.xmlAddNode_floats("normals",_normalsForDisplayAndDisk); // keep float
                 ar.xmlAddNode_uchars("edges",_edges);
             }
             else
@@ -2182,9 +2168,9 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
         else
         {
             ar.xmlGetNode_float("shadingAngle",_shadingAngle);
-            _shadingAngle*=piValue/180.0f;
+            _shadingAngle*=piValue/180.0;
             ar.xmlGetNode_float("edgeThresholdAngle",_edgeThresholdAngle);
-            _edgeThresholdAngle*=piValue/180.0f;
+            _edgeThresholdAngle*=piValue/180.0;
 
             if (ar.xmlPushChildNode("color"))
             {
@@ -2233,10 +2219,10 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
 
             if (ar.xmlPushChildNode("meshData"))
             {
-                if (ar.xmlGetNode_floats("vertices",_verticesForDisplayAndDisk,false)) // floatFloat
+                if (ar.xmlGetNode_floats("vertices",_verticesForDisplayAndDisk,false)) // float
                 {
                     ar.xmlGetNode_ints("indices",_indices);
-                    ar.xmlGetNode_floats("normals",_normalsForDisplayAndDisk); // floatFloat
+                    ar.xmlGetNode_floats("normals",_normalsForDisplayAndDisk); // float
                     ar.xmlGetNode_uchars("edges",_edges);
                 }
                 else
@@ -2246,10 +2232,10 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                 }
                 _vertices.resize(_verticesForDisplayAndDisk.size());
                 for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
-                    _vertices[i]=(floatDouble)_verticesForDisplayAndDisk[i];
+                    _vertices[i]=(double)_verticesForDisplayAndDisk[i];
                 _normals.resize(_normalsForDisplayAndDisk.size());
                 for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
-                    _normals[i]=(floatDouble)_normalsForDisplayAndDisk[i];
+                    _normals[i]=(double)_normalsForDisplayAndDisk[i];
                 ar.xmlPopNode();
             }
         }
@@ -2271,26 +2257,26 @@ void CMesh::display_colorCoded(CShape* geomData,int objectId,int displayAttrib)
 }
 
 
-void CMesh::displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,floatDouble transparency,const floatDouble* newColors)
+void CMesh::displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
 { // function has virtual/non-virtual counterpart!
     displayGeometricGhost(this,geomData,displayAttrib,originalColors,backfaceCulling,transparency,newColors);
 }
 
 #ifdef SIM_WITH_GUI
-bool CMesh::getNonCalculatedTextureCoordinates(std::vector<floatDouble>& texCoords)
+bool CMesh::getNonCalculatedTextureCoordinates(std::vector<double>& texCoords)
 {
     if (_textureProperty==nullptr)
         return(false);
     C7Vector dummyTr;
     dummyTr.setIdentity();
-    std::vector<floatFloat>* tc=_textureProperty->getTextureCoordinates(-1,dummyTr,_vertices,_indices);
+    std::vector<float>* tc=_textureProperty->getTextureCoordinates(-1,dummyTr,_verticesForDisplayAndDisk,_indices);
     if (tc==nullptr)
         return(false);
     if (!_textureProperty->getFixedCoordinates())
         return(false);
     texCoords.resize(tc->size());
     for (size_t i=0;i<tc->size();i++)
-        texCoords[i]=(floatDouble)tc->at(i);
+        texCoords[i]=(double)tc->at(i);
     return(true);
 }
 #endif

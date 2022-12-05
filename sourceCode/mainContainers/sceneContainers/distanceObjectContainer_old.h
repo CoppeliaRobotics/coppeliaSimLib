@@ -26,7 +26,7 @@ public:
     void announceObjectWillBeErased(int objectHandle);
     void announceCollectionWillBeErased(int collectionHandle);
     void setUpDefaultValues();
-    float handleAllDistances(bool exceptExplicitHandling);
+    double handleAllDistances(bool exceptExplicitHandling);
 
     size_t getObjectCount() const;
     CDistanceObject_old* getObjectFromIndex(size_t index) const;

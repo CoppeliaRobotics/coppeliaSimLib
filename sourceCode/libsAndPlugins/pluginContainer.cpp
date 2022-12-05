@@ -154,19 +154,26 @@ int CPlugin::load()
                 syncPlugin_msg=(ptr_syncPlugin_msg)(VVarious::resolveLibraryFuncName(lib,"sync_msg"));
 
                 // For the dynamic plugins:
-                dynPlugin_startSimulation=(ptr_dynPlugin_startSimulation)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_startSimulation"));
+                dynPlugin_startSimulation=(ptr_dynPlugin_startSimulation_D)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_startSimulation_D"));
+                dynPlugin_startSimulationNewton=(ptr_dynPlugin_startSimulation)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_startSimulation"));
                 dynPlugin_endSimulation=(ptr_dynPlugin_endSimulation)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_endSimulation"));
-                dynPlugin_step=(ptr_dynPlugin_step)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_step"));
+                dynPlugin_step=(ptr_dynPlugin_step_D)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_step_D"));
+                dynPlugin_stepNewton=(ptr_dynPlugin_step)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_step"));
                 dynPlugin_isDynamicContentAvailable=(ptr_dynPlugin_isDynamicContentAvailable)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_isDynamicContentAvailable"));
                 dynPlugin_serializeDynamicContent=(ptr_dynPlugin_serializeDynamicContent)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_serializeDynamicContent"));
-                dynPlugin_addParticleObject=(ptr_dynPlugin_addParticleObject)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_addParticleObject"));
+                dynPlugin_addParticleObject=(ptr_dynPlugin_addParticleObject_D)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_addParticleObject_D"));
+                dynPlugin_addParticleObjectNewton=(ptr_dynPlugin_addParticleObject)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_addParticleObject"));
                 dynPlugin_removeParticleObject=(ptr_dynPlugin_removeParticleObject)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_removeParticleObject"));
-                dynPlugin_addParticleObjectItem=(ptr_dynPlugin_addParticleObjectItem)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_addParticleObjectItem"));
+                dynPlugin_addParticleObjectItem=(ptr_dynPlugin_addParticleObjectItem_D)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_addParticleObjectItem_D"));
+                dynPlugin_addParticleObjectItemNewton=(ptr_dynPlugin_addParticleObjectItem)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_addParticleObjectItem"));
                 dynPlugin_getParticleObjectOtherFloatsPerItem=(ptr_dynPlugin_getParticleObjectOtherFloatsPerItem)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getParticleObjectOtherFloatsPerItem"));
-                dynPlugin_getContactPoints=(ptr_dynPlugin_getContactPoints)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getContactPoints"));
+                dynPlugin_getContactPoints=(ptr_dynPlugin_getContactPoints_D)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getContactPoints_D"));
+                dynPlugin_getContactPointsNewton=(ptr_dynPlugin_getContactPoints)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getContactPoints"));
                 dynPlugin_getParticles=(ptr_dynPlugin_getParticles)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getParticles"));
-                dynPlugin_getParticleData=(ptr_dynPlugin_getParticleData)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getParticleData"));
-                dynPlugin_getContactForce=(ptr_dynPlugin_getContactForce)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getContactForce"));
+                dynPlugin_getParticleData=(ptr_dynPlugin_getParticleData_D)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getParticleData_D"));
+                dynPlugin_getParticleDataNewton=(ptr_dynPlugin_getParticleData)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getParticleData"));
+                dynPlugin_getContactForce=(ptr_dynPlugin_getContactForce_D)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getContactForce_D"));
+                dynPlugin_getContactForceNewton=(ptr_dynPlugin_getContactForce)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getContactForce"));
                 dynPlugin_getDynamicStepDivider=(ptr_dynPlugin_getDynamicStepDivider)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getDynamicStepDivider"));
                 mujocoPlugin_computeInertia=(ptr_mujocoPlugin_computeInertia)(VVarious::resolveLibraryFuncName(lib,"mujocoPlugin_computeInertia"));
                 if (mujocoPlugin_computeInertia!=nullptr)
@@ -392,6 +399,7 @@ ptrHACD CPluginContainer::_hacdAddress=nullptr;
 ptrVHACD CPluginContainer::_vhacdAddress=nullptr;
 ptrMeshDecimator CPluginContainer::_meshDecimatorAddress=nullptr;
 
+bool CPluginContainer::currentEngineIsNewton=false;
 CPlugin* CPluginContainer::currentDynEngine=nullptr;
 CPlugin* CPluginContainer::mujocoEngine=nullptr;
 CPlugin* CPluginContainer::currentGeomPlugin=nullptr;
@@ -769,7 +777,7 @@ void CPluginContainer::syncMsg(const SSyncMsg* msg,const SSyncRt* rt)
         _syncPlugins[i]->syncPlugin_msg(msg,rt);
 }
 
-bool CPluginContainer::dyn_startSimulation(int engine,int version,const float floatParams[20],const int intParams[20])
+bool CPluginContainer::dyn_startSimulation(int engine,int version,const double floatParams[20],const int intParams[20])
 {
     bool retVal=false;
     for (size_t i=0;i<_allPlugins.size();i++)
@@ -778,6 +786,20 @@ bool CPluginContainer::dyn_startSimulation(int engine,int version,const float fl
         {
             if (_allPlugins[i]->dynPlugin_startSimulation(engine,version,floatParams,intParams)!=0)
             { // success with this plugin!
+                currentEngineIsNewton=false;
+                currentDynEngine=_allPlugins[i];
+                retVal=true;
+                break;
+            }
+        }
+        else if (_allPlugins[i]->dynPlugin_startSimulationNewton!=nullptr)
+        {
+            float fp[20];
+            for (size_t j=0;j<20;j++)
+                fp[j]=floatParams[j];
+            if (_allPlugins[i]->dynPlugin_startSimulationNewton(engine,version,fp,intParams)!=0)
+            {
+                currentEngineIsNewton=true;
                 currentDynEngine=_allPlugins[i];
                 retVal=true;
                 break;
@@ -794,10 +816,15 @@ void CPluginContainer::dyn_endSimulation()
     currentDynEngine=nullptr;
 }
 
-void CPluginContainer::dyn_step(float timeStep,float simulationTime)
+void CPluginContainer::dyn_step(double timeStep,double simulationTime)
 {
     if (currentDynEngine!=nullptr)
-        currentDynEngine->dynPlugin_step(timeStep,simulationTime);
+    {
+        if (!currentEngineIsNewton)
+            currentDynEngine->dynPlugin_step(timeStep,simulationTime);
+        else
+            currentDynEngine->dynPlugin_stepNewton((float)timeStep,(float)simulationTime);
+    }
 }
 
 bool CPluginContainer::dyn_isInitialized()
@@ -818,10 +845,41 @@ void CPluginContainer::dyn_serializeDynamicContent(const char* filenameAndPath,i
         currentDynEngine->dynPlugin_serializeDynamicContent(filenameAndPath,bulletSerializationBuffer);
 }
 
-int CPluginContainer::dyn_addParticleObject(int objectType,float size,float massOverVolume,const void* params,float lifeTime,int maxItemCount,const float* ambient,const float* diffuse,const float* specular,const float* emission)
+int CPluginContainer::dyn_addParticleObject(int objectType,double size,double massOverVolume,const void* params,double lifeTime,int maxItemCount,const float* ambient,const float* diffuse,const float* specular,const float* emission)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->dynPlugin_addParticleObject(objectType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,diffuse,specular,emission));
+    {
+        if (!currentEngineIsNewton)
+            return(currentDynEngine->dynPlugin_addParticleObject(objectType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,diffuse,specular,emission));
+        else
+        {
+            float a1[3];
+            float a3[3];
+            float a4[4];
+            float* a1_=nullptr;
+            float* a3_=nullptr;
+            float* a4_=nullptr;
+            if (ambient!=nullptr)
+            {
+                for (size_t i=0;i<3;i++)
+                    a1[i]=(float)ambient[i];
+                a1_=a1;
+            }
+            if (specular!=nullptr)
+            {
+                for (size_t i=0;i<3;i++)
+                    a3[i]=(float)specular[i];
+                a3_=a3;
+            }
+            if (emission!=nullptr)
+            {
+                for (size_t i=0;i<3;i++)
+                    a4[i]=(float)emission[i];
+                a4_=a4;
+            }
+            return(currentDynEngine->dynPlugin_addParticleObjectNewton(objectType,(float)size,(float)massOverVolume,params,(float)lifeTime,maxItemCount,a1_,nullptr,a3_,a4_));
+        }
+    }
     return(-1);
 }
 
@@ -832,10 +890,25 @@ bool CPluginContainer::dyn_removeParticleObject(int objectHandle)
     return(false);
 }
 
-bool CPluginContainer::dyn_addParticleObjectItem(int objectHandle,const float* itemData,float simulationTime)
+bool CPluginContainer::dyn_addParticleObjectItem(int objectHandle,const double* itemData,double simulationTime)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->dynPlugin_addParticleObjectItem(objectHandle,itemData,simulationTime)!=0);
+    {
+        if (!currentEngineIsNewton)
+            return(currentDynEngine->dynPlugin_addParticleObjectItem(objectHandle,itemData,simulationTime)!=0);
+        else
+        {
+            float v[20];
+            float* v_=nullptr;
+            if (itemData!=nullptr)
+            {
+                for (size_t i=0;i<20;i++)
+                    v[i]=(float)itemData[i];
+                v_=v;
+            }
+            return(currentDynEngine->dynPlugin_addParticleObjectItemNewton(objectHandle,v_,(float)simulationTime)!=0);
+        }
+    }
     return(false);
 }
 
@@ -846,10 +919,22 @@ int CPluginContainer::dyn_getParticleObjectOtherFloatsPerItem(int objectHandle)
     return(0);
 }
 
-float* CPluginContainer::dyn_getContactPoints(int* count)
+double* CPluginContainer::dyn_getContactPoints(int* count)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->dynPlugin_getContactPoints(count));
+    {
+        if (!currentEngineIsNewton)
+            return(currentDynEngine->dynPlugin_getContactPoints(count));
+        else
+        {
+            float* p=currentDynEngine->dynPlugin_getContactPointsNewton(count);
+            static std::vector<double> pp;
+            pp.resize(count[0]*3);
+            for (int i=0;i<count[0]*3;i++)
+                pp[i]=(double)p[i];
+            return(pp.data());
+        }
+    }
     count[0]=0;
     return(nullptr);
 }
@@ -861,17 +946,45 @@ void** CPluginContainer::dyn_getParticles(int index,int* particlesCount,int* obj
     return(nullptr);
 }
 
-bool CPluginContainer::dyn_getParticleData(const void* particle,float* pos,float* size,int* objectType,float** additionalColor)
+bool CPluginContainer::dyn_getParticleData(const void* particle,double* pos,double* size,int* objectType,float** additionalColor)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->dynPlugin_getParticleData(particle,pos,size,objectType,additionalColor)!=0);
+    {
+        if (!currentEngineIsNewton)
+            return(currentDynEngine->dynPlugin_getParticleData(particle,pos,size,objectType,additionalColor)!=0);
+        else
+        {
+            float p[3];
+            float s;
+            bool retVal=currentDynEngine->dynPlugin_getParticleDataNewton(particle,p,&s,objectType,additionalColor)!=0;
+            pos[0]=(double)p[0];
+            pos[1]=(double)p[1];
+            pos[2]=(double)p[2];
+            size[0]=s;
+            return(retVal);
+        }
+    }
     return(false);
 }
 
-bool CPluginContainer::dyn_getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float* contactInfo)
+bool CPluginContainer::dyn_getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],double* contactInfo)
 {
     if (currentDynEngine!=nullptr)
-        return(currentDynEngine->dynPlugin_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo)!=0);
+    {
+        if (!currentEngineIsNewton)
+            return(currentDynEngine->dynPlugin_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo)!=0);
+        else
+        {
+            float ci[9];
+            bool retVal=currentDynEngine->dynPlugin_getContactForceNewton(dynamicPass,objectHandle,index,objectHandles,ci)!=0;
+            size_t cnt=6;
+            if ((index&sim_handleflag_extended)!=0)
+                cnt=9;
+            for (size_t i=0;i<cnt;i++)
+                contactInfo[i]=(double)ci[i];
+            return(retVal);
+        }
+    }
     return(false);
 }
 
@@ -882,9 +995,9 @@ int CPluginContainer::dyn_getDynamicStepDivider()
     return(0);
 }
 
-float CPluginContainer::dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vector& diagI)
+double CPluginContainer::dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vector& diagI)
 { // returns the mass-less diagonal inertia, relative to the shape's ref frame. Returned mass is for a density of 1000
-    float mass=0.0;
+    double mass=0.0;
     if ( (mujocoEngine!=nullptr)&&(mujocoEngine->mujocoPlugin_computeInertia!=nullptr) )
         mass=mujocoEngine->mujocoPlugin_computeInertia(shapeHandle,tr.X.data,tr.Q.data,diagI.data);
 
@@ -893,7 +1006,7 @@ float CPluginContainer::dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vector
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
         if (it->getMeshWrapper()->isConvex())
         {
-            std::vector<float> vert;
+            std::vector<double> vert;
             std::vector<int> ind;
             it->getMeshWrapper()->getCumulativeMeshes(vert,&ind,nullptr);
             C3Vector com;
@@ -947,13 +1060,13 @@ void CPluginContainer::geomPlugin_releaseBuffer(void* buffer)
         currentGeomPlugin->geomPlugin_releaseBuffer(buffer);
 }
 
-void* CPluginContainer::geomPlugin_createMesh(const float* vertices,int verticesSize,const int* indices,int indicesSize,const C7Vector* meshOrigin/*=nullptr*/,float triangleEdgeMaxLength/*=0.3f*/,int maxTrianglesInBoundingBox/*=8*/)
+void* CPluginContainer::geomPlugin_createMesh(const double* vertices,int verticesSize,const int* indices,int indicesSize,const C7Vector* meshOrigin/*=nullptr*/,double triangleEdgeMaxLength/*=0.3*/,int maxTrianglesInBoundingBox/*=8*/)
 {
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
-        float tr[7];
-        float* _tr=nullptr;
+        double tr[7];
+        double* _tr=nullptr;
         if (meshOrigin!=nullptr)
         {
             meshOrigin->getData(tr);
@@ -990,7 +1103,7 @@ void CPluginContainer::geomPlugin_getMeshSerializationData(const void* meshObbSt
         }
     }
 }
-void CPluginContainer::geomPlugin_scaleMesh(void* meshObbStruct,float scalingFactor)
+void CPluginContainer::geomPlugin_scaleMesh(void* meshObbStruct,double scalingFactor)
 {
     if (currentGeomPlugin!=nullptr)
         currentGeomPlugin->geomPlugin_scaleMesh(meshObbStruct,scalingFactor);
@@ -1000,20 +1113,20 @@ void CPluginContainer::geomPlugin_destroyMesh(void* meshObbStruct)
     if (currentGeomPlugin!=nullptr)
         currentGeomPlugin->geomPlugin_destroyMesh(meshObbStruct);
 }
-float CPluginContainer::geomPlugin_getMeshRootObbVolume(const void* meshObbStruct)
+double CPluginContainer::geomPlugin_getMeshRootObbVolume(const void* meshObbStruct)
 {
-    float retVal=0.0f;
+    double retVal=0.0;
     if (currentGeomPlugin!=nullptr)
         retVal=currentGeomPlugin->geomPlugin_getMeshRootObbVolume(meshObbStruct);
     return(retVal);
 }
-void* CPluginContainer::geomPlugin_createOctreeFromPoints(const float* points,int pointCnt,const C7Vector* octreeOrigin/*=nullptr*/,float cellS/*=0.05f*/,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
+void* CPluginContainer::geomPlugin_createOctreeFromPoints(const double* points,int pointCnt,const C7Vector* octreeOrigin/*=nullptr*/,double cellS/*=0.05*/,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
 {
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
-        float tr[7];
-        float* _tr=nullptr;
+        double tr[7];
+        double* _tr=nullptr;
         if (octreeOrigin!=nullptr)
         {
             octreeOrigin->getData(tr);
@@ -1023,13 +1136,13 @@ void* CPluginContainer::geomPlugin_createOctreeFromPoints(const float* points,in
     }
     return(retVal);
 }
-void* CPluginContainer::geomPlugin_createOctreeFromColorPoints(const float* points,int pointCnt,const C7Vector* octreeOrigin/*=nullptr*/,float cellS/*=0.05f*/,const unsigned char* rgbData/*=nullptr*/,const unsigned int* usrData/*=nullptr*/)
+void* CPluginContainer::geomPlugin_createOctreeFromColorPoints(const double* points,int pointCnt,const C7Vector* octreeOrigin/*=nullptr*/,double cellS/*=0.05*/,const unsigned char* rgbData/*=nullptr*/,const unsigned int* usrData/*=nullptr*/)
 {
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
-        float tr[7];
-        float* _tr=nullptr;
+        double tr[7];
+        double* _tr=nullptr;
         if (octreeOrigin!=nullptr)
         {
             octreeOrigin->getData(tr);
@@ -1039,15 +1152,15 @@ void* CPluginContainer::geomPlugin_createOctreeFromColorPoints(const float* poin
     }
     return(retVal);
 }
-void* CPluginContainer::geomPlugin_createOctreeFromMesh(const void* meshObbStruct,const C7Vector& meshTransformation,const C7Vector* octreeOrigin/*=nullptr*/,float cellS/*=0.05f*/,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
+void* CPluginContainer::geomPlugin_createOctreeFromMesh(const void* meshObbStruct,const C7Vector& meshTransformation,const C7Vector* octreeOrigin/*=nullptr*/,double cellS/*=0.05*/,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
 {
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
-        float _meshTr[7];
+        double _meshTr[7];
         meshTransformation.getData(_meshTr);
-        float tr[7];
-        float* _tr=nullptr;
+        double tr[7];
+        double* _tr=nullptr;
         if (octreeOrigin!=nullptr)
         {
             octreeOrigin->getData(tr);
@@ -1057,15 +1170,15 @@ void* CPluginContainer::geomPlugin_createOctreeFromMesh(const void* meshObbStruc
     }
     return(retVal);
 }
-void* CPluginContainer::geomPlugin_createOctreeFromOctree(const void* otherOctreeStruct,const C7Vector& otherOctreeTransformation,const C7Vector* newOctreeOrigin/*=nullptr*/,float newOctreeCellS/*=0.05f*/,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
+void* CPluginContainer::geomPlugin_createOctreeFromOctree(const void* otherOctreeStruct,const C7Vector& otherOctreeTransformation,const C7Vector* newOctreeOrigin/*=nullptr*/,double newOctreeCellS/*=0.05*/,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
 {
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
-        float _otherOcTr[7];
+        double _otherOcTr[7];
         otherOctreeTransformation.getData(_otherOcTr);
-        float tr[7];
-        float* _tr=nullptr;
+        double tr[7];
+        double* _tr=nullptr;
         if (newOctreeOrigin!=nullptr)
         {
             newOctreeOrigin->getData(tr);
@@ -1122,7 +1235,7 @@ void CPluginContainer::geomPlugin_getOctreeSerializationData_float(const void* o
         }
     }
 }
-void CPluginContainer::geomPlugin_scaleOctree(void* ocStruct,float f)
+void CPluginContainer::geomPlugin_scaleOctree(void* ocStruct,double f)
 {
     if (currentGeomPlugin!=nullptr)
         currentGeomPlugin->geomPlugin_scaleOctree(ocStruct,f);
@@ -1132,12 +1245,12 @@ void CPluginContainer::geomPlugin_destroyOctree(void* ocStruct)
     if (currentGeomPlugin!=nullptr)
         currentGeomPlugin->geomPlugin_destroyOctree(ocStruct);
 }
-void CPluginContainer::geomPlugin_getOctreeVoxelPositions(const void* ocStruct,std::vector<float>& voxelPositions)
+void CPluginContainer::geomPlugin_getOctreeVoxelPositions(const void* ocStruct,std::vector<double>& voxelPositions)
 {
     if (currentGeomPlugin!=nullptr)
     {
         int l;
-        float* data=currentGeomPlugin->geomPlugin_getOctreeVoxelData(ocStruct,&l);
+        double* data=currentGeomPlugin->geomPlugin_getOctreeVoxelData(ocStruct,&l);
         if (data!=nullptr)
         {
             voxelPositions.resize(3*l);
@@ -1156,16 +1269,16 @@ void CPluginContainer::geomPlugin_getOctreeVoxelColors(const void* ocStruct,std:
     if (currentGeomPlugin!=nullptr)
     {
         int l;
-        float* data=currentGeomPlugin->geomPlugin_getOctreeVoxelData(ocStruct,&l);
+        double* data=currentGeomPlugin->geomPlugin_getOctreeVoxelData(ocStruct,&l);
         if (data!=nullptr)
         {
             voxelColors.resize(4*l);
             for (int i=0;i<l;i++)
             {
-                voxelColors[4*i+0]=data[6*i+3];
-                voxelColors[4*i+1]=data[6*i+4];
-                voxelColors[4*i+2]=data[6*i+5];
-                voxelColors[4*i+3]=0.0f;
+                voxelColors[4*i+0]=(float)data[6*i+3];
+                voxelColors[4*i+1]=(float)data[6*i+4];
+                voxelColors[4*i+2]=(float)data[6*i+5];
+                voxelColors[4*i+3]=0.0;
             }
             currentGeomPlugin->geomPlugin_releaseBuffer(data);
         }
@@ -1184,12 +1297,12 @@ void CPluginContainer::geomPlugin_getOctreeUserData(const void* ocStruct,std::ve
         }
     }
 }
-void CPluginContainer::geomPlugin_getOctreeCornersFromOctree(const void* ocStruct,std::vector<float>& points)
+void CPluginContainer::geomPlugin_getOctreeCornersFromOctree(const void* ocStruct,std::vector<double>& points)
 {
     if (currentGeomPlugin!=nullptr)
     {
         int l;
-        float* data=currentGeomPlugin->geomPlugin_getOctreeCornersFromOctree(ocStruct,&l);
+        double* data=currentGeomPlugin->geomPlugin_getOctreeCornersFromOctree(ocStruct,&l);
         if (data!=nullptr)
         {
             points.assign(data,data+3*l);
@@ -1197,20 +1310,20 @@ void CPluginContainer::geomPlugin_getOctreeCornersFromOctree(const void* ocStruc
         }
     }
 }
-void CPluginContainer::geomPlugin_insertPointsIntoOctree(void* ocStruct,const C7Vector& octreeTransformation,const float* points,int pointCnt,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
+void CPluginContainer::geomPlugin_insertPointsIntoOctree(void* ocStruct,const C7Vector& octreeTransformation,const double* points,int pointCnt,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
 {
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         octreeTransformation.getData(_tr);
         currentGeomPlugin->geomPlugin_insertPointsIntoOctree(ocStruct,_tr,points,pointCnt,rgbData,usrData);
     }
 }
-void CPluginContainer::geomPlugin_insertColorPointsIntoOctree(void* ocStruct,const C7Vector& octreeTransformation,const float* points,int pointCnt,const unsigned char* rgbData/*=nullptr*/,const unsigned int* usrData/*=nullptr*/)
+void CPluginContainer::geomPlugin_insertColorPointsIntoOctree(void* ocStruct,const C7Vector& octreeTransformation,const double* points,int pointCnt,const unsigned char* rgbData/*=nullptr*/,const unsigned int* usrData/*=nullptr*/)
 {
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         octreeTransformation.getData(_tr);
         currentGeomPlugin->geomPlugin_insertColorPointsIntoOctree(ocStruct,_tr,points,pointCnt,rgbData,usrData);
     }
@@ -1219,9 +1332,9 @@ void CPluginContainer::geomPlugin_insertMeshIntoOctree(void* ocStruct,const C7Ve
 {
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         octreeTransformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         meshTransformation.getData(_tr2);
         currentGeomPlugin->geomPlugin_insertMeshIntoOctree(ocStruct,_tr1,obbStruct,_tr2,rgbData,usrData);
     }
@@ -1230,19 +1343,19 @@ void CPluginContainer::geomPlugin_insertOctreeIntoOctree(void* oc1Struct,const C
 {
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         octree1Transformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         octree2Transformation.getData(_tr2);
         currentGeomPlugin->geomPlugin_insertOctreeIntoOctree(oc1Struct,_tr1,oc2Struct,_tr2,rgbData,usrData);
     }
 }
-bool CPluginContainer::geomPlugin_removePointsFromOctree(void* ocStruct,const C7Vector& octreeTransformation,const float* points,int pointCnt)
+bool CPluginContainer::geomPlugin_removePointsFromOctree(void* ocStruct,const C7Vector& octreeTransformation,const double* points,int pointCnt)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         octreeTransformation.getData(_tr);
         retVal=currentGeomPlugin->geomPlugin_removePointsFromOctree(ocStruct,_tr,points,pointCnt);
     }
@@ -1253,9 +1366,9 @@ bool CPluginContainer::geomPlugin_removeMeshFromOctree(void* ocStruct,const C7Ve
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         octreeTransformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         meshTransformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_removeMeshFromOctree(ocStruct,_tr1,obbStruct,_tr2);
     }
@@ -1266,21 +1379,21 @@ bool CPluginContainer::geomPlugin_removeOctreeFromOctree(void* oc1Struct,const C
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         octree1Transformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         octree2Transformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_removeOctreeFromOctree(oc1Struct,_tr1,oc2Struct,_tr2);
     }
     return(retVal);
 }
-void* CPluginContainer::geomPlugin_createPtcloudFromPoints(const float* points,int pointCnt,const C7Vector* ptcloudOrigin/*=nullptr*/,float cellS/*=0.05f*/,int maxPointCnt/*=20*/,const unsigned char rgbData[3]/*=nullptr*/,float proximityTol/*=0.005f*/)
+void* CPluginContainer::geomPlugin_createPtcloudFromPoints(const double* points,int pointCnt,const C7Vector* ptcloudOrigin/*=nullptr*/,double cellS/*=0.05*/,int maxPointCnt/*=20*/,const unsigned char rgbData[3]/*=nullptr*/,double proximityTol/*=0.005*/)
 {
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
-        float tr[7];
-        float* _tr=nullptr;
+        double tr[7];
+        double* _tr=nullptr;
         if (ptcloudOrigin!=nullptr)
         {
             ptcloudOrigin->getData(tr);
@@ -1290,13 +1403,13 @@ void* CPluginContainer::geomPlugin_createPtcloudFromPoints(const float* points,i
     }
     return(retVal);
 }
-void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints(const float* points,int pointCnt,const C7Vector* ptcloudOrigin/*=nullptr*/,float cellS/*=0.05f*/,int maxPointCnt/*=20*/,const unsigned char* rgbData/*=nullptr*/,float proximityTol/*=0.005f*/)
+void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints(const double* points,int pointCnt,const C7Vector* ptcloudOrigin/*=nullptr*/,double cellS/*=0.05*/,int maxPointCnt/*=20*/,const unsigned char* rgbData/*=nullptr*/,double proximityTol/*=0.005*/)
 {
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
-        float tr[7];
-        float* _tr=nullptr;
+        double tr[7];
+        double* _tr=nullptr;
         if (ptcloudOrigin!=nullptr)
         {
             ptcloudOrigin->getData(tr);
@@ -1353,7 +1466,7 @@ void CPluginContainer::geomPlugin_getPtcloudSerializationData_float(const void* 
         }
     }
 }
-void CPluginContainer::geomPlugin_scalePtcloud(void* pcStruct,float f)
+void CPluginContainer::geomPlugin_scalePtcloud(void* pcStruct,double f)
 {
     if (currentGeomPlugin!=nullptr)
         currentGeomPlugin->geomPlugin_scalePtcloud(pcStruct,f);
@@ -1363,7 +1476,7 @@ void CPluginContainer::geomPlugin_destroyPtcloud(void* pcStruct)
     if (currentGeomPlugin!=nullptr)
         currentGeomPlugin->geomPlugin_destroyPtcloud(pcStruct);
 }
-void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct,std::vector<float>& pointData,std::vector<float>* colorData/*=nullptr*/,float prop/*=1.0f*/)
+void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct,std::vector<double>& pointData,std::vector<double>* colorData/*=nullptr*/,double prop/*=1.0*/)
 {
     pointData.clear();
     if (colorData!=nullptr)
@@ -1371,7 +1484,7 @@ void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct,std::vec
     if (currentGeomPlugin!=nullptr)
     {
         int l;
-        float* data=currentGeomPlugin->geomPlugin_getPtcloudPoints(pcStruct,&l,prop);
+        double* data=currentGeomPlugin->geomPlugin_getPtcloudPoints(pcStruct,&l,prop);
         if (data!=nullptr)
         {
             for (int i=0;i<l;i++)
@@ -1384,7 +1497,7 @@ void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct,std::vec
                     colorData->push_back(data[6*i+3]);
                     colorData->push_back(data[6*i+4]);
                     colorData->push_back(data[6*i+5]);
-                    colorData->push_back(1.0f);
+                    colorData->push_back(1.0);
                 }
             }
             currentGeomPlugin->geomPlugin_releaseBuffer(data);
@@ -1392,12 +1505,12 @@ void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct,std::vec
     }
 }
 
-void CPluginContainer::geomPlugin_getPtcloudOctreeCorners(const void* pcStruct,std::vector<float>& points)
+void CPluginContainer::geomPlugin_getPtcloudOctreeCorners(const void* pcStruct,std::vector<double>& points)
 {
     if (currentGeomPlugin!=nullptr)
     {
         int l;
-        float* data=currentGeomPlugin->geomPlugin_getPtcloudOctreeCorners(pcStruct,&l);
+        double* data=currentGeomPlugin->geomPlugin_getPtcloudOctreeCorners(pcStruct,&l);
         if (data!=nullptr)
         {
             points.assign(data,data+3*l);
@@ -1412,30 +1525,30 @@ int CPluginContainer::geomPlugin_getPtcloudNonEmptyCellCount(const void* pcStruc
         retVal=currentGeomPlugin->geomPlugin_getPtcloudNonEmptyCellCount(pcStruct);
     return(retVal);
 }
-void CPluginContainer::geomPlugin_insertPointsIntoPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const float* points,int pointCnt,const unsigned char rgbData[3]/*=nullptr*/,float proximityTol/*=0.001f*/)
+void CPluginContainer::geomPlugin_insertPointsIntoPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const double* points,int pointCnt,const unsigned char rgbData[3]/*=nullptr*/,double proximityTol/*=0.001*/)
 {
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         ptcloudTransformation.getData(_tr);
         currentGeomPlugin->geomPlugin_insertPointsIntoPtcloud(pcStruct,_tr,points,pointCnt,rgbData,proximityTol);
     }
 }
-void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const float* points,int pointCnt,const unsigned char* rgbData/*=nullptr*/,float proximityTol/*=0.001f*/)
+void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const double* points,int pointCnt,const unsigned char* rgbData/*=nullptr*/,double proximityTol/*=0.001*/)
 {
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         ptcloudTransformation.getData(_tr);
         currentGeomPlugin->geomPlugin_insertColorPointsIntoPtcloud(pcStruct,_tr,points,pointCnt,rgbData,proximityTol);
     }
 }
-bool CPluginContainer::geomPlugin_removePointsFromPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const float* points,int pointCnt,float proximityTol,int* countRemoved/*=nullptr*/)
+bool CPluginContainer::geomPlugin_removePointsFromPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const double* points,int pointCnt,double proximityTol,int* countRemoved/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         ptcloudTransformation.getData(_tr);
         retVal=currentGeomPlugin->geomPlugin_removePointsFromPtcloud(pcStruct,_tr,points,pointCnt,proximityTol,countRemoved);
     }
@@ -1446,37 +1559,37 @@ bool CPluginContainer::geomPlugin_removeOctreeFromPtcloud(void* pcStruct,const C
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         ptcloudTransformation.getData(_tr);
-        float _tr2[7];
+        double _tr2[7];
         octreeTransformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_removeOctreeFromPtcloud(pcStruct,_tr,ocStruct,_tr2,countRemoved);
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_intersectPointsWithPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const float* points,int pointCnt,float proximityTol/*=0.001f*/)
+bool CPluginContainer::geomPlugin_intersectPointsWithPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const double* points,int pointCnt,double proximityTol/*=0.001*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         ptcloudTransformation.getData(_tr);
         retVal=currentGeomPlugin->geomPlugin_intersectPointsWithPtcloud(pcStruct,_tr,points,pointCnt,proximityTol);
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getMeshMeshCollision(const void* mesh1ObbStruct,const C7Vector& mesh1Transformation,const void* mesh2ObbStruct,const C7Vector& mesh2Transformation,std::vector<float>* intersections/*=nullptr*/,int* mesh1Caching/*=nullptr*/,int* mesh2Caching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getMeshMeshCollision(const void* mesh1ObbStruct,const C7Vector& mesh1Transformation,const void* mesh2ObbStruct,const C7Vector& mesh2Transformation,std::vector<double>* intersections/*=nullptr*/,int* mesh1Caching/*=nullptr*/,int* mesh2Caching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         mesh1Transformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         mesh2Transformation.getData(_tr2);
-        float* _intersections;
+        double* _intersections;
         int _intersectionsSize;
-        float** _int=nullptr;
+        double** _int=nullptr;
         if (intersections!=nullptr)
             _int=&_intersections;
         retVal=currentGeomPlugin->geomPlugin_getMeshMeshCollision(mesh1ObbStruct,_tr1,mesh2ObbStruct,_tr2,_int,&_intersectionsSize,mesh1Caching,mesh2Caching);
@@ -1493,24 +1606,24 @@ bool CPluginContainer::geomPlugin_getMeshOctreeCollision(const void* meshObbStru
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         meshTransformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         octreeTransformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_getMeshOctreeCollision(meshObbStruct,_tr1,ocStruct,_tr2,meshCaching,ocCaching);
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getMeshTriangleCollision(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,std::vector<float>* intersections/*=nullptr*/,int* caching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getMeshTriangleCollision(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,std::vector<double>* intersections/*=nullptr*/,int* caching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         meshTransformation.getData(_tr);
-        float* _intersections;
+        double* _intersections;
         int _intersectionsSize;
-        float** _int=nullptr;
+        double** _int=nullptr;
         if (intersections!=nullptr)
             _int=&_intersections;
         retVal=currentGeomPlugin->geomPlugin_getMeshTriangleCollision(meshObbStruct,_tr,p.data,v.data,w.data,_int,&_intersectionsSize,caching);
@@ -1522,16 +1635,16 @@ bool CPluginContainer::geomPlugin_getMeshTriangleCollision(const void* meshObbSt
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getMeshSegmentCollision(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& segmentExtremity,const C3Vector& segmentVector,std::vector<float>* intersections/*=nullptr*/,int* caching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getMeshSegmentCollision(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& segmentExtremity,const C3Vector& segmentVector,std::vector<double>* intersections/*=nullptr*/,int* caching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         meshTransformation.getData(_tr);
-        float* _intersections;
+        double* _intersections;
         int _intersectionsSize;
-        float** _int=nullptr;
+        double** _int=nullptr;
         if (intersections!=nullptr)
             _int=&_intersections;
         retVal=currentGeomPlugin->geomPlugin_getMeshSegmentCollision(meshObbStruct,_tr,segmentExtremity.data,segmentVector.data,_int,&_intersectionsSize,caching);
@@ -1548,9 +1661,9 @@ bool CPluginContainer::geomPlugin_getOctreeOctreeCollision(const void* oc1Struct
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         octree1Transformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         octree2Transformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_getOctreeOctreeCollision(oc1Struct,_tr1,oc2Struct,_tr2,oc1Caching,oc2Caching);
     }
@@ -1561,9 +1674,9 @@ bool CPluginContainer::geomPlugin_getOctreePtcloudCollision(const void* ocStruct
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         octreeTransformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         ptcloudTransformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_getOctreePtcloudCollision(ocStruct,_tr1,pcStruct,_tr2,ocCaching,pcCaching);
     }
@@ -1574,7 +1687,7 @@ bool CPluginContainer::geomPlugin_getOctreeTriangleCollision(const void* ocStruc
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         octreeTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getOctreeTriangleCollision(ocStruct,_tr1,p.data,v.data,w.data,caching);
     }
@@ -1585,18 +1698,18 @@ bool CPluginContainer::geomPlugin_getOctreeSegmentCollision(const void* ocStruct
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         octreeTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getOctreeSegmentCollision(ocStruct,_tr1,segmentExtremity.data,segmentVector.data,caching);
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getOctreePointsCollision(const void* ocStruct,const C7Vector& octreeTransformation,const float* points,int pointCount)
+bool CPluginContainer::geomPlugin_getOctreePointsCollision(const void* ocStruct,const C7Vector& octreeTransformation,const double* points,int pointCount)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         octreeTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getOctreePointsCollision(ocStruct,_tr1,points,pointCount);
     }
@@ -1607,7 +1720,7 @@ bool CPluginContainer::geomPlugin_getOctreePointCollision(const void* ocStruct,c
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         octreeTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getOctreePointCollision(ocStruct,_tr1,point.data,usrData,caching);
     }
@@ -1618,9 +1731,9 @@ bool CPluginContainer::geomPlugin_getBoxBoxCollision(const C7Vector& box1Transfo
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         box1Transformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         box2Transformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_getBoxBoxCollision(_tr1,box1HalfSize.data,_tr2,box2HalfSize.data,boxesAreSolid);
     }
@@ -1631,7 +1744,7 @@ bool CPluginContainer::geomPlugin_getBoxTriangleCollision(const C7Vector& boxTra
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         boxTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getBoxTriangleCollision(_tr1,boxHalfSize.data,boxIsSolid,p.data,v.data,w.data);
     }
@@ -1642,7 +1755,7 @@ bool CPluginContainer::geomPlugin_getBoxSegmentCollision(const C7Vector& boxTran
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         boxTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getBoxSegmentCollision(_tr1,boxHalfSize.data,boxIsSolid,segmentEndPoint.data,segmentVector.data);
     }
@@ -1653,20 +1766,20 @@ bool CPluginContainer::geomPlugin_getBoxPointCollision(const C7Vector& boxTransf
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         boxTransformation.getData(_tr1);
         retVal=currentGeomPlugin->geomPlugin_getBoxPointCollision(_tr1,boxHalfSize.data,point.data);
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getTriangleTriangleCollision(const C3Vector& p1,const C3Vector& v1,const C3Vector& w1,const C3Vector& p2,const C3Vector& v2,const C3Vector& w2,std::vector<float>* intersections/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getTriangleTriangleCollision(const C3Vector& p1,const C3Vector& v1,const C3Vector& w1,const C3Vector& p2,const C3Vector& v2,const C3Vector& w2,std::vector<double>* intersections/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float* _intersections;
+        double* _intersections;
         int _intersectionsSize;
-        float** _int=nullptr;
+        double** _int=nullptr;
         if (intersections!=nullptr)
             _int=&_intersections;
         retVal=currentGeomPlugin->geomPlugin_getTriangleTriangleCollision(p1.data,v1.data,w1.data,p2.data,v2.data,w2.data,_int,&_intersectionsSize);
@@ -1678,14 +1791,14 @@ bool CPluginContainer::geomPlugin_getTriangleTriangleCollision(const C3Vector& p
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getTriangleSegmentCollision(const C3Vector& p,const C3Vector& v,const C3Vector& w,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,std::vector<float>* intersections/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getTriangleSegmentCollision(const C3Vector& p,const C3Vector& v,const C3Vector& w,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,std::vector<double>* intersections/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float* _intersections;
+        double* _intersections;
         int _intersectionsSize;
-        float** _int=nullptr;
+        double** _int=nullptr;
         if (intersections!=nullptr)
             _int=&_intersections;
         retVal=currentGeomPlugin->geomPlugin_getTriangleSegmentCollision(p.data,v.data,w.data,segmentEndPoint.data,segmentVector.data,_int,&_intersectionsSize);
@@ -1697,17 +1810,17 @@ bool CPluginContainer::geomPlugin_getTriangleSegmentCollision(const C3Vector& p,
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(const void* mesh1ObbStruct,const C7Vector& mesh1Transformation,const void* mesh2ObbStruct,const C7Vector& mesh2Transformation,float& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/,int* mesh1Caching/*=nullptr*/,int* mesh2Caching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(const void* mesh1ObbStruct,const C7Vector& mesh1Transformation,const void* mesh2ObbStruct,const C7Vector& mesh2Transformation,double& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/,int* mesh1Caching/*=nullptr*/,int* mesh2Caching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         mesh1Transformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         mesh2Transformation.getData(_tr2);
-        float _minDistSegPt1[3];
-        float _minDistSegPt2[3];
+        double _minDistSegPt1[3];
+        double _minDistSegPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getMeshMeshDistanceIfSmaller(mesh1ObbStruct,_tr1,mesh2ObbStruct,_tr2,&dist,_minDistSegPt1,_minDistSegPt2,mesh1Caching,mesh2Caching);
         if (retVal)
         {
@@ -1719,17 +1832,17 @@ bool CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(const void* mesh1
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const void* ocStruct,const C7Vector& octreeTransformation,float& dist,C3Vector* meshMinDistPt/*=nullptr*/,C3Vector* ocMinDistPt/*=nullptr*/,int* meshCaching/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const void* ocStruct,const C7Vector& octreeTransformation,double& dist,C3Vector* meshMinDistPt/*=nullptr*/,C3Vector* ocMinDistPt/*=nullptr*/,int* meshCaching/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         meshTransformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         octreeTransformation.getData(_tr2);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getMeshOctreeDistanceIfSmaller(meshObbStruct,_tr1,ocStruct,_tr2,&dist,_minDistPt1,_minDistPt2,meshCaching,ocCaching);
         if (retVal)
         {
@@ -1741,17 +1854,17 @@ bool CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(const void* mes
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const void* pcStruct,const C7Vector& pcTransformation,float& dist,C3Vector* meshMinDistPt/*=nullptr*/,C3Vector* pcMinDistPt/*=nullptr*/,int* meshCaching/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const void* pcStruct,const C7Vector& pcTransformation,double& dist,C3Vector* meshMinDistPt/*=nullptr*/,C3Vector* pcMinDistPt/*=nullptr*/,int* meshCaching/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         meshTransformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         pcTransformation.getData(_tr2);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getMeshPtcloudDistanceIfSmaller(meshObbStruct,_tr1,pcStruct,_tr2,&dist,_minDistPt1,_minDistPt2,meshCaching,pcCaching);
         if (retVal)
         {
@@ -1763,15 +1876,15 @@ bool CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(const void* me
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getMeshTriangleDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,float& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/,int* caching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getMeshTriangleDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,double& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/,int* caching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         meshTransformation.getData(_tr);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getMeshTriangleDistanceIfSmaller(meshObbStruct,_tr,p.data,v.data,w.data,&dist,_minDistPt1,_minDistPt2,caching);
         if (retVal)
         {
@@ -1783,15 +1896,15 @@ bool CPluginContainer::geomPlugin_getMeshTriangleDistanceIfSmaller(const void* m
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getMeshSegmentDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,float& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/,int* caching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getMeshSegmentDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,double& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/,int* caching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         meshTransformation.getData(_tr);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getMeshSegmentDistanceIfSmaller(meshObbStruct,_tr,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2,caching);
         if (retVal)
         {
@@ -1803,14 +1916,14 @@ bool CPluginContainer::geomPlugin_getMeshSegmentDistanceIfSmaller(const void* me
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& point,float& dist,C3Vector* minDistSegPt/*=nullptr*/,int* caching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& point,double& dist,C3Vector* minDistSegPt/*=nullptr*/,int* caching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         meshTransformation.getData(_tr);
-        float _minDistPt1[3];
+        double _minDistPt1[3];
         retVal=currentGeomPlugin->geomPlugin_getMeshPointDistanceIfSmaller(meshObbStruct,_tr,point.data,&dist,_minDistPt1,caching);
         if (retVal)
         {
@@ -1820,17 +1933,17 @@ bool CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(const void* mesh
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getOctreeOctreeDistanceIfSmaller(const void* oc1Struct,const C7Vector& octree1Transformation,const void* oc2Struct,const C7Vector& octree2Transformation,float& dist,C3Vector* oc1MinDistPt/*=nullptr*/,C3Vector* oc2MinDistPt/*=nullptr*/,unsigned long long int* oc1Caching/*=nullptr*/,unsigned long long int* oc2Caching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getOctreeOctreeDistanceIfSmaller(const void* oc1Struct,const C7Vector& octree1Transformation,const void* oc2Struct,const C7Vector& octree2Transformation,double& dist,C3Vector* oc1MinDistPt/*=nullptr*/,C3Vector* oc2MinDistPt/*=nullptr*/,unsigned long long int* oc1Caching/*=nullptr*/,unsigned long long int* oc2Caching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         octree1Transformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         octree2Transformation.getData(_tr2);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getOctreeOctreeDistanceIfSmaller(oc1Struct,_tr1,oc2Struct,_tr2,&dist,_minDistPt1,_minDistPt2,oc1Caching,oc2Caching);
         if (retVal)
         {
@@ -1842,17 +1955,17 @@ bool CPluginContainer::geomPlugin_getOctreeOctreeDistanceIfSmaller(const void* o
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getOctreePtcloudDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const void* pcStruct,const C7Vector& pcTransformation,float& dist,C3Vector* ocMinDistPt/*=nullptr*/,C3Vector* pcMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getOctreePtcloudDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const void* pcStruct,const C7Vector& pcTransformation,double& dist,C3Vector* ocMinDistPt/*=nullptr*/,C3Vector* pcMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         octreeTransformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         pcTransformation.getData(_tr2);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getOctreePtcloudDistanceIfSmaller(ocStruct,_tr1,pcStruct,_tr2,&dist,_minDistPt1,_minDistPt2,ocCaching,pcCaching);
         if (retVal)
         {
@@ -1864,15 +1977,15 @@ bool CPluginContainer::geomPlugin_getOctreePtcloudDistanceIfSmaller(const void* 
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getOctreeTriangleDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,float& dist,C3Vector* ocMinDistPt/*=nullptr*/,C3Vector* triMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getOctreeTriangleDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,double& dist,C3Vector* ocMinDistPt/*=nullptr*/,C3Vector* triMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         octreeTransformation.getData(_tr);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getOctreeTriangleDistanceIfSmaller(ocStruct,_tr,p.data,v.data,w.data,&dist,_minDistPt1,_minDistPt2,ocCaching);
         if (retVal)
         {
@@ -1884,15 +1997,15 @@ bool CPluginContainer::geomPlugin_getOctreeTriangleDistanceIfSmaller(const void*
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getOctreeSegmentDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,float& dist,C3Vector* ocMinDistPt/*=nullptr*/,C3Vector* segMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getOctreeSegmentDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,double& dist,C3Vector* ocMinDistPt/*=nullptr*/,C3Vector* segMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         octreeTransformation.getData(_tr);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getOctreeSegmentDistanceIfSmaller(ocStruct,_tr,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2,ocCaching);
         if (retVal)
         {
@@ -1904,14 +2017,14 @@ bool CPluginContainer::geomPlugin_getOctreeSegmentDistanceIfSmaller(const void* 
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getOctreePointDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& point,float& dist,C3Vector* ocMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getOctreePointDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& point,double& dist,C3Vector* ocMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         octreeTransformation.getData(_tr);
-        float _minDistPt1[3];
+        double _minDistPt1[3];
         retVal=currentGeomPlugin->geomPlugin_getOctreePointDistanceIfSmaller(ocStruct,_tr,point.data,&dist,_minDistPt1,ocCaching);
         if (retVal)
         {
@@ -1921,17 +2034,17 @@ bool CPluginContainer::geomPlugin_getOctreePointDistanceIfSmaller(const void* oc
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getPtcloudPtcloudDistanceIfSmaller(const void* pc1Struct,const C7Vector& pc1Transformation,const void* pc2Struct,const C7Vector& pc2Transformation,float& dist,C3Vector* pc1MinDistPt/*=nullptr*/,C3Vector* pc2MinDistPt/*=nullptr*/,unsigned long long int* pc1Caching/*=nullptr*/,unsigned long long int* pc2Caching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getPtcloudPtcloudDistanceIfSmaller(const void* pc1Struct,const C7Vector& pc1Transformation,const void* pc2Struct,const C7Vector& pc2Transformation,double& dist,C3Vector* pc1MinDistPt/*=nullptr*/,C3Vector* pc2MinDistPt/*=nullptr*/,unsigned long long int* pc1Caching/*=nullptr*/,unsigned long long int* pc2Caching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         pc1Transformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         pc2Transformation.getData(_tr2);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getPtcloudPtcloudDistanceIfSmaller(pc1Struct,_tr1,pc2Struct,_tr2,&dist,_minDistPt1,_minDistPt2,pc1Caching,pc2Caching);
         if (retVal)
         {
@@ -1943,15 +2056,15 @@ bool CPluginContainer::geomPlugin_getPtcloudPtcloudDistanceIfSmaller(const void*
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getPtcloudTriangleDistanceIfSmaller(const void* pcStruct,const C7Vector& pcTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,float& dist,C3Vector* pcMinDistPt/*=nullptr*/,C3Vector* triMinDistPt/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getPtcloudTriangleDistanceIfSmaller(const void* pcStruct,const C7Vector& pcTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,double& dist,C3Vector* pcMinDistPt/*=nullptr*/,C3Vector* triMinDistPt/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         pcTransformation.getData(_tr);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getPtcloudTriangleDistanceIfSmaller(pcStruct,_tr,p.data,v.data,w.data,&dist,_minDistPt1,_minDistPt2,pcCaching);
         if (retVal)
         {
@@ -1963,15 +2076,15 @@ bool CPluginContainer::geomPlugin_getPtcloudTriangleDistanceIfSmaller(const void
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getPtcloudSegmentDistanceIfSmaller(const void* pcStruct,const C7Vector& pcTransformation,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,float& dist,C3Vector* pcMinDistPt/*=nullptr*/,C3Vector* segMinDistPt/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getPtcloudSegmentDistanceIfSmaller(const void* pcStruct,const C7Vector& pcTransformation,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,double& dist,C3Vector* pcMinDistPt/*=nullptr*/,C3Vector* segMinDistPt/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         pcTransformation.getData(_tr);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getPtcloudSegmentDistanceIfSmaller(pcStruct,_tr,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2,pcCaching);
         if (retVal)
         {
@@ -1983,14 +2096,14 @@ bool CPluginContainer::geomPlugin_getPtcloudSegmentDistanceIfSmaller(const void*
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getPtcloudPointDistanceIfSmaller(const void* pcStruct,const C7Vector& pcTransformation,const C3Vector& point,float& dist,C3Vector* pcMinDistPt/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getPtcloudPointDistanceIfSmaller(const void* pcStruct,const C7Vector& pcTransformation,const C3Vector& point,double& dist,C3Vector* pcMinDistPt/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         pcTransformation.getData(_tr);
-        float _minDistPt1[3];
+        double _minDistPt1[3];
         retVal=currentGeomPlugin->geomPlugin_getPtcloudPointDistanceIfSmaller(pcStruct,_tr,point.data,&dist,_minDistPt1,pcCaching);
         if (retVal)
         {
@@ -2000,30 +2113,30 @@ bool CPluginContainer::geomPlugin_getPtcloudPointDistanceIfSmaller(const void* p
     }
     return(retVal);
 }
-float CPluginContainer::geomPlugin_getApproxBoxBoxDistance(const C7Vector& box1Transformation,const C3Vector& box1HalfSize,const C7Vector& box2Transformation,const C3Vector& box2HalfSize)
+double CPluginContainer::geomPlugin_getApproxBoxBoxDistance(const C7Vector& box1Transformation,const C3Vector& box1HalfSize,const C7Vector& box2Transformation,const C3Vector& box2HalfSize)
 {
-    float retVal=0.0f;
+    double retVal=0.0;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         box1Transformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         box2Transformation.getData(_tr2);
         retVal=currentGeomPlugin->geomPlugin_getApproxBoxBoxDistance(_tr1,box1HalfSize.data,_tr2,box2HalfSize.data);
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getBoxBoxDistanceIfSmaller(const C7Vector& box1Transformation,const C3Vector& box1HalfSize,const C7Vector& box2Transformation,const C3Vector& box2HalfSize,bool boxesAreSolid,float& dist,C3Vector* distSegPt1/*=nullptr*/,C3Vector* distSegPt2/*=nullptr*/,bool altRoutine/*=false*/)
+bool CPluginContainer::geomPlugin_getBoxBoxDistanceIfSmaller(const C7Vector& box1Transformation,const C3Vector& box1HalfSize,const C7Vector& box2Transformation,const C3Vector& box2HalfSize,bool boxesAreSolid,double& dist,C3Vector* distSegPt1/*=nullptr*/,C3Vector* distSegPt2/*=nullptr*/,bool altRoutine/*=false*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr1[7];
+        double _tr1[7];
         box1Transformation.getData(_tr1);
-        float _tr2[7];
+        double _tr2[7];
         box2Transformation.getData(_tr2);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getBoxBoxDistanceIfSmaller(_tr1,box1HalfSize.data,_tr2,box2HalfSize.data,boxesAreSolid,&dist,_minDistPt1,_minDistPt2);
         if (retVal)
         {
@@ -2035,15 +2148,15 @@ bool CPluginContainer::geomPlugin_getBoxBoxDistanceIfSmaller(const C7Vector& box
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getBoxTriangleDistanceIfSmaller(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& p,const C3Vector& v,const C3Vector& w,float& dist,C3Vector* distSegPt1/*=nullptr*/,C3Vector* distSegPt2/*=nullptr*/,bool altRoutine/*=false*/)
+bool CPluginContainer::geomPlugin_getBoxTriangleDistanceIfSmaller(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& p,const C3Vector& v,const C3Vector& w,double& dist,C3Vector* distSegPt1/*=nullptr*/,C3Vector* distSegPt2/*=nullptr*/,bool altRoutine/*=false*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         boxTransformation.getData(_tr);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getBoxTriangleDistanceIfSmaller(_tr,boxHalfSize.data,boxIsSolid,p.data,v.data,w.data,&dist,_minDistPt1,_minDistPt2);
         if (retVal)
         {
@@ -2055,15 +2168,15 @@ bool CPluginContainer::geomPlugin_getBoxTriangleDistanceIfSmaller(const C7Vector
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getBoxSegmentDistanceIfSmaller(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,float& dist,C3Vector* distSegPt1/*=nullptr*/,C3Vector* distSegPt2/*=nullptr*/,bool altRoutine/*=false*/)
+bool CPluginContainer::geomPlugin_getBoxSegmentDistanceIfSmaller(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,double& dist,C3Vector* distSegPt1/*=nullptr*/,C3Vector* distSegPt2/*=nullptr*/,bool altRoutine/*=false*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         boxTransformation.getData(_tr);
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getBoxSegmentDistanceIfSmaller(_tr,boxHalfSize.data,boxIsSolid,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2);
         if (retVal)
         {
@@ -2075,14 +2188,14 @@ bool CPluginContainer::geomPlugin_getBoxSegmentDistanceIfSmaller(const C7Vector&
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getBoxPointDistanceIfSmaller(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& point,float& dist,C3Vector* distSegPt1/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getBoxPointDistanceIfSmaller(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& point,double& dist,C3Vector* distSegPt1/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         boxTransformation.getData(_tr);
-        float _minDistPt1[3];
+        double _minDistPt1[3];
         retVal=currentGeomPlugin->geomPlugin_getBoxPointDistanceIfSmaller(_tr,boxHalfSize.data,boxIsSolid,point.data,&dist,_minDistPt1);
         if (retVal)
         {
@@ -2092,19 +2205,19 @@ bool CPluginContainer::geomPlugin_getBoxPointDistanceIfSmaller(const C7Vector& b
     }
     return(retVal);
 }
-float CPluginContainer::geomPlugin_getBoxPointDistance(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& point,C3Vector* distSegPt1/*=nullptr*/)
+double CPluginContainer::geomPlugin_getBoxPointDistance(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& point,C3Vector* distSegPt1/*=nullptr*/)
 {
-    float dist=FLOAT_MAX;
+    double dist=FLOAT_MAX;
     geomPlugin_getBoxPointDistanceIfSmaller(boxTransformation,boxHalfSize,boxIsSolid,point,dist,distSegPt1);
     return(dist);
 }
-bool CPluginContainer::geomPlugin_getTriangleTriangleDistanceIfSmaller(const C3Vector& p1,const C3Vector& v1,const C3Vector& w1,const C3Vector& p2,const C3Vector& v2,const C3Vector& w2,float& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getTriangleTriangleDistanceIfSmaller(const C3Vector& p1,const C3Vector& v1,const C3Vector& w1,const C3Vector& p2,const C3Vector& v2,const C3Vector& w2,double& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getTriangleTriangleDistanceIfSmaller(p1.data,v1.data,w1.data,p2.data,v2.data,w2.data,&dist,_minDistPt1,_minDistPt2);
         if (retVal)
         {
@@ -2116,13 +2229,13 @@ bool CPluginContainer::geomPlugin_getTriangleTriangleDistanceIfSmaller(const C3V
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getTriangleSegmentDistanceIfSmaller(const C3Vector& p,const C3Vector& v,const C3Vector& w,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,float& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getTriangleSegmentDistanceIfSmaller(const C3Vector& p,const C3Vector& v,const C3Vector& w,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,double& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getTriangleSegmentDistanceIfSmaller(p.data,v.data,w.data,segmentEndPoint.data,segmentVector.data,&dist,_minDistPt1,_minDistPt2);
         if (retVal)
         {
@@ -2134,12 +2247,12 @@ bool CPluginContainer::geomPlugin_getTriangleSegmentDistanceIfSmaller(const C3Ve
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getTrianglePointDistanceIfSmaller(const C3Vector& p,const C3Vector& v,const C3Vector& w,const C3Vector& point,float& dist,C3Vector* minDistSegPt/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getTrianglePointDistanceIfSmaller(const C3Vector& p,const C3Vector& v,const C3Vector& w,const C3Vector& point,double& dist,C3Vector* minDistSegPt/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _minDistPt1[3];
+        double _minDistPt1[3];
         retVal=currentGeomPlugin->geomPlugin_getTrianglePointDistanceIfSmaller(p.data,v.data,w.data,point.data,&dist,_minDistPt1);
         if (retVal)
         {
@@ -2149,13 +2262,13 @@ bool CPluginContainer::geomPlugin_getTrianglePointDistanceIfSmaller(const C3Vect
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getSegmentSegmentDistanceIfSmaller(const C3Vector& segment1EndPoint,const C3Vector& segment1Vector,const C3Vector& segment2EndPoint,const C3Vector& segment2Vector,float& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getSegmentSegmentDistanceIfSmaller(const C3Vector& segment1EndPoint,const C3Vector& segment1Vector,const C3Vector& segment2EndPoint,const C3Vector& segment2Vector,double& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _minDistPt1[3];
-        float _minDistPt2[3];
+        double _minDistPt1[3];
+        double _minDistPt2[3];
         retVal=currentGeomPlugin->geomPlugin_getSegmentSegmentDistanceIfSmaller(segment1EndPoint.data,segment1Vector.data,segment2EndPoint.data,segment2Vector.data,&dist,_minDistPt1,_minDistPt2);
         if (retVal)
         {
@@ -2167,12 +2280,12 @@ bool CPluginContainer::geomPlugin_getSegmentSegmentDistanceIfSmaller(const C3Vec
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_getSegmentPointDistanceIfSmaller(const C3Vector& segmentEndPoint,const C3Vector& segmentVector,const C3Vector& point,float& dist,C3Vector* minDistSegPt/*=nullptr*/)
+bool CPluginContainer::geomPlugin_getSegmentPointDistanceIfSmaller(const C3Vector& segmentEndPoint,const C3Vector& segmentVector,const C3Vector& point,double& dist,C3Vector* minDistSegPt/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _minDistPt1[3];
+        double _minDistPt1[3];
         retVal=currentGeomPlugin->geomPlugin_getSegmentPointDistanceIfSmaller(segmentEndPoint.data,segmentVector.data,point.data,&dist,_minDistPt1);
         if (retVal)
         {
@@ -2182,21 +2295,21 @@ bool CPluginContainer::geomPlugin_getSegmentPointDistanceIfSmaller(const C3Vecto
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const void* obbStruct,const C7Vector& meshTransformation,float& dist,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,float maxAngle/*=0.0f*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/)
+bool CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const void* obbStruct,const C7Vector& meshTransformation,double& dist,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,double maxAngle/*=0.0*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/)
 {
     bool retVal=false;
-    const float* _planesIn=nullptr;
+    const double* _planesIn=nullptr;
     if (planesIn.size()>0)
         _planesIn=&planesIn[0];
-    const float* _planesOut=nullptr;
+    const double* _planesOut=nullptr;
     if (planesOut.size()>0)
         _planesOut=&planesOut[0];
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         meshTransformation.getData(_tr);
-        float _detectPt[3];
-        float _triN[3];
+        double _detectPt[3];
+        double _triN[3];
         retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectMeshIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),obbStruct,_tr,&dist,fast,frontDetection,backDetection,maxAngle,_detectPt,_triN);
         if (retVal)
         {
@@ -2208,21 +2321,21 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(const std::vec
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_volumeSensorDetectOctreeIfSmaller(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const void* ocStruct,const C7Vector& octreeTransformation,float& dist,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,float maxAngle/*=0.0f*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/)
+bool CPluginContainer::geomPlugin_volumeSensorDetectOctreeIfSmaller(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const void* ocStruct,const C7Vector& octreeTransformation,double& dist,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,double maxAngle/*=0.0*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/)
 {
     bool retVal=false;
-    const float* _planesIn=nullptr;
+    const double* _planesIn=nullptr;
     if (planesIn.size()>0)
         _planesIn=&planesIn[0];
-    const float* _planesOut=nullptr;
+    const double* _planesOut=nullptr;
     if (planesOut.size()>0)
         _planesOut=&planesOut[0];
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         octreeTransformation.getData(_tr);
-        float _detectPt[3];
-        float _triN[3];
+        double _detectPt[3];
+        double _triN[3];
         retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectOctreeIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),ocStruct,_tr,&dist,fast,frontDetection,backDetection,maxAngle,_detectPt,_triN);
         if (retVal)
         {
@@ -2234,20 +2347,20 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectOctreeIfSmaller(const std::v
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_volumeSensorDetectPtcloudIfSmaller(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const void* pcStruct,const C7Vector& ptcloudTransformation,float& dist,bool fast/*=false*/,C3Vector* detectPt/*=nullptr*/)
+bool CPluginContainer::geomPlugin_volumeSensorDetectPtcloudIfSmaller(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const void* pcStruct,const C7Vector& ptcloudTransformation,double& dist,bool fast/*=false*/,C3Vector* detectPt/*=nullptr*/)
 {
     bool retVal=false;
-    const float* _planesIn=nullptr;
+    const double* _planesIn=nullptr;
     if (planesIn.size()>0)
         _planesIn=&planesIn[0];
-    const float* _planesOut=nullptr;
+    const double* _planesOut=nullptr;
     if (planesOut.size()>0)
         _planesOut=&planesOut[0];
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         ptcloudTransformation.getData(_tr);
-        float _detectPt[3];
+        double _detectPt[3];
         retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectPtcloudIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),pcStruct,_tr,&dist,fast,_detectPt);
         if (retVal)
         {
@@ -2257,19 +2370,19 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectPtcloudIfSmaller(const std::
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_volumeSensorDetectTriangleIfSmaller(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const C3Vector& p,const C3Vector& v,const C3Vector& w,float& dist,bool frontDetection/*=true*/,bool backDetection/*=true*/,float maxAngle/*=0.0f*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/)
+bool CPluginContainer::geomPlugin_volumeSensorDetectTriangleIfSmaller(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const C3Vector& p,const C3Vector& v,const C3Vector& w,double& dist,bool frontDetection/*=true*/,bool backDetection/*=true*/,double maxAngle/*=0.0*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/)
 {
     bool retVal=false;
-    const float* _planesIn=nullptr;
+    const double* _planesIn=nullptr;
     if (planesIn.size()>0)
         _planesIn=&planesIn[0];
-    const float* _planesOut=nullptr;
+    const double* _planesOut=nullptr;
     if (planesOut.size()>0)
         _planesOut=&planesOut[0];
     if (currentGeomPlugin!=nullptr)
     {
-        float _detectPt[3];
-        float _triN[3];
+        double _detectPt[3];
+        double _triN[3];
         retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectTriangleIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),p.data,v.data,w.data,&dist,frontDetection,backDetection,maxAngle,_detectPt,_triN);
         if (retVal)
         {
@@ -2281,18 +2394,18 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectTriangleIfSmaller(const std:
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_volumeSensorDetectSegmentIfSmaller(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,float& dist,float maxAngle/*=0.0f*/,C3Vector* detectPt/*=nullptr*/)
+bool CPluginContainer::geomPlugin_volumeSensorDetectSegmentIfSmaller(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,double& dist,double maxAngle/*=0.0*/,C3Vector* detectPt/*=nullptr*/)
 {
     bool retVal=false;
-    const float* _planesIn=nullptr;
+    const double* _planesIn=nullptr;
     if (planesIn.size()>0)
         _planesIn=&planesIn[0];
-    const float* _planesOut=nullptr;
+    const double* _planesOut=nullptr;
     if (planesOut.size()>0)
         _planesOut=&planesOut[0];
     if (currentGeomPlugin!=nullptr)
     {
-        float _detectPt[3];
+        double _detectPt[3];
         retVal=currentGeomPlugin->geomPlugin_volumeSensorDetectSegmentIfSmaller(_planesIn,int(planesIn.size()),_planesOut,int(planesOut.size()),segmentEndPoint.data,segmentVector.data,&dist,maxAngle,_detectPt);
         if (retVal)
         {
@@ -2302,15 +2415,15 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectSegmentIfSmaller(const std::
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(const C3Vector& rayStart,const C3Vector& rayVect,const void* obbStruct,const C7Vector& meshTransformation,float& dist,float forbiddenDist/*=0.0f*/,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,float maxAngle/*=0.0f*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/,bool* forbiddenDistTouched/*=nullptr*/)
+bool CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(const C3Vector& rayStart,const C3Vector& rayVect,const void* obbStruct,const C7Vector& meshTransformation,double& dist,double forbiddenDist/*=0.0*/,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,double maxAngle/*=0.0*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/,bool* forbiddenDistTouched/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         meshTransformation.getData(_tr);
-        float _detectPt[3];
-        float _triN[3];
+        double _detectPt[3];
+        double _triN[3];
         retVal=currentGeomPlugin->geomPlugin_raySensorDetectMeshIfSmaller(rayStart.data,rayVect.data,obbStruct,_tr,&dist,forbiddenDist,fast,frontDetection,backDetection,maxAngle,_detectPt,_triN,forbiddenDistTouched);
         if (retVal)
         {
@@ -2322,15 +2435,15 @@ bool CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(const C3Vector& r
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(const C3Vector& rayStart,const C3Vector& rayVect,const void* ocStruct,const C7Vector& octreeTransformation,float& dist,float forbiddenDist/*=0.0f*/,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,float maxAngle/*=0.0f*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/,bool* forbiddenDistTouched/*=nullptr*/)
+bool CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(const C3Vector& rayStart,const C3Vector& rayVect,const void* ocStruct,const C7Vector& octreeTransformation,double& dist,double forbiddenDist/*=0.0*/,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,double maxAngle/*=0.0*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/,bool* forbiddenDistTouched/*=nullptr*/)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
-        float _tr[7];
+        double _tr[7];
         octreeTransformation.getData(_tr);
-        float _detectPt[3];
-        float _triN[3];
+        double _detectPt[3];
+        double _triN[3];
         retVal=currentGeomPlugin->geomPlugin_raySensorDetectOctreeIfSmaller(rayStart.data,rayVect.data,ocStruct,_tr,&dist,forbiddenDist,fast,frontDetection,backDetection,maxAngle,_detectPt,_triN,forbiddenDistTouched);
         if (retVal)
         {
@@ -2342,17 +2455,17 @@ bool CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(const C3Vector&
     }
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_isPointInVolume(const std::vector<float>& planesIn,const C3Vector& point)
+bool CPluginContainer::geomPlugin_isPointInVolume(const std::vector<double>& planesIn,const C3Vector& point)
 {
     bool retVal=false;
-    const float* _planesIn=nullptr;
+    const double* _planesIn=nullptr;
     if (planesIn.size()>0)
         _planesIn=&planesIn[0];
     if (currentGeomPlugin!=nullptr)
         retVal=currentGeomPlugin->geomPlugin_isPointInVolume(_planesIn,int(planesIn.size()),point.data);
     return(retVal);
 }
-bool CPluginContainer::geomPlugin_isPointInVolume1AndOutVolume2(const std::vector<float>& planesIn,const std::vector<float>& planesOut,const C3Vector& point)
+bool CPluginContainer::geomPlugin_isPointInVolume1AndOutVolume2(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const C3Vector& point)
 {
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
@@ -2411,40 +2524,40 @@ void CPluginContainer::ikPlugin_setJointMode(int jointHandle,int jointMode)
     if (currentIkPlugin!=nullptr)
         currentIkPlugin->ikPlugin_setJointMode(ikEnvironment,jointHandle,jointMode);
 }
-void CPluginContainer::ikPlugin_setJointInterval(int jointHandle,bool cyclic,float jMin,float jRange)
+void CPluginContainer::ikPlugin_setJointInterval(int jointHandle,bool cyclic,double jMin,double jRange)
 {
-    float mr[2]={jMin,jRange};
+    double mr[2]={jMin,jRange};
     if (currentIkPlugin!=nullptr)
         currentIkPlugin->ikPlugin_setJointInterval(ikEnvironment,jointHandle,cyclic,mr);
 }
-void CPluginContainer::ikPlugin_setJointScrewPitch(int jointHandle,float pitch)
+void CPluginContainer::ikPlugin_setJointScrewPitch(int jointHandle,double pitch)
 {
     if (currentIkPlugin!=nullptr)
         currentIkPlugin->ikPlugin_setJointScrewPitch(ikEnvironment,jointHandle,pitch);
 }
-void CPluginContainer::ikPlugin_setJointIkWeight(int jointHandle,float ikWeight)
+void CPluginContainer::ikPlugin_setJointIkWeight(int jointHandle,double ikWeight)
 {
     if (currentIkPlugin!=nullptr)
         currentIkPlugin->ikPlugin_setJointIkWeight(ikEnvironment,jointHandle,ikWeight);
 }
-void CPluginContainer::ikPlugin_setJointMaxStepSize(int jointHandle,float maxStepSize)
+void CPluginContainer::ikPlugin_setJointMaxStepSize(int jointHandle,double maxStepSize)
 {
     if (currentIkPlugin!=nullptr)
         currentIkPlugin->ikPlugin_setJointMaxStepSize(ikEnvironment,jointHandle,maxStepSize);
 }
-void CPluginContainer::ikPlugin_setJointDependency(int jointHandle,int dependencyJointHandle,float offset,float mult)
+void CPluginContainer::ikPlugin_setJointDependency(int jointHandle,int dependencyJointHandle,double offset,double mult)
 {
     if (currentIkPlugin!=nullptr)
         currentIkPlugin->ikPlugin_setJointDependency(ikEnvironment,jointHandle,dependencyJointHandle,offset,mult);
 }
-float CPluginContainer::ikPlugin_getJointPosition(int jointHandle)
+double CPluginContainer::ikPlugin_getJointPosition(int jointHandle)
 {
-    float retVal=0.0f;
+    double retVal=0.0;
     if (currentIkPlugin!=nullptr)
         retVal=currentIkPlugin->ikPlugin_getJointPosition(ikEnvironment,jointHandle);
     return(retVal);
 }
-void CPluginContainer::ikPlugin_setJointPosition(int jointHandle,float position)
+void CPluginContainer::ikPlugin_setJointPosition(int jointHandle,double position)
 {
     if (currentIkPlugin!=nullptr)
         currentIkPlugin->ikPlugin_setJointPosition(ikEnvironment,jointHandle,position);
@@ -2478,7 +2591,7 @@ void CPluginContainer::ikPlugin_setIkGroupFlags(int ikGroupHandle,int flags)
     if (currentIkPlugin!=nullptr)
         currentIkPlugin->ikPlugin_setIkGroupFlags(ikEnvironment,ikGroupHandle,flags);
 }
-void CPluginContainer::ikPlugin_setIkGroupCalculation(int ikGroupHandle,int method,float damping,int maxIterations)
+void CPluginContainer::ikPlugin_setIkGroupCalculation(int ikGroupHandle,int method,double damping,int maxIterations)
 {
     if (currentIkPlugin!=nullptr)
         currentIkPlugin->ikPlugin_setIkGroupCalculation(ikEnvironment,ikGroupHandle,method,damping,maxIterations);
@@ -2510,12 +2623,12 @@ void CPluginContainer::ikPlugin_setIkElementConstraints(int ikGroupHandle,int ik
     if (currentIkPlugin!=nullptr)
         currentIkPlugin->ikPlugin_setIkElementConstraints(ikEnvironment,ikGroupHandle,ikElementIndex,constraints);
 }
-void CPluginContainer::ikPlugin_setIkElementPrecision(int ikGroupHandle,int ikElementIndex,float linearPrecision,float angularPrecision)
+void CPluginContainer::ikPlugin_setIkElementPrecision(int ikGroupHandle,int ikElementIndex,double linearPrecision,double angularPrecision)
 {
     if (currentIkPlugin!=nullptr)
         currentIkPlugin->ikPlugin_setIkElementPrecision(ikEnvironment,ikGroupHandle,ikElementIndex,linearPrecision,angularPrecision);
 }
-void CPluginContainer::ikPlugin_setIkElementWeights(int ikGroupHandle,int ikElementIndex,float linearWeight,float angularWeight)
+void CPluginContainer::ikPlugin_setIkElementWeights(int ikGroupHandle,int ikElementIndex,double linearWeight,double angularWeight)
 {
     if (currentIkPlugin!=nullptr)
         currentIkPlugin->ikPlugin_setIkElementWeights(ikEnvironment,ikGroupHandle,ikElementIndex,linearWeight,angularWeight);
@@ -2540,7 +2653,7 @@ CMatrix* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle)
     if (currentIkPlugin!=nullptr)
     {
         int matrixSize[2];
-        float* jc=currentIkPlugin->ikPlugin_getJacobian(ikEnvironment,ikGroupHandle,matrixSize);
+        double* jc=currentIkPlugin->ikPlugin_getJacobian(ikEnvironment,ikGroupHandle,matrixSize);
         if (jc!=nullptr)
         {
             retVal=new CMatrix(matrixSize[1],matrixSize[0]);
@@ -2554,14 +2667,14 @@ CMatrix* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle)
     }
     return(retVal);
 }
-float CPluginContainer::ikPlugin_getManipulability(int ikGroupHandle)
+double CPluginContainer::ikPlugin_getManipulability(int ikGroupHandle)
 {
-    float retVal=0.0f;
+    double retVal=0.0;
     if (currentIkPlugin!=nullptr)
         retVal=currentIkPlugin->ikPlugin_getManipulability(ikEnvironment,ikGroupHandle);
     return(retVal);
 }
-int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxIterationsOrTimeInMs,float* retConfig,const float* metric,bool(*validationCallback)(float*),const int* jointOptions,const float* lowLimits,const float* ranges,std::string& errString)
+int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,double thresholdDist,int maxIterationsOrTimeInMs,double* retConfig,const double* metric,bool(*validationCallback)(double*),const int* jointOptions,const double* lowLimits,const double* ranges,std::string& errString)
 {
     int retVal=-1;
     if (currentIkPlugin!=nullptr)
@@ -2581,10 +2694,10 @@ int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCn
 static std::vector<int> _ikValidationCb_collisionPairs;
 static std::vector<int> _ikValidationCb_jointHandles;
 
-bool _validationCallback(float* conf)
+bool _validationCallback(double* conf)
 {
     bool collisionFree=true;
-    std::vector<float> memorized;
+    std::vector<double> memorized;
     std::vector<CJoint*> joints;
     for (size_t i=0;i<_ikValidationCb_jointHandles.size();i++)
     {
@@ -2616,12 +2729,12 @@ bool _validationCallback(float* conf)
     return(collisionFree);
 }
 
-int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxIterationsOrTimeInMs,float* retConfig,const float* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const float* lowLimits,const float* ranges,std::string& errString)
+int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,double thresholdDist,int maxIterationsOrTimeInMs,double* retConfig,const double* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const double* lowLimits,const double* ranges,std::string& errString)
 {
     int retVal=-1;
     if (currentIkPlugin!=nullptr)
     {
-        bool(*_validationCB)(float*)=nullptr;
+        bool(*_validationCB)(double*)=nullptr;
         bool err=false;
         if ( (collisionPairCnt>0)&&(collisionPairs!=nullptr) )
         {
@@ -2805,7 +2918,7 @@ bool CPluginContainer::customUi_fileDialog(int type, const char *title, const ch
     return(retVal);
 }
 
-int* CPluginContainer::assimp_importShapes(const char* fileNames,int maxTextures,float scaling,int upVector,int options,int* shapeCount)
+int* CPluginContainer::assimp_importShapes(const char* fileNames,int maxTextures,double scaling,int upVector,int options,int* shapeCount)
 {
     int* retVal=nullptr;
     if (currentAssimp!=nullptr)
@@ -2815,7 +2928,7 @@ int* CPluginContainer::assimp_importShapes(const char* fileNames,int maxTextures
     return(retVal);
 }
 
-void CPluginContainer::assimp_exportShapes(const int* shapeHandles,int shapeCount,const char* filename,const char* format,float scaling,int upVector,int options)
+void CPluginContainer::assimp_exportShapes(const int* shapeHandles,int shapeCount,const char* filename,const char* format,double scaling,int upVector,int options)
 {
     if (currentAssimp!=nullptr)
         currentAssimp->_assimp_exportShapes(shapeHandles,shapeCount,filename,format,scaling,upVector,options);
@@ -2823,7 +2936,7 @@ void CPluginContainer::assimp_exportShapes(const int* shapeHandles,int shapeCoun
         App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");
 }
 
-int CPluginContainer::assimp_importMeshes(const char* fileNames,float scaling,int upVector,int options,float*** allVertices,int** verticesSizes,int*** allIndices,int** indicesSizes)
+int CPluginContainer::assimp_importMeshes(const char* fileNames,double scaling,int upVector,int options,double*** allVertices,int** verticesSizes,int*** allIndices,int** indicesSizes)
 {
     int retVal=0;
     if (currentAssimp!=nullptr)
@@ -2833,7 +2946,7 @@ int CPluginContainer::assimp_importMeshes(const char* fileNames,float scaling,in
     return(retVal);
 }
 
-void CPluginContainer::assimp_exportMeshes(int meshCnt,const float** allVertices,const int* verticesSizes,const int** allIndices,const int* indicesSizes,const char* filename,const char* format,float scaling,int upVector,int options)
+void CPluginContainer::assimp_exportMeshes(int meshCnt,const double** allVertices,const int* verticesSizes,const int** allIndices,const int* indicesSizes,const char* filename,const char* format,double scaling,int upVector,int options)
 {
     if (currentAssimp!=nullptr)
         currentAssimp->_assimp_exportMeshes(meshCnt,allVertices,verticesSizes,allIndices,indicesSizes,filename,format,scaling,upVector,options);

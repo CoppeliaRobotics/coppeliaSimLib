@@ -248,7 +248,7 @@ void CQDlgDistances::on_qqThreshold_editingFinished()
         if (it!=nullptr)
         {
             bool ok;
-            float newVal=ui->qqThreshold->text().toFloat(&ok);
+            double newVal=ui->qqThreshold->text().toFloat(&ok);
             if (ok)
             {
                 App::appendSimulationThreadCommand(SET_THRESHOLD_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);

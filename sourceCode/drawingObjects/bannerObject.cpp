@@ -14,7 +14,7 @@ void CBannerObject::setCreatedFromScript(bool c)
     _createdFromScript=c;
 }
 
-CBannerObject::CBannerObject(const char* label,int options,int sceneObjID,const floatDouble relConfig[6],const floatDouble labelCol[12],const floatDouble backCol[12],floatDouble height)
+CBannerObject::CBannerObject(const char* label,int options,int sceneObjID,const double relConfig[6],const float labelCol[12],const float backCol[12],double height)
 {
     _visible=true;
     _label=label;
@@ -22,7 +22,7 @@ CBannerObject::CBannerObject(const char* label,int options,int sceneObjID,const 
     _createdFromScript=false;
     color.setColorsAllBlack();
     backColor.setColorsAllBlack();
-    floatDouble col[15];
+    float col[15];
     backColor.getColors(col);
     col[0]=1.0;
     col[1]=1.0;
@@ -86,9 +86,9 @@ void CBannerObject::adjustForFrameChange(const C7Vector& preCorrection)
     _relativeConfig*=preCorrection;
 }
 
-void CBannerObject::adjustForScaling(floatDouble xScale,floatDouble yScale,floatDouble zScale)
+void CBannerObject::adjustForScaling(double xScale,double yScale,double zScale)
 {
-    floatDouble avgScaling=(xScale+yScale+zScale)/3.0;
+    double avgScaling=(xScale+yScale+zScale)/3.0;
     _relativeConfig.X*=avgScaling;
 }
 
@@ -107,7 +107,7 @@ bool CBannerObject::announceObjectWillBeErased(int objID)
     return(_sceneObjectID==objID);
 }
 
-void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM,const int windowSize[2],floatDouble verticalViewSizeOrAngle,bool perspective)
+void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM,const int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
 {
     if (_visible)
     {
@@ -160,7 +160,7 @@ void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayA
             return;
 
         tr*=_relativeConfig;
-        floatDouble* bckColor=nullptr;
+        float* bckColor=nullptr;
         if ((_options&sim_banner_nobackground)==0)
             bckColor=backColor.getColorsPtr();
 

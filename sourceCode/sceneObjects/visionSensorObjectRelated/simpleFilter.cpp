@@ -45,13 +45,13 @@ void CSimpleFilter::setFilterType(int t)
         // We calculate a Gaussian blur:
         // 9 matrix elements, plus one element for the multiplication factor
         _floatParameters.resize(9+1,1.0);
-        const floatDouble sigma=2.0;
-        floatDouble tot=0.0;
+        const double sigma=2.0;
+        double tot=0.0;
         for (int i=-1;i<2;i++)
         {
             for (int j=-1;j<2;j++)
             {
-                floatDouble v=pow(2.7182818,-(i*i+j*j)/(2.0*sigma*sigma))/(2.0*piValue*sigma*sigma);
+                double v=pow(2.7182818,-(i*i+j*j)/(2.0*sigma*sigma))/(2.0*piValue*sigma*sigma);
                 _floatParameters[i+1+(j+1)*3]=v;
                 tot+=v;
             }
@@ -65,13 +65,13 @@ void CSimpleFilter::setFilterType(int t)
         // We calculate a Gaussian blur:
         // 25 matrix elements, plus one element for the multiplication factor
         _floatParameters.resize(25+1,1.0);
-        const floatDouble sigma=2.0;
-        floatDouble tot=0.0;
+        const double sigma=2.0;
+        double tot=0.0;
         for (int i=-2;i<3;i++)
         {
             for (int j=-2;j<3;j++)
             {
-                floatDouble v=pow(2.7182818,-(i*i+j*j)/(2.0*sigma*sigma))/(2.0*piValue*sigma*sigma);
+                double v=pow(2.7182818,-(i*i+j*j)/(2.0*sigma*sigma))/(2.0*piValue*sigma*sigma);
                 _floatParameters[i+2+(j+2)*5]=v;
                 tot+=v;
             }
@@ -214,7 +214,7 @@ void CSimpleFilter::serialize(CSer& ar)
                     noHit=false;
                     ar >> byteQuantity;
                     ar >> _filterType;
-                    setFilterType(_filterType); // to reserve default space of byte-, int- and floatFloat-parameters!
+                    setFilterType(_filterType); // to reserve default space of byte-, int- and float-parameters!
                     // above command overwrites header, id and name!!
                     ar >> _customFilterHeader >> _customFilterID;
                 }
@@ -264,12 +264,12 @@ void CSimpleFilter::serialize(CSer& ar)
                     ar >> byteQuantity;
                     int s;
                     ar >> s;
-                    floatFloat ddd;
+                    float ddd;
                     for (int i=0;i<s;i++)
                     {
-                        ar.flt() >> ddd;
+                        ar >> ddd;
                         if (i<int(_floatParameters.size())) // make sure we use the latest vector size
-                            _floatParameters[i]=(floatDouble)ddd;
+                            _floatParameters[i]=(double)ddd;
                     }
                 }
                 if (theName.compare("Cfp")==0)

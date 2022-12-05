@@ -410,7 +410,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
     return(gv::getNullUnitStr());
 }
 
-void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old* it,float& v,int derivativeIntegralOrCumulative)
+void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old* it,double& v,int derivativeIntegralOrCumulative)
 {
     int dType=it->getDataType();
 
@@ -467,7 +467,7 @@ void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old* it,floa
     }
 }
 
-void CGraphingRoutines_old::getCyclicAndRangeValues(const CGraphData_old* it,bool& cyclic,float& range)
+void CGraphingRoutines_old::getCyclicAndRangeValues(const CGraphData_old* it,bool& cyclic,double& range)
 {
     int dType=it->getDataType();
     if ((dType==GRAPH_SCENEOBJECT_ALL_ALPHA_ABS)||(dType==GRAPH_SCENEOBJECT_ALL_GAMMA_ABS))
@@ -766,7 +766,7 @@ bool CGraphingRoutines_old::getDataName(int dataIndex,std::string& dataName)
     return(dataName!=std::string(IDS_ERROR));
 }
 
-bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value,const C7Vector* graphCTM)
+bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,double& value,const C7Vector* graphCTM)
 {   // If return value is true, value contains the asked value (used by graphs)
     // If return value is false, the value can't be found here. If it can't be
     // found anywhere, use the default value!
@@ -776,7 +776,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
     {
         if (dataIndex==GRAPH_NOOBJECT_IK_OVERALL_CALCULATION_TIME)
         {
-            value=0.0f;//App::worldContainer->calcInfo->getIkCalculationTime();
+            value=0.0;//App::worldContainer->calcInfo->getIkCalculationTime();
             return(true);
         }
         if (dataIndex==GRAPH_NOOBJECT_DYNAMICS_OVERALL_CALCULATION_TIME)
@@ -814,17 +814,17 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
                     if (aColl->getCollisionResult())
                         q++;
             }
-            value=(float)q;
+            value=(double)q;
             return(true);
         }
         if (dataIndex==GRAPH_NOOBJECT_COLLISION_OVERALL_CALCULATION_TIME)
         {
-            value=0.0f;//App::worldContainer->calcInfo->getCollisionCalculationTime();
+            value=0.0;//App::worldContainer->calcInfo->getCollisionCalculationTime();
             return(true);
         }
         if (dataIndex==GRAPH_NOOBJECT_DISTANCE_OVERALL_CALCULATION_TIME)
         {
-            value=0.0f;//App::worldContainer->calcInfo->getDistanceCalculationTime();
+            value=0.0;//App::worldContainer->calcInfo->getDistanceCalculationTime();
             return(true);
         }
         if (dataIndex==GRAPH_NOOBJECT_PROXSENSOR_OVERALL_CALCULATION_TIME)
@@ -839,17 +839,17 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
         }
         if (dataIndex==GRAPH_NOOBJECT_MILL_OVERALL_CALCULATION_TIME)
         {
-            value=0.0f;//App::worldContainer->calcInfo->getMillingCalculationTime();
+            value=0.0;//App::worldContainer->calcInfo->getMillingCalculationTime();
             return(true);
         }
         if ( (dataIndex==GRAPH_NOOBJECT_MILL_OVERALL_CUT_SURFACE)||
             (dataIndex==GRAPH_NOOBJECT_MILL_OVERALL_CUT_VOLUME) )
         {
             bool validData=false;
-            float totV=0.0f;
+            double totV=0.0;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getMillCount();i++)
             {
-                float v;
+                double v;
                 CMill* it=App::currentWorld->sceneObjects->getMillFromIndex(i);
                 if (dataIndex==GRAPH_NOOBJECT_MILL_OVERALL_CUT_VOLUME)
                 {
@@ -909,9 +909,9 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
             if (!it->isCollisionResultValid())
                 return(false);
             if (it->getCollisionResult())
-                value=1.0f;
+                value=1.0;
             else
-                value=0.0f;
+                value=0.0;
             return(true);
         }
         if (dataIndex==GRAPH_COLLISION_CALCULATION_TIME)
@@ -928,7 +928,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
         CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(objectID);
         if (it==nullptr)
             return(false);
-        float dist[7];
+        double dist[7];
         bool validResult=it->getDistanceResult(dist);
         if (dataIndex==GRAPH_DISTANCE_DIST)
         {
@@ -1024,19 +1024,19 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
         }
         if (dataIndex==GRAPH_SCENEOBJECT_JOINT_DYN_POSITION_ERROR)
         {
-            float dummyVal;
+            double dummyVal;
             it->getDynamicJointErrors(value,dummyVal);
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_JOINT_DYN_ORIENTATION_ERROR)
         {
-            float dummyVal;
+            double dummyVal;
             it->getDynamicJointErrors(dummyVal,value);
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_JOINT_DYN_FORCE_OR_TORQUE)
         { // New since 1/6/2011
-            float dummyVal;
+            double dummyVal;
             if (it->getDynamicForceOrTorque(dummyVal,false))
             {
                 value=dummyVal;
@@ -1109,10 +1109,10 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
 
         if (dataIndex==GRAPH_SCENEOBJECT_FORCESENSOR_BROKEN)
         {
-            value=0.0f;
+            value=0.0;
             CSceneObject* child=it->getChildFromIndex(0);
             if (child==nullptr)
-                value=1.0f;
+                value=1.0;
             return(true);
         }
 
@@ -1127,17 +1127,17 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
             return(false);
         if (dataIndex==GRAPH_SCENEOBJECT_PATH_POSITION)
         {
-            value=float(it->pathContainer->getPosition());
+            value=double(it->pathContainer->getPosition());
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_PATH_POSITION_LINEAR_COMPONENT)
         {
-            value=float(it->pathContainer->getPosition_linearComponentOnly());
+            value=double(it->pathContainer->getPosition_linearComponentOnly());
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_PATH_POSITION_ANGULAR_COMPONENT)
         {
-            value=float(it->pathContainer->getPosition_angularComponentOnly());
+            value=double(it->pathContainer->getPosition_angularComponentOnly());
             return(true);
         }
         return(false);
@@ -1235,9 +1235,9 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
         {
             C3Vector pt;
             if (sens->getSensedData(pt))
-                value=1.0f;
+                value=1.0;
             else
-                value=0.0f;
+                value=0.0;
             return(true);
         }
         if ( (dataIndex==GRAPH_SCENEOBJECT_PROXSENSOR_AZIMUTH)||(dataIndex==GRAPH_SCENEOBJECT_PROXSENSOR_ELEVATION) )
@@ -1247,18 +1247,18 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
             {
                 if (dataIndex==GRAPH_SCENEOBJECT_PROXSENSOR_ELEVATION)
                 {
-                    float r=pt.getLength();
-                    float el=CMath::robustAsin(pt(1)/r);
+                    double r=pt.getLength();
+                    double el=CMath::robustAsin(pt(1)/r);
                     value=el;
                 }
                 if (dataIndex==GRAPH_SCENEOBJECT_PROXSENSOR_AZIMUTH)
                 {
-                    float az;
-                    if (pt(2)!=0.0f)
-                        az=(float)atan(-pt(0)/pt(2));
+                    double az;
+                    if (pt(2)!=0.0)
+                        az=atan(-pt(0)/pt(2));
                     else
                     {
-                        if (pt(0)>=0.0f) 
+                        if (pt(0)>=0.0) 
                             az=piValD2;
                         else 
                             az=-piValD2;
@@ -1296,7 +1296,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
         }
         if (dataIndex==GRAPH_SCENEOBJECT_MILL_CALCULATION_TIME)
         {
-            float dummy;
+            double dummy;
             if (mill->getMilledSurface(dummy))
             {
                 value=mill->getCalculationTime();
@@ -1317,28 +1317,28 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
         {
             if (!r->sensorResultIsValid)
                 return(false);
-            value=float(r->sensorDataRed[0])/255.0f;
+            value=double(r->sensorDataRed[0])/255.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_MIN_GREEN)
         {
             if (!r->sensorResultIsValid)
                 return(false);
-            value=float(r->sensorDataGreen[0])/255.0f;
+            value=double(r->sensorDataGreen[0])/255.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_MIN_BLUE)
         {
             if (!r->sensorResultIsValid)
                 return(false);
-            value=float(r->sensorDataBlue[0])/255.0f;
+            value=double(r->sensorDataBlue[0])/255.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_MIN_INTENSITY)
         {
             if (!r->sensorResultIsValid)
                 return(false);
-            value=float(r->sensorDataIntensity[0])/255.0f;
+            value=double(r->sensorDataIntensity[0])/255.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_MIN_DEPTH)
@@ -1352,28 +1352,28 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
         {
             if (!r->sensorResultIsValid)
                 return(false);
-            value=float(r->sensorDataRed[1])/255.0f;
+            value=double(r->sensorDataRed[1])/255.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_MAX_GREEN)
         {
             if (!r->sensorResultIsValid)
                 return(false);
-            value=float(r->sensorDataGreen[1])/255.0f;
+            value=double(r->sensorDataGreen[1])/255.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_MAX_BLUE)
         {
             if (!r->sensorResultIsValid)
                 return(false);
-            value=float(r->sensorDataBlue[1])/255.0f;
+            value=double(r->sensorDataBlue[1])/255.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_MAX_INTENSITY)
         {
             if (!r->sensorResultIsValid)
                 return(false);
-            value=float(r->sensorDataIntensity[1])/255.0f;
+            value=double(r->sensorDataIntensity[1])/255.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_MAX_DEPTH)
@@ -1387,28 +1387,28 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
         {
             if (!r->sensorResultIsValid)
                 return(false);
-            value=float(r->sensorDataRed[2])/255.0f;
+            value=double(r->sensorDataRed[2])/255.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_AVG_GREEN)
         {
             if (!r->sensorResultIsValid)
                 return(false);
-            value=float(r->sensorDataGreen[2])/255.0f;
+            value=double(r->sensorDataGreen[2])/255.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_AVG_BLUE)
         {
             if (!r->sensorResultIsValid)
                 return(false);
-            value=float(r->sensorDataBlue[2])/255.0f;
+            value=double(r->sensorDataBlue[2])/255.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_AVG_INTENSITY)
         {
             if (!r->sensorResultIsValid)
                 return(false);
-            value=float(r->sensorDataIntensity[2])/255.0f;
+            value=double(r->sensorDataIntensity[2])/255.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_AVG_DEPTH)
@@ -1423,9 +1423,9 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,float& value
             if (!r->sensorResultIsValid)
                 return(false);
             if (r->sensorWasTriggered)
-                value=1.0f;
+                value=1.0;
             else
-                value=0.0f;
+                value=0.0;
             return(true);
         }
         if (dataIndex==GRAPH_SCENEOBJECT_VISIONSENSOR_CALCULATION_TIME)
@@ -1728,7 +1728,7 @@ bool CGraphingRoutines_old::loopThroughAllAndGetDataName(int dataIndex,std::stri
     return(false);
 }
 
-bool CGraphingRoutines_old::loopThroughAllAndGetDataValue(int dataIndex,int objectID,float& value,const C7Vector* graphCTM)
+bool CGraphingRoutines_old::loopThroughAllAndGetDataValue(int dataIndex,int objectID,double& value,const C7Vector* graphCTM)
 {   // If return value is true, value contains the asked value (used by graphs)
     // If return value is false, the value couldn't be found and you have to use
     // the default value!

@@ -2,7 +2,7 @@
 #include "app.h"
 #include "ptCloudRendering_old.h"
 
-CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int parentHandle,int options,floatDouble pointSize,int ptCnt,const floatDouble* vertices,const unsigned char* colors,const floatDouble* normals,const unsigned char* defaultColors)
+CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int parentHandle,int options,double pointSize,int ptCnt,const double* vertices,const unsigned char* colors,const double* normals,const unsigned char* defaultColors)
 {
     _pageMask=pageMask;
     _layerMask=layerMask;
@@ -14,9 +14,9 @@ CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int parentHandle,int optio
     {
         for (int i=0;i<4;i++)
         {
-            _defaultColors[4*i+0]=floatDouble(defaultColors[3*i+0])/255.0;
-            _defaultColors[4*i+1]=floatDouble(defaultColors[3*i+1])/255.0;
-            _defaultColors[4*i+2]=floatDouble(defaultColors[3*i+2])/255.0;
+            _defaultColors[4*i+0]=defaultColors[3*i+0]/255.0;
+            _defaultColors[4*i+1]=defaultColors[3*i+1]/255.0;
+            _defaultColors[4*i+2]=defaultColors[3*i+2]/255.0;
             _defaultColors[4*i+3]=1.0;
         }
     }
@@ -45,9 +45,9 @@ CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int parentHandle,int optio
         _colors.resize(ptCnt*3);
         for (int i=0;i<ptCnt;i++)
         {
-            _colors[3*i+0]=floatDouble(colors[3*i+0])/255.0;
-            _colors[3*i+1]=floatDouble(colors[3*i+1])/255.0;
-            _colors[3*i+2]=floatDouble(colors[3*i+2])/255.0;
+            _colors[3*i+0]=float(colors[3*i+0])/255.0;
+            _colors[3*i+1]=float(colors[3*i+1])/255.0;
+            _colors[3*i+2]=float(colors[3*i+2])/255.0;
         }
     }
     if (normals!=nullptr)
@@ -141,7 +141,7 @@ void CPtCloud_old::pushAddEvent()
 
         data->appendMapObject_stringString("type","point",0);
 
-        floatDouble c[9];
+        float c[9];
         c[0]=_defaultColors[0];
         c[1]=_defaultColors[1];
         c[2]=_defaultColors[2];
@@ -169,11 +169,13 @@ void CPtCloud_old::pushAddEvent()
 
         CCbor obj(nullptr,0);
         size_t l;
-        obj.appendFloatArray(_vertices.data(),_vertices.size());
+        std::vector<float> bla;
+        bla.resize(_vertices.size());
+        for (size_t i=0;i<_vertices.size();i++)
+            bla[i]=(float)_vertices[i];
+        obj.appendFloatArray(bla.data(),bla.size());
         const char* buff=(const char*)obj.getBuff(l);
         data->appendMapObject_stringString("points",buff,l,true);
-
-   //     data->appendMapObject_stringString("normals",nullptr,0,true);
 
         obj.clear();
         obj.appendFloatArray(_colors.data(),_colors.size());

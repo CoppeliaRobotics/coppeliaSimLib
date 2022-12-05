@@ -449,7 +449,7 @@ void CQDlgIkElements::on_qqPrecisionLinear_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqPrecisionLinear->text().toFloat(&ok);
+        double newVal=ui->qqPrecisionLinear->text().toFloat(&ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
@@ -472,7 +472,7 @@ void CQDlgIkElements::on_qqPrecisionAngular_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqPrecisionAngular->text().toFloat(&ok);
+        double newVal=ui->qqPrecisionAngular->text().toFloat(&ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
@@ -495,7 +495,7 @@ void CQDlgIkElements::on_qqWeightLinear_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqWeightLinear->text().toFloat(&ok);
+        double newVal=ui->qqWeightLinear->text().toFloat(&ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
@@ -518,7 +518,7 @@ void CQDlgIkElements::on_qqWeightAngular_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqWeightAngular->text().toFloat(&ok);
+        double newVal=ui->qqWeightAngular->text().toFloat(&ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;

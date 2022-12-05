@@ -20,8 +20,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(floatDouble scalingFactor);
-    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
+    void scaleObject(double scalingFactor);
+    void scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
@@ -48,11 +48,11 @@ public:
     void performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
 
     // Various functions
-    void setCellSize(floatDouble theNewSize);
-    floatDouble getCellSize() const;
+    void setCellSize(double theNewSize);
+    double getCellSize() const;
     void setMaxPointCountPerCell(int cnt);
     int getMaxPointCountPerCell() const;
-    void insertPoints(const floatDouble* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,const unsigned char* optionalColors3,bool colorsAreIndividual);
+    void insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,const unsigned char* optionalColors3,bool colorsAreIndividual);
     void insertShape(CShape* shape);
     void insertOctree(const COctree* octree);
     void insertDummy(const CDummy* dummy);
@@ -60,28 +60,28 @@ public:
     void insertObjects(const std::vector<int>& sel);
     void insertObject(const CSceneObject* obj);
 
-    int removePoints(const floatDouble* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,floatDouble distanceTolerance);
+    int removePoints(const double* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,double distanceTolerance);
     void subtractOctree(const COctree* octree);
-    void subtractDummy(const CDummy* dummy,floatDouble distanceTolerance);
-    void subtractPointCloud(const CPointCloud* pointCloud,floatDouble distanceTolerance);
+    void subtractDummy(const CDummy* dummy,double distanceTolerance);
+    void subtractPointCloud(const CPointCloud* pointCloud,double distanceTolerance);
     void subtractOctree(const void* octree2Info,const C7Vector& octree2Tr);
     void subtractObjects(const std::vector<int>& sel);
-    void subtractObject(const CSceneObject* obj,floatDouble distanceTolerance);
+    void subtractObject(const CSceneObject* obj,double distanceTolerance);
 
-    int intersectPoints(const floatDouble* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,floatDouble distanceTolerance);
+    int intersectPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,double distanceTolerance);
 
     void clear();
     bool getShowOctree() const;
     void setShowOctree(bool show);
-    floatDouble getAveragePointCountInCell();
+    double getAveragePointCountInCell();
     int getPointSize() const;
     void setPointSize(int s);
-    floatDouble getBuildResolution() const;
-    void setBuildResolution(floatDouble r);
-    floatDouble getRemovalDistanceTolerance() const;
-    void setRemovalDistanceTolerance(floatDouble t);
-    floatDouble getInsertionDistanceTolerance() const;
-    void setInsertionDistanceTolerance(floatDouble t);
+    double getBuildResolution() const;
+    void setBuildResolution(double r);
+    double getRemovalDistanceTolerance() const;
+    void setRemovalDistanceTolerance(double t);
+    double getInsertionDistanceTolerance() const;
+    void setInsertionDistanceTolerance(double t);
     bool getUseRandomColors() const;
     void setUseRandomColors(bool r);
     bool getColorIsEmissive() const;
@@ -90,43 +90,43 @@ public:
     void setSaveCalculationStructure(bool s);
     bool getDoNotUseCalculationStructure() const;
     void setDoNotUseCalculationStructure(bool s);
-    floatDouble getPointDisplayRatio() const;
-    void setPointDisplayRatio(floatDouble r);
-    const std::vector<floatDouble>* getPoints() const;
-    std::vector<floatDouble>* getPoints();
+    double getPointDisplayRatio() const;
+    void setPointDisplayRatio(double r);
+    const std::vector<double>* getPoints() const;
+    std::vector<double>* getPoints();
     const void* getPointCloudInfo() const;
     void* getPointCloudInfo();
     void getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) const;
 
     CColorObject* getColor();
-    std::vector<floatDouble>* getColors();
-    std::vector<floatDouble>* getDisplayPoints();
-    std::vector<floatDouble>* getDisplayColors();
+    std::vector<double>* getColors();
+    std::vector<double>* getDisplayPoints();
+    std::vector<double>* getDisplayColors();
 
 protected:
     void _updatePointCloudEvent() const;
     void _readPositionsAndColorsAndSetDimensions();
-    void _getCharRGB3Colors(const std::vector<floatDouble>& floatRGBA,std::vector<unsigned char>& charRGB);
+    void _getCharRGB3Colors(const std::vector<double>& floatRGBA,std::vector<unsigned char>& charRGB);
 
     // Variables which need to be serialized & copied
     CColorObject color;
-    floatDouble _cellSize;
+    double _cellSize;
     int _maxPointCountPerCell;
     void* _pointCloudInfo;
-    std::vector<floatDouble> _points;
-    std::vector<floatDouble> _colors;
-    std::vector<floatDouble> _displayPoints;
-    std::vector<floatDouble> _displayColors;
+    std::vector<double> _points;
+    std::vector<double> _colors;
+    std::vector<double> _displayPoints;
+    std::vector<double> _displayColors;
     std::vector<unsigned char> _displayColorsByte;
     bool _showOctreeStructure;
     bool _useRandomColors;
     bool _saveCalculationStructure;
     int _pointSize;
     int _nonEmptyCells;
-    floatDouble _buildResolution;
-    floatDouble _removalDistanceTolerance;
-    floatDouble _insertionDistanceTolerance;
-    floatDouble _pointDisplayRatio;
+    double _buildResolution;
+    double _removalDistanceTolerance;
+    double _insertionDistanceTolerance;
+    double _pointDisplayRatio;
     bool _doNotUseOctreeStructure;
     bool _colorIsEmissive;
 };

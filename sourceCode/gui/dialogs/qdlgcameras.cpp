@@ -169,10 +169,10 @@ void CQDlgCameras::on_qqPerspectiveProjectionAngle_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqPerspectiveProjectionAngle->text().toFloat(&ok);
+        double newVal=ui->qqPerspectiveProjectionAngle->text().toFloat(&ok);
         if (ok)
         {
-            float v=newVal*gv::userToRad;
+            double v=newVal*gv::userToRad;
             App::appendSimulationThreadCommand(SET_VIEW_ANGLE_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,v);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -187,7 +187,7 @@ void CQDlgCameras::on_qqOrthographicProjectionSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqOrthographicProjectionSize->text().toFloat(&ok);
+        double newVal=ui->qqOrthographicProjectionSize->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_ORTHO_VIEW_SIZE_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -204,7 +204,7 @@ void CQDlgCameras::on_qqNearClipping_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqNearClipping->text().toFloat(&ok);
+        double newVal=ui->qqNearClipping->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_NEAR_CLIPPING_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -221,7 +221,7 @@ void CQDlgCameras::on_qqFarClipping_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqFarClipping->text().toFloat(&ok);
+        double newVal=ui->qqFarClipping->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_FAR_CLIPPING_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -300,7 +300,7 @@ void CQDlgCameras::on_qqSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqSize->text().toFloat(&ok);
+        double newVal=ui->qqSize->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SIZE_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

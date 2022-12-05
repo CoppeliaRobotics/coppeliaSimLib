@@ -17,13 +17,13 @@ CPath_old::CPath_old()
     _visibilityLayer=PATH_LAYER;
     _explicitHandling=false;
     _shapingEnabled=false;
-    _shapingScaling=1.0f;
+    _shapingScaling=1.0;
     _shapingFollowFullOrientation=false;
     _shapingConvexHull=false;
     _shapingSectionClosed=true;
-    _shapingElementMaxLength=0.005f;
+    _shapingElementMaxLength=0.005;
     shapingColor.setDefaultValues();
-    shapingColor.setColor(0.1f,0.9f,0.1f,sim_colorcomponent_ambient_diffuse);
+    shapingColor.setColor(0.1,0.9,0.1,sim_colorcomponent_ambient_diffuse);
     _localObjectSpecialProperty=sim_objectspecialproperty_renderable;
     _pathModifID=0;
     pathContainer=new CPathCont_old();
@@ -41,11 +41,11 @@ CPath_old::~CPath_old()
 
 void CPath_old::computeBoundingBox()
 {
-    C3Vector maxV(pathContainer->getSquareSize()/2.0f,pathContainer->getSquareSize()/2.0f,pathContainer->getSquareSize()/2.0f);
-    _setBoundingBox(maxV*-1.0f,maxV);
+    C3Vector maxV(pathContainer->getSquareSize()/2.0,pathContainer->getSquareSize()/2.0,pathContainer->getSquareSize()/2.0);
+    _setBoundingBox(maxV*-1.0,maxV);
 }
 
-void CPath_old::scaleObject(floatDouble scalingFactor)
+void CPath_old::scaleObject(double scalingFactor)
 {
     if (pathContainer!=nullptr)
         pathContainer->scaleObject(scalingFactor);
@@ -54,7 +54,7 @@ void CPath_old::scaleObject(floatDouble scalingFactor)
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void CPath_old::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
+void CPath_old::scaleObjectNonIsometrically(double x,double y,double z)
 {
     if (pathContainer!=nullptr)
         pathContainer->scaleObjectNonIsometrically(x,y,z);
@@ -84,14 +84,14 @@ bool CPath_old::getShapingEnabled()
     return(_shapingEnabled);
 }
 
-void CPath_old::setShapingScaling(floatDouble s)
+void CPath_old::setShapingScaling(double s)
 {
-    tt::limitValue(0.01f,100.0f,s);
+    tt::limitValue(0.01,100.0,s);
     _shapingScaling=s;
     _generatePathShape();
 }
 
-floatDouble CPath_old::getShapingScaling() const
+double CPath_old::getShapingScaling() const
 {
     return(_shapingScaling);
 }
@@ -123,37 +123,37 @@ bool CPath_old::getShapingSectionClosed()
     return(_shapingSectionClosed);
 }
 
-void CPath_old::setShapingElementMaxLength(floatDouble l)
+void CPath_old::setShapingElementMaxLength(double l)
 {
-    tt::limitValue(0.00005f,1.0f,l);
+    tt::limitValue(0.00005,1.0,l);
     _shapingElementMaxLength=l;
     _generatePathShape();
 }
 
-floatDouble CPath_old::getShapingElementMaxLength()
+double CPath_old::getShapingElementMaxLength()
 {
     return(_shapingElementMaxLength);
 }
 
 void CPath_old::setShapingType(int theType)
 { // 0=user, 1=circle, 2=square, 3=line horiz, 4=line vert
-    const floatDouble s=pathContainer->getSquareSize()/2.0f;
+    const double s=pathContainer->getSquareSize()/2.0;
     if (theType>0)
     {
         shapingCoordinates.clear();
         if (theType==4)
         {
             shapingCoordinates.push_back(+s);
-            shapingCoordinates.push_back(0.0f);
+            shapingCoordinates.push_back(0.0);
             shapingCoordinates.push_back(-s);
-            shapingCoordinates.push_back(0.0f);
+            shapingCoordinates.push_back(0.0);
             _shapingSectionClosed=false;
         }
         if (theType==3)
         {
-            shapingCoordinates.push_back(0.0f);
+            shapingCoordinates.push_back(0.0);
             shapingCoordinates.push_back(+s);
-            shapingCoordinates.push_back(0.0f);
+            shapingCoordinates.push_back(0.0);
             shapingCoordinates.push_back(-s);
             _shapingSectionClosed=false;
         }
@@ -171,8 +171,8 @@ void CPath_old::setShapingType(int theType)
         }
         if (theType==1)
         {
-            floatDouble da=piValT2/16.0f;
-            floatDouble a=0.0f;
+            double da=piValT2/16.0;
+            double a=0.0;
             for (int i=0;i<16;i++)
             {
                 shapingCoordinates.push_back(s*cos(a));
@@ -209,7 +209,7 @@ void CPath_old::resetPath()
         pathContainer->resetPath(this);
 }
 
-void CPath_old::handlePath(floatDouble deltaTime)
+void CPath_old::handlePath(double deltaTime)
 {
     if (pathContainer!=nullptr)
         pathContainer->handlePath(this,deltaTime);
@@ -327,7 +327,7 @@ std::string CPath_old::getObjectTypeInfoExtended() const
     retVal+=tt::getIString(false,pathContainer->getBezierPathPointCount())+", ";
     retVal+=IDSOGL_TOTAL_LENGTH;
     retVal+=tt::getFString(false,pathContainer->getBezierVirtualPathLength(),3)+", p=";
-    retVal+=tt::getFString(true,floatDouble(pathContainer->getPosition()),3)+")";
+    retVal+=tt::getFString(true,double(pathContainer->getPosition()),3)+")";
     return(retVal);
 }
 bool CPath_old::isPotentiallyCollidable() const
@@ -383,12 +383,12 @@ void CPath_old::_generatePathShape()
     if (!_shapingEnabled)
         return;
     int pts=(int)shapingCoordinates.size()/2;
-    floatDouble l=pathContainer->getBezierNormalPathLength();
-    if (l==0.0f)
+    double l=pathContainer->getBezierNormalPathLength();
+    if (l==0.0)
         return;
     int elements=int(l/_shapingElementMaxLength)+1;
-    floatDouble dl=l/floatDouble(elements);
-    floatDouble pos=0.0f;
+    double dl=l/double(elements);
+    double pos=0.0;
     C3Vector upVect;
 
     for (int i=0;i<elements+1;i++)
@@ -396,7 +396,7 @@ void CPath_old::_generatePathShape()
         if ( (i==elements)&&(pathContainer->getAttributes()&sim_pathproperty_closed_path) )
             break;
         int index;
-        floatDouble t;
+        double t;
         pathContainer->getPointOnBezierCurveAtNormalDistance(pos,index,t);
         C4X4Matrix m(pathContainer->_getInterpolatedBezierCurvePoint(index,t));
         if (i==0)
@@ -405,7 +405,7 @@ void CPath_old::_generatePathShape()
         {
             if (!_shapingFollowFullOrientation)
             {
-                if (m.M.axis[2].getAngle(upVect)<1.0f*degToRad)
+                if (m.M.axis[2].getAngle(upVect)<1.0*degToRad)
                     upVect=m.M.axis[0]; // This becomes the new up vector
                 else
                 {
@@ -416,7 +416,7 @@ void CPath_old::_generatePathShape()
         }
         for (int j=0;j<int(shapingCoordinates.size())/2;j++)
         {
-            C3Vector v(shapingCoordinates[2*j+0]*_shapingScaling,shapingCoordinates[2*j+1]*_shapingScaling,0.0f);
+            C3Vector v(shapingCoordinates[2*j+0]*_shapingScaling,shapingCoordinates[2*j+1]*_shapingScaling,0.0);
             v=m*v;
             _pathShapeVertices.push_back(v(0));
             _pathShapeVertices.push_back(v(1));
@@ -428,10 +428,10 @@ void CPath_old::_generatePathShape()
     bool convexSuccess=false;
     if (_shapingConvexHull)
     { // Using the element-wise convex hull for generation
-        std::vector<floatDouble> cop(_pathShapeVertices);
+        std::vector<double> cop(_pathShapeVertices);
         for (int i=0;i<elements;i++)
         {
-            std::vector<floatDouble> tmpVert;
+            std::vector<double> tmpVert;
             for (int k=0;k<2;k++)
             {
                 for (int j=0;j<pts;j++)
@@ -450,7 +450,7 @@ void CPath_old::_generatePathShape()
                     }
                 }
             }
-            std::vector<floatDouble> vertOut;
+            std::vector<double> vertOut;
             std::vector<int> indOut;
             convexSuccess=CMeshRoutines::getConvexHull(&tmpVert,&vertOut,&indOut);
             if (!convexSuccess)
@@ -462,7 +462,7 @@ void CPath_old::_generatePathShape()
             }
 
             // We remove the degenerate triangles:
-            CMeshManip::checkVerticesIndicesNormalsTexCoords(vertOut,indOut,nullptr,nullptr,true,0.00001f,true);
+            CMeshManip::checkVerticesIndicesNormalsTexCoords(vertOut,indOut,nullptr,nullptr,true,0.00001,true);
 
             // we merge the individual elements
             CMeshManip::mergeWith(&_pathShapeVertices,&_pathShapeIndices,nullptr,&vertOut,&indOut,nullptr);
@@ -470,7 +470,7 @@ void CPath_old::_generatePathShape()
 
         if (convexSuccess)
         { // We make a final check of the resulting shape:
-            CMeshManip::checkVerticesIndicesNormalsTexCoords(_pathShapeVertices,_pathShapeIndices,nullptr,nullptr,true,0.00001f,true);
+            CMeshManip::checkVerticesIndicesNormalsTexCoords(_pathShapeVertices,_pathShapeIndices,nullptr,nullptr,true,0.00001,true);
         }
     }
 
@@ -519,7 +519,7 @@ CShape* CPath_old::getShape() const
     CShape* retVal=nullptr;
     if (_shapingEnabled&&(_pathShapeVertices.size()!=0))
     {
-        std::vector<floatDouble> vert(_pathShapeVertices);
+        std::vector<double> vert(_pathShapeVertices);
         C7Vector tr(getFullCumulativeTransformation());
         for (size_t i=0;i<vert.size()/3;i++)
         {
@@ -555,27 +555,27 @@ void CPath_old::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Pss");
-            ar.flt() << (floatFloat)_shapingScaling;
-            ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_ss");
-            ar.dbl() << _shapingScaling;
+            ar << (float)_shapingScaling;
             ar.flush();
 #endif
 
+            ar.storeDataName("_ss");
+            ar << _shapingScaling;
+            ar.flush();
+
+
 #ifdef TMPOPERATION
             ar.storeDataName("Sha");
-            ar.flt() << (floatFloat)_shapingElementMaxLength;
+            ar << (float)_shapingElementMaxLength;
             ar << _shapingType;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_ha");
-            ar.dbl() << _shapingElementMaxLength;
+            ar << _shapingElementMaxLength;
             ar << _shapingType;
             ar.flush();
-#endif
+
 
             ar.storeDataName("Ntp");
             ar.setCountingMode();
@@ -587,16 +587,16 @@ void CPath_old::serialize(CSer& ar)
             ar.storeDataName("Sec");
             ar << int(shapingCoordinates.size());
             for (int i=0;i<int(shapingCoordinates.size());i++)
-                ar.flt() << (floatFloat)shapingCoordinates[i];
+                ar << (float)shapingCoordinates[i];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_ec");
             ar << int(shapingCoordinates.size());
             for (int i=0;i<int(shapingCoordinates.size());i++)
-                ar.dbl() << shapingCoordinates[i];
+                ar << shapingCoordinates[i];
             ar.flush();
-#endif
+
 
             ar.storeDataName("Scl");
             ar.setCountingMode();
@@ -635,32 +635,36 @@ void CPath_old::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
-                        ar.flt() >> bla;
-                        _shapingScaling=(floatDouble)bla;
+                        float bla;
+                        ar >> bla;
+                        _shapingScaling=(double)bla;
                     }
+
                     if (theName.compare("_ss")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _shapingScaling;
+                        ar >> _shapingScaling;
                     }
+
                     if (theName.compare("Sha")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
-                        ar.flt() >> bla;
-                        _shapingElementMaxLength=(floatDouble)bla;
+                        float bla;
+                        ar >> bla;
+                        _shapingElementMaxLength=(double)bla;
                         ar >> _shapingType;
                     }
+
                     if (theName.compare("_ha")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _shapingElementMaxLength;
+                        ar >> _shapingElementMaxLength;
                         ar >> _shapingType;
                     }
+
                     if (theName.compare("Ntp")==0)
                     {
                         noHit=false;
@@ -673,28 +677,30 @@ void CPath_old::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int l;
                         ar >> l;
-                        floatFloat c;
+                        float c;
                         shapingCoordinates.clear();
                         for (int i=0;i<l;i++)
                         {
-                            ar.flt() >> c;
-                            shapingCoordinates.push_back((floatDouble)c);
+                            ar >> c;
+                            shapingCoordinates.push_back((double)c);
                         }
                     }
+
                     if (theName.compare("_ec")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         int l;
                         ar >> l;
-                        floatDouble c;
+                        double c;
                         shapingCoordinates.clear();
                         for (int i=0;i<l;i++)
                         {
-                            ar.dbl() >> c;
+                            ar >> c;
                             shapingCoordinates.push_back(c);
                         }
                     }
+
                     if (theName.compare("Scl")==0)
                     {
                         noHit=false;
@@ -792,7 +798,7 @@ void CPath_old::display(CViewableBase* renderingObject,int displayAttrib)
 }
 
 #ifdef SIM_WITH_GUI
-bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,floatDouble prevPos[2],floatDouble pos[2],floatDouble screenHalfSizes[2],floatDouble halfSizes[2],bool perspective,int eventID)
+bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,double prevPos[2],double pos[2],double screenHalfSizes[2],double halfSizes[2],bool perspective,int eventID)
 {
     C3Vector pointCenter;
     pointCenter.clear();
@@ -817,7 +823,7 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
         }
     }
     if (selectedPathPoints.size()!=0)
-        pointCenter/=floatDouble(selectedPathPoints.size());
+        pointCenter/=double(selectedPathPoints.size());
 
     C4X4Matrix objAbs;
     objAbs.X=pointCenter;
@@ -828,10 +834,10 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
     if ( (eventID!=_objectManipulationModeEventId)||(ctrlKeyDown!=_objectMovementPreferredAxesPreviousCtrlKeyDown) )
     {
         _objectManipulationModeSubTranslation.clear();
-        _objectManipulationModeSubRotation=0.0f;
+        _objectManipulationModeSubRotation=0.0;
         _objectManipulationModeEventId=eventID;
         _objectManipulationModeTotalTranslation.clear();
-        _objectManipulationModeTotalRotation=0.0f;
+        _objectManipulationModeTotalRotation=0.0;
         // Let's first see on which plane we wanna translate:
         bool specialMode=false;
         if (ctrlKeyDown)
@@ -856,14 +862,14 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
 
     C4X4Matrix plane(originalPlane);
     C3Vector p[2]; // previous and current point on the plane
-    floatDouble d=-(plane.X*plane.M.axis[2]);
-    floatDouble screenP[2]={prevPos[0],prevPos[1]};
+    double d=-(plane.X*plane.M.axis[2]);
+    double screenP[2]={prevPos[0],prevPos[1]};
     C4X4Matrix cam(cameraAbsConf);
     bool singularityProblem=false;
 
     for (int pass=0;pass<2;pass++)
     {
-        floatDouble tt[2];
+        double tt[2];
         for (int i=0;i<2;i++)
         {
             if (i==1)
@@ -874,14 +880,14 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
             C3Vector pp(cam.X);
             if (!perspective)
             {
-                if (fabs(cam.M.axis[2]*plane.M.axis[2])<0.05f)
+                if (fabs(cam.M.axis[2]*plane.M.axis[2])<0.05)
                 {
                     singularityProblem=true;
                     break;
                 }
                 pp-=cam.M.axis[0]*halfSizes[0]*(screenP[0]/screenHalfSizes[0]);
                 pp+=cam.M.axis[1]*halfSizes[1]*(screenP[1]/screenHalfSizes[1]);
-                floatDouble t=(-d-(plane.M.axis[2]*pp))/(cam.M.axis[2]*plane.M.axis[2]);
+                double t=(-d-(plane.M.axis[2]*pp))/(cam.M.axis[2]*plane.M.axis[2]);
                 p[i]=pp+cam.M.axis[2]*t;
             }
             else
@@ -889,19 +895,19 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
                 C3Vector v(cam.M.axis[2]+cam.M.axis[0]*tan(-screenP[0])+cam.M.axis[1]*tan(screenP[1]));
                 v.normalize();
                 pp+=v;
-                if (fabs(v*plane.M.axis[2])<0.05f)
+                if (fabs(v*plane.M.axis[2])<0.05)
                 {
                     singularityProblem=true;
                     break;
                 }
-                floatDouble t=(-d-(plane.M.axis[2]*pp))/(v*plane.M.axis[2]);
+                double t=(-d-(plane.M.axis[2]*pp))/(v*plane.M.axis[2]);
                 tt[i]=t;
                 p[i]=pp+v*t;
             }
         }
         if (!singularityProblem)
         {
-            if ((!perspective)||(tt[0]*tt[1]>0.0f))
+            if ((!perspective)||(tt[0]*tt[1]>0.0))
                 break;
             singularityProblem=true;
         }
@@ -912,10 +918,10 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
         C4X4Matrix inv(originalPlane.getInverse());
         p[0]*=inv;
         p[1]*=inv;
-        p[0](1)=0.0f;
-        p[0](2)=0.0f;
-        p[1](1)=0.0f;
-        p[1](2)=0.0f;
+        p[0](1)=0.0;
+        p[0](2)=0.0;
+        p[1](1)=0.0;
+        p[1](2)=0.0;
         p[0]*=originalPlane;
         p[1]*=originalPlane;
     }
@@ -926,8 +932,8 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
             C4X4Matrix inv(originalPlane.getInverse());
             p[0]*=inv;
             p[1]*=inv;
-            p[0](2)=0.0f;
-            p[1](2)=0.0f;
+            p[0](2)=0.0;
+            p[1](2)=0.0;
             p[0]*=originalPlane;
             p[1]*=originalPlane;
         }
@@ -939,12 +945,12 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
     _objectManipulationModeSubTranslation+=v;
     for (int i=0;i<3;i++)
     {
-        floatDouble ss=getObjectMovementStepSize(0);
-        if (ss==0.0f)
+        double ss=getObjectMovementStepSize(0);
+        if (ss==0.0)
             ss=App::userSettings->getTranslationStepSize();
         if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
-            ss=0.001f;
-        floatDouble w=fmod(_objectManipulationModeSubTranslation(i),ss);
+            ss=0.001;
+        double w=fmod(_objectManipulationModeSubTranslation(i),ss);
         v(i)=_objectManipulationModeSubTranslation(i)-w;
         _objectManipulationModeTotalTranslation(i)+=_objectManipulationModeSubTranslation(i)-w;
         _objectManipulationModeSubTranslation(i)=w;

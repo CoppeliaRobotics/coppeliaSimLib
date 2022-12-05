@@ -1,4 +1,3 @@
-
 #pragma once
 
 const unsigned char SIMFONT_MS_SANS_SERIF[]=

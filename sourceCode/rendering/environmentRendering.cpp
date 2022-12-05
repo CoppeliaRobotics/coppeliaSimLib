@@ -16,15 +16,15 @@ void displayBackground(const int* viewSize,bool fogEnabled,const float* fogBackg
     glEnable(GL_COLOR_MATERIAL);
     glBegin(GL_QUADS);
     if (fogEnabled)
-        glColor3fv(fogBackgroundColor);
+        glColor3f(fogBackgroundColor[0],fogBackgroundColor[1],fogBackgroundColor[2]);
     else
-        glColor3fv(backGroundColorDown);
+        glColor3f(backGroundColorDown[0],backGroundColorDown[1],backGroundColorDown[2]);
     glVertex3i(0,0,0);
     glVertex3i(viewSize[0],0,0);
     if (fogEnabled)
-        glColor3fv(fogBackgroundColor);
+        glColor3f(fogBackgroundColor[0],fogBackgroundColor[1],fogBackgroundColor[2]);
     else
-        glColor3fv(backGroundColor);
+        glColor3f(backGroundColor[0],backGroundColor[1],backGroundColor[2]);
     glVertex3i(viewSize[0],viewSize[1],0);
     glVertex3i(0,viewSize[1],0);
     glEnd();
@@ -37,25 +37,25 @@ void enableAmbientLight(bool on,const float* ambientLightColor)
 {
     if (on)
     {
-        GLfloat ambient[]={ambientLightColor[0],ambientLightColor[1],ambientLightColor[2],1.0f};
+        float ambient[]={ambientLightColor[0],ambientLightColor[1],ambientLightColor[2],1.0};
         glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient);
     }
     else
     {
-        GLfloat ambient[]={0.0f,0.0f,0.0f,1.0f};
+        float ambient[]={0.0,0.0,0.0,1.0};
         glLightModelfv(GL_LIGHT_MODEL_AMBIENT,ambient);
     }
 }
 
-void activateFog(const float* fogBackgroundColor,int fogType,float dd,float farClipp,float fogStart,float fogEnd,float fogDensity)
+void activateFog(const float* fogBackgroundColor,int fogType,double dd,double farClipp,double fogStart,double fogEnd,double fogDensity)
 {
-    float fog_color[4]={fogBackgroundColor[0],fogBackgroundColor[1],fogBackgroundColor[2],1.0f};
+    float fog_color[4]={fogBackgroundColor[0],fogBackgroundColor[1],fogBackgroundColor[2],1.0};
     GLenum fogTypeEnum[3]={GL_LINEAR,GL_EXP,GL_EXP2};
     glFogfv(GL_FOG_COLOR,fog_color);
     glFogi(GL_FOG_MODE,fogTypeEnum[fogType]);
-    glFogf(GL_FOG_START,fogStart*dd+(1.0f-dd)*farClipp);
-    glFogf(GL_FOG_END,fogEnd*dd+(1.0f-dd)*farClipp);
-    glFogf(GL_FOG_DENSITY,fogDensity*dd);
+    glFogf(GL_FOG_START,float(fogStart*dd+(1.0-dd)*farClipp));
+    glFogf(GL_FOG_END,float(fogEnd*dd+(1.0-dd)*farClipp));
+    glFogf(GL_FOG_DENSITY,float(fogDensity*dd));
     glEnable(GL_FOG);
 }
 
@@ -69,17 +69,17 @@ void enableFog(bool on)
 
 #else
 
-void displayBackground(const int* viewSize,bool fogEnabled,const float* fogBackgroundColor,const float* backGroundColorDown,const float* backGroundColor)
+void displayBackground(const int* viewSize,bool fogEnabled,const double* fogBackgroundColor,const double* backGroundColorDown,const double* backGroundColor)
 {
 
 }
 
-void enableAmbientLight(bool on,const float* ambientLightColor)
+void enableAmbientLight(bool on,const double* ambientLightColor)
 {
 
 }
 
-void activateFog(const float* fogBackgroundColor,int fogType,float dd,float farClipp,float fogStart,float fogEnd,float fogDensity)
+void activateFog(const double* fogBackgroundColor,int fogType,double dd,double farClipp,double fogStart,double fogEnd,double fogDensity)
 {
 
 }

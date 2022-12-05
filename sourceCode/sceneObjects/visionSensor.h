@@ -16,7 +16,7 @@ struct SHandlingResult
     unsigned char sensorDataGreen[3]; // min, max, average
     unsigned char sensorDataBlue[3]; // min, max, average
     unsigned char sensorDataIntensity[3]; // min, max, average
-    floatFloat sensorDataDepth[3]; // min, max, average
+    float sensorDataDepth[3]; // min, max, average
     int calcTimeInMs;
 };
 
@@ -31,8 +31,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(floatDouble scalingFactor);
-    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
+    void scaleObject(double scalingFactor);
+    void scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -61,15 +61,15 @@ public:
 
     void setResolution(const int r[2]); // override
 
-    void setVisionSensorSize(floatDouble s);
-    floatDouble getVisionSensorSize() const;
+    void setVisionSensorSize(double s);
+    double getVisionSensorSize() const;
     void setExplicitHandling(bool explicitHandl);
     bool getExplicitHandling() const;
     void resetSensor();
     bool handleSensor();
     bool checkSensor(int entityID,bool overrideRenderableFlagsForNonCollections);
-    floatDouble* checkSensorEx(int entityID,bool imageBuffer,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
-    void setDepthBuffer(const floatFloat* img);
+    float* checkSensorEx(int entityID,bool imageBuffer,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
+    void setDepthBuffer(const float* img);
 
     void setIgnoreRGBInfo(bool ignore);
     bool getIgnoreRGBInfo() const;
@@ -86,7 +86,7 @@ public:
     bool getComputeImageBasicStats() const;
 
     unsigned char* getRgbBufferPointer();
-    floatFloat* getDepthBufferPointer() const;
+    float* getDepthBufferPointer() const;
 
     void setDetectableEntityHandle(int entityHandle);
     int getDetectableEntityHandle() const;
@@ -95,8 +95,8 @@ public:
     bool detectEntity(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
     void detectEntity2(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
     void renderForDetection(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections,const std::vector<int>& activeMirrors);
-    void setDefaultBufferValues(const floatDouble v[3]);
-    void getDefaultBufferValues(floatDouble v[3]) const;
+    void setDefaultBufferValues(const float v[3]);
+    void getDefaultBufferValues(float v[3]) const;
 
     void setUseExternalImage(bool u);
     bool getUseExternalImage() const;
@@ -106,13 +106,14 @@ public:
     void setExtWindowSizeAndPos(int sizeX,int sizeY,int posX,int posY);
     void getExtWindowSizeAndPos(int& sizeX,int& sizeY,int& posX,int& posY) const;
 
-    floatDouble* readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth) const;
-    unsigned char* readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,floatDouble cutoffRgba,int option) const;
+    float* readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth) const;
+    void writeImage(const float* buff,int rgbGreyOrDepth);
+    unsigned char* readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,double cutoffRgba,int option) const;
     bool writePortionOfCharImage(const unsigned char* img,int posX,int posY,int sizeX,int sizeY,int option);
 
     void setUseEnvironmentBackgroundColor(bool s);
     bool getUseEnvironmentBackgroundColor() const;
-    floatDouble getCalculationTime() const;
+    double getCalculationTime() const;
     std::string getDetectableEntityLoadAlias() const;
     std::string getDetectableEntityLoadName_old() const;
 
@@ -121,9 +122,9 @@ public:
     CColorObject* getColor();
 
     SHandlingResult sensorResult;
-    std::vector<std::vector<floatDouble>> sensorAuxiliaryResult; // e.g. vectors, etc. set by a filter or an extension module's filter
+    std::vector<std::vector<double>> sensorAuxiliaryResult; // e.g. vectors, etc. set by a filter or an extension module's filter
 
-    bool setExternalImage_old(const floatFloat* img,bool imgIsGreyScale,bool noProcessing);
+    bool setExternalImage_old(const float* img,bool imgIsGreyScale,bool noProcessing);
     bool setExternalCharImage_old(const unsigned char* img,bool imgIsGreyScale,bool noProcessing);
 
 protected:
@@ -144,7 +145,7 @@ protected:
     void _extRenderer_retrieveImage();
 
     unsigned char* _rgbBuffer;
-    floatFloat* _depthBuffer;
+    float* _depthBuffer;
 
     unsigned int _rayTracingTextureName;
 
@@ -154,11 +155,11 @@ protected:
     // Variables which need to be serialized & copied (don't forget the vars from the CViewableBase class!)
     CColorObject color;
     int _detectableEntityHandle;
-    floatDouble _visionSensorSize;
+    double _visionSensorSize;
     bool _explicitHandling;
     bool _useExternalImage;
     bool _useSameBackgroundAsEnvironment;
-    floatDouble _defaultBufferValues[3];
+    float _defaultBufferValues[3];
     bool _ignoreRGBInfo;
     bool _ignoreDepthInfo;
     bool _computeImageBasicStats;

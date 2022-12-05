@@ -111,41 +111,41 @@ std::string gv::formatUnitStr(const char* txt,const char* s,bool inParenthesis,b
     return(str);
 }
 
-std::string gv::getTimeStr(float timeInSeconds,int additionalDecimals)
+std::string gv::getTimeStr(double timeInSeconds,int additionalDecimals)
 {
     return(tt::FNb(0,timeInSeconds,3+additionalDecimals,false));
 }
 
-std::string gv::getHourMinuteSecondMilisecondStr(float timeInSeconds)
+std::string gv::getHourMinuteSecondMilisecondStr(double timeInSeconds)
 {
-    std::string tmp(tt::FNb(2,int(timeInSeconds/3600.0f),false));
+    std::string tmp(tt::FNb(2,int(timeInSeconds/3600.0),false));
     tmp+=":";
-    tmp+=tt::FNb(2,int(CMath::robustFmod(timeInSeconds/60.0f,60.0f)),false)+":";
-    tmp+=tt::FNb(2,int(CMath::robustFmod(timeInSeconds,60.0f)),false)+".";
-    tmp+=tt::FNb(2,int(CMath::robustFmod(timeInSeconds*100.0f,100.0f)),false);
+    tmp+=tt::FNb(2,int(CMath::robustMod(timeInSeconds/60.0,60.0)),false)+":";
+    tmp+=tt::FNb(2,int(CMath::robustMod(timeInSeconds,60.0)),false)+".";
+    tmp+=tt::FNb(2,int(CMath::robustMod(timeInSeconds*100.0,100.0)),false);
     return(tmp);
 }
 
 
-std::string gv::getAngleStr(bool sign,float angleInRad,int leadingZeros)
+std::string gv::getAngleStr(bool sign,double angleInRad,int leadingZeros)
 { // if leadingZeros==-1, the default leading zeros are used
     if (leadingZeros==-1)
         leadingZeros=3;
     return(tt::FNb(leadingZeros,angleInRad*radToUser,2,sign));
 }
 
-std::string gv::getSizeStr(bool sign,float sizeInMeter,int leadingZeros)
+std::string gv::getSizeStr(bool sign,double sizeInMeter,int leadingZeros)
 { // if leadingZeros==-1, the default leading zeros are used
     if (leadingZeros==-1)
         leadingZeros=1;
     return(tt::FNb(leadingZeros,sizeInMeter,4,sign));
 }
 
-float gv::radToUser=radToDeg;
-float gv::userToRad=degToRad;
-float gv::angularVelToUser=radToDeg;
-float gv::userToAngularVel=degToRad;
-float gv::angularAccelToUser=radToDeg;
-float gv::userToAngularAccel=degToRad;
+double gv::radToUser=radToDeg;
+double gv::userToRad=degToRad;
+double gv::angularVelToUser=radToDeg;
+double gv::userToAngularVel=degToRad;
+double gv::angularAccelToUser=radToDeg;
+double gv::userToAngularAccel=degToRad;
 
 

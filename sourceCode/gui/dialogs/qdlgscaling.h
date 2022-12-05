@@ -1,8 +1,8 @@
-
 #ifndef QDLGSCALING_H
 #define QDLGSCALING_H
 
 #include "vDialog.h"
+#include "simTypes.h"
 
 namespace Ui {
     class CQDlgScaling;
@@ -22,7 +22,7 @@ public:
     void refresh();
 
     bool inPlace;
-    float factor;
+    double factor;
 
     void _doTheScaling();
 

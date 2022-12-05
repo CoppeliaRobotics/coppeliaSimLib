@@ -329,7 +329,7 @@ void CQDlgPrimitives::on_qqXSize_editingFinished()
     if (!ui->qqXSize->isModified())
         return;
     bool ok;
-    float newVal=ui->qqXSize->text().toFloat(&ok);
+    double newVal=ui->qqXSize->text().toFloat(&ok);
     if (ok)
     {
         tt::limitValue(0.0001,1000.0,newVal);
@@ -349,7 +349,7 @@ void CQDlgPrimitives::on_qqYSize_editingFinished()
     if (!ui->qqYSize->isModified())
         return;
     bool ok;
-    float newVal=ui->qqYSize->text().toFloat(&ok);
+    double newVal=ui->qqYSize->text().toFloat(&ok);
     if (ok)
     {
         tt::limitValue(0.0001,1000.0,newVal);
@@ -369,14 +369,14 @@ void CQDlgPrimitives::on_qqZSize_editingFinished()
     if (!ui->qqZSize->isModified())
         return;
     bool ok;
-    float newVal=ui->qqZSize->text().toFloat(&ok);
+    double newVal=ui->qqZSize->text().toFloat(&ok);
     if (ok)
     {
         tt::limitValue(0.0001,1000.0,newVal);
         zSize=newVal;
         if (primitiveType==sim_primitiveshape_capsule)
         {
-            float mmax=std::max<float>(xSize,ySize);
+            double mmax=std::max<double>(xSize,ySize);
             if (zSize<mmax+0.0001)
                 zSize=mmax+0.0001;
         }
@@ -529,7 +529,7 @@ void CQDlgPrimitives::_correctDependentValues()
     }
     if (primitiveType==sim_primitiveshape_capsule)
     {
-        float mmax=std::max<float>(xSize,ySize);
+        double mmax=std::max<double>(xSize,ySize);
         if (zSize<mmax+0.0001)
             zSize=mmax+0.0001;
     }
@@ -540,7 +540,7 @@ void CQDlgPrimitives::on_qqDensity_editingFinished()
     if (!ui->qqDensity->isModified())
         return;
     bool ok;
-    float newVal=ui->qqDensity->text().toFloat(&ok);
+    double newVal=ui->qqDensity->text().toFloat(&ok);
     if (ok)
     {
         density=newVal;

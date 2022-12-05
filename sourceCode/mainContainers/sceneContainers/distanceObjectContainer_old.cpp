@@ -226,20 +226,20 @@ void CDistanceObjectContainer_old::setUpDefaultValues()
     removeAllDistanceObjects();
 }
 
-float CDistanceObjectContainer_old::handleAllDistances(bool exceptExplicitHandling)
+double CDistanceObjectContainer_old::handleAllDistances(bool exceptExplicitHandling)
 { // Return value is the smallest distance measured or negative if nothing was measured
     resetAllDistances(exceptExplicitHandling);
     if (!App::currentWorld->mainSettings->distanceCalculationEnabled)
-        return(-1.0f);
+        return(-1.0);
 
-    float retVal=FLOAT_MAX;
+    double retVal=FLOAT_MAX;
     bool retPos=false;
     for (size_t i=0;i<getObjectCount();i++)
     {
         if ( (!getObjectFromIndex(i)->getExplicitHandling())||(!exceptExplicitHandling) )
         {
-            float d=getObjectFromIndex(i)->handleDistance();
-            if (d>=0.0f)
+            double d=getObjectFromIndex(i)->handleDistance();
+            if (d>=0.0)
             {
                 retPos=true;
                 if (d<retVal)
@@ -248,7 +248,7 @@ float CDistanceObjectContainer_old::handleAllDistances(bool exceptExplicitHandli
         }
     }
     if (!retPos)
-        return(-1.0f);
+        return(-1.0);
     return(retVal);
 }
 

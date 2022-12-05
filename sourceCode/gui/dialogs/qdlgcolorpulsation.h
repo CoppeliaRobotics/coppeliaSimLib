@@ -24,9 +24,9 @@ public:
 
     bool pulsationEnabled;
     bool pulsationRealTime;
-    float pulsationFrequency;
-    float pulsationPhase;
-    float pulsationRatio;
+    double pulsationFrequency;
+    double pulsationPhase;
+    double pulsationRatio;
 
 private slots:
     void on_qqEnablePulsation_clicked();

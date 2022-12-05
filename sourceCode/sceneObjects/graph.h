@@ -22,8 +22,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(floatDouble scalingFactor);
-    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
+    void scaleObject(double scalingFactor);
+    void scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
 
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
@@ -57,15 +57,15 @@ public:
     bool isPotentiallyRenderable() const;
 
     // Various
-    bool getGraphCurveData(int graphType,int index,std::string& label,std::vector<floatDouble>& xVals,std::vector<floatDouble>& yVals,int& curveType,floatDouble col[3],floatDouble minMax[6],int& curveId,int& curveWidth) const;
+    bool getGraphCurveData(int graphType,int index,std::string& label,std::vector<double>& xVals,std::vector<double>& yVals,int& curveType,float col[3],double minMax[6],int& curveId,int& curveWidth) const;
     void curveToClipboard(int graphType,const char* curveName) const;
     void curveToStatic(int graphType,const char* curveName);
     void removeStaticCurve(int graphType,const char* curveName);
 
     int addOrUpdateDataStream(CGraphDataStream* dataStream);
     int addOrUpdateCurve(CGraphCurve* curve);
-    bool setDataStreamTransformation(int streamId,int trType,floatDouble mult,floatDouble off,int movAvgPeriod);
-    bool setNextValueToInsert(int streamId,floatDouble v);
+    bool setDataStreamTransformation(int streamId,int trType,double mult,double off,int movAvgPeriod);
+    bool setNextValueToInsert(int streamId,double v);
     CGraphDataStream* getGraphDataStream(int id) const;
     CGraphDataStream* getGraphDataStream(const char* name,bool staticStream) const;
     void getGraphDataStreamsFromIds(const int ids[3],CGraphDataStream* streams[3]) const;
@@ -77,15 +77,15 @@ public:
     int duplicateCurveToStatic(int curveId,const char* curveName);
     void getAllStreamIds(std::vector<int>& allStreamIds);
 
-    void setGraphSize(floatDouble theNewSize);
-    floatDouble getGraphSize() const;
+    void setGraphSize(double theNewSize);
+    double getGraphSize() const;
     bool getNeedsRefresh();
     void setBufferSize(int buffSize);
     int getBufferSize() const;
     void setCyclic(bool isCyclic);
     bool getCyclic() const;
     void resetGraph();
-    void addNextPoint(floatDouble time);
+    void addNextPoint(double time);
     bool getAbsIndexOfPosition(int pos,int& absIndex) const;
     int getNumberOfPoints() const;
 
@@ -103,8 +103,8 @@ public:
     bool xYZPlanesDisplay;
     bool graphGrid;
     bool graphValues;
-    floatDouble backgroundColor[3];
-    floatDouble textColor[3];
+    float backgroundColor[3];
+    float textColor[3];
 
     // Old:
     void removeAllStreamsAndCurves_old();
@@ -128,7 +128,7 @@ public:
     bool set2DDataName(int identifier,std::string newName);
     void setJustDrawCurves(bool justCurves);
     bool getJustDrawCurves() const;
-    bool getData(const CGraphData_old* it,int pos,floatDouble& outputValue,bool cyclic,floatDouble range,bool doUnitConversion) const;
+    bool getData(const CGraphData_old* it,int pos,double& outputValue,bool cyclic,double range,bool doUnitConversion) const;
     int getTrackingValueIndex() const;
     std::vector <CGraphData_old*> dataStreams_old;
     std::vector <CGraphDataComb_old*> curves3d_old;
@@ -142,13 +142,13 @@ protected:
     std::vector <CGraphCurve*> _curves;
 
     CColorObject color;
-    floatDouble _graphSize;
+    double _graphSize;
     int bufferSize;
     bool cyclic;
     bool _explicitHandling;
     int numberOfPoints;
     int startingPoint;
-    std::vector <floatDouble> times;
+    std::vector <double> times;
     bool _needsRefresh;
 
     bool _initialExplicitHandling;
@@ -157,19 +157,19 @@ protected:
     bool justDrawCurves;
     int trackingValueIndex;
     bool trackingValueIsStatic;
-    floatDouble trackingValue[2];
-    floatDouble squareDistFromTrackingValue;
+    double trackingValue[2];
+    double squareDistFromTrackingValue;
 #ifdef SIM_WITH_GUI
 public:
     void lookAt(int windowSize[2],CSView* subView,bool timeGraph,bool drawText,bool passiveSubView,bool oneOneProportionForXYGraph);
-    void validateViewValues(int windowSize[2],floatDouble graphPosition[2],floatDouble graphSize[2],
+    void validateViewValues(int windowSize[2],double graphPosition[2],double graphSize[2],
                 bool timeGraph,bool shiftOnly=false,bool keepProp=false,bool autoModeForTimeGraphXaxis=true);
 
 private:
-    void drawGrid(int windowSize[2],floatDouble graphPosition[2],floatDouble graphSize[2]);
-    void drawOverlay(int windowSize[2],floatDouble graphPosition[2],floatDouble graphSize[2],
+    void drawGrid(int windowSize[2],double graphPosition[2],double graphSize[2]);
+    void drawOverlay(int windowSize[2],double graphPosition[2],double graphSize[2],
                     int mouseMode,CSView* subView,bool passiveSubView);
-    void drawValues(int windowSize[2],floatDouble graphPosition[2],floatDouble graphSize[2],
+    void drawValues(int windowSize[2],double graphPosition[2],double graphSize[2],
                     int mousePosition[2],bool mouseIsDown,bool dontRender,bool autoMode,bool timeGraphYaxisAutoMode,
                     bool drawText,bool passiveSubView,bool timeGraph,CSView* subView);
 #endif

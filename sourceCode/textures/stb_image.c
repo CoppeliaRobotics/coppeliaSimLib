@@ -126,10 +126,6 @@ typedef unsigned char validate_uint32[sizeof(uint32)==4 ? 1 : -1];
    #define stbi_lrot(x,y)  (((x) << (y)) | ((x) >> (32 - (y))))
 #endif
 
-#ifndef floatFloat
-#define floatFloat float
-#endif
-
 ///////////////////////////////////////////////
 //
 //  stbi struct and start_xxx functions
@@ -230,7 +226,7 @@ static int      stbi_tga_info(stbi *s, int *x, int *y, int *comp);
 static int      stbi_psd_test(stbi *s);
 static stbi_uc *stbi_psd_load(stbi *s, int *x, int *y, int *comp, int req_comp);
 static int      stbi_hdr_test(stbi *s);
-static floatFloat   *stbi_hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp);
+static float   *stbi_hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp);
 static int      stbi_pic_test(stbi *s);
 static stbi_uc *stbi_pic_load(stbi *s, int *x, int *y, int *comp, int req_comp);
 static int      stbi_gif_test(stbi *s);
@@ -253,7 +249,7 @@ static int e(const char *str)
 }
 
 // e - error
-// epf - error returning pointer to floatFloat
+// epf - error returning pointer to float
 // epuc - error returning pointer to unsigned char
 
 #ifdef STBI_NO_FAILURE_STRINGS
@@ -264,7 +260,7 @@ static int e(const char *str)
    #define e(x,y)  e(x)
 #endif
 
-#define epf(x,y)   ((floatFloat *) (e(x,y)?NULL:NULL))
+#define epf(x,y)   ((float *) (e(x,y)?NULL:NULL))
 #define epuc(x,y)  ((unsigned char *) (e(x,y)?NULL:NULL))
 
 void stbi_image_free(void *retval_from_stbi_load)
@@ -273,8 +269,8 @@ void stbi_image_free(void *retval_from_stbi_load)
 }
 
 #ifndef STBI_NO_HDR
-static floatFloat   *ldr_to_hdr(stbi_uc *data, int x, int y, int comp);
-static stbi_uc *hdr_to_ldr(floatFloat   *data, int x, int y, int comp);
+static float   *ldr_to_hdr(stbi_uc *data, int x, int y, int comp);
+static stbi_uc *hdr_to_ldr(float   *data, int x, int y, int comp);
 #endif
 
 static unsigned char *stbi_load_main(stbi *s, int *x, int *y, int *comp, int req_comp)
@@ -288,7 +284,7 @@ static unsigned char *stbi_load_main(stbi *s, int *x, int *y, int *comp, int req
 
    #ifndef STBI_NO_HDR
    if (stbi_hdr_test(s)) {
-      floatFloat *hdr = stbi_hdr_load(s, x,y,comp,req_comp);
+      float *hdr = stbi_hdr_load(s, x,y,comp,req_comp);
       return hdr_to_ldr(hdr, *x, *y, req_comp ? req_comp : *comp);
    }
    #endif
@@ -334,7 +330,7 @@ unsigned char *stbi_load_from_callbacks(stbi_io_callbacks const *clbk, void *use
 
 #ifndef STBI_NO_HDR
 
-floatFloat *stbi_loadf_main(stbi *s, int *x, int *y, int *comp, int req_comp)
+float *stbi_loadf_main(stbi *s, int *x, int *y, int *comp, int req_comp)
 {
    unsigned char *data;
    #ifndef STBI_NO_HDR
@@ -347,14 +343,14 @@ floatFloat *stbi_loadf_main(stbi *s, int *x, int *y, int *comp, int req_comp)
    return epf("unknown image type", "Image not of any known type, or corrupt");
 }
 
-floatFloat *stbi_loadf_from_memory(stbi_uc const *buffer, int len, int *x, int *y, int *comp, int req_comp)
+float *stbi_loadf_from_memory(stbi_uc const *buffer, int len, int *x, int *y, int *comp, int req_comp)
 {
    stbi s;
    start_mem(&s,buffer,len);
    return stbi_loadf_main(&s,x,y,comp,req_comp);
 }
 
-floatFloat *stbi_loadf_from_callbacks(stbi_io_callbacks const *clbk, void *user, int *x, int *y, int *comp, int req_comp)
+float *stbi_loadf_from_callbacks(stbi_io_callbacks const *clbk, void *user, int *x, int *y, int *comp, int req_comp)
 {
    stbi s;
    start_callbacks(&s, (stbi_io_callbacks *) clbk, user);
@@ -362,17 +358,17 @@ floatFloat *stbi_loadf_from_callbacks(stbi_io_callbacks const *clbk, void *user,
 }
 
 #ifndef STBI_NO_STDIO
-floatFloat *stbi_loadf(char const *filename, int *x, int *y, int *comp, int req_comp)
+float *stbi_loadf(char const *filename, int *x, int *y, int *comp, int req_comp)
 {
    FILE *f = fopen(filename, "rb");
-   floatFloat *result;
+   float *result;
    if (!f) return epf("can't fopen", "Unable to open file");
    result = stbi_loadf_from_file(f,x,y,comp,req_comp);
    fclose(f);
    return result;
 }
 
-floatFloat *stbi_loadf_from_file(FILE *f, int *x, int *y, int *comp, int req_comp)
+float *stbi_loadf_from_file(FILE *f, int *x, int *y, int *comp, int req_comp)
 {
    stbi s;
    start_file(&s,f);
@@ -435,14 +431,14 @@ extern int      stbi_is_hdr_from_callbacks(stbi_io_callbacks const *clbk, void *
 }
 
 #ifndef STBI_NO_HDR
-static floatFloat h2l_gamma_i=1.0f/2.2f, h2l_scale_i=1.0f;
-static floatFloat l2h_gamma=2.2f, l2h_scale=1.0f;
+static float h2l_gamma_i=1.0f/2.2f, h2l_scale_i=1.0f;
+static float l2h_gamma=2.2f, l2h_scale=1.0f;
 
-void   stbi_hdr_to_ldr_gamma(floatFloat gamma) { h2l_gamma_i = 1/gamma; }
-void   stbi_hdr_to_ldr_scale(floatFloat scale) { h2l_scale_i = 1/scale; }
+void   stbi_hdr_to_ldr_gamma(float gamma) { h2l_gamma_i = 1/gamma; }
+void   stbi_hdr_to_ldr_scale(float scale) { h2l_scale_i = 1/scale; }
 
-void   stbi_ldr_to_hdr_gamma(floatFloat gamma) { l2h_gamma = gamma; }
-void   stbi_ldr_to_hdr_scale(floatFloat scale) { l2h_scale = scale; }
+void   stbi_ldr_to_hdr_gamma(float gamma) { l2h_gamma = gamma; }
+void   stbi_ldr_to_hdr_scale(float scale) { l2h_scale = scale; }
 #endif
 
 
@@ -622,16 +618,16 @@ static unsigned char *convert_format(unsigned char *data, int img_n, int req_com
 }
 
 #ifndef STBI_NO_HDR
-static floatFloat   *ldr_to_hdr(stbi_uc *data, int x, int y, int comp)
+static float   *ldr_to_hdr(stbi_uc *data, int x, int y, int comp)
 {
    int i,k,n;
-   floatFloat *output = (floatFloat *) malloc(x * y * comp * sizeof(floatFloat));
+   float *output = (float *) malloc(x * y * comp * sizeof(float));
    if (output == NULL) { free(data); return epf("outofmem", "Out of memory"); }
    // compute number of non-alpha components
    if (comp & 1) n = comp; else n = comp-1;
    for (i=0; i < x*y; ++i) {
       for (k=0; k < n; ++k) {
-         output[i*comp + k] = (floatFloat) pow(data[i*comp+k]/255.0f, l2h_gamma) * l2h_scale;
+         output[i*comp + k] = (float) pow(data[i*comp+k]/255.0f, l2h_gamma) * l2h_scale;
       }
       if (k < comp) output[i*comp + k] = data[i*comp+k]/255.0f;
    }
@@ -640,7 +636,7 @@ static floatFloat   *ldr_to_hdr(stbi_uc *data, int x, int y, int comp)
 }
 
 #define float2int(x)   ((int) (x))
-static stbi_uc *hdr_to_ldr(floatFloat   *data, int x, int y, int comp)
+static stbi_uc *hdr_to_ldr(float   *data, int x, int y, int comp)
 {
    int i,k,n;
    stbi_uc *output = (stbi_uc *) malloc(x * y * comp);
@@ -649,13 +645,13 @@ static stbi_uc *hdr_to_ldr(floatFloat   *data, int x, int y, int comp)
    if (comp & 1) n = comp; else n = comp-1;
    for (i=0; i < x*y; ++i) {
       for (k=0; k < n; ++k) {
-         floatFloat z = (floatFloat) pow(data[i*comp+k]*h2l_scale_i, h2l_gamma_i) * 255 + 0.5f;
+         float z = (float) pow(data[i*comp+k]*h2l_scale_i, h2l_gamma_i) * 255 + 0.5f;
          if (z < 0) z = 0;
          if (z > 255) z = 255;
          output[i*comp + k] = (uint8) float2int(z);
       }
       if (k < comp) {
-         floatFloat z = data[i*comp+k] * 255 + 0.5f;
+         float z = data[i*comp+k] * 255 + 0.5f;
          if (z < 0) z = 0;
          if (z > 255) z = 255;
          output[i*comp + k] = (uint8) float2int(z);
@@ -3981,12 +3977,12 @@ static char *hdr_gettoken(stbi *z, char *buffer)
    return buffer;
 }
 
-static void hdr_convert(floatFloat *output, stbi_uc *input, int req_comp)
+static void hdr_convert(float *output, stbi_uc *input, int req_comp)
 {
    if ( input[3] != 0 ) {
-      floatFloat f1;
+      float f1;
       // Exponent
-      f1 = (floatFloat) ldexp(1.0f, input[3] - (int)(128 + 8));
+      f1 = (float) ldexp(1.0f, input[3] - (int)(128 + 8));
       if (req_comp <= 2)
          output[0] = (input[0] + input[1] + input[2]) * f1 / 3;
       else {
@@ -4008,14 +4004,14 @@ static void hdr_convert(floatFloat *output, stbi_uc *input, int req_comp)
    }
 }
 
-static floatFloat *hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)
+static float *hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 {
    char buffer[HDR_BUFLEN];
    char *token;
    int valid = 0;
    int width, height;
    stbi_uc *scanline;
-   floatFloat *hdr_data;
+   float *hdr_data;
    int len;
    unsigned char count, value;
    int i, j, k, c1,c2, z;
@@ -4052,7 +4048,7 @@ static floatFloat *hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)
    if (req_comp == 0) req_comp = 3;
 
    // Read data
-   hdr_data = (floatFloat *) malloc(height * width * req_comp * sizeof(floatFloat));
+   hdr_data = (float *) malloc(height * width * req_comp * sizeof(float));
 
    // Load image data
    // image data is stored as some number of sca
@@ -4119,7 +4115,7 @@ static floatFloat *hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)
    return hdr_data;
 }
 
-static floatFloat *stbi_hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)
+static float *stbi_hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 {
    return hdr_load(s,x,y,comp,req_comp);
 }
@@ -4387,9 +4383,9 @@ int stbi_info_from_callbacks(stbi_io_callbacks const *c, void *user, int *x, int
       1.07   attempt to fix C++ warning/errors again
       1.06   attempt to fix C++ warning/errors again
       1.05   fix TGA loading to return correct *comp and use good luminance calc
-      1.04   default floatFloat alpha is 1, not 255; use 'void *' for stbi_image_free
+      1.04   default float alpha is 1, not 255; use 'void *' for stbi_image_free
       1.03   bugfixes to STBI_NO_STDIO, STBI_NO_HDR
-      1.02   support for (subset of) HDR files, floatFloat interface for preferred access to them
+      1.02   support for (subset of) HDR files, float interface for preferred access to them
       1.01   fix bug: possible bug in handling right-side up bmps... not sure
              fix bug: the stbi_bmp_load() and stbi_tga_load() functions didn't work at all
       1.00   interface to zlib that skips zlib header

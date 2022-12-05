@@ -6,15 +6,15 @@
 #include "simStrings.h"
 
 int CQDlgTranslation::coordMode=0; //0=abs,1=rel to parent
-float CQDlgTranslation::translationValues[3]={0.0,0.0,0.0};
-float CQDlgTranslation::scalingValues[3]={1.0,1.0,1.0};
+double CQDlgTranslation::translationValues[3]={0.0,0.0,0.0};
+double CQDlgTranslation::scalingValues[3]={1.0,1.0,1.0};
 int CQDlgTranslation::translateMode=0; //0=abs,1=rel to parent,2=rel to self
 int CQDlgTranslation::scaleMode=0; //0=abs,1=rel to parent
 int CQDlgTranslation::currentTab=0; //0=mouse transl., 1=pos, 2=transl., 3=scaling
 
 int CQDlgTranslation::manipulationModePermission;
 int CQDlgTranslation::manipulationTranslationRelativeTo;
-float CQDlgTranslation::manipulationTranslationStepSize;
+double CQDlgTranslation::manipulationTranslationStepSize;
 bool CQDlgTranslation::objectTranslationSettingsLocked;
 
 
@@ -373,7 +373,7 @@ void CQDlgTranslation::_setValuesScalingPart(bool alsoRadioButtons)
     }
 }
 
-bool CQDlgTranslation::_setCoord_userUnit(float newValueInUserUnit,int index)
+bool CQDlgTranslation::_setCoord_userUnit(double newValueInUserUnit,int index)
 {
     bool retVal=false;
     int editMode=App::getEditModeType();
@@ -438,7 +438,7 @@ bool CQDlgTranslation::_setCoord_userUnit(float newValueInUserUnit,int index)
     return(retVal);
 }
 
-C7Vector CQDlgTranslation::_getNewTransf(const C7Vector& transf,float newValueInUserUnit,int index)
+C7Vector CQDlgTranslation::_getNewTransf(const C7Vector& transf,double newValueInUserUnit,int index)
 {
     C7Vector retVal(transf);
     retVal.X(index)=newValueInUserUnit;
@@ -543,7 +543,7 @@ bool CQDlgTranslation::_applyTranslation(int axis)
     int editObjSelSize=App::mainWindow->editModeContainer->getEditModeBufferSize();
     if ( (editMode==NO_EDIT_MODE)&&(objSelSize>0) )
     {
-        float TX[3]={0.0,0.0,0.0};
+        double TX[3]={0.0,0.0,0.0};
         if (axis==-1)
         {
             TX[0]=translationValues[0];
@@ -621,7 +621,7 @@ bool CQDlgTranslation::_applyScaling(int axis)
     int editObjSelSize=App::mainWindow->editModeContainer->getEditModeBufferSize();
     if ( (editMode==NO_EDIT_MODE)&&(objSelSize>0) )
     {
-        float TX[3]={1.0,1.0,1.0};
+        double TX[3]={1.0,1.0,1.0};
         if (axis==-1)
         {
             TX[0]=scalingValues[0];
@@ -693,7 +693,7 @@ bool CQDlgTranslation::_applyScaling(int axis)
 
 void CQDlgTranslation::_transformTranslation(C7Vector& tr,bool self,int axis)
 {
-    float TX[3]={0.0,0.0,0.0};
+    double TX[3]={0.0,0.0,0.0};
     if (axis==-1)
     {
         TX[0]=translationValues[0];
@@ -713,7 +713,7 @@ void CQDlgTranslation::_transformTranslation(C7Vector& tr,bool self,int axis)
 
 void CQDlgTranslation::_transformScaling(C7Vector& tr,int axis)
 {
-    float TX[3]={1.0,1.0,1.0};
+    double TX[3]={1.0,1.0,1.0};
     if (axis==-1)
     {
         TX[0]=scalingValues[0];
@@ -753,7 +753,7 @@ void CQDlgTranslation::on_qqCoordX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqCoordX->text().toFloat(&ok);
+        double newVal=ui->qqCoordX->text().toFloat(&ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,0))
@@ -769,7 +769,7 @@ void CQDlgTranslation::on_qqCoordY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqCoordY->text().toFloat(&ok);
+        double newVal=ui->qqCoordY->text().toFloat(&ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,1))
@@ -785,7 +785,7 @@ void CQDlgTranslation::on_qqCoordZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqCoordZ->text().toFloat(&ok);
+        double newVal=ui->qqCoordZ->text().toFloat(&ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,2))
@@ -865,7 +865,7 @@ void CQDlgTranslation::on_qqTransfX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqTransfX->text().toFloat(&ok);
+        double newVal=ui->qqTransfX->text().toFloat(&ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,+1000000.0,newVal);
@@ -882,7 +882,7 @@ void CQDlgTranslation::on_qqTransfY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqTransfY->text().toFloat(&ok);
+        double newVal=ui->qqTransfY->text().toFloat(&ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,+1000000.0,newVal);
@@ -899,7 +899,7 @@ void CQDlgTranslation::on_qqTransfZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqTransfZ->text().toFloat(&ok);
+        double newVal=ui->qqTransfZ->text().toFloat(&ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,+1000000.0,newVal);
@@ -925,7 +925,7 @@ void CQDlgTranslation::on_qqTransfSX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqTransfSX->text().toFloat(&ok);
+        double newVal=ui->qqTransfSX->text().toFloat(&ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,1000000.0,newVal);
@@ -942,7 +942,7 @@ void CQDlgTranslation::on_qqTransfSY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqTransfSY->text().toFloat(&ok);
+        double newVal=ui->qqTransfSY->text().toFloat(&ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,1000000.0,newVal);
@@ -959,7 +959,7 @@ void CQDlgTranslation::on_qqTransfSZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqTransfSZ->text().toFloat(&ok);
+        double newVal=ui->qqTransfSZ->text().toFloat(&ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,1000000.0,newVal);
@@ -1163,7 +1163,7 @@ void CQDlgTranslation::on_qqPosCombo_activated(int index)
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_POSSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,float(ui->qqPosCombo->itemData(index).toInt())/1000.0);
+        App::appendSimulationThreadCommand(SET_POSSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,double(ui->qqPosCombo->itemData(index).toInt())/1000.0);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

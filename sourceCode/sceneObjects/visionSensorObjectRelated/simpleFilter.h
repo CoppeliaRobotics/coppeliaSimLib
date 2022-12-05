@@ -24,7 +24,7 @@ protected:
     std::string _customFilterName;
     int _filterVersion;
     std::vector<int> _intParameters;
-    std::vector<floatDouble> _floatParameters;
+    std::vector<double> _floatParameters;
     std::vector<unsigned char> _byteParameters;
     std::vector<unsigned char> _customFilterParameters;
     int _uniqueID;

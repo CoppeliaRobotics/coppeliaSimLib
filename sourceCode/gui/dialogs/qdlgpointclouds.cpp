@@ -99,7 +99,7 @@ void CQDlgPointclouds::on_qqMaxCellSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqMaxCellSize->text().toFloat(&ok);
+        double newVal=ui->qqMaxCellSize->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_MAXVOXELSIZE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -223,7 +223,7 @@ void CQDlgPointclouds::on_qqBuildResolution_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqBuildResolution->text().toFloat(&ok);
+        double newVal=ui->qqBuildResolution->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_BUILDRESOLUTION_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -266,7 +266,7 @@ void CQDlgPointclouds::on_qqDisplayRatio_editingFinished()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         bool ok;
-        float newVal=ui->qqDisplayRatio->text().toFloat(&ok);
+        double newVal=ui->qqDisplayRatio->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_DISPLAYRATIO_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -318,7 +318,7 @@ void CQDlgPointclouds::on_qqSubtractionTolerance_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqSubtractionTolerance->text().toFloat(&ok);
+        double newVal=ui->qqSubtractionTolerance->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SUBTRACTTOLERANCE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -335,7 +335,7 @@ void CQDlgPointclouds::on_qqInsertionTolerance_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqInsertionTolerance->text().toFloat(&ok);
+        double newVal=ui->qqInsertionTolerance->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_INSERTTOLERANCE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

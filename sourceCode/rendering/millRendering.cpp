@@ -39,8 +39,8 @@ void displayMill(CMill* mill,CViewableBase* renderingObject,int displayAttrib)
             mill->getColor(true)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
         else
             mill->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-        float _size=mill->getSize();
-        ogl::drawBox(_size/2.0f,_size/2.0f,_size/2.0f,!wire,normalVectorForLinesAndPoints.data);
+        double _size=mill->getSize();
+        ogl::drawBox(_size/2.0,_size/2.0,_size/2.0,!wire,normalVectorForLinesAndPoints.data);
 
         if (mill->convexVolume->volumeEdges.size()!=0)
             ogl::drawRandom3dLines(&mill->convexVolume->volumeEdges[0],(int)mill->convexVolume->volumeEdges.size()/3,false,normalVectorForLinesAndPoints.data);

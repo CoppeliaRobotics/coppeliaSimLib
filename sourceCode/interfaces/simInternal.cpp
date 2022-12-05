@@ -299,7 +299,7 @@ void simulatorLoop()
         {
             if ((simHandleMainScript_internal()&sim_script_main_script_not_called)==0)
                 simAdvanceSimulationByOneStep_internal();
-            if ((firstSimulationStopDelay>0)&&(simGetSimulationTime_internal()>=float(firstSimulationStopDelay)/1000.0f))
+            if ((firstSimulationStopDelay>0)&&(simGetSimulationTime_internal()>=double(firstSimulationStopDelay)/1000.0))
             {
                 firstSimulationStopDelay=0;
                 simStopSimulation_internal();
@@ -368,17 +368,17 @@ int simExtPostExitRequest_internal()
 
 int simExtCallScriptFunction_internal(int scriptHandleOrType, const char* functionNameAtScriptName,
                                          const int* inIntData, int inIntCnt,
-                                         const float* inFloatData, int inFloatCnt,
+                                         const double* inFloatData, int inFloatCnt,
                                          const char** inStringData, int inStringCnt,
                                          const char* inBufferData, int inBufferCnt,
                                          int** outIntData, int* outIntCnt,
-                                         float** outFloatData, int* outFloatCnt,
+                                         double** outFloatData, int* outFloatCnt,
                                          char*** outStringData, int* outStringCnt,
                                          char** outBufferData, int* outBufferSize)
 {
     int stack=simCreateStack_internal();
     simPushInt32TableOntoStack_internal(stack,inIntData,inIntCnt);
-    simPushFloatTableOntoStack_internal(stack,inFloatData,inFloatCnt);
+    simPushDoubleTableOntoStack_internal(stack,inFloatData,inFloatCnt);
     simPushTableOntoStack_internal(stack);
     for (int i=0;i<inStringCnt;i++)
     {
@@ -444,7 +444,7 @@ int simExtCallScriptFunction_internal(int scriptHandleOrType, const char* functi
             outStringCnt[0]=0;
             outStringData[0]=new char*[0];
         }
-        // at pos 2 we are expecting a float table:
+        // at pos 2 we are expecting a double table:
         outFloatCnt[0]=-1;
         if (simGetStackSize_internal(stack)==2)
         {
@@ -452,15 +452,15 @@ int simExtCallScriptFunction_internal(int scriptHandleOrType, const char* functi
             if (tableSize>0)
             {
                 outFloatCnt[0]=tableSize;
-                outFloatData[0]=new float[tableSize];
-                simGetStackFloatTable_internal(stack,outFloatData[0],tableSize);
+                outFloatData[0]=new double[tableSize];
+                simGetStackDoubleTable_internal(stack,outFloatData[0],tableSize);
             }
             simPopStackItem_internal(stack,1);
         }
         if (outFloatCnt[0]==-1)
         {
             outFloatCnt[0]=0;
-            outFloatData[0]=new float[0];
+            outFloatData[0]=new double[0];
         }
         // at pos 1 we are expecting an int32 table:
         outIntCnt[0]=-1;
@@ -1415,7 +1415,7 @@ int simSetObjectAlias_internal(int objectHandle,const char* objectAlias,int opti
     return(-1);
 }
 
-int simGetObjectMatrix_internal(int objectHandle,int relativeToObjectHandle,float* matrix)
+int simGetObjectMatrix_internal(int objectHandle,int relativeToObjectHandle,double* matrix)
 {
     TRACE_C_API;
 
@@ -1469,7 +1469,7 @@ int simGetObjectMatrix_internal(int objectHandle,int relativeToObjectHandle,floa
     return(-1);
 }
 
-int simSetObjectMatrix_internal(int objectHandle,int relativeToObjectHandle,const float* matrix)
+int simSetObjectMatrix_internal(int objectHandle,int relativeToObjectHandle,const double* matrix)
 {
     TRACE_C_API;
 
@@ -1525,7 +1525,7 @@ int simSetObjectMatrix_internal(int objectHandle,int relativeToObjectHandle,cons
     return(-1);
 }
 
-int simGetObjectPose_internal(int objectHandle,int relativeToObjectHandle,float* pose)
+int simGetObjectPose_internal(int objectHandle,int relativeToObjectHandle,double* pose)
 {
     TRACE_C_API;
     // CoppeliaSim quaternion, internally: w x y z
@@ -1581,7 +1581,7 @@ int simGetObjectPose_internal(int objectHandle,int relativeToObjectHandle,float*
     return(-1);
 }
 
-int simSetObjectPose_internal(int objectHandle,int relativeToObjectHandle,const float* pose)
+int simSetObjectPose_internal(int objectHandle,int relativeToObjectHandle,const double* pose)
 {
     TRACE_C_API;
 
@@ -1637,7 +1637,7 @@ int simSetObjectPose_internal(int objectHandle,int relativeToObjectHandle,const 
     return(-1);
 }
 
-int simGetObjectPosition_internal(int objectHandle,int relativeToObjectHandle,float* position)
+int simGetObjectPosition_internal(int objectHandle,int relativeToObjectHandle,double* position)
 {
     TRACE_C_API;
 
@@ -1692,7 +1692,7 @@ int simGetObjectPosition_internal(int objectHandle,int relativeToObjectHandle,fl
     return(-1);
 }
 
-int simSetObjectPosition_internal(int objectHandle,int relativeToObjectHandle,const float* position)
+int simSetObjectPosition_internal(int objectHandle,int relativeToObjectHandle,const double* position)
 {
     TRACE_C_API;
 
@@ -1759,7 +1759,7 @@ int simSetObjectPosition_internal(int objectHandle,int relativeToObjectHandle,co
     return(-1);
 }
 
-int simGetObjectOrientation_internal(int objectHandle,int relativeToObjectHandle,float* eulerAngles)
+int simGetObjectOrientation_internal(int objectHandle,int relativeToObjectHandle,double* eulerAngles)
 {
     TRACE_C_API;
 
@@ -1809,7 +1809,7 @@ int simGetObjectOrientation_internal(int objectHandle,int relativeToObjectHandle
     return(-1);
 }
 
-int simSetObjectOrientation_internal(int objectHandle,int relativeToObjectHandle,const float* eulerAngles)
+int simSetObjectOrientation_internal(int objectHandle,int relativeToObjectHandle,const double* eulerAngles)
 {
     TRACE_C_API;
 
@@ -1859,7 +1859,7 @@ int simSetObjectOrientation_internal(int objectHandle,int relativeToObjectHandle
     return(-1);
 }
 
-int simGetJointPosition_internal(int objectHandle,float* position)
+int simGetJointPosition_internal(int objectHandle,double* position)
 {
     TRACE_C_API;
 
@@ -1885,7 +1885,7 @@ int simGetJointPosition_internal(int objectHandle,float* position)
     return(-1);
 }
 
-int simSetJointPosition_internal(int objectHandle,float position)
+int simSetJointPosition_internal(int objectHandle,double position)
 {
     TRACE_C_API;
 
@@ -1913,7 +1913,7 @@ int simSetJointPosition_internal(int objectHandle,float position)
     return(-1);
 }
 
-int simSetJointTargetPosition_internal(int objectHandle,float targetPosition)
+int simSetJointTargetPosition_internal(int objectHandle,double targetPosition)
 {
     TRACE_C_API;
 
@@ -1954,7 +1954,7 @@ int simSetJointTargetPosition_internal(int objectHandle,float targetPosition)
     return(-1);
 }
 
-int simGetJointTargetPosition_internal(int objectHandle,float* targetPosition)
+int simGetJointTargetPosition_internal(int objectHandle,double* targetPosition)
 {
     TRACE_C_API;
 
@@ -1980,7 +1980,7 @@ int simGetJointTargetPosition_internal(int objectHandle,float* targetPosition)
     return(-1);
 }
 
-int simSetJointTargetVelocity_internal(int objectHandle,float targetVelocity)
+int simSetJointTargetVelocity_internal(int objectHandle,double targetVelocity)
 {
     TRACE_C_API;
 
@@ -2020,7 +2020,7 @@ int simSetJointTargetVelocity_internal(int objectHandle,float targetVelocity)
     return(-1);
 }
 
-int simGetJointTargetVelocity_internal(int objectHandle,float* targetVelocity)
+int simGetJointTargetVelocity_internal(int objectHandle,double* targetVelocity)
 {
     TRACE_C_API;
 
@@ -2046,7 +2046,7 @@ int simGetJointTargetVelocity_internal(int objectHandle,float* targetVelocity)
     return(-1);
 }
 
-int simGetObjectChildPose_internal(int objectHandle,float* pose)
+int simGetObjectChildPose_internal(int objectHandle,double* pose)
 {
     TRACE_C_API;
 
@@ -2071,7 +2071,7 @@ int simGetObjectChildPose_internal(int objectHandle,float* pose)
     return(-1);
 }
 
-int simSetObjectChildPose_internal(int objectHandle,const float* pose)
+int simSetObjectChildPose_internal(int objectHandle,const double* pose)
 {
     TRACE_C_API;
 
@@ -2105,7 +2105,7 @@ int simSetObjectChildPose_internal(int objectHandle,const float* pose)
     return(-1);
 }
 
-int simGetJointInterval_internal(int objectHandle,bool* cyclic,float* interval)
+int simGetJointInterval_internal(int objectHandle,bool* cyclic,double* interval)
 {
     TRACE_C_API;
 
@@ -2130,7 +2130,7 @@ int simGetJointInterval_internal(int objectHandle,bool* cyclic,float* interval)
     return(-1);
 }
 
-int simSetJointInterval_internal(int objectHandle,bool cyclic,const float* interval)
+int simSetJointInterval_internal(int objectHandle,bool cyclic,const double* interval)
 {
     TRACE_C_API;
 
@@ -2147,7 +2147,7 @@ int simSetJointInterval_internal(int objectHandle,bool cyclic,const float* inter
 // Some models need to modify that
 //        if ( App::currentWorld->simulation->isSimulationStopped()||((it->getJointMode()!=sim_jointmode_dynamic)&&(!it->getHybridFunctionality_old())) )
         {
-            float previousPos=it->getPosition();
+            double previousPos=it->getPosition();
             it->setIsCyclic(cyclic!=0);
             it->setPositionMin(interval[0]);
             it->setPositionRange(interval[1]);
@@ -2322,7 +2322,7 @@ int simGetJointType_internal(int objectHandle)
     return(-1);
 }
 
-int simBuildIdentityMatrix_internal(float* matrix)
+int simBuildIdentityMatrix_internal(double* matrix)
 {
     TRACE_C_API;
 
@@ -2332,7 +2332,7 @@ int simBuildIdentityMatrix_internal(float* matrix)
     return(1);
 }
 
-int simBuildMatrix_internal(const float* position,const float* eulerAngles,float* matrix)
+int simBuildMatrix_internal(const double* position,const double* eulerAngles,double* matrix)
 {
     TRACE_C_API;
 
@@ -2343,7 +2343,7 @@ int simBuildMatrix_internal(const float* position,const float* eulerAngles,float
     return(1);
 }
 
-int simBuildPose_internal(const float* position,const float* eulerAngles,float* pose)
+int simBuildPose_internal(const double* position,const double* eulerAngles,double* pose)
 {
     // CoppeliaSim quaternion, internally: w x y z
     // CoppeliaSim quaternion, at interfaces: x y z w
@@ -2354,7 +2354,7 @@ int simBuildPose_internal(const float* position,const float* eulerAngles,float* 
     return(1);
 }
 
-int simGetEulerAnglesFromMatrix_internal(const float* matrix,float* eulerAngles)
+int simGetEulerAnglesFromMatrix_internal(const double* matrix,double* eulerAngles)
 {
     TRACE_C_API;
 
@@ -2364,7 +2364,7 @@ int simGetEulerAnglesFromMatrix_internal(const float* matrix,float* eulerAngles)
     return(1);
 }
 
-int simInvertMatrix_internal(float* matrix)
+int simInvertMatrix_internal(double* matrix)
 {
     TRACE_C_API;
 
@@ -2375,7 +2375,7 @@ int simInvertMatrix_internal(float* matrix)
     return(1);
 }
 
-int simInvertPose_internal(float* pose)
+int simInvertPose_internal(double* pose)
 {
     TRACE_C_API;
 
@@ -2386,7 +2386,7 @@ int simInvertPose_internal(float* pose)
     return(1);
 }
 
-int simMultiplyMatrices_internal(const float* matrixIn1,const float* matrixIn2,float* matrixOut)
+int simMultiplyMatrices_internal(const double* matrixIn1,const double* matrixIn2,double* matrixOut)
 {
     TRACE_C_API;
 
@@ -2398,7 +2398,7 @@ int simMultiplyMatrices_internal(const float* matrixIn1,const float* matrixIn2,f
     return(1);
 }
 
-int simMultiplyPoses_internal(const float* poseIn1,const float* poseIn2,float* poseOut)
+int simMultiplyPoses_internal(const double* poseIn1,const double* poseIn2,double* poseOut)
 {
     TRACE_C_API;
 
@@ -2410,7 +2410,7 @@ int simMultiplyPoses_internal(const float* poseIn1,const float* poseIn2,float* p
     return(1);
 }
 
-int simPoseToMatrix_internal(const float* poseIn,float* matrixOut)
+int simPoseToMatrix_internal(const double* poseIn,double* matrixOut)
 {
     TRACE_C_API;
 
@@ -2420,7 +2420,7 @@ int simPoseToMatrix_internal(const float* poseIn,float* matrixOut)
     return(1);
 }
 
-int simMatrixToPose_internal(const float* matrixIn,float* poseOut)
+int simMatrixToPose_internal(const double* matrixIn,double* poseOut)
 {
     TRACE_C_API;
 
@@ -2430,7 +2430,7 @@ int simMatrixToPose_internal(const float* matrixIn,float* poseOut)
     return(1);
 }
 
-int simInterpolateMatrices_internal(const float* matrixIn1,const float* matrixIn2,float interpolFactor,float* matrixOut)
+int simInterpolateMatrices_internal(const double* matrixIn1,const double* matrixIn2,double interpolFactor,double* matrixOut)
 {
     TRACE_C_API;
 
@@ -2444,7 +2444,7 @@ int simInterpolateMatrices_internal(const float* matrixIn1,const float* matrixIn
     return(1);
 }
 
-int simInterpolatePoses_internal(const float* poseIn1,const float* poseIn2,float interpolFactor,float* poseOut)
+int simInterpolatePoses_internal(const double* poseIn1,const double* poseIn2,double interpolFactor,double* poseOut)
 {
     TRACE_C_API;
 
@@ -2458,7 +2458,7 @@ int simInterpolatePoses_internal(const float* poseIn1,const float* poseIn2,float
     return(1);
 }
 
-int simTransformVector_internal(const float* matrix,float* vect)
+int simTransformVector_internal(const double* matrix,double* vect)
 {
     TRACE_C_API;
 
@@ -3416,7 +3416,7 @@ int simGetBoolParam_internal(int parameter)
     return(-1);
 }
 
-int simSetArrayParam_internal(int parameter,const void* arrayOfValues)
+int simSetArrayParam_internal(int parameter,const double* arrayOfValues)
 {
     TRACE_C_API;
 
@@ -3428,7 +3428,7 @@ int simSetArrayParam_internal(int parameter,const void* arrayOfValues)
                 return(-1);
             if (App::currentWorld->dynamicsContainer==nullptr)
                 return(-1);
-            App::currentWorld->dynamicsContainer->setGravity(C3Vector((float*)arrayOfValues));
+            App::currentWorld->dynamicsContainer->setGravity(C3Vector(arrayOfValues));
             return(1);
         }
 
@@ -3438,9 +3438,9 @@ int simSetArrayParam_internal(int parameter,const void* arrayOfValues)
                 return(-1);
             if (App::currentWorld->environment==nullptr)
                 return(-1);
-            App::currentWorld->environment->setFogStart(((float*)arrayOfValues)[0]);
-            App::currentWorld->environment->setFogEnd(((float*)arrayOfValues)[1]);
-            App::currentWorld->environment->setFogDensity(((float*)arrayOfValues)[2]);
+            App::currentWorld->environment->setFogStart(arrayOfValues[0]);
+            App::currentWorld->environment->setFogEnd(arrayOfValues[1]);
+            App::currentWorld->environment->setFogDensity(arrayOfValues[2]);
             return(1);
         }
         if (parameter==sim_arrayparam_fog_color)
@@ -3449,9 +3449,9 @@ int simSetArrayParam_internal(int parameter,const void* arrayOfValues)
                 return(-1);
             if (App::currentWorld->environment==nullptr)
                 return(-1);
-            App::currentWorld->environment->fogBackgroundColor[0]=((float*)arrayOfValues)[0];
-            App::currentWorld->environment->fogBackgroundColor[1]=((float*)arrayOfValues)[1];
-            App::currentWorld->environment->fogBackgroundColor[2]=((float*)arrayOfValues)[2];
+            App::currentWorld->environment->fogBackgroundColor[0]=arrayOfValues[0];
+            App::currentWorld->environment->fogBackgroundColor[1]=arrayOfValues[1];
+            App::currentWorld->environment->fogBackgroundColor[2]=arrayOfValues[2];
             return(1);
         }
         if (parameter==sim_arrayparam_background_color1)
@@ -3460,9 +3460,9 @@ int simSetArrayParam_internal(int parameter,const void* arrayOfValues)
                 return(-1);
             if (App::currentWorld->environment==nullptr)
                 return(-1);
-            App::currentWorld->environment->backGroundColorDown[0]=((float*)arrayOfValues)[0];
-            App::currentWorld->environment->backGroundColorDown[1]=((float*)arrayOfValues)[1];
-            App::currentWorld->environment->backGroundColorDown[2]=((float*)arrayOfValues)[2];
+            App::currentWorld->environment->backGroundColorDown[0]=arrayOfValues[0];
+            App::currentWorld->environment->backGroundColorDown[1]=arrayOfValues[1];
+            App::currentWorld->environment->backGroundColorDown[2]=arrayOfValues[2];
             return(1);
         }
         if (parameter==sim_arrayparam_background_color2)
@@ -3471,9 +3471,9 @@ int simSetArrayParam_internal(int parameter,const void* arrayOfValues)
                 return(-1);
             if (App::currentWorld->environment==nullptr)
                 return(-1);
-            App::currentWorld->environment->backGroundColor[0]=((float*)arrayOfValues)[0];
-            App::currentWorld->environment->backGroundColor[1]=((float*)arrayOfValues)[1];
-            App::currentWorld->environment->backGroundColor[2]=((float*)arrayOfValues)[2];
+            App::currentWorld->environment->backGroundColor[0]=arrayOfValues[0];
+            App::currentWorld->environment->backGroundColor[1]=arrayOfValues[1];
+            App::currentWorld->environment->backGroundColor[2]=arrayOfValues[2];
             return(1);
         }
         if (parameter==sim_arrayparam_ambient_light)
@@ -3482,9 +3482,9 @@ int simSetArrayParam_internal(int parameter,const void* arrayOfValues)
                 return(-1);
             if (App::currentWorld->environment==nullptr)
                 return(-1);
-            App::currentWorld->environment->ambientLightColor[0]=((float*)arrayOfValues)[0];
-            App::currentWorld->environment->ambientLightColor[1]=((float*)arrayOfValues)[1];
-            App::currentWorld->environment->ambientLightColor[2]=((float*)arrayOfValues)[2];
+            App::currentWorld->environment->ambientLightColor[0]=arrayOfValues[0];
+            App::currentWorld->environment->ambientLightColor[1]=arrayOfValues[1];
+            App::currentWorld->environment->ambientLightColor[2]=arrayOfValues[2];
             return(1);
         }
 
@@ -3495,7 +3495,7 @@ int simSetArrayParam_internal(int parameter,const void* arrayOfValues)
     return(-1);
 }
 
-int simGetArrayParam_internal(int parameter,void* arrayOfValues)
+int simGetArrayParam_internal(int parameter,double* arrayOfValues)
 {
     TRACE_C_API;
 
@@ -3508,7 +3508,7 @@ int simGetArrayParam_internal(int parameter,void* arrayOfValues)
             if (App::currentWorld->dynamicsContainer==nullptr)
                 return(-1);
             C3Vector g(App::currentWorld->dynamicsContainer->getGravity());
-            g.getData((float*)arrayOfValues);
+            g.getData(arrayOfValues);
             return(1);
         }
         if (parameter==sim_arrayparam_fog)
@@ -3517,9 +3517,9 @@ int simGetArrayParam_internal(int parameter,void* arrayOfValues)
                 return(-1);
             if (App::currentWorld->environment==nullptr)
                 return(-1);
-            ((float*)arrayOfValues)[0]=App::currentWorld->environment->getFogStart();
-            ((float*)arrayOfValues)[1]=App::currentWorld->environment->getFogEnd();
-            ((float*)arrayOfValues)[2]=App::currentWorld->environment->getFogDensity();
+            arrayOfValues[0]=App::currentWorld->environment->getFogStart();
+            arrayOfValues[1]=App::currentWorld->environment->getFogEnd();
+            arrayOfValues[2]=App::currentWorld->environment->getFogDensity();
             return(1);
         }
         if (parameter==sim_arrayparam_fog_color)
@@ -3528,9 +3528,9 @@ int simGetArrayParam_internal(int parameter,void* arrayOfValues)
                 return(-1);
             if (App::currentWorld->environment==nullptr)
                 return(-1);
-            ((float*)arrayOfValues)[0]=App::currentWorld->environment->fogBackgroundColor[0];
-            ((float*)arrayOfValues)[1]=App::currentWorld->environment->fogBackgroundColor[1];
-            ((float*)arrayOfValues)[2]=App::currentWorld->environment->fogBackgroundColor[2];
+            arrayOfValues[0]=App::currentWorld->environment->fogBackgroundColor[0];
+            arrayOfValues[1]=App::currentWorld->environment->fogBackgroundColor[1];
+            arrayOfValues[2]=App::currentWorld->environment->fogBackgroundColor[2];
             return(1);
         }
         if (parameter==sim_arrayparam_background_color1)
@@ -3539,9 +3539,9 @@ int simGetArrayParam_internal(int parameter,void* arrayOfValues)
                 return(-1);
             if (App::currentWorld->environment==nullptr)
                 return(-1);
-            ((float*)arrayOfValues)[0]=App::currentWorld->environment->backGroundColorDown[0];
-            ((float*)arrayOfValues)[1]=App::currentWorld->environment->backGroundColorDown[1];
-            ((float*)arrayOfValues)[2]=App::currentWorld->environment->backGroundColorDown[2];
+            arrayOfValues[0]=App::currentWorld->environment->backGroundColorDown[0];
+            arrayOfValues[1]=App::currentWorld->environment->backGroundColorDown[1];
+            arrayOfValues[2]=App::currentWorld->environment->backGroundColorDown[2];
             return(1);
         }
         if (parameter==sim_arrayparam_background_color2)
@@ -3550,9 +3550,9 @@ int simGetArrayParam_internal(int parameter,void* arrayOfValues)
                 return(-1);
             if (App::currentWorld->environment==nullptr)
                 return(-1);
-            ((float*)arrayOfValues)[0]=App::currentWorld->environment->backGroundColor[0];
-            ((float*)arrayOfValues)[1]=App::currentWorld->environment->backGroundColor[1];
-            ((float*)arrayOfValues)[2]=App::currentWorld->environment->backGroundColor[2];
+            arrayOfValues[0]=App::currentWorld->environment->backGroundColor[0];
+            arrayOfValues[1]=App::currentWorld->environment->backGroundColor[1];
+            arrayOfValues[2]=App::currentWorld->environment->backGroundColor[2];
             return(1);
         }
         if (parameter==sim_arrayparam_ambient_light)
@@ -3561,9 +3561,9 @@ int simGetArrayParam_internal(int parameter,void* arrayOfValues)
                 return(-1);
             if (App::currentWorld->environment==nullptr)
                 return(-1);
-            ((float*)arrayOfValues)[0]=App::currentWorld->environment->ambientLightColor[0];
-            ((float*)arrayOfValues)[1]=App::currentWorld->environment->ambientLightColor[1];
-            ((float*)arrayOfValues)[2]=App::currentWorld->environment->ambientLightColor[2];
+            arrayOfValues[0]=App::currentWorld->environment->ambientLightColor[0];
+            arrayOfValues[1]=App::currentWorld->environment->ambientLightColor[1];
+            arrayOfValues[2]=App::currentWorld->environment->ambientLightColor[2];
             return(1);
         }
         if (parameter==sim_arrayparam_random_euler)
@@ -3571,23 +3571,23 @@ int simGetArrayParam_internal(int parameter,void* arrayOfValues)
             C4Vector r;
             r.buildRandomOrientation();
             C3Vector euler(r.getEulerAngles());
-            ((float*)arrayOfValues)[0]=euler(0);
-            ((float*)arrayOfValues)[1]=euler(1);
-            ((float*)arrayOfValues)[2]=euler(2);
+            arrayOfValues[0]=euler(0);
+            arrayOfValues[1]=euler(1);
+            arrayOfValues[2]=euler(2);
             return(1);
         }
         if (parameter==sim_arrayparam_rayorigin)
         {
-            ((float*)arrayOfValues)[0]=0.0f;
-            ((float*)arrayOfValues)[1]=0.0f;
-            ((float*)arrayOfValues)[2]=0.0f;
+            arrayOfValues[0]=0.0;
+            arrayOfValues[1]=0.0;
+            arrayOfValues[2]=0.0;
 #ifdef SIM_WITH_GUI
             if (App::mainWindow!=nullptr)
             {
                 C3Vector orig,dir;
                 if (App::mainWindow->getMouseRay(orig,dir))
                 {
-                    orig.getData(((float*)arrayOfValues));
+                    orig.getData(arrayOfValues);
                     return(1);
                 }
             }
@@ -3596,16 +3596,16 @@ int simGetArrayParam_internal(int parameter,void* arrayOfValues)
         }
         if (parameter==sim_arrayparam_raydirection)
         {
-            ((float*)arrayOfValues)[0]=0.0f;
-            ((float*)arrayOfValues)[1]=0.0f;
-            ((float*)arrayOfValues)[2]=1.0f;
+            arrayOfValues[0]=0.0;
+            arrayOfValues[1]=0.0;
+            arrayOfValues[2]=1.0;
 #ifdef SIM_WITH_GUI
             if (App::mainWindow!=nullptr)
             {
                 C3Vector orig,dir;
                 if (App::mainWindow->getMouseRay(orig,dir))
                 {
-                    dir.getData(((float*)arrayOfValues));
+                    dir.getData(arrayOfValues);
                     return(1);
                 }
             }
@@ -3790,14 +3790,14 @@ int simGetUInt64Param_internal(int parameter,unsigned long long int* intState)
         {
             if (App::currentWorld->simulation==nullptr)
                 return(-1);
-            intState[0]=quint64(App::currentWorld->simulation->getTimeStep()*1000000000.0f);
+            intState[0]=quint64(App::currentWorld->simulation->getTimeStep()*1000000000.0);
             return(1);
         }
         if (parameter==sim_uint64param_simulation_time_ns)
         {
             if (App::currentWorld->simulation==nullptr)
                 return(-1);
-            intState[0]=quint64(App::currentWorld->simulation->getSimulationTime()*1000000000.0f);
+            intState[0]=quint64(App::currentWorld->simulation->getSimulationTime()*1000000000.0);
             return(1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
@@ -4198,7 +4198,7 @@ int simGetInt32Param_internal(int parameter,int* intState)
     return(-1);
 }
 
-int simSetFloatParam_internal(int parameter,float floatState)
+int simSetFloatParam_internal(int parameter,double floatState)
 {
     TRACE_C_API;
 
@@ -4257,7 +4257,7 @@ int simSetFloatParam_internal(int parameter,float floatState)
     return(-1);
 }
 
-int simGetFloatParam_internal(int parameter,float* floatState)
+int simGetFloatParam_internal(int parameter,double* floatState)
 {
     TRACE_C_API;
 
@@ -4562,17 +4562,17 @@ char* simGetStringParam_internal(int parameter)
     return(nullptr);
 }
 
-float simGetSimulationTime_internal()
+double simGetSimulationTime_internal()
 {
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-        return(-1.0f);
+        return(-1.0);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
         return(App::currentWorld->simulation->getSimulationTime());
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1.0f);
+    return(-1.0);
 }
 
 int simGetSimulationState_internal()
@@ -4816,7 +4816,7 @@ int simSetObjectSel_internal(const int* handles,int cnt)
     return(-1);
 }
 
-int simHandleProximitySensor_internal(int sensorHandle,float* detectedPoint,int* detectedObjectHandle,float* normalVector)
+int simHandleProximitySensor_internal(int sensorHandle,double* detectedPoint,int* detectedObjectHandle,double* normalVector)
 {
     TRACE_C_API;
 
@@ -4842,7 +4842,7 @@ int simHandleProximitySensor_internal(int sensorHandle,float* detectedPoint,int*
 
                 int retVal=0;
                 C3Vector smallest;
-                float smallestL=FLOAT_MAX;
+                double smallestL=FLOAT_MAX;
                 int detectedObj;
                 C3Vector detectedSurf;
                 bool detected=it->handleSensor(false,detectedObj,detectedSurf);
@@ -4876,7 +4876,7 @@ int simHandleProximitySensor_internal(int sensorHandle,float* detectedPoint,int*
             C3Vector allSmallest;
             int detectedObjectID=-1;
             C3Vector detectedSurfaceNormal;
-            float allSmallestL=FLOAT_MAX;
+            double allSmallestL=FLOAT_MAX;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getProximitySensorCount();i++)
             {
                 int detectedObj;
@@ -4887,7 +4887,7 @@ int simHandleProximitySensor_internal(int sensorHandle,float* detectedPoint,int*
                 if (detected)
                 {
                     C3Vector smallest(it->getDetectedPoint());
-                    float smallestL=smallest.getLength();
+                    double smallestL=smallest.getLength();
 
                     if (smallestL<allSmallestL)
                     {
@@ -4925,7 +4925,7 @@ int simHandleProximitySensor_internal(int sensorHandle,float* detectedPoint,int*
 }
 
 
-int simReadProximitySensor_internal(int sensorHandle,float* detectedPoint,int* detectedObjectHandle,float* normalVector)
+int simReadProximitySensor_internal(int sensorHandle,double* detectedPoint,int* detectedObjectHandle,double* normalVector)
 {
     TRACE_C_API;
 
@@ -4960,7 +4960,7 @@ int simReadProximitySensor_internal(int sensorHandle,float* detectedPoint,int* d
 }
 
 
-int simHandleDynamics_internal(float deltaTime)
+int simHandleDynamics_internal(double deltaTime)
 {
     TRACE_C_API;
 
@@ -5229,7 +5229,7 @@ int simResetProximitySensor_internal(int sensorHandle)
     return(-1);
 }
 
-int simCheckProximitySensor_internal(int sensorHandle,int entityHandle,float* detectedPoint)
+int simCheckProximitySensor_internal(int sensorHandle,int entityHandle,double* detectedPoint)
 {
     TRACE_C_API;
 
@@ -5261,7 +5261,7 @@ int simCheckProximitySensor_internal(int sensorHandle,int entityHandle,float* de
     return(-1);
 }
 
-int simCheckProximitySensorEx_internal(int sensorHandle,int entityHandle,int detectionMode,float detectionThreshold,float maxAngle,float* detectedPoint,int* detectedObjectHandle,float* normalVector)
+int simCheckProximitySensorEx_internal(int sensorHandle,int entityHandle,int detectionMode,double detectionThreshold,double maxAngle,double* detectedPoint,int* detectedObjectHandle,double* normalVector)
 {
     TRACE_C_API;
 
@@ -5287,12 +5287,12 @@ int simCheckProximitySensorEx_internal(int sensorHandle,int entityHandle,int det
         bool limitedAngle=SIM_IS_BIT_SET(detectionMode,3);
         if (!(frontFace||backFace))
             frontFace=true;
-        if (detectionThreshold<0.0f)
-            detectionThreshold=0.0f;
-        tt::limitValue(0.0f,piValD2,maxAngle);
+        if (detectionThreshold<0.0)
+            detectionThreshold=0.0;
+        tt::limitValue(0.0,piValD2,maxAngle);
         int detectedObj;
         C3Vector dPoint;
-        float minThreshold=-1.0f;
+        double minThreshold=-1.0;
         CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorHandle);
         if ( (it!=nullptr)&&(it->convexVolume->getSmallestDistanceEnabled()) )
             minThreshold=it->convexVolume->getSmallestDistanceAllowed();
@@ -5325,7 +5325,7 @@ int simCheckProximitySensorEx_internal(int sensorHandle,int entityHandle,int det
     return(-1);
 }
 
-int simCheckProximitySensorEx2_internal(int sensorHandle,float* vertexPointer,int itemType,int itemCount,int detectionMode,float detectionThreshold,float maxAngle,float* detectedPoint,float* normalVector)
+int simCheckProximitySensorEx2_internal(int sensorHandle,double* vertexPointer,int itemType,int itemCount,int detectionMode,double detectionThreshold,double maxAngle,double* detectedPoint,double* normalVector)
 {
     TRACE_C_API;
 
@@ -5351,11 +5351,11 @@ int simCheckProximitySensorEx2_internal(int sensorHandle,float* vertexPointer,in
         bool limitedAngle=SIM_IS_BIT_SET(detectionMode,3);
         if (!(frontFace||backFace))
             frontFace=true;
-        if (detectionThreshold<0.0f)
-            detectionThreshold=0.0f;
-        tt::limitValue(0.0f,piValD2,maxAngle);
+        if (detectionThreshold<0.0)
+            detectionThreshold=0.0;
+        tt::limitValue(0.0,piValD2,maxAngle);
         C3Vector dPoint;
-        float minThreshold=-1.0f;
+        double minThreshold=-1.0;
         CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorHandle);
         if ( (it!=nullptr)&&(it->convexVolume->getSmallestDistanceEnabled()) )
             minThreshold=it->convexVolume->getSmallestDistanceAllowed();
@@ -5535,15 +5535,15 @@ int simRegisterScriptFuncHook_internal(int scriptHandle,const char* funcToHook,c
     return(-1);
 }
 
-char* simCreateBuffer_internal(int size)
+void* simCreateBuffer_internal(int size)
 {
     TRACE_C_API;
 
-    char* retVal=new char[size];
+    void* retVal=(void*)new char[size];
     return(retVal);
 }
 
-int simReleaseBuffer_internal(const char* buffer)
+int simReleaseBuffer_internal(void* buffer)
 {
     TRACE_C_API;
 
@@ -5575,7 +5575,7 @@ int simCheckCollision_internal(int entity1Handle,int entity2Handle)
     return(-1);
 }
 
-int simCheckCollisionEx_internal(int entity1Handle,int entity2Handle,float** intersectionSegments)
+int simCheckCollisionEx_internal(int entity1Handle,int entity2Handle,double** intersectionSegments)
 {
     TRACE_C_API;
 
@@ -5599,11 +5599,11 @@ int simCheckCollisionEx_internal(int entity1Handle,int entity2Handle,float** int
             return(0);
         }
 
-        std::vector<float> intersect;
+        std::vector<double> intersect;
         CCollisionRoutine::doEntitiesCollide(entity1Handle,entity2Handle,&intersect,true,true,nullptr);
         if ( (intersectionSegments!=nullptr)&&(intersect.size()!=0) )
         {
-            intersectionSegments[0]=new float[intersect.size()];
+            intersectionSegments[0]=new double[intersect.size()];
             for (int i=0;i<int(intersect.size());i++)
                 (*intersectionSegments)[i]=intersect[i];
         }
@@ -5613,7 +5613,7 @@ int simCheckCollisionEx_internal(int entity1Handle,int entity2Handle,float** int
     return(-1);
 }
 
-int simCheckDistance_internal(int entity1Handle,int entity2Handle,float threshold,float* distanceData)
+int simCheckDistance_internal(int entity1Handle,int entity2Handle,double threshold,double* distanceData)
 {
     TRACE_C_API;
 
@@ -5635,7 +5635,7 @@ int simCheckDistance_internal(int entity1Handle,int entity2Handle,float threshol
 
         int buffer[4];
         App::currentWorld->cacheData->getCacheDataDist(entity1Handle,entity2Handle,buffer);
-        if (threshold<=0.0f)
+        if (threshold<=0.0)
             threshold=FLOAT_MAX;
         bool result=CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(entity1Handle,entity2Handle,threshold,distanceData,buffer,buffer+2,true,true);
         App::currentWorld->cacheData->setCacheDataDist(entity1Handle,entity2Handle,buffer);
@@ -5670,7 +5670,7 @@ int simAdvanceSimulationByOneStep_internal()
     return(-1);
 }
 
-int simSetSimulationTimeStep_internal(float timeStep)
+int simSetSimulationTimeStep_internal(double timeStep)
 {
     TRACE_C_API;
 
@@ -5691,17 +5691,17 @@ int simSetSimulationTimeStep_internal(float timeStep)
     return(-1);
 }
 
-float simGetSimulationTimeStep_internal()
+double simGetSimulationTimeStep_internal()
 {
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-        return(-1.0f);
+        return(-1.0);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
         return(App::currentWorld->simulation->getTimeStep());
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1.0f);
+    return(-1.0);
 }
 
 int simGetRealTimeSimulation_internal()
@@ -5728,7 +5728,7 @@ int simGetRealTimeSimulation_internal()
     return(-1);
 }
 
-int simAdjustRealTimeTimer_internal(int instanceIndex,float deltaTime)
+int simAdjustRealTimeTimer_internal(int instanceIndex,double deltaTime)
 {
     TRACE_C_API;
 
@@ -5875,7 +5875,7 @@ int simPauseSimulation_internal()
     return(-1);
 }
 
-int simHandleGraph_internal(int graphHandle,float simulationTime)
+int simHandleGraph_internal(int graphHandle,double simulationTime)
 {
     TRACE_C_API;
 
@@ -5953,7 +5953,7 @@ int simResetGraph_internal(int graphHandle)
     return(-1);
 }
 
-int simAddGraphStream_internal(int graphHandle,const char* streamName,const char* unitStr,int options,const float* color,float cyclicRange)
+int simAddGraphStream_internal(int graphHandle,const char* streamName,const char* unitStr,int options,const float* color,double cyclicRange)
 {
     TRACE_C_API;
 
@@ -6017,7 +6017,7 @@ int simDestroyGraphCurve_internal(int graphHandle,int curveId)
     return(-1);
 }
 
-int simSetGraphStreamTransformation_internal(int graphHandle,int streamId,int trType,float mult,float off,int movingAvgPeriod)
+int simSetGraphStreamTransformation_internal(int graphHandle,int streamId,int trType,double mult,double off,int movingAvgPeriod)
 {
     TRACE_C_API;
 
@@ -6061,7 +6061,7 @@ int simDuplicateGraphCurveToStatic_internal(int graphHandle,int curveId,const ch
     return(-1);
 }
 
-int simAddGraphCurve_internal(int graphHandle,const char* curveName,int dim,const int* streamIds,const float* defaultValues,const char* unitStr,int options,const float* color,int curveWidth)
+int simAddGraphCurve_internal(int graphHandle,const char* curveName,int dim,const int* streamIds,const double* defaultValues,const char* unitStr,int options,const float* color,int curveWidth)
 {
     TRACE_C_API;
 
@@ -6093,7 +6093,7 @@ int simAddGraphCurve_internal(int graphHandle,const char* curveName,int dim,cons
     return(-1);
 }
 
-int simSetGraphStreamValue_internal(int graphHandle,int streamId,float value)
+int simSetGraphStreamValue_internal(int graphHandle,int streamId,double value)
 {
     TRACE_C_API;
 
@@ -6318,7 +6318,7 @@ int simCopyPasteObjects_internal(int* objectHandles,int objectCount,int options)
     return(-1);
 }
 
-int simScaleObjects_internal(const int* objectHandles,int objectCount,float scalingFactor,bool scalePositionsToo)
+int simScaleObjects_internal(const int* objectHandles,int objectCount,double scalingFactor,bool scalePositionsToo)
 {
     TRACE_C_API;
 
@@ -6338,7 +6338,7 @@ int simScaleObjects_internal(const int* objectHandles,int objectCount,float scal
     return(-1);
 }
 
-int simAddDrawingObject_internal(int objectType,float size,float duplicateTolerance,int parentObjectHandle,int maxItemCount,const float* color,const float* setToNULL,const float* setToNULL2,const float* setToNULL3)
+int simAddDrawingObject_internal(int objectType,double size,double duplicateTolerance,int parentObjectHandle,int maxItemCount,const float* color,const float* setToNULL,const float* setToNULL2,const float* setToNULL3)
 {
     TRACE_C_API;
 
@@ -6410,7 +6410,7 @@ int simRemoveDrawingObject_internal(int objectHandle)
     return(-1);
 }
 
-int simAddDrawingObjectItem_internal(int objectHandle,const float* itemData)
+int simAddDrawingObjectItem_internal(int objectHandle,const double* itemData)
 {
     TRACE_C_API;
 
@@ -6433,20 +6433,20 @@ int simAddDrawingObjectItem_internal(int objectHandle,const float* itemData)
     return(-1);
 }
 
-float simGetObjectSizeFactor_internal(int objectHandle)
+double simGetObjectSizeFactor_internal(int objectHandle)
 {
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-        return(-1.0f);
+        return(-1.0);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-            return(-1.0f);
+            return(-1.0);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
 
-        float retVal=it->getSizeFactor();
+        double retVal=it->getSizeFactor();
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -6528,7 +6528,7 @@ int simClearInt32Signal_internal(const char* signalName)
     return(-1);
 }
 
-int simSetFloatSignal_internal(const char* signalName,float signalValue)
+int simSetFloatSignal_internal(const char* signalName,double signalValue)
 {
     TRACE_C_API;
 
@@ -6544,7 +6544,7 @@ int simSetFloatSignal_internal(const char* signalName,float signalValue)
     return(-1);
 }
 
-int simGetFloatSignal_internal(const char* signalName,float* signalValue)
+int simGetFloatSignal_internal(const char* signalName,double* signalValue)
 {
     TRACE_C_API;
 
@@ -6823,7 +6823,7 @@ int simGetModelProperty_internal(int objectHandle)
     return(-1);
 }
 
-int simReadForceSensor_internal(int objectHandle,float* forceVector,float* torqueVector)
+int simReadForceSensor_internal(int objectHandle,double* forceVector,double* torqueVector)
 {
     TRACE_C_API;
 
@@ -6873,7 +6873,7 @@ int simReadForceSensor_internal(int objectHandle,float* forceVector,float* torqu
     return(-1);
 }
 
-int simGetLightParameters_internal(int objectHandle,float* setToNULL,float* diffusePart,float* specularPart)
+int simGetLightParameters_internal(int objectHandle,double* setToNULL,double* diffusePart,double* specularPart)
 {
     TRACE_C_API;
 
@@ -6893,7 +6893,7 @@ int simGetLightParameters_internal(int objectHandle,float* setToNULL,float* diff
         for (int i=0;i<3;i++)
         {
             if (setToNULL!=nullptr)
-                setToNULL[0+i]=0.0f;
+                setToNULL[0+i]=0.0;
             if (diffusePart!=nullptr)
                 diffusePart[0+i]=it->getColor(true)->getColorsPtr()[3+i];
             if (specularPart!=nullptr)
@@ -6930,7 +6930,7 @@ int simSetLightParameters_internal(int objectHandle,int state,const float* setTo
     return(-1);
 }
 
-int simGetVelocity_internal(int shapeHandle,float* linearVelocity,float* angularVelocity)
+int simGetVelocity_internal(int shapeHandle,double* linearVelocity,double* angularVelocity)
 {
     TRACE_C_API;
 
@@ -6956,7 +6956,7 @@ int simGetVelocity_internal(int shapeHandle,float* linearVelocity,float* angular
     return(-1);
 }
 
-int simGetObjectVelocity_internal(int objectHandle,float* linearVelocity,float* angularVelocity)
+int simGetObjectVelocity_internal(int objectHandle,double* linearVelocity,double* angularVelocity)
 {
     TRACE_C_API;
 
@@ -6991,7 +6991,7 @@ int simGetObjectVelocity_internal(int objectHandle,float* linearVelocity,float* 
     return(-1);
 }
 
-int simGetJointVelocity_internal(int jointHandle,float* velocity)
+int simGetJointVelocity_internal(int jointHandle,double* velocity)
 {
     TRACE_C_API;
 
@@ -7010,7 +7010,7 @@ int simGetJointVelocity_internal(int jointHandle,float* velocity)
     return(-1);
 }
 
-int simAddForceAndTorque_internal(int shapeHandle,const float* force,const float* torque)
+int simAddForceAndTorque_internal(int shapeHandle,const double* force,const double* torque)
 {
     TRACE_C_API;
 
@@ -7052,7 +7052,7 @@ int simAddForceAndTorque_internal(int shapeHandle,const float* force,const float
     return(-1);
 }
 
-int simAddForce_internal(int shapeHandle,const float* position,const float* force)
+int simAddForce_internal(int shapeHandle,const double* position,const double* force)
 {
     TRACE_C_API;
 
@@ -7335,7 +7335,7 @@ int simSetObjectColor_internal(int objectHandle,int index,int colorComponent,con
                 CMesh* geom=all[index];
                 if (colorComponent==sim_colorcomponent_transparency)
                 {
-                    geom->color.setTranslucid(rgbData[0]!=0.0f);
+                    geom->color.setTranslucid(rgbData[0]!=0.0);
                     geom->color.setOpacity(rgbData[0]);
                 }
                 else
@@ -7762,7 +7762,7 @@ int simSerialCheck_internal(int portHandle)
     return(retVal);
 }
 
-int simGetContactInfo_internal(int dynamicPass,int objectHandle,int index,int* objectHandles,float* contactInfo)
+int simGetContactInfo_internal(int dynamicPass,int objectHandle,int index,int* objectHandles,double* contactInfo)
 {
     TRACE_C_API;
 
@@ -7798,9 +7798,9 @@ int simAuxiliaryConsoleOpen_internal(const char* title,int maxLines,int mode,con
             for (size_t i=0;i<3;i++)
             {
                 if (textColor!=nullptr)
-                    tCol[i]=int(textColor[i]*255.1f);
+                    tCol[i]=int(textColor[i]*255.1);
                 if (backgroundColor!=nullptr)
-                    bCol[i]=int(backgroundColor[i]*255.1f);
+                    bCol[i]=int(backgroundColor[i]*255.1);
             }
             retVal=App::mainWindow->codeEditorContainer->openConsole(title,maxLines,mode,position,size,tCol,bCol,-1);
         }
@@ -7884,7 +7884,7 @@ int simAuxiliaryConsolePrint_internal(int consoleHandle,const char* text)
     return(-1);
 }
 
-int simImportShape_internal(int fileformat,const char* pathAndFilename,int options,float identicalVerticeTolerance,float scalingFactor)
+int simImportShape_internal(int fileformat,const char* pathAndFilename,int options,double identicalVerticeTolerance,double scalingFactor)
 {
     TRACE_C_API;
 
@@ -7929,7 +7929,7 @@ int simImportShape_internal(int fileformat,const char* pathAndFilename,int optio
     return(-1);
 }
 
-int simImportMesh_internal(int fileformat,const char* pathAndFilename,int options,float identicalVerticeTolerance,float scalingFactor,float*** vertices,int** verticesSizes,int*** indices,int** indicesSizes,float*** reserved,char*** names)
+int simImportMesh_internal(int fileformat,const char* pathAndFilename,int options,double identicalVerticeTolerance,double scalingFactor,double*** vertices,int** verticesSizes,int*** indices,int** indicesSizes,double*** reserved,char*** names)
 {
     TRACE_C_API;
 
@@ -7970,7 +7970,7 @@ int simImportMesh_internal(int fileformat,const char* pathAndFilename,int option
     return(-1);
 }
 
-int simExportMesh_internal(int fileformat,const char* pathAndFilename,int options,float scalingFactor,int elementCount,const float** vertices,const int* verticesSizes,const int** indices,const int* indicesSizes,float** reserved,const char** names)
+int simExportMesh_internal(int fileformat,const char* pathAndFilename,int options,double scalingFactor,int elementCount,const double** vertices,const int* verticesSizes,const int** indices,const int* indicesSizes,double** reserved,const char** names)
 {
     TRACE_C_API;
 
@@ -8036,7 +8036,7 @@ int simExportMesh_internal(int fileformat,const char* pathAndFilename,int option
 }
 
 
-int simCreateMeshShape_internal(int options,float shadingAngle,const float* vertices,int verticesSize,const int* indices,int indicesSize,float* reserved)
+int simCreateMeshShape_internal(int options,double shadingAngle,const double* vertices,int verticesSize,const int* indices,int indicesSize,double* reserved)
 {
     TRACE_C_API;
 
@@ -8060,7 +8060,7 @@ int simCreateMeshShape_internal(int options,float shadingAngle,const float* vert
             {
                 if ( (verticesSize>=9)&&((verticesSize/3)*3==verticesSize) )
                 {
-                    std::vector<float> vert(vertices,vertices+verticesSize);
+                    std::vector<double> vert(vertices,vertices+verticesSize);
                     std::vector<int> ind(indices,indices+indicesSize);
                     CShape* shape=new CShape(nullptr,vert,ind,nullptr,nullptr);
                     shape->getSingleMesh()->setShadingAngle(shadingAngle);
@@ -8082,7 +8082,7 @@ int simCreateMeshShape_internal(int options,float shadingAngle,const float* vert
     return(-1);
 }
 
-int simGetShapeMesh_internal(int shapeHandle,float** vertices,int* verticesSize,int** indices,int* indicesSize,float** normals)
+int simGetShapeMesh_internal(int shapeHandle,double** vertices,int* verticesSize,int** indices,int* indicesSize,double** normals)
 {
     TRACE_C_API;
 
@@ -8094,16 +8094,16 @@ int simGetShapeMesh_internal(int shapeHandle,float** vertices,int* verticesSize,
         if (!isShape(__func__,shapeHandle))
             return(-1);
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-        std::vector<float> wvert;
+        std::vector<double> wvert;
         std::vector<int> wind;
-        std::vector<float> wnorm;
+        std::vector<double> wnorm;
         it->getMeshWrapper()->getCumulativeMeshes(wvert,&wind,&wnorm);
-        vertices[0]=new float[wvert.size()];
+        vertices[0]=new double[wvert.size()];
         verticesSize[0]=int(wvert.size());
         indices[0]=new int[wind.size()];
         indicesSize[0]=int(wind.size());
         if (normals!=nullptr)
-            normals[0]=new float[wnorm.size()];
+            normals[0]=new double[wnorm.size()];
         for (size_t i=0;i<wvert.size();i++)
             vertices[0][i]=wvert[i];
         for (size_t i=0;i<wind.size();i++)
@@ -8119,7 +8119,7 @@ int simGetShapeMesh_internal(int shapeHandle,float** vertices,int* verticesSize,
     return(-1);
 }
 
-int simCreatePrimitiveShape_internal(int primitiveType,const float* sizes,int options)
+int simCreatePrimitiveShape_internal(int primitiveType,const double* sizes,int options)
 { // options: bit: 0=culling, 1=sharp edges, 2=open
     TRACE_C_API;
 
@@ -8128,7 +8128,7 @@ int simCreatePrimitiveShape_internal(int primitiveType,const float* sizes,int op
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        C3Vector s(tt::getLimitedFloat(0.00001f,100000.0f,sizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[1]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[2]));
+        C3Vector s(tt::getLimitedFloat(0.00001,100000.0,sizes[0]),tt::getLimitedFloat(0.00001,100000.0,sizes[1]),tt::getLimitedFloat(0.00001,100000.0,sizes[2]));
         CShape* shape=CAddOperations::addPrimitiveShape(primitiveType,s,options,nullptr,0,32,0,false,1);
         int retVal=-1;
         if (shape!=nullptr)
@@ -8142,7 +8142,7 @@ int simCreatePrimitiveShape_internal(int primitiveType,const float* sizes,int op
     return(-1);
 }
 
-int simCreateDummy_internal(float size,const float* reserved)
+int simCreateDummy_internal(double size,const float* reserved)
 {
     TRACE_C_API;
 
@@ -8167,7 +8167,7 @@ int simCreateDummy_internal(float size,const float* reserved)
     return(-1);
 }
 
-int simCreateProximitySensor_internal(int sensorType,int subType,int options,const int* intParams,const float* floatParams,const float* reserved)
+int simCreateProximitySensor_internal(int sensorType,int subType,int options,const int* intParams,const double* floatParams,const double* reserved)
 {
     TRACE_C_API;
 
@@ -8229,17 +8229,6 @@ int simCreateProximitySensor_internal(int sensorType,int subType,int options,con
         it->convexVolume->setSmallestDistanceAllowed(floatParams[11]);
         it->setProxSensorSize(floatParams[12]);
 
-        if (reserved!=nullptr)
-        {
-            it->getColor(0)->setColor(reserved+0,sim_colorcomponent_ambient_diffuse);
-            it->getColor(0)->setColor(reserved+6,sim_colorcomponent_specular);
-            it->getColor(0)->setColor(reserved+9,sim_colorcomponent_emission);
-
-            it->getColor(1)->setColor(reserved+12,sim_colorcomponent_ambient_diffuse);
-            it->getColor(1)->setColor(reserved+18,sim_colorcomponent_specular);
-            it->getColor(1)->setColor(reserved+21,sim_colorcomponent_emission);
-        }
-
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         int retVal=it->getObjectHandle();
         return(retVal);
@@ -8248,7 +8237,7 @@ int simCreateProximitySensor_internal(int sensorType,int subType,int options,con
     return(-1);
 }
 
-int simCreateForceSensor_internal(int options,const int* intParams,const float* floatParams,const float* reserved)
+int simCreateForceSensor_internal(int options,const int* intParams,const double* floatParams,const double* reserved)
 {
     TRACE_C_API;
 
@@ -8270,17 +8259,6 @@ int simCreateForceSensor_internal(int options,const int* intParams,const float* 
         it->setForceThreshold(floatParams[1]);
         it->setTorqueThreshold(floatParams[2]);
 
-        if (reserved!=nullptr)
-        {
-            it->getColor(false)->setColor(reserved+0,sim_colorcomponent_ambient_diffuse);
-            it->getColor(false)->setColor(reserved+6,sim_colorcomponent_specular);
-            it->getColor(false)->setColor(reserved+9,sim_colorcomponent_emission);
-
-            it->getColor(true)->setColor(reserved+12,sim_colorcomponent_ambient_diffuse);
-            it->getColor(true)->setColor(reserved+18,sim_colorcomponent_specular);
-            it->getColor(true)->setColor(reserved+21,sim_colorcomponent_emission);
-        }
-
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         int retVal=it->getObjectHandle();
         return(retVal);
@@ -8289,7 +8267,7 @@ int simCreateForceSensor_internal(int options,const int* intParams,const float* 
     return(-1);
 }
 
-int simCreateVisionSensor_internal(int options,const int* intParams,const float* floatParams,const float* reserved)
+int simCreateVisionSensor_internal(int options,const int* intParams,const double* floatParams,const double* reserved)
 {
     TRACE_C_API;
 
@@ -8316,14 +8294,8 @@ int simCreateVisionSensor_internal(int options,const int* intParams,const float*
         else
             it->setOrthoViewSize(floatParams[2]);
         it->setVisionSensorSize(floatParams[3]);
-        it->setDefaultBufferValues(floatParams+6);
-
-        if (reserved!=nullptr)
-        {
-            it->getColor()->setColor(reserved+0,sim_colorcomponent_ambient_diffuse);
-            it->getColor()->setColor(reserved+6,sim_colorcomponent_specular);
-            it->getColor()->setColor(reserved+9,sim_colorcomponent_emission);
-        }
+        float w[3]={(float)floatParams[6],(float)floatParams[6],(float)floatParams[6]};
+        it->setDefaultBufferValues(w);
 
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         int retVal=it->getObjectHandle();
@@ -8334,7 +8306,7 @@ int simCreateVisionSensor_internal(int options,const int* intParams,const float*
 }
 
 
-int simCreateJoint_internal(int jointType,int jointMode,int options,const float* sizes,const float* reservedA,const float* reservedB)
+int simCreateJoint_internal(int jointType,int jointMode,int options,const double* sizes,const double* reservedA,const double* reservedB)
 {
     TRACE_C_API;
 
@@ -8351,18 +8323,6 @@ int simCreateJoint_internal(int jointType,int jointMode,int options,const float*
             it->setLength(sizes[0]);
             it->setDiameter(sizes[1]);
         }
-        if (reservedA!=nullptr)
-        {
-            it->getColor(false)->setColor(reservedA+0,sim_colorcomponent_ambient_diffuse);
-            it->getColor(false)->setColor(reservedA+6,sim_colorcomponent_specular);
-            it->getColor(false)->setColor(reservedA+9,sim_colorcomponent_emission);
-        }
-        if (reservedB!=nullptr)
-        {
-            it->getColor(true)->setColor(reservedB+0,sim_colorcomponent_ambient_diffuse);
-            it->getColor(true)->setColor(reservedB+6,sim_colorcomponent_specular);
-            it->getColor(true)->setColor(reservedB+9,sim_colorcomponent_emission);
-        }
         App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
         int retVal=it->getObjectHandle();
         return(retVal);
@@ -8371,7 +8331,7 @@ int simCreateJoint_internal(int jointType,int jointMode,int options,const float*
     return(-1);
 }
 
-int simFloatingViewAdd_internal(float posX,float posY,float sizeX,float sizeY,int options)
+int simFloatingViewAdd_internal(double posX,double posY,double sizeX,double sizeY,int options)
 {
     TRACE_C_API;
 
@@ -8388,20 +8348,20 @@ int simFloatingViewAdd_internal(float posX,float posY,float sizeX,float sizeY,in
             return(-1);
         }
         CSView* theFloatingView=new CSView(-1);
-        posX=1.0f-posX;
-        posY=1.0f-posY;
-        if (posX<0.01f)
-            posX=0.01f;
-        if (posX>0.99f)
-            posX=0.99f;
-        if (posY<0.01f)
-            posY=0.01f;
-        if (posY>0.99f)
-            posY=0.99f;
-        sizeX=std::min<float>(sizeX,2.0f*std::min<float>(posX,1.0f-posX));
-        sizeY=std::min<float>(sizeY,2.0f*std::min<float>(posY,1.0f-posY));
-        float sizes[2]={sizeX,sizeY};
-        float positions[2]={posX-sizeX*0.5f,posY-sizeY*0.5f};
+        posX=1.0-posX;
+        posY=1.0-posY;
+        if (posX<0.01)
+            posX=0.01;
+        if (posX>0.99)
+            posX=0.99;
+        if (posY<0.01)
+            posY=0.01;
+        if (posY>0.99)
+            posY=0.99;
+        sizeX=std::min<double>(sizeX,2.0*std::min<double>(posX,1.0-posX));
+        sizeY=std::min<double>(sizeY,2.0*std::min<double>(posY,1.0-posY));
+        double sizes[2]={sizeX,sizeY};
+        double positions[2]={posX-sizeX*0.5,posY-sizeY*0.5};
         page->addFloatingView(theFloatingView,sizes,positions);
         theFloatingView->setCanSwapViewWithMainView(false);
         if (options&1)
@@ -8454,7 +8414,7 @@ int simFloatingViewRemove_internal(int floatingViewHandle)
     return(-1);
 }
 
-int simCameraFitToView_internal(int viewHandleOrIndex,int objectCount,const int* objectHandles,int options,float scaling)
+int simCameraFitToView_internal(int viewHandleOrIndex,int objectCount,const int* objectHandles,int options,double scaling)
 {
     TRACE_C_API;
 
@@ -8526,7 +8486,7 @@ int simCameraFitToView_internal(int viewHandleOrIndex,int objectCount,const int*
             for (int i=0;i<objectCount;i++)
                 objectsToFrame.push_back(objectHandles[i]);
         }
-        float xByY=1.0f;
+        double xByY=1.0;
         if ((options&2)==0)
         {
 #ifdef SIM_WITH_GUI
@@ -8534,11 +8494,11 @@ int simCameraFitToView_internal(int viewHandleOrIndex,int objectCount,const int*
             {
                 int vs[2];
                 view->getViewSize(vs);
-                xByY=float(vs[0])/float(vs[1]);
+                xByY=double(vs[0])/double(vs[1]);
             }
             else
 #endif
-                xByY=455.0f/256.0f; // in headless mode
+                xByY=455.0/256.0; // in headless mode
         }
         bool perspective=true;
         if (view!=nullptr)
@@ -8631,7 +8591,7 @@ int simAdjustView_internal(int viewHandleOrIndex,int associatedViewableObjectHan
     return(-1);
 }
 
-int simCreateHeightfieldShape_internal(int options,float shadingAngle,int xPointCount,int yPointCount,float xSize,const float* heights)
+int simCreateHeightfieldShape_internal(int options,double shadingAngle,int xPointCount,int yPointCount,double xSize,const double* heights)
 {
     TRACE_C_API;
 
@@ -8640,15 +8600,15 @@ int simCreateHeightfieldShape_internal(int options,float shadingAngle,int xPoint
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        if ( (xPointCount<2)||(xPointCount>2048)||(yPointCount<2)||(yPointCount>2048)||(xSize<0.00001f) )
+        if ( (xPointCount<2)||(xPointCount>2048)||(yPointCount<2)||(yPointCount>2048)||(xSize<0.00001) )
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENTS);
             return(-1);
         }
-        std::vector<std::vector<float>*> allData;
+        std::vector<std::vector<double>*> allData;
         for (int i=0;i<yPointCount;i++)
         {
-            std::vector<float>* vect=new std::vector<float>;
+            std::vector<double>* vect=new std::vector<double>;
             for (int j=0;j<xPointCount;j++)
                 vect->push_back(heights[i*xPointCount+j]);
             allData.push_back(vect);
@@ -9476,7 +9436,7 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
     return(-1);
 }
 
-int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* parameter)
+int simGetObjectFloatParam_internal(int objectHandle,int parameterID,double* parameter)
 {
     TRACE_C_API;
 
@@ -9555,7 +9515,7 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
         {
             if (parameterID==sim_lightfloatparam_spot_exponent)
             {
-                parameter[0]=float(light->getSpotExponent());
+                parameter[0]=double(light->getSpotExponent());
                 retVal=1;
             }
             if (parameterID==sim_lightfloatparam_spot_cutoff)
@@ -9605,10 +9565,10 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
             {
                 std::string extensionString(rendSens->getExtensionString());
                 std::string val;
-                parameter[0]=2.0f;
+                parameter[0]=2.0;
                 if (tt::getValueOfKey("focalDist@povray",extensionString.c_str(),val))
                 {
-                    float dist;
+                    double dist;
                     if (tt::getValidFloat(val.c_str(),dist))
                         parameter[0]=dist;
                 }
@@ -9618,10 +9578,10 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
             {
                 std::string extensionString(rendSens->getExtensionString());
                 std::string val;
-                parameter[0]=0.05f;
+                parameter[0]=0.05;
                 if (tt::getValueOfKey("aperture@povray",extensionString.c_str(),val))
                 {
-                    float ap;
+                    double ap;
                     if (tt::getValidFloat(val.c_str(),ap))
                         parameter[0]=ap;
                 }
@@ -9632,7 +9592,7 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
         {
             if ((parameterID==sim_jointfloatparam_pid_p)||(parameterID==sim_jointfloatparam_pid_i)||(parameterID==sim_jointfloatparam_pid_d))
             { // deprecated parameter
-                float pp,ip,dp;
+                double pp,ip,dp;
                 joint->getPid(pp,ip,dp);
                 if (parameterID==sim_jointfloatparam_pid_p)
                     parameter[0]=pp;
@@ -9644,7 +9604,7 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
             }
             if ((parameterID==sim_jointfloatparam_kc_k)||(parameterID==sim_jointfloatparam_kc_c))
             {
-                float kp,cp;
+                double kp,cp;
                 joint->getKc(kp,cp);
                 if (parameterID==sim_jointfloatparam_kc_k)
                     parameter[0]=kp;
@@ -9677,7 +9637,7 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
             }
             if ( (parameterID==sim_jointfloatparam_error_pos)||(parameterID==sim_jointfloatparam_error_angle) )
             {
-                float p,o;
+                double p,o;
                 joint->getDynamicJointErrors(p,o);
                 if (parameterID==sim_jointfloatparam_error_pos)
                     parameter[0]=p;
@@ -9706,7 +9666,7 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
             }
             if ( (parameterID>=sim_jointfloatparam_maxvel)&&(parameterID<=sim_jointfloatparam_maxjerk) )
             {
-                float v[3];
+                double v[3];
                 joint->getMaxVelAccelJerk(v);
                 parameter[0]=v[parameterID-sim_jointfloatparam_maxvel];
                 retVal=1;
@@ -9744,7 +9704,7 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
             }
             if (parameterID==sim_jointfloatparam_upper_limit)
             {
-                float maxVelAccelJerk[3];
+                double maxVelAccelJerk[3];
                 joint->getMaxVelAccelJerk(maxVelAccelJerk);
                 parameter[0]=maxVelAccelJerk[0];
                 retVal=1;
@@ -9800,12 +9760,12 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
                             parameter[0]=tp->getTextureRelativeConfig().Q.getEulerAngles()(2);
                         if (parameterID==sim_shapefloatparam_texture_scaling_x)
                         {
-                            float dummyFloat;
+                            double dummyFloat;
                             tp->getTextureScaling(parameter[0],dummyFloat);
                         }
                         if (parameterID==sim_shapefloatparam_texture_scaling_y)
                         {
-                            float dummyFloat;
+                            double dummyFloat;
                             tp->getTextureScaling(dummyFloat,parameter[0]);
                         }
                         retVal=1;
@@ -9859,8 +9819,8 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
         {
             if ((parameterID>=sim_pplanfloatparam_x_min)&&(parameterID<=sim_pplanfloatparam_delta_range))
             {
-                float sMin[4];
-                float sRange[4];
+                double sMin[4];
+                double sRange[4];
                 pathPlanningObject->getSearchRange(sMin,sRange);
                 if (parameterID==sim_pplanfloatparam_x_min)
                     parameter[0]=sMin[0];
@@ -9903,8 +9863,8 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
             }
             if ( (parameterID==sim_forcefloatparam_error_pos)||(parameterID==sim_forcefloatparam_error_angle) )
             {
-                float p=forceSensor->getDynamicPositionError();
-                float o=forceSensor->getDynamicOrientationError();
+                double p=forceSensor->getDynamicPositionError();
+                double o=forceSensor->getDynamicOrientationError();
                 if (parameterID==sim_forcefloatparam_error_pos)
                     parameter[0]=p;
                 if (parameterID==sim_forcefloatparam_error_angle)
@@ -9951,10 +9911,10 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
             {
                 std::string extensionString(camera->getExtensionString());
                 std::string val;
-                parameter[0]=2.0f;
+                parameter[0]=2.0;
                 if (tt::getValueOfKey("focalDist@povray",extensionString.c_str(),val))
                 {
-                    float dist;
+                    double dist;
                     if (tt::getValidFloat(val.c_str(),dist))
                         parameter[0]=dist;
                 }
@@ -9964,10 +9924,10 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
             {
                 std::string extensionString(camera->getExtensionString());
                 std::string val;
-                parameter[0]=0.05f;
+                parameter[0]=0.05;
                 if (tt::getValueOfKey("aperture@povray",extensionString.c_str(),val))
                 {
-                    float ap;
+                    double ap;
                     if (tt::getValidFloat(val.c_str(),ap))
                         parameter[0]=ap;
                 }
@@ -9981,7 +9941,7 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,float* para
     return(-1);
 }
 
-int simSetObjectFloatParam_internal(int objectHandle,int parameterID,float parameter)
+int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double parameter)
 {
     TRACE_C_API;
 
@@ -10023,7 +9983,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,float param
         {
             if (parameterID==sim_lightfloatparam_spot_exponent)
             {
-                light->setSpotExponent(int(parameter+0.5f));
+                light->setSpotExponent(int(parameter+0.5));
                 retVal=1;
             }
             if (parameterID==sim_lightfloatparam_spot_cutoff)
@@ -10088,7 +10048,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,float param
         {
             if ((parameterID==sim_jointfloatparam_pid_p)||(parameterID==sim_jointfloatparam_pid_i)||(parameterID==sim_jointfloatparam_pid_d))
             { // deprecated parameter
-                float pp,ip,dp;
+                double pp,ip,dp;
                 joint->getPid(pp,ip,dp);
                 if (parameterID==sim_jointfloatparam_pid_p)
                     pp=parameter;
@@ -10101,7 +10061,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,float param
             }
             if ((parameterID==sim_jointfloatparam_kc_k)||(parameterID==sim_jointfloatparam_kc_c))
             {
-                float kp,cp;
+                double kp,cp;
                 joint->getKc(kp,cp);
                 if (parameterID==sim_jointfloatparam_kc_k)
                     kp=parameter;
@@ -10119,7 +10079,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,float param
             {
                 if (joint->getJointType()==sim_joint_spherical_subtype)
                 {
-                    static float buff[3];
+                    static double buff[3];
                     if (parameterID==sim_jointfloatparam_spherical_qx)
                         buff[0]=parameter;
                     if (parameterID==sim_jointfloatparam_spherical_qy)
@@ -10138,7 +10098,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,float param
             }
             if (parameterID==sim_jointfloatparam_upper_limit)
             {
-                float maxVelAccelJerk[3];
+                double maxVelAccelJerk[3];
                 joint->getMaxVelAccelJerk(maxVelAccelJerk);
                 maxVelAccelJerk[0]=parameter;
                 joint->setMaxVelAccelJerk(maxVelAccelJerk);
@@ -10161,7 +10121,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,float param
             }
             if ( (parameterID>=sim_jointfloatparam_maxvel)&&(parameterID<=sim_jointfloatparam_maxjerk) )
             {
-                float v[3];
+                double v[3];
                 joint->getMaxVelAccelJerk(v);
                 v[parameterID-sim_jointfloatparam_maxvel]=parameter;
                 joint->setMaxVelAccelJerk(v);
@@ -10213,7 +10173,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,float param
                     {
                         C3Vector pos(tp->getTextureRelativeConfig().X);
                         C3Vector euler(tp->getTextureRelativeConfig().Q.getEulerAngles());
-                        float scalingX,scalingY;
+                        double scalingX,scalingY;
                         tp->getTextureScaling(scalingX,scalingY);
                         if (parameterID==sim_shapefloatparam_texture_x)
                             pos(0)=parameter;
@@ -10302,8 +10262,8 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,float param
         {
             if ((parameterID>=sim_pplanfloatparam_x_min)&&(parameterID<=sim_pplanfloatparam_delta_range))
             {
-                float sMin[4];
-                float sRange[4];
+                double sMin[4];
+                double sRange[4];
                 pathPlanningObject->getSearchRange(sMin,sRange);
                 if (parameterID==sim_pplanfloatparam_x_min)
                     sMin[0]=parameter;
@@ -10386,7 +10346,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,float param
     return(-1);
 }
 
-float* simGetObjectFloatArrayParam_internal(int objectHandle,int parameterID,int* size)
+double* simGetObjectFloatArrayParam_internal(int objectHandle,int parameterID,int* size)
 {
     TRACE_C_API;
 
@@ -10398,7 +10358,7 @@ float* simGetObjectFloatArrayParam_internal(int objectHandle,int parameterID,int
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        float* retVal=nullptr; // Means the parameter was not retrieved
+        double* retVal=nullptr; // Means the parameter was not retrieved
         CVisionSensor* vision=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
         CJoint* joint=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         CForceSensor* forceSensor=App::currentWorld->sceneObjects->getForceSensorFromHandle(objectHandle);
@@ -10422,7 +10382,7 @@ float* simGetObjectFloatArrayParam_internal(int objectHandle,int parameterID,int
             {
                 C3Vector nearV,farV;
                 vision->getVolumeVectors(nearV,farV);
-                retVal=new float[6];
+                retVal=new double[6];
                 for (size_t i=0;i<3;i++)
                 {
                     retVal[i]=nearV(i);
@@ -10438,7 +10398,7 @@ float* simGetObjectFloatArrayParam_internal(int objectHandle,int parameterID,int
             {
                 C3Vector nearV,farV;
                 camera->getVolumeVectors(nearV,farV);
-                retVal=new float[6];
+                retVal=new double[6];
                 for (size_t i=0;i<3;i++)
                 {
                     retVal[i]=nearV(i);
@@ -10467,7 +10427,7 @@ float* simGetObjectFloatArrayParam_internal(int objectHandle,int parameterID,int
     return(nullptr);
 }
 
-int simSetObjectFloatArrayParam_internal(int objectHandle,int parameterID,const float* params,int size)
+int simSetObjectFloatArrayParam_internal(int objectHandle,int parameterID,const double* params,int size)
 {
     TRACE_C_API;
 
@@ -10796,7 +10756,7 @@ int simSetScriptStringParam_internal(int scriptHandle,int parameterID,const char
     return(-1);
 }
 
-int simGetRotationAxis_internal(const float* matrixStart,const float* matrixGoal,float* axis,float* angle)
+int simGetRotationAxis_internal(const double* matrixStart,const double* matrixGoal,double* axis,double* angle)
 {
     TRACE_C_API;
 
@@ -10808,8 +10768,8 @@ int simGetRotationAxis_internal(const float* matrixStart,const float* matrixGoal
     // Following few lines taken from the quaternion interpolation part:
     C4Vector AA(mStart.M.getQuaternion());
     C4Vector BB(mGoal.M.getQuaternion());
-    if (AA(0)*BB(0)+AA(1)*BB(1)+AA(2)*BB(2)+AA(3)*BB(3)<0.0f)
-        AA=AA*-1.0f;
+    if (AA(0)*BB(0)+AA(1)*BB(1)+AA(2)*BB(2)+AA(3)*BB(3)<0.0)
+        AA=AA*-1.0;
     C4Vector r((AA.getInverse()*BB).getAngleAndAxis());
 
     C3Vector v(r(1),r(2),r(3));
@@ -10818,8 +10778,8 @@ int simGetRotationAxis_internal(const float* matrixStart,const float* matrixGoal
     axis[0]=v(0);
     axis[1]=v(1);
     axis[2]=v(2);
-    float l=sqrt(v(0)*v(0)+v(1)*v(1)+v(2)*v(2));
-    if (l!=0.0f)
+    double l=sqrt(v(0)*v(0)+v(1)*v(1)+v(2)*v(2));
+    if (l!=0.0)
     {
         axis[0]/=l;
         axis[1]/=l;
@@ -10830,7 +10790,7 @@ int simGetRotationAxis_internal(const float* matrixStart,const float* matrixGoal
     return(1);
 }
 
-int simRotateAroundAxis_internal(const float* matrixIn,const float* axis,const float* axisPos,float angle,float* matrixOut)
+int simRotateAroundAxis_internal(const double* matrixIn,const double* axis,const double* axisPos,double angle,double* matrixOut)
 {
     TRACE_C_API;
 
@@ -10840,20 +10800,20 @@ int simRotateAroundAxis_internal(const float* matrixIn,const float* axis,const f
     C3Vector ax(axis);
     C3Vector pos(axisPos);
 
-    float alpha=-atan2(ax(1),ax(0));
-    float beta=atan2(-sqrt(ax(0)*ax(0)+ax(1)*ax(1)),ax(2));
+    double alpha=-atan2(ax(1),ax(0));
+    double beta=atan2(-sqrt(ax(0)*ax(0)+ax(1)*ax(1)),ax(2));
     m.X-=pos;
     C7Vector r;
     r.X.clear();
-    r.Q.setEulerAngles(0.0f,0.0f,alpha);
+    r.Q.setEulerAngles(0.0,0.0,alpha);
     m=r*m;
-    r.Q.setEulerAngles(0.0f,beta,0.0f);
+    r.Q.setEulerAngles(0.0,beta,0.0);
     m=r*m;
-    r.Q.setEulerAngles(0.0f,0.0f,angle);
+    r.Q.setEulerAngles(0.0,0.0,angle);
     m=r*m;
-    r.Q.setEulerAngles(0.0f,-beta,0.0f);
+    r.Q.setEulerAngles(0.0,-beta,0.0);
     m=r*m;
-    r.Q.setEulerAngles(0.0f,0.0f,-alpha);
+    r.Q.setEulerAngles(0.0,0.0,-alpha);
     m=r*m;
     m.X+=pos;
     m.getMatrix().getData(matrixOut);
@@ -10861,7 +10821,7 @@ int simRotateAroundAxis_internal(const float* matrixIn,const float* axis,const f
     return(1);
 }
 
-int simGetJointForce_internal(int jointHandle,float* forceOrTorque)
+int simGetJointForce_internal(int jointHandle,double* forceOrTorque)
 {
     TRACE_C_API;
 
@@ -10887,8 +10847,8 @@ int simGetJointForce_internal(int jointHandle,float* forceOrTorque)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_JOINT_SPHERICAL);
             return(-1);
         }
-        float f;
-        forceOrTorque[0]=0.0f;
+        double f;
+        forceOrTorque[0]=0.0;
         if (it->getDynamicForceOrTorque(f,(handleFlags&sim_handleflag_rawvalue)!=0))
         {
             forceOrTorque[0]=f;
@@ -10900,7 +10860,7 @@ int simGetJointForce_internal(int jointHandle,float* forceOrTorque)
     return(-1);
 }
 
-int simGetJointTargetForce_internal(int jointHandle,float* forceOrTorque)
+int simGetJointTargetForce_internal(int jointHandle,double* forceOrTorque)
 {
     TRACE_C_API;
 
@@ -10921,7 +10881,7 @@ int simGetJointTargetForce_internal(int jointHandle,float* forceOrTorque)
     return(-1);
 }
 
-int simSetJointTargetForce_internal(int objectHandle,float forceOrTorque,bool signedValue)
+int simSetJointTargetForce_internal(int objectHandle,double forceOrTorque,bool signedValue)
 {
     TRACE_C_API;
 
@@ -11017,7 +10977,7 @@ int simIsHandle_internal(int generalObjectHandle,int generalObjectType)
     return(-1);
 }
 
-int simHandleVisionSensor_internal(int visionSensorHandle,float** auxValues,int** auxValuesCount)
+int simHandleVisionSensor_internal(int visionSensorHandle,double** auxValues,int** auxValuesCount)
 {
     TRACE_C_API;
 
@@ -11055,7 +11015,7 @@ int simHandleVisionSensor_internal(int visionSensorHandle,float** auxValues,int*
                     int fvs=0;
                     for (size_t j=0;j<it->sensorAuxiliaryResult.size();j++)
                         fvs+=(int)it->sensorAuxiliaryResult[j].size();
-                    auxValues[0]=new float[fvs];
+                    auxValues[0]=new double[fvs];
                     fvs=0;
                     for (size_t j=0;j<it->sensorAuxiliaryResult.size();j++)
                     {
@@ -11079,7 +11039,7 @@ int simHandleVisionSensor_internal(int visionSensorHandle,float** auxValues,int*
     return(-1);
 }
 
-int simReadVisionSensor_internal(int visionSensorHandle,float** auxValues,int** auxValuesCount)
+int simReadVisionSensor_internal(int visionSensorHandle,double** auxValues,int** auxValuesCount)
 {
     TRACE_C_API;
 
@@ -11109,7 +11069,7 @@ int simReadVisionSensor_internal(int visionSensorHandle,float** auxValues,int** 
                 int fvs=0;
                 for (int j=0;j<int(it->sensorAuxiliaryResult.size());j++)
                     fvs+=(int)it->sensorAuxiliaryResult[j].size();
-                auxValues[0]=new float[fvs];
+                auxValues[0]=new double[fvs];
                 fvs=0;
                 for (int j=0;j<int(it->sensorAuxiliaryResult.size());j++)
                 {
@@ -11170,7 +11130,7 @@ int simResetVisionSensor_internal(int visionSensorHandle)
 }
 
 
-int simCheckVisionSensor_internal(int sensorHandle,int entityHandle,float** auxValues,int** auxValuesCount)
+int simCheckVisionSensor_internal(int sensorHandle,int entityHandle,double** auxValues,int** auxValuesCount)
 {
     TRACE_C_API;
 
@@ -11208,7 +11168,7 @@ int simCheckVisionSensor_internal(int sensorHandle,int entityHandle,float** auxV
             int fvs=0;
             for (int j=0;j<int(it->sensorAuxiliaryResult.size());j++)
                 fvs+=(int)it->sensorAuxiliaryResult[j].size();
-            auxValues[0]=new float[fvs];
+            auxValues[0]=new double[fvs];
             fvs=0;
             for (int j=0;j<int(it->sensorAuxiliaryResult.size());j++)
             {
@@ -11223,7 +11183,7 @@ int simCheckVisionSensor_internal(int sensorHandle,int entityHandle,float** auxV
     return(-1);
 }
 
-floatDouble* simCheckVisionSensorEx_internal(int sensorHandle,int entityHandle,bool returnImage)
+float* simCheckVisionSensorEx_internal(int sensorHandle,int entityHandle,bool returnImage)
 {
     TRACE_C_API;
 
@@ -11245,7 +11205,7 @@ floatDouble* simCheckVisionSensorEx_internal(int sensorHandle,int entityHandle,b
             return(nullptr);
 
         CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
-        floatDouble* retBuffer=it->checkSensorEx(entityHandle,returnImage!=0,false,false,true);
+        float* retBuffer=it->checkSensorEx(entityHandle,returnImage!=0,false,false,true);
         return(retBuffer);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -11253,7 +11213,7 @@ floatDouble* simCheckVisionSensorEx_internal(int sensorHandle,int entityHandle,b
 }
 
 
-unsigned char* simGetVisionSensorImg_internal(int sensorHandle,int options,float rgbaCutOff,const int* pos,const int* size,int* resolution)
+unsigned char* simGetVisionSensorImg_internal(int sensorHandle,int options,double rgbaCutOff,const int* pos,const int* size,int* resolution)
 {
     TRACE_C_API;
 
@@ -11338,7 +11298,7 @@ int simSetVisionSensorImg_internal(int sensorHandle,const unsigned char* img,int
     return(-1);
 }
 
-floatDouble* simGetVisionSensorDepth_internal(int sensorHandle,int options,const int* pos,const int* size,int* resolution)
+float* simGetVisionSensorDepth_internal(int sensorHandle,int options,const int* pos,const int* size,int* resolution)
 {
     TRACE_C_API;
 
@@ -11373,12 +11333,12 @@ floatDouble* simGetVisionSensorDepth_internal(int sensorHandle,int options,const
             sizeX=size[0];
             sizeY=size[1];
         }
-        floatDouble* retBuff=it->readPortionOfImage(posX,posY,sizeX,sizeY,2);
+        float* retBuff=it->readPortionOfImage(posX,posY,sizeX,sizeY,2);
         if ((options&1)!=0)
         {
-            floatDouble n=it->getNearClippingPlane();
-            floatDouble f=it->getFarClippingPlane();
-            floatDouble fmn=f-n;
+            float n=(float)it->getNearClippingPlane();
+            float f=(float)it->getFarClippingPlane();
+            float fmn=f-n;
             for (int i=0;i<sizeX*sizeY;i++)
                 retBuff[i]=n+fmn*retBuff[i];
         }
@@ -11386,6 +11346,27 @@ floatDouble* simGetVisionSensorDepth_internal(int sensorHandle,int options,const
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(nullptr);
+}
+
+int _simSetVisionSensorDepth_internal(int sensorHandle,int options,const float* depth)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,sensorHandle))
+            return(-1);
+        if (!isVisionSensor(__func__,sensorHandle))
+            return(-1);
+        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        it->writeImage(depth,2);
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
 }
 
 int simRuckigPos_internal(int dofs,double baseCycleTime,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const bool* selection,const double* targetPos,const double* targetVel,double* reserved1,int* reserved2)
@@ -11466,7 +11447,7 @@ int simRuckigRemove_internal(int objHandle)
     return(-1);
 }
 
-int simGetObjectQuaternion_internal(int objectHandle,int relativeToObjectHandle,float* quaternion)
+int simGetObjectQuaternion_internal(int objectHandle,int relativeToObjectHandle,double* quaternion)
 { 
     TRACE_C_API;
     // CoppeliaSim quaternion, internally: w x y z
@@ -11524,7 +11505,7 @@ int simGetObjectQuaternion_internal(int objectHandle,int relativeToObjectHandle,
     return(-1);
 }
 
-int simSetObjectQuaternion_internal(int objectHandle,int relativeToObjectHandle,const float* quaternion)
+int simSetObjectQuaternion_internal(int objectHandle,int relativeToObjectHandle,const double* quaternion)
 {
     TRACE_C_API;
     // CoppeliaSim quaternion, internally: w x y z
@@ -11590,7 +11571,7 @@ int simSetObjectQuaternion_internal(int objectHandle,int relativeToObjectHandle,
     return(-1);
 }
 
-int simGetShapeMass_internal(int shapeHandle,float* mass)
+int simGetShapeMass_internal(int shapeHandle,double* mass)
 {
     TRACE_C_API;
 
@@ -11610,7 +11591,7 @@ int simGetShapeMass_internal(int shapeHandle,float* mass)
     return(-1);
 }
 
-int simSetShapeMass_internal(int shapeHandle,float mass)
+int simSetShapeMass_internal(int shapeHandle,double mass)
 {
     TRACE_C_API;
 
@@ -11623,8 +11604,8 @@ int simSetShapeMass_internal(int shapeHandle,float mass)
             return(-1);
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
 
-        if (mass<0.0000001f)
-            mass=0.0000001f;
+        if (mass<0.0000001)
+            mass=0.0000001;
         it->getMeshWrapper()->setMass(mass);
         it->setDynamicsResetFlag(true,false);
         return(1);
@@ -11633,7 +11614,7 @@ int simSetShapeMass_internal(int shapeHandle,float mass)
     return(-1);
 }
 
-int simGetShapeInertia_internal(int shapeHandle,float* inertiaMatrix,float* transformationMatrix)
+int simGetShapeInertia_internal(int shapeHandle,double* inertiaMatrix,double* transformationMatrix)
 {
     TRACE_C_API;
 
@@ -11663,7 +11644,7 @@ int simGetShapeInertia_internal(int shapeHandle,float* inertiaMatrix,float* tran
     return(-1);
 }
 
-int simSetShapeInertia_internal(int shapeHandle,const float* inertiaMatrix,const float* transformationMatrix)
+int simSetShapeInertia_internal(int shapeHandle,const double* inertiaMatrix,const double* transformationMatrix)
 {
     TRACE_C_API;
 
@@ -11691,12 +11672,12 @@ int simSetShapeInertia_internal(int shapeHandle,const float* inertiaMatrix,const
         C3Vector pmoment;
         CMeshWrapper::findPrincipalMomentOfInertia(m,corr.Q,pmoment);
 
-        if (pmoment(0)<0.0000001f)
-            pmoment(0)=0.0000001f;
-        if (pmoment(1)<0.0000001f)
-            pmoment(1)=0.0000001f;
-        if (pmoment(2)<0.0000001f)
-            pmoment(0)=0.0000001f;
+        if (pmoment(0)<0.0000001)
+            pmoment(0)=0.0000001;
+        if (pmoment(1)<0.0000001)
+            pmoment(1)=0.0000001;
+        if (pmoment(2)<0.0000001)
+            pmoment(0)=0.0000001;
         it->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
         it->getMeshWrapper()->setLocalInertiaFrame(tr.getTransformation()*corr);
         it->setDynamicsResetFlag(true,false);
@@ -11731,7 +11712,7 @@ int simIsDynamicallyEnabled_internal(int objectHandle)
     return(-1);
 }
 
-int simGenerateShapeFromPath_internal(const float* pppath,int pathSize,const float* section,int sectionSize,int options,const float* upVector,float reserved)
+int simGenerateShapeFromPath_internal(const double* pppath,int pathSize,const double* section,int sectionSize,int options,const double* upVector,double reserved)
 {
     TRACE_C_API;
 
@@ -11741,7 +11722,7 @@ int simGenerateShapeFromPath_internal(const float* pppath,int pathSize,const flo
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         // First make sure the points are not coincident:
-        std::vector<float> ppath;
+        std::vector<double> ppath;
         C3Vector prevV;
         prevV.clear();
         C4Vector prevQ;
@@ -11750,8 +11731,8 @@ int simGenerateShapeFromPath_internal(const float* pppath,int pathSize,const flo
         {
             C3Vector v(pppath+7*i);
             C4Vector q(pppath+7*i+3,true);
-            float d=(prevV-v).getLength();
-            if ( (d>=0.0005f)||(i==0) )
+            double d=(prevV-v).getLength();
+            if ( (d>=0.0005)||(i==0) )
             {
                 prevV=v;
                 prevQ=q;
@@ -11775,7 +11756,7 @@ int simGenerateShapeFromPath_internal(const float* pppath,int pathSize,const flo
             size_t confCnt=size_t(pathSize)/7;
             size_t elementCount=confCnt;
             size_t secVertCnt=size_t(sectionSize)/2;
-            std::vector<float> path;
+            std::vector<double> path;
             for (size_t i=0;i<confCnt;i++)
             {
                 C3Vector p0,p1,p2;
@@ -11824,13 +11805,13 @@ int simGenerateShapeFromPath_internal(const float* pppath,int pathSize,const flo
             if (sectionClosed)
                 secVertCnt--;
 
-            std::vector<float> vertices;
+            std::vector<double> vertices;
             std::vector<int> indices;
             C7Vector tr0;
             tr0.setData(&path[0]);
             for (size_t i=0;i<=secVertCnt-1;i++)
             {
-                C3Vector v(section[i*2+0],0.0f,section[i*2+1]);
+                C3Vector v(section[i*2+0],0.0,section[i*2+1]);
                 v=tr0*v;
                 vertices.push_back(v(0));
                 vertices.push_back(v(1));
@@ -11845,7 +11826,7 @@ int simGenerateShapeFromPath_internal(const float* pppath,int pathSize,const flo
                 int forwOff=int(secVertCnt);
                 for (int i=0;i<=int(secVertCnt)-1;i++)
                 {
-                    C3Vector v(section[i*2+0],0.0f,section[i*2+1]);
+                    C3Vector v(section[i*2+0],0.0,section[i*2+1]);
                     if ( closedPath&&(ec==(elementCount-1)) )
                         forwOff=-previousVerticesOffset;
                     else
@@ -11879,7 +11860,7 @@ int simGenerateShapeFromPath_internal(const float* pppath,int pathSize,const flo
                 }
                 previousVerticesOffset+=int(secVertCnt);
             }
-            int h=simCreateMeshShape_internal(0,0.0f,&vertices[0],int(vertices.size()),&indices[0],int(indices.size()),nullptr);
+            int h=simCreateMeshShape_internal(0,0.0,&vertices[0],int(vertices.size()),&indices[0],int(indices.size()),nullptr);
             return(h);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PATH);
@@ -11889,14 +11870,14 @@ int simGenerateShapeFromPath_internal(const float* pppath,int pathSize,const flo
     return(-1);
 }
 
-float simGetClosestPosOnPath_internal(const float* path,int pathSize,const float* pathLengths,const float* absPt)
+double simGetClosestPosOnPath_internal(const double* path,int pathSize,const double* pathLengths,const double* absPt)
 {
     TRACE_C_API;
-    float retVal=0.0f;
+    double retVal=0.0;
 
     if (pathSize>=6)
     {
-        float d=FLOAT_MAX;
+        double d=FLOAT_MAX;
         C3Vector pppt(absPt);
         for (int i=0;i<(pathSize/3)-1;i++)
         {
@@ -11906,14 +11887,14 @@ float simGetClosestPosOnPath_internal(const float* path,int pathSize,const float
             C3Vector theSearchedPt;
             if (CMeshRoutines::getMinDistBetweenSegmentAndPoint_IfSmaller(v0,vd,pppt,d,theSearchedPt))
             {
-                float vdL=vd.getLength();
-                if (vdL==0.0f)
+                double vdL=vd.getLength();
+                if (vdL==0.0)
                     retVal=pathLengths[i]; // // Coinciding points
                 else
                 {
-                    float l=(theSearchedPt-v0).getLength();
-                    float c=l/vdL;
-                    retVal=pathLengths[i]*(1.0f-c)+pathLengths[i+1]*c;
+                    double l=(theSearchedPt-v0).getLength();
+                    double c=l/vdL;
+                    retVal=pathLengths[i]*(1.0-c)+pathLengths[i+1]*c;
                 }
             }
         }
@@ -12197,7 +12178,7 @@ int* simUngroupShape_internal(int shapeHandle,int* shapeCount)
     return(nullptr);
 }
 
-int simConvexDecompose_internal(int shapeHandle,int options,const int* intParams,const float* floatParams)
+int simConvexDecompose_internal(int shapeHandle,int options,const int* intParams,const double* floatParams)
 { // one shape at a time!
     TRACE_C_API;
 
@@ -12283,14 +12264,12 @@ int simGetTextureId_internal(const char* textureName,int* resolution)
     return(-1);
 }
 
-char* simReadTexture_internal(int textureId,int options,int posX,int posY,int sizeX,int sizeY)
+unsigned char* simReadTexture_internal(int textureId,int options,int posX,int posY,int sizeX,int sizeY)
 {
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -12311,7 +12290,7 @@ char* simReadTexture_internal(int textureId,int options,int posX,int posY,int si
                     posY=0;
                     sizeY=resY;
                 }
-                char* retVal=to->readPortionOfTexture(posX,posY,sizeX,sizeY);
+                unsigned char* retVal=to->readPortionOfTexture(posX,posY,sizeX,sizeY);
                 return(retVal);
             }
             else
@@ -12324,7 +12303,7 @@ char* simReadTexture_internal(int textureId,int options,int posX,int posY,int si
     return(nullptr);
 }
 
-int simWriteTexture_internal(int textureId,int options,const char* data,int posX,int posY,int sizeX,int sizeY,float interpol)
+int simWriteTexture_internal(int textureId,int options,const char* data,int posX,int posY,int sizeX,int sizeY,double interpol)
 {
     TRACE_C_API;
 
@@ -12365,7 +12344,7 @@ int simWriteTexture_internal(int textureId,int options,const char* data,int posX
     return(-1);
 }
 
-int simCreateTexture_internal(const char* fileName,int options,const float* planeSizes,const float* scalingUV,const float* xy_g,int fixedResolution,int* textureId,int* resolution,const void* reserved)
+int simCreateTexture_internal(const char* fileName,int options,const double* planeSizes,const double* scalingUV,const double* xy_g,int fixedResolution,int* textureId,int* resolution,const void* reserved)
 {
     TRACE_C_API;
 
@@ -12388,9 +12367,9 @@ int simCreateTexture_internal(const char* fileName,int options,const float* plan
                 }
                 if (data!=nullptr)
                 {
-                    C3Vector s(0.1f,0.1f,0.00001f);
+                    C3Vector s(0.1,0.1,0.00001);
                     if (planeSizes!=nullptr)
-                        s=C3Vector(tt::getLimitedFloat(0.00001f,100000.0f,planeSizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,planeSizes[1]),0.00001f);
+                        s=C3Vector(tt::getLimitedFloat(0.00001,100000.0,planeSizes[0]),tt::getLimitedFloat(0.00001,100000.0,planeSizes[1]),0.00001);
                     CShape* shape=CAddOperations::addPrimitiveShape(sim_primitiveshape_plane,s);
 
                     C7Vector identity;
@@ -12400,7 +12379,7 @@ int simCreateTexture_internal(const char* fileName,int options,const float* plan
                     shape->setVisibleEdges(false);
                     shape->setRespondable(false);
                     shape->setShapeIsDynamicallyStatic(true);
-                    shape->getMeshWrapper()->setMass(1.0f);
+                    shape->getMeshWrapper()->setMass(1.0);
 
                     if (resolution!=nullptr)
                     {
@@ -12433,7 +12412,7 @@ int simCreateTexture_internal(const char* fileName,int options,const float* plan
                         tr.setIdentity();
                         tr.X(0)=xy_g[0];
                         tr.X(1)=xy_g[1];
-                        tr.Q=C4Vector(0.0f,0.0f,xy_g[2]);
+                        tr.Q=C4Vector(0.0,0.0,xy_g[2]);
                         tp->setTextureRelativeConfig(tr);
                     }
                     if (textureId!=nullptr)
@@ -12448,9 +12427,9 @@ int simCreateTexture_internal(const char* fileName,int options,const float* plan
         { // just creating a texture (not loading it)
             if (resolution!=nullptr)
             {
-                C3Vector s(0.1f,0.1f,0.00001f);
+                C3Vector s(0.1,0.1,0.00001);
                 if (planeSizes!=nullptr)
-                    s=C3Vector(tt::getLimitedFloat(0.00001f,100000.0f,planeSizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,planeSizes[1]),0.00001f);
+                    s=C3Vector(tt::getLimitedFloat(0.00001,100000.0,planeSizes[0]),tt::getLimitedFloat(0.00001,100000.0,planeSizes[1]),0.00001);
                 CShape* shape=CAddOperations::addPrimitiveShape(sim_primitiveshape_plane,s);
                 C7Vector identity;
                 identity.setIdentity();
@@ -12459,7 +12438,7 @@ int simCreateTexture_internal(const char* fileName,int options,const float* plan
                 shape->setVisibleEdges(false);
                 shape->setRespondable(false);
                 shape->setShapeIsDynamicallyStatic(true);
-                shape->getMeshWrapper()->setMass(1.0f);
+                shape->getMeshWrapper()->setMass(1.0);
 
                 CTextureObject* textureObj=new CTextureObject(resolution[0],resolution[1]);
                 textureObj->setRandomContent();
@@ -12485,7 +12464,7 @@ int simCreateTexture_internal(const char* fileName,int options,const float* plan
                     tr.setIdentity();
                     tr.X(0)=xy_g[0];
                     tr.X(1)=xy_g[1];
-                    tr.Q=C4Vector(0.0f,0.0f,xy_g[2]);
+                    tr.Q=C4Vector(0.0,0.0,xy_g[2]);
                     tp->setTextureRelativeConfig(tr);
                 }
                 if (textureId!=nullptr)
@@ -12865,7 +12844,7 @@ char* simReadCustomDataBlockTags_internal(int objectHandle,int* tagCount)
     return(nullptr);
 }
 
-int simGetShapeGeomInfo_internal(int shapeHandle,int* intData,float* floatData,void* reserved)
+int simGetShapeGeomInfo_internal(int shapeHandle,int* intData,double* floatData,void* reserved)
 {
     TRACE_C_API;
 
@@ -13013,7 +12992,7 @@ int* simGetObjectsInTree_internal(int treeBaseHandle,int objectType,int options,
     return(nullptr);
 }
 
-int simScaleObject_internal(int objectHandle,float xScale,float yScale,float zScale,int options)
+int simScaleObject_internal(int objectHandle,double xScale,double yScale,double zScale,int options)
 {
     TRACE_C_API;
 
@@ -13065,7 +13044,7 @@ int simGetShapeTextureId_internal(int shapeHandle)
 }
 
 
-int simSetShapeTexture_internal(int shapeHandle,int textureId,int mappingMode,int options,const float* uvScaling,const float* position,const float* orientation)
+int simSetShapeTexture_internal(int shapeHandle,int textureId,int mappingMode,int options,const double* uvScaling,const double* position,const double* orientation)
 {
     TRACE_C_API;
 
@@ -13331,7 +13310,7 @@ unsigned char* simGetScaledImage_internal(const unsigned char* imageIn,const int
     return(nullptr);
 }
 
-int simTransformImage_internal(unsigned char* image,const int* resolution,int options,const floatDouble* floatParams,const int* intParams,void* reserved)
+int simTransformImage_internal(unsigned char* image,const int* resolution,int options,const double* floatParams,const int* intParams,void* reserved)
 {
     TRACE_C_API;
 
@@ -13348,7 +13327,7 @@ int simTransformImage_internal(unsigned char* image,const int* resolution,int op
     return(-1);
 }
 
-int simGetQHull_internal(const float* inVertices,int inVerticesL,float** verticesOut,int* verticesOutL,int** indicesOut,int* indicesOutL,int reserved1,const float* reserved2)
+int simGetQHull_internal(const double* inVertices,int inVerticesL,double** verticesOut,int* verticesOutL,int** indicesOut,int* indicesOutL,int reserved1,const double* reserved2)
 {
     TRACE_C_API;
 
@@ -13358,12 +13337,12 @@ int simGetQHull_internal(const float* inVertices,int inVerticesL,float** vertice
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=0;
-        std::vector<float> vOut;
+        std::vector<double> vOut;
         std::vector<int> iOut;
         bool res=CMeshRoutines::getConvexHull(inVertices,inVerticesL,&vOut,&iOut);
         if (res)
         {
-            verticesOut[0]=new float[vOut.size()];
+            verticesOut[0]=new double[vOut.size()];
             verticesOutL[0]=(int)vOut.size();
             for (size_t i=0;i<vOut.size();i++)
                 verticesOut[0][i]=vOut[i];
@@ -13392,7 +13371,7 @@ int simGetQHull_internal(const float* inVertices,int inVerticesL,float** vertice
     return(-1);
 }
 
-int simGetDecimatedMesh_internal(const float* inVertices,int inVerticesL,const int* inIndices,int inIndicesL,float** verticesOut,int* verticesOutL,int** indicesOut,int* indicesOutL,float decimationPercent,int reserved1,const float* reserved2)
+int simGetDecimatedMesh_internal(const double* inVertices,int inVerticesL,const int* inIndices,int inIndicesL,double** verticesOut,int* verticesOutL,int** indicesOut,int* indicesOutL,double decimationPercent,int reserved1,const double* reserved2)
 {
     TRACE_C_API;
 
@@ -13404,14 +13383,14 @@ int simGetDecimatedMesh_internal(const float* inVertices,int inVerticesL,const i
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=0;
-        std::vector<float> vOut;
+        std::vector<double> vOut;
         std::vector<int> iOut;
-        std::vector<float> vIn(inVertices,inVertices+inVerticesL);
+        std::vector<double> vIn(inVertices,inVertices+inVerticesL);
         std::vector<int> iIn(inIndices,inIndices+inIndicesL);
         bool res=CMeshRoutines::getDecimatedMesh(vIn,iIn,decimationPercent,vOut,iOut);
         if (res)
         {
-            verticesOut[0]=new float[vOut.size()];
+            verticesOut[0]=new double[vOut.size()];
             verticesOutL[0]=(int)vOut.size();
             for (size_t i=0;i<vOut.size();i++)
                 verticesOut[0][i]=vOut[i];
@@ -13593,7 +13572,7 @@ char* simGetExtensionString_internal(int objectHandle,int index,const char* key)
     return(nullptr);
 }
 
-int simComputeMassAndInertia_internal(int shapeHandle,float density)
+int simComputeMassAndInertia_internal(int shapeHandle,double density)
 {
     TRACE_C_API;
 
@@ -13607,7 +13586,7 @@ int simComputeMassAndInertia_internal(int shapeHandle,float density)
             CShape* shape=(CShape*)App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
             C7Vector localTr;
             C3Vector diagI; // massless
-            float mass=CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),localTr,diagI);
+            double mass=CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),localTr,diagI);
             if (mass>0.0)
             {
                 mass=density*mass/1000.0;
@@ -13773,7 +13752,7 @@ int simPushInt64OntoStack_internal(int stackHandle,long long int value)
     return(-1);
 }
 
-int simPushFloatOntoStack_internal(int stackHandle,floatFloat value)
+int simPushFloatOntoStack_internal(int stackHandle,float value)
 {
     TRACE_C_API;
 
@@ -13911,7 +13890,7 @@ int simPushInt64TableOntoStack_internal(int stackHandle,const long long int* val
     return(-1);
 }
 
-int simPushFloatTableOntoStack_internal(int stackHandle,const floatFloat* values,int valueCnt)
+int simPushFloatTableOntoStack_internal(int stackHandle,const float* values,int valueCnt)
 {
     TRACE_C_API;
 
@@ -14203,7 +14182,7 @@ int simGetStackInt64Value_internal(int stackHandle,long long int* numberValue)
     return(-1);
 }
 
-int simGetStackFloatValue_internal(int stackHandle,floatFloat* numberValue)
+int simGetStackFloatValue_internal(int stackHandle,float* numberValue)
 {
     TRACE_C_API;
 
@@ -14434,7 +14413,7 @@ int simGetStackInt64Table_internal(int stackHandle,long long int* array,int coun
     return(-1);
 }
 
-int simGetStackFloatTable_internal(int stackHandle,floatFloat* array,int count)
+int simGetStackFloatTable_internal(int stackHandle,float* array,int count)
 {
     TRACE_C_API;
 
@@ -14545,14 +14524,14 @@ int simDebugStack_internal(int stackHandle,int cIndex)
     return(-1);
 }
 
-float simGetEngineFloatParam_internal(int paramId,int objectHandle,const void* object,bool* ok)
+double simGetEngineFloatParam_internal(int paramId,int objectHandle,const void* object,bool* ok)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
     // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint, shape or dummy parameter
     // this function doesn't generate any error messages
     TRACE_C_API;
     CSceneObject* it=(CSceneObject*)object;
     bool success=true;
-    float retVal=0.0f;
+    double retVal=0.0;
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (it==nullptr)
@@ -14716,7 +14695,7 @@ bool simGetEngineBoolParam_internal(int paramId,int objectHandle,const void* obj
     return(retVal);
 }
 
-int simSetEngineFloatParam_internal(int paramId,int objectHandle,const void* object,float val)
+int simSetEngineFloatParam_internal(int paramId,int objectHandle,const void* object,double val)
 {   // if object is not nullptr, we use the object, otherwise the objectHandle.
     // if object is nullptr and objectHandle is -1, we retrieve a global parameter, otherwise a joint, shape or dummy parameter
     // this function doesn't generate any error messages
@@ -14884,7 +14863,7 @@ int simSetEngineBoolParam_internal(int paramId,int objectHandle,const void* obje
     return(-1);
 }
 
-int simCreateOctree_internal(float voxelSize,int options,float pointSize,void* reserved)
+int simCreateOctree_internal(double voxelSize,int options,double pointSize,void* reserved)
 {
     TRACE_C_API;
 
@@ -14908,7 +14887,7 @@ int simCreateOctree_internal(float voxelSize,int options,float pointSize,void* r
     return(-1);
 }
 
-int simCreatePointCloud_internal(float maxVoxelSize,int maxPtCntPerVoxel,int options,float pointSize,void* reserved)
+int simCreatePointCloud_internal(double maxVoxelSize,int maxPtCntPerVoxel,int options,double pointSize,void* reserved)
 {
     TRACE_C_API;
 
@@ -14933,7 +14912,7 @@ int simCreatePointCloud_internal(float maxVoxelSize,int maxPtCntPerVoxel,int opt
     return(-1);
 }
 
-int simSetPointCloudOptions_internal(int pointCloudHandle,float maxVoxelSize,int maxPtCntPerVoxel,int options,float pointSize,void* reserved)
+int simSetPointCloudOptions_internal(int pointCloudHandle,double maxVoxelSize,int maxPtCntPerVoxel,int options,double pointSize,void* reserved)
 {
     TRACE_C_API;
 
@@ -14958,7 +14937,7 @@ int simSetPointCloudOptions_internal(int pointCloudHandle,float maxVoxelSize,int
     return(-1);
 }
 
-int simGetPointCloudOptions_internal(int pointCloudHandle,float* maxVoxelSize,int* maxPtCntPerVoxel,int* options,float* pointSize,void* reserved)
+int simGetPointCloudOptions_internal(int pointCloudHandle,double* maxVoxelSize,int* maxPtCntPerVoxel,int* options,double* pointSize,void* reserved)
 {
     TRACE_C_API;
 
@@ -14972,7 +14951,7 @@ int simGetPointCloudOptions_internal(int pointCloudHandle,float* maxVoxelSize,in
         CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
         maxVoxelSize[0]=it->getCellSize();
         maxPtCntPerVoxel[0]=it->getMaxPointCountPerCell();
-        pointSize[0]=(float)it->getPointSize();
+        pointSize[0]=(double)it->getPointSize();
         options[0]=0;
         if (it->getUseRandomColors())
             options[0]|=1;
@@ -14988,7 +14967,7 @@ int simGetPointCloudOptions_internal(int pointCloudHandle,float* maxVoxelSize,in
     return(-1);
 }
 
-int simInsertVoxelsIntoOctree_internal(int octreeHandle,int options,const float* pts,int ptCnt,const unsigned char* color,const unsigned int* tag,void* reserved)
+int simInsertVoxelsIntoOctree_internal(int octreeHandle,int options,const double* pts,int ptCnt,const unsigned char* color,const unsigned int* tag,void* reserved)
 {
     TRACE_C_API;
 
@@ -15023,7 +15002,7 @@ int simInsertVoxelsIntoOctree_internal(int octreeHandle,int options,const float*
     return(-1);
 }
 
-int simRemoveVoxelsFromOctree_internal(int octreeHandle,int options,const float* pts,int ptCnt,void* reserved)
+int simRemoveVoxelsFromOctree_internal(int octreeHandle,int options,const double* pts,int ptCnt,void* reserved)
 {
     TRACE_C_API;
 
@@ -15046,7 +15025,7 @@ int simRemoveVoxelsFromOctree_internal(int octreeHandle,int options,const float*
     return(-1);
 }
 
-int simInsertPointsIntoPointCloud_internal(int pointCloudHandle,int options,const float* pts,int ptCnt,const unsigned char* color,void* optionalValues)
+int simInsertPointsIntoPointCloud_internal(int pointCloudHandle,int options,const double* pts,int ptCnt,const unsigned char* color,void* optionalValues)
 {
     TRACE_C_API;
 
@@ -15058,12 +15037,12 @@ int simInsertPointsIntoPointCloud_internal(int pointCloudHandle,int options,cons
         if (!isPointCloud(__func__,pointCloudHandle))
             return(-1);
         CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
-        float insertionToleranceSaved=it->getInsertionDistanceTolerance();
+        double insertionToleranceSaved=it->getInsertionDistanceTolerance();
         int optionalValuesBits=0;
         if (optionalValues!=nullptr)
             optionalValuesBits=((int*)optionalValues)[0];
         if (optionalValuesBits&1)
-            it->setInsertionDistanceTolerance((floatDouble)((floatFloat*)optionalValues)[1]);
+            it->setInsertionDistanceTolerance((double)((float*)optionalValues)[1]);
         it->insertPoints(pts,ptCnt,options&1,color,options&2);
         it->setInsertionDistanceTolerance(insertionToleranceSaved);
         int retVal=int(it->getPoints()->size())/3;
@@ -15073,7 +15052,7 @@ int simInsertPointsIntoPointCloud_internal(int pointCloudHandle,int options,cons
     return(-1);
 }
 
-int simRemovePointsFromPointCloud_internal(int pointCloudHandle,int options,const float* pts,int ptCnt,float tolerance,void* reserved)
+int simRemovePointsFromPointCloud_internal(int pointCloudHandle,int options,const double* pts,int ptCnt,double tolerance,void* reserved)
 {
     TRACE_C_API;
 
@@ -15096,7 +15075,7 @@ int simRemovePointsFromPointCloud_internal(int pointCloudHandle,int options,cons
     return(-1);
 }
 
-int simIntersectPointsWithPointCloud_internal(int pointCloudHandle,int options,const float* pts,int ptCnt,float tolerance,void* reserved)
+int simIntersectPointsWithPointCloud_internal(int pointCloudHandle,int options,const double* pts,int ptCnt,double tolerance,void* reserved)
 {
     TRACE_C_API;
 
@@ -15119,7 +15098,7 @@ int simIntersectPointsWithPointCloud_internal(int pointCloudHandle,int options,c
     return(-1);
 }
 
-const float* simGetOctreeVoxels_internal(int octreeHandle,int* ptCnt,void* reserved)
+const double* simGetOctreeVoxels_internal(int octreeHandle,int* ptCnt,void* reserved)
 {
     TRACE_C_API;
 
@@ -15131,7 +15110,7 @@ const float* simGetOctreeVoxels_internal(int octreeHandle,int* ptCnt,void* reser
         if (!isOctree(__func__,octreeHandle))
             return(nullptr);
         COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
-        const std::vector<float>* p=it->getCubePositions();
+        const std::vector<double>* p=it->getCubePositions();
         if (p->size()==0)
         {
             ptCnt[0]=0;
@@ -15144,7 +15123,7 @@ const float* simGetOctreeVoxels_internal(int octreeHandle,int* ptCnt,void* reser
     return(nullptr);
 }
 
-const float* simGetPointCloudPoints_internal(int pointCloudHandle,int* ptCnt,void* reserved)
+const double* simGetPointCloudPoints_internal(int pointCloudHandle,int* ptCnt,void* reserved)
 {
     TRACE_C_API;
 
@@ -15156,7 +15135,7 @@ const float* simGetPointCloudPoints_internal(int pointCloudHandle,int* ptCnt,voi
         if (!isPointCloud(__func__,pointCloudHandle))
             return(nullptr);
         CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
-        const std::vector<float>* p=it->getPoints();
+        const std::vector<double>* p=it->getPoints();
         if (p->size()==0)
         {
             ptCnt[0]=0;
@@ -15189,9 +15168,9 @@ int simInsertObjectIntoOctree_internal(int octreeHandle,int objectHandle,int opt
         float* cptr=it->getColor()->getColorsPtr();
         if (color!=nullptr)
         {
-            cptr[0]=float(color[0])/255.1f;
-            cptr[1]=float(color[1])/255.1f;
-            cptr[2]=float(color[2])/255.1f;
+            cptr[0]=float(color[0])/255.1;
+            cptr[1]=float(color[1])/255.1;
+            cptr[2]=float(color[2])/255.1;
         }
         it->insertObject(App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle),tag);
         cptr[0]=savedCols[0];
@@ -15226,7 +15205,7 @@ int simSubtractObjectFromOctree_internal(int octreeHandle,int objectHandle,int o
     return(-1);
 }
 
-int simInsertObjectIntoPointCloud_internal(int pointCloudHandle,int objectHandle,int options,float gridSize,const unsigned char* color,void* optionalValues)
+int simInsertObjectIntoPointCloud_internal(int pointCloudHandle,int objectHandle,int options,double gridSize,const unsigned char* color,void* optionalValues)
 {
     TRACE_C_API;
 
@@ -15240,22 +15219,22 @@ int simInsertObjectIntoPointCloud_internal(int pointCloudHandle,int objectHandle
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
-        float savedGridSize=it->getBuildResolution();
+        double savedGridSize=it->getBuildResolution();
         it->setBuildResolution(gridSize);
         float savedCols[3];
         it->getColor()->getColor(savedCols,sim_colorcomponent_ambient_diffuse);
         if (color!=nullptr)
         {
-            it->getColor()->getColorsPtr()[0]=float(color[0])/255.1f;
-            it->getColor()->getColorsPtr()[1]=float(color[1])/255.1f;
-            it->getColor()->getColorsPtr()[2]=float(color[2])/255.1f;
+            it->getColor()->getColorsPtr()[0]=float(color[0])/255.1;
+            it->getColor()->getColorsPtr()[1]=float(color[1])/255.1;
+            it->getColor()->getColorsPtr()[2]=float(color[2])/255.1;
         }
-        float insertionToleranceSaved=it->getInsertionDistanceTolerance();
+        double insertionToleranceSaved=it->getInsertionDistanceTolerance();
         int optionalValuesBits=0;
         if (optionalValues!=nullptr)
             optionalValuesBits=((int*)optionalValues)[0];
         if (optionalValuesBits&1)
-            it->setInsertionDistanceTolerance((floatDouble)((floatFloat*)optionalValues)[1]);
+            it->setInsertionDistanceTolerance((double)((float*)optionalValues)[1]);
         it->insertObject(App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle));
         it->setInsertionDistanceTolerance(insertionToleranceSaved);
         it->setBuildResolution(savedGridSize);
@@ -15269,7 +15248,7 @@ int simInsertObjectIntoPointCloud_internal(int pointCloudHandle,int objectHandle
     return(-1);
 }
 
-int simSubtractObjectFromPointCloud_internal(int pointCloudHandle,int objectHandle,int options,float tolerance,void* reserved)
+int simSubtractObjectFromPointCloud_internal(int pointCloudHandle,int objectHandle,int options,double tolerance,void* reserved)
 {
     TRACE_C_API;
 
@@ -15291,7 +15270,7 @@ int simSubtractObjectFromPointCloud_internal(int pointCloudHandle,int objectHand
     return(-1);
 }
 
-int simCheckOctreePointOccupancy_internal(int octreeHandle,int options,const float* points,int ptCnt,unsigned int* tag,unsigned long long int* location,void* reserved)
+int simCheckOctreePointOccupancy_internal(int octreeHandle,int options,const double* points,int ptCnt,unsigned int* tag,unsigned long long int* location,void* reserved)
 {
     TRACE_C_API;
 
@@ -15307,8 +15286,8 @@ int simCheckOctreePointOccupancy_internal(int octreeHandle,int options,const flo
         COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
         if (it->getOctreeInfo()==nullptr)
             return(0);
-        const float* _pts=points;
-        std::vector<float> __pts;
+        const double* _pts=points;
+        std::vector<double> __pts;
         if (options&1)
         {
             C7Vector tr(it->getFullCumulativeTransformation());
@@ -15506,9 +15485,9 @@ int simGetShapeViz_internal(int shapeHandle,int index,struct SShapeVizInfo* info
 
             if ((handleFlags&sim_handleflag_extended)!=0)
             {
-                info->transparency=0.0f;
+                info->transparency=0.0;
                 if (geom->color.getTranslucid())
-                    info->transparency=geom->color.getOpacity();
+                    info->transparency=(double)geom->color.getOpacity();
                 info->options=0;
                 if (geom->getCulling())
                     info->options|=1;
@@ -15517,11 +15496,11 @@ int simGetShapeViz_internal(int shapeHandle,int index,struct SShapeVizInfo* info
             }
 
             C7Vector tr(geom->getVerticeLocalFrame());
-            const std::vector<floatDouble>* wvert=geom->getVertices();
+            const std::vector<double>* wvert=geom->getVertices();
             const std::vector<int>* wind=geom->getIndices();
-            const std::vector<floatDouble>* wnorm=geom->getNormals();
+            const std::vector<double>* wnorm=geom->getNormals();
             info->verticesSize=int(wvert->size());
-            info->vertices=new floatDouble[wvert->size()];
+            info->vertices=new double[wvert->size()];
             for (size_t i=0;i<wvert->size()/3;i++)
             {
                 C3Vector v;
@@ -15533,7 +15512,7 @@ int simGetShapeViz_internal(int shapeHandle,int index,struct SShapeVizInfo* info
             }
             info->indicesSize=int(wind->size());
             info->indices=new int[wind->size()];
-            info->normals=new floatDouble[wind->size()*3];
+            info->normals=new double[wind->size()*3];
             for (size_t i=0;i<wind->size();i++)
             {
                 info->indices[i]=wind->at(i);
@@ -15551,7 +15530,125 @@ int simGetShapeViz_internal(int shapeHandle,int index,struct SShapeVizInfo* info
 
             CTextureProperty* tp=geom->getTextureProperty();
             CTextureObject* to=nullptr;
-            const std::vector<floatFloat>* tc=nullptr;
+            const std::vector<float>* tc=nullptr;
+            if (tp!=nullptr)
+            {
+                to=tp->getTextureObject();
+                tc=tp->getTextureCoordinates(-1,tr,geom->getVerticesForDisplayAndDisk()[0],wind[0]);
+            }
+
+            if ( (to!=nullptr)&&(tc!=nullptr) )
+            {
+                retVal=2;
+                to->getTextureSize(info->textureRes[0],info->textureRes[1]);
+                size_t totBytes=4*info->textureRes[0]*info->textureRes[1];
+                info->texture=new char[totBytes];
+                const char* ob=(char*)to->getTextureBufferPointer();
+                for (size_t i=0;i<totBytes;i++)
+                    info->texture[i]=ob[i];
+                info->textureCoords=new double[tc->size()];
+                for (size_t i=0;i<tc->size();i++)
+                    info->textureCoords[i]=(double)tc->at(i);
+                info->textureApplyMode=tp->getApplyMode();
+                info->textureOptions=0;
+                if (tp->getRepeatU())
+                    info->textureOptions|=1;
+                if (tp->getRepeatV())
+                    info->textureOptions|=2;
+                if (tp->getInterpolateColors())
+                    info->textureOptions|=4;
+                if (geom->getWireframe_OLD())
+                    info->textureOptions|=8;
+                info->textureId=tp->getTextureObjectID();
+            }
+            else
+            {
+                retVal=1;
+                info->texture=nullptr;
+                info->textureCoords=nullptr;
+                info->textureId=-1;
+                info->textureOptions=0;
+                if (geom->getWireframe_OLD())
+                    info->textureOptions|=8;
+            }
+            return(retVal);
+        }
+        return(retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+int simGetShapeVizf_internal(int shapeHandle,int index,struct SShapeVizInfof* info)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int handleFlags=shapeHandle&0x0ff00000;
+        shapeHandle=shapeHandle&0x000fffff;
+
+        if (!isShape(__func__,shapeHandle))
+            return(-1);
+        int retVal=0;
+        CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        std::vector<CMesh*> all;
+        it->getMeshWrapper()->getAllShapeComponentsCumulative(all);
+        if ( (index>=0)&&(index<int(all.size())) )
+        {
+            CMesh* geom=all[index];
+
+            if ((handleFlags&sim_handleflag_extended)!=0)
+            {
+                info->transparency=0.0;
+                if (geom->color.getTranslucid())
+                    info->transparency=geom->color.getOpacity();
+                info->options=0;
+                if (geom->getCulling())
+                    info->options|=1;
+                if (geom->getWireframe_OLD())
+                    info->options|=2;
+            }
+
+            C7Vector tr(geom->getVerticeLocalFrame());
+            const std::vector<float>* wvert=geom->getVerticesForDisplayAndDisk();
+            const std::vector<int>* wind=geom->getIndices();
+            const std::vector<float>* wnorm=geom->getNormalsForDisplayAndDisk();
+            info->verticesSize=int(wvert->size());
+            info->vertices=new float[wvert->size()];
+            for (size_t i=0;i<wvert->size()/3;i++)
+            {
+                C3Vector v;
+                v.setData((&wvert[0][0])+i*3);
+                v=tr*v;
+                info->vertices[3*i+0]=(float)v(0);
+                info->vertices[3*i+1]=(float)v(1);
+                info->vertices[3*i+2]=(float)v(2);
+            }
+            info->indicesSize=int(wind->size());
+            info->indices=new int[wind->size()];
+            info->normals=new float[wind->size()*3];
+            for (size_t i=0;i<wind->size();i++)
+            {
+                info->indices[i]=wind->at(i);
+                C3Vector n;
+                n.setData(&(wnorm[0])[0]+i*3);
+                n=tr.Q*n; // only orientation
+                info->normals[3*i+0]=(float)n(0);
+                info->normals[3*i+1]=(float)n(1);
+                info->normals[3*i+2]=(float)n(2);
+            }
+            geom->color.getColor(info->colors+0,sim_colorcomponent_ambient_diffuse);
+            geom->color.getColor(info->colors+3,sim_colorcomponent_specular);
+            geom->color.getColor(info->colors+6,sim_colorcomponent_emission);
+            info->shadingAngle=(float)geom->getShadingAngle();
+
+            CTextureProperty* tp=geom->getTextureProperty();
+            CTextureObject* to=nullptr;
+            const std::vector<float>* tc=nullptr;
             if (tp!=nullptr)
             {
                 to=tp->getTextureObject();
@@ -15567,9 +15664,9 @@ int simGetShapeViz_internal(int shapeHandle,int index,struct SShapeVizInfo* info
                 const char* ob=(char*)to->getTextureBufferPointer();
                 for (size_t i=0;i<totBytes;i++)
                     info->texture[i]=ob[i];
-                info->textureCoords=new floatDouble[tc->size()];
+                info->textureCoords=new float[tc->size()];
                 for (size_t i=0;i<tc->size();i++)
-                    info->textureCoords[i]=(floatDouble)tc->at(i);
+                    info->textureCoords[i]=tc->at(i);
                 info->textureApplyMode=tp->getApplyMode();
                 info->textureOptions=0;
                 if (tp->getRepeatU())
@@ -16016,7 +16113,7 @@ int simEventNotification_internal(const char* event)
     return(retVal);
 }
 
-int simApplyTexture_internal(int shapeHandle,const float* textureCoordinates,int textCoordSize,const unsigned char* texture,const int* textureResolution,int options)
+int simApplyTexture_internal(int shapeHandle,const double* textureCoordinates,int textCoordSize,const unsigned char* texture,const int* textureResolution,int options)
 {
     TRACE_C_API;
     int retVal=-1;
@@ -16054,10 +16151,10 @@ int simApplyTexture_internal(int shapeHandle,const float* textureCoordinates,int
                         tp->setApplyMode(1);
                     else
                         tp->setApplyMode(0);
-                    std::vector<floatFloat> c;
+                    std::vector<float> c;
                     c.resize(textCoordSize);
                     for (int i=0;i<textCoordSize;i++)
-                        c[i]=(floatFloat)textureCoordinates[i];
+                        c[i]=(float)textureCoordinates[i];
                     tp->setFixedCoordinates(&c);
                 }
                 else
@@ -16072,7 +16169,7 @@ int simApplyTexture_internal(int shapeHandle,const float* textureCoordinates,int
     return(retVal);
 }
 
-int simSetJointDependency_internal(int jointHandle,int masterJointHandle,float offset,float multCoeff)
+int simSetJointDependency_internal(int jointHandle,int masterJointHandle,double offset,double multCoeff)
 {
     TRACE_C_API;
     int retVal=-1;
@@ -16102,7 +16199,7 @@ int simSetJointDependency_internal(int jointHandle,int masterJointHandle,float o
     return(retVal);
 }
 
-int simGetJointDependency_internal(int jointHandle,int* masterJointHandle,float* offset,float* multCoeff)
+int simGetJointDependency_internal(int jointHandle,int* masterJointHandle,double* offset,double* multCoeff)
 {
     TRACE_C_API;
     int retVal=-1;
@@ -16177,18 +16274,18 @@ const void* _simGetGeomWrapFromGeomProxy_internal(const void* geomData)
     return(((CShape*)geomData)->getMeshWrapper());
 }
 
-float _simGetMass_internal(const void* geomInfo)
+double _simGetMass_internal(const void* geomInfo)
 {
     TRACE_C_API;
     return(((CMeshWrapper*)geomInfo)->getMass());
 }
 
-float _simGetLocalInertiaInfo_internal(const void* object,float* pos,float* quat,float* diagI)
+double _simGetLocalInertiaInfo_internal(const void* object,double* pos,double* quat,double* diagI)
 { // returns the diag inertia (with mass!). diagI can be NULL
     CShape* shape=(CShape*)object;
     CMeshWrapper* geomInfo=shape->getMeshWrapper();
     C7Vector tr(geomInfo->getLocalInertiaFrame());
-    float m=geomInfo->getMass();
+    double m=geomInfo->getMass();
     if (diagI!=nullptr)
     {
         C3Vector diag(geomInfo->getPrincipalMomentsOfInertia());
@@ -16213,7 +16310,7 @@ int _simGetPurePrimitiveType_internal(const void* geomInfo)
     return(((CMeshWrapper*)geomInfo)->getPurePrimitiveType());
 }
 
-void _simGetPurePrimitiveSizes_internal(const void* geometric,float* sizes)
+void _simGetPurePrimitiveSizes_internal(const void* geometric,double* sizes)
 {
     TRACE_C_API;
     C3Vector s;
@@ -16267,7 +16364,7 @@ void _simMakeDynamicAnnouncement_internal(int announceType)
         App::currentWorld->dynamicsContainer->markForWarningDisplay_vortexPluginIsDemo();
 }
 
-void _simGetVerticesLocalFrame_internal(const void* geometric,float* pos,float* quat)
+void _simGetVerticesLocalFrame_internal(const void* geometric,double* pos,double* quat)
 {
     TRACE_C_API;
     C7Vector tr(((CMesh*)geometric)->getVerticeLocalFrame());
@@ -16275,20 +16372,20 @@ void _simGetVerticesLocalFrame_internal(const void* geometric,float* pos,float* 
     tr.X.getData(pos);
 }
 
-const float* _simGetHeightfieldData_internal(const void* geometric,int* xCount,int* yCount,float* minHeight,float* maxHeight)
+const double* _simGetHeightfieldData_internal(const void* geometric,int* xCount,int* yCount,double* minHeight,double* maxHeight)
 {
     TRACE_C_API;
     return(((CMesh*)geometric)->getHeightfieldData(xCount[0],yCount[0],minHeight[0],maxHeight[0]));
 }
 
-void _simGetCumulativeMeshes_internal(const void* geomInfo,float** vertices,int* verticesSize,int** indices,int* indicesSize)
+void _simGetCumulativeMeshes_internal(const void* geomInfo,double** vertices,int* verticesSize,int** indices,int* indicesSize)
 {
     TRACE_C_API;
-    std::vector<float> vert;
+    std::vector<double> vert;
     std::vector<int> ind;
     ((CMeshWrapper*)geomInfo)->getCumulativeMeshes(vert,&ind,nullptr);
 
-    vertices[0]=new float[vert.size()];
+    vertices[0]=new double[vert.size()];
     verticesSize[0]=(int)vert.size();
     for (size_t i=0;i<vert.size();i++)
         vertices[0][i]=vert[i];
@@ -16304,7 +16401,7 @@ int _simGetObjectID_internal(const void* object)
     return(((CSceneObject*)object)->getObjectHandle());
 }
 
-void _simGetObjectLocalTransformation_internal(const void* object,float* pos,float* quat,bool excludeFirstJointTransformation)
+void _simGetObjectLocalTransformation_internal(const void* object,double* pos,double* quat,bool excludeFirstJointTransformation)
 {
     TRACE_C_API;
     C7Vector tr;
@@ -16316,7 +16413,7 @@ void _simGetObjectLocalTransformation_internal(const void* object,float* pos,flo
     tr.Q.getData(quat);
 }
 
-void _simSetObjectLocalTransformation_internal(void* object,const float* pos,const float* quat,float simTime)
+void _simSetObjectLocalTransformation_internal(void* object,const double* pos,const double* quat,double simTime)
 {
     TRACE_C_API;
     C7Vector tr;
@@ -16325,7 +16422,7 @@ void _simSetObjectLocalTransformation_internal(void* object,const float* pos,con
     ((CSceneObject*)object)->setLocalTransformation(tr);
 }
 
-void _simGetObjectCumulativeTransformation_internal(const void* object,float* pos,float* quat,bool excludeFirstJointTransformation)
+void _simGetObjectCumulativeTransformation_internal(const void* object,double* pos,double* quat,bool excludeFirstJointTransformation)
 {
     TRACE_C_API;
     C7Vector tr;
@@ -16351,25 +16448,25 @@ bool _simIsShapeDynamicallyStatic_internal(const void* shape)
     return(((CShape*)shape)->getShapeIsDynamicallyStatic());
 }
 
-void _simGetInitialDynamicVelocity_internal(const void* shape,float* vel)
+void _simGetInitialDynamicVelocity_internal(const void* shape,double* vel)
 {
     TRACE_C_API;
     ((CShape*)shape)->getInitialDynamicLinearVelocity().getData(vel);
 }
 
-void _simSetInitialDynamicVelocity_internal(void* shape,const float* vel)
+void _simSetInitialDynamicVelocity_internal(void* shape,const double* vel)
 {
     TRACE_C_API;
     ((CShape*)shape)->setInitialDynamicLinearVelocity(C3Vector(vel));
 }
 
-void _simGetInitialDynamicAngVelocity_internal(const void* shape,float* angularVel)
+void _simGetInitialDynamicAngVelocity_internal(const void* shape,double* angularVel)
 {
     TRACE_C_API;
     ((CShape*)shape)->getInitialDynamicAngularVelocity().getData(angularVel);
 }
 
-void _simSetInitialDynamicAngVelocity_internal(void* shape,const float* angularVel)
+void _simSetInitialDynamicAngVelocity_internal(void* shape,const double* angularVel)
 {
     TRACE_C_API;
     ((CShape*)shape)->setInitialDynamicAngularVelocity(C3Vector(angularVel));
@@ -16425,7 +16522,7 @@ const void* _simGetParentObject_internal(const void* object)
     return(((CSceneObject*)object)->getParent());
 }
 
-void _simDynReportObjectCumulativeTransformation_internal(void* obj,const float* pos,const float* quat,float simTime)
+void _simDynReportObjectCumulativeTransformation_internal(void* obj,const double* pos,const double* quat,double simTime)
 { // obj is always a shape. Used by the physics engines. The joints and force sensors's internal errors are updated accordingly
     TRACE_C_API;
     CSceneObject* object=(CSceneObject*)obj;
@@ -16454,7 +16551,7 @@ void _simDynReportObjectCumulativeTransformation_internal(void* obj,const float*
         object->setLocalTransformation(tr);
 }
 
-void _simSetObjectCumulativeTransformation_internal(void* object,const float* pos,const float* quat,bool keepChildrenInPlace)
+void _simSetObjectCumulativeTransformation_internal(void* object,const double* pos,const double* quat,bool keepChildrenInPlace)
 {
     TRACE_C_API;
     C7Vector tr;
@@ -16463,13 +16560,13 @@ void _simSetObjectCumulativeTransformation_internal(void* object,const float* po
     App::currentWorld->sceneObjects->setObjectAbsolutePose(((CSceneObject*)object)->getObjectHandle(),tr,keepChildrenInPlace!=0);
 }
 
-void _simSetShapeDynamicVelocity_internal(void* shape,const float* linear,const float* angular,float simTime)
+void _simSetShapeDynamicVelocity_internal(void* shape,const double* linear,const double* angular,double simTime)
 {
     TRACE_C_API;
     ((CShape*)shape)->setDynamicVelocity(linear,angular);
 }
 
-void _simGetAdditionalForceAndTorque_internal(const void* shape,float* force,float* torque)
+void _simGetAdditionalForceAndTorque_internal(const void* shape,double* force,double* torque)
 {
     TRACE_C_API;
     ((CShape*)shape)->getAdditionalForce().getData(force);
@@ -16482,7 +16579,7 @@ void _simClearAdditionalForceAndTorque_internal(const void* shape)
     ((CShape*)shape)->clearAdditionalForceAndTorque();
 }
 
-bool _simGetJointPositionInterval_internal(const void* joint,float* minValue,float* rangeValue)
+bool _simGetJointPositionInterval_internal(const void* joint,double* minValue,double* rangeValue)
 {
     TRACE_C_API;
     if (minValue!=nullptr)
@@ -16516,45 +16613,45 @@ int _simGetJointType_internal(const void* joint)
     return(((CJoint*)joint)->getJointType());
 }
 
-float _simGetDynamicMotorTargetPosition_internal(const void* joint)
+double _simGetDynamicMotorTargetPosition_internal(const void* joint)
 {
     TRACE_C_API;
     return(((CJoint*)joint)->getTargetPosition());
 }
 
-float _simGetDynamicMotorTargetVelocity_internal(const void* joint)
+double _simGetDynamicMotorTargetVelocity_internal(const void* joint)
 {
     TRACE_C_API;
     return(((CJoint*)joint)->getTargetVelocity());
 }
 
-float _simGetDynamicMotorMaxForce_internal(const void* joint)
+double _simGetDynamicMotorMaxForce_internal(const void* joint)
 {
     TRACE_C_API;
     return(((CJoint*)joint)->getTargetForce(false));
 }
 
-float _simGetDynamicMotorUpperLimitVelocity_internal(const void* joint)
+double _simGetDynamicMotorUpperLimitVelocity_internal(const void* joint)
 {
     TRACE_C_API;
-    float maxVelAccelJerk[3];
+    double maxVelAccelJerk[3];
     ((CJoint*)joint)->getMaxVelAccelJerk(maxVelAccelJerk);
     return(maxVelAccelJerk[0]);
 }
 
-void _simSetJointSphericalTransformation_internal(void* joint,const float* quat,float simTime)
+void _simSetJointSphericalTransformation_internal(void* joint,const double* quat,double simTime)
 {
     TRACE_C_API;
     ((CJoint*)joint)->setSphericalTransformation(quat);
 }
 
-void _simAddForceSensorCumulativeForcesAndTorques_internal(void* forceSensor,const float* force,const float* torque,int totalPassesCount,float simTime)
+void _simAddForceSensorCumulativeForcesAndTorques_internal(void* forceSensor,const double* force,const double* torque,int totalPassesCount,double simTime)
 {
     TRACE_C_API;
     ((CForceSensor*)forceSensor)->addCumulativeForcesAndTorques(force,torque,totalPassesCount);
 }
 
-void _simAddJointCumulativeForcesOrTorques_internal(void* joint,float forceOrTorque,int totalPassesCount,float simTime)
+void _simAddJointCumulativeForcesOrTorques_internal(void* joint,double forceOrTorque,int totalPassesCount,double simTime)
 {
     TRACE_C_API;
     ((CJoint*)joint)->addCumulativeForceOrTorque(forceOrTorque,totalPassesCount);
@@ -16697,37 +16794,37 @@ void _simDisableDynamicTreeForManipulation_internal(const void* object,bool disa
     ((CSceneObject*)object)->temporarilyDisableDynamicTree();
 }
 
-void _simSetJointVelocity_internal(const void* joint,float vel)
+void _simSetJointVelocity_internal(const void* joint,double vel)
 { // only used by MuJoCo. Other engines have the joint velocity computed via _simSetDynamicMotorReflectedPositionFromDynamicEngine
     TRACE_C_API;
     ((CJoint*)joint)->setVelocity(vel);
 }
 
-void _simSetJointPosition_internal(const void* joint,float pos)
+void _simSetJointPosition_internal(const void* joint,double pos)
 { // only used by MuJoCo. Other engines have the joint position set via _simSetDynamicMotorReflectedPositionFromDynamicEngine
     TRACE_C_API;
     ((CJoint*)joint)->setPosition(pos);
 }
 
-void _simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(void* joint,float pos,float simTime)
+void _simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(void* joint,double pos,double simTime)
 { // only from non-MuJoCo engines. MuJoCo uses above 2 functions instead
     TRACE_C_API;
     ((CJoint*)joint)->setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(pos,simTime);
 }
 
-float _simGetJointPosition_internal(const void* joint)
+double _simGetJointPosition_internal(const void* joint)
 {
     TRACE_C_API;
     return(((CJoint*)joint)->getPosition());
 }
 
-void _simSetDynamicMotorPositionControlTargetPosition_internal(const void* joint,float pos)
+void _simSetDynamicMotorPositionControlTargetPosition_internal(const void* joint,double pos)
 { // OLD, for backward compatibility. Only joints in hybrid operation are called here
     if (_simGetJointMode_internal(joint)!=sim_jointmode_dynamic)
         ((CJoint*)joint)->setTargetPosition(pos);
 }
 
-void _simGetGravity_internal(float* gravity)
+void _simGetGravity_internal(double* gravity)
 {
     TRACE_C_API;
     App::currentWorld->dynamicsContainer->getGravity().getData(gravity);
@@ -16745,16 +16842,16 @@ bool _simDoEntitiesCollide_internal(int entity1ID,int entity2ID,int* cacheBuffer
     return(CCollisionRoutine::doEntitiesCollide(entity1ID,entity2ID,nullptr,overrideCollidableFlagIfShape1!=0,overrideCollidableFlagIfShape2!=0,nullptr));
 }
 
-bool _simGetDistanceBetweenEntitiesIfSmaller_internal(int entity1ID,int entity2ID,float* distance,float* ray,int* cacheBuffer,bool overrideMeasurableFlagIfNonCollection1,bool overrideMeasurableFlagIfNonCollection2,bool pathPlanningRoutineCalling)
+bool _simGetDistanceBetweenEntitiesIfSmaller_internal(int entity1ID,int entity2ID,double* distance,double* ray,int* cacheBuffer,bool overrideMeasurableFlagIfNonCollection1,bool overrideMeasurableFlagIfNonCollection2,bool pathPlanningRoutineCalling)
 {
     TRACE_C_API;
     return(CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(entity1ID,entity2ID,distance[0],ray,cacheBuffer,cacheBuffer+2,overrideMeasurableFlagIfNonCollection1!=0,overrideMeasurableFlagIfNonCollection2!=0));
 }
 
-int _simHandleJointControl_internal(const void* joint,int auxV,const int* inputValuesInt,const float* inputValuesFloat,float* outputValues)
+int _simHandleJointControl_internal(const void* joint,int auxV,const int* inputValuesInt,const double* inputValuesFloat,double* outputValues)
 {
     TRACE_C_API;
-    float currentPosVelAccel[3]={inputValuesFloat[0],inputValuesFloat[4],inputValuesFloat[5]};
+    double currentPosVelAccel[3]={inputValuesFloat[0],inputValuesFloat[4],inputValuesFloat[5]};
     return(((CJoint*)joint)->handleDynJoint(auxV,inputValuesInt,currentPosVelAccel,inputValuesFloat[1],inputValuesFloat[2],inputValuesFloat[3],outputValues));
 }
 
@@ -16765,7 +16862,7 @@ int _simGetJointDynCtrlMode_internal(const void* joint)
     return(retVal);
 }
 
-int _simHandleCustomContact_internal(int objHandle1,int objHandle2,int engine,int* dataInt,float* dataFloat)
+int _simHandleCustomContact_internal(int objHandle1,int objHandle2,int engine,int* dataInt,double* dataFloat)
 { // Careful with this function: it can also be called from any other thread (e.g. generated by the physics engine)
     TRACE_C_API;
 
@@ -16800,33 +16897,33 @@ int _simHandleCustomContact_internal(int objHandle1,int objHandle2,int engine,in
                         }
                         if (engine==sim_physics_bullet)
                         {
-                            outStack->getStackMapFloatValue("bullet.friction",dataFloat[0]);
-                            outStack->getStackMapFloatValue("bullet.restitution",dataFloat[1]);
+                            outStack->getStackMapDoubleValue("bullet.friction",dataFloat[0]);
+                            outStack->getStackMapDoubleValue("bullet.restitution",dataFloat[1]);
                         }
                         if (engine==sim_physics_ode)
                         {
-                            outStack->getStackMapFloatValue("ode.mu",dataFloat[0]);
-                            outStack->getStackMapFloatValue("ode.mu2",dataFloat[1]);
-                            outStack->getStackMapFloatValue("ode.bounce",dataFloat[2]);
-                            outStack->getStackMapFloatValue("ode.bounceVel",dataFloat[3]);
-                            outStack->getStackMapFloatValue("ode.softCfm",dataFloat[4]);
-                            outStack->getStackMapFloatValue("ode.softErp",dataFloat[5]);
-                            outStack->getStackMapFloatValue("ode.motion1",dataFloat[6]);
-                            outStack->getStackMapFloatValue("ode.motion2",dataFloat[7]);
-                            outStack->getStackMapFloatValue("ode.motionN",dataFloat[8]);
-                            outStack->getStackMapFloatValue("ode.slip1",dataFloat[9]);
-                            outStack->getStackMapFloatValue("ode.slip2",dataFloat[10]);
-                            outStack->getStackMapFloatArray("ode.fDir1",dataFloat+11,3);
+                            outStack->getStackMapDoubleValue("ode.mu",dataFloat[0]);
+                            outStack->getStackMapDoubleValue("ode.mu2",dataFloat[1]);
+                            outStack->getStackMapDoubleValue("ode.bounce",dataFloat[2]);
+                            outStack->getStackMapDoubleValue("ode.bounceVel",dataFloat[3]);
+                            outStack->getStackMapDoubleValue("ode.softCfm",dataFloat[4]);
+                            outStack->getStackMapDoubleValue("ode.softErp",dataFloat[5]);
+                            outStack->getStackMapDoubleValue("ode.motion1",dataFloat[6]);
+                            outStack->getStackMapDoubleValue("ode.motion2",dataFloat[7]);
+                            outStack->getStackMapDoubleValue("ode.motionN",dataFloat[8]);
+                            outStack->getStackMapDoubleValue("ode.slip1",dataFloat[9]);
+                            outStack->getStackMapDoubleValue("ode.slip2",dataFloat[10]);
+                            outStack->getStackMapDoubleArray("ode.fDir1",dataFloat+11,3);
                         }
                         if (engine==sim_physics_vortex)
                         {
-                            //outStack->getStackMapFloatValue("vortex.xxxx",dataFloat[0]);
+                            //outStack->getStackMapDoubleValue("vortex.xxxx",dataFloat[0]);
                         }
                         if (engine==sim_physics_newton)
                         {
-                            outStack->getStackMapFloatValue("newton.staticFriction",dataFloat[0]);
-                            outStack->getStackMapFloatValue("newton.kineticFriction",dataFloat[1]);
-                            outStack->getStackMapFloatValue("newton.restitution",dataFloat[2]);
+                            outStack->getStackMapDoubleValue("newton.staticFriction",dataFloat[0]);
+                            outStack->getStackMapDoubleValue("newton.kineticFriction",dataFloat[1]);
+                            outStack->getStackMapDoubleValue("newton.restitution",dataFloat[2]);
                         }
                         if (engine==sim_physics_mujoco)
                         {
@@ -16847,13 +16944,13 @@ int _simHandleCustomContact_internal(int objHandle1,int objHandle2,int engine,in
     return(-1); // we let CoppeliaSim handle the contact
 }
 
-float _simGetPureHollowScaling_internal(const void* geometric)
+double _simGetPureHollowScaling_internal(const void* geometric)
 {
     TRACE_C_API;
     return(((CMesh*)geometric)->getPurePrimitiveInsideScaling_OLD());
 }
 
-void _simDynCallback_internal(const int* intData,const float* floatData)
+void _simDynCallback_internal(const int* intData,const double* floatData)
 {
     TRACE_C_API;
 
@@ -16870,6 +16967,27 @@ void _simDynCallback_internal(const int* intData,const float* floatData)
         App::worldContainer->callScripts(sim_syscb_dyn,inStack,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(inStack);
     }
+}
+
+int simGetVisionSensorRes_internal(int sensorHandle,int* resolution)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__,sensorHandle))
+            return(-1);
+        if (!isVisionSensor(__func__,sensorHandle))
+            return(-1);
+        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        it->getResolution(resolution);
+        return(1);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
 }
 
 #include "simInternal-old.cpp"

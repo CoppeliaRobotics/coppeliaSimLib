@@ -1395,7 +1395,7 @@ void CEngineProperties::_readShape(int engine,int shapeHandle,CAnnJson& annJson,
 void CEngineProperties::_writeGlobal(int engine,CAnnJson& annJson) const
 {
     std::string comment;
-    float fv;
+    double fv;
     int iv;
     bool bv;
     if (engine==sim_physics_bullet)
@@ -1738,10 +1738,10 @@ void CEngineProperties::_readGlobal(int engine,CAnnJson& annJson,std::string* al
     }
 }
 
-float CEngineProperties::_getGlobalFloatParam(int item,std::string& comment,const char* additionalComment/*=nullptr*/) const
+double CEngineProperties::_getGlobalFloatParam(int item,std::string& comment,const char* additionalComment/*=nullptr*/) const
 {
-    float retVal=App::currentWorld->dynamicsContainer->getEngineFloatParam(item,nullptr,false);
-    float def=App::currentWorld->dynamicsContainer->getEngineFloatParam(item,nullptr,true);
+    double retVal=App::currentWorld->dynamicsContainer->getEngineFloatParam(item,nullptr,false);
+    double def=App::currentWorld->dynamicsContainer->getEngineFloatParam(item,nullptr,true);
     bool similar=true;
     if ( (retVal==0.0)||(def==0.0) )
         similar=(retVal==def);

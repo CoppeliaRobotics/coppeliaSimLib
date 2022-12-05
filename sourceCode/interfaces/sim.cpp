@@ -46,14 +46,6 @@ SIM_DLLEXPORT char* simGetStringParam(int parameter)
 {
     return(simGetStringParam_internal(parameter));
 }
-SIM_DLLEXPORT int simSetArrayParam(int parameter,const void* arrayOfValues)
-{
-    return(simSetArrayParam_internal(parameter,arrayOfValues));
-}
-SIM_DLLEXPORT int simGetArrayParam(int parameter,void* arrayOfValues)
-{
-    return(simGetArrayParam_internal(parameter,arrayOfValues));
-}
 SIM_DLLEXPORT int simSetNamedStringParam(const char* paramName,const char* stringParam,int paramLength)
 {
     return(simSetNamedStringParam_internal(paramName,stringParam,paramLength));
@@ -186,11 +178,11 @@ SIM_DLLEXPORT int simResetProximitySensor(int sensorHandle)
 {
     return(simResetProximitySensor_internal(sensorHandle));
 }
-SIM_DLLEXPORT char* simCreateBuffer(int size)
+SIM_DLLEXPORT void* simCreateBuffer(int size)
 {
     return(simCreateBuffer_internal(size));
 }
-SIM_DLLEXPORT int simReleaseBuffer(const char* buffer)
+SIM_DLLEXPORT int simReleaseBuffer(void* buffer)
 {
     return(simReleaseBuffer_internal(buffer));
 }
@@ -510,7 +502,7 @@ SIM_DLLEXPORT int simGetTextureId(const char* textureName,int* resolution)
 {
     return(simGetTextureId_internal(textureName,resolution));
 }
-SIM_DLLEXPORT char* simReadTexture(int textureId,int options,int posX,int posY,int sizeX,int sizeY)
+SIM_DLLEXPORT unsigned char* simReadTexture(int textureId,int options,int posX,int posY,int sizeX,int sizeY)
 {
     return(simReadTexture_internal(textureId,options,posX,posY,sizeX,sizeY));
 }
@@ -762,10 +754,6 @@ SIM_DLLEXPORT int simGetReferencedHandles(int objectHandle,int** referencedHandl
 {
     return(simGetReferencedHandles_internal(objectHandle,referencedHandles,reserved1,reserved2));
 }
-SIM_DLLEXPORT int simGetShapeViz(int shapeHandle,int index,struct SShapeVizInfo* info)
-{
-    return(simGetShapeViz_internal(shapeHandle,index,info));
-}
 SIM_DLLEXPORT int simExecuteScriptString(int scriptHandleOrType,const char* stringAtScriptName,int stackHandle)
 {
     return(simExecuteScriptString_internal(scriptHandleOrType,stringAtScriptName,stackHandle));
@@ -817,6 +805,10 @@ SIM_DLLEXPORT int simModuleEntry(int handle,const char* label,int state)
 SIM_DLLEXPORT int simCheckExecAuthorization(const char* what,const char* args)
 {
     return(simCheckExecAuthorization_internal(what,args,-1));
+}
+SIM_DLLEXPORT int simGetVisionSensorRes(int sensorHandle,int* resolution)
+{
+    return(simGetVisionSensorRes_internal(sensorHandle,resolution));
 }
 SIM_DLLEXPORT void _simSetDynamicSimulationIconCode(void* object,int code)
 {
@@ -996,8 +988,31 @@ SIM_DLLEXPORT int simExtSimThreadDestroy()
 {
     return(simExtSimThreadDestroy_internal());
 }
+SIM_DLLEXPORT float* simGetVisionSensorDepth(int sensorHandle,int options,const int* pos,const int* size,int* resolution)
+{
+    return(simGetVisionSensorDepth_internal(sensorHandle,options,pos,size,resolution));
+}
+SIM_DLLEXPORT int _simSetVisionSensorDepth(int sensorHandle,int options,const float* depth)
+{
+    return(_simSetVisionSensorDepth_internal(sensorHandle,options,depth));
+}
+SIM_DLLEXPORT float* simCheckVisionSensorEx(int visionSensorHandle,int entityHandle,bool returnImage)
+{
+    return(simCheckVisionSensorEx_internal(visionSensorHandle,entityHandle,returnImage));
+}
 
-#ifdef switchToDouble
+SIM_DLLEXPORT int simSetArrayParam_D(int parameter,const double* arrayOfValues)
+{
+    return(simSetArrayParam_internal(parameter,arrayOfValues));
+}
+SIM_DLLEXPORT int simGetArrayParam_D(int parameter,double* arrayOfValues)
+{
+    return(simGetArrayParam_internal(parameter,arrayOfValues));
+}
+SIM_DLLEXPORT int simGetShapeViz_D(int shapeHandle,int index,struct SShapeVizInfo* info)
+{
+    return(simGetShapeViz_internal(shapeHandle,index,info));
+}
 SIM_DLLEXPORT int simSetFloatParam_D(int parameter,double floatState)
 {
     return(simSetFloatParam_internal(parameter,floatState));
@@ -1194,7 +1209,7 @@ SIM_DLLEXPORT int simHandleGraph_D(int graphHandle,double simulationTime)
 {
     return(simHandleGraph_internal(graphHandle,simulationTime));
 }
-SIM_DLLEXPORT int simAddGraphStream_D(int graphHandle,const char* streamName,const char* unitStr,int options,const double* color,double cyclicRange)
+SIM_DLLEXPORT int simAddGraphStream_D(int graphHandle,const char* streamName,const char* unitStr,int options,const float* color,double cyclicRange)
 {
     return(simAddGraphStream_internal(graphHandle,streamName,unitStr,options,color,cyclicRange));
 }
@@ -1202,7 +1217,7 @@ SIM_DLLEXPORT int simSetGraphStreamTransformation_D(int graphHandle,int streamId
 {
     return(simSetGraphStreamTransformation_internal(graphHandle,streamId,trType,mult,off,movingAvgPeriod));
 }
-SIM_DLLEXPORT int simAddGraphCurve_D(int graphHandle,const char* curveName,int dim,const int* streamIds,const double* defaultValues,const char* unitStr,int options,const double* color,int curveWidth)
+SIM_DLLEXPORT int simAddGraphCurve_D(int graphHandle,const char* curveName,int dim,const int* streamIds,const double* defaultValues,const char* unitStr,int options,const float* color,int curveWidth)
 {
     return(simAddGraphCurve_internal(graphHandle,curveName,dim,streamIds,defaultValues,unitStr,options,color,curveWidth));
 }
@@ -1222,7 +1237,7 @@ SIM_DLLEXPORT int simScaleObjects_D(const int* objectHandles,int objectCount,dou
 {
     return(simScaleObjects_internal(objectHandles,objectCount,scalingFactor,scalePositionsToo));
 }
-SIM_DLLEXPORT int simAddDrawingObject_D(int objectType,double size,double duplicateTolerance,int parentObjectHandle,int maxItemCount,const double* color,const double* setToNULL,const double* setToNULL2,const double* setToNULL3)
+SIM_DLLEXPORT int simAddDrawingObject_D(int objectType,double size,double duplicateTolerance,int parentObjectHandle,int maxItemCount,const float* color,const float* setToNULL,const float* setToNULL2,const float* setToNULL3)
 {
     return(simAddDrawingObject_internal(objectType,size,duplicateTolerance,parentObjectHandle,maxItemCount,color,setToNULL,setToNULL2,setToNULL3));
 }
@@ -1246,7 +1261,7 @@ SIM_DLLEXPORT int simReadForceSensor_D(int objectHandle,double* forceVector,doub
 {
     return(simReadForceSensor_internal(objectHandle,forceVector,torqueVector));
 }
-SIM_DLLEXPORT int simSetLightParameters_D(int objectHandle,int state,const double* setToNULL,const double* diffusePart,const double* specularPart)
+SIM_DLLEXPORT int simSetLightParameters(int objectHandle,int state,const float* setToNULL,const float* diffusePart,const float* specularPart)
 {
     return(simSetLightParameters_internal(objectHandle,state,setToNULL,diffusePart,specularPart));
 }
@@ -1274,19 +1289,19 @@ SIM_DLLEXPORT int simAddForce_D(int shapeHandle,const double* position,const dou
 {
     return(simAddForce_internal(shapeHandle,position,force));
 }
-SIM_DLLEXPORT int simSetObjectColor_D(int objectHandle,int index,int colorComponent,const double* rgbData)
+SIM_DLLEXPORT int simSetObjectColor(int objectHandle,int index,int colorComponent,const float* rgbData)
 {
     return(simSetObjectColor_internal(objectHandle,index,colorComponent,rgbData));
 }
-SIM_DLLEXPORT int simGetObjectColor_D(int objectHandle,int index,int colorComponent,double* rgbData)
+SIM_DLLEXPORT int simGetObjectColor(int objectHandle,int index,int colorComponent,float* rgbData)
 {
     return(simGetObjectColor_internal(objectHandle,index,colorComponent,rgbData));
 }
-SIM_DLLEXPORT int simSetShapeColor_D(int shapeHandle,const char* colorName,int colorComponent,const double* rgbData)
+SIM_DLLEXPORT int simSetShapeColor(int shapeHandle,const char* colorName,int colorComponent,const float* rgbData)
 {
     return(simSetShapeColor_internal(shapeHandle,colorName,colorComponent,rgbData));
 }
-SIM_DLLEXPORT int simGetShapeColor_D(int shapeHandle,const char* colorName,int colorComponent,double* rgbData)
+SIM_DLLEXPORT int simGetShapeColor(int shapeHandle,const char* colorName,int colorComponent,float* rgbData)
 {
     return(simGetShapeColor_internal(shapeHandle,colorName,colorComponent,rgbData));
 }
@@ -1294,7 +1309,7 @@ SIM_DLLEXPORT int simGetContactInfo_D(int dynamicPass,int objectHandle,int index
 {
     return(simGetContactInfo_internal(dynamicPass,objectHandle,index,objectHandles,contactInfo));
 }
-SIM_DLLEXPORT int simAuxiliaryConsoleOpen_D(const char* title,int maxLines,int mode,const int* position,const int* size,const double* textColor,const double* backgroundColor)
+SIM_DLLEXPORT int simAuxiliaryConsoleOpen(const char* title,int maxLines,int mode,const int* position,const int* size,const float* textColor,const float* backgroundColor)
 {
     return(simAuxiliaryConsoleOpen_internal(title,maxLines,mode,position,size,textColor,backgroundColor));
 }
@@ -1382,19 +1397,11 @@ SIM_DLLEXPORT int simCheckVisionSensor_D(int visionSensorHandle,int entityHandle
 {
     return(simCheckVisionSensor_internal(visionSensorHandle,entityHandle,auxValues,auxValuesCount));
 }
-SIM_DLLEXPORT double* simCheckVisionSensorEx_D(int visionSensorHandle,int entityHandle,bool returnImage)
-{
-    return(simCheckVisionSensorEx_internal(visionSensorHandle,entityHandle,returnImage));
-}
 SIM_DLLEXPORT unsigned char* simGetVisionSensorImg_D(int sensorHandle,int options,double rgbaCutOff,const int* pos,const int* size,int* resolution)
 {
     return(simGetVisionSensorImg_internal(sensorHandle,options,rgbaCutOff,pos,size,resolution));
 }
-SIM_DLLEXPORT double* simGetVisionSensorDepth_D(int sensorHandle,int options,const int* pos,const int* size,int* resolution)
-{
-    return(simGetVisionSensorDepth_internal(sensorHandle,options,pos,size,resolution));
-}
-SIM_DLLEXPORT int simCreateDummy_D(double size,const double* reserved)
+SIM_DLLEXPORT int simCreateDummy_D(double size,const float* reserved)
 {
     return(simCreateDummy_internal(size,reserved));
 }
@@ -1710,6 +1717,5 @@ SIM_DLLEXPORT void _simDynCallback_D(const int* intData,const double* floatData)
 {
     _simDynCallback_internal(intData,floatData);
 }
-#endif
 
 #include "sim-old.cpp"

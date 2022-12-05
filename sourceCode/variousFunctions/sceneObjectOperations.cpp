@@ -296,7 +296,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             // Get the mass and inertia info from the old shape:
                             C7Vector absCOM(it->getFullCumulativeTransformation());
                             absCOM=absCOM*it->getMeshWrapper()->getLocalInertiaFrame();
-                            float mass=it->getMeshWrapper()->getMass();
+                            double mass=it->getMeshWrapper()->getMass();
                             C7Vector absCOMNoShift(absCOM);
                             absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
                             C3X3Matrix tensor(CMeshWrapper::getNewTensor(it->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
@@ -321,9 +321,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             C7Vector relCOM(it->getFullCumulativeTransformation().getInverse()*absCOM);
                             it->getMeshWrapper()->setLocalInertiaFrame(relCOM);
 
-                            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,0.7f,0.7f);
-                            it->getSingleMesh()->setEdgeThresholdAngle(0.0f);
-                            it->getSingleMesh()->setShadingAngle(0.0f);
+                            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0,0.7,0.7);
+                            it->getSingleMesh()->setEdgeThresholdAngle(0.0);
+                            it->getSingleMesh()->setShadingAngle(0.0);
                             it->getSingleMesh()->setVisibleEdges(false);
 
                             // We need to correct all its children for this change of frame:
@@ -376,7 +376,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             }
             if (sh!=nullptr)
             {
-                std::vector<float> vert;
+                std::vector<double> vert;
                 std::vector<int> ind;
                 sh->getMeshWrapper()->getCumulativeMeshes(vert,&ind,nullptr);
                 C7Vector tr(sh->getFullCumulativeTransformation());
@@ -392,12 +392,12 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 SUIThreadCommand cmdOut;
                 cmdIn.cmdId=DISPLAY_MESH_DECIMATION_DIALOG_UITHREADCMD;
                 cmdIn.intParams.push_back((int)ind.size()/3);
-                cmdIn.floatParams.push_back(0.2f);
+                cmdIn.floatParams.push_back(0.2);
                 App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 if ((cmdOut.boolParams.size()>0)&&cmdOut.boolParams[0])
                 {
-                    float decimationPercentage=cmdOut.floatParams[0];
-                    std::vector<float> vertOut;
+                    double decimationPercentage=cmdOut.floatParams[0];
+                    std::vector<double> vertOut;
                     std::vector<int> indOut;
 
                     App::uiThread->showOrHideProgressBar(true,-1,"Computing decimated shape...");
@@ -415,7 +415,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         // Get the mass and inertia info from the old shape:
                         C7Vector absCOM(sh->getFullCumulativeTransformation());
                         absCOM=absCOM*sh->getMeshWrapper()->getLocalInertiaFrame();
-                        float mass=sh->getMeshWrapper()->getMass();
+                        double mass=sh->getMeshWrapper()->getMass();
                         C7Vector absCOMNoShift(absCOM);
                         absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
                         C3X3Matrix tensor(CMeshWrapper::getNewTensor(sh->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
@@ -439,9 +439,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         sh->getMeshWrapper()->setLocalInertiaFrame(relCOM);
 
                         // Set some visual parameters:
-                        sh->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.7f,0.7f,1.0f);
-                        sh->getSingleMesh()->setEdgeThresholdAngle(0.0f);
-                        sh->getSingleMesh()->setShadingAngle(0.0f);
+                        sh->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.7,0.7,1.0);
+                        sh->getSingleMesh()->setEdgeThresholdAngle(0.0);
+                        sh->getSingleMesh()->setShadingAngle(0.0);
                         sh->getSingleMesh()->setVisibleEdges(false);
 
                         // We need to correct all its children for this change of frame:
@@ -487,10 +487,10 @@ bool CSceneObjectOperations::processCommand(int commandID)
             bool addFacesPoints=cmdOut.boolParams[1];
             int nClusters=cmdOut.intParams[0];
             int maxHullVertices=cmdOut.intParams[1];
-            float maxConcavity=cmdOut.floatParams[0];
-            float smallClusterThreshold=cmdOut.floatParams[1];
+            double maxConcavity=cmdOut.floatParams[0];
+            double smallClusterThreshold=cmdOut.floatParams[1];
             int maxTrianglesInDecimatedMesh=cmdOut.intParams[2];
-            float maxConnectDist=cmdOut.floatParams[2];
+            double maxConnectDist=cmdOut.floatParams[2];
             bool individuallyConsiderMultishapeComponents=cmdOut.boolParams[2];
             int maxIterations=cmdOut.intParams[3];
             bool cancel=cmdOut.boolParams[4];
@@ -502,11 +502,11 @@ bool CSceneObjectOperations::processCommand(int commandID)
             int planeDownsampling=cmdOut.intParams[6];
             int convexHullDownsampling=cmdOut.intParams[7];
             int maxNumVerticesPerCH=cmdOut.intParams[8];
-            float concavity=cmdOut.floatParams[3];
-            float alpha=cmdOut.floatParams[4];
-            float beta=cmdOut.floatParams[5];
-            float gamma=cmdOut.floatParams[6];
-            float minVolumePerCH=cmdOut.floatParams[7];
+            double concavity=cmdOut.floatParams[3];
+            double alpha=cmdOut.floatParams[4];
+            double beta=cmdOut.floatParams[5];
+            double gamma=cmdOut.floatParams[6];
+            double minVolumePerCH=cmdOut.floatParams[7];
             if (!cancel)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_MORPHING_INTO_CONVEX_DECOMPOSITION);
@@ -528,7 +528,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             // Get the mass and inertia info from the old shape:
                             C7Vector absCOM(it->getFullCumulativeTransformation());
                             absCOM=absCOM*it->getMeshWrapper()->getLocalInertiaFrame();
-                            float mass=it->getMeshWrapper()->getMass();
+                            double mass=it->getMeshWrapper()->getMass();
                             C7Vector absCOMNoShift(absCOM);
                             absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
                             C3X3Matrix tensor(CMeshWrapper::getNewTensor(it->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
@@ -991,7 +991,7 @@ void CSceneObjectOperations::addRootObjectChildrenToSelection(std::vector<int>& 
 void CSceneObjectOperations::copyObjects(std::vector<int>* selection,bool displayMessages)
 {
     if (displayMessages)
-        App::uiThread->showOrHideProgressBar(true,-1.0f,"Copying objects...");
+        App::uiThread->showOrHideProgressBar(true,-1.0,"Copying objects...");
 
     // We first copy the selection:
     std::vector<int> sel(*selection);
@@ -1008,7 +1008,7 @@ void CSceneObjectOperations::pasteCopyBuffer(bool displayMessages)
     TRACE_INTERNAL;
 #ifdef SIM_WITH_GUI
     if (displayMessages)
-        App::uiThread->showOrHideProgressBar(true,-1.0f,"Pasting objects...");
+        App::uiThread->showOrHideProgressBar(true,-1.0,"Pasting objects...");
 #endif
 
     bool failed=(App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),3)==-1);
@@ -1029,7 +1029,7 @@ void CSceneObjectOperations::cutObjects(std::vector<int>* selection,bool display
 {
     TRACE_INTERNAL;
     if (displayMessages)
-        App::uiThread->showOrHideProgressBar(true,-1.0f,"Cutting objects...");
+        App::uiThread->showOrHideProgressBar(true,-1.0,"Cutting objects...");
 
     addRootObjectChildrenToSelection(*selection);
     copyObjects(selection,false);
@@ -1044,7 +1044,7 @@ void CSceneObjectOperations::deleteObjects(std::vector<int>* selection,bool disp
 { // There are a few other spots where objects get deleted (e.g. the C-interface)
     TRACE_INTERNAL;
     if (displayMessages)
-        App::uiThread->showOrHideProgressBar(true,-1.0f,"Deleting objects...");
+        App::uiThread->showOrHideProgressBar(true,-1.0,"Deleting objects...");
 
     addRootObjectChildrenToSelection(selection[0]);
     App::currentWorld->sceneObjects->eraseObjects(selection[0],true);
@@ -1108,7 +1108,7 @@ int CSceneObjectOperations::groupSelection(std::vector<int>* selection,bool show
     }
 
     if (showMessages)
-        App::uiThread->showOrHideProgressBar(true,-1.0f,"Grouping shapes...");
+        App::uiThread->showOrHideProgressBar(true,-1.0,"Grouping shapes...");
 
     App::currentWorld->sceneObjects->deselectObjects();
 
@@ -1145,7 +1145,7 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
     {
         CShape* it=shapesToGroup[i];
         if (allToNonPure)
-            it->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0f,1.0f,1.0f); // this will be propagated to all geometrics!
+            it->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0); // this will be propagated to all geometrics!
 
         App::currentWorld->drawingCont->announceObjectWillBeErased(it);
         App::currentWorld->pointCloudCont->announceObjectWillBeErased(it->getObjectHandle());
@@ -1157,7 +1157,7 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
     // Let's first compute the composed mass and center of mass:
     C3Vector newCenterOfMass; // absolute
     newCenterOfMass.clear();
-    float cumulMass=0.0f;
+    double cumulMass=0.0;
     for (size_t i=0;i<shapesToGroup.size();i++)
     {
         CShape* it=shapesToGroup[i];
@@ -1232,7 +1232,7 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
 void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection,bool showMessages)
 {
     if (showMessages)
-        App::uiThread->showOrHideProgressBar(true,-1.0f,"Ungrouping shapes...");
+        App::uiThread->showOrHideProgressBar(true,-1.0,"Ungrouping shapes...");
     std::vector<int> newObjectHandles;
     App::currentWorld->sceneObjects->deselectObjects();
     std::vector<int> finalSel;
@@ -1297,7 +1297,7 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,st
 {
     // Following 2 lines not needed, but added because a previous bug might have done something wrong! So here we make sure that all elements of the multishape are non-pure!!!
     if (!it->getMeshWrapper()->isPure())
-        it->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0f,1.0f,1.0f);
+        it->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0);
 
     // we have to remove all attached drawing objects (we cannot correct for that or it would be very difficult!!)
     App::currentWorld->drawingCont->announceObjectWillBeErased(it);
@@ -1462,7 +1462,7 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
         allShapesExceptLast.insert(allShapesExceptLast.end(),ns.begin(),ns.end());
     }
 
-    lastSel->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0f,1.0f,1.0f);
+    lastSel->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0);
 
     if (allShapesExceptLast.size()>0)
     {
@@ -1471,10 +1471,10 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
         App::currentWorld->pointCloudCont->announceObjectWillBeErased(lastSel->getObjectHandle());
         App::currentWorld->bannerCont->announceObjectWillBeErased(lastSel->getObjectHandle());
 
-        std::vector<float> wvert;
+        std::vector<double> wvert;
         std::vector<int> wind;
         lastSel->getMeshWrapper()->getCumulativeMeshes(wvert,&wind,nullptr);
-        float cumulMass=lastSel->getMeshWrapper()->getMass();
+        double cumulMass=lastSel->getMeshWrapper()->getMass();
         C7Vector tr(lastSel->getFullCumulativeTransformation());
         for (size_t i=0;i<wvert.size()/3;i++)
         {
@@ -1612,13 +1612,13 @@ bool CSceneObjectOperations::_divideShape(CShape* shape,std::vector<CShape*>& ne
         CShape* it=toDivide[i];
         if (!it->getMeshWrapper()->isPure())
         {
-            std::vector<float> wvert;
+            std::vector<double> wvert;
             std::vector<int> wind;
             it->getMeshWrapper()->getCumulativeMeshes(wvert,&wind,nullptr);
             int extractedCount=0;
             while (true)
             {
-                std::vector<float> subvert;
+                std::vector<double> subvert;
                 std::vector<int> subind;
                 if (CMeshManip::extractOneShape(&wvert,&wind,&subvert,&subind))
                 { // Something was extracted
@@ -1683,7 +1683,7 @@ bool CSceneObjectOperations::_divideShape(CShape* shape,std::vector<CShape*>& ne
     return(newShapes.size()>0);
 }
 
-void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection,float scalingFactor,bool scalePositionsToo)
+void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection,double scalingFactor,bool scalePositionsToo)
 {
     std::vector<int> sel(selection);
     CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
@@ -1757,15 +1757,15 @@ void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection,floa
 int CSceneObjectOperations::generateConvexHull(int shapeHandle)
 {
     TRACE_INTERNAL;
-    std::vector<float> allHullVertices;
+    std::vector<double> allHullVertices;
     allHullVertices.reserve(40000*3);
 
     CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
     if (it!=nullptr)
     {
         C7Vector transf(it->getFullCumulativeTransformation());
-        std::vector<float> vert;
-        std::vector<float> vertD;
+        std::vector<double> vert;
+        std::vector<double> vertD;
         std::vector<int> ind;
         it->getMeshWrapper()->getCumulativeMeshes(vertD,&ind,nullptr);
         for (int j=0;j<int(vertD.size())/3;j++)
@@ -1780,9 +1780,9 @@ int CSceneObjectOperations::generateConvexHull(int shapeHandle)
 
     if (allHullVertices.size()!=0)
     {
-        std::vector<float> hull;
+        std::vector<double> hull;
         std::vector<int> indices;
-        std::vector<float> normals;
+        std::vector<double> normals;
         if (CMeshRoutines::getConvexHull(&allHullVertices,&hull,&indices))
         {
             CShape* it=new CShape(nullptr,hull,indices,nullptr,nullptr);
@@ -1799,13 +1799,13 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                                              bool addExtraDistPoints,bool addFacesPoints,double maxConnectDist,
                                              size_t maxTrianglesInDecimatedMesh,size_t maxHullVertices,
                                              double smallClusterThreshold,bool individuallyConsiderMultishapeComponents,
-                                             int maxIterations,bool useHACD,int resolution_VHACD,int depth_VHACD_old,float concavity_VHACD,
+                                             int maxIterations,bool useHACD,int resolution_VHACD,int depth_VHACD_old,double concavity_VHACD,
                                              int planeDownsampling_VHACD,int convexHullDownsampling_VHACD,
-                                             float alpha_VHACD,float beta_VHACD,float gamma_VHACD_old,bool pca_VHACD,
-                                             bool voxelBased_VHACD,int maxVerticesPerCH_VHACD,float minVolumePerCH_VHACD)
+                                             double alpha_VHACD,double beta_VHACD,double gamma_VHACD_old,bool pca_VHACD,
+                                             bool voxelBased_VHACD,int maxVerticesPerCH_VHACD,double minVolumePerCH_VHACD)
 {
     TRACE_INTERNAL;
-    std::vector<float> vert;
+    std::vector<double> vert;
     std::vector<int> ind;
     CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
     if (it!=nullptr)
@@ -1830,7 +1830,7 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                     vert[3*j+1]=v(1);
                     vert[3*j+2]=v(2);
                 }
-                std::vector<std::vector<float>*> outputVert;
+                std::vector<std::vector<double>*> outputVert;
                 std::vector<std::vector<int>*> outputInd;
                 int addClusters=0;
                 for (int tryNumber=0;tryNumber<maxIterations;tryNumber++)
@@ -1848,7 +1848,7 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                     int convexRecognizedCount=0;
                     for (size_t i=0;i<outputVert.size();i++)
                     {
-                        int handle=simCreateMeshShape_internal(2,20.0f*piValue/180.0f,&outputVert[i]->at(0),(int)outputVert[i]->size(),&outputInd[i]->at(0),(int)outputInd[i]->size(),nullptr);
+                        int handle=simCreateMeshShape_internal(2,20.0*piValue/180.0,&outputVert[i]->at(0),(int)outputVert[i]->size(),&outputInd[i]->at(0),(int)outputInd[i]->size(),nullptr);
                         CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(handle);
                         if (shape!=nullptr)
                         {
@@ -1858,9 +1858,9 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                             _tempHandles.push_back(handle);
                             shape->getSingleMesh()->setConvexVisualAttributes();
                             // Set some visual parameters:
-                            shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.7f,1.0f,0.7f);
-                            shape->getSingleMesh()->setEdgeThresholdAngle(0.0f);
-                            shape->getSingleMesh()->setShadingAngle(0.0f);
+                            shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.7,1.0,0.7);
+                            shape->getSingleMesh()->setEdgeThresholdAngle(0.0);
+                            shape->getSingleMesh()->setShadingAngle(0.0);
                             shape->getSingleMesh()->setVisibleEdges(false);
                         }
                         delete outputVert[i];
@@ -1915,7 +1915,7 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                 vert[3*j+1]=v(1);
                 vert[3*j+2]=v(2);
             }
-            std::vector<std::vector<float>*> outputVert;
+            std::vector<std::vector<double>*> outputVert;
             std::vector<std::vector<int>*> outputInd;
 
             int addClusters=0;
@@ -1934,7 +1934,7 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                 int convexRecognizedCount=0;
                 for (int i=0;i<int(outputVert.size());i++)
                 {
-                    int handle=simCreateMeshShape_internal(2,20.0f*piValue/180.0f,&outputVert[i]->at(0),(int)outputVert[i]->size(),&outputInd[i]->at(0),(int)outputInd[i]->size(),nullptr);
+                    int handle=simCreateMeshShape_internal(2,20.0*piValue/180.0,&outputVert[i]->at(0),(int)outputVert[i]->size(),&outputInd[i]->at(0),(int)outputInd[i]->size(),nullptr);
                     CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(handle);
                     if (shape!=nullptr)
                     {
@@ -1945,9 +1945,9 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
 
                         shape->getSingleMesh()->setConvexVisualAttributes();
                         // Set some visual parameters:
-                        shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.7f,1.0f,0.7f);
-                        shape->getSingleMesh()->setEdgeThresholdAngle(0.0f);
-                        shape->getSingleMesh()->setShadingAngle(0.0f);
+                        shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.7,1.0,0.7);
+                        shape->getSingleMesh()->setEdgeThresholdAngle(0.0);
+                        shape->getSingleMesh()->setShadingAngle(0.0);
                         shape->getSingleMesh()->setVisibleEdges(false);
                     }
                     delete outputVert[i];
@@ -2002,7 +2002,7 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
     return(-1);
 }
 
-int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int options,const int* intParams,const float* floatParams)
+int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int options,const int* intParams,const double* floatParams)
 {
     TRACE_INTERNAL;
     int retVal=-1;
@@ -2016,25 +2016,25 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
     static bool addFacesPoints=true;
     static int nClusters=1;
     static int maxHullVertices=200; // from 100 to 200 on 5/2/2014
-    static float maxConcavity=100.0f;
-    static float smallClusterThreshold=0.25f;
+    static double maxConcavity=100.0;
+    static double smallClusterThreshold=0.25;
     static int maxTrianglesInDecimatedMesh=500;
-    static float maxConnectDist=30.0f;
+    static double maxConnectDist=30.0;
     static bool individuallyConsiderMultishapeComponents=false;
     static int maxIterations=4;
     static bool useHACD=true;
     static int resolution=100000;
 // not present in newest VHACD   static int depth=20;
-    static float concavity=0.0025f;
+    static double concavity=0.0025;
     static int planeDownsampling=4;
     static int convexHullDownsampling=4;
-    static float alpha=0.05f;
-    static float beta=0.05f;
-// not present in newest VHACD   static float gamma=0.00125f;
+    static double alpha=0.05;
+    static double beta=0.05;
+// not present in newest VHACD   static double gamma=0.00125;
     static bool pca=false;
     static bool voxelBasedMode=true;
     static int maxVerticesPerCH=64;
-    static float minVolumePerCH=0.0001f;
+    static double minVolumePerCH=0.0001;
 
     if ((options&4)==0)
     {
@@ -2095,7 +2095,7 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
         cmdIn.intParams.push_back(convexHullDownsampling);
         cmdIn.floatParams.push_back(alpha);
         cmdIn.floatParams.push_back(beta);
-        cmdIn.floatParams.push_back(0.00125f); //gamma);
+        cmdIn.floatParams.push_back(0.00125); //gamma);
         cmdIn.boolParams.push_back(pca);
         cmdIn.boolParams.push_back(voxelBasedMode);
         cmdIn.intParams.push_back(maxVerticesPerCH);
@@ -2137,7 +2137,7 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
                                                         addFacesPoints,maxConnectDist,maxTrianglesInDecimatedMesh,
                                                         maxHullVertices,smallClusterThreshold,individuallyConsiderMultishapeComponents,
                                                         maxIterations,useHACD,resolution,20,concavity,planeDownsampling,
-                                                        convexHullDownsampling,alpha,beta,0.00125f,pca,voxelBasedMode,
+                                                        convexHullDownsampling,alpha,beta,0.00125,pca,voxelBasedMode,
                                                         maxVerticesPerCH,minVolumePerCH);
     else
         retVal=-1;
@@ -2148,7 +2148,7 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
         CShape* oldShape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
         C7Vector absCOM(oldShape->getFullCumulativeTransformation());
         absCOM=absCOM*oldShape->getMeshWrapper()->getLocalInertiaFrame();
-        float mass=oldShape->getMeshWrapper()->getMass();
+        double mass=oldShape->getMeshWrapper()->getMass();
         C7Vector absCOMNoShift(absCOM);
         absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
         C3X3Matrix tensor(CMeshWrapper::getNewTensor(oldShape->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));

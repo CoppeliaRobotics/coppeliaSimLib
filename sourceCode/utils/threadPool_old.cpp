@@ -535,7 +535,7 @@ void CThreadPool_old::prepareAllThreadsForResume_calledBeforeMainScript()
         {
             _allThreadData[i]->threadExecutionTime=-1; // -1 --> not yet executed
             _allThreadData[i]->allowToExecuteAgainInThisSimulationStep=false; // threads that are not relocated for resume can only run one time per simulation pass!
-            _allThreadData[i]->usedMovementTime=0.0f; // we reset the used movement time at every simulation pass (better results than if we don't do it, tested!)
+            _allThreadData[i]->usedMovementTime=0.0; // we reset the used movement time at every simulation pass (better results than if we don't do it, tested!)
         }
     }
     _unlock(8);

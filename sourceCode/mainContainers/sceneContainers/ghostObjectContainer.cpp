@@ -12,7 +12,7 @@ CGhostObjectContainer::~CGhostObjectContainer()
     removeGhost(-1,-1);
 }
 
-int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOptions,floatDouble theStartTime,floatDouble theEndTime,const floatDouble theColor[12])
+int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOptions,double theStartTime,double theEndTime,const float theColor[12])
 {
     // options: bit0 set (1): model instead of object
     // options: bit1 set (2): real-time playback
@@ -65,7 +65,7 @@ int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOp
     return(retVal);
 }
 
-int CGhostObjectContainer::modifyGhost(int groupId,int ghostId,int operation,floatDouble floatValue,int theOptions,int theOptionsMask,const floatDouble* colorOrTransformation)
+int CGhostObjectContainer::modifyGhost(int groupId,int ghostId,int operation,double floatValue,int theOptions,int theOptionsMask,const double* colorOrTransformation)
 {
     // operation:
     // 0: returns the number of the specified ghost occurences (if ghost(s) exist(s)), otherwise 0
@@ -142,7 +142,7 @@ int CGhostObjectContainer::modifyGhost(int groupId,int ghostId,int operation,flo
                         _allObjects[i]->color[j]=colorOrTransformation[j];
                 }
                 if (operation==14)
-                    _allObjects[i]->transparencyFactor=int(floatValue*255.1f);
+                    _allObjects[i]->transparencyFactor=int(floatValue*255.1);
             }
         }
     }
@@ -213,17 +213,17 @@ void CGhostObjectContainer::serialize(CSer& ar)
                 ar << _allObjects[i]->ghostId;
                 ar << _allObjects[i]->objectHandle;
                 ar << _allObjects[i]->options;
-                ar.flt() << (floatFloat)_allObjects[i]->startTime;
-                ar.flt() << (floatFloat)_allObjects[i]->endTime;
+                ar << (float)_allObjects[i]->startTime;
+                ar << (float)_allObjects[i]->endTime;
                 ar << _allObjects[i]->transparencyFactor;
                 for (int j=0;j<12;j++)
-                    ar.flt() << (floatFloat)_allObjects[i]->color[j];
-                ar.flt() << (floatFloat)_allObjects[i]->tr.X(0) << (floatFloat)_allObjects[i]->tr.X(1) << (floatFloat)_allObjects[i]->tr.X(2);
-                ar.flt() << (floatFloat)_allObjects[i]->tr.Q(0) << (floatFloat)_allObjects[i]->tr.Q(1) << (floatFloat)_allObjects[i]->tr.Q(2) << (floatFloat)_allObjects[i]->tr.Q(3);
+                    ar << (float)_allObjects[i]->color[j];
+                ar << (float)_allObjects[i]->tr.X(0) << (float)_allObjects[i]->tr.X(1) << (float)_allObjects[i]->tr.X(2);
+                ar << (float)_allObjects[i]->tr.Q(0) << (float)_allObjects[i]->tr.Q(1) << (float)_allObjects[i]->tr.Q(2) << (float)_allObjects[i]->tr.Q(3);
             }
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_02");
             ar << int(_allObjects.size());
             for (size_t i=0;i<_allObjects.size();i++)
@@ -232,16 +232,16 @@ void CGhostObjectContainer::serialize(CSer& ar)
                 ar << _allObjects[i]->ghostId;
                 ar << _allObjects[i]->objectHandle;
                 ar << _allObjects[i]->options;
-                ar.dbl() << _allObjects[i]->startTime;
-                ar.dbl() << _allObjects[i]->endTime;
+                ar << _allObjects[i]->startTime;
+                ar << _allObjects[i]->endTime;
                 ar << _allObjects[i]->transparencyFactor;
                 for (int j=0;j<12;j++)
-                    ar.dbl() << _allObjects[i]->color[j];
-                ar.dbl() << _allObjects[i]->tr.X(0) << _allObjects[i]->tr.X(1) << _allObjects[i]->tr.X(2);
-                ar.dbl() << _allObjects[i]->tr.Q(0) << _allObjects[i]->tr.Q(1) << _allObjects[i]->tr.Q(2) << _allObjects[i]->tr.Q(3);
+                    ar << _allObjects[i]->color[j];
+                ar << _allObjects[i]->tr.X(0) << _allObjects[i]->tr.X(1) << _allObjects[i]->tr.X(2);
+                ar << _allObjects[i]->tr.Q(0) << _allObjects[i]->tr.Q(1) << _allObjects[i]->tr.Q(2) << _allObjects[i]->tr.Q(3);
             }
             ar.flush();
-#endif
+
 
             ar.storeDataName(SER_NEXT_STEP);
         }
@@ -265,29 +265,29 @@ void CGhostObjectContainer::serialize(CSer& ar)
                         for (int i=0;i<ghostCnt;i++)
                         {
                             CGhostObject* go=new CGhostObject();
-                            floatFloat bla,bli,blo,blu;
+                            float bla,bli,blo,blu;
                             ar >> go->groupId;
                             ar >> go->ghostId;
                             ar >> go->objectHandle;
                             ar >> go->options;
-                            ar.flt() >> bla;
-                            go->startTime=(floatDouble)bla;
-                            ar.flt() >> bla;
-                            go->endTime=(floatDouble)bla;
+                            ar >> bla;
+                            go->startTime=(double)bla;
+                            ar >> bla;
+                            go->endTime=(double)bla;
                             for (int j=0;j<12;j++)
                             {
-                                ar.flt() >> bla;
-                                go->color[j]=(floatDouble)bla;;
+                                ar >> bla;
+                                go->color[j]=(double)bla;;
                             }
-                            ar.flt() >> bla >> bli >> blo;
-                            go->tr.X(0)=(floatDouble)bla;
-                            go->tr.X(1)=(floatDouble)bli;
-                            go->tr.X(2)=(floatDouble)blo;
-                            ar.flt() >> bla >> bli >> blo >> blu;
-                            go->tr.Q(0)=(floatDouble)bla;
-                            go->tr.Q(1)=(floatDouble)bli;
-                            go->tr.Q(2)=(floatDouble)blo;
-                            go->tr.Q(3)=(floatDouble)blu;
+                            ar >> bla >> bli >> blo;
+                            go->tr.X(0)=(double)bla;
+                            go->tr.X(1)=(double)bli;
+                            go->tr.X(2)=(double)blo;
+                            ar >> bla >> bli >> blo >> blu;
+                            go->tr.Q(0)=(double)bla;
+                            go->tr.Q(1)=(double)bli;
+                            go->tr.Q(2)=(double)blo;
+                            go->tr.Q(3)=(double)blu;
                             _allObjects.push_back(go);
                         }
                     }
@@ -304,28 +304,29 @@ void CGhostObjectContainer::serialize(CSer& ar)
                             ar >> go->ghostId;
                             ar >> go->objectHandle;
                             ar >> go->options;
-                            floatFloat bla,bli,blo,blu;
-                            ar.flt() >> bla >> bli;
-                            go->startTime=(floatDouble)bla;
-                            go->endTime=(floatDouble)bli;
+                            float bla,bli,blo,blu;
+                            ar >> bla >> bli;
+                            go->startTime=(double)bla;
+                            go->endTime=(double)bli;
                             ar >> go->transparencyFactor;
                             for (int j=0;j<12;j++)
                             {
-                                ar.flt() >> bla;
-                                go->color[j]=(floatDouble)bla;
+                                ar >> bla;
+                                go->color[j]=(double)bla;
                             }
-                            ar.flt() >> bla >> bli >> blo;
-                            go->tr.X(0)=(floatDouble)bla;
-                            go->tr.X(1)=(floatDouble)bli;
-                            go->tr.X(2)=(floatDouble)blo;
-                            ar.flt() >> bla >> bli >> blo >> blu;
-                            go->tr.Q(0)=(floatDouble)bla;
-                            go->tr.Q(1)=(floatDouble)bli;
-                            go->tr.Q(2)=(floatDouble)blo;
-                            go->tr.Q(3)=(floatDouble)blu;
+                            ar >> bla >> bli >> blo;
+                            go->tr.X(0)=(double)bla;
+                            go->tr.X(1)=(double)bli;
+                            go->tr.X(2)=(double)blo;
+                            ar >> bla >> bli >> blo >> blu;
+                            go->tr.Q(0)=(double)bla;
+                            go->tr.Q(1)=(double)bli;
+                            go->tr.Q(2)=(double)blo;
+                            go->tr.Q(3)=(double)blu;
                             _allObjects.push_back(go);
                         }
                     }
+
                     if (theName.compare("_02")==0)
                     {
                         noHit=false;
@@ -339,16 +340,17 @@ void CGhostObjectContainer::serialize(CSer& ar)
                             ar >> go->ghostId;
                             ar >> go->objectHandle;
                             ar >> go->options;
-                            ar.dbl() >> go->startTime;
-                            ar.dbl() >> go->endTime;
+                            ar >> go->startTime;
+                            ar >> go->endTime;
                             ar >> go->transparencyFactor;
                             for (int j=0;j<12;j++)
-                                ar.dbl() >> go->color[j];
-                            ar.dbl() >> go->tr.X(0) >> go->tr.X(1) >> go->tr.X(2);
-                            ar.dbl() >> go->tr.Q(0) >> go->tr.Q(1) >> go->tr.Q(2) >> go->tr.Q(3);
+                                ar >> go->color[j];
+                            ar >> go->tr.X(0) >> go->tr.X(1) >> go->tr.X(2);
+                            ar >> go->tr.Q(0) >> go->tr.Q(1) >> go->tr.Q(2) >> go->tr.Q(3);
                             _allObjects.push_back(go);
                         }
                     }
+
                     if (noHit)
                         ar.loadUnknownData();
                 }

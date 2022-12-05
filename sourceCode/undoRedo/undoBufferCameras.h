@@ -6,7 +6,7 @@
 struct SCamBuff
 {
     C7Vector localTr;
-    float orthoViewSize;
+    double orthoViewSize;
 };
 
 class CUndoBufferCameras

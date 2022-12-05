@@ -22,9 +22,9 @@ public:
     void performSceneObjectLoadingMapping(const std::map<int,int>* map);
     void setTextureDependencies(int buttonBlockID);
 
-    floatDouble backgroundColor[3];
-    floatDouble downBackgroundColor[3];
-    floatDouble textColor[3];
+    float backgroundColor[3];
+    float downBackgroundColor[3];
+    float textColor[3];
     std::string label;
     std::string downLabel;
     int buttonID;
@@ -33,8 +33,8 @@ public:
 
     void serialize(CSer& ar);
 
-    void setSliderPos(floatDouble pos);
-    floatDouble getSliderPos();
+    void setSliderPos(double pos);
+    double getSliderPos();
     void setVertical(bool isVertical);
     bool getVertical();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -43,7 +43,7 @@ public:
     int getButtonType();
     void enableArray(bool enable);
     bool isArrayEnabled();
-    bool setArrayColor(int x,int y,const floatDouble col[3]);
+    bool setArrayColor(int x,int y,const float col[3]);
     int getLength();
     void adjustLength(int newLength);
     int getHeight();
@@ -54,7 +54,7 @@ public:
     void setTextureProperty(CTextureProperty* tp);
     void removeVisionSensorTexture();
     CTextureProperty* getTextureProperty();
-    floatDouble* arrayColors; // not serialized, but copied!
+    float* arrayColors; // not serialized, but copied!
 
     CSoftButton* copyYourself();
 
@@ -64,14 +64,14 @@ private:
     int length;
     int height;
 
-    floatDouble sliderPos;
+    double sliderPos;
 
     bool vertical; // don't serialize, it is calculated
 
     bool _initialValuesInitialized;
     std::string _initialSimulation_label;
     int _initialSimulation_buttonAttributes;
-    floatDouble _initialSimulation_sliderPos;
+    double _initialSimulation_sliderPos;
 
     int _buttonUniqueID;
 

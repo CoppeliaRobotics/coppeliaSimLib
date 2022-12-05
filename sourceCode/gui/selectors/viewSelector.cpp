@@ -58,7 +58,7 @@ void CViewSelector::setViewSelectionInfo(int objType,int viewInd,int subViewInd)
 
 void CViewSelector::render()
 {
-    glClearColor(0.5f,0.5f,0.5f,1);
+    glClearColor(0.5,0.5,0.5,1);
     glDisable(GL_SCISSOR_TEST); 
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     viewSelectionBuffer.clear();
@@ -85,7 +85,7 @@ void CViewSelector::render()
         App::mainWindow->oglSurface->setViewSelectionActive(false);
         return; // nothing to see here!!
     }
-    float smallWinRatio=1.33f;
+    double smallWinRatio=1.33;
     while (viewSelectionSize[0]*viewSelectionSize[1]<int(viewSelectionBuffer.size()))
     {
         int cx=viewSize[0]/(viewSelectionSize[0]+1);
@@ -95,21 +95,21 @@ void CViewSelector::render()
         else
             viewSelectionSize[1]++;
     }
-    float sp=0.1f;
+    double sp=0.1;
     int ax=viewSize[0]/viewSelectionSize[0];
     int ay=viewSize[1]/viewSelectionSize[1];
     int tnd[2]={0,0};
     if (ax>smallWinRatio*ay)
     {
-        tns[1]=(int)(viewSize[1]/((float)viewSelectionSize[1]+sp*((float)(viewSelectionSize[1]+1))));
-        tns[0]=(int)(smallWinRatio*(float)tns[1]);
+        tns[1]=(int)(viewSize[1]/((double)viewSelectionSize[1]+sp*((double)(viewSelectionSize[1]+1))));
+        tns[0]=(int)(smallWinRatio*(double)tns[1]);
         tnd[1]=(int)(tns[1]*sp);
         tnd[0]=(viewSize[0]-viewSelectionSize[0]*tns[0])/(viewSelectionSize[0]+1);
     }
     else
     {
-        tns[0]=(int)(viewSize[0]/((float)viewSelectionSize[0]+sp*((float)(viewSelectionSize[0]+1))));
-        tns[1]=(int)(((float)tns[0])/smallWinRatio);
+        tns[0]=(int)(viewSize[0]/((double)viewSelectionSize[0]+sp*((double)(viewSelectionSize[0]+1))));
+        tns[1]=(int)(((double)tns[0])/smallWinRatio);
         tnd[0]=(int)(tns[0]*sp);
         tnd[1]=(viewSize[1]-viewSelectionSize[1]*tns[1])/(viewSelectionSize[1]+1);
     }
@@ -135,40 +135,40 @@ void CViewSelector::render()
                 {
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-5+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-5,tns[0]+10,tns[1]+10);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-5+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-5,tns[0]+10,tns[1]+10);
-                    glClearColor(0.7f,0.7f,0.4f,1); 
+                    glClearColor(0.7,0.7,0.4,1); 
                     glClear (GL_COLOR_BUFFER_BIT);
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-4+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-4,tns[0]+8,tns[1]+8);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-4+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-4,tns[0]+8,tns[1]+8);
-                    glClearColor(0.9f,0.75f,0.2f,1);    
+                    glClearColor(0.9,0.75,0.2,1);    
                     glClear (GL_COLOR_BUFFER_BIT);
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-3+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-3,tns[0]+6,tns[1]+6);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-3+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-3,tns[0]+6,tns[1]+6);
-                    glClearColor(1.0f,0.8f,0.0f,1); 
+                    glClearColor(1.0,0.8,0.0,1); 
                     glClear (GL_COLOR_BUFFER_BIT);
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-2+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-2,tns[0]+4,tns[1]+4);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-2+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-2,tns[0]+4,tns[1]+4);
-                    glClearColor(1.0f,0.9f,0.0f,1); 
+                    glClearColor(1.0,0.9,0.0,1); 
                     glClear (GL_COLOR_BUFFER_BIT);
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-1+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-1,tns[0]+2,tns[1]+2);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-1+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-1,tns[0]+2,tns[1]+2);
-                    glClearColor(1.0f,1.0f,0.0f,1); 
+                    glClearColor(1.0,1.0,0.0,1); 
                     glClear (GL_COLOR_BUFFER_BIT);
                 }
                 else
                 {
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-5+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-5,tns[0]+10,tns[1]+10);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-5+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-5,tns[0]+10,tns[1]+10);
-                    glClearColor(0.5f,0.5f,0.5f,1); 
+                    glClearColor(0.5,0.5,0.5,1); 
                     glClear (GL_COLOR_BUFFER_BIT);
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-1+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-1,tns[0]+2,tns[1]+2);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-1+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-1,tns[0]+2,tns[1]+2);
-                    glClearColor(0.6f,0.6f,0.6f,1); 
+                    glClearColor(0.6,0.6,0.6,1); 
                     glClear (GL_COLOR_BUFFER_BIT);
                 }
 
                 glViewport(tnd[0]+l*(tns[0]+tnd[0])+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1]),tns[0],tns[1]);
                 glScissor(tnd[0]+l*(tns[0]+tnd[0])+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1]),tns[0],tns[1]);
-                glClearColor(0.6f,0.6f,0.6f,1); 
+                glClearColor(0.6,0.6,0.6,1); 
                 glClear (GL_COLOR_BUFFER_BIT);
 
 
@@ -200,9 +200,9 @@ void CViewSelector::render()
                 glDisable(GL_DEPTH_TEST);
                 if (it->getObjectType()==sim_object_camera_type)
                 {
-                    ogl::setTextColor(0.1f,0.1f,0.1f);
+                    ogl::setTextColor(0.1,0.1,0.1);
                     ogl::drawText(2,tns[1]-12*App::sc,0,it->getObjectAlias_printPath().append(" (Camera)"));
-                    ogl::setTextColor(0.9f,0.9f,0.9f);
+                    ogl::setTextColor(0.9,0.9,0.9);
                     ogl::drawText(1,tns[1]-11*App::sc,0,it->getObjectAlias_printPath().append(" (Camera)"));
                 }
 /*                if (it->getObjectType()==sim_object_graph_type)
@@ -210,17 +210,17 @@ void CViewSelector::render()
                     std::string txt=" (Time Graph)";
                     if (!timeGraph)
                         txt=" (XY Graph)";
-                    ogl::setTextColor(0.1f,0.1f,0.1f);
+                    ogl::setTextColor(0.1,0.1,0.1);
                     ogl::drawText(2,tns[1]-12*App::sc,0,it->getName().append(txt));
-                    ogl::setTextColor(0.9f,0.9f,0.9f);
+                    ogl::setTextColor(0.9,0.9,0.9);
                     ogl::drawText(1,tns[1]-11*App::sc,0,it->getName().append(txt));
                 }*/
                 if (it->getObjectType()==sim_object_visionsensor_type) 
                 {
                     std::string txt=" (Vision Sensor)";
-                    ogl::setTextColor(0.1f,0.1f,0.1f);
+                    ogl::setTextColor(0.1,0.1,0.1);
                     ogl::drawText(2,tns[1]-12*App::sc,0,it->getObjectAlias_printPath().append(txt));
-                    ogl::setTextColor(0.9f,0.9f,0.9f);
+                    ogl::setTextColor(0.9,0.9,0.9);
                     ogl::drawText(1,tns[1]-11*App::sc,0,it->getObjectAlias_printPath().append(txt));
                 }
                 glEnable(GL_DEPTH_TEST);

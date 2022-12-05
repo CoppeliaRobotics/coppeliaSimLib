@@ -51,7 +51,7 @@ typedef struct polyhedron {
 class CVolInt
 {
 public:
-    static float getMassCenterOfMassAndInertiaTensor(const float* vertices,int ptCnt,const int* indices,int triCnt,float density,C3Vector& centerOfMass,C3X3Matrix& inertiaTensor);
+    static double getMassCenterOfMassAndInertiaTensor(const double* vertices,int ptCnt,const int* indices,int triCnt,double density,C3Vector& centerOfMass,C3X3Matrix& inertiaTensor);
 
 private:
     static void compProjectionIntegrals(FACE *f);

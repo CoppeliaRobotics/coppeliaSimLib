@@ -153,13 +153,13 @@ void CSoftButton::enableArray(bool enable)
     arrayColors=nullptr;
     if (enable)
     {
-        arrayColors=new floatDouble[length*height*3];
+        arrayColors=new float[length*height*3];
         for (int i=0;i<length*height*3;i++)
             arrayColors[i]=0.0;
     }
 }
 
-bool CSoftButton::setArrayColor(int x,int y,const floatDouble col[3])
+bool CSoftButton::setArrayColor(int x,int y,const float col[3])
 {
     if (arrayColors==nullptr)
         return(false);
@@ -197,12 +197,12 @@ void CSoftButton::adjustHeight(int newHeight)
     height=newHeight;
     enableArray(isArrayEnabled()); // adjust array size
 }
-void CSoftButton::setSliderPos(floatDouble pos)
+void CSoftButton::setSliderPos(double pos)
 {
     tt::limitValue(-1.0,1.0,pos);
     sliderPos=pos;
 }
-floatDouble CSoftButton::getSliderPos()
+double CSoftButton::getSliderPos()
 {
     return(sliderPos);
 }
@@ -229,7 +229,7 @@ CSoftButton* CSoftButton::copyYourself()
     newButton->_buttonAttributes=_buttonAttributes;
     if (arrayColors!=nullptr)
     {
-        newButton->arrayColors=new floatDouble[length*height*3];
+        newButton->arrayColors=new float[length*height*3];
         for (int i=0;i<length*height*3;i++)
             newButton->arrayColors[i]=arrayColors[i];
     }
@@ -268,30 +268,21 @@ void CSoftButton::serialize(CSer& ar)
 #ifdef TMPOPERATION
         ar.storeDataName("Bva");
         ar << _buttonAttributes << buttonID << length << height << xPos << yPos << label << downLabel;
-        ar.flt() << (floatFloat)sliderPos;
-        ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-        ar.storeDataName("_va");
-        ar << _buttonAttributes << buttonID << length << height << xPos << yPos << label << downLabel;
-        ar.dbl() << sliderPos;
+        ar << (float)sliderPos;
         ar.flush();
 #endif
 
-#ifdef TMPOPERATION
+        ar.storeDataName("_va");
+        ar << _buttonAttributes << buttonID << length << height << xPos << yPos << label << downLabel;
+        ar << sliderPos;
+        ar.flush();
+
+
         ar.storeDataName("Bnc");
-        ar.flt() << (floatFloat)backgroundColor[0] << (floatFloat)backgroundColor[1] << (floatFloat)backgroundColor[2];
-        ar.flt() << (floatFloat)downBackgroundColor[0] << (floatFloat)downBackgroundColor[1] << (floatFloat)downBackgroundColor[2];
-        ar.flt() << (floatFloat)textColor[0] << (floatFloat)textColor[1] << (floatFloat)textColor[2];
+        ar << backgroundColor[0] << backgroundColor[1] << backgroundColor[2];
+        ar << downBackgroundColor[0] << downBackgroundColor[1] << downBackgroundColor[2];
+        ar << textColor[0] << textColor[1] << textColor[2];
         ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-        ar.storeDataName("_nc");
-        ar.dbl() << backgroundColor[0] << backgroundColor[1] << backgroundColor[2];
-        ar.dbl() << downBackgroundColor[0] << downBackgroundColor[1] << downBackgroundColor[2];
-        ar.dbl() << textColor[0] << textColor[1] << textColor[2];
-        ar.flush();
-#endif
 
         if (_textureProperty!=nullptr)
         {
@@ -319,42 +310,26 @@ void CSoftButton::serialize(CSer& ar)
                     noHit=false;
                     ar >> byteQuantity;
                     ar >> _buttonAttributes >> buttonID >> length >> height >> xPos >> yPos >> label >> downLabel;
-                    floatFloat bla;
-                    ar.flt() >> bla;
-                    sliderPos=(floatDouble)bla;
+                    float bla;
+                    ar >> bla;
+                    sliderPos=(double)bla;
                 }
+
                 if (theName=="_va")
                 {
                     noHit=false;
                     ar >> byteQuantity;
                     ar >> _buttonAttributes >> buttonID >> length >> height >> xPos >> yPos >> label >> downLabel;
-                    ar.dbl() >> sliderPos;
+                    ar >> sliderPos;
                 }
+
                 if (theName=="Bnc")
-                { // for backward comp. (flt->dbl)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    floatFloat bla,bli,blo;
-                    ar.flt() >> bla >> bli >> blo;
-                    backgroundColor[0]=(floatDouble)bla;
-                    backgroundColor[1]=(floatDouble)bli;
-                    backgroundColor[2]=(floatDouble)blo;
-                    ar.flt() >> bla >> bli >> blo;
-                    downBackgroundColor[0]=(floatDouble)bla;
-                    downBackgroundColor[1]=(floatDouble)bli;
-                    downBackgroundColor[2]=(floatDouble)blo;
-                    ar.flt() >> bla >> bli >> blo;
-                    textColor[0]=(floatDouble)bla;
-                    textColor[1]=(floatDouble)bli;
-                    textColor[2]=(floatDouble)blo;
-                }
-                if (theName=="_nc")
                 {
                     noHit=false;
                     ar >> byteQuantity;
-                    ar.dbl() >> backgroundColor[0] >> backgroundColor[1] >> backgroundColor[2];
-                    ar.dbl() >> downBackgroundColor[0] >> downBackgroundColor[1] >> downBackgroundColor[2];
-                    ar.dbl() >> textColor[0] >> textColor[1] >> textColor[2];
+                    ar >> backgroundColor[0] >> backgroundColor[1] >> backgroundColor[2];
+                    ar >> downBackgroundColor[0] >> downBackgroundColor[1] >> downBackgroundColor[2];
+                    ar >> textColor[0] >> textColor[1] >> textColor[2];
                 }
                 if (theName.compare("Toj")==0)
                 {

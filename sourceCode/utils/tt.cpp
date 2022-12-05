@@ -25,7 +25,7 @@ struct filestruct_B
     {
         return valA < rhs.valA;
     }
-    float valA;
+    double valA;
     int valB;
 };
 
@@ -39,7 +39,7 @@ struct filestruct_C
     int valB;
 };
 
-bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool infGivesMinusOne)
+bool tt::stringToFloat(const char* txt,double& f,bool allowNegativeValue,bool infGivesMinusOne)
 {
 #ifndef SIM_WITH_QT
     std::string str(txt);
@@ -83,7 +83,7 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
         if (tmpStr.compare("inf")==0)
         {
             if (infGivesMinusOne)
-                f=-1.0f;
+                f=-1.0;
             else
                 f=FLOAT_MAX;
             return(true);
@@ -91,14 +91,14 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
         if (tmpStr.compare("+inf")==0)
         {
             if (infGivesMinusOne)
-                f=-1.0f;
+                f=-1.0;
             else
                 f=FLOAT_MAX;
             return(true);
         }
         if (tmpStr.compare("-inf")==0)
         {
-            f=0.0f;
+            f=0.0;
             return(true);
         }
         bool ok=getValidFloat(str.c_str(),f);
@@ -149,7 +149,7 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
         if (tmpStr.compare("inf",Qt::CaseInsensitive)==0)
         {
             if (infGivesMinusOne)
-                f=-1.0f;
+                f=-1.0;
             else
                 f=FLOAT_MAX;
             return(true);
@@ -157,27 +157,27 @@ bool tt::stringToFloat(const char* txt,float& f,bool allowNegativeValue,bool inf
         if (tmpStr.compare("+inf",Qt::CaseInsensitive)==0)
         {
             if (infGivesMinusOne)
-                f=-1.0f;
+                f=-1.0;
             else
                 f=FLOAT_MAX;
             return(true);
         }
         if (tmpStr.compare("-inf",Qt::CaseInsensitive)==0)
         {
-            f=0.0f;
+            f=0.0;
             return(true);
         }
 
         bool ok;
         f=str.toFloat(&ok);
-        if (ok&&(f<0.0f))
-            f=0.0f;
+        if (ok&&(f<0.0))
+            f=0.0;
         return(ok);
     }
 #endif
 }
 
-std::string tt::getEString(bool sign,float f,int precision)
+std::string tt::getEString(bool sign,double f,int precision)
 {
 #ifndef SIM_WITH_QT
     std::stringstream s;
@@ -185,7 +185,7 @@ std::string tt::getEString(bool sign,float f,int precision)
     s.setf(std::ios::scientific, std::ios::floatfield );
     s << f;
     std::string str(s.str());
-    if (sign&&(f>=0.0f))
+    if (sign&&(f>=0.0))
         str="+"+str;
     // Following very unelegant but temporary (to avoid an exponent of 3 width):
     int l=str.size();
@@ -194,13 +194,13 @@ std::string tt::getEString(bool sign,float f,int precision)
     return(str);
 #else
     QString str(QString("%1").arg(f,0,'e',precision));
-    if (sign&&(f>=0.0f))
+    if (sign&&(f>=0.0))
         str="+"+str;
     return(str.toStdString());
 #endif
 }
 
-std::string tt::getFString(bool sign,float f,int precision)
+std::string tt::getFString(bool sign,double f,int precision)
 {
 #ifndef SIM_WITH_QT
     std::stringstream s;
@@ -208,12 +208,12 @@ std::string tt::getFString(bool sign,float f,int precision)
     s.setf(std::ios::fixed, std::ios::floatfield );
     s << f;
     std::string str(s.str());
-    if (sign&&(f>=0.0f))
+    if (sign&&(f>=0.0))
         str="+"+str;
     return(str);
 #else
     QString str(QString("%1").arg(f,0,'f',precision));
-    if (sign&&(f>=0.0f))
+    if (sign&&(f>=0.0))
         str="+"+str;
     return(str.toStdString());
 #endif
@@ -238,12 +238,12 @@ std::string tt::getDString(bool sign,double f,int precision)
 #endif
 }
 
-std::string tt::getAngleEString(bool sign,float angleInRad,int precision)
+std::string tt::getAngleEString(bool sign,double angleInRad,int precision)
 {
     return(getEString(sign,angleInRad*radToDeg,precision));
 }
 
-std::string tt::getAngleFString(bool sign,float angleInRad,int precision)
+std::string tt::getAngleFString(bool sign,double angleInRad,int precision)
 {
     return(getFString(sign,angleInRad*radToDeg,precision));
 }
@@ -266,9 +266,9 @@ std::string tt::getIString(bool sign,int v)
 }
 
 
-std::string tt::floatToEInfString(float f,bool canBeNegative)
+std::string tt::floatToEInfString(double f,bool canBeNegative)
 {
-    if ((!canBeNegative)&&(f<0.0f))
+    if ((!canBeNegative)&&(f<0.0))
         return("Infinity");
     if (f==FLOAT_MAX)
         return("Infinity");
@@ -295,9 +295,9 @@ bool tt::stringToInt(const char* txt,int& a)
 #endif
 }
 
-float tt::floatToUserFloat(float f,float toUserConversion,bool minusValuesGiveInf)
+double tt::floatToUserFloat(double f,double toUserConversion,bool minusValuesGiveInf)
 {
-    if (f<0.0f)
+    if (f<0.0)
     {
         if ((!minusValuesGiveInf)&&(f!=-FLOAT_MAX))
             return(f*toUserConversion);
@@ -310,9 +310,9 @@ float tt::floatToUserFloat(float f,float toUserConversion,bool minusValuesGiveIn
     return(f);
 }
 
-float tt::userFloatToFloat(float userFloat,float fromUserConversion,bool minusValuesGiveInf)
+double tt::userFloatToFloat(double userFloat,double fromUserConversion,bool minusValuesGiveInf)
 {
-    if (userFloat<0.0f)
+    if (userFloat<0.0)
     {
         if ((!minusValuesGiveInf)&&(userFloat!=-FLOAT_MAX))
             return(userFloat*fromUserConversion);
@@ -397,27 +397,27 @@ bool tt::removeSpacesAndEmptyLinesAtBeginningAndEnd(std::string& line)
     return(line.length()!=0);
 }
 
-int tt::getDecimalPos(float number,int maxDec)
+int tt::getDecimalPos(double number,int maxDec)
 {
 //  int retVal=0;
-    if (number==0.0f)
+    if (number==0.0)
         return(-1);
     for (int i=0;i<maxDec;i++)
     {
-        if (fabs(number)>=1.0f)
+        if (fabs(number)>=1.0)
         {
-            number-=float(int(number));
-            number*=10.0f;
-            if ((fabs(number)>=1.0f)&&(i<maxDec) )
+            number-=double(int(number));
+            number*=10.0;
+            if ((fabs(number)>=1.0)&&(i<maxDec) )
                 return(i+1);
             return(i);
         }
-        number*=10.0f;
+        number*=10.0;
     }
     return(maxDec);
 }
 
-std::string tt::FNb(int leadingZeros,float number,int decimals,bool sign)
+std::string tt::FNb(int leadingZeros,double number,int decimals,bool sign)
 { // sign is true by default
 
     int dec=getDecimalPos(number,decimals*2);
@@ -469,7 +469,7 @@ double tt::getLimitedDouble(double minValue,double maxValue,double value)
     return(value);
 }
 
-void tt::limitValue(float minValue,float maxValue,float value[2])
+void tt::limitValue(double minValue,double maxValue,double value[2])
 {
     if (value[0]>maxValue) value[0]=maxValue;
     if (value[1]>maxValue) value[1]=maxValue;
@@ -485,11 +485,11 @@ void tt::limitValue(int minValue,int maxValue,int* value)
         (*value)=minValue;
 }
 
-bool tt::getValidFloat(const char* text,float& value)
+bool tt::getValidFloat(const char* text,double& value)
 {   // don't forget those cases: 1.06581410364015e-014
     try
     {
-        value=boost::lexical_cast<float>(text);
+        value=boost::lexical_cast<double>(text);
         return(true);
     }
     catch (boost::bad_lexical_cast &)
@@ -843,7 +843,7 @@ std::string tt::getObjectAltNameFromObjectName(const char* text)
     return(retVal);
 }
 
-void tt::addToFloatArray(std::vector<float>* ar,float x,float y,float z)
+void tt::addToFloatArray(std::vector<double>* ar,double x,double y,double z)
 {
     ar->push_back(x);
     ar->push_back(y);
@@ -856,15 +856,15 @@ void tt::addToIntArray(std::vector<int>* ar,int x,int y,int z)
     ar->push_back(z);
 }
 
-float tt::getNormalizedAngle(float angle)
+double tt::getNormalizedAngle(double angle)
 { // Returns an angle between -PI and +PI
     double sinAngle=sin(double(angle));
     double cosAngle=cos(double(angle));
     double angle_da=atan2(sinAngle,cosAngle);
-    return(float(angle_da));
+    return(double(angle_da));
 }
 
-float tt::getNormalizedAngle_range(float angle,float range)
+double tt::getNormalizedAngle_range(double angle,double range)
 { // Returns an angle between -range/2 and +range/2, or between -PI and +PI if range is 0.0
     if (range==0.0)
         return(getNormalizedAngle(angle));
@@ -872,10 +872,10 @@ float tt::getNormalizedAngle_range(float angle,float range)
     double sinAngle=sin(a);
     double cosAngle=cos(a);
     double angle_da=atan2(sinAngle,cosAngle);
-    return(float(angle_da*double(range)/6.28318530718));
+    return(double(angle_da*double(range)/6.28318530718));
 }
 
-float tt::getAngleMinusAlpha(float angle,float alpha)
+double tt::getAngleMinusAlpha(double angle,double alpha)
 {   // Returns angle-alpha. Angle and alpha are cyclic angles!!
     double sinAngle0=sin(double(angle));
     double sinAngle1=sin(double(alpha));
@@ -884,10 +884,10 @@ float tt::getAngleMinusAlpha(float angle,float alpha)
     double sin_da=sinAngle0*cosAngle1-cosAngle0*sinAngle1;
     double cos_da=cosAngle0*cosAngle1+sinAngle0*sinAngle1;
     double angle_da=atan2(sin_da,cos_da);
-    return(float(angle_da));
+    return(double(angle_da));
 }
 
-float tt::getAngleMinusAlpha_range(float angle,float alpha,float range)
+double tt::getAngleMinusAlpha_range(double angle,double alpha,double range)
 {   // Returns angle-alpha. Angle and alpha are cyclic values in range [-range/2;range/2], or in range [-PI;+PI] if range is 0.0
     if (range==0.0)
         return(getAngleMinusAlpha(angle,alpha));
@@ -900,7 +900,7 @@ float tt::getAngleMinusAlpha_range(float angle,float alpha,float range)
     double sin_da=sinAngle0*cosAngle1-cosAngle0*sinAngle1;
     double cos_da=cosAngle0*cosAngle1+sinAngle0*sinAngle1;
     double angle_da=atan2(sin_da,cos_da);
-    return(float(angle_da*double(range)/6.28318530718));
+    return(double(angle_da*double(range)/6.28318530718));
 }
 
 void tt::rgbToHsl(float rgb[3],float hsl[3])
@@ -911,29 +911,29 @@ void tt::rgbToHsl(float rgb[3],float hsl[3])
     float h,s,l,delta;
     float cmax=std::max<float>(r,std::max<float>(g,b));
     float cmin=std::min<float>(r,std::min<float>(g,b));
-    l=(cmax+cmin)/2.0f;
+    l=(cmax+cmin)/2.0;
     if (cmax==cmin) 
     {
-        s=0.0f;
-        h=0.0f;
+        s=0.0;
+        h=0.0;
     } 
     else 
     {
-        if(l<0.5f) 
+        if(l<0.5) 
             s=(cmax-cmin)/(cmax+cmin);
         else
-            s=(cmax-cmin)/(2.0f-cmax-cmin);
+            s=(cmax-cmin)/(2.0-cmax-cmin);
         delta=cmax-cmin;
         if (r==cmax)
             h=(g-b)/delta;
         else 
             if (g==cmax)
-                h=2.0f+(b-r)/delta;
+                h=2.0+(b-r)/delta;
             else
-                h=4.0f+(r-g)/delta;
-        h=h/6.0f;
-        if (h<0.0f)
-            h=h+1.0f;
+                h=4.0+(r-g)/delta;
+        h=h/6.0;
+        if (h<0.0)
+            h=h+1.0;
     }
     hsl[0]=h;
     hsl[1]=s;
@@ -942,16 +942,16 @@ void tt::rgbToHsl(float rgb[3],float hsl[3])
 
 float tt::_hueToRgb(float m1,float m2,float h)
 {
-    if (h<0.0f) 
-        h=h+1.0f;
-    if (h>1.0f) 
-        h=h-1.0f;
-    if (6.0f*h<1.0f)
-        return(m1+(m2-m1)*h*6.0f);
-    if (2.0f*h<1.0f)
+    if (h<0.0) 
+        h=h+1.0;
+    if (h>1.0) 
+        h=h-1.0;
+    if (6.0*h<1.0)
+        return(m1+(m2-m1)*h*6.0);
+    if (2.0*h<1.0)
         return(m2);
-    if (3.0f*h<2.0f)
-        return(m1+(m2-m1)*((2.0f/3.0f)-h)*6.0f);
+    if (3.0*h<2.0)
+        return(m1+(m2-m1)*((2.0/3.0)-h)*6.0);
     return(m1);
 }
 
@@ -962,7 +962,7 @@ void tt::hslToRgb(float hsl[3],float rgb[3])
     float l=hsl[2];
     float m1,m2;
 
-    if (s==0.0f)
+    if (s==0.0)
     {
         rgb[0]=l;
         rgb[1]=l;
@@ -970,14 +970,14 @@ void tt::hslToRgb(float hsl[3],float rgb[3])
     }
     else 
     {
-        if (l<=0.5f)
-            m2=l*(1.0f+s);
+        if (l<=0.5)
+            m2=l*(1.0+s);
         else
             m2=l+s-l*s;
-        m1=2.0f*l-m2;
-        rgb[0]=_hueToRgb(m1,m2,h+1.0f/3.0f);
+        m1=2.0*l-m2;
+        rgb[0]=_hueToRgb(m1,m2,h+1.0/3.0);
         rgb[1]=_hueToRgb(m1,m2,h);
-        rgb[2]=_hueToRgb(m1,m2,h-1.0f/3.0f);
+        rgb[2]=_hueToRgb(m1,m2,h-1.0/3.0);
     }
 }
 
@@ -999,7 +999,7 @@ void tt::orderAscending(std::vector<int>& toBeOrdered,std::vector<int>& index)
     }
 }
 
-void tt::orderAscending(std::vector<float>& toBeOrdered,std::vector<int>& index)
+void tt::orderAscending(std::vector<double>& toBeOrdered,std::vector<int>& index)
 {
     std::vector<filestruct_B> lst;
     for (size_t i=0;i<toBeOrdered.size();i++)
@@ -1065,7 +1065,7 @@ void tt::limitValue(int minValue,int maxValue,int &value)
     if (value<minValue) value=minValue;
 }
 
-float tt::getLimitedFloat(float minValue,float maxValue,float value)
+double tt::getLimitedFloat(double minValue,double maxValue,double value)
 {
     if (value>maxValue)
         value=maxValue;
@@ -1074,7 +1074,7 @@ float tt::getLimitedFloat(float minValue,float maxValue,float value)
     return(value);
 }
 
-void tt::limitValue(float minValue,float maxValue,float &value)
+void tt::limitValue(double minValue,double maxValue,double &value)
 {
     if (value>maxValue) value=maxValue;
     if (value<minValue) value=minValue;

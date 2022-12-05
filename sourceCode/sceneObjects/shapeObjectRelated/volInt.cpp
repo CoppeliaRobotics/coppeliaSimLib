@@ -217,7 +217,7 @@ void CVolInt::compVolumeIntegrals(POLYHEDRON *p)
   TP[0] /= 2; TP[1] /= 2; TP[2] /= 2;
 }
 
-float CVolInt::getMassCenterOfMassAndInertiaTensor(const float* vertices,int ptCnt,const int* indices,int triCnt,float density,C3Vector& centerOfMass,C3X3Matrix& inertiaTensor)
+double CVolInt::getMassCenterOfMassAndInertiaTensor(const double* vertices,int ptCnt,const int* indices,int triCnt,double density,C3Vector& centerOfMass,C3X3Matrix& inertiaTensor)
 { // returned inertia tensor is divided by the mass!
     POLYHEDRON p;
     for (int i=0;i<ptCnt*3;i++)
@@ -265,7 +265,7 @@ float CVolInt::getMassCenterOfMassAndInertiaTensor(const float* vertices,int ptC
     r[0]=T1[0]/T0;
     r[1]=T1[1]/T0;
     r[2]=T1[2]/T0;
-    centerOfMass.setData((float)r[0],(float)r[1],(float)r[2]);
+    centerOfMass.setData((double)r[0],(double)r[1],(double)r[2]);
 
     // compute inertia tensor
     J[0][0]=_density*(T2[1]+T2[2]);
@@ -283,36 +283,36 @@ float CVolInt::getMassCenterOfMassAndInertiaTensor(const float* vertices,int ptC
     J[1][2]=J[2][1]+=mass*r[1]*r[2];
     J[2][0]=J[0][2]+=mass*r[2]*r[0];
 
-    inertiaTensor.axis[0](0)=float(J[0][0]/mass);
-    inertiaTensor.axis[1](0)=float(J[0][1]/mass);
-    inertiaTensor.axis[2](0)=float(J[0][2]/mass);
-    inertiaTensor.axis[0](1)=float(J[1][0]/mass);
-    inertiaTensor.axis[1](1)=float(J[1][1]/mass);
-    inertiaTensor.axis[2](1)=float(J[1][2]/mass);
-    inertiaTensor.axis[0](2)=float(J[2][0]/mass);
-    inertiaTensor.axis[1](2)=float(J[2][1]/mass);
-    inertiaTensor.axis[2](2)=float(J[2][2]/mass);
+    inertiaTensor.axis[0](0)=double(J[0][0]/mass);
+    inertiaTensor.axis[1](0)=double(J[0][1]/mass);
+    inertiaTensor.axis[2](0)=double(J[0][2]/mass);
+    inertiaTensor.axis[0](1)=double(J[1][0]/mass);
+    inertiaTensor.axis[1](1)=double(J[1][1]/mass);
+    inertiaTensor.axis[2](1)=double(J[1][2]/mass);
+    inertiaTensor.axis[0](2)=double(J[2][0]/mass);
+    inertiaTensor.axis[1](2)=double(J[2][1]/mass);
+    inertiaTensor.axis[2](2)=double(J[2][2]/mass);
 
 /*
-    printf("\nT1 =   %+20.6f\n\n", T0);
+    printf("\nT1 =   %+20.6\n\n", T0);
 
-    printf("Tx =   %+20.6f\n", T1[0]);
-    printf("Ty =   %+20.6f\n", T1[1]);
-    printf("Tz =   %+20.6f\n\n", T1[2]);
+    printf("Tx =   %+20.6\n", T1[0]);
+    printf("Ty =   %+20.6\n", T1[1]);
+    printf("Tz =   %+20.6\n\n", T1[2]);
 
-    printf("Txx =  %+20.6f\n", T2[0]);
-    printf("Tyy =  %+20.6f\n", T2[1]);
-    printf("Tzz =  %+20.6f\n\n", T2[2]);
+    printf("Txx =  %+20.6\n", T2[0]);
+    printf("Tyy =  %+20.6\n", T2[1]);
+    printf("Tzz =  %+20.6\n\n", T2[2]);
 
-    printf("Txy =  %+20.6f\n", TP[0]);
-    printf("Tyz =  %+20.6f\n", TP[1]);
-    printf("Tzx =  %+20.6f\n\n", TP[2]);
+    printf("Txy =  %+20.6\n", TP[0]);
+    printf("Tyz =  %+20.6\n", TP[1]);
+    printf("Tzx =  %+20.6\n\n", TP[2]);
 
 
     printf("inertia tensor with origin at c.o.m. :\n");
-    printf("%+15.6f  %+15.6f  %+15.6f\n", J[0][0], J[0][1], J[0][2]);
-    printf("%+15.6f  %+15.6f  %+15.6f\n", J[1][0], J[1][1], J[1][2]);
-    printf("%+15.6f  %+15.6f  %+15.6f\n\n", J[2][0], J[2][1], J[2][2]);
+    printf("%+15.6  %+15.6  %+15.6\n", J[0][0], J[0][1], J[0][2]);
+    printf("%+15.6  %+15.6  %+15.6\n", J[1][0], J[1][1], J[1][2]);
+    printf("%+15.6  %+15.6  %+15.6\n\n", J[2][0], J[2][1], J[2][2]);
 //*/
-    return((float)mass);
+    return((double)mass);
 }

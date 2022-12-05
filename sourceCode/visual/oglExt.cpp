@@ -348,9 +348,9 @@ bool oglExt::areNonPowerOfTwoTexturesAvailable()
 
 void oglExt::initDefaultGlValues()
 {
-    glClearDepth(1.0f);
+    glClearDepth(1.0);
     glDepthFunc(GL_LEQUAL); // Maybe useful with glPolygonOffset?
-    glClearColor(0.0f,0.0f,0.0f,1.0f);
+    glClearColor(0.0,0.0,0.0,1.0);
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
     glCullFace(GL_BACK);
     glDisable(GL_CULL_FACE);

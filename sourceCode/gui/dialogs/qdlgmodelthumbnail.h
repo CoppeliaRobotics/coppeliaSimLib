@@ -25,11 +25,11 @@ public:
     void actualizeBitmap();
 
     CVisionSensor* rs;
-    float rotX;
-    float rotY;
-    float zoom;
-    float shiftX;
-    float shiftY;
+    double rotX;
+    double rotY;
+    double zoom;
+    double shiftX;
+    double shiftY;
     bool hideEdges;
     bool antialiasing;
     std::vector<int> sel;

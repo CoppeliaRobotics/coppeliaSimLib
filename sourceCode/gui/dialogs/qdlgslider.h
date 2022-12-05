@@ -1,9 +1,9 @@
-
 #ifndef QDLGSLIDER_H
 #define QDLGSLIDER_H
 
 #include "vDialog.h"
 #include <QAbstractButton>
+#include "simTypes.h"
 
 namespace Ui {
     class CQDlgSlider;
@@ -24,7 +24,7 @@ public:
 
     int opMode;
     int triCnt;
-    float decimationPercent;
+    double decimationPercent;
 
 private slots:
 

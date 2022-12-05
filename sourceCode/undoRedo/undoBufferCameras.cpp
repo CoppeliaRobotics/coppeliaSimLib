@@ -131,7 +131,7 @@ void CUndoBufferCameras::storeCameras()
             C7Vector tr;
             tr.setIdentity();
             cam->setLocalTransformation(tr);
-            cam->setOrthoViewSize(1.0f);
+            cam->setOrthoViewSize(1.0);
             */
             cam->setIgnorePosAndCameraOrthoviewSize_forUndoRedo(true);
             if ((cam->getUseParentObjectAsManipulationProxy())&&(cam->getParent()!=nullptr))

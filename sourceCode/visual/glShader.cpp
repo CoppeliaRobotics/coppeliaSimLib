@@ -33,7 +33,7 @@ CGlShader::CGlShader()
                                            "void main()\n"
                                            "{\n"
                                            "    vec3 n,halfV,lightDir;\n"
-                                           "    float NdotL,NdotHV;\n"
+                                           "    double NdotL,NdotHV;\n"
                                            " \n"
                                            "    lightDir = vec3(gl_LightSource[0].position);\n"
                                            " \n"

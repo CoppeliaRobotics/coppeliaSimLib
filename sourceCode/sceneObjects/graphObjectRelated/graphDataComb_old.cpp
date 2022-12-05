@@ -14,7 +14,7 @@ CGraphDataComb_old::CGraphDataComb_old()
     name="Curve";
     visible=true;
     visibleOnTopOfEverything=false;
-    threeDCurveWidth=1.0f;
+    threeDCurveWidth=1.0;
     data[0]=-1;
     data[1]=-1;
     data[2]=-1;
@@ -80,13 +80,13 @@ bool CGraphDataComb_old::getVisibleOnTopOfEverything()
     return(visibleOnTopOfEverything);
 }
 
-void CGraphDataComb_old::set3DCurveWidth(floatDouble width)
+void CGraphDataComb_old::set3DCurveWidth(double width)
 {
-    tt::limitValue(1.0f,6.0f,width);
+    tt::limitValue(1.0,6.0,width);
     threeDCurveWidth=width;
 }
 
-floatDouble CGraphDataComb_old::get3DCurveWidth()
+double CGraphDataComb_old::get3DCurveWidth()
 {
     return(threeDCurveWidth);
 }
@@ -146,14 +146,14 @@ void CGraphDataComb_old::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
             ar.storeDataName("3dw");
-            ar.flt() << (floatFloat)threeDCurveWidth;
+            ar << (float)threeDCurveWidth;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_dw");
-            ar.dbl() << threeDCurveWidth;
+            ar << threeDCurveWidth;
             ar.flush();
-#endif
+
 
 
             ar.storeDataName("Par");
@@ -194,15 +194,15 @@ void CGraphDataComb_old::serialize(CSer& ar)
                     { // for backward compatibility 11/06/2016
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla[3];
-                        ar.flt() >> bla[0] >> bla[1] >> bla[2];
-                        curveColor.getColorsPtr()[0]=(floatDouble)bla[0];
-                        curveColor.getColorsPtr()[1]=(floatDouble)bla[1];
-                        curveColor.getColorsPtr()[2]=(floatDouble)bla[2];
-                        ar.flt() >> bla[0] >> bla[1] >> bla[2];
-                        curveColor.getColorsPtr()[9]=(floatDouble)bla[0];
-                        curveColor.getColorsPtr()[10]=(floatDouble)bla[1];
-                        curveColor.getColorsPtr()[11]=(floatDouble)bla[2];
+                        float bla[3];
+                        ar >> bla[0] >> bla[1] >> bla[2];
+                        curveColor.getColorsPtr()[0]=(double)bla[0];
+                        curveColor.getColorsPtr()[1]=(double)bla[1];
+                        curveColor.getColorsPtr()[2]=(double)bla[2];
+                        ar >> bla[0] >> bla[1] >> bla[2];
+                        curveColor.getColorsPtr()[9]=(double)bla[0];
+                        curveColor.getColorsPtr()[10]=(double)bla[1];
+                        curveColor.getColorsPtr()[11]=(double)bla[2];
                     }
                     if (theName.compare("Cl2")==0)
                     {
@@ -220,16 +220,18 @@ void CGraphDataComb_old::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
-                        ar.flt() >> bla;
-                        threeDCurveWidth=(floatDouble)bla;
+                        float bla;
+                        ar >> bla;
+                        threeDCurveWidth=(double)bla;
                     }
+
                     if (theName=="_dw")
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> threeDCurveWidth;
+                        ar >> threeDCurveWidth;
                     }
+
                     if (theName=="Par")
                     {
                         noHit=false;

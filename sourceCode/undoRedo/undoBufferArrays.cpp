@@ -9,7 +9,7 @@ CUndoBufferArrays::~CUndoBufferArrays()
 {
 }
 
-bool CUndoBufferArrays::_areFloatBuffersSame(const std::vector<floatFloat>& buff1,const std::vector<floatFloat>& buff2)
+bool CUndoBufferArrays::_areFloatBuffersSame(const std::vector<float>& buff1,const std::vector<float>& buff2)
 {
     if (buff1.size()==buff2.size())
     {
@@ -75,7 +75,7 @@ bool CUndoBufferArrays::_areUCharBuffersSame(const std::vector<unsigned char>& b
     return(false);
 }
 
-int CUndoBufferArrays::addVertexBuffer(const std::vector<floatFloat>& buff,int undoBufferId)
+int CUndoBufferArrays::addVertexBuffer(const std::vector<float>& buff,int undoBufferId)
 {
     //1. search for a same buffer:
     for (size_t i=0;i<_vertexBuffers.size();i++)
@@ -115,7 +115,7 @@ int CUndoBufferArrays::addIndexBuffer(const std::vector<int>& buff,int undoBuffe
     return(_nextId-1);
 }
 
-int CUndoBufferArrays::addNormalsBuffer(const std::vector<floatFloat>& buff,int undoBufferId)
+int CUndoBufferArrays::addNormalsBuffer(const std::vector<float>& buff,int undoBufferId)
 {
     //1. search for a same buffer:
     for (size_t i=0;i<_normalsBuffers.size();i++)
@@ -155,7 +155,7 @@ int CUndoBufferArrays::addTextureBuffer(const std::vector<unsigned char>& buff,i
     return(_nextId-1);
 }
 
-void CUndoBufferArrays::getVertexBuffer(int id,std::vector<floatFloat>& buff)
+void CUndoBufferArrays::getVertexBuffer(int id,std::vector<float>& buff)
 {
     bool found=false;
     for (size_t i=0;i<_vertexBuffers.size();i++)
@@ -181,7 +181,7 @@ void CUndoBufferArrays::getIndexBuffer(int id,std::vector<int>& buff)
     }
 }
 
-void CUndoBufferArrays::getNormalsBuffer(int id,std::vector<floatFloat>& buff)
+void CUndoBufferArrays::getNormalsBuffer(int id,std::vector<float>& buff)
 {
     for (size_t i=0;i<_normalsBuffers.size();i++)
     {

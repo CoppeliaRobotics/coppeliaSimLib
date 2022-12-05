@@ -1,4 +1,3 @@
-
 // This file includes many many very ugly things and requires some serious refactoring!!!!
 
 #include "oGL.h"
@@ -10,8 +9,6 @@
 
 SOglFont ogl::oglFonts[]= 
     {
-        // For future: "Arial" size 12 is good (for UIs)
-        //             "Arial" size 16 and size 32 are good too
         {"MS Sans Serif",16,0,{}},
         {"courier new",16,0,{}},
         {"",0,0,{}}
@@ -23,67 +20,67 @@ int ogl::fontIndex=0;
 char ogl::opacBitmap[10000];
 
 unsigned int ogl::outlineFontBase;
-float ogl::outlineFontSizes[256];
-float ogl::outlineFontHeight;
-float ogl::outlineFontCenter;
+double ogl::outlineFontSizes[256];
+double ogl::outlineFontHeight;
+double ogl::outlineFontCenter;
 
 float ogl::currentRichTextColor[3];
 float ogl::defaultRichTextColor[3];
 
-float ogl::HIERARCHY_AND_BROWSER_LAST_SELECTION_COLOR[3]={1.0f,0.82f,0.38f};
+float ogl::HIERARCHY_AND_BROWSER_LAST_SELECTION_COLOR[3]={1.0,0.82,0.38};
 
-float ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_BRIGHT[3]={1.0f,0.89f,0.54f};
-float ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_DARK[3]={1.0f,0.89f,0.54f};
+float ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_BRIGHT[3]={1.0,0.89,0.54};
+float ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_DARK[3]={1.0,0.89,0.54};
 
-float ogl::HIERARCHY_DROP_LOCATION_COLOR[3]={1.0f,0.7f,0.0f};
-float ogl::HIERARCHY_WORLD_CLICK_COLOR[3]={1.0f,0.0f,0.0f};
+float ogl::HIERARCHY_DROP_LOCATION_COLOR[3]={1.0,0.7,0.0};
+float ogl::HIERARCHY_WORLD_CLICK_COLOR[3]={1.0,0.0,0.0};
 
-float ogl::HIERARCHY_UNACTIVE_WORLD_COLOR[3]={0.9f,0.9f,0.9f};
+float ogl::HIERARCHY_UNACTIVE_WORLD_COLOR[3]={0.9,0.9,0.9};
 
-float ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[3]={0.975f,0.975f,0.975f};
-float ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK[3]={0.098f,0.137f,0.176f};
+float ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[3]={0.975,0.975,0.975};
+float ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK[3]={0.098,0.137,0.176};
 
-float ogl::HIERARCHY_NO_SELECTION_RED_BRIGHT[3]={1.0f,0.855f,0.855f};
-float ogl::HIERARCHY_NO_SELECTION_RED_DARK[3]={1.0f,0.855f,0.855f};
+float ogl::HIERARCHY_NO_SELECTION_RED_BRIGHT[3]={1.0,0.855,0.855};
+float ogl::HIERARCHY_NO_SELECTION_RED_DARK[3]={1.0,0.855,0.855};
 
-float ogl::HIERARCHY_NO_SELECTION_GREEN_BRIGHT[3]={0.8f,1.0f,0.8f};
-float ogl::HIERARCHY_NO_SELECTION_GREEN_DARK[3]={0.8f,1.0f,0.8f};
+float ogl::HIERARCHY_NO_SELECTION_GREEN_BRIGHT[3]={0.8,1.0,0.8};
+float ogl::HIERARCHY_NO_SELECTION_GREEN_DARK[3]={0.8,1.0,0.8};
 
-float ogl::HIERARCHY_NO_SELECTION_BLUE_BRIGHT[3]={0.855f,0.855f,1.0f};
-float ogl::HIERARCHY_NO_SELECTION_BLUE_DARK[3]={0.855f,0.855f,1.0f};
+float ogl::HIERARCHY_NO_SELECTION_BLUE_BRIGHT[3]={0.855,0.855,1.0};
+float ogl::HIERARCHY_NO_SELECTION_BLUE_DARK[3]={0.855,0.855,1.0};
 
-float ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE[3]={0.0f,0.0f,0.0f};
-float ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_INVISIBLE[3]={0.65f,0.65f,0.65f};
+float ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE[3]={0.0,0.0,0.0};
+float ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_INVISIBLE[3]={0.65,0.65,0.65};
 
-float ogl::HIERARCHY_AND_BROWSER_LINE_COLOR[3]={0.75f,0.75f,0.75f};
+float ogl::HIERARCHY_AND_BROWSER_LINE_COLOR[3]={0.75,0.75,0.75};
 
-float ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_COLOR[3]={0.9f,0.9f,0.9f};
-float ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_BACK_COLOR[3]={0.975f,0.975f,0.975f};
+float ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_COLOR[3]={0.9,0.9,0.9};
+float ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_BACK_COLOR[3]={0.975,0.975,0.975};
 
-float ogl::TITLE_BAR_COLOR[3]={0.94f,0.94f,0.94f};
-float ogl::TITLE_BAR_BUTTON_COLOR[3]={0.94f,0.94f,0.94f};
-float ogl::SEPARATION_LINE_COLOR[3]={0.75f,0.75f,0.75f};
+float ogl::TITLE_BAR_COLOR[3]={0.94,0.94,0.94};
+float ogl::TITLE_BAR_BUTTON_COLOR[3]={0.94,0.94,0.94};
+float ogl::SEPARATION_LINE_COLOR[3]={0.75,0.75,0.75};
 
-float ogl::MANIPULATION_MODE_OVERLAY_COLOR[4]={0.0f,0.85f,0.75f,0.25f};
-float ogl::MANIPULATION_MODE_OVERLAY_GRID_COLOR[4]={0.3f,0.3f,0.3f,0.25f};
+float ogl::MANIPULATION_MODE_OVERLAY_COLOR[4]={0.0,0.85,0.75,0.25};
+float ogl::MANIPULATION_MODE_OVERLAY_GRID_COLOR[4]={0.3,0.3,0.3,0.25};
 
-float ogl::colorBlack[3]={0.0f,0.0f,0.0f};
-float ogl::colorDarkGrey[3]={0.2f,0.2f,0.2f};
-float ogl::colorGrey[3]={0.5f,0.5f,0.5f};
-float ogl::colorLightGrey[3]={0.8f,0.8f,0.8f};
-float ogl::colorWhite[3]={1.0f,1.0f,1.0f};
+float ogl::colorBlack[3]={0.0,0.0,0.0};
+float ogl::colorDarkGrey[3]={0.2,0.2,0.2};
+float ogl::colorGrey[3]={0.5,0.5,0.5};
+float ogl::colorLightGrey[3]={0.8,0.8,0.8};
+float ogl::colorWhite[3]={1.0,1.0,1.0};
 
-float ogl::colorRed[3]={1.0f,0.0f,0.0f};
-float ogl::colorGreen[3]={0.0f,1.0f,0.0f};
-float ogl::colorBlue[3]={0.0f,0.0f,1.0f};
-float ogl::colorYellow[3]={1.0f,1.0f,0.0f};
-float ogl::colorCyan[3]={0.0f,1.0f,1.0f};
-float ogl::colorPurple[3]={1.0f,0.0f,1.0f};
+float ogl::colorRed[3]={1.0,0.0,0.0};
+float ogl::colorGreen[3]={0.0,1.0,0.0};
+float ogl::colorBlue[3]={0.0,0.0,1.0};
+float ogl::colorYellow[3]={1.0,1.0,0.0};
+float ogl::colorCyan[3]={0.0,1.0,1.0};
+float ogl::colorPurple[3]={1.0,0.0,1.0};
 
 float ogl::_lastAmbientDiffuseAlpha[4];
 
 
-std::vector<float> ogl::buffer;
+std::vector<double> ogl::buffer;
 std::vector<int> ogl::buffer_i;
 
 std::vector<unsigned int> ogl::_allTextureNames;
@@ -144,9 +141,9 @@ void ogl::delTexture(unsigned int t)
 
 void ogl::setTextColor(float r,float g,float b)
 {
-    float buff[4]={r,g,b,1.0f};
+    float buff[4]={r,g,b,1.0};
 //    glColor4fv(buff);
-    float bl[4]={0.0f,0.0f,0.0f,0.0f};
+    float bl[4]={0.0,0.0,0.0,0.0};
     glMateriali(GL_FRONT_AND_BACK,GL_SHININESS,128); // 13.07.2022
     glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,bl); // 13.07.2022
     glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,buff);
@@ -168,7 +165,7 @@ void ogl::setTextColor(float rgb[3])
 
 void ogl::setMaterialColor(const float ambientCol[3],const float specularCol[3],const float emissiveCol[3])
 {
-    float buff[4]={0.0f,0.0f,0.0f,1.0f};
+    float buff[4]={0.0,0.0,0.0,1.0};
     if (ambientCol!=nullptr)
     {
         _lastAmbientDiffuseAlpha[0]=ambientCol[0];
@@ -244,7 +241,7 @@ void ogl::setMaterialColor(int colorMode,float r,float g,float b)
     }
     if (colorMode==sim_colorcomponent_specular)
     {
-        float buff[4]={r,g,b,1.0f};
+        float buff[4]={r,g,b,1.0};
         glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,buff);
         if (App::userSettings->specificGpuTweak)
         { // Following needed with some graphic cards to see text when there is a background! This is probably a bug in the driver
@@ -255,7 +252,7 @@ void ogl::setMaterialColor(int colorMode,float r,float g,float b)
     }
     if (colorMode==sim_colorcomponent_emission)
     {
-        float buff[4]={r,g,b,1.0f};
+        float buff[4]={r,g,b,1.0};
         glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,buff);
         if (App::userSettings->specificGpuTweak)
         { // Following needed with some graphic card to see text when there is a background! This is probably a bug in the driver
@@ -291,9 +288,9 @@ void ogl::setBlending(bool on,int param1,int param2)
         glDisable(GL_BLEND);
 }
 
-void ogl::setAlpha(float a)
+void ogl::setAlpha(double a)
 {
-    _lastAmbientDiffuseAlpha[3]=a;
+    _lastAmbientDiffuseAlpha[3]=(float)a;
     glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,_lastAmbientDiffuseAlpha);
 }
 
@@ -312,39 +309,39 @@ void ogl::enableLighting_useWithCare()
     glEnable(GL_LIGHTING);
 }
 
-void ogl::drawRandom3dLines(const float* pts,int ptsCnt,bool connected,const float normalVectorForDiffuseComp[3])
+void ogl::drawRandom3dLines(const double* pts,int ptsCnt,bool connected,const double normalVectorForDiffuseComp[3])
 {
     if (connected)
         glBegin(GL_LINE_STRIP);
     else
         glBegin(GL_LINES);
     if (normalVectorForDiffuseComp!=nullptr)
-        glNormal3fv(normalVectorForDiffuseComp);
+        glNormal3dv(normalVectorForDiffuseComp);
     else
-        glNormal3f(0.0f,0.0f,1.0f);
+        glNormal3f(0.0,0.0,1.0);
     for (int i=0;i<ptsCnt;i++)
-        glVertex3fv(pts+i*3);
+        glVertex3dv(pts+i*3);
     glEnd();
 }
 
-void ogl::drawRandom3dPoints(const float* pts,int ptsCnt,const float normalVectorForDiffuseComp[3])
+void ogl::drawRandom3dPoints(const double* pts,int ptsCnt,const double normalVectorForDiffuseComp[3])
 {
     drawRandom3dPointsEx(pts,ptsCnt,nullptr,nullptr,nullptr,false,normalVectorForDiffuseComp);
 }
 
-void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,const float* cols,const float* sizes,bool colsAreEmission,const float normalVectorForDiffuseComp[3],int colComp/*=4*/)
+void ogl::drawRandom3dPointsEx(const double* pts,int ptsCnt,const double* normals,const float* cols,const double* sizes,bool colsAreEmission,const double normalVectorForDiffuseComp[3],int colComp/*=4*/)
 {
     if (cols!=nullptr)
     { // note: glMaterialfv has some bugs in some geForce drivers, use glColor instead
         glEnable(GL_COLOR_MATERIAL);
         glColorMaterial(GL_FRONT_AND_BACK,GL_SPECULAR);
-        glColor3f(0.0f,0.0f,0.0f);
+        glColor3f(0.0,0.0,0.0);
         glColorMaterial(GL_FRONT_AND_BACK,GL_EMISSION);
-        glColor3f(0.0f,0.0f,0.0f);
+        glColor3f(0.0,0.0,0.0);
         glColorMaterial(GL_FRONT_AND_BACK,GL_SHININESS);
-        glColor3f(0.0f,0.0f,0.0f);
+        glColor3f(0.0,0.0,0.0);
         glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-        glColor3f(0.0f,0.0f,0.0f);
+        glColor3f(0.0,0.0,0.0);
         if (colsAreEmission)
             glColorMaterial(GL_FRONT_AND_BACK,GL_EMISSION);
     }
@@ -357,24 +354,24 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
             {
                 glBegin(GL_POINTS);
                 if (normalVectorForDiffuseComp!=nullptr)
-                    glNormal3fv(normalVectorForDiffuseComp);
+                    glNormal3dv(normalVectorForDiffuseComp);
                 else
-                    glNormal3f(0.0f,0.0f,1.0f);
+                    glNormal3f(0.0,0.0,1.0);
                 for (int i=0;i<ptsCnt;i++)
-                    glVertex3fv(pts+i*3);
+                    glVertex3dv(pts+i*3);
                 glEnd();
             }
             else
             {
                 if (normalVectorForDiffuseComp!=nullptr)
-                    glNormal3fv(normalVectorForDiffuseComp);
+                    glNormal3dv(normalVectorForDiffuseComp);
                 else
-                    glNormal3f(0.0f,0.0f,1.0f);
+                    glNormal3f(0.0,0.0,1.0);
                 for (int i=0;i<ptsCnt;i++)
                 {
-                    glPointSize(sizes[i]); // cannot be called between glBegin and glEnd!
+                    glPointSize((float)sizes[i]); // cannot be called between glBegin and glEnd!
                     glBegin(GL_POINTS);
-                    glVertex3fv(pts+i*3);
+                    glVertex3dv(pts+i*3);
                     glEnd();
                 }
             }
@@ -385,28 +382,28 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
             {
                 glBegin(GL_POINTS);
                 if (normalVectorForDiffuseComp!=nullptr)
-                    glNormal3fv(normalVectorForDiffuseComp);
+                    glNormal3dv(normalVectorForDiffuseComp);
                 else
-                    glNormal3f(0.0f,0.0f,1.0f);
+                    glNormal3f(0.0,0.0,1.0);
                 for (int i=0;i<ptsCnt;i++)
                 {
                     glColor4fv(cols+colComp*i);
-                    glVertex3fv(pts+i*3);
+                    glVertex3dv(pts+i*3);
                 }
                 glEnd();
             }
             else
             {
                 if (normalVectorForDiffuseComp!=nullptr)
-                    glNormal3fv(normalVectorForDiffuseComp);
+                    glNormal3dv(normalVectorForDiffuseComp);
                 else
-                    glNormal3f(0.0f,0.0f,1.0f);
+                    glNormal3f(0.0,0.0,1.0);
                 for (int i=0;i<ptsCnt;i++)
                 {
-                    glPointSize(sizes[i]); // cannot be called between glBegin and glEnd!
+                    glPointSize((float)sizes[i]); // cannot be called between glBegin and glEnd!
                     glBegin(GL_POINTS);
                     glColor4fv(cols+colComp*i);
-                    glVertex3fv(pts+i*3);
+                    glVertex3dv(pts+i*3);
                     glEnd();
                 }
             }
@@ -421,8 +418,8 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
                 glBegin(GL_POINTS);
                 for (int i=0;i<ptsCnt;i++)
                 {
-                    glNormal3fv(normals+i*3);
-                    glVertex3fv(pts+i*3);
+                    glNormal3dv(normals+i*3);
+                    glVertex3dv(pts+i*3);
                 }
                 glEnd();
             }
@@ -430,10 +427,10 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
             {
                 for (int i=0;i<ptsCnt;i++)
                 {
-                    glPointSize(sizes[i]); // cannot be called between glBegin and glEnd!
+                    glPointSize((float)sizes[i]); // cannot be called between glBegin and glEnd!
                     glBegin(GL_POINTS);
-                    glNormal3fv(normals+i*3);
-                    glVertex3fv(pts+i*3);
+                    glNormal3dv(normals+i*3);
+                    glVertex3dv(pts+i*3);
                     glEnd();
                 }
             }
@@ -446,8 +443,8 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
                 for (int i=0;i<ptsCnt;i++)
                 {
                     glColor4fv(cols+4*i);
-                    glNormal3fv(normals+i*3);
-                    glVertex3fv(pts+i*3);
+                    glNormal3dv(normals+i*3);
+                    glVertex3dv(pts+i*3);
                 }
                 glEnd();
             }
@@ -455,11 +452,11 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
             {
                 for (int i=0;i<ptsCnt;i++)
                 {
-                    glPointSize(sizes[i]); // cannot be called between glBegin and glEnd!
+                    glPointSize((float)sizes[i]); // cannot be called between glBegin and glEnd!
                     glBegin(GL_POINTS);
                     glColor4fv(cols+4*i);
-                    glNormal3fv(normals+i*3);
-                    glVertex3fv(pts+i*3);
+                    glNormal3dv(normals+i*3);
+                    glVertex3dv(pts+i*3);
                     glEnd();
                 }
             }
@@ -469,14 +466,14 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
         glDisable(GL_COLOR_MATERIAL);
 }
 
-void ogl::drawRandom2dLines(const float* pts,int ptsCnt,bool connected,float zCoord)
+void ogl::drawRandom2dLines(const double* pts,int ptsCnt,bool connected,double zCoord)
 {
     if (connected)
         glBegin(GL_LINE_STRIP);
     else
         glBegin(GL_LINES);
     for (int i=0;i<ptsCnt;i++)
-        glVertex3f(pts[i*2+0],pts[i*2+1],zCoord);
+        glVertex3d(pts[i*2+0],pts[i*2+1],zCoord);
     glEnd();
 }
 
@@ -491,20 +488,20 @@ void ogl::drawRandom2dLines_i(const int* pts,int ptsCnt,bool connected,int zCoor
     glEnd();
 }
 
-void ogl::drawRandom2dPoints(const float* pts,int ptsCnt,float zCoord)
+void ogl::drawRandom2dPoints(const double* pts,int ptsCnt,double zCoord)
 {
     glBegin(GL_POINTS);
     for (int i=0;i<ptsCnt;i++)
-        glVertex3f(pts[i*2+0],pts[i*2+1],zCoord);
+        glVertex3d(pts[i*2+0],pts[i*2+1],zCoord);
     glEnd();
 }
 
-void ogl::drawBitmapTextTo3dPosition(const float pos[3],const char* txt,const float normalVectorForDiffuseComp[3])
+void ogl::drawBitmapTextTo3dPosition(const double pos[3],const char* txt,const double normalVectorForDiffuseComp[3])
 {
     drawBitmapTextTo3dPosition(pos[0],pos[1],pos[2],txt,normalVectorForDiffuseComp);
 }
 
-void ogl::drawBitmapTextTo3dPosition(float x,float y,float z,const char* txt,const float normalVectorForDiffuseComp[3])
+void ogl::drawBitmapTextTo3dPosition(double x,double y,double z,const char* txt,const double normalVectorForDiffuseComp[3])
 {
     if (oglFonts[fontIndex].fontBase==0)
         return;
@@ -512,77 +509,77 @@ void ogl::drawBitmapTextTo3dPosition(float x,float y,float z,const char* txt,con
     if (l==0)
         return;
     if (normalVectorForDiffuseComp!=nullptr)
-        glNormal3fv(normalVectorForDiffuseComp);
+        glNormal3dv(normalVectorForDiffuseComp);
     else
-        glNormal3f(0.0f,0.0f,1.0f);
-    glRasterPos3f(x,y,z);
+        glNormal3f(0.0,0.0,1.0);
+    glRasterPos3d(x,y,z);
     glPushAttrib(GL_LIST_BIT);
     glListBase(oglFonts[fontIndex].fontBase);
     glCallLists((GLsizei)l,GL_UNSIGNED_BYTE,txt);
     glPopAttrib();
 }
 
-void ogl::drawBitmapTextTo2dPosition(float posX,float posY,const char* txt)
+void ogl::drawBitmapTextTo2dPosition(double posX,double posY,const char* txt)
 {
     if (oglFonts[fontIndex].fontBase==0)
         return;
     size_t l=strlen(txt);
     if (l==0)
         return;
-    glRasterPos3f(posX,posY,0.0f);
+    glRasterPos3d(posX,posY,0.0);
     glPushAttrib(GL_LIST_BIT);
     glListBase(oglFonts[fontIndex].fontBase);
     glCallLists((GLsizei)l,GL_UNSIGNED_BYTE,txt);
     glPopAttrib();
 }
 
-void ogl::drawPlane(float sizeX,float sizeY)
+void ogl::drawPlane(double sizeX,double sizeY)
 {
-    float x=sizeX/2.0f;
-    float y=sizeY/2.0f;
+    float x=float(sizeX/2.0);
+    float y=float(sizeY/2.0);
     glBegin(GL_QUADS);
-    glNormal3f(0.0f,0.0f,1.0f);
-    glVertex3f(-x,-y,0.0f);
-    glVertex3f(-x,+y,0.0f);
-    glVertex3f(+x,+y,0.0f);
-    glVertex3f(+x,-y,0.0f);
+    glNormal3f(0.0,0.0,1.0);
+    glVertex3f(-x,-y,0.0);
+    glVertex3f(-x,+y,0.0);
+    glVertex3f(+x,+y,0.0);
+    glVertex3f(+x,-y,0.0);
     glEnd();
 }
 
-void ogl::drawBox(float x,float y,float z,bool solid,const float normalVectorForDiffuseComp[3])
+void ogl::drawBox(double x,double y,double z,bool solid,const double normalVectorForDiffuseComp[3])
 {
-    float dx=x/2.0f;
-    float dy=y/2.0f;
-    float dz=z/2.0f;
+    float dx=double(x/2.0);
+    float dy=double(y/2.0);
+    float dz=double(z/2.0);
     if (solid)
     {
         glBegin(GL_QUADS);
-        glNormal3f(-1.0f,0.0f,0.0f);
+        glNormal3f(-1.0,0.0,0.0);
         glVertex3f(-dx,-dy,dz);
         glVertex3f(-dx,dy,dz);
         glVertex3f(-dx,dy,-dz);
         glVertex3f(-dx,-dy,-dz);
-        glNormal3f(0.0f,0.0f,-1.0f);
+        glNormal3f(0.0,0.0,-1.0);
         glVertex3f(-dx,-dy,-dz);
         glVertex3f(-dx,dy,-dz);
         glVertex3f(dx,dy,-dz);
         glVertex3f(dx,-dy,-dz);
-        glNormal3f(1.0f,0.0f,0.0f);
+        glNormal3f(1.0,0.0,0.0);
         glVertex3f(dx,-dy,-dz);
         glVertex3f(dx,dy,-dz);
         glVertex3f(dx,dy,dz);
         glVertex3f(dx,-dy,dz);
-        glNormal3f(0.0f,0.0f,1.0f);
+        glNormal3f(0.0,0.0,1.0);
         glVertex3f(dx,-dy,dz);
         glVertex3f(dx,dy,dz);
         glVertex3f(-dx,dy,dz);
         glVertex3f(-dx,-dy,dz);
-        glNormal3f(0.0f,-1.0f,0.0f);
+        glNormal3f(0.0,-1.0,0.0);
         glVertex3f(-dx,-dy,dz);
         glVertex3f(-dx,-dy,-dz);
         glVertex3f(dx,-dy,-dz);
         glVertex3f(dx,-dy,dz);
-        glNormal3f(0.0f,1.0f,0.0f);
+        glNormal3f(0.0,1.0,0.0);
         glVertex3f(-dx,dy,dz);
         glVertex3f(dx,dy,dz);
         glVertex3f(dx,dy,-dz);
@@ -592,9 +589,9 @@ void ogl::drawBox(float x,float y,float z,bool solid,const float normalVectorFor
     else
     {
         if (normalVectorForDiffuseComp!=nullptr)
-            glNormal3f(normalVectorForDiffuseComp[0],normalVectorForDiffuseComp[1],normalVectorForDiffuseComp[2]);
+            glNormal3f((float)normalVectorForDiffuseComp[0],(float)normalVectorForDiffuseComp[1],(float)normalVectorForDiffuseComp[2]);
         else
-            glNormal3f(0.0f,0.0f,1.0f);
+            glNormal3f(0.0,0.0,1.0);
         glBegin(GL_LINE_STRIP);
         glVertex3f(-dx,-dy,-dz);
         glVertex3f(-dx,+dy,-dz);
@@ -618,16 +615,16 @@ void ogl::drawBox(float x,float y,float z,bool solid,const float normalVectorFor
     }
 }
 
-void ogl::drawCylinder(float d,float l,int div,int openEnds,bool smooth)
+void ogl::drawCylinder(double d,double l,int div,int openEnds,bool smooth)
 {   // openEnds is 0 by default, smooth is true by default
     //  openEnds=1: end1 is open
     //  openEnds=2: end2 is open
     //  openEnds=3: end1&end2 are open
-    float angle=0.0f;
-    float r=d/2.0f;
-    float halfL=l/2.0f;
+    float angle=0.0;
+    float r=float(d/2.0);
+    float halfL=float(l/2.0);
     float xVal1,yVal1,xVal2,yVal2;
-    float incr=piValue*2.0f/((float)div);
+    float incr=piValue*2.0/((float)div);
     for (int i=0;i<div;i++)
     {
         xVal1=r*(float)cos(angle);
@@ -637,16 +634,16 @@ void ogl::drawCylinder(float d,float l,int div,int openEnds,bool smooth)
         glBegin(GL_QUADS);
         if (smooth)
         {
-            glNormal3f(xVal1/r,yVal1/r,0.0f);
+            glNormal3f(xVal1/r,yVal1/r,0.0);
             glVertex3f(xVal1,yVal1,halfL);
             glVertex3f(xVal1,yVal1,-halfL);
-            glNormal3f(xVal2/r,yVal2/r,0.0f);
+            glNormal3f(xVal2/r,yVal2/r,0.0);
             glVertex3f(xVal2,yVal2,-halfL);
             glVertex3f(xVal2,yVal2,halfL);
         }
         else
         {
-            glNormal3f((float)cos(angle+incr/2.0f),(float)sin(angle+incr/2.0f),0.0f);
+            glNormal3f((float)cos(angle+incr/2.0),(float)sin(angle+incr/2.0),0.0);
             glVertex3f(xVal1,yVal1,halfL);
             glVertex3f(xVal1,yVal1,-halfL);
             glVertex3f(xVal2,yVal2,-halfL);
@@ -656,15 +653,15 @@ void ogl::drawCylinder(float d,float l,int div,int openEnds,bool smooth)
         glBegin(GL_TRIANGLES);
         if ((openEnds&1)==0)
         {
-            glNormal3f(0.0f,0.0f,1.0f);
-            glVertex3f(0.0f,0.0f,halfL);
+            glNormal3f(0.0,0.0,1.0);
+            glVertex3f(0.0,0.0,halfL);
             glVertex3f(xVal1,yVal1,halfL);
             glVertex3f(xVal2,yVal2,halfL);
         }
         if ((openEnds&2)==0)
         {
-            glNormal3f(0.0f,0.0f,-1.0f);
-            glVertex3f(0.0f,0.0f,-halfL);
+            glNormal3f(0.0,0.0,-1.0);
+            glVertex3f(0.0,0.0,-halfL);
             glVertex3f(xVal2,yVal2,-halfL);
             glVertex3f(xVal1,yVal1,-halfL);
         }
@@ -673,12 +670,12 @@ void ogl::drawCylinder(float d,float l,int div,int openEnds,bool smooth)
     }
 }
 
-void ogl::drawCircle(float d,int div)
+void ogl::drawCircle(double d,int div)
 {
-    float angle=0.0f;
-    float r=d/2.0f;
+    float angle=0.0;
+    float r=float(d/2.0);
     float xVal1,yVal1,xVal2,yVal2;
-    float incr=piValue*2.0f/((float)div);
+    float incr=piValue*2.0/((float)div);
     glBegin(GL_LINES);
     for (int i=0;i<div;i++)
     {
@@ -686,7 +683,7 @@ void ogl::drawCircle(float d,int div)
         yVal1=r*(float)sin(angle);
         xVal2=r*(float)cos(angle+incr);
         yVal2=r*(float)sin(angle+incr);
-        glNormal3f((float)cos(angle+incr/2.0f),(float)sin(angle+incr/2.0f),0.0f);
+        glNormal3f((float)cos(angle+incr/2.0),(float)sin(angle+incr/2.0),0.0);
         glVertex3f(xVal1,yVal1,0.0);
         glVertex3f(xVal2,yVal2,0.0);
         angle=angle+incr;
@@ -694,12 +691,12 @@ void ogl::drawCircle(float d,int div)
     glEnd();
 }
 
-void ogl::drawDisk(float d,int div)
+void ogl::drawDisk(double d,int div)
 {   // The normal is in the direction of positive z
-    float angle=0.0f;
-    float r=d/2.0f;
+    float angle=0.0;
+    float r=float(d/2.0);
     float xVal1,yVal1,xVal2,yVal2;
-    float incr=piValue*2.0f/((float)div);
+    float incr=piValue*2.0/((float)div);
     for (int i=0;i<div;i++)
     {
         xVal1=r*(float)cos(angle);
@@ -707,24 +704,24 @@ void ogl::drawDisk(float d,int div)
         xVal2=r*(float)cos(angle+incr);
         yVal2=r*(float)sin(angle+incr);
         glBegin(GL_TRIANGLES);
-        glNormal3f(0.0f,0.0f,1.0f);
-        glVertex3f(0.0f,0.0f,0.0f);
-        glVertex3f(xVal1,yVal1,0.0f);
-        glVertex3f(xVal2,yVal2,0.0f);
+        glNormal3f(0.0,0.0,1.0);
+        glVertex3f(0.0,0.0,0.0);
+        glVertex3f(xVal1,yVal1,0.0);
+        glVertex3f(xVal2,yVal2,0.0);
         glEnd();
         angle=angle+incr;
     }
 }
 
-void ogl::drawCone(float d,float l,int div,bool openEnds,bool smooth)
+void ogl::drawCone(double d,double l,int div,bool openEnds,bool smooth)
 {
-    float angle=0.0f;
-    float r=d/2.0f;
-    float halfL=l/2.0f;
+    float angle=0.0;
+    float r=float(d/2.0);
+    float halfL=float(l/2.0);
     float xVal1,yVal1,xVal2,yVal2;
-    float incr=piValue*2.0f/((float)div);
+    float incr=float(piValue*2.0/double(div));
     float t2=(float)sin(atan(r/l));
-    float t1=sqrtf(1.0f-t2*t2);
+    float t1=sqrt(1.0-t2*t2);
     for (int i=0;i<div;i++)
     {
         xVal1=r*(float)cos(angle);
@@ -738,20 +735,20 @@ void ogl::drawCone(float d,float l,int div,bool openEnds,bool smooth)
             glVertex3f(xVal2,yVal2,halfL);
             glNormal3f(t1*xVal1/r,t1*yVal1/r,-t2);
             glVertex3f(xVal1,yVal1,halfL);
-            glNormal3f(0.0f,0.0f,-1.0f);
-            glVertex3f(0.0f,0.0f,-halfL);
+            glNormal3f(0.0,0.0,-1.0);
+            glVertex3f(0.0,0.0,-halfL);
         }
         else
         {
-            glNormal3f(t1*(float)cos(angle+incr/2.0f),t1*(float)sin(angle+incr/2.0f),-t2);
+            glNormal3f(t1*(float)cos(angle+incr/2.0),t1*(float)sin(angle+incr/2.0),-t2);
             glVertex3f(xVal2,yVal2,halfL);
             glVertex3f(xVal1,yVal1,halfL);
-            glVertex3f(0.0f,0.0f,-halfL);
+            glVertex3f(0.0,0.0,-halfL);
         }
         if (!openEnds)
         {
-            glNormal3f(0.0f,0.0f,1.0f);
-            glVertex3f(0.0f,0.0f,halfL);
+            glNormal3f(0.0,0.0,1.0);
+            glVertex3f(0.0,0.0,halfL);
             glVertex3f(xVal1,yVal1,halfL);
             glVertex3f(xVal2,yVal2,halfL);
         }
@@ -760,29 +757,30 @@ void ogl::drawCone(float d,float l,int div,bool openEnds,bool smooth)
     }
 }
 
-void ogl::drawSphere(float r,int sides,int faces,bool smooth)
+void ogl::drawSphere(double rr,int sides,int faces,bool smooth)
 {
     if (sides<3) sides=3;
     if (faces<2) faces=2;
-    float sa=2.0f*piValue/((float)sides);
-    float fa=piValue/((float)faces);
+    float r=(float)rr;
+    float sa=float(2.0*piValue/double(sides));
+    float fa=float(piValue/double(faces));
     float p0[3],p1[3],p2[3],p3[3];
     for (int i=0;i<sides;i++)
     {
         for (int j=0;j<faces;j++)
         {
-            p0[0]=r*(float)(sin(j*fa)*cos(i*sa));
-            p0[1]=r*(float)cos(j*fa);
-            p0[2]=r*(float)(sin(j*fa)*sin(i*sa));
-            p1[0]=r*(float)(sin(j*fa)*cos((i+1)*sa));
-            p1[1]=r*(float)cos(j*fa);
-            p1[2]=r*(float)(sin(j*fa)*sin((i+1)*sa));
-            p2[0]=r*(float)(sin((j+1)*fa)*cos((i+1)*sa));
-            p2[1]=r*(float)cos((j+1)*fa);
-            p2[2]=r*(float)(sin((j+1)*fa)*sin((i+1)*sa));
-            p3[0]=r*(float)(sin((j+1)*fa)*cos(i*sa));
-            p3[1]=r*(float)cos((j+1)*fa);
-            p3[2]=r*(float)(sin((j+1)*fa)*sin(i*sa));
+            p0[0]=r*(sin(j*fa)*cos(i*sa));
+            p0[1]=r*cos(j*fa);
+            p0[2]=r*(sin(j*fa)*sin(i*sa));
+            p1[0]=r*(sin(j*fa)*cos((i+1)*sa));
+            p1[1]=r*cos(j*fa);
+            p1[2]=r*(sin(j*fa)*sin((i+1)*sa));
+            p2[0]=r*(sin((j+1)*fa)*cos((i+1)*sa));
+            p2[1]=r*cos((j+1)*fa);
+            p2[2]=r*(sin((j+1)*fa)*sin((i+1)*sa));
+            p3[0]=r*(sin((j+1)*fa)*cos(i*sa));
+            p3[1]=r*cos((j+1)*fa);
+            p3[2]=r*(sin((j+1)*fa)*sin(i*sa));
             glBegin(GL_QUADS);
             if (smooth)
             {
@@ -810,10 +808,10 @@ void ogl::drawSphere(float r,int sides,int faces,bool smooth)
     }
 }
 
-void ogl::drawReference(float size,bool line,bool setColors,bool emissiveColor,const float normalVectorForDiffuseComp[3])
+void ogl::drawReference(double size,bool line,bool setColors,bool emissiveColor,const double normalVectorForDiffuseComp[3])
 {
-    float subSize=size/8.0f;
-    float subSubSize=subSize/2.0f;
+    float subSize=float(size/8.0);
+    float subSubSize=float(subSize/2.0);
     setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
     int colComp=sim_colorcomponent_ambient_diffuse;
     if (emissiveColor)
@@ -822,18 +820,18 @@ void ogl::drawReference(float size,bool line,bool setColors,bool emissiveColor,c
     if (line)
     {
         if (normalVectorForDiffuseComp!=nullptr)
-            glNormal3fv(normalVectorForDiffuseComp);
+            glNormal3dv(normalVectorForDiffuseComp);
         else
-            glNormal3f(0.0f,0.0f,1.0f);
+            glNormal3f(0.0,0.0,1.0);
         if (setColors)
             setMaterialColor(colComp,ogl::colorRed);
         glBegin(GL_LINES);
-        glVertex3f(0.0f,0.0f,0.0f);
-        glVertex3f(size,0.0f,0.0f);
-        glVertex3f(size-subSize,0.0f,subSubSize);
-        glVertex3f(size,0.0f,0.0f);
-        glVertex3f(size-subSize,0.0f,-subSubSize);
-        glVertex3f(size,0.0f,0.0f);
+        glVertex3f(0.0,0.0,0.0);
+        glVertex3f((float)size,0.0,0.0);
+        glVertex3f((float)size-subSize,0.0,(float)subSubSize);
+        glVertex3f((float)size,0.0,0.0);
+        glVertex3f((float)size-subSize,0.0,(float)-subSubSize);
+        glVertex3f((float)size,0.0,0.0);
         glEnd();
     }
     else
@@ -842,10 +840,10 @@ void ogl::drawReference(float size,bool line,bool setColors,bool emissiveColor,c
             setMaterialColor(colComp,ogl::colorRed);
         glPushMatrix();
         glRotatef(90,0,1,0);
-        glTranslatef(0.0f,0.0f,size/2.0f);
-        drawCylinder(size/20.0f,size,8,3,true);
-        glTranslatef(0.0f,0.0f,size*3.0f/5.0f);
-        drawCone(size/10.0f,size/5.0f,8,true,true);
+        glTranslatef(0.0,0.0,float(size/2.0));
+        drawCylinder(size/20.0,size,8,3,true);
+        glTranslatef(0.0,0.0,float(size*3.0/5.0));
+        drawCone(size/10.0,size/5.0,8,true,true);
         glPopMatrix();
     }
     if (line)
@@ -853,12 +851,12 @@ void ogl::drawReference(float size,bool line,bool setColors,bool emissiveColor,c
         if (setColors)
             setMaterialColor(colComp,ogl::colorGreen);
         glBegin(GL_LINES);
-        glVertex3f(0.0f,0.0f,0.0f);
-        glVertex3f(0.0f,size,0.0f);
-        glVertex3f(0.0f,size-subSize,subSubSize);
-        glVertex3f(0.0f,size,0.0f);
-        glVertex3f(0.0f,size-subSize,-subSubSize);
-        glVertex3f(0.0f,size,0.0f);
+        glVertex3f(0.0,0.0,0.0);
+        glVertex3f(0.0,(float)size,0.0);
+        glVertex3f(0.0,(float)size-subSize,subSubSize);
+        glVertex3f(0.0,(float)size,0.0);
+        glVertex3f(0.0,(float)size-subSize,-subSubSize);
+        glVertex3f(0.0,(float)size,0.0);
         glEnd();
     }
     else
@@ -867,10 +865,10 @@ void ogl::drawReference(float size,bool line,bool setColors,bool emissiveColor,c
             setMaterialColor(colComp,ogl::colorGreen);
         glPushMatrix();
         glRotatef(-90,1,0,0);
-        glTranslatef(0.0f,0.0f,size/2.0f);
-        drawCylinder(size/20.0f,size,8,3,true);
-        glTranslatef(0.0f,0.0f,size*3.0f/5.0f);
-        drawCone(size/10.0f,size/5.0f,8,true,true);
+        glTranslatef(0.0,0.0,float(size/2.0));
+        drawCylinder(size/20.0,size,8,3,true);
+        glTranslatef(0.0,0.0,float(size*3.0/5.0));
+        drawCone(size/10.0,size/5.0,8,true,true);
         glPopMatrix();
     }
     if (line)
@@ -878,12 +876,12 @@ void ogl::drawReference(float size,bool line,bool setColors,bool emissiveColor,c
         if (setColors)
             setMaterialColor(colComp,ogl::colorBlue);
         glBegin(GL_LINES);
-        glVertex3f(0.0f,0.0f,0.0f);
-        glVertex3f(0.0f,0.0f,size);
-        glVertex3f(0.0f,subSubSize,size-subSize);
-        glVertex3f(0.0f,0.0f,size);
-        glVertex3f(0.0f,-subSubSize,size-subSize);
-        glVertex3f(0.0f,0.0f,size);
+        glVertex3f(0.0,0.0,0.0);
+        glVertex3f(0.0,0.0,(float)size);
+        glVertex3f(0.0,subSubSize,(float)size-subSize);
+        glVertex3f(0.0,0.0,(float)size);
+        glVertex3f(0.0,-subSubSize,(float)size-subSize);
+        glVertex3f(0.0,0.0,(float)size);
         glEnd();
     }
     else
@@ -891,70 +889,70 @@ void ogl::drawReference(float size,bool line,bool setColors,bool emissiveColor,c
         if (setColors)
             setMaterialColor(colComp,ogl::colorBlue);
         glPushMatrix();
-        glTranslatef(0.0f,0.0f,size/2.0f);
-        drawCylinder(size/20.0f,size,8,3,true);
-        glTranslatef(0.0f,0.0f,size*3.0f/5.0f);
-        drawCone(size/10.0f,size/5.0f,8,true,true);
+        glTranslatef(0.0,0.0,float(size/2.0));
+        drawCylinder(size/20.0,size,8,3,true);
+        glTranslatef(0.0,0.0,float(size*3.0/5.0));
+        drawCone(size/10.0,size/5.0,8,true,true);
         glPopMatrix();
     }
 }
 
-void ogl::perspectiveSpecial(float fovy,float aspect,float zNear,float zFar)
+void ogl::perspectiveSpecial(double fovy,double aspect,double zNear,double zFar)
 {   // Same function as gluPerspective
-   float ymax=zNear*(float)tan(fovy*piValue/360.0f);
-   float ymin=-ymax;
-   float xmin=ymin*aspect;
-   float xmax=ymax*aspect;
+   double ymax=zNear*tan(fovy*piValue/360.0);
+   double ymin=-ymax;
+   double xmin=ymin*aspect;
+   double xmax=ymax*aspect;
    _frustumSpecial(xmin,xmax,ymin,ymax,zNear,zFar);
 }
 
-void ogl::_frustumSpecial(float left,float right,float bottom,float top,float nearval,float farval)
+void ogl::_frustumSpecial(double left,double right,double bottom,double top,double nearval,double farval)
 {
-   float x, y, a, b, c, d;
-   float m[16];
-   x=(2.0f*nearval)/(right-left);
-   y=(2.0f*nearval)/(top-bottom);
+   double x, y, a, b, c, d;
+   double m[16];
+   x=(2.0*nearval)/(right-left);
+   y=(2.0*nearval)/(top-bottom);
    a=(right+left)/(right-left);
    b=(top+bottom)/(top-bottom);
    c=-(farval+nearval)/(farval-nearval);
-   d=-(2.0f*farval*nearval)/(farval-nearval);
+   d=-(2.0*farval*nearval)/(farval-nearval);
 #define M(row,col)  m[col*4+row]
-   M(0,0)=x;     M(0,1)=0.0f;  M(0,2)=a;      M(0,3)=0.0f;
-   M(1,0)=0.0f;  M(1,1)=y;     M(1,2)=b;      M(1,3)=0.0f;
-   M(2,0)=0.0f;  M(2,1)=0.0f;  M(2,2)=c;      M(2,3)=d;
-   M(3,0)=0.0f;  M(3,1)=0.0f;  M(3,2)=-1.0f;  M(3,3)=0.0f;
+   M(0,0)=x;     M(0,1)=0.0;  M(0,2)=a;      M(0,3)=0.0;
+   M(1,0)=0.0;  M(1,1)=y;     M(1,2)=b;      M(1,3)=0.0;
+   M(2,0)=0.0;  M(2,1)=0.0;  M(2,2)=c;      M(2,3)=d;
+   M(3,0)=0.0;  M(3,1)=0.0;  M(3,2)=-1.0;  M(3,3)=0.0;
 #undef M
-   glMultMatrixf(m);
+   glMultMatrixd(m);
 }
 
 void ogl::pickMatrixSpecial(int x,int y,int width,int height,int viewport[4])
 {   // Same function as gluPickMatrix()
-   GLfloat m[16];
-   GLfloat sx,sy;
-   GLfloat tx,ty;
-   sx=((float)viewport[2])/((float)width);
-   sy=((float)viewport[3])/((float)height);
-   tx=(((float)viewport[2])+2.0f*((float)(viewport[0]-x)))/((float)width);
-   ty=(((float)viewport[3])+2.0f*((float)(viewport[1]-y)))/((float)height);
+   double m[16];
+   double sx,sy;
+   double tx,ty;
+   sx=((double)viewport[2])/((double)width);
+   sy=((double)viewport[3])/((double)height);
+   tx=(((double)viewport[2])+2.0*((double)(viewport[0]-x)))/((double)width);
+   ty=(((double)viewport[3])+2.0*((double)(viewport[1]-y)))/((double)height);
 #define M(row,col)  m[col*4+row]
    M(0,0)=sx;
-   M(0,1)=0.0f;
-   M(0,2)=0.0f;
+   M(0,1)=0.0;
+   M(0,2)=0.0;
    M(0,3)=tx;
-   M(1,0)=0.0f;
+   M(1,0)=0.0;
    M(1,1)=sy;
-   M(1,2)=0.0f;
+   M(1,2)=0.0;
    M(1,3)=ty;
-   M(2,0)=0.0f;
-   M(2,1)=0.0f;
-   M(2,2)=1.0f;
-   M(2,3)=0.0f;
-   M(3,0)=0.0f;
-   M(3,1)=0.0f;
-   M(3,2)=0.0f;
-   M(3,3)=1.0f;
+   M(2,0)=0.0;
+   M(2,1)=0.0;
+   M(2,2)=1.0;
+   M(2,3)=0.0;
+   M(3,0)=0.0;
+   M(3,1)=0.0;
+   M(3,2)=0.0;
+   M(3,3)=1.0;
 #undef M
-   glMultMatrixf(m);
+   glMultMatrixd(m);
 }
 
 
@@ -1001,24 +999,24 @@ void ogl::drawText(int posX,int posY,int posZ,std::string txt,bool verticallyCen
     glCallLists((GLsizei)txt.length(),GL_UNSIGNED_BYTE,txt.c_str());
     glPopAttrib();
 }
-void ogl::drawBitmapTextBackgroundIntoScene(float posX,float posY,float posZ,std::string txt)
+void ogl::drawBitmapTextBackgroundIntoScene(double posX,double posY,double posZ,std::string txt)
 {
     int l=ogl::getTextLengthInPixels(txt.c_str());
     if (l!=0)
     {
-        glRasterPos3f(posX,posY,posZ);
-        glBitmap(l,oglFonts[fontIndex].fontHeight,0.0f,float(oglFonts[fontIndex].fontHeight/4),0.0f,0.0f,(GLubyte*)opacBitmap);
+        glRasterPos3d(posX,posY,posZ);
+        glBitmap(l,oglFonts[fontIndex].fontHeight,0.0,float(oglFonts[fontIndex].fontHeight/4),0.0,0.0,(GLubyte*)opacBitmap);
     }
 }
 
-void ogl::drawBitmapTextIntoScene(float posX,float posY,float posZ,const char* txt)
+void ogl::drawBitmapTextIntoScene(double posX,double posY,double posZ,const char* txt)
 {
     if (oglFonts[fontIndex].fontBase==0) 
         return;
     size_t l=strlen(txt);
     if (l==0)
         return;
-    glRasterPos3f(posX,posY,posZ);
+    glRasterPos3d(posX,posY,posZ);
     glPushAttrib(GL_LIST_BIT);
     glListBase(oglFonts[fontIndex].fontBase);
     glCallLists((GLsizei)l,GL_UNSIGNED_BYTE,txt);
@@ -1221,7 +1219,7 @@ void ogl::loadBitmapFont(const unsigned char* fontData,int fontHeight,int theFon
             }
         }
         glNewList(oglFonts[theFontIndex].fontBase+letter,GL_COMPILE);
-        glBitmap(sizeX,sizeY,float(originX),float(originY),float(charWidth),0.0f,temp);
+        glBitmap(sizeX,sizeY,float(originX),float(originY),float(charWidth),0.0,temp);
         glEndList();
         letter++;
     }
@@ -1271,29 +1269,26 @@ void ogl::loadOutlineFont(const int* fontData,const float* fontVertices)
 {
     outlineFontBase=glGenLists(256);                                // Storage For 96 Characters
     for (int i=0;i<256;i++)
-        outlineFontSizes[i]=0.0f;
+        outlineFontSizes[i]=0.0;
     int p=0;
     for (int letter=32;letter<32+96;letter++)
     {
-//      int vertCnt=fontData[p++];
         p++;
 
         int indCnt=fontData[p++];
-        outlineFontSizes[letter]=(float(fontData[p++])/1000.0f)+0.154f*0.6f; // 0.0.154 corresponds to the width of the "I"
+        outlineFontSizes[letter]=(double(fontData[p++])/1000.0)+0.154*0.6; // 0.0.154 corresponds to the width of the "I"
 
         glNewList(outlineFontBase+letter,GL_COMPILE);
         glBegin(GL_TRIANGLES);
-        glNormal3f(0.0f,0.0f,1.0f);
+        glNormal3f(0.0,0.0,1.0);
         for (int i=0;i<indCnt*3;i++)
-        {
             glVertex2fv(fontVertices+2*fontData[p++]+0);
-        }
         glEnd();
-        glTranslatef(outlineFontSizes[letter],0.0f,0.0f);
+        glTranslated(outlineFontSizes[letter],0.0,0.0);
         glEndList();
     }
-    outlineFontHeight=1.0f;
-    outlineFontCenter=0.275f;
+    outlineFontHeight=1.0;
+    outlineFontCenter=0.275;
 }
 
 void ogl::freeOutlineFont()
@@ -1301,10 +1296,10 @@ void ogl::freeOutlineFont()
     glDeleteLists(outlineFontBase+32,96);
 }
 
-void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeight,const C4X4Matrix* cameraAbsConfig,bool overlay,bool left,bool right,bool culling,const float* textColor,const float* backColor/*=nullptr*/,bool sizeInPixels/*=false*/,int windowHeight/*=0*/,float verticalViewSizeOrAngle/*=0.0f*/,bool perspective/*=true*/,bool fullyFacingCamera/*=true*/)
+void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,double textHeight,const C4X4Matrix* cameraAbsConfig,bool overlay,bool left,bool right,bool culling,const float* textColor,const float* backColor/*=nullptr*/,bool sizeInPixels/*=false*/,int windowHeight/*=0*/,double verticalViewSizeOrAngle/*=0.0*/,bool perspective/*=true*/,bool fullyFacingCamera/*=true*/)
 { // cameraAbsConfig can be nullptr. If not, the text is always facing the camera
     // If backColor is nullptr, there is no background
-    float length=0; 
+    double length=0;
 
     const char* text=txt;
 
@@ -1323,8 +1318,8 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
         C3X3Matrix m;
         if (fullyFacingCamera)
         {
-            m.axis[2]=cameraAbsConfig->M.axis[2]*-1.0f;
-            m.axis[0]=cameraAbsConfig->M.axis[0]*-1.0f;
+            m.axis[2]=cameraAbsConfig->M.axis[2]*-1.0;
+            m.axis[0]=cameraAbsConfig->M.axis[0]*-1.0;
             m.axis[1]=cameraAbsConfig->M.axis[1];
             tr.Q=m.getQuaternion();
         }
@@ -1332,10 +1327,10 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
         { // Rotate around the banner's y axis to make it "relatively" face the camera
             m=tr.Q.getMatrix();
             C3Vector lll(cameraAbsConfig->X-tr.X);
-            if (lll.getLength()!=0.0f)
+            if (lll.getLength()!=0.0)
             {
                 lll.normalize();
-                if (fabs(lll*m.axis[1])<0.999f)
+                if (fabs(lll*m.axis[1])<0.999)
                 {
                     m.axis[0]=(m.axis[1]^lll).getNormalized();
                     m.axis[2]=(m.axis[0]^m.axis[1]).getNormalized();
@@ -1348,25 +1343,25 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
         if (sizeInPixels)
         {
             if (!perspective)
-                textHeight=float(textHeight)*verticalViewSizeOrAngle/float(windowHeight);
+                textHeight=double(textHeight)*verticalViewSizeOrAngle/double(windowHeight);
             else
             {
                 C3Vector v(tr.X-cameraAbsConfig->X);
-                float d=fabs(v*cameraAbsConfig->M.axis[2]);
-                textHeight=2.0f*float(textHeight)*tan(verticalViewSizeOrAngle*0.5f)*d/float(windowHeight);
+                double d=fabs(v*cameraAbsConfig->M.axis[2]);
+                textHeight=2.0*double(textHeight)*tan(verticalViewSizeOrAngle*0.5)*d/double(windowHeight);
             }
         }
     }
 
 
-    float ld2=(length+outlineFontHeight*0.1f)*textHeight/2.0f;
-    float hd2=outlineFontHeight*1.1f*textHeight/2.0f;
-    float ldo=0.0f;
+    double ld2=(length+outlineFontHeight*0.1)*textHeight/2.0;
+    double hd2=outlineFontHeight*1.1*textHeight/2.0;
+    double ldo=0.0;
 
     if (right)
-        ldo=(length)*textHeight/2.0f;
+        ldo=(length)*textHeight/2.0;
     if (left)
-        ldo=-(length)*textHeight/2.0f;
+        ldo=-(length)*textHeight/2.0;
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -1376,15 +1371,15 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
         if (i==1)
         {
             C3X3Matrix m(tr.Q.getMatrix());
-            m.axis[0]*=-1.0f;
-            m.axis[2]*=-1.0f;
+            m.axis[0]*=-1.0;
+            m.axis[2]*=-1.0;
             tr.Q=m.getQuaternion();
         }
 
         if (overlay)
         {
             glDisable(GL_DEPTH_TEST);
-            glDepthRange(0.0f,0.0f);
+            glDepthRange(0.0,0.0);
         }
         else
         {
@@ -1395,40 +1390,40 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
         if (backColor!=nullptr)
         {
             glPushMatrix();
-            glTranslatef(tr.X(0),tr.X(1),tr.X(2));
+            glTranslated(tr.X(0),tr.X(1),tr.X(2));
             C4Vector axis=tr.Q.getAngleAndAxis();
-            glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+            glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
             setMaterialColor(backColor,backColor+6,backColor+9);
             glBegin(GL_QUADS);
-            glNormal3f(0.0f,0.0f,1.0f);
-            glVertex3f(ldo-ld2,+hd2,0.0f);
-            glVertex3f(ldo-ld2,-hd2,0.0f);
-            glVertex3f(ldo+ld2,-hd2,0.0f);
-            glVertex3f(ldo+ld2,+hd2,0.0f);
+            glNormal3f(0.0,0.0,1.0);
+            glVertex3d(ldo-ld2,+hd2,0.0);
+            glVertex3d(ldo-ld2,-hd2,0.0);
+            glVertex3d(ldo+ld2,-hd2,0.0);
+            glVertex3d(ldo+ld2,+hd2,0.0);
             glEnd();
             glPopMatrix();
         }
 
         glPushMatrix();
         C3X3Matrix m(tr.Q);
-        float lq=length;
+        double lq=length;
         if (right)
-            lq=0.0f;
+            lq=0.0;
         if (left)
-            lq*=2.0f;
-        C3Vector x(tr.X+m.axis[0]*(-lq/2.0f)*textHeight+m.axis[1]*(-outlineFontCenter)*textHeight);
-        glTranslatef(x(0),x(1),x(2));
+            lq*=2.0;
+        C3Vector x(tr.X+m.axis[0]*(-lq/2.0)*textHeight+m.axis[1]*(-outlineFontCenter)*textHeight);
+        glTranslated(x(0),x(1),x(2));
         C4Vector axis=tr.Q.getAngleAndAxis();
-        glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+        glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
         glEnable(GL_NORMALIZE); // Might be important since normals are also scaled (bad lighting)
-        glScalef(textHeight,textHeight,textHeight);
+        glScaled(textHeight,textHeight,textHeight);
         setMaterialColor(textColor,textColor+6,textColor+9);
         glPushAttrib(GL_LIST_BIT);
         glListBase(outlineFontBase);    
         glCallLists(l,GL_UNSIGNED_BYTE,text);
         glPopAttrib();
 
-        glScalef(1.0f,1.0f,1.0f); // Reset scaling
+        glScalef(1.0,1.0,1.0); // Reset scaling
         glDisable(GL_NORMALIZE); // Set default again (faster)
 
         glPopMatrix();
@@ -1439,15 +1434,15 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
         {
             glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
             glPushMatrix();
-            glTranslatef(tr.X(0),tr.X(1),tr.X(2));
-            glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+            glTranslated(tr.X(0),tr.X(1),tr.X(2));
+            glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
             setMaterialColor(backColor,backColor+6,backColor+9);
             glBegin(GL_QUADS);
-            glNormal3f(0.0f,0.0f,1.0f);
-            glVertex3f(ldo-ld2,+hd2,0.0f);
-            glVertex3f(ldo-ld2,-hd2,0.0f);
-            glVertex3f(ldo+ld2,-hd2,0.0f);
-            glVertex3f(ldo+ld2,+hd2,0.0f);
+            glNormal3f(0.0,0.0,1.0);
+            glVertex3d(ldo-ld2,+hd2,0.0);
+            glVertex3d(ldo-ld2,-hd2,0.0);
+            glVertex3d(ldo+ld2,-hd2,0.0);
+            glVertex3d(ldo+ld2,+hd2,0.0);
             glEnd();
             glPopMatrix();
             glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
@@ -1459,7 +1454,7 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
         if ( (cameraAbsConfig!=nullptr)||culling )
             break; // we don't have to render twice here!
     }
-    glDepthRange(0.0f,1.0f);
+    glDepthRange(0.0,1.0);
     glDisable(GL_CULL_FACE);
 }
 
@@ -1482,22 +1477,22 @@ void ogl::drawBorder(int posX,int posY,int sizeX,int sizeY,float col[3],int type
         return;
     if (type<3)
     {
-        float ul=1.0f;
-        float lr=1.0f;
+        double ul=1.0;
+        double lr=1.0;
         if (type==0)
         {
-            ul=1.5f;
-            lr=0.5f;
+            ul=1.5;
+            lr=0.5;
         }
         if (type==1)
         {
-            ul=0.5f;
-            lr=1.5f;
+            ul=0.5;
+            lr=1.5;
         }
         if (type==2)
         {
-            ul=0.5f;
-            lr=0.5f;
+            ul=0.5;
+            lr=0.5;
         }
         glBegin(GL_LINES);
         setMaterialColor(sim_colorcomponent_emission,col[0]*ul,col[1]*ul,col[2]*ul);
@@ -1647,8 +1642,8 @@ void ogl::drawRichTextIcon(int centerPosX,int centerPosY,int size,int icon)
         if (size>8) // size is now half size!!
         {
             glPushMatrix();
-            glTranslatef(float(centerPosX),float(centerPosY),0.0f);
-            glRotatef(45.0f,0.0f,0.0f,1.0f);
+            glTranslated(double(centerPosX),double(centerPosY),0.0);
+            glRotatef(45.0,0.0,0.0,1.0);
             glBegin(GL_QUADS);
             glVertex3i(-size,+lineW/2-lineW,0);
             glVertex3i(+size,+lineW/2-lineW,0);
@@ -1786,7 +1781,7 @@ void ogl::drawRichText(int posX,int posY,int size,std::string& text,std::vector<
                     }
                     else
                     {
-                        float tc[3]={float(iconsAndPos[iconIndex+2])/9.0f,float(iconsAndPos[iconIndex+3])/9.0f,float(iconsAndPos[iconIndex+4])/9.0f};
+                        float tc[3]={float(iconsAndPos[iconIndex+2])/9.0,float(iconsAndPos[iconIndex+3])/9.0,float(iconsAndPos[iconIndex+4])/9.0};
                         setRichTextColor(tc);
                     }
                     iconIndex+=5;
@@ -1897,7 +1892,7 @@ void ogl::drawButtonEdit(VPoint p,VPoint s,bool selected,bool mainSel)
     else if (selected)
         setMaterialColor(sim_colorcomponent_emission,ogl::colorYellow);
     else
-        setMaterialColor(sim_colorcomponent_emission,1.0f,0.5f,0.3f);
+        setMaterialColor(sim_colorcomponent_emission,1.0,0.5,0.3);
 
     int pos[2]={p.x,p.y};
     int size[2]={s.x,s.y};
@@ -1910,7 +1905,7 @@ void ogl::drawButtonEdit(VPoint p,VPoint s,bool selected,bool mainSel)
     addBuffer2DPoints_i(pos[0]-size[0]/2,pos[1]-size[1]/2);
     ogl::drawRandom2dLines_i(&ogl::buffer_i[0],(int)ogl::buffer_i.size()/2,true,0);
     ogl::buffer_i.clear();
-    glLineWidth(1.0f);
+    glLineWidth(1.0);
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -2022,16 +2017,16 @@ int ogl::getRichTextInfo(std::string& text,std::vector<int>& iconsAndPos)
 
 void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3],
                        float _bckgrndColor2[3],std::string text,int buttonTypeAndAttributes,
-                       bool editing,int editionPos,float sliderPos,bool vertical,int timeInMs,float secondTextColor[3],
+                       bool editing,int editionPos,double sliderPos,bool vertical,int timeInMs,float secondTextColor[3],
                        CTextureProperty* backgroundTexture,VPoint* backgroundPos,VPoint* backgroundSize,CTextureProperty* foregroundTexture)
 {  // If sliderPos is >2.0, there's no slider. Else, sliderPos should be between -1.0 and 1.0
     // Before calling this function, make sure that viewSize==viewportSize!!
     // Make sure also that viewportPos is set correctly!!!
     // We work in screen pixel coordinates!
     // secondTextColor can be nullptr in wich case the text is only displayed once (no double)
-//  float zeroCol[3]={0.0f,0.0f,0.0f};
-//  ogl::setColor(zeroCol,zeroCol,zeroCol,zeroCol,12,0.5f);
-    ogl::setAlpha(0.5f);
+//  double zeroCol[3]={0.0,0.0,0.0};
+//  ogl::setColor(zeroCol,zeroCol,zeroCol,zeroCol,12,0.5);
+    ogl::setAlpha(0.5);
     float bckgrndColor1[3]={_bckgrndColor1[0],_bckgrndColor1[1],_bckgrndColor1[2]};
     float bckgrndColor2[3]={_bckgrndColor2[0],_bckgrndColor2[1],_bckgrndColor2[2]};
     if ( (buttonTypeAndAttributes&sim_buttonproperty_transparent)&&(backgroundTexture==nullptr)&&(foregroundTexture==nullptr) )
@@ -2064,7 +2059,7 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
                 setMaterialColor(sim_colorcomponent_emission,bckgrndColor2);
         }
         else
-            setMaterialColor(sim_colorcomponent_emission,bckgrndColor2[0]*0.6f,bckgrndColor2[1]*0.6f,bckgrndColor2[2]*0.6f);
+            setMaterialColor(sim_colorcomponent_emission,bckgrndColor2[0]*0.6,bckgrndColor2[1]*0.6,bckgrndColor2[2]*0.6);
     }
 
     int pos[2]={p.x,p.y};
@@ -2092,19 +2087,19 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
         }
         if ((backgroundTexture!=nullptr)&&(buttonTypeAndAttributes&sim_buttonproperty_transparent))
         { // we have to display the background texture first
-            float aq=float(a-backgroundPos->x)/float(backgroundSize->x);
-            float bq=float(b-backgroundPos->x)/float(backgroundSize->x);
-            float cq=1.0f-(float(backgroundPos->y-c)/float(backgroundSize->y));
-            float dq=1.0f-(float(backgroundPos->y-d)/float(backgroundSize->y));
+            double aq=double(a-backgroundPos->x)/double(backgroundSize->x);
+            double bq=double(b-backgroundPos->x)/double(backgroundSize->x);
+            double cq=1.0-(double(backgroundPos->y-c)/double(backgroundSize->y));
+            double dq=1.0-(double(backgroundPos->y-d)/double(backgroundSize->y));
             _start2DTextureDisplay(backgroundTexture);
             glBegin(GL_QUADS);
-            glTexCoord2f(aq,cq);
+            glTexCoord2d(aq,cq);
             glVertex3i(a,c,0);
-            glTexCoord2f(bq,cq);
+            glTexCoord2d(bq,cq);
             glVertex3i(b,c,0);
-            glTexCoord2f(bq,dq);
+            glTexCoord2d(bq,dq);
             glVertex3i(b,d,0);
-            glTexCoord2f(aq,dq);
+            glTexCoord2d(aq,dq);
             glVertex3i(a,d,0);
             glEnd();
             _end2DTextureDisplay(backgroundTexture);
@@ -2117,13 +2112,13 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
                 off=1;
             _start2DTextureDisplay(foregroundTexture);
             glBegin(GL_QUADS);
-            glTexCoord2f(0.0f,0.0f);
+            glTexCoord2f(0.0,0.0);
             glVertex3i(a+off,c-off,0);
-            glTexCoord2f(1.0f,0.0f);
+            glTexCoord2f(1.0,0.0);
             glVertex3i(b+off,c-off,0);
-            glTexCoord2f(1.0f,1.0f);
+            glTexCoord2f(1.0,1.0);
             glVertex3i(b+off,d-off,0);
-            glTexCoord2f(0.0f,1.0f);
+            glTexCoord2f(0.0,1.0);
             glVertex3i(a+off,d-off,0);
             glEnd();
             _end2DTextureDisplay(foregroundTexture);
@@ -2132,31 +2127,31 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
     setBlending(false);
     if ( ((buttonTypeAndAttributes&0x0007)==sim_buttonproperty_button)&&((buttonTypeAndAttributes&sim_buttonproperty_borderless)==0)&&((buttonTypeAndAttributes&sim_buttonproperty_nobackgroundcolor)==0) )
     {
-        glLineWidth(2.0f);
+        glLineWidth(2.0);
         if (buttonTypeAndAttributes&sim_buttonproperty_isdown)
-            setMaterialColor(sim_colorcomponent_emission,bckgrndColor2[0]*0.66f,bckgrndColor2[1]*0.66f,bckgrndColor2[2]*0.66f);
+            setMaterialColor(sim_colorcomponent_emission,bckgrndColor2[0]*0.66,bckgrndColor2[1]*0.66,bckgrndColor2[2]*0.66);
         else
-            setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*1.5f,bckgrndColor1[1]*1.5f,bckgrndColor1[2]*1.5f);
+            setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*1.5,bckgrndColor1[1]*1.5,bckgrndColor1[2]*1.5);
         glBegin(GL_LINE_STRIP);
         glVertex3i(pos[0]-size[0]/2,pos[1]-size[1]/2,0);
         glVertex3i(pos[0]-size[0]/2,pos[1]+size[1]/2,0);
         glVertex3i(pos[0]+size[0]/2,pos[1]+size[1]/2,0);
         glEnd();
         if (buttonTypeAndAttributes&sim_buttonproperty_isdown)
-            setMaterialColor(sim_colorcomponent_emission,bckgrndColor2[0]*1.5f,bckgrndColor2[1]*1.5f,bckgrndColor2[2]*1.5f);
+            setMaterialColor(sim_colorcomponent_emission,bckgrndColor2[0]*1.5,bckgrndColor2[1]*1.5,bckgrndColor2[2]*1.5);
         else
-            setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*0.66f,bckgrndColor1[1]*0.66f,bckgrndColor1[2]*0.66f);
+            setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*0.66,bckgrndColor1[1]*0.66,bckgrndColor1[2]*0.66);
         glBegin(GL_LINE_STRIP);
         glVertex3i(pos[0]+size[0]/2,pos[1]+size[1]/2,0);
         glVertex3i(pos[0]+size[0]/2,pos[1]-size[1]/2,0);
         glVertex3i(pos[0]-size[0]/2,pos[1]-size[1]/2,0);
         glEnd();
-        glLineWidth(1.0f);
+        glLineWidth(1.0);
     }
     if ( ((buttonTypeAndAttributes&0x0007)==sim_buttonproperty_button)||((buttonTypeAndAttributes&0x0007)==sim_buttonproperty_label) )
     {
         float* secondTextCol=nullptr;
-        float secondTextColRef[3]={0.0f,0.0f,0.0f};
+        float secondTextColRef[3]={0.0,0.0,0.0};
         if (secondTextColor)
         {
             secondTextColRef[0]=secondTextColor[0];
@@ -2168,14 +2163,14 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
             setRichTextDefaultColor(txtColor);
         else
         {
-            float disabledCol[3]={txtColor[0]-0.8f*(txtColor[0]-bckgrndColor1[0]),
-                txtColor[1]-0.8f*(txtColor[1]-bckgrndColor1[1]),
-                txtColor[2]-0.8f*(txtColor[2]-bckgrndColor1[2])};
+            float disabledCol[3]={txtColor[0]-0.8*(txtColor[0]-bckgrndColor1[0]),
+                txtColor[1]-0.8*(txtColor[1]-bckgrndColor1[1]),
+                txtColor[2]-0.8*(txtColor[2]-bckgrndColor1[2])};
             if (secondTextColor)
             {
-                secondTextCol[0]=secondTextCol[0]*0.2f+bckgrndColor1[0]*0.8f;
-                secondTextCol[1]=secondTextCol[1]*0.2f+bckgrndColor1[1]*0.8f;
-                secondTextCol[2]=secondTextCol[2]*0.2f+bckgrndColor1[2]*0.8f;
+                secondTextCol[0]=secondTextCol[0]*0.2+bckgrndColor1[0]*0.8;
+                secondTextCol[1]=secondTextCol[1]*0.2+bckgrndColor1[1]*0.8;
+                secondTextCol[2]=secondTextCol[2]*0.2+bckgrndColor1[2]*0.8;
             }
             setRichTextDefaultColor(disabledCol);
         }
@@ -2243,12 +2238,12 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
             setMaterialColor(sim_colorcomponent_emission,ogl::colorBlack);
         else
             setMaterialColor(sim_colorcomponent_emission,ogl::colorGrey);
-        float xFact=2.0f/(1.0f-(float)BUTTON_SLIDER_X_SIZE);
-        float yFact=20.0f;
+        double xFact=2.0/(1.0-(double)BUTTON_SLIDER_X_SIZE);
+        double yFact=20.0;
         if (vertical)
         {
-            xFact=20.0f;
-            yFact=2.0f/(1.0f-(float)BUTTON_SLIDER_X_SIZE);
+            xFact=20.0;
+            yFact=2.0/(1.0-(double)BUTTON_SLIDER_X_SIZE);
         }
         glBegin(GL_QUADS);
         glVertex3i(int(pos[0]-size[0]/xFact),int(pos[1]-size[1]/yFact),0);
@@ -2257,23 +2252,23 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
         glVertex3i(int(pos[0]-size[0]/xFact),int(pos[1]+size[1]/yFact),0);
         glEnd();
         // Now the dragging button:
-        float c=0.7f;
+        double c=0.7;
         if (buttonTypeAndAttributes&sim_buttonproperty_enabled)
-            c=1.0f;
+            c=1.0;
         setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*c,bckgrndColor1[1]*c,bckgrndColor1[2]*c);
-        float specialPos=float(p.x);
-        float specialSize=float(s.x+1);
-        int dbs[2]={int(float(size[0])*BUTTON_SLIDER_X_SIZE/2.0f),int(float(size[1])*BUTTON_SLIDER_Y_SIZE/2.0f)};
+        double specialPos=double(p.x);
+        double specialSize=double(s.x+1);
+        int dbs[2]={int(double(size[0])*BUTTON_SLIDER_X_SIZE/2.0),int(double(size[1])*BUTTON_SLIDER_Y_SIZE/2.0)};
         if (vertical)
         {
-            specialPos=float(p.y);
-            specialSize=float(s.y+1);
-            pos[1]=int(specialPos-sliderPos*specialSize*(1.0f-BUTTON_SLIDER_X_SIZE)/2.0f);
-            dbs[0]=int(float(size[0])*BUTTON_SLIDER_Y_SIZE/2.0f);
-            dbs[1]=int(float(size[1])*BUTTON_SLIDER_X_SIZE/2.0f);
+            specialPos=double(p.y);
+            specialSize=double(s.y+1);
+            pos[1]=int(specialPos-sliderPos*specialSize*(1.0-BUTTON_SLIDER_X_SIZE)/2.0);
+            dbs[0]=int(double(size[0])*BUTTON_SLIDER_Y_SIZE/2.0);
+            dbs[1]=int(double(size[1])*BUTTON_SLIDER_X_SIZE/2.0);
         }
         else
-            pos[0]=int(specialPos+sliderPos*specialSize*(1.0f-BUTTON_SLIDER_X_SIZE)/2.0f);
+            pos[0]=int(specialPos+sliderPos*specialSize*(1.0-BUTTON_SLIDER_X_SIZE)/2.0);
         glBegin(GL_QUADS);
         glVertex3i(pos[0]-dbs[0],pos[1]-dbs[1],0);
         glVertex3i(pos[0]+dbs[0],pos[1]-dbs[1],0);
@@ -2283,13 +2278,13 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
         // Now the borders
         if ((buttonTypeAndAttributes&sim_buttonproperty_nobackgroundcolor)==0)
         {
-            setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*1.5f,bckgrndColor1[1]*1.5f,bckgrndColor1[2]*1.5f);
+            setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*1.5,bckgrndColor1[1]*1.5,bckgrndColor1[2]*1.5);
             glBegin(GL_LINE_STRIP);
             glVertex3i(pos[0]-dbs[0],pos[1]-dbs[1],0);
             glVertex3i(pos[0]-dbs[0],pos[1]+dbs[1],0);
             glVertex3i(pos[0]+dbs[0],pos[1]+dbs[1],0);
             glEnd();
-            setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*0.66f,bckgrndColor1[1]*0.66f,bckgrndColor1[2]*0.66f);
+            setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*0.66,bckgrndColor1[1]*0.66,bckgrndColor1[2]*0.66);
             glBegin(GL_LINE_STRIP);
             glVertex3i(pos[0]+dbs[0],pos[1]+dbs[1],0);
             glVertex3i(pos[0]+dbs[0],pos[1]-dbs[1],0);
@@ -2303,26 +2298,26 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
         size[1]=s.y+2;
         if (((buttonTypeAndAttributes&sim_buttonproperty_borderless)==0)&&((buttonTypeAndAttributes&sim_buttonproperty_nobackgroundcolor)==0))
         {
-            glLineWidth(2.0f);
-            setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*0.33f,bckgrndColor1[1]*0.33f,bckgrndColor1[2]*0.33f);
+            glLineWidth(2.0);
+            setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*0.33,bckgrndColor1[1]*0.33,bckgrndColor1[2]*0.33);
             glBegin(GL_LINE_STRIP);
             glVertex3i(pos[0]-size[0]/2,pos[1]-size[1]/2,0);
             glVertex3i(pos[0]-size[0]/2,pos[1]+size[1]/2,0);
             glVertex3i(pos[0]+size[0]/2,pos[1]+size[1]/2,0);
             glEnd();
-            setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*1.1f,bckgrndColor1[1]*1.1f,bckgrndColor1[2]*1.1f);
+            setMaterialColor(sim_colorcomponent_emission,bckgrndColor1[0]*1.1,bckgrndColor1[1]*1.1,bckgrndColor1[2]*1.1);
             glBegin(GL_LINE_STRIP);
             glVertex3i(pos[0]+size[0]/2,pos[1]+size[1]/2,0);
             glVertex3i(pos[0]+size[0]/2,pos[1]-size[1]/2,0);
             glVertex3i(pos[0]-size[0]/2,pos[1]-size[1]/2,0);
             glEnd();
-            glLineWidth(1.0f);
+            glLineWidth(1.0);
         }
 
         // Now the text-part:
         glScissor(viewport[0]+p.x-(s.x/2)+1,viewport[1]+p.y-(s.y/2)+1,s.x-3,s.y-2);
 
-        int heightCorrection=int((0.3f*float(oglFonts[fontIndex].fontHeight))); // from 0.2 to 0.3 on 22/12/2011
+        int heightCorrection=int((0.3*double(oglFonts[fontIndex].fontHeight))); // from 0.2 to 0.3 on 22/12/2011
         if (editing&&(editionPos==-1))
             setTextColor(ogl::colorWhite);
         else

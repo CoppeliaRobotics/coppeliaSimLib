@@ -1120,7 +1120,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
         bool b=true;
         C7Vector modelTr(modelBaseObject->getCumulativeTransformation());
         C3Vector modelBBSize;
-        float modelNonDefaultTranslationStepSize=modelBaseObject->getObjectMovementStepSize(0);
+        double modelNonDefaultTranslationStepSize=modelBaseObject->getObjectMovementStepSize(0);
 
         if (modelBaseObject->getGlobalMarkingBoundingBox(modelTr.getInverse(),minV,maxV,b,true,false))
         {
@@ -1234,7 +1234,7 @@ bool CFileOperations::heightfieldImportRoutine(const char* pathName)
     {
         try
         {
-            std::vector<std::vector<float>*> readData;
+            std::vector<std::vector<double>*> readData;
             // We read each line at a time, which gives rows:
             int minRow=-1;
 
@@ -1256,9 +1256,9 @@ bool CFileOperations::heightfieldImportRoutine(const char* pathName)
                         {
                             for (int i=0;i<resY;i++)
                             {
-                                std::vector<float>* lineVect=new std::vector<float>;
+                                std::vector<double>* lineVect=new std::vector<double>;
                                 for (int j=0;j<resX;j++)
-                                    lineVect->push_back(float(data[bytesPerPixel*(i*resX+j)+0]+data[bytesPerPixel*(i*resX+j)+1]+data[bytesPerPixel*(i*resX+j)+2])/768.0f);
+                                    lineVect->push_back(double(data[bytesPerPixel*(i*resX+j)+0]+data[bytesPerPixel*(i*resX+j)+1]+data[bytesPerPixel*(i*resX+j)+2])/768.0);
                                 readData.push_back(lineVect);
                             }
                             minRow=resX;
@@ -1282,11 +1282,11 @@ bool CFileOperations::heightfieldImportRoutine(const char* pathName)
                 while (archive.readSingleLine(currentPos,line,false))
                 {
                     std::string word;
-                    std::vector<float>* lineVect=new std::vector<float>;
+                    std::vector<double>* lineVect=new std::vector<double>;
                     while (tt::extractCommaSeparatedWord(line,word))
                     {
                         tt::removeSpacesAtBeginningAndEnd(word);
-                        float val;
+                        double val;
                         if (tt::getValidFloat(word.c_str(),val))
                             lineVect->push_back(val);
                         else
@@ -1316,15 +1316,15 @@ bool CFileOperations::heightfieldImportRoutine(const char* pathName)
                 SUIThreadCommand cmdIn;
                 SUIThreadCommand cmdOut;
                 cmdIn.cmdId=HEIGHTFIELD_DIMENSION_DLG_UITHREADCMD;
-                cmdIn.floatParams.push_back(10.0f);
-                cmdIn.floatParams.push_back(float(ySize-1)/float(xSize-1));
+                cmdIn.floatParams.push_back(10.0);
+                cmdIn.floatParams.push_back(double(ySize-1)/double(xSize-1));
                 App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 if (cmdOut.floatParams.size()==0)
                 {
-                    cmdOut.floatParams.push_back(1.0f);
-                    cmdOut.floatParams.push_back(1.0f);
+                    cmdOut.floatParams.push_back(1.0);
+                    cmdOut.floatParams.push_back(1.0);
                 }
-                float pointSpacing=cmdOut.floatParams[0]/float(xSize-1);
+                double pointSpacing=cmdOut.floatParams[0]/double(xSize-1);
                 for (int i=0;i<int(readData.size());i++)
                 {
                     for (int j=0;j<int(readData[i]->size());j++)
@@ -1332,7 +1332,7 @@ bool CFileOperations::heightfieldImportRoutine(const char* pathName)
                         readData[i]->at(j)*=cmdOut.floatParams[1];
                     }
                 }
-                int shapeHandle=apiAddHeightfieldToScene(xSize,pointSpacing,readData,0.0f,2);
+                int shapeHandle=apiAddHeightfieldToScene(xSize,pointSpacing,readData,0.0,2);
                 App::currentWorld->sceneObjects->deselectObjects();
                 App::currentWorld->sceneObjects->addObjectToSelection(shapeHandle);
 
@@ -1350,16 +1350,16 @@ bool CFileOperations::heightfieldImportRoutine(const char* pathName)
     return(false);
 }
 
-int CFileOperations::apiAddHeightfieldToScene(int xSize,float pointSpacing,const std::vector<std::vector<float>*>& readData,float shadingAngle,int options)
+int CFileOperations::apiAddHeightfieldToScene(int xSize,double pointSpacing,const std::vector<std::vector<double>*>& readData,double shadingAngle,int options)
 { // options bits:
     // 0 set --> backfaces are culled
     // 1 set --> edges are visible
     // 2 set --> a normal shape is created instead
     // 4 set --> non respondable
     int ySize=int(readData.size());
-    std::vector<float> allHeights;
-    float maxHeight=-99999999.0f;
-    float minHeight=+99999999.0f;
+    std::vector<double> allHeights;
+    double maxHeight=-99999999.0;
+    double minHeight=+99999999.0;
     for (int i=ySize-1;i>=0;i--)
     {
         for (int j=0;j<xSize;j++)
@@ -1374,15 +1374,15 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,float pointSpacing,const
     CShape* shape=new CShape(allHeights,xSize,ySize,pointSpacing,maxHeight-minHeight);
 
     if (options&4)
-        shape->getSingleMesh()->setPurePrimitiveType(sim_primitiveshape_none,1.0f,1.0f,1.0f);
+        shape->getSingleMesh()->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0);
 
     shape->alignBoundingBoxWithWorld();
     shape->setCulling((options&1)!=0);
     shape->setVisibleEdges((options&2)!=0);
     shape->getSingleMesh()->setShadingAngle(shadingAngle);
     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
-    shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.68f,0.56f,0.36f);
-    shape->setColor(nullptr,sim_colorcomponent_specular,0.25f,0.25f,0.25f);
+    shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.68,0.56,0.36);
+    shape->setColor(nullptr,sim_colorcomponent_specular,0.25,0.25,0.25);
     App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
     App::currentWorld->sceneObjects->setObjectAlias(shape,"heightfield",true);
     App::currentWorld->sceneObjects->setObjectName_old(shape,"heightfield",true);

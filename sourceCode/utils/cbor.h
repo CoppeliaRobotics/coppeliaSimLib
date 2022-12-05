@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include "simTypes.h"
 
 class CCbor
 {
@@ -37,5 +38,5 @@ protected:
     void _appendItemTypeAndLength(unsigned char t,long long int l);
 
     std::vector<unsigned char> _buff;
-    int _options; // bit0: do not code doubles as float, bit1: do not use indefinite-length arrays and maps
+    int _options; // bit0: do not code doubles as double, bit1: do not use indefinite-length arrays and maps
 };

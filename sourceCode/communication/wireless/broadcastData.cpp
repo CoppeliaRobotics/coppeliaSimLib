@@ -2,7 +2,7 @@
 #include "broadcastData.h"
 #include "app.h"
 
-CBroadcastData::CBroadcastData(int emitterID,int targetID,int dataHeader,std::string& dataName,floatDouble timeOutSimulationTime,floatDouble actionRadius,int antennaHandle,floatDouble emissionAngle1,floatDouble emissionAngle2,const char* data,int dataLength)
+CBroadcastData::CBroadcastData(int emitterID,int targetID,int dataHeader,std::string& dataName,double timeOutSimulationTime,double actionRadius,int antennaHandle,double emissionAngle1,double emissionAngle2,const char* data,int dataLength)
 {
     _emitterID=emitterID;
     _receiverID=targetID;
@@ -24,7 +24,7 @@ CBroadcastData::~CBroadcastData()
     delete[] _data;
 }
 
-bool CBroadcastData::doesRequireDestruction(floatDouble simulationTime)
+bool CBroadcastData::doesRequireDestruction(double simulationTime)
 {
     return(simulationTime>_timeOutSimulationTime);
 }
@@ -44,7 +44,7 @@ int CBroadcastData::getAntennaHandle()
     return(_antennaHandle);
 }
 
-char* CBroadcastData::receiveData(int receiverID,floatDouble simulationTime,int dataHeader,std::string& dataName,int antennaHandle,int& dataLength,int& senderID,int& dataHeaderR,std::string& dataNameR,bool removeMessageForThisReceiver)
+char* CBroadcastData::receiveData(int receiverID,double simulationTime,int dataHeader,std::string& dataName,int antennaHandle,int& dataLength,int& senderID,int& dataHeaderR,std::string& dataNameR,bool removeMessageForThisReceiver)
 {
     C7Vector antennaConf1;
     antennaConf1.setIdentity();
@@ -140,12 +140,12 @@ char* CBroadcastData::receiveData(int receiverID,floatDouble simulationTime,int 
     if (_emissionAngle1<piValue*0.99)
     { // Check if inside the vertical "hearing" area:
         C3Vector relPos(antennaConf1.getInverse()*antennaPos2);
-        floatDouble h=fabs(relPos(2));
+        double h=fabs(relPos(2));
         relPos(2)=0.0;
-        floatDouble l=relPos.getLength();
+        double l=relPos.getLength();
         if (l==0.0)
             return(nullptr); // just outside of the vertical active area (border condition)
-        floatDouble a=fabs(atan2(h,l));
+        double a=fabs(atan2(h,l));
         if (a>=_emissionAngle1*0.5)
             return(nullptr); // just outside of the vertical active area (border condition)
     }
@@ -154,7 +154,7 @@ char* CBroadcastData::receiveData(int receiverID,floatDouble simulationTime,int 
         C3Vector relPos(antennaConf1.getInverse()*antennaPos2);
         if (relPos(0)==0.0)
             return(nullptr); // just outside of the horizontal active area (border condition)
-        floatDouble a=fabs(atan2(relPos(1),relPos(0)));
+        double a=fabs(atan2(relPos(1),relPos(0)));
         if (a>=_emissionAngle2*0.5)
             return(nullptr); // just outside of the horizontal active area (border condition)
     }

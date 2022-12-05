@@ -13,8 +13,8 @@
 
 CGraphData_old::CGraphData_old()
 {
-    addCoeff=0.0f;
-    zoomFactor=1.0f;
+    addCoeff=0.0;
+    zoomFactor=1.0;
     _lifeID=-1;
     _movingAverageCount=1; // no moving average!
     _derivativeIntegralAndCumulative=sim_stream_transf_raw;
@@ -33,10 +33,10 @@ CGraphData_old::CGraphData_old(int theDataType,int theDataObjectID,int theDataOb
     _transformedFloatData.clear();
     _floatDataValidFlags.clear();
     _transformedFloatDataValidFlags.clear();
-    ambientColor[0]=1.0f;
-    ambientColor[1]=ambientColor[2]=0.0f;
-    zoomFactor=1.0f;
-    addCoeff=0.0f;
+    ambientColor[0]=1.0;
+    ambientColor[1]=ambientColor[2]=0.0;
+    zoomFactor=1.0;
+    addCoeff=0.0;
     _derivativeIntegralAndCumulative=sim_stream_transf_raw;
     _movingAverageCount=1; // no moving average!
     name="Data";
@@ -105,12 +105,12 @@ int CGraphData_old::getDataObjectAuxID() const
     return(dataObjectAuxID);
 }
 
-floatDouble CGraphData_old::getZoomFactor() const
+double CGraphData_old::getZoomFactor() const
 {
     return(zoomFactor);
 }
 
-floatDouble CGraphData_old::getAddCoeff() const
+double CGraphData_old::getAddCoeff() const
 {
     return(addCoeff);
 }
@@ -133,14 +133,14 @@ void CGraphData_old::setIdentifier(int newIdentifier)
 {
     identifier=newIdentifier;
 }
-void CGraphData_old::setZoomFactor(floatDouble newZoomFactor)
+void CGraphData_old::setZoomFactor(double newZoomFactor)
 {
-    tt::limitValue(-100000000000.0f,100000000000.0f,newZoomFactor);
+    tt::limitValue(-100000000000.0,100000000000.0,newZoomFactor);
     zoomFactor=newZoomFactor;
 }
-void CGraphData_old::setAddCoeff(floatDouble newCoeff)
+void CGraphData_old::setAddCoeff(double newCoeff)
 {
-    tt::limitValue(-100000000000.0f,100000000000.0f,newCoeff);
+    tt::limitValue(-100000000000.0,100000000000.0,newCoeff);
     addCoeff=newCoeff;
 }
 void CGraphData_old::setDataObjectID(int newID)
@@ -227,7 +227,7 @@ bool CGraphData_old::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
     return(false);
 }
 
-void CGraphData_old::setValueDirect(int absIndex,floatDouble theValue,bool firstValue,bool cyclic,floatDouble range,const std::vector<floatDouble>& times)
+void CGraphData_old::setValueDirect(int absIndex,double theValue,bool firstValue,bool cyclic,double range,const std::vector<double>& times)
 {
     _floatData[absIndex]=theValue;
     _floatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
@@ -240,12 +240,12 @@ void CGraphData_old::setValueDirect(int absIndex,floatDouble theValue,bool first
         }
         if (_derivativeIntegralAndCumulative==sim_stream_transf_derivative)
         { // invalid data
-            _transformedFloatData[absIndex]=0.0f;
+            _transformedFloatData[absIndex]=0.0;
             _transformedFloatDataValidFlags[absIndex/8]&=255-(1<<(absIndex&7)); // invalid data
         }
         if (_derivativeIntegralAndCumulative==sim_stream_transf_integral)
         {
-            _transformedFloatData[absIndex]=0.0f;
+            _transformedFloatData[absIndex]=0.0;
             _transformedFloatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid data
         }
         if (_derivativeIntegralAndCumulative==sim_stream_transf_cumulative)
@@ -260,7 +260,7 @@ void CGraphData_old::setValueDirect(int absIndex,floatDouble theValue,bool first
         int prevIndex=absIndex-1;
         if (prevIndex<0)
             prevIndex+=(int)_floatData.size();
-        floatDouble dt=(times[absIndex]-times[prevIndex]);
+        double dt=(times[absIndex]-times[prevIndex]);
         if (_derivativeIntegralAndCumulative==sim_stream_transf_raw)
         {
             _transformedFloatData[absIndex]=_floatData[absIndex];
@@ -268,9 +268,9 @@ void CGraphData_old::setValueDirect(int absIndex,floatDouble theValue,bool first
         }
         if (_derivativeIntegralAndCumulative==sim_stream_transf_derivative)
         {
-            if (dt==0.0f)
+            if (dt==0.0)
             { // invalid data
-                _transformedFloatData[absIndex]=0.0f;
+                _transformedFloatData[absIndex]=0.0;
                 _transformedFloatDataValidFlags[absIndex/8]&=255-(1<<(absIndex&7)); // invalid data
             }
             else
@@ -285,7 +285,7 @@ void CGraphData_old::setValueDirect(int absIndex,floatDouble theValue,bool first
                 }
                 else
                 { // previous data was invalid
-                    _transformedFloatData[absIndex]=0.0f;
+                    _transformedFloatData[absIndex]=0.0;
                     _transformedFloatDataValidFlags[absIndex/8]&=255-(1<<(absIndex&7)); // invalid data
                 }
             }
@@ -297,15 +297,15 @@ void CGraphData_old::setValueDirect(int absIndex,floatDouble theValue,bool first
                 if ((_transformedFloatDataValidFlags[prevIndex/8]&(1<<(prevIndex&7)))!=0)
                 { // previous transformed data was valid
                     if (!cyclic)
-                        _transformedFloatData[absIndex]=_transformedFloatData[prevIndex]+(_floatData[prevIndex]+_floatData[absIndex])*0.5f*dt;
+                        _transformedFloatData[absIndex]=_transformedFloatData[prevIndex]+(_floatData[prevIndex]+_floatData[absIndex])*0.5*dt;
                     else
-                        _transformedFloatData[absIndex]=_transformedFloatData[prevIndex]+(_floatData[prevIndex]+tt::getAngleMinusAlpha_range(_floatData[absIndex],_floatData[prevIndex],range)*0.5f)*dt;
+                        _transformedFloatData[absIndex]=_transformedFloatData[prevIndex]+(_floatData[prevIndex]+tt::getAngleMinusAlpha_range(_floatData[absIndex],_floatData[prevIndex],range)*0.5)*dt;
                 }
                 else
-                    _transformedFloatData[absIndex]=(_floatData[prevIndex]+_floatData[absIndex])*0.5f*dt; // previous transformed data was invalid
+                    _transformedFloatData[absIndex]=(_floatData[prevIndex]+_floatData[absIndex])*0.5*dt; // previous transformed data was invalid
             }
             else
-                _transformedFloatData[absIndex]=0.0f; // previous data was invalid
+                _transformedFloatData[absIndex]=0.0; // previous data was invalid
             _transformedFloatDataValidFlags[absIndex/8]|=(1<<(absIndex&7)); // valid transformed data
         }
         if (_derivativeIntegralAndCumulative==sim_stream_transf_cumulative)
@@ -329,10 +329,10 @@ void CGraphData_old::setValueDirect(int absIndex,floatDouble theValue,bool first
     }
 }
 
-void CGraphData_old::setValue(const C7Vector* graphCTM,int absIndex,bool firstValue,bool cyclic,floatDouble range,const std::vector<floatDouble>& times)
+void CGraphData_old::setValue(const C7Vector* graphCTM,int absIndex,bool firstValue,bool cyclic,double range,const std::vector<double>& times)
 {
     bool dataIsOkay=false;
-    floatDouble theValue;
+    double theValue;
     if (dataType==GRAPH_NOOBJECT_USER_DEFINED)
     {
         if (_userDataValid)
@@ -350,14 +350,14 @@ void CGraphData_old::setValue(const C7Vector* graphCTM,int absIndex,bool firstVa
         setValueDirect(absIndex,theValue,firstValue,cyclic,range,times);
     else
     {
-        _floatData[absIndex]=0.0f;
-        _transformedFloatData[absIndex]=0.0f;
+        _floatData[absIndex]=0.0;
+        _transformedFloatData[absIndex]=0.0;
         _floatDataValidFlags[absIndex/8]&=255-(1<<(absIndex&7)); // invalid data
         _transformedFloatDataValidFlags[absIndex/8]&=255-(1<<(absIndex&7)); // invalid data
     }
 }
 
-bool CGraphData_old::getValue(int absIndex,floatDouble& v) const
+bool CGraphData_old::getValue(int absIndex,double& v) const
 {
     if (getValueRaw(absIndex,v))
     {
@@ -368,13 +368,13 @@ bool CGraphData_old::getValue(int absIndex,floatDouble& v) const
 }
 
 
-bool CGraphData_old::getValueRaw(int absIndex,floatDouble& v) const
+bool CGraphData_old::getValueRaw(int absIndex,double& v) const
 { // isValid can be null;
     v=_transformedFloatData[absIndex];
     return ((_transformedFloatDataValidFlags[absIndex/8]&(1<<(absIndex&7)))!=0);
 }
 
-void CGraphData_old::setUserData(floatDouble data)
+void CGraphData_old::setUserData(double data)
 {
     _userData=data;
     _userDataValid=true;        
@@ -401,8 +401,8 @@ void CGraphData_old::resetData(int bufferSize)
     // We fill it with the default value:
     for (int i=0;i<bufferSize;i++)
     {
-        _floatData.push_back(0.0f);
-        _transformedFloatData.push_back(0.0f);
+        _floatData.push_back(0.0);
+        _transformedFloatData.push_back(0.0);
     }
     for (int i=0;i<(bufferSize/8)+1;i++)
     {
@@ -452,28 +452,21 @@ void CGraphData_old::serialize(CSer& ar,void* it)
             ar << dataType << dataObjectID << dataObjectAuxID;
             ar.flush();
 
-#ifdef TMPOPERATION
             ar.storeDataName("Col");
-            ar.flt() << (floatFloat)ambientColor[0] << (floatFloat)ambientColor[1] << (floatFloat)ambientColor[2];
+            ar << ambientColor[0] << ambientColor[1] << ambientColor[2];
             ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_ol");
-            ar.dbl() << ambientColor[0] << ambientColor[1] << ambientColor[2];
-            ar.flush();
-#endif
 
 #ifdef TMPOPERATION
             ar.storeDataName("Var");
-            floatFloat dum=0.0;
-            ar.flt() << (floatFloat)zoomFactor << dum << (floatFloat)addCoeff;
+            float dum=0.0;
+            ar << (float)zoomFactor << dum << (float)addCoeff;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_ar");
-            ar.dbl() << zoomFactor << addCoeff;
+            ar << zoomFactor << addCoeff;
             ar.flush();
-#endif
+
 
             ar.storeDataName("Mac");
             ar << _movingAverageCount;
@@ -497,20 +490,20 @@ void CGraphData_old::serialize(CSer& ar,void* it)
             {
                 int absIndex;
                 cg->getAbsIndexOfPosition(i,absIndex);
-                ar.flt() << (floatFloat)_floatData[absIndex];
+                ar << (float)_floatData[absIndex];
             }
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_t9"); // Should always come after nullValue
             for (int i=0;i<cg->getNumberOfPoints();i++)
             {
                 int absIndex;
                 cg->getAbsIndexOfPosition(i,absIndex);
-                ar.dbl() << _floatData[absIndex];
+                ar << _floatData[absIndex];
             }
             ar.flush();
-#endif
+
 
 #ifdef TMPOPERATION
             ar.storeDataName("Ifd");
@@ -518,20 +511,20 @@ void CGraphData_old::serialize(CSer& ar,void* it)
             {
                 int absIndex;
                 cg->getAbsIndexOfPosition(i,absIndex);
-                ar.flt() << (floatFloat)_transformedFloatData[absIndex];
+                ar << (float)_transformedFloatData[absIndex];
             }
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_fd");
             for (int i=0;i<cg->getNumberOfPoints();i++)
             {
                 int absIndex;
                 cg->getAbsIndexOfPosition(i,absIndex);
-                ar.dbl() << _transformedFloatData[absIndex];
+                ar << _transformedFloatData[absIndex];
             }
             ar.flush();
-#endif
+
 
             ar.storeDataName("Bla");
             for (int i=0;i<cg->getNumberOfPoints();i++)
@@ -588,37 +581,29 @@ void CGraphData_old::serialize(CSer& ar,void* it)
                         ar >> dataType >> dataObjectID >> dataObjectAuxID;
                     }
                     if (theName.compare("Col")==0)
-                    { // for backward comp. (flt->dbl)
-                        noHit=false;
-                        ar >> byteQuantity;
-                        floatFloat bla;
-                        for (size_t i=0;i<3;i++)
-                        {
-                            ar.flt() >> bla;
-                            ambientColor[i]=(floatDouble)bla;
-                        }
-                    }
-                    if (theName.compare("_ol")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> ambientColor[0] >> ambientColor[1] >> ambientColor[2];
+                        for (size_t i=0;i<3;i++)
+                            ar >> ambientColor[i];
                     }
                     if (theName.compare("Var")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
-                        floatFloat bla,bli,blo;
+                        float bla,bli,blo;
                         ar >> byteQuantity;
-                        ar.flt() >> bla >> bli >> blo;
-                        zoomFactor=(floatDouble)bla;
-                        addCoeff=(floatDouble)blo;
+                        ar >> bla >> bli >> blo;
+                        zoomFactor=(double)bla;
+                        addCoeff=(double)blo;
                     }
+
                     if (theName.compare("_ar")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> zoomFactor >> addCoeff;
+                        ar >> zoomFactor >> addCoeff;
                     }
+
                     if (theName.compare("Mac")==0)
                     {
                         noHit=false;
@@ -649,13 +634,14 @@ void CGraphData_old::serialize(CSer& ar,void* it)
                         _floatData.clear();
                         for (int i=0;i<cg->getBufferSize();i++)
                             _floatData.push_back(0.0);
-                        for (int i=0;i<byteQuantity/int(sizeof(floatFloat));i++)
+                        for (int i=0;i<byteQuantity/int(sizeof(float));i++)
                         {
-                            floatFloat dummy;
-                            ar.flt() >> dummy;
-                            _floatData[i]=(floatDouble)dummy;
+                            float dummy;
+                            ar >> dummy;
+                            _floatData[i]=(double)dummy;
                         }
                     }
+
                     if (theName.compare("_t9")==0)
                     {
                         noHit=false;
@@ -664,13 +650,14 @@ void CGraphData_old::serialize(CSer& ar,void* it)
                         _floatData.clear();
                         for (int i=0;i<cg->getBufferSize();i++)
                             _floatData.push_back(0.0);
-                        for (int i=0;i<byteQuantity/int(sizeof(floatFloat));i++)
+                        for (int i=0;i<byteQuantity/int(sizeof(double));i++)
                         {
-                            floatDouble dummy;
-                            ar.dbl() >> dummy;
+                            double dummy;
+                            ar >> dummy;
                             _floatData[i]=dummy;
                         }
                     }
+
                     if (theName.compare("Ifd")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
@@ -678,13 +665,14 @@ void CGraphData_old::serialize(CSer& ar,void* it)
                         _transformedFloatData.clear();
                         for (int i=0;i<cg->getBufferSize();i++)
                             _transformedFloatData.push_back(0.0);
-                        for (int i=0;i<byteQuantity/int(sizeof(floatFloat));i++)
+                        for (int i=0;i<byteQuantity/int(sizeof(float));i++)
                         {
-                            floatFloat dummy;
-                            ar.flt() >> dummy;
-                            _transformedFloatData[i]=(floatDouble)dummy;
+                            float dummy;
+                            ar >> dummy;
+                            _transformedFloatData[i]=(double)dummy;
                         }
                     }
+
                     if (theName.compare("_fd")==0)
                     {
                         noHit=false;
@@ -692,13 +680,14 @@ void CGraphData_old::serialize(CSer& ar,void* it)
                         _transformedFloatData.clear();
                         for (int i=0;i<cg->getBufferSize();i++)
                             _transformedFloatData.push_back(0.0);
-                        for (int i=0;i<byteQuantity/int(sizeof(floatFloat));i++)
+                        for (int i=0;i<byteQuantity/int(sizeof(double));i++)
                         {
-                            floatDouble dummy;
-                            ar.dbl() >> dummy;
+                            double dummy;
+                            ar >> dummy;
                             _transformedFloatData[i]=dummy;
                         }
                     }
+
                     if (theName.compare("Bla")==0)
                     {
                         noHit=false;
@@ -762,7 +751,7 @@ void CGraphData_old::serialize(CSer& ar,void* it)
             ar.xmlAddNode_bool("showLabel",label);
             ar.xmlPopNode();
 
-            std::vector<floatDouble> tmp;
+            std::vector<double> tmp;
             for (int i=0;i<cg->getNumberOfPoints();i++)
             {
                 int absIndex;

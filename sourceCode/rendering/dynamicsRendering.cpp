@@ -3,36 +3,36 @@
 #ifdef SIM_WITH_OPENGL
 #include "pluginContainer.h"
 
-const float SPHEREVERTICES[24*3]={
--0.4142f,-1.0000f,-0.4142f,
-+0.4142f,-1.0000f,-0.4142f,
-+0.4142f,-1.0000f,+0.4142f,
--0.4142f,-1.0000f,+0.4142f,
+const double SPHEREVERTICES[24*3]={
+-0.4142,-1.0000,-0.4142,
++0.4142,-1.0000,-0.4142,
++0.4142,-1.0000,+0.4142,
+-0.4142,-1.0000,+0.4142,
 
--0.4142f,-0.4142f,-1.0000f,
--0.4142f,+0.4142f,-1.0000f,
-+0.4142f,+0.4142f,-1.0000f,
-+0.4142f,-0.4142f,-1.0000f,
+-0.4142,-0.4142,-1.0000,
+-0.4142,+0.4142,-1.0000,
++0.4142,+0.4142,-1.0000,
++0.4142,-0.4142,-1.0000,
 
-+0.4142f,+1.0000f,-0.4142f,
--0.4142f,+1.0000f,-0.4142f,
--0.4142f,+1.0000f,+0.4142f,
-+0.4142f,+1.0000f,+0.4142f,
++0.4142,+1.0000,-0.4142,
+-0.4142,+1.0000,-0.4142,
+-0.4142,+1.0000,+0.4142,
++0.4142,+1.0000,+0.4142,
 
-+0.4142f,-0.4142f,+1.0000f,
-+0.4142f,+0.4142f,+1.0000f,
--0.4142f,+0.4142f,+1.0000f,
--0.4142f,-0.4142f,+1.0000f,
++0.4142,-0.4142,+1.0000,
++0.4142,+0.4142,+1.0000,
+-0.4142,+0.4142,+1.0000,
+-0.4142,-0.4142,+1.0000,
 
-+1.0000f,-0.4142f,-0.4142f,
-+1.0000f,+0.4142f,-0.4142f,
-+1.0000f,+0.4142f,+0.4142f,
-+1.0000f,-0.4142f,+0.4142f,
++1.0000,-0.4142,-0.4142,
++1.0000,+0.4142,-0.4142,
++1.0000,+0.4142,+0.4142,
++1.0000,-0.4142,+0.4142,
 
--1.0000f,-0.4142f,+0.4142f,
--1.0000f,+0.4142f,+0.4142f,
--1.0000f,+0.4142f,-0.4142f,
--1.0000f,-0.4142f,-0.4142f
+-1.0000,-0.4142,+0.4142,
+-1.0000,+0.4142,+0.4142,
+-1.0000,+0.4142,-0.4142,
+-1.0000,-0.4142,-0.4142
 };
 
 const int SPHEREQUADINDICES[18*4]={
@@ -59,28 +59,28 @@ const int SPHEREQUADINDICES[18*4]={
 23,22,5,4
 };
 
-const float SPHEREQUADNORMALS[18*3]={
-+0.0f,-1.0f,+0.0f,
-+0.0f,+0.0f,-1.0f,
-+0.0f,+1.0f,+0.0f,
-+0.0f,+0.0f,+1.0f,
-+1.0f,+0.0f,+0.0f,
--1.0f,+0.0f,+0.0f,
+const double SPHEREQUADNORMALS[18*3]={
++0.0,-1.0,+0.0,
++0.0,+0.0,-1.0,
++0.0,+1.0,+0.0,
++0.0,+0.0,+1.0,
++1.0,+0.0,+0.0,
+-1.0,+0.0,+0.0,
 
-+0.0f,-0.7071f,-0.7071f,
-+0.7071f,-0.7071f,+0.0f,
-+0.0f,-0.7071f,+0.7071f,
--0.7071f,-0.7071f,+0.0f,
++0.0,-0.7071,-0.7071,
++0.7071,-0.7071,+0.0,
++0.0,-0.7071,+0.7071,
+-0.7071,-0.7071,+0.0,
 
-+0.0f,+0.7071f,-0.7071f,
-+0.7071f,+0.7071f,+0.0f,
-+0.0f,+0.7071f,+0.7071f,
--0.7071f,+0.7071f,+0.0f,
++0.0,+0.7071,-0.7071,
++0.7071,+0.7071,+0.0,
++0.0,+0.7071,+0.7071,
+-0.7071,+0.7071,+0.0,
 
-+0.7071f,0.0f,-0.7071f,
-+0.7071f,0.0f,+0.7071f,
--0.7071f,0.0f,+0.7071f,
--0.7071f,0.0f,-0.7071f
++0.7071,0.0,-0.7071,
++0.7071,0.0,+0.7071,
+-0.7071,0.0,+0.7071,
+-0.7071,0.0,-0.7071
 };
 
 const int SPHERETRIANGLEINDICES[8*3]={
@@ -95,23 +95,23 @@ const int SPHERETRIANGLEINDICES[8*3]={
 22,9,5
 };
 
-const float SPHERETRIANGLENORMALS[8*3]={
-+0.5773f,-0.5773f,-0.5773f,
-+0.5773f,-0.5773f,+0.5773f,
--0.5773f,-0.5773f,+0.5773f,
--0.5773f,-0.5773f,-0.5773f,
+const double SPHERETRIANGLENORMALS[8*3]={
++0.5773,-0.5773,-0.5773,
++0.5773,-0.5773,+0.5773,
+-0.5773,-0.5773,+0.5773,
+-0.5773,-0.5773,-0.5773,
 
-+0.5773f,+0.5773f,-0.5773f,
-+0.5773f,+0.5773f,+0.5773f,
--0.5773f,+0.5773f,+0.5773f,
--0.5773f,+0.5773f,-0.5773f,
++0.5773,+0.5773,-0.5773,
++0.5773,+0.5773,+0.5773,
+-0.5773,+0.5773,+0.5773,
+-0.5773,+0.5773,-0.5773,
 };
 
 void displayParticles(void** particlesPointer,int particlesCount,int displayAttrib,const C4X4Matrix& cameraCTM,const float* cols,int objectType)
 {
     ogl::setMaterialColor(cols,cols+6,cols+9);
     C3Vector pos;
-    float size;
+    double size;
     int particleType;
     float* additionalColor;
     for (int i=0;i<particlesCount;i++)
@@ -149,11 +149,11 @@ void displayParticles(void** particlesPointer,int particlesCount,int displayAttr
     }
 }
 
-void displayContactPoints(int displayAttrib,const CColorObject& contactPointColor,const float* pts,int cnt)
+void displayContactPoints(int displayAttrib,const CColorObject& contactPointColor,const double* pts,int cnt)
 {
     glDisable(GL_DEPTH_TEST);
     glLoadName(-1);
-    glPointSize(4.0f);
+    glPointSize(4.0);
     contactPointColor.makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
     ogl::buffer.clear();
     for (int i=0;i<cnt;i++)
@@ -162,24 +162,24 @@ void displayContactPoints(int displayAttrib,const CColorObject& contactPointColo
         ogl::drawRandom3dPoints(&ogl::buffer[0],cnt,nullptr);
     ogl::buffer.clear();
 
-    glLineWidth(1.0f);
-    glPointSize(1.0f);
+    glLineWidth(1.0);
+    glPointSize(1.0);
     glEnable(GL_DEPTH_TEST);
 }
 
-void _drawPoints(int displayAttrib,const C4X4Matrix& cameraRTM,const C3Vector& _currentPosition,float _size,int _objectType,const float* _additionalColor)
+void _drawPoints(int displayAttrib,const C4X4Matrix& cameraRTM,const C3Vector& _currentPosition,double _size,int _objectType,const float* _additionalColor)
 {
-    C3Vector n(cameraRTM.M.axis[2]*-1.0f);
+    C3Vector n(cameraRTM.M.axis[2]*-1.0);
     int tmp=_objectType&0x001f;
     if (tmp==sim_particle_points1)
-        glPointSize(1.0f);
+        glPointSize(1.0);
     if (tmp==sim_particle_points2)
-        glPointSize(2.0f);
+        glPointSize(2.0);
     if (tmp==sim_particle_points4)
-        glPointSize(4.0f);
+        glPointSize(4.0);
 
     C3Vector v;
-    float rgbaAmb[4]={0.0f,0.0f,0.0f,1.0f};
+    float rgbaAmb[4]={0.0,0.0,0.0,1.0};
     if (_objectType&sim_particle_itemcolors)
     {
         rgbaAmb[0]=_additionalColor[0];
@@ -187,10 +187,10 @@ void _drawPoints(int displayAttrib,const C4X4Matrix& cameraRTM,const C3Vector& _
         rgbaAmb[2]=_additionalColor[2];
     }
     ogl::drawRandom3dPointsEx(_currentPosition.data,1,nullptr,rgbaAmb,nullptr,(_objectType&sim_particle_emissioncolor)!=0,n.data);
-    glPointSize(1.0f);
+    glPointSize(1.0);
 }
 
-void _drawRoughSphere(int displayAttrib,const C3Vector& _currentPosition,float _size,int _objectType,const float* _additionalColor)
+void _drawRoughSphere(int displayAttrib,const C3Vector& _currentPosition,double _size,int _objectType,const float* _additionalColor)
 {
     if (_objectType&sim_particle_itemcolors)
     {
@@ -206,15 +206,15 @@ void _drawRoughSphere(int displayAttrib,const C3Vector& _currentPosition,float _
         C3Vector x1(SPHEREVERTICES+3*SPHEREQUADINDICES[4*j+1]);
         C3Vector x2(SPHEREVERTICES+3*SPHEREQUADINDICES[4*j+2]);
         C3Vector x3(SPHEREVERTICES+3*SPHEREQUADINDICES[4*j+3]);
-        x0=_currentPosition+x0*_size*0.5f;
-        x1=_currentPosition+x1*_size*0.5f;
-        x2=_currentPosition+x2*_size*0.5f;
-        x3=_currentPosition+x3*_size*0.5f;
-        glNormal3fv(SPHEREQUADNORMALS+3*j);
-        glVertex3fv(x0.data);
-        glVertex3fv(x1.data);
-        glVertex3fv(x2.data);
-        glVertex3fv(x3.data);
+        x0=_currentPosition+x0*_size*0.5;
+        x1=_currentPosition+x1*_size*0.5;
+        x2=_currentPosition+x2*_size*0.5;
+        x3=_currentPosition+x3*_size*0.5;
+        glNormal3dv(SPHEREQUADNORMALS+3*j);
+        glVertex3dv(x0.data);
+        glVertex3dv(x1.data);
+        glVertex3dv(x2.data);
+        glVertex3dv(x3.data);
     }
     glEnd();
     glBegin(GL_TRIANGLES);
@@ -223,21 +223,21 @@ void _drawRoughSphere(int displayAttrib,const C3Vector& _currentPosition,float _
         C3Vector x0(SPHEREVERTICES+3*SPHERETRIANGLEINDICES[3*j+0]);
         C3Vector x1(SPHEREVERTICES+3*SPHERETRIANGLEINDICES[3*j+1]);
         C3Vector x2(SPHEREVERTICES+3*SPHERETRIANGLEINDICES[3*j+2]);
-        x0=_currentPosition+x0*_size*0.5f;
-        x1=_currentPosition+x1*_size*0.5f;
-        x2=_currentPosition+x2*_size*0.5f;
-        glNormal3fv(SPHERETRIANGLENORMALS+3*j);
-        glVertex3fv(x0.data);
-        glVertex3fv(x1.data);
-        glVertex3fv(x2.data);
+        x0=_currentPosition+x0*_size*0.5;
+        x1=_currentPosition+x1*_size*0.5;
+        x2=_currentPosition+x2*_size*0.5;
+        glNormal3dv(SPHERETRIANGLENORMALS+3*j);
+        glVertex3dv(x0.data);
+        glVertex3dv(x1.data);
+        glVertex3dv(x2.data);
     }
     glEnd();
 }
 
-void _drawSphere(int displayAttrib,const C3Vector& _currentPosition,float _size,int _objectType,const float* _additionalColor)
+void _drawSphere(int displayAttrib,const C3Vector& _currentPosition,double _size,int _objectType,const float* _additionalColor)
 {
     glPushMatrix();
-    glTranslatef(_currentPosition(0),_currentPosition(1),_currentPosition(2));
+    glTranslated(_currentPosition(0),_currentPosition(1),_currentPosition(2));
 
     if (_objectType&sim_particle_itemcolors)
     {
@@ -246,18 +246,18 @@ void _drawSphere(int displayAttrib,const C3Vector& _currentPosition,float _size,
         else
             ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,_additionalColor);
     }
-    ogl::drawSphere(_size*0.5f,10,5,true);
+    ogl::drawSphere(_size*0.5,10,5,true);
     glPopMatrix();
 }
 
 #else
 
-void displayParticles(void** particlesPointer,int particlesCount,int displayAttrib,const C4X4Matrix& cameraCTM,const float* cols,int objectType)
+void displayParticles(void** particlesPointer,int particlesCount,int displayAttrib,const C4X4Matrix& cameraCTM,const double* cols,int objectType)
 {
 
 }
 
-void displayContactPoints(int displayAttrib,const CColorObject& contactPointColor,const float* pts,int cnt)
+void displayContactPoints(int displayAttrib,const CColorObject& contactPointColor,const double* pts,int cnt)
 {
 
 }

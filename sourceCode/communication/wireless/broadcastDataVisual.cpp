@@ -4,7 +4,7 @@
 #include "vDateTime.h"
 #include "broadcastDataVisualRendering.h"
 
-CBroadcastDataVisual::CBroadcastDataVisual(floatDouble timeOutSimulationTime,floatDouble actionRadius,const C7Vector& emitterConf,floatDouble emissionAngle1,floatDouble emissionAngle2)
+CBroadcastDataVisual::CBroadcastDataVisual(double timeOutSimulationTime,double actionRadius,const C7Vector& emitterConf,double emissionAngle1,double emissionAngle2)
 { // displayed if not timed out
     _timeOutSimulationTime=timeOutSimulationTime;
     _actionRadius=actionRadius;
@@ -22,7 +22,7 @@ CBroadcastDataVisual::CBroadcastDataVisual(const C3Vector& emitterPos,const C3Ve
     _emitter=false;
 }
 
-bool CBroadcastDataVisual::doesRequireDestruction(floatDouble simulationTime)
+bool CBroadcastDataVisual::doesRequireDestruction(double simulationTime)
 {
     if (_emitter)
         return(simulationTime>_timeOutSimulationTime);

@@ -14,25 +14,25 @@ CSimplePathPoint_old::~CSimplePathPoint_old()
 void CSimplePathPoint_old::commonInit()
 {
     _transformation.setIdentity();
-    _bezierFactorBefore=0.5f;
-    _bezierFactorAfter=0.5f;
-    _maxRelAbsVelocity=1.0f;
+    _bezierFactorBefore=0.5;
+    _bezierFactorAfter=0.5;
+    _maxRelAbsVelocity=1.0;
     _bezierPointCount=15;
-    _onSpotDistance=0.0f;
+    _onSpotDistance=0.0;
     _auxFlags=0;
     for (int i=0;i<4;i++)
-        _auxChannels[i]=0.0f;
+        _auxChannels[i]=0.0;
 }
 
-void CSimplePathPoint_old::setBezierFactors(floatDouble fBefore,floatDouble fAfter)
-{ // 0.99f is so that we don't have dedoubled bezier points!
-    tt::limitValue(0.1f,0.99f,fBefore);
-    tt::limitValue(0.1f,0.99f,fAfter);
+void CSimplePathPoint_old::setBezierFactors(double fBefore,double fAfter)
+{ // 0.99 is so that we don't have dedoubled bezier points!
+    tt::limitValue(0.1,0.99,fBefore);
+    tt::limitValue(0.1,0.99,fAfter);
     _bezierFactorBefore=fBefore;
     _bezierFactorAfter=fAfter;
 }
 
-void CSimplePathPoint_old::getBezierFactors(floatDouble& fBefore,floatDouble& fAfter)
+void CSimplePathPoint_old::getBezierFactors(double& fBefore,double& fAfter)
 {
     fBefore=_bezierFactorBefore;
     fAfter=_bezierFactorAfter;
@@ -51,12 +51,12 @@ int CSimplePathPoint_old::getBezierPointCount()
     return(_bezierPointCount);
 }
 
-void CSimplePathPoint_old::scaleYourself(floatDouble scalingFactor)
+void CSimplePathPoint_old::scaleYourself(double scalingFactor)
 {
     _transformation.X=_transformation.X*scalingFactor;
 }
 
-void CSimplePathPoint_old::scaleYourselfNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
+void CSimplePathPoint_old::scaleYourselfNonIsometrically(double x,double y,double z)
 {
     _transformation.X(0)=_transformation.X(0)*x;
     _transformation.X(1)=_transformation.X(1)*y;
@@ -87,52 +87,52 @@ void CSimplePathPoint_old::serialize(CSer& ar)
         {       // Storing
 #ifdef TMPOPERATION
             ar.storeDataName("At2");
-            ar.flt() << (floatFloat)_transformation(0) << (floatFloat)_transformation(1) << (floatFloat)_transformation(2) << (floatFloat)_transformation(3);
-            ar.flt() << (floatFloat)_transformation(4) << (floatFloat)_transformation(5) << (floatFloat)_transformation(6);
-            ar.flt() << (floatFloat)_bezierFactorBefore << (floatFloat)_bezierFactorAfter;
+            ar << (float)_transformation(0) << (float)_transformation(1) << (float)_transformation(2) << (float)_transformation(3);
+            ar << (float)_transformation(4) << (float)_transformation(5) << (float)_transformation(6);
+            ar << (float)_bezierFactorBefore << (float)_bezierFactorAfter;
             ar << _bezierPointCount;
-            ar.flt() << (floatFloat)_maxRelAbsVelocity;
-            ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_t2");
-            ar.dbl() << _transformation(0) << _transformation(1) << _transformation(2) << _transformation(3);
-            ar.dbl() << _transformation(4) << _transformation(5) << _transformation(6);
-            ar.dbl() << _bezierFactorBefore << _bezierFactorAfter;
-            ar << _bezierPointCount;
-            ar.dbl() << _maxRelAbsVelocity;
+            ar << (float)_maxRelAbsVelocity;
             ar.flush();
 #endif
 
+            ar.storeDataName("_t2");
+            ar << _transformation(0) << _transformation(1) << _transformation(2) << _transformation(3);
+            ar << _transformation(4) << _transformation(5) << _transformation(6);
+            ar << _bezierFactorBefore << _bezierFactorAfter;
+            ar << _bezierPointCount;
+            ar << _maxRelAbsVelocity;
+            ar.flush();
+
+
 #ifdef TMPOPERATION
             ar.storeDataName("At3");
-            ar.flt() << (floatFloat)_onSpotDistance;
+            ar << (float)_onSpotDistance;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_t3");
-            ar.dbl() << _onSpotDistance;
+            ar << _onSpotDistance;
             ar.flush();
-#endif
+
 
 #ifdef TMPOPERATION
             ar.storeDataName("At4");
             ar << _auxFlags;
-            ar.flt() << (floatFloat)_auxChannels[0];
-            ar.flt() << (floatFloat)_auxChannels[1];
-            ar.flt() << (floatFloat)_auxChannels[2];
-            ar.flt() << (floatFloat)_auxChannels[3];
+            ar << (float)_auxChannels[0];
+            ar << (float)_auxChannels[1];
+            ar << (float)_auxChannels[2];
+            ar << (float)_auxChannels[3];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_t4");
             ar << _auxFlags;
-            ar.dbl() << _auxChannels[0];
-            ar.dbl() << _auxChannels[1];
-            ar.dbl() << _auxChannels[2];
-            ar.dbl() << _auxChannels[3];
+            ar << _auxChannels[0];
+            ar << _auxChannels[1];
+            ar << _auxChannels[2];
+            ar << _auxChannels[3];
             ar.flush();
-#endif
+
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -150,62 +150,68 @@ void CSimplePathPoint_old::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla[7];
-                        ar.flt() >> bla[0] >> bla[1] >> bla[2] >> bla[3];
-                        ar.flt() >> bla[4] >> bla[5] >> bla[6];
+                        float bla[7];
+                        ar >> bla[0] >> bla[1] >> bla[2] >> bla[3];
+                        ar >> bla[4] >> bla[5] >> bla[6];
                         for (size_t i=0;i<7;i++)
-                            _transformation(i)=(floatDouble)bla[i];
-                        ar.flt() >> bla[0] >> bla[1];
-                        _bezierFactorBefore=(floatDouble)bla[0];
-                        _bezierFactorAfter=(floatDouble)bla[1];
+                            _transformation(i)=(double)bla[i];
+                        ar >> bla[0] >> bla[1];
+                        _bezierFactorBefore=(double)bla[0];
+                        _bezierFactorAfter=(double)bla[1];
                         ar >> _bezierPointCount;
-                        ar.flt() >> bla[0];
-                        _maxRelAbsVelocity=(floatDouble)bla[0];
+                        ar >> bla[0];
+                        _maxRelAbsVelocity=(double)bla[0];
                     }
+
                     if (theName.compare("_t2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _transformation(0) >> _transformation(1) >> _transformation(2) >> _transformation(3);
-                        ar.dbl() >> _transformation(4) >> _transformation(5) >> _transformation(6);
-                        ar.dbl() >> _bezierFactorBefore >> _bezierFactorAfter;
+                        ar >> _transformation(0) >> _transformation(1) >> _transformation(2) >> _transformation(3);
+                        ar >> _transformation(4) >> _transformation(5) >> _transformation(6);
+                        ar >> _bezierFactorBefore >> _bezierFactorAfter;
                         ar >> _bezierPointCount;
-                        ar.dbl() >> _maxRelAbsVelocity;
+                        ar >> _maxRelAbsVelocity;
                     }
+
                     if (theName.compare("At3")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
-                        ar.flt() >> bla;
-                        _onSpotDistance=(floatDouble)bla;
+                        float bla;
+                        ar >> bla;
+                        _onSpotDistance=(double)bla;
                     }
+
                     if (theName.compare("_t3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _onSpotDistance;
+                        ar >> _onSpotDistance;
                     }
+
                     if (theName.compare("At4")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _auxFlags;
-                        floatFloat bla;
+                        float bla;
                         for (size_t i=0;i<4;i++)
                         {
-                            ar.flt() >> bla;
-                            _auxChannels[i]=(floatDouble)bla;
+                            ar >> bla;
+                            _auxChannels[i]=(double)bla;
                         }
                     }
+
                     if (theName.compare("_t4")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _auxFlags;
                         for (size_t i=0;i<4;i++)
-                            ar.dbl() >> _auxChannels[i];
+                            ar >> _auxChannels[i];
                     }
+
 
                     if (noHit)
                         ar.loadUnknownData();
@@ -225,7 +231,7 @@ void CSimplePathPoint_old::serialize(CSer& ar)
             else
             {
                 C3Vector euler(_transformation.Q.getEulerAngles());
-                euler*=180.0f/piValue;
+                euler*=180.0/piValue;
                 ar.xmlAddNode_floats("euler",euler.data,3);
             }
             ar.xmlPopNode();
@@ -256,9 +262,9 @@ void CSimplePathPoint_old::serialize(CSer& ar)
                     C3Vector euler;
                     if (ar.xmlGetNode_floats("euler",euler.data,3,exhaustiveXml))
                     {
-                        euler(0)*=piValue/180.0f;
-                        euler(1)*=piValue/180.0f;
-                        euler(2)*=piValue/180.0f;
+                        euler(0)*=piValue/180.0;
+                        euler(1)*=piValue/180.0;
+                        euler(2)*=piValue/180.0;
                         _transformation.Q.setEulerAngles(euler);
                     }
                 }

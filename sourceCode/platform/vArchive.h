@@ -1,5 +1,6 @@
 #pragma once
 
+#include "simTypes.h"
 #include "vFile.h"
 #ifdef SIM_WITH_QT
 #include <QDataStream>

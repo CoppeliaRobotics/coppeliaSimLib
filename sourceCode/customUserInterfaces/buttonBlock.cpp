@@ -960,7 +960,7 @@ void CButtonBlock::displayBlock(int winSize[2],bool justCameToFront)
         {
         bool buttonDown=((blockID==App::currentWorld->buttonBlockContainer->caughtBlock)&&(it->buttonID==App::currentWorld->buttonBlockContainer->caughtButton)&&App::currentWorld->buttonBlockContainer->caughtButtonDown);
         std::string txt=it->label;
-        floatDouble txtCol[3]={it->textColor[0],it->textColor[1],it->textColor[2]};
+        float txtCol[3]={it->textColor[0],it->textColor[1],it->textColor[2]};
         VPoint buttPos(it->xPos,it->yPos);
 
         VPoint blockSize,otherButtonSize;
@@ -979,7 +979,7 @@ void CButtonBlock::displayBlock(int winSize[2],bool justCameToFront)
         it->setVertical(otherButtonSize.y>otherButtonSize.x);
         if ((it->getAttributes()&sim_buttonproperty_isdown)&&(it->getButtonType()==sim_buttonproperty_button))
             txt=it->downLabel;
-        floatDouble sliderVal=it->getSliderPos();
+        double sliderVal=it->getSliderPos();
         bool editing=false;
         if ( (it->getButtonType()==sim_buttonproperty_editbox)&&(blockID==App::currentWorld->buttonBlockContainer->editBoxInEditionBlock)&&(it->buttonID==App::currentWorld->buttonBlockContainer->editBoxInEditionButton) )
         {
@@ -1007,7 +1007,7 @@ void CButtonBlock::displayBlock(int winSize[2],bool justCameToFront)
             int atr=it->getAttributes();
             if (buttonDown)
                 atr|=sim_buttonproperty_isdown;
-            floatDouble* secondTextColor=nullptr; // For now (2009/07/24)
+            float* secondTextColor=nullptr; // For now (2009/07/24)
 
             if (App::currentWorld->environment->get2DElementTexturesEnabled())
                 ogl::drawButton(pos,otherButtonSize,txtCol,it->backgroundColor,it->downBackgroundColor,txt,atr,
@@ -1109,9 +1109,9 @@ int CButtonBlock::mouseDownCatch(int xCoord,int yCoord,bool& cursorCatch,bool te
             { // We clicked onto the zone. We check now if we clicked the cursor
                 if (!itButton->getVertical())
                 { // Horizontal slider
-                    int p=(int)(itButton->getSliderPos()*0.5*(1.0-BUTTON_SLIDER_X_SIZE)*(floatDouble)otherButtonSize.x);
-                    int sx=(int)(0.5*BUTTON_SLIDER_X_SIZE*(floatDouble)otherButtonSize.x);
-                    int sy=(int)(0.5*BUTTON_SLIDER_Y_SIZE*(floatDouble)otherButtonSize.y);
+                    int p=(int)(itButton->getSliderPos()*0.5*(1.0-BUTTON_SLIDER_X_SIZE)*(double)otherButtonSize.x);
+                    int sx=(int)(0.5*BUTTON_SLIDER_X_SIZE*(double)otherButtonSize.x);
+                    int sy=(int)(0.5*BUTTON_SLIDER_Y_SIZE*(double)otherButtonSize.y);
                     if ((xCoord+1>=pos.x+p-sx)&&(xCoord-1<=pos.x+p+sx))
                     {
                         if ((yCoord+1>=pos.y-sy)&&(yCoord-1<=pos.y+sy))
@@ -1120,9 +1120,9 @@ int CButtonBlock::mouseDownCatch(int xCoord,int yCoord,bool& cursorCatch,bool te
                 }
                 else
                 { // Vertical slider
-                    int p=(int)(itButton->getSliderPos()*0.5*(1.0-BUTTON_SLIDER_X_SIZE)*(floatDouble)otherButtonSize.y);
-                    int sx=(int)(0.5*BUTTON_SLIDER_Y_SIZE*(floatDouble)otherButtonSize.x);
-                    int sy=(int)(0.5*BUTTON_SLIDER_X_SIZE*(floatDouble)otherButtonSize.y);
+                    int p=(int)(itButton->getSliderPos()*0.5*(1.0-BUTTON_SLIDER_X_SIZE)*(double)otherButtonSize.y);
+                    int sx=(int)(0.5*BUTTON_SLIDER_Y_SIZE*(double)otherButtonSize.x);
+                    int sy=(int)(0.5*BUTTON_SLIDER_X_SIZE*(double)otherButtonSize.y);
                     if ((yCoord+1>=pos.y-p-sy)&&(yCoord-1<=pos.y-p+sy))
                     {
                         if ((xCoord+1>=pos.x-sx)&&(xCoord-1<=pos.x+sx))

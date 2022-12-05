@@ -11,7 +11,7 @@ public:
     void editObjectProperties(int objectHandle) const;
 
 private:
-    float _getGlobalFloatParam(int item,std::string& comment,const char* additionalComment=nullptr) const;
+    double _getGlobalFloatParam(int item,std::string& comment,const char* additionalComment=nullptr) const;
     int _getGlobalIntParam(int item,std::string& comment,const char* additionalComment=nullptr) const;
     bool _getGlobalBoolParam(int item,std::string& comment,const char* additionalComment=nullptr) const;
     void _getGlobalFloatParams(int item,double* w,size_t cnt,std::string& comment,const char* additionalComment=nullptr) const;

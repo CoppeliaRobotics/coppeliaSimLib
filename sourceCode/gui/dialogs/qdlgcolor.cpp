@@ -202,7 +202,7 @@ void CQDlgColor::on_qqRedValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqRedValue->text().toFloat(&ok);
+        double newVal=ui->qqRedValue->text().toFloat(&ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -235,7 +235,7 @@ void CQDlgColor::on_qqGreenValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqGreenValue->text().toFloat(&ok);
+        double newVal=ui->qqGreenValue->text().toFloat(&ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -268,7 +268,7 @@ void CQDlgColor::on_qqBlueValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqBlueValue->text().toFloat(&ok);
+        double newVal=ui->qqBlueValue->text().toFloat(&ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -301,7 +301,7 @@ void CQDlgColor::on_qqHueValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqHueValue->text().toFloat(&ok);
+        double newVal=ui->qqHueValue->text().toFloat(&ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -334,7 +334,7 @@ void CQDlgColor::on_qqSaturationValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqSaturationValue->text().toFloat(&ok);
+        double newVal=ui->qqSaturationValue->text().toFloat(&ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -367,7 +367,7 @@ void CQDlgColor::on_qqLuminosityValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqLuminosityValue->text().toFloat(&ok);
+        double newVal=ui->qqLuminosityValue->text().toFloat(&ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -399,7 +399,7 @@ void CQDlgColor::on_qqRedSlider_sliderMoved(int position)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        redState=float(position)/100.0;
+        redState=double(position)/100.0;
         computeHSLValues();
         _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
         if (!isModal())
@@ -425,7 +425,7 @@ void CQDlgColor::on_qqGreenSlider_sliderMoved(int position)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        greenState=float(position)/100.0;
+        greenState=double(position)/100.0;
         computeHSLValues();
         _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
         if (!isModal())
@@ -451,7 +451,7 @@ void CQDlgColor::on_qqBlueSlider_sliderMoved(int position)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        blueState=float(position)/100.0;
+        blueState=double(position)/100.0;
         computeHSLValues();
         _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
         if (!isModal())
@@ -477,7 +477,7 @@ void CQDlgColor::on_qqHueSlider_sliderMoved(int position)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        hueState=float(position)/100.0;
+        hueState=double(position)/100.0;
         computeRGBValues();
         _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
         if (!isModal())
@@ -503,7 +503,7 @@ void CQDlgColor::on_qqSaturationSlider_sliderMoved(int position)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        saturationState=float(position)/100.0;
+        saturationState=double(position)/100.0;
         computeRGBValues();
         _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
         if (!isModal())
@@ -529,7 +529,7 @@ void CQDlgColor::on_qqLuminositySlider_sliderMoved(int position)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        luminosityState=float(position)/100.0;
+        luminosityState=double(position)/100.0;
         computeRGBValues();
         _setRGBToItem(); // so that we have first a local change (the server side change takes longer.. not fluid)
         if (!isModal())

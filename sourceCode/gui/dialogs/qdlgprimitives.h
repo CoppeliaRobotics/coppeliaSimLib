@@ -31,15 +31,15 @@ public:
     int subdivZ;
     int faceSubdiv;
     int sides;
-    float xSize;
-    float ySize;
-    float zSize;
+    double xSize;
+    double ySize;
+    double zSize;
     int discSubdiv;
     bool smooth;
     bool openEnds;
     bool dynamic;
     bool sizesAreLocked;
-    float density;
+    double density;
 
 private slots:
     void on_qqXSize_editingFinished();

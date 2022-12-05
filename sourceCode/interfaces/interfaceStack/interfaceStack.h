@@ -23,7 +23,7 @@ public:
     void pushObjectOntoStack(CInterfaceStackObject* obj,bool toFront=false);
     void pushNullOntoStack(bool toFront=false);
     void pushBoolOntoStack(bool v,bool toFront=false);
-    void pushFloatOntoStack(floatFloat v,bool toFront=false);
+    void pushFloatOntoStack(float v,bool toFront=false);
     void pushDoubleOntoStack(double v,bool toFront=false);
     void pushInt32OntoStack(int v,bool toFront=false);
     void pushInt64OntoStack(long long int v,bool toFront=false);
@@ -31,19 +31,19 @@ public:
     void pushUCharArrayOntoStack(const unsigned char* arr,size_t l,bool toFront=false);
     void pushInt32ArrayOntoStack(const int* arr,size_t l,bool toFront=false);
     void pushInt64ArrayOntoStack(const long long int* arr,size_t l,bool toFront=false);
-    void pushFloatArrayOntoStack(const floatFloat* arr,size_t l,bool toFront=false);
+    void pushFloatArrayOntoStack(const float* arr,size_t l,bool toFront=false);
     void pushDoubleArrayOntoStack(const double* arr,size_t l,bool toFront=false);
 
     void insertKeyNullIntoStackTable(const char* key);
     void insertKeyBoolIntoStackTable(const char* key,bool value);
-    void insertKeyFloatIntoStackTable(const char* key,floatFloat value);
+    void insertKeyFloatIntoStackTable(const char* key,float value);
     void insertKeyDoubleIntoStackTable(const char* key,double value);
     void insertKeyInt32IntoStackTable(const char* key,int value);
     void insertKeyInt64IntoStackTable(const char* key,long long int value);
     void insertKeyStringIntoStackTable(const char* key,const char* value,size_t l);
     void insertKeyInt32ArrayIntoStackTable(const char* key,const int* arr,size_t l);
     void insertKeyInt64ArrayIntoStackTable(const char* key,const long long int* arr,size_t l);
-    void insertKeyFloatArrayIntoStackTable(const char* key,const floatFloat* arr,size_t l);
+    void insertKeyFloatArrayIntoStackTable(const char* key,const float* arr,size_t l);
     void insertKeyDoubleArrayIntoStackTable(const char* key,const double* arr,size_t l);
 
     void pushTableOntoStack();
@@ -61,7 +61,7 @@ public:
     bool getStackStrictDoubleValue(double& theValue) const;
     bool getStackStrictInt64Value(long long int& theValue) const;
     bool getStackDoubleValue(double& theValue) const;
-    bool getStackFloatValue(floatFloat& theValue) const;
+    bool getStackFloatValue(float& theValue) const;
     bool getStackInt64Value(long long int& theValue) const;
     bool getStackInt32Value(int& theValue) const;
     bool getStackStringValue(std::string& theValue) const;
@@ -70,7 +70,7 @@ public:
     bool getStackUCharArray(unsigned char* array,int count) const;
     bool getStackInt32Array(int* array,int count) const;
     bool getStackInt64Array(long long int* array,int count) const;
-    bool getStackFloatArray(floatFloat* array,int count) const;
+    bool getStackFloatArray(float* array,int count) const;
     bool getStackDoubleArray(double* array,int count) const;
     bool unfoldStackTable();
     CInterfaceStackObject* getStackMapObject(const char* fieldName) const;
@@ -78,11 +78,12 @@ public:
     bool getStackMapStrictDoubleValue(const char* fieldName,double& val) const;
     bool getStackMapStrictInt64Value(const char* fieldName,long long int& val) const;
     bool getStackMapDoubleValue(const char* fieldName,double& val) const;
-    bool getStackMapFloatValue(const char* fieldName,floatFloat& val) const;
+    bool getStackMapFloatValue(const char* fieldName,float& val) const;
     bool getStackMapInt64Value(const char* fieldName,long long int& val) const;
     bool getStackMapInt32Value(const char* fieldName,int& val) const;
     bool getStackMapStringValue(const char* fieldName,std::string& val) const;
-    bool getStackMapFloatArray(const char* fieldName,floatFloat* array,int count) const;
+    bool getStackMapFloatArray(const char* fieldName,float* array,int count) const;
+    bool getStackMapDoubleArray(const char* fieldName,double* array,int count) const;
     std::string getBufferFromTable() const;
     std::string getCborEncodedBufferFromTable(int options) const;
 

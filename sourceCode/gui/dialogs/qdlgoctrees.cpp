@@ -76,7 +76,7 @@ void CQDlgOctrees::on_qqSize_editingFinished()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         bool ok;
-        float newVal=ui->qqSize->text().toFloat(&ok);
+        double newVal=ui->qqSize->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_VOXELSIZE_OCTREEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

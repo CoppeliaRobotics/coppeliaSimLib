@@ -16,8 +16,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(floatDouble scalingFactor);
-    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
+    void scaleObject(double scalingFactor);
+    void scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -47,17 +47,17 @@ public:
     void setMillableObject(int objectID);
     int getMillableObject() const;
 
-    int handleMill(bool exceptExplicitHandling,floatDouble& milledSurface,floatDouble& milledVolume,bool justForInitialization);
+    int handleMill(bool exceptExplicitHandling,double& milledSurface,double& milledVolume,bool justForInitialization);
     void resetMill(bool exceptExplicitHandling);
 
     void commonInit();
-    bool getMilledSurface(floatDouble& surf) const;
-    bool getMilledVolume(floatDouble& vol) const;
+    bool getMilledSurface(double& surf) const;
+    bool getMilledVolume(double& vol) const;
     bool getMilledCount(int& milledCount) const;
 
 
-    void setSize(floatDouble newSize);
-    floatDouble getSize() const;
+    void setSize(double newSize);
+    double getSize() const;
 
 
     void setMillType(int theType);
@@ -66,7 +66,7 @@ public:
     void setExplicitHandling(bool setExplicit);
     bool getExplicitHandling() const;
 
-    floatDouble getCalculationTime() const;
+    double getCalculationTime() const;
     bool getMillDataIsValid() const;
 
     CColorObject* getColor(bool getActiveColor);
@@ -79,13 +79,13 @@ protected:
     // Variables which need to be serialized & copied
     CColorObject activeVolumeColor;
     CColorObject passiveVolumeColor;
-    floatDouble _size;
+    double _size;
     bool _explicitHandling;
     int _millType;
     int _millableObject; // scene object handle or collection handle
     bool _millDataValid;
-    floatDouble _milledSurface;
-    floatDouble _milledVolume;
+    double _milledSurface;
+    double _milledVolume;
     int _milledObjectCount;
     int _calcTimeInMs;
 

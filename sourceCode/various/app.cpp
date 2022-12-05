@@ -227,7 +227,7 @@ bool App::executeUiThreadCommand(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOu
     return(uiThread->executeCommandViaUiThread(cmdIn,cmdOut));
 }
 
-void App::appendSimulationThreadCommand(int cmdId,int intP1,int intP2,float floatP1,float floatP2,const char* stringP1,const char* stringP2,int executionDelay)
+void App::appendSimulationThreadCommand(int cmdId,int intP1,int intP2,double floatP1,double floatP2,const char* stringP1,const char* stringP2,int executionDelay)
 { // convenience function. All args have default values except for the first
     SSimulationThreadCommand cmd;
     cmd.cmdId=cmdId;
@@ -317,7 +317,7 @@ App::App(bool headless)
     }
     if (userSettings->highResDisplay==3)
     {
-        if (userSettings->guiScaling>1.01f)
+        if (userSettings->guiScaling>1.01)
             qputenv("QT_SCALE_FACTOR",std::to_string(userSettings->guiScaling).c_str());
         if (userSettings->oglScaling!=1)
             App::sc=userSettings->oglScaling;

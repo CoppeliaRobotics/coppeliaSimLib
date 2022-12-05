@@ -148,7 +148,7 @@ bool CConfReaderAndWriter::getInteger(const char* variableName,int& variable) co
     return(tt::getValidInt(_values[ind].c_str(),variable));
 }
 
-bool CConfReaderAndWriter::getFloat(const char* variableName,float& variable) const
+bool CConfReaderAndWriter::getFloat(const char* variableName,double& variable) const
 {
     int ind=_getVariableIndex(variableName);
     if (ind==-1)
@@ -156,7 +156,7 @@ bool CConfReaderAndWriter::getFloat(const char* variableName,float& variable) co
     return(tt::getValidFloat(_values[ind].c_str(),variable));
 }
 
-bool CConfReaderAndWriter::getFloatVector3(const char* variableName,float variable[3]) const
+bool CConfReaderAndWriter::getFloatVector3(const char* variableName,double variable[3]) const
 {
     bool retVal=false;
     int ind=_getVariableIndex(variableName);
@@ -169,10 +169,10 @@ bool CConfReaderAndWriter::getFloatVector3(const char* variableName,float variab
     return(retVal);
 }
 
-bool CConfReaderAndWriter::_toFloatArray(const std::vector<std::string>& vals,size_t size,float* arr)
+bool CConfReaderAndWriter::_toFloatArray(const std::vector<std::string>& vals,size_t size,double* arr)
 {
     bool retVal=false;
-    std::vector<float> v;
+    std::vector<double> v;
     if (size<=vals.size())
     {
         retVal=true;
@@ -277,7 +277,7 @@ bool CConfReaderAndWriter::addInteger(const char* variableName,int variable,cons
     return(true);
 }
 
-bool CConfReaderAndWriter::addFloat(const char* variableName,float variable,const char* comment)
+bool CConfReaderAndWriter::addFloat(const char* variableName,double variable,const char* comment)
 {
     if (_getVariableIndex(variableName)!=-1)
         return(false); // variable already present
@@ -295,7 +295,7 @@ bool CConfReaderAndWriter::addRandomLine(const char* lineText)
     return(true);
 }
 
-bool CConfReaderAndWriter::addFloatVector3(const char* variableName,float variable[3],const char* comment)
+bool CConfReaderAndWriter::addFloatVector3(const char* variableName,double variable[3],const char* comment)
 {
     if (_getVariableIndex(variableName)!=-1)
         return(false); // variable already present

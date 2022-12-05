@@ -501,11 +501,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 // Not anymore! 30/12/2016                    if ( (obj->getObjectMovementPreferredAxes()&0x03)||(obj->getObjectMovementRelativity(0)!=0) )
 //                    { // We can only place the model if the X and/or Y manip are set or if the placement is not relative to world
                         C7Vector tr(obj->getFullLocalTransformation());
-                        float ss=obj->getObjectMovementStepSize(0);
+                        double ss=obj->getObjectMovementStepSize(0);
                         if (ss==0.0)
                             ss=App::userSettings->getTranslationStepSize();
-                        float x=cmd.floatParams[0]-fmod(cmd.floatParams[0],ss);
-                        float y=cmd.floatParams[1]-fmod(cmd.floatParams[1],ss);
+                        double x=cmd.floatParams[0]-fmod(cmd.floatParams[0],ss);
+                        double y=cmd.floatParams[1]-fmod(cmd.floatParams[1],ss);
                         tr.X(0)+=x;
                         tr.X(1)+=y;
                         obj->setLocalTransformation(tr);
@@ -794,7 +794,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                it->setDefaultBufferValues(&cmd.floatParams[0]);
+                float w[3]={(float)cmd.floatParams[0],(float)cmd.floatParams[1],(float)cmd.floatParams[2]};
+                it->setDefaultBufferValues(w);
                 it->setUseEnvironmentBackgroundColor(cmd.boolParams[0]);
             }
         }
@@ -1506,7 +1507,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[i]);
                     if ( (it!=nullptr)&&(it->getSensorType()==prox->getSensorType()) )
                     {
-                        float w=it->convexVolume->getSmallestDistanceAllowed();
+                        double w=it->convexVolume->getSmallestDistanceAllowed();
                         bool ww=it->convexVolume->getSmallestDistanceEnabled();
                         it->convexVolume->disableVolumeComputation(true);
                         // Volume parameters:
@@ -1854,9 +1855,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             float* col=App::getRGBPointerFromItem(cmd.intParams[0],cmd.intParams[1],cmd.intParams[2],cmd.intParams[3],nullptr);
             if (col!=nullptr)
             {
-                col[0]=cmd.floatParams[0];
-                col[1]=cmd.floatParams[1];
-                col[2]=cmd.floatParams[2];
+                col[0]=(float)cmd.floatParams[0];
+                col[1]=(float)cmd.floatParams[1];
+                col[2]=(float)cmd.floatParams[2];
             }
         }
 
@@ -2286,7 +2287,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             // Keep the text. coords if simple shape:
                             if (!shape->isCompound())
                             {
-                                std::vector<floatFloat>* tc=tp->getFixedTextureCoordinates();
+                                std::vector<float>* tc=tp->getFixedTextureCoordinates();
                                 if (tc!=nullptr)
                                 {
                                     shape->getSingleMesh()->setTextureCoords(tc);
@@ -2332,7 +2333,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             // Keep the text. coords if simple shape:
                             if (!shape->isCompound())
                             {
-                                std::vector<floatFloat>* tc=tp->getFixedTextureCoordinates();
+                                std::vector<float>* tc=tp->getFixedTextureCoordinates();
                                 if (tc!=nullptr)
                                 {
                                     useTexCoords=true;
@@ -2373,7 +2374,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     CShape* shape=shapeList[i];
                     C3Vector bbhs(shape->getBoundingBoxHalfSizes());
-                    float s=std::max<float>(std::max<float>(bbhs(0),bbhs(1)),bbhs(2))*2.0f;
+                    double s=std::max<double>(std::max<double>(bbhs(0),bbhs(1)),bbhs(2))*2.0;
                     std::vector<CMesh*> components;
                     shape->getMeshWrapper()->getAllShapeComponentsCumulative(components);
                     for (size_t j=0;j<components.size();j++)
@@ -2385,7 +2386,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         {
                             if (shape->getSingleMesh()->getTextureCoords()->size()!=0)
                             {
-                                std::vector<float> wvert;
+                                std::vector<double> wvert;
                                 std::vector<int> wind;
                                 shape->getSingleMesh()->getCumulativeMeshes(wvert,&wind,nullptr);
                                 if (shape->getSingleMesh()->getTextureCoords()->size()/2==wind.size())
@@ -2417,15 +2418,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 C3Vector bbhalfSizes(it->getBoundingBoxHalfSizes());
-                float xSizeOriginal=2.0f*bbhalfSizes(0);
-                float ySizeOriginal=2.0f*bbhalfSizes(1);
-                float zSizeOriginal=2.0f*bbhalfSizes(2);
-                float s[3]={1.0f,1.0f,1.0f}; // imagine we have a plane that has dims x*y*0! keep default at 1.0
-                if (xSizeOriginal!=0.0f)
+                double xSizeOriginal=2.0*bbhalfSizes(0);
+                double ySizeOriginal=2.0*bbhalfSizes(1);
+                double zSizeOriginal=2.0*bbhalfSizes(2);
+                double s[3]={1.0,1.0,1.0}; // imagine we have a plane that has dims x*y*0! keep default at 1.0
+                if (xSizeOriginal!=0.0)
                     s[0]=cmd.floatParams[0]/xSizeOriginal;
-                if (ySizeOriginal!=0.0f)
+                if (ySizeOriginal!=0.0)
                     s[1]=cmd.floatParams[1]/ySizeOriginal;
-                if (zSizeOriginal!=0.0f)
+                if (zSizeOriginal!=0.0)
                     s[2]=cmd.floatParams[2]/zSizeOriginal;
                 it->scaleMesh(s[0],s[1],s[2]);
             }
@@ -2472,7 +2473,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 C7Vector tr(it->getTextureRelativeConfig());
                 if (cmd.intParams[3]<3)
                 { // position
-                    float newVal=tt::getLimitedFloat(-100.0f,100.0f,cmd.floatParams[0]);
+                    double newVal=tt::getLimitedFloat(-100.0,100.0,cmd.floatParams[0]);
                     tr.X(cmd.intParams[3])=newVal;
                 }
                 else
@@ -2489,13 +2490,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CTextureProperty* it=App::getTexturePropertyPointerFromItem(cmd.intParams[0],cmd.intParams[1],cmd.intParams[2],nullptr,nullptr,nullptr,nullptr);
             if (it!=nullptr)
             {
-                float x,y;
+                double x,y;
                 it->getTextureScaling(x,y);
-                float newVal=cmd.floatParams[0];
-                if (newVal>=0.0f)
-                    newVal=tt::getLimitedFloat(0.001f,1000.0f,newVal);
+                double newVal=cmd.floatParams[0];
+                if (newVal>=0.0)
+                    newVal=tt::getLimitedFloat(0.001,1000.0,newVal);
                 else
-                    newVal=tt::getLimitedFloat(-1000.0f,-0.001f,newVal);
+                    newVal=tt::getLimitedFloat(-1000.0,-0.001,newVal);
                 if (cmd.intParams[3]==0)
                     it->setTextureScaling(newVal,y);
                 else
@@ -2562,10 +2563,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (geom!=nullptr)
                 {
                     // Following 2 since 12/6/2011 because now by default we have the modulate mode (non-decal)
-            //      ((CMesh*)shape->geomInfo)->color.setColor(0.5f,0.5f,0.5f,sim_colorcomponent_ambient_diffuse);
-            //      ((CMesh*)shape->geomInfo)->insideColor.setColor(0.5f,0.5f,0.5f,sim_colorcomponent_ambient_diffuse);
+            //      ((CMesh*)shape->geomInfo)->color.setColor(0.5,0.5,0.5,sim_colorcomponent_ambient_diffuse);
+            //      ((CMesh*)shape->geomInfo)->insideColor.setColor(0.5,0.5,0.5,sim_colorcomponent_ambient_diffuse);
                     geom->setTextureProperty(tp);
-                    std::vector<float> wvert;
+                    std::vector<double> wvert;
                     std::vector<int> wind;
                     geom->getCumulativeMeshes(wvert,&wind,nullptr);
                     if (geom->getTextureCoords()->size()/2==wind.size())
@@ -2602,7 +2603,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     if (tp!=nullptr)
                     { // remove the texture
-                        std::vector<floatFloat>* tc=tp->getFixedTextureCoordinates();
+                        std::vector<float>* tc=tp->getFixedTextureCoordinates();
                         if (tc!=nullptr)
                             geom->setTextureCoords(tc);
                         App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1],geom->getUniqueID());
@@ -2621,10 +2622,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             tp=new CTextureProperty(tObject);
                             geom->setTextureProperty(tp);
                             // Following 2 since 12/6/2011 because now by default we have the modulate mode (non-decal)
-                        //  ((CMesh*)shape->geomInfo)->color.setColor(0.5f,0.5f,0.5f,sim_colorcomponent_ambient_diffuse);
-                        //  ((CMesh*)shape->geomInfo)->insideColor.setColor(0.5f,0.5f,0.5f,sim_colorcomponent_ambient_diffuse);
+                        //  ((CMesh*)shape->geomInfo)->color.setColor(0.5,0.5,0.5,sim_colorcomponent_ambient_diffuse);
+                        //  ((CMesh*)shape->geomInfo)->insideColor.setColor(0.5,0.5,0.5,sim_colorcomponent_ambient_diffuse);
 
-                            std::vector<float> wvert;
+                            std::vector<double> wvert;
                             std::vector<int> wind;
                             geom->getCumulativeMeshes(wvert,&wind,nullptr);
 
@@ -2937,10 +2938,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         it->setTargetVelocity(last->getTargetVelocity());
                         it->setMotorLock(last->getMotorLock());
                         it->setTargetPosition(last->getTargetPosition());
-                        float maxVelAccelJerk[3];
+                        double maxVelAccelJerk[3];
                         last->getMaxVelAccelJerk(maxVelAccelJerk);
                         it->setMaxVelAccelJerk(maxVelAccelJerk);
-                        float kp,cp;
+                        double kp,cp;
                         last->getKc(kp,cp);
                         it->setKc(kp,cp);
                         last->copyEnginePropertiesTo(it);
@@ -2953,7 +2954,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                float maxVelAccelJerk[3];
+                double maxVelAccelJerk[3];
                 it->getMaxVelAccelJerk(maxVelAccelJerk);
                 maxVelAccelJerk[cmd.intParams[1]]=cmd.floatParams[0];
                 it->setMaxVelAccelJerk(maxVelAccelJerk);
@@ -3290,8 +3291,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     C7Vector localTr;
                     C3Vector diagI; // massless
-                    float mass=CPluginContainer::dyn_computeInertia(it->getObjectHandle(),localTr,diagI);
-                    float desiredDensity=cmd.floatParams[0];
+                    double mass=CPluginContainer::dyn_computeInertia(it->getObjectHandle(),localTr,diagI);
+                    double desiredDensity=cmd.floatParams[0];
                     if (mass>0.0)
                     {
                         mass=desiredDensity*mass/1000.0;
@@ -3678,7 +3679,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 CGraphDataComb_old* grDataComb=it->getGraphData3D(cmd.intParams[1]);
                 if (grDataComb!=nullptr)
-                    grDataComb->set3DCurveWidth(float(cmd.intParams[2]));
+                    grDataComb->set3DCurveWidth(double(cmd.intParams[2]));
             }
         }
         if (cmd.cmdId==DUPLICATE_TOSTATIC_GRAPHCURVEGUITRIGGEREDCMD)
@@ -3854,11 +3855,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             int transfMode=cmd.intParams[cmd.intParams.size()-2];
             int t=cmd.intParams[cmd.intParams.size()-1];
-            float scalingValues[3];
+            double scalingValues[3];
             scalingValues[0]=cmd.floatParams[0];
             scalingValues[1]=cmd.floatParams[1];
             scalingValues[2]=cmd.floatParams[2];
-            float translationValues[3];
+            double translationValues[3];
             translationValues[0]=cmd.floatParams[3];
             translationValues[1]=cmd.floatParams[4];
             translationValues[2]=cmd.floatParams[5];
@@ -3967,7 +3968,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==ROTATE_SELECTION_ORIENTATIONROTATIONGUITRIGGEREDCMD)
         {
             int transfMode=cmd.intParams[cmd.intParams.size()-1];
-            float rotAngles[3];
+            double rotAngles[3];
             rotAngles[0]=cmd.floatParams[0];
             rotAngles[1]=cmd.floatParams[1];
             rotAngles[2]=cmd.floatParams[2];
@@ -4356,8 +4357,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             else
                 newShape=new CShape(nullptr,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
             newShape->setVisibleEdges(false);
-            newShape->getSingleMesh()->setShadingAngle(0.0f);
-            newShape->getSingleMesh()->setEdgeThresholdAngle(0.0f);
+            newShape->getSingleMesh()->setShadingAngle(0.0);
+            newShape->getSingleMesh()->setEdgeThresholdAngle(0.0);
             newShape->setObjectAlias_direct("Extracted_shape");
             newShape->setObjectName_direct_old("Extracted_shape");
             newShape->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(newShape->getObjectName_old().c_str()).c_str());
@@ -4380,7 +4381,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SHAPEEDIT_MAKEPRIMITIVE_GUITRIGGEREDCMD)
         {
             CShape* newShape=new CShape(nullptr,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
-            C3Vector size(newShape->getBoundingBoxHalfSizes()*2.0f);
+            C3Vector size(newShape->getBoundingBoxHalfSizes()*2.0);
             C7Vector conf(newShape->getLocalTransformation());
             delete newShape;
             CShape* shape=nullptr;
@@ -4396,7 +4397,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (cmd.intParams[0]==1)
             { // sphere
                 App::logMsg(sim_verbosity_msgs,"Generating sphere...");
-                float mm=std::max<float>(std::max<float>(size(0),size(1)),size(2));
+                double mm=std::max<double>(std::max<double>(size(0),size(1)),size(2));
                 size(0)=mm;
                 size(1)=mm;
                 size(2)=mm;
@@ -4418,29 +4419,29 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 App::logMsg(sim_verbosity_msgs,"Generating cylinder...");
                 C3Vector diff(fabs(size(0)-size(1)),fabs(size(0)-size(2)),fabs(size(1)-size(2)));
                 int t=2;
-                if (std::min<float>(std::min<float>(diff(0),diff(1)),diff(2))==diff(0))
+                if (std::min<double>(std::min<double>(diff(0),diff(1)),diff(2))==diff(0))
                     t=0;
-                if (std::min<float>(std::min<float>(diff(0),diff(1)),diff(2))==diff(1))
+                if (std::min<double>(std::min<double>(diff(0),diff(1)),diff(2))==diff(1))
                     t=1;
                 if (t==0)
                 {
                     C3Vector s(size);
-                    size(0)=(s(0)+s(1))*0.5f;
-                    size(1)=(s(0)+s(1))*0.5f;
+                    size(0)=(s(0)+s(1))*0.5;
+                    size(1)=(s(0)+s(1))*0.5;
                     size(2)=s(2);
                 }
                 if (t==1)
                 {
                     C3Vector s(size);
-                    size(0)=(s(0)+s(2))*0.5f;
-                    size(1)=(s(0)+s(2))*0.5f;
+                    size(0)=(s(0)+s(2))*0.5;
+                    size(1)=(s(0)+s(2))*0.5;
                     size(2)=s(1);
                 }
                 if (t==2)
                 {
                     C3Vector s(size);
-                    size(0)=(s(2)+s(1))*0.5f;
-                    size(1)=(s(2)+s(1))*0.5f;
+                    size(0)=(s(2)+s(1))*0.5;
+                    size(1)=(s(2)+s(1))*0.5;
                     size(2)=s(0);
                 }
                 shape=CAddOperations::addPrimitive_withDialog(ADD_COMMANDS_ADD_PRIMITIVE_CYLINDER_ACCMD,&size);
@@ -4449,9 +4450,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     C7Vector r;
                     r.setIdentity();
                     if (t==1)
-                        r.Q.setEulerAngles(C3Vector(piValD2,0.0f,0.0f));
+                        r.Q.setEulerAngles(C3Vector(piValD2,0.0,0.0));
                     if (t==2)
-                        r.Q.setEulerAngles(C3Vector(0.0f,piValD2,0.0f));
+                        r.Q.setEulerAngles(C3Vector(0.0,piValD2,0.0));
                     shape->setLocalTransformation(conf*r);
                 }
             }
@@ -4643,7 +4644,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 #ifdef SIM_WITH_GUI
 void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
 {
-    float nearClipp=cmd.floatParams[0];
+    double nearClipp=cmd.floatParams[0];
     C7Vector transf=cmd.transfParams[0];
     bool mouseDown=cmd.boolParams[0];
     int cameraHandle=cmd.intParams[0];
@@ -4665,7 +4666,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         }
 
         int intParams[8]={0,0,0,0,0,0,0,0};
-        float floatParams[15]={nearClipp,999999.9f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.01f,0.0f,0.0f};
+        double floatParams[15]={nearClipp,999999.9,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.01,0.0,0.0};
         int psh=simCreateProximitySensor_internal(sim_proximitysensor_ray_subtype,sim_objectspecialproperty_detectable,0,intParams,floatParams,nullptr);
         simSetObjectPosition_internal(psh,cameraHandle,transf.X.data);
         simSetObjectOrientation_internal(psh,cameraHandle,transf.Q.getEulerAngles().data);
@@ -4673,7 +4674,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         if (App::currentWorld->simulation->getDynamicContentVisualizationOnly())
             displayAttrib|=sim_displayattribute_dynamiccontentonly;
         CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(psh);
-        float dist=FLOAT_MAX;
+        double dist=FLOAT_MAX;
         bool ptValid=false;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
         {
@@ -4681,7 +4682,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
             if (object->getShouldObjectBeDisplayed(cameraHandle,displayAttrib)&&object->isPotentiallyMeasurable())
             {
                 int theObj;
-                bool valid=CProxSensorRoutine::detectEntity(psh,object->getObjectHandle(),true,false,0.0f,pt,dist,true,true,theObj,0.0f,triNormal,allObjectsAlsoNonDetectable);
+                bool valid=CProxSensorRoutine::detectEntity(psh,object->getObjectHandle(),true,false,0.0,pt,dist,true,true,theObj,0.0,triNormal,allObjectsAlsoNonDetectable);
                 ptValid=ptValid||valid;
                 if (valid)
                     obj=theObj;
@@ -4693,7 +4694,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         simRemoveObject_internal(psh);
 
         // Now generate a plugin callback:
-        float ptdata[6]={pt(0),pt(1),pt(2),triNormal(0),triNormal(1),triNormal(2)};
+        double ptdata[6]={pt(0),pt(1),pt(2),triNormal(0),triNormal(1),triNormal(2)};
         int msg;
         if (mouseDown)
             msg=sim_message_eventcallback_proxsensorselectdown;

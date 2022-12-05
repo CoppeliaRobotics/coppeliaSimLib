@@ -1,8 +1,8 @@
-
 #ifndef QDLGIMAGECOLOR_H
 #define QDLGIMAGECOLOR_H
 
 #include "vDialog.h"
+#include "simTypes.h"
 
 namespace Ui {
     class CQDlgImageColor;
@@ -22,9 +22,9 @@ public:
     void refresh();
 
     bool sameAsFog;
-    float red;
-    float green;
-    float blue;
+    double red;
+    double green;
+    double blue;
 
 private slots:
     void on_qqFromFogColor_clicked();

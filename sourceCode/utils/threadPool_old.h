@@ -2,6 +2,7 @@
 
 #include "vMutex.h"
 #include "vThread.h"
+#include "simTypes.h"
 
 class CVThreadData
 {
@@ -12,7 +13,7 @@ public:
         threadID=_vthreadID;
         threadDesiredTiming=2;  // this is the default thread switch timing (1-2 ms) (Put back to 2 ms on 2010/12/13)
         threadExecutionTime=-1; // -1 --> not yet executed
-        usedMovementTime=0.0f;
+        usedMovementTime=0.0;
         threadWantsResumeFromYield=false;
         threadShouldRunFreely=false;
         threadSwitchShouldTriggerNoOtherThread=false;
@@ -28,7 +29,7 @@ public:
     volatile VTHREAD_ID_TYPE threadID;
     volatile int threadDesiredTiming;
     volatile int threadExecutionTime;
-    volatile float usedMovementTime;
+    volatile double usedMovementTime;
     volatile bool threadWantsResumeFromYield;
     volatile bool threadShouldRunFreely;
     volatile bool threadSwitchShouldTriggerNoOtherThread;

@@ -46,7 +46,7 @@ void CModelListWidget::clearAll()
     clear();
 }
 
-void CModelListWidget::addThumbnail(CThumbnail* thumbN,const char* nameWithExtension,unsigned int creationTime,unsigned char modelOrFolder,bool validFileformat,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,floatDouble* optionalModelNonDefaultTranslationStepSize)
+void CModelListWidget::addThumbnail(CThumbnail* thumbN,const char* nameWithExtension,unsigned int creationTime,unsigned char modelOrFolder,bool validFileformat,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,double* optionalModelNonDefaultTranslationStepSize)
 {
     SModelThumbnailInfo info;
     info.thumbnail=thumbN;
@@ -115,7 +115,7 @@ void CModelListWidget::_addThumbnailItemToList(int index)
     insertItem(index,item);
 }
 
-CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int& result,C7Vector& modelTr,C3Vector& modelBoundingBoxSize,floatDouble& modelNonDefaultTranslationStepSize)
+CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int& result,C7Vector& modelTr,C3Vector& modelBoundingBoxSize,double& modelNonDefaultTranslationStepSize)
 { // result: -1=model not recognized, 0=model has no thumbnail, 1=model has thumbnail
     result=-1;
     CThumbnail* retThumbnail=nullptr;
@@ -255,7 +255,7 @@ void CModelListWidget::setFolder(const char* folderPath)
                     int result;
                     C7Vector modelTr;
                     C3Vector modelBBs;
-                    floatDouble ndss;
+                    double ndss;
                     CThumbnail* thumbnail=loadModelThumbnail(nameAndPath.c_str(),result,modelTr,modelBBs,ndss);
                     if (thumbnail!=nullptr)
                         addThumbnail(thumbnail,allModelNames[i].c_str(),allModelCreationTimes[i],1,result>=0,&modelTr,&modelBBs,&ndss);
@@ -300,14 +300,14 @@ void CModelListWidget::serializePart1(CSer& ar)
             ar << _allThumbnailsInfo[i].modelOrFolder;
             ar << _allThumbnailsInfo[i].validFileFormat;
             for (int j=0;j<7;j++)
-                ar.flt() << (floatFloat)_allThumbnailsInfo[i].modelTr(j);
+                ar << (float)_allThumbnailsInfo[i].modelTr(j);
             for (int j=0;j<3;j++)
-                ar.flt() << (floatFloat)_allThumbnailsInfo[i].modelBoundingBoxSize(j);
-            ar.flt() << (floatFloat)_allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
+                ar << (float)_allThumbnailsInfo[i].modelBoundingBoxSize(j);
+            ar << (float)_allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
         }
         ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
         ar.storeDataName("_n5");
         ar << int(_allThumbnailsInfo.size());
         for (size_t i=0;i<_allThumbnailsInfo.size();i++)
@@ -317,13 +317,13 @@ void CModelListWidget::serializePart1(CSer& ar)
             ar << _allThumbnailsInfo[i].modelOrFolder;
             ar << _allThumbnailsInfo[i].validFileFormat;
             for (int j=0;j<7;j++)
-                ar.dbl() << _allThumbnailsInfo[i].modelTr(j);
+                ar << _allThumbnailsInfo[i].modelTr(j);
             for (int j=0;j<3;j++)
-                ar.dbl() << _allThumbnailsInfo[i].modelBoundingBoxSize(j);
-            ar.dbl() << _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
+                ar << _allThumbnailsInfo[i].modelBoundingBoxSize(j);
+            ar << _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
         }
         ar.flush();
-#endif
+
 
         ar.storeDataName(SER_END_OF_OBJECT);
     }
@@ -412,21 +412,22 @@ void CModelListWidget::serializePart1(CSer& ar)
                         _allThumbnailsInfo[i].modelOrFolder=dum3;
                         ar >> dum3;
                         _allThumbnailsInfo[i].validFileFormat=dum3;
-                        floatFloat bla;
+                        float bla;
                         for (int j=0;j<7;j++)
                         {
-                            ar.flt() >> bla;
-                            _allThumbnailsInfo[i].modelTr(j)=(floatDouble)bla;
+                            ar >> bla;
+                            _allThumbnailsInfo[i].modelTr(j)=(double)bla;
                         }
                         for (int j=0;j<3;j++)
                         {
-                            ar.flt() >> bla;
-                            _allThumbnailsInfo[i].modelBoundingBoxSize(j)=(floatDouble)bla;
+                            ar >> bla;
+                            _allThumbnailsInfo[i].modelBoundingBoxSize(j)=(double)bla;
                         }
-                        ar.flt() >> bla;
-                        _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize=(floatDouble)bla;
+                        ar >> bla;
+                        _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize=(double)bla;
                     }
                 }
+
                 if (theName.compare("_n5")==0)
                 {
                     noHit=false;
@@ -448,12 +449,13 @@ void CModelListWidget::serializePart1(CSer& ar)
                         ar >> dum3;
                         _allThumbnailsInfo[i].validFileFormat=dum3;
                         for (int j=0;j<7;j++)
-                            ar.dbl() >> _allThumbnailsInfo[i].modelTr(j);
+                            ar >> _allThumbnailsInfo[i].modelTr(j);
                         for (int j=0;j<3;j++)
-                            ar.dbl() >> _allThumbnailsInfo[i].modelBoundingBoxSize(j);
-                        ar.dbl() >> _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
+                            ar >> _allThumbnailsInfo[i].modelBoundingBoxSize(j);
+                        ar >> _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
                     }
                 }
+
                 if (noHit)
                     ar.loadUnknownData();
             }

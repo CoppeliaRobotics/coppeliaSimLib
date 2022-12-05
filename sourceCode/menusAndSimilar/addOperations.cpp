@@ -141,8 +141,8 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             CSceneObject* addedObject=myNewCamera;
             if (addedObject==nullptr)
                 addedObject=myNewLight;
-            addedObject->setLocalTransformation(C3Vector(0.0f,0.0f,1.0f));
-            addedObject->setLocalTransformation(C4Vector(piValue*0.5f,0.0f,0.0f));
+            addedObject->setLocalTransformation(C3Vector(0.0,0.0,1.0));
+            addedObject->setLocalTransformation(C4Vector(piValue*0.5,0.0,0.0));
             if (camera!=nullptr)
             {
                 if (myNewCamera!=nullptr)
@@ -155,8 +155,8 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     myNewCamera->getBoundingBox(minV,maxV);
                     m=myNewCamera->getFullLocalTransformation();
                     maxV-=minV;
-                    float averageSize=(maxV(0)+maxV(1)+maxV(2))/3.0f;
-                    float shiftForward=camera->getNearClippingPlane()-minV(2)+3.0f*averageSize;
+                    double averageSize=(maxV(0)+maxV(1)+maxV(2))/3.0;
+                    double shiftForward=camera->getNearClippingPlane()-minV(2)+3.0*averageSize;
                     m.X+=(m.Q.getAxis(2)*shiftForward);
                     myNewCamera->setLocalTransformation(m.X);
                 }
@@ -166,8 +166,8 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 if (myNewCamera!=nullptr)
                 {
                     C7Vector m;
-                    m.X=C3Vector(-1.12f,1.9f,1.08f);
-                    m.Q.setEulerAngles(C3Vector(110.933f*degToRad,28.703f*degToRad,-10.41f*degToRad));
+                    m.X=C3Vector(-1.12,1.9,1.08);
+                    m.Q.setEulerAngles(C3Vector(110.933*degToRad,28.703*degToRad,-10.41*degToRad));
                     myNewCamera->setLocalTransformation(m);
                     subView->setLinkedObjectID(myNewCamera->getObjectHandle(),false);
                 }
@@ -191,8 +191,8 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_MIRROR);
             CMirror* newObject=new CMirror();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(newObject->getObjectHandle(),C3Vector(piValD2,0.0f,0.0f));
-            App::currentWorld->sceneObjects->setObjectAbsolutePosition(newObject->getObjectHandle(),C3Vector(0.0f,0.0f,newObject->getMirrorHeight()*0.5f));
+            App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(newObject->getObjectHandle(),C3Vector(piValD2,0.0,0.0));
+            App::currentWorld->sceneObjects->setObjectAbsolutePosition(newObject->getObjectHandle(),C3Vector(0.0,0.0,newObject->getMirrorHeight()*0.5));
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
@@ -250,12 +250,12 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_POINTCLOUD);
             CPointCloud* newObject=new CPointCloud();
 /*
-            std::vector<float> v;
+            std::vector<double> v;
             for (size_t i=0;i<50000;i++)
             {
-                float x=sin(float(i)/500.0);
-                float y=cos(float(i)/500.0);
-                float z=float(i)/50000.0;
+                double x=sin(double(i)/500.0);
+                double y=cos(double(i)/500.0);
+                double z=double(i)/50000.0;
                 v.push_back(x);
                 v.push_back(y);
                 v.push_back(z);
@@ -406,18 +406,18 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     C3Vector minV,maxV;
                     newObject->getBoundingBox(minV,maxV);
                     maxV-=minV;
-                    float averageSize=(maxV(0)+maxV(1)+maxV(2))/3.0f;
-                    float shiftForward;
+                    double averageSize=(maxV(0)+maxV(1)+maxV(2))/3.0;
+                    double shiftForward;
                     if (camera!=nullptr)
-                        shiftForward=camera->getNearClippingPlane()-minV(2)+3.0f*averageSize;
+                        shiftForward=camera->getNearClippingPlane()-minV(2)+3.0*averageSize;
                     if (sens!=nullptr)
-                        shiftForward=sens->getNearClippingPlane()-minV(2)+3.0f*averageSize;
+                        shiftForward=sens->getNearClippingPlane()-minV(2)+3.0*averageSize;
                     m.X+=(m.Q.getAxis(2)*shiftForward);
                     newObject->setLocalTransformation(m.X);
                 }
             }
             if (!isSet)
-                newObject->setLocalTransformation(C3Vector(0.0f,0.0f,newObject->getVisionSensorSize()*2.0f));
+                newObject->setLocalTransformation(C3Vector(0.0,0.0,newObject->getVisionSensorSize()*2.0));
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
@@ -496,10 +496,10 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             bool addFacesPoints=cmdOut.boolParams[1];
             int nClusters=cmdOut.intParams[0];
             int maxHullVertices=cmdOut.intParams[1];
-            float maxConcavity=cmdOut.floatParams[0];
-            float smallClusterThreshold=cmdOut.floatParams[1];
+            double maxConcavity=cmdOut.floatParams[0];
+            double smallClusterThreshold=cmdOut.floatParams[1];
             int maxTrianglesInDecimatedMesh=cmdOut.intParams[2];
-            float maxConnectDist=cmdOut.floatParams[2];
+            double maxConnectDist=cmdOut.floatParams[2];
             bool individuallyConsiderMultishapeComponents=cmdOut.boolParams[2];
             int maxIterations=cmdOut.intParams[3];
             bool cancel=cmdOut.boolParams[4];
@@ -511,11 +511,11 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             int planeDownsampling=cmdOut.intParams[6];
             int convexHullDownsampling=cmdOut.intParams[7];
             int maxNumVerticesPerCH=cmdOut.intParams[8];
-            float concavity=cmdOut.floatParams[3];
-            float alpha=cmdOut.floatParams[4];
-            float beta=cmdOut.floatParams[5];
-            float gamma=cmdOut.floatParams[6];
-            float minVolumePerCH=cmdOut.floatParams[7];
+            double concavity=cmdOut.floatParams[3];
+            double alpha=cmdOut.floatParams[4];
+            double beta=cmdOut.floatParams[5];
+            double gamma=cmdOut.floatParams[6];
+            double minVolumePerCH=cmdOut.floatParams[7];
             if (!cancel)
             {
                 App::uiThread->showOrHideProgressBar(true,-1,"Computing convex decomposed shape(s)...");
@@ -536,7 +536,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                             // Get the mass and inertia info from the old shape:
                             C7Vector absCOM(oldShape->getFullCumulativeTransformation());
                             absCOM=absCOM*oldShape->getMeshWrapper()->getLocalInertiaFrame();
-                            float mass=oldShape->getMeshWrapper()->getMass();
+                            double mass=oldShape->getMeshWrapper()->getMass();
                             C7Vector absCOMNoShift(absCOM);
                             absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
                             C3X3Matrix tensor(CMeshWrapper::getNewTensor(oldShape->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
@@ -656,10 +656,10 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 if (!it->getModelBase())
                     inputObjects.push_back(it);
             }
-            float grow=0.03f;
+            double grow=0.03;
             bool doIt=true;
 #ifdef SIM_WITH_GUI
-            doIt=(inputObjects.size()>0)&&App::uiThread->dialogInputGetFloat(App::mainWindow,"Convex hull","Inflation parameter",0.05f,0.001f,10.0f,3,&grow);
+            doIt=(inputObjects.size()>0)&&App::uiThread->dialogInputGetFloat(App::mainWindow,"Convex hull","Inflation parameter",0.05,0.001,10.0,3,&grow);
 #endif
             App::currentWorld->sceneObjects->deselectObjects();
 
@@ -695,7 +695,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     return(false);
 }
 
-CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int options,const int subdiv[3],int faceSubdiv,int sides,int discSubdiv,bool dynamic,int pure,float density)
+CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int options,const int subdiv[3],int faceSubdiv,int sides,int discSubdiv,bool dynamic,int pure,double density)
 { // pure=0: create non-pure, pure=1: create pure if possible, pure=2: force pure creation
     int sdiv[3]={0,0,0};
     if (subdiv!=nullptr)
@@ -708,22 +708,22 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
     CShape* shape=nullptr;
     if (type==sim_primitiveshape_plane)
     {
-        sizes(2)=0.0001f;
+        sizes(2)=0.0001;
         int divX=sdiv[0]+1;
         int divY=sdiv[1]+1;
-        float xhSize=sizes(0)/2.0f;
-        float yhSize=sizes(1)/2.0f;
-        float xs=sizes(0)/((float)divX);
-        float ys=sizes(1)/((float)divY);
-        std::vector<float> vertices;
+        double xhSize=sizes(0)/2.0;
+        double yhSize=sizes(1)/2.0;
+        double xs=sizes(0)/((double)divX);
+        double ys=sizes(1)/((double)divY);
+        std::vector<double> vertices;
         std::vector<int> indices;
-        std::vector<float> normals;
+        std::vector<double> normals;
         // We first create the vertices:
         for (int i=0;i<(divY+1);i++)
         { // along y
             for (int j=0;j<(divX+1);j++)
             { // along x
-                tt::addToFloatArray(&vertices,-xhSize+j*xs,-yhSize+i*ys,0.0f);
+                tt::addToFloatArray(&vertices,-xhSize+j*xs,-yhSize+i*ys,0.0);
             }
         }
         // Now we create the indices:
@@ -737,15 +737,15 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         }
         // And now the normals:
         for (int i=0;i<divX*divY*6;i++)
-            tt::addToFloatArray(&normals,0.0f,0.0f,1.0f);
+            tt::addToFloatArray(&normals,0.0,0.0,1.0);
 
         shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_PLANE);
         shape->setObjectName_direct_old(IDSOGL_PLANE);
         shape->alignBoundingBoxWithWorld();
-        shape->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // we shift the plane so that it is above the floor
-        shape->getMeshWrapper()->setMass(sizes(0)*sizes(1)*density*0.001f); // we assume 1mm thickness
-        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(sizes(1)*sizes(1)/12.0f,sizes(0)*sizes(0)/12.0f,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0f));
+        shape->setLocalTransformation(C3Vector(0.0,0.0,0.002)); // we shift the plane so that it is above the floor
+        shape->getMeshWrapper()->setMass(sizes(0)*sizes(1)*density*0.001); // we assume 1mm thickness
+        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(sizes(1)*sizes(1)/12.0,sizes(0)*sizes(0)/12.0,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0));
     }
 
     if (type==sim_primitiveshape_cuboid)
@@ -753,22 +753,22 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         int divX=sdiv[0]+1;
         int divY=sdiv[1]+1;
         int divZ=sdiv[2]+1;
-        float xhSize=sizes(0)/2.0f;
-        float yhSize=sizes(1)/2.0f;
-        float zhSize=sizes(2)/2.0f;
-        std::vector<float> vertices;
+        double xhSize=sizes(0)/2.0;
+        double yhSize=sizes(1)/2.0;
+        double zhSize=sizes(2)/2.0;
+        std::vector<double> vertices;
         std::vector<int> indices;
         int theDiv[3]={divX,divY,divZ};
 
-        CMeshRoutines::createCube(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),theDiv);
+        CMeshRoutines::createCube(vertices,indices,C3Vector(xhSize*2.0,yhSize*2.0,zhSize*2.0),theDiv);
 
         shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_RECTANGLE);
         shape->setObjectName_direct_old(IDSOGL_RECTANGLE);
         shape->alignBoundingBoxWithWorld();
-        shape->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the rectangle so that it sits on the floor
+        shape->setLocalTransformation(C3Vector(0.0,0.0,zhSize)); // we shift the rectangle so that it sits on the floor
         shape->getMeshWrapper()->setMass(sizes(0)*sizes(1)*sizes(2)*density);
-        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((sizes(1)*sizes(1)+sizes(2)*sizes(2))/12.0f,(sizes(0)*sizes(0)+sizes(2)*sizes(2))/12.0f,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0f));
+        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((sizes(1)*sizes(1)+sizes(2)*sizes(2))/12.0,(sizes(0)*sizes(0)+sizes(2)*sizes(2))/12.0,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0));
     }
 
     if (type==sim_primitiveshape_spheroid)
@@ -780,10 +780,10 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         }
         if ( (sizes(1)!=sizes(0))||(sizes(2)!=sizes(0)) )
             pure=0;
-        float xhSize=sizes(0)/2.0f;
-        float yhSize=sizes(1)/2.0f;
-        float zhSize=sizes(2)/2.0f;
-        std::vector<float> vertices;
+        double xhSize=sizes(0)/2.0;
+        double yhSize=sizes(1)/2.0;
+        double zhSize=sizes(2)/2.0;
+        std::vector<double> vertices;
         std::vector<int> indices;
         if (sides==0)
             sides=32;
@@ -791,18 +791,18 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
             sides=3;
         faceSubdiv=sides/2;
 
-        CMeshRoutines::createSphere(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),sides,faceSubdiv);
+        CMeshRoutines::createSphere(vertices,indices,C3Vector(xhSize*2.0,yhSize*2.0,zhSize*2.0),sides,faceSubdiv);
 
         shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_SPHERE);
         shape->setObjectName_direct_old(IDSOGL_SPHERE);
         shape->alignBoundingBoxWithWorld();
-        shape->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the sphere so that it sits on the floor
-        float avR=(sizes(0)+sizes(1)+sizes(2))/6.0f;
+        shape->setLocalTransformation(C3Vector(0.0,0.0,zhSize)); // we shift the sphere so that it sits on the floor
+        double avR=(sizes(0)+sizes(1)+sizes(2))/6.0;
 
-        shape->getMeshWrapper()->setMass((4.0f*piValue/3.0f)*avR*avR*avR*density);
-        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f,2.0f*avR*avR/5.0f));
-        float avr2=avR*2.0f;
+        shape->getMeshWrapper()->setMass((4.0*piValue/3.0)*avR*avR*avR*density);
+        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(2.0*avR*avR/5.0,2.0*avR*avR/5.0,2.0*avR*avR/5.0));
+        double avr2=avR*2.0;
         shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avr2,sizes(1)/avr2,sizes(2)/avr2);
     }
 
@@ -812,51 +812,51 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
             sizes(1)=sizes(0);
         if ( (sizes(1)!=sizes(0))||((options&4)!=0) )
             pure=0;
-        float xhSize=sizes(0)/2.0f;
-        float yhSize=sizes(1)/2.0f;
-        float zhSize=sizes(2)/2.0f;
+        double xhSize=sizes(0)/2.0;
+        double yhSize=sizes(1)/2.0;
+        double zhSize=sizes(2)/2.0;
         int discDiv=discSubdiv+1;
-        std::vector<float> vertices;
+        std::vector<double> vertices;
         std::vector<int> indices;
         if (sides==0)
             sides=32;
         if (sides<3)
             sides=3;
 
-        CMeshRoutines::createCylinder(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),sides,faceSubdiv+1,discDiv,(options&4)!=0,type==sim_primitiveshape_cone);
+        CMeshRoutines::createCylinder(vertices,indices,C3Vector(xhSize*2.0,yhSize*2.0,zhSize*2.0),sides,faceSubdiv+1,discDiv,(options&4)!=0,type==sim_primitiveshape_cone);
 
         shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_CYLINDER);
         shape->setObjectName_direct_old(IDSOGL_CYLINDER);
         shape->alignBoundingBoxWithWorld();
-        shape->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // Now we shift the cylinder so it sits on the floor
-        float avR=(sizes(0)+sizes(1))/4.0f;
-        float divider=1.0f;
+        shape->setLocalTransformation(C3Vector(0.0,0.0,zhSize)); // Now we shift the cylinder so it sits on the floor
+        double avR=(sizes(0)+sizes(1))/4.0;
+        double divider=1.0;
         if (type==sim_primitiveshape_cone)
-            divider=3.0f;
+            divider=3.0;
 
         shape->getMeshWrapper()->setMass(piValue*avR*avR*divider*sizes(2)*density);
         if (type==sim_primitiveshape_cone)
-            shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*(0.25f*avR*avR+sizes(2)*sizes(2))/5.0f,3.0f*avR*avR/10.0f));
+            shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0*(0.25*avR*avR+sizes(2)*sizes(2))/5.0,3.0*(0.25*avR*avR+sizes(2)*sizes(2))/5.0,3.0*avR*avR/10.0));
         else
-            shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((3.0f*avR*avR+sizes(2)*sizes(2))/12.0f,(3.0f*avR*avR+sizes(2)*sizes(2))/12.0f,avR*avR/2.0f));
-        float avR2=avR*2.0f;
-        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
+            shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((3.0*avR*avR+sizes(2)*sizes(2))/12.0,(3.0*avR*avR+sizes(2)*sizes(2))/12.0,avR*avR/2.0));
+        double avR2=avR*2.0;
+        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0);
     }
 
     if (type==sim_primitiveshape_capsule)
     { // sizes(2) is the total length of the capsule. maxs=sizes(2)-max(sizes(0),sizes(1)) is the length of the cyl. part
-        if (sizes(0)>sizes(2)-0.0001f)
-            sizes(0)=sizes(2)-0.0001f;
-        if (sizes(1)>sizes(2)-0.0001f)
-            sizes(1)=sizes(2)-0.0001f;
-        float maxs=std::max<float>(sizes(0),sizes(1));
-        float cylLength=sizes(2)-maxs;
+        if (sizes(0)>sizes(2)-0.0001)
+            sizes(0)=sizes(2)-0.0001;
+        if (sizes(1)>sizes(2)-0.0001)
+            sizes(1)=sizes(2)-0.0001;
+        double maxs=std::max<double>(sizes(0),sizes(1));
+        double cylLength=sizes(2)-maxs;
         if (pure==2)
             sizes(1)=sizes(0);
         if (sizes(1)!=sizes(0))
             pure=0;
-        std::vector<float> vertices;
+        std::vector<double> vertices;
         std::vector<int> indices;
         if (sides==0)
             sides=32;
@@ -869,15 +869,15 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape->setObjectAlias_direct(IDSOGL_CAPSULE);
         shape->setObjectName_direct_old(IDSOGL_CAPSULE);
         shape->alignBoundingBoxWithWorld();
-        shape->setLocalTransformation(C3Vector(0.0f,0.0f,sizes(2)*0.5f));
+        shape->setLocalTransformation(C3Vector(0.0,0.0,sizes(2)*0.5));
 
         // For now, approximation:
-        float avR=(sizes(0)+sizes(1))/4.0f;
-        float l=cylLength+maxs*0.75f;
+        double avR=(sizes(0)+sizes(1))/4.0;
+        double l=cylLength+maxs*0.75;
         shape->getMeshWrapper()->setMass(piValue*avR*avR*l*density);
-        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((3.0f*avR*avR+l*l)/12.0f,(3.0f*avR*avR+l*l)/12.0f,avR*avR/2.0f));
-        float avR2=avR*2.0f;
-        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
+        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((3.0*avR*avR+l*l)/12.0,(3.0*avR*avR+l*l)/12.0,avR*avR/2.0));
+        double avR2=avR*2.0;
+        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0);
     }
 
     if (type==sim_primitiveshape_disc)
@@ -886,30 +886,30 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
             sizes(1)=sizes(0);
         if (sizes(1)!=sizes(0))
             pure=0;
-        sizes(2)=0.0001f;
-        float xhSize=sizes(0)/2.0f;
-        float yhSize=sizes(1)/2.0f;
+        sizes(2)=0.0001;
+        double xhSize=sizes(0)/2.0;
+        double yhSize=sizes(1)/2.0;
         int discDiv=discSubdiv+1;
-        std::vector<float> vertices;
+        std::vector<double> vertices;
         std::vector<int> indices;
-        float dd=1.0f/((float)discDiv);
+        double dd=1.0/((double)discDiv);
         if (sides==0)
             sides=32;
         if (sides<3)
             sides=3;
-        float sa=2.0f*piValue/((float)sides);
+        double sa=2.0*piValue/((double)sides);
         // The two middle vertices:
         int sideStart=1;
-        tt::addToFloatArray(&vertices,0.0f,0.0f,0.0f);
+        tt::addToFloatArray(&vertices,0.0,0.0,0.0);
         for (int i=0;i<sides;i++)
         { // The side vertices:
-            tt::addToFloatArray(&vertices,(float)cos(sa*i),(float)sin(sa*i),0.0f);
+            tt::addToFloatArray(&vertices,(double)cos(sa*i),(double)sin(sa*i),0.0);
         }
         int dstStart=(int)vertices.size()/3;
         // The disc subdivision vertices:
         for (int i=1;i<discDiv;i++)
             for (int j=0;j<sides;j++)
-                tt::addToFloatArray(&vertices,(1.0f-dd*i)*(float)cos(sa*j),(1.0f-dd*i)*(float)sin(sa*j),0.0f);
+                tt::addToFloatArray(&vertices,(1.0-dd*i)*(double)cos(sa*j),(1.0-dd*i)*(double)sin(sa*j),0.0);
         // We set up the indices:
         for (int i=0;i<sides-1;i++)
         {
@@ -946,7 +946,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         // Now we scale the disc:
         for (int i=0;i<int(vertices.size())/3;i++)
         {
-            C3Vector p(vertices[3*i+0],vertices[3*i+1],0.0f);
+            C3Vector p(vertices[3*i+0],vertices[3*i+1],0.0);
             p(0)=p(0)*xhSize;
             p(1)=p(1)*yhSize;
             vertices[3*i+0]=p(0);
@@ -957,23 +957,23 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape->setObjectAlias_direct(IDSOGL_DISC);
         shape->setObjectName_direct_old(IDSOGL_DISC);
         shape->alignBoundingBoxWithWorld();
-        shape->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // Now we shift the disc so it sits just above the floor
-        float avR=(sizes(0)+sizes(1))/4.0f;
-        shape->getMeshWrapper()->setMass(piValue*avR*avR*density*0.001f); // we assume 1mm thickness
-        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0f*(avR*avR)/12.0f,3.0f*(avR*avR)/12.0f,avR*avR/2.0f));
-        float avR2=avR*2.0f;
-        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0f);
+        shape->setLocalTransformation(C3Vector(0.0,0.0,0.002)); // Now we shift the disc so it sits just above the floor
+        double avR=(sizes(0)+sizes(1))/4.0;
+        shape->getMeshWrapper()->setMass(piValue*avR*avR*density*0.001); // we assume 1mm thickness
+        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0*(avR*avR)/12.0,3.0*(avR*avR)/12.0,avR*avR/2.0));
+        double avR2=avR*2.0;
+        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0);
     }
 
     if (shape!=nullptr)
     {
         shape->getSingleMesh()->color.setDefaultValues();
-        shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,1.0f,1.0f);
+        shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0,1.0,1.0);
         shape->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(shape->getObjectName_old().c_str()).c_str());
         if ((options&2)==0)
         {
-            shape->getSingleMesh()->setShadingAngle(30.0f*degToRad);
-            shape->getSingleMesh()->setEdgeThresholdAngle(30.0f*degToRad);
+            shape->getSingleMesh()->setShadingAngle(30.0*degToRad);
+            shape->getSingleMesh()->setEdgeThresholdAngle(30.0*degToRad);
         }
         if (pure!=0)
             shape->getSingleMesh()->setPurePrimitiveType(type,sizes(0),sizes(1),sizes(2));
@@ -983,7 +983,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
             shape->setLocalObjectSpecialProperty((shape->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             shape->setRespondable(true);
             shape->setShapeIsDynamicallyStatic(false);
-            shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
+            shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85,0.85,1.0);
             shape->setRespondable(true);
         }
         shape->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
@@ -993,15 +993,15 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
     return(shape);
 }
 
-CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& inputObjects,float margin)
+CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& inputObjects,double margin)
 {
     CShape* retVal=nullptr;
     CShape* ch=addConvexHull(inputObjects,false);
     if (ch!=nullptr)
     {
         C7Vector transf(ch->getFullCumulativeTransformation());
-        std::vector<float> vertD;
-        std::vector<float> vert;
+        std::vector<double> vertD;
+        std::vector<double> vert;
         std::vector<int> ind;
         ch->getMeshWrapper()->getCumulativeMeshes(vertD,&ind,nullptr);
         for (size_t j=0;j<ind.size()/3;j++)
@@ -1013,7 +1013,7 @@ CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& 
             C3Vector n(v12^v13);
             n.normalize();
             n*=margin;
-            for (float k=-1.0;k<1.2f;k+=2.0)
+            for (double k=-1.0;k<1.2;k+=2.0)
             {
                 for (int l=0;l<3;l++)
                 {
@@ -1033,22 +1033,22 @@ CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& 
             vert[3*j+2]=v(2);
         }
 
-        std::vector<float> hull;
+        std::vector<double> hull;
         std::vector<int> indices;
         if (CMeshRoutines::getConvexHull(&vert,&hull,&indices))
         {
             retVal=new CShape(nullptr,hull,indices,nullptr,nullptr);
             retVal->getSingleMesh()->setConvexVisualAttributes();
-            retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,0.7f,0.7f);
-            retVal->getSingleMesh()->setEdgeThresholdAngle(0.0f);
-            retVal->getSingleMesh()->setShadingAngle(0.0f);
+            retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0,0.7,0.7);
+            retVal->getSingleMesh()->setEdgeThresholdAngle(0.0);
+            retVal->getSingleMesh()->setShadingAngle(0.0);
             retVal->getSingleMesh()->setVisibleEdges(false);
 
             // Since we extracted the convex hull from a single shape, we take over the inertia and mass parameters
             // Get the mass and inertia info from the old shape:
             C7Vector absCOM(ch->getFullCumulativeTransformation());
             absCOM=absCOM*ch->getMeshWrapper()->getLocalInertiaFrame();
-            float mass=ch->getMeshWrapper()->getMass();
+            double mass=ch->getMeshWrapper()->getMass();
             C7Vector absCOMNoShift(absCOM);
             absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
             C3X3Matrix tensor(CMeshWrapper::getNewTensor(ch->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
@@ -1076,7 +1076,7 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
 {
     CShape* retVal=nullptr;
 
-    std::vector<float> allHullVertices;
+    std::vector<double> allHullVertices;
     CShape* oneShape=nullptr;
     for (size_t i=0;i<inputObjects.size();i++)
     {
@@ -1086,8 +1086,8 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
             CShape* shape=(CShape*)it;
             oneShape=shape;
             C7Vector transf(shape->getFullCumulativeTransformation());
-            std::vector<float> vert;
-            std::vector<float> vertD;
+            std::vector<double> vert;
+            std::vector<double> vertD;
             std::vector<int> ind;
             shape->getMeshWrapper()->getCumulativeMeshes(vertD,&ind,nullptr);
             for (size_t j=0;j<vertD.size()/3;j++)
@@ -1110,9 +1110,9 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
     }
     if (allHullVertices.size()!=0)
     {
-        std::vector<float> hull;
+        std::vector<double> hull;
         std::vector<int> indices;
-        std::vector<float> normals;
+        std::vector<double> normals;
         if (CMeshRoutines::getConvexHull(&allHullVertices,&hull,&indices))
         {
             retVal=new CShape(nullptr,hull,indices,nullptr,nullptr);
@@ -1120,9 +1120,9 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
             retVal->setObjectName_direct_old("convexHull");
             retVal->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(retVal->getObjectName_old().c_str()).c_str());
             retVal->getSingleMesh()->setConvexVisualAttributes();
-            retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,0.7f,0.7f);
-            retVal->getSingleMesh()->setEdgeThresholdAngle(0.0f);
-            retVal->getSingleMesh()->setShadingAngle(0.0f);
+            retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0,0.7,0.7);
+            retVal->getSingleMesh()->setEdgeThresholdAngle(0.0);
+            retVal->getSingleMesh()->setShadingAngle(0.0);
             retVal->getSingleMesh()->setVisibleEdges(false);
 
             if ( (oneShape!=nullptr)&&(inputObjects.size()==1) )
@@ -1130,7 +1130,7 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
                 // Get the mass and inertia info from the old shape:
                 C7Vector absCOM(oneShape->getFullCumulativeTransformation());
                 absCOM=absCOM*oneShape->getMeshWrapper()->getLocalInertiaFrame();
-                float mass=oneShape->getMeshWrapper()->getMass();
+                double mass=oneShape->getMeshWrapper()->getMass();
                 C7Vector absCOMNoShift(absCOM);
                 absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
                 C3X3Matrix tensor(CMeshWrapper::getNewTensor(oneShape->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
@@ -1343,7 +1343,7 @@ CShape* CAddOperations::addPrimitive_withDialog(int command,const C3Vector* optS
         int subdiv[3];
         int faceSubdiv,sides,discSubdiv;
         bool smooth,dynamic,openEnds;
-        float density;
+        double density;
         if (App::uiThread->showPrimitiveShapeDialog(pType,optSizes,sizes,subdiv,faceSubdiv,sides,discSubdiv,smooth,openEnds,dynamic,density))
         {
             int options=0;

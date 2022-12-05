@@ -24,7 +24,7 @@ public:
     void announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     void removeObject(int objectId);
     void adjustForFrameChange(int objectId,const C7Vector& preCorrection);
-    void adjustForScaling(int objectId,float xScale,float yScale,float zScale);
+    void adjustForScaling(int objectId,double xScale,double yScale,double zScale);
 
     void pushGenesisEvents();
     void pushAppendNewPointEvents();

@@ -39,9 +39,9 @@ public:
     std::vector<CHierarchyElement*> children;
 
 private:
-    int _drawIcon_sceneObject(CHierarchy* hier,int tPosX,int tPosY,CSceneObject* it,int pictureID,bool drawIt,float transparencyFactor,bool forDragAndDrop);
+    int _drawIcon_sceneObject(CHierarchy* hier,int tPosX,int tPosY,CSceneObject* it,int pictureID,bool drawIt,double transparencyFactor,bool forDragAndDrop);
     int _drawIcon_editModeList(CHierarchy* hier,int tPosX,int tPosY,int pictureID,bool drawIt);
-    void _drawTexturedIcon(int tPosX,int tPosY,int sizeX,int sizeY,float transparencyFactor);
+    void _drawTexturedIcon(int tPosX,int tPosY,int sizeX,int sizeY,double transparencyFactor);
     int objectID;
     std::string _sceneName;
 };

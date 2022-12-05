@@ -1,8 +1,8 @@
-
 #ifndef QDLGPROXSENSDETECTIONPARAM_H
 #define QDLGPROXSENSDETECTIONPARAM_H
 
 #include "vDialog.h"
+#include "simTypes.h"
 
 namespace Ui {
     class CQDlgProxSensDetectionParam;
@@ -25,10 +25,10 @@ public:
     bool backFace;
     bool fast;
     bool limitedAngle;
-    float angle;
+    double angle;
 //    bool occlusionCheck;
     bool distanceContraint;
-    float minimumDistance;
+    double minimumDistance;
     bool randomizedDetection;
     int rayCount;
     int rayDetectionCount;

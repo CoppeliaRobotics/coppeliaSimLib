@@ -151,12 +151,12 @@ bool CInterfaceStack::getStackDoubleValue(double& theValue) const
     return(retVal);
 }
 
-bool CInterfaceStack::getStackFloatValue(floatFloat& theValue) const
+bool CInterfaceStack::getStackFloatValue(float& theValue) const
 {
     double v;
     bool retVal=getStackDoubleValue(v);
     if (retVal)
-        theValue=(floatFloat)v;
+        theValue=(float)v;
     return(retVal);
 }
 
@@ -303,7 +303,7 @@ bool CInterfaceStack::getStackInt64Array(long long int* array,int count) const
     return(table->getInt64Array(array,count));
 }
 
-bool CInterfaceStack::getStackFloatArray(floatFloat* array,int count) const
+bool CInterfaceStack::getStackFloatArray(float* array,int count) const
 {
     if (_stackObjects.size()==0)
         return(false);
@@ -329,7 +329,7 @@ bool CInterfaceStack::getStackDoubleArray(double* array,int count) const
     return(table->getDoubleArray(array,count));
 }
 
-bool CInterfaceStack::getStackMapFloatArray(const char* fieldName,floatFloat* array,int count) const
+bool CInterfaceStack::getStackMapFloatArray(const char* fieldName,float* array,int count) const
 {
     const CInterfaceStackObject* obj=getStackMapObject(fieldName);
     if (obj!=nullptr)
@@ -339,6 +339,21 @@ bool CInterfaceStack::getStackMapFloatArray(const char* fieldName,floatFloat* ar
             CInterfaceStackTable* tble=(CInterfaceStackTable*)obj;
             if ( tble->isTableArray()&&(tble->getArraySize()>0) )
                 return(tble->getFloatArray(array,count));
+        }
+    }
+    return(false);
+}
+
+bool CInterfaceStack::getStackMapDoubleArray(const char* fieldName,double* array,int count) const
+{
+    const CInterfaceStackObject* obj=getStackMapObject(fieldName);
+    if (obj!=nullptr)
+    {
+        if (obj->getObjectType()==STACK_OBJECT_TABLE)
+        {
+            CInterfaceStackTable* tble=(CInterfaceStackTable*)obj;
+            if ( tble->isTableArray()&&(tble->getArraySize()>0) )
+                return(tble->getDoubleArray(array,count));
         }
     }
     return(false);
@@ -371,12 +386,12 @@ bool CInterfaceStack::getStackMapBoolValue(const char* fieldName,bool& val) cons
     return(false);
 }
 
-bool CInterfaceStack::getStackMapFloatValue(const char* fieldName,floatFloat& val) const
+bool CInterfaceStack::getStackMapFloatValue(const char* fieldName,float& val) const
 {
     double v;
     bool retVal=getStackMapDoubleValue(fieldName,v);
     if (retVal)
-        val=floatFloat(v);
+        val=float(v);
     return(retVal);
 }
 
@@ -514,7 +529,7 @@ void CInterfaceStack::pushBoolOntoStack(bool v,bool toFront/*=false*/)
         _stackObjects.push_back(new CInterfaceStackBool(v));
 }
 
-void CInterfaceStack::pushFloatOntoStack(floatFloat v,bool toFront/*=false*/)
+void CInterfaceStack::pushFloatOntoStack(float v,bool toFront/*=false*/)
 {
     pushDoubleOntoStack((double)v,toFront);
 }
@@ -578,7 +593,7 @@ void CInterfaceStack::pushUCharArrayOntoStack(const unsigned char* arr,size_t l,
         _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushFloatArrayOntoStack(const floatFloat* arr,size_t l,bool toFront/*=false*/)
+void CInterfaceStack::pushFloatArrayOntoStack(const float* arr,size_t l,bool toFront/*=false*/)
 {
     CInterfaceStackTable* table=new CInterfaceStackTable();
     table->setFloatArray(arr,l);
@@ -612,7 +627,7 @@ void CInterfaceStack::insertKeyBoolIntoStackTable(const char* key,bool value)
     insertDataIntoStackTable();
 }
 
-void CInterfaceStack::insertKeyFloatIntoStackTable(const char* key,floatFloat value)
+void CInterfaceStack::insertKeyFloatIntoStackTable(const char* key,float value)
 {
     pushStringOntoStack(key,0);
     pushFloatOntoStack(value);
@@ -661,7 +676,7 @@ void CInterfaceStack::insertKeyInt64ArrayIntoStackTable(const char* key,const lo
     insertDataIntoStackTable();
 }
 
-void CInterfaceStack::insertKeyFloatArrayIntoStackTable(const char* key,const floatFloat* arr,size_t l)
+void CInterfaceStack::insertKeyFloatArrayIntoStackTable(const char* key,const float* arr,size_t l)
 {
     pushStringOntoStack(key,0);
     pushFloatArrayOntoStack(arr,l);

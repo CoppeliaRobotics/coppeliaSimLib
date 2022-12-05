@@ -5,7 +5,7 @@
 #include "easyLock.h"
 #include "drawingObjectRendering.h"
 
-floatDouble CDrawingObject::getSize() const
+double CDrawingObject::getSize() const
 {
     return(_size);
 }
@@ -30,16 +30,16 @@ int CDrawingObject::getExpectedFloatsPerItem() const
     return(retVal);
 }
 
-std::vector<floatDouble>* CDrawingObject::getDataPtr()
+std::vector<double>* CDrawingObject::getDataPtr()
 {
     return(&_data);
 }
 
-CDrawingObject::CDrawingObject(int theObjectType,floatDouble size,floatDouble duplicateTolerance,int sceneObjId,int maxItemCount,int creatorHandle)
+CDrawingObject::CDrawingObject(int theObjectType,double size,double duplicateTolerance,int sceneObjId,int maxItemCount,int creatorHandle)
 {
     _rebuildRemoteItems=true;
     _creatorHandle=creatorHandle;
-    floatDouble tr=0.0;
+    double tr=0.0;
     if (theObjectType&sim_drawing_50percenttransparency)
         tr+=0.5;
     if (theObjectType&sim_drawing_25percenttransparency)
@@ -155,9 +155,9 @@ void CDrawingObject::adjustForFrameChange(const C7Vector& preCorrection)
     pushAppendNewPointEvent();
 }
 
-void CDrawingObject::adjustForScaling(floatDouble xScale,floatDouble yScale,floatDouble zScale)
+void CDrawingObject::adjustForScaling(double xScale,double yScale,double zScale)
 {
-    floatDouble avgScaling=(xScale+yScale+zScale)/3.0;
+    double avgScaling=(xScale+yScale+zScale)/3.0;
     int tmp=_objectType&0x001f;
     if ((tmp!=sim_drawing_points)&&(tmp!=sim_drawing_lines)&&(tmp!=sim_drawing_linestrip))
         _size*=avgScaling;
@@ -189,20 +189,20 @@ void CDrawingObject::adjustForScaling(floatDouble xScale,floatDouble yScale,floa
     pushAppendNewPointEvent();
 }
 
-void CDrawingObject::setItems(const floatDouble* itemData,size_t itemCnt)
+void CDrawingObject::setItems(const double* itemData,size_t itemCnt)
 {
     addItem(nullptr);
     addItems(itemData,itemCnt);
 }
 
-void CDrawingObject::addItems(const floatDouble* itemData,size_t itemCnt)
+void CDrawingObject::addItems(const double* itemData,size_t itemCnt)
 {
     size_t off=size_t(verticesPerItem*3+quaternionsPerItem*4+colorsPerItem*3+otherFloatsPerItem);
     for (size_t i=0;i<itemCnt;i++)
         addItem(itemData+off*i);
 }
 
-bool CDrawingObject::addItem(const floatDouble* itemData)
+bool CDrawingObject::addItem(const double* itemData)
 {
     EASYLOCK(_objectMutex);
     if (itemData==nullptr)
@@ -485,7 +485,7 @@ void CDrawingObject::_initBufferedEventData()
     _rebuildRemoteItems=true;
 }
 
-void CDrawingObject::_getEventData(std::vector<floatDouble>& vertices,std::vector<floatDouble>& quaternions,std::vector<floatDouble>& colors) const
+void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<float>& quaternions,std::vector<float>& colors) const
 {
     size_t w=0;
     if (_objectType&sim_drawing_itemcolors)
@@ -503,17 +503,17 @@ void CDrawingObject::_getEventData(std::vector<floatDouble>& vertices,std::vecto
 
         for (size_t i=0;i<verticesPerItem;i++)
         {
-            vertices.push_back(_bufferedEventData[t+0]);
-            vertices.push_back(_bufferedEventData[t+1]);
-            vertices.push_back(_bufferedEventData[t+2]);
+            vertices.push_back((float)_bufferedEventData[t+0]);
+            vertices.push_back((float)_bufferedEventData[t+1]);
+            vertices.push_back((float)_bufferedEventData[t+2]);
             t+=3;
         }
         for (size_t i=0;i<quaternionsPerItem;i++)
         {
-            quaternions.push_back(_bufferedEventData[t+1]);
-            quaternions.push_back(_bufferedEventData[t+2]);
-            quaternions.push_back(_bufferedEventData[t+3]);
-            quaternions.push_back(_bufferedEventData[t+0]);
+            quaternions.push_back((float)_bufferedEventData[t+1]);
+            quaternions.push_back((float)_bufferedEventData[t+2]);
+            quaternions.push_back((float)_bufferedEventData[t+3]);
+            quaternions.push_back((float)_bufferedEventData[t+0]);
             t+=4;
         }
         if (w==0)
@@ -547,7 +547,7 @@ void CDrawingObject::_getEventData(std::vector<floatDouble>& vertices,std::vecto
             w=2;
         if (t==sim_drawing_triangles)
             w=3;
-        const floatDouble* c=color.getColorsPtr();
+        const float* c=color.getColorsPtr();
         for (size_t itemCnt=0;itemCnt<_bufferedEventData.size()/size_t(floatsPerItem);itemCnt++)
         {
             for (size_t j=0;j<w;j++)
@@ -611,9 +611,9 @@ void CDrawingObject::pushAppendNewPointEvent()
     {
         auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_objectUid,nullptr,false);
 
-        std::vector<floatDouble> points;
-        std::vector<floatDouble> normals;
-        std::vector<floatDouble> colors;
+        std::vector<float> points;
+        std::vector<float> normals;
+        std::vector<float> colors;
         _getEventData(points,normals,colors);
 
         CCbor obj(nullptr,0);

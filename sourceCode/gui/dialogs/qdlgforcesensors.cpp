@@ -89,7 +89,7 @@ void CQDlgForceSensors::on_qqSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqSize->text().toFloat(&ok);
+        double newVal=ui->qqSize->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SIZE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -191,7 +191,7 @@ void CQDlgForceSensors::on_qqForceThreshold_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqForceThreshold->text().toFloat(&ok);
+        double newVal=ui->qqForceThreshold->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_FORCETHRESHOLD_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -218,7 +218,7 @@ void CQDlgForceSensors::on_qqTorqueThreshold_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqTorqueThreshold->text().toFloat(&ok);
+        double newVal=ui->qqTorqueThreshold->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_TORQUETHRESHOLD_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

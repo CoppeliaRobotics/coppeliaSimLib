@@ -54,7 +54,7 @@ C4X4Matrix CConvexVolume::getTheMatrix(const C3Vector& pt0,const C3Vector& pt1,c
     return(retM);
 }
 
-void CConvexVolume::add3Values(std::vector<floatDouble>& vect,const C4X4Matrix& transf,floatDouble x,floatDouble y,floatDouble z)
+void CConvexVolume::add3Values(std::vector<double>& vect,const C4X4Matrix& transf,double x,double y,double z)
 {
     C3Vector v(x,y,z);
     v=transf*v;
@@ -107,27 +107,27 @@ void CConvexVolume::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Ss3");
-            ar.flt() << (floatFloat)offset << (floatFloat)range << (floatFloat)xSize << (floatFloat)ySize << (floatFloat)xSizeFar << (floatFloat)ySizeFar;
-            ar.flt() << (floatFloat)radius << (floatFloat)radiusFar << (floatFloat)angle;
-            ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_s3");
-            ar.dbl() << offset << range << xSize << ySize << xSizeFar << ySizeFar;
-            ar.dbl() << radius << radiusFar << angle;
+            ar << (float)offset << (float)range << (float)xSize << (float)ySize << (float)xSizeFar << (float)ySizeFar;
+            ar << (float)radius << (float)radiusFar << (float)angle;
             ar.flush();
 #endif
 
+            ar.storeDataName("_s3");
+            ar << offset << range << xSize << ySize << xSizeFar << ySizeFar;
+            ar << radius << radiusFar << angle;
+            ar.flush();
+
+
 #ifdef TMPOPERATION
             ar.storeDataName("Sia");
-            ar.flt() << (floatFloat)insideAngleThing;
+            ar << (float)insideAngleThing;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_ia");
-            ar.dbl() << insideAngleThing;
+            ar << insideAngleThing;
             ar.flush();
-#endif
+
 
             ar.storeDataName("Ssi");
             ar << faceNumber << faceNumberFar << subdivisions << subdivisionsFar;
@@ -135,14 +135,14 @@ void CConvexVolume::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Wtf");
-            ar.flt() << (floatFloat)_smallestDistanceAllowed;
+            ar << (float)_smallestDistanceAllowed;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_tf");
-            ar.dbl() << _smallestDistanceAllowed;
+            ar << _smallestDistanceAllowed;
             ar.flush();
-#endif
+
 
             ar.storeDataName("Par");
             unsigned char nothing=0;
@@ -156,91 +156,91 @@ void CConvexVolume::serialize(CSer& ar)
             ar.storeDataName("Nc0");
             ar << int(planesInside.size());
             for (int i=0;i<int(planesInside.size());i++)
-                ar.flt() << (floatFloat)planesInside[i];
+                ar << (float)planesInside[i];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_c0");
             ar << int(planesInside.size());
             for (int i=0;i<int(planesInside.size());i++)
-                ar.dbl() << planesInside[i];
+                ar << planesInside[i];
             ar.flush();
-#endif
+
 
 #ifdef TMPOPERATION
             ar.storeDataName("Nc1");
             ar << int(planesOutside.size());
             for (int i=0;i<int(planesOutside.size());i++)
-                ar.flt() << (floatFloat)planesOutside[i];
+                ar << (float)planesOutside[i];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_c1");
             ar << int(planesOutside.size());
             for (int i=0;i<int(planesOutside.size());i++)
-                ar.dbl() << planesOutside[i];
+                ar << planesOutside[i];
             ar.flush();
-#endif
+
 
 #ifdef TMPOPERATION
             ar.storeDataName("Nc2");
             ar << int(normalsInside.size());
             for (int i=0;i<int(normalsInside.size());i++)
-                ar.flt() << (floatFloat)normalsInside[i];
+                ar << (float)normalsInside[i];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_c2");
             ar << int(normalsInside.size());
             for (int i=0;i<int(normalsInside.size());i++)
-                ar.dbl() << normalsInside[i];
+                ar << normalsInside[i];
             ar.flush();
-#endif
+
 
 #ifdef TMPOPERATION
             ar.storeDataName("Nc3");
             ar << int(normalsOutside.size());
             for (int i=0;i<int(normalsOutside.size());i++)
-                ar.flt() << (floatFloat)normalsOutside[i];
+                ar << (float)normalsOutside[i];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_c3");
             ar << int(normalsOutside.size());
             for (int i=0;i<int(normalsOutside.size());i++)
-                ar.dbl() << normalsOutside[i];
+                ar << normalsOutside[i];
             ar.flush();
-#endif
+
 
 #ifdef TMPOPERATION
             ar.storeDataName("Nc4");
             ar << int(volumeEdges.size());
             for (int i=0;i<int(volumeEdges.size());i++)
-                ar.flt() << (floatFloat)volumeEdges[i];
+                ar << (float)volumeEdges[i];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_c4");
             ar << int(volumeEdges.size());
             for (int i=0;i<int(volumeEdges.size());i++)
-                ar.dbl() << volumeEdges[i];
+                ar << volumeEdges[i];
             ar.flush();
-#endif
+
 
 #ifdef TMPOPERATION
             ar.storeDataName("Nc5");
             ar << int(nonDetectingVolumeEdges.size());
             for (int i=0;i<int(nonDetectingVolumeEdges.size());i++)
-                ar.flt() << (floatFloat)nonDetectingVolumeEdges[i];
+                ar << (float)nonDetectingVolumeEdges[i];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_c5");
             ar << int(nonDetectingVolumeEdges.size());
             for (int i=0;i<int(nonDetectingVolumeEdges.size());i++)
-                ar.dbl() << nonDetectingVolumeEdges[i];
+                ar << nonDetectingVolumeEdges[i];
             ar.flush();
-#endif
+
 
             //***************************************************************************
 
@@ -267,40 +267,44 @@ void CConvexVolume::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat a,b,c,d,e,f;
-                        ar.flt() >> a >> b >> c >> d >> e >> f;
-                        offset=(floatDouble)a;
-                        range=(floatDouble)b;
-                        xSize=(floatDouble)c;
-                        ySize=(floatDouble)d;
-                        xSizeFar=(floatDouble)e;
-                        ySizeFar=(floatDouble)f;
-                        ar.flt() >> a >> b >> c;
-                        radius=(floatDouble)a;
-                        radiusFar=(floatDouble)b;
-                        angle=(floatDouble)c;
+                        float a,b,c,d,e,f;
+                        ar >> a >> b >> c >> d >> e >> f;
+                        offset=(double)a;
+                        range=(double)b;
+                        xSize=(double)c;
+                        ySize=(double)d;
+                        xSizeFar=(double)e;
+                        ySizeFar=(double)f;
+                        ar >> a >> b >> c;
+                        radius=(double)a;
+                        radiusFar=(double)b;
+                        angle=(double)c;
                     }
+
                     if (theName.compare("_s3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> offset >> range >> xSize >> ySize >> xSizeFar >> ySizeFar;
-                        ar.dbl() >> radius >> radiusFar >> angle;
+                        ar >> offset >> range >> xSize >> ySize >> xSizeFar >> ySizeFar;
+                        ar >> radius >> radiusFar >> angle;
                     }
+
                     if (theName.compare("Sia")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat a;
-                        ar.flt() >> a;
-                        insideAngleThing=(floatDouble)a;
+                        float a;
+                        ar >> a;
+                        insideAngleThing=(double)a;
                     }
+
                     if (theName.compare("_ia")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> insideAngleThing;
+                        ar >> insideAngleThing;
                     }
+
                     if (theName.compare("Ssi")==0)
                     {
                         noHit=false;
@@ -311,16 +315,18 @@ void CConvexVolume::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat a;
-                        ar.flt() >> a;
-                        _smallestDistanceAllowed=(floatDouble)a;
+                        float a;
+                        ar >> a;
+                        _smallestDistanceAllowed=(double)a;
                     }
+
                     if (theName.compare("_tf")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _smallestDistanceAllowed;
+                        ar >> _smallestDistanceAllowed;
                     }
+
                     if (theName=="Par")
                     {
                         noHit=false;
@@ -339,13 +345,14 @@ void CConvexVolume::serialize(CSer& ar)
                         int vectSize;
                         ar >> vectSize;
                         planesInside.clear();
-                        floatFloat dum;
+                        float dum;
                         for (int i=0;i<vectSize;i++)
                         {
-                            ar.flt() >> dum;
-                            planesInside.push_back((floatDouble)dum);
+                            ar >> dum;
+                            planesInside.push_back((double)dum);
                         }
                     }
+
                     if (theName.compare("_c0")==0)
                     {
                         recomputeVolumes=false;
@@ -354,13 +361,14 @@ void CConvexVolume::serialize(CSer& ar)
                         int vectSize;
                         ar >> vectSize;
                         planesInside.clear();
-                        floatDouble dum;
+                        double dum;
                         for (int i=0;i<vectSize;i++)
                         {
-                            ar.dbl() >> dum;
+                            ar >> dum;
                             planesInside.push_back(dum);
                         }
                     }
+
 
                     if (theName.compare("Nc1")==0)
                     { // for backward comp. (flt->dbl)
@@ -370,13 +378,14 @@ void CConvexVolume::serialize(CSer& ar)
                         int vectSize;
                         ar >> vectSize;
                         planesOutside.clear();
-                        floatFloat dum;
+                        float dum;
                         for (int i=0;i<vectSize;i++)
                         {
-                            ar.flt() >> dum;
-                            planesOutside.push_back((floatDouble)dum);
+                            ar >> dum;
+                            planesOutside.push_back((double)dum);
                         }
                     }
+
                     if (theName.compare("_c1")==0)
                     {
                         recomputeVolumes=false;
@@ -385,13 +394,14 @@ void CConvexVolume::serialize(CSer& ar)
                         int vectSize;
                         ar >> vectSize;
                         planesOutside.clear();
-                        floatDouble dum;
+                        double dum;
                         for (int i=0;i<vectSize;i++)
                         {
-                            ar.dbl() >> dum;
+                            ar >> dum;
                             planesOutside.push_back(dum);
                         }
                     }
+
                     if (theName.compare("Nc2")==0)
                     { // for backward comp. (flt->dbl)
                         recomputeVolumes=false;
@@ -400,13 +410,14 @@ void CConvexVolume::serialize(CSer& ar)
                         int vectSize;
                         ar >> vectSize;
                         normalsInside.clear();
-                        floatFloat dum;
+                        float dum;
                         for (int i=0;i<vectSize;i++)
                         {
-                            ar.flt() >> dum;
-                            normalsInside.push_back((floatDouble)dum);
+                            ar >> dum;
+                            normalsInside.push_back((double)dum);
                         }
                     }
+
                     if (theName.compare("_c2")==0)
                     {
                         recomputeVolumes=false;
@@ -415,13 +426,14 @@ void CConvexVolume::serialize(CSer& ar)
                         int vectSize;
                         ar >> vectSize;
                         normalsInside.clear();
-                        floatDouble dum;
+                        double dum;
                         for (int i=0;i<vectSize;i++)
                         {
-                            ar.dbl() >> dum;
+                            ar >> dum;
                             normalsInside.push_back(dum);
                         }
                     }
+
                     if (theName.compare("Nc3")==0)
                     { // for backward comp. (flt->dbl)
                         recomputeVolumes=false;
@@ -430,13 +442,14 @@ void CConvexVolume::serialize(CSer& ar)
                         int vectSize;
                         ar >> vectSize;
                         normalsOutside.clear();
-                        floatFloat dum;
+                        float dum;
                         for (int i=0;i<vectSize;i++)
                         {
-                            ar.flt() >> dum;
-                            normalsOutside.push_back((floatDouble)dum);
+                            ar >> dum;
+                            normalsOutside.push_back((double)dum);
                         }
                     }
+
                     if (theName.compare("_c3")==0)
                     {
                         recomputeVolumes=false;
@@ -445,13 +458,14 @@ void CConvexVolume::serialize(CSer& ar)
                         int vectSize;
                         ar >> vectSize;
                         normalsOutside.clear();
-                        floatDouble dum;
+                        double dum;
                         for (int i=0;i<vectSize;i++)
                         {
-                            ar.dbl() >> dum;
+                            ar >> dum;
                             normalsOutside.push_back(dum);
                         }
                     }
+
                     if (theName.compare("Nc4")==0)
                     { // for backward comp. (flt->dbl)
                         recomputeVolumes=false;
@@ -460,13 +474,14 @@ void CConvexVolume::serialize(CSer& ar)
                         int vectSize;
                         ar >> vectSize;
                         volumeEdges.clear();
-                        floatFloat dum;
+                        float dum;
                         for (int i=0;i<vectSize;i++)
                         {
-                            ar.flt() >> dum;
-                            volumeEdges.push_back((floatDouble)dum);
+                            ar >> dum;
+                            volumeEdges.push_back((double)dum);
                         }
                     }
+
                     if (theName.compare("_c4")==0)
                     {
                         recomputeVolumes=false;
@@ -475,13 +490,14 @@ void CConvexVolume::serialize(CSer& ar)
                         int vectSize;
                         ar >> vectSize;
                         volumeEdges.clear();
-                        floatDouble dum;
+                        double dum;
                         for (int i=0;i<vectSize;i++)
                         {
-                            ar.dbl() >> dum;
+                            ar >> dum;
                             volumeEdges.push_back(dum);
                         }
                     }
+
                     if (theName.compare("Nc5")==0)
                     {
                         recomputeVolumes=false;
@@ -490,13 +506,14 @@ void CConvexVolume::serialize(CSer& ar)
                         int vectSize;
                         ar >> vectSize;
                         nonDetectingVolumeEdges.clear();
-                        floatFloat dum;
+                        float dum;
                         for (int i=0;i<vectSize;i++)
                         {
-                            ar.flt() >> dum;
-                            nonDetectingVolumeEdges.push_back((floatDouble)dum);
+                            ar >> dum;
+                            nonDetectingVolumeEdges.push_back((double)dum);
                         }
                     }
+
                     if (theName.compare("_c5")==0)
                     {
                         recomputeVolumes=false;
@@ -505,13 +522,14 @@ void CConvexVolume::serialize(CSer& ar)
                         int vectSize;
                         ar >> vectSize;
                         nonDetectingVolumeEdges.clear();
-                        floatDouble dum;
+                        double dum;
                         for (int i=0;i<vectSize;i++)
                         {
-                            ar.dbl() >> dum;
+                            ar >> dum;
                             nonDetectingVolumeEdges.push_back(dum);
                         }
                     }
+
                     //***************************************************************************
 
                     if (noHit)
@@ -553,7 +571,7 @@ void CConvexVolume::serialize(CSer& ar)
             if (exhaustiveXml)
                 ar.xmlGetNode_enum("type",_volumeType,true,"pyramid",PYRAMID_TYPE_CONVEX_VOLUME,"cylinder",CYLINDER_TYPE_CONVEX_VOLUME,"disc",DISC_TYPE_CONVEX_VOLUME,"cone",CONE_TYPE_CONVEX_VOLUME,"ray",RAY_TYPE_CONVEX_VOLUME);
 
-            floatDouble v,w;
+            double v,w;
             int k,l;
             if (ar.xmlGetNode_float("offset",v,exhaustiveXml))
                 setOffset(v,false);
@@ -605,10 +623,10 @@ bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
 { 
     if (_volumeType==RAY_TYPE_CONVEX_VOLUME)
     {
-        minV(0)=-0.001f;
-        maxV(0)=+0.001f;
-        minV(1)=-0.001f;
-        maxV(1)=+0.001f;
+        minV(0)=-0.001;
+        maxV(0)=+0.001;
+        minV(1)=-0.001;
+        maxV(1)=+0.001;
         minV(2)=0.0;
         if (offset<0.0)
             minV(2)=offset;
@@ -618,10 +636,10 @@ bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
     }
     if (_volumeType==PYRAMID_TYPE_CONVEX_VOLUME)
     {
-        floatDouble maxX=std::max<floatDouble>(xSize,xSizeFar)/2.0;
+        double maxX=std::max<double>(xSize,xSizeFar)/2.0;
         minV(0)=-maxX;
         maxV(0)=maxX;
-        floatDouble maxY=std::max<floatDouble>(ySize,ySizeFar)/2.0;
+        double maxY=std::max<double>(ySize,ySizeFar)/2.0;
         minV(1)=-maxY;
         maxV(1)=maxY;
         minV(2)=0.0;
@@ -633,7 +651,7 @@ bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
     }
     if (_volumeType==CYLINDER_TYPE_CONVEX_VOLUME)
     {
-        floatDouble maxRad=std::max<floatDouble>(radius,radiusFar);
+        double maxRad=std::max<double>(radius,radiusFar);
         minV(0)=-maxRad;
         maxV(0)=maxRad;
         minV(1)=-maxRad;
@@ -649,14 +667,14 @@ bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
     {
         minV(1)=-ySize/2.0;
         maxV(1)=ySize/2.0;
-        floatDouble tmp;
-        if (angle<piValue*1.03f)
+        double tmp;
+        if (angle<piValue*1.03)
             tmp=(radius+range)*sin(angle*0.5);
         else
             tmp=radius+range;
         minV(0)=-tmp;
         maxV(0)=tmp;
-        if (angle<piValue*1.03f)
+        if (angle<piValue*1.03)
         {
             minV(2)=0.0;
             if (offset<0.0)
@@ -677,8 +695,8 @@ bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
     }
     if (_volumeType==CONE_TYPE_CONVEX_VOLUME)
     {
-        floatDouble tmp;
-        if (angle<piValue*1.03f)
+        double tmp;
+        if (angle<piValue*1.03)
             tmp=(radius+range)*sin(angle*0.5);
         else
             tmp=radius+range;
@@ -686,7 +704,7 @@ bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
         maxV(0)=tmp;
         minV(1)=-tmp;
         maxV(1)=tmp;
-        if (angle<piValue*1.03f)
+        if (angle<piValue*1.03)
         {
             minV(2)=0.0;
             if (offset<0.0)
@@ -708,7 +726,7 @@ bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const
     return(true);
 }
 
-void CConvexVolume::scaleVolume(floatDouble scalingFactor)
+void CConvexVolume::scaleVolume(double scalingFactor)
 {
     offset*=scalingFactor;
     range*=scalingFactor;
@@ -723,11 +741,11 @@ void CConvexVolume::scaleVolume(floatDouble scalingFactor)
     computeVolumes();
 }
 
-void CConvexVolume::scaleVolumeNonIsometrically(floatDouble x,floatDouble y,floatDouble z,floatDouble& xRet,floatDouble& yRet,floatDouble& zRet)
+void CConvexVolume::scaleVolumeNonIsometrically(double x,double y,double z,double& xRet,double& yRet,double& zRet)
 {
-    floatDouble xy=sqrt(x*y);
-    floatDouble xyz=cbrt(x*y*z);
-    floatDouble xz=sqrt(x*z);
+    double xy=sqrt(x*y);
+    double xyz=cbrt(x*y*z);
+    double xz=sqrt(x*z);
     if (_volumeType==RAY_TYPE_CONVEX_VOLUME)
     {
 /*
@@ -794,7 +812,7 @@ void CConvexVolume::scaleVolumeNonIsometrically(floatDouble x,floatDouble y,floa
     computeVolumes();
 }
 
-void CConvexVolume::addAPlane(std::vector<floatDouble>* volume,std::vector<floatDouble>* normals,floatDouble nL,const C4X4Matrix& m,bool inside)
+void CConvexVolume::addAPlane(std::vector<double>* volume,std::vector<double>* normals,double nL,const C4X4Matrix& m,bool inside)
 {   // normals can be nullptr.
     // Always z-axis:
     volume->push_back(m.M.axis[2](0));
@@ -811,7 +829,7 @@ void CConvexVolume::addAPlane(std::vector<floatDouble>* volume,std::vector<float
     }
 }
 
-void CConvexVolume::setVolumeType(int theType,int objectTypeTheVolumeIsFor,floatDouble pointSize)
+void CConvexVolume::setVolumeType(int theType,int objectTypeTheVolumeIsFor,double pointSize)
 {
     _volumeType=theType;
     setDefaultVolumeParameters(objectTypeTheVolumeIsFor,pointSize);
@@ -823,7 +841,7 @@ int CConvexVolume::getVolumeType()
     return(_volumeType);
 }
 
-void CConvexVolume::setOffset(floatDouble theOffset,bool recomputeVolume/*=true*/)
+void CConvexVolume::setOffset(double theOffset,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(-1000.0,1000.0,theOffset);
     offset=theOffset;
@@ -831,89 +849,89 @@ void CConvexVolume::setOffset(floatDouble theOffset,bool recomputeVolume/*=true*
         computeVolumes();
 }
 
-floatDouble CConvexVolume::getOffset() const
+double CConvexVolume::getOffset() const
 {
     return(offset);
 }
 
-void CConvexVolume::setRange(floatDouble theRange,bool recomputeVolume/*=true*/)
+void CConvexVolume::setRange(double theRange,bool recomputeVolume/*=true*/)
 {
-    tt::limitValue(0.00001f,1000.0,theRange);
+    tt::limitValue(0.00001,1000.0,theRange);
     range=theRange;
     solveInterferences();
     if (recomputeVolume)
         computeVolumes();
 }
 
-floatDouble CConvexVolume::getRange() const
+double CConvexVolume::getRange() const
 {
     return(range);
 }
 
-void CConvexVolume::setXSize(floatDouble theXSize,bool recomputeVolume/*=true*/)
+void CConvexVolume::setXSize(double theXSize,bool recomputeVolume/*=true*/)
 {
-    tt::limitValue(0.00001f,1000.0,theXSize);
+    tt::limitValue(0.00001,1000.0,theXSize);
     xSize=theXSize;
     if (recomputeVolume)
         computeVolumes();
 }
 
-floatDouble CConvexVolume::getXSize() const
+double CConvexVolume::getXSize() const
 {
     return(xSize);
 }
 
-void CConvexVolume::setYSize(floatDouble theYSize,bool recomputeVolume/*=true*/)
+void CConvexVolume::setYSize(double theYSize,bool recomputeVolume/*=true*/)
 {
-    tt::limitValue(0.00001f,1000.0,theYSize);
+    tt::limitValue(0.00001,1000.0,theYSize);
     ySize=theYSize;
     if (recomputeVolume)
         computeVolumes();
 }
 
-floatDouble CConvexVolume::getYSize() const
+double CConvexVolume::getYSize() const
 {
     return(ySize);
 }
 
-void CConvexVolume::setXSizeFar(floatDouble theXSizeFar,bool recomputeVolume/*=true*/)
+void CConvexVolume::setXSizeFar(double theXSizeFar,bool recomputeVolume/*=true*/)
 {
-    tt::limitValue(0.00001f,1000.0,theXSizeFar);
+    tt::limitValue(0.00001,1000.0,theXSizeFar);
     xSizeFar=theXSizeFar;
     if (recomputeVolume)
         computeVolumes();
 }
 
-floatDouble CConvexVolume::getXSizeFar() const
+double CConvexVolume::getXSizeFar() const
 {
     return(xSizeFar);
 }
 
-void CConvexVolume::setYSizeFar(floatDouble theYSizeFar,bool recomputeVolume/*=true*/)
+void CConvexVolume::setYSizeFar(double theYSizeFar,bool recomputeVolume/*=true*/)
 {
-    tt::limitValue(0.00001f,1000.0,theYSizeFar);
+    tt::limitValue(0.00001,1000.0,theYSizeFar);
     ySizeFar=theYSizeFar;
     if (recomputeVolume)
         computeVolumes();
 }
 
-floatDouble CConvexVolume::getYSizeFar() const
+double CConvexVolume::getYSizeFar() const
 {
     return(ySizeFar);
 }
 
-void CConvexVolume::setRadius(floatDouble theRadius,bool recomputeVolume/*=true*/)
+void CConvexVolume::setRadius(double theRadius,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0.0,1000.0,theRadius);
     if ( (_volumeType==DISC_TYPE_CONVEX_VOLUME)||(_volumeType==CONE_TYPE_CONVEX_VOLUME) )
     {
-        if (theRadius<0.00001f)
+        if (theRadius<0.00001)
             theRadius=0.0;
     }
     if (_volumeType==CYLINDER_TYPE_CONVEX_VOLUME)
     {
-        if (theRadius<0.00001f)
-            theRadius=0.00001f;
+        if (theRadius<0.00001)
+            theRadius=0.00001;
     }
     radius=theRadius;
     solveInterferences();
@@ -921,12 +939,12 @@ void CConvexVolume::setRadius(floatDouble theRadius,bool recomputeVolume/*=true*
         computeVolumes();
 }
 
-floatDouble CConvexVolume::getRadius() const
+double CConvexVolume::getRadius() const
 {
     return(radius);
 }
 
-void CConvexVolume::setRadiusFar(floatDouble theRadiusFar,bool recomputeVolume/*=true*/)
+void CConvexVolume::setRadiusFar(double theRadiusFar,bool recomputeVolume/*=true*/)
 {
     tt::limitValue(0.0,1000.0,theRadiusFar);
     radiusFar=theRadiusFar;
@@ -934,19 +952,19 @@ void CConvexVolume::setRadiusFar(floatDouble theRadiusFar,bool recomputeVolume/*
         computeVolumes();
 }
 
-floatDouble CConvexVolume::getRadiusFar() const
+double CConvexVolume::getRadiusFar() const
 {
     return(radiusFar);
 }
 
-void CConvexVolume::setAngle(floatDouble theAngle,bool recomputeVolume/*=true*/)
+void CConvexVolume::setAngle(double theAngle,bool recomputeVolume/*=true*/)
 {
-    tt::limitValue(0.001f*degToRad,piValT2,theAngle);
+    tt::limitValue(0.001*degToRad,piValT2,theAngle);
     if ( (_volumeType==DISC_TYPE_CONVEX_VOLUME)||(_volumeType==CONE_TYPE_CONVEX_VOLUME) )
     {
-        if ( (theAngle>piValue)&&(theAngle<piValue*1.01f) )
+        if ( (theAngle>piValue)&&(theAngle<piValue*1.01) )
             theAngle=piValue;
-        if (theAngle>=piValue*1.01f)
+        if (theAngle>=piValue*1.01)
             theAngle=piValT2;
     }
     angle=theAngle;
@@ -955,15 +973,15 @@ void CConvexVolume::setAngle(floatDouble theAngle,bool recomputeVolume/*=true*/)
         computeVolumes();
 }
 
-void CConvexVolume::setInsideAngleThing(floatDouble theAngle,bool recomputeVolume/*=true*/)
+void CConvexVolume::setInsideAngleThing(double theAngle,bool recomputeVolume/*=true*/)
 {
-    tt::limitValue(0.0,0.999f,theAngle);
-    if (theAngle<0.01f)
+    tt::limitValue(0.0,0.999,theAngle);
+    if (theAngle<0.01)
         theAngle=0.0;
     insideAngleThing=theAngle;
     if (theAngle!=0.0)
     {
-        if (angle>piValue*1.01f)
+        if (angle>piValue*1.01)
             angle=piValue;
     }
     solveInterferences();
@@ -983,15 +1001,15 @@ bool CConvexVolume::getSmallestDistanceEnabled() const
     return(_smallestDistanceEnabled);
 }
 
-void CConvexVolume::setSmallestDistanceAllowed(floatDouble d,bool recomputeVolume/*=true*/)
+void CConvexVolume::setSmallestDistanceAllowed(double d,bool recomputeVolume/*=true*/)
 {
-    tt::limitValue(0.0001f,10.0,d);
+    tt::limitValue(0.0001,10.0,d);
     _smallestDistanceAllowed=d;
     if (recomputeVolume)
         computeVolumes();
 }
 
-floatDouble CConvexVolume::getSmallestDistanceAllowed() const
+double CConvexVolume::getSmallestDistanceAllowed() const
 {
     return(_smallestDistanceAllowed);
 }
@@ -1000,8 +1018,8 @@ void CConvexVolume::solveInterferences()
 {
     if (_volumeType==DISC_TYPE_CONVEX_VOLUME)
     {
-        floatDouble dA2=angle/faceNumberFar;
-        floatDouble r2=(radius+range)*cos(dA2/2.0);
+        double dA2=angle/faceNumberFar;
+        double r2=(radius+range)*cos(dA2/2.0);
         while ( (r2<=radius)&&(faceNumberFar<PROXSENSOR_MAX_FACE_NUMBER) )
         { // We have an interference here!
             faceNumberFar=faceNumberFar+1;
@@ -1010,14 +1028,14 @@ void CConvexVolume::solveInterferences()
         }
         while (r2<=radius)
         { // We have to increase the range now:
-            range=1.25f*range;
+            range=1.25*range;
             r2=(radius+range)*cos(dA2/2.0);
         }
     }
     if (_volumeType==CONE_TYPE_CONVEX_VOLUME)
     {
-        floatDouble dA2=angle/(subdivisionsFar+1);
-        floatDouble r2=(radius+range)*cos(dA2/4.0);
+        double dA2=angle/(subdivisionsFar+1);
+        double r2=(radius+range)*cos(dA2/4.0);
         while ( (r2<=radius)&&(subdivisionsFar<PROXSENSOR_MAX_SUBDIVISIONS) )
         { // We have an interference here!
             subdivisionsFar=subdivisionsFar+1;
@@ -1026,18 +1044,18 @@ void CConvexVolume::solveInterferences()
         }
         while (r2<=radius)
         { // We have to increase the range now:
-            range=1.25f*range;
+            range=1.25*range;
             r2=(radius+range)*cos(dA2/4.0);
         }
     }
 }
 
-floatDouble CConvexVolume::getAngle() const
+double CConvexVolume::getAngle() const
 {
     return(angle);
 }
 
-floatDouble CConvexVolume::getInsideAngleThing() const
+double CConvexVolume::getInsideAngleThing() const
 {
     return(insideAngleThing);
 }
@@ -1049,7 +1067,7 @@ void CConvexVolume::setFaceNumber(int theFaceNumber,bool recomputeVolume/*=true*
         tt::limitValue(3,PROXSENSOR_MAX_FACE_NUMBER,theFaceNumber);
     if (_volumeType==DISC_TYPE_CONVEX_VOLUME)
     {
-        if (angle>piValue*1.01f)
+        if (angle>piValue*1.01)
             tt::limitValue(3,PROXSENSOR_MAX_FACE_NUMBER,theFaceNumber);
     }
     if (_volumeType==CONE_TYPE_CONVEX_VOLUME)
@@ -1105,7 +1123,7 @@ int CConvexVolume::getSubdivisionsFar() const
     return(subdivisionsFar);
 }
 
-void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,floatDouble pointSize)
+void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,double pointSize)
 {
     insideAngleThing=0.0;
     _smallestDistanceAllowed=0.1;
@@ -1126,7 +1144,7 @@ void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,floa
             range=0.2;
             radius=0.1;
             angle=piValD2;
-            ySize=0.05f;
+            ySize=0.05;
             ySizeFar=0.1;
             faceNumber=16;
             faceNumberFar=32;
@@ -1161,41 +1179,41 @@ void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,floa
         if (_volumeType==CYLINDER_TYPE_CONVEX_VOLUME)
         {
             offset=0.0;
-            range=0.05f;
-            radius=0.015f;
-            radiusFar=0.015f;
+            range=0.05;
+            radius=0.015;
+            radiusFar=0.015;
             faceNumber=32;
         }
         if (_volumeType==DISC_TYPE_CONVEX_VOLUME)
         {
             offset=0.0;
-            range=0.05f;
+            range=0.05;
             radius=0.0;
             angle=30.0*degToRad;
-            ySize=0.015f;
-            ySizeFar=0.015f;
+            ySize=0.015;
+            ySizeFar=0.015;
             faceNumber=1;
             faceNumberFar=4;
         }
         if (_volumeType==PYRAMID_TYPE_CONVEX_VOLUME)
         {
             offset=0.0;
-            range=0.05f;
-            xSize=0.02f;
-            ySize=0.02f;
-            xSizeFar=0.02f;
-            ySizeFar=0.02f;
+            range=0.05;
+            xSize=0.02;
+            ySize=0.02;
+            xSizeFar=0.02;
+            ySizeFar=0.02;
         }
         if (_volumeType==RAY_TYPE_CONVEX_VOLUME)
         { // Should not be possible
             offset=0.0;
-            range=0.05f;
+            range=0.05;
         }
         if (_volumeType==CONE_TYPE_CONVEX_VOLUME)
         {
             offset=0.0;
             radius=0.0;    // no outside volume here
-            range=0.05f;
+            range=0.05;
             angle=30.0*degToRad;
             faceNumber=16;
             subdivisions=1;
@@ -1204,7 +1222,7 @@ void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,floa
     }
 }
 
-void CConvexVolume::computeVolumeEdges(std::vector<floatDouble>& edges)
+void CConvexVolume::computeVolumeEdges(std::vector<double>& edges)
 {
     edges.clear();
     C4X4Matrix m;
@@ -1217,7 +1235,7 @@ void CConvexVolume::computeVolumeEdges(std::vector<floatDouble>& edges)
     }
     if (_volumeType==CYLINDER_TYPE_CONVEX_VOLUME)
     {
-        floatDouble alpha=piValue/faceNumber;
+        double alpha=piValue/faceNumber;
         for (int i=0;i<faceNumber;i++)
         {
             add3Values(edges,m,+cos(alpha)*radius,-sin(alpha)*radius,offset);
@@ -1260,28 +1278,28 @@ void CConvexVolume::computeVolumeEdges(std::vector<floatDouble>& edges)
 
     if (_volumeType==DISC_TYPE_CONVEX_VOLUME)
     {
-        bool insidePart=(insideAngleThing>=0.01f);
+        bool insidePart=(insideAngleThing>=0.01);
         tr.buildTranslation(0.0,0.0,offset);
         m=m*tr;
-        floatDouble angleStart=angle/2.0;
-        floatDouble angleStart2=angleStart*insideAngleThing;
-        floatDouble dA=angleStart/faceNumber;
-        floatDouble dAd=dA*radToDeg;
+        double angleStart=angle/2.0;
+        double angleStart2=angleStart*insideAngleThing;
+        double dA=angleStart/faceNumber;
+        double dAd=dA*radToDeg;
         if (insidePart)
         {
             dA=angleStart2/faceNumber;
             dAd=dA*radToDeg;
         }
-        floatDouble radiusSinAngleStart=radius*sin(angleStart);
-        floatDouble radiusSinAngleStartDa=radius*sin(angleStart-dA);
-        floatDouble radiusCosAngleStart=radius*cos(angleStart);
-        floatDouble radiusCosAngleStartDa=radius*cos(angleStart-dA);
-        floatDouble halfSize=ySize/2.0;
-        floatDouble aaa=cos(angleStart)*radius;
-        floatDouble bbb=sin(angleStart)*radius;
-        floatDouble bb2=tan(angleStart2)*aaa;
+        double radiusSinAngleStart=radius*sin(angleStart);
+        double radiusSinAngleStartDa=radius*sin(angleStart-dA);
+        double radiusCosAngleStart=radius*cos(angleStart);
+        double radiusCosAngleStartDa=radius*cos(angleStart-dA);
+        double halfSize=ySize/2.0;
+        double aaa=cos(angleStart)*radius;
+        double bbb=sin(angleStart)*radius;
+        double bb2=tan(angleStart2)*aaa;
         // The close part:
-        if (radius>0.000001f)
+        if (radius>0.000001)
         {
             C4X4Matrix mSaved(m);
             if (insidePart)
@@ -1293,7 +1311,7 @@ void CConvexVolume::computeVolumeEdges(std::vector<floatDouble>& edges)
                     add3Values(edges,m,bbb,i*halfSize,aaa);
                     add3Values(edges,m,bb2,i*halfSize,aaa);
 
-                    if (angle<piValue*0.999f)
+                    if (angle<piValue*0.999)
                     {
                         add3Values(edges,m,-bbb,-i*halfSize,aaa);
                         add3Values(edges,m,-bbb,i*halfSize,aaa);
@@ -1331,18 +1349,18 @@ void CConvexVolume::computeVolumeEdges(std::vector<floatDouble>& edges)
             add3Values(edges,m,0.0,+halfSize,radius);
         }
         // The far part:
-        floatDouble dA2=angleStart/faceNumberFar;
-        floatDouble dAd2=dA2*radToDeg;
+        double dA2=angleStart/faceNumberFar;
+        double dAd2=dA2*radToDeg;
         if (insidePart)
         {
             dA2=(angleStart-angleStart2)/faceNumberFar;
             dAd2=dA2*radToDeg;
         }
-        floatDouble r=radius+range;
-        floatDouble radiusSinAngleStart2=r*sin(angleStart);
-        floatDouble radiusSinAngleStartDa2=r*sin(angleStart-dA2);
-        floatDouble radiusCosAngleStart2=r*cos(angleStart);
-        floatDouble radiusCosAngleStartDa2=r*cos(angleStart-dA2);
+        double r=radius+range;
+        double radiusSinAngleStart2=r*sin(angleStart);
+        double radiusSinAngleStartDa2=r*sin(angleStart-dA2);
+        double radiusCosAngleStart2=r*cos(angleStart);
+        double radiusCosAngleStartDa2=r*cos(angleStart-dA2);
         C4X4Matrix mSaved(m);
         for (int j=0;j<2;j++)
         {
@@ -1377,7 +1395,7 @@ void CConvexVolume::computeVolumeEdges(std::vector<floatDouble>& edges)
 
         // The borders:
         mSaved=m;
-        if (angle<piValue*1.03f)
+        if (angle<piValue*1.03)
         {
             for (int i=0;i<2;i++)
             {
@@ -1403,35 +1421,35 @@ void CConvexVolume::computeVolumeEdges(std::vector<floatDouble>& edges)
 
     if (_volumeType==CONE_TYPE_CONVEX_VOLUME)
     {
-        bool insidePart=(insideAngleThing>=0.01f);
+        bool insidePart=(insideAngleThing>=0.01);
         tr.buildTranslation(0.0,0.0,offset);
         m=m*tr;
-        floatDouble aD2=angle/2.0;
-        floatDouble aD4=insideAngleThing*aD2;
-        if (angle>piValue*1.01f)
+        double aD2=angle/2.0;
+        double aD4=insideAngleThing*aD2;
+        if (angle>piValue*1.01)
         {
             aD2=piValue/2.0; // Then we draw 2 hemishperes
             insidePart=false;
         }
-        floatDouble piDF=piValue/faceNumber;
-        floatDouble cPiDF=cos(piDF);
-        floatDouble sPiDF=sin(piDF);
-        floatDouble sAD2=sin(aD2);
-        floatDouble cAD2=cos(aD2);
-        floatDouble sAD4=sin(aD4);
-        floatDouble cAD4=cos(aD4);
+        double piDF=piValue/faceNumber;
+        double cPiDF=cos(piDF);
+        double sPiDF=sin(piDF);
+        double sAD2=sin(aD2);
+        double cAD2=cos(aD2);
+        double sAD4=sin(aD4);
+        double cAD4=cos(aD4);
 
-        floatDouble tAD2=tan(aD2);
-        floatDouble tAD4=tan(aD4);
-        floatDouble r=radius;
-        floatDouble R=radius+range;
-        floatDouble rp=r*cAD2;
+        double tAD2=tan(aD2);
+        double tAD4=tan(aD4);
+        double r=radius;
+        double R=radius+range;
+        double rp=r*cAD2;
         for (int pass=0;pass<2;pass++)
         { // This loop is to draw 2 hemispheres if angle>piValue
             for (int i=0;i<faceNumber;i++)
             {
                 // The edges:
-                if (angle<piValue*0.999f)
+                if (angle<piValue*0.999)
                 {
                     if (insidePart)
                         add3Values(edges,m,rp*tAD2*cPiDF,rp*tAD2*sPiDF,rp);
@@ -1445,12 +1463,12 @@ void CConvexVolume::computeVolumeEdges(std::vector<floatDouble>& edges)
                     add3Values(edges,m,R*sAD4*cPiDF,R*sAD4*sPiDF,R*cAD4);
                 }
                 // The close part:
-                floatDouble da=aD2/(subdivisions+1);
-                if (radius>0.0000000001f)
+                double da=aD2/(subdivisions+1);
+                if (radius>0.0000000001)
                 {
                     if (insidePart)
                     {
-                        if (angle<piValue*0.999f)
+                        if (angle<piValue*0.999)
                         {
                             add3Values(edges,m,rp*tAD2*cPiDF,-rp*tAD2*sPiDF,rp);
                             add3Values(edges,m,rp*tAD2*cPiDF,+rp*tAD2*sPiDF,rp);
@@ -1490,7 +1508,7 @@ void CConvexVolume::computeVolumeEdges(std::vector<floatDouble>& edges)
                 tr.buildZRotation(piValue*2.0/faceNumber);
                 m=m*tr;
             }
-            if (angle<piValue*1.01f)
+            if (angle<piValue*1.01)
                 break;
             // We have to prepare to draw the other hemisphere:
             tr.buildTranslation(0.0,0.0,-offset);
@@ -1507,21 +1525,21 @@ void CConvexVolume::computeVolumes()
 {
     if (_volumeComputationTemporarilyDisabled)
         return;
-    const floatDouble normalsLength=0.03f;
+    const double normalsLength=0.03;
     planesInside.clear();
     planesOutside.clear();
     normalsInside.clear();
     normalsOutside.clear();
     
-    std::vector<floatDouble>* nInside=nullptr;
-    std::vector<floatDouble>* nOutside=nullptr;
+    std::vector<double>* nInside=nullptr;
+    std::vector<double>* nOutside=nullptr;
 
     nonDetectingVolumeEdges.clear();
     volumeEdges.clear();
 
     if (_smallestDistanceEnabled)
     {
-        std::vector<floatDouble> volEdges;
+        std::vector<double> volEdges;
         computeVolumeEdges(volEdges);
         getCloseAndFarVolumeEdges(volEdges,_smallestDistanceAllowed,nonDetectingVolumeEdges,volumeEdges);
     }
@@ -1537,7 +1555,7 @@ void CConvexVolume::computeVolumes()
         m.buildYRotation(piValue);
         m.translate(0.0,0.0,offset);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
-        floatDouble alpha=piValue/faceNumber;
+        double alpha=piValue/faceNumber;
         m.buildYRotation(piValue/2.0+atan(cos(alpha)*(radiusFar-radius)/range));
         m.translate(cos(alpha)*(radius+radiusFar)/2.0,0.0,offset+range/2.0);
         for (int i=0;i<faceNumber;i++)
@@ -1554,8 +1572,8 @@ void CConvexVolume::computeVolumes()
         m.buildYRotation(piValue);
         m.translate(0.0,0.0,offset);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
-        floatDouble alphaV=atan((ySizeFar-ySize)/(2.0*range));
-        floatDouble alphaH=atan((xSizeFar-xSize)/(2.0*range));
+        double alphaV=atan((ySizeFar-ySize)/(2.0*range));
+        double alphaH=atan((xSizeFar-xSize)/(2.0*range));
         m.buildXRotation(-piValue/2.0-alphaV);
         m.translate(0.0,+(ySizeFar+ySize)/4.0,offset+range/2.0);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
@@ -1571,7 +1589,7 @@ void CConvexVolume::computeVolumes()
     }
     if (_volumeType==DISC_TYPE_CONVEX_VOLUME)
     {
-        bool insidePart=(insideAngleThing>=0.01f);
+        bool insidePart=(insideAngleThing>=0.01);
         planesInside.reserve((2+faceNumber+faceNumberFar+2)*4);
         // Top and bottom parts:
         m.buildXRotation(-piValue/2.0);
@@ -1581,13 +1599,13 @@ void CConvexVolume::computeVolumes()
         m.translate(0.0,-ySize/2.0,offset+radius+range/2.0);
         addAPlane(&planesInside,nInside,normalsLength,m,true);
         // Far part:
-        floatDouble dA2=0.5*angle/faceNumberFar;
+        double dA2=0.5*angle/faceNumberFar;
         if (insidePart)
             dA2=0.5*angle*(1.0-insideAngleThing)/faceNumberFar;
-        floatDouble ddd=0.0;
+        double ddd=0.0;
         if (insidePart)
             ddd=0.5*angle*insideAngleThing;
-        floatDouble r2=(radius+range)*cos(dA2/2.0);
+        double r2=(radius+range)*cos(dA2/2.0);
         for (int i=0;i<faceNumberFar;i++)
         {
             // From left
@@ -1602,9 +1620,9 @@ void CConvexVolume::computeVolumes()
             addAPlane(&planesInside,nInside,normalsLength,m,true);
         }
         // Close part:
-        floatDouble dA=0.5*angle/faceNumber;
-        floatDouble r=radius*cos(dA/2.0);
-        if (radius>0.0000000001f)
+        double dA=0.5*angle/faceNumber;
+        double r=radius*cos(dA/2.0);
+        if (radius>0.0000000001)
         {
             if (!insidePart)
             {
@@ -1630,7 +1648,7 @@ void CConvexVolume::computeVolumes()
             }
         }
         // The closing part (if angle != piValT2)
-        if (angle<piValue*1.03f)
+        if (angle<piValue*1.03)
         {
             m.buildYRotation(piValue/2.0);
             m.translate(0.0,0.0,radius+range/2.0);
@@ -1659,25 +1677,25 @@ void CConvexVolume::computeVolumes()
     }
     if (_volumeType==CONE_TYPE_CONVEX_VOLUME)
     {
-        bool insidePart=(insideAngleThing>=0.01f);
+        bool insidePart=(insideAngleThing>=0.01);
         planesInside.reserve((faceNumber+(subdivisions+1)*faceNumber+(subdivisionsFar+1)*faceNumber)*4);
-        floatDouble aD2=angle/2.0;
-        floatDouble aD4=insideAngleThing*aD2;
-        if (angle>piValue*1.01f)
+        double aD2=angle/2.0;
+        double aD4=insideAngleThing*aD2;
+        if (angle>piValue*1.01)
         {
             aD2=piValue/2.0; // Then we draw 2 hemishperes
             insidePart=false;
         }
-        floatDouble piDF=piValue/faceNumber;
-        floatDouble cPiDF=cos(piDF);
-        floatDouble sPiDF=sin(piDF);
-        floatDouble cAD2=cos(aD2);
-        floatDouble r=radius;
-        floatDouble R=radius+range;
-        floatDouble alpha=atan(tan(aD2)*cPiDF);
-        floatDouble alpha2=atan(tan(aD4)*cPiDF);
+        double piDF=piValue/faceNumber;
+        double cPiDF=cos(piDF);
+        double sPiDF=sin(piDF);
+        double cAD2=cos(aD2);
+        double r=radius;
+        double R=radius+range;
+        double alpha=atan(tan(aD2)*cPiDF);
+        double alpha2=atan(tan(aD4)*cPiDF);
         // First the sides:
-        if (angle<piValue*1.01f)
+        if (angle<piValue*1.01)
         {
             C4X4Matrix mm;
             m.buildYRotation(piValue/2.0);
@@ -1690,14 +1708,14 @@ void CConvexVolume::computeVolumes()
             mm.translate(0.0,0.0,offset);
             for (int i=0;i<faceNumber;i++)
             {
-                if (angle<piValue*0.999f)
+                if (angle<piValue*0.999)
                     addAPlane(&planesInside,nInside,normalsLength,m,true); // We have something smaller than a hemisphere
                 m.rotateAroundZ(piDF*2.0);
                 if (insidePart)
                     addAPlane(&planesOutside,nOutside,normalsLength,mm,false);
                 mm.rotateAroundZ(piDF*2.0);
             }
-            if (angle>=piValue*0.999f)
+            if (angle>=piValue*0.999)
             { // Here we have a 'perfect' hemisphere
                 m.buildYRotation(piValue);
                 m.translate(0.0,0.0,offset);
@@ -1718,14 +1736,14 @@ void CConvexVolume::computeVolumes()
                 }
                 else
                 {
-                    floatDouble da=aD2/(subdivisions+1);
-                    if (radius>0.0000000001f)
+                    double da=aD2/(subdivisions+1);
+                    if (radius>0.0000000001)
                     {
                         for (int j=0;j<=subdivisions;j++)
                         {
-                            floatDouble p1[3]={r*sin(aD2-j*da)*cPiDF,+r*sin(aD2-j*da)*sPiDF,r*cos(aD2-j*da)};
-                            floatDouble p2[3]={r*sin(aD2-(j+1)*da)*cPiDF,+r*sin(aD2-(j+1)*da)*sPiDF,r*cos(aD2-(j+1)*da)};
-                            floatDouble p3[3]={r*sin(aD2-j*da)*cPiDF,-r*sin(aD2-j*da)*sPiDF,r*cos(aD2-j*da)};
+                            double p1[3]={r*sin(aD2-j*da)*cPiDF,+r*sin(aD2-j*da)*sPiDF,r*cos(aD2-j*da)};
+                            double p2[3]={r*sin(aD2-(j+1)*da)*cPiDF,+r*sin(aD2-(j+1)*da)*sPiDF,r*cos(aD2-(j+1)*da)};
+                            double p3[3]={r*sin(aD2-j*da)*cPiDF,-r*sin(aD2-j*da)*sPiDF,r*cos(aD2-j*da)};
                             m=getTheMatrix(p1,p2,p3,j==subdivisions);
                             m.rotateAroundZ(2.0*i*piValue/faceNumber);
                             if (pass==1)
@@ -1737,14 +1755,14 @@ void CConvexVolume::computeVolumes()
                 }
 
                 // The far part:
-                floatDouble da=(aD2-aD4)/(subdivisionsFar+1);
+                double da=(aD2-aD4)/(subdivisionsFar+1);
                 if (!insidePart)
                     da=aD2/(subdivisionsFar+1);
                 for (int j=0;j<=subdivisionsFar;j++)
                 {
-                    floatDouble p1[3]={R*sin(aD2-j*da)*cPiDF,+R*sin(aD2-j*da)*sPiDF,R*cos(aD2-j*da)};
-                    floatDouble p2[3]={R*sin(aD2-(j+1)*da)*cPiDF,+R*sin(aD2-(j+1)*da)*sPiDF,R*cos(aD2-(j+1)*da)};
-                    floatDouble p3[3]={R*sin(aD2-j*da)*cPiDF,-R*sin(aD2-j*da)*sPiDF,R*cos(aD2-j*da)};
+                    double p1[3]={R*sin(aD2-j*da)*cPiDF,+R*sin(aD2-j*da)*sPiDF,R*cos(aD2-j*da)};
+                    double p2[3]={R*sin(aD2-(j+1)*da)*cPiDF,+R*sin(aD2-(j+1)*da)*sPiDF,R*cos(aD2-(j+1)*da)};
+                    double p3[3]={R*sin(aD2-j*da)*cPiDF,-R*sin(aD2-j*da)*sPiDF,R*cos(aD2-j*da)};
                     if (insidePart)
                         m=getTheMatrix(p1,p2,p3,false);
                     else
@@ -1756,7 +1774,7 @@ void CConvexVolume::computeVolumes()
                     addAPlane(&planesInside,nInside,normalsLength,m,true);
                 }
             }
-            if (angle<piValue*1.01f)
+            if (angle<piValue*1.01)
                 break;
         }
     }
@@ -1765,15 +1783,15 @@ void CConvexVolume::computeVolumes()
     {
         if (_volumeType==RAY_TYPE_CONVEX_VOLUME)
         {
-            floatDouble l0=offset;
-            floatDouble l1=offset+range;
-            floatDouble m0=-_smallestDistanceAllowed;
-            floatDouble m1=+_smallestDistanceAllowed;
+            double l0=offset;
+            double l1=offset+range;
+            double m0=-_smallestDistanceAllowed;
+            double m1=+_smallestDistanceAllowed;
             // We search for the interesection:
             if ((l0<m1)&&(l1>m0))
             { // we have an intersection!
-                l0=std::max<floatDouble>(l0,m0);
-                l1=std::min<floatDouble>(l1,m1);
+                l0=std::max<double>(l0,m0);
+                l1=std::min<double>(l1,m1);
                 nonDetectingVolumeEdges.push_back(0.0);
                 nonDetectingVolumeEdges.push_back(0.0);
                 nonDetectingVolumeEdges.push_back(l0);
@@ -1784,11 +1802,11 @@ void CConvexVolume::computeVolumes()
         }
         else
         {
-            std::vector<floatDouble> volEdges;
+            std::vector<double> volEdges;
             computeVolumeEdges(volEdges);
             getCloseAndFarVolumeEdges(volEdges,_smallestDistanceAllowed,nonDetectingVolumeEdges,volumeEdges);
 
-            std::vector<floatDouble> sphere;
+            std::vector<double> sphere;
             generateSphereEdges(sphere,_smallestDistanceAllowed);
             removeEdgesNotInsideVolume(sphere,planesInside,false);
             removeEdgesNotInsideVolume(sphere,planesOutside,true);
@@ -1799,13 +1817,13 @@ void CConvexVolume::computeVolumes()
 
     // We mix the planes (faster calculations!)
     //*****************************************************
-    std::vector<floatDouble> pTmp(planesInside);
-    std::vector<floatDouble> nTmp(normalsInside);
+    std::vector<double> pTmp(planesInside);
+    std::vector<double> nTmp(normalsInside);
     planesInside.clear();
     normalsInside.clear();
     while (pTmp.size()!=0)
     {
-        int i=int(SIM_RAND_FLOAT*floatDouble(pTmp.size()))/4;
+        int i=int(SIM_RAND_FLOAT*double(pTmp.size()))/4;
         if (i>=int(pTmp.size())/4)
             i--;
         planesInside.push_back(pTmp[4*i+0]);
@@ -1831,7 +1849,7 @@ void CConvexVolume::computeVolumes()
     normalsOutside.clear();
     while (pTmp.size()!=0)
     {
-        int i=int(SIM_RAND_FLOAT*floatDouble(pTmp.size()/4));
+        int i=int(SIM_RAND_FLOAT*double(pTmp.size()/4));
         if (i>=int(pTmp.size()/4))
             i--;
         planesOutside.push_back(pTmp[4*i+0]);
@@ -1850,7 +1868,7 @@ void CConvexVolume::computeVolumes()
     //*****************************************************
 }
 
-void CConvexVolume::getCloseAndFarVolumeEdges(std::vector<floatDouble>& allEdges,floatDouble distance,std::vector<floatDouble>& closeEdges,std::vector<floatDouble>& farEdges)
+void CConvexVolume::getCloseAndFarVolumeEdges(std::vector<double>& allEdges,double distance,std::vector<double>& closeEdges,std::vector<double>& farEdges)
 {
     if (_volumeType==RAY_TYPE_CONVEX_VOLUME)
     {
@@ -1864,15 +1882,15 @@ void CConvexVolume::getCloseAndFarVolumeEdges(std::vector<floatDouble>& allEdges
         C3Vector v1(&allEdges[6*i+3]);
         C3Vector dv(v1-v0);
         // 1. We calculate the intersection between above ray and the sphere:
-        floatDouble a=v0*dv;
-        floatDouble b=dv*dv;
-        floatDouble c=4.0*a*a-4.0*b*((v0*v0)-distance*distance);
+        double a=v0*dv;
+        double b=dv*dv;
+        double c=4.0*a*a-4.0*b*((v0*v0)-distance*distance);
         bool noIntersection=true;
         if (c>0.0)
         { // we have two intersection points (for the ray!)
             // we calculate parameter t:
-            floatDouble t0=(-2.0*a-sqrtf(c))/(2*b);
-            floatDouble t1=(-2.0*a+sqrtf(c))/(2*b);
+            double t0=(-2.0*a-sqrt(c))/(2*b);
+            double t1=(-2.0*a+sqrt(c))/(2*b);
             if ( (t0<1.0)&&(t1>0.0) )
             {
                 if ( (t0>0.0)||(t1<1.0) )
@@ -1961,9 +1979,9 @@ void CConvexVolume::getCloseAndFarVolumeEdges(std::vector<floatDouble>& allEdges
     }
 }
 
-void CConvexVolume::removeEdgesNotInsideVolume(std::vector<floatDouble>& edges,std::vector<floatDouble>& planes,bool invertSides)
+void CConvexVolume::removeEdgesNotInsideVolume(std::vector<double>& edges,std::vector<double>& planes,bool invertSides)
 {
-    std::vector<floatDouble> theEdges(edges);
+    std::vector<double> theEdges(edges);
     edges.clear();
 
     for (int ed=0;ed<int(theEdges.size())/6;ed++)
@@ -2014,7 +2032,7 @@ void CConvexVolume::removeEdgesNotInsideVolume(std::vector<floatDouble>& edges,s
                     v0w=mInv*v1;
                 }
                 C3Vector dv(v1w-v0w);
-                floatDouble t=fabs(v0w(2))/dv(2);
+                double t=fabs(v0w(2))/dv(2);
                 C3Vector intersection(v0w+dv*t);
                 if (invertSides)
                 {
@@ -2048,19 +2066,19 @@ void CConvexVolume::removeEdgesNotInsideVolume(std::vector<floatDouble>& edges,s
     }
 }
 
-void CConvexVolume::generateSphereEdges(std::vector<floatDouble>& edges,floatDouble radius)
+void CConvexVolume::generateSphereEdges(std::vector<double>& edges,double radius)
 {
     int subDivW=12;
     int subDivV=12;
-    floatDouble dw=piValT2/floatDouble(subDivW);
-    floatDouble dv=piValue/floatDouble(subDivV);
+    double dw=piValT2/double(subDivW);
+    double dv=piValue/double(subDivV);
 
-    floatDouble v0=0.0;
-    floatDouble v1=dv;
+    double v0=0.0;
+    double v1=dv;
     for (int i=0;i<subDivV;i++)
     {
-        floatDouble w0=0.0;
-        floatDouble w1=dw;
+        double w0=0.0;
+        double w1=dw;
         for (int j=0;j<subDivW;j++)
         {
             C3Vector p0(radius*cos(w0)*sin(v0),radius*sin(w0)*sin(v0),radius*cos(v0));

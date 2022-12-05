@@ -30,8 +30,8 @@ public:
     void clearAllDependencies();
     void transferDependenciesToThere(CTextureObject* receivingObject);
 
-    char* readPortionOfTexture(int posX,int posY,int sizeX,int sizeY) const;
-    bool writePortionOfTexture(const unsigned char* rgbData,int posX,int posY,int sizeX,int sizeY,bool circular,float interpol);
+    unsigned char* readPortionOfTexture(int posX,int posY,int sizeX,int sizeY) const;
+    bool writePortionOfTexture(const unsigned char* rgbData,int posX,int posY,int sizeX,int sizeY,bool circular,double interpol);
 
     unsigned int getCurrentTextureContentUniqueId() const;
 

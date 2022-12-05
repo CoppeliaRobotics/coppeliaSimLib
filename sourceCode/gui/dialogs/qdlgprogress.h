@@ -1,8 +1,8 @@
-
 #ifndef QDLGPROGRESS_H
 #define QDLGPROGRESS_H
 
 #include <QDialog>
+#include "simTypes.h"
 
 namespace Ui {
     class CQDlgProgress;
@@ -16,7 +16,7 @@ public:
     explicit CQDlgProgress(QWidget *parent = 0);
     ~CQDlgProgress();
 
-    void updateProgress(float p,const char* txt);
+    void updateProgress(double p,const char* txt);
 
 private:
     Ui::CQDlgProgress *ui;

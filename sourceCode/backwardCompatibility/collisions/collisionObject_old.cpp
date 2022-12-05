@@ -270,7 +270,7 @@ bool CCollisionObject_old::handleCollision()
     int stT=(int)VDateTime::getTimeInMs();
     int collObjs[2];
     bool res=false;
-    std::vector<floatDouble> collCont;
+    std::vector<double> collCont;
     if (_detectAllCollisions)
         res=CCollisionRoutine::doEntitiesCollide(_entity1Handle,_entity2Handle,&collCont,false,false,collObjs);
     else
@@ -506,7 +506,7 @@ void CCollisionObject_old::_clearCollisionResult()
     setIntersections(nullptr);
 }
 
-void CCollisionObject_old::_setCollisionResult(bool result,int calcTime,int obj1Handle,int obj2Handle,const std::vector<floatDouble>& intersect)
+void CCollisionObject_old::_setCollisionResult(bool result,int calcTime,int obj1Handle,int obj2Handle,const std::vector<double>& intersect)
 {
     _collisionResult=result;
     _collisionResultValid=true;
@@ -526,9 +526,9 @@ bool CCollisionObject_old::getCollisionResult() const
     return(_collisionResult);
 }
 
-floatDouble CCollisionObject_old::getCalculationTime() const
+double CCollisionObject_old::getCalculationTime() const
 {
-    return(floatDouble(_calcTimeInMs)*0.001);
+    return(double(_calcTimeInMs)*0.001);
 }
 
 int CCollisionObject_old::getObjectHandle() const
@@ -576,7 +576,7 @@ int CCollisionObject_old::getContourWidth() const
     return(_countourWidth);
 }
 
-const std::vector<floatDouble>* CCollisionObject_old::getIntersections() const
+const std::vector<double>* CCollisionObject_old::getIntersections() const
 {
     return(&_intersections);
 }
@@ -635,7 +635,7 @@ bool CCollisionObject_old::setContourWidth(int w)
     return(diff);
 }
 
-bool CCollisionObject_old::setIntersections(const std::vector<floatDouble>* intersections)
+bool CCollisionObject_old::setIntersections(const std::vector<double>* intersections)
 {
     bool diff=false;
     if (intersections==nullptr)

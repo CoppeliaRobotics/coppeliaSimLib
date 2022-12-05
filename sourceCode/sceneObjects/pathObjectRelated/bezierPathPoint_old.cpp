@@ -3,14 +3,14 @@
 CBezierPathPoint_old::CBezierPathPoint_old(const C7Vector& transf)
 {
     _transformation=transf;
-    cumulativeLength=0.0f;
-    segmentLength=0.0f;
-    virtualSegmentLength=0.0f;
-    virtualCumulativeLength=0.0f;
-    _maxRelAbsVelocity=1.0f;
-    _onSpotDistance=0.0f;
-    cumulativeOnSpotDistance=0.0f;
-    segmentOnSpotDistance=0.0f;
+    cumulativeLength=0.0;
+    segmentLength=0.0;
+    virtualSegmentLength=0.0;
+    virtualCumulativeLength=0.0;
+    _maxRelAbsVelocity=1.0;
+    _onSpotDistance=0.0;
+    cumulativeOnSpotDistance=0.0;
+    segmentOnSpotDistance=0.0;
 
 }
 

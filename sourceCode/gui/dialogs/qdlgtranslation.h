@@ -35,8 +35,8 @@ protected:
     void _setValuesScalingPart(bool alsoRadioButtons);
 
     // Coord part
-    bool _setCoord_userUnit(float newValueInUserUnit,int index);
-    C7Vector _getNewTransf(const C7Vector& transf,float newValueInUserUnit,int index);
+    bool _setCoord_userUnit(double newValueInUserUnit,int index);
+    C7Vector _getNewTransf(const C7Vector& transf,double newValueInUserUnit,int index);
     bool _applyCoord(int mask);
     void _copyTransf(const C7Vector& tr,C7Vector& trIt,int mask);
 
@@ -47,14 +47,14 @@ protected:
     void _transformScaling(C7Vector& tr,int axis);
 
     static int coordMode; //0=abs,1=rel to parent
-    static float translationValues[3];
-    static float scalingValues[3];
+    static double translationValues[3];
+    static double scalingValues[3];
     static int translateMode; //0=abs,1=rel to parent,2=rel to self
     static int scaleMode; //0=abs,1=rel to parent
 
     static int manipulationModePermission;
     static int manipulationTranslationRelativeTo;
-    static float manipulationTranslationStepSize;
+    static double manipulationTranslationStepSize;
     static bool objectTranslationSettingsLocked;
 
     static int currentTab; //0=mouse transl., 1=pos, 2=transl., 3=scaling

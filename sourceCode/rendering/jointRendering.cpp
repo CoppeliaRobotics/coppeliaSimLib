@@ -10,11 +10,11 @@ void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib
     bool guiIsRendering=((displayAttrib&sim_displayattribute_forvisionsensor)==0);
 
     // Bounding box display:
-    float sizeParam=joint->getLength()/4.0f;
+    double sizeParam=joint->getLength()/4.0;
     if (sizeParam<joint->getDiameter())
         sizeParam=joint->getDiameter();
-    if (sizeParam>10.0f*joint->getDiameter())
-        sizeParam=10.0f*joint->getDiameter();
+    if (sizeParam>10.0*joint->getDiameter())
+        sizeParam=10.0*joint->getDiameter();
     if (displayAttrib&sim_displayattribute_renderpass)
         _displayBoundingBox(joint,displayAttrib,true,sizeParam);
 
@@ -27,9 +27,9 @@ void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib
             if (joint->getDynamicFlag()==4)
             {
                 if (joint->getDynCtrlMode()==sim_jointdynctrl_free)
-                    ogl::setMaterialColor(0.0f,0.3f,1.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+                    ogl::setMaterialColor(0.0,0.3,1.0,0.5,0.5,0.5,0.0,0.0,0.0);
                 else
-                    ogl::setMaterialColor(1.0f,0.0f,0.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+                    ogl::setMaterialColor(1.0,0.0,0.0,0.5,0.5,0.5,0.0,0.0,0.0);
             }
         }
         else
@@ -38,7 +38,7 @@ void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib
         _displayJoint(joint,displayAttrib,true,sizeParam);
 
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
-            ogl::setMaterialColor(0.1f,0.1f,0.1f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+            ogl::setMaterialColor(0.1,0.1,0.1,0.5,0.5,0.5,0.0,0.0,0.0);
         else
             joint->getColor(true)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
         _displayJoint(joint,displayAttrib,false,sizeParam);
@@ -49,7 +49,7 @@ void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib
     _commonFinish(joint,renderingObject);
 }
 
-void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,float sizeParam)
+void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,double sizeParam)
 {
     if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
     {
@@ -78,11 +78,11 @@ void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,float sizeParam)
         else
         {
             C7Vector tr(joint->getIntrinsicTransformation(true));
-            glTranslatef(tr.X(0),tr.X(1),tr.X(2));
+            glTranslated(tr.X(0),tr.X(1),tr.X(2));
             C4Vector axis=tr.Q.getAngleAndAxis();
-            glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+            glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
-            ogl::drawSphere(joint->getDiameter()/1.5f,16,8,true);
+            ogl::drawSphere(joint->getDiameter()/1.5,16,8,true);
             if (displayAttrib&sim_displayattribute_selected)
                 _drawReference(joint,sizeParam);
         }
@@ -94,11 +94,11 @@ void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,float sizeParam)
         else
         {
             C7Vector tr(joint->getIntrinsicTransformation(true));
-            glTranslatef(tr.X(0),tr.X(1),tr.X(2));
+            glTranslated(tr.X(0),tr.X(1),tr.X(2));
             C4Vector axis=tr.Q.getAngleAndAxis();
-            glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+            glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
-            ogl::drawCylinder(joint->getDiameter()/2.0f,joint->getLength()*1.2f,8,0,true);
+            ogl::drawCylinder(joint->getDiameter()/2.0,joint->getLength()*1.2,8,0,true);
             if (displayAttrib&sim_displayattribute_selected)
                 _drawReference(joint,sizeParam);
         }
@@ -110,11 +110,11 @@ void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,float sizeParam)
         else
         {
             C7Vector tr(joint->getIntrinsicTransformation(true));
-            glTranslatef(tr.X(0),tr.X(1),tr.X(2));
+            glTranslated(tr.X(0),tr.X(1),tr.X(2));
             C4Vector axis=tr.Q.getAngleAndAxis();
-            glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+            glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
-            ogl::drawBox(joint->getDiameter()/2.0f,joint->getDiameter()/2.0f,joint->getLength()*1.2f,true,nullptr);
+            ogl::drawBox(joint->getDiameter()/2.0,joint->getDiameter()/2.0,joint->getLength()*1.2,true,nullptr);
             if (displayAttrib&sim_displayattribute_selected)
                 _drawReference(joint,sizeParam);
         }

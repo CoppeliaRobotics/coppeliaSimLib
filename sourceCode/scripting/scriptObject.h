@@ -117,8 +117,8 @@ public:
     int getScriptExecPriority() const;
 
 
-    bool addCommandToOutsideCommandQueue(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count);
-    int extractCommandFromOutsideCommandQueue(int auxVals[4],float aux2Vals[8],int& aux2Count);
+    bool addCommandToOutsideCommandQueue(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const double aux2Vals[8],int aux2Count);
+    int extractCommandFromOutsideCommandQueue(int auxVals[4],double aux2Vals[8],int& aux2Count);
 
     bool hasFunction(int callType) const;
     bool getOldCallMode() const;

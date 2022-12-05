@@ -100,7 +100,7 @@ void CQDlgFog::on_qqStartDistance_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqStartDistance->text().toFloat(&ok);
+        double newVal=ui->qqStartDistance->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_START_FOGGUITRIGGEREDCMD,-1,-1,newVal);
@@ -117,7 +117,7 @@ void CQDlgFog::on_qqEndDistance_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqEndDistance->text().toFloat(&ok);
+        double newVal=ui->qqEndDistance->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_END_FOGGUITRIGGEREDCMD,-1,-1,newVal);
@@ -134,7 +134,7 @@ void CQDlgFog::on_qqDensity_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqDensity->text().toFloat(&ok);
+        double newVal=ui->qqDensity->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_DENSITY_FOGGUITRIGGEREDCMD,-1,-1,newVal);

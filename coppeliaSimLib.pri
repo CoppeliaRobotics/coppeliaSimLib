@@ -1,39 +1,8 @@
 TARGET = coppeliaSim
 TEMPLATE = lib
 DEFINES += SIM_LIB
-
-# Transition to double:
-# --------------------
+DEFINES += SIM_MATH_DOUBLE # math and vector classes
 DEFINES += TMPOPERATION # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats). Same for CMakeLists.txt
-
-#DEFINES += floatFloat=float
-#DEFINES += floatDouble=float
-#DEFINES += NOW_ALL_DOUBLES
-# for the switch:
-#simMathReal --> double
-#simReal --> double
-#luaToFloat --> luaToDouble
-#floatFloat --> float
-#floatDouble --> double
-#remove SIM_MATH_DOUBLE
-#look into simTypes.h
-#remove:
-#pushFloatOntoStack
-#pushFloatArrayOntoStack
-#insertKeyFloatIntoStackTable
-#insertKeyFloatArrayIntoStackTable
-#getStackFloatValue
-#getStackFloatArray
-#getStackMapFloatValue
-#getStackMapFloatArray
-#pushFloatOntoStack
-#insertKeyFloatIntoStackTable
-#getStackFloatValue
-#getStackMapFloatValue
-#appendArrayObject_float
-#appendMapObject_stringFloat
-#xmlAddNode_double and similar
-# --------------------
 
 CONFIG += shared plugin debug_and_release
 CONFIG += WITH_QT # can be compiled without Qt, but then it should be headless, and some functionality won't be there, check TODO_SIM_WITH_QT
@@ -423,6 +392,8 @@ HEADERS += $$PWD/sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint_old.h
     $$PWD/sourceCode/sceneObjects/pathObjectRelated/pathPoint_old.h \
     $$PWD/sourceCode/sceneObjects/pathObjectRelated/pathCont_old.h \
 
+HEADERS += $$PWD/sourceCode/sceneObjects/proximitySensorObjectRelated/proxSensorRoutine.h \
+
 HEADERS += $$PWD/sourceCode/sceneObjects/shapeObjectRelated/mesh.h \
     $$PWD/sourceCode/sceneObjects/shapeObjectRelated/meshWrapper.h \
     $$PWD/sourceCode/sceneObjects/shapeObjectRelated/volInt.h \
@@ -504,7 +475,6 @@ HEADERS += $$PWD/sourceCode/textures/textureObject.h \
     $$PWD/sourceCode/textures/textureProperty.h \
 
 HEADERS += $$PWD/sourceCode/serialization/ser.h \
-    $$PWD/sourceCode/serialization/extIkSer.h \
     $$PWD/sourceCode/serialization/huffman.h \
     $$PWD/sourceCode/serialization/tinyxml2.cpp \
 
@@ -907,7 +877,6 @@ SOURCES += $$PWD/sourceCode/textures/textureObject.cpp \
     $$PWD/sourceCode/textures/textureProperty.cpp \
 
 SOURCES += $$PWD/sourceCode/serialization/ser.cpp \
-    $$PWD/sourceCode/serialization/extIkSer.cpp \
     $$PWD/sourceCode/serialization/huffman.c \
     $$PWD/sourceCode/serialization/tinyxml2.cpp \
 

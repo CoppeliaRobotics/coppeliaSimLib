@@ -1,4 +1,3 @@
-
 // This file includes many many very ugly things and requires some serious refactoring!!!!
 
 #pragma once
@@ -23,10 +22,10 @@ struct SOglFont
 class ogl  
 {
 public:
-    static std::vector<float> buffer;
+    static std::vector<double> buffer;
     static std::vector<int> buffer_i;
 
-    static inline void addBuffer2DPoints(float x,float y)
+    static inline void addBuffer2DPoints(double x,double y)
     {
         buffer.push_back(x);
         buffer.push_back(y);
@@ -36,13 +35,13 @@ public:
         buffer_i.push_back(x);
         buffer_i.push_back(y);
     };
-    static inline void addBuffer3DPoints(float x,float y,float z)
+    static inline void addBuffer3DPoints(double x,double y,double z)
     {
         buffer.push_back(x);
         buffer.push_back(y);
         buffer.push_back(z);
     };
-    static inline void addBuffer3DPoints(const float xyz[3])
+    static inline void addBuffer3DPoints(const double xyz[3])
     {
         buffer.push_back(xyz[0]);
         buffer.push_back(xyz[1]);
@@ -55,51 +54,51 @@ public:
     static void setMaterialColor(float amb_r,float amb_g,float amb_b,float spec_r,float spec_g,float spec_b,float em_r,float em_g,float em_b);
     static void setMaterialColor(int colorMode,const float col[3]);
     static void setMaterialColor(int colorMode,float r,float g,float b);
-    static void setBlendedMaterialColor(int colorMode,float r,float g,float b,float weight,float r2=0.5f,float g2=0.5f,float b2=0.5f);
+    static void setBlendedMaterialColor(int colorMode,float r,float g,float b,float weight,float r2=0.5,float g2=0.5,float b2=0.5);
     static void setBlendedMaterialColor(int colorMode,float rgb[3],float weight,float rgb2[3]);
 
     static void setBlending(bool on,int param1=0,int param2=0);
-    static void setAlpha(float a);
+    static void setAlpha(double a);
     static void setShininess(int shin);
 
     static void disableLighting_useWithCare();
     static void enableLighting_useWithCare();
 
-    static void drawRandom3dLines(const float* pts,int ptsCnt,bool connected,const float normalVectorForDiffuseComp[3]);
-    static inline void drawSingle3dPoint(const float* pt,const float normalVectorForDiffuseComp[3])
+    static void drawRandom3dLines(const double* pts,int ptsCnt,bool connected,const double normalVectorForDiffuseComp[3]);
+    static inline void drawSingle3dPoint(const double* pt,const double normalVectorForDiffuseComp[3])
     {
         glBegin(GL_POINTS);
         if (normalVectorForDiffuseComp!=nullptr)
-            glNormal3fv(normalVectorForDiffuseComp);
+            glNormal3dv(normalVectorForDiffuseComp);
         else
-            glNormal3f(0.0f,0.0f,1.0f);
-        glVertex3fv(pt);
+            glNormal3f(0.0,0.0,1.0);
+        glVertex3dv(pt);
         glEnd();
     };
-    static inline void drawSingle3dLine(const float* pt1,const float* pt2,const float normalVectorForDiffuseComp[3])
+    static inline void drawSingle3dLine(const double* pt1,const double* pt2,const double normalVectorForDiffuseComp[3])
     {
         glBegin(GL_LINES);
         if (normalVectorForDiffuseComp!=nullptr)
-            glNormal3fv(normalVectorForDiffuseComp);
+            glNormal3dv(normalVectorForDiffuseComp);
         else
-            glNormal3f(0.0f,0.0f,1.0f);
-        glVertex3fv(pt1);
-        glVertex3fv(pt2);
+            glNormal3f(0.0,0.0,1.0);
+        glVertex3dv(pt1);
+        glVertex3dv(pt2);
         glEnd();
     };
-    static inline void drawSingle3dLine(float p1x,float p1y,float p1z,float p2x,float p2y,float p2z,const float normalVectorForDiffuseComp[3])
+    static inline void drawSingle3dLine(double p1x,double p1y,double p1z,double p2x,double p2y,double p2z,const double normalVectorForDiffuseComp[3])
     {
         glBegin(GL_LINES);
         if (normalVectorForDiffuseComp!=nullptr)
-            glNormal3fv(normalVectorForDiffuseComp);
+            glNormal3dv(normalVectorForDiffuseComp);
         else
-            glNormal3f(0.0f,0.0f,1.0f);
-        glVertex3f(p1x,p1y,p1z);
-        glVertex3f(p2x,p2y,p2z);
+            glNormal3f(0.0,0.0,1.0);
+        glVertex3d(p1x,p1y,p1z);
+        glVertex3d(p2x,p2y,p2z);
         glEnd();
     };
 
-    static inline void drawSingle2dLine_i(float p1x,float p1y,float p2x,float p2y)
+    static inline void drawSingle2dLine_i(double p1x,double p1y,double p2x,double p2y)
     {
         glBegin(GL_LINES);
         glVertex3i(p1x,p1y,0);
@@ -107,28 +106,28 @@ public:
         glEnd();
     };
 
-    static void drawRandom3dPoints(const float* pts,int ptsCnt,const float normalVectorForDiffuseComp[3]);
-    static void drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,const float* cols,const float* sizes,bool colsAreEmission,const float normalVectorForDiffuseComp[3],int colComp=4);
-    static void drawBitmapTextTo3dPosition(const float pos[3],const char* txt,const float normalVectorForDiffuseComp[3]);
-    static void drawBitmapTextTo3dPosition(float x,float y,float z,const char* txt,const float normalVectorForDiffuseComp[3]);
+    static void drawRandom3dPoints(const double* pts,int ptsCnt,const double normalVectorForDiffuseComp[3]);
+    static void drawRandom3dPointsEx(const double* pts,int ptsCnt,const double* normals,const float* cols,const double* sizes,bool colsAreEmission,const double normalVectorForDiffuseComp[3],int colComp=4);
+    static void drawBitmapTextTo3dPosition(const double pos[3],const char* txt,const double normalVectorForDiffuseComp[3]);
+    static void drawBitmapTextTo3dPosition(double x,double y,double z,const char* txt,const double normalVectorForDiffuseComp[3]);
 
-    static void drawRandom2dLines(const float* pts,int ptsCnt,bool connected,float zCoord);
+    static void drawRandom2dLines(const double* pts,int ptsCnt,bool connected,double zCoord);
     static void drawRandom2dLines_i(const int* pts,int ptsCnt,bool connected,int zCoord);
-    static void drawRandom2dPoints(const float* pts,int ptsCnt,float zCoord);
-    static void drawBitmapTextTo2dPosition(float posX,float posY,const char* txt);
+    static void drawRandom2dPoints(const double* pts,int ptsCnt,double zCoord);
+    static void drawBitmapTextTo2dPosition(double posX,double posY,const char* txt);
 
-    static void drawPlane(float sizeX,float sizeY);
-    static void drawBox(float x,float y,float z,bool solid,const float normalVectorForDiffuseComp[3]);
-    static void drawCylinder(float d,float l,int div,int openEnds,bool smooth);
-    static void drawCircle(float d,int div);
-    static void drawDisk(float d,int div);
-    static void drawCone(float d,float l,int div,bool openEnds,bool smooth);
-    static void drawSphere(float r,int sides,int faces,bool smooth);
+    static void drawPlane(double sizeX,double sizeY);
+    static void drawBox(double x,double y,double z,bool solid,const double normalVectorForDiffuseComp[3]);
+    static void drawCylinder(double d,double l,int div,int openEnds,bool smooth);
+    static void drawCircle(double d,int div);
+    static void drawDisk(double d,int div);
+    static void drawCone(double d,double l,int div,bool openEnds,bool smooth);
+    static void drawSphere(double r,int sides,int faces,bool smooth);
 
-    static void drawReference(float size,bool line,bool setColors,bool emissiveColor,const float normalVectorForDiffuseComp[3]);
+    static void drawReference(double size,bool line,bool setColors,bool emissiveColor,const double normalVectorForDiffuseComp[3]);
 
-    static void perspectiveSpecial(float fovy,float aspect,float zNear,float zFar);
-    static void _frustumSpecial(float left,float right,float bottom,float top,float nearval,float farval);
+    static void perspectiveSpecial(double fovy,double aspect,double zNear,double zFar);
+    static void _frustumSpecial(double left,double right,double bottom,double top,double nearval,double farval);
     static void pickMatrixSpecial(int x,int y,int width,int height,int viewport[4]);
 
 
@@ -147,10 +146,10 @@ public:
     static void drawQuad(int posX,int posY,int sizeX,int sizeY,float col[3]);
     static void drawBorder(int posX,int posY,int sizeX,int sizeY,float col[3],int type,int borderSize=3);
 
-    static void drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeight,const C4X4Matrix* cameraAbsConfig,bool overlay,bool left,bool right,bool culling,const float* textColor,const float* backColor=nullptr,bool sizeInPixels=false,int windowHeight=0,float verticalViewSizeOrAngle=0.0f,bool perspective=true,bool fullyFacingCamera=true);
+    static void drawOutlineText(const char* txt,const C7Vector& trOrig,double textHeight,const C4X4Matrix* cameraAbsConfig,bool overlay,bool left,bool right,bool culling,const float* textColor,const float* backColor=nullptr,bool sizeInPixels=false,int windowHeight=0,double verticalViewSizeOrAngle=0.0,bool perspective=true,bool fullyFacingCamera=true);
     static void drawText(int posX,int posY,int posZ,std::string txt,bool verticallyCentered=false);
-    static void drawBitmapTextBackgroundIntoScene(float posX,float posY,float posZ,std::string txt);
-    static void drawBitmapTextIntoScene(float posX,float posY,float posZ,const char* txt);
+    static void drawBitmapTextBackgroundIntoScene(double posX,double posY,double posZ,std::string txt);
+    static void drawBitmapTextIntoScene(double posX,double posY,double posZ,const char* txt);
     static void drawTexti(int posX,int posY,int posZ,std::string txt);
 //  static void drawCenteredText(int posX,int posY,int posZ,std::string txt,bool verticallyCentered=false);
     static int getTextLengthInPixels(const char* txt);
@@ -170,7 +169,7 @@ public:
 
     static void drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3],
         float _bckgrndColor2[3],std::string text,int buttonTypeAndAttributes,
-        bool editing,int editionPos,float sliderPos,bool vertical,int timeInMs,float secondTextColor[3],CTextureProperty* backgroundTexture,VPoint* backgroundPos,VPoint* backgroundSize,CTextureProperty* foregroundTexture);
+        bool editing,int editionPos,double sliderPos,bool vertical,int timeInMs,float secondTextColor[3],CTextureProperty* backgroundTexture,VPoint* backgroundPos,VPoint* backgroundSize,CTextureProperty* foregroundTexture);
 
     static int getRichTextInfo(std::string& text,std::vector<int>& iconsAndPos);
     static void drawRichText(int posX,int posY,int size,std::string& text,std::vector<int>& iconsAndPos,int alignement,float backgroundColor[3],float secondTextColor[3]);
@@ -179,16 +178,16 @@ public:
     static void drawButtonEdit(VPoint p,VPoint s,bool selected,bool mainSel);
 private:
     static void drawText(std::string t);
-    static void setTextPosition(float x,float y,float z);
+    static void setTextPosition(double x,double y,double z);
 
     static bool colorsLocked;
     static int fontIndex;
     static char opacBitmap[10000];
 
     static unsigned int outlineFontBase;
-    static float outlineFontSizes[256];
-    static float outlineFontHeight;
-    static float outlineFontCenter;
+    static double outlineFontSizes[256];
+    static double outlineFontHeight;
+    static double outlineFontCenter;
 
 
     static float currentRichTextColor[3];

@@ -33,12 +33,12 @@ CDynamicsContainer::CDynamicsContainer()
     _engineSettingsAreDefault=true;
 
     contactPointColor.setColorsAllBlack();
-    contactPointColor.setColor(1.0f,1.0f,0.0f,sim_colorcomponent_emission);
+    contactPointColor.setColor(1.0,1.0,0.0,sim_colorcomponent_emission);
     _displayContactPoints=false;
     _tempDisabledWarnings=0;
     _currentlyInDynamicsCalculations=false;
 
-    _gravity=C3Vector(0.0f,0.0f,-9.81f);
+    _gravity=C3Vector(0.0,0.0,-9.81);
     _resetWarningFlags();
 }
 
@@ -98,7 +98,7 @@ bool CDynamicsContainer::getCurrentlyInDynamicsCalculations() const
     return(_currentlyInDynamicsCalculations);
 }
 
-void CDynamicsContainer::handleDynamics(floatDouble dt)
+void CDynamicsContainer::handleDynamics(double dt)
 {
     App::worldContainer->calcInfo->dynamicsStart();
     addWorldIfNotThere();
@@ -119,7 +119,7 @@ void CDynamicsContainer::handleDynamics(floatDouble dt)
         App::worldContainer->calcInfo->dynamicsEnd(0,false);
 }
 
-bool CDynamicsContainer::getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],floatDouble* contactInfo) const
+bool CDynamicsContainer::getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],double* contactInfo) const
 {
     if (getDynamicsEnabled())
         return(CPluginContainer::dyn_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo)!=0);
@@ -130,7 +130,7 @@ void CDynamicsContainer::addWorldIfNotThere()
 {
     if (getDynamicsEnabled()&&(!isWorldThere()))
     {
-        floatDouble floatParams[20];
+        double floatParams[20];
         int intParams[20];
         int floatIndex=0;
         int intIndex=0;
@@ -305,12 +305,12 @@ bool CDynamicsContainer::getDisplayContactPoints() const
     return(_displayContactPoints);
 }
 
-bool CDynamicsContainer::setDesiredStepSize(floatDouble s)
+bool CDynamicsContainer::setDesiredStepSize(double s)
 {
     bool retVal=false;
     if (App::currentWorld->simulation->isSimulationStopped())
     {
-        s=tt::getLimitedFloat(0.00001f,1.0,s);
+        s=tt::getLimitedFloat(0.00001,1.0,s);
         _stepSize=s;
         // Following for backward compatibility:
         setEngineFloatParam(sim_bullet_global_stepsize,s);
@@ -323,19 +323,19 @@ bool CDynamicsContainer::setDesiredStepSize(floatDouble s)
     return(retVal);
 }
 
-floatDouble CDynamicsContainer::getDesiredStepSize() const
+double CDynamicsContainer::getDesiredStepSize() const
 {
     return(_stepSize);
 }
 
-floatDouble CDynamicsContainer::getEffectiveStepSize() const
+double CDynamicsContainer::getEffectiveStepSize() const
 {
-    floatDouble retVal=_stepSize;
-    floatDouble sim=App::currentWorld->simulation->getTimeStep();
-    int dynPasses=int((sim/retVal)+0.5f);
+    double retVal=_stepSize;
+    double sim=App::currentWorld->simulation->getTimeStep();
+    int dynPasses=int((sim/retVal)+0.5);
     if (dynPasses<1)
         dynPasses=1;
-    retVal=sim/floatDouble(dynPasses);
+    retVal=sim/double(dynPasses);
     return(retVal);
 }
 
@@ -389,13 +389,13 @@ int CDynamicsContainer::getIterationCount() const
     return(0);
 }
 
-floatDouble CDynamicsContainer::getEngineFloatParam(int what,bool* ok,bool getDefault/*=false*/) const
+double CDynamicsContainer::getEngineFloatParam(int what,bool* ok,bool getDefault/*=false*/) const
 {
     if (ok!=nullptr)
         ok[0]=true;
     if ((what>sim_bullet_global_float_start)&&(what<sim_bullet_global_float_end))
     {
-        std::vector<floatDouble> fp;
+        std::vector<double> fp;
         getBulletFloatParams(fp,getDefault);
         int w=what-sim_bullet_global_stepsize+simi_bullet_global_stepsize;
         if (what==sim_bullet_global_stepsize) // for backw. compatibility
@@ -404,7 +404,7 @@ floatDouble CDynamicsContainer::getEngineFloatParam(int what,bool* ok,bool getDe
     }
     if ((what>sim_ode_global_float_start)&&(what<sim_ode_global_float_end))
     {
-        std::vector<floatDouble> fp;
+        std::vector<double> fp;
         getOdeFloatParams(fp,getDefault);
         int w=what-sim_ode_global_stepsize+simi_ode_global_stepsize;
         if (what==sim_ode_global_stepsize) // for backw. compatibility
@@ -413,7 +413,7 @@ floatDouble CDynamicsContainer::getEngineFloatParam(int what,bool* ok,bool getDe
     }
     if ((what>sim_vortex_global_float_start)&&(what<sim_vortex_global_float_end))
     {
-        std::vector<floatDouble> fp;
+        std::vector<double> fp;
         getVortexFloatParams(fp,getDefault);
         int w=what-sim_vortex_global_stepsize+simi_vortex_global_stepsize;
         if (what==sim_vortex_global_stepsize) // for backw. compatibility
@@ -422,7 +422,7 @@ floatDouble CDynamicsContainer::getEngineFloatParam(int what,bool* ok,bool getDe
     }
     if ((what>sim_newton_global_float_start)&&(what<sim_newton_global_float_end))
     {
-        std::vector<floatDouble> fp;
+        std::vector<double> fp;
         getNewtonFloatParams(fp,getDefault);
         int w=what-sim_newton_global_stepsize+simi_newton_global_stepsize;
         if (what==sim_newton_global_stepsize) // for backw. compatibility
@@ -431,7 +431,7 @@ floatDouble CDynamicsContainer::getEngineFloatParam(int what,bool* ok,bool getDe
     }
     if ((what>sim_mujoco_global_float_start)&&(what<sim_mujoco_global_float_end))
     {
-        std::vector<floatDouble> fp;
+        std::vector<double> fp;
         getMujocoFloatParams(fp,getDefault);
         int w=what-sim_mujoco_global_stepsize+simi_mujoco_global_stepsize;
         if (what==sim_mujoco_global_stepsize) // for backw. compatibility
@@ -541,13 +541,13 @@ bool CDynamicsContainer::getEngineBoolParam(int what,bool* ok,bool getDefault/*=
     return(0);
 }
 
-bool CDynamicsContainer::setEngineFloatParam(int what,floatDouble v)
+bool CDynamicsContainer::setEngineFloatParam(int what,double v)
 {
     bool retVal=false;
     if ((what>sim_bullet_global_float_start)&&(what<sim_bullet_global_float_end))
     {
         int w=what-sim_bullet_global_stepsize+simi_bullet_global_stepsize;
-        std::vector<floatDouble> fp;
+        std::vector<double> fp;
         getBulletFloatParams(fp);
         fp[w]=v;
         setBulletFloatParams(fp);
@@ -558,7 +558,7 @@ bool CDynamicsContainer::setEngineFloatParam(int what,floatDouble v)
     if ((what>sim_ode_global_float_start)&&(what<sim_ode_global_float_end))
     {
         int w=what-sim_ode_global_stepsize+simi_ode_global_stepsize;
-        std::vector<floatDouble> fp;
+        std::vector<double> fp;
         getOdeFloatParams(fp);
         fp[w]=v;
         setOdeFloatParams(fp);
@@ -569,7 +569,7 @@ bool CDynamicsContainer::setEngineFloatParam(int what,floatDouble v)
     if ((what>sim_vortex_global_float_start)&&(what<sim_vortex_global_float_end))
     {
         int w=what-sim_vortex_global_stepsize+simi_vortex_global_stepsize;
-        std::vector<floatDouble> fp;
+        std::vector<double> fp;
         getVortexFloatParams(fp);
         fp[w]=v;
         setVortexFloatParams(fp);
@@ -580,7 +580,7 @@ bool CDynamicsContainer::setEngineFloatParam(int what,floatDouble v)
     if ((what>sim_newton_global_float_start)&&(what<sim_newton_global_float_end))
     {
         int w=what-sim_newton_global_stepsize+simi_newton_global_stepsize;
-        std::vector<floatDouble> fp;
+        std::vector<double> fp;
         getNewtonFloatParams(fp);
         fp[w]=v;
         setNewtonFloatParams(fp);
@@ -591,7 +591,7 @@ bool CDynamicsContainer::setEngineFloatParam(int what,floatDouble v)
     if ((what>sim_mujoco_global_float_start)&&(what<sim_mujoco_global_float_end))
     {
         int w=what-sim_mujoco_global_stepsize+simi_mujoco_global_stepsize;
-        std::vector<floatDouble> fp;
+        std::vector<double> fp;
         getMujocoFloatParams(fp);
         fp[w]=v;
         setMujocoFloatParams(fp);
@@ -730,7 +730,7 @@ bool CDynamicsContainer::setEngineBoolParam(int what,bool v)
     return(retVal);
 }
 
-void CDynamicsContainer::getBulletFloatParams(std::vector<floatDouble>& p,bool getDefault/*=false*/) const
+void CDynamicsContainer::getBulletFloatParams(std::vector<double>& p,bool getDefault/*=false*/) const
 {
     if (getDefault)
         getBulletDefaultFloatParams(p);
@@ -738,12 +738,12 @@ void CDynamicsContainer::getBulletFloatParams(std::vector<floatDouble>& p,bool g
         p.assign(_bulletFloatParams.begin(),_bulletFloatParams.end());
 }
 
-void CDynamicsContainer::setBulletFloatParams(const std::vector<floatDouble>& p)
+void CDynamicsContainer::setBulletFloatParams(const std::vector<double>& p)
 {
     _bulletFloatParams.assign(p.begin(),p.end());
-    _bulletFloatParams[simi_bullet_global_stepsize]=tt::getLimitedFloat(0.00001f,1.0f,_bulletFloatParams[simi_bullet_global_stepsize]); // step size
-    _bulletFloatParams[simi_bullet_global_internalscalingfactor]=tt::getLimitedFloat(0.0001f,10000.0f,_bulletFloatParams[simi_bullet_global_internalscalingfactor]); // internal scaling factor
-    _bulletFloatParams[simi_bullet_global_collisionmarginfactor]=tt::getLimitedFloat(0.001f,100.0f,_bulletFloatParams[simi_bullet_global_collisionmarginfactor]); // collision margin factor
+    _bulletFloatParams[simi_bullet_global_stepsize]=tt::getLimitedFloat(0.00001,1.0,_bulletFloatParams[simi_bullet_global_stepsize]); // step size
+    _bulletFloatParams[simi_bullet_global_internalscalingfactor]=tt::getLimitedFloat(0.0001,10000.0,_bulletFloatParams[simi_bullet_global_internalscalingfactor]); // internal scaling factor
+    _bulletFloatParams[simi_bullet_global_collisionmarginfactor]=tt::getLimitedFloat(0.001,100.0,_bulletFloatParams[simi_bullet_global_collisionmarginfactor]); // collision margin factor
 }
 
 void CDynamicsContainer::getBulletIntParams(std::vector<int>& p,bool getDefault/*=false*/) const
@@ -760,7 +760,7 @@ void CDynamicsContainer::setBulletIntParams(const std::vector<int>& p)
     _bulletIntParams[simi_bullet_global_constraintsolvingiterations]=tt::getLimitedFloat(1,10000,_bulletIntParams[simi_bullet_global_constraintsolvingiterations]); // constr. solv. iterations
 }
 
-void CDynamicsContainer::getOdeFloatParams(std::vector<floatDouble>& p,bool getDefault/*=false*/) const
+void CDynamicsContainer::getOdeFloatParams(std::vector<double>& p,bool getDefault/*=false*/) const
 {
     if (getDefault)
         getOdeDefaultFloatParams(p);
@@ -768,13 +768,13 @@ void CDynamicsContainer::getOdeFloatParams(std::vector<floatDouble>& p,bool getD
         p.assign(_odeFloatParams.begin(),_odeFloatParams.end());
 }
 
-void CDynamicsContainer::setOdeFloatParams(const std::vector<floatDouble>& p)
+void CDynamicsContainer::setOdeFloatParams(const std::vector<double>& p)
 {
     _odeFloatParams.assign(p.begin(),p.end());
-    _odeFloatParams[simi_ode_global_stepsize]=tt::getLimitedFloat(0.00001f,1.0f,_odeFloatParams[simi_ode_global_stepsize]); // step size
-    _odeFloatParams[simi_ode_global_internalscalingfactor]=tt::getLimitedFloat(0.0001f,10000.0f,_odeFloatParams[simi_ode_global_internalscalingfactor]); // internal scaling factor
-    _odeFloatParams[simi_ode_global_cfm]=tt::getLimitedFloat(0.0f,1.0f,_odeFloatParams[simi_ode_global_cfm]); // global CFM
-    _odeFloatParams[simi_ode_global_erp]=tt::getLimitedFloat(0.0f,1.0f,_odeFloatParams[simi_ode_global_erp]); // global ERP
+    _odeFloatParams[simi_ode_global_stepsize]=tt::getLimitedFloat(0.00001,1.0,_odeFloatParams[simi_ode_global_stepsize]); // step size
+    _odeFloatParams[simi_ode_global_internalscalingfactor]=tt::getLimitedFloat(0.0001,10000.0,_odeFloatParams[simi_ode_global_internalscalingfactor]); // internal scaling factor
+    _odeFloatParams[simi_ode_global_cfm]=tt::getLimitedFloat(0.0,1.0,_odeFloatParams[simi_ode_global_cfm]); // global CFM
+    _odeFloatParams[simi_ode_global_erp]=tt::getLimitedFloat(0.0,1.0,_odeFloatParams[simi_ode_global_erp]); // global ERP
 }
 
 void CDynamicsContainer::getOdeIntParams(std::vector<int>& p,bool getDefault/*=false*/) const
@@ -791,7 +791,7 @@ void CDynamicsContainer::setOdeIntParams(const std::vector<int>& p)
     _odeIntParams[simi_ode_global_constraintsolvingiterations]=tt::getLimitedFloat(1,10000,_odeIntParams[simi_ode_global_constraintsolvingiterations]); // constr. solv. iterations
 }
 
-void CDynamicsContainer::getVortexFloatParams(std::vector<floatDouble>& p,bool getDefault/*=false*/) const
+void CDynamicsContainer::getVortexFloatParams(std::vector<double>& p,bool getDefault/*=false*/) const
 {
     if (getDefault)
         getVortexDefaultFloatParams(p);
@@ -799,12 +799,12 @@ void CDynamicsContainer::getVortexFloatParams(std::vector<floatDouble>& p,bool g
         p.assign(_vortexFloatParams.begin(),_vortexFloatParams.end());
 }
 
-void CDynamicsContainer::setVortexFloatParams(const std::vector<floatDouble>& p)
+void CDynamicsContainer::setVortexFloatParams(const std::vector<double>& p)
 {
     _vortexFloatParams.assign(p.begin(),p.end());
-    _vortexFloatParams[simi_vortex_global_stepsize]=tt::getLimitedFloat(0.00001f,1.0f,_vortexFloatParams[simi_vortex_global_stepsize]); // step size
-    _vortexFloatParams[simi_vortex_global_internalscalingfactor]=tt::getLimitedFloat(0.0001f,10000.0f,_vortexFloatParams[simi_vortex_global_internalscalingfactor]); // internal scaling factor
-    _vortexFloatParams[simi_vortex_global_contacttolerance]=tt::getLimitedFloat(0.0f,10.0f,_vortexFloatParams[simi_vortex_global_contacttolerance]); // contact tolerance
+    _vortexFloatParams[simi_vortex_global_stepsize]=tt::getLimitedFloat(0.00001,1.0,_vortexFloatParams[simi_vortex_global_stepsize]); // step size
+    _vortexFloatParams[simi_vortex_global_internalscalingfactor]=tt::getLimitedFloat(0.0001,10000.0,_vortexFloatParams[simi_vortex_global_internalscalingfactor]); // internal scaling factor
+    _vortexFloatParams[simi_vortex_global_contacttolerance]=tt::getLimitedFloat(0.0,10.0,_vortexFloatParams[simi_vortex_global_contacttolerance]); // contact tolerance
 }
 
 void CDynamicsContainer::getVortexIntParams(std::vector<int>& p,bool getDefault/*=false*/) const
@@ -820,7 +820,7 @@ void CDynamicsContainer::setVortexIntParams(const std::vector<int>& p)
     _vortexIntParams.assign(p.begin(),p.end());
 }
 
-void CDynamicsContainer::getNewtonFloatParams(std::vector<floatDouble>& p,bool getDefault/*=false*/) const
+void CDynamicsContainer::getNewtonFloatParams(std::vector<double>& p,bool getDefault/*=false*/) const
 {
     if (getDefault)
         getNewtonDefaultFloatParams(p);
@@ -828,11 +828,11 @@ void CDynamicsContainer::getNewtonFloatParams(std::vector<floatDouble>& p,bool g
         p.assign(_newtonFloatParams.begin(),_newtonFloatParams.end());
 }
 
-void CDynamicsContainer::setNewtonFloatParams(const std::vector<floatDouble>& p)
+void CDynamicsContainer::setNewtonFloatParams(const std::vector<double>& p)
 {
     _newtonFloatParams.assign(p.begin(),p.end());
-    _newtonFloatParams[simi_newton_global_stepsize]=tt::getLimitedFloat(0.00001f,1.0f,_newtonFloatParams[simi_newton_global_stepsize]); // step size
-    _newtonFloatParams[simi_newton_global_contactmergetolerance]=tt::getLimitedFloat(0.0001f,1.0f,_newtonFloatParams[simi_newton_global_contactmergetolerance]); // contact merge tolerance
+    _newtonFloatParams[simi_newton_global_stepsize]=tt::getLimitedFloat(0.00001,1.0,_newtonFloatParams[simi_newton_global_stepsize]); // step size
+    _newtonFloatParams[simi_newton_global_contactmergetolerance]=tt::getLimitedFloat(0.0001,1.0,_newtonFloatParams[simi_newton_global_contactmergetolerance]); // contact merge tolerance
 }
 
 void CDynamicsContainer::getNewtonIntParams(std::vector<int>& p,bool getDefault/*=false*/) const
@@ -849,7 +849,7 @@ void CDynamicsContainer::setNewtonIntParams(const std::vector<int>& p)
     _newtonIntParams[simi_newton_global_constraintsolvingiterations]=tt::getLimitedInt(1,128,_newtonIntParams[simi_newton_global_constraintsolvingiterations]); // solving iterations
 }
 
-void CDynamicsContainer::getMujocoFloatParams(std::vector<floatDouble>& p,bool getDefault/*=false*/) const
+void CDynamicsContainer::getMujocoFloatParams(std::vector<double>& p,bool getDefault/*=false*/) const
 {
     if (getDefault)
         getMujocoDefaultFloatParams(p);
@@ -857,10 +857,10 @@ void CDynamicsContainer::getMujocoFloatParams(std::vector<floatDouble>& p,bool g
         p.assign(_mujocoFloatParams.begin(),_mujocoFloatParams.end());
 }
 
-void CDynamicsContainer::setMujocoFloatParams(const std::vector<floatDouble>& p)
+void CDynamicsContainer::setMujocoFloatParams(const std::vector<double>& p)
 {
     _mujocoFloatParams.assign(p.begin(),p.end());
-    _mujocoFloatParams[simi_mujoco_global_stepsize]=tt::getLimitedFloat(0.00001f,1.0f,_mujocoFloatParams[simi_mujoco_global_stepsize]);
+    _mujocoFloatParams[simi_mujoco_global_stepsize]=tt::getLimitedFloat(0.00001,1.0,_mujocoFloatParams[simi_mujoco_global_stepsize]);
 }
 
 void CDynamicsContainer::getMujocoIntParams(std::vector<int>& p,bool getDefault/*=false*/) const
@@ -883,7 +883,7 @@ void CDynamicsContainer::setMujocoIntParams(const std::vector<int>& p)
     _mujocoIntParams[simi_mujoco_global_overridekin]=tt::getLimitedInt(0,2,_mujocoIntParams[simi_mujoco_global_overridekin]);
 }
 
-floatDouble CDynamicsContainer::getPositionScalingFactorDyn() const
+double CDynamicsContainer::getPositionScalingFactorDyn() const
 {
     if (_dynamicEngineToUse==sim_physics_bullet)
         return(_bulletFloatParams[simi_bullet_global_internalscalingfactor]);
@@ -894,7 +894,7 @@ floatDouble CDynamicsContainer::getPositionScalingFactorDyn() const
     return(1.0);
 }
 
-floatDouble CDynamicsContainer::getGravityScalingFactorDyn() const
+double CDynamicsContainer::getGravityScalingFactorDyn() const
 {
     if (_dynamicEngineToUse==sim_physics_bullet)
         return(_bulletFloatParams[simi_bullet_global_internalscalingfactor]);
@@ -905,7 +905,7 @@ floatDouble CDynamicsContainer::getGravityScalingFactorDyn() const
     return(1.0);
 }
 
-floatDouble CDynamicsContainer::getLinearVelocityScalingFactorDyn() const
+double CDynamicsContainer::getLinearVelocityScalingFactorDyn() const
 {
     if (_dynamicEngineToUse==sim_physics_bullet)
         return(_bulletFloatParams[simi_bullet_global_internalscalingfactor]);
@@ -916,7 +916,7 @@ floatDouble CDynamicsContainer::getLinearVelocityScalingFactorDyn() const
     return(1.0);
 }
 
-floatDouble CDynamicsContainer::getMassScalingFactorDyn() const
+double CDynamicsContainer::getMassScalingFactorDyn() const
 {
     bool full=false;
     if (_dynamicEngineToUse==sim_physics_bullet)
@@ -927,19 +927,19 @@ floatDouble CDynamicsContainer::getMassScalingFactorDyn() const
         full=true;
     if (full)
     {
-        floatDouble f=getPositionScalingFactorDyn();
+        double f=getPositionScalingFactorDyn();
         return(f*f*f);
     }
     return(1.0);
 }
 
-floatDouble CDynamicsContainer::getMasslessInertiaScalingFactorDyn() const
+double CDynamicsContainer::getMasslessInertiaScalingFactorDyn() const
 {
-    floatDouble f=getPositionScalingFactorDyn();
+    double f=getPositionScalingFactorDyn();
     return(f*f);
 }
 
-floatDouble CDynamicsContainer::getForceScalingFactorDyn() const
+double CDynamicsContainer::getForceScalingFactorDyn() const
 {
     bool full=false;
     if (_dynamicEngineToUse==sim_physics_bullet)
@@ -949,13 +949,13 @@ floatDouble CDynamicsContainer::getForceScalingFactorDyn() const
     if (_dynamicEngineToUse==sim_physics_vortex)
         full=true;
 
-    floatDouble f=getPositionScalingFactorDyn();
+    double f=getPositionScalingFactorDyn();
     if (full)
         return(f*f*f*f);
     return(f);
 }
 
-floatDouble CDynamicsContainer::getTorqueScalingFactorDyn() const
+double CDynamicsContainer::getTorqueScalingFactorDyn() const
 {
     bool full=false;
     if (_dynamicEngineToUse==sim_physics_bullet)
@@ -965,7 +965,7 @@ floatDouble CDynamicsContainer::getTorqueScalingFactorDyn() const
     if (_dynamicEngineToUse==sim_physics_vortex)
         full=true;
 
-    floatDouble f=getPositionScalingFactorDyn();
+    double f=getPositionScalingFactorDyn();
     if (full)
         return(f*f*f*f*f);
     return(f*f);
@@ -991,9 +991,9 @@ bool CDynamicsContainer::getDynamicsEnabled() const
 void CDynamicsContainer::setGravity(const C3Vector& gr)
 {
     _gravity=gr;
-    _gravity(0)=tt::getLimitedFloat(-1000.0f,+1000.0f,_gravity(0));
-    _gravity(1)=tt::getLimitedFloat(-1000.0f,+1000.0f,_gravity(1));
-    _gravity(2)=tt::getLimitedFloat(-1000.0f,+1000.0f,_gravity(2));
+    _gravity(0)=tt::getLimitedFloat(-1000.0,+1000.0,_gravity(0));
+    _gravity(1)=tt::getLimitedFloat(-1000.0,+1000.0,_gravity(1));
+    _gravity(2)=tt::getLimitedFloat(-1000.0,+1000.0,_gravity(2));
 }
 
 C3Vector CDynamicsContainer::getGravity() const
@@ -1001,7 +1001,7 @@ C3Vector CDynamicsContainer::getGravity() const
     return(_gravity);
 }
 
-bool CDynamicsContainer::_engineFloatsAreSimilar(const std::vector<floatDouble>& arr1,const std::vector<floatDouble>& arr2) const
+bool CDynamicsContainer::_engineFloatsAreSimilar(const std::vector<double>& arr1,const std::vector<double>& arr2) const
 { // allow for a 1% deviation max
     if (arr1.size()!=arr2.size())
         return(false);
@@ -1014,7 +1014,7 @@ bool CDynamicsContainer::_engineFloatsAreSimilar(const std::vector<floatDouble>&
         }
         else
         {
-            if ( fabs((arr1[i]-arr2[i])/arr1[i])>0.01f )
+            if ( fabs((arr1[i]-arr2[i])/arr1[i])>0.01 )
                 return(false);
         }
     }
@@ -1025,13 +1025,13 @@ void CDynamicsContainer::checkIfEngineSettingsAreDefault()
 {
     _engineSettingsAreDefault=true;
 
-    if ( ((_stepSize-0.005f)/0.005f)>0.01f )
+    if ( ((_stepSize-0.005)/0.005)>0.01 )
     {
         _engineSettingsAreDefault=false;
         return;
     }
 
-    std::vector<floatDouble> fVals;
+    std::vector<double> fVals;
     std::vector<int> iVals;
 
     getBulletDefaultFloatParams(fVals);
@@ -1124,17 +1124,17 @@ void CDynamicsContainer::serialize(CSer& ar)
 #ifdef TMPOPERATION
             ar.storeDataName("En3");
             ar << _dynamicEngineToUse;
-            ar.flt() << (floatFloat)_gravity(0) << (floatFloat)_gravity(1) << (floatFloat)_gravity(2);
+            ar << (float)_gravity(0) << (float)_gravity(1) << (float)_gravity(2);
             ar << int(5); // 5 is for backw. compat. (dyn. settings mode=custom)
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_n3");
             ar << _dynamicEngineToUse;
-            ar.dbl() << _gravity(0) << _gravity(1) << _gravity(2);
+            ar << _gravity(0) << _gravity(1) << _gravity(2);
             ar << int(5); // 5 is for backw. compat. (dyn. settings mode=custom)
             ar.flush();
-#endif
+
 
             ar.storeDataName("Ver");
             ar << _dynamicEngineVersionToUse;
@@ -1142,28 +1142,28 @@ void CDynamicsContainer::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Stp"); // since 17.08.2022, step size is not individual to engine anymore
-            ar.flt() << (floatFloat)_stepSize;
-            ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_tp"); // since 17.08.2022, step size is not individual to engine anymore
-            ar.dbl() << _stepSize;
+            ar << (float)_stepSize;
             ar.flush();
 #endif
 
+            ar.storeDataName("_tp"); // since 17.08.2022, step size is not individual to engine anymore
+            ar << _stepSize;
+            ar.flush();
+
+
 #ifdef TMPOPERATION
             ar.storeDataName("Bul"); // keep a while for file write backw. compatibility (09/03/2016)
-            ar.flt() << (floatFloat)_stepSize << (floatFloat)_bulletFloatParams[simi_bullet_global_internalscalingfactor];
+            ar << (float)_stepSize << (float)_bulletFloatParams[simi_bullet_global_internalscalingfactor];
             ar << _bulletIntParams[simi_bullet_global_constraintsolvingiterations];
-            ar.flt() << (floatFloat)_bulletFloatParams[simi_bullet_global_collisionmarginfactor];
+            ar << (float)_bulletFloatParams[simi_bullet_global_collisionmarginfactor];
             ar.flush();
 #endif
 
 #ifdef TMPOPERATION
             ar.storeDataName("Ode"); // keep a while for file write backw. compatibility (09/03/2016)
-            ar.flt() << (floatFloat)_stepSize << (floatFloat)_odeFloatParams[simi_ode_global_internalscalingfactor];
+            ar << (float)_stepSize << (float)_odeFloatParams[simi_ode_global_internalscalingfactor];
             ar << _odeIntParams[simi_ode_global_constraintsolvingiterations];
-            ar.flt() << (floatFloat)_odeFloatParams[simi_ode_global_cfm] << (floatFloat)_odeFloatParams[simi_ode_global_erp];
+            ar << (float)_odeFloatParams[simi_ode_global_cfm] << (float)_odeFloatParams[simi_ode_global_erp];
             ar.flush();
 #endif
 
@@ -1171,58 +1171,58 @@ void CDynamicsContainer::serialize(CSer& ar)
             ar.storeDataName("Vo5"); // vortex params:
             ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
             for (int i=0;i<int(_vortexFloatParams.size());i++)
-                ar.flt() << (floatFloat)_vortexFloatParams[i];
+                ar << (float)_vortexFloatParams[i];
             for (int i=0;i<int(_vortexIntParams.size());i++)
                 ar << _vortexIntParams[i];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_o5"); // vortex params:
             ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
             for (int i=0;i<int(_vortexFloatParams.size());i++)
-                ar.dbl() << _vortexFloatParams[i];
+                ar << _vortexFloatParams[i];
             for (int i=0;i<int(_vortexIntParams.size());i++)
                 ar << _vortexIntParams[i];
             ar.flush();
-#endif
+
 
 #ifdef TMPOPERATION
             ar.storeDataName("Nw1"); // newton params:
             ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
             for (int i=0;i<int(_newtonFloatParams.size());i++)
-                ar.flt() << (floatFloat)_newtonFloatParams[i];
-            for (int i=0;i<int(_newtonIntParams.size());i++)
-                ar << _newtonIntParams[i];
-            ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_w1"); // newton params:
-            ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
-            for (int i=0;i<int(_newtonFloatParams.size());i++)
-                ar.dbl() << _newtonFloatParams[i];
+                ar << (float)_newtonFloatParams[i];
             for (int i=0;i<int(_newtonIntParams.size());i++)
                 ar << _newtonIntParams[i];
             ar.flush();
 #endif
 
+            ar.storeDataName("_w1"); // newton params:
+            ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
+            for (int i=0;i<int(_newtonFloatParams.size());i++)
+                ar << _newtonFloatParams[i];
+            for (int i=0;i<int(_newtonIntParams.size());i++)
+                ar << _newtonIntParams[i];
+            ar.flush();
+
+
 #ifdef TMPOPERATION
             ar.storeDataName("Mj1"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
             for (int i=0;i<int(_mujocoFloatParams.size());i++)
-                ar.flt() << (floatFloat)_mujocoFloatParams[i];
+                ar << (float)_mujocoFloatParams[i];
             for (int i=0;i<int(_mujocoIntParams.size());i++)
                 ar << _mujocoIntParams[i];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_j1"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
             for (int i=0;i<int(_mujocoFloatParams.size());i++)
-                ar.dbl() << _mujocoFloatParams[i];
+                ar << _mujocoFloatParams[i];
             for (int i=0;i<int(_mujocoIntParams.size());i++)
                 ar << _mujocoIntParams[i];
             ar.flush();
-#endif
+
 
             ar.storeDataName("Var");
             unsigned char dummy=0;
@@ -1239,39 +1239,39 @@ void CDynamicsContainer::serialize(CSer& ar)
             ar.storeDataName("BuN"); // Bullet params (keep this after "Bul" and "Var"):
             ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
             for (int i=0;i<int(_bulletFloatParams.size());i++)
-                ar.flt() << (floatFloat)_bulletFloatParams[i];
-            for (int i=0;i<int(_bulletIntParams.size());i++)
-                ar << _bulletIntParams[i];
-            ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_uN"); // Bullet params (keep this after "Bul" and "Var"):
-            ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
-            for (int i=0;i<int(_bulletFloatParams.size());i++)
-                ar.dbl() << _bulletFloatParams[i];
+                ar << (float)_bulletFloatParams[i];
             for (int i=0;i<int(_bulletIntParams.size());i++)
                 ar << _bulletIntParams[i];
             ar.flush();
 #endif
 
+            ar.storeDataName("_uN"); // Bullet params (keep this after "Bul" and "Var"):
+            ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
+            for (int i=0;i<int(_bulletFloatParams.size());i++)
+                ar << _bulletFloatParams[i];
+            for (int i=0;i<int(_bulletIntParams.size());i++)
+                ar << _bulletIntParams[i];
+            ar.flush();
+
+
 #ifdef TMPOPERATION
             ar.storeDataName("OdN"); // ODE params (keep this after "Ode" and "Var"):
             ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
             for (int i=0;i<int(_odeFloatParams.size());i++)
-                ar.flt() << (floatFloat)_odeFloatParams[i];
+                ar << (float)_odeFloatParams[i];
             for (int i=0;i<int(_odeIntParams.size());i++)
                 ar << _odeIntParams[i];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_dN"); // ODE params (keep this after "Ode" and "Var"):
             ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
             for (int i=0;i<int(_odeFloatParams.size());i++)
-                ar.dbl() << _odeFloatParams[i];
+                ar << _odeFloatParams[i];
             for (int i=0;i<int(_odeIntParams.size());i++)
                 ar << _odeIntParams[i];
             ar.flush();
-#endif
+
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -1280,7 +1280,7 @@ void CDynamicsContainer::serialize(CSer& ar)
             int byteQuantity;
             int oldDynamicsSettingsMode=5; // i.e. custom
             bool hasStepSizeTag=false;
-            _stepSize=0.005f; // just in case
+            _stepSize=0.005; // just in case
             std::string theName="";
             while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
@@ -1294,11 +1294,11 @@ void CDynamicsContainer::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _dynamicEngineToUse;
-                        floatFloat bla;
+                        float bla;
                         for (size_t i=0;i<3;i++)
                         {
-                            ar.flt() >> bla;
-                            _gravity(i)=(floatDouble)bla;
+                            ar >> bla;
+                            _gravity(i)=(double)bla;
                         }
                         ar >> oldDynamicsSettingsMode;
                         oldDynamicsSettingsMode++;
@@ -1309,11 +1309,11 @@ void CDynamicsContainer::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _dynamicEngineToUse;
-                        floatFloat bla;
+                        float bla;
                         for (size_t i=0;i<3;i++)
                         {
-                            ar.flt() >> bla;
-                            _gravity(i)=(floatDouble)bla;
+                            ar >> bla;
+                            _gravity(i)=(double)bla;
                         }
                         ar >> oldDynamicsSettingsMode;
                         oldDynamicsSettingsMode++;
@@ -1323,22 +1323,24 @@ void CDynamicsContainer::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _dynamicEngineToUse;
-                        floatFloat bla;
+                        float bla;
                         for (size_t i=0;i<3;i++)
                         {
-                            ar.flt() >> bla;
-                            _gravity(i)=(floatDouble)bla;
+                            ar >> bla;
+                            _gravity(i)=(double)bla;
                         }
                         ar >> oldDynamicsSettingsMode;
                     }
+
                     if (theName.compare("_n3")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _dynamicEngineToUse;
-                        ar.dbl() >> _gravity(0) >> _gravity(1) >> _gravity(2);
+                        ar >> _gravity(0) >> _gravity(1) >> _gravity(2);
                         ar >> oldDynamicsSettingsMode;
                     }
+
 
                     if (theName.compare("Ver")==0)
                     {
@@ -1351,30 +1353,32 @@ void CDynamicsContainer::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
-                        ar.flt() >> bla;
-                        _stepSize=(floatDouble)bla;
+                        float bla;
+                        ar >> bla;
+                        _stepSize=(double)bla;
                         hasStepSizeTag=true;
                     }
+
                     if (theName.compare("_tp")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _stepSize;
+                        ar >> _stepSize;
                         hasStepSizeTag=true;
                     }
+
 
                     if (theName.compare("Bul")==0)
                     { // Keep for backward compatibility (09/03/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla,bli;
-                        ar.flt() >> bla >> bli;
-                        _bulletFloatParams[simi_bullet_global_stepsize]=(floatDouble)bla;
-                        _bulletFloatParams[simi_bullet_global_internalscalingfactor]=(floatDouble)bli;
+                        float bla,bli;
+                        ar >> bla >> bli;
+                        _bulletFloatParams[simi_bullet_global_stepsize]=(double)bla;
+                        _bulletFloatParams[simi_bullet_global_internalscalingfactor]=(double)bli;
                         ar >> _bulletIntParams[simi_bullet_global_constraintsolvingiterations];
-                        ar.flt() >> bla;
-                        _bulletFloatParams[simi_bullet_global_collisionmarginfactor]=(floatDouble)bla;
+                        ar >> bla;
+                        _bulletFloatParams[simi_bullet_global_collisionmarginfactor]=(double)bla;
                         if ( (!hasStepSizeTag)&&(_dynamicEngineToUse==sim_physics_bullet) )
                             _stepSize=_bulletFloatParams[simi_bullet_global_stepsize];
                     }
@@ -1383,14 +1387,14 @@ void CDynamicsContainer::serialize(CSer& ar)
                     { // Keep for backward compatibility (09/03/2016)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla,bli;
-                        ar.flt() >> bla >> bli;
-                        _odeFloatParams[simi_ode_global_stepsize]=(floatDouble)bla;
-                        _odeFloatParams[simi_ode_global_internalscalingfactor]=(floatDouble)bli;
+                        float bla,bli;
+                        ar >> bla >> bli;
+                        _odeFloatParams[simi_ode_global_stepsize]=(double)bla;
+                        _odeFloatParams[simi_ode_global_internalscalingfactor]=(double)bli;
                         ar >> _odeIntParams[simi_ode_global_constraintsolvingiterations];
-                        ar.flt() >> bla >> bli;
-                        _odeFloatParams[simi_ode_global_cfm]=(floatDouble)bla;
-                        _odeFloatParams[simi_ode_global_erp]=(floatDouble)bli;
+                        ar >> bla >> bli;
+                        _odeFloatParams[simi_ode_global_cfm]=(double)bla;
+                        _odeFloatParams[simi_ode_global_erp]=(double)bli;
                         if ( (!hasStepSizeTag)&&(_dynamicEngineToUse==sim_physics_ode) )
                             _stepSize=_odeFloatParams[simi_ode_global_stepsize];
                     }
@@ -1405,16 +1409,16 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_vortexFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_vortexIntParams.size()),cnt2);
 
-                        floatFloat vf;
+                        float vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _vortexFloatParams already!
-                            ar.flt() >> vf;
-                            _vortexFloatParams[i]=(floatDouble)vf;
+                            ar >> vf;
+                            _vortexFloatParams[i]=(double)vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar.flt() >> vf;
+                            ar >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _vortexIntParams already!
@@ -1433,6 +1437,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                         if ( (!hasStepSizeTag)&&(_dynamicEngineToUse==sim_physics_vortex) )
                             _stepSize=_vortexFloatParams[simi_vortex_global_stepsize];
                     }
+
                     if (theName.compare("_o5")==0)
                     { // vortex params:
                         noHit=false;
@@ -1443,16 +1448,16 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_vortexFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_vortexIntParams.size()),cnt2);
 
-                        floatDouble vf;
+                        double vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _vortexFloatParams already!
-                            ar.dbl() >> vf;
+                            ar >> vf;
                             _vortexFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar.dbl() >> vf;
+                            ar >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _vortexIntParams already!
@@ -1471,6 +1476,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                         if ( (!hasStepSizeTag)&&(_dynamicEngineToUse==sim_physics_vortex) )
                             _stepSize=_vortexFloatParams[simi_vortex_global_stepsize];
                     }
+
                     if (theName.compare("Nw1")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
@@ -1481,16 +1487,16 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_newtonFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_newtonIntParams.size()),cnt2);
 
-                        floatFloat vf;
+                        float vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _newtonFloatParams already!
-                            ar.flt() >> vf;
-                            _newtonFloatParams[i]=(floatDouble)vf;
+                            ar >> vf;
+                            _newtonFloatParams[i]=(double)vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar.flt() >> vf;
+                            ar >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _newtonIntParams already!
@@ -1504,6 +1510,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                         if ( (!hasStepSizeTag)&&(_dynamicEngineToUse==sim_physics_newton) )
                             _stepSize=_newtonFloatParams[simi_newton_global_stepsize];
                     }
+
                     if (theName.compare("_w1")==0)
                     { // Newton params:
                         noHit=false;
@@ -1514,16 +1521,16 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_newtonFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_newtonIntParams.size()),cnt2);
 
-                        floatDouble vf;
+                        double vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _newtonFloatParams already!
-                            ar.dbl() >> vf;
+                            ar >> vf;
                             _newtonFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar.dbl() >> vf;
+                            ar >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _newtonIntParams already!
@@ -1537,6 +1544,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                         if ( (!hasStepSizeTag)&&(_dynamicEngineToUse==sim_physics_newton) )
                             _stepSize=_newtonFloatParams[simi_newton_global_stepsize];
                     }
+
                     if (theName.compare("Mj1")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
@@ -1547,16 +1555,16 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_mujocoFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_mujocoIntParams.size()),cnt2);
 
-                        floatFloat vf;
+                        float vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _mujocoFloatParams already!
-                            ar.flt() >> vf;
-                            _mujocoFloatParams[i]=(floatDouble)vf;
+                            ar >> vf;
+                            _mujocoFloatParams[i]=(double)vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar.flt() >> vf;
+                            ar >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _mujocoIntParams already!
@@ -1570,6 +1578,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                         if ( (!hasStepSizeTag)&&(_dynamicEngineToUse==sim_physics_mujoco) )
                             _stepSize=_mujocoFloatParams[simi_mujoco_global_stepsize];
                     }
+
                     if (theName.compare("_j1")==0)
                     {
                         noHit=false;
@@ -1580,16 +1589,16 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_mujocoFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_mujocoIntParams.size()),cnt2);
 
-                        floatDouble vf;
+                        double vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _mujocoFloatParams already!
-                            ar.dbl() >> vf;
+                            ar >> vf;
                             _mujocoFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar.dbl() >> vf;
+                            ar >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _mujocoIntParams already!
@@ -1603,6 +1612,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                         if ( (!hasStepSizeTag)&&(_dynamicEngineToUse==sim_physics_mujoco) )
                             _stepSize=_mujocoFloatParams[simi_mujoco_global_stepsize];
                     }
+
                     if (theName.compare("BuN")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
@@ -1613,16 +1623,16 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_bulletFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_bulletIntParams.size()),cnt2);
 
-                        floatFloat vf;
+                        float vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _bulletFloatParams already!
-                            ar.flt() >> vf;
-                            _bulletFloatParams[i]=(floatDouble)vf;
+                            ar >> vf;
+                            _bulletFloatParams[i]=(double)vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar.flt() >> vf;
+                            ar >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _bulletIntParams already!
@@ -1636,6 +1646,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                         if ( (!hasStepSizeTag)&&(_dynamicEngineToUse==sim_physics_bullet) )
                             _stepSize=_bulletFloatParams[simi_bullet_global_stepsize];
                     }
+
                     if (theName.compare("_uN")==0)
                     { // Bullet params:
                         noHit=false;
@@ -1646,16 +1657,16 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_bulletFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_bulletIntParams.size()),cnt2);
 
-                        floatDouble vf;
+                        double vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _bulletFloatParams already!
-                            ar.dbl() >> vf;
+                            ar >> vf;
                             _bulletFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar.dbl() >> vf;
+                            ar >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _bulletIntParams already!
@@ -1669,6 +1680,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                         if ( (!hasStepSizeTag)&&(_dynamicEngineToUse==sim_physics_bullet) )
                             _stepSize=_bulletFloatParams[simi_bullet_global_stepsize];
                     }
+
                     if (theName.compare("OdN")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
@@ -1679,16 +1691,16 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_odeFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_odeIntParams.size()),cnt2);
 
-                        floatFloat vf;
+                        float vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _odeFloatParams already!
-                            ar.flt() >> vf;
-                            _odeFloatParams[i]=(floatDouble)vf;
+                            ar >> vf;
+                            _odeFloatParams[i]=(double)vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar.flt() >> vf;
+                            ar >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _odeIntParams already!
@@ -1702,6 +1714,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                         if ( (!hasStepSizeTag)&&(_dynamicEngineToUse==sim_physics_ode) )
                             _stepSize=_odeFloatParams[simi_ode_global_stepsize];
                     }
+
                     if (theName.compare("_dN")==0)
                     { // ODE params:
                         noHit=false;
@@ -1712,16 +1725,16 @@ void CDynamicsContainer::serialize(CSer& ar)
                         int cnt1_b=std::min<int>(int(_odeFloatParams.size()),cnt1);
                         int cnt2_b=std::min<int>(int(_odeIntParams.size()),cnt2);
 
-                        floatDouble vf;
+                        double vf;
                         int vi;
                         for (int i=0;i<cnt1_b;i++)
                         { // new versions will always have same or more items in _odeFloatParams already!
-                            ar.dbl() >> vf;
+                            ar >> vf;
                             _odeFloatParams[i]=vf;
                         }
                         for (int i=0;i<cnt1-cnt1_b;i++)
                         { // this serialization version is newer than what we know. Discard the unrecognized data:
-                            ar.dbl() >> vf;
+                            ar >> vf;
                         }
                         for (int i=0;i<cnt2_b;i++)
                         { // new versions will always have same or more items in _odeIntParams already!
@@ -1735,6 +1748,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                         if ( (!hasStepSizeTag)&&(_dynamicEngineToUse==sim_physics_ode) )
                             _stepSize=_odeFloatParams[simi_ode_global_stepsize];
                     }
+
 
                     if (theName.compare("Var")==0)
                     {
@@ -1875,7 +1889,7 @@ void CDynamicsContainer::serialize(CSer& ar)
 
             ar.xmlPushNewNode("mujoco");
             ar.xmlAddNode_float("impratio",getEngineFloatParam(sim_mujoco_global_impratio,nullptr));
-            floatDouble w[5];
+            double w[5];
             for (size_t j=0;j<3;j++)
                 w[j]=getEngineFloatParam(sim_mujoco_global_wind1+j,nullptr);
             ar.xmlAddNode_floats("wind",w,3);
@@ -1913,7 +1927,7 @@ void CDynamicsContainer::serialize(CSer& ar)
         else
         {
             int oldDynamicsSettingsMode=5; // i.e. custom
-            _stepSize=0.005f; // just in case
+            _stepSize=0.005; // just in case
 
             ar.xmlGetNode_enum("engine",_dynamicEngineToUse,exhaustiveXml,"bullet",sim_physics_bullet,"ode",sim_physics_ode,"vortex",sim_physics_vortex,"newton",sim_physics_newton,"mujoco",sim_physics_mujoco);
 
@@ -1940,7 +1954,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                 ar.xmlPopNode();
             }
 
-            floatDouble v;
+            double v;
             int vi;
             bool vb;
             if (ar.xmlPushChildNode("engines",exhaustiveXml))
@@ -2024,7 +2038,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                 if (ar.xmlPushChildNode("mujoco"))
                 {
                     if (ar.xmlGetNode_float("impratio",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_impratio,v);
-                    floatDouble w[5];
+                    double w[5];
                     if (ar.xmlGetNode_floats("wind",w,3,exhaustiveXml))
                     {
                         for (size_t j=0;j<3;j++)
@@ -2099,7 +2113,7 @@ void CDynamicsContainer::renderYour3DStuff(CViewableBase* renderingObject,int di
         if ((displayAttrib&sim_displayattribute_noparticles)==0)
         {
             int index=0;
-            floatDouble* cols;
+            float* cols;
             int objectType;
             int particlesCount;
             C4X4Matrix m(renderingObject->getFullCumulativeTransformation().getMatrix());
@@ -2128,7 +2142,7 @@ void CDynamicsContainer::renderYour3DStuff_overlay(CViewableBase* renderingObjec
                 if (getDisplayContactPoints())
                 {
                     int cnt=0;
-                    floatDouble* pts=CPluginContainer::dyn_getContactPoints(&cnt);
+                    double* pts=CPluginContainer::dyn_getContactPoints(&cnt);
 
                     displayContactPoints(displayAttrib,contactPointColor,pts,cnt);
                 }
@@ -2146,12 +2160,12 @@ void CDynamicsContainer::_fixVortexInfVals()
     }
 }
 
-void CDynamicsContainer::getBulletDefaultFloatParams(std::vector<floatDouble>& p,int defType/*=-1*/) const
+void CDynamicsContainer::getBulletDefaultFloatParams(std::vector<double>& p,int defType/*=-1*/) const
 {
     p.clear();
-    p.push_back(0.005f); // simi_bullet_global_stepsize
-    p.push_back(10.0f); // simi_bullet_global_internalscalingfactor
-    p.push_back(0.1f); // simi_bullet_global_collisionmarginfactor
+    p.push_back(0.005); // simi_bullet_global_stepsize
+    p.push_back(10.0); // simi_bullet_global_internalscalingfactor
+    p.push_back(0.1); // simi_bullet_global_collisionmarginfactor
     p.push_back(0.0); // free
     p.push_back(0.0); // free
 }
@@ -2173,13 +2187,13 @@ void CDynamicsContainer::getBulletDefaultIntParams(std::vector<int>& p,int defTy
     p.push_back(sim_bullet_constraintsolvertype_sequentialimpulse); // simi_bullet_global_constraintsolvertype
 }
 
-void CDynamicsContainer::getOdeDefaultFloatParams(std::vector<floatDouble>& p,int defType/*=-1*/) const
+void CDynamicsContainer::getOdeDefaultFloatParams(std::vector<double>& p,int defType/*=-1*/) const
 {
     p.clear();
-    p.push_back(0.005f); // simi_bullet_global_stepsize
-    p.push_back(1.0f); // simi_bullet_global_internalscalingfactor
-    p.push_back(0.00001f); // simi_bullet_global_cfm
-    p.push_back(0.6f); // simi_bullet_global_erp
+    p.push_back(0.005); // simi_bullet_global_stepsize
+    p.push_back(1.0); // simi_bullet_global_internalscalingfactor
+    p.push_back(0.00001); // simi_bullet_global_cfm
+    p.push_back(0.6); // simi_bullet_global_erp
     p.push_back(0.0); // free
 }
 
@@ -2201,25 +2215,25 @@ void CDynamicsContainer::getOdeDefaultIntParams(std::vector<int>& p,int defType/
     p.push_back(-1); // simi_ode_global_randomseed
 }
 
-void CDynamicsContainer::getVortexDefaultFloatParams(std::vector<floatDouble>& p,int defType/*=-1*/) const
+void CDynamicsContainer::getVortexDefaultFloatParams(std::vector<double>& p,int defType/*=-1*/) const
 {
     p.clear();
     if (defType==-1)
-        p.push_back(0.005f); // simi_vortex_global_stepsize
+        p.push_back(0.005); // simi_vortex_global_stepsize
     else
     { // back compatibility
-        floatDouble DYNAMIC_VORTEX_DEFAULT_STEP_SIZE[5]={0.001f,0.0025f,0.005f,0.01f,0.025f};
+        double DYNAMIC_VORTEX_DEFAULT_STEP_SIZE[5]={0.001,0.0025,0.005,0.01,0.025};
         p.push_back(DYNAMIC_VORTEX_DEFAULT_STEP_SIZE[defType]);
     }
-    p.push_back(1.0f); // simi_vortex_global_internalscalingfactor
-    p.push_back(0.001f); // simi_vortex_global_contacttolerance
+    p.push_back(1.0); // simi_vortex_global_internalscalingfactor
+    p.push_back(0.001); // simi_vortex_global_contacttolerance
     p.push_back(1.0e-7f); // simi_vortex_global_constraintlinearcompliance
     p.push_back(8.0e+6); // simi_vortex_global_constraintlineardamping
     p.push_back(6.0e-5f); // simi_vortex_global_constraintlinearkineticloss
     p.push_back(1.0e-9f); // simi_vortex_global_constraintangularcompliance
     p.push_back(8.0e+8); // simi_vortex_global_constraintangulardamping
     p.push_back(6.0e-7f); // simi_vortex_global_constraintangularkineticloss
-    p.push_back(0.01f); // RESERVED. used to be auto angular damping tension ratio, not used anymore
+    p.push_back(0.01); // RESERVED. used to be auto angular damping tension ratio, not used anymore
 }
 
 void CDynamicsContainer::getVortexDefaultIntParams(std::vector<int>& p,int defType/*=-1*/) const
@@ -2234,11 +2248,11 @@ void CDynamicsContainer::getVortexDefaultIntParams(std::vector<int>& p,int defTy
     p.push_back(v); // simi_vortex_global_bitcoded
 }
 
-void CDynamicsContainer::getNewtonDefaultFloatParams(std::vector<floatDouble>& p,int defType/*=-1*/) const
+void CDynamicsContainer::getNewtonDefaultFloatParams(std::vector<double>& p,int defType/*=-1*/) const
 {
     p.clear();
-    p.push_back(0.005f); // simi_newton_global_stepsize
-    p.push_back(0.01f); // simi_newton_global_contactmergetolerance
+    p.push_back(0.005); // simi_newton_global_stepsize
+    p.push_back(0.01); // simi_newton_global_contactmergetolerance
 }
 
 void CDynamicsContainer::getNewtonDefaultIntParams(std::vector<int>& p,int defType/*=-1*/) const
@@ -2259,10 +2273,10 @@ void CDynamicsContainer::getNewtonDefaultIntParams(std::vector<int>& p,int defTy
     p.push_back(options); // simi_newton_global_bitcoded
 }
 
-void CDynamicsContainer::getMujocoDefaultFloatParams(std::vector<floatDouble>& p,int defType/*=-1*/) const
+void CDynamicsContainer::getMujocoDefaultFloatParams(std::vector<double>& p,int defType/*=-1*/) const
 {
     p.clear();
-    p.push_back(0.005f); // simi_mujoco_global_stepsize
+    p.push_back(0.005); // simi_mujoco_global_stepsize
     p.push_back(1.0); // simi_mujoco_global_impratio
     p.push_back(0.0); // simi_mujoco_global_wind1
     p.push_back(0.0); // simi_mujoco_global_wind2
@@ -2270,16 +2284,16 @@ void CDynamicsContainer::getMujocoDefaultFloatParams(std::vector<floatDouble>& p
     p.push_back(0.0); // simi_mujoco_global_density
     p.push_back(0.0); // simi_mujoco_global_viscosity
     p.push_back(0.0); // simi_mujoco_global_boundmass
-    p.push_back(0.000001f); // simi_mujoco_global_boundinertia
+    p.push_back(0.000001); // simi_mujoco_global_boundinertia
     p.push_back(0.0); // simi_mujoco_global_overridemargin
-    p.push_back(0.02f); // simi_mujoco_global_overridesolref1
+    p.push_back(0.02); // simi_mujoco_global_overridesolref1
     p.push_back(1.0); // simi_mujoco_global_overridesolref2
-    p.push_back(0.9f); // simi_mujoco_global_overridesolimp1
-    p.push_back(0.95f); // simi_mujoco_global_overridesolimp2
-    p.push_back(0.001f); // simi_mujoco_global_overridesolimp3
-    p.push_back(0.5f); // simi_mujoco_global_overridesolimp4
+    p.push_back(0.9); // simi_mujoco_global_overridesolimp1
+    p.push_back(0.95); // simi_mujoco_global_overridesolimp2
+    p.push_back(0.001); // simi_mujoco_global_overridesolimp3
+    p.push_back(0.5); // simi_mujoco_global_overridesolimp4
     p.push_back(2.0); // simi_mujoco_global_overridesolimp5
-    p.push_back(1000.0f); // simi_mujoco_global_kinmass
+    p.push_back(1000.0); // simi_mujoco_global_kinmass
     p.push_back(1.0); // simi_mujoco_global_kininertia
 }
 

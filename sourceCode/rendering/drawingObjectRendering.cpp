@@ -2,36 +2,36 @@
 
 #ifdef SIM_WITH_OPENGL
 
-const float SPHEREVERTICES[24*3]={
--0.4142f,-1.0000f,-0.4142f,
-+0.4142f,-1.0000f,-0.4142f,
-+0.4142f,-1.0000f,+0.4142f,
--0.4142f,-1.0000f,+0.4142f,
+const double SPHEREVERTICES[24*3]={
+-0.4142,-1.0000,-0.4142,
++0.4142,-1.0000,-0.4142,
++0.4142,-1.0000,+0.4142,
+-0.4142,-1.0000,+0.4142,
 
--0.4142f,-0.4142f,-1.0000f,
--0.4142f,+0.4142f,-1.0000f,
-+0.4142f,+0.4142f,-1.0000f,
-+0.4142f,-0.4142f,-1.0000f,
+-0.4142,-0.4142,-1.0000,
+-0.4142,+0.4142,-1.0000,
++0.4142,+0.4142,-1.0000,
++0.4142,-0.4142,-1.0000,
 
-+0.4142f,+1.0000f,-0.4142f,
--0.4142f,+1.0000f,-0.4142f,
--0.4142f,+1.0000f,+0.4142f,
-+0.4142f,+1.0000f,+0.4142f,
++0.4142,+1.0000,-0.4142,
+-0.4142,+1.0000,-0.4142,
+-0.4142,+1.0000,+0.4142,
++0.4142,+1.0000,+0.4142,
 
-+0.4142f,-0.4142f,+1.0000f,
-+0.4142f,+0.4142f,+1.0000f,
--0.4142f,+0.4142f,+1.0000f,
--0.4142f,-0.4142f,+1.0000f,
++0.4142,-0.4142,+1.0000,
++0.4142,+0.4142,+1.0000,
+-0.4142,+0.4142,+1.0000,
+-0.4142,-0.4142,+1.0000,
 
-+1.0000f,-0.4142f,-0.4142f,
-+1.0000f,+0.4142f,-0.4142f,
-+1.0000f,+0.4142f,+0.4142f,
-+1.0000f,-0.4142f,+0.4142f,
++1.0000,-0.4142,-0.4142,
++1.0000,+0.4142,-0.4142,
++1.0000,+0.4142,+0.4142,
++1.0000,-0.4142,+0.4142,
 
--1.0000f,-0.4142f,+0.4142f,
--1.0000f,+0.4142f,+0.4142f,
--1.0000f,+0.4142f,-0.4142f,
--1.0000f,-0.4142f,-0.4142f
+-1.0000,-0.4142,+0.4142,
+-1.0000,+0.4142,+0.4142,
+-1.0000,+0.4142,-0.4142,
+-1.0000,-0.4142,-0.4142
 };
 
 const int SPHEREQUADINDICES[18*4]={
@@ -58,28 +58,28 @@ const int SPHEREQUADINDICES[18*4]={
 23,22,5,4
 };
 
-const float SPHEREQUADNORMALS[18*3]={
-+0.0f,-1.0f,+0.0f,
-+0.0f,+0.0f,-1.0f,
-+0.0f,+1.0f,+0.0f,
-+0.0f,+0.0f,+1.0f,
-+1.0f,+0.0f,+0.0f,
--1.0f,+0.0f,+0.0f,
+const double SPHEREQUADNORMALS[18*3]={
++0.0,-1.0,+0.0,
++0.0,+0.0,-1.0,
++0.0,+1.0,+0.0,
++0.0,+0.0,+1.0,
++1.0,+0.0,+0.0,
+-1.0,+0.0,+0.0,
 
-+0.0f,-0.7071f,-0.7071f,
-+0.7071f,-0.7071f,+0.0f,
-+0.0f,-0.7071f,+0.7071f,
--0.7071f,-0.7071f,+0.0f,
++0.0,-0.7071,-0.7071,
++0.7071,-0.7071,+0.0,
++0.0,-0.7071,+0.7071,
+-0.7071,-0.7071,+0.0,
 
-+0.0f,+0.7071f,-0.7071f,
-+0.7071f,+0.7071f,+0.0f,
-+0.0f,+0.7071f,+0.7071f,
--0.7071f,+0.7071f,+0.0f,
++0.0,+0.7071,-0.7071,
++0.7071,+0.7071,+0.0,
++0.0,+0.7071,+0.7071,
+-0.7071,+0.7071,+0.0,
 
-+0.7071f,0.0f,-0.7071f,
-+0.7071f,0.0f,+0.7071f,
--0.7071f,0.0f,+0.7071f,
--0.7071f,0.0f,-0.7071f
++0.7071,0.0,-0.7071,
++0.7071,0.0,+0.7071,
+-0.7071,0.0,+0.7071,
+-0.7071,0.0,-0.7071
 };
 
 const int SPHERETRIANGLEINDICES[8*3]={
@@ -94,16 +94,16 @@ const int SPHERETRIANGLEINDICES[8*3]={
 22,9,5
 };
 
-const float SPHERETRIANGLENORMALS[8*3]={
-+0.5773f,-0.5773f,-0.5773f,
-+0.5773f,-0.5773f,+0.5773f,
--0.5773f,-0.5773f,+0.5773f,
--0.5773f,-0.5773f,-0.5773f,
+const double SPHERETRIANGLENORMALS[8*3]={
++0.5773,-0.5773,-0.5773,
++0.5773,-0.5773,+0.5773,
+-0.5773,-0.5773,+0.5773,
+-0.5773,-0.5773,-0.5773,
 
-+0.5773f,+0.5773f,-0.5773f,
-+0.5773f,+0.5773f,+0.5773f,
--0.5773f,+0.5773f,+0.5773f,
--0.5773f,+0.5773f,-0.5773f,
++0.5773,+0.5773,-0.5773,
++0.5773,+0.5773,+0.5773,
+-0.5773,+0.5773,+0.5773,
+-0.5773,+0.5773,-0.5773,
 };
 
 void displayDrawingObject(CDrawingObject* drawingObject,C7Vector& tr,bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM)
@@ -118,9 +118,9 @@ void displayDrawingObject(CDrawingObject* drawingObject,C7Vector& tr,bool overla
     C4X4Matrix cameraRTM(cameraCTM);
     if (drawingObject->getSceneObjectId()>=0)
     {
-        glTranslatef(tr.X(0),tr.X(1),tr.X(2));
+        glTranslated(tr.X(0),tr.X(1),tr.X(2));
         C4Vector axis=tr.Q.getAngleAndAxis();
-        glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+        glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
         cameraRTM.setMultResult(tr.getInverse().getMatrix(),cameraCTM);
     }
 
@@ -168,15 +168,15 @@ void displayDrawingObject(CDrawingObject* drawingObject,C7Vector& tr,bool overla
         ogl::setBlending(false);
 }
 
-void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM,const float normalVectorForLinesAndPoints[3])
+void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM,const double normalVectorForLinesAndPoints[3])
 {
     bool auxCmp=(displayAttrib&sim_displayattribute_useauxcomponent)!=0;
-    C3Vector n(cameraRTM.M.axis[2]*-1.0f);
+    C3Vector n(cameraRTM.M.axis[2]*-1.0);
     int _objectType=drawingObject->getObjectType();
-    float _size=drawingObject->getSize();
+    double _size=drawingObject->getSize();
     int _maxItemCount=drawingObject->getMaxItemCount();
     int _startItem=drawingObject->getStartItem();
-    std::vector<float>& _data=drawingObject->getDataPtr()[0];
+    std::vector<double>& _data=drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
@@ -187,7 +187,7 @@ void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matri
 
         ogl::buffer.clear();
         std::vector<float> glCols;
-        std::vector<float> glSizes;
+        std::vector<double> glSizes;
         bool cols=false;
         for (int i=0;i<int(_data.size())/drawingObject->floatsPerItem;i++)
         {
@@ -215,13 +215,13 @@ void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matri
                     glCols.push_back(drawingObject->color.getColorsPtr()[1]);
                     glCols.push_back(drawingObject->color.getColorsPtr()[2]);
                 }
-                glCols.push_back(1.0f-_data[drawingObject->floatsPerItem*p+3+off]);
+                glCols.push_back(1.0-_data[drawingObject->floatsPerItem*p+3+off]);
                 off++;
             }
             else
             {
                 if (cols)
-                    glCols.push_back(1.0f);
+                    glCols.push_back(1.0);
             }
 
             v.setData(&_data[drawingObject->floatsPerItem*p+0]);
@@ -235,11 +235,11 @@ void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matri
                 ogl::drawRandom3dPointsEx(&ogl::buffer[0],(int)ogl::buffer.size()/3,nullptr,&glCols[0],&glSizes[0],_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2),normalVectorForLinesAndPoints);
         }
         ogl::buffer.clear();
-        glPointSize(1.0f);
+        glPointSize(1.0);
     }
     else
     { // fixed point size
-        glPointSize(_size);
+        glPointSize((float)_size);
 
         ogl::buffer.clear();
         std::vector<float> glCols;
@@ -269,13 +269,13 @@ void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matri
                     glCols.push_back(drawingObject->color.getColorsPtr()[1]);
                     glCols.push_back(drawingObject->color.getColorsPtr()[2]);
                 }
-                glCols.push_back(1.0f-_data[drawingObject->floatsPerItem*p+3+off]);
+                glCols.push_back(1.0-_data[drawingObject->floatsPerItem*p+3+off]);
                 off++;
-        }
+            }
             else
             {
                 if (cols)
-                    glCols.push_back(1.0f);
+                    glCols.push_back(1.0);
             }
 
             ogl::addBuffer3DPoints(v.data);
@@ -288,7 +288,7 @@ void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matri
                 ogl::drawRandom3dPointsEx(&ogl::buffer[0],(int)ogl::buffer.size()/3,nullptr,&glCols[0],nullptr,_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2),normalVectorForLinesAndPoints);
         }
         ogl::buffer.clear();
-        glPointSize(1.0f);
+        glPointSize(1.0);
     }
 
     // Following 2 new since introduction of sim_drawing_itemtransparency:
@@ -300,18 +300,18 @@ void _drawTrianglePoints(CDrawingObject* drawingObject,int displayAttrib,const C
 {
     bool auxCmp=(displayAttrib&sim_displayattribute_useauxcomponent)!=0;
     int _objectType=drawingObject->getObjectType();
-    float _size=drawingObject->getSize();
+    double _size=drawingObject->getSize();
     int _maxItemCount=drawingObject->getMaxItemCount();
     int _startItem=drawingObject->getStartItem();
-    std::vector<float>& _data=drawingObject->getDataPtr()[0];
+    std::vector<double>& _data=drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
 
     C3Vector v,n,x,y;
-    float s=_size;
-    float sxc=0.866f;
-    float syc=0.5f;
+    double s=_size;
+    double sxc=0.866;
+    double syc=0.5;
     for (int i=0;i<int(_data.size())/drawingObject->floatsPerItem;i++)
     {
         int off=0;
@@ -322,8 +322,8 @@ void _drawTrianglePoints(CDrawingObject* drawingObject,int displayAttrib,const C
         off+=3;
         if (_objectType&sim_drawing_facingcamera)
         {
-            n=cameraRTM.M.axis[2]*-1.0f;
-            if (n(2)<0.8f)
+            n=cameraRTM.M.axis[2]*-1.0;
+            if (n(2)<0.8)
                 x=(n^C3Vector::unitZVector).getNormalized();
             else
                 x=(n^C3Vector::unitXVector).getNormalized();
@@ -340,10 +340,11 @@ void _drawTrianglePoints(CDrawingObject* drawingObject,int displayAttrib,const C
         }
         if ( (_objectType&sim_drawing_itemcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
+            float ab[3]={(float)_data[drawingObject->floatsPerItem*p+off+0],(float)_data[drawingObject->floatsPerItem*p+off+1],(float)_data[drawingObject->floatsPerItem*p+off+2]};
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission,&_data[drawingObject->floatsPerItem*p+off+0]);
+                ogl::setMaterialColor(sim_colorcomponent_emission,ab);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,&_data[drawingObject->floatsPerItem*p+off+0]);
+                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ab);
         }
         if (_objectType&sim_drawing_itemcolors)
             off+=3;
@@ -355,15 +356,15 @@ void _drawTrianglePoints(CDrawingObject* drawingObject,int displayAttrib,const C
 
         if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         { // Following part new since introduction of sim_drawing_itemtransparency:
-            ogl::setAlpha(1.0f-_data[drawingObject->floatsPerItem*p+off]);
+            ogl::setAlpha(1.0-_data[drawingObject->floatsPerItem*p+off]);
             off++;
         }
 
         glBegin(GL_TRIANGLES);
-        glNormal3fv(n.data);
-        glVertex3fv((v+(y*s)).data);
-        glVertex3fv((v-(x*(s*sxc))-(y*(s*syc))).data);
-        glVertex3fv((v+(x*(s*sxc))-(y*(s*syc))).data);
+        glNormal3dv(n.data);
+        glVertex3dv((v+(y*s)).data);
+        glVertex3dv((v-(x*(s*sxc))-(y*(s*syc))).data);
+        glVertex3dv((v+(x*(s*sxc))-(y*(s*syc))).data);
         glEnd();
     }
 
@@ -376,16 +377,16 @@ void _drawQuadPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
 {
     bool auxCmp=(displayAttrib&sim_displayattribute_useauxcomponent)!=0;
     int _objectType=drawingObject->getObjectType();
-    float _size=drawingObject->getSize();
+    double _size=drawingObject->getSize();
     int _maxItemCount=drawingObject->getMaxItemCount();
     int _startItem=drawingObject->getStartItem();
-    std::vector<float>& _data=drawingObject->getDataPtr()[0];
+    std::vector<double>& _data=drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
 
     C3Vector v,n,x,y;
-    float s=_size;
+    double s=_size;
     for (int i=0;i<int(_data.size())/drawingObject->floatsPerItem;i++)
     {
         int off=0;
@@ -396,8 +397,8 @@ void _drawQuadPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         off+=3;
         if (_objectType&sim_drawing_facingcamera)
         {
-            n=cameraRTM.M.axis[2]*-1.0f;
-            if (n(2)<0.8f)
+            n=cameraRTM.M.axis[2]*-1.0;
+            if (n(2)<0.8)
                 x=(n^C3Vector::unitZVector).getNormalized();
             else
                 x=(n^C3Vector::unitXVector).getNormalized();
@@ -414,10 +415,11 @@ void _drawQuadPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         }
         if ( (_objectType&sim_drawing_itemcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
+            float ab[3]={(float)_data[drawingObject->floatsPerItem*p+off+0],(float)_data[drawingObject->floatsPerItem*p+off+1],(float)_data[drawingObject->floatsPerItem*p+off+2]};
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission,&_data[drawingObject->floatsPerItem*p+off+0]);
+                ogl::setMaterialColor(sim_colorcomponent_emission,ab);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,&_data[drawingObject->floatsPerItem*p+off+0]);
+                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ab);
         }
         if (_objectType&sim_drawing_itemcolors)
             off+=3;
@@ -429,16 +431,16 @@ void _drawQuadPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
 
         if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         { // Following part new since introduction of sim_drawing_itemtransparency:
-            ogl::setAlpha(1.0f-_data[drawingObject->floatsPerItem*p+off]);
+            ogl::setAlpha(1.0-_data[drawingObject->floatsPerItem*p+off]);
             off++;
         }
 
         glBegin(GL_QUADS);
-        glNormal3fv(n.data);
-        glVertex3fv((v+(y*s)+(x*s)).data);
-        glVertex3fv((v+(y*s)-(x*s)).data);
-        glVertex3fv((v-(y*s)-(x*s)).data);
-        glVertex3fv((v-(y*s)+(x*s)).data);
+        glNormal3dv(n.data);
+        glVertex3dv((v+(y*s)+(x*s)).data);
+        glVertex3dv((v+(y*s)-(x*s)).data);
+        glVertex3dv((v-(y*s)-(x*s)).data);
+        glVertex3dv((v-(y*s)+(x*s)).data);
         glEnd();
     }
 
@@ -451,17 +453,17 @@ void _drawDiscPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
 {
     bool auxCmp=(displayAttrib&sim_displayattribute_useauxcomponent)!=0;
     int _objectType=drawingObject->getObjectType();
-    float _size=drawingObject->getSize();
+    double _size=drawingObject->getSize();
     int _maxItemCount=drawingObject->getMaxItemCount();
     int _startItem=drawingObject->getStartItem();
-    std::vector<float>& _data=drawingObject->getDataPtr()[0];
+    std::vector<double>& _data=drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
 
     C3Vector v,n,x,y;
-    float s=_size;
-    float ssc=0.4142f;
+    double s=_size;
+    double ssc=0.4142;
     for (int i=0;i<int(_data.size())/drawingObject->floatsPerItem;i++)
     {
         int off=0;
@@ -472,8 +474,8 @@ void _drawDiscPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         off+=3;
         if (_objectType&sim_drawing_facingcamera)
         {
-            n=cameraRTM.M.axis[2]*-1.0f;
-            if (n(2)<0.8f)
+            n=cameraRTM.M.axis[2]*-1.0;
+            if (n(2)<0.8)
                 x=(n^C3Vector::unitZVector).getNormalized();
             else
                 x=(n^C3Vector::unitXVector).getNormalized();
@@ -490,10 +492,11 @@ void _drawDiscPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         }
         if ( (_objectType&sim_drawing_itemcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
+            float ab[3]={(float)_data[drawingObject->floatsPerItem*p+off+0],(float)_data[drawingObject->floatsPerItem*p+off+1],(float)_data[drawingObject->floatsPerItem*p+off+2]};
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission,&_data[drawingObject->floatsPerItem*p+off+0]);
+                ogl::setMaterialColor(sim_colorcomponent_emission,ab);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,&_data[drawingObject->floatsPerItem*p+off+0]);
+                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ab);
         }
         if (_objectType&sim_drawing_itemcolors)
             off+=3;
@@ -505,20 +508,20 @@ void _drawDiscPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
 
         if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         { // Following part new since introduction of sim_drawing_itemtransparency:
-            ogl::setAlpha(1.0f-_data[drawingObject->floatsPerItem*p+off]);
+            ogl::setAlpha(1.0-_data[drawingObject->floatsPerItem*p+off]);
             off++;
         }
 
         glBegin(GL_TRIANGLE_FAN); // GL_POLYGON is problematic on certain graphic cards!
-        glNormal3fv(n.data);
-        glVertex3fv((v+(x*s)+(y*(s*ssc))).data);
-        glVertex3fv((v+(x*(s*ssc))+(y*s)).data);
-        glVertex3fv((v-(x*(s*ssc))+(y*s)).data);
-        glVertex3fv((v-(x*s)+(y*(s*ssc))).data);
-        glVertex3fv((v-(x*s)-(y*(s*ssc))).data);
-        glVertex3fv((v-(x*(s*ssc))-(y*s)).data);
-        glVertex3fv((v+(x*(s*ssc))-(y*s)).data);
-        glVertex3fv((v+(x*s)-(y*(s*ssc))).data);
+        glNormal3dv(n.data);
+        glVertex3dv((v+(x*s)+(y*(s*ssc))).data);
+        glVertex3dv((v+(x*(s*ssc))+(y*s)).data);
+        glVertex3dv((v-(x*(s*ssc))+(y*s)).data);
+        glVertex3dv((v-(x*s)+(y*(s*ssc))).data);
+        glVertex3dv((v-(x*s)-(y*(s*ssc))).data);
+        glVertex3dv((v-(x*(s*ssc))-(y*s)).data);
+        glVertex3dv((v+(x*(s*ssc))-(y*s)).data);
+        glVertex3dv((v+(x*s)-(y*(s*ssc))).data);
         glEnd();
     }
 
@@ -531,16 +534,16 @@ void _drawCubePoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
 {
     bool auxCmp=(displayAttrib&sim_displayattribute_useauxcomponent)!=0;
     int _objectType=drawingObject->getObjectType();
-    float _size=drawingObject->getSize();
+    double _size=drawingObject->getSize();
     int _maxItemCount=drawingObject->getMaxItemCount();
     int _startItem=drawingObject->getStartItem();
-    std::vector<float>& _data=drawingObject->getDataPtr()[0];
+    std::vector<double>& _data=drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
 
     C3Vector v,n,x,y,x0,y0,z0;
-    float s=_size;
+    double s=_size;
     for (int i=0;i<int(_data.size())/drawingObject->floatsPerItem;i++)
     {
         int off=0;
@@ -551,8 +554,8 @@ void _drawCubePoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         off+=3;
         if (_objectType&sim_drawing_facingcamera)
         {
-            n=cameraRTM.M.axis[2]*-1.0f;
-            if (n(2)<0.8f)
+            n=cameraRTM.M.axis[2]*-1.0;
+            if (n(2)<0.8)
                 x=(n^C3Vector::unitZVector).getNormalized();
             else
                 x=(n^C3Vector::unitXVector).getNormalized();
@@ -569,10 +572,11 @@ void _drawCubePoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         }
         if ( (_objectType&sim_drawing_itemcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
+            float ab[3]={(float)_data[drawingObject->floatsPerItem*p+off+0],(float)_data[drawingObject->floatsPerItem*p+off+1],(float)_data[drawingObject->floatsPerItem*p+off+2]};
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission,&_data[drawingObject->floatsPerItem*p+off+0]);
+                ogl::setMaterialColor(sim_colorcomponent_emission,ab);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,&_data[drawingObject->floatsPerItem*p+off+0]);
+                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ab);
         }
         if (_objectType&sim_drawing_itemcolors)
             off+=3;
@@ -584,7 +588,7 @@ void _drawCubePoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
 
         if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         { // Following part new since introduction of sim_drawing_itemtransparency:
-            ogl::setAlpha(1.0f-_data[drawingObject->floatsPerItem*p+off]);
+            ogl::setAlpha(1.0-_data[drawingObject->floatsPerItem*p+off]);
             off++;
         }
 
@@ -592,41 +596,41 @@ void _drawCubePoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4M
         y0=y*s;
         z0=n*s;
         glBegin(GL_QUADS);
-        glNormal3fv(x.data);
-        glVertex3fv((v+x0+y0+z0).data);
-        glVertex3fv((v+x0-y0+z0).data);
-        glVertex3fv((v+x0-y0-z0).data);
-        glVertex3fv((v+x0+y0-z0).data);
+        glNormal3dv(x.data);
+        glVertex3dv((v+x0+y0+z0).data);
+        glVertex3dv((v+x0-y0+z0).data);
+        glVertex3dv((v+x0-y0-z0).data);
+        glVertex3dv((v+x0+y0-z0).data);
 
-        glNormal3fv(y.data);
-        glVertex3fv((v+x0+y0+z0).data);
-        glVertex3fv((v+x0+y0-z0).data);
-        glVertex3fv((v-x0+y0-z0).data);
-        glVertex3fv((v-x0+y0+z0).data);
+        glNormal3dv(y.data);
+        glVertex3dv((v+x0+y0+z0).data);
+        glVertex3dv((v+x0+y0-z0).data);
+        glVertex3dv((v-x0+y0-z0).data);
+        glVertex3dv((v-x0+y0+z0).data);
 
-        glNormal3fv((x*-1.0f).data);
-        glVertex3fv((v-x0-y0+z0).data);
-        glVertex3fv((v-x0+y0+z0).data);
-        glVertex3fv((v-x0+y0-z0).data);
-        glVertex3fv((v-x0-y0-z0).data);
+        glNormal3dv((x*-1.0).data);
+        glVertex3dv((v-x0-y0+z0).data);
+        glVertex3dv((v-x0+y0+z0).data);
+        glVertex3dv((v-x0+y0-z0).data);
+        glVertex3dv((v-x0-y0-z0).data);
 
-        glNormal3fv((y*-1.0f).data);
-        glVertex3fv((v-x0-y0+z0).data);
-        glVertex3fv((v-x0-y0-z0).data);
-        glVertex3fv((v+x0-y0-z0).data);
-        glVertex3fv((v+x0-y0+z0).data);
+        glNormal3dv((y*-1.0).data);
+        glVertex3dv((v-x0-y0+z0).data);
+        glVertex3dv((v-x0-y0-z0).data);
+        glVertex3dv((v+x0-y0-z0).data);
+        glVertex3dv((v+x0-y0+z0).data);
 
-        glNormal3fv(n.data);
-        glVertex3fv((v+x0+y0+z0).data);
-        glVertex3fv((v-x0+y0+z0).data);
-        glVertex3fv((v-x0-y0+z0).data);
-        glVertex3fv((v+x0-y0+z0).data);
+        glNormal3dv(n.data);
+        glVertex3dv((v+x0+y0+z0).data);
+        glVertex3dv((v-x0+y0+z0).data);
+        glVertex3dv((v-x0-y0+z0).data);
+        glVertex3dv((v+x0-y0+z0).data);
 
-        glNormal3fv((n*-1.0f).data);
-        glVertex3fv((v-x0-y0-z0).data);
-        glVertex3fv((v-x0+y0-z0).data);
-        glVertex3fv((v+x0+y0-z0).data);
-        glVertex3fv((v+x0-y0-z0).data);
+        glNormal3dv((n*-1.0).data);
+        glVertex3dv((v-x0-y0-z0).data);
+        glVertex3dv((v-x0+y0-z0).data);
+        glVertex3dv((v+x0+y0-z0).data);
+        glVertex3dv((v+x0-y0-z0).data);
 
         glEnd();
     }
@@ -640,16 +644,16 @@ void _drawSpherePoints(CDrawingObject* drawingObject,int displayAttrib)
 {
     bool auxCmp=(displayAttrib&sim_displayattribute_useauxcomponent)!=0;
     int _objectType=drawingObject->getObjectType();
-    float _size=drawingObject->getSize();
+    double _size=drawingObject->getSize();
     int _maxItemCount=drawingObject->getMaxItemCount();
     int _startItem=drawingObject->getStartItem();
-    std::vector<float>& _data=drawingObject->getDataPtr()[0];
+    std::vector<double>& _data=drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
 
     C3Vector v;
-    float s=_size;
+    double s=_size;
     for (int i=0;i<int(_data.size())/drawingObject->floatsPerItem;i++)
     {
         int off=0;
@@ -659,10 +663,11 @@ void _drawSpherePoints(CDrawingObject* drawingObject,int displayAttrib)
         v.setData(&_data[drawingObject->floatsPerItem*p+0]);
         if ( (_objectType&sim_drawing_itemcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
+            float ab[3]={(float)_data[drawingObject->floatsPerItem*p+3],(float)_data[drawingObject->floatsPerItem*p+4],(float)_data[drawingObject->floatsPerItem*p+5]};
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission,&_data[drawingObject->floatsPerItem*p+3]);
+                ogl::setMaterialColor(sim_colorcomponent_emission,ab);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,&_data[drawingObject->floatsPerItem*p+3]);
+                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ab);
         }
         if (_objectType&sim_drawing_itemcolors)
             off+=3;
@@ -674,7 +679,7 @@ void _drawSpherePoints(CDrawingObject* drawingObject,int displayAttrib)
 
         if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         { // Following part new since introduction of sim_drawing_itemtransparency:
-            ogl::setAlpha(1.0f-_data[drawingObject->floatsPerItem*p+3+off]);
+            ogl::setAlpha(1.0-_data[drawingObject->floatsPerItem*p+3+off]);
             off++;
         }
 
@@ -689,11 +694,11 @@ void _drawSpherePoints(CDrawingObject* drawingObject,int displayAttrib)
             x1=v+x1*s;
             x2=v+x2*s;
             x3=v+x3*s;
-            glNormal3fv(SPHEREQUADNORMALS+3*j);
-            glVertex3fv(x0.data);
-            glVertex3fv(x1.data);
-            glVertex3fv(x2.data);
-            glVertex3fv(x3.data);
+            glNormal3dv(SPHEREQUADNORMALS+3*j);
+            glVertex3dv(x0.data);
+            glVertex3dv(x1.data);
+            glVertex3dv(x2.data);
+            glVertex3dv(x3.data);
         }
         glEnd();
         glBegin(GL_TRIANGLES);
@@ -705,10 +710,10 @@ void _drawSpherePoints(CDrawingObject* drawingObject,int displayAttrib)
             x0=v+x0*s;
             x1=v+x1*s;
             x2=v+x2*s;
-            glNormal3fv(SPHERETRIANGLENORMALS+3*j);
-            glVertex3fv(x0.data);
-            glVertex3fv(x1.data);
-            glVertex3fv(x2.data);
+            glNormal3dv(SPHERETRIANGLENORMALS+3*j);
+            glVertex3dv(x0.data);
+            glVertex3dv(x1.data);
+            glVertex3dv(x2.data);
         }
         glEnd();
     }
@@ -718,24 +723,24 @@ void _drawSpherePoints(CDrawingObject* drawingObject,int displayAttrib)
         ogl::setBlending(false); // make sure we turn blending off!
 }
 
-void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM,const float normalVectorForLinesAndPoints[3])
+void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM,const double normalVectorForLinesAndPoints[3])
 {
     bool auxCmp=(displayAttrib&sim_displayattribute_useauxcomponent)!=0;
     int _objectType=drawingObject->getObjectType();
-    float _size=drawingObject->getSize();
+    double _size=drawingObject->getSize();
     int _maxItemCount=drawingObject->getMaxItemCount();
     int _startItem=drawingObject->getStartItem();
-    std::vector<float>& _data=drawingObject->getDataPtr()[0];
+    std::vector<double>& _data=drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
 
-    C3Vector n(cameraRTM.M.axis[2]*-1.0f);
+    C3Vector n(cameraRTM.M.axis[2]*-1.0);
 
     if (_objectType&sim_drawing_itemsizes)
     { // This is a special routine in case we want various line sizes (change not possible between glBegin and glEnd)
-        float rgbaAmb[3]={0.0f,0.0f,0.0f};
-        float rgbaAmb2[3]={0.0f,0.0f,0.0f};
+        float rgbaAmb[3]={0.0,0.0,0.0};
+        float rgbaAmb2[3]={0.0,0.0,0.0};
         int off=0;
         for (int i=0;i<int(_data.size())/drawingObject->floatsPerItem;i++)
         {
@@ -761,11 +766,11 @@ void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix
                 rgbaAmb2[2]=_data[drawingObject->floatsPerItem*p+8+off];
                 off+=3;
             }
-            glLineWidth(_data[drawingObject->floatsPerItem*p+6+off]);
-            float alpha=1.0f;
+            glLineWidth((float)_data[drawingObject->floatsPerItem*p+6+off]);
+            double alpha=1.0;
             if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
             {
-                alpha=1.0f-_data[drawingObject->floatsPerItem*p+6+off+1];
+                alpha=1.0-_data[drawingObject->floatsPerItem*p+6+off+1];
                 ogl::setAlpha(alpha);
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,drawingObject->color.getColorsPtr()+3);
             }
@@ -774,8 +779,8 @@ void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix
             C3Vector v,w;
             v.setData(&_data[drawingObject->floatsPerItem*p+0]);
             w.setData(&_data[drawingObject->floatsPerItem*p+3]);
-            glNormal3fv(n.data);
-            glVertex3fv(v.data);
+            glNormal3dv(n.data);
+            glVertex3dv(v.data);
             if ( (_objectType&sim_drawing_vertexcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
             {
                 if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
@@ -786,18 +791,18 @@ void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix
                     ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,rgbaAmb2);
                 }
             }
-            glVertex3fv(w.data);
+            glVertex3dv(w.data);
             glEnd();
         }
-        glLineWidth(1.0f);
+        glLineWidth(1.0);
     }
     else
     { // fixed point size
-        glLineWidth(_size);
+        glLineWidth((float)_size);
         glBegin(GL_LINES);
         C3Vector v,w;
-        float rgbaAmb[3]={0.0f,0.0f,0.0f};
-        float rgbaAmb2[3]={0.0f,0.0f,0.0f};
+        float rgbaAmb[3]={0.0,0.0,0.0};
+        float rgbaAmb2[3]={0.0,0.0,0.0};
         for (int i=0;i<int(_data.size())/drawingObject->floatsPerItem;i++)
         {
             int off=0;
@@ -826,16 +831,16 @@ void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix
                 off+=3;
             }
 
-            float alpha=1.0f;
+            double alpha=1.0;
             if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
             {
-                alpha=1.0f-_data[drawingObject->floatsPerItem*p+6+off];
+                alpha=1.0-_data[drawingObject->floatsPerItem*p+6+off];
                 ogl::setAlpha(alpha);
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,drawingObject->color.getColorsPtr()+3);
             }
 
-            glNormal3fv(n.data);
-            glVertex3fv(v.data);
+            glNormal3dv(n.data);
+            glVertex3dv(v.data);
             if ( (_objectType&sim_drawing_vertexcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
             {
                 if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
@@ -846,10 +851,10 @@ void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix
                     ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,rgbaAmb2);
                 }
             }
-            glVertex3fv(w.data);
+            glVertex3dv(w.data);
         }
         glEnd();
-        glLineWidth(1.0f);
+        glLineWidth(1.0);
     }
 
     // Following 2 new since introduction of sim_drawing_itemtransparency:
@@ -857,25 +862,25 @@ void _drawLines(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix
         ogl::setBlending(false); // make sure we turn blending off!
 }
 
-void _drawLineStrip(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM,const float normalVectorForLinesAndPoints[3])
+void _drawLineStrip(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM,const double normalVectorForLinesAndPoints[3])
 {
     bool auxCmp=(displayAttrib&sim_displayattribute_useauxcomponent)!=0;
     int _objectType=drawingObject->getObjectType();
-    float _size=drawingObject->getSize();
+    double _size=drawingObject->getSize();
     int _maxItemCount=drawingObject->getMaxItemCount();
     int _startItem=drawingObject->getStartItem();
-    std::vector<float>& _data=drawingObject->getDataPtr()[0];
+    std::vector<double>& _data=drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
 
-    C3Vector n(cameraRTM.M.axis[2]*-1.0f);
+    C3Vector n(cameraRTM.M.axis[2]*-1.0);
 
-    glLineWidth(_size);
+    glLineWidth((float)_size);
     glBegin(GL_LINE_STRIP);
     C3Vector v;
-    float rgbaAmb[3]={0.0f,0.0f,0.0f};
-    float rgbaAmb2[3]={0.0f,0.0f,0.0f};
+    float rgbaAmb[3]={0.0,0.0,0.0};
+    float rgbaAmb2[3]={0.0,0.0,0.0};
     int off=0;
     for (int i=0;i<int(_data.size())/drawingObject->floatsPerItem;i++)
     {
@@ -894,11 +899,11 @@ void _drawLineStrip(CDrawingObject* drawingObject,int displayAttrib,const C4X4Ma
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,rgbaAmb);
         }
 
-        glNormal3fv(n.data);
-        glVertex3fv(v.data);
+        glNormal3dv(n.data);
+        glVertex3dv(v.data);
     }
     glEnd();
-    glLineWidth(1.0f);
+    glLineWidth(1.0);
 
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
@@ -909,10 +914,10 @@ void _drawTriangles(CDrawingObject* drawingObject,int displayAttrib)
 {
     bool auxCmp=(displayAttrib&sim_displayattribute_useauxcomponent)!=0;
     int _objectType=drawingObject->getObjectType();
-    //float _size=drawingObject->getSize();
+    //double _size=drawingObject->getSize();
     int _maxItemCount=drawingObject->getMaxItemCount();
     int _startItem=drawingObject->getStartItem();
-    std::vector<float>& _data=drawingObject->getDataPtr()[0];
+    std::vector<double>& _data=drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
@@ -930,35 +935,44 @@ void _drawTriangles(CDrawingObject* drawingObject,int displayAttrib)
         x.setData(&_data[drawingObject->floatsPerItem*p+6]);
         if ( (_objectType&(sim_drawing_itemcolors|sim_drawing_vertexcolors)) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
+            float ab[3]={_data[drawingObject->floatsPerItem*p+9],_data[drawingObject->floatsPerItem*p+10],_data[drawingObject->floatsPerItem*p+11]};
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission,&_data[drawingObject->floatsPerItem*p+9]);
+                ogl::setMaterialColor(sim_colorcomponent_emission,ab);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,&_data[drawingObject->floatsPerItem*p+9]);
+                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ab);
         }
         if (_objectType&(sim_drawing_itemcolors|sim_drawing_vertexcolors))
             off+=3;
         float* vertex2Col=nullptr;
         float* vertex3Col=nullptr;
+        float vertex2Col_[3];
+        float vertex3Col_[3];
         if (_objectType&sim_drawing_vertexcolors)
         {
-            vertex2Col=&_data[drawingObject->floatsPerItem*p+9+off];
+            vertex2Col_[0]=_data[drawingObject->floatsPerItem*p+9+off+0];
+            vertex2Col_[1]=_data[drawingObject->floatsPerItem*p+9+off+1];
+            vertex2Col_[2]=_data[drawingObject->floatsPerItem*p+9+off+2];
+            vertex2Col=vertex2Col_;
             off+=3;
-            vertex3Col=&_data[drawingObject->floatsPerItem*p+9+off];
+            vertex3Col_[0]=_data[drawingObject->floatsPerItem*p+9+off+0];
+            vertex3Col_[1]=_data[drawingObject->floatsPerItem*p+9+off+1];
+            vertex3Col_[2]=_data[drawingObject->floatsPerItem*p+9+off+2];
+            vertex3Col=vertex3Col_;
             off+=3;
         }
 
         if ( (_objectType&sim_drawing_itemtransparency)&&(!auxCmp) )
         { // Following part new since introduction of sim_drawing_itemtransparency:
-            ogl::setAlpha(1.0f-_data[drawingObject->floatsPerItem*p+9+off]);
+            ogl::setAlpha(1.0-_data[drawingObject->floatsPerItem*p+9+off]);
             off++;
         }
 
         n=(w-v)^(x-v);
-        float l=n.getLength();
-        if (l!=0.0f)
+        double l=n.getLength();
+        if (l!=0.0)
             n/=l;
-        glNormal3fv(n.data);
-        glVertex3fv(v.data);
+        glNormal3dv(n.data);
+        glVertex3dv(v.data);
         if ( (_objectType&sim_drawing_vertexcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
@@ -966,7 +980,7 @@ void _drawTriangles(CDrawingObject* drawingObject,int displayAttrib)
             else
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,vertex2Col);
         }
-        glVertex3fv(w.data);
+        glVertex3dv(w.data);
         if ( (_objectType&sim_drawing_vertexcolors) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
@@ -974,7 +988,7 @@ void _drawTriangles(CDrawingObject* drawingObject,int displayAttrib)
             else
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,vertex3Col);
         }
-        glVertex3fv(x.data);
+        glVertex3dv(x.data);
     }
     glEnd();
 

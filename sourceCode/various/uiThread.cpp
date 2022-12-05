@@ -424,7 +424,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
 
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==DLG_INPUT_GET_FLOAT_UITHREADCMD) )
     {
-        cmdOut->floatParams.push_back(0.0f);
+        cmdOut->floatParams.push_back(0.0);
         cmdOut->boolParams.push_back(dialogInputGetFloat((QWidget*)cmdIn->objectParams[0],cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str(),cmdIn->floatParams[0],cmdIn->floatParams[1],cmdIn->floatParams[2],cmdIn->intParams[0],&cmdOut->floatParams[0]));
     }
 
@@ -443,7 +443,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
         int subdiv[3];
         int faceSubdiv,sides,discSubdiv;
         bool smooth,dynamic,openEnds;
-        float density;
+        double density;
         if (showPrimitiveShapeDialog(cmdIn->intParams[0],(C3Vector*)cmdIn->objectParams[0],sizes,subdiv,faceSubdiv,sides,discSubdiv,smooth,openEnds,dynamic,density))
         {
             cmdOut->posParams.push_back(sizes);
@@ -468,15 +468,15 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
 
 }
 
-void CUiThread::showOrHideProgressBar(bool show,float pos,const char* txt)
+void CUiThread::showOrHideProgressBar(bool show,double pos,const char* txt)
 { // pos and txt can be omitted (then previously provided values will be used)
     TRACE_INTERNAL;
 #ifdef SIM_WITH_GUI
     if ( App::userSettings->doNotShowProgressBars||(App::getDlgVerbosity()<sim_verbosity_infos) )
         return;
-    static float p=0.0f;
+    static double p=0.0;
     static std::string t("");
-    if (pos<101.0f)
+    if (pos<101.0)
         p=pos;
     if (txt!=nullptr)
         t=txt;
@@ -955,7 +955,7 @@ std::string CUiThread::getSaveFileName(void* parentWidget,unsigned short option,
     return(retVal);
 }
 
-bool CUiThread::dialogInputGetFloat(void* parentWidget,const char* title,const char* msg,float def,float minV,float maxV,int decimals,float* outFloat)
+bool CUiThread::dialogInputGetFloat(void* parentWidget,const char* title,const char* msg,double def,double minV,double maxV,int decimals,double* outFloat)
 {
     TRACE_INTERNAL;
     bool retVal=false;
@@ -963,7 +963,7 @@ bool CUiThread::dialogInputGetFloat(void* parentWidget,const char* title,const c
     { // make sure we are not in headless mode
         if (VThread::isCurrentThreadTheUiThread())
         { // we are in the UI thread. We execute the command now:
-            outFloat[0]=(float)QInputDialog::getDouble((QWidget*)parentWidget,title,msg,def,minV,maxV,decimals,&retVal);
+            outFloat[0]=(double)QInputDialog::getDouble((QWidget*)parentWidget,title,msg,def,minV,maxV,decimals,&retVal);
         }
         else
         { // We are NOT in the UI thread. We execute the command via the UI thread:
@@ -989,7 +989,7 @@ bool CUiThread::dialogInputGetFloat(void* parentWidget,const char* title,const c
 }
 
 
-bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesIn,C3Vector& sizes,int subdiv[3],int& facesSubdiv,int& sides,int& discSubdiv,bool& smooth,bool& openEnds,bool& dynamic,float& density)
+bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesIn,C3Vector& sizes,int subdiv[3],int& facesSubdiv,int& sides,int& discSubdiv,bool& smooth,bool& openEnds,bool& dynamic,double& density)
 {
     TRACE_INTERNAL;
     bool retVal=false;

@@ -39,7 +39,6 @@
 #define _USR_ROTATION_STEP_SIZE "objectRotationStepSize"
 #define _USR_COMPRESS_FILES "compressFiles"
 #define _USR_TRIANGLE_COUNT_IN_OBB "triCountInOBB"
-#define _USR_APPROXIMATED_NORMALS "saveApproxNormals"
 #define _USR_PACK_INDICES "packIndices"
 #define _USR_UNDO_REDO_ENABLED "undoRedoEnabled"
 #define _USR_UNDO_REDO_PARTIAL_WITH_CAMERAS "undoRedoOnlyPartialWithCameras"
@@ -218,7 +217,7 @@ CUserSettings::CUserSettings()
     useGlFinish_visionSensors=false;
     vsync=0;
     debugOpenGl=false;
-    stereoDist=0.0f; // default, no stereo!
+    stereoDist=0.0; // default, no stereo!
 
 
     // Visual section:
@@ -245,7 +244,7 @@ CUserSettings::CUserSettings()
 
     highResDisplay=-1;
     oglScaling=1;
-    guiScaling=1.0f;
+    guiScaling=1.0;
     noEdgesWhenMouseDownInCameraView=false;
     noTexturesWhenMouseDownInCameraView=false;
     noCustomUisWhenMouseDownInCameraView=true;
@@ -307,7 +306,6 @@ CUserSettings::CUserSettings()
     autoSaveDelay=2; // 2 minutes for an auto-save by default. set to 0 for no auto-save
     doNotWritePersistentData=false;
     compressFiles=true;
-    saveApproxNormals=true;
     packIndices=true;
     fileDialogs=-1; // default
     bulletSerializationBuffer=10000000;
@@ -338,7 +336,7 @@ CUserSettings::CUserSettings()
     // *****************************
     middleMouseButtonSwitchesModes=false; // set to false on 28/9/2014
     navigationBackwardCompatibility=false;
-    colorAdjust_backCompatibility=1.0f; // default
+    colorAdjust_backCompatibility=1.0; // default
     specificGpuTweak=false; // default
     useAlternateSerialPortRoutines=false;
     disableOpenGlBasedCustomUi=false;
@@ -356,17 +354,17 @@ CUserSettings::CUserSettings()
 
     // Various section:
     // *****************************
-    mouseWheelZoomFactor=1.0f; // default
-    dynamicActivityRange=1000.0f;
-    _translationStepSize=0.025f;
-    _rotationStepSize=5.0f*degToRad;
+    mouseWheelZoomFactor=1.0; // default
+    dynamicActivityRange=1000.0;
+    _translationStepSize=0.025;
+    _rotationStepSize=5.0*degToRad;
     freeServerPortStart=20000;
     _nextfreeServerPortToUse=freeServerPortStart;
     freeServerPortRange=2000;
     _abortScriptExecutionButton=3;
     triCountInOBB=8; // gave best results in 2009/07/21
     identicalVerticesCheck=true;
-    identicalVerticesTolerance=0.0001f;
+    identicalVerticesTolerance=0.0001;
     identicalTrianglesCheck=true;
     identicalTrianglesWindingCheck=true;
     runCustomizationScripts=true;
@@ -399,60 +397,60 @@ CUserSettings::~CUserSettings()
 {
 }
 
-void CUserSettings::setTranslationStepSize(float s)
+void CUserSettings::setTranslationStepSize(double s)
 {
-    float sc=1.0f;
-    if ((s>=0.0075f)&&(s<0.075f))
-        sc=10.0f;
-    if (s>=0.075f)
-        sc=100.0f;
-    if (s<0.0015f*sc)
-        s=0.001f*sc;
+    double sc=1.0;
+    if ((s>=0.0075)&&(s<0.075))
+        sc=10.0;
+    if (s>=0.075)
+        sc=100.0;
+    if (s<0.0015*sc)
+        s=0.001*sc;
     else
     {
-        if (s<0.00375f*sc)
+        if (s<0.00375*sc)
         {
-            if (sc<2.0f)
-                s=0.002f*sc;
+            if (sc<2.0)
+                s=0.002*sc;
             else
-                s=0.0025f*sc;
+                s=0.0025*sc;
         }
         else
-            s=0.005f*sc;
+            s=0.005*sc;
     }
     _translationStepSize=s;
 }
-float CUserSettings::getTranslationStepSize()
+double CUserSettings::getTranslationStepSize()
 {
     return(_translationStepSize);
 }
 
-void CUserSettings::setRotationStepSize(float s)
+void CUserSettings::setRotationStepSize(double s)
 {
-    if (s<1.5f*degToRad)
-        s=1.0f*degToRad;
+    if (s<1.5*degToRad)
+        s=1.0*degToRad;
     else
     {
-        if (s<3.5f*degToRad)
-            s=2.0f*degToRad;
+        if (s<3.5*degToRad)
+            s=2.0*degToRad;
         else
         {
-            if (s<7.5f*degToRad)
-                s=5.0f*degToRad;
+            if (s<7.5*degToRad)
+                s=5.0*degToRad;
             else
             {
-                if (s<12.5f*degToRad)
-                    s=10.0f*degToRad;
+                if (s<12.5*degToRad)
+                    s=10.0*degToRad;
                 else
                 {
-                    if (s<22.5f*degToRad)
-                        s=15.0f*degToRad;
+                    if (s<22.5*degToRad)
+                        s=15.0*degToRad;
                     else
                     {
-                        if (s<37.5f*degToRad)
-                            s=30.0f*degToRad;
+                        if (s<37.5*degToRad)
+                            s=30.0*degToRad;
                         else
-                            s=45.0f*degToRad;
+                            s=45.0*degToRad;
                     }
                 }
             }
@@ -461,7 +459,7 @@ void CUserSettings::setRotationStepSize(float s)
     _rotationStepSize=s;
 }
 
-float CUserSettings::getRotationStepSize()
+double CUserSettings::getRotationStepSize()
 {
     return(_rotationStepSize);
 }
@@ -674,7 +672,6 @@ void CUserSettings::saveUserSettings()
     c.addInteger(_USR_AUTO_SAVE_DELAY,autoSaveDelay,"in minutes. 0 to disable.");
     c.addBoolean(_USR_DO_NOT_WRITE_PERSISTENT_DATA,doNotWritePersistentData,"");
     c.addBoolean(_USR_COMPRESS_FILES,compressFiles,"");
-    c.addBoolean(_USR_APPROXIMATED_NORMALS,saveApproxNormals,"");
     c.addBoolean(_USR_PACK_INDICES,packIndices,"");
     c.addInteger(_USR_FILE_DIALOGS_NATIVE,fileDialogs,"recommended to keep -1 (-1=default, 0=native dialogs, 1=Qt dialogs).");
     c.addInteger(_USR_BULLET_SERIALIZATION_BUFFER,bulletSerializationBuffer,"");
@@ -958,7 +955,6 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_AUTO_SAVE_DELAY,autoSaveDelay);
     c.getBoolean(_USR_DO_NOT_WRITE_PERSISTENT_DATA,doNotWritePersistentData);
     c.getBoolean(_USR_COMPRESS_FILES,compressFiles);
-    c.getBoolean(_USR_APPROXIMATED_NORMALS,saveApproxNormals);
     c.getBoolean(_USR_PACK_INDICES,packIndices);
     c.getInteger(_USR_FILE_DIALOGS_NATIVE,fileDialogs);
     c.getInteger(_USR_BULLET_SERIALIZATION_BUFFER,bulletSerializationBuffer);

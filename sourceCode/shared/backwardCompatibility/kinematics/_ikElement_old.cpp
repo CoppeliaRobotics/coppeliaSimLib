@@ -5,12 +5,12 @@ _CIkElement_old::_CIkElement_old()
 {
     _baseHandle=-1;
     _constraintBaseHandle=-1;
-    _minAngularPrecision=0.1f*degToRad;
-    _minLinearPrecision=0.0005f;
+    _minAngularPrecision=0.1*degToRad;
+    _minLinearPrecision=0.0005;
     _enabled=true;
     _constraints=sim_ik_x_constraint|sim_ik_y_constraint|sim_ik_z_constraint;
-    _positionWeight=1.0f;
-    _orientationWeight=1.0f;
+    _positionWeight=1.0;
+    _orientationWeight=1.0;
 }
 
 _CIkElement_old::~_CIkElement_old()
@@ -104,7 +104,7 @@ int _CIkElement_old::getAlternativeBaseForConstraints() const
     return(_constraintBaseHandle);
 }
 
-bool _CIkElement_old::setMinLinearPrecision(float prec)
+bool _CIkElement_old::setMinLinearPrecision(double prec)
 {
     bool diff=(_minLinearPrecision!=prec);
     if (diff)
@@ -116,16 +116,16 @@ bool _CIkElement_old::setMinLinearPrecision(float prec)
     return(diff);
 }
 
-void _CIkElement_old::_setMinLinearPrecision_send(float f) const
+void _CIkElement_old::_setMinLinearPrecision_send(double f) const
 {
 }
 
-float _CIkElement_old::getMinLinearPrecision() const
+double _CIkElement_old::getMinLinearPrecision() const
 {
     return(_minLinearPrecision);
 }
 
-bool _CIkElement_old::setMinAngularPrecision(float prec)
+bool _CIkElement_old::setMinAngularPrecision(double prec)
 {
     bool diff=(_minAngularPrecision!=prec);
     if (diff)
@@ -137,16 +137,16 @@ bool _CIkElement_old::setMinAngularPrecision(float prec)
     return(diff);
 }
 
-void _CIkElement_old::_setMinAngularPrecision_send(float f) const
+void _CIkElement_old::_setMinAngularPrecision_send(double f) const
 {
 }
 
-float _CIkElement_old::getMinAngularPrecision() const
+double _CIkElement_old::getMinAngularPrecision() const
 {
     return(_minAngularPrecision);
 }
 
-bool _CIkElement_old::setPositionWeight(float weight)
+bool _CIkElement_old::setPositionWeight(double weight)
 {
     bool diff=(_positionWeight!=weight);
     if (diff)
@@ -158,16 +158,16 @@ bool _CIkElement_old::setPositionWeight(float weight)
     return(diff);
 }
 
-void _CIkElement_old::_setPositionWeight_send(float f) const
+void _CIkElement_old::_setPositionWeight_send(double f) const
 {
 }
 
-float _CIkElement_old::getPositionWeight() const
+double _CIkElement_old::getPositionWeight() const
 {
     return(_positionWeight);
 }
 
-bool _CIkElement_old::setOrientationWeight(float weight)
+bool _CIkElement_old::setOrientationWeight(double weight)
 {
     bool diff=(_orientationWeight!=weight);
     if (diff)
@@ -179,11 +179,11 @@ bool _CIkElement_old::setOrientationWeight(float weight)
     return(diff);
 }
 
-void _CIkElement_old::_setOrientationWeight_send(float f) const
+void _CIkElement_old::_setOrientationWeight_send(double f) const
 {
 }
 
-float _CIkElement_old::getOrientationWeight() const
+double _CIkElement_old::getOrientationWeight() const
 {
     return(_orientationWeight);
 }

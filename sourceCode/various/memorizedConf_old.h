@@ -15,8 +15,8 @@ public:
     int getParentCount();
 
 private:
-    static void pushFloatToBuffer(floatDouble d,std::vector<char>& data);
-    static floatDouble popFloatFromBuffer(std::vector<char>& data);
+    static void pushFloatToBuffer(double d,std::vector<char>& data);
+    static double popFloatFromBuffer(std::vector<char>& data);
     static void pushIntToBuffer(int d,std::vector<char>& data);
     static int popIntFromBuffer(std::vector<char>& data);
 
@@ -30,5 +30,5 @@ private:
     C4Vector sphericalJointOrientation;
 
     // Joints and paths:
-    floatDouble position;
+    double position;
 };

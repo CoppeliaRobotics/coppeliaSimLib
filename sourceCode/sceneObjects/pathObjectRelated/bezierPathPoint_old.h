@@ -10,12 +10,12 @@ public:
 
     CBezierPathPoint_old* copyYourself();
 
-    float cumulativeLength;
-    float segmentLength;
-    float cumulativeAngle;
-    float segmentAngleVariation;
-    float cumulativeOnSpotDistance;
-    float segmentOnSpotDistance;
-    float virtualSegmentLength;
-    float virtualCumulativeLength;
+    double cumulativeLength;
+    double segmentLength;
+    double cumulativeAngle;
+    double segmentAngleVariation;
+    double cumulativeOnSpotDistance;
+    double segmentOnSpotDistance;
+    double virtualSegmentLength;
+    double virtualCumulativeLength;
 };

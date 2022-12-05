@@ -571,7 +571,7 @@ void CWorld::saveScene(CSer& ar)
     App::worldContainer->callScripts(sim_syscb_aftersave,nullptr,nullptr);
 }
 
-bool CWorld::loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
+bool CWorld::loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,double* optionalModelNonDefaultTranslationStepSize)
 {
     bool retVal;
     if (ar.getFileType()==CSer::filetype_csim_xml_simplemodel_file)
@@ -812,7 +812,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
                     if (shape->getShapeIsDynamicallyStatic())
                         mat->setEngineFloatParam(sim_bullet_body_friction,mat->getEngineFloatParam(sim_bullet_body_oldfriction,nullptr)); // the new Bullet friction
                     else
-                        mat->setEngineFloatParam(sim_bullet_body_friction,0.25f); // the new Bullet friction
+                        mat->setEngineFloatParam(sim_bullet_body_friction,0.25); // the new Bullet friction
                 }
             }
             shape->getMeshWrapper()->setDynMaterialId_old(-1);
@@ -1085,7 +1085,7 @@ void CWorld::cleanupHashNames_allObjects(int suffix)
     }
 }
 
-void CWorld::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
+void CWorld::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
 {
     distances->renderYour3DStuff(renderingObject,displayAttrib);
     drawingCont->renderYour3DStuff_nonTransparent(renderingObject,displayAttrib);
@@ -1095,7 +1095,7 @@ void CWorld::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* 
     dynamicsContainer->renderYour3DStuff(renderingObject,displayAttrib);
 }
 
-void CWorld::renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
+void CWorld::renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
 {
     drawingCont->renderYour3DStuff_transparent(renderingObject,displayAttrib);
     pointCloudCont->renderYour3DStuff_transparent(renderingObject,displayAttrib);
@@ -1103,7 +1103,7 @@ void CWorld::renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase* r
     bannerCont->renderYour3DStuff_transparent(renderingObject,displayAttrib,windowSize,verticalViewSizeOrAngle,perspective);
 }
 
-void CWorld::renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
+void CWorld::renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
 {
     drawingCont->renderYour3DStuff_overlay(renderingObject,displayAttrib);
     pointCloudCont->renderYour3DStuff_overlay(renderingObject,displayAttrib);
@@ -1194,7 +1194,7 @@ void CWorld::announce2DElementButtonWillBeErased(int elementID,int buttonID)
 }
 // -----------
 
-bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
+bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,double* optionalModelNonDefaultTranslationStepSize)
 {
     appendLoadOperationIssue(-1,nullptr,-1); // clear
 
@@ -1228,7 +1228,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     ar >> byteQuantity;
                     C7Vector tr;
                     C3Vector bbs;
-                    float ndss;
+                    double ndss;
                     environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(ar,tr,bbs,ndss);
                     if (optionalModelTr!=nullptr)
                         optionalModelTr[0]=tr;
@@ -1315,7 +1315,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
                     //************************************************
                     if (mainSettings->forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers)
                     { // This needs to be done AFTER simulation settings are loaded!
-                        float bulletStepSize=simulation->getTimeStep()/float(mainSettings->dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012);
+                        double bulletStepSize=simulation->getTimeStep()/double(mainSettings->dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012);
                         dynamicsContainer->setDesiredStepSize(bulletStepSize);
                     }
                     //************************************************
@@ -1695,8 +1695,8 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
             CShape* it=(CShape*)loadedObjectList[i];
             C7Vector localTr;
             C3Vector diagI; // massless
-            float mass=CPluginContainer::dyn_computeInertia(it->getObjectHandle(),localTr,diagI);
-            float desiredDensity=1000.0;
+            double mass=CPluginContainer::dyn_computeInertia(it->getObjectHandle(),localTr,diagI);
+            double desiredDensity=1000.0;
             mass=desiredDensity*mass/1000.0;
             it->getMeshWrapper()->setPrincipalMomentsOfInertia(diagI);
             it->getMeshWrapper()->setLocalInertiaFrame(localTr);

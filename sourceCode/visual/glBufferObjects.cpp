@@ -77,7 +77,7 @@ bool CGlBufferObjects::_checkIfBuffersAreSupported()
     return(true);
 }
 
-void CGlBufferObjects::drawTriangles(const floatFloat* vertices,int verticesCnt,const int* indices,int indicesCnt,const floatFloat* normals,const floatFloat* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId)
+void CGlBufferObjects::drawTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,const float* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId)
 {   // textureCoords can be nullptr, in which case texCoordBufferId can also be nullptr
     // Can only be called by the GUI thread!
     _buffersAreSupported=_checkIfBuffersAreSupported();
@@ -126,7 +126,7 @@ void CGlBufferObjects::drawTriangles(const floatFloat* vertices,int verticesCnt,
     SBuffwid* theVertexBuff=_bindVertexBuffer(vertexBufferId[0],individualVerticesCnt,currentTimeInMs);
     if (theVertexBuff==nullptr)
     {
-        std::vector<floatFloat> individualVertices;
+        std::vector<float> individualVertices;
         _fromSharedToIndividualVertices(vertices,verticesCnt,indices,indicesCnt,individualVertices);
 
         vertexBufferId[0]=_buildVertexBuffer(&individualVertices[0],(int)individualVertices.size()/3);
@@ -178,7 +178,7 @@ void CGlBufferObjects::drawTriangles(const floatFloat* vertices,int verticesCnt,
     // printf("%i %i %i %i\n",_vertexBuffers.size(),_normalBuffers.size(),_texCoordBuffers.size(),_edgeBuffers.size());
 }
 
-void CGlBufferObjects::drawColorCodedTriangles(const floatFloat* vertices,int verticesCnt,const int* indices,int indicesCnt,const floatFloat* normals,int* vertexBufferId,int* normalBufferId)
+void CGlBufferObjects::drawColorCodedTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,int* vertexBufferId,int* normalBufferId)
 {   // Can only be called by the GUI thread!
     _buffersAreSupported=_checkIfBuffersAreSupported();
 
@@ -188,8 +188,8 @@ void CGlBufferObjects::drawColorCodedTriangles(const floatFloat* vertices,int ve
     {
         glColor3ub(i&255,(i>>8)&255,(i>>16)&255);
         int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
-        const floatFloat* vert[3]={vertices+3*ind[0],vertices+3*ind[1],vertices+3*ind[2]};
-        const floatFloat* norm[3]={normals+3*ind[0],normals+3*ind[1],normals+3*ind[2]};
+        const float* vert[3]={vertices+3*ind[0],vertices+3*ind[1],vertices+3*ind[2]};
+        const float* norm[3]={normals+3*ind[0],normals+3*ind[1],normals+3*ind[2]};
 
         glNormal3fv(norm[0]);
         glVertex3fv(vert[0]);
@@ -201,7 +201,7 @@ void CGlBufferObjects::drawColorCodedTriangles(const floatFloat* vertices,int ve
     glEnd();
 }
 
-bool CGlBufferObjects::drawEdges(const floatFloat* vertices,int verticesCnt,const int* indices,int indicesCnt,const unsigned char* edges,int* edgeBufferId)
+bool CGlBufferObjects::drawEdges(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const unsigned char* edges,int* edgeBufferId)
 {
     _buffersAreSupported=_checkIfBuffersAreSupported();
     // Can only be called by the GUI thread!
@@ -230,7 +230,7 @@ bool CGlBufferObjects::drawEdges(const floatFloat* vertices,int verticesCnt,cons
     SBuffwid* theEdgeBuff=_bindEdgeBuffer(edgeBufferId[0],individualVerticesCnt,currentTimeInMs);
     if (theEdgeBuff==nullptr)
     {
-        std::vector<floatFloat> individualVertices;
+        std::vector<float> individualVertices;
         _fromSharedToIndividualEdges(vertices,verticesCnt,indices,indicesCnt,edges,individualVertices);
 
         edgeBufferId[0]=_buildEdgeBuffer(&individualVertices[0],(int)individualVertices.size()/3);
@@ -256,7 +256,7 @@ bool CGlBufferObjects::drawEdges(const floatFloat* vertices,int verticesCnt,cons
     return(individualVerticesCnt>0);
 }
 
-void CGlBufferObjects::_fromSharedToIndividualVertices(const floatFloat* sharedVertices,int sharedVerticesCnt,const int* sharedIndices,int sharedIndicesCnt,std::vector<floatFloat>& individualVertices)
+void CGlBufferObjects::_fromSharedToIndividualVertices(const float* sharedVertices,int sharedVerticesCnt,const int* sharedIndices,int sharedIndicesCnt,std::vector<float>& individualVertices)
 {
     individualVertices.clear();
     for (int i=0;i<sharedIndicesCnt;i++)
@@ -267,16 +267,16 @@ void CGlBufferObjects::_fromSharedToIndividualVertices(const floatFloat* sharedV
     }
 }
 
-void CGlBufferObjects::_fromSharedToIndividualEdges(const floatFloat* sharedVertices,int sharedVerticesCnt,const int* sharedIndices,int sharedIndicesCnt,const unsigned char* edges,std::vector<floatFloat>& individualVertices)
+void CGlBufferObjects::_fromSharedToIndividualEdges(const float* sharedVertices,int sharedVerticesCnt,const int* sharedIndices,int sharedIndicesCnt,const unsigned char* edges,std::vector<float>& individualVertices)
 {
     individualVertices.clear();
 
     for (int i=0;i<sharedIndicesCnt/3;i++)
     { // for each triangle...
         int indOr[3]={3*sharedIndices[3*i+0],3*sharedIndices[3*i+1],3*sharedIndices[3*i+2]};
-        const floatFloat* vertices0=&sharedVertices[indOr[0]];
-        const floatFloat* vertices1=&sharedVertices[indOr[1]];
-        const floatFloat* vertices2=&sharedVertices[indOr[2]];
+        const float* vertices0=&sharedVertices[indOr[0]];
+        const float* vertices1=&sharedVertices[indOr[1]];
+        const float* vertices2=&sharedVertices[indOr[2]];
         if ( ( (edges[(3*i+0)>>3]&(1<<((3*i+0)&7)))!=0) ) // -1 means the edge was disabled
         {
             individualVertices.push_back(vertices0[0]);
@@ -307,7 +307,7 @@ void CGlBufferObjects::_fromSharedToIndividualEdges(const floatFloat* sharedVert
     }
 }
 
-int CGlBufferObjects::_buildVertexBuffer(const floatFloat* individualVertices,int individualVerticesCnt)
+int CGlBufferObjects::_buildVertexBuffer(const float* individualVertices,int individualVerticesCnt)
 { // Can only be called by the GUI thread!
     // 1. Check if we don't yet have a similar object:
     for (std::map<int,SBuffwid>::iterator it=_vertexBuffers.begin();it!=_vertexBuffers.end();it++)
@@ -329,7 +329,7 @@ int CGlBufferObjects::_buildVertexBuffer(const floatFloat* individualVertices,in
     SBuffwid buff;
     buff.lastTimeUsedInMs=(int)VDateTime::getTimeInMs();
     buff.refCnt=1;
-    buff.data=new std::vector<floatFloat>;
+    buff.data=new std::vector<float>;
     buff.data->assign(individualVertices,individualVertices+individualVerticesCnt*3);
 
     bool forceNotUsingBuffers=true;
@@ -342,7 +342,7 @@ int CGlBufferObjects::_buildVertexBuffer(const floatFloat* individualVertices,in
         buff.buffer->create();
         buff.buffer->bind();
         buff.buffer->setUsagePattern(QGLBuffer::StaticDraw);
-        buff.buffer->allocate(individualVertices,3*individualVerticesCnt*sizeof(floatFloat));
+        buff.buffer->allocate(individualVertices,3*individualVerticesCnt*sizeof(float));
         buff.qglBufferInitialized=true;
     }
     else
@@ -353,7 +353,7 @@ int CGlBufferObjects::_buildVertexBuffer(const floatFloat* individualVertices,in
     return(_nextId++);
 }
 
-int CGlBufferObjects::_buildNormalBuffer(const floatFloat* normals,int normalsCnt)
+int CGlBufferObjects::_buildNormalBuffer(const float* normals,int normalsCnt)
 { // Can only be called by the GUI thread!
     // 1. Check if we don't yet have a similar object:
     for (std::map<int,SBuffwid>::iterator it=_normalBuffers.begin();it!=_normalBuffers.end();it++)
@@ -375,7 +375,7 @@ int CGlBufferObjects::_buildNormalBuffer(const floatFloat* normals,int normalsCn
     SBuffwid buff;
     buff.lastTimeUsedInMs=(int)VDateTime::getTimeInMs();
     buff.refCnt=1;
-    buff.data=new std::vector<floatFloat>;
+    buff.data=new std::vector<float>;
     buff.data->assign(normals,normals+normalsCnt*3);
 
     bool forceNotUsingBuffers=true;
@@ -388,7 +388,7 @@ int CGlBufferObjects::_buildNormalBuffer(const floatFloat* normals,int normalsCn
         buff.buffer->create();
         buff.buffer->bind();
         buff.buffer->setUsagePattern(QGLBuffer::StaticDraw);
-        buff.buffer->allocate(normals,3*normalsCnt*sizeof(floatFloat));
+        buff.buffer->allocate(normals,3*normalsCnt*sizeof(float));
         buff.qglBufferInitialized=true;
     }
     else
@@ -398,7 +398,7 @@ int CGlBufferObjects::_buildNormalBuffer(const floatFloat* normals,int normalsCn
     return(_nextId++);
 }
 
-int CGlBufferObjects::_buildTexCoordBuffer(const floatFloat* texCoords,int texCoordsCnt)
+int CGlBufferObjects::_buildTexCoordBuffer(const float* texCoords,int texCoordsCnt)
 { // Can only be called by the GUI thread!
     // 1. Check if we don't yet have a similar object:
     for (std::map<int,SBuffwid>::iterator it=_texCoordBuffers.begin();it!=_texCoordBuffers.end();it++)
@@ -420,7 +420,7 @@ int CGlBufferObjects::_buildTexCoordBuffer(const floatFloat* texCoords,int texCo
     SBuffwid buff;
     buff.lastTimeUsedInMs=(int)VDateTime::getTimeInMs();
     buff.refCnt=1;
-    buff.data=new std::vector<floatFloat>;
+    buff.data=new std::vector<float>;
     buff.data->assign(texCoords,texCoords+texCoordsCnt*2);
 
     bool forceNotUsingBuffers=(App::userSettings->vboOperation==0);
@@ -430,7 +430,7 @@ int CGlBufferObjects::_buildTexCoordBuffer(const floatFloat* texCoords,int texCo
         buff.buffer->create();
         buff.buffer->bind();
         buff.buffer->setUsagePattern(QGLBuffer::StaticDraw);
-        buff.buffer->allocate(texCoords,2*texCoordsCnt*sizeof(floatFloat));
+        buff.buffer->allocate(texCoords,2*texCoordsCnt*sizeof(float));
         buff.qglBufferInitialized=true;
     }
     else
@@ -440,7 +440,7 @@ int CGlBufferObjects::_buildTexCoordBuffer(const floatFloat* texCoords,int texCo
     return(_nextId++);
 }
 
-int CGlBufferObjects::_buildEdgeBuffer(const floatFloat* individualVertices,int individualVerticesCnt)
+int CGlBufferObjects::_buildEdgeBuffer(const float* individualVertices,int individualVerticesCnt)
 { // Can only be called by the GUI thread!
     // 1. Check if we don't yet have a similar object:
     for (std::map<int,SBuffwid>::iterator it=_edgeBuffers.begin();it!=_edgeBuffers.end();it++)
@@ -462,7 +462,7 @@ int CGlBufferObjects::_buildEdgeBuffer(const floatFloat* individualVertices,int 
     SBuffwid buff;
     buff.lastTimeUsedInMs=(int)VDateTime::getTimeInMs();
     buff.refCnt=1;
-    buff.data=new std::vector<floatFloat>;
+    buff.data=new std::vector<float>;
     buff.data->assign(individualVertices,individualVertices+individualVerticesCnt*3);
 
     bool forceNotUsingBuffers=(App::userSettings->vboOperation==0);
@@ -472,7 +472,7 @@ int CGlBufferObjects::_buildEdgeBuffer(const floatFloat* individualVertices,int 
         buff.buffer->create();
         buff.buffer->bind();
         buff.buffer->setUsagePattern(QGLBuffer::StaticDraw);
-        buff.buffer->allocate(individualVertices,3*individualVerticesCnt*sizeof(floatFloat));
+        buff.buffer->allocate(individualVertices,3*individualVerticesCnt*sizeof(float));
         buff.qglBufferInitialized=true;
     }
     else

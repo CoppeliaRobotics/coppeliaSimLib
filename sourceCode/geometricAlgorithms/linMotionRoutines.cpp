@@ -532,7 +532,7 @@ bool CLinMotionRoutines::getNextValuesForPath(double& position,
     double oldPos=position;
     position+=dist;
     if (oldPos==position)
-    { // We reached the float/double resolution
+    { // We reached the double/double resolution
         if (dist>0.0)
             position*=(1.0+DBL_EPSILON);
         if (dist<0.0)

@@ -82,13 +82,13 @@ void CQDlgSettings::refresh()
 
 void CQDlgSettings::on_translationStepSize_activated(int index)
 {
-    App::appendSimulationThreadCommand(SET_TRANSLATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,float(ui->translationStepSize->itemData(index).toInt())/1000.0);
+    App::appendSimulationThreadCommand(SET_TRANSLATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,double(ui->translationStepSize->itemData(index).toInt())/1000.0);
     App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 void CQDlgSettings::on_rotationStepSize_activated(int index)
 {
-    App::appendSimulationThreadCommand(SET_ROTATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,float(ui->rotationStepSize->itemData(index).toInt())*degToRad);
+    App::appendSimulationThreadCommand(SET_ROTATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,double(ui->rotationStepSize->itemData(index).toInt())*degToRad);
     App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
@@ -102,7 +102,7 @@ void CQDlgSettings::on_removeIdenticalVerticesTolerance_editingFinished()
 {
     if (!ui->removeIdenticalVerticesTolerance->isModified())
         return;
-    float newVal;
+    double newVal;
     bool ok;
     newVal=ui->removeIdenticalVerticesTolerance->text().toFloat(&ok);
     if (ok)

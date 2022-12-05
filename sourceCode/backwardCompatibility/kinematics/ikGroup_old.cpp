@@ -97,14 +97,14 @@ void CIkGroup_old::serialize(CSer &ar)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Dpg");
-            ar.flt() << floatFloat(_dampingFactor);
+            ar << float(_dampingFactor);
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_pg");
-            ar.dbl() << _dampingFactor;
+            ar << _dampingFactor;
             ar.flush();
-#endif
+
 
             ar.storeDataName("Cmt");
             ar << _calculationMethod;
@@ -174,16 +174,18 @@ void CIkGroup_old::serialize(CSer &ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
-                        ar.flt() >> bla;
-                        _dampingFactor=(floatDouble)bla;
+                        float bla;
+                        ar >> bla;
+                        _dampingFactor=(double)bla;
                     }
+
                     if (theName.compare("_pg")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _dampingFactor;
+                        ar >> _dampingFactor;
                     }
+
                     if (theName.compare("Cmt")==0)
                     {
                         noHit=false;
@@ -435,7 +437,7 @@ bool CIkGroup_old::setCalculationMethod(int theMethod)
     return(diff);
 }
 
-bool CIkGroup_old::setDampingFactor(floatDouble theFactor)
+bool CIkGroup_old::setDampingFactor(double theFactor)
 { // Overridden from _CIkGroup_old
     tt::limitValue(0.000001,10.0,theFactor);
     return(_CIkGroup_old::setDampingFactor(theFactor));
@@ -561,7 +563,7 @@ int CIkGroup_old::computeGroupIk(bool independentComputation)
     return(retVal);
 }
 
-const floatDouble*  CIkGroup_old::getLastJacobianData(int matrixSize[2])
+const double*  CIkGroup_old::getLastJacobianData(int matrixSize[2])
 {
     const CMatrix* m=getLastJacobian();
     if ( (m==nullptr)||(m->data.size()==0) )
@@ -572,9 +574,9 @@ const floatDouble*  CIkGroup_old::getLastJacobianData(int matrixSize[2])
 }
 
 
-floatDouble*  CIkGroup_old::getLastManipulabilityValue(int matrixSize[2])
+double*  CIkGroup_old::getLastManipulabilityValue(int matrixSize[2])
 {
-    static floatDouble v;
+    static double v;
     const CMatrix* m=getLastJacobian();
     if (m==nullptr)
         return(nullptr);
@@ -591,7 +593,7 @@ floatDouble*  CIkGroup_old::getLastManipulabilityValue(int matrixSize[2])
     return(&v);
 }
 
-floatDouble CIkGroup_old::_getDeterminant(const CMatrix& m,const std::vector<int>* activeRows,const std::vector<int>* activeColumns) const
+double CIkGroup_old::_getDeterminant(const CMatrix& m,const std::vector<int>* activeRows,const std::vector<int>* activeColumns) const
 { // activeRows and activeColumns are nullptr by default (--> all rows and columns are active)
     // Routine is recursive! (i.e. Laplace expansion, which is not efficient for large matrices!)
     if (activeRows==nullptr)
@@ -611,7 +613,7 @@ floatDouble CIkGroup_old::_getDeterminant(const CMatrix& m,const std::vector<int
 
     if (activeRows->size()==2)
     { // We compute this directly, we have a two-by-two matrix:
-        floatDouble retVal=0.0;
+        double retVal=0.0;
         retVal+=m(activeRows->at(0),activeColumns->at(0))*m(activeRows->at(1),activeColumns->at(1));
         retVal-=m(activeRows->at(0),activeColumns->at(1))*m(activeRows->at(1),activeColumns->at(0));
         return(retVal);
@@ -619,7 +621,7 @@ floatDouble CIkGroup_old::_getDeterminant(const CMatrix& m,const std::vector<int
 
     if (activeRows->size()==3)
     { // We compute this directly, we have a three-by-three matrix:
-        floatDouble retVal=0.0;
+        double retVal=0.0;
         retVal+=m(activeRows->at(0),activeColumns->at(0)) * ( (m(activeRows->at(1),activeColumns->at(1))*m(activeRows->at(2),activeColumns->at(2))) - (m(activeRows->at(1),activeColumns->at(2))*m(activeRows->at(2),activeColumns->at(1))) );
         retVal-=m(activeRows->at(0),activeColumns->at(1)) * ( (m(activeRows->at(1),activeColumns->at(0))*m(activeRows->at(2),activeColumns->at(2))) - (m(activeRows->at(1),activeColumns->at(2))*m(activeRows->at(2),activeColumns->at(0))) );
         retVal+=m(activeRows->at(0),activeColumns->at(2)) * ( (m(activeRows->at(1),activeColumns->at(0))*m(activeRows->at(2),activeColumns->at(1))) - (m(activeRows->at(1),activeColumns->at(1))*m(activeRows->at(2),activeColumns->at(0))) );
@@ -629,7 +631,7 @@ floatDouble CIkGroup_old::_getDeterminant(const CMatrix& m,const std::vector<int
     // The general routine
     std::vector<int> actR;
     std::vector<int> actC;
-    floatDouble retVal=0.0;
+    double retVal=0.0;
 
     for (int colInd=1;colInd<int(activeColumns->size());colInd++)
         actC.push_back(activeColumns->at(colInd));
@@ -643,7 +645,7 @@ floatDouble CIkGroup_old::_getDeterminant(const CMatrix& m,const std::vector<int
             if (j!=i)
                 actR.push_back(j);
         }
-        retVal+=m(i,activeColumns->at(0))*_getDeterminant(m,&actR,&actC)*pow(floatDouble(-1.0),floatDouble(rowInd+2)); // was rowInd+1 until 3.1.3 rev2.
+        retVal+=m(i,activeColumns->at(0))*_getDeterminant(m,&actR,&actC)*pow(-1.0,double(rowInd+2)); // was rowInd+1 until 3.1.3 rev2.
     }
     return(retVal);
 }
@@ -686,7 +688,7 @@ void CIkGroup_old::_setCalculationMethod_send(int m) const
         CPluginContainer::ikPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle,m,_dampingFactor,_maxIterations);
 }
 
-void CIkGroup_old::_setDampingFactor_send(floatDouble f) const
+void CIkGroup_old::_setDampingFactor_send(double f) const
 { // Overridden from _CIkGroup_old
     _CIkGroup_old::_setDampingFactor_send(f);
 
@@ -755,9 +757,9 @@ void CIkGroup_old::_setRestoreIfOrientationNotReached_send(bool e) const
     }
 }
 
-floatDouble CIkGroup_old::getCalculationTime() const
+double CIkGroup_old::getCalculationTime() const
 {
-    return(floatDouble(_calcTimeInMs)*0.001);
+    return(double(_calcTimeInMs)*0.001);
 }
 
 void CIkGroup_old::resetCalculationResult()
@@ -862,14 +864,14 @@ void CIkGroup_old::removeSynchronizationObject(bool localReferencesToItOnly)
     _ikPluginCounterpartHandle=-1;
 }
 
-int CIkGroup_old::getConfigForTipPose(int jointCnt,const int* jointHandles,floatDouble thresholdDist,int maxTimeInMs,floatDouble* retConfig,const floatDouble* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const floatDouble* lowLimits,const floatDouble* ranges,std::string& errorMsg)
+int CIkGroup_old::getConfigForTipPose(int jointCnt,const int* jointHandles,double thresholdDist,int maxTimeInMs,double* retConfig,const double* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const double* lowLimits,const double* ranges,std::string& errorMsg)
 { // ret: -1: error, 0: nothing found, 1: solution found
     int retVal=-1;
     retVal=CPluginContainer::ikPlugin_getConfigForTipPose(getIkPluginCounterpartHandle(),jointCnt,jointHandles,thresholdDist,-maxTimeInMs,retConfig,metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,errorMsg);
     return(retVal);
 }
 
-int CIkGroup_old::checkIkGroup(int jointCnt,const int* jointHandles,floatDouble* jointValues,const int* jointOptions)
+int CIkGroup_old::checkIkGroup(int jointCnt,const int* jointHandles,double* jointValues,const int* jointOptions)
 { // ret: -1: object not tagger for explicit handling, -2: invalid handles, otherwise an Ik calculation result
     int retVal=sim_ikresult_not_performed;
     if (!getExplicitHandling())
@@ -889,7 +891,7 @@ int CIkGroup_old::checkIkGroup(int jointCnt,const int* jointHandles,floatDouble*
     {
         // Save joint positions/modes (all of them, just in case)
         std::vector<CJoint*> sceneJoints;
-        std::vector<floatDouble> initSceneJointValues;
+        std::vector<double> initSceneJointValues;
         std::vector<int> initSceneJointModes;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
         {
@@ -941,7 +943,7 @@ int CIkGroup_old::checkIkGroup(int jointCnt,const int* jointHandles,floatDouble*
     return(retVal);
 }
 
-int CIkGroup_old::generateIkPath(int jointCnt,const int* jointHandles,int ptCnt,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,std::vector<floatDouble>& path)
+int CIkGroup_old::generateIkPath(int jointCnt,const int* jointHandles,int ptCnt,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,std::vector<double>& path)
 { // ret: -1: invalidHandles, -2: ik Element inexistent, -3: invalid arg, -4: ik tip not linked to target, -5: invalid coll pairs, 0: failed, 1: succeeded
     int retVal=0;
 
@@ -1006,7 +1008,7 @@ int CIkGroup_old::generateIkPath(int jointCnt,const int* jointHandles,int ptCnt,
     {
         // Save joint positions/modes (all of them, just in case)
         std::vector<CJoint*> sceneJoints;
-        std::vector<floatDouble> initSceneJointValues;
+        std::vector<double> initSceneJointValues;
         std::vector<int> initSceneJointModes;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
         {
@@ -1040,10 +1042,10 @@ int CIkGroup_old::generateIkPath(int jointCnt,const int* jointHandles,int ptCnt,
         }
 
         // do the calculation:
-        floatDouble t=0.0;
-        floatDouble dt=1.0/(ptCnt-1);
+        double t=0.0;
+        double dt=1.0/(ptCnt-1);
         bool failed=false;
-        std::vector<floatDouble> thePath;
+        std::vector<double> thePath;
         for (int iterCnt=0;iterCnt<ptCnt;iterCnt++)
         {
             for (size_t el=0;el<getIkElementCount();el++)

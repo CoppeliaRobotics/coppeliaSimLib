@@ -57,8 +57,8 @@ public:
     int getProxSensorClickSelectUp();
 
     bool getHasStereo();
-    void setStereoDistance(float d);
-    float getStereoDistance();
+    void setStereoDistance(double d);
+    double getStereoDistance();
     bool getLeftEye();
 
     void createDefaultMenuBar();
@@ -233,10 +233,10 @@ private:
     int _mouseButtonsState; // 1=left, 2=wheel activity, 4=right, 8=middle wheel down, 16=last mouse down was left and not ctrl pressed
     int _keyDownState; // 1=ctrl, 2=shift, 4=up, 8=down, 16=left, 32=right
     int _renderingTimeInMs;
-    float _fps;
+    double _fps;
     bool _fullscreen;
     bool _hasStereo;
-    float _stereoDistance;
+    double _stereoDistance;
     bool _leftEye;
     int _mouseRenderingPos[2];
     int _clientArea[2];

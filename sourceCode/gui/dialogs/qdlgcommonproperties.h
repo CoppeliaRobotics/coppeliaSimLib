@@ -21,7 +21,7 @@ public:
     void cancelEvent();
 
     bool inPlaceState;
-    float scalingState;
+    double scalingState;
     bool inMainRefreshRoutine;
 
 private slots:

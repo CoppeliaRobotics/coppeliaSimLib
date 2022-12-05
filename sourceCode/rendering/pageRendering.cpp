@@ -19,7 +19,7 @@ void displayContainerPage(CSPage* page,const int* position,const int* size)
         glEnable(GL_SCISSOR_TEST);
         glViewport(position[0],position[1],size[0],size[1]);
         glScissor(position[0],position[1],size[0],size[1]);
-        glClearColor(0.3f,0.3f,0.3f,1.0f);
+        glClearColor(0.3,0.3,0.3,1.0);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 }
@@ -32,7 +32,7 @@ void displayContainerPageOverlay(const int* position,const int* size,int activeP
     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0.0f,size[0],0.0f,size[1],-1.0f,1.0f);
+    glOrtho(0.0,size[0],0.0,size[1],-1.0,1.0);
     glMatrixMode (GL_MODELVIEW);
     glLoadIdentity ();
     glDisable(GL_DEPTH_TEST);
@@ -58,15 +58,15 @@ void displayContainerPageWatermark(const int* position,const int* size,int tagId
     ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     ogl::disableLighting_useWithCare(); // only temporarily
     App::worldContainer->globalGuiTextureCont->startTextureDisplay(tagId);
-    glColor3f(1.0f, 1.0f, 1.0f);
+    glColor3f(1.0, 1.0, 1.0);
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f,0.0f);
+    glTexCoord2f(0.0,0.0);
     glVertex3i(0,0,0);
-    glTexCoord2f(1.0f,0.0f);
+    glTexCoord2f(1.0,0.0);
     glVertex3i(256*App::sc,0,0);
-    glTexCoord2f(1.0f,1.0f);
+    glTexCoord2f(1.0,1.0);
     glVertex3i(256*App::sc,128*App::sc,0);
-    glTexCoord2f(0.0f,1.0f);
+    glTexCoord2f(0.0,1.0);
     glVertex3i(0,128*App::sc,0);
     glEnd();
 
@@ -103,14 +103,14 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
     glScissor(_pagePosition[0],_pagePosition[1],_pageSize[0],_pageSize[1]);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0.0f,_pageSize[0],0.0f,_pageSize[1],-1.0f,1.0f);
+    glOrtho(0.0,_pageSize[0],0.0,_pageSize[1],-1.0,1.0);
     glMatrixMode (GL_MODELVIEW);
     glLoadIdentity ();
     glDisable(GL_DEPTH_TEST);
-    glLineWidth(3.0f);
+    glLineWidth(3.0);
     ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorLightGrey);
     _drawSeparationLines(_pageType,_pageSize);
-    glLineWidth(1.0f);
+    glLineWidth(1.0);
     ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
     _drawSeparationLines(_pageType,_pageSize);
     glEnable(GL_DEPTH_TEST);
@@ -125,19 +125,19 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
         glScissor(_pagePosition[0],_pagePosition[1],_pageSize[0],_pageSize[1]);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(0.0f,_pageSize[0],0.0f,_pageSize[1],-1.0f,1.0f);
+        glOrtho(0.0,_pageSize[0],0.0,_pageSize[1],-1.0,1.0);
         glMatrixMode (GL_MODELVIEW);
         glLoadIdentity ();
         glDisable(GL_DEPTH_TEST);
 
         // Positions and sizes are relative now (2009/05/22)
-        //int avs[2]={int(_allViewAuxSizesAndPos[4*i+0]*float(_pageSize[0])),int(_allViewAuxSizesAndPos[4*i+1]*float(_pageSize[1]))};
-        //int avp[2]={int(_allViewAuxSizesAndPos[4*i+2]*float(_pageSize[0])),int(_allViewAuxSizesAndPos[4*i+3]*float(_pageSize[1]))};
-        float ss_[2];
-        float pp_[2];
+        //int avs[2]={int(_allViewAuxSizesAndPos[4*i+0]*double(_pageSize[0])),int(_allViewAuxSizesAndPos[4*i+1]*double(_pageSize[1]))};
+        //int avp[2]={int(_allViewAuxSizesAndPos[4*i+2]*double(_pageSize[0])),int(_allViewAuxSizesAndPos[4*i+3]*double(_pageSize[1]))};
+        double ss_[2];
+        double pp_[2];
         page->getFloatingViewRelativeSizeAndPosition(ss_,pp_,i);
-        int avs[2]={int(ss_[0]*float(_pageSize[0])),int(ss_[1]*float(_pageSize[1]))};
-        int avp[2]={int(pp_[0]*float(_pageSize[0])),int(pp_[1]*float(_pageSize[1]))};
+        int avs[2]={int(ss_[0]*double(_pageSize[0])),int(ss_[1]*double(_pageSize[1]))};
+        int avp[2]={int(pp_[0]*double(_pageSize[0])),int(pp_[1]*double(_pageSize[1]))};
 
         // Make sure we are not smaller than the minimum size:
         if (avs[0]<FLOATING_VIEW_MIN_SIZE)
@@ -157,7 +157,7 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
             size.x=avs[0];
         }
 
-        float txtCol[3]={0.2f,0.2f,0.2f};
+        float txtCol[3]={0.2,0.2,0.2};
         float* bkgrndCol=ogl::TITLE_BAR_COLOR;
         CSceneObject* itObj=App::currentWorld->sceneObjects->getObjectFromHandle(page->getView(i)->getLinkedObjectID());
         std::string name("  Floating view (empty)");
@@ -170,7 +170,7 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
         else
             name="  "+altName;
         int buttonAttrib=sim_buttonproperty_label|sim_buttonproperty_enabled|sim_buttonproperty_verticallycentered;
-        ogl::drawButton(pos,size,txtCol,bkgrndCol,bkgrndCol,name,buttonAttrib,false,0,0.0f,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
+        ogl::drawButton(pos,size,txtCol,bkgrndCol,bkgrndCol,name,buttonAttrib,false,0,0.0,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
 
         pos.x=_pageSize[0]-avp[0]-auxViewsBtSize*App::sc/2;
         size.x=auxViewsBtSize*App::sc;
@@ -179,9 +179,9 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
         if ( (auxViewResizingAction==AUX_VIEW_CLOSING_BUTTON)&&(viewIndexOfResizingAction==i) )
             buttonAttrib|=sim_buttonproperty_isdown;
         if (page->getView(i)->getCanBeClosed())
-            ogl::drawButton(pos,size,txtCol,bkgrndCol2,bkgrndCol2,"&&Check",buttonAttrib,false,0,0.0f,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
+            ogl::drawButton(pos,size,txtCol,bkgrndCol2,bkgrndCol2,"&&Check",buttonAttrib,false,0,0.0,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
 
-        glLineWidth(3.0f);
+        glLineWidth(3.0);
         ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorLightGrey);
         for (int j=0;j<2;j++)
         {
@@ -192,7 +192,7 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
             glVertex3i(_pageSize[0]-avp[0]-avs[0]-1,_pageSize[1]-avp[1]+2,0);
             glVertex3i(_pageSize[0]-avp[0]-avs[0]-1,_pageSize[1]-avp[1]-avs[1]-1,0);
             glEnd();
-            glLineWidth(1.0f);
+            glLineWidth(1.0);
             ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
         }
         glEnable(GL_DEPTH_TEST);

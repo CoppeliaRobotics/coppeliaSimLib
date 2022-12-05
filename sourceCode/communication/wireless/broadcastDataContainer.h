@@ -15,9 +15,9 @@ public:
     void removeObject(int index);
     void simulationAboutToStart();
     void simulationEnded();
-    void removeTimedOutObjects(floatDouble simulationTime);
-    void broadcastData(int emitterID,int targetID,int dataHeader,std::string& dataName,floatDouble timeOutSimulationTime,floatDouble actionRadius,int antennaHandle,floatDouble emissionAngle1,floatDouble emissionAngle2,const char* data,int dataLength);
-    char* receiveData(int receiverID,floatDouble simulationTime,int dataHeader,std::string& dataName,int antennaHandle,int& dataLength,int index,int& senderID,int& dataHeaderR,std::string& dataNameR);
+    void removeTimedOutObjects(double simulationTime);
+    void broadcastData(int emitterID,int targetID,int dataHeader,std::string& dataName,double timeOutSimulationTime,double actionRadius,int antennaHandle,double emissionAngle1,double emissionAngle2,const char* data,int dataLength);
+    char* receiveData(int receiverID,double simulationTime,int dataHeader,std::string& dataName,int antennaHandle,int& dataLength,int index,int& senderID,int& dataHeaderR,std::string& dataNameR);
 
     static bool getWirelessForceShow_emission();
     static void setWirelessForceShow_emission(bool f);

@@ -6,13 +6,13 @@
 #include "simStrings.h"
 
 int CQDlgRotation::coordMode=0; //0=abs,1=rel to parent
-float CQDlgRotation::rotAngles[3]={0.0,0.0,0.0};
+double CQDlgRotation::rotAngles[3]={0.0,0.0,0.0};
 int CQDlgRotation::transfMode=0; //0=abs,1=rel to parent,2=rel to self
 int CQDlgRotation::currentTab=0; //0=mouse rot., 1=orient., 2=rotation
 
 int CQDlgRotation::manipulationModePermission;
 int CQDlgRotation::manipulationRotationRelativeTo;
-float CQDlgRotation::manipulationRotationStepSize;
+double CQDlgRotation::manipulationRotationStepSize;
 bool CQDlgRotation::objectRotationSettingsLocked;
 
 CQDlgRotation::CQDlgRotation(QWidget *parent) :
@@ -296,7 +296,7 @@ void CQDlgRotation::_setValuesTransformationPart(bool alsoRadioButtons)
     }
 }
 
-bool CQDlgRotation::_setCoord_userUnit(float newValueInUserUnit,int index)
+bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit,int index)
 {
     bool retVal=false;
     int editMode=App::getEditModeType();
@@ -360,7 +360,7 @@ bool CQDlgRotation::_setCoord_userUnit(float newValueInUserUnit,int index)
     return(retVal);
 }
 
-C7Vector CQDlgRotation::_getNewTransf(const C7Vector& transf,float newValueInUserUnit,int index)
+C7Vector CQDlgRotation::_getNewTransf(const C7Vector& transf,double newValueInUserUnit,int index)
 {
     C7Vector retVal(transf);
     C3Vector euler(retVal.Q.getEulerAngles());
@@ -456,7 +456,7 @@ bool CQDlgRotation::_applyTransformation(int axis)
     int editObjSelSize=App::mainWindow->editModeContainer->getEditModeBufferSize();
     if ( (editMode==NO_EDIT_MODE)&&(objSelSize>0) )
     {
-        float TX[3]={0.0,0.0,0.0};
+        double TX[3]={0.0,0.0,0.0};
         if (axis==-1)
         {
             TX[0]=rotAngles[0];
@@ -524,7 +524,7 @@ bool CQDlgRotation::_applyTransformation(int axis)
 
 void CQDlgRotation::_transform(C7Vector& tr,bool self,int axis)
 { // axis: 0-2, or -1 for all axes
-    float TX[3]={0.0,0.0,0.0};
+    double TX[3]={0.0,0.0,0.0};
     if (axis==-1)
     {
         TX[0]=rotAngles[0];
@@ -568,7 +568,7 @@ void CQDlgRotation::on_qqCoordAlpha_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqCoordAlpha->text().toFloat(&ok);
+        double newVal=ui->qqCoordAlpha->text().toFloat(&ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,0))
@@ -584,7 +584,7 @@ void CQDlgRotation::on_qqCoordBeta_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqCoordBeta->text().toFloat(&ok);
+        double newVal=ui->qqCoordBeta->text().toFloat(&ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,1))
@@ -600,7 +600,7 @@ void CQDlgRotation::on_qqCoordGamma_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqCoordGamma->text().toFloat(&ok);
+        double newVal=ui->qqCoordGamma->text().toFloat(&ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,2))
@@ -652,7 +652,7 @@ void CQDlgRotation::on_qqTransfAlpha_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqTransfAlpha->text().toFloat(&ok);
+        double newVal=ui->qqTransfAlpha->text().toFloat(&ok);
         if (ok)
         {
             newVal*=gv::userToRad;
@@ -670,7 +670,7 @@ void CQDlgRotation::on_qqTransfBeta_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqTransfBeta->text().toFloat(&ok);
+        double newVal=ui->qqTransfBeta->text().toFloat(&ok);
         if (ok)
         {
             newVal*=gv::userToRad;
@@ -688,7 +688,7 @@ void CQDlgRotation::on_qqTransfGamma_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqTransfGamma->text().toFloat(&ok);
+        double newVal=ui->qqTransfGamma->text().toFloat(&ok);
         if (ok)
         {
             newVal*=gv::userToRad;
@@ -823,7 +823,7 @@ void CQDlgRotation::on_qqOrCombo_activated(int index)
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_ORSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,float(ui->qqOrCombo->itemData(index).toInt())*degToRad/1000.0);
+        App::appendSimulationThreadCommand(SET_ORSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,double(ui->qqOrCombo->itemData(index).toInt())*degToRad/1000.0);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

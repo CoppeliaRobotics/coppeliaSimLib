@@ -34,7 +34,7 @@ public:
     bool processCommand(int commandID);
     void looseFocus();
     void keyPress(int key);
-    int getSliderPositions(int vSliderTopLeft[2],int vSliderBottomRight[2],int hSliderTopLeft[2],int hSliderBottomRight[2],float prop[2]);
+    int getSliderPositions(int vSliderTopLeft[2],int vSliderBottomRight[2],int hSliderTopLeft[2],int hSliderBottomRight[2],double prop[2]);
 
     std::string getEditedLabel();
     void setEditionLabel(std::string txt);

@@ -222,7 +222,7 @@ void CQDlgJoints::on_qqPitch_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqPitch->text().toFloat(&ok);
+        double newVal=ui->qqPitch->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_PITCH_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal/gv::userToRad);
@@ -239,7 +239,7 @@ void CQDlgJoints::on_qqMinimum_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqMinimum->text().toFloat(&ok);
+        double newVal=ui->qqMinimum->text().toFloat(&ok);
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok&&(it!=nullptr))
         {
@@ -259,7 +259,7 @@ void CQDlgJoints::on_qqRange_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqRange->text().toFloat(&ok);
+        double newVal=ui->qqRange->text().toFloat(&ok);
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok&&(it!=nullptr))
         {
@@ -279,7 +279,7 @@ void CQDlgJoints::on_qqPosition_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqPosition->text().toFloat(&ok);
+        double newVal=ui->qqPosition->text().toFloat(&ok);
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok&&(it!=nullptr))
         {
@@ -366,7 +366,7 @@ void CQDlgJoints::on_qqLength_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqLength->text().toFloat(&ok);
+        double newVal=ui->qqLength->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_LENGTH_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -383,7 +383,7 @@ void CQDlgJoints::on_qqDiameter_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqDiameter->text().toFloat(&ok);
+        double newVal=ui->qqDiameter->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_DIAMETER_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

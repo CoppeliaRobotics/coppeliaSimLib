@@ -135,34 +135,34 @@ void CCalculationInfo::formatInfo()
         _dynamicsTxt[1]+="0 (no dynamic content)";
 }
 
-float CCalculationInfo::getProximitySensorCalculationTime()
+double CCalculationInfo::getProximitySensorCalculationTime()
 {
-    return(float(_sensCalcDuration)*0.001f);
+    return(double(_sensCalcDuration)*0.001);
 }
 
-float CCalculationInfo::getVisionSensorCalculationTime()
+double CCalculationInfo::getVisionSensorCalculationTime()
 {
-    return(float(_rendSensCalcDuration)*0.001f);
+    return(double(_rendSensCalcDuration)*0.001);
 }
 
-float CCalculationInfo::getMainScriptExecutionTime()
+double CCalculationInfo::getMainScriptExecutionTime()
 {
-    return(float(_mainScriptDuration)*0.001f);
+    return(double(_mainScriptDuration)*0.001);
 }
 
-float CCalculationInfo::getDynamicsCalculationTime()
+double CCalculationInfo::getDynamicsCalculationTime()
 {
-    return(float(_dynamicsCalcDuration)*0.001f);
+    return(double(_dynamicsCalcDuration)*0.001);
 }
 
-float CCalculationInfo::getSimulationPassExecutionTime()
+double CCalculationInfo::getSimulationPassExecutionTime()
 {
-    return(float(VDateTime::getTimeDiffInMs(_simulationPassStartTime))*0.001f);
+    return(double(VDateTime::getTimeDiffInMs(_simulationPassStartTime))*0.001);
 }
 
-float CCalculationInfo::getRenderingDuration()
+double CCalculationInfo::getRenderingDuration()
 {
-    return(float(_renderingDuration)*0.001f);
+    return(double(_renderingDuration)*0.001);
 }
 
 void CCalculationInfo::setMainScriptExecutionTime(int duration)
@@ -315,7 +315,7 @@ void CCalculationInfo::printInformation()
             {
                 C3Vector p1(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(App::mainWindow->editModeContainer->getEditModeBufferValue(0)));
                 C3Vector p2(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(App::mainWindow->editModeContainer->getEditModeBufferValue(1)));
-                float dist=(p2-p1).getLength();
+                double dist=(p2-p1).getLength();
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected vertices:";
                 txt="2 (distance="+gv::getSizeStr(false,dist,0)+")";
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
@@ -351,7 +351,7 @@ void CCalculationInfo::printInformation()
             }
             else
             {
-                float totLength=0.0f;
+                double totLength=0.0;
                 for (int i=0;i<App::mainWindow->editModeContainer->getEditModeBufferSize();i++)
                 {
                     int v=App::mainWindow->editModeContainer->getEditModeBufferValue(i);
@@ -359,7 +359,7 @@ void CCalculationInfo::printInformation()
                     App::mainWindow->editModeContainer->getShapeEditMode()->getEditionEdge(v,ind);
                     C3Vector p1(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind[0]));
                     C3Vector p2(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind[1]));
-                    float dist=(p2-p1).getLength();
+                    double dist=(p2-p1).getLength();
                     totLength+=dist;
                 }
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected edges:";
@@ -387,7 +387,7 @@ void CCalculationInfo::printInformation()
                 {
                     CSimplePathPoint_old* pt1(App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(0));
                     CSimplePathPoint_old* pt2(App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(1));
-                    float dist=(pt2->getTransformation().X-pt1->getTransformation().X).getLength();
+                    double dist=(pt2->getTransformation().X-pt1->getTransformation().X).getLength();
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected path points:";
                     txt="2 (distance="+gv::getSizeStr(false,dist,0)+")";
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;

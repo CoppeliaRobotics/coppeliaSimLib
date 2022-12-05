@@ -129,7 +129,7 @@ void CQDlgConvexDecomposition::on_qqConcavity_editingFinished()
     if (!ui->qqConcavity->isModified())
         return;
     bool ok;
-    float newVal=ui->qqConcavity->text().toFloat(&ok);
+    double newVal=ui->qqConcavity->text().toFloat(&ok);
     if (ok)
         maxConcavity=tt::getLimitedFloat(0.01,100000.0,newVal);
     refresh();
@@ -140,7 +140,7 @@ void CQDlgConvexDecomposition::on_qqConnectDist_editingFinished()
     if (!ui->qqConnectDist->isModified())
         return;
     bool ok;
-    float newVal=ui->qqConnectDist->text().toFloat(&ok);
+    double newVal=ui->qqConnectDist->text().toFloat(&ok);
     if (ok)
         maxConnectDist=tt::getLimitedFloat(0.001,1000.0,newVal);
     refresh();
@@ -173,7 +173,7 @@ void CQDlgConvexDecomposition::on_qqSmallClusterThreshold_editingFinished()
     if (!ui->qqSmallClusterThreshold->isModified())
         return;
     bool ok;
-    float newVal=ui->qqSmallClusterThreshold->text().toFloat(&ok);
+    double newVal=ui->qqSmallClusterThreshold->text().toFloat(&ok);
     if (ok)
         smallClusterThreshold=tt::getLimitedFloat(0.01,1.0,newVal);
     refresh();
@@ -235,7 +235,7 @@ void CQDlgConvexDecomposition::on_qqConcavity_2_editingFinished()
     if (!ui->qqConcavity_2->isModified())
         return;
     bool ok;
-    float newVal=ui->qqConcavity_2->text().toFloat(&ok);
+    double newVal=ui->qqConcavity_2->text().toFloat(&ok);
     if (ok)
         concavity=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
@@ -268,7 +268,7 @@ void CQDlgConvexDecomposition::on_qqAlpha_editingFinished()
     if (!ui->qqAlpha->isModified())
         return;
     bool ok;
-    float newVal=ui->qqAlpha->text().toFloat(&ok);
+    double newVal=ui->qqAlpha->text().toFloat(&ok);
     if (ok)
         alpha=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
@@ -279,7 +279,7 @@ void CQDlgConvexDecomposition::on_qqBeta_editingFinished()
     if (!ui->qqBeta->isModified())
         return;
     bool ok;
-    float newVal=ui->qqBeta->text().toFloat(&ok);
+    double newVal=ui->qqBeta->text().toFloat(&ok);
     if (ok)
         beta=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
@@ -290,7 +290,7 @@ void CQDlgConvexDecomposition::on_qqGamma_editingFinished()
     if (!ui->qqGamma->isModified())
         return;
     bool ok;
-    float newVal=ui->qqGamma->text().toFloat(&ok);
+    double newVal=ui->qqGamma->text().toFloat(&ok);
     if (ok)
         gamma=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
@@ -312,7 +312,7 @@ void CQDlgConvexDecomposition::on_qqMinVolumePerCh_editingFinished()
     if (!ui->qqMinVolumePerCh->isModified())
         return;
     bool ok;
-    float newVal=ui->qqMinVolumePerCh->text().toFloat(&ok);
+    double newVal=ui->qqMinVolumePerCh->text().toFloat(&ok);
     if (ok)
         minVolumePerCH=tt::getLimitedFloat(0.0,0.01,newVal);
     refresh();

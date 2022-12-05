@@ -8,7 +8,7 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
     _commonStart(dummy,renderingObject,displayAttrib);
     // Bounding box display:
     if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(dummy,displayAttrib,true,dummy->getDummySize()*2.0f);
+        _displayBoundingBox(dummy,displayAttrib,true,dummy->getDummySize()*2.0);
 
     C3Vector normalVectorForLinesAndPoints(dummy->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -32,9 +32,9 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
 
         _enableAuxClippingPlanes(dummy->getObjectHandle());
         if ((displayAttrib&sim_displayattribute_selected)==0)
-            ogl::drawReference(dummy->getDummySize()*2.0f,true,true,false,normalVectorForLinesAndPoints.data);
+            ogl::drawReference(dummy->getDummySize()*2.0,true,true,false,normalVectorForLinesAndPoints.data);
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
-            ogl::setMaterialColor(0.0f,0.6f,0.6f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+            ogl::setMaterialColor(0.0,0.6,0.6,0.5,0.5,0.5,0.0,0.0,0.0);
         else
         {
             bool setOtherColor=(App::currentWorld->collisions->getCollisionColor(dummy->getObjectHandle())!=0);
@@ -51,7 +51,7 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
         CDummy* linkedDummy=nullptr;
         if (dummy->getLinkedDummyHandle()!=-1)
             linkedDummy=App::currentWorld->sceneObjects->getDummyFromHandle(dummy->getLinkedDummyHandle());
-        ogl::drawSphere(dummy->getDummySize()/2.0f,12,6,false);
+        ogl::drawSphere(dummy->getDummySize()/2.0,12,6,false);
         glDisable(GL_CULL_FACE);
         if (linkedDummy!=nullptr)
         {
@@ -67,7 +67,7 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
             if ((_linkType==sim_dummylink_dynloopclosure)||(_linkType==sim_dummy_linktype_dynamics_force_constraint)||(_linkType==sim_dummylink_dyntendon))
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ogl::colorBlue);
             ogl::buffer.clear();
-            ogl::addBuffer3DPoints(0.0f,0.0f,0.0f);
+            ogl::addBuffer3DPoints(0.0,0.0,0.0);
             ogl::addBuffer3DPoints(cumulMobile.X.data);
             ogl::drawRandom3dLines(&ogl::buffer[0],2,false,normalVectorForLinesAndPoints.data);
             ogl::buffer.clear();

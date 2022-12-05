@@ -674,7 +674,7 @@ int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int cal
     return(cnt);
 }
 
-bool CEmbeddedScriptContainer::addCommandToOutsideCommandQueues(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float aux2Vals[8],int aux2Count)
+bool CEmbeddedScriptContainer::addCommandToOutsideCommandQueues(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const double aux2Vals[8],int aux2Count)
 {
     for (size_t i=0;i<allScripts.size();i++)
     {

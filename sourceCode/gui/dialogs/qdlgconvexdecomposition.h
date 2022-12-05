@@ -1,8 +1,8 @@
-
 #ifndef QDLGCONVEXDECOMPOSITION_H
 #define QDLGCONVEXDECOMPOSITION_H
 
 #include "vDialog.h"
+#include "simTypes.h"
 
 namespace Ui {
     class CQDlgConvexDecomposition;
@@ -31,24 +31,24 @@ public:
     bool addFacesPoints;
     int nClusters;
     int maxHullVertices;
-    float maxConcavity;
-    float smallClusterThreshold;
+    double maxConcavity;
+    double smallClusterThreshold;
     int maxTrianglesInDecimatedMesh;
-    float maxConnectDist;
+    double maxConnectDist;
 
     // VHACD params:
     int resolution;
     int depth;
-    float concavity;
+    double concavity;
     int planeDownsampling;
     int convexHullDownsampling;
-    float alpha;
-    float beta;
-    float gamma;
+    double alpha;
+    double beta;
+    double gamma;
     bool pca;
     bool voxelBasedMode;
     int maxNumVerticesPerCH;
-    float minVolumePerCH;
+    double minVolumePerCH;
 
 
 private slots:

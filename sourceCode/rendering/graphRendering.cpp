@@ -9,9 +9,9 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
     _commonStart(graph,renderingObject,displayAttrib);
 
     // Bounding box display:
-    float size=graph->getGraphSize();
+    double size=graph->getGraphSize();
     if ( (displayAttrib&sim_displayattribute_renderpass)&&(!graph->getJustDrawCurves()) )
-        _displayBoundingBox(graph,displayAttrib,true,size/2.0f);
+        _displayBoundingBox(graph,displayAttrib,true,size/2.0);
 
     C3Vector normalVectorForLinesAndPoints(graph->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -36,33 +36,33 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
         if (graph->xYZPlanesDisplay&&(!graph->getJustDrawCurves())&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
         {
             int subdiv=5;
-            float step=size/(float)subdiv;
+            double step=size/(double)subdiv;
             ogl::buffer.clear();
             for (int i=0;i<subdiv+1;i++)
             {
-                ogl::addBuffer3DPoints(-size/2.0f+i*step,-size/2.0f,0.0f);
-                ogl::addBuffer3DPoints(-size/2.0f+i*step,+size/2.0f,0.0f);
-                ogl::addBuffer3DPoints(-size/2.0f,-size/2.0f+i*step,0.0f);
-                ogl::addBuffer3DPoints(+size/2.0f,-size/2.0f+i*step,0.0f);
+                ogl::addBuffer3DPoints(-size/2.0+i*step,-size/2.0,0.0);
+                ogl::addBuffer3DPoints(-size/2.0+i*step,+size/2.0,0.0);
+                ogl::addBuffer3DPoints(-size/2.0,-size/2.0+i*step,0.0);
+                ogl::addBuffer3DPoints(+size/2.0,-size/2.0+i*step,0.0);
 
-                ogl::addBuffer3DPoints(0.0f,-size/2.0f+i*step,-size/2.0f);
-                ogl::addBuffer3DPoints(0.0f,-size/2.0f+i*step,+size/2.0f);
-                ogl::addBuffer3DPoints(0.0f,-size/2.0f,-size/2.0f+i*step);
-                ogl::addBuffer3DPoints(0.0f,+size/2.0f,-size/2.0f+i*step);
+                ogl::addBuffer3DPoints(0.0,-size/2.0+i*step,-size/2.0);
+                ogl::addBuffer3DPoints(0.0,-size/2.0+i*step,+size/2.0);
+                ogl::addBuffer3DPoints(0.0,-size/2.0,-size/2.0+i*step);
+                ogl::addBuffer3DPoints(0.0,+size/2.0,-size/2.0+i*step);
 
-                ogl::addBuffer3DPoints(-size/2.0f+i*step,0.0f,-size/2.0f);
-                ogl::addBuffer3DPoints(-size/2.0f+i*step,0.0f,+size/2.0f);
-                ogl::addBuffer3DPoints(-size/2.0f,0.0f,-size/2.0f+i*step);
-                ogl::addBuffer3DPoints(+size/2.0f,0.0f,-size/2.0f+i*step);
+                ogl::addBuffer3DPoints(-size/2.0+i*step,0.0,-size/2.0);
+                ogl::addBuffer3DPoints(-size/2.0+i*step,0.0,+size/2.0);
+                ogl::addBuffer3DPoints(-size/2.0,0.0,-size/2.0+i*step);
+                ogl::addBuffer3DPoints(+size/2.0,0.0,-size/2.0+i*step);
             }
             ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,normalVectorForLinesAndPoints.data);
             ogl::buffer.clear();
         }
         if ( (!graph->getJustDrawCurves())&&((displayAttrib&sim_displayattribute_forvisionsensor)==0) )
-            ogl::drawSphere(size/32.0f,10,5,true);
+            ogl::drawSphere(size/32.0,10,5,true);
 
         if ((!graph->getJustDrawCurves())&&((displayAttrib&(sim_displayattribute_forvisionsensor|sim_displayattribute_selected))==0))
-            ogl::drawReference(size/2.0f,true,true,false,normalVectorForLinesAndPoints.data);
+            ogl::drawReference(size/2.0,true,true,false,normalVectorForLinesAndPoints.data);
 
 
         // Display the trajectories..
@@ -81,16 +81,16 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
                     CGraphData_old* part2=graph->getGraphData(graph->curves3d_old[i]->data[2]);
                     int pos=0;
                     int absIndex;
-                    float point[3];
-                    glLineWidth(graph->curves3d_old[i]->get3DCurveWidth());
-                    glPointSize(graph->curves3d_old[i]->get3DCurveWidth());
+                    double point[3];
+                    glLineWidth((float)graph->curves3d_old[i]->get3DCurveWidth());
+                    glPointSize((float)graph->curves3d_old[i]->get3DCurveWidth());
                     if (graph->curves3d_old[i]->getVisibleOnTopOfEverything())
                     {
                         glDepthMask(GL_FALSE);
                         glDisable(GL_DEPTH_TEST);
                     }
                     bool cyclic0,cyclic1,cyclic2;
-                    float range0,range1,range2;
+                    double range0,range1,range2;
                     if (part0!=nullptr)
                         CGraphingRoutines_old::getCyclicAndRangeValues(part0,cyclic0,range0);
                     if (part1!=nullptr)
@@ -145,8 +145,8 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
                     ogl::buffer.clear();
                     glDepthMask(GL_TRUE);
                     glEnable(GL_DEPTH_TEST);
-                    glLineWidth(1.0f);
-                    glPointSize(1.0f);
+                    glLineWidth(1.0);
+                    glPointSize(1.0);
                 }
             }
         }
@@ -159,8 +159,8 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
                 if (graph->staticStreamsAndCurves_old[i]->getCurveType()==2)
                 {
                     CStaticGraphCurve_old* it=graph->staticStreamsAndCurves_old[i];
-                    glLineWidth(it->getCurveWidth());
-                    glPointSize(it->getCurveWidth());
+                    glLineWidth((float)it->getCurveWidth());
+                    glPointSize((float)it->getCurveWidth());
                     glLineStipple(1,0xE187);
                     glEnable(GL_LINE_STIPPLE);
                     ogl::buffer.clear();
@@ -184,8 +184,8 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
                             ogl::drawBitmapTextTo3dPosition(&ogl::buffer[0],(it->getName()+" [STATIC]").c_str(),normalVectorForLinesAndPoints.data);
                     }
                     ogl::buffer.clear();
-                    glLineWidth(1.0f);
-                    glPointSize(1.0f);
+                    glLineWidth(1.0);
+                    glPointSize(1.0);
                     glDisable(GL_LINE_STIPPLE);
                 }
             }

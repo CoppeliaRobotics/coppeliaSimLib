@@ -9,7 +9,7 @@
 #include "rendering.h"
 #include "tt.h"
 
-CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContainer* objCont,CTextureContainer* textureCont,CUiThread* uiThread,bool identicalVerticesCheck,bool identicalTrianglesCheck,float identicalVerticesTolerance)
+CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContainer* objCont,CTextureContainer* textureCont,CUiThread* uiThread,bool identicalVerticesCheck,bool identicalTrianglesCheck,double identicalVerticesTolerance)
 {
     _shape=shape;
     _editModeType=editModeType;
@@ -81,7 +81,13 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
                         gc->setTextureProperty(nullptr);
                     }
                     else
-                        tp->setFixedCoordinates(&_editionTextureCoords);
+                    {
+                        std::vector<float> c;
+                        c.resize(_editionTextureCoords.size());
+                        for (int i=0;i<_editionTextureCoords.size();i++)
+                            c[i]=(float)_editionTextureCoords[i];
+                        tp->setFixedCoordinates(&c);
+                    }
                 }
             }
 
@@ -133,22 +139,22 @@ void CShapeEditMode::setAutomaticallyFollowEdges(bool follow)
     automaticallyFollowEdges=follow;
 }
 
-float CShapeEditMode::getEdgeMaxAngle()
+double CShapeEditMode::getEdgeMaxAngle()
 {
     return(edgeMaxAngle);
 }
 
-void CShapeEditMode::setEdgeMaxAngle(float a)
+void CShapeEditMode::setEdgeMaxAngle(double a)
 {
     edgeMaxAngle=a;
 }
 
-float CShapeEditMode::getEdgeDirectionChangeMaxAngle()
+double CShapeEditMode::getEdgeDirectionChangeMaxAngle()
 {
     return(edgeDirectionChangeMaxAngle);
 }
 
-void CShapeEditMode::setEdgeDirectionChangeMaxAngle(float a)
+void CShapeEditMode::setEdgeDirectionChangeMaxAngle(double a)
 {
     edgeDirectionChangeMaxAngle=a;
 }
@@ -282,17 +288,17 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
         {
             for (int i=0;i<int(_editionIndices.size());i++)
             {
-                glNormal3fv(&_editionNormals[3*i]);
-                glTexCoord2fv(&_editionTextureCoords[2*i]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[i]]);
+                glNormal3dv(&_editionNormals[3*i]);
+                glTexCoord2dv(&_editionTextureCoords[2*i]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[i]]);
             }
         }
         else
         {
             for (int i=0;i<int(_editionIndices.size());i++)
             {
-                glNormal3fv(&_editionNormals[3*i]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[i]]);
+                glNormal3dv(&_editionNormals[3*i]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[i]]);
             }
         }
         glEnd();
@@ -310,7 +316,7 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
             ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
             glBegin(GL_TRIANGLES);
             for (int i=0;i<int(_editionIndices.size());i++)
-                glVertex3f(_editionVertices[3*_editionIndices[i]+0],_editionVertices[3*_editionIndices[i]+1],_editionVertices[3*_editionIndices[i]+2]);
+                glVertex3d(_editionVertices[3*_editionIndices[i]+0],_editionVertices[3*_editionIndices[i]+1],_editionVertices[3*_editionIndices[i]+2]);
             glEnd();
         }
 
@@ -364,7 +370,7 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
         // Draw the filled triangles
         glBegin(GL_TRIANGLES);
         for (int i=0;i<int(_editionIndices.size());i++)
-            glVertex3fv(&_editionVertices[3*_editionIndices[i]]);
+            glVertex3dv(&_editionVertices[3*_editionIndices[i]]);
         glEnd();
 
         glDisable(GL_POLYGON_OFFSET_FILL);
@@ -423,28 +429,28 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
             glBegin(GL_TRIANGLES);
             if (_editionTextureProperty!=nullptr)
             {
-                glNormal3fv(&_editionNormals[9*i+0]);
-                glTexCoord2fv(&_editionTextureCoords[6*i+0]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[3*i+0]]);
+                glNormal3dv(&_editionNormals[9*i+0]);
+                glTexCoord2dv(&_editionTextureCoords[6*i+0]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[3*i+0]]);
 
-                glNormal3fv(&_editionNormals[9*i+3]);
-                glTexCoord2fv(&_editionTextureCoords[6*i+2]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[3*i+1]]);
+                glNormal3dv(&_editionNormals[9*i+3]);
+                glTexCoord2dv(&_editionTextureCoords[6*i+2]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[3*i+1]]);
 
-                glNormal3fv(&_editionNormals[9*i+6]);
-                glTexCoord2fv(&_editionTextureCoords[6*i+4]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[3*i+2]]);
+                glNormal3dv(&_editionNormals[9*i+6]);
+                glTexCoord2dv(&_editionTextureCoords[6*i+4]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[3*i+2]]);
             }
             else
             {
-                glNormal3fv(&_editionNormals[9*i+0]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[3*i+0]]);
+                glNormal3dv(&_editionNormals[9*i+0]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[3*i+0]]);
 
-                glNormal3fv(&_editionNormals[9*i+3]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[3*i+1]]);
+                glNormal3dv(&_editionNormals[9*i+3]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[3*i+1]]);
 
-                glNormal3fv(&_editionNormals[9*i+6]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[3*i+2]]);
+                glNormal3dv(&_editionNormals[9*i+6]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[3*i+2]]);
             }
             glEnd();
         }
@@ -466,28 +472,28 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
             glBegin(GL_TRIANGLES);
             if (_editionTextureProperty!=nullptr)
             {
-                glNormal3fv(&_editionNormals[9*i+0]);
-                glTexCoord2fv(&_editionTextureCoords[6*i+0]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[3*i+0]]);
+                glNormal3dv(&_editionNormals[9*i+0]);
+                glTexCoord2dv(&_editionTextureCoords[6*i+0]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[3*i+0]]);
 
-                glNormal3fv(&_editionNormals[9*i+3]);
-                glTexCoord2fv(&_editionTextureCoords[6*i+2]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[3*i+1]]);
+                glNormal3dv(&_editionNormals[9*i+3]);
+                glTexCoord2dv(&_editionTextureCoords[6*i+2]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[3*i+1]]);
 
-                glNormal3fv(&_editionNormals[9*i+6]);
-                glTexCoord2fv(&_editionTextureCoords[6*i+4]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[3*i+2]]);
+                glNormal3dv(&_editionNormals[9*i+6]);
+                glTexCoord2dv(&_editionTextureCoords[6*i+4]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[3*i+2]]);
             }
             else
             {
-                glNormal3fv(&_editionNormals[9*i+0]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[3*i+0]]);
+                glNormal3dv(&_editionNormals[9*i+0]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[3*i+0]]);
 
-                glNormal3fv(&_editionNormals[9*i+3]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[3*i+1]]);
+                glNormal3dv(&_editionNormals[9*i+3]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[3*i+1]]);
 
-                glNormal3fv(&_editionNormals[9*i+6]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[3*i+2]]);
+                glNormal3dv(&_editionNormals[9*i+6]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[3*i+2]]);
             }
             glEnd();
         }
@@ -505,7 +511,7 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
             ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
             glBegin(GL_TRIANGLES);
             for (int i=0;i<int(_editionIndices.size());i++)
-                glVertex3f(_editionVertices[3*_editionIndices[i]+0],_editionVertices[3*_editionIndices[i]+1],_editionVertices[3*_editionIndices[i]+2]);
+                glVertex3d(_editionVertices[3*_editionIndices[i]+0],_editionVertices[3*_editionIndices[i]+1],_editionVertices[3*_editionIndices[i]+2]);
             glEnd();
         }
         glPopAttrib();
@@ -522,9 +528,9 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
             j=i+1;
             glColor3ub(j&255,(j>>8)&255,(j>>16)&255);
             glBegin(GL_TRIANGLES);
-            glVertex3fv(&_editionVertices[3*_editionIndices[3*i+0]]);
-            glVertex3fv(&_editionVertices[3*_editionIndices[3*i+1]]);
-            glVertex3fv(&_editionVertices[3*_editionIndices[3*i+2]]);
+            glVertex3dv(&_editionVertices[3*_editionIndices[3*i+0]]);
+            glVertex3dv(&_editionVertices[3*_editionIndices[3*i+1]]);
+            glVertex3dv(&_editionVertices[3*_editionIndices[3*i+2]]);
             glEnd();
         }
         glEnable(GL_DITHER);
@@ -557,17 +563,17 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
         {
             for (int i=0;i<int(_editionIndices.size());i++)
             {
-                glNormal3fv(&_editionNormals[3*i]);
-                glTexCoord2fv(&_editionTextureCoords[2*i]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[i]]);
+                glNormal3dv(&_editionNormals[3*i]);
+                glTexCoord2dv(&_editionTextureCoords[2*i]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[i]]);
             }
         }
         else
         {
             for (int i=0;i<int(_editionIndices.size());i++)
             {
-                glNormal3fv(&_editionNormals[3*i]);
-                glVertex3fv(&_editionVertices[3*_editionIndices[i]]);
+                glNormal3dv(&_editionNormals[3*i]);
+                glVertex3dv(&_editionVertices[3*_editionIndices[i]]);
             }
         }
         glEnd();
@@ -586,7 +592,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
             ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
             glBegin(GL_TRIANGLES);
             for (int i=0;i<int(_editionIndices.size());i++)
-                glVertex3f(_editionVertices[3*_editionIndices[i]+0],_editionVertices[3*_editionIndices[i]+1],_editionVertices[3*_editionIndices[i]+2]);
+                glVertex3d(_editionVertices[3*_editionIndices[i]+0],_editionVertices[3*_editionIndices[i]+1],_editionVertices[3*_editionIndices[i]+2]);
             glEnd();
         }
         std::vector<bool> usedEdges(_edgeCont.allEdges.size()/2,false);
@@ -645,7 +651,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
         // Draw the filled triangles
         glBegin(GL_TRIANGLES);
         for (int i=0;i<int(_editionIndices.size());i++)
-            glVertex3fv(&_editionVertices[3*_editionIndices[i]]);
+            glVertex3dv(&_editionVertices[3*_editionIndices[i]]);
         glEnd();
 
         glDisable(GL_POLYGON_OFFSET_FILL);
@@ -677,7 +683,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
 void CShapeEditMode::flipTriangle(int index) // all edit mode routines should go somewhere else!!!
 { // Use only in edit mode!!
     int save;
-    float normSave;
+    double normSave;
     save=_editionIndices[3*index+0];
     _editionIndices[3*index+0]=_editionIndices[3*index+1];
     _editionIndices[3*index+1]=save;
@@ -723,7 +729,7 @@ void CShapeEditMode::addTriangle(int ind1,int ind2,int ind3) // all edit mode ro
         index=_edgeCont.addEdge(ind3,ind2);
     }
     _editionIndicesToEdgesIndex.push_back(index);
-    floatDouble v[3][3];
+    double v[3][3];
     v[0][0]=_editionVertices[3*ind1+0];
     v[0][1]=_editionVertices[3*ind1+1];
     v[0][2]=_editionVertices[3*ind1+2];
@@ -733,7 +739,7 @@ void CShapeEditMode::addTriangle(int ind1,int ind2,int ind3) // all edit mode ro
     v[2][0]=_editionVertices[3*ind3+0];
     v[2][1]=_editionVertices[3*ind3+1];
     v[2][2]=_editionVertices[3*ind3+2];
-    floatDouble n[3];
+    double n[3];
     CMeshManip::calcNormal(v,n);
     for (int i=0;i<3;i++)
     {
@@ -773,7 +779,7 @@ void CShapeEditMode::actualizeEditModeEditionEdges() // all edit mode routines s
     }
 }
 
-float CShapeEditMode::getEdgeAngle(int edgeID) // all edit mode routines should go somewhere else!!!
+double CShapeEditMode::getEdgeAngle(int edgeID) // all edit mode routines should go somewhere else!!!
 {
     int ev[2]={_edgeCont.allEdges[2*edgeID+0],_edgeCont.allEdges[2*edgeID+1]};
     std::vector<C3Vector> normalVectors;
@@ -810,14 +816,14 @@ float CShapeEditMode::getEdgeAngle(int edgeID) // all edit mode routines should 
     if (normalVectors.size()<2)
         return(piValue);
     // now we search for the smallest scalar product (that gives the smallest edge value):
-    float smallestScalarProduct=1.0; // corresponds to 0 degree edge
+    double smallestScalarProduct=1.0; // corresponds to 0 degree edge
     for (int i=0;i<int(normalVectors.size()-1);i++)
     {
         C3Vector v(normalVectors[i]);
         for (int j=i+1;j<int(normalVectors.size());j++)
         {
             C3Vector w(normalVectors[j]);
-            float sp=fabs(v*w);
+            double sp=fabs(v*w);
             if (sp<smallestScalarProduct)
                 smallestScalarProduct=sp;
         }
@@ -1106,12 +1112,12 @@ void CShapeEditMode::addItemToEditModeBuffer(int item,bool disableEdgeFollowing)
                 std::vector<int> nextEdges;
                 getNextEdges(lowVertex,highVertex,nextEdges);
                 int highestAngleIndex=0;
-                float highestAngleValue=0.0;
+                double highestAngleValue=0.0;
                 bool foundValid=false;
                 for (int i=0;i<int(nextEdges.size());i++)
                 {
                     // 1. We need the edge angle:
-                    float a=getEdgeAngle(nextEdges[i]);
+                    double a=getEdgeAngle(nextEdges[i]);
                     // 2. and we need the angle between previous and next edge: (added on 2009/03/14)
                     int ind[2]={_edgeCont.allEdges[2*nextEdges[i]+0],_edgeCont.allEdges[2*nextEdges[i]+1]};
                     if (ind[1]==highVertex)
@@ -1119,7 +1125,7 @@ void CShapeEditMode::addItemToEditModeBuffer(int item,bool disableEdgeFollowing)
                     C3Vector v0(&_editionVertices[3*lowVertex+0]);
                     C3Vector v1(&_editionVertices[3*highVertex+0]);
                     C3Vector v2(&_editionVertices[3*ind[1]+0]);
-                    float a2=(v1-v0).getAngle(v2-v1);
+                    double a2=(v1-v0).getAngle(v2-v1);
                     if ( (a>highestAngleValue)&&(a2<edgeDirectionChangeMaxAngle)&&(a>(piValue-edgeMaxAngle)) ) // a>20.0... added on 2009/05/08
                     {
                         highestAngleValue=a;
@@ -1358,7 +1364,7 @@ void CShapeEditMode::deleteSelection(std::vector<int>* selection)
     }
 }
 
-void CShapeEditMode::copySelectedFaces(std::vector<int>* sel,std::vector<float>* vert,std::vector<int>* ind,std::vector<float>* norm,std::vector<float>* tex)
+void CShapeEditMode::copySelectedFaces(std::vector<int>* sel,std::vector<double>* vert,std::vector<int>* ind,std::vector<double>* norm,std::vector<double>* tex)
 {  // norm or tex can be nullptr
     if (_editModeType&TRIANGLE_EDIT_MODE)
     {
@@ -1687,10 +1693,10 @@ void CShapeEditMode::makeShape()
     std::vector<int> sel;
     for (int i=0;i<getEditModeBufferSize();i++)
         sel.push_back(editModeBuffer[i]);
-    std::vector<float> nVertices;
+    std::vector<double> nVertices;
     std::vector<int> nIndices;
-    std::vector<float> nNormals;
-    std::vector<float> nTexCoords;
+    std::vector<double> nNormals;
+    std::vector<double> nTexCoords;
     copySelectedFaces(&sel,&nVertices,&nIndices,&nNormals,&nTexCoords);
     if (nVertices.size()!=0)
     {   // Now we have to transform all vertices with the cumulative transform
@@ -1728,9 +1734,9 @@ void CShapeEditMode::makePrimitive(int what)
     std::vector<int> sel;
     for (int i=0;i<getEditModeBufferSize();i++)
         sel.push_back(editModeBuffer[i]);
-    std::vector<float> nVertices;
+    std::vector<double> nVertices;
     std::vector<int> nIndices;
-    std::vector<float> nNormals;
+    std::vector<double> nNormals;
     copySelectedFaces(&sel,&nVertices,&nIndices,&nNormals,nullptr);
     if (nVertices.size()!=0)
     {   // Now we have to transform all vertices with the cumulative transform
@@ -1816,7 +1822,7 @@ void CShapeEditMode::makeDummies()
 //    {
         CShape* it=_shape;
         C7Vector tr(it->getFullCumulativeTransformation());
-        std::vector<float> relPathPts;
+        std::vector<double> relPathPts;
         for (int i=0;i<getEditModeBufferSize();i++)
         {
             int ind=editModeBuffer[i];
@@ -1883,7 +1889,7 @@ void CShapeEditMode::makePath()
         sel.push_back(editModeBuffer[i]);
     CShape* shape=_shape;
 
-    std::vector<float> relPathPts;
+    std::vector<double> relPathPts;
 
     if (sel.size()>0)
     { // Only consecutive edges will be used! NOOOO! (modified on 2009/03/14)
@@ -1962,8 +1968,8 @@ void CShapeEditMode::makePath()
                     // Here none of the two vertices were added. We first add the closest one, then the other one:
                     C3Vector w0(&_editionVertices[3*in0+0]);
                     C3Vector w1(&_editionVertices[3*in1+0]);
-                    float l0=(w0-lastAddedPoint).getLength();
-                    float l1=(w1-lastAddedPoint).getLength();
+                    double l0=(w0-lastAddedPoint).getLength();
+                    double l1=(w1-lastAddedPoint).getLength();
                     if (l0>l1)
                     { // We swap both
                         int in0Cop=in0;

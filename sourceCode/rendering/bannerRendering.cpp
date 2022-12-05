@@ -2,7 +2,7 @@
 
 #ifdef SIM_WITH_OPENGL
 
-void displayBanner(int objId,int options,const float* bckColor,const C7Vector& tr,const char* label,const CColorObject& color,float height,const C4X4Matrix& cameraCTM,const int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
+void displayBanner(int objId,int options,const float* bckColor,const C7Vector& tr,const char* label,const CColorObject& color,double height,const C4X4Matrix& cameraCTM,const int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
 {
     if (options&(sim_banner_clickselectsparent+sim_banner_clicktriggersevent))
         glLoadName(objId+NON_OBJECT_PICKING_ID_BANNER_START); // But bitmap fonts cannot be picked!
@@ -14,7 +14,7 @@ void displayBanner(int objId,int options,const float* bckColor,const C7Vector& t
         if (options&sim_banner_overlay)
         {
             glDisable(GL_DEPTH_TEST);
-            glDepthRange(0.0f,0.0f);
+            glDepthRange(0.0,0.0);
         }
         ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
 
@@ -24,10 +24,10 @@ void displayBanner(int objId,int options,const float* bckColor,const C7Vector& t
             ogl::drawBitmapTextBackgroundIntoScene(tr.X(0),tr.X(1),tr.X(2),label);
         }
 
-        ogl::setTextColor(std::max<float>(color.getColorsPtr()[0],color.getColorsPtr()[9]),std::max<float>(color.getColorsPtr()[1],color.getColorsPtr()[10]),std::max<float>(color.getColorsPtr()[2],color.getColorsPtr()[11]));
+        ogl::setTextColor(std::max<double>(color.getColorsPtr()[0],color.getColorsPtr()[9]),std::max<double>(color.getColorsPtr()[1],color.getColorsPtr()[10]),std::max<double>(color.getColorsPtr()[2],color.getColorsPtr()[11]));
         ogl::drawBitmapTextIntoScene(tr.X(0),tr.X(1),tr.X(2),label);
 
-        glDepthRange(0.0f,1.0f);
+        glDepthRange(0.0,1.0);
         glEnable(GL_DEPTH_TEST);
     }
     else
@@ -43,7 +43,7 @@ void displayBanner(int objId,int options,const float* bckColor,const C7Vector& t
 
 #else
 
-void displayBanner(int objId,int options,const float* bckColor,const C7Vector& tr,const char* label,const CColorObject& color,float height,const C4X4Matrix& cameraCTM,const int windowSize[2],float verticalViewSizeOrAngle,bool perspective)
+void displayBanner(int objId,int options,const double* bckColor,const C7Vector& tr,const char* label,const CColorObject& color,double height,const C4X4Matrix& cameraCTM,const int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
 {
 
 }

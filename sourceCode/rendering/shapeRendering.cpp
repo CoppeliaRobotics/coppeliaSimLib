@@ -110,13 +110,13 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
                 if (displayAttrib&sim_displayattribute_mode1)
                 {
                     otherColor.setDefaultValues();
-                    otherColor.setColor(0.8f,0.8f,0.0,sim_colorcomponent_ambient_diffuse);
+                    otherColor.setColor(0.8,0.8,0.0,sim_colorcomponent_ambient_diffuse);
                     otherColorP=&otherColor;
                 }
                 if (displayAttrib&sim_displayattribute_mode2)
                 {
                     otherColor.setDefaultValues();
-                    otherColor.setColor(0.0f,0.8f,0.0,sim_colorcomponent_ambient_diffuse);
+                    otherColor.setColor(0.0,0.8,0.0,sim_colorcomponent_ambient_diffuse);
                     otherColorP=&otherColor;
                 }
             }
@@ -124,12 +124,12 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
             // Display the mass and inertia:
             if ((displayAttrib&sim_displayattribute_inertiaonly)!=0)
             {
-                C3Vector v(shape->getBoundingBoxHalfSizes()*2.0f);
+                C3Vector v(shape->getBoundingBoxHalfSizes()*2.0);
                 _displayInertia(shape->getMeshWrapper(),sqrt(v*v),normalVectorForLinesAndPoints.data);
                 otherColor.setDefaultValues();
-                otherColor.getColorsPtr()[0]=0.8f;
-                otherColor.getColorsPtr()[1]=0.8f;
-                otherColor.getColorsPtr()[2]=0.65f;
+                otherColor.getColorsPtr()[0]=0.8;
+                otherColor.getColorsPtr()[1]=0.8;
+                otherColor.getColorsPtr()[2]=0.65;
                 otherColorP=&otherColor;
             }
 
@@ -143,12 +143,12 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
                         fakeCol.setDefaultValues();
                         if (shape->isMeshCalculationStructureInitialized())
                         {
-                            fakeCol.setColor(0.5f,0.1f,0.1f,0);
+                            fakeCol.setColor(0.5,0.1,0.1,0);
                             shape->getMeshWrapper()->display(shape,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
                         }
                         else
                         {
-                            fakeCol.setColor(0.5f,0.5f,0.5f,0);
+                            fakeCol.setColor(0.5,0.5,0.5,0);
                             shape->getMeshWrapper()->display(shape,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
                         }
                     }
@@ -174,13 +174,13 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
     _commonFinish(shape,renderingObject);
 }
 
-void _displayInertia(CMeshWrapper* geomWrap,float bboxDiagonal,const float normalVectorForPointsAndLines[3])
+void _displayInertia(CMeshWrapper* geomWrap,double bboxDiagonal,const double normalVectorForPointsAndLines[3])
 {
     C7Vector tr(geomWrap->getLocalInertiaFrame());
     glPushMatrix();
-    glTranslatef(tr.X(0),tr.X(1),tr.X(2));
+    glTranslated(tr.X(0),tr.X(1),tr.X(2));
     C4Vector axis=tr.Q.getAngleAndAxis();
-    glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+    glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
     ogl::setMaterialColor(ogl::colorRed,ogl::colorBlack,ogl::colorBlack);
 
@@ -190,7 +190,7 @@ void _displayInertia(CMeshWrapper* geomWrap,float bboxDiagonal,const float norma
     ma(1)=(me(0)+me(2))*(me(0)+me(2));
     ma(2)=(me(1)+me(0))*(me(1)+me(0));
     ma.normalize();
-    float mf=bboxDiagonal*0.6f;
+    double mf=bboxDiagonal*0.6;
     ogl::buffer.clear();
     ogl::addBuffer3DPoints(-ma(0)*mf,-ma(1)*mf,+ma(2)*mf);
     ogl::addBuffer3DPoints(-ma(0)*mf,-ma(1)*mf,-ma(2)*mf);
@@ -213,14 +213,14 @@ void _displayInertia(CMeshWrapper* geomWrap,float bboxDiagonal,const float norma
     ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,normalVectorForPointsAndLines);
     ogl::buffer.clear();
 
-    glLineWidth(3.0f);
-    ogl::drawReference(bboxDiagonal*0.5f,true,false,false,normalVectorForPointsAndLines);
+    glLineWidth(3.0);
+    ogl::drawReference(bboxDiagonal*0.5,true,false,false,normalVectorForPointsAndLines);
 
-    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,0.4f,0.0f,1.0f);
-    float l=pow(geomWrap->getMass()/1000.0f,0.3333f); // Cubic root and mass density of 1000
-    glLineWidth(6.0f);
+    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,0.4,0.0,1.0);
+    double l=pow(geomWrap->getMass()/1000.0,0.3333); // Cubic root and mass density of 1000
+    glLineWidth(6.0);
     ogl::drawBox(l,l,l,false,normalVectorForPointsAndLines);
-    glLineWidth(1.0f);
+    glLineWidth(1.0);
 
     glPopMatrix();
 }
@@ -229,11 +229,11 @@ void _displayTriangles(CMesh* geometric,int geomModifCounter,CTextureProperty* t
 {
     if ((!App::currentWorld->environment->getShapeTexturesEnabled())||CEnvironment::getShapeTexturesTemporarilyDisabled())
         tp=nullptr;
-    std::vector<floatFloat>* textureCoords=nullptr;
+    std::vector<float>* textureCoords=nullptr;
     int* texCoordBufferIdPtr=nullptr;
-    const std::vector<floatFloat>& _vertices=geometric->getVerticesForDisplayAndDisk()[0];
+    const std::vector<float>& _vertices=geometric->getVerticesForDisplayAndDisk()[0];
     const std::vector<int>& _indices=geometric->getIndices()[0];
-    const std::vector<floatFloat>& _normals=geometric->getNormalsForDisplayAndDisk()[0];
+    const std::vector<float>& _normals=geometric->getNormalsForDisplayAndDisk()[0];
     if (tp!=nullptr)
     {
         textureCoords=tp->getTextureCoordinates(geomModifCounter,geometric->getVerticeLocalFrame(),_vertices,_indices);
@@ -263,9 +263,9 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
     C7Vector _verticeLocalFrame(geometric->getVerticeLocalFrame());
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
-    glTranslatef(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
+    glTranslated(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
     C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxis();
-    glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+    glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);
 
@@ -284,11 +284,11 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
         {
             if (dynObjFlag_forVisualization==1)
-                ogl::setMaterialColor(0.9f,0.9f,0.9f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+                ogl::setMaterialColor(0.9,0.9,0.9,0.5,0.5,0.5,0.0,0.0,0.0);
             if (dynObjFlag_forVisualization==3)
-                ogl::setMaterialColor(0.9f,0.11f,0.11f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+                ogl::setMaterialColor(0.9,0.11,0.11,0.5,0.5,0.5,0.0,0.0,0.0);
             if (dynObjFlag_forVisualization==2)
-                ogl::setMaterialColor(0.9f,0.11f,0.9f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+                ogl::setMaterialColor(0.9,0.11,0.9,0.5,0.5,0.5,0.0,0.0,0.0);
             nonPureDynamicDisplay=(geometric->getPurePrimitiveType()==sim_primitiveshape_none);
         }
         else
@@ -303,7 +303,7 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
             glEnable(GL_CULL_FACE);
         // REMOVED ON 2010/07/29 so that we see edges over non-edges shapes (e.g. wall elements)    if (edges||wire)
         {
-            glPolygonOffset(0.5f,0.0f); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
+            glPolygonOffset(0.5,0.0); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
             glEnable(GL_POLYGON_OFFSET_FILL);
         }
 
@@ -357,9 +357,9 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
             glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
 
             if (geometric->isConvex())
-                ogl::setMaterialColor(1.0f,1.0f,1.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f);
+                ogl::setMaterialColor(1.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0);
             else
-                ogl::setMaterialColor(0.0f,1.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f);
+                ogl::setMaterialColor(0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
             _displayTriangles(geometric,geomData->getMeshModificationCounter(),nullptr);
         }
 
@@ -395,7 +395,7 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
                 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
             }
-            std::vector<floatFloat>& _vertices=geometric->getVerticesForDisplayAndDisk()[0];
+            std::vector<float>& _vertices=geometric->getVerticesForDisplayAndDisk()[0];
             std::vector<int>& _indices=geometric->getIndices()[0];
             std::vector<unsigned char>& _edges=geometric->getEdges()[0];
             bool nothingDisplayed=(!_drawEdges(&_vertices[0],(int)_vertices.size()/3,&_indices[0],(int)_indices.size(),&_edges[0],geometric->getEdgeBufferIdPtr()));
@@ -404,17 +404,17 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
             glDisable (GL_LINE_SMOOTH);
             glDisable (GL_BLEND);
 
-            glLineWidth(1.0f);
+            glLineWidth(1.0);
 
             // Added following on 25/02/2011 (because above we disable the diffuse and specular components!)
             if (displayAttrib&sim_displayattribute_dynamiccontentonly)
             {
                 if (dynObjFlag_forVisualization==1)
-                    ogl::setMaterialColor(0.9f,0.9f,0.9f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+                    ogl::setMaterialColor(0.9,0.9,0.9,0.5,0.5,0.5,0.0,0.0,0.0);
                 if (dynObjFlag_forVisualization==3)
-                    ogl::setMaterialColor(0.9f,0.11f,0.11f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+                    ogl::setMaterialColor(0.9,0.11,0.11,0.5,0.5,0.5,0.0,0.0,0.0);
                 if (dynObjFlag_forVisualization==2)
-                    ogl::setMaterialColor(0.9f,0.11f,0.9f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+                    ogl::setMaterialColor(0.9,0.11,0.9,0.5,0.5,0.5,0.0,0.0,0.0);
             }
             else
             {
@@ -455,15 +455,15 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
         //  multishapeEditSelected=true;
         if (multishapeEditSelected)
         {
-            glLineWidth(3.0f);
+            glLineWidth(3.0);
             glLineStipple(1,15);
             glEnable(GL_LINE_STIPPLE);
-            ogl::setMaterialColor(0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,1.0f,0.0f,1.0f);
+            ogl::setMaterialColor(0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,1.0);
             glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
             _displayTriangles(geometric,geomData->getMeshModificationCounter(),nullptr);
             glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
             glDisable(GL_LINE_STIPPLE);
-            glLineWidth(1.0f);
+            glLineWidth(1.0);
         }
     }
     glFrontFace(GL_CCW);
@@ -477,9 +477,9 @@ void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
     C7Vector _verticeLocalFrame(geometric->getVerticeLocalFrame());
-    glTranslatef(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
+    glTranslated(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
     C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxis();
-    glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+    glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);
 
@@ -493,9 +493,9 @@ void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,
 
     if ((displayAttrib&sim_displayattribute_colorcodedtriangles)!=0)
     {
-        std::vector<floatFloat>& _vertices=geometric->getVerticesForDisplayAndDisk()[0];
+        std::vector<float>& _vertices=geometric->getVerticesForDisplayAndDisk()[0];
         std::vector<int>& _indices=geometric->getIndices()[0];
-        std::vector<floatFloat>& _normals=geometric->getNormalsForDisplayAndDisk()[0];
+        std::vector<float>& _normals=geometric->getNormalsForDisplayAndDisk()[0];
         _drawColorCodedTriangles(&_vertices[0],(int)_vertices.size()/3,&_indices[0],(int)_indices.size(),&_normals[0],geometric->getVertexBufferIdPtr(),geometric->getNormalBufferIdPtr());
     }
     else
@@ -507,7 +507,7 @@ void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,
     glPopMatrix();
 }
 
-void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
+void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
 {
     if (originalColors)
     {
@@ -518,9 +518,9 @@ void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,b
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
     C7Vector _verticeLocalFrame(geometric->getVerticeLocalFrame());
-    glTranslatef(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
+    glTranslated(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
     C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxis();
-    glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+    glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);
 
@@ -537,7 +537,7 @@ void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,b
         ogl::setMaterialColor(newColors,newColors+6,newColors+9);
         ogl::setShininess(geometric->color.getShininess());
         ogl::setAlpha(transparency);
-        if (transparency>0.01f)
+        if (transparency>0.01)
             ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 
@@ -545,7 +545,7 @@ void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,b
             glEnable(GL_CULL_FACE);
         // REMOVED ON 2010/07/29 so that we see edges over non-edges shapes (e.g. wall elements)    if (edges||wire)
         {
-            glPolygonOffset(0.5f,0.0f); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
+            glPolygonOffset(0.5,0.0); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
             glEnable(GL_POLYGON_OFFSET_FILL);
         }
 
@@ -571,7 +571,7 @@ void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,b
                     ogl::setMaterialColor(newColors,newColors+6,newColors+9);
                     ogl::setShininess(geometric->color.getShininess());
                     ogl::setAlpha(transparency);
-                    if (transparency!=0.0f)
+                    if (transparency!=0.0)
                         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                     if (pss==0)
                         glCullFace(GL_FRONT);
@@ -608,7 +608,7 @@ void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,b
                 glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
             }
 
-            std::vector<floatFloat>& _vertices=geometric->getVerticesForDisplayAndDisk()[0];
+            std::vector<float>& _vertices=geometric->getVerticesForDisplayAndDisk()[0];
             std::vector<int>& _indices=geometric->getIndices()[0];
             std::vector<unsigned char>& _edges=geometric->getEdges()[0];
             bool nothingDisplayed=(!_drawEdges(&_vertices[0],(int)_vertices.size()/3,&_indices[0],(int)_indices.size(),&_edges[0],geometric->getEdgeBufferIdPtr()));
@@ -617,12 +617,12 @@ void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,b
             glDisable (GL_LINE_SMOOTH);
             glDisable (GL_BLEND);
 
-            glLineWidth(1.0f);
+            glLineWidth(1.0);
 
             ogl::setMaterialColor(newColors,newColors+6,newColors+9);
             ogl::setShininess(geometric->color.getShininess());
             ogl::setAlpha(transparency);
-            if (transparency>0.01f)
+            if (transparency>0.01)
                 ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
             if (nothingDisplayed&&wire)
@@ -671,7 +671,7 @@ void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,
 }
 
 
-void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,float transparency,const float* newColors)
+void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const double* newColors)
 {
 
 }

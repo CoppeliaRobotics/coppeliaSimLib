@@ -133,7 +133,7 @@ bool CInterfaceStackTable::getInt64Array(long long int* array,int count) const
     return(retVal);
 }
 
-bool CInterfaceStackTable::getFloatArray(floatFloat* array,int count) const
+bool CInterfaceStackTable::getFloatArray(float* array,int count) const
 {
     if (!_isTableArray)
         return(false);
@@ -145,9 +145,9 @@ bool CInterfaceStackTable::getFloatArray(floatFloat* array,int count) const
     {
         int t=_tableObjects[i]->getObjectType();
         if (t==STACK_OBJECT_NUMBER)
-            array[i]=(floatFloat)((CInterfaceStackNumber*)_tableObjects[i])->getValue();
+            array[i]=(float)((CInterfaceStackNumber*)_tableObjects[i])->getValue();
         else if (t==STACK_OBJECT_INTEGER)
-            array[i]=(floatFloat)((CInterfaceStackInteger*)_tableObjects[i])->getValue();
+            array[i]=(float)((CInterfaceStackInteger*)_tableObjects[i])->getValue();
         else
         {
             array[i]=0.0;
@@ -416,7 +416,7 @@ void CInterfaceStackTable::appendArrayObject_bool(bool value)
     appendArrayObject(new CInterfaceStackBool(value));
 }
 
-void CInterfaceStackTable::appendArrayObject_float(floatFloat value)
+void CInterfaceStackTable::appendArrayObject_float(float value)
 {
     appendArrayObject(new CInterfaceStackNumber((double)value));
 }
@@ -457,7 +457,7 @@ void CInterfaceStackTable::appendArrayObject_int64Array(const long long int* arr
     appendArrayObject(newObj);
 }
 
-void CInterfaceStackTable::appendArrayObject_floatArray(const floatFloat* arr,size_t l)
+void CInterfaceStackTable::appendArrayObject_floatArray(const float* arr,size_t l)
 {
     CInterfaceStackTable* newObj=new CInterfaceStackTable();
     newObj->setFloatArray(arr,l);
@@ -481,7 +481,7 @@ void CInterfaceStackTable::appendMapObject_stringBool(const char* key,bool value
     appendArrayOrMapObject(new CInterfaceStackString(key,0),new CInterfaceStackBool(value));
 }
 
-void CInterfaceStackTable::appendMapObject_stringFloat(const char* key,floatFloat value)
+void CInterfaceStackTable::appendMapObject_stringFloat(const char* key,float value)
 {
     appendArrayOrMapObject(new CInterfaceStackString(key,0),new CInterfaceStackNumber(double(value)));
 }
@@ -522,7 +522,7 @@ void CInterfaceStackTable::appendMapObject_stringInt64Array(const char* key,cons
     appendArrayOrMapObject(new CInterfaceStackString(key,0),obj);
 }
 
-void CInterfaceStackTable::appendMapObject_stringFloatArray(const char* key,const floatFloat* arr,size_t l)
+void CInterfaceStackTable::appendMapObject_stringFloatArray(const char* key,const float* arr,size_t l)
 {
     CInterfaceStackTable* obj=new CInterfaceStackTable();
     obj->setFloatArray(arr,l);
@@ -627,7 +627,7 @@ void CInterfaceStackTable::setInt64Array(const long long int* array,size_t l)
         _tableObjects.push_back(new CInterfaceStackInteger(array[i]));
 }
 
-void CInterfaceStackTable::setFloatArray(const floatFloat* array,size_t l)
+void CInterfaceStackTable::setFloatArray(const float* array,size_t l)
 {
     _tableObjects.clear();
     _isTableArray=true;

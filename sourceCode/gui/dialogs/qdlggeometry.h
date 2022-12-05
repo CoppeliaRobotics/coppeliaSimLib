@@ -32,9 +32,9 @@ public:
     static void display(int shapeHandle,QWidget* theParentWindow);
 
     int _shapeHandle;
-    float scaleVal[3];
-    float sizeVal[3];
-    float rotationVal[3];
+    double scaleVal[3];
+    double sizeVal[3];
+    double rotationVal[3];
     bool keepProp;
     bool isPureShape;
     bool isConvex;

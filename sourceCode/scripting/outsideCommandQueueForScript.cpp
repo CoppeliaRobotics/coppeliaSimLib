@@ -30,7 +30,7 @@ void COutsideCommandQueueForScript::simulationEnded()
     aux2Cnt.clear();
 }
 
-bool COutsideCommandQueueForScript::addCommand(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const float* aux2Vals,int aux2Count)
+bool COutsideCommandQueueForScript::addCommand(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const double* aux2Vals,int aux2Count)
 { // the queue can't be bigger than 64! (for now)
     // For the Lua-API:
     if (commandID<sim_message_for_c_api_only_start)
@@ -69,12 +69,12 @@ bool COutsideCommandQueueForScript::addCommand(int commandID,int auxVal1,int aux
         }
         aux2Cnt.push_back(aux2Count);
         for (int i=0;i<8-tot;i++)
-            aux2Values.push_back(0.0f);
+            aux2Values.push_back(0.0);
     }
     return(true);
 }
 
-int COutsideCommandQueueForScript::extractOneCommand(int auxVals[4],float aux2Vals[8],int& aux2Count)
+int COutsideCommandQueueForScript::extractOneCommand(int auxVals[4],double aux2Vals[8],int& aux2Count)
 {
     if (flagToCompareSelections)
         _checkSelections();

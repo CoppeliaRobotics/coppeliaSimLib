@@ -7,7 +7,7 @@ CGhostObject::CGhostObject()
     transparencyFactor=0;
 }
 
-CGhostObject::CGhostObject(int theGroupId,int theObjectHandle,C7Vector theTr,int theOptions,floatDouble theStartTime,floatDouble theEndTime,const floatDouble theColor[12])
+CGhostObject::CGhostObject(int theGroupId,int theObjectHandle,C7Vector theTr,int theOptions,double theStartTime,double theEndTime,const float theColor[12])
 {
     // options: bit0 set (1): model instead of object
     // options: bit1 set (2): real-time playback
@@ -31,7 +31,7 @@ CGhostObject::CGhostObject(int theGroupId,int theObjectHandle,C7Vector theTr,int
     else
     {
         for (int i=0;i<12;i++)
-            color[i]=0.5f;
+            color[i]=0.5;
     }
 }
 
@@ -65,7 +65,7 @@ CGhostObject* CGhostObject::copyYourself()
     return(newGhost);
 }
 
-void CGhostObject::render(int displayAttributes,floatDouble simulationTime,floatDouble realTime)
+void CGhostObject::render(int displayAttributes,double simulationTime,double realTime)
 {
     if ((options&16)!=0)
         return; // invisible
@@ -73,11 +73,11 @@ void CGhostObject::render(int displayAttributes,floatDouble simulationTime,float
     if ((options&2)!=0)
         doIt=(realTime>=startTime)&&(realTime<endTime);
     else
-        doIt=(simulationTime>=startTime-0.00005f)&&(simulationTime<endTime-0.00005f);
+        doIt=(simulationTime>=startTime-0.00005)&&(simulationTime<endTime-0.00005);
     if (doIt)
     {
         CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
         if (shape!=nullptr)
-            displayGhost(shape,tr,displayAttributes,options,floatDouble(transparencyFactor)/255.0f,color);
+            displayGhost(shape,tr,displayAttributes,options,double(transparencyFactor)/255.0,color);
     }
 }

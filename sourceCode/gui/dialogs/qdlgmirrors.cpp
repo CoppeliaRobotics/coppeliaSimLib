@@ -144,7 +144,7 @@ void CQDlgMirrors::on_qqWidth_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqWidth->text().toFloat(&ok);
+        double newVal=ui->qqWidth->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_WIDTH_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -161,7 +161,7 @@ void CQDlgMirrors::on_qqHeight_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqHeight->text().toFloat(&ok);
+        double newVal=ui->qqHeight->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_HEIGHT_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -194,7 +194,7 @@ void CQDlgMirrors::on_qqReflectance_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqReflectance->text().toFloat(&ok);
+        double newVal=ui->qqReflectance->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_REFLECTANCE_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

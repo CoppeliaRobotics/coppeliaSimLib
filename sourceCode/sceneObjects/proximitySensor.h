@@ -16,8 +16,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(floatDouble scalingFactor);
-    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
+    void scaleObject(double scalingFactor);
+    void scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -56,11 +56,11 @@ public:
     bool getSensedData(C3Vector& pt);
     void setClosestObjectMode(bool closestObjMode);
     bool getClosestObjectMode();
-    void setProxSensorSize(floatDouble newSize);
-    floatDouble getProxSensorSize();
+    void setProxSensorSize(double newSize);
+    double getProxSensorSize();
 
-    void setAllowedNormal(floatDouble al);
-    floatDouble getAllowedNormal() const;
+    void setAllowedNormal(double al);
+    double getAllowedNormal() const;
     void setNormalCheck(bool check);
     bool getNormalCheck() const;
     bool getFrontFaceDetection() const;
@@ -92,9 +92,9 @@ public:
 
     void calculateFreshRandomizedRays();
     const std::vector<C3Vector>* getPointerToRandomizedRays() const;
-    std::vector<floatDouble>* getPointerToRandomizedRayDetectionStates();
+    std::vector<double>* getPointerToRandomizedRayDetectionStates();
 
-    floatDouble getCalculationTime() const;
+    double getCalculationTime() const;
     C3Vector getDetectedPoint() const;
     bool getIsDetectedPointValid() const;
     std::string getSensableObjectLoadAlias() const;
@@ -102,7 +102,7 @@ public:
 
     CColorObject* getColor(int index);
 
-    std::vector<floatDouble> cutEdges; // Only used for sensor cutting debugging
+    std::vector<double> cutEdges; // Only used for sensor cutting debugging
 
     CConvexVolume* convexVolume;
 
@@ -111,8 +111,8 @@ protected:
     // Variables which need to be serialized & copied
     CColorObject volumeColor;
     CColorObject detectionRayColor;
-    floatDouble allowedNormal;
-    floatDouble _proxSensorSize;
+    double allowedNormal;
+    double _proxSensorSize;
     bool normalCheck;
     bool closestObjectMode;
     bool frontFaceDetection;
@@ -135,7 +135,7 @@ protected:
     int _randomizedDetectionCountForDetection;
 
     std::vector<C3Vector> _randomizedVectors;
-    std::vector<floatDouble> _randomizedVectorDetectionStates;
+    std::vector<double> _randomizedVectorDetectionStates;
 
     bool _initialExplicitHandling;
 

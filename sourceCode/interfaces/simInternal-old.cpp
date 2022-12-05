@@ -46,8 +46,8 @@ int simHandleVarious_internal()
         }
 
         // Following is for velocity measurement:
-        float dt=App::currentWorld->simulation->getTimeStep();
-        float t=dt+App::currentWorld->simulation->getSimulationTime();
+        double dt=App::currentWorld->simulation->getTimeStep();
+        double t=dt+App::currentWorld->simulation->getSimulationTime();
         for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
             App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(t);
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
@@ -59,7 +59,7 @@ int simHandleVarious_internal()
     return(-1);
 }
 
-int simGetMpConfigForTipPose_internal(int motionPlanningObjectHandle,int options,float closeNodesDistance,int trialCount,const float* tipPose,int maxTimeInMs,float* outputJointPositions,const float* referenceConfigs,int referenceConfigCount,const float* jointWeights,const int* jointBehaviour,int correctionPasses)
+int simGetMpConfigForTipPose_internal(int motionPlanningObjectHandle,int options,double closeNodesDistance,int trialCount,const double* tipPose,int maxTimeInMs,double* outputJointPositions,const double* referenceConfigs,int referenceConfigCount,const double* jointWeights,const int* jointBehaviour,int correctionPasses)
 { // DEPRECATED since 21/1/2016   referenceConfigs can be nullptr, as well as jointWeights
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
@@ -107,7 +107,7 @@ int simResetPath_internal(int pathHandle)
     return(-1);
 }
 
-int simHandlePath_internal(int pathHandle,float deltaTime)
+int simHandlePath_internal(int pathHandle,double deltaTime)
 { // DEPRECATED
     TRACE_C_API;
 
@@ -189,7 +189,7 @@ int simResetJoint_internal(int jointHandle)
     return(-1);
 }
 
-int simHandleJoint_internal(int jointHandle,float deltaTime)
+int simHandleJoint_internal(int jointHandle,double deltaTime)
 { // DEPRECATED
     TRACE_C_API;
 
@@ -258,35 +258,35 @@ int simGetMotionPlanningHandle_internal(const char* motionPlanningObjectName)
     return(-1);
 }
 
-float* simFindMpPath_internal(int motionPlanningObjectHandle,const float* startConfig,const float* goalConfig,int options,float stepSize,int* outputConfigsCnt,int maxTimeInMs,float* reserved,const int* auxIntParams,const float* auxFloatParams)
+double* simFindMpPath_internal(int motionPlanningObjectHandle,const double* startConfig,const double* goalConfig,int options,double stepSize,int* outputConfigsCnt,int maxTimeInMs,double* reserved,const int* auxIntParams,const double* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
-float* simSimplifyMpPath_internal(int motionPlanningObjectHandle,const float* pathBuffer,int configCnt,int options,float stepSize,int increment,int* outputConfigsCnt,int maxTimeInMs,float* reserved,const int* auxIntParams,const float* auxFloatParams)
+double* simSimplifyMpPath_internal(int motionPlanningObjectHandle,const double* pathBuffer,int configCnt,int options,double stepSize,int increment,int* outputConfigsCnt,int maxTimeInMs,double* reserved,const int* auxIntParams,const double* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
-float* simFindIkPath_internal(int motionPlanningObjectHandle,const float* startConfig,const float* goalPose,int options,float stepSize,int* outputConfigsCnt,float* reserved,const int* auxIntParams,const float* auxFloatParams)
+double* simFindIkPath_internal(int motionPlanningObjectHandle,const double* startConfig,const double* goalPose,int options,double stepSize,int* outputConfigsCnt,double* reserved,const int* auxIntParams,const double* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
-float* simGetMpConfigTransition_internal(int motionPlanningObjectHandle,const float* startConfig,const float* goalConfig,int options,const int* select,float calcStepSize,float maxOutStepSize,int wayPointCnt,const float* wayPoints,int* outputConfigsCnt,const int* auxIntParams,const float* auxFloatParams)
+double* simGetMpConfigTransition_internal(int motionPlanningObjectHandle,const double* startConfig,const double* goalConfig,int options,const int* select,double calcStepSize,double maxOutStepSize,int wayPointCnt,const double* wayPoints,int* outputConfigsCnt,const int* auxIntParams,const double* auxFloatParams)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
-int simCreateMotionPlanning_internal(int jointCnt,const int* jointHandles,const int* jointRangeSubdivisions,const float* jointMetricWeights,int options,const int* intParams,const float* floatParams,const void* reserved)
+int simCreateMotionPlanning_internal(int jointCnt,const int* jointHandles,const int* jointRangeSubdivisions,const double* jointMetricWeights,int options,const int* intParams,const double* floatParams,const void* reserved)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
@@ -300,7 +300,7 @@ int simRemoveMotionPlanning_internal(int motionPlanningHandle)
     return(-1);
 }
 
-int simSearchPath_internal(int pathPlanningObjectHandle,float maximumSearchTime)
+int simSearchPath_internal(int pathPlanningObjectHandle,double maximumSearchTime)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
 
@@ -325,7 +325,7 @@ int simSearchPath_internal(int pathPlanningObjectHandle,float maximumSearchTime)
 }
 
 
-int simInitializePathSearch_internal(int pathPlanningObjectHandle,float maximumSearchTime,float searchTimeStep)
+int simInitializePathSearch_internal(int pathPlanningObjectHandle,double maximumSearchTime,double searchTimeStep)
 { // DEPRECATED since release 3.3.0
     TRACE_C_API;
 
@@ -346,8 +346,8 @@ int simInitializePathSearch_internal(int pathPlanningObjectHandle,float maximumS
             return(-1);
         }
 
-        maximumSearchTime=tt::getLimitedFloat(0.01f,36000.0f,maximumSearchTime);
-        searchTimeStep=tt::getLimitedFloat(0.001f,std::min<float>(1.0f,maximumSearchTime),searchTimeStep);
+        maximumSearchTime=tt::getLimitedFloat(0.01,36000.0,maximumSearchTime);
+        searchTimeStep=tt::getLimitedFloat(0.001,std::min<double>(1.0,maximumSearchTime),searchTimeStep);
         CPathPlanningTask* oldIt=it;
         it=oldIt->copyYourself(); // we copy it because the original might be destroyed at any time
         it->setOriginalTask(oldIt);
@@ -681,11 +681,11 @@ int simClearScriptVariable_internal(const char* reservedSetToNull,int scriptHand
     return(-1);
 }
 
-void _simGetVortexParameters_internal(const void* object,int version,float* floatParams,int* intParams)
+void _simGetVortexParameters_internal(const void* object,int version,double* floatParams,int* intParams)
 { // if object is nullptr, we return general engine settings, if object is a shape, we return shape settings, otherwise joint settings
     // Version allows to adjust for future extensions.
     TRACE_C_API;
-    std::vector<float> fparams;
+    std::vector<double> fparams;
     std::vector<int> iparams;
     int icnt=0;
     int fcnt=0;
@@ -777,11 +777,11 @@ void _simGetVortexParameters_internal(const void* object,int version,float* floa
         intParams[i]=iparams[i];
 }
 
-void _simGetNewtonParameters_internal(const void* object,int* version,float* floatParams,int* intParams)
+void _simGetNewtonParameters_internal(const void* object,int* version,double* floatParams,int* intParams)
 { // if object is nullptr, we return general engine settings, if object is a shape, we return shape settings, otherwise joint settings
     // Version allows to adjust for future extensions.
     TRACE_C_API;
-    std::vector<float> fparams;
+    std::vector<double> fparams;
     std::vector<int> iparams;
     int icnt=0;
     int fcnt=0;
@@ -831,7 +831,7 @@ void _simGetNewtonParameters_internal(const void* object,int* version,float* flo
         intParams[i]=iparams[i];
 }
 
-void _simGetJointOdeParameters_internal(const void* joint,float* stopERP,float* stopCFM,float* bounce,float* fudge,float* normalCFM)
+void _simGetJointOdeParameters_internal(const void* joint,double* stopERP,double* stopCFM,double* bounce,double* fudge,double* normalCFM)
 {
     TRACE_C_API;
     stopERP[0]=((CJoint*)joint)->getEngineFloatParam(sim_ode_joint_stoperp,nullptr);
@@ -841,7 +841,7 @@ void _simGetJointOdeParameters_internal(const void* joint,float* stopERP,float* 
     normalCFM[0]=((CJoint*)joint)->getEngineFloatParam(sim_ode_joint_normalcfm,nullptr);
 }
 
-void _simGetJointBulletParameters_internal(const void* joint,float* stopERP,float* stopCFM,float* normalCFM)
+void _simGetJointBulletParameters_internal(const void* joint,double* stopERP,double* stopCFM,double* normalCFM)
 {
     TRACE_C_API;
     stopERP[0]=((CJoint*)joint)->getEngineFloatParam(sim_bullet_joint_stoperp,nullptr);
@@ -860,7 +860,7 @@ CShape* __getShapeFromGeomInfo(const void* geomInfo)
     return(nullptr);
 }
 
-void _simGetOdeMaxContactFrictionCFMandERP_internal(const void* geomInfo,int* maxContacts,float* friction,float* cfm,float* erp)
+void _simGetOdeMaxContactFrictionCFMandERP_internal(const void* geomInfo,int* maxContacts,double* friction,double* cfm,double* erp)
 {
     TRACE_C_API;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
@@ -871,7 +871,7 @@ void _simGetOdeMaxContactFrictionCFMandERP_internal(const void* geomInfo,int* ma
     erp[0]=mat->getEngineFloatParam(sim_ode_body_softerp,nullptr);
 }
 
-bool _simGetBulletCollisionMargin_internal(const void* geomInfo,float* margin,int* otherProp)
+bool _simGetBulletCollisionMargin_internal(const void* geomInfo,double* margin,int* otherProp)
 {
     TRACE_C_API;
     CMeshWrapper* geomWrap=(CMeshWrapper*)geomInfo;
@@ -911,7 +911,7 @@ bool _simGetBulletStickyContact_internal(const void* geomInfo)
     return(mat->getEngineBoolParam(sim_bullet_body_sticky,nullptr));
 }
 
-float _simGetBulletRestitution_internal(const void* geomInfo)
+double _simGetBulletRestitution_internal(const void* geomInfo)
 {
     TRACE_C_API;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
@@ -919,7 +919,7 @@ float _simGetBulletRestitution_internal(const void* geomInfo)
     return(mat->getEngineFloatParam(sim_bullet_body_restitution,nullptr));
 }
 
-void _simGetDamping_internal(const void* geomInfo,float* linDamping,float* angDamping)
+void _simGetDamping_internal(const void* geomInfo,double* linDamping,double* angDamping)
 {
     TRACE_C_API;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
@@ -938,7 +938,7 @@ void _simGetDamping_internal(const void* geomInfo,float* linDamping,float* angDa
     }
 }
 
-float _simGetFriction_internal(const void* geomInfo)
+double _simGetFriction_internal(const void* geomInfo)
 {
     TRACE_C_API;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
@@ -949,7 +949,7 @@ float _simGetFriction_internal(const void* geomInfo)
         return(mat->getEngineFloatParam(sim_bullet_body_oldfriction,nullptr));
     if (eng==sim_physics_ode)
         return(mat->getEngineFloatParam(sim_ode_body_friction,nullptr));
-    return(0.0f);
+    return(0.0);
 }
 
 int simAddSceneCustomData_internal(int header,const char* data,int dataLength)
@@ -1127,12 +1127,12 @@ int simCreateUI_internal(const char* elementName,int menuAttributes,const int* c
         App::currentWorld->buttonBlockContainer->insertBlock(it,false);
         int retVal=it->getBlockID();
         int retHandlesP=0;
-        float white[3]={1.0f,1.0f,1.0f};
+        float white[3]={1.0,1.0,1.0};
         if (menuAttributes&sim_ui_menu_title)
         { // We have a title bar:
             int p[2]={0,0};
             int s2[2]={s[0]-b+1,1};
-            float blue[3]={0.36f,0.35f,0.87f};
+            float blue[3]={0.36,0.35,0.87};
             buttonHandles[retHandlesP]=simCreateUIButton_internal(retVal,p,s2,sim_buttonproperty_label|sim_buttonproperty_enabled|sim_buttonproperty_verticallycentered);
             simSetUIButtonColor_internal(retVal,buttonHandles[retHandlesP],blue,blue,white);
             retHandlesP++;
@@ -1143,7 +1143,7 @@ int simCreateUI_internal(const char* elementName,int menuAttributes,const int* c
             if (menuAttributes&sim_ui_menu_title)
                 p[0]++;
             int s2[2]={1,1};
-            float blue[3]={0.18f,0.16f,0.84f};
+            float blue[3]={0.18,0.16,0.84};
             buttonHandles[retHandlesP]=simCreateUIButton_internal(retVal,p,s2,sim_buttonproperty_button|sim_buttonproperty_enabled|sim_buttonproperty_staydown|sim_buttonproperty_horizontallycentered|sim_buttonproperty_verticallycentered|sim_buttonproperty_isdown|sim_buttonproperty_rollupaction);
             simSetUIButtonColor_internal(retVal,buttonHandles[retHandlesP],blue,blue,white);
             simSetUIButtonLabel_internal(retVal,buttonHandles[retHandlesP],"&&fg999&&Square","&&fg999&&Minimize");
@@ -1155,7 +1155,7 @@ int simCreateUI_internal(const char* elementName,int menuAttributes,const int* c
         { // We have a close button:
             int p[2]={s[0]-1,0};
             int s2[2]={1,1};
-            float red[3]={0.84f,0.16f,0.17f};
+            float red[3]={0.84,0.16,0.17};
             buttonHandles[retHandlesP]=simCreateUIButton_internal(retVal,p,s2,sim_buttonproperty_button|sim_buttonproperty_enabled|sim_buttonproperty_horizontallycentered|sim_buttonproperty_verticallycentered|sim_buttonproperty_closeaction);
             simSetUIButtonColor_internal(retVal,buttonHandles[retHandlesP],red,red,white);
             simSetUIButtonLabel_internal(retVal,buttonHandles[retHandlesP],"&&fg999&&Check","");
@@ -1409,7 +1409,7 @@ int simSetUISlider_internal(int elementHandle,int buttonHandle,int position)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_BUTTON_NOT_SLIDER);
             return(-1);
         }
-        but->setSliderPos((float(position)/500.0f)-1.0f);
+        but->setSliderPos((double(position)/500.0)-1.0);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -1434,7 +1434,7 @@ int simGetUISlider_internal(int elementHandle,int buttonHandle)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_BUTTON_NOT_SLIDER);
             return(-1);
         }
-        int retVal=int((but->getSliderPos()+1.0f)*500.0f);
+        int retVal=int((but->getSliderPos()+1.0)*500.0);
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -1701,13 +1701,13 @@ int simRegisterCustomLuaFunction_internal(const char* funcName,const char* callT
     return(-1);
 }
 
-int simRegisterContactCallback_internal(int(*callBack)(int,int,int,int*,float*))
+int simRegisterContactCallback_internal(int(*callBack)(int,int,int,int*,double*))
 { // deprecated. Disabled on 18.05.2022
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
-int simRegisterJointCtrlCallback_internal(int(*callBack)(int,int,int,const int*,const float*,float*))
+int simRegisterJointCtrlCallback_internal(int(*callBack)(int,int,int,const int*,const double*,double*))
 { // deprecated. Disabled on 18.05.2022
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
@@ -1849,14 +1849,14 @@ int simCallScriptFunction_internal(int scriptHandleOrType,const char* functionNa
     return(-1);
 }
 
-int simSetVisionSensorFilter_internal(int visionSensorHandle,int filterIndex,int options,const int* pSizes,const unsigned char* bytes,const int* ints,const float* floats,const unsigned char* custom)
+int simSetVisionSensorFilter_internal(int visionSensorHandle,int filterIndex,int options,const int* pSizes,const unsigned char* bytes,const int* ints,const double* floats,const unsigned char* custom)
 { // DEPRECATED
     TRACE_C_API;
 
     return(-1);
 }
 
-int simGetVisionSensorFilter_internal(int visionSensorHandle,int filterIndex,int* options,int* pSizes,unsigned char** bytes,int** ints,float** floats,unsigned char** custom)
+int simGetVisionSensorFilter_internal(int visionSensorHandle,int filterIndex,int* options,int* pSizes,unsigned char** bytes,int** ints,double** floats,unsigned char** custom)
 { // DEPRECATED
     TRACE_C_API;
 
@@ -2005,7 +2005,7 @@ int simReleaseScriptRawBuffer_internal(int scriptHandle,int bufferHandle)
     return(-1);
 }
 
-int simSetShapeMassAndInertia_internal(int shapeHandle,float mass,const float* inertiaMatrix,const float* centerOfMass,const float* transformation)
+int simSetShapeMassAndInertia_internal(int shapeHandle,double mass,const double* inertiaMatrix,const double* centerOfMass,const double* transformation)
 { // DEPRECATED in 2020
     TRACE_C_API;
 
@@ -2018,8 +2018,8 @@ int simSetShapeMassAndInertia_internal(int shapeHandle,float mass,const float* i
             return(-1);
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
 
-        if (mass<0.0000001f)
-            mass=0.0000001f;
+        if (mass<0.0000001)
+            mass=0.0000001;
         C3X3Matrix m;
         m.setData(inertiaMatrix);
         m.axis[0](1)=m.axis[1](0);
@@ -2037,12 +2037,12 @@ int simSetShapeMassAndInertia_internal(int shapeHandle,float mass,const float* i
         C4Vector rot;
         C3Vector pmoment;
         CMeshWrapper::findPrincipalMomentOfInertia(m,rot,pmoment);
-        if (pmoment(0)<0.0000001f)
-            pmoment(0)=0.0000001f;
-        if (pmoment(1)<0.0000001f)
-            pmoment(1)=0.0000001f;
-        if (pmoment(2)<0.0000001f)
-            pmoment(0)=0.0000001f;
+        if (pmoment(0)<0.0000001)
+            pmoment(0)=0.0000001;
+        if (pmoment(1)<0.0000001)
+            pmoment(1)=0.0000001;
+        if (pmoment(2)<0.0000001)
+            pmoment(0)=0.0000001;
         it->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
         it->getMeshWrapper()->setLocalInertiaFrame(it->getFullCumulativeTransformation().getInverse()*tr.getTransformation()*C7Vector(rot,com));
         it->setDynamicsResetFlag(true,false);
@@ -2052,7 +2052,7 @@ int simSetShapeMassAndInertia_internal(int shapeHandle,float mass,const float* i
     return(-1);
 }
 
-int simGetShapeMassAndInertia_internal(int shapeHandle,float* mass,float* inertiaMatrix,float* centerOfMass,const float* transformation)
+int simGetShapeMassAndInertia_internal(int shapeHandle,double* mass,double* inertiaMatrix,double* centerOfMass,const double* transformation)
 { // DEPRECATED in 2020
     TRACE_C_API;
 
@@ -2066,7 +2066,7 @@ int simGetShapeMassAndInertia_internal(int shapeHandle,float* mass,float* inerti
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
 
         mass[0]=it->getMeshWrapper()->getMass();
-        //float mmm=it->geomInfo->getMass();
+        //double mmm=it->geomInfo->getMass();
 
         C7Vector tr(it->getFullCumulativeTransformation()*it->getMeshWrapper()->getLocalInertiaFrame());
         C4X4Matrix ref;
@@ -2085,7 +2085,7 @@ int simGetShapeMassAndInertia_internal(int shapeHandle,float* mass,float* inerti
     return(-1);
 }
 
-int simCheckIkGroup_internal(int ikGroupHandle,int jointCnt,const int* jointHandles,float* jointValues,const int* jointOptions)
+int simCheckIkGroup_internal(int ikGroupHandle,int jointCnt,const int* jointHandles,double* jointValues,const int* jointOptions)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2111,7 +2111,7 @@ int simCheckIkGroup_internal(int ikGroupHandle,int jointCnt,const int* jointHand
     return(-1);
 }
 
-int simCreateIkGroup_internal(int options,const int* intParams,const float* floatParams,const void* reserved)
+int simCreateIkGroup_internal(int options,const int* intParams,const double* floatParams,const void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2163,7 +2163,7 @@ int simRemoveIkGroup_internal(int ikGroupHandle)
     return(-1);
 }
 
-int simCreateIkElement_internal(int ikGroupHandle,int options,const int* intParams,const float* floatParams,const void* reserved)
+int simCreateIkElement_internal(int ikGroupHandle,int options,const int* intParams,const double* floatParams,const void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2235,7 +2235,7 @@ int simComputeJacobian_internal(int ikGroupHandle,int options,void* reserved)
     return(-1);
 }
 
-int simGetConfigForTipPose_internal(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxTimeInMs,float* retConfig,const float* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const float* lowLimits,const float* ranges,void* reserved)
+int simGetConfigForTipPose_internal(int ikGroupHandle,int jointCnt,const int* jointHandles,double thresholdDist,int maxTimeInMs,double* retConfig,const double* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const double* lowLimits,const double* ranges,void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2259,7 +2259,7 @@ int simGetConfigForTipPose_internal(int ikGroupHandle,int jointCnt,const int* jo
     return(-1);
 }
 
-float* simGenerateIkPath_internal(int ikGroupHandle,int jointCnt,const int* jointHandles,int ptCnt,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,void* reserved)
+double* simGenerateIkPath_internal(int ikGroupHandle,int jointCnt,const int* jointHandles,int ptCnt,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2341,7 +2341,7 @@ float* simGenerateIkPath_internal(int ikGroupHandle,int jointCnt,const int* join
         {
             // Save joint positions/modes (all of them, just in case)
             std::vector<CJoint*> sceneJoints;
-            std::vector<float> initSceneJointValues;
+            std::vector<double> initSceneJointValues;
             std::vector<int> initSceneJointModes;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getJointCount();i++)
             {
@@ -2375,10 +2375,10 @@ float* simGenerateIkPath_internal(int ikGroupHandle,int jointCnt,const int* join
             }
 
             // do the calculation:
-            float t=0.0;
-            float dt=1.0/(ptCnt-1);
+            double t=0.0;
+            double dt=1.0/(ptCnt-1);
             bool failed=false;
-            std::vector<float> thePath;
+            std::vector<double> thePath;
             for (int iterCnt=0;iterCnt<ptCnt;iterCnt++)
             {
                 for (size_t el=0;el<ikGroup->getIkElementCount();el++)
@@ -2449,7 +2449,7 @@ float* simGenerateIkPath_internal(int ikGroupHandle,int jointCnt,const int* join
 
             if (!failed)
             {
-                float* retVal=new float[jointCnt*ptCnt];
+                double* retVal=new double[jointCnt*ptCnt];
                 for (int i=0;i<jointCnt*ptCnt;i++)
                     retVal[i]=thePath[i];
                 return(retVal);
@@ -2492,7 +2492,7 @@ int simGetIkGroupHandle_internal(const char* ikGroupName)
     return(-1);
 }
 
-float* simGetIkGroupMatrix_internal(int ikGroupHandle,int options,int* matrixSize)
+double* simGetIkGroupMatrix_internal(int ikGroupHandle,int options,int* matrixSize)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2507,9 +2507,9 @@ float* simGetIkGroupMatrix_internal(int ikGroupHandle,int options,int* matrixSiz
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
             return(nullptr);
         }
-        float* retData=nullptr;
+        double* retData=nullptr;
         if (options==0)
-            retData=(float*)it->getLastJacobianData(matrixSize);
+            retData=(double*)it->getLastJacobianData(matrixSize);
         if (options==1)
             retData=it->getLastManipulabilityValue(matrixSize);
         return(retData);
@@ -2551,7 +2551,7 @@ int simHandleIkGroup_internal(int ikGroupHandle)
     return(-1);
 }
 
-int simSetIkGroupProperties_internal(int ikGroupHandle,int resolutionMethod,int maxIterations,float damping,void* reserved)
+int simSetIkGroupProperties_internal(int ikGroupHandle,int resolutionMethod,int maxIterations,double damping,void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2577,7 +2577,7 @@ int simSetIkGroupProperties_internal(int ikGroupHandle,int resolutionMethod,int 
     return(-1);
 }
 
-int simSetIkElementProperties_internal(int ikGroupHandle,int tipDummyHandle,int constraints,const float* precision,const float* weight,void* reserved)
+int simSetIkElementProperties_internal(int ikGroupHandle,int tipDummyHandle,int constraints,const double* precision,const double* weight,void* reserved)
 { // deprecated on 29.09.2020
     TRACE_C_API;
 
@@ -2747,7 +2747,7 @@ int simTubeStatus_internal(int tubeHandle,int* readPacketsCount,int* writePacket
     return(-1);
 }
 
-int simSendData_internal(int targetID,int dataHeader,const char* dataName,const char* data,int dataLength,int antennaHandle,float actionRadius,float emissionAngle1,float emissionAngle2,float persistence)
+int simSendData_internal(int targetID,int dataHeader,const char* dataName,const char* data,int dataLength,int antennaHandle,double actionRadius,double emissionAngle1,double emissionAngle2,double persistence)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2792,12 +2792,12 @@ int simSendData_internal(int targetID,int dataHeader,const char* dataName,const 
                 return(-1);
             }
         }
-        actionRadius=tt::getLimitedFloat(0.0f,FLOAT_MAX,actionRadius);
-        emissionAngle1=tt::getLimitedFloat(0.0f,piValue,emissionAngle1);
-        emissionAngle2=tt::getLimitedFloat(0.0f,piValT2,emissionAngle2);
-        persistence=tt::getLimitedFloat(0.0f,99999999999999.9f,persistence);
-        if (persistence==0.0f)
-            persistence=App::currentWorld->simulation->getTimeStep()*1.5f;
+        actionRadius=tt::getLimitedFloat(0.0,FLOAT_MAX,actionRadius);
+        emissionAngle1=tt::getLimitedFloat(0.0,piValue,emissionAngle1);
+        emissionAngle2=tt::getLimitedFloat(0.0,piValT2,emissionAngle2);
+        persistence=tt::getLimitedFloat(0.0,99999999999999.9,persistence);
+        if (persistence==0.0)
+            persistence=App::currentWorld->simulation->getTimeStep()*1.5;
         std::string datN(dataName);
         App::currentWorld->embeddedScriptContainer->broadcastDataContainer.broadcastData(0,targetID,dataHeader,datN,
                         App::currentWorld->simulation->getSimulationTime()+persistence,actionRadius,antennaHandle,
@@ -2874,7 +2874,7 @@ char* simReceiveData_internal(int dataHeader,const char* dataName,int antennaHan
     return(nullptr);
 }
 
-int simGetDataOnPath_internal(int pathHandle,float relativeDistance,int dataType,int* intData,float* floatData)
+int simGetDataOnPath_internal(int pathHandle,double relativeDistance,int dataType,int* intData,double* floatData)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2888,11 +2888,11 @@ int simGetDataOnPath_internal(int pathHandle,float relativeDistance,int dataType
         if (!isPath(__func__,pathHandle))
             return(-1);
         CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
-        float auxChannels[4];
+        double auxChannels[4];
         int auxFlags;
         if (dataType==0)
         {
-            if (relativeDistance>-0.5f)
+            if (relativeDistance>-0.5)
             { // regular use of the function
                 if (it->pathContainer->getAuxDataOnBezierCurveAtNormalizedVirtualDistance(relativeDistance,auxFlags,auxChannels))
                 {
@@ -2909,7 +2909,7 @@ int simGetDataOnPath_internal(int pathHandle,float relativeDistance,int dataType
             }
             else
             { // We are working with indices pointing on ctrl points. index=-(relativeDistance+1.0)
-                CSimplePathPoint_old* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
+                CSimplePathPoint_old* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5));
                 if (ctrlPt!=nullptr)
                 {
                     intData[0]=ctrlPt->getAuxFlags();
@@ -2932,7 +2932,7 @@ int simGetDataOnPath_internal(int pathHandle,float relativeDistance,int dataType
 }
 
 
-int simGetPositionOnPath_internal(int pathHandle,float relativeDistance,float* position)
+int simGetPositionOnPath_internal(int pathHandle,double relativeDistance,double* position)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2948,7 +2948,7 @@ int simGetPositionOnPath_internal(int pathHandle,float relativeDistance,float* p
         CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
         C7Vector tr;
 
-        if (relativeDistance>-0.5f)
+        if (relativeDistance>-0.5)
         { // regular use of the function
             if (it->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(relativeDistance,tr))
             {
@@ -2964,7 +2964,7 @@ int simGetPositionOnPath_internal(int pathHandle,float relativeDistance,float* p
         }
         else
         { // We are working with indices pointing on ctrl points. index=-(relativeDistance+1.0)
-            CSimplePathPoint_old* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
+            CSimplePathPoint_old* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5));
             if (ctrlPt!=nullptr)
             {
                 tr=ctrlPt->getTransformation();
@@ -2983,7 +2983,7 @@ int simGetPositionOnPath_internal(int pathHandle,float relativeDistance,float* p
     return(-1);
 }
 
-int simGetOrientationOnPath_internal(int pathHandle,float relativeDistance,float* eulerAngles)
+int simGetOrientationOnPath_internal(int pathHandle,double relativeDistance,double* eulerAngles)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -2998,7 +2998,7 @@ int simGetOrientationOnPath_internal(int pathHandle,float relativeDistance,float
             return(-1);
         CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(pathHandle);
         C7Vector tr;
-        if (relativeDistance>-0.5f)
+        if (relativeDistance>-0.5)
         { // regular use of the function
             if (it->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(relativeDistance,tr))
             {
@@ -3014,7 +3014,7 @@ int simGetOrientationOnPath_internal(int pathHandle,float relativeDistance,float
         }
         else
         { // We are working with indices pointing on ctrl points. index=-(relativeDistance+1.0)
-            CSimplePathPoint_old* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5f));
+            CSimplePathPoint_old* ctrlPt=it->pathContainer->getSimplePathPoint(int(-relativeDistance-0.5));
             if (ctrlPt!=nullptr)
             {
                 tr=ctrlPt->getTransformation();
@@ -3033,7 +3033,7 @@ int simGetOrientationOnPath_internal(int pathHandle,float relativeDistance,float
     return(-1);
 }
 
-int simGetClosestPositionOnPath_internal(int pathHandle,float* absolutePosition,float* pathPosition)
+int simGetClosestPositionOnPath_internal(int pathHandle,double* absolutePosition,double* pathPosition)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3050,8 +3050,8 @@ int simGetClosestPositionOnPath_internal(int pathHandle,float* absolutePosition,
         C3Vector p(absolutePosition);
         if (it->pathContainer->getPositionOnPathClosestTo(p,*pathPosition))
         {
-            float pl=it->pathContainer->getBezierVirtualPathLength();
-            if (pl!=0.0f)
+            double pl=it->pathContainer->getBezierVirtualPathLength();
+            if (pl!=0.0)
                 *pathPosition/=pl;
             return(1);
         }
@@ -3062,7 +3062,7 @@ int simGetClosestPositionOnPath_internal(int pathHandle,float* absolutePosition,
     return(-1);
 }
 
-int simGetPathPosition_internal(int objectHandle,float* position)
+int simGetPathPosition_internal(int objectHandle,double* position)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3076,14 +3076,14 @@ int simGetPathPosition_internal(int objectHandle,float* position)
         if (!isPath(__func__,objectHandle))
             return(-1);
         CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(objectHandle);
-        position[0]=float(it->pathContainer->getPosition());
+        position[0]=double(it->pathContainer->getPosition());
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
-int simSetPathPosition_internal(int objectHandle,float position)
+int simSetPathPosition_internal(int objectHandle,double position)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3104,7 +3104,7 @@ int simSetPathPosition_internal(int objectHandle,float position)
     return(-1);
 }
 
-int simGetPathLength_internal(int objectHandle,float* length)
+int simGetPathLength_internal(int objectHandle,double* length)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3125,7 +3125,7 @@ int simGetPathLength_internal(int objectHandle,float* length)
     return(-1);
 }
 
-int simCreatePath_internal(int attributes,const int* intParams,const float* floatParams,const float* color)
+int simCreatePath_internal(int attributes,const int* intParams,const double* floatParams,const float* color)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
@@ -3150,13 +3150,6 @@ int simCreatePath_internal(int attributes,const int* intParams,const float* floa
             newObject->pathContainer->setSquareSize(floatParams[0]);
             newObject->pathContainer->setAngleVarToDistanceCoeff(floatParams[1]);
             newObject->pathContainer->setOnSpotDistanceToDistanceCoeff(floatParams[2]);
-        }
-
-        if (color!=nullptr)
-        {
-            newObject->pathContainer->_lineColor.setColor(color+0,sim_colorcomponent_ambient_diffuse);
-            newObject->pathContainer->_lineColor.setColor(color+6,sim_colorcomponent_specular);
-            newObject->pathContainer->_lineColor.setColor(color+9,sim_colorcomponent_emission);
         }
 
         int retVal=newObject->getObjectHandle();
@@ -3192,16 +3185,16 @@ int simInsertPathCtrlPoints_internal(int pathHandle,int options,int startIndex,i
         for (int i=0;i<ptCnt;i++)
         {
             CSimplePathPoint_old* pt=new CSimplePathPoint_old();
-            C7Vector tr(C4Vector(((float*)ptData)[fiCnt*i+3],((float*)ptData)[fiCnt*i+4],((float*)ptData)[fiCnt*i+5]),C3Vector(((float*)ptData)+fiCnt*i+0));
+            C7Vector tr(C4Vector(((double*)ptData)[fiCnt*i+3],((double*)ptData)[fiCnt*i+4],((double*)ptData)[fiCnt*i+5]),C3Vector(((double*)ptData)+fiCnt*i+0));
             pt->setTransformation(tr,path->pathContainer->getAttributes());
-            pt->setMaxRelAbsVelocity(((float*)ptData)[fiCnt*i+6]);
-            pt->setOnSpotDistance(((float*)ptData)[fiCnt*i+7]);
+            pt->setMaxRelAbsVelocity(((double*)ptData)[fiCnt*i+6]);
+            pt->setOnSpotDistance(((double*)ptData)[fiCnt*i+7]);
             pt->setBezierPointCount(((int*)ptData)[fiCnt*i+8]);
-            pt->setBezierFactors(((float*)ptData)[fiCnt*i+9],((float*)ptData)[fiCnt*i+10]);
+            pt->setBezierFactors(((double*)ptData)[fiCnt*i+9],((double*)ptData)[fiCnt*i+10]);
             if (options&2)
             {
                 pt->setAuxFlags(((int*)ptData)[fiCnt*i+11]);
-                pt->setAuxChannels(((float*)ptData)+fiCnt*i+12);
+                pt->setAuxChannels(((double*)ptData)+fiCnt*i+12);
             }
             path->pathContainer->insertSimplePathPoint(pt,startIndex+i);
         }
@@ -3394,7 +3387,7 @@ int simSetUserParameter_internal(int objectHandle,const char* parameterName,cons
     return(-1);
 }
 
-int simSetPathTargetNominalVelocity_internal(int objectHandle,float targetNominalVelocity)
+int simSetPathTargetNominalVelocity_internal(int objectHandle,double targetNominalVelocity)
 { // deprecated probably around 2015 or earlier
     TRACE_C_API;
 
@@ -3751,7 +3744,7 @@ int simReadCollision_internal(int collisionObjectHandle)
     return(-1);
 }
 
-int simHandleDistance_internal(int distanceObjectHandle,float* smallestDistance)
+int simHandleDistance_internal(int distanceObjectHandle,double* smallestDistance)
 { // deprecated on 20.11.2020
     TRACE_C_API;
 
@@ -3765,7 +3758,7 @@ int simHandleDistance_internal(int distanceObjectHandle,float* smallestDistance)
             if (!doesDistanceObjectExist(__func__,distanceObjectHandle))
                 return(-1);
         }
-        float d;
+        double d;
         if (distanceObjectHandle<0)
             d=App::currentWorld->distances->handleAllDistances(distanceObjectHandle==sim_handle_all_except_explicit); // implicit handling
         else
@@ -3778,7 +3771,7 @@ int simHandleDistance_internal(int distanceObjectHandle,float* smallestDistance)
             }
             d=it->handleDistance();
         }
-        if (d>=0.0f)
+        if (d>=0.0)
         {
             if (smallestDistance!=nullptr)
                 smallestDistance[0]=d;
@@ -3791,7 +3784,7 @@ int simHandleDistance_internal(int distanceObjectHandle,float* smallestDistance)
     return(-1);
 }
 
-int simReadDistance_internal(int distanceObjectHandle,float* smallestDistance)
+int simReadDistance_internal(int distanceObjectHandle,double* smallestDistance)
 { // deprecated on 20.11.2020
     TRACE_C_API;
 
@@ -3802,10 +3795,10 @@ int simReadDistance_internal(int distanceObjectHandle,float* smallestDistance)
     {
         if (!doesDistanceObjectExist(__func__,distanceObjectHandle))
             return(-1);
-        float d;
+        double d;
         CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
         d=it->readDistance();
-        if (d>=0.0f)
+        if (d>=0.0)
         {
             smallestDistance[0]=d;
             return(1);
@@ -3939,7 +3932,7 @@ int simResetDistance_internal(int distanceObjectHandle)
     return(-1);
 }
 
-int simAddBanner_internal(const char* label,float size,int options,const float* positionAndEulerAngles,int parentObjectHandle,const float* labelColors,const float* backgroundColors)
+int simAddBanner_internal(const char* label,double size,int options,const double* positionAndEulerAngles,int parentObjectHandle,const float* labelColors,const float* backgroundColors)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -3999,7 +3992,7 @@ int simRemoveBanner_internal(int bannerID)
     return(-1);
 }
 
-int simAddGhost_internal(int ghostGroup,int objectHandle,int options,float startTime,float endTime,const float* color)
+int simAddGhost_internal(int ghostGroup,int objectHandle,int options,double startTime,double endTime,const float* color)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -4017,7 +4010,7 @@ int simAddGhost_internal(int ghostGroup,int objectHandle,int options,float start
     return(-1);
 }
 
-int simModifyGhost_internal(int ghostGroup,int ghostId,int operation,float floatValue,int options,int optionsMask,const float* colorOrTransformation)
+int simModifyGhost_internal(int ghostGroup,int ghostId,int operation,double floatValue,int options,int optionsMask,const double* colorOrTransformation)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -4033,7 +4026,7 @@ int simModifyGhost_internal(int ghostGroup,int ghostId,int operation,float float
     return(-1);
 }
 
-int simSetGraphUserData_internal(int graphHandle,const char* streamName,float data)
+int simSetGraphUserData_internal(int graphHandle,const char* streamName,double data)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -4066,7 +4059,7 @@ int simSetGraphUserData_internal(int graphHandle,const char* streamName,float da
     return(-1);
 }
 
-int simAddPointCloud_internal(int pageMask,int layerMask,int objectHandle,int options,float pointSize,int ptCnt,const float* pointCoordinates,const char* defaultColors,const char* pointColors,const float* pointNormals)
+int simAddPointCloud_internal(int pageMask,int layerMask,int objectHandle,int options,double pointSize,int ptCnt,const double* pointCoordinates,const char* defaultColors,const char* pointColors,const double* pointNormals)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -4084,7 +4077,7 @@ int simAddPointCloud_internal(int pageMask,int layerMask,int objectHandle,int op
     return(-1);
 }
 
-int simModifyPointCloud_internal(int pointCloudHandle,int operation,const int* intParam,const float* floatParam)
+int simModifyPointCloud_internal(int pointCloudHandle,int operation,const int* intParam,const double* floatParam)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -4104,7 +4097,7 @@ int simModifyPointCloud_internal(int pointCloudHandle,int operation,const int* i
     return(-1);
 }
 
-int simCopyMatrix_internal(const float* matrixIn,float* matrixOut)
+int simCopyMatrix_internal(const double* matrixIn,double* matrixOut)
 { // deprecated on 23.11.2020
     TRACE_C_API;
 
@@ -4718,7 +4711,7 @@ int simEnableEventCallback_internal(int eventCallbackType,const char* plugin,int
     return(-1);
 }
 
-int simSetObjectSizeValues_internal(int objectHandle,const float* sizeValues)
+int simSetObjectSizeValues_internal(int objectHandle,const double* sizeValues)
 { // deprecated on 28.06.2021
     TRACE_C_API;
 
@@ -4738,7 +4731,7 @@ int simSetObjectSizeValues_internal(int objectHandle,const float* sizeValues)
     return(-1);
 }
 
-int simGetObjectSizeValues_internal(int objectHandle,float* sizeValues)
+int simGetObjectSizeValues_internal(int objectHandle,double* sizeValues)
 { // deprecated on 28.06.2021
     TRACE_C_API;
 
@@ -5588,7 +5581,7 @@ int simGetObjectSelection_internal(int* objectHandles)
     return(-1);
 }
 
-int simScaleSelectedObjects_internal(float scalingFactor,bool scalePositionsToo)
+int simScaleSelectedObjects_internal(double scalingFactor,bool scalePositionsToo)
 { // deprecated on 24.09.2021
     TRACE_C_API;
 
@@ -5664,11 +5657,11 @@ int simGetObjectUniqueIdentifier_internal(int objectHandle,int* uniqueIdentifier
     return(-1);
 }
 
-void _simSetDynamicJointLocalTransformationPart2_internal(void* joint,const float* pos,const float* quat)
+void _simSetDynamicJointLocalTransformationPart2_internal(void* joint,const double* pos,const double* quat)
 { // deprecated on 08.11.2021
 }
 
-void _simSetDynamicForceSensorLocalTransformationPart2_internal(void* forceSensor,const float* pos,const float* quat)
+void _simSetDynamicForceSensorLocalTransformationPart2_internal(void* forceSensor,const double* pos,const double* quat)
 { // deprecated on 08.11.2021
 }
 
@@ -5715,7 +5708,7 @@ bool _simIsForceSensorBroken_internal(const void* forceSensor)
     return(child==nullptr);
 }
 
-void _simGetDynamicForceSensorLocalTransformationPart2_internal(const void* forceSensor,float* pos,float* quat)
+void _simGetDynamicForceSensorLocalTransformationPart2_internal(const void* forceSensor,double* pos,double* quat)
 { // deprecated on 08.11.2021
     TRACE_C_API;
     C7Vector tr;
@@ -5724,7 +5717,7 @@ void _simGetDynamicForceSensorLocalTransformationPart2_internal(const void* forc
     tr.Q.getData(quat);
 }
 
-int simGetJointMatrix_internal(int objectHandle,float* matrix)
+int simGetJointMatrix_internal(int objectHandle,double* matrix)
 { // deprecated on 09.11.2021
     TRACE_C_API;
 
@@ -5748,7 +5741,7 @@ int simGetJointMatrix_internal(int objectHandle,float* matrix)
     return(-1);
 }
 
-int simSetSphericalJointMatrix_internal(int objectHandle,const float* matrix)
+int simSetSphericalJointMatrix_internal(int objectHandle,const double* matrix)
 { // deprecated on 09.11.2021
     TRACE_C_API;
 
@@ -5836,7 +5829,7 @@ int simGetObjectHandleEx_internal(const char* objectAlias,int index,int proxy,in
     return(-1);
 }
 
-int simSetScriptAttribute_internal(int scriptHandle,int attributeID,float floatVal,int intOrBoolVal)
+int simSetScriptAttribute_internal(int scriptHandle,int attributeID,double floatVal,int intOrBoolVal)
 { // deprecated on 05.01.2022
     TRACE_C_API;
 
@@ -5892,7 +5885,7 @@ int simSetScriptAttribute_internal(int scriptHandle,int attributeID,float floatV
     return(-1);
 }
 
-int simGetScriptAttribute_internal(int scriptHandle,int attributeID,float* floatVal,int* intOrBoolVal)
+int simGetScriptAttribute_internal(int scriptHandle,int attributeID,double* floatVal,int* intOrBoolVal)
 { // deprecated on 05.01.2022
     TRACE_C_API;
 
@@ -6054,7 +6047,7 @@ int simGetScriptProperty_internal(int scriptHandle,int* scriptProperty,int* asso
     return(-1);
 }
 
-int simGetJointMaxForce_internal(int jointHandle,float* forceOrTorque)
+int simGetJointMaxForce_internal(int jointHandle,double* forceOrTorque)
 { // deprecated on 24.02.2022
     TRACE_C_API;
 
@@ -6075,7 +6068,7 @@ int simGetJointMaxForce_internal(int jointHandle,float* forceOrTorque)
     return(-1);
 }
 
-int simSetJointMaxForce_internal(int objectHandle,float forceOrTorque)
+int simSetJointMaxForce_internal(int objectHandle,double forceOrTorque)
 { // deprecated on 24.02.2022
     TRACE_C_API;
 
@@ -6160,27 +6153,6 @@ unsigned int simGetSystemTimeInMs_internal(int previousTime)
     return(retVal);
 }
 
-int simGetVisionSensorResolution_internal(int sensorHandle,int* resolution)
-{ // deprecated on 11.04.2022
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!doesObjectExist(__func__,sensorHandle))
-            return(-1);
-        if (!isVisionSensor(__func__,sensorHandle))
-            return(-1);
-        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
-        it->getResolution(resolution);
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 float* simGetVisionSensorImage_internal(int sensorHandle)
 { // deprecated on 11.04.2022
     TRACE_C_API;
@@ -6208,16 +6180,16 @@ float* simGetVisionSensorImage_internal(int sensorHandle)
         {
             for (int i=0;i<res[0]*res[1];i++)
             {
-                float v=float(imgBuff[3*i+0])/255.0f;
-                v+=float(imgBuff[3*i+1])/255.0f;
-                v+=float(imgBuff[3*i+2])/255.0f;
-                buff[i]=v/3.0f;
+                float v=float(imgBuff[3*i+0])/255.0;
+                v+=float(imgBuff[3*i+1])/255.0;
+                v+=float(imgBuff[3*i+2])/255.0;
+                buff[i]=v/3.0;
             }
         }
         else
         {
             for (int i=0;i<res[0]*res[1]*3;i++)
-                buff[i]=float(imgBuff[i])/255.0f;
+                buff[i]=float(imgBuff[i])/255.0;
         }
         return(buff);
     }
@@ -6225,7 +6197,7 @@ float* simGetVisionSensorImage_internal(int sensorHandle)
     return(nullptr);
 }
 
-int simSetVisionSensorImage_internal(int sensorHandle,const floatFloat* image)
+int simSetVisionSensorImage_internal(int sensorHandle,const float* image)
 { // deprecated on 11.04.2022
     TRACE_C_API;
 
@@ -6331,7 +6303,7 @@ int simSetVisionSensorCharImage_internal(int sensorHandle,const unsigned char* i
     return(-1);
 }
 
-floatFloat* simGetVisionSensorDepthBuffer_internal(int sensorHandle)
+float* simGetVisionSensorDepthBuffer_internal(int sensorHandle)
 { // deprecated on 11.04.2022
     TRACE_C_API;
 
@@ -6349,13 +6321,13 @@ floatFloat* simGetVisionSensorDepthBuffer_internal(int sensorHandle)
         CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         int res[2];
         it->getResolution(res);
-        floatFloat* buff=new float[res[0]*res[1]];
-        floatFloat* depthBuff=it->getDepthBufferPointer();
+        float* buff=new float[res[0]*res[1]];
+        float* depthBuff=it->getDepthBufferPointer();
         if ((handleFlags&sim_handleflag_depthbuffermeters)!=0)
         { // Here we need to convert values to distances in meters:
-            floatFloat n=(floatFloat)it->getNearClippingPlane();
-            floatFloat f=(floatFloat)it->getFarClippingPlane();
-            floatFloat fmn=f-n;
+            float n=(float)it->getNearClippingPlane();
+            float f=(float)it->getFarClippingPlane();
+            float fmn=f-n;
             for (int i=0;i<res[0]*res[1];i++)
                 buff[i]=n+fmn*depthBuff[i];
         }
@@ -6370,7 +6342,7 @@ floatFloat* simGetVisionSensorDepthBuffer_internal(int sensorHandle)
     return(nullptr);
 }
 
-int simCreatePureShape_internal(int primitiveType,int options,const float* sizes,float mass,const int* precision)
+int simCreatePureShape_internal(int primitiveType,int options,const double* sizes,double mass,const int* precision)
 { // deprecated on 27.04.2022
     TRACE_C_API;
 
@@ -6380,7 +6352,7 @@ int simCreatePureShape_internal(int primitiveType,int options,const float* sizes
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int pType=0;
-        C3Vector s(tt::getLimitedFloat(0.00001f,100000.0f,sizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[1]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[2]));
+        C3Vector s(tt::getLimitedFloat(0.00001,100000.0,sizes[0]),tt::getLimitedFloat(0.00001,100000.0,sizes[1]),tt::getLimitedFloat(0.00001,100000.0,sizes[2]));
         int sides=32;
         if (precision!=nullptr)
         {
@@ -6424,7 +6396,7 @@ int simCreatePureShape_internal(int primitiveType,int options,const float* sizes
         shape->setLocalTransformation(C7Vector::identityTransformation);
         shape->setVisibleEdges((options&2)!=0);
         shape->setRespondable((options&8)!=0);
-        shape->getMeshWrapper()->setMass(tt::getLimitedFloat(0.000001f,10000.0f,mass));
+        shape->getMeshWrapper()->setMass(tt::getLimitedFloat(0.000001,10000.0,mass));
         return(shape->getObjectHandle());
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -6461,7 +6433,7 @@ void* simSendModuleMessage_internal(int message,int* auxiliaryData,void* customD
     return(retVal);
 }
 
-int simBuildMatrixQ_internal(const float* position,const float* quaternion,float* matrix)
+int simBuildMatrixQ_internal(const double* position,const double* quaternion,double* matrix)
 { // deprecated on 09.08.2022
     TRACE_C_API;
 
@@ -6473,7 +6445,7 @@ int simBuildMatrixQ_internal(const float* position,const float* quaternion,float
     return(1);
 }
 
-int simGetQuaternionFromMatrix_internal(const float* matrix,float* quaternion)
+int simGetQuaternionFromMatrix_internal(const double* matrix,double* quaternion)
 { // deprecated on 09.08.2022
     TRACE_C_API;
 
@@ -6487,7 +6459,7 @@ int simGetQuaternionFromMatrix_internal(const float* matrix,float* quaternion)
     return(1);
 }
 
-void _simGetLocalInertiaFrame_internal(const void* geomInfo,float* pos,float* quat)
+void _simGetLocalInertiaFrame_internal(const void* geomInfo,double* pos,double* quat)
 { // deprecated on 19.08.2022
     TRACE_C_API;
     C7Vector tr(((CMeshWrapper*)geomInfo)->getLocalInertiaFrame());
@@ -6495,7 +6467,7 @@ void _simGetLocalInertiaFrame_internal(const void* geomInfo,float* pos,float* qu
     tr.X.getData(pos);
 }
 
-void _simGetPrincipalMomentOfInertia_internal(const void* geomInfo,float* inertia)
+void _simGetPrincipalMomentOfInertia_internal(const void* geomInfo,double* inertia)
 { // deprecated on 19.08.2022
     TRACE_C_API;
     ((CMeshWrapper*)geomInfo)->getPrincipalMomentsOfInertia().getData(inertia);
@@ -6559,7 +6531,7 @@ int simClearDoubleSignalOld_internal(const char* signalName)
     return(-1);
 }
 
-int simGetShapeVertex_internal(int shapeHandle,int groupElementIndex,int vertexIndex,float* relativePosition)
+int simGetShapeVertex_internal(int shapeHandle,int groupElementIndex,int vertexIndex,double* relativePosition)
 {
     TRACE_C_API;
 
@@ -6589,7 +6561,7 @@ int simGetShapeVertex_internal(int shapeHandle,int groupElementIndex,int vertexI
         {
             return(0);
         }
-        std::vector<float> wvert;
+        std::vector<double> wvert;
         cc->getCumulativeMeshes(wvert,nullptr,nullptr);
         if ( (vertexIndex<0)||(vertexIndex>=int(wvert.size())/3) )
         {
@@ -6604,7 +6576,7 @@ int simGetShapeVertex_internal(int shapeHandle,int groupElementIndex,int vertexI
     return(-1);
 }
 
-int simGetShapeTriangle_internal(int shapeHandle,int groupElementIndex,int triangleIndex,int* vertexIndices,float* triangleNormals)
+int simGetShapeTriangle_internal(int shapeHandle,int groupElementIndex,int triangleIndex,int* vertexIndices,double* triangleNormals)
 {
     TRACE_C_API;
 
@@ -6634,9 +6606,9 @@ int simGetShapeTriangle_internal(int shapeHandle,int groupElementIndex,int trian
         {
             return(0);
         }
-        std::vector<float> wvert;
+        std::vector<double> wvert;
         std::vector<int> wind;
-        std::vector<float> wnorm;
+        std::vector<double> wnorm;
         cc->getCumulativeMeshes(wvert,&wind,&wnorm);
         if ( (triangleIndex<0)||(triangleIndex>=int(wind.size())/3) )
         {

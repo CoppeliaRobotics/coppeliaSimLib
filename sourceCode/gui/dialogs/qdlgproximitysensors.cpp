@@ -119,7 +119,7 @@ void CQDlgProximitySensors::on_qqPointSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqPointSize->text().toFloat(&ok);
+        double newVal=ui->qqPointSize->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_POINTSIZE_PROXSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

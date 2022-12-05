@@ -114,7 +114,7 @@ int VDateTime::getDaysTo(int year_before,int month_before,int day_before,int yea
     tmp.tm_mon=month_after-1;
     tmp.tm_mday=day_after;
     time_t tafter=mktime(&tmp);
-    return(int(difftime(tafter,tbefore)/86400.0f));
+    return(int(difftime(tafter,tbefore)/86400.0));
 #else
     QDate before(year_before,month_before,day_before);
     return(before.daysTo(QDate(year_after,month_after,day_after)));

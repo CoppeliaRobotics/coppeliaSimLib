@@ -119,7 +119,7 @@ void decreaseTexCoordBufferRefCnt(int texCoordBufferId)
         _glBufferObjects->removeTexCoordBuffer(texCoordBufferId);
 }
 
-void _drawTriangles(const floatFloat* vertices,int verticesCnt,const int* indices,int indicesCnt,const floatFloat* normals,const floatFloat* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId)
+void _drawTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,const float* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId)
 {
     if (_glBufferObjects!=nullptr)
         _glBufferObjects->drawTriangles(vertices,verticesCnt,indices,indicesCnt,normals,textureCoords,vertexBufferId,normalBufferId,texCoordBufferId);
@@ -149,23 +149,23 @@ void makeColorCurrent(const CColorObject* visParam,bool forceNonTransparent,bool
     { // regular colors:
         if (visParam->getFlash())
         {
-            float t=0.0f;
+            float t=0.0;
             if (visParam->getUseSimulationTime()&&(!App::currentWorld->simulation->isSimulationStopped()))
-                t=App::currentWorld->simulation->getSimulationTime();
+                t=(float)App::currentWorld->simulation->getSimulationTime();
             if (!visParam->getUseSimulationTime())
-                t=float(VDateTime::getTimeInMs())/1000.0f;
+                t=float(VDateTime::getTimeInMs())/1000.0;
             t+=visParam->getFlashPhase()/visParam->getFlashFrequency();
-            t=CMath::robustFmod(t,1.0f/visParam->getFlashFrequency())*visParam->getFlashFrequency();
-            if (t>(1.0f-visParam->getFlashRatio()))
+            t=(float)CMath::robustMod((double)t,double(1.0/visParam->getFlashFrequency()))*visParam->getFlashFrequency();
+            if (t>(1.0-visParam->getFlashRatio()))
             { // Flash is on
-                    t=t-1.0f+visParam->getFlashRatio();
+                    t=t-1.0+visParam->getFlashRatio();
                     t/=visParam->getFlashRatio();
                     t=sin(t*piValue);
-                    float l=0.0f;
-                    float col0[12]={visParam->getColorsPtr()[0],visParam->getColorsPtr()[1],visParam->getColorsPtr()[2],visParam->getColorsPtr()[3],visParam->getColorsPtr()[4],visParam->getColorsPtr()[5],visParam->getColorsPtr()[6],visParam->getColorsPtr()[7],visParam->getColorsPtr()[8],0.0f,0.0f,0.0f};
+                    float l=0.0;
+                    float col0[12]={visParam->getColorsPtr()[0],visParam->getColorsPtr()[1],visParam->getColorsPtr()[2],visParam->getColorsPtr()[3],visParam->getColorsPtr()[4],visParam->getColorsPtr()[5],visParam->getColorsPtr()[6],visParam->getColorsPtr()[7],visParam->getColorsPtr()[8],0.0,0.0,0.0};
                     float col1[12]={visParam->getColorsPtr()[0]*l,visParam->getColorsPtr()[1]*l,visParam->getColorsPtr()[2]*l,visParam->getColorsPtr()[3]*l,visParam->getColorsPtr()[4]*l,visParam->getColorsPtr()[5]*l,visParam->getColorsPtr()[6]*l,visParam->getColorsPtr()[7]*l,visParam->getColorsPtr()[8]*l,visParam->getColorsPtr()[9],visParam->getColorsPtr()[10],visParam->getColorsPtr()[11]};
                     for (int i=0;i<12;i++)
-                        col0[i]=col0[i]*(1.0f-t)+col1[i]*t;
+                        col0[i]=col0[i]*(1.0-t)+col1[i]*t;
                     ogl::setMaterialColor(col0,col0+6,col0+9);
                     ogl::setShininess(visParam->getShininess());
                     ogl::setAlpha(visParam->getOpacity());
@@ -201,8 +201,8 @@ void _activateNonAmbientLights(int lightHandle,CViewableBase* viewable)
     if (lightHandle>-2)
     {
         App::currentWorld->environment->setNonAmbientLightsActive(true);
-        GLfloat lightPos[]={0.0f,0.0f,0.0f,1.0f};
-        GLfloat lightDir[3];
+        float lightPos[4];
+        float lightDir[3];
         int activeLightCounter=0;
         bool useLocalLights=viewable->getuseLocalLights();
 
@@ -250,59 +250,56 @@ void _activateNonAmbientLights(int lightHandle,CViewableBase* viewable)
                     C4X4Matrix m(tr.getMatrix());
                     if (light->getLightType()==sim_light_directional_subtype)
                     {
-                        lightPos[0]=-m.M.axis[2](0);
-                        lightPos[1]=-m.M.axis[2](1);
-                        lightPos[2]=-m.M.axis[2](2);
-                        lightPos[3]=0.0f;
+                        lightPos[0]=(float)-m.M.axis[2](0);
+                        lightPos[1]=(float)-m.M.axis[2](1);
+                        lightPos[2]=(float)-m.M.axis[2](2);
+                        lightPos[3]=0.0;
                     }
                     else
                     {
-                        lightPos[0]=m.X(0);
-                        lightPos[1]=m.X(1);
-                        lightPos[2]=m.X(2);
-                        lightPos[3]=1.0f;
+                        lightPos[0]=(float)m.X(0);
+                        lightPos[1]=(float)m.X(1);
+                        lightPos[2]=(float)m.X(2);
+                        lightPos[3]=1.0;
                     }
-                    lightDir[0]=m.M.axis[2](0);
-                    lightDir[1]=m.M.axis[2](1);
-                    lightDir[2]=m.M.axis[2](2);
+                    lightDir[0]=(float)m.M.axis[2](0);
+                    lightDir[1]=(float)m.M.axis[2](1);
+                    lightDir[2]=(float)m.M.axis[2](2);
                     glLightfv(GL_LIGHT0+activeLightCounter,GL_POSITION,lightPos);
                     glLightfv(GL_LIGHT0+activeLightCounter,GL_SPOT_DIRECTION,lightDir);
                     if (light->getLightType()==sim_light_omnidirectional_subtype)
-                        glLightf(GL_LIGHT0+activeLightCounter,GL_SPOT_CUTOFF,180.0f);
+                        glLightf(GL_LIGHT0+activeLightCounter,GL_SPOT_CUTOFF,180.0);
                     if (light->getLightType()==sim_light_directional_subtype)
-                        glLightf(GL_LIGHT0+activeLightCounter,GL_SPOT_CUTOFF,90.0f);
+                        glLightf(GL_LIGHT0+activeLightCounter,GL_SPOT_CUTOFF,90.0);
                     if (light->getLightType()==sim_light_spot_subtype)
                     {
-                        float coa=light->getSpotCutoffAngle()*radToDeg;
-                        if (coa>89.0f) // 90.0f causes problems on MacOS!!!
-                        coa=89.0f;
+                        float coa=(float)light->getSpotCutoffAngle()*radToDeg;
+                        if (coa>89.0) // 90.0 causes problems on MacOS!!!
+                        coa=89.0;
                         glLightf(GL_LIGHT0+activeLightCounter,GL_SPOT_CUTOFF,coa);
                     }
                     glLightf(GL_LIGHT0+activeLightCounter,GL_SPOT_EXPONENT,float(light->getSpotExponent())); // glLighti & GL_SPOT_EXPONENT causes problems on MacOS!!!
 
-                    float black[4]={0.0f,0.0f,0.0f,1.0f};
+                    float black[4]={0.0,0.0,0.0,1.0};
 
                     glLightfv(GL_LIGHT0+activeLightCounter,GL_AMBIENT,black);
                     if ((viewable->getDisabledColorComponents()&2)==0)
                     {
-                        float diffuseLight[4]={light->getColor(true)->getColorsPtr()[3],light->getColor(true)->getColorsPtr()[4],light->getColor(true)->getColorsPtr()[5],1.0f};
+                        float diffuseLight[4]={(float)light->getColor(true)->getColorsPtr()[3],(float)light->getColor(true)->getColorsPtr()[4],(float)light->getColor(true)->getColorsPtr()[5],1.0};
                         glLightfv(GL_LIGHT0+activeLightCounter,GL_DIFFUSE,diffuseLight);
                     }
                     else
                         glLightfv(GL_LIGHT0+activeLightCounter,GL_DIFFUSE,black);
                     if ((viewable->getDisabledColorComponents()&4)==0)
                     {
-                        float specularLight[4]={light->getColor(true)->getColorsPtr()[6],light->getColor(true)->getColorsPtr()[7],light->getColor(true)->getColorsPtr()[8],1.0f};
+                        float specularLight[4]={(float)light->getColor(true)->getColorsPtr()[6],(float)light->getColor(true)->getColorsPtr()[7],(float)light->getColor(true)->getColorsPtr()[8],1.0};
                         glLightfv(GL_LIGHT0+activeLightCounter,GL_SPECULAR,specularLight);
                     }
                     else
                         glLightfv(GL_LIGHT0+activeLightCounter,GL_SPECULAR,black);
-                    glLightf(GL_LIGHT0+activeLightCounter,GL_CONSTANT_ATTENUATION,
-                    light->getAttenuationFactor(CONSTANT_ATTENUATION));
-                    glLightf(GL_LIGHT0+activeLightCounter,GL_LINEAR_ATTENUATION,
-                    light->getAttenuationFactor(LINEAR_ATTENUATION));
-                    glLightf(GL_LIGHT0+activeLightCounter,GL_QUADRATIC_ATTENUATION,
-                    light->getAttenuationFactor(QUADRATIC_ATTENUATION));
+                    glLightf(GL_LIGHT0+activeLightCounter,GL_CONSTANT_ATTENUATION,(float)light->getAttenuationFactor(CONSTANT_ATTENUATION));
+                    glLightf(GL_LIGHT0+activeLightCounter,GL_LINEAR_ATTENUATION,(float)light->getAttenuationFactor(LINEAR_ATTENUATION));
+                    glLightf(GL_LIGHT0+activeLightCounter,GL_QUADRATIC_ATTENUATION,(float)light->getAttenuationFactor(QUADRATIC_ATTENUATION));
                     glEnable(GL_LIGHT0+activeLightCounter);
                     activeLightCounter++;
                 }
@@ -339,7 +336,7 @@ void _prepareOrEnableAuxClippingPlanes(bool prepare,int objID)
                 {
                     C7Vector mtr(it->getFullCumulativeTransformation());
                     C3Vector mtrN(mtr.Q.getMatrix().axis[2]);
-                    float d=(mtrN*mtr.X);
+                    double d=(mtrN*mtr.X);
                     double cpv[4]={-mtrN(0),-mtrN(1),-mtrN(2),d};
                     glClipPlane(GL_CLIP_PLANE1+cpi,cpv);
                 }
@@ -369,25 +366,25 @@ void _disableAuxClippingPlanes()
         glDisable(GL_CLIP_PLANE1+i);
 }
 
-void _drawReference(CSceneObject* object,float refSize)
-{   // refSize is 0.0f by default --> size depends on the bounding box
-    float s;
-    if (refSize!=0.0f)
+void _drawReference(CSceneObject* object,double refSize)
+{   // refSize is 0.0 by default --> size depends on the bounding box
+    double s;
+    if (refSize!=0.0)
         s=refSize;
     else
     {
         C3Vector minV,maxV;
         object->getBoundingBox(minV,maxV);
         maxV-=minV;
-        s=(maxV(0)+maxV(1)+maxV(2))/4.0f;
+        s=(maxV(0)+maxV(1)+maxV(2))/4.0;
     }
     glPushMatrix();
     ogl::drawReference(s,true,true,true,nullptr);
     glPopMatrix();
 }
 
-void _displayBoundingBox(CSceneObject* object,int displayAttrib,bool displRef,float refSize)
-{   // displRef is true by default, refSize is 0.0f by default
+void _displayBoundingBox(CSceneObject* object,int displayAttrib,bool displRef,double refSize)
+{   // displRef is true by default, refSize is 0.0 by default
     if ((displayAttrib&sim_displayattribute_selected)==0)
         return;
     if (!App::userSettings->displayBoundingBoxeWhenObjectSelected)
@@ -403,14 +400,14 @@ void _displayBoundingBox(CSceneObject* object,int displayAttrib,bool displRef,fl
         if (!object->getGlobalMarkingBoundingBox(ctmi,bbMin,bbMax,b,true,(displayAttrib&sim_displayattribute_forvisionsensor)==0))
             return; // no boundingbox to display!
         glLineStipple(1,0x0F0F);
-        glLineWidth(2.0f);
+        glLineWidth(2.0);
         glEnable(GL_LINE_STIPPLE);
     }
     else
         object->getBoundingBox(bbMin,bbMax);
     C3Vector bbs(bbMax-bbMin);
     // Bounding box is 4% bigger:
-    C3Vector dx(bbs(0)*0.02f,bbs(1)*0.02f,bbs(2)*0.02f);
+    C3Vector dx(bbs(0)*0.02,bbs(1)*0.02,bbs(2)*0.02);
     bool avail=true;
     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
     if ((displayAttrib&sim_displayattribute_mainselection)&&avail)
@@ -455,7 +452,7 @@ void _displayBoundingBox(CSceneObject* object,int displayAttrib,bool displRef,fl
         {
             C4Vector r(object->getFullCumulativeTransformation().Q);
             C3Vector absV;
-            float maxH=0.0f;
+            double maxH=0.0;
             int highestIndex[3];
             for (int i=0;i<2;i++)
             {
@@ -475,8 +472,8 @@ void _displayBoundingBox(CSceneObject* object,int displayAttrib,bool displRef,fl
                             absV(2)=bbMin(2);
                         else
                             absV(2)=bbMax(2);
-                        float h=(r*absV)(2);
-                        if (h>(maxH+0.001f)) // added 0.001f to avoid that the label jumps when the box is aligned with the x/y plane
+                        double h=(r*absV)(2);
+                        if (h>(maxH+0.001)) // added 0.001 to avoid that the label jumps when the box is aligned with the x/y plane
                         {
                             maxH=h;
                             highestIndex[0]=i;
@@ -495,14 +492,14 @@ void _displayBoundingBox(CSceneObject* object,int displayAttrib,bool displRef,fl
                     corner(i)=bbMin(i)-dx(i);
                 else
                     corner(i)=bbMax(i)+dx(i);
-                corner2(i)=corner(i)*(1.1f+0.15f*float((object->getObjectHandle()>>((2-i)*2))%4));
+                corner2(i)=corner(i)*(1.1+0.15*double((object->getObjectHandle()>>((2-i)*2))%4));
             }
             App::currentWorld->environment->temporarilyDeactivateFog();
             ogl::drawSingle3dLine(corner.data,corner2.data,nullptr);
             ogl::drawBitmapTextTo3dPosition(corner2.data,object->getDisplayName().c_str(),nullptr);
             App::currentWorld->environment->reactivateFogThatWasTemporarilyDisabled();
         }
-        glLineWidth(1.0f);
+        glLineWidth(1.0);
         if (displRef)
             _drawReference(object,refSize);
     }
@@ -537,9 +534,9 @@ void _commonStart(CSceneObject* object,CViewableBase* viewable,int displayAttrib
     glPushAttrib(GL_POLYGON_BIT);
 
     C7Vector tr=object->getCumulativeTransformation();
-    glTranslatef(tr.X(0),tr.X(1),tr.X(2));
+    glTranslated(tr.X(0),tr.X(1),tr.X(2));
     C4Vector axis=tr.Q.getAngleAndAxis();
-    glRotatef(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+    glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 }
 
 void _commonFinish(CSceneObject* object,CViewableBase* viewable)
@@ -601,9 +598,9 @@ bool _start2DTextureDisplay(CTextureProperty* tp)
     {
         tp->setStartedTextureObject(it);
         // Following 3 to have "transparency"
-        glColor3f(1.0f, 1.0f, 1.0f);
+        glColor3f(1.0, 1.0, 1.0);
         glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER,0.0f);
+        glAlphaFunc(GL_GREATER,0.0);
 
         _startTextureDisplay(it,tp->getInterpolateColors(),tp->getApplyMode(),tp->getRepeatU(),tp->getRepeatV());
         return(true);
@@ -667,7 +664,7 @@ void _startTextureDisplay(CTextureObject* to,bool interpolateColor,int applyMode
     glTexEnvi (GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,dec);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,to->getOglTextureName());
-    glColor3f(1.0f,1.0f,1.0f);
+    glColor3f(1.0,1.0,1.0);
 }
 
 void _endTextureDisplay()

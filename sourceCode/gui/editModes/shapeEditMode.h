@@ -12,7 +12,7 @@
 class CShapeEditMode
 {
 public:
-    CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContainer* objCont,CTextureContainer* textureCont,CUiThread* uiThread,bool identicalVerticesCheck,bool identicalTrianglesCheck,float identicalVerticesTolerance);
+    CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContainer* objCont,CTextureContainer* textureCont,CUiThread* uiThread,bool identicalVerticesCheck,bool identicalTrianglesCheck,double identicalVerticesTolerance);
     virtual ~CShapeEditMode();
 
     bool endEditMode(bool cancelChanges);
@@ -45,7 +45,7 @@ public:
 
     // Other edit mode routines:
     void actualizeEditModeEditionEdges();
-    float getEdgeAngle(int edgeID);
+    double getEdgeAngle(int edgeID);
     void getNextEdges(int rearVertex,int frontVertex,std::vector<int>& edgeList);
 
     void displayVertices(int displayAttrib);
@@ -60,16 +60,16 @@ public:
     void deleteSelection(std::vector<int>* selection);
     void addMenu(VMenu* menu);
     bool processCommand(int commandID);
-    void copySelectedFaces(std::vector<int>* sel,std::vector<float>* vert,std::vector<int>* ind,std::vector<float>* norm,std::vector<float>* tex);
+    void copySelectedFaces(std::vector<int>* sel,std::vector<double>* vert,std::vector<int>* ind,std::vector<double>* norm,std::vector<double>* tex);
 
     bool getShowHiddenVerticeAndEdges();
     void setShowHiddenVerticeAndEdges(bool show);
     bool getAutomaticallyFollowEdges();
     void setAutomaticallyFollowEdges(bool follow);
-    float getEdgeMaxAngle();
-    void setEdgeMaxAngle(float a);
-    float getEdgeDirectionChangeMaxAngle();
-    void setEdgeDirectionChangeMaxAngle(float a);
+    double getEdgeMaxAngle();
+    void setEdgeMaxAngle(double a);
+    double getEdgeDirectionChangeMaxAngle();
+    void setEdgeDirectionChangeMaxAngle(double a);
 
     int getEditionVerticesSize();
     int getEditionIndicesSize();
@@ -94,24 +94,24 @@ private:
     CUiThread* _uiThread;
 
     std::vector<int> editModeBuffer;
-    std::vector<float> editBufferVerticesCopy;
+    std::vector<double> editBufferVerticesCopy;
     std::vector<int> editBufferIndicesCopy;
-    std::vector<float> editBufferNormalsCopy;
-    std::vector<float> editBufferTextureCoordsCopy;
+    std::vector<double> editBufferNormalsCopy;
+    std::vector<double> editBufferTextureCoordsCopy;
 
-    std::vector<float> _editionVertices;
+    std::vector<double> _editionVertices;
     std::vector<int> _editionIndices;
-    std::vector<float> _editionNormals;
-    std::vector<float> _editionTextureCoords;
+    std::vector<double> _editionNormals;
+    std::vector<double> _editionTextureCoords;
     CTextureProperty* _editionTextureProperty;
     std::vector<unsigned char> _editionTexture;
     CEdgeCont _edgeCont;
     std::vector<int> _editionIndicesToEdgesIndex;
     bool showHiddenVerticeAndEdges;
     bool automaticallyFollowEdges;
-    float edgeMaxAngle;
-    float edgeDirectionChangeMaxAngle;
+    double edgeMaxAngle;
+    double edgeDirectionChangeMaxAngle;
     bool _identicalVerticesCheck;
     bool _identicalTrianglesCheck;
-    float _identicalVerticesTolerance;
+    double _identicalVerticesTolerance;
 };

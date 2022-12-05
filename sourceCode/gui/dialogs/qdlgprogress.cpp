@@ -15,7 +15,7 @@ CQDlgProgress::~CQDlgProgress()
     delete ui;
 }
 
-void CQDlgProgress::updateProgress(float p,const char* txt)
+void CQDlgProgress::updateProgress(double p,const char* txt)
 {
     if (p<0.0)
         ui->qqBar->setMaximum(0);

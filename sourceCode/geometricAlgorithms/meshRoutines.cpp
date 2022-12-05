@@ -8,9 +8,9 @@
 #include <algorithm>
 #include "app.h"
 
-void CMeshRoutines::getEdgeFeatures(float* vertices,int verticesLength,int* indices,int indicesLength,
+void CMeshRoutines::getEdgeFeatures(double* vertices,int verticesLength,int* indices,int indicesLength,
             std::vector<int>* theVertexIDs,std::vector<int>* theEdgeIDs,std::vector<int>* theFaceIDs,
-            float angleTolerance,bool forDisplay,bool hideEdgeBorders)
+            double angleTolerance,bool forDisplay,bool hideEdgeBorders)
 { // theVertexIDs, theEdgeIDs or theFaceIDs can be nullptr
     // For each vertex, edge and face, an identifier will be associated:
     // Same triangle ID --> triangles belong to the same face (with given tolerance between normals)
@@ -26,7 +26,7 @@ void CMeshRoutines::getEdgeFeatures(float* vertices,int verticesLength,int* indi
     // We use a CMeshManip-object for faster access:
     CMeshManip mesh(vertices,verticesLength,indices,indicesLength);
     // First we group similar triangles according to a max. tolerance angle:
-    const float cosToleranceAngle=cos(angleTolerance);
+    const double cosToleranceAngle=cos(angleTolerance);
     int faceIDCounter=0;
     for (int i=0;i<indicesLength/3;i++)
     {
@@ -131,7 +131,7 @@ void CMeshRoutines::getEdgeFeatures(float* vertices,int verticesLength,int* indi
                             if (edgeIDs[3*edgeIt2->triangle+edgeIt2->pos]==-2)
                             { // Wasn't processed yet
                                 C3Vector normalVect2=edgeIt2->n;
-                                float dd=normalVect*normalVect2; // Scalar product
+                                double dd=normalVect*normalVect2; // Scalar product
                                 if ( (dd>cosToleranceAngle)||(dd<-cosToleranceAngle) )
                                 { // This segment belongs to the same edge!
                                     neighbours.push_back(3*edgeIt2->triangle+edgeIt2->pos);
@@ -186,9 +186,9 @@ void CMeshRoutines::getEdgeFeatures(float* vertices,int verticesLength,int* indi
     }
 }
 
-bool CMeshRoutines::getConvexHull(std::vector<float>* verticesInOut,std::vector<int>* indicesInOut)
+bool CMeshRoutines::getConvexHull(std::vector<double>* verticesInOut,std::vector<int>* indicesInOut)
 {
-    std::vector<float> outV;
+    std::vector<double> outV;
     std::vector<int> outI;
     bool result;
     if (indicesInOut!=nullptr)
@@ -205,12 +205,12 @@ bool CMeshRoutines::getConvexHull(std::vector<float>* verticesInOut,std::vector<
     return(result);
 }
 
-bool CMeshRoutines::getConvexHull(const std::vector<float>* verticesIn,std::vector<float>* verticesOut,std::vector<int>* indicesOut)
+bool CMeshRoutines::getConvexHull(const std::vector<double>* verticesIn,std::vector<double>* verticesOut,std::vector<int>* indicesOut)
 {
     return(getConvexHull(&verticesIn->at(0),(int)verticesIn->size(),verticesOut,indicesOut));
 }
 
-bool CMeshRoutines::getConvexHull(const float* verticesIn,int verticesInLength,std::vector<float>* verticesOut,std::vector<int>* indicesOut)
+bool CMeshRoutines::getConvexHull(const double* verticesIn,int verticesInLength,std::vector<double>* verticesOut,std::vector<int>* indicesOut)
 {
     for (size_t n=0;n<3;n++)
     {
@@ -220,7 +220,7 @@ bool CMeshRoutines::getConvexHull(const float* verticesIn,int verticesInLength,s
         for (int iteration=0;iteration<100;iteration++)
         { // the qHull algo sometimes fails somehow (generates hulls with holes)
             void* data[10];
-            data[0]=(float*)verticesIn;
+            data[0]=(double*)verticesIn;
             data[1]=&verticesInLength;
             bool generateIndices=true;
             if (indicesOut==nullptr)
@@ -228,7 +228,7 @@ bool CMeshRoutines::getConvexHull(const float* verticesIn,int verticesInLength,s
             data[2]=&generateIndices;
             bool success=false;
             data[3]=&success;
-            float* outVert=nullptr;
+            double* outVert=nullptr;
             data[4]=&outVert;
             int outVertLength;
             data[5]=&outVertLength;
@@ -345,13 +345,13 @@ bool CMeshRoutines::getConvexHull(const float* verticesIn,int verticesInLength,s
     return(false);
 }
 
-bool CMeshRoutines::getDecimatedMesh(const std::vector<float>& verticesIn,const std::vector<int>& indicesIn,float decimationPercentage,std::vector<float>& verticesOut,std::vector<int>& indicesOut)
+bool CMeshRoutines::getDecimatedMesh(const std::vector<double>& verticesIn,const std::vector<int>& indicesIn,double decimationPercentage,std::vector<double>& verticesOut,std::vector<int>& indicesOut)
 {
     bool retVal=false;
     if ( (verticesIn.size()>=9)&&(indicesIn.size()>=6) )
     {
         void* data[20];
-        data[0]=(float*)&verticesIn[0];
+        data[0]=(double*)&verticesIn[0];
         int vl=(int)verticesIn.size();
         data[1]=&vl;
         data[2]=(int*)&indicesIn[0];
@@ -362,7 +362,7 @@ bool CMeshRoutines::getDecimatedMesh(const std::vector<float>& verticesIn,const 
         data[5]=&version;
         bool success=false;
         data[6]=&success;
-        float* outVert=nullptr;
+        double* outVert=nullptr;
         data[7]=&outVert;
         int outVertLength;
         data[8]=&outVertLength;
@@ -393,24 +393,24 @@ bool CMeshRoutines::getDecimatedMesh(const std::vector<float>& verticesIn,const 
 
 
 
-int CMeshRoutines::convexDecompose(const float* vertices,int verticesLength,const int* indices,int indicesLength,
-                                   std::vector<std::vector<float>*>& verticesList,std::vector<std::vector<int>*>& indicesList,
+int CMeshRoutines::convexDecompose(const double* vertices,int verticesLength,const int* indices,int indicesLength,
+                                   std::vector<std::vector<double>*>& verticesList,std::vector<std::vector<int>*>& indicesList,
                                    size_t nClusters,double concavity,bool addExtraDistPoints,bool addFacesPoints,
                                    double ccConnectDist,size_t targetNTrianglesDecimatedMesh,size_t maxHullVertices,
-                                   double smallestClusterThreshold,bool useHACD,int resolution_VHACD,int depth_VHACD_old,float concavity_VHACD,
+                                   double smallestClusterThreshold,bool useHACD,int resolution_VHACD,int depth_VHACD_old,double concavity_VHACD,
                                    int planeDownsampling_VHACD,int convexHullDownsampling_VHACD,
-                                   float alpha_VHACD,float beta_VHACD,float gamma_VHACD_old,bool pca_VHACD,
-                                   bool voxelBased_VHACD,int maxVerticesPerCH_VHACD,float minVolumePerCH_VHACD)
+                                   double alpha_VHACD,double beta_VHACD,double gamma_VHACD_old,bool pca_VHACD,
+                                   bool voxelBased_VHACD,int maxVerticesPerCH_VHACD,double minVolumePerCH_VHACD)
 { // 2 100 0 1 1 30 2000
     TRACE_INTERNAL;
     void* data[30];
     int el=0;
-    float** vertList=nullptr;
+    double** vertList=nullptr;
     int** indList=nullptr;
     int* vertCountList=nullptr;
     int* indCountList=nullptr;
 
-    data[0]=(float*)vertices;
+    data[0]=(double*)vertices;
     data[1]=&verticesLength;
     data[2]=(int*)indices;
     data[3]=&indicesLength;
@@ -455,7 +455,7 @@ int CMeshRoutines::convexDecompose(const float* vertices,int verticesLength,cons
 
     for (int mesh=0;mesh<el;mesh++)
     {
-        std::vector<float>* _vert=new std::vector<float>;
+        std::vector<double>* _vert=new std::vector<double>;
         std::vector<int>* _ind=new std::vector<int>;
         for (int i=0;i<vertCountList[mesh];i++)
             _vert->push_back(vertList[mesh][i]);
@@ -483,7 +483,7 @@ int CMeshRoutines::convexDecompose(const float* vertices,int verticesLength,cons
             }
         }
         C3Vector extent(mmax-mmin);
-        if ((_ind->size()>=12)&&(std::min<float>(std::min<float>(extent(0),extent(1)),extent(2))>0.0001))
+        if ((_ind->size()>=12)&&(std::min<double>(std::min<double>(extent(0),extent(1)),extent(2))>0.0001))
         {
             verticesList.push_back(_vert);
             indicesList.push_back(_ind);
@@ -535,7 +535,7 @@ int CMeshRoutines::_getTriangleIndexFromEdge(std::vector<std::vector<int>* >& al
     return(-1);
 }
 
-bool CMeshRoutines::checkIfConvex(const std::vector<float>& vertices,const std::vector<int>& indices,float distanceToleranceInPercent)
+bool CMeshRoutines::checkIfConvex(const std::vector<double>& vertices,const std::vector<int>& indices,double distanceToleranceInPercent)
 {
     // We need to check if neighbouring triangle are in a convex config, and if all triangles share an edge with exactly another triangle
     // Finally, we also need to check if the shape is in fact two (or more) convex shapes (i.e. 2 merged convex shapes) (only for test a) )
@@ -570,8 +570,8 @@ bool CMeshRoutines::checkIfConvex(const std::vector<float>& vertices,const std::
         }
     }
     C3Vector boxDim(maxV-minV);
-    float toleratedDist=distanceToleranceInPercent*(boxDim(0)+boxDim(1)+boxDim(2))/3.0;
-    std::vector<float> planeDefinitions;
+    double toleratedDist=distanceToleranceInPercent*(boxDim(0)+boxDim(1)+boxDim(2))/3.0;
+    std::vector<double> planeDefinitions;
 
     for (int tri=0;tri<int(indices.size()/3);tri++)
     {
@@ -587,7 +587,7 @@ bool CMeshRoutines::checkIfConvex(const std::vector<float>& vertices,const std::
         C3Vector n2(v1^v2);
         n0=n0.getNormalized()+n1.getNormalized()+n2.getNormalized();
         n0.normalize();
-        float d=n0*((p0+p1+p2)*(0.33333333));
+        double d=n0*((p0+p1+p2)*(0.33333333));
         planeDefinitions.push_back(n0(0));
         planeDefinitions.push_back(n0(1));
         planeDefinitions.push_back(n0(2));
@@ -617,7 +617,7 @@ bool CMeshRoutines::checkIfConvex(const std::vector<float>& vertices,const std::
             C3Vector v(&vertices[3*vert+0]);
             for (int i=0;i<int(planeDefinitions.size()/4);i++)
             {
-                float d=v(0)*planeDefinitions[4*i+0]+v(1)*planeDefinitions[4*i+1]+v(2)*planeDefinitions[4*i+2]-planeDefinitions[4*i+3];
+                double d=v(0)*planeDefinitions[4*i+0]+v(1)*planeDefinitions[4*i+1]+v(2)*planeDefinitions[4*i+2]-planeDefinitions[4*i+3];
                 if (d>toleratedDist)
                 {
                     convex=false;
@@ -670,19 +670,19 @@ bool CMeshRoutines::checkIfConvex(const std::vector<float>& vertices,const std::
     return(convex);
 }
 
-void CMeshRoutines::createCube(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,const int subdivisions[3])
+void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,const int subdivisions[3])
 {
     vertices.clear();
     indices.clear();
     int divX=subdivisions[0];
     int divY=subdivisions[1];
     int divZ=subdivisions[2];
-    float xhSize=sizes(0)/2.0;
-    float yhSize=sizes(1)/2.0;
-    float zhSize=sizes(2)/2.0;
-    float xs=sizes(0)/((float)divX);
-    float ys=sizes(1)/((float)divY);
-    float zs=sizes(2)/((float)divZ);
+    double xhSize=sizes(0)/2.0;
+    double yhSize=sizes(1)/2.0;
+    double zhSize=sizes(2)/2.0;
+    double xs=sizes(0)/((double)divX);
+    double ys=sizes(1)/((double)divY);
+    double zs=sizes(2)/((double)divZ);
 
     // We first create the vertices:
     //******************************
@@ -986,19 +986,19 @@ void CMeshRoutines::createCube(std::vector<float>& vertices,std::vector<int>& in
     }
 }
 
-void CMeshRoutines::createCapsule(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faceSubdiv)
+void CMeshRoutines::createCapsule(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faceSubdiv)
 { // sizes[0]&sizes[1]: diameters, sizes[2]: tube length
     vertices.clear();
     indices.clear();
-    float xhSize=sizes(0)/2.0;
-    float yhSize=sizes(1)/2.0;
-    float zhSize=sizes(2)/2.0;
+    double xhSize=sizes(0)/2.0;
+    double yhSize=sizes(1)/2.0;
+    double zhSize=sizes(2)/2.0;
 
-    float sa=2.0*piValue/((float)sides);
+    double sa=2.0*piValue/((double)sides);
     int ff=sides/2;
-    float fa=piValD2/((float)ff);
+    double fa=piValD2/((double)ff);
 
-    float rhSize=std::max<float>(xhSize,yhSize);
+    double rhSize=std::max<double>(xhSize,yhSize);
 
     // We set up the vertices:
     tt::addToFloatArray(&vertices,0.0,0.0,rhSize+zhSize);
@@ -1061,23 +1061,23 @@ void CMeshRoutines::createCapsule(std::vector<float>& vertices,std::vector<int>&
     tt::addToIntArray(&indices,off3+off1-1,1,off2+off1-1);
 }
 
-void CMeshRoutines::createSphere(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces)
+void CMeshRoutines::createSphere(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces)
 {
     vertices.clear();
     indices.clear();
-    float xhSize=sizes(0)/2.0;
-    float yhSize=sizes(1)/2.0;
-    float zhSize=sizes(2)/2.0;
+    double xhSize=sizes(0)/2.0;
+    double yhSize=sizes(1)/2.0;
+    double zhSize=sizes(2)/2.0;
 
-    float sa=2.0*piValue/((float)sides);
-    float fa=piValue/((float)faces);
+    double sa=2.0*piValue/((double)sides);
+    double fa=piValue/((double)faces);
     // We set up the vertices:
     tt::addToFloatArray(&vertices,0.0,0.0,1.0);
     tt::addToFloatArray(&vertices,0.0,0.0,-1.0);
     for (int i=0;i<sides;i++)
     {
         for (int j=1;j<faces;j++)
-            tt::addToFloatArray(&vertices,(float)(sin(fa*j)*cos(sa*i)),(float)(sin(fa*j)*sin(sa*i)),(float)cos(fa*j));
+            tt::addToFloatArray(&vertices,(double)(sin(fa*j)*cos(sa*i)),(double)(sin(fa*j)*sin(sa*i)),(double)cos(fa*j));
     }
 
     // We set up the indices:
@@ -1114,17 +1114,17 @@ void CMeshRoutines::createSphere(std::vector<float>& vertices,std::vector<int>& 
     }
 }
 
-void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces,int discDiv,bool openEnds,bool cone)
+void CMeshRoutines::createCylinder(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces,int discDiv,bool openEnds,bool cone)
 {
     vertices.clear();
     indices.clear();
-    float xhSize=sizes(0)/2.0;
-    float yhSize=sizes(1)/2.0;
-    float zhSize=sizes(2)/2.0;
+    double xhSize=sizes(0)/2.0;
+    double yhSize=sizes(1)/2.0;
+    double zhSize=sizes(2)/2.0;
 
-    float zzz=1.0/faces;
-    float dd=1.0/((float)discDiv);
-    float sa=2.0*piValue/((float)sides);
+    double zzz=1.0/faces;
+    double dd=1.0/((double)discDiv);
+    double sa=2.0*piValue/((double)sides);
     int sideStart=0;
     // We set up the vertices:
     if (!openEnds)
@@ -1139,7 +1139,7 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
         for (int i=0;i<sides;i++)
         { // The side vertices:
             for (int j=0;j<faces+1;j++)
-                tt::addToFloatArray(&vertices,(float)cos(sa*i)*j/faces,(float)sin(sa*i)*j/faces,0.5-j*zzz);
+                tt::addToFloatArray(&vertices,(double)cos(sa*i)*j/faces,(double)sin(sa*i)*j/faces,0.5-j*zzz);
         }
     }
     else
@@ -1147,7 +1147,7 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
         for (int i=0;i<sides;i++)
         { // The side vertices:
             for (int j=0;j<faces+1;j++)
-                tt::addToFloatArray(&vertices,(float)cos(sa*i),(float)sin(sa*i),0.5-j*zzz);
+                tt::addToFloatArray(&vertices,(double)cos(sa*i),(double)sin(sa*i),0.5-j*zzz);
         }
     }
 
@@ -1157,11 +1157,11 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
     { // The disc subdivision vertices:
         for (int i=1;i<discDiv;i++)
             for (int j=0;j<sides;j++)
-                tt::addToFloatArray(&vertices,(1.0-dd*i)*(float)cos(sa*j),(1.0-dd*i)*(float)sin(sa*j),0.5);
+                tt::addToFloatArray(&vertices,(1.0-dd*i)*(double)cos(sa*j),(1.0-dd*i)*(double)sin(sa*j),0.5);
         dsbStart=(int)vertices.size()/3;
         for (int i=1;i<discDiv;i++)
             for (int j=0;j<sides;j++)
-                tt::addToFloatArray(&vertices,(1.0-dd*i)*(float)cos(sa*j),(1.0-dd*i)*(float)sin(sa*j),-0.5);
+                tt::addToFloatArray(&vertices,(1.0-dd*i)*(double)cos(sa*j),(1.0-dd*i)*(double)sin(sa*j),-0.5);
     }
 
 
@@ -1251,20 +1251,20 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
     }
 }
 
-void CMeshRoutines::createAnnulus(std::vector<float>& vertices,std::vector<int>& indices,float Dlarge,float Dsmall,float zShift,int sides,bool faceUp)
+void CMeshRoutines::createAnnulus(std::vector<double>& vertices,std::vector<int>& indices,double Dlarge,double Dsmall,double zShift,int sides,bool faceUp)
 {
     vertices.clear();
     indices.clear();
-    float R=Dlarge*0.5;
-    float r=Dsmall*0.5;
+    double R=Dlarge*0.5;
+    double r=Dsmall*0.5;
 
-    float sa=2.0*piValue/((float)sides);
+    double sa=2.0*piValue/((double)sides);
 
     // We set up the vertices:
     for (int i=0;i<sides;i++)
-        tt::addToFloatArray(&vertices,R*(float)cos(sa*i),R*(float)sin(sa*i),zShift);    
+        tt::addToFloatArray(&vertices,R*(double)cos(sa*i),R*(double)sin(sa*i),zShift);    
     for (int i=0;i<sides;i++)
-        tt::addToFloatArray(&vertices,r*(float)cos(sa*i),r*(float)sin(sa*i),zShift);    
+        tt::addToFloatArray(&vertices,r*(double)cos(sa*i),r*(double)sin(sa*i),zShift);    
 
     // We set up the indices:
     for (int i=0;i<sides-1;i++)
@@ -1293,10 +1293,10 @@ void CMeshRoutines::createAnnulus(std::vector<float>& vertices,std::vector<int>&
     }
 }
 
-bool CMeshRoutines::_removeColinearTrianglePoints(std::vector<float>* vertices,std::vector<int>* indices,float toleranceDist)
+bool CMeshRoutines::_removeColinearTrianglePoints(std::vector<double>* vertices,std::vector<int>* indices,double toleranceDist)
 {
-    float onLineSquareTolerance=toleranceDist*0.1*toleranceDist*0.1;
-    std::vector<float> vert(vertices->begin(),vertices->end());
+    double onLineSquareTolerance=toleranceDist*0.1*toleranceDist*0.1;
+    std::vector<double> vert(vertices->begin(),vertices->end());
     std::vector<bool> okVertices(vert.size()/3,true);
     bool retVal=false;
     for (int i=0;i<int(indices->size())/3;i++)
@@ -1317,11 +1317,11 @@ bool CMeshRoutines::_removeColinearTrianglePoints(std::vector<float>* vertices,s
             // Now we check if pt3 is on the line formed by pt1-pt2 (not segment but line!)
             C3Vector x(pt3-pt1);
             C3Vector y(pt3-pt2);
-            float r1=x*dir;
-            float r2=y*dir;
+            double r1=x*dir;
+            double r2=y*dir;
             if ((r1>=0.0)&&(r2<=0.0))
             {
-                float dd=(x*x)-(r1*r1);
+                double dd=(x*x)-(r1*r1);
                 if (dd<onLineSquareTolerance)
                     okVertices[indices->at(3*i+l)]=false; // we disable this vertex
                 retVal=true;

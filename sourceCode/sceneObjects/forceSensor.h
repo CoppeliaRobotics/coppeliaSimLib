@@ -13,8 +13,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(floatDouble scalingFactor);
-    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
+    void scaleObject(double scalingFactor);
+    void scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -54,15 +54,15 @@ public:
     bool getDynamicForces(C3Vector& f,bool dynamicStepValue) const;
     bool getDynamicTorques(C3Vector& t,bool dynamicStepValue) const;
 
-    floatDouble getDynamicPositionError() const;
-    floatDouble getDynamicOrientationError() const;
+    double getDynamicPositionError() const;
+    double getDynamicOrientationError() const;
     void getDynamicErrorsFull(C3Vector& linear,C3Vector& angular) const;
 
     bool getStillAutomaticallyBreaking();
-    void setForceThreshold(floatDouble t);
-    floatDouble getForceThreshold() const;
-    void setTorqueThreshold(floatDouble t);
-    floatDouble getTorqueThreshold() const;
+    void setForceThreshold(double t);
+    double getForceThreshold() const;
+    void setTorqueThreshold(double t);
+    double getTorqueThreshold() const;
     void setEnableForceThreshold(bool e);
     bool getEnableForceThreshold() const;
     void setEnableTorqueThreshold(bool e);
@@ -76,8 +76,8 @@ public:
     int getFilterType() const;
 
     // Various
-    void setForceSensorSize(floatDouble s);
-    floatDouble getForceSensorSize() const;
+    void setForceSensorSize(double s);
+    double getForceSensorSize() const;
 
     CColorObject* getColor(bool part2);
 
@@ -85,8 +85,8 @@ protected:
     void _computeFilteredValues();
     void _handleSensorBreaking();
 
-    floatDouble _forceThreshold;
-    floatDouble _torqueThreshold;
+    double _forceThreshold;
+    double _torqueThreshold;
     int _valueCountForFilter;
     int _filterType; //0=average, 1=median
     bool _forceThresholdEnabled;
@@ -100,7 +100,7 @@ protected:
 
     // Variables which need to be serialized & copied
     // Visual attributes:
-    floatDouble _forceSensorSize;
+    double _forceSensorSize;
     CColorObject _color;
     CColorObject _color_removeSoon;
 

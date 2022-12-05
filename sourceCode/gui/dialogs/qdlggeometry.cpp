@@ -141,7 +141,7 @@ void CQDlgGeometry::_initialize(int shapeHandle)
         titleText="Geometry associated with '";
         titleText+=shape->getObjectAlias_printPath();
         titleText+="'";
-        std::vector<float> wvert;
+        std::vector<double> wvert;
         std::vector<int> wind;
         shape->getMeshWrapper()->getCumulativeMeshes(wvert,&wind,nullptr);
         vertexCount=(int)wvert.size()/3;
@@ -210,11 +210,11 @@ void CQDlgGeometry::_readSize(int index)
     if (shape!=nullptr)
     {
         bool ok;
-        float newVal=ww[index]->text().toFloat(&ok);
+        double newVal=ww[index]->text().toFloat(&ok);
         if (ok)
         {
             newVal=tt::getLimitedFloat(0.0001,1000.0,newVal);
-            float sc=1.0;
+            double sc=1.0;
 
             C3Vector bbhalfSizes(shape->getBoundingBoxHalfSizes());
 
@@ -280,7 +280,7 @@ void CQDlgGeometry::_readScaling(int index)
     if (shape!=nullptr)
     {
         bool ok;
-        float newVal=ww[index]->text().toFloat(&ok);
+        double newVal=ww[index]->text().toFloat(&ok);
         if (!keepProp)
         { // imagine we have a plane that has dims x*y*0!
             C3Vector bbhalfSizes(shape->getBoundingBoxHalfSizes());
@@ -294,7 +294,7 @@ void CQDlgGeometry::_readScaling(int index)
             else
                 newVal=tt::getLimitedFloat(-1000.0,-0.0001,newVal);
 
-            float sc=1.0;
+            double sc=1.0;
             if (scaleVal[index]!=0.0)
                 sc=newVal/scaleVal[index];
             if (keepProp)
@@ -337,7 +337,7 @@ void CQDlgGeometry::_readRotation(int index)
     if ((!isLinkedDataValid())||(isPureShape&&(!isGroup)))
         return;
     bool ok;
-    float newVal=ww[index]->text().toFloat(&ok);
+    double newVal=ww[index]->text().toFloat(&ok);
     if (ok)
     {
         rotationVal[index]=newVal*gv::userToRad;

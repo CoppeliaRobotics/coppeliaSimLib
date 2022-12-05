@@ -115,7 +115,7 @@ int CSignalContainer::clearAllIntegerSignals()
     return(retVal);
 }
 
-void CSignalContainer::setFloatSignal(const char* signalName,float value,int creatorHandle)
+void CSignalContainer::setFloatSignal(const char* signalName,double value,int creatorHandle)
 {
     if ((signalName==nullptr)||(strlen(signalName)==0))
         return;
@@ -130,7 +130,7 @@ void CSignalContainer::setFloatSignal(const char* signalName,float value,int cre
         _floatSignalValues[index]=value;
 }
 
-bool CSignalContainer::getFloatSignal(const char* signalName,float& value)
+bool CSignalContainer::getFloatSignal(const char* signalName,double& value)
 {
     if ((signalName==nullptr)||(strlen(signalName)==0))
         return(false);

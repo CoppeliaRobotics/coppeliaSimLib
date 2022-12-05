@@ -369,7 +369,7 @@ bool CHierarchy::render()
     glEnable(GL_SCISSOR_TEST);
     glDisable(GL_DEPTH_TEST);
     glScissor(renderingPosition[0]+SAFETY_BORDER_SIZE*App::sc,renderingPosition[1]+BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*App::sc,renderingSize[0]-SAFETY_BORDER_SIZE*App::sc,renderingSize[1]);
-    glClearColor(ogl::SEPARATION_LINE_COLOR[0],ogl::SEPARATION_LINE_COLOR[1],ogl::SEPARATION_LINE_COLOR[2],1.0f);
+    glClearColor(ogl::SEPARATION_LINE_COLOR[0],ogl::SEPARATION_LINE_COLOR[1],ogl::SEPARATION_LINE_COLOR[2],1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
@@ -377,12 +377,12 @@ bool CHierarchy::render()
     glViewport(renderingPosition[0],renderingPosition[1],renderingSize[0],renderingSize[1]);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0.0f,renderingSize[0],0.0f,renderingSize[1],-1.0f,1.0f);
+    glOrtho(0.0,renderingSize[0],0.0,renderingSize[1],-1.0,1.0);
     glMatrixMode (GL_MODELVIEW);
     glLoadIdentity ();
     glDisable(GL_DEPTH_TEST);
     glScissor(renderingPosition[0]+SAFETY_BORDER_SIZE*App::sc,renderingPosition[1],renderingSize[0]-SAFETY_BORDER_SIZE*App::sc,renderingSize[1]);
-    glClearColor(1.0f,1.0f,1.0f,1.0f);
+    glClearColor(1.0,1.0,1.0,1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     // There are 2 passes: one where we don't display anything but retrieve information
@@ -551,7 +551,7 @@ bool CHierarchy::render()
             limitedPos[0]=SAFETY_BORDER_SIZE*App::sc;
         if (limitedPos[1]<SAFETY_BORDER_SIZE*App::sc)
             limitedPos[1]=SAFETY_BORDER_SIZE*App::sc;
-        ogl::setAlpha(0.2f);
+        ogl::setAlpha(0.2);
         ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorYellow);
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glBegin(GL_QUADS);
@@ -575,7 +575,7 @@ bool CHierarchy::render()
     int htl[2];
     int hbr[2];
     int slidersEnable=getSliderPositions(vtl,vbr,htl,hbr,nullptr);
-//  float black[3]={0.0f,0.0f,0.0f};
+//  double black[3]={0.0,0.0,0.0};
 
     if (slidersEnable&1)
     { // here we draw the vertical slider:
@@ -627,7 +627,7 @@ bool CHierarchy::render()
     return(true);
 }
 
-int CHierarchy::getSliderPositions(int vSliderTopLeft[2],int vSliderBottomRight[2],int hSliderTopLeft[2],int hSliderBottomRight[2],float prop[2])
+int CHierarchy::getSliderPositions(int vSliderTopLeft[2],int vSliderBottomRight[2],int hSliderTopLeft[2],int hSliderBottomRight[2],double prop[2])
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     // we check if we need the sliders:
     verticalScrollbarWidth=0;
@@ -663,13 +663,13 @@ int CHierarchy::getSliderPositions(int vSliderTopLeft[2],int vSliderBottomRight[
         int sliderS=effDr*effDr/(effDr+minMaxViewPosition[1]);
         if (sliderS<HIERARCHY_SCROLLBAR_WIDTH*App::sc)
             sliderS=HIERARCHY_SCROLLBAR_WIDTH*App::sc;
-        int sliderP=int(float(effDr-sliderS)*float(viewPosition[1]-minViewPosition[1])/float(minMaxViewPosition[1]));
+        int sliderP=int(double(effDr-sliderS)*double(viewPosition[1]-minViewPosition[1])/double(minMaxViewPosition[1]));
         vSliderTopLeft[0]=renderingSize[0]-verticalScrollbarWidth;
         vSliderBottomRight[0]=renderingSize[0];
         vSliderTopLeft[1]=renderingSize[1]-sliderP;
         vSliderBottomRight[1]=vSliderTopLeft[1]-sliderS;
         if (prop!=nullptr)
-            prop[0]=float(minMaxViewPosition[1])/float(effDr-sliderS);
+            prop[0]=double(minMaxViewPosition[1])/double(effDr-sliderS);
     }
     if (horizontalScrollbarHeight>0)
     { // here we compute the horizontal slider:
@@ -678,13 +678,13 @@ int CHierarchy::getSliderPositions(int vSliderTopLeft[2],int vSliderBottomRight[
         int sliderS=effDr*effDr/(effDr+minMaxViewPosition[0]);
         if (sliderS<HIERARCHY_SCROLLBAR_WIDTH*App::sc)
             sliderS=HIERARCHY_SCROLLBAR_WIDTH*App::sc;
-        int sliderP=int(float(effDr-sliderS)*float(viewPosition[0]-minViewPosition[0])/float(minMaxViewPosition[0]));
+        int sliderP=int(double(effDr-sliderS)*double(viewPosition[0]-minViewPosition[0])/double(minMaxViewPosition[0]));
         hSliderTopLeft[1]=horizontalScrollbarHeight+SAFETY_BORDER_SIZE*App::sc;
         hSliderBottomRight[1]=0;
         hSliderTopLeft[0]=effDr-sliderS-sliderP+SAFETY_BORDER_SIZE*App::sc;
         hSliderBottomRight[0]=hSliderTopLeft[0]+sliderS;
         if (prop!=nullptr)
-            prop[1]=float(minMaxViewPosition[0])/float(effDr-sliderS);
+            prop[1]=double(minMaxViewPosition[0])/double(effDr-sliderS);
     }
     return(retVal);
 }
@@ -1047,17 +1047,17 @@ void CHierarchy::mouseMove(int x,int y,bool passiveAndFocused)
         int vbr[2];
         int htl[2];
         int hbr[2];
-        float prop[2];
+        double prop[2];
         if (sliderMoveMode&1)
         { // we are moving the vertical slider
             getSliderPositions(vtl,vbr,htl,hbr,prop);
-            viewPosition[1]=viewPosWhenMouseOnSliderDown[1]-int(prop[0]*float(mouseRelativePosition[1]-mouseDownRelativePosition[1]));
+            viewPosition[1]=viewPosWhenMouseOnSliderDown[1]-int(prop[0]*double(mouseRelativePosition[1]-mouseDownRelativePosition[1]));
             refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
         } 
         else if (sliderMoveMode&2)
         { // we are moving the horizontal slider
             getSliderPositions(vtl,vbr,htl,hbr,prop);
-            viewPosition[0]=viewPosWhenMouseOnSliderDown[0]-int(prop[1]*float(mouseRelativePosition[0]-mouseDownRelativePosition[0]));
+            viewPosition[0]=viewPosWhenMouseOnSliderDown[0]-int(prop[1]*double(mouseRelativePosition[0]-mouseDownRelativePosition[0]));
             refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
         }
         else if (shiftingAllowed)
@@ -1454,10 +1454,10 @@ void CHierarchy::drawEditionLabel(int textPosX,int textPosY)
     int buttonWidth=20+ogl::getTextLengthInPixels(editionText.c_str());
     VPoint p(textPosX-2+buttonWidth/2,textPosY+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
     VPoint s(buttonWidth,HIERARCHY_INTER_LINE_SPACE*App::sc);
-    float txtCol[3]={0.0f,0.0f,0.0f};
-    float backCol[3]={1.0f,1.0f,0.0f};
+    float txtCol[3]={0.0,0.0,0.0};
+    float backCol[3]={1.0,1.0,0.0};
     int buttonAttrib=sim_buttonproperty_editbox|sim_buttonproperty_enabled|sim_buttonproperty_verticallycentered;
-    ogl::drawButton(p,s,txtCol,backCol,backCol,editionText,buttonAttrib,true,editionTextEditPos,0.0f,false,(int)VDateTime::getTimeInMs(),nullptr,nullptr,nullptr,nullptr,nullptr);
+    ogl::drawButton(p,s,txtCol,backCol,backCol,editionText,buttonAttrib,true,editionTextEditPos,0.0,false,(int)VDateTime::getTimeInMs(),nullptr,nullptr,nullptr,nullptr,nullptr);
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
 }
 
@@ -1654,7 +1654,7 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
                             if ( (positions[7*i+6]==sim_dummylink_dynloopclosure)||(positions[7*i+6]==sim_dummy_linktype_dynamics_force_constraint)||(positions[7*i+6]==sim_dummylink_dyntendon) )
                                 ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorBlue);
                             if ( (positions[7*i+6]==sim_dummy_linktype_gcs_loop_closure)||(positions[7*i+6]==sim_dummy_linktype_gcs_tip)||(positions[7*i+6]==sim_dummy_linktype_gcs_target) )
-                                ogl::setMaterialColor(sim_colorcomponent_emission,0.0f,0.6f,0.0f);
+                                ogl::setMaterialColor(sim_colorcomponent_emission,0.0,0.6,0.0);
                             if (positions[7*i+6]==sim_dummy_linktype_ik_tip_target)
                                 ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorRed);
                             ogl::drawSingle2dLine_i(maxX+segmentOffset+overallOffset,positions[7*i+1],maxX+segmentOffset+segmentWidth+overallOffset,positions[7*i+1]);

@@ -15,9 +15,9 @@ COctree::COctree()
     TRACE_INTERNAL;
     _objectType=sim_object_octree_type;
 
-    _cellSize=0.025f;
+    _cellSize=0.025;
     color.setDefaultValues();
-    color.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
+    color.setColor(1.0,1.0,1.0,sim_colorcomponent_ambient_diffuse);
     _visibilityLayer=OCTREE_LAYER;
     _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable|sim_objectspecialproperty_renderable;
     _objectAlias=IDSOGL_OCTREE;
@@ -47,7 +47,7 @@ COctree::~COctree()
 
 void COctree::getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) const
 {
-    hs=(_boundingBoxMax-_boundingBoxMin)*0.5f;
+    hs=(_boundingBoxMax-_boundingBoxMin)*0.5;
     C4X4Matrix m=getFullCumulativeTransformation().getMatrix();
     C3Vector center((_boundingBoxMin+_boundingBoxMax)*0.5);
     m.X+=m.M*center;
@@ -79,19 +79,19 @@ int COctree::getNormalBufferId() const
     return(_normalBufferId);
 }
 
-floatDouble* COctree::getCubeVertices()
+float* COctree::getCubeVertices()
 {
     return(_cubeVertices);
 }
 
-floatDouble* COctree::getColors()
+float* COctree::getColors()
 {
     return(&_colors[0]);
 }
 
 void COctree::_readPositionsAndColorsAndSetDimensions()
 {
-    std::vector<floatDouble> _voxelPositions_old;
+    std::vector<double> _voxelPositions_old;
     _voxelPositions_old.swap(_voxelPositions);
     std::vector<unsigned char> _colorsByte_old;
     _colorsByte_old.swap(_colorsByte);
@@ -106,14 +106,14 @@ void COctree::_readPositionsAndColorsAndSetDimensions()
             _colors.clear();
             for (size_t i=0;i<_voxelPositions.size()/3;i++)
             {
-                _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                _colors.push_back(0.2f+SIM_RAND_FLOAT*0.8f);
-                _colors.push_back(1.0f);
+                _colors.push_back(0.2+SIM_RAND_FLOAT*0.8);
+                _colors.push_back(0.2+SIM_RAND_FLOAT*0.8);
+                _colors.push_back(0.2+SIM_RAND_FLOAT*0.8);
+                _colors.push_back(1.0);
             }
         }
         for (size_t i=0;i<_colors.size();i++)
-            _colorsByte.push_back((unsigned char)(_colors[i]*255.1f));
+            _colorsByte.push_back((unsigned char)(_colors[i]*255.1));
 
         C3Vector minDim,maxDim;
         for (size_t i=0;i<_voxelPositions.size()/3;i++)
@@ -190,7 +190,11 @@ void COctree::_updateOctreeEvent() const
 
         CCbor obj(nullptr,0);
         size_t l;
-        obj.appendFloatArray(_voxelPositions.data(),_voxelPositions.size());
+        std::vector<float> bla;
+        bla.resize(_voxelPositions.size());
+        for (size_t i=0;i<_voxelPositions.size();i++)
+            bla[i]=(float)_voxelPositions[i];
+        obj.appendFloatArray(bla.data(),bla.size());
         const char* buff=(const char*)obj.getBuff(l);
         data->appendMapObject_stringString("positions",buff,l,true);
 
@@ -202,11 +206,11 @@ void COctree::_updateOctreeEvent() const
     }
 }
 
-void COctree::insertPoints(const floatDouble* pts,int ptsCnt,bool ptsAreRelativeToOctree,const unsigned char* optionalColors3,bool colorsAreIndividual,const unsigned int* optionalTags,unsigned int theTagWhenOptionalTagsIsNull)
+void COctree::insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOctree,const unsigned char* optionalColors3,bool colorsAreIndividual,const unsigned int* optionalTags,unsigned int theTagWhenOptionalTagsIsNull)
 {
     TRACE_INTERNAL;
-    const floatDouble* _pts=pts;
-    std::vector<floatDouble> __pts;
+    const double* _pts=pts;
+    std::vector<double> __pts;
     if (!ptsAreRelativeToOctree)
     {
         C7Vector tr(getFullCumulativeTransformation().getInverse());
@@ -224,7 +228,7 @@ void COctree::insertPoints(const floatDouble* pts,int ptsCnt,bool ptsAreRelative
     {
         if (optionalColors3==nullptr)
         {
-            unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1f),(unsigned char)(color.getColorsPtr()[1]*255.1f),(unsigned char)(color.getColorsPtr()[2]*255.1f)};
+            unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1),(unsigned char)(color.getColorsPtr()[1]*255.1),(unsigned char)(color.getColorsPtr()[2]*255.1)};
             _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromPoints(_pts,ptsCnt,nullptr,_cellSize,cols,theTagWhenOptionalTagsIsNull);
         }
         else
@@ -239,7 +243,7 @@ void COctree::insertPoints(const floatDouble* pts,int ptsCnt,bool ptsAreRelative
     {
         if (optionalColors3==nullptr)
         {
-            unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1f),(unsigned char)(color.getColorsPtr()[1]*255.1f),(unsigned char)(color.getColorsPtr()[2]*255.1f)};
+            unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1),(unsigned char)(color.getColorsPtr()[1]*255.1),(unsigned char)(color.getColorsPtr()[2]*255.1)};
             CPluginContainer::geomPlugin_insertPointsIntoOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt,cols,theTagWhenOptionalTagsIsNull);
         }
         else
@@ -260,7 +264,7 @@ void COctree::insertShape(CShape* shape,unsigned int theTag)
 
     C7Vector octreeTr(getFullCumulativeTransformation());
     C7Vector shapeTr(((CShape*)shape)->getFullCumulativeTransformation());
-    unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1f),(unsigned char)(color.getColorsPtr()[1]*255.1f),(unsigned char)(color.getColorsPtr()[2]*255.1f)};
+    unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1),(unsigned char)(color.getColorsPtr()[1]*255.1),(unsigned char)(color.getColorsPtr()[2]*255.1)};
     if (_octreeInfo==nullptr)
         _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->_meshCalculationStructure,shapeTr,&octreeTr,_cellSize,cols,theTag);
     else
@@ -286,9 +290,9 @@ void COctree::insertPointCloud(const CPointCloud* pointCloud,unsigned int theTag
     TRACE_INTERNAL;
     if (pointCloud->getPointCloudInfo()!=nullptr)
     {
-        const std::vector<floatDouble>* _pts=pointCloud->getPoints();
+        const std::vector<double>* _pts=pointCloud->getPoints();
         C7Vector tr(pointCloud->getFullCumulativeTransformation());
-        std::vector<floatDouble> pts;
+        std::vector<double> pts;
         for (size_t i=0;i<_pts->size()/3;i++)
         {
             C3Vector v(&_pts->at(3*i));
@@ -306,7 +310,7 @@ void COctree::insertOctree(const void* octree2Info,const C7Vector& octree2Tr,uns
 {
     TRACE_INTERNAL;
 
-    unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1f),(unsigned char)(color.getColorsPtr()[1]*255.1f),(unsigned char)(color.getColorsPtr()[2]*255.1f)};
+    unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1),(unsigned char)(color.getColorsPtr()[1]*255.1),(unsigned char)(color.getColorsPtr()[2]*255.1)};
     if (_octreeInfo==nullptr)
     {
         const C7Vector tr(getFullCumulativeTransformation());
@@ -339,11 +343,11 @@ void COctree::insertObject(const CSceneObject* obj,unsigned int theTag)
         insertPointCloud((CPointCloud*)obj,theTag);
 }
 
-void COctree::subtractPoints(const floatDouble* pts,int ptsCnt,bool ptsAreRelativeToOctree)
+void COctree::subtractPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOctree)
 {
     TRACE_INTERNAL;
-    const floatDouble* _pts=pts;
-    std::vector<floatDouble> __pts;
+    const double* _pts=pts;
+    std::vector<double> __pts;
     if (!ptsAreRelativeToOctree)
     {
         C7Vector tr(getFullCumulativeTransformation().getInverse());
@@ -404,9 +408,9 @@ void COctree::subtractPointCloud(const CPointCloud* pointCloud)
     TRACE_INTERNAL;
     if (pointCloud->getPointCloudInfo()!=nullptr)
     {
-        const std::vector<floatDouble>* _pts=pointCloud->getPoints();
+        const std::vector<double>* _pts=pointCloud->getPoints();
         C7Vector tr(pointCloud->getFullCumulativeTransformation());
-        std::vector<floatDouble> pts;
+        std::vector<double> pts;
         for (size_t i=0;i<_pts->size()/3;i++)
         {
             C3Vector v(&_pts->at(3*i));
@@ -467,7 +471,7 @@ void COctree::clear()
     _voxelPositions.clear();
     _colors.clear();
     _colorsByte.clear();
-    _setBoundingBox(C3Vector(-0.1f,-0.1f,-0.1f),C3Vector(+0.1f,+0.1f,+0.1f));
+    _setBoundingBox(C3Vector(-0.1,-0.1,-0.1),C3Vector(+0.1,+0.1,+0.1));
     _updateOctreeEvent();
 }
 
@@ -525,13 +529,13 @@ void COctree::setPointSize(int s)
     _pointSize=s;
 }
 
-const std::vector<floatDouble>* COctree::getCubePositions() const
+const std::vector<double>* COctree::getCubePositions() const
 {
     TRACE_INTERNAL;
     return(&_voxelPositions);
 }
 
-std::vector<floatDouble>* COctree::getCubePositions()
+std::vector<double>* COctree::getCubePositions()
 {
     TRACE_INTERNAL;
     return(&_voxelPositions);
@@ -567,7 +571,7 @@ void COctree::computeBoundingBox()
 { // handled elsewhere
 }
 
-void COctree::scaleObject(floatDouble scalingFactor)
+void COctree::scaleObject(double scalingFactor)
 {
     _cellSize*=scalingFactor;
     _setBoundingBox(_boundingBoxMin*scalingFactor,_boundingBoxMax*scalingFactor);
@@ -579,9 +583,9 @@ void COctree::scaleObject(floatDouble scalingFactor)
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void COctree::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
+void COctree::scaleObjectNonIsometrically(double x,double y,double z)
 {
-    floatDouble s=cbrt(x*y*z);
+    double s=cbrt(x*y*z);
     scaleObject(s);
 }
 
@@ -604,7 +608,11 @@ void COctree::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 
     CCbor obj(nullptr,0);
     size_t l;
-    obj.appendFloatArray(_voxelPositions.data(),_voxelPositions.size());
+    std::vector<float> bla;
+    bla.resize(_voxelPositions.size());
+    for (size_t i=0;i<_voxelPositions.size();i++)
+        bla[i]=(float)_voxelPositions[i];
+    obj.appendFloatArray(bla.data(),bla.size());
     const char* buff=(const char*)obj.getBuff(l);
     data->appendMapObject_stringString("positions",buff,l,true);
 
@@ -635,12 +643,12 @@ CSceneObject* COctree::copyYourself()
     return(newOctree);
 }
 
-void COctree::setCellSize(floatDouble theNewSize)
+void COctree::setCellSize(double theNewSize)
 {
     if (_octreeInfo!=nullptr)
         theNewSize=tt::getLimitedFloat(_cellSize,1.0,theNewSize); // we can't reduce the cell size for an existing octree, because it doesn't make sense!
     else
-        theNewSize=tt::getLimitedFloat(0.001f,1.0,theNewSize);
+        theNewSize=tt::getLimitedFloat(0.001,1.0,theNewSize);
     if (theNewSize!=_cellSize)
     {
         _cellSize=theNewSize;
@@ -655,17 +663,17 @@ void COctree::setCellSize(floatDouble theNewSize)
     }
 }
 
-floatDouble COctree::getCellSize() const
+double COctree::getCellSize() const
 {
     return(_cellSize);
 }
 
-void COctree::setCellSizeForDisplay(floatDouble theNewSizeForDisplay)
+void COctree::setCellSizeForDisplay(double theNewSizeForDisplay)
 {
     _cellSizeForDisplay=theNewSizeForDisplay;
 }
 
-floatDouble COctree::getCellSizeForDisplay() const
+double COctree::getCellSizeForDisplay() const
 {
     return(_cellSizeForDisplay);
 }
@@ -764,16 +772,16 @@ void COctree::serialize(CSer& ar)
         {       // Storing
 #ifdef TMPOPERATION
             ar.storeDataName("Siz");
-            ar.flt() << (floatFloat)_cellSize;
+            ar << (float)_cellSize;
             ar << _pointSize;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_iz");
-            ar.dbl() << _cellSize;
+            ar << _cellSize;
             ar << _pointSize;
             ar.flush();
-#endif
+
 
             ar.storeDataName("Var");
             unsigned char dummy=0;
@@ -801,37 +809,37 @@ void COctree::serialize(CSer& ar)
                     ar << int(_voxelPositions.size()/3);
                     for (size_t i=0;i<_voxelPositions.size()/3;i++)
                     {
-                        ar.flt() << (floatFloat)_voxelPositions[3*i+0];
-                        ar.flt() << (floatFloat)_voxelPositions[3*i+1];
-                        ar.flt() << (floatFloat)_voxelPositions[3*i+2];
+                        ar << (float)_voxelPositions[3*i+0];
+                        ar << (float)_voxelPositions[3*i+1];
+                        ar << (float)_voxelPositions[3*i+2];
                         ar << (unsigned char)(_colors[4*i+0]*255.1);
                         ar << (unsigned char)(_colors[4*i+1]*255.1);
                         ar << (unsigned char)(_colors[4*i+2]*255.1);
                     }
                     ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
                     ar.storeDataName("_t2");
                     ar << int(_voxelPositions.size()/3);
                     for (size_t i=0;i<_voxelPositions.size()/3;i++)
                     {
-                        ar.dbl() << _voxelPositions[3*i+0];
-                        ar.dbl() << _voxelPositions[3*i+1];
-                        ar.dbl() << _voxelPositions[3*i+2];
+                        ar << _voxelPositions[3*i+0];
+                        ar << _voxelPositions[3*i+1];
+                        ar << _voxelPositions[3*i+2];
                         ar << (unsigned char)(_colors[4*i+0]*255.1);
                         ar << (unsigned char)(_colors[4*i+1]*255.1);
                         ar << (unsigned char)(_colors[4*i+2]*255.1);
                     }
                     ar.flush();
-#endif
+
                 }
                 else
                 {
                     std::vector<unsigned char> data;
 #ifdef TMPOPERATION
                     ar.storeDataName("Mm2");
-                    ar.flt() << (floatFloat)_boundingBoxMin(0) << (floatFloat)_boundingBoxMin(1) << (floatFloat)_boundingBoxMin(2);
-                    ar.flt() << (floatFloat)_boundingBoxMax(0) << (floatFloat)_boundingBoxMax(1) << (floatFloat)_boundingBoxMax(2);
+                    ar << (float)_boundingBoxMin(0) << (float)_boundingBoxMin(1) << (float)_boundingBoxMin(2);
+                    ar << (float)_boundingBoxMax(0) << (float)_boundingBoxMax(1) << (float)_boundingBoxMax(2);
                     ar.flush();
 
                     CPluginContainer::geomPlugin_getOctreeSerializationData_float(_octreeInfo,data);
@@ -847,10 +855,10 @@ void COctree::serialize(CSer& ar)
                         ar.flush(false);
                     }
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
                     ar.storeDataName("_m2");
-                    ar.dbl() << _boundingBoxMin(0) << _boundingBoxMin(1) << _boundingBoxMin(2);
-                    ar.dbl() << _boundingBoxMax(0) << _boundingBoxMax(1) << _boundingBoxMax(2);
+                    ar << _boundingBoxMin(0) << _boundingBoxMin(1) << _boundingBoxMin(2);
+                    ar << _boundingBoxMax(0) << _boundingBoxMax(1) << _boundingBoxMax(2);
                     ar.flush();
 
                     CPluginContainer::geomPlugin_getOctreeSerializationData(_octreeInfo,data);
@@ -865,7 +873,7 @@ void COctree::serialize(CSer& ar)
                             ar << data[i];
                         ar.flush(false);
                     }
-#endif
+
                 }
             }
             ar.storeDataName(SER_END_OF_OBJECT);
@@ -884,18 +892,20 @@ void COctree::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla;
-                        ar.flt() >> bla;
+                        float bla;
+                        ar >> bla;
                         ar >> _pointSize;
-                        _cellSize=(floatDouble)bla;
+                        _cellSize=(double)bla;
                     }
+
                     if (theName.compare("_iz")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _cellSize;
+                        ar >> _cellSize;
                         ar >> _pointSize;
                     }
+
                     if (theName.compare("Var")==0)
                     {
                         noHit=false;
@@ -920,21 +930,21 @@ void COctree::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int cnt;
                         ar >> cnt;
-                        std::vector<floatDouble> pts;
+                        std::vector<double> pts;
                         pts.resize(cnt*3);
                         std::vector<unsigned char> cols;
                         cols.resize(cnt*3);
                         std::vector<unsigned int> tags;
                         tags.resize(cnt,0);
-                        floatFloat bla;
+                        float bla;
                         for (int i=0;i<cnt;i++)
                         {
-                            ar.flt() >> bla;
-                            pts[3*i+0]=(floatDouble)bla;
-                            ar.flt() >> bla;
-                            pts[3*i+1]=(floatDouble)bla;
-                            ar.flt() >> bla;
-                            pts[3*i+2]=(floatDouble)bla;
+                            ar >> bla;
+                            pts[3*i+0]=(double)bla;
+                            ar >> bla;
+                            pts[3*i+1]=(double)bla;
+                            ar >> bla;
+                            pts[3*i+2]=(double)bla;
                             ar >> cols[3*i+0];
                             ar >> cols[3*i+1];
                             ar >> cols[3*i+2];
@@ -945,13 +955,14 @@ void COctree::serialize(CSer& ar)
                         else
                             _readPositionsAndColorsAndSetDimensions();
                     }
+
                     if (theName.compare("_t2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         int cnt;
                         ar >> cnt;
-                        std::vector<floatDouble> pts;
+                        std::vector<double> pts;
                         pts.resize(cnt*3);
                         std::vector<unsigned char> cols;
                         cols.resize(cnt*3);
@@ -959,9 +970,9 @@ void COctree::serialize(CSer& ar)
                         tags.resize(cnt,0);
                         for (int i=0;i<cnt;i++)
                         {
-                            ar.dbl() >> pts[3*i+0];
-                            ar.dbl() >> pts[3*i+1];
-                            ar.dbl() >> pts[3*i+2];
+                            ar >> pts[3*i+0];
+                            ar >> pts[3*i+1];
+                            ar >> pts[3*i+2];
                             ar >> cols[3*i+0];
                             ar >> cols[3*i+1];
                             ar >> cols[3*i+2];
@@ -972,27 +983,30 @@ void COctree::serialize(CSer& ar)
                         else
                             _readPositionsAndColorsAndSetDimensions();
                     }
+
                     if (theName.compare("Mm2")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla,bli,blo;
-                        ar.flt() >> bla >> bli >> blo;
-                        _boundingBoxMin(0)=(floatDouble)bla;
-                        _boundingBoxMin(1)=(floatDouble)bli;
-                        _boundingBoxMin(2)=(floatDouble)blo;
-                        ar.flt() >> bla >> bli >> blo;
-                        _boundingBoxMax(0)=(floatDouble)bla;
-                        _boundingBoxMax(1)=(floatDouble)bli;
-                        _boundingBoxMax(2)=(floatDouble)blo;
+                        float bla,bli,blo;
+                        ar >> bla >> bli >> blo;
+                        _boundingBoxMin(0)=(double)bla;
+                        _boundingBoxMin(1)=(double)bli;
+                        _boundingBoxMin(2)=(double)blo;
+                        ar >> bla >> bli >> blo;
+                        _boundingBoxMax(0)=(double)bla;
+                        _boundingBoxMax(1)=(double)bli;
+                        _boundingBoxMax(2)=(double)blo;
                     }
+
                     if (theName.compare("_m2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _boundingBoxMin(0) >> _boundingBoxMin(1) >> _boundingBoxMin(2);
-                        ar.dbl() >> _boundingBoxMax(0) >> _boundingBoxMax(1) >> _boundingBoxMax(2);
+                        ar >> _boundingBoxMin(0) >> _boundingBoxMin(1) >> _boundingBoxMin(2);
+                        ar >> _boundingBoxMax(0) >> _boundingBoxMax(1) >> _boundingBoxMax(2);
                     }
+
                     if (theName.compare("Co2")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
@@ -1005,9 +1019,12 @@ void COctree::serialize(CSer& ar)
                             ar >> dummy;
                             data.push_back(dummy);
                         }
+                        if (_octreeInfo!=nullptr)
+                            CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
                         _octreeInfo=CPluginContainer::geomPlugin_getOctreeFromSerializationData_float(&data[0]);
                         _readPositionsAndColorsAndSetDimensions();
                     }
+
                     if (theName.compare("_o2")==0)
                     {
                         noHit=false;
@@ -1020,9 +1037,12 @@ void COctree::serialize(CSer& ar)
                             ar >> dummy;
                             data.push_back(dummy);
                         }
+                        if (_octreeInfo!=nullptr)
+                            CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
                         _octreeInfo=CPluginContainer::geomPlugin_getOctreeFromSerializationData(&data[0]);
                         _readPositionsAndColorsAndSetDimensions();
                     }
+
                     if (noHit)
                         ar.loadUnknownData();
                 }
@@ -1081,7 +1101,7 @@ void COctree::serialize(CSer& ar)
                     CSer* w=ar.xmlAddNode_binFile("file",(_objectAlias+"-octree-"+std::to_string(_objectHandle)).c_str());
                     w[0] << int(_voxelPositions.size());
                     for (size_t i=0;i<_voxelPositions.size();i++)
-                        w[0].flt() << (floatFloat)_voxelPositions[i]; // keep this as floatFloat
+                        w[0] << (float)_voxelPositions[i]; // keep this as float
 
                     for (size_t i=0;i<_voxelPositions.size()/3;i++)
                     {
@@ -1119,7 +1139,7 @@ void COctree::serialize(CSer& ar)
                 {
                     int rgb[3];
                     if (ar.xmlGetNode_ints("object",rgb,3,exhaustiveXml))
-                        color.setColor(floatDouble(rgb[0])/255.1,floatDouble(rgb[1])/255.1,floatDouble(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
+                        color.setColor(float(rgb[0])/255.1,float(rgb[1])/255.1,float(rgb[2])/255.1,sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -1131,7 +1151,7 @@ void COctree::serialize(CSer& ar)
     
                 if (voxelCnt>0)
                 {
-                    std::vector<floatDouble> pts;
+                    std::vector<double> pts;
                     std::vector<unsigned char> cols;
                     std::vector<unsigned int> tags;
                     if (ar.xmlGetNode_floats("voxelPositions",pts,false))
@@ -1144,9 +1164,9 @@ void COctree::serialize(CSer& ar)
                         pts.resize(cnt);
                         for (int i=0;i<cnt;i++)
                         {
-                            floatFloat bla; // keep as floatFloat
-                            w[0].flt() >> bla;
-                            pts[i]=(floatDouble)bla;
+                            float bla; // keep as float
+                            w[0] >> bla;
+                            pts[i]=(double)bla;
                         }
                         cols.resize(cnt);
                         for (int i=0;i<cnt;i++)
@@ -1162,7 +1182,7 @@ void COctree::serialize(CSer& ar)
             }
             else
             {
-                std::vector<floatDouble> pts;
+                std::vector<double> pts;
                 std::vector<unsigned char> cols;
                 std::vector<unsigned int> tags;
                 if (ar.xmlGetNode_floats("voxelPositions",pts,exhaustiveXml))

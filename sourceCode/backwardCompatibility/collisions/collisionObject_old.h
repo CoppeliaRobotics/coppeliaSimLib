@@ -21,10 +21,10 @@ public:
     int readCollision(int collObjHandles[2]) const;
     bool getCollisionResult() const;
     bool isCollisionResultValid() const;
-    floatDouble getCalculationTime() const;
+    double getCalculationTime() const;
     std::string getUniquePersistentIdString() const;
     void _clearCollisionResult();
-    void _setCollisionResult(bool result,int calcTime,int obj1Handle,int obj2Handle,const std::vector<floatDouble>& intersect);
+    void _setCollisionResult(bool result,int calcTime,int obj1Handle,int obj2Handle,const std::vector<double>& intersect);
 
     void serialize(CSer& ar);
     void performObjectLoadingMapping(const std::map<int,int>* map);
@@ -45,7 +45,7 @@ public:
     bool getExhaustiveDetection() const;
     bool getExplicitHandling() const;
     int getContourWidth() const;
-    const std::vector<floatDouble>* getIntersections() const;
+    const std::vector<double>* getIntersections() const;
 
     CColorObject* getContourColor();
 
@@ -56,7 +56,7 @@ public:
     bool setExhaustiveDetection(bool exhaustive);
     bool setExplicitHandling(bool explicitHandl);
     bool setContourWidth(int w);
-    bool setIntersections(const std::vector<floatDouble>* intersections=nullptr);
+    bool setIntersections(const std::vector<double>* intersections=nullptr);
 
 private:
     void _commonInit();
@@ -81,5 +81,5 @@ private:
     bool _explicitHandling;
 
     CColorObject _contourColor;
-    std::vector<floatDouble> _intersections;
+    std::vector<double> _intersections;
 };

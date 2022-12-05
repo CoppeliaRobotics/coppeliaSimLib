@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include "simTypes.h"
 
 class CCalculationInfo
 {
@@ -34,12 +35,12 @@ public:
     void simulationPassStart();
     void simulationPassEnd();
 
-    float getProximitySensorCalculationTime();
-    float getVisionSensorCalculationTime();
-    float getMainScriptExecutionTime();
-    float getDynamicsCalculationTime();
-    float getSimulationPassExecutionTime();
-    float getRenderingDuration();
+    double getProximitySensorCalculationTime();
+    double getVisionSensorCalculationTime();
+    double getMainScriptExecutionTime();
+    double getDynamicsCalculationTime();
+    double getSimulationPassExecutionTime();
+    double getRenderingDuration();
 
 #ifdef SIM_WITH_GUI
     void printInformation();

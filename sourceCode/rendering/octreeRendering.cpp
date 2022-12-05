@@ -13,42 +13,42 @@ const int _cubeIndices[]={
 };
 
 const float _cubeNormals[]={
-    -1.0f,0.0f,0.0f,
-    -1.0f,0.0f,0.0f,
-    -1.0f,0.0f,0.0f,
-    -1.0f,0.0f,0.0f,
-    -1.0f,0.0f,0.0f,
-    -1.0f,0.0f,0.0f,
-    0.0f,0.0f,-1.0f,
-    0.0f,0.0f,-1.0f,
-    0.0f,0.0f,-1.0f,
-    0.0f,0.0f,-1.0f,
-    0.0f,0.0f,-1.0f,
-    0.0f,0.0f,-1.0f,
-    1.0f,0.0f,0.0f,
-    1.0f,0.0f,0.0f,
-    1.0f,0.0f,0.0f,
-    1.0f,0.0f,0.0f,
-    1.0f,0.0f,0.0f,
-    1.0f,0.0f,0.0f,
-    0.0f,0.0f,1.0f,
-    0.0f,0.0f,1.0f,
-    0.0f,0.0f,1.0f,
-    0.0f,0.0f,1.0f,
-    0.0f,0.0f,1.0f,
-    0.0f,0.0f,1.0f,
-    0.0f,-1.0f,0.0f,
-    0.0f,-1.0f,0.0f,
-    0.0f,-1.0f,0.0f,
-    0.0f,-1.0f,0.0f,
-    0.0f,-1.0f,0.0f,
-    0.0f,-1.0f,0.0f,
-    0.0f,1.0f,0.0f,
-    0.0f,1.0f,0.0f,
-    0.0f,1.0f,0.0f,
-    0.0f,1.0f,0.0f,
-    0.0f,1.0f,0.0f,
-    0.0f,1.0f,0.0f
+    -1.0,0.0,0.0,
+    -1.0,0.0,0.0,
+    -1.0,0.0,0.0,
+    -1.0,0.0,0.0,
+    -1.0,0.0,0.0,
+    -1.0,0.0,0.0,
+    0.0,0.0,-1.0,
+    0.0,0.0,-1.0,
+    0.0,0.0,-1.0,
+    0.0,0.0,-1.0,
+    0.0,0.0,-1.0,
+    0.0,0.0,-1.0,
+    1.0,0.0,0.0,
+    1.0,0.0,0.0,
+    1.0,0.0,0.0,
+    1.0,0.0,0.0,
+    1.0,0.0,0.0,
+    1.0,0.0,0.0,
+    0.0,0.0,1.0,
+    0.0,0.0,1.0,
+    0.0,0.0,1.0,
+    0.0,0.0,1.0,
+    0.0,0.0,1.0,
+    0.0,0.0,1.0,
+    0.0,-1.0,0.0,
+    0.0,-1.0,0.0,
+    0.0,-1.0,0.0,
+    0.0,-1.0,0.0,
+    0.0,-1.0,0.0,
+    0.0,-1.0,0.0,
+    0.0,1.0,0.0,
+    0.0,1.0,0.0,
+    0.0,1.0,0.0,
+    0.0,1.0,0.0,
+    0.0,1.0,0.0,
+    0.0,1.0,0.0
 };
 
 void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAttrib)
@@ -61,7 +61,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
     octree->getBoundingBox(mmiDim,mmaDim);
     C3Vector d(mmaDim-mmiDim);
     if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(octree,displayAttrib,true,cbrt(d(0)*d(1)*d(2))*0.6f);
+        _displayBoundingBox(octree,displayAttrib,true,cbrt(d(0)*d(1)*d(2))*0.6);
 
     C3Vector normalVectorForLinesAndPoints(octree->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -87,7 +87,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
 
         if (octree->getOctreeInfo()!=nullptr)
         {
-            std::vector<float>& _voxelPositions=octree->getCubePositions()[0];
+            std::vector<double>& _voxelPositions=octree->getCubePositions()[0];
             float* _cubeVertices=octree->getCubeVertices();
             bool setOtherColor=(App::currentWorld->collisions->getCollisionColor(octree->getObjectHandle())!=0);
             for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
@@ -104,43 +104,43 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
 
             if (octree->getShowOctree()&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
             {
-                std::vector<float> corners;
+                std::vector<double> corners;
                 CPluginContainer::geomPlugin_getOctreeCornersFromOctree(octree->getOctreeInfo(),corners);
 
                 glBegin(GL_LINES);
-                glNormal3fv(normalVectorForLinesAndPoints.data);
+                glNormal3dv(normalVectorForLinesAndPoints.data);
 
                 for (size_t i=0;i<corners.size()/24;i++)
                 {
-                    glVertex3fv(&corners[0]+i*8*3+0);
-                    glVertex3fv(&corners[0]+i*8*3+3);
-                    glVertex3fv(&corners[0]+i*8*3+3);
-                    glVertex3fv(&corners[0]+i*8*3+9);
-                    glVertex3fv(&corners[0]+i*8*3+0);
-                    glVertex3fv(&corners[0]+i*8*3+6);
-                    glVertex3fv(&corners[0]+i*8*3+6);
-                    glVertex3fv(&corners[0]+i*8*3+9);
+                    glVertex3dv(&corners[0]+i*8*3+0);
+                    glVertex3dv(&corners[0]+i*8*3+3);
+                    glVertex3dv(&corners[0]+i*8*3+3);
+                    glVertex3dv(&corners[0]+i*8*3+9);
+                    glVertex3dv(&corners[0]+i*8*3+0);
+                    glVertex3dv(&corners[0]+i*8*3+6);
+                    glVertex3dv(&corners[0]+i*8*3+6);
+                    glVertex3dv(&corners[0]+i*8*3+9);
 
-                    glVertex3fv(&corners[0]+i*8*3+12);
-                    glVertex3fv(&corners[0]+i*8*3+15);
-                    glVertex3fv(&corners[0]+i*8*3+15);
-                    glVertex3fv(&corners[0]+i*8*3+21);
-                    glVertex3fv(&corners[0]+i*8*3+12);
-                    glVertex3fv(&corners[0]+i*8*3+18);
-                    glVertex3fv(&corners[0]+i*8*3+18);
-                    glVertex3fv(&corners[0]+i*8*3+21);
+                    glVertex3dv(&corners[0]+i*8*3+12);
+                    glVertex3dv(&corners[0]+i*8*3+15);
+                    glVertex3dv(&corners[0]+i*8*3+15);
+                    glVertex3dv(&corners[0]+i*8*3+21);
+                    glVertex3dv(&corners[0]+i*8*3+12);
+                    glVertex3dv(&corners[0]+i*8*3+18);
+                    glVertex3dv(&corners[0]+i*8*3+18);
+                    glVertex3dv(&corners[0]+i*8*3+21);
 
-                    glVertex3fv(&corners[0]+i*8*3+0);
-                    glVertex3fv(&corners[0]+i*8*3+12);
+                    glVertex3dv(&corners[0]+i*8*3+0);
+                    glVertex3dv(&corners[0]+i*8*3+12);
 
-                    glVertex3fv(&corners[0]+i*8*3+3);
-                    glVertex3fv(&corners[0]+i*8*3+15);
+                    glVertex3dv(&corners[0]+i*8*3+3);
+                    glVertex3dv(&corners[0]+i*8*3+15);
 
-                    glVertex3fv(&corners[0]+i*8*3+6);
-                    glVertex3fv(&corners[0]+i*8*3+18);
+                    glVertex3dv(&corners[0]+i*8*3+6);
+                    glVertex3dv(&corners[0]+i*8*3+18);
 
-                    glVertex3fv(&corners[0]+i*8*3+9);
-                    glVertex3fv(&corners[0]+i*8*3+21);
+                    glVertex3dv(&corners[0]+i*8*3+9);
+                    glVertex3dv(&corners[0]+i*8*3+21);
                 }
                 glEnd();
             }
@@ -149,7 +149,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
             { // we need to reconstruct the buffer cube:
                 octree->setCellSizeForDisplay(octree->getCellSize());
 
-                float ss=octree->getCellSize()*0.5f;
+                float ss=float(octree->getCellSize()*0.5);
                 int ind=0;
                 _cubeVertices[ind++]=-ss; _cubeVertices[ind++]=-ss; _cubeVertices[ind++]=ss;
                 _cubeVertices[ind++]=-ss; _cubeVertices[ind++]=ss; _cubeVertices[ind++]=ss;
@@ -198,7 +198,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
                     for (size_t i=0;i<_voxelPositions.size()/3;i++)
                     {
                         glPushMatrix();
-                        glTranslatef(_voxelPositions[3*i+0],_voxelPositions[3*i+1],_voxelPositions[3*i+2]);
+                        glTranslated(_voxelPositions[3*i+0],_voxelPositions[3*i+1],_voxelPositions[3*i+2]);
                         int _vertexBufferId=octree->getVertexBufferId();
                         int _normalBufferId=octree->getNormalBufferId();
                         _drawTriangles(_cubeVertices,24,_cubeIndices,36,_cubeNormals,nullptr,&_vertexBufferId,&_normalBufferId,nullptr);
@@ -225,8 +225,10 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
                         for (size_t i=0;i<_voxelPositions.size()/3;i++)
                         {
                             glPushMatrix();
-                            glTranslatef(_voxelPositions[3*i+0],_voxelPositions[3*i+1],_voxelPositions[3*i+2]);
-                            glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,octree->getColors()+4*i);
+                            glTranslated(_voxelPositions[3*i+0],_voxelPositions[3*i+1],_voxelPositions[3*i+2]);
+                            const float* cc=octree->getColors();
+                            float c[4]={cc[4*i+0],cc[4*i+1],cc[4*i+2],cc[4*i+3]};
+                            glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,c);
                             int _vertexBufferId=octree->getVertexBufferId();
                             int _normalBufferId=octree->getNormalBufferId();
                             _drawTriangles(_cubeVertices,24,_cubeIndices,36,_cubeNormals,nullptr,&_vertexBufferId,&_normalBufferId,nullptr);
@@ -241,8 +243,11 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
                         for (size_t i=0;i<_voxelPositions.size()/3;i++)
                         {
                             glPushMatrix();
-                            glTranslatef(_voxelPositions[3*i+0],_voxelPositions[3*i+1],_voxelPositions[3*i+2]);
-                            glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,octree->getColors()+4*i);
+                            glTranslated(_voxelPositions[3*i+0],_voxelPositions[3*i+1],_voxelPositions[3*i+2]);
+
+                            const float* cc=octree->getColors();
+                            float c[4]={cc[4*i+0],cc[4*i+1],cc[4*i+2],cc[4*i+3]};
+                            glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,c);
                             int _vertexBufferId=octree->getVertexBufferId();
                             int _normalBufferId=octree->getNormalBufferId();
                             _drawTriangles(_cubeVertices,24,_cubeIndices,36,_cubeNormals,nullptr,&_vertexBufferId,&_normalBufferId,nullptr);

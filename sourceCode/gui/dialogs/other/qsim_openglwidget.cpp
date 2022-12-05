@@ -565,14 +565,14 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
 void COpenglWidget::_computeMousePos(int inX,int inY,int& outX,int& outY)
 {
 #ifdef USING_QOPENGLWIDGET
-    float sx=App::qtApp->devicePixelRatio();
-    float sy=sx;
+    double sx=App::qtApp->devicePixelRatio();
+    double sy=sx;
 #else
-    float sx=windowHandle()->devicePixelRatio();
-    float sy=windowHandle()->devicePixelRatio();
+    double sx=windowHandle()->devicePixelRatio();
+    double sy=windowHandle()->devicePixelRatio();
 #endif
-    outX=int(float(inX)*sx+0.5);
-    outY=int(float(inY)*sy+0.5);
+    outX=int(double(inX)*sx+0.5);
+    outY=int(double(inY)*sy+0.5);
     _lastGlobalMousePos[0]=QCursor::pos().x();
     _lastGlobalMousePos[1]=QCursor::pos().y();
 }

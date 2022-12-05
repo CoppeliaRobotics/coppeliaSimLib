@@ -70,14 +70,14 @@ void CIkElement_old::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Pr2");
-            ar.flt() << (floatFloat)_minAngularPrecision << (floatFloat)_minLinearPrecision;
+            ar << (float)_minAngularPrecision << (float)_minLinearPrecision;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_r2");
-            ar.dbl() << _minAngularPrecision << _minLinearPrecision;
+            ar << _minAngularPrecision << _minLinearPrecision;
             ar.flush();
-#endif
+
 
             ar.storeDataName("Ctr");
             ar << _constraints;
@@ -85,14 +85,14 @@ void CIkElement_old::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Wgt");
-            ar.flt() << (floatFloat)_positionWeight << (floatFloat)_orientationWeight;
+            ar << (float)_positionWeight << (float)_orientationWeight;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_gt");
-            ar.dbl() << _positionWeight << _orientationWeight;
+            ar << _positionWeight << _orientationWeight;
             ar.flush();
-#endif
+
 
             ar.storeDataName("Var");
             unsigned char nothing=0;
@@ -134,27 +134,29 @@ void CIkElement_old::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat a,b;
-                        ar.flt() >> a >> b;
-                        _minAngularPrecision=(floatDouble)a;
-                        _minLinearPrecision=(floatDouble)b;
+                        float a,b;
+                        ar >> a >> b;
+                        _minAngularPrecision=(double)a;
+                        _minLinearPrecision=(double)b;
                         _minAngularPrecision*=degToRad;
                     }
                     if (theName.compare("Pr2")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat a,b;
-                        ar.flt() >> a >> b;
-                        _minAngularPrecision=(floatDouble)a;
-                        _minLinearPrecision=(floatDouble)b;
+                        float a,b;
+                        ar >> a >> b;
+                        _minAngularPrecision=(double)a;
+                        _minLinearPrecision=(double)b;
                     }
+
                     if (theName.compare("_r2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _minAngularPrecision >> _minLinearPrecision;
+                        ar >> _minAngularPrecision >> _minLinearPrecision;
                     }
+
                     if (theName.compare("Ctr")==0)
                     {
                         noHit=false;
@@ -165,17 +167,19 @@ void CIkElement_old::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat a,b;
-                        ar.flt() >> a >> b;
-                        _positionWeight=(floatDouble)a;
-                        _orientationWeight=(floatDouble)b;
+                        float a,b;
+                        ar >> a >> b;
+                        _positionWeight=(double)a;
+                        _orientationWeight=(double)b;
                     }
+
                     if (theName.compare("_gt")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _positionWeight >> _orientationWeight;
+                        ar >> _positionWeight >> _orientationWeight;
                     }
+
                     if (theName.compare("Var")==0)
                     {
                         noHit=false;
@@ -332,25 +336,25 @@ int CIkElement_old::getTargetHandle() const
     return(linkedDummyHandle); // this should be the target!
 }
 
-bool CIkElement_old::setMinLinearPrecision(floatDouble prec)
+bool CIkElement_old::setMinLinearPrecision(double prec)
 { // Overridden from _CIkElement_old
     tt::limitValue(0.00001,1.0,prec);
     return(_CIkElement_old::setMinLinearPrecision(prec));
 }
 
-bool CIkElement_old::setMinAngularPrecision(floatDouble prec)
+bool CIkElement_old::setMinAngularPrecision(double prec)
 { // Overridden from _CIkElement_old
     tt::limitValue(0.001*degToRad,180.0*degToRad,prec);
     return(_CIkElement_old::setMinAngularPrecision(prec));
 }
 
-bool CIkElement_old::setPositionWeight(floatDouble weight)
+bool CIkElement_old::setPositionWeight(double weight)
 { // Overridden from _CIkElement_old
     tt::limitValue(0.001,1.0,weight);
     return(_CIkElement_old::setPositionWeight(weight));
 }
 
-bool CIkElement_old::setOrientationWeight(floatDouble weight)
+bool CIkElement_old::setOrientationWeight(double weight)
 { // Overridden from _CIkElement_old
     tt::limitValue(0.001,1.0,weight);
     return(_CIkElement_old::setOrientationWeight(weight));
@@ -451,7 +455,7 @@ void CIkElement_old::_setAlternativeBaseForConstraints_send(int h) const
     }
 }
 
-void CIkElement_old::_setMinLinearPrecision_send(floatDouble f) const
+void CIkElement_old::_setMinLinearPrecision_send(double f) const
 { // Overridden from _CIkElement_old
     _CIkElement_old::_setMinLinearPrecision_send(f);
 
@@ -460,7 +464,7 @@ void CIkElement_old::_setMinLinearPrecision_send(floatDouble f) const
         CPluginContainer::ikPlugin_setIkElementPrecision(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,f,_minAngularPrecision);
 }
 
-void CIkElement_old::_setMinAngularPrecision_send(floatDouble f) const
+void CIkElement_old::_setMinAngularPrecision_send(double f) const
 { // Overridden from _CIkElement_old
     _CIkElement_old::_setMinAngularPrecision_send(f);
 
@@ -469,7 +473,7 @@ void CIkElement_old::_setMinAngularPrecision_send(floatDouble f) const
         CPluginContainer::ikPlugin_setIkElementPrecision(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,_minLinearPrecision,f);
 }
 
-void CIkElement_old::_setPositionWeight_send(floatDouble f) const
+void CIkElement_old::_setPositionWeight_send(double f) const
 { // Overridden from _CIkElement_old
     _CIkElement_old::_setPositionWeight_send(f);
 
@@ -478,7 +482,7 @@ void CIkElement_old::_setPositionWeight_send(floatDouble f) const
         CPluginContainer::ikPlugin_setIkElementWeights(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,f,_orientationWeight);
 }
 
-void CIkElement_old::_setOrientationWeight_send(floatDouble f) const
+void CIkElement_old::_setOrientationWeight_send(double f) const
 { // Overridden from _CIkElement_old
     _CIkElement_old::_setOrientationWeight_send(f);
 

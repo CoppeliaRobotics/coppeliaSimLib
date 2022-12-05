@@ -135,7 +135,7 @@ bool CSimRecorder::recordFrameIfNeeded(int resX,int resY,int posX,int posY)
         bool validFrame=true;
         if (!getManualStart())
         {
-            float simTime=App::currentWorld->simulation->getSimulationTime();
+            double simTime=App::currentWorld->simulation->getSimulationTime();
             if (_simulationTimeOfLastFrame!=simTime)
                 _simulationTimeOfLastFrame=simTime;
             else

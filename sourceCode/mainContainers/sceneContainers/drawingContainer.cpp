@@ -76,7 +76,7 @@ void CDrawingContainer::adjustForFrameChange(int objectId,const C7Vector& preCor
     }
 }
 
-void CDrawingContainer::adjustForScaling(int objectId,float xScale,float yScale,float zScale)
+void CDrawingContainer::adjustForScaling(int objectId,double xScale,double yScale,double zScale)
 {
     for (size_t i=0;i<_allObjects.size();i++)
     {

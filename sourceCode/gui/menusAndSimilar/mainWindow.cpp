@@ -506,12 +506,12 @@ bool CMainWindow::getHasStereo()
     return(_hasStereo);
 }
 
-void CMainWindow::setStereoDistance(float d)
+void CMainWindow::setStereoDistance(double d)
 {
     _stereoDistance=d;
 }
 
-float CMainWindow::getStereoDistance()
+double CMainWindow::getStereoDistance()
 {
     return(_stereoDistance);
 }
@@ -735,7 +735,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
 { // Called only from the rendering thread!!!
     TRACE_INTERNAL;
     int startTime=(int)VDateTime::getTimeInMs();
-    _fps=1.0/(float(VDateTime::getTimeDiffInMs(lastTimeRenderingStarted,startTime))/1000.0);
+    _fps=1.0/(double(VDateTime::getTimeDiffInMs(lastTimeRenderingStarted,startTime))/1000.0);
     lastTimeRenderingStarted=startTime;
 
     if (_fullDialogRefreshFlag)

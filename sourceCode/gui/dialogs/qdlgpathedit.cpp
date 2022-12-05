@@ -63,14 +63,14 @@ void CQDlgPathEdit::refresh()
     if (selectedPointCount!=0)
     {
         CSimplePathPoint_old* it=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(App::mainWindow->editModeContainer->getEditModeBufferSize()-1);
-        float bInt0,bInt1;
+        double bInt0,bInt1;
         it->getBezierFactors(bInt0,bInt1);
         ui->qqFactor1->setText(tt::getFString(false,bInt0,3).c_str());
         ui->qqFactor2->setText(tt::getFString(false,bInt1,3).c_str());
         ui->qqPointCount->setText(tt::getIString(false,it->getBezierPointCount()).c_str());
         ui->qqVirtualDistance->setText(tt::getEString(false,it->getOnSpotDistance(),3).c_str());
         ui->qqAuxFlags->setText(tt::getIString(false,it->getAuxFlags()).c_str());
-        float auxChannels[4];
+        double auxChannels[4];
         it->getAuxChannels(auxChannels);
         ui->qqAuxChannel1->setText(tt::getEString(false,auxChannels[0],3).c_str());
         ui->qqAuxChannel2->setText(tt::getEString(false,auxChannels[1],3).c_str());
@@ -151,10 +151,10 @@ void CQDlgPathEdit::on_qqFactor1_editingFinished()
         if ((App::getEditModeType()==PATH_EDIT_MODE_OLD)&&(selectedPointCount!=0))
         {
             CSimplePathPoint_old* it=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
-            float bInt0,bInt1;
+            double bInt0,bInt1;
             it->getBezierFactors(bInt0,bInt1);
             bool ok;
-            float newVal=ui->qqFactor1->text().toFloat(&ok);
+            double newVal=ui->qqFactor1->text().toFloat(&ok);
             if (ok)
                 it->setBezierFactors(newVal,bInt1);
             App::mainWindow->editModeContainer->getEditModePathContainer_old()->actualizePath();
@@ -173,10 +173,10 @@ void CQDlgPathEdit::on_qqFactor2_editingFinished()
         if ((App::getEditModeType()==PATH_EDIT_MODE_OLD)&&(selectedPointCount!=0))
         {
             CSimplePathPoint_old* it=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
-            float bInt0,bInt1;
+            double bInt0,bInt1;
             it->getBezierFactors(bInt0,bInt1);
             bool ok;
-            float newVal=ui->qqFactor2->text().toFloat(&ok);
+            double newVal=ui->qqFactor2->text().toFloat(&ok);
             if (ok)
                 it->setBezierFactors(bInt0,newVal);
             App::mainWindow->editModeContainer->getEditModePathContainer_old()->actualizePath();
@@ -216,7 +216,7 @@ void CQDlgPathEdit::on_qqVirtualDistance_editingFinished()
         {
             CSimplePathPoint_old* it=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
             bool ok;
-            float newVal=ui->qqVirtualDistance->text().toFloat(&ok);
+            double newVal=ui->qqVirtualDistance->text().toFloat(&ok);
             if (ok)
                 it->setOnSpotDistance(newVal);
             App::mainWindow->editModeContainer->getEditModePathContainer_old()->actualizePath();
@@ -233,7 +233,7 @@ void CQDlgPathEdit::on_qqApply_clicked()
         if ((App::getEditModeType()==PATH_EDIT_MODE_OLD)&&(selectedPointCount>=2))
         {
             CSimplePathPoint_old* it=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
-            float bInt0,bInt1;
+            double bInt0,bInt1;
             it->getBezierFactors(bInt0,bInt1);
             for (int i=0;i<selectedPointCount-1;i++)
             {
@@ -243,7 +243,7 @@ void CQDlgPathEdit::on_qqApply_clicked()
                 it2->setBezierPointCount(it->getBezierPointCount());
                 it2->setOnSpotDistance(it->getOnSpotDistance());
                 it2->setAuxFlags(it->getAuxFlags());
-                float auxChannels[4];
+                double auxChannels[4];
                 it->getAuxChannels(auxChannels);
                 it2->setAuxChannels(auxChannels);
             }
@@ -306,10 +306,10 @@ void CQDlgPathEdit::on_qqAuxChannel1_editingFinished()
         {
             CSimplePathPoint_old* it=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
             bool ok;
-            float newVal=ui->qqAuxChannel1->text().toFloat(&ok);
+            double newVal=ui->qqAuxChannel1->text().toFloat(&ok);
             if (ok)
             {
-                float auxChannels[4];
+                double auxChannels[4];
                 it->getAuxChannels(auxChannels);
                 auxChannels[0]=newVal;
                 it->setAuxChannels(auxChannels);
@@ -331,10 +331,10 @@ void CQDlgPathEdit::on_qqAuxChannel2_editingFinished()
         {
             CSimplePathPoint_old* it=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
             bool ok;
-            float newVal=ui->qqAuxChannel2->text().toFloat(&ok);
+            double newVal=ui->qqAuxChannel2->text().toFloat(&ok);
             if (ok)
             {
-                float auxChannels[4];
+                double auxChannels[4];
                 it->getAuxChannels(auxChannels);
                 auxChannels[1]=newVal;
                 it->setAuxChannels(auxChannels);
@@ -356,10 +356,10 @@ void CQDlgPathEdit::on_qqAuxChannel3_editingFinished()
         {
             CSimplePathPoint_old* it=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
             bool ok;
-            float newVal=ui->qqAuxChannel3->text().toFloat(&ok);
+            double newVal=ui->qqAuxChannel3->text().toFloat(&ok);
             if (ok)
             {
-                float auxChannels[4];
+                double auxChannels[4];
                 it->getAuxChannels(auxChannels);
                 auxChannels[2]=newVal;
                 it->setAuxChannels(auxChannels);
@@ -381,10 +381,10 @@ void CQDlgPathEdit::on_qqAuxChannel4_editingFinished()
         {
             CSimplePathPoint_old* it=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
             bool ok;
-            float newVal=ui->qqAuxChannel4->text().toFloat(&ok);
+            double newVal=ui->qqAuxChannel4->text().toFloat(&ok);
             if (ok)
             {
-                float auxChannels[4];
+                double auxChannels[4];
                 it->getAuxChannels(auxChannels);
                 auxChannels[3]=newVal;
                 it->setAuxChannels(auxChannels);

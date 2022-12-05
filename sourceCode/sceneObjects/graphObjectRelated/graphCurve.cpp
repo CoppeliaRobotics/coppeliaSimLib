@@ -6,7 +6,7 @@ CGraphCurve::CGraphCurve()
     _scriptHandle=-1;
 }
 
-CGraphCurve::CGraphCurve(int dim,const int streamIds[3],const floatDouble defaultVals[3],const char* curveName,const char* unitStr,int options,const floatDouble* color,int curveWidth,int scriptHandle)
+CGraphCurve::CGraphCurve(int dim,const int streamIds[3],const double defaultVals[3],const char* curveName,const char* unitStr,int options,const float* color,int curveWidth,int scriptHandle)
 {
     _curveName=curveName;
     _isStatic=false;
@@ -17,7 +17,7 @@ CGraphCurve::~CGraphCurve()
 {
 }
 
-void CGraphCurve::setBasics(int dim,const int streamIds[3],const floatDouble defaultVals[3],const char* unitStr,int options,const floatDouble* color,int curveWidth,int scriptHandle)
+void CGraphCurve::setBasics(int dim,const int streamIds[3],const double defaultVals[3],const char* unitStr,int options,const float* color,int curveWidth,int scriptHandle)
 {
     _dim=dim;
     _scriptHandle=scriptHandle;
@@ -49,9 +49,9 @@ void CGraphCurve::setBasics(int dim,const int streamIds[3],const floatDouble def
     }
     else
     {
-        _color[0]=1.0f;
-        _color[1]=1.0f;
-        _color[2]=0.0f;
+        _color[0]=1.0;
+        _color[1]=1.0;
+        _color[2]=0.0;
     }
 }
 
@@ -81,8 +81,8 @@ void CGraphCurve::makeStatic(CGraphDataStream* streams[3],int bufferSize,int sta
 {
     if (!_isStatic)
     {
-        std::vector<floatDouble> xVals;
-        std::vector<floatDouble> yVals;
+        std::vector<double> xVals;
+        std::vector<double> yVals;
         _staticCurveValues.clear();
         if (_dim==2)
         {
@@ -158,7 +158,7 @@ int CGraphCurve::getCurveWidth() const
     return(_curveWidth);
 }
 
-const floatDouble* CGraphCurve::getColorPtr() const
+const float* CGraphCurve::getColorPtr() const
 {
     return(_color);
 }
@@ -168,7 +168,7 @@ int CGraphCurve::getDim() const
     return(_dim);
 }
 
-const floatDouble* CGraphCurve::getDefaultValsPtr() const
+const double* CGraphCurve::getDefaultValsPtr() const
 {
     return(_defaultVals);
 }
@@ -178,7 +178,7 @@ int CGraphCurve::getScriptHandle() const
     return(_scriptHandle);
 }
 
-bool CGraphCurve::getCurveData_xy(CGraphDataStream* streams[3],int* index,int bufferSize,int startPt,int ptCnt,std::string* label,std::vector<floatDouble>& xVals,std::vector<floatDouble>& yVals,int* curveType,floatDouble col[3],floatDouble minMax[6]) const
+bool CGraphCurve::getCurveData_xy(CGraphDataStream* streams[3],int* index,int bufferSize,int startPt,int ptCnt,std::string* label,std::vector<double>& xVals,std::vector<double>& yVals,int* curveType,float col[3],double minMax[6]) const
 {
     if ( (((streams==nullptr)&&(_isStatic))||((streams!=nullptr)&&(!_isStatic)))&&(_dim==2) )
     {
@@ -214,13 +214,13 @@ bool CGraphCurve::getCurveData_xy(CGraphDataStream* streams[3],int* index,int bu
                     if (absIndex>=bufferSize) // i.e. bufferSize
                         absIndex-=bufferSize;
                     bool validPt=true;
-                    floatDouble xVal=_defaultVals[0];
+                    double xVal=_defaultVals[0];
                     if (streams[0]!=nullptr)
                     {
                         if (!streams[0]->getTransformedValue(startPt,absIndex,xVal))
                             validPt=false;
                     }
-                    floatDouble yVal=_defaultVals[1];
+                    double yVal=_defaultVals[1];
                     if (streams[1]!=nullptr)
                     {
                         if (!streams[1]->getTransformedValue(startPt,absIndex,yVal))
@@ -260,8 +260,8 @@ bool CGraphCurve::getCurveData_xy(CGraphDataStream* streams[3],int* index,int bu
                     curveType[0]+=2; // static
                 for (size_t i=0;i<_staticCurveValues.size()/2;i++)
                 {
-                    floatDouble xVal=_staticCurveValues[2*i+0];
-                    floatDouble yVal=_staticCurveValues[2*i+1];
+                    double xVal=_staticCurveValues[2*i+0];
+                    double yVal=_staticCurveValues[2*i+1];
                     xVals.push_back(xVal);
                     yVals.push_back(yVal);
                     if (minMax!=nullptr)
@@ -295,7 +295,7 @@ bool CGraphCurve::getCurveData_xy(CGraphDataStream* streams[3],int* index,int bu
     return(false);
 }
 
-bool CGraphCurve::getCurveData_xyz(CGraphDataStream* streams[3],int* index,int bufferSize,int startPt,int ptCnt,std::string* label,std::vector<floatDouble>& xVals,int* curveType,floatDouble col[3],floatDouble minMax[6],int* curveWidth) const
+bool CGraphCurve::getCurveData_xyz(CGraphDataStream* streams[3],int* index,int bufferSize,int startPt,int ptCnt,std::string* label,std::vector<double>& xVals,int* curveType,float col[3],double minMax[6],int* curveWidth) const
 {
     if ( (((streams==nullptr)&&(_isStatic))||((streams!=nullptr)&&(!_isStatic)))&&(_dim==3) )
     {
@@ -395,9 +395,9 @@ bool CGraphCurve::getCurveData_xyz(CGraphDataStream* streams[3],int* index,int b
                     curveType[0]+=2; // static
                 for (size_t i=0;i<_staticCurveValues.size()/3;i++)
                 {
-                    floatDouble xVal=_staticCurveValues[3*i+0];
-                    floatDouble yVal=_staticCurveValues[3*i+1];
-                    floatDouble zVal=_staticCurveValues[3*i+2];
+                    double xVal=_staticCurveValues[3*i+0];
+                    double yVal=_staticCurveValues[3*i+1];
+                    double zVal=_staticCurveValues[3*i+2];
                     xVals.push_back(xVal);
                     xVals.push_back(yVal);
                     xVals.push_back(zVal);
@@ -456,27 +456,20 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar << _scriptHandle;
             ar.flush();
 
-#ifdef TMPOPERATION
             ar.storeDataName("Col");
-            ar.flt() << (floatFloat)_color[0] << (floatFloat)_color[1] << (floatFloat)_color[2];
+            ar << _color[0] << _color[1] << _color[2];
             ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_ol");
-            ar.dbl() << _color[0] << _color[1] << _color[2];
-            ar.flush();
-#endif
 
 #ifdef TMPOPERATION
             ar.storeDataName("Dev");
-            ar.flt() << (floatFloat)_defaultVals[0] << (floatFloat)_defaultVals[1] << (floatFloat)_defaultVals[2];
+            ar << (float)_defaultVals[0] << (float)_defaultVals[1] << (float)_defaultVals[2];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_ev");
-            ar.dbl() << _defaultVals[0] << _defaultVals[1] << _defaultVals[2];
+            ar << _defaultVals[0] << _defaultVals[1] << _defaultVals[2];
             ar.flush();
-#endif
+
 
             ar.storeDataName("Str");
             ar << _streamIds[0] << _streamIds[1] << _streamIds[2];
@@ -495,16 +488,16 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar.storeDataName("Pts");
             ar << int(_staticCurveValues.size());
             for (int i=0;i<_staticCurveValues.size();i++)
-                ar.flt() << (floatFloat)_staticCurveValues[i];
+                ar << (float)_staticCurveValues[i];
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_ts");
             ar << int(_staticCurveValues.size());
             for (int i=0;i<_staticCurveValues.size();i++)
-                ar.dbl() << _staticCurveValues[i];
+                ar << _staticCurveValues[i];
             ar.flush();
-#endif
+
             ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
@@ -536,37 +529,29 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         ar >> _scriptHandle;
                     }
                     if (theName.compare("Col")==0)
-                    { // for backward comp. (flt->dbl)
-                        noHit=false;
-                        ar >> byteQuantity;
-                        floatFloat bla,bli,blo;
-                        ar.flt() >> bla >> bli >> blo;
-                        _color[0]=(floatDouble)bla;
-                        _color[1]=(floatDouble)bli;
-                        _color[2]=(floatDouble)blo;
-                    }
-                    if (theName.compare("_ol")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _color[0] >> _color[1] >> _color[2];
+                        ar >> _color[0] >> _color[1] >> _color[2];
                     }
                     if (theName.compare("Dev")==0)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla,bli,blo;
-                        ar.flt() >> bla >> bli >> blo;
-                        _defaultVals[0]=(floatDouble)bla;
-                        _defaultVals[1]=(floatDouble)bli;
-                        _defaultVals[2]=(floatDouble)blo;
+                        float bla,bli,blo;
+                        ar >> bla >> bli >> blo;
+                        _defaultVals[0]=(double)bla;
+                        _defaultVals[1]=(double)bli;
+                        _defaultVals[2]=(double)blo;
                     }
+
                     if (theName.compare("_ev")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _defaultVals[0] >> _defaultVals[1] >> _defaultVals[2];
+                        ar >> _defaultVals[0] >> _defaultVals[1] >> _defaultVals[2];
                     }
+
                     if (theName.compare("Str")==0)
                     {
                         noHit=false;
@@ -590,14 +575,15 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         ar >> byteQuantity;
                         int cnt;
                         ar >> cnt;
-                        floatFloat bla;
+                        float bla;
                         _staticCurveValues.resize(cnt);
                         for (int i=0;i<cnt;i++)
                         {
-                            ar.flt() >> bla;
-                            _staticCurveValues[i]=(floatDouble)bla;
+                            ar >> bla;
+                            _staticCurveValues[i]=(double)bla;
                         }
                     }
+
                     if (theName.compare("_ts")==0)
                     {
                         noHit=false;
@@ -606,8 +592,9 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
                         ar >> cnt;
                         _staticCurveValues.resize(cnt);
                         for (int i=0;i<cnt;i++)
-                            ar.dbl() >> _staticCurveValues[i];
+                            ar >> _staticCurveValues[i];
                     }
+
                     if (noHit)
                         ar.loadUnknownData();
                 }

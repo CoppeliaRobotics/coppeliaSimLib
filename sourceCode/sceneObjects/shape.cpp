@@ -31,18 +31,18 @@ CShape::CShape()
     commonInit();
 }
 
-CShape::CShape(const std::vector<floatDouble>& allHeights,int xSize,int ySize,floatDouble dx,floatDouble zSize)
+CShape::CShape(const std::vector<double>& allHeights,int xSize,int ySize,double dx,double zSize)
 {
     commonInit();
 
     C7Vector newLocalTr;
 
-    std::vector<floatDouble> vert;
+    std::vector<double> vert;
     std::vector<int> ind;
-    floatDouble yPos=-floatDouble(ySize-1)*dx*0.5f;
+    double yPos=-double(ySize-1)*dx*0.5;
     for (int i=0;i<ySize;i++)
     {
-        floatDouble xPos=-floatDouble(xSize-1)*dx*0.5f;
+        double xPos=-double(xSize-1)*dx*0.5;
         for (int j=0;j<xSize;j++)
         {
             vert.push_back(xPos);
@@ -69,8 +69,8 @@ CShape::CShape(const std::vector<floatDouble>& allHeights,int xSize,int ySize,fl
 
     newLocalTr=_acceptNewGeometry(vert,ind,nullptr,nullptr);
 
-    getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_heightfield,floatDouble(xSize-1)*dx,floatDouble(ySize-1)*dx,zSize);
-    std::vector<floatDouble> heightsInCorrectOrder;
+    getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_heightfield,double(xSize-1)*dx,double(ySize-1)*dx,zSize);
+    std::vector<double> heightsInCorrectOrder;
     for (int i=0;i<ySize;i++)
     {
         // Following doesn't work correctly somehow...
@@ -83,7 +83,7 @@ CShape::CShape(const std::vector<floatDouble>& allHeights,int xSize,int ySize,fl
     setLocalTransformation(newLocalTr);
 }
 
-CShape::CShape(const C7Vector* transformation,const std::vector<floatDouble>& vert,const std::vector<int>& ind,const std::vector<floatDouble>* normals,const std::vector<floatDouble>* textCoord)
+CShape::CShape(const C7Vector* transformation,const std::vector<double>& vert,const std::vector<int>& ind,const std::vector<double>* normals,const std::vector<double>* textCoord)
 {
     commonInit();
     setLocalTransformation(reinitMesh(transformation,vert,ind,normals,textCoord));
@@ -102,12 +102,12 @@ CShape::~CShape()
     delete _dynMaterial;
 }
 
-C7Vector CShape::reinitMesh(const C7Vector* transformation,const std::vector<floatDouble>& vert,const std::vector<int>& ind,const std::vector<floatDouble>* normals,const std::vector<floatDouble>* textCoord)
+C7Vector CShape::reinitMesh(const C7Vector* transformation,const std::vector<double>& vert,const std::vector<int>& ind,const std::vector<double>* normals,const std::vector<double>* textCoord)
 {
     C7Vector retVal;
 
-    std::vector<floatDouble>* norms=nullptr;
-    std::vector<floatDouble> _norms;
+    std::vector<double>* norms=nullptr;
+    std::vector<double> _norms;
     if (normals!=nullptr)
     {
         norms=&_norms;
@@ -127,7 +127,7 @@ C7Vector CShape::reinitMesh(const C7Vector* transformation,const std::vector<flo
         retVal=_acceptNewGeometry(vert,ind,textCoord,norms);
     else
     {
-        std::vector<floatDouble> wvert(vert);
+        std::vector<double> wvert(vert);
         for (size_t i=0;i<vert.size()/3;i++)
         {
             C3Vector v(&vert[3*i+0]);
@@ -172,7 +172,7 @@ C7Vector CShape::reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeo
 
     newGeomInfo->preMultiplyAllVerticeLocalFrames(transformation);
     _mesh=newGeomInfo;
-    std::vector<floatDouble> wvert;
+    std::vector<double> wvert;
     std::vector<int> wind;
     getMeshWrapper()->getCumulativeMeshes(wvert,&wind,nullptr);
 
@@ -202,7 +202,7 @@ C3Vector CShape::getBoundingBoxHalfSizes() const
 
 void CShape::_computeMeshBoundingBox()
 {
-    std::vector<floatDouble> visibleVertices;
+    std::vector<double> visibleVertices;
     _mesh->getCumulativeMeshes(visibleVertices,nullptr,nullptr);
     for (size_t i=0;i<visibleVertices.size()/3;i++)
     {
@@ -213,7 +213,7 @@ void CShape::_computeMeshBoundingBox()
     }
 }
 
-C7Vector CShape::_acceptNewGeometry(const std::vector<floatDouble>& vert,const std::vector<int>& ind,const std::vector<floatDouble>* textCoord,const std::vector<floatDouble>* norm)
+C7Vector CShape::_acceptNewGeometry(const std::vector<double>& vert,const std::vector<int>& ind,const std::vector<double>* textCoord,const std::vector<double>* norm)
 {
     TRACE_INTERNAL;
     C7Vector retVal;
@@ -222,15 +222,15 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<floatDouble>& vert,const s
     removeMeshCalculationStructure();
 
     CMesh* newGeomInfo=new CMesh();
-    std::vector<floatDouble> wwert(vert);
+    std::vector<double> wwert(vert);
     std::vector<int> wwind(ind);
 
     if (textCoord!=nullptr)
     {
-        std::vector<floatFloat> f;
+        std::vector<float> f;
         f.resize(textCoord->size());
         for (size_t i=0;i<textCoord->size();i++)
-            f[i]=(floatFloat)textCoord->at(i);
+            f[i]=(float)textCoord->at(i);
         newGeomInfo->setTextureCoords(&f);
     }
     CMeshManip::removeNonReferencedVertices(wwert,wwind);
@@ -251,7 +251,7 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<floatDouble>& vert,const s
     // We align the bounding box:
     if (wwert.size()!=0)
     {
-        std::vector<floatDouble> dummyVert(wwert);
+        std::vector<double> dummyVert(wwert);
         std::vector<int> dummyInd(wwind);
         retVal=CAlgos::alignAndCenterGeometryAndGetTransformation(&dummyVert[0],(int)dummyVert.size(),&dummyInd[0],(int)dummyInd.size(),nullptr,0,true);
         getMeshWrapper()->preMultiplyAllVerticeLocalFrames(retVal.getInverse());
@@ -277,7 +277,7 @@ C7Vector CShape::_recomputeOrientation(C7Vector& m,bool alignWithMainAxis)
     getMeshWrapper()->preMultiplyAllVerticeLocalFrames(m);
 
     // 3. We calculate the new orientation:
-    std::vector<floatDouble> visibleVertices;
+    std::vector<double> visibleVertices;
     std::vector<int> visibleIndices;
     getMeshWrapper()->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
     C7Vector tr;
@@ -311,7 +311,7 @@ C7Vector CShape::_recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& e
 
     // 0. We set-up the absolute vertices and retrieve them:
     getMeshWrapper()->preMultiplyAllVerticeLocalFrames(m);
-    std::vector<floatDouble> visibleVertices;
+    std::vector<double> visibleVertices;
     std::vector<int> visibleIndices;
     getMeshWrapper()->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
 
@@ -348,7 +348,7 @@ C7Vector CShape::_recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& e
             minV.keepMin(v);
         }
     }
-    C3Vector newCenter((maxV(0)+minV(0))*0.5f,(maxV(1)+minV(1))*0.5f,(maxV(2)+minV(2))*0.5f); // relative pos
+    C3Vector newCenter((maxV(0)+minV(0))*0.5,(maxV(1)+minV(1))*0.5,(maxV(2)+minV(2))*0.5); // relative pos
     newCenter=tr*newCenter; // now abs pos
     tr.X=newCenter;
 
@@ -362,7 +362,7 @@ C7Vector CShape::_recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& e
     return(tr);
 }
 
-bool CShape::_getTubeReferenceFrame(const std::vector<floatDouble>& v,C7Vector& tr)
+bool CShape::_getTubeReferenceFrame(const std::vector<double>& v,C7Vector& tr)
 {
     tr.setIdentity();
     // 1) Do we have enough points?
@@ -371,14 +371,14 @@ bool CShape::_getTubeReferenceFrame(const std::vector<floatDouble>& v,C7Vector& 
     // 2) Get the longest distance:
     int indexLeft=-1;
     int indexRight=-1;
-    floatDouble longestDist=0.0f;
+    double longestDist=0.0;
     for (size_t i=0;i<v.size()/3;i++)
     {
         C3Vector pt1(&v[3*i+0]);
         for (size_t j=i+1;j<v.size()/3;j++)
         {
             C3Vector pt2(&v[3*j+0]);
-            floatDouble l=(pt1-pt2).getLength();
+            double l=(pt1-pt2).getLength();
             if (l>longestDist)
             {
                 longestDist=l;
@@ -394,15 +394,15 @@ bool CShape::_getTubeReferenceFrame(const std::vector<floatDouble>& v,C7Vector& 
     C3Vector rightPt1(&v[3*indexRight+0]);
     int indexLeft2=-1;
     int indexRight2=-1;
-    floatDouble leftDist=FLOAT_MAX;
-    floatDouble rightDist=FLOAT_MAX;
+    double leftDist=FLOAT_MAX;
+    double rightDist=FLOAT_MAX;
     for (size_t i=0;i<v.size()/3;i++)
     {
         C3Vector pt(&v[3*i+0]);
         if (int(i)!=indexLeft)
         {
-            floatDouble l=(pt-leftPt1).getLength();
-            if ( (l!=0.0f)&&(l<leftDist) )
+            double l=(pt-leftPt1).getLength();
+            if ( (l!=0.0)&&(l<leftDist) )
             {
                 leftDist=l;
                 indexLeft2=int(i);
@@ -410,8 +410,8 @@ bool CShape::_getTubeReferenceFrame(const std::vector<floatDouble>& v,C7Vector& 
         }
         if (i!=indexRight)
         {
-            floatDouble l=(pt-rightPt1).getLength();
-            if ( (l!=0.0f)&&(l<rightDist) )
+            double l=(pt-rightPt1).getLength();
+            if ( (l!=0.0)&&(l<rightDist) )
             {
                 rightDist=l;
                 indexRight2=int(i);
@@ -433,13 +433,13 @@ bool CShape::_getTubeReferenceFrame(const std::vector<floatDouble>& v,C7Vector& 
         C3Vector pt(&v[3*i+0]);
         if ( (int(i)!=indexLeft)&&(int(i)!=indexLeft2) )
         {
-            floatDouble l1=(pt-leftPt1).getLength();
-            floatDouble l2=(pt-leftPt2).getLength();
-            if ( (l1!=0.0f)&&(l2!=0.0f)&&(l1<leftDist) )
+            double l1=(pt-leftPt1).getLength();
+            double l2=(pt-leftPt2).getLength();
+            if ( (l1!=0.0)&&(l2!=0.0)&&(l1<leftDist) )
             {
 
-                floatDouble a=(leftPt1-pt).getAngle(leftPt2-pt);
-                if ( (a>1.0f*degToRad)&&(a<179.0f*degToRad) )
+                double a=(leftPt1-pt).getAngle(leftPt2-pt);
+                if ( (a>1.0*degToRad)&&(a<179.0*degToRad) )
                 {
                     leftDist=l1;
                     indexLeft3=int(i);
@@ -448,13 +448,13 @@ bool CShape::_getTubeReferenceFrame(const std::vector<floatDouble>& v,C7Vector& 
         }
         if ((i!=indexRight)&&(i!=indexRight2))
         {
-            floatDouble l1=(pt-rightPt1).getLength();
-            floatDouble l2=(pt-rightPt2).getLength();
-            if ( (l1!=0.0f)&&(l2!=0.0f)&&(l1<rightDist) )
+            double l1=(pt-rightPt1).getLength();
+            double l2=(pt-rightPt2).getLength();
+            if ( (l1!=0.0)&&(l2!=0.0)&&(l1<rightDist) )
             {
 
-                floatDouble a=(rightPt1-pt).getAngle(rightPt2-pt);
-                if ( (a>1.0f*degToRad)&&(a<179.0f*degToRad) )
+                double a=(rightPt1-pt).getAngle(rightPt2-pt);
+                if ( (a>1.0*degToRad)&&(a<179.0*degToRad) )
                 {
                     rightDist=l1;
                     indexRight3=int(i);
@@ -470,47 +470,47 @@ bool CShape::_getTubeReferenceFrame(const std::vector<floatDouble>& v,C7Vector& 
     C3Vector rightPt3(&v[3*indexRight3+0]);
     C3Vector nLeft(((leftPt1-leftPt3)^(leftPt2-leftPt3)).getNormalized());
     C3Vector nRight(((rightPt1-rightPt3)^(rightPt2-rightPt3)).getNormalized());
-    floatDouble a=nLeft.getAngle(nRight);
-    if ( (a>1.0f*degToRad)&&(a<179.0f*degToRad) )
+    double a=nLeft.getAngle(nRight);
+    if ( (a>1.0*degToRad)&&(a<179.0*degToRad) )
         return(false); // not precise enough
 
     // 6) Now get all points at each endings that are within 2% of distance to the end planes (relative to the longest distances) and calculate the average positions:
     C3Vector avgLeft,avgRight;
     avgLeft.clear();
     avgRight.clear();
-    floatDouble cntLeft=0.0f;
-    floatDouble cntRight=0.0f;
+    double cntLeft=0.0;
+    double cntRight=0.0;
     for (size_t i=0;i<v.size()/3;i++)
     {
         C3Vector pt(&v[3*i+0]);
         C3Vector leftV(pt-leftPt1);
-        floatDouble d=fabs(leftV*nLeft);
-        if (d<longestDist*0.02f)
+        double d=fabs(leftV*nLeft);
+        if (d<longestDist*0.02)
         {
-            cntLeft+=1.0f;
+            cntLeft+=1.0;
             avgLeft+=pt;
         }
 
         C3Vector rightV(pt-rightPt1);
         d=fabs(rightV*nRight);
-        if (d<longestDist*0.02f)
+        if (d<longestDist*0.02)
         {
-            cntRight+=1.0f;
+            cntRight+=1.0;
             avgRight+=pt;
         }
     }
-    if ( (cntLeft<3.99f)||(cntRight<3.99f) ) // at least 4 points at each ending! (extruded triangle doesn't work anyway because it is not centered in the bounding box)
+    if ( (cntLeft<3.99)||(cntRight<3.99) ) // at least 4 points at each ending! (extruded triangle doesn't work anyway because it is not centered in the bounding box)
         return(false); // should not happen
     avgLeft/=cntLeft;
     avgRight/=cntRight;
-    C3Vector avgPos((avgLeft+avgRight)*0.5f);
+    C3Vector avgPos((avgLeft+avgRight)*0.5);
 
     // 7) now compute a transformation matrix!
     C4X4Matrix m;
     m.setIdentity();
     m.X=avgPos;
     m.M.axis[2]=(avgLeft-avgRight).getNormalized();
-    m.M.axis[0]=C3Vector(1.02f,1.33f,1.69f).getNormalized(); // just a random vector;
+    m.M.axis[0]=C3Vector(1.02,1.33,1.69).getNormalized(); // just a random vector;
     m.M.axis[1]=(m.M.axis[2]^m.M.axis[0]).getNormalized();
     m.M.axis[0]=(m.M.axis[1]^m.M.axis[2]).getNormalized();
     tr=m.getTransformation();
@@ -538,13 +538,13 @@ bool CShape::_getTubeReferenceFrame(const std::vector<floatDouble>& v,C7Vector& 
     C3Vector vars(fabs(maxV(0)+minV(0)),fabs(maxV(1)+minV(1)),fabs(maxV(2)+minV(2)));
     for (size_t i=0;i<3;i++)
     {
-        if (vars(i)/dims(1)>0.001f) // 0.1% tolerance relative to the box dimension
+        if (vars(i)/dims(1)>0.001) // 0.1% tolerance relative to the box dimension
             return(false); // the bounding box would not be centered!
     }
     return(true);
 }
 
-bool CShape::_getCuboidReferenceFrame(const std::vector<floatDouble>& v,const std::vector<int>& ind,C7Vector& tr)
+bool CShape::_getCuboidReferenceFrame(const std::vector<double>& v,const std::vector<int>& ind,C7Vector& tr)
 {
     tr.setIdentity();
     // 1) Do we have enough points?
@@ -552,7 +552,7 @@ bool CShape::_getCuboidReferenceFrame(const std::vector<floatDouble>& v,const st
         return(false);
     // 2) Get the biggest triangle (in surface)
     int biggestTriIndex=-1;
-    floatDouble biggestTriSurface=0.0f;
+    double biggestTriSurface=0.0;
     C3Vector triangleN1;
     for (int i=0;i<int(ind.size())/3;i++)
     {
@@ -561,7 +561,7 @@ bool CShape::_getCuboidReferenceFrame(const std::vector<floatDouble>& v,const st
         C3Vector pt3(&v[3*ind[3*i+2]+0]);
         C3Vector v1(pt1-pt2);
         C3Vector v2(pt1-pt3);
-        floatDouble s=(v1^v2).getLength();
+        double s=(v1^v2).getLength();
         if (s>biggestTriSurface)
         {
             biggestTriSurface=s;
@@ -574,7 +574,7 @@ bool CShape::_getCuboidReferenceFrame(const std::vector<floatDouble>& v,const st
 
     // 3) Get the biggest triangle where the surface normal is perpendicular to the first triangle
     int biggestTriIndex2=-1;
-    floatDouble biggestTriSurface2=0.0f;
+    double biggestTriSurface2=0.0;
     C3Vector triangleN2;
     for (int i=0;i<int(ind.size())/3;i++)
     {
@@ -585,9 +585,9 @@ bool CShape::_getCuboidReferenceFrame(const std::vector<floatDouble>& v,const st
             C3Vector pt3(&v[3*ind[3*i+2]+0]);
             C3Vector v1(pt1-pt2);
             C3Vector v2(pt1-pt3);
-            floatDouble s=(v1^v2).getLength();
+            double s=(v1^v2).getLength();
             C3Vector n((v1^v2).getNormalized());
-            if ((s>biggestTriSurface2)&&(fabs(triangleN1*n)<0.0001f))
+            if ((s>biggestTriSurface2)&&(fabs(triangleN1*n)<0.0001))
             {
                 biggestTriSurface2=s;
                 biggestTriIndex2=i;
@@ -626,7 +626,7 @@ bool CShape::_getCuboidReferenceFrame(const std::vector<floatDouble>& v,const st
             minV.keepMin(pt);
         }
     }
-    C3Vector avgPos((maxV(0)+minV(0))*0.5f,(maxV(1)+minV(1))*0.5f,(maxV(2)+minV(2))*0.5f);
+    C3Vector avgPos((maxV(0)+minV(0))*0.5,(maxV(1)+minV(1))*0.5,(maxV(2)+minV(2))*0.5);
     avgPos=m*avgPos;
     m.X=avgPos;
 
@@ -634,8 +634,8 @@ bool CShape::_getCuboidReferenceFrame(const std::vector<floatDouble>& v,const st
     C3Vector dim(maxV(0)-minV(0),maxV(1)-minV(1),maxV(2)-minV(2));
     C3X3Matrix rot;
     rot.setIdentity();
-    floatDouble xDim=dim(0);
-    floatDouble yDim=dim(1);
+    double xDim=dim(0);
+    double yDim=dim(1);
     if ((dim(0)>dim(1))&&(dim(0)>dim(2)))
     {
         rot.buildYRotation(piValD2);
@@ -658,13 +658,13 @@ bool CShape::_getCuboidReferenceFrame(const std::vector<floatDouble>& v,const st
     return(true);
 }
 
-void CShape::scaleMesh(floatDouble xVal,floatDouble yVal,floatDouble zVal)
+void CShape::scaleMesh(double xVal,double yVal,double zVal)
 {   // The geometric resource is scaled and the bounding box is recomputed.
-    floatDouble xp,yp,zp;
+    double xp,yp,zp;
     scaleMesh(xVal,yVal,zVal,xp,yp,zp);
 }
 
-void CShape::scaleMesh(floatDouble x,floatDouble y,floatDouble z,floatDouble& xp,floatDouble& yp,floatDouble& zp)
+void CShape::scaleMesh(double x,double y,double z,double& xp,double& yp,double& zp)
 {   // The geometric resource is scaled and the bounding box is recomputed.
     // Normals are not recomputed if xVal==yVal==yVal
     _meshModificationCounter++;
@@ -674,10 +674,10 @@ void CShape::scaleMesh(floatDouble x,floatDouble y,floatDouble z,floatDouble& xp
         { // we have a pure mesh (non-group)
             int purePrim=getSingleMesh()->getPurePrimitiveType();
             if (purePrim==sim_primitiveshape_plane)
-                z=1.0f;
+                z=1.0;
             if (purePrim==sim_primitiveshape_disc)
             {
-                z=1.0f;
+                z=1.0;
                 y=x;
             }
             if ( (purePrim==sim_primitiveshape_spheroid)||(purePrim==sim_primitiveshape_capsule) )
@@ -879,7 +879,7 @@ bool CShape::isPotentiallyRenderable() const
 
 void CShape::computeBoundingBox()
 {
-    _setBoundingBox(getBoundingBoxHalfSizes()*-1.0f,getBoundingBoxHalfSizes());
+    _setBoundingBox(getBoundingBoxHalfSizes()*-1.0,getBoundingBoxHalfSizes());
 }
 
 void CShape::commonInit()
@@ -1064,7 +1064,7 @@ void CShape::display_extRenderer(CViewableBase* renderingObject,int displayAttri
     }
 }
 
-void CShape::scaleObject(floatDouble scalingFactor)
+void CShape::scaleObject(double scalingFactor)
 {   
     scaleMesh(scalingFactor,scalingFactor,scalingFactor); // will set the geomObject dynamics full refresh flag!
     CSceneObject::scaleObject(scalingFactor);
@@ -1072,9 +1072,9 @@ void CShape::scaleObject(floatDouble scalingFactor)
     _dynamicsResetFlag=true;
 }
 
-void CShape::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
+void CShape::scaleObjectNonIsometrically(double x,double y,double z)
 {
-    floatDouble xp,yp,zp;
+    double xp,yp,zp;
     scaleMesh(x,y,z,xp,yp,zp); // will set the geomObject dynamics full refresh flag!
     CSceneObject::scaleObjectNonIsometrically(xp,yp,zp);
     pushObjectRefreshEvent();
@@ -1243,16 +1243,16 @@ void CShape::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Idv");
-            ar.flt() << (floatFloat)_initialDynamicLinearVelocity(0) << (floatFloat)_initialDynamicLinearVelocity(1) << (floatFloat)_initialDynamicLinearVelocity(2);
-            ar.flt() << (floatFloat)_initialDynamicAngularVelocity(0) << (floatFloat)_initialDynamicAngularVelocity(1) << (floatFloat)_initialDynamicAngularVelocity(2);
+            ar << (float)_initialDynamicLinearVelocity(0) << (float)_initialDynamicLinearVelocity(1) << (float)_initialDynamicLinearVelocity(2);
+            ar << (float)_initialDynamicAngularVelocity(0) << (float)_initialDynamicAngularVelocity(1) << (float)_initialDynamicAngularVelocity(2);
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_dv");
-            ar.dbl() << _initialDynamicLinearVelocity(0) << _initialDynamicLinearVelocity(1) << _initialDynamicLinearVelocity(2);
-            ar.dbl() << _initialDynamicAngularVelocity(0) << _initialDynamicAngularVelocity(1) << _initialDynamicAngularVelocity(2);
+            ar << _initialDynamicLinearVelocity(0) << _initialDynamicLinearVelocity(1) << _initialDynamicLinearVelocity(2);
+            ar << _initialDynamicAngularVelocity(0) << _initialDynamicAngularVelocity(1) << _initialDynamicAngularVelocity(2);
             ar.flush();
-#endif
+
 
             ar.storeDataName("Sss");
             unsigned char nothing=0;
@@ -1317,6 +1317,7 @@ void CShape::serialize(CSer& ar)
                         _computeMeshBoundingBox();
                         getMeshWrapper()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
                     }
+
                     if (theName.compare("_oi")==0)
                     {
                         noHit=false;
@@ -1332,6 +1333,7 @@ void CShape::serialize(CSer& ar)
                         }
                         _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData(&data[0]);
                     }
+
                     if (theName.compare("Mat")==0)
                     {
                         noHit=false;
@@ -1350,23 +1352,25 @@ void CShape::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla,bli,blo;
-                        ar.flt() >> bla >> bli >> blo;
-                        _initialDynamicLinearVelocity(0)=(floatDouble)bla;
-                        _initialDynamicLinearVelocity(1)=(floatDouble)bli;
-                        _initialDynamicLinearVelocity(2)=(floatDouble)blo;
-                        ar.flt() >> bla >> bli >> blo;
-                        _initialDynamicAngularVelocity(0)=(floatDouble)bla;
-                        _initialDynamicAngularVelocity(1)=(floatDouble)bli;
-                        _initialDynamicAngularVelocity(2)=(floatDouble)blo;
+                        float bla,bli,blo;
+                        ar >> bla >> bli >> blo;
+                        _initialDynamicLinearVelocity(0)=(double)bla;
+                        _initialDynamicLinearVelocity(1)=(double)bli;
+                        _initialDynamicLinearVelocity(2)=(double)blo;
+                        ar >> bla >> bli >> blo;
+                        _initialDynamicAngularVelocity(0)=(double)bla;
+                        _initialDynamicAngularVelocity(1)=(double)bli;
+                        _initialDynamicAngularVelocity(2)=(double)blo;
                     }
+
                     if (theName.compare("_dv")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _initialDynamicLinearVelocity(0) >> _initialDynamicLinearVelocity(1) >> _initialDynamicLinearVelocity(2);
-                        ar.dbl() >> _initialDynamicAngularVelocity(0) >> _initialDynamicAngularVelocity(1) >> _initialDynamicAngularVelocity(2);
+                        ar >> _initialDynamicLinearVelocity(0) >> _initialDynamicLinearVelocity(1) >> _initialDynamicLinearVelocity(2);
+                        ar >> _initialDynamicAngularVelocity(0) >> _initialDynamicAngularVelocity(1) >> _initialDynamicAngularVelocity(2);
                     }
+
 
                     if (theName=="Sss")
                     {
@@ -1449,10 +1453,10 @@ void CShape::serialize(CSer& ar)
                 ar.xmlPushNewNode("dynamics");
                 ar.xmlAddNode_int("respondableMask",_dynamicCollisionMask);
                 C3Vector vel=_initialDynamicLinearVelocity;
-                vel*=180.0f/piValue;
+                vel*=180.0/piValue;
                 ar.xmlAddNode_floats("initialLinearVelocity",vel.data,3);
                 vel=_initialDynamicAngularVelocity;
-                vel*=180.0f/piValue;
+                vel*=180.0/piValue;
                 ar.xmlAddNode_floats("initialAngularVelocity",vel.data,3);
                 ar.xmlPushNewNode("switches");
                 ar.xmlAddNode_bool("static",_shapeIsDynamicallyStatic);
@@ -1484,7 +1488,7 @@ void CShape::serialize(CSer& ar)
                     else
                         ar.xmlGetNode_binFile("file",str);
 
-                    std::vector<floatDouble> wvert;
+                    std::vector<double> wvert;
                     std::vector<int> wind;
                     _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
                     _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData((unsigned char*)str.c_str());
@@ -1517,9 +1521,9 @@ void CShape::serialize(CSer& ar)
                     _dynamicCollisionMask=(unsigned short)m;
                     C3Vector vel;
                     ar.xmlGetNode_floats("initialLinearVelocity",vel.data,3);
-                    _initialDynamicLinearVelocity=vel*piValue/180.0f;
+                    _initialDynamicLinearVelocity=vel*piValue/180.0;
                     ar.xmlGetNode_floats("initialAngularVelocity",vel.data,3);
-                    _initialDynamicAngularVelocity=vel*piValue/180.0f;
+                    _initialDynamicAngularVelocity=vel*piValue/180.0;
                     if (ar.xmlPushChildNode("switches"))
                     {
                         ar.xmlGetNode_bool("static",_shapeIsDynamicallyStatic);
@@ -1620,7 +1624,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                             ar >> dummy;
                             data.push_back(dummy);
                         }
-                        std::vector<floatDouble> wvert;
+                        std::vector<double> wvert;
                         std::vector<int> wind;
                         _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
                         _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData(&data[0]);
@@ -1670,7 +1674,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                 else
                     ar.xmlGetNode_binFile("file",str);
 
-                std::vector<floatDouble> wvert;
+                std::vector<double> wvert;
                 std::vector<int> wind;
                 _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
                 _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData((unsigned char*)str.c_str());
@@ -1769,11 +1773,11 @@ void CShape::initializeMeshCalculationStructureIfNeeded()
 {
     if ((_meshCalculationStructure==nullptr)&&(_mesh!=nullptr))
     {
-        std::vector<floatDouble> wvert;
+        std::vector<double> wvert;
         std::vector<int> wind;
         _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
-        floatDouble maxTriSize=App::currentWorld->environment->getCalculationMaxTriangleSize();
-        floatDouble minTriSize=(std::max<floatDouble>(std::max<floatDouble>(_meshBoundingBoxHalfSizes(0),_meshBoundingBoxHalfSizes(1)),_meshBoundingBoxHalfSizes(2)))*2.0f*App::currentWorld->environment->getCalculationMinRelTriangleSize();
+        double maxTriSize=App::currentWorld->environment->getCalculationMaxTriangleSize();
+        double minTriSize=(std::max<double>(std::max<double>(_meshBoundingBoxHalfSizes(0),_meshBoundingBoxHalfSizes(1)),_meshBoundingBoxHalfSizes(2)))*2.0*App::currentWorld->environment->getCalculationMinRelTriangleSize();
         if (maxTriSize<minTriSize)
             maxTriSize=minTriSize;
         _meshCalculationStructure=CPluginContainer::geomPlugin_createMesh(&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size(),nullptr,maxTriSize,App::userSettings->triCountInOBB);
@@ -1840,20 +1844,20 @@ void CShape::setVisibleEdges(bool v)
     }
 }
 
-floatDouble CShape::getShadingAngle() const
+double CShape::getShadingAngle() const
 {
-    floatDouble retVal=0.0f;
+    double retVal=0.0;
     if (getMeshWrapper()->isMesh())
         retVal=getSingleMesh()->getShadingAngle();
     return(retVal);
 }
 
-void CShape::setShadingAngle(floatDouble a)
+void CShape::setShadingAngle(double a)
 {
     if (getMeshWrapper()->isMesh())
     {
         CMesh* m=getSingleMesh();
-        if (fabs(m->getShadingAngle()-a)>0.001f)
+        if (fabs(m->getShadingAngle()-a)>0.001)
         {
             m->setShadingAngle(a);
             pushObjectRefreshEvent();
@@ -1895,12 +1899,12 @@ void CShape::setShapeWireframe_OLD(bool w)
         getSingleMesh()->setWireframe_OLD(w);
 }
 
-bool CShape::doesShapeCollideWithShape(CShape* collidee,std::vector<floatDouble>* intersections)
+bool CShape::doesShapeCollideWithShape(CShape* collidee,std::vector<double>* intersections)
 {   // If intersections is different from nullptr, we check for all intersections and
     // intersection segments are appended to the vector
 
-    std::vector<floatDouble> _intersect;
-    std::vector<floatDouble>* _intersectP=nullptr;
+    std::vector<double> _intersect;
+    std::vector<double>* _intersectP=nullptr;
     if (intersections!=nullptr)
         _intersectP=&_intersect;
     if ( CPluginContainer::geomPlugin_getMeshMeshCollision(_meshCalculationStructure,getFullCumulativeTransformation(),collidee->_meshCalculationStructure,collidee->getFullCumulativeTransformation(),_intersectP,nullptr,nullptr))
@@ -1912,7 +1916,7 @@ bool CShape::doesShapeCollideWithShape(CShape* collidee,std::vector<floatDouble>
     return(false);
 }
 
-bool CShape::getDistanceToDummy_IfSmaller(CDummy* dummy,floatDouble &dist,floatDouble ray[7],int& buffer)
+bool CShape::getDistanceToDummy_IfSmaller(CDummy* dummy,double &dist,double ray[7],int& buffer)
 {   // Distance is measured from this to dummy
     // If the distance is smaller than 'dist', 'dist' is replaced and the return value is true
     // If the distance is bigger, 'dist' doesn't change and the return value is false
@@ -1931,7 +1935,7 @@ bool CShape::getDistanceToDummy_IfSmaller(CDummy* dummy,floatDouble &dist,floatD
     return(false);
 }
 
-bool CShape::getShapeShapeDistance_IfSmaller(CShape* it,floatDouble &dist,floatDouble ray[7],int buffer[2])
+bool CShape::getShapeShapeDistance_IfSmaller(CShape* it,double &dist,double ray[7],int buffer[2])
 {   // this is shape number 1, 'it' is shape number 2 (for ordering (measured from 1 to 2))
     // If the distance is smaller than 'dist', 'dist' is replaced and the return value is true
     // If the distance is bigger, 'dist' doesn't change and the return value is false
@@ -1989,19 +1993,19 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
         meshData->appendArrayObject(mesh);
 
         C7Vector tr(geom->getVerticeLocalFrame());
-        const std::vector<floatDouble>* wvert=geom->getVertices();
+        const std::vector<float>* wvert=geom->getVerticesForDisplayAndDisk();
         const std::vector<int>* wind=geom->getIndices();
-        const std::vector<floatDouble>* wnorm=geom->getNormals();
-        std::vector<floatDouble> vertices;
+        const std::vector<float>* wnorm=geom->getNormalsForDisplayAndDisk();
+        std::vector<float> vertices;
         vertices.resize(wvert->size());
         for (size_t j=0;j<wvert->size()/3;j++)
         {
             C3Vector v;
             v.setData(wvert->data()+j*3);
             v=tr*v;
-            vertices[3*j+0]=v(0);
-            vertices[3*j+1]=v(1);
-            vertices[3*j+2]=v(2);
+            vertices[3*j+0]=(float)v(0);
+            vertices[3*j+1]=(float)v(1);
+            vertices[3*j+2]=(float)v(2);
         }
         CCbor obj(nullptr,0);
         size_t l;
@@ -2014,23 +2018,23 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
         buff=(const char*)obj.getBuff(l);
         mesh->appendMapObject_stringString("indices",buff,l,true);
 
-        std::vector<floatDouble> normals;
+        std::vector<float> normals;
         normals.resize(wind->size()*3);
         for (size_t j=0;j<wind->size();j++)
         {
             C3Vector n;
             n.setData(&(wnorm[0])[0]+j*3);
             n=tr.Q*n; // only orientation
-            normals[3*j+0]=n(0);
-            normals[3*j+1]=n(1);
-            normals[3*j+2]=n(2);
+            normals[3*j+0]=(float)n(0);
+            normals[3*j+1]=(float)n(1);
+            normals[3*j+2]=(float)n(2);
         }
         obj.clear();
         obj.appendFloatArray(normals.data(),normals.size());
         buff=(const char*)obj.getBuff(l);
         mesh->appendMapObject_stringString("normals",buff,l,true);
 
-        floatDouble c[9];
+        float c[9];
         geom->color.getColor(c+0,sim_colorcomponent_ambient_diffuse);
         geom->color.getColor(c+3,sim_colorcomponent_specular);
         geom->color.getColor(c+6,sim_colorcomponent_emission);
@@ -2040,9 +2044,9 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
         mesh->appendMapObject_stringFloat("shadingAngle",geom->getShadingAngle());
         mesh->appendMapObject_stringBool("showEdges",geom->getVisibleEdges());
         mesh->appendMapObject_stringBool("culling",geom->getCulling());
-        floatDouble transp=0.0f;
+        double transp=0.0;
         if (geom->color.getTranslucid())
-            transp=1.0f-geom->color.getOpacity();
+            transp=1.0-geom->color.getOpacity();
         mesh->appendMapObject_stringFloat("transparency",transp);
 
 
@@ -2055,7 +2059,7 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 
         CTextureProperty* tp=geom->getTextureProperty();
         CTextureObject* to=nullptr;
-        const std::vector<floatFloat>* tc=nullptr;
+        const std::vector<float>* tc=nullptr;
         if (tp!=nullptr)
         {
             to=tp->getTextureObject();
@@ -2165,13 +2169,13 @@ CSceneObject* CShape::copyYourself()
     return(newShape);
 }
 
-void CShape::setColor(const char* colorName,int colorComponent,floatDouble r,floatDouble g,floatDouble b)
+void CShape::setColor(const char* colorName,int colorComponent,float r,float g,float b)
 {
-    floatDouble rgb[3]={r,g,b};
+    float rgb[3]={r,g,b};
     setColor(colorName,colorComponent,rgb);
 }
 
-void CShape::setColor(const char* colorName,int colorComponent,const floatDouble* rgbData)
+void CShape::setColor(const char* colorName,int colorComponent,const float* rgbData)
 {
     int rgbDataOffset=0;
     int cnt=0;
@@ -2183,7 +2187,7 @@ void CShape::setColor(const char* colorName,int colorComponent,const floatDouble
         actualizeContainsTransparentComponent();
 }
 
-bool CShape::getColor(const char* colorName,int colorComponent,floatDouble* rgbData)
+bool CShape::getColor(const char* colorName,int colorComponent,float* rgbData)
 {
     int rgbDataOffset=0;
     return(getMeshWrapper()->getColor(colorName,colorComponent,rgbData,rgbDataOffset));

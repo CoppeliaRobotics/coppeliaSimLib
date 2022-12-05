@@ -15,8 +15,8 @@ public:
     int clearIntegerSignal(const char* signalName);
     int clearAllIntegerSignals();
 
-    void setFloatSignal(const char* signalName,float value,int creatorHandle);
-    bool getFloatSignal(const char* signalName,float& value);
+    void setFloatSignal(const char* signalName,double value,int creatorHandle);
+    bool getFloatSignal(const char* signalName,double& value);
     bool getFloatSignalNameAtIndex(int index,std::string& signalName);
     int clearFloatSignal(const char* signalName);
     int clearAllFloatSignals();
@@ -44,7 +44,7 @@ protected:
     std::vector<int> _intSignalCreatorHandles;
 
     std::vector<std::string> _floatSignalNames;
-    std::vector<float> _floatSignalValues;
+    std::vector<double> _floatSignalValues;
     std::vector<int> _floatSignalCreatorHandles;
 
     std::vector<std::string> _stringSignalNames;

@@ -4,7 +4,7 @@
 #include "tt.h"
 
 
-bool CProxSensorRoutine::detectEntity(int sensorID,int entityID,bool closestFeatureMode,bool angleLimitation,float maxAngle,C3Vector& detectedPt,float& dist,bool frontFace,bool backFace,int& detectedObject,float minThreshold,C3Vector& triNormal,bool overrideDetectableFlagIfNonCollection)
+bool CProxSensorRoutine::detectEntity(int sensorID,int entityID,bool closestFeatureMode,bool angleLimitation,double maxAngle,C3Vector& detectedPt,double& dist,bool frontFace,bool backFace,int& detectedObject,double minThreshold,C3Vector& triNormal,bool overrideDetectableFlagIfNonCollection)
 { // entityID==-1 --> checks all objects in the scene
     bool returnValue=false;
     detectedObject=-1;
@@ -66,9 +66,9 @@ bool CProxSensorRoutine::detectEntity(int sensorID,int entityID,bool closestFeat
     return(returnValue);
 }
 
-bool CProxSensorRoutine::detectPrimitive(int sensorID,float* vertexPointer,int itemType,int itemCount,
-        bool closestFeatureMode,bool angleLimitation,float maxAngle,C3Vector& detectedPt,
-        float& dist,bool frontFace,bool backFace,float minThreshold,C3Vector& triNormal)
+bool CProxSensorRoutine::detectPrimitive(int sensorID,double* vertexPointer,int itemType,int itemCount,
+        bool closestFeatureMode,bool angleLimitation,double maxAngle,C3Vector& detectedPt,
+        double& dist,bool frontFace,bool backFace,double minThreshold,C3Vector& triNormal)
 {
     bool returnValue=false;
     CProxSensor* sens=App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorID);
@@ -95,10 +95,10 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,float* vertexPointer,int i
             C3Vector averageDetectionVector;
             C3Vector averageNormalVector;
             averageDetectionVector.clear();
-            float averageDetectionDist=0.0f;
+            double averageDetectionDist=0.0;
 
             const std::vector<C3Vector> normalizedRays=sens->getPointerToRandomizedRays()[0];
-            std::vector<float> individualRayDetectionState=sens->getPointerToRandomizedRayDetectionStates()[0];
+            std::vector<double> individualRayDetectionState=sens->getPointerToRandomizedRayDetectionStates()[0];
             int requiredDetectionCount=sens->getRandomizedDetectionCountForDetection();
 
             for (size_t j=0;j<normalizedRays.size();j++)
@@ -106,7 +106,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,float* vertexPointer,int i
                 C3Vector lp(normalizedRays[j]*sens->convexVolume->getRadius()); // Here we have radius instead of offset! Special with randomized detection!!
                 C3Vector lvFar(normalizedRays[j]*sens->convexVolume->getRange());
 
-                float distTmp=dist;
+                double distTmp=dist;
                 C3Vector detectedPtTmp;
                 C3Vector triNormalNotNormalizedTmp;
                 bool detect=false;
@@ -121,7 +121,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,float* vertexPointer,int i
                     e1*=sensInv;
                     e0-=a0;
                     e1-=a0;
-                    float _maxAngle=0.0f;
+                    double _maxAngle=0.0;
                     if (angleLimitation)
                         _maxAngle=maxAngle;
                     if (CPluginContainer::geomPlugin_volumeSensorDetectTriangleIfSmaller(sens->convexVolume->planesInside,sens->convexVolume->planesOutside,a0,e0,e1,dist,frontFace,backFace,_maxAngle,&detectedPt,&triNormal))
@@ -157,9 +157,9 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,float* vertexPointer,int i
             if ( (normalDetectionCnt>=requiredDetectionCount)||((normalDetectionCnt>0)&&(!closestFeatureMode)) )
             {
                 returnValue=true;
-                dist=averageDetectionDist/float(normalDetectionCnt);
-                detectedPt=averageDetectionVector/float(normalDetectionCnt);
-                triNormal=averageNormalVector/float(normalDetectionCnt);
+                dist=averageDetectionDist/double(normalDetectionCnt);
+                detectedPt=averageDetectionVector/double(normalDetectionCnt);
+                triNormal=averageNormalVector/double(normalDetectionCnt);
             }
         }
     }
@@ -174,7 +174,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,float* vertexPointer,int i
                 { // detecting points
                     C3Vector p0(vertexPointer[3*i+0],vertexPointer[3*i+1],vertexPointer[3*i+2]);
                     p0*=sensInv;
-                    float l=p0.getLength();
+                    double l=p0.getLength();
                     if (l<=dist)
                     { // ok, the point is closer..
                         detect=CPluginContainer::geomPlugin_isPointInVolume1AndOutVolume2(sens->convexVolume->planesInside,sens->convexVolume->planesOutside,p0);
@@ -188,7 +188,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,float* vertexPointer,int i
                     C3Vector p1(vertexPointer[6*i+3],vertexPointer[6*i+4],vertexPointer[6*i+5]);
                     p0*=sensInv;
                     p1*=sensInv;
-                    float _maxAngle=0.0f;
+                    double _maxAngle=0.0;
                     if (angleLimitation)
                         _maxAngle=maxAngle;
                     detect=CPluginContainer::geomPlugin_volumeSensorDetectSegmentIfSmaller(sens->convexVolume->planesInside,sens->convexVolume->planesOutside,p0,p1-p0,dist,_maxAngle,&detectedPt);
@@ -204,7 +204,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,float* vertexPointer,int i
                 e1*=sensInv;
                 e0-=a0;
                 e1-=a0;
-                float _maxAngle=0.0f;
+                double _maxAngle=0.0;
                 if (angleLimitation)
                     _maxAngle=maxAngle;
                 detect=CPluginContainer::geomPlugin_volumeSensorDetectTriangleIfSmaller(sens->convexVolume->planesInside,sens->convexVolume->planesOutside,a0,e0,e1,dist,frontFace,backFace,_maxAngle,&detectedPt,&triNormal);
@@ -233,7 +233,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,float* vertexPointer,int i
     return(returnValue);
 }
 
-int CProxSensorRoutine::_detectDummy(CProxSensor* sensor,CDummy* dummy,C3Vector& detectedPt,float& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,float maxAngle,bool frontFace,bool backFace,float minThreshold)
+int CProxSensorRoutine::_detectDummy(CProxSensor* sensor,CDummy* dummy,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold)
 { // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered the sensor
     if (dist==0.0)
         return(-1);
@@ -243,13 +243,13 @@ int CProxSensorRoutine::_detectDummy(CProxSensor* sensor,CDummy* dummy,C3Vector&
         return(-1); // probably not needed
     if (!_doesSensorVolumeOverlapWithObjectBoundingBox(sensor,dummy))
         return(-1);
-    float d=_getApproxPointObjectBoundingBoxDistance(sensor->getFullCumulativeTransformation().X,dummy);
+    double d=_getApproxPointObjectBoundingBoxDistance(sensor->getFullCumulativeTransformation().X,dummy);
     if (d>dist)
         return(-1);
 
     C7Vector inv(sensor->getFullCumulativeTransformation().getInverse());
     C4X4Matrix dummyCTM((inv*dummy->getFullCumulativeTransformation()).getMatrix());
-    float theDistance=dummyCTM.X.getLength();
+    double theDistance=dummyCTM.X.getLength();
     if (CPluginContainer::geomPlugin_isPointInVolume1AndOutVolume2(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,dummyCTM.X) )
     {
         if (theDistance<dist)
@@ -268,13 +268,13 @@ int CProxSensorRoutine::_detectDummy(CProxSensor* sensor,CDummy* dummy,C3Vector&
     return(-1);
 }
 
-int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector& detectedPt,float& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,float maxAngle,bool frontFace,bool backFace,float minThreshold)
+int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold)
 { // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered the sensor
     if (dist==0.0)
         return(-1);
     if (!_doesSensorVolumeOverlapWithObjectBoundingBox(sensor,shape))
         return(-1);
-    float d=_getApproxPointObjectBoundingBoxDistance(sensor->getFullCumulativeTransformation().X,shape);
+    double d=_getApproxPointObjectBoundingBoxDistance(sensor->getFullCumulativeTransformation().X,shape);
     if (d>dist)
         return(-1);
 
@@ -297,18 +297,18 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
         C3Vector averageNormalVector;
         averageDetectionVector.clear();
         averageNormalVector.clear();
-        float averageDetectionDist=0.0f;
+        double averageDetectionDist=0.0;
         const std::vector<C3Vector> normalizedRays=sensor->getPointerToRandomizedRays()[0];
-        std::vector<float> individualRayDetectionState=sensor->getPointerToRandomizedRayDetectionStates()[0];
+        std::vector<double> individualRayDetectionState=sensor->getPointerToRandomizedRayDetectionStates()[0];
         int requiredDetectionCount=sensor->getRandomizedDetectionCountForDetection();
         for (size_t i=0;i<normalizedRays.size();i++)
         {
             C3Vector lp(normalizedRays[i]*sensor->convexVolume->getRadius()); // Here we have radius instead of offset! Special with randomized detection!!
             C3Vector lvFar(normalizedRays[i]*sensor->convexVolume->getRange());
-            float distTmp=dist;
+            double distTmp=dist;
             C3Vector detectedPtTmp;
             C3Vector triNormalNotNormalizedTmp;
-            float _maxAngle=0.0f;
+            double _maxAngle=0.0;
             if (angleLimitation)
                 _maxAngle=maxAngle;
             bool result=CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(lp,lvFar,shape->_meshCalculationStructure,shapeITr,distTmp,sensor->convexVolume->getSmallestDistanceAllowed(),!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPtTmp,&triNormalNotNormalizedTmp,closeDetectionTriggered);
@@ -331,22 +331,22 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
         if (normalDetectionCnt>=requiredDetectionCount)
         {
             retVal=shape->getObjectHandle();
-            dist=averageDetectionDist/float(normalDetectionCnt);
-            detectedPt=averageDetectionVector/float(normalDetectionCnt);
-            triNormalNotNormalized=averageNormalVector/float(normalDetectionCnt);
+            dist=averageDetectionDist/double(normalDetectionCnt);
+            detectedPt=averageDetectionVector/double(normalDetectionCnt);
+            triNormalNotNormalized=averageNormalVector/double(normalDetectionCnt);
         }
     }
     else
     {
         if (sensor->getSensorType()==sim_proximitysensor_ray_subtype)
         { // ray-type sensor here:
-            C3Vector lp(0.0f,0.0f,sensor->convexVolume->getOffset());
-            C3Vector lvFar(0.0f,0.0f,sensor->convexVolume->getRange());
+            C3Vector lp(0.0,0.0,sensor->convexVolume->getOffset());
+            C3Vector lvFar(0.0,0.0,sensor->convexVolume->getRange());
             bool* closeDetectionTriggered=nullptr;
             bool dummy=0;
             if (sensor->convexVolume->getSmallestDistanceEnabled())
                 closeDetectionTriggered=&dummy;
-            float _maxAngle=0.0f;
+            double _maxAngle=0.0;
             if (angleLimitation)
                 _maxAngle=maxAngle;
             bool result=CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(lp,lvFar,shape->_meshCalculationStructure,shapeITr,dist,sensor->convexVolume->getSmallestDistanceAllowed(),!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized,closeDetectionTriggered);
@@ -360,7 +360,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
         }
         else
         { // non-ray-type sensors here:
-            float _maxAngle=0.0f;
+            double _maxAngle=0.0;
             if (angleLimitation)
                 _maxAngle=maxAngle;
             if (CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,shape->_meshCalculationStructure,shapeITr,dist,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized))
@@ -381,7 +381,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
     return(retVal);
 }
 
-int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vector& detectedPt,float& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,float maxAngle,bool frontFace,bool backFace,float minThreshold)
+int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold)
 { // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered the sensor
     if (dist==0.0)
         return(-1);
@@ -389,7 +389,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vect
         return(-1);
     if (!_doesSensorVolumeOverlapWithObjectBoundingBox(sensor,octree))
         return(-1);
-    float d=_getApproxPointObjectBoundingBoxDistance(sensor->getFullCumulativeTransformation().X,octree);
+    double d=_getApproxPointObjectBoundingBoxDistance(sensor->getFullCumulativeTransformation().X,octree);
     if (d>dist)
         return(-1);
 
@@ -399,9 +399,9 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vect
     C7Vector sensTrInv(sensTr.getInverse());
     C7Vector octreeITr(sensTrInv*octree->getFullCumulativeTransformation());
 
-    float cosAngle=(float)cos(maxAngle);
+    double cosAngle=(double)cos(maxAngle);
     if (!angleLimitation)
-        cosAngle=2.0f; // This means we don't want to check for a max angle!
+        cosAngle=2.0; // This means we don't want to check for a max angle!
 
     if (sensor->getRandomizedDetection())
     {
@@ -410,21 +410,21 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vect
         C3Vector averageNormalVector;
         averageDetectionVector.clear();
         averageNormalVector.clear();
-        float averageDetectionDist=0.0f;
+        double averageDetectionDist=0.0;
         const std::vector<C3Vector> normalizedRays=sensor->getPointerToRandomizedRays()[0];
-        std::vector<float> individualRayDetectionState=sensor->getPointerToRandomizedRayDetectionStates()[0];
+        std::vector<double> individualRayDetectionState=sensor->getPointerToRandomizedRayDetectionStates()[0];
         int requiredDetectionCount=sensor->getRandomizedDetectionCountForDetection();
         for (size_t i=0;i<normalizedRays.size();i++)
         {
             C3Vector lp(normalizedRays[i]*sensor->convexVolume->getRadius()); // Here we have radius instead of offset! Special with randomized detection!!
             C3Vector lvFar(normalizedRays[i]*sensor->convexVolume->getRange());
-            float distTmp=dist;
+            double distTmp=dist;
             C3Vector detectedPtTmp;
             C3Vector triNormalNotNormalizedTmp;
-            float _maxAngle=0.0f;
+            double _maxAngle=0.0;
             if (angleLimitation)
                 _maxAngle=maxAngle;
-            bool result=CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(lp,lvFar,octree->getOctreeInfo(),octreeITr,distTmp,0.0f,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPtTmp,&triNormalNotNormalizedTmp,nullptr);
+            bool result=CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(lp,lvFar,octree->getOctreeInfo(),octreeITr,distTmp,0.0,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPtTmp,&triNormalNotNormalizedTmp,nullptr);
             if (result)
             { // We triggered the sensor
                 if (sensor->convexVolume->getSmallestDistanceEnabled())
@@ -447,22 +447,22 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vect
         if (normalDetectionCnt>=requiredDetectionCount)
         {
             retVal=octree->getObjectHandle();
-            dist=averageDetectionDist/float(normalDetectionCnt);
-            detectedPt=averageDetectionVector/float(normalDetectionCnt);
-            triNormalNotNormalized=averageNormalVector/float(normalDetectionCnt);
+            dist=averageDetectionDist/double(normalDetectionCnt);
+            detectedPt=averageDetectionVector/double(normalDetectionCnt);
+            triNormalNotNormalized=averageNormalVector/double(normalDetectionCnt);
         }
     }
     else
     {
         if (sensor->getSensorType()==sim_proximitysensor_ray_subtype)
         { // ray-type sensor here:
-            C3Vector lp(0.0f,0.0f,sensor->convexVolume->getOffset());
-            C3Vector lvFar(0.0f,0.0f,sensor->convexVolume->getRange());
+            C3Vector lp(0.0,0.0,sensor->convexVolume->getOffset());
+            C3Vector lvFar(0.0,0.0,sensor->convexVolume->getRange());
 
-            float _maxAngle=0.0f;
+            double _maxAngle=0.0;
             if (angleLimitation)
                 _maxAngle=maxAngle;
-            bool result=CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(lp,lvFar,octree->getOctreeInfo(),octreeITr,dist,0.0f,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized,nullptr);
+            bool result=CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(lp,lvFar,octree->getOctreeInfo(),octreeITr,dist,0.0,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized,nullptr);
             if (result)
             {
                 if (sensor->convexVolume->getSmallestDistanceEnabled())
@@ -477,7 +477,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vect
         else
         { // non-ray-type sensors here:
 
-            float _maxAngle=0.0f;
+            double _maxAngle=0.0;
             if (angleLimitation)
                 _maxAngle=maxAngle;
             if ( CPluginContainer::geomPlugin_volumeSensorDetectOctreeIfSmaller(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,octree->getOctreeInfo(),octreeITr,dist,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized) )
@@ -497,7 +497,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vect
     return(retVal);
 }
 
-int CProxSensorRoutine::_detectPointCloud(CProxSensor* sensor,CPointCloud* pointCloud,C3Vector& detectedPt,float& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,float maxAngle,bool frontFace,bool backFace,float minThreshold)
+int CProxSensorRoutine::_detectPointCloud(CProxSensor* sensor,CPointCloud* pointCloud,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold)
 { // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered the sensor
     if (dist==0.0)
         return(-1);
@@ -510,7 +510,7 @@ int CProxSensorRoutine::_detectPointCloud(CProxSensor* sensor,CPointCloud* point
 
     if (!_doesSensorVolumeOverlapWithObjectBoundingBox(sensor,pointCloud))
         return(-1);
-    float d=_getApproxPointObjectBoundingBoxDistance(sensor->getFullCumulativeTransformation().X,pointCloud);
+    double d=_getApproxPointObjectBoundingBoxDistance(sensor->getFullCumulativeTransformation().X,pointCloud);
     if (d>dist)
         return(-1);
 
@@ -543,7 +543,7 @@ int CProxSensorRoutine::_detectPointCloud(CProxSensor* sensor,CPointCloud* point
 
 void CProxSensorRoutine::_orderGroupAccordingToApproxDistanceToSensingPoint(const CProxSensor* sensor,std::vector<CSceneObject*>& group)
 {
-    std::vector<float> distances;
+    std::vector<double> distances;
     std::vector<int> indexes;
     std::vector<CSceneObject*> _group(group);
     group.clear();
@@ -551,7 +551,7 @@ void CProxSensorRoutine::_orderGroupAccordingToApproxDistanceToSensingPoint(cons
     for (size_t i=0;i<_group.size();i++)
     {
         indexes.push_back((int)i);
-        float d=_getApproxPointObjectBoundingBoxDistance(pt,_group[i]);
+        double d=_getApproxPointObjectBoundingBoxDistance(pt,_group[i]);
         distances.push_back(d);
     }
     tt::orderAscending(distances,indexes);
@@ -559,7 +559,7 @@ void CProxSensorRoutine::_orderGroupAccordingToApproxDistanceToSensingPoint(cons
         group.push_back(_group[indexes[i]]);
 }
 
-float CProxSensorRoutine::_getApproxPointObjectBoundingBoxDistance(const C3Vector& point,CSceneObject* obj)
+double CProxSensorRoutine::_getApproxPointObjectBoundingBoxDistance(const C3Vector& point,CSceneObject* obj)
 { // the returned distance is always same or smaller than the real distance!
     C3Vector halfSize;
     C7Vector tr;
@@ -615,7 +615,7 @@ bool CProxSensorRoutine::_doesSensorVolumeOverlapWithObjectBoundingBox(CProxSens
         return(CPluginContainer::geomPlugin_getBoxBoxCollision(sensorTr,sensorHalfSize,objectTr,objectHalfSize,true));
 }
 
-int CProxSensorRoutine::_detectObject(CProxSensor* sensor,CSceneObject* object,C3Vector& detectedPt,float& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,float maxAngle,bool frontFace,bool backFace,float minThreshold)
+int CProxSensorRoutine::_detectObject(CProxSensor* sensor,CSceneObject* object,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold)
 {
     int retVal=-1;
     if (object->getObjectType()==sim_object_dummy_type)

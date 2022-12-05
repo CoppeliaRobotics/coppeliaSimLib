@@ -38,7 +38,7 @@ public:
     bool getEnabled() const;
     int getMaxIterations() const;
     int getCalculationMethod() const;
-    float getDampingFactor() const;
+    double getDampingFactor() const;
     bool getIgnoreMaxStepSizes() const;
     bool getRestoreIfPositionNotReached() const;
     bool getRestoreIfOrientationNotReached() const;
@@ -53,7 +53,7 @@ public:
     virtual bool setEnabled(bool enable);
     virtual bool setMaxIterations(int maxIter);
     virtual bool setCalculationMethod(int theMethod);
-    virtual bool setDampingFactor(float theFactor);
+    virtual bool setDampingFactor(double theFactor);
     virtual bool setIgnoreMaxStepSizes(bool ignore);
     virtual bool setRestoreIfPositionNotReached(bool _enabled);
     virtual bool setRestoreIfOrientationNotReached(bool _enabled);
@@ -70,7 +70,7 @@ protected:
     virtual void _setEnabled_send(bool e) const;
     virtual void _setMaxIterations_send(int it) const;
     virtual void _setCalculationMethod_send(int m) const;
-    virtual void _setDampingFactor_send(float f) const;
+    virtual void _setDampingFactor_send(double f) const;
     virtual void _setIgnoreMaxStepSizes_send(bool e) const;
     virtual void _setRestoreIfPositionNotReached_send(bool e) const;
     virtual void _setRestoreIfOrientationNotReached_send(bool e) const;
@@ -84,7 +84,7 @@ protected:
     bool _enabled;
     int _maxIterations;
     int _calculationMethod;
-    floatDouble _dampingFactor;
+    double _dampingFactor;
     bool _ignoreMaxStepSizes;
     bool _restoreIfPositionNotReached;
     bool _restoreIfOrientationNotReached;

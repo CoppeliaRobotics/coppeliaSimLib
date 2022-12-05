@@ -1,6 +1,6 @@
 #include "edgeElement.h"
 
-CEdgeElement::CEdgeElement(int v0,int v1,int tri,CEdgeElement* nextEl,int position,float vertices[])
+CEdgeElement::CEdgeElement(int v0,int v1,int tri,CEdgeElement* nextEl,int position,double vertices[])
 {
     vertex0=v0;
     vertex1=v1;

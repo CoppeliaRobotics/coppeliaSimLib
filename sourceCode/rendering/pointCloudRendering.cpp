@@ -12,7 +12,7 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
     pointCloud->getBoundingBox(mmiDim,mmaDim);
     C3Vector d(mmaDim-mmiDim);
     if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(pointCloud,displayAttrib,true,cbrt(d(0)*d(1)*d(2))*0.6f);
+        _displayBoundingBox(pointCloud,displayAttrib,true,cbrt(d(0)*d(1)*d(2))*0.6);
 
     C3Vector normalVectorForLinesAndPoints(pointCloud->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -36,13 +36,13 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
 
         _enableAuxClippingPlanes(pointCloud->getObjectHandle());
 //      if ((displayAttrib&sim_displayattribute_selected)!=0)
-//          ogl::drawReference(size*1.2f,true,true,false,normalVectorForLinesAndPoints.data);
-//      ogl::setMaterialColor(0.0f,0.0f,0.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
+//          ogl::drawReference(size*1.2,true,true,false,normalVectorForLinesAndPoints.data);
+//      ogl::setMaterialColor(0.0,0.0,0.0,0.5,0.5,0.5,0.0,0.0,0.0);
 //      color.makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
 //      ogl::drawBox(size,size,size,false,normalVectorForLinesAndPoints.data);
-//      ogl::drawSphere(size/2.0f,12,6,false);
+//      ogl::drawSphere(size/2.0,12,6,false);
 
-        std::vector<float>& _points=pointCloud->getPoints()[0];
+        std::vector<double>& _points=pointCloud->getPoints()[0];
         if (_points.size()>0)
         {
             bool setOtherColor=(App::currentWorld->collisions->getCollisionColor(pointCloud->getObjectHandle())!=0);
@@ -62,51 +62,51 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
 
             if (pointCloud->getShowOctree()&&(pointCloud->getPointCloudInfo()!=nullptr)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
             {
-                std::vector<float> corners;
+                std::vector<double> corners;
                 CPluginContainer::geomPlugin_getPtcloudOctreeCorners(pointCloud->getPointCloudInfo(),corners);
 
                 glBegin(GL_LINES);
-                glNormal3fv(normalVectorForLinesAndPoints.data);
+                glNormal3dv(normalVectorForLinesAndPoints.data);
 
                 for (size_t i=0;i<corners.size()/24;i++)
                 {
-                    glVertex3fv(&corners[0]+i*8*3+0);
-                    glVertex3fv(&corners[0]+i*8*3+3);
-                    glVertex3fv(&corners[0]+i*8*3+3);
-                    glVertex3fv(&corners[0]+i*8*3+9);
-                    glVertex3fv(&corners[0]+i*8*3+0);
-                    glVertex3fv(&corners[0]+i*8*3+6);
-                    glVertex3fv(&corners[0]+i*8*3+6);
-                    glVertex3fv(&corners[0]+i*8*3+9);
+                    glVertex3dv(&corners[0]+i*8*3+0);
+                    glVertex3dv(&corners[0]+i*8*3+3);
+                    glVertex3dv(&corners[0]+i*8*3+3);
+                    glVertex3dv(&corners[0]+i*8*3+9);
+                    glVertex3dv(&corners[0]+i*8*3+0);
+                    glVertex3dv(&corners[0]+i*8*3+6);
+                    glVertex3dv(&corners[0]+i*8*3+6);
+                    glVertex3dv(&corners[0]+i*8*3+9);
 
-                    glVertex3fv(&corners[0]+i*8*3+12);
-                    glVertex3fv(&corners[0]+i*8*3+15);
-                    glVertex3fv(&corners[0]+i*8*3+15);
-                    glVertex3fv(&corners[0]+i*8*3+21);
-                    glVertex3fv(&corners[0]+i*8*3+12);
-                    glVertex3fv(&corners[0]+i*8*3+18);
-                    glVertex3fv(&corners[0]+i*8*3+18);
-                    glVertex3fv(&corners[0]+i*8*3+21);
+                    glVertex3dv(&corners[0]+i*8*3+12);
+                    glVertex3dv(&corners[0]+i*8*3+15);
+                    glVertex3dv(&corners[0]+i*8*3+15);
+                    glVertex3dv(&corners[0]+i*8*3+21);
+                    glVertex3dv(&corners[0]+i*8*3+12);
+                    glVertex3dv(&corners[0]+i*8*3+18);
+                    glVertex3dv(&corners[0]+i*8*3+18);
+                    glVertex3dv(&corners[0]+i*8*3+21);
 
-                    glVertex3fv(&corners[0]+i*8*3+0);
-                    glVertex3fv(&corners[0]+i*8*3+12);
+                    glVertex3dv(&corners[0]+i*8*3+0);
+                    glVertex3dv(&corners[0]+i*8*3+12);
 
-                    glVertex3fv(&corners[0]+i*8*3+3);
-                    glVertex3fv(&corners[0]+i*8*3+15);
+                    glVertex3dv(&corners[0]+i*8*3+3);
+                    glVertex3dv(&corners[0]+i*8*3+15);
 
-                    glVertex3fv(&corners[0]+i*8*3+6);
-                    glVertex3fv(&corners[0]+i*8*3+18);
+                    glVertex3dv(&corners[0]+i*8*3+6);
+                    glVertex3dv(&corners[0]+i*8*3+18);
 
-                    glVertex3fv(&corners[0]+i*8*3+9);
-                    glVertex3fv(&corners[0]+i*8*3+21);
+                    glVertex3dv(&corners[0]+i*8*3+9);
+                    glVertex3dv(&corners[0]+i*8*3+21);
                 }
                 glEnd();
             }
 
 
             glPointSize(float(pointCloud->getPointSize()));
-            std::vector<float>* pts=&_points;
-            std::vector<float>* cols=pointCloud->getColors();
+            std::vector<double>* pts=&_points;
+            std::vector<double>* cols=pointCloud->getColors();
             if (pointCloud->getDisplayPoints()->size()>0)
             {
                 pts=pointCloud->getDisplayPoints();
@@ -117,9 +117,9 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
             if ((cols->size()==0)||setOtherColor)
             {
                 glBegin(GL_POINTS);
-                glNormal3fv(normalVectorForLinesAndPoints.data);
+                glNormal3dv(normalVectorForLinesAndPoints.data);
                 for (size_t i=0;i<pts->size()/3;i++)
-                    glVertex3fv(&(pts[0])[3*i]);
+                    glVertex3dv(&(pts[0])[3*i]);
                 glEnd();
             }
             else
@@ -127,22 +127,22 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
                 // note: glMaterialfv has some bugs in some geForce drivers, use glColor instead
                 glEnable(GL_COLOR_MATERIAL);
                 glColorMaterial(GL_FRONT_AND_BACK,GL_SPECULAR);
-                glColor3f(0.0f,0.0f,0.0f);
+                glColor3f(0.0,0.0,0.0);
                 glColorMaterial(GL_FRONT_AND_BACK,GL_EMISSION);
-                glColor3f(0.0f,0.0f,0.0f);
+                glColor3f(0.0,0.0,0.0);
                 glColorMaterial(GL_FRONT_AND_BACK,GL_SHININESS);
-                glColor3f(0.0f,0.0f,0.0f);
+                glColor3f(0.0,0.0,0.0);
                 glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-                glColor3f(0.0f,0.0f,0.0f);
+                glColor3f(0.0,0.0,0.0);
                 if (pointCloud->getColorIsEmissive())
                     glColorMaterial(GL_FRONT_AND_BACK,GL_EMISSION);
 
                 glBegin(GL_POINTS);
-                glNormal3fv(normalVectorForLinesAndPoints.data);
+                glNormal3dv(normalVectorForLinesAndPoints.data);
                 for (size_t i=0;i<pts->size()/3;i++)
                 {
-                    glColor4fv(&(cols[0])[4*i]);
-                    glVertex3fv(&(pts[0])[3*i]);
+                    glColor4dv(&(cols[0])[4*i]);
+                    glVertex3dv(&(pts[0])[3*i]);
                 }
                 glEnd();
                 glDisable(GL_COLOR_MATERIAL);

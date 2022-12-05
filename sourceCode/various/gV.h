@@ -1,16 +1,17 @@
 #pragma once
 
 #include <string>
+#include "simTypes.h"
 
 //FULLY STATIC CLASS
 class gv  
 {
 public:
-    static std::string getAngleStr(bool sign,float angleInRad,int leadingZeros=-1);
-    static std::string getSizeStr(bool sign,float sizeInMeter,int leadingZeros=-1);
+    static std::string getAngleStr(bool sign,double angleInRad,int leadingZeros=-1);
+    static std::string getSizeStr(bool sign,double sizeInMeter,int leadingZeros=-1);
 
-    static std::string getTimeStr(float timeInSeconds,int additionalDecimals=0);
-    static std::string getHourMinuteSecondMilisecondStr(float timeInSeconds);
+    static std::string getTimeStr(double timeInSeconds,int additionalDecimals=0);
+    static std::string getHourMinuteSecondMilisecondStr(double timeInSeconds);
 
 
     static std::string getAngleUnitStr();
@@ -31,10 +32,10 @@ public:
     static std::string getNullUnitStr();
     static std::string formatUnitStr(const char* txt,const char* s,bool inParenthesis=true,bool startWithSpace=true);
 
-    static float radToUser;
-    static float userToRad;
-    static float angularVelToUser;
-    static float userToAngularVel;
-    static float angularAccelToUser;
-    static float userToAngularAccel;
+    static double radToUser;
+    static double userToRad;
+    static double angularVelToUser;
+    static double userToAngularVel;
+    static double angularAccelToUser;
+    static double userToAngularAccel;
 };

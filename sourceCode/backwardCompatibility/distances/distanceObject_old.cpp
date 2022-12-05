@@ -81,7 +81,7 @@ bool CDistanceObject_old::isSame(int entity1Handle,int entity2Handle) const
     return(false);
 }
 
-bool CDistanceObject_old::getDistanceResult(floatDouble dist[7]) const
+bool CDistanceObject_old::getDistanceResult(double dist[7]) const
 { // Return value false means the distance was not measured or above the specified treshhold.
     if (_distanceIsValid)
     {
@@ -96,12 +96,12 @@ bool CDistanceObject_old::getDistanceResult(floatDouble dist[7]) const
     return(_distanceIsValid);
 }
 
-floatDouble CDistanceObject_old::getCalculationTime() const
+double CDistanceObject_old::getCalculationTime() const
 {
-    return(floatDouble(_calcTimeInMs)*0.001);
+    return(double(_calcTimeInMs)*0.001);
 }
 
-floatDouble CDistanceObject_old::readDistance() const
+double CDistanceObject_old::readDistance() const
 {
     if (_distanceIsValid)
         return(_distance);
@@ -209,7 +209,7 @@ bool CDistanceObject_old::setObjectName(const char* newName,bool check)
     return(diff);
 }
 
-bool CDistanceObject_old::setThreshold(floatDouble tr)
+bool CDistanceObject_old::setThreshold(double tr)
 {
     tt::limitValue(0.0001,10000.0,tr);
     bool diff=(_threshold!=tr);
@@ -224,7 +224,7 @@ void CDistanceObject_old::clearDistanceResult()
     _calcTimeInMs=0;
 }
 
-floatDouble CDistanceObject_old::handleDistance()
+double CDistanceObject_old::handleDistance()
 {
     clearDistanceResult();
     if (!App::currentWorld->mainSettings->distanceCalculationEnabled)
@@ -320,14 +320,13 @@ void CDistanceObject_old::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Trh");
-            ar.flt() << floatFloat(_threshold);
+            ar << float(_threshold);
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_rh");
-            ar.dbl() << _threshold;
+            ar << _threshold;
             ar.flush();
-#endif
 
             ar.storeDataName("Swt");
             ar << _segmentWidth;
@@ -377,16 +376,18 @@ void CDistanceObject_old::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat a;
-                        ar.flt() >> a;
-                        _threshold=(floatDouble)a;
+                        float a;
+                        ar >> a;
+                        _threshold=(double)a;
                     }
+
                     if (theName.compare("_rh")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _threshold;
+                        ar >> _threshold;
                     }
+
                     if (theName.compare("Swt")==0)
                     {
                         noHit=false;
@@ -519,7 +520,7 @@ std::string CDistanceObject_old::getObjectName() const
     return(_objectName);
 }
 
-floatDouble CDistanceObject_old::getTreshhold() const
+double CDistanceObject_old::getTreshhold() const
 {
     return(_threshold);
 }

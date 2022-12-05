@@ -55,7 +55,7 @@ void CQDlgInertiaTensor::on_qqI11_editingFinished()
     if (!ui->qqI11->isModified())
         return;
     bool ok;
-    float newVal=ui->qqI11->text().toFloat(&ok);
+    double newVal=ui->qqI11->text().toFloat(&ok);
     if (ok)
         tensor[0]=newVal;
     refresh();
@@ -66,7 +66,7 @@ void CQDlgInertiaTensor::on_qqI21_editingFinished()
     if (!ui->qqI21->isModified())
         return;
     bool ok;
-    float newVal=ui->qqI21->text().toFloat(&ok);
+    double newVal=ui->qqI21->text().toFloat(&ok);
     if (ok)
     {
         tensor[1]=newVal;
@@ -80,7 +80,7 @@ void CQDlgInertiaTensor::on_qqI31_editingFinished()
     if (!ui->qqI31->isModified())
         return;
     bool ok;
-    float newVal=ui->qqI31->text().toFloat(&ok);
+    double newVal=ui->qqI31->text().toFloat(&ok);
     if (ok)
     {
         tensor[2]=newVal;
@@ -94,7 +94,7 @@ void CQDlgInertiaTensor::on_qqI12_editingFinished()
     if (!ui->qqI12->isModified())
         return;
     bool ok;
-    float newVal=ui->qqI12->text().toFloat(&ok);
+    double newVal=ui->qqI12->text().toFloat(&ok);
     if (ok)
     {
         tensor[3]=newVal;
@@ -108,7 +108,7 @@ void CQDlgInertiaTensor::on_qqI22_editingFinished()
     if (!ui->qqI22->isModified())
         return;
     bool ok;
-    float newVal=ui->qqI22->text().toFloat(&ok);
+    double newVal=ui->qqI22->text().toFloat(&ok);
     if (ok)
         tensor[4]=newVal;
     refresh();
@@ -119,7 +119,7 @@ void CQDlgInertiaTensor::on_qqI32_editingFinished()
     if (!ui->qqI32->isModified())
         return;
     bool ok;
-    float newVal=ui->qqI32->text().toFloat(&ok);
+    double newVal=ui->qqI32->text().toFloat(&ok);
     if (ok)
     {
         tensor[5]=newVal;
@@ -133,7 +133,7 @@ void CQDlgInertiaTensor::on_qqI13_editingFinished()
     if (!ui->qqI13->isModified())
         return;
     bool ok;
-    float newVal=ui->qqI13->text().toFloat(&ok);
+    double newVal=ui->qqI13->text().toFloat(&ok);
     if (ok)
     {
         tensor[6]=newVal;
@@ -147,7 +147,7 @@ void CQDlgInertiaTensor::on_qqI23_editingFinished()
     if (!ui->qqI23->isModified())
         return;
     bool ok;
-    float newVal=ui->qqI23->text().toFloat(&ok);
+    double newVal=ui->qqI23->text().toFloat(&ok);
     if (ok)
     {
         tensor[7]=newVal;
@@ -161,7 +161,7 @@ void CQDlgInertiaTensor::on_qqI33_editingFinished()
     if (!ui->qqI33->isModified())
         return;
     bool ok;
-    float newVal=ui->qqI33->text().toFloat(&ok);
+    double newVal=ui->qqI33->text().toFloat(&ok);
     if (ok)
         tensor[8]=newVal;
     refresh();
@@ -182,7 +182,7 @@ void CQDlgInertiaTensor::on_qqMx_editingFinished()
     if (!ui->qqMx->isModified())
         return;
     bool ok;
-    float newVal=ui->qqMx->text().toFloat(&ok);
+    double newVal=ui->qqMx->text().toFloat(&ok);
     if (ok)
         com[0]=newVal;
     refresh();
@@ -193,7 +193,7 @@ void CQDlgInertiaTensor::on_qqMy_editingFinished()
     if (!ui->qqMy->isModified())
         return;
     bool ok;
-    float newVal=ui->qqMy->text().toFloat(&ok);
+    double newVal=ui->qqMy->text().toFloat(&ok);
     if (ok)
         com[1]=newVal;
     refresh();
@@ -204,7 +204,7 @@ void CQDlgInertiaTensor::on_qqMz_editingFinished()
     if (!ui->qqMz->isModified())
         return;
     bool ok;
-    float newVal=ui->qqMz->text().toFloat(&ok);
+    double newVal=ui->qqMz->text().toFloat(&ok);
     if (ok)
         com[2]=newVal;
     refresh();

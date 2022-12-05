@@ -6,19 +6,19 @@
 class CBroadcastDataVisual  
 {
 public:
-    CBroadcastDataVisual(floatDouble timeOutSimulationTime,floatDouble actionRadius,const C7Vector& emitterConf,floatDouble emissionAngle1,floatDouble emissionAngle2);
+    CBroadcastDataVisual(double timeOutSimulationTime,double actionRadius,const C7Vector& emitterConf,double emissionAngle1,double emissionAngle2);
     CBroadcastDataVisual(const C3Vector& emitterPos,const C3Vector& receiverPos);
     virtual ~CBroadcastDataVisual();
 
-    bool doesRequireDestruction(floatDouble simulationTime);
+    bool doesRequireDestruction(double simulationTime);
     void visualize();
     bool isReceiver();
 
-    floatDouble _timeOutSimulationTime;
-    floatDouble _actionRadius;
+    double _timeOutSimulationTime;
+    double _actionRadius;
     C7Vector _emitterConf;
     C3Vector _receiverPos;
-    floatDouble _emissionAngle1;
-    floatDouble _emissionAngle2;
+    double _emissionAngle1;
+    double _emissionAngle2;
     bool _emitter;
 };

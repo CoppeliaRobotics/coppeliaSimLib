@@ -32,8 +32,8 @@ protected:
     void _setValuesTransformationPart(bool alsoRadioButtons);
 
     // Coord part
-    bool _setCoord_userUnit(float newValueInUserUnit,int index);
-    C7Vector _getNewTransf(const C7Vector& transf,float newValueInUserUnit,int index);
+    bool _setCoord_userUnit(double newValueInUserUnit,int index);
+    C7Vector _getNewTransf(const C7Vector& transf,double newValueInUserUnit,int index);
     bool _applyCoord();
 
     // Transf part
@@ -41,13 +41,13 @@ protected:
     void _transform(C7Vector& tr,bool self,int axis);
 
     static int coordMode; //0=abs,1=rel to parent
-    static float rotAngles[3];
+    static double rotAngles[3];
     static int transfMode; //0=abs,1=rel to parent,2=rel to self
     static int currentTab; //0=mouse transl., 1=pos, 2=transl., 3=scaling
 
     static int manipulationModePermission;
     static int manipulationRotationRelativeTo;
-    static float manipulationRotationStepSize;
+    static double manipulationRotationStepSize;
     static bool objectRotationSettingsLocked;
 
     int lastLastSelectionID;

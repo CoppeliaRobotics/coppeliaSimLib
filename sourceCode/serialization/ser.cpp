@@ -10,7 +10,7 @@
 #include "pluginContainer.h"
 #include "simFlavor.h"
 
-int CSer::SER_SERIALIZATION_VERSION=23; // 9 since 2008/09/01,
+int CSer::SER_SERIALIZATION_VERSION=24; // 9 since 2008/09/01,
                                         // 10 since 2009/02/14,
                                         // 11 since 2009/05/15,
                                         // 12 since 2009/07/03,
@@ -25,6 +25,7 @@ int CSer::SER_SERIALIZATION_VERSION=23; // 9 since 2008/09/01,
                                         // 21 since 2017/05/26 (New API notation)
                                         // 22 since 2019/04/29 (Striped away some backward compatibility features)
                                         // 23 since 2021/03/08 (not a big diff. in format, more in content (e.g. Lua5.3, main script using require, etc.))
+                                        // 24 since 2022/12/02 (float --> double)
 
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS=18; // means: files written with this can be read by older CoppeliaSim with serialization THE_NUMBER
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ=18; // means: this executable can read versions >=THE_NUMBER
@@ -850,26 +851,8 @@ CSer& CSer::operator<< (const int& v)
     return(*this);
 }
 
-#ifdef DOUBLESERIALIZATIONOPERATION
-CSerTmp& CSer::flt()
-#else
-CSer& CSer::flt()
-#endif
-{
-    return(*this);
-}
 
-#ifdef DOUBLESERIALIZATIONOPERATION
-CSerTmp& CSer::dbl()
-#else
-CSer& CSer::dbl()
-#endif
-{
-    return(*this);
-}
-
-#ifndef DOUBLESERIALIZATIONOPERATION
-CSer& CSer::operator<< (const floatFloat& v)
+CSer& CSer::operator<< (const float& v)
 {
     buffer.push_back(((unsigned char*)&v)[0]);
     buffer.push_back(((unsigned char*)&v)[1]);
@@ -885,7 +868,6 @@ CSer& CSer::operator<< (const double& v)
         buffer.push_back(tmp[i]);
     return(*this);
 }
-#endif
 
 CSer& CSer::operator<< (const unsigned short& v)
 {
@@ -962,8 +944,7 @@ CSer& CSer::operator>> (int& v)
     return(*this);
 }
 
-#ifndef DOUBLESERIALIZATIONOPERATION
-CSer& CSer::operator>> (floatFloat& v)
+CSer& CSer::operator>> (float& v)
 {
     unsigned char* tmp=(unsigned char*)(&v);
     for (int i=0;i<int(sizeof(v));i++)
@@ -978,7 +959,6 @@ CSer& CSer::operator>> (double& v)
         tmp[i]=_fileBuffer[_fileBufferReadPointer++];
     return(*this);
 }
-#endif
 
 CSer& CSer::operator>> (unsigned short& v)
 {
@@ -1308,8 +1288,8 @@ void CSer::xmlAddNode_imageFile(const char* name,const char* localFilenameSuffix
     }
 }
 
-void CSer::xmlAddNode_meshFile(const char* name,const char* localFilenameSuffix,const floatFloat* vertices,int vl,const int* indices,int il,const floatFloat* normals,int nl,const unsigned char* edges,int el)
-{ // keep this as single precision floatFloat
+void CSer::xmlAddNode_meshFile(const char* name,const char* localFilenameSuffix,const float* vertices,int vl,const int* indices,int il,const float* normals,int nl,const unsigned char* edges,int el)
+{ // keep this as single precision float
     bool exhaustiveXml=( (getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
     if ( _xmlUseImageAndMeshFileformats&&CPluginContainer::isAssimpPluginAvailable()&&(!exhaustiveXml) )
     {
@@ -1317,16 +1297,16 @@ void CSer::xmlAddNode_meshFile(const char* name,const char* localFilenameSuffix,
         xmlNode* node=_xmlCreateNode(name,fn.c_str());
         _xmlPushNode(node);
         xmlPopNode();
-        std::vector<floatDouble> vert;
+        std::vector<double> vert;
         vert.resize(vl);
         for (int i=0;i<vl;i++)
-            vert[i]=(floatDouble)vertices[i];
+            vert[i]=(double)vertices[i];
 
-        floatDouble** _vertices;
+        double** _vertices;
         int* _verticesSizes;
         int** _indices;
         int* _indicesSizes;
-        _vertices=new floatDouble*[1];
+        _vertices=new double*[1];
         _verticesSizes=new int[1];
         _indices=new int*[1];
         _indicesSizes=new int[1];
@@ -1334,7 +1314,7 @@ void CSer::xmlAddNode_meshFile(const char* name,const char* localFilenameSuffix,
         _verticesSizes[0]=vl;
         _indices[0]=(int*)indices;
         _indicesSizes[0]=il;
-        CPluginContainer::assimp_exportMeshes(1,(const floatDouble**)_vertices,_verticesSizes,(const int**)_indices,_indicesSizes,(getFilenamePath()+fn).c_str(),"ply",1.0f,1,256);
+        CPluginContainer::assimp_exportMeshes(1,(const double**)_vertices,_verticesSizes,(const int**)_indices,_indicesSizes,(getFilenamePath()+fn).c_str(),"ply",1.0,1,256);
         delete[] _vertices;
         delete[] _verticesSizes;
         delete[] _indices;
@@ -1345,13 +1325,13 @@ void CSer::xmlAddNode_meshFile(const char* name,const char* localFilenameSuffix,
         CSer* w=xmlAddNode_binFile(name,localFilenameSuffix);
         w[0] << vl;
         for (size_t i=0;i<vl;i++)
-            w[0].flt() << vertices[i];
+            w[0] << vertices[i];
         w[0] << il;
         for (size_t i=0;i<il;i++)
             w[0] << indices[i];
         w[0] << nl;
         for (size_t i=0;i<nl;i++)
-            w[0].flt() << normals[i];
+            w[0] << normals[i];
         w[0] << el;
         for (size_t i=0;i<el;i++)
             w[0] << edges[i];
@@ -1537,7 +1517,7 @@ void CSer::xmlAddNode_uchars(const char* name,const std::vector<unsigned char>& 
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_float(const char* name,floatDouble val)
+void CSer::xmlAddNode_float(const char* name,double val)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
@@ -1545,7 +1525,7 @@ void CSer::xmlAddNode_float(const char* name,floatDouble val)
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_2float(const char* name,floatDouble val1,floatDouble val2)
+void CSer::xmlAddNode_2float(const char* name,double val1,double val2)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
@@ -1553,7 +1533,7 @@ void CSer::xmlAddNode_2float(const char* name,floatDouble val1,floatDouble val2)
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_3float(const char* name,floatDouble val1,floatDouble val2,floatDouble val3)
+void CSer::xmlAddNode_3float(const char* name,double val1,double val2,double val3)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
@@ -1561,7 +1541,7 @@ void CSer::xmlAddNode_3float(const char* name,floatDouble val1,floatDouble val2,
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_4float(const char* name,floatDouble val1,floatDouble val2,floatDouble val3,floatDouble val4)
+void CSer::xmlAddNode_4float(const char* name,double val1,double val2,double val3,double val4)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
@@ -1569,7 +1549,7 @@ void CSer::xmlAddNode_4float(const char* name,floatDouble val1,floatDouble val2,
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_floats(const char* name,const floatDouble* vals,size_t cnt)
+void CSer::xmlAddNode_floats(const char* name,const float* vals,size_t cnt)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
@@ -1584,7 +1564,22 @@ void CSer::xmlAddNode_floats(const char* name,const floatDouble* vals,size_t cnt
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_floats(const char* name,const std::vector<floatDouble>& vals)
+void CSer::xmlAddNode_floats(const char* name,const double* vals,size_t cnt)
+{
+    xmlNode* node=_xmlDocument.NewElement(name);
+    _xmlCurrentNode->InsertEndChild(node);
+    std::string tmp;
+    for (size_t i=0;i<cnt;i++)
+    {
+        if (i>0)
+            tmp+=" ";
+        tmp+=boost::str(boost::format("%f") % vals[i]);
+    }
+    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
+    node->InsertEndChild(txt);
+}
+
+void CSer::xmlAddNode_floats(const char* name,const std::vector<float>& vals)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
@@ -1599,11 +1594,18 @@ void CSer::xmlAddNode_floats(const char* name,const std::vector<floatDouble>& va
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_double(const char* name,double val)
+void CSer::xmlAddNode_floats(const char* name,const std::vector<double>& vals)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%f") % val).c_str());
+    std::string tmp;
+    for (size_t i=0;i<vals.size();i++)
+    {
+        if (i>0)
+            tmp+=" ";
+        tmp+=boost::str(boost::format("%f") % vals[i]);
+    }
+    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1864,8 +1866,8 @@ bool CSer::xmlGetNode_imageFile(const char* name,std::vector<unsigned char>& ima
     return(false);
 }
 
-bool CSer::xmlGetNode_meshFile(const char* name,std::vector<floatFloat>& vertices,std::vector<int>& indices,std::vector<floatFloat>& normals,std::vector<unsigned char>& edges,bool required/*=true*/)
-{ // keep this as single precision floatFloat
+bool CSer::xmlGetNode_meshFile(const char* name,std::vector<float>& vertices,std::vector<int>& indices,std::vector<float>& normals,std::vector<unsigned char>& edges,bool required/*=true*/)
+{ // keep this as single precision float
     if (xmlDebug)
         App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_meshFile, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
@@ -1878,20 +1880,20 @@ bool CSer::xmlGetNode_meshFile(const char* name,std::vector<floatFloat>& vertice
             if (boost::algorithm::ends_with(str,".ply"))
             {
                 bool retVal=false;
-                floatDouble** _vertices;
+                double** _vertices;
                 int* _verticesSizes;
                 int** _indices;
                 int* _indicesSizes;
                 if (!CPluginContainer::isAssimpPluginAvailable())
                     App::logMsg(sim_verbosity_errors,"assimp plugin was not found. CoppeliaSim will now crash.");
-                int cnt=CPluginContainer::assimp_importMeshes(filename.c_str(),1.0f,1,16+256,&_vertices,&_verticesSizes,&_indices,&_indicesSizes);
+                int cnt=CPluginContainer::assimp_importMeshes(filename.c_str(),1.0,1,16+256,&_vertices,&_verticesSizes,&_indices,&_indicesSizes);
                 if (cnt>0)
                 {
                     if (cnt==1)
                     {
                         vertices.resize(_verticesSizes[0]);
                         for (int i=0;i<_verticesSizes[0];i++)
-                            vertices[i]=(floatFloat)_vertices[0][i];
+                            vertices[i]=(float)_vertices[0][i];
                         for (int i=0;i<_indicesSizes[0];i++)
                             indices.push_back(_indices[0][i]);
                         retVal=true;
@@ -1915,7 +1917,7 @@ bool CSer::xmlGetNode_meshFile(const char* name,std::vector<floatFloat>& vertice
                 w[0] >> cnt;
                 vertices.resize(cnt);
                 for (int i=0;i<cnt;i++)
-                    w[0].flt() >> vertices[i];
+                    w[0] >> vertices[i];
 
                 w[0] >> cnt;
                 indices.resize(cnt);
@@ -1925,7 +1927,7 @@ bool CSer::xmlGetNode_meshFile(const char* name,std::vector<floatFloat>& vertice
                 w[0] >> cnt;
                 normals.resize(cnt);
                 for (int i=0;i<cnt;i++)
-                    w[0].flt() >> normals[i];
+                    w[0] >> normals[i];
 
                 w[0] >> cnt;
                 edges.resize(cnt);
@@ -2430,7 +2432,7 @@ bool CSer::xmlGetNode_uchars(const char* name,std::vector<unsigned char>& vals,b
 }
 
 
-bool CSer::xmlGetNode_float(const char* name,floatDouble& val,bool required/*=true*/)
+bool CSer::xmlGetNode_float(const char* name,double& val,bool required/*=true*/)
 {
     if (xmlDebug)
         App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_float, name: %s",name);
@@ -2444,7 +2446,7 @@ bool CSer::xmlGetNode_float(const char* name,floatDouble& val,bool required/*=tr
         {
             try
             {
-                val=boost::lexical_cast<floatDouble>(buff);
+                val=boost::lexical_cast<double>(buff);
             }
             catch (boost::bad_lexical_cast &)
             {
@@ -2466,11 +2468,11 @@ bool CSer::xmlGetNode_float(const char* name,floatDouble& val,bool required/*=tr
     return(false);
 }
 
-bool CSer::xmlGetNode_2float(const char* name,floatDouble& val1,floatDouble& val2,bool required/*=true*/)
+bool CSer::xmlGetNode_2float(const char* name,double& val1,double& val2,bool required/*=true*/)
 {
     if (xmlDebug)
         App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_2float, name: %s",name);
-    floatDouble vals[2];
+    double vals[2];
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -2483,7 +2485,7 @@ bool CSer::xmlGetNode_2float(const char* name,floatDouble& val1,floatDouble& val
             {
                 try
                 {
-                    vals[i]=boost::lexical_cast<floatDouble>(buff);
+                    vals[i]=boost::lexical_cast<double>(buff);
                 }
                 catch (boost::bad_lexical_cast &)
                 {
@@ -2508,11 +2510,11 @@ bool CSer::xmlGetNode_2float(const char* name,floatDouble& val1,floatDouble& val
     return(false);
 }
 
-bool CSer::xmlGetNode_3float(const char* name,floatDouble& val1,floatDouble& val2,floatDouble& val3,bool required/*=true*/)
+bool CSer::xmlGetNode_3float(const char* name,double& val1,double& val2,double& val3,bool required/*=true*/)
 {
     if (xmlDebug)
         App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_3float, name: %s",name);
-    floatDouble vals[3];
+    double vals[3];
     bool retVal=xmlGetNode_floats(name,vals,3,required);
     if (retVal)
     {
@@ -2528,11 +2530,11 @@ bool CSer::xmlGetNode_3float(const char* name,floatDouble& val1,floatDouble& val
     return(retVal);
 }
 
-bool CSer::xmlGetNode_4float(const char* name,floatDouble& val1,floatDouble& val2,floatDouble& val3,floatDouble& val4,bool required/*=true*/)
+bool CSer::xmlGetNode_4float(const char* name,double& val1,double& val2,double& val3,double& val4,bool required/*=true*/)
 {
     if (xmlDebug)
         App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_4float, name: %s",name);
-    floatDouble vals[4];
+    double vals[4];
     bool retVal=xmlGetNode_floats(name,vals,4,required);
     if (retVal)
     {
@@ -2549,7 +2551,7 @@ bool CSer::xmlGetNode_4float(const char* name,floatDouble& val1,floatDouble& val
     return(retVal);
 }
 
-bool CSer::xmlGetNode_floats(const char* name,floatDouble* vals,size_t cnt,bool required/*=true*/)
+bool CSer::xmlGetNode_floats(const char* name,float* vals,size_t cnt,bool required/*=true*/)
 {
     if (xmlDebug)
         App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_floats, name: %s",name);
@@ -2565,7 +2567,7 @@ bool CSer::xmlGetNode_floats(const char* name,floatDouble* vals,size_t cnt,bool 
             {
                 try
                 {
-                    vals[i]=boost::lexical_cast<floatDouble>(buff);
+                    vals[i]=boost::lexical_cast<float>(buff);
                 }
                 catch (boost::bad_lexical_cast &)
                 {
@@ -2588,7 +2590,46 @@ bool CSer::xmlGetNode_floats(const char* name,floatDouble* vals,size_t cnt,bool 
     return(false);
 }
 
-bool CSer::xmlGetNode_floats(const char* name,std::vector<floatDouble>& vals,bool required/*=true*/)
+bool CSer::xmlGetNode_floats(const char* name,double* vals,size_t cnt,bool required/*=true*/)
+{
+    if (xmlDebug)
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_floats, name: %s",name);
+    const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
+    if (node!=nullptr)
+    {
+        std::string str(_getNodeText(node));
+        std::string buff;
+        std::stringstream ss(str);
+        for (size_t i=0;i<cnt;i++)
+        {
+            if (ss >> buff)
+            {
+                try
+                {
+                    vals[i]=boost::lexical_cast<double>(buff);
+                }
+                catch (boost::bad_lexical_cast &)
+                {
+                    if (required)
+                        App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
+                    return(false);
+                }
+            }
+            else
+            {
+                if (required)
+                    App::logMsg(sim_verbosity_warnings,"XML read: missing value(s) in node '%s'.",name);
+                return(false);
+            }
+        }
+        return(true);
+    }
+    if (required)
+        warnMissingNode(name);
+    return(false);
+}
+
+bool CSer::xmlGetNode_floats(const char* name,std::vector<float>& vals,bool required/*=true*/)
 {
     if (xmlDebug)
         App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_floats, name: %s",name);
@@ -2604,7 +2645,7 @@ bool CSer::xmlGetNode_floats(const char* name,std::vector<floatDouble>& vals,boo
             {
                 try
                 {
-                    floatDouble v=boost::lexical_cast<floatDouble>(buff);
+                    float v=boost::lexical_cast<float>(buff);
                     vals.push_back(v);
                 }
                 catch (boost::bad_lexical_cast &)
@@ -2625,10 +2666,47 @@ bool CSer::xmlGetNode_floats(const char* name,std::vector<floatDouble>& vals,boo
     return(false);
 }
 
-bool CSer::xmlGetNode_double(const char* name,double& val,bool required/*=true*/)
+bool CSer::xmlGetNode_floats(const char* name,std::vector<double>& vals,bool required/*=true*/)
 {
     if (xmlDebug)
-        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_double, name: %s",name);
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_floats, name: %s",name);
+    const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
+    if (node!=nullptr)
+    {
+        std::string str(_getNodeText(node));
+        std::string buff;
+        std::stringstream ss(str);
+        while (true)
+        {
+            if (ss >> buff)
+            {
+                try
+                {
+                    double v=boost::lexical_cast<double>(buff);
+                    vals.push_back(v);
+                }
+                catch (boost::bad_lexical_cast &)
+                {
+                    if (required)
+                        App::logMsg(sim_verbosity_warnings,"XML read: bad value(s) in node '%s'.",name);
+                    vals.clear();
+                    return(false);
+                }
+            }
+            else
+                break;
+        }
+        return(true);
+    }
+    if (required)
+        warnMissingNode(name);
+    return(false);
+}
+
+bool CSer::xmlGetNode_float(const char* name,float& val,bool required/*=true*/)
+{
+    if (xmlDebug)
+        App::logMsg(sim_verbosity_debug,"XML read: xmlGetNode_float, name: %s",name);
     const xmlNode* node=_xmlCurrentNode->FirstChildElement(name);
     if (node!=nullptr)
     {
@@ -2639,7 +2717,7 @@ bool CSer::xmlGetNode_double(const char* name,double& val,bool required/*=true*/
         {
             try
             {
-                val=boost::lexical_cast<double>(buff);
+                val=boost::lexical_cast<float>(buff);
             }
             catch (boost::bad_lexical_cast &)
             {

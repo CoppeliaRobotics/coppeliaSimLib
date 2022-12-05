@@ -42,17 +42,17 @@ bool CMirror::isPotentiallyRenderable() const
 void CMirror::_commonInit()
 {
     _objectType=sim_object_mirror_type;
-    _mirrorWidth=0.5f;
-    _mirrorHeight=1.0f;
-    _mirrorReflectance=0.75f;
-    mirrorColor[0]=0.0f;
-    mirrorColor[1]=0.0f;
-    mirrorColor[2]=0.0f;
+    _mirrorWidth=0.5;
+    _mirrorHeight=1.0;
+    _mirrorReflectance=0.75;
+    mirrorColor[0]=0.0;
+    mirrorColor[1]=0.0;
+    mirrorColor[2]=0.0;
 
     clipPlaneColor.setDefaultValues();
-    clipPlaneColor.setColor(0.0f,0.525f,0.6f,sim_colorcomponent_ambient_diffuse);
+    clipPlaneColor.setColor(0.0,0.525,0.6,sim_colorcomponent_ambient_diffuse);
     clipPlaneColor.setTranslucid(true);
-    clipPlaneColor.setOpacity(0.4f);
+    clipPlaneColor.setOpacity(0.4);
 
     _active=true;
     _isMirror=true;
@@ -84,12 +84,12 @@ CColorObject* CMirror::getClipPlaneColor()
 void CMirror::computeBoundingBox()
 {
     C3Vector minV,maxV;
-    minV(0)=-0.5f*_mirrorWidth;
-    maxV(0)=0.5f*_mirrorWidth;
-    minV(1)=-0.5f*_mirrorHeight;
-    maxV(1)=0.5f*_mirrorHeight;
-    minV(2)=0.0f;
-    maxV(2)=0.0f;
+    minV(0)=-0.5*_mirrorWidth;
+    maxV(0)=0.5*_mirrorWidth;
+    minV(1)=-0.5*_mirrorHeight;
+    maxV(1)=0.5*_mirrorHeight;
+    minV(2)=0.0;
+    maxV(2)=0.0;
     _setBoundingBox(minV,maxV);
 }
 
@@ -97,46 +97,46 @@ CMirror::~CMirror()
 {
 }
 
-void CMirror::scaleObject(floatDouble scalingFactor)
+void CMirror::scaleObject(double scalingFactor)
 {
     _mirrorWidth*=scalingFactor;
     _mirrorHeight*=scalingFactor;
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void CMirror::scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z)
+void CMirror::scaleObjectNonIsometrically(double x,double y,double z)
 {
     _mirrorWidth*=x;
     _mirrorHeight*=y;
     CSceneObject::scaleObjectNonIsometrically(x,y,z);
 }
 
-void CMirror::setMirrorWidth(floatDouble w)
+void CMirror::setMirrorWidth(double w)
 {
     _mirrorWidth=tt::getLimitedFloat(0.001,100.0,w);
 }
 
-floatDouble CMirror::getMirrorWidth()
+double CMirror::getMirrorWidth()
 {
     return(_mirrorWidth);
 }
 
-void CMirror::setMirrorHeight(floatDouble h)
+void CMirror::setMirrorHeight(double h)
 {
     _mirrorHeight=tt::getLimitedFloat(0.001,100.0,h);
 }
 
-floatDouble CMirror::getMirrorHeight()
+double CMirror::getMirrorHeight()
 {
     return(_mirrorHeight);
 }
 
-void CMirror::setReflectance(floatDouble r)
+void CMirror::setReflectance(double r)
 {
     _mirrorReflectance=tt::getLimitedFloat(0.0,1.0,r);
 }
 
-floatDouble CMirror::getReflectance()
+double CMirror::getReflectance()
 {
     return(_mirrorReflectance);
 }
@@ -317,14 +317,14 @@ void CMirror::serialize(CSer& ar)
         { // Storing
 #ifdef TMPOPERATION
             ar.storeDataName("Msz");
-            ar.flt() << (floatFloat)_mirrorWidth << (floatFloat)_mirrorHeight;
+            ar << (float)_mirrorWidth << (float)_mirrorHeight;
             ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
             ar.storeDataName("_sz");
-            ar.dbl() << _mirrorWidth << _mirrorHeight;
+            ar << _mirrorWidth << _mirrorHeight;
             ar.flush();
-#endif
+
 
             ar.storeDataName("Cas");
             unsigned char nothing=0;
@@ -337,16 +337,9 @@ void CMirror::serialize(CSer& ar)
             ar << _clippingObjectOrCollection;
             ar.flush();
 
-#ifdef TMPOPERATION
             ar.storeDataName("Mcr");
-            ar.flt() << (floatFloat)_mirrorReflectance << (floatFloat)mirrorColor[0] << (floatFloat)mirrorColor[1] << (floatFloat)mirrorColor[2];
+            ar << _mirrorReflectance << mirrorColor[0] << mirrorColor[1] << mirrorColor[2];
             ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-            ar.storeDataName("_cr");
-            ar.dbl() << _mirrorReflectance << mirrorColor[0] << mirrorColor[1] << mirrorColor[2];
-            ar.flush();
-#endif
 
             ar.storeDataName("Cpc");
             ar.setCountingMode();
@@ -370,17 +363,19 @@ void CMirror::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
-                        floatFloat bla,bli;
-                        ar.flt() >> bla >> bli;
-                        _mirrorWidth=(floatDouble)bla;
-                        _mirrorHeight=(floatDouble)bli;
+                        float bla,bli;
+                        ar >> bla >> bli;
+                        _mirrorWidth=(double)bla;
+                        _mirrorHeight=(double)bli;
                     }
+
                     if (theName.compare("_sz")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _mirrorWidth >> _mirrorHeight;
+                        ar >> _mirrorWidth >> _mirrorHeight;
                     }
+
                     if (theName=="Cas")
                     {
                         noHit=false;
@@ -397,21 +392,10 @@ void CMirror::serialize(CSer& ar)
                         ar >> _clippingObjectOrCollection;
                     }
                     if (theName.compare("Mcr")==0)
-                    { // for backward comp. (flt->dbl)
-                        noHit=false;
-                        ar >> byteQuantity;
-                        floatFloat bla,bli,blo,blu;
-                        ar.flt() >> bla >> bli >> blo >> blu;
-                        _mirrorReflectance=(floatDouble)bla;
-                        mirrorColor[0]=(floatDouble)bli;
-                        mirrorColor[1]=(floatDouble)blo;
-                        mirrorColor[2]=(floatDouble)blu;
-                    }
-                    if (theName.compare("_cr")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar.dbl() >> _mirrorReflectance >> mirrorColor[0] >> mirrorColor[1] >> mirrorColor[2];
+                        ar >> _mirrorReflectance >> mirrorColor[0] >> mirrorColor[1] >> mirrorColor[2];
                     }
                     if (theName.compare("Cpc")==0)
                     {

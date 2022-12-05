@@ -257,9 +257,9 @@ void CTextureObject::setRandomContent()
 {
     for (size_t i=0;i<_textureBuffer.size()/4;i++)
     {
-        _textureBuffer[4*i+0]=(unsigned char)(SIM_RAND_FLOAT*255.0f);
-        _textureBuffer[4*i+1]=(unsigned char)(SIM_RAND_FLOAT*255.0f);
-        _textureBuffer[4*i+2]=(unsigned char)(SIM_RAND_FLOAT*255.0f);
+        _textureBuffer[4*i+0]=(unsigned char)(SIM_RAND_FLOAT*255.0);
+        _textureBuffer[4*i+1]=(unsigned char)(SIM_RAND_FLOAT*255.0);
+        _textureBuffer[4*i+2]=(unsigned char)(SIM_RAND_FLOAT*255.0);
     }
     _changedFlag=true;
     _currentTextureContentUniqueId=_textureContentUniqueId++;
@@ -310,12 +310,12 @@ CTextureObject* CTextureObject::copyYourself() const
     return(newObj);
 }
 
-char* CTextureObject::readPortionOfTexture(int posX,int posY,int sizeX,int sizeY) const
+unsigned char* CTextureObject::readPortionOfTexture(int posX,int posY,int sizeX,int sizeY) const
 {
     if ( (posX<0)||(posY<0)||(sizeX<1)||(sizeY<1)||(posX+sizeX>_textureSize[0])||(posY+sizeY>_textureSize[1]) )
         return(nullptr);
-    char* buff;
-    buff=new char[sizeX*sizeY*3];
+    unsigned char* buff;
+    buff=new unsigned char[sizeX*sizeY*3];
     int p=0;
     int resX=_textureSize[0];
     for (int j=posY;j<posY+sizeY;j++)
@@ -331,12 +331,12 @@ char* CTextureObject::readPortionOfTexture(int posX,int posY,int sizeX,int sizeY
     return(buff);
 }
 
-bool CTextureObject::writePortionOfTexture(const unsigned char* rgbData,int posX,int posY,int sizeX,int sizeY,bool circular,float interpol)
+bool CTextureObject::writePortionOfTexture(const unsigned char* rgbData,int posX,int posY,int sizeX,int sizeY,bool circular,double interpol)
 {
     int p=0;
     int resX=_textureSize[0];
     int resY=_textureSize[1];
-    if (interpol==0.0f)
+    if (interpol==0.0)
     {
         if (circular)
         { // circular
@@ -346,15 +346,15 @@ bool CTextureObject::writePortionOfTexture(const unsigned char* rgbData,int posX
             {
                 if ( (j>=0)&&(j<resY) )
                 {
-                    float dy=float(hy-j)/float(sizeY/2);
-                    float dy2=dy*dy;
+                    double dy=double(hy-j)/double(sizeY/2);
+                    double dy2=dy*dy;
                     for (int i=posX;i<posX+sizeX;i++)
                     {
                         if ( (i>=0)&&(i<resX) )
                         {
-                            float dx=float(hx-i)/float(sizeX/2);
-                            float dx2=dx*dx;
-                            if (dx2+dy2<=1.0f)
+                            double dx=double(hx-i)/double(sizeX/2);
+                            double dx2=dx*dx;
+                            if (dx2+dy2<=1.0)
                             {
                                 _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0];
                                 _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1];
@@ -392,7 +392,7 @@ bool CTextureObject::writePortionOfTexture(const unsigned char* rgbData,int posX
     }
     else
     {
-        float interpolI=1.0f-interpol;
+        double interpolI=1.0-interpol;
         if (circular)
         { // circular
             int hx=posX+sizeX/2;
@@ -401,15 +401,15 @@ bool CTextureObject::writePortionOfTexture(const unsigned char* rgbData,int posX
             {
                 if ( (j>=0)&&(j<resY) )
                 {
-                    float dy=float(hy-j)/float(sizeY/2);
-                    float dy2=dy*dy;
+                    double dy=double(hy-j)/double(sizeY/2);
+                    double dy2=dy*dy;
                     for (int i=posX;i<posX+sizeX;i++)
                     {
                         if ( (i>=0)&&(i<resX) )
                         {
-                            float dx=float(hx-i)/float(sizeX/2);
-                            float dx2=dx*dx;
-                            if (dx2+dy2<=1.0f)
+                            double dx=double(hx-i)/double(sizeX/2);
+                            double dx2=dx*dx;
+                            if (dx2+dy2<=1.0)
                             {
                                 _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0]*interpolI+_textureBuffer[4*(j*resX+i)+0]*interpol;
                                 _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1]*interpolI+_textureBuffer[4*(j*resX+i)+1]*interpol;

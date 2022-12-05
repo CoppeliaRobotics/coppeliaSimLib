@@ -20,7 +20,7 @@ CMemorizedConf_old::CMemorizedConf_old(CSceneObject* theObject)
     if (objectType==sim_object_path_type)
     {
         CPath_old* path=(CPath_old*)theObject;
-        position=floatDouble(path->pathContainer->getPosition());
+        position=double(path->pathContainer->getPosition());
     }
 }
 
@@ -103,18 +103,18 @@ void CMemorizedConf_old::serializeFromMemory(std::vector<char>& data)
         position=popFloatFromBuffer(data);
 }
 
-void CMemorizedConf_old::pushFloatToBuffer(floatDouble d,std::vector<char>& data)
+void CMemorizedConf_old::pushFloatToBuffer(double d,std::vector<char>& data)
 {
-    for (size_t i=0;i<sizeof(floatDouble);i++)
+    for (size_t i=0;i<sizeof(double);i++)
         data.push_back(((char*)&d)[i]);
 }
 
-floatDouble CMemorizedConf_old::popFloatFromBuffer(std::vector<char>& data)
+double CMemorizedConf_old::popFloatFromBuffer(std::vector<char>& data)
 {
-    floatDouble d;
-    for (size_t i=0;i<sizeof(floatDouble);i++)
+    double d;
+    for (size_t i=0;i<sizeof(double);i++)
     {
-        ((char*)&d)[sizeof(floatDouble)-1-i]=data[data.size()-1];
+        ((char*)&d)[sizeof(double)-1-i]=data[data.size()-1];
         data.pop_back();
     }
     return(d);

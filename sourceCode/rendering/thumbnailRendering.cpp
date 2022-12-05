@@ -7,7 +7,7 @@ void displayThumbnail(CThumbnail* thumbnail,int posX,int posY,const char* name,i
     int borderWidth=sc*1;
     int textSpaceHeight=MODEL_BROWSER_TEXT_SPACE_HEIGHT*sc;
     ogl::disableLighting_useWithCare(); // only temporarily
-    glColor3f(ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[0],ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[1],ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[2]);
+    glColor3d(ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[0],ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[1],ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[2]);
     glBegin(GL_QUADS);
     glVertex3i(posX+borderWidth,posY-borderWidth,0);
     glVertex3i(posX+borderWidth+sc*128,posY-borderWidth,0);
@@ -18,7 +18,7 @@ void displayThumbnail(CThumbnail* thumbnail,int posX,int posY,const char* name,i
     const char* _thumbnailRGBAImage=thumbnail->getPointerToUncompressedImage();
     if (_thumbnailRGBAImage==nullptr)
     {
-        ogl::setTextColor(0.5f,0.0f,0.0f);
+        ogl::setTextColor(0.5,0.0,0.0);
         int textWidth=ogl::getTextLengthInPixels("Thumbnail");
         ogl::drawText(posX+borderWidth+sc*64-textWidth/2,posY-borderWidth-sc*64+ogl::getFontHeight()/2,0,"Thumbnail",true);
         textWidth=ogl::getTextLengthInPixels("not available");
@@ -36,18 +36,18 @@ void displayThumbnail(CThumbnail* thumbnail,int posX,int posY,const char* name,i
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
         glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP); // GL_REPEAT
         glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP); // GL_REPEAT
-        glTexEnvf (GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
         glEnable(GL_TEXTURE_2D);
-        glColor4f(ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[0],ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[1],ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[2], 1.0f);//0.125f); // fading
+        glColor4d(ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[0],ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[1],ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[2], 1.0);//0.125); // fading
 
         glBegin(GL_QUADS);
-        glTexCoord2f(0.0f,1.0f);
+        glTexCoord2f(0.0,1.0);
         glVertex3i(posX+borderWidth,posY-borderWidth,0);
-        glTexCoord2f(1.0f,1.0f);
+        glTexCoord2f(1.0,1.0);
         glVertex3i(posX+borderWidth+sc*128,posY-borderWidth,0);
-        glTexCoord2f(1.0f,0.0f);
+        glTexCoord2f(1.0,0.0);
         glVertex3i(posX+borderWidth+sc*128,posY-borderWidth-sc*128,0);
-        glTexCoord2f(0.0f,0.0f);
+        glTexCoord2f(0.0,0.0);
         glVertex3i(posX+borderWidth,posY-borderWidth-sc*128,0);
         glEnd();
         ogl::enableLighting_useWithCare();

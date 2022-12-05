@@ -133,7 +133,7 @@ void CQDlgJointDyn::refresh()
 
     if (dynamic&&(ctrlMode==sim_jointdynctrl_velocity))
     {
-        float maxVelAccelJerk[3];
+        double maxVelAccelJerk[3];
         it->getMaxVelAccelJerk(maxVelAccelJerk);
         if (it->getJointType()==sim_joint_revolute_subtype)
         {
@@ -174,7 +174,7 @@ void CQDlgJointDyn::refresh()
         else
             ui->qqPositionMode_position->setText(tt::getEString(true,it->getTargetPosition(),4).c_str());
         ui->qqPositionMode_force->setText(tt::getEString(false,it->getTargetForce(false),4).c_str());
-        float maxVelAccelJerk[3];
+        double maxVelAccelJerk[3];
         it->getMaxVelAccelJerk(maxVelAccelJerk);
         if (it->getJointType()==sim_joint_revolute_subtype)
         {
@@ -211,7 +211,7 @@ void CQDlgJointDyn::refresh()
             ui->qqSpringMode_position->setText(tt::getAngleEString(true,it->getTargetPosition(),4).c_str());
         else
             ui->qqSpringMode_position->setText(tt::getEString(true,it->getTargetPosition(),4).c_str());
-        float kp,cp;
+        double kp,cp;
         it->getKc(kp,cp);
         ui->qqK->setText(tt::getFString(false,kp,3).c_str());
         ui->qqC->setText(tt::getFString(false,cp,3).c_str());
@@ -250,10 +250,10 @@ void CQDlgJointDyn::on_qqK_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        float newVal=ui->qqK->text().toFloat(&ok);
+        double newVal=ui->qqK->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
-            float kp,cp;
+            double kp,cp;
             it->getKc(kp,cp);
             App::appendSimulationThreadCommand(SET_KCVALUES_JOINTDYNGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal,cp);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -270,10 +270,10 @@ void CQDlgJointDyn::on_qqC_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        float newVal=ui->qqC->text().toFloat(&ok);
+        double newVal=ui->qqC->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
-            float kp,cp;
+            double kp,cp;
             it->getKc(kp,cp);
             App::appendSimulationThreadCommand(SET_KCVALUES_JOINTDYNGUITRIGGEREDCMD,it->getObjectHandle(),-1,kp,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -289,7 +289,7 @@ void CQDlgJointDyn::on_qqForceMode_force_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqForceMode_force->text().toFloat(&ok);
+        double newVal=ui->qqForceMode_force->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_FORCE_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -306,7 +306,7 @@ void CQDlgJointDyn::on_qqVelocityMode_force_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqVelocityMode_force->text().toFloat(&ok);
+        double newVal=ui->qqVelocityMode_force->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_MAXFORCE_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -324,7 +324,7 @@ void CQDlgJointDyn::on_qqVelocityMode_velocity_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        float newVal=ui->qqVelocityMode_velocity->text().toFloat(&ok);
+        double newVal=ui->qqVelocityMode_velocity->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
@@ -354,7 +354,7 @@ void CQDlgJointDyn::on_qqPositionMode_position_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        float newVal=ui->qqPositionMode_position->text().toFloat(&ok);
+        double newVal=ui->qqPositionMode_position->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
@@ -373,7 +373,7 @@ void CQDlgJointDyn::on_qqPositionMode_force_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqPositionMode_force->text().toFloat(&ok);
+        double newVal=ui->qqPositionMode_force->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_MAXFORCE_JOINTDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -419,7 +419,7 @@ void CQDlgJointDyn::on_qqSpringMode_position_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        float newVal=ui->qqSpringMode_position->text().toFloat(&ok);
+        double newVal=ui->qqSpringMode_position->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
@@ -482,7 +482,7 @@ void CQDlgJointDyn::on_qqPositionMode_maxVel_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        float newVal=ui->qqPositionMode_maxVel->text().toFloat(&ok);
+        double newVal=ui->qqPositionMode_maxVel->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
@@ -502,7 +502,7 @@ void CQDlgJointDyn::on_qqPositionMode_maxAccel_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        float newVal=ui->qqPositionMode_maxAccel->text().toFloat(&ok);
+        double newVal=ui->qqPositionMode_maxAccel->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
@@ -522,7 +522,7 @@ void CQDlgJointDyn::on_qqPositionMode_maxJerk_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        float newVal=ui->qqPositionMode_maxJerk->text().toFloat(&ok);
+        double newVal=ui->qqPositionMode_maxJerk->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
@@ -552,7 +552,7 @@ void CQDlgJointDyn::on_qqVelocityMode_maxAccel_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        float newVal=ui->qqVelocityMode_maxAccel->text().toFloat(&ok);
+        double newVal=ui->qqVelocityMode_maxAccel->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
@@ -572,7 +572,7 @@ void CQDlgJointDyn::on_qqVelocityMode_maxJerk_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        float newVal=ui->qqVelocityMode_maxJerk->text().toFloat(&ok);
+        double newVal=ui->qqVelocityMode_maxJerk->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)

@@ -18,7 +18,7 @@ public:
     static bool saveScene(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,bool changeSceneUniqueId,std::vector<char>* saveBuffer=nullptr);
     static bool saveModel(int modelBaseDummyID,const char* pathAndFilename,bool displayMessages,bool setCurrentDir,std::vector<char>* saveBuffer=nullptr);
 
-    static int apiAddHeightfieldToScene(int xSize,float pointSpacing,const std::vector<std::vector<float>*>& readData,float shadingAngle,int options);
+    static int apiAddHeightfieldToScene(int xSize,double pointSpacing,const std::vector<std::vector<double>*>& readData,double shadingAngle,int options);
     static void createNewScene(bool displayMessages,bool forceForNewInstance);
     static void closeScene(bool displayMessages);
     static void addToRecentlyOpenedScenes(std::string filenameAndPath);

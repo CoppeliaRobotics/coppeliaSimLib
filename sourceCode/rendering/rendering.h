@@ -8,14 +8,14 @@ void _prepareAuxClippingPlanes();
 void _enableAuxClippingPlanes(int objID);
 void _prepareOrEnableAuxClippingPlanes(bool prepare,int objID);
 void _disableAuxClippingPlanes();
-void _drawReference(CSceneObject* object,float refSize);
-void _displayBoundingBox(CSceneObject* object,int displayAttrib,bool displRef,float refSize);
+void _drawReference(CSceneObject* object,double refSize);
+void _displayBoundingBox(CSceneObject* object,int displayAttrib,bool displRef,double refSize);
 void _selectLights(CSceneObject* object,CViewableBase* viewable);
 void _restoreDefaultLights(CSceneObject* object,CViewableBase* viewable);
 void _commonStart(CSceneObject* object,CViewableBase* viewable,int displayAttrib);
 void _commonFinish(CSceneObject* object,CViewableBase* viewable);
 
-void _drawTriangles(const floatFloat* vertices,int verticesCnt,const int* indices,int indicesCnt,const floatFloat* normals,const floatFloat* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId);
+void _drawTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,const float* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId);
 bool _drawEdges(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const unsigned char* edges,int* edgeBufferId);
 void _drawColorCodedTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,int* vertexBufferId,int* normalBufferId);
 

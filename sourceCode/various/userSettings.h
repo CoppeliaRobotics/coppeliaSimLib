@@ -15,10 +15,10 @@ public:
     void saveUserSettings();
     void loadUserSettings();
 
-    void setTranslationStepSize(float s);
-    float getTranslationStepSize();
-    void setRotationStepSize(float s);
-    float getRotationStepSize();
+    void setTranslationStepSize(double s);
+    double getTranslationStepSize();
+    void setRotationStepSize(double s);
+    double getRotationStepSize();
     int getIdleFps();
     void setIdleFps(int fps);
     void setIdleFps_session(int fps);
@@ -39,16 +39,15 @@ public:
     bool useGlFinish;
     bool useGlFinish_visionSensors;
     bool oglCompatibilityTweak1;
-    float stereoDist;
+    double stereoDist;
     int vsync;
     bool debugOpenGl;
     bool identicalVerticesCheck;
-    float identicalVerticesTolerance;
+    double identicalVerticesTolerance;
     bool identicalTrianglesCheck;
     bool identicalTrianglesWindingCheck;
     bool compressFiles;
     int triCountInOBB;
-    bool saveApproxNormals;
     bool packIndices;
     bool runCustomizationScripts;
     bool test1;
@@ -70,7 +69,7 @@ public:
 
     bool middleMouseButtonSwitchesModes;
     bool navigationBackwardCompatibility;
-    float colorAdjust_backCompatibility;
+    double colorAdjust_backCompatibility;
     bool specificGpuTweak;
     bool useAlternateSerialPortRoutines;
     bool disableOpenGlBasedCustomUi;
@@ -83,7 +82,7 @@ public:
     int threadedScriptsStoppingGraceTime;
     bool displayBoundingBoxeWhenObjectSelected;
     bool antiAliasing;
-    float dynamicActivityRange;
+    double dynamicActivityRange;
     int freeServerPortStart;
     int freeServerPortRange;
     bool darkMode;
@@ -100,7 +99,7 @@ public:
     int visionSensorsUseGuiThread_windowed;
     int visionSensorsUseGuiThread_headless;
     int fileDialogs;
-    float mouseWheelZoomFactor;
+    double mouseWheelZoomFactor;
 
     bool doNotWritePersistentData;
     bool doNotShowCrashRecoveryMessage;
@@ -173,7 +172,7 @@ public:
 
     int highResDisplay;
     int oglScaling;
-    float guiScaling;
+    double guiScaling;
     bool noEdgesWhenMouseDownInCameraView;
     bool noTexturesWhenMouseDownInCameraView;
     bool noCustomUisWhenMouseDownInCameraView;
@@ -196,8 +195,8 @@ private:
     void _setIntVector3(int v[3],int a,int b,int c);
     bool _undoRedoEnabled;
     bool _undoRedoOnlyPartialWithCameras;
-    float _translationStepSize;
-    float _rotationStepSize;
+    double _translationStepSize;
+    double _rotationStepSize;
     int _idleFps;
     int _idleFps_session;
     int _nextfreeServerPortToUse;

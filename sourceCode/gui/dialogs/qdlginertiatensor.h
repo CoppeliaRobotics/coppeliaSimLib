@@ -1,8 +1,8 @@
-
 #ifndef QDLGINERTIATENSOR_H
 #define QDLGINERTIATENSOR_H
 
 #include "vDialog.h"
+#include "simTypes.h"
 
 namespace Ui {
     class CQDlgInertiaTensor;
@@ -21,8 +21,8 @@ public:
 
     void refresh();
 
-    float tensor[9];
-    float com[9];
+    double tensor[9];
+    double com[9];
     bool applyToSelection;
 
 private slots:

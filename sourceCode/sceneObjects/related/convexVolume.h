@@ -22,45 +22,45 @@ public:
     virtual ~CConvexVolume();
 
     CConvexVolume* copyYourself();
-    void scaleVolume(floatDouble scalingFactor);
-    void scaleVolumeNonIsometrically(floatDouble x,floatDouble y,floatDouble z,floatDouble& xRet,floatDouble& yRet,floatDouble& zRet);
+    void scaleVolume(double scalingFactor);
+    void scaleVolumeNonIsometrically(double x,double y,double z,double& xRet,double& yRet,double& zRet);
     void serialize(CSer& ar);
     bool getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const;
     void disableVolumeComputation(bool disableIt);
 
     void commonInit();
     C4X4Matrix getTheMatrix(const C3Vector& pt0,const C3Vector& pt1,const C3Vector& pt2,bool tri);
-    void add3Values(std::vector<floatDouble>& vect,const C4X4Matrix& transf,floatDouble x,floatDouble y,floatDouble z);
-    void addAPlane(std::vector<floatDouble>* volume,std::vector<floatDouble>* normals,floatDouble nL,const C4X4Matrix& m,bool inside);
-    void computeVolumeEdges(std::vector<floatDouble>& edges);
-    void getCloseAndFarVolumeEdges(std::vector<floatDouble>& allEdges,floatDouble distance,std::vector<floatDouble>& closeEdges,std::vector<floatDouble>& farEdges);
-    void removeEdgesNotInsideVolume(std::vector<floatDouble>& edges,std::vector<floatDouble>& planes,bool invertSides);
-    void generateSphereEdges(std::vector<floatDouble>& edges,floatDouble radius);
+    void add3Values(std::vector<double>& vect,const C4X4Matrix& transf,double x,double y,double z);
+    void addAPlane(std::vector<double>* volume,std::vector<double>* normals,double nL,const C4X4Matrix& m,bool inside);
+    void computeVolumeEdges(std::vector<double>& edges);
+    void getCloseAndFarVolumeEdges(std::vector<double>& allEdges,double distance,std::vector<double>& closeEdges,std::vector<double>& farEdges);
+    void removeEdgesNotInsideVolume(std::vector<double>& edges,std::vector<double>& planes,bool invertSides);
+    void generateSphereEdges(std::vector<double>& edges,double radius);
 
     void computeVolumes();
 
-    void setVolumeType(int theType,int objectTypeTheVolumeIsFor,floatDouble pointSize);
+    void setVolumeType(int theType,int objectTypeTheVolumeIsFor,double pointSize);
     int getVolumeType();
-    void setOffset(floatDouble theOffset,bool recomputeVolume=true);
-    floatDouble getOffset() const;
-    void setRange(floatDouble theRange,bool recomputeVolume=true);
-    floatDouble getRange() const;
-    void setXSize(floatDouble theXSize,bool recomputeVolume=true);
-    floatDouble getXSize() const;
-    void setYSize(floatDouble theYSize,bool recomputeVolume=true);
-    floatDouble getYSize() const;
-    void setXSizeFar(floatDouble theXSizeFar,bool recomputeVolume=true);
-    floatDouble getXSizeFar() const;
-    void setYSizeFar(floatDouble theYSizeFar,bool recomputeVolume=true);
-    floatDouble getYSizeFar() const;
-    void setRadius(floatDouble theRadius,bool recomputeVolume=true);
-    floatDouble getRadius() const;
-    void setRadiusFar(floatDouble theRadiusFar,bool recomputeVolume=true);
-    floatDouble getRadiusFar() const;
-    void setAngle(floatDouble theAngle,bool recomputeVolume=true);
-    floatDouble getAngle() const;
-    void setInsideAngleThing(floatDouble theAngleThing,bool recomputeVolume=true);
-    floatDouble getInsideAngleThing() const;
+    void setOffset(double theOffset,bool recomputeVolume=true);
+    double getOffset() const;
+    void setRange(double theRange,bool recomputeVolume=true);
+    double getRange() const;
+    void setXSize(double theXSize,bool recomputeVolume=true);
+    double getXSize() const;
+    void setYSize(double theYSize,bool recomputeVolume=true);
+    double getYSize() const;
+    void setXSizeFar(double theXSizeFar,bool recomputeVolume=true);
+    double getXSizeFar() const;
+    void setYSizeFar(double theYSizeFar,bool recomputeVolume=true);
+    double getYSizeFar() const;
+    void setRadius(double theRadius,bool recomputeVolume=true);
+    double getRadius() const;
+    void setRadiusFar(double theRadiusFar,bool recomputeVolume=true);
+    double getRadiusFar() const;
+    void setAngle(double theAngle,bool recomputeVolume=true);
+    double getAngle() const;
+    void setInsideAngleThing(double theAngleThing,bool recomputeVolume=true);
+    double getInsideAngleThing() const;
     void setFaceNumber(int theFaceNumber,bool recomputeVolume=true);
     int getFaceNumber() const;
     void setFaceNumberFar(int theFaceNumberFar,bool recomputeVolume=true);
@@ -71,36 +71,36 @@ public:
     int getSubdivisionsFar() const;
     void setSmallestDistanceEnabled(bool e,bool recomputeVolume=true);
     bool getSmallestDistanceEnabled() const;
-    void setSmallestDistanceAllowed(floatDouble d,bool recomputeVolume=true);
-    floatDouble getSmallestDistanceAllowed() const;
-    void setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,floatDouble pointSize);
+    void setSmallestDistanceAllowed(double d,bool recomputeVolume=true);
+    double getSmallestDistanceAllowed() const;
+    void setDefaultVolumeParameters(int objectTypeTheVolumeIsFor,double pointSize);
     void solveInterferences();
     
     // Variables which need to be serialized & copied
-    std::vector<floatDouble> planesInside;// Detection volume is formed by the inside volume minus the outside volume
-    std::vector<floatDouble> planesOutside;
-    std::vector<floatDouble> normalsInside;
-    std::vector<floatDouble> normalsOutside;
-    std::vector<floatDouble> volumeEdges;
-    std::vector<floatDouble> nonDetectingVolumeEdges;
+    std::vector<double> planesInside;// Detection volume is formed by the inside volume minus the outside volume
+    std::vector<double> planesOutside;
+    std::vector<double> normalsInside;
+    std::vector<double> normalsOutside;
+    std::vector<double> volumeEdges;
+    std::vector<double> nonDetectingVolumeEdges;
 
 protected:
     bool _volumeComputationTemporarilyDisabled;
 
     // Variables which need to be serialized & copied
-    floatDouble _smallestDistanceAllowed;
+    double _smallestDistanceAllowed;
     bool _smallestDistanceEnabled;
     int _volumeType;
-    floatDouble offset;
-    floatDouble range;
-    floatDouble xSize;
-    floatDouble ySize;
-    floatDouble xSizeFar;
-    floatDouble ySizeFar;
-    floatDouble radius;
-    floatDouble radiusFar;
-    floatDouble angle;
-    floatDouble insideAngleThing;
+    double offset;
+    double range;
+    double xSize;
+    double ySize;
+    double xSizeFar;
+    double ySizeFar;
+    double radius;
+    double radiusFar;
+    double angle;
+    double insideAngleThing;
     int faceNumber;
     int faceNumberFar;
     int subdivisions;

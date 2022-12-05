@@ -19,7 +19,7 @@ public:
     void performObjectLoadingMapping(const std::map<int,int>* map);
     void performTextureObjectLoadingMapping(const std::map<int,int>* map);
     void addTextureDependencies(int objID,int objSubID);
-    void scaleObject(floatDouble scalingFactor);
+    void scaleObject(double scalingFactor);
     void setInterpolateColors(bool ic);
     bool getInterpolateColors();
     void setApplyMode(int dt);
@@ -28,19 +28,18 @@ public:
 
     int getTextureObjectID();
     CTextureObject* getTextureObject();
-    void transformToFixedTextureCoordinates(const C7Vector& transf,const std::vector<floatDouble>& vertices,const std::vector<int>& triangles);
-    std::vector<floatFloat>* getTextureCoordinates(int objectStateId,const C7Vector& transf,const std::vector<floatDouble>& vertices,const std::vector<int>& triangles);
-    std::vector<floatFloat>* getFixedTextureCoordinates();
+    std::vector<float>* getTextureCoordinates(int objectStateId,const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles);
+    std::vector<float>* getFixedTextureCoordinates();
     C7Vector getTextureRelativeConfig();
     void setTextureRelativeConfig(const C7Vector& c);
-    void getTextureScaling(floatDouble& x,floatDouble& y);
-    void setTextureScaling(floatDouble x,floatDouble y);
+    void getTextureScaling(double& x,double& y);
+    void setTextureScaling(double x,double y);
     void setRepeatU(bool r);
     bool getRepeatU();
     void setRepeatV(bool r);
     bool getRepeatV();
 
-    void setFixedCoordinates(const std::vector<floatFloat>* coords); // nullptr to remove them and have calculated coords
+    void setFixedCoordinates(const std::vector<float>* coords); // nullptr to remove them and have calculated coords
     bool getFixedCoordinates();
 
     void setTextureMapMode(int mode);
@@ -64,12 +63,12 @@ private:
     int _textureOrVisionSensorObjectID;
     int _textureCoordinateMode;
     C7Vector _textureRelativeConfig;
-    floatDouble _textureScalingX;
-    floatDouble _textureScalingY;
+    double _textureScalingX;
+    double _textureScalingY;
     int _texCoordBufferId; // used for VBOs
-    std::vector<floatFloat> _fixedTextureCoordinates;
+    std::vector<float> _fixedTextureCoordinates;
 
     // do not copy nor serialize:
     int _objectStateId;
-    std::vector<floatFloat> _calculatedTextureCoordinates;
+    std::vector<float> _calculatedTextureCoordinates;
 };

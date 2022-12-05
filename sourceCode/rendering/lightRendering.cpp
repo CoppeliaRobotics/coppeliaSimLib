@@ -28,25 +28,26 @@ void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib
             glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
 
         _enableAuxClippingPlanes(light->getObjectHandle());
-        C3Vector normalizedAmbientColor(light->getColor(true)->getColorsPtr());
+        C3Vector normalizedAmbientColor;
+        normalizedAmbientColor.setData(light->getColor(true)->getColorsPtr());
         float m=std::max<float>(std::max<float>(normalizedAmbientColor(0),normalizedAmbientColor(1)),normalizedAmbientColor(2));
-        if (m>0.00001f)
+        if (m>0.00001)
             normalizedAmbientColor/=m;
-        C3Vector normalizedDiffuseColor(light->getColor(true)->getColorsPtr()+3);
+        C3Vector normalizedDiffuseColor;
+        normalizedDiffuseColor.setData(light->getColor(true)->getColorsPtr()+3);
         m=std::max<float>(std::max<float>(normalizedDiffuseColor(0),normalizedDiffuseColor(1)),normalizedDiffuseColor(2));
-        if (m>0.00001f)
+        if (m>0.00001)
             normalizedDiffuseColor/=m;
-        C3Vector normalizedSpecularColor(light->getColor(true)->getColorsPtr()+6);
+        C3Vector normalizedSpecularColor;
+        normalizedSpecularColor.setData(light->getColor(true)->getColorsPtr()+6);
         m=std::max<float>(std::max<float>(normalizedSpecularColor(0),normalizedSpecularColor(1)),normalizedSpecularColor(2));
-        if (m>0.00001f)
+        if (m>0.00001)
             normalizedSpecularColor/=m;
-        normalizedAmbientColor+=normalizedDiffuseColor*0.2f+normalizedSpecularColor*0.1f;
+        normalizedAmbientColor+=normalizedDiffuseColor*0.2+normalizedSpecularColor*0.1;
         m=std::max<float>(std::max<float>(normalizedAmbientColor(0),normalizedAmbientColor(1)),normalizedAmbientColor(2));
-        if (m>0.00001f)
+        if (m>0.00001)
             normalizedAmbientColor/=m;
-//      float black[3]={0.0f,0.0f,0.0f};
-//      float grey[3]={0.2f,0.2f,0.2f};
-        float lightEmission[3]={0.0f,0.0f,0.0f};
+        float lightEmission[3]={0.0,0.0,0.0};
         for (int i=0;i<3;i++)
         {
             if ((displayAttrib&sim_displayattribute_useauxcomponent)!=0)
@@ -58,50 +59,50 @@ void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib
         {
             if ((displayAttrib&sim_displayattribute_useauxcomponent)!=0)
             { // we automatically adjust the temperature and light channels:
-                lightEmission[0]=0.5f;
-                lightEmission[2]=0.0f;
+                lightEmission[0]=0.5;
+                lightEmission[2]=0.0;
             }
             else
             {
-                lightEmission[0]=0.0f;
-                lightEmission[1]=0.0f;
-                lightEmission[2]=0.0f;
+                lightEmission[0]=0.0;
+                lightEmission[1]=0.0;
+                lightEmission[2]=0.0;
             }
         }
-        float _lightSize=light->getLightSize();
+        double _lightSize=light->getLightSize();
         if (light->getLightType()==sim_light_omnidirectional_subtype)
         {   // Omnidirectional light
             if (light->getLightActive())
                 ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,lightEmission);
             else
                 ogl::setMaterialColor(ogl::colorDarkGrey,ogl::colorDarkGrey,lightEmission);
-            ogl::drawSphere(0.5f*_lightSize,20,10,true);
+            ogl::drawSphere(0.5*_lightSize,20,10,true);
         }
         if (light->getLightType()==sim_light_spot_subtype)
         {   //spotLight
             light->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
             glPushMatrix();
-            glTranslatef(0.0f,0.0f,-0.5f*_lightSize);
-            ogl::drawCone(1.6f*_lightSize,2.0f*_lightSize,20,true,true);
-            glTranslatef(0.0f,0.0f,0.5f*_lightSize);
+            glTranslated(0.0,0.0,-0.5*_lightSize);
+            ogl::drawCone(1.6*_lightSize,2.0*_lightSize,20,true,true);
+            glTranslated(0.0,0.0,0.5*_lightSize);
             if (light->getLightActive())
                 ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,lightEmission);
             else
                 ogl::setMaterialColor(ogl::colorDarkGrey,ogl::colorDarkGrey,lightEmission);
-            ogl::drawSphere(0.5f*_lightSize,20,10,true);
+            ogl::drawSphere(0.5*_lightSize,20,10,true);
             glPopMatrix();
         }
         if (light->getLightType()==sim_light_directional_subtype)
         {   // Directional light
             glPushMatrix();
-                glTranslatef(0.0f,0.0f,0.5f*_lightSize);
+                glTranslated(0.0,0.0,0.5*_lightSize);
                 if (light->getLightActive())
                     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,lightEmission);
                 else
                     ogl::setMaterialColor(ogl::colorDarkGrey,ogl::colorDarkGrey,lightEmission);
                 ogl::drawDisk(_lightSize,20);
                 light->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-                glTranslatef(0.0f,0.0f,-_lightSize/2.0f);
+                glTranslated(0.0,0.0,-_lightSize/2.0);
                 ogl::drawCylinder(_lightSize,_lightSize,20,1,true);
 
             glPopMatrix();

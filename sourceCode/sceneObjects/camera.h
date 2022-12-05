@@ -6,8 +6,8 @@
 #include "light.h"
 #include "sView.h"
 
-const floatDouble ORTHO_CAMERA_NEAR_CLIPPING_PLANE=0.0001;
-const floatDouble ORTHO_CAMERA_FAR_CLIPPING_PLANE=300.0;
+const double ORTHO_CAMERA_NEAR_CLIPPING_PLANE=0.0001;
+const double ORTHO_CAMERA_FAR_CLIPPING_PLANE=300.0;
 
 enum {  DEPTHPASS=0,
         RENDERPASS,
@@ -26,8 +26,8 @@ public:
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
-    void scaleObject(floatDouble scalingFactor);
-    void scaleObjectNonIsometrically(floatDouble x,floatDouble y,floatDouble z);
+    void scaleObject(double scalingFactor);
+    void scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -61,8 +61,8 @@ public:
     int getPerspectiveOperation() const;
     int getViewOrientation() const;
     void setViewOrientation(int ori,bool setPositionAlso=false);
-    void setCameraSize(floatDouble size);
-    floatDouble getCameraSize() const;
+    void setCameraSize(double size);
+    double getCameraSize() const;
     void setAllowPicking(bool a);
     bool getAllowPicking() const;
     void setTrackedObjectHandle(int trackedObjHandle);
@@ -82,12 +82,12 @@ public:
     void shiftCameraInCameraManipulationMode(const C3Vector& newLocalPos);
     void rotateCameraInCameraManipulationMode(const C7Vector& newLocalConf);
 
-    void frameSceneOrSelectedObjects(floatDouble windowWidthByHeight,bool forPerspectiveProjection,std::vector<int>* selectedObjects,bool useSystemSelection,bool includeModelObjects,floatDouble scalingFactor,CSView* optionalView);
+    void frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPerspectiveProjection,std::vector<int>* selectedObjects,bool useSystemSelection,bool includeModelObjects,double scalingFactor,CSView* optionalView);
     CColorObject* getColor(bool secondPart);
 
 protected:
     // Variables which need to be serialized & copied (don't forget the vars from the CViewableBase class!)
-    floatDouble _cameraSize;
+    double _cameraSize;
     int _renderMode;
     int _perspectiveOperation; // -1: undefined, 0=false, 1=true
     int _remoteCameraMode; // 0: free, 1: slave, 2: master

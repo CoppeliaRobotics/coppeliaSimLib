@@ -190,33 +190,23 @@ std::string CTTUtil::getLowerCaseString(const char* str)
     return(retValue);
 }
 
-void CTTUtil::scaleLightDown_(float& r,float& g,float& b)
-{ // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other applications
-    r*=0.675f;
-    g*=0.675f;
-    b*=0.675f;
-}
-
-void CTTUtil::scaleColorUp_(float& r,float& g,float& b)
-{ // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other applications
-    float f=1.5f;
-    float m=std::max<float>(std::max<float>(r,g),b);
-    float d=1.0f/m;
-    if (d<f)
-        f=d;
-    r*=f;
-    g*=f;
-    b*=f;
-}
-
 void CTTUtil::scaleLightDown_(float* rgb)
-{
-    scaleLightDown_(rgb[0],rgb[1],rgb[2]);
+{ // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other applications
+    rgb[0]*=0.675;
+    rgb[1]*=0.675;
+    rgb[2]*=0.675;
 }
 
 void CTTUtil::scaleColorUp_(float* rgb)
-{
-    scaleColorUp_(rgb[0],rgb[1],rgb[2]);
+{ // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other applications
+    float f=1.5;
+    float m=std::max<float>(std::max<float>(rgb[0],rgb[1]),rgb[2]);
+    float d=1.0/m;
+    if (d<f)
+        f=d;
+    rgb[0]*=f;
+    rgb[1]*=f;
+    rgb[2]*=f;
 }
 
 std::string CTTUtil::decode64(const std::string &data)
@@ -234,7 +224,7 @@ std::string CTTUtil::generateUniqueString()
     std::string s("1234567890123456");
     char a[17];
     for (size_t i=0;i<16;i++)
-        a[i]=(unsigned char)(((static_cast<float>(rand())/static_cast<float>(RAND_MAX)))*255.1f);
+        a[i]=(unsigned char)(((static_cast<double>(rand())/static_cast<double>(RAND_MAX)))*255.1);
     char b[17];
     sprintf(b,"%i",(int)VDateTime::getTimeInMs());
     char c[17];
@@ -256,7 +246,7 @@ std::string CTTUtil::generateUniqueReadableString()
     char num[4];
     for (size_t i=0;i<8;i++)
     {
-        unsigned char nb=(unsigned char)(((static_cast<float>(rand())/static_cast<float>(RAND_MAX)))*255.1f);
+        unsigned char nb=(unsigned char)(((static_cast<double>(rand())/static_cast<double>(RAND_MAX)))*255.1);
         snprintf(num,3,"%x",nb);
         if (strlen(num)==1)
             str+=std::string("0")+num;

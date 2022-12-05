@@ -87,11 +87,11 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
         int indentNb,std::vector<int>* vertLines,int minRenderedPos[2],int maxRenderedPos[2],bool forDragAndDrop/*=false*/,int transparentForTreeObjects/*=-1*/,int dropID/*=-1*/,int worldClick/*=-9999*/)
 { // transparentForTreeObjects==-1: normal, transparentForTreeObjects==-2: transparent, otherwise transparent only for objID=transparentForTreeObjects
     const unsigned char horizontalShift=13*App::sc;
-    float transparencyFactor=0.0f;
+    double transparencyFactor=0.0;
     if ((transparentForTreeObjects>=0)&&(transparentForTreeObjects==objectID))
         transparentForTreeObjects=-2; // from here on, everything is transparent
     if (transparentForTreeObjects==-2)
-        transparencyFactor=0.875f;
+        transparencyFactor=0.875;
 
     bool isOtherWorld=((objectID<0)&&(!isLocalWorld()));
 
@@ -135,7 +135,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
 
 
     bool inSelection=false;
-    float dummyCol[3]={0.0f,0.0f,0.0f};
+    float dummyCol[3]={0.0,0.0,0.0};
     float* bgCol=dummyCol;
     if (!forDragAndDrop)
     {
@@ -304,11 +304,11 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
                 tc=ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE;
         }
         if (transparentForTreeObjects==-2)
-            ogl::setTextColor((tc[0]+7.0f*bgCol[0])*0.125f,(tc[1]+7.0f*bgCol[1])*0.125f,(tc[2]+7.0f*bgCol[2])*0.125f);
+            ogl::setTextColor((tc[0]+7.0*bgCol[0])*0.125,(tc[1]+7.0*bgCol[1])*0.125,(tc[2]+7.0*bgCol[2])*0.125);
         else
         {
             if ((it==nullptr)&&(!isLocalWorld()))
-                ogl::setTextColor((tc[0]+3.0f*bgCol[0])*0.25f,(tc[1]+3.0f*bgCol[1])*0.25f,(tc[2]+3.0f*bgCol[2])*0.25f);
+                ogl::setTextColor((tc[0]+3.0*bgCol[0])*0.25,(tc[1]+3.0*bgCol[1])*0.25,(tc[2]+3.0*bgCol[2])*0.25);
             else
                 ogl::setTextColor(tc);
         }
@@ -560,7 +560,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     }
 }
 
-int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier,int tPosX,int tPosY,CSceneObject* it,int pictureID,bool drawIt,float transparencyFactor,bool forDragAndDrop)
+int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier,int tPosX,int tPosY,CSceneObject* it,int pictureID,bool drawIt,double transparencyFactor,bool forDragAndDrop)
 { // pictureID is -1 by default. It is then ignored. The size of the icon is 16x16
     int retVal=0;
     if (pictureID!=NO_TREE_PICTURE)
@@ -604,7 +604,7 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier,int tPosX,int tPos
                 {
                     objectOrWorldIconID=WORLD_TREE_PICTURE;
                     if (!isLocalWorld())
-                        transparencyFactor=0.6f;
+                        transparencyFactor=0.6;
                 }
                 if (type==sim_object_shape_type)
                 {
@@ -901,7 +901,7 @@ int CHierarchyElement::_drawIcon_editModeList(CHierarchy* hier,int tPosX,int tPo
             if (drawIt)
             {
                 App::worldContainer->globalGuiTextureCont->startTextureDisplay(pictureID);
-                _drawTexturedIcon(tPosX,tPosY,sizeX,sizeY,0.0f);
+                _drawTexturedIcon(tPosX,tPosY,sizeX,sizeY,0.0);
             }
             hier->objectIconPosition.push_back(tPosX);
             hier->objectIconPosition.push_back(tPosY);
@@ -912,29 +912,29 @@ int CHierarchyElement::_drawIcon_editModeList(CHierarchy* hier,int tPosX,int tPo
     return(retVal);
 }
 
-void CHierarchyElement::_drawTexturedIcon(int tPosX,int tPosY,int sizeX,int sizeY,float transparencyFactor)
+void CHierarchyElement::_drawTexturedIcon(int tPosX,int tPosY,int sizeX,int sizeY,double transparencyFactor)
 {
     ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
 
-    if (transparencyFactor>0.01f)
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f-transparencyFactor);
+    if (transparencyFactor>0.01)
+        glColor4f(1.0, 1.0, 1.0, float(1.0-transparencyFactor));
     else
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // opaque
+        glColor4f(1.0, 1.0, 1.0, 1.0); // opaque
 
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 
-    glTexEnvf (GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     glEnable(GL_TEXTURE_2D);
     ogl::disableLighting_useWithCare(); // only temporarily
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f,0.0f);
+    glTexCoord2f(0.0,0.0);
     glVertex3i(tPosX-sizeX/2,tPosY-sizeY/2,0);
-    glTexCoord2f(0.625f,0.0f); // icons themselves are 20x16, but since some gfx cards don't support that non-power of 2 res, we save them as 32x16!
+    glTexCoord2f(0.625,0.0); // icons themselves are 20x16, but since some gfx cards don't support that non-power of 2 res, we save them as 32x16!
     glVertex3i(tPosX+sizeX/2,tPosY-sizeY/2,0);
-    glTexCoord2f(0.625f,1.0f); // icons themselves are 20x16, but since some gfx cards don't support that non-power of 2 res, we save them as 32x16!
+    glTexCoord2f(0.625,1.0); // icons themselves are 20x16, but since some gfx cards don't support that non-power of 2 res, we save them as 32x16!
     glVertex3i(tPosX+sizeX/2,tPosY+sizeY/2,0);
-    glTexCoord2f(0.0f,1.0f);
+    glTexCoord2f(0.0,1.0);
     glVertex3i(tPosX-sizeX/2,tPosY+sizeY/2,0);
     glEnd();
     glDisable(GL_TEXTURE_2D);

@@ -17,7 +17,7 @@ public:
     static void pasteCopyBuffer(bool displayMessages);
     static void cutObjects(std::vector<int>* selection,bool displayMessages);
     static void deleteObjects(std::vector<int>* selection,bool displayMessages);
-    static void scaleObjects(const std::vector<int>& selection,float scalingFactor,bool scalePositionsToo);
+    static void scaleObjects(const std::vector<int>& selection,double scalingFactor,bool scalePositionsToo);
 
     static void addRootObjectChildrenToSelection(std::vector<int>& selection);
 
@@ -38,12 +38,12 @@ public:
                                         bool addFacesPoints,double maxConnectDist,size_t maxTrianglesInDecimatedMesh,
                                         size_t maxHullVertices,double smallClusterThreshold,
                                         bool individuallyConsiderMultishapeComponents,int maxIterations,
-                                        bool useHACD,int resolution_VHACD,int depth_VHACD_old,float concavity_VHACD,
+                                        bool useHACD,int resolution_VHACD,int depth_VHACD_old,double concavity_VHACD,
                                         int planeDownsampling_VHACD,int convexHullDownsampling_VHACD,
-                                        float alpha_VHACD,float beta_VHACD,float gamma_VHACD_old,bool pca_VHACD,
-                                        bool voxelBased_VHACD,int maxVerticesPerCH_VHACD,float minVolumePerCH_VHACD);
+                                        double alpha_VHACD,double beta_VHACD,double gamma_VHACD_old,bool pca_VHACD,
+                                        bool voxelBased_VHACD,int maxVerticesPerCH_VHACD,double minVolumePerCH_VHACD);
     static int generateConvexHull(int shapeHandle);
-    static int convexDecompose_apiVersion(int shapeHandle,int options,const int* intParams,const float* floatParams);
+    static int convexDecompose_apiVersion(int shapeHandle,int options,const int* intParams,const double* floatParams);
 
 #ifdef SIM_WITH_GUI
     static void addMenu(VMenu* menu);

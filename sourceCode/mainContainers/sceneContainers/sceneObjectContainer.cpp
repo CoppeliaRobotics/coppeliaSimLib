@@ -560,7 +560,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         std::string theName(name);
         if (theName.compare(SER_SHAPE)==0)
         {
-            ar >> byteQuantity; 
+            ar >> byteQuantity;
             CShape* myNewObject=new CShape();
             myNewObject->serialize(ar);
             noHit=false;
@@ -1582,16 +1582,16 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
             if (ar.xmlGetNode_floats("initialLinearVelocity",vel.data,3,false))
                 shape->setInitialDynamicLinearVelocity(vel);
             if (ar.xmlGetNode_floats("initialAngularVelocity",vel.data,3,false))
-                shape->setInitialDynamicAngularVelocity(vel*piValue/180.0f);
-            float mass=1.0f;
+                shape->setInitialDynamicAngularVelocity(vel*piValue/180.0);
+            double mass=1.0;
             if (ar.xmlGetNode_float("mass",mass,false))
             {
-                if (mass<0.0000001f)
-                    mass=0.0000001f;
+                if (mass<0.0000001)
+                    mass=0.0000001;
                 shape->getMeshWrapper()->setMass(mass);
             }
 
-            C3Vector pmoment(0.1f,0.1f,0.1f);
+            C3Vector pmoment(0.1,0.1,0.1);
             ar.xmlGetNode_floats("principalMomentOfInertia",pmoment.data,3,false);
             C7Vector inertiaFrame;
             inertiaFrame.setIdentity();
@@ -1601,14 +1601,14 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
                 C3Vector euler;
                 if (ar.xmlGetNode_floats("euler",euler.data,3,false))
                 {
-                    euler(0)*=piValue/180.0f;
-                    euler(1)*=piValue/180.0f;
-                    euler(2)*=piValue/180.0f;
+                    euler(0)*=piValue/180.0;
+                    euler(1)*=piValue/180.0;
+                    euler(2)*=piValue/180.0;
                     inertiaFrame.Q.setEulerAngles(euler);
                 }
                 ar.xmlPopNode();
             }
-            float inertia[6]={0.1f,0.0f,0.0f,0.1f,0.0f,0.1f};
+            double inertia[6]={0.1,0.0,0.0,0.1,0.0,0.1};
             bool hasInertia=false;
             hasInertia=ar.xmlGetNode_floats("inertia",inertia,6,false);
             if (ar.xmlPushChildNode("switches",false))
@@ -1651,12 +1651,12 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
                 m/=mass; // in CoppeliaSim we work with the "massless inertia"
                 CMeshWrapper::findPrincipalMomentOfInertia(m,rot,pmoment);
             }
-            if (pmoment(0)<0.0000001f)
-                pmoment(0)=0.0000001f;
-            if (pmoment(1)<0.0000001f)
-                pmoment(1)=0.0000001f;
-            if (pmoment(2)<0.0000001f)
-                pmoment(0)=0.0000001f;
+            if (pmoment(0)<0.0000001)
+                pmoment(0)=0.0000001;
+            if (pmoment(1)<0.0000001)
+                pmoment(1)=0.0000001;
+            if (pmoment(2)<0.0000001)
+                pmoment(0)=0.0000001;
             shape->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
             shape->getMeshWrapper()->setLocalInertiaFrame(shape->getFullCumulativeTransformation().getInverse()*tr.getTransformation()*C7Vector(rot,com));
         }
@@ -1710,7 +1710,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
         loadVisualAttributes=true;
         int primitiveType=0;
         ar.xmlGetNode_enum("type",primitiveType,false,"cuboid",0,"sphere",1,"cylinder",2,"cone",3,"plane",4,"disc",5,"capsule",6);
-        float sizes[3]={0.1f,0.1f,0.1f};
+        double sizes[3]={0.1,0.1,0.1};
         ar.xmlGetNode_floats("size",sizes,3,false);
         C7Vector tr;
         tr.setIdentity();
@@ -1720,15 +1720,15 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
             C3Vector euler;
             if (ar.xmlGetNode_floats("euler",euler.data,3,false))
             {
-                euler(0)*=piValue/180.0f;
-                euler(1)*=piValue/180.0f;
-                euler(2)*=piValue/180.0f;
+                euler(0)*=piValue/180.0;
+                euler(1)*=piValue/180.0;
+                euler(2)*=piValue/180.0;
                 tr.Q.setEulerAngles(euler);
             }
             ar.xmlPopNode();
         }
         int pType=-1;
-        C3Vector s(tt::getLimitedFloat(0.00001f,100000.0f,sizes[0]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[1]),tt::getLimitedFloat(0.00001f,100000.0f,sizes[2]));
+        C3Vector s(tt::getLimitedFloat(0.00001,100000.0,sizes[0]),tt::getLimitedFloat(0.00001,100000.0,sizes[1]),tt::getLimitedFloat(0.00001,100000.0,sizes[2]));
         if (primitiveType==0) // cuboid
             pType=sim_primitiveshape_cuboid;
         if (primitiveType==1) // sphere
@@ -1781,31 +1781,31 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
     {
         loadVisualAttributes=true;
         int size[2]={2,2};
-        float meshSize=0.1f;
-        std::vector<float> data;
+        double meshSize=0.1;
+        std::vector<double> data;
         ar.xmlGetNode_ints("size",size,2,false);
         if (ar.xmlGetNode_float("gridStep",meshSize,false))
-            tt::limitValue(0.00001f,10.0f,meshSize);
+            tt::limitValue(0.00001,10.0,meshSize);
         ar.xmlGetNode_floats("data",data,false);
         if (data.size()!=size[0]*size[1])
         {
             size[0]=2;
             size[1]=2;
             data.clear();
-            data.push_back(0.0f);
-            data.push_back(0.0f);
-            data.push_back(0.0f);
-            data.push_back(0.0f);
+            data.push_back(0.0);
+            data.push_back(0.0);
+            data.push_back(0.0);
+            data.push_back(0.0);
         }
-        std::vector<std::vector<float>*> allData;
+        std::vector<std::vector<double>*> allData;
         for (int i=0;i<size[1];i++)
         {
-            std::vector<float>* vect=new std::vector<float>;
+            std::vector<double>* vect=new std::vector<double>;
             for (int j=0;j<size[0];j++)
                 vect->push_back(data[i*size[0]+j]);
             allData.push_back(vect);
         }
-        int newShapeHandle=CFileOperations::apiAddHeightfieldToScene(size[0],meshSize/float(size[0]-1),allData,0.0f,0);
+        int newShapeHandle=CFileOperations::apiAddHeightfieldToScene(size[0],meshSize/double(size[0]-1),allData,0.0,0);
         for (size_t i=0;i<allData.size();i++)
             delete allData[i];
         retVal=getShapeFromHandle(newShapeHandle);
@@ -1837,7 +1837,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
                 if (VFile::doesFileExist(filename.c_str()))
                 {
                     int cnt=0;
-                    int* shapes=CPluginContainer::assimp_importShapes(filename.c_str(),512,1.0f,1,32+128+256,&cnt);
+                    int* shapes=CPluginContainer::assimp_importShapes(filename.c_str(),512,1.0,1,32+128+256,&cnt);
                     if (shapes!=nullptr)
                     {
                         int newShapeHandle=shapes[0];
@@ -1849,7 +1849,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
         }
         if (retVal==nullptr)
         { // try to load from vertices and indices list:
-            std::vector<float> vertices;
+            std::vector<double> vertices;
             std::vector<int> indices;
             if (ar.xmlGetNode_floats("vertices",vertices,false))
             {
@@ -1885,9 +1885,9 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
                 C3Vector euler;
                 if (ar.xmlGetNode_floats("euler",euler.data,3,false))
                 {
-                    euler(0)*=piValue/180.0f;
-                    euler(1)*=piValue/180.0f;
-                    euler(2)*=piValue/180.0f;
+                    euler(0)*=piValue/180.0;
+                    euler(1)*=piValue/180.0;
+                    euler(2)*=piValue/180.0;
                     tr.Q.setEulerAngles(euler);
                 }
                 ar.xmlPopNode();
@@ -1967,11 +1967,11 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
     }
     if ( (retVal!=nullptr)&&(t!=-1)&&loadVisualAttributes )
     {
-        float v;
+        double v;
         if (ar.xmlGetNode_float("shadingAngle",v,false))
         { // checkHere
-            retVal->getSingleMesh()->setShadingAngle(v*piValue/180.0f);
-            retVal->getSingleMesh()->setEdgeThresholdAngle(v*piValue/180.0f);
+            retVal->getSingleMesh()->setShadingAngle(v*piValue/180.0);
+            retVal->getSingleMesh()->setEdgeThresholdAngle(v*piValue/180.0);
         }
         retVal->setVisibleEdges(false);
         bool b;
@@ -1983,11 +1983,11 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
         {
             int rgb[3];
             if (ar.xmlGetNode_ints("ambientDiffuse",rgb,3,false))
-                retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f);
+                retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,double(rgb[0])/255.1,double(rgb[1])/255.1,double(rgb[2])/255.1);
             if (ar.xmlGetNode_ints("specular",rgb,3,false))
-                retVal->setColor(nullptr,sim_colorcomponent_specular,float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f);
+                retVal->setColor(nullptr,sim_colorcomponent_specular,double(rgb[0])/255.1,double(rgb[1])/255.1,double(rgb[2])/255.1);
             if (ar.xmlGetNode_ints("emission",rgb,3,false))
-                retVal->setColor(nullptr,sim_colorcomponent_emission,float(rgb[0])/255.1f,float(rgb[1])/255.1f,float(rgb[2])/255.1f);
+                retVal->setColor(nullptr,sim_colorcomponent_emission,double(rgb[0])/255.1,double(rgb[1])/255.1,double(rgb[2])/255.1);
             ar.xmlPopNode();
         }
         if (itemType==nullptr)
@@ -2059,7 +2059,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
 
     ar.xmlAddNode_int("respondableMask",shape->getDynamicCollisionMask());
     ar.xmlAddNode_floats("initialLinearVelocity",shape->getInitialDynamicLinearVelocity().data,3);
-    C3Vector vel(shape->getInitialDynamicAngularVelocity()*180.0f/piValue);
+    C3Vector vel(shape->getInitialDynamicAngularVelocity()*180.0/piValue);
     ar.xmlAddNode_floats("initialAngularVelocity",vel.data,3);
     ar.xmlAddNode_float("mass",shape->getMeshWrapper()->getMass());
     C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
@@ -2067,7 +2067,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
     ar.xmlPushNewNode("localInertiaFrame");
     ar.xmlAddNode_floats("position",tr.X.data,3);
     C3Vector euler(tr.Q.getEulerAngles());
-    euler*=180.0f/piValue;
+    euler*=180.0/piValue;
     ar.xmlAddNode_floats("euler",euler.data,3);
     ar.xmlPopNode();
 
@@ -2104,23 +2104,23 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
             bool wireframe=shape->getShapeWireframe_OLD();
             if (wireframe)
                 shape->setShapeWireframe_OLD(false); // The Assimp plugin will ignore wireframe shapes and not write them!!
-            CPluginContainer::assimp_exportShapes(&shapeHandle,1,(ar.getFilenamePath()+filename).c_str(),"collada",1.0f,1,256);
+            CPluginContainer::assimp_exportShapes(&shapeHandle,1,(ar.getFilenamePath()+filename).c_str(),"collada",1.0,1,256);
             if (wireframe)
                 shape->setShapeWireframe_OLD(true);
             ar.xmlAddNode_string("fileName",filename.c_str());
         }
         else
         {
-            std::vector<floatFloat> v;
+            std::vector<float> v;
             v.resize(geom->getVertices()->size());
             for (size_t i=0;i<geom->getVertices()->size()/3;i++)
             {
                 C3Vector w;
                 w.setData(&geom->getVertices()[0][3*i]);
                 w*=geom->getVerticeLocalFrame();
-                v[3*i+0]=(floatFloat)w(0);
-                v[3*i+1]=(floatFloat)w(1);
-                v[3*i+2]=(floatFloat)w(2);
+                v[3*i+0]=(float)w(0);
+                v[3*i+1]=(float)w(1);
+                v[3*i+2]=(float)w(2);
             }
             ar.xmlAddNode_floats("vertices",v);
             ar.xmlAddNode_ints("indices",geom->getIndices()[0]);
@@ -2130,7 +2130,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         ar.xmlPushNewNode("localFrame");
         C7Vector tr(x);
         ar.xmlAddNode_floats("position",tr.X.data,3);
-        C3Vector euler(tr.Q.getEulerAngles()*180.0f/piValue);
+        C3Vector euler(tr.Q.getEulerAngles()*180.0/piValue);
         ar.xmlAddNode_floats("euler",euler.data,3);
         ar.xmlPopNode();
     }
@@ -2142,7 +2142,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         ar.xmlAddNode_2int("size",geom->_heightfieldXCount,geom->_heightfieldYCount);
         C3Vector s;
         geom->getPurePrimitiveSizes(s);
-        float gridStep=s(0)/float(geom->_heightfieldXCount-1);
+        double gridStep=s(0)/double(geom->_heightfieldXCount-1);
         ar.xmlAddNode_float("gridStep",gridStep);
         ar.xmlAddNode_comment(" 'data' tag: required. has to contain size[0]*size[1] values ",false);
         ar.xmlAddNode_floats("data",geom->_heightfieldHeights);
@@ -2173,26 +2173,26 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         ar.xmlPushNewNode("localFrame");
         C7Vector tr(frame.getInverse()*shape->getFullCumulativeTransformation()*geom->getVerticeLocalFrame()); // 'geom->getVerticeLocalFrame()' indicates also the origin of primitives
         ar.xmlAddNode_floats("position",tr.X.data,3);
-        C3Vector euler(tr.Q.getEulerAngles()*180.0f/piValue);
+        C3Vector euler(tr.Q.getEulerAngles()*180.0/piValue);
         ar.xmlAddNode_floats("euler",euler.data,3);
         ar.xmlPopNode();
     }
 
     // now the visual attributes:
-    ar.xmlAddNode_float("shadingAngle",geom->getShadingAngle()*180.0f/piValue);
+    ar.xmlAddNode_float("shadingAngle",geom->getShadingAngle()*180.0/piValue);
     ar.xmlAddNode_bool("culling",geom->getCulling());
     ar.xmlAddNode_bool("wireframe",geom->getWireframe_OLD());
 
     ar.xmlPushNewNode("color");
     int rgb[3];
     for (size_t l=0;l<3;l++)
-        rgb[l]=int(geom->color.getColorsPtr()[l]*255.1f);
+        rgb[l]=int(geom->color.getColorsPtr()[l]*255.1);
     ar.xmlAddNode_ints("ambientDiffuse",rgb,3);
     for (size_t l=0;l<3;l++)
-        rgb[l]=int(geom->color.getColorsPtr()[6+l]*255.1f);
+        rgb[l]=int(geom->color.getColorsPtr()[6+l]*255.1);
     ar.xmlAddNode_ints("specular",rgb,3);
     for (size_t l=0;l<3;l++)
-        rgb[l]=int(geom->color.getColorsPtr()[9+l]*255.1f);
+        rgb[l]=int(geom->color.getColorsPtr()[9+l]*255.1);
     ar.xmlAddNode_ints("emission",rgb,3);
     ar.xmlPopNode();
 

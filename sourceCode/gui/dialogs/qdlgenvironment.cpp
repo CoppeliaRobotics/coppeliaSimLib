@@ -79,7 +79,7 @@ void CQDlgEnvironment::on_qqMaxTriangleSize_editingFinished()
     if (!ui->qqMaxTriangleSize->isModified())
         return;
     bool ok;
-    float newVal=ui->qqMaxTriangleSize->text().toFloat(&ok);
+    double newVal=ui->qqMaxTriangleSize->text().toFloat(&ok);
     if (ok)
     {
         App::appendSimulationThreadCommand(SET_MAXTRIANGLESIZE_ENVIRONMENTGUITRIGGEREDCMD,-1,-1,newVal);
@@ -134,7 +134,7 @@ void CQDlgEnvironment::on_qqMinRelTriangleSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqMinRelTriangleSize->text().toFloat(&ok);
+        double newVal=ui->qqMinRelTriangleSize->text().toFloat(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_MINTRIANGLESIZE_ENVIRONMENTGUITRIGGEREDCMD,-1,-1,newVal);

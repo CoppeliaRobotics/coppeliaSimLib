@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "simTypes.h"
 
 class CSimRecorder
 {
@@ -67,7 +68,7 @@ protected:
     std::string _filenameAndPathAndExtension;
     int _encoderIndex;
     bool _showSavedMessage;
-    float _simulationTimeOfLastFrame;
+    double _simulationTimeOfLastFrame;
 
     bool _aviGenInitialized;
 

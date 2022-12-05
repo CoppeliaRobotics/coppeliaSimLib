@@ -22,7 +22,7 @@ public:
     int pasteBuffer(bool intoLockedScene,int selectionMode);
     bool isBufferEmpty();
     void copyCurrentSelection(std::vector<int>* sel,bool fromLockedScene,int options);
-    void serializeCurrentSelection(CSer& ar,std::vector<int>* sel,C7Vector& modelTr,C3Vector& modelBBSize,float modelNonDefaultTranslationStepSize);
+    void serializeCurrentSelection(CSer& ar,std::vector<int>* sel,C7Vector& modelTr,C3Vector& modelBBSize,double modelNonDefaultTranslationStepSize);
     bool isCopyForPasting();
 
     void memorizeBuffer();

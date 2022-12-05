@@ -1,7 +1,7 @@
 #include <vector>
 #include "algos.h"
 
-C7Vector CAlgos::alignAndCenterGeometryAndGetTransformation(floatDouble* vert,int vertLength,int* ind,int indLength,floatDouble* norm,int normLength,bool alignWithGeomMainAxis)
+C7Vector CAlgos::alignAndCenterGeometryAndGetTransformation(double* vert,int vertLength,int* ind,int indLength,double* norm,int normLength,bool alignWithGeomMainAxis)
 {
     C7Vector tr;
     tr.setIdentity();
@@ -62,7 +62,7 @@ C7Vector CAlgos::alignAndCenterGeometryAndGetTransformation(floatDouble* vert,in
     return(tr);
 }
 
-C4X4Matrix CAlgos::getMainAxis(const std::vector<floatDouble>* vertices,const std::vector<int>* triangles,const std::vector<int>* trianglesIndices,bool useAllVerticesForce,bool veryPreciseWithTriangles)
+C4X4Matrix CAlgos::getMainAxis(const std::vector<double>* vertices,const std::vector<int>* triangles,const std::vector<int>* trianglesIndices,bool useAllVerticesForce,bool veryPreciseWithTriangles)
 {   // Triangles can be nullptr, in that case all vertices are used. trianglesIndices can be nullptr, in that case triangles are used!
     // if useAllVerticesForce is true, then all vertices are used anyway (forced)
     // if veryPreciseWithTriangles is true, then a more precise orientation is calculated using "triangles" (i.e. largest triangle could be one face of the bounding box)
@@ -99,7 +99,7 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<floatDouble>* vertices,const st
         return(getMainAxis(&(*vertices)[0],(int)vertices->size(),nullptr,0,nullptr,0,useAllVerticesForce,veryPreciseWithTriangles)); // all vertices are used
 }
 
-C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,const int* indices,int indicesLength,const int* triIndices,int triIndicesLength,bool useAllVerticesForce,bool veryPreciseWithTriangles)
+C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const int* indices,int indicesLength,const int* triIndices,int triIndicesLength,bool useAllVerticesForce,bool veryPreciseWithTriangles)
 {   // Only referenced vertices are taken into account (or all if indices is nullptr)
     // if indices are null, then all vertices are used
     // if indices are not null and triIndices are null, then vertices referenced by indices are used
@@ -123,7 +123,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
         for (int i=0;i<div;i++)
         {
             C4Vector savedV(v);
-            C4Vector rot(piValT2/floatDouble(divNb[i]),C3Vector::unitZVector);
+            C4Vector rot(piValT2/double(divNb[i]),C3Vector::unitZVector);
             for (int j=0;j<divNb[i];j++)
             {
                 C4Vector vi(v.getInverse());
@@ -132,10 +132,10 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
                 v=rot*v;
             }
             v=savedV;
-            floatDouble aV=piValue*0.5/(floatDouble(div)-0.5);
-            floatDouble aV2=aV*0.5/(floatDouble(div)-0.5);
-            floatDouble aV3=aV2*0.5/(floatDouble(div)-0.5);
-            floatDouble aV4=aV3*0.5/(floatDouble(div)-0.5);
+            double aV=piValue*0.5/(double(div)-0.5);
+            double aV2=aV*0.5/(double(div)-0.5);
+            double aV3=aV2*0.5/(double(div)-0.5);
+            double aV4=aV3*0.5/(double(div)-0.5);
             C4Vector rot2(aV,C3Vector::unitXVector); // use aV, aV2, aV3 or aV4 depending on the desired spacing
             v=rot2*v;
         }
@@ -153,15 +153,15 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
         ogl::setColor(1.0,1.0,0.0,GL_EMISSION);
         C4Vector v;
         v.setIdentity();
-        floatDouble aV=piValue*0.5/floatDouble(div+1);
-        floatDouble aV2=aV/floatDouble(div+1);
-        floatDouble aV3=aV2/floatDouble(div+1);
-        floatDouble aV4=aV3/floatDouble(div+1);
-        floatDouble aV5=aV4/floatDouble(div+1);
-        floatDouble aV6=aV5/floatDouble(div+1);
-        floatDouble usedAv=aV;// use aV, aV2, aV3, aV4, aV5 or aV6 depending on the desired spacing
+        double aV=piValue*0.5/double(div+1);
+        double aV2=aV/double(div+1);
+        double aV3=aV2/double(div+1);
+        double aV4=aV3/double(div+1);
+        double aV5=aV4/double(div+1);
+        double aV6=aV5/double(div+1);
+        double usedAv=aV;// use aV, aV2, aV3, aV4, aV5 or aV6 depending on the desired spacing
         C4Vector rot(usedAv,C3Vector::unitZVector);
-        C4Vector rotNeg(-usedAv*floatDouble(div)*0.5,C3Vector::unitZVector);
+        C4Vector rotNeg(-usedAv*double(div)*0.5,C3Vector::unitZVector);
         C4Vector or(rotNeg);
         for (int i=0;i<div+1;i++)
         {
@@ -251,7 +251,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
     }
 
     // Following are 4 sets of spherical orientation patterns. Patterns are same, scale is different.
-    static const floatDouble orientationDataPrecision0[39*4]=
+    static const double orientationDataPrecision0[39*4]=
     { // 25.71 deg. precision
         1.000000,0.000000,0.000000,0.000000,
         0.974928,-0.222521,0.000000,0.000000,
@@ -294,7 +294,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
         -0.771169,0.614986,-0.102623,-0.128685
     };
 
-    static const floatDouble orientationDataPrecision1[39*4]=
+    static const double orientationDataPrecision1[39*4]=
     { // 3.67 deg. precision
         1.000000,0.000000,0.000000,0.000000,
         0.999486,-0.032052,0.000000,0.000000,
@@ -337,7 +337,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
         -0.981804,0.094713,-0.015805,-0.163834
     };
 
-    static const floatDouble orientationDataPrecision2[39*4]=
+    static const double orientationDataPrecision2[39*4]=
     { // 0.52 deg. precision
         1.000000,0.000000,0.000000,0.000000,
         0.999990,-0.004580,0.000000,0.000000,
@@ -380,7 +380,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
         -0.986269,0.013551,-0.002261,-0.164579
     };
 
-    static const floatDouble orientationDataPrecision3[39*4]=
+    static const double orientationDataPrecision3[39*4]=
     { // 0.074 deg. precision
         1.000000,0.000000,0.000000,0.000000,
         1.000000,-0.000654,0.000000,0.000000,
@@ -424,7 +424,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
     };
 
     // Following are 5 sets of circular orientation patterns. Patterns are same, scale is different.
-    static const floatDouble orientation2DataPrecision0[5*4]=
+    static const double orientation2DataPrecision0[5*4]=
     { // 18 deg. precision
         0.951057,0.000000,0.000000,0.309017,
         0.987688,0.000000,0.000000,0.156434,
@@ -432,7 +432,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
         0.987688,0.000000,0.000000,-0.156434,
         0.951057,0.000000,0.000000,-0.309017
     };
-    static const floatDouble orientation2DataPrecision1[5*4]=
+    static const double orientation2DataPrecision1[5*4]=
     { // 3.6 deg. precision
         0.998027,0.000000,0.000000,0.062791,
         0.999507,0.000000,0.000000,0.031411,
@@ -440,7 +440,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
         0.999506,0.000000,0.000000,-0.031411,
         0.998027,0.000000,0.000000,-0.062791
     };
-    static const floatDouble orientation2DataPrecision2[5*4]=
+    static const double orientation2DataPrecision2[5*4]=
     { // 0.72 deg. precision
         0.999921,0.000000,0.000000,0.012566,
         0.999980,0.000000,0.000000,0.006283,
@@ -448,7 +448,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
         0.999980,0.000000,0.000000,-0.006283,
         0.999921,0.000000,0.000000,-0.012566
     };
-    static const floatDouble orientation2DataPrecision3[5*4]=
+    static const double orientation2DataPrecision3[5*4]=
     { // 0.144 deg. precision
         0.999997,0.000000,0.000000,0.002513,
         0.999999,0.000000,0.000000,0.001257,
@@ -456,7 +456,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
         0.999999,0.000000,0.000000,-0.001257,
         0.999997,0.000000,0.000000,-0.002513
     };
-    static const floatDouble orientation2DataPrecision4[5*4]=
+    static const double orientation2DataPrecision4[5*4]=
     { // 0.0288 deg. precision
         1.000000,0.000000,0.000000,0.000503,
         1.000000,0.000000,0.000000,0.000251,
@@ -467,10 +467,10 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
 
     // First pass (roughest) (spherical):
     C4Vector bestSmallestDirection;
-    floatDouble smallestDimension=999999999.0;
+    double smallestDimension=999999999.0;
     for (int i=0;i<39;i++)
     {
-        floatDouble minMax[2]={+999999999.0,-999999999.0};
+        double minMax[2]={+999999999.0,-999999999.0};
         for (int j=0;j<int(vert.size());j++)
         {
             C3Vector w(((C4Vector*)orientationDataPrecision0)[i]*vert[j]);
@@ -481,7 +481,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
             if (minMax[1]-minMax[0]>smallestDimension)
                 break;
         }
-        floatDouble currSmallest=minMax[1]-minMax[0];
+        double currSmallest=minMax[1]-minMax[0];
         if (currSmallest<smallestDimension)
         {
             smallestDimension=currSmallest;
@@ -494,7 +494,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
     smallestDimension=999999999.0;
     for (int i=0;i<39;i++)
     {
-        floatDouble minMax[2]={+999999999.0,-999999999.0};
+        double minMax[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientationDataPrecision1)[i].getInverse()).getInverse());
         for (int j=0;j<int(vert.size());j++)
         {
@@ -506,7 +506,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
             if (minMax[1]-minMax[0]>smallestDimension)
                 break;
         }
-        floatDouble currSmallest=minMax[1]-minMax[0];
+        double currSmallest=minMax[1]-minMax[0];
         if (currSmallest<smallestDimension)
         {
             smallestDimension=currSmallest;
@@ -519,7 +519,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
     smallestDimension=999999999.0;
     for (int i=0;i<39;i++)
     {
-        floatDouble minMax[2]={+999999999.0,-999999999.0};
+        double minMax[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientationDataPrecision2)[i].getInverse()).getInverse());
         for (int j=0;j<int(vert.size());j++)
         {
@@ -531,7 +531,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
             if (minMax[1]-minMax[0]>smallestDimension)
                 break;
         }
-        floatDouble currSmallest=minMax[1]-minMax[0];
+        double currSmallest=minMax[1]-minMax[0];
         if (currSmallest<smallestDimension)
         {
             smallestDimension=currSmallest;
@@ -544,7 +544,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
     smallestDimension=999999999.0;
     for (int i=0;i<39;i++)
     {
-        floatDouble minMax[2]={+999999999.0,-999999999.0};
+        double minMax[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientationDataPrecision3)[i].getInverse()).getInverse());
         for (int j=0;j<int(vert.size());j++)
         {
@@ -556,7 +556,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
             if (minMax[1]-minMax[0]>smallestDimension)
                 break;
         }
-        floatDouble currSmallest=minMax[1]-minMax[0];
+        double currSmallest=minMax[1]-minMax[0];
         if (currSmallest<smallestDimension)
         {
             smallestDimension=currSmallest;
@@ -569,11 +569,11 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
 
     // First and roughest pass (circular):
     bestSmallestDirectionPrevious=bestSmallestDirection;
-    floatDouble smallestArea=999999999999999999.0;
+    double smallestArea=999999999999999999.0;
     for (int i=0;i<5;i++)
     {
-        floatDouble minMaxX[2]={+999999999.0,-999999999.0};
-        floatDouble minMaxY[2]={+999999999.0,-999999999.0};
+        double minMaxX[2]={+999999999.0,-999999999.0};
+        double minMaxY[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientation2DataPrecision0)[i].getInverse()).getInverse());
         for (int j=0;j<int(vert.size());j++)
         {
@@ -587,7 +587,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
             if (w(1)>minMaxY[1])
                 minMaxY[1]=w(1);
         }
-        floatDouble currSmallest=(minMaxX[1]-minMaxX[0])*(minMaxY[1]-minMaxY[0]);
+        double currSmallest=(minMaxX[1]-minMaxX[0])*(minMaxY[1]-minMaxY[0]);
         xAxisIsLargerThanYAxis=(minMaxX[1]-minMaxX[0]>minMaxY[1]-minMaxY[0]);
         if (currSmallest<smallestArea)
         {
@@ -601,8 +601,8 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
     smallestArea=999999999999999999.0;
     for (int i=0;i<5;i++)
     {
-        floatDouble minMaxX[2]={+999999999.0,-999999999.0};
-        floatDouble minMaxY[2]={+999999999.0,-999999999.0};
+        double minMaxX[2]={+999999999.0,-999999999.0};
+        double minMaxY[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientation2DataPrecision1)[i].getInverse()).getInverse());
         for (int j=0;j<int(vert.size());j++)
         {
@@ -616,7 +616,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
             if (w(1)>minMaxY[1])
                 minMaxY[1]=w(1);
         }
-        floatDouble currSmallest=(minMaxX[1]-minMaxX[0])*(minMaxY[1]-minMaxY[0]);
+        double currSmallest=(minMaxX[1]-minMaxX[0])*(minMaxY[1]-minMaxY[0]);
         xAxisIsLargerThanYAxis=(minMaxX[1]-minMaxX[0]>minMaxY[1]-minMaxY[0]);
         if (currSmallest<smallestArea)
         {
@@ -630,8 +630,8 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
     smallestArea=999999999999999999.0;
     for (int i=0;i<5;i++)
     {
-        floatDouble minMaxX[2]={+999999999.0,-999999999.0};
-        floatDouble minMaxY[2]={+999999999.0,-999999999.0};
+        double minMaxX[2]={+999999999.0,-999999999.0};
+        double minMaxY[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientation2DataPrecision2)[i].getInverse()).getInverse());
         for (int j=0;j<int(vert.size());j++)
         {
@@ -645,7 +645,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
             if (w(1)>minMaxY[1])
                 minMaxY[1]=w(1);
         }
-        floatDouble currSmallest=(minMaxX[1]-minMaxX[0])*(minMaxY[1]-minMaxY[0]);
+        double currSmallest=(minMaxX[1]-minMaxX[0])*(minMaxY[1]-minMaxY[0]);
         xAxisIsLargerThanYAxis=(minMaxX[1]-minMaxX[0]>minMaxY[1]-minMaxY[0]);
         if (currSmallest<smallestArea)
         {
@@ -659,8 +659,8 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
     smallestArea=999999999999999999.0;
     for (int i=0;i<5;i++)
     {
-        floatDouble minMaxX[2]={+999999999.0,-999999999.0};
-        floatDouble minMaxY[2]={+999999999.0,-999999999.0};
+        double minMaxX[2]={+999999999.0,-999999999.0};
+        double minMaxY[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientation2DataPrecision3)[i].getInverse()).getInverse());
         for (int j=0;j<int(vert.size());j++)
         {
@@ -674,7 +674,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
             if (w(1)>minMaxY[1])
                 minMaxY[1]=w(1);
         }
-        floatDouble currSmallest=(minMaxX[1]-minMaxX[0])*(minMaxY[1]-minMaxY[0]);
+        double currSmallest=(minMaxX[1]-minMaxX[0])*(minMaxY[1]-minMaxY[0]);
         xAxisIsLargerThanYAxis=(minMaxX[1]-minMaxX[0]>minMaxY[1]-minMaxY[0]);
         if (currSmallest<smallestArea)
         {
@@ -688,8 +688,8 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
     smallestArea=999999999999999999.0;
     for (int i=0;i<5;i++)
     {
-        floatDouble minMaxX[2]={+999999999.0,-999999999.0};
-        floatDouble minMaxY[2]={+999999999.0,-999999999.0};
+        double minMaxX[2]={+999999999.0,-999999999.0};
+        double minMaxY[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientation2DataPrecision4)[i].getInverse()).getInverse());
         for (int j=0;j<int(vert.size());j++)
         {
@@ -703,7 +703,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
             if (w(1)>minMaxY[1])
                 minMaxY[1]=w(1);
         }
-        floatDouble currSmallest=(minMaxX[1]-minMaxX[0])*(minMaxY[1]-minMaxY[0]);
+        double currSmallest=(minMaxX[1]-minMaxX[0])*(minMaxY[1]-minMaxY[0]);
         xAxisIsLargerThanYAxis=(minMaxX[1]-minMaxX[0]>minMaxY[1]-minMaxY[0]);
         if (currSmallest<smallestArea)
         {
@@ -713,7 +713,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
     }
 
     C3Vector alternateCenter;
-    floatDouble alternateSize=FLOAT_MAX;
+    double alternateSize=FLOAT_MAX;
     C4Vector bestSmallestDirectionAlternative;
     if (veryPreciseWithTriangles&(indices!=nullptr))
     {
@@ -732,7 +732,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
                 tris.push_back(i);
         }
         // Now search for the triangle with largest surface:
-        floatDouble ls=0.0;
+        double ls=0.0;
         C3Vector ltn;
         for (int i=0;i<int(tris.size());i++)
         {
@@ -743,7 +743,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
             C3Vector e0(a2-a0);
             C3Vector e1(a1-a0);
             C3Vector n(e0^e1);
-            floatDouble s=n.getLength();
+            double s=n.getLength();
             if (s>ls)
             {
                 ls=s;
@@ -752,10 +752,10 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
         }
         // We now adjust the alternative frame with the ltn:
         C3Vector mostSimilar;
-        floatDouble scalarResult=0;
+        double scalarResult=0;
         for (int i=0;i<3;i++)
         {
-            floatDouble l=fabs(alternativeFrame.axis[i]*ltn);
+            double l=fabs(alternativeFrame.axis[i]*ltn);
             if (l>scalarResult)
             {
                 scalarResult=l;
@@ -782,7 +782,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
             C3Vector e0(a2-a0);
             C3Vector e1(a1-a0);
             C3Vector n(e0^e1);
-            floatDouble s=n.getLength();
+            double s=n.getLength();
             if (s>ls)
             {
                 n/=s;
@@ -797,10 +797,10 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
         { // ok we found a perpendicular triangle
             // We now adjust the alternative frame with the ltnp:
             C3Vector mostSimilar;
-            floatDouble scalarResult=0;
+            double scalarResult=0;
             for (int i=0;i<3;i++)
             {
-                floatDouble l=fabs(alternativeFrame.axis[i]*ltnp);
+                double l=fabs(alternativeFrame.axis[i]*ltnp);
                 if (l>scalarResult)
                 {
                     scalarResult=l;
@@ -840,11 +840,11 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
         C3X3Matrix m(bestSmallestDirectionAlternative);
         C3Vector biggest;
         C3Vector smallest;
-        floatDouble smallestS=FLOAT_MAX;
-        floatDouble biggestS=0.0;
+        double smallestS=FLOAT_MAX;
+        double biggestS=0.0;
         for (int i=0;i<3;i++)
         {
-            floatDouble l=s(i);
+            double l=s(i);
             if (l>=biggestS)
             {
                 biggestS=l;
@@ -874,7 +874,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
 
     C3Vector center=(maxV+minV)*0.5;
     C3Vector s(maxV-minV);
-    floatDouble size=s(0)*s(1)*s(2);
+    double size=s(0)*s(1)*s(2);
 
     bool rearrange=true;
     if (size>alternateSize)
@@ -902,7 +902,7 @@ C4X4Matrix CAlgos::getMainAxis(const floatDouble* vertices,int verticesLength,co
     return(c);
 }
 
-bool CAlgos::isBoxOutsideVolumeApprox(const C4X4Matrix& tr,const C3Vector& s,const std::vector<floatDouble>* planes)
+bool CAlgos::isBoxOutsideVolumeApprox(const C4X4Matrix& tr,const C3Vector& s,const std::vector<double>* planes)
 {   // Planes contain a collection of plane definitions:
     // Each plane is defined by 4 values a, b, c & d (consecutive in the array):
     // ax+by+cz+d=0
@@ -927,7 +927,7 @@ bool CAlgos::isBoxOutsideVolumeApprox(const C4X4Matrix& tr,const C3Vector& s,con
     for (int i=0;i<int(planes->size())/4;i++)
     {
         C3Vector abc(&(*planes)[4*i+0]);
-        floatDouble d=(*planes)[4*i+3];
+        double d=(*planes)[4*i+3];
         if ((abc*edges[0]+d)>=0.0)
         {
             if ((abc*edges[1]+d)>=0.0)

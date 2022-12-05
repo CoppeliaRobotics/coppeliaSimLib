@@ -437,7 +437,7 @@ void CQDlgDetectionVolume::on_qqOffset_editingFinished()
         CMill* mill=App::currentWorld->sceneObjects->getLastSelectionMill();
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
-        float newVal=ui->qqOffset->text().toFloat(&ok);
+        double newVal=ui->qqOffset->text().toFloat(&ok);
         if (ok&&cv&&(proxSensor!=nullptr))
         {
             // special here:
@@ -464,7 +464,7 @@ void CQDlgDetectionVolume::on_qqRadius_editingFinished()
     {
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
-        float newVal=ui->qqRadius->text().toFloat(&ok);
+        double newVal=ui->qqRadius->text().toFloat(&ok);
         if (ok&&cv)
         {
             App::appendSimulationThreadCommand(SET_RADIUS_DETECTIONVOLUMEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -482,7 +482,7 @@ void CQDlgDetectionVolume::on_qqRange_editingFinished()
     {
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
-        float newVal=ui->qqRange->text().toFloat(&ok);
+        double newVal=ui->qqRange->text().toFloat(&ok);
         if (ok&&cv)
         {
             App::appendSimulationThreadCommand(SET_RANGE_DETECTIONVOLUMEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -500,7 +500,7 @@ void CQDlgDetectionVolume::on_qqRadiusFar_editingFinished()
     {
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
-        float newVal=ui->qqRadiusFar->text().toFloat(&ok);
+        double newVal=ui->qqRadiusFar->text().toFloat(&ok);
         if (ok&&cv)
         {
             App::appendSimulationThreadCommand(SET_RADIUSFAR_DETECTIONVOLUMEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -518,7 +518,7 @@ void CQDlgDetectionVolume::on_qqSizeX_editingFinished()
     {
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
-        float newVal=ui->qqSizeX->text().toFloat(&ok);
+        double newVal=ui->qqSizeX->text().toFloat(&ok);
         if (ok&&cv)
         {
             App::appendSimulationThreadCommand(SET_XSIZE_DETECTIONVOLUMEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -536,7 +536,7 @@ void CQDlgDetectionVolume::on_qqAngle_editingFinished()
     {
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
-        float newVal=ui->qqAngle->text().toFloat(&ok);
+        double newVal=ui->qqAngle->text().toFloat(&ok);
         if (ok&&cv)
         {
             App::appendSimulationThreadCommand(SET_ANGLE_DETECTIONVOLUMEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal*gv::userToRad);
@@ -554,7 +554,7 @@ void CQDlgDetectionVolume::on_qqSizeY_editingFinished()
     {
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
-        float newVal=ui->qqSizeY->text().toFloat(&ok);
+        double newVal=ui->qqSizeY->text().toFloat(&ok);
         if (ok&&cv)
         {
             App::appendSimulationThreadCommand(SET_YSIZE_DETECTIONVOLUMEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -590,7 +590,7 @@ void CQDlgDetectionVolume::on_qqSizeFarX_editingFinished()
     {
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
-        float newVal=ui->qqSizeFarX->text().toFloat(&ok);
+        double newVal=ui->qqSizeFarX->text().toFloat(&ok);
         if (ok&&cv)
         {
             App::appendSimulationThreadCommand(SET_XSIZEFAR_DETECTIONVOLUMEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -626,7 +626,7 @@ void CQDlgDetectionVolume::on_qqSizeFarY_editingFinished()
     {
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
-        float newVal=ui->qqSizeFarY->text().toFloat(&ok);
+        double newVal=ui->qqSizeFarY->text().toFloat(&ok);
         if (ok&&cv)
         {
             App::appendSimulationThreadCommand(SET_YSIZEFAR_DETECTIONVOLUMEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -664,7 +664,7 @@ void CQDlgDetectionVolume::on_qqInsideGap_editingFinished()
         CProxSensor* proxSensor=App::currentWorld->sceneObjects->getLastSelectionProxSensor();
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
-        float newVal=ui->qqInsideGap->text().toFloat(&ok);
+        double newVal=ui->qqInsideGap->text().toFloat(&ok);
         if (ok&&cv&&(proxSensor!=nullptr))
         {
             App::appendSimulationThreadCommand(SET_INSIDEGAP_DETECTIONVOLUMEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

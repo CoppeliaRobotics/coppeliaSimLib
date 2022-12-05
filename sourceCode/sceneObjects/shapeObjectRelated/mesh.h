@@ -11,7 +11,7 @@ public:
 
     void display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
     void display_colorCoded(CShape* geomData,int objectId,int displayAttrib);
-    void displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,floatDouble transparency,const floatDouble* newColors);
+    void displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors);
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();
     void display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
@@ -21,28 +21,28 @@ public:
     void setTextureDependencies(int shapeID);
     bool getContainsTransparentComponents() const;
     CMesh* copyYourself();
-    void scale(floatDouble xVal,floatDouble yVal,floatDouble zVal);
+    void scale(double xVal,double yVal,double zVal);
     int getPurePrimitiveType() const;
-    void setPurePrimitiveType(int theType,floatDouble xOrDiameter,floatDouble y,floatDouble zOrHeight);
+    void setPurePrimitiveType(int theType,double xOrDiameter,double y,double zOrHeight);
     bool isMesh() const;
     bool isPure() const;
     bool isConvex() const;
     bool checkIfConvex();
     void setConvex(bool convex);
     bool containsOnlyPureConvexShapes();
-    void getCumulativeMeshes(std::vector<floatDouble>& vertices,std::vector<int>* indices,std::vector<floatDouble>* normals);
-    void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const floatDouble* rgbData,int& rgbDataOffset);
-    bool getColor(const char* colorName,int colorComponent,floatDouble* rgbData,int& rgbDataOffset) const;
+    void getCumulativeMeshes(std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals);
+    void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
+    bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset) const;
     void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList);
     CMesh* getShapeComponentAtIndex(int& index);
     int getComponentCount() const;
     void serialize(CSer& ar,const char* shapeName);
     void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     void flipFaces();
-    floatDouble getShadingAngle() const;
-    void setShadingAngle(floatDouble angle);
-    floatDouble getEdgeThresholdAngle() const;
-    void setEdgeThresholdAngle(floatDouble angle);
+    double getShadingAngle() const;
+    void setShadingAngle(double angle);
+    double getEdgeThresholdAngle() const;
+    void setEdgeThresholdAngle(double angle);
     void setHideEdgeBorders_OLD(bool v);
     bool getHideEdgeBorders_OLD() const;
     int getTextureCount() const;
@@ -52,13 +52,13 @@ public:
     void setHeightfieldDiamonds(bool d);
 
     int getUniqueID() const;
-    void setMesh(const std::vector<floatDouble>& vertices,const std::vector<int>& indices,const std::vector<floatDouble>* normals,const C7Vector& transformation);
+    void setMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals,const C7Vector& transformation);
 
-    void setHeightfieldData(const std::vector<floatDouble>& heights,int xCount,int yCount);
-    floatDouble* getHeightfieldData(int& xCount,int& yCount,floatDouble& minHeight,floatDouble& maxHeight);
+    void setHeightfieldData(const std::vector<double>& heights,int xCount,int yCount);
+    double* getHeightfieldData(int& xCount,int& yCount,double& minHeight,double& maxHeight);
     void getPurePrimitiveSizes(C3Vector& s) const;
-    void setPurePrimitiveInsideScaling_OLD(floatDouble s);
-    floatDouble getPurePrimitiveInsideScaling_OLD() const;
+    void setPurePrimitiveInsideScaling_OLD(double s);
+    double getPurePrimitiveInsideScaling_OLD() const;
 
     void setConvexVisualAttributes();
 
@@ -84,33 +84,33 @@ public:
     void setWireframe_OLD(bool w);
     bool getWireframe_OLD() const;
 
-    std::vector<floatDouble>* getVertices();
+    std::vector<double>* getVertices();
     std::vector<int>* getIndices();
-    std::vector<floatDouble>* getNormals();
+    std::vector<double>* getNormals();
     std::vector<unsigned char>* getEdges();
     int* getVertexBufferIdPtr();
     int* getNormalBufferIdPtr();
     int* getEdgeBufferIdPtr();
-    const std::vector<floatFloat>* getTextureCoords() const;
-    void setTextureCoords(const std::vector<floatFloat>* tc);
+    const std::vector<float>* getTextureCoords() const;
+    void setTextureCoords(const std::vector<float>* tc);
 
-    std::vector<floatFloat>* getVerticesForDisplayAndDisk();
-    std::vector<floatFloat>* getNormalsForDisplayAndDisk();
+    std::vector<float>* getVerticesForDisplayAndDisk();
+    std::vector<float>* getNormalsForDisplayAndDisk();
 
     void copyVisualAttributesTo(CMesh* target);
 
     // Following few routines in order not to save duplicate data:
     static void clearTempVerticesIndicesNormalsAndEdges();
     static void serializeTempVerticesIndicesNormalsAndEdges(CSer& ar);
-    static int getBufferIndexOfVertices(const std::vector<floatFloat>& vert);
-    static int addVerticesToBufferAndReturnIndex(const std::vector<floatFloat>& vert);
-    static void getVerticesFromBufferBasedOnIndex(int index,std::vector<floatFloat>& vert);
+    static int getBufferIndexOfVertices(const std::vector<float>& vert);
+    static int addVerticesToBufferAndReturnIndex(const std::vector<float>& vert);
+    static void getVerticesFromBufferBasedOnIndex(int index,std::vector<float>& vert);
     static int getBufferIndexOfIndices(const std::vector<int>& ind);
     static int addIndicesToBufferAndReturnIndex(const std::vector<int>& ind);
     static void getIndicesFromBufferBasedOnIndex(int index,std::vector<int>& ind);
-    static int getBufferIndexOfNormals(const std::vector<floatFloat>& norm);
-    static int addNormalsToBufferAndReturnIndex(const std::vector<floatFloat>& norm);
-    static void getNormalsFromBufferBasedOnIndex(int index,std::vector<floatFloat>& norm);
+    static int getBufferIndexOfNormals(const std::vector<float>& norm);
+    static int addNormalsToBufferAndReturnIndex(const std::vector<float>& norm);
+    static void getNormalsFromBufferBasedOnIndex(int index,std::vector<float>& norm);
     static int getBufferIndexOfEdges(const std::vector<unsigned char>& edges);
     static int addEdgesToBufferAndReturnIndex(const std::vector<unsigned char>& edges);
     static void getEdgesFromBufferBasedOnIndex(int index,std::vector<unsigned char>& edges);
@@ -119,7 +119,7 @@ public:
     CColorObject insideColor_DEPRECATED;
     CColorObject edgeColor_DEPRECATED;
 
-    std::vector<floatDouble> _heightfieldHeights;
+    std::vector<double> _heightfieldHeights;
     int _heightfieldXCount;
     int _heightfieldYCount;
 
@@ -130,14 +130,14 @@ protected:
     static void _savePackedIntegers(CSer& ar,const std::vector<int>& data);
     static void _loadPackedIntegers(CSer& ar,std::vector<int>& data);
 
-    std::vector<floatDouble> _vertices;
+    std::vector<double> _vertices;
     std::vector<int> _indices;
-    std::vector<floatDouble> _normals;
+    std::vector<double> _normals;
     std::vector<unsigned char> _edges;
-    std::vector<floatDouble> _textureCoordsTemp; // 2 values per vertex
+    std::vector<float> _textureCoordsTemp; // 2 values per vertex
 
-    std::vector<floatFloat> _verticesForDisplayAndDisk;
-    std::vector<floatFloat> _normalsForDisplayAndDisk;
+    std::vector<float> _verticesForDisplayAndDisk;
+    std::vector<float> _normalsForDisplayAndDisk;
 
     bool _visibleEdges;
     bool _hideEdgeBorders_OLD;
@@ -146,18 +146,18 @@ protected:
     bool _insideAndOutsideFacesSameColor_DEPRECATED;
     bool _wireframe_OLD;
     int _edgeWidth_DEPRERCATED;
-    floatDouble _shadingAngle;
-    floatDouble _edgeThresholdAngle;
+    double _shadingAngle;
+    double _edgeThresholdAngle;
 
     C7Vector _verticeLocalFrame; // frame relative to the shape. All vertices are transformed by it. This frame also represents the configuration of the origin frame of pure shapes!!!!
     CTextureProperty* _textureProperty;
     int _uniqueID;
 
     int _purePrimitive;
-    floatDouble _purePrimitiveXSizeOrDiameter;
-    floatDouble _purePrimitiveYSize;
-    floatDouble _purePrimitiveZSizeOrHeight;
-    floatDouble _purePrimitiveInsideScaling;
+    double _purePrimitiveXSizeOrDiameter;
+    double _purePrimitiveYSize;
+    double _purePrimitiveZSizeOrHeight;
+    double _purePrimitiveInsideScaling;
 
     int _tempVerticesIndexForSerialization;
     int _tempIndicesIndexForSerialization;
@@ -186,14 +186,14 @@ protected:
 
 
     // temp, for serialization purpose:
-    static std::vector<std::vector<floatFloat>*> _tempVerticesForDisk;
+    static std::vector<std::vector<float>*> _tempVerticesForDisk;
     static std::vector<std::vector<int>*> _tempIndicesForDisk;
-    static std::vector<std::vector<floatFloat>*> _tempNormalsForDisk;
+    static std::vector<std::vector<float>*> _tempNormalsForDisk;
     static std::vector<std::vector<unsigned char>*> _tempEdgesForDisk;
 
 #ifdef SIM_WITH_GUI
 public:
-    bool getNonCalculatedTextureCoordinates(std::vector<floatDouble>& texCoords);
+    bool getNonCalculatedTextureCoordinates(std::vector<double>& texCoords);
 
 #endif
 };

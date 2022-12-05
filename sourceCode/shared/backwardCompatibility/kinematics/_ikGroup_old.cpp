@@ -8,7 +8,7 @@ _CIkGroup_old::_CIkGroup_old()
     _enabled=true;
     _ignoreMaxStepSizes=true;
     _explicitHandling=false;
-    _dampingFactor=0.1f;
+    _dampingFactor=0.1;
     _calculationMethod=sim_ik_pseudo_inverse_method;
     _restoreIfPositionNotReached=false;
     _restoreIfOrientationNotReached=false;
@@ -174,7 +174,7 @@ int _CIkGroup_old::getCalculationMethod() const
     return(_calculationMethod);
 }
 
-bool _CIkGroup_old::setDampingFactor(float theFactor)
+bool _CIkGroup_old::setDampingFactor(double theFactor)
 {
     bool diff=(_dampingFactor!=theFactor);
     if (diff)
@@ -186,11 +186,11 @@ bool _CIkGroup_old::setDampingFactor(float theFactor)
     return(diff);
 }
 
-void _CIkGroup_old::_setDampingFactor_send(float f) const
+void _CIkGroup_old::_setDampingFactor_send(double f) const
 {
 }
 
-float _CIkGroup_old::getDampingFactor() const
+double _CIkGroup_old::getDampingFactor() const
 {
     return(_dampingFactor);
 }

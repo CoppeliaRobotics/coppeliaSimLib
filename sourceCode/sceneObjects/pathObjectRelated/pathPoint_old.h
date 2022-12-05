@@ -11,19 +11,19 @@ public:
 
     void setTransformation(const C7Vector& tr,int attributes);
     C7Vector getTransformation();
-    void setMaxRelAbsVelocity(floatDouble t);
-    floatDouble getMaxRelAbsVelocity();
-    void setOnSpotDistance(floatDouble d);
-    floatDouble getOnSpotDistance();
+    void setMaxRelAbsVelocity(double t);
+    double getMaxRelAbsVelocity();
+    void setOnSpotDistance(double d);
+    double getOnSpotDistance();
     void setAuxFlags(unsigned short f);
     unsigned short getAuxFlags();
-    void setAuxChannels(const floatDouble c[4]);
-    void getAuxChannels(floatDouble c[4]);
+    void setAuxChannels(const double c[4]);
+    void getAuxChannels(double c[4]);
 
 protected:
     C7Vector _transformation;
-    floatDouble _maxRelAbsVelocity;
-    floatDouble _onSpotDistance;
+    double _maxRelAbsVelocity;
+    double _onSpotDistance;
     unsigned short _auxFlags;
-    floatDouble _auxChannels[4];
+    double _auxChannels[4];
 };

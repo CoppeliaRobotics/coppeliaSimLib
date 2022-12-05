@@ -45,15 +45,15 @@ void CPathPlanningTask::setDefaultValues()
     _obstacleEntityID=-1;
     _visualizeSearchArea=true;
     holonomicTaskType=sim_holonomicpathplanning_xy;
-    stepSize=0.01f;
-    angularStepSize=5.0f*degToRad;
-    searchMinValue[0]=-0.5f;
-    searchMinValue[1]=-0.5f;
-    searchMinValue[2]=-0.5f;
+    stepSize=0.01;
+    angularStepSize=5.0*degToRad;
+    searchMinValue[0]=-0.5;
+    searchMinValue[1]=-0.5;
+    searchMinValue[2]=-0.5;
     searchMinValue[3]=-piValue;
-    searchRange[0]=1.0f;
-    searchRange[1]=1.0f;
-    searchRange[2]=1.0f;
+    searchRange[0]=1.0;
+    searchRange[1]=1.0;
+    searchRange[2]=1.0;
     searchRange[3]=piValT2;
     searchDirection[0]=0;
     searchDirection[1]=0;
@@ -61,11 +61,11 @@ void CPathPlanningTask::setDefaultValues()
     searchDirection[3]=0;
     collisionDetection=true;
     _postProcessingPassCount=1000;
-    minTurningCircleDiameter=0.1f;
-    obstacleClearance=0.01f;
-    _obstacleMaxDistance=0.05f;
+    minTurningCircleDiameter=0.1;
+    obstacleClearance=0.01;
+    _obstacleMaxDistance=0.05;
     _obstacleMaxDistanceEnabled=false;
-    maximumTime=5.0f;
+    maximumTime=5.0;
     _showSearchTrees=false;
     _searchTree1Handle=-1;
     _searchTree2Handle=-1;
@@ -154,9 +154,9 @@ void CPathPlanningTask::connectExternalSearchTrees(int tree1Handle,int tree2Hand
     _searchTree2Handle=tree2Handle;
 }
 
-void CPathPlanningTask::setMaxTime(floatDouble mTime)
+void CPathPlanningTask::setMaxTime(double mTime)
 {
-    tt::limitValue(0.1f,40000.0f,mTime);
+    tt::limitValue(0.1,40000.0,mTime);
     maximumTime=mTime;
 }
 
@@ -181,33 +181,33 @@ void CPathPlanningTask::setHolonomicTaskType(int type)
     holonomicTaskType=type;
 }
 
-void CPathPlanningTask::setStepSize(floatDouble size)
+void CPathPlanningTask::setStepSize(double size)
 {
-    tt::limitValue(0.0001f,10.0f,size);
+    tt::limitValue(0.0001,10.0,size);
     stepSize=size;
     if (sin(44.0*degToRad)*minTurningCircleDiameter<stepSize)
         minTurningCircleDiameter=stepSize/sin(44.0*degToRad);
 }
-void CPathPlanningTask::setAngularStepSize(floatDouble step)
+void CPathPlanningTask::setAngularStepSize(double step)
 {
-    tt::limitValue(0.1f*degToRad,90.0f*degToRad,step);
+    tt::limitValue(0.1*degToRad,90.0*degToRad,step);
     angularStepSize=step;
 }
-void CPathPlanningTask::setSearchRange(floatDouble searchMin[4],floatDouble searchR[4])
+void CPathPlanningTask::setSearchRange(double searchMin[4],double searchR[4])
 {
     for (int i=0;i<3;i++)
     {
-        floatDouble v=searchMin[i];
-        tt::limitValue(-1000.0f,1000.0f,v);
+        double v=searchMin[i];
+        tt::limitValue(-1000.0,1000.0,v);
         searchMinValue[i]=v;
         v=searchR[i];
-        tt::limitValue(0.0001f,2000.0f,v);
+        tt::limitValue(0.0001,2000.0,v);
         searchRange[i]=v;
     }
-    floatDouble v=tt::getNormalizedAngle(searchMin[3]);
+    double v=tt::getNormalizedAngle(searchMin[3]);
     searchMinValue[3]=v;
     v=searchR[3];
-    tt::limitValue(0.1f*degToRad,piValT2,v);
+    tt::limitValue(0.1*degToRad,piValT2,v);
     searchRange[3]=v;
 }
 
@@ -238,24 +238,24 @@ void CPathPlanningTask::setCollisionDetection(bool c)
     }
 }
 
-void CPathPlanningTask::setObstacleClearance(floatDouble c)
+void CPathPlanningTask::setObstacleClearance(double c)
 {
-    tt::limitValue(0.0001f,100.0f,c);
-    floatDouble dx=_obstacleMaxDistance-obstacleClearance;
+    tt::limitValue(0.0001,100.0,c);
+    double dx=_obstacleMaxDistance-obstacleClearance;
     obstacleClearance=c;
     _obstacleMaxDistance=obstacleClearance+dx;
 }
-floatDouble CPathPlanningTask::getObstacleClearance()
+double CPathPlanningTask::getObstacleClearance()
 {
     return(obstacleClearance);
 }
 
-void CPathPlanningTask::setObstacleMaxDistance(floatDouble c)
+void CPathPlanningTask::setObstacleMaxDistance(double c)
 {
-    tt::limitValue(obstacleClearance+0.0001f,100.0f,c);
+    tt::limitValue(obstacleClearance+0.0001,100.0,c);
     _obstacleMaxDistance=c;
 }
-floatDouble CPathPlanningTask::getObstacleMaxDistance()
+double CPathPlanningTask::getObstacleMaxDistance()
 {
     return(_obstacleMaxDistance);
 }
@@ -268,14 +268,14 @@ bool CPathPlanningTask::getObstacleMaxDistanceEnabled()
     return(_obstacleMaxDistanceEnabled);
 }
 
-void CPathPlanningTask::setMinTurningCircleDiameter(floatDouble d)
+void CPathPlanningTask::setMinTurningCircleDiameter(double d)
 {
-    tt::limitValue(0.001f,10.0f,d);
+    tt::limitValue(0.001,10.0,d);
     minTurningCircleDiameter=d;
     if (sin(44.0*degToRad)*minTurningCircleDiameter<stepSize)
         stepSize=minTurningCircleDiameter*sin(44.0*degToRad);
 }
-floatDouble CPathPlanningTask::getMinTurningCircleDiameter()
+double CPathPlanningTask::getMinTurningCircleDiameter()
 {
     return(minTurningCircleDiameter);
 }
@@ -349,38 +349,38 @@ void CPathPlanningTask::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
         ar.storeDataName("Pss");
-        ar.flt() << (floatFloat)stepSize << (floatFloat)angularStepSize;
+        ar << (float)stepSize << (float)angularStepSize;
         ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
         ar.storeDataName("_ss");
-        ar.dbl() << stepSize << angularStepSize;
+        ar << stepSize << angularStepSize;
         ar.flush();
-#endif
+
 
 #ifdef TMPOPERATION
         ar.storeDataName("Rn2");
         for (int i=0;i<4;i++)
-            ar.flt() << (floatFloat)searchMinValue[i] << (floatFloat)searchRange[i];
-        ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-        ar.storeDataName("_n2");
-        for (int i=0;i<4;i++)
-            ar.dbl() << searchMinValue[i] << searchRange[i];
+            ar << (float)searchMinValue[i] << (float)searchRange[i];
         ar.flush();
 #endif
 
+        ar.storeDataName("_n2");
+        for (int i=0;i<4;i++)
+            ar << searchMinValue[i] << searchRange[i];
+        ar.flush();
+
+
 #ifdef TMPOPERATION
         ar.storeDataName("Mtd");
-        ar.flt() << (floatFloat)minTurningCircleDiameter;
+        ar << (float)minTurningCircleDiameter;
         ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
         ar.storeDataName("_td");
-        ar.dbl() << minTurningCircleDiameter;
+        ar << minTurningCircleDiameter;
         ar.flush();
-#endif
+
 
         ar.storeDataName("Nme");
         ar << objectName;
@@ -392,14 +392,14 @@ void CPathPlanningTask::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
         ar.storeDataName("Mxt");
-        ar.flt() << (floatFloat)maximumTime;
+        ar << (float)maximumTime;
         ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
         ar.storeDataName("_xt");
-        ar.dbl() << maximumTime;
+        ar << maximumTime;
         ar.flush();
-#endif
+
 
         ar.storeDataName("Sd2");
         for (int i=0;i<4;i++)
@@ -418,25 +418,25 @@ void CPathPlanningTask::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
         ar.storeDataName("Ocl");
-        ar.flt() << (floatFloat)obstacleClearance;
-        ar.flush();
-#endif
-#ifdef DOUBLESERIALIZATIONOPERATION
-        ar.storeDataName("_cl");
-        ar.dbl() << obstacleClearance;
+        ar << (float)obstacleClearance;
         ar.flush();
 #endif
 
+        ar.storeDataName("_cl");
+        ar << obstacleClearance;
+        ar.flush();
+
+
 #ifdef TMPOPERATION
         ar.storeDataName("Omd");
-        ar.flt() << (floatFloat)_obstacleMaxDistance;
+        ar << (float)_obstacleMaxDistance;
         ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
         ar.storeDataName("_md");
-        ar.dbl() << _obstacleMaxDistance;
+        ar << _obstacleMaxDistance;
         ar.flush();
-#endif
+
 
         ar.storeDataName("Pp2");
         ar << _postProcessingPassCount;
@@ -444,14 +444,14 @@ void CPathPlanningTask::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
         ar.storeDataName("Gaa");
-        ar.flt() << (floatFloat)_gammaAxis(0) << (floatFloat)_gammaAxis(1) << (floatFloat)_gammaAxis(2);
+        ar << (float)_gammaAxis(0) << (float)_gammaAxis(1) << (float)_gammaAxis(2);
         ar.flush();
 #endif
-#ifdef DOUBLESERIALIZATIONOPERATION
+
         ar.storeDataName("_aa");
-        ar.dbl() << _gammaAxis(0) << _gammaAxis(1) << _gammaAxis(2);
+        ar << _gammaAxis(0) << _gammaAxis(1) << _gammaAxis(2);
         ar.flush();
-#endif
+
 
         ar.storeDataName(SER_END_OF_OBJECT);
     }
@@ -499,50 +499,56 @@ void CPathPlanningTask::serialize(CSer& ar)
                 { // for backward comp. (flt->dbl)
                     noHit=false;
                     ar >> byteQuantity;
-                    floatFloat bla,bli;
-                    ar.flt() >> bla >> bli;
-                    stepSize=(floatDouble)bla;
-                    angularStepSize=(floatDouble)bli;
+                    float bla,bli;
+                    ar >> bla >> bli;
+                    stepSize=(double)bla;
+                    angularStepSize=(double)bli;
                 }
+
                 if (theName.compare("_ss")==0)
                 {
                     noHit=false;
                     ar >> byteQuantity;
-                    ar.dbl() >> stepSize >> angularStepSize;
+                    ar >> stepSize >> angularStepSize;
                 }
+
                 if (theName.compare("Rn2")==0)
                 { // for backward comp. (flt->dbl)
                     noHit=false;
                     ar >> byteQuantity;
-                    floatFloat bla,bli;
+                    float bla,bli;
                     for (int i=0;i<4;i++)
                     {
-                        ar.flt() >> bla >> bli;
-                        searchMinValue[i]=(floatDouble)bla;
-                        searchRange[i]=(floatDouble)bli;
+                        ar >> bla >> bli;
+                        searchMinValue[i]=(double)bla;
+                        searchRange[i]=(double)bli;
                     }
                 }
+
                 if (theName.compare("_n2")==0)
                 {
                     noHit=false;
                     ar >> byteQuantity;
                     for (int i=0;i<4;i++)
-                        ar.dbl() >> searchMinValue[i] >> searchRange[i];
+                        ar >> searchMinValue[i] >> searchRange[i];
                 }
+
                 if (theName.compare("Mtd")==0)
                 { // for backward comp. (flt->dbl)
                     noHit=false;
                     ar >> byteQuantity;
-                    floatFloat bla;
-                    ar.flt() >> bla;
-                    minTurningCircleDiameter=(floatDouble)bla;
+                    float bla;
+                    ar >> bla;
+                    minTurningCircleDiameter=(double)bla;
                 }
+
                 if (theName.compare("_td")==0)
                 {
                     noHit=false;
                     ar >> byteQuantity;
-                    ar.dbl() >> minTurningCircleDiameter;
+                    ar >> minTurningCircleDiameter;
                 }
+
                 if (theName.compare("Nme")==0)
                 {
                     noHit=false;
@@ -559,16 +565,18 @@ void CPathPlanningTask::serialize(CSer& ar)
                 { // for backward comp. (flt->dbl)
                     noHit=false;
                     ar >> byteQuantity;
-                    floatFloat bla;
-                    ar.flt() >> bla;
-                    maximumTime=(floatDouble)bla;
+                    float bla;
+                    ar >> bla;
+                    maximumTime=(double)bla;
                 }
+
                 if (theName.compare("_xt")==0)
                 {
                     noHit=false;
                     ar >> byteQuantity;
-                    ar.dbl() >> maximumTime;
+                    ar >> maximumTime;
                 }
+
                 if (theName.compare("Sd2")==0)
                 {
                     noHit=false;
@@ -592,30 +600,34 @@ void CPathPlanningTask::serialize(CSer& ar)
                 { // for backward comp. (flt->dbl)
                     noHit=false;
                     ar >> byteQuantity;
-                    floatFloat bla;
-                    ar.flt() >> bla;
-                    obstacleClearance=(floatDouble)bla;
+                    float bla;
+                    ar >> bla;
+                    obstacleClearance=(double)bla;
                 }
+
                 if (theName.compare("_cl")==0)
                 {
                     noHit=false;
                     ar >> byteQuantity;
-                    ar.dbl() >> obstacleClearance;
+                    ar >> obstacleClearance;
                 }
+
                 if (theName.compare("Omd")==0)
                 { // for backward comp. (flt->dbl)
                     noHit=false;
                     ar >> byteQuantity;
-                    floatFloat bla;
-                    ar.flt() >> bla;
-                    _obstacleMaxDistance=(floatDouble)bla;
+                    float bla;
+                    ar >> bla;
+                    _obstacleMaxDistance=(double)bla;
                 }
+
                 if (theName.compare("_md")==0)
                 {
                     noHit=false;
                     ar >> byteQuantity;
-                    ar.dbl() >> _obstacleMaxDistance;
+                    ar >> _obstacleMaxDistance;
                 }
+
                 if (theName.compare("Pp2")==0)
                 {
                     noHit=false;
@@ -626,19 +638,21 @@ void CPathPlanningTask::serialize(CSer& ar)
                 { // for backward comp. (flt->dbl)
                     noHit=false;
                     ar >> byteQuantity;
-                    floatFloat bla;
+                    float bla;
                     for (size_t i=0;i<3;i++)
                     {
-                        ar.flt() >> bla;
-                        _gammaAxis(i)=(floatDouble)bla;
+                        ar >> bla;
+                        _gammaAxis(i)=(double)bla;
                     }
                 }
+
                 if (theName.compare("_aa")==0)
                 {
                     noHit=false;
                     ar >> byteQuantity;
-                    ar.dbl() >> _gammaAxis(0) >> _gammaAxis(1) >> _gammaAxis(2);
+                    ar >> _gammaAxis(0) >> _gammaAxis(1) >> _gammaAxis(2);
                 }
+
                 if (noHit)
                     ar.loadUnknownData();
             }
@@ -736,18 +750,18 @@ int CPathPlanningTask::getHolonomicTaskType()
 {
     return(holonomicTaskType);
 }
-floatDouble CPathPlanningTask::getStepSize()
+double CPathPlanningTask::getStepSize()
 {
     return(stepSize);
 }
-floatDouble CPathPlanningTask::getAngularStepSize()
+double CPathPlanningTask::getAngularStepSize()
 {
     return(angularStepSize);
 }
 
 void CPathPlanningTask::setGammaAxis(const C3Vector& axis)
 {
-    if (axis.getLength()>0.001f)
+    if (axis.getLength()>0.001)
         _gammaAxis=axis; // We don't normalize, since we want the user to be able to enter (2;0;3) for example
 }
 
@@ -756,7 +770,7 @@ C3Vector CPathPlanningTask::getGammaAxis()
     return(_gammaAxis);
 }
 
-void CPathPlanningTask::getSearchRange(floatDouble searchMin[4],floatDouble searchR[4])
+void CPathPlanningTask::getSearchRange(double searchMin[4],double searchR[4])
 {
     for (int i=0;i<4;i++)
     {
@@ -773,7 +787,7 @@ bool CPathPlanningTask::getCollisionDetection()
 {
     return(collisionDetection);
 }
-floatDouble CPathPlanningTask::getMaxTime()
+double CPathPlanningTask::getMaxTime()
 {
     return(maximumTime);
 }
@@ -803,10 +817,10 @@ bool CPathPlanningTask::isTaskValid()
     }
     return(false);
 }
-bool CPathPlanningTask::performSearch(bool showProgressDlg,floatDouble maxTime)
+bool CPathPlanningTask::performSearch(bool showProgressDlg,double maxTime)
 { // if maxTime is 0.0 or negative, the default maxTime is used
 
-    if (initiateSteppedSearch(showProgressDlg,maxTime,0.1f))
+    if (initiateSteppedSearch(showProgressDlg,maxTime,0.1))
     {
         int res=-2;
         while (res==-2)
@@ -820,7 +834,7 @@ bool CPathPlanningTask::performSearch(bool showProgressDlg,floatDouble maxTime)
 
 }
 
-bool CPathPlanningTask::initiateSteppedSearch(bool showProgressDlg,floatDouble maxTime,floatDouble subDt)
+bool CPathPlanningTask::initiateSteppedSearch(bool showProgressDlg,double maxTime,double subDt)
 {
     if (!isTaskValid())
         return(false);
@@ -828,31 +842,31 @@ bool CPathPlanningTask::initiateSteppedSearch(bool showProgressDlg,floatDouble m
     if (thePath==nullptr)
         return(false);
     _steppedSearchTemp_initTimeInMs=(int)VDateTime::getTimeInMs();
-    _steppedSearchTemp_maxTimeInMs=int(maximumTime*1000.0f);
-    if (maxTime>0.0f)
-        _steppedSearchTemp_maxTimeInMs=int(maxTime*1000.0f);
-    _steppedSearchTemp_maxSubTimeInMs=int(subDt*1000.0f);
+    _steppedSearchTemp_maxTimeInMs=int(maximumTime*1000.0);
+    if (maxTime>0.0)
+        _steppedSearchTemp_maxTimeInMs=int(maxTime*1000.0);
+    _steppedSearchTemp_maxSubTimeInMs=int(subDt*1000.0);
     _steppedSearchTemp_showProgressDlg=showProgressDlg;
     _steppedSearchTemp_foundPathStatus=0; // means nothing found yet!
     _steppedSearchTemp_currentSmoothingPass=0;
     thePath->pathContainer->removeAllSimplePathPoints();
-    floatDouble clearanceAndMaxDistance[2]={obstacleClearance,_obstacleMaxDistance};
+    double clearanceAndMaxDistance[2]={obstacleClearance,_obstacleMaxDistance};
     if (collisionDetection)
     {
-        clearanceAndMaxDistance[0]=-1.0f;
-        clearanceAndMaxDistance[1]=-1.0f;
+        clearanceAndMaxDistance[0]=-1.0;
+        clearanceAndMaxDistance[1]=-1.0;
     }
     else
     {
         if (!_obstacleMaxDistanceEnabled)
-            clearanceAndMaxDistance[1]=-1.0f;
+            clearanceAndMaxDistance[1]=-1.0;
     }
-    floatDouble angularCoeff=stepSize/angularStepSize;
+    double angularCoeff=stepSize/angularStepSize;
     if (pathPlanningType==sim_pathplanning_nonholonomic)
     {
-        floatDouble maxSteeringAngle=2.0f*CMath::robustAsin(stepSize/minTurningCircleDiameter);
+        double maxSteeringAngle=2.0*CMath::robustAsin(stepSize/minTurningCircleDiameter);
         void* p=CPathPlanningInterface::createNonHolonomicPathPlanningObject(_startDummyID,_goalDummyID,_robotEntityID,
-            _obstacleEntityID,angularCoeff,1.0f,0.01f,maxSteeringAngle,stepSize,searchMinValue,searchRange,searchDirection,clearanceAndMaxDistance);
+            _obstacleEntityID,angularCoeff,1.0,0.01,maxSteeringAngle,stepSize,searchMinValue,searchRange,searchDirection,clearanceAndMaxDistance);
         _steppedSearchTemp_theTask=p;
     }
     if (pathPlanningType==sim_pathplanning_holonomic)
@@ -898,7 +912,7 @@ int CPathPlanningTask::performSteppedSearch()
                     { /*
                         std::string txt(IDS_TIME_SPENT_SEARCHING_);
                         txt+=" ";
-                        txt+=tt::FNb(0,floatDouble(VDateTime::getTimeDiffInMs(_steppedSearchTemp_initTimeInMs))/1000.0f,1,false);
+                        txt+=tt::FNb(0,double(VDateTime::getTimeDiffInMs(_steppedSearchTemp_initTimeInMs))/1000.0,1,false);
                         std::string txt2=IDS_NB_OF_COLL_FREE_NODES_FOUND_;
                         txt2+=" ";
                         txt2+=tt::FNb(0,CPathPlanningInterface::getPathNodeCount(p,true)+CPathPlanningInterface::getPathNodeCount(p,false),false);
@@ -934,14 +948,14 @@ int CPathPlanningTask::performSteppedSearch()
             {
                 CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(_pathID);
                 int nodeCount;
-                floatDouble* pathData=CPathPlanningInterface::getFoundPath(p,&nodeCount);
+                double* pathData=CPathPlanningInterface::getFoundPath(p,&nodeCount);
                 if ((it!=nullptr)&&(pathData!=nullptr))
                 {
                     it->pathContainer->enableActualization(false);
                     it->pathContainer->removeAllSimplePathPoints();
                     int at=sim_pathproperty_automatic_orientation|sim_pathproperty_closed_path;
                     it->pathContainer->setAttributes((it->pathContainer->getAttributes()|at)-at);
-                    it->pathContainer->setSquareSize(stepSize*0.25f);
+                    it->pathContainer->setSquareSize(stepSize*0.25);
                     C7Vector pathInv(it->getFullCumulativeTransformation().getInverse());
                     for (int i=0;i<nodeCount;i++)
                     {
@@ -987,7 +1001,7 @@ int CPathPlanningTask::performSteppedSearch()
                     {/*
                         std::string txt(IDS_TIME_SPENT_SEARCHING_);
                         txt+=" ";
-                        txt+=tt::FNb(0,floatDouble(VDateTime::getTimeDiffInMs(_steppedSearchTemp_initTimeInMs))/1000.0f,1,false);
+                        txt+=tt::FNb(0,double(VDateTime::getTimeDiffInMs(_steppedSearchTemp_initTimeInMs))/1000.0,1,false);
                         std::string txt2=IDS_NB_OF_COLL_FREE_NODES_FOUND_;
                         txt2+=" ";
                         txt2+=tt::FNb(0,CPathPlanningInterface::getPathNodeCount(p,true)+CPathPlanningInterface::getPathNodeCount(p,false),false);
@@ -1023,14 +1037,14 @@ int CPathPlanningTask::performSteppedSearch()
             {
                 CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(_pathID);
                 int nodeCount;
-                floatDouble* pathData=CPathPlanningInterface::getFoundPath(p,&nodeCount);
+                double* pathData=CPathPlanningInterface::getFoundPath(p,&nodeCount);
                 if ((it!=nullptr)&&(pathData!=nullptr))
                 {
                     it->pathContainer->enableActualization(false);
                     it->pathContainer->removeAllSimplePathPoints();
                     int at=sim_pathproperty_automatic_orientation|sim_pathproperty_closed_path;
                     it->pathContainer->setAttributes((it->pathContainer->getAttributes()|at)-at);
-                    it->pathContainer->setSquareSize(stepSize*0.25f);
+                    it->pathContainer->setSquareSize(stepSize*0.25);
                     C7Vector pathInv(it->getFullCumulativeTransformation().getInverse());
                     for (int i=0;i<nodeCount;i++)
                     {
@@ -1058,21 +1072,21 @@ int CPathPlanningTask::performSteppedSearch()
             App::currentWorld->drawingCont->removeObject(_searchTree1Handle);
             App::currentWorld->drawingCont->removeObject(_searchTree2Handle);
             int fromStartC;
-            floatDouble* fromStart=CPathPlanningInterface::getSearchTree(_steppedSearchTemp_theTask,&fromStartC,true);
+            double* fromStart=CPathPlanningInterface::getSearchTree(_steppedSearchTemp_theTask,&fromStartC,true);
             int fromGoalC;
-            floatDouble* fromGoal=CPathPlanningInterface::getSearchTree(_steppedSearchTemp_theTask,&fromGoalC,false);
+            double* fromGoal=CPathPlanningInterface::getSearchTree(_steppedSearchTemp_theTask,&fromGoalC,false);
             if (fromStart!=nullptr)
             {
-                CDrawingObject* it=new CDrawingObject(sim_drawing_lines,1.0f,0.0f,-1,1000000,-1);
-                it->color.setColor(1.0f,0.0f,0.0f,sim_colorcomponent_ambient_diffuse);
+                CDrawingObject* it=new CDrawingObject(sim_drawing_lines,1.0,0.0,-1,1000000,-1);
+                it->color.setColor(1.0,0.0,0.0,sim_colorcomponent_ambient_diffuse);
                 for (int i=0;i<fromStartC;i++)
                     it->addItem(fromStart+6*i);
                 _searchTree1Handle=App::currentWorld->drawingCont->addObject(it);
             }
             if (fromGoal!=nullptr)
             {
-                CDrawingObject* it=new CDrawingObject(sim_drawing_lines,1.0f,0.0f,-1,1000000,-1);
-                it->color.setColor(0.0f,0.0f,1.0f,sim_colorcomponent_ambient_diffuse);
+                CDrawingObject* it=new CDrawingObject(sim_drawing_lines,1.0,0.0,-1,1000000,-1);
+                it->color.setColor(0.0,0.0,1.0,sim_colorcomponent_ambient_diffuse);
                 for (int i=0;i<fromGoalC;i++)
                     it->addItem(fromGoal+6*i);
                 _searchTree2Handle=App::currentWorld->drawingCont->addObject(it);
@@ -1101,30 +1115,30 @@ void CPathPlanningTask::renderYour3DStuff()
             {
                 for (int k=0;k<2;k++)
                 {
-                    floatDouble theX=1.0f;
-                    floatDouble theY=1.0f;
-                    floatDouble theZ=1.0f;
+                    double theX=1.0;
+                    double theY=1.0;
+                    double theZ=1.0;
                     if (pathPlanningType==sim_pathplanning_holonomic)
                     {
                         if (holonomicTaskType==sim_holonomicpathplanning_abg)
-                            theX=0.0f;
+                            theX=0.0;
                         if ((holonomicTaskType==sim_holonomicpathplanning_xg)||
                             (holonomicTaskType==sim_holonomicpathplanning_abg)||
                             (holonomicTaskType==sim_holonomicpathplanning_xabg))
-                            theY=0.0f;
+                            theY=0.0;
                         if ((holonomicTaskType==sim_holonomicpathplanning_xy)||
                             (holonomicTaskType==sim_holonomicpathplanning_xg)||
                             (holonomicTaskType==sim_holonomicpathplanning_xyg)||
                             (holonomicTaskType==sim_holonomicpathplanning_abg)||
                             (holonomicTaskType==sim_holonomicpathplanning_xabg)||
                             (holonomicTaskType==sim_holonomicpathplanning_xyabg))
-                            theZ=0.0f;
+                            theZ=0.0;
                     }
                     if (pathPlanningType==sim_pathplanning_nonholonomic)
-                        theZ=0.0f;
-                    corners[4*i+2*j+k]=m.X+(m.M.axis[0]*searchMinValue[0]+m.M.axis[0]*floatDouble(i)*searchRange[0])*theX;
-                    corners[4*i+2*j+k]+=(m.M.axis[1]*searchMinValue[1]+m.M.axis[1]*floatDouble(j)*searchRange[1])*theY;
-                    corners[4*i+2*j+k]+=(m.M.axis[2]*searchMinValue[2]+m.M.axis[2]*floatDouble(k)*searchRange[2])*theZ;
+                        theZ=0.0;
+                    corners[4*i+2*j+k]=m.X+(m.M.axis[0]*searchMinValue[0]+m.M.axis[0]*double(i)*searchRange[0])*theX;
+                    corners[4*i+2*j+k]+=(m.M.axis[1]*searchMinValue[1]+m.M.axis[1]*double(j)*searchRange[1])*theY;
+                    corners[4*i+2*j+k]+=(m.M.axis[2]*searchMinValue[2]+m.M.axis[2]*double(k)*searchRange[2])*theZ;
                 }
             }
         }

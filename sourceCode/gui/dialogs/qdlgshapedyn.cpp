@@ -302,7 +302,7 @@ void CQDlgShapeDyn::on_qqMass_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float newVal=ui->qqMass->text().toFloat(&ok);
+        double newVal=ui->qqMass->text().toFloat(&ok);
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         if (ok&&(shape!=nullptr))
         {
@@ -351,7 +351,7 @@ void CQDlgShapeDyn::on_qqIX_editingFinished()
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        float newVal=ui->qqIX->text().toFloat(&ok);
+        double newVal=ui->qqIX->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
             C3Vector v(shape->getMeshWrapper()->getPrincipalMomentsOfInertia());
@@ -377,7 +377,7 @@ void CQDlgShapeDyn::on_qqIY_editingFinished()
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        float newVal=ui->qqIY->text().toFloat(&ok);
+        double newVal=ui->qqIY->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
             C3Vector v(shape->getMeshWrapper()->getPrincipalMomentsOfInertia());
@@ -403,7 +403,7 @@ void CQDlgShapeDyn::on_qqIZ_editingFinished()
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        float newVal=ui->qqIZ->text().toFloat(&ok);
+        double newVal=ui->qqIZ->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
             C3Vector v(shape->getMeshWrapper()->getPrincipalMomentsOfInertia());
@@ -460,7 +460,7 @@ void CQDlgShapeDyn::on_qqPX_editingFinished()
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        float newVal=ui->qqPX->text().toFloat(&ok);
+        double newVal=ui->qqPX->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
             C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
@@ -484,7 +484,7 @@ void CQDlgShapeDyn::on_qqPY_editingFinished()
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        float newVal=ui->qqPY->text().toFloat(&ok);
+        double newVal=ui->qqPY->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
             C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
@@ -508,7 +508,7 @@ void CQDlgShapeDyn::on_qqPZ_editingFinished()
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        float newVal=ui->qqPZ->text().toFloat(&ok);
+        double newVal=ui->qqPZ->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
             C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
@@ -532,7 +532,7 @@ void CQDlgShapeDyn::on_qqAlpha_editingFinished()
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        float newVal=ui->qqAlpha->text().toFloat(&ok);
+        double newVal=ui->qqAlpha->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
             C4X4Matrix m(shape->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
@@ -558,7 +558,7 @@ void CQDlgShapeDyn::on_qqBeta_editingFinished()
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        float newVal=ui->qqBeta->text().toFloat(&ok);
+        double newVal=ui->qqBeta->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
             C4X4Matrix m(shape->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
@@ -584,7 +584,7 @@ void CQDlgShapeDyn::on_qqGamma_editingFinished()
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        float newVal=ui->qqGamma->text().toFloat(&ok);
+        double newVal=ui->qqGamma->text().toFloat(&ok);
         if (ok&&(shape!=nullptr))
         {
             C4X4Matrix m(shape->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
@@ -691,7 +691,7 @@ void CQDlgShapeDyn::on_qqComputeMassProperties_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        float density=(float)QInputDialog::getDouble(this,"Body density","Uniform density",1000.0,0.1,30000.0,1,&ok);
+        double density=(double)QInputDialog::getDouble(this,"Body density","Uniform density",1000.0,0.1,30000.0,1,&ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;

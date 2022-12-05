@@ -1,8 +1,8 @@
-
 #ifndef QDLGHEIGHTFIELDDIMENSION_H
 #define QDLGHEIGHTFIELDDIMENSION_H
 
 #include "vDialog.h"
+#include "simTypes.h"
 
 namespace Ui {
     class CQDlgHeightfieldDimension;
@@ -21,10 +21,10 @@ public:
 
     void refresh();
 
-    float xSize;
-    float ySize;
-    float zScaling;
-    float xSizeTimesThisGivesYSize;
+    double xSize;
+    double ySize;
+    double zScaling;
+    double xSizeTimesThisGivesYSize;
 
 private slots:
     void on_qqSizeX_editingFinished();

@@ -32,22 +32,22 @@ void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAtt
 
         _enableAuxClippingPlanes(camera->getObjectHandle());
         camera->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-        float cameraSize=camera->getCameraSize();
+        double cameraSize=camera->getCameraSize();
         glPushMatrix();
-        glTranslatef(0.0f,0.0f,-cameraSize);
-        ogl::drawBox(0.4f*cameraSize,cameraSize,2.0f*cameraSize,true,nullptr);
+        glTranslated(0.0,0.0,-cameraSize);
+        ogl::drawBox(0.4*cameraSize,cameraSize,2.0*cameraSize,true,nullptr);
         glPopMatrix();
         glPushMatrix();
         camera->getColor(true)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-        glTranslatef(0.0f,1.3f*cameraSize,-0.25f*cameraSize);
-        glRotatef(90.0f,0,1,0);
-        ogl::drawCylinder(2.0f*cameraSize,cameraSize/2.0f,20,0,true);
-        glTranslatef(1.5f*cameraSize,0.0f,0.0f);
-        ogl::drawCylinder(2.0f*cameraSize,cameraSize/2.0f,20,0,true);
+        glTranslated(0.0,1.3*cameraSize,-0.25*cameraSize);
+        glRotatef(90.0,0,1,0);
+        ogl::drawCylinder(2.0*cameraSize,cameraSize/2.0,20,0,true);
+        glTranslated(1.5*cameraSize,0.0,0.0);
+        ogl::drawCylinder(2.0*cameraSize,cameraSize/2.0,20,0,true);
         glPopMatrix();
         glPushMatrix();
-        glTranslatef(0.0f,0.0f,cameraSize/6.0f);
-        ogl::drawCone(cameraSize,5.0f*cameraSize/3.0f,20,true,true);
+        glTranslated(0.0,0.0,cameraSize/6.0);
+        ogl::drawCone(cameraSize,5.0*cameraSize/3.0,20,true,true);
         glPopMatrix();
         if (camera->getShowVolume())
         {

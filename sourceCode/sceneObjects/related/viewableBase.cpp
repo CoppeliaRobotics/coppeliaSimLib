@@ -23,12 +23,12 @@ CViewableBase::CViewableBase()
 {
     _planesCalculated=false;
     _fogTimer=(int)VDateTime::getTimeInMs()-1;
-    _fogTimerDuration=0.0f;
+    _fogTimerDuration=0.0;
     _frustumCullingTemporarilyDisabled=false;
     _disabledColorComponents=0;
     _perspective=true;
-    _viewAngle=60.0f*piValue/180.0f;
-    _orthoViewSize=1.0f;
+    _viewAngle=60.0*piValue/180.0;
+    _orthoViewSize=1.0;
     _resolution[0]=1280;
     _resolution[1]=720;
     _volumeVectorNear.clear();
@@ -56,7 +56,7 @@ CSceneObject* CViewableBase::copyYourself()
 void CViewableBase::display(CViewableBase* renderingObject,int displayAttrib)
 {
 }
-void CViewableBase::scaleObject(floatDouble scalingFactor)
+void CViewableBase::scaleObject(double scalingFactor)
 {
 }
 void CViewableBase::simulationAboutToStart()
@@ -131,9 +131,9 @@ bool CViewableBase::isPotentiallyRenderable() const
     return(false);
 }
 
-void CViewableBase::setNearClippingPlane(floatDouble nearPlane)
+void CViewableBase::setNearClippingPlane(double nearPlane)
 {
-    tt::limitValue(0.0001f,_farClippingPlane,nearPlane);
+    tt::limitValue(0.0001,_farClippingPlane,nearPlane);
     bool diff=(_nearClippingPlane!=nearPlane);
     if (diff)
     {
@@ -149,14 +149,14 @@ void CViewableBase::setNearClippingPlane(floatDouble nearPlane)
     }
 }
 
-floatDouble CViewableBase::getNearClippingPlane() const
+double CViewableBase::getNearClippingPlane() const
 {
     return(_nearClippingPlane);
 }
 
-void CViewableBase::setFarClippingPlane(floatDouble farPlane)
+void CViewableBase::setFarClippingPlane(double farPlane)
 {
-    tt::limitValue(_nearClippingPlane,100000.0f,farPlane);
+    tt::limitValue(_nearClippingPlane,100000.0,farPlane);
     bool diff=(_farClippingPlane!=farPlane);
     if (diff)
     {
@@ -172,14 +172,14 @@ void CViewableBase::setFarClippingPlane(floatDouble farPlane)
     }
 }
 
-floatDouble CViewableBase::getFarClippingPlane() const
+double CViewableBase::getFarClippingPlane() const
 {
     return(_farClippingPlane);
 }
 
-void CViewableBase::setViewAngle(floatDouble angle)
+void CViewableBase::setViewAngle(double angle)
 {
-    tt::limitValue(1.0f*degToRad,135.0f*degToRad,angle); // with 90 degrees, objects disappear!! Really??? Changed to 135 on 2010/11/12
+    tt::limitValue(1.0*degToRad,135.0*degToRad,angle); // with 90 degrees, objects disappear!! Really??? Changed to 135 on 2010/11/12
     bool diff=(_viewAngle!=angle);
     if (diff)
     {
@@ -195,14 +195,14 @@ void CViewableBase::setViewAngle(floatDouble angle)
     }
 }
 
-floatDouble CViewableBase::getViewAngle() const
+double CViewableBase::getViewAngle() const
 {
     return(_viewAngle);
 }
 
-void CViewableBase::setOrthoViewSize(floatDouble theSize)
+void CViewableBase::setOrthoViewSize(double theSize)
 {
-    tt::limitValue(0.001f,200000.0f,theSize);
+    tt::limitValue(0.001,200000.0,theSize);
     bool diff=(_orthoViewSize!=theSize);
     if (diff)
     {
@@ -218,7 +218,7 @@ void CViewableBase::setOrthoViewSize(floatDouble theSize)
     }
 }
 
-floatDouble CViewableBase::getOrthoViewSize() const
+double CViewableBase::getOrthoViewSize() const
 {
     return(_orthoViewSize);
 }
@@ -233,13 +233,13 @@ bool CViewableBase::getShowFogIfAvailable() const
     return(_showFogIfAvailable);
 }
 
-void CViewableBase::setFogTimer(floatDouble seconds)
+void CViewableBase::setFogTimer(double seconds)
 {
     _fogTimerDuration=seconds;
     _fogTimer=(int)VDateTime::getTimeInMs()+int(seconds*1000.0);
 }
 
-floatDouble CViewableBase::getFogStrength()
+double CViewableBase::getFogStrength()
 {
     if (_fogTimerDuration==0.0)
         return(1.0);
@@ -254,7 +254,7 @@ floatDouble CViewableBase::getFogStrength()
         _fogTimerDuration=0.0;
         return(1.0);
     }
-    floatDouble dt=floatDouble(_fogTimer-t)/1000.0;
+    double dt=double(_fogTimer-t)/1000.0;
     return(1.0-(dt/_fogTimerDuration));
 }
 
@@ -275,8 +275,8 @@ void CViewableBase::computeViewFrustumIfNeeded()
         C7Vector leftPlane;
         C7Vector nearPlane;
         C7Vector farPlane;
-        floatDouble winXSize=(floatDouble)_currentViewSize[0];
-        floatDouble winYSize=(floatDouble)_currentViewSize[1];
+        double winXSize=(double)_currentViewSize[0];
+        double winYSize=(double)_currentViewSize[1];
         C7Vector viewableCumulTransf;
 
         if (getObjectType()==sim_object_camera_type)
@@ -300,15 +300,15 @@ void CViewableBase::computeViewFrustumIfNeeded()
 
         if (_currentPerspective)
         {
-            floatDouble xAngle,yAngle;
+            double xAngle,yAngle;
             if (winXSize<winYSize)
             {
                 yAngle=_viewAngle*0.5;
-                xAngle=(floatDouble)atan(tan(_viewAngle*0.5)*winXSize/winYSize);
+                xAngle=atan(tan(_viewAngle*0.5)*winXSize/winYSize);
             }
             else
             {
-                yAngle=(floatDouble)atan(tan(_viewAngle*0.5)*winYSize/winXSize);
+                yAngle=atan(tan(_viewAngle*0.5)*winYSize/winXSize);
                 xAngle=_viewAngle*0.5;
             }
             xAngle*=1.05; // a little bit of tolerance!
@@ -326,7 +326,7 @@ void CViewableBase::computeViewFrustumIfNeeded()
         }
         else
         {
-            floatDouble xSize,ySize;
+            double xSize,ySize;
             if (winXSize<winYSize)
             {
                 xSize=_orthoViewSize*0.5*winXSize/winYSize;
@@ -410,12 +410,12 @@ bool CViewableBase::isObjectInsideView(const C7Vector& objectM,const C3Vector& m
     if (!_frustumCulling)
         return(true);
 
-    C3Vector size(maxBB*1.1f);  // BB is 1.05 times bigger... but still: we display bounding boxes even if the shape is culled because of the text that might still be visible!
+    C3Vector size(maxBB*1.1);  // BB is 1.05 times bigger... but still: we display bounding boxes even if the shape is culled because of the text that might still be visible!
     return(!_isBoxOutsideVolumeApprox(objectM.getMatrix(),size,&viewFrustum));
 }
 
 bool CViewableBase::_isBoxOutsideVolumeApprox(const C4X4Matrix& tr,
-                            const C3Vector& s,std::vector<floatDouble>* planes)
+                            const C3Vector& s,std::vector<double>* planes)
 {   // Planes contain a collection of plane definitions:
     // Each plane is defined by 4 values a, b, c & d (consecutive in the array):
     // ax+by+cz+d=0
@@ -440,7 +440,7 @@ bool CViewableBase::_isBoxOutsideVolumeApprox(const C4X4Matrix& tr,
     for (int i=0;i<int(planes->size())/4;i++)
     {
         C3Vector abc(planes->at(4*i+0),planes->at(4*i+1),planes->at(4*i+2));
-        floatDouble d=planes->at(4*i+3);
+        double d=planes->at(4*i+3);
         if ((abc*edges[0]+d)>=0.0)
         {
             if ((abc*edges[1]+d)>=0.0)
@@ -509,7 +509,7 @@ bool CViewableBase::getPerspective() const
 void CViewableBase::computeVolumeVectors()
 {
     C3Vector nearV,farV;
-    floatDouble resYoverResX=floatDouble(_resolution[1])/floatDouble(_resolution[0]);
+    double resYoverResX=double(_resolution[1])/double(_resolution[0]);
     if (_perspective)
     {
         if (resYoverResX<=1.0)
@@ -556,8 +556,8 @@ void CViewableBase::computeVolumeVectors()
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             CInterfaceStackTable* fr=new CInterfaceStackTable();
             data->appendMapObject_stringObject(cmd,fr);
-            fr->appendMapObject_stringFloatArray("near",_volumeVectorNear.data,3);
-            fr->appendMapObject_stringFloatArray("far",_volumeVectorFar.data,3);
+            fr->appendMapObject_stringDoubleArray("near",_volumeVectorNear.data,3);
+            fr->appendMapObject_stringDoubleArray("far",_volumeVectorFar.data,3);
             App::worldContainer->pushEvent(event);
         }
     }

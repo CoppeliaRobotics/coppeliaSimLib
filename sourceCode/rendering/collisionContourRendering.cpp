@@ -4,7 +4,7 @@
 
 void displayContour(CCollisionObject_old* coll,int countourWidth)
 {
-    const std::vector<float>* intersections=coll->getIntersections();
+    const std::vector<double>* intersections=coll->getIntersections();
 
     glDisable(GL_DEPTH_TEST);
     coll->getContourColor()->makeCurrentColor(false);
@@ -14,12 +14,12 @@ void displayContour(CCollisionObject_old* coll,int countourWidth)
             (intersections->at(6*i+1)==intersections->at(6*i+4))&&
             (intersections->at(6*i+2)==intersections->at(6*i+5)) )
         {
-            glPointSize(3.0f);
+            glPointSize(3.0);
             ogl::buffer.clear();
             ogl::addBuffer3DPoints(&intersections->at(6*i));
             ogl::drawRandom3dPoints(&ogl::buffer[0],1,nullptr);
             ogl::buffer.clear();
-            glPointSize(1.0f);
+            glPointSize(1.0);
         }
         else
         {
@@ -29,7 +29,7 @@ void displayContour(CCollisionObject_old* coll,int countourWidth)
             ogl::addBuffer3DPoints(&intersections->at(6*i+3));
             ogl::drawRandom3dLines(&ogl::buffer[0],2,false,nullptr);
             ogl::buffer.clear();
-            glLineWidth(1.0f);
+            glLineWidth(1.0);
         }
     }
     glEnable(GL_DEPTH_TEST);

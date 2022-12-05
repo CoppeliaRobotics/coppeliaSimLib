@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ser.h"
-#include "extIkSer.h"
 #include "MyMath.h"
 #include "_ikElement_old.h"
 
@@ -29,10 +28,10 @@ public:
     void setIkGroupPluginCounterpartHandle(int h);
 
     // Overridden from _CIkElement_old:
-    bool setMinLinearPrecision(floatDouble prec);
-    bool setMinAngularPrecision(floatDouble prec);
-    bool setPositionWeight(floatDouble weight);
-    bool setOrientationWeight(floatDouble weight);
+    bool setMinLinearPrecision(double prec);
+    bool setMinAngularPrecision(double prec);
+    bool setPositionWeight(double weight);
+    bool setOrientationWeight(double weight);
 
     std::string getTipLoadName() const;
     std::string getBaseLoadName() const;
@@ -48,10 +47,10 @@ private:
     void _setEnabled_send(bool e) const;
     void _setBase_send(int h) const;
     void _setAlternativeBaseForConstraints_send(int h) const;
-    void _setMinLinearPrecision_send(floatDouble f) const;
-    void _setMinAngularPrecision_send(floatDouble f) const;
-    void _setPositionWeight_send(floatDouble f) const;
-    void _setOrientationWeight_send(floatDouble f) const;
+    void _setMinLinearPrecision_send(double f) const;
+    void _setMinAngularPrecision_send(double f) const;
+    void _setPositionWeight_send(double f) const;
+    void _setOrientationWeight_send(double f) const;
     void _setConstraints_send(int c) const;
 
     int _ikGroupPluginCounterpartHandle;

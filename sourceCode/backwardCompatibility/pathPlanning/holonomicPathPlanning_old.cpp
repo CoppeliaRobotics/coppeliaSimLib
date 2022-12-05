@@ -5,13 +5,13 @@
 
 CHolonomicPathPlanning_old::CHolonomicPathPlanning_old(int theStartDummyID,int theGoalDummyID,
                         int theRobotCollectionID,int theObstacleCollectionID,int ikGroupID,
-                        int thePlanningType,floatDouble theAngularCoeff,
-                        floatDouble theStepSize,
-                        const floatDouble theSearchMinVal[4],const floatDouble theSearchRange[4],
-                        const int theDirectionConstraints[4],const floatDouble clearanceAndMaxDistance[2],const C3Vector& gammaAxis)
+                        int thePlanningType,double theAngularCoeff,
+                        double theStepSize,
+                        const double theSearchMinVal[4],const double theSearchRange[4],
+                        const int theDirectionConstraints[4],const double clearanceAndMaxDistance[2],const C3Vector& gammaAxis)
 {
     isHolonomic=true;
-    floatDouble angle=C3Vector::unitZVector.getAngle(gammaAxis);
+    double angle=C3Vector::unitZVector.getAngle(gammaAxis);
     if (angle<0.1*degToRad)
         _gammaAxisRotation.setIdentity();
     else
@@ -89,17 +89,17 @@ CHolonomicPathPlanning_old::~CHolonomicPathPlanning_old()
     foundPath.clear();
 }
 
-void CHolonomicPathPlanning_old::setAngularCoefficient(floatDouble coeff)
+void CHolonomicPathPlanning_old::setAngularCoefficient(double coeff)
 {
     angularCoeff=coeff;
 }
 
-void CHolonomicPathPlanning_old::setStepSize(floatDouble size)
+void CHolonomicPathPlanning_old::setStepSize(double size)
 {
     stepSize=size;
 }
 
-void CHolonomicPathPlanning_old::getSearchTreeData(std::vector<floatDouble>& data,bool fromTheStart)
+void CHolonomicPathPlanning_old::getSearchTreeData(std::vector<double>& data,bool fromTheStart)
 {
     std::vector<CHolonomicPathNode_old*>* cont;
     if (fromTheStart)
@@ -114,7 +114,7 @@ void CHolonomicPathPlanning_old::getSearchTreeData(std::vector<floatDouble>& dat
             C3Vector goal((*cont)[i]->parent->values[0],(*cont)[i]->parent->values[1],0.0);
             start=_startDummyCTM*start;
             goal=_startDummyCTM*goal;
-            floatDouble d[6];
+            double d[6];
             start.getData(d);
             goal.getData(d+3);
             for (int j=0;j<6;j++)
@@ -129,7 +129,7 @@ void CHolonomicPathPlanning_old::getSearchTreeData(std::vector<floatDouble>& dat
             C3Vector goal((*cont)[i]->parent->values[0],0.0,0.0);
             start=_startDummyCTM*start;
             goal=_startDummyCTM*goal;
-            floatDouble d[6];
+            double d[6];
             start.getData(d);
             goal.getData(d+3);
             for (int j=0;j<6;j++)
@@ -144,7 +144,7 @@ void CHolonomicPathPlanning_old::getSearchTreeData(std::vector<floatDouble>& dat
             C3Vector goal((*cont)[i]->parent->values[0],(*cont)[i]->parent->values[1],(*cont)[i]->parent->values[2]);
             start=_startDummyCTM*start;
             goal=_startDummyCTM*goal;
-            floatDouble d[6];
+            double d[6];
             start.getData(d);
             goal.getData(d+3);
             for (int j=0;j<6;j++)
@@ -278,18 +278,18 @@ bool CHolonomicPathPlanning_old::setPartialPath()
 
 CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<CHolonomicPathNode_old*>& nodes,CHolonomicPathNode_old* sample)
 {
-    floatDouble minD=FLOAT_MAX;
+    double minD=FLOAT_MAX;
     int index=-1;
     if (planningType==sim_holonomicpathplanning_xy)
     {
         for (int i=0;i<int(nodes.size());i++)
         {
-            floatDouble vect[2];
+            double vect[2];
             vect[0]=sample->values[0]-nodes[i]->values[0];
             vect[1]=sample->values[1]-nodes[i]->values[1];
             if (areDirectionConstraintsRespected(vect))
             {
-                floatDouble d=vect[0]*vect[0]+vect[1]*vect[1];
+                double d=vect[0]*vect[0]+vect[1]*vect[1];
                 if (d<minD)
                 {
                     minD=d;
@@ -302,13 +302,13 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
     {
         for (int i=0;i<int(nodes.size());i++)
         {
-            floatDouble vect[2];
+            double vect[2];
             vect[0]=sample->values[0]-nodes[i]->values[0];
             vect[1]=CPathPlanningInterface::getNormalizedAngle(sample->values[1]-nodes[i]->values[1]);
             if (areDirectionConstraintsRespected(vect))
             {
                 vect[1]*=angularCoeff;
-                floatDouble d=vect[0]*vect[0]+vect[1]*vect[1];
+                double d=vect[0]*vect[0]+vect[1]*vect[1];
                 if (d<minD)
                 {
                     minD=d;
@@ -321,13 +321,13 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
     {
         for (int i=0;i<int(nodes.size());i++)
         {
-            floatDouble vect[3];
+            double vect[3];
             vect[0]=sample->values[0]-nodes[i]->values[0];
             vect[1]=sample->values[1]-nodes[i]->values[1];
             vect[2]=sample->values[2]-nodes[i]->values[2];
             if (areDirectionConstraintsRespected(vect))
             {
-                floatDouble d=vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2];
+                double d=vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2];
                 if (d<minD)
                 {
                     minD=d;
@@ -340,14 +340,14 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
     {
         for (int i=0;i<int(nodes.size());i++)
         {
-            floatDouble vect[3];
+            double vect[3];
             vect[0]=sample->values[0]-nodes[i]->values[0];
             vect[1]=sample->values[1]-nodes[i]->values[1];
             vect[2]=CPathPlanningInterface::getNormalizedAngle(sample->values[2]-nodes[i]->values[2]);
             if (areDirectionConstraintsRespected(vect))
             {
                 vect[2]*=angularCoeff;
-                floatDouble d=vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2];
+                double d=vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2];
                 if (d<minD)
                 {
                     minD=d;
@@ -360,7 +360,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
     {
         for (int i=0;i<int(nodes.size());i++)
         {
-            floatDouble vect[4];
+            double vect[4];
             C4Vector toP,fromP;
             C3Vector dum;
             sample->getAllValues(dum,toP);
@@ -372,7 +372,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
             vect[3]=diff(3);
             if (areDirectionConstraintsRespected(vect))
             {
-                floatDouble d=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
+                double d=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
                 d*=d;
                 if (d<minD)
                 {
@@ -386,7 +386,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
     {
         for (int i=0;i<int(nodes.size());i++)
         {
-            floatDouble vect[4];
+            double vect[4];
             vect[0]=sample->values[0]-nodes[i]->values[0];
             vect[1]=sample->values[1]-nodes[i]->values[1];
             vect[2]=sample->values[2]-nodes[i]->values[2];
@@ -394,7 +394,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
             if (areDirectionConstraintsRespected(vect))
             {
                 vect[3]*=angularCoeff;
-                floatDouble d=vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]+vect[3]*vect[3];
+                double d=vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]+vect[3]*vect[3];
                 if (d<minD)
                 {
                     minD=d;
@@ -407,7 +407,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
     {
         for (int i=0;i<int(nodes.size());i++)
         {
-            floatDouble vect[5];
+            double vect[5];
             vect[0]=sample->values[0]-nodes[i]->values[0];
             C4Vector toP,fromP;
             C3Vector dum;
@@ -420,8 +420,8 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
             vect[4]=diff(3);
             if (areDirectionConstraintsRespected(vect))
             {
-                floatDouble ad=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
-                floatDouble d=vect[0]*vect[0]+ad*ad;
+                double ad=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
+                double d=vect[0]*vect[0]+ad*ad;
                 if (d<minD)
                 {
                     minD=d;
@@ -434,7 +434,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
     {
         for (int i=0;i<int(nodes.size());i++)
         {
-            floatDouble vect[6];
+            double vect[6];
             vect[0]=sample->values[0]-nodes[i]->values[0];
             vect[1]=sample->values[1]-nodes[i]->values[1];
             C4Vector toP,fromP;
@@ -448,8 +448,8 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
             vect[5]=diff(3);
             if (areDirectionConstraintsRespected(vect))
             {
-                floatDouble ad=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
-                floatDouble d=vect[0]*vect[0]+vect[1]*vect[1]+ad*ad;
+                double ad=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
+                double d=vect[0]*vect[0]+vect[1]*vect[1]+ad*ad;
                 if (d<minD)
                 {
                     minD=d;
@@ -462,7 +462,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
     {
         for (int i=0;i<int(nodes.size());i++)
         {
-            floatDouble vect[7];
+            double vect[7];
             vect[0]=sample->values[0]-nodes[i]->values[0];
             vect[1]=sample->values[1]-nodes[i]->values[1];
             vect[2]=sample->values[2]-nodes[i]->values[2];
@@ -477,8 +477,8 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
             vect[6]=diff(3);
             if (areDirectionConstraintsRespected(vect))
             {
-                floatDouble ad=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
-                floatDouble d=vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]+ad*ad;
+                double ad=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
+                double d=vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]+ad*ad;
                 if (d<minD)
                 {
                     minD=d;
@@ -496,11 +496,11 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
 {   // Return value is !=nullptr if extention was performed and connect is false
     // If connect is true, then return value indicates that connection can be performed!
     bool specialCase=( (fromStart==nodeList[0])&&(toBeExtended==fromStart[0])&&(_startConfInterferenceState!=FLOAT_MAX) );
-    floatDouble lastClosest_specialCase=_startConfInterferenceState;
-    floatDouble theVect[7];
-    floatDouble totalVect[7];
+    double lastClosest_specialCase=_startConfInterferenceState;
+    double theVect[7];
+    double totalVect[7];
     int insertedPts=0;
-    floatDouble artificialVectorLength;
+    double artificialVectorLength;
     int passes=getVector(toBeExtended,extention,theVect,stepSize,artificialVectorLength,false);
     bool leave=false;
     for (int currentPass=0;currentPass<passes;currentPass++)
@@ -616,7 +616,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
         _simSetObjectLocalTransformation_internal(dummy,tmpTr.X.data,tmpTr.Q.data,0.0);
         if (specialCase)
         {
-            floatDouble d;
+            double d;
             doCollide(&d);
             if (d>=lastClosest_specialCase)
             { // This is acceptable (we extend a colliding state, but slowly moving away from the collision)
@@ -657,7 +657,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
     return(nullptr);
 }
 
-int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint,CHolonomicPathNode_old* toPoint,floatDouble vect[7],floatDouble e,floatDouble& artificialLength,bool dontDivide)
+int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint,CHolonomicPathNode_old* toPoint,double vect[7],double e,double& artificialLength,bool dontDivide)
 { // if direction constraints are not respected, return value is -1 and vect does not contain anything
     // Otherwise return value is the number of times we have to add 'vect' to 'fromPoint' to reach 'toPoint'
     int retVal=-1;
@@ -667,11 +667,11 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint,CHol
         vect[1]=toPoint->values[1]-fromPoint->values[1];
         if (areDirectionConstraintsRespected(vect))
         {
-            artificialLength=sqrtf(vect[0]*vect[0]+vect[1]*vect[1]);
+            artificialLength=sqrt(vect[0]*vect[0]+vect[1]*vect[1]);
             if (dontDivide)
                 return(1);
             retVal=(int)(artificialLength/e)+1;
-            floatDouble l=(floatDouble)retVal;
+            double l=(double)retVal;
             vect[0]/=l;
             vect[1]/=l;
         }
@@ -683,11 +683,11 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint,CHol
         if (areDirectionConstraintsRespected(vect))
         {
             artificialLength=vect[0]*vect[0];
-            artificialLength=sqrtf(artificialLength+vect[1]*angularCoeff*vect[1]*angularCoeff);
+            artificialLength=sqrt(artificialLength+vect[1]*angularCoeff*vect[1]*angularCoeff);
             if (dontDivide)
                 return(1);
             retVal=(int)(artificialLength/e)+1;
-            floatDouble l=(floatDouble)retVal;
+            double l=(double)retVal;
             vect[0]/=l;
             vect[1]/=l;
         }
@@ -699,11 +699,11 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint,CHol
         vect[2]=toPoint->values[2]-fromPoint->values[2];
         if (areDirectionConstraintsRespected(vect))
         {
-            artificialLength=sqrtf(vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]);
+            artificialLength=sqrt(vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]);
             if (dontDivide)
                 return(1);
             retVal=(int)(artificialLength/e)+1;
-            floatDouble l=(floatDouble)retVal;
+            double l=(double)retVal;
             vect[0]/=l;
             vect[1]/=l;
             vect[2]/=l;
@@ -717,11 +717,11 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint,CHol
         if (areDirectionConstraintsRespected(vect))
         {
             artificialLength=vect[0]*vect[0]+vect[1]*vect[1];
-            artificialLength=sqrtf(artificialLength+vect[2]*angularCoeff*vect[2]*angularCoeff);
+            artificialLength=sqrt(artificialLength+vect[2]*angularCoeff*vect[2]*angularCoeff);
             if (dontDivide)
                 return(1);
             retVal=(int)(artificialLength/e)+1;
-            floatDouble l=(floatDouble)retVal;
+            double l=(double)retVal;
             vect[0]/=l;
             vect[1]/=l;
             vect[2]/=l;
@@ -744,7 +744,7 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint,CHol
             if (dontDivide)
                 return(1);
             retVal=(int)(artificialLength/e)+1;
-            floatDouble l=(floatDouble)retVal;
+            double l=(double)retVal;
             C4Vector q;
             q.setIdentity();
             fromP.buildInterpolation(q,diff,1.0/l);
@@ -763,11 +763,11 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint,CHol
         if (areDirectionConstraintsRespected(vect))
         {
             artificialLength=vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2];
-            artificialLength=sqrtf(artificialLength+vect[3]*angularCoeff*vect[3]*angularCoeff);
+            artificialLength=sqrt(artificialLength+vect[3]*angularCoeff*vect[3]*angularCoeff);
             if (dontDivide)
                 return(1);
             retVal=(int)(artificialLength/e)+1;
-            floatDouble l=(floatDouble)retVal;
+            double l=(double)retVal;
             vect[0]/=l;
             vect[1]/=l;
             vect[2]/=l;
@@ -788,14 +788,14 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint,CHol
         vect[4]=diff(3);
         if (areDirectionConstraintsRespected(vect))
         {
-            floatDouble ap=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
+            double ap=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
             artificialLength=vect[0]*vect[0];
-            artificialLength=sqrtf(artificialLength+ap*ap);
+            artificialLength=sqrt(artificialLength+ap*ap);
 
             if (dontDivide)
                 return(1);
             retVal=(int)(artificialLength/e)+1;
-            floatDouble l=(floatDouble)retVal;
+            double l=(double)retVal;
             vect[0]/=l;
             C4Vector q;
             q.setIdentity();
@@ -821,14 +821,14 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint,CHol
         vect[5]=diff(3);
         if (areDirectionConstraintsRespected(vect))
         {
-            floatDouble ap=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
+            double ap=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
             artificialLength=vect[0]*vect[0]+vect[1]*vect[1];
-            artificialLength=sqrtf(artificialLength+ap*ap);
+            artificialLength=sqrt(artificialLength+ap*ap);
 
             if (dontDivide)
                 return(1);
             retVal=(int)(artificialLength/e)+1;
-            floatDouble l=(floatDouble)retVal;
+            double l=(double)retVal;
             vect[0]/=l;
             vect[1]/=l;
             C4Vector q;
@@ -856,14 +856,14 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint,CHol
         vect[6]=diff(3);
         if (areDirectionConstraintsRespected(vect))
         {
-            floatDouble ap=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
+            double ap=angularCoeff*fromP.getAngleBetweenQuaternions(toP);
             artificialLength=vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2];
-            artificialLength=sqrtf(artificialLength+ap*ap);
+            artificialLength=sqrt(artificialLength+ap*ap);
 
             if (dontDivide)
                 return(1);
             retVal=(int)(artificialLength/e)+1;
-            floatDouble l=(floatDouble)retVal;
+            double l=(double)retVal;
             vect[0]/=l;
             vect[1]/=l;
             vect[2]/=l;
@@ -879,9 +879,9 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint,CHol
     return(retVal);
 }
 
-bool CHolonomicPathPlanning_old::addVector(C3Vector& pos,C4Vector& orient,floatDouble vect[7])
+bool CHolonomicPathPlanning_old::addVector(C3Vector& pos,C4Vector& orient,double vect[7])
 { // return value true means values are not forbidden!
-    floatDouble auxVect[7];
+    double auxVect[7];
     if (planningType==sim_holonomicpathplanning_xy)
     {
         pos(0)+=vect[0];
@@ -1012,18 +1012,18 @@ int CHolonomicPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
             startP=nullptr; // added on 2010/09/09
             if (randomPass==0)
             { // We calculate lowIndex and highIndex!
-                floatDouble span=floatDouble(foundPath.size())/floatDouble(numberOfRandomConnectionTries_forSteppedSmoothing);
+                double span=double(foundPath.size())/double(numberOfRandomConnectionTries_forSteppedSmoothing);
                 while ( (span<5)&&(numberOfRandomConnectionTries_forSteppedSmoothing>1) )
                 {
                     numberOfRandomConnectionTries_forSteppedSmoothing--;
                     if (numberOfRandomConnectionTriesLeft_forSteppedSmoothing>=numberOfRandomConnectionTries_forSteppedSmoothing)
                         numberOfRandomConnectionTriesLeft_forSteppedSmoothing=numberOfRandomConnectionTries_forSteppedSmoothing-1;
-                    span=floatDouble(foundPath.size())/floatDouble(numberOfRandomConnectionTries_forSteppedSmoothing);
+                    span=double(foundPath.size())/double(numberOfRandomConnectionTries_forSteppedSmoothing);
                 }
                 if (numberOfRandomConnectionTries_forSteppedSmoothing<=1)
                     return(1); // finished!
-                lowIndex=int(span*floatDouble(numberOfRandomConnectionTriesLeft_forSteppedSmoothing+0));
-                highIndex=int(span*floatDouble(numberOfRandomConnectionTriesLeft_forSteppedSmoothing+1));
+                lowIndex=int(span*double(numberOfRandomConnectionTriesLeft_forSteppedSmoothing+0));
+                highIndex=int(span*double(numberOfRandomConnectionTriesLeft_forSteppedSmoothing+1));
                 while (highIndex>=int(foundPath.size())) // probably not needed
                     highIndex--;
                 if (foundPathSameStraightLineID_forSteppedSmoothing[lowIndex]!=foundPathSameStraightLineID_forSteppedSmoothing[highIndex])
@@ -1036,8 +1036,8 @@ int CHolonomicPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
             { // We randomly chose lowIndex and highIndex!
                 for (int i=0;i<5;i++)
                 { // so that if we have only very few ids, we don't stay stuck here
-                    int ra=int((SIM_RAND_FLOAT*floatDouble(foundPath.size()))-0.5);
-                    int rb=int((SIM_RAND_FLOAT*floatDouble(foundPath.size()))-0.5);
+                    int ra=int((SIM_RAND_FLOAT*double(foundPath.size()))-0.5);
+                    int rb=int((SIM_RAND_FLOAT*double(foundPath.size()))-0.5);
                     if ( (ra!=rb)&&(abs(ra-rb)>1)&&(foundPathSameStraightLineID_forSteppedSmoothing[ra]!=foundPathSameStraightLineID_forSteppedSmoothing[rb]) )
                     {
                         lowIndex=std::min<int>(ra,rb);
@@ -1050,8 +1050,8 @@ int CHolonomicPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
             }
             if (startP!=nullptr)
             { // Now let's try to link highIndex from lowIndex with a "straight" line:
-                floatDouble vect[7];
-                floatDouble artificialVectorLength;
+                double vect[7];
+                double artificialVectorLength;
                 int passes=getVector(startP,endP,vect,stepSize,artificialVectorLength,false);
                 if ( (passes!=-1)&&(highIndex-(lowIndex+1)>passes-1) )
                 { // no forbidden direction, and the number of nodes is reduced!
@@ -1110,7 +1110,7 @@ int CHolonomicPathPlanning_old::smoothFoundPath(int steps,int maxTimePerPass)
     return(0); // will never pass here!
 }
 
-void CHolonomicPathPlanning_old::getPathData(std::vector<floatDouble>& data)
+void CHolonomicPathPlanning_old::getPathData(std::vector<double>& data)
 {
     data.clear();
     if (invalidData)
@@ -1134,7 +1134,7 @@ void CHolonomicPathPlanning_old::getPathData(std::vector<floatDouble>& data)
     }
 }
 
-bool CHolonomicPathPlanning_old::areDirectionConstraintsRespected(floatDouble vect[7])
+bool CHolonomicPathPlanning_old::areDirectionConstraintsRespected(double vect[7])
 {
     if (planningType==sim_holonomicpathplanning_xy)
     {
@@ -1256,9 +1256,9 @@ bool CHolonomicPathPlanning_old::areDirectionConstraintsRespected(floatDouble ve
     return(true);
 }
 
-bool CHolonomicPathPlanning_old::areSomeValuesForbidden(floatDouble values[7])
+bool CHolonomicPathPlanning_old::areSomeValuesForbidden(double values[7])
 {
-    floatDouble gamma=0.0;
+    double gamma=0.0;
     if (planningType==sim_holonomicpathplanning_xy)
     {
         if ((values[0]<_searchMinVal[0])||(values[0]>_searchMinVal[0]+_searchRange[0]))
@@ -1340,7 +1340,7 @@ bool CHolonomicPathPlanning_old::areSomeValuesForbidden(floatDouble values[7])
     return(gamma>(_searchMinVal[3]+_searchRange[3]));
 }
 
-bool CHolonomicPathPlanning_old::doCollide(floatDouble* dist)
+bool CHolonomicPathPlanning_old::doCollide(double* dist)
 {// dist can be nullptr. Dist returns the actual distance only when return value is true!! otherwise it is FLOAT_MAX!!
     if (dist!=nullptr)
         dist[0]=FLOAT_MAX;
@@ -1362,8 +1362,8 @@ bool CHolonomicPathPlanning_old::doCollide(floatDouble* dist)
             return(false);
         if (obstacleClearanceAndMaxDistance[1]<=0.0)
         { // no max distance, only min. distance:
-            floatDouble ray[7];
-            floatDouble theDist=obstacleClearanceAndMaxDistance[0];
+            double ray[7];
+            double theDist=obstacleClearanceAndMaxDistance[0];
             if (_simGetDistanceBetweenEntitiesIfSmaller_internal(robotCollectionID,obstacleCollectionID,&theDist,ray,buffer,false,false,true)!=0)
             {
                 if (dist!=nullptr)
@@ -1374,8 +1374,8 @@ bool CHolonomicPathPlanning_old::doCollide(floatDouble* dist)
         }
         else
         { // min. distance and max. distance:
-            floatDouble ray[7];
-            floatDouble theDist=obstacleClearanceAndMaxDistance[1];
+            double ray[7];
+            double theDist=obstacleClearanceAndMaxDistance[1];
             if (_simGetDistanceBetweenEntitiesIfSmaller_internal(robotCollectionID,obstacleCollectionID,&theDist,ray,buffer,false,false,true)!=0)
             {
                 if (theDist>=obstacleClearanceAndMaxDistance[0])
