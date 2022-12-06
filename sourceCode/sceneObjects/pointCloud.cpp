@@ -1560,7 +1560,7 @@ void CPointCloud::serialize(CSer& ar)
                             cols[3*i+2]=(unsigned char)(color.getColorsPtr()[2]*255.1);
                         }
                     }
-                    insertPoints(&pts[0],pts.size()/3,true,&cols[0],true);
+                    insertPoints(&pts[0],int(pts.size()/3),true,&cols[0],true);
                 }
                 else
                     clear();

@@ -5,8 +5,6 @@
 #include <vector>
 #include "simTypes.h"
 
-typedef void (__cdecl *ptr_syncPlugin_msg)(const SSyncMsg* msg,const SSyncRt* rt);
-
 typedef  unsigned char (__cdecl *ptrStart)(void*,int);
 typedef  void (__cdecl *ptrEnd)(void);
 typedef  void* (__cdecl *ptrMessage)(int,int*,void*,int*);
@@ -40,8 +38,6 @@ typedef char (__cdecl *ptr_dynPlugin_addParticleObjectItem)(int,const float*,flo
 typedef float* (__cdecl *ptr_dynPlugin_getContactPoints)(int*);
 typedef char (__cdecl *ptr_dynPlugin_getParticleData)(const void*,float*,float*,int*,float**);
 typedef char (__cdecl *ptr_dynPlugin_getContactForce)(int,int,int,int*,float*);
-
-
 
 typedef void (__cdecl *ptr_geomPlugin_releaseBuffer)(void* buff);
 typedef void* (__cdecl *ptr_geomPlugin_createMesh)(const double* vertices,int verticesSize,const int* indices,int indicesSize,const double meshOrigin[7],double triangleEdgeMaxLength,int maxTrianglesInBoundingBox);
@@ -215,8 +211,6 @@ public:
     ptrStart startAddress;
     ptrEnd endAddress;
     ptrMessage messageAddress;
-
-    ptr_syncPlugin_msg syncPlugin_msg;
 
     ptr_dynPlugin_startSimulation_D dynPlugin_startSimulation;
     ptr_dynPlugin_endSimulation dynPlugin_endSimulation;
@@ -434,9 +428,6 @@ public:
     static bool hacd(void* data);
     static bool vhacd(void* data);
     static bool meshDecimator(void* data);
-
-    static std::vector<CPlugin*> _syncPlugins;
-    static void syncMsg(const SSyncMsg* msg,const SSyncRt* rt);
 
     // physics engines:
     static bool currentEngineIsNewton;

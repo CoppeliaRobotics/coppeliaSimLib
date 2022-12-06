@@ -175,9 +175,9 @@ void CProxSensor::commonInit()
     _calcTimeInMs=0;
 
     volumeColor.setColorsAllBlack();
-    volumeColor.setColor(0.9,0.0,0.5,sim_colorcomponent_ambient_diffuse);
+    volumeColor.setColor(0.9f,0.0f,0.5f,sim_colorcomponent_ambient_diffuse);
     detectionRayColor.setColorsAllBlack();
-    detectionRayColor.setColor(1.0,1.0,0.0,sim_colorcomponent_emission);
+    detectionRayColor.setColor(1.0f,1.0f,0.0f,sim_colorcomponent_emission);
 
     _visibilityLayer=PROXIMITY_SENSOR_LAYER;
     _objectAlias="Proximity_sensor";

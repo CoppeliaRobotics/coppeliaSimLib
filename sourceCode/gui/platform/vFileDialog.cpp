@@ -212,7 +212,7 @@ bool VFileDialog::getOpenFileNames(std::vector<std::string>& files,QWidget* pare
 #endif
 
     for (size_t i=0;i<qfiles.size();i++)
-        files.push_back(qfiles.at(i).toLocal8Bit().data());
+        files.push_back(qfiles.at(int(i)).toLocal8Bit().data());
     return(files.size()>0);
 }
 

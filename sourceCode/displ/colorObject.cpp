@@ -193,9 +193,9 @@ void CColorObject::setConvexColors()
     setDefaultValues();
     float col[15];
     getColors(col);
-    col[0]=0.72;
-    col[1]=0.88;
-    col[2]=0.35;
+    col[0]=0.72f;
+    col[1]=0.88f;
+    col[2]=0.35f;
     setColors(col);
 }
 

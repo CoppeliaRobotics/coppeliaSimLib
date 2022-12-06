@@ -16,12 +16,12 @@ void displayForceSensor(CForceSensor* forceSensor,CViewableBase* renderingObject
     {
         _enableAuxClippingPlanes(forceSensor->getObjectHandle());
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
-            ogl::setMaterialColor(0.0,0.6,0.0,0.5,0.5,0.5,0.0,0.0,0.0);
+            ogl::setMaterialColor(0.0f,0.6f,0.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
         else
             forceSensor->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
         _displayForceSensor(forceSensor,displayAttrib,true,forceSensor->getForceSensorSize());
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
-            ogl::setMaterialColor(0.2,0.2,0.2,0.5,0.5,0.5,0.0,0.0,0.0);
+            ogl::setMaterialColor(0.2f,0.2f,0.2f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
         else
             forceSensor->getColor(true)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
         _displayForceSensor(forceSensor,displayAttrib,false,forceSensor->getForceSensorSize());

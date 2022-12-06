@@ -123,40 +123,40 @@ void CPageSelector::render()
                 {
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-5+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-5,tns[0]+10,tns[1]+10);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-5+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-5,tns[0]+10,tns[1]+10);
-                    glClearColor(0.7,0.7,0.4,1); 
+                    glClearColor(0.7f,0.7f,0.4f,1.0f);
                     glClear (GL_COLOR_BUFFER_BIT);
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-4+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-4,tns[0]+8,tns[1]+8);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-4+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-4,tns[0]+8,tns[1]+8);
-                    glClearColor(0.9,0.75,0.2,1);    
+                    glClearColor(0.9f,0.75f,0.2f,1.0f);
                     glClear (GL_COLOR_BUFFER_BIT);
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-3+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-3,tns[0]+6,tns[1]+6);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-3+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-3,tns[0]+6,tns[1]+6);
-                    glClearColor(1.0,0.8,0.0,1); 
+                    glClearColor(1.0f,0.8f,0.0f,1.0f);
                     glClear (GL_COLOR_BUFFER_BIT);
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-2+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-2,tns[0]+4,tns[1]+4);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-2+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-2,tns[0]+4,tns[1]+4);
-                    glClearColor(1.0,0.9,0.0,1); 
+                    glClearColor(1.0f,0.9f,0.0f,1.0f);
                     glClear (GL_COLOR_BUFFER_BIT);
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-1+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-1,tns[0]+2,tns[1]+2);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-1+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-1,tns[0]+2,tns[1]+2);
-                    glClearColor(1.0,1.0,0.0,1); 
+                    glClearColor(1.0f,1.0f,0.0f,1.0f);
                     glClear (GL_COLOR_BUFFER_BIT);
                 }
                 else
                 {
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-5+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-5,tns[0]+10,tns[1]+10);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-5+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-5,tns[0]+10,tns[1]+10);
-                    glClearColor(0.5,0.5,0.5,1); 
+                    glClearColor(0.5f,0.5f,0.5f,1.0f);
                     glClear (GL_COLOR_BUFFER_BIT);
                     glViewport(tnd[0]+l*(tns[0]+tnd[0])-1+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-1,tns[0]+2,tns[1]+2);
                     glScissor(tnd[0]+l*(tns[0]+tnd[0])-1+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])-1,tns[0]+2,tns[1]+2);
-                    glClearColor(0.6,0.6,0.6,1); 
+                    glClearColor(0.6f,0.6f,0.6f,1.0f);
                     glClear (GL_COLOR_BUFFER_BIT);
                 }
 
                 glViewport(tnd[0]+l*(tns[0]+tnd[0])+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1]),tns[0],tns[1]);
                 glScissor(tnd[0]+l*(tns[0]+tnd[0])+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1]),tns[0],tns[1]);
-                glClearColor(0.6,0.6,0.6,1); 
+                glClearColor(0.6f,0.6f,0.6f,1.0f);
                 glClear (GL_COLOR_BUFFER_BIT);
                 if (mouseOn!=l+viewSelectionSize[0]*k)
                 {
@@ -174,7 +174,7 @@ void CPageSelector::render()
                     }
                     else
                     {
-                        glClearColor(0.4,0.4,0.4,1); 
+                        glClearColor(0.4f,0.4f,0.4f,1.0f);
                         glClear (GL_COLOR_BUFFER_BIT);
                     }
                 }
@@ -194,9 +194,9 @@ void CPageSelector::render()
                 std::string txxt("Page ");
                 txxt+=tt::FNb(pIndex+1);
 
-                ogl::setTextColor(0.1,0.1,0.1);
+                ogl::setTextColor(0.1f,0.1f,0.1f);
                 ogl::drawText(2,tns[1]-12*App::sc,0,txxt.c_str());
-                ogl::setTextColor(0.9,0.9,0.9);
+                ogl::setTextColor(0.9f,0.9f,0.9f);
                 ogl::drawText(1,tns[1]-11*App::sc,0,txxt.c_str());
                 glEnable(GL_DEPTH_TEST);
                 glDisable(GL_SCISSOR_TEST);

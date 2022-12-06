@@ -1202,7 +1202,7 @@ void COctree::serialize(CSer& ar)
                         }
                     }
                     tags.resize(pts.size()/3,0);
-                    insertPoints(&pts[0],pts.size()/3,true,&cols[0],true,&tags[0],0);
+                    insertPoints(&pts[0],int(pts.size()/3),true,&cols[0],true,&tags[0],0);
                 }
                 else
                     _readPositionsAndColorsAndSetDimensions();

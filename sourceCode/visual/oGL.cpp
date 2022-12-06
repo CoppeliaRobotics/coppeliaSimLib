@@ -27,55 +27,55 @@ double ogl::outlineFontCenter;
 float ogl::currentRichTextColor[3];
 float ogl::defaultRichTextColor[3];
 
-float ogl::HIERARCHY_AND_BROWSER_LAST_SELECTION_COLOR[3]={1.0,0.82,0.38};
+float ogl::HIERARCHY_AND_BROWSER_LAST_SELECTION_COLOR[3]={1.0f,0.82f,0.38f};
 
-float ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_BRIGHT[3]={1.0,0.89,0.54};
-float ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_DARK[3]={1.0,0.89,0.54};
+float ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_BRIGHT[3]={1.0f,0.89f,0.54f};
+float ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_DARK[3]={1.0f,0.89f,0.54f};
 
-float ogl::HIERARCHY_DROP_LOCATION_COLOR[3]={1.0,0.7,0.0};
-float ogl::HIERARCHY_WORLD_CLICK_COLOR[3]={1.0,0.0,0.0};
+float ogl::HIERARCHY_DROP_LOCATION_COLOR[3]={1.0f,0.7f,0.0f};
+float ogl::HIERARCHY_WORLD_CLICK_COLOR[3]={1.0f,0.0f,0.0f};
 
-float ogl::HIERARCHY_UNACTIVE_WORLD_COLOR[3]={0.9,0.9,0.9};
+float ogl::HIERARCHY_UNACTIVE_WORLD_COLOR[3]={0.9f,0.9f,0.9f};
 
-float ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[3]={0.975,0.975,0.975};
-float ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK[3]={0.098,0.137,0.176};
+float ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT[3]={0.975f,0.975f,0.975f};
+float ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK[3]={0.098f,0.137f,0.176f};
 
-float ogl::HIERARCHY_NO_SELECTION_RED_BRIGHT[3]={1.0,0.855,0.855};
-float ogl::HIERARCHY_NO_SELECTION_RED_DARK[3]={1.0,0.855,0.855};
+float ogl::HIERARCHY_NO_SELECTION_RED_BRIGHT[3]={1.0f,0.855f,0.855f};
+float ogl::HIERARCHY_NO_SELECTION_RED_DARK[3]={1.0f,0.855f,0.855f};
 
-float ogl::HIERARCHY_NO_SELECTION_GREEN_BRIGHT[3]={0.8,1.0,0.8};
-float ogl::HIERARCHY_NO_SELECTION_GREEN_DARK[3]={0.8,1.0,0.8};
+float ogl::HIERARCHY_NO_SELECTION_GREEN_BRIGHT[3]={0.8f,1.0f,0.8f};
+float ogl::HIERARCHY_NO_SELECTION_GREEN_DARK[3]={0.8f,1.0f,0.8f};
 
-float ogl::HIERARCHY_NO_SELECTION_BLUE_BRIGHT[3]={0.855,0.855,1.0};
-float ogl::HIERARCHY_NO_SELECTION_BLUE_DARK[3]={0.855,0.855,1.0};
+float ogl::HIERARCHY_NO_SELECTION_BLUE_BRIGHT[3]={0.855f,0.855f,1.0f};
+float ogl::HIERARCHY_NO_SELECTION_BLUE_DARK[3]={0.855f,0.855f,1.0f};
 
-float ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE[3]={0.0,0.0,0.0};
-float ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_INVISIBLE[3]={0.65,0.65,0.65};
+float ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE[3]={0.0f,0.0f,0.0f};
+float ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_INVISIBLE[3]={0.65f,0.65f,0.65f};
 
-float ogl::HIERARCHY_AND_BROWSER_LINE_COLOR[3]={0.75,0.75,0.75};
+float ogl::HIERARCHY_AND_BROWSER_LINE_COLOR[3]={0.75f,0.75f,0.75f};
 
-float ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_COLOR[3]={0.9,0.9,0.9};
-float ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_BACK_COLOR[3]={0.975,0.975,0.975};
+float ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_COLOR[3]={0.9f,0.9f,0.9f};
+float ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_BACK_COLOR[3]={0.975f,0.975f,0.975f};
 
-float ogl::TITLE_BAR_COLOR[3]={0.94,0.94,0.94};
-float ogl::TITLE_BAR_BUTTON_COLOR[3]={0.94,0.94,0.94};
-float ogl::SEPARATION_LINE_COLOR[3]={0.75,0.75,0.75};
+float ogl::TITLE_BAR_COLOR[3]={0.94f,0.94f,0.94f};
+float ogl::TITLE_BAR_BUTTON_COLOR[3]={0.94f,0.94f,0.94f};
+float ogl::SEPARATION_LINE_COLOR[3]={0.75f,0.75f,0.75f};
 
-float ogl::MANIPULATION_MODE_OVERLAY_COLOR[4]={0.0,0.85,0.75,0.25};
-float ogl::MANIPULATION_MODE_OVERLAY_GRID_COLOR[4]={0.3,0.3,0.3,0.25};
+float ogl::MANIPULATION_MODE_OVERLAY_COLOR[4]={0.0f,0.85f,0.75f,0.25f};
+float ogl::MANIPULATION_MODE_OVERLAY_GRID_COLOR[4]={0.3f,0.3f,0.3f,0.25f};
 
-float ogl::colorBlack[3]={0.0,0.0,0.0};
-float ogl::colorDarkGrey[3]={0.2,0.2,0.2};
-float ogl::colorGrey[3]={0.5,0.5,0.5};
-float ogl::colorLightGrey[3]={0.8,0.8,0.8};
-float ogl::colorWhite[3]={1.0,1.0,1.0};
+float ogl::colorBlack[3]={0.0f,0.0f,0.0f};
+float ogl::colorDarkGrey[3]={0.2f,0.2f,0.2f};
+float ogl::colorGrey[3]={0.5f,0.5f,0.5f};
+float ogl::colorLightGrey[3]={0.8f,0.8f,0.8f};
+float ogl::colorWhite[3]={1.0f,1.0f,1.0f};
 
-float ogl::colorRed[3]={1.0,0.0,0.0};
-float ogl::colorGreen[3]={0.0,1.0,0.0};
-float ogl::colorBlue[3]={0.0,0.0,1.0};
-float ogl::colorYellow[3]={1.0,1.0,0.0};
-float ogl::colorCyan[3]={0.0,1.0,1.0};
-float ogl::colorPurple[3]={1.0,0.0,1.0};
+float ogl::colorRed[3]={1.0f,0.0f,0.0f};
+float ogl::colorGreen[3]={0.0f,1.0f,0.0f};
+float ogl::colorBlue[3]={0.0f,0.0f,1.0f};
+float ogl::colorYellow[3]={1.0f,1.0f,0.0f};
+float ogl::colorCyan[3]={0.0f,1.0f,1.0f};
+float ogl::colorPurple[3]={1.0f,0.0f,1.0f};
 
 float ogl::_lastAmbientDiffuseAlpha[4];
 
@@ -1781,7 +1781,7 @@ void ogl::drawRichText(int posX,int posY,int size,std::string& text,std::vector<
                     }
                     else
                     {
-                        float tc[3]={float(iconsAndPos[iconIndex+2])/9.0,float(iconsAndPos[iconIndex+3])/9.0,float(iconsAndPos[iconIndex+4])/9.0};
+                        float tc[3]={float(iconsAndPos[iconIndex+2])/9.0f,float(iconsAndPos[iconIndex+3])/9.0f,float(iconsAndPos[iconIndex+4])/9.0f};
                         setRichTextColor(tc);
                     }
                     iconIndex+=5;
@@ -1892,7 +1892,7 @@ void ogl::drawButtonEdit(VPoint p,VPoint s,bool selected,bool mainSel)
     else if (selected)
         setMaterialColor(sim_colorcomponent_emission,ogl::colorYellow);
     else
-        setMaterialColor(sim_colorcomponent_emission,1.0,0.5,0.3);
+        setMaterialColor(sim_colorcomponent_emission,1.0f,0.5f,0.3f);
 
     int pos[2]={p.x,p.y};
     int size[2]={s.x,s.y};
@@ -2163,14 +2163,14 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
             setRichTextDefaultColor(txtColor);
         else
         {
-            float disabledCol[3]={txtColor[0]-0.8*(txtColor[0]-bckgrndColor1[0]),
-                txtColor[1]-0.8*(txtColor[1]-bckgrndColor1[1]),
-                txtColor[2]-0.8*(txtColor[2]-bckgrndColor1[2])};
+            float disabledCol[3]={txtColor[0]-0.8f*(txtColor[0]-bckgrndColor1[0]),
+                txtColor[1]-0.8f*(txtColor[1]-bckgrndColor1[1]),
+                txtColor[2]-0.8f*(txtColor[2]-bckgrndColor1[2])};
             if (secondTextColor)
             {
-                secondTextCol[0]=secondTextCol[0]*0.2+bckgrndColor1[0]*0.8;
-                secondTextCol[1]=secondTextCol[1]*0.2+bckgrndColor1[1]*0.8;
-                secondTextCol[2]=secondTextCol[2]*0.2+bckgrndColor1[2]*0.8;
+                secondTextCol[0]=secondTextCol[0]*0.2f+bckgrndColor1[0]*0.8f;
+                secondTextCol[1]=secondTextCol[1]*0.2f+bckgrndColor1[1]*0.8f;
+                secondTextCol[2]=secondTextCol[2]*0.2f+bckgrndColor1[2]*0.8f;
             }
             setRichTextDefaultColor(disabledCol);
         }

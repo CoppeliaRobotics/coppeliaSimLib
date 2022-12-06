@@ -34,7 +34,7 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
         if ((displayAttrib&sim_displayattribute_selected)==0)
             ogl::drawReference(dummy->getDummySize()*2.0,true,true,false,normalVectorForLinesAndPoints.data);
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
-            ogl::setMaterialColor(0.0,0.6,0.6,0.5,0.5,0.5,0.0,0.0,0.0);
+            ogl::setMaterialColor(0.0f,0.6f,0.6f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
         else
         {
             bool setOtherColor=(App::currentWorld->collisions->getCollisionColor(dummy->getObjectHandle())!=0);

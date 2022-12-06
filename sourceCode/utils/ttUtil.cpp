@@ -192,16 +192,16 @@ std::string CTTUtil::getLowerCaseString(const char* str)
 
 void CTTUtil::scaleLightDown_(float* rgb)
 { // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other applications
-    rgb[0]*=0.675;
-    rgb[1]*=0.675;
-    rgb[2]*=0.675;
+    rgb[0]*=0.675f;
+    rgb[1]*=0.675f;
+    rgb[2]*=0.675f;
 }
 
 void CTTUtil::scaleColorUp_(float* rgb)
 { // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other applications
-    float f=1.5;
+    float f=1.5f;
     float m=std::max<float>(std::max<float>(rgb[0],rgb[1]),rgb[2]);
-    float d=1.0/m;
+    float d=1.0f/m;
     if (d<f)
         f=d;
     rgb[0]*=f;
@@ -294,7 +294,7 @@ int CTTUtil::lineCountAtOffset(const char* str,int offset)
     while (extractLine(all,line))
     {
         retVal++;
-        offset-=line.size();
+        offset-=int(line.size());
         if (offset<=0)
             break;
         offset--; // line feed

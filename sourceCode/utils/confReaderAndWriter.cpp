@@ -351,7 +351,7 @@ int CConfReaderAndWriter::_getVariableIndex(const char* variableName) const
     for (size_t i=0;i<_variables.size();i++)
     {
         if (_variables[i].compare(variableName)==0)
-            return(i);
+            return(int(i));
     }
     return(-1);
 }

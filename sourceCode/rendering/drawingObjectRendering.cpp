@@ -935,7 +935,7 @@ void _drawTriangles(CDrawingObject* drawingObject,int displayAttrib)
         x.setData(&_data[drawingObject->floatsPerItem*p+6]);
         if ( (_objectType&(sim_drawing_itemcolors|sim_drawing_vertexcolors)) && ((!auxCmp)||(_objectType&sim_drawing_auxchannelcolor2)) )
         {
-            float ab[3]={_data[drawingObject->floatsPerItem*p+9],_data[drawingObject->floatsPerItem*p+10],_data[drawingObject->floatsPerItem*p+11]};
+            float ab[3]={(float)_data[drawingObject->floatsPerItem*p+9],(float)_data[drawingObject->floatsPerItem*p+10],(float)_data[drawingObject->floatsPerItem*p+11]};
             if (_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2))
                 ogl::setMaterialColor(sim_colorcomponent_emission,ab);
             else

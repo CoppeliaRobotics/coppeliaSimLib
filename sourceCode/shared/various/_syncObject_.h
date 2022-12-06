@@ -33,7 +33,6 @@ protected:
 
     std::vector<SSyncRoute> _routing;
 
-    SSyncMsg _msg;
     SSyncRt _rt;
 
     static bool _overallSyncEnabled;

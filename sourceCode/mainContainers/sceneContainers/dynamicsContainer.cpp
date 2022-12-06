@@ -1891,7 +1891,7 @@ void CDynamicsContainer::serialize(CSer& ar)
             ar.xmlAddNode_float("impratio",getEngineFloatParam(sim_mujoco_global_impratio,nullptr));
             double w[5];
             for (size_t j=0;j<3;j++)
-                w[j]=getEngineFloatParam(sim_mujoco_global_wind1+j,nullptr);
+                w[j]=getEngineFloatParam(sim_mujoco_global_wind1+int(j),nullptr);
             ar.xmlAddNode_floats("wind",w,3);
             ar.xmlAddNode_float("density",getEngineFloatParam(sim_mujoco_global_density,nullptr));
             ar.xmlAddNode_float("viscosity",getEngineFloatParam(sim_mujoco_global_viscosity,nullptr));
@@ -1899,10 +1899,10 @@ void CDynamicsContainer::serialize(CSer& ar)
             ar.xmlAddNode_float("boundinertia",getEngineFloatParam(sim_mujoco_global_boundinertia,nullptr));
             ar.xmlAddNode_float("overridemargin",getEngineFloatParam(sim_mujoco_global_overridemargin,nullptr));
             for (size_t j=0;j<2;j++)
-                w[j]=getEngineFloatParam(sim_mujoco_global_overridesolref1+j,nullptr);
+                w[j]=getEngineFloatParam(sim_mujoco_global_overridesolref1+int(j),nullptr);
             ar.xmlAddNode_floats("overridesolref",w,2);
             for (size_t j=0;j<5;j++)
-                w[j]=getEngineFloatParam(sim_mujoco_global_overridesolimp1+j,nullptr);
+                w[j]=getEngineFloatParam(sim_mujoco_global_overridesolimp1+int(j),nullptr);
             ar.xmlAddNode_floats("overridesolimp",w,5);
             ar.xmlAddNode_float("kinmass",getEngineFloatParam(sim_mujoco_global_kinmass,nullptr));
             ar.xmlAddNode_float("kininertia",getEngineFloatParam(sim_mujoco_global_kininertia,nullptr));
@@ -2042,7 +2042,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                     if (ar.xmlGetNode_floats("wind",w,3,exhaustiveXml))
                     {
                         for (size_t j=0;j<3;j++)
-                            setEngineFloatParam(sim_mujoco_global_wind1+j,w[j]);
+                            setEngineFloatParam(sim_mujoco_global_wind1+int(j),w[j]);
                     }
                     if (ar.xmlGetNode_float("density",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_density,v);
                     if (ar.xmlGetNode_float("viscosity",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_viscosity,v);
@@ -2052,12 +2052,12 @@ void CDynamicsContainer::serialize(CSer& ar)
                     if (ar.xmlGetNode_floats("overridesolref",w,2,exhaustiveXml))
                     {
                         for (size_t j=0;j<2;j++)
-                            setEngineFloatParam(sim_mujoco_global_overridesolref1+j,w[j]);
+                            setEngineFloatParam(sim_mujoco_global_overridesolref1+int(j),w[j]);
                     }
                     if (ar.xmlGetNode_floats("overridesolimp",w,5,exhaustiveXml))
                     {
                         for (size_t j=0;j<5;j++)
-                            setEngineFloatParam(sim_mujoco_global_overridesolimp1+j,w[j]);
+                            setEngineFloatParam(sim_mujoco_global_overridesolimp1+int(j),w[j]);
                     }
                     if (ar.xmlGetNode_float("kinmass",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_kinmass,v);
                     if (ar.xmlGetNode_float("kininertia",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_global_kininertia,v);

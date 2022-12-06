@@ -1577,7 +1577,7 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
                         positions.push_back(lineLastPosition[3*j+1]);
                         positions.push_back(dummyID);
                         positions.push_back(linkedDummyID);
-                        positions.push_back(j); // index in the lineLastPosition list
+                        positions.push_back(int(j)); // index in the lineLastPosition list
                         int wv=0;
                         if (dummyID==idToSearch)
                             wv|=1; // the dummy is visible (otherwise it is not visible (built on a collapsed item))
@@ -1654,7 +1654,7 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
                             if ( (positions[7*i+6]==sim_dummylink_dynloopclosure)||(positions[7*i+6]==sim_dummy_linktype_dynamics_force_constraint)||(positions[7*i+6]==sim_dummylink_dyntendon) )
                                 ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorBlue);
                             if ( (positions[7*i+6]==sim_dummy_linktype_gcs_loop_closure)||(positions[7*i+6]==sim_dummy_linktype_gcs_tip)||(positions[7*i+6]==sim_dummy_linktype_gcs_target) )
-                                ogl::setMaterialColor(sim_colorcomponent_emission,0.0,0.6,0.0);
+                                ogl::setMaterialColor(sim_colorcomponent_emission,0.0f,0.6f,0.0f);
                             if (positions[7*i+6]==sim_dummy_linktype_ik_tip_target)
                                 ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorRed);
                             ogl::drawSingle2dLine_i(maxX+segmentOffset+overallOffset,positions[7*i+1],maxX+segmentOffset+segmentWidth+overallOffset,positions[7*i+1]);

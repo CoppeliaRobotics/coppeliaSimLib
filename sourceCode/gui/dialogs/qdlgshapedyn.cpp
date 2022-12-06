@@ -37,7 +37,7 @@ void CQDlgShapeDyn::refresh()
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
     bool noEditModeAndNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     bool sel=App::currentWorld->sceneObjects->isLastSelectionAShape();
-    int sc=App::currentWorld->sceneObjects->getShapeCountInSelection();
+    int sc=(int)App::currentWorld->sceneObjects->getShapeCountInSelection();
     bool notHeightfield=true;
     bool lastSelIsNotStatic=false;
     bool lastSelIsConvex=false;

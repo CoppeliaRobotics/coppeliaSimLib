@@ -237,7 +237,7 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<double>& vert,const std::v
     newGeomInfo->setMesh(wwert,wwind,norm,C7Vector::identityTransformation); // will do the convectivity test
 
     newGeomInfo->color.setDefaultValues();
-    newGeomInfo->color.setColor(0.9,0.9,0.9,sim_colorcomponent_ambient_diffuse);
+    newGeomInfo->color.setColor(0.9f,0.9f,0.9f,sim_colorcomponent_ambient_diffuse);
 
     if (_mesh!=nullptr)
     {

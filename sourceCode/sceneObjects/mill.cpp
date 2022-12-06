@@ -76,9 +76,9 @@ void CMill::commonInit()
     _objectMovementPreferredAxes=0x013;
 
     passiveVolumeColor.setDefaultValues();
-    passiveVolumeColor.setColor(0.0,0.5,0.9,sim_colorcomponent_ambient_diffuse);
+    passiveVolumeColor.setColor(0.0f,0.5f,0.9f,sim_colorcomponent_ambient_diffuse);
     activeVolumeColor.setDefaultValues();
-    activeVolumeColor.setColor(1.0,0.1,0.1,sim_colorcomponent_ambient_diffuse);
+    activeVolumeColor.setColor(1.0f,0.1f,0.1f,sim_colorcomponent_ambient_diffuse);
     _visibilityLayer=MILL_LAYER;
     _objectAlias="Mill";
     _objectName_old="Mill";

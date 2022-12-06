@@ -278,9 +278,9 @@ void CJoint::_commonInit()
     _maxAcceleration_DEPRECATED=60.0*degToRad;
 
     _color.setDefaultValues();
-    _color.setColor(1.0,0.3,0.1,sim_colorcomponent_ambient_diffuse);
+    _color.setColor(1.0f,0.3f,0.1f,sim_colorcomponent_ambient_diffuse);
     _color_removeSoon.setDefaultValues();
-    _color_removeSoon.setColor(0.22,0.22,0.22,sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.setColor(0.22f,0.22f,0.22f,sim_colorcomponent_ambient_diffuse);
 }
 
 CJoint::~CJoint()
@@ -2854,8 +2854,8 @@ void CJoint::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float P,I,D;
                         ar >> P >> I >> D;
-                        I/=0.005;
-                        D*=0.005;
+                        I/=0.005f;
+                        D*=0.005f;
                         setPid_old((double)P,(double)I,(double)D);
                     }
                     if (theName.compare("Dp2")==0)
@@ -3584,7 +3584,7 @@ void CJoint::serialize(CSer& ar)
             ar.xmlAddNode_float("margin",getEngineFloatParam(sim_mujoco_joint_margin,nullptr));
             ar.xmlAddNode_int("dependentobjectid",getEngineIntParam(sim_mujoco_joint_dependentobjectid,nullptr));
             for (size_t j=0;j<5;j++)
-                v[j]=getEngineFloatParam(sim_mujoco_joint_polycoef1+j,nullptr);
+                v[j]=getEngineFloatParam(sim_mujoco_joint_polycoef1+int(j),nullptr);
             ar.xmlAddNode_floats("polycoef",v,5);
             v[0]=getEngineFloatParam(sim_mujoco_joint_pospid1,nullptr);
             v[1]=getEngineFloatParam(sim_mujoco_joint_pospid2,nullptr);
@@ -3890,7 +3890,7 @@ void CJoint::serialize(CSer& ar)
                         if (ar.xmlGetNode_floats("solimplimit",w,5,exhaustiveXml))
                         {
                             for (size_t j=0;j<5;j++)
-                                setEngineFloatParam(sim_mujoco_joint_solimplimit1+j,w[j]);
+                                setEngineFloatParam(sim_mujoco_joint_solimplimit1+int(j),w[j]);
                         }
                         if (ar.xmlGetNode_floats("solreffriction",w,2,exhaustiveXml))
                         {
@@ -3900,7 +3900,7 @@ void CJoint::serialize(CSer& ar)
                         if (ar.xmlGetNode_floats("solimpfriction",w,5,exhaustiveXml))
                         {
                             for (size_t j=0;j<5;j++)
-                                setEngineFloatParam(sim_mujoco_joint_solimpfriction1+j,w[j]);
+                                setEngineFloatParam(sim_mujoco_joint_solimpfriction1+int(j),w[j]);
                         }
                         if (ar.xmlGetNode_float("frictionloss",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_joint_frictionloss,v);
                         if (ar.xmlGetNode_float("stiffness",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_joint_stiffness,v);
@@ -3916,7 +3916,7 @@ void CJoint::serialize(CSer& ar)
                         if (ar.xmlGetNode_floats("polycoef",w,5,exhaustiveXml))
                         {
                             for (size_t j=0;j<5;j++)
-                                setEngineFloatParam(sim_mujoco_joint_polycoef1+j,w[j]);
+                                setEngineFloatParam(sim_mujoco_joint_polycoef1+int(j),w[j]);
                         }
                         if (ar.xmlGetNode_int("dependentobjectid",vi,exhaustiveXml)) setEngineIntParam(sim_mujoco_joint_dependentobjectid,vi);
 

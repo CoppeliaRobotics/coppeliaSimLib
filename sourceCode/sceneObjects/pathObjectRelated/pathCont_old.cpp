@@ -31,7 +31,7 @@ CPathCont_old::CPathCont_old()
     _lineSize=1;
     _squareSize=0.01;
     _lineColor.setDefaultValues();
-    _lineColor.setColor(0.1,0.75,1.0,sim_colorcomponent_ambient_diffuse);
+    _lineColor.setColor(0.1f,0.75f,1.0f,sim_colorcomponent_ambient_diffuse);
 
     _angleVarToDistanceCoeff=0.1/(90.0*degToRad);
     _onSpotDistanceToDistanceCoeff=1.0;
@@ -2341,7 +2341,7 @@ void CPathCont_old::render(bool pathEditMode,int displayAttrib,bool pathIsOnlySe
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ogl::colorYellow);
         }
         else
-            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,0.1,0.1,1.0);
+            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,0.1f,0.1f,1.0f);
         _draw(((std::vector<CPathPoint_old*>*)&_simplePathPoints)[0],pathEditMode,true,true,true,true,true,_lineSize,_squareSize,pathIsOnlySelectedObject,objectID);
     }
     if (pathEditMode)
@@ -2392,7 +2392,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
             { // display path points:
                 if (!selectedPts[i])
                 {
-                    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,0.2,0.2,1.0);
+                    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,0.2f,0.2f,1.0f);
                     ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorBlack);
                 }
                 else
@@ -2449,7 +2449,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
             {
                 if (!selS[i])
                 {
-                    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,0.2,0.2,1.0);
+                    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,0.2f,0.2f,1.0f);
                     ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorBlack);
                 }
                 else
@@ -2513,7 +2513,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
     if ( (!isPath)&&(ptCont.size()>1)&&(!pathEditMode)&&(_attributes&sim_pathproperty_show_position) )
     { // We have to display the start position:
         ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
-        ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,1.0,0.2,0.2);
+        ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,1.0f,0.2f,0.2f);
         glPushMatrix();
         glTranslated(_startPosition(0),_startPosition(1),_startPosition(2));
         ogl::drawSphere(squareSize,10,5,true);

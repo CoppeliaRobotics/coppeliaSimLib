@@ -249,7 +249,7 @@ void CCbor::appendBuff(const unsigned char* v,size_t l)
 void CCbor::appendString(const char* v,int l/*=-1*/)
 {
     if (l<0)
-        l=strlen(v);
+        l=int(strlen(v));
     _appendItemTypeAndLength(64+32,size_t(l));
     for (size_t i=0;i<size_t(l);i++)
         _buff.push_back(v[i]);
@@ -269,7 +269,7 @@ void CCbor::appendLuaString(const std::string& v)
     else
     {
         if (isText(v.c_str(),int(v.size())))
-            appendString(v.c_str(),v.size());
+            appendString(v.c_str(),int(v.size()));
         else
             appendBuff((unsigned char*)v.c_str(),v.size());
     }

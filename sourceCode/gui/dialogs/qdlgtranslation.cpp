@@ -539,7 +539,7 @@ bool CQDlgTranslation::_applyTranslation(int axis)
 { // axis: 0-2, or -1 for all axes
     bool retVal=false;
     int editMode=App::getEditModeType();
-    int objSelSize=App::currentWorld->sceneObjects->getSelectionCount();
+    int objSelSize=(int)App::currentWorld->sceneObjects->getSelectionCount();
     int editObjSelSize=App::mainWindow->editModeContainer->getEditModeBufferSize();
     if ( (editMode==NO_EDIT_MODE)&&(objSelSize>0) )
     {

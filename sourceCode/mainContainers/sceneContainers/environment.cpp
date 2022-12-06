@@ -108,29 +108,29 @@ void CEnvironment::setUpDefaultValues()
     _sceneCanBeDiscardedWhenNewSceneOpened=false;
     autoSaveLastSaveTimeInSecondsSince1970=VDateTime::getSecondsSince1970();
 
-    backGroundColor[0]=0.72;
-    backGroundColor[1]=0.81;
-    backGroundColor[2]=0.88;
-    backGroundColorDown[0]=0.05;
-    backGroundColorDown[1]=0.05;
-    backGroundColorDown[2]=0.1;
+    backGroundColor[0]=0.72f;
+    backGroundColor[1]=0.81f;
+    backGroundColor[2]=0.88f;
+    backGroundColorDown[0]=0.05f;
+    backGroundColorDown[1]=0.05f;
+    backGroundColorDown[2]=0.1f;
 
-    fogBackgroundColor[0]=0.0;
-    fogBackgroundColor[1]=0.0;
-    fogBackgroundColor[2]=0.0;
+    fogBackgroundColor[0]=0.0f;
+    fogBackgroundColor[1]=0.0f;
+    fogBackgroundColor[2]=0.0f;
 
-    ambientLightColor[0]=0.2;
-    ambientLightColor[1]=0.2;
-    ambientLightColor[2]=0.2;
+    ambientLightColor[0]=0.2f;
+    ambientLightColor[1]=0.2f;
+    ambientLightColor[2]=0.2f;
 
     _extensionString="povray {fogDist {4.00} fogTransp {0.50}}";
 
     wirelessEmissionVolumeColor.setColorsAllBlack();
-    wirelessEmissionVolumeColor.setColor(1.0,1.0,0.0,sim_colorcomponent_emission);
+    wirelessEmissionVolumeColor.setColor(1.0f,1.0f,0.0f,sim_colorcomponent_emission);
     wirelessEmissionVolumeColor.setTranslucid(true);
-    wirelessEmissionVolumeColor.setOpacity(0.2);
+    wirelessEmissionVolumeColor.setOpacity(0.2f);
     wirelessReceptionVolumeColor.setColorsAllBlack();
-    wirelessReceptionVolumeColor.setColor(1.0,1.0,0.0,sim_colorcomponent_emission);
+    wirelessReceptionVolumeColor.setColor(1.0f,1.0f,0.0f,sim_colorcomponent_emission);
 
     _acknowledgement="";
     _visualizeWirelessEmitters=false;

@@ -770,9 +770,9 @@ void CCamera::commonInit()
     _useParentObjectAsManipulationProxy=false;
 
     _color.setDefaultValues();
-    _color.setColor(0.9,0.2,0.2,sim_colorcomponent_ambient_diffuse);
+    _color.setColor(0.9f,0.2f,0.2f,sim_colorcomponent_ambient_diffuse);
     _color_removeSoon.setDefaultValues();
-    _color_removeSoon.setColor(0.22,0.22,0.22,sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.setColor(0.22f,0.22f,0.22f,sim_colorcomponent_ambient_diffuse);
 
     _objectAlias=IDSOGL_CAMERA;
     _objectName_old=IDSOGL_CAMERA;

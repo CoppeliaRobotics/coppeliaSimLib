@@ -19,7 +19,7 @@ void displayContainerPage(CSPage* page,const int* position,const int* size)
         glEnable(GL_SCISSOR_TEST);
         glViewport(position[0],position[1],size[0],size[1]);
         glScissor(position[0],position[1],size[0],size[1]);
-        glClearColor(0.3,0.3,0.3,1.0);
+        glClearColor(0.3f,0.3f,0.3f,1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 }
@@ -157,7 +157,7 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
             size.x=avs[0];
         }
 
-        float txtCol[3]={0.2,0.2,0.2};
+        float txtCol[3]={0.2f,0.2f,0.2f};
         float* bkgrndCol=ogl::TITLE_BAR_COLOR;
         CSceneObject* itObj=App::currentWorld->sceneObjects->getObjectFromHandle(page->getView(i)->getLinkedObjectID());
         std::string name("  Floating view (empty)");

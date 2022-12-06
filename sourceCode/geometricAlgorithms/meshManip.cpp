@@ -526,7 +526,7 @@ void CMeshManip::removeDoubleVertices(std::vector<double>& vertices,std::vector<
     // If a vertex is a duplicate, the indices pointing onto it will be remapped.
     mapping.clear();
     for (size_t i=0;i<vertices.size()/3;i++)
-        mapping.push_back(i);
+        mapping.push_back(int(i));
 
     double toleranceSquare=tolerance*tolerance;
 
@@ -577,7 +577,7 @@ void CMeshManip::removeDoubleVertices(std::vector<double>& vertices,std::vector<
                 cellLocation+=mult[j]*v;
             }
         }
-        ind[cellLocation]->push_back(i);
+        ind[cellLocation]->push_back(int(i));
     }
     for (int i=0;i<cells[2];i++)
     {
@@ -704,14 +704,14 @@ void CMeshManip::removeDoubleIndices(std::vector<double>& vertices,std::vector<i
                         pxpypz.push_back(ind[0]);
                         pxpypz.push_back(ind[1]);
                         pxpypz.push_back(ind[2]);
-                        pxpypzX.push_back(i); // so we can reorder that triangle later
+                        pxpypzX.push_back(int(i)); // so we can reorder that triangle later
                     }
                     else
                     { // Negative z
                         pxpymz.push_back(ind[0]);
                         pxpymz.push_back(ind[1]);
                         pxpymz.push_back(ind[2]);
-                        pxpymzX.push_back(i); // so we can reorder that triangle later
+                        pxpymzX.push_back(int(i)); // so we can reorder that triangle later
                     }
                 }
                 else
@@ -721,14 +721,14 @@ void CMeshManip::removeDoubleIndices(std::vector<double>& vertices,std::vector<i
                         pxmypz.push_back(ind[0]);
                         pxmypz.push_back(ind[1]);
                         pxmypz.push_back(ind[2]);
-                        pxmypzX.push_back(i); // so we can reorder that triangle later
+                        pxmypzX.push_back(int(i)); // so we can reorder that triangle later
                     }
                     else
                     { // Negative z
                         pxmymz.push_back(ind[0]);
                         pxmymz.push_back(ind[1]);
                         pxmymz.push_back(ind[2]);
-                        pxmymzX.push_back(i); // so we can reorder that triangle later
+                        pxmymzX.push_back(int(i)); // so we can reorder that triangle later
                     }
                 }
             }
@@ -741,14 +741,14 @@ void CMeshManip::removeDoubleIndices(std::vector<double>& vertices,std::vector<i
                         mxpypz.push_back(ind[0]);
                         mxpypz.push_back(ind[1]);
                         mxpypz.push_back(ind[2]);
-                        mxpypzX.push_back(i); // so we can reorder that triangle later
+                        mxpypzX.push_back(int(i)); // so we can reorder that triangle later
                     }
                     else
                     { // Negative z
                         mxpymz.push_back(ind[0]);
                         mxpymz.push_back(ind[1]);
                         mxpymz.push_back(ind[2]);
-                        mxpymzX.push_back(i); // so we can reorder that triangle later
+                        mxpymzX.push_back(int(i)); // so we can reorder that triangle later
                     }
                 }
                 else
@@ -758,14 +758,14 @@ void CMeshManip::removeDoubleIndices(std::vector<double>& vertices,std::vector<i
                         mxmypz.push_back(ind[0]);
                         mxmypz.push_back(ind[1]);
                         mxmypz.push_back(ind[2]);
-                        mxmypzX.push_back(i); // so we can reorder that triangle later
+                        mxmypzX.push_back(int(i)); // so we can reorder that triangle later
                     }
                     else
                     { // Negative z
                         mxmymz.push_back(ind[0]);
                         mxmymz.push_back(ind[1]);
                         mxmymz.push_back(ind[2]);
-                        mxmymzX.push_back(i); // so we can reorder that triangle later
+                        mxmymzX.push_back(int(i)); // so we can reorder that triangle later
                     }
                 }
             }

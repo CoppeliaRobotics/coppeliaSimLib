@@ -529,7 +529,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
                 hierarchyTitle+=objName+")";
             }
 
-            float txtCol[3]={0.2,0.2,0.2};
+            float txtCol[3]={0.2f,0.2f,0.2f};
             float* bkgrndCol=ogl::TITLE_BAR_COLOR;
             VPoint size(_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*App::sc);
             VPoint pos(b+size.x/2,surfaceSize[1]-size.y/2);

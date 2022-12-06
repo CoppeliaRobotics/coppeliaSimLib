@@ -30,7 +30,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
             for (size_t i=sim_physics_bullet;i<=sim_physics_mujoco;i++)
             {
                 if (i!=engine)
-                    _writeShape(i,objectHandle,annJson);
+                    _writeShape((int)i,objectHandle,annJson);
             }
             title="Dynamic engine properties for shape ";
         }
@@ -40,7 +40,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
             for (size_t i=sim_physics_bullet;i<=sim_physics_mujoco;i++)
             {
                 if (i!=engine)
-                    _writeJoint(i,objectHandle,annJson);
+                    _writeJoint((int)i,objectHandle,annJson);
             }
             title="Dynamic engine properties for joint ";
         }
@@ -50,7 +50,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
             for (size_t i=sim_physics_bullet;i<=sim_physics_mujoco;i++)
             {
                 if (i!=engine)
-                    _writeDummy(i,objectHandle,annJson);
+                    _writeDummy((int)i,objectHandle,annJson);
             }
             title="Dynamic engine properties for dummy ";
         }
@@ -62,7 +62,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
         for (size_t i=sim_physics_bullet;i<=sim_physics_mujoco;i++)
         {
             if (i!=engine)
-                _writeGlobal(i,annJson);
+                _writeGlobal((int)i,annJson);
         }
     }
 
@@ -121,23 +121,23 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
         if (object->getObjectType()==sim_object_shape_type)
         {
             for (size_t i=sim_physics_bullet;i<=sim_physics_mujoco;i++)
-                _readShape(i,objectHandle,annJson,&allErrors);
+                _readShape((int)i,objectHandle,annJson,&allErrors);
         }
         if (object->getObjectType()==sim_object_joint_type)
         {
             for (size_t i=sim_physics_bullet;i<=sim_physics_mujoco;i++)
-                _readJoint(i,objectHandle,annJson,&allErrors);
+                _readJoint((int)i,objectHandle,annJson,&allErrors);
         }
         if (object->getObjectType()==sim_object_dummy_type)
         {
             for (size_t i=sim_physics_bullet;i<=sim_physics_mujoco;i++)
-                _readDummy(i,objectHandle,annJson,&allErrors);
+                _readDummy((int)i,objectHandle,annJson,&allErrors);
         }
     }
     else
     {
         for (size_t i=sim_physics_bullet;i<=sim_physics_mujoco;i++)
-            _readGlobal(i,annJson,&allErrors);
+            _readGlobal((int)i,annJson,&allErrors);
     }
 
     if (allErrors.size()>0)
@@ -160,7 +160,7 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         annJson.addJson(jbullet,"stopCfm",joint->getEngineFloatParam(sim_bullet_joint_stopcfm,nullptr));
         double v[3];
         for (size_t j=0;j<3;j++)
-            v[j]=joint->getEngineFloatParam(sim_bullet_joint_pospid1+j,nullptr);
+            v[j]=joint->getEngineFloatParam(sim_bullet_joint_pospid1+int(j),nullptr);
         annJson.addJson(jbullet,"posPid",v,3);
         annJson.addJson(annJson.getMainObject()[0],"bullet",jbullet);
     }
@@ -175,7 +175,7 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         annJson.addJson(jode,"fudge",joint->getEngineFloatParam(sim_ode_joint_fudgefactor,nullptr));
         double v[3];
         for (size_t j=0;j<3;j++)
-            v[j]=joint->getEngineFloatParam(sim_ode_joint_pospid1+j,nullptr);
+            v[j]=joint->getEngineFloatParam(sim_ode_joint_pospid1+int(j),nullptr);
         annJson.addJson(jode,"posPid",v,3);
         annJson.addJson(annJson.getMainObject()[0],"ode",jode);
     }
@@ -200,7 +200,7 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         */
         double v[3];
         for (size_t j=0;j<3;j++)
-            v[j]=joint->getEngineFloatParam(sim_newton_joint_pospid1+j,nullptr);
+            v[j]=joint->getEngineFloatParam(sim_newton_joint_pospid1+int(j),nullptr);
         annJson.addJson(jnewton,"posPid",v,3);
         annJson.addJson(annJson.getMainObject()[0],"newton",jnewton);
     }
@@ -216,7 +216,7 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         v[1]=joint->getEngineFloatParam(sim_mujoco_joint_solreflimit2,nullptr);
         annJson.addJson(jmujocoLimits,"solref",v,2);
         for (size_t j=0;j<5;j++)
-            v[j]=joint->getEngineFloatParam(sim_mujoco_joint_solimplimit1+j,nullptr);
+            v[j]=joint->getEngineFloatParam(sim_mujoco_joint_solimplimit1+int(j),nullptr);
         annJson.addJson(jmujocoLimits,"solimp",v,5);
         annJson.addJson(jmujoco,"limits",jmujocoLimits);
         QJsonObject jmujocoFriction;
@@ -225,7 +225,7 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         v[1]=joint->getEngineFloatParam(sim_mujoco_joint_solreffriction2,nullptr);
         annJson.addJson(jmujocoFriction,"solref",v,2);
         for (size_t j=0;j<5;j++)
-            v[j]=joint->getEngineFloatParam(sim_mujoco_joint_solimpfriction1+j,nullptr);
+            v[j]=joint->getEngineFloatParam(sim_mujoco_joint_solimpfriction1+int(j),nullptr);
         annJson.addJson(jmujocoFriction,"solimp",v,5);
         annJson.addJson(jmujoco,"friction",jmujocoFriction);
         QJsonObject jmujocoSpring;
@@ -249,11 +249,11 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
         annJson.addJson(jmujocoDependency,"joint",nameAndPath.c_str(),"specify the full, unique path");
         */
         for (size_t j=0;j<5;j++)
-            v[j]=joint->getEngineFloatParam(sim_mujoco_joint_polycoef1+j,nullptr);
+            v[j]=joint->getEngineFloatParam(sim_mujoco_joint_polycoef1+int(j),nullptr);
         annJson.addJson(jmujocoDependency,"polyCoef",v,5);
         annJson.addJson(jmujoco,"dependency",jmujocoDependency);
         for (size_t j=0;j<3;j++)
-            v[j]=joint->getEngineFloatParam(sim_mujoco_joint_pospid1+j,nullptr);
+            v[j]=joint->getEngineFloatParam(sim_mujoco_joint_pospid1+int(j),nullptr);
         annJson.addJson(jmujoco,"posPid",v,3);
         annJson.addJson(annJson.getMainObject()[0],"mujoco",jmujoco);
     }
@@ -415,7 +415,7 @@ void CEngineProperties::_writeJoint(int engine,int jointHandle,CAnnJson& annJson
 
         double v[3];
         for (size_t j=0;j<3;j++)
-            v[j]=joint->getEngineFloatParam(sim_vortex_joint_pospid1+j,nullptr);
+            v[j]=joint->getEngineFloatParam(sim_vortex_joint_pospid1+int(j),nullptr);
         annJson.addJson(jvortex,"posPid",v,3);
 
         annJson.addJson(annJson.getMainObject()[0],"vortex",jvortex);
@@ -442,7 +442,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
             if (annJson.getValue(bullet,"posPid",w,3,allErrors))
             {
                 for (size_t j=0;j<3;j++)
-                    joint->setEngineFloatParam(sim_bullet_joint_pospid1+j,w[j]);
+                    joint->setEngineFloatParam(sim_bullet_joint_pospid1+int(j),w[j]);
             }
         }
     }
@@ -466,7 +466,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
             if (annJson.getValue(ode,"posPid",w,3,allErrors))
             {
                 for (size_t j=0;j<3;j++)
-                    joint->setEngineFloatParam(sim_ode_joint_pospid1+j,w[j]);
+                    joint->setEngineFloatParam(sim_ode_joint_pospid1+int(j),w[j]);
             }
         }
     }
@@ -512,7 +512,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
             if (annJson.getValue(newton,"posPid",w,3,allErrors))
             {
                 for (size_t j=0;j<3;j++)
-                    joint->setEngineFloatParam(sim_newton_joint_pospid1+j,w[j]);
+                    joint->setEngineFloatParam(sim_newton_joint_pospid1+int(j),w[j]);
             }
         }
     }
@@ -538,7 +538,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                 if (annJson.getValue(sub,"solimp",w,5,allErrors))
                 {
                     for (size_t j=0;j<5;j++)
-                        joint->setEngineFloatParam(sim_mujoco_joint_solimplimit1+j,w[j]);
+                        joint->setEngineFloatParam(sim_mujoco_joint_solimplimit1+int(j),w[j]);
                 }
             }
             if (annJson.getValue(mujoco,"friction",QJsonValue::Object,val,allErrors))
@@ -554,7 +554,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                 if (annJson.getValue(sub,"solimp",w,5,allErrors))
                 {
                     for (size_t j=0;j<5;j++)
-                        joint->setEngineFloatParam(sim_mujoco_joint_solimpfriction1+j,w[j]);
+                        joint->setEngineFloatParam(sim_mujoco_joint_solimpfriction1+int(j),w[j]);
                 }
             }
             if (annJson.getValue(mujoco,"spring",QJsonValue::Object,val,allErrors))
@@ -602,13 +602,13 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
                 if (annJson.getValue(sub,"polyCoef",w,5,allErrors))
                 {
                     for (size_t j=0;j<5;j++)
-                        joint->setEngineFloatParam(sim_mujoco_joint_polycoef1+j,w[j]);
+                        joint->setEngineFloatParam(sim_mujoco_joint_polycoef1+int(j),w[j]);
                 }
             }
             if (annJson.getValue(mujoco,"posPid",w,3,allErrors))
             {
                 for (size_t j=0;j<3;j++)
-                    joint->setEngineFloatParam(sim_mujoco_joint_pospid1+j,w[j]);
+                    joint->setEngineFloatParam(sim_mujoco_joint_pospid1+int(j),w[j]);
             }
         }
     }
@@ -977,7 +977,7 @@ void CEngineProperties::_readJoint(int engine,int jointHandle,CAnnJson& annJson,
             if (annJson.getValue(vortex,"posPid",w,3,allErrors))
             {
                 for (size_t j=0;j<3;j++)
-                    joint->setEngineFloatParam(sim_vortex_joint_pospid1+j,w[j]);
+                    joint->setEngineFloatParam(sim_vortex_joint_pospid1+int(j),w[j]);
             }
         }
     }
@@ -1682,12 +1682,12 @@ void CEngineProperties::_readGlobal(int engine,CAnnJson& annJson,std::string* al
                 if (annJson.getValue(sub,"solref",w,2,allErrors))
                 {
                     for (size_t j=0;j<2;j++)
-                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_overridesolref1+j,w[j]);
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_overridesolref1+int(j),w[j]);
                 }
                 if (annJson.getValue(sub,"solimp",w,5,allErrors))
                 {
                     for (size_t j=0;j<5;j++)
-                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_overridesolimp1+j,w[j]);
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_overridesolimp1+int(j),w[j]);
                 }
             }
             if (annJson.getValue(mujoco,"impRatio",QJsonValue::Double,val,allErrors))
@@ -1695,7 +1695,7 @@ void CEngineProperties::_readGlobal(int engine,CAnnJson& annJson,std::string* al
             if (annJson.getValue(mujoco,"wind",w,3,allErrors))
             {
                 for (size_t j=0;j<3;j++)
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_wind1+j,w[j]);
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_wind1+int(j),w[j]);
             }
             if (annJson.getValue(mujoco,"density",QJsonValue::Double,val,allErrors))
                 App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_density,val.toDouble());
@@ -1825,8 +1825,8 @@ void CEngineProperties::_getGlobalFloatParams(int item,double* w,size_t cnt,std:
     bool similar=true;
     for (size_t i=0;i<cnt;i++)
     {
-        w[i]=App::currentWorld->dynamicsContainer->getEngineFloatParam(item+i,nullptr,false);
-        def[i]=App::currentWorld->dynamicsContainer->getEngineFloatParam(item+i,nullptr,true);
+        w[i]=App::currentWorld->dynamicsContainer->getEngineFloatParam(item+int(i),nullptr,false);
+        def[i]=App::currentWorld->dynamicsContainer->getEngineFloatParam(item+int(i),nullptr,true);
         if ( (w[i]==0.0)||(def[i]==0.0) )
         {
             if (w[i]!=def[i])
@@ -1898,7 +1898,7 @@ void CEngineProperties::_writeDummy(int engine,int dummyHandle,CAnnJson& annJson
         v[1]=dummy->getEngineFloatParam(sim_mujoco_dummy_solreflimit2,nullptr);
         annJson.addJson(jmujocoLimits,"solref",v,2);
         for (size_t j=0;j<5;j++)
-            v[j]=dummy->getEngineFloatParam(sim_mujoco_dummy_solimplimit1+j,nullptr);
+            v[j]=dummy->getEngineFloatParam(sim_mujoco_dummy_solimplimit1+int(j),nullptr);
         annJson.addJson(jmujocoLimits,"solimp",v,5);
         annJson.addJson(jmujoco,"limits",jmujocoLimits);
         QJsonObject jmujocoSpring;
@@ -1978,7 +1978,7 @@ void CEngineProperties::_readDummy(int engine,int dummyHandle,CAnnJson& annJson,
                 if (annJson.getValue(sub,"solimp",w,5,allErrors))
                 {
                     for (size_t j=0;j<5;j++)
-                        dummy->setEngineFloatParam(sim_mujoco_dummy_solimplimit1+j,w[j]);
+                        dummy->setEngineFloatParam(sim_mujoco_dummy_solimplimit1+int(j),w[j]);
                 }
             }
             if (annJson.getValue(mujoco,"spring",QJsonValue::Object,val,allErrors))

@@ -25,7 +25,7 @@ std::vector<std::vector<unsigned char>*> CMesh::_tempEdgesForDisk;
 CMesh::CMesh()
 {
     color.setDefaultValues();
-    color.setColor(0.9,0.9,0.9,sim_colorcomponent_ambient_diffuse);
+    color.setColor(0.9f,0.9f,0.9f,sim_colorcomponent_ambient_diffuse);
     edgeColor_DEPRECATED.setColorsAllBlack();
     insideColor_DEPRECATED.setDefaultValues();
 
@@ -1154,9 +1154,9 @@ void CMesh::_recomputeNormals()
     }
     for (size_t i=0;i<_indices.size()/3;i++)
     {
-        indexToNormals[_indices[3*i+0]]->push_back(3*i+0);
-        indexToNormals[_indices[3*i+1]]->push_back(3*i+1);
-        indexToNormals[_indices[3*i+2]]->push_back(3*i+2);
+        indexToNormals[_indices[3*i+0]]->push_back(int(3*i+0));
+        indexToNormals[_indices[3*i+1]]->push_back(int(3*i+1));
+        indexToNormals[_indices[3*i+2]]->push_back(int(3*i+2));
     }
     std::vector<double> changedNorm(_normals.size());
 

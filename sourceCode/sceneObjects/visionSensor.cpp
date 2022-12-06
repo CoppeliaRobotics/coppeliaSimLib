@@ -318,7 +318,7 @@ void CVisionSensor::commonInit()
     sensorResult.calcTimeInMs=0;
     sensorAuxiliaryResult.clear();
     color.setDefaultValues();
-    color.setColor(0.05,0.42,1.0,sim_colorcomponent_ambient_diffuse);
+    color.setColor(0.05f,0.42f,1.0f,sim_colorcomponent_ambient_diffuse);
 
     _resolution[0]=256;
     _resolution[1]=256;
@@ -2341,7 +2341,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             inStack->pushTableOntoStack();
             for (size_t i=0;i<sensorAuxiliaryResult.size();i++)
             {
-                inStack->pushInt32OntoStack(i+1);
+                inStack->pushInt32OntoStack(int(i+1));
                 if (sensorAuxiliaryResult[i].size()>0)
                 { // the packed data needs to be float for backward compatibility
                     std::vector<float> dat;
@@ -3106,7 +3106,7 @@ void CVisionSensor::lookAt(CSView* viewObject,int viewPos[2],int viewSize[2])
     glDisable(GL_DEPTH_TEST);
 
 
-    glClearColor(0.3,0.3,0.3,1.0);
+    glClearColor(0.3f,0.3f,0.3f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
     if ( (_contextFboAndTexture!=nullptr)||getApplyExternalRenderedImage() )

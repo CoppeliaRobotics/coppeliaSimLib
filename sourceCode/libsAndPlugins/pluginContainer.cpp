@@ -151,8 +151,6 @@ int CPlugin::load()
 
             if (pluginVersion!=0)
             {
-                syncPlugin_msg=(ptr_syncPlugin_msg)(VVarious::resolveLibraryFuncName(lib,"sync_msg"));
-
                 // For the dynamic plugins:
                 dynPlugin_startSimulation=(ptr_dynPlugin_startSimulation_D)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_startSimulation_D"));
                 dynPlugin_startSimulationNewton=(ptr_dynPlugin_startSimulation)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_startSimulation"));
@@ -377,8 +375,6 @@ void* CPlugin::sendEventCallbackMessage(int msg,int* auxVals,void* data,int retV
 
 int CPluginContainer::_nextHandle=0;
 std::vector<CPlugin*> CPluginContainer::_allPlugins;
-std::vector<CPlugin*> CPluginContainer::_syncPlugins;
-
 
 std::vector<std::string> CPluginContainer::_renderingpass_eventEnabledPluginNames;
 std::vector<std::string> CPluginContainer::_opengl_eventEnabledPluginNames;
@@ -391,8 +387,6 @@ ptrExtRenderer CPluginContainer::_extRendererWindowedAddress=nullptr;
 ptrExtRenderer CPluginContainer::_openGl3Address=nullptr;
 ptrExtRenderer CPluginContainer::_openGl3WindowedAddress=nullptr;
 ptrExtRenderer CPluginContainer::_activeExtRendererAddress=nullptr;
-//int CPluginContainer::_extRendererIndex=0;
-
 
 ptrQhull CPluginContainer::_qhullAddress=nullptr;
 ptrHACD CPluginContainer::_hacdAddress=nullptr;
@@ -442,8 +436,6 @@ int CPluginContainer::addPlugin(const char* filename,const char* pluginName)
         delete plug;
         return(loadRes-1);
     }
-    if (plug->syncPlugin_msg!=nullptr)
-        _syncPlugins.push_back(plug);
     _nextHandle++;
     return(plug->handle);
 }
@@ -534,14 +526,6 @@ bool CPluginContainer::unloadPlugin(int handle)
 
         if (it->_loadCount==1)
         { // will unload it
-            for (size_t j=0;j<_syncPlugins.size();j++)
-            {
-                if (_syncPlugins[j]==it)
-                {
-                    _syncPlugins.erase(_syncPlugins.begin()+j);
-                    break;
-                }
-            }
             it->endAddress();
             std::string nm(it->getName());
             _removePlugin(handle);
@@ -769,12 +753,6 @@ bool CPluginContainer::meshDecimator(void* data)
         return(true);
     }
     return(false);
-}
-
-void CPluginContainer::syncMsg(const SSyncMsg* msg,const SSyncRt* rt)
-{
-    for (size_t i=0;i<_syncPlugins.size();i++)
-        _syncPlugins[i]->syncPlugin_msg(msg,rt);
 }
 
 bool CPluginContainer::dyn_startSimulation(int engine,int version,const double floatParams[20],const int intParams[20])

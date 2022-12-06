@@ -1132,7 +1132,7 @@ int simCreateUI_internal(const char* elementName,int menuAttributes,const int* c
         { // We have a title bar:
             int p[2]={0,0};
             int s2[2]={s[0]-b+1,1};
-            float blue[3]={0.36,0.35,0.87};
+            float blue[3]={0.36f,0.35f,0.87f};
             buttonHandles[retHandlesP]=simCreateUIButton_internal(retVal,p,s2,sim_buttonproperty_label|sim_buttonproperty_enabled|sim_buttonproperty_verticallycentered);
             simSetUIButtonColor_internal(retVal,buttonHandles[retHandlesP],blue,blue,white);
             retHandlesP++;
@@ -1143,7 +1143,7 @@ int simCreateUI_internal(const char* elementName,int menuAttributes,const int* c
             if (menuAttributes&sim_ui_menu_title)
                 p[0]++;
             int s2[2]={1,1};
-            float blue[3]={0.18,0.16,0.84};
+            float blue[3]={0.18f,0.16f,0.84f};
             buttonHandles[retHandlesP]=simCreateUIButton_internal(retVal,p,s2,sim_buttonproperty_button|sim_buttonproperty_enabled|sim_buttonproperty_staydown|sim_buttonproperty_horizontallycentered|sim_buttonproperty_verticallycentered|sim_buttonproperty_isdown|sim_buttonproperty_rollupaction);
             simSetUIButtonColor_internal(retVal,buttonHandles[retHandlesP],blue,blue,white);
             simSetUIButtonLabel_internal(retVal,buttonHandles[retHandlesP],"&&fg999&&Square","&&fg999&&Minimize");
@@ -1155,7 +1155,7 @@ int simCreateUI_internal(const char* elementName,int menuAttributes,const int* c
         { // We have a close button:
             int p[2]={s[0]-1,0};
             int s2[2]={1,1};
-            float red[3]={0.84,0.16,0.17};
+            float red[3]={0.84f,0.16f,0.17f};
             buttonHandles[retHandlesP]=simCreateUIButton_internal(retVal,p,s2,sim_buttonproperty_button|sim_buttonproperty_enabled|sim_buttonproperty_horizontallycentered|sim_buttonproperty_verticallycentered|sim_buttonproperty_closeaction);
             simSetUIButtonColor_internal(retVal,buttonHandles[retHandlesP],red,red,white);
             simSetUIButtonLabel_internal(retVal,buttonHandles[retHandlesP],"&&fg999&&Check","");

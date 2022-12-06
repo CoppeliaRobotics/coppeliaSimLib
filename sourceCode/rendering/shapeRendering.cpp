@@ -127,9 +127,9 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
                 C3Vector v(shape->getBoundingBoxHalfSizes()*2.0);
                 _displayInertia(shape->getMeshWrapper(),sqrt(v*v),normalVectorForLinesAndPoints.data);
                 otherColor.setDefaultValues();
-                otherColor.getColorsPtr()[0]=0.8;
-                otherColor.getColorsPtr()[1]=0.8;
-                otherColor.getColorsPtr()[2]=0.65;
+                otherColor.getColorsPtr()[0]=0.8f;
+                otherColor.getColorsPtr()[1]=0.8f;
+                otherColor.getColorsPtr()[2]=0.65f;
                 otherColorP=&otherColor;
             }
 
@@ -143,12 +143,12 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
                         fakeCol.setDefaultValues();
                         if (shape->isMeshCalculationStructureInitialized())
                         {
-                            fakeCol.setColor(0.5,0.1,0.1,0);
+                            fakeCol.setColor(0.5f,0.1f,0.1f,0);
                             shape->getMeshWrapper()->display(shape,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
                         }
                         else
                         {
-                            fakeCol.setColor(0.5,0.5,0.5,0);
+                            fakeCol.setColor(0.5f,0.5f,0.5f,0);
                             shape->getMeshWrapper()->display(shape,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
                         }
                     }
@@ -216,7 +216,7 @@ void _displayInertia(CMeshWrapper* geomWrap,double bboxDiagonal,const double nor
     glLineWidth(3.0);
     ogl::drawReference(bboxDiagonal*0.5,true,false,false,normalVectorForPointsAndLines);
 
-    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,0.4,0.0,1.0);
+    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,0.4f,0.0f,1.0f);
     double l=pow(geomWrap->getMass()/1000.0,0.3333); // Cubic root and mass density of 1000
     glLineWidth(6.0);
     ogl::drawBox(l,l,l,false,normalVectorForPointsAndLines);
@@ -284,11 +284,11 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
         {
             if (dynObjFlag_forVisualization==1)
-                ogl::setMaterialColor(0.9,0.9,0.9,0.5,0.5,0.5,0.0,0.0,0.0);
+                ogl::setMaterialColor(0.9f,0.9f,0.9f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
             if (dynObjFlag_forVisualization==3)
-                ogl::setMaterialColor(0.9,0.11,0.11,0.5,0.5,0.5,0.0,0.0,0.0);
+                ogl::setMaterialColor(0.9f,0.11f,0.11f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
             if (dynObjFlag_forVisualization==2)
-                ogl::setMaterialColor(0.9,0.11,0.9,0.5,0.5,0.5,0.0,0.0,0.0);
+                ogl::setMaterialColor(0.9f,0.11f,0.9f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
             nonPureDynamicDisplay=(geometric->getPurePrimitiveType()==sim_primitiveshape_none);
         }
         else
@@ -410,11 +410,11 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
             if (displayAttrib&sim_displayattribute_dynamiccontentonly)
             {
                 if (dynObjFlag_forVisualization==1)
-                    ogl::setMaterialColor(0.9,0.9,0.9,0.5,0.5,0.5,0.0,0.0,0.0);
+                    ogl::setMaterialColor(0.9f,0.9f,0.9f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
                 if (dynObjFlag_forVisualization==3)
-                    ogl::setMaterialColor(0.9,0.11,0.11,0.5,0.5,0.5,0.0,0.0,0.0);
+                    ogl::setMaterialColor(0.9f,0.11f,0.11f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
                 if (dynObjFlag_forVisualization==2)
-                    ogl::setMaterialColor(0.9,0.11,0.9,0.5,0.5,0.5,0.0,0.0,0.0);
+                    ogl::setMaterialColor(0.9f,0.11f,0.9f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
             }
             else
             {

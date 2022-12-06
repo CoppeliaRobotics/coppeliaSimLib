@@ -39,15 +39,15 @@ CGraph::CGraph()
     graphValues=true;
     _graphSize=0.1;
     color.setDefaultValues();
-    color.setColor(0.15,0.15,0.15,sim_colorcomponent_ambient_diffuse);
+    color.setColor(0.15f,0.15f,0.15f,sim_colorcomponent_ambient_diffuse);
 
-    backgroundColor[0]=0.1;
-    backgroundColor[1]=0.1;
-    backgroundColor[2]=0.1;
+    backgroundColor[0]=0.1f;
+    backgroundColor[1]=0.1f;
+    backgroundColor[2]=0.1f;
 
-    textColor[0]=0.8;
-    textColor[1]=0.8;
-    textColor[2]=0.8;
+    textColor[0]=0.8f;
+    textColor[1]=0.8f;
+    textColor[2]=0.8f;
     _visibilityLayer=GRAPH_LAYER;
     _objectAlias=IDSOGL_GRAPH;
     _objectName_old=IDSOGL_GRAPH;

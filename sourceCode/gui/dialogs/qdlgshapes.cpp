@@ -39,8 +39,8 @@ void CQDlgShapes::refresh()
 
     bool sel=App::currentWorld->sceneObjects->isLastSelectionAShape();
     bool ssel=App::currentWorld->sceneObjects->isLastSelectionASimpleShape();
-    int sc=App::currentWorld->sceneObjects->getShapeCountInSelection();
-    int ssc=App::currentWorld->sceneObjects->getSimpleShapeCountInSelection();
+    int sc=(int)App::currentWorld->sceneObjects->getShapeCountInSelection();
+    int ssc=(int)App::currentWorld->sceneObjects->getSimpleShapeCountInSelection();
     bool compoundShapeDisplay=(sel&&(!ssel));
     CShape* it=App::currentWorld->sceneObjects->getLastSelectionShape();
 

@@ -983,7 +983,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
             shape->setLocalObjectSpecialProperty((shape->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             shape->setRespondable(true);
             shape->setShapeIsDynamicallyStatic(false);
-            shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85,0.85,1.0);
+            shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
             shape->setRespondable(true);
         }
         shape->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);
@@ -1039,7 +1039,7 @@ CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& 
         {
             retVal=new CShape(nullptr,hull,indices,nullptr,nullptr);
             retVal->getSingleMesh()->setConvexVisualAttributes();
-            retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0,0.7,0.7);
+            retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,0.7f,0.7f);
             retVal->getSingleMesh()->setEdgeThresholdAngle(0.0);
             retVal->getSingleMesh()->setShadingAngle(0.0);
             retVal->getSingleMesh()->setVisibleEdges(false);
@@ -1120,7 +1120,7 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
             retVal->setObjectName_direct_old("convexHull");
             retVal->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(retVal->getObjectName_old().c_str()).c_str());
             retVal->getSingleMesh()->setConvexVisualAttributes();
-            retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0,0.7,0.7);
+            retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,0.7f,0.7f);
             retVal->getSingleMesh()->setEdgeThresholdAngle(0.0);
             retVal->getSingleMesh()->setShadingAngle(0.0);
             retVal->getSingleMesh()->setVisibleEdges(false);

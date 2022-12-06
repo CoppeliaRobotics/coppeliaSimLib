@@ -1600,7 +1600,7 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
         stack->pushTableOntoStack();
         for (size_t i=0;i<loadedObjectList.size();i++)
         {
-            stack->pushInt32OntoStack(i+1); // key or index
+            stack->pushInt32OntoStack(int(i+1)); // key or index
             stack->pushInt32OntoStack(loadedObjectList[i]->getObjectHandle());
             stack->insertDataIntoStackTable();
         }

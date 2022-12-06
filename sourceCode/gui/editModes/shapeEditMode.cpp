@@ -270,11 +270,11 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
     if ((displayAttrib&sim_displayattribute_colorcodedpickpass)==0)
     {
-        ogl::setMaterialColor(0.5,0.5,0.8,0.25,0.25,0.25,0.0,0.0,0.0);
+        ogl::setMaterialColor(0.5f,0.5f,0.8f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
         glPushAttrib(GL_POLYGON_BIT);
 
 
-        glPolygonOffset(0.5,0.0);
+        glPolygonOffset(0.5f,0.0f);
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
         glLoadName(-1);
@@ -419,12 +419,12 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
             if (alreadyInEditModeBuffer(i))
             {
                 if (editModeBuffer[editModeBuffer.size()-1]==i)
-                    ogl::setMaterialColor(1.0,1.0,1.0,0.25,0.25,0.25,0.0,0.0,0.0);
+                    ogl::setMaterialColor(1.0f,1.0f,1.0f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
                 else
-                    ogl::setMaterialColor(1.0,1.0,0.0,0.25,0.25,0.25,0.0,0.0,0.0);
+                    ogl::setMaterialColor(1.0f,1.0f,0.0f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
             }
             else
-                ogl::setMaterialColor(0.8,0.5,0.5,0.25,0.25,0.25,0.0,0.0,0.0);
+                ogl::setMaterialColor(0.8f,0.5f,0.5f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
 
             glBegin(GL_TRIANGLES);
             if (_editionTextureProperty!=nullptr)
@@ -462,12 +462,12 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
             if (alreadyInEditModeBuffer(i))
             {
                 if (editModeBuffer[editModeBuffer.size()-1]==i)
-                    ogl::setMaterialColor(1.0,1.0,1.0,0.25,0.25,0.25,0.0,0.0,0.0);
+                    ogl::setMaterialColor(1.0f,1.0f,1.0f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
                 else
-                    ogl::setMaterialColor(1.0,1.0,0.0,0.25,0.25,0.25,0.0,0.0,0.0);
+                    ogl::setMaterialColor(1.0f,1.0f,0.0f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
             }
             else
-                ogl::setMaterialColor(0.5,0.5,0.8,0.25,0.25,0.25,0.0,0.0,0.0);
+                ogl::setMaterialColor(0.5f,0.5f,0.8f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
 
             glBegin(GL_TRIANGLES);
             if (_editionTextureProperty!=nullptr)
@@ -543,13 +543,13 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
     if ((displayAttrib&sim_displayattribute_colorcodedpickpass)==0)
     {
-        float selColor[3]={1.0,1.0,0.0};
-        float nselColor[3]={1.0,0.0,0.0};
-        ogl::setMaterialColor(0.5,0.5,0.8,0.25,0.25,0.25,0.0,0.0,0.0);
+        float selColor[3]={1.0f,1.0f,0.0f};
+        float nselColor[3]={1.0f,0.0f,0.0f};
+        ogl::setMaterialColor(0.5f,0.5f,0.8f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
         glPushAttrib(GL_POLYGON_BIT);
 
 
-        glPolygonOffset(0.5,0.0); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
+        glPolygonOffset(0.5f,0.0f); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
         glEnable(GL_POLYGON_OFFSET_FILL); //
         glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
         glLoadName(-1);

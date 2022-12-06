@@ -11032,7 +11032,7 @@ int _simGetClosestPosOnPath(luaWrap_lua_State* L)
             getDoublesFromTable(L,1,pathS,&ppath[0]);
             getDoublesFromTable(L,2,pathLS,&pathLengths[0]);
             getDoublesFromTable(L,3,3,absPt);
-            double p=simGetClosestPosOnPath_internal(&ppath[0],pathLS*3,&pathLengths[0],absPt);
+            double p=simGetClosestPosOnPath_internal(&ppath[0],int(pathLS*3),&pathLengths[0],absPt);
             luaWrap_lua_pushnumber(L,p);
             LUA_END(1);
         }
@@ -12034,7 +12034,7 @@ int _simGetEngineFloatParam(luaWrap_lua_State* L)
         int objectHandle=luaToInt(L,2);
         bool ok;
         double paramVal=simGetEngineFloatParam_internal(paramId,objectHandle,nullptr,&ok);
-        if (ok>0)
+        if (ok)
         {
             luaWrap_lua_pushnumber(L,paramVal);
             LUA_END(1);
@@ -12056,7 +12056,7 @@ int _simGetEngineInt32Param(luaWrap_lua_State* L)
         int objectHandle=luaToInt(L,2);
         bool ok;
         int paramVal=simGetEngineInt32Param_internal(paramId,objectHandle,nullptr,&ok);
-        if (ok>0)
+        if (ok)
         {
             luaWrap_lua_pushinteger(L,paramVal);
             LUA_END(1);
@@ -12078,9 +12078,9 @@ int _simGetEngineBoolParam(luaWrap_lua_State* L)
         int objectHandle=luaToInt(L,2);
         bool ok;
         bool paramVal=simGetEngineBoolParam_internal(paramId,objectHandle,nullptr,&ok);
-        if (ok>0)
+        if (ok)
         {
-            luaWrap_lua_pushboolean(L,paramVal>0);
+            luaWrap_lua_pushboolean(L,paramVal);
             LUA_END(1);
         }
     }

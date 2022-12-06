@@ -30,7 +30,7 @@ CDummy::CDummy()
     _virtualDistanceOffsetOnPath_variationWhenCopy=0.0;
 
     _dummyColor.setDefaultValues();
-    _dummyColor.setColor(1.0,0.8,0.55,sim_colorcomponent_ambient_diffuse);
+    _dummyColor.setColor(1.0f,0.8f,0.55f,sim_colorcomponent_ambient_diffuse);
 
     // Mujoco parameters
     // ----------------------------------------------------
@@ -731,13 +731,13 @@ void CDummy::serialize(CSer& ar)
             ar.xmlPushNewNode("mujoco");
             double v[5];
             for (size_t i=0;i<2;i++)
-                v[i]=getEngineFloatParam(sim_mujoco_dummy_range1+i,nullptr);
+                v[i]=getEngineFloatParam(sim_mujoco_dummy_range1+int(i),nullptr);
             ar.xmlAddNode_floats("range",v,2);
             for (size_t i=0;i<2;i++)
-                v[i]=getEngineFloatParam(sim_mujoco_dummy_solreflimit1+i,nullptr);
+                v[i]=getEngineFloatParam(sim_mujoco_dummy_solreflimit1+int(i),nullptr);
             ar.xmlAddNode_floats("solreflimit",v,2);
             for (size_t i=0;i<5;i++)
-                v[i]=getEngineFloatParam(sim_mujoco_dummy_solimplimit1+i,nullptr);
+                v[i]=getEngineFloatParam(sim_mujoco_dummy_solimplimit1+int(i),nullptr);
             ar.xmlAddNode_floats("solimplimit",v,5);
             ar.xmlAddNode_float("margin",getEngineFloatParam(sim_mujoco_dummy_margin,nullptr));
             ar.xmlAddNode_float("springlength",getEngineFloatParam(sim_mujoco_dummy_springlength,nullptr));
@@ -798,17 +798,17 @@ void CDummy::serialize(CSer& ar)
                         if (ar.xmlGetNode_floats("range",w,2,exhaustiveXml))
                         {
                             for (size_t j=0;j<2;j++)
-                                setEngineFloatParam(sim_mujoco_dummy_range1+j,w[j]);
+                                setEngineFloatParam(sim_mujoco_dummy_range1+int(j),w[j]);
                         }
                         if (ar.xmlGetNode_floats("solreflimit",w,2,exhaustiveXml))
                         {
                             for (size_t j=0;j<2;j++)
-                                setEngineFloatParam(sim_mujoco_dummy_solreflimit1+j,w[j]);
+                                setEngineFloatParam(sim_mujoco_dummy_solreflimit1+int(j),w[j]);
                         }
                         if (ar.xmlGetNode_floats("solimplimit",w,5,exhaustiveXml))
                         {
                             for (size_t j=0;j<5;j++)
-                                setEngineFloatParam(sim_mujoco_dummy_solimplimit1+j,w[j]);
+                                setEngineFloatParam(sim_mujoco_dummy_solimplimit1+int(j),w[j]);
                         }
                         double v;
                         if (ar.xmlGetNode_float("margin",v,exhaustiveXml)) setEngineFloatParam(sim_mujoco_dummy_margin,v);

@@ -360,7 +360,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                 {
                     if (_allAddOnFunctionUiHandles_old[i]==commandID)
                     {
-                        index=i;
+                        index=int(i);
                         break;
                     }
                 }

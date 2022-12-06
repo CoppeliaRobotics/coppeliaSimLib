@@ -1725,7 +1725,7 @@ bool CScriptObject::_loadCode()
         {
             std::string functions;
             for (size_t i=0;i<sim_syscb_endoflist;i++)
-                functions+=getSystemCallbackString(i,0)+'\0';
+                functions+=getSystemCallbackString(int(i),0)+'\0';
             functions+='\0';
             std::string errMsg;
             int r=___loadCode(_scriptTextExec.c_str(),functions.c_str(),_containedSystemCallbacks,&errMsg);
@@ -2585,7 +2585,7 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
         registerPluginFunctions();
         registerPluginVariables(false);
         luaWrap_lua_sethook(L,_hookFunction_lua,luaWrapGet_LUA_MASKCOUNT(),100); // This instruction gets also called in luaHookFunction!!!!
-        _initFunctionHookCount=_functionHooks_before.size()+_functionHooks_after.size();
+        _initFunctionHookCount=int(_functionHooks_before.size()+_functionHooks_after.size());
     }
     if (!App::userSettings->executeUnsafe)
     {

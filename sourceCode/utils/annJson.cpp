@@ -163,8 +163,8 @@ bool CAnnJson::getValue(QJsonObject& jsonObj,const char* key,double* vals,size_t
                 retVal=true;
                 for (size_t i=0;i<cnt;i++)
                 {
-                    if (arr[i].type()==QJsonValue::Double)
-                        vals[i]=arr[i].toDouble();
+                    if (arr[int(i)].type()==QJsonValue::Double)
+                        vals[i]=arr[int(i)].toDouble();
                     else
                     {
                         msg=std::string("Key '")+key+"' contains items with wrong type and will be ignored.";

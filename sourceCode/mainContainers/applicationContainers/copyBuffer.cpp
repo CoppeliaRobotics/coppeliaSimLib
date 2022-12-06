@@ -238,7 +238,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene,int selectionMode)
     stack->pushTableOntoStack();
     for (size_t i=0;i<objectCopy.size();i++)
     {
-        stack->pushInt32OntoStack(i+1); // key or index
+        stack->pushInt32OntoStack(int(i+1)); // key or index
         stack->pushInt32OntoStack(objectCopy[i]->getObjectHandle());
         stack->insertDataIntoStackTable();
     }

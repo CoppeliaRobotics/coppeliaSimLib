@@ -70,7 +70,7 @@ void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObje
         {
             if (proxSensor->convexVolume->volumeEdges.size()!=0)
                 ogl::drawRandom3dLines(&proxSensor->convexVolume->volumeEdges[0],(int)proxSensor->convexVolume->volumeEdges.size()/3,false,normalVectorForLinesAndPoints.data);
-            float ccc[3]={0.2,0.2,0.2};
+            float ccc[3]={0.2f,0.2f,0.2f};
             ogl::setMaterialColor(ccc,ccc,ccc);
             if (proxSensor->convexVolume->nonDetectingVolumeEdges.size()!=0)
                 ogl::drawRandom3dLines(&proxSensor->convexVolume->nonDetectingVolumeEdges[0],(int)proxSensor->convexVolume->nonDetectingVolumeEdges.size()/3,false,normalVectorForLinesAndPoints.data);

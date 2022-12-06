@@ -44,9 +44,9 @@ void CForceSensor::commonInit()
     _filteredValuesAreValid=false;
 
     _color.setDefaultValues();
-    _color.setColor(0.22,0.9,0.45,sim_colorcomponent_ambient_diffuse);
+    _color.setColor(0.22f,0.9f,0.45f,sim_colorcomponent_ambient_diffuse);
     _color_removeSoon.setDefaultValues();
-    _color_removeSoon.setColor(0.22,0.22,0.22,sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.setColor(0.22f,0.22f,0.22f,sim_colorcomponent_ambient_diffuse);
     _visibilityLayer=FORCE_SENSOR_LAYER;
     _localObjectSpecialProperty=0;
     _objectAlias=IDSOGL_FORCE_SENSOR;

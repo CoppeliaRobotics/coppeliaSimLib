@@ -153,7 +153,7 @@ void CPtCloud_old::pushAddEvent()
         c[8]=_defaultColors[14];
         data->appendMapObject_stringFloatArray("color",c,9);
 
-        data->appendMapObject_stringInt32("maxCnt",_vertices.size()/3);
+        data->appendMapObject_stringInt32("maxCnt",int(_vertices.size()/3));
 
         data->appendMapObject_stringFloat("size",_pointSize);
 

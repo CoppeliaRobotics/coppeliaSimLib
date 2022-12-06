@@ -133,18 +133,18 @@ void CLight::_setDefaultColors()
     if (_lightType==sim_light_spot_subtype)
     {
         objectColor.setDefaultValues();
-        objectColor.setColor(1.0,0.375,0.25,sim_colorcomponent_ambient_diffuse);
+        objectColor.setColor(1.0f,0.375f,0.25f,sim_colorcomponent_ambient_diffuse);
         lightColor.setDefaultValues();
-        lightColor.setColor(0.5,0.5,0.5,sim_colorcomponent_diffuse);
-        lightColor.setColor(0.5,0.5,0.5,sim_colorcomponent_specular);
+        lightColor.setColor(0.5f,0.5f,0.5f,sim_colorcomponent_diffuse);
+        lightColor.setColor(0.5f,0.5f,0.5f,sim_colorcomponent_specular);
     }
     if (_lightType==sim_light_directional_subtype)
     {
         objectColor.setDefaultValues();
-        objectColor.setColor(0.45,0.45,0.75,sim_colorcomponent_ambient_diffuse);
+        objectColor.setColor(0.45f,0.45f,0.75f,sim_colorcomponent_ambient_diffuse);
         lightColor.setDefaultValues();
-        lightColor.setColor(0.5,0.5,0.5,sim_colorcomponent_diffuse);
-        lightColor.setColor(0.5,0.5,0.5,sim_colorcomponent_specular);
+        lightColor.setColor(0.5f,0.5f,0.5f,sim_colorcomponent_diffuse);
+        lightColor.setColor(0.5f,0.5f,0.5f,sim_colorcomponent_specular);
     }
 }
 

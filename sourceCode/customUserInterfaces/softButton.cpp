@@ -9,15 +9,15 @@
 
 CSoftButton::CSoftButton(std::string theLabel,int w,int h,int theLength,int theHeight)
 {
-    backgroundColor[0]=0.7;
-    backgroundColor[1]=0.7;
-    backgroundColor[2]=0.7;
-    downBackgroundColor[0]=0.7;
-    downBackgroundColor[1]=0.7;
-    downBackgroundColor[2]=0.7;
-    textColor[0]=0.0;
-    textColor[1]=0.0;
-    textColor[2]=0.0;
+    backgroundColor[0]=0.7f;
+    backgroundColor[1]=0.7f;
+    backgroundColor[2]=0.7f;
+    downBackgroundColor[0]=0.7f;
+    downBackgroundColor[1]=0.7f;
+    downBackgroundColor[2]=0.7f;
+    textColor[0]=0.0f;
+    textColor[1]=0.0f;
+    textColor[2]=0.0f;
     label=theLabel;
     downLabel=theLabel;
     _textureProperty=nullptr;
@@ -43,15 +43,15 @@ void CSoftButton::setAttributes(int attr)
     int afterProperty=attr&(0xffff-0x0007);
     if ( (afterType==sim_buttonproperty_editbox)&&(beforeType!=sim_buttonproperty_editbox) )
     {
-        downBackgroundColor[0]=1.0;
-        downBackgroundColor[1]=1.0;
-        downBackgroundColor[2]=1.0;
+        downBackgroundColor[0]=1.0f;
+        downBackgroundColor[1]=1.0f;
+        downBackgroundColor[2]=1.0f;
     }
     if ( (afterType!=sim_buttonproperty_editbox)&&(beforeType==sim_buttonproperty_editbox) )
     {
-        downBackgroundColor[0]=0.7;
-        downBackgroundColor[1]=0.7;
-        downBackgroundColor[2]=0.7;
+        downBackgroundColor[0]=0.7f;
+        downBackgroundColor[1]=0.7f;
+        downBackgroundColor[2]=0.7f;
     }
     if (afterType!=sim_buttonproperty_button)
         _buttonAttributes&=(0xffff-sim_buttonproperty_staydown-sim_buttonproperty_isdown-sim_buttonproperty_rollupaction-sim_buttonproperty_closeaction-sim_buttonproperty_downupevent);

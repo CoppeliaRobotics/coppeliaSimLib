@@ -189,9 +189,9 @@ void CQDlgModelThumbnail::actualizeBitmap()
     // Prepare the thumbnail:
     float* buff3=new float[128*128*4];
 
-    const float diagWeight=0.05472;//1.0;
-    const float horizWeight=0.11098;//2.0;
-    const float centerWeight=0.22508;//4.0;
+    const float diagWeight=0.05472f;//1.0f;
+    const float horizWeight=0.11098f;//2.0f;
+    const float centerWeight=0.22508f;//4.0f;
     for (int i=0;i<128;i++)
     {
         for (int j=0;j<128;j++)
