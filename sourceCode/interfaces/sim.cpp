@@ -182,7 +182,7 @@ SIM_DLLEXPORT void* simCreateBuffer(int size)
 {
     return(simCreateBuffer_internal(size));
 }
-SIM_DLLEXPORT int simReleaseBuffer(void* buffer)
+SIM_DLLEXPORT int simReleaseBuffer(const void* buffer)
 {
     return(simReleaseBuffer_internal(buffer));
 }

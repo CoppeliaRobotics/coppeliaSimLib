@@ -61,20 +61,22 @@ void CCollection::addCollectionElement(CCollectionElement* collectionElement)
 bool CCollection::actualizeCollection()
 {   // return value false means that this collection is empty
     bool retVal=false;
-    size_t i=0;
     // First we remove all collection elements which are not valid anymore:
-    while (i<getElementCount())
     {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(getElementFromIndex(i)->getMainObject());
-        if (it==nullptr)
+        size_t i=0;
+        while (i<getElementCount())
         {
-            if (getElementFromIndex(i)->getElementType()!=sim_collectionelement_all)
-                _removeCollectionElementFromHandle(getElementFromIndex(i)->getElementHandle());
+            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(getElementFromIndex(i)->getMainObject());
+            if (it==nullptr)
+            {
+                if (getElementFromIndex(i)->getElementType()!=sim_collectionelement_all)
+                    _removeCollectionElementFromHandle(getElementFromIndex(i)->getElementHandle());
+                else
+                    i++;
+            }
             else
                 i++;
         }
-        else
-            i++;
     }
     // Now we have to take care of the GROUP_EVERYTHING type:
     if (_creatorHandle==-2)
@@ -118,17 +120,19 @@ bool CCollection::announceScriptStateWillBeErased(int scriptHandle,bool simulati
 bool CCollection::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
 { // Return value true means that this collection is empty
     bool retVal=false;
-    size_t i=0;
     size_t initialSubGroupListSize=getElementCount();
-    while (i<getElementCount())
     {
-        if ( (getElementFromIndex(i)->getMainObject()==objectHandle) ) //  GROUP_EVERYTHING is handled a little bit further down
+        size_t i=0;
+        while (i<getElementCount())
         {
-            _removeCollectionElementFromHandle(getElementFromIndex(i)->getElementHandle());
-            i=0;
+            if ( (getElementFromIndex(i)->getMainObject()==objectHandle) ) //  GROUP_EVERYTHING is handled a little bit further down
+            {
+                _removeCollectionElementFromHandle(getElementFromIndex(i)->getElementHandle());
+                i=0;
+            }
+            else
+                i++;
         }
-        else
-            i++;
     }
 
     // Now we have to take care of the GROUP_EVERYTHING type:

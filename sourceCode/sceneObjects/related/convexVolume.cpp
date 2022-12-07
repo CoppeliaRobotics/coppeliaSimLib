@@ -2066,7 +2066,7 @@ void CConvexVolume::removeEdgesNotInsideVolume(std::vector<double>& edges,std::v
     }
 }
 
-void CConvexVolume::generateSphereEdges(std::vector<double>& edges,double radius)
+void CConvexVolume::generateSphereEdges(std::vector<double>& edges,double radd)
 {
     int subDivW=12;
     int subDivV=12;
@@ -2081,18 +2081,18 @@ void CConvexVolume::generateSphereEdges(std::vector<double>& edges,double radius
         double w1=dw;
         for (int j=0;j<subDivW;j++)
         {
-            C3Vector p0(radius*cos(w0)*sin(v0),radius*sin(w0)*sin(v0),radius*cos(v0));
+            C3Vector p0(radd*cos(w0)*sin(v0),radd*sin(w0)*sin(v0),radd*cos(v0));
             edges.push_back(p0(0));
             edges.push_back(p0(1));
             edges.push_back(p0(2));
-            C3Vector p1(radius*cos(w0)*sin(v1),radius*sin(w0)*sin(v1),radius*cos(v1));
+            C3Vector p1(radd*cos(w0)*sin(v1),radd*sin(w0)*sin(v1),radd*cos(v1));
             edges.push_back(p1(0));
             edges.push_back(p1(1));
             edges.push_back(p1(2));
             edges.push_back(p1(0));
             edges.push_back(p1(1));
             edges.push_back(p1(2));
-            C3Vector p2(radius*cos(w1)*sin(v1),radius*sin(w1)*sin(v1),radius*cos(v1));
+            C3Vector p2(radd*cos(w1)*sin(v1),radd*sin(w1)*sin(v1),radd*cos(v1));
             edges.push_back(p2(0));
             edges.push_back(p2(1));
             edges.push_back(p2(2));

@@ -61,7 +61,7 @@ SIM_DLLEXPORT int simRemoveScript(int scriptHandle);
 SIM_DLLEXPORT int simRefreshDialogs(int refreshDegree);
 SIM_DLLEXPORT int simResetProximitySensor(int sensorHandle);
 SIM_DLLEXPORT void* simCreateBuffer(int size);
-SIM_DLLEXPORT int simReleaseBuffer(void* buffer);
+SIM_DLLEXPORT int simReleaseBuffer(const void* buffer);
 SIM_DLLEXPORT int simCheckCollision(int entity1Handle,int entity2Handle);
 SIM_DLLEXPORT int simGetRealTimeSimulation();
 SIM_DLLEXPORT int simIsRealTimeSimulationStepNeeded();

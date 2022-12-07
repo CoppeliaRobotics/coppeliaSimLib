@@ -147,16 +147,17 @@ void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vecto
         data[4]=&_normalsForDisplayAndDisk[0];
         int ns=(int)_normalsForDisplayAndDisk.size()/3;
         data[5]=&ns;
-        data[6]=tr2.X.data;
-
-        data[7]=tr2.Q.data;
-
+        float x[3]={(float)tr2.X(0),(float)tr2.X(1),(float)tr2.X(2)};
+        data[6]=x;
+        float q[4]={(float)tr2.Q(0),(float)tr2.Q(1),(float)tr2.Q(2),(float)tr2.Q(3)};
+        data[7]=q;
         data[8]=color.getColorsPtr();
-        data[19]=&_shadingAngle;
+        float sa=(float)_shadingAngle;
+        data[19]=&sa;
         data[20]=&_extRendererObjectId;
         bool translucid=color.getTranslucid();
         data[21]=&translucid;
-        double transparencyF=color.getOpacity();
+        float transparencyF=color.getOpacity();
         data[22]=&transparencyF;
         data[23]=&_culling;
         data[24]=&_extRendererMeshId;

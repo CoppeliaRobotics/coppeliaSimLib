@@ -1428,9 +1428,9 @@ void CSceneObject::writeCustomDataBlock(bool tmpData,const char* dataName,const 
     if ( diff&&_isInScene&&App::worldContainer->getEventsEnabled() )
     {
         const char* cmd="customData";
-        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,false);
+        auto [event,dat]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,false);
         CInterfaceStackTable* subC=new CInterfaceStackTable();
-        data->appendMapObject_stringObject(cmd,subC);
+        dat->appendMapObject_stringObject(cmd,subC);
         _customObjectData.appendEventData(subC);
         _customObjectData_tempData.appendEventData(subC);
         App::worldContainer->pushEvent(event);
@@ -1776,16 +1776,16 @@ void CSceneObject::setAssemblyMatchValues(bool asChild,const char* str)
     std::map<std::string,bool> hist;
     for (size_t i=0;i<words.size();i++)
     {
-        std::string str(words[i]);
-        tt::removeSpacesAtBeginningAndEnd(str);
-        tt::removeIllegalCharacters(str,false);
-        if (str.size()>0)
+        std::string strr(words[i]);
+        tt::removeSpacesAtBeginningAndEnd(strr);
+        tt::removeIllegalCharacters(strr,false);
+        if (strr.size()>0)
         {
-            std::map<std::string,bool>::iterator it=hist.find(str);
+            std::map<std::string,bool>::iterator it=hist.find(strr);
             if (it==hist.end())
             { // avoid doubles
-                hist[str]=true;
-                v->push_back(str);
+                hist[strr]=true;
+                v->push_back(strr);
             }
         }
     }

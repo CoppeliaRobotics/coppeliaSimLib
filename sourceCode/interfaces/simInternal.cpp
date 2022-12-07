@@ -5543,7 +5543,7 @@ void* simCreateBuffer_internal(int size)
     return(retVal);
 }
 
-int simReleaseBuffer_internal(void* buffer)
+int simReleaseBuffer_internal(const void* buffer)
 {
     TRACE_C_API;
 

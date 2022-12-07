@@ -98,7 +98,7 @@ int simCheckProximitySensor_internal(int sensorHandle,int entityHandle,double* d
 int simCheckProximitySensorEx_internal(int sensorHandle,int entityHandle,int detectionMode,double detectionThreshold,double maxAngle,double* detectedPoint,int* detectedObjectHandle,double* normalVector);
 int simCheckProximitySensorEx2_internal(int sensorHandle,double* vertexPointer,int itemType,int itemCount,int detectionMode,double detectionThreshold,double maxAngle,double* detectedPoint,double* normalVector);
 void* simCreateBuffer_internal(int size);
-int simReleaseBuffer_internal(void* buffer);
+int simReleaseBuffer_internal(const void* buffer);
 int simCheckCollision_internal(int entity1Handle,int entity2Handle);
 int simCheckCollisionEx_internal(int entity1Handle,int entity2Handle,double** intersectionSegments);
 int simCheckDistance_internal(int entity1Handle,int entity2Handle,double threshold,double* distanceData);

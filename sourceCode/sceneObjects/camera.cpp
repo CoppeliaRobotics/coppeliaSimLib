@@ -2442,73 +2442,78 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bo
     data[1]=resolution+1;
     data[2]=App::currentWorld->environment->fogBackgroundColor;
     C7Vector tr(getFullCumulativeTransformation());
-    data[3]=tr.X.data;
-    data[4]=tr.Q.data;
+    float x[3]={(float)tr.X(0),(float)tr.X(1),(float)tr.X(2)};
+    data[3]=x;
+    float q[4]={(float)tr.Q(0),(float)tr.Q(1),(float)tr.Q(2),(float)tr.Q(3)};
+    data[4]=q;
     int options=0;
-    double xAngle_size;
-    double yAngle_size;
-    double ratio=(double)(resolution[0]/(double)resolution[1]);
-    double nearClip,farClip;
+    float xAngle_size;
+    float yAngle_size;
+    float ratio=(float)(resolution[0]/(float)resolution[1]);
+    float nearClip,farClip;
     if (perspective)
     {
-        if (ratio>1.0)
+        if (ratio>1.0f)
         {
-            xAngle_size=_viewAngle;
-            yAngle_size=2.0*atan(tan(_viewAngle/2.0)/ratio);
+            xAngle_size=(float)_viewAngle;
+            yAngle_size=2.0f*atan(tan(_viewAngle/2.0f)/ratio);
         }
         else
         {
-            xAngle_size=2.0*atan(tan(_viewAngle/2.0)*ratio);
-            yAngle_size=_viewAngle;
+            xAngle_size=2.0f*atan(tan(_viewAngle/2.0f)*ratio);
+            yAngle_size=(float)_viewAngle;
         }
-        nearClip=_nearClippingPlane;
-        farClip=_farClippingPlane;
+        nearClip=(float)_nearClippingPlane;
+        farClip=(float)_farClippingPlane;
     }
     else
     {
         options|=1;
-        if (ratio>1.0)
+        if (ratio>1.0f)
         {
-            xAngle_size=_orthoViewSize;
-            yAngle_size=_orthoViewSize/ratio;
+            xAngle_size=(float)_orthoViewSize;
+            yAngle_size=(float)_orthoViewSize/ratio;
         }
         else
         {
-            xAngle_size=_orthoViewSize*ratio;
-            yAngle_size=_orthoViewSize;
+            xAngle_size=(float)_orthoViewSize*ratio;
+            yAngle_size=(float)_orthoViewSize;
         }
-        nearClip=ORTHO_CAMERA_NEAR_CLIPPING_PLANE;
-        farClip=ORTHO_CAMERA_FAR_CLIPPING_PLANE;
+        nearClip=(float)ORTHO_CAMERA_NEAR_CLIPPING_PLANE;
+        farClip=(float)ORTHO_CAMERA_FAR_CLIPPING_PLANE;
     }
     data[5]=&options;
     data[6]=&xAngle_size;
     data[7]=&yAngle_size;
-    data[8]=&_viewAngle;
+    float va=(float)_viewAngle;
+    data[8]=&va;
     data[9]=&nearClip;
     data[10]=&farClip;
     data[11]=App::currentWorld->environment->ambientLightColor;
     data[12]=App::currentWorld->environment->fogBackgroundColor;
     int fogType=App::currentWorld->environment->getFogType();
-    double fogStart=App::currentWorld->environment->getFogStart();
-    double fogEnd=App::currentWorld->environment->getFogEnd();
-    double fogDensity=App::currentWorld->environment->getFogDensity();
+    float fogStart=(float)App::currentWorld->environment->getFogStart();
+    float fogEnd=(float)App::currentWorld->environment->getFogEnd();
+    float fogDensity=(float)App::currentWorld->environment->getFogDensity();
     bool fogEnabled=App::currentWorld->environment->getFogEnabled();
     data[13]=&fogType;
     data[14]=&fogStart;
     data[15]=&fogEnd;
     data[16]=&fogDensity;
     data[17]=&fogEnabled;
-    data[18]=&_orthoViewSize;
+    float ovs=(float)_orthoViewSize;
+    data[18]=&ovs;
     data[19]=&_objectHandle;
     data[20]=nullptr;
     data[21]=nullptr;
 
     // Following actually free since CoppeliaSim 3.3.0
     // But the older PovRay plugin version crash without this:
-    double povFogDist=4.0;
-    double povFogTransp=0.5;
+    float povFogDist=4.0f;
+    float povFogTransp=0.5f;
     bool povFocalBlurEnabled=false;
-    double povFocalLength,povAperture;
+    float povFocalLength=0.0f;
+    float povAperture=0.0f;
     int povBlurSamples;
     data[22]=&povFogDist;
     data[23]=&povFogTransp;
@@ -2531,21 +2536,23 @@ void CCamera::_extRenderer_prepareLights()
             void* data[20];
             int lightType=light->getLightType();
             data[0]=&lightType;
-            double cutoffAngle=light->getSpotCutoffAngle();
+            float cutoffAngle=(float)light->getSpotCutoffAngle();
             data[1]=&cutoffAngle;
             int spotExponent=light->getSpotExponent();
             data[2]=&spotExponent;
             data[3]=light->getColor(true)->getColorsPtr();
-            double constAttenuation=light->getAttenuationFactor(CONSTANT_ATTENUATION);
+            float constAttenuation=(float)light->getAttenuationFactor(CONSTANT_ATTENUATION);
             data[4]=&constAttenuation;
-            double linAttenuation=light->getAttenuationFactor(LINEAR_ATTENUATION);
+            float linAttenuation=(float)light->getAttenuationFactor(LINEAR_ATTENUATION);
             data[5]=&linAttenuation;
-            double quadAttenuation=light->getAttenuationFactor(QUADRATIC_ATTENUATION);
+            float quadAttenuation=(float)light->getAttenuationFactor(QUADRATIC_ATTENUATION);
             data[6]=&quadAttenuation;
             C7Vector tr(light->getFullCumulativeTransformation());
-            data[7]=tr.X.data;
-            data[8]=tr.Q.data;
-            double lightSize=light->getLightSize();
+            float x[3]={(float)tr.X(0),(float)tr.X(1),(float)tr.X(2)};
+            data[7]=x;
+            float q[4]={(float)tr.Q(0),(float)tr.Q(1),(float)tr.Q(2),(float)tr.Q(3)};
+            data[8]=q;
+            float lightSize=(float)light->getLightSize();
             data[9]=&lightSize;
             bool lightIsVisible=light->getShouldObjectBeDisplayed(_objectHandle,0);
             data[11]=&lightIsVisible;
@@ -2554,7 +2561,7 @@ void CCamera::_extRenderer_prepareLights()
 
             // Following actually free since CoppeliaSim 3.3.0
             // But the older PovRay plugin version crash without this:
-            double povFadeXDist=0.0;
+            float povFadeXDist=0.0f;
             bool povNoShadow=false;
             data[10]=&povFadeXDist;
             data[12]=&povNoShadow;
@@ -2574,45 +2581,47 @@ void CCamera::_extRenderer_prepareMirrors()
         {
             bool active=mirror->getActive()&&(!App::currentWorld->mainSettings->mirrorsDisabled);
             C7Vector tr=mirror->getCumulativeTransformation();
-            double w_=mirror->getMirrorWidth()/2.0;
-            double h_=mirror->getMirrorHeight()/2.0;
-            double vertices[18]={w_,-h_,0.0005,w_,h_,0.0005,-w_,-h_,0.0005,-w_,-h_,0.0005,w_,h_,0.0005,-w_,h_,0.0005};
+            float w_=float(mirror->getMirrorWidth())/2.0f;
+            float h_=float(mirror->getMirrorHeight())/2.0f;
+            float vertices[18]={w_,-h_,0.0005f,w_,h_,0.0005f,-w_,-h_,0.0005f,-w_,-h_,0.0005f,w_,h_,0.0005f,-w_,h_,0.0005f};
             int verticesCnt=6;
-            double normals[18]={0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0};
+            float normals[18]={0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f};
             for (int i=0;i<6;i++)
             {
-                C3Vector v(vertices+i*3);
+                C3Vector v;
+                v.setData(vertices+i*3);
                 v*=tr;
-                C3Vector n(normals+i*3);
+                C3Vector n;
+                n.setData(normals+i*3);
                 n=tr.Q*n;
-                vertices[i*3+0]=v(0);
-                vertices[i*3+1]=v(1);
-                vertices[i*3+2]=v(2);
-                normals[i*3+0]=n(0);
-                normals[i*3+1]=n(1);
-                normals[i*3+2]=n(2);
+                vertices[i*3+0]=(float)v(0);
+                vertices[i*3+1]=(float)v(1);
+                vertices[i*3+2]=(float)v(2);
+                normals[i*3+0]=(float)n(0);
+                normals[i*3+1]=(float)n(1);
+                normals[i*3+2]=(float)n(2);
             }
             void* data[20];
             data[0]=vertices;
             data[1]=&verticesCnt;
             data[2]=normals;
-            double colors[15];
+            float colors[15];
             colors[0]=mirror->mirrorColor[0];
             colors[1]=mirror->mirrorColor[1];
             colors[2]=mirror->mirrorColor[2];
-            colors[6]=0.0;
-            colors[7]=0.0;
-            colors[8]=0.0;
-            colors[9]=0.0;
-            colors[10]=0.0;
-            colors[11]=0.0;
-            colors[12]=0.0;
-            colors[13]=0.0;
-            colors[14]=0.0;
+            colors[6]=0.0f;
+            colors[7]=0.0f;
+            colors[8]=0.0f;
+            colors[9]=0.0f;
+            colors[10]=0.0f;
+            colors[11]=0.0f;
+            colors[12]=0.0f;
+            colors[13]=0.0f;
+            colors[14]=0.0f;
             data[3]=colors;
             bool translucid=false;
             data[4]=&translucid;
-            double opacityFactor=1.0;
+            float opacityFactor=1.0f;
             data[5]=&opacityFactor;
             const char* povMaterial={"mirror"};
             data[6]=(char*)povMaterial;
@@ -2621,11 +2630,12 @@ void CCamera::_extRenderer_prepareMirrors()
             C3Vector shift=tr.Q.getMatrix().axis[2]*(-0.001);
             for (int i=0;i<6;i++)
             {
-                C3Vector v(vertices+i*3);
+                C3Vector v;
+                v.setData(vertices+i*3);
                 v+=shift;
-                vertices[i*3+0]=v(0);
-                vertices[i*3+1]=v(1);
-                vertices[i*3+2]=v(2);
+                vertices[i*3+0]=(float)v(0);
+                vertices[i*3+1]=(float)v(1);
+                vertices[i*3+2]=(float)v(2);
             }
             active=false;
             CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_triangles,data);
