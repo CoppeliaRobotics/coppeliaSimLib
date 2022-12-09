@@ -671,7 +671,7 @@ void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,
 }
 
 
-void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const double* newColors)
+void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
 {
 
 }

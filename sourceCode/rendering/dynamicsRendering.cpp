@@ -252,7 +252,7 @@ void _drawSphere(int displayAttrib,const C3Vector& _currentPosition,double _size
 
 #else
 
-void displayParticles(void** particlesPointer,int particlesCount,int displayAttrib,const C4X4Matrix& cameraCTM,const double* cols,int objectType)
+void displayParticles(void** particlesPointer,int particlesCount,int displayAttrib,const C4X4Matrix& cameraCTM,const float* cols,int objectType)
 {
 
 }

@@ -43,7 +43,7 @@ void displayBanner(int objId,int options,const float* bckColor,const C7Vector& t
 
 #else
 
-void displayBanner(int objId,int options,const double* bckColor,const C7Vector& tr,const char* label,const CColorObject& color,double height,const C4X4Matrix& cameraCTM,const int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
+void displayBanner(int objId,int options,const float* bckColor,const C7Vector& tr,const char* label,const CColorObject& color,double height,const C4X4Matrix& cameraCTM,const int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
 {
 
 }

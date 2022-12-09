@@ -21,7 +21,7 @@ void displayGhost(CShape* shape,const C7Vector& tr,int displayAttributes,int opt
 
 #else
 
-void displayGhost(CShape* shape,const C7Vector& tr,int displayAttributes,int options,double transparencyFactor,const double* color)
+void displayGhost(CShape* shape,const C7Vector& tr,int displayAttributes,int options,double transparencyFactor,const float* color)
 {
 
 }

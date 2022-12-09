@@ -69,17 +69,17 @@ void enableFog(bool on)
 
 #else
 
-void displayBackground(const int* viewSize,bool fogEnabled,const double* fogBackgroundColor,const double* backGroundColorDown,const double* backGroundColor)
+void displayBackground(const int* viewSize,bool fogEnabled,const float* fogBackgroundColor,const float* backGroundColorDown,const float* backGroundColor)
 {
 
 }
 
-void enableAmbientLight(bool on,const double* ambientLightColor)
+void enableAmbientLight(bool on,const float* ambientLightColor)
 {
 
 }
 
-void activateFog(const double* fogBackgroundColor,int fogType,double dd,double farClipp,double fogStart,double fogEnd,double fogDensity)
+void activateFog(const float* fogBackgroundColor,int fogType,double dd,double farClipp,double fogStart,double fogEnd,double fogDensity)
 {
 
 }
