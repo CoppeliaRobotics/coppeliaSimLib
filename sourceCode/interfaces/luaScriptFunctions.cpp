@@ -431,10 +431,10 @@ const SLuaCommands simLuaCommands[]=
     {"sim.test",_simTest,                                        "test function - do not use",true},
 
     // deprecated
-    {"sim.rmlPos",_simRMLPos,                                    "Deprecated. Use sim.ruckigPos instead",false},
-    {"sim.rmlVel",_simRMLVel,                                    "Deprecated. Use sim.ruckigVel instead",false},
-    {"sim.rmlStep",_simRMLStep,                                  "Deprecated. Use sim.ruckigStep instead",false},
-    {"sim.rmlRemove",_simRMLRemove,                              "Deprecated. Use sim.ruckigRemove instead",false},
+    {"sim.rmlPos",_simRuckigPos,                                    "Deprecated. Use sim.ruckigPos instead",false},
+    {"sim.rmlVel",_simRuckigVel,                                    "Deprecated. Use sim.ruckigVel instead",false},
+    {"sim.rmlStep",_simRuckigStep,                                  "Deprecated. Use sim.ruckigStep instead",false},
+    {"sim.rmlRemove",_simRuckigRemove,                              "Deprecated. Use sim.ruckigRemove instead",false},
     {"sim.addStatusbarMessage",_simAddStatusbarMessage,         "Deprecated. Use sim.addLog instead",false},
     {"sim.getNameSuffix",_simGetNameSuffix,                     "Deprecated",false},
     {"sim.setNameSuffix",_simSetNameSuffix,                     "Deprecated",false},
@@ -1773,14 +1773,14 @@ const SLuaVariables simLuaVariables[]=
     {"sim.api_warning_output",sim_api_warning_output,false},
     {"sim.boolparam_rml2_available",sim_boolparam_rml2_available,false},
     {"sim.boolparam_rml4_available",sim_boolparam_rml4_available,false},
-    {"sim.rml_phase_sync_if_possible",simrml_phase_sync_if_possible,false},
-    {"sim.rml_only_time_sync",simrml_only_time_sync,false},
-    {"sim.rml_only_phase_sync",simrml_only_phase_sync,false},
-    {"sim.rml_no_sync",simrml_no_sync,false},
-    {"sim.rml_keep_target_vel",simrml_keep_target_vel,false},
-    {"sim.rml_recompute_trajectory",simrml_recompute_trajectory,false},
-    {"sim.rml_disable_extremum_motion_states_calc",simrml_disable_extremum_motion_states_calc,false},
-    {"sim.rml_keep_current_vel_if_fallback_strategy",simrml_keep_current_vel_if_fallback_strategy,false},
+    {"sim.rml_phase_sync_if_possible",sim_ruckig_phasesync,false},
+    {"sim.rml_only_time_sync",sim_ruckig_timesync,false},
+    {"sim.rml_only_phase_sync",sim_ruckig_timesync,false},
+    {"sim.rml_no_sync",sim_ruckig_nosync,false},
+    {"sim.rml_keep_target_vel",0,false},
+    {"sim.rml_recompute_trajectory",0,false},
+    {"sim.rml_disable_extremum_motion_states_calc",0,false},
+    {"sim.rml_keep_current_vel_if_fallback_strategy",0,false},
     {"sim.filedlg_type_load",sim_filedlg_type_load,false},
     {"sim.filedlg_type_save",sim_filedlg_type_save,false},
     {"sim.filedlg_type_load_multiple",sim_filedlg_type_load_multiple,false},
@@ -13698,10 +13698,10 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetVisionSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"Use the newer sim.getVisionSensorDepthBuffer notation",false},
     {"simCheckVisionSensor",_simCheckVisionSensor,              "Use the newer sim.checkVisionSensor notation",false},
     {"simCheckVisionSensorEx",_simCheckVisionSensorEx,          "Use the newer sim.checkVisionSensorEx notation",false},
-    {"simRMLPos",_simRMLPos,                                    "Use the newer sim.rmlPos notation",false},
-    {"simRMLVel",_simRMLVel,                                    "Use the newer sim.rmlVel notation",false},
-    {"simRMLStep",_simRMLStep,                                  "Use the newer sim.rmlStep notation",false},
-    {"simRMLRemove",_simRMLRemove,                              "Use the newer sim.rmlRemove notation",false},
+    {"simRMLPos",_simRuckigPos,                                 "Deprecated. Use sim.ruckigPos instead",false},
+    {"simRMLVel",_simRuckigVel,                                 "Deprecated. Use sim.ruckigVel instead",false},
+    {"simRMLStep",_simRuckigStep,                               "Deprecated. Use sim.ruckigStep instead",false},
+    {"simRMLRemove",_simRuckigRemove,                           "Deprecated. Use sim.ruckigRemove instead",false},
     {"simBuildMatrixQ",_simBuildMatrixQ,                        "Use the newer sim.buildMatrixQ notation",false},
     {"simGetQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "Use the newer sim.getQuaternionFromMatrix notation",false},
     {"simFileDialog",_simFileDialog,                            "Deprecated. Use simUI.fielDialog instead",false},
@@ -13867,9 +13867,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetRenderingSensorDepthBuffer",_simGetVisionSensorDepthBuffer,"Deprecated. Use sim.getVisionSensorDepthBuffer instead",false},
     {"simCheckRenderingSensor",_simCheckVisionSensor,               "Deprecated. Use sim.checkVisionSensor instead",false},
     {"simCheckRenderingSensorEx",_simCheckVisionSensorEx,           "Deprecated. Use sim.checkVisionSensorEx instead",false},
-    // Following for backward compatibility (deprecated since 23/5/2014):
-    {"simRMLPosition",_simRMLPosition,                              "Deprecated. Use sim.rmlPos instead",false},
-    {"simRMLVelocity",_simRMLVelocity,                              "Deprecated. Use sim.rmlVel instead",false},
 
     {"simCheckIkGroup",_simCheckIkGroup,                        "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
     {"simCreateIkGroup",_simCreateIkGroup,                      "Deprecated. Use the corresponding API function from the kinematics plugin instead",false},
@@ -13930,24 +13927,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simModifyPointCloud",_simModifyPointCloud,                "Deprecated. Use point cloud objects instead",false},
     {"simSetGraphUserData",_simSetGraphUserData,                "Deprecated. Use sim.setGraphStreamValue instead",false},
     {"simCopyMatrix",_simCopyMatrix,                            "Deprecated. Use sim.copyTable instead",false},
-    //{"simRMLMoveToPosition",_simRMLMoveToPosition,              "Deprecated. Use sim.moveToPose instead",false},
-    //{"simRMLMoveToJointPositions",_simRMLMoveToJointPositions,  "Deprecated. Use sim.moveToConfig instead",false},
-    //{"simWait",_simWait,                                        "Use the newer sim.wait notation",false},
-    //{"simWaitForSignal",_simWaitForSignal,                      "Use the newer sim.waitForSignal notation",false},
-    //{"simSetThreadIsFree",_simSetThreadIsFree,                  "Use the newer sim.setThreadIsFree notation",false},
-    //{"simSerialRead",_simSerialRead,                            "Use the newer sim.serialRead notation",false},
-    //{"simSerialOpen",_simSerialOpen,                            "Use the newer sim.serialOpen notation",false},
-    //{"simSerialClose",_simSerialClose,                          "Use the newer sim.serialClose notation",false},
-    //{"simSerialPortOpen",_simSerialPortOpen,                        "Deprecated. Use sim.serialOpen instead",false},
-    //{"simSerialPortClose",_simSerialPortClose,                      "Deprecated. Use sim.serialClose instead",false},
-    //{"simSerialPortSend",_simSerialPortSend,                        "Deprecated. Use sim.serialSend instead",false},
-    //{"simSerialPortRead",_simSerialPortRead,                        "Deprecated. Use sim.serialRead instead",false},
-    //{"simBoolOr16",_simBoolOr16,                                "Deprecated. Use the bitwise operator | instead",false},
-    //{"simBoolAnd16",_simBoolAnd16,                              "Deprecated. Use the bitwise operator & instead",false},
-    //{"simBoolXor16",_simBoolXor16,                              "Deprecated. Use the bitwise operator ~ instead",false},
-    //{"simBoolOr32",_simBoolOr32,                                "Deprecated. Use the bitwise operator | instead",false},
-    //{"simBoolAnd32",_simBoolAnd32,                              "Deprecated. Use the bitwise operator & instead",false},
-    //{"simBoolXor32",_simBoolXor32,                              "Deprecated. Use the bitwise operator ~ instead",false},
     {"",nullptr,"",false}
 };
 
@@ -16276,140 +16255,6 @@ int _simJointGetForce(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simRMLPosition(luaWrap_lua_State* L)
-{ // DEPRECATED since release 3.1.2
-    TRACE_LUA_API;
-    LUA_START_NO_CSIDE_ERROR("simRMLPosition");
-
-    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject* scr=App::worldContainer->getScriptFromHandle(currentScriptID);
-    if (!scr->checkAndSetWarning_simRMLPosition_oldCompatibility_30_8_2014())
-        warningString="Function is deprecated. Use simRMLPos instead.";
-
-    int retVal=-43; //error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-    {
-        int dofs=luaToInt(L,1);
-        double timeStep=luaToDouble(L,2);
-        int flags=luaToInt(L,3);
-        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,dofs*3,false,false,&errorString);
-        if (res==2)
-        {
-            double* currentPosVelAccel=new double[dofs*3];
-            getDoublesFromTable(L,4,dofs*3,currentPosVelAccel);
-            res=checkOneGeneralInputArgument(L,5,lua_arg_number,dofs*3,false,false,&errorString);
-            if (res==2)
-            {
-                double* maxVelAccelJerk=new double[dofs*3];
-                getDoublesFromTable(L,5,dofs*3,maxVelAccelJerk);
-                res=checkOneGeneralInputArgument(L,6,lua_arg_bool,dofs,false,false,&errorString);
-                if (res==2)
-                {
-                    char* selection=new char[dofs];
-                    getCharBoolsFromTable(L,6,dofs,selection);
-                    res=checkOneGeneralInputArgument(L,7,lua_arg_number,dofs*2,false,false,&errorString);
-                    if (res==2)
-                    {
-                        double* targetPosVel=new double[dofs*2];
-                        getDoublesFromTable(L,7,dofs*2,targetPosVel);
-
-                        double* newPosVelAccel=new double[dofs*3];
-                        unsigned char auxData[1+8+8];
-                        auxData[0]=1;
-                        retVal=simRMLPosition_internal(dofs,timeStep,flags,currentPosVelAccel,maxVelAccelJerk,(bool*)selection,targetPosVel,newPosVelAccel,auxData);
-                        if (retVal>=0)
-                        {
-                            luaWrap_lua_pushinteger(L,retVal);
-                            pushDoubleTableOntoStack(L,dofs*3,newPosVelAccel);
-                            luaWrap_lua_pushnumber(L,((double*)(auxData+1))[0]);
-                        }
-                        delete[] newPosVelAccel;
-                        delete[] targetPosVel;
-                    }
-                    delete[] selection;
-                }
-                delete[] maxVelAccelJerk;
-            }
-            delete[] currentPosVelAccel;
-            if (retVal>=0)
-            {
-                LUA_END(3);
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simRMLVelocity(luaWrap_lua_State* L)
-{ // DEPRECATED since release 3.1.2
-    TRACE_LUA_API;
-    LUA_START("simRMLVelocity");
-
-    int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject* scr=App::worldContainer->getScriptFromHandle(currentScriptID);
-    if (!scr->checkAndSetWarning_simRMLVelocity_oldCompatibility_30_8_2014())
-        warningString="Function is deprecated. Use simRMLVel instead.";
-
-    int retVal=-43; //error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-    {
-        int dofs=luaToInt(L,1);
-        double timeStep=luaToDouble(L,2);
-        int flags=luaToInt(L,3);
-        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,dofs*3,false,false,&errorString);
-        if (res==2)
-        {
-            double* currentPosVelAccel=new double[dofs*3];
-            getDoublesFromTable(L,4,dofs*3,currentPosVelAccel);
-            res=checkOneGeneralInputArgument(L,5,lua_arg_number,dofs*2,false,false,&errorString);
-            if (res==2)
-            {
-                double* maxAccelJerk=new double[dofs*2];
-                getDoublesFromTable(L,5,dofs*2,maxAccelJerk);
-                res=checkOneGeneralInputArgument(L,6,lua_arg_bool,dofs,false,false,&errorString);
-                if (res==2)
-                {
-                    char* selection=new char[dofs];
-                    getCharBoolsFromTable(L,6,dofs,selection);
-                    res=checkOneGeneralInputArgument(L,7,lua_arg_number,dofs,false,false,&errorString);
-                    if (res==2)
-                    {
-                        double* targetVel=new double[dofs];
-                        getDoublesFromTable(L,7,dofs,targetVel);
-
-                        double* newPosVelAccel=new double[dofs*3];
-                        unsigned char auxData[1+8+8];
-                        auxData[0]=1;
-                        retVal=simRMLVelocity_internal(dofs,timeStep,flags,currentPosVelAccel,maxAccelJerk,(bool*)selection,targetVel,newPosVelAccel,auxData);
-                        if (retVal>=0)
-                        {
-                            luaWrap_lua_pushinteger(L,retVal);
-                            pushDoubleTableOntoStack(L,dofs*3,newPosVelAccel);
-                            luaWrap_lua_pushnumber(L,((double*)(auxData+1))[0]);
-                        }
-                        delete[] newPosVelAccel;
-                        delete[] targetVel;
-                    }
-                    delete[] selection;
-                }
-                delete[] maxAccelJerk;
-            }
-            delete[] currentPosVelAccel;
-            if (retVal>=0)
-            {
-                LUA_END(3);
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
 }
 
 int _simCopyPasteSelectedObjects(luaWrap_lua_State* L)
@@ -21620,179 +21465,3 @@ int _simClearDoubleSignal(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
-
-int _simRMLPos(luaWrap_lua_State* L)
-{ // deprecated early 2022
-    TRACE_LUA_API;
-    LUA_START("sim.rMLPos");
-
-    int retVal=-43; //error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-    {
-        int dofs=luaToInt(L,1);
-        double timeStep=luaToDouble(L,2);
-        int flags=luaToInt(L,3);
-        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,dofs*3,false,false,&errorString);
-        if (res==2)
-        {
-            double* currentPosVelAccel=new double[dofs*3];
-            getDoublesFromTable(L,4,dofs*3,currentPosVelAccel);
-            res=checkOneGeneralInputArgument(L,5,lua_arg_number,dofs*3,false,false,&errorString);
-            if (res==2)
-            {
-                double* maxVelAccelJerk=new double[dofs*3];
-                getDoublesFromTable(L,5,dofs*3,maxVelAccelJerk);
-                res=checkOneGeneralInputArgument(L,6,lua_arg_bool,dofs,false,false,&errorString);
-                if (res==2)
-                {
-                    char* selection=new char[dofs];
-                    getCharBoolsFromTable(L,6,dofs,selection);
-                    res=checkOneGeneralInputArgument(L,7,lua_arg_number,dofs*2,false,false,&errorString);
-                    if (res==2)
-                    {
-                        double* targetPosVel=new double[dofs*2];
-                        getDoublesFromTable(L,7,dofs*2,targetPosVel);
-
-                        unsigned char auxData[1+4];
-                        auxData[0]=1;
-                        ((int*)(auxData+1))[0]=0;
-
-                        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
-                        if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript))
-                            ((int*)(auxData+1))[0]=1; // destroy at simulation end!
-                        retVal=simRMLPos_internal(dofs,timeStep,flags,currentPosVelAccel,maxVelAccelJerk,(bool*)selection,targetPosVel,auxData);
-                        delete[] targetPosVel;
-                    }
-                    delete[] selection;
-                }
-                delete[] maxVelAccelJerk;
-            }
-            delete[] currentPosVelAccel;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simRMLStep(luaWrap_lua_State* L)
-{ // deprecated early 2022
-    TRACE_LUA_API;
-    LUA_START_NO_CSIDE_ERROR("sim.rMLStep");
-
-    int retVal=-1; //error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-    {
-        int handle=luaToInt(L,1);
-        double timeStep=luaToDouble(L,2);
-
-        // Get the Dofs of this object:
-        int dofs=-1;
-        {
-            int auxVals[4]={0,handle,0,0};
-            int replyData[4]={-1,-1,-1,-1};
-            CPlugin* plugin=CPluginContainer::getPluginFromFunc("rml");
-            if (plugin!=nullptr)
-                plugin->sendEventCallbackMessage(sim_message_eventcallback_rmlinfo,auxVals,nullptr,replyData);
-            dofs=replyData[1];
-        }
-
-        if (dofs>0)
-        {
-            double* newPosVelAccel=new double[dofs*3];
-            unsigned char auxData[1+8+8];
-            auxData[0]=1;
-            retVal=simRMLStep_internal(handle,timeStep,newPosVelAccel,auxData,nullptr);
-            if (retVal>=0)
-            {
-                luaWrap_lua_pushinteger(L,retVal);
-                pushDoubleTableOntoStack(L,dofs*3,newPosVelAccel);
-                luaWrap_lua_pushnumber(L,((double*)(auxData+1))[0]);
-                delete[] newPosVelAccel;
-                LUA_END(3);
-            }
-            delete[] newPosVelAccel;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simRMLRemove(luaWrap_lua_State* L)
-{ // deprecated early 2022
-    TRACE_LUA_API;
-    LUA_START("sim.rMLRemove");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int handle=luaToInt(L,1);
-        retVal=simRMLRemove_internal(handle);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simRMLVel(luaWrap_lua_State* L)
-{ // deprecated early 2022
-    TRACE_LUA_API;
-    LUA_START("sim.rMLVel");
-
-    int retVal=-43; //error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-    {
-        int dofs=luaToInt(L,1);
-        double timeStep=luaToDouble(L,2);
-        int flags=luaToInt(L,3);
-        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,dofs*3,false,false,&errorString);
-        if (res==2)
-        {
-            double* currentPosVelAccel=new double[dofs*3];
-            getDoublesFromTable(L,4,dofs*3,currentPosVelAccel);
-            res=checkOneGeneralInputArgument(L,5,lua_arg_number,dofs*2,false,false,&errorString);
-            if (res==2)
-            {
-                double* maxAccelJerk=new double[dofs*2];
-                getDoublesFromTable(L,5,dofs*2,maxAccelJerk);
-                res=checkOneGeneralInputArgument(L,6,lua_arg_bool,dofs,false,false,&errorString);
-                if (res==2)
-                {
-                    char* selection=new char[dofs];
-                    getCharBoolsFromTable(L,6,dofs,selection);
-                    res=checkOneGeneralInputArgument(L,7,lua_arg_number,dofs,false,false,&errorString);
-                    if (res==2)
-                    {
-                        double* targetVel=new double[dofs];
-                        getDoublesFromTable(L,7,dofs,targetVel);
-
-                        unsigned char auxData[1+4];
-                        auxData[0]=1;
-                        ((int*)(auxData+1))[0]=0;
-
-                        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
-                        if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript))
-                            ((int*)(auxData+1))[0]=1; // destroy at simulation end!
-
-                        retVal=simRMLVel_internal(dofs,timeStep,flags,currentPosVelAccel,maxAccelJerk,(bool*)selection,targetVel,auxData);
-                        delete[] targetVel;
-                    }
-                    delete[] selection;
-                }
-                delete[] maxAccelJerk;
-            }
-            delete[] currentPosVelAccel;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-

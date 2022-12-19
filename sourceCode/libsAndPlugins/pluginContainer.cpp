@@ -774,7 +774,7 @@ bool CPluginContainer::dyn_startSimulation(int engine,int version,const double f
         {
             float fp[20];
             for (size_t j=0;j<20;j++)
-                fp[j]=floatParams[j];
+                fp[j]=(float)floatParams[j];
             if (_allPlugins[i]->dynPlugin_startSimulationNewton(engine,version,fp,intParams)!=0)
             {
                 currentEngineIsNewton=true;
@@ -938,7 +938,7 @@ bool CPluginContainer::dyn_getParticleData(const void* particle,double* pos,doub
             pos[0]=(double)p[0];
             pos[1]=(double)p[1];
             pos[2]=(double)p[2];
-            size[0]=s;
+            size[0]=(double)s;
             return(retVal);
         }
     }
