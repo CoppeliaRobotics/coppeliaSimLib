@@ -98,14 +98,20 @@ if(WIN32)
         message(FATAL_ERROR "QSCINTILLA_BUILD_DIR is not set")
     endif()
     file(TO_CMAKE_PATH ${QSCINTILLA_BUILD_DIR} QSCINTILLA_BUILD_DIR)
-    if(NOT EXISTS "${QSCINTILLA_BUILD_DIR}/release/moc_qsciscintilla.cpp")
+    message(STATUS "QSCINTILLA_BUILD_DIR: ${QSCINTILLA_BUILD_DIR}")
+    if(EXISTS "${QSCINTILLA_BUILD_DIR}/debug/moc_qsciscintilla.cpp")
+        target_sources(coppeliaSim PRIVATE
+            ${QSCINTILLA_BUILD_DIR}/debug/moc_qsciscintilla.cpp
+            ${QSCINTILLA_BUILD_DIR}/debug/moc_qsciscintillabase.cpp
+        )
+    elseif(EXISTS "${QSCINTILLA_BUILD_DIR}/release/moc_qsciscintilla.cpp")
+        target_sources(coppeliaSim PRIVATE
+            ${QSCINTILLA_BUILD_DIR}/release/moc_qsciscintilla.cpp
+            ${QSCINTILLA_BUILD_DIR}/release/moc_qsciscintillabase.cpp
+        )
+    else()
         message(FATAL_ERROR "The specified QSCINTILLA_BUILD_DIR (${QSCINTILLA_BUILD_DIR}) does not exist or it is not valid")
     endif()
-    message(STATUS "QSCINTILLA_BUILD_DIR: ${QSCINTILLA_BUILD_DIR}")
-    target_sources(coppeliaSim PRIVATE
-        ${QSCINTILLA_BUILD_DIR}/release/moc_qsciscintilla.cpp
-        ${QSCINTILLA_BUILD_DIR}/release/moc_qsciscintillabase.cpp
-    )
 endif()
 
 if(EXISTS "${QSCINTILLA_LIBRARY}")
