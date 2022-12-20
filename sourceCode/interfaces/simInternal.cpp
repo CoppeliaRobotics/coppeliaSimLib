@@ -6140,9 +6140,18 @@ char* simGetModuleName_internal(int index,unsigned char* moduleVersion)
 
 int simAddLog_internal(const char* pluginName,int verbosityLevel,const char* logMsg)
 { // keep this as simple as possible (no trace, no thread checking). For now
-    if (App::logPluginMsg(pluginName,verbosityLevel,logMsg))
-        return(1);
-    return(0);
+    int retVal=0;
+    if ( (pluginName==nullptr)||(logMsg==nullptr) )
+    {
+        App::clearStatusbar();
+        retVal=1;
+    }
+    else
+    {
+        if (App::logPluginMsg(pluginName,verbosityLevel,logMsg))
+            retVal=1;
+    }
+    return(retVal);
 }
 
 int simSetNavigationMode_internal(int navigationMode)

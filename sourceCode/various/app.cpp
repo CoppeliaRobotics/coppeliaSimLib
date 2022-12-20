@@ -23,6 +23,7 @@
     #include <QSplashScreen>
     #include <QBitmap>
     #include <QTextStream>
+    #include <QScreen>
     #ifdef WIN_SIM
         #include <QStyleFactory>
     #endif
@@ -304,27 +305,36 @@ App::App(bool headless)
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
 #endif
 
-#ifdef SIM_WITH_GUI
-    if (userSettings->highResDisplay==1)
+#ifdef SIM_WITH_QT
+    int highResDisplayDefault=userSettings->highResDisplay;
+    if (highResDisplayDefault==-1)
+    {
+        QApplication* ta=new QApplication(_qApp_argc,_qApp_argv);
+        QScreen* scr=ta->primaryScreen();
+        if (scr!=nullptr)
+        {
+            if (scr->physicalDotsPerInch()>=100)
+                highResDisplayDefault=2;
+        }
+        delete ta;
+    }
+    if (highResDisplayDefault==1)
     {
         qputenv("QT_SCALE_FACTOR","1.0");
         App::sc=2;
     }
-    if (userSettings->highResDisplay==2)
+    if (highResDisplayDefault==2)
     {
         qputenv("QT_AUTO_SCREEN_SCALE_FACTOR","1");
         App::sc=2;
     }
-    if (userSettings->highResDisplay==3)
+    if (highResDisplayDefault==3)
     {
         if (userSettings->guiScaling>1.01)
             qputenv("QT_SCALE_FACTOR",std::to_string(userSettings->guiScaling).c_str());
         if (userSettings->oglScaling!=1)
             App::sc=userSettings->oglScaling;
     }
-#endif
-
-#ifdef SIM_WITH_QT
     qtApp=new CSimQApp(_qApp_argc,_qApp_argv);
 
     QHostInfo::lookupHost("www.coppeliarobotics.com",

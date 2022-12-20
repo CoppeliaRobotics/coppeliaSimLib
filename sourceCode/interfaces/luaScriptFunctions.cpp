@@ -190,8 +190,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.saveScene",_simSaveScene,                              "sim.saveScene(string filename)\nbuffer serializedScene=sim.saveScene()",true},
     {"sim.loadModel",_simLoadModel,                              "int objectHandle=sim.loadModel(string filename)\nint objectHandle=sim.loadModel(buffer serializedModel)",true},
     {"sim.saveModel",_simSaveModel,                              "sim.saveModel(int modelBaseHandle,string filename)\nbuffer serializedModel=sim.saveModel(int modelBaseHandle)",true},
-    {"sim.getObjectSelection",_simGetObjectSelection,            "int[] selectedObjectHandles=sim.getObjectSelection()",true},
-    {"sim.setObjectSelection",_simSetObjectSelection,            "sim.setObjectSelection(float[] objectHandles)",true},
+    {"sim.getObjectSel",_simGetObjectSel,                        "int[] objectHandles=sim.getObjectSel()",true},
+    {"sim.setObjectSel",_simSetObjectSel,                        "sim.setObjectSel(int[] objectHandles)",true},
     {"sim.getIsRealTimeSimulation",_simGetRealTimeSimulation,      "int result=sim.getIsRealTimeSimulation()",true},
     {"sim.setNavigationMode",_simSetNavigationMode,              "sim.setNavigationMode(int navigationMode)",true},
     {"sim.getNavigationMode",_simGetNavigationMode,              "int navigationMode=sim.getNavigationMode()",true},
@@ -431,10 +431,12 @@ const SLuaCommands simLuaCommands[]=
     {"sim.test",_simTest,                                        "test function - do not use",true},
 
     // deprecated
-    {"sim.rmlPos",_simRuckigPos,                                    "Deprecated. Use sim.ruckigPos instead",false},
-    {"sim.rmlVel",_simRuckigVel,                                    "Deprecated. Use sim.ruckigVel instead",false},
-    {"sim.rmlStep",_simRuckigStep,                                  "Deprecated. Use sim.ruckigStep instead",false},
-    {"sim.rmlRemove",_simRuckigRemove,                              "Deprecated. Use sim.ruckigRemove instead",false},
+    {"sim.getObjectSelection",_simGetObjectSel,                 "Deprecated. Use sim.getObjectSel instead",false},
+    {"sim.setObjectSelection",_simSetObjectSel,                 "Deprecated. Use sim.setObjectSel instead",false},
+    {"sim.rmlPos",_simRuckigPos,                                "Deprecated. Use sim.ruckigPos instead",false},
+    {"sim.rmlVel",_simRuckigVel,                                "Deprecated. Use sim.ruckigVel instead",false},
+    {"sim.rmlStep",_simRuckigStep,                              "Deprecated. Use sim.ruckigStep instead",false},
+    {"sim.rmlRemove",_simRuckigRemove,                          "Deprecated. Use sim.ruckigRemove instead",false},
     {"sim.addStatusbarMessage",_simAddStatusbarMessage,         "Deprecated. Use sim.addLog instead",false},
     {"sim.getNameSuffix",_simGetNameSuffix,                     "Deprecated",false},
     {"sim.setNameSuffix",_simSetNameSuffix,                     "Deprecated",false},
@@ -5163,10 +5165,10 @@ int _simSaveModel(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simGetObjectSelection(luaWrap_lua_State* L)
+int _simGetObjectSel(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getObjectSelection");
+    LUA_START("sim.getObjectSel");
 
     int selSize;
     int* sel=simGetObjectSel_internal(&selSize);
@@ -5181,10 +5183,10 @@ int _simGetObjectSelection(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetObjectSelection(luaWrap_lua_State* L)
+int _simSetObjectSel(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setObjectSelection");
+    LUA_START("sim.setObjectSel");
 
     int argCnt=luaWrap_lua_gettop(L);
     if (argCnt>=1)
@@ -13543,10 +13545,10 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simSaveScene",_simSaveScene,                              "Use the newer sim.saveScene notation",false},
     {"simLoadModel",_simLoadModel,                              "Use the newer sim.loadModel notation",false},
     {"simSaveModel",_simSaveModel,                              "Use the newer sim.saveModel notation",false},
-    {"simIsObjectInSelection",_simIsObjectInSelection,          "Deprecated. Use sim.getObjectSelection instead",false},
-    {"simAddObjectToSelection",_simAddObjectToSelection,        "Deprecated. Use sim.setObjectSelection instead",false},
+    {"simIsObjectInSelection",_simIsObjectInSelection,          "Deprecated. Use sim.getObjectSel instead",false},
+    {"simAddObjectToSelection",_simAddObjectToSelection,        "Deprecated. Use sim.setObjectSel instead",false},
     {"simRemoveObjectFromSelection",_simRemoveObjectFromSelection,"Deprecated. Use sim.setObjectSelection instead",false},
-    {"simGetObjectSelection",_simGetObjectSelection,            "Use the newer sim.getObjectSelection notation",false},
+    {"simGetObjectSelection",_simGetObjectSel,                  "Deprecated. Use sim.getObjectSel instead",false},
     {"simGetRealTimeSimulation",_simGetRealTimeSimulation,      "Use the newer sim.getIsRealTimeSimulation notation",false},
     {"simSetNavigationMode",_simSetNavigationMode,              "Use the newer sim.setNavigationMode notation",false},
     {"simGetNavigationMode",_simGetNavigationMode,              "Use the newer sim.getNavigationMode notation",false},
@@ -13748,8 +13750,8 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simTest",_simTest,                                        "Use the newer sim.test notation",false},
     {"simAddStatusbarMessage",_simAddStatusbarMessage,          "Deprecated. Use sim.addLog instead",false},
     // Following deprecated since 21/05/2017:
-    {"simGetObjectSelectionSize",_simGetObjectSelectionSize,    "Deprecated. Use sim.getObjectSelection instead",false},
-    {"simGetObjectLastSelection",_simGetObjectLastSelection,    "Deprecated. Use sim.getObjectSelection instead",false},
+    {"simGetObjectSelectionSize",_simGetObjectSelectionSize,    "Deprecated. Use sim.getObjectSel instead",false},
+    {"simGetObjectLastSelection",_simGetObjectLastSelection,    "Deprecated. Use sim.getObjectSel instead",false},
     {"simReleaseScriptRawBuffer",_simReleaseScriptRawBuffer,    "Deprecated",false},
     // Following deprecated since V3.3.0:
     {"simGetPathPlanningHandle",_simGetPathPlanningHandle,      "Deprecated. Use the OMPL-based API instead",false},

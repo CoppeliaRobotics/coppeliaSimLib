@@ -6937,6 +6937,8 @@ void CScriptObject::_adjustScriptText16_old(CScriptObject* scriptObject,bool doI
     if (!doIt)
         return;
 
+    _replaceScriptText_old(scriptObject,"sim.getObjectSelection","sim.getObjectSel");
+    _replaceScriptText_old(scriptObject,"sim.setObjectSelection","sim.setObjectSel");
     _replaceScriptText_old(scriptObject,"simIK.getJointIkWeight","simIK.getJointWeight");
     _replaceScriptText_old(scriptObject,"simIK.setJointIkWeight","simIK.setJointWeight");
     _replaceScriptText_old(scriptObject,"simIK.getIkGroupHandle","simIK.getGroupHandle");
@@ -6973,7 +6975,10 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
-
+    if (_containsScriptText_old(scriptObject,"sim.getObjectSelection"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getObjectSelection...");
+    if (_containsScriptText_old(scriptObject,"sim.setObjectSelection"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setObjectSelection...");
     if (_containsScriptText_old(scriptObject,"simIK.getLinkedDummy"))
         App::logMsg(sim_verbosity_errors,"Contains simIK.getLinkedDummy...");
     if (_containsScriptText_old(scriptObject,"simIK.setLinkedDummy"))
