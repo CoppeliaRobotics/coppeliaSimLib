@@ -306,6 +306,7 @@ App::App(bool headless)
 #endif
 
 #ifdef SIM_WITH_QT
+#ifdef SIM_WITH_GUI
     int highResDisplayDefault=userSettings->highResDisplay;
     if (highResDisplayDefault==-1)
     {
@@ -335,6 +336,7 @@ App::App(bool headless)
         if (userSettings->oglScaling!=1)
             App::sc=userSettings->oglScaling;
     }
+#endif
     qtApp=new CSimQApp(_qApp_argc,_qApp_argv);
 
     QHostInfo::lookupHost("www.coppeliarobotics.com",
