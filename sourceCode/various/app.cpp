@@ -317,11 +317,11 @@ App::App(bool headless)
         {
             double val=scr->physicalDotsPerInch();
             App::logMsg(sim_verbosity_loadinfos,"primary screen physical dots per inch: %s",std::to_string(int(val+0.5)).c_str());
-            QDesktopWidget* dw=ta->desktop();
-            if (dw!=nullptr)
-                App::logMsg(sim_verbosity_loadinfos,"display scaling: %s",std::to_string(int((dw->logicalDpiX()/96.0)*100.0+0.5)).c_str());
-            if (val>=userSettings->phsicalDotsPerInchFor2xOpenGl)
+            App::logMsg(sim_verbosity_loadinfos,"display scaling (guessed): %s",std::to_string(int((scr->logicalDpiX()/96.0)*100.0+0.5)).c_str());
+#ifndef MAC_SIM
+            if (val>=userSettings->guessedDisplayScalingThresholdFor2xOpenGl)
                 highResDisplayDefault=2;
+#endif
         }
         delete ta;
     }
