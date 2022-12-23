@@ -171,6 +171,7 @@ public:
     int customizationScriptColor_word4[3];
 
     int highResDisplay;
+    int phsicalDotsPerInchFor2xOpenGl;
     int oglScaling;
     double guiScaling;
     bool noEdgesWhenMouseDownInCameraView;

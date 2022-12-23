@@ -314,7 +314,9 @@ App::App(bool headless)
         QScreen* scr=ta->primaryScreen();
         if (scr!=nullptr)
         {
-            if (scr->physicalDotsPerInch()>=100)
+            double val=scr->physicalDotsPerInch();
+            App::logMsg(sim_verbosity_loadinfos,"primary screen physical dots per inch: %s",std::to_string(int(val+0.5)).c_str());
+            if (val>=userSettings->phsicalDotsPerInchFor2xOpenGl)
                 highResDisplayDefault=2;
         }
         delete ta;
