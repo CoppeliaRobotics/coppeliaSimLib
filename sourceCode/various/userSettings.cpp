@@ -111,7 +111,7 @@
 #define _USR_DESIRED_OPENGL_MAJOR "desiredOpenGlMajor"
 #define _USR_DESIRED_OPENGL_MINOR "desiredOpenGlMinor"
 #define _USR_HIGH_RES_DISPLAY "highResDisplay"
-#define _USR_PHYSICAL_DOTS_PER_INCH_FOR_2X_OPENGL "phsicalDotsPerInchFor2xOpenGl"
+#define _USR_GUESSED_SCALING_FOR_2X_OPENGL "guessedDisplayScalingThresholdFor2xOpenGl"
 #define _USR_OGL_SCALING "oglScaling"
 #define _USR_GUI_SCALING "guiScaling"
 #define _USR_NO_EDGES_WHEN_MOUSE_DOWN "noEdgesWhenMouseDownInCameraView"
@@ -244,7 +244,7 @@ CUserSettings::CUserSettings()
     sceneHierarchyHiddenDuringSimulation=false;
 
     highResDisplay=-1;
-    phsicalDotsPerInchFor2xOpenGl=150;
+    guessedDisplayScalingThresholdFor2xOpenGl=150;
     oglScaling=1;
     guiScaling=1.0;
     noEdgesWhenMouseDownInCameraView=false;
@@ -578,7 +578,7 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_DEBUG_OPENGL,debugOpenGl,"");
     c.addFloat(_USR_STEREO_DIST,stereoDist,"0=no stereo, otherwise the intra occular distance (0.0635 for the human eyes).");
     c.addInteger(_USR_HIGH_RES_DISPLAY,highResDisplay,"-1=none, 1=special, 2=enabled, 3=enable oglScaling and guiScaling below.");
-    c.addInteger(_USR_PHYSICAL_DOTS_PER_INCH_FOR_2X_OPENGL,phsicalDotsPerInchFor2xOpenGl,"200=default");
+    c.addInteger(_USR_GUESSED_SCALING_FOR_2X_OPENGL,guessedDisplayScalingThresholdFor2xOpenGl,"200=default");
     c.addInteger(_USR_OGL_SCALING,oglScaling,"1=default. No effect if highResDisplay!=3 above.");
     c.addFloat(_USR_GUI_SCALING,guiScaling,"1.0=default. No effect if highResDisplay!=3 above.");
     c.addBoolean(_USR_NO_EDGES_WHEN_MOUSE_DOWN,noEdgesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
@@ -868,7 +868,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_DEBUG_OPENGL,debugOpenGl);
     c.getFloat(_USR_STEREO_DIST,stereoDist);
     c.getInteger(_USR_HIGH_RES_DISPLAY,highResDisplay);
-    c.getInteger(_USR_PHYSICAL_DOTS_PER_INCH_FOR_2X_OPENGL,phsicalDotsPerInchFor2xOpenGl);
+    c.getInteger(_USR_GUESSED_SCALING_FOR_2X_OPENGL,guessedDisplayScalingThresholdFor2xOpenGl);
     c.getInteger(_USR_OGL_SCALING,oglScaling);
     c.getFloat(_USR_GUI_SCALING,guiScaling);
     c.getBoolean(_USR_NO_EDGES_WHEN_MOUSE_DOWN,noEdgesWhenMouseDownInCameraView);
