@@ -3181,10 +3181,15 @@ SIM_DLLEXPORT void _simGetVortexParameters(const void* object,int version,float*
 }
 SIM_DLLEXPORT void _simGetNewtonParameters(const void* object,int* version,float* floatParams,int* intParams)
 {
-    double fp[5];
+    double fp[5]={0.0,0.0,9999.0,0.0,0.0};
     _simGetNewtonParameters_internal(object,version,fp,intParams);
-    for (size_t i=0;i<5;i++)
+    for (size_t i=0;i<2;i++)
         floatParams[i]=(float)fp[i];
+    if (fp[2]<9998.0)
+    {
+        for (size_t i=2;i<5;i++)
+            floatParams[i]=(float)fp[i];
+    }
 }
 SIM_DLLEXPORT void _simGetDamping(const void* geomInfo,float* linDamping,float* angDamping)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
