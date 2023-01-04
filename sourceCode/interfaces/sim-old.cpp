@@ -1119,12 +1119,12 @@ SIM_DLLEXPORT int simIntersectPointsWithPointCloud(int pointCloudHandle,int opti
 }
 SIM_DLLEXPORT const float* simGetOctreeVoxels(int octreeHandle,int* ptCnt,void* reserved)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simGetOctreeVoxels(float) was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simGetOctreeVoxels(float) was dropped: call has no effect");
     return(nullptr);
 }
 SIM_DLLEXPORT const float* simGetPointCloudPoints(int pointCloudHandle,int* ptCnt,void* reserved)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simGetPointCloudPoints(float) was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simGetPointCloudPoints(float) was dropped: call has no effect");
     return(nullptr);
 }
 SIM_DLLEXPORT int simInsertObjectIntoPointCloud(int pointCloudHandle,int objectHandle,int options,float gridSize,const unsigned char* color,void* optionalValues)
@@ -1274,7 +1274,7 @@ SIM_DLLEXPORT int simExtCallScriptFunction(int scriptHandleOrType, const char* f
 
 SIM_DLLEXPORT bool _simGetDistanceBetweenEntitiesIfSmaller(int entity1ID,int entity2ID,float* distance,float* ray,int* cacheBuffer,bool overrideMeasurableFlagIfNonCollection1,bool overrideMeasurableFlagIfNonCollection2,bool pathPlanningRoutineCalling)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetDistanceBetweenEntitiesIfSmaller(float) was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetDistanceBetweenEntitiesIfSmaller(float) was dropped: call has no effect");
     return(0);
 }
 
@@ -1747,22 +1747,22 @@ SIM_DLLEXPORT int simSetScriptSimulationParameter(int scriptHandle,const char* p
 }
 SIM_DLLEXPORT int simResetMill(int millHandle)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simResetMill was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simResetMill was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simResetMilling(int objectHandle)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simResetMilling was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simResetMilling was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simApplyMilling(int objectHandle)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simApplyMilling was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simApplyMilling was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT bool _simGetParentFollowsDynamic(const void* shape)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetParentFollowsDynamic was dropped: call has no offect");
+    // silent b/c of Newton
     return(false);
 }
 SIM_DLLEXPORT int simGetNameSuffix(const char* name)
@@ -2095,32 +2095,32 @@ SIM_DLLEXPORT int simEnableEventCallback(int eventCallbackType,const char* plugi
 }
 SIM_DLLEXPORT int simRMLPosition(int dofs,double timeStep,int flags,const double* currentPosVelAccel,const double* maxVelAccelJerk,const bool* selection,const double* targetPosVel,double* newPosVelAccel,void* auxData)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simRMLPosition was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simRMLPosition was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simRMLVelocity(int dofs,double timeStep,int flags,const double* currentPosVelAccel,const double* maxAccelJerk,const bool* selection,const double* targetVel,double* newPosVelAccel,void* auxData)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simRMLVelocity was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simRMLVelocity was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simRMLPos(int dofs,double smallestTimeStep,int flags,const double* currentPosVelAccel,const double* maxVelAccelJerk,const bool* selection,const double* targetPosVel,void* auxData)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simRMLPos was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simRMLPos was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simRMLVel(int dofs,double smallestTimeStep,int flags,const double* currentPosVelAccel,const double* maxAccelJerk,const bool* selection,const double* targetVel,void* auxData)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simRMLVel was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simRMLVel was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simRMLStep(int handle,double timeStep,double* newPosVelAccel,void* auxData,void* reserved)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simRMLStep was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simRMLStep was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simRMLRemove(int handle)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simRMLRemove was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simRMLRemove was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simGetSystemTimeInMilliseconds()
@@ -2221,11 +2221,11 @@ SIM_DLLEXPORT int simGetScriptProperty(int scriptHandle,int* scriptProperty,int*
 }
 SIM_DLLEXPORT void _simSetGeomProxyDynamicsFullRefreshFlag(void* geomData,bool flag)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function _simSetGeomProxyDynamicsFullRefreshFlag was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simSetGeomProxyDynamicsFullRefreshFlag was dropped: call has no effect");
 }
 SIM_DLLEXPORT bool _simGetGeomProxyDynamicsFullRefreshFlag(const void* geomData)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetGeomProxyDynamicsFullRefreshFlag was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetGeomProxyDynamicsFullRefreshFlag was dropped: call has no effect");
     return(0);
 }
 SIM_DLLEXPORT int simRemoveObject(int objectHandle)
@@ -2234,11 +2234,11 @@ SIM_DLLEXPORT int simRemoveObject(int objectHandle)
 }
 SIM_DLLEXPORT void _simSetShapeIsStaticAndNotRespondableButDynamicTag(const void* shape,bool tag)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function _simSetShapeIsStaticAndNotRespondableButDynamicTag was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simSetShapeIsStaticAndNotRespondableButDynamicTag was dropped: call has no effect");
 }
 SIM_DLLEXPORT bool _simGetShapeIsStaticAndNotRespondableButDynamicTag(const void* shape)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetShapeIsStaticAndNotRespondableButDynamicTag was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetShapeIsStaticAndNotRespondableButDynamicTag was dropped: call has no effect");
     return(0);
 }
 SIM_DLLEXPORT int simGetVisionSensorResolution(int visionSensorHandle,int* resolution)
@@ -2267,32 +2267,32 @@ SIM_DLLEXPORT void* simSendModuleMessage(int message,int* auxiliaryData,void* cu
 }
 SIM_DLLEXPORT bool _simIsDynamicMotorEnabled(const void* joint)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function _simIsDynamicMotorEnabled was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simIsDynamicMotorEnabled was dropped: call has no effect");
     return(0);
 }
 SIM_DLLEXPORT bool _simIsDynamicMotorPositionCtrlEnabled(const void* joint)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function _simIsDynamicMotorPositionCtrlEnabled was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simIsDynamicMotorPositionCtrlEnabled was dropped: call has no effect");
     return(0);
 }
 SIM_DLLEXPORT bool _simIsDynamicMotorTorqueModulationEnabled(const void* joint)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function _simIsDynamicMotorTorqueModulationEnabled was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simIsDynamicMotorTorqueModulationEnabled was dropped: call has no effect");
     return(0);
 }
 SIM_DLLEXPORT int _simGetContactCallbackCount()
 {
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetContactCallbackCount was dropped: call has no offect");
+    // silent b/c of Newton
     return(0);
 }
 SIM_DLLEXPORT const void* _simGetContactCallback(int index)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetContactCallback was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetContactCallback was dropped: call has no effect");
     return(nullptr);
 }
 SIM_DLLEXPORT int _simGetJointCallbackCallOrder(const void* joint)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetJointCallbackCallOrder was dropped: call has no offect");
+    // silent b/c of Newton
     return(1); // not needed anymore
 }
 SIM_DLLEXPORT int simSetDoubleSignal(const char* signalName,double signalValue)
@@ -2309,7 +2309,7 @@ SIM_DLLEXPORT int simClearDoubleSignal(const char* signalName)
 }
 SIM_DLLEXPORT int simRemoveParticleObject(int objectHandle)
 { // no effect anymore
-    App::logMsg(sim_verbosity_errors,"support for API function simRemoveParticleObject was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simRemoveParticleObject was dropped: call has no effect");
     return(-1);
 }
 
@@ -2317,17 +2317,17 @@ SIM_DLLEXPORT int simRemoveParticleObject(int objectHandle)
 
 SIM_DLLEXPORT int simAddParticleObject_D(int objectType,double size,double density,const void* params,double lifeTime,int maxItemCount,const float* color,const float* setToNULL,const float* setToNULL2,const float* setToNULL3)
 { // no effect anymore
-    App::logMsg(sim_verbosity_errors,"support for API function simAddParticleObject_D was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simAddParticleObject_D was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simAddParticleObjectItem_D(int objectHandle,const double* itemData)
 { // no effect anymore
-    App::logMsg(sim_verbosity_errors,"support for API function simAddParticleObjectItem_D was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simAddParticleObjectItem_D was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simCreateMotionPlanning_D(int jointCnt,const int* jointHandles,const int* jointRangeSubdivisions,const double* jointMetricWeights,int options,const int* intParams,const double* floatParams,const void* reserved)
 { // no effect anymore
-    App::logMsg(sim_verbosity_errors,"support for API function simCreateMotionPlanning_D was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simCreateMotionPlanning_D was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simJointGetForce_D(int jointHandle,double* forceOrTorque)
@@ -2384,7 +2384,7 @@ SIM_DLLEXPORT int simSetJointForce_D(int objectHandle,double forceOrTorque)
 }
 SIM_DLLEXPORT int simHandleMill_D(int millHandle,double* removedSurfaceAndVolume)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simHandleMill_D was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simHandleMill_D was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simSetShapeMassAndInertia_D(int shapeHandle,double mass,const double* inertiaMatrix,const double* centerOfMass,const double* transformation)
@@ -2661,7 +2661,7 @@ SIM_DLLEXPORT void _simGetDynamicForceSensorLocalTransformationPart2_D(const voi
 }
 SIM_DLLEXPORT void _simGetMotorPid_D(const void* joint,double* pParam,double* iParam,double* dParam)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetMotorPid_D was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetMotorPid_D was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simGetPrincipalMomentOfInertia_D(const void* geomInfo,double* inertia)
 {
@@ -2674,17 +2674,17 @@ SIM_DLLEXPORT void _simGetLocalInertiaFrame_D(const void* geomInfo,double* pos,d
 //************************
 SIM_DLLEXPORT int simAddParticleObject(int objectType,float size,float density,const void* params,float lifeTime,int maxItemCount,const float* color,const float* setToNULL,const float* setToNULL2,const float* setToNULL3)
 { // no effect anymore
-    App::logMsg(sim_verbosity_errors,"support for API function simAddParticleObject was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simAddParticleObject was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simAddParticleObjectItem(int objectHandle,const float* itemData)
 { // no effect anymore
-    App::logMsg(sim_verbosity_errors,"support for API function simAddParticleObjectItem was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simAddParticleObjectItem was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simCreateMotionPlanning(int jointCnt,const int* jointHandles,const int* jointRangeSubdivisions,const float* jointMetricWeights,int options,const int* intParams,const float* floatParams,const void* reserved)
 { // no effect anymore
-    App::logMsg(sim_verbosity_errors,"support for API function simCreateMotionPlanning was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simCreateMotionPlanning was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simJointGetForce(int jointHandle,float* forceOrTorque)
@@ -2696,67 +2696,67 @@ SIM_DLLEXPORT int simJointGetForce(int jointHandle,float* forceOrTorque)
 }
 SIM_DLLEXPORT int simGetMpConfigForTipPose(int motionPlanningObjectHandle,int options,float closeNodesDistance,int trialCount,const float* tipPose,int maxTimeInMs,float* outputJointPositions,const float* referenceConfigs,int referenceConfigCount,const float* jointWeights,const int* jointBehaviour,int correctionPasses)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simGetMpConfigForTipPose was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simGetMpConfigForTipPose was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT float* simFindMpPath(int motionPlanningObjectHandle,const float* startConfig,const float* goalConfig,int options,float stepSize,int* outputConfigsCnt,int maxTimeInMs,float* reserved,const int* auxIntParams,const float* auxFloatParams)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simFindMpPath was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simFindMpPath was dropped: call has no effect");
     return(nullptr);
 }
 SIM_DLLEXPORT float* simSimplifyMpPath(int motionPlanningObjectHandle,const float* pathBuffer,int configCnt,int options,float stepSize,int increment,int* outputConfigsCnt,int maxTimeInMs,float* reserved,const int* auxIntParams,const float* auxFloatParams)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simSimplifyMpPath was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simSimplifyMpPath was dropped: call has no effect");
     return(nullptr);
 }
 SIM_DLLEXPORT float* simFindIkPath(int motionPlanningObjectHandle,const float* startConfig,const float* goalPose,int options,float stepSize,int* outputConfigsCnt,float* reserved,const int* auxIntParams,const float* auxFloatParams)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simFindIkPath was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simFindIkPath was dropped: call has no effect");
     return(nullptr);
 }
 SIM_DLLEXPORT float* simGetMpConfigTransition(int motionPlanningObjectHandle,const float* startConfig,const float* goalConfig,int options,const int* select,float calcStepSize,float maxOutStepSize,int wayPointCnt,const float* wayPoints,int* outputConfigsCnt,const int* auxIntParams,const float* auxFloatParams)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simGetMpConfigTransition was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simGetMpConfigTransition was dropped: call has no effect");
     return(nullptr);
 }
 SIM_DLLEXPORT int simSearchPath(int pathPlanningObjectHandle,float maximumSearchTime)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simSearchPath was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simSearchPath was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simInitializePathSearch(int pathPlanningObjectHandle,float maximumSearchTime,float searchTimeStep)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simInitializePathSearch was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simInitializePathSearch was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simHandlePath(int pathHandle,float deltaTime)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simHandlePath was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simHandlePath was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simHandleJoint(int jointHandle,float deltaTime)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simHandleJoint was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simHandleJoint was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simSetUIButtonColor(int uiHandle,int buttonHandle,const float* upStateColor,const float* downStateColor,const float* labelColor)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simSetUIButtonColor was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simSetUIButtonColor was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simSetUIButtonArrayColor(int uiHandle,int buttonHandle,const int* position,const float* color)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simSetUIButtonArrayColor was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simSetUIButtonArrayColor was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simRegisterContactCallback(int(*callBack)(int,int,int,int*,float*))
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simRegisterContactCallback was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simRegisterContactCallback was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simRegisterJointCtrlCallback(int(*callBack)(int,int,int,const int*,const float*,float*))
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simRegisterJointCtrlCallback was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simRegisterJointCtrlCallback was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simSetJointForce(int objectHandle,float forceOrTorque)
@@ -2765,7 +2765,7 @@ SIM_DLLEXPORT int simSetJointForce(int objectHandle,float forceOrTorque)
 }
 SIM_DLLEXPORT int simHandleMill(int millHandle,float* removedSurfaceAndVolume)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simHandleMill was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simHandleMill was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simSetShapeMassAndInertia(int shapeHandle,float mass,const float* inertiaMatrix,const float* centerOfMass,const float* transformation)
@@ -2811,37 +2811,37 @@ SIM_DLLEXPORT int simGetShapeMassAndInertia(int shapeHandle,float* mass,float* i
 }
 SIM_DLLEXPORT int simCheckIkGroup(int ikGroupHandle,int jointCnt,const int* jointHandles,float* jointValues,const int* jointOptions)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simCheckIkGroup was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simCheckIkGroup was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simCreateIkGroup(int options,const int* intParams,const float* floatParams,const void* reserved)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simCreateIkGroup was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simCreateIkGroup was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simCreateIkElement(int ikGroupHandle,int options,const int* intParams,const float* floatParams,const void* reserved)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simCreateIkElement was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simCreateIkElement was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simGetConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,float thresholdDist,int maxTimeInMs,float* retConfig,const float* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const float* lowLimits,const float* ranges,void* reserved)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simGetConfigForTipPose was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simGetConfigForTipPose was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT float* simGenerateIkPath(int ikGroupHandle,int jointCnt,const int* jointHandles,int ptCnt,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,void* reserved)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simGenerateIkPath was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simGenerateIkPath was dropped: call has no effect");
     return(nullptr);
 }
 SIM_DLLEXPORT float* simGetIkGroupMatrix(int ikGroupHandle,int options,int* matrixSize)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simGetIkGroupMatrix was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simGetIkGroupMatrix was dropped: call has no effect");
     return(nullptr);
 }
 SIM_DLLEXPORT int simSetIkGroupProperties(int ikGroupHandle,int resolutionMethod,int maxIterations,float damping,void* reserved)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simSetIkGroupProperties was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simSetIkGroupProperties was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simGetPositionOnPath(int pathHandle,float relativeDistance,float* position)
@@ -2910,17 +2910,17 @@ SIM_DLLEXPORT int simCreatePath(int attributes,const int* intParams,const float*
 }
 SIM_DLLEXPORT int simSetIkElementProperties(int ikGroupHandle,int tipDummyHandle,int constraints,const float* precision,const float* weight,void* reserved)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simSetIkElementProperties was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simSetIkElementProperties was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simSetVisionSensorFilter(int visionSensorHandle,int filterIndex,int options,const int* pSizes,const unsigned char* bytes,const int* ints,const float* floats,const unsigned char* custom)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simSetVisionSensorFilter was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simSetVisionSensorFilter was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simGetVisionSensorFilter(int visionSensorHandle,int filterIndex,int* options,int* pSizes,unsigned char** bytes,int** ints,float** floats,unsigned char** custom)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simGetVisionSensorFilter(float) was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simGetVisionSensorFilter(float) was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simSetPathTargetNominalVelocity(int objectHandle,float targetNominalVelocity)
@@ -2953,27 +2953,27 @@ SIM_DLLEXPORT int simAddBanner(const char* label,float size,int options,const fl
 }
 SIM_DLLEXPORT int simAddGhost(int ghostGroup,int objectHandle,int options,float startTime,float endTime,const float* color)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simAddGhost was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simAddGhost was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simModifyGhost(int ghostGroup,int ghostId,int operation,float floatValue,int options,int optionsMask,const float* colorOrTransformation)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simModifyGhost was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simModifyGhost was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simSetGraphUserData(int graphHandle,const char* streamName,float data)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simSetGraphUserData was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simSetGraphUserData was dropped: call has no effect");
     return(simSetGraphUserData_internal(graphHandle,streamName,(double)data));
 }
 SIM_DLLEXPORT int simAddPointCloud(int pageMask,int layerMask,int objectHandle,int options,float pointSize,int ptCnt,const float* pointCoordinates,const char* defaultColors,const char* pointColors,const float* pointNormals)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simAddPointCloud was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simAddPointCloud was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simModifyPointCloud(int pointCloudHandle,int operation,const int* intParam,const float* floatParam)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simModifyPointCloud was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simModifyPointCloud was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simCopyMatrix(const float* matrixIn,float* matrixOut)
@@ -3143,41 +3143,41 @@ SIM_DLLEXPORT int simGetQuaternionFromMatrix(const float* matrix,float* quaterni
 }
 SIM_DLLEXPORT int simGetShapeVertex(int shapeHandle,int groupElementIndex,int vertexIndex,float* relativePosition)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simGetShapeVertex was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simGetShapeVertex was dropped: call has no effect");
     return(-1);
 }
 SIM_DLLEXPORT int simGetShapeTriangle(int shapeHandle,int groupElementIndex,int triangleIndex,int* vertexIndices,float* triangleNormals)
 {
-    App::logMsg(sim_verbosity_errors,"support for API function simGetShapeTriangle was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function simGetShapeTriangle was dropped: call has no effect");
     return(-1);
 }
 
 
 SIM_DLLEXPORT void _simGetJointOdeParameters(const void* joint,float* stopERP,float* stopCFM,float* bounce,float* fudge,float* normalCFM)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetJointOdeParameters was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetJointOdeParameters was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simGetJointBulletParameters(const void* joint,float* stopERP,float* stopCFM,float* normalCFM)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetJointBulletParameters was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetJointBulletParameters was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simGetOdeMaxContactFrictionCFMandERP(const void* geomInfo,int* maxContacts,float* friction,float* cfm,float* erp)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetOdeMaxContactFrictionCFMandERP was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetOdeMaxContactFrictionCFMandERP was dropped: call has no effect");
 }
 SIM_DLLEXPORT bool _simGetBulletCollisionMargin(const void* geomInfo,float* margin,int* otherProp)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetBulletCollisionMargin was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetBulletCollisionMargin was dropped: call has no effect");
     return(0);
 }
 SIM_DLLEXPORT float _simGetBulletRestitution(const void* geomInfo)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetBulletRestitution was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetBulletRestitution was dropped: call has no effect");
     return(0.0);
 }
 SIM_DLLEXPORT void _simGetVortexParameters(const void* object,int version,float* floatParams,int* intParams)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetVortexParameters was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetVortexParameters was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simGetNewtonParameters(const void* object,int* version,float* floatParams,int* intParams)
 {
@@ -3188,34 +3188,47 @@ SIM_DLLEXPORT void _simGetNewtonParameters(const void* object,int* version,float
 }
 SIM_DLLEXPORT void _simGetDamping(const void* geomInfo,float* linDamping,float* angDamping)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetDamping was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetFriction was dropped: call has no effect");
 }
 SIM_DLLEXPORT float _simGetFriction(const void* geomInfo)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetFriction was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetFriction was dropped: call has no effect");
     return(0.0);
 }
 SIM_DLLEXPORT void _simSetDynamicJointLocalTransformationPart2(void* joint,const float* pos,const float* quat)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simSetDynamicJointLocalTransformationPart2 was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simSetDynamicJointLocalTransformationPart2 was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simSetDynamicForceSensorLocalTransformationPart2(void* forceSensor,const float* pos,const float* quat)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simSetDynamicForceSensorLocalTransformationPart2 was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simSetDynamicForceSensorLocalTransformationPart2 was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simGetDynamicForceSensorLocalTransformationPart2(const void* forceSensor,float* pos,float* quat)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetDynamicForceSensorLocalTransformationPart2 was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetDynamicForceSensorLocalTransformationPart2 was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simGetMotorPid(const void* joint,float* pParam,float* iParam,float* dParam)
 { // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetMotorPid was dropped: call has no offect");
+    App::logMsg(sim_verbosity_errors,"support for API function _simGetMotorPid was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simGetPrincipalMomentOfInertia(const void* geomInfo,float* inertia)
-{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetPrincipalMomentOfInertia was dropped: call has no offect");
+{
+    double inert[3];
+    _simGetPrincipalMomentOfInertia_internal(geomInfo,inert);
+    inertia[0]=(float)inert[0];
+    inertia[1]=(float)inert[1];
+    inertia[2]=(float)inert[2];
 }
 SIM_DLLEXPORT void _simGetLocalInertiaFrame(const void* geomInfo,float* pos,float* quat)
-{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics plugins relied on those, and they will be rebuilt
-    App::logMsg(sim_verbosity_errors,"support for API function _simGetLocalInertiaFrame was dropped: call has no offect");
+{
+    double p[3];
+    double q[4];
+    _simGetLocalInertiaFrame_internal(geomInfo,p,q);
+    pos[0]=(float)p[0];
+    pos[1]=(float)p[1];
+    pos[2]=(float)p[2];
+    quat[0]=(float)q[0];
+    quat[1]=(float)q[1];
+    quat[2]=(float)q[2];
+    quat[3]=(float)q[3];
 }
