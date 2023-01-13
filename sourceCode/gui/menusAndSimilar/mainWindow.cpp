@@ -1056,12 +1056,13 @@ void CMainWindow::_createDefaultToolBars()
             _engineSelectCombo->setMaximumHeight(24);
         #endif
 
-        _engineSelectCombo->addItem(tr(IDS_BULLET_2_78));
-        _engineSelectCombo->addItem(tr(IDS_BULLET_2_83));
-        _engineSelectCombo->addItem(tr(IDS_ODE));
-        _engineSelectCombo->addItem(tr(IDS_VORTEX));
-        _engineSelectCombo->addItem(tr(IDS_NEWTON));
-        _engineSelectCombo->addItem(tr(IDS_MUJOCO));
+        _engineSelectCombo->addItem(IDS_BULLET_2_78);
+        _engineSelectCombo->addItem(IDS_BULLET_2_83);
+        _engineSelectCombo->addItem(IDS_ODE);
+        _engineSelectCombo->addItem(IDS_VORTEX);
+        _engineSelectCombo->addItem(IDS_NEWTON);
+        _engineSelectCombo->addItem(IDS_MUJOCO);
+        _engineSelectCombo->addItem(IDS_PHYSX);
         _engineSelectCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DYNAMICS_ENGINE);
         _toolbar1->addWidget(_engineSelectCombo);
         connect(_engineSelectCombo,SIGNAL(activated(int)),this,SLOT(_engineSelectedViaToolbar(int)));
@@ -1645,6 +1646,10 @@ void CMainWindow::_actualizetoolbarButtonState()
             _engineSelectCombo->setCurrentIndex(4);
         if (eng==sim_physics_mujoco)
             _engineSelectCombo->setCurrentIndex(5);
+#ifdef HAS_PHYSX
+        if (eng==sim_physics_physx)
+            _engineSelectCombo->setCurrentIndex(6);
+#endif
 
         _toolbarActionStart->setChecked(App::currentWorld->simulation->isSimulationRunning());
         _toolbarActionPause->setChecked(App::currentWorld->simulation->isSimulationPaused());
@@ -1772,6 +1777,8 @@ void CMainWindow::_engineSelectedViaToolbar(int index)
         App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD);
     if (index==5)
         App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD);
+    if (index==6)
+        App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_PHYSX_ENGINE_SCCMD);
 }
 
 void CMainWindow::_simPopupMessageHandler(int id)

@@ -75,6 +75,9 @@ void CQDlgSimulation::refresh()
     ui->qqEngineCombo->addItem(IDS_VORTEX,3);
     ui->qqEngineCombo->addItem(IDS_NEWTON,4);
     ui->qqEngineCombo->addItem(IDS_MUJOCO,5);
+#ifdef HAS_PHYSX
+    ui->qqEngineCombo->addItem(IDS_PHYSX,6);
+#endif
     int ver;
     int eng=App::currentWorld->dynamicsContainer->getDynamicEngineType(&ver);
     if ( (eng==sim_physics_bullet)&&(ver==0) )
@@ -89,6 +92,8 @@ void CQDlgSimulation::refresh()
         ui->qqEngineCombo->setCurrentIndex(4);
     if (eng==sim_physics_mujoco)
         ui->qqEngineCombo->setCurrentIndex(5);
+    if (eng==sim_physics_physx)
+        ui->qqEngineCombo->setCurrentIndex(6);
     ui->qqDynamicsDtLabel->setText((std::string("Dynamics dt (effective dt=")+tt::getDString(false,double(App::currentWorld->dynamicsContainer->getEffectiveStepSize())*1000.0,1)+"ms)").c_str());
     ui->qqDynTimeStep->setText(tt::getDString(false,double(App::currentWorld->dynamicsContainer->getDesiredStepSize()),4).c_str());
     ui->qqContactPoints->setChecked(App::currentWorld->dynamicsContainer->getDisplayContactPoints());
@@ -281,6 +286,8 @@ void CQDlgSimulation::on_qqEngineCombo_currentIndexChanged(int index)
                 eng=sim_physics_newton;
             if (index==5)
                 eng=sim_physics_mujoco;
+            if (index==6)
+                eng=sim_physics_physx;
 
             App::appendSimulationThreadCommand(SET_ENGINE_DYNAMICSGUITRIGGEREDCMD,eng,ver);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

@@ -3,6 +3,7 @@ TEMPLATE = lib
 DEFINES += SIM_LIB
 DEFINES += SIM_MATH_DOUBLE # math and vector classes
 DEFINES += TMPOPERATION # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats). Same for CMakeLists.txt
+#DEFINES += HAS_PHYSX
 
 CONFIG += shared plugin debug_and_release
 CONFIG += WITH_QT # can be compiled without Qt, but then it should be headless, and some functionality won't be there, check TODO_SIM_WITH_QT

@@ -834,12 +834,13 @@
 #define IDS_SHAPE_IS_PURE_PRIMITIVE_INFO_MESSAGE "The shape you are about to edit is a pure primitive shape. Modifying this shape will transform it into a regular shape that won't perform as fast/stable anymore during dynamics calculations. Do you want to proceed?"
 #define IDS_MERGING_SOME_PURE_SHAPES_PROCEED_INFO_MESSAGE "You are about to merge pure (and non-pure) shapes. Doing so will result in a non-pure shape. Do you want to proceed anyway? "
 
-#define IDS_BULLET_2_78              "Bullet 2.78"
-#define IDS_BULLET_2_83              "Bullet 2.83"
+#define IDS_BULLET_2_78         "Bullet 2.78"
+#define IDS_BULLET_2_83         "Bullet 2.83"
 #define IDS_ODE                 "ODE"
 #define IDS_VORTEX              "Vortex"
 #define IDS_NEWTON              "Newton"
 #define IDS_MUJOCO              "MuJoCo"
+#define IDS_PHYSX               "PhysX"
 
 #define IDS_TOOLBAR_TOOLTIP_CAMERA_SHIFT "Camera pan"
 #define IDS_TOOLBAR_TOOLTIP_CAMERA_FIT_TO_SCREEN "Fit to view"
@@ -937,6 +938,7 @@
 #define IDS_SWITCH_TO_VORTEX_ENGINE_MENU_ITEM "Using the Vortex physics engine"
 #define IDS_SWITCH_TO_NEWTON_ENGINE_MENU_ITEM "Using the Newton physics engine"
 #define IDS_SWITCH_TO_MUJOCO_ENGINE_MENU_ITEM "Using the MuJoCo physics engine"
+#define IDS_SWITCH_TO_PHYSX_ENGINE_MENU_ITEM "Using the PhysX physics engine"
 
 #define IDS_WANNA_SAVE_THE_SCENE_WARNING "Do you wish to save the changes?"
 #define IDS_USING_EXISTING_TEXTURE_COORDINATES "Texture coordinates from a previous import operation were found and will be used"

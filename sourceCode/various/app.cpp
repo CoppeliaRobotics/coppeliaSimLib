@@ -338,6 +338,11 @@ App::App(bool headless)
     {
         qputenv("QT_AUTO_SCREEN_SCALE_FACTOR","1");
         App::sc=2;
+#ifdef WIN_SIM
+        // To address a bug with qscintilla on hdpi display:
+        if (userSettings->scriptEditorFont=="")
+            userSettings->scriptEditorFont="Consolas";
+#endif
     }
     if (highResDisplayDefault==3)
     {
