@@ -1182,6 +1182,20 @@ int simGetObject_internal(const char* objectAlias,int index,int proxy,int option
         std::string nm(objectAlias);
         if ( (nm.size()>0)&&((nm[0]=='.')||(nm[0]==':')||(nm[0]=='/')) )
         {
+            if (nm[nm.size()-1]=='}')
+            {
+                size_t p=nm.find("{");
+                if (p!=std::string::npos)
+                {
+                    std::string nb(nm.begin()+p+1,nm.end()-1);
+                    int iv;
+                    if (tt::getValidInt(nb.c_str(),iv))
+                    {
+                        nm.erase(nm.begin()+p,nm.end());
+                        index=iv;
+                    }
+                }
+            }
             int objHandle=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
             CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
             CSceneObject* prox=App::currentWorld->sceneObjects->getObjectFromHandle(proxy);
