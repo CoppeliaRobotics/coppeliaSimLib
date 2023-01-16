@@ -212,54 +212,40 @@ bool CMeshRoutines::getConvexHull(const std::vector<double>* verticesIn,std::vec
 
 bool CMeshRoutines::getConvexHull(const double* verticesIn,int verticesInLength,std::vector<double>* verticesOut,std::vector<int>* indicesOut)
 {
-    for (size_t n=0;n<3;n++)
+    void* data[10];
+    data[0]=(double*)verticesIn;
+    data[1]=&verticesInLength;
+    bool generateIndices=true;
+    if (indicesOut==nullptr)
+        generateIndices=false;
+    data[2]=&generateIndices;
+    bool success=false;
+    data[3]=&success;
+    double* outVert=nullptr;
+    data[4]=&outVert;
+    int outVertLength;
+    data[5]=&outVertLength;
+    int* outInd=nullptr;
+    data[6]=&outInd;
+    int outIndLength;
+    data[7]=&outIndLength;
+    verticesOut->clear();
+    if (indicesOut!=nullptr)
+        indicesOut->clear();
+    if (CPluginContainer::qhull(data))
     {
-        C4Vector q,qInv;
-        q.setIdentity();
-        qInv.setIdentity();
-        for (int iteration=0;iteration<100;iteration++)
-        { // the qHull algo sometimes fails somehow (generates hulls with holes)
-            void* data[10];
-            data[0]=(double*)verticesIn;
-            data[1]=&verticesInLength;
-            bool generateIndices=true;
-            if (indicesOut==nullptr)
-                generateIndices=false;
-            data[2]=&generateIndices;
-            bool success=false;
-            data[3]=&success;
-            double* outVert=nullptr;
-            data[4]=&outVert;
-            int outVertLength;
-            data[5]=&outVertLength;
-            int* outInd=nullptr;
-            data[6]=&outInd;
-            int outIndLength;
-            data[7]=&outIndLength;
-            verticesOut->clear();
+        if (success)
+        {
+            for (int i=0;i<outVertLength;i++)
+                verticesOut->push_back(outVert[i]);
+            delete[] outVert;
             if (indicesOut!=nullptr)
-                indicesOut->clear();
-            if (CPluginContainer::qhull(data))
             {
-                if (success)
-                {
-                    for (int i=0;i<outVertLength;i++)
-                        verticesOut->push_back(outVert[i]);
-                    delete[] outVert;
-                    if (indicesOut!=nullptr)
-                    {
-                        for (int i=0;i<outIndLength;i++)
-                            indicesOut->push_back(outInd[i]);
-                        delete[] outInd;
-                    }
-                }
+                for (int i=0;i<outIndLength;i++)
+                    indicesOut->push_back(outInd[i]);
+                delete[] outInd;
             }
-            else
-                App::logMsg(sim_verbosity_errors,"Qhull failed. Is the Qhull plugin loaded?");
-            if (indicesOut==nullptr)
-                break;
-            if (verticesOut->size()<9)
-                break; // error
+
             C3Vector minV,maxV;
             for (size_t i=0;i<verticesOut->size()/3;i++)
             {
@@ -278,70 +264,15 @@ bool CMeshRoutines::getConvexHull(const double* verticesIn,int verticesInLength,
 
             C3Vector dim(maxV-minV);
 
-            if (!_removeColinearTrianglePoints(verticesOut,indicesOut,(dim(0)+dim(1)+dim(2))*0.002/3.0))
-            { // The QHull algo often generates very thin triangles, that actually look like a line.
-                // This is problematic in many aspects. So if this is the case, the incriminating vertices
-                // are removed and a new QHull calculation takes place
-
-                // We merge close vertices, in order to have less problems with tolerances (1% of the dimension of the hull):
-                CMeshManip::checkVerticesIndicesNormalsTexCoords(*verticesOut,*indicesOut,nullptr,nullptr,true,(dim(0)+dim(1)+dim(2))*0.001/3.0,false);
-
-                if (checkIfConvex(*verticesOut,*indicesOut,0.001)) // 0.1%
-                    break; // ok, the hull is watertight and "very" convex
-            }
-
-            if (verticesOut->size()<9)
-                break; // error
-
-            // The hull is NOT watertight (or tolerances were not as expected)!
-            // We check the output vertices, rotate them by a random amount, and try again (rotation will be reversed before leaving the routine)
-            for (size_t i=0;i<verticesOut->size()/3;i++)
-            {
-                C3Vector v(&verticesOut->at(3*i));
-                v=qInv*v;
-                verticesOut->at(3*i+0)=v(0);
-                verticesOut->at(3*i+1)=v(1);
-                verticesOut->at(3*i+2)=v(2);
-            }
-            q.buildRandomOrientation();
-            qInv=q.getInverse();
-            for (size_t i=0;i<verticesOut->size()/3;i++)
-            {
-                C3Vector v(&verticesOut->at(3*i));
-                v=q*v;
-                verticesOut->at(3*i+0)=v(0);
-                verticesOut->at(3*i+1)=v(1);
-                verticesOut->at(3*i+2)=v(2);
-            }
-            verticesIn=&verticesOut->at(0);
-            verticesInLength=(int)verticesOut->size();
-            // now rerun the algo with the output of previous run
-        }
-        if (verticesOut->size()==0)
-            break;
-        for (size_t i=0;i<verticesOut->size()/3;i++)
-        {
-            C3Vector v(&verticesOut->at(3*i));
-            v=qInv*v;
-            verticesOut->at(3*i+0)=v(0);
-            verticesOut->at(3*i+1)=v(1);
-            verticesOut->at(3*i+2)=v(2);
-        }
-        if ( (verticesOut->size()>=12)&&(3*(verticesOut->size()/3)==verticesOut->size())&&(indicesOut->size()>=12)&&(3*(indicesOut->size()/3)==indicesOut->size()) )
-        { // data can be "funny" in rare situations, and in apparently doesn't depend on the input
-            bool goodIndices=true;
-            for (size_t i=0;i<indicesOut->size();i++)
-            {
-                if (indicesOut->at(i)>=verticesOut->size()/3)
-                {
-                    goodIndices=false;
-                    break;
-                }
-            }
-            if (goodIndices)
+            // We merge close vertices, in order to have less problems with tolerances (1% of the dimension of the hull):
+            CMeshManip::checkVerticesIndicesNormalsTexCoords(*verticesOut,*indicesOut,nullptr,nullptr,true,(dim(0)+dim(1)+dim(2))*0.001/3.0,false);
+            if ( (verticesOut->size()>=12)&&checkIfConvex(*verticesOut,*indicesOut,0.001) ) // 0.1%
                 return(true);
         }
     }
+    else
+        App::logMsg(sim_verbosity_errors,"Qhull failed. Is the Qhull plugin loaded?");
+
     return(false);
 }
 
@@ -1291,57 +1222,4 @@ void CMeshRoutines::createAnnulus(std::vector<double>& vertices,std::vector<int>
         tt::addToIntArray(&indices,2*sides-1,sides-1,0);
         tt::addToIntArray(&indices,sides,2*sides-1,0);
     }
-}
-
-bool CMeshRoutines::_removeColinearTrianglePoints(std::vector<double>* vertices,std::vector<int>* indices,double toleranceDist)
-{
-    double onLineSquareTolerance=toleranceDist*0.1*toleranceDist*0.1;
-    std::vector<double> vert(vertices->begin(),vertices->end());
-    std::vector<bool> okVertices(vert.size()/3,true);
-    bool retVal=false;
-    for (int i=0;i<int(indices->size())/3;i++)
-    {
-        for (int j=0;j<3;j++)
-        {
-            int k=j+1;
-            if (k>2)
-                k-=3;
-            int l=j+2;
-            if (l>2)
-                l-=3;
-            C3Vector pt1(&vert[3*indices->at(3*i+j)+0]);
-            C3Vector pt2(&vert[3*indices->at(3*i+k)+0]);
-            C3Vector pt3(&vert[3*indices->at(3*i+l)+0]);
-
-            C3Vector dir((pt2-pt1).getNormalized());
-            // Now we check if pt3 is on the line formed by pt1-pt2 (not segment but line!)
-            C3Vector x(pt3-pt1);
-            C3Vector y(pt3-pt2);
-            double r1=x*dir;
-            double r2=y*dir;
-            if ((r1>=0.0)&&(r2<=0.0))
-            {
-                double dd=(x*x)-(r1*r1);
-                if (dd<onLineSquareTolerance)
-                    okVertices[indices->at(3*i+l)]=false; // we disable this vertex
-                retVal=true;
-                break;
-            }
-        }
-    }
-    if (retVal)
-    {
-        vertices->clear();
-        for (size_t i=0;i<okVertices.size();i++)
-        {
-            if (okVertices[i])
-            {
-                vertices->push_back(vert[3*i+0]);
-                vertices->push_back(vert[3*i+1]);
-                vertices->push_back(vert[3*i+2]);
-            }
-        }
-    }
-
-    return(retVal);
 }

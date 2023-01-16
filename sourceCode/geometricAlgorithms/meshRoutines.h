@@ -95,5 +95,4 @@ public:
 private:
     static void _insertEdge(std::vector<std::vector<int>* >& allEdges,int vertexIndex1,int vertexIndex2,int triangleIndex); // used for convex check
     static int _getTriangleIndexFromEdge(std::vector<std::vector<int>* >& allEdges,int vertexIndex1,int vertexIndex2,int triangleIndexToExclude); // used for convex check
-    static bool _removeColinearTrianglePoints(std::vector<double>* vertices,std::vector<int>* indices,double toleranceDist);
 };
