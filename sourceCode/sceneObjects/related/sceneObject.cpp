@@ -331,7 +331,7 @@ std::string CSceneObject::getObjectAlias_shortPath() const
             {
                 if (it->getParent()==nullptr)
                 {
-                    if ( it->getModelBase()||doNotSkip||(App::currentWorld->sceneObjects->getObjectFromPath(nullptr,retVal.c_str(),0,nullptr)!=this) )
+                    if ( it->getModelBase()||doNotSkip||(App::currentWorld->sceneObjects->getObjectFromPath(nullptr,retVal.c_str(),0)!=this) )
                     {
                         previousAlias=itAlias;
                         retVal="/"+previousAlias+retVal;
@@ -351,7 +351,7 @@ std::string CSceneObject::getObjectAlias_shortPath() const
                 {
                     std::string tmp(".");
                     tmp+=retVal;
-                    if ( it->getModelBase()||doNotSkip||(App::currentWorld->sceneObjects->getObjectFromPath(nullptr,tmp.c_str(),0,it->getParent())!=this) )
+                    if ( it->getModelBase()||doNotSkip||(App::currentWorld->sceneObjects->getObjectFromPath(it->getParent(),tmp.c_str(),0)!=this) )
                     {
                         previousAlias=itAlias;
                         retVal="/"+previousAlias+retVal;
@@ -419,6 +419,40 @@ std::string CSceneObject::getObjectAliasAndHandle() const
     std::string retVal(_objectAlias);
     retVal+="-";
     retVal+=std::to_string(_objectHandle);
+    return(retVal);
+}
+
+std::string CSceneObject::getObjectPathAndIndex(size_t modelCnt) const
+{
+    std::vector<const CSceneObject*> objects;
+    objects.push_back(this);
+    CSceneObject* p=this->getParent();
+    for (size_t i=0;i<modelCnt;i++)
+    {
+        while ( (p!=nullptr)&&(!p->getModelBase()) )
+            p=p->getParent();
+        if (p!=nullptr)
+        {
+            objects.push_back(p);
+            p=p->getParent();
+        }
+        else
+            break;
+    }
+    std::string retVal;
+    for (int i=int(objects.size())-1;i>=0;i--)
+    {
+        const CSceneObject* it=objects[i];
+        retVal+="/"+it->getObjectAlias();
+        int index=0;
+        while (true)
+        {
+            if (it==App::currentWorld->sceneObjects->getObjectFromPath(nullptr,retVal.c_str(),index))
+                break;
+            index++;
+        }
+        retVal+="{"+std::to_string(index)+"}";
+    }
     return(retVal);
 }
 

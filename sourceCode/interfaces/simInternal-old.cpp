@@ -1783,7 +1783,7 @@ int simCallScriptFunction_internal(int scriptHandleOrType,const char* functionNa
             if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded_old))||(scriptHandleOrType==sim_scripttype_customizationscript) )
             {
                 int objId=-1;
-                CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0,nullptr);
+                CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0);
                 if (obj!=nullptr)
                     objId=obj->getObjectHandle();
                 else
@@ -4325,7 +4325,7 @@ int simGetScriptHandle_internal(const char* targetAtScriptName)
             {
                 CSceneObject* obj=nullptr;
                 if (useAlias)
-                    obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0,nullptr);
+                    obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0);
                 else
                     obj=App::currentWorld->sceneObjects->getObjectFromName_old(scriptName.c_str());
                 if (obj!=nullptr)
@@ -4336,7 +4336,7 @@ int simGetScriptHandle_internal(const char* targetAtScriptName)
         {
             CSceneObject* obj=nullptr;
             if (useAlias)
-                obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0,nullptr);
+                obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0);
             else
                 obj=App::currentWorld->sceneObjects->getObjectFromName_old(scriptName.c_str());
             if (obj!=nullptr)
@@ -4404,7 +4404,7 @@ int simSetScriptVariable_internal(int scriptHandleOrType,const char* variableNam
                 if (scriptName.size()>0)
                 {
                     int objId=-1;
-                    CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0,nullptr);
+                    CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0);
                     if (obj!=nullptr)
                         objId=obj->getObjectHandle();
                     else
@@ -5281,7 +5281,9 @@ int simGetObjectHandleEx_internal(const char* objectAlias,int index,int proxy,in
             int objHandle=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
             CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
             CSceneObject* prox=App::currentWorld->sceneObjects->getObjectFromHandle(proxy);
-            it=App::currentWorld->sceneObjects->getObjectFromPath(obj,nm.c_str(),index,prox);
+            if (prox!=nullptr)
+                obj=prox;
+            it=App::currentWorld->sceneObjects->getObjectFromPath(obj,nm.c_str(),index);
         }
         else
         { // Old, for backcompatibility:

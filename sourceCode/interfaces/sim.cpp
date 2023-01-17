@@ -54,9 +54,9 @@ SIM_DLLEXPORT char* simGetNamedStringParam(const char* paramName,int* paramLengt
 {
     return(simGetNamedStringParam_internal(paramName,paramLength));
 }
-SIM_DLLEXPORT int simGetObject(const char* objectAlias,int index,int proxy,int options)
+SIM_DLLEXPORT int simGetObject(const char* objectPath,int index,int proxy,int options)
 {
-    return(simGetObject_internal(objectAlias,index,proxy,options));
+    return(simGetObject_internal(objectPath,index,proxy,options));
 }
 SIM_DLLEXPORT long long int simGetObjectUid(int objectHandle)
 {

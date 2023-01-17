@@ -29,7 +29,7 @@ SIM_DLLEXPORT int simSetStringParam(int parameter,const char* str);
 SIM_DLLEXPORT char* simGetStringParam(int parameter);
 SIM_DLLEXPORT int simSetNamedStringParam(const char* paramName,const char* stringParam,int paramLength);
 SIM_DLLEXPORT char* simGetNamedStringParam(const char* paramName,int* paramLength);
-SIM_DLLEXPORT int simGetObject(const char* objectAlias,int index,int proxy,int options);
+SIM_DLLEXPORT int simGetObject(const char* objectPath,int index,int proxy,int options);
 SIM_DLLEXPORT long long int simGetObjectUid(int objectHandle);
 SIM_DLLEXPORT int simGetObjectFromUid(long long int uid,int options);
 SIM_DLLEXPORT int simGetScriptHandleEx(int scriptType,int objectHandle,const char* scriptName);

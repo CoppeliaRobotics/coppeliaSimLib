@@ -1219,14 +1219,38 @@ int _CSceneObjectContainer_::getObjectHandleFromSelectionIndex(size_t index) con
     return(_selectedObjectHandles[index]);
 }
 
+CSceneObject* _CSceneObjectContainer_::_getObjectFromComplexPath(const CSceneObject* emittingObject,std::string& path,int index) const
+{ // for e.g. "/objectA{i}/objectB{j}/objectC{k}", returns objectA{i}, and path "./objectB{j}/objectC{k}"
+    size_t p1=path.find("{");
+    size_t p2=path.find("}");
+    if ( (p1!=std::string::npos)&&(p2!=std::string::npos)&&(p2>p1+1) )
+    {
+        if ( (p2!=path.size()-1)||(index==-1) )
+        {
+            std::string nb(path.begin()+p1+1,path.begin()+p2);
+            int iv;
+            if (tt::getValidInt(nb.c_str(),iv))
+            {
+                std::string pa(path.begin(),path.begin()+p1);
+                path.erase(path.begin(),path.begin()+p2+1);
+                if (path.size()>0)
+                    path="."+path;
+                return(_getObjectFromSimplePath(emittingObject,pa.c_str(),iv));
+            }
+        }
+    }
+    std::string ppath(path);
+    path.clear();
+    return(_getObjectFromSimplePath(emittingObject,ppath.c_str(),index));
+}
 
-CSceneObject* _CSceneObjectContainer_::getObjectFromPath(CSceneObject* emittingObject,const char* objectAliasAndPath,int index,CSceneObject* proxy) const
+CSceneObject* _CSceneObjectContainer_::_getObjectFromSimplePath(const CSceneObject* emittingObject,const char* objectAliasAndPath,int index) const
 {
     std::string nm(objectAliasAndPath);
     CSceneObject* retVal=nullptr;
     if ( (nm.size()>0)&&((nm[0]=='/')||(nm[0]=='.')||(nm[0]==':')) )
     {
-        CSceneObject* emObj=nullptr;
+        const CSceneObject* emObj=nullptr;
         if (nm[0]=='/')
         {
             nm.erase(0,1);
@@ -1236,8 +1260,6 @@ CSceneObject* _CSceneObjectContainer_::getObjectFromPath(CSceneObject* emittingO
         else
         {
             emObj=emittingObject;
-            if (proxy!=nullptr)
-                emObj=proxy;
             if ( (nm==":")||(nm==".") )
             {
                 if (nm==":")
@@ -1245,7 +1267,7 @@ CSceneObject* _CSceneObjectContainer_::getObjectFromPath(CSceneObject* emittingO
                     while ( (emObj!=nullptr)&&(!emObj->getModelBase()) )
                         emObj=emObj->getParent();
                 }
-                return(emObj);
+                return((CSceneObject*)emObj);
             }
             else
             {
@@ -1277,7 +1299,7 @@ CSceneObject* _CSceneObjectContainer_::getObjectFromPath(CSceneObject* emittingO
                             emObj=emObj->getParent();
                     }
                     if (nm.size()==0)
-                        return(emObj); // e.g. "../.."
+                        return((CSceneObject*)emObj); // e.g. "../.."
                     if (nm[0]=='/')
                         nm.erase(0,1);
                     else
@@ -1290,7 +1312,27 @@ CSceneObject* _CSceneObjectContainer_::getObjectFromPath(CSceneObject* emittingO
     return(retVal);
 }
 
-CSceneObject* _CSceneObjectContainer_::_getObjectInTree(CSceneObject* treeBase,const char* objectAliasAndPath,int& index) const
+CSceneObject* _CSceneObjectContainer_::getObjectFromPath(const CSceneObject* emittingObject,const char* objectAliasAndPath,int index) const
+{
+    std::string path(objectAliasAndPath);
+    CSceneObject* retVal=nullptr;
+    while (path.size()>0)
+    {
+        CSceneObject* it=_getObjectFromComplexPath(emittingObject,path,index);
+        if (it!=nullptr)
+        {
+            if (path.size()==0)
+                return(it);
+            emittingObject=it;
+        }
+        else
+            break;
+    }
+    return(nullptr);
+}
+
+
+CSceneObject* _CSceneObjectContainer_::_getObjectInTree(const CSceneObject* treeBase,const char* objectAliasAndPath,int& index) const
 { // recursive. objectAliasAndPath as "objectName/objectName" with optional wildcards and order info, e.g. "objectName[0]/objectName[0]"
     std::vector<CSceneObject*> toExplore;
     if (treeBase==nullptr)

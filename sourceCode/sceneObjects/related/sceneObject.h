@@ -104,6 +104,7 @@ public:
     std::string getObjectAlias() const;
     std::string getObjectAliasAndOrderIfRequired() const;
     std::string getObjectAliasAndHandle() const;
+    std::string getObjectPathAndIndex(size_t modelCnt) const;
     std::string getObjectAlias_fullPath() const;
     std::string getObjectAlias_shortPath() const;
     std::string getObjectAlias_printPath() const;

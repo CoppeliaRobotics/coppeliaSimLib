@@ -476,7 +476,7 @@ void CUndoBufferCont::_restoreSelectionState()
     TRACE_INTERNAL;
     for (size_t i=0;i<_selectionState.size();i++)
     {
-        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,_selectionState[i].c_str(),-1,nullptr);
+        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,_selectionState[i].c_str(),-1);
         if (obj!=nullptr)
             App::currentWorld->sceneObjects->addObjectToSelection(obj->getObjectHandle());
     }

@@ -2002,7 +2002,7 @@ void CEngineProperties::_readDummy(int engine,int dummyHandle,CAnnJson& annJson,
                     std::string str(val.toString().toStdString());
                     if (str.size()>0)
                     {
-                        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,str.c_str(),0,nullptr);
+                        CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,str.c_str(),0);
                         if ( (obj!=nullptr)&&(obj->getObjectType()==sim_object_joint_type) )
                         {
                             h=obj->getObjectHandle();

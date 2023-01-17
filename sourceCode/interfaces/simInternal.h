@@ -27,7 +27,7 @@ int simSetArrayParam_internal(int parameter,const double* arrayOfValues);
 int simGetArrayParam_internal(int parameter,double* arrayOfValues);
 int simSetNamedStringParam_internal(const char* paramName,const char* stringParam,int paramLength);
 char* simGetNamedStringParam_internal(const char* paramName,int* paramLength);
-int simGetObject_internal(const char* objectAlias,int index,int proxy,int options);
+int simGetObject_internal(const char* objectPath,int index,int proxy,int options);
 long long int simGetObjectUid_internal(int objectHandle);
 int simGetObjectFromUid_internal(long long int uid,int options);
 int simGetScriptHandleEx_internal(int scriptType,int objectHandle,const char* scriptName);

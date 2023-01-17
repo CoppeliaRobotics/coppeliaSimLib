@@ -1169,7 +1169,7 @@ int simSetLastError_internal(const char* funcName,const char* errorMessage)
     return(-1);
 }
 
-int simGetObject_internal(const char* objectAlias,int index,int proxy,int options)
+int simGetObject_internal(const char* objectPath,int index,int proxy,int options)
 {
     TRACE_C_API;
 
@@ -1178,37 +1178,35 @@ int simGetObject_internal(const char* objectAlias,int index,int proxy,int option
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        int retVal=-1;
         CSceneObject* it=nullptr;
-        std::string nm(objectAlias);
-        if ( (nm.size()>0)&&((nm[0]=='.')||(nm[0]==':')||(nm[0]=='/')) )
+        CSceneObject* prox=nullptr;
+        if (proxy!=-1)
         {
-            if (nm[nm.size()-1]=='}')
+            prox=App::currentWorld->sceneObjects->getObjectFromHandle(proxy);
+            if (prox==nullptr)
             {
-                size_t p=nm.find("{");
-                if (p!=std::string::npos)
-                {
-                    std::string nb(nm.begin()+p+1,nm.end()-1);
-                    int iv;
-                    if (tt::getValidInt(nb.c_str(),iv))
-                    {
-                        nm.erase(nm.begin()+p,nm.end());
-                        index=iv;
-                    }
-                }
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PROXY_OBJECT);
+                return(-1);
             }
-            int objHandle=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
-            CSceneObject* prox=App::currentWorld->sceneObjects->getObjectFromHandle(proxy);
-            it=App::currentWorld->sceneObjects->getObjectFromPath(obj,nm.c_str(),index,prox);
         }
+        const CSceneObject* emittingObj=nullptr;
+        if (prox==nullptr)
+        {
+            int objHandle=App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
+            emittingObj=App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
+        }
+        else
+            emittingObj=prox;
+        it=App::currentWorld->sceneObjects->getObjectFromPath(emittingObj,objectPath,index);
 
-        if (it==nullptr)
+        if (it!=nullptr)
+            retVal=it->getObjectHandle();
+        else
         {
             if ((options&1)==0)
                 CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH);
-            return(-1);
         }
-        int retVal=it->getObjectHandle();
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -1387,7 +1385,7 @@ char* simGetObjectAlias_internal(int objectHandle,int options)
             nm=it->getObjectAlias_fullPath(); // the alias with full path, e.g. "/obj/obj2/alias[0]"
         if (options==3)
         { // just the alias, if unique, e.g. "alias", otherwise the alias with handle, e.g. "alias__42__"
-            if (App::currentWorld->sceneObjects->getObjectFromPath(nullptr,(std::string("/")+it->getObjectAlias()).c_str(),1,nullptr)==nullptr)
+            if (App::currentWorld->sceneObjects->getObjectFromPath(nullptr,(std::string("/")+it->getObjectAlias()).c_str(),1)==nullptr)
                 nm=it->getObjectAlias();
             else
                 options=4;
@@ -1400,6 +1398,12 @@ char* simGetObjectAlias_internal(int objectHandle,int options)
         }
         if (options==5)
             nm=it->getObjectAlias_printPath(); // the print version, not guaranteed to be unique, e.g. "/obj/.../alias[0]"
+        if (options==6)
+            nm=it->getObjectPathAndIndex(0); // the path with index, e.g. "/alias{3}"
+        if (options==7)
+            nm=it->getObjectPathAndIndex(1); // the path with index, e.g. "/parentModel{1}/alias{3}"
+        if (options==8)
+            nm=it->getObjectPathAndIndex(2); // the path with index, e.g. "/greatParent{0}/parentModel{1}/alias{3}"
         char* retVal=new char[nm.length()+1];
         for (size_t i=0;i<nm.length();i++)
             retVal[i]=nm[i];
@@ -13472,7 +13476,7 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
         if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==(sim_scripttype_childscript|sim_scripttype_threaded_old))||(scriptHandleOrType==sim_scripttype_customizationscript) )
         {
             int objId=-1;
-            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0,nullptr);
+            CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0);
             if (obj!=nullptr)
                 objId=obj->getObjectHandle();
             else
@@ -15765,7 +15769,7 @@ int simExecuteScriptString_internal(int scriptHandleOrType,const char* stringAtS
                 if (scriptName.size()>0)
                 {
                     int objId=-1;
-                    CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0,nullptr);
+                    CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptName.c_str(),0);
                     if (obj!=nullptr)
                         objId=obj->getObjectHandle();
                     else

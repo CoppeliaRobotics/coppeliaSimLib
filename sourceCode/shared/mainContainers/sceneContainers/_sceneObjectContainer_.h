@@ -36,7 +36,7 @@ public:
     CSceneObject* getObjectFromIndex(size_t index) const;
     CSceneObject* getObjectFromHandle(int objectHandle) const;
     CSceneObject* getObjectFromUid(long long int objectUid) const;
-    CSceneObject* getObjectFromPath(CSceneObject* emittingObject,const char* objectAliasAndPath,int index,CSceneObject* proxy) const;
+    CSceneObject* getObjectFromPath(const CSceneObject* emittingObject,const char* objectAliasAndPath,int index) const;
     CSceneObject* getObjectFromName_old(const char* objectName) const;
     CSceneObject* getObjectFromAltName_old(const char* objectAltName) const;
     int getObjectHandleFromName_old(const char* objectName) const;
@@ -145,7 +145,9 @@ protected:
     virtual void _removeObject(CSceneObject* object);
     void _addToOrphanObjects(CSceneObject* object);
     void _removeFromOrphanObjects(CSceneObject* object);
-    CSceneObject* _getObjectInTree(CSceneObject* treeBase,const char* objectAliasAndPath,int& index) const;
+    CSceneObject* _getObjectInTree(const CSceneObject* treeBase,const char* objectAliasAndPath,int& index) const;
+    CSceneObject* _getObjectFromSimplePath(const CSceneObject* emittingObject,const char* objectAliasAndPath,int index) const;
+    CSceneObject* _getObjectFromComplexPath(const CSceneObject* emittingObject,std::string& path,int index) const;
 
     virtual void _setSelectedObjectHandles_send(const std::vector<int>* v) const;
 

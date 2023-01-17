@@ -10755,7 +10755,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
             if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==sim_scripttype_customizationscript) )
             {
                 int objId=-1;
-                CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptDescription.c_str(),0,nullptr);
+                CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,scriptDescription.c_str(),0);
                 if (obj!=nullptr)
                     objId=obj->getObjectHandle();
                 else

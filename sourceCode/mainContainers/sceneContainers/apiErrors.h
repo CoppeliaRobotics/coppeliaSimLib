@@ -22,6 +22,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_CANNOT_SET_GET_PARAM_SIM          "cannot set/get parameter: simulation run state is wrong."
 #define SIM_ERROR_OBJECT_INEXISTANT             "object does not exist."
 #define SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH  "object does not exist, or alias/path is ill formatted."
+#define SIM_ERROR_INVALID_PROXY_OBJECT "proxy object does not exist."
 #define SIM_ERROR_VISION_SENSOR_INEXISTANT          "vision sensor does not exist."
 #define SIM_ERROR_PATH_INEXISTANT           "path does not exist."
 #define SIM_ERROR_ENTITY_INEXISTANT             "entity does not exist."
