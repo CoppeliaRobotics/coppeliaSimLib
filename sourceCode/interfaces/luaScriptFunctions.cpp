@@ -1016,6 +1016,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.drawing_persistent",sim_drawing_persistent,true},
     {"sim.drawing_auxchannelcolor1",sim_drawing_auxchannelcolor1,true},
     {"sim.drawing_auxchannelcolor2",sim_drawing_auxchannelcolor2,true},
+    {"sim.drawing_local",sim_drawing_local,true},
     // particle objects
     {"sim.particle_points1",sim_particle_points1,true},
     {"sim.particle_points2",sim_particle_points2,true},

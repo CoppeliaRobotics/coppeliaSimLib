@@ -57,7 +57,8 @@ bool CHelpMenu::processCommand(int commandID)
     if (commandID==HELP_TOPICS_CMD)
     {
 
-        if ( ((SIM_PROGRAM_REVISION_NB)==0) || (!App::isOnline()) )
+//        if ( ((SIM_PROGRAM_REVISION_NB)==0) || (!App::isOnline()) )
+        if (!App::isOnline())
         {
             std::string tmp(App::folders->getResourcesPath()+"/helpFiles/index.html");
             App::logMsg(sim_verbosity_msgs,"Opening the locally stored user manual...");

@@ -236,7 +236,7 @@ bool CDrawingObject::addItem(const double* itemData)
 
     C7Vector trInv;
     trInv.setIdentity();
-    if (_sceneObjectId>=0)
+    if ( (_sceneObjectId>=0)&&((_objectType&sim_drawing_local)==0) )
     {
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
         if (it==nullptr)
