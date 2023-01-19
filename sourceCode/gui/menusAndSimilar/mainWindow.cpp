@@ -1062,7 +1062,9 @@ void CMainWindow::_createDefaultToolBars()
         _engineSelectCombo->addItem(IDS_VORTEX);
         _engineSelectCombo->addItem(IDS_NEWTON);
         _engineSelectCombo->addItem(IDS_MUJOCO);
+#ifdef HAS_PHYSX
         _engineSelectCombo->addItem(IDS_PHYSX);
+#endif
         _engineSelectCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DYNAMICS_ENGINE);
         _toolbar1->addWidget(_engineSelectCombo);
         connect(_engineSelectCombo,SIGNAL(activated(int)),this,SLOT(_engineSelectedViaToolbar(int)));
