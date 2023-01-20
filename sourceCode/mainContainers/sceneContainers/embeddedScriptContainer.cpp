@@ -403,7 +403,7 @@ void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack
             if (!App::currentWorld->simulation->isSimulationStopped())
             {
                 CScriptObject* script=getMainScript();
-                if ( (script!=nullptr)&&(script->hasFunction(callType)||script->getOldCallMode()) )
+                if ( (script!=nullptr)&&(script->hasSystemFunction(callType)||script->getOldCallMode()) )
                     script->systemCallMainScript(callType,inStack,outStack);
             }
             if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
@@ -417,7 +417,7 @@ void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack
                 if (!App::currentWorld->simulation->isSimulationStopped())
                 {
                     CScriptObject* script=getMainScript();
-                    if ( (script!=nullptr)&&(script->hasFunction(callType)||script->getOldCallMode()) )
+                    if ( (script!=nullptr)&&(script->hasSystemFunction(callType)||script->getOldCallMode()) )
                         script->systemCallMainScript(callType,inStack,outStack);
                 }
             }
@@ -577,7 +577,7 @@ int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int cal
                     else
                         cnt+=script->resumeThreadedChildScriptIfLocationMatch_oldThreads(callTypeOrResumeLocation);
                 }
-                else if (script->hasFunction(callTypeOrResumeLocation)||script->getOldCallMode())
+                else if (script->hasSystemFunction(callTypeOrResumeLocation)||script->getOldCallMode())
                 { // has the function
                     if (script->systemCallScript(callTypeOrResumeLocation,inStack,outStack)==1)
                     {
@@ -593,7 +593,7 @@ int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int cal
                         compatCall=sim_syscb_dyncallback;
                     if (callTypeOrResumeLocation==sim_syscb_contact)
                         compatCall=sim_syscb_contactcallback;
-                    if ( (compatCall!=-1)&&script->hasFunction(compatCall) )
+                    if ( (compatCall!=-1)&&script->hasSystemFunction(compatCall) )
                     {
                         if (script->systemCallScript(compatCall,inStack,outStack)==1)
                         {
@@ -622,9 +622,9 @@ int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int cal
                     if (scriptType==sim_scripttype_customizationscript)
                     {
                         bool doIt=true;
-                        if ( (callTypeOrResumeLocation==sim_syscb_dyncallback)&&(!script->hasFunction(sim_syscb_dyncallback)) )
+                        if ( (callTypeOrResumeLocation==sim_syscb_dyncallback)&&(!script->hasSystemFunction(sim_syscb_dyncallback)) )
                             doIt=false;
-                        if ( (callTypeOrResumeLocation==sim_syscb_contactcallback)&&(!script->hasFunction(sim_syscb_contactcallback)) )
+                        if ( (callTypeOrResumeLocation==sim_syscb_contactcallback)&&(!script->hasSystemFunction(sim_syscb_contactcallback)) )
                             doIt=false;
                         if (doIt)
                         {
@@ -651,9 +651,9 @@ int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int cal
                         else
                         {
                             bool doIt=true;
-                            if ( (callTypeOrResumeLocation==sim_syscb_dyncallback)&&(!script->hasFunction(sim_syscb_dyncallback)) )
+                            if ( (callTypeOrResumeLocation==sim_syscb_dyncallback)&&(!script->hasSystemFunction(sim_syscb_dyncallback)) )
                                 doIt=false;
-                            if ( (callTypeOrResumeLocation==sim_syscb_contactcallback)&&(!script->hasFunction(sim_syscb_contactcallback)) )
+                            if ( (callTypeOrResumeLocation==sim_syscb_contactcallback)&&(!script->hasSystemFunction(sim_syscb_contactcallback)) )
                                 doIt=false;
                             if (doIt)
                             {

@@ -120,7 +120,7 @@ public:
     bool addCommandToOutsideCommandQueue(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const double aux2Vals[8],int aux2Count);
     int extractCommandFromOutsideCommandQueue(int auxVals[4],double aux2Vals[8],int& aux2Count);
 
-    bool hasFunction(int callType) const;
+    bool hasSystemFunction(int callType) const;
     bool getOldCallMode() const;
 
     std::string getFilenameForExternalScriptEditor() const;
@@ -266,6 +266,10 @@ protected:
     std::string _lastStackTraceback;
 
     std::vector<bool> _containedSystemCallbacks;
+    bool _initiallyHadSystemCallback_event;
+    bool _initiallyHadSystemCallback_dyn;
+    bool _initiallyHadSystemCallback_contact;
+    bool _initiallyHadSystemCallback_joint;
     void _printContext(const char* str,size_t p);
 
     std::string _addOnName;

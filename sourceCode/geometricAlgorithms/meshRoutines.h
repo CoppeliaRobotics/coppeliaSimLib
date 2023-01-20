@@ -91,6 +91,7 @@ public:
     static void createCapsule(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faceSubdiv);
     static void createCylinder(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces,int discDiv,bool openEnds,bool cone);
     static void createAnnulus(std::vector<double>& vertices,std::vector<int>& indices,double Dlarge,double Dsmall,double zShift,int sides,bool faceUp);
+    static double getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const C3Vector& pt2,const std::vector<double>& vertices,std::vector<double>* path=nullptr,double maxEdgeLength=0.002);
 
 private:
     static void _insertEdge(std::vector<std::vector<int>* >& allEdges,int vertexIndex1,int vertexIndex2,int triangleIndex); // used for convex check

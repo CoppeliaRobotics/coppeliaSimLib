@@ -317,7 +317,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==CALL_USER_CONFIG_CALLBACK_CMD)
         {
             CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,cmd.intParams[0]);
-            if ( (script!=nullptr)&&(script->hasFunction(sim_syscb_userconfig)) )
+            if ( (script!=nullptr)&&(script->hasSystemFunction(sim_syscb_userconfig)) )
             { // we have a user config callback
                 script->systemCallScript(sim_syscb_userconfig,nullptr,nullptr);
             }

@@ -19,6 +19,7 @@
 #include "collisionRoutines.h"
 #include "distanceRoutines.h"
 #include "cbor.h"
+#include "meshRoutines.h"
 
 #define LUA_START(funcName) \
     CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old(); \
@@ -5340,6 +5341,21 @@ int _simTest(luaWrap_lua_State* L)
             int s=stack->getStackSize();
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
             LUA_END(s);
+        }
+        if (cmd.compare("sim.getGeodesicInfo")==0)
+        {
+            C3Vector pt1,pt2;
+            getDoublesFromTable(L,2,3,pt1.data);
+            getDoublesFromTable(L,3,3,pt2.data);
+            int vl=3*((int)luaWrap_lua_rawlen(L,4)/3);
+            std::vector<double> vertices;
+            vertices.resize(vl);
+            getDoublesFromTable(L,4,vl,vertices.data());
+            std::vector<double> path;
+            double dist=CMeshRoutines::getGeodesicDistanceOnConvexMesh(pt1,pt2,vertices,&path);//,edgeLength)
+            luaWrap_lua_pushnumber(L,dist);
+            pushDoubleTableOntoStack(L,path.size(),path.data());
+            LUA_END(2);
         }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

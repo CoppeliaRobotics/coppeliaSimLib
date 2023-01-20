@@ -896,9 +896,10 @@ std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptTy
     return(retVal);
 }
 
-bool CScriptObject::hasFunction(int callType) const
+bool CScriptObject::hasSystemFunction(int callType) const
 { // when the script is not initialized, we need to return true
-    return( (_scriptState!=scriptState_initialized)||_containedSystemCallbacks[callType] );//  ||_compatibilityMode_oldLua );
+    std::string tmp(getSystemCallbackString(callType,0));
+    return( (_scriptState!=scriptState_initialized)||_containedSystemCallbacks[callType]||hasFunctionHook(tmp.c_str()) );//  ||_compatibilityMode_oldLua );
 }
 
 bool CScriptObject::getOldCallMode() const
@@ -1429,7 +1430,7 @@ int CScriptObject::systemCallScript(int callType,const CInterfaceStack* inStack,
             { // Regular system function calls
                 if ( ((_scriptState&scriptState_error)==0)||(callType==sim_syscb_cleanup) )
                 {
-                    if ( (callType!=sim_syscb_event)||_containedSystemCallbacks[sim_syscb_event] )
+                    if ( (callType!=sim_syscb_event)||hasSystemFunction(sim_syscb_event) )
                     {
                         retVal=_callSystemScriptFunction(callType,inStack,outStack);
                         if (_scriptType==sim_scripttype_sandboxscript)
@@ -1750,25 +1751,49 @@ bool CScriptObject::_loadCode()
                         // Below funcs are speed-sensitive:
                         if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
                         {
-                            if (_containedSystemCallbacks[sim_syscb_event])
+                            if (hasSystemFunction(sim_syscb_event))
+                            {
+                                _initiallyHadSystemCallback_event=true;
                                 App::currentWorld->embeddedScriptContainer->setEventFuncCount(App::currentWorld->embeddedScriptContainer->getEventFuncCount()+1);
-                            if ( (_containedSystemCallbacks[sim_syscb_dyn])||(_containedSystemCallbacks[sim_syscb_dyncallback]) )
+                            }
+                            if ( (hasSystemFunction(sim_syscb_dyn))||(hasSystemFunction(sim_syscb_dyncallback)) )
+                            {
+                                _initiallyHadSystemCallback_dyn=true;
                                 App::currentWorld->embeddedScriptContainer->setDynFuncCount(App::currentWorld->embeddedScriptContainer->getDynFuncCount()+1);
-                            if ( (_containedSystemCallbacks[sim_syscb_contact])||(_containedSystemCallbacks[sim_syscb_contactcallback]) )
+                            }
+                            if ( (hasSystemFunction(sim_syscb_contact))||(hasSystemFunction(sim_syscb_contactcallback)) )
+                            {
+                                _initiallyHadSystemCallback_contact=true;
                                 App::currentWorld->embeddedScriptContainer->setContactFuncCount(App::currentWorld->embeddedScriptContainer->getContactFuncCount()+1);
-                            if ( (_containedSystemCallbacks[sim_syscb_joint])||(_containedSystemCallbacks[sim_syscb_jointcallback]) )
+                            }
+                            if ( (hasSystemFunction(sim_syscb_joint))||(hasSystemFunction(sim_syscb_jointcallback)) )
+                            {
+                                _initiallyHadSystemCallback_joint=true;
                                 App::currentWorld->embeddedScriptContainer->setJointFuncCount(App::currentWorld->embeddedScriptContainer->getJointFuncCount()+1);
+                            }
                         }
                         if (_scriptType==sim_scripttype_addonscript)
                         {
-                            if (_containedSystemCallbacks[sim_syscb_event])
+                            if (hasSystemFunction(sim_syscb_event))
+                            {
+                                _initiallyHadSystemCallback_event=true;
                                 App::worldContainer->addOnScriptContainer->setEventFuncCount(App::worldContainer->addOnScriptContainer->getEventFuncCount()+1);
-                            if ( (_containedSystemCallbacks[sim_syscb_dyn])||(_containedSystemCallbacks[sim_syscb_dyncallback]) )
+                            }
+                            if ( (hasSystemFunction(sim_syscb_dyn))||(hasSystemFunction(sim_syscb_dyncallback)) )
+                            {
+                                _initiallyHadSystemCallback_dyn=true;
                                 App::worldContainer->addOnScriptContainer->setDynFuncCount(App::worldContainer->addOnScriptContainer->getDynFuncCount()+1);
-                            if ( (_containedSystemCallbacks[sim_syscb_contact])||(_containedSystemCallbacks[sim_syscb_contactcallback]) )
+                            }
+                            if ( (hasSystemFunction(sim_syscb_contact))||(hasSystemFunction(sim_syscb_contactcallback)) )
+                            {
+                                _initiallyHadSystemCallback_contact=true;
                                 App::worldContainer->addOnScriptContainer->setContactFuncCount(App::worldContainer->addOnScriptContainer->getContactFuncCount()+1);
-                            if ( (_containedSystemCallbacks[sim_syscb_joint])||(_containedSystemCallbacks[sim_syscb_jointcallback]) )
+                            }
+                            if ( (hasSystemFunction(sim_syscb_joint))||(hasSystemFunction(sim_syscb_jointcallback)) )
+                            {
+                                _initiallyHadSystemCallback_joint=true;
                                 App::worldContainer->addOnScriptContainer->setJointFuncCount(App::worldContainer->addOnScriptContainer->getJointFuncCount()+1);
+                            }
                         }
                     }
                 }
@@ -1861,7 +1886,7 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
     std::string tmp(getSystemCallbackString(sim_syscb_userconfig,0));
     luaWrap_lua_getglobal(L,tmp.c_str());
-    _containedSystemCallbacks[sim_syscb_userconfig]=(luaWrap_lua_isfunction(L,-1)||hasFunctionHook(tmp.c_str()));
+    _containedSystemCallbacks[sim_syscb_userconfig]=luaWrap_lua_isfunction(L,-1);
     luaWrap_lua_pop(L,1);
 
     std::string errMsg;
@@ -2285,24 +2310,24 @@ bool CScriptObject::_killInterpreterState()
     // Below funcs are speed-sensitive:
     if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
     {
-        if (_containedSystemCallbacks[sim_syscb_event])
+        if (_initiallyHadSystemCallback_event)
             App::currentWorld->embeddedScriptContainer->setEventFuncCount(App::currentWorld->embeddedScriptContainer->getEventFuncCount()-1);
-        if ( (_containedSystemCallbacks[sim_syscb_dyn])||(_containedSystemCallbacks[sim_syscb_dyncallback]) )
+        if (_initiallyHadSystemCallback_dyn)
             App::currentWorld->embeddedScriptContainer->setDynFuncCount(App::currentWorld->embeddedScriptContainer->getDynFuncCount()-1);
-        if ( (_containedSystemCallbacks[sim_syscb_contact])||(_containedSystemCallbacks[sim_syscb_contactcallback]) )
+        if (_initiallyHadSystemCallback_contact)
             App::currentWorld->embeddedScriptContainer->setContactFuncCount(App::currentWorld->embeddedScriptContainer->getContactFuncCount()-1);
-        if ( (_containedSystemCallbacks[sim_syscb_joint])||(_containedSystemCallbacks[sim_syscb_jointcallback]) )
+        if (_initiallyHadSystemCallback_joint)
             App::currentWorld->embeddedScriptContainer->setJointFuncCount(App::currentWorld->embeddedScriptContainer->getJointFuncCount()+1);
     }
     if (_scriptType==sim_scripttype_addonscript)
     {
-        if (_containedSystemCallbacks[sim_syscb_event])
+        if (_initiallyHadSystemCallback_event)
             App::worldContainer->addOnScriptContainer->setEventFuncCount(App::worldContainer->addOnScriptContainer->getEventFuncCount()-1);
-        if ( (_containedSystemCallbacks[sim_syscb_dyn])||(_containedSystemCallbacks[sim_syscb_dyncallback]) )
+        if (_initiallyHadSystemCallback_dyn)
             App::worldContainer->addOnScriptContainer->setDynFuncCount(App::worldContainer->addOnScriptContainer->getDynFuncCount()-1);
-        if ( (_containedSystemCallbacks[sim_syscb_contact])||(_containedSystemCallbacks[sim_syscb_contactcallback]) )
+        if (_initiallyHadSystemCallback_contact)
             App::worldContainer->addOnScriptContainer->setContactFuncCount(App::worldContainer->addOnScriptContainer->getContactFuncCount()-1);
-        if ( (_containedSystemCallbacks[sim_syscb_joint])||(_containedSystemCallbacks[sim_syscb_jointcallback]) )
+        if (_initiallyHadSystemCallback_joint)
             App::worldContainer->addOnScriptContainer->setJointFuncCount(App::worldContainer->addOnScriptContainer->getJointFuncCount()+1);
     }
 
@@ -2311,6 +2336,10 @@ bool CScriptObject::_killInterpreterState()
     _flaggedForDestruction=false;
     _functionHooks_before.clear();
     _functionHooks_after.clear();
+    _initiallyHadSystemCallback_event=false;
+    _initiallyHadSystemCallback_dyn=false;
+    _initiallyHadSystemCallback_contact=false;
+    _initiallyHadSystemCallback_joint=false;
 
     _loadBufferResult_lua=-1;
     _compatibilityMode_oldLua=false;
@@ -2536,6 +2565,10 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     _forbidAutoYieldingLevel=0;
     _timeForNextAutoYielding=int(VDateTime::getTimeInMs())+_delayForAutoYielding;
     _forbidOverallYieldingLevel=0;
+    _initiallyHadSystemCallback_event=false;
+    _initiallyHadSystemCallback_dyn=false;
+    _initiallyHadSystemCallback_contact=false;
+    _initiallyHadSystemCallback_joint=false;
 
     luaWrap_lua_State* L=luaWrap_luaL_newstate();
     _interpreterState=L;
