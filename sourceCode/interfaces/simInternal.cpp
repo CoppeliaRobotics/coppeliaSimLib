@@ -1404,6 +1404,8 @@ char* simGetObjectAlias_internal(int objectHandle,int options)
             nm=it->getObjectPathAndIndex(1); // the path with index, e.g. "/parentModel{1}/alias{3}"
         if (options==8)
             nm=it->getObjectPathAndIndex(2); // the path with index, e.g. "/greatParent{0}/parentModel{1}/alias{3}"
+        if (options==9)
+            nm=it->getObjectPathAndIndex(999); // the path with index, e.g. "/.../.../greatParent{0}/parentModel{1}/alias{3}"
         char* retVal=new char[nm.length()+1];
         for (size_t i=0;i<nm.length();i++)
             retVal[i]=nm[i];
