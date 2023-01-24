@@ -29,15 +29,8 @@ public:
     CScriptObject* getAddOnFromID(int scriptID) const;
     CScriptObject* getAddOnFromName(const char* name) const;
 
-    int getContactFuncCount() const;
-    void setContactFuncCount(int cnt);
-    int getDynFuncCount() const;
-    void setDynFuncCount(int cnt);
-    int getEventFuncCount() const;
-    void setEventFuncCount(int cnt);
-    int getJointFuncCount() const;
-    void setJointFuncCount(int cnt);
-
+    int getSysFuncAndHookCnt(int sysCall) const;
+    void setSysFuncAndHookCnt(int sysCall,int cnt);
 
     bool shouldTemporarilySuspendMainScript();
     int callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack);
@@ -47,10 +40,10 @@ private:
     int _insertAddOn(CScriptObject* script);
     int _insertAddOns();
 
-    int _contactFuncCount;
-    int _dynFuncCount;
-    int _eventFuncCount;
-    int _jointFuncCount;
+    int _sysFuncAndHookCnt_event;
+    int _sysFuncAndHookCnt_dyn;
+    int _sysFuncAndHookCnt_contact;
+    int _sysFuncAndHookCnt_joint;
     std::vector<CScriptObject*> _addOns;
 
     // OLD:

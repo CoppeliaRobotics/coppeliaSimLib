@@ -1767,7 +1767,7 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],double currentPosVelAc
             bool cycl=_isCyclic;
             double lowL=_posMin;
             double highL=_posMin+_posRange;
-            if (App::worldContainer->getJointFuncCount()>0)
+            if (App::worldContainer->getSysFuncAndHookCnt(sim_syscb_joint)>0)
             { // a script might want to handle the joint
                 // 1. We prepare the in/out stacks:
                 CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
@@ -1871,12 +1871,12 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],double currentPosVelAc
                 // 2. Call the script(s):
                 // First, the old callback functions:
                 CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,_objectHandle);
-                if ( (script!=nullptr)&&(!script->getScriptIsDisabled())&&script->hasSystemFunction(sim_syscb_jointcallback) )
+                if ( (script!=nullptr)&&(!script->getScriptIsDisabled())&&script->hasSystemFunctionOrHook(sim_syscb_jointcallback) )
                     script->systemCallScript(sim_syscb_jointcallback,inStack,outStack);
                 if (outStack->getStackSize()==0)
                 {
                     script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,_objectHandle);
-                    if ( (script!=nullptr)&&(!script->getScriptIsDisabled())&&script->hasSystemFunction(sim_syscb_jointcallback) )
+                    if ( (script!=nullptr)&&(!script->getScriptIsDisabled())&&script->hasSystemFunctionOrHook(sim_syscb_jointcallback) )
                         script->systemCallScript(sim_syscb_jointcallback,inStack,outStack);
                 }
                 // Now the regular callback:
@@ -1914,7 +1914,7 @@ void CJoint::handleMotion()
 {
     if ( (_jointMode==sim_jointmode_kinematic)&&(_jointType!=sim_joint_spherical_subtype)&&((_kinematicMotionType&3)!=0) )
     {
-        if (App::worldContainer->getJointFuncCount()>0)
+        if (App::worldContainer->getSysFuncAndHookCnt(sim_syscb_joint)>0)
         { // a script might want to handle the joint
             bool rev=(_jointType==sim_joint_revolute_subtype);
             double errorV;

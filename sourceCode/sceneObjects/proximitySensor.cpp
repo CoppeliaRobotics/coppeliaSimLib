@@ -870,10 +870,10 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
     if (_sensorResultValid&&_detectedPointValid)
     {
         CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,_objectHandle);
-        if ( (script!=nullptr)&&(!script->hasSystemFunction(sim_syscb_trigger)) )
+        if ( (script!=nullptr)&&(!script->hasSystemFunctionOrHook(sim_syscb_trigger)) )
             script=nullptr;
         CScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,_objectHandle);
-        if ( (cScript!=nullptr)&&(!cScript->hasSystemFunction(sim_syscb_trigger)) )
+        if ( (cScript!=nullptr)&&(!cScript->hasSystemFunctionOrHook(sim_syscb_trigger)) )
             cScript=nullptr;
         if ( (script!=nullptr)||(cScript!=nullptr) )
         {

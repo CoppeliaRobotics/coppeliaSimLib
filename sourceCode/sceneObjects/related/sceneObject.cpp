@@ -451,7 +451,9 @@ std::string CSceneObject::getObjectPathAndIndex(size_t modelCnt) const
                 break;
             index++;
         }
-        retVal+="{"+std::to_string(index)+"}";
+        // Following: we try to omit {0} if {1} doesn't exist
+        if ( (index!=0)||(App::currentWorld->sceneObjects->getObjectFromPath(nullptr,retVal.c_str(),1)!=nullptr) )
+            retVal+="{"+std::to_string(index)+"}";
     }
     return(retVal);
 }

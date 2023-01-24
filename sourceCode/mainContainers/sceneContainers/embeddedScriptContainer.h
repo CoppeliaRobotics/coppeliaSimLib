@@ -40,14 +40,8 @@ public:
 
     int callChildAndEmbeddedScripts(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr);
     bool shouldTemporarilySuspendMainScript();
-    int getContactFuncCount() const;
-    void setContactFuncCount(int cnt);
-    int getDynFuncCount() const;
-    void setDynFuncCount(int cnt);
-    int getEventFuncCount() const;
-    void setEventFuncCount(int cnt);
-    int getJointFuncCount() const;
-    void setJointFuncCount(int cnt);
+    int getSysFuncAndHookCnt(int sysCall) const;
+    void setSysFuncAndHookCnt(int sysCall,int cnt);
 
     void callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr);
     void sceneOrModelAboutToBeSaved_old(int modelBase);
@@ -61,10 +55,10 @@ protected:
     size_t _getScriptsToExecute(std::vector<int>& scriptHandles,int scriptType) const;
     int _getScriptsToExecute_old(int scriptType,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds) const;
 
-    int _contactFuncCount;
-    int _dynFuncCount;
-    int _eventFuncCount;
-    int _jointFuncCount;
+    int _sysFuncAndHookCnt_event;
+    int _sysFuncAndHookCnt_dyn;
+    int _sysFuncAndHookCnt_contact;
+    int _sysFuncAndHookCnt_joint;
     std::vector<SScriptCallBack*> _callbackStructureToDestroyAtEndOfSimulation_new;
     std::vector<SLuaCallBack*> _callbackStructureToDestroyAtEndOfSimulation_old;
 };

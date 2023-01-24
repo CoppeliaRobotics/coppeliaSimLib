@@ -874,48 +874,55 @@ void CMeshManip::removeDoubleIndices(std::vector<double>& vertices,std::vector<i
     }
 }
 
+double CMeshManip::getMaxEdgeLength(const std::vector<double>& vertices,const std::vector<int>& indices)
+{
+    double retVal=0.0;
+    for (size_t i=0;i<indices.size()/3;i++)
+    {
+        int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
+        C3Vector v0(vertices[3*ind[0]+0],vertices[3*ind[0]+1],vertices[3*ind[0]+2]);
+        C3Vector v1(vertices[3*ind[1]+0],vertices[3*ind[1]+1],vertices[3*ind[1]+2]);
+        C3Vector v2(vertices[3*ind[2]+0],vertices[3*ind[2]+1],vertices[3*ind[2]+2]);
+        double lt=(v0-v1).getLength();
+        if (lt>retVal)
+            retVal=lt;
+        lt=(v0-v2).getLength();
+        if (lt>retVal)
+            retVal=lt;
+        lt=(v2-v1).getLength();
+        if (lt>retVal)
+            retVal=lt;
+    }
+    return(retVal);
+}
+
 bool CMeshManip::reduceTriangleSize(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<double>* texCoords,double maxEdgeSize,double verticeMergeTolerance)
-{ // return value true is success, false means there is nothing left!
-    // if maxEdgeSize is 0.0, then half of the maximum triangle edge is used as maxEdgeSize!
-    // if verticeMergeTolerance is 0.0, vertices are not merged!
+{ // returns false if nothing is left
+    // if maxEdgeSize is 0.0, then half of the maximum triangle edge is used as maxEdgeSize
+    // if verticeMergeTolerance is 0.0, vertices are not merged
     // normals or texCoords can be nullptr
-    // 1. We search for the largest triangle edge:      
-    double l=maxEdgeSize;
-    if (l<=0.0)
+
+    double el=getMaxEdgeLength(vertices,indices);
+    if (maxEdgeSize<=0.0)
+        maxEdgeSize=el/2.0;
+    if (maxEdgeSize<el)
     {
-        for (int i=0;i<int(indices.size()/3);i++)
+        for (int i=0;i<12;i++)
         {
-            int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
-            C3Vector v0(vertices[3*ind[0]+0],vertices[3*ind[0]+1],vertices[3*ind[0]+2]);
-            C3Vector v1(vertices[3*ind[1]+0],vertices[3*ind[1]+1],vertices[3*ind[1]+2]);
-            C3Vector v2(vertices[3*ind[2]+0],vertices[3*ind[2]+1],vertices[3*ind[2]+2]);
-            double lt=(v0-v1).getLength();
-            if (lt>l)
-                l=lt;
-            lt=(v0-v2).getLength();
-            if (lt>l)
-                l=lt;
-            lt=(v2-v1).getLength();
-            if (lt>l)
-                l=lt;
+            if (_reduceTriangleSizePass(vertices,indices,normals,texCoords,maxEdgeSize)==0)
+                break;
         }
-        // 2. The max allowed edge from now on will be half of it:
-        l/=2.0;
+        // Merge identical vertices:
+        if (verticeMergeTolerance>0.0)
+            checkVerticesIndicesNormalsTexCoords(vertices,indices,normals,texCoords,true,verticeMergeTolerance,false);
     }
-    for (int i=0;i<12;i++)
-    {
-        if (_reduceTriangleSizePass(vertices,indices,normals,texCoords,l)==0) 
-            break;
-    }
-    // Now we need to merge identical vertices:
-    if (verticeMergeTolerance>0.0)
-        checkVerticesIndicesNormalsTexCoords(vertices,indices,normals,texCoords,true,verticeMergeTolerance,false);
     return(indices.size()!=0);
 }
 
 int CMeshManip::_reduceTriangleSizePass(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<double>* texCoords,double maxEdgeSize)
 { // normals or texCoords are optional. Return val is the nb of added triangles
-    //// We mark the triangles that need to be cut:
+    // We mark the triangles that need to be cut:
+
     int originalIndicesSize=int(indices.size());
     int trianglesAdded=0;
     for (int i=0;i<(originalIndicesSize/3);i++) // =editionIndices.size() will grow in this loop!
@@ -953,15 +960,21 @@ int CMeshManip::_reduceTriangleSizePass(std::vector<double>& vertices,std::vecto
                 vertInd[0]=indices[3*i+2];
                 vertInd[1]=indices[3*i+0];
                 vertInd[2]=indices[3*i+1];
-                texCoordsX[0]=(*texCoords)[6*i+4];
-                texCoordsY[0]=(*texCoords)[6*i+5];
-                texCoordsX[1]=(*texCoords)[6*i+0];
-                texCoordsY[1]=(*texCoords)[6*i+1];
-                texCoordsX[2]=(*texCoords)[6*i+2];
-                texCoordsY[2]=(*texCoords)[6*i+3];
-                n0=&((*normals)[9*i+6]);
-                n1=&((*normals)[9*i+0]);
-                n2=&((*normals)[9*i+3]);
+                if (texCoords!=nullptr)
+                {
+                    texCoordsX[0]=(*texCoords)[6*i+4];
+                    texCoordsY[0]=(*texCoords)[6*i+5];
+                    texCoordsX[1]=(*texCoords)[6*i+0];
+                    texCoordsY[1]=(*texCoords)[6*i+1];
+                    texCoordsX[2]=(*texCoords)[6*i+2];
+                    texCoordsY[2]=(*texCoords)[6*i+3];
+                }
+                if (normals!=nullptr)
+                {
+                    n0=&((*normals)[9*i+6]);
+                    n1=&((*normals)[9*i+0]);
+                    n2=&((*normals)[9*i+3]);
+                }
             }
             if (maxInd==1)
             {
@@ -971,15 +984,21 @@ int CMeshManip::_reduceTriangleSizePass(std::vector<double>& vertices,std::vecto
                 vertInd[0]=indices[3*i+1];
                 vertInd[1]=indices[3*i+2];
                 vertInd[2]=indices[3*i+0];
-                texCoordsX[0]=(*texCoords)[6*i+2];
-                texCoordsY[0]=(*texCoords)[6*i+3];
-                texCoordsX[1]=(*texCoords)[6*i+4];
-                texCoordsY[1]=(*texCoords)[6*i+5];
-                texCoordsX[2]=(*texCoords)[6*i+0];
-                texCoordsY[2]=(*texCoords)[6*i+1];
-                n0=&((*normals)[9*i+3]);
-                n1=&((*normals)[9*i+6]);
-                n2=&((*normals)[9*i+0]);
+                if (texCoords!=nullptr)
+                {
+                    texCoordsX[0]=(*texCoords)[6*i+2];
+                    texCoordsY[0]=(*texCoords)[6*i+3];
+                    texCoordsX[1]=(*texCoords)[6*i+4];
+                    texCoordsY[1]=(*texCoords)[6*i+5];
+                    texCoordsX[2]=(*texCoords)[6*i+0];
+                    texCoordsY[2]=(*texCoords)[6*i+1];
+                }
+                if (normals!=nullptr)
+                {
+                    n0=&((*normals)[9*i+3]);
+                    n1=&((*normals)[9*i+6]);
+                    n2=&((*normals)[9*i+0]);
+                }
             }
             if (maxInd==2)
             {
@@ -989,24 +1008,24 @@ int CMeshManip::_reduceTriangleSizePass(std::vector<double>& vertices,std::vecto
                 vertInd[0]=indices[3*i+0];
                 vertInd[1]=indices[3*i+1];
                 vertInd[2]=indices[3*i+2];
-                texCoordsX[0]=(*texCoords)[6*i+0];
-                texCoordsY[0]=(*texCoords)[6*i+1];
-                texCoordsX[1]=(*texCoords)[6*i+2];
-                texCoordsY[1]=(*texCoords)[6*i+3];
-                texCoordsX[2]=(*texCoords)[6*i+4];
-                texCoordsY[2]=(*texCoords)[6*i+5];
-                n0=&((*normals)[9*i+0]);
-                n1=&((*normals)[9*i+3]);
-                n2=&((*normals)[9*i+6]);
+                if (texCoords!=nullptr)
+                {
+                    texCoordsX[0]=(*texCoords)[6*i+0];
+                    texCoordsY[0]=(*texCoords)[6*i+1];
+                    texCoordsX[1]=(*texCoords)[6*i+2];
+                    texCoordsY[1]=(*texCoords)[6*i+3];
+                    texCoordsX[2]=(*texCoords)[6*i+4];
+                    texCoordsY[2]=(*texCoords)[6*i+5];
+                }
+                if (normals!=nullptr)
+                {
+                    n0=&((*normals)[9*i+0]);
+                    n1=&((*normals)[9*i+3]);
+                    n2=&((*normals)[9*i+6]);
+                }
             }
             // Now we divide w[1]-w[2] and create a new vertex nw --> new triangle becomes w[0]-w[1]-nw
             C3Vector nw((w[1]+w[2])*0.5);
-            // we do the same with the texture coord:
-            double ntc[2];
-            ntc[0]=(texCoordsX[1]+texCoordsX[2])*0.5;
-            ntc[1]=(texCoordsY[1]+texCoordsY[2])*0.5;
-            // we do the same with normals:
-            C3Vector nn((n1+n2)*0.5);
             // we insert the new vertex:
             for (int j=0;j<3;j++)
                 vertices.push_back(nw(j));
@@ -1015,44 +1034,56 @@ int CMeshManip::_reduceTriangleSizePass(std::vector<double>& vertices,std::vecto
             indices[3*i+0]=vertInd[0];
             indices[3*i+1]=vertInd[1];
             indices[3*i+2]=newVertInd;
-            // We correct the old triangle's tex coords:
-            (*texCoords)[6*i+0]=texCoordsX[0];
-            (*texCoords)[6*i+1]=texCoordsY[0];
-            (*texCoords)[6*i+2]=texCoordsX[1];
-            (*texCoords)[6*i+3]=texCoordsY[1];
-            (*texCoords)[6*i+4]=ntc[0];
-            (*texCoords)[6*i+5]=ntc[1];
-            // We correct the old triangle's normals:
-            (*normals)[9*i+0]=n0(0);
-            (*normals)[9*i+1]=n0(1);
-            (*normals)[9*i+2]=n0(2);
-            (*normals)[9*i+3]=n1(0);
-            (*normals)[9*i+4]=n1(1);
-            (*normals)[9*i+5]=n1(2);
-            (*normals)[9*i+6]=nn(0);
-            (*normals)[9*i+7]=nn(1);
-            (*normals)[9*i+8]=nn(2);
             // We insert the new triangle2:
             indices.push_back(vertInd[0]);
             indices.push_back(newVertInd);
             indices.push_back(vertInd[2]);
-            // We insert the new triangle2 tex coords:
-            (*texCoords).push_back(texCoordsX[0]);
-            (*texCoords).push_back(texCoordsY[0]);
-            (*texCoords).push_back(ntc[0]);
-            (*texCoords).push_back(ntc[1]);
-            (*texCoords).push_back(texCoordsX[2]);
-            (*texCoords).push_back(texCoordsY[2]);
-            // We insert the new triangle2 normals:
-            (*normals).push_back(n0(0));
-            (*normals).push_back(n0(1));
-            (*normals).push_back(n0(2));
-            (*normals).push_back(nn(0));
-            (*normals).push_back(nn(1));
-            (*normals).push_back(nn(2));
-            (*normals).push_back(n2(0));
-            (*normals).push_back(n2(1));
-            (*normals).push_back(n2(2));
+
+            if (texCoords!=nullptr)
+            { // we do the same with the texture coord:
+                double ntc[2];
+                ntc[0]=(texCoordsX[1]+texCoordsX[2])*0.5;
+                ntc[1]=(texCoordsY[1]+texCoordsY[2])*0.5;
+                // We correct the old triangle's tex coords:
+                (*texCoords)[6*i+0]=texCoordsX[0];
+                (*texCoords)[6*i+1]=texCoordsY[0];
+                (*texCoords)[6*i+2]=texCoordsX[1];
+                (*texCoords)[6*i+3]=texCoordsY[1];
+                (*texCoords)[6*i+4]=ntc[0];
+                (*texCoords)[6*i+5]=ntc[1];
+                // We insert the new triangle2 tex coords:
+                (*texCoords).push_back(texCoordsX[0]);
+                (*texCoords).push_back(texCoordsY[0]);
+                (*texCoords).push_back(ntc[0]);
+                (*texCoords).push_back(ntc[1]);
+                (*texCoords).push_back(texCoordsX[2]);
+                (*texCoords).push_back(texCoordsY[2]);
+            }
+
+            if (normals!=nullptr)
+            { // we do the same with normals:
+                C3Vector nn((n1+n2)*0.5);
+                // We correct the old triangle's normals:
+                (*normals)[9*i+0]=n0(0);
+                (*normals)[9*i+1]=n0(1);
+                (*normals)[9*i+2]=n0(2);
+                (*normals)[9*i+3]=n1(0);
+                (*normals)[9*i+4]=n1(1);
+                (*normals)[9*i+5]=n1(2);
+                (*normals)[9*i+6]=nn(0);
+                (*normals)[9*i+7]=nn(1);
+                (*normals)[9*i+8]=nn(2);
+                // We insert the new triangle2 normals:
+                (*normals).push_back(n0(0));
+                (*normals).push_back(n0(1));
+                (*normals).push_back(n0(2));
+                (*normals).push_back(nn(0));
+                (*normals).push_back(nn(1));
+                (*normals).push_back(nn(2));
+                (*normals).push_back(n2(0));
+                (*normals).push_back(n2(1));
+                (*normals).push_back(n2(2));
+            }
             trianglesAdded++;
         }
     }

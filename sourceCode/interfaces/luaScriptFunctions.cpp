@@ -5352,7 +5352,7 @@ int _simTest(luaWrap_lua_State* L)
             vertices.resize(vl);
             getDoublesFromTable(L,4,vl,vertices.data());
             std::vector<double> path;
-            double dist=CMeshRoutines::getGeodesicDistanceOnConvexMesh(pt1,pt2,vertices,&path);//,edgeLength)
+            double dist=CMeshRoutines::getGeodesicDistanceOnConvexMesh(pt1,pt2,vertices,&path,luaToDouble(L,5));
             luaWrap_lua_pushnumber(L,dist);
             pushDoubleTableOntoStack(L,path.size(),path.data());
             LUA_END(2);

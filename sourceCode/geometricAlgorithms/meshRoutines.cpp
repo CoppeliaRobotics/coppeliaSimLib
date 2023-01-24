@@ -246,7 +246,8 @@ bool CMeshRoutines::getConvexHull(const double* verticesIn,int verticesInLength,
                     indicesOut->push_back(outInd[i]);
                 delete[] outInd;
             }
-
+            return(true);
+            /*
             C3Vector minV,maxV;
             for (size_t i=0;i<verticesOut->size()/3;i++)
             {
@@ -268,11 +269,16 @@ bool CMeshRoutines::getConvexHull(const double* verticesIn,int verticesInLength,
             // We merge close vertices, in order to have less problems with tolerances (1% of the dimension of the hull):
             CMeshManip::checkVerticesIndicesNormalsTexCoords(*verticesOut,*indicesOut,nullptr,nullptr,true,(dim(0)+dim(1)+dim(2))*0.001/3.0,false);
             if ( (verticesOut->size()>=12)&&checkIfConvex(*verticesOut,*indicesOut,0.001) ) // 0.1%
+            {
+                printf("e\n");
                 return(true);
+            }
+            */
         }
     }
     else
         App::logMsg(sim_verbosity_errors,"Qhull failed. Is the Qhull plugin loaded?");
+    printf("F\n");
 
     return(false);
 }
@@ -1230,11 +1236,11 @@ struct SGeodVertNode {
     double dist;
     SGeodVertNode* prevNode;
     bool visited;
-    std::set<SGeodVertNode*>* connectedNodes;
+    std::set<SGeodVertNode*> connectedNodes;
 };
 
 
-double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const C3Vector& pt2,const std::vector<double>& vertices,std::vector<double>* path/*=nullptr*/,double maxEdgeLength/*=0.002*/)
+double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const C3Vector& pt2,const std::vector<double>& vertices,std::vector<double>* path/*=nullptr*/,double maxEdgeLength/*=0.01*/)
 {
     std::vector<double> vert;
     std::vector<int> ind;
@@ -1251,134 +1257,146 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const 
     // Extract a convex hull from the vertices:
     if (getConvexHull(&inVert,&vert,&ind))
     {
-        //simCreateMeshShape_internal(0,0.0,vert.data(),vert.size(),ind.data(),ind.size(),0);
-        // Prepare data structure for dijkstra algo:
-        for (size_t i=0;i<vert.size()/3;i++)
-        {
-            SGeodVertNode* n=new SGeodVertNode;
-            n->index=int(i);
-            n->dist=DBL_MAX;
-            n->prevNode=nullptr;
-            n->visited=false;
-            n->connectedNodes=new std::set<SGeodVertNode*>;
-            allNodes.push_back(n);
-            unvisitedNodes.insert(n);
-        }
-        for (size_t i=0;i<ind.size()/3;i++)
-        {
-            int tri[3]={ind[3*i+0],ind[3*i+1],ind[3*i+2]};
-            SGeodVertNode* nodes[3]={allNodes[ind[0]],allNodes[ind[1]],allNodes[ind[2]]};
-            nodes[0]->connectedNodes->insert(nodes[1]);
-            nodes[0]->connectedNodes->insert(nodes[2]);
-            nodes[1]->connectedNodes->insert(nodes[0]);
-            nodes[1]->connectedNodes->insert(nodes[2]);
-            nodes[2]->connectedNodes->insert(nodes[0]);
-            nodes[2]->connectedNodes->insert(nodes[1]);
-        }
-
-   //     return(0);
-        // Identify the start and goal nodes:
-        SGeodVertNode* startNode;
-        SGeodVertNode* goalNode;
-        double startD=DBL_MAX;
-        double goalD=DBL_MAX;
-        for (size_t i=0;i<vert.size()/3;i++)
-        { // we will actually search from p2=startNode to p1=goalNode
-            C3Vector p(vert.data()+3*i);
-            double d=(p-pt2).getLength();
-            if (d<startD)
-            {
-                startD=d;
-                startNode=allNodes[i];
-            }
-            d=(p-pt1).getLength();
-            if (d<goalD)
-            {
-                goalD=d;
-                goalNode=allNodes[i];
-            }
-        }
-        startNode->dist=0.0;
-
-        // Main Dijkstra loop:
+        double edgeLength=DBL_MAX;
         while (true)
-        {
-            // Find closest in unvisited:
-            double d=DBL_MAX;
-            SGeodVertNode* mnode=nullptr;
-            for (auto it=unvisitedNodes.begin();it!=unvisitedNodes.end();it++)
+        { // perform several passes if needed
+            // Prepare data structure for dijkstra algo:
+            for (size_t i=0;i<vert.size()/3;i++)
             {
-                printf("a\n");
-                int cnt=0;
-                for (auto it2=(*it)->connectedNodes->begin();it2!=(*it)->connectedNodes->end();it2++)
-                {
-                    printf("a0 %i\n",cnt);
-                    cnt++;
-                }
-                printf("Cnt: %i\n",cnt);
-
-                if ((*it)->dist<d)
-                {
-                    printf("c2: %f, %f\n",d, (*it)->dist);
-                    d=(*it)->dist;
-                    mnode=(*it);
-                }
-                printf("b\n");
+                SGeodVertNode* n=new SGeodVertNode;
+                n->index=int(i);
+                n->dist=DBL_MAX;
+                n->prevNode=nullptr;
+                n->visited=false;
+                allNodes.push_back(n);
+                unvisitedNodes.insert(n);
             }
-            printf("d0: %u\n",mnode);
-            printf("d: %f\n",mnode->dist);
-            // Loop through its neighbours, and check distance:
-            for (auto it=mnode->connectedNodes->begin();it!=mnode->connectedNodes->end();it++)
+            for (size_t i=0;i<ind.size()/3;i++)
             {
-                printf(".");
-                if (unvisitedNodes.find(*it)!=unvisitedNodes.end())
+                int tri[3]={ind[3*i+0],ind[3*i+1],ind[3*i+2]};
+                SGeodVertNode* nodes[3]={allNodes[tri[0]],allNodes[tri[1]],allNodes[tri[2]]};
+                nodes[0]->connectedNodes.insert(nodes[1]);
+                nodes[0]->connectedNodes.insert(nodes[2]);
+                nodes[1]->connectedNodes.insert(nodes[0]);
+                nodes[1]->connectedNodes.insert(nodes[2]);
+                nodes[2]->connectedNodes.insert(nodes[0]);
+                nodes[2]->connectedNodes.insert(nodes[1]);
+            }
+
+            // Identify the start and goal nodes:
+            SGeodVertNode* startNode;
+            SGeodVertNode* goalNode;
+            double startD=DBL_MAX;
+            double goalD=DBL_MAX;
+            for (size_t i=0;i<vert.size()/3;i++)
+            { // we will actually search from p2=startNode to p1=goalNode
+                C3Vector p(vert.data()+3*i);
+                double d=(p-pt2).getLength();
+                if (d<startD)
                 {
-                    printf("_");
-                    C3Vector origin(vert.data()+3*mnode->index);
-                    C3Vector pt(vert.data()+3*(*it)->index);
-                    printf("o");
-                    double d=(origin-pt).getLength()+mnode->dist;
-                    printf("1");
-                    if (d<(*it)->dist)
+                    startD=d;
+                    startNode=allNodes[i];
+                }
+                d=(p-pt1).getLength();
+                if (d<goalD)
+                {
+                    goalD=d;
+                    goalNode=allNodes[i];
+                }
+            }
+            startNode->dist=0.0;
+
+            // Main Dijkstra loop:
+            while (true)
+            {
+                // Find closest in unvisited:
+                double d=DBL_MAX;
+                SGeodVertNode* mnode=nullptr;
+                for (auto it=unvisitedNodes.begin();it!=unvisitedNodes.end();it++)
+                {
+                    if ((*it)->dist<d)
                     {
-                        printf("2");
-                        (*it)->dist=d;
-                        (*it)->prevNode=mnode;
+                        d=(*it)->dist;
+                        mnode=(*it);
                     }
                 }
+                // Loop through its neighbours, and check distance:
+                for (auto it=mnode->connectedNodes.begin();it!=mnode->connectedNodes.end();it++)
+                {
+                    if (unvisitedNodes.find(*it)!=unvisitedNodes.end())
+                    {
+                        C3Vector origin(vert.data()+3*mnode->index);
+                        C3Vector pt(vert.data()+3*(*it)->index);
+                        double d=(origin-pt).getLength()+mnode->dist;
+                        if (d<(*it)->dist)
+                        {
+                            (*it)->dist=d;
+                            (*it)->prevNode=mnode;
+                        }
+                    }
+                }
+                // Remove current node from unvisited set:
+                unvisitedNodes.erase(mnode);
+                if (mnode==goalNode)
+                    break; // we are done
             }
-            printf("e\n");
-            // Remove current node from unvisited set:
-            unvisitedNodes.erase(mnode);
-            if (mnode==goalNode)
-                break; // we are done
-        }
-        printf("f\n");
-        // We have our minimum distance:
-        retVal=goalNode->dist;
-        // Now get the path:
-        if (path!=nullptr)
-        {
-            printf("g\n");
-           SGeodVertNode* node=goalNode;
-           while (true)
-           {
-               path->push_back(vert[3*node->index+0]);
-               path->push_back(vert[3*node->index+1]);
-               path->push_back(vert[3*node->index+2]);
-               if (node==startNode)
-                   break;
-               node=node->prevNode;
-           }
-        }
 
-        for (size_t i=0;i<allNodes.size();i++)
-        {
-            delete allNodes[i]->connectedNodes;
-            delete allNodes[i];
+            // We have the minimum distance:
+            retVal=goalNode->dist;
+            // Get the path:
+            if (path!=nullptr)
+            {
+                path->clear();
+                SGeodVertNode* node=goalNode;
+                while (true)
+                {
+                    path->push_back(vert[3*node->index+0]);
+                    path->push_back(vert[3*node->index+1]);
+                    path->push_back(vert[3*node->index+2]);
+                    if (node==startNode)
+                        break;
+                    node=node->prevNode;
+                }
+            }
+
+            edgeLength=CMeshManip::getMaxEdgeLength(vert,ind);
+            bool done=true;
+            if (edgeLength>maxEdgeLength)
+            { // too coarse, remove triangles far away, and subdivide remaining triangles, if needed:
+                done=false;
+                std::vector<int> indc(ind);
+                ind.clear();
+                for (size_t i=0;i<indc.size()/3;i++)
+                {
+                    C3Vector pt_1(vert.data()+3*indc[3*i+0]);
+                    C3Vector pt_2(vert.data()+3*indc[3*i+1]);
+                    C3Vector pt_3(vert.data()+3*indc[3*i+2]);
+                    if ( (unvisitedNodes.find(allNodes[indc[3*i+0]])==unvisitedNodes.end())||(unvisitedNodes.find(allNodes[indc[3*i+1]])==unvisitedNodes.end())||(unvisitedNodes.find(allNodes[indc[3*i+2]])==unvisitedNodes.end()) )
+                    {
+                        if ( ((pt_1-pt1).getLength()+(pt_1-pt2).getLength()<goalNode->dist*1.001)||((pt_2-pt1).getLength()+(pt_2-pt2).getLength()<goalNode->dist*1.001)||((pt_3-pt1).getLength()+(pt_3-pt2).getLength()<goalNode->dist*1.001) )
+                        {
+                            ind.push_back(indc[3*i+0]);
+                            ind.push_back(indc[3*i+1]);
+                            ind.push_back(indc[3*i+2]);
+                        }
+                    }
+                }
+                CMeshManip::removeNonReferencedVertices(vert,ind);
+                edgeLength/=2.0;
+                CMeshManip::reduceTriangleSize(vert,ind,nullptr,nullptr,edgeLength,0.0001);
+            }
+
+            for (size_t i=0;i<allNodes.size();i++)
+                delete allNodes[i];
+            allNodes.clear();
+            unvisitedNodes.clear();
+
+            if (done)
+            {
+                //int h=simCreateMeshShape_internal(0,0.0,vert.data(),vert.size(),ind.data(),ind.size(),0);
+                break;
+            }
         }
-
-
     }
     return(retVal);
 }

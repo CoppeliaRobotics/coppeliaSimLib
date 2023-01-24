@@ -392,24 +392,16 @@ CScriptObject* CWorldContainer::getScriptFromHandle(int scriptHandle) const
     return(retVal);
 }
 
-int CWorldContainer::getContactFuncCount() const
+int CWorldContainer::getSysFuncAndHookCnt(int sysCall) const
 {
-    return(currentWorld->embeddedScriptContainer->getContactFuncCount()+addOnScriptContainer->getContactFuncCount());
-}
-
-int CWorldContainer::getDynFuncCount() const
-{
-    return(currentWorld->embeddedScriptContainer->getDynFuncCount()+addOnScriptContainer->getDynFuncCount());
-}
-
-int CWorldContainer::getEventFuncCount() const
-{
-    return(currentWorld->embeddedScriptContainer->getEventFuncCount()+addOnScriptContainer->getEventFuncCount());
-}
-
-int CWorldContainer::getJointFuncCount() const
-{
-    return(currentWorld->embeddedScriptContainer->getJointFuncCount()+addOnScriptContainer->getJointFuncCount());
+    int retVal=currentWorld->embeddedScriptContainer->getSysFuncAndHookCnt(sysCall);
+    retVal+=addOnScriptContainer->getSysFuncAndHookCnt(sysCall);
+    if (sandboxScript!=nullptr)
+    {
+        for (size_t i=0;i<3;i++)
+            retVal+=sandboxScript->getFuncAndHookCnt(sysCall,i);
+    }
+    return(retVal);
 }
 
 void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch/*=nullptr*/)
@@ -418,7 +410,7 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfa
     bool doNotInterrupt=!CScriptObject::isSystemCallbackInterruptible(callType);
     if (CScriptObject::isSystemCallbackInReverseOrder(callType))
     { // reverse order
-        if ( (sandboxScript!=nullptr)&&(sandboxScript->hasSystemFunction(callType)||sandboxScript->getOldCallMode()) )
+        if ( (sandboxScript!=nullptr)&&(sandboxScript->hasSystemFunctionOrHook(callType)||sandboxScript->getOldCallMode()) )
             sandboxScript->systemCallScript(callType,inStack,outStack);
         if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
             addOnScriptContainer->callScripts(callType,inStack,outStack);
@@ -432,7 +424,7 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfa
             addOnScriptContainer->callScripts(callType,inStack,outStack);
         if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
         {
-            if ( (sandboxScript!=nullptr)&&(sandboxScript->hasSystemFunction(callType)||sandboxScript->getOldCallMode()) )
+            if ( (sandboxScript!=nullptr)&&(sandboxScript->hasSystemFunctionOrHook(callType)||sandboxScript->getOldCallMode()) )
                 sandboxScript->systemCallScript(callType,inStack,outStack);
         }
     }
@@ -610,7 +602,7 @@ void CWorldContainer::setMergeEvents(bool b)
 
 bool CWorldContainer::getEventsEnabled() const
 {
-    return(getEventFuncCount()>0);
+    return(getSysFuncAndHookCnt(sim_syscb_event)>0);
 }
 
 void CWorldContainer::getGenesisEvents(CInterfaceStack* stack)

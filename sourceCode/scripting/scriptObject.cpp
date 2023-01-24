@@ -33,6 +33,13 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     _numberOfPasses=0;
     _addOnUiMenuHandle=-1;
     _scriptExecPriority=sim_scriptexecorder_normal;
+    for (size_t i=0;i<3;i++)
+    {
+        _sysFuncAndHookCnt_event[i]=0;
+        _sysFuncAndHookCnt_dyn[i]=0;
+        _sysFuncAndHookCnt_contact[i]=0;
+        _sysFuncAndHookCnt_joint[i]=0;
+    }
 
     // Old
     // ***********************************************************
@@ -230,6 +237,93 @@ void CScriptObject::fromBufferToFile() const
             }
         }
     }
+}
+
+int CScriptObject::getSystemCallbackFromString(const char* cb)
+{
+    if (std::string(cb)=="sysCall_info")
+        return(sim_syscb_info);
+    if (std::string(cb)=="sysCall_init")
+        return(sim_syscb_init);
+    if (std::string(cb)=="sysCall_cleanup")
+        return(sim_syscb_cleanup);
+    if (std::string(cb)=="sysCall_nonSimulation")
+        return(sim_syscb_nonsimulation);
+    if (std::string(cb)=="sysCall_beforeMainScript")
+        return(sim_syscb_beforemainscript);
+    if (std::string(cb)=="sysCall_beforeSimulation")
+        return(sim_syscb_beforesimulation);
+    if (std::string(cb)=="sysCall_afterSimulation")
+        return(sim_syscb_aftersimulation);
+    if (std::string(cb)=="sysCall_actuation")
+        return(sim_syscb_actuation);
+    if (std::string(cb)=="sysCall_sensing")
+        return(sim_syscb_sensing);
+    if (std::string(cb)=="sysCall_suspended")
+        return(sim_syscb_suspended);
+    if (std::string(cb)=="sysCall_suspend")
+        return(sim_syscb_suspend);
+    if (std::string(cb)=="sysCall_resume")
+        return(sim_syscb_resume);
+    if (std::string(cb)=="sysCall_beforeInstanceSwitch")
+        return(sim_syscb_beforeinstanceswitch);
+    if (std::string(cb)=="sysCall_afterInstanceSwitch")
+        return(sim_syscb_afterinstanceswitch);
+    if (std::string(cb)=="sysCall_beforeCopy")
+        return(sim_syscb_beforecopy);
+    if (std::string(cb)=="sysCall_afterCopy")
+        return(sim_syscb_aftercopy);
+    if (std::string(cb)=="sysCall_beforeDelete")
+        return(sim_syscb_beforedelete);
+    if (std::string(cb)=="sysCall_afterDelete")
+        return(sim_syscb_afterdelete);
+    if (std::string(cb)=="sysCall_afterCreate")
+        return(sim_syscb_aftercreate);
+    if (std::string(cb)=="sysCall_addOnScriptSuspend")
+        return(sim_syscb_aos_suspend);
+    if (std::string(cb)=="sysCall_addOnScriptResume")
+        return(sim_syscb_aos_resume);
+    if (std::string(cb)=="sysCall_joint")
+        return(sim_syscb_joint);
+    if (std::string(cb)=="sysCall_vision")
+        return(sim_syscb_vision);
+    if (std::string(cb)=="sysCall_userConfig")
+        return(sim_syscb_userconfig);
+    if (std::string(cb)=="sysCall_moduleEntry")
+        return(sim_syscb_moduleentry);
+    if (std::string(cb)=="sysCall_trigger")
+        return(sim_syscb_trigger);
+    if (std::string(cb)=="sysCall_contact")
+        return(sim_syscb_contact);
+    if (std::string(cb)=="sysCall_dyn")
+        return(sim_syscb_dyn);
+    if (std::string(cb)=="sysCall_customCallback")
+        return(sim_syscb_customcallback1);
+    if (std::string(cb)=="sysCall_event")
+        return(sim_syscb_event);
+    if (std::string(cb)=="sysCall_ext")
+        return(sim_syscb_ext);
+    if (std::string(cb)=="sysCall_realTimeIdle")
+        return(sim_syscb_realtimeidle);
+    if (std::string(cb)=="sysCall_beforeSave")
+        return(sim_syscb_beforesave);
+    if (std::string(cb)=="sysCall_afterSave")
+        return(sim_syscb_aftersave);
+    if (std::string(cb)=="sysCall_msg")
+        return(sim_syscb_msg);
+
+    // Old:
+    if (std::string(cb)=="sysCall_addOnScriptRun")
+        return(sim_syscb_aos_run_old);
+    if (std::string(cb)=="sysCall_threadmain")
+        return(sim_syscb_threadmain);
+    if (std::string(cb)=="sysCall_jointCallback")
+        return(sim_syscb_jointcallback);
+    if (std::string(cb)=="sysCall_contactCallback")
+        return(sim_syscb_contactcallback);
+    if (std::string(cb)=="sysCall_dynCallback")
+        return(sim_syscb_dyncallback);
+    return(-1);
 }
 
 std::string CScriptObject::getSystemCallbackString(int calltype,int what)
@@ -896,10 +990,17 @@ std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptTy
     return(retVal);
 }
 
-bool CScriptObject::hasSystemFunction(int callType) const
+bool CScriptObject::hasSystemFunction(int callType,bool returnTrueIfNotInitialized/*=true*/) const
 { // when the script is not initialized, we need to return true
+    if ( returnTrueIfNotInitialized&&(_scriptState!=scriptState_initialized) )
+        return(true);
+    return(_containedSystemCallbacks[callType]);//  ||_compatibilityMode_oldLua );
+}
+
+bool CScriptObject::hasSystemFunctionOrHook(int callType) const
+{
     std::string tmp(getSystemCallbackString(callType,0));
-    return( (_scriptState!=scriptState_initialized)||_containedSystemCallbacks[callType]||hasFunctionHook(tmp.c_str()) );//  ||_compatibilityMode_oldLua );
+    return( hasSystemFunction(callType)||hasFunctionHook(tmp.c_str()) );
 }
 
 bool CScriptObject::getOldCallMode() const
@@ -1430,7 +1531,7 @@ int CScriptObject::systemCallScript(int callType,const CInterfaceStack* inStack,
             { // Regular system function calls
                 if ( ((_scriptState&scriptState_error)==0)||(callType==sim_syscb_cleanup) )
                 {
-                    if ( (callType!=sim_syscb_event)||hasSystemFunction(sim_syscb_event) )
+                    if ( (callType!=sim_syscb_event)||hasSystemFunctionOrHook(sim_syscb_event) )
                     {
                         retVal=_callSystemScriptFunction(callType,inStack,outStack);
                         if (_scriptType==sim_scripttype_sandboxscript)
@@ -1748,53 +1849,15 @@ bool CScriptObject::_loadCode()
                     else
                     {
                         _scriptState=scriptState_uninitialized;
-                        // Below funcs are speed-sensitive:
-                        if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
-                        {
-                            if (hasSystemFunction(sim_syscb_event))
-                            {
-                                _initiallyHadSystemCallback_event=true;
-                                App::currentWorld->embeddedScriptContainer->setEventFuncCount(App::currentWorld->embeddedScriptContainer->getEventFuncCount()+1);
-                            }
-                            if ( (hasSystemFunction(sim_syscb_dyn))||(hasSystemFunction(sim_syscb_dyncallback)) )
-                            {
-                                _initiallyHadSystemCallback_dyn=true;
-                                App::currentWorld->embeddedScriptContainer->setDynFuncCount(App::currentWorld->embeddedScriptContainer->getDynFuncCount()+1);
-                            }
-                            if ( (hasSystemFunction(sim_syscb_contact))||(hasSystemFunction(sim_syscb_contactcallback)) )
-                            {
-                                _initiallyHadSystemCallback_contact=true;
-                                App::currentWorld->embeddedScriptContainer->setContactFuncCount(App::currentWorld->embeddedScriptContainer->getContactFuncCount()+1);
-                            }
-                            if ( (hasSystemFunction(sim_syscb_joint))||(hasSystemFunction(sim_syscb_jointcallback)) )
-                            {
-                                _initiallyHadSystemCallback_joint=true;
-                                App::currentWorld->embeddedScriptContainer->setJointFuncCount(App::currentWorld->embeddedScriptContainer->getJointFuncCount()+1);
-                            }
-                        }
-                        if (_scriptType==sim_scripttype_addonscript)
-                        {
-                            if (hasSystemFunction(sim_syscb_event))
-                            {
-                                _initiallyHadSystemCallback_event=true;
-                                App::worldContainer->addOnScriptContainer->setEventFuncCount(App::worldContainer->addOnScriptContainer->getEventFuncCount()+1);
-                            }
-                            if ( (hasSystemFunction(sim_syscb_dyn))||(hasSystemFunction(sim_syscb_dyncallback)) )
-                            {
-                                _initiallyHadSystemCallback_dyn=true;
-                                App::worldContainer->addOnScriptContainer->setDynFuncCount(App::worldContainer->addOnScriptContainer->getDynFuncCount()+1);
-                            }
-                            if ( (hasSystemFunction(sim_syscb_contact))||(hasSystemFunction(sim_syscb_contactcallback)) )
-                            {
-                                _initiallyHadSystemCallback_contact=true;
-                                App::worldContainer->addOnScriptContainer->setContactFuncCount(App::worldContainer->addOnScriptContainer->getContactFuncCount()+1);
-                            }
-                            if ( (hasSystemFunction(sim_syscb_joint))||(hasSystemFunction(sim_syscb_jointcallback)) )
-                            {
-                                _initiallyHadSystemCallback_joint=true;
-                                App::worldContainer->addOnScriptContainer->setJointFuncCount(App::worldContainer->addOnScriptContainer->getJointFuncCount()+1);
-                            }
-                        }
+                        // Following because below funcs are speed-sensitive:
+                        if (hasSystemFunction(sim_syscb_event,false))
+                            setFuncAndHookCnt(sim_syscb_event,0,1);
+                        if ( (hasSystemFunction(sim_syscb_dyn,false))||(hasSystemFunction(sim_syscb_dyncallback,false)) )
+                            setFuncAndHookCnt(sim_syscb_dyn,0,1);
+                        if ( (hasSystemFunction(sim_syscb_contact,false))||(hasSystemFunction(sim_syscb_contactcallback,false)) )
+                            setFuncAndHookCnt(sim_syscb_contact,0,1);
+                        if ( (hasSystemFunction(sim_syscb_joint,false))||(hasSystemFunction(sim_syscb_jointcallback,false)) )
+                            setFuncAndHookCnt(sim_syscb_joint,0,1);
                     }
                 }
                 _numberOfPasses++;
@@ -2307,28 +2370,12 @@ bool CScriptObject::_killInterpreterState()
     _scriptTextExec.clear();
     _executionDepth=0;
 
-    // Below funcs are speed-sensitive:
-    if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
+    for (size_t i=0;i<3;i++)
     {
-        if (_initiallyHadSystemCallback_event)
-            App::currentWorld->embeddedScriptContainer->setEventFuncCount(App::currentWorld->embeddedScriptContainer->getEventFuncCount()-1);
-        if (_initiallyHadSystemCallback_dyn)
-            App::currentWorld->embeddedScriptContainer->setDynFuncCount(App::currentWorld->embeddedScriptContainer->getDynFuncCount()-1);
-        if (_initiallyHadSystemCallback_contact)
-            App::currentWorld->embeddedScriptContainer->setContactFuncCount(App::currentWorld->embeddedScriptContainer->getContactFuncCount()-1);
-        if (_initiallyHadSystemCallback_joint)
-            App::currentWorld->embeddedScriptContainer->setJointFuncCount(App::currentWorld->embeddedScriptContainer->getJointFuncCount()+1);
-    }
-    if (_scriptType==sim_scripttype_addonscript)
-    {
-        if (_initiallyHadSystemCallback_event)
-            App::worldContainer->addOnScriptContainer->setEventFuncCount(App::worldContainer->addOnScriptContainer->getEventFuncCount()-1);
-        if (_initiallyHadSystemCallback_dyn)
-            App::worldContainer->addOnScriptContainer->setDynFuncCount(App::worldContainer->addOnScriptContainer->getDynFuncCount()-1);
-        if (_initiallyHadSystemCallback_contact)
-            App::worldContainer->addOnScriptContainer->setContactFuncCount(App::worldContainer->addOnScriptContainer->getContactFuncCount()-1);
-        if (_initiallyHadSystemCallback_joint)
-            App::worldContainer->addOnScriptContainer->setJointFuncCount(App::worldContainer->addOnScriptContainer->getJointFuncCount()+1);
+        setFuncAndHookCnt(sim_syscb_event,i,0);
+        setFuncAndHookCnt(sim_syscb_dyn,i,0);
+        setFuncAndHookCnt(sim_syscb_contact,i,0);
+        setFuncAndHookCnt(sim_syscb_joint,i,0);
     }
 
     _containedSystemCallbacks.clear();
@@ -2336,10 +2383,6 @@ bool CScriptObject::_killInterpreterState()
     _flaggedForDestruction=false;
     _functionHooks_before.clear();
     _functionHooks_after.clear();
-    _initiallyHadSystemCallback_event=false;
-    _initiallyHadSystemCallback_dyn=false;
-    _initiallyHadSystemCallback_contact=false;
-    _initiallyHadSystemCallback_joint=false;
 
     _loadBufferResult_lua=-1;
     _compatibilityMode_oldLua=false;
@@ -2565,10 +2608,6 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     _forbidAutoYieldingLevel=0;
     _timeForNextAutoYielding=int(VDateTime::getTimeInMs())+_delayForAutoYielding;
     _forbidOverallYieldingLevel=0;
-    _initiallyHadSystemCallback_event=false;
-    _initiallyHadSystemCallback_dyn=false;
-    _initiallyHadSystemCallback_contact=false;
-    _initiallyHadSystemCallback_joint=false;
 
     luaWrap_lua_State* L=luaWrap_luaL_newstate();
     _interpreterState=L;
@@ -2776,14 +2815,74 @@ bool CScriptObject::hasFunctionHook(const char* sysFunc) const
     return(false);
 }
 
+int CScriptObject::getFuncAndHookCnt(int sysCall,size_t what) const
+{ // Only for time critical functions/hooks (event, dyn, contact, joint). what: 0=func, 1=hook before, 2=hook after
+    if (sysCall==sim_syscb_event)
+        return(_sysFuncAndHookCnt_event[what]);
+    if (sysCall==sim_syscb_dyn)
+        return(_sysFuncAndHookCnt_dyn[what]);
+    if (sysCall==sim_syscb_contact)
+        return(_sysFuncAndHookCnt_contact[what]);
+    if (sysCall==sim_syscb_joint)
+        return(_sysFuncAndHookCnt_joint[what]);
+    return(0);
+}
+
+void CScriptObject::setFuncAndHookCnt(int sysCall,size_t what,int cnt)
+{ // Only for time critical functions/hooks (event, dyn, contact, joint). what: 0=func, 1=hook before, 2=hook after
+    if ( (sysCall==sim_syscb_event)||(sysCall==-1) )
+    {
+        int dx=cnt-_sysFuncAndHookCnt_event[what];
+        _sysFuncAndHookCnt_event[what]=cnt;
+        if (_scriptType==sim_scripttype_addonscript)
+            App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(sim_syscb_event,App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_event)+dx);
+        else if (_scriptType!=sim_scripttype_sandboxscript)
+            App::currentWorld->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_event,App::currentWorld->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_event)+dx);
+    }
+    if ( (sysCall==sim_syscb_dyn)||(sysCall==-1) )
+    {
+        int dx=cnt-_sysFuncAndHookCnt_dyn[what];
+        _sysFuncAndHookCnt_dyn[what]=cnt;
+        if (_scriptType==sim_scripttype_addonscript)
+            App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(sim_syscb_dyn,App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn)+dx);
+        else if (_scriptType!=sim_scripttype_sandboxscript)
+            App::currentWorld->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_dyn,App::currentWorld->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn)+dx);
+    }
+    if ( (sysCall==sim_syscb_contact)||(sysCall==-1) )
+    {
+        int dx=cnt-_sysFuncAndHookCnt_contact[what];
+        _sysFuncAndHookCnt_contact[what]=cnt;
+        if (_scriptType==sim_scripttype_addonscript)
+            App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(sim_syscb_contact,App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact)+dx);
+        else if (_scriptType!=sim_scripttype_sandboxscript)
+            App::currentWorld->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_contact,App::currentWorld->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact)+dx);
+    }
+    if ( (sysCall==sim_syscb_joint)||(sysCall==-1) )
+    {
+        int dx=cnt-_sysFuncAndHookCnt_joint[what];
+        _sysFuncAndHookCnt_joint[what]=cnt;
+        if (_scriptType==sim_scripttype_addonscript)
+            App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(sim_syscb_joint,App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint)+dx);
+        else if (_scriptType!=sim_scripttype_sandboxscript)
+            App::currentWorld->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_joint,App::currentWorld->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint)+dx);
+    }
+}
+
 int CScriptObject::registerFunctionHook(const char* sysFunc,const char* userFunc,bool before)
 {
+    int sysFuncNb=getSystemCallbackFromString(sysFunc);
     if (strlen(sysFunc)==0)
     {
         if (before)
+        {
             _functionHooks_before.clear();
+            setFuncAndHookCnt(-1,1,0);
+        }
         else
+        {
             _functionHooks_after.clear();
+            setFuncAndHookCnt(-1,2,0);
+        }
         return(0); // successful unregister
     }
     else
@@ -2804,6 +2903,13 @@ int CScriptObject::registerFunctionHook(const char* sysFunc,const char* userFunc
                     if (l->at(2*i+1).compare(userFunc)==0)
                     { // function already registered. Unregister it:
                         l->erase(l->begin()+2*i,l->begin()+2*i+2);
+                        if (sysFuncNb>=0)
+                        {
+                            if (before)
+                                setFuncAndHookCnt(sysFuncNb,1,getFuncAndHookCnt(sysFuncNb,1)-1);
+                            else
+                                setFuncAndHookCnt(sysFuncNb,2,getFuncAndHookCnt(sysFuncNb,2)-1);
+                        }
                         return(0); // successful unregister
                     }
                     i++;
@@ -2813,7 +2919,16 @@ int CScriptObject::registerFunctionHook(const char* sysFunc,const char* userFunc
                 i++;
         }
         if (userFuncEmpty)
-            return(0); // successful unregister
+        {
+            if (sysFuncNb>=0)
+            {
+                if (before)
+                    setFuncAndHookCnt(sysFuncNb,1,0);
+                else
+                    setFuncAndHookCnt(sysFuncNb,2,0);
+            }
+            return(0); // successful unregister all hooks for that system function
+        }
         // We need to register that function:
         if (before)
         {
@@ -2824,6 +2939,13 @@ int CScriptObject::registerFunctionHook(const char* sysFunc,const char* userFunc
         {
             l->push_back(sysFunc);
             l->push_back(userFunc);
+        }
+        if (sysFuncNb>=0)
+        {
+            if (before)
+                setFuncAndHookCnt(sysFuncNb,1,getFuncAndHookCnt(sysFuncNb,1)+1);
+            else
+                setFuncAndHookCnt(sysFuncNb,2,getFuncAndHookCnt(sysFuncNb,2)+1);
         }
         return(1); // successful register
     }

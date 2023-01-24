@@ -9,10 +9,10 @@
 
 CAddOnScriptContainer::CAddOnScriptContainer()
 {
-    _contactFuncCount=0;
-    _dynFuncCount=0;
-    _eventFuncCount=0;
-    _jointFuncCount=0;
+    _sysFuncAndHookCnt_event=0;
+    _sysFuncAndHookCnt_dyn=0;
+    _sysFuncAndHookCnt_contact=0;
+    _sysFuncAndHookCnt_joint=0;
     _insertAddOns();
     _prepareAddOnFunctionNames_old();
 }
@@ -22,44 +22,29 @@ CAddOnScriptContainer::~CAddOnScriptContainer()
     removeAllAddOns(); // But add-ons should already have been removed at this stage
 }
 
-int CAddOnScriptContainer::getContactFuncCount() const
+int CAddOnScriptContainer::getSysFuncAndHookCnt(int sysCall) const
 {
-    return(_contactFuncCount);
+    if (sysCall==sim_syscb_event)
+        return(_sysFuncAndHookCnt_event);
+    if (sysCall==sim_syscb_dyn)
+        return(_sysFuncAndHookCnt_dyn);
+    if (sysCall==sim_syscb_contact)
+        return(_sysFuncAndHookCnt_contact);
+    if (sysCall==sim_syscb_joint)
+        return(_sysFuncAndHookCnt_joint);
+    return(0);
 }
 
-void CAddOnScriptContainer::setContactFuncCount(int cnt)
+void CAddOnScriptContainer::setSysFuncAndHookCnt(int sysCall,int cnt)
 {
-    _contactFuncCount=cnt;
-}
-
-int CAddOnScriptContainer::getDynFuncCount() const
-{
-    return(_dynFuncCount);
-}
-
-void CAddOnScriptContainer::setDynFuncCount(int cnt)
-{
-    _dynFuncCount=cnt;
-}
-
-int CAddOnScriptContainer::getEventFuncCount() const
-{
-    return(_eventFuncCount);
-}
-
-void CAddOnScriptContainer::setEventFuncCount(int cnt)
-{
-    _eventFuncCount=cnt;
-}
-
-int CAddOnScriptContainer::getJointFuncCount() const
-{
-    return(_jointFuncCount);
-}
-
-void CAddOnScriptContainer::setJointFuncCount(int cnt)
-{
-    _jointFuncCount=cnt;
+    if (sysCall==sim_syscb_event)
+        _sysFuncAndHookCnt_event=cnt;
+    if (sysCall==sim_syscb_dyn)
+        _sysFuncAndHookCnt_dyn=cnt;
+    if (sysCall==sim_syscb_contact)
+        _sysFuncAndHookCnt_contact=cnt;
+    if (sysCall==sim_syscb_joint)
+        _sysFuncAndHookCnt_joint=cnt;
 }
 
 void CAddOnScriptContainer::simulationAboutToStart()
@@ -281,7 +266,7 @@ int CAddOnScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CIn
     for (size_t i=0;i<scripts.size();i++)
     {
         CScriptObject* it=scripts[i];
-        if ( it->hasSystemFunction(callType)||it->getOldCallMode() )
+        if ( it->hasSystemFunctionOrHook(callType)||it->getOldCallMode() )
         {
             if (it->systemCallScript(callType,inStack,outStack)==1)
                 retVal++;

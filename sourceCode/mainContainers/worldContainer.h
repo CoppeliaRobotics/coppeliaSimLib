@@ -73,10 +73,9 @@ public:
     bool isWorldSwitchingLocked() const;
     void getAllSceneNames(std::vector<std::string>& l) const;
     CScriptObject* getScriptFromHandle(int scriptHandle) const;
-    int getContactFuncCount() const;
-    int getDynFuncCount() const;
-    int getEventFuncCount() const;
-    int getJointFuncCount() const;
+
+    int getSysFuncAndHookCnt(int sysCall) const;
+
     void callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr);
     void broadcastMsg(CInterfaceStack* inStack,int options);
 

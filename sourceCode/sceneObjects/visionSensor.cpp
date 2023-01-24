@@ -2256,10 +2256,10 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
     }
 
     CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,_objectHandle);
-    if ( (script!=nullptr)&&(!script->hasSystemFunction(sim_syscb_vision)) )
+    if ( (script!=nullptr)&&(!script->hasSystemFunctionOrHook(sim_syscb_vision)) )
         script=nullptr;
     CScriptObject* cScript=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,_objectHandle);
-    if ( (cScript!=nullptr)&&(!cScript->hasSystemFunction(sim_syscb_vision)) )
+    if ( (cScript!=nullptr)&&(!cScript->hasSystemFunctionOrHook(sim_syscb_vision)) )
         cScript=nullptr;
     if ( (script!=nullptr)||(cScript!=nullptr) )
     {
@@ -2339,9 +2339,9 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
     }
     if (trigger)
     {
-        if ( (script!=nullptr)&&(!script->hasSystemFunction(sim_syscb_trigger)) )
+        if ( (script!=nullptr)&&(!script->hasSystemFunctionOrHook(sim_syscb_trigger)) )
             script=nullptr;
-        if ( (cScript!=nullptr)&&(!cScript->hasSystemFunction(sim_syscb_trigger)) )
+        if ( (cScript!=nullptr)&&(!cScript->hasSystemFunctionOrHook(sim_syscb_trigger)) )
             cScript=nullptr;
         if ( (script!=nullptr)||(cScript!=nullptr) )
         {

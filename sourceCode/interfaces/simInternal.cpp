@@ -16894,7 +16894,7 @@ int _simHandleCustomContact_internal(int objHandle1,int objHandle2,int engine,in
     TRACE_C_API;
 
     // 1. We handle the new calling method:
-    if (App::worldContainer->getContactFuncCount()>0)
+    if (App::worldContainer->getSysFuncAndHookCnt(sim_syscb_contact)>0)
     {
         if ((engine&1024)==0) // the engine flag 1024 means: the calling thread is not the simulation thread. We would have problems with the scripts
         {
@@ -16981,7 +16981,7 @@ void _simDynCallback_internal(const int* intData,const double* floatData)
 {
     TRACE_C_API;
 
-    if (App::worldContainer->getDynFuncCount()>0)
+    if (App::worldContainer->getSysFuncAndHookCnt(sim_syscb_dyn)>0)
     { // to make it a bit faster than blindly parsing the whole object hierarchy
         CInterfaceStack* inStack=App::worldContainer->interfaceStackContainer->createStack();
         inStack->pushTableOntoStack();

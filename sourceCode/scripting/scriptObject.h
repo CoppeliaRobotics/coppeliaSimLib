@@ -120,7 +120,8 @@ public:
     bool addCommandToOutsideCommandQueue(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const double aux2Vals[8],int aux2Count);
     int extractCommandFromOutsideCommandQueue(int auxVals[4],double aux2Vals[8],int& aux2Count);
 
-    bool hasSystemFunction(int callType) const;
+    bool hasSystemFunction(int callType,bool returnTrueIfNotInitialized=true) const;
+    bool hasSystemFunctionOrHook(int callType) const;
     bool getOldCallMode() const;
 
     std::string getFilenameForExternalScriptEditor() const;
@@ -146,6 +147,8 @@ public:
     void printInterpreterStack() const;
 
     bool hasFunctionHook(const char* sysFunc) const;
+    int getFuncAndHookCnt(int sysCall,size_t what) const;
+    void setFuncAndHookCnt(int sysCall,size_t what,int cnt);
     int registerFunctionHook(const char* sysFunc,const char* userFunc,bool before);
 
     static void getMatchingFunctions(const char* txt,std::vector<std::string>& v);
@@ -155,6 +158,7 @@ public:
     static bool canCallSystemCallback(int scriptType,bool threadedOld,int callType);
     static bool isSystemCallbackInReverseOrder(int callType);
     static bool isSystemCallbackInterruptible(int callType);
+    static int getSystemCallbackFromString(const char* cb);
     static std::string getSystemCallbackString(int calltype,int what);
     static std::vector<int> getAllSystemCallbacks(int scriptType,bool threadedOld);
     static std::vector<std::string> getAllSystemCallbackStrings(int scriptType,int what);
@@ -266,10 +270,10 @@ protected:
     std::string _lastStackTraceback;
 
     std::vector<bool> _containedSystemCallbacks;
-    bool _initiallyHadSystemCallback_event;
-    bool _initiallyHadSystemCallback_dyn;
-    bool _initiallyHadSystemCallback_contact;
-    bool _initiallyHadSystemCallback_joint;
+    int _sysFuncAndHookCnt_event[3]; // function, hook before, hook after
+    int _sysFuncAndHookCnt_dyn[3];
+    int _sysFuncAndHookCnt_contact[3];
+    int _sysFuncAndHookCnt_joint[3];
     void _printContext(const char* str,size_t p);
 
     std::string _addOnName;
