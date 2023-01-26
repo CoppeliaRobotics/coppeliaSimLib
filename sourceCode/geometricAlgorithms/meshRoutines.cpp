@@ -7,6 +7,7 @@
 #include "simInternal.h"
 #include <algorithm>
 #include <set>
+#include <unordered_set>
 #include "app.h"
 
 void CMeshRoutines::getEdgeFeatures(double* vertices,int verticesLength,int* indices,int indicesLength,
@@ -267,7 +268,7 @@ bool CMeshRoutines::getConvexHull(const double* verticesIn,int verticesInLength,
             C3Vector dim(maxV-minV);
 
             // We merge close vertices, in order to have less problems with tolerances (1% of the dimension of the hull):
-            CMeshManip::checkVerticesIndicesNormalsTexCoords(*verticesOut,*indicesOut,nullptr,nullptr,true,(dim(0)+dim(1)+dim(2))*0.001/3.0,false);
+            CMeshManip::cleanUpMeshData(*verticesOut,*indicesOut,nullptr,nullptr,true,(dim(0)+dim(1)+dim(2))*0.001/3.0,false);
             if ( (verticesOut->size()>=12)&&checkIfConvex(*verticesOut,*indicesOut,0.001) ) // 0.1%
             {
                 printf("e\n");
@@ -475,27 +476,48 @@ int CMeshRoutines::_getTriangleIndexFromEdge(std::vector<std::vector<int>* >& al
 
 bool CMeshRoutines::checkIfConvex(const std::vector<double>& vertices,const std::vector<int>& indices,double distanceToleranceInPercent)
 {
-    // We need to check if neighbouring triangle are in a convex config, and if all triangles share an edge with exactly another triangle
-    // Finally, we also need to check if the shape is in fact two (or more) convex shapes (i.e. 2 merged convex shapes) (only for test a) )
-    bool convex=true;
-    // 1. build a fast index:
-    std::vector<std::vector<int>* > allEdges(vertices.size()/3,nullptr);
-    for (int tri=0;tri<int(indices.size()/3);tri++)
+    // Since identical vertices are allowed, first merge them:
+    std::vector<double> vertices_(vertices);
+    std::vector<int> indices_(indices);
+    CMeshManip::cleanUpMeshData(vertices_,indices_,nullptr,nullptr,true,App::userSettings->identicalVerticesTolerance,false);
+
+    // Check if all edges touch exactly 2 triangles:
+    std::vector<std::map<int,int>> allEdges(vertices_.size()/3);
+    for (size_t i=0;i<indices_.size()/3;i++)
     {
-        int ind[3]={indices[3*tri+0],indices[3*tri+1],indices[3*tri+2]};
-        _insertEdge(allEdges,ind[0],ind[1],tri);
-        _insertEdge(allEdges,ind[1],ind[2],tri);
-        _insertEdge(allEdges,ind[2],ind[0],tri);
+        int tri[3]={indices_[3*i+0],indices_[3*i+1],indices_[3*i+2]};
+        if ( (tri[0]!=tri[1])&&(tri[0]!=tri[2])&&(tri[1]!=tri[2]) )
+        {
+            for (size_t j=0;j<3;j++)
+            {
+                size_t k=j+1;
+                if (k>2)
+                    k=0;
+                int si=std::min<int>(tri[j],tri[k]);
+                int bi=std::max<int>(tri[j],tri[k]);
+                auto e=allEdges[si].find(bi);
+                if (e==allEdges[si].end())
+                    allEdges[si].insert(std::make_pair(bi,1));
+                else
+                    allEdges[si][bi]+=1;
+            }
+        }
+    }
+    for (size_t i=0;i<allEdges.size();i++)
+    {
+        auto m=allEdges[i];
+        for (auto it=m.begin();it!=m.end();it++)
+        {
+            if (it->second!=2)
+                return(false);
+        }
     }
 
-
-    // 2. Now check each triangle for connectivity (exactly 3 neighbours) and for convexity:
-    // We check for a maximum distance with a vertex outside of the half-spaces defining the convex shape
-
+    // Check if all face planes have all points on one side (the neg. side), i.e. check for convexity:
     C3Vector minV,maxV;
-    for (int i=0;i<int(vertices.size()/3);i++)
+    for (size_t i=0;i<vertices_.size()/3;i++)
     {
-        C3Vector v(&vertices[3*i]);
+        C3Vector v(&vertices_[3*i]);
         if (i==0)
         {
             minV=v;
@@ -510,102 +532,26 @@ bool CMeshRoutines::checkIfConvex(const std::vector<double>& vertices,const std:
     C3Vector boxDim(maxV-minV);
     double toleratedDist=distanceToleranceInPercent*(boxDim(0)+boxDim(1)+boxDim(2))/3.0;
     std::vector<double> planeDefinitions;
-
-    for (int tri=0;tri<int(indices.size()/3);tri++)
+    for (size_t i=0;i<indices_.size()/3;i++)
     {
-        int ind[3]={indices[3*tri+0],indices[3*tri+1],indices[3*tri+2]};
-        C3Vector p0(&vertices[3*ind[0]]);
-        C3Vector p1(&vertices[3*ind[1]]);
-        C3Vector p2(&vertices[3*ind[2]]);
+        int ind[3]={indices_[3*i+0],indices_[3*i+1],indices_[3*i+2]};
+        C3Vector p0(vertices_.data()+3*ind[0]);
+        C3Vector p1(vertices_.data()+3*ind[1]);
+        C3Vector p2(vertices_.data()+3*ind[2]);
         C3Vector v0(p1-p0);
         C3Vector v1(p2-p0);
-        C3Vector v2(p2-p1);
-        C3Vector n0(v0^v1);
-        C3Vector n1(v2^(v1*-1.0));
-        C3Vector n2(v1^v2);
-        n0=n0.getNormalized()+n1.getNormalized()+n2.getNormalized();
-        n0.normalize();
-        double d=n0*((p0+p1+p2)*(0.33333333));
-        planeDefinitions.push_back(n0(0));
-        planeDefinitions.push_back(n0(1));
-        planeDefinitions.push_back(n0(2));
-        planeDefinitions.push_back(d);
-
-        // Check all 3 neighbouring triangles:
-        for (int i=0;i<3;i++)
+        C3Vector n(v0^v1);
+        n.normalize();
+        double d=n*((p0+p1+p2)/3.0);
+        for (size_t j=0;j<vertices_.size()/3;j++)
         {
-            int j=i+1;
-            if (j>2)
-                j=0;
-            int tri2=_getTriangleIndexFromEdge(allEdges,ind[i],ind[j],tri);
-            if (tri2==-1)
-            { // the mesh is not closed!
-                convex=false;
-                break;
-            }
-        }
-        if (!convex)
-            break; // the test already failed
-    }
-
-    if (convex)
-    {
-        for (int vert=0;vert<int(vertices.size()/3);vert++)
-        {
-            C3Vector v(&vertices[3*vert+0]);
-            for (int i=0;i<int(planeDefinitions.size()/4);i++)
-            {
-                double d=v(0)*planeDefinitions[4*i+0]+v(1)*planeDefinitions[4*i+1]+v(2)*planeDefinitions[4*i+2]-planeDefinitions[4*i+3];
-                if (d>toleratedDist)
-                {
-                    convex=false;
-                    break;
-                }
-            }
-            if (!convex)
-                break; // the test already failed
+            C3Vector v(vertices_.data()+3*j);
+            double dist=v(0)*n(0)+v(1)*n(1)+v(2)*n(2)-d;
+            if (dist>toleratedDist)
+                return(false);
         }
     }
-
-    // 3. Check if the shape contains 2 (or more) items:
-    // Might be important for cases where two identical shapes are coincident
-    if (convex)
-    {
-        std::vector<bool> allTriangles(int(indices.size()/3),false);
-        std::vector<int> trianglesToExplore;
-        trianglesToExplore.push_back(0);
-        allTriangles[0]=true;
-        int triCount=1;
-        while (trianglesToExplore.size()!=0)
-        { // iterative exploration
-            int tri=trianglesToExplore[trianglesToExplore.size()-1];
-            trianglesToExplore.pop_back();
-            int ind[3]={indices[3*tri+0],indices[3*tri+1],indices[3*tri+2]};
-            // Check all 3 neighbouring triangles:
-            for (int i=0;i<3;i++)
-            {
-                int j=i+1;
-                if (j>2)
-                    j=0;
-                int tri2=_getTriangleIndexFromEdge(allEdges,ind[i],ind[j],tri);
-                if (!allTriangles[tri2])
-                { // we haven't explored that one yet!
-                    triCount++;
-                    allTriangles[tri2]=true;
-                    trianglesToExplore.push_back(tri2);
-                }
-            }   
-        }
-        convex=(triCount==int(indices.size()/3));
-    }
-
-    // 4. Clean-up!
-    for (int i=0;i<int(allEdges.size());i++)
-    {
-        if (allEdges[i]!=nullptr)
-            delete allEdges[i];
-    }
-    return(convex);
+    return(true);
 }
 
 void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,const int subdivisions[3])
@@ -1173,7 +1119,7 @@ void CMeshRoutines::createCylinder(std::vector<double>& vertices,std::vector<int
 
     if (cone)
     { // We have a degenerate cylinder, we need to remove degenerate triangles and double vertices:
-        CMeshManip::checkVerticesIndicesNormalsTexCoords(vertices,indices,nullptr,nullptr,true,0.0000001,false);
+        CMeshManip::cleanUpMeshData(vertices,indices,nullptr,nullptr,true,0.0000001,false);
     }
 
     // Now we scale the cylinder:
@@ -1236,7 +1182,7 @@ struct SGeodVertNode {
     double dist;
     SGeodVertNode* prevNode;
     bool visited;
-    std::set<SGeodVertNode*> connectedNodes;
+    std::set<SGeodVertNode*> connectedNodes; // unordered_set is somehow slower
 };
 
 
@@ -1252,7 +1198,7 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const 
     inVert.push_back(pt1(1));
     inVert.push_back(pt1(2));
     double retVal=DBL_MAX;
-    std::set<SGeodVertNode*> unvisitedNodes;
+    std::unordered_set<SGeodVertNode*> unvisitedNodes;
     std::vector<SGeodVertNode*> allNodes;
     // Extract a convex hull from the vertices:
     if (getConvexHull(&inVert,&vert,&ind))

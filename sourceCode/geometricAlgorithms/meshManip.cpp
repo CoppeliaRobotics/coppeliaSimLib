@@ -198,7 +198,7 @@ void CMeshManip::useOnlyReferencedVertices(std::vector<double>* vertices,std::ve
     }
 }
 
-bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<double>* texCoords,bool checkDoubles,double tolerance,bool checkSameTriangles)
+bool CMeshManip::cleanUpMeshData(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<double>* texCoords,bool checkDoubles,double tolerance,bool checkSameTriangles)
 { // normals and texCoords can be nullptr
     bool noError=true;
 
@@ -914,7 +914,7 @@ bool CMeshManip::reduceTriangleSize(std::vector<double>& vertices,std::vector<in
         }
         // Merge identical vertices:
         if (verticeMergeTolerance>0.0)
-            checkVerticesIndicesNormalsTexCoords(vertices,indices,normals,texCoords,true,verticeMergeTolerance,false);
+            cleanUpMeshData(vertices,indices,normals,texCoords,true,verticeMergeTolerance,false);
     }
     return(indices.size()!=0);
 }

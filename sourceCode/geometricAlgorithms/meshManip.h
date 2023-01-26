@@ -17,7 +17,7 @@ public:
     static bool extractOneShape(std::vector<double>* vertices,std::vector<int>* indices,std::vector<double>* sVertices,std::vector<int>* sIndices);
     static void useOnlyReferencedVertices(std::vector<double>* vertices,std::vector<double>* sVertices,std::vector<int>* sIndices);
     static void removeNonReferencedVertices(std::vector<double>& vertices,std::vector<int>& indices);
-    static bool checkVerticesIndicesNormalsTexCoords(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<double>* texCoords,bool checkDoubles,double tolerance,bool checkSameTriangles);
+    static bool cleanUpMeshData(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<double>* texCoords,bool checkDoubles,double tolerance,bool checkSameTriangles);
 
     static int removeColinearTriangles(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<double>* texCoords,double tolerance);
     static void removeDoubleVertices(std::vector<double>& vertices,std::vector<int>& mapping,double tolerance);

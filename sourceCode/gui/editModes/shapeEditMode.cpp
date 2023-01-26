@@ -61,7 +61,7 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
         C7Vector oldTr(_shape->getCumulativeTransformation());
         CMesh* gc=_shape->getSingleMesh();
         gc->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0); // disable the pure characteristic
-        CMeshManip::checkVerticesIndicesNormalsTexCoords(_editionVertices,_editionIndices,nullptr,&_editionTextureCoords,_identicalVerticesCheck,_identicalVerticesTolerance,_identicalTrianglesCheck);
+        CMeshManip::cleanUpMeshData(_editionVertices,_editionIndices,nullptr,&_editionTextureCoords,_identicalVerticesCheck,_identicalVerticesTolerance,_identicalTrianglesCheck);
 
         if (_editionVertices.size()!=0)
         { // The shape is not empty
