@@ -476,7 +476,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
                                 }
                             }
                         }
-                        App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                        App::logMsg(sim_verbosity_msgs,"done.");
                     }
                 }
                 else
@@ -508,7 +508,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
                                     }
                                 }
                             }
-                            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                            App::logMsg(sim_verbosity_msgs,"done.");
                         }
                     }
                 }
@@ -553,7 +553,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
                             }
                         }
                     }
-                    App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                    App::logMsg(sim_verbosity_msgs,"done.");
                 }
             }
         }
@@ -591,7 +591,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
             cmdIn.intParams.push_back(OPEN_SHAPE_EDIT_MODE_VERTEX_PART_CMD);
             App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
             App::setFullDialogRefreshFlag();
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. We execute the command in a delayed manner:
@@ -614,7 +614,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
             cmdIn.intParams.push_back(OPEN_SHAPE_EDIT_MODE_TRIANGLE_PART_CMD);
             App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
             App::setFullDialogRefreshFlag();
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. We execute the command in a delayed manner:
@@ -637,7 +637,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
             cmdIn.intParams.push_back(OPEN_SHAPE_EDIT_MODE_EDGE_PART_CMD);
             App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
             App::setFullDialogRefreshFlag();
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. We execute the command in a delayed manner:
@@ -659,7 +659,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
                 App::logMsg(sim_verbosity_msgs,IDSNS_COPYING_SELECTION);
                 _shapeEditMode->processCommand(commandID);
                 App::setLightDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -682,7 +682,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
                 App::logMsg(sim_verbosity_msgs,IDSNS_PASTING_BUFFER);
                 _shapeEditMode->processCommand(commandID);
                 App::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -700,7 +700,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_CLEARING_BUFFER);
             _shapeEditMode->processCommand(commandID);
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. We execute the command in a delayed manner:
@@ -719,7 +719,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
             App::logMsg(sim_verbosity_msgs,IDSNS_DELETING_SELECTION);
             _shapeEditMode->processCommand(commandID);
             App::setFullDialogRefreshFlag();
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -742,7 +742,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
                 App::logMsg(sim_verbosity_msgs,IDSNS_SELECTING_ALL_EDGES);
             _shapeEditMode->processCommand(commandID);
             App::setFullDialogRefreshFlag();
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -798,7 +798,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
                 App::logMsg(sim_verbosity_msgs,IDSNS_CUTTING_SELECTION);
                 _shapeEditMode->processCommand(commandID);
                 App::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -918,7 +918,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
                 {
                     App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 }
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -941,7 +941,7 @@ bool CEditModeContainer::_processMultishapeEditModeCommand(int commandID)
             App::logMsg(sim_verbosity_msgs,IDSNS_ENDING_EDIT_MODE_AND_APPLYING_CHANGES);
             endEditMode(false);
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -966,7 +966,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_SELECTING_ALL_PATH_POINTS);
                 App::setLightDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -986,7 +986,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_COPYING_SELECTION);
                 App::setLightDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -1006,7 +1006,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_PASTING_BUFFER);
                 App::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -1026,7 +1026,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_INSERTING_NEW_PATH_POINT);
                 App::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -1048,7 +1048,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
                 {
                     App::logMsg(sim_verbosity_msgs,IDSNS_APPENDING_NEW_PATH_POINT_FROM_CAMERA_CONFIGURATION);
                     App::setFullDialogRefreshFlag();
-                    App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                    App::logMsg(sim_verbosity_msgs,"done.");
                 }
             }
         }
@@ -1070,7 +1070,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_DELETING_SELECTION);
                 App::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -1090,7 +1090,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_CUTTING_SELECTION);
                 App::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -1110,7 +1110,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_KEEPING_CONTROL_POINT_X_AXIS_AND_ALIGNING_CONTROL_POINT_Z_AXIS_WITH_LAST_SELECTION);
                 App::setLightDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -1135,7 +1135,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_INVERTING_CONTROL_POINT_ORDER);
             if (_pathEditMode->processCommand(commandID,viewableObject))
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             else
                 App::logMsg(sim_verbosity_msgs,IDSNS_FAILED_SELECTED_CONTROL_POINTS_ARE_NOT_CONSECUTIVE);
             App::setFullDialogRefreshFlag();
@@ -1163,7 +1163,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
                 App::logMsg(sim_verbosity_msgs,IDSNS_GENERATING_NEW_PATH);
                 _pathEditMode->processCommand(commandID,viewableObject);
                 App::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -1197,7 +1197,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
                 {
                     App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 }
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else

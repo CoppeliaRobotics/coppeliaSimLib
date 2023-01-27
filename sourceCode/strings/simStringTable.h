@@ -1,78 +1,5 @@
 #pragma once
 
-#define IDSN_DEBUG_MENU_ITEM "Debug"
-#define IDSN_DISABLE_FRUSTUM_CULLING_DEBUG_MENU_ITEM "Disable frustum culling"
-#define IDSN_DISABLE_DISTANCE_CACHING_DEBUG_MENU_ITEM "Disable distance caching"
-#define IDSN_VISUALIZE_OBB_STRUCTURE_DEBUG_MENU_ITEM "Visualize prepared OBB calculation structures"
-#define IDSN_SCENE_SAVE_FAILED_WARNING "Failed saving the scene"
-
-#define IDSN_INERTIA_FRAME "Inertia frame"
-#define IDSN_INERTIA_FRAME_RELATIVE_TO_WORLD "The inertia frame is now expressed relative to the absolute reference frame. Clicking 'Apply to selection' will from now on apply the same absolute position/orientation of the inertia frames."
-#define IDSN_MOTION_PLANNING "Motion planning"
-#define IDSN_MOTION_PLANNING_SELECTION_INVALID "Make sure that you have selected only the joints (revolute or prismatic) involved in the motion planning task."
-#define IDSN_RANGE_SUBDIVISIONS "Range subdivisions"
-#define IDSN_METRIC_WEIGHT "Metric weight"
-#define IDSN_DONE "Done."
-#define IDSN_MOTION_PLANNING_PARAMETERS_ILL_DEFINED "Nodes could not be computed: the motion planning parameters are ill-defined."
-#define IDSN_DONE_TOTAL_NODES "Done. Total nodes: "
-
-#define IDSN_PURE_COMPOUND_SHAPE "Pure compound shape"
-#define IDSN_HEIGHTFIELD_SHAPE "Heightfield shape"
-#define IDSN_PURE_SIMPLE_SHAPE_PLANE_ "Pure simple shape (plane)"
-#define IDSN_PURE_SIMPLE_SHAPE_DISC_ "Pure simple shape (disc)"
-#define IDSN_PURE_SIMPLE_SHAPE_CUBOID_ "Pure simple shape (cuboid)"
-#define IDSN_PURE_SIMPLE_SHAPE_SPHEROID_ "Pure simple shape (spheroid)"
-#define IDSN_PURE_SIMPLE_SHAPE_CYLINDER_ "Pure simple shape (cylinder)"
-#define IDSN_PURE_SIMPLE_SHAPE_CAPSULE_ "Pure simple shape (capsule)"
-#define IDSN_PURE_SIMPLE_SHAPE_CONE_ "Pure simple shape (cone)"
-#define IDSN_COMPOUND_CONVEX_SHAPE "Compound convex shape"
-#define IDSN_COMPOUND_RANDOM_SHAPE "Compound random shape"
-#define IDSN_SIMPLE_CONVEX_SHAPE "Simple convex shape"
-#define IDSN_SIMPLE_RANDOM_SHAPE "Simple random shape"
-
-
-#define IDSN_MAP_COORD_IMPORTED "imported"
-#define IDSN_MAP_COORD_PROJECTION "projection"
-#define IDSN_MAP_COORD_CYLINDER "cylinder"
-#define IDSN_MAP_COORD_SPHERE "sphere"
-#define IDSN_MAP_COORD_CUBE "cube"
-
-#define IDSN_TEXTURE_APPLY_MODE_MODULATE "modulate"
-#define IDSN_TEXTURE_APPLY_MODE_DECAL "decal"
-#define IDSN_TEXTURE_APPLY_MODE_ADD "add"
-#define IDSN_TEXTURE_APPLY_MODE_BLEND "blend"
-
-#define IDSN_EXTERNAL_EDITOR_INFO "Make sure to restart CoppeliaSim, for changes to take effect!"
-#define IDSN_EXTERNAL_SCRIPT_EDITOR "External script editor"
-
-#define IDSN_TOGGLE_VISUALIZATION "Toggle visualization"
-
-#define IDSN_HIERARCHY_COLORING_MENU_ITEM "Hierarchy coloring"
-#define IDSN_HIERARCHY_COLORING_NONE_MENU_ITEM "None"
-#define IDSN_HIERARCHY_COLORING_RED_MENU_ITEM "Red"
-#define IDSN_HIERARCHY_COLORING_GREEN_MENU_ITEM "Green"
-#define IDSN_HIERARCHY_COLORING_BLUE_MENU_ITEM "Blue"
-
-#define IDSN_ASSEMBLING_METHOD "Setting local matrix transformation (for assembly)"
-#define IDSN_ASSEMBLING_METHOD_QUESTION "Do you want to use current local transformation matrix as local transformation matrix after assembly?"
-
-#define IDSNS_HIERARCHY_EXPANDED "Hierarchy expanded."
-#define IDSNS_HIERARCHY_COLLAPSED "Hierarchy collapsed."
-#define IDSNS_HIERARCHY_TREES_EXPANDED "Hierarchy tree(s) expanded."
-#define IDSNS_HIERARCHY_TREES_COLLAPSED "Hierarchy tree(s) collapsed."
-
-#define IDSNS_DONE "done."
-#define IDSNS_ABORTED "Aborted."
-#define IDSNS_OPERATION_ABORTED "Operation aborted."
-#define IDSNS_CANNOT_PROCEED_SELECTION_IS_EMPTY "Cannot proceed, selection is empty."
-#define IDSNS_AN_ERROR_OCCURRED_DURING_THE_IMPORT_OPERATION "An error occurred during the import operation."
-#define IDSNS_AN_ERROR_OCCURRED_DURING_THE_EXPORT_OPERATION "An error occurred during the export operation."
-#define IDSNS_ABORTED_FILE_DOES_NOT_EXIST "Aborted (file does not exist)."
-#define IDSNS_CANNOT_PROCEED_NO_DYNAMIC_CONTENT_AVAILABLE "Cannot proceed, no dynamic content available!"
-#define IDSNS_FAILED_IS_THE_QHULL_PLUGIN_LOADED "Operation failed: is the Qhull plugin loaded?"
-#define IDSNS_EXPORT_OPERATION_FAILED "Export operation failed."
-
-
 #define IDSNS_STARTING_TRIANGLE_EDIT_MODE "Starting triangle edit mode..."
 #define IDSNS_STARTING_COMPOUND_SHAPE_EDIT_MODE "Starting edit mode of compound shape..."
 #define IDSNS_ENDING_EDIT_MODE_AND_APPLYING_CHANGES "Ending edit mode and applying changes..."
@@ -154,8 +81,6 @@
 
 #define IDSNS_SCENE_COULD_NOT_BE_OPENED "Scene could not be opened."
 #define IDSNS_SCENE_OPENED "Scene opened."
-//#define IDSNS_WINDING_CORRECTION_MAYBE_NOT_ACCURATE "Winding correction may not be accurate: found edges shared between more than two triangles."
-
 
 #define IDSNS_GENERATING_PATH "Generating path..."
 #define IDSNS_GENERATING_PURE_SHAPE "Generating pure shape..."
@@ -230,7 +155,6 @@
 #define IDS_PATH_EDITION_TOOLBAR_TIP "Toggle path edit mode (make sure to have a single path object selected)" //addedOn 11/3/2012
 #define IDSN_SHAPE_EDITION_MENU_ITEM "Shape edition" //addedOn 11/3/2012
 #define IDSN_PATH_EDITION_MENU_ITEM "Path edition" //addedOn 11/3/2012
-#define IDS_SHAPE_IS_NOT_SIMPLE_FOR_EDITION_INFO_MESSAGE "The shape you wish to edit is not a simple shape. Make sure you ungroup it before proceeding." //addedOn 11/3/2012
 #define IDSN_SHAPE_EDIT_MODE "Shape edit mode" //addedOn 11/3/2012
 #define IDSN_PATH_EDIT_MODE_OLD "Path edit mode" //addedOn 11/3/2012
 #define IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES "Do you wish to apply the changes? (clicking no will however still preserve extracted objects)" //addedOn 11/3/2012
@@ -368,7 +292,6 @@
 #define IDSN_COLLISION_DISTANCE_OBJECT "Collision / Distance object"
 
 // Selection dialog:
-#define IDS_SIMPLE_SHAPES       "Simple shapes"
 #define IDS_COMPOUND_SHAPES      "Compound shapes"
 #define IDS_JOINTS              "Joints"
 #define IDS_CAMERAS             "Cameras"
@@ -467,7 +390,6 @@
 #define IDS_MERGING_OR_DIVIDING_REMOVES_TEXTURES_PROCEED_INFO_MESSAGE "Merging or dividing shapes will remove their associated textures. Do you want to proceed?"
 
 #define IDS_MAKE_LAST_SELECTED_OBJECTS_PARENT_MENU_ITEM "Make last selected object parent"
-#define IDS_MAKE_SELECTED_SIMPLE_SHAPES_PURE_MENU_ITEM "Make selected simple shapes pure"
 #define IDS_MAKE_SELECTED_OBJECT_S__ORPHAN_MENU_ITEM "Make selected object(s) orphan"
 
 #define IDS_GCSOBJECT_ALREADY_THERE_MESSAGE "The specified object is part of a mechanism that is already handled by"
@@ -503,12 +425,12 @@
 #define IDS_FLOATING_VIEW_MENU_ITEM "Floating view"
 
 #define IDS_PRIMITIVE_SHAPE_MENU_ITEM "Primitive shape"
-#define IDS_PLANE_MENU_ITEM     "Plane"
-#define IDS_DISC_MENU_ITEM      "Disc"
-#define IDS_SPHERE_MENU_ITEM    "Sphere"
-#define IDS_CYLINDER_MENU_ITEM  "Cylinder"
-#define IDS_CONE_MENU_ITEM  "Cone"
-#define IDS_CAPSULE_MENU_ITEM  "Capsule"
+#define IDS_PLANE_MENU_ITEM     "Plane..."
+#define IDS_DISC_MENU_ITEM      "Disc..."
+#define IDS_SPHERE_MENU_ITEM    "Sphere..."
+#define IDS_CYLINDER_MENU_ITEM  "Cylinder..."
+#define IDS_CONE_MENU_ITEM  "Cone..."
+#define IDS_CAPSULE_MENU_ITEM  "Capsule..."
 
 #define IDSN_PRIMITIVE_PLANE "Plane"
 #define IDSN_PRIMITIVE_SPHERE "Spheroid"

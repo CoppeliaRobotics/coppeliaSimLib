@@ -1016,12 +1016,12 @@ void CSView::addMenu(VMenu* menu)
 }
 
 int CSView::getCaughtElements() const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     return(_caughtElements);
 }
 
 void CSView::clearCaughtElements(int keepMask)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     _caughtElements&=keepMask;
 }
 
@@ -1278,7 +1278,7 @@ bool CSView::leftMouseButtonDown(int x,int y,int selStatus)
 }
 
 void CSView::leftMouseButtonUp(int x,int y)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
 
     if (!_mouseMovedWhileDownFlag)
         _handleClickRayIntersection_old(x,y,false); // will happen in a delayed manner
@@ -1293,7 +1293,7 @@ void CSView::leftMouseButtonUp(int x,int y)
 }
 
 void CSView::mouseMove(int x,int y,bool passiveAndFocused)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
     if (mouseIsDown&&(mouseDownRelativePosition[0]!=x)&&(mouseDownRelativePosition[1]!=y))
@@ -1482,7 +1482,7 @@ int CSView::modelDragMoveEvent(int x,int y,C3Vector* desiredModelPosition)
 }
 
 bool CSView::rightMouseButtonDown(int x,int y,bool _subViewIsPassive)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     subviewIsPassive=_subViewIsPassive;
     if ( (x<0)||(y<0)||(x>_viewSize[0])||(y>_viewSize[1]) )
         return(false);

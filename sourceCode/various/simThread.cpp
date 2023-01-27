@@ -4375,7 +4375,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     newShape->getSingleMesh()->setTextureCoords(nullptr);
                 }
             }
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
             App::setFullDialogRefreshFlag();
         }
         if (cmd.cmdId==SHAPEEDIT_MAKEPRIMITIVE_GUITRIGGEREDCMD)
@@ -4457,9 +4457,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
             if (shape!=nullptr)
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             else
-                App::logMsg(sim_verbosity_msgs,IDSNS_OPERATION_ABORTED);
+                App::logMsg(sim_verbosity_msgs,"Operation aborted.");
             App::setFullDialogRefreshFlag();
         }
 

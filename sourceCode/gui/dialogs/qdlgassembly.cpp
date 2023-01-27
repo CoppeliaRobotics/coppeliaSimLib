@@ -55,7 +55,7 @@ void CQDlgAssembly::on_qqParentMatchValue_editingFinished()
 
 void CQDlgAssembly::on_qqSetLocalMatrix_clicked()
 {
-    unsigned short res=App::uiThread->messageBox_question(App::mainWindow,IDSN_ASSEMBLING_METHOD,IDSN_ASSEMBLING_METHOD_QUESTION,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES);
+    unsigned short res=App::uiThread->messageBox_question(App::mainWindow,"Setting local matrix transformation (for assembly)","Do you want to use current local transformation matrix as local transformation matrix after assembly?",VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES);
     if (res==VMESSAGEBOX_REPLY_YES)
     {
         C7Vector transform(obj->getLocalTransformation());

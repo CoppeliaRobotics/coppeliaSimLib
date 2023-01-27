@@ -111,7 +111,7 @@ void CPageContainer::setUpDefaultPages(bool createASingleView)
 }
 
 CSPage* CPageContainer::getPage(int pageIndex) const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if ( (pageIndex<0)||(pageIndex>=PAGES_COUNT) )
         return(nullptr); // Invalid view number
     return(_allPages[pageIndex]);   
@@ -480,7 +480,7 @@ bool CPageContainer::leftMouseButtonDown(int x,int y,int selectionStatus)
 }
 
 void CPageContainer::clearAllLastMouseDownViewIndex()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     for (int i=0;i<PAGES_COUNT;i++)
     {
         CSPage* p=_allPages[i];
@@ -502,7 +502,7 @@ int CPageContainer::getCursor(int x,int y) const
 }
 
 void CPageContainer::leftMouseButtonUp(int x,int y)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
     if (App::currentWorld->buttonBlockContainer!=nullptr)
@@ -517,7 +517,7 @@ void CPageContainer::leftMouseButtonUp(int x,int y)
 }
 
 void CPageContainer::mouseMove(int x,int y,bool passiveAndFocused)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int bts=sim_right_button|sim_middle_button|sim_left_button;
     if (App::userSettings->navigationBackwardCompatibility)
         bts=sim_right_button|sim_left_button;
@@ -585,7 +585,7 @@ int CPageContainer::getFocusObject() const
 }
 
 void CPageContainer::setFocusObject(int obj)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     focusObject=obj;
     if (focusObject==FOCUS_ON_PAGE)
     {
@@ -598,7 +598,7 @@ void CPageContainer::setFocusObject(int obj)
 }
 
 void CPageContainer::keyPress(int key,QWidget* mainWindow)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if ((focusObject==FOCUS_ON_SOFT_DIALOG)&&(App::currentWorld->buttonBlockContainer!=nullptr))
     {
         App::currentWorld->buttonBlockContainer->onKeyDown(key);
@@ -656,7 +656,7 @@ void CPageContainer::keyPress(int key,QWidget* mainWindow)
 }
 
 bool CPageContainer::rightMouseButtonDown(int x,int y)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if ( (x<0)||(y<0)||(x>_pageSize[0])||(y>_pageSize[1]) )
         return(false);
     // The mouse went down in this window zone
@@ -798,7 +798,7 @@ void CPageContainer::middleMouseButtonUp(int x,int y)
 }
 
 bool CPageContainer::leftMouseButtonDoubleClick(int x,int y,int selectionStatus)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if ( (x<0)||(y<0)||(x>_pageSize[0])||(y>_pageSize[1]) )
         return(false);
     // The mouse went down in this window zone
@@ -823,7 +823,7 @@ bool CPageContainer::leftMouseButtonDoubleClick(int x,int y,int selectionStatus)
 }
 
 int CPageContainer::getCaughtElements() const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int retVal=0;
     for (int i=0;i<PAGES_COUNT;i++)
     {
@@ -837,7 +837,7 @@ int CPageContainer::getCaughtElements() const
 }
 
 void CPageContainer::clearCaughtElements(int keepMask)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)

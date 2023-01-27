@@ -123,7 +123,7 @@ void COpenglWidget::mouseMoveEvent(QMouseEvent* mEvent)
 }
 
 void COpenglWidget::_mouseMoveEvent(SMouseOrKeyboardOrResizeEvent e)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     TRACE_INTERNAL;
     int x,y;
     _computeMousePos(e.x,e.y,x,y);
@@ -137,13 +137,13 @@ void COpenglWidget::_mouseMoveEvent(SMouseOrKeyboardOrResizeEvent e)
 }
 
 void COpenglWidget::mousePressEvent(QMouseEvent* mEvent)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(mEvent,0);
 }
 
 void COpenglWidget::_mousePressEvent(SMouseOrKeyboardOrResizeEvent e)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     TRACE_INTERNAL;
 
     int x,y;
@@ -228,13 +228,13 @@ void COpenglWidget::_mousePressEvent(SMouseOrKeyboardOrResizeEvent e)
 }
 
 void COpenglWidget::mouseReleaseEvent(QMouseEvent* mEvent)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(mEvent,1);
 }
 
 void COpenglWidget::_mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     TRACE_INTERNAL;
 
     int x,y;
@@ -286,13 +286,13 @@ void COpenglWidget::_mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
 }
 
 void COpenglWidget::mouseDoubleClickEvent(QMouseEvent* mEvent)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(mEvent,2);
 }
 
 void COpenglWidget::_mouseDoubleClickEvent(SMouseOrKeyboardOrResizeEvent e)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     TRACE_INTERNAL;
 
     int x,y;
@@ -333,13 +333,13 @@ void COpenglWidget::_mouseDoubleClickEvent(SMouseOrKeyboardOrResizeEvent e)
 }
 
 void COpenglWidget::wheelEvent(QWheelEvent* wEvent)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(wEvent,4);
 }
 
 void COpenglWidget::_wheelEvent(SMouseOrKeyboardOrResizeEvent e)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     TRACE_INTERNAL;
 
     int x,y;
@@ -366,7 +366,7 @@ bool COpenglWidget::focusNextPrevChild(bool next)
 
 
 void COpenglWidget::keyPressEvent(QKeyEvent* kEvent)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(kEvent,5);
 }

@@ -153,7 +153,7 @@ bool CSPage::setPageType(int newType)
 }
 
 void CSPage::getBorderCorrectedFloatingViewPosition(int posX,int posY,int sizeX,int sizeY,int& newPosX,int& newPosY) const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     newPosX=posX;
     newPosY=posY;
     if (newPosX+sizeX>_pageSize[0])
@@ -206,7 +206,7 @@ void CSPage::setPageSizeAndPosition(int sizeX,int sizeY,int posX,int posY)
 }
 
 void CSPage::getViewSizeAndPosition(int sViewSize[2],int sViewPos[2],size_t subViewIndex) const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if (_pageType==SINGLE_VIEW)
     {
         sViewSize[0]=_pageSize[0];
@@ -549,7 +549,7 @@ void CSPage::getFloatingViewRelativeSizeAndPosition(double sViewSize[2],double s
 }
 
 void CSPage::setViewSizesAndPositions()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     for (size_t i=0;i<_allViews.size();i++)
     {
         int s[2];
@@ -597,7 +597,7 @@ size_t CSPage::getViewCount() const
 }
 
 size_t CSPage::getRegularViewCount() const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if (_pageType==SINGLE_VIEW)
         return(1);
     if (_pageType==FOUR_VIEWS)
@@ -843,7 +843,7 @@ void CSPage::render()
 
 #ifdef SIM_WITH_GUI
 bool CSPage::viewIsPassive(size_t viewIndex) const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if (_pageType==SINGLE_VIEW)
         return(viewIndex>0);
     if (_pageType==FOUR_VIEWS)
@@ -878,7 +878,7 @@ void CSPage::clearAllMouseJustWentDownAndUpFlags()
 }
 
 int CSPage::getViewIndexOfMousePosition(int mouseX,int mouseY) const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     for (size_t i=0;i<_allViews.size();i++)
     { // We have to go in reverse order because of the auxiliary window case!
         size_t inv=_allViews.size()-i-1;
@@ -894,7 +894,7 @@ int CSPage::getViewIndexOfMousePosition(int mouseX,int mouseY) const
 }
 
 bool CSPage::doubleClickActionForView(size_t viewIndex)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     // return value false means no action was performed
     if ((_pageType>=SINGLE_VIEW)&&(_pageType<CLOSING_VIEW_ITEM))
     {
@@ -964,7 +964,7 @@ size_t CSPage::bringViewToFrontIfPossible(size_t index)
 }
 
 int CSPage::getCaughtElements() const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int retVal=0;
     for (int i=0;i<int(_allViews.size());i++)
         retVal|=_allViews[i]->getCaughtElements();
@@ -973,7 +973,7 @@ int CSPage::getCaughtElements() const
 }
 
 void CSPage::clearCaughtElements(int keepMask)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     for (int i=0;i<int(_allViews.size());i++)
         _allViews[i]->clearCaughtElements(keepMask);
     _caughtElements&=keepMask;
@@ -981,17 +981,17 @@ void CSPage::clearCaughtElements(int keepMask)
 
 
 void CSPage::clearLastMouseDownViewIndex()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     _lastMouseDownViewIndex=-1;
 }
 
 int CSPage::getLastMouseDownViewIndex() const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     return(_lastMouseDownViewIndex);
 }
 
 int CSPage::getMousePosRelativeToFloatingViewBorders(int mouseX,int mouseY,size_t index) const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int tol=10;
     int relX;
     int relY;
@@ -1048,7 +1048,7 @@ int CSPage::getMousePosRelativeToFloatingViewBorders(int mouseX,int mouseY,size_
 }
 
 void CSPage::getViewRelativeMousePosition(int mouseX,int mouseY,int& relMouseX,int& relMouseY,size_t index) const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int subViewSize[2];
     int subViewPos[2];
     getViewSizeAndPosition(subViewSize,subViewPos,index);
@@ -1200,7 +1200,7 @@ void CSPage::mouseWheel(int deltaZ,int x,int y)
 }
 
 void CSPage::mouseMove(int x,int y,bool passiveAndFocused)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
 
@@ -1368,7 +1368,7 @@ int CSPage::modelDragMoveEvent(int x,int y,C3Vector* desiredModelPosition)
 }
 
 bool CSPage::rightMouseButtonDown(int x,int y)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if ( (x<0)||(y<0)||(x>_pageSize[0])||(y>_pageSize[1]) )
         return(false);
     previousMouseRelativePosition[0]=x;
@@ -1458,7 +1458,7 @@ void CSPage::middleMouseButtonUp(int x,int y)
 
 
 bool CSPage::leftMouseButtonDoubleClick(int x,int y,int selectionStatus)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
     int index=getViewIndexOfMousePosition(mouseRelativePosition[0],mouseRelativePosition[1]);

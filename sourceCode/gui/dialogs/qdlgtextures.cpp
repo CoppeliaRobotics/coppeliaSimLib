@@ -96,7 +96,7 @@ void CQDlgTextures::refresh()
 
                 ui->qqU->setText("");
                 ui->qqV->setText("");
-                ui->qqMapMode->addItem(IDSN_MAP_COORD_IMPORTED,QVariant(-1));
+                ui->qqMapMode->addItem("imported",QVariant(-1));
             }
             else
             {
@@ -113,15 +113,15 @@ void CQDlgTextures::refresh()
             ui->qqRepeatU->setChecked(tp->getRepeatU());
             ui->qqRepeatV->setChecked(tp->getRepeatV());
 
-            ui->qqMapMode->addItem(IDSN_MAP_COORD_PROJECTION,QVariant(sim_texturemap_plane));
-            ui->qqMapMode->addItem(IDSN_MAP_COORD_CYLINDER,QVariant(sim_texturemap_cylinder));
-            ui->qqMapMode->addItem(IDSN_MAP_COORD_SPHERE,QVariant(sim_texturemap_sphere));
-            ui->qqMapMode->addItem(IDSN_MAP_COORD_CUBE,QVariant(sim_texturemap_cube));
+            ui->qqMapMode->addItem("projection",QVariant(sim_texturemap_plane));
+            ui->qqMapMode->addItem("cylinder",QVariant(sim_texturemap_cylinder));
+            ui->qqMapMode->addItem("sphere",QVariant(sim_texturemap_sphere));
+            ui->qqMapMode->addItem("cube",QVariant(sim_texturemap_cube));
 
-            ui->qqApplyMode->addItem(IDSN_TEXTURE_APPLY_MODE_MODULATE,QVariant(0));
-            ui->qqApplyMode->addItem(IDSN_TEXTURE_APPLY_MODE_DECAL,QVariant(1));
-            ui->qqApplyMode->addItem(IDSN_TEXTURE_APPLY_MODE_ADD,QVariant(2));
-// for now          ui->qqApplyMode->addItem(IDSN_TEXTURE_APPLY_MODE_BLEND,QVariant(3));
+            ui->qqApplyMode->addItem("modulate",QVariant(0));
+            ui->qqApplyMode->addItem("decal",QVariant(1));
+            ui->qqApplyMode->addItem("add",QVariant(2));
+// for now          ui->qqApplyMode->addItem("blend",QVariant(3));
             for (int i=0;i<ui->qqMapMode->count();i++)
             {
                 int mm=tp->getTextureMapMode();

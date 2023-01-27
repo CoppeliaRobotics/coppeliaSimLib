@@ -42,10 +42,10 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 App::currentWorld->sceneObjects->deselectObjects();
                 App::currentWorld->sceneObjects->selectObject(shapeHandle);
                 App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
             else
-                App::logMsg(sim_verbosity_msgs,IDSNS_OPERATION_ABORTED);
+                App::logMsg(sim_verbosity_msgs,"Operation aborted.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -66,7 +66,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex())->addFloatingView();
 #endif
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -92,7 +92,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -122,7 +122,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 myNewCamera=new CCamera();
                 myNewCamera->setPerspectiveOperation(commandID==ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD);
                 App::currentWorld->sceneObjects->addObjectToScene(myNewCamera,false,true);
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
             else
             {
@@ -136,7 +136,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     tp=sim_light_directional_subtype;
                 myNewLight=new CLight(tp);
                 App::currentWorld->sceneObjects->addObjectToScene(myNewLight,false,true);
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
             CSceneObject* addedObject=myNewCamera;
             if (addedObject==nullptr)
@@ -195,7 +195,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->setObjectAbsolutePosition(newObject->getObjectHandle(),C3Vector(0.0,0.0,newObject->getMirrorHeight()*0.5));
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -214,7 +214,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -233,7 +233,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -265,7 +265,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -342,7 +342,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             txt+=std::to_string(opt)+",100)\nsim.setObjectSelection({path})";
             App::worldContainer->sandboxScript->executeScriptString(txt.c_str(),nullptr);
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -369,7 +369,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -420,7 +420,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 newObject->setLocalTransformation(C3Vector(0.0,0.0,newObject->getVisionSensorSize()*2.0));
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -440,7 +440,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -467,7 +467,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -567,7 +567,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 for (size_t i=0;i<newSelection.size();i++)
                     App::currentWorld->sceneObjects->addObjectToSelection(newSelection[i]);
                 App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -617,10 +617,10 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             {
                 App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
                 App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
             else
-                App::logMsg(sim_verbosity_errors,IDSNS_FAILED_IS_THE_QHULL_PLUGIN_LOADED);
+                App::logMsg(sim_verbosity_errors,"Operation failed: is the Qhull plugin loaded?");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -673,16 +673,16 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 App::uiThread->showOrHideProgressBar(false);
 
                 if (hull==nullptr)
-                    App::logMsg(sim_verbosity_errors,IDSNS_FAILED_IS_THE_QHULL_PLUGIN_LOADED);
+                    App::logMsg(sim_verbosity_errors,"Operation failed: is the Qhull plugin loaded?");
                 else
                 {
                     App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
                     App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-                    App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                    App::logMsg(sim_verbosity_msgs,"done.");
                 }
             }
             else
-                App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                App::logMsg(sim_verbosity_msgs,"Aborted.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:

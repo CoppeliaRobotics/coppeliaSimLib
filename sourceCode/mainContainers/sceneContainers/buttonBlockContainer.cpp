@@ -343,7 +343,7 @@ bool CButtonBlockContainer::removeBlockFromID(int id)
 }
 
 void CButtonBlockContainer::deselectButtons()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     selectedButtons.clear();
 }
 void CButtonBlockContainer::addToSelection(int pos)
@@ -738,7 +738,7 @@ bool CButtonBlockContainer::mouseDown(int xCoord,int yCoord,int currentView,int 
 }
 
 bool CButtonBlockContainer::leftMouseButtonDoubleClick(int xCoord,int yCoord,int currentView)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     bool editModeButNotButtonEditMode=(App::getEditModeType()!=NO_EDIT_MODE);
     if (editModeButNotButtonEditMode)
         return(false);
@@ -753,7 +753,7 @@ bool CButtonBlockContainer::leftMouseButtonDoubleClick(int xCoord,int yCoord,int
 }
 
 bool CButtonBlockContainer::mouseDownTest(int xCoord,int yCoord,int currentView)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     // This routine is just to check whether the mouse is on a button or not. No action!!
     CButtonBlock* itBlock=nullptr;
     for (int i=(int)allBlocks.size()-1;i>=0;i--)
@@ -777,7 +777,7 @@ bool CButtonBlockContainer::mouseDownTest(int xCoord,int yCoord,int currentView)
 }
 
 void CButtonBlockContainer::onKeyDown(unsigned int key)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     if (App::getEditModeType()==NO_EDIT_MODE)
     {
         if ( (key==ENTER_KEY)||(key==TAB_KEY) ) // Enter or tab-key pressed
@@ -1012,7 +1012,7 @@ bool CButtonBlockContainer::mouseUp(int xCoord,int yCoord,int currentView)
 }
 
 bool CButtonBlockContainer::mouseMove(int xCoord,int yCoord)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     if (!mouseCaptured)
     {
         mousePos.x=xCoord; // Needed to see the shift-selection
@@ -1086,7 +1086,7 @@ bool CButtonBlockContainer::mouseMove(int xCoord,int yCoord)
 }
 
 void CButtonBlockContainer::looseFocus()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     setEditBoxEdition(-1,-1,true);
     deselectButtons();
     if (App::currentWorld->sceneObjects!=nullptr)
@@ -1096,7 +1096,7 @@ void CButtonBlockContainer::looseFocus()
 }
 
 void CButtonBlockContainer::setEditBoxEdition(int block,int button,bool applyChangesIfLeavingEditMode)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     if (applyChangesIfLeavingEditMode)
     { // New since 25/02/2011 (so that we only cancel input if we pressed esc!)
         CButtonBlock* itBlock=getBlockWithID(editBoxInEditionBlock);
@@ -1305,7 +1305,7 @@ int CButtonBlockContainer::getBlockInEdition()
 }
 
 int CButtonBlockContainer::getCaughtElements()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     int retVal=0;
     for (int i=(int)allBlocks.size()-1;i>=0;i--)
         retVal|=allBlocks[i]->getCaughtElements();
@@ -1313,7 +1313,7 @@ int CButtonBlockContainer::getCaughtElements()
 }
 
 void CButtonBlockContainer::clearCaughtElements(int keepMask)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     for (int i=(int)allBlocks.size()-1;i>=0;i--)
         allBlocks[i]->clearCaughtElements(keepMask);
 }

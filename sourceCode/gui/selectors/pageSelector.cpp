@@ -32,12 +32,12 @@ void CPageSelector::setUpDefaultValues()
 }
 
 int CPageSelector::getCaughtElements()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     return(_caughtElements);
 }
 
 void CPageSelector::clearCaughtElements(int keepMask)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     _caughtElements&=keepMask;
 }
 
@@ -206,7 +206,7 @@ void CPageSelector::render()
 }
 
 int CPageSelector::getPageIndexInViewSelection(int mousePos[2])
-{  // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{  
     int pos[2]={-1,-1};
     int space[2]={0,0};
     space[0]=(viewSize[0]-tns[0]*viewSelectionSize[0])/(viewSelectionSize[0]+1);
@@ -265,7 +265,7 @@ bool CPageSelector::leftMouseButtonDown(int x,int y,int selectionStatus)
     return(true);
 }
 void CPageSelector::leftMouseButtonUp(int x,int y)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
     if (_caughtElements&sim_left_button)
@@ -282,7 +282,7 @@ void CPageSelector::leftMouseButtonUp(int x,int y)
 }
 
 int CPageSelector::getPageIndex(int x,int y)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int pos[2]={x,y};
     int ind=getPageIndexInViewSelection(pos);
     if (ind==-1)
@@ -298,13 +298,13 @@ int CPageSelector::getCursor(int x,int y)
 }
 
 void CPageSelector::mouseMove(int x,int y,bool passiveAndFocused)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
 }
 
 bool CPageSelector::rightMouseButtonDown(int x,int y)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if ( (x<0)||(y<0)||(x>viewSize[0])||(y>viewSize[1]) )
         return(false);
     _caughtElements&=0xffff-sim_right_button;

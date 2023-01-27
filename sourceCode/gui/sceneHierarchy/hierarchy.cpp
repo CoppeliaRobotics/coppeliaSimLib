@@ -69,12 +69,12 @@ void CHierarchy::setUpDefaultValues()
 }
 
 int CHierarchy::getCaughtElements()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     return(_caughtElements);
 }
 
 void CHierarchy::clearCaughtElements(int keepMask)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     _caughtElements&=keepMask;
 }
 
@@ -137,7 +137,7 @@ void CHierarchy::looseFocus()
 }
 
 void CHierarchy::keyPress(int key)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if (App::currentWorld->sceneObjects==nullptr)
         return;
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
@@ -628,7 +628,7 @@ bool CHierarchy::render()
 }
 
 int CHierarchy::getSliderPositions(int vSliderTopLeft[2],int vSliderBottomRight[2],int hSliderTopLeft[2],int hSliderBottomRight[2],double prop[2])
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     // we check if we need the sliders:
     verticalScrollbarWidth=0;
     horizontalScrollbarHeight=0;
@@ -924,7 +924,7 @@ void CHierarchy::leftMouseUp(int x,int y)
 
 }
 bool CHierarchy::rightMouseDown(int x,int y)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if (x<0)
         return(false);
     if (y<0)
@@ -990,12 +990,12 @@ void CHierarchy::rightMouseUp(int x,int y,int absX,int absY,QWidget* mainWindow)
                     if (colInd==2)
                         cols[3]=true;
                 }
-                hierarchyColoringMenu->appendMenuItem(true,cols[0],HIERARCHY_COLORING_NONE_CMD,IDSN_HIERARCHY_COLORING_NONE_MENU_ITEM,true);
-                hierarchyColoringMenu->appendMenuItem(true,cols[1],HIERARCHY_COLORING_RED_CMD,IDSN_HIERARCHY_COLORING_RED_MENU_ITEM,true);
-                hierarchyColoringMenu->appendMenuItem(true,cols[2],HIERARCHY_COLORING_GREEN_CMD,IDSN_HIERARCHY_COLORING_GREEN_MENU_ITEM,true);
-                hierarchyColoringMenu->appendMenuItem(true,cols[3],HIERARCHY_COLORING_BLUE_CMD,IDSN_HIERARCHY_COLORING_BLUE_MENU_ITEM,true);
+                hierarchyColoringMenu->appendMenuItem(true,cols[0],HIERARCHY_COLORING_NONE_CMD,"None",true);
+                hierarchyColoringMenu->appendMenuItem(true,cols[1],HIERARCHY_COLORING_RED_CMD,"Red",true);
+                hierarchyColoringMenu->appendMenuItem(true,cols[2],HIERARCHY_COLORING_GREEN_CMD,"Green",true);
+                hierarchyColoringMenu->appendMenuItem(true,cols[3],HIERARCHY_COLORING_BLUE_CMD,"Blue",true);
             }
-            mainMenu.appendMenuAndDetach(hierarchyColoringMenu,selSize>0,IDSN_HIERARCHY_COLORING_MENU_ITEM);
+            mainMenu.appendMenuAndDetach(hierarchyColoringMenu,selSize>0,"Hierarchy coloring");
 
 
             int command=mainMenu.trackPopupMenu();
@@ -1036,7 +1036,7 @@ bool CHierarchy::mouseWheel(int deltaZ,int x,int y)
 }
 
 void CHierarchy::mouseMove(int x,int y,bool passiveAndFocused)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     _worldSelectID_moving=-9999;
     mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
     mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
@@ -1266,7 +1266,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
 }
 
 void CHierarchy::validateViewPosition()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int tmp=renderingSize[0]-maxRenderedPosition[0]-viewPosition[0]-SAFETY_BORDER_SIZE*App::sc-verticalScrollbarWidth;
     if (tmp>0)
         viewPosition[0]=renderingSize[0]-(maxRenderedPosition[0]-minRenderedPosition[0])-SAFETY_BORDER_SIZE*App::sc-verticalScrollbarWidth;
@@ -1364,7 +1364,7 @@ int CHierarchy::getLineObjectID(int mousePositionY,int textPosStart[2])
 }
 
 int CHierarchy::getActionObjectID_icon(int mousePositionX,int mousePositionY,bool ignoreXPositionAndCheckLineInstead/*=false*/)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if (!ignoreXPositionAndCheckLineInstead)
     {
         for (int i=0;i<int(objectIconPosition.size())/3;i++)
@@ -1388,7 +1388,7 @@ int CHierarchy::getActionObjectID_icon(int mousePositionX,int mousePositionY,boo
 }
 
 int CHierarchy::getActionModelID_icon(int mousePositionX,int mousePositionY)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     for (int i=0;i<int(modelIconPosition.size())/3;i++)
     {
         if ((mousePositionX>=modelIconPosition[3*i+0]-HIERARCHY_ICON_QUARTER_WIDTH*App::sc)&&(mousePositionX<=modelIconPosition[3*i+0]+HIERARCHY_ICON_QUARTER_WIDTH*App::sc) )
@@ -1401,7 +1401,7 @@ int CHierarchy::getActionModelID_icon(int mousePositionX,int mousePositionY)
 }
 
 int CHierarchy::getSimulationActionObjectID(int mousePositionX,int mousePositionY)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     for (int i=0;i<int(simulationIconPosition.size())/3;i++)
     {
         if ((mousePositionX>=simulationIconPosition[3*i+0]-HIERARCHY_ICON_HALF_WIDTH*App::sc)&&(mousePositionX<=simulationIconPosition[3*i+0]+HIERARCHY_ICON_HALF_WIDTH*App::sc) )
@@ -1414,7 +1414,7 @@ int CHierarchy::getSimulationActionObjectID(int mousePositionX,int mousePosition
 }
 
 int CHierarchy::getActionObjectID(int mousePositionY,int tolerance)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     for (int i=0;i<int(objectPosition.size())/2;i++)
     {
         if ((mousePositionY<=objectPosition[2*i+0]+tolerance)&&(mousePositionY>=objectPosition[2*i+0]-tolerance) )
@@ -1424,7 +1424,7 @@ int CHierarchy::getActionObjectID(int mousePositionY,int tolerance)
 }
 
 void CHierarchy::getActionObjectIDs(int mouseDownPositionY,int mouseUpPositionY,int tolerance,std::vector<int>* toBeSelected)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int minV=mouseUpPositionY-tolerance;
     int maxV=mouseDownPositionY+tolerance;
     if (mouseDownPositionY<mouseUpPositionY)
@@ -1484,9 +1484,9 @@ bool CHierarchy::processCommand(int commandID)
                     it->setObjectProperty(it->getObjectProperty()-sim_objectproperty_collapsed);
             }
             if (commandID==EXPAND_HIERARCHY_CMD)
-                App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_EXPANDED);
+                App::logMsg(sim_verbosity_msgs,"Hierarchy expanded.");
             else
-                App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_COLLAPSED);
+                App::logMsg(sim_verbosity_msgs,"Hierarchy collapsed.");
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
         }
         else
@@ -1518,9 +1518,9 @@ bool CHierarchy::processCommand(int commandID)
                 }
             }
             if (commandID==EXPAND_HIERARCHY_CMD)
-                App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_TREES_EXPANDED);
+                App::logMsg(sim_verbosity_msgs,"Hierarchy tree(s) expanded.");
             else
-                App::logMsg(sim_verbosity_msgs,IDSNS_HIERARCHY_TREES_COLLAPSED);
+                App::logMsg(sim_verbosity_msgs,"Hierarchy tree(s) collapsed.");
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
         }
         else

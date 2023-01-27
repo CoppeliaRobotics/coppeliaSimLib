@@ -156,7 +156,7 @@ bool COglSurface::_hierarchyResizingMousePosition(int x,int y)
 }
 
 void COglSurface::leftMouseButtonUp(int x,int y)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     bool hierarchyCloseCopy=_hierarchyClosingButtonDown;
     _hierarchyClosingButtonDown=false;
     _hierarchyResizingAction=false;
@@ -215,7 +215,7 @@ void COglSurface::mouseWheel(int deltaZ,int x,int y)
 }
 
 void COglSurface::mouseMove(int x,int y,bool passiveAndFocused)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int bts=sim_right_button|sim_middle_button|sim_left_button;
     if (App::userSettings->navigationBackwardCompatibility)
         bts=sim_right_button|sim_left_button;
@@ -288,7 +288,7 @@ void COglSurface::mouseMove(int x,int y,bool passiveAndFocused)
 }
 
 int COglSurface::modelDragMoveEvent(int xPos,int yPos,C3Vector* desiredModelPosition)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int offx=0;
     int offy=0;
     mouseRelativePosition[0]=xPos;
@@ -313,7 +313,7 @@ int COglSurface::modelDragMoveEvent(int xPos,int yPos,C3Vector* desiredModelPosi
 
 
 int COglSurface::getCursor(int x,int y)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int offx=0;
     int offy=0;
     if (_hierarchyEnabled)
@@ -328,7 +328,7 @@ int COglSurface::getCursor(int x,int y)
 }
 
 bool COglSurface::rightMouseButtonDown(int x,int y)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int offx=0;
     int offy=0;
     mouseRelativePosition[0]=x;
@@ -437,7 +437,7 @@ void COglSurface::middleMouseButtonUp(int x,int y)
 }
 
 bool COglSurface::leftMouseButtonDoubleClick(int x,int y,int selectionStatus)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int offx=0;
     int offy=0;
     mouseRelativePosition[0]=x;
@@ -459,13 +459,13 @@ bool COglSurface::leftMouseButtonDoubleClick(int x,int y,int selectionStatus)
     return(false);  // Nothing caught that action
 }
 bool COglSurface::isScenePageOrViewSelectionActive()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     return( pageSelectionActive || viewSelectionActive);
 }
 
 
 bool COglSurface::isPageSelectionActive()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     return(pageSelectionActive);
 }
 
@@ -824,7 +824,7 @@ void COglSurface::setUpDefaultValues()
 }
 
 int COglSurface::getCaughtElements()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     int retVal=0;
     if (pageSelectionActive)
         retVal|=pageSelector->getCaughtElements();
@@ -847,7 +847,7 @@ void COglSurface::clearCaughtElements(int keepMask)
 }
 
 void COglSurface::setFocusObject(int obj)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     focusObject=obj;
     if (obj==FOCUS_ON_PAGE)
     {
@@ -904,7 +904,7 @@ void COglSurface::setHierarchyEnabled(bool isEnabled)
 }
 
 void COglSurface::setPageSelectionActive(bool isActive)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if (pageSelectionActive!=isActive)
     {
         pageSelectionActive=isActive;
@@ -927,7 +927,7 @@ void COglSurface::setPageSelectionActive(bool isActive)
 }
 
 void COglSurface::setViewSelectionActive(bool isActive)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if (viewSelectionActive!=isActive)
     {
         viewSelectionActive=isActive;
@@ -950,7 +950,7 @@ void COglSurface::setViewSelectionActive(bool isActive)
 }
 
 void COglSurface::setHierarchySurfaceSizeAndPosition()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     TRACE_INTERNAL;
     int b=0;
     if (_hierarchyEnabled)
@@ -987,7 +987,7 @@ bool COglSurface::isHierarchyEnabled()
 }
 
 void COglSurface::keyPress(int key,QWidget* mainWindow)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if (key==ESC_KEY)
         App::currentWorld->pageContainer->clearAllLastMouseDownViewIndex();
 

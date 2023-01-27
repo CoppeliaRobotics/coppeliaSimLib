@@ -114,7 +114,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (assembleEnabled||disassembleEnabled)
             {
                 App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -193,7 +193,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     }
                     App::worldContainer->copyBuffer->restoreBuffer();
                     App::worldContainer->copyBuffer->clearMemorizedBuffer();
-                    App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                    App::logMsg(sim_verbosity_msgs,"done.");
                     std::string txt;
                     txt+=boost::lexical_cast<std::string>(clones.size())+IDSN_X_CLONES_WERE_UPDATED;
                     App::logMsg(sim_verbosity_msgs,txt.c_str());
@@ -235,7 +235,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 std::string txt(IDSNS_ATTACHING_OBJECTS_TO);
                 txt+=last->getObjectAlias_printPath()+"'...";
                 App::logMsg(sim_verbosity_msgs,txt.c_str());
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -262,7 +262,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             }
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
             App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -347,11 +347,11 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
             App::currentWorld->sceneObjects->deselectObjects();
             if (printQHullFail)
-                App::logMsg(sim_verbosity_errors,IDSNS_FAILED_IS_THE_QHULL_PLUGIN_LOADED);
+                App::logMsg(sim_verbosity_errors,"Operation failed: is the Qhull plugin loaded?");
             else
             {
                 App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
         else
@@ -452,7 +452,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         }
 
                         App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-                        App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                        App::logMsg(sim_verbosity_msgs,"done.");
                     }
 
                     App::uiThread->showOrHideProgressBar(false);
@@ -562,7 +562,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     }
                 }
                 App::uiThread->showOrHideProgressBar(false);
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
             App::currentWorld->sceneObjects->deselectObjects();
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
@@ -583,7 +583,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::logMsg(sim_verbosity_msgs,IDSNS_SELECTING_ALL_OBJECTS);
             for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
                 App::currentWorld->sceneObjects->addObjectToSelection(App::currentWorld->sceneObjects->getObjectFromIndex(i)->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -660,7 +660,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs,IDSNS_COPYING_SELECTION);
             copyObjects(&sel,true);
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -689,7 +689,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 App::logMsg(sim_verbosity_msgs,IDSNS_CUTTING_SELECTION);
                 cutObjects(&sel,true);
                 App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
             App::currentWorld->sceneObjects->deselectObjects();
         }
@@ -711,7 +711,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::logMsg(sim_verbosity_msgs,IDSNS_PASTING_BUFFER);
             pasteCopyBuffer(true);
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. We execute the command in a delayed manner:
@@ -741,7 +741,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 App::logMsg(sim_verbosity_msgs,IDSNS_DELETING_SELECTION);
                 deleteObjects(&sel,true);
                 App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
             App::currentWorld->sceneObjects->deselectObjects();
         }
@@ -823,7 +823,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     App::uiThread->messageBox_warning(App::mainWindow,"Alignment",IDSN_INFORM_SHAPE_COULD_NOT_BE_REORIENTED_ALONG_CUBOID,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
             }
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -845,10 +845,10 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (groupSelection(&sel,true)!=-1)
             {
                 App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
             else
-                App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                App::logMsg(sim_verbosity_msgs,"Aborted.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -869,7 +869,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::logMsg(sim_verbosity_msgs,IDSNS_UNGROUPING_SELECTED_SHAPES);
             ungroupSelection(&sel,true);
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -891,10 +891,10 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (mergeSelection(&sel,true)>=0)
             {
                 App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
             else
-                App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                App::logMsg(sim_verbosity_msgs,"Aborted.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -914,7 +914,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::logMsg(sim_verbosity_msgs,IDSNS_DIVIDING_SELECTED_SHAPES);
             divideSelection(&sel,true);
             App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
-            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -934,7 +934,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             { // we are NOT in the UI thread. We execute the command now:
                 App::logMsg(sim_verbosity_msgs,IDSNS_EXECUTING_UNDO);
                 App::currentWorld->undoBufferContainer->undo();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
             else
             { // We are in the UI thread. Execute the command via the main thread:
@@ -954,7 +954,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             { // we are NOT in the UI thread. We execute the command now:
                 App::logMsg(sim_verbosity_msgs,IDSNS_EXECUTING_REDO);
                 App::currentWorld->undoBufferContainer->redo();
-                App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
             else
             { // We are in the UI thread. Execute the command via the main thread:

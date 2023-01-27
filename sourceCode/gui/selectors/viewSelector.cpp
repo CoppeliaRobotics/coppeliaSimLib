@@ -32,12 +32,12 @@ void CViewSelector::setUpDefaultValues()
 }
 
 int CViewSelector::getCaughtElements()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     return(_caughtElements);
 }
 
 void CViewSelector::clearCaughtElements(int keepMask)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     _caughtElements&=keepMask;
 }
 
@@ -324,13 +324,13 @@ int CViewSelector::getCursor(int x,int y)
 }
 
 void CViewSelector::mouseMove(int x,int y,bool passiveAndFocused)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
 }
 
 bool CViewSelector::rightMouseButtonDown(int x,int y)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if ( (x<0)||(y<0)||(x>viewSize[0])||(y>viewSize[1]) )
         return(false);
     _caughtElements&=0xffff-sim_right_button;

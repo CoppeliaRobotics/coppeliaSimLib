@@ -128,7 +128,7 @@ void CButtonBlock::getBlockPositionRelative(VPoint& pos)
 }
 
 void CButtonBlock::getBlockPositionAbsolute(VPoint& pos)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     pos.x=blockPosition.x;
     pos.y=blockPosition.y;
 }
@@ -803,12 +803,12 @@ void CButtonBlock::serialize(CSer &ar)
 
 #ifdef SIM_WITH_GUI
 int CButtonBlock::getCaughtElements()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     return(_caughtElements);
 }
 
 void CButtonBlock::clearCaughtElements(int keepMask)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     _caughtElements&=keepMask;
 }
 
@@ -1082,7 +1082,7 @@ void CButtonBlock::displayBlock(int winSize[2],bool justCameToFront)
 }
 
 int CButtonBlock::mouseDownCatch(int xCoord,int yCoord,bool& cursorCatch,bool test)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if (!test)
         _caughtElements&=0xffff-sim_left_button;
     if (!isDisplayedNow())
@@ -1140,7 +1140,7 @@ int CButtonBlock::mouseDownCatch(int xCoord,int yCoord,bool& cursorCatch,bool te
 }
 
 bool CButtonBlock::isDisplayedNow()
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     if ( ((_attributes&sim_ui_property_visible)==0)&&(!App::currentWorld->buttonBlockContainer->editMode) )
         return(false);
 
@@ -1156,7 +1156,7 @@ bool CButtonBlock::isDisplayedNow()
 }
 
 int CButtonBlock::mouseDownCatchInexistant(int xCoord,int yCoord,bool test)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     // Same as mouseDownCatch, but we check if we clicked onto an empty space of that block
     if (!test)
         _caughtElements&=0xffff-sim_left_button;
@@ -1191,7 +1191,7 @@ int CButtonBlock::mouseDownCatchInexistant(int xCoord,int yCoord,bool test)
 }
 
 void CButtonBlock::mouseMoveCatch(int xCoord,int yCoord)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{ 
     bool dummyVal;
     int butt=mouseDownCatch(xCoord,yCoord,dummyVal,true);
     App::currentWorld->buttonBlockContainer->caughtButtonDown=(butt==App::currentWorld->buttonBlockContainer->caughtButton);

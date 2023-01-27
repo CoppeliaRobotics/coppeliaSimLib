@@ -833,30 +833,30 @@ std::string CShape::getObjectTypeInfoExtended() const
     {
         int pureType=getSingleMesh()->getPurePrimitiveType();
         if (pureType==sim_primitiveshape_none)
-            return("Shape (simple, non-pure)");
+            return("Shape");
         if (pureType==sim_primitiveshape_plane)
-            return("Shape (simple, pure (plane))");
+            return("Shape (plane)");
         if (pureType==sim_primitiveshape_disc)
-            return("Shape (simple, pure (disc))");
+            return("Shape (disc)");
         if (pureType==sim_primitiveshape_cuboid)
-            return("Shape (simple, pure (cuboid))");
+            return("Shape (cuboid)");
         if (pureType==sim_primitiveshape_spheroid)
-            return("Shape (simple, pure (sphere))");
+            return("Shape (spheroid)");
         if (pureType==sim_primitiveshape_cylinder)
-            return("Shape (simple, pure (cylinder))");
+            return("Shape (cylinder)");
         if (pureType==sim_primitiveshape_cone)
-            return("Shape (simple, pure (cone))");
+            return("Shape (cone)");
         if (pureType==sim_primitiveshape_capsule)
-            return("Shape (simple, pure (capsule))");
+            return("Shape (capsule)");
         if (pureType==sim_primitiveshape_heightfield)
-            return("Shape (simple, pure (heightfield))");
+            return("Shape (heightfield)");
     }
     else
     {
         if (!getMeshWrapper()->isPure())
-            return("Shape (multishape, non-pure)");
+            return("Shape (compound)");
         else
-            return("Shape (multishape, pure)");
+            return("Shape (compound primitive)");
     }
     return("ERROR");
 }

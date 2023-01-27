@@ -1099,7 +1099,7 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionIncreaseSpeed,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionIncreaseSpeed,SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD);
 
-        _toolbarActionToggleVisualization=_toolbar1->addAction(QIcon(":/toolbarFiles/toggleVisualization.png"),tr(IDSN_TOGGLE_VISUALIZATION));
+        _toolbarActionToggleVisualization=_toolbar1->addAction(QIcon(":/toolbarFiles/toggleVisualization.png"),"Toggle visualization");
         _toolbarActionToggleVisualization->setCheckable(true);
         connect(_toolbarActionToggleVisualization,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionToggleVisualization,SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD);
@@ -1287,7 +1287,7 @@ void CMainWindow::dropEvent(QDropEvent* dEvent)
 
 
 void CMainWindow::onLeftMouseButtonDoubleClickTT(int xPos,int yPos)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     _mouseRenderingPos[0]=xPos;
     _mouseRenderingPos[1]=_clientArea[1]-yPos;
     int selectionStatus=NOSELECTION;
@@ -1353,7 +1353,7 @@ void CMainWindow::onRightMouseButtonDownTT(int xPos,int yPos)
 }
 
 void CMainWindow::onLeftMouseButtonUpTT(int xPos,int yPos)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     _mouseRenderingPos[0]=xPos;
     _mouseRenderingPos[1]=_clientArea[1]-yPos;
     App::setLightDialogRefreshFlag(); // to refresh dlgs when an object has been dragged for instance
@@ -1406,7 +1406,7 @@ void CMainWindow::onWheelRotateTT(int delta,int xPos,int yPos)
 }
 
 void CMainWindow::onMouseMoveTT(int xPos,int yPos)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     _mouseRayValid=false;
     _mouseRenderingPos[0]=xPos;
     _mouseRenderingPos[1]=_clientArea[1]-yPos;
@@ -1425,7 +1425,7 @@ void CMainWindow::onMouseMoveTT(int xPos,int yPos)
 }
 
 int CMainWindow::modelDragMoveEvent(int xPos,int yPos,C3Vector* desiredModelPosition)
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
+{
     _mouseRenderingPos[0]=xPos;
     _mouseRenderingPos[1]=_clientArea[1]-yPos;
     if (getOpenGlDisplayEnabled())

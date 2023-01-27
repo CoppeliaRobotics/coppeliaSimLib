@@ -92,7 +92,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         _removeFromRecentlyOpenedScenes(filenameAndPath);
                 }
                 else
-                    App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                    App::logMsg(sim_verbosity_msgs,"Aborted.");
                 App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
             }
             else
@@ -169,7 +169,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             if (filenameAndPath.length()!=0)
                 loadModel(filenameAndPath.c_str(),true,true,true,nullptr,false,false); // Undo things is in here.
             else
-                App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                App::logMsg(sim_verbosity_msgs,"Aborted.");
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -345,16 +345,16 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                     App::currentWorld->sceneObjects->deselectObjects();
                                 }
                                 else
-                                    App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                                    App::logMsg(sim_verbosity_msgs,"Aborted.");
                             }
                             else
-                                App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                                App::logMsg(sim_verbosity_msgs,"Aborted.");
                         }
                         else
-                            App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                            App::logMsg(sim_verbosity_msgs,"Aborted.");
                     }
                     else
-                        App::logMsg(sim_verbosity_errors,IDSNS_CANNOT_PROCEED_SELECTION_IS_EMPTY);
+                        App::logMsg(sim_verbosity_errors,"Cannot proceed, selection is empty.");
                 }
                 else
                     App::uiThread->messageBox_warning(App::mainWindow,IDSN_MODEL,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
@@ -392,7 +392,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     App::worldContainer->interfaceStackContainer->destroyStack(stack);
                 }
                 else
-                    App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                    App::logMsg(sim_verbosity_msgs,"Aborted.");
             }
             else
                 App::uiThread->messageBox_critical(App::mainWindow,IDSN_EXPORT,"Assimp plugin was not found, cannot import",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
@@ -417,16 +417,16 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 if (VFile::doesFileExist(filenameAndPath.c_str()))
                 {
                     if (heightfieldImportRoutine(filenameAndPath.c_str()))
-                        App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                        App::logMsg(sim_verbosity_msgs,"done.");
                     else
-                        App::logMsg(sim_verbosity_errors,IDSNS_AN_ERROR_OCCURRED_DURING_THE_IMPORT_OPERATION);
+                        App::logMsg(sim_verbosity_errors,"An error occurred during the import operation.");
                     App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
                 }
                 else
-                    App::logMsg(sim_verbosity_errors,IDSNS_ABORTED_FILE_DOES_NOT_EXIST);
+                    App::logMsg(sim_verbosity_errors,"Aborted (file does not exist).");
             }
             else
-                App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                App::logMsg(sim_verbosity_msgs,"Aborted.");
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -472,7 +472,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         App::worldContainer->interfaceStackContainer->destroyStack(stack);
                     }
                     else
-                        App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                        App::logMsg(sim_verbosity_msgs,"Aborted.");
                 }
                 else
                     App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
@@ -511,10 +511,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     }
                     ar.close();
                     myFile.close();
-                    App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                    App::logMsg(sim_verbosity_msgs,"done.");
                 }
                 else
-                    App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                    App::logMsg(sim_verbosity_msgs,"Aborted.");
             }
         }
         else
@@ -540,10 +540,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                             CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),0);
-                            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                            App::logMsg(sim_verbosity_msgs,"done.");
                         }
                         else
-                            App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                            App::logMsg(sim_verbosity_msgs,"Aborted.");
                     }
                     if (eng==sim_physics_bullet)
                     {
@@ -553,10 +553,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                             CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),App::userSettings->bulletSerializationBuffer);
-                            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                            App::logMsg(sim_verbosity_msgs,"done.");
                         }
                         else
-                            App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                            App::logMsg(sim_verbosity_msgs,"Aborted.");
                     }
                     if (eng==sim_physics_vortex)
                     {
@@ -566,10 +566,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                             CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),App::userSettings->bulletSerializationBuffer);
-                            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                            App::logMsg(sim_verbosity_msgs,"done.");
                         }
                         else
-                            App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                            App::logMsg(sim_verbosity_msgs,"Aborted.");
                     }
                     if (eng==sim_physics_newton)
                     {
@@ -579,14 +579,14 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                             CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),App::userSettings->bulletSerializationBuffer);
-                            App::logMsg(sim_verbosity_msgs,IDSNS_DONE);
+                            App::logMsg(sim_verbosity_msgs,"done.");
                         }
                         else
-                            App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                            App::logMsg(sim_verbosity_msgs,"Aborted.");
                     }
                 }
                 else
-                    App::logMsg(sim_verbosity_errors,IDSNS_CANNOT_PROCEED_NO_DYNAMIC_CONTENT_AVAILABLE);
+                    App::logMsg(sim_verbosity_errors,"Cannot proceed, no dynamic content available!");
             }
             else
                 App::uiThread->messageBox_warning(App::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
@@ -900,7 +900,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
     else
     {
         if (displayMessages)
-            App::logMsg(sim_verbosity_errors,IDSNS_ABORTED_FILE_DOES_NOT_EXIST);
+            App::logMsg(sim_verbosity_errors,"Aborted (file does not exist).");
     }
     App::setRebuildHierarchyFlag();
     return(result==1);
@@ -1018,7 +1018,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
     else
     {
         if (displayMessages)
-            App::logMsg(sim_verbosity_errors,IDSNS_ABORTED_FILE_DOES_NOT_EXIST);
+            App::logMsg(sim_verbosity_errors,"Aborted (file does not exist).");
     }
     return(result==1);
 }
@@ -1712,10 +1712,10 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                     }
                 }
                 else
-                    App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                    App::logMsg(sim_verbosity_msgs,"Aborted.");
             }
             else
-                App::logMsg(sim_verbosity_msgs,IDSNS_ABORTED);
+                App::logMsg(sim_verbosity_msgs,"Aborted.");
         }
     }
     else

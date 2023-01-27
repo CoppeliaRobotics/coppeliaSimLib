@@ -67,25 +67,25 @@ void CQDlgGeometry::refresh()
     if (isPureShape)
     {
         if (g)
-            shapeTypeText=IDSN_PURE_COMPOUND_SHAPE;
+            shapeTypeText="Compound primitive shape";
         else
         {
             if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield)
-                shapeTypeText=IDSN_HEIGHTFIELD_SHAPE;
+                shapeTypeText="Heightfield shape";
             if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_plane)
-                shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_PLANE_;
+                shapeTypeText="Primitive shape (plane)";
             if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_disc)
-                shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_DISC_;
+                shapeTypeText="Primitive shape (disc)";
             if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cuboid)
-                shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_CUBOID_;
+                shapeTypeText="Primitive shape (cuboid)";
             if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_spheroid)
-                shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_SPHEROID_;
+                shapeTypeText="Primitive shape (spheroid)";
             if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cylinder)
-                shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_CYLINDER_;
+                shapeTypeText="Primitive shape (cylinder)";
             if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_capsule)
-                shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_CAPSULE_;
+                shapeTypeText="Primitive shape (capsule)";
             if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cone)
-                shapeTypeText=IDSN_PURE_SIMPLE_SHAPE_CONE_;
+                shapeTypeText="Primitive shape (cone)";
         }
     }
     else
@@ -93,16 +93,16 @@ void CQDlgGeometry::refresh()
         if (g)
         {
             if (isConvex)
-                shapeTypeText=IDSN_COMPOUND_CONVEX_SHAPE;
+                shapeTypeText="Compound convex shape";
             else
-                shapeTypeText=IDSN_COMPOUND_RANDOM_SHAPE;
+                shapeTypeText="Compound shape";
         }
         else
         {
             if (isConvex)
-                shapeTypeText=IDSN_SIMPLE_CONVEX_SHAPE;
+                shapeTypeText="Convex shape";
             else
-                shapeTypeText=IDSN_SIMPLE_RANDOM_SHAPE;
+                shapeTypeText="Random shape";
         }
     }
     ui->qqShapeType->setText(shapeTypeText.c_str());
