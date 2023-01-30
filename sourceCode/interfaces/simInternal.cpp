@@ -7897,17 +7897,24 @@ int simAuxiliaryConsolePrint_internal(int consoleHandle,const char* text)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        int retVal=1; // in headless mode we fake success
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
         {
+            retVal=0;
             if (text==nullptr)
-                App::mainWindow->codeEditorContainer->setText(consoleHandle,"");
-            if (App::mainWindow->codeEditorContainer->appendText(consoleHandle,text))
-                return(1);
-            return(0);
+            {
+                if (App::mainWindow->codeEditorContainer->setText(consoleHandle,""))
+                    retVal=1;
+            }
+            else
+            {
+                if (App::mainWindow->codeEditorContainer->appendText(consoleHandle,text))
+                    retVal=1;
+            }
         }
 #endif
-        return(1); // in headless mode we fake success
+        return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
