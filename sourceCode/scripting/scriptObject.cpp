@@ -1302,13 +1302,13 @@ std::string CScriptObject::getDescriptiveName() const
     if (_scriptType==sim_scripttype_addonscript)
     {
         retVal+="Add-on script \"";
-        retVal+=_addOnName;
+        retVal+=_addOnPathAndName;
         retVal+="\"";
     }
     if (_scriptType==sim_scripttype_addonfunction)
     {
         retVal+="Add-on function \"";
-        retVal+=_addOnName;
+        retVal+=_addOnPathAndName;
         retVal+="\"";
     }
     if (_scriptType==sim_scripttype_sandboxscript)
@@ -1335,12 +1335,12 @@ std::string CScriptObject::getShortDescriptiveName() const
     }
     if (_scriptType==sim_scripttype_addonscript)
     {
-        retVal+=_addOnName;
+        retVal+=_addOnPathAndName;
         retVal+="@addOnScript";
     }
     if (_scriptType==sim_scripttype_addonfunction)
     {
-        retVal+=_addOnName;
+        retVal+=_addOnPathAndName;
         retVal+="@addOnFunction";
     }
     if (_scriptType==sim_scripttype_sandboxscript)
@@ -1351,6 +1351,7 @@ std::string CScriptObject::getShortDescriptiveName() const
 void CScriptObject::setAddOnName(const char* name)
 {
     _addOnName=name;
+    _addOnPathAndName=_addOnName;
 }
 
 void CScriptObject::performSceneObjectLoadingMapping(const std::map<int,int>* map)
@@ -1596,9 +1597,15 @@ void CScriptObject::_handleInfoCallback()
         std::string menuEntry(_addOnName);
         outStack->getStackMapStringValue("menu",menuEntry);
         if (menuEntry.size()>0)
-        { // might contain also path info, e.g. "Exporters//URDF exporter"
+        { // might contain also path info, e.g. "Exporters/URDF exporter"
+            _addOnPathAndName=menuEntry;
+            size_t r=_addOnPathAndName.find("\n");
+            while (r!=std::string::npos)
+            {
+                _addOnPathAndName.replace(r,1," >> ");
+                r=_addOnPathAndName.find("\n");
+            }
             _addOnUiMenuHandle=App::worldContainer->moduleMenuItemContainer->addMenuItem(menuEntry.c_str(),-1);
-            _addOnName=App::worldContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle)->getLabel();
         }
         boolVal=true;
         outStack->getStackMapBoolValue("menuEnabled",boolVal);

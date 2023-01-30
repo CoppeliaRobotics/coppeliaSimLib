@@ -277,6 +277,7 @@ protected:
     void _printContext(const char* str,size_t p);
 
     std::string _addOnName;
+    std::string _addOnPathAndName;
     std::mt19937 _randGen;
 
     bool _initialValuesInitialized;
