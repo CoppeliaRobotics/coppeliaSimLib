@@ -6492,7 +6492,7 @@ int simAnnounceSceneContentChange_internal()
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (App::currentWorld->undoBufferContainer->announceChange())
-            return(-1);
+            return(1);
         return(0);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

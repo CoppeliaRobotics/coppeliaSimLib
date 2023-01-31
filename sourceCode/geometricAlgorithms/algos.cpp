@@ -1,42 +1,33 @@
 #include <vector>
 #include "algos.h"
 
-C7Vector CAlgos::alignAndCenterGeometryAndGetTransformation(double* vert,int vertLength,int* ind,int indLength,double* norm,int normLength,bool alignWithGeomMainAxis)
+C7Vector CAlgos::getMeshBoundingBoxPose(const std::vector<double>& vert,const std::vector<int>& ind,bool alignedWithMainAxis)
 {
     C7Vector tr;
     tr.setIdentity();
-    if (alignWithGeomMainAxis)
+    std::vector<double> vertices(vert);
+
+    if (alignedWithMainAxis)
     {
-        tr=getMainAxis(vert,vertLength,ind,indLength,nullptr,0,true,true);
+        tr=getMainAxis(vertices,ind);
         C7Vector transfInverse(tr.getInverse());
 
-        for (int i=0;i<vertLength/3;i++)
+        for (int i=0;i<vertices.size()/3;i++)
         {
-            C3Vector tmp(vert+3*i);
+            C3Vector tmp(vertices.data()+3*i);
             tmp=transfInverse*tmp;
-            vert[3*i+0]=tmp(0);
-            vert[3*i+1]=tmp(1);
-            vert[3*i+2]=tmp(2);
-        }
-        if (norm!=nullptr)
-        {
-            for (int i=0;i<normLength/3;i++)
-            {
-                C3Vector tmp(norm+3*i);
-                tmp=transfInverse.Q*tmp; // No translation!
-                norm[3*i+0]=tmp(0);
-                norm[3*i+1]=tmp(1);
-                norm[3*i+2]=tmp(2);
-            }
+            vertices[3*i+0]=tmp(0);
+            vertices[3*i+1]=tmp(1);
+            vertices[3*i+2]=tmp(2);
         }
     }
 
     // Compute the bounding box for these vertices
     C3Vector bbMin;
     C3Vector bbMax;
-    for (int i=0;i<vertLength/3;i++)
+    for (size_t i=0;i<vertices.size()/3;i++)
     {
-        C3Vector curr(vert+3*i);
+        C3Vector curr(vertices.data()+3*i);
         if (i==0)
         {
             bbMin=curr;
@@ -48,65 +39,15 @@ C7Vector CAlgos::alignAndCenterGeometryAndGetTransformation(double* vert,int ver
             bbMax.keepMax(curr);
         }
     }
-    C3Vector mid((bbMin+bbMax)*0.5);
-    for (int i=0;i<vertLength/3;i++)
-    {
-        vert[3*i+0]-=mid(0);
-        vert[3*i+1]-=mid(1);
-        vert[3*i+2]-=mid(2);
-    }
     C7Vector translation;
     translation.setIdentity();
-    translation.X=mid;
+    translation.X=(bbMin+bbMax)*0.5;
     tr=tr*translation;
     return(tr);
 }
 
-C4X4Matrix CAlgos::getMainAxis(const std::vector<double>* vertices,const std::vector<int>* triangles,const std::vector<int>* trianglesIndices,bool useAllVerticesForce,bool veryPreciseWithTriangles)
-{   // Triangles can be nullptr, in that case all vertices are used. trianglesIndices can be nullptr, in that case triangles are used!
-    // if useAllVerticesForce is true, then all vertices are used anyway (forced)
-    // if veryPreciseWithTriangles is true, then a more precise orientation is calculated using "triangles" (i.e. largest triangle could be one face of the bounding box)
-    if (vertices->size()==0)
-    {
-        C4X4Matrix m;
-        m.setIdentity();
-        return(m);
-    }
-    if (triangles!=nullptr)
-    {
-        if (triangles->size()==0)
-        {
-            C4X4Matrix m;
-            m.setIdentity();
-            return(m);
-        }
-        if (trianglesIndices!=nullptr)
-        {
-            if (trianglesIndices->size()==0)
-            {
-                C4X4Matrix m;
-                m.setIdentity();
-                return(m);
-            }
-            return(getMainAxis(&(*vertices)[0],(int)vertices->size(),&(*triangles)[0],(int)triangles->size(),&(*trianglesIndices)[0],(int)trianglesIndices->size(),useAllVerticesForce,veryPreciseWithTriangles));
-        }
-        else
-        {
-            return(getMainAxis(&(*vertices)[0],(int)vertices->size(),&(*triangles)[0],(int)triangles->size(),nullptr,0,useAllVerticesForce,veryPreciseWithTriangles));
-        }
-    }
-    else
-        return(getMainAxis(&(*vertices)[0],(int)vertices->size(),nullptr,0,nullptr,0,useAllVerticesForce,veryPreciseWithTriangles)); // all vertices are used
-}
-
-C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const int* indices,int indicesLength,const int* triIndices,int triIndicesLength,bool useAllVerticesForce,bool veryPreciseWithTriangles)
-{   // Only referenced vertices are taken into account (or all if indices is nullptr)
-    // if indices are null, then all vertices are used
-    // if indices are not null and triIndices are null, then vertices referenced by indices are used
-    // if triIndices are not null, then only referenced triangles are used
-    // if useAllVerticesForce is true, then all vertices are used (forcing)
-    // if veryPreciseWithTriangles is true, then a more precise orientation is calculated using "indices" (i.e. largest triangle could be one face of the bounding box)
-    // Returned frame's axes are as follow: x: smalles axis and z: biggest axis.
+C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices,const std::vector<int>& indices)
+{ // Returned frame's axes are as follow: x: smalles axis and z: biggest axis.
 
     /* // Use following code to generate spherical orientation patterns:
     // ********************************************************************
@@ -219,36 +160,9 @@ C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const i
         }
 //*/
 
-    // Prepare only vertices that are referenced:
     std::vector<C3Vector> vert;
-    if ((indices==nullptr)||useAllVerticesForce)
-    { // we use all vertices!
-        for (int i=0;i<verticesLength/3;i++)
-            vert.push_back(C3Vector(vertices+3*i+0));
-    }
-    else
-    {
-        std::vector<unsigned char> addedVertices(verticesLength/3,0);
-        if (triIndices==nullptr)
-        {
-            for (int i=0;i<indicesLength;i++)
-                    addedVertices[indices[i]]=1;
-        }
-        else
-        {
-            for (int i=0;i<triIndicesLength;i++)
-            {
-                addedVertices[indices[3*triIndices[i]+0]]=1;
-                addedVertices[indices[3*triIndices[i]+1]]=1;
-                addedVertices[indices[3*triIndices[i]+2]]=1;
-            }
-        }
-        for (int i=0;i<int(addedVertices.size());i++)
-        {
-            if (addedVertices[i]!=0)
-                vert.push_back(C3Vector(vertices+3*i+0));
-        }
-    }
+    for (size_t i=0;i<vertices.size()/3;i++)
+        vert.push_back(C3Vector(vertices.data()+3*i+0));
 
     // Following are 4 sets of spherical orientation patterns. Patterns are same, scale is different.
     static const double orientationDataPrecision0[39*4]=
@@ -471,7 +385,7 @@ C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const i
     for (int i=0;i<39;i++)
     {
         double minMax[2]={+999999999.0,-999999999.0};
-        for (int j=0;j<int(vert.size());j++)
+        for (size_t j=0;j<vert.size();j++)
         {
             C3Vector w(((C4Vector*)orientationDataPrecision0)[i]*vert[j]);
             if (w(2)<minMax[0])
@@ -496,7 +410,7 @@ C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const i
     {
         double minMax[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientationDataPrecision1)[i].getInverse()).getInverse());
-        for (int j=0;j<int(vert.size());j++)
+        for (size_t j=0;j<vert.size();j++)
         {
             C3Vector w(currentOrientation*vert[j]);
             if (w(2)<minMax[0])
@@ -521,7 +435,7 @@ C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const i
     {
         double minMax[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientationDataPrecision2)[i].getInverse()).getInverse());
-        for (int j=0;j<int(vert.size());j++)
+        for (size_t j=0;j<vert.size();j++)
         {
             C3Vector w(currentOrientation*vert[j]);
             if (w(2)<minMax[0])
@@ -546,7 +460,7 @@ C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const i
     {
         double minMax[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientationDataPrecision3)[i].getInverse()).getInverse());
-        for (int j=0;j<int(vert.size());j++)
+        for (size_t j=0;j<vert.size();j++)
         {
             C3Vector w(currentOrientation*vert[j]);
             if (w(2)<minMax[0])
@@ -575,7 +489,7 @@ C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const i
         double minMaxX[2]={+999999999.0,-999999999.0};
         double minMaxY[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientation2DataPrecision0)[i].getInverse()).getInverse());
-        for (int j=0;j<int(vert.size());j++)
+        for (size_t j=0;j<vert.size();j++)
         {
             C3Vector w(currentOrientation*vert[j]);
             if (w(0)<minMaxX[0])
@@ -604,7 +518,7 @@ C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const i
         double minMaxX[2]={+999999999.0,-999999999.0};
         double minMaxY[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientation2DataPrecision1)[i].getInverse()).getInverse());
-        for (int j=0;j<int(vert.size());j++)
+        for (size_t j=0;j<vert.size();j++)
         {
             C3Vector w(currentOrientation*vert[j]);
             if (w(0)<minMaxX[0])
@@ -633,7 +547,7 @@ C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const i
         double minMaxX[2]={+999999999.0,-999999999.0};
         double minMaxY[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientation2DataPrecision2)[i].getInverse()).getInverse());
-        for (int j=0;j<int(vert.size());j++)
+        for (size_t j=0;j<vert.size();j++)
         {
             C3Vector w(currentOrientation*vert[j]);
             if (w(0)<minMaxX[0])
@@ -662,7 +576,7 @@ C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const i
         double minMaxX[2]={+999999999.0,-999999999.0};
         double minMaxY[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientation2DataPrecision3)[i].getInverse()).getInverse());
-        for (int j=0;j<int(vert.size());j++)
+        for (size_t j=0;j<vert.size();j++)
         {
             C3Vector w(currentOrientation*vert[j]);
             if (w(0)<minMaxX[0])
@@ -691,7 +605,7 @@ C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const i
         double minMaxX[2]={+999999999.0,-999999999.0};
         double minMaxY[2]={+999999999.0,-999999999.0};
         C4Vector currentOrientation((bestSmallestDirectionPrevious*((C4Vector*)orientation2DataPrecision4)[i].getInverse()).getInverse());
-        for (int j=0;j<int(vert.size());j++)
+        for (size_t j=0;j<vert.size();j++)
         {
             C3Vector w(currentOrientation*vert[j]);
             if (w(0)<minMaxX[0])
@@ -715,157 +629,145 @@ C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const i
     C3Vector alternateCenter;
     double alternateSize=FLOAT_MAX;
     C4Vector bestSmallestDirectionAlternative;
-    if (veryPreciseWithTriangles&(indices!=nullptr))
+
+    C3X3Matrix alternativeFrame(bestSmallestDirection);
+    std::vector<int> tris;
+    for (size_t i=0;i<indices.size()/3;i++)
+        tris.push_back(i);
+    // Now search for the triangle with largest surface:
+    double ls=0.0;
+    C3Vector ltn;
+    for (size_t i=0;i<tris.size();i++)
     {
-        C3X3Matrix alternativeFrame(bestSmallestDirection);
-        std::vector<int> tris;
-        if (triIndices!=nullptr)
+        const int in[3]={indices[3*tris[i]+0],indices[3*tris[i]+1],indices[3*tris[i]+2]};
+        C3Vector a0(vertices.data()+3*in[0]);
+        C3Vector a1(vertices.data()+3*in[1]);
+        C3Vector a2(vertices.data()+3*in[2]);
+        C3Vector e0(a2-a0);
+        C3Vector e1(a1-a0);
+        C3Vector n(e0^e1);
+        double s=n.getLength();
+        if (s>ls)
         {
-            tris.reserve(triIndicesLength);
-            for (int i=0;i<int(triIndicesLength);i++)
-                tris.push_back(triIndices[i]);
+            ls=s;
+            ltn=n/s;
         }
-        else
+    }
+    // We now adjust the alternative frame with the ltn:
+    C3Vector mostSimilar;
+    double scalarResult=0;
+    for (int i=0;i<3;i++)
+    {
+        double l=fabs(alternativeFrame.axis[i]*ltn);
+        if (l>scalarResult)
         {
-            tris.reserve(indicesLength/3);
-            for (int i=0;i<int(indicesLength/3);i++)
-                tris.push_back(i);
+            scalarResult=l;
+            mostSimilar=alternativeFrame.axis[i];
         }
-        // Now search for the triangle with largest surface:
-        double ls=0.0;
-        C3Vector ltn;
-        for (int i=0;i<int(tris.size());i++)
+    }
+    if (mostSimilar*ltn<0.0)
+        ltn*=-1.0; // take care of direction
+    if (mostSimilar*ltn!=1.0)
+    { // make sure they are not already colinear!
+        C4Vector q(mostSimilar,ltn); // We build the transformation from mostSimilar to ltn
+        alternativeFrame=(q*alternativeFrame.getQuaternion()).getMatrix();
+    }
+
+    // We now search for the triangle with larget surface perpendicular to the other one:
+    ls=0.0;
+    C3Vector ltnp;
+    for (size_t i=0;i<tris.size();i++)
+    {
+        int in[3]={indices[3*tris[i]+0],indices[3*tris[i]+1],indices[3*tris[i]+2]};
+        C3Vector a0(vertices.data()+3*in[0]);
+        C3Vector a1(vertices.data()+3*in[1]);
+        C3Vector a2(vertices.data()+3*in[2]);
+        C3Vector e0(a2-a0);
+        C3Vector e1(a1-a0);
+        C3Vector n(e0^e1);
+        double s=n.getLength();
+        if (s>ls)
         {
-            int in[3]={indices[3*tris[i]+0],indices[3*tris[i]+1],indices[3*tris[i]+2]};
-            C3Vector a0(&vertices[3*in[0]+0]);
-            C3Vector a1(&vertices[3*in[1]+0]);
-            C3Vector a2(&vertices[3*in[2]+0]);
-            C3Vector e0(a2-a0);
-            C3Vector e1(a1-a0);
-            C3Vector n(e0^e1);
-            double s=n.getLength();
-            if (s>ls)
+            n/=s;
+            if (fabs(n.getAngle(ltn)-1.57079633)<1.0*degToRad)
             {
+                ltnp=n;
                 ls=s;
-                ltn=n/s;
             }
         }
-        // We now adjust the alternative frame with the ltn:
+    }
+    if (ls!=0.0)
+    { // ok we found a perpendicular triangle
+        // We now adjust the alternative frame with the ltnp:
         C3Vector mostSimilar;
         double scalarResult=0;
         for (int i=0;i<3;i++)
         {
-            double l=fabs(alternativeFrame.axis[i]*ltn);
+            double l=fabs(alternativeFrame.axis[i]*ltnp);
             if (l>scalarResult)
             {
                 scalarResult=l;
                 mostSimilar=alternativeFrame.axis[i];
             }
         }
-        if (mostSimilar*ltn<0.0)
-            ltn*=-1.0; // take care of direction
-        if (mostSimilar*ltn!=1.0)
+        if (mostSimilar*ltnp<0.0)
+            ltnp*=-1.0; // take care of direction
+        if (mostSimilar*ltnp!=1.0)
         { // make sure they are not already colinear!
-            C4Vector q(mostSimilar,ltn); // We build the transformation from mostSimilar to ltn
-            alternativeFrame=(q*alternativeFrame.getQuaternion()).getMatrix();
-        }
-
-        // We now search for the triangle with larget surface perpendicular to the other one:
-        ls=0.0;
-        C3Vector ltnp;
-        for (int i=0;i<int(tris.size());i++)
-        {
-            int in[3]={indices[3*tris[i]+0],indices[3*tris[i]+1],indices[3*tris[i]+2]};
-            C3Vector a0(&vertices[3*in[0]+0]);
-            C3Vector a1(&vertices[3*in[1]+0]);
-            C3Vector a2(&vertices[3*in[2]+0]);
-            C3Vector e0(a2-a0);
-            C3Vector e1(a1-a0);
-            C3Vector n(e0^e1);
-            double s=n.getLength();
-            if (s>ls)
-            {
-                n/=s;
-                if (fabs(n.getAngle(ltn)-1.57079633)<1.0*degToRad)
-                {
-                    ltnp=n;
-                    ls=s;
-                }
-            }
-        }
-        if (ls!=0.0)
-        { // ok we found a perpendicular triangle
-            // We now adjust the alternative frame with the ltnp:
-            C3Vector mostSimilar;
-            double scalarResult=0;
-            for (int i=0;i<3;i++)
-            {
-                double l=fabs(alternativeFrame.axis[i]*ltnp);
-                if (l>scalarResult)
-                {
-                    scalarResult=l;
-                    mostSimilar=alternativeFrame.axis[i];
-                }
-            }
-            if (mostSimilar*ltnp<0.0)
-                ltnp*=-1.0; // take care of direction
+            // now project mostSimilar and ltnp into the plane defined by ltn:
+            mostSimilar-=ltn*(mostSimilar*ltn);
+            ltnp-=ltn*(ltnp*ltn);
+            mostSimilar.normalize();
+            ltnp.normalize();
             if (mostSimilar*ltnp!=1.0)
-            { // make sure they are not already colinear!
-                // now project mostSimilar and ltnp into the plane defined by ltn:
-                mostSimilar-=ltn*(mostSimilar*ltn);
-                ltnp-=ltn*(ltnp*ltn);
-                mostSimilar.normalize();
-                ltnp.normalize();
-                if (mostSimilar*ltnp!=1.0)
-                { // make sure they are not already colinear again!
-                    C4Vector q(mostSimilar,ltnp); // We build the transformation from mostSimilar to ltnp
-                    alternativeFrame=(q*alternativeFrame.getQuaternion()).getMatrix();
-                }
+            { // make sure they are not already colinear again!
+                C4Vector q(mostSimilar,ltnp); // We build the transformation from mostSimilar to ltnp
+                alternativeFrame=(q*alternativeFrame.getQuaternion()).getMatrix();
             }
         }
-        bestSmallestDirectionAlternative=alternativeFrame.getQuaternion();
-        // We now check the size of the alternate bounding box:
-        C3Vector minV(+999999999.0,+999999999.0,+999999999.0);
-        C3Vector maxV(-999999999.0,-999999999.0,-999999999.0);
-        for (int j=0;j<int(vert.size());j++)
-        {
-            C3Vector w(bestSmallestDirectionAlternative.getInverse()*vert[j]);
-            minV.keepMin(w);
-            maxV.keepMax(w);
-        }
-        alternateCenter=(maxV+minV)*0.5;
-        C3Vector s(maxV-minV);
-        alternateSize=s(0)*s(1)*s(2);
-        // Now order the new frame like: x=smallest size, z=biggest size:
-        C3X3Matrix m(bestSmallestDirectionAlternative);
-        C3Vector biggest;
-        C3Vector smallest;
-        double smallestS=FLOAT_MAX;
-        double biggestS=0.0;
-        for (int i=0;i<3;i++)
-        {
-            double l=s(i);
-            if (l>=biggestS)
-            {
-                biggestS=l;
-                biggest=m.axis[i];
-            }
-            if (l<=smallestS)
-            {
-                smallestS=l;
-                smallest=m.axis[i];
-            }
-        }
-        m.axis[2]=biggest;
-        m.axis[0]=smallest;
-        m.axis[1]=(biggest^smallest).getNormalized();
-        bestSmallestDirectionAlternative=m.getQuaternion();
     }
+    bestSmallestDirectionAlternative=alternativeFrame.getQuaternion();
+    // We now check the size of the alternate bounding box:
+    C3Vector minV(+DBL_MAX,+DBL_MAX,+DBL_MAX);
+    C3Vector maxV(-DBL_MAX,-DBL_MAX,-DBL_MAX);
+    for (size_t j=0;j<vert.size();j++)
+    {
+        C3Vector w(bestSmallestDirectionAlternative.getInverse()*vert[j]);
+        minV.keepMin(w);
+        maxV.keepMax(w);
+    }
+    alternateCenter=(maxV+minV)*0.5;
+    C3Vector s(maxV-minV);
+    alternateSize=s(0)*s(1)*s(2);
+    // Now order the new frame like: x=smallest size, z=biggest size:
+    C3X3Matrix m(bestSmallestDirectionAlternative);
+    C3Vector biggest;
+    C3Vector smallest;
+    double smallestS=FLOAT_MAX;
+    double biggestS=0.0;
+    for (int i=0;i<3;i++)
+    {
+        double l=s(i);
+        if (l>=biggestS)
+        {
+            biggestS=l;
+            biggest=m.axis[i];
+        }
+        if (l<=smallestS)
+        {
+            smallestS=l;
+            smallest=m.axis[i];
+        }
+    }
+    m.axis[2]=biggest;
+    m.axis[0]=smallest;
+    m.axis[1]=(biggest^smallest).getNormalized();
+    bestSmallestDirectionAlternative=m.getQuaternion();
 
     // We search the center:
-    C3Vector minV(+999999999.0,+999999999.0,+999999999.0);
-    C3Vector maxV(-999999999.0,-999999999.0,-999999999.0);
-    for (int j=0;j<int(vert.size());j++)
+    minV(0)=+DBL_MAX; minV(1)=+DBL_MAX; minV(2)=+DBL_MAX;
+    maxV(0)=-DBL_MAX; maxV(1)=-DBL_MAX; maxV(2)=-DBL_MAX;
+    for (size_t j=0;j<vert.size();j++)
     {
         C3Vector w(bestSmallestDirection.getInverse()*vert[j]);
         minV.keepMin(w);
@@ -873,7 +775,7 @@ C4X4Matrix CAlgos::getMainAxis(const double* vertices,int verticesLength,const i
     }
 
     C3Vector center=(maxV+minV)*0.5;
-    C3Vector s(maxV-minV);
+    s=maxV-minV;
     double size=s(0)*s(1)*s(2);
 
     bool rearrange=true;

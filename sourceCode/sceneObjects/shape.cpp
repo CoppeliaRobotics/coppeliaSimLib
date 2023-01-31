@@ -179,7 +179,7 @@ C7Vector CShape::reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeo
     // We align the bounding box:
     if (wvert.size()!=0)
     {
-        retVal=CAlgos::alignAndCenterGeometryAndGetTransformation(wvert.data(),(int)wvert.size(),wind.data(),(int)wind.size(),nullptr,0,true);
+        retVal=CAlgos::getMeshBoundingBoxPose(wvert,wind,true);
         getMeshWrapper()->preMultiplyAllVerticeLocalFrames(retVal.getInverse());
     }
 
@@ -248,7 +248,7 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<double>& vert,const std::v
     // We align the bounding box:
     if (wwert.size()!=0)
     {
-        retVal=CAlgos::alignAndCenterGeometryAndGetTransformation(wwert.data(),(int)wwert.size(),wwind.data(),(int)wwind.size(),nullptr,0,true);
+        retVal=CAlgos::getMeshBoundingBoxPose(wwert,wwind,true);
         getMeshWrapper()->preMultiplyAllVerticeLocalFrames(retVal.getInverse());
     }
 
@@ -277,7 +277,7 @@ C7Vector CShape::_recomputeOrientation(C7Vector& m,bool alignWithMainAxis)
     getMeshWrapper()->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
     C7Vector tr;
     if (visibleVertices.size()!=0)
-        tr=CAlgos::alignAndCenterGeometryAndGetTransformation(visibleVertices.data(),(int)visibleVertices.size(),visibleIndices.data(),(int)visibleIndices.size(),nullptr,0,alignWithMainAxis);
+        tr=CAlgos::getMeshBoundingBoxPose(visibleVertices,visibleIndices,alignWithMainAxis);
     else
         tr.setIdentity();
 
