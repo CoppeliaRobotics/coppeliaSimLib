@@ -65,7 +65,7 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
 
         if (_editionVertices.size()!=0)
         { // The shape is not empty
-            gc->setMesh(_editionVertices,_editionIndices,nullptr,C7Vector::identityTransformation); // will do the convectivity test
+            gc->setMesh(_editionVertices,_editionIndices,nullptr); // will do the convectivity test
             gc->actualizeGouraudShadingAndVisibleEdges();
             _shape->removeMeshCalculationStructure();
             // handle textures:

@@ -7,6 +7,7 @@ class CMesh : public CMeshWrapper
 {
 public:
     CMesh();
+    CMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals);
     virtual ~CMesh();
 
     void display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
@@ -52,7 +53,7 @@ public:
     void setHeightfieldDiamonds(bool d);
 
     int getUniqueID() const;
-    void setMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals,const C7Vector& transformation);
+    void setMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals);
 
     void setHeightfieldData(const std::vector<double>& heights,int xCount,int yCount);
     double* getHeightfieldData(int& xCount,int& yCount,double& minHeight,double& maxHeight);
@@ -124,6 +125,7 @@ public:
     int _heightfieldYCount;
 
 protected:
+    void _commonInit();
     void _recomputeNormals();
     void _computeVisibleEdges();
 

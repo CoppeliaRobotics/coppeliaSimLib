@@ -91,16 +91,12 @@ protected:
     static double _getTensorNonDiagonalMeasure(const C3X3Matrix& tensor);
 
     std::string _name;
+    bool _convex;
+    C7Vector _transformationsSinceGrouping; // used to keep track of this geomWrap or geometric's configuration relative to the shape
 
     double _mass;
-
-    int _dynMaterialId_old;
-
     C7Vector _localInertiaFrame; // frame relative to the shape.
     C3Vector _principalMomentsOfInertia; // remember that we always work with a massless tensor. The tensor is multiplied with the mass in the dynamics module!
 
-    C7Vector _transformationsSinceGrouping; // used to keep track of this geomWrap or geometric's configuration relative to the shape
-
-    bool _convex;
-
+    int _dynMaterialId_old;
 };

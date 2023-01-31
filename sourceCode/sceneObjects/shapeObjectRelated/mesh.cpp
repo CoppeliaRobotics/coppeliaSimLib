@@ -24,6 +24,25 @@ std::vector<std::vector<unsigned char>*> CMesh::_tempEdgesForDisk;
 
 CMesh::CMesh()
 {
+    _commonInit();
+}
+
+CMesh::CMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals)
+{
+    _commonInit();
+    setMesh(vertices,indices,normals);
+}
+
+CMesh::~CMesh()
+{
+    decreaseVertexBufferRefCnt(_vertexBufferId);
+    decreaseNormalBufferRefCnt(_normalBufferId);
+    decreaseEdgeBufferRefCnt(_edgeBufferId);
+    delete _textureProperty;
+}
+
+void CMesh::_commonInit()
+{
     color.setDefaultValues();
     color.setColor(0.9f,0.9f,0.9f,sim_colorcomponent_ambient_diffuse);
     edgeColor_DEPRECATED.setColorsAllBlack();
@@ -59,14 +78,6 @@ CMesh::CMesh()
     _extRendererObjectId=0;
     _extRendererMeshId=0;
     _extRendererTextureId=0;
-}
-
-CMesh::~CMesh()
-{
-    decreaseVertexBufferRefCnt(_vertexBufferId);
-    decreaseNormalBufferRefCnt(_normalBufferId);
-    decreaseEdgeBufferRefCnt(_edgeBufferId);
-    delete _textureProperty;
 }
 
 void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex)
@@ -390,7 +401,7 @@ void CMesh::scale(double xVal,double yVal,double zVal)
     _edgeBufferId=-1;
 }
 
-void CMesh::setMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals,const C7Vector& transformation)
+void CMesh::setMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals)
 {
     _vertices.assign(vertices.begin(),vertices.end());
     _indices.assign(indices.begin(),indices.end());
@@ -401,7 +412,7 @@ void CMesh::setMesh(const std::vector<double>& vertices,const std::vector<int>& 
     }
     else
         _normals.assign(normals->begin(),normals->end());
-    _verticeLocalFrame=transformation;
+    _verticeLocalFrame.setIdentity();
     _computeVisibleEdges();
     checkIfConvex();
 
@@ -1038,7 +1049,6 @@ int* CMesh::getEdgeBufferIdPtr()
 
 void CMesh::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)
 { // function has virtual/non-virtual counterpart!
-
     _transformationsSinceGrouping=preTr*_transformationsSinceGrouping;
     _localInertiaFrame=preTr*_localInertiaFrame;
 
@@ -2245,10 +2255,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
 
 void CMesh::display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
 { // function has virtual/non-virtual counterpart!
-//    printf("%f, %f, %f, %f\n",_transformationsSinceGrouping.Q.data[0],_transformationsSinceGrouping.Q.data[1],_transformationsSinceGrouping.Q.data[2],_transformationsSinceGrouping.Q.data[3]);
-//    printf("GeomX: %f, %f, %f\n",_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
     C3Vector e(_verticeLocalFrame.Q.getEulerAngles());
-//    printf("GeomE: %f, %f, %f\n",e(0),e(1),e(2));
     displayGeometric(this,geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,multishapeEditSelected);
 }
 

@@ -179,7 +179,7 @@ C7Vector CShape::reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeo
     // We align the bounding box:
     if (wvert.size()!=0)
     {
-        retVal=CAlgos::alignAndCenterGeometryAndGetTransformation(&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size(),nullptr,0,true);
+        retVal=CAlgos::alignAndCenterGeometryAndGetTransformation(wvert.data(),(int)wvert.size(),wind.data(),(int)wind.size(),nullptr,0,true);
         getMeshWrapper()->preMultiplyAllVerticeLocalFrames(retVal.getInverse());
     }
 
@@ -219,12 +219,10 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<double>& vert,const std::v
     C7Vector retVal;
     retVal.setIdentity();
 
-    removeMeshCalculationStructure();
-
-    CMesh* newGeomInfo=new CMesh();
     std::vector<double> wwert(vert);
     std::vector<int> wwind(ind);
-
+    CMeshManip::removeNonReferencedVertices(wwert,wwind);
+    CMesh* newGeomInfo=new CMesh(wwert,wwind,norm);
     if (textCoord!=nullptr)
     {
         std::vector<float> f;
@@ -233,8 +231,6 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<double>& vert,const std::v
             f[i]=(float)textCoord->at(i);
         newGeomInfo->setTextureCoords(&f);
     }
-    CMeshManip::removeNonReferencedVertices(wwert,wwind);
-    newGeomInfo->setMesh(wwert,wwind,norm,C7Vector::identityTransformation); // will do the convectivity test
 
     newGeomInfo->color.setDefaultValues();
     newGeomInfo->color.setColor(0.9f,0.9f,0.9f,sim_colorcomponent_ambient_diffuse);
@@ -247,13 +243,12 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<double>& vert,const std::v
 
     delete _mesh;
     _mesh=newGeomInfo;
+    removeMeshCalculationStructure();
 
     // We align the bounding box:
     if (wwert.size()!=0)
     {
-        std::vector<double> dummyVert(wwert);
-        std::vector<int> dummyInd(wwind);
-        retVal=CAlgos::alignAndCenterGeometryAndGetTransformation(&dummyVert[0],(int)dummyVert.size(),&dummyInd[0],(int)dummyInd.size(),nullptr,0,true);
+        retVal=CAlgos::alignAndCenterGeometryAndGetTransformation(wwert.data(),(int)wwert.size(),wwind.data(),(int)wwind.size(),nullptr,0,true);
         getMeshWrapper()->preMultiplyAllVerticeLocalFrames(retVal.getInverse());
     }
 
@@ -282,9 +277,7 @@ C7Vector CShape::_recomputeOrientation(C7Vector& m,bool alignWithMainAxis)
     getMeshWrapper()->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
     C7Vector tr;
     if (visibleVertices.size()!=0)
-    {
-        tr=CAlgos::alignAndCenterGeometryAndGetTransformation(&visibleVertices[0],(int)visibleVertices.size(),&visibleIndices[0],(int)visibleIndices.size(),nullptr,0,alignWithMainAxis);
-    }
+        tr=CAlgos::alignAndCenterGeometryAndGetTransformation(visibleVertices.data(),(int)visibleVertices.size(),visibleIndices.data(),(int)visibleIndices.size(),nullptr,0,alignWithMainAxis);
     else
         tr.setIdentity();
 
