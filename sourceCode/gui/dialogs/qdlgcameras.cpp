@@ -1,10 +1,10 @@
-#include "qdlgcameras.h"
-#include "ui_qdlgcameras.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "app.h"
-#include "simStrings.h"
+#include <qdlgcameras.h>
+#include <ui_qdlgcameras.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <app.h>
+#include <simStrings.h>
 
 CQDlgCameras::CQDlgCameras(QWidget *parent) :
     CDlgEx(parent),

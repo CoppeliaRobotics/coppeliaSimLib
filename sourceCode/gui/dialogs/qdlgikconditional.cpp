@@ -1,8 +1,8 @@
-#include "qdlgikconditional.h"
-#include "ui_qdlgikconditional.h"
-#include "app.h"
-#include "tt.h"
-#include "simStrings.h"
+#include <qdlgikconditional.h>
+#include <ui_qdlgikconditional.h>
+#include <app.h>
+#include <tt.h>
+#include <simStrings.h>
 
 CQDlgIkConditional::CQDlgIkConditional(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

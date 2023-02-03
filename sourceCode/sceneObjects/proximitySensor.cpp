@@ -1,13 +1,13 @@
-#include "simInternal.h"
-#include "proximitySensor.h"
-#include "tt.h"
-#include "proxSensorRoutine.h"
-#include "vDateTime.h"
-#include "ttUtil.h"
-#include "easyLock.h"
-#include "app.h"
-#include "pluginContainer.h"
-#include "proximitySensorRendering.h"
+#include <simInternal.h>
+#include <proximitySensor.h>
+#include <tt.h>
+#include <proxSensorRoutine.h>
+#include <vDateTime.h>
+#include <ttUtil.h>
+#include <easyLock.h>
+#include <app.h>
+#include <pluginContainer.h>
+#include <proximitySensorRendering.h>
 
 CProxSensor::CProxSensor(int theType)
 {

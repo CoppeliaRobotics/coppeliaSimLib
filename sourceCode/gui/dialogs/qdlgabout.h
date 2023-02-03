@@ -1,6 +1,6 @@
 #ifndef QDLGABOUT_H
 #define QDLGABOUT_H
-#include "vDialog.h"
+#include <vDialog.h>
 #include <QAbstractButton>
 
 namespace Ui {

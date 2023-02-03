@@ -1,14 +1,14 @@
-#include "simConst.h"
-#include "meshRoutines.h"
-#include "meshManip.h"
-#include "tt.h"
-#include "pluginContainer.h"
+#include <simConst.h>
+#include <meshRoutines.h>
+#include <meshManip.h>
+#include <tt.h>
+#include <pluginContainer.h>
 #include <stdio.h>
-#include "simInternal.h"
+#include <simInternal.h>
 #include <algorithm>
 #include <set>
 #include <unordered_set>
-#include "app.h"
+#include <app.h>
 
 void CMeshRoutines::getEdgeFeatures(double* vertices,int verticesLength,int* indices,int indicesLength,
             std::vector<int>* theVertexIDs,std::vector<int>* theEdgeIDs,std::vector<int>* theFaceIDs,

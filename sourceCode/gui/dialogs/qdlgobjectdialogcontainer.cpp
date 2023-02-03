@@ -1,24 +1,24 @@
-#include "qdlgobjectdialogcontainer.h"
-#include "ui_qdlgobjectdialogcontainer.h"
-#include "app.h"
-#include "simStrings.h"
-#include "qdlgmirrors.h"
-#include "qdlgcameras.h"
-#include "qdlglights.h"
-#include "qdlgdummies.h"
-#include "qdlgoctrees.h"
-#include "qdlgpointclouds.h"
-#include "qdlgforcesensors.h"
-#include "qdlgvisionsensors.h"
-#include "qdlgshapes.h"
-#include "qdlgproximitysensors.h"
-#include "qdlgjoints.h"
-#include "qdlggraphs.h"
-#include "qdlgdetectionvolume.h"
-#include "qdlgshapedyn.h"
-#include "qdlgpaths.h"
-#include "qdlgpathshaping.h"
-#include "qdlgcommonproperties.h"
+#include <qdlgobjectdialogcontainer.h>
+#include <ui_qdlgobjectdialogcontainer.h>
+#include <app.h>
+#include <simStrings.h>
+#include <qdlgmirrors.h>
+#include <qdlgcameras.h>
+#include <qdlglights.h>
+#include <qdlgdummies.h>
+#include <qdlgoctrees.h>
+#include <qdlgpointclouds.h>
+#include <qdlgforcesensors.h>
+#include <qdlgvisionsensors.h>
+#include <qdlgshapes.h>
+#include <qdlgproximitysensors.h>
+#include <qdlgjoints.h>
+#include <qdlggraphs.h>
+#include <qdlgdetectionvolume.h>
+#include <qdlgshapedyn.h>
+#include <qdlgpaths.h>
+#include <qdlgpathshaping.h>
+#include <qdlgcommonproperties.h>
 
 #define TOP_BORDER_WIDTH 30
 

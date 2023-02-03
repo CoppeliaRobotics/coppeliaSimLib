@@ -18,10 +18,10 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "graphRendering.h"
+#include <graphRendering.h>
 
 #ifdef SIM_WITH_OPENGL
-#include "graphingRoutines_old.h"
+#include <graphingRoutines_old.h>
 
 void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib)
 { // This is a quite ugly routine which requires refactoring!

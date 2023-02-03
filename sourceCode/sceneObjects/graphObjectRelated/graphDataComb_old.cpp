@@ -1,11 +1,11 @@
-#include "simInternal.h"
-#include "graphDataComb_old.h"
-#include "global.h"
-#include "graph.h"
-#include "tt.h"
-#include "app.h"
+#include <simInternal.h>
+#include <graphDataComb_old.h>
+#include <global.h>
+#include <graph.h>
+#include <tt.h>
+#include <app.h>
 #ifdef SIM_WITH_OPENGL
-#include "oGL.h"
+#include <oGL.h>
 #endif
 
 

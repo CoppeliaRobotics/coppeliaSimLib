@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "sView.h"
-#include "ser.h"
+#include <sView.h>
+#include <ser.h>
 
 class CSPage  
 {

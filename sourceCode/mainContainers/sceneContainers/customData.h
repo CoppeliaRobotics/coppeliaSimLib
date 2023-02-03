@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ser.h"
-#include "interfaceStackTable.h"
+#include <ser.h>
+#include <interfaceStackTable.h>
 
 struct SCustomData
 {

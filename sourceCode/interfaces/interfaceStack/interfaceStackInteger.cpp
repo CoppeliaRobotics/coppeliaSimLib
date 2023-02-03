@@ -1,4 +1,4 @@
-#include "interfaceStackInteger.h"
+#include <interfaceStackInteger.h>
 
 CInterfaceStackInteger::CInterfaceStackInteger(long long int theValue)
 {

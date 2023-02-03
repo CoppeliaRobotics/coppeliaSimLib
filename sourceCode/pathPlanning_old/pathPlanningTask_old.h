@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ser.h"
-#include "dummyClasses.h"
-#include "3Vector.h"
+#include <ser.h>
+#include <dummyClasses.h>
+#include <simMath/3Vector.h>
 
 class CPathPlanningTask  
 {

@@ -1,17 +1,17 @@
-#include "qdlgshapes.h"
-#include "ui_qdlgshapes.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "mesh.h"
-#include "qdlgtextures.h"
-#include "qdlggeometry.h"
-#include "qdlgshapedyn.h"
-#include "vFileDialog.h"
-#include "app.h"
-#include "imgLoaderSaver.h"
-#include "simStrings.h"
-#include "vMessageBox.h"
+#include <qdlgshapes.h>
+#include <ui_qdlgshapes.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <mesh.h>
+#include <qdlgtextures.h>
+#include <qdlggeometry.h>
+#include <qdlgshapedyn.h>
+#include <vFileDialog.h>
+#include <app.h>
+#include <imgLoaderSaver.h>
+#include <simStrings.h>
+#include <vMessageBox.h>
 
 CQDlgShapes::CQDlgShapes(QWidget *parent) :
     CDlgEx(parent),

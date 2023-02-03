@@ -1,15 +1,15 @@
-#include "simInternal.h"
-#include "oglSurface.h"
-#include "tt.h"
-#include "oGL.h"
-#include "app.h"
-#include "simulation.h"
-#include "dlgCont.h"
-#include "imgLoaderSaver.h"
-#include "vDateTime.h"
-#include "pluginContainer.h"
-#include "simStrings.h"
-#include "simFlavor.h"
+#include <simInternal.h>
+#include <oglSurface.h>
+#include <tt.h>
+#include <oGL.h>
+#include <app.h>
+#include <simulation.h>
+#include <dlgCont.h>
+#include <imgLoaderSaver.h>
+#include <vDateTime.h>
+#include <pluginContainer.h>
+#include <simStrings.h>
+#include <simFlavor.h>
 
 enum {NO_ONE=0,HIERARCHY_PART,VIEW_SELECTION_PART,PAGE_PART,
         HIERARCHY_RESIZING_PART,HIERARCHY_CLOSING_PART,BROWSER_PART,

@@ -1,15 +1,15 @@
-#include "confReaderAndWriter.h"
-#include "simInternal.h"
-#include "userSettings.h"
-#include "global.h"
-#include "threadPool_old.h"
-#include "tt.h"
-#include "easyLock.h"
-#include "vVarious.h"
-#include "app.h"
-#include "simFlavor.h"
+#include <confReaderAndWriter.h>
+#include <simInternal.h>
+#include <userSettings.h>
+#include <global.h>
+#include <threadPool_old.h>
+#include <tt.h>
+#include <easyLock.h>
+#include <vVarious.h>
+#include <app.h>
+#include <simFlavor.h>
 #ifdef SIM_WITH_GUI
-    #include "vDialog.h"
+    #include <vDialog.h>
 #endif
 
 #define USER_SETTINGS_FILENAME "usrset.txt"

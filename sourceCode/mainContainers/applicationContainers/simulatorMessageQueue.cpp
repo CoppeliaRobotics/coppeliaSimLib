@@ -1,6 +1,6 @@
 
-#include "simulatorMessageQueue.h"
-#include "app.h"
+#include <simulatorMessageQueue.h>
+#include <app.h>
 
 CSimulatorMessageQueue::CSimulatorMessageQueue()
 {

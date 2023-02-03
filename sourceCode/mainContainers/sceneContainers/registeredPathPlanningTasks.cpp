@@ -1,9 +1,9 @@
 
-#include "simInternal.h"
-#include "registeredPathPlanningTasks.h"
-#include "tt.h"
-#include "sceneObjectContainer.h"
-#include "app.h"
+#include <simInternal.h>
+#include <registeredPathPlanningTasks.h>
+#include <tt.h>
+#include <sceneObjectContainer.h>
+#include <app.h>
 
 CRegisteredPathPlanningTasks::CRegisteredPathPlanningTasks()
 {
@@ -208,7 +208,7 @@ void CRegisteredPathPlanningTasks::addObjectWithSuffixOffset(CPathPlanningTask* 
     }
     aTask->setObjectName(theName);
 
-    int objID=SIM_IDSTART_PATHPLANNINGTASK;
+    int objID=SIM_IDSTART_PATHPLANNINGTASK_old;
     while (getObject(objID)!=nullptr)
         objID++;
     aTask->setObjectID(objID);

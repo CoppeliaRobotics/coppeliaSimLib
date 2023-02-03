@@ -1,9 +1,9 @@
-#include "simInternal.h"
-#include "textureProperty.h"
-#include "tt.h"
-#include "simStrings.h"
-#include "app.h"
-#include "rendering.h"
+#include <simInternal.h>
+#include <textureProperty.h>
+#include <tt.h>
+#include <simStrings.h>
+#include <app.h>
+#include <rendering.h>
 
 CTextureProperty::CTextureProperty()
 {

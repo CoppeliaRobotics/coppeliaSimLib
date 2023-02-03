@@ -1,4 +1,4 @@
-#include "staticGraphCurve_old.h"
+#include <staticGraphCurve_old.h>
 
 CStaticGraphCurve_old::CStaticGraphCurve_old()
 {

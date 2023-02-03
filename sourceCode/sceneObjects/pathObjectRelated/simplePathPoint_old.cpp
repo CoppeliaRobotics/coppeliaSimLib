@@ -1,6 +1,6 @@
-#include "simplePathPoint_old.h"
-#include "tt.h"
-#include "simInternal.h"
+#include <simplePathPoint_old.h>
+#include <tt.h>
+#include <simInternal.h>
 
 CSimplePathPoint_old::CSimplePathPoint_old()
 {

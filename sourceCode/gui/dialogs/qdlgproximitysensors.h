@@ -1,7 +1,7 @@
 #ifndef QDLGPROXIMITYSENSORS_H
 #define QDLGPROXIMITYSENSORS_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgProximitySensors;

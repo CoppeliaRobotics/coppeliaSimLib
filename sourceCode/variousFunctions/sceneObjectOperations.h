@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include "sceneObject.h"
+#include <sceneObject.h>
 #ifdef SIM_WITH_GUI
-#include "vMenubar.h"
+#include <vMenubar.h>
 #endif
 
 //FULLY STATIC CLASS

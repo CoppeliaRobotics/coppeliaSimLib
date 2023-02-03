@@ -1,5 +1,5 @@
-#include "app.h"
-#include "graphCurve.h"
+#include <app.h>
+#include <graphCurve.h>
 
 CGraphCurve::CGraphCurve()
 {

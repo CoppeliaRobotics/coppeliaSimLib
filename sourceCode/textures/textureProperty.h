@@ -1,8 +1,8 @@
 #pragma once
 
-#include "textureObject.h"
-#include "ser.h"
-#include "7Vector.h"
+#include <textureObject.h>
+#include <ser.h>
+#include <simMath/7Vector.h>
 
 class CSceneObject;
 

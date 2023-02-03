@@ -1,6 +1,6 @@
 #pragma once
 
-#include "_syncObject_.h"
+#include <_syncObject_.h>
 
 class CSyncObject : public _CSyncObject_
 {

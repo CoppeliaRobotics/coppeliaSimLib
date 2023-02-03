@@ -1,9 +1,9 @@
-#include "qdlguserparameters.h"
-#include "ui_qdlguserparameters.h"
+#include <qdlguserparameters.h>
+#include <ui_qdlguserparameters.h>
 #include <QShortcut>
-#include "editboxdelegate.h"
-#include "app.h"
-#include "tt.h"
+#include <editboxdelegate.h>
+#include <app.h>
+#include <tt.h>
 
 CQDlgUserParameters::CQDlgUserParameters(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

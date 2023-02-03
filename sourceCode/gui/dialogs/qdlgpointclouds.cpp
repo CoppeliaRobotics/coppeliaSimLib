@@ -1,11 +1,11 @@
-#include "qdlgpointclouds.h"
-#include "ui_qdlgpointclouds.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "app.h"
-#include "simStrings.h"
-#include "sceneObjectOperations.h"
+#include <qdlgpointclouds.h>
+#include <ui_qdlgpointclouds.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <app.h>
+#include <simStrings.h>
+#include <sceneObjectOperations.h>
 
 CQDlgPointclouds::CQDlgPointclouds(QWidget *parent) :
     CDlgEx(parent),

@@ -1,8 +1,8 @@
-#include "qdlgcolor.h"
-#include "ui_qdlgcolor.h"
-#include "gV.h"
-#include "tt.h"
-#include "app.h"
+#include <qdlgcolor.h>
+#include <ui_qdlgcolor.h>
+#include <gV.h>
+#include <tt.h>
+#include <app.h>
 
 CQDlgColor::CQDlgColor(QWidget *parent) :
     CDlgEx(parent),

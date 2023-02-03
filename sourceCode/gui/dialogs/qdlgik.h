@@ -1,7 +1,7 @@
 #ifndef QDLGIK_H
 #define QDLGIK_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 #include <QListWidgetItem>
 #include <QShortcut>
 

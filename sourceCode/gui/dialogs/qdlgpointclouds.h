@@ -2,7 +2,7 @@
 #ifndef QDLGPOINTCLOUDS_H
 #define QDLGPOINTCLOUDS_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgPointclouds;

@@ -1,9 +1,9 @@
-#include "qdlgdetectionvolume.h"
-#include "ui_qdlgdetectionvolume.h"
-#include "gV.h"
-#include "tt.h"
-#include "app.h"
-#include "simStrings.h"
+#include <qdlgdetectionvolume.h>
+#include <ui_qdlgdetectionvolume.h>
+#include <gV.h>
+#include <tt.h>
+#include <app.h>
+#include <simStrings.h>
 
 bool CQDlgDetectionVolume::showVolumeWindow=false;
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "simTypes.h"
-#include "luaWrapper.h"
+#include <simTypes.h>
+#include <luaWrapper.h>
 #include <vector>
 
 class CScriptCustomFunction;

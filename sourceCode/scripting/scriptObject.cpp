@@ -1,24 +1,24 @@
-#include "scriptObject.h"
-#include "tt.h"
-#include "ttUtil.h"
-#include "vDateTime.h"
-#include "app.h"
+#include <scriptObject.h>
+#include <tt.h>
+#include <ttUtil.h>
+#include <vDateTime.h>
+#include <app.h>
 #include <boost/algorithm/string.hpp>
-#include "interfaceStackNull.h"
-#include "interfaceStackBool.h"
-#include "interfaceStackNumber.h"
-#include "interfaceStackInteger.h"
-#include "interfaceStackString.h"
-#include "interfaceStackTable.h"
-#include "pluginContainer.h"
-#include "simFlavor.h"
+#include <interfaceStackNull.h>
+#include <interfaceStackBool.h>
+#include <interfaceStackNumber.h>
+#include <interfaceStackInteger.h>
+#include <interfaceStackString.h>
+#include <interfaceStackTable.h>
+#include <pluginContainer.h>
+#include <simFlavor.h>
 #include <unordered_map>
-#include "luaScriptFunctions.h"
-#include "luaWrapper.h"
+#include <luaScriptFunctions.h>
+#include <luaWrapper.h>
 #include <regex>
 
 // Old:
-#include "threadPool_old.h"
+#include <threadPool_old.h>
 
 int CScriptObject::_nextScriptHandle=SIM_IDSTART_LUASCRIPT;
 int CScriptObject::_nextIdForExternalScriptEditor=-1;
@@ -27,6 +27,8 @@ std::vector<int> CScriptObject::_externalScriptCalls;
 CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
 {
     _scriptHandle=_nextScriptHandle++;
+    if (_nextScriptHandle>SIM_IDEND_LUASCRIPT)
+        _nextScriptHandle=SIM_IDSTART_LUASCRIPT;
     _objectHandleAttachedTo=-1;
     _scriptText="";
     _scriptTextExec="";

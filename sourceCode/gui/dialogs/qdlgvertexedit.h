@@ -2,7 +2,7 @@
 #ifndef QDLGVERTEXEDIT_H
 #define QDLGVERTEXEDIT_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgVertexEdit;

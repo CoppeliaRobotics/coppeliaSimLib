@@ -1,6 +1,6 @@
 #pragma once
 
-#include "colorObject.h"
+#include <colorObject.h>
 
 class CUserSettings
 {

@@ -2,8 +2,8 @@
 #ifndef QDLGPATHS_H
 #define QDLGPATHS_H
 
-#include "dlgEx.h"
-#include "path_old.h"
+#include <dlgEx.h>
+#include <path_old.h>
 
 namespace Ui {
     class CQDlgPaths;

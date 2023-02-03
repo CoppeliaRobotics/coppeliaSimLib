@@ -1,7 +1,7 @@
 #pragma once
 
-#include "scriptCustomFunction.h"
-#include "scriptCustomVariable.h"
+#include <scriptCustomFunction.h>
+#include <scriptCustomVariable.h>
 #include <map>
 
 class CScriptCustomFuncAndVarContainer

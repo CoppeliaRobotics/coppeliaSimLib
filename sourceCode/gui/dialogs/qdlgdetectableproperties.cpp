@@ -1,7 +1,7 @@
-#include "qdlgdetectableproperties.h"
-#include "ui_qdlgdetectableproperties.h"
-#include "simInternal.h"
-#include "app.h"
+#include <qdlgdetectableproperties.h>
+#include <ui_qdlgdetectableproperties.h>
+#include <simInternal.h>
+#include <app.h>
 
 CQDlgDetectableProperties::CQDlgDetectableProperties(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

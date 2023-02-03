@@ -1,7 +1,7 @@
 
 #ifndef QDLGCAMERAS_H
 #define QDLGCAMERAS_H
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgCameras;

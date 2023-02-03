@@ -1,11 +1,11 @@
-#include "simInternal.h"
-#include "pageSelector.h"
-#include "sPage.h"
-#include "oGL.h"
-#include "oglSurface.h"
-#include "app.h"
+#include <simInternal.h>
+#include <pageSelector.h>
+#include <sPage.h>
+#include <oGL.h>
+#include <oglSurface.h>
+#include <app.h>
 
-#include "tt.h"
+#include <tt.h>
 
 CPageSelector::CPageSelector()
 {

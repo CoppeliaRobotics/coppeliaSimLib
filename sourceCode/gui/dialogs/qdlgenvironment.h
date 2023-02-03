@@ -2,7 +2,7 @@
 #ifndef QDLGENVIRONMENT_H
 #define QDLGENVIRONMENT_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgEnvironment;

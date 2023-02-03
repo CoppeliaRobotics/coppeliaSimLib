@@ -18,7 +18,7 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "app.h"
-#include "rendering.h"
+#include <app.h>
+#include <rendering.h>
 
 void displayDistance(CDistanceObject_old* dist,int segWidth,const double* distResult);

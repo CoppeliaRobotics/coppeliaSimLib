@@ -1,9 +1,9 @@
-#include "qdlgcollections.h"
-#include "ui_qdlgcollections.h"
-#include "app.h"
-#include "tt.h"
+#include <qdlgcollections.h>
+#include <ui_qdlgcollections.h>
+#include <app.h>
+#include <tt.h>
 #include <QShortcut>
-#include "simStrings.h"
+#include <simStrings.h>
 
 CQDlgCollections::CQDlgCollections(QWidget *parent) :
     CDlgEx(parent),

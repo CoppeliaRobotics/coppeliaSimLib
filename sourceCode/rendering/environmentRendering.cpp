@@ -18,7 +18,7 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "environmentRendering.h"
+#include <environmentRendering.h>
 
 #ifdef SIM_WITH_OPENGL
 

@@ -1,8 +1,8 @@
-#include "qdlgheightfielddimension.h"
-#include "ui_qdlgheightfielddimension.h"
-#include "gV.h"
-#include "tt.h"
-#include "app.h"
+#include <qdlgheightfielddimension.h>
+#include <ui_qdlgheightfielddimension.h>
+#include <gV.h>
+#include <tt.h>
+#include <app.h>
 
 CQDlgHeightfieldDimension::CQDlgHeightfieldDimension(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

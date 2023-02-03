@@ -1,9 +1,9 @@
-#include "pathPlanningInterface.h"
-#include "simConst.h"
+#include <pathPlanningInterface.h>
+#include <simConst.h>
 #include <math.h>
-#include "pluginContainer.h"
-#include "nonHolonomicPathPlanning_old.h"
-#include "holonomicPathPlanning_old.h"
+#include <pluginContainer.h>
+#include <nonHolonomicPathPlanning_old.h>
+#include <holonomicPathPlanning_old.h>
 
 void* CPathPlanningInterface::createNonHolonomicPathPlanningObject(int theStartDummyID,int theGoalDummyID,
                             int theRobotCollectionID,int theObstacleCollectionID,double theAngularCoeff,

@@ -1,16 +1,16 @@
-#include "simInternal.h"
-#include "graph.h"
-#include "tt.h"
-#include "gV.h"
-#include "graphingRoutines_old.h"
-#include "simStrings.h"
+#include <simInternal.h>
+#include <graph.h>
+#include <tt.h>
+#include <gV.h>
+#include <graphingRoutines_old.h>
+#include <simStrings.h>
 #include <boost/lexical_cast.hpp>
-#include "vVarious.h"
-#include "ttUtil.h"
-#include "easyLock.h"
-#include "app.h"
-#include "graphRendering.h"
-#include "simFlavor.h"
+#include <vVarious.h>
+#include <ttUtil.h>
+#include <easyLock.h>
+#include <app.h>
+#include <graphRendering.h>
+#include <simFlavor.h>
 
 CGraph::CGraph()
 {

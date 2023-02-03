@@ -1,7 +1,7 @@
 
-#include "qdlgmessageandcheckbox.h"
-#include "ui_qdlgmessageandcheckbox.h"
-#include "app.h"
+#include <qdlgmessageandcheckbox.h>
+#include <ui_qdlgmessageandcheckbox.h>
+#include <app.h>
 
 CQDlgMessageAndCheckbox::CQDlgMessageAndCheckbox(QWidget *parent) : VDialog(parent,QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgMessageAndCheckbox)
 {

@@ -1,6 +1,6 @@
 
-#include "multishapeEditMode.h"
-#include "mesh.h"
+#include <multishapeEditMode.h>
+#include <mesh.h>
 
 CMultishapeEditMode::CMultishapeEditMode(CShape* shape)
 {

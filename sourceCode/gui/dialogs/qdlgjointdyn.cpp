@@ -1,11 +1,11 @@
-#include "qdlgjointdyn.h"
-#include "ui_qdlgjointdyn.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgjoints.h"
-#include "app.h"
-#include "simStringTable.h"
-#include "vMessageBox.h"
+#include <qdlgjointdyn.h>
+#include <ui_qdlgjointdyn.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgjoints.h>
+#include <app.h>
+#include <simStringTable.h>
+#include <vMessageBox.h>
 
 CQDlgJointDyn::CQDlgJointDyn(QWidget *parent) :
     CDlgEx(parent),

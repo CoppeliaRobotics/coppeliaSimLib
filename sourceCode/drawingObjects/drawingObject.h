@@ -1,8 +1,8 @@
 #pragma once
 
-#include "colorObject.h"
-#include "4X4Matrix.h"
-#include "vMutex.h"
+#include <colorObject.h>
+#include <simMath/4X4Matrix.h>
+#include <vMutex.h>
 
 class CSceneObject;
 

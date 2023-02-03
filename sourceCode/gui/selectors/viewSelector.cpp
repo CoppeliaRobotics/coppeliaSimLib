@@ -1,8 +1,8 @@
-#include "simInternal.h"
-#include "viewSelector.h"
-#include "oGL.h"
-#include "oglSurface.h"
-#include "app.h"
+#include <simInternal.h>
+#include <viewSelector.h>
+#include <oGL.h>
+#include <oglSurface.h>
+#include <app.h>
 
 
 CViewSelector::CViewSelector()

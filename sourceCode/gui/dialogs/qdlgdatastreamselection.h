@@ -2,7 +2,7 @@
 #ifndef QDLGDATASTREAMSELECTION_H
 #define QDLGDATASTREAMSELECTION_H
 
-#include "vDialog.h"
+#include <vDialog.h>
 #include <QComboBox>
 
 namespace Ui {

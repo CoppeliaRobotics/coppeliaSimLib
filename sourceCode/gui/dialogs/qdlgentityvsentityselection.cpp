@@ -1,9 +1,9 @@
-#include "qdlgentityvsentityselection.h"
-#include "ui_qdlgentityvsentityselection.h"
-#include "tt.h"
-#include "simStrings.h"
-#include "app.h"
-#include "vMessageBox.h"
+#include <qdlgentityvsentityselection.h>
+#include <ui_qdlgentityvsentityselection.h>
+#include <tt.h>
+#include <simStrings.h>
+#include <app.h>
+#include <vMessageBox.h>
 
 CQDlgEntityVsEntitySelection::CQDlgEntityVsEntitySelection(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "vMutex.h"
-#include "vThread.h"
-#include "simTypes.h"
+#include <vMutex.h>
+#include <vThread.h>
+#include <simTypes.h>
 
 class CVThreadData
 {

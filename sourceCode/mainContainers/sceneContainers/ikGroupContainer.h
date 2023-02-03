@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ikGroup_old.h"
-#include "_ikGroupContainer_.h"
+#include <ikGroup_old.h>
+#include <_ikGroupContainer_.h>
 
 class CIkGroupContainer : public _CIkGroupContainer_
 {

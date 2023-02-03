@@ -2,7 +2,7 @@
 #ifndef QDLG2D3DGRAPHPROPERTIES_H
 #define QDLG2D3DGRAPHPROPERTIES_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 #include <QListWidgetItem>
 #include <QAbstractButton>
 

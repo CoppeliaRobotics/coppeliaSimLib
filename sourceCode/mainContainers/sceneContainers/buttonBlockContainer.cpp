@@ -1,10 +1,10 @@
-#include "simInternal.h"
-#include "buttonBlockContainer.h" 
-#include "global.h"
-#include "tt.h"
-#include "app.h"
-#include "simStrings.h"
-#include "simFlavor.h"
+#include <simInternal.h>
+#include <buttonBlockContainer.h> 
+#include <global.h>
+#include <tt.h>
+#include <app.h>
+#include <simStrings.h>
+#include <simFlavor.h>
 
 CButtonBlockContainer::CButtonBlockContainer(bool mainContainer)
 {
@@ -295,7 +295,7 @@ void CButtonBlockContainer::insertBlock(CButtonBlock* theNewBlock,bool objectIsA
 void CButtonBlockContainer::insertBlockWithSuffixOffset(CButtonBlock* theNewBlock,bool objectIsACopy,int suffixOffset)
 {
     // We find a free handle:
-    int blockHandle=SIM_IDSTART_2DELEMENT;
+    int blockHandle=SIM_IDSTART_2DELEMENT_old;
     while (getButtonBlockWithID(blockHandle)!=nullptr)
         blockHandle++;
     theNewBlock->setBlockID(blockHandle);

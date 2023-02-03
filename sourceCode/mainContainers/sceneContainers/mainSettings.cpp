@@ -1,9 +1,9 @@
-#include "simInternal.h"
-#include "mainSettings.h"
-#include "global.h"
-#include "tt.h"
-#include "app.h"
-#include "vVarious.h"
+#include <simInternal.h>
+#include <mainSettings.h>
+#include <global.h>
+#include <tt.h>
+#include <app.h>
+#include <vVarious.h>
 
 CMainSettings::CMainSettings()
 {

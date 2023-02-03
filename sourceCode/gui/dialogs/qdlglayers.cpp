@@ -1,6 +1,6 @@
-#include "qdlglayers.h"
-#include "ui_qdlglayers.h"
-#include "app.h"
+#include <qdlglayers.h>
+#include <ui_qdlglayers.h>
+#include <app.h>
 
 CQDlgLayers::CQDlgLayers(QWidget *parent) :
     CDlgEx(parent),

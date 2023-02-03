@@ -1,7 +1,7 @@
 #pragma once
 
-#include "sceneObject.h"
-#include "ser.h"
+#include <sceneObject.h>
+#include <ser.h>
 
 class CViewableBase : public CSceneObject
 {

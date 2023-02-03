@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "simpleFilter.h"
-#include "ser.h"
+#include <simpleFilter.h>
+#include <ser.h>
 
 class CComposedFilter
 {

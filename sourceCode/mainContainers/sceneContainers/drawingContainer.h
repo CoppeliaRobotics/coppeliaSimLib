@@ -1,7 +1,7 @@
 #pragma once
 
-#include "drawingObject.h"
-#include "7Vector.h"
+#include <drawingObject.h>
+#include <simMath/7Vector.h>
 
 class CViewableBase;
 

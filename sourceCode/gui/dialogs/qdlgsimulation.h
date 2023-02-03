@@ -2,7 +2,7 @@
 #ifndef QDLGSIMULATION_H
 #define QDLGSIMULATION_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgSimulation;

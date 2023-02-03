@@ -1,8 +1,8 @@
 
-#include "qdlgmodelthumbnailvisu.h"
-#include "ui_qdlgmodelthumbnailvisu.h"
-#include "thumbnail.h"
-#include "app.h"
+#include <qdlgmodelthumbnailvisu.h>
+#include <ui_qdlgmodelthumbnailvisu.h>
+#include <thumbnail.h>
+#include <app.h>
 
 CQDlgModelThumbnailVisu::CQDlgModelThumbnailVisu(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

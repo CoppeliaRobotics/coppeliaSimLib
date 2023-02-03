@@ -1,9 +1,9 @@
 
-#include "qdlgscaling.h"
-#include "ui_qdlgscaling.h"
-#include "app.h"
-#include "sceneObjectOperations.h"
-#include "tt.h"
+#include <qdlgscaling.h>
+#include <ui_qdlgscaling.h>
+#include <app.h>
+#include <sceneObjectOperations.h>
+#include <tt.h>
 
 CQDlgScaling::CQDlgScaling(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "bannerObject.h"
-#include "7Vector.h"
-#include "4X4Matrix.h"
+#include <bannerObject.h>
+#include <simMath/7Vector.h>
+#include <simMath/4X4Matrix.h>
 
 class CViewableBase;
 

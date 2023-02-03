@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sceneObject.h"
+#include <sceneObject.h>
 
 enum { /* Bullet joint double params */
     simi_bullet_joint_stoperp=0,

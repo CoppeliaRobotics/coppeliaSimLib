@@ -3,8 +3,8 @@
 #define QDLGMODELPROPERTIES_H
 
 #include <QAbstractButton>
-#include "vDialog.h"
-#include "sceneObject.h"
+#include <vDialog.h>
+#include <sceneObject.h>
 
 namespace Ui {
     class CQDlgModelProperties;

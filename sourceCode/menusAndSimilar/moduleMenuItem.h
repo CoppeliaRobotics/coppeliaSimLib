@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #ifdef SIM_WITH_GUI
-#include "vMenubar.h"
+#include <vMenubar.h>
 #endif
 
 class CModuleMenuItem  

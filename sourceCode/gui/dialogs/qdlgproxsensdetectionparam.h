@@ -1,8 +1,8 @@
 #ifndef QDLGPROXSENSDETECTIONPARAM_H
 #define QDLGPROXSENSDETECTIONPARAM_H
 
-#include "vDialog.h"
-#include "simTypes.h"
+#include <vDialog.h>
+#include <simTypes.h>
 
 namespace Ui {
     class CQDlgProxSensDetectionParam;

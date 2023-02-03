@@ -2,8 +2,8 @@
 #ifndef QDLGASSEMBLY_H
 #define QDLGASSEMBLY_H
 
-#include "vDialog.h"
-#include "sceneObject.h"
+#include <vDialog.h>
+#include <sceneObject.h>
 #include <QAbstractButton>
 
 namespace Ui {

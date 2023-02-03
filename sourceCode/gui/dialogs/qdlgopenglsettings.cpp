@@ -1,8 +1,8 @@
 
-#include "qdlgopenglsettings.h"
-#include "ui_qdlgopenglsettings.h"
-#include "app.h"
-#include "tt.h"
+#include <qdlgopenglsettings.h>
+#include <ui_qdlgopenglsettings.h>
+#include <app.h>
+#include <tt.h>
 
 CQDlgOpenGlSettings::CQDlgOpenGlSettings(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

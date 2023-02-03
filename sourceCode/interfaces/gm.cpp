@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gm.h"
+#include <gm.h>
 
 CGm::CGm()
 {

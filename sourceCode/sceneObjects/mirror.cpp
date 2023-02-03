@@ -1,11 +1,11 @@
-#include "mirror.h"
-#include "simInternal.h"
-#include "tt.h"
-#include "simStrings.h"
-#include "ttUtil.h"
-#include "easyLock.h"
-#include "app.h"
-#include "mirrorRendering.h"
+#include <mirror.h>
+#include <simInternal.h>
+#include <tt.h>
+#include <simStrings.h>
+#include <ttUtil.h>
+#include <easyLock.h>
+#include <app.h>
+#include <mirrorRendering.h>
 
 int CMirror::currentMirrorContentBeingRendered=-1;
 

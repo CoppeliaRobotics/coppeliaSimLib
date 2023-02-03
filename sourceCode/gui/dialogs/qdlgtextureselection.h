@@ -2,7 +2,7 @@
 #ifndef QDLGTEXTURESELECTION_H
 #define QDLGTEXTURESELECTION_H
 
-#include "vDialog.h"
+#include <vDialog.h>
 
 namespace Ui {
     class CQDlgTextureSelection;

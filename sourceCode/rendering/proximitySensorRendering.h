@@ -18,7 +18,7 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "app.h"
-#include "rendering.h"
+#include <app.h>
+#include <rendering.h>
 
 void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObject,int displayAttrib);

@@ -18,7 +18,7 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "proximitySensorRendering.h"
+#include <proximitySensorRendering.h>
 
 #ifdef SIM_WITH_OPENGL
 

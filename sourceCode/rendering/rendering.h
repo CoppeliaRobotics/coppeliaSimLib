@@ -18,10 +18,10 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "app.h"
+#include <app.h>
 
 #ifdef SIM_WITH_OPENGL
-#include "oGL.h"
+#include <oGL.h>
 
 void _activateNonAmbientLights(int lightHandle,CViewableBase* viewable);
 void _prepareAuxClippingPlanes();

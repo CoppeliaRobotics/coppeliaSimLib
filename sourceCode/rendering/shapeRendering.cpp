@@ -18,12 +18,12 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "shapeRendering.h"
+#include <shapeRendering.h>
 
 #ifdef SIM_WITH_OPENGL
-#include "meshWrapper.h"
-#include "mesh.h"
-#include "pluginContainer.h"
+#include <meshWrapper.h>
+#include <mesh.h>
+#include <pluginContainer.h>
 
 void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib)
 {

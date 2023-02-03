@@ -1,12 +1,12 @@
-#include "simInternal.h"
-#include "dynamicsContainer.h"
-#include "pluginContainer.h"
-#include "app.h"
-#include "simStringTable.h"
-#include "tt.h"
-#include "dynamicsRendering.h"
+#include <simInternal.h>
+#include <dynamicsContainer.h>
+#include <pluginContainer.h>
+#include <app.h>
+#include <simStringTable.h>
+#include <tt.h>
+#include <dynamicsRendering.h>
 #ifdef SIM_WITH_GUI
-#include "vMessageBox.h"
+#include <vMessageBox.h>
 #endif
 
 CDynamicsContainer::CDynamicsContainer()

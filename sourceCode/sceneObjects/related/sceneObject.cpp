@@ -1,30 +1,30 @@
-#include "simInternal.h"
-#include "tt.h"
-#include "shape.h"
-#include "camera.h"
-#include "graph.h"
-#include "path_old.h"
-#include "customData_old.h"
-#include "visionSensor.h"
-#include "mill.h"
-#include "light.h"
-#include "gV.h"
-#include "vDateTime.h"
-#include "ttUtil.h"
+#include <simInternal.h>
+#include <tt.h>
+#include <shape.h>
+#include <camera.h>
+#include <graph.h>
+#include <path_old.h>
+#include <customData_old.h>
+#include <visionSensor.h>
+#include <mill.h>
+#include <light.h>
+#include <gV.h>
+#include <vDateTime.h>
+#include <ttUtil.h>
 #include <boost/lexical_cast.hpp>
-#include "app.h"
-#include "easyLock.h"
-#include "jointObject.h"
-#include "sceneObject.h"
-#include "dummy.h"
-#include "global.h"
-#include "simFlavor.h"
-#include "base64.h"
+#include <app.h>
+#include <easyLock.h>
+#include <jointObject.h>
+#include <sceneObject.h>
+#include <dummy.h>
+#include <global.h>
+#include <simFlavor.h>
+#include <base64.h>
 #include <boost/algorithm/string.hpp>
-#include "pluginContainer.h"
+#include <pluginContainer.h>
 #ifdef SIM_WITH_GUI
-    #include "oGL.h"
-    #include "oglSurface.h"
+    #include <oGL.h>
+    #include <oglSurface.h>
 #endif
 
 CSceneObject::CSceneObject()

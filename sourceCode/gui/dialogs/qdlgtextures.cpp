@@ -1,17 +1,17 @@
-#include "qdlgtextures.h"
-#include "ui_qdlgtextures.h"
-#include "tt.h"
-#include "gV.h"
-#include "oGL.h"
-#include "imgLoaderSaver.h"
-#include "mesh.h"
-#include "qdlgtextureselection.h"
-#include "qdlgtextureloadoptions.h"
-#include "simStrings.h"
+#include <qdlgtextures.h>
+#include <ui_qdlgtextures.h>
+#include <tt.h>
+#include <gV.h>
+#include <oGL.h>
+#include <imgLoaderSaver.h>
+#include <mesh.h>
+#include <qdlgtextureselection.h>
+#include <qdlgtextureloadoptions.h>
+#include <simStrings.h>
 #include <boost/lexical_cast.hpp>
-#include "vFileDialog.h"
-#include "app.h"
-#include "vMessageBox.h"
+#include <vFileDialog.h>
+#include <app.h>
+#include <vMessageBox.h>
 
 CQDlgTextures::CQDlgTextures(QWidget *parent) :
     CDlgEx(parent),

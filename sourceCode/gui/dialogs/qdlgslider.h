@@ -1,9 +1,9 @@
 #ifndef QDLGSLIDER_H
 #define QDLGSLIDER_H
 
-#include "vDialog.h"
+#include <vDialog.h>
 #include <QAbstractButton>
-#include "simTypes.h"
+#include <simTypes.h>
 
 namespace Ui {
     class CQDlgSlider;

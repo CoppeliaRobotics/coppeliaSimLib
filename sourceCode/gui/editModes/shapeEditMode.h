@@ -1,13 +1,13 @@
 
 #pragma once
 
-#include "shape.h"
-#include "sceneObjectContainer.h"
-#include "textureContainer.h"
-#include "uiThread.h"
-#include "textureProperty.h"
-#include "edgeCont.h"
-#include "vMenubar.h"
+#include <shape.h>
+#include <sceneObjectContainer.h>
+#include <textureContainer.h>
+#include <uiThread.h>
+#include <textureProperty.h>
+#include <edgeCont.h>
+#include <vMenubar.h>
 
 class CShapeEditMode
 {

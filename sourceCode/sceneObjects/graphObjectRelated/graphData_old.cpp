@@ -1,14 +1,14 @@
-#include "simInternal.h"
-#include "graphData_old.h"
-#include "global.h"
-#include "graph.h"
-#include "tt.h"
-#include "proximitySensor.h"
-#include "jointObject.h"
-#include "app.h"
-#include "graphingRoutines_old.h"
+#include <simInternal.h>
+#include <graphData_old.h>
+#include <global.h>
+#include <graph.h>
+#include <tt.h>
+#include <proximitySensor.h>
+#include <jointObject.h>
+#include <app.h>
+#include <graphingRoutines_old.h>
 #ifdef SIM_WITH_OPENGL
-#include "oGL.h"
+#include <oGL.h>
 #endif
 
 CGraphData_old::CGraphData_old()

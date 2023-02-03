@@ -1,5 +1,5 @@
-#include "serialPort.h"
-#include "serial_win_mac_linux.h"
+#include <serialPort.h>
+#include <serial_win_mac_linux.h>
 
 int CSerialPort::_qserialPort_nextHandle=0;
 

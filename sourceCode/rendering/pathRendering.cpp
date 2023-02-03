@@ -18,7 +18,7 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "pathRendering.h"
+#include <pathRendering.h>
 
 #ifdef SIM_WITH_OPENGL
 

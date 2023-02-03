@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ser.h"
-#include "graphDataStream.h"
-#include "7Vector.h"
+#include <ser.h>
+#include <graphDataStream.h>
+#include <simMath/7Vector.h>
 
 class CGraphCurve
 {

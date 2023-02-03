@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ser.h"
-#include "3Vector.h"
-#include "7Vector.h"
-#include "sceneObject.h"
+#include <ser.h>
+#include <simMath/3Vector.h>
+#include <simMath/7Vector.h>
+#include <sceneObject.h>
 
 enum { /* Mujoco dummy double params */
     simi_mujoco_dummy_range1=0,

@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "vVarious.h"
+#include <vVarious.h>
 
 typedef char (__cdecl *pVideo_recorderGetEncoderString)(int index,char* encoderName_200Chars);
 typedef char (__cdecl *pVideo_recorderInitialize)(int resX,int resY,const char* fileAndPath,int frameRate,int encoderIndex);

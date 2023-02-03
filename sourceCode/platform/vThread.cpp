@@ -1,11 +1,11 @@
-#include "vThread.h"
+#include <vThread.h>
 
 #ifdef WIN_SIM
     #include <Windows.h>
     #include <process.h>
 #endif
 #ifdef SIM_WITH_QT
-    #include "wThread.h"
+    #include <wThread.h>
 #endif
 
 VMutex VThread::_lock;

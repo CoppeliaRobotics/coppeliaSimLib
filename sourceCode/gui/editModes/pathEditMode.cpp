@@ -1,8 +1,8 @@
-#include "pathEditMode.h"
-#include "simConst.h"
-#include "global.h"
-#include "simStringTable.h"
-#include "app.h"
+#include <pathEditMode.h>
+#include <simConst.h>
+#include <global.h>
+#include <simStringTable.h>
+#include <app.h>
 
 CPathEditMode_old::CPathEditMode_old(CPath_old* path,CSceneObjectContainer* objCont)
 {

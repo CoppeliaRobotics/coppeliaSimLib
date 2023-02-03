@@ -1,8 +1,8 @@
-#include "qdlglightmaterial.h"
-#include "ui_qdlglightmaterial.h"
-#include "gV.h"
-#include "tt.h"
-#include "app.h"
+#include <qdlglightmaterial.h>
+#include <ui_qdlglightmaterial.h>
+#include <gV.h>
+#include <tt.h>
+#include <app.h>
 
 CQDlgLightMaterial::CQDlgLightMaterial(QWidget *parent) :
     CDlgEx(parent),

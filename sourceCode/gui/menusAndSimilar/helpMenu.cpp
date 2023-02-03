@@ -1,22 +1,22 @@
-#include "easyLock.h"
-#include "simInternal.h"
-#include "helpMenu.h"
-#include "oGL.h"
-#include "global.h"
-#include "threadPool_old.h"
-#include "algos.h"
-#include "tt.h"
-#include "app.h"
-#include "simStrings.h"
-#include "ttUtil.h"
-#include "vVarious.h"
-#include "qdlgabout.h"
+#include <easyLock.h>
+#include <simInternal.h>
+#include <helpMenu.h>
+#include <oGL.h>
+#include <global.h>
+#include <threadPool_old.h>
+#include <algos.h>
+#include <tt.h>
+#include <app.h>
+#include <simStrings.h>
+#include <ttUtil.h>
+#include <vVarious.h>
+#include <qdlgabout.h>
 #include <QDesktopServices>
 #include <QUrl>
-#include "vMessageBox.h"
-#include "collisionRoutines.h"
-#include "distanceRoutines.h"
-#include "simFlavor.h"
+#include <vMessageBox.h>
+#include <collisionRoutines.h>
+#include <distanceRoutines.h>
+#include <simFlavor.h>
 
 CHelpMenu::CHelpMenu()
 {

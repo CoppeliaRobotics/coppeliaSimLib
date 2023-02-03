@@ -1,8 +1,8 @@
-#include "simInternal.h"
-#include "textureObject.h"
-#include "app.h"
+#include <simInternal.h>
+#include <textureObject.h>
+#include <app.h>
 #include <boost/format.hpp>
-#include "base64.h"
+#include <base64.h>
 
 unsigned int CTextureObject::_textureContentUniqueId=0;
 

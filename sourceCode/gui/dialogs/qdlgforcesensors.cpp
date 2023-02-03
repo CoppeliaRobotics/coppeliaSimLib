@@ -1,9 +1,9 @@
-#include "qdlgforcesensors.h"
-#include "ui_qdlgforcesensors.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "app.h"
+#include <qdlgforcesensors.h>
+#include <ui_qdlgforcesensors.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <app.h>
 
 CQDlgForceSensors::CQDlgForceSensors(QWidget *parent) :
     CDlgEx(parent),

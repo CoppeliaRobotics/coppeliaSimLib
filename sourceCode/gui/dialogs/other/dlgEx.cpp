@@ -1,5 +1,5 @@
-#include "dlgEx.h"
-#include "app.h"
+#include <dlgEx.h>
+#include <app.h>
 #include <QLineEdit>
 
 int CDlgEx::doTransparencyCounter=0;

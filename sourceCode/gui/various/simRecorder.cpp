@@ -1,13 +1,13 @@
-#include "simRecorder.h"
-#include "oGL.h"
-#include "tt.h"
+#include <simRecorder.h>
+#include <oGL.h>
+#include <tt.h>
 #include <QScreen>
 #include <QDesktopWidget>
-#include "imgLoaderSaver.h"
-#include "auxLibVideo.h"
-#include "simStrings.h"
-#include "vDateTime.h"
-#include "app.h"
+#include <imgLoaderSaver.h>
+#include <auxLibVideo.h>
+#include <simStrings.h>
+#include <vDateTime.h>
+#include <app.h>
 
 CSimRecorder::CSimRecorder(const char* initialPath)
 {

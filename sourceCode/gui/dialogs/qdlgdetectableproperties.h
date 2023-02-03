@@ -2,7 +2,7 @@
 #ifndef QDLGDETECTABLEPROPERTIES_H
 #define QDLGDETECTABLEPROPERTIES_H
 
-#include "vDialog.h"
+#include <vDialog.h>
 
 namespace Ui {
     class CQDlgDetectableProperties;

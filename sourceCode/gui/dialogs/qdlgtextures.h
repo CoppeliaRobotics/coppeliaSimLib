@@ -2,7 +2,7 @@
 #ifndef QDLGTEXTURES_H
 #define QDLGTEXTURES_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgTextures;

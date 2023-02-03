@@ -1,7 +1,7 @@
 #pragma once
 
-#include "meshWrapper.h"
-#include "textureProperty.h"
+#include <meshWrapper.h>
+#include <textureProperty.h>
 
 class CMesh : public CMeshWrapper
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "simTypes.h"
-#include "outsideCommandQueueForScript.h"
-#include "interfaceStack.h"
+#include <simTypes.h>
+#include <outsideCommandQueueForScript.h>
+#include <interfaceStack.h>
 #include <random>
 
 #define DEFAULT_MAINSCRIPT_CODE "-- The main script is not supposed to be modified, except in special cases.\nrequire('defaultMainScript')"
@@ -14,10 +14,10 @@
 
 // Old:
 // **********************
-#include "userParameters.h"
-#include "vMutex.h"
-#include "vThread.h"
-#include "customData_old.h"
+#include <userParameters.h>
+#include <vMutex.h>
+#include <vThread.h>
+#include <customData_old.h>
 #define DEFAULT_THREADEDCHILDSCRIPTOLD "dlttscptbkcomp"
 #define SIM_SCRIPT_NAME_INDEX_OLD "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
 // **********************

@@ -1,5 +1,5 @@
 
-#include "interfaceStackBool.h"
+#include <interfaceStackBool.h>
 
 CInterfaceStackBool::CInterfaceStackBool(bool theValue)
 {

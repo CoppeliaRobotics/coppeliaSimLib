@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "sView.h"
-#include "shape.h"
+#include <sView.h>
+#include <shape.h>
 
 class CAddOperations  
 {

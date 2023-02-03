@@ -1,7 +1,7 @@
 
-#include "qdlgslider.h"
-#include "ui_qdlgslider.h"
-#include "tt.h"
+#include <qdlgslider.h>
+#include <ui_qdlgslider.h>
+#include <tt.h>
 
 CQDlgSlider::CQDlgSlider(QWidget *parent) : VDialog(parent,QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgSlider)
 {

@@ -1,6 +1,6 @@
 
-#include "simQApp.h"
-#include "app.h"
+#include <simQApp.h>
+#include <app.h>
 
 CSimQApp::CSimQApp(int& argc ,char** argv) : QAPP(argc,argv)
 {

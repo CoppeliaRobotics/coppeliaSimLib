@@ -10,17 +10,17 @@
 #include <QAction>
 #include <QComboBox>
 #include <QBoxLayout>
-#include "statusBar.h"
-#include "qsim_openglwidget.h"
-#include "global.h"
-#include "dlgCont.h"
-#include "simRecorder.h"
-#include "oglSurface.h"
-#include "editModeContainer.h"
-#include "codeEditorContainer.h"
-#include "simThread.h"
-#include "modelFolderWidget.h"
-#include "modelListWidget.h"
+#include <statusBar.h>
+#include <qsim_openglwidget.h>
+#include <global.h>
+#include <dlgCont.h>
+#include <simRecorder.h>
+#include <oglSurface.h>
+#include <editModeContainer.h>
+#include <codeEditorContainer.h>
+#include <simThread.h>
+#include <modelFolderWidget.h>
+#include <modelListWidget.h>
 
 enum {FOCUS_ON_PAGE=0,FOCUS_ON_HIERARCHY,FOCUS_ON_SOFT_DIALOG,FOCUS_ON_VIEW_SELECTION_WINDOW,FOCUS_ON_PAGE_SELECTION_WINDOW,FOCUS_ON_UNKNOWN_OBJECT,FOCUS_ON_BROWSER};
 

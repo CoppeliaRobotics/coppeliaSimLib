@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "vDialog.h"
-#include "uiThread.h"
+#include <vDialog.h>
+#include <uiThread.h>
 
 class QLineEdit;
 

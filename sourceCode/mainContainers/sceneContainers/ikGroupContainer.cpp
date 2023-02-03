@@ -1,8 +1,8 @@
-#include "ikGroupContainer.h"
-#include "app.h"
-#include "tt.h"
-#include "simInternal.h"
-#include "vDateTime.h"
+#include <ikGroupContainer.h>
+#include <app.h>
+#include <tt.h>
+#include <simInternal.h>
+#include <vDateTime.h>
 
 CIkGroupContainer::CIkGroupContainer()
 {
@@ -41,7 +41,7 @@ void CIkGroupContainer::addIkGroupWithSuffixOffset(CIkGroup_old* anIkGroup,bool 
         theName=tt::generateNewName_hashOrNoHash(theName.c_str(),objectIsACopy);
     anIkGroup->setObjectName(theName.c_str(),false);
 
-    int handle=SIM_IDSTART_IKGROUP;
+    int handle=SIM_IDSTART_IKGROUP_old;
     while (getObjectFromHandle(handle)!=nullptr)
         handle++;
     anIkGroup->setObjectHandle(handle);

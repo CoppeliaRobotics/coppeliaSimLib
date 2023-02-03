@@ -1,12 +1,12 @@
 #pragma once
 
-#include "collectionContainer.h"
-#include "distanceObjectContainer_old.h"
-#include "collisionObjectContainer_old.h"
-#include "ikGroupContainer.h"
-#include "sceneObjectContainer.h"
+#include <collectionContainer.h>
+#include <distanceObjectContainer_old.h>
+#include <collisionObjectContainer_old.h>
+#include <ikGroupContainer.h>
+#include <sceneObjectContainer.h>
 
-#include "syncObject.h"
+#include <syncObject.h>
 
 enum {
     sim_syncobj_world_empty=0,

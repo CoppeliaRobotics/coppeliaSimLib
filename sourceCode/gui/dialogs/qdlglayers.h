@@ -2,7 +2,7 @@
 #ifndef QDLGLAYERS_H
 #define QDLGLAYERS_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgLayers;

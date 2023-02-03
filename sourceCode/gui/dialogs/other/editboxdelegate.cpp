@@ -1,5 +1,5 @@
 
-#include "editboxdelegate.h"
+#include <editboxdelegate.h>
 #include <QLineEdit>
 
 CEditBoxDelegate::CEditBoxDelegate(QObject *parent) : QItemDelegate(parent)

@@ -1,9 +1,9 @@
-#include "qdlgdependencyequation.h"
-#include "ui_qdlgdependencyequation.h"
-#include "gV.h"
-#include "tt.h"
-#include "app.h"
-#include "simStrings.h"
+#include <qdlgdependencyequation.h>
+#include <ui_qdlgdependencyequation.h>
+#include <gV.h>
+#include <tt.h>
+#include <app.h>
+#include <simStrings.h>
 
 CQDlgDependencyEquation::CQDlgDependencyEquation(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

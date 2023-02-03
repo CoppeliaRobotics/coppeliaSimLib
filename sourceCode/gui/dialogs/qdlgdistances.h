@@ -2,7 +2,7 @@
 #ifndef QDLGDISTANCES_H
 #define QDLGDISTANCES_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 #include <QListWidgetItem>
 
 namespace Ui {

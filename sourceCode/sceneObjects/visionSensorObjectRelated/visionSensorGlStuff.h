@@ -1,8 +1,8 @@
 #pragma once
 
-#include "offscreenGlContext.h"
-#include "frameBufferObject.h"
-#include "textureObject.h"
+#include <offscreenGlContext.h>
+#include <frameBufferObject.h>
+#include <textureObject.h>
 
 class CVisionSensorGlStuff : public QObject
 {

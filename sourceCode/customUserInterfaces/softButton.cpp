@@ -1,10 +1,10 @@
-#include "simInternal.h"
-#include "softButton.h"
-#include "tt.h"
-#include "global.h"
-#include "app.h"
+#include <simInternal.h>
+#include <softButton.h>
+#include <tt.h>
+#include <global.h>
+#include <app.h>
 #ifdef SIM_WITH_GUI
-#include "oGL.h"
+#include <oGL.h>
 #endif
 
 CSoftButton::CSoftButton(std::string theLabel,int w,int h,int theLength,int theHeight)

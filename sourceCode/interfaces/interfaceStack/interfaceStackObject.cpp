@@ -1,10 +1,10 @@
-#include "interfaceStackObject.h"
-#include "interfaceStackNull.h"
-#include "interfaceStackNumber.h"
-#include "interfaceStackInteger.h"
-#include "interfaceStackBool.h"
-#include "interfaceStackString.h"
-#include "interfaceStackTable.h"
+#include <interfaceStackObject.h>
+#include <interfaceStackNull.h>
+#include <interfaceStackNumber.h>
+#include <interfaceStackInteger.h>
+#include <interfaceStackBool.h>
+#include <interfaceStackString.h>
+#include <interfaceStackTable.h>
 
 CInterfaceStackObject::CInterfaceStackObject()
 {

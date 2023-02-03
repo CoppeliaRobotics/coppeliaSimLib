@@ -1,16 +1,16 @@
-#include "qdlg2d3dgraphproperties.h"
-#include "ui_qdlg2d3dgraphproperties.h"
-#include "gV.h"
-#include "tt.h"
-#include "graphingRoutines_old.h"
+#include <qdlg2d3dgraphproperties.h>
+#include <ui_qdlg2d3dgraphproperties.h>
+#include <gV.h>
+#include <tt.h>
+#include <graphingRoutines_old.h>
 #include <QShortcut>
-#include "editboxdelegate.h"
-#include "qdlgcolor.h"
-#include "qdlgmaterial.h"
-#include "qdlgaddgraphcurve.h"
-#include "simStrings.h"
-#include "app.h"
-#include "vMessageBox.h"
+#include <editboxdelegate.h>
+#include <qdlgcolor.h>
+#include <qdlgmaterial.h>
+#include <qdlgaddgraphcurve.h>
+#include <simStrings.h>
+#include <app.h>
+#include <vMessageBox.h>
 
 CQDlg2D3DGraphProperties::CQDlg2D3DGraphProperties(QWidget *parent) :
     CDlgEx(parent),

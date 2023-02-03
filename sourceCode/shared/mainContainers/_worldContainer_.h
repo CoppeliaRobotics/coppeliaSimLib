@@ -1,7 +1,7 @@
 #pragma once
 
-#include "world.h"
-#include "syncObject.h"
+#include <world.h>
+#include <syncObject.h>
 
 class _CWorldContainer_ : public CSyncObject
 {

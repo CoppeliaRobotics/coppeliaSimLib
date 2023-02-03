@@ -1,16 +1,16 @@
-#include "qdlggraphs.h"
-#include "ui_qdlggraphs.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "qdlgdatastreamselection.h"
-#include "graphingRoutines_old.h"
-#include "editboxdelegate.h"
-#include "qdlgcolor.h"
-#include "qdlg2d3dgraphproperties.h"
-#include "simStrings.h"
-#include "app.h"
-#include "vMessageBox.h"
+#include <qdlggraphs.h>
+#include <ui_qdlggraphs.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <qdlgdatastreamselection.h>
+#include <graphingRoutines_old.h>
+#include <editboxdelegate.h>
+#include <qdlgcolor.h>
+#include <qdlg2d3dgraphproperties.h>
+#include <simStrings.h>
+#include <app.h>
+#include <vMessageBox.h>
 
 CQDlgGraphs::CQDlgGraphs(QWidget *parent) :
     CDlgEx(parent),

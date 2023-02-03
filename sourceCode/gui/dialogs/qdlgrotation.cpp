@@ -1,9 +1,9 @@
-#include "qdlgrotation.h"
-#include "ui_qdlgrotation.h"
-#include "gV.h"
-#include "tt.h"
-#include "app.h"
-#include "simStrings.h"
+#include <qdlgrotation.h>
+#include <ui_qdlgrotation.h>
+#include <gV.h>
+#include <tt.h>
+#include <app.h>
+#include <simStrings.h>
 
 int CQDlgRotation::coordMode=0; //0=abs,1=rel to parent
 double CQDlgRotation::rotAngles[3]={0.0,0.0,0.0};

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "3Vector.h"
+#include <simMath/3Vector.h>
 
 //FULLY STATIC CLASS
 class CMeshRoutines  

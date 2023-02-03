@@ -1,7 +1,7 @@
-#include "oGL.h"
-#include "glBufferObjects.h"
-#include "vDateTime.h"
-#include "app.h"
+#include <oGL.h>
+#include <glBufferObjects.h>
+#include <vDateTime.h>
+#include <app.h>
 
 CGlBufferObjects::CGlBufferObjects()
 { // Can only be called by the GUI thread!

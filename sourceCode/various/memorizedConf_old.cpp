@@ -1,7 +1,7 @@
-#include "memorizedConf_old.h"
-#include "app.h"
-#include "simInternal.h"
-#include "ttUtil.h"
+#include <memorizedConf_old.h>
+#include <app.h>
+#include <simInternal.h>
+#include <ttUtil.h>
 
 CMemorizedConf_old::CMemorizedConf_old(CSceneObject* theObject)
 {

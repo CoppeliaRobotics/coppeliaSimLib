@@ -1,7 +1,7 @@
 #pragma once
 
-#include "dummyClasses.h"
-#include "simTypes.h"
+#include <dummyClasses.h>
+#include <simTypes.h>
 
 // FULLY STATIC CLASS
 class CPathPlanningInterface  

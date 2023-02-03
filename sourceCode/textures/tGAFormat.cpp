@@ -2,11 +2,11 @@
 // Unfortunately credit cannot be given, since I forgot the original author.!
 // Should you know, please let me know!     -marc
 
-#include "tGAFormat.h"
-#include "tt.h"
+#include <tGAFormat.h>
+#include <tt.h>
 #include <strstream>
 #include <fstream>
-#include "app.h"
+#include <app.h>
 
 unsigned char* CTGAFormat::getRGBA(std::istream* inputStream,int size)
 {

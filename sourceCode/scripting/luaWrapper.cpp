@@ -1,5 +1,5 @@
-#include "luaWrapper.h"
-#include "interfaceStackObject.h"
+#include <luaWrapper.h>
+#include <interfaceStackObject.h>
 
 int luaWrapGet_LUA_MULTRET()
 {

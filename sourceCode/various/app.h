@@ -1,18 +1,18 @@
 #pragma once
 
-#include "uiThread.h"
-#include "simThread.h"
-#include "folderSystem.h"
-#include "userSettings.h"
-#include "vMutex.h"
-#include "worldContainer.h"
-#include "gm.h"
+#include <uiThread.h>
+#include <simThread.h>
+#include <folderSystem.h>
+#include <userSettings.h>
+#include <vMutex.h>
+#include <worldContainer.h>
+#include <gm.h>
 #ifdef SIM_WITH_QT
-    #include "simQApp.h"
-    #include "simAndUiThreadSync.h"
+    #include <simQApp.h>
+    #include <simAndUiThreadSync.h>
 #endif
 #ifdef SIM_WITH_GUI
-    #include "mainWindow.h"
+    #include <mainWindow.h>
 #endif
 
 class App

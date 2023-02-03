@@ -1,10 +1,10 @@
-#include "qdlgpathshaping.h"
-#include "ui_qdlgpathshaping.h"
-#include "gV.h"
-#include "tt.h"
-#include "qdlgmaterial.h"
-#include "app.h"
-#include "simStrings.h"
+#include <qdlgpathshaping.h>
+#include <ui_qdlgpathshaping.h>
+#include <gV.h>
+#include <tt.h>
+#include <qdlgmaterial.h>
+#include <app.h>
+#include <simStrings.h>
 
 bool CQDlgPathShaping::showWindow=false;
 

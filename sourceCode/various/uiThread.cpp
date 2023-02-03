@@ -1,35 +1,35 @@
-#include "uiThread.h"
-#include "vThread.h"
-#include "app.h"
-#include "global.h"
-#include "fileOperations.h"
-#include "persistentDataContainer.h"
-#include "tt.h"
-#include "threadPool_old.h"
-#include "pluginContainer.h"
-#include "simStrings.h"
-#include "vDateTime.h"
-#include "sceneObjectOperations.h"
-#include "addOperations.h"
-#include "rendering.h"
-#include "simFlavor.h"
+#include <uiThread.h>
+#include <vThread.h>
+#include <app.h>
+#include <global.h>
+#include <fileOperations.h>
+#include <persistentDataContainer.h>
+#include <tt.h>
+#include <threadPool_old.h>
+#include <pluginContainer.h>
+#include <simStrings.h>
+#include <vDateTime.h>
+#include <sceneObjectOperations.h>
+#include <addOperations.h>
+#include <rendering.h>
+#include <simFlavor.h>
 #ifdef SIM_WITH_GUI
-    #include "qdlgprimitives.h"
-    #include "qdlgslider.h"
-    #include "qdlgslider2.h"
-    #include "vFileDialog.h"
-    #include "qdlgconvexdecomposition.h"
-    #include "qdlgopenglsettings.h"
-    #include "qdlgmessageandcheckbox.h"
-    #include "qdlgmodelthumbnailvisu.h"
-    #include "qdlgmodelthumbnail.h"
-    #include "qdlgtextureloadoptions.h"
-    #include "qdlgheightfielddimension.h"
-    #include "qdlgmodelproperties.h"
-    #include "qdlguserparameters.h"
-    #include "qdlgstopscripts.h"
-    #include "vMessageBox.h"
-    #include "qdlgprogress.h"
+    #include <qdlgprimitives.h>
+    #include <qdlgslider.h>
+    #include <qdlgslider2.h>
+    #include <vFileDialog.h>
+    #include <qdlgconvexdecomposition.h>
+    #include <qdlgopenglsettings.h>
+    #include <qdlgmessageandcheckbox.h>
+    #include <qdlgmodelthumbnailvisu.h>
+    #include <qdlgmodelthumbnail.h>
+    #include <qdlgtextureloadoptions.h>
+    #include <qdlgheightfielddimension.h>
+    #include <qdlgmodelproperties.h>
+    #include <qdlguserparameters.h>
+    #include <qdlgstopscripts.h>
+    #include <vMessageBox.h>
+    #include <qdlgprogress.h>
     #include <QEvent>
     #include <QInputDialog>
 #endif

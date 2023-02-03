@@ -18,10 +18,10 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "dynamicsRendering.h"
+#include <dynamicsRendering.h>
 
 #ifdef SIM_WITH_OPENGL
-#include "pluginContainer.h"
+#include <pluginContainer.h>
 
 const double SPHEREVERTICES[24*3]={
 -0.4142,-1.0000,-0.4142,

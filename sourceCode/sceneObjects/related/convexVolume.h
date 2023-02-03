@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ser.h"
-#include "3Vector.h"
+#include <ser.h>
+#include <simMath/3Vector.h>
 
 #define PROXSENSOR_MAX_FACE_NUMBER 1024 // Maximum faces of a disk or cone-type sensor
 #define PROXSENSOR_MAX_SUBDIVISIONS 1024    // Maximum subdivisions of a cone-type sensor

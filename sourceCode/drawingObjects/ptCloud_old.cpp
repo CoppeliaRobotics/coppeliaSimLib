@@ -1,6 +1,6 @@
-#include "ptCloud_old.h"
-#include "app.h"
-#include "ptCloudRendering_old.h"
+#include <ptCloud_old.h>
+#include <app.h>
+#include <ptCloudRendering_old.h>
 
 CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int parentHandle,int options,double pointSize,int ptCnt,const double* vertices,const unsigned char* colors,const double* normals,const unsigned char* defaultColors)
 {

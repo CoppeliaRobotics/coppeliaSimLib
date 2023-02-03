@@ -1,5 +1,5 @@
-#include "app.h"
-#include "scriptCustomFuncAndVarContainer.h"
+#include <app.h>
+#include <scriptCustomFuncAndVarContainer.h>
 
 CScriptCustomFuncAndVarContainer::CScriptCustomFuncAndVarContainer()
 {

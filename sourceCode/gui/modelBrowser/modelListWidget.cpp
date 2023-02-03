@@ -1,10 +1,10 @@
-#include "simInternal.h"
-#include "modelListWidget.h"
-#include "vFileFinder.h"
-#include "imgLoaderSaver.h"
-#include "app.h"
-#include "simFlavor.h"
-#include "sha256.h"
+#include <simInternal.h>
+#include <modelListWidget.h>
+#include <vFileFinder.h>
+#include <imgLoaderSaver.h>
+#include <app.h>
+#include <simFlavor.h>
+#include <sha256.h>
 #include <QMimeData>
 #include <QScrollBar>
 

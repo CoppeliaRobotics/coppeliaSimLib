@@ -1,12 +1,12 @@
-#include "simInternal.h"
-#include "mill.h"
-#include "tt.h"
-#include "vDateTime.h"
-#include "ttUtil.h"
-#include "easyLock.h"
-#include "app.h"
-#include "pluginContainer.h"
-#include "millRendering.h"
+#include <simInternal.h>
+#include <mill.h>
+#include <tt.h>
+#include <vDateTime.h>
+#include <ttUtil.h>
+#include <easyLock.h>
+#include <app.h>
+#include <pluginContainer.h>
+#include <millRendering.h>
 
 CMill::CMill(int theType)
 {

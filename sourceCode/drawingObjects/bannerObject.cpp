@@ -1,8 +1,8 @@
-#include "simInternal.h"
-#include "bannerObject.h"
-#include "app.h"
-#include "tt.h"
-#include "bannerRendering.h"
+#include <simInternal.h>
+#include <bannerObject.h>
+#include <app.h>
+#include <tt.h>
+#include <bannerRendering.h>
 
 bool CBannerObject::getCreatedFromScript()
 {

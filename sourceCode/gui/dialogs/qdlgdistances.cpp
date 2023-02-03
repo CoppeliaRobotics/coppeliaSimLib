@@ -1,12 +1,12 @@
-#include "qdlgdistances.h"
-#include "ui_qdlgdistances.h"
-#include "tt.h"
+#include <qdlgdistances.h>
+#include <ui_qdlgdistances.h>
+#include <tt.h>
 #include <QShortcut>
-#include "qdlgentityvsentityselection.h"
-#include "editboxdelegate.h"
-#include "qdlgmaterial.h"
-#include "app.h"
-#include "gV.h"
+#include <qdlgentityvsentityselection.h>
+#include <editboxdelegate.h>
+#include <qdlgmaterial.h>
+#include <app.h>
+#include <gV.h>
 
 CQDlgDistances::CQDlgDistances(QWidget *parent) :
     CDlgEx(parent),

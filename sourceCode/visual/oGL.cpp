@@ -1,11 +1,11 @@
 // This file includes many many very ugly things and requires some serious refactoring!!!!
 
-#include "oGL.h"
-#include "global.h"
-#include "simInternal.h"
-#include "4X4Matrix.h"
-#include "app.h"
-#include "rendering.h"
+#include <oGL.h>
+#include <global.h>
+#include <simInternal.h>
+#include <simMath/4X4Matrix.h>
+#include <app.h>
+#include <rendering.h>
 
 SOglFont ogl::oglFonts[]= 
     {

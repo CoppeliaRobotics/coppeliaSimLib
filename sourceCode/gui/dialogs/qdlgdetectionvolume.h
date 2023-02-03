@@ -1,10 +1,10 @@
 #ifndef QDLGDETECTIONVOLUME_H
 #define QDLGDETECTIONVOLUME_H
 
-#include "dlgEx.h"
-#include "convexVolume.h"
-#include "proximitySensor.h"
-#include "mill.h"
+#include <dlgEx.h>
+#include <convexVolume.h>
+#include <proximitySensor.h>
+#include <mill.h>
 
 namespace Ui {
     class CQDlgDetectionVolume;

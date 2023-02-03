@@ -1,10 +1,10 @@
 
-#include "qdlgproxsensdetectionparam.h"
-#include "ui_qdlgproxsensdetectionparam.h"
-#include "gV.h"
-#include "tt.h"
-#include "mathDefines.h"
-#include "app.h"
+#include <qdlgproxsensdetectionparam.h>
+#include <ui_qdlgproxsensdetectionparam.h>
+#include <gV.h>
+#include <tt.h>
+#include <simMath/mathDefines.h>
+#include <app.h>
 
 CQDlgProxSensDetectionParam::CQDlgProxSensDetectionParam(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

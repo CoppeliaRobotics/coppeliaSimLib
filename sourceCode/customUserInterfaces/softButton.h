@@ -1,6 +1,6 @@
 #pragma once
 
-#include "textureProperty.h"
+#include <textureProperty.h>
 
 class VPoint
 {

@@ -2,8 +2,8 @@
 #ifndef QDLGIKELEMENTS_H
 #define QDLGIKELEMENTS_H
 
-#include "dlgEx.h"
-#include "ikGroup_old.h"
+#include <dlgEx.h>
+#include <ikGroup_old.h>
 #include <QAbstractButton>
 
 namespace Ui {

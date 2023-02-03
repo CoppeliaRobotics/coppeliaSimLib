@@ -1,14 +1,14 @@
-#include "vFile.h"
-#include "simStringTable.h"
+#include <vFile.h>
+#include <simStringTable.h>
 #ifdef SIM_LIB
-#include "app.h"
+#include <app.h>
 #endif
 #ifdef SIM_WITH_GUI
 #include <QMessageBox>
 #endif
-#include "simStrings.h"
-#include "vVarious.h"
-#include "vFileFinder.h"
+#include <simStrings.h>
+#include <vVarious.h>
+#include <vFileFinder.h>
 #ifndef SIM_WITH_QT
 #include <sys/stat.h>
 #include <sys/types.h>

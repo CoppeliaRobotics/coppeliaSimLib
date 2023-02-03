@@ -1,8 +1,8 @@
-#include "thumbnail.h"
-#include "global.h"
-#include "simConst.h"
-#include "thumbnailRendering.h"
-#include "base64.h"
+#include <thumbnail.h>
+#include <global.h>
+#include <simConst.h>
+#include <thumbnailRendering.h>
+#include <base64.h>
 
 CThumbnail::CThumbnail()
 {

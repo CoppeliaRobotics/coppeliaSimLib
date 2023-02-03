@@ -1,6 +1,6 @@
-#include "_syncObject_.h"
+#include <_syncObject_.h>
 #ifdef SIM_LIB
-#include "app.h"
+#include <app.h>
 #endif
 
 bool _CSyncObject_::_overallSyncEnabled=true;

@@ -1,5 +1,5 @@
 #include <vector>
-#include "algos.h"
+#include <algos.h>
 
 C7Vector CAlgos::getMeshBoundingBoxPose(const std::vector<double>& vert,const std::vector<int>& ind,bool alignedWithMainAxis)
 {

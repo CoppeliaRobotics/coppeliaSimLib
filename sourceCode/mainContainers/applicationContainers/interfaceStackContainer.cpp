@@ -1,6 +1,6 @@
 
-#include "global.h"
-#include "interfaceStackContainer.h"
+#include <global.h>
+#include <interfaceStackContainer.h>
 
 CInterfaceStackContainer::CInterfaceStackContainer()
 {

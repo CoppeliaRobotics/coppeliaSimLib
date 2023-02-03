@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ser.h"
-#include "7Vector.h"
+#include <ser.h>
+#include <simMath/7Vector.h>
 
 #define MODEL_BROWSER_TEXT_SPACE_HEIGHT (32)
 

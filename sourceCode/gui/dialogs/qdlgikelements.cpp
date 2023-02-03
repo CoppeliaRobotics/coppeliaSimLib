@@ -1,10 +1,10 @@
-#include "qdlgikelements.h"
-#include "ui_qdlgikelements.h"
-#include "gV.h"
-#include "tt.h"
+#include <qdlgikelements.h>
+#include <ui_qdlgikelements.h>
+#include <gV.h>
+#include <tt.h>
 #include <QShortcut>
-#include "app.h"
-#include "simStrings.h"
+#include <app.h>
+#include <simStrings.h>
 
 bool CQDlgIkElements::_invalid=false;
 int CQDlgIkElements::_ikGroupHandle=-1;

@@ -1,9 +1,9 @@
-#include "simInternal.h"
-#include "drawingObject.h"
-#include "app.h"
-#include "tt.h"
-#include "easyLock.h"
-#include "drawingObjectRendering.h"
+#include <simInternal.h>
+#include <drawingObject.h>
+#include <app.h>
+#include <tt.h>
+#include <easyLock.h>
+#include <drawingObjectRendering.h>
 
 double CDrawingObject::getSize() const
 {

@@ -1,5 +1,5 @@
-#include "auxLibVideo.h"
-#include "app.h"
+#include <auxLibVideo.h>
+#include <app.h>
 
 WLibrary CAuxLibVideo::_lib=nullptr;
 

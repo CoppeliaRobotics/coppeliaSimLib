@@ -1,9 +1,9 @@
-#include "qdlgsimulation.h"
-#include "ui_qdlgsimulation.h"
-#include "app.h"
-#include "tt.h"
-#include "gV.h"
-#include "simStrings.h"
+#include <qdlgsimulation.h>
+#include <ui_qdlgsimulation.h>
+#include <app.h>
+#include <tt.h>
+#include <gV.h>
+#include <simStrings.h>
 
 CQDlgSimulation::CQDlgSimulation(QWidget *parent) :
     CDlgEx(parent),

@@ -1,11 +1,11 @@
-#include "qdlgpaths.h"
-#include "ui_qdlgpaths.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "app.h"
-#include "qdlgpathshaping.h"
-#include "simStrings.h"
+#include <qdlgpaths.h>
+#include <ui_qdlgpaths.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <app.h>
+#include <qdlgpathshaping.h>
+#include <simStrings.h>
 
 CQDlgPaths::CQDlgPaths(QWidget *parent) :
     CDlgEx(parent),

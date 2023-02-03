@@ -18,13 +18,13 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "rendering.h"
+#include <rendering.h>
 
 #ifdef SIM_WITH_OPENGL
-#include "embeddedFonts.h"
-#include "vDateTime.h"
-#include "glBufferObjects.h"
-#include "oglExt.h"
+#include <embeddedFonts.h>
+#include <vDateTime.h>
+#include <glBufferObjects.h>
+#include <oglExt.h>
 
 CGlBufferObjects* _glBufferObjects=nullptr;
 bool _glInitialized=false;

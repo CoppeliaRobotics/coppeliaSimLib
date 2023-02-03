@@ -1,5 +1,5 @@
-#include "easyLock.h"
-#include "vThread.h"
+#include <easyLock.h>
+#include <vThread.h>
 
 bool CEasyLock::_showActivity=false;
 

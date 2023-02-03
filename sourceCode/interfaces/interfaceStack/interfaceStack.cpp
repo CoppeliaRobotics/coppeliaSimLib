@@ -1,12 +1,12 @@
-#include "simConst.h"
-#include "interfaceStack.h"
-#include "interfaceStackNull.h"
-#include "interfaceStackBool.h"
-#include "interfaceStackNumber.h"
-#include "interfaceStackInteger.h"
-#include "interfaceStackString.h"
-#include "interfaceStackTable.h"
-#include "cbor.h"
+#include <simConst.h>
+#include <interfaceStack.h>
+#include <interfaceStackNull.h>
+#include <interfaceStackBool.h>
+#include <interfaceStackNumber.h>
+#include <interfaceStackInteger.h>
+#include <interfaceStackString.h>
+#include <interfaceStackTable.h>
+#include <cbor.h>
 #include <algorithm>
 
 CInterfaceStack::CInterfaceStack(int a,int b,const char* c)

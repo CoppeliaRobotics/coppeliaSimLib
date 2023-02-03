@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ptCloud_old.h"
-#include "7Vector.h"
-#include "vMutex.h"
+#include <ptCloud_old.h>
+#include <simMath/7Vector.h>
+#include <vMutex.h>
 
 class CViewableBase;
 

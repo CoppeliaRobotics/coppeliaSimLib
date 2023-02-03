@@ -2,7 +2,7 @@
 #ifndef QDLGMIRRORS_H
 #define QDLGMIRRORS_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgMirrors;

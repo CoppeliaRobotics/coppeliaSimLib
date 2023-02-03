@@ -1,11 +1,11 @@
-#include "qdlgscripts.h"
-#include "ui_qdlgscripts.h"
-#include "tt.h"
+#include <qdlgscripts.h>
+#include <ui_qdlgscripts.h>
+#include <tt.h>
 #include <QShortcut>
-#include "app.h"
-#include "simStrings.h"
-#include "jointObject.h"
-#include "vMessageBox.h"
+#include <app.h>
+#include <simStrings.h>
+#include <jointObject.h>
+#include <vMessageBox.h>
 
 int CQDlgScripts::scriptViewMode=0;
 

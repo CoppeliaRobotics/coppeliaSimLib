@@ -5,7 +5,7 @@
 #ifdef WIN_SIM
 //  #include <qgl.h>
 //  #include <GL/gl.h>
-//  #include "glext.h"
+//  #include <glext.h>
 //  #define GL_DEPTH24_STENCIL8_EXT 0x88F0
 #endif
 

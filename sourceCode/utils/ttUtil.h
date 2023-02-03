@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <string>
-#include "simTypes.h"
+#include <simTypes.h>
 
 class CTTUtil  
 { // FULLY STATIC!!

@@ -1,10 +1,10 @@
-#include "qdlgassembly.h"
-#include "ui_qdlgassembly.h"
-#include "simInternal.h"
-#include "tt.h"
-#include "app.h"
-#include "simStrings.h"
-#include "vMessageBox.h"
+#include <qdlgassembly.h>
+#include <ui_qdlgassembly.h>
+#include <simInternal.h>
+#include <tt.h>
+#include <app.h>
+#include <simStrings.h>
+#include <vMessageBox.h>
 
 CQDlgAssembly::CQDlgAssembly(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

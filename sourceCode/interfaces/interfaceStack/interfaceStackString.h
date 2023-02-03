@@ -1,6 +1,6 @@
 #pragma once
 
-#include "interfaceStackObject.h"
+#include <interfaceStackObject.h>
 #include <string>
 
 class CInterfaceStackString : public CInterfaceStackObject

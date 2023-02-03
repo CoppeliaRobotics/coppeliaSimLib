@@ -1,9 +1,9 @@
 #pragma once
 
-#include "viewSelector.h"
-#include "pageSelector.h"
-#include "buttonBlock.h"
-#include "hierarchy.h"
+#include <viewSelector.h>
+#include <pageSelector.h>
+#include <buttonBlock.h>
+#include <hierarchy.h>
 
 class COglSurface
 {

@@ -1,20 +1,20 @@
 // This file requires some serious refactoring!
 
-#include "simInternal.h"
-#include "sView.h"
-#include "tt.h"
-#include "simulation.h"
-#include "sceneObjectOperations.h"
-#include "simulation.h"
-#include "addOperations.h"
-#include "simStrings.h"
-#include "vDateTime.h"
-#include "proxSensorRoutine.h"
-#include "pluginContainer.h"
-#include "app.h"
-#include "viewRendering.h"
+#include <simInternal.h>
+#include <sView.h>
+#include <tt.h>
+#include <simulation.h>
+#include <sceneObjectOperations.h>
+#include <simulation.h>
+#include <addOperations.h>
+#include <simStrings.h>
+#include <vDateTime.h>
+#include <proxSensorRoutine.h>
+#include <pluginContainer.h>
+#include <app.h>
+#include <viewRendering.h>
 #ifdef SIM_WITH_GUI
-#include "oglSurface.h"
+#include <oglSurface.h>
 #endif
 
 CSView::CSView(int theLinkedObjectID)

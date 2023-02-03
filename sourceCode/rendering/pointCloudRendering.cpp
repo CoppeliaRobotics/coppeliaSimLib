@@ -18,10 +18,10 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "pointCloudRendering.h"
+#include <pointCloudRendering.h>
 
 #ifdef SIM_WITH_OPENGL
-#include "pluginContainer.h"
+#include <pluginContainer.h>
 
 void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,int displayAttrib)
 {

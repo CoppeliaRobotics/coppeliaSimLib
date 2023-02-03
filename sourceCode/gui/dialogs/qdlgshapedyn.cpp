@@ -1,12 +1,12 @@
-#include "qdlgshapedyn.h"
-#include "ui_qdlgshapedyn.h"
-#include "tt.h"
-#include "gV.h"
-#include "simStrings.h"
-#include "app.h"
-#include "qdlginertiatensor.h"
+#include <qdlgshapedyn.h>
+#include <ui_qdlgshapedyn.h>
+#include <tt.h>
+#include <gV.h>
+#include <simStrings.h>
+#include <app.h>
+#include <qdlginertiatensor.h>
 #include <QInputDialog>
-#include "vMessageBox.h"
+#include <vMessageBox.h>
 
 bool CQDlgShapeDyn::showDynamicWindow=false;
 

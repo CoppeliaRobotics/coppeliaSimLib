@@ -1,11 +1,11 @@
-#include "qdlgcollisions.h"
-#include "ui_qdlgcollisions.h"
-#include "tt.h"
+#include <qdlgcollisions.h>
+#include <ui_qdlgcollisions.h>
+#include <tt.h>
 #include <QShortcut>
-#include "qdlgentityvsentityselection.h"
-#include "editboxdelegate.h"
-#include "qdlgmaterial.h"
-#include "app.h"
+#include <qdlgentityvsentityselection.h>
+#include <editboxdelegate.h>
+#include <qdlgmaterial.h>
+#include <app.h>
 
 CQDlgCollisions::CQDlgCollisions(QWidget *parent) :
     CDlgEx(parent),

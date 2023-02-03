@@ -1,10 +1,10 @@
-#include "simInternal.h"
-#include "folderSystem.h"
-#include "vFile.h"
-#include "global.h"
-#include "vVarious.h"
-#include "app.h"
-#include "simFlavor.h"
+#include <simInternal.h>
+#include <folderSystem.h>
+#include <vFile.h>
+#include <global.h>
+#include <vVarious.h>
+#include <app.h>
+#include <simFlavor.h>
 #ifdef __cpp_lib_filesystem // macOS 10.13 does not support XCode >=11 which is required for that
     #include <filesystem>
 #else

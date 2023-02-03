@@ -1,6 +1,6 @@
-#include "app.h"
-#include "frameBufferObject.h"
-#include "oglExt.h"
+#include <app.h>
+#include <frameBufferObject.h>
+#include <oglExt.h>
 
 CFrameBufferObject::CFrameBufferObject(bool native,int resX,int resY,bool useStencilBuffer) : QObject()
 {

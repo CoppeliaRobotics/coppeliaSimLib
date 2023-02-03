@@ -1,12 +1,12 @@
-#include "calculationInfo.h"
-#include "app.h"
-#include "gV.h"
-#include "tt.h"
-#include "pluginContainer.h"
-#include "threadPool_old.h"
+#include <calculationInfo.h>
+#include <app.h>
+#include <gV.h>
+#include <tt.h>
+#include <pluginContainer.h>
+#include <threadPool_old.h>
 #include <boost/lexical_cast.hpp>
-#include "simStrings.h"
-#include "vDateTime.h"
+#include <simStrings.h>
+#include <vDateTime.h>
 
 CCalculationInfo::CCalculationInfo()
 {

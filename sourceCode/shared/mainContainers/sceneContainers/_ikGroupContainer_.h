@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ikGroup_old.h"
-#include "syncObject.h"
+#include <ikGroup_old.h>
+#include <syncObject.h>
 
 enum {
     sim_syncobj_ikgroupcont_shift=0,

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "sPage.h"
-#include "global.h"
-#include "buttonBlock.h"
+#include <sPage.h>
+#include <global.h>
+#include <buttonBlock.h>
 
 #define PAGES_COUNT 8
 

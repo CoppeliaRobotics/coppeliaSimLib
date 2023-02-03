@@ -1,10 +1,10 @@
-#include "qdlgavirecorder.h"
-#include "ui_qdlgavirecorder.h"
-#include "tt.h"
-#include "vFileDialog.h"
-#include "simStrings.h"
-#include "vVarious.h"
-#include "app.h"
+#include <qdlgavirecorder.h>
+#include <ui_qdlgavirecorder.h>
+#include <tt.h>
+#include <vFileDialog.h>
+#include <simStrings.h>
+#include <vVarious.h>
+#include <app.h>
 
 CQDlgAviRecorder::CQDlgAviRecorder(QWidget *parent) :
       CDlgEx(parent),

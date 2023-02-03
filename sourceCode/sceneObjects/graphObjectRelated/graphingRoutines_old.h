@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphData_old.h"
+#include <graphData_old.h>
 
 class CGraphingRoutines_old
 {

@@ -2,7 +2,7 @@
 #ifndef QDLGJOINTDYN_H
 #define QDLGJOINTDYN_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgJointDyn;

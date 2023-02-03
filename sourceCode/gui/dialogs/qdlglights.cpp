@@ -1,10 +1,10 @@
-#include "qdlglights.h"
-#include "ui_qdlglights.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "qdlglightmaterial.h"
-#include "app.h"
+#include <qdlglights.h>
+#include <ui_qdlglights.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <qdlglightmaterial.h>
+#include <app.h>
 
 CQDlgLights::CQDlgLights(QWidget *parent) :
     CDlgEx(parent),

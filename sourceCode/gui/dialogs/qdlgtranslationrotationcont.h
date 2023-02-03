@@ -2,7 +2,7 @@
 #ifndef QDLGTRANSLATIONROTATIONCONT_H
 #define QDLGTRANSLATIONROTATIONCONT_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 #include <QVBoxLayout>
 
 namespace Ui {

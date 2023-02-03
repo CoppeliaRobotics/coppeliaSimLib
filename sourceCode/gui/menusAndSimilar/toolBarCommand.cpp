@@ -1,11 +1,11 @@
-#include "simInternal.h"
-#include "toolBarCommand.h"
-#include "simulation.h"
-#include "oglSurface.h"
-#include "threadPool_old.h"
-#include "simStrings.h"
+#include <simInternal.h>
+#include <toolBarCommand.h>
+#include <simulation.h>
+#include <oglSurface.h>
+#include <threadPool_old.h>
+#include <simStrings.h>
 #include <boost/lexical_cast.hpp>
-#include "app.h"
+#include <app.h>
 
 bool CToolBarCommand::processCommand(int commandID)
 { // Return value is true if the command belonged to toolbar menu and was executed

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "colorObject.h"
-#include "ser.h"
-#include "3Vector.h"
-#include "7Vector.h"
-#include "dynMaterialObject.h"
+#include <colorObject.h>
+#include <ser.h>
+#include <simMath/3Vector.h>
+#include <simMath/7Vector.h>
+#include <dynMaterialObject.h>
 
 class CViewableBase;
 class CShape;

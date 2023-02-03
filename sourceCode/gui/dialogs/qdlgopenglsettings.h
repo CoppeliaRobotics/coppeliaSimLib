@@ -2,7 +2,7 @@
 #ifndef QDLGOPENGLSETTINGS_H
 #define QDLGOPENGLSETTINGS_H
 
-#include "vDialog.h"
+#include <vDialog.h>
 
 namespace Ui {
     class CQDlgOpenGlSettings;

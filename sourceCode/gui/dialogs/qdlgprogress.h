@@ -2,7 +2,7 @@
 #define QDLGPROGRESS_H
 
 #include <QDialog>
-#include "simTypes.h"
+#include <simTypes.h>
 
 namespace Ui {
     class CQDlgProgress;

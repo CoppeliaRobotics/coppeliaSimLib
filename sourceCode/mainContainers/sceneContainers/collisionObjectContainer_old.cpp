@@ -1,8 +1,8 @@
-#include "simInternal.h"
-#include "collisionObjectContainer_old.h"
-#include "tt.h"
-#include "collisionRoutines.h"
-#include "app.h"
+#include <simInternal.h>
+#include <collisionObjectContainer_old.h>
+#include <tt.h>
+#include <collisionRoutines.h>
+#include <app.h>
 
 CCollisionObjectContainer_old::CCollisionObjectContainer_old()
 {
@@ -102,7 +102,7 @@ void CCollisionObjectContainer_old::addObjectWithSuffixOffset(CCollisionObject_o
         oName=tt::generateNewName_hashOrNoHash(oName.c_str(),objectIsACopy);
     newCollObj->setObjectName(oName.c_str(),false);
 
-    int handle=SIM_IDSTART_COLLISION;
+    int handle=SIM_IDSTART_COLLISION_old;
     while (getObjectFromHandle(handle)!=nullptr)
         handle++;
     newCollObj->setObjectHandle(handle);

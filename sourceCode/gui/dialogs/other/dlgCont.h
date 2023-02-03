@@ -1,8 +1,8 @@
 #pragma once
 
-#include "toolDlgWrapper.h"
-#include "dlgEx.h"
-#include "vMenubar.h"
+#include <toolDlgWrapper.h>
+#include <dlgEx.h>
+#include <vMenubar.h>
 
 class CDlgCont
 {

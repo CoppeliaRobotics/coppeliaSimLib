@@ -1,4 +1,4 @@
-#include "modelListWidgetBase.h"
+#include <modelListWidgetBase.h>
 #include <QScrollBar>
 
 CModelListWidgetBase::CModelListWidgetBase() : QListWidget()

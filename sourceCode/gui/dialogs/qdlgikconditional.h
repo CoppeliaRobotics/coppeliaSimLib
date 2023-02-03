@@ -2,8 +2,8 @@
 #ifndef QDLGIKCONDITIONAL_H
 #define QDLGIKCONDITIONAL_H
 
-#include "vDialog.h"
-#include "ikGroup_old.h"
+#include <vDialog.h>
+#include <ikGroup_old.h>
 #include <QAbstractButton>
 
 namespace Ui {

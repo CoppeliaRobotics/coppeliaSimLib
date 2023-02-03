@@ -1,12 +1,12 @@
-#include "qdlgik.h"
-#include "ui_qdlgik.h"
-#include "tt.h"
-#include "gV.h"
-#include "app.h"
-#include "editboxdelegate.h"
-#include "qdlgikelements.h"
-#include "qdlgikconditional.h"
-#include "simStrings.h"
+#include <qdlgik.h>
+#include <ui_qdlgik.h>
+#include <tt.h>
+#include <gV.h>
+#include <app.h>
+#include <editboxdelegate.h>
+#include <qdlgikelements.h>
+#include <qdlgikconditional.h>
+#include <simStrings.h>
 
 CQDlgIk::CQDlgIk(QWidget *parent) :
     CDlgEx(parent),

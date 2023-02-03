@@ -1,14 +1,14 @@
-#include "qsim_openglwidget.h"
+#include <qsim_openglwidget.h>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QWindow>
 #include <QTimer>
-#include "vDateTime.h"
-#include "ttUtil.h"
-#include "app.h"
-#include "toolBarCommand.h"
-#include "rendering.h"
-#include "simFlavor.h"
+#include <vDateTime.h>
+#include <ttUtil.h>
+#include <app.h>
+#include <toolBarCommand.h>
+#include <rendering.h>
+#include <simFlavor.h>
 
 int disableWheelRotateForOne500ms=-1;
 int disableMouseMoveFor200ms=-1;

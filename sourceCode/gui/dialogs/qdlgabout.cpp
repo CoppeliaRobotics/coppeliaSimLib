@@ -1,12 +1,12 @@
-#include "qdlgabout.h"
-#include "ui_qdlgabout.h"
-#include "ttUtil.h"
-#include "tt.h"
-#include "simStrings.h"
-#include "simConst.h"
-#include "ser.h"
-#include "app.h"
-#include "simFlavor.h"
+#include <qdlgabout.h>
+#include <ui_qdlgabout.h>
+#include <ttUtil.h>
+#include <tt.h>
+#include <simStrings.h>
+#include <simConst.h>
+#include <ser.h>
+#include <app.h>
+#include <simFlavor.h>
 
 CQDlgAbout::CQDlgAbout(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE|Qt::CustomizeWindowHint|Qt::WindowTitleHint), // since Qt5.1: Tool --> Dialog

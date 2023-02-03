@@ -1,9 +1,9 @@
-#include "qdlgpathedit.h"
-#include "ui_qdlgpathedit.h"
-#include "app.h"
-#include "gV.h"
-#include "tt.h"
-#include "simStrings.h"
+#include <qdlgpathedit.h>
+#include <ui_qdlgpathedit.h>
+#include <app.h>
+#include <gV.h>
+#include <tt.h>
+#include <simStrings.h>
 #include <boost/lexical_cast.hpp>
 
 CQDlgPathEdit::CQDlgPathEdit(QWidget *parent) :

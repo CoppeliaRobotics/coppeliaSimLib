@@ -1,14 +1,14 @@
 #pragma once
 
-#include "colorObject.h"
-#include "3Vector.h"
-#include "4Vector.h"
-#include "7Vector.h"
-#include "vMutex.h"
+#include <colorObject.h>
+#include <simMath/3Vector.h>
+#include <simMath/4Vector.h>
+#include <simMath/7Vector.h>
+#include <vMutex.h>
 #include <map>
-#include "userParameters.h"
-#include "customData.h"
-#include "syncObject.h"
+#include <userParameters.h>
+#include <customData.h>
+#include <syncObject.h>
 
 struct SCustomRefs
 {

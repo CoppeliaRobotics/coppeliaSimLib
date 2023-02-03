@@ -1,27 +1,27 @@
-#include "simThread.h"
-#include "vThread.h"
-#include "app.h"
-#include "fileOperations.h"
-#include "simStringTable.h"
-#include "tt.h"
-#include "vDateTime.h"
-#include "proxSensorRoutine.h"
-#include "sceneObjectOperations.h"
-#include "fileOperations.h"
-#include "addOperations.h"
-#include "pluginContainer.h"
-#include "ttUtil.h"
-#include "vVarious.h"
-#include "easyLock.h"
-#include "mesh.h"
-#include "threadPool_old.h"
-#include "graphingRoutines_old.h"
-#include "simStringTable_openGl.h"
-#include "simFlavor.h"
+#include <simThread.h>
+#include <vThread.h>
+#include <app.h>
+#include <fileOperations.h>
+#include <simStringTable.h>
+#include <tt.h>
+#include <vDateTime.h>
+#include <proxSensorRoutine.h>
+#include <sceneObjectOperations.h>
+#include <fileOperations.h>
+#include <addOperations.h>
+#include <pluginContainer.h>
+#include <ttUtil.h>
+#include <vVarious.h>
+#include <easyLock.h>
+#include <mesh.h>
+#include <threadPool_old.h>
+#include <graphingRoutines_old.h>
+#include <simStringTable_openGl.h>
+#include <simFlavor.h>
 #ifdef SIM_WITH_GUI
-    #include "toolBarCommand.h"
-    #include "vMessageBox.h"
-    #include "engineProperties.h"
+    #include <toolBarCommand.h>
+    #include <vMessageBox.h>
+    #include <engineProperties.h>
 #endif
 
 CSimThread::CSimThread()
@@ -311,6 +311,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 inStack->insertDataIntoStackTable();
                 script->systemCallScript(sim_syscb_moduleentry,inStack,nullptr);
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
+                int data[4]={cmd.intParams[1],0,0,0};
+                CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_moduleentry,data,nullptr,nullptr);
             }
         }
 

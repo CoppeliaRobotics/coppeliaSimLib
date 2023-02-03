@@ -1,10 +1,10 @@
-#include "simInternal.h"
-#include "globalGuiTextureContainer.h"
-#include "global.h"
-#include "imgLoaderSaver.h"
-#include "oGL.h"
-#include "rendering.h"
-#include "simFlavor.h"
+#include <simInternal.h>
+#include <globalGuiTextureContainer.h>
+#include <global.h>
+#include <imgLoaderSaver.h>
+#include <oGL.h>
+#include <rendering.h>
+#include <simFlavor.h>
 
 CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
 {

@@ -1,4 +1,4 @@
-#include "moduleMenuItem.h"
+#include <moduleMenuItem.h>
 
 CModuleMenuItem::CModuleMenuItem(const char* path,int scriptHandle)
 {

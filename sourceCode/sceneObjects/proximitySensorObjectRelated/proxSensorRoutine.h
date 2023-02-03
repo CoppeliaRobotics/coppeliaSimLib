@@ -1,9 +1,9 @@
 #pragma once
 
-#include "shape.h"
-#include "proximitySensor.h"
-#include "octree.h"
-#include "pointCloud.h"
+#include <shape.h>
+#include <proximitySensor.h>
+#include <octree.h>
+#include <pointCloud.h>
 
 
 //FULLY STATIC CLASS

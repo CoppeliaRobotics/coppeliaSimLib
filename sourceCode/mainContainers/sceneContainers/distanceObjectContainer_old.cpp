@@ -1,9 +1,9 @@
-#include "simInternal.h"
-#include "distanceObjectContainer_old.h"
-#include "tt.h"
-#include "distanceRoutines.h"
-#include "app.h"
-#include "gV.h"
+#include <simInternal.h>
+#include <distanceObjectContainer_old.h>
+#include <tt.h>
+#include <distanceRoutines.h>
+#include <app.h>
+#include <gV.h>
 
 CDistanceObjectContainer_old::CDistanceObjectContainer_old()
 {
@@ -101,7 +101,7 @@ void CDistanceObjectContainer_old::addObjectWithSuffixOffset(CDistanceObject_old
         oName=tt::generateNewName_hashOrNoHash(oName.c_str(),objectIsACopy);
     newDistObj->setObjectName(oName.c_str(),false);
 
-    int handle=SIM_IDSTART_DISTANCE;
+    int handle=SIM_IDSTART_DISTANCE_old;
     while (getObjectFromHandle(handle)!=nullptr)
         handle++;
     newDistObj->setObjectHandle(handle);

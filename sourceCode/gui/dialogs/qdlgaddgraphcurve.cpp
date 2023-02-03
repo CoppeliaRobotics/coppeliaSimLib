@@ -1,9 +1,9 @@
-#include "qdlgaddgraphcurve.h"
-#include "ui_qdlgaddgraphcurve.h"
-#include "gV.h"
-#include "tt.h"
-#include "graphingRoutines_old.h"
-#include "app.h"
+#include <qdlgaddgraphcurve.h>
+#include <ui_qdlgaddgraphcurve.h>
+#include <gV.h>
+#include <tt.h>
+#include <graphingRoutines_old.h>
+#include <app.h>
 
 
 CQDlgAddGraphCurve::CQDlgAddGraphCurve(QWidget *parent) :

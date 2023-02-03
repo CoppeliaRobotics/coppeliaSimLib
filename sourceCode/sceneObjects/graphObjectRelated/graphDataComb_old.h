@@ -1,7 +1,7 @@
 #pragma once
 
-#include "graphData_old.h"
-#include "colorObject.h"
+#include <graphData_old.h>
+#include <colorObject.h>
 
 class CGraphDataComb_old
 {

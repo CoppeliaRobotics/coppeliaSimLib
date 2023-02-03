@@ -1,4 +1,4 @@
-#include "statusBar.h"
+#include <statusBar.h>
 
 CStatusBar::CStatusBar() : QPlainTextEdit()
 {

@@ -1,8 +1,8 @@
 #if !defined(simInternal_INCLUDED_)
 #define simInternal_INCLUDED_
 
-#include "simConst.h"
-#include "simTypes.h"
+#include <simConst.h>
+#include <simTypes.h>
 #include <string>
 #include <vector>
 
@@ -451,6 +451,6 @@ int simExtCallScriptFunction_internal(int scriptHandleOrType, const char* functi
                                          char*** outStringData, int* outStringCnt,
                                          char** outBufferData, int* outBufferSize);
 
-#include "simInternal-old.h"
+#include <simInternal-old.h>
 
 #endif // !defined(simInternal_INCLUDED_)

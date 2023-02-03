@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ser.h"
-#include "sceneObject.h"
-#include "3Vector.h"
-#include "7Vector.h"
+#include <ser.h>
+#include <sceneObject.h>
+#include <simMath/3Vector.h>
+#include <simMath/7Vector.h>
 
 class CDummy;
 class COctree;

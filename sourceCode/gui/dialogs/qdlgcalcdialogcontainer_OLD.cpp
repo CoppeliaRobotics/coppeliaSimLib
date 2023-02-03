@@ -1,9 +1,9 @@
-#include "qdlgcalcdialogcontainer_OLD.h"
-#include "ui_qdlgcalcdialogcontainer_OLD.h"
-#include "app.h"
-#include "qdlgcollisions.h"
-#include "qdlgdistances.h"
-#include "qdlgik.h"
+#include <qdlgcalcdialogcontainer_OLD.h>
+#include <ui_qdlgcalcdialogcontainer_OLD.h>
+#include <app.h>
+#include <qdlgcollisions.h>
+#include <qdlgdistances.h>
+#include <qdlgik.h>
 
 CQDlgCalcDialogContainer_OLD::CQDlgCalcDialogContainer_OLD(QWidget *parent) :
     CDlgEx(parent),

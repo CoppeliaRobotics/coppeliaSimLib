@@ -1,12 +1,12 @@
-#include "qdlgenvironment.h"
-#include "ui_qdlgenvironment.h"
-#include "gV.h"
-#include "qdlgcolor.h"
-#include "qdlgmaterial.h"
-#include "tt.h"
-#include "app.h"
-#include "simStrings.h"
-#include "vMessageBox.h"
+#include <qdlgenvironment.h>
+#include <ui_qdlgenvironment.h>
+#include <gV.h>
+#include <qdlgcolor.h>
+#include <qdlgmaterial.h>
+#include <tt.h>
+#include <app.h>
+#include <simStrings.h>
+#include <vMessageBox.h>
 
 CQDlgEnvironment::CQDlgEnvironment(QWidget *parent) :
     CDlgEx(parent),

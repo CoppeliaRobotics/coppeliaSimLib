@@ -1,12 +1,12 @@
-#include "qdlgvisionsensors.h"
-#include "ui_qdlgvisionsensors.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "qdlgimagecolor.h"
-#include "simStrings.h"
-#include "app.h"
-#include "vMessageBox.h"
+#include <qdlgvisionsensors.h>
+#include <ui_qdlgvisionsensors.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <qdlgimagecolor.h>
+#include <simStrings.h>
+#include <app.h>
+#include <vMessageBox.h>
 
 CQDlgVisionSensors::CQDlgVisionSensors(QWidget *parent) :
     CDlgEx(parent),

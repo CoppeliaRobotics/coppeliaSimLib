@@ -1,12 +1,12 @@
-#include "qdlgjoints.h"
-#include "ui_qdlgjoints.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "app.h"
-#include "qdlgdependencyequation.h"
-#include "qdlgjointdyn.h"
-#include "simStrings.h"
+#include <qdlgjoints.h>
+#include <ui_qdlgjoints.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <app.h>
+#include <qdlgdependencyequation.h>
+#include <qdlgjointdyn.h>
+#include <simStrings.h>
 
 bool CQDlgJoints::showDynamicWindow=false;
 

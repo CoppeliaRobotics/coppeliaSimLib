@@ -1,12 +1,12 @@
-#include "qdlgmultishapeedition.h"
-#include "ui_qdlgmultishapeedition.h"
-#include "tt.h"
-#include "gV.h"
-#include "mesh.h"
-#include "qdlgtextures.h"
-#include "app.h"
-#include "simStrings.h"
-#include "qdlgmaterial.h"
+#include <qdlgmultishapeedition.h>
+#include <ui_qdlgmultishapeedition.h>
+#include <tt.h>
+#include <gV.h>
+#include <mesh.h>
+#include <qdlgtextures.h>
+#include <app.h>
+#include <simStrings.h>
+#include <qdlgmaterial.h>
 
 CMesh* theGeom=nullptr;
 

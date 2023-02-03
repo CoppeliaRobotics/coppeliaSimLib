@@ -1,15 +1,15 @@
-#include "simInternal.h"
-#include "dlgCont.h"
-#include "global.h"
-#include "oglSurface.h"
-#include "app.h"
-#include "auxLibVideo.h"
-#include "simStrings.h"
-#include "qdlgobjectdialogcontainer.h"
-#include "qdlgshapeeditioncontainer.h"
-#include "sceneObjectOperations.h"
-#include "qdlgopenglsettings.h"
-#include "simFlavor.h"
+#include <simInternal.h>
+#include <dlgCont.h>
+#include <global.h>
+#include <oglSurface.h>
+#include <app.h>
+#include <auxLibVideo.h>
+#include <simStrings.h>
+#include <qdlgobjectdialogcontainer.h>
+#include <qdlgshapeeditioncontainer.h>
+#include <sceneObjectOperations.h>
+#include <qdlgopenglsettings.h>
+#include <simFlavor.h>
 
 CDlgCont::CDlgCont(QWidget* pWindow)
 {

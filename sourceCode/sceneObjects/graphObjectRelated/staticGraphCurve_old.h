@@ -1,7 +1,7 @@
 #pragma once
 
-#include "simTypes.h"
-#include "ser.h"
+#include <simTypes.h>
+#include <ser.h>
 
 class CStaticGraphCurve_old
 {

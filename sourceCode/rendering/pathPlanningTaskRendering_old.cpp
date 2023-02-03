@@ -18,7 +18,7 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "pathPlanningTaskRendering_old.h"
+#include <pathPlanningTaskRendering_old.h>
 
 #ifdef SIM_WITH_OPENGL
 

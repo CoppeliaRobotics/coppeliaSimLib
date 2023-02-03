@@ -1,9 +1,9 @@
-#include "qdlgmaterial.h"
-#include "ui_qdlgmaterial.h"
-#include "gV.h"
-#include "tt.h"
-#include "app.h"
-#include "qdlgcolorpulsation.h"
+#include <qdlgmaterial.h>
+#include <ui_qdlgmaterial.h>
+#include <gV.h>
+#include <tt.h>
+#include <app.h>
+#include <qdlgcolorpulsation.h>
 
 CQDlgMaterial::CQDlgMaterial(QWidget *parent) :
     CDlgEx(parent),

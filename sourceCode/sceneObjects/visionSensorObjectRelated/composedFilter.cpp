@@ -1,7 +1,7 @@
 // Needed for backward compatibility
 
-#include "composedFilter.h"
-#include "simConst.h"
+#include <composedFilter.h>
+#include <simConst.h>
 
 CComposedFilter::CComposedFilter()
 {

@@ -1,11 +1,11 @@
 
-#include "qdlgshapeeditioncontainer.h"
-#include "ui_qdlgshapeeditioncontainer.h"
-#include "app.h"
-#include "qdlgtriangleedit.h"
-#include "qdlgvertexedit.h"
-#include "qdlgedgeedit.h"
-#include "sceneObjectOperations.h"
+#include <qdlgshapeeditioncontainer.h>
+#include <ui_qdlgshapeeditioncontainer.h>
+#include <app.h>
+#include <qdlgtriangleedit.h>
+#include <qdlgvertexedit.h>
+#include <qdlgedgeedit.h>
+#include <sceneObjectOperations.h>
 
 #define TOP_BORDER_WIDTH 30
 

@@ -1,9 +1,9 @@
-#include "qdlginertiatensor.h"
-#include "ui_qdlginertiatensor.h"
-#include "simInternal.h"
-#include "app.h"
-#include "tt.h"
-#include "gV.h"
+#include <qdlginertiatensor.h>
+#include <ui_qdlginertiatensor.h>
+#include <simInternal.h>
+#include <app.h>
+#include <tt.h>
+#include <gV.h>
 
 CQDlgInertiaTensor::CQDlgInertiaTensor(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

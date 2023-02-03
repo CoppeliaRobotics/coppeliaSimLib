@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <QString>
-#include "tinyxml2.h"
+#include <tinyxml2.h>
 
 struct SCodeEditor {
     int handle;

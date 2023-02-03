@@ -1,5 +1,5 @@
 
-#include "vFileDialog.h"
+#include <vFileDialog.h>
 #include <QFileDialog>
 
 int VFileDialog::_fileDialogNative=-1; // default

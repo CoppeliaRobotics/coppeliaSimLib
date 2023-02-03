@@ -1,9 +1,9 @@
-#include "imgLoaderSaver.h"
+#include <imgLoaderSaver.h>
 #ifdef SIM_WITH_QT
-    #include "tGAFormat.h"
-    #include "stb_image.h"
-    #include "ttUtil.h"
-    #include "vVarious.h"
+    #include <tGAFormat.h>
+    #include <stb_image.h>
+    #include <ttUtil.h>
+    #include <vVarious.h>
     #include <QImage>
     #include <QImageWriter>
     #include <QColor>

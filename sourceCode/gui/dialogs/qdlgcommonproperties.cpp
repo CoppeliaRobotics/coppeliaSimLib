@@ -1,15 +1,15 @@
-#include "qdlgcommonproperties.h"
-#include "ui_qdlgcommonproperties.h"
-#include "tt.h"
-#include "gV.h"
-#include "sceneObjectOperations.h"
-#include "qdlgdetectableproperties.h"
-#include "qdlgmodelproperties.h"
-#include "qdlgassembly.h"
-#include "qdlgscaling.h"
-#include "simStrings.h"
-#include "app.h"
-#include "vMessageBox.h"
+#include <qdlgcommonproperties.h>
+#include <ui_qdlgcommonproperties.h>
+#include <tt.h>
+#include <gV.h>
+#include <sceneObjectOperations.h>
+#include <qdlgdetectableproperties.h>
+#include <qdlgmodelproperties.h>
+#include <qdlgassembly.h>
+#include <qdlgscaling.h>
+#include <simStrings.h>
+#include <app.h>
+#include <vMessageBox.h>
 
 CQDlgCommonProperties::CQDlgCommonProperties(QWidget *parent) :
       CDlgEx(parent),

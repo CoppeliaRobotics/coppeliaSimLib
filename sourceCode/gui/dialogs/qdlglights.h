@@ -2,7 +2,7 @@
 #ifndef QDLGLIGHTS_H
 #define QDLGLIGHTS_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgLights;

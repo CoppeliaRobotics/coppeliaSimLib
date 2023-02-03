@@ -1,7 +1,7 @@
-#include "simAndUiThreadSync.h"
-#include "app.h"
-#include "vDateTime.h"
-#include "tt.h"
+#include <simAndUiThreadSync.h>
+#include <app.h>
+#include <vDateTime.h>
+#include <tt.h>
 
 VSimUiMutex CSimAndUiThreadSync::_uiReadPermission;
 VSimUiMutex CSimAndUiThreadSync::_uiWritePermission;

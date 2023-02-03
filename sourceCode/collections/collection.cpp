@@ -1,9 +1,9 @@
-#include "collection.h"
-#include "app.h"
-#include "base64.h"
-#include "tt.h"
-#include "ttUtil.h"
-#include "global.h"
+#include <collection.h>
+#include <app.h>
+#include <base64.h>
+#include <tt.h>
+#include <ttUtil.h>
+#include <global.h>
 
 CCollection::CCollection(int creatorHandle)
 {

@@ -2,7 +2,7 @@
 #ifndef QDLGTRIANGLEEDIT_H
 #define QDLGTRIANGLEEDIT_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgTriangleEdit;

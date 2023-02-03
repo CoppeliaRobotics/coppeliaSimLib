@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vMutex.h"
+#include <vMutex.h>
 #ifdef SIM_WITH_QT
     #include <QTime>
     #include <QThread>

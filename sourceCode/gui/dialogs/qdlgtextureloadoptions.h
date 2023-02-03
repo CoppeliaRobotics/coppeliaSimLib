@@ -2,7 +2,7 @@
 #ifndef QDLGTEXTURELOADOPTIONS_H
 #define QDLGTEXTURELOADOPTIONS_H
 
-#include "vDialog.h"
+#include <vDialog.h>
 
 namespace Ui {
     class CQDlgTextureLoadOptions;

@@ -2,7 +2,7 @@
 #ifndef QDLGJOINTS_H
 #define QDLGJOINTS_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgJoints;

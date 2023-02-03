@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "simTypes.h"
+#include <simTypes.h>
 
 class CConfReaderAndWriter  
 {

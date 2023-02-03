@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "7Vector.h"
+#include <simMath/7Vector.h>
 
 class CPathPoint_old
 {

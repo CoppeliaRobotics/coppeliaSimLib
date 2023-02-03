@@ -1,36 +1,36 @@
-#include "easyLock.h"
-#include "simInternal.h"
-#include "simulation.h"
-#include "collisionRoutines.h"
-#include "distanceRoutines.h"
-#include "proxSensorRoutine.h"
-#include "meshRoutines.h"
-#include "tt.h"
-#include "fileOperations.h"
-#include "persistentDataContainer.h"
-#include "graphingRoutines_old.h"
-#include "sceneObjectOperations.h"
-#include "threadPool_old.h"
-#include "addOperations.h"
-#include "app.h"
-#include "pluginContainer.h"
-#include "mesh.h"
-#include "vDateTime.h"
-#include "ttUtil.h"
-#include "vVarious.h"
-#include "imgLoaderSaver.h"
-#include "apiErrors.h"
-#include "sigHandler.h"
-#include "memorizedConf_old.h"
+#include <easyLock.h>
+#include <simInternal.h>
+#include <simulation.h>
+#include <collisionRoutines.h>
+#include <distanceRoutines.h>
+#include <proxSensorRoutine.h>
+#include <meshRoutines.h>
+#include <tt.h>
+#include <fileOperations.h>
+#include <persistentDataContainer.h>
+#include <graphingRoutines_old.h>
+#include <sceneObjectOperations.h>
+#include <threadPool_old.h>
+#include <addOperations.h>
+#include <app.h>
+#include <pluginContainer.h>
+#include <mesh.h>
+#include <vDateTime.h>
+#include <ttUtil.h>
+#include <vVarious.h>
+#include <imgLoaderSaver.h>
+#include <apiErrors.h>
+#include <sigHandler.h>
+#include <memorizedConf_old.h>
 #include <algorithm>
 #include <iostream>
-#include "tinyxml2.h"
-#include "simFlavor.h"
+#include <tinyxml2.h>
+#include <simFlavor.h>
 #include <regex>
 #include <unordered_map>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
-#include "gm.h"
+#include <gm.h>
 #ifdef SIM_WITH_GUI
     #include <QSplashScreen>
 #endif
@@ -44,7 +44,7 @@
 
 #ifndef SIM_WITH_QT
     #ifdef WIN_SIM
-        #include "_dirent.h"
+        #include <_dirent.h>
     #else
         #include <dirent.h>
     #endif
@@ -7171,7 +7171,7 @@ int simSetExplicitHandling_internal(int objectHandle,int explicitFlags)
         }
         // Following for backward compatibility (03.11.2020)
         // -------------------------------------------------------
-        if ( (objectHandle>=SIM_IDSTART_COLLISION)&&(objectHandle<SIM_IDEND_COLLISION) )
+        if ( (objectHandle>=SIM_IDSTART_COLLISION_old)&&(objectHandle<SIM_IDEND_COLLISION_old) )
         { // collision objects
             if (!doesCollisionObjectExist(__func__,objectHandle))
             {
@@ -7181,7 +7181,7 @@ int simSetExplicitHandling_internal(int objectHandle,int explicitFlags)
             it->setExplicitHandling(explicitFlags&1);
             return(1);
         }
-        if ( (objectHandle>=SIM_IDSTART_DISTANCE)&&(objectHandle<SIM_IDEND_DISTANCE) )
+        if ( (objectHandle>=SIM_IDSTART_DISTANCE_old)&&(objectHandle<SIM_IDEND_DISTANCE_old) )
         { // distance objects
             if (!doesDistanceObjectExist(__func__,objectHandle))
             {
@@ -7191,7 +7191,7 @@ int simSetExplicitHandling_internal(int objectHandle,int explicitFlags)
             it->setExplicitHandling(explicitFlags&1);
             return(1);
         }
-        if ( (objectHandle>=SIM_IDSTART_IKGROUP)&&(objectHandle<SIM_IDEND_IKGROUP) )
+        if ( (objectHandle>=SIM_IDSTART_IKGROUP_old)&&(objectHandle<SIM_IDEND_IKGROUP_old) )
         { // IK objects
             if (!doesIKGroupExist(__func__,objectHandle))
             {
@@ -7256,7 +7256,7 @@ int simGetExplicitHandling_internal(int objectHandle)
         }
         // Following for backward compatibility (03.11.2020)
         // -------------------------------------------------------
-        if ( (objectHandle>=SIM_IDSTART_COLLISION)&&(objectHandle<SIM_IDEND_COLLISION) )
+        if ( (objectHandle>=SIM_IDSTART_COLLISION_old)&&(objectHandle<SIM_IDEND_COLLISION_old) )
         { // collision objects
             if (!doesCollisionObjectExist(__func__,objectHandle))
             {
@@ -7266,7 +7266,7 @@ int simGetExplicitHandling_internal(int objectHandle)
             bool exp=it->getExplicitHandling();
             return(exp);
         }
-        if ( (objectHandle>=SIM_IDSTART_DISTANCE)&&(objectHandle<SIM_IDEND_DISTANCE) )
+        if ( (objectHandle>=SIM_IDSTART_DISTANCE_old)&&(objectHandle<SIM_IDEND_DISTANCE_old) )
         { // distance objects
             if (!doesDistanceObjectExist(__func__,objectHandle))
             {
@@ -7276,7 +7276,7 @@ int simGetExplicitHandling_internal(int objectHandle)
             bool exp=it->getExplicitHandling();
             return(exp);
         }
-        if ( (objectHandle>=SIM_IDSTART_IKGROUP)&&(objectHandle<SIM_IDEND_IKGROUP) )
+        if ( (objectHandle>=SIM_IDSTART_IKGROUP_old)&&(objectHandle<SIM_IDEND_IKGROUP_old) )
         { // IK objects
             if (!doesIKGroupExist(__func__,objectHandle))
             {
@@ -12536,7 +12536,7 @@ int simWriteCustomDataBlock_internal(int objectHandle,const char* tagName,const 
         if (data==nullptr)
             dataSize=0;
 
-        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
+        if ( (objectHandle>=SIM_IDSTART_SCENEOBJECT)&&(objectHandle<=SIM_IDEND_SCENEOBJECT) )
         { // here we have an object
             if (!doesObjectExist(__func__,objectHandle))
                 return(-1);
@@ -12624,7 +12624,7 @@ int simWriteCustomDataBlock_internal(int objectHandle,const char* tagName,const 
         }
 
         // ---------------------- Old -----------------------------
-        if (objectHandle>=SIM_IDSTART_LUASCRIPT)
+        if ( (objectHandle>=SIM_IDSTART_LUASCRIPT)&&(objectHandle<=SIM_IDEND_LUASCRIPT) )
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
@@ -12708,7 +12708,7 @@ char* simReadCustomDataBlock_internal(int objectHandle,const char* tagName,int* 
         }
 
         std::string rrr;
-        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
+        if ( (objectHandle>=SIM_IDSTART_SCENEOBJECT)&&(objectHandle<=SIM_IDEND_SCENEOBJECT) )
         { // Here we have an object
             if (!doesObjectExist(__func__,objectHandle))
                 return(nullptr);
@@ -12736,7 +12736,7 @@ char* simReadCustomDataBlock_internal(int objectHandle,const char* tagName,int* 
         }
 
         // ---------------------- Old -----------------------------
-        if (objectHandle>=SIM_IDSTART_LUASCRIPT)
+        if ( (objectHandle>=SIM_IDSTART_LUASCRIPT)&&(objectHandle<=SIM_IDEND_LUASCRIPT) )
         { // here we have a script
             if (!App::userSettings->compatibilityFix1)
             {
@@ -12789,7 +12789,7 @@ char* simReadCustomDataBlockTags_internal(int objectHandle,int* tagCount)
         char* retBuffer=nullptr;
         tagCount[0]=0;
         std::string tags;
-        if ( (objectHandle>=0)&&(objectHandle<SIM_IDSTART_LUASCRIPT) )
+        if ( (objectHandle>=SIM_IDSTART_SCENEOBJECT)&&(objectHandle<=SIM_IDEND_SCENEOBJECT) )
         { // here we have an object
             if (!doesObjectExist(__func__,objectHandle))
                 return(nullptr);
@@ -12825,7 +12825,7 @@ char* simReadCustomDataBlockTags_internal(int objectHandle,int* tagCount)
         }
 
         // ---------------------- Old -----------------------------
-        if (objectHandle>=SIM_IDSTART_LUASCRIPT)
+        if ( (objectHandle>=SIM_IDSTART_LUASCRIPT)&&(objectHandle<=SIM_IDEND_LUASCRIPT) )
         { // here we have a script
             std::vector<std::string> allTags;
             if (!App::userSettings->compatibilityFix1)
@@ -13454,6 +13454,8 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
     TRACE_C_API;
     CScriptObject* script=nullptr;
     std::string funcName;
+    int handleFlags=scriptHandleOrType&0x0ff00000;
+    scriptHandleOrType=scriptHandleOrType&0x000fffff;
     if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
     { // script is identified by its ID
         std::string funcNameAtScriptName(functionNameAtScriptName);
@@ -13497,9 +13499,9 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
         }
     }
 
-    std::string tmp("External call to simCallScriptFunction failed (");
+    std::string tmp("External call to simCallScriptFunction failed ('");
     tmp+=functionNameAtScriptName;
-    tmp+="): ";
+    tmp+="'): ";
     if (script!=nullptr)
     {
         int retVal=-1; // error
@@ -13531,13 +13533,15 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
             {
                 CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION);
                 tmp+=SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
-                App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
+                if ((handleFlags&sim_handleflag_silenterror)==0)
+                    App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
             }
             if (retVal==0)
             {
                 CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION);
                 tmp+=SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
+                if ((handleFlags&sim_handleflag_silenterror)==0)
+                    App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
                 retVal=-1; // to stay backward compatible
             }
             if (retVal==1)
@@ -13547,13 +13551,15 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
             tmp+=SIM_ERROR_INVALID_HANDLE;
-            App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
+            if ((handleFlags&sim_handleflag_silenterror)==0)
+                App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
         }
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
     tmp+=SIM_ERROR_SCRIPT_INEXISTANT;
-    App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
+    if ((handleFlags&sim_handleflag_silenterror)==0)
+        App::logMsg(sim_verbosity_errors,tmp.c_str()); // log error here (special, for easier debugging)
 
     return(-1);
 }
@@ -15752,7 +15758,7 @@ int simExecuteScriptString_internal(int scriptHandleOrType,const char* stringAtS
             script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
         }
         else
-        {
+        { // script is identified by its type
             std::string scriptName;
             std::string strAtScriptName(stringAtScriptName);
             size_t p=strAtScriptName.rfind('@');
@@ -17026,4 +17032,4 @@ int simGetVisionSensorRes_internal(int sensorHandle,int* resolution)
     return(-1);
 }
 
-#include "simInternal-old.cpp"
+#include <simInternal-old.cpp>

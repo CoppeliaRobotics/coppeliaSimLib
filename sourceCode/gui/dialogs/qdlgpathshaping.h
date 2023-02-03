@@ -2,8 +2,8 @@
 #ifndef QDLGPATHSHAPING_H
 #define QDLGPATHSHAPING_H
 
-#include "dlgEx.h"
-#include "path_old.h"
+#include <dlgEx.h>
+#include <path_old.h>
 
 namespace Ui {
     class CQDlgPathShaping;

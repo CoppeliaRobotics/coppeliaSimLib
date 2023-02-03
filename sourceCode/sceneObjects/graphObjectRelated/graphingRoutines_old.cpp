@@ -1,9 +1,9 @@
-#include "graphingRoutines_old.h"
-#include "simInternal.h"
-#include "app.h"
-#include "tt.h"
-#include "gV.h"
-#include "simStrings.h"
+#include <graphingRoutines_old.h>
+#include <simInternal.h>
+#include <app.h>
+#include <tt.h>
+#include <gV.h>
+#include <simStrings.h>
 
 CGraphingRoutines_old::CGraphingRoutines_old()
 {

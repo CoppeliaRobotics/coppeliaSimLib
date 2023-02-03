@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "textureProperty.h"
-#include "softButton.h"
+#include <textureProperty.h>
+#include <softButton.h>
 #ifdef USING_QOPENGLWIDGET
 #include <QOpenGLWidget>
 #else

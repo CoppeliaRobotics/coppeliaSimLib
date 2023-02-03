@@ -2,7 +2,7 @@
 #ifndef QDLGGEOMETRY_H
 #define QDLGGEOMETRY_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgGeometry;

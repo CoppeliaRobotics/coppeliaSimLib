@@ -1,11 +1,11 @@
 #pragma once
 
-#include "_ikGroup_old.h"
-#include "ser.h"
-#include "sceneObject.h"
-#include "jointObject.h"
-#include "dummy.h"
-#include "MMatrix.h"
+#include <_ikGroup_old.h>
+#include <ser.h>
+#include <sceneObject.h>
+#include <jointObject.h>
+#include <dummy.h>
+#include <simMath/MMatrix.h>
 
 class CIkGroup_old : public _CIkGroup_old
 {

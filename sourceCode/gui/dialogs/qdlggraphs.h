@@ -2,7 +2,7 @@
 #ifndef QDLGGRAPHS_H
 #define QDLGGRAPHS_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 #include <QListWidgetItem>
 #include <QShortcut>
 

@@ -18,10 +18,10 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "octreeRendering.h"
+#include <octreeRendering.h>
 
 #ifdef SIM_WITH_OPENGL
-#include "pluginContainer.h"
+#include <pluginContainer.h>
 
 const int _cubeIndices[]={
     0,1,2,0,2,3,

@@ -1,13 +1,13 @@
-#include "qdlgproximitysensors.h"
-#include "ui_qdlgproximitysensors.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "qdlgproxsensdetectionparam.h"
-#include "qdlgdetectionvolume.h"
-#include "simStrings.h"
-#include "app.h"
-#include "vMessageBox.h"
+#include <qdlgproximitysensors.h>
+#include <ui_qdlgproximitysensors.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <qdlgproxsensdetectionparam.h>
+#include <qdlgdetectionvolume.h>
+#include <simStrings.h>
+#include <app.h>
+#include <vMessageBox.h>
 
 CQDlgProximitySensors::CQDlgProximitySensors(QWidget *parent) :
     CDlgEx(parent),

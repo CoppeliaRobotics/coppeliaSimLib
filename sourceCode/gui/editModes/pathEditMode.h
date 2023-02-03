@@ -1,8 +1,8 @@
 #pragma once
 
-#include "path_old.h"
-#include "sceneObjectContainer.h"
-#include "vMenubar.h"
+#include <path_old.h>
+#include <sceneObjectContainer.h>
+#include <vMenubar.h>
 
 class CPathEditMode_old
 {

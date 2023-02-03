@@ -18,8 +18,8 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "app.h"
-#include "rendering.h"
+#include <app.h>
+#include <rendering.h>
 
 #ifdef SIM_WITH_OPENGL
 void _drawPoints(int displayAttrib,const C4X4Matrix& cameraRTM,const C3Vector& _currentPosition,double _size,int _objectType,const float* _additionalColor);

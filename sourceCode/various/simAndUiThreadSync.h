@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "vThread.h"
-#include "vSimUiMutex.h"
+#include <vThread.h>
+#include <vSimUiMutex.h>
 
 class CSimAndUiThreadSync
 {

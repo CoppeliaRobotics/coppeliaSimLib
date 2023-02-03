@@ -1,8 +1,8 @@
 #pragma once
 
-#include "simplePathPoint_old.h"
-#include "bezierPathPoint_old.h"
-#include "colorObject.h"
+#include <simplePathPoint_old.h>
+#include <bezierPathPoint_old.h>
+#include <colorObject.h>
 
 class CPath_old;
 

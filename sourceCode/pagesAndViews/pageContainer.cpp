@@ -1,21 +1,21 @@
 
 // This file requires some serious refactoring!
 
-#include "simInternal.h"
-#include "pageContainer.h"
-#include "tt.h"
-#include "sceneObjectOperations.h"
-#include "simulation.h"
-#include "sceneObject.h"
-#include "gV.h"
-#include "pluginContainer.h"
-#include "fileOperations.h"
-#include "simStrings.h"
-#include "app.h"
-#include "pageRendering.h"
-#include "simFlavor.h"
+#include <simInternal.h>
+#include <pageContainer.h>
+#include <tt.h>
+#include <sceneObjectOperations.h>
+#include <simulation.h>
+#include <sceneObject.h>
+#include <gV.h>
+#include <pluginContainer.h>
+#include <fileOperations.h>
+#include <simStrings.h>
+#include <app.h>
+#include <pageRendering.h>
+#include <simFlavor.h>
 #ifdef SIM_WITH_GUI
-    #include "toolBarCommand.h"
+    #include <toolBarCommand.h>
 #endif
 
 CPageContainer::CPageContainer()

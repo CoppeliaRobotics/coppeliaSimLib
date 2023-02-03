@@ -1,10 +1,10 @@
 #pragma once
 
-#include "pathPlanning_old.h"
-#include "nonHolonomicPathNode_old.h"
-#include "dummyClasses.h"
+#include <pathPlanning_old.h>
+#include <nonHolonomicPathNode_old.h>
+#include <dummyClasses.h>
 #include <vector>
-#include "7Vector.h"
+#include <simMath/7Vector.h>
 
 class CNonHolonomicPathPlanning_old : public CPathPlanning_old
 {

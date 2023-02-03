@@ -1,14 +1,14 @@
-#include "simInternal.h"
-#include "addOperations.h"
-#include "fileOperations.h"
-#include "tt.h"
-#include "meshRoutines.h"
-#include "sceneObjectOperations.h"
-#include "simFlavor.h"
-#include "app.h"
-#include "meshManip.h"
-#include "mesh.h"
-#include "simStrings.h"
+#include <simInternal.h>
+#include <addOperations.h>
+#include <fileOperations.h>
+#include <tt.h>
+#include <meshRoutines.h>
+#include <sceneObjectOperations.h>
+#include <simFlavor.h>
+#include <app.h>
+#include <meshManip.h>
+#include <mesh.h>
+#include <simStrings.h>
 #include <boost/lexical_cast.hpp>
 
 CAddOperations::CAddOperations()

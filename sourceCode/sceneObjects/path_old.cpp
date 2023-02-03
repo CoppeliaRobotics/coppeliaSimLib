@@ -1,14 +1,14 @@
-#include "simInternal.h"
-#include "path_old.h"
-#include "tt.h"
-#include "meshManip.h"
-#include "gV.h"
-#include "meshRoutines.h"
-#include "simStrings.h"
-#include "ttUtil.h"
-#include "easyLock.h"
-#include "app.h"
-#include "pathRendering.h"
+#include <simInternal.h>
+#include <path_old.h>
+#include <tt.h>
+#include <meshManip.h>
+#include <gV.h>
+#include <meshRoutines.h>
+#include <simStrings.h>
+#include <ttUtil.h>
+#include <easyLock.h>
+#include <app.h>
+#include <pathRendering.h>
 
 CPath_old::CPath_old()
 {

@@ -2,7 +2,7 @@
 #ifndef QDLGDUMMIES_H
 #define QDLGDUMMIES_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgDummies;

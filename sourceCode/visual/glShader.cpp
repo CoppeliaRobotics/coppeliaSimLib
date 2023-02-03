@@ -1,6 +1,6 @@
 
-#include "oGL.h"
-#include "glShader.h"
+#include <oGL.h>
+#include <glShader.h>
 
 CGlShader::CGlShader()
 {

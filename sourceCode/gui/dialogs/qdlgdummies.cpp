@@ -1,10 +1,10 @@
-#include "qdlgdummies.h"
-#include "ui_qdlgdummies.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "app.h"
-#include "simStrings.h"
+#include <qdlgdummies.h>
+#include <ui_qdlgdummies.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <app.h>
+#include <simStrings.h>
 
 CQDlgDummies::CQDlgDummies(QWidget *parent) :
     CDlgEx(parent),

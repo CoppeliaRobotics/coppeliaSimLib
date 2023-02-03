@@ -1,17 +1,17 @@
-#include "simInternal.h"
-#include "shape.h"
-#include "tt.h"
-#include "algos.h"
-#include "app.h"
-#include "meshWrapper.h"
-#include "mesh.h"
-#include "easyLock.h"
-#include "pluginContainer.h"
-#include "shapeRendering.h"
-#include "meshManip.h"
-#include "base64.h"
-#include "imgLoaderSaver.h"
-#include "ttUtil.h"
+#include <simInternal.h>
+#include <shape.h>
+#include <tt.h>
+#include <algos.h>
+#include <app.h>
+#include <meshWrapper.h>
+#include <mesh.h>
+#include <easyLock.h>
+#include <pluginContainer.h>
+#include <shapeRendering.h>
+#include <meshManip.h>
+#include <base64.h>
+#include <imgLoaderSaver.h>
+#include <ttUtil.h>
 
 bool CShape::_visualizeObbStructures=false;
 

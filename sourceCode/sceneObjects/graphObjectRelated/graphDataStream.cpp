@@ -1,7 +1,7 @@
-#include "app.h"
-#include "graphDataStream.h"
-#include "simConst.h"
-#include "tt.h"
+#include <app.h>
+#include <graphDataStream.h>
+#include <simConst.h>
+#include <tt.h>
 
 CGraphDataStream::CGraphDataStream()
 {

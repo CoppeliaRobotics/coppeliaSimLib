@@ -1,10 +1,10 @@
-#include "simConst.h"
-#include "interfaceStackNull.h"
-#include "interfaceStackBool.h"
-#include "interfaceStackNumber.h"
-#include "interfaceStackInteger.h"
-#include "interfaceStackString.h"
-#include "interfaceStackTable.h"
+#include <simConst.h>
+#include <interfaceStackNull.h>
+#include <interfaceStackBool.h>
+#include <interfaceStackNumber.h>
+#include <interfaceStackInteger.h>
+#include <interfaceStackString.h>
+#include <interfaceStackTable.h>
 #include <algorithm> // std::sort, etc.
 
 CInterfaceStackTable::CInterfaceStackTable()

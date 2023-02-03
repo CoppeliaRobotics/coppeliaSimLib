@@ -1,12 +1,12 @@
-#include "qdlgsettings.h"
-#include "ui_qdlgsettings.h"
-#include "tt.h"
-#include "gV.h"
-#include "simStrings.h"
-#include "vFileDialog.h"
-#include "qdlgopenglsettings.h"
-#include "app.h"
-#include "vMessageBox.h"
+#include <qdlgsettings.h>
+#include <ui_qdlgsettings.h>
+#include <tt.h>
+#include <gV.h>
+#include <simStrings.h>
+#include <vFileDialog.h>
+#include <qdlgopenglsettings.h>
+#include <app.h>
+#include <vMessageBox.h>
 
 CQDlgSettings::CQDlgSettings(QWidget *parent) :
     CDlgEx(parent),

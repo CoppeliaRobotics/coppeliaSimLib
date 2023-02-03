@@ -1,7 +1,7 @@
 
 #ifndef QDLGCOLLECTIONS_H
 #define QDLGCOLLECTIONS_H
-#include "dlgEx.h"
+#include <dlgEx.h>
 #include <QListWidgetItem>
 
 namespace Ui {

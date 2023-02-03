@@ -1,6 +1,6 @@
 #pragma once
 
-#include "moduleMenuItem.h"
+#include <moduleMenuItem.h>
 
 class CModuleMenuItemContainer  
 {

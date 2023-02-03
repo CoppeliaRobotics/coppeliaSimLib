@@ -1,7 +1,7 @@
 #pragma once
 
-#include "undoBuffer.h"
-#include "undoBufferArrays.h"
+#include <undoBuffer.h>
+#include <undoBufferArrays.h>
 
 class CUndoBufferCont
 {

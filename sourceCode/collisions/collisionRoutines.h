@@ -1,9 +1,9 @@
 #pragma once
 
-#include "shape.h"
-#include "dummy.h"
-#include "octree.h"
-#include "pointCloud.h"
+#include <shape.h>
+#include <dummy.h>
+#include <octree.h>
+#include <pointCloud.h>
 #include <vector>
 
 

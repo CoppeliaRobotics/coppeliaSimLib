@@ -2,8 +2,8 @@
 #ifndef QDLGROTATION_H
 #define QDLGROTATION_H
 
-#include "dlgEx.h"
-#include "7Vector.h"
+#include <dlgEx.h>
+#include <simMath/7Vector.h>
 
 namespace Ui {
     class CQDlgRotation;

@@ -1,8 +1,8 @@
 #ifndef QDLGCONVEXDECOMPOSITION_H
 #define QDLGCONVEXDECOMPOSITION_H
 
-#include "vDialog.h"
-#include "simTypes.h"
+#include <vDialog.h>
+#include <simTypes.h>
 
 namespace Ui {
     class CQDlgConvexDecomposition;

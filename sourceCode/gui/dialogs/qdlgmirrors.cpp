@@ -1,11 +1,11 @@
-#include "qdlgmirrors.h"
-#include "ui_qdlgmirrors.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "qdlgcolor.h"
-#include "app.h"
-#include "simStrings.h"
+#include <qdlgmirrors.h>
+#include <ui_qdlgmirrors.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <qdlgcolor.h>
+#include <app.h>
+#include <simStrings.h>
 
 CQDlgMirrors::CQDlgMirrors(QWidget *parent) :
     CDlgEx(parent),

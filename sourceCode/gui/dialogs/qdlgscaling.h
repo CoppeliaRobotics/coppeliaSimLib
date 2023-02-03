@@ -1,8 +1,8 @@
 #ifndef QDLGSCALING_H
 #define QDLGSCALING_H
 
-#include "vDialog.h"
-#include "simTypes.h"
+#include <vDialog.h>
+#include <simTypes.h>
 
 namespace Ui {
     class CQDlgScaling;

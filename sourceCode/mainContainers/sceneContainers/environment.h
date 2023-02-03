@@ -1,9 +1,9 @@
 #pragma once
 
-#include "colorObject.h"
-#include "thumbnail.h"
+#include <colorObject.h>
+#include <thumbnail.h>
 #ifdef SIM_WITH_GUI
-    #include "vMenubar.h"
+    #include <vMenubar.h>
 #endif
 
 class CCamera;

@@ -2,7 +2,7 @@
 #ifndef QDLGSLIDER2_H
 #define QDLGSLIDER2_H
 
-#include "vDialog.h"
+#include <vDialog.h>
 #include <QAbstractButton>
 
 namespace Ui {

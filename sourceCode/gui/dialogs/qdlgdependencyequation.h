@@ -2,7 +2,7 @@
 #ifndef QDLGDEPENDENCYEQUATION_H
 #define QDLGDEPENDENCYEQUATION_H
 
-#include "vDialog.h"
+#include <vDialog.h>
 #include <QAbstractButton>
 
 namespace Ui {

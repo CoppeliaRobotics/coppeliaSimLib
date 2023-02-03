@@ -1,8 +1,8 @@
-#include "qdlgcolorpulsation.h"
-#include "ui_qdlgcolorpulsation.h"
-#include "gV.h"
-#include "tt.h"
-#include "app.h"
+#include <qdlgcolorpulsation.h>
+#include <ui_qdlgcolorpulsation.h>
+#include <gV.h>
+#include <tt.h>
+#include <app.h>
 
 CQDlgColorPulsation::CQDlgColorPulsation(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

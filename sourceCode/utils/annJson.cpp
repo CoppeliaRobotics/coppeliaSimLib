@@ -1,6 +1,6 @@
-#include "annJson.h"
-#include "tt.h"
-#include "ttUtil.h"
+#include <annJson.h>
+#include <tt.h>
+#include <ttUtil.h>
 #include <cmath>
 
 CAnnJson::CAnnJson(QJsonObject* mainObject)

@@ -27,8 +27,8 @@
 #pragma once
 
 #include <vector>
-#include "3Vector.h"
-#include "3X3Matrix.h"
+#include <simMath/3Vector.h>
+#include <simMath/3X3Matrix.h>
 
 #define SQR(x) ((x)*(x))
 #define CUBE(x) ((x)*(x)*(x))

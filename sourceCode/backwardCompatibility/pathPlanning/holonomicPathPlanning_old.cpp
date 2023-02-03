@@ -1,6 +1,6 @@
-#include "holonomicPathPlanning_old.h"
-#include "pathPlanningInterface.h"
-#include "simInternal.h"
+#include <holonomicPathPlanning_old.h>
+#include <pathPlanningInterface.h>
+#include <simInternal.h>
 #include <algorithm>
 
 CHolonomicPathPlanning_old::CHolonomicPathPlanning_old(int theStartDummyID,int theGoalDummyID,

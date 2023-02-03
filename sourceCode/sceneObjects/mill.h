@@ -1,7 +1,7 @@
 #pragma once
 
-#include "sceneObject.h"
-#include "convexVolume.h"
+#include <sceneObject.h>
+#include <convexVolume.h>
 
 class CMill : public CSceneObject  
 {

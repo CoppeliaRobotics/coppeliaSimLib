@@ -1,5 +1,5 @@
-#include "scriptCustomVariable.h"
-#include "app.h"
+#include <scriptCustomVariable.h>
+#include <app.h>
 
 CScriptCustomVariable::CScriptCustomVariable(const char* theFullVariableName,const char* theVariableValue,int theVariableStackValue)
 {

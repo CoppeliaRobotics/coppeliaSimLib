@@ -1,8 +1,8 @@
 #pragma once
 
-#include "scriptObject.h"
+#include <scriptObject.h>
 #ifdef SIM_WITH_GUI
-    #include "vMenubar.h"
+    #include <vMenubar.h>
 #endif
 
 #define ADDON_PREFIX "simAddOn"

@@ -2,9 +2,9 @@
 #ifndef QDLGMATERIAL_H
 #define QDLGMATERIAL_H
 
-#include "dlgEx.h"
-#include "qdlgcolor.h"
-#include "colorObject.h"
+#include <dlgEx.h>
+#include <qdlgcolor.h>
+#include <colorObject.h>
 
 namespace Ui {
     class CQDlgMaterial;

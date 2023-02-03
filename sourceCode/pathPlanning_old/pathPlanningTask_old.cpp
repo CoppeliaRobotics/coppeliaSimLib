@@ -1,17 +1,17 @@
 // For backward compatibility
 
-#include "simInternal.h"
-#include "pathPlanningTask_old.h"
-#include "pathPlanningInterface.h"
-#include "tt.h"
-#include "sceneObjectContainer.h"
-#include "global.h"
-#include "tt.h"
-#include "ikGroupContainer.h"
-#include "app.h"
-#include "simStrings.h"
-#include "vDateTime.h"
-#include "pathPlanningTaskRendering_old.h"
+#include <simInternal.h>
+#include <pathPlanningTask_old.h>
+#include <pathPlanningInterface.h>
+#include <tt.h>
+#include <sceneObjectContainer.h>
+#include <global.h>
+#include <tt.h>
+#include <ikGroupContainer.h>
+#include <app.h>
+#include <simStrings.h>
+#include <vDateTime.h>
+#include <pathPlanningTaskRendering_old.h>
 
 CPathPlanningTask::CPathPlanningTask()
 {
@@ -69,7 +69,7 @@ void CPathPlanningTask::setDefaultValues()
     _showSearchTrees=false;
     _searchTree1Handle=-1;
     _searchTree2Handle=-1;
-    _objectID=SIM_IDSTART_PATHPLANNINGTASK;
+    _objectID=SIM_IDSTART_PATHPLANNINGTASK_old;
     objectName="PathPlanningTask";
 }
 

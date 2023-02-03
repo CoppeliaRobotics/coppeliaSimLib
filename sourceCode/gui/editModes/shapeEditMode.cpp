@@ -1,13 +1,13 @@
-#include "shapeEditMode.h"
-#include "simConst.h"
-#include "mesh.h"
-#include "global.h"
-#include "meshManip.h"
-#include "oGL.h"
-#include "simStringTable.h"
-#include "app.h"
-#include "rendering.h"
-#include "tt.h"
+#include <shapeEditMode.h>
+#include <simConst.h>
+#include <mesh.h>
+#include <global.h>
+#include <meshManip.h>
+#include <oGL.h>
+#include <simStringTable.h>
+#include <app.h>
+#include <rendering.h>
+#include <tt.h>
 
 CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContainer* objCont,CTextureContainer* textureCont,CUiThread* uiThread,bool identicalVerticesCheck,bool identicalTrianglesCheck,double identicalVerticesTolerance)
 {

@@ -2,7 +2,7 @@
 #ifndef QDLGSETTINGS_H
 #define QDLGSETTINGS_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgSettings;

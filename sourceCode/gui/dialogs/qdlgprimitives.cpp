@@ -1,10 +1,10 @@
-#include "qdlgprimitives.h"
-#include "ui_qdlgprimitives.h"
-#include "tt.h"
-#include "gV.h"
-#include "simStrings.h"
-#include "app.h"
-#include "vMessageBox.h"
+#include <qdlgprimitives.h>
+#include <ui_qdlgprimitives.h>
+#include <tt.h>
+#include <gV.h>
+#include <simStrings.h>
+#include <app.h>
+#include <vMessageBox.h>
 
 CQDlgPrimitives::CQDlgPrimitives(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

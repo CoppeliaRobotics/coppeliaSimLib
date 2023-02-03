@@ -1,8 +1,8 @@
-#include "qdlgconvexdecomposition.h"
-#include "ui_qdlgconvexdecomposition.h"
-#include "tt.h"
-#include "gV.h"
-#include "app.h"
+#include <qdlgconvexdecomposition.h>
+#include <ui_qdlgconvexdecomposition.h>
+#include <tt.h>
+#include <gV.h>
+#include <app.h>
 
 CQDlgConvexDecomposition::CQDlgConvexDecomposition(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

@@ -1,9 +1,9 @@
-#include "simInternal.h"
-#include "undoBufferCont.h"
-#include "pluginContainer.h"
-#include "vDateTime.h"
-#include "app.h"
-#include "simStrings.h"
+#include <simInternal.h>
+#include <undoBufferCont.h>
+#include <pluginContainer.h>
+#include <vDateTime.h>
+#include <app.h>
+#include <simStrings.h>
 
 CUndoBufferCont::CUndoBufferCont()
 {

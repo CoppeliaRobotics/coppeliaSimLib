@@ -18,8 +18,8 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "app.h"
-#include "rendering.h"
+#include <app.h>
+#include <rendering.h>
 
 void displayBackground(const int* viewSize,bool fogEnabled,const float* fogBackgroundColor,const float* backGroundColorDown,const float* backGroundColor);
 void enableAmbientLight(bool on,const float* ambientLightColor);

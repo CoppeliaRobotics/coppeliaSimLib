@@ -2,7 +2,7 @@
 #ifndef QDLGSHAPEEDITIONCONTAINER_H
 #define QDLGSHAPEEDITIONCONTAINER_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 #include <QVBoxLayout>
 
 namespace Ui {

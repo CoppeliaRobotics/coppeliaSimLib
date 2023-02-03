@@ -18,7 +18,7 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "drawingObjectRendering.h"
+#include <drawingObjectRendering.h>
 
 #ifdef SIM_WITH_OPENGL
 

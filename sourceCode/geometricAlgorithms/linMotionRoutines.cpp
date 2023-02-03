@@ -1,8 +1,8 @@
 // Those routines should be replaced with the Reflexxes RML libraries!!!!
 
-#include "linMotionRoutines.h"
-#include "tt.h"
-#include "mathDefines.h"
+#include <linMotionRoutines.h>
+#include <tt.h>
+#include <simMath/mathDefines.h>
 #include <algorithm>
 
 const double LIN_MOTION_POSITION_TOLERANCE  =0.000001;

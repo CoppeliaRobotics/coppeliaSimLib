@@ -1,17 +1,17 @@
-#include "simInternal.h"
-#include "sceneObjectOperations.h"
-#include "simulation.h"
-#include "mesh.h"
-#include "app.h"
-#include "meshManip.h"
-#include "tt.h"
-#include "simStrings.h"
-#include "meshRoutines.h"
-#include "simFlavor.h"
+#include <simInternal.h>
+#include <sceneObjectOperations.h>
+#include <simulation.h>
+#include <mesh.h>
+#include <app.h>
+#include <meshManip.h>
+#include <tt.h>
+#include <simStrings.h>
+#include <meshRoutines.h>
+#include <simFlavor.h>
 #include <boost/lexical_cast.hpp>
 #ifdef SIM_WITH_GUI
-    #include "vMessageBox.h"
-    #include "qdlgconvexdecomposition.h"
+    #include <vMessageBox.h>
+    #include <qdlgconvexdecomposition.h>
 #endif
 
 void CSceneObjectOperations::keyPress(int key)

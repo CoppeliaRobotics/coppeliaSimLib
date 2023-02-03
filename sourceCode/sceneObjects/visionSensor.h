@@ -1,11 +1,11 @@
 #pragma once
 
-#include "viewableBase.h"
-#include "sView.h"
-#include "composedFilter.h"
-#include "textureObject.h"
+#include <viewableBase.h>
+#include <sView.h>
+#include <composedFilter.h>
+#include <textureObject.h>
 #ifdef SIM_WITH_OPENGL
-#include "visionSensorGlStuff.h"
+#include <visionSensorGlStuff.h>
 #endif
 
 struct SHandlingResult

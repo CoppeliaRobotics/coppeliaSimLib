@@ -1,8 +1,8 @@
 #pragma once
 
-#include "scriptObject.h"
-#include "broadcastDataContainer.h"
-#include "simInternal.h"
+#include <scriptObject.h>
+#include <broadcastDataContainer.h>
+#include <simInternal.h>
 
 class CSceneObject;
 

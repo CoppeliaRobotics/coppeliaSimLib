@@ -2,7 +2,7 @@
 #ifndef QDLGCOLLISIONS_H
 #define QDLGCOLLISIONS_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 #include <QListWidgetItem>
 
 namespace Ui {

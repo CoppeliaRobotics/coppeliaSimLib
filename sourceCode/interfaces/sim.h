@@ -1,8 +1,8 @@
 #if !defined(sim_INCLUDED_)
 #define sim_INCLUDED_
 
-#include "simConst.h"
-#include "simTypes.h"
+#include <simConst.h>
+#include <simTypes.h>
 
 #ifndef SIM_DLLEXPORT
     #ifdef WIN_SIM
@@ -453,6 +453,6 @@ SIM_DLLEXPORT int _simHandleCustomContact_D(int objHandle1,int objHandle2,int en
 SIM_DLLEXPORT double _simGetPureHollowScaling_D(const void* geometric);
 SIM_DLLEXPORT void _simDynCallback_D(const int* intData,const double* floatData);
 
-#include "sim-old.h"
+#include <sim-old.h>
 
 #endif // !defined(sim_INCLUDED_)

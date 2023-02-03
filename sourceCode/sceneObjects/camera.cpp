@@ -1,21 +1,21 @@
-#include "camera.h"
-#include "simInternal.h"
-#include "tt.h"
-#include "meshManip.h"
-#include "global.h"
-#include "sceneObjectOperations.h"
-#include "graphingRoutines_old.h"
-#include "pluginContainer.h"
-#include "simStrings.h"
-#include "vDateTime.h"
-#include "ttUtil.h"
-#include "easyLock.h"
-#include "app.h"
-#include "cameraRendering.h"
+#include <camera.h>
+#include <simInternal.h>
+#include <tt.h>
+#include <meshManip.h>
+#include <global.h>
+#include <sceneObjectOperations.h>
+#include <graphingRoutines_old.h>
+#include <pluginContainer.h>
+#include <simStrings.h>
+#include <vDateTime.h>
+#include <ttUtil.h>
+#include <easyLock.h>
+#include <app.h>
+#include <cameraRendering.h>
 #ifdef SIM_WITH_OPENGL
-#include "rendering.h"
-#include "oGL.h"
-#include "glShader.h"
+#include <rendering.h>
+#include <oGL.h>
+#include <glShader.h>
 #endif
 
 unsigned int CCamera::selectBuff[SELECTION_BUFFER_SIZE*4];

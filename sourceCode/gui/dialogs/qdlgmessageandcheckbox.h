@@ -2,7 +2,7 @@
 #ifndef QDLGMESSAGEANDCHECKBOX_H
 #define QDLGMESSAGEANDCHECKBOX_H
 
-#include "vDialog.h"
+#include <vDialog.h>
 
 namespace Ui {
     class CQDlgMessageAndCheckbox;

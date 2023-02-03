@@ -1,10 +1,10 @@
 #pragma once
 
-#include "sceneObject.h"
-#include "viewableBase.h"
-#include "global.h"
-#include "light.h"
-#include "sView.h"
+#include <sceneObject.h>
+#include <viewableBase.h>
+#include <global.h>
+#include <light.h>
+#include <sView.h>
 
 const double ORTHO_CAMERA_NEAR_CLIPPING_PLANE=0.0001;
 const double ORTHO_CAMERA_FAR_CLIPPING_PLANE=300.0;

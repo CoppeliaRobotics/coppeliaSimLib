@@ -1,11 +1,11 @@
 // This file requires some serious refactoring!
 
-#include "simInternal.h"
-#include "sPage.h"
-#include "global.h"
-#include "tt.h"
-#include "app.h"
-#include "pageRendering.h"
+#include <simInternal.h>
+#include <sPage.h>
+#include <global.h>
+#include <tt.h>
+#include <app.h>
+#include <pageRendering.h>
 
 #define FLOATING_VIEW_MIN_SIZE 80
 

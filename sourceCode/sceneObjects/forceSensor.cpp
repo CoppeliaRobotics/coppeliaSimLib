@@ -1,12 +1,12 @@
-#include "forceSensor.h"
-#include "simInternal.h"
-#include "tt.h"
-#include "simStrings.h"
+#include <forceSensor.h>
+#include <simInternal.h>
+#include <tt.h>
+#include <simStrings.h>
 #include <algorithm>
-#include "ttUtil.h"
-#include "easyLock.h"
-#include "app.h"
-#include "forceSensorRendering.h"
+#include <ttUtil.h>
+#include <easyLock.h>
+#include <app.h>
+#include <forceSensorRendering.h>
 
 CForceSensor::CForceSensor()
 {

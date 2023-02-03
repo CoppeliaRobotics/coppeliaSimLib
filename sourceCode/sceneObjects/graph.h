@@ -1,14 +1,14 @@
 #pragma once
 
-#include "graphDataStream.h"
-#include "graphCurve.h"
+#include <graphDataStream.h>
+#include <graphCurve.h>
 
 // Old:
-#include "sceneObject.h"
-#include "graphData_old.h"
-#include "graphDataComb_old.h"
-#include "staticGraphCurve_old.h"
-#include "sView.h"
+#include <sceneObject.h>
+#include <graphData_old.h>
+#include <graphDataComb_old.h>
+#include <staticGraphCurve_old.h>
+#include <sView.h>
 
 class CGraph : public CSceneObject  
 {

@@ -18,8 +18,8 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "app.h"
-#include "ptCloud_old.h"
-#include "rendering.h"
+#include <app.h>
+#include <ptCloud_old.h>
+#include <rendering.h>
 
 void displayPtCloud_old(CPtCloud_old* ptCloud,CSceneObject* it);

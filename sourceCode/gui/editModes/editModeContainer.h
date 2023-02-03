@@ -1,9 +1,9 @@
 #pragma once
 
-#include "shapeEditMode.h"
-#include "multishapeEditMode.h"
-#include "pathEditMode.h"
-#include "pathPointManipulation.h"
+#include <shapeEditMode.h>
+#include <multishapeEditMode.h>
+#include <pathEditMode.h>
+#include <pathPointManipulation.h>
 
 class CEditModeContainer
 {

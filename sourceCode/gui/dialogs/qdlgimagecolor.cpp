@@ -1,7 +1,7 @@
-#include "qdlgimagecolor.h"
-#include "ui_qdlgimagecolor.h"
-#include "tt.h"
-#include "app.h"
+#include <qdlgimagecolor.h>
+#include <ui_qdlgimagecolor.h>
+#include <tt.h>
+#include <app.h>
 
 CQDlgImageColor::CQDlgImageColor(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

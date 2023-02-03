@@ -1,7 +1,7 @@
 #pragma once
 
-#include "colorObject.h"
-#include "viewableBase.h"
+#include <colorObject.h>
+#include <viewableBase.h>
 
 class CMainSettings 
 {

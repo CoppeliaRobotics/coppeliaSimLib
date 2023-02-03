@@ -18,9 +18,9 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "distanceRendering.h"
-#include "tt.h"
-#include "gV.h"
+#include <distanceRendering.h>
+#include <tt.h>
+#include <gV.h>
 
 #ifdef SIM_WITH_OPENGL
 

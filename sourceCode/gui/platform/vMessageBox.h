@@ -2,7 +2,7 @@
 #pragma once
 
 #include <QWidget>
-#include "uiThread.h"
+#include <uiThread.h>
 
 // FULLY STATIC CLASS
 class VMessageBox  

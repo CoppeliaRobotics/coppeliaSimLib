@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "shape.h"
+#include <shape.h>
 
 class CMultishapeEditMode
 {

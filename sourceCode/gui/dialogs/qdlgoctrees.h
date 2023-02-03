@@ -2,7 +2,7 @@
 #ifndef QDLGOCTREES_H
 #define QDLGOCTREES_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgOctrees;

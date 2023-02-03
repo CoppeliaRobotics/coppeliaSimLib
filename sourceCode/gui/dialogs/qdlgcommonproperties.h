@@ -2,7 +2,7 @@
 #ifndef QDLGCOMMONPROPERTIES_H
 #define QDLGCOMMONPROPERTIES_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgCommonProperties;

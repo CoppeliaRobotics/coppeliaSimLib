@@ -2,7 +2,7 @@
 #ifndef QDLGRENDERINGSENSORS_H
 #define QDLGRENDERINGSENSORS_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgVisionSensors;

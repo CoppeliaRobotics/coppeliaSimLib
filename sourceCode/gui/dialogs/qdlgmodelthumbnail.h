@@ -2,9 +2,9 @@
 #ifndef QDLGMODELTHUMBNAIL_H
 #define QDLGMODELTHUMBNAIL_H
 
-#include "vDialog.h"
-#include "visionSensor.h"
-#include "thumbnail.h"
+#include <vDialog.h>
+#include <visionSensor.h>
+#include <thumbnail.h>
 
 namespace Ui {
     class CQDlgModelThumbnail;

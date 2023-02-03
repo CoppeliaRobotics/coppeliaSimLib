@@ -2,8 +2,8 @@
 #ifndef QDLGPRIMITIVES_H
 #define QDLGPRIMITIVES_H
 
-#include "vDialog.h"
-#include "3Vector.h"
+#include <vDialog.h>
+#include <simMath/3Vector.h>
 
 namespace Ui {
     class CQDlgPrimitives;

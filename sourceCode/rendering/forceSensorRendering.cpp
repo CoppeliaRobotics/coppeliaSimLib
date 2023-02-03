@@ -18,7 +18,7 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "forceSensorRendering.h"
+#include <forceSensorRendering.h>
 
 #ifdef SIM_WITH_OPENGL
 

@@ -1,6 +1,6 @@
-#include "sim.h"
-#include "simInternal.h"
-#include "app.h"
+#include <sim.h>
+#include <simInternal.h>
+#include <app.h>
 
 SIM_DLLEXPORT int simRunSimulator(const char* applicationName,int options,void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)())
 {
@@ -1718,4 +1718,4 @@ SIM_DLLEXPORT void _simDynCallback_D(const int* intData,const double* floatData)
     _simDynCallback_internal(intData,floatData);
 }
 
-#include "sim-old.cpp"
+#include <sim-old.cpp>

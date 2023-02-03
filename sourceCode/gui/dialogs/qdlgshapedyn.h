@@ -2,7 +2,7 @@
 #ifndef QDLGSHAPEDYN_H
 #define QDLGSHAPEDYN_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgShapeDyn;

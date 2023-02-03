@@ -1,9 +1,9 @@
-#include "engineProperties.h"
-#include "app.h"
-#include "vMessageBox.h"
-#include "annJson.h"
-#include "tt.h"
-#include "ttUtil.h"
+#include <engineProperties.h>
+#include <app.h>
+#include <vMessageBox.h>
+#include <annJson.h>
+#include <tt.h>
+#include <ttUtil.h>
 
 CEngineProperties::CEngineProperties()
 {

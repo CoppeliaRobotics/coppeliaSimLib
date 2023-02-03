@@ -18,7 +18,7 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "pageRendering.h"
+#include <pageRendering.h>
 
 #ifdef SIM_WITH_GUI
 

@@ -1,9 +1,9 @@
 // Adapted code courtesy of "Tibo" from here: https://stackoverflow.com/questions/7581343/how-to-catch-ctrlc-on-windows-and-linux-with-qt
 
-#include "sigHandler.h"
+#include <sigHandler.h>
 #include <iostream>
 #include <set>
-#include "app.h"
+#include <app.h>
 
 #ifndef _WIN32
     #include <signal.h>

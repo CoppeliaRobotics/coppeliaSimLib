@@ -1,10 +1,10 @@
-#include "codeEditorContainer.h"
-#include "pluginContainer.h"
-#include "simInternal.h"
-#include "simStrings.h"
-#include "vVarious.h"
-#include "app.h"
-#include "ttUtil.h"
+#include <codeEditorContainer.h>
+#include <pluginContainer.h>
+#include <simInternal.h>
+#include <simStrings.h>
+#include <vVarious.h>
+#include <app.h>
+#include <ttUtil.h>
 
 int CCodeEditorContainer::_nextUniqueId=0;
 

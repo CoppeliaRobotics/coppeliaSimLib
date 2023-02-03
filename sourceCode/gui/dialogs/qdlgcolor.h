@@ -2,7 +2,7 @@
 #ifndef QDLGCOLOR_H
 #define QDLGCOLOR_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgColor;

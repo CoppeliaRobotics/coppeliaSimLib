@@ -64,7 +64,7 @@
 #ifndef STBI_HEADER_FILE_ONLY
 
 #ifndef STBI_NO_HDR
-#include "stb_image.h"
+#include <stb_image.h>
 #include <math.h>  // ldexp
 #include <string.h> // strcmp, strtok
 #endif

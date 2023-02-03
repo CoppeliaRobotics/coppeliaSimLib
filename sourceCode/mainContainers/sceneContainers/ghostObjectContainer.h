@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ghostObject.h"
-#include "ser.h"
+#include <ghostObject.h>
+#include <ser.h>
 
 class CViewableBase;
 

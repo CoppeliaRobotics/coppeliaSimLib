@@ -1,4 +1,4 @@
-#include "bezierPathPoint_old.h"
+#include <bezierPathPoint_old.h>
 
 CBezierPathPoint_old::CBezierPathPoint_old(const C7Vector& transf)
 {

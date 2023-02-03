@@ -1,7 +1,7 @@
 #pragma once
 
-#include "thumbnail.h"
-#include "modelListWidgetBase.h"
+#include <thumbnail.h>
+#include <modelListWidgetBase.h>
 
 struct SModelThumbnailInfo
 {

@@ -1,9 +1,9 @@
-#include "simInternal.h"
-#include "copyBuffer.h"
-#include "tt.h"
-#include "mesh.h"
-#include "simStrings.h"
-#include "app.h"
+#include <simInternal.h>
+#include <copyBuffer.h>
+#include <tt.h>
+#include <mesh.h>
+#include <simStrings.h>
+#include <app.h>
 
 CCopyBuffer::CCopyBuffer()
 {

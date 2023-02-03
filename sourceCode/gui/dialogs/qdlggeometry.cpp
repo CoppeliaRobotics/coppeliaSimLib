@@ -1,11 +1,11 @@
-#include "qdlggeometry.h"
-#include "ui_qdlggeometry.h"
-#include "tt.h"
-#include "gV.h"
-#include "mesh.h"
-#include "simStringTable.h"
-#include "app.h"
-#include "vMessageBox.h"
+#include <qdlggeometry.h>
+#include <ui_qdlggeometry.h>
+#include <tt.h>
+#include <gV.h>
+#include <mesh.h>
+#include <simStringTable.h>
+#include <app.h>
+#include <vMessageBox.h>
 
 CQDlgGeometry::CQDlgGeometry(QWidget *parent) :
     CDlgEx(parent),

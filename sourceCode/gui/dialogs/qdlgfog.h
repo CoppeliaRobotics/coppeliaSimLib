@@ -2,7 +2,7 @@
 #ifndef QDLGFOG_H
 #define QDLGFOG_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgFog;

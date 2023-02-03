@@ -2,7 +2,7 @@
 #ifndef QDLGMULTISHAPEEDITION_H
 #define QDLGMULTISHAPEEDITION_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgMultishapeEdition;

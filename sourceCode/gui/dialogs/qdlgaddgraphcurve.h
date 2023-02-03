@@ -2,7 +2,7 @@
 #ifndef QDLGADDGRAPHCURVE_H
 #define QDLGADDGRAPHCURVE_H
 
-#include "vDialog.h"
+#include <vDialog.h>
 
 namespace Ui {
     class CQDlgAddGraphCurve;

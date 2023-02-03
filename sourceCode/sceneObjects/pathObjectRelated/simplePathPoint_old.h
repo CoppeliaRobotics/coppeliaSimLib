@@ -1,7 +1,7 @@
 #pragma once
 
-#include "pathPoint_old.h"
-#include "ser.h"
+#include <pathPoint_old.h>
+#include <ser.h>
 
 class CSimplePathPoint_old : public CPathPoint_old
 {

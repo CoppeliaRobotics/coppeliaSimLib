@@ -1,7 +1,7 @@
-#include "proxSensorRoutine.h"
-#include "pluginContainer.h"
-#include "app.h"
-#include "tt.h"
+#include <proxSensorRoutine.h>
+#include <pluginContainer.h>
+#include <app.h>
+#include <tt.h>
 
 
 bool CProxSensorRoutine::detectEntity(int sensorID,int entityID,bool closestFeatureMode,bool angleLimitation,double maxAngle,C3Vector& detectedPt,double& dist,bool frontFace,bool backFace,int& detectedObject,double minThreshold,C3Vector& triNormal,bool overrideDetectableFlagIfNonCollection)

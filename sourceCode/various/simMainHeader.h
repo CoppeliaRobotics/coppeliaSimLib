@@ -3,7 +3,7 @@
 
 #ifdef __cplusplus
 
-#include "simConfig.h"
+#include <simConfig.h>
 #include <stdio.h>
 
 

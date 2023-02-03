@@ -1,6 +1,6 @@
 
-#include "simInternal.h"
-#include "signalContainer.h"
+#include <simInternal.h>
+#include <signalContainer.h>
 #include <string.h>
 
 CSignalContainer::CSignalContainer()

@@ -1,8 +1,8 @@
 #ifndef QDLGHEIGHTFIELDDIMENSION_H
 #define QDLGHEIGHTFIELDDIMENSION_H
 
-#include "vDialog.h"
-#include "simTypes.h"
+#include <vDialog.h>
+#include <simTypes.h>
 
 namespace Ui {
     class CQDlgHeightfieldDimension;

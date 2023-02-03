@@ -1,8 +1,8 @@
 #pragma once
 
-#include "sceneObject.h"
-#include "mesh.h"
-#include "dummy.h"
+#include <sceneObject.h>
+#include <mesh.h>
+#include <dummy.h>
 
 class CShape : public CSceneObject  
 {

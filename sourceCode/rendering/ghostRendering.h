@@ -18,7 +18,7 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "app.h"
-#include "rendering.h"
+#include <app.h>
+#include <rendering.h>
 
 void displayGhost(CShape* shape,const C7Vector& tr,int displayAttributes,int options,double transparencyFactor,const float* color);

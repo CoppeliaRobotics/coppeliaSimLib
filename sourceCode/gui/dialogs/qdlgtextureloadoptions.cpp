@@ -1,10 +1,10 @@
 
-#include "qdlgtextureloadoptions.h"
-#include "ui_qdlgtextureloadoptions.h"
-#include "gV.h"
-#include "tt.h"
-#include "global.h"
-#include "app.h"
+#include <qdlgtextureloadoptions.h>
+#include <ui_qdlgtextureloadoptions.h>
+#include <gV.h>
+#include <tt.h>
+#include <global.h>
+#include <app.h>
 
 int CQDlgTextureLoadOptions::scaleTo=256;
 bool CQDlgTextureLoadOptions::scale=true;

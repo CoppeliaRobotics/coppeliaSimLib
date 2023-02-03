@@ -41,7 +41,7 @@
 */
 
 
-#include "volInt.h"
+#include <volInt.h>
 #include <math.h>
 
 int CVolInt::A;   // alpha

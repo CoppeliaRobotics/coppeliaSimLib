@@ -1,6 +1,6 @@
-#include "app.h"
-#include "visionSensorGlStuff.h"
-#include "glShader.h"
+#include <app.h>
+#include <visionSensorGlStuff.h>
+#include <glShader.h>
 
 #ifdef USING_QOPENGLWIDGET
 CVisionSensorGlStuff::CVisionSensorGlStuff(int resX,int resY,int offscreenType,bool qtFbo,QOpenGLWidget* otherWidgetToShareResourcesWith,bool useStencilBuffer,bool destroyOffscreenContext,int majorOpenGl,int minorOpenGl) : QObject()

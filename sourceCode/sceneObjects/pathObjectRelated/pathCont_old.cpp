@@ -1,16 +1,16 @@
-#include "pathCont_old.h"
-#include "tt.h"
-#include "simInternal.h"
-#include "meshRoutines.h"
-#include "linMotionRoutines.h"
-#include "simStrings.h"
-#include "app.h"
-#include "vVarious.h"
+#include <pathCont_old.h>
+#include <tt.h>
+#include <simInternal.h>
+#include <meshRoutines.h>
+#include <linMotionRoutines.h>
+#include <simStrings.h>
+#include <app.h>
+#include <vVarious.h>
 #ifdef SIM_WITH_OPENGL
-#include "oGL.h"
+#include <oGL.h>
 #endif
 #ifdef SIM_WITH_GUI
-#include "vMessageBox.h"
+#include <vMessageBox.h>
 #endif
 
 CPathCont_old::CPathCont_old()

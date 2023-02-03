@@ -1,7 +1,7 @@
 
-#include "simInternal.h"
-#include "outsideCommandQueueForScript.h"
-#include "app.h"
+#include <simInternal.h>
+#include <outsideCommandQueueForScript.h>
+#include <app.h>
 
 const unsigned int MAX_QUEUE_SIZE=64; // no more than 64 messages at a given time!
 

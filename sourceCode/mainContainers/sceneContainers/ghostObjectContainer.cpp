@@ -1,7 +1,7 @@
-#include "ghostObjectContainer.h"
-#include "app.h"
-#include "sceneObjectOperations.h"
-#include "simFlavor.h"
+#include <ghostObjectContainer.h>
+#include <app.h>
+#include <sceneObjectOperations.h>
+#include <simFlavor.h>
 
 CGhostObjectContainer::CGhostObjectContainer()
 {

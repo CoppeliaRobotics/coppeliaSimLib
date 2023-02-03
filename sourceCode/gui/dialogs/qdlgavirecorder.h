@@ -2,7 +2,7 @@
 #ifndef CQDLGAVIRECORDER_H
 #define CQDLGAVIRECORDER_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgAviRecorder;

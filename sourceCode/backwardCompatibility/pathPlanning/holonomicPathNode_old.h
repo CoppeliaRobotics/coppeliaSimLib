@@ -1,8 +1,8 @@
 #pragma once
 
-#include "3Vector.h"
-#include "4Vector.h"
-#include "7Vector.h"
+#include <simMath/3Vector.h>
+#include <simMath/4Vector.h>
+#include <simMath/7Vector.h>
 
 class CHolonomicPathNode_old
 {

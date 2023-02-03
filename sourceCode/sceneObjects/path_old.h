@@ -1,7 +1,7 @@
 #pragma once
 
-#include "sceneObject.h"
-#include "pathCont_old.h"
+#include <sceneObject.h>
+#include <pathCont_old.h>
 
 class CPath_old : public CSceneObject  
 {

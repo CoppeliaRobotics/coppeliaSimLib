@@ -1,8 +1,8 @@
 #pragma once
 
 #include <map>
-#include "sceneObject.h"
-#include "syncObject.h"
+#include <sceneObject.h>
+#include <syncObject.h>
 
 class CJoint;
 class CDummy;

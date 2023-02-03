@@ -1,7 +1,7 @@
 #pragma once
 
 #include <map>
-#include "7Vector.h"
+#include <simMath/7Vector.h>
 
 struct SCamBuff
 {

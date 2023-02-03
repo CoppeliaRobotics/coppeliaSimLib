@@ -1,8 +1,8 @@
 #pragma once
 
-#include "3Vector.h"
-#include "ser.h"
-#include "colorObject.h"
+#include <simMath/3Vector.h>
+#include <ser.h>
+#include <colorObject.h>
 
 enum { /* Bullet global double params */
     simi_bullet_global_stepsize=0,

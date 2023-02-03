@@ -1,8 +1,8 @@
-#include "colorObject.h"
-#include "app.h"
-#include "vDateTime.h"
-#include "tt.h"
-#include "rendering.h"
+#include <colorObject.h>
+#include <app.h>
+#include <vDateTime.h>
+#include <tt.h>
+#include <rendering.h>
 
 CColorObject::CColorObject()
 {

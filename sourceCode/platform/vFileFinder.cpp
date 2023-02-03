@@ -1,12 +1,12 @@
-#include "vFileFinder.h"
-#include "vVarious.h"
+#include <vFileFinder.h>
+#include <vVarious.h>
 #ifdef SIM_WITH_QT
 #include <QDateTime>
 #include <QDir>
 #else
 #include <algorithm>
 #ifdef WIN_SIM
-#include "_dirent.h"
+#include <_dirent.h>
 #else
 #include <sys/stat.h>
 #include <dirent.h>

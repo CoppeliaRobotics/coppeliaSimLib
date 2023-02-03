@@ -1,4 +1,4 @@
-#include "interfaceStackString.h"
+#include <interfaceStackString.h>
 
 CInterfaceStackString::CInterfaceStackString(const char* str,size_t l)
 {

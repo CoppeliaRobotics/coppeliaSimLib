@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "simTypes.h"
+#include <simTypes.h>
 
 //FULLY STATIC CLASS
 class gv  

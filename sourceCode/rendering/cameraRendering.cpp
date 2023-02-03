@@ -18,10 +18,10 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "cameraRendering.h"
+#include <cameraRendering.h>
 
 #ifdef SIM_WITH_OPENGL
-#include "pluginContainer.h"
+#include <pluginContainer.h>
 
 void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAttrib)
 {

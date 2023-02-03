@@ -217,7 +217,6 @@ INCLUDEPATH += $$PWD/"sourceCode/customUserInterfaces"
 INCLUDEPATH += $$PWD/"sourceCode/undoRedo"
 INCLUDEPATH += $$PWD/"sourceCode/rendering"
 INCLUDEPATH += $$PWD/"../programming/include"
-INCLUDEPATH += $$PWD/"../programming/simMath"
 
 WITH_SERIAL {
     INCLUDEPATH += $$PWD/"sourceCode/communication/serialPort"
@@ -323,14 +322,14 @@ WITH_GUI {
     $$PWD/ui/qdlgtranslationrotationcont.ui \
 }
 
-HEADERS += $$PWD/../programming/simMath/mathDefines.h \
-    $$PWD/../programming/simMath/MyMath.h \
-    $$PWD/../programming/simMath/MMatrix.h \
-    $$PWD/../programming/simMath/7Vector.h \
-    $$PWD/../programming/simMath/4X4Matrix.h \
-    $$PWD/../programming/simMath/4Vector.h \
-    $$PWD/../programming/simMath/3X3Matrix.h \
-    $$PWD/../programming/simMath/3Vector.h \
+HEADERS += $$PWD/../programming/include/simMath/mathDefines.h \
+    $$PWD/../programming/include/simMath/MyMath.h \
+    $$PWD/../programming/include/simMath/MMatrix.h \
+    $$PWD/../programming/include/simMath/7Vector.h \
+    $$PWD/../programming/include/simMath/4X4Matrix.h \
+    $$PWD/../programming/include/simMath/4Vector.h \
+    $$PWD/../programming/include/simMath/3X3Matrix.h \
+    $$PWD/../programming/include/simMath/3Vector.h \
     $$PWD/sourceCode/various/simMainHeader.h
 
 HEADERS += $$PWD/../programming/include/simConst.h \
@@ -729,13 +728,13 @@ WITH_GUI {
     HEADERS += $$PWD/sourceCode/gui/libs/auxLibVideo.h \
 }
 
-SOURCES += $$PWD/../programming/simMath/MyMath.cpp \
-    $$PWD/../programming/simMath/MMatrix.cpp \
-    $$PWD/../programming/simMath/7Vector.cpp \
-    $$PWD/../programming/simMath/4X4Matrix.cpp \
-    $$PWD/../programming/simMath/4Vector.cpp \
-    $$PWD/../programming/simMath/3X3Matrix.cpp \
-    $$PWD/../programming/simMath/3Vector.cpp \
+SOURCES += $$PWD/../programming/include/simMath/MyMath.cpp \
+    $$PWD/../programming/include/simMath/MMatrix.cpp \
+    $$PWD/../programming/include/simMath/7Vector.cpp \
+    $$PWD/../programming/include/simMath/4X4Matrix.cpp \
+    $$PWD/../programming/include/simMath/4Vector.cpp \
+    $$PWD/../programming/include/simMath/3X3Matrix.cpp \
+    $$PWD/../programming/include/simMath/3Vector.cpp \
 
 SOURCES += $$PWD/sourceCode/backwardCompatibility/kinematics/ikGroup_old.cpp \
     $$PWD/sourceCode/shared/backwardCompatibility/kinematics/_ikGroup_old.cpp \

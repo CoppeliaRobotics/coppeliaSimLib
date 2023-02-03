@@ -1,8 +1,8 @@
 #ifndef QDLGUSERPARAMETERS_H
 #define QDLGUSERPARAMETERS_H
 
-#include "vDialog.h"
-#include "sceneObject.h"
+#include <vDialog.h>
+#include <sceneObject.h>
 #include <QListWidgetItem>
 #include <QAbstractButton>
 

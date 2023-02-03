@@ -1,4 +1,4 @@
-#include "meshManip.h"
+#include <meshManip.h>
 #include <algorithm>
 
 CMeshManip::CMeshManip(double* vertices,int verticesNb,int* indices,int indicesNb)

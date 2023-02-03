@@ -5,7 +5,7 @@
 #pragma once
 
 #include <iostream>
-#include "vArchive.h"
+#include <vArchive.h>
 
 // FULLY STATIC CLASS
 class CTGAFormat  

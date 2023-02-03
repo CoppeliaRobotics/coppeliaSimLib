@@ -1,9 +1,9 @@
 #pragma once
 
-#include "vThread.h"
-#include "ser.h"
+#include <vThread.h>
+#include <ser.h>
 #ifdef SIM_WITH_GUI
-#include "vMenubar.h"
+#include <vMenubar.h>
 #endif
 
 class CSimulation

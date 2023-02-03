@@ -1,7 +1,7 @@
 #ifndef QDLGOBJECTDIALOGCONTAINER_H
 #define QDLGOBJECTDIALOGCONTAINER_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 #include <QVBoxLayout>
 
 namespace Ui {

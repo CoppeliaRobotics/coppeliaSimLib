@@ -18,7 +18,7 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "ptCloudRendering_old.h"
+#include <ptCloudRendering_old.h>
 
 #ifdef SIM_WITH_OPENGL
 void displayPtCloud_old(CPtCloud_old* ptCloud,CSceneObject* it)

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "colorObject.h"
-#include "ser.h"
+#include <colorObject.h>
+#include <ser.h>
 
 class CDistanceObject_old
 {

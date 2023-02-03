@@ -1,16 +1,16 @@
 #pragma once
 
-#include "sceneObject.h"
-#include "scriptObject.h"
-#include "dynMaterialObject.h"
+#include <sceneObject.h>
+#include <scriptObject.h>
+#include <dynMaterialObject.h>
 
 // old:
-#include "collection.h"
-#include "collisionObject_old.h"
-#include "distanceObject_old.h"
-#include "ikGroup_old.h"
-#include "pathPlanningTask_old.h"
-#include "buttonBlock.h"
+#include <collection.h>
+#include <collisionObject_old.h>
+#include <distanceObject_old.h>
+#include <ikGroup_old.h>
+#include <pathPlanningTask_old.h>
+#include <buttonBlock.h>
 
 class CCopyBuffer  
 {

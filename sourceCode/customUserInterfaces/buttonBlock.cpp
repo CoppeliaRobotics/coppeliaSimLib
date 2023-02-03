@@ -1,16 +1,16 @@
 // OLD
-#include "simInternal.h"
-#include "buttonBlock.h" 
-#include "global.h"
-#include "tt.h"
-#include "buttonBlockContainer.h"
-#include "simStrings.h"
-#include "app.h"
-#include "ttUtil.h"
+#include <simInternal.h>
+#include <buttonBlock.h> 
+#include <global.h>
+#include <tt.h>
+#include <buttonBlockContainer.h>
+#include <simStrings.h>
+#include <app.h>
+#include <ttUtil.h>
 #include <boost/lexical_cast.hpp>
-#include "vDateTime.h"
+#include <vDateTime.h>
 #ifdef SIM_WITH_GUI
-#include "oGL.h"
+#include <oGL.h>
 #endif
 
 CButtonBlock::CButtonBlock(int theBlockWidth,int theBlockHeight,
@@ -38,7 +38,7 @@ void CButtonBlock::commonInit()
 {
     // A value of -1 for the view means that it appears on every view
     _attributes=sim_ui_property_moveable|sim_ui_property_relativetotopborder|sim_ui_property_settocenter;
-    blockID=SIM_IDSTART_2DELEMENT;
+    blockID=SIM_IDSTART_2DELEMENT_old;
     _caughtElements=0;
     objectIDAttachedTo=-1;
     _genericDialog=false;

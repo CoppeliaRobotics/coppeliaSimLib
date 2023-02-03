@@ -7,7 +7,7 @@
 #else
 #include <QGLWidget>
 #endif
-#include "vThread.h"
+#include <vThread.h>
 
 class COffscreenGlContext : public QObject
 {

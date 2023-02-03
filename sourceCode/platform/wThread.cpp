@@ -1,4 +1,4 @@
-#include "wThread.h"
+#include <wThread.h>
 
 unsigned int(*Thread::startAddress)(void*)=nullptr;
 volatile bool Thread::startAddressIsFree=false;

@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "dlgEx.h"
-#include "uiThread.h"
+#include <dlgEx.h>
+#include <uiThread.h>
 
 class CToolDlgWrapper  
 {

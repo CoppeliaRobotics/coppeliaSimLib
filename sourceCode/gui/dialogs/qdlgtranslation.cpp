@@ -1,9 +1,9 @@
-#include "qdlgtranslation.h"
-#include "ui_qdlgtranslation.h"
-#include "gV.h"
-#include "tt.h"
-#include "app.h"
-#include "simStrings.h"
+#include <qdlgtranslation.h>
+#include <ui_qdlgtranslation.h>
+#include <gV.h>
+#include <tt.h>
+#include <app.h>
+#include <simStrings.h>
 
 int CQDlgTranslation::coordMode=0; //0=abs,1=rel to parent
 double CQDlgTranslation::translationValues[3]={0.0,0.0,0.0};

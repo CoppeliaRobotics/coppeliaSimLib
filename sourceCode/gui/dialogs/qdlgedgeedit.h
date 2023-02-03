@@ -2,7 +2,7 @@
 #ifndef QDLGEDGEEDIT_H
 #define QDLGEDGEEDIT_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 
 namespace Ui {
     class CQDlgEdgeEdit;

@@ -1,10 +1,10 @@
 
-#include "qdlgtranslationrotationcont.h"
-#include "ui_qdlgtranslationrotationcont.h"
-#include "app.h"
-#include "toolBarCommand.h"
-#include "qdlgtranslation.h"
-#include "qdlgrotation.h"
+#include <qdlgtranslationrotationcont.h>
+#include <ui_qdlgtranslationrotationcont.h>
+#include <app.h>
+#include <toolBarCommand.h>
+#include <qdlgtranslation.h>
+#include <qdlgrotation.h>
 
 CQDlgTranslationRotationCont::CQDlgTranslationRotationCont(QWidget *parent) :
     CDlgEx(parent),

@@ -1,11 +1,11 @@
-#include "qdlgoctrees.h"
-#include "ui_qdlgoctrees.h"
-#include "tt.h"
-#include "gV.h"
-#include "qdlgmaterial.h"
-#include "app.h"
-#include "simStrings.h"
-#include "sceneObjectOperations.h"
+#include <qdlgoctrees.h>
+#include <ui_qdlgoctrees.h>
+#include <tt.h>
+#include <gV.h>
+#include <qdlgmaterial.h>
+#include <app.h>
+#include <simStrings.h>
+#include <sceneObjectOperations.h>
 
 CQDlgOctrees::CQDlgOctrees(QWidget *parent) :
     CDlgEx(parent),

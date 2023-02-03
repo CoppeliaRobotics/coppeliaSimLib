@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QTreeWidget>
-#include "modelListWidget.h"
+#include <modelListWidget.h>
 
 class CModelFolderWidget : public QTreeWidget
 {

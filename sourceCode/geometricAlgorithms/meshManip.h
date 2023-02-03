@@ -1,8 +1,8 @@
 #pragma once
 
-#include "edgeElement.h"
+#include <edgeElement.h>
 #include <vector>
-#include "3Vector.h"
+#include <simMath/3Vector.h>
 
 class CMeshManip  
 {

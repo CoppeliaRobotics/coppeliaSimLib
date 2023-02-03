@@ -1,6 +1,6 @@
 #pragma once
 
-#include "collisionObject_old.h"
+#include <collisionObject_old.h>
 
 class CViewableBase;
 

@@ -1,9 +1,9 @@
-#include "qdlgedgeedit.h"
-#include "ui_qdlgedgeedit.h"
-#include "app.h"
-#include "gV.h"
-#include "tt.h"
-#include "simStrings.h"
+#include <qdlgedgeedit.h>
+#include <ui_qdlgedgeedit.h>
+#include <app.h>
+#include <gV.h>
+#include <tt.h>
+#include <simStrings.h>
 #include <boost/lexical_cast.hpp>
 
 CQDlgEdgeEdit::CQDlgEdgeEdit(QWidget *parent) :

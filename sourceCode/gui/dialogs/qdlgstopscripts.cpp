@@ -1,6 +1,6 @@
-#include "qdlgstopscripts.h"
-#include "ui_qdlgstopscripts.h"
-#include "simFlavor.h"
+#include <qdlgstopscripts.h>
+#include <ui_qdlgstopscripts.h>
+#include <simFlavor.h>
 
 bool CQDlgStopScripts::stopScriptNow=false;
 bool CQDlgStopScripts::visible=false;

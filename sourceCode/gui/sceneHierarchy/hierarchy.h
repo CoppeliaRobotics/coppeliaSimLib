@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "hierarchyElement.h"
-#include "vMenubar.h"
+#include <hierarchyElement.h>
+#include <vMenubar.h>
 
 class CHierarchy  
 {

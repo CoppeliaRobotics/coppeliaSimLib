@@ -1,7 +1,7 @@
-#include "offscreenGlContext.h"
-#include "app.h"
-#include "rendering.h"
-#include "oglExt.h"
+#include <offscreenGlContext.h>
+#include <app.h>
+#include <rendering.h>
+#include <oglExt.h>
 
 std::vector<QOpenGLContext*> COffscreenGlContext::_allQtContexts;
 #ifdef USING_QOPENGLWIDGET

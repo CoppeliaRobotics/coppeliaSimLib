@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include "ser.h"
-#include "3Vector.h"
+#include <ser.h>
+#include <simMath/3Vector.h>
 #ifdef SIM_WITH_GUI
-#include "vMenubar.h"
+#include <vMenubar.h>
 #endif
 
 class CSView  

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "7Vector.h"
-#include "4X4Matrix.h"
+#include <simMath/7Vector.h>
+#include <simMath/4X4Matrix.h>
 
 //FULLY STATIC CLASS
 class CAlgos  

@@ -2,7 +2,7 @@
 #ifndef QDLGSCRIPTS_H
 #define QDLGSCRIPTS_H
 
-#include "dlgEx.h"
+#include <dlgEx.h>
 #include <QListWidgetItem>
 
 namespace Ui {

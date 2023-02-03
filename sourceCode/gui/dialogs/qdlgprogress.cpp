@@ -1,6 +1,6 @@
 
-#include "qdlgprogress.h"
-#include "ui_qdlgprogress.h"
+#include <qdlgprogress.h>
+#include <ui_qdlgprogress.h>
 
 CQDlgProgress::CQDlgProgress(QWidget *parent) : QDialog(parent,Qt::SplashScreen), ui(new Ui::CQDlgProgress)
 {

@@ -18,8 +18,8 @@ See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
 
-#include "app.h"
-#include "rendering.h"
+#include <app.h>
+#include <rendering.h>
 
 #ifdef SIM_WITH_OPENGL
 void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,double sizeParam);

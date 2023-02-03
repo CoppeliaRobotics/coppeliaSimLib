@@ -1,9 +1,9 @@
-#include "qdlgfog.h"
-#include "ui_qdlgfog.h"
-#include "gV.h"
-#include "tt.h"
-#include "qdlgcolor.h"
-#include "app.h"
+#include <qdlgfog.h>
+#include <ui_qdlgfog.h>
+#include <gV.h>
+#include <tt.h>
+#include <qdlgcolor.h>
+#include <app.h>
 
 CQDlgFog::CQDlgFog(QWidget *parent) :
     CDlgEx(parent),

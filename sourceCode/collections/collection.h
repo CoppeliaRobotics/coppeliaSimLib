@@ -1,6 +1,6 @@
 #pragma once
 
-#include "collectionElement.h"
+#include <collectionElement.h>
 
 class CCollection
 {

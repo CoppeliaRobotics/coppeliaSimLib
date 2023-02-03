@@ -1,9 +1,9 @@
 #pragma once
 
 #include <string>
-#include "MyMath.h"
-#include "ikElement_old.h"
-#include "syncObject.h"
+#include <simMath/MyMath.h>
+#include <ikElement_old.h>
+#include <syncObject.h>
 
 enum {
     sim_syncobj_ikgroup_create=0,

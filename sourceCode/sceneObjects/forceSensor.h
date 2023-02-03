@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sceneObject.h"
+#include <sceneObject.h>
 
 class CForceSensor : public CSceneObject  
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "simTypes.h"
+#include <simTypes.h>
 #include <vector>
-#include "4Vector.h"
+#include <simMath/4Vector.h>
 
 struct SSyncRoute
 {

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "vVarious.h"
-#include "4X4Matrix.h"
+#include <vVarious.h>
+#include <simMath/4X4Matrix.h>
 #include <vector>
-#include "simTypes.h"
+#include <simTypes.h>
 
 typedef  unsigned char (__cdecl *ptrStart)(void*,int);
 typedef  void (__cdecl *ptrEnd)(void);

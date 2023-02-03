@@ -1,11 +1,11 @@
-#include "light.h"
-#include "simInternal.h"
-#include "tt.h"
-#include "simStrings.h"
-#include "ttUtil.h"
-#include "easyLock.h"
-#include "app.h"
-#include "lightRendering.h"
+#include <light.h>
+#include <simInternal.h>
+#include <tt.h>
+#include <simStrings.h>
+#include <ttUtil.h>
+#include <easyLock.h>
+#include <app.h>
+#include <lightRendering.h>
 
 int CLight::_maximumOpenGlLights=8;
 

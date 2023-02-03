@@ -1,11 +1,11 @@
-#include "qdlgmodelthumbnail.h"
-#include "ui_qdlgmodelthumbnail.h"
-#include "sceneObjectOperations.h"
-#include "imgLoaderSaver.h"
-#include "app.h"
-#include "simStrings.h"
-#include "vFileDialog.h"
-#include "vMessageBox.h"
+#include <qdlgmodelthumbnail.h>
+#include <ui_qdlgmodelthumbnail.h>
+#include <sceneObjectOperations.h>
+#include <imgLoaderSaver.h>
+#include <app.h>
+#include <simStrings.h>
+#include <vFileDialog.h>
+#include <vMessageBox.h>
 
 #define THUMBNAIL_THING_VIEW_ANGLE 45.0
 

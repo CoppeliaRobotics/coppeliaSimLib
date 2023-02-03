@@ -1,6 +1,6 @@
 #pragma once
 
-#include "softButton.h"
+#include <softButton.h>
 
 class CButtonBlockContainer;
 

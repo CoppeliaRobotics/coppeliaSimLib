@@ -1,4 +1,4 @@
-#include "vDialog.h"
+#include <vDialog.h>
 
 Qt::WindowFlags VDialog::dialogStyle;
 

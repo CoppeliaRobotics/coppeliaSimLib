@@ -1,8 +1,8 @@
 #pragma once
 
-#include "collection.h"
-#include "shape.h"
-#include "dummy.h"
+#include <collection.h>
+#include <shape.h>
+#include <dummy.h>
 
 class CCollectionContainer
 {

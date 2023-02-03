@@ -2,7 +2,7 @@
 #ifndef QDLGENTITYVSENTITYSELECTION_H
 #define QDLGENTITYVSENTITYSELECTION_H
 
-#include "vDialog.h"
+#include <vDialog.h>
 #include <QComboBox>
 
 namespace Ui {

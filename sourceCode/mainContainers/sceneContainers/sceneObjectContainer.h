@@ -1,19 +1,19 @@
 #pragma once
 
-#include "shape.h"
-#include "proximitySensor.h"
-#include "visionSensor.h"
-#include "camera.h"
-#include "graph.h"
-#include "path_old.h"
-#include "mirror.h"
-#include "octree.h"
-#include "pointCloud.h"
-#include "mill.h"
-#include "forceSensor.h"
-#include "sceneObject.h"
-#include "jointObject.h"
-#include "_sceneObjectContainer_.h"
+#include <shape.h>
+#include <proximitySensor.h>
+#include <visionSensor.h>
+#include <camera.h>
+#include <graph.h>
+#include <path_old.h>
+#include <mirror.h>
+#include <octree.h>
+#include <pointCloud.h>
+#include <mill.h>
+#include <forceSensor.h>
+#include <sceneObject.h>
+#include <jointObject.h>
+#include <_sceneObjectContainer_.h>
 
 struct SSimpleXmlSceneObject
 {

@@ -1,7 +1,7 @@
-#include "app.h"
-#include "moduleMenuItemContainer.h"
-#include "pluginContainer.h"
-#include "global.h"
+#include <app.h>
+#include <moduleMenuItemContainer.h>
+#include <pluginContainer.h>
+#include <global.h>
 
 CModuleMenuItemContainer::CModuleMenuItemContainer()
 {

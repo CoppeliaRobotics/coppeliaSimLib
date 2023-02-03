@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pathPoint_old.h"
+#include <pathPoint_old.h>
 
 class CBezierPathPoint_old : public CPathPoint_old
 {

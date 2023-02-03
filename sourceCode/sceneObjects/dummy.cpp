@@ -1,13 +1,13 @@
-#include "simInternal.h"
-#include "simStrings.h"
-#include "ttUtil.h"
-#include "dummy.h"
-#include "global.h"
-#include "easyLock.h"
-#include "app.h"
-#include "tt.h"
-#include "dummyRendering.h"
-#include "pluginContainer.h"
+#include <simInternal.h>
+#include <simStrings.h>
+#include <ttUtil.h>
+#include <dummy.h>
+#include <global.h>
+#include <easyLock.h>
+#include <app.h>
+#include <tt.h>
+#include <dummyRendering.h>
+#include <pluginContainer.h>
 
 CDummy::CDummy()
 {

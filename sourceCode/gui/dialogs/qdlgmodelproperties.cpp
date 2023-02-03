@@ -1,10 +1,10 @@
-#include "qdlgmodelproperties.h"
-#include "ui_qdlgmodelproperties.h"
-#include "simInternal.h"
-#include "qdlgmodelthumbnailvisu.h"
-#include "qdlgmodelthumbnail.h"
-#include "app.h"
-#include "tt.h"
+#include <qdlgmodelproperties.h>
+#include <ui_qdlgmodelproperties.h>
+#include <simInternal.h>
+#include <qdlgmodelthumbnailvisu.h>
+#include <qdlgmodelthumbnail.h>
+#include <app.h>
+#include <tt.h>
 
 CQDlgModelProperties::CQDlgModelProperties(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

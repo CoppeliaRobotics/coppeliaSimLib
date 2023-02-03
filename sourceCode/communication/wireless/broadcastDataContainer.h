@@ -1,8 +1,8 @@
 #pragma once
 
-#include "broadcastData.h"
-#include "vMutex.h"
-#include "broadcastDataVisual.h"
+#include <broadcastData.h>
+#include <vMutex.h>
+#include <broadcastDataVisual.h>
 
 class CBroadcastDataContainer
 {

@@ -1,6 +1,6 @@
-#include "ghostObject.h"
-#include "app.h"
-#include "ghostRendering.h"
+#include <ghostObject.h>
+#include <app.h>
+#include <ghostRendering.h>
 
 CGhostObject::CGhostObject()
 { // only for serialization or copy
