@@ -248,7 +248,6 @@ target_include_directories(coppeliaSim
     sourceCode/undoRedo
     sourceCode/rendering
     ${COPPELIASIM_PROGRAMMING_DIR}/include
-    ${COPPELIASIM_PROGRAMMING_DIR}/simMath
 )
 
 
@@ -410,13 +409,13 @@ if(WITH_GUI)
 endif()
 
 target_sources(coppeliaSim PRIVATE
-    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/MyMath.cpp
-    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/MMatrix.cpp
-    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/7Vector.cpp
-    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/4X4Matrix.cpp
-    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/4Vector.cpp
-    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/3X3Matrix.cpp
-    ${COPPELIASIM_PROGRAMMING_DIR}/simMath/3Vector.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/include/simMath/MyMath.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/include/simMath/MMatrix.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/include/simMath/7Vector.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/include/simMath/4X4Matrix.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/include/simMath/4Vector.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/include/simMath/3X3Matrix.cpp
+    ${COPPELIASIM_PROGRAMMING_DIR}/include/simMath/3Vector.cpp
 
     sourceCode/backwardCompatibility/kinematics/ikGroup_old.cpp
     sourceCode/shared/backwardCompatibility/kinematics/_ikGroup_old.cpp
