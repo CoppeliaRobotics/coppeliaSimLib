@@ -252,7 +252,6 @@ target_include_directories(coppeliaSim
     sourceCode/undoRedo
     sourceCode/rendering
     ${COPPELIASIM_INCLUDE_DIR}
-    ${COPPELIASIM_INCLUDE_DIR}/simLib
 )
 
 
