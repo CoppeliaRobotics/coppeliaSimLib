@@ -1,8 +1,8 @@
 #if !defined(sim_INCLUDED_)
 #define sim_INCLUDED_
 
-#include <simConst.h>
-#include <simTypes.h>
+#include <simLib/simConst.h>
+#include <simLib/simTypes.h>
 
 #ifndef SIM_DLLEXPORT
     #ifdef WIN_SIM

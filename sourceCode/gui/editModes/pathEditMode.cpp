@@ -1,5 +1,5 @@
 #include <pathEditMode.h>
-#include <simConst.h>
+#include <simLib/simConst.h>
 #include <global.h>
 #include <simStringTable.h>
 #include <app.h>

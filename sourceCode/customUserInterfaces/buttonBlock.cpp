@@ -538,7 +538,7 @@ void CButtonBlock::removeAllVisionSensorTextures()
 {
     if (_textureProperty!=nullptr)
     {
-        if ((_textureProperty->getTextureObjectID()<SIM_IDSTART_TEXTURE)||(_textureProperty->getTextureObjectID()>SIM_IDEND_TEXTURE))
+        if (_textureProperty->getTextureObjectID()<=SIM_IDEND_SCENEOBJECT)
         {
             delete _textureProperty;
             _textureProperty=nullptr;

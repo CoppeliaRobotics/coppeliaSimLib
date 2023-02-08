@@ -3,7 +3,7 @@
 #include <ttUtil.h>
 #include <tt.h>
 #include <simStrings.h>
-#include <simConst.h>
+#include <simLib/simConst.h>
 #include <ser.h>
 #include <app.h>
 #include <simFlavor.h>

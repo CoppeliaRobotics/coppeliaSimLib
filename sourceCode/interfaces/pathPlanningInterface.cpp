@@ -1,5 +1,5 @@
 #include <pathPlanningInterface.h>
-#include <simConst.h>
+#include <simLib/simConst.h>
 #include <math.h>
 #include <pluginContainer.h>
 #include <nonHolonomicPathPlanning_old.h>

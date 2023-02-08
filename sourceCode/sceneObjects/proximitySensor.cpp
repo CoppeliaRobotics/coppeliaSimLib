@@ -311,13 +311,13 @@ void CProxSensor::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 void CProxSensor::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
-    if (_sensableObject<SIM_IDSTART_COLLECTION)
+    if (_sensableObject<=SIM_IDEND_SCENEOBJECT)
         _sensableObject=CWorld::getLoadingMapping(map,_sensableObject);
 }
 void CProxSensor::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
-    if (_sensableObject>=SIM_IDSTART_COLLECTION)
+    if (_sensableObject>SIM_IDEND_SCENEOBJECT)
         _sensableObject=CWorld::getLoadingMapping(map,_sensableObject);
 }
 void CProxSensor::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)

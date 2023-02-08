@@ -115,7 +115,7 @@ void CCollisionObjectContainer_old::addObjectWithSuffixOffset(CCollisionObject_o
 int CCollisionObjectContainer_old::addNewObject(int entity1Handle,int entity2Handle,const char* objName)
 {
     // We check if the objects are valid:
-    if (entity1Handle<SIM_IDSTART_COLLECTION)
+    if (entity1Handle<=SIM_IDEND_SCENEOBJECT)
     {
         if (App::currentWorld->sceneObjects->getObjectFromHandle(entity1Handle)==nullptr)
             return(-1);
@@ -125,7 +125,7 @@ int CCollisionObjectContainer_old::addNewObject(int entity1Handle,int entity2Han
         if (App::currentWorld->collections->getObjectFromHandle(entity1Handle)==nullptr)
             return(-1);
     }
-    if (entity2Handle>=SIM_IDSTART_COLLECTION)
+    if (entity2Handle>SIM_IDEND_SCENEOBJECT)
     {
         if (App::currentWorld->collections->getObjectFromHandle(entity2Handle)==nullptr)
             return(-1);
@@ -136,7 +136,7 @@ int CCollisionObjectContainer_old::addNewObject(int entity1Handle,int entity2Han
             return(-1);
     }
     // We check if we try to check an object against itself (forbidden, except for collections):
-    if ( (entity1Handle<SIM_IDSTART_COLLECTION)&&(entity2Handle<SIM_IDSTART_COLLECTION) )
+    if ( (entity1Handle<=SIM_IDEND_SCENEOBJECT)&&(entity2Handle<=SIM_IDEND_SCENEOBJECT) )
     {
         if (entity1Handle==entity2Handle)
             return(-1);
@@ -148,7 +148,7 @@ int CCollisionObjectContainer_old::addNewObject(int entity1Handle,int entity2Han
             return(-1);
     }
     // Now check if the combination is valid:
-    if ( (entity1Handle<SIM_IDSTART_COLLECTION)&&(entity2Handle<SIM_IDSTART_COLLECTION) )
+    if ( (entity1Handle<=SIM_IDEND_SCENEOBJECT)&&(entity2Handle<=SIM_IDEND_SCENEOBJECT) )
     {
         int t1=App::currentWorld->sceneObjects->getObjectFromHandle(entity1Handle)->getObjectType();
         int t2=sim_object_octree_type;

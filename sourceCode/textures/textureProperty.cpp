@@ -169,7 +169,7 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
     _calculatedTextureCoordinates.clear();
     C7Vector tr(_textureRelativeConfig.getInverse()*transf);
     CTextureObject* it=nullptr;
-    if ( (_textureOrVisionSensorObjectID>=SIM_IDSTART_TEXTURE)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_TEXTURE) )
+    if (_textureOrVisionSensorObjectID>SIM_IDEND_SCENEOBJECT)
         it=App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);
     else
     {
@@ -432,7 +432,7 @@ int CTextureProperty::getTextureObjectID()
 
 CTextureObject* CTextureProperty::getTextureObject()
 {
-    if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_TEXTURE)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_TEXTURE))
+    if (_textureOrVisionSensorObjectID>SIM_IDEND_SCENEOBJECT)
         return(App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID));
 #ifdef SIM_WITH_OPENGL
     if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_SCENEOBJECT)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_SCENEOBJECT))
@@ -460,7 +460,7 @@ void CTextureProperty::performObjectLoadingMapping(const std::map<int,int>* map)
 
 void CTextureProperty::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
-    if (_textureOrVisionSensorObjectID>=SIM_IDSTART_TEXTURE)
+    if (_textureOrVisionSensorObjectID>SIM_IDEND_SCENEOBJECT)
         _textureOrVisionSensorObjectID=CWorld::getLoadingMapping(map,_textureOrVisionSensorObjectID); // texture is a regular texture object
 }
 

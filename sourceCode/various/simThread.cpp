@@ -2616,7 +2616,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     { // add an existing texture
                         if (tObject!=-1)
                         {
-                            if ((tObject>=SIM_IDSTART_TEXTURE)&&(tObject<=SIM_IDEND_TEXTURE))
+                            if (tObject>SIM_IDEND_SCENEOBJECT)
                             {
                                 CTextureObject* to=App::currentWorld->textureContainer->getObject(tObject);
                                 to->addDependentObject(cmd.intParams[1],geom->getUniqueID());
@@ -2653,7 +2653,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     { // add an existing texture
                         if (tObject!=-1)
                         {
-                            if ((tObject>=SIM_IDSTART_TEXTURE)&&(tObject<=SIM_IDEND_TEXTURE))
+                            if (tObject>SIM_IDEND_SCENEOBJECT)
                             {
                                 CTextureObject* to=App::currentWorld->textureContainer->getObject(tObject);
                                 to->addDependentObject(cmd.intParams[1],0);
@@ -2678,7 +2678,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     { // add an existing texture
                         if (tObject!=-1)
                         {
-                            if ((tObject>=SIM_IDSTART_TEXTURE)&&(tObject<=SIM_IDEND_TEXTURE))
+                            if (tObject>SIM_IDEND_SCENEOBJECT)
                             {
                                 CTextureObject* to=App::currentWorld->textureContainer->getObject(tObject);
                                 to->addDependentObject(cmd.intParams[1],cmd.intParams[2]);

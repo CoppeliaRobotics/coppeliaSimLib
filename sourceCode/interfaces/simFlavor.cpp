@@ -1,7 +1,7 @@
 #ifndef SIM_PLUS
 #include <simFlavor.h>
 #include <app.h>
-#include <simConst.h>
+#include <simLib/simConst.h>
 #include <ttUtil.h>
 #include <ser.h>
 #include <simStringTable.h>

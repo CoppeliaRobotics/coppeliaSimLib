@@ -252,13 +252,13 @@ void CMirror::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 void CMirror::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
-    if (_clippingObjectOrCollection<SIM_IDSTART_COLLECTION)
+    if (_clippingObjectOrCollection<=SIM_IDEND_SCENEOBJECT)
         _clippingObjectOrCollection=CWorld::getLoadingMapping(map,_clippingObjectOrCollection);
 }
 void CMirror::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
-    if (_clippingObjectOrCollection>=SIM_IDSTART_COLLECTION)
+    if (_clippingObjectOrCollection>SIM_IDEND_SCENEOBJECT)
         _clippingObjectOrCollection=CWorld::getLoadingMapping(map,_clippingObjectOrCollection);
 }
 void CMirror::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)

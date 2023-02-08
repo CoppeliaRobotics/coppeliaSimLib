@@ -1,8 +1,8 @@
 #if !defined(simInternal_INCLUDED_)
 #define simInternal_INCLUDED_
 
-#include <simConst.h>
-#include <simTypes.h>
+#include <simLib/simConst.h>
+#include <simLib/simTypes.h>
 #include <string>
 #include <vector>
 

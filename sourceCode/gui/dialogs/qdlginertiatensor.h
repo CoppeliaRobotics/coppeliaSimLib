@@ -2,7 +2,7 @@
 #define QDLGINERTIATENSOR_H
 
 #include <vDialog.h>
-#include <simTypes.h>
+#include <simLib/simTypes.h>
 
 namespace Ui {
     class CQDlgInertiaTensor;

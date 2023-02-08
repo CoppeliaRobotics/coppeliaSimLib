@@ -3,7 +3,7 @@
 
 #include <vDialog.h>
 #include <QAbstractButton>
-#include <simTypes.h>
+#include <simLib/simTypes.h>
 
 namespace Ui {
     class CQDlgSlider;

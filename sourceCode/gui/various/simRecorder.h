@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <simTypes.h>
+#include <simLib/simTypes.h>
 
 class CSimRecorder
 {

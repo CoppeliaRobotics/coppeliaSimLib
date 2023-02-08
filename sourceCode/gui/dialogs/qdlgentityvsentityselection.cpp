@@ -268,7 +268,7 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
 
         // Now check if the combination is valid:
         bool invalidCombination=false;
-        if ( (entity1<SIM_IDSTART_COLLECTION)&&(entity2<SIM_IDSTART_COLLECTION) )
+        if ( (entity1<=SIM_IDEND_SCENEOBJECT)&&(entity2<=SIM_IDEND_SCENEOBJECT) )
         {
             int t1=App::currentWorld->sceneObjects->getObjectFromHandle(entity1)->getObjectType();
             int t2=sim_object_octree_type;
@@ -330,7 +330,7 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
 
         // Now check if the combination is valid:
         bool invalidCombination=false;
-        if ( (entity1<SIM_IDSTART_COLLECTION)&&(entity2<SIM_IDSTART_COLLECTION) )
+        if ( (entity1<=SIM_IDEND_SCENEOBJECT)&&(entity2<=SIM_IDEND_SCENEOBJECT) )
         {
             int t1=App::currentWorld->sceneObjects->getObjectFromHandle(entity1)->getObjectType();
             int t2=sim_object_octree_type;

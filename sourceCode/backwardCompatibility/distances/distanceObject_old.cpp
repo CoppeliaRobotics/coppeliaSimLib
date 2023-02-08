@@ -117,7 +117,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
 {
     std::string theName=getObjectName();
     theName=theName.append(" (");
-    if (_entity1Handle<SIM_IDSTART_COLLECTION)
+    if (_entity1Handle<=SIM_IDEND_SCENEOBJECT)
     {
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_entity1Handle);
         int t=it->getObjectType();
@@ -143,7 +143,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
         }
     }
     theName=theName.append(" - ");
-    if (_entity2Handle>=SIM_IDSTART_COLLECTION)
+    if (_entity2Handle>SIM_IDEND_SCENEOBJECT)
     {
         CCollection* it=App::currentWorld->collections->getObjectFromHandle(_entity2Handle);
         if (it!=nullptr)
@@ -264,17 +264,17 @@ bool CDistanceObject_old::announceCollectionWillBeErased(int collectionHandle,bo
 
 void CDistanceObject_old::performObjectLoadingMapping(const std::map<int,int>* map)
 {
-    if (_entity1Handle<SIM_IDSTART_COLLECTION)
+    if (_entity1Handle<=SIM_IDEND_SCENEOBJECT)
         _entity1Handle=CWorld::getLoadingMapping(map,_entity1Handle);
-    if ( (_entity2Handle<SIM_IDSTART_COLLECTION)&&(_entity2Handle!=-1) )
+    if ( (_entity2Handle<=SIM_IDEND_SCENEOBJECT)&&(_entity2Handle!=-1) )
         _entity2Handle=CWorld::getLoadingMapping(map,_entity2Handle);
 }
 
 void CDistanceObject_old::performCollectionLoadingMapping(const std::map<int,int>* map)
 {
-    if (_entity1Handle>=SIM_IDSTART_COLLECTION)
+    if (_entity1Handle>SIM_IDEND_SCENEOBJECT)
         _entity1Handle=CWorld::getLoadingMapping(map,_entity1Handle);
-    if (_entity2Handle>=SIM_IDSTART_COLLECTION)
+    if (_entity2Handle>SIM_IDEND_SCENEOBJECT)
         _entity2Handle=CWorld::getLoadingMapping(map,_entity2Handle);
 }
 

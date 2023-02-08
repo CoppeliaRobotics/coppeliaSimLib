@@ -237,7 +237,7 @@ void _activateNonAmbientLights(int lightHandle,CViewableBase* viewable)
         }
         else
         {
-            if (lightHandle<SIM_IDSTART_COLLECTION)
+            if (lightHandle<=SIM_IDEND_SCENEOBJECT)
             {
                 CLight* light=App::currentWorld->sceneObjects->getLightFromHandle(lightHandle);
                 if (light!=nullptr)
@@ -364,7 +364,7 @@ void _prepareOrEnableAuxClippingPlanes(bool prepare,int objID)
                 {
                     int clipObj=it->getClippingObjectOrCollection();
                     bool clipIt=false;
-                    if ( (clipObj>=SIM_IDSTART_COLLECTION)&&(clipObj<=SIM_IDEND_COLLECTION) )
+                    if (clipObj>SIM_IDEND_SCENEOBJECT)
                     { // collection
                         CCollection* coll=App::currentWorld->collections->getObjectFromHandle(clipObj);
                         clipIt=coll->isObjectInCollection(objID);
@@ -574,7 +574,7 @@ bool _start3DTextureDisplay(CTextureProperty* tp)
     if (_textureOrVisionSensorObjectID==-1)
         return(false);
     CTextureObject* it=nullptr;
-    if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_TEXTURE)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_TEXTURE))
+    if (_textureOrVisionSensorObjectID>SIM_IDEND_SCENEOBJECT)
         it=App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);
     CVisionSensor* rs=nullptr;
     if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_SCENEOBJECT)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_SCENEOBJECT))
@@ -605,7 +605,7 @@ bool _start2DTextureDisplay(CTextureProperty* tp)
     if (_textureOrVisionSensorObjectID==-1)
         return(false);
     CTextureObject* it=nullptr;
-    if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_TEXTURE)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_TEXTURE))
+    if (_textureOrVisionSensorObjectID>SIM_IDEND_SCENEOBJECT)
         it=App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);
     CVisionSensor* rs=nullptr;
     if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_SCENEOBJECT)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_SCENEOBJECT))

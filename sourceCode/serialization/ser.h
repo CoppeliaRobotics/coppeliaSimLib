@@ -4,7 +4,7 @@
 #include <tinyxml2.h>
 #include <string>
 #include <vector>
-#include <simTypes.h>
+#include <simLib/simTypes.h>
 
 #define SER_SIM_HEADER "VREP" // The file header since 03/07/2009
 #define SER_END_OF_OBJECT "EOO"

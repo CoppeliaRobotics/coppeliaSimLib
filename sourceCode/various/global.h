@@ -1489,21 +1489,26 @@ enum {
     DIRECTORY_ID_TEXTURE=0
 };
 
-enum { // Values are serialized, changing them will break backward compatibility.
+enum { // keep below 2^20=1048576 (b/c of handleflags)
+    // Keep in mind that scene object handles are serialized, other handles/ids are created on-the-fly
     SIM_IDSTART_SCENEOBJECT             =0,
-    SIM_IDEND_SCENEOBJECT               =999999, // keep below 2^20=1048576 (b/c of handleflags)
+    SIM_IDEND_SCENEOBJECT               =999999,
 
-    SIM_IDSTART_LUASCRIPT               =1000000,
-    SIM_IDEND_LUASCRIPT                 =1009999,
+    SIM_IDSTART_COLLECTION              =1000000,
+    SIM_IDEND_COLLECTION                =1009999,
 
-    SIM_IDSTART_COLLECTION              =2000000,
-    SIM_IDEND_COLLECTION                =2010000,
+    SIM_IDSTART_LUASCRIPT               =1010000,
+    SIM_IDEND_LUASCRIPT                 =1019999,
 
-    SIM_IDSTART_INTERFACESTACK          =2300012,
-    SIM_IDEND_INTERFACESTACK            =2310012,
-    SIM_IDSTART_TEXTURE                 =2180009,
-    SIM_IDEND_TEXTURE                   =2280009,
+    SIM_IDSTART_INTERFACESTACK          =1020000,
+    SIM_IDEND_INTERFACESTACK            =1029999,
 
+    // Textures are also serialized
+    SIM_IDSTART_TEXTURE                 =1030000,
+    SIM_IDEND_TEXTURE                   =1039999,
+};
+
+enum { // Old. Values are serialized:
     SIM_IDSTART_COLLISION_old           =2010001,
     SIM_IDEND_COLLISION_old             =2020001,
     SIM_IDSTART_DISTANCE_old            =2020002,

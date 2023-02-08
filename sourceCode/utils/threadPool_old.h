@@ -2,7 +2,7 @@
 
 #include <vMutex.h>
 #include <vThread.h>
-#include <simTypes.h>
+#include <simLib/simTypes.h>
 
 class CVThreadData
 {

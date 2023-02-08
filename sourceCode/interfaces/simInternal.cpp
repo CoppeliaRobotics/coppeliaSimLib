@@ -591,7 +591,7 @@ bool doesObjectExist(const char* functionName,int identifier)
 
 bool doesEntityExist(const char* functionName,int identifier)
 {
-    if (identifier>=SIM_IDSTART_COLLECTION)
+    if (identifier>SIM_IDEND_SCENEOBJECT)
     {
         if (App::currentWorld->collections->getObjectFromHandle(identifier)==nullptr)
         {

@@ -1578,7 +1578,7 @@ int simSetUIButtonTexture_internal(int elementHandle,int buttonHandle,const int*
         { // We already have a texture. Is it the same size/type? or do we wanna remove the texture anyway?
             int tob=tp->getTextureObjectID();
             bool remove=true;
-            if ((tob>=SIM_IDSTART_TEXTURE)&&(tob<=SIM_IDSTART_TEXTURE)&&(size!=nullptr))
+            if ( (tob>SIM_IDEND_SCENEOBJECT)&&(size!=nullptr) )
             { // we have the correct type (i.e. non-vision sensor)
                 CTextureObject* to=App::currentWorld->textureContainer->getObject(tob);
                 if (to!=nullptr)

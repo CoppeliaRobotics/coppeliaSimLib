@@ -180,13 +180,13 @@ void CMill::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 void CMill::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
-    if (_millableObject<SIM_IDSTART_COLLECTION)
+    if (_millableObject<=SIM_IDEND_SCENEOBJECT)
         _millableObject=CWorld::getLoadingMapping(map,_millableObject);
 }
 void CMill::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
-    if (_millableObject>=SIM_IDSTART_COLLECTION)
+    if (_millableObject>SIM_IDEND_SCENEOBJECT)
         _millableObject=CWorld::getLoadingMapping(map,_millableObject);
 }
 void CMill::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)

@@ -2044,13 +2044,13 @@ void CVisionSensor::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 void CVisionSensor::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
-    if (_detectableEntityHandle<SIM_IDSTART_COLLECTION)
+    if (_detectableEntityHandle<=SIM_IDEND_SCENEOBJECT)
         _detectableEntityHandle=CWorld::getLoadingMapping(map,_detectableEntityHandle);
 }
 void CVisionSensor::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
-    if (_detectableEntityHandle>=SIM_IDSTART_COLLECTION)
+    if (_detectableEntityHandle>SIM_IDEND_SCENEOBJECT)
         _detectableEntityHandle=CWorld::getLoadingMapping(map,_detectableEntityHandle);
 }
 void CVisionSensor::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)

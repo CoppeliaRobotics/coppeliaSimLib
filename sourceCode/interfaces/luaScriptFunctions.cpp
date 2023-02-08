@@ -2249,7 +2249,7 @@ bool checkInputArguments(luaWrap_lua_State* L,std::string* errStr,
 
 bool doesEntityExist(std::string* errStr,int identifier)
 {
-    if (identifier>=SIM_IDSTART_COLLECTION)
+    if (identifier>SIM_IDEND_SCENEOBJECT)
     {
         if (App::currentWorld->collections->getObjectFromHandle(identifier)==nullptr)
         {

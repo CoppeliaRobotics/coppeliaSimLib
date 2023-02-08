@@ -600,7 +600,7 @@ bool CSceneObject::getShouldObjectBeDisplayed(int viewableHandle,int displayAttr
                 {
                     if ( (_authorizedViewableObjects>=0)&&(viewableHandle!=-1) )
                     {
-                        if (_authorizedViewableObjects<SIM_IDSTART_COLLECTION)
+                        if (_authorizedViewableObjects<=SIM_IDEND_SCENEOBJECT)
                             display=(_authorizedViewableObjects==viewableHandle);
                         else
                         {
@@ -1171,7 +1171,7 @@ void CSceneObject::performIkLoadingMapping(const std::map<int,int>* map,bool loa
 
 void CSceneObject::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
-    if ( (_authorizedViewableObjects>=0)&&(_authorizedViewableObjects>=SIM_IDSTART_COLLECTION) )
+    if ( (_authorizedViewableObjects>=0)&&(_authorizedViewableObjects>SIM_IDEND_SCENEOBJECT) )
         _authorizedViewableObjects=CWorld::getLoadingMapping(map,_authorizedViewableObjects);
     for (size_t i=0;i<_customReferencedHandles.size();i++)
     {
@@ -3410,7 +3410,7 @@ void CSceneObject::performObjectLoadingMapping(const std::map<int,int>* map,bool
     int newParentID=CWorld::getLoadingMapping(map,_parentObjectHandle_forSerializationOnly);
     App::currentWorld->sceneObjects->setObjectParent(this,App::currentWorld->sceneObjects->getObjectFromHandle(newParentID),false);
 
-    if ( (_authorizedViewableObjects>=0)&&(_authorizedViewableObjects<SIM_IDSTART_COLLECTION) )
+    if ( (_authorizedViewableObjects>=0)&&(_authorizedViewableObjects<=SIM_IDEND_SCENEOBJECT) )
         _authorizedViewableObjects=CWorld::getLoadingMapping(map,_authorizedViewableObjects);
 
     for (size_t i=0;i<_customReferencedHandles.size();i++)

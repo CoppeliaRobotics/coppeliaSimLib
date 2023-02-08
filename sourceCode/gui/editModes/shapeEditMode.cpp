@@ -1,5 +1,5 @@
 #include <shapeEditMode.h>
-#include <simConst.h>
+#include <simLib/simConst.h>
 #include <mesh.h>
 #include <global.h>
 #include <meshManip.h>
