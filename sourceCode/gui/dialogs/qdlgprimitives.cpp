@@ -329,7 +329,7 @@ void CQDlgPrimitives::on_qqXSize_editingFinished()
     if (!ui->qqXSize->isModified())
         return;
     bool ok;
-    double newVal=ui->qqXSize->text().toFloat(&ok);
+    double newVal=ui->qqXSize->text().toDouble(&ok);
     if (ok)
     {
         tt::limitValue(0.0001,1000.0,newVal);
@@ -349,7 +349,7 @@ void CQDlgPrimitives::on_qqYSize_editingFinished()
     if (!ui->qqYSize->isModified())
         return;
     bool ok;
-    double newVal=ui->qqYSize->text().toFloat(&ok);
+    double newVal=ui->qqYSize->text().toDouble(&ok);
     if (ok)
     {
         tt::limitValue(0.0001,1000.0,newVal);
@@ -369,7 +369,7 @@ void CQDlgPrimitives::on_qqZSize_editingFinished()
     if (!ui->qqZSize->isModified())
         return;
     bool ok;
-    double newVal=ui->qqZSize->text().toFloat(&ok);
+    double newVal=ui->qqZSize->text().toDouble(&ok);
     if (ok)
     {
         tt::limitValue(0.0001,1000.0,newVal);
@@ -540,7 +540,7 @@ void CQDlgPrimitives::on_qqDensity_editingFinished()
     if (!ui->qqDensity->isModified())
         return;
     bool ok;
-    double newVal=ui->qqDensity->text().toFloat(&ok);
+    double newVal=ui->qqDensity->text().toDouble(&ok);
     if (ok)
     {
         density=newVal;

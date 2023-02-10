@@ -9696,8 +9696,13 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,double* par
                     retVal=1;
             }
             if (parameterID==sim_jointfloatparam_screw_pitch)
+            { // deprecated
+                parameter[0]=joint->getScrewLead()/piValT2;
+                retVal=1;
+            }
+            if (parameterID==sim_jointfloatparam_screwlead)
             {
-                parameter[0]=joint->getScrewPitch();
+                parameter[0]=joint->getScrewLead();
                 retVal=1;
             }
             if ( (parameterID>=sim_jointfloatparam_maxvel)&&(parameterID<=sim_jointfloatparam_maxjerk) )
@@ -10151,8 +10156,13 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
                     retVal=1;
             }
             if (parameterID==sim_jointfloatparam_screw_pitch)
+            { // deprecated
+                if (joint->setScrewLead(parameter*piValT2))
+                    retVal=1;
+            }
+            if (parameterID==sim_jointfloatparam_screwlead)
             {
-                if (joint->setScrewPitch(parameter))
+                if (joint->setScrewLead(parameter))
                     retVal=1;
             }
             if ( (parameterID>=sim_jointfloatparam_maxvel)&&(parameterID<=sim_jointfloatparam_maxjerk) )

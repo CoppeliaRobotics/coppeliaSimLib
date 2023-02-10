@@ -164,7 +164,7 @@
 
 #define IDS_INSTANCES_MENU_ITEM "Scenes" //modifiedOn 5/3/2012    "Instances"
 #define IDSN_INSTANCE  "Scene" //modifiedOn 5/3/2012    "Instance"
-#define IDS_RECTANGLE_MENU_ITEM "Cuboid" //modifiedOn 25/2/2012
+#define IDS_RECTANGLE_MENU_ITEM "Cuboid..." //modifiedOn 25/2/2012
 #define IDSN_PRIMITIVE_RECTANGLE "Primitive cuboid" //modifiedOn 25/2/2012
 #define IDS_MAKE_RECTANGLE_WITH_SELECTED_TRIANGLES_MENU_ITEM "Make cuboid with selected triangles" //modifiedOn 25/2/2012
 #define IDS_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE "The scene is still in edit mode. Do you want to end the edit mode and discard the changes?" //modifiedOn 5/3/2012

@@ -27,7 +27,7 @@ public:
 private slots:
     void on_qqCyclic_clicked();
 
-    void on_qqPitch_editingFinished();
+    void on_qqLead_editingFinished();
 
     void on_qqMinimum_editingFinished();
 

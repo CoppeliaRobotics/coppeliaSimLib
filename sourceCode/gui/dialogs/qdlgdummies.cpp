@@ -1,6 +1,7 @@
 #include <qdlgdummies.h>
 #include <ui_qdlgdummies.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <gV.h>
 #include <qdlgmaterial.h>
 #include <app.h>
@@ -118,8 +119,8 @@ void CQDlgDummies::refresh()
         ui->qqIncrement->setEnabled(!it->getFreeOnPathTrajectory()&&noEditModeNoSim);
         if (it->getAssignedToParentPath()&&(!it->getFreeOnPathTrajectory()))
         {
-            ui->qqOffset->setText(tt::getEString(true,it->getVirtualDistanceOffsetOnPath(),3).c_str());
-            ui->qqIncrement->setText(tt::getEString(true,it->getVirtualDistanceOffsetOnPath_variationWhenCopy(),3).c_str());
+            ui->qqOffset->setText(CTTUtil::getSizeString(true,it->getVirtualDistanceOffsetOnPath()).c_str());
+            ui->qqIncrement->setText(CTTUtil::getSizeString(true,it->getVirtualDistanceOffsetOnPath_variationWhenCopy()).c_str());
         }
         else
         {
@@ -153,7 +154,7 @@ void CQDlgDummies::on_qqSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqSize->text().toFloat(&ok);
+        double newVal=ui->qqSize->text().toDouble(&ok);
         App::appendSimulationThreadCommand(SET_SIZE_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -262,7 +263,7 @@ void CQDlgDummies::on_qqOffset_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqOffset->text().toFloat(&ok);
+        double newVal=ui->qqOffset->text().toDouble(&ok);
         App::appendSimulationThreadCommand(SET_OFFSET_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -276,7 +277,7 @@ void CQDlgDummies::on_qqIncrement_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqIncrement->text().toFloat(&ok);
+        double newVal=ui->qqIncrement->text().toDouble(&ok);
         App::appendSimulationThreadCommand(SET_COPYINCREMENT_DUMMYGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

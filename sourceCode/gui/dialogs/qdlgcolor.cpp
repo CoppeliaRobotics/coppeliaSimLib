@@ -202,7 +202,7 @@ void CQDlgColor::on_qqRedValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqRedValue->text().toFloat(&ok);
+        double newVal=ui->qqRedValue->text().toDouble(&ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -235,7 +235,7 @@ void CQDlgColor::on_qqGreenValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqGreenValue->text().toFloat(&ok);
+        double newVal=ui->qqGreenValue->text().toDouble(&ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -268,7 +268,7 @@ void CQDlgColor::on_qqBlueValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqBlueValue->text().toFloat(&ok);
+        double newVal=ui->qqBlueValue->text().toDouble(&ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -301,7 +301,7 @@ void CQDlgColor::on_qqHueValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqHueValue->text().toFloat(&ok);
+        double newVal=ui->qqHueValue->text().toDouble(&ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -334,7 +334,7 @@ void CQDlgColor::on_qqSaturationValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqSaturationValue->text().toFloat(&ok);
+        double newVal=ui->qqSaturationValue->text().toDouble(&ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -367,7 +367,7 @@ void CQDlgColor::on_qqLuminosityValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqLuminosityValue->text().toFloat(&ok);
+        double newVal=ui->qqLuminosityValue->text().toDouble(&ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);

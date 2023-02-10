@@ -213,7 +213,7 @@ public:
     int getNewtonDependentJointId() const;
     int getMujocoDependentJointId() const;
     void getMaxVelAccelJerk(double maxVelAccelJerk[3]) const;
-    double getScrewPitch() const;
+    double getScrewLead() const;
     int getJointType() const;
     C4Vector getSphericalTransformation() const;
     bool getIsCyclic() const;
@@ -241,7 +241,7 @@ public:
     void setLength(double l);
     void setDiameter(double d);
     void setMaxVelAccelJerk(const double maxVelAccelJerk[3]);
-    bool setScrewPitch(double pitch);
+    bool setScrewLead(double lead);
     void setDependencyMasterJointHandle(int depJointID);
     void setDependencyJointMult(double coeff);
     void setDependencyJointOffset(double off);
@@ -385,7 +385,7 @@ protected:
     double _diameter;
     C4Vector _sphericalTransf; // spherical joints don't have a range anymore since 22.10.2022
     bool _isCyclic;
-    double _screwPitch;
+    double _screwLead; // distance along the screw's axis for one complete rotation of the screw
     double _posMin;
     double _posRange;
     double _pos;

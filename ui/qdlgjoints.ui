@@ -47,7 +47,7 @@
      <string>Position is cyclic</string>
     </property>
    </widget>
-   <widget class="QLabel" name="qqPitchLabel">
+   <widget class="QLabel" name="qqLeadLabel">
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -57,10 +57,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>Screw pitch [m/deg]</string>
+     <string>Screw lead [m/turn]</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="qqPitch">
+   <widget class="QLineEdit" name="qqLead">
     <property name="geometry">
      <rect>
       <x>335</x>
@@ -1672,7 +1672,7 @@
  </widget>
  <tabstops>
   <tabstop>qqCyclic</tabstop>
-  <tabstop>qqPitch</tabstop>
+  <tabstop>qqLead</tabstop>
   <tabstop>qqMinimum</tabstop>
   <tabstop>qqRange</tabstop>
   <tabstop>qqPosition</tabstop>

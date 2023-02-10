@@ -65,7 +65,7 @@ void CQDlgColorPulsation::on_qqFrequency_editingFinished()
     if (!ui->qqFrequency->isModified())
         return;
     bool ok;
-    double newVal=ui->qqFrequency->text().toFloat(&ok);
+    double newVal=ui->qqFrequency->text().toDouble(&ok);
     if (ok)
     {
         pulsationFrequency=newVal;
@@ -79,7 +79,7 @@ void CQDlgColorPulsation::on_qqPhase_editingFinished()
     if (!ui->qqPhase->isModified())
         return;
     bool ok;
-    double newVal=ui->qqPhase->text().toFloat(&ok);
+    double newVal=ui->qqPhase->text().toDouble(&ok);
     if (ok)
     {
         pulsationPhase=newVal;
@@ -93,7 +93,7 @@ void CQDlgColorPulsation::on_qqRatio_editingFinished()
     if (!ui->qqRatio->isModified())
         return;
     bool ok;
-    double newVal=ui->qqRatio->text().toFloat(&ok);
+    double newVal=ui->qqRatio->text().toDouble(&ok);
     if (ok)
     {
         pulsationRatio=newVal;

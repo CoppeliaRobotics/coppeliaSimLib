@@ -568,7 +568,7 @@ void CQDlgRotation::on_qqCoordAlpha_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqCoordAlpha->text().toFloat(&ok);
+        double newVal=ui->qqCoordAlpha->text().toDouble(&ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,0))
@@ -584,7 +584,7 @@ void CQDlgRotation::on_qqCoordBeta_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqCoordBeta->text().toFloat(&ok);
+        double newVal=ui->qqCoordBeta->text().toDouble(&ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,1))
@@ -600,7 +600,7 @@ void CQDlgRotation::on_qqCoordGamma_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqCoordGamma->text().toFloat(&ok);
+        double newVal=ui->qqCoordGamma->text().toDouble(&ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,2))
@@ -652,7 +652,7 @@ void CQDlgRotation::on_qqTransfAlpha_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfAlpha->text().toFloat(&ok);
+        double newVal=ui->qqTransfAlpha->text().toDouble(&ok);
         if (ok)
         {
             newVal*=gv::userToRad;
@@ -670,7 +670,7 @@ void CQDlgRotation::on_qqTransfBeta_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfBeta->text().toFloat(&ok);
+        double newVal=ui->qqTransfBeta->text().toDouble(&ok);
         if (ok)
         {
             newVal*=gv::userToRad;
@@ -688,7 +688,7 @@ void CQDlgRotation::on_qqTransfGamma_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfGamma->text().toFloat(&ok);
+        double newVal=ui->qqTransfGamma->text().toDouble(&ok);
         if (ok)
         {
             newVal*=gv::userToRad;

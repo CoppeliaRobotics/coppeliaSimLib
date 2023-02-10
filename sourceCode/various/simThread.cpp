@@ -2794,11 +2794,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
                 it->setIsCyclic(!it->getIsCyclic());
         }
-        if (cmd.cmdId==SET_PITCH_JOINTGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_LEAD_JOINTGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setScrewPitch(cmd.floatParams[0]);
+                it->setScrewLead(cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_MINPOS_JOINTGUITRIGGEREDCMD)
         {
@@ -2836,7 +2836,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         it->setPositionMin(last->getPositionMin());
                         it->setPosition(last->getPosition());
                         it->setSphericalTransformation(last->getSphericalTransformation());
-                        it->setScrewPitch(last->getScrewPitch());
+                        it->setScrewLead(last->getScrewLead());
                         it->setIKWeight_old(last->getIKWeight_old());
                         it->setMaxStepSize_old(last->getMaxStepSize_old());
                     }

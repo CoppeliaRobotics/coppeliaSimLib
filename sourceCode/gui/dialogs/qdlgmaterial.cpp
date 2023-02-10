@@ -282,7 +282,7 @@ void CQDlgMaterial::on_qqOpacity_editingFinished()
             int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
             App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
             bool ok;
-            double newVal=ui->qqOpacity->text().toFloat(&ok);
+            double newVal=ui->qqOpacity->text().toDouble(&ok);
             if (ok&&(allowedParts&128))
             {
                 double s=tt::getLimitedFloat(0.0,1.0,newVal);

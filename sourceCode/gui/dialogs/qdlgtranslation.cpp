@@ -2,6 +2,7 @@
 #include <ui_qdlgtranslation.h>
 #include <gV.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <app.h>
 #include <simStrings.h>
 
@@ -68,9 +69,9 @@ void CQDlgTranslation::refresh()
                 euler=object->getLocalTransformation().Q.getEulerAngles();
                 pos=object->getLocalTransformation().X;
             }
-            ui->qqCoordX->setText(tt::getEString(true,pos(0),4).c_str());
-            ui->qqCoordY->setText(tt::getEString(true,pos(1),4).c_str());
-            ui->qqCoordZ->setText(tt::getEString(true,pos(2),4).c_str());
+            ui->qqCoordX->setText(CTTUtil::getPosString(true,pos(0)).c_str());
+            ui->qqCoordY->setText(CTTUtil::getPosString(true,pos(1)).c_str());
+            ui->qqCoordZ->setText(CTTUtil::getPosString(true,pos(2)).c_str());
             ui->qqCoordWorld->setChecked(coordMode==0);
             ui->qqCoordParent->setChecked(coordMode==1);
             // Transformation part:
@@ -198,9 +199,9 @@ void CQDlgTranslation::refresh()
                     C3Vector pos(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
                     if (coordMode==0)
                         pos=shape->getFullCumulativeTransformation()*pos;
-                    ui->qqCoordX->setText(tt::getEString(true,pos(0),4).c_str());
-                    ui->qqCoordY->setText(tt::getEString(true,pos(1),4).c_str());
-                    ui->qqCoordZ->setText(tt::getEString(true,pos(2),4).c_str());
+                    ui->qqCoordX->setText(CTTUtil::getPosString(true,pos(0)).c_str());
+                    ui->qqCoordY->setText(CTTUtil::getPosString(true,pos(1)).c_str());
+                    ui->qqCoordZ->setText(CTTUtil::getPosString(true,pos(2)).c_str());
                     ui->qqCoordWorld->setChecked(coordMode==0);
                     ui->qqCoordParent->setChecked(coordMode==1);
                     // Transformation part:
@@ -234,9 +235,9 @@ void CQDlgTranslation::refresh()
                         if (coordMode==0)
                             tr=path->getFullCumulativeTransformation()*tr;
                         C3Vector euler(tr.Q.getEulerAngles());
-                        ui->qqCoordX->setText(tt::getEString(true,tr.X(0),4).c_str());
-                        ui->qqCoordY->setText(tt::getEString(true,tr.X(1),4).c_str());
-                        ui->qqCoordZ->setText(tt::getEString(true,tr.X(2),4).c_str());
+                        ui->qqCoordX->setText(CTTUtil::getPosString(true,tr.X(0)).c_str());
+                        ui->qqCoordY->setText(CTTUtil::getPosString(true,tr.X(1)).c_str());
+                        ui->qqCoordZ->setText(CTTUtil::getPosString(true,tr.X(2)).c_str());
                         ui->qqCoordWorld->setChecked(coordMode==0);
                         ui->qqCoordParent->setChecked(coordMode==1);
                         // Transformation part:
@@ -350,9 +351,9 @@ void CQDlgTranslation::_setDefaultValuesScalingPart(bool alsoRadioButtons)
 
 void CQDlgTranslation::_setValuesTranslationPart(bool alsoRadioButtons)
 {
-    ui->qqTransfX->setText(tt::getEString(true,translationValues[0],4).c_str());
-    ui->qqTransfY->setText(tt::getEString(true,translationValues[1],4).c_str());
-    ui->qqTransfZ->setText(tt::getEString(true,translationValues[2],4).c_str());
+    ui->qqTransfX->setText(CTTUtil::getPosString(true,translationValues[0]).c_str());
+    ui->qqTransfY->setText(CTTUtil::getPosString(true,translationValues[1]).c_str());
+    ui->qqTransfZ->setText(CTTUtil::getPosString(true,translationValues[2]).c_str());
     if (alsoRadioButtons)
     {
         ui->qqTransfWorld->setChecked(translateMode==0);
@@ -363,9 +364,9 @@ void CQDlgTranslation::_setValuesTranslationPart(bool alsoRadioButtons)
 
 void CQDlgTranslation::_setValuesScalingPart(bool alsoRadioButtons)
 {
-    ui->qqTransfSX->setText(tt::getEString(true,scalingValues[0],3).c_str());
-    ui->qqTransfSY->setText(tt::getEString(true,scalingValues[1],3).c_str());
-    ui->qqTransfSZ->setText(tt::getEString(true,scalingValues[2],3).c_str());
+    ui->qqTransfSX->setText(CTTUtil::getMultString(true,scalingValues[0]).c_str());
+    ui->qqTransfSY->setText(CTTUtil::getMultString(true,scalingValues[1]).c_str());
+    ui->qqTransfSZ->setText(CTTUtil::getMultString(true,scalingValues[2]).c_str());
     if (alsoRadioButtons)
     {
         ui->qqScaleWorld->setChecked(scaleMode==0);
@@ -753,7 +754,7 @@ void CQDlgTranslation::on_qqCoordX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqCoordX->text().toFloat(&ok);
+        double newVal=ui->qqCoordX->text().toDouble(&ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,0))
@@ -769,7 +770,7 @@ void CQDlgTranslation::on_qqCoordY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqCoordY->text().toFloat(&ok);
+        double newVal=ui->qqCoordY->text().toDouble(&ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,1))
@@ -785,7 +786,7 @@ void CQDlgTranslation::on_qqCoordZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqCoordZ->text().toFloat(&ok);
+        double newVal=ui->qqCoordZ->text().toDouble(&ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,2))
@@ -865,7 +866,7 @@ void CQDlgTranslation::on_qqTransfX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfX->text().toFloat(&ok);
+        double newVal=ui->qqTransfX->text().toDouble(&ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,+1000000.0,newVal);
@@ -882,7 +883,7 @@ void CQDlgTranslation::on_qqTransfY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfY->text().toFloat(&ok);
+        double newVal=ui->qqTransfY->text().toDouble(&ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,+1000000.0,newVal);
@@ -899,7 +900,7 @@ void CQDlgTranslation::on_qqTransfZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfZ->text().toFloat(&ok);
+        double newVal=ui->qqTransfZ->text().toDouble(&ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,+1000000.0,newVal);
@@ -925,7 +926,7 @@ void CQDlgTranslation::on_qqTransfSX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfSX->text().toFloat(&ok);
+        double newVal=ui->qqTransfSX->text().toDouble(&ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,1000000.0,newVal);
@@ -942,7 +943,7 @@ void CQDlgTranslation::on_qqTransfSY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfSY->text().toFloat(&ok);
+        double newVal=ui->qqTransfSY->text().toDouble(&ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,1000000.0,newVal);
@@ -959,7 +960,7 @@ void CQDlgTranslation::on_qqTransfSZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfSZ->text().toFloat(&ok);
+        double newVal=ui->qqTransfSZ->text().toDouble(&ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,1000000.0,newVal);

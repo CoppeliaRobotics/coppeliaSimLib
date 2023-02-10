@@ -326,7 +326,7 @@ void CQDlgSimulation::on_qqGravityX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqGravityX->text().toFloat(&ok);
+        double newVal=ui->qqGravityX->text().toDouble(&ok);
         if (ok)
         {
             C3Vector vect=App::currentWorld->dynamicsContainer->getGravity();
@@ -348,7 +348,7 @@ void CQDlgSimulation::on_qqGravityY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqGravityY->text().toFloat(&ok);
+        double newVal=ui->qqGravityY->text().toDouble(&ok);
         if (ok)
         {
             C3Vector vect=App::currentWorld->dynamicsContainer->getGravity();
@@ -370,7 +370,7 @@ void CQDlgSimulation::on_qqGravityZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqGravityZ->text().toFloat(&ok);
+        double newVal=ui->qqGravityZ->text().toDouble(&ok);
         if (ok)
         {
             C3Vector vect=App::currentWorld->dynamicsContainer->getGravity();
@@ -392,7 +392,7 @@ void CQDlgSimulation::on_qqDynTimeStep_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqDynTimeStep->text().toFloat(&ok);
+        double newVal=ui->qqDynTimeStep->text().toDouble(&ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;

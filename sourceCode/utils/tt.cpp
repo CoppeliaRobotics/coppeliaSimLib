@@ -134,7 +134,7 @@ bool tt::stringToFloat(const char* txt,double& f,bool allowNegativeValue,bool in
         }
 
         bool ok;
-        f=str.toFloat(&ok);
+        f=str.toDouble(&ok);
         return(ok);
     }
     else
@@ -169,7 +169,7 @@ bool tt::stringToFloat(const char* txt,double& f,bool allowNegativeValue,bool in
         }
 
         bool ok;
-        f=str.toFloat(&ok);
+        f=str.toDouble(&ok);
         if (ok&&(f<0.0))
             f=0.0;
         return(ok);

@@ -1,6 +1,7 @@
 #include <qdlggeometry.h>
 #include <ui_qdlggeometry.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <gV.h>
 #include <mesh.h>
 #include <simStringTable.h>
@@ -47,9 +48,9 @@ void CQDlgGeometry::refresh()
     ui->qqApplySize->setEnabled(noEditModeNoSim);
     ui->qqApplyScale->setEnabled(noEditModeNoSim);
 
-    ui->qqSizeX->setText(tt::getEString(false,sizeVal[0],4).c_str());
-    ui->qqSizeY->setText(tt::getEString(false,sizeVal[1],4).c_str());
-    ui->qqSizeZ->setText(tt::getEString(false,sizeVal[2],4).c_str());
+    ui->qqSizeX->setText(CTTUtil::getSizeString(false,sizeVal[0]).c_str());
+    ui->qqSizeY->setText(CTTUtil::getSizeString(false,sizeVal[1]).c_str());
+    ui->qqSizeZ->setText(CTTUtil::getSizeString(false,sizeVal[2]).c_str());
     ui->qqScaleX->setText(tt::getFString(true,scaleVal[0],4).c_str());
     ui->qqScaleY->setText(tt::getFString(true,scaleVal[1],4).c_str());
     ui->qqScaleZ->setText(tt::getFString(true,scaleVal[2],4).c_str());
@@ -210,7 +211,7 @@ void CQDlgGeometry::_readSize(int index)
     if (shape!=nullptr)
     {
         bool ok;
-        double newVal=ww[index]->text().toFloat(&ok);
+        double newVal=ww[index]->text().toDouble(&ok);
         if (ok)
         {
             newVal=tt::getLimitedFloat(0.0001,1000.0,newVal);
@@ -280,7 +281,7 @@ void CQDlgGeometry::_readScaling(int index)
     if (shape!=nullptr)
     {
         bool ok;
-        double newVal=ww[index]->text().toFloat(&ok);
+        double newVal=ww[index]->text().toDouble(&ok);
         if (!keepProp)
         { // imagine we have a plane that has dims x*y*0!
             C3Vector bbhalfSizes(shape->getBoundingBoxHalfSizes());
@@ -337,7 +338,7 @@ void CQDlgGeometry::_readRotation(int index)
     if ((!isLinkedDataValid())||(isPureShape&&(!isGroup)))
         return;
     bool ok;
-    double newVal=ww[index]->text().toFloat(&ok);
+    double newVal=ww[index]->text().toDouble(&ok);
     if (ok)
     {
         rotationVal[index]=newVal*gv::userToRad;

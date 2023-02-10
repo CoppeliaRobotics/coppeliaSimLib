@@ -1,6 +1,7 @@
 #include <qdlgforcesensors.h>
 #include <ui_qdlgforcesensors.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <gV.h>
 #include <qdlgmaterial.h>
 #include <app.h>
@@ -60,9 +61,9 @@ void CQDlgForceSensors::refresh()
         ui->qqMedian->setChecked(it->getFilterType()==1);
 
         ui->qqForceThresholdEnable->setChecked(it->getEnableForceThreshold());
-        ui->qqForceThreshold->setText(tt::getEString(false,it->getForceThreshold(),2).c_str());
+        ui->qqForceThreshold->setText(CTTUtil::getForceTorqueString(false,it->getForceThreshold()).c_str());
         ui->qqTorqueThresholdEnable->setChecked(it->getEnableTorqueThreshold());
-        ui->qqTorqueThreshold->setText(tt::getEString(false,it->getTorqueThreshold(),2).c_str());
+        ui->qqTorqueThreshold->setText(CTTUtil::getForceTorqueString(false,it->getTorqueThreshold()).c_str());
         ui->qqViolationCount->setText(tt::getIString(false,it->getConsecutiveThresholdViolationsForBreaking()).c_str());
     }
     else
@@ -89,7 +90,7 @@ void CQDlgForceSensors::on_qqSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqSize->text().toFloat(&ok);
+        double newVal=ui->qqSize->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SIZE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -191,7 +192,7 @@ void CQDlgForceSensors::on_qqForceThreshold_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqForceThreshold->text().toFloat(&ok);
+        double newVal=ui->qqForceThreshold->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_FORCETHRESHOLD_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -218,7 +219,7 @@ void CQDlgForceSensors::on_qqTorqueThreshold_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTorqueThreshold->text().toFloat(&ok);
+        double newVal=ui->qqTorqueThreshold->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_TORQUETHRESHOLD_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

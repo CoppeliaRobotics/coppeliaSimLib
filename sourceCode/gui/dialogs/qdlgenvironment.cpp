@@ -4,6 +4,7 @@
 #include <qdlgcolor.h>
 #include <qdlgmaterial.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <app.h>
 #include <simStrings.h>
 #include <vMessageBox.h>
@@ -40,7 +41,7 @@ void CQDlgEnvironment::refresh()
 //    ui->qqUserInterfaceTexturesDisabled->setEnabled(noEditModeNoSim);
     ui->qqAcknowledgments->setEnabled(noEditModeNoSim);
 
-    ui->qqMaxTriangleSize->setText(tt::getEString(false,App::currentWorld->environment->getCalculationMaxTriangleSize(),2).c_str());
+    ui->qqMaxTriangleSize->setText(CTTUtil::getSizeString(false,App::currentWorld->environment->getCalculationMaxTriangleSize()).c_str());
     ui->qqMinRelTriangleSize->setText(tt::getFString(false,App::currentWorld->environment->getCalculationMinRelTriangleSize(),3).c_str());
     ui->qqSaveCalcStruct->setChecked(App::currentWorld->environment->getSaveExistingCalculationStructures());
     ui->qqShapeTexturesDisabled->setChecked(!App::currentWorld->environment->getShapeTexturesEnabled());
@@ -79,7 +80,7 @@ void CQDlgEnvironment::on_qqMaxTriangleSize_editingFinished()
     if (!ui->qqMaxTriangleSize->isModified())
         return;
     bool ok;
-    double newVal=ui->qqMaxTriangleSize->text().toFloat(&ok);
+    double newVal=ui->qqMaxTriangleSize->text().toDouble(&ok);
     if (ok)
     {
         App::appendSimulationThreadCommand(SET_MAXTRIANGLESIZE_ENVIRONMENTGUITRIGGEREDCMD,-1,-1,newVal);
@@ -134,7 +135,7 @@ void CQDlgEnvironment::on_qqMinRelTriangleSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqMinRelTriangleSize->text().toFloat(&ok);
+        double newVal=ui->qqMinRelTriangleSize->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_MINTRIANGLESIZE_ENVIRONMENTGUITRIGGEREDCMD,-1,-1,newVal);

@@ -2,6 +2,7 @@
 #include <ui_qdlgikelements.h>
 #include <gV.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <QShortcut>
 #include <app.h>
 #include <simStrings.h>
@@ -270,8 +271,8 @@ void CQDlgIkElements::refresh()
             }
         }
 
-        ui->qqPrecisionLinear->setText(tt::getEString(false,it->getMinLinearPrecision(),2).c_str());
-        ui->qqPrecisionAngular->setText(tt::getAngleEString(false,it->getMinAngularPrecision(),2).c_str());
+        ui->qqPrecisionLinear->setText(CTTUtil::getPosString(false,it->getMinLinearPrecision()).c_str());
+        ui->qqPrecisionAngular->setText(CTTUtil::getAngleString(false,it->getMinAngularPrecision()).c_str());
         ui->qqWeightLinear->setText(tt::getFString(false,it->getPositionWeight(),2).c_str());
         ui->qqWeightAngular->setText(tt::getFString(false,it->getOrientationWeight(),2).c_str());
     }
@@ -449,7 +450,7 @@ void CQDlgIkElements::on_qqPrecisionLinear_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqPrecisionLinear->text().toFloat(&ok);
+        double newVal=ui->qqPrecisionLinear->text().toDouble(&ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
@@ -472,7 +473,7 @@ void CQDlgIkElements::on_qqPrecisionAngular_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqPrecisionAngular->text().toFloat(&ok);
+        double newVal=ui->qqPrecisionAngular->text().toDouble(&ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
@@ -495,7 +496,7 @@ void CQDlgIkElements::on_qqWeightLinear_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqWeightLinear->text().toFloat(&ok);
+        double newVal=ui->qqWeightLinear->text().toDouble(&ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
@@ -518,7 +519,7 @@ void CQDlgIkElements::on_qqWeightAngular_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqWeightAngular->text().toFloat(&ok);
+        double newVal=ui->qqWeightAngular->text().toDouble(&ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;

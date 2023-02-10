@@ -80,7 +80,7 @@ void CJoint::_commonInit()
     _maxVelAccelJerk[2]=piValT2;
 
     _jointType=sim_joint_revolute_subtype;
-    _screwPitch=0.0;
+    _screwLead=0.0;
     _sphericalTransf.setIdentity();
     _pos=0.0;
     _targetPos=0.0;
@@ -300,7 +300,7 @@ void CJoint::setHybridFunctionality_old(bool h)
             {
                 setDynCtrlMode(sim_jointdynctrl_positioncb);
                 if (_jointType==sim_joint_revolute_subtype)
-                    setScrewPitch(0.0);
+                    setScrewLead(0.0);
             }
         }
     }
@@ -1196,7 +1196,7 @@ std::string CJoint::getObjectTypeInfoExtended() const
     std::string retVal(IDSOGL_JOINT);
     if (_jointType==sim_joint_revolute_subtype)
     {
-        if (fabs(_screwPitch)<0.0000001)
+        if (fabs(_screwLead)<0.0000001)
             retVal+=tt::decorateString(" (",IDSOGL_REVOLUTE,", p=");
         else
             retVal+=tt::decorateString(" (",IDSOGL_SCREW,", p=");
@@ -1260,21 +1260,21 @@ void CJoint::computeBoundingBox()
     _setBoundingBox(minV,maxV);
 }
 
-bool CJoint::setScrewPitch(double pitch)
+bool CJoint::setScrewLead(double lead)
 {
     bool retVal=false;
     if (_jointType==sim_joint_revolute_subtype)
     {
         if (_jointMode!=sim_jointmode_dynamic)
-        { // no pitch when in torque/force mode
-            pitch=tt::getLimitedFloat(-10.0,10.0,pitch);
-            bool diff=(_screwPitch!=pitch);
+        { // no lead when in torque/force mode
+            lead=tt::getLimitedFloat(-10.0*piValT2,10.0*piValT2,lead);
+            bool diff=(_screwLead!=lead);
             if (diff)
             {
-                _screwPitch=pitch;
+                _screwLead=lead;
                 if (getObjectCanSync())
-                    _setScrewPitch_sendOldIk(pitch);
-                if (pitch!=0.0)
+                    _setScrewPitch_sendOldIk(lead/piValT2);
+                if (lead!=0.0)
                     setHybridFunctionality_old(false);
             }
             retVal=true;
@@ -1287,7 +1287,7 @@ void CJoint::_setScrewPitch_sendOldIk(double pitch) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setJointScrewPitch(_ikPluginCounterpartHandle,_screwPitch);
+        CPluginContainer::ikPlugin_setJointScrewPitch(_ikPluginCounterpartHandle,_screwLead/piValT2);
 }
 
 void CJoint::setPositionMin(double min)
@@ -1401,7 +1401,7 @@ void CJoint::scaleObject(double scalingFactor)
 {
     setDiameter(_diameter*scalingFactor);
     setLength(_length*scalingFactor);
-    setScrewPitch(_screwPitch*scalingFactor);
+    setScrewLead(_screwLead*scalingFactor);
     if (_jointType==sim_joint_prismatic_subtype)
     {
         setPosition(_pos*scalingFactor);
@@ -1478,7 +1478,7 @@ void CJoint::scaleObjectNonIsometrically(double x,double y,double z)
     double diam=sqrt(x*y);
     setDiameter(_diameter*diam);
     setLength(_length*z);
-    setScrewPitch(_screwPitch*z);
+    setScrewLead(_screwLead*z);
     if (_jointType==sim_joint_prismatic_subtype)
     {
         setPosition(_pos*z);
@@ -2045,7 +2045,7 @@ void CJoint::setIsCyclic(bool isCyclic)
     {
         if (getJointType()==sim_joint_revolute_subtype)
         {
-            setScrewPitch(0.0);
+            setScrewLead(0.0);
             setPositionMin(-piValue);
             setPositionRange(piValT2);
         }
@@ -2145,7 +2145,7 @@ CSceneObject* CJoint::copyYourself()
 
     newJoint->_jointType=_jointType;
     newJoint->_jointMode=_jointMode;
-    newJoint->_screwPitch=_screwPitch;
+    newJoint->_screwLead=_screwLead;
     newJoint->_sphericalTransf=_sphericalTransf;
     newJoint->_pos=_pos;
     newJoint->_ikWeight_old=_ikWeight_old;
@@ -2278,12 +2278,16 @@ void CJoint::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Jsp");
-            ar << (float)_screwPitch;
+            ar << (float)(_screwLead/piValT2);
             ar.flush();
 #endif
 
             ar.storeDataName("_sp");
-            ar << _screwPitch;
+            ar << (_screwLead/piValT2);
+            ar.flush();
+
+            ar.storeDataName("Sld");
+            ar << _screwLead;
             ar.flush();
 
 
@@ -2632,14 +2636,23 @@ void CJoint::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float a;
                         ar >> a;
-                        _screwPitch=(double)a;
+                        _screwLead=(double)(a*piValT2);
                     }
 
                     if (theName.compare("_sp")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _screwPitch;
+                        double a;
+                        ar >> a;
+                        _screwLead=a*piValT2;
+                    }
+
+                    if (theName.compare("Sld")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _screwLead;
                     }
 
                     if (theName.compare("Jst")==0)
@@ -3365,7 +3378,9 @@ void CJoint::serialize(CSer& ar)
             ar.xmlAddNode_float("targetPosition",_targetPos*mult);
             ar.xmlAddNode_float("targetVelocity",_targetVel*mult);
             ar.xmlAddNode_3float("maxVelAccelJerk",_maxVelAccelJerk[0]*mult,_maxVelAccelJerk[1]*mult,_maxVelAccelJerk[2]*mult);
-            ar.xmlAddNode_float("screwPitch",_screwPitch);
+            ar.xmlAddNode_comment(" 'screwPitch' tag: for backward compatibility",exhaustiveXml);
+            ar.xmlAddNode_float("screwPitch",_screwLead/piValT2); // deprecated
+            ar.xmlAddNode_float("screwLead",_screwLead);
 
             if (exhaustiveXml)
                 ar.xmlAddNode_floats("sphericalQuaternion",_sphericalTransf.data,4);
@@ -3630,7 +3645,12 @@ void CJoint::serialize(CSer& ar)
                 _maxVelAccelJerk[2]*=mult;
             }
 
-            ar.xmlGetNode_float("screwPitch",_screwPitch,exhaustiveXml);
+            double a;
+            if (ar.xmlGetNode_float("screwPitch",a,exhaustiveXml))
+            { // for backward compatibility
+                _screwLead=a*piValT2;
+            }
+            ar.xmlGetNode_float("screwLead",_screwLead,exhaustiveXml);
 
             if (exhaustiveXml)
                 ar.xmlGetNode_floats("sphericalQuaternion",_sphericalTransf.data,4);
@@ -4039,7 +4059,7 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int newMode)
             if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb)||(_dynCtrlMode==sim_jointdynctrl_force) )
                 setTargetVelocity(1000.0); // just a very high value
             setHybridFunctionality_old(false);
-            setScrewPitch(0.0);
+            setScrewLead(0.0);
             // REMOVED FOLLOWING ON 24/7/2015: causes problem when switching modes. The physics engine plugin will now not set limits if the range>=360
             //      if (_jointType==sim_joint_revolute_subtype)
             //          _posRange=tt::getLimitedFloat(0.0,piValT2,_posRange);
@@ -4285,7 +4305,7 @@ void CJoint::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSync
         _setPositionIntervalMin_sendOldIk(_posMin);
         _setPositionIntervalRange_sendOldIk(_posRange);
         _setPositionIsCyclic_sendOldIk(_isCyclic);
-        _setScrewPitch_sendOldIk(_screwPitch);
+        _setScrewPitch_sendOldIk(_screwLead/piValT2);
         _setIkWeight_sendOldIk(_ikWeight_old);
         _setMaxStepSize_sendOldIk(_maxStepSize_old);
         _setPosition_sendOldIk(_pos);
@@ -4640,7 +4660,7 @@ C7Vector CJoint::getIntrinsicTransformation(bool includeDynErrorComponent) const
         jointTr.Q.setAngleAndAxis(_pos,C3Vector(0.0,0.0,1.0));
         jointTr.X(0)=0.0;
         jointTr.X(1)=0.0;
-        jointTr.X(2)=_pos*getScrewPitch();
+        jointTr.X(2)=_pos*getScrewLead()/piValT2;
     }
     if (getJointType()==sim_joint_prismatic_subtype)
     {
@@ -4721,9 +4741,9 @@ int CJoint::getJointType() const
     return(_jointType);
 }
 
-double CJoint::getScrewPitch() const
+double CJoint::getScrewLead() const
 {
-    return(_screwPitch);
+    return(_screwLead);
 }
 
 C4Vector CJoint::getSphericalTransformation() const

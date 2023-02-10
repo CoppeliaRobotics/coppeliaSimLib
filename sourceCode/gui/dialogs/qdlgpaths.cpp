@@ -190,7 +190,7 @@ void CQDlgPaths::on_qqControlPointSize_editingFinished()
     {
         CPathCont_old* pathCont=getPathCont();
         bool ok;
-        double newVal=ui->qqControlPointSize->text().toFloat(&ok);
+        double newVal=ui->qqControlPointSize->text().toDouble(&ok);
         if (ok&&(pathCont!=nullptr))
         {
             App::appendSimulationThreadCommand(SET_CTRLPTSIZE_PATH_OLD_GUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

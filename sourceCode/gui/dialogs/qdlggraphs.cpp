@@ -1,6 +1,7 @@
 #include <qdlggraphs.h>
 #include <ui_qdlggraphs.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <gV.h>
 #include <qdlgmaterial.h>
 #include <qdlgdatastreamselection.h>
@@ -136,8 +137,8 @@ void CQDlgGraphs::refresh()
                 }
             }
 
-            ui->qqTransformationCoeff->setText(tt::getEString(false,graphData->getZoomFactor(),3).c_str());
-            ui->qqTransformationOffset->setText(tt::getEString(false,graphData->getAddCoeff(),3).c_str());
+            ui->qqTransformationCoeff->setText(CTTUtil::getMultString(false,graphData->getZoomFactor()).c_str());
+            ui->qqTransformationOffset->setText(CTTUtil::getPosString(false,graphData->getAddCoeff()).c_str());
             ui->qqMovingAveragePeriod->setText(tt::getIString(false,graphData->getMovingAverageCount()).c_str());
         }
         else
@@ -318,7 +319,7 @@ void CQDlgGraphs::on_qqObjectSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqObjectSize->text().toFloat(&ok);
+        double newVal=ui->qqObjectSize->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_OBJECTSIZE_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -390,7 +391,7 @@ void CQDlgGraphs::on_qqTransformationCoeff_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransformationCoeff->text().toFloat(&ok);
+        double newVal=ui->qqTransformationCoeff->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_VALUEMULTIPLIER_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID(),newVal);
@@ -407,7 +408,7 @@ void CQDlgGraphs::on_qqTransformationOffset_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransformationOffset->text().toFloat(&ok);
+        double newVal=ui->qqTransformationOffset->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_VALUEOFFSET_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID(),newVal);

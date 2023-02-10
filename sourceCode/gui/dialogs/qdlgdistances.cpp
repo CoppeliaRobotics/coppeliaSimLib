@@ -1,6 +1,7 @@
 #include <qdlgdistances.h>
 #include <ui_qdlgdistances.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <QShortcut>
 #include <qdlgentityvsentityselection.h>
 #include <editboxdelegate.h>
@@ -70,7 +71,7 @@ void CQDlgDistances::refresh()
     {
         ui->qqExplicitHandling->setChecked(it->getExplicitHandling());
         ui->qqUseThreshold->setChecked(it->getTreshholdEnabled());
-        ui->qqThreshold->setText(tt::getEString(false,it->getTreshhold(),2).c_str());
+        ui->qqThreshold->setText(CTTUtil::getSizeString(false,it->getTreshhold()).c_str());
         ui->qqDisplaySegment->setChecked(it->getDisplaySegment());
         ui->qqSegmentWidth->setText(tt::getIString(false,it->getSegmentWidth()).c_str());
     }
@@ -248,7 +249,7 @@ void CQDlgDistances::on_qqThreshold_editingFinished()
         if (it!=nullptr)
         {
             bool ok;
-            double newVal=ui->qqThreshold->text().toFloat(&ok);
+            double newVal=ui->qqThreshold->text().toDouble(&ok);
             if (ok)
             {
                 App::appendSimulationThreadCommand(SET_THRESHOLD_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);

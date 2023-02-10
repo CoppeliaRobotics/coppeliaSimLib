@@ -2,6 +2,7 @@
 #include <ui_qdlgdependencyequation.h>
 #include <gV.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <app.h>
 #include <simStrings.h>
 
@@ -43,8 +44,8 @@ void CQDlgDependencyEquation::refresh()
 
     if (it!=nullptr)
     {
-        ui->qqOffset->setText(tt::getEString(true,it->getDependencyJointOffset(),3).c_str());
-        ui->qqCoeff->setText(tt::getEString(true,it->getDependencyJointMult(),3).c_str());
+        ui->qqOffset->setText(CTTUtil::getPosString(true,it->getDependencyJointOffset()).c_str());
+        ui->qqCoeff->setText(CTTUtil::getMultString(true,it->getDependencyJointMult()).c_str());
 
         ui->qqCombo->addItem(IDSN_NONE,QVariant(-1));
 
@@ -101,7 +102,7 @@ void CQDlgDependencyEquation::on_qqOffset_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        double newVal=ui->qqOffset->text().toFloat(&ok);
+        double newVal=ui->qqOffset->text().toDouble(&ok);
         if (ok&&(it!=nullptr))
         {
             it->setDependencyJointOffset(newVal); // we also modify the ui resources (dlg is modal)
@@ -120,7 +121,7 @@ void CQDlgDependencyEquation::on_qqCoeff_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        double newVal=ui->qqCoeff->text().toFloat(&ok);
+        double newVal=ui->qqCoeff->text().toDouble(&ok);
         if (ok&&(it!=nullptr))
         {
             it->setDependencyJointMult(newVal); // we also modify the ui resources (dlg is modal)

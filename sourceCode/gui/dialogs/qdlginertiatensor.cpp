@@ -3,6 +3,7 @@
 #include <simInternal.h>
 #include <app.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <gV.h>
 
 CQDlgInertiaTensor::CQDlgInertiaTensor(QWidget *parent) :
@@ -32,19 +33,19 @@ void CQDlgInertiaTensor::refresh()
     bool severalShapes=App::currentWorld->sceneObjects->getShapeCountInSelection()>1;
     if (!severalShapes)
         applyToSelection=false;
-    ui->qqI11->setText(tt::getEString(true,tensor[0],3).c_str());
-    ui->qqI21->setText(tt::getEString(true,tensor[1],3).c_str());
-    ui->qqI31->setText(tt::getEString(true,tensor[2],3).c_str());
-    ui->qqI12->setText(tt::getEString(true,tensor[3],3).c_str());
-    ui->qqI22->setText(tt::getEString(true,tensor[4],3).c_str());
-    ui->qqI32->setText(tt::getEString(true,tensor[5],3).c_str());
-    ui->qqI13->setText(tt::getEString(true,tensor[6],3).c_str());
-    ui->qqI23->setText(tt::getEString(true,tensor[7],3).c_str());
-    ui->qqI33->setText(tt::getEString(true,tensor[8],3).c_str());
+    ui->qqI11->setText(CTTUtil::getMasslessTensorString(true,tensor[0]).c_str());
+    ui->qqI21->setText(CTTUtil::getMasslessTensorString(true,tensor[1]).c_str());
+    ui->qqI31->setText(CTTUtil::getMasslessTensorString(true,tensor[2]).c_str());
+    ui->qqI12->setText(CTTUtil::getMasslessTensorString(true,tensor[3]).c_str());
+    ui->qqI22->setText(CTTUtil::getMasslessTensorString(true,tensor[4]).c_str());
+    ui->qqI32->setText(CTTUtil::getMasslessTensorString(true,tensor[5]).c_str());
+    ui->qqI13->setText(CTTUtil::getMasslessTensorString(true,tensor[6]).c_str());
+    ui->qqI23->setText(CTTUtil::getMasslessTensorString(true,tensor[7]).c_str());
+    ui->qqI33->setText(CTTUtil::getMasslessTensorString(true,tensor[8]).c_str());
 
-    ui->qqMx->setText(tt::getEString(true,com[0],3).c_str());
-    ui->qqMy->setText(tt::getEString(true,com[1],3).c_str());
-    ui->qqMz->setText(tt::getEString(true,com[2],3).c_str());
+    ui->qqMx->setText(CTTUtil::getPosString(true,com[0]).c_str());
+    ui->qqMy->setText(CTTUtil::getPosString(true,com[1]).c_str());
+    ui->qqMz->setText(CTTUtil::getPosString(true,com[2]).c_str());
 
     ui->qqApplyToSelection->setChecked(applyToSelection);
     ui->qqApplyToSelection->setEnabled(severalShapes);
@@ -55,7 +56,7 @@ void CQDlgInertiaTensor::on_qqI11_editingFinished()
     if (!ui->qqI11->isModified())
         return;
     bool ok;
-    double newVal=ui->qqI11->text().toFloat(&ok);
+    double newVal=ui->qqI11->text().toDouble(&ok);
     if (ok)
         tensor[0]=newVal;
     refresh();
@@ -66,7 +67,7 @@ void CQDlgInertiaTensor::on_qqI21_editingFinished()
     if (!ui->qqI21->isModified())
         return;
     bool ok;
-    double newVal=ui->qqI21->text().toFloat(&ok);
+    double newVal=ui->qqI21->text().toDouble(&ok);
     if (ok)
     {
         tensor[1]=newVal;
@@ -80,7 +81,7 @@ void CQDlgInertiaTensor::on_qqI31_editingFinished()
     if (!ui->qqI31->isModified())
         return;
     bool ok;
-    double newVal=ui->qqI31->text().toFloat(&ok);
+    double newVal=ui->qqI31->text().toDouble(&ok);
     if (ok)
     {
         tensor[2]=newVal;
@@ -94,7 +95,7 @@ void CQDlgInertiaTensor::on_qqI12_editingFinished()
     if (!ui->qqI12->isModified())
         return;
     bool ok;
-    double newVal=ui->qqI12->text().toFloat(&ok);
+    double newVal=ui->qqI12->text().toDouble(&ok);
     if (ok)
     {
         tensor[3]=newVal;
@@ -108,7 +109,7 @@ void CQDlgInertiaTensor::on_qqI22_editingFinished()
     if (!ui->qqI22->isModified())
         return;
     bool ok;
-    double newVal=ui->qqI22->text().toFloat(&ok);
+    double newVal=ui->qqI22->text().toDouble(&ok);
     if (ok)
         tensor[4]=newVal;
     refresh();
@@ -119,7 +120,7 @@ void CQDlgInertiaTensor::on_qqI32_editingFinished()
     if (!ui->qqI32->isModified())
         return;
     bool ok;
-    double newVal=ui->qqI32->text().toFloat(&ok);
+    double newVal=ui->qqI32->text().toDouble(&ok);
     if (ok)
     {
         tensor[5]=newVal;
@@ -133,7 +134,7 @@ void CQDlgInertiaTensor::on_qqI13_editingFinished()
     if (!ui->qqI13->isModified())
         return;
     bool ok;
-    double newVal=ui->qqI13->text().toFloat(&ok);
+    double newVal=ui->qqI13->text().toDouble(&ok);
     if (ok)
     {
         tensor[6]=newVal;
@@ -147,7 +148,7 @@ void CQDlgInertiaTensor::on_qqI23_editingFinished()
     if (!ui->qqI23->isModified())
         return;
     bool ok;
-    double newVal=ui->qqI23->text().toFloat(&ok);
+    double newVal=ui->qqI23->text().toDouble(&ok);
     if (ok)
     {
         tensor[7]=newVal;
@@ -161,7 +162,7 @@ void CQDlgInertiaTensor::on_qqI33_editingFinished()
     if (!ui->qqI33->isModified())
         return;
     bool ok;
-    double newVal=ui->qqI33->text().toFloat(&ok);
+    double newVal=ui->qqI33->text().toDouble(&ok);
     if (ok)
         tensor[8]=newVal;
     refresh();
@@ -182,7 +183,7 @@ void CQDlgInertiaTensor::on_qqMx_editingFinished()
     if (!ui->qqMx->isModified())
         return;
     bool ok;
-    double newVal=ui->qqMx->text().toFloat(&ok);
+    double newVal=ui->qqMx->text().toDouble(&ok);
     if (ok)
         com[0]=newVal;
     refresh();
@@ -193,7 +194,7 @@ void CQDlgInertiaTensor::on_qqMy_editingFinished()
     if (!ui->qqMy->isModified())
         return;
     bool ok;
-    double newVal=ui->qqMy->text().toFloat(&ok);
+    double newVal=ui->qqMy->text().toDouble(&ok);
     if (ok)
         com[1]=newVal;
     refresh();
@@ -204,7 +205,7 @@ void CQDlgInertiaTensor::on_qqMz_editingFinished()
     if (!ui->qqMz->isModified())
         return;
     bool ok;
-    double newVal=ui->qqMz->text().toFloat(&ok);
+    double newVal=ui->qqMz->text().toDouble(&ok);
     if (ok)
         com[2]=newVal;
     refresh();

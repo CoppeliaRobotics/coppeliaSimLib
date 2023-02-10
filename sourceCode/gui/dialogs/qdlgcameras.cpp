@@ -1,6 +1,7 @@
 #include <qdlgcameras.h>
 #include <ui_qdlgcameras.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <gV.h>
 #include <qdlgmaterial.h>
 #include <app.h>
@@ -67,11 +68,11 @@ void CQDlgCameras::refresh()
         ui->qqShowVolume->setChecked(it->getShowVolume());
         ui->qqAllowRotation->setChecked(it->getAllowRotation());
         ui->qqAllowTranslation->setChecked(it->getAllowTranslation());
-        ui->qqPerspectiveProjectionAngle->setText(tt::getAngleFString(false,it->getViewAngle(),1).c_str());
-        ui->qqOrthographicProjectionSize->setText(tt::getEString(false,it->getOrthoViewSize(),2).c_str());
-        ui->qqSize->setText(tt::getEString(false,it->getCameraSize(),2).c_str());
-        ui->qqNearClipping->setText(tt::getEString(false,it->getNearClippingPlane(),2).c_str());
-        ui->qqFarClipping->setText(tt::getEString(false,it->getFarClippingPlane(),2).c_str());
+        ui->qqPerspectiveProjectionAngle->setText(CTTUtil::getAngleString(false,it->getViewAngle()).c_str());
+        ui->qqOrthographicProjectionSize->setText(CTTUtil::getSizeString(false,it->getOrthoViewSize()).c_str());
+        ui->qqSize->setText(CTTUtil::getSizeString(false,it->getCameraSize()).c_str());
+        ui->qqNearClipping->setText(CTTUtil::getSizeString(false,it->getNearClippingPlane()).c_str());
+        ui->qqFarClipping->setText(CTTUtil::getSizeString(false,it->getFarClippingPlane()).c_str());
         ui->qqShowFog->setChecked(it->getShowFogIfAvailable());
         ui->qqLocalLights->setChecked(it->getuseLocalLights());
         ui->qqAllowPicking->setChecked(it->getAllowPicking());
@@ -169,7 +170,7 @@ void CQDlgCameras::on_qqPerspectiveProjectionAngle_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqPerspectiveProjectionAngle->text().toFloat(&ok);
+        double newVal=ui->qqPerspectiveProjectionAngle->text().toDouble(&ok);
         if (ok)
         {
             double v=newVal*gv::userToRad;
@@ -187,7 +188,7 @@ void CQDlgCameras::on_qqOrthographicProjectionSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqOrthographicProjectionSize->text().toFloat(&ok);
+        double newVal=ui->qqOrthographicProjectionSize->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_ORTHO_VIEW_SIZE_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -204,7 +205,7 @@ void CQDlgCameras::on_qqNearClipping_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqNearClipping->text().toFloat(&ok);
+        double newVal=ui->qqNearClipping->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_NEAR_CLIPPING_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -221,7 +222,7 @@ void CQDlgCameras::on_qqFarClipping_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqFarClipping->text().toFloat(&ok);
+        double newVal=ui->qqFarClipping->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_FAR_CLIPPING_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -300,7 +301,7 @@ void CQDlgCameras::on_qqSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqSize->text().toFloat(&ok);
+        double newVal=ui->qqSize->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SIZE_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

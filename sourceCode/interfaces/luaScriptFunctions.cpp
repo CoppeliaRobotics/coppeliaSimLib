@@ -1165,7 +1165,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.jointintparam_vortex_dep_handle",sim_jointintparam_vortex_dep_handle,true},
     {"sim.jointfloatparam_vortex_dep_multiplication",sim_jointfloatparam_vortex_dep_multiplication,true},
     {"sim.jointfloatparam_vortex_dep_offset",sim_jointfloatparam_vortex_dep_offset,true},
-    {"sim.jointfloatparam_screw_pitch",sim_jointfloatparam_screw_pitch,true},
+    {"sim.jointfloatparam_screwlead",sim_jointfloatparam_screwlead,true},
     {"sim.jointfloatparam_maxvel",sim_jointfloatparam_maxvel,true},
     {"sim.jointfloatparam_maxaccel",sim_jointfloatparam_maxaccel,true},
     {"sim.jointfloatparam_maxjerk",sim_jointfloatparam_maxjerk,true},
@@ -1648,6 +1648,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.ruckig_minaccel",sim_ruckig_minaccel,true},
 
     // deprecated!
+    {"sim.jointfloatparam_screw_pitch",sim_jointfloatparam_screw_pitch,false},
     {"sim.boolparam_force_show_wireless_emission",sim_boolparam_force_show_wireless_emission,false},
     {"sim.boolparam_force_show_wireless_reception",sim_boolparam_force_show_wireless_reception,false},
     {"sim.boolparam_collision_handling_enabled",sim_boolparam_collision_handling_enabled,false},

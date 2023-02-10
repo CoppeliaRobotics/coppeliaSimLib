@@ -1,6 +1,7 @@
 #include <qdlgjoints.h>
 #include <ui_qdlgjoints.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <gV.h>
 #include <qdlgmaterial.h>
 #include <app.h>
@@ -64,7 +65,7 @@ void CQDlgJoints::refresh()
     }
 
     ui->qqCyclic->setEnabled(sel&&revolute&&noEditModeNoSim);
-    ui->qqPitch->setEnabled(sel&&revolute&&noEditModeNoSim&&(!dynamic)&&(!it->getIsCyclic()));
+    ui->qqLead->setEnabled(sel&&revolute&&noEditModeNoSim&&(!dynamic)&&(!it->getIsCyclic()));
     ui->qqMinimum->setEnabled(sel&&(!spherical)&&(!it->getIsCyclic())&&noEditModeNoSim);
     ui->qqRange->setEnabled((!spherical)&&sel&&(!it->getIsCyclic())&&noEditModeNoSim);
     ui->qqPosition->setEnabled(sel&&(!spherical));
@@ -89,7 +90,7 @@ void CQDlgJoints::refresh()
     {
         if (revolute)
         {
-            ui->qqPitch->setText(tt::getEString(true,it->getScrewPitch()*degToRad,2).c_str());
+            ui->qqLead->setText(CTTUtil::getPosString(true,it->getScrewLead()).c_str());
             if (it->getIsCyclic())
             {
                 ui->qqMinimum->setText("");
@@ -97,19 +98,19 @@ void CQDlgJoints::refresh()
             }
             else
             {
-                ui->qqMinimum->setText(tt::getAngleEString(true,it->getPositionMin(),3).c_str());
-                ui->qqRange->setText(tt::getAngleEString(false,it->getPositionRange(),3).c_str());
+                ui->qqMinimum->setText(CTTUtil::getAngleString(true,it->getPositionMin()).c_str());
+                ui->qqRange->setText(CTTUtil::getAngleString(false,it->getPositionRange()).c_str());
             }
-            ui->qqPosition->setText(tt::getAngleEString(true,it->getPosition(),3).c_str());
+            ui->qqPosition->setText(CTTUtil::getAngleString(true,it->getPosition()).c_str());
         }
         else
-            ui->qqPitch->setText("");
+            ui->qqLead->setText("");
 
         if (prismatic)
         {
-            ui->qqMinimum->setText(tt::getEString(true,it->getPositionMin(),3).c_str());
-            ui->qqRange->setText(tt::getEString(false,it->getPositionRange(),3).c_str());
-            ui->qqPosition->setText(tt::getEString(true,it->getPosition(),3).c_str());
+            ui->qqMinimum->setText(CTTUtil::getPosString(true,it->getPositionMin()).c_str());
+            ui->qqRange->setText(CTTUtil::getPosString(false,it->getPositionRange()).c_str());
+            ui->qqPosition->setText(CTTUtil::getPosString(true,it->getPosition()).c_str());
         }
 
 
@@ -189,7 +190,7 @@ void CQDlgJoints::refresh()
     }
     else
     {
-        ui->qqPitch->setText("");
+        ui->qqLead->setText("");
         ui->qqMinimum->setText("");
         ui->qqRange->setText("");
         ui->qqPosition->setText("");
@@ -215,17 +216,17 @@ void CQDlgJoints::on_qqCyclic_clicked()
     }
 }
 
-void CQDlgJoints::on_qqPitch_editingFinished()
+void CQDlgJoints::on_qqLead_editingFinished()
 {
-    if (!ui->qqPitch->isModified())
+    if (!ui->qqLead->isModified())
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqPitch->text().toFloat(&ok);
+        double newVal=ui->qqLead->text().toDouble(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_PITCH_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal/gv::userToRad);
+            App::appendSimulationThreadCommand(SET_LEAD_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -239,7 +240,7 @@ void CQDlgJoints::on_qqMinimum_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqMinimum->text().toFloat(&ok);
+        double newVal=ui->qqMinimum->text().toDouble(&ok);
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok&&(it!=nullptr))
         {
@@ -259,7 +260,7 @@ void CQDlgJoints::on_qqRange_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqRange->text().toFloat(&ok);
+        double newVal=ui->qqRange->text().toDouble(&ok);
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok&&(it!=nullptr))
         {
@@ -279,7 +280,7 @@ void CQDlgJoints::on_qqPosition_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqPosition->text().toFloat(&ok);
+        double newVal=ui->qqPosition->text().toDouble(&ok);
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok&&(it!=nullptr))
         {
@@ -366,7 +367,7 @@ void CQDlgJoints::on_qqLength_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqLength->text().toFloat(&ok);
+        double newVal=ui->qqLength->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_LENGTH_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -383,7 +384,7 @@ void CQDlgJoints::on_qqDiameter_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqDiameter->text().toFloat(&ok);
+        double newVal=ui->qqDiameter->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_DIAMETER_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

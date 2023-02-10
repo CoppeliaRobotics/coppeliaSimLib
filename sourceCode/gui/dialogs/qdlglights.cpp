@@ -123,7 +123,7 @@ void CQDlgLights::on_qqSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqSize->text().toFloat(&ok);
+        double newVal=ui->qqSize->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SIZE_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -140,7 +140,7 @@ void CQDlgLights::on_qqSpotCutoff_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqSpotCutoff->text().toFloat(&ok);
+        double newVal=ui->qqSpotCutoff->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SPOTCUTOFF_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal*gv::userToRad);
@@ -174,7 +174,7 @@ void CQDlgLights::on_qqConstantFactor_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqConstantFactor->text().toFloat(&ok);
+        double newVal=ui->qqConstantFactor->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_CONSTATTENUATION_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -191,7 +191,7 @@ void CQDlgLights::on_qqLinearFactor_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqLinearFactor->text().toFloat(&ok);
+        double newVal=ui->qqLinearFactor->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_LINATTENUATION_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -208,7 +208,7 @@ void CQDlgLights::on_qqQuadraticFactor_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqQuadraticFactor->text().toFloat(&ok);
+        double newVal=ui->qqQuadraticFactor->text().toDouble(&ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_QUADATTENUATION_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

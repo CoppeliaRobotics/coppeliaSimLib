@@ -104,7 +104,7 @@ void CQDlgSettings::on_removeIdenticalVerticesTolerance_editingFinished()
         return;
     double newVal;
     bool ok;
-    newVal=ui->removeIdenticalVerticesTolerance->text().toFloat(&ok);
+    newVal=ui->removeIdenticalVerticesTolerance->text().toDouble(&ok);
     if (ok)
     {
         if (newVal>=0.0)

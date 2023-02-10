@@ -1,10 +1,14 @@
 #include <ttUtil.h>
+#include <simMath/mathDefines.h>
 #include <stdarg.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 #include <base64.h>
 #include <vDateTime.h>
 #include <regex>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 
 void CTTUtil::lightBinaryEncode(char* data,int length)
 { // Very simple!
@@ -305,12 +309,134 @@ int CTTUtil::lineCountAtOffset(const char* str,int offset)
 bool CTTUtil::doStringMatch_wildcard(const char* wildcardStr,const char* otherStr)
 {
     if ( (wildcardStr[0]=='\0')&&(otherStr[0]=='\0') )
-        return(true);
+        return true;
     if ( (wildcardStr[0]=='*')&&((wildcardStr+1)[0]!='\0')&&(otherStr[0]=='\0') )
-        return(false);
+        return false;
     if ( (wildcardStr[0]=='?')||(wildcardStr[0]==otherStr[0]) )
-        return(doStringMatch_wildcard(wildcardStr+1,otherStr+1));
+        return doStringMatch_wildcard(wildcardStr+1,otherStr+1);
     if (wildcardStr[0]=='*')
-        return(doStringMatch_wildcard(wildcardStr+1,otherStr)||doStringMatch_wildcard(wildcardStr,otherStr+1));
-    return(false);
+        return (doStringMatch_wildcard(wildcardStr+1,otherStr)||doStringMatch_wildcard(wildcardStr,otherStr+1));
+    return false;
 }
+
+std::string CTTUtil::_getDoubleString(bool sign,double num,int minDecimals,int maxDecimals,double minForExpNotation/*=0.0*/,double maxForExpNotation/*=0.0*/)
+{
+    std::string retVal;
+    if ( ( (minForExpNotation!=0.0)&&(num!=0.0)&&(fabs(num)<minForExpNotation) )||
+        ( (maxForExpNotation!=0.0)&&(fabs(num)>maxForExpNotation) ) )
+    {
+        std::stringstream s;
+        s.precision(3);
+        s.setf(std::ios::scientific, std::ios::floatfield );
+        s << num;
+        retVal=s.str();
+        if (sign&&(num>=0.0))
+            retVal="+"+retVal;
+        // Following very unelegant but temporary (to avoid an exponent of 3 width):
+        int l=retVal.size();
+        if ( ((retVal[l-4]=='-')||(retVal[l-4]=='+'))&&(retVal[l-3]=='0') )
+            retVal.erase(retVal.begin()+l-3);
+    }
+    else
+    {
+        std::ostringstream stream;
+        stream << std::fixed << std::setprecision(maxDecimals) << num;
+        retVal = stream.str();
+        int total_decimals = retVal.length() - (retVal.find(".") + 1);
+        while (total_decimals < maxDecimals)
+        {
+            retVal+='0';
+            total_decimals++;
+        }
+        for (int i=0;i<maxDecimals-minDecimals;i++)
+        {
+            if (retVal[retVal.length()-1]=='0')
+                retVal.erase(retVal.length()-1,1);
+        }
+        if ( (retVal[0]=='-')||(retVal[0]=='+') )
+            retVal.erase(0,1);
+        bool zero=true;
+        for (size_t i=0;i<retVal.length();i++)
+        {
+            if ( (retVal[i]!='.')&&(retVal[i]!='0') )
+            {
+                zero=false;
+                break;
+            }
+        }
+        if (!zero)
+        {
+            if (num<=0.0)
+                retVal="-"+retVal;
+            else if (sign)
+                retVal="+"+retVal;
+        }
+    }
+    return retVal;
+}
+
+std::string CTTUtil::getPosString(bool sign,double num)
+{
+    return _getDoubleString(sign,num,3,5);
+}
+
+std::string CTTUtil::getSizeString(bool sign,double num)
+{
+    return _getDoubleString(sign,num,2,3);
+}
+
+std::string CTTUtil::getAngleString(bool sign,double num)
+{
+    return _getDoubleString(sign,num*radToDeg,2,3);
+}
+
+std::string CTTUtil::getVolumeString(double num)
+{
+    return _getDoubleString(false,num,5,6);
+}
+
+std::string CTTUtil::getMultString(bool sign,double num)
+{
+    return _getDoubleString(sign,num,2,4);
+}
+
+std::string CTTUtil::getForceTorqueString(bool sign,double num)
+{
+    return _getDoubleString(sign,num,2,4);
+}
+
+std::string CTTUtil::getMasslessTensorString(bool sign,double num)
+{
+    return _getDoubleString(sign,num,3,6,0.00001,1000.0);
+}
+
+std::string CTTUtil::getLinVelString(bool sign,double num)
+{
+    return _getDoubleString(sign,num,2,4);
+}
+
+std::string CTTUtil::getAngVelString(bool sign,double num)
+{
+    return _getDoubleString(sign,num*radToDeg,2,3);
+}
+
+std::string CTTUtil::getLinAccelString(bool sign,double num)
+{
+    return _getDoubleString(sign,num,2,4);
+}
+
+std::string CTTUtil::getAngAccelString(bool sign,double num)
+{
+    return _getDoubleString(sign,num*radToDeg,2,3);
+}
+
+std::string CTTUtil::getLinJerkString(bool sign,double num)
+{
+    return _getDoubleString(sign,num,2,4);
+}
+
+std::string CTTUtil::getAngJerkString(bool sign,double num)
+{
+    return _getDoubleString(sign,num*radToDeg,2,3);
+}
+

@@ -86,7 +86,7 @@ void CQDlgProxSensDetectionParam::on_qqLimitedAngle_clicked()
 void CQDlgProxSensDetectionParam::on_qqAngle_editingFinished()
 {
     bool ok;
-    double newVal=ui->qqAngle->text().toFloat(&ok);
+    double newVal=ui->qqAngle->text().toDouble(&ok);
     if (ok)
     {
         angle=(newVal*gv::userToRad);
@@ -110,7 +110,7 @@ void CQDlgProxSensDetectionParam::on_qqMinDistEnabled_clicked()
 void CQDlgProxSensDetectionParam::on_qqMinDist_editingFinished()
 {
     bool ok;
-    double newVal=ui->qqMinDist->text().toFloat(&ok);
+    double newVal=ui->qqMinDist->text().toDouble(&ok);
     if (ok)
         minimumDistance=(newVal);
     refresh();

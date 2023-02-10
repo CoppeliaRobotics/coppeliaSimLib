@@ -30,5 +30,21 @@ public:
     static void removeComments(std::string& line);
     static int lineCountAtOffset(const char* str,int offset);
     static bool doStringMatch_wildcard(const char* wildcardStr,const char* otherStr);
+    static std::string getPosString(bool sign,double num);
+    static std::string getSizeString(bool sign,double num);
+    static std::string getAngleString(bool sign,double num);
+    static std::string getVolumeString(double num);
+    static std::string getMultString(bool sign,double num);
+    static std::string getForceTorqueString(bool sign,double num);
+    static std::string getMasslessTensorString(bool sign,double num);
+    static std::string getLinVelString(bool sign,double num);
+    static std::string getAngVelString(bool sign,double num);
+    static std::string getLinAccelString(bool sign,double num);
+    static std::string getAngAccelString(bool sign,double num);
+    static std::string getLinJerkString(bool sign,double num);
+    static std::string getAngJerkString(bool sign,double num);
+
+private:
+    static std::string _getDoubleString(bool sign,double num,int minDecimals,int maxDecimals,double minForExpNotation=0.0,double maxForExpNotation=0.0);
 
 };
