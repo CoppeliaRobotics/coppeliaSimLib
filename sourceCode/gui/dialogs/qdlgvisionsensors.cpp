@@ -1,6 +1,7 @@
 #include <qdlgvisionsensors.h>
 #include <ui_qdlgvisionsensors.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <gV.h>
 #include <qdlgmaterial.h>
 #include <qdlgimagecolor.h>
@@ -79,8 +80,8 @@ void CQDlgVisionSensors::refresh()
 
         ui->qqShowFog->setChecked(s->getShowFogIfAvailable());
 
-        ui->qqNearPlane->setText(tt::getEString(false,s->getNearClippingPlane(),2).c_str());
-        ui->qqFarPlane->setText(tt::getEString(false,s->getFarClippingPlane(),2).c_str());
+        ui->qqNearPlane->setText(CTTUtil::getSizeString(false,s->getNearClippingPlane()).c_str());
+        ui->qqFarPlane->setText(CTTUtil::getSizeString(false,s->getFarClippingPlane()).c_str());
 
         if (s->getPerspective())
             ui->qqPerspectiveAngleOrOrthographicSize->setText(gv::getAngleStr(false,s->getViewAngle(),0).c_str());

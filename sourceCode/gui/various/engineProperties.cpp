@@ -1751,7 +1751,7 @@ double CEngineProperties::_getGlobalFloatParam(int item,std::string& comment,con
     if (!similar)
     {
         comment="DEFAULT: ";
-        comment+=std::to_string(def);
+        comment+=CTTUtil::getDoubleString(false,def,3,5,0.0001,9999);
         if (additionalComment!=nullptr)
         {
             comment+=" (";
@@ -1846,7 +1846,7 @@ void CEngineProperties::_getGlobalFloatParams(int item,double* w,size_t cnt,std:
         {
             if (i!=0)
                 comment+=",";
-            comment+=tt::getEString(false,def[i],3);
+            comment+=CTTUtil::getDoubleString(false,def[i],3,5,0.0001,9999);
         }
         comment+="]";
         if (additionalComment!=nullptr)

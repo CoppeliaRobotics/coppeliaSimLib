@@ -3,6 +3,7 @@
 #include <app.h>
 #include <gV.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <simStrings.h>
 #include <boost/lexical_cast.hpp>
 
@@ -68,14 +69,14 @@ void CQDlgPathEdit::refresh()
         ui->qqFactor1->setText(tt::getFString(false,bInt0,3).c_str());
         ui->qqFactor2->setText(tt::getFString(false,bInt1,3).c_str());
         ui->qqPointCount->setText(tt::getIString(false,it->getBezierPointCount()).c_str());
-        ui->qqVirtualDistance->setText(tt::getEString(false,it->getOnSpotDistance(),3).c_str());
+        ui->qqVirtualDistance->setText(CTTUtil::getPosString(false,it->getOnSpotDistance()).c_str());
         ui->qqAuxFlags->setText(tt::getIString(false,it->getAuxFlags()).c_str());
         double auxChannels[4];
         it->getAuxChannels(auxChannels);
-        ui->qqAuxChannel1->setText(tt::getEString(false,auxChannels[0],3).c_str());
-        ui->qqAuxChannel2->setText(tt::getEString(false,auxChannels[1],3).c_str());
-        ui->qqAuxChannel3->setText(tt::getEString(false,auxChannels[2],3).c_str());
-        ui->qqAuxChannel4->setText(tt::getEString(false,auxChannels[3],3).c_str());
+        ui->qqAuxChannel1->setText(CTTUtil::getSizeString(false,auxChannels[0]).c_str());
+        ui->qqAuxChannel2->setText(CTTUtil::getSizeString(false,auxChannels[1]).c_str());
+        ui->qqAuxChannel3->setText(CTTUtil::getSizeString(false,auxChannels[2]).c_str());
+        ui->qqAuxChannel4->setText(CTTUtil::getSizeString(false,auxChannels[3]).c_str());
     }
     else
     {

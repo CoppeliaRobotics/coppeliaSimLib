@@ -990,7 +990,7 @@ void CGraph::exportGraphData(VArchive &ar)
                 txt+=",";
                 double val;
                 if (_dataStreams[i]->getExportValue(startingPoint,pos,&val,nullptr))
-                    txt+=tt::getEString(true,val,4);
+                    txt+=CTTUtil::getDoubleEString(true,val);
                 else
                     txt+="Null";
             }
@@ -1006,7 +1006,7 @@ void CGraph::exportGraphData(VArchive &ar)
                 double val;
                 bool dataIsValid=getData(gr,absIndex,val,cyclic,range,true);
                 if (dataIsValid)
-                    txt+=tt::getEString(true,val,4);
+                    txt+=CTTUtil::getDoubleEString(true,val);
                 else
                     txt+="Null";
             }
@@ -3305,7 +3305,7 @@ void CGraph::drawValues(int windowSize[2],double graphPosition[2],double graphSi
                     {
                         CGraphData_old* it=dataStreams_old[trackingValueIndex];
                         tmp=" ("+tt::getEString(false,trackingValue[0],5)+" ; ";
-                        tmp+=tt::getEString(false,trackingValue[1],5)+")";
+                        tmp+=CTTUtil::getDoubleEString(true,trackingValue[1])+")";
                         tmp=it->getName()+tmp;
                         double l0=r[0]*2.5;
                         if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5)
@@ -3321,8 +3321,8 @@ void CGraph::drawValues(int windowSize[2],double graphPosition[2],double graphSi
                     else
                     { // Tracking a static curve here!
                         CStaticGraphCurve_old* it=staticStreamsAndCurves_old[trackingValueIndex];
-                        tmp=" [STATIC] ("+tt::getEString(false,trackingValue[0],5)+" ; ";
-                        tmp+=tt::getEString(false,trackingValue[1],5)+")";
+                        tmp=" [STATIC] ("+CTTUtil::getDoubleEString(false,trackingValue[0])+" ; ";
+                        tmp+=CTTUtil::getDoubleEString(false,trackingValue[1])+")";
                         tmp=it->getName()+tmp;
                         double l0=r[0]*2.5;
                         if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5)
@@ -3339,8 +3339,8 @@ void CGraph::drawValues(int windowSize[2],double graphPosition[2],double graphSi
                     if (!trackingValueIsStatic)
                     {
                         CGraphDataComb_old* it=curves2d_old[trackingValueIndex];
-                        tmp=" ("+tt::getEString(false,trackingValue[0],5)+" ; ";
-                        tmp+=tt::getEString(false,trackingValue[1],5)+")";
+                        tmp=" ("+CTTUtil::getDoubleEString(false,trackingValue[0])+" ; ";
+                        tmp+=CTTUtil::getDoubleEString(false,trackingValue[1])+")";
                         tmp=it->getName()+tmp;
                         double l0=r[0]*2.5;
                         if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5)
@@ -3356,8 +3356,8 @@ void CGraph::drawValues(int windowSize[2],double graphPosition[2],double graphSi
                     else
                     { // tracking a static curve here!
                         CStaticGraphCurve_old* it=staticStreamsAndCurves_old[trackingValueIndex];
-                        tmp=" [STATIC] ("+tt::getEString(false,trackingValue[0],5)+" ; ";
-                        tmp+=tt::getEString(false,trackingValue[1],5)+")";
+                        tmp=" [STATIC] ("+CTTUtil::getDoubleEString(false,trackingValue[0])+" ; ";
+                        tmp+=CTTUtil::getDoubleEString(false,trackingValue[1])+")";
                         tmp=it->getName()+tmp;
                         double l0=r[0]*2.5;
                         if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5)

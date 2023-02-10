@@ -36,6 +36,7 @@ public:
     static std::string getVolumeString(double num);
     static std::string getMultString(bool sign,double num);
     static std::string getForceTorqueString(bool sign,double num);
+    static std::string getMassString(double num);
     static std::string getMasslessTensorString(bool sign,double num);
     static std::string getLinVelString(bool sign,double num);
     static std::string getAngVelString(bool sign,double num);
@@ -44,7 +45,10 @@ public:
     static std::string getLinJerkString(bool sign,double num);
     static std::string getAngJerkString(bool sign,double num);
 
+    static std::string getDoubleString(bool sign,double num,int minDecimals,int maxDecimals,double minForExpNotation=0.0,double maxForExpNotation=0.0);
+    static std::string getDoubleEString(bool sign,double num);
+
+    static double getDoubleFromString(const char* str);
 private:
-    static std::string _getDoubleString(bool sign,double num,int minDecimals,int maxDecimals,double minForExpNotation=0.0,double maxForExpNotation=0.0);
 
 };

@@ -1,6 +1,7 @@
 #include <qdlgprimitives.h>
 #include <ui_qdlgprimitives.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <gV.h>
 #include <simStrings.h>
 #include <app.h>
@@ -71,8 +72,8 @@ void CQDlgPrimitives::refresh()
     ui->qqDensity->setEnabled(dynamic);
     ui->qqDensity->setText(tt::getFString(false,density,1).c_str());
 
-    ui->qqXSize->setText(tt::getEString(false,xSize,4).c_str());
-    ui->qqYSize->setText(tt::getEString(false,ySize,4).c_str());
+    ui->qqXSize->setText(CTTUtil::getSizeString(false,xSize).c_str());
+    ui->qqYSize->setText(CTTUtil::getSizeString(false,ySize).c_str());
 
     if (primitiveType==sim_primitiveshape_plane)
     {
@@ -122,7 +123,7 @@ void CQDlgPrimitives::refresh()
         ui->qqFaceSubdiv->setEnabled(false);
         ui->qqSides->setEnabled(false);
 
-        ui->qqZSize->setText(tt::getEString(false,zSize,4).c_str());
+        ui->qqZSize->setText(CTTUtil::getSizeString(false,zSize).c_str());
 
         ui->qqFaceSubdiv->setText("");
         ui->qqSides->setText("");
@@ -156,7 +157,7 @@ void CQDlgPrimitives::refresh()
         ui->qqFaceSubdiv->setEnabled(false);
         ui->qqSides->setEnabled(true);
 
-        ui->qqZSize->setText(tt::getEString(false,zSize,4).c_str());
+        ui->qqZSize->setText(CTTUtil::getSizeString(false,zSize).c_str());
 
         ui->qqFaceSubdiv->setText("");
         ui->qqSides->setText(tt::getIString(false,sides).c_str());
@@ -190,7 +191,7 @@ void CQDlgPrimitives::refresh()
         ui->qqFaceSubdiv->setEnabled(true);
         ui->qqSides->setEnabled(true);
 
-        ui->qqZSize->setText(tt::getEString(false,zSize,4).c_str());
+        ui->qqZSize->setText(CTTUtil::getSizeString(false,zSize).c_str());
 
         ui->qqFaceSubdiv->setText(tt::getIString(false,faceSubdiv).c_str());
         ui->qqSides->setText(tt::getIString(false,sides).c_str());
@@ -223,7 +224,7 @@ void CQDlgPrimitives::refresh()
         ui->qqFaceSubdiv->setEnabled(true);
         ui->qqSides->setEnabled(true);
 
-        ui->qqZSize->setText(tt::getEString(false,zSize,4).c_str());
+        ui->qqZSize->setText(CTTUtil::getSizeString(false,zSize).c_str());
 
         ui->qqFaceSubdiv->setText(tt::getIString(false,faceSubdiv).c_str());
         ui->qqSides->setText(tt::getIString(false,sides).c_str());
@@ -289,7 +290,7 @@ void CQDlgPrimitives::refresh()
         ui->qqFaceSubdiv->setEnabled(true);
         ui->qqSides->setEnabled(true);
 
-        ui->qqZSize->setText(tt::getEString(false,zSize,4).c_str());
+        ui->qqZSize->setText(CTTUtil::getSizeString(false,zSize).c_str());
 
         ui->qqFaceSubdiv->setText(tt::getIString(false,faceSubdiv).c_str());
         ui->qqSides->setText(tt::getIString(false,sides).c_str());

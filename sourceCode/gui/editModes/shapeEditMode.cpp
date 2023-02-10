@@ -8,6 +8,7 @@
 #include <app.h>
 #include <rendering.h>
 #include <tt.h>
+#include <ttUtil.h>
 
 CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContainer* objCont,CTextureContainer* textureCont,CUiThread* uiThread,bool identicalVerticesCheck,bool identicalTrianglesCheck,double identicalVerticesTolerance)
 {
@@ -1846,7 +1847,7 @@ void CShapeEditMode::makeDummies()
 //            txt+="{";
             for (size_t j=0;j<3;j++)
             {
-                txt+=tt::getEString(false,relPathPts[3*i+j],4);
+                txt+=CTTUtil::getPosString(false,relPathPts[3*i+j]);
                 if ( (j!=2)||(i<(relPathPts.size()/3)-1) )
                     txt+=",";
             }
@@ -1865,7 +1866,7 @@ void CShapeEditMode::makeDummies()
             {
                 C3Vector v(&relPathPts[3*i+0]);
                 v=tr*v;
-                txt+=tt::getEString(false,v(j),4);
+                txt+=CTTUtil::getPosString(false,v(j));
                 if ( (j!=2)||(i<(relPathPts.size()/3)-1) )
                     txt+=",";
             }
@@ -2004,7 +2005,7 @@ void CShapeEditMode::makePath()
 //            txt+="{";
             for (size_t j=0;j<3;j++)
             {
-                txt+=tt::getEString(false,relPathPts[3*i+j],4);
+                txt+=CTTUtil::getPosString(false,relPathPts[3*i+j]);
                 if ( (j!=2)||(i<(relPathPts.size()/3)-1) )
                     txt+=",";
             }
@@ -2023,7 +2024,7 @@ void CShapeEditMode::makePath()
             {
                 C3Vector v(&relPathPts[3*i+0]);
                 v=sctm*v;
-                txt+=tt::getEString(false,v(j),4);
+                txt+=CTTUtil::getPosString(false,v(j));
                 if ( (j!=2)||(i<(relPathPts.size()/3)-1) )
                     txt+=",";
             }

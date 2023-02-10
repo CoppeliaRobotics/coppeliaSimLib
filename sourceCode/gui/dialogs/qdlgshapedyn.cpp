@@ -1,6 +1,7 @@
 #include <qdlgshapedyn.h>
 #include <ui_qdlgshapedyn.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <gV.h>
 #include <simStrings.h>
 #include <app.h>
@@ -115,19 +116,19 @@ void CQDlgShapeDyn::refresh()
     ui->qqSleepModeStart->setChecked(sel&&it->getStartInDynamicSleeping());
     if (sel)
     {
-        ui->qqMass->setText(tt::getEString(false,it->getMeshWrapper()->getMass(),3).c_str());
+        ui->qqMass->setText(CTTUtil::getMassString(it->getMeshWrapper()->getMass()).c_str());
         C3Vector v(it->getMeshWrapper()->getPrincipalMomentsOfInertia());
-        ui->qqIX->setText(tt::getEString(false,v(0),3).c_str());
-        ui->qqIY->setText(tt::getEString(false,v(1),3).c_str());
-        ui->qqIZ->setText(tt::getEString(false,v(2),3).c_str());
+        ui->qqIX->setText(CTTUtil::getMasslessTensorString(false,v(0)).c_str());
+        ui->qqIY->setText(CTTUtil::getMasslessTensorString(false,v(1)).c_str());
+        ui->qqIZ->setText(CTTUtil::getMasslessTensorString(false,v(2)).c_str());
         C4X4Matrix m(it->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
         C3Vector e(m.M.getEulerAngles());
-        ui->qqPX->setText(tt::getEString(true,m.X(0),3).c_str());
-        ui->qqPY->setText(tt::getEString(true,m.X(1),3).c_str());
-        ui->qqPZ->setText(tt::getEString(true,m.X(2),3).c_str());
-        ui->qqAlpha->setText(tt::getAngleEString(true,e(0),2).c_str());
-        ui->qqBeta->setText(tt::getAngleEString(true,e(1),2).c_str());
-        ui->qqGamma->setText(tt::getAngleEString(true,e(2),2).c_str());
+        ui->qqPX->setText(CTTUtil::getPosString(true,m.X(0)).c_str());
+        ui->qqPY->setText(CTTUtil::getPosString(true,m.X(1)).c_str());
+        ui->qqPZ->setText(CTTUtil::getPosString(true,m.X(2)).c_str());
+        ui->qqAlpha->setText(CTTUtil::getAngleString(true,e(0)).c_str());
+        ui->qqBeta->setText(CTTUtil::getAngleString(true,e(1)).c_str());
+        ui->qqGamma->setText(CTTUtil::getAngleString(true,e(2)).c_str());
     }
     else
     {

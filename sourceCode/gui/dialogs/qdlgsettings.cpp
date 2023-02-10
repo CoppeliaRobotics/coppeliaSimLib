@@ -1,6 +1,7 @@
 #include <qdlgsettings.h>
 #include <ui_qdlgsettings.h>
 #include <tt.h>
+#include <ttUtil.h>
 #include <gV.h>
 #include <simStrings.h>
 #include <vFileDialog.h>
@@ -63,7 +64,7 @@ void CQDlgSettings::refresh()
     _selectItemOfCombobox(ui->rotationStepSize,int(App::userSettings->getRotationStepSize()*radToDeg+0.5));
 
     ui->removeIdenticalVerticesCheckbox->setChecked(App::userSettings->identicalVerticesCheck);
-    ui->removeIdenticalVerticesTolerance->setText(tt::getEString(false,App::userSettings->identicalVerticesTolerance,2).c_str());
+    ui->removeIdenticalVerticesTolerance->setText(CTTUtil::getPosString(false,App::userSettings->identicalVerticesTolerance).c_str());
 
     ui->removeIdenticalTriangles->setChecked(App::userSettings->identicalTrianglesCheck);
     ui->ignoreTriangleWinding->setChecked(App::userSettings->identicalTrianglesWindingCheck);

@@ -2832,6 +2832,8 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                     }
                 }
             }
+
+
         }
 
         if (selMap!=nullptr)
