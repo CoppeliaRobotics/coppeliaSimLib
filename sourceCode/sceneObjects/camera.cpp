@@ -2833,7 +2833,24 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                 }
             }
 
-
+            for (size_t rp=0;rp<toRender.size();rp++)
+            {
+                CSceneObject* it=toRender[rp];
+                if (it->getSelected())
+                {
+                    int atr=displayAttrib|sim_displayattribute_selected;
+                    if (it->getObjectHandle()==lastSel)
+                        atr|=sim_displayattribute_mainselection;
+                    if  ( (it->getObjectHandle()!=getObjectHandle())||mirrored )
+                    {
+                        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+                        {
+                            if (getInternalRendering())
+                                it->displaySelected(this,atr);
+                        }
+                    }
+                }
+            }
         }
 
         if (selMap!=nullptr)

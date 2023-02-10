@@ -23,6 +23,7 @@
 #include <boost/algorithm/string.hpp>
 #include <pluginContainer.h>
 #ifdef SIM_WITH_GUI
+    #include <rendering.h>
     #include <oGL.h>
     #include <oglSurface.h>
 #endif
@@ -3774,6 +3775,11 @@ bool CSceneObject::getRestoreToDefaultLights() const
 
 void CSceneObject::display(CViewableBase* renderingObject,int displayAttrib)
 {
+}
+
+void CSceneObject::displaySelected(CViewableBase* renderingObject,int displayAttrib)
+{
+    _displaySelected(this,renderingObject,displayAttrib);
 }
 
 #ifdef SIM_WITH_GUI

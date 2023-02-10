@@ -41,6 +41,7 @@ public:
     virtual void connectSynchronizationObject();
     virtual void removeSynchronizationObject(bool localReferencesToItOnly);
 
+    virtual void displaySelected(CViewableBase* renderingObject,int displayAttrib);
     virtual void display(CViewableBase* renderingObject,int displayAttrib);
     virtual void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     virtual CSceneObject* copyYourself();

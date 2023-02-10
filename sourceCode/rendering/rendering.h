@@ -34,6 +34,7 @@ void _selectLights(CSceneObject* object,CViewableBase* viewable);
 void _restoreDefaultLights(CSceneObject* object,CViewableBase* viewable);
 void _commonStart(CSceneObject* object,CViewableBase* viewable,int displayAttrib);
 void _commonFinish(CSceneObject* object,CViewableBase* viewable);
+void _displaySelected(CSceneObject* object,CViewableBase* viewable,int displayAttrib);
 
 void _drawTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,const float* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId);
 bool _drawEdges(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const unsigned char* edges,int* edgeBufferId);

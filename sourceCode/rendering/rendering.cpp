@@ -547,6 +547,18 @@ void _restoreDefaultLights(CSceneObject* object,CViewableBase* viewable)
         _activateNonAmbientLights(-1,viewable);
 }
 
+void _displaySelected(CSceneObject* object,CViewableBase* viewable,int displayAttrib)
+{
+    if (displayAttrib&sim_displayattribute_renderpass)
+    {
+        _commonStart(object,viewable,displayAttrib);
+        glDisable(GL_DEPTH_TEST);
+        _displayBoundingBox(object,displayAttrib,true,0.0);
+        glEnable(GL_DEPTH_TEST);
+        _commonFinish(object,viewable);
+    }
+}
+
 void _commonStart(CSceneObject* object,CViewableBase* viewable,int displayAttrib)
 {
     _selectLights(object,viewable);
