@@ -289,6 +289,12 @@ void CMainWindow::initializeWindow()
     setWindowDimensions(App::userSettings->initWindowSize[0],App::userSettings->initWindowSize[1]);
 }
 
+void CMainWindow::announceScriptStateWillBeErased(int scriptHandle)
+{
+    if (codeEditorContainer!=nullptr)
+        codeEditorContainer->announceScriptStateWillBeErased(scriptHandle);
+}
+
 void CMainWindow::setProxSensorClickSelectDown(int v)
 {
     _proxSensorClickSelectDown=v;

@@ -251,6 +251,29 @@ CCodeEditorContainer::~CCodeEditorContainer()
 {
 }
 
+void CCodeEditorContainer::announceScriptStateWillBeErased(int scriptHandle)
+{
+    for (size_t i=0;i<_allEditors.size();i++)
+    {
+        if (_allEditors[i].callingScriptHandle==scriptHandle)
+        {
+            int handle=_allEditors[i].handle;
+            int pas[4];
+            CPluginContainer::codeEditor_close(handle,pas);
+            // Here we need to find the correct index again, ordering might have changed (see above):
+            for (size_t j=0;j<_allEditors.size();j++)
+            {
+                if (_allEditors[j].handle==handle)
+                {
+                    _allEditors.erase(_allEditors.begin()+j);
+                    break;
+                }
+            }
+            break;
+        }
+    }
+}
+
 int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
 {
     int retVal=-1;

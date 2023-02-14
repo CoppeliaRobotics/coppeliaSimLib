@@ -923,6 +923,11 @@ void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle,bool simu
 
     moduleMenuItemContainer->announceScriptStateWillBeErased(scriptHandle);
     currentWorld->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
+#ifdef SIM_WITH_GUI
+    if (App::mainWindow!=nullptr)
+        App::mainWindow->announceScriptStateWillBeErased(scriptHandle);
+#endif
+
 }
 
 

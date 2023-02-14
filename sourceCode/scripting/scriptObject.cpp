@@ -2092,8 +2092,6 @@ int CScriptObject::_callScriptFunction(int sysCallType,const char* functionName,
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
 
         stack->pushTableOntoStack();
-        stack->pushStringOntoStack("message",0);
-        stack->pushTableOntoStack();
 
         stack->pushStringOntoStack("id",0); // key or index
         stack->pushStringOntoStack("systemCall",0);
@@ -2110,7 +2108,6 @@ int CScriptObject::_callScriptFunction(int sysCallType,const char* functionName,
         stack->pushInt32OntoStack(_scriptHandle);
         stack->insertDataIntoStackTable();
 
-        stack->insertDataIntoStackTable(); // data
         stack->insertDataIntoStackTable();
         App::worldContainer->broadcastMsg(stack,_scriptHandle,0);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);

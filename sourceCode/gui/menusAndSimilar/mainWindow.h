@@ -35,6 +35,8 @@ public:
     void executeCommand(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
     void initializeWindow();
 
+    void announceScriptStateWillBeErased(int scriptHandle);
+
     bool event(QEvent* event);
     void dragEnterEvent(QDragEnterEvent* dEvent);
     void dropEvent(QDropEvent* dEvent);

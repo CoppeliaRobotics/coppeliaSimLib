@@ -32,6 +32,8 @@ public:
 
     // From sim thread:
     int openScriptWithExternalEditor(int scriptHandle);
+    void announceScriptStateWillBeErased(int scriptHandle);
+
 
     int open(const char* initText,const char* xml,int callingScriptHandle); // func. sim.textEditorOpen
     int openSimulationScript(int scriptHandle,int callingScriptHandle); // main and child scripts

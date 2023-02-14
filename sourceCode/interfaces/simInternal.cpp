@@ -7828,7 +7828,7 @@ int simAuxiliaryConsoleOpen_internal(const char* title,int maxLines,int mode,con
                 if (backgroundColor!=nullptr)
                     bCol[i]=int(backgroundColor[i]*255.1);
             }
-            retVal=App::mainWindow->codeEditorContainer->openConsole(title,maxLines,mode,position,size,tCol,bCol,-1);
+            retVal=App::mainWindow->codeEditorContainer->openConsole(title,maxLines,mode,position,size,tCol,bCol,_currentScriptHandle);
         }
 #endif
         return(retVal);

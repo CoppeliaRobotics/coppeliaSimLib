@@ -9321,7 +9321,10 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
                             getFloatsFromTable(L,7,3,bc_);
                             bc=bc_;
                         }
+                        std::string name(luaWrap_lua_tostring(L,1));
+                        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),-1); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                         retVal=simAuxiliaryConsoleOpen_internal(luaWrap_lua_tostring(L,1),luaToInt(L,2),mode,p,s,tc,bc);
+                        setCurrentScriptInfo_cSide(-1,-1);
                     }
                 }
             }
