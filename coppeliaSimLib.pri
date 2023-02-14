@@ -512,7 +512,6 @@ HEADERS += $$PWD/sourceCode/geometricAlgorithms/linMotionRoutines.h \
     $$PWD/sourceCode/geometricAlgorithms/algos.h \
 
 HEADERS += $$PWD/sourceCode/various/simConfig.h \
-    $$PWD/sourceCode/various/gV.h \
     $$PWD/sourceCode/various/global.h \
     $$PWD/sourceCode/various/embeddedFonts.h \
     $$PWD/sourceCode/various/userSettings.h \
@@ -569,7 +568,7 @@ HEADERS += $$PWD/sourceCode/displ/colorObject.h \
 
 HEADERS += $$PWD/sourceCode/utils/threadPool_old.h \
     $$PWD/sourceCode/utils/tt.h \
-    $$PWD/sourceCode/utils/ttUtil.h \
+    $$PWD/sourceCode/utils/utils.h \
     $$PWD/sourceCode/utils/confReaderAndWriter.h \
     $$PWD/sourceCode/utils/base64.h \
     $$PWD/sourceCode/utils/cbor.h \
@@ -914,8 +913,7 @@ SOURCES += $$PWD/sourceCode/geometricAlgorithms/linMotionRoutines.cpp \
     $$PWD/sourceCode/geometricAlgorithms/edgeElement.cpp \
     $$PWD/sourceCode/geometricAlgorithms/algos.cpp \
 
-SOURCES += $$PWD/sourceCode/various/gV.cpp \
-    $$PWD/sourceCode/various/memorizedConf_old.cpp \
+SOURCES += $$PWD/sourceCode/various/memorizedConf_old.cpp \
     $$PWD/sourceCode/various/userSettings.cpp \
     $$PWD/sourceCode/various/folderSystem.cpp \
     $$PWD/sourceCode/various/uiThread.cpp \
@@ -968,7 +966,7 @@ SOURCES += $$PWD/sourceCode/displ/colorObject.cpp \
 SOURCES += $$PWD/sourceCode/visual/thumbnail.cpp \
 
 SOURCES += $$PWD/sourceCode/utils/threadPool_old.cpp \
-    $$PWD/sourceCode/utils/ttUtil.cpp \
+    $$PWD/sourceCode/utils/utils.cpp \
     $$PWD/sourceCode/utils/tt.cpp \
     $$PWD/sourceCode/utils/confReaderAndWriter.cpp \
     $$PWD/sourceCode/utils/base64.cpp \

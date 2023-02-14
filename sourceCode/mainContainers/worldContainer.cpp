@@ -3,14 +3,14 @@
 #include <pluginContainer.h>
 #include <rendering.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <interfaceStackString.h>
 #include <interfaceStackInteger.h>
 
 CWorldContainer::CWorldContainer()
 {
     TRACE_INTERNAL;
-    _sessionId=CTTUtil::generateUniqueReadableString();
+    _sessionId=utils::generateUniqueReadableString();
     copyBuffer=nullptr;
     sandboxScript=nullptr;
     addOnScriptContainer=nullptr;
@@ -404,36 +404,42 @@ int CWorldContainer::getSysFuncAndHookCnt(int sysCall) const
     return(retVal);
 }
 
-void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch/*=nullptr*/)
+void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch/*=nullptr*/,int scriptToExclude/*=-1*/)
 {
     TRACE_INTERNAL;
     bool doNotInterrupt=!CScriptObject::isSystemCallbackInterruptible(callType);
     if (CScriptObject::isSystemCallbackInReverseOrder(callType))
     { // reverse order
         if ( (sandboxScript!=nullptr)&&(sandboxScript->hasSystemFunctionOrHook(callType)||sandboxScript->getOldCallMode()) )
-            sandboxScript->systemCallScript(callType,inStack,outStack);
+        {
+            if (scriptToExclude!=sandboxScript->getScriptHandle())
+                sandboxScript->systemCallScript(callType,inStack,outStack);
+        }
         if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
-            addOnScriptContainer->callScripts(callType,inStack,outStack);
+            addOnScriptContainer->callScripts(callType,inStack,outStack,scriptToExclude);
         if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
-            currentWorld->embeddedScriptContainer->callScripts(callType,inStack,outStack,objectBranch);
+            currentWorld->embeddedScriptContainer->callScripts(callType,inStack,outStack,objectBranch,scriptToExclude);
     }
     else
     { // regular order, from unimportant, to most important
-        currentWorld->embeddedScriptContainer->callScripts(callType,inStack,outStack,objectBranch);
+        currentWorld->embeddedScriptContainer->callScripts(callType,inStack,outStack,objectBranch,scriptToExclude);
         if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
-            addOnScriptContainer->callScripts(callType,inStack,outStack);
+            addOnScriptContainer->callScripts(callType,inStack,outStack,scriptToExclude);
         if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
         {
             if ( (sandboxScript!=nullptr)&&(sandboxScript->hasSystemFunctionOrHook(callType)||sandboxScript->getOldCallMode()) )
-                sandboxScript->systemCallScript(callType,inStack,outStack);
+            {
+                if (scriptToExclude!=sandboxScript->getScriptHandle())
+                    sandboxScript->systemCallScript(callType,inStack,outStack);
+            }
         }
     }
 }
 
-void CWorldContainer::broadcastMsg(CInterfaceStack* inStack,int options)
+void CWorldContainer::broadcastMsg(CInterfaceStack* inStack,int emittingScriptHandle,int options)
 {
     TRACE_INTERNAL;
-    callScripts(sim_syscb_msg,inStack,nullptr);
+    callScripts(sim_syscb_msg,inStack,nullptr,nullptr,emittingScriptHandle);
 }
 
 long long int CWorldContainer::_eventSeq=0;
@@ -810,7 +816,7 @@ void CWorldContainer::addMenu(VMenu* menu)
         std::string txt=_worlds[i]->mainSettings->getSceneName();
         if (txt=="")
             txt="new scene";
-        txt+=tt::decorateString(" (scene ",tt::FNb(int(i)+1),")");
+        txt+=tt::decorateString(" (scene ",utils::getIntString(false,int(i)+1),")");
         menu->appendMenuItem(enabled,_currentWorldIndex==int(i),SWITCH_TOINSTANCEWITHTHUMBNAILSAVEINDEX0_GUIGUICMD+int(i),txt.c_str(),true);
     }
 }

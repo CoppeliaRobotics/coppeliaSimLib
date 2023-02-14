@@ -2,7 +2,7 @@
 #include <app.h>
 #include <base64.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <global.h>
 
 CCollection::CCollection(int creatorHandle)
@@ -10,7 +10,7 @@ CCollection::CCollection(int creatorHandle)
     _collectionHandle=-1;
     _creatorHandle=creatorHandle;
     _overridesObjectMainProperties=false;
-    _uniquePersistentIdString=CTTUtil::generateUniqueReadableString();
+    _uniquePersistentIdString=utils::generateUniqueReadableString();
 }
 
 CCollection::~CCollection()

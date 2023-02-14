@@ -27,14 +27,10 @@ See the GNU General Public License for more details.
 
 void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(shape,renderingObject,displayAttrib);
+    // At the beginning of every scene object display routine:
+    _commonStart(shape,renderingObject);
 
     bool guiIsRendering=((displayAttrib&sim_displayattribute_forvisionsensor)==0);
-
-    // Display the bounding box:
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(shape,displayAttrib,true,0.0);
 
     C3Vector normalVectorForLinesAndPoints(shape->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -68,28 +64,32 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
             glLoadName(-1);
 
 #ifdef SIM_WITH_GUI
+        C3Vector minV,maxV;
+        shape->getBoundingBox(minV,maxV);
+        maxV-=minV;
+        double refSize=(maxV(0)+maxV(1)+maxV(2))/4.0;
         if (editNormals)
         {
             if ((displayAttrib&sim_displayattribute_renderpass)!=0)
-                _drawReference(shape,0.0);
+                ogl::drawReference(refSize);
             App::mainWindow->editModeContainer->getShapeEditMode()->displayFaceOrientation(displayAttrib);
         }
         else if (editVertices)
         {
             if ((displayAttrib&sim_displayattribute_renderpass)!=0)
-                _drawReference(shape,0.0);
+                ogl::drawReference(refSize);
             App::mainWindow->editModeContainer->getShapeEditMode()->displayVertices(displayAttrib);
         }
         else if (editEdges)
         {
             if ((displayAttrib&sim_displayattribute_renderpass)!=0)
-                _drawReference(shape,0.0);
+                ogl::drawReference(refSize);
             App::mainWindow->editModeContainer->getShapeEditMode()->displayEdgeEditMode(displayAttrib);
         }
         else if (editMultishape)
         {
             if ((displayAttrib&sim_displayattribute_renderpass)!=0)
-                _drawReference(shape,0.0);
+                ogl::drawReference(refSize);
             displayAttrib|=(sim_displayattribute_forbidedges|sim_displayattribute_forcewireframe|sim_displayattribute_trianglewireframe);
             displayAttrib-=(sim_displayattribute_forbidedges|sim_displayattribute_forcewireframe|sim_displayattribute_trianglewireframe);
             bool textEnabledSaved=App::currentWorld->environment->getShapeTexturesEnabled();
@@ -190,7 +190,7 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
         }
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(shape,renderingObject);
 }
 
@@ -234,7 +234,7 @@ void _displayInertia(CMeshWrapper* geomWrap,double bboxDiagonal,const double nor
     ogl::buffer.clear();
 
     glLineWidth(3.0);
-    ogl::drawReference(bboxDiagonal*0.5,true,false,false,normalVectorForPointsAndLines);
+    ogl::drawReference(bboxDiagonal*0.5);
 
     ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,0.4f,0.0f,1.0f);
     double l=pow(geomWrap->getMass()/1000.0,0.3333); // Cubic root and mass density of 1000

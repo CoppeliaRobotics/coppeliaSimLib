@@ -36,8 +36,6 @@ private slots:
 
     void on_worldReference_clicked();
 
-    void on_boundingBoxDisplay_clicked();
-
     void on_undoRedo_clicked();
 
     void on_hideConsole_clicked();

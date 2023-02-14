@@ -808,93 +808,40 @@ void ogl::drawSphere(double rr,int sides,int faces,bool smooth)
     }
 }
 
-void ogl::drawReference(double size,bool line,bool setColors,bool emissiveColor,const double normalVectorForDiffuseComp[3])
+void ogl::drawReference(double size)
 {
     float subSize=float(size/8.0);
     float subSubSize=float(subSize/2.0);
     setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
-    int colComp=sim_colorcomponent_ambient_diffuse;
-    if (emissiveColor)
-        colComp=sim_colorcomponent_emission;
-
-    if (line)
-    {
-        if (normalVectorForDiffuseComp!=nullptr)
-            glNormal3dv(normalVectorForDiffuseComp);
-        else
-            glNormal3f(0.0,0.0,1.0);
-        if (setColors)
-            setMaterialColor(colComp,ogl::colorRed);
-        glBegin(GL_LINES);
-        glVertex3f(0.0,0.0,0.0);
-        glVertex3f((float)size,0.0,0.0);
-        glVertex3f((float)size-subSize,0.0,(float)subSubSize);
-        glVertex3f((float)size,0.0,0.0);
-        glVertex3f((float)size-subSize,0.0,(float)-subSubSize);
-        glVertex3f((float)size,0.0,0.0);
-        glEnd();
-    }
-    else
-    {
-        if (setColors)
-            setMaterialColor(colComp,ogl::colorRed);
-        glPushMatrix();
-        glRotatef(90,0,1,0);
-        glTranslatef(0.0,0.0,float(size/2.0));
-        drawCylinder(size/20.0,size,8,3,true);
-        glTranslatef(0.0,0.0,float(size*3.0/5.0));
-        drawCone(size/10.0,size/5.0,8,true,true);
-        glPopMatrix();
-    }
-    if (line)
-    {
-        if (setColors)
-            setMaterialColor(colComp,ogl::colorGreen);
-        glBegin(GL_LINES);
-        glVertex3f(0.0,0.0,0.0);
-        glVertex3f(0.0,(float)size,0.0);
-        glVertex3f(0.0,(float)size-subSize,subSubSize);
-        glVertex3f(0.0,(float)size,0.0);
-        glVertex3f(0.0,(float)size-subSize,-subSubSize);
-        glVertex3f(0.0,(float)size,0.0);
-        glEnd();
-    }
-    else
-    {
-        if (setColors)
-            setMaterialColor(colComp,ogl::colorGreen);
-        glPushMatrix();
-        glRotatef(-90,1,0,0);
-        glTranslatef(0.0,0.0,float(size/2.0));
-        drawCylinder(size/20.0,size,8,3,true);
-        glTranslatef(0.0,0.0,float(size*3.0/5.0));
-        drawCone(size/10.0,size/5.0,8,true,true);
-        glPopMatrix();
-    }
-    if (line)
-    {
-        if (setColors)
-            setMaterialColor(colComp,ogl::colorBlue);
-        glBegin(GL_LINES);
-        glVertex3f(0.0,0.0,0.0);
-        glVertex3f(0.0,0.0,(float)size);
-        glVertex3f(0.0,subSubSize,(float)size-subSize);
-        glVertex3f(0.0,0.0,(float)size);
-        glVertex3f(0.0,-subSubSize,(float)size-subSize);
-        glVertex3f(0.0,0.0,(float)size);
-        glEnd();
-    }
-    else
-    {
-        if (setColors)
-            setMaterialColor(colComp,ogl::colorBlue);
-        glPushMatrix();
-        glTranslatef(0.0,0.0,float(size/2.0));
-        drawCylinder(size/20.0,size,8,3,true);
-        glTranslatef(0.0,0.0,float(size*3.0/5.0));
-        drawCone(size/10.0,size/5.0,8,true,true);
-        glPopMatrix();
-    }
+    glLineWidth(1.0);
+    glNormal3f(0.0,0.0,1.0);
+    setMaterialColor(sim_colorcomponent_emission,ogl::colorRed);
+    glBegin(GL_LINES);
+    glVertex3f(0.0,0.0,0.0);
+    glVertex3f((float)size,0.0,0.0);
+    glVertex3f((float)size-subSize,0.0,(float)subSubSize);
+    glVertex3f((float)size,0.0,0.0);
+    glVertex3f((float)size-subSize,0.0,(float)-subSubSize);
+    glVertex3f((float)size,0.0,0.0);
+    glEnd();
+    setMaterialColor(sim_colorcomponent_emission,ogl::colorGreen);
+    glBegin(GL_LINES);
+    glVertex3f(0.0,0.0,0.0);
+    glVertex3f(0.0,(float)size,0.0);
+    glVertex3f(0.0,(float)size-subSize,subSubSize);
+    glVertex3f(0.0,(float)size,0.0);
+    glVertex3f(0.0,(float)size-subSize,-subSubSize);
+    glVertex3f(0.0,(float)size,0.0);
+    glEnd();
+    setMaterialColor(sim_colorcomponent_emission,ogl::colorBlue);
+    glBegin(GL_LINES);
+    glVertex3f(0.0,0.0,0.0);
+    glVertex3f(0.0,0.0,(float)size);
+    glVertex3f(0.0,subSubSize,(float)size-subSize);
+    glVertex3f(0.0,0.0,(float)size);
+    glVertex3f(0.0,-subSubSize,(float)size-subSize);
+    glVertex3f(0.0,0.0,(float)size);
+    glEnd();
 }
 
 void ogl::perspectiveSpecial(double fovy,double aspect,double zNear,double zFar)

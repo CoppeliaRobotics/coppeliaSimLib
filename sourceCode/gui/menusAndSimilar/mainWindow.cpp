@@ -12,7 +12,6 @@
 #include <addOperations.h>
 #include <dlgCont.h>
 #include <helpMenu.h>
-#include <gV.h>
 #include <tt.h>
 #include <app.h>
 #include <pluginContainer.h>
@@ -21,7 +20,7 @@
 #include <simStrings.h>
 #include <vDateTime.h>
 #include <vFileFinder.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <rendering.h>
 #include <vMessageBox.h>
 #include <boost/lexical_cast.hpp>
@@ -694,10 +693,10 @@ void CMainWindow::refreshDialogs_uiThread()
         else
         { // We display the simulation time instead:
             title=IDS____SIMULATION_TIME__;
-            title+=gv::getHourMinuteSecondMilisecondStr(App::currentWorld->simulation->getSimulationTime());
+            title+=utils::getTimeString(false,App::currentWorld->simulation->getSimulationTime());
         }
         title+=" (";
-        title+=tt::FNb(0,_fps,1,false);
+        title+=utils::getDoubleString(false,_fps,1,4);
         title+=" fps)";
         if (editModeContainer->getEditModeType()&TRIANGLE_EDIT_MODE)
             title+=IDS____TRIANGLE_EDIT_MODE;

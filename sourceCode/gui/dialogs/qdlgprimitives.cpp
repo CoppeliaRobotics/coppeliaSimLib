@@ -1,8 +1,7 @@
 #include <qdlgprimitives.h>
 #include <ui_qdlgprimitives.h>
 #include <tt.h>
-#include <ttUtil.h>
-#include <gV.h>
+#include <utils.h>
 #include <simStrings.h>
 #include <app.h>
 #include <vMessageBox.h>
@@ -70,10 +69,10 @@ void CQDlgPrimitives::refresh()
 {
     ui->qqDynamic->setChecked(dynamic);
     ui->qqDensity->setEnabled(dynamic);
-    ui->qqDensity->setText(tt::getFString(false,density,1).c_str());
+    ui->qqDensity->setText(utils::getDensityString(density).c_str());
 
-    ui->qqXSize->setText(CTTUtil::getSizeString(false,xSize).c_str());
-    ui->qqYSize->setText(CTTUtil::getSizeString(false,ySize).c_str());
+    ui->qqXSize->setText(utils::getSizeString(false,xSize).c_str());
+    ui->qqYSize->setText(utils::getSizeString(false,ySize).c_str());
 
     if (primitiveType==sim_primitiveshape_plane)
     {
@@ -95,8 +94,8 @@ void CQDlgPrimitives::refresh()
         ui->qqFaceSubdiv->setText("");
         ui->qqSides->setText("");
 
-        ui->qqXSubdiv->setText(tt::getIString(false,subdivX).c_str());
-        ui->qqYSubdiv->setText(tt::getIString(false,subdivY).c_str());
+        ui->qqXSubdiv->setText(utils::getIntString(false,subdivX).c_str());
+        ui->qqYSubdiv->setText(utils::getIntString(false,subdivY).c_str());
         ui->qqZSubdiv->setText("");
 
         ui->qqSmooth->setEnabled(false);
@@ -123,14 +122,14 @@ void CQDlgPrimitives::refresh()
         ui->qqFaceSubdiv->setEnabled(false);
         ui->qqSides->setEnabled(false);
 
-        ui->qqZSize->setText(CTTUtil::getSizeString(false,zSize).c_str());
+        ui->qqZSize->setText(utils::getSizeString(false,zSize).c_str());
 
         ui->qqFaceSubdiv->setText("");
         ui->qqSides->setText("");
 
-        ui->qqXSubdiv->setText(tt::getIString(false,subdivX).c_str());
-        ui->qqYSubdiv->setText(tt::getIString(false,subdivY).c_str());
-        ui->qqZSubdiv->setText(tt::getIString(false,subdivZ).c_str());
+        ui->qqXSubdiv->setText(utils::getIntString(false,subdivX).c_str());
+        ui->qqYSubdiv->setText(utils::getIntString(false,subdivY).c_str());
+        ui->qqZSubdiv->setText(utils::getIntString(false,subdivZ).c_str());
 
         ui->qqSmooth->setEnabled(false);
         ui->qqSmooth->setChecked(false);
@@ -157,10 +156,10 @@ void CQDlgPrimitives::refresh()
         ui->qqFaceSubdiv->setEnabled(false);
         ui->qqSides->setEnabled(true);
 
-        ui->qqZSize->setText(CTTUtil::getSizeString(false,zSize).c_str());
+        ui->qqZSize->setText(utils::getSizeString(false,zSize).c_str());
 
         ui->qqFaceSubdiv->setText("");
-        ui->qqSides->setText(tt::getIString(false,sides).c_str());
+        ui->qqSides->setText(utils::getIntString(false,sides).c_str());
 
 
         ui->qqXSubdiv->setText("");
@@ -191,10 +190,10 @@ void CQDlgPrimitives::refresh()
         ui->qqFaceSubdiv->setEnabled(true);
         ui->qqSides->setEnabled(true);
 
-        ui->qqZSize->setText(CTTUtil::getSizeString(false,zSize).c_str());
+        ui->qqZSize->setText(utils::getSizeString(false,zSize).c_str());
 
-        ui->qqFaceSubdiv->setText(tt::getIString(false,faceSubdiv).c_str());
-        ui->qqSides->setText(tt::getIString(false,sides).c_str());
+        ui->qqFaceSubdiv->setText(utils::getIntString(false,faceSubdiv).c_str());
+        ui->qqSides->setText(utils::getIntString(false,sides).c_str());
 
         ui->qqXSubdiv->setText("");
         ui->qqYSubdiv->setText("");
@@ -207,7 +206,7 @@ void CQDlgPrimitives::refresh()
         ui->qqOpen->setChecked(openEnds);
 
         ui->qqDiscSubdiv->setEnabled(true);
-        ui->qqDiscSubdiv->setText(tt::getIString(false,discSubdiv).c_str());
+        ui->qqDiscSubdiv->setText(utils::getIntString(false,discSubdiv).c_str());
     }
     if (primitiveType==sim_primitiveshape_cone)
     {
@@ -224,10 +223,10 @@ void CQDlgPrimitives::refresh()
         ui->qqFaceSubdiv->setEnabled(true);
         ui->qqSides->setEnabled(true);
 
-        ui->qqZSize->setText(CTTUtil::getSizeString(false,zSize).c_str());
+        ui->qqZSize->setText(utils::getSizeString(false,zSize).c_str());
 
-        ui->qqFaceSubdiv->setText(tt::getIString(false,faceSubdiv).c_str());
-        ui->qqSides->setText(tt::getIString(false,sides).c_str());
+        ui->qqFaceSubdiv->setText(utils::getIntString(false,faceSubdiv).c_str());
+        ui->qqSides->setText(utils::getIntString(false,sides).c_str());
 
         ui->qqXSubdiv->setText("");
         ui->qqYSubdiv->setText("");
@@ -260,7 +259,7 @@ void CQDlgPrimitives::refresh()
         ui->qqZSize->setText("");
 
         ui->qqFaceSubdiv->setText("");
-        ui->qqSides->setText(tt::getIString(false,sides).c_str());
+        ui->qqSides->setText(utils::getIntString(false,sides).c_str());
 
         ui->qqXSubdiv->setText("");
         ui->qqYSubdiv->setText("");
@@ -273,7 +272,7 @@ void CQDlgPrimitives::refresh()
         ui->qqOpen->setChecked(false);
 
         ui->qqDiscSubdiv->setEnabled(true);
-        ui->qqDiscSubdiv->setText(tt::getIString(false,discSubdiv).c_str());
+        ui->qqDiscSubdiv->setText(utils::getIntString(false,discSubdiv).c_str());
     }
     if (primitiveType==sim_primitiveshape_capsule)
     {
@@ -290,10 +289,10 @@ void CQDlgPrimitives::refresh()
         ui->qqFaceSubdiv->setEnabled(true);
         ui->qqSides->setEnabled(true);
 
-        ui->qqZSize->setText(CTTUtil::getSizeString(false,zSize).c_str());
+        ui->qqZSize->setText(utils::getSizeString(false,zSize).c_str());
 
-        ui->qqFaceSubdiv->setText(tt::getIString(false,faceSubdiv).c_str());
-        ui->qqSides->setText(tt::getIString(false,sides).c_str());
+        ui->qqFaceSubdiv->setText(utils::getIntString(false,faceSubdiv).c_str());
+        ui->qqSides->setText(utils::getIntString(false,sides).c_str());
 
 
         ui->qqXSubdiv->setText("");

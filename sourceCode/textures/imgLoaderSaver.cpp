@@ -2,7 +2,7 @@
 #ifdef SIM_WITH_QT
     #include <tGAFormat.h>
     #include <stb_image.h>
-    #include <ttUtil.h>
+    #include <utils.h>
     #include <vVarious.h>
     #include <QImage>
     #include <QImageWriter>
@@ -13,7 +13,7 @@
 unsigned char* CImageLoaderSaver::load(const char* filename,int* resX,int* resY,int* colorComponents,int desiredColorComponents,int scaleTo)
 { // scaleTo is 0 by default (no scaling). ScaleTo should be a power of 2!
 #ifdef SIM_WITH_QT
-    std::string ext(CTTUtil::getLowerCaseString(VVarious::splitPath_fileExtension(filename).c_str()));
+    std::string ext(utils::getLowerCaseString(VVarious::splitPath_fileExtension(filename).c_str()));
     unsigned char* data=nullptr;
     if ((ext.compare("tga")==0)||(ext.compare("gif")==0))
     {

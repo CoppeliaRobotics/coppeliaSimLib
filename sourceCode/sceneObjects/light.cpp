@@ -2,7 +2,7 @@
 #include <simInternal.h>
 #include <tt.h>
 #include <simStrings.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <easyLock.h>
 #include <app.h>
 #include <lightRendering.h>
@@ -165,7 +165,7 @@ void CLight::scaleObject(double scalingFactor)
         if (tt::getValidFloat(val.c_str(),f))
         {
             f*=scalingFactor;
-            tt::insertKeyAndValue("fadeXDist@povray",tt::FNb(0,f,3,false).c_str(),_extensionString);
+            tt::insertKeyAndValue("fadeXDist@povray",utils::getSizeString(false,f).c_str(),_extensionString);
         }
     }
 
@@ -588,8 +588,8 @@ void CLight::serialize(CSer& ar)
             }
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-                CTTUtil::scaleColorUp_(objectColor.getColorsPtr());
-                CTTUtil::scaleLightDown_(lightColor.getColorsPtr());
+                utils::scaleColorUp_(objectColor.getColorsPtr());
+                utils::scaleLightDown_(lightColor.getColorsPtr());
             }
 
             if (povFadeXDist_backwardCompatibility_3_2_2016>=0.0)
@@ -599,7 +599,7 @@ void CLight::serialize(CSer& ar)
                     _extensionString+="true} fadeXDist {";
                 else
                     _extensionString+="false} fadeXDist {";
-                _extensionString+=tt::FNb(0,povFadeXDist_backwardCompatibility_3_2_2016,3,false);
+                _extensionString+=utils::getSizeString(false,povFadeXDist_backwardCompatibility_3_2_2016);
                 _extensionString+="}}";
             }
 

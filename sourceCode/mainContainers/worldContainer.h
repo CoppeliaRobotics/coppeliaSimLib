@@ -76,8 +76,8 @@ public:
 
     int getSysFuncAndHookCnt(int sysCall) const;
 
-    void callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr);
-    void broadcastMsg(CInterfaceStack* inStack,int options);
+    void callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr,int scriptToExclude=-1);
+    void broadcastMsg(CInterfaceStack* inStack,int emittingScriptHandle,int options);
 
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareNakedEvent(const char* event,int handle,long long int uid,bool mergeable);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareEvent(const char* event,long long int uid,const char* fieldName,bool mergeable);

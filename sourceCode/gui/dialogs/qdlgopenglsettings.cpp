@@ -1,8 +1,8 @@
-
 #include <qdlgopenglsettings.h>
 #include <ui_qdlgopenglsettings.h>
 #include <app.h>
 #include <tt.h>
+#include <utils.h>
 
 CQDlgOpenGlSettings::CQDlgOpenGlSettings(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),
@@ -45,11 +45,11 @@ void CQDlgOpenGlSettings::refresh()
 //    ui->qqCompatibilityTweak1->setChecked(compatibilityTweak1);
 //    ui->qqUsingGlFinish->setChecked(glFinish_normal);
 //    ui->qqUsingGlFinishVisionSensors->setChecked(glFinish_visionSensors);
-    ui->qqIdleFps->setText(tt::getIString(false,idleFps).c_str());
+    ui->qqIdleFps->setText(utils::getIntString(false,idleFps).c_str());
 //    ui->qqForceExt->setChecked(forceExt);
 
-//    ui->qqMajorOpenGlVersion->setText(tt::getIString(false,glVersionMajor).c_str());
-//    ui->qqMinorOpenGlVersion->setText(tt::getIString(false,glVersionMinor).c_str());
+//    ui->qqMajorOpenGlVersion->setText(utils::getIntString(false,glVersionMajor).c_str());
+//    ui->qqMinorOpenGlVersion->setText(utils::getIntString(false,glVersionMinor).c_str());
 }
 
 void CQDlgOpenGlSettings::on_qqOk_accepted()

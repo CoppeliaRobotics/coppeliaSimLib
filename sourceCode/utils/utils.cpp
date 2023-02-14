@@ -1,4 +1,4 @@
-#include <ttUtil.h>
+#include <utils.h>
 #include <simMath/mathDefines.h>
 #include <stdarg.h>
 #include <boost/lexical_cast.hpp>
@@ -10,13 +10,13 @@
 #include <iomanip>
 #include <sstream>
 
-void CTTUtil::lightBinaryEncode(char* data,int length)
+void utils::lightBinaryEncode(char* data,int length)
 { // Very simple!
     for (int i=0;i<length;i++)
         data[i]=(((data[i]&0xf0)>>4)|((data[i]&0x0f)<<4))^(i&0xff);
 }
 
-void CTTUtil::lightBinaryDecode(char* data,int length)
+void utils::lightBinaryDecode(char* data,int length)
 { // very simple!
     for (int i=0;i<length;i++)
     {
@@ -25,7 +25,7 @@ void CTTUtil::lightBinaryDecode(char* data,int length)
     }
 }
 
-unsigned short CTTUtil::getCRC(char* data,int length)
+unsigned short utils::getCRC(char* data,int length)
 {
     unsigned short crc=0;
     int p=0;
@@ -44,14 +44,14 @@ unsigned short CTTUtil::getCRC(char* data,int length)
     return(crc);
 }
 
-unsigned short CTTUtil::getCRC(const std::string& data)
+unsigned short utils::getCRC(const std::string& data)
 {
     if (data.length()==0)
         return(0);
     return(getCRC((char*)(&data[0]),int(data.length())));
 }
 
-bool CTTUtil::extractCommaSeparatedWord(std::string& line,std::string& word)
+bool utils::extractCommaSeparatedWord(std::string& line,std::string& word)
 { // Returns true if a word could be extracted
     word="";
     while ( (line.length()!=0)&&(line[0]!=',') )
@@ -64,7 +64,7 @@ bool CTTUtil::extractCommaSeparatedWord(std::string& line,std::string& word)
     return(word.length()!=0);
 }
 
-bool CTTUtil::extractSpaceSeparatedWord(std::string& line,std::string& word)
+bool utils::extractSpaceSeparatedWord(std::string& line,std::string& word)
 { // Returns true if a word could be extracted
     word="";
     while ( (line.length()!=0)&&(line[0]!=' ') )
@@ -77,7 +77,7 @@ bool CTTUtil::extractSpaceSeparatedWord(std::string& line,std::string& word)
     return(word.length()!=0);
 }
 
-bool CTTUtil::extractLine(std::string& multiline,std::string& line)
+bool utils::extractLine(std::string& multiline,std::string& line)
 { // Returns true if a line could be extracted
     size_t n=multiline.find('\n');
     if (n!=std::string::npos)
@@ -96,7 +96,7 @@ bool CTTUtil::extractLine(std::string& multiline,std::string& line)
     }
 }
 
-std::string CTTUtil::getLightEncodedString(const char* ss)
+std::string utils::getLightEncodedString(const char* ss)
 { // ss can contain any char, also 0!
     std::string txt(ss);
     std::string s;
@@ -118,7 +118,7 @@ std::string CTTUtil::getLightEncodedString(const char* ss)
     return(s);
 }
 
-std::string CTTUtil::getLightDecodedString(const char* ss)
+std::string utils::getLightDecodedString(const char* ss)
 { // return string can contain any char, also 0!
     std::string txt(ss);
     std::string s;
@@ -144,7 +144,7 @@ std::string CTTUtil::getLightDecodedString(const char* ss)
     return(s);
 }
 
-bool CTTUtil::removeSpacesAtBeginningAndEnd(std::string& line)
+bool utils::removeSpacesAtBeginningAndEnd(std::string& line)
 {
     while ((line.length()!=0)&&(line[0]==' '))
         line.erase(line.begin());
@@ -153,7 +153,7 @@ bool CTTUtil::removeSpacesAtBeginningAndEnd(std::string& line)
     return(line.length()!=0);
 }
 
-std::string CTTUtil::getFormattedString(const char* a,const char* b,const char* c,const char* d,const char* e,const char* f,const char* g,const char* h)
+std::string utils::getFormattedString(const char* a,const char* b,const char* c,const char* d,const char* e,const char* f,const char* g,const char* h)
 {
     std::string retVal("");
     if (a==nullptr)
@@ -183,7 +183,7 @@ std::string CTTUtil::getFormattedString(const char* a,const char* b,const char* 
     return(retVal);
 }
 
-std::string CTTUtil::getLowerCaseString(const char* str)
+std::string utils::getLowerCaseString(const char* str)
 {
     std::string retValue(str);
     for (int i=0;i<int(retValue.length());i++)
@@ -194,14 +194,14 @@ std::string CTTUtil::getLowerCaseString(const char* str)
     return(retValue);
 }
 
-void CTTUtil::scaleLightDown_(float* rgb)
+void utils::scaleLightDown_(float* rgb)
 { // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other applications
     rgb[0]*=0.675f;
     rgb[1]*=0.675f;
     rgb[2]*=0.675f;
 }
 
-void CTTUtil::scaleColorUp_(float* rgb)
+void utils::scaleColorUp_(float* rgb)
 { // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other applications
     float f=1.5f;
     float m=std::max<float>(std::max<float>(rgb[0],rgb[1]),rgb[2]);
@@ -213,17 +213,17 @@ void CTTUtil::scaleColorUp_(float* rgb)
     rgb[2]*=f;
 }
 
-std::string CTTUtil::decode64(const std::string &data)
+std::string utils::decode64(const std::string &data)
 {
     return(base64_decode(data));
 }
 
-std::string CTTUtil::encode64(const std::string &data)
+std::string utils::encode64(const std::string &data)
 {
     return(base64_encode((const unsigned char*)data.c_str(),(unsigned int)data.size()));
 }
 
-std::string CTTUtil::generateUniqueString()
+std::string utils::generateUniqueString()
 {
     std::string s("1234567890123456");
     char a[17];
@@ -238,7 +238,7 @@ std::string CTTUtil::generateUniqueString()
     return(s);
 }
 
-std::string CTTUtil::generateUniqueReadableString()
+std::string utils::generateUniqueReadableString()
 {
     static bool seeded=false;
     if (!seeded)
@@ -261,7 +261,7 @@ std::string CTTUtil::generateUniqueReadableString()
     return(str);
 }
 
-void CTTUtil::replaceSubstring(std::string& str,const char* subStr,const char* replacementSubStr)
+void utils::replaceSubstring(std::string& str,const char* subStr,const char* replacementSubStr)
 {
     size_t index=0;
     size_t str1L=strlen(subStr);
@@ -276,12 +276,12 @@ void CTTUtil::replaceSubstring(std::string& str,const char* subStr,const char* r
     }
 }
 
-void CTTUtil::regexReplace(std::string& str,const char* regexStr,const char* regexReplacementSubStr)
+void utils::regexReplace(std::string& str,const char* regexStr,const char* regexReplacementSubStr)
 {
     str=std::regex_replace(str,std::regex(regexStr),regexReplacementSubStr);
 }
 
-void CTTUtil::removeComments(std::string& line)
+void utils::removeComments(std::string& line)
 {
     replaceSubstring(line,"://","doubleptslashslash");
     size_t p=line.find("//");
@@ -290,7 +290,7 @@ void CTTUtil::removeComments(std::string& line)
     replaceSubstring(line,"doubleptslashslash","://");
 }
 
-int CTTUtil::lineCountAtOffset(const char* str,int offset)
+int utils::lineCountAtOffset(const char* str,int offset)
 {
     int retVal=0;
     std::string all(str);
@@ -306,7 +306,7 @@ int CTTUtil::lineCountAtOffset(const char* str,int offset)
     return(retVal);
 }
 
-bool CTTUtil::doStringMatch_wildcard(const char* wildcardStr,const char* otherStr)
+bool utils::doStringMatch_wildcard(const char* wildcardStr,const char* otherStr)
 {
     if ( (wildcardStr[0]=='\0')&&(otherStr[0]=='\0') )
         return true;
@@ -319,7 +319,7 @@ bool CTTUtil::doStringMatch_wildcard(const char* wildcardStr,const char* otherSt
     return false;
 }
 
-std::string CTTUtil::getDoubleString(bool sign,double num,int minDecimals,int maxDecimals,double minForExpNotation/*=0.0*/,double maxForExpNotation/*=0.0*/)
+std::string utils::getDoubleString(bool sign,double num,int minDecimals,int maxDecimals,double minForExpNotation/*=0.0*/,double maxForExpNotation/*=0.0*/)
 {
     std::string retVal;
     if ( ( (minForExpNotation!=0.0)&&(num!=0.0)&&(fabs(num)<=minForExpNotation) )||
@@ -375,83 +375,132 @@ std::string CTTUtil::getDoubleString(bool sign,double num,int minDecimals,int ma
     return retVal;
 }
 
-std::string CTTUtil::getDoubleEString(bool sign,double num)
+std::string utils::getDoubleEString(bool sign,double num)
 {
     return getDoubleString(sign,num,1,1,1.0,1.0);
 }
 
-std::string CTTUtil::getPosString(bool sign,double num)
+std::string utils::getPosString(bool sign,double num)
 {
     return getDoubleString(sign,num,3,5);
 }
 
-std::string CTTUtil::getSizeString(bool sign,double num)
+std::string utils::getTimeString(bool seconds,double num)
+{
+    std::string retVal;
+    if (seconds)
+        retVal=getDoubleString(false,num,3,6,0.00001);
+    else
+    { // hours:minutes:seconds:ms
+        retVal=getIntString(false,int(num/3600.0),2);
+        retVal+=":";
+        retVal+=getIntString(false,int(fmod(num/60.0,60.0)),2)+":";
+        retVal+=getIntString(false,int(fmod(num,60.0)),2)+".";
+        retVal+=getIntString(false,int(fmod(num*100.0,100.0)),2);
+    }
+    return retVal;
+}
+
+std::string utils::getGravityString(bool sign,double num)
+{
+    return getDoubleString(sign,num,2,4,0.001);
+}
+
+std::string utils::get0To1String(bool sign,double num)
 {
     return getDoubleString(sign,num,2,3);
 }
 
-std::string CTTUtil::getAngleString(bool sign,double num)
+std::string utils::getSizeString(bool sign,double num)
+{
+    return getDoubleString(sign,num,2,5,0.0001,9999.0);
+}
+
+std::string utils::getAngleString(bool sign,double num)
 {
     return getDoubleString(sign,num*radToDeg,2,3);
 }
 
-std::string CTTUtil::getVolumeString(double num)
+std::string utils::getVolumeString(double num)
 {
     return getDoubleString(false,num,5,6);
 }
 
-std::string CTTUtil::getMultString(bool sign,double num)
+std::string utils::getDensityString(double num)
 {
-    return getDoubleString(sign,num,2,4);
+    return getDoubleString(false,num,0,2);
 }
 
-std::string CTTUtil::getForceTorqueString(bool sign,double num)
+std::string utils::getMultString(bool sign,double num)
 {
-    return getDoubleString(sign,num,2,4);
+    return getDoubleString(sign,num,2,5,0.0001,9999.0);
 }
 
-std::string CTTUtil::getMassString(double num)
+std::string utils::getForceTorqueString(bool sign,double num)
 {
-    return getDoubleString(false,num,2,6,0.00001,0);
+    return getDoubleString(sign,num,2,5,0.0001,9999.0);
 }
 
-std::string CTTUtil::getMasslessTensorString(bool sign,double num)
+std::string utils::getMassString(double num)
 {
-    return getDoubleString(sign,num,3,6,0.00001,1000.0);
+    return getDoubleString(false,num,2,6,0.00001,9999.0);
 }
 
-std::string CTTUtil::getLinVelString(bool sign,double num)
+std::string utils::getMasslessTensorString(bool sign,double num)
 {
-    return getDoubleString(sign,num,2,4);
+    return getDoubleString(sign,num,3,6,0.00001,9999.0);
 }
 
-std::string CTTUtil::getAngVelString(bool sign,double num)
+std::string utils::getLinVelString(bool sign,double num)
 {
-    return getDoubleString(sign,num*radToDeg,2,3);
+    return getDoubleString(sign,num,2,6,0.00001,9999.0);
 }
 
-std::string CTTUtil::getLinAccelString(bool sign,double num)
+std::string utils::getAngVelString(bool sign,double num)
 {
-    return getDoubleString(sign,num,2,4);
+    return getDoubleString(sign,num*radToDeg,2,5,0.0001,9999.0);
 }
 
-std::string CTTUtil::getAngAccelString(bool sign,double num)
+std::string utils::getLinAccelString(bool sign,double num)
 {
-    return getDoubleString(sign,num*radToDeg,2,3);
+    return getDoubleString(sign,num,2,5,0.0001,9999.0);
 }
 
-std::string CTTUtil::getLinJerkString(bool sign,double num)
+std::string utils::getAngAccelString(bool sign,double num)
 {
-    return getDoubleString(sign,num,2,4);
+    return getDoubleString(sign,num*radToDeg,2,4,0.001,9999.0);
 }
 
-std::string CTTUtil::getAngJerkString(bool sign,double num)
+std::string utils::getLinJerkString(bool sign,double num)
 {
-    return getDoubleString(sign,num*radToDeg,2,3);
+    return getDoubleString(sign,num,2,5,0.0001,9999.0);
 }
 
-double CTTUtil::getDoubleFromString(const char* str)
+std::string utils::getAngJerkString(bool sign,double num)
+{
+    return getDoubleString(sign,num*radToDeg,2,4,0.001,9999.0);
+}
+
+double utils::getDoubleFromString(const char* str)
 {
     return(std::stod(str));
+}
+
+std::string utils::getIntString(bool sign,int num,int minDigits/*=1*/)
+{
+    std::string retVal(std::to_string(abs(num)));
+    if (minDigits>1)
+    {
+        while (retVal.size()<minDigits)
+            retVal="0"+retVal;
+    }
+    if (num<0)
+        retVal="-"+retVal;
+    else
+    {
+        if ( sign&&(num!=0) )
+            retVal="+"+retVal;
+    }
+    return retVal;
 }
 

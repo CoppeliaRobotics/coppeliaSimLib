@@ -1,8 +1,7 @@
 #include <qdlgcameras.h>
 #include <ui_qdlgcameras.h>
 #include <tt.h>
-#include <ttUtil.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <app.h>
 #include <simStrings.h>
@@ -68,11 +67,11 @@ void CQDlgCameras::refresh()
         ui->qqShowVolume->setChecked(it->getShowVolume());
         ui->qqAllowRotation->setChecked(it->getAllowRotation());
         ui->qqAllowTranslation->setChecked(it->getAllowTranslation());
-        ui->qqPerspectiveProjectionAngle->setText(CTTUtil::getAngleString(false,it->getViewAngle()).c_str());
-        ui->qqOrthographicProjectionSize->setText(CTTUtil::getSizeString(false,it->getOrthoViewSize()).c_str());
-        ui->qqSize->setText(CTTUtil::getSizeString(false,it->getCameraSize()).c_str());
-        ui->qqNearClipping->setText(CTTUtil::getSizeString(false,it->getNearClippingPlane()).c_str());
-        ui->qqFarClipping->setText(CTTUtil::getSizeString(false,it->getFarClippingPlane()).c_str());
+        ui->qqPerspectiveProjectionAngle->setText(utils::getAngleString(false,it->getViewAngle()).c_str());
+        ui->qqOrthographicProjectionSize->setText(utils::getSizeString(false,it->getOrthoViewSize()).c_str());
+        ui->qqSize->setText(utils::getSizeString(false,it->getCameraSize()).c_str());
+        ui->qqNearClipping->setText(utils::getSizeString(false,it->getNearClippingPlane()).c_str());
+        ui->qqFarClipping->setText(utils::getSizeString(false,it->getFarClippingPlane()).c_str());
         ui->qqShowFog->setChecked(it->getShowFogIfAvailable());
         ui->qqLocalLights->setChecked(it->getuseLocalLights());
         ui->qqAllowPicking->setChecked(it->getAllowPicking());
@@ -173,7 +172,7 @@ void CQDlgCameras::on_qqPerspectiveProjectionAngle_editingFinished()
         double newVal=ui->qqPerspectiveProjectionAngle->text().toDouble(&ok);
         if (ok)
         {
-            double v=newVal*gv::userToRad;
+            double v=newVal*degToRad;
             App::appendSimulationThreadCommand(SET_VIEW_ANGLE_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,v);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }

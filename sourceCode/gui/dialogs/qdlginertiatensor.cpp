@@ -3,8 +3,7 @@
 #include <simInternal.h>
 #include <app.h>
 #include <tt.h>
-#include <ttUtil.h>
-#include <gV.h>
+#include <utils.h>
 
 CQDlgInertiaTensor::CQDlgInertiaTensor(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),
@@ -33,19 +32,19 @@ void CQDlgInertiaTensor::refresh()
     bool severalShapes=App::currentWorld->sceneObjects->getShapeCountInSelection()>1;
     if (!severalShapes)
         applyToSelection=false;
-    ui->qqI11->setText(CTTUtil::getMasslessTensorString(true,tensor[0]).c_str());
-    ui->qqI21->setText(CTTUtil::getMasslessTensorString(true,tensor[1]).c_str());
-    ui->qqI31->setText(CTTUtil::getMasslessTensorString(true,tensor[2]).c_str());
-    ui->qqI12->setText(CTTUtil::getMasslessTensorString(true,tensor[3]).c_str());
-    ui->qqI22->setText(CTTUtil::getMasslessTensorString(true,tensor[4]).c_str());
-    ui->qqI32->setText(CTTUtil::getMasslessTensorString(true,tensor[5]).c_str());
-    ui->qqI13->setText(CTTUtil::getMasslessTensorString(true,tensor[6]).c_str());
-    ui->qqI23->setText(CTTUtil::getMasslessTensorString(true,tensor[7]).c_str());
-    ui->qqI33->setText(CTTUtil::getMasslessTensorString(true,tensor[8]).c_str());
+    ui->qqI11->setText(utils::getMasslessTensorString(true,tensor[0]).c_str());
+    ui->qqI21->setText(utils::getMasslessTensorString(true,tensor[1]).c_str());
+    ui->qqI31->setText(utils::getMasslessTensorString(true,tensor[2]).c_str());
+    ui->qqI12->setText(utils::getMasslessTensorString(true,tensor[3]).c_str());
+    ui->qqI22->setText(utils::getMasslessTensorString(true,tensor[4]).c_str());
+    ui->qqI32->setText(utils::getMasslessTensorString(true,tensor[5]).c_str());
+    ui->qqI13->setText(utils::getMasslessTensorString(true,tensor[6]).c_str());
+    ui->qqI23->setText(utils::getMasslessTensorString(true,tensor[7]).c_str());
+    ui->qqI33->setText(utils::getMasslessTensorString(true,tensor[8]).c_str());
 
-    ui->qqMx->setText(CTTUtil::getPosString(true,com[0]).c_str());
-    ui->qqMy->setText(CTTUtil::getPosString(true,com[1]).c_str());
-    ui->qqMz->setText(CTTUtil::getPosString(true,com[2]).c_str());
+    ui->qqMx->setText(utils::getPosString(true,com[0]).c_str());
+    ui->qqMy->setText(utils::getPosString(true,com[1]).c_str());
+    ui->qqMz->setText(utils::getPosString(true,com[2]).c_str());
 
     ui->qqApplyToSelection->setChecked(applyToSelection);
     ui->qqApplyToSelection->setEnabled(severalShapes);

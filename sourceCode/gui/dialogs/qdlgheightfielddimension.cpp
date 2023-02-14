@@ -1,7 +1,7 @@
 #include <qdlgheightfielddimension.h>
 #include <ui_qdlgheightfielddimension.h>
-#include <gV.h>
 #include <tt.h>
+#include <utils.h>
 #include <app.h>
 
 CQDlgHeightfieldDimension::CQDlgHeightfieldDimension(QWidget *parent) :
@@ -32,9 +32,9 @@ void CQDlgHeightfieldDimension::okEvent()
 
 void CQDlgHeightfieldDimension::refresh()
 {
-    ui->qqSizeX->setText(tt::getFString(false,xSize,2).c_str());
-    ui->qqSizeY->setText(tt::getFString(false,ySize,2).c_str());
-    ui->qqScalingZ->setText(tt::getFString(false,zScaling,3).c_str());
+    ui->qqSizeX->setText(utils::getSizeString(false,xSize).c_str());
+    ui->qqSizeY->setText(utils::getSizeString(false,ySize).c_str());
+    ui->qqScalingZ->setText(utils::getMultString(false,zScaling).c_str());
 }
 
 void CQDlgHeightfieldDimension::on_qqSizeX_editingFinished()

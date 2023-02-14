@@ -38,12 +38,12 @@ public:
     void addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(SLuaCallBack* object);
     bool addCommandToOutsideCommandQueues(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const double aux2Vals[8],int aux2Count);
 
-    int callChildAndEmbeddedScripts(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr);
+    int callChildAndEmbeddedScripts(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr,int scriptToExclude=-1);
     bool shouldTemporarilySuspendMainScript();
     int getSysFuncAndHookCnt(int sysCall) const;
     void setSysFuncAndHookCnt(int sysCall,int cnt);
 
-    void callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr);
+    void callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr,int scriptToExclude=-1);
     void sceneOrModelAboutToBeSaved_old(int modelBase);
     int getEquivalentScriptExecPriority_old(int objectHandle) const;
 

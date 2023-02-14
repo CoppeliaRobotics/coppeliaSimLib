@@ -3,7 +3,7 @@
 #include <dummy.h>
 #include <simLib/simConst.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <app.h>
 
 _CSceneObjectContainer_::_CSceneObjectContainer_()
@@ -1372,7 +1372,7 @@ CSceneObject* _CSceneObjectContainer_::_getObjectInTree(const CSceneObject* tree
         CSceneObject* it=toExplore[i];
         std::string name(it->getObjectAlias());
         bool doNextLevelExploration=true;
-        if (CTTUtil::doStringMatch_wildcard(objName.c_str(),name.c_str()))
+        if (utils::doStringMatch_wildcard(objName.c_str(),name.c_str()))
         {
             doNextLevelExploration=!usingNameIndex;
             if (nameIndex==0)

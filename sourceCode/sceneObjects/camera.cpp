@@ -8,7 +8,7 @@
 #include <pluginContainer.h>
 #include <simStrings.h>
 #include <vDateTime.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <easyLock.h>
 #include <app.h>
 #include <cameraRendering.h>
@@ -1532,11 +1532,11 @@ void CCamera::serialize(CSer& ar)
                             _extensionString+="true} focalDist {";
                         else
                             _extensionString+="false} focalDist {";
-                        _extensionString+=tt::FNb(0,(double)povFocalDistance,3,false);
+                        _extensionString+=utils::getSizeString(false,(double)povFocalDistance);
                         _extensionString+="} aperture {";
-                        _extensionString+=tt::FNb(0,(double)povAperture,3,false);
+                        _extensionString+=utils::getSizeString(false,(double)povAperture);
                         _extensionString+="} blurSamples {";
-                        _extensionString+=tt::FNb(0,povBlurSamples,false);
+                        _extensionString+=utils::getIntString(false,povBlurSamples);
                         _extensionString+="}}";
                     }
                     if (theName.compare("Cl1")==0)
@@ -1566,7 +1566,7 @@ void CCamera::serialize(CSer& ar)
             }
 
             if (ar.getSerializationVersionThatWroteThisFile()<17)
-                CTTUtil::scaleColorUp_(_color.getColorsPtr());
+                utils::scaleColorUp_(_color.getColorsPtr());
             computeBoundingBox();
             computeVolumeVectors();
         }
@@ -2833,21 +2833,19 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                 }
             }
 
-            for (size_t rp=0;rp<toRender.size();rp++)
+            // Display frames and bounding boxes of selected items:
+            if ( ((displayAttrib&sim_displayattribute_renderpass)!=0)&&((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)&&getInternalRendering() )
             {
-                CSceneObject* it=toRender[rp];
-                if (it->getSelected())
+                for (size_t rp=0;rp<toRender.size();rp++)
                 {
-                    int atr=displayAttrib|sim_displayattribute_selected;
-                    if (it->getObjectHandle()==lastSel)
-                        atr|=sim_displayattribute_mainselection;
-                    if  ( (it->getObjectHandle()!=getObjectHandle())||mirrored )
+                    CSceneObject* it=toRender[rp];
+                    if ( it->getSelected()&&((it->getObjectHandle()!=getObjectHandle())||mirrored) )
                     {
-                        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
-                        {
-                            if (getInternalRendering())
-                                it->displaySelected(this,atr);
-                        }
+                        double val=_orthoViewSize;
+                        if (_currentPerspective)
+                            val=2.0*tan(_viewAngle*0.5);
+                        it->displayFrames(this,val,_currentPerspective);
+                        it->displayBoundingBox(this,it->getObjectHandle()==lastSel);
                     }
                 }
             }
@@ -3193,7 +3191,7 @@ void CCamera::_drawOverlay(bool passiveView,bool drawText,bool displ_ref,int win
         glRotated(euler(2)*radToDeg,0.0,0.0,1.0);
 
         glLineWidth((float)App::sc);
-        ogl::drawReference(refSize,true,true,true,nullptr);
+        ogl::drawReference(refSize);
         glLineWidth(1.0);
 
         glPopMatrix();

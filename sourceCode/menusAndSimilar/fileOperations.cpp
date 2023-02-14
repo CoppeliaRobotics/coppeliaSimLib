@@ -14,7 +14,7 @@
 #include <imgLoaderSaver.h>
 #include <vVarious.h>
 #include <vDateTime.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <simFlavor.h>
 #include <boost/algorithm/string/predicate.hpp>
 #ifdef SIM_WITH_GUI
@@ -237,7 +237,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                             if (App::uiThread->messageBox_checkbox(App::mainWindow,IDSN_MODEL,IDSN_MODEL_SAVE_POSITION_OFFSET_INFO,IDSN_DO_NOT_SHOW_THIS_MESSAGE_AGAIN,false))
                             {
                                 intVal++;
-                                val=tt::FNb(intVal);
+                                val=utils::getIntString(false,intVal);
                                 cont.writeData("SIMSETTINGS_MODEL_SAVE_OFFSET_WARNING",val,!App::userSettings->doNotWritePersistentData);
                             }
                         }
@@ -1210,7 +1210,7 @@ std::string CFileOperations::_getStringOfVersionAndLicenseThatTheFileWasWrittenW
     retStr+=char('0')+(unsigned char)v;
 
     retStr+=" (rev ";
-    retStr+=tt::FNb(0,(int)revision);
+    retStr+=utils::getIntString(false,(int)revision);
     retStr+=')';
 
     if (licenseType!=-1)
@@ -1238,7 +1238,7 @@ bool CFileOperations::heightfieldImportRoutine(const char* pathName)
             // We read each line at a time, which gives rows:
             int minRow=-1;
 
-            std::string ext(CTTUtil::getLowerCaseString(VVarious::splitPath_fileExtension(pathName).c_str()));
+            std::string ext(utils::getLowerCaseString(VVarious::splitPath_fileExtension(pathName).c_str()));
             if ((ext.compare("csv")!=0)&&(ext.compare("txt")!=0))
             { // from image file
                 int resX,resY,n;

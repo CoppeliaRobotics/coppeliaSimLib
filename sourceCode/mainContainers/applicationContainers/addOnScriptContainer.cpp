@@ -244,7 +244,7 @@ bool CAddOnScriptContainer::shouldTemporarilySuspendMainScript()
     return(retVal);
 }
 
-int CAddOnScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack)
+int CAddOnScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,int scriptToExclude/*=-1*/)
 {
     int retVal=0;
     std::vector<CScriptObject*> scripts;
@@ -266,13 +266,16 @@ int CAddOnScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CIn
     for (size_t i=0;i<scripts.size();i++)
     {
         CScriptObject* it=scripts[i];
-        if ( it->hasSystemFunctionOrHook(callType)||it->getOldCallMode() )
+        if (it->getScriptHandle()!=scriptToExclude)
         {
-            if (it->systemCallScript(callType,inStack,outStack)==1)
-                retVal++;
+            if ( it->hasSystemFunctionOrHook(callType)||it->getOldCallMode() )
+            {
+                if (it->systemCallScript(callType,inStack,outStack)==1)
+                    retVal++;
+            }
+            if (interruptible&&(outStack!=nullptr)&&(outStack->getStackSize()!=0))
+                break;
         }
-        if (interruptible&&(outStack!=nullptr)&&(outStack->getStackSize()!=0))
-            break;
     }
     return(retVal);
 }

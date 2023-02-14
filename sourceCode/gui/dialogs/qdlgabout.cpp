@@ -1,6 +1,6 @@
 #include <qdlgabout.h>
 #include <ui_qdlgabout.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <tt.h>
 #include <simStrings.h>
 #include <simLib/simConst.h>

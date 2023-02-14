@@ -1,7 +1,7 @@
 #include <qdlgik.h>
 #include <ui_qdlgik.h>
 #include <tt.h>
-#include <gV.h>
+#include <utils.h>
 #include <app.h>
 #include <editboxdelegate.h>
 #include <qdlgikelements.h>
@@ -103,8 +103,8 @@ void CQDlgIk::refresh()
             }
         }
 
-        ui->qqDamping->setText(tt::getFString(false,it->getDampingFactor(),4).c_str());
-        ui->qqMaxIterations->setText(tt::getIString(false,it->getMaxIterations()).c_str());
+        ui->qqDamping->setText(utils::getSizeString(false,it->getDampingFactor()).c_str());
+        ui->qqMaxIterations->setText(utils::getIntString(false,it->getMaxIterations()).c_str());
     }
     else
     {
@@ -126,7 +126,7 @@ void CQDlgIk::updateObjectsInList()
         CIkGroup_old* ikg=App::currentWorld->ikGroups->getObjectFromIndex(i);
         std::string txt=ikg->getObjectName();
         txt+=" [containing ";
-        txt+=tt::FNb(0,int(ikg->getIkElementCount())).c_str();
+        txt+=utils::getIntString(false,int(ikg->getIkElementCount())).c_str();
         txt+=" ik element(s)]";
         int objID=ikg->getObjectHandle();
         QListWidgetItem* itm=new QListWidgetItem(txt.c_str());

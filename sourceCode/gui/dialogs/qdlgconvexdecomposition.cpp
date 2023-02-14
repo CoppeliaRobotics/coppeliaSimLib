@@ -1,8 +1,7 @@
 #include <qdlgconvexdecomposition.h>
 #include <ui_qdlgconvexdecomposition.h>
 #include <tt.h>
-#include <ttUtil.h>
-#include <gV.h>
+#include <utils.h>
 #include <app.h>
 
 CQDlgConvexDecomposition::CQDlgConvexDecomposition(QWidget *parent) :
@@ -59,37 +58,37 @@ void CQDlgConvexDecomposition::okEvent()
 void CQDlgConvexDecomposition::refresh()
 {
     ui->qqIndividualComponents->setChecked(individuallyConsiderMultishapeComponents);
-    ui->qqMaxIterations->setText(tt::FNb(0,maxIterations,false).c_str());
+    ui->qqMaxIterations->setText(utils::getIntString(false,maxIterations).c_str());
 
     // HACD:
     ui->qqHACD->setChecked(useHACD);
     ui->qqExtraDistPoints->setChecked(addExtraDistPoints);
     ui->qqExtraFacesPoints->setChecked(addFacesPoints);
-    ui->qqClusters->setText(tt::getIString(false,nClusters).c_str());
-    ui->qqConcavity->setText(tt::getFString(false,maxConcavity,3).c_str());
-    ui->qqConnectDist->setText(tt::getFString(false,maxConnectDist,3).c_str());
-    ui->qqTargetBlabla->setText(tt::getIString(false,maxTrianglesInDecimatedMesh).c_str());
-    ui->qqMaxHullVertices->setText(tt::getIString(false,maxHullVertices).c_str());
-    ui->qqSmallClusterThreshold->setText(tt::getFString(false,smallClusterThreshold,3).c_str());
+    ui->qqClusters->setText(utils::getIntString(false,nClusters).c_str());
+    ui->qqConcavity->setText(utils::getSizeString(false,maxConcavity).c_str());
+    ui->qqConnectDist->setText(utils::getSizeString(false,maxConnectDist).c_str());
+    ui->qqTargetBlabla->setText(utils::getIntString(false,maxTrianglesInDecimatedMesh).c_str());
+    ui->qqMaxHullVertices->setText(utils::getIntString(false,maxHullVertices).c_str());
+    ui->qqSmallClusterThreshold->setText(utils::getSizeString(false,smallClusterThreshold).c_str());
 
     // VHACD:
     ui->qqVHACD->setChecked(!useHACD);
     ui->qqPcaEnabled->setChecked(pca);
     ui->qqVoxelBased->setChecked(voxelBasedMode);
-    ui->qqResolution->setText(tt::getIString(false,resolution).c_str());
-    ui->qqDepth->setText(tt::getIString(false,depth).c_str());
+    ui->qqResolution->setText(utils::getIntString(false,resolution).c_str());
+    ui->qqDepth->setText(utils::getIntString(false,depth).c_str());
     ui->qqDepth->setVisible(false);
     ui->depthLabel->setVisible(false);
-    ui->qqConcavity_2->setText(tt::getFString(false,concavity,3).c_str());
-    ui->qqPlaneDownsampling->setText(tt::getIString(false,planeDownsampling).c_str());
-    ui->qqConvexHullDownsampling->setText(tt::getIString(false,convexHullDownsampling).c_str());
-    ui->qqAlpha->setText(tt::getFString(false,alpha,3).c_str());
-    ui->qqBeta->setText(tt::getFString(false,beta,3).c_str());
-    ui->qqGamma->setText(tt::getFString(false,gamma,3).c_str());
+    ui->qqConcavity_2->setText(utils::getSizeString(false,concavity).c_str());
+    ui->qqPlaneDownsampling->setText(utils::getIntString(false,planeDownsampling).c_str());
+    ui->qqConvexHullDownsampling->setText(utils::getIntString(false,convexHullDownsampling).c_str());
+    ui->qqAlpha->setText(utils::getSizeString(false,alpha).c_str());
+    ui->qqBeta->setText(utils::getSizeString(false,beta).c_str());
+    ui->qqGamma->setText(utils::getSizeString(false,gamma).c_str());
     ui->qqGamma->setVisible(false);
     ui->gammaLabel->setVisible(false);
-    ui->qqMaxVerticesPerCh->setText(tt::getIString(false,maxNumVerticesPerCH).c_str());
-    ui->qqMinVolumePerCh->setText(CTTUtil::getVolumeString(minVolumePerCH).c_str());
+    ui->qqMaxVerticesPerCh->setText(utils::getIntString(false,maxNumVerticesPerCH).c_str());
+    ui->qqMinVolumePerCh->setText(utils::getVolumeString(minVolumePerCH).c_str());
 }
 
 void CQDlgConvexDecomposition::on_qqOkCancel_accepted()

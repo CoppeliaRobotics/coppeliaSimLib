@@ -3,7 +3,7 @@
 #include <tt.h>
 #include <proxSensorRoutine.h>
 #include <vDateTime.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <easyLock.h>
 #include <app.h>
 #include <pluginContainer.h>
@@ -569,8 +569,8 @@ void CProxSensor::serialize(CSer& ar)
 
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-                CTTUtil::scaleColorUp_(volumeColor.getColorsPtr());
-                CTTUtil::scaleColorUp_(detectionRayColor.getColorsPtr());
+                utils::scaleColorUp_(volumeColor.getColorsPtr());
+                utils::scaleColorUp_(detectionRayColor.getColorsPtr());
             }
             computeBoundingBox();
         }

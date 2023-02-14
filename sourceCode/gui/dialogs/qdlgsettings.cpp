@@ -1,8 +1,7 @@
 #include <qdlgsettings.h>
 #include <ui_qdlgsettings.h>
 #include <tt.h>
-#include <ttUtil.h>
-#include <gV.h>
+#include <utils.h>
 #include <simStrings.h>
 #include <vFileDialog.h>
 #include <qdlgopenglsettings.h>
@@ -42,29 +41,29 @@ void CQDlgSettings::refresh()
     ui->qqAdjustOpenGl->setEnabled(noEditModeAndNoSim);
 
     ui->translationStepSize->clear();
-    ui->translationStepSize->addItem(tt::getFString(false,0.001,3).c_str(),QVariant(1));
-    ui->translationStepSize->addItem(tt::getFString(false,0.002,3).c_str(),QVariant(2));
-    ui->translationStepSize->addItem(tt::getFString(false,0.005,3).c_str(),QVariant(5));
-    ui->translationStepSize->addItem(tt::getFString(false,0.01,3).c_str(),QVariant(10));
-    ui->translationStepSize->addItem(tt::getFString(false,0.025,3).c_str(),QVariant(25));
-    ui->translationStepSize->addItem(tt::getFString(false,0.05,3).c_str(),QVariant(50));
-    ui->translationStepSize->addItem(tt::getFString(false,0.1,3).c_str(),QVariant(100));
-    ui->translationStepSize->addItem(tt::getFString(false,0.25,3).c_str(),QVariant(250));
-    ui->translationStepSize->addItem(tt::getFString(false,0.5,3).c_str(),QVariant(500));
+    ui->translationStepSize->addItem(utils::getSizeString(false,0.001).c_str(),QVariant(1));
+    ui->translationStepSize->addItem(utils::getSizeString(false,0.002).c_str(),QVariant(2));
+    ui->translationStepSize->addItem(utils::getSizeString(false,0.005).c_str(),QVariant(5));
+    ui->translationStepSize->addItem(utils::getSizeString(false,0.01).c_str(),QVariant(10));
+    ui->translationStepSize->addItem(utils::getSizeString(false,0.025).c_str(),QVariant(25));
+    ui->translationStepSize->addItem(utils::getSizeString(false,0.05).c_str(),QVariant(50));
+    ui->translationStepSize->addItem(utils::getSizeString(false,0.1).c_str(),QVariant(100));
+    ui->translationStepSize->addItem(utils::getSizeString(false,0.25).c_str(),QVariant(250));
+    ui->translationStepSize->addItem(utils::getSizeString(false,0.5).c_str(),QVariant(500));
     _selectItemOfCombobox(ui->translationStepSize,int((App::userSettings->getTranslationStepSize()+0.0005)*1000.0));
 
     ui->rotationStepSize->clear();
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,1.0*degToRad,1).c_str(),QVariant(1));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,2.0*degToRad,1).c_str(),QVariant(2));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,5.0*degToRad,1).c_str(),QVariant(5));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,10.0*degToRad,1).c_str(),QVariant(10));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,15.0*degToRad,1).c_str(),QVariant(15));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,30.0*degToRad,1).c_str(),QVariant(30));
-    ui->rotationStepSize->addItem(tt::getAngleFString(false,45.0*degToRad,1).c_str(),QVariant(45));
+    ui->rotationStepSize->addItem(utils::getAngleString(false,1.0*degToRad).c_str(),QVariant(1));
+    ui->rotationStepSize->addItem(utils::getAngleString(false,2.0*degToRad).c_str(),QVariant(2));
+    ui->rotationStepSize->addItem(utils::getAngleString(false,5.0*degToRad).c_str(),QVariant(5));
+    ui->rotationStepSize->addItem(utils::getAngleString(false,10.0*degToRad).c_str(),QVariant(10));
+    ui->rotationStepSize->addItem(utils::getAngleString(false,15.0*degToRad).c_str(),QVariant(15));
+    ui->rotationStepSize->addItem(utils::getAngleString(false,30.0*degToRad).c_str(),QVariant(30));
+    ui->rotationStepSize->addItem(utils::getAngleString(false,45.0*degToRad).c_str(),QVariant(45));
     _selectItemOfCombobox(ui->rotationStepSize,int(App::userSettings->getRotationStepSize()*radToDeg+0.5));
 
     ui->removeIdenticalVerticesCheckbox->setChecked(App::userSettings->identicalVerticesCheck);
-    ui->removeIdenticalVerticesTolerance->setText(CTTUtil::getPosString(false,App::userSettings->identicalVerticesTolerance).c_str());
+    ui->removeIdenticalVerticesTolerance->setText(utils::getPosString(false,App::userSettings->identicalVerticesTolerance).c_str());
 
     ui->removeIdenticalTriangles->setChecked(App::userSettings->identicalTrianglesCheck);
     ui->ignoreTriangleWinding->setChecked(App::userSettings->identicalTrianglesWindingCheck);
@@ -73,7 +72,6 @@ void CQDlgSettings::refresh()
 
     ui->qqHideHierarchy->setChecked(App::userSettings->sceneHierarchyHiddenDuringSimulation);
     ui->worldReference->setChecked(App::userSettings->displayWorldReference);
-    ui->boundingBoxDisplay->setChecked(App::userSettings->displayBoundingBoxeWhenObjectSelected);
     ui->undoRedo->setChecked(App::userSettings->getUndoRedoEnabled());
     ui->hideConsole->setChecked(!App::userSettings->alwaysShowConsole);
     ui->qqAutoSave->setChecked(App::userSettings->autoSaveDelay!=0);
@@ -134,12 +132,6 @@ void CQDlgSettings::on_ignoreTriangleWinding_clicked()
 void CQDlgSettings::on_worldReference_clicked()
 {
     App::appendSimulationThreadCommand(TOGGLE_SHOWWORLDREF_USERSETTINGSGUITRIGGEREDCMD);
-    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-}
-
-void CQDlgSettings::on_boundingBoxDisplay_clicked()
-{
-    App::appendSimulationThreadCommand(TOGGLE_SHOWBOUNDINGBOX_USERSETTINGSGUITRIGGEREDCMD);
     App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 

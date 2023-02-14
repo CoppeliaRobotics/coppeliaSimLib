@@ -1,6 +1,7 @@
 #include <qdlgimagecolor.h>
 #include <ui_qdlgimagecolor.h>
 #include <tt.h>
+#include <utils.h>
 #include <app.h>
 
 CQDlgImageColor::CQDlgImageColor(QWidget *parent) :
@@ -31,9 +32,9 @@ void CQDlgImageColor::refresh()
     ui->qqRed->setEnabled(!sameAsFog);
     ui->qqGreen->setEnabled(!sameAsFog);
     ui->qqBlue->setEnabled(!sameAsFog);
-    ui->qqRed->setText(tt::getFString(false,red,2).c_str());
-    ui->qqGreen->setText(tt::getFString(false,green,2).c_str());
-    ui->qqBlue->setText(tt::getFString(false,blue,2).c_str());
+    ui->qqRed->setText(utils::get0To1String(false,red).c_str());
+    ui->qqGreen->setText(utils::get0To1String(false,green).c_str());
+    ui->qqBlue->setText(utils::get0To1String(false,blue).c_str());
 }
 
 void CQDlgImageColor::on_qqFromFogColor_clicked()

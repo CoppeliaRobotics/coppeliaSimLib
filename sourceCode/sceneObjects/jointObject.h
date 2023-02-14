@@ -182,7 +182,10 @@ public:
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
-    C7Vector getFullLocalTransformation() const;
+
+    // Overridden from CSceneObject:
+    virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent,bool* available=nullptr) const;
+    virtual C7Vector getFullLocalTransformation() const;
 
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;
@@ -228,7 +231,6 @@ public:
     double getTargetPosition() const;
     CColorObject* getColor(bool part2);
 
-    C7Vector getIntrinsicTransformation(bool includeDynErrorComponent) const;
 
     double getMeasuredJointVelocity() const;
     std::string getDependencyJointLoadAlias() const;

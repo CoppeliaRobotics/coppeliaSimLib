@@ -2,7 +2,7 @@
 #include <mill.h>
 #include <tt.h>
 #include <vDateTime.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <easyLock.h>
 #include <app.h>
 #include <pluginContainer.h>
@@ -364,8 +364,8 @@ void CMill::serialize(CSer& ar)
             }
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-                CTTUtil::scaleColorUp_(passiveVolumeColor.getColorsPtr());
-                CTTUtil::scaleColorUp_(activeVolumeColor.getColorsPtr());
+                utils::scaleColorUp_(passiveVolumeColor.getColorsPtr());
+                utils::scaleColorUp_(activeVolumeColor.getColorsPtr());
             }
             computeBoundingBox();
         }

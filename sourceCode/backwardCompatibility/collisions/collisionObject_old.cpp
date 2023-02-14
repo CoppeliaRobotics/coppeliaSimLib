@@ -4,7 +4,7 @@
 #include <global.h>
 #include <collisionRoutines.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <app.h>
 #include <simStrings.h>
 #include <vDateTime.h>
@@ -39,7 +39,7 @@ void CCollisionObject_old::_commonInit()
     _detectAllCollisions=false;
     _explicitHandling=false;
 
-    _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
+    _uniquePersistentIdString=utils::generateUniqueReadableString(); // persistent
     _collisionResult=false;
     _collisionResultValid=false;
     _collObjectHandles[0]=-1;

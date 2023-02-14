@@ -16,7 +16,7 @@
 #include <pluginContainer.h>
 #include <mesh.h>
 #include <vDateTime.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <vVarious.h>
 #include <imgLoaderSaver.h>
 #include <apiErrors.h>
@@ -3719,8 +3719,7 @@ int simSetInt32Param_internal(int parameter,int intState)
                 return(-1);
             App::userSettings->antiAliasing=(intState&1);
             App::userSettings->displayWorldReference=((intState&2)!=0);
-            App::userSettings->displayBoundingBoxeWhenObjectSelected=((intState&4)!=0);
-            // reserved
+            // 4 and 8 are reserved
             App::userSettings->setUndoRedoEnabled((intState&16)!=0);
             return(1);
         }
@@ -4136,9 +4135,7 @@ int simGetInt32Param_internal(int parameter,int* intState)
                 intState[0]|=1;
             if (App::userSettings->displayWorldReference)
                 intState[0]|=2;
-            if (App::userSettings->displayBoundingBoxeWhenObjectSelected)
-                intState[0]|=4;
-            // reserved     intState[0]|=8;
+            // 4 and 8 are reserved
             if (App::userSettings->getUndoRedoEnabled())
                 intState[0]|=16;
             return(1);
@@ -4437,7 +4434,7 @@ char* simGetStringParam_internal(int parameter)
         if (parameter==sim_stringparam_uniqueid)
         {
             validParam=true;
-            retVal=CTTUtil::generateUniqueReadableString();
+            retVal=utils::generateUniqueReadableString();
         }
         if (parameter==sim_stringparam_tempdir)
         {
@@ -4529,7 +4526,7 @@ char* simGetStringParam_internal(int parameter)
             if (App::currentWorld->environment==nullptr)
                 return(nullptr);
             retVal=App::currentWorld->environment->getUniquePersistentIdString();
-            retVal=CTTUtil::encode64(retVal);
+            retVal=utils::encode64(retVal);
         }
         if (parameter==sim_stringparam_scene_path)
         {
@@ -9224,7 +9221,7 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
             if (parameterID==sim_visionintparam_pov_blur_sampled)
             {
                 std::string extensionString(rendSens->getExtensionString());
-                tt::insertKeyAndValue("blurSamples@povray",tt::FNb(0,parameter,false).c_str(),extensionString);
+                tt::insertKeyAndValue("blurSamples@povray",utils::getIntString(false,parameter).c_str(),extensionString);
                 rendSens->setExtensionString(extensionString.c_str());
                 retVal=1;
             }
@@ -9313,7 +9310,7 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
             if (parameterID==sim_cameraintparam_pov_blur_samples)
             {
                 std::string extensionString(camera->getExtensionString());
-                tt::insertKeyAndValue("blurSamples@povray",tt::FNb(0,parameter,false).c_str(),extensionString);
+                tt::insertKeyAndValue("blurSamples@povray",utils::getIntString(false,parameter).c_str(),extensionString);
                 camera->setExtensionString(extensionString.c_str());
                 retVal=1;
             }
@@ -10073,14 +10070,14 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
             if (parameterID==sim_visionfloatparam_pov_blur_distance)
             {
                 std::string extensionString(rendSens->getExtensionString());
-                tt::insertKeyAndValue("blurDist@povray",tt::FNb(0,parameter,3,false).c_str(),extensionString);
+                tt::insertKeyAndValue("blurDist@povray",utils::getSizeString(false,parameter).c_str(),extensionString);
                 rendSens->setExtensionString(extensionString.c_str());
                 retVal=1;
             }
             if (parameterID==sim_visionfloatparam_pov_aperture)
             {
                 std::string extensionString(rendSens->getExtensionString());
-                tt::insertKeyAndValue("aperture@povray",tt::FNb(0,parameter,3,false).c_str(),extensionString);
+                tt::insertKeyAndValue("aperture@povray",utils::getSizeString(false,parameter).c_str(),extensionString);
                 rendSens->setExtensionString(extensionString.c_str());
                 retVal=1;
             }
@@ -10372,14 +10369,14 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
             if (parameterID==sim_camerafloatparam_pov_blur_distance)
             {
                 std::string extensionString(camera->getExtensionString());
-                tt::insertKeyAndValue("blurDist@povray",tt::FNb(0,parameter,3,false).c_str(),extensionString);
+                tt::insertKeyAndValue("blurDist@povray",utils::getSizeString(false,parameter).c_str(),extensionString);
                 camera->setExtensionString(extensionString.c_str());
                 retVal=1;
             }
             if (parameterID==sim_camerafloatparam_pov_aperture)
             {
                 std::string extensionString(camera->getExtensionString());
-                tt::insertKeyAndValue("aperture@povray",tt::FNb(0,parameter,3,false).c_str(),extensionString);
+                tt::insertKeyAndValue("aperture@povray",utils::getSizeString(false,parameter).c_str(),extensionString);
                 camera->setExtensionString(extensionString.c_str());
                 retVal=1;
             }

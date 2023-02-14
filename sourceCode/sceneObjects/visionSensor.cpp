@@ -8,7 +8,7 @@
 #include <boost/lexical_cast.hpp>
 #include <vDateTime.h>
 #include <vVarious.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <threadPool_old.h>
 #include <easyLock.h>
 #include <app.h>
@@ -2627,11 +2627,11 @@ void CVisionSensor::serialize(CSer& ar)
                             _extensionString+="true} focalDist {";
                         else
                             _extensionString+="false} focalDist {";
-                        _extensionString+=tt::FNb(0,(double)povFocalDistance,3,false);
+                        _extensionString+=utils::getSizeString(false,(double)povFocalDistance);
                         _extensionString+="} aperture {";
-                        _extensionString+=tt::FNb(0,(double)povAperture,3,false);
+                        _extensionString+=utils::getSizeString(false,(double)povAperture);
                         _extensionString+="} blurSamples {";
-                        _extensionString+=tt::FNb(0,povBlurSamples,false);
+                        _extensionString+=utils::getIntString(false,povBlurSamples);
                         _extensionString+="}}";
                     }
                     if (theName.compare("Cl1")==0)
@@ -2655,7 +2655,7 @@ void CVisionSensor::serialize(CSer& ar)
             _reserveBuffers();
 
             if (ar.getSerializationVersionThatWroteThisFile()<17)
-                CTTUtil::scaleColorUp_(color.getColorsPtr()); // on 29/08/2013 we corrected all default lights. So we need to correct for that change
+                utils::scaleColorUp_(color.getColorsPtr()); // on 29/08/2013 we corrected all default lights. So we need to correct for that change
             computeBoundingBox();
             computeVolumeVectors();
         }

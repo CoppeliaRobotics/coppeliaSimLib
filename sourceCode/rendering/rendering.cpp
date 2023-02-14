@@ -386,148 +386,6 @@ void _disableAuxClippingPlanes()
         glDisable(GL_CLIP_PLANE1+i);
 }
 
-void _drawReference(CSceneObject* object,double refSize)
-{   // refSize is 0.0 by default --> size depends on the bounding box
-    double s;
-    if (refSize!=0.0)
-        s=refSize;
-    else
-    {
-        C3Vector minV,maxV;
-        object->getBoundingBox(minV,maxV);
-        maxV-=minV;
-        s=(maxV(0)+maxV(1)+maxV(2))/4.0;
-    }
-    glPushMatrix();
-    ogl::drawReference(s,true,true,true,nullptr);
-    glPopMatrix();
-}
-
-void _displayBoundingBox(CSceneObject* object,int displayAttrib,bool displRef,double refSize)
-{   // displRef is true by default, refSize is 0.0 by default
-    if ((displayAttrib&sim_displayattribute_selected)==0)
-        return;
-    if (!App::userSettings->displayBoundingBoxeWhenObjectSelected)
-        return;
-
-    C3Vector bbMin,bbMax;
-    bbMin.clear();
-    bbMax.clear();
-    if (object->getModelBase())
-    {
-        C7Vector ctmi(object->getCumulativeTransformation().getInverse());
-        bool b=true;
-        if (!object->getGlobalMarkingBoundingBox(ctmi,bbMin,bbMax,b,true,(displayAttrib&sim_displayattribute_forvisionsensor)==0))
-            return; // no boundingbox to display!
-        glLineStipple(1,0x0F0F);
-        glLineWidth(2.0);
-        glEnable(GL_LINE_STIPPLE);
-    }
-    else
-        object->getBoundingBox(bbMin,bbMax);
-    C3Vector bbs(bbMax-bbMin);
-    // Bounding box is 4% bigger:
-    C3Vector dx(bbs(0)*0.02,bbs(1)*0.02,bbs(2)*0.02);
-    bool avail=true;
-    ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
-    if ((displayAttrib&sim_displayattribute_mainselection)&&avail)
-    {
-        ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
-        avail=false;
-    }
-    if (((displayAttrib&sim_displayattribute_mainselection)==0)&&avail)
-    {
-        ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorYellow);
-        avail=false;
-    }
-
-    if (!avail)
-    {
-        App::currentWorld->environment->temporarilyDeactivateFog();
-
-        ogl::buffer.clear();
-        ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMin(1)-dx(1),bbMax(2)+dx(2));
-        ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMin(1)-dx(1),bbMin(2)-dx(2));
-        ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMin(1)-dx(1),bbMin(2)-dx(2));
-        ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMin(1)-dx(1),bbMax(2)+dx(2));
-        ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMin(1)-dx(1),bbMax(2)+dx(2));
-        ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMax(1)+dx(1),bbMax(2)+dx(2));
-        ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMax(1)+dx(1),bbMax(2)+dx(2));
-        ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMax(1)+dx(1),bbMin(2)-dx(2));
-        ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMax(1)+dx(1),bbMin(2)-dx(2));
-        ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMax(1)+dx(1),bbMax(2)+dx(2));
-        ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,nullptr);
-
-        ogl::buffer.clear();
-        ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMin(1)-dx(1),bbMin(2)-dx(2));
-        ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMax(1)+dx(1),bbMin(2)-dx(2));
-        ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMin(1)-dx(1),bbMin(2)-dx(2));
-        ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMax(1)+dx(1),bbMin(2)-dx(2));
-        ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMin(1)-dx(1),bbMax(2)+dx(2));
-        ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMax(1)+dx(1),bbMax(2)+dx(2));
-        ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,nullptr);
-        ogl::buffer.clear();
-        App::currentWorld->environment->reactivateFogThatWasTemporarilyDisabled();
-        if (true)
-        {
-            C4Vector r(object->getFullCumulativeTransformation().Q);
-            C3Vector absV;
-            double maxH=0.0;
-            int highestIndex[3];
-            for (int i=0;i<2;i++)
-            {
-                if (i==0)
-                    absV(0)=bbMin(0);
-                else
-                    absV(0)=bbMax(0);
-                for (int j=0;j<2;j++)
-                {
-                    if (j==0)
-                        absV(1)=bbMin(1);
-                    else
-                        absV(1)=bbMax(1);
-                    for (int k=0;k<2;k++)
-                    {
-                        if (k==0)
-                            absV(2)=bbMin(2);
-                        else
-                            absV(2)=bbMax(2);
-                        double h=(r*absV)(2);
-                        if (h>(maxH+0.001)) // added 0.001 to avoid that the label jumps when the box is aligned with the x/y plane
-                        {
-                            maxH=h;
-                            highestIndex[0]=i;
-                            highestIndex[1]=j;
-                            highestIndex[2]=k;
-                        }
-                    }
-                }
-            }
-
-            C3Vector corner;
-            C3Vector corner2;
-            for (int i=0;i<3;i++)
-            {
-                if (highestIndex[i]==0)
-                    corner(i)=bbMin(i)-dx(i);
-                else
-                    corner(i)=bbMax(i)+dx(i);
-                corner2(i)=corner(i)*(1.1+0.15*double((object->getObjectHandle()>>((2-i)*2))%4));
-            }
-            App::currentWorld->environment->temporarilyDeactivateFog();
-            ogl::drawSingle3dLine(corner.data,corner2.data,nullptr);
-            ogl::drawBitmapTextTo3dPosition(corner2.data,object->getDisplayName().c_str(),nullptr);
-            App::currentWorld->environment->reactivateFogThatWasTemporarilyDisabled();
-        }
-        glLineWidth(1.0);
-        if (displRef)
-            _drawReference(object,refSize);
-    }
-
-    glDisable(GL_LINE_STIPPLE);
-    avail=true;
-}
-
 void _selectLights(CSceneObject* object,CViewableBase* viewable)
 {
     object->setRestoreToDefaultLights(false);
@@ -547,19 +405,137 @@ void _restoreDefaultLights(CSceneObject* object,CViewableBase* viewable)
         _activateNonAmbientLights(-1,viewable);
 }
 
-void _displaySelected(CSceneObject* object,CViewableBase* viewable,int displayAttrib)
+void _displayFrame(const C7Vector& tr,double frameSize)
 {
-    if (displayAttrib&sim_displayattribute_renderpass)
-    {
-        _commonStart(object,viewable,displayAttrib);
-        glDisable(GL_DEPTH_TEST);
-        _displayBoundingBox(object,displayAttrib,true,0.0);
-        glEnable(GL_DEPTH_TEST);
-        _commonFinish(object,viewable);
-    }
+    glPushMatrix();
+    glPushAttrib(GL_POLYGON_BIT);
+    glDisable(GL_DEPTH_TEST);
+    glTranslated(tr.X(0),tr.X(1),tr.X(2));
+    C4Vector axis=tr.Q.getAngleAndAxis();
+    glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+    ogl::drawReference(frameSize);
+    glEnable(GL_DEPTH_TEST);
+    glPopAttrib();
+    glPopMatrix();
 }
 
-void _commonStart(CSceneObject* object,CViewableBase* viewable,int displayAttrib)
+void _displayBoundingBox(CSceneObject* object,CViewableBase* viewable,bool mainSelection)
+{
+    _commonStart(object,viewable);
+    glDisable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    _displayBoundingBox(object,mainSelection);
+    glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    _displayBoundingBox(object,mainSelection);
+    _commonFinish(object,viewable);
+}
+
+void _displayBoundingBox(CSceneObject* object,bool mainSelection)
+{
+    C3Vector bbMin,bbMax;
+    bbMin.clear();
+    bbMax.clear();
+    if (object->getModelBase())
+    {
+        C7Vector ctmi(object->getCumulativeTransformation().getInverse());
+        bool b=true;
+        if (!object->getGlobalMarkingBoundingBox(ctmi,bbMin,bbMax,b,true,true))
+            return; // no boundingbox to display!
+        glLineStipple(1,0x0F0F);
+        glLineWidth(2.0);
+        glEnable(GL_LINE_STIPPLE);
+    }
+    else
+        object->getBoundingBox(bbMin,bbMax);
+    C3Vector bbs(bbMax-bbMin);
+    // Bounding box is 4% bigger:
+    C3Vector dx(bbs(0)*0.02,bbs(1)*0.02,bbs(2)*0.02);
+
+    ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
+    if (mainSelection)
+        ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
+    else
+        ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorYellow);
+
+    ogl::setAlpha(0.2);
+    ogl::buffer.clear();
+    ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMin(1)-dx(1),bbMax(2)+dx(2));
+    ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMin(1)-dx(1),bbMin(2)-dx(2));
+    ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMin(1)-dx(1),bbMin(2)-dx(2));
+    ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMin(1)-dx(1),bbMax(2)+dx(2));
+    ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMin(1)-dx(1),bbMax(2)+dx(2));
+    ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMax(1)+dx(1),bbMax(2)+dx(2));
+    ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMax(1)+dx(1),bbMax(2)+dx(2));
+    ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMax(1)+dx(1),bbMin(2)-dx(2));
+    ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMax(1)+dx(1),bbMin(2)-dx(2));
+    ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMax(1)+dx(1),bbMax(2)+dx(2));
+    ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,nullptr);
+
+    ogl::buffer.clear();
+    ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMin(1)-dx(1),bbMin(2)-dx(2));
+    ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMax(1)+dx(1),bbMin(2)-dx(2));
+    ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMin(1)-dx(1),bbMin(2)-dx(2));
+    ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMax(1)+dx(1),bbMin(2)-dx(2));
+    ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMin(1)-dx(1),bbMax(2)+dx(2));
+    ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMax(1)+dx(1),bbMax(2)+dx(2));
+    ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,nullptr);
+    ogl::buffer.clear();
+    App::currentWorld->environment->reactivateFogThatWasTemporarilyDisabled();
+    C4Vector r(object->getFullCumulativeTransformation().Q);
+    C3Vector absV;
+    double maxH=0.0;
+    int highestIndex[3];
+    for (int i=0;i<2;i++)
+    {
+        if (i==0)
+            absV(0)=bbMin(0);
+        else
+            absV(0)=bbMax(0);
+        for (int j=0;j<2;j++)
+        {
+            if (j==0)
+                absV(1)=bbMin(1);
+            else
+                absV(1)=bbMax(1);
+            for (int k=0;k<2;k++)
+            {
+                if (k==0)
+                    absV(2)=bbMin(2);
+                else
+                    absV(2)=bbMax(2);
+                double h=(r*absV)(2);
+                if (h>(maxH+0.001)) // added 0.001 to avoid that the label jumps when the box is aligned with the x/y plane
+                {
+                    maxH=h;
+                    highestIndex[0]=i;
+                    highestIndex[1]=j;
+                    highestIndex[2]=k;
+                }
+            }
+        }
+    }
+
+    C3Vector corner;
+    C3Vector corner2;
+    for (int i=0;i<3;i++)
+    {
+        if (highestIndex[i]==0)
+            corner(i)=bbMin(i)-dx(i);
+        else
+            corner(i)=bbMax(i)+dx(i);
+        corner2(i)=corner(i)*(1.05+0.025*double((object->getObjectHandle()>>((2-i)*2))%4));
+    }
+    App::currentWorld->environment->temporarilyDeactivateFog();
+    ogl::drawSingle3dLine(corner.data,corner2.data,nullptr);
+    ogl::drawBitmapTextTo3dPosition(corner2.data,object->getDisplayName().c_str(),nullptr);
+    App::currentWorld->environment->reactivateFogThatWasTemporarilyDisabled();
+    glLineWidth(1.0);
+    glDisable(GL_LINE_STIPPLE);
+}
+
+void _commonStart(CSceneObject* object,CViewableBase* viewable)
 {
     _selectLights(object,viewable);
     glPushMatrix();

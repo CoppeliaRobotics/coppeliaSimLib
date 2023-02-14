@@ -4,7 +4,7 @@
 #include <ikGroup_old.h>
 #include <app.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <algorithm>
 #include <base64.h>
 #include <pluginContainer.h>
@@ -13,7 +13,7 @@
 CIkGroup_old::CIkGroup_old()
 {
     _objectHandle=SIM_IDSTART_IKGROUP_old;
-    _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
+    _uniquePersistentIdString=utils::generateUniqueReadableString(); // persistent
     _ikPluginCounterpartHandle=-1;
     _calcTimeInMs=0;
     _initialValuesInitialized=false;

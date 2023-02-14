@@ -4,7 +4,7 @@
 #include <simStrings.h>
 #include <vVarious.h>
 #include <app.h>
-#include <ttUtil.h>
+#include <utils.h>
 
 int CCodeEditorContainer::_nextUniqueId=0;
 
@@ -889,8 +889,8 @@ bool CCodeEditorContainer::hasSomethingBeenModifiedInCurrentScene() const
             if ( (it!=nullptr)&&CPluginContainer::codeEditor_getText(_allEditors[i].handle,txt,nullptr) )
             {
                 std::string txt2(it->getScriptText());
-                CTTUtil::removeSpacesAtBeginningAndEnd(txt);
-                CTTUtil::removeSpacesAtBeginningAndEnd(txt2);
+                utils::removeSpacesAtBeginningAndEnd(txt);
+                utils::removeSpacesAtBeginningAndEnd(txt2);
                 if (txt.compare(txt2.c_str())!=0)
                 {
                     retVal=true;

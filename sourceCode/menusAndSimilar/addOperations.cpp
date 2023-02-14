@@ -826,8 +826,16 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         CMeshRoutines::createCylinder(vertices,indices,C3Vector(xhSize*2.0,yhSize*2.0,zhSize*2.0),sides,faceSubdiv+1,discDiv,(options&4)!=0,type==sim_primitiveshape_cone);
 
         shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
-        shape->setObjectAlias_direct(IDSOGL_CYLINDER);
-        shape->setObjectName_direct_old(IDSOGL_CYLINDER);
+        if (type==sim_primitiveshape_cone)
+        {
+            shape->setObjectAlias_direct("Cone");
+            shape->setObjectName_direct_old("Cone");
+        }
+        else
+        {
+            shape->setObjectAlias_direct(IDSOGL_CYLINDER);
+            shape->setObjectName_direct_old(IDSOGL_CYLINDER);
+        }
         shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,zhSize)); // Now we shift the cylinder so it sits on the floor
         double avR=(sizes(0)+sizes(1))/4.0;

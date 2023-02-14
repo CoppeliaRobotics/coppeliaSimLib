@@ -1,7 +1,7 @@
 #include <qdlgmaterial.h>
 #include <ui_qdlgmaterial.h>
-#include <gV.h>
 #include <tt.h>
+#include <utils.h>
 #include <app.h>
 #include <qdlgcolorpulsation.h>
 
@@ -44,14 +44,14 @@ void CQDlgMaterial::refresh()
     ui->qqExtensionString->setEnabled(simStopped&&(allowedParts&512));
 
     if (allowedParts&64)
-        ui->qqShininess->setText(tt::getIString(false,vc->getShininess()).c_str());
+        ui->qqShininess->setText(utils::getIntString(false,vc->getShininess()).c_str());
     else
         ui->qqShininess->setText("");
     if (allowedParts&128)
     {
         ui->qqOpacityEnable->setChecked(vc->getTranslucid());
         ui->qqOpacity->setEnabled(vc->getTranslucid());
-        ui->qqOpacity->setText(tt::getFString(false,vc->getOpacity(),2).c_str());
+        ui->qqOpacity->setText(utils::get0To1String(false,vc->getOpacity()).c_str());
     }
     else
     {

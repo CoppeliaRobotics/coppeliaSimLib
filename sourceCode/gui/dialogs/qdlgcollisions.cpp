@@ -1,6 +1,7 @@
 #include <qdlgcollisions.h>
 #include <ui_qdlgcollisions.h>
 #include <tt.h>
+#include <utils.h>
 #include <QShortcut>
 #include <qdlgentityvsentityselection.h>
 #include <editboxdelegate.h>
@@ -72,7 +73,7 @@ void CQDlgCollisions::refresh()
         ui->qqColliderColorChanges->setChecked(it->getColliderChangesColor());
         ui->qqCollideeColorChanges->setChecked(it->getCollideeChangesColor());
         ui->qqExplicitHandling->setChecked(it->getExplicitHandling());
-        ui->qqContourWidth->setText(tt::getIString(false,it->getContourWidth()).c_str());
+        ui->qqContourWidth->setText(utils::getIntString(false,it->getContourWidth()).c_str());
     }
     else
     {

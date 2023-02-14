@@ -1,7 +1,7 @@
 #include <qdlgpointclouds.h>
 #include <ui_qdlgpointclouds.h>
 #include <tt.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <app.h>
 #include <simStrings.h>
@@ -57,21 +57,21 @@ void CQDlgPointclouds::refresh()
     if (sel)
     {
         ui->qqNoOctreeStructure->setChecked(!octreeStruct);
-        ui->qqMaxCellSize->setText(tt::getFString(false,it->getCellSize(),4).c_str());
-        ui->qqMaxPointCount->setText(tt::getIString(false,it->getMaxPointCountPerCell()).c_str());
+        ui->qqMaxCellSize->setText(utils::getSizeString(false,it->getCellSize()).c_str());
+        ui->qqMaxPointCount->setText(utils::getIntString(false,it->getMaxPointCountPerCell()).c_str());
         ui->qqShowOctree->setChecked(it->getShowOctree());
         ui->qqRandomColors->setChecked(it->getUseRandomColors());
-        ui->qqPointSize->setText(tt::getIString(false,it->getPointSize()).c_str());
-        ui->qqPointCount->setText(tt::getIString(false,(int)it->getPoints()->size()/3).c_str());
+        ui->qqPointSize->setText(utils::getIntString(false,it->getPointSize()).c_str());
+        ui->qqPointCount->setText(utils::getIntString(false,(int)it->getPoints()->size()/3).c_str());
         if (it->getAveragePointCountInCell()<0.0)
             ui->qqAveragePoints->setText("-"); // empty point cloud or point cloud doesn't use octree struct.
         else
-            ui->qqAveragePoints->setText(tt::getFString(false,it->getAveragePointCountInCell(),1).c_str());
-        ui->qqBuildResolution->setText(tt::getFString(false,it->getBuildResolution(),4).c_str());
-        ui->qqInsertionTolerance->setText(tt::getFString(false,it->getInsertionDistanceTolerance(),4).c_str());
-        ui->qqSubtractionTolerance->setText(tt::getFString(false,it->getRemovalDistanceTolerance(),4).c_str());
+            ui->qqAveragePoints->setText(utils::get0To1String(false,it->getAveragePointCountInCell()).c_str());
+        ui->qqBuildResolution->setText(utils::getSizeString(false,it->getBuildResolution()).c_str());
+        ui->qqInsertionTolerance->setText(utils::getSizeString(false,it->getInsertionDistanceTolerance()).c_str());
+        ui->qqSubtractionTolerance->setText(utils::getSizeString(false,it->getRemovalDistanceTolerance()).c_str());
         ui->qqEmissiveColor->setChecked(it->getColorIsEmissive());
-        ui->qqDisplayRatio->setText(tt::getFString(false,it->getPointDisplayRatio(),2).c_str());
+        ui->qqDisplayRatio->setText(utils::get0To1String(false,it->getPointDisplayRatio()).c_str());
     }
     else
     {

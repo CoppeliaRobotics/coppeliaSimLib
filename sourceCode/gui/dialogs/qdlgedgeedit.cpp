@@ -1,8 +1,8 @@
 #include <qdlgedgeedit.h>
 #include <ui_qdlgedgeedit.h>
 #include <app.h>
-#include <gV.h>
 #include <tt.h>
+#include <utils.h>
 #include <simStrings.h>
 #include <boost/lexical_cast.hpp>
 
@@ -30,8 +30,8 @@ void CQDlgEdgeEdit::refresh()
     ui->qqAutoFollowing->setChecked(App::mainWindow->editModeContainer->getShapeEditMode()->getAutomaticallyFollowEdges());
     ui->qqEdgeAngle->setEnabled(App::mainWindow->editModeContainer->getShapeEditMode()->getAutomaticallyFollowEdges());
     ui->qqDirectionChangeAngle->setEnabled(App::mainWindow->editModeContainer->getShapeEditMode()->getAutomaticallyFollowEdges());
-    ui->qqEdgeAngle->setText(tt::getAngleFString(false,App::mainWindow->editModeContainer->getShapeEditMode()->getEdgeMaxAngle(),1).c_str());
-    ui->qqDirectionChangeAngle->setText(tt::getAngleFString(false,App::mainWindow->editModeContainer->getShapeEditMode()->getEdgeDirectionChangeMaxAngle(),1).c_str());
+    ui->qqEdgeAngle->setText(utils::getAngleString(false,App::mainWindow->editModeContainer->getShapeEditMode()->getEdgeMaxAngle()).c_str());
+    ui->qqDirectionChangeAngle->setText(utils::getAngleString(false,App::mainWindow->editModeContainer->getShapeEditMode()->getEdgeDirectionChangeMaxAngle()).c_str());
 
     std::string tmp=std::string(IDS_TOTAL_EDGES)+": "+boost::lexical_cast<std::string>(App::mainWindow->editModeContainer->getEditModeBufferSize())+"/"+
         boost::lexical_cast<std::string>(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionEdgesSize()/2);
@@ -68,7 +68,7 @@ void CQDlgEdgeEdit::on_qqEdgeAngle_editingFinished()
         double newVal=ui->qqEdgeAngle->text().toDouble(&ok);
         if (ok)
         {
-            newVal=tt::getLimitedFloat(1.0*degToRad,180.0*degToRad,newVal*gv::userToRad);
+            newVal=tt::getLimitedFloat(1.0*degToRad,180.0*degToRad,newVal*degToRad);
             App::mainWindow->editModeContainer->getShapeEditMode()->setEdgeMaxAngle(newVal);
         }
         refresh();
@@ -85,7 +85,7 @@ void CQDlgEdgeEdit::on_qqDirectionChangeAngle_editingFinished()
         double newVal=ui->qqDirectionChangeAngle->text().toDouble(&ok);
         if (ok)
         {
-            newVal=tt::getLimitedFloat(0.0*degToRad,180.0*degToRad,newVal*gv::userToRad);
+            newVal=tt::getLimitedFloat(0.0*degToRad,180.0*degToRad,newVal*degToRad);
             App::mainWindow->editModeContainer->getShapeEditMode()->setEdgeDirectionChangeMaxAngle(newVal);
         }
         refresh();

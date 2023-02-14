@@ -229,7 +229,7 @@ protected:
     bool _loadCode();
     int ___loadCode(const char* code,const char* functionsToFind,std::vector<bool>& functionsFound,std::string* errorMsg);
     int _callSystemScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int _callScriptFunction(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
+    int _callScriptFunction(int sysCallType,const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
     int _callScriptFunc(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
     bool _execScriptString(const char* scriptString,CInterfaceStack* outStack);
     void _handleInfoCallback();

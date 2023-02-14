@@ -1,9 +1,8 @@
 #include <qdlgpathedit.h>
 #include <ui_qdlgpathedit.h>
 #include <app.h>
-#include <gV.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <simStrings.h>
 #include <boost/lexical_cast.hpp>
 
@@ -66,17 +65,17 @@ void CQDlgPathEdit::refresh()
         CSimplePathPoint_old* it=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(App::mainWindow->editModeContainer->getEditModeBufferSize()-1);
         double bInt0,bInt1;
         it->getBezierFactors(bInt0,bInt1);
-        ui->qqFactor1->setText(tt::getFString(false,bInt0,3).c_str());
-        ui->qqFactor2->setText(tt::getFString(false,bInt1,3).c_str());
-        ui->qqPointCount->setText(tt::getIString(false,it->getBezierPointCount()).c_str());
-        ui->qqVirtualDistance->setText(CTTUtil::getPosString(false,it->getOnSpotDistance()).c_str());
-        ui->qqAuxFlags->setText(tt::getIString(false,it->getAuxFlags()).c_str());
+        ui->qqFactor1->setText(utils::getMultString(false,bInt0).c_str());
+        ui->qqFactor2->setText(utils::getMultString(false,bInt1).c_str());
+        ui->qqPointCount->setText(utils::getIntString(false,it->getBezierPointCount()).c_str());
+        ui->qqVirtualDistance->setText(utils::getPosString(false,it->getOnSpotDistance()).c_str());
+        ui->qqAuxFlags->setText(utils::getIntString(false,it->getAuxFlags()).c_str());
         double auxChannels[4];
         it->getAuxChannels(auxChannels);
-        ui->qqAuxChannel1->setText(CTTUtil::getSizeString(false,auxChannels[0]).c_str());
-        ui->qqAuxChannel2->setText(CTTUtil::getSizeString(false,auxChannels[1]).c_str());
-        ui->qqAuxChannel3->setText(CTTUtil::getSizeString(false,auxChannels[2]).c_str());
-        ui->qqAuxChannel4->setText(CTTUtil::getSizeString(false,auxChannels[3]).c_str());
+        ui->qqAuxChannel1->setText(utils::getSizeString(false,auxChannels[0]).c_str());
+        ui->qqAuxChannel2->setText(utils::getSizeString(false,auxChannels[1]).c_str());
+        ui->qqAuxChannel3->setText(utils::getSizeString(false,auxChannels[2]).c_str());
+        ui->qqAuxChannel4->setText(utils::getSizeString(false,auxChannels[3]).c_str());
     }
     else
     {

@@ -33,7 +33,7 @@ public:
     void setSysFuncAndHookCnt(int sysCall,int cnt);
 
     bool shouldTemporarilySuspendMainScript();
-    int callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,int scriptToExclude=-1);
 
 private:
     bool _removeAddOn(int scriptID);

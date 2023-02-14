@@ -1,7 +1,5 @@
-
 #include <qdlgtextureloadoptions.h>
 #include <ui_qdlgtextureloadoptions.h>
-#include <gV.h>
 #include <tt.h>
 #include <global.h>
 #include <app.h>

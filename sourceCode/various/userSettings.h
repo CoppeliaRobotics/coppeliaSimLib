@@ -80,7 +80,6 @@ public:
     bool enableOldScriptTraversal;
     int allowOldEduRelease;
     int threadedScriptsStoppingGraceTime;
-    bool displayBoundingBoxeWhenObjectSelected;
     bool antiAliasing;
     double dynamicActivityRange;
     int freeServerPortStart;

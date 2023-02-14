@@ -24,19 +24,16 @@ See the GNU General Public License for more details.
 
 void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(joint,renderingObject,displayAttrib);
+    // At the beginning of every scene object display routine:
+    _commonStart(joint,renderingObject);
 
     bool guiIsRendering=((displayAttrib&sim_displayattribute_forvisionsensor)==0);
 
-    // Bounding box display:
     double sizeParam=joint->getLength()/4.0;
     if (sizeParam<joint->getDiameter())
         sizeParam=joint->getDiameter();
     if (sizeParam>10.0*joint->getDiameter())
         sizeParam=10.0*joint->getDiameter();
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(joint,displayAttrib,true,sizeParam);
 
     // Object display:
     if (joint->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
@@ -65,7 +62,7 @@ void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib
         _disableAuxClippingPlanes();
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(joint,renderingObject);
 }
 
@@ -103,8 +100,6 @@ void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,double sizeParam
             glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
             ogl::drawSphere(joint->getDiameter()/1.5,16,8,true);
-            if (displayAttrib&sim_displayattribute_selected)
-                _drawReference(joint,sizeParam);
         }
     }
     if (joint->getJointType()==sim_joint_revolute_subtype)
@@ -119,8 +114,6 @@ void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,double sizeParam
             glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
             ogl::drawCylinder(joint->getDiameter()/2.0,joint->getLength()*1.2,8,0,true);
-            if (displayAttrib&sim_displayattribute_selected)
-                _drawReference(joint,sizeParam);
         }
     }
     if (joint->getJointType()==sim_joint_prismatic_subtype)
@@ -135,8 +128,6 @@ void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,double sizeParam
             glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
             ogl::drawBox(joint->getDiameter()/2.0,joint->getDiameter()/2.0,joint->getLength()*1.2,true,nullptr);
-            if (displayAttrib&sim_displayattribute_selected)
-                _drawReference(joint,sizeParam);
         }
     }
     glPopAttrib();

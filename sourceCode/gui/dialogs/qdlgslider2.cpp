@@ -1,7 +1,7 @@
-
 #include <qdlgslider2.h>
 #include <ui_qdlgslider2.h>
 #include <tt.h>
+#include <utils.h>
 
 CQDlgSlider2::CQDlgSlider2(QWidget *parent) : VDialog(parent,QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgSlider2)
 {
@@ -90,13 +90,13 @@ void CQDlgSlider2::on_qqSlider2_sliderMoved(int position)
 void CQDlgSlider2::_displayMeshInsideExtractionTexts()
 {
     std::string txt="Resolution ";
-    txt+=tt::getIString(false,resolution);
+    txt+=utils::getIntString(false,resolution);
     txt+="x";
-    txt+=tt::getIString(false,resolution);
+    txt+=utils::getIntString(false,resolution);
     if (resolution>1024)
         txt+=" (warning: requires a lot of memory!)";
     ui->qqTextAfter1->setText(txt.c_str());
     txt="Iteration count ";
-    txt+=tt::getIString(false,iterationCnt);
+    txt+=utils::getIntString(false,iterationCnt);
     ui->qqTextAfter2->setText(txt.c_str());
 }

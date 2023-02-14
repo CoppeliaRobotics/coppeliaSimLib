@@ -1,6 +1,7 @@
 #include <qdlgavirecorder.h>
 #include <ui_qdlgavirecorder.h>
 #include <tt.h>
+#include <utils.h>
 #include <vFileDialog.h>
 #include <simStrings.h>
 #include <vVarious.h>
@@ -52,12 +53,12 @@ void CQDlgAviRecorder::refresh()
 
     ui->selectLocation->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording()));
     ui->displayedFramesVsRecordedFrame->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording()));
-    ui->displayedFramesVsRecordedFrame->setText(tt::getIString(false,App::mainWindow->simulationRecorder->getRecordEveryXRenderedFrame()).c_str());
+    ui->displayedFramesVsRecordedFrame->setText(utils::getIntString(false,App::mainWindow->simulationRecorder->getRecordEveryXRenderedFrame()).c_str());
 
     ui->autoFrameRate->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording()));
     ui->autoFrameRate->setChecked(App::mainWindow->simulationRecorder->getAutoFrameRate());
     ui->frameRate->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording())&&(!App::mainWindow->simulationRecorder->getAutoFrameRate()));
-    ui->frameRate->setText(tt::getIString(false,App::mainWindow->simulationRecorder->getFrameRate()).c_str());
+    ui->frameRate->setText(utils::getIntString(false,App::mainWindow->simulationRecorder->getFrameRate()).c_str());
 
     ui->hideInfos->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording())&&(!App::mainWindow->simulationRecorder->getDesktopRecording()));
     ui->hideInfos->setChecked(App::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar()&&(!App::mainWindow->simulationRecorder->getDesktopRecording()));
@@ -83,14 +84,6 @@ void CQDlgAviRecorder::refresh()
     }
     ui->qqOutputTypeCombo->setCurrentIndex(App::mainWindow->simulationRecorder->getEncoderIndex());
 
-    /*
-    int resX,resY;
-    App::mainWindow->simulationRecorder->getRecordingSize(resX,resY);
-    txt=tt::FNb(0,resX,false);
-    txt+="x";
-    txt+=tt::FNb(0,resY,false);
-    ui->qqResolution->setText(txt.c_str());
-*/
     selectLineEdit(lineEditToSelect);
     inRefreshRoutine=false;
 }

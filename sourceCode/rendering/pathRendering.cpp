@@ -24,12 +24,8 @@ See the GNU General Public License for more details.
 
 void displayPath(CPath_old* path,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(path,renderingObject,displayAttrib);
-
-    // Bounding box display:
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(path,displayAttrib,true,path->pathContainer->getSquareSize()*2.0);
+    // At the beginning of every scene object display routine:
+    _commonStart(path,renderingObject);
 
     C3Vector normalVectorForLinesAndPoints(path->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -87,7 +83,7 @@ void displayPath(CPath_old* path,CViewableBase* renderingObject,int displayAttri
         glDisable(GL_CULL_FACE);
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(path,renderingObject);
 }
 

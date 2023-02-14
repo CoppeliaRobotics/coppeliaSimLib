@@ -2,7 +2,7 @@
 #include <ui_qdlgscaling.h>
 #include <app.h>
 #include <sceneObjectOperations.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <tt.h>
 
 CQDlgScaling::CQDlgScaling(QWidget *parent) :
@@ -33,7 +33,7 @@ void CQDlgScaling::okEvent()
 void CQDlgScaling::refresh()
 {
     ui->qqInPlace->setChecked(inPlace);
-    ui->qqScalingFactor->setText(CTTUtil::getMultString(false,factor).c_str());
+    ui->qqScalingFactor->setText(utils::getMultString(false,factor).c_str());
 }
 
 void CQDlgScaling::_doTheScaling()

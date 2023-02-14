@@ -1,7 +1,7 @@
-
 #include <serialPortContainer.h>
 #include <simInternal.h>
 #include <tt.h>
+#include <utils.h>
 #include <app.h>
 
 CSerialPortContainer::CSerialPortContainer()
@@ -309,7 +309,7 @@ bool CSerialPortContainer::serialPortOpen_old(bool fromScript,int portNumber,int
 { // old, for backward compatibility
     CSerialPort* port=new CSerialPort(fromScript,false);
     std::string theString("\\\\.\\COM");
-    theString+=tt::FNb(portNumber);
+    theString+=utils::getIntString(false,portNumber);
     if (port->open(theString.c_str(),baudRate)==0)
         return(false);
     port->setPortNumber_backwardCompatibility(portNumber);

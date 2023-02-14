@@ -24,12 +24,8 @@ See the GNU General Public License for more details.
 
 void displayMill(CMill* mill,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(mill,renderingObject,displayAttrib);
-
-    // Display the bounding box:
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(mill,displayAttrib,true,0.0);
+    // At the beginning of every scene object display routine:
+    _commonStart(mill,renderingObject);
 
     C3Vector normalVectorForLinesAndPoints(mill->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -73,7 +69,7 @@ void displayMill(CMill* mill,CViewableBase* renderingObject,int displayAttrib)
         _disableAuxClippingPlanes();
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(mill,renderingObject);
 }
 

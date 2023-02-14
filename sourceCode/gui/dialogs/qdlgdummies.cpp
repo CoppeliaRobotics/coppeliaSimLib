@@ -1,8 +1,7 @@
 #include <qdlgdummies.h>
 #include <ui_qdlgdummies.h>
 #include <tt.h>
-#include <ttUtil.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <app.h>
 #include <simStrings.h>
@@ -55,7 +54,7 @@ void CQDlgDummies::refresh()
 
     if (sel)
     {
-        ui->qqSize->setText(tt::getFString(false,it->getDummySize(),4).c_str());
+        ui->qqSize->setText(utils::getSizeString(false,it->getDummySize()).c_str());
 
         ui->qqLinkedDummyCombo->addItem(IDSN_NONE,QVariant(-1));
         std::vector<std::string> names;
@@ -119,8 +118,8 @@ void CQDlgDummies::refresh()
         ui->qqIncrement->setEnabled(!it->getFreeOnPathTrajectory()&&noEditModeNoSim);
         if (it->getAssignedToParentPath()&&(!it->getFreeOnPathTrajectory()))
         {
-            ui->qqOffset->setText(CTTUtil::getSizeString(true,it->getVirtualDistanceOffsetOnPath()).c_str());
-            ui->qqIncrement->setText(CTTUtil::getSizeString(true,it->getVirtualDistanceOffsetOnPath_variationWhenCopy()).c_str());
+            ui->qqOffset->setText(utils::getSizeString(true,it->getVirtualDistanceOffsetOnPath()).c_str());
+            ui->qqIncrement->setText(utils::getSizeString(true,it->getVirtualDistanceOffsetOnPath_variationWhenCopy()).c_str());
         }
         else
         {

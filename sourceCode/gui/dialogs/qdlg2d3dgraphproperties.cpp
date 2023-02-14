@@ -1,7 +1,7 @@
 #include <qdlg2d3dgraphproperties.h>
 #include <ui_qdlg2d3dgraphproperties.h>
-#include <gV.h>
 #include <tt.h>
+#include <utils.h>
 #include <graphingRoutines_old.h>
 #include <QShortcut>
 #include <editboxdelegate.h>
@@ -169,7 +169,7 @@ void CQDlg2D3DGraphProperties::refresh()
     ui->qqAlwaysOnTop->setChecked((graphData!=nullptr)&&(graphData->getVisibleOnTopOfEverything()));
 
     if ((graphData!=nullptr)&&(!_xyGraph))
-        ui->qqWidth->setText(tt::getIString(false,int(graphData->get3DCurveWidth()+0.1)).c_str());
+        ui->qqWidth->setText(utils::getIntString(false,int(graphData->get3DCurveWidth()+0.1)).c_str());
     else
         ui->qqWidth->setText("");
 

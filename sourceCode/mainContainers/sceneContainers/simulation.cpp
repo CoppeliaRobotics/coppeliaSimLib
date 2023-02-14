@@ -2,8 +2,8 @@
 #include <simulation.h>
 #include <graph.h>
 #include <tt.h>
+#include <utils.h>
 #include <graphingRoutines_old.h>
-#include <gV.h>
 #include <threadPool_old.h>
 #include <app.h>
 #include <simStrings.h>
@@ -924,22 +924,22 @@ bool CSimulation::getInfo(std::string& txtLeft,std::string& txtRight,int& index)
                             txtRight="&&fg930"; // When simulation is behind
                     }
                 }
-                txtRight+=gv::getHourMinuteSecondMilisecondStr(getSimulationTime()+0.0001)+" &&fg@@@(real time: ";
+                txtRight+=utils::getTimeString(false,getSimulationTime()+0.0001)+" &&fg@@@(real time: ";
                 if (abs(getRealTimeCoeff()-1.0)<0.01)
-                    txtRight+=gv::getHourMinuteSecondMilisecondStr(simulationTime_real+0.0001)+")";
+                    txtRight+=utils::getTimeString(false,simulationTime_real+0.0001)+")";
                 else
                 {
-                    txtRight+=gv::getHourMinuteSecondMilisecondStr(simulationTime_real+0.0001)+" (x";
-                    txtRight+=tt::FNb(0,double(getRealTimeCoeff()),3,false)+"))";
+                    txtRight+=utils::getTimeString(false,simulationTime_real+0.0001)+" (x";
+                    txtRight+=utils::getMultString(false,getRealTimeCoeff())+"))";
                 }
                 if (simulationTime_real!=0.0)
-                    txtRight+=" (real time fact="+tt::FNb(0,getSimulationTime()/simulationTime_real,2,false)+")";
-                txtRight+=" (dt="+tt::FNb(0,getTimeStep()*1000.0,1,false)+" ms)";
+                    txtRight+=" (real time fact="+utils::getMultString(false,getSimulationTime()/simulationTime_real)+")";
+                txtRight+=" (dt="+utils::getDoubleString(false,getTimeStep()*1000.0,1,2)+" ms)";
             }
             else
             {
-                txtRight="&&fg@@@"+gv::getHourMinuteSecondMilisecondStr(getSimulationTime()+0.0001);
-                txtRight+=" (dt="+tt::FNb(0,getTimeStep()*1000.0,1,false)+" ms, ppf="+std::to_string(getPassesPerRendering())+")";
+                txtRight="&&fg@@@"+utils::getTimeString(false,getSimulationTime()+0.0001);
+                txtRight+=" (dt="+utils::getDoubleString(false,getTimeStep()*1000.0,1,2)+" ms, ppf="+std::to_string(getPassesPerRendering())+")";
             }
             retVal=true;
         }

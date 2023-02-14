@@ -1,8 +1,7 @@
 #include <qdlgjoints.h>
 #include <ui_qdlgjoints.h>
 #include <tt.h>
-#include <ttUtil.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <app.h>
 #include <qdlgdependencyequation.h>
@@ -90,7 +89,7 @@ void CQDlgJoints::refresh()
     {
         if (revolute)
         {
-            ui->qqLead->setText(CTTUtil::getPosString(true,it->getScrewLead()).c_str());
+            ui->qqLead->setText(utils::getPosString(true,it->getScrewLead()).c_str());
             if (it->getIsCyclic())
             {
                 ui->qqMinimum->setText("");
@@ -98,19 +97,19 @@ void CQDlgJoints::refresh()
             }
             else
             {
-                ui->qqMinimum->setText(CTTUtil::getAngleString(true,it->getPositionMin()).c_str());
-                ui->qqRange->setText(CTTUtil::getAngleString(false,it->getPositionRange()).c_str());
+                ui->qqMinimum->setText(utils::getAngleString(true,it->getPositionMin()).c_str());
+                ui->qqRange->setText(utils::getAngleString(false,it->getPositionRange()).c_str());
             }
-            ui->qqPosition->setText(CTTUtil::getAngleString(true,it->getPosition()).c_str());
+            ui->qqPosition->setText(utils::getAngleString(true,it->getPosition()).c_str());
         }
         else
             ui->qqLead->setText("");
 
         if (prismatic)
         {
-            ui->qqMinimum->setText(CTTUtil::getPosString(true,it->getPositionMin()).c_str());
-            ui->qqRange->setText(CTTUtil::getPosString(false,it->getPositionRange()).c_str());
-            ui->qqPosition->setText(CTTUtil::getPosString(true,it->getPosition()).c_str());
+            ui->qqMinimum->setText(utils::getPosString(true,it->getPositionMin()).c_str());
+            ui->qqRange->setText(utils::getPosString(false,it->getPositionRange()).c_str());
+            ui->qqPosition->setText(utils::getPosString(true,it->getPosition()).c_str());
         }
 
 
@@ -124,10 +123,10 @@ void CQDlgJoints::refresh()
         }
         else
         {
-            ui->qqLength->setText(tt::getFString(false,it->getLength(),3).c_str());
+            ui->qqLength->setText(utils::getSizeString(false,it->getLength()).c_str());
         }
 
-        ui->qqDiameter->setText(tt::getFString(false,it->getDiameter(),3).c_str());
+        ui->qqDiameter->setText(utils::getSizeString(false,it->getDiameter()).c_str());
 
         ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_KINEMATIC_MODE,QVariant(sim_jointmode_kinematic));
         if ( ( (it->getJointMode()==sim_jointmode_kinematic)&&(it->getHybridFunctionality_old()) )||App::userSettings->showOldDlgs )
@@ -245,7 +244,7 @@ void CQDlgJoints::on_qqMinimum_editingFinished()
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
-                newVal*=gv::userToRad;
+                newVal*=degToRad;
             App::appendSimulationThreadCommand(SET_MINPOS_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -265,7 +264,7 @@ void CQDlgJoints::on_qqRange_editingFinished()
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
-                newVal*=gv::userToRad;
+                newVal*=degToRad;
             App::appendSimulationThreadCommand(SET_RANGE_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -285,7 +284,7 @@ void CQDlgJoints::on_qqPosition_editingFinished()
         if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
-                newVal*=gv::userToRad;
+                newVal*=degToRad;
             App::appendSimulationThreadCommand(SET_POS_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }

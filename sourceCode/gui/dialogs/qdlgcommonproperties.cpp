@@ -1,7 +1,7 @@
 #include <qdlgcommonproperties.h>
 #include <ui_qdlgcommonproperties.h>
 #include <tt.h>
-#include <gV.h>
+#include <utils.h>
 #include <sceneObjectOperations.h>
 #include <qdlgdetectableproperties.h>
 #include <qdlgmodelproperties.h>
@@ -307,7 +307,7 @@ void CQDlgCommonProperties::refresh()
     if (ls!=nullptr)
     {
         if (isDummy||isShape||isOctree)
-            ui->qqSelfCollisionIndicator->setText(tt::getIString(false,ls->getCollectionSelfCollisionIndicator()).c_str());
+            ui->qqSelfCollisionIndicator->setText(utils::getIntString(false,ls->getCollectionSelfCollisionIndicator()).c_str());
         else
             ui->qqSelfCollisionIndicator->setText("");
     }

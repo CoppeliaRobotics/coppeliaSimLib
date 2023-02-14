@@ -1,7 +1,7 @@
 #include <qdlgpaths.h>
 #include <ui_qdlgpaths.h>
 #include <tt.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <app.h>
 #include <qdlgpathshaping.h>
@@ -65,8 +65,8 @@ void CQDlgPaths::refresh()
 
     if (pathCont!=nullptr)
     {
-        ui->qqLineSize->setText(tt::getIString(false,pathCont->getLineSize()).c_str());
-        ui->qqControlPointSize->setText(tt::getFString(false,pathCont->getSquareSize(),3).c_str());
+        ui->qqLineSize->setText(utils::getIntString(false,pathCont->getLineSize()).c_str());
+        ui->qqControlPointSize->setText(utils::getSizeString(false,pathCont->getSquareSize()).c_str());
 
         ui->qqDistanceCombo->addItem(IDS_PATH_LENGTH_CALC_DL,QVariant(sim_distcalcmethod_dl));
         ui->qqDistanceCombo->addItem(IDS_PATH_LENGTH_CALC_DAC,QVariant(sim_distcalcmethod_dac));

@@ -9,19 +9,7 @@ class tt
 {
 public:
 
-    static bool stringToFloat(const char* txt,double& f,bool allowNegativeValue,bool infGivesMinusOne);
-    static std::string floatToEInfString(double f,bool canBeNegative);
-
-    static std::string getEString(bool sign,double f,int precision);
-    static std::string getFString(bool sign,double f,int precision);
-    static std::string getDString(bool sign,double f,int precision);
-    static std::string getAngleEString(bool sign,double angleInRad,int precision);
-    static std::string getAngleFString(bool sign,double angleInRad,int precision);
-    static std::string getIString(bool sign,int v);
-
     static bool stringToInt(const char* txt,int& a);
-    static double floatToUserFloat(double f,double toUserConversion,bool minusValuesGiveInf);
-    static double userFloatToFloat(double userFloat,double fromUserConversion,bool minusValuesGiveInf);
 
     static std::string decorateString(const char* prefix,const std::string mainText,const char* suffix);
 
@@ -29,11 +17,6 @@ public:
     static bool removeSpacesAtBeginningAndEnd(std::string& line);
     static bool removeSpacesAndEmptyLinesAtBeginningAndEnd(std::string& line);
 
-    static std::string FNb(float number);
-    static std::string FNb(double number);
-    static std::string FNb(int number);
-    static std::string FNb(int leadingZeros,double number,int decimals,bool sign=true);
-    static std::string FNb(int leadingZeros,int number,bool sign=false);
     static int getDecimalPos(double number,int maxDec);
 
     static void lightEncodeBuffer(char* buff,int length);

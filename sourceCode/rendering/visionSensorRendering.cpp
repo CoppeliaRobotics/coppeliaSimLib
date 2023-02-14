@@ -25,12 +25,8 @@ See the GNU General Public License for more details.
 
 void displayVisionSensor(CVisionSensor* visionSensor,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(visionSensor,renderingObject,displayAttrib);
-
-    // Bounding box display:
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(visionSensor,displayAttrib,true,0.0);
+    // At the beginning of every scene object display routine:
+    _commonStart(visionSensor,renderingObject);
 
     C3Vector normalVectorForLinesAndPoints(visionSensor->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -126,7 +122,7 @@ void displayVisionSensor(CVisionSensor* visionSensor,CViewableBase* renderingObj
         _disableAuxClippingPlanes();
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(visionSensor,renderingObject);
 }
 

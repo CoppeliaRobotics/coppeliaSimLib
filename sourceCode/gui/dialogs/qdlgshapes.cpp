@@ -1,7 +1,7 @@
 #include <qdlgshapes.h>
 #include <ui_qdlgshapes.h>
 #include <tt.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <mesh.h>
 #include <qdlgtextures.h>
@@ -77,7 +77,7 @@ void CQDlgShapes::refresh()
 
     if (ssel)
     {
-        ui->qqShadingAngle->setText(tt::getAngleFString(false,it->getSingleMesh()->getShadingAngle(),1).c_str());
+        ui->qqShadingAngle->setText(utils::getAngleString(false,it->getSingleMesh()->getShadingAngle()).c_str());
         ui->qqBackfaceCulling->setChecked(it->getSingleMesh()->getCulling());
         ui->qqWireframe->setChecked(it->getSingleMesh()->getWireframe_OLD());
         ui->qqShowEdges->setChecked(it->getSingleMesh()->getVisibleEdges());
@@ -144,7 +144,7 @@ void CQDlgShapes::on_qqShadingAngle_editingFinished()
         double newVal=ui->qqShadingAngle->text().toDouble(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_SHADINGANGLE_SHAPEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,gv::userToRad*newVal);
+            App::appendSimulationThreadCommand(SET_SHADINGANGLE_SHAPEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,degToRad*newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

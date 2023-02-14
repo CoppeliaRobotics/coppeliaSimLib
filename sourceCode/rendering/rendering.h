@@ -17,7 +17,7 @@ License, or (at your option) any later version.
 See the GNU General Public License for more details.
 <http://www.gnu.org/licenses/>
 */
-
+#pragma once
 #include <app.h>
 
 #ifdef SIM_WITH_OPENGL
@@ -28,13 +28,13 @@ void _prepareAuxClippingPlanes();
 void _enableAuxClippingPlanes(int objID);
 void _prepareOrEnableAuxClippingPlanes(bool prepare,int objID);
 void _disableAuxClippingPlanes();
-void _drawReference(CSceneObject* object,double refSize);
-void _displayBoundingBox(CSceneObject* object,int displayAttrib,bool displRef,double refSize);
 void _selectLights(CSceneObject* object,CViewableBase* viewable);
 void _restoreDefaultLights(CSceneObject* object,CViewableBase* viewable);
-void _commonStart(CSceneObject* object,CViewableBase* viewable,int displayAttrib);
+void _commonStart(CSceneObject* object,CViewableBase* viewable);
 void _commonFinish(CSceneObject* object,CViewableBase* viewable);
-void _displaySelected(CSceneObject* object,CViewableBase* viewable,int displayAttrib);
+void _displayBoundingBox(CSceneObject* object,CViewableBase* viewable,bool mainSelection);
+void _displayFrame(const C7Vector& tr,double frameSize);
+void _displayBoundingBox(CSceneObject* object,bool mainSelection);
 
 void _drawTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,const float* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId);
 bool _drawEdges(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const unsigned char* edges,int* edgeBufferId);

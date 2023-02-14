@@ -1,5 +1,6 @@
 #include <customData_old.h>
 #include <base64.h>
+#include <utils.h>
 #include <tt.h>
 
 CCustomData_old::CCustomData_old()
@@ -90,7 +91,7 @@ void CCustomData_old::serializeData(CSer &ar,const char* objectName,int scriptHa
                 else
                 {
                     if (scriptHandle!=-1)
-                        serObj=ar.xmlAddNode_binFile("file",(std::string("scriptCustomData_")+tt::FNb(scriptHandle)).c_str());
+                        serObj=ar.xmlAddNode_binFile("file",(std::string("scriptCustomData_")+utils::getIntString(false,scriptHandle)).c_str());
                     else
                         serObj=ar.xmlAddNode_binFile("file","sceneCustomData");
                 }

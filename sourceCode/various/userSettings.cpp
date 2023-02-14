@@ -23,7 +23,6 @@
 #define _USR_STEREO_DIST "stereoDist"
 #define _USR_VSYNC "vsync"
 #define _USR_DEBUG_OPENGL "debugOpenGl"
-#define _USR_DISPLAY_BOUNDING_BOXES "displayBoundingBoxeWhenObjectSelected"
 #define _USR_REMOVE_IDENTICAL_VERTICES "removeIdenticalVertices"
 #define _USR_IDENTICAL_VERTICES_TOLERANCE "identicalVerticesTolerance"
 #define _USR_REMOVE_IDENTICAL_TRIANGLES "removeIdenticalTriangles"
@@ -234,7 +233,6 @@ CUserSettings::CUserSettings()
 
     displayWorldReference=true;
     antiAliasing=false;
-    displayBoundingBoxeWhenObjectSelected=true;
     guiFontSize_Win=13; // 11-14 ok
     guiFontSize_Mac=-1; // 10-13 ok
     guiFontSize_Linux=13; // 11-14 ok, default is quite large
@@ -599,7 +597,6 @@ void CUserSettings::saveUserSettings()
     c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_RESIZE,renderingSurfaceVResize,"");
     c.addBoolean(_USR_DISPLAY_WORLD_REF,displayWorldReference,"");
     c.addBoolean(_USR_ANTIALIASING,antiAliasing,"");
-    c.addBoolean(_USR_DISPLAY_BOUNDING_BOXES,displayBoundingBoxeWhenObjectSelected,"");
     c.addInteger(_USR_GUI_FONT_SIZE_WIN,guiFontSize_Win,"-1=default");
     c.addInteger(_USR_GUI_FONT_SIZE_MAC,guiFontSize_Mac,"-1=default");
     c.addInteger(_USR_GUI_FONT_SIZE_LINUX,guiFontSize_Linux,"-1=default");
@@ -884,7 +881,6 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_RENDERING_SURFACE_VERTICAL_RESIZE,renderingSurfaceVResize);
     c.getBoolean(_USR_DISPLAY_WORLD_REF,displayWorldReference);
     c.getBoolean(_USR_ANTIALIASING,antiAliasing);
-    c.getBoolean(_USR_DISPLAY_BOUNDING_BOXES,displayBoundingBoxeWhenObjectSelected);
     c.getInteger(_USR_GUI_FONT_SIZE_WIN,guiFontSize_Win);
     c.getInteger(_USR_GUI_FONT_SIZE_MAC,guiFontSize_Mac);
     c.getInteger(_USR_GUI_FONT_SIZE_LINUX,guiFontSize_Linux);

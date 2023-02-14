@@ -1,6 +1,6 @@
 #include <annJson.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <cmath>
 
 CAnnJson::CAnnJson(QJsonObject* mainObject)
@@ -16,7 +16,7 @@ CAnnJson::~CAnnJson()
 std::string CAnnJson::_nbKey(const char* key)
 {
     std::string retVal("__key");
-    retVal+=tt::FNb(4,_cnt++);
+    retVal+=utils::getIntString(false,_cnt++,4);
     retVal+="__";
     retVal+=key;
     return(retVal);
@@ -60,7 +60,7 @@ void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,int value,const char
 
 void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,double value,const char* annotation/*=nullptr*/)
 {
-    value=CTTUtil::getDoubleFromString(CTTUtil::getDoubleEString(false,value).c_str());
+    value=utils::getDoubleFromString(utils::getDoubleEString(false,value).c_str());
     std::string l(_nbKey(key));
     jsonObj[l.c_str()]=value;
     _addAnnotation(l.c_str(),annotation);
@@ -70,7 +70,7 @@ void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,const double* v,size
 {
     QJsonArray arr;
     for (size_t i=0;i<cnt;i++)
-        arr.push_back(CTTUtil::getDoubleFromString(CTTUtil::getDoubleEString(false,v[i]).c_str()));
+        arr.push_back(utils::getDoubleFromString(utils::getDoubleEString(false,v[i]).c_str()));
     std::string l(_nbKey(key));
     jsonObj[l.c_str()]=arr;
     _addAnnotation(l.c_str(),annotation);
@@ -98,9 +98,9 @@ std::string CAnnJson::stripComments(const char* jsonTxt)
     std::string input(jsonTxt);
     std::string retVal;
     std::string line;
-    while (CTTUtil::extractLine(input,line))
+    while (utils::extractLine(input,line))
     {
-        CTTUtil::removeComments(line);
+        utils::removeComments(line);
         retVal+=line+"\n";
     }
     return(retVal);
@@ -177,7 +177,7 @@ std::string CAnnJson::getAnnotatedString()
     std::string json(doc.toJson(QJsonDocument::Indented).toStdString());
     std::string retVal;
     std::string line;
-    while (CTTUtil::extractLine(json,line))
+    while (utils::extractLine(json,line))
     {
         size_t p1=line.find("__key");
         if (p1!=std::string::npos)

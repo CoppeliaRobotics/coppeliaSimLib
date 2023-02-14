@@ -8,9 +8,8 @@
 #include <visionSensor.h>
 #include <mill.h>
 #include <light.h>
-#include <gV.h>
 #include <vDateTime.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <boost/lexical_cast.hpp>
 #include <app.h>
 #include <easyLock.h>
@@ -41,7 +40,7 @@ CSceneObject::CSceneObject()
     _objectHandle=-1;
     _beforeDeleteCallbackSent=false;
     _ikPluginCounterpartHandle=-1;
-    _dnaString=CTTUtil::generateUniqueString();
+    _dnaString=utils::generateUniqueString();
     _assemblingLocalTransformation.setIdentity();
     _assemblingLocalTransformationIsUsed=false;
     _userScriptParameters=nullptr;
@@ -88,7 +87,7 @@ CSceneObject::CSceneObject()
 
     _dynamicSimulationIconCode=sim_dynamicsimicon_none;
 
-    _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
+    _uniquePersistentIdString=utils::generateUniqueReadableString(); // persistent
     _modelAcknowledgement="";
     _objectTempAlias="_*_object_*_";
     _objectTempName_old="_*_object_*_";
@@ -457,6 +456,13 @@ std::string CSceneObject::getObjectPathAndIndex(size_t modelCnt) const
             retVal+="{"+std::to_string(index)+"}";
     }
     return(retVal);
+}
+
+C7Vector CSceneObject::getIntrinsicTransformation(bool includeDynErrorComponent,bool* available/*=nullptr*/) const
+{
+    if (available!=nullptr)
+        available[0]=false;
+    return(C7Vector::identityTransformation);
 }
 
 C7Vector CSceneObject::getLocalTransformation() const
@@ -1880,7 +1886,7 @@ int CSceneObject::getAllChildrenThatMayBecomeAssemblyParent(const std::vector<st
 
 void CSceneObject::generateDnaString()
 {
-    _dnaString=CTTUtil::generateUniqueString();
+    _dnaString=utils::generateUniqueString();
 }
 
 std::string CSceneObject::getDnaString() const
@@ -2857,7 +2863,7 @@ void CSceneObject::serialize(CSer& ar)
             if ( (ar.getCoppeliaSimVersionThatWroteThisFile()<30003)&&getModelBase() )
             {
                 _dnaString="1234567890123456";
-                std::string a(CTTUtil::generateUniqueReadableString());
+                std::string a(utils::generateUniqueReadableString());
                 while (a.length()<16)
                     a=a+"*";
                 std::string b("1234567890123456");
@@ -3777,9 +3783,28 @@ void CSceneObject::display(CViewableBase* renderingObject,int displayAttrib)
 {
 }
 
-void CSceneObject::displaySelected(CViewableBase* renderingObject,int displayAttrib)
+void CSceneObject::displayFrames(CViewableBase* renderingObject,double size,bool persp)
 {
-    _displaySelected(this,renderingObject,displayAttrib);
+#ifdef SIM_WITH_OPENGL
+    if (persp)
+    {
+        C7Vector x(renderingObject->getCumulativeTransformation().getInverse()*getCumulativeTransformation());
+        size*=x(2);
+    }
+    C7Vector tr(getCumulativeTransformation());
+    _displayFrame(tr,size*0.0125);
+    bool available=false;
+    C7Vector localFrame(getIntrinsicTransformation(true,&available));
+    if (available)
+        _displayFrame(tr*localFrame,size*0.0125);
+#endif
+}
+
+void CSceneObject::displayBoundingBox(CViewableBase* renderingObject,bool mainSelection)
+{
+#ifdef SIM_WITH_OPENGL
+    _displayBoundingBox(this,renderingObject,mainSelection);
+#endif
 }
 
 #ifdef SIM_WITH_GUI
@@ -4014,7 +4039,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         ogl::drawSingle3dLine(-h,0.0,0.0,h,0.0,0.0,nullptr);
         ogl::drawSingle3dLine(h,0.0,0.0,cos(0.1)*h2,sin(0.1)*h2,0.0,nullptr);
         ogl::drawSingle3dLine(h,0.0,0.0,cos(-0.1)*h2,sin(-0.1)*h2,0.0,nullptr);
-        std::string s(gv::getAngleStr(true,_objectManipulationModeTotalRotation));
+        std::string s(utils::getAngleString(true,_objectManipulationModeTotalRotation));
         double h3=halfSize*1.1;
 
         if (transparentAndOverlay)
@@ -4149,7 +4174,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
             ogl::addBuffer3DPoints(v(0)+w(0),v(1)+w(1),v(2)+w(2));
             ogl::addBuffer3DPoints(v(0)+s(0),v(1)+s(1),v(2)+s(2));
             ogl::addBuffer3DPoints(v(0)-w(0),v(1)-w(1),v(2)-w(2));
-            std::string st(gv::getSizeStr(true,totTransl(axis),0));
+            std::string st(utils::getSizeString(true,totTransl(axis)));
             ogl::drawBitmapTextTo3dPosition(v(0)+s(0)*2.0+w(0)*2.0,v(1)+s(1)*2.0+w(1)*2.0,v(2)+s(2)*2.0+w(2)*2.0,st.c_str(),nullptr);
             if (xAxisOnly)
                 break;

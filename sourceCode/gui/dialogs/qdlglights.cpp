@@ -1,7 +1,7 @@
 #include <qdlglights.h>
 #include <ui_qdlglights.h>
 #include <tt.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <qdlglightmaterial.h>
 #include <app.h>
@@ -45,7 +45,7 @@ void CQDlgLights::refresh()
         ui->qqLocal->setChecked(it->getLightIsLocal());
         ui->qqCasingColor->setEnabled((lt!=sim_light_omnidirectional_subtype)&&noEditModeNoSim);
 
-        ui->qqSize->setText(tt::getFString(false,it->getLightSize(),3).c_str());
+        ui->qqSize->setText(utils::getSizeString(false,it->getLightSize()).c_str());
 
         ui->qqConstantFactor->setEnabled((lt!=sim_light_directional_subtype)&&noEditModeNoSim);
         ui->qqLinearFactor->setEnabled((lt!=sim_light_directional_subtype)&&noEditModeNoSim);
@@ -55,8 +55,8 @@ void CQDlgLights::refresh()
 
         if (lt==sim_light_spot_subtype)
         {
-            ui->qqSpotExponent->setText(tt::getIString(false,it->getSpotExponent()).c_str());
-            ui->qqSpotCutoff->setText(tt::getAngleFString(false,it->getSpotCutoffAngle(),2).c_str());
+            ui->qqSpotExponent->setText(utils::getIntString(false,it->getSpotExponent()).c_str());
+            ui->qqSpotCutoff->setText(utils::getAngleString(false,it->getSpotCutoffAngle()).c_str());
         }
         else
         {
@@ -65,9 +65,9 @@ void CQDlgLights::refresh()
         }
         if (lt!=sim_light_directional_subtype)
         {
-            ui->qqConstantFactor->setText(tt::getFString(false,it->getAttenuationFactor(CONSTANT_ATTENUATION),3).c_str());
-            ui->qqLinearFactor->setText(tt::getFString(false,it->getAttenuationFactor(LINEAR_ATTENUATION),3).c_str());
-            ui->qqQuadraticFactor->setText(tt::getFString(false,it->getAttenuationFactor(QUADRATIC_ATTENUATION),3).c_str());
+            ui->qqConstantFactor->setText(utils::getDoubleString(false,it->getAttenuationFactor(CONSTANT_ATTENUATION),2,4).c_str());
+            ui->qqLinearFactor->setText(utils::getDoubleString(false,it->getAttenuationFactor(LINEAR_ATTENUATION),2,4).c_str());
+            ui->qqQuadraticFactor->setText(utils::getDoubleString(false,it->getAttenuationFactor(QUADRATIC_ATTENUATION),2,4).c_str());
         }
         else
         {
@@ -143,7 +143,7 @@ void CQDlgLights::on_qqSpotCutoff_editingFinished()
         double newVal=ui->qqSpotCutoff->text().toDouble(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_SPOTCUTOFF_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal*gv::userToRad);
+            App::appendSimulationThreadCommand(SET_SPOTCUTOFF_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal*degToRad);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

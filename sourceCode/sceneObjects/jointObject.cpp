@@ -1,10 +1,9 @@
 #include <jointObject.h>
 #include <tt.h>
 #include <simInternal.h>
-#include <gV.h>
 #include <linMotionRoutines.h>
 #include <simStrings.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <easyLock.h>
 #include <app.h>
 #include <jointRendering.h>
@@ -1200,18 +1199,18 @@ std::string CJoint::getObjectTypeInfoExtended() const
             retVal+=tt::decorateString(" (",IDSOGL_REVOLUTE,", p=");
         else
             retVal+=tt::decorateString(" (",IDSOGL_SCREW,", p=");
-        retVal+=gv::getAngleStr(true,_pos)+")";
+        retVal+=utils::getAngleString(true,_pos)+")";
     }
     if (_jointType==sim_joint_prismatic_subtype)
     {
         retVal+=tt::decorateString(" (",IDSOGL_PRISMATIC,", p=");
-        retVal+=gv::getSizeStr(true,_pos)+")";
+        retVal+=utils::getPosString(true,_pos)+")";
     }
     if (_jointType==sim_joint_spherical_subtype)
     {
         retVal+=tt::decorateString(" (",IDSOGL_SPHERICAL,", a=");
         C3Vector euler(getSphericalTransformation().getEulerAngles());
-        retVal+=gv::getAngleStr(true,euler(0))+", b="+gv::getAngleStr(true,euler(1))+", g="+gv::getAngleStr(true,euler(2))+")";
+        retVal+=utils::getAngleString(true,euler(0))+", b="+utils::getAngleString(true,euler(1))+", g="+utils::getAngleString(true,euler(2))+")";
     }
     return(retVal);
 }
@@ -3354,7 +3353,7 @@ void CJoint::serialize(CSer& ar)
             }
 
             if (ar.getSerializationVersionThatWroteThisFile()<17)
-                CTTUtil::scaleColorUp_(_color.getColorsPtr());
+                utils::scaleColorUp_(_color.getColorsPtr());
             _fixVortexInfVals();
             computeBoundingBox();
         }
@@ -4652,8 +4651,8 @@ double CJoint::getTargetPosition() const
     return(_targetPos);
 }
 
-C7Vector CJoint::getIntrinsicTransformation(bool includeDynErrorComponent) const
-{
+C7Vector CJoint::getIntrinsicTransformation(bool includeDynErrorComponent,bool* available/*=nullptr*/) const
+{ // Overridden from CSceneObject
     C7Vector jointTr;
     if (getJointType()==sim_joint_revolute_subtype)
     {
@@ -4676,11 +4675,13 @@ C7Vector CJoint::getIntrinsicTransformation(bool includeDynErrorComponent) const
     }
     if (includeDynErrorComponent)
         jointTr=jointTr*_intrinsicTransformationError;
+    if (available!=nullptr)
+        available[0]=true;
     return(jointTr);
 }
 
 C7Vector CJoint::getFullLocalTransformation() const
-{
+{ // Overridden from CSceneObject
     return(_localTransformation*getIntrinsicTransformation(true));
 }
 

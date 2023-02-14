@@ -57,8 +57,9 @@
 //#include <typeinfo>
 #define SIMPLE_FUNCNAME_DEBUG printf("SYNC_DEBUG: %s, %s\n",typeid(*this).name(),__func__);
 
-// Resource lock command:
-#define EASYLOCK(mutex) CEasyLock easyLock(mutex,__func__)
+// Commented on 13.02.2023
+//#define EASYLOCK(mutex) CEasyLock easyLock(mutex,__func__)
+#define EASYLOCK(mutex)
 
 #ifdef WIN_SIM
     #ifndef NOMINMAX

@@ -1,7 +1,7 @@
 #include <qdlgmirrors.h>
 #include <ui_qdlgmirrors.h>
 #include <tt.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <qdlgcolor.h>
 #include <app.h>
@@ -59,9 +59,9 @@ void CQDlgMirrors::refresh()
     {
         ui->qqEnabled->setChecked(it->getActive()&&noEditModeAndNoSim);
 
-        ui->qqWidth->setText(tt::getFString(false,it->getMirrorWidth(),3).c_str());
-        ui->qqHeight->setText(tt::getFString(false,it->getMirrorHeight(),3).c_str());
-        ui->qqReflectance->setText(tt::getFString(false,it->getReflectance(),2).c_str());
+        ui->qqWidth->setText(utils::getSizeString(false,it->getMirrorWidth()).c_str());
+        ui->qqHeight->setText(utils::getSizeString(false,it->getMirrorHeight()).c_str());
+        ui->qqReflectance->setText(utils::get0To1String(false,it->getReflectance()).c_str());
         ui->qqIsMirror->setChecked(it->getIsMirror());
         ui->qqIsClippingPlane->setChecked(!it->getIsMirror());
 

@@ -25,13 +25,11 @@ See the GNU General Public License for more details.
 
 void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib)
 { // This is a quite ugly routine which requires refactoring!
-    // At the beginning of every 3DObject display routine:
-    _commonStart(graph,renderingObject,displayAttrib);
+    // At the beginning of every scene object display routine:
+    _commonStart(graph,renderingObject);
 
     // Bounding box display:
     double size=graph->getGraphSize();
-    if ( (displayAttrib&sim_displayattribute_renderpass)&&(!graph->getJustDrawCurves()) )
-        _displayBoundingBox(graph,displayAttrib,true,size/2.0);
 
     C3Vector normalVectorForLinesAndPoints(graph->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -81,8 +79,8 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
         if ( (!graph->getJustDrawCurves())&&((displayAttrib&sim_displayattribute_forvisionsensor)==0) )
             ogl::drawSphere(size/32.0,10,5,true);
 
-        if ((!graph->getJustDrawCurves())&&((displayAttrib&(sim_displayattribute_forvisionsensor|sim_displayattribute_selected))==0))
-            ogl::drawReference(size/2.0,true,true,false,normalVectorForLinesAndPoints.data);
+        if ((!graph->getJustDrawCurves())&&((displayAttrib&(sim_displayattribute_forvisionsensor))==0))
+            ogl::drawReference(size/2.0);
 
 
         // Display the trajectories..
@@ -214,7 +212,7 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
         _disableAuxClippingPlanes();
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(graph,renderingObject);
 }
 

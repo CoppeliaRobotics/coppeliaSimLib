@@ -6,7 +6,7 @@
 #include <buttonBlockContainer.h>
 #include <simStrings.h>
 #include <app.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <boost/lexical_cast.hpp>
 #include <vDateTime.h>
 #ifdef SIM_WITH_GUI

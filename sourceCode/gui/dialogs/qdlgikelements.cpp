@@ -1,8 +1,7 @@
 #include <qdlgikelements.h>
 #include <ui_qdlgikelements.h>
-#include <gV.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <QShortcut>
 #include <app.h>
 #include <simStrings.h>
@@ -271,10 +270,10 @@ void CQDlgIkElements::refresh()
             }
         }
 
-        ui->qqPrecisionLinear->setText(CTTUtil::getPosString(false,it->getMinLinearPrecision()).c_str());
-        ui->qqPrecisionAngular->setText(CTTUtil::getAngleString(false,it->getMinAngularPrecision()).c_str());
-        ui->qqWeightLinear->setText(tt::getFString(false,it->getPositionWeight(),2).c_str());
-        ui->qqWeightAngular->setText(tt::getFString(false,it->getOrientationWeight(),2).c_str());
+        ui->qqPrecisionLinear->setText(utils::getPosString(false,it->getMinLinearPrecision()).c_str());
+        ui->qqPrecisionAngular->setText(utils::getAngleString(false,it->getMinAngularPrecision()).c_str());
+        ui->qqWeightLinear->setText(utils::getSizeString(false,it->getPositionWeight()).c_str());
+        ui->qqWeightAngular->setText(utils::getSizeString(false,it->getOrientationWeight()).c_str());
     }
     else
     {
@@ -481,7 +480,7 @@ void CQDlgIkElements::on_qqPrecisionAngular_editingFinished()
             cmd.intParams.push_back(_ikGroupHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(1); // angular
-            cmd.floatParams.push_back(newVal*gv::userToRad);
+            cmd.floatParams.push_back(newVal*degToRad);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }

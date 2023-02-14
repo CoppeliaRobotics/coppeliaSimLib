@@ -1,8 +1,7 @@
 #include <qdlgforcesensors.h>
 #include <ui_qdlgforcesensors.h>
 #include <tt.h>
-#include <ttUtil.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <app.h>
 
@@ -54,17 +53,17 @@ void CQDlgForceSensors::refresh()
 
     if (sel)
     {
-        ui->qqSize->setText(tt::getFString(false,it->getForceSensorSize(),3).c_str());
+        ui->qqSize->setText(utils::getSizeString(false,it->getForceSensorSize()).c_str());
 
-        ui->qqSampleSize->setText(tt::getIString(false,it->getValueCountForFilter()).c_str());
+        ui->qqSampleSize->setText(utils::getIntString(false,it->getValueCountForFilter()).c_str());
         ui->qqAverage->setChecked(it->getFilterType()==0);
         ui->qqMedian->setChecked(it->getFilterType()==1);
 
         ui->qqForceThresholdEnable->setChecked(it->getEnableForceThreshold());
-        ui->qqForceThreshold->setText(CTTUtil::getForceTorqueString(false,it->getForceThreshold()).c_str());
+        ui->qqForceThreshold->setText(utils::getForceTorqueString(false,it->getForceThreshold()).c_str());
         ui->qqTorqueThresholdEnable->setChecked(it->getEnableTorqueThreshold());
-        ui->qqTorqueThreshold->setText(CTTUtil::getForceTorqueString(false,it->getTorqueThreshold()).c_str());
-        ui->qqViolationCount->setText(tt::getIString(false,it->getConsecutiveThresholdViolationsForBreaking()).c_str());
+        ui->qqTorqueThreshold->setText(utils::getForceTorqueString(false,it->getTorqueThreshold()).c_str());
+        ui->qqViolationCount->setText(utils::getIntString(false,it->getConsecutiveThresholdViolationsForBreaking()).c_str());
     }
     else
     {

@@ -11,7 +11,7 @@
 #include <meshManip.h>
 #include <base64.h>
 #include <imgLoaderSaver.h>
-#include <ttUtil.h>
+#include <utils.h>
 
 bool CShape::_visualizeObbStructures=false;
 
@@ -2101,7 +2101,7 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
                     CInterfaceStackTable* texture=new CInterfaceStackTable();
                     mesh->appendMapObject_stringObject("texture",texture);
 
-                    buffer=CTTUtil::encode64(buffer);
+                    buffer=utils::encode64(buffer);
                     texture->appendMapObject_stringString("texture",buffer.c_str(),buffer.size());
 
                     texture->appendMapObject_stringInt32Array("resolution",tRes,2);

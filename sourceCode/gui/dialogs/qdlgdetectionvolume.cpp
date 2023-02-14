@@ -1,7 +1,7 @@
 #include <qdlgdetectionvolume.h>
 #include <ui_qdlgdetectionvolume.h>
-#include <gV.h>
 #include <tt.h>
+#include <utils.h>
 #include <app.h>
 #include <simStrings.h>
 
@@ -61,21 +61,21 @@ void CQDlgDetectionVolume::refresh()
 
             ui->qqOffset->setEnabled(noEditModeNoSim);
             if ( (proxIt->getSensorType()==sim_proximitysensor_ray_subtype)&&proxIt->getRandomizedDetection() )
-                ui->qqOffset->setText(tt::getFString(true,cv->getRadius(),4).c_str()); // Special
+                ui->qqOffset->setText(utils::getPosString(true,cv->getRadius()).c_str()); // Special
             else
-                ui->qqOffset->setText(tt::getFString(true,cv->getOffset(),4).c_str());
+                ui->qqOffset->setText(utils::getPosString(true,cv->getOffset()).c_str());
             ui->qqRange->setEnabled(noEditModeNoSim);
-            ui->qqRange->setText(tt::getFString(false,cv->getRange(),4).c_str());
+            ui->qqRange->setText(utils::getSizeString(false,cv->getRange()).c_str());
             if (proxIt->getSensorType()==sim_proximitysensor_pyramid_subtype)
             {
                 ui->qqSizeX->setEnabled(noEditModeNoSim);
-                ui->qqSizeX->setText(tt::getFString(false,cv->getXSize(),4).c_str());
+                ui->qqSizeX->setText(utils::getSizeString(false,cv->getXSize()).c_str());
                 ui->qqSizeY->setEnabled(noEditModeNoSim);
-                ui->qqSizeY->setText(tt::getFString(false,cv->getYSize(),4).c_str());
+                ui->qqSizeY->setText(utils::getSizeString(false,cv->getYSize()).c_str());
                 ui->qqSizeFarX->setEnabled(noEditModeNoSim);
-                ui->qqSizeFarX->setText(tt::getFString(false,cv->getXSizeFar(),4).c_str());
+                ui->qqSizeFarX->setText(utils::getSizeString(false,cv->getXSizeFar()).c_str());
                 ui->qqSizeFarY->setEnabled(noEditModeNoSim);
-                ui->qqSizeFarY->setText(tt::getFString(false,cv->getYSizeFar(),4).c_str());
+                ui->qqSizeFarY->setText(utils::getSizeString(false,cv->getYSizeFar()).c_str());
 
                 ui->qqRadius->setEnabled(false);
                 ui->qqRadius->setText("");
@@ -101,11 +101,11 @@ void CQDlgDetectionVolume::refresh()
             if (proxIt->getSensorType()==sim_proximitysensor_cylinder_subtype)
             {
                 ui->qqRadius->setEnabled(noEditModeNoSim);
-                ui->qqRadius->setText(tt::getFString(false,cv->getRadius(),4).c_str());
+                ui->qqRadius->setText(utils::getSizeString(false,cv->getRadius()).c_str());
                 ui->qqRadiusFar->setEnabled(noEditModeNoSim);
-                ui->qqRadiusFar->setText(tt::getFString(false,cv->getRadiusFar(),4).c_str());
+                ui->qqRadiusFar->setText(utils::getSizeString(false,cv->getRadiusFar()).c_str());
                 ui->qqFaceCount->setEnabled(noEditModeNoSim);
-                ui->qqFaceCount->setText(tt::getIString(false,cv->getFaceNumber()).c_str());
+                ui->qqFaceCount->setText(utils::getIntString(false,cv->getFaceNumber()).c_str());
 
                 ui->qqAngle->setEnabled(false);
                 ui->qqAngle->setText("");
@@ -134,7 +134,7 @@ void CQDlgDetectionVolume::refresh()
             {
                 ui->qqAngle->setEnabled(proxIt->getRandomizedDetection()&&noEditModeNoSim);
                 if (proxIt->getRandomizedDetection())
-                    ui->qqAngle->setText(tt::getAngleFString(false,cv->getAngle(),2).c_str());
+                    ui->qqAngle->setText(utils::getAngleString(false,cv->getAngle()).c_str());
                 else
                     ui->qqAngle->setText("");
 
@@ -168,17 +168,17 @@ void CQDlgDetectionVolume::refresh()
             if (proxIt->getSensorType()==sim_proximitysensor_disc_subtype)
             {
                 ui->qqSizeY->setEnabled(noEditModeNoSim);
-                ui->qqSizeY->setText(tt::getFString(false,cv->getYSize(),4).c_str());
+                ui->qqSizeY->setText(utils::getSizeString(false,cv->getYSize()).c_str());
                 ui->qqRadius->setEnabled(noEditModeNoSim);
-                ui->qqRadius->setText(tt::getFString(false,cv->getRadius(),4).c_str());
+                ui->qqRadius->setText(utils::getSizeString(false,cv->getRadius()).c_str());
                 ui->qqFaceCount->setEnabled(noEditModeNoSim);
-                ui->qqFaceCount->setText(tt::getIString(false,cv->getFaceNumber()).c_str());
+                ui->qqFaceCount->setText(utils::getIntString(false,cv->getFaceNumber()).c_str());
                 ui->qqFaceCountFar->setEnabled(noEditModeNoSim);
-                ui->qqFaceCountFar->setText(tt::getIString(false,cv->getFaceNumberFar()).c_str());
+                ui->qqFaceCountFar->setText(utils::getIntString(false,cv->getFaceNumberFar()).c_str());
                 ui->qqAngle->setEnabled(noEditModeNoSim);
-                ui->qqAngle->setText(tt::getAngleFString(false,cv->getAngle(),2).c_str());
+                ui->qqAngle->setText(utils::getAngleString(false,cv->getAngle()).c_str());
                 ui->qqInsideGap->setEnabled(noEditModeNoSim);
-                ui->qqInsideGap->setText(tt::getFString(false,cv->getInsideAngleThing(),3).c_str());
+                ui->qqInsideGap->setText(utils::get0To1String(false,cv->getInsideAngleThing()).c_str());
 
                 ui->qqRadiusFar->setEnabled(false);
                 ui->qqRadiusFar->setText("");
@@ -198,17 +198,17 @@ void CQDlgDetectionVolume::refresh()
             if (proxIt->getSensorType()==sim_proximitysensor_cone_subtype)
             {
                 ui->qqRadius->setEnabled(noEditModeNoSim);
-                ui->qqRadius->setText(tt::getFString(false,cv->getRadius(),4).c_str());
+                ui->qqRadius->setText(utils::getSizeString(false,cv->getRadius()).c_str());
                 ui->qqFaceCount->setEnabled(noEditModeNoSim);
-                ui->qqFaceCount->setText(tt::getIString(false,cv->getFaceNumber()).c_str());
+                ui->qqFaceCount->setText(utils::getIntString(false,cv->getFaceNumber()).c_str());
                 ui->qqAngle->setEnabled(noEditModeNoSim);
-                ui->qqAngle->setText(tt::getAngleFString(false,cv->getAngle(),2).c_str());
+                ui->qqAngle->setText(utils::getAngleString(false,cv->getAngle()).c_str());
                 ui->qqInsideGap->setEnabled(noEditModeNoSim);
-                ui->qqInsideGap->setText(tt::getFString(false,cv->getInsideAngleThing(),3).c_str());
+                ui->qqInsideGap->setText(utils::get0To1String(false,cv->getInsideAngleThing()).c_str());
                 ui->qqSubdivisions->setEnabled(noEditModeNoSim);
-                ui->qqSubdivisions->setText(tt::getIString(false,cv->getSubdivisions()).c_str());
+                ui->qqSubdivisions->setText(utils::getIntString(false,cv->getSubdivisions()).c_str());
                 ui->qqSubdivisionsFar->setEnabled(noEditModeNoSim);
-                ui->qqSubdivisionsFar->setText(tt::getIString(false,cv->getSubdivisionsFar()).c_str());
+                ui->qqSubdivisionsFar->setText(utils::getIntString(false,cv->getSubdivisionsFar()).c_str());
 
                 ui->qqRadiusFar->setEnabled(false);
                 ui->qqRadiusFar->setText("");
@@ -236,19 +236,19 @@ void CQDlgDetectionVolume::refresh()
             ui->qqSubdivisions->setText("");
 
             ui->qqOffset->setEnabled(noEditModeNoSim);
-            ui->qqOffset->setText(tt::getFString(true,cv->getOffset(),4).c_str());
+            ui->qqOffset->setText(utils::getPosString(true,cv->getOffset()).c_str());
             ui->qqRange->setEnabled(noEditModeNoSim);
-            ui->qqRange->setText(tt::getFString(false,cv->getRange(),4).c_str());
+            ui->qqRange->setText(utils::getSizeString(false,cv->getRange()).c_str());
             if (millIt->getMillType()==sim_mill_pyramid_subtype)
             {
                 ui->qqSizeX->setEnabled(noEditModeNoSim);
-                ui->qqSizeX->setText(tt::getFString(false,cv->getXSize(),4).c_str());
+                ui->qqSizeX->setText(utils::getSizeString(false,cv->getXSize()).c_str());
                 ui->qqSizeY->setEnabled(noEditModeNoSim);
-                ui->qqSizeY->setText(tt::getFString(false,cv->getYSize(),4).c_str());
+                ui->qqSizeY->setText(utils::getSizeString(false,cv->getYSize()).c_str());
                 ui->qqSizeFarX->setEnabled(noEditModeNoSim);
-                ui->qqSizeFarX->setText(tt::getFString(false,cv->getXSizeFar(),4).c_str());
+                ui->qqSizeFarX->setText(utils::getSizeString(false,cv->getXSizeFar()).c_str());
                 ui->qqSizeFarY->setEnabled(noEditModeNoSim);
-                ui->qqSizeFarY->setText(tt::getFString(false,cv->getYSizeFar(),4).c_str());
+                ui->qqSizeFarY->setText(utils::getSizeString(false,cv->getYSizeFar()).c_str());
 
                 ui->qqRadius->setEnabled(false);
                 ui->qqRadius->setText("");
@@ -274,11 +274,11 @@ void CQDlgDetectionVolume::refresh()
             if (millIt->getMillType()==sim_mill_cylinder_subtype)
             {
                 ui->qqRadius->setEnabled(noEditModeNoSim);
-                ui->qqRadius->setText(tt::getFString(false,cv->getRadius(),4).c_str());
+                ui->qqRadius->setText(utils::getSizeString(false,cv->getRadius()).c_str());
                 ui->qqRadiusFar->setEnabled(noEditModeNoSim);
-                ui->qqRadiusFar->setText(tt::getFString(false,cv->getRadiusFar(),4).c_str());
+                ui->qqRadiusFar->setText(utils::getSizeString(false,cv->getRadiusFar()).c_str());
                 ui->qqFaceCount->setEnabled(noEditModeNoSim);
-                ui->qqFaceCount->setText(tt::getIString(false,cv->getFaceNumber()).c_str());
+                ui->qqFaceCount->setText(utils::getIntString(false,cv->getFaceNumber()).c_str());
 
 
                 ui->qqAngle->setEnabled(false);
@@ -307,11 +307,11 @@ void CQDlgDetectionVolume::refresh()
             if (millIt->getMillType()==sim_mill_disc_subtype)
             {
                 ui->qqSizeY->setEnabled(noEditModeNoSim);
-                ui->qqSizeY->setText(tt::getFString(false,cv->getYSize(),4).c_str());
+                ui->qqSizeY->setText(utils::getSizeString(false,cv->getYSize()).c_str());
                 ui->qqFaceCountFar->setEnabled(noEditModeNoSim);
-                ui->qqFaceCountFar->setText(tt::getIString(false,cv->getFaceNumberFar()).c_str());
+                ui->qqFaceCountFar->setText(utils::getIntString(false,cv->getFaceNumberFar()).c_str());
                 ui->qqAngle->setEnabled(noEditModeNoSim);
-                ui->qqAngle->setText(tt::getAngleFString(false,cv->getAngle(),2).c_str());
+                ui->qqAngle->setText(utils::getAngleString(false,cv->getAngle()).c_str());
 
                 ui->qqRadius->setEnabled(false);
                 ui->qqRadius->setText("");
@@ -340,11 +340,11 @@ void CQDlgDetectionVolume::refresh()
             if (millIt->getMillType()==sim_mill_cone_subtype)
             {
                 ui->qqFaceCount->setEnabled(noEditModeNoSim);
-                ui->qqFaceCount->setText(tt::getIString(false,cv->getFaceNumber()).c_str());
+                ui->qqFaceCount->setText(utils::getIntString(false,cv->getFaceNumber()).c_str());
                 ui->qqAngle->setEnabled(noEditModeNoSim);
-                ui->qqAngle->setText(tt::getAngleFString(false,cv->getAngle(),2).c_str());
+                ui->qqAngle->setText(utils::getAngleString(false,cv->getAngle()).c_str());
                 ui->qqSubdivisionsFar->setEnabled(noEditModeNoSim);
-                ui->qqSubdivisionsFar->setText(tt::getIString(false,cv->getSubdivisionsFar()).c_str());
+                ui->qqSubdivisionsFar->setText(utils::getIntString(false,cv->getSubdivisionsFar()).c_str());
 
                 ui->qqRadius->setEnabled(false);
                 ui->qqRadius->setText("");
@@ -539,7 +539,7 @@ void CQDlgDetectionVolume::on_qqAngle_editingFinished()
         double newVal=ui->qqAngle->text().toDouble(&ok);
         if (ok&&cv)
         {
-            App::appendSimulationThreadCommand(SET_ANGLE_DETECTIONVOLUMEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal*gv::userToRad);
+            App::appendSimulationThreadCommand(SET_ANGLE_DETECTIONVOLUMEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal*degToRad);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

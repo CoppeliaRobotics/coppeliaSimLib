@@ -4,8 +4,8 @@
 #include <oGL.h>
 #include <oglSurface.h>
 #include <app.h>
-
 #include <tt.h>
+#include <utils.h>
 
 CPageSelector::CPageSelector()
 {
@@ -192,7 +192,7 @@ void CPageSelector::render()
                 glLoadIdentity ();
                 glDisable(GL_DEPTH_TEST);
                 std::string txxt("Page ");
-                txxt+=tt::FNb(pIndex+1);
+                txxt+=utils::getIntString(false,pIndex+1);
 
                 ogl::setTextColor(0.1f,0.1f,0.1f);
                 ogl::drawText(2,tns[1]-12*App::sc,0,txxt.c_str());

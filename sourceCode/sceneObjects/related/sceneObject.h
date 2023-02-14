@@ -41,7 +41,8 @@ public:
     virtual void connectSynchronizationObject();
     virtual void removeSynchronizationObject(bool localReferencesToItOnly);
 
-    virtual void displaySelected(CViewableBase* renderingObject,int displayAttrib);
+    virtual void displayFrames(CViewableBase* renderingObject,double size,bool persp);
+    virtual void displayBoundingBox(CViewableBase* renderingObject,bool mainSelection);
     virtual void display(CViewableBase* renderingObject,int displayAttrib);
     virtual void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     virtual CSceneObject* copyYourself();
@@ -85,6 +86,7 @@ public:
     virtual bool isPotentiallyDetectable() const;
     virtual bool isPotentiallyRenderable() const;
 
+    virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent,bool* available=nullptr) const;
     virtual C7Vector getFullLocalTransformation() const;
     virtual bool setParent(CSceneObject* parent);
 

@@ -24,12 +24,8 @@ See the GNU General Public License for more details.
 
 void displayMirror(CMirror* mirror,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(mirror,renderingObject,displayAttrib);
-
-    // Bounding box display:
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(mirror,displayAttrib,true,0.0);
+    // At the beginning of every scene object display routine:
+    _commonStart(mirror,renderingObject);
 
     // Object display:
     if (mirror->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
@@ -64,7 +60,7 @@ void displayMirror(CMirror* mirror,CViewableBase* renderingObject,int displayAtt
         }
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(mirror,renderingObject);
 }
 

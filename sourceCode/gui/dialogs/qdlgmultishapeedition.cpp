@@ -1,7 +1,7 @@
 #include <qdlgmultishapeedition.h>
 #include <ui_qdlgmultishapeedition.h>
 #include <tt.h>
-#include <gV.h>
+#include <utils.h>
 #include <mesh.h>
 #include <qdlgtextures.h>
 #include <app.h>
@@ -46,7 +46,7 @@ void CQDlgMultishapeEdition::refresh()
 
     if (theGeom!=nullptr)
     {
-        ui->qqShadingAngle->setText(tt::getAngleFString(false,theGeom->getShadingAngle(),1).c_str());
+        ui->qqShadingAngle->setText(utils::getAngleString(false,theGeom->getShadingAngle()).c_str());
         ui->qqBackfaceCulling->setChecked(theGeom->getCulling());
         ui->qqShowEdges->setChecked(theGeom->getVisibleEdges());
     }
@@ -107,7 +107,7 @@ void CQDlgMultishapeEdition::on_qqShadingAngle_editingFinished()
         int index=App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
         if ((shape!=nullptr)&&ok)
         {
-            App::appendSimulationThreadCommand(SET_SHADINGANGLE_MULTISHAPEEDITIONGUITRIGGEREDCMD,shape->getObjectHandle(),index,gv::userToRad*newVal);
+            App::appendSimulationThreadCommand(SET_SHADINGANGLE_MULTISHAPEEDITIONGUITRIGGEREDCMD,shape->getObjectHandle(),index,degToRad*newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

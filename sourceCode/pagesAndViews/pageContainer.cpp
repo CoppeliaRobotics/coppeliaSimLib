@@ -7,7 +7,6 @@
 #include <sceneObjectOperations.h>
 #include <simulation.h>
 #include <sceneObject.h>
-#include <gV.h>
 #include <pluginContainer.h>
 #include <fileOperations.h>
 #include <simStrings.h>

@@ -24,11 +24,8 @@ See the GNU General Public License for more details.
 
 void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(dummy,renderingObject,displayAttrib);
-    // Bounding box display:
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(dummy,displayAttrib,true,dummy->getDummySize()*2.0);
+    // At the beginning of every scene object display routine:
+    _commonStart(dummy,renderingObject);
 
     C3Vector normalVectorForLinesAndPoints(dummy->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -51,8 +48,7 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
             glEnable(GL_CULL_FACE);
 
         _enableAuxClippingPlanes(dummy->getObjectHandle());
-        if ((displayAttrib&sim_displayattribute_selected)==0)
-            ogl::drawReference(dummy->getDummySize()*2.0,true,true,false,normalVectorForLinesAndPoints.data);
+        ogl::drawReference(dummy->getDummySize());
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
             ogl::setMaterialColor(0.0f,0.6f,0.6f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
         else
@@ -95,7 +91,7 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
         _disableAuxClippingPlanes();
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(dummy,renderingObject);
 }
 

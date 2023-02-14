@@ -3,7 +3,6 @@
 #include <tt.h>
 #include <distanceRoutines.h>
 #include <app.h>
-#include <gV.h>
 
 CDistanceObjectContainer_old::CDistanceObjectContainer_old()
 {

@@ -39,9 +39,9 @@ public:
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
 
-    C7Vector getIntrinsicTransformation(bool includeDynErrorComponent) const;
 
     // Overridden from CSceneObject:
+    virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent,bool* available=nullptr) const;
     virtual C7Vector getFullLocalTransformation() const;
 
     void commonInit();

@@ -1,8 +1,7 @@
 #include <qdlggeometry.h>
 #include <ui_qdlggeometry.h>
 #include <tt.h>
-#include <ttUtil.h>
-#include <gV.h>
+#include <utils.h>
 #include <mesh.h>
 #include <simStringTable.h>
 #include <app.h>
@@ -48,15 +47,15 @@ void CQDlgGeometry::refresh()
     ui->qqApplySize->setEnabled(noEditModeNoSim);
     ui->qqApplyScale->setEnabled(noEditModeNoSim);
 
-    ui->qqSizeX->setText(CTTUtil::getSizeString(false,sizeVal[0]).c_str());
-    ui->qqSizeY->setText(CTTUtil::getSizeString(false,sizeVal[1]).c_str());
-    ui->qqSizeZ->setText(CTTUtil::getSizeString(false,sizeVal[2]).c_str());
-    ui->qqScaleX->setText(tt::getFString(true,scaleVal[0],4).c_str());
-    ui->qqScaleY->setText(tt::getFString(true,scaleVal[1],4).c_str());
-    ui->qqScaleZ->setText(tt::getFString(true,scaleVal[2],4).c_str());
-    ui->qqAlpha->setText(tt::getAngleFString(true,rotationVal[0],2).c_str());
-    ui->qqBeta->setText(tt::getAngleFString(true,rotationVal[1],2).c_str());
-    ui->qqGamma->setText(tt::getAngleFString(true,rotationVal[2],2).c_str());
+    ui->qqSizeX->setText(utils::getSizeString(false,sizeVal[0]).c_str());
+    ui->qqSizeY->setText(utils::getSizeString(false,sizeVal[1]).c_str());
+    ui->qqSizeZ->setText(utils::getSizeString(false,sizeVal[2]).c_str());
+    ui->qqScaleX->setText(utils::getMultString(true,scaleVal[0]).c_str());
+    ui->qqScaleY->setText(utils::getMultString(true,scaleVal[1]).c_str());
+    ui->qqScaleZ->setText(utils::getMultString(true,scaleVal[2]).c_str());
+    ui->qqAlpha->setText(utils::getAngleString(true,rotationVal[0]).c_str());
+    ui->qqBeta->setText(utils::getAngleString(true,rotationVal[1]).c_str());
+    ui->qqGamma->setText(utils::getAngleString(true,rotationVal[2]).c_str());
     bool canScaleFreely=(!g)&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_spheroid)&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_capsule);
     ui->qqKeepProp->setChecked(keepProp||(!canScaleFreely));
     ui->qqKeepProp->setEnabled(canScaleFreely&&noEditModeNoSim);
@@ -109,8 +108,8 @@ void CQDlgGeometry::refresh()
     ui->qqShapeType->setText(shapeTypeText.c_str());
 
     setWindowTitle(titleText.c_str());
-    ui->qqVertexCnt->setText(tt::getIString(false,vertexCount).c_str());
-    ui->qqTriangleCnt->setText(tt::getIString(false,triangleCount).c_str());
+    ui->qqVertexCnt->setText(utils::getIntString(false,vertexCount).c_str());
+    ui->qqTriangleCnt->setText(utils::getIntString(false,triangleCount).c_str());
 
     selectLineEdit(lineEditToSelect);
 }
@@ -341,7 +340,7 @@ void CQDlgGeometry::_readRotation(int index)
     double newVal=ww[index]->text().toDouble(&ok);
     if (ok)
     {
-        rotationVal[index]=newVal*gv::userToRad;
+        rotationVal[index]=newVal*degToRad;
         C4Vector tr(rotationVal[0],rotationVal[1],rotationVal[2]);
         C3Vector euler(tr.getEulerAngles());
         euler.getData(rotationVal);

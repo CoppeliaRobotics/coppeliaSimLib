@@ -1,7 +1,7 @@
 #include <qdlgcolor.h>
 #include <ui_qdlgcolor.h>
-#include <gV.h>
 #include <tt.h>
+#include <utils.h>
 #include <app.h>
 
 CQDlgColor::CQDlgColor(QWidget *parent) :
@@ -40,12 +40,12 @@ void CQDlgColor::refresh()
     pimg.convertFromImage(img);
     ui->qqImage->setPixmap(pimg);
 
-    ui->qqRedValue->setText(tt::getFString(false,redState,2).c_str());
-    ui->qqGreenValue->setText(tt::getFString(false,greenState,2).c_str());
-    ui->qqBlueValue->setText(tt::getFString(false,blueState,2).c_str());
-    ui->qqHueValue->setText(tt::getFString(false,hueState,2).c_str());
-    ui->qqSaturationValue->setText(tt::getFString(false,saturationState,2).c_str());
-    ui->qqLuminosityValue->setText(tt::getFString(false,luminosityState,2).c_str());
+    ui->qqRedValue->setText(utils::get0To1String(false,redState).c_str());
+    ui->qqGreenValue->setText(utils::get0To1String(false,greenState).c_str());
+    ui->qqBlueValue->setText(utils::get0To1String(false,blueState).c_str());
+    ui->qqHueValue->setText(utils::get0To1String(false,hueState).c_str());
+    ui->qqSaturationValue->setText(utils::get0To1String(false,saturationState).c_str());
+    ui->qqLuminosityValue->setText(utils::get0To1String(false,luminosityState).c_str());
 
     ui->qqRedSlider->setSliderPosition(int(redState*100.5));
     ui->qqGreenSlider->setSliderPosition(int(greenState*100.5));

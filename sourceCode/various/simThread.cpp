@@ -10,7 +10,7 @@
 #include <fileOperations.h>
 #include <addOperations.h>
 #include <pluginContainer.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <vVarious.h>
 #include <easyLock.h>
 #include <mesh.h>
@@ -4299,11 +4299,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             App::userSettings->displayWorldReference=!App::userSettings->displayWorldReference;
             App::userSettings->saveUserSettings();
         }
-        if (cmd.cmdId==TOGGLE_SHOWBOUNDINGBOX_USERSETTINGSGUITRIGGEREDCMD)
-        {
-            App::userSettings->displayBoundingBoxeWhenObjectSelected=!App::userSettings->displayBoundingBoxeWhenObjectSelected;
-            App::userSettings->saveUserSettings();
-        }
         if (cmd.cmdId==TOGGLE_UNDOREDO_USERSETTINGSGUITRIGGEREDCMD)
         {
             App::userSettings->setUndoRedoEnabled(!App::userSettings->getUndoRedoEnabled());
@@ -4746,7 +4741,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                             while (true)
                             {
                                 testScene=App::folders->getAutoSavedScenesPath()+"/";
-                                testScene+=tt::FNb(instanceNb);
+                                testScene+=utils::getIntString(false,instanceNb);
                                 testScene+=".";
                                 testScene+=SIM_SCENE_EXTENSION;
                                 if (VFile::doesFileExist(testScene.c_str()))
@@ -4790,7 +4785,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                 {
                     std::string savedLoc=App::currentWorld->mainSettings->getScenePathAndName();
                     std::string testScene=App::folders->getAutoSavedScenesPath()+"/";
-                    testScene+=tt::FNb(App::worldContainer->getCurrentWorldIndex()+1);
+                    testScene+=utils::getIntString(false,App::worldContainer->getCurrentWorldIndex()+1);
                     testScene+=".";
                     testScene+=SIM_SCENE_EXTENSION;
                     CFileOperations::saveScene(testScene.c_str(),false,false,false);

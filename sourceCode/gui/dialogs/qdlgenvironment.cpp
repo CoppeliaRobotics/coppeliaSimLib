@@ -1,10 +1,9 @@
 #include <qdlgenvironment.h>
 #include <ui_qdlgenvironment.h>
-#include <gV.h>
 #include <qdlgcolor.h>
 #include <qdlgmaterial.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <app.h>
 #include <simStrings.h>
 #include <vMessageBox.h>
@@ -41,8 +40,8 @@ void CQDlgEnvironment::refresh()
 //    ui->qqUserInterfaceTexturesDisabled->setEnabled(noEditModeNoSim);
     ui->qqAcknowledgments->setEnabled(noEditModeNoSim);
 
-    ui->qqMaxTriangleSize->setText(CTTUtil::getSizeString(false,App::currentWorld->environment->getCalculationMaxTriangleSize()).c_str());
-    ui->qqMinRelTriangleSize->setText(tt::getFString(false,App::currentWorld->environment->getCalculationMinRelTriangleSize(),3).c_str());
+    ui->qqMaxTriangleSize->setText(utils::getSizeString(false,App::currentWorld->environment->getCalculationMaxTriangleSize()).c_str());
+    ui->qqMinRelTriangleSize->setText(utils::getSizeString(false,App::currentWorld->environment->getCalculationMinRelTriangleSize()).c_str());
     ui->qqSaveCalcStruct->setChecked(App::currentWorld->environment->getSaveExistingCalculationStructures());
     ui->qqShapeTexturesDisabled->setChecked(!App::currentWorld->environment->getShapeTexturesEnabled());
 //    ui->qqUserInterfaceTexturesDisabled->setChecked(!App::currentWorld->environment->get2DElementTexturesEnabled());

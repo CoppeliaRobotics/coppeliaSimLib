@@ -1,6 +1,5 @@
 #include <qdlgdatastreamselection.h>
 #include <ui_qdlgdatastreamselection.h>
-#include <gV.h>
 #include <tt.h>
 #include <global.h>
 #include <graphingRoutines_old.h>

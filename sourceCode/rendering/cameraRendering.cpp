@@ -25,12 +25,8 @@ See the GNU General Public License for more details.
 
 void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(camera,renderingObject,displayAttrib);
-
-    // Bounding box display:
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(camera,displayAttrib,true,0.0);
+    // At the beginning of every scene object display routine:
+    _commonStart(camera,renderingObject);
 
     C3Vector normalVectorForLinesAndPoints(camera->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -103,7 +99,7 @@ void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAtt
         _disableAuxClippingPlanes();
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(camera,renderingObject);
 }
 

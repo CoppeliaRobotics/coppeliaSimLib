@@ -13,7 +13,7 @@
 #include <apiErrors.h>
 #include <interfaceStack.h>
 #include <fileOperations.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <imgLoaderSaver.h>
 #include <sceneObjectOperations.h>
 #include <collisionRoutines.h>
@@ -7825,7 +7825,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_base64)
                 {
                     std::string inDat(data,data+dataLength);
-                    std::string outDat(CTTUtil::encode64(inDat));
+                    std::string outDat(utils::encode64(inDat));
                     luaWrap_lua_pushlstring(L,outDat.c_str(),outDat.length());
                     LUA_END(1);
                 }
@@ -7956,7 +7956,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint8)
                 {
                     std::string inDat(data,data+dataLength);
-                    std::string outDat(CTTUtil::decode64(inDat));
+                    std::string outDat(utils::decode64(inDat));
                     luaWrap_lua_pushlstring(L,outDat.c_str(),outDat.length());
                     LUA_END(1);
                 }
@@ -11177,8 +11177,9 @@ int _simBroadcastMsg(luaWrap_lua_State* L)
                 options=luaToInt(L,2);
             CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
             CScriptObject::buildFromInterpreterStack_lua(L,stack,1,0);
-            stack->pushInt32OntoStack(CScriptObject::getScriptHandleFromInterpreterState_lua(L),false);
-            App::worldContainer->broadcastMsg(stack,options);
+            int scriptHandle=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            stack->pushInt32OntoStack(scriptHandle,false);
+            App::worldContainer->broadcastMsg(stack,scriptHandle,options);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
     }

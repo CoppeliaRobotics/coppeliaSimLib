@@ -3,7 +3,7 @@
 #include <vMessageBox.h>
 #include <annJson.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 
 CEngineProperties::CEngineProperties()
 {
@@ -110,7 +110,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
 
         std::string msg("Invalid JSON data:\n\n");
         msg+=parseError.errorString().toStdString()+"\nat line ";
-        msg+=std::to_string(CTTUtil::lineCountAtOffset(modifiedText_noComments.c_str(),parseError.offset))+"\n\nDiscard changes?";
+        msg+=std::to_string(utils::lineCountAtOffset(modifiedText_noComments.c_str(),parseError.offset))+"\n\nDiscard changes?";
         if (VMESSAGEBOX_REPLY_CANCEL!=App::uiThread->messageBox_warning(App::mainWindow,title.c_str(),msg.c_str(),VMESSAGEBOX_OK_CANCEL,VMESSAGEBOX_REPLY_CANCEL))
             return;
     }
@@ -1751,7 +1751,7 @@ double CEngineProperties::_getGlobalFloatParam(int item,std::string& comment,con
     if (!similar)
     {
         comment="DEFAULT: ";
-        comment+=CTTUtil::getDoubleString(false,def,3,5,0.0001,9999);
+        comment+=utils::getDoubleString(false,def,3,5,0.0001,9999);
         if (additionalComment!=nullptr)
         {
             comment+=" (";
@@ -1846,7 +1846,7 @@ void CEngineProperties::_getGlobalFloatParams(int item,double* w,size_t cnt,std:
         {
             if (i!=0)
                 comment+=",";
-            comment+=CTTUtil::getDoubleString(false,def[i],3,5,0.0001,9999);
+            comment+=utils::getDoubleString(false,def[i],3,5,0.0001,9999);
         }
         comment+="]";
         if (additionalComment!=nullptr)

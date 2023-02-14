@@ -906,19 +906,6 @@ int CPathPlanningTask::performSteppedSearch()
                     _steppedSearchTemp_foundPathStatus=2; // we found a full path!
                     retVal=-2; // search not completely finished (we still have to smooth the path)
                 }
-                else
-                { // we didn't yet find a path
-                    if (_steppedSearchTemp_showProgressDlg)
-                    { /*
-                        std::string txt(IDS_TIME_SPENT_SEARCHING_);
-                        txt+=" ";
-                        txt+=tt::FNb(0,double(VDateTime::getTimeDiffInMs(_steppedSearchTemp_initTimeInMs))/1000.0,1,false);
-                        std::string txt2=IDS_NB_OF_COLL_FREE_NODES_FOUND_;
-                        txt2+=" ";
-                        txt2+=tt::FNb(0,CPathPlanningInterface::getPathNodeCount(p,true)+CPathPlanningInterface::getPathNodeCount(p,false),false);
-                        App::uiThread->setProgressBarText(txt.c_str(),txt2.c_str(),nullptr); */
-                    }
-                }
             }
             else
             { // We ran out of time!
@@ -994,19 +981,6 @@ int CPathPlanningTask::performSteppedSearch()
                     }
                     _steppedSearchTemp_foundPathStatus=2; // we found a full path!
                     retVal=-2; // search not completely finished (we still have to smooth the path)
-                }
-                else
-                { // we didn't yet find a path
-                    if (_steppedSearchTemp_showProgressDlg)
-                    {/*
-                        std::string txt(IDS_TIME_SPENT_SEARCHING_);
-                        txt+=" ";
-                        txt+=tt::FNb(0,double(VDateTime::getTimeDiffInMs(_steppedSearchTemp_initTimeInMs))/1000.0,1,false);
-                        std::string txt2=IDS_NB_OF_COLL_FREE_NODES_FOUND_;
-                        txt2+=" ";
-                        txt2+=tt::FNb(0,CPathPlanningInterface::getPathNodeCount(p,true)+CPathPlanningInterface::getPathNodeCount(p,false),false);
-                        App::uiThread->setProgressBarText(txt.c_str(),txt2.c_str(),nullptr); */
-                    }
                 }
             }
             else

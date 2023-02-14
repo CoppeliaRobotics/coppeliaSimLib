@@ -1,7 +1,7 @@
 #include <qdlgtextures.h>
 #include <ui_qdlgtextures.h>
 #include <tt.h>
-#include <gV.h>
+#include <utils.h>
 #include <oGL.h>
 #include <imgLoaderSaver.h>
 #include <mesh.h>
@@ -100,15 +100,15 @@ void CQDlgTextures::refresh()
             }
             else
             {
-                ui->qqX->setText(tt::getFString(true,v.X(0),3).c_str());
-                ui->qqY->setText(tt::getFString(true,v.X(1),3).c_str());
-                ui->qqZ->setText(tt::getFString(true,v.X(2),3).c_str());
-                ui->qqAlpha->setText(tt::getAngleFString(true,euler(0),2).c_str());
-                ui->qqBeta->setText(tt::getAngleFString(true,euler(1),2).c_str());
-                ui->qqGamma->setText(tt::getAngleFString(true,euler(2),2).c_str());
+                ui->qqX->setText(utils::getPosString(true,v.X(0)).c_str());
+                ui->qqY->setText(utils::getPosString(true,v.X(1)).c_str());
+                ui->qqZ->setText(utils::getPosString(true,v.X(2)).c_str());
+                ui->qqAlpha->setText(utils::getAngleString(true,euler(0)).c_str());
+                ui->qqBeta->setText(utils::getAngleString(true,euler(1)).c_str());
+                ui->qqGamma->setText(utils::getAngleString(true,euler(2)).c_str());
 
-                ui->qqU->setText(tt::getFString(false,scalingX,2).c_str());
-                ui->qqV->setText(tt::getFString(false,scalingY,2).c_str());
+                ui->qqU->setText(utils::get0To1String(false,scalingX).c_str());
+                ui->qqV->setText(utils::get0To1String(false,scalingY).c_str());
             }
             ui->qqRepeatU->setChecked(tp->getRepeatU());
             ui->qqRepeatV->setChecked(tp->getRepeatV());
@@ -318,7 +318,7 @@ void CQDlgTextures::_setTextureConfig(int index)
         cmd.intParams.push_back(_objID2);
         cmd.intParams.push_back(index);
         if (index>=3)
-            newVal*=gv::userToRad;
+            newVal*=degToRad;
         cmd.floatParams.push_back(newVal);
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

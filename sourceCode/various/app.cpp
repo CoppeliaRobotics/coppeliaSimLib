@@ -1,6 +1,6 @@
 #include <app.h>
 #include <vThread.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <pluginContainer.h>
 #include <simStrings.h>
 #include <vDateTime.h>
@@ -463,7 +463,7 @@ App::~App()
     for (int i=1;i<30;i++)
     {
         std::string testScene(App::folders->getAutoSavedScenesPath()+"/");
-        testScene+=tt::FNb(i);
+        testScene+=utils::getIntString(false,i);
         testScene+=".";
         testScene+=SIM_SCENE_EXTENSION;
         if (VFile::doesFileExist(testScene.c_str()))
@@ -1510,23 +1510,23 @@ void App::_logMsg(const char* originName,int verbosityLevel,const char* msg,int 
 std::string App::_getHtmlEscapedString(const char* str)
 {
     std::string s(str);
-    CTTUtil::replaceSubstring(s,"<","*+-%A%-+*");
-    CTTUtil::replaceSubstring(s,">","*+-%B%-+*");
-    CTTUtil::replaceSubstring(s,"\n","*+-%NL%-+*");
-    CTTUtil::replaceSubstring(s," ","*+-%S%-+*");
-    CTTUtil::replaceSubstring(s,"\t","*+-%T%-+*");
-    CTTUtil::replaceSubstring(s,"/","*+-%FS%-+*");
+    utils::replaceSubstring(s,"<","*+-%A%-+*");
+    utils::replaceSubstring(s,">","*+-%B%-+*");
+    utils::replaceSubstring(s,"\n","*+-%NL%-+*");
+    utils::replaceSubstring(s," ","*+-%S%-+*");
+    utils::replaceSubstring(s,"\t","*+-%T%-+*");
+    utils::replaceSubstring(s,"/","*+-%FS%-+*");
 #ifdef SIM_WITH_QT
     QString qstr(s.c_str());
     qstr=qstr.toHtmlEscaped();
     s=qstr.toStdString();
 #endif
-    CTTUtil::replaceSubstring(s,"*+-%NL%-+*","<br/>");
-    CTTUtil::replaceSubstring(s,"*+-%S%-+*","&nbsp;");
-    CTTUtil::replaceSubstring(s,"*+-%T%-+*","&nbsp;&nbsp;&nbsp;&nbsp;");
-    CTTUtil::replaceSubstring(s,"*+-%FS%-+*","&#47;");
-    CTTUtil::replaceSubstring(s,"*+-%A%-+*","&lt;");
-    CTTUtil::replaceSubstring(s,"*+-%B%-+*","&gt;");
+    utils::replaceSubstring(s,"*+-%NL%-+*","<br/>");
+    utils::replaceSubstring(s,"*+-%S%-+*","&nbsp;");
+    utils::replaceSubstring(s,"*+-%T%-+*","&nbsp;&nbsp;&nbsp;&nbsp;");
+    utils::replaceSubstring(s,"*+-%FS%-+*","&#47;");
+    utils::replaceSubstring(s,"*+-%A%-+*","&lt;");
+    utils::replaceSubstring(s,"*+-%B%-+*","&gt;");
     return(s);
 }
 
@@ -1850,7 +1850,6 @@ bool App::getConsoleOrStatusbarVerbosityTriggered(int verbosityLevel)
 #ifdef SIM_WITH_GUI
 void App::showSplashScreen()
 {
-    App::setShowConsole(false);
     QPixmap pixmap;
 
     pixmap.load(CSimFlavor::getStringVal(1).c_str());
@@ -1873,7 +1872,6 @@ void App::showSplashScreen()
         VThread::sleep(1);
     }
     splash.hide();
-    App::setShowConsole(true);
 }
 
 void App::setIcon()
@@ -1898,11 +1896,11 @@ void App::deleteMainWindow()
 
 void App::setShowConsole(bool s)
 {
-    #ifdef WIN_SIM
-        if (s)
-            ShowWindow(GetConsoleWindow(),SW_SHOW);
-        else
-            ShowWindow(GetConsoleWindow(),SW_HIDE);
-    #endif
+#ifdef WIN_SIM
+    if (s)
+        ShowWindow(GetConsoleWindow(),SW_SHOW);
+    else
+        ShowWindow(GetConsoleWindow(),SW_HIDE);
+#endif
 }
 #endif

@@ -24,12 +24,8 @@ See the GNU General Public License for more details.
 
 void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(light,renderingObject,displayAttrib);
-
-    // Bounding box display:
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(light,displayAttrib,true,0.0);
+    // At the beginning of every scene object display routine:
+    _commonStart(light,renderingObject);
 
     // Object display:
     if (light->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
@@ -130,7 +126,7 @@ void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib
         _disableAuxClippingPlanes();
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(light,renderingObject);
 }
 

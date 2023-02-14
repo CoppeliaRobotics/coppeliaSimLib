@@ -1,8 +1,7 @@
 #include <qdlggraphs.h>
 #include <ui_qdlggraphs.h>
 #include <tt.h>
-#include <ttUtil.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <qdlgdatastreamselection.h>
 #include <graphingRoutines_old.h>
@@ -117,8 +116,8 @@ void CQDlgGraphs::refresh()
 
     if (sel)
     {
-        ui->qqObjectSize->setText(tt::getFString(false,it->getGraphSize(),3).c_str());
-        ui->qqBufferSize->setText(tt::getIString(false,it->getBufferSize()).c_str());
+        ui->qqObjectSize->setText(utils::getSizeString(false,it->getGraphSize()).c_str());
+        ui->qqBufferSize->setText(utils::getIntString(false,it->getBufferSize()).c_str());
 
         ui->qqTransformationCombo->clear();
         ui->qqTransformationCombo->addItem(IDS_RAW,QVariant(sim_stream_transf_raw));
@@ -137,9 +136,9 @@ void CQDlgGraphs::refresh()
                 }
             }
 
-            ui->qqTransformationCoeff->setText(CTTUtil::getMultString(false,graphData->getZoomFactor()).c_str());
-            ui->qqTransformationOffset->setText(CTTUtil::getPosString(false,graphData->getAddCoeff()).c_str());
-            ui->qqMovingAveragePeriod->setText(tt::getIString(false,graphData->getMovingAverageCount()).c_str());
+            ui->qqTransformationCoeff->setText(utils::getMultString(false,graphData->getZoomFactor()).c_str());
+            ui->qqTransformationOffset->setText(utils::getPosString(false,graphData->getAddCoeff()).c_str());
+            ui->qqMovingAveragePeriod->setText(utils::getIntString(false,graphData->getMovingAverageCount()).c_str());
         }
         else
         {

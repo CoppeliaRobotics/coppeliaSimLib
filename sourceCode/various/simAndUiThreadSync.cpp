@@ -2,6 +2,7 @@
 #include <app.h>
 #include <vDateTime.h>
 #include <tt.h>
+#include <utils.h>
 
 VSimUiMutex CSimAndUiThreadSync::_uiReadPermission;
 VSimUiMutex CSimAndUiThreadSync::_uiWritePermission;
@@ -393,13 +394,13 @@ bool CSimAndUiThreadSync::hasUiLockedResourcesForReadOrWrite()
 std::string CSimAndUiThreadSync::_getLevelsString(const char* abr)
 {
     std::string retString(abr);
-    retString+=tt::FNb(0,_ui_readLevel);
+    retString+=utils::getIntString(false,_ui_readLevel);
     retString+=",";
-    retString+=tt::FNb(0,_ui_writeLevel);
+    retString+=utils::getIntString(false,_ui_writeLevel);
     retString+=",";
-    retString+=tt::FNb(0,_sim_readLevel);
+    retString+=utils::getIntString(false,_sim_readLevel);
     retString+=",";
-    retString+=tt::FNb(0,_sim_writeLevel);
+    retString+=utils::getIntString(false,_sim_writeLevel);
     return(retString);
 }
 

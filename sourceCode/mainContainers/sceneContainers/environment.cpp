@@ -5,7 +5,7 @@
 #include <fileOperations.h>
 #include <sceneObjectOperations.h>
 #include <vDateTime.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <app.h>
 #include <environmentRendering.h>
 #include <base64.h>
@@ -32,7 +32,7 @@ CEnvironment::~CEnvironment()
 
 void CEnvironment::generateNewUniquePersistentIdString()
 {
-    _sceneUniquePersistentIdString=CTTUtil::generateUniqueReadableString();
+    _sceneUniquePersistentIdString=utils::generateUniqueReadableString();
 }
 
 std::string CEnvironment::getUniquePersistentIdString() const
@@ -679,9 +679,9 @@ void CEnvironment::serialize(CSer& ar)
                         float povDist,povTransp;
                         ar >> povDist >> povTransp;
                         _extensionString="povray {fogDist {";
-                        _extensionString+=tt::FNb(0,(double)povDist,3,false);
+                        _extensionString+=utils::getSizeString(false,(double)povDist);
                         _extensionString+="} fogTransp {";
-                        _extensionString+=tt::FNb(0,(double)povTransp,3,false);
+                        _extensionString+=utils::getSizeString(false,(double)povTransp);
                         _extensionString+="}}";
                     }
                     if (theName.compare("Evc")==0)
@@ -714,7 +714,7 @@ void CEnvironment::serialize(CSer& ar)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
                 double avg=(ambientLightColor[0]+ambientLightColor[1]+ambientLightColor[2])/3.0;
                 if (avg>0.21)
-                    CTTUtil::scaleLightDown_(ambientLightColor);
+                    utils::scaleLightDown_(ambientLightColor);
             }
         }
     }

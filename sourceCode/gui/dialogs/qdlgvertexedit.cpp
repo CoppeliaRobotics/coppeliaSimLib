@@ -1,7 +1,6 @@
 #include <qdlgvertexedit.h>
 #include <ui_qdlgvertexedit.h>
 #include <app.h>
-#include <gV.h>
 #include <tt.h>
 #include <simStrings.h>
 #include <boost/lexical_cast.hpp>

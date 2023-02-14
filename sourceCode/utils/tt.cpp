@@ -1,4 +1,5 @@
 #include <tt.h>
+#include <utils.h>
 #include <simMath/mathDefines.h>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
@@ -39,250 +40,6 @@ struct filestruct_C
     int valB;
 };
 
-bool tt::stringToFloat(const char* txt,double& f,bool allowNegativeValue,bool infGivesMinusOne)
-{
-#ifndef SIM_WITH_QT
-    std::string str(txt);
-    if (allowNegativeValue)
-    {
-        std::string tmpStr(str);
-        while ((tmpStr.length()!=0)&&(tmpStr[0]==' '))
-            tmpStr.erase(0,1);
-        int l=3;
-        if ((tmpStr.length()!=0)&&((tmpStr[0]=='+')||(tmpStr[0]=='-')))
-            l=4;
-        tmpStr.assign(tmpStr,0,l);
-        std::transform(tmpStr.begin(),tmpStr.end(),tmpStr.begin(),::tolower);
-        if (tmpStr.compare("inf")==0)
-        {
-            f=FLOAT_MAX;
-            return(true);
-        }
-        if (tmpStr.compare("+inf")==0)
-        {
-            f=FLOAT_MAX;
-            return(true);
-        }
-        if (tmpStr.compare("-inf")==0)
-        {
-            f=-FLOAT_MAX;
-            return(true);
-        }
-        return(getValidFloat(str.c_str(),f));
-    }
-    else
-    {
-        std::string tmpStr(str);
-        while ((tmpStr.length()!=0)&&(tmpStr[0]==' '))
-            tmpStr.erase(0,1);
-        int l=3;
-        if ((tmpStr.length()!=0)&&((tmpStr[0]=='+')||(tmpStr[0]=='-')))
-            l=4;
-        tmpStr.assign(tmpStr,0,l);
-        std::transform(tmpStr.begin(),tmpStr.end(),tmpStr.begin(),::tolower);
-        if (tmpStr.compare("inf")==0)
-        {
-            if (infGivesMinusOne)
-                f=-1.0;
-            else
-                f=FLOAT_MAX;
-            return(true);
-        }
-        if (tmpStr.compare("+inf")==0)
-        {
-            if (infGivesMinusOne)
-                f=-1.0;
-            else
-                f=FLOAT_MAX;
-            return(true);
-        }
-        if (tmpStr.compare("-inf")==0)
-        {
-            f=0.0;
-            return(true);
-        }
-        bool ok=getValidFloat(str.c_str(),f);
-        if (ok&&(f<0.0))
-            f=0.0;
-        return(ok);
-    }
-#else
-    QString str(txt);
-    if (allowNegativeValue)
-    {
-        QString tmpStr(str);
-        while ((tmpStr.length()!=0)&&(tmpStr[0]==' '))
-            tmpStr.remove(0,1);
-        int l=3;
-        if ((tmpStr.length()!=0)&&((tmpStr[0]=='+')||(tmpStr[0]=='-')))
-            l=4;
-        tmpStr=tmpStr.left(l);
-        if (tmpStr.compare("inf",Qt::CaseInsensitive)==0)
-        {
-            f=FLOAT_MAX;
-            return(true);
-        }
-        if (tmpStr.compare("+inf",Qt::CaseInsensitive)==0)
-        {
-            f=FLOAT_MAX;
-            return(true);
-        }
-        if (tmpStr.compare("-inf",Qt::CaseInsensitive)==0)
-        {
-            f=-FLOAT_MAX;
-            return(true);
-        }
-
-        bool ok;
-        f=str.toDouble(&ok);
-        return(ok);
-    }
-    else
-    {
-        QString tmpStr(str);
-        while ((tmpStr.length()!=0)&&(tmpStr[0]==' '))
-            tmpStr.remove(0,1);
-        int l=3;
-        if ((tmpStr.length()!=0)&&((tmpStr[0]=='+')||(tmpStr[0]=='-')))
-            l=4;
-        tmpStr=tmpStr.left(l);
-        if (tmpStr.compare("inf",Qt::CaseInsensitive)==0)
-        {
-            if (infGivesMinusOne)
-                f=-1.0;
-            else
-                f=FLOAT_MAX;
-            return(true);
-        }
-        if (tmpStr.compare("+inf",Qt::CaseInsensitive)==0)
-        {
-            if (infGivesMinusOne)
-                f=-1.0;
-            else
-                f=FLOAT_MAX;
-            return(true);
-        }
-        if (tmpStr.compare("-inf",Qt::CaseInsensitive)==0)
-        {
-            f=0.0;
-            return(true);
-        }
-
-        bool ok;
-        f=str.toDouble(&ok);
-        if (ok&&(f<0.0))
-            f=0.0;
-        return(ok);
-    }
-#endif
-}
-
-std::string tt::getEString(bool sign,double f,int precision)
-{
-#ifndef SIM_WITH_QT
-    std::stringstream s;
-    s.precision(precision);
-    s.setf(std::ios::scientific, std::ios::floatfield );
-    s << f;
-    std::string str(s.str());
-    if (sign&&(f>=0.0))
-        str="+"+str;
-    // Following very unelegant but temporary (to avoid an exponent of 3 width):
-    int l=str.size();
-    if ( ((str[l-4]=='-')||(str[l-4]=='+'))&&(str[l-3]=='0') )
-        str.erase(str.begin()+l-3);
-    return(str);
-#else
-    QString str(QString("%1").arg(f,0,'e',precision));
-    if (sign&&(f>=0.0))
-        str="+"+str;
-    return(str.toStdString());
-#endif
-}
-
-std::string tt::getFString(bool sign,double f,int precision)
-{
-#ifndef SIM_WITH_QT
-    std::stringstream s;
-    s.precision(precision);
-    s.setf(std::ios::fixed, std::ios::floatfield );
-    s << f;
-    std::string str(s.str());
-    if (sign&&(f>=0.0))
-        str="+"+str;
-    return(str);
-#else
-    QString str(QString("%1").arg(f,0,'f',precision));
-    if (sign&&(f>=0.0))
-        str="+"+str;
-    return(str.toStdString());
-#endif
-}
-
-std::string tt::getDString(bool sign,double f,int precision)
-{
-#ifndef SIM_WITH_QT
-    std::stringstream s;
-    s.precision(precision);
-    s.setf(std::ios::fixed, std::ios::floatfield );
-    s << f;
-    std::string str(s.str());
-    if (sign&&(f>=0.0))
-        str="+"+str;
-    return(str);
-#else
-    QString str(QString("%1").arg(f,0,'f',precision));
-    if (sign&&(f>=0.0))
-        str="+"+str;
-    return(str.toStdString());
-#endif
-}
-
-std::string tt::getAngleEString(bool sign,double angleInRad,int precision)
-{
-    return(getEString(sign,angleInRad*radToDeg,precision));
-}
-
-std::string tt::getAngleFString(bool sign,double angleInRad,int precision)
-{
-    return(getFString(sign,angleInRad*radToDeg,precision));
-}
-
-std::string tt::getIString(bool sign,int v)
-{
-#ifndef SIM_WITH_QT
-    std::stringstream s;
-    s << v;
-    std::string str(s.str());
-    if (sign&&(v>=0))
-        str="+"+str;
-    return(str);
-#else
-    QString str(QString("%1").arg(v));
-    if (sign&&v>=0)
-        str="+"+str;
-    return(str.toStdString());
-#endif
-}
-
-
-std::string tt::floatToEInfString(double f,bool canBeNegative)
-{
-    if ((!canBeNegative)&&(f<0.0))
-        return("Infinity");
-    if (f==FLOAT_MAX)
-        return("Infinity");
-    if (f==-FLOAT_MAX)
-        return("-Infinity");
-#ifndef SIM_WITH_QT
-    return(getEString(false,f,4));
-#else
-    QString str;
-    str=QString("%1").arg(f,0,'e',4);
-    return(str.toStdString());
-#endif
-}
-
 bool tt::stringToInt(const char* txt,int& a)
 {
 #ifndef SIM_WITH_QT
@@ -293,36 +50,6 @@ bool tt::stringToInt(const char* txt,int& a)
     a=str.toInt(&ok);
     return(ok);
 #endif
-}
-
-double tt::floatToUserFloat(double f,double toUserConversion,bool minusValuesGiveInf)
-{
-    if (f<0.0)
-    {
-        if ((!minusValuesGiveInf)&&(f!=-FLOAT_MAX))
-            return(f*toUserConversion);
-    }
-    else
-    {
-        if (f!=FLOAT_MAX)
-            return(f*toUserConversion);
-    }
-    return(f);
-}
-
-double tt::userFloatToFloat(double userFloat,double fromUserConversion,bool minusValuesGiveInf)
-{
-    if (userFloat<0.0)
-    {
-        if ((!minusValuesGiveInf)&&(userFloat!=-FLOAT_MAX))
-            return(userFloat*fromUserConversion);
-    }
-    else
-    {
-        if (userFloat!=FLOAT_MAX)
-            return(userFloat*fromUserConversion);
-    }
-    return(userFloat);
 }
 
 std::string tt::decorateString(const char* prefix,const std::string mainText,const char* suffix)
@@ -415,49 +142,6 @@ int tt::getDecimalPos(double number,int maxDec)
         number*=10.0;
     }
     return(maxDec);
-}
-
-std::string tt::FNb(int leadingZeros,double number,int decimals,bool sign)
-{ // sign is true by default
-
-    int dec=getDecimalPos(number,decimals*2);
-    if (dec>decimals)
-        decimals=dec;
-
-    std::string tmp;
-    if (sign)
-        tmp=boost::str(boost::format("%%+#0%i.%if") % (leadingZeros+decimals+2) % decimals);
-    else
-        tmp=boost::str(boost::format("%%#0%i.%if") % (leadingZeros+decimals+2) % decimals);
-    std::string tmp2(boost::str(boost::format(tmp) % number));
-
-    return(tmp2);
-}
-
-std::string tt::FNb(float number)
-{
-    return(boost::str(boost::format("%f") % number));
-}
-
-std::string tt::FNb(double number)
-{
-    return(boost::str(boost::format("%f") % number));
-}
-
-std::string tt::FNb(int leadingZeros,int number,bool sign)
-{ // sign is false by default
-    std::string tmp;
-    if (sign)
-        tmp=boost::str(boost::format("%%+#0%ii") % leadingZeros);
-    else
-        tmp=boost::str(boost::format("%%#0%ii") % leadingZeros);
-    std::string tmp2(boost::str(boost::format(tmp) % number));
-    return(tmp2);
-}
-
-std::string tt::FNb(int number)
-{
-    return(boost::str(boost::format("%i") % number));
 }
 
 double tt::getLimitedDouble(double minValue,double maxValue,double value)
@@ -680,7 +364,7 @@ std::string tt::generateNewName_hash(const char* name,int suffixOffset)
     std::string nameWithoutSuffix(getNameWithoutSuffixNumber(name,true));
     if (newNumber>=0)
     { // should anyway always pass!!
-        std::string newNumberStr=FNb(0,newNumber,false);
+        std::string newNumberStr=utils::getIntString(false,newNumber);
         nameWithoutSuffix+="#";
         nameWithoutSuffix.append(newNumberStr);
     }
@@ -691,7 +375,7 @@ std::string tt::generateNewName_noHash(const char* name)
 {
     int newNumber=getNameSuffixNumber(name,false)+1;
     std::string nameWithoutSuffix(getNameWithoutSuffixNumber(name,false));
-    std::string newNumberStr=FNb(0,newNumber,false);
+    std::string newNumberStr=utils::getIntString(false,newNumber);
     nameWithoutSuffix.append(newNumberStr);
     return(nameWithoutSuffix);
 }
@@ -702,7 +386,7 @@ std::string tt::generateNewName_noHash(const char* name,int suffixOffset)
     std::string nameWithoutSuffix(getNameWithoutSuffixNumber(name,false));
     if (newNumber>=0)
     { // should anyway always pass!!
-        std::string newNumberStr=FNb(0,newNumber,false);
+        std::string newNumberStr=utils::getIntString(false,newNumber);
         nameWithoutSuffix.append(newNumberStr);
     }
     return(nameWithoutSuffix);

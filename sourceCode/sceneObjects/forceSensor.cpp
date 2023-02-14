@@ -3,7 +3,7 @@
 #include <tt.h>
 #include <simStrings.h>
 #include <algorithm>
-#include <ttUtil.h>
+#include <utils.h>
 #include <easyLock.h>
 #include <app.h>
 #include <forceSensorRendering.h>
@@ -303,12 +303,14 @@ void CForceSensor::_handleSensorBreaking()
     }
 }
 
-C7Vector CForceSensor::getIntrinsicTransformation(bool includeDynErrorComponent) const
-{
+C7Vector CForceSensor::getIntrinsicTransformation(bool includeDynErrorComponent,bool* available/*=nullptr*/) const
+{ // Overridden from CSceneObject
     C7Vector retVal;
     retVal.setIdentity();
     if (includeDynErrorComponent)
         retVal=_intrinsicTransformationError;
+    if (available!=nullptr)
+        available[0]=true;
     return(retVal);
 }
 
@@ -702,7 +704,7 @@ void CForceSensor::serialize(CSer& ar)
                 }
             }
             if (ar.getSerializationVersionThatWroteThisFile()<17)
-                CTTUtil::scaleColorUp_(_color.getColorsPtr());
+                utils::scaleColorUp_(_color.getColorsPtr());
             computeBoundingBox();
         }
     }

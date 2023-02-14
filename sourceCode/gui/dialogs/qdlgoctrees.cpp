@@ -1,7 +1,7 @@
 #include <qdlgoctrees.h>
 #include <ui_qdlgoctrees.h>
 #include <tt.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <app.h>
 #include <simStrings.h>
@@ -48,12 +48,12 @@ void CQDlgOctrees::refresh()
 
     if (sel)
     {
-        ui->qqSize->setText(tt::getFString(false,it->getCellSize(),4).c_str());
+        ui->qqSize->setText(utils::getSizeString(false,it->getCellSize()).c_str());
         ui->qqShowOctree->setChecked(it->getShowOctree());
         ui->qqRandomColors->setChecked(it->getUseRandomColors());
-        ui->qqCellCount->setText(tt::getIString(false,(int)it->getCubePositions()->size()/3).c_str());
+        ui->qqCellCount->setText(utils::getIntString(false,(int)it->getCubePositions()->size()/3).c_str());
         ui->qqUsePoints->setChecked(it->getUsePointsInsteadOfCubes());
-        ui->qqPointSize->setText(tt::getIString(false,it->getPointSize()).c_str());
+        ui->qqPointSize->setText(utils::getIntString(false,it->getPointSize()).c_str());
         ui->qqEmissiveColor->setChecked(it->getColorIsEmissive());
     }
     else

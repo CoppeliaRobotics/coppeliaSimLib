@@ -4,7 +4,7 @@
 #include <string>
 #include <simLib/simTypes.h>
 
-class CTTUtil  
+class utils
 { // FULLY STATIC!!
 public:
     static void lightBinaryEncode(char* data,int length);
@@ -33,20 +33,25 @@ public:
     static std::string getPosString(bool sign,double num);
     static std::string getSizeString(bool sign,double num);
     static std::string getAngleString(bool sign,double num);
+    static std::string getTimeString(bool seconds,double num);
     static std::string getVolumeString(double num);
+    static std::string getDensityString(double num);
     static std::string getMultString(bool sign,double num);
     static std::string getForceTorqueString(bool sign,double num);
     static std::string getMassString(double num);
     static std::string getMasslessTensorString(bool sign,double num);
+    static std::string getGravityString(bool signe,double num);
     static std::string getLinVelString(bool sign,double num);
     static std::string getAngVelString(bool sign,double num);
     static std::string getLinAccelString(bool sign,double num);
     static std::string getAngAccelString(bool sign,double num);
     static std::string getLinJerkString(bool sign,double num);
     static std::string getAngJerkString(bool sign,double num);
+    static std::string get0To1String(bool sign,double num);
 
     static std::string getDoubleString(bool sign,double num,int minDecimals,int maxDecimals,double minForExpNotation=0.0,double maxForExpNotation=0.0);
     static std::string getDoubleEString(bool sign,double num);
+    static std::string getIntString(bool sign,int num,int minDigits=1);
 
     static double getDoubleFromString(const char* str);
 private:

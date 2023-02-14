@@ -1,7 +1,7 @@
 #include <calculationInfo.h>
 #include <app.h>
-#include <gV.h>
 #include <tt.h>
+#include <utils.h>
 #include <pluginContainer.h>
 #include <threadPool_old.h>
 #include <boost/lexical_cast.hpp>
@@ -275,7 +275,7 @@ void CCalculationInfo::printInformation()
                     CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
                     C7Vector v0(it->getFullCumulativeTransformation());
                     C7Vector v1(it2->getFullCumulativeTransformation());
-                    tmp="2 (frame-frame distance="+gv::getSizeStr(false,(v0.X-v1.X).getLength(),0)+")";
+                    tmp="2 (frame-frame distance="+utils::getSizeString(false,(v0.X-v1.X).getLength())+")";
                 }
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=tmp;
 
@@ -293,10 +293,10 @@ void CCalculationInfo::printInformation()
                 C7Vector m(it->getCumulativeTransformation());
                 C3Vector euler(m.Q.getEulerAngles());
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected object position:";
-                txt="x: "+gv::getSizeStr(true,m.X(0))+"    y: "+gv::getSizeStr(true,m.X(1))+"    z: "+gv::getSizeStr(true,m.X(2));
+                txt="x: "+utils::getPosString(true,m.X(0))+"    y: "+utils::getPosString(true,m.X(1))+"    z: "+utils::getPosString(true,m.X(2));
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected object orientation:";
-                txt="a: "+gv::getAngleStr(true,euler(0))+"    b: "+gv::getAngleStr(true,euler(1))+"    g: "+gv::getAngleStr(true,euler(2));
+                txt="a: "+utils::getAngleString(true,euler(0))+"    b: "+utils::getAngleString(true,euler(1))+"    g: "+utils::getAngleString(true,euler(2));
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
             }
             else
@@ -319,7 +319,7 @@ void CCalculationInfo::printInformation()
                 C3Vector p2(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(App::mainWindow->editModeContainer->getEditModeBufferValue(1)));
                 double dist=(p2-p1).getLength();
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected vertices:";
-                txt="2 (distance="+gv::getSizeStr(false,dist,0)+")";
+                txt="2 (distance="+utils::getSizeString(false,dist)+")";
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
             }
             if (App::mainWindow->editModeContainer->getEditModeBufferSize()!=0)
@@ -332,7 +332,7 @@ void CCalculationInfo::printInformation()
                     C3Vector v(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(lastV));
                     v*=m;
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected vertex position:";
-                    txt="x: "+gv::getSizeStr(true,v(0))+"    y: "+gv::getSizeStr(true,v(1))+"    z: "+gv::getSizeStr(true,v(2));
+                    txt="x: "+utils::getPosString(true,v(0))+"    y: "+utils::getPosString(true,v(1))+"    z: "+utils::getPosString(true,v(2));
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
                 }
             }
@@ -365,7 +365,7 @@ void CCalculationInfo::printInformation()
                     totLength+=dist;
                 }
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected edges:";
-                txt=boost::lexical_cast<std::string>(App::mainWindow->editModeContainer->getEditModeBufferSize())+" (total edge length="+gv::getSizeStr(false,totLength,0)+")";
+                txt=boost::lexical_cast<std::string>(App::mainWindow->editModeContainer->getEditModeBufferSize())+" (total edge length="+utils::getSizeString(false,totLength)+")";
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
             }
         }
@@ -382,7 +382,7 @@ void CCalculationInfo::printInformation()
                 {
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected path points:";
                     txt=boost::lexical_cast<std::string>(App::mainWindow->editModeContainer->getEditModeBufferSize());
-                    txt+=" (Bezier path length="+gv::getSizeStr(false,pc->getBezierNormalPathLength(),0)+")";
+                    txt+=" (Bezier path length="+utils::getSizeString(false,pc->getBezierNormalPathLength())+")";
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
                 }
                 else
@@ -391,7 +391,7 @@ void CCalculationInfo::printInformation()
                     CSimplePathPoint_old* pt2(App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(1));
                     double dist=(pt2->getTransformation().X-pt1->getTransformation().X).getLength();
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected path points:";
-                    txt="2 (distance="+gv::getSizeStr(false,dist,0)+")";
+                    txt="2 (distance="+utils::getSizeString(false,dist)+")";
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
                 }
                 if (App::mainWindow->editModeContainer->getEditModeBufferSize()!=0)
@@ -401,11 +401,11 @@ void CCalculationInfo::printInformation()
                     C7Vector tr(path->getCumulativeTransformation());
                     C3Vector v(tr*pt->getTransformation().X);
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected path point position:";
-                    txt="x: "+gv::getSizeStr(true,v(0))+"    y: "+gv::getSizeStr(true,v(1))+"    z: "+gv::getSizeStr(true,v(2));
+                    txt="x: "+utils::getPosString(true,v(0))+"    y: "+utils::getPosString(true,v(1))+"    z: "+utils::getPosString(true,v(2));
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
                     C3Vector euler((tr.Q*pt->getTransformation().Q).getEulerAngles());
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected path point orientation:";
-                    txt="a: "+gv::getAngleStr(true,euler(0))+"    b: "+gv::getAngleStr(true,euler(1))+"    g: "+gv::getAngleStr(true,euler(2));
+                    txt="a: "+utils::getAngleString(true,euler(0))+"    b: "+utils::getAngleString(true,euler(1))+"    g: "+utils::getAngleString(true,euler(2));
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
                 }
             }

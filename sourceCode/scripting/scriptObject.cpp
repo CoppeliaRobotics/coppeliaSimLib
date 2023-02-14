@@ -1,6 +1,6 @@
 #include <scriptObject.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <vDateTime.h>
 #include <app.h>
 #include <boost/algorithm/string.hpp>
@@ -1627,35 +1627,35 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,std:
     std::string l;
     std::string tmpCode(code);
     int lineCnt=0;
-    while (CTTUtil::extractLine(tmpCode,l))
+    while (utils::extractLine(tmpCode,l))
     {
         lineCnt++;
-        CTTUtil::removeSpacesAtBeginningAndEnd(l);
+        utils::removeSpacesAtBeginningAndEnd(l);
         if (l.size()>0)
         {
             if (l[0]=='#')
             {
                 l.erase(l.begin());
-                CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                utils::removeSpacesAtBeginningAndEnd(l);
                 std::string w;
-                if ( (CTTUtil::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
+                if ( (utils::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
                 { // ok, we have a python script
                     std::string t("wrapper='pythonWrapper'\n"); // default wrapper
                     bool stayIn=true;
-                    while (stayIn&&CTTUtil::extractLine(tmpCode,l))
+                    while (stayIn&&utils::extractLine(tmpCode,l))
                     {
                         lineCnt++;
-                        CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                        utils::removeSpacesAtBeginningAndEnd(l);
                         if (l.size()!=0)
                         {
                             if (l[0]=='#')
                             {
                                 l.erase(l.begin());
-                                CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                                utils::removeSpacesAtBeginningAndEnd(l);
                                 if (l.find("luaExec ")==0)
                                 {
                                     l.erase(l.begin(),l.begin()+8);
-                                    CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                                    utils::removeSpacesAtBeginningAndEnd(l);
                                     t=t+l;
                                 }
                                 t=t+"\n";
@@ -1663,7 +1663,7 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,std:
                             else if (l.compare(0,3,"'''")==0)
                             {
                                 l.erase(l.begin(),l.begin()+3);
-                                CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                                utils::removeSpacesAtBeginningAndEnd(l);
                                 bool isLua=( (l.find("luaExec ")==0)||(l.compare("luaExec")==0) );
                                 bool stayIn2=true;
                                 if (isLua)
@@ -1678,12 +1678,12 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,std:
                                     t=t+l;
                                 }
                                 t=t+"\n";
-                                while (stayIn2&&CTTUtil::extractLine(tmpCode,l))
+                                while (stayIn2&&utils::extractLine(tmpCode,l))
                                 {
                                     lineCnt++;
                                     if (!isLua)
                                     {
-                                        CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                                        utils::removeSpacesAtBeginningAndEnd(l);
                                         isLua=( (l.find("luaExec ")==0)||(l.compare("luaExec")==0) );
                                         if (isLua)
                                             l.erase(l.begin(),l.begin()+7);
@@ -1704,7 +1704,7 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,std:
                                 if (l.find("include ")==0)
                                 {
                                     l.erase(l.begin(),l.begin()+8);
-                                    CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                                    utils::removeSpacesAtBeginningAndEnd(l);
                                     if (l.size()>0)
                                         t=t+"pythonFile='"+l+".py'\n";
                                 }
@@ -1717,7 +1717,7 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,std:
                             t=t+"\n";
                     }
                     for (int i=0;i<lineCnt;i++)
-                        CTTUtil::extractLine(_code,l);
+                        utils::extractLine(_code,l);
                     for (int i=0;i<lineCnt;i++)
                         _code="#\n"+_code;
                     //printf("luaExec:\n%s\n",t.c_str());
@@ -1752,7 +1752,7 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,std:
         if (_executionDepth==0)
             _timeOfScriptExecutionStart=int(VDateTime::getTimeInMs());
         _executionDepth++;
-        if (_callScriptFunction("",nullptr,nullptr,errorMsg)==-1)
+        if (_callScriptFunction(-1,"",nullptr,nullptr,errorMsg)==-1)
             retVal=0; // a runtime error occurred!
         else
         { // here we check if we can enable the new calling method:
@@ -1965,7 +1965,7 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     if (_executionDepth==0)
         _timeOfScriptExecutionStart=int(VDateTime::getTimeInMs());
     _executionDepth++;
-    int retVal=_callScriptFunction(getSystemCallbackString(callType,0).c_str(),inStack,outStack,&errMsg);
+    int retVal=_callScriptFunction(callType,getSystemCallbackString(callType,0).c_str(),inStack,outStack,&errMsg);
     _executionDepth--;
     if (_executionDepth==0)
         _timeOfScriptExecutionStart=-1;
@@ -2036,7 +2036,7 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     return(retVal);
 }
 
-int CScriptObject::_callScriptFunction(const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg)
+int CScriptObject::_callScriptFunction(int sysCallType,const char* functionName,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg)
 { // retVal: -1=error during execution, 0=func does not exist, 1=execution ok
     // This will also execute function hooks
     int retVal=1;
@@ -2086,6 +2086,36 @@ int CScriptObject::_callScriptFunction(const char* functionName,const CInterface
             }
         }
     }
+
+    if ( (retVal==1)&&((sysCallType==sim_syscb_init)||(sysCallType==sim_syscb_cleanup)||(sysCallType==sim_syscb_aos_suspend)||(sysCallType==sim_syscb_aos_resume)||(sysCallType==sim_syscb_userconfig)) )
+    {
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+
+        stack->pushTableOntoStack();
+        stack->pushStringOntoStack("message",0);
+        stack->pushTableOntoStack();
+
+        stack->pushStringOntoStack("id",0); // key or index
+        stack->pushStringOntoStack("systemCall",0);
+        stack->insertDataIntoStackTable();
+
+        stack->pushStringOntoStack("data",0);
+        stack->pushTableOntoStack();
+
+        stack->pushStringOntoStack("callType",0); // key or index
+        stack->pushInt32OntoStack(sysCallType);
+        stack->insertDataIntoStackTable();
+
+        stack->pushStringOntoStack("script",0); // key or index
+        stack->pushInt32OntoStack(_scriptHandle);
+        stack->insertDataIntoStackTable();
+
+        stack->insertDataIntoStackTable(); // data
+        stack->insertDataIntoStackTable();
+        App::worldContainer->broadcastMsg(stack,_scriptHandle,0);
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
+    }
+
     if ( (errorMsg!=nullptr)&&(errorMsg[0].size()>1)&&boost::algorithm::ends_with(errorMsg->c_str(),"\n\n") )
     {
         errorMsg[0].pop_back();
@@ -2206,11 +2236,11 @@ int CScriptObject::callCustomScriptFunction(const char* functionName,CInterfaceS
             else
                 inStack=App::worldContainer->interfaceStackContainer->createStack();
             inStack->pushStringOntoStack(functionName,0,true);
-            retVal=_callScriptFunction("sysCall_ext",inStack,outStack,&errMsg);
+            retVal=_callScriptFunction(-1,"sysCall_ext",inStack,outStack,&errMsg);
             App::worldContainer->interfaceStackContainer->destroyStack(inStack);
         }
         if (!extFunc)
-            retVal=_callScriptFunction(functionName,inOutStack,outStack,&errMsg);
+            retVal=_callScriptFunction(-1,functionName,inOutStack,outStack,&errMsg);
 
         _executionDepth--;
         if (_executionDepth==0)
@@ -2588,9 +2618,9 @@ int CScriptObject::getLanguage()
     std::string l;
     std::string tmpCode(_scriptText);
     int retVal=lang_lua;
-    while (CTTUtil::extractLine(tmpCode,l))
+    while (utils::extractLine(tmpCode,l))
     {
-        CTTUtil::removeSpacesAtBeginningAndEnd(l);
+        utils::removeSpacesAtBeginningAndEnd(l);
         if (l.size()>0)
         {
             if (l[0]!='#')
@@ -2598,9 +2628,9 @@ int CScriptObject::getLanguage()
             else
             {
                 l.erase(l.begin());
-                CTTUtil::removeSpacesAtBeginningAndEnd(l);
+                utils::removeSpacesAtBeginningAndEnd(l);
                 std::string w;
-                if ( (CTTUtil::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
+                if ( (utils::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
                     retVal=lang_python;
                 break;
             }
@@ -6844,7 +6874,7 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject,bool doI
     bool addFunc=false;
 
     theScript=(scriptObject->getScriptText());
-    CTTUtil::regexReplace(theScript,"sim.getObjectOrientation\\(([^,]+),( *)-1( *)\\)","blabliblotemp($1,-1)");
+    utils::regexReplace(theScript,"sim.getObjectOrientation\\(([^,]+),( *)-1( *)\\)","blabliblotemp($1,-1)");
     scriptObject->setScriptText(theScript.c_str());
     addFunc=_replaceScriptText_old(scriptObject,"sim.getObjectOrientation(","__getObjectOrientation__(");
     _replaceScriptText_old(scriptObject,"blabliblotemp","sim.getObjectOrientation");
@@ -6866,7 +6896,7 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject,bool doI
     }
 
     theScript=scriptObject->getScriptText();
-    CTTUtil::regexReplace(theScript,"sim.setObjectOrientation\\(([^,]+),( *)-1( *),","blabliblotemp($1,-1,");
+    utils::regexReplace(theScript,"sim.setObjectOrientation\\(([^,]+),( *)-1( *),","blabliblotemp($1,-1,");
     scriptObject->setScriptText(theScript.c_str());
     addFunc=_replaceScriptText_old(scriptObject,"sim.setObjectOrientation(","__setObjectOrientation__(");
     _replaceScriptText_old(scriptObject,"blabliblotemp","sim.setObjectOrientation");
@@ -6888,8 +6918,8 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject,bool doI
     }
 
     theScript=scriptObject->getScriptText();
-    CTTUtil::regexReplace(theScript,"sim.getObjectQuaternion\\(([^,]+),( *)-1( *)\\)","blabliblotemp($1,-1)");
-    CTTUtil::regexReplace(theScript,"sim.getObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *)\\)","blabliblotemp($1,sim.handle_parent)");
+    utils::regexReplace(theScript,"sim.getObjectQuaternion\\(([^,]+),( *)-1( *)\\)","blabliblotemp($1,-1)");
+    utils::regexReplace(theScript,"sim.getObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *)\\)","blabliblotemp($1,sim.handle_parent)");
     scriptObject->setScriptText(theScript.c_str());
     addFunc=_replaceScriptText_old(scriptObject,"sim.getObjectQuaternion(","__getObjectQuaternion__(");
     _replaceScriptText_old(scriptObject,"blabliblotemp","sim.getObjectQuaternion");
@@ -6911,8 +6941,8 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject,bool doI
     }
 
     theScript=scriptObject->getScriptText();
-    CTTUtil::regexReplace(theScript,"sim.setObjectQuaternion\\(([^,]+),( *)-1( *),","blabliblotemp($1,-1,");
-    CTTUtil::regexReplace(theScript,"sim.setObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *),","blabliblotemp($1,sim.handle_parent,");
+    utils::regexReplace(theScript,"sim.setObjectQuaternion\\(([^,]+),( *)-1( *),","blabliblotemp($1,-1,");
+    utils::regexReplace(theScript,"sim.setObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *),","blabliblotemp($1,sim.handle_parent,");
     scriptObject->setScriptText(theScript.c_str());
     addFunc=_replaceScriptText_old(scriptObject,"sim.setObjectQuaternion(","__setObjectQuaternion__(");
     _replaceScriptText_old(scriptObject,"blabliblotemp","sim.setObjectQuaternion");
@@ -6934,8 +6964,8 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject,bool doI
     }
 
     theScript=scriptObject->getScriptText();
-    CTTUtil::regexReplace(theScript,"sim.getObjectPosition\\(([^,]+),( *)-1( *)\\)","blabliblotemp($1,-1)");
-    CTTUtil::regexReplace(theScript,"sim.getObjectPosition\\(([^,]+),( *)sim.handle_parent( *)\\)","blabliblotemp($1,sim.handle_parent)");
+    utils::regexReplace(theScript,"sim.getObjectPosition\\(([^,]+),( *)-1( *)\\)","blabliblotemp($1,-1)");
+    utils::regexReplace(theScript,"sim.getObjectPosition\\(([^,]+),( *)sim.handle_parent( *)\\)","blabliblotemp($1,sim.handle_parent)");
     scriptObject->setScriptText(theScript.c_str());
     addFunc=_replaceScriptText_old(scriptObject,"sim.getObjectPosition(","__getObjectPosition__(");
     _replaceScriptText_old(scriptObject,"blabliblotemp","sim.getObjectPosition");
@@ -6957,8 +6987,8 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject,bool doI
     }
 
     theScript=scriptObject->getScriptText();
-    CTTUtil::regexReplace(theScript,"sim.setObjectPosition\\(([^,]+),( *)-1( *),","blabliblotemp($1,-1,");
-    CTTUtil::regexReplace(theScript,"sim.setObjectPosition\\(([^,]+),( *)sim.handle_parent( *),","blabliblotemp($1,sim.handle_parent,");
+    utils::regexReplace(theScript,"sim.setObjectPosition\\(([^,]+),( *)-1( *),","blabliblotemp($1,-1,");
+    utils::regexReplace(theScript,"sim.setObjectPosition\\(([^,]+),( *)sim.handle_parent( *),","blabliblotemp($1,sim.handle_parent,");
     scriptObject->setScriptText(theScript.c_str());
     addFunc=_replaceScriptText_old(scriptObject,"sim.setObjectPosition(","__setObjectPosition__(");
     _replaceScriptText_old(scriptObject,"blabliblotemp","sim.setObjectPosition");

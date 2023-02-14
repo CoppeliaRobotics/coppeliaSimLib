@@ -1,8 +1,7 @@
 #include <qdlgvisionsensors.h>
 #include <ui_qdlgvisionsensors.h>
 #include <tt.h>
-#include <ttUtil.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <qdlgimagecolor.h>
 #include <simStrings.h>
@@ -80,19 +79,19 @@ void CQDlgVisionSensors::refresh()
 
         ui->qqShowFog->setChecked(s->getShowFogIfAvailable());
 
-        ui->qqNearPlane->setText(CTTUtil::getSizeString(false,s->getNearClippingPlane()).c_str());
-        ui->qqFarPlane->setText(CTTUtil::getSizeString(false,s->getFarClippingPlane()).c_str());
+        ui->qqNearPlane->setText(utils::getSizeString(false,s->getNearClippingPlane()).c_str());
+        ui->qqFarPlane->setText(utils::getSizeString(false,s->getFarClippingPlane()).c_str());
 
         if (s->getPerspective())
-            ui->qqPerspectiveAngleOrOrthographicSize->setText(gv::getAngleStr(false,s->getViewAngle(),0).c_str());
+            ui->qqPerspectiveAngleOrOrthographicSize->setText(utils::getAngleString(false,s->getViewAngle()).c_str());
         else
-            ui->qqPerspectiveAngleOrOrthographicSize->setText(gv::getSizeStr(false,s->getOrthoViewSize()).c_str());
+            ui->qqPerspectiveAngleOrOrthographicSize->setText(utils::getSizeString(false,s->getOrthoViewSize()).c_str());
 
         int r[2];
         s->getResolution(r);
-        ui->qqResX->setText(tt::getIString(false,r[0]).c_str());
-        ui->qqResY->setText(tt::getIString(false,r[1]).c_str());
-        ui->qqSizeX->setText(tt::getFString(false,s->getVisionSensorSize(),3).c_str());
+        ui->qqResX->setText(utils::getIntString(false,r[0]).c_str());
+        ui->qqResY->setText(utils::getIntString(false,r[1]).c_str());
+        ui->qqSizeX->setText(utils::getSizeString(false,s->getVisionSensorSize()).c_str());
 
         ui->qqExplicitHandling->setChecked(s->getExplicitHandling());
         ui->qqExternalInput->setChecked(s->getUseExternalImage());
@@ -248,7 +247,7 @@ void CQDlgVisionSensors::on_qqPerspectiveAngleOrOrthographicSize_editingFinished
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getLastSelectionVisionSensor();
             if ((it!=nullptr)&&it->getPerspective())
-                newVal*=gv::userToRad;
+                newVal*=degToRad;
             App::appendSimulationThreadCommand(SET_PERSPECTANGLE_OR_ORTHOSIZE_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }

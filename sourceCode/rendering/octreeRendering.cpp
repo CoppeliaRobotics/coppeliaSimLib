@@ -73,15 +73,12 @@ const float _cubeNormals[]={
 
 void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(octree,renderingObject,displayAttrib);
+    // At the beginning of every scene object display routine:
+    _commonStart(octree,renderingObject);
 
-    // Bounding box display:
     C3Vector mmaDim,mmiDim;
     octree->getBoundingBox(mmiDim,mmaDim);
     C3Vector d(mmaDim-mmiDim);
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(octree,displayAttrib,true,cbrt(d(0)*d(1)*d(2))*0.6);
 
     C3Vector normalVectorForLinesAndPoints(octree->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -286,7 +283,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
         _disableAuxClippingPlanes();
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(octree,renderingObject);
 }
 

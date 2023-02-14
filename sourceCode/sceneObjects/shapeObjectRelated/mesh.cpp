@@ -3,7 +3,7 @@
 #include <tt.h>
 #include <meshRoutines.h>
 #include <meshManip.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <app.h>
 #include <pluginContainer.h>
 #include <shapeRendering.h>
@@ -2173,7 +2173,7 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                 ar.xmlAddNode_uchars("edges",_edges);
             }
             else
-                ar.xmlAddNode_meshFile("file",(std::string("mesh_")+std::string(shapeName)+"_"+tt::FNb(ar.getIncrementCounter())).c_str(),&_verticesForDisplayAndDisk[0],(int)_verticesForDisplayAndDisk.size(),&_indices[0],(int)_indices.size(),&_normalsForDisplayAndDisk[0],(int)_normalsForDisplayAndDisk.size(),&_edges[0],(int)_edges.size());
+                ar.xmlAddNode_meshFile("file",(std::string("mesh_")+std::string(shapeName)+"_"+utils::getIntString(false,ar.getIncrementCounter())).c_str(),&_verticesForDisplayAndDisk[0],(int)_verticesForDisplayAndDisk.size(),&_indices[0],(int)_indices.size(),&_normalsForDisplayAndDisk[0],(int)_normalsForDisplayAndDisk.size(),&_edges[0],(int)_edges.size());
             ar.xmlPopNode();
         }
         else

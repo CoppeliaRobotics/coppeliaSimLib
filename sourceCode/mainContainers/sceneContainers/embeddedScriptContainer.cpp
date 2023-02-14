@@ -377,7 +377,7 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,b
     return(retVal);
 }
 
-void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch/*=nullptr*/)
+void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch/*=nullptr*/,int scriptToExclude/*=-1*/)
 { // with objectBranch!=nullptr, will return the branch starting at objectBranch up to the main script
     TRACE_INTERNAL;
     if (!App::userSettings->enableOldScriptTraversal)
@@ -389,21 +389,27 @@ void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack
             {
                 CScriptObject* script=getMainScript();
                 if ( (script!=nullptr)&&(script->hasSystemFunctionOrHook(callType)||script->getOldCallMode()) )
-                    script->systemCallMainScript(callType,inStack,outStack);
+                {
+                    if (script->getScriptHandle()!=scriptToExclude)
+                        script->systemCallMainScript(callType,inStack,outStack);
+                }
             }
             if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
-                callChildAndEmbeddedScripts(-1,callType,inStack,outStack,objectBranch);
+                callChildAndEmbeddedScripts(-1,callType,inStack,outStack,objectBranch,scriptToExclude);
         }
         else
         { // regular. From unimportant, to important
-            callChildAndEmbeddedScripts(-1,callType,inStack,outStack,objectBranch);
+            callChildAndEmbeddedScripts(-1,callType,inStack,outStack,objectBranch,scriptToExclude);
             if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
             {
                 if (!App::currentWorld->simulation->isSimulationStopped())
                 {
                     CScriptObject* script=getMainScript();
                     if ( (script!=nullptr)&&(script->hasSystemFunctionOrHook(callType)||script->getOldCallMode()) )
-                        script->systemCallMainScript(callType,inStack,outStack);
+                    {
+                        if (script->getScriptHandle()!=scriptToExclude)
+                            script->systemCallMainScript(callType,inStack,outStack);
+                    }
                 }
             }
         }
@@ -534,7 +540,7 @@ bool CEmbeddedScriptContainer::shouldTemporarilySuspendMainScript()
     return(retVal);
 }
 
-int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch/*=nullptr*/)
+int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch/*=nullptr*/,int scriptToExclude/*=-1*/)
 { // ignores the main script. See mainly callScripts instead
     int cnt=0;
     if (!App::userSettings->enableOldScriptTraversal)
@@ -550,7 +556,7 @@ int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int cal
         for (size_t i=0;i<scriptHandles.size();i++)
         {
             CScriptObject* script=getScriptFromHandle(scriptHandles[i]);
-            if (script!=nullptr)
+            if ( (script!=nullptr)&&(script->getScriptHandle()!=scriptToExclude) )
             { // the script could have been erased in the mean time
                 if (script->getThreadedExecution_oldThreads())
                 { // is an old, threaded script
@@ -587,7 +593,6 @@ int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int cal
                                 break;
                         }
                     }
-
                 }
             }
         }

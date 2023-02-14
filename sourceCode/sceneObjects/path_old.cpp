@@ -2,10 +2,9 @@
 #include <path_old.h>
 #include <tt.h>
 #include <meshManip.h>
-#include <gV.h>
 #include <meshRoutines.h>
 #include <simStrings.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <easyLock.h>
 #include <app.h>
 #include <pathRendering.h>
@@ -324,10 +323,10 @@ std::string CPath_old::getObjectTypeInfoExtended() const
 {
     std::string retVal;
     retVal=IDSOGL_PATH_BEZIER_CURVE_POINT_COUNT;
-    retVal+=tt::getIString(false,pathContainer->getBezierPathPointCount())+", ";
+    retVal+=utils::getIntString(false,pathContainer->getBezierPathPointCount())+", ";
     retVal+=IDSOGL_TOTAL_LENGTH;
-    retVal+=tt::getFString(false,pathContainer->getBezierVirtualPathLength(),3)+", p=";
-    retVal+=tt::getFString(true,double(pathContainer->getPosition()),3)+")";
+    retVal+=utils::getSizeString(false,pathContainer->getBezierVirtualPathLength())+", p=";
+    retVal+=utils::getSizeString(true,double(pathContainer->getPosition()))+")";
     return(retVal);
 }
 bool CPath_old::isPotentiallyCollidable() const
@@ -714,7 +713,7 @@ void CPath_old::serialize(CSer& ar)
 
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-                CTTUtil::scaleColorUp_(shapingColor.getColorsPtr());
+                utils::scaleColorUp_(shapingColor.getColorsPtr());
             }
             _generatePathShape();
             computeBoundingBox();

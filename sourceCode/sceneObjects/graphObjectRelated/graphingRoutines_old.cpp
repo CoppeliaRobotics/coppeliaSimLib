@@ -2,7 +2,6 @@
 #include <simInternal.h>
 #include <app.h>
 #include <tt.h>
-#include <gV.h>
 #include <simStrings.h>
 
 CGraphingRoutines_old::CGraphingRoutines_old()
@@ -47,11 +46,11 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         (dType==GRAPH_DISTANCE_SEG2_Z_REL) )
     {
         if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-            return(gv::getSizeUnitStr());
+            return("Meters");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-            return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr());
+            return("Meters/Seconds");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-            return(gv::getSizeUnitStr()+"*"+gv::getTimeUnitStr());
+            return("Meters*Seconds");
     }
     
     if ( (dType==GRAPH_SCENEOBJECT_ALL_XVEL_ABS)||
@@ -60,22 +59,22 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         (dType==GRAPH_SCENEOBJECT_ALL_VEL_ABS) )
     {
         if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-            return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr());
+            return("Meters/Seconds");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-            return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStrShort()+"^2");
+            return("Meters/s^2");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-            return(gv::getSizeUnitStr());
+            return("Meters");
     }
 
 
     if (dType==GRAPH_SCENEOBJECT_ALL_ANGULAR_VEL_ABS)
     {
         if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-            return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr());
+            return("Degrees/Seconds");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-            return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStrShort()+"^2");
+            return("Degrees/s^2");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-            return(gv::getAngleUnitStr());
+            return("Degrees");
     }
 
 
@@ -89,11 +88,11 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         (dType==GRAPH_SCENEOBJECT_PROXSENSOR_ELEVATION) )
     {
         if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-            return(gv::getAngleUnitStr());
+            return("Degrees");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-            return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr());
+            return("Degrees/Seconds");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-            return(gv::getAngleUnitStr()+"*"+gv::getTimeUnitStr());
+            return("Degrees*Seconds");
     }
     if ( (dType>GRAPH_SCENEOBJECT_JOINT_SUBSTART)&&(dType<GRAPH_SCENEOBJECT_JOINT_SUBEND) )
     {
@@ -105,29 +104,29 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
                 if (act->getJointType()==sim_joint_prismatic_subtype)
                 {
                     if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                        return(gv::getSizeUnitStr());
+                        return("Meters");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                        return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr());
+                        return("Meters/Seconds");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                        return(gv::getSizeUnitStr()+"*"+gv::getTimeUnitStr());
+                        return("Meters*Seconds");
                 }
                 if (act->getJointType()==sim_joint_revolute_subtype)
                 {
                     if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                        return(gv::getAngleUnitStr());
+                        return("Degrees");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                        return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr());
+                        return("Degrees/Seconds");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                        return(gv::getAngleUnitStr()+"*"+gv::getTimeUnitStr());
+                        return("Degrees*Seconds");
                 }
                 if (act->getJointType()==sim_joint_spherical_subtype)
                 {
                     if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                        return(gv::getNullUnitStr());
+                        return("Null");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                        return(gv::getNullUnitStr()+"/"+gv::getTimeUnitStr());
+                        return("Null/Seconds");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                        return(gv::getNullUnitStr()+"*"+gv::getTimeUnitStr());
+                        return("Null*Seconds");
                 }
             }
         }
@@ -139,49 +138,49 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
                 if (act->getJointType()==sim_joint_prismatic_subtype)
                 {
                     if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                        return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr());
+                        return("Meters/Seconds");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                        return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStrShort()+"^2");
+                        return("Meters/s^2");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                        return(gv::getSizeUnitStr());
+                        return("Meters");
                 }
                 if (act->getJointType()==sim_joint_revolute_subtype)
                 {
                     if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                        return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr());
+                        return("Degrees/Seconds");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                        return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStrShort()+"^2");
+                        return("Degrees/s^2");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                        return(gv::getAngleUnitStr());
+                        return("Degrees");
                 }
                 if (act->getJointType()==sim_joint_spherical_subtype)
                 {
                     if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                        return(gv::getNullUnitStr()+"/"+gv::getTimeUnitStr());
+                        return("Null/Seconds");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                        return(gv::getNullUnitStr()+"/"+gv::getTimeUnitStrShort()+"^2");
+                        return("Null/s^2");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                        return(gv::getNullUnitStr());
+                        return("Null");
                 }
             }
         }
         if (dType==GRAPH_SCENEOBJECT_JOINT_DYN_POSITION_ERROR)
         {
             if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                return(gv::getSizeUnitStr());
+                return("Meters");
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr());
+                return("Meters/Seconds");
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                return(gv::getSizeUnitStr()+"*"+gv::getTimeUnitStr());
+                return("Meters*Seconds");
         }
         if (dType==GRAPH_SCENEOBJECT_JOINT_DYN_ORIENTATION_ERROR)
         {
             if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                return(gv::getAngleUnitStr());
+                return("Degrees");
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr());
+                return("Degrees/Seconds");
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                return(gv::getAngleUnitStr()+"*"+gv::getTimeUnitStr());
+                return("Degrees*Seconds");
         }
         if (dType==GRAPH_SCENEOBJECT_JOINT_DYN_FORCE_OR_TORQUE)
         { // New since 1/6/2011:
@@ -192,32 +191,32 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
                 {
                     std::string retV;
                     if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                        retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"/"+gv::getTimeUnitStrShort()+"^2";
+                        retV="kg*m/s^2";
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                        retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"/"+gv::getTimeUnitStrShort()+"^3";
+                        retV="kg*m/s^3";
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                        retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"/"+gv::getTimeUnitStrShort();
+                        retV="kg*m/s";
                     return(retV);
                 }
                 if (act->getJointType()==sim_joint_revolute_subtype)
                 {
                     std::string retV;
                     if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                        retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"^2/"+gv::getTimeUnitStrShort()+"^2";
+                        retV="kg*m^2/s^2";
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                        retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"^2/"+gv::getTimeUnitStrShort()+"^3";
+                        retV="kg*m^2/s^3";
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                        retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"^2/"+gv::getTimeUnitStrShort();
+                        retV="kg*m^2/s";
                     return(retV);
                 }
                 if (act->getJointType()==sim_joint_spherical_subtype)
                 {
                     if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                        return(gv::getNullUnitStr());
+                        return("Null");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                        return(gv::getNullUnitStr()+"/"+gv::getTimeUnitStr());
+                        return("Null/Seconds");
                     if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                        return(gv::getNullUnitStr()+"*"+gv::getTimeUnitStr());
+                        return("Null*Seconds");
                 }
             }
         }
@@ -229,55 +228,55 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         {
             std::string retV;
             if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"/"+gv::getTimeUnitStrShort()+"^2";
+                retV="kg*m/s^2";
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"/"+gv::getTimeUnitStrShort()+"^3";
+                retV="kg*m/s^3";
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"/"+gv::getTimeUnitStrShort();
+                retV="kg*m/s";
             return(retV);
         }
         if ( (dType==GRAPH_SCENEOBJECT_FORCESENSOR_TORQUE_X)||(dType==GRAPH_SCENEOBJECT_FORCESENSOR_TORQUE_Y)||(dType==GRAPH_SCENEOBJECT_FORCESENSOR_TORQUE_Z)||(dType==GRAPH_SCENEOBJECT_FORCESENSOR_TORQUE_LENGTH) )
         {
             std::string retV;
             if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"^2/"+gv::getTimeUnitStrShort()+"^2";
+                retV="kg*m^2/s^2";
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"^2/"+gv::getTimeUnitStrShort()+"^3";
+                retV="kg*m^2/s^3";
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                retV=gv::getMassUnitStrShort()+"*"+gv::getSizeUnitStrShort()+"^2/"+gv::getTimeUnitStrShort();
+                retV="kg*m^2/s";
             return(retV);
         }
         if (dType==GRAPH_SCENEOBJECT_FORCESENSOR_POSITION_ERROR)
         {
             std::string retV;
             if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                retV=gv::getSizeUnitStr();
+                retV="Meters";
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                retV=gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr();
+                retV="Meters/Seconds";
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                retV=gv::getSizeUnitStr()+"*"+gv::getTimeUnitStr();
+                retV="Meters*Seconds";
             return(retV);
         }
         if (dType==GRAPH_SCENEOBJECT_FORCESENSOR_ORIENTATION_ERROR)
         {
             std::string retV;
             if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                retV=gv::getAngleUnitStr();
+                retV="Degrees";
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                retV=gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr();
+                retV="Degrees/Seconds";
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                retV=gv::getAngleUnitStr()+"*"+gv::getTimeUnitStr();
+                retV="Degrees*Seconds";
             return(retV);
         }
         if (dType==GRAPH_SCENEOBJECT_FORCESENSOR_BROKEN)
         {
             std::string retV;
             if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                retV=gv::getBoolStateUnitStr();
+                retV="Boolean state";
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                retV=gv::getBoolStateUnitStr()+"/"+gv::getTimeUnitStr();
+                retV="Boolean state/Seconds";
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                retV=gv::getBoolStateUnitStr()+"*"+gv::getTimeUnitStr();
+                retV="Boolean state*Seconds";
             return(retV);
         }
     }
@@ -287,11 +286,11 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         if (path!=nullptr)
         {
             if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                return(gv::getSizeUnitStr());
+                return("Meters");
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                return(gv::getSizeUnitStr()+"/"+gv::getTimeUnitStr());
+                return("Meters/Seconds");
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                return(gv::getSizeUnitStr()+"*"+gv::getTimeUnitStr());
+                return("Meters*Seconds");
         }
     }
     if (dType==GRAPH_SCENEOBJECT_PATH_POSITION_ANGULAR_COMPONENT)
@@ -300,11 +299,11 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         if (path!=nullptr)
         {
             if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-                return(gv::getAngleUnitStr());
+                return("Degrees");
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-                return(gv::getAngleUnitStr()+"/"+gv::getTimeUnitStr());
+                return("Degrees/Seconds");
             if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-                return(gv::getAngleUnitStr()+"*"+gv::getTimeUnitStr());
+                return("Degrees*Seconds");
         }
     }
     if ( (dType==GRAPH_NOOBJECT_TIME)||
@@ -327,31 +326,31 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         (dType==GRAPH_NOOBJECT_SIMULATIONPASS_EXECUTION_TIME) )
     {
         if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-            return(gv::getTimeUnitStr());
+            return("Seconds");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-            return("-");//gv::getTimeUnitStr()+"/"+gv::getTimeUnitStr());
+            return("-");//"Seconds/Seconds");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-            return(gv::getTimeUnitStr()+"*"+gv::getTimeUnitStr());
+            return("Seconds*Seconds");
     }
     if (dType==GRAPH_NOOBJECT_COLLISION_QUANTITY)
     {
         if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-            return(gv::getCountUnitStr());
+            return("Count");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-            return(gv::getCountUnitStr()+"/"+gv::getTimeUnitStr());
+            return("Count/Seconds");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-            return(gv::getCountUnitStr()+"*"+gv::getTimeUnitStr());
+            return("Count*Seconds");
     }
     if ( (dType==GRAPH_COLLISION_BOOLEAN)||
         (dType==GRAPH_SCENEOBJECT_PROXSENSOR_DETECTION_STATE)||
         (dType==GRAPH_SCENEOBJECT_VISIONSENSOR_DETECTION_STATE) )
     {
         if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-            return(gv::getBoolStateUnitStr());
+            return("Boolean state");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-            return(gv::getBoolStateUnitStr()+"/"+gv::getTimeUnitStr());
+            return("Boolean state/Seconds");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-            return(gv::getBoolStateUnitStr()+"*"+gv::getTimeUnitStr());
+            return("Boolean state*Seconds");
     }
     if ( (dType==GRAPH_SCENEOBJECT_VISIONSENSOR_MIN_RED)||
         (dType==GRAPH_SCENEOBJECT_VISIONSENSOR_MIN_GREEN)||
@@ -370,44 +369,44 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         (dType==GRAPH_SCENEOBJECT_VISIONSENSOR_AVG_DEPTH) )
     {
         if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-            return(gv::getFloatUnitStr());
+            return("Floating point");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-            return(gv::getFloatUnitStr()+"/"+gv::getTimeUnitStr());
+            return("Floating point/Seconds");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-            return(gv::getFloatUnitStr()+"*"+gv::getTimeUnitStr());
+            return("Floating point*Seconds");
     }
     if (dType==GRAPH_NOOBJECT_USER_DEFINED)
     {
         if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-            return(gv::getUserUnitStr());
+            return("User unit");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-            return(gv::getUserUnitStr()+"/"+gv::getTimeUnitStr());
+            return("User unit/Seconds");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-            return(gv::getUserUnitStr()+"*"+gv::getTimeUnitStr());
-            // was this before:     return(gv::getUserUnitStr());
+            return("User unit*Seconds");
+            // was this before:     return("User unit");
     }
 
     if ( (dType==GRAPH_SCENEOBJECT_MILL_CUT_SURFACE)||
         (dType==GRAPH_NOOBJECT_MILL_OVERALL_CUT_SURFACE) )
     {
         if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-            return(gv::getSurfaceUnitStr());
+            return("Square meters");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-            return(gv::getSurfaceUnitStr()+"/"+gv::getTimeUnitStr());
+            return("Square meters/Seconds");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-            return(gv::getSurfaceUnitStr()+"*"+gv::getTimeUnitStr());
+            return("Square meters*Seconds");
     }
     if ( (dType==GRAPH_SCENEOBJECT_MILL_CUT_VOLUME)||
         (dType==GRAPH_NOOBJECT_MILL_OVERALL_CUT_VOLUME) )
     {
         if ((it->getDerivativeIntegralAndCumulative()==sim_stream_transf_raw)||(it->getDerivativeIntegralAndCumulative()==sim_stream_transf_cumulative))
-            return(gv::getVolumeUnitStr());
+            return("Cubic meters");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_derivative)
-            return(gv::getVolumeUnitStr()+"/"+gv::getTimeUnitStr());
+            return("Cubic meters/Seconds");
         if (it->getDerivativeIntegralAndCumulative()==sim_stream_transf_integral)
-            return(gv::getVolumeUnitStr()+"*"+gv::getTimeUnitStr());
+            return("Cubic meters*Seconds");
     }
-    return(gv::getNullUnitStr());
+    return("Null");
 }
 
 void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old* it,double& v,int derivativeIntegralOrCumulative)
@@ -416,7 +415,7 @@ void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old* it,doub
 
     if (dType==GRAPH_SCENEOBJECT_ALL_ANGULAR_VEL_ABS)
     {
-        v*=gv::radToUser;
+        v*=radToDeg;
     }
 
     if ( (dType==GRAPH_SCENEOBJECT_ALL_ALPHA_ABS)||
@@ -428,7 +427,7 @@ void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old* it,doub
         (dType==GRAPH_SCENEOBJECT_PROXSENSOR_AZIMUTH)||
         (dType==GRAPH_SCENEOBJECT_PROXSENSOR_ELEVATION) )
     {
-            v*=gv::radToUser;
+            v*=radToDeg;
     }
     if ( (dType>GRAPH_SCENEOBJECT_JOINT_SUBSTART)&&(dType<GRAPH_SCENEOBJECT_JOINT_SUBEND) )
     {
@@ -438,7 +437,7 @@ void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old* it,doub
             if (act!=nullptr)
             {
                 if (act->getJointType()==sim_joint_revolute_subtype)
-                    v*=gv::radToUser;
+                    v*=radToDeg;
             }
         }
         if (dType==GRAPH_SCENEOBJECT_JOINT_VELOCITY)
@@ -446,23 +445,23 @@ void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old* it,doub
             if (act!=nullptr)
             {
                 if (act->getJointType()==sim_joint_revolute_subtype)
-                    v*=gv::radToUser;
+                    v*=radToDeg;
             }
         }
         if (dType==GRAPH_SCENEOBJECT_JOINT_DYN_ORIENTATION_ERROR)
-            v*=gv::radToUser;
+            v*=radToDeg;
     }
     if ( (dType>GRAPH_SCENEOBJECT_FORCESENSOR_SUBSTART)&&(dType<GRAPH_SCENEOBJECT_FORCESENSOR_SUBEND) )
     {
         if (dType==GRAPH_SCENEOBJECT_FORCESENSOR_ORIENTATION_ERROR)
-            v*=gv::radToUser;
+            v*=radToDeg;
     }
     if (dType==GRAPH_SCENEOBJECT_PATH_POSITION_ANGULAR_COMPONENT)
     { // We have to check if this is a path:
         CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path!=nullptr)
         {
-                v*=gv::radToUser;
+                v*=radToDeg;
         }
     }
 }

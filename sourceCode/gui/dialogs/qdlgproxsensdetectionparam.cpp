@@ -1,8 +1,7 @@
-
 #include <qdlgproxsensdetectionparam.h>
 #include <ui_qdlgproxsensdetectionparam.h>
-#include <gV.h>
 #include <tt.h>
+#include <utils.h>
 #include <simMath/mathDefines.h>
 #include <app.h>
 
@@ -35,18 +34,16 @@ void CQDlgProxSensDetectionParam::refresh()
     ui->qqFast->setChecked(fast);
     ui->qqLimitedAngle->setChecked(limitedAngle);
     ui->qqAngle->setEnabled(limitedAngle);
-    ui->qqAngle->setText(tt::getAngleFString(false,angle,2).c_str());
-//    ui->qqOcclusionCheck->setEnabled(limitedAngle);
-//    ui->qqOcclusionCheck->setChecked(limitedAngle&&occlusionCheck);
+    ui->qqAngle->setText(utils::getAngleString(false,angle).c_str());
     ui->qqMinDistEnabled->setChecked(distanceContraint);
     ui->qqMinDist->setEnabled(distanceContraint);
-    ui->qqMinDist->setText(tt::getFString(false,minimumDistance,3).c_str());
+    ui->qqMinDist->setText(utils::getSizeString(false,minimumDistance).c_str());
     ui->qqRayCount->setEnabled(randomizedDetection);
     ui->qqRandomizedDetectionCount->setEnabled(randomizedDetection);
     if (randomizedDetection)
     {
-        ui->qqRayCount->setText(tt::getIString(false,rayCount).c_str());
-        ui->qqRandomizedDetectionCount->setText(tt::getIString(false,rayDetectionCount).c_str());
+        ui->qqRayCount->setText(utils::getIntString(false,rayCount).c_str());
+        ui->qqRandomizedDetectionCount->setText(utils::getIntString(false,rayDetectionCount).c_str());
     }
     else
     {
@@ -89,7 +86,7 @@ void CQDlgProxSensDetectionParam::on_qqAngle_editingFinished()
     double newVal=ui->qqAngle->text().toDouble(&ok);
     if (ok)
     {
-        angle=(newVal*gv::userToRad);
+        angle=(newVal*degToRad);
         tt::limitValue(0.1*degToRad,90.0*degToRad,angle);
     }
     refresh();

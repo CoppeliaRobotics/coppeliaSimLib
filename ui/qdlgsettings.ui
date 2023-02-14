@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>340</height>
+    <height>322</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -161,7 +161,7 @@
      <x>10</x>
      <y>170</y>
      <width>411</width>
-     <height>141</height>
+     <height>121</height>
     </rect>
    </property>
    <property name="title">
@@ -186,22 +186,6 @@
      <string>Display world reference</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="boundingBoxDisplay">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>391</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Display bounding boxes of selected objects</string>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="undoRedo">
     <property name="geometry">
      <rect>
@@ -222,7 +206,7 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>65</y>
+      <y>45</y>
       <width>191</width>
       <height>18</height>
      </rect>
@@ -238,7 +222,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>65</y>
+      <y>45</y>
       <width>211</width>
       <height>18</height>
      </rect>
@@ -254,7 +238,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>110</y>
+      <y>90</y>
       <width>151</width>
       <height>18</height>
      </rect>
@@ -270,7 +254,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>85</y>
+      <y>65</y>
       <width>391</width>
       <height>18</height>
      </rect>
@@ -287,13 +271,13 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>315</y>
+     <y>295</y>
      <width>411</width>
      <height>18</height>
     </rect>
    </property>
    <property name="text">
-    <string>Additional parameters can be adjusted in usrset.txt, see thee terminal for details</string>
+    <string>Additional parameters can be adjusted in usrset.txt, see thee terminal</string>
    </property>
   </widget>
  </widget>
@@ -306,7 +290,6 @@
   <tabstop>ignoreTriangleWinding</tabstop>
   <tabstop>undoRedo</tabstop>
   <tabstop>worldReference</tabstop>
-  <tabstop>boundingBoxDisplay</tabstop>
   <tabstop>qqAutoSave</tabstop>
   <tabstop>hideConsole</tabstop>
   <tabstop>qqHideHierarchy</tabstop>

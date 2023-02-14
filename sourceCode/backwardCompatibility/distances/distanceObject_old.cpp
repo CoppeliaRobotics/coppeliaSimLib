@@ -4,9 +4,8 @@
 #include <global.h>
 #include <distanceRoutines.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <app.h>
-#include <gV.h>
 #include <simStrings.h>
 #include <vDateTime.h>
 #include <pluginContainer.h>
@@ -39,7 +38,7 @@ void CDistanceObject_old::_commonInit()
     _threshold=0.5;
     _thresholdEnabled=false;
     _segmentWidth=2;
-    _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
+    _uniquePersistentIdString=utils::generateUniqueReadableString(); // persistent
     for (size_t i=0;i<7;i++)
         _distanceResult[i]=0.0;
     _distanceBuffer[0]=-1;

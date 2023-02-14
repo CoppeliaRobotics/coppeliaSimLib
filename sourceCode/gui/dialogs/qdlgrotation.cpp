@@ -1,7 +1,7 @@
 #include <qdlgrotation.h>
 #include <ui_qdlgrotation.h>
-#include <gV.h>
 #include <tt.h>
+#include <utils.h>
 #include <app.h>
 #include <simStrings.h>
 
@@ -64,9 +64,9 @@ void CQDlgRotation::refresh()
                 euler=object->getLocalTransformation().Q.getEulerAngles();
                 pos=object->getLocalTransformation().X;
             }
-            ui->qqCoordAlpha->setText(tt::getAngleEString(true,euler(0),4).c_str());
-            ui->qqCoordBeta->setText(tt::getAngleEString(true,euler(1),4).c_str());
-            ui->qqCoordGamma->setText(tt::getAngleEString(true,euler(2),4).c_str());
+            ui->qqCoordAlpha->setText(utils::getAngleString(true,euler(0)).c_str());
+            ui->qqCoordBeta->setText(utils::getAngleString(true,euler(1)).c_str());
+            ui->qqCoordGamma->setText(utils::getAngleString(true,euler(2)).c_str());
             ui->qqCoordWorld->setChecked(coordMode==0);
             ui->qqCoordParent->setChecked(coordMode==1);
             // Transformation part:
@@ -106,13 +106,13 @@ void CQDlgRotation::refresh()
         {
             ui->qqOrCombo->addItem(IDS_MANIP_NONE,QVariant(-1));
             ui->qqOrCombo->addItem(IDS_DEFAULT,QVariant(0));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,1.0*degToRad,1).c_str(),QVariant(1000));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,2.0*degToRad,1).c_str(),QVariant(2000));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,5.0*degToRad,1).c_str(),QVariant(5000));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,10.0*degToRad,1).c_str(),QVariant(10000));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,15.0*degToRad,1).c_str(),QVariant(15000));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,30.0*degToRad,1).c_str(),QVariant(30000));
-            ui->qqOrCombo->addItem(tt::getAngleFString(false,45.0*degToRad,1).c_str(),QVariant(45000));
+            ui->qqOrCombo->addItem(utils::getAngleString(false,1.0*degToRad).c_str(),QVariant(1000));
+            ui->qqOrCombo->addItem(utils::getAngleString(false,2.0*degToRad).c_str(),QVariant(2000));
+            ui->qqOrCombo->addItem(utils::getAngleString(false,5.0*degToRad).c_str(),QVariant(5000));
+            ui->qqOrCombo->addItem(utils::getAngleString(false,10.0*degToRad).c_str(),QVariant(10000));
+            ui->qqOrCombo->addItem(utils::getAngleString(false,15.0*degToRad).c_str(),QVariant(15000));
+            ui->qqOrCombo->addItem(utils::getAngleString(false,30.0*degToRad).c_str(),QVariant(30000));
+            ui->qqOrCombo->addItem(utils::getAngleString(false,45.0*degToRad).c_str(),QVariant(45000));
 
             if (App::currentWorld->simulation->isSimulationStopped())
             {
@@ -206,9 +206,9 @@ void CQDlgRotation::refresh()
                         if (coordMode==0)
                             tr=path->getFullCumulativeTransformation()*tr;
                         C3Vector euler(tr.Q.getEulerAngles());
-                        ui->qqCoordAlpha->setText(tt::getAngleEString(true,euler(0),4).c_str());
-                        ui->qqCoordBeta->setText(tt::getAngleEString(true,euler(1),4).c_str());
-                        ui->qqCoordGamma->setText(tt::getAngleEString(true,euler(2),4).c_str());
+                        ui->qqCoordAlpha->setText(utils::getAngleString(true,euler(0)).c_str());
+                        ui->qqCoordBeta->setText(utils::getAngleString(true,euler(1)).c_str());
+                        ui->qqCoordGamma->setText(utils::getAngleString(true,euler(2)).c_str());
                         ui->qqCoordWorld->setChecked(coordMode==0);
                         ui->qqCoordParent->setChecked(coordMode==1);
                         // Transformation part:
@@ -285,9 +285,9 @@ void CQDlgRotation::_setDefaultValuesTransformationPart(bool alsoRadioButtons)
 
 void CQDlgRotation::_setValuesTransformationPart(bool alsoRadioButtons)
 {
-    ui->qqTransfAlpha->setText(tt::getAngleEString(true,rotAngles[0],4).c_str());
-    ui->qqTransfBeta->setText(tt::getAngleEString(true,rotAngles[1],4).c_str());
-    ui->qqTransfGamma->setText(tt::getAngleEString(true,rotAngles[2],4).c_str());
+    ui->qqTransfAlpha->setText(utils::getAngleString(true,rotAngles[0]).c_str());
+    ui->qqTransfBeta->setText(utils::getAngleString(true,rotAngles[1]).c_str());
+    ui->qqTransfGamma->setText(utils::getAngleString(true,rotAngles[2]).c_str());
     if (alsoRadioButtons)
     {
         ui->qqTransfWorld->setChecked(transfMode==0);
@@ -364,7 +364,7 @@ C7Vector CQDlgRotation::_getNewTransf(const C7Vector& transf,double newValueInUs
 {
     C7Vector retVal(transf);
     C3Vector euler(retVal.Q.getEulerAngles());
-    euler(index)=newValueInUserUnit*gv::userToRad;
+    euler(index)=newValueInUserUnit*degToRad;
     retVal.Q.setEulerAngles(euler(0),euler(1),euler(2));
     return(retVal);
 }
@@ -655,7 +655,7 @@ void CQDlgRotation::on_qqTransfAlpha_editingFinished()
         double newVal=ui->qqTransfAlpha->text().toDouble(&ok);
         if (ok)
         {
-            newVal*=gv::userToRad;
+            newVal*=degToRad;
             newVal=fmod(newVal,piValT2);
             rotAngles[0]=newVal;
         }
@@ -673,7 +673,7 @@ void CQDlgRotation::on_qqTransfBeta_editingFinished()
         double newVal=ui->qqTransfBeta->text().toDouble(&ok);
         if (ok)
         {
-            newVal*=gv::userToRad;
+            newVal*=degToRad;
             newVal=fmod(newVal,piValT2);
             rotAngles[1]=newVal;
         }
@@ -691,7 +691,7 @@ void CQDlgRotation::on_qqTransfGamma_editingFinished()
         double newVal=ui->qqTransfGamma->text().toDouble(&ok);
         if (ok)
         {
-            newVal*=gv::userToRad;
+            newVal*=degToRad;
             newVal=fmod(newVal,piValT2);
             rotAngles[2]=newVal;
         }

@@ -24,12 +24,8 @@ See the GNU General Public License for more details.
 
 void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(proxSensor,renderingObject,displayAttrib);
-
-    // Display the bounding box:
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(proxSensor,displayAttrib,true,0.0);
+    // At the beginning of every scene object display routine:
+    _commonStart(proxSensor,renderingObject);
 
     C3Vector normalVectorForLinesAndPoints(proxSensor->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -108,7 +104,7 @@ void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObje
         _disableAuxClippingPlanes();
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(proxSensor,renderingObject);
 }
 

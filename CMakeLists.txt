@@ -592,7 +592,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/geometricAlgorithms/edgeElement.cpp
     sourceCode/geometricAlgorithms/algos.cpp
 
-    sourceCode/various/gV.cpp
     sourceCode/various/memorizedConf_old.cpp
     sourceCode/various/userSettings.cpp
     sourceCode/various/folderSystem.cpp
@@ -646,7 +645,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/visual/thumbnail.cpp
 
     sourceCode/utils/threadPool_old.cpp
-    sourceCode/utils/ttUtil.cpp
+    sourceCode/utils/utils.cpp
     sourceCode/utils/tt.cpp
     sourceCode/utils/confReaderAndWriter.cpp
     sourceCode/utils/base64.cpp

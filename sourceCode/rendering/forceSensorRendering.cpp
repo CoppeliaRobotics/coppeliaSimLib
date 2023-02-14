@@ -24,12 +24,8 @@ See the GNU General Public License for more details.
 
 void displayForceSensor(CForceSensor* forceSensor,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(forceSensor,renderingObject,displayAttrib);
-
-    // Bounding box display:
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(forceSensor,displayAttrib,true,forceSensor->getForceSensorSize());
+    // At the beginning of every scene object display routine:
+    _commonStart(forceSensor,renderingObject);
 
     // Object display:
     if (forceSensor->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
@@ -48,7 +44,7 @@ void displayForceSensor(CForceSensor* forceSensor,CViewableBase* renderingObject
         _disableAuxClippingPlanes();
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(forceSensor,renderingObject);
 }
 
@@ -79,8 +75,6 @@ void _displayForceSensor(CForceSensor* forceSensor,int displayAttrib,bool partOn
         glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
         ogl::drawCylinder(forceSensor->getForceSensorSize()/5.0,forceSensor->getForceSensorSize(),16,0,true);
-        if (displayAttrib&sim_displayattribute_selected)
-            _drawReference(forceSensor,sizeParam);
     }
     glPopAttrib();
     glPopMatrix();

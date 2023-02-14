@@ -1,7 +1,7 @@
 #include <qdlgcolorpulsation.h>
 #include <ui_qdlgcolorpulsation.h>
-#include <gV.h>
 #include <tt.h>
+#include <utils.h>
 #include <app.h>
 
 CQDlgColorPulsation::CQDlgColorPulsation(QWidget *parent) :
@@ -37,9 +37,9 @@ void CQDlgColorPulsation::refresh()
 
     ui->qqRealTime->setChecked(pulsationRealTime);
     ui->qqSimulationTime->setChecked(!pulsationRealTime);
-    ui->qqFrequency->setText(tt::getFString(false,pulsationFrequency,3).c_str());
-    ui->qqPhase->setText(tt::getFString(false,pulsationPhase,3).c_str());
-    ui->qqRatio->setText(tt::getFString(false,pulsationRatio,3).c_str());
+    ui->qqFrequency->setText(utils::get0To1String(false,pulsationFrequency).c_str());
+    ui->qqPhase->setText(utils::get0To1String(false,pulsationPhase).c_str());
+    ui->qqRatio->setText(utils::get0To1String(false,pulsationRatio).c_str());
 }
 
 void CQDlgColorPulsation::on_qqEnablePulsation_clicked()

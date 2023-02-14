@@ -1,8 +1,7 @@
 #include <qdlgdependencyequation.h>
 #include <ui_qdlgdependencyequation.h>
-#include <gV.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <app.h>
 #include <simStrings.h>
 
@@ -44,8 +43,8 @@ void CQDlgDependencyEquation::refresh()
 
     if (it!=nullptr)
     {
-        ui->qqOffset->setText(CTTUtil::getPosString(true,it->getDependencyJointOffset()).c_str());
-        ui->qqCoeff->setText(CTTUtil::getMultString(true,it->getDependencyJointMult()).c_str());
+        ui->qqOffset->setText(utils::getPosString(true,it->getDependencyJointOffset()).c_str());
+        ui->qqCoeff->setText(utils::getMultString(true,it->getDependencyJointMult()).c_str());
 
         ui->qqCombo->addItem(IDSN_NONE,QVariant(-1));
 

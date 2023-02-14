@@ -2,7 +2,7 @@
 #include <ui_qdlgsimulation.h>
 #include <app.h>
 #include <tt.h>
-#include <gV.h>
+#include <utils.h>
 #include <simStrings.h>
 
 CQDlgSimulation::CQDlgSimulation(QWidget *parent) :
@@ -46,16 +46,16 @@ void CQDlgSimulation::refresh()
     ui->qqGravityZ->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
 
     ui->qqRealTime->setChecked(App::currentWorld->simulation->getIsRealTimeSimulation());
-    ui->qqTimeStep->setText(tt::getDString(false,double(App::currentWorld->simulation->getTimeStep()),4).c_str());
+    ui->qqTimeStep->setText(utils::getTimeString(true,App::currentWorld->simulation->getTimeStep()).c_str());
     ui->qqFullscreen->setChecked(App::currentWorld->simulation->getFullscreenAtSimulationStart());
 
-    ui->qqScriptExecutionPasses->setText(tt::getIString(false,App::currentWorld->simulation->getPassesPerRendering()).c_str());
-    ui->qqMultiplicationCoefficient->setText(tt::getDString(false,App::currentWorld->simulation->getRealTimeCoeff(),2).c_str());
+    ui->qqScriptExecutionPasses->setText(utils::getIntString(false,App::currentWorld->simulation->getPassesPerRendering()).c_str());
+    ui->qqMultiplicationCoefficient->setText(utils::getMultString(false,App::currentWorld->simulation->getRealTimeCoeff()).c_str());
 
     ui->qqResetScene->setChecked(App::currentWorld->simulation->getResetSceneAtSimulationEnd());
     ui->qqRemoveNewObjects->setChecked(App::currentWorld->simulation->getRemoveNewObjectsAtSimulationEnd());
 
-    ui->qqPauseTime->setText(tt::getDString(false,double(App::currentWorld->simulation->getPauseTime()),2).c_str());
+    ui->qqPauseTime->setText(utils::getTimeString(true,App::currentWorld->simulation->getPauseTime()).c_str());
     ui->qqPauseWhenTimeHigher->setChecked(App::currentWorld->simulation->getPauseAtSpecificTime());
     ui->qqPauseOnScriptError->setChecked(App::currentWorld->simulation->getPauseAtError());
 
@@ -94,13 +94,13 @@ void CQDlgSimulation::refresh()
         ui->qqEngineCombo->setCurrentIndex(5);
     if (eng==sim_physics_physx)
         ui->qqEngineCombo->setCurrentIndex(6);
-    ui->qqDynamicsDtLabel->setText((std::string("Dynamics dt (effective dt=")+tt::getDString(false,double(App::currentWorld->dynamicsContainer->getEffectiveStepSize())*1000.0,1)+"ms)").c_str());
-    ui->qqDynTimeStep->setText(tt::getDString(false,double(App::currentWorld->dynamicsContainer->getDesiredStepSize()),4).c_str());
+    ui->qqDynamicsDtLabel->setText((std::string("Dynamics dt (effective dt=")+utils::getDoubleString(false,App::currentWorld->dynamicsContainer->getEffectiveStepSize()*1000.0,1,3)+"ms)").c_str());
+    ui->qqDynTimeStep->setText(utils::getTimeString(true,App::currentWorld->dynamicsContainer->getDesiredStepSize()).c_str());
     ui->qqContactPoints->setChecked(App::currentWorld->dynamicsContainer->getDisplayContactPoints());
     C3Vector accel(App::currentWorld->dynamicsContainer->getGravity());
-    ui->qqGravityX->setText(tt::getDString(true,accel(0),2).c_str());
-    ui->qqGravityY->setText(tt::getDString(true,accel(1),2).c_str());
-    ui->qqGravityZ->setText(tt::getDString(true,accel(2),2).c_str());
+    ui->qqGravityX->setText(utils::getGravityString(true,accel(0)).c_str());
+    ui->qqGravityY->setText(utils::getGravityString(true,accel(1)).c_str());
+    ui->qqGravityZ->setText(utils::getGravityString(true,accel(2)).c_str());
 
     selectLineEdit(lineEditToSelect);
     inMainRefreshRoutine=false;

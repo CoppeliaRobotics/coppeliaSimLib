@@ -1,7 +1,7 @@
 #include <world.h>
 #include <pluginContainer.h>
 #include <mesh.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <tt.h>
 #include <app.h>
 #include <simFlavor.h>
@@ -1034,7 +1034,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         if (script!=nullptr)
             newTxt=script->getShortDescriptiveName();
         std::string msg(_loadOperationIssues[i].message);
-        CTTUtil::replaceSubstring(msg,"@@REPLACE@@",newTxt.c_str());
+        utils::replaceSubstring(msg,"@@REPLACE@@",newTxt.c_str());
         App::logMsg(_loadOperationIssues[i].verbosity,msg.c_str());
     }
     appendLoadOperationIssue(-1,nullptr,-1); // clears it

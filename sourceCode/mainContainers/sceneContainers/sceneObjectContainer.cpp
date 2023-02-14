@@ -4,7 +4,7 @@
 #include <sceneObjectOperations.h>
 #include <fileOperations.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <pluginContainer.h>
 #include <mesh.h>
 #include <sstream>
@@ -2100,7 +2100,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         if ( CPluginContainer::isAssimpPluginAvailable()&&(!ar.xmlSaveDataInline(geom->getVerticesForDisplayAndDisk()->size()+geom->getIndices()->size()*4)) )
         {
             int shapeHandle=shape->getObjectHandle();
-            std::string filename(ar.getFilenameBase()+"_mesh_"+originalShapeName+tt::FNb(ar.getIncrementCounter())+".dae");
+            std::string filename(ar.getFilenameBase()+"_mesh_"+originalShapeName+utils::getIntString(false,ar.getIncrementCounter())+".dae");
             bool wireframe=shape->getShapeWireframe_OLD();
             if (wireframe)
                 shape->setShapeWireframe_OLD(false); // The Assimp plugin will ignore wireframe shapes and not write them!!

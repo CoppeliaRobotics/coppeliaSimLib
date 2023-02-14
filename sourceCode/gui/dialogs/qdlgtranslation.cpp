@@ -1,8 +1,7 @@
 #include <qdlgtranslation.h>
 #include <ui_qdlgtranslation.h>
-#include <gV.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <app.h>
 #include <simStrings.h>
 
@@ -69,9 +68,9 @@ void CQDlgTranslation::refresh()
                 euler=object->getLocalTransformation().Q.getEulerAngles();
                 pos=object->getLocalTransformation().X;
             }
-            ui->qqCoordX->setText(CTTUtil::getPosString(true,pos(0)).c_str());
-            ui->qqCoordY->setText(CTTUtil::getPosString(true,pos(1)).c_str());
-            ui->qqCoordZ->setText(CTTUtil::getPosString(true,pos(2)).c_str());
+            ui->qqCoordX->setText(utils::getPosString(true,pos(0)).c_str());
+            ui->qqCoordY->setText(utils::getPosString(true,pos(1)).c_str());
+            ui->qqCoordZ->setText(utils::getPosString(true,pos(2)).c_str());
             ui->qqCoordWorld->setChecked(coordMode==0);
             ui->qqCoordParent->setChecked(coordMode==1);
             // Transformation part:
@@ -114,15 +113,15 @@ void CQDlgTranslation::refresh()
             ui->qqPosCombo->addItem(IDS_MANIP_NONE,QVariant(-1));
             ui->qqPosCombo->addItem(IDS_DEFAULT,QVariant(0));
 
-            ui->qqPosCombo->addItem(tt::getFString(false,0.001,3).c_str(),QVariant(1));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.002,3).c_str(),QVariant(2));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.005,3).c_str(),QVariant(5));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.01,3).c_str(),QVariant(10));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.025,3).c_str(),QVariant(25));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.05,3).c_str(),QVariant(50));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.1,3).c_str(),QVariant(100));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.25,3).c_str(),QVariant(250));
-            ui->qqPosCombo->addItem(tt::getFString(false,0.5,3).c_str(),QVariant(500));
+            ui->qqPosCombo->addItem(utils::getSizeString(false,0.001).c_str(),QVariant(1));
+            ui->qqPosCombo->addItem(utils::getSizeString(false,0.002).c_str(),QVariant(2));
+            ui->qqPosCombo->addItem(utils::getSizeString(false,0.005).c_str(),QVariant(5));
+            ui->qqPosCombo->addItem(utils::getSizeString(false,0.01).c_str(),QVariant(10));
+            ui->qqPosCombo->addItem(utils::getSizeString(false,0.025).c_str(),QVariant(25));
+            ui->qqPosCombo->addItem(utils::getSizeString(false,0.05).c_str(),QVariant(50));
+            ui->qqPosCombo->addItem(utils::getSizeString(false,0.1).c_str(),QVariant(100));
+            ui->qqPosCombo->addItem(utils::getSizeString(false,0.25).c_str(),QVariant(250));
+            ui->qqPosCombo->addItem(utils::getSizeString(false,0.5).c_str(),QVariant(500));
 
             if (App::currentWorld->simulation->isSimulationStopped())
             {
@@ -199,9 +198,9 @@ void CQDlgTranslation::refresh()
                     C3Vector pos(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
                     if (coordMode==0)
                         pos=shape->getFullCumulativeTransformation()*pos;
-                    ui->qqCoordX->setText(CTTUtil::getPosString(true,pos(0)).c_str());
-                    ui->qqCoordY->setText(CTTUtil::getPosString(true,pos(1)).c_str());
-                    ui->qqCoordZ->setText(CTTUtil::getPosString(true,pos(2)).c_str());
+                    ui->qqCoordX->setText(utils::getPosString(true,pos(0)).c_str());
+                    ui->qqCoordY->setText(utils::getPosString(true,pos(1)).c_str());
+                    ui->qqCoordZ->setText(utils::getPosString(true,pos(2)).c_str());
                     ui->qqCoordWorld->setChecked(coordMode==0);
                     ui->qqCoordParent->setChecked(coordMode==1);
                     // Transformation part:
@@ -235,9 +234,9 @@ void CQDlgTranslation::refresh()
                         if (coordMode==0)
                             tr=path->getFullCumulativeTransformation()*tr;
                         C3Vector euler(tr.Q.getEulerAngles());
-                        ui->qqCoordX->setText(CTTUtil::getPosString(true,tr.X(0)).c_str());
-                        ui->qqCoordY->setText(CTTUtil::getPosString(true,tr.X(1)).c_str());
-                        ui->qqCoordZ->setText(CTTUtil::getPosString(true,tr.X(2)).c_str());
+                        ui->qqCoordX->setText(utils::getPosString(true,tr.X(0)).c_str());
+                        ui->qqCoordY->setText(utils::getPosString(true,tr.X(1)).c_str());
+                        ui->qqCoordZ->setText(utils::getPosString(true,tr.X(2)).c_str());
                         ui->qqCoordWorld->setChecked(coordMode==0);
                         ui->qqCoordParent->setChecked(coordMode==1);
                         // Transformation part:
@@ -351,9 +350,9 @@ void CQDlgTranslation::_setDefaultValuesScalingPart(bool alsoRadioButtons)
 
 void CQDlgTranslation::_setValuesTranslationPart(bool alsoRadioButtons)
 {
-    ui->qqTransfX->setText(CTTUtil::getPosString(true,translationValues[0]).c_str());
-    ui->qqTransfY->setText(CTTUtil::getPosString(true,translationValues[1]).c_str());
-    ui->qqTransfZ->setText(CTTUtil::getPosString(true,translationValues[2]).c_str());
+    ui->qqTransfX->setText(utils::getPosString(true,translationValues[0]).c_str());
+    ui->qqTransfY->setText(utils::getPosString(true,translationValues[1]).c_str());
+    ui->qqTransfZ->setText(utils::getPosString(true,translationValues[2]).c_str());
     if (alsoRadioButtons)
     {
         ui->qqTransfWorld->setChecked(translateMode==0);
@@ -364,9 +363,9 @@ void CQDlgTranslation::_setValuesTranslationPart(bool alsoRadioButtons)
 
 void CQDlgTranslation::_setValuesScalingPart(bool alsoRadioButtons)
 {
-    ui->qqTransfSX->setText(CTTUtil::getMultString(true,scalingValues[0]).c_str());
-    ui->qqTransfSY->setText(CTTUtil::getMultString(true,scalingValues[1]).c_str());
-    ui->qqTransfSZ->setText(CTTUtil::getMultString(true,scalingValues[2]).c_str());
+    ui->qqTransfSX->setText(utils::getMultString(true,scalingValues[0]).c_str());
+    ui->qqTransfSY->setText(utils::getMultString(true,scalingValues[1]).c_str());
+    ui->qqTransfSZ->setText(utils::getMultString(true,scalingValues[2]).c_str());
     if (alsoRadioButtons)
     {
         ui->qqScaleWorld->setChecked(scaleMode==0);

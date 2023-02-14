@@ -1,6 +1,6 @@
 #include <simInternal.h>
 #include <simStrings.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <dummy.h>
 #include <global.h>
 #include <easyLock.h>
@@ -670,7 +670,7 @@ void CDummy::serialize(CSer& ar)
             }
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-                CTTUtil::scaleColorUp_(_dummyColor.getColorsPtr());
+                utils::scaleColorUp_(_dummyColor.getColorsPtr());
             }
             computeBoundingBox();
         }

@@ -1,7 +1,7 @@
 #include <qdlgproximitysensors.h>
 #include <ui_qdlgproximitysensors.h>
 #include <tt.h>
-#include <gV.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <qdlgproxsensdetectionparam.h>
 #include <qdlgdetectionvolume.h>
@@ -65,7 +65,7 @@ void CQDlgProximitySensors::refresh()
     ui->qqSubtype->setVisible(App::userSettings->showOldDlgs);
     if (isSensor)
     {
-        ui->qqPointSize->setText(tt::getFString(false,it->getProxSensorSize(),3).c_str());
+        ui->qqPointSize->setText(utils::getSizeString(false,it->getProxSensorSize()).c_str());
 
         ui->qqSensorTypeCombo->addItem(IDS_DETECTABLE_ULTRASONIC,QVariant(sim_objectspecialproperty_detectable_ultrasonic));
         ui->qqSensorTypeCombo->addItem(IDS_DETECTABLE_INFRARED,QVariant(sim_objectspecialproperty_detectable_infrared));

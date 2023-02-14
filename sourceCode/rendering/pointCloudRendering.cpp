@@ -25,14 +25,12 @@ See the GNU General Public License for more details.
 
 void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,int displayAttrib)
 {
-    // At the beginning of every 3DObject display routine:
-    _commonStart(pointCloud,renderingObject,displayAttrib);
+    // At the beginning of every scene object display routine:
+    _commonStart(pointCloud,renderingObject);
 
     C3Vector mmaDim,mmiDim;
     pointCloud->getBoundingBox(mmiDim,mmaDim);
     C3Vector d(mmaDim-mmiDim);
-    if (displayAttrib&sim_displayattribute_renderpass)
-        _displayBoundingBox(pointCloud,displayAttrib,true,cbrt(d(0)*d(1)*d(2))*0.6);
 
     C3Vector normalVectorForLinesAndPoints(pointCloud->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
@@ -55,12 +53,6 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
             glEnable(GL_CULL_FACE);
 
         _enableAuxClippingPlanes(pointCloud->getObjectHandle());
-//      if ((displayAttrib&sim_displayattribute_selected)!=0)
-//          ogl::drawReference(size*1.2,true,true,false,normalVectorForLinesAndPoints.data);
-//      ogl::setMaterialColor(0.0,0.0,0.0,0.5,0.5,0.5,0.0,0.0,0.0);
-//      color.makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-//      ogl::drawBox(size,size,size,false,normalVectorForLinesAndPoints.data);
-//      ogl::drawSphere(size/2.0,12,6,false);
 
         std::vector<double>& _points=pointCloud->getPoints()[0];
         if (_points.size()>0)
@@ -175,7 +167,7 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
         _disableAuxClippingPlanes();
     }
 
-    // At the end of every 3DObject display routine:
+    // At the end of every scene object display routine:
     _commonFinish(pointCloud,renderingObject);
 }
 

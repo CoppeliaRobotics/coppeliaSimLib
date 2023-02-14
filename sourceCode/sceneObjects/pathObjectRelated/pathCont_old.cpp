@@ -1,6 +1,6 @@
 #include <pathCont_old.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <simInternal.h>
 #include <meshRoutines.h>
 #include <linMotionRoutines.h>
@@ -882,12 +882,12 @@ void CPathCont_old::copyPointsToClipboard()
     {
         C7Vector tr(_simplePathPoints[i]->getTransformation());
         for (size_t j=0;j<3;j++)
-            txt+=CTTUtil::getDoubleEString(false,tr(j))+",";
+            txt+=utils::getDoubleEString(false,tr(j))+",";
         double q[4];
         tr.Q.getData(q,true);
         for (size_t j=0;j<4;j++)
         {
-            txt+=CTTUtil::getDoubleEString(false,q[j]);
+            txt+=utils::getDoubleEString(false,q[j]);
             if ( (j<3)||(i<_simplePathPoints.size()-1) )
                 txt+=",";
         }
@@ -900,12 +900,12 @@ void CPathCont_old::copyPointsToClipboard()
     {
         C7Vector tr(_bezierPathPoints[i]->getTransformation());
         for (size_t j=0;j<3;j++)
-            txt+=CTTUtil::getDoubleEString(false,tr(j))+",";
+            txt+=utils::getDoubleEString(false,tr(j))+",";
         double q[4];
         tr.Q.getData(q,true);
         for (size_t j=0;j<4;j++)
         {
-            txt+=CTTUtil::getDoubleEString(false,q[j]);
+            txt+=utils::getDoubleEString(false,q[j]);
             if ( (j<3)||(i<_bezierPathPoints.size()-1) )
                 txt+=",";
         }
@@ -916,7 +916,7 @@ void CPathCont_old::copyPointsToClipboard()
     txt="virtualDistances={";
     for (size_t i=0;i<_bezierPathPoints.size();i++)
     {
-        txt+=CTTUtil::getDoubleEString(false,_bezierPathPoints[i]->getOnSpotDistance());
+        txt+=utils::getDoubleEString(false,_bezierPathPoints[i]->getOnSpotDistance());
         if (i<_bezierPathPoints.size()-1)
             txt+=",";
     }
@@ -926,7 +926,7 @@ void CPathCont_old::copyPointsToClipboard()
     txt="auxFlags={";
     for (size_t i=0;i<_bezierPathPoints.size();i++)
     {
-        txt+=tt::getIString(false,_bezierPathPoints[i]->getAuxFlags());
+        txt+=utils::getIntString(false,_bezierPathPoints[i]->getAuxFlags());
         if (i<_bezierPathPoints.size()-1)
             txt+=",";
     }
@@ -941,7 +941,7 @@ void CPathCont_old::copyPointsToClipboard()
         _bezierPathPoints[i]->getAuxChannels(c);
         for (size_t j=0;j<4;j++)
         {
-            txt+=CTTUtil::getDoubleEString(false,c[j]);
+            txt+=utils::getDoubleEString(false,c[j]);
             if ( (j<3)||(i<_bezierPathPoints.size()-1) )
                 txt+=",";
         }
@@ -962,12 +962,12 @@ void CPathCont_old::createEquivalent(int pathHandle)
     {
         C7Vector tr(_simplePathPoints[i]->getTransformation());
         for (size_t j=0;j<3;j++)
-            txt+=CTTUtil::getDoubleEString(false,tr(j))+",";
+            txt+=utils::getDoubleEString(false,tr(j))+",";
         double q[4];
         tr.Q.getData(q,true);
         for (size_t j=0;j<4;j++)
         {
-            txt+=CTTUtil::getDoubleEString(false,q[j]);
+            txt+=utils::getDoubleEString(false,q[j]);
             if ( (j<3)||(i<_simplePathPoints.size()-1) )
                 txt+=",";
         }
@@ -2428,7 +2428,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
                     C4Vector axis=ptCont[i]->getTransformation().Q.getAngleAndAxis();
                     glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
                     glLoadName(i);
-                    ogl::drawReference(squareSize*2.0,true,true,true,nullptr);
+                    ogl::drawReference(squareSize*2.0);
                     glPopMatrix();
                 }
             }
@@ -2471,7 +2471,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
                 else
                     ogl::drawBox(squareSize,squareSize,squareSize,true,nullptr);
                 if (showOrientation)
-                    ogl::drawReference(squareSize*2.0,true,true,true,nullptr);
+                    ogl::drawReference(squareSize*2.0);
                 glPopMatrix();
             }
 
@@ -2488,7 +2488,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
                     glTranslated(trx(0),trx(1),trx(2));
                     C4Vector axis=ptCont[i]->getTransformation().Q.getAngleAndAxis();
                     glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
-                    ogl::drawReference(squareSize*2.0,true,true,true,nullptr);
+                    ogl::drawReference(squareSize*2.0);
                     glPopMatrix();
                 }
             }
@@ -2507,7 +2507,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
             glTranslated(trx(0),trx(1),trx(2));
             C4Vector axis=ptCont[i]->getTransformation().Q.getAngleAndAxis();
             glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
-            ogl::drawReference(squareSize*0.5,true,true,false,nullptr);
+            ogl::drawReference(squareSize*0.5);
             glPopMatrix();
         }
     }

@@ -1,13 +1,12 @@
 #include <qdlgdistances.h>
 #include <ui_qdlgdistances.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <QShortcut>
 #include <qdlgentityvsentityselection.h>
 #include <editboxdelegate.h>
 #include <qdlgmaterial.h>
 #include <app.h>
-#include <gV.h>
 
 CQDlgDistances::CQDlgDistances(QWidget *parent) :
     CDlgEx(parent),
@@ -71,9 +70,9 @@ void CQDlgDistances::refresh()
     {
         ui->qqExplicitHandling->setChecked(it->getExplicitHandling());
         ui->qqUseThreshold->setChecked(it->getTreshholdEnabled());
-        ui->qqThreshold->setText(CTTUtil::getSizeString(false,it->getTreshhold()).c_str());
+        ui->qqThreshold->setText(utils::getSizeString(false,it->getTreshhold()).c_str());
         ui->qqDisplaySegment->setChecked(it->getDisplaySegment());
-        ui->qqSegmentWidth->setText(tt::getIString(false,it->getSegmentWidth()).c_str());
+        ui->qqSegmentWidth->setText(utils::getIntString(false,it->getSegmentWidth()).c_str());
     }
     else
     {

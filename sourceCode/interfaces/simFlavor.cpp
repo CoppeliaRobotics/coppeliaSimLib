@@ -2,7 +2,7 @@
 #include <simFlavor.h>
 #include <app.h>
 #include <simLib/simConst.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <ser.h>
 #include <simStringTable.h>
 #include <boost/format.hpp>

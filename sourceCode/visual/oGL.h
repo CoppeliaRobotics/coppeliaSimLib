@@ -124,7 +124,7 @@ public:
     static void drawCone(double d,double l,int div,bool openEnds,bool smooth);
     static void drawSphere(double r,int sides,int faces,bool smooth);
 
-    static void drawReference(double size,bool line,bool setColors,bool emissiveColor,const double normalVectorForDiffuseComp[3]);
+    static void drawReference(double size);
 
     static void perspectiveSpecial(double fovy,double aspect,double zNear,double zFar);
     static void _frustumSpecial(double left,double right,double bottom,double top,double nearval,double farval);

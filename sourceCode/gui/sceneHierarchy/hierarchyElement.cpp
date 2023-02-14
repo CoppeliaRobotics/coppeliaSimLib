@@ -6,6 +6,7 @@
 #include <imgLoaderSaver.h>
 #include <app.h>
 #include <tt.h>
+#include <utils.h>
 #include <mesh.h>
 #include <boost/lexical_cast.hpp>
 
@@ -130,7 +131,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier,int labelEdit
     else
     {
         theText+=_sceneName;
-        theText+=tt::decorateString(" (scene ",tt::FNb(-objectID),")");
+        theText+=tt::decorateString(" (scene ",utils::getIntString(false,-objectID),")");
     }
 
 

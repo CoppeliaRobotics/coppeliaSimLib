@@ -1,12 +1,11 @@
 #include <simInternal.h>
 #include <graph.h>
 #include <tt.h>
-#include <gV.h>
 #include <graphingRoutines_old.h>
 #include <simStrings.h>
 #include <boost/lexical_cast.hpp>
 #include <vVarious.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <easyLock.h>
 #include <app.h>
 #include <graphRendering.h>
@@ -984,13 +983,13 @@ void CGraph::exportGraphData(VArchive &ar)
         while (getAbsIndexOfPosition(pos,absIndex))
         {
             double time=times[absIndex];
-            txt+=tt::getFString(false,time,5);
+            txt+=utils::getDoubleString(false,time,3,6,0.0001);
             for (size_t i=0;i<_dataStreams.size();i++)
             {
                 txt+=",";
                 double val;
                 if (_dataStreams[i]->getExportValue(startingPoint,pos,&val,nullptr))
-                    txt+=CTTUtil::getDoubleEString(true,val);
+                    txt+=utils::getDoubleEString(true,val);
                 else
                     txt+="Null";
             }
@@ -1006,7 +1005,7 @@ void CGraph::exportGraphData(VArchive &ar)
                 double val;
                 bool dataIsValid=getData(gr,absIndex,val,cyclic,range,true);
                 if (dataIsValid)
-                    txt+=CTTUtil::getDoubleEString(true,val);
+                    txt+=utils::getDoubleEString(true,val);
                 else
                     txt+="Null";
             }
@@ -2283,7 +2282,7 @@ void CGraph::serialize(CSer& ar)
             }
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-                CTTUtil::scaleColorUp_(color.getColorsPtr());
+                utils::scaleColorUp_(color.getColorsPtr());
             }
 
             if (CSimFlavor::getBoolVal(18))
@@ -2683,7 +2682,7 @@ void CGraph::drawGrid(int windowSize[2],double graphPosition[2],double graphSize
         std::string tmp;
         for (int i=0;i<60;i++)
         {
-            tmp=gv::getTimeStr(gridStartX+gridSpacingX*i);
+            tmp=utils::getTimeString(true,gridStartX+gridSpacingX*i);
             ogl::drawBitmapTextTo2dPosition(gridStartX+gridSpacingX*i,labelPos[1],tmp.c_str());
             int d=0;
             if (fabs(gridSpacingY)>0.0)
@@ -2692,7 +2691,7 @@ void CGraph::drawGrid(int windowSize[2],double graphPosition[2],double graphSize
                 d=int(1.5-l);
                 if (d<0)
                     d=0;
-                tmp=tt::FNb(0,gridStartY+gridSpacingY*i,d,false);
+                tmp=utils::getDoubleString(false,gridStartY+gridSpacingY*i,d,d);
                 ogl::drawBitmapTextTo2dPosition(labelPos[0],gridStartY+gridSpacingY*i,tmp.c_str());
             }
         }
@@ -3304,8 +3303,8 @@ void CGraph::drawValues(int windowSize[2],double graphPosition[2],double graphSi
                     if (!trackingValueIsStatic)
                     {
                         CGraphData_old* it=dataStreams_old[trackingValueIndex];
-                        tmp=" ("+tt::getEString(false,trackingValue[0],5)+" ; ";
-                        tmp+=CTTUtil::getDoubleEString(true,trackingValue[1])+")";
+                        tmp=" ("+utils::getDoubleEString(false,trackingValue[0])+" ; ";
+                        tmp+=utils::getDoubleEString(true,trackingValue[1])+")";
                         tmp=it->getName()+tmp;
                         double l0=r[0]*2.5;
                         if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5)
@@ -3321,8 +3320,8 @@ void CGraph::drawValues(int windowSize[2],double graphPosition[2],double graphSi
                     else
                     { // Tracking a static curve here!
                         CStaticGraphCurve_old* it=staticStreamsAndCurves_old[trackingValueIndex];
-                        tmp=" [STATIC] ("+CTTUtil::getDoubleEString(false,trackingValue[0])+" ; ";
-                        tmp+=CTTUtil::getDoubleEString(false,trackingValue[1])+")";
+                        tmp=" [STATIC] ("+utils::getDoubleEString(false,trackingValue[0])+" ; ";
+                        tmp+=utils::getDoubleEString(false,trackingValue[1])+")";
                         tmp=it->getName()+tmp;
                         double l0=r[0]*2.5;
                         if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5)
@@ -3339,8 +3338,8 @@ void CGraph::drawValues(int windowSize[2],double graphPosition[2],double graphSi
                     if (!trackingValueIsStatic)
                     {
                         CGraphDataComb_old* it=curves2d_old[trackingValueIndex];
-                        tmp=" ("+CTTUtil::getDoubleEString(false,trackingValue[0])+" ; ";
-                        tmp+=CTTUtil::getDoubleEString(false,trackingValue[1])+")";
+                        tmp=" ("+utils::getDoubleEString(false,trackingValue[0])+" ; ";
+                        tmp+=utils::getDoubleEString(false,trackingValue[1])+")";
                         tmp=it->getName()+tmp;
                         double l0=r[0]*2.5;
                         if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5)
@@ -3356,8 +3355,8 @@ void CGraph::drawValues(int windowSize[2],double graphPosition[2],double graphSi
                     else
                     { // tracking a static curve here!
                         CStaticGraphCurve_old* it=staticStreamsAndCurves_old[trackingValueIndex];
-                        tmp=" [STATIC] ("+CTTUtil::getDoubleEString(false,trackingValue[0])+" ; ";
-                        tmp+=CTTUtil::getDoubleEString(false,trackingValue[1])+")";
+                        tmp=" [STATIC] ("+utils::getDoubleEString(false,trackingValue[0])+" ; ";
+                        tmp+=utils::getDoubleEString(false,trackingValue[1])+")";
                         tmp=it->getName()+tmp;
                         double l0=r[0]*2.5;
                         if (trackingValue[0]-graphPosition[0]>graphSize[0]*0.5)

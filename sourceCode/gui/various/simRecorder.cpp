@@ -1,6 +1,7 @@
 #include <simRecorder.h>
 #include <oGL.h>
 #include <tt.h>
+#include <utils.h>
 #include <QScreen>
 #include <QDesktopWidget>
 #include <imgLoaderSaver.h>
@@ -180,12 +181,12 @@ bool CSimRecorder::recordFrameIfNeeded(int resX,int resY,int posX,int posY)
                         _filenameAndPathAndExtension+="/recording_";
                         int year,month,day,hour,minute,second;
                         VDateTime::getYearMonthDayHourMinuteSecond(&year,&month,&day,&hour,&minute,&second);
-                        _filenameAndPathAndExtension+=tt::FNb(4,year,false)+"_";
-                        _filenameAndPathAndExtension+=tt::FNb(2,month,false)+"_";
-                        _filenameAndPathAndExtension+=tt::FNb(2,day,false)+"-";
-                        _filenameAndPathAndExtension+=tt::FNb(2,hour,false)+"_";
-                        _filenameAndPathAndExtension+=tt::FNb(2,minute,false)+"-";
-                        _filenameAndPathAndExtension+=tt::FNb(2,second,false);
+                        _filenameAndPathAndExtension+=utils::getIntString(false,year,4)+"_";
+                        _filenameAndPathAndExtension+=utils::getIntString(false,month,2)+"_";
+                        _filenameAndPathAndExtension+=utils::getIntString(false,day,2)+"-";
+                        _filenameAndPathAndExtension+=utils::getIntString(false,hour,2)+"_";
+                        _filenameAndPathAndExtension+=utils::getIntString(false,minute,2)+"-";
+                        _filenameAndPathAndExtension+=utils::getIntString(false,second,2);
                     }
 
                     if (strncmp(txt,"AVI/",4)==0)

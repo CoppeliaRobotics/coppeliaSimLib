@@ -1,6 +1,6 @@
 #include <confReaderAndWriter.h>
 #include <tt.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <vFile.h>
 #include <vArchive.h>
 #include <boost/lexical_cast.hpp>
@@ -26,7 +26,7 @@ bool CConfReaderAndWriter::readConfiguration(const char* filename)
             std::string line;
             while (archive.readSingleLine(actualPosition,line,false))
             {
-                CTTUtil::removeComments(line);
+                utils::removeComments(line);
                 size_t ePos=line.find('=');
                 if ( (ePos!=std::string::npos)&&(ePos>0)&&(ePos+1<line.length()) )
                 {

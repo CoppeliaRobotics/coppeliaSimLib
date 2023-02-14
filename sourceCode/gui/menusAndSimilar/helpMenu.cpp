@@ -8,7 +8,7 @@
 #include <tt.h>
 #include <app.h>
 #include <simStrings.h>
-#include <ttUtil.h>
+#include <utils.h>
 #include <vVarious.h>
 #include <qdlgabout.h>
 #include <QDesktopServices>

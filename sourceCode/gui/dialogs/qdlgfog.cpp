@@ -1,7 +1,7 @@
 #include <qdlgfog.h>
 #include <ui_qdlgfog.h>
-#include <gV.h>
 #include <tt.h>
+#include <utils.h>
 #include <qdlgcolor.h>
 #include <app.h>
 
@@ -41,12 +41,12 @@ void CQDlgFog::refresh()
     {
         ui->qqStartDistance->setText("");
         ui->qqEndDistance->setText("");
-        ui->qqDensity->setText(tt::getFString(false,App::currentWorld->environment->getFogDensity(),2).c_str());
+        ui->qqDensity->setText(utils::get0To1String(false,App::currentWorld->environment->getFogDensity()).c_str());
     }
     else
     {
-        ui->qqStartDistance->setText(tt::getFString(false,App::currentWorld->environment->getFogStart(),2).c_str());
-        ui->qqEndDistance->setText(tt::getFString(false,App::currentWorld->environment->getFogEnd(),2).c_str());
+        ui->qqStartDistance->setText(utils::getSizeString(false,App::currentWorld->environment->getFogStart()).c_str());
+        ui->qqEndDistance->setText(utils::getSizeString(false,App::currentWorld->environment->getFogEnd()).c_str());
         ui->qqDensity->setText("");
     }
 

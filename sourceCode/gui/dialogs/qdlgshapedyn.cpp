@@ -1,8 +1,7 @@
 #include <qdlgshapedyn.h>
 #include <ui_qdlgshapedyn.h>
 #include <tt.h>
-#include <ttUtil.h>
-#include <gV.h>
+#include <utils.h>
 #include <simStrings.h>
 #include <app.h>
 #include <qdlginertiatensor.h>
@@ -116,19 +115,19 @@ void CQDlgShapeDyn::refresh()
     ui->qqSleepModeStart->setChecked(sel&&it->getStartInDynamicSleeping());
     if (sel)
     {
-        ui->qqMass->setText(CTTUtil::getMassString(it->getMeshWrapper()->getMass()).c_str());
+        ui->qqMass->setText(utils::getMassString(it->getMeshWrapper()->getMass()).c_str());
         C3Vector v(it->getMeshWrapper()->getPrincipalMomentsOfInertia());
-        ui->qqIX->setText(CTTUtil::getMasslessTensorString(false,v(0)).c_str());
-        ui->qqIY->setText(CTTUtil::getMasslessTensorString(false,v(1)).c_str());
-        ui->qqIZ->setText(CTTUtil::getMasslessTensorString(false,v(2)).c_str());
+        ui->qqIX->setText(utils::getMasslessTensorString(false,v(0)).c_str());
+        ui->qqIY->setText(utils::getMasslessTensorString(false,v(1)).c_str());
+        ui->qqIZ->setText(utils::getMasslessTensorString(false,v(2)).c_str());
         C4X4Matrix m(it->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
         C3Vector e(m.M.getEulerAngles());
-        ui->qqPX->setText(CTTUtil::getPosString(true,m.X(0)).c_str());
-        ui->qqPY->setText(CTTUtil::getPosString(true,m.X(1)).c_str());
-        ui->qqPZ->setText(CTTUtil::getPosString(true,m.X(2)).c_str());
-        ui->qqAlpha->setText(CTTUtil::getAngleString(true,e(0)).c_str());
-        ui->qqBeta->setText(CTTUtil::getAngleString(true,e(1)).c_str());
-        ui->qqGamma->setText(CTTUtil::getAngleString(true,e(2)).c_str());
+        ui->qqPX->setText(utils::getPosString(true,m.X(0)).c_str());
+        ui->qqPY->setText(utils::getPosString(true,m.X(1)).c_str());
+        ui->qqPZ->setText(utils::getPosString(true,m.X(2)).c_str());
+        ui->qqAlpha->setText(utils::getAngleString(true,e(0)).c_str());
+        ui->qqBeta->setText(utils::getAngleString(true,e(1)).c_str());
+        ui->qqGamma->setText(utils::getAngleString(true,e(2)).c_str());
     }
     else
     {
@@ -538,7 +537,7 @@ void CQDlgShapeDyn::on_qqAlpha_editingFinished()
         {
             C4X4Matrix m(shape->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
             C3Vector e(m.M.getEulerAngles());
-            e(0)=newVal*gv::userToRad;
+            e(0)=newVal*degToRad;
             m.M.setEulerAngles(e);
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
@@ -564,7 +563,7 @@ void CQDlgShapeDyn::on_qqBeta_editingFinished()
         {
             C4X4Matrix m(shape->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
             C3Vector e(m.M.getEulerAngles());
-            e(1)=newVal*gv::userToRad;
+            e(1)=newVal*degToRad;
             m.M.setEulerAngles(e);
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
@@ -590,7 +589,7 @@ void CQDlgShapeDyn::on_qqGamma_editingFinished()
         {
             C4X4Matrix m(shape->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
             C3Vector e(m.M.getEulerAngles());
-            e(2)=newVal*gv::userToRad;
+            e(2)=newVal*degToRad;
             m.M.setEulerAngles(e);
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;

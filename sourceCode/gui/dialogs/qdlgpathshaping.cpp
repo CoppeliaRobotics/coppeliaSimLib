@@ -1,7 +1,7 @@
 #include <qdlgpathshaping.h>
 #include <ui_qdlgpathshaping.h>
-#include <gV.h>
 #include <tt.h>
+#include <utils.h>
 #include <qdlgmaterial.h>
 #include <app.h>
 #include <simStrings.h>
@@ -67,8 +67,8 @@ void CQDlgPathShaping::refresh()
 
     if (it!=nullptr)
     {
-        ui->qqMaxLength->setText(tt::getFString(false,it->getShapingElementMaxLength(),3).c_str());
-        ui->qqScalingFactor->setText(tt::getFString(false,it->getShapingScaling(),3).c_str());
+        ui->qqMaxLength->setText(utils::getSizeString(false,it->getShapingElementMaxLength()).c_str());
+        ui->qqScalingFactor->setText(utils::getMultString(false,it->getShapingScaling()).c_str());
 
         ui->qqTypeCombo->addItem(IDS_SHAPING_CIRCLE,QVariant(1));
         ui->qqTypeCombo->addItem(IDS_SHAPING_SQUARE,QVariant(2));
@@ -89,15 +89,15 @@ void CQDlgPathShaping::refresh()
         std::string tmp;
         for (int i=0;i<int(it->shapingCoordinates.size())/2;i++)
         {
-            tmp+=tt::getFString(true,it->shapingCoordinates[2*i+0],3)+",";
+            tmp+=utils::getPosString(true,it->shapingCoordinates[2*i+0])+",";
             if (i<int(it->shapingCoordinates.size())/2-1)
             {
-                tmp+=tt::getFString(true,it->shapingCoordinates[2*i+1],3)+",";
+                tmp+=utils::getPosString(true,it->shapingCoordinates[2*i+1])+",";
                 tmp+=char(13);
                 tmp+=char(10);
             }
             else
-                tmp+=tt::getFString(true,it->shapingCoordinates[2*i+1],3);
+                tmp+=utils::getPosString(true,it->shapingCoordinates[2*i+1]);
         }
         ui->qqCoordinates->setPlainText(tmp.c_str());
 
