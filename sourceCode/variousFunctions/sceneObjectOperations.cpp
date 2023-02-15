@@ -2022,7 +2022,7 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
     static double maxConnectDist=30.0;
     static bool individuallyConsiderMultishapeComponents=false;
     static int maxIterations=4;
-    static bool useHACD=true;
+    static bool useHACD=false; // i.e. use V-HACD
     static int resolution=100000;
 // not present in newest VHACD   static int depth=20;
     static double concavity=0.0025;

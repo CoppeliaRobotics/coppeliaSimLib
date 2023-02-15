@@ -11,8 +11,7 @@ CQDlgConvexDecomposition::CQDlgConvexDecomposition(QWidget *parent) :
     // First set-up default values:
     individuallyConsiderMultishapeComponents=false;
     maxIterations=4;
-    useHACD=true;;
-
+    useHACD=false; // i.e. use V-HACD
     // HACD params:
     addExtraDistPoints=true;
     addFacesPoints=true;

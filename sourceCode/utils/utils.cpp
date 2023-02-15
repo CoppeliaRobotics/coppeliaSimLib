@@ -353,6 +353,8 @@ std::string utils::getDoubleString(bool sign,double num,int minDecimals,int maxD
             if (retVal[retVal.length()-1]=='0')
                 retVal.erase(retVal.length()-1,1);
         }
+        if (retVal[retVal.length()-1]=='.')
+            retVal.erase(retVal.length()-1,1);
         if ( (retVal[0]=='-')||(retVal[0]=='+') )
             retVal.erase(0,1);
         bool zero=true;
@@ -443,12 +445,12 @@ std::string utils::getForceTorqueString(bool sign,double num)
 
 std::string utils::getMassString(double num)
 {
-    return getDoubleString(false,num,2,6,0.00001,9999.0);
+    return getDoubleString(false,num,2,6);
 }
 
 std::string utils::getMasslessTensorString(bool sign,double num)
 {
-    return getDoubleString(sign,num,3,6,0.00001,9999.0);
+    return getDoubleString(sign,num,3,7);
 }
 
 std::string utils::getLinVelString(bool sign,double num)
