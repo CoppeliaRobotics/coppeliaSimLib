@@ -60,7 +60,7 @@ void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,int value,const char
 
 void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,double value,const char* annotation/*=nullptr*/)
 {
-    value=utils::getDoubleFromString(utils::getDoubleEString(false,value).c_str());
+    value=utils::getDoubleFromString(utils::getDoubleEString(false,value).c_str(),1e308);
     std::string l(_nbKey(key));
     jsonObj[l.c_str()]=value;
     _addAnnotation(l.c_str(),annotation);
@@ -70,7 +70,7 @@ void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,const double* v,size
 {
     QJsonArray arr;
     for (size_t i=0;i<cnt;i++)
-        arr.push_back(utils::getDoubleFromString(utils::getDoubleEString(false,v[i]).c_str()));
+        arr.push_back(utils::getDoubleFromString(utils::getDoubleEString(false,v[i]).c_str(),1e308));
     std::string l(_nbKey(key));
     jsonObj[l.c_str()]=arr;
     _addAnnotation(l.c_str(),annotation);

@@ -2311,8 +2311,12 @@ bool CScriptObject::_execScriptString(const char* scriptString,CInterfaceStack* 
     }
     if (loadBufferRes==0)
     {
-        int intTop=luaWrap_lua_gettop(L);
-        if (luaWrap_lua_pcall(L,0,luaWrapGet_LUA_MULTRET(),0)!=0)
+        luaWrap_lua_getglobal(L,"debug");
+        luaWrap_lua_getfield(L,-1,"traceback");
+        luaWrap_lua_remove(L,-2);
+        int errindex=-2;
+        luaWrap_lua_insert(L,errindex);
+        if (luaWrap_lua_pcall(L,0,luaWrapGet_LUA_MULTRET(),errindex)!=0)
         { // a runtime error occurred!
             std::string errMsg;
             if (luaWrap_lua_isstring(L,-1))

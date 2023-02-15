@@ -483,9 +483,26 @@ std::string utils::getAngJerkString(bool sign,double num)
     return getDoubleString(sign,num*radToDeg,2,4,0.001,9999.0);
 }
 
-double utils::getDoubleFromString(const char* str)
+double utils::getDoubleFromString(const char* str,double minMaxValue/*=0.0*/)
 {
-    return(std::stod(str));
+    double result;
+    std::stringstream ss(str);
+    ss >> result;
+    if (ss.fail()||ss.bad())
+    {
+        if (std::string(str).front()=='-')
+            result=-std::numeric_limits<double>::max();
+        else
+            result=std::numeric_limits<double>::max();
+    }
+    if (minMaxValue!=0.0)
+    {
+        if (result>minMaxValue)
+            result=minMaxValue;
+        if (result<-minMaxValue)
+            result=-minMaxValue;
+    }
+    return result;
 }
 
 std::string utils::getIntString(bool sign,int num,int minDigits/*=1*/)

@@ -53,7 +53,7 @@ public:
     static std::string getDoubleEString(bool sign,double num);
     static std::string getIntString(bool sign,int num,int minDigits=1);
 
-    static double getDoubleFromString(const char* str);
+    static double getDoubleFromString(const char* str,double minMaxValue=0.0);
 private:
 
 };
