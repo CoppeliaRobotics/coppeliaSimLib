@@ -10,6 +10,7 @@ public:
     CMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals);
     virtual ~CMesh();
 
+//    void printInfos() const;
     void display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
     void display_colorCoded(CShape* geomData,int objectId,int displayAttrib);
     void displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors);

@@ -2288,4 +2288,18 @@ bool CMesh::getNonCalculatedTextureCoordinates(std::vector<double>& texCoords)
     return(true);
 }
 #endif
+/*
+void CMesh::printInfos() const
+{
+    printf("M _verticeLocalFrame: %s, %s, %s, %s, %s, %s, %s\n",
+           utils::getPosString(false,_verticeLocalFrame.X(0)).c_str(),
+           utils::getPosString(false,_verticeLocalFrame.X(1)).c_str(),
+           utils::getPosString(false,_verticeLocalFrame.X(2)).c_str(),
+           utils::getPosString(false,_verticeLocalFrame.Q(0)).c_str(),
+           utils::getPosString(false,_verticeLocalFrame.Q(1)).c_str(),
+           utils::getPosString(false,_verticeLocalFrame.Q(2)).c_str(),
+           utils::getPosString(false,_verticeLocalFrame.Q(3)).c_str());
+    CMeshWrapper::printInfos();
+}
 
+*/

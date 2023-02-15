@@ -2,6 +2,7 @@
 #include <meshWrapper.h>
 #include <mesh.h>
 #include <tt.h>
+#include <utils.h>
 #include <global.h>
 #include <viewableBase.h>
 #include <app.h>
@@ -829,3 +830,27 @@ C3X3Matrix CMeshWrapper::getNewTensor(const C3Vector& principalMoments,const C7V
     tensor+=D;
     return(tensor);
 }
+/*
+void CMeshWrapper::printInfos() const
+{
+    printf("W: Transf. since grouping: %s, %s, %s, %s, %s, %s, %s\n",
+           utils::getPosString(false,_transformationsSinceGrouping.X(0)).c_str(),
+           utils::getPosString(false,_transformationsSinceGrouping.X(1)).c_str(),
+           utils::getPosString(false,_transformationsSinceGrouping.X(2)).c_str(),
+           utils::getPosString(false,_transformationsSinceGrouping.Q(0)).c_str(),
+           utils::getPosString(false,_transformationsSinceGrouping.Q(1)).c_str(),
+           utils::getPosString(false,_transformationsSinceGrouping.Q(2)).c_str(),
+           utils::getPosString(false,_transformationsSinceGrouping.Q(3)).c_str());
+    printf("W: localInertiaFrame: %s, %s, %s, %s, %s, %s, %s\n",
+           utils::getPosString(false,_localInertiaFrame.X(0)).c_str(),
+           utils::getPosString(false,_localInertiaFrame.X(1)).c_str(),
+           utils::getPosString(false,_localInertiaFrame.X(2)).c_str(),
+           utils::getPosString(false,_localInertiaFrame.Q(0)).c_str(),
+           utils::getPosString(false,_localInertiaFrame.Q(1)).c_str(),
+           utils::getPosString(false,_localInertiaFrame.Q(2)).c_str(),
+           utils::getPosString(false,_localInertiaFrame.Q(3)).c_str());
+   for (size_t i=0;i<childList.size();i++)
+       childList[i]->printInfos();
+}
+
+*/

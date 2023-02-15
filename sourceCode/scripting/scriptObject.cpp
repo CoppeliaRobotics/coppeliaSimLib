@@ -2333,9 +2333,9 @@ bool CScriptObject::_execScriptString(const char* scriptString,CInterfaceStack* 
         {
             retVal=true;
             int currentTop=luaWrap_lua_gettop(L);
-            int numberOfArgs=currentTop-oldTop;
+            int numberOfArgs=currentTop-oldTop-1; // the first arg is linked to the debug mechanism
             if (outStack!=nullptr)
-                buildFromInterpreterStack_lua(L,outStack,currentTop-numberOfArgs+1,numberOfArgs);
+                buildFromInterpreterStack_lua(L,outStack,oldTop+1+1,numberOfArgs);
         }
     }
     else

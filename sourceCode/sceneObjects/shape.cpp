@@ -2195,6 +2195,9 @@ void CShape::display(CViewableBase* renderingObject,int displayAttrib)
 {
     EASYLOCK(_objectMutex);
     displayShape(this,renderingObject,displayAttrib);
+
+//    printf("-----------------------------\n");
+//    getMeshWrapper()->printInfos();
 }
 
 bool CShape::setParent(CSceneObject* newParent)

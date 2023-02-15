@@ -18,6 +18,8 @@ public:
     CMeshWrapper();
     virtual ~CMeshWrapper();
 
+//    virtual void printInfos() const;
+
     virtual void prepareVerticesIndicesNormalsAndEdgesForSerialization();
     virtual void performSceneObjectLoadingMapping(const std::map<int,int>* map);
     virtual void performTextureObjectLoadingMapping(const std::map<int,int>* map);
