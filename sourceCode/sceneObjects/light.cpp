@@ -99,6 +99,7 @@ void CLight::computeBoundingBox()
         maxV(1)=0.5*_lightSize;
         minV(2)=-0.5*_lightSize;
         maxV(2)=0.5*_lightSize;
+        _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_lightSize);
     }
     if (_lightType==sim_light_spot_subtype)
     {
@@ -108,6 +109,10 @@ void CLight::computeBoundingBox()
         maxV(1)=0.8*_lightSize;
         minV(2)=-1.5*_lightSize;
         maxV(2)=0.5*_lightSize;
+        C7Vector fr;
+        fr.Q.setIdentity();
+        fr.X=C3Vector(0.0,0.0,-0.5)*_lightSize;
+        _setBB(fr,C3Vector(1.6,1.6,2.0)*_lightSize);
     }
     if (_lightType==sim_light_directional_subtype)
     {
@@ -117,6 +122,7 @@ void CLight::computeBoundingBox()
         maxV(1)=_lightSize*0.5;
         minV(2)=-0.5*_lightSize;
         maxV(2)=0.5*_lightSize;
+        _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_lightSize);
     }
     _setBoundingBox(minV,maxV);
 }

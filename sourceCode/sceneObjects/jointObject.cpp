@@ -134,47 +134,47 @@ void CJoint::_commonInit()
     // ----------------------------------------------------
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_lowerlimitdamping
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_upperlimitdamping
-    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_lowerlimitstiffness
-    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_upperlimitstiffness
+    _vortexFloatParams.push_back(DBL_MAX); // simi_vortex_joint_lowerlimitstiffness
+    _vortexFloatParams.push_back(DBL_MAX); // simi_vortex_joint_upperlimitstiffness
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_lowerlimitrestitution
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_upperlimitrestitution
-    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_lowerlimitmaxforce
-    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_upperlimitmaxforce
+    _vortexFloatParams.push_back(DBL_MAX); // simi_vortex_joint_lowerlimitmaxforce
+    _vortexFloatParams.push_back(DBL_MAX); // simi_vortex_joint_upperlimitmaxforce
     _vortexFloatParams.push_back(0.001); // simi_vortex_joint_motorconstraintfrictioncoeff
     _vortexFloatParams.push_back(10.0); // simi_vortex_joint_motorconstraintfrictionmaxforce
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_motorconstraintfrictionloss
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p0loss
-    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_p0stiffness
+    _vortexFloatParams.push_back(DBL_MAX); // simi_vortex_joint_p0stiffness
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p0damping
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p0frictioncoeff
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p0frictionmaxforce
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p0frictionloss
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p1loss
-    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_p1stiffness
+    _vortexFloatParams.push_back(DBL_MAX); // simi_vortex_joint_p1stiffness
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p1damping
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p1frictioncoeff
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p1frictionmaxforce
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p1frictionloss
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p2loss
-    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_p2stiffness
+    _vortexFloatParams.push_back(DBL_MAX); // simi_vortex_joint_p2stiffness
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p2damping
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p2frictioncoeff
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p2frictionmaxforce
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_p2frictionloss
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a0loss
-    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_a0stiffness
+    _vortexFloatParams.push_back(DBL_MAX); // simi_vortex_joint_a0stiffness
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a0damping
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a0frictioncoeff
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a0frictionmaxforce
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a0frictionloss
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a1loss
-    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_a1stiffness
+    _vortexFloatParams.push_back(DBL_MAX); // simi_vortex_joint_a1stiffness
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a1damping
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a1frictioncoeff
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a1frictionmaxforce
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a1frictionloss
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a2loss
-    _vortexFloatParams.push_back(FLOAT_MAX); // simi_vortex_joint_a2stiffness
+    _vortexFloatParams.push_back(DBL_MAX); // simi_vortex_joint_a2stiffness
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a2damping
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a2frictioncoeff
     _vortexFloatParams.push_back(0.0); // simi_vortex_joint_a2frictionmaxforce
@@ -1083,8 +1083,8 @@ void CJoint::handleJoint_DEPRECATED(double deltaTime)
     else
     { // Acceleration is not infinite!
         double newPos=double(_jointPositionForMotionHandling_DEPRECATED);
-        double minV=-FLOAT_MAX;
-        double maxV=+FLOAT_MAX;
+        double minV=-DBL_MAX;
+        double maxV=+DBL_MAX;
         if (!_isCyclic)
         {
             minV=_posMin;
@@ -1250,11 +1250,13 @@ void CJoint::computeBoundingBox()
         minV(0)=-maxV(0);
         minV(1)=-maxV(1);
         minV(2)=-maxV(2);
+        _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_diameter);
     }
     else
     {
         maxV(0)=maxV(1)=maxV(2)=_diameter;
         minV(0)=minV(1)=minV(2)=-maxV(0);
+        _setBB(C7Vector::identityTransformation,C3Vector(_diameter,_diameter,_length));
     }
     _setBoundingBox(minV,maxV);
 }
@@ -4927,7 +4929,7 @@ void CJoint::_fixVortexInfVals()
     for (size_t i=0;i<47;i++)
     {
         if (_vortexFloatParams[i]<0.0)
-            _vortexFloatParams[i]=FLOAT_MAX;
+            _vortexFloatParams[i]=DBL_MAX;
     }
     // values at index 47 and later are signed
 }

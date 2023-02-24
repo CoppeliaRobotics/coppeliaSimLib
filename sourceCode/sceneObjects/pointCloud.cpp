@@ -123,6 +123,10 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
         maxDim(2)+=_cellSize;
         */
         _setBoundingBox(minDim,maxDim);
+        C7Vector fr;
+        fr.setIdentity();
+        fr.X=(maxDim+minDim)*0.5;
+        _setBB(fr,maxDim-minDim);
         _displayPoints.assign(_points.begin(),_points.end());
         _displayColors.assign(_colors.begin(),_colors.end());
         for (size_t i=0;i<_displayColors.size();i++)
@@ -189,6 +193,10 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
             maxDim(2)+=_cellSize;
             */
             _setBoundingBox(minDim,maxDim);
+            C7Vector fr;
+            fr.setIdentity();
+            fr.X=(maxDim+minDim)*0.5;
+            _setBB(fr,maxDim-minDim);
         }
         else
         {
@@ -595,6 +603,7 @@ void CPointCloud::clear()
         _pointCloudInfo=nullptr;
     }
     _setBoundingBox(C3Vector(-0.1,-0.1,-0.1),C3Vector(+0.1,+0.1,+0.1));
+    _setBB(C7Vector::identityTransformation,C3Vector(0.2,0.2,0.2));
     _nonEmptyCells=0;
     _updatePointCloudEvent();
 }
@@ -658,6 +667,10 @@ void CPointCloud::scaleObject(double scalingFactor)
     _removalDistanceTolerance*=scalingFactor;
     _insertionDistanceTolerance*=scalingFactor;
     _setBoundingBox(_boundingBoxMin*scalingFactor,_boundingBoxMax*scalingFactor);
+    C7Vector fr(_bbFrame);
+    fr.X*=scalingFactor;
+    _setBB(fr,_bbSize*scalingFactor);
+
     for (size_t i=0;i<_points.size();i++)
         _points[i]*=scalingFactor;
     for (size_t i=0;i<_displayPoints.size();i++)

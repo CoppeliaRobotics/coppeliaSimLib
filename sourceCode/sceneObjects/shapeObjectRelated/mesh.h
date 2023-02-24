@@ -7,22 +7,22 @@ class CMesh : public CMeshWrapper
 {
 public:
     CMesh();
-    CMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals);
+    CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords);
     virtual ~CMesh();
 
-//    void printInfos() const;
-    void display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
-    void display_colorCoded(CShape* geomData,int objectId,int displayAttrib);
-    void displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors);
+    void display(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
+    void display_colorCoded(const C7Vector& cumulIFrameTr,CShape* geomData,int objectId,int displayAttrib);
+    void displayGhost(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors);
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();
-    void display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
+    void display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
     void performSceneObjectLoadingMapping(const std::map<int,int>* map);
     void performTextureObjectLoadingMapping(const std::map<int,int>* map);
     void announceSceneObjectWillBeErased(const CSceneObject* object);
     void setTextureDependencies(int shapeID);
     bool getContainsTransparentComponents() const;
     CMesh* copyYourself();
+    void scale(double isoVal);
     void scale(double xVal,double yVal,double zVal);
     int getPurePrimitiveType() const;
     void setPurePrimitiveType(int theType,double xOrDiameter,double y,double zOrHeight);
@@ -32,13 +32,14 @@ public:
     bool checkIfConvex();
     void setConvex(bool convex);
     bool containsOnlyPureConvexShapes();
-    void getCumulativeMeshes(std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals);
+    void getCumulativeMeshes(const C7Vector& parentCumulTr,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals);
+    void getCumulativeMeshes(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals);
     void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
     bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset) const;
-    void getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList);
-    CMesh* getShapeComponentAtIndex(int& index);
+    void getAllShapeComponentsCumulative(const C7Vector& parentCumulTr,std::vector<CMesh*>& shapeComponentList,std::vector<C7Vector>* OptParentCumulTrList=nullptr);
+    CMesh* getShapeComponentAtIndex(const C7Vector& parentCumulTr,int& index,C7Vector* optParentCumulTrOut=nullptr);
     int getComponentCount() const;
-    void serialize(CSer& ar,const char* shapeName);
+    bool serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumulIFrame,bool rootLevel);
     void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     void flipFaces();
     double getShadingAngle() const;
@@ -54,7 +55,7 @@ public:
     void setHeightfieldDiamonds(bool d);
 
     int getUniqueID() const;
-    void setMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals);
+    void setMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords);
 
     void setHeightfieldData(const std::vector<double>& heights,int xCount,int yCount);
     double* getHeightfieldData(int& xCount,int& yCount,double& minHeight,double& maxHeight);
@@ -63,9 +64,6 @@ public:
     double getPurePrimitiveInsideScaling_OLD() const;
 
     void setConvexVisualAttributes();
-
-    C7Vector getVerticeLocalFrame() const;
-    void setVerticeLocalFrame(const C7Vector& tr);
 
     CTextureProperty* getTextureProperty();
     void setTextureProperty(CTextureProperty* tp);
@@ -99,7 +97,9 @@ public:
     std::vector<float>* getVerticesForDisplayAndDisk();
     std::vector<float>* getNormalsForDisplayAndDisk();
 
-    void copyVisualAttributesTo(CMesh* target);
+    void copyVisualAttributesTo(CMeshWrapper* target);
+    void takeVisualAttributesFrom(CMesh* origin);
+
 
     // Following few routines in order not to save duplicate data:
     static void clearTempVerticesIndicesNormalsAndEdges();
@@ -129,6 +129,8 @@ protected:
     void _commonInit();
     void _recomputeNormals();
     void _computeVisibleEdges();
+    void _computeBBSize();
+
 
     static void _savePackedIntegers(CSer& ar,const std::vector<int>& data);
     static void _loadPackedIntegers(CSer& ar,std::vector<int>& data);
@@ -152,7 +154,6 @@ protected:
     double _shadingAngle;
     double _edgeThresholdAngle;
 
-    C7Vector _verticeLocalFrame; // frame relative to the shape. All vertices are transformed by it. This frame also represents the configuration of the origin frame of pure shapes!!!!
     CTextureProperty* _textureProperty;
     int _uniqueID;
 

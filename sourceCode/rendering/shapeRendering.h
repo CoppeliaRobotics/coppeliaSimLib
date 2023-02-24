@@ -22,11 +22,11 @@ See the GNU General Public License for more details.
 #include <rendering.h>
 
 #ifdef SIM_WITH_OPENGL
-void _displayInertia(CMeshWrapper* geomWrap,double bboxDiagonal,const double normalVectorForPointsAndLines[3]);
 void _displayTriangles(CMesh* geometric,int geomModifCounter,CTextureProperty* tp);
+void _displayInertia(const C7Vector& tr,const C3Vector& pmi);
 #endif
 
 void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib);
-void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
-void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,int displayAttrib);
-void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors);
+void displayGeometric(const C7Vector& cumulIFrameTr,CMesh* geometric,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
+void displayGeometric_colorCoded(const C7Vector& cumulIFrameTr,CMesh* geometric,CShape* geomData,int objectId,int displayAttrib);
+void displayGeometricGhost(const C7Vector& cumulIFrameTr,CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors);

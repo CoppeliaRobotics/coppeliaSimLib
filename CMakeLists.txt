@@ -302,7 +302,6 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgassembly.cpp
         sourceCode/gui/dialogs/qdlgslider.cpp
         sourceCode/gui/dialogs/qdlgslider2.cpp
-        sourceCode/gui/dialogs/qdlginertiatensor.cpp
         sourceCode/gui/dialogs/qdlgmodelthumbnailvisu.cpp
         sourceCode/gui/dialogs/qdlgmodelthumbnail.cpp
         sourceCode/gui/dialogs/qdlgenvironment.cpp

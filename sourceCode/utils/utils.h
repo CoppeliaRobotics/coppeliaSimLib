@@ -39,7 +39,7 @@ public:
     static std::string getMultString(bool sign,double num);
     static std::string getForceTorqueString(bool sign,double num);
     static std::string getMassString(double num);
-    static std::string getMasslessTensorString(bool sign,double num);
+    static std::string getTensorString(bool massless,double num);
     static std::string getGravityString(bool signe,double num);
     static std::string getLinVelString(bool sign,double num);
     static std::string getAngVelString(bool sign,double num);

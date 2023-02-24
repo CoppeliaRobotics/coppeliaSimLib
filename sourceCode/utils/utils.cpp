@@ -448,9 +448,9 @@ std::string utils::getMassString(double num)
     return getDoubleString(false,num,2,6);
 }
 
-std::string utils::getMasslessTensorString(bool sign,double num)
+std::string utils::getTensorString(bool massless,double num)
 {
-    return getDoubleString(sign,num,3,7);
+    return getDoubleString(true,num,3,5);
 }
 
 std::string utils::getLinVelString(bool sign,double num)

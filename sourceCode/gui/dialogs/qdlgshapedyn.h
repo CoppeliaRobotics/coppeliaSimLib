@@ -20,6 +20,7 @@ public:
     void cancelEvent();
 
     static bool showDynamicWindow;
+    static bool masslessInertia;
     bool inMainRefreshRoutine;
 
 private slots:
@@ -54,11 +55,15 @@ private slots:
 
     void on_qqMassD2_clicked();
 
-    void on_qqIX_editingFinished();
-
-    void on_qqIY_editingFinished();
-
-    void on_qqIZ_editingFinished();
+    void on_qqI00_editingFinished();
+    void on_qqI01_editingFinished();
+    void on_qqI02_editingFinished();
+    void on_qqI10_editingFinished();
+    void on_qqI11_editingFinished();
+    void on_qqI12_editingFinished();
+    void on_qqI20_editingFinished();
+    void on_qqI21_editingFinished();
+    void on_qqI22_editingFinished();
 
     void on_qqIT2_clicked();
 
@@ -70,15 +75,7 @@ private slots:
 
     void on_qqPZ_editingFinished();
 
-    void on_qqAlpha_editingFinished();
-
-    void on_qqBeta_editingFinished();
-
-    void on_qqGamma_editingFinished();
-
     void on_qqApplyMassAndInertiaProperties_clicked();
-
-    void on_qqTensorMatrix_clicked();
 
     void on_qqAutomaticToNonStatic_clicked();
 
@@ -86,7 +83,10 @@ private slots:
 
     void on_qqComputeMassProperties_clicked();
 
+    void on_qqMassless_clicked();
+
 private:
+    void _inertiaChanged(size_t row,size_t col,QLineEdit* ct);
     void _toggleRespondableBits(int bits);
 
     Ui::CQDlgShapeDyn *ui;

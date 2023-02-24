@@ -2860,7 +2860,7 @@ int _simCheckProximitySensor(luaWrap_lua_State* L)
                 options=options|4;
             if (it->getNormalCheck())
                 options=options|8;
-            retVal=simCheckProximitySensorEx_internal(handle,luaToInt(L,2),options,FLOAT_MAX,it->getAllowedNormal(),detPt,&detectedObjectHandle,n);
+            retVal=simCheckProximitySensorEx_internal(handle,luaToInt(L,2),options,DBL_MAX,it->getAllowedNormal(),detPt,&detectedObjectHandle,n);
             if (retVal==1)
             {
                 luaWrap_lua_pushinteger(L,retVal);
@@ -3661,7 +3661,7 @@ int _simCheckDistance(luaWrap_lua_State* L)
                         int buffer[4];
                         App::currentWorld->cacheData->getCacheDataDist(entity1Handle,entity2Handle,buffer);
                         if (threshold<=0.0)
-                            threshold=FLOAT_MAX;
+                            threshold=DBL_MAX;
                         bool result=CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(entity1Handle,entity2Handle,threshold,distanceData,buffer,buffer+2,true,true);
                         App::currentWorld->cacheData->setCacheDataDist(entity1Handle,entity2Handle,buffer);
                         if (result)
@@ -7445,7 +7445,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                            for (size_t i=0;i<dataLength;i++)
                            {
                                double v=data[i];
-                               dat[i]=(v<-FLOATFLOAT_MAX)?(-FLOATFLOAT_MAX):((v>FLOATFLOAT_MAX)?(FLOATFLOAT_MAX):((float)v));
+                               dat[i]=(v<-FLT_MAX)?(-FLT_MAX):((v>FLT_MAX)?(FLT_MAX):((float)v));
                            }
                        }
                        else
@@ -7453,7 +7453,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                            for (size_t i=0;i<dataLength;i++)
                            {
                                double v=data[i]*mult+off;
-                               dat[i]=(v<-FLOATFLOAT_MAX)?(-FLOATFLOAT_MAX):((v>FLOATFLOAT_MAX)?(FLOATFLOAT_MAX):((float)v));
+                               dat[i]=(v<-FLT_MAX)?(-FLT_MAX):((v>FLT_MAX)?(FLT_MAX):((float)v));
                            }
                        }
                    }
@@ -18416,7 +18416,7 @@ int _simSendData(luaWrap_lua_State* L)
                             }
                             if (!err)
                             {
-                                actionRadius=tt::getLimitedFloat(0.0,FLOAT_MAX,actionRadius);
+                                actionRadius=tt::getLimitedFloat(0.0,DBL_MAX,actionRadius);
                                 emissionAngle1=tt::getLimitedFloat(0.0,piValue,emissionAngle1);
                                 emissionAngle2=tt::getLimitedFloat(0.0,piValT2,emissionAngle2);
                                 persistence=tt::getLimitedFloat(0.0,99999999999999.9,persistence);

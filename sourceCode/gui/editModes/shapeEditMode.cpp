@@ -25,7 +25,7 @@ CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContai
     edgeMaxAngle=135.0*degToRad;
     edgeDirectionChangeMaxAngle=45.0*degToRad;
 
-    _shape->getMeshWrapper()->getCumulativeMeshes(_editionVertices,&_editionIndices,&_editionNormals);
+    _shape->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,_editionVertices,&_editionIndices,&_editionNormals);
     _editionTextureProperty=_shape->getSingleMesh()->getTextureProperty();
     if (_editionTextureProperty!=nullptr)
     {
@@ -66,7 +66,7 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
 
         if (_editionVertices.size()!=0)
         { // The shape is not empty
-            gc->setMesh(_editionVertices,_editionIndices,nullptr); // will do the convectivity test
+            gc->setMesh(C7Vector::identityTransformation,_editionVertices,_editionIndices,nullptr,nullptr); // will do the convectivity test
             gc->actualizeGouraudShadingAndVisibleEdges();
             _shape->removeMeshCalculationStructure();
             // handle textures:

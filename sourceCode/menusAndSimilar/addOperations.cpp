@@ -41,7 +41,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             {
                 App::currentWorld->sceneObjects->deselectObjects();
                 App::currentWorld->sceneObjects->selectObject(shapeHandle);
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
             else
@@ -65,7 +65,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 #ifdef SIM_WITH_GUI
             App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex())->addFloatingView();
 #endif
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -90,7 +90,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             if (commandID==ADD_COMMANDS_ADD_SPHERICAL_JOINT_ACCMD)
                 newObject=new CJoint(sim_joint_spherical_subtype);
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,"done.");
         }
@@ -173,7 +173,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 }
             }
             App::currentWorld->sceneObjects->selectObject(addedObject->getObjectHandle());
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -194,7 +194,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(newObject->getObjectHandle(),C3Vector(piValD2,0.0,0.0));
             App::currentWorld->sceneObjects->setObjectAbsolutePosition(newObject->getObjectHandle(),C3Vector(0.0,0.0,newObject->getMirrorHeight()*0.5));
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -213,7 +213,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             CDummy* newObject=new CDummy();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -232,7 +232,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             COctree* newObject=new COctree();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -264,7 +264,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             //*/
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -287,7 +287,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
                 if (script!=nullptr)
                     script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::setFullDialogRefreshFlag();
             }
         }
@@ -312,7 +312,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
                 if (script!=nullptr)
                     script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::setFullDialogRefreshFlag();
             }
         }
@@ -341,7 +341,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 opt+=2;
             txt+=std::to_string(opt)+",100)\nsim.setObjectSelection({path})";
             App::worldContainer->sandboxScript->executeScriptString(txt.c_str(),nullptr);
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -367,7 +367,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             scriptObj->setScriptText("graph=require('graph_customization')");
             newObject->setScriptExecPriority(sim_scriptexecorder_last);
 
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,"done.");
         }
@@ -418,7 +418,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             }
             if (!isSet)
                 newObject->setLocalTransformation(C3Vector(0.0,0.0,newObject->getVisionSensorSize()*2.0));
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,"done.");
         }
@@ -438,7 +438,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_FORCE_SENSOR);
             CForceSensor* newObject=new CForceSensor();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,"done.");
         }
@@ -465,7 +465,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             else
                 newObject=new CProxSensor(commandID-ADD_COMMANDS_ADD_PYRAMID_PROXSENSOR_ACCMD+sim_proximitysensor_pyramid_subtype);
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs,"done.");
         }
@@ -525,38 +525,22 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     CShape* oldShape=App::currentWorld->sceneObjects->getShapeFromHandle(sel[obji]);
                     if (oldShape!=nullptr)
                     {
-                        int newShapeHandle=CSceneObjectOperations::generateConvexDecomposed(sel[obji],nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,
+                        CMeshWrapper* mesh=CSceneObjectOperations::generateConvexDecomposed(sel[obji],nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,
                                                                                     maxConnectDist,maxTrianglesInDecimatedMesh,maxHullVertices,
                                                                                     smallClusterThreshold,individuallyConsiderMultishapeComponents,
                                                                                     maxIterations,useHACD,resolution,depth,concavity,planeDownsampling,
                                                                                     convexHullDownsampling,alpha,beta,gamma,pca,voxelBased,
                                                                                     maxNumVerticesPerCH,minVolumePerCH);
-                        if (newShapeHandle!=-1)
+                        if (mesh!=nullptr)
                         {
-                            // Get the mass and inertia info from the old shape:
-                            C7Vector absCOM(oldShape->getFullCumulativeTransformation());
-                            absCOM=absCOM*oldShape->getMeshWrapper()->getLocalInertiaFrame();
-                            double mass=oldShape->getMeshWrapper()->getMass();
-                            C7Vector absCOMNoShift(absCOM);
-                            absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
-                            C3X3Matrix tensor(CMeshWrapper::getNewTensor(oldShape->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
-
-                            // Fix the name and add the new shape to the new selection vector:
-                            CShape* newShape=App::currentWorld->sceneObjects->getShapeFromHandle(newShapeHandle);
-                            App::currentWorld->sceneObjects->setObjectAlias(newShape,"generated_part",true);
+                            CShape* newShape=new CShape();
+                            newShape->replaceMesh(mesh,true);
+                            newShape->setLocalTransformation(oldShape->getCumulativeTransformation());
+                            int newShapeHandle=App::currentWorld->sceneObjects->addObjectToScene(newShape,false,true);
+                            App::currentWorld->sceneObjects->setObjectAlias(newShape,oldShape->getObjectAlias().c_str(),true);
                             App::currentWorld->sceneObjects->setObjectName_old(newShape,"generated_part",true);
                             App::currentWorld->sceneObjects->setObjectAltName_old(newShape,"generated_part",true);
                             newSelection.push_back(newShapeHandle);
-
-                            // Transfer the mass and inertia info to the new shape:
-                            newShape->getMeshWrapper()->setMass(mass);
-                            C4Vector rot;
-                            C3Vector pmoi;
-                            CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,pmoi);
-                            newShape->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoi);
-                            absCOM.Q=rot;
-                            C7Vector relCOM(newShape->getFullCumulativeTransformation().getInverse()*absCOM);
-                            newShape->getMeshWrapper()->setLocalInertiaFrame(relCOM);
                         }
                     }
                 }
@@ -566,7 +550,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 App::currentWorld->sceneObjects->deselectObjects();
                 for (size_t i=0;i<newSelection.size();i++)
                     App::currentWorld->sceneObjects->addObjectToSelection(newSelection[i]);
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -616,7 +600,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             if (hull!=nullptr)
             {
                 App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
             else
@@ -677,7 +661,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 else
                 {
                     App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
-                    App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                    App::undoRedo_sceneChanged("");
                     App::logMsg(sim_verbosity_msgs,"done.");
                 }
             }
@@ -739,13 +723,13 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         for (int i=0;i<divX*divY*6;i++)
             tt::addToFloatArray(&normals,0.0,0.0,1.0);
 
-        shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_PLANE);
         shape->setObjectName_direct_old(IDSOGL_PLANE);
         shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,0.002)); // we shift the plane so that it is above the floor
         shape->getMeshWrapper()->setMass(sizes(0)*sizes(1)*density*0.001); // we assume 1mm thickness
-        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(sizes(1)*sizes(1)/12.0,sizes(0)*sizes(0)/12.0,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0));
+        shape->getMeshWrapper()->setPMI(C3Vector(sizes(1)*sizes(1)/12.0,sizes(0)*sizes(0)/12.0,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0));
     }
 
     if (type==sim_primitiveshape_cuboid)
@@ -762,13 +746,13 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
 
         CMeshRoutines::createCube(vertices,indices,C3Vector(xhSize*2.0,yhSize*2.0,zhSize*2.0),theDiv);
 
-        shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_RECTANGLE);
         shape->setObjectName_direct_old(IDSOGL_RECTANGLE);
         shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,zhSize)); // we shift the rectangle so that it sits on the floor
         shape->getMeshWrapper()->setMass(sizes(0)*sizes(1)*sizes(2)*density);
-        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((sizes(1)*sizes(1)+sizes(2)*sizes(2))/12.0,(sizes(0)*sizes(0)+sizes(2)*sizes(2))/12.0,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0));
+        shape->getMeshWrapper()->setPMI(C3Vector((sizes(1)*sizes(1)+sizes(2)*sizes(2))/12.0,(sizes(0)*sizes(0)+sizes(2)*sizes(2))/12.0,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0));
     }
 
     if (type==sim_primitiveshape_spheroid)
@@ -793,7 +777,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
 
         CMeshRoutines::createSphere(vertices,indices,C3Vector(xhSize*2.0,yhSize*2.0,zhSize*2.0),sides,faceSubdiv);
 
-        shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_SPHERE);
         shape->setObjectName_direct_old(IDSOGL_SPHERE);
         shape->alignBoundingBoxWithWorld();
@@ -801,9 +785,9 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         double avR=(sizes(0)+sizes(1)+sizes(2))/6.0;
 
         shape->getMeshWrapper()->setMass((4.0*piValue/3.0)*avR*avR*avR*density);
-        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(2.0*avR*avR/5.0,2.0*avR*avR/5.0,2.0*avR*avR/5.0));
+        shape->getMeshWrapper()->setPMI(C3Vector(2.0*avR*avR/5.0,2.0*avR*avR/5.0,2.0*avR*avR/5.0));
         double avr2=avR*2.0;
-        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avr2,sizes(1)/avr2,sizes(2)/avr2);
+        shape->getMeshWrapper()->scaleMassAndInertia(cbrt(sizes(0)*sizes(1)*sizes(2))/avr2);
     }
 
     if ( (type==sim_primitiveshape_cylinder)||(type==sim_primitiveshape_cone) )
@@ -825,7 +809,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
 
         CMeshRoutines::createCylinder(vertices,indices,C3Vector(xhSize*2.0,yhSize*2.0,zhSize*2.0),sides,faceSubdiv+1,discDiv,(options&4)!=0,type==sim_primitiveshape_cone);
 
-        shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
         if (type==sim_primitiveshape_cone)
         {
             shape->setObjectAlias_direct("Cone");
@@ -845,11 +829,11 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
 
         shape->getMeshWrapper()->setMass(piValue*avR*avR*divider*sizes(2)*density);
         if (type==sim_primitiveshape_cone)
-            shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0*(0.25*avR*avR+sizes(2)*sizes(2))/5.0,3.0*(0.25*avR*avR+sizes(2)*sizes(2))/5.0,3.0*avR*avR/10.0));
+            shape->getMeshWrapper()->setPMI(C3Vector(3.0*(0.25*avR*avR+sizes(2)*sizes(2))/5.0,3.0*(0.25*avR*avR+sizes(2)*sizes(2))/5.0,3.0*avR*avR/10.0));
         else
-            shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((3.0*avR*avR+sizes(2)*sizes(2))/12.0,(3.0*avR*avR+sizes(2)*sizes(2))/12.0,avR*avR/2.0));
+            shape->getMeshWrapper()->setPMI(C3Vector((3.0*avR*avR+sizes(2)*sizes(2))/12.0,(3.0*avR*avR+sizes(2)*sizes(2))/12.0,avR*avR/2.0));
         double avR2=avR*2.0;
-        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0);
+        shape->getMeshWrapper()->scaleMassAndInertia(cbrt(sizes(0)*sizes(1)*avR2)/avR2);
     }
 
     if (type==sim_primitiveshape_capsule)
@@ -873,7 +857,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
 
         CMeshRoutines::createCapsule(vertices,indices,C3Vector(sizes(0),sizes(1),cylLength),sides,faceSubdiv);
 
-        shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_CAPSULE);
         shape->setObjectName_direct_old(IDSOGL_CAPSULE);
         shape->alignBoundingBoxWithWorld();
@@ -883,9 +867,9 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         double avR=(sizes(0)+sizes(1))/4.0;
         double l=cylLength+maxs*0.75;
         shape->getMeshWrapper()->setMass(piValue*avR*avR*l*density);
-        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector((3.0*avR*avR+l*l)/12.0,(3.0*avR*avR+l*l)/12.0,avR*avR/2.0));
+        shape->getMeshWrapper()->setPMI(C3Vector((3.0*avR*avR+l*l)/12.0,(3.0*avR*avR+l*l)/12.0,avR*avR/2.0));
         double avR2=avR*2.0;
-        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0);
+        shape->getMeshWrapper()->scaleMassAndInertia(cbrt(sizes(0)*sizes(1)*avR2)/avR2);
     }
 
     if (type==sim_primitiveshape_disc)
@@ -961,16 +945,16 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
             vertices[3*i+1]=p(1);
         }
 
-        shape=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_DISC);
         shape->setObjectName_direct_old(IDSOGL_DISC);
         shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,0.002)); // Now we shift the disc so it sits just above the floor
         double avR=(sizes(0)+sizes(1))/4.0;
         shape->getMeshWrapper()->setMass(piValue*avR*avR*density*0.001); // we assume 1mm thickness
-        shape->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(3.0*(avR*avR)/12.0,3.0*(avR*avR)/12.0,avR*avR/2.0));
+        shape->getMeshWrapper()->setPMI(C3Vector(3.0*(avR*avR)/12.0,3.0*(avR*avR)/12.0,avR*avR/2.0));
         double avR2=avR*2.0;
-        shape->getMeshWrapper()->scaleMassAndInertia(sizes(0)/avR2,sizes(1)/avR2,1.0);
+        shape->getMeshWrapper()->scaleMassAndInertia(cbrt(sizes(0)*sizes(1)*avR2)/avR2);
     }
 
     if (shape!=nullptr)
@@ -1011,7 +995,7 @@ CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& 
         std::vector<double> vertD;
         std::vector<double> vert;
         std::vector<int> ind;
-        ch->getMeshWrapper()->getCumulativeMeshes(vertD,&ind,nullptr);
+        ch->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vertD,&ind,nullptr);
         for (size_t j=0;j<ind.size()/3;j++)
         {
             int indd[3]={ind[3*j+0],ind[3*j+1],ind[3*j+2]};
@@ -1045,7 +1029,7 @@ CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& 
         std::vector<int> indices;
         if (CMeshRoutines::getConvexHull(&vert,&hull,&indices))
         {
-            retVal=new CShape(nullptr,hull,indices,nullptr,nullptr);
+            retVal=new CShape(C7Vector::identityTransformation,hull,indices,nullptr,nullptr);
             retVal->getSingleMesh()->setConvexVisualAttributes();
             retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,0.7f,0.7f);
             retVal->getSingleMesh()->setEdgeThresholdAngle(0.0);
@@ -1059,13 +1043,13 @@ CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& 
             double mass=ch->getMeshWrapper()->getMass();
             C7Vector absCOMNoShift(absCOM);
             absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
-            C3X3Matrix tensor(CMeshWrapper::getNewTensor(ch->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
+            C3X3Matrix tensor(CMeshWrapper::getMasslessTensorFromPMI(ch->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
 
             // Transfer the mass and inertia info to the new shape:
             retVal->getMeshWrapper()->setMass(mass);
             C4Vector rot;
             C3Vector pmoi;
-            CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,pmoi);
+            CMeshWrapper::getPMIFromMasslessTensor(tensor,rot,pmoi);
             retVal->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoi);
             absCOM.Q=rot;
             C7Vector relCOM(retVal->getFullCumulativeTransformation().getInverse()*absCOM);
@@ -1097,7 +1081,7 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
             std::vector<double> vert;
             std::vector<double> vertD;
             std::vector<int> ind;
-            shape->getMeshWrapper()->getCumulativeMeshes(vertD,&ind,nullptr);
+            shape->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vertD,&ind,nullptr);
             for (size_t j=0;j<vertD.size()/3;j++)
             {
                 C3Vector v(&vertD[3*j+0]);
@@ -1123,7 +1107,7 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
         std::vector<double> normals;
         if (CMeshRoutines::getConvexHull(&allHullVertices,&hull,&indices))
         {
-            retVal=new CShape(nullptr,hull,indices,nullptr,nullptr);
+            retVal=new CShape(C7Vector::identityTransformation,hull,indices,nullptr,nullptr);
             retVal->setObjectAlias_direct("convexHull");
             retVal->setObjectName_direct_old("convexHull");
             retVal->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(retVal->getObjectName_old().c_str()).c_str());
@@ -1141,13 +1125,13 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
                 double mass=oneShape->getMeshWrapper()->getMass();
                 C7Vector absCOMNoShift(absCOM);
                 absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
-                C3X3Matrix tensor(CMeshWrapper::getNewTensor(oneShape->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
+                C3X3Matrix tensor(CMeshWrapper::getMasslessTensorFromPMI(oneShape->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
 
                 // Transfer the mass and inertia info to the new shape:
                 retVal->getMeshWrapper()->setMass(mass);
                 C4Vector rot;
                 C3Vector pmoi;
-                CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,pmoi);
+                CMeshWrapper::getPMIFromMasslessTensor(tensor,rot,pmoi);
                 retVal->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoi);
                 absCOM.Q=rot;
                 C7Vector relCOM(retVal->getFullCumulativeTransformation().getInverse()*absCOM);

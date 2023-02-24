@@ -256,7 +256,6 @@ WITH_GUI {
     $$PWD/ui/qdlgassembly.ui \
     $$PWD/ui/qdlgslider.ui \
     $$PWD/ui/qdlgslider2.ui \
-    $$PWD/ui/qdlginertiatensor.ui \
     $$PWD/ui/qdlgmodelthumbnailvisu.ui \
     $$PWD/ui/qdlgmodelthumbnail.ui \
     $$PWD/ui/qdlgenvironment.ui \
@@ -617,7 +616,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgassembly.h \
         $$PWD/sourceCode/gui/dialogs/qdlgslider.h \
         $$PWD/sourceCode/gui/dialogs/qdlgslider2.h \
-        $$PWD/sourceCode/gui/dialogs/qdlginertiatensor.h \
         $$PWD/sourceCode/gui/dialogs/qdlgmodelthumbnailvisu.h \
         $$PWD/sourceCode/gui/dialogs/qdlgmodelthumbnail.h \
         $$PWD/sourceCode/gui/dialogs/qdlgenvironment.h \
@@ -1017,7 +1015,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgassembly.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgslider.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgslider2.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlginertiatensor.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgmodelthumbnailvisu.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgmodelthumbnail.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgenvironment.cpp \

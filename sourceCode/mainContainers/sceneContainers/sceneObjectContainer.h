@@ -45,8 +45,8 @@ public:
     void announceCollisionWillBeErased(int collisionHandle);
     void announceDistanceWillBeErased(int distanceHandle);
 
-    void addObjectToScene(CSceneObject* newObject,bool objectIsACopy,bool generateAfterCreateCallback);
-    void addObjectToSceneWithSuffixOffset(CSceneObject* newObject,bool objectIsACopy,int suffixOffset,bool generateAfterCreateCallback);
+    int addObjectToScene(CSceneObject* newObject,bool objectIsACopy,bool generateAfterCreateCallback);
+    int addObjectToSceneWithSuffixOffset(CSceneObject* newObject,bool objectIsACopy,int suffixOffset,bool generateAfterCreateCallback);
     void eraseObject(CSceneObject* it,bool generateBeforeAfterDeleteCallback);
     void eraseObjects(const std::vector<int>& objectHandles,bool generateBeforeAfterDeleteCallback);
     void eraseAllObjects(bool generateBeforeAfterDeleteCallback);

@@ -405,7 +405,7 @@ void _restoreDefaultLights(CSceneObject* object,CViewableBase* viewable)
         _activateNonAmbientLights(-1,viewable);
 }
 
-void _displayFrame(const C7Vector& tr,double frameSize)
+void _displayFrame(const C7Vector& tr,double frameSize,bool color/*=true*/)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
@@ -413,7 +413,7 @@ void _displayFrame(const C7Vector& tr,double frameSize)
     glTranslated(tr.X(0),tr.X(1),tr.X(2));
     C4Vector axis=tr.Q.getAngleAndAxis();
     glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
-    ogl::drawReference(frameSize);
+    ogl::drawReference(frameSize,color);
     glEnable(GL_DEPTH_TEST);
     glPopAttrib();
     glPopMatrix();
@@ -421,37 +421,46 @@ void _displayFrame(const C7Vector& tr,double frameSize)
 
 void _displayBoundingBox(CSceneObject* object,CViewableBase* viewable,bool mainSelection)
 {
-    _commonStart(object,viewable);
+    glPushMatrix();
+    glPushAttrib(GL_POLYGON_BIT);
+    C3Vector bbs;
+    C7Vector bb(object->getBB(&bbs));
+    C7Vector bbInv(bb.getInverse());
+    C7Vector tr=object->getCumulativeTransformation()*bb;
+    glTranslated(tr.X(0),tr.X(1),tr.X(2));
+    C4Vector axis=tr.Q.getAngleAndAxis();
+    glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
     glDisable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-    _displayBoundingBox(object,mainSelection);
+    _displayBoundingBox(&bbInv.X,tr,bbs,object,mainSelection);
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
-    _displayBoundingBox(object,mainSelection);
-    _commonFinish(object,viewable);
+    _displayBoundingBox(&bbInv.X,tr,bbs,object,mainSelection);
+    glPopAttrib();
+    glPopMatrix();
 }
 
-void _displayBoundingBox(CSceneObject* object,bool mainSelection)
+void _displayBoundingBox(const C3Vector* objectFrame,const C7Vector& absBBFrame,const C3Vector& bbSize,CSceneObject* object,bool mainSelection)
 {
-    C3Vector bbMin,bbMax;
-    bbMin.clear();
-    bbMax.clear();
+    C3Vector bbMin(C3Vector::inf);
+    C3Vector bbMax(C3Vector::ninf);
     if (object->getModelBase())
     {
-        C7Vector ctmi(object->getCumulativeTransformation().getInverse());
-        bool b=true;
-        if (!object->getGlobalMarkingBoundingBox(ctmi,bbMin,bbMax,b,true,true))
+        if (!object->getModelBB(absBBFrame.getInverse(),bbMin,bbMax,true))
             return; // no boundingbox to display!
         glLineStipple(1,0x0F0F);
         glLineWidth(2.0);
         glEnable(GL_LINE_STIPPLE);
     }
     else
-        object->getBoundingBox(bbMin,bbMax);
+    {
+        bbMin=bbSize*-0.5;
+        bbMax=bbSize*0.5;
+    }
+
     C3Vector bbs(bbMax-bbMin);
-    // Bounding box is 4% bigger:
-    C3Vector dx(bbs(0)*0.02,bbs(1)*0.02,bbs(2)*0.02);
+    C3Vector dx(bbs(0)*0.02,bbs(1)*0.02,bbs(2)*0.02); // visible BB 4% bigger
 
     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
     if (mainSelection)
@@ -483,7 +492,8 @@ void _displayBoundingBox(CSceneObject* object,bool mainSelection)
     ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,nullptr);
     ogl::buffer.clear();
     App::currentWorld->environment->reactivateFogThatWasTemporarilyDisabled();
-    C4Vector r(object->getFullCumulativeTransformation().Q);
+
+    C4Vector r(absBBFrame.Q);
     C3Vector absV;
     double maxH=0.0;
     int highestIndex[3];
@@ -530,6 +540,13 @@ void _displayBoundingBox(CSceneObject* object,bool mainSelection)
     App::currentWorld->environment->temporarilyDeactivateFog();
     ogl::drawSingle3dLine(corner.data,corner2.data,nullptr);
     ogl::drawBitmapTextTo3dPosition(corner2.data,object->getDisplayName().c_str(),nullptr);
+
+    if (objectFrame!=nullptr)
+    {
+        ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorGrey);
+        ogl::drawSingle3dLine(objectFrame->data,C3Vector::zeroVector.data,nullptr);
+    }
+
     App::currentWorld->environment->reactivateFogThatWasTemporarilyDisabled();
     glLineWidth(1.0);
     glDisable(GL_LINE_STIPPLE);

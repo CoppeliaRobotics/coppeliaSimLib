@@ -162,8 +162,8 @@ public:
     int getSpecificLight() const;
     bool setBeforeDeleteCallbackSent();
 
-    bool getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool& minMaxNotYetDefined,bool first,bool guiIsRendering);
-    void getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool guiIsRendering);
+    bool getModelBB(const C7Vector& baseCoordInv,C3Vector& minV,C3Vector& maxV,bool first);
+    void getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoordInv,C3Vector& minV,C3Vector& maxV);
 
     int getModelSelectionHandle(bool firstObject=true);
 
@@ -303,10 +303,12 @@ public:
     void pushObjectCreationEvent() const;
     void pushObjectRefreshEvent() const;
     void getBoundingBox(C3Vector& vmin,C3Vector& vmax) const;
+    C7Vector getBB(C3Vector* bbSize=nullptr) const;
 
 protected:
     void _setModelInvisible(bool inv);
     void _setBoundingBox(const C3Vector& vmin,const C3Vector& vmax);
+    void _setBB(const C7Vector& bbFrame,const C3Vector& bbSize);
     void _addCommonObjectEventData(CInterfaceStackTable* data) const;
     void _appendObjectMovementEventData(CInterfaceStackTable* data) const;
 
@@ -375,6 +377,8 @@ protected:
     int _objectMovementRelativity[2]; //0=world, 1=parent, 2=own frame
     C3Vector _boundingBoxMin;
     C3Vector _boundingBoxMax;
+    C7Vector _bbFrame;
+    C3Vector _bbSize;
 
     double _sizeFactor; // just used so that scripts can also adjust for scaling
     double _sizeValues[3];

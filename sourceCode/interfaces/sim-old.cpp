@@ -1458,10 +1458,10 @@ SIM_DLLEXPORT void _simGetPurePrimitiveSizes(const void* geometric,float* sizes)
     for (size_t i=0;i<3;i++)
         sizes[i]=(float)s[i];
 }
-SIM_DLLEXPORT void _simGetVerticesLocalFrame(const void* geometric,float* pos,float* quat)
+SIM_DLLEXPORT void _simGetVerticesLocalFrame(const void* shape,const void* geometric,float* pos,float* quat)
 {
     double p[3],q[4];
-    _simGetVerticesLocalFrame_internal(geometric,p,q);
+    _simGetVerticesLocalFrame_internal(shape,geometric,p,q);
     for (size_t i=0;i<3;i++)
         pos[i]=(float)p[i];
     for (size_t i=0;i<4;i++)
@@ -1479,10 +1479,10 @@ SIM_DLLEXPORT const float* _simGetHeightfieldData(const void* geometric,int* xCo
         r[i]=(float)dat[i];
     return(r.data());
 }
-SIM_DLLEXPORT void _simGetCumulativeMeshes(const void* geomInfo,float** vertices,int* verticesSize,int** indices,int* indicesSize)
+SIM_DLLEXPORT void _simGetCumulativeMeshes(const void* shape,const void* geomInfo,float** vertices,int* verticesSize,int** indices,int* indicesSize)
 {
     double* vert;
-    _simGetCumulativeMeshes_internal(geomInfo,&vert,verticesSize,indices,indicesSize);
+    _simGetCumulativeMeshes_internal(shape,geomInfo,&vert,verticesSize,indices,indicesSize);
     vertices[0]=(float*)simCreateBuffer_internal(verticesSize[0]*sizeof(float));
     for (int i=0;i<verticesSize[0];i++)
         vertices[0][i]=(float)vert[i];
@@ -3236,4 +3236,8 @@ SIM_DLLEXPORT void _simGetLocalInertiaFrame(const void* geomInfo,float* pos,floa
     quat[1]=(float)q[1];
     quat[2]=(float)q[2];
     quat[3]=(float)q[3];
+}
+SIM_DLLEXPORT const void* _simGetGeomProxyFromShape(const void* shape)
+{
+    return(_simGetGeomProxyFromShape_internal(shape));
 }

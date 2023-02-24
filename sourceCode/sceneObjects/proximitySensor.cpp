@@ -786,6 +786,7 @@ void CProxSensor::computeBoundingBox()
     */
     C3Vector v(_proxSensorSize*0.5,_proxSensorSize*0.5,_proxSensorSize*0.5);
     _setBoundingBox(v*-1.0,v);
+    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_proxSensorSize);
 }
 
 void CProxSensor::calculateFreshRandomizedRays()
@@ -856,7 +857,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
 
     int stTime=(int)VDateTime::getTimeInMs();
 
-    double treshhold=FLOAT_MAX;
+    double treshhold=DBL_MAX;
     double minThreshold=-1.0;
     if (convexVolume->getSmallestDistanceEnabled())
         minThreshold=convexVolume->getSmallestDistanceAllowed();

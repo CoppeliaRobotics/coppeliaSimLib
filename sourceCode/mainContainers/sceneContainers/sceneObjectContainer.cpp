@@ -95,13 +95,14 @@ void CSceneObjectContainer::announceDistanceWillBeErased(int distanceHandle)
         getObjectFromIndex(i)->announceDistanceWillBeErased(distanceHandle,false); // this never triggers scene object destruction!
 }
 
-void CSceneObjectContainer::addObjectToScene(CSceneObject* newObject,bool objectIsACopy,bool generateAfterCreateCallback)
+int CSceneObjectContainer::addObjectToScene(CSceneObject* newObject,bool objectIsACopy,bool generateAfterCreateCallback)
 {
-    addObjectToSceneWithSuffixOffset(newObject,objectIsACopy,1,generateAfterCreateCallback);
+    return(addObjectToSceneWithSuffixOffset(newObject,objectIsACopy,1,generateAfterCreateCallback));
 }
 
-void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newObject,bool objectIsACopy,int suffixOffset,bool generateAfterCreateCallback)
+int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newObject,bool objectIsACopy,int suffixOffset,bool generateAfterCreateCallback)
 {
+    int objectHandle;
     App::currentWorld->environment->setSceneCanBeDiscardedWhenNewSceneOpened(false); // 4/3/2012
 
     std::string newObjName=newObject->getObjectName_old();
@@ -175,18 +176,18 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
     newObject->setObjectAltName_direct_old(newObjAltName.c_str());
 
     // Give the object a new handle
-    int handle=_nextObjectHandle;
-    while (getObjectFromHandle(handle)!=nullptr)
+    objectHandle=_nextObjectHandle;
+    while (getObjectFromHandle(objectHandle)!=nullptr)
     {
-        handle++;
-        if (handle>=(SIM_IDEND_SCENEOBJECT-SIM_IDSTART_SCENEOBJECT))
-            handle=SIM_IDSTART_SCENEOBJECT;
+        objectHandle++;
+        if (objectHandle>=(SIM_IDEND_SCENEOBJECT-SIM_IDSTART_SCENEOBJECT))
+            objectHandle=SIM_IDSTART_SCENEOBJECT;
     }
-    _nextObjectHandle=handle+1;
+    _nextObjectHandle=objectHandle+1;
     if (_nextObjectHandle>=(SIM_IDEND_SCENEOBJECT-SIM_IDSTART_SCENEOBJECT))
         _nextObjectHandle=SIM_IDSTART_SCENEOBJECT;
 
-    newObject->setObjectHandle(handle);
+    newObject->setObjectHandle(objectHandle);
     newObject->setObjectUniqueId();
 
     _addObject(newObject);
@@ -219,6 +220,7 @@ void CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newOb
     newObject->setIsInScene(true);
     if (App::worldContainer->getEventsEnabled())
         newObject->pushObjectCreationEvent();
+    return(objectHandle);
 }
 
 void CSceneObjectContainer::eraseObject(CSceneObject* it,bool generateBeforeAfterDeleteCallback)
@@ -1591,26 +1593,71 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
                 shape->getMeshWrapper()->setMass(mass);
             }
 
-            C3Vector pmoment(0.1,0.1,0.1);
-            ar.xmlGetNode_floats("principalMomentOfInertia",pmoment.data,3,false);
-            C7Vector inertiaFrame;
-            inertiaFrame.setIdentity();
+            // Deprecated:
+            // -------------
+            C3Vector pmoment_old(0.1,0.1,0.1);
+            ar.xmlGetNode_floats("principalMomentOfInertia",pmoment_old.data,3,false);
+            C4X4Matrix inertiaFrame_old;
+            inertiaFrame_old.setIdentity();
+            bool useOldInertiaFrame=false;
             if (ar.xmlPushChildNode("localInertiaFrame",false))
             {
-                ar.xmlGetNode_floats("position",inertiaFrame.X.data,3,false);
+                useOldInertiaFrame=true;
+                ar.xmlGetNode_floats("position",inertiaFrame_old.X.data,3,false);
                 C3Vector euler;
                 if (ar.xmlGetNode_floats("euler",euler.data,3,false))
                 {
                     euler(0)*=piValue/180.0;
                     euler(1)*=piValue/180.0;
                     euler(2)*=piValue/180.0;
-                    inertiaFrame.Q.setEulerAngles(euler);
+                    inertiaFrame_old.M.setEulerAngles(euler);
                 }
                 ar.xmlPopNode();
+                shape->getMeshWrapper()->setCOM(inertiaFrame_old.X);
             }
-            double inertia[6]={0.1,0.0,0.0,0.1,0.0,0.1};
-            bool hasInertia=false;
-            hasInertia=ar.xmlGetNode_floats("inertia",inertia,6,false);
+            C3X3Matrix iMatrix;
+            iMatrix.clear();
+            double inertia[9]={0.1,0.0,0.0,0.0,0.1,0.0,0.0,0.0,0.1};
+            if (ar.xmlGetNode_floats("inertia",inertia,6,false))
+            {
+                iMatrix(0,0)=inertia[0];
+                iMatrix(1,0)=inertia[1];
+                iMatrix(2,0)=inertia[2];
+                iMatrix(0,1)=inertia[1];
+                iMatrix(1,1)=inertia[3];
+                iMatrix(2,1)=inertia[4];
+                iMatrix(0,2)=inertia[2];
+                iMatrix(1,2)=inertia[4];
+                iMatrix(2,2)=inertia[5];
+            }
+            else
+            {
+                iMatrix(0,0)=pmoment_old(0);
+                iMatrix(1,1)=pmoment_old(1);
+                iMatrix(2,2)=pmoment_old(2);
+            }
+            if (useOldInertiaFrame)
+            {
+                iMatrix=inertiaFrame_old.M*iMatrix*inertiaFrame_old.M.getTranspose();
+                iMatrix/=mass; // in CoppeliaSim we work with the "massless inertia"
+                shape->getMeshWrapper()->setMasslessInertiaMatrix(iMatrix);
+            }
+            // -------------
+            if (ar.xmlGetNode_floats("inertiaMatrix",inertia,9,false))
+            {
+                for (size_t i=0;i<3;i++)
+                {
+                    for (size_t j=0;j<3;j++)
+                        iMatrix(i,j)=inertia[i*3+j];
+                }
+                iMatrix/=mass; // in CoppeliaSim we work with the "massless inertia"
+                shape->getMeshWrapper()->setMasslessInertiaMatrix(iMatrix);
+            }
+            C3Vector com;
+            com.clear();
+            if (ar.xmlGetNode_floats("centerOfMass",com.data,3,false))
+                shape->getMeshWrapper()->setCOM(com);
+
             if (ar.xmlPushChildNode("switches",false))
             {
                 bool b;
@@ -1631,34 +1678,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
             }
             ar.xmlPopNode();
 
-            C3Vector com(inertiaFrame.X);
-            C4X4Matrix tr;
-            tr.setIdentity();
-            C4Vector rot;
-            rot.setIdentity();
-            if (hasInertia)
-            {
-                C3X3Matrix m;
-                m.axis[0](0)=inertia[0];
-                m.axis[1](0)=inertia[1];
-                m.axis[2](0)=inertia[2];
-                m.axis[0](1)=inertia[1];
-                m.axis[1](1)=inertia[3];
-                m.axis[2](1)=inertia[4];
-                m.axis[0](2)=inertia[2];
-                m.axis[1](2)=inertia[4];
-                m.axis[2](2)=inertia[5];
-                m/=mass; // in CoppeliaSim we work with the "massless inertia"
-                CMeshWrapper::findPrincipalMomentOfInertia(m,rot,pmoment);
-            }
-            if (pmoment(0)<0.0000001)
-                pmoment(0)=0.0000001;
-            if (pmoment(1)<0.0000001)
-                pmoment(1)=0.0000001;
-            if (pmoment(2)<0.0000001)
-                pmoment(0)=0.0000001;
-            shape->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
-            shape->getMeshWrapper()->setLocalInertiaFrame(shape->getFullCumulativeTransformation().getInverse()*tr.getTransformation()*C7Vector(rot,com));
+
         }
         C7Vector tr(shape->getFullCumulativeTransformation());
         shape->acquireCommonPropertiesFromObject_simpleXMLLoading(dummy);
@@ -1869,7 +1889,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
                     }
                     if (ok)
                     {
-                        retVal=new CShape(nullptr,vertices,indices,nullptr,nullptr);
+                        retVal=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
                         addObjectToScene(retVal,false,true);
                     }
                 }
@@ -2062,16 +2082,31 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
     C3Vector vel(shape->getInitialDynamicAngularVelocity()*180.0/piValue);
     ar.xmlAddNode_floats("initialAngularVelocity",vel.data,3);
     ar.xmlAddNode_float("mass",shape->getMeshWrapper()->getMass());
-    C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
 
+    // Deprecated:
+    ar.xmlAddNode_comment(" 'localInertiaframe' tag: deprecated, for backward compatibility ",false);
+    C3Vector diagI;
+    C7Vector tr(shape->getMeshWrapper()->getDiagonalInertiaInfo(diagI));
     ar.xmlPushNewNode("localInertiaFrame");
     ar.xmlAddNode_floats("position",tr.X.data,3);
     C3Vector euler(tr.Q.getEulerAngles());
     euler*=180.0/piValue;
     ar.xmlAddNode_floats("euler",euler.data,3);
     ar.xmlPopNode();
+    ar.xmlAddNode_comment(" 'principalMomentOfInertia' tag: deprecated, for backward compatibility ",false);
+    ar.xmlAddNode_floats("principalMomentOfInertia",diagI.data,3);
 
-    ar.xmlAddNode_floats("principalMomentOfInertia",shape->getMeshWrapper()->getPrincipalMomentsOfInertia().data,3);
+    ar.xmlAddNode_floats("centerOfMass",shape->getMeshWrapper()->getCOM().data,3);
+    C3X3Matrix _im(shape->getMeshWrapper()->getMasslessInertiaMatrix());
+    _im*=shape->getMeshWrapper()->getMass();
+    double im[9];
+    for (size_t i=0;i<3;i++)
+    {
+        for (size_t j=0;j<3;j++)
+            im[i*3+j]=_im(i,j);
+    }
+    ar.xmlAddNode_floats("inertiaMatrix",im,9);
+
     ar.xmlPushNewNode("switches");
     ar.xmlAddNode_bool("static",shape->getShapeIsDynamicallyStatic());
     ar.xmlAddNode_bool("respondable",shape->getRespondable());
@@ -2095,7 +2130,6 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         C7Vector trOld(shape->getFullLocalTransformation());
         C7Vector x(frame.getInverse()*trOld);
         shape->setLocalTransformation(C7Vector::identityTransformation);
-//        shape->setLocalTransformation(geom->getVerticeLocalFrame().getInverse()); // we temporarily want the shape's pose so that the mesh appears at the origin, for export
         ar.xmlAddNode_comment(" one of following tags is required: 'fileName' or 'vertices' and 'indices' ",false);
         if ( CPluginContainer::isAssimpPluginAvailable()&&(!ar.xmlSaveDataInline(geom->getVerticesForDisplayAndDisk()->size()+geom->getIndices()->size()*4)) )
         {
@@ -2117,7 +2151,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
             {
                 C3Vector w;
                 w.setData(&geom->getVertices()[0][3*i]);
-                w*=geom->getVerticeLocalFrame();
+                w*=geom->getBB(nullptr);
                 v[3*i+0]=(float)w(0);
                 v[3*i+1]=(float)w(1);
                 v[3*i+2]=(float)w(2);
@@ -2171,7 +2205,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         geom->getPurePrimitiveSizes(s);
         ar.xmlAddNode_floats("size",s.data,3);
         ar.xmlPushNewNode("localFrame");
-        C7Vector tr(frame.getInverse()*shape->getFullCumulativeTransformation()*geom->getVerticeLocalFrame()); // 'geom->getVerticeLocalFrame()' indicates also the origin of primitives
+        C7Vector tr(frame.getInverse()*shape->getFullCumulativeTransformation()*geom->getBB(nullptr));
         ar.xmlAddNode_floats("position",tr.X.data,3);
         C3Vector euler(tr.Q.getEulerAngles()*180.0/piValue);
         ar.xmlAddNode_floats("euler",euler.data,3);

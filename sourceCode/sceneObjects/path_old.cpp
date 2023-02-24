@@ -42,6 +42,7 @@ void CPath_old::computeBoundingBox()
 {
     C3Vector maxV(pathContainer->getSquareSize()/2.0,pathContainer->getSquareSize()/2.0,pathContainer->getSquareSize()/2.0);
     _setBoundingBox(maxV*-1.0,maxV);
+    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*pathContainer->getSquareSize());
 }
 
 void CPath_old::scaleObject(double scalingFactor)
@@ -529,7 +530,7 @@ CShape* CPath_old::getShape() const
             vert[3*i+2]=v(2);
         }
         std::vector<int> ind(_pathShapeIndices);
-        retVal=new CShape(nullptr,vert,ind,nullptr,nullptr);
+        retVal=new CShape(C7Vector::identityTransformation,vert,ind,nullptr,nullptr);
     }
     return(retVal);
 }

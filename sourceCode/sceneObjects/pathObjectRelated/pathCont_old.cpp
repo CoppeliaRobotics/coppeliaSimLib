@@ -706,7 +706,7 @@ bool CPathCont_old::getConfigurationOnBezierCurveClosestTo(C3Vector& pt,C7Vector
         conf=_bezierPathPoints[0]->getTransformation();
         return(true);
     }
-    double d=FLOAT_MAX;
+    double d=DBL_MAX;
     // 2. We search for the closest bezier point (this gives us an approximate distance value to speed-up the calculations later on)
     for (int i=0;i<int(_bezierPathPoints.size());i++)
     {
@@ -765,7 +765,7 @@ bool CPathCont_old::getPositionOnPathClosestTo(const C3Vector& pt,double& distOn
         distOnPath=0.0;
         return(true);
     }
-    double d=FLOAT_MAX;
+    double d=DBL_MAX;
     C3Vector pppt(pt);
     for (int i=0;i<int(_bezierPathPoints.size());i++)
     {

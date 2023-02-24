@@ -10,17 +10,18 @@ public:
 
     CShape();
     CShape(const std::vector<double>& allHeights,int xSize,int ySize,double dx,double zSize); // heightfield
-    CShape(const C7Vector* transformation,const std::vector<double>& vert,const std::vector<int>& ind,const std::vector<double>* normals,const std::vector<double>* textCoord); // mesh
+    CShape(const C7Vector& transformation,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords); // mesh
     CShape(const C7Vector& transformation,CMeshWrapper* newGeomInfo);
     virtual ~CShape();
+
+    void replaceMesh(CMeshWrapper* newMesh,bool keepMeshAttributes);
+    CMeshWrapper* detachMesh();
 
     C7Vector reinitMesh(const C7Vector* transformation,const std::vector<double>& vert,const std::vector<int>& ind,const std::vector<double>* normals,const std::vector<double>* textCoord);
     C7Vector reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeomInfo);
     void setNewMesh(CMeshWrapper* newGeomInfo);
     void invertFrontBack();
     C3Vector getBoundingBoxHalfSizes() const;
-    void scaleMesh(double xVal,double yVal,double zVal);
-    void scaleMesh(double x,double y,double z,double& xp,double& yp,double& zp);
 
     int getMeshModificationCounter();
     CMeshWrapper* getMeshWrapper() const;
@@ -35,8 +36,10 @@ public:
 
     // Following functions are inherited from CSceneObject
     void display(CViewableBase* renderingObject,int displayAttrib);
+    void displayInertia();
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
+    void copyAttributesTo(CShape* target);
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
     void scaleObjectNonIsometrically(double x,double y,double z);
@@ -161,7 +164,7 @@ public:
     static void setDebugObbStructures(bool d);
 
 protected:
-    void _serializeBackCompatibility(CSer& ar);
+    void _serializeMesh(CSer& ar);
     C7Vector _acceptNewGeometry(const std::vector<double>& vert,const std::vector<int>& ind,const std::vector<double>* textCoord,const std::vector<double>* norm);
     C7Vector _recomputeOrientation(C7Vector& m,bool alignWithMainAxis);
     C7Vector _recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& error);

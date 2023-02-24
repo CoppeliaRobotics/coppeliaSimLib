@@ -8,18 +8,23 @@
 #include <app.h>
 #include <Eigen/Eigenvalues>
 #include <iostream>
+#include <algos.h>
 
 CMeshWrapper::CMeshWrapper()
 {
+    _commonInit();
+}
+
+void CMeshWrapper::_commonInit()
+{
     _mass=1.0;
     _name="sub__0";
-
     _dynMaterialId_old=-1; // not used anymore since V3.4.0
-
     _convex=false;
-
+    _iFrame.setIdentity();
+    _bbFrame.setIdentity();
+    _bbSize.clear();
     setDefaultInertiaParams();
-
     _transformationsSinceGrouping.setIdentity();
 }
 
@@ -27,6 +32,50 @@ CMeshWrapper::~CMeshWrapper()
 {
     for (size_t i=0;i<childList.size();i++)
         delete childList[i];
+}
+
+void CMeshWrapper::detachItems()
+{
+    childList.clear();
+    _commonInit();
+}
+
+void CMeshWrapper::addItem(CMeshWrapper* m)
+{
+    childList.push_back(m);
+    _convex=true;
+    for (size_t i=0;i<childList.size();i++)
+    {
+        if (!childList[i]->isConvex())
+        {
+            _convex=false;
+            break;
+        }
+    }
+    std::vector<double> vert;
+    std::vector<int> ind;
+    getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+    _bbFrame=CAlgos::getMeshBoundingBox(vert,ind,false,&_bbSize);
+    _computeInertiaFromChildren();
+}
+
+void CMeshWrapper::_computeInertiaFromChildren()
+{
+    _mass=0.0;
+    _com.clear();
+    _iMatrix.clear();
+    for (size_t i=0;i<childList.size();i++)
+    {
+        CMeshWrapper* mesh=childList[i];
+        _mass+=mesh->getMass();
+        _com=_com+mesh->getIFrame()*mesh->getCOM()*mesh->getMass();
+        C3X3Matrix matr(getMasslesInertiaMatrixInNewFrame(mesh->getIFrame().Q,mesh->getMasslessInertiaMatrix(),C4Vector::identityRotation));
+        matr=matr*mesh->getMass();
+        _iMatrix=_iMatrix+matr;
+    }
+    _com=_com/_mass;
+    _iMatrix=_iMatrix/_mass;
+    fixInertiaMatrixAndComputePMI();
 }
 
 C7Vector CMeshWrapper::getTransformationsSinceGrouping() const
@@ -39,28 +88,28 @@ void CMeshWrapper::setTransformationsSinceGrouping(const C7Vector& tr)
     _transformationsSinceGrouping=tr;
 }
 
-void CMeshWrapper::display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
+void CMeshWrapper::display(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->display(geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,multishapeEditSelected);
+        childList[i]->display(cumulIFrameTr*_iFrame,geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,multishapeEditSelected);
 }
 
-void CMeshWrapper::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex)
+void CMeshWrapper::display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->display_extRenderer(geomData,displayAttrib,tr,shapeHandle,componentIndex);
+        childList[i]->display_extRenderer(cumulIFrameTr*_iFrame,geomData,displayAttrib,tr,shapeHandle,componentIndex);
 }
 
-void CMeshWrapper::display_colorCoded(CShape* geomData,int objectId,int displayAttrib)
+void CMeshWrapper::display_colorCoded(const C7Vector& cumulIFrameTr,CShape* geomData,int objectId,int displayAttrib)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->display_colorCoded(geomData,objectId,displayAttrib);
+        childList[i]->display_colorCoded(cumulIFrameTr*_iFrame,geomData,objectId,displayAttrib);
 }
 
-void CMeshWrapper::displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
+void CMeshWrapper::displayGhost(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->displayGhost(geomData,displayAttrib,originalColors,backfaceCulling,transparency,newColors);
+        childList[i]->displayGhost(cumulIFrameTr*_iFrame,geomData,displayAttrib,originalColors,backfaceCulling,transparency,newColors);
 }
 
 void CMeshWrapper::performSceneObjectLoadingMapping(const std::map<int,int>* map)
@@ -168,11 +217,29 @@ bool CMeshWrapper::getHideEdgeBorders_OLD() const
 CMeshWrapper* CMeshWrapper::copyYourself()
 { // function has virtual/non-virtual counterpart!
     CMeshWrapper* newIt=new CMeshWrapper();
-    copyWrapperInfos(newIt);
+    copyWrapperData(newIt);
     return(newIt);
 }
 
-void CMeshWrapper::copyWrapperInfos(CMeshWrapper* target)
+void CMeshWrapper::copyAttributesTo(CMeshWrapper* target)
+{
+    target->_mass=_mass;
+    target->_name=_name;
+    target->_localInertiaFrame=_localInertiaFrame;
+    target->_principalMomentsOfInertia=_principalMomentsOfInertia;
+    target->_transformationsSinceGrouping=_transformationsSinceGrouping;
+    target->_iFrame=_iFrame;
+    target->_com=_com;
+    target->_iMatrix=_iMatrix;
+    target->_pmi=_pmi;
+    target->_pmiRotFrame=_pmiRotFrame;
+    target->_dynMaterialId_old=_dynMaterialId_old;
+
+    if (childList.size()==0)
+        target->takeVisualAttributesFrom((CMesh*)this);
+}
+
+void CMeshWrapper::copyWrapperData(CMeshWrapper* target)
 {
     target->_mass=_mass;
     target->_name=_name;
@@ -180,8 +247,15 @@ void CMeshWrapper::copyWrapperInfos(CMeshWrapper* target)
 
     target->_localInertiaFrame=_localInertiaFrame;
     target->_principalMomentsOfInertia=_principalMomentsOfInertia;
-
     target->_transformationsSinceGrouping=_transformationsSinceGrouping;
+    target->_iFrame=_iFrame;
+    target->_com=_com;
+    target->_iMatrix=_iMatrix;
+    target->_pmi=_pmi;
+    target->_pmiRotFrame=_pmiRotFrame;
+    target->_bbFrame=_bbFrame;
+    target->_bbSize=_bbSize;
+
 
     target->_dynMaterialId_old=_dynMaterialId_old;
 
@@ -205,6 +279,12 @@ void CMeshWrapper::setDefaultInertiaParams()
     _principalMomentsOfInertia(0)=0.001;
     _principalMomentsOfInertia(1)=0.001;
     _principalMomentsOfInertia(2)=0.001;
+    _com.clear();
+    _iMatrix.clear();
+    _iMatrix(0,0)=0.01;
+    _iMatrix(1,1)=0.01;
+    _iMatrix(2,2)=0.01;
+    fixInertiaMatrixAndComputePMI();
 }
 
 void CMeshWrapper::setName(std::string newName)
@@ -225,6 +305,115 @@ int CMeshWrapper::getDynMaterialId_old() const
 void CMeshWrapper::setDynMaterialId_old(int id)
 {
     _dynMaterialId_old=id;
+}
+
+C7Vector CMeshWrapper::getDiagonalInertiaInfo(C3Vector& diagMasslessI) const
+{
+    C7Vector retVal;
+    retVal.X=_com;
+    retVal.Q=_pmiRotFrame;
+    diagMasslessI=_pmi;
+    return(retVal);
+}
+
+C7Vector CMeshWrapper::getBB(C3Vector* optBBSize) const
+{
+    if (optBBSize!=nullptr)
+        optBBSize[0]=_bbSize;
+    return(_bbFrame);
+}
+
+bool CMeshWrapper::getShapeRelIFrame(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,C7Vector& shapeRelIFrame) const
+{
+    bool retVal=false;
+    if (wrapper==this)
+    {
+        retVal=true;
+        shapeRelIFrame=parentCumulTr*_iFrame;
+    }
+    else
+    {
+        for (size_t i=0;i<childList.size();i++)
+        {
+            if (childList[i]->getShapeRelIFrame(parentCumulTr*_iFrame,wrapper,shapeRelIFrame))
+            {
+                retVal=true;
+                break;
+            }
+        }
+    }
+    return(retVal);
+}
+
+bool CMeshWrapper::getShapeRelBB(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,C7Vector& shapeRelBB,C3Vector* optBBSize) const
+{
+    C7Vector ifr;
+    bool retVal=getShapeRelIFrame(parentCumulTr,wrapper,ifr);
+    if (retVal)
+        shapeRelBB=ifr*wrapper->getBB(optBBSize);
+    return(retVal);
+}
+
+C3Vector CMeshWrapper::getCOM() const
+{
+    return(_com);
+}
+
+C7Vector CMeshWrapper::getIFrame() const
+{
+    return(_iFrame);
+}
+
+void CMeshWrapper::setIFrame(const C7Vector& iframe)
+{
+    _iFrame=iframe;
+}
+
+void CMeshWrapper::setCOM(const C3Vector& com)
+{
+    _com=com;
+}
+
+C3X3Matrix CMeshWrapper::getMasslessInertiaMatrix() const
+{
+    return(_iMatrix);
+}
+
+void CMeshWrapper::setMasslessInertiaMatrix(const C3X3Matrix& im,int modifItemRow/*=-1*/,int modifItemCol/*=-1*/)
+{
+    _iMatrix=im;
+    if ( (modifItemRow!=-1)&&(modifItemCol!=-1) )
+        _iMatrix(modifItemCol,modifItemRow)=_iMatrix(modifItemRow,modifItemCol);
+    fixInertiaMatrixAndComputePMI();
+}
+
+void CMeshWrapper::fixInertiaMatrixAndComputePMI()
+{
+    for (size_t i=0;i<3;i++)
+    {
+        // Make sure we are symmetric;
+        for (size_t j=0;j<3;j++)
+            _iMatrix(i,j)=_iMatrix(j,i);
+        // Make sure diagonals are positive and above a certain threshold:
+        if (_iMatrix(i,i)<1e-8)
+            _iMatrix(i,i)=1e-8;
+    }
+    getPMIFromMasslessTensor(_iMatrix,_pmiRotFrame,_pmi);
+}
+
+C3Vector CMeshWrapper::getPMI() const
+{
+    return(_pmi);
+}
+
+void CMeshWrapper::setPMI(const C3Vector& pmi)
+{
+    C3X3Matrix im;
+    im.clear();
+    im(0,0)=pmi(0);
+    im(1,1)=pmi(1);
+    im(2,2)=pmi(2);
+    setMasslessInertiaMatrix(im);
 }
 
 C7Vector CMeshWrapper::getLocalInertiaFrame() const
@@ -252,42 +441,31 @@ void CMeshWrapper::setPrincipalMomentsOfInertia(const C3Vector& inertia)
         _principalMomentsOfInertia(0)=0.001; // make sure we don't have a zero vector (problems with Bullet? and CoppeliaSim!)
 }
 
-void CMeshWrapper::scale(double xVal,double yVal,double zVal)
-{ // function has virtual/non-virtual counterpart!
-    // iso-scaling for compound shapes!! (should normally already be xVal=yVal=zVal)
-    scaleWrapperInfos(xVal,xVal,xVal);
-}
-
 void CMeshWrapper::prepareVerticesIndicesNormalsAndEdgesForSerialization()
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->prepareVerticesIndicesNormalsAndEdgesForSerialization();
 }
 
-void CMeshWrapper::scaleWrapperInfos(double xVal,double yVal,double zVal)
+void CMeshWrapper::scaleMassAndInertia(double s)
 {
-    scaleMassAndInertia(xVal,yVal,zVal);
-
-    _localInertiaFrame.X(0)*=xVal;
-    _localInertiaFrame.X(1)*=yVal;
-    _localInertiaFrame.X(2)*=zVal;
-
-    _transformationsSinceGrouping.X(0)*=xVal;
-    _transformationsSinceGrouping.X(1)*=yVal;
-    _transformationsSinceGrouping.X(2)*=zVal;
-
-    for (size_t i=0;i<childList.size();i++)
-        childList[i]->scale(xVal,yVal,zVal);
-    if ((xVal<0.0)||(yVal<0.0)||(zVal<0.0)) // that effectively flips faces!
-        checkIfConvex();
+    _mass*=s*s*s;
+    _iMatrix*=s*s;
+    fixInertiaMatrixAndComputePMI();
 }
 
-void CMeshWrapper::scaleMassAndInertia(double xVal,double yVal,double zVal)
-{
-    _mass*=xVal*yVal*zVal;
-    _principalMomentsOfInertia(0)*=yVal*zVal;
-    _principalMomentsOfInertia(1)*=xVal*zVal;
-    _principalMomentsOfInertia(2)*=xVal*yVal;
+void CMeshWrapper::scale(double isoVal)
+{ // function has virtual/non-virtual counterpart
+    scaleMassAndInertia(isoVal);
+    _com*=isoVal;
+    _iFrame.X*=isoVal;
+    _bbFrame.X*=isoVal;
+    _bbSize*=isoVal;
+
+    for (size_t i=0;i<childList.size();i++)
+        childList[i]->scale(isoVal);
+    if (isoVal<0.0) // that effectively flips faces!
+        checkIfConvex();
 }
 
 void CMeshWrapper::setPurePrimitiveType(int theType,double xOrDiameter,double y,double zOrHeight)
@@ -342,24 +520,28 @@ bool CMeshWrapper::checkIfConvex()
 
 void CMeshWrapper::setConvex(bool convex)
 { // function has virtual/non-virtual counterpart!
-    _convex=convex; // This is just for the wrapper!
-    /* removed on 24/3/2013
-    if (_convex)
-    { // convex shape handling in Bullet includes a very large margin. We can:
-        // 1. shrink the dynamic model using _bulletAutoShrinkConvexMesh. This adds some initial preprocessing time, can lead to crashes, and edges and points appear shifted inwards. Faces react correctly.
-        // 2. reduce the margin (what we do here). Erwin from Bullet doesn't recommend it (doesn't say why), but I got the best (still not good!!) results with it
-        _bulletNonDefaultCollisionMarginFactor=0.002;
-        _bulletNonDefaultCollisionMargin=true;
-    }
-    else
-        _bulletNonDefaultCollisionMargin=false;
-        */
+    _convex=convex;
 }
 
-void CMeshWrapper::getCumulativeMeshes(std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals)
+void CMeshWrapper::takeVisualAttributesFrom(CMesh* origin)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->getCumulativeMeshes(vertices,indices,normals);
+        childList[i]->takeVisualAttributesFrom(origin);
+}
+
+void CMeshWrapper::getCumulativeMeshes(const C7Vector& parentCumulTr,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals)
+{ // function has virtual/non-virtual counterpart!
+    for (size_t i=0;i<childList.size();i++)
+        childList[i]->getCumulativeMeshes(parentCumulTr*_iFrame,vertices,indices,normals);
+}
+
+void CMeshWrapper::getCumulativeMeshes(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals)
+{ // function has virtual/non-virtual counterpart!
+    const CMeshWrapper* w=wrapper;
+    if (wrapper==this)
+        w=nullptr;
+    for (size_t i=0;i<childList.size();i++)
+        childList[i]->getCumulativeMeshes(parentCumulTr*_iFrame,w,vertices,indices,normals);
 }
 
 void CMeshWrapper::setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset)
@@ -376,26 +558,26 @@ bool CMeshWrapper::getColor(const char* colorName,int colorComponent,float* rgbD
     return(retVal);
 }
 
-void CMeshWrapper::getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList)
+void CMeshWrapper::getAllShapeComponentsCumulative(const C7Vector& parentCumulTr,std::vector<CMesh*>& shapeComponentList,std::vector<C7Vector>* OptParentCumulTrList/*=nullptr*/)
 {   // function has virtual/non-virtual counterpart!
     // needed by the dynamics routine. We return ALL shape components!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->getAllShapeComponentsCumulative(shapeComponentList);
+        childList[i]->getAllShapeComponentsCumulative(parentCumulTr*_iFrame,shapeComponentList,OptParentCumulTrList);
 }
 
-CMesh* CMeshWrapper::getShapeComponentAtIndex(int& index)
+CMesh* CMeshWrapper::getShapeComponentAtIndex(const C7Vector& parentCumulTr,int& index,C7Vector* optParentCumulTrOut/*=nullptr*/)
 { // function has virtual/non-virtual counterpart!
-    if (index<0)
-        return(nullptr);
-    for (size_t i=0;i<childList.size();i++)
+    CMesh* retVal=nullptr;
+    if (index>=0)
     {
-        CMesh* retVal=childList[i]->getShapeComponentAtIndex(index);
-        if (retVal!=nullptr)
-            return(retVal);
-        if (index<0)
-            return(nullptr);
+        for (size_t i=0;i<childList.size();i++)
+        {
+            retVal=childList[i]->getShapeComponentAtIndex(parentCumulTr*_iFrame,index,optParentCumulTrOut);
+            if (retVal!=nullptr)
+                break;
+        }
     }
-    return(nullptr);
+    return(retVal);
 }
 
 int CMeshWrapper::getComponentCount() const
@@ -423,13 +605,14 @@ void CMeshWrapper::flipFaces()
     checkIfConvex();
 }
 
-void CMeshWrapper::serialize(CSer& ar,const char* shapeName)
+bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumulIFrame,bool rootLevel)
 { // function has virtual/non-virtual counterpart!
-    serializeWrapperInfos(ar,shapeName);
-}
-
-void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
-{
+    bool isNewTypeOfShapeFormat=false;
+    if (rootLevel)
+    {
+        _iFrame.setIdentity();
+        _transformationsSinceGrouping.setIdentity();
+    }
     if (ar.isBinary())
     {
         if (ar.isStoring())
@@ -454,32 +637,64 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
             ar.flush();
 
 #ifdef TMPOPERATION
-            ar.storeDataName("Ine");
-            ar << (float)_localInertiaFrame(0) << (float)_localInertiaFrame(1) << (float)_localInertiaFrame(2) << (float)_localInertiaFrame(3);
-            ar << (float)_localInertiaFrame(4) << (float)_localInertiaFrame(5) << (float)_localInertiaFrame(6);
-            ar << (float)_principalMomentsOfInertia(0) << (float)_principalMomentsOfInertia(1) << (float)_principalMomentsOfInertia(2);
+            ar.storeDataName("Ine"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+            C7Vector w(parentCumulIFrame*_iFrame);
+            w.X+=_com;
+            w.Q=w.Q*_pmiRotFrame;
+            ar << (float)w(0) << (float)w(1) << (float)w(2);
+            ar << (float)w(3) << (float)w(4) << (float)w(5) << (float)w(6);
+            ar << (float)_pmi(0) << (float)_pmi(1) << (float)_pmi(2);
             ar.flush();
 #endif
 
-            ar.storeDataName("_ne");
-            ar << _localInertiaFrame(0) << _localInertiaFrame(1) << _localInertiaFrame(2) << _localInertiaFrame(3);
-            ar << _localInertiaFrame(4) << _localInertiaFrame(5) << _localInertiaFrame(6);
-            ar << _principalMomentsOfInertia(0) << _principalMomentsOfInertia(1) << _principalMomentsOfInertia(2);
+            ar.storeDataName("_ne"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+            w=parentCumulIFrame*_iFrame;
+            w.X+=_com;
+            w.Q=w.Q*_pmiRotFrame;
+            ar << w(0) << w(1) << w(2);
+            ar << w(3) << w(4) << w(5) << w(6);
+            ar << _pmi(0) << _pmi(1) << _pmi(2);
             ar.flush();
-
 
 #ifdef TMPOPERATION
-            ar.storeDataName("Vtb");
-            ar << (float)_transformationsSinceGrouping(0) << (float)_transformationsSinceGrouping(1) << (float)_transformationsSinceGrouping(2) << (float)_transformationsSinceGrouping(3);
-            ar << (float)_transformationsSinceGrouping(4) << (float)_transformationsSinceGrouping(5) << (float)_transformationsSinceGrouping(6);
+            ar.storeDataName("Vtb"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+            w=parentCumulIFrame*_iFrame;
+            ar << (float)w(0) << (float)w(1) << (float)w(2) << (float)w(3);
+            ar << (float)w(4) << (float)w(5) << (float)w(6);
             ar.flush();
 #endif
 
-            ar.storeDataName("_tb");
-            ar << _transformationsSinceGrouping(0) << _transformationsSinceGrouping(1) << _transformationsSinceGrouping(2) << _transformationsSinceGrouping(3);
-            ar << _transformationsSinceGrouping(4) << _transformationsSinceGrouping(5) << _transformationsSinceGrouping(6);
+            ar.storeDataName("_tb"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+            w=parentCumulIFrame*_iFrame;
+            ar << w(0) << w(1) << w(2) << w(3);
+            ar << w(4) << w(5) << w(6);
             ar.flush();
 
+            ar.storeDataName("Ifr");
+            ar << _iFrame(0) << _iFrame(1) << _iFrame(2);
+            ar << _iFrame(3) << _iFrame(4) << _iFrame(5) << _iFrame(6);
+            ar.flush();
+
+            ar.storeDataName("Com");
+            ar << _com(0) << _com(1) << _com(2);
+            ar.flush();
+
+            ar.storeDataName("Imx");
+            for (size_t i=0;i<3;i++)
+            {
+                for (size_t j=0;j<3;j++)
+                    ar << _iMatrix(i,j);
+            }
+            ar.flush();
+
+            ar.storeDataName("Bbf");
+            ar << _bbFrame(0) << _bbFrame(1) << _bbFrame(2);
+            ar << _bbFrame(3) << _bbFrame(4) << _bbFrame(5) << _bbFrame(6);
+            ar.flush();
+
+            ar.storeDataName("Bbs");
+            ar << _bbSize(0) << _bbSize(1) << _bbSize(2);
+            ar.flush();
 
             ar.storeDataName("Var");
             unsigned char nothing=0;
@@ -495,15 +710,15 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                 else
                     ar.storeDataName("Wrp");
                 ar.setCountingMode();
-                childList[i]->serialize(ar,shapeName);
+                childList[i]->serialize(ar,shapeName,parentCumulIFrame*_iFrame,false);
                 if (ar.setWritingMode())
-                    childList[i]->serialize(ar,shapeName);
+                    childList[i]->serialize(ar,shapeName,parentCumulIFrame*_iFrame,false);
             }
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
-        {       // Loading
+        { // Loading
             int byteQuantity;
             std::string theName="";
             while (theName.compare(SER_END_OF_OBJECT)!=0)
@@ -544,7 +759,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                         ar >> byteQuantity;
                         ar >> _dynMaterialId_old;
                     }
-                    if (theName.compare("Ine")==0)
+                    if (theName.compare("Ine")==0) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
@@ -561,7 +776,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                         }
                     }
 
-                    if (theName.compare("_ne")==0)
+                    if (theName.compare("_ne")==0) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     {
                         noHit=false;
                         ar >> byteQuantity;
@@ -570,8 +785,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                         ar >> _principalMomentsOfInertia(0) >> _principalMomentsOfInertia(1) >> _principalMomentsOfInertia(2);
                     }
 
-
-                    if (theName.compare("Vtb")==0)
+                    if (theName.compare("Vtb")==0) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
@@ -581,16 +795,72 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                             ar >> bla;
                             _transformationsSinceGrouping(i)=(double)bla;
                         }
+                        if (rootLevel)
+                            _transformationsSinceGrouping.setIdentity();
+                        _iFrame=parentCumulIFrame.getInverse()*_transformationsSinceGrouping;
+                        C7Vector inf(_transformationsSinceGrouping.getInverse()*_localInertiaFrame);
+                        _com=inf.X;
+                        inf.X.clear();
+                        _iMatrix=getMasslessTensorFromPMI(_principalMomentsOfInertia,inf);
+                        fixInertiaMatrixAndComputePMI();
                     }
 
-                    if (theName.compare("_tb")==0)
+                    if (theName.compare("_tb")==0) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _transformationsSinceGrouping(0) >> _transformationsSinceGrouping(1) >> _transformationsSinceGrouping(2) >> _transformationsSinceGrouping(3);
                         ar >> _transformationsSinceGrouping(4) >> _transformationsSinceGrouping(5) >> _transformationsSinceGrouping(6);
+                        if (rootLevel)
+                            _transformationsSinceGrouping.setIdentity();
+                        _iFrame=parentCumulIFrame.getInverse()*_transformationsSinceGrouping;
+                        C7Vector inf(_transformationsSinceGrouping.getInverse()*_localInertiaFrame);
+                        _com=inf.X;
+                        inf.X.clear();
+                        _iMatrix=getMasslessTensorFromPMI(_principalMomentsOfInertia,inf);
+                        fixInertiaMatrixAndComputePMI();
                     }
 
+                    if (theName.compare("Ifr")==0)
+                    {
+                        isNewTypeOfShapeFormat=true;
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _iFrame(0) >> _iFrame(1) >> _iFrame(2);
+                        ar >> _iFrame(3) >> _iFrame(4) >> _iFrame(5) >> _iFrame(6);
+                        if (rootLevel)
+                            _iFrame.setIdentity();
+                    }
+                    if (theName.compare("Com")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _com(0) >> _com(1) >> _com(2);
+                    }
+                    if (theName.compare("Imx")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        for (size_t i=0;i<3;i++)
+                        {
+                            for (size_t j=0;j<3;j++)
+                                ar >> _iMatrix(i,j);
+                        }
+                        fixInertiaMatrixAndComputePMI();
+                    }
+                    if (theName.compare("Bbf")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _bbFrame(0) >> _bbFrame(1) >> _bbFrame(2);
+                        ar >> _bbFrame(3) >> _bbFrame(4) >> _bbFrame(5) >> _bbFrame(6);
+                    }
+                    if (theName.compare("Bbs")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _bbSize(0) >> _bbSize(1) >> _bbSize(2);
+                    }
 
                     if (theName=="Var")
                     {
@@ -605,7 +875,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                         noHit=false;
                         ar >> byteQuantity; 
                         CMesh* it=new CMesh();
-                        it->serialize(ar,shapeName);
+                        it->serialize(ar,shapeName,parentCumulIFrame*_iFrame,false);
                         childList.push_back(it);
                     }
                     if (theName.compare("Wrp")==0)
@@ -613,12 +883,19 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                         noHit=false;
                         ar >> byteQuantity; 
                         CMeshWrapper* it=new CMeshWrapper();
-                        it->serialize(ar,shapeName);
+                        it->serialize(ar,shapeName,parentCumulIFrame*_iFrame,false);
                         childList.push_back(it);
                     }
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+            if ( (!isNewTypeOfShapeFormat)&&(childList.size()!=0) )
+            {
+                std::vector<double> vert;
+                std::vector<int> ind;
+                getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+                _bbFrame=CAlgos::getMeshBoundingBox(vert,ind,false,&_bbSize);
             }
         }
     }
@@ -630,19 +907,49 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
 
             ar.xmlAddNode_string("name",_name.c_str());
 
-            ar.xmlPushNewNode("dynamics");
-            ar.xmlAddNode_float("mass",_mass);
-            ar.xmlPushNewNode("localInertiaFrame");
-            ar.xmlAddNode_floats("position",_localInertiaFrame.X.data,3);
-            ar.xmlAddNode_floats("quaternion",_localInertiaFrame.Q.data,4);
-            ar.xmlAddNode_floats("principalMomentsOfInertia",_principalMomentsOfInertia.data,3);
-            ar.xmlPopNode();
+            ar.xmlAddNode_comment(" 'transformationSinceGrouping' tag: deprecated, for backward compatibility ",false);
+            ar.xmlPushNewNode("transformationSinceGrouping"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+            C7Vector w(parentCumulIFrame*_iFrame);
+            ar.xmlAddNode_floats("position",w.X.data,3);
+            ar.xmlAddNode_floats("quaternion",w.Q.data,4);
             ar.xmlPopNode();
 
-            ar.xmlPushNewNode("transformationSinceGrouping");
-            ar.xmlAddNode_floats("position",_transformationsSinceGrouping.X.data,3);
-            ar.xmlAddNode_floats("quaternion",_transformationsSinceGrouping.Q.data,4);
+            ar.xmlPushNewNode("dynamics");
+
+            ar.xmlAddNode_float("mass",_mass);
+
+            ar.xmlAddNode_comment(" 'localInertiaFrame' tag: deprecated, for backward compatibility ",false);
+            ar.xmlPushNewNode("localInertiaFrame"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+            w=parentCumulIFrame*_iFrame;
+            w.X+=_com;
+            w.Q=w.Q*_pmiRotFrame;
+            ar.xmlAddNode_floats("position",w.X.data,3);
+            ar.xmlAddNode_floats("quaternion",w.Q.data,4);
+            ar.xmlAddNode_floats("principalMomentsOfInertia",_pmi.data,3);
             ar.xmlPopNode();
+
+            ar.xmlPushNewNode("inertiaFrame");
+            ar.xmlAddNode_floats("position",_iFrame.X.data,3);
+            ar.xmlAddNode_floats("quaternion",_iFrame.Q.data,4);
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_floats("centerOfMass",_com.data,3);
+
+            double im[9];
+            for (size_t i=0;i<3;i++)
+            {
+                for (size_t j=0;j<3;j++)
+                    im[i*3+j]=_iMatrix(i,j);
+            }
+            ar.xmlAddNode_floats("masslessInertiaMatrix",im,9);
+
+            ar.xmlPushNewNode("bbFrame");
+            ar.xmlAddNode_floats("position",_bbFrame.X.data,3);
+            ar.xmlAddNode_floats("quaternion",_bbFrame.Q.data,4);
+            ar.xmlPopNode();
+
+            ar.xmlAddNode_floats("bbSize",_bbSize.data,3);
+            ar.xmlPopNode(); // "dynamics" node
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("convex",_convex);
@@ -655,7 +962,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                     ar.xmlPushNewNode("mesh");
                 else
                     ar.xmlPushNewNode("compound");
-                childList[i]->serialize(ar,shapeName);
+                childList[i]->serialize(ar,shapeName,parentCumulIFrame*_iFrame,false);
                 ar.xmlPopNode();
                 ar.xmlPopNode();
             }
@@ -667,26 +974,68 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
             {
                 ar.xmlGetNode_string("name",_name);
 
+                if (ar.xmlPushChildNode("transformationSinceGrouping"))  // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+                {
+                    ar.xmlGetNode_floats("position",_transformationsSinceGrouping.X.data,3);
+                    ar.xmlGetNode_floats("quaternion",_transformationsSinceGrouping.Q.data,4);
+                    if (rootLevel)
+                        _transformationsSinceGrouping.setIdentity();
+                    _transformationsSinceGrouping.Q.normalize(); // just in case
+                    ar.xmlPopNode();
+                }
+
                 if (ar.xmlPushChildNode("dynamics"))
                 {
                     ar.xmlGetNode_float("mass",_mass);
-                    if (ar.xmlPushChildNode("localInertiaFrame"))
+
+                    if (ar.xmlPushChildNode("localInertiaFrame"))  // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     {
                         ar.xmlGetNode_floats("position",_localInertiaFrame.X.data,3);
                         ar.xmlGetNode_floats("quaternion",_localInertiaFrame.Q.data,4);
                         _localInertiaFrame.Q.normalize(); // just in case
                         ar.xmlGetNode_floats("principalMomentsOfInertia",_principalMomentsOfInertia.data,3);
                         ar.xmlPopNode();
+                        _iFrame=parentCumulIFrame.getInverse()*_transformationsSinceGrouping;
+                        C7Vector inf(_transformationsSinceGrouping.getInverse()*_localInertiaFrame);
+                        _com=inf.X;
+                        inf.X.clear();
+                        _iMatrix=getMasslessTensorFromPMI(_principalMomentsOfInertia,inf);
+                        fixInertiaMatrixAndComputePMI();
                     }
-                    ar.xmlPopNode();
-                }
 
-                if (ar.xmlPushChildNode("transformationSinceGrouping"))
-                {
-                    ar.xmlGetNode_floats("position",_transformationsSinceGrouping.X.data,3);
-                    ar.xmlGetNode_floats("quaternion",_transformationsSinceGrouping.Q.data,4);
-                    _transformationsSinceGrouping.Q.normalize(); // just in case
-                    ar.xmlPopNode();
+                    if (ar.xmlPushChildNode("inertiaFrame"))
+                    {
+                        isNewTypeOfShapeFormat=true;
+                        ar.xmlGetNode_floats("position",_iFrame.X.data,3);
+                        ar.xmlGetNode_floats("quaternion",_iFrame.Q.data,4);
+                        _iFrame.Q.normalize(); // just in case
+                        if (rootLevel)
+                            _iFrame.setIdentity();
+                        ar.xmlPopNode();
+                    }
+
+                    ar.xmlGetNode_floats("centerOfMass",_com.data,3);
+
+                    double im[9];
+                    ar.xmlGetNode_floats("masslessInertiaMatrix",im,9);
+                    for (size_t i=0;i<3;i++)
+                    {
+                        for (size_t j=0;j<3;j++)
+                            _iMatrix(i,j)=im[i*3+j];
+                    }
+                    fixInertiaMatrixAndComputePMI();
+
+                    if (ar.xmlPushChildNode("bbFrame"))
+                    {
+                        ar.xmlGetNode_floats("position",_bbFrame.X.data,3);
+                        ar.xmlGetNode_floats("quaternion",_bbFrame.Q.data,4);
+                        _bbFrame.Q.normalize(); // just in case
+                        ar.xmlPopNode();
+                    }
+
+                    ar.xmlGetNode_floats("bbSize",_bbSize.data,3);
+
+                    ar.xmlPopNode(); // "dynamics" node
                 }
 
                 if (ar.xmlPushChildNode("switches"))
@@ -701,7 +1050,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                         if (ar.xmlPushChildNode("mesh",false))
                         {
                             CMesh* it=new CMesh();
-                            it->serialize(ar,shapeName);
+                            it->serialize(ar,shapeName,parentCumulIFrame*_iFrame,false);
                             childList.push_back(it);
                             ar.xmlPopNode();
                         }
@@ -710,7 +1059,7 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                             if (ar.xmlPushChildNode("compound"))
                             {
                                 CMeshWrapper* it=new CMeshWrapper();
-                                it->serialize(ar,shapeName);
+                                it->serialize(ar,shapeName,parentCumulIFrame*_iFrame,false);
                                 childList.push_back(it);
                                 ar.xmlPopNode();
                             }
@@ -722,14 +1071,21 @@ void CMeshWrapper::serializeWrapperInfos(CSer& ar,const char* shapeName)
                 }
                 ar.xmlPopNode();
             }
+            if ( (!isNewTypeOfShapeFormat)&&(childList.size()!=0) )
+            {
+                std::vector<double> vert;
+                std::vector<int> ind;
+                getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+                _bbFrame=CAlgos::getMeshBoundingBox(vert,ind,false,&_bbSize);
+            }
         }
     }
+    return(isNewTypeOfShapeFormat);
 }
 
 
-void CMeshWrapper::findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vector& rotation,C3Vector& principalMoments)
-{
-    //*
+bool CMeshWrapper::getPMIFromMasslessTensor(const C3X3Matrix& tensor,C4Vector& rotation,C3Vector& principalMoments)
+{ // tensor --> PMI + rotation (tensor and PMI are mass-less)
     Eigen::Matrix3f m;
     m(0,0)=tensor(0,0);
     m(1,1)=tensor(1,1);
@@ -754,72 +1110,19 @@ void CMeshWrapper::findPrincipalMomentOfInertia(const C3X3Matrix& tensor,C4Vecto
     matr.axis[1]=eVect2;
     matr.axis[2]=eVect3;
     rotation=matr.getQuaternion();
-    //*/
-    /*
-    // This routine is iterative and not elegant. But we do not need speed here anyway
-    C3X3Matrix rot;
-    C3X3Matrix tens(tensor);
-    rot.setIdentity();
-    double w=_getTensorNonDiagonalMeasure(tensor);
-
-    // With below settings, we will get an orientational precision of about 0.000128 degrees
-    double stepSize=10.0*degToRad;
-    const double stepSizeMultiplier=0.2;
-    const int resolutionScalePasses=8;
-
-    C3X3Matrix drot;
-    for (int scale=0;scale<resolutionScalePasses;scale++)
-    { // resolution loop
-        for (int axis=0;axis<3;axis++)
-        { // axis loop (x, y, z)
-            if (axis==0)
-                drot.buildXRotation(stepSize);
-            if (axis==1)
-                drot.buildYRotation(stepSize);
-            if (axis==2)
-                drot.buildZRotation(stepSize);
-            int dirChangeCnt=0;
-            while (dirChangeCnt<2)
-            { // error reduction loop for a given axis
-                rot=rot*drot;
-                tens=drot.getTranspose()*tens*drot;
-                double w2=_getTensorNonDiagonalMeasure(tens);
-                if (w2>=w)
-                { // it got worse
-                    dirChangeCnt++;
-                    drot.transpose();
-                    rot=rot*drot; // reverse change
-                    tens=drot.getTranspose()*tens*drot;
-                }
-                else
-                    w=w2; // it got better
-            }
-        }
-        stepSize*=stepSizeMultiplier;
-    }
-
-    principalMoments(0)=tens.axis[0](0);
-    principalMoments(1)=tens.axis[1](1);
-    principalMoments(2)=tens.axis[2](2);
-    rotation=rot.getQuaternion();
-    //*/
+    return((eigenVals(0).real()>0.0)&&(eigenVals(1).real()>0.0)&&(eigenVals(2).real()>0.0));
 }
 
-double CMeshWrapper::_getTensorNonDiagonalMeasure(const C3X3Matrix& tensor)
-{
-    C3Vector v(tensor.axis[1](0),tensor.axis[2](0),tensor.axis[2](1));
-    return(v*v);
-}
-
-C3X3Matrix CMeshWrapper::getNewTensor(const C3Vector& principalMoments,const C7Vector& newFrame)
-{ // remember that we always work with a massless tensor. The tensor is multiplied with the mass in the dynamics module!
+C3X3Matrix CMeshWrapper::getMasslessTensorFromPMI(const C3Vector& principalMoments,const C7Vector& newFrame)
+{ // PMI + transf --> tensor (tensor and PMI are mass-less)
     C3X3Matrix tensor;
     tensor.clear();
     tensor.axis[0](0)=principalMoments(0);
     tensor.axis[1](1)=principalMoments(1);
     tensor.axis[2](2)=principalMoments(2);
     // 1. reorient the frame:
-    tensor=newFrame.Q.getMatrix()*tensor*newFrame.Q.getInverse().getMatrix();
+    tensor=getMasslesInertiaMatrixInNewFrame(newFrame.Q,tensor,C4Vector::identityRotation);
+//    tensor=newFrame.Q.getMatrix()*tensor*newFrame.Q.getInverse().getMatrix();
     // 2. shift the frame:
     C3X3Matrix D;
     D.setIdentity();
@@ -830,27 +1133,49 @@ C3X3Matrix CMeshWrapper::getNewTensor(const C3Vector& principalMoments,const C7V
     tensor+=D;
     return(tensor);
 }
-/*
-void CMeshWrapper::printInfos() const
+
+C3X3Matrix CMeshWrapper::getMasslesInertiaMatrixInNewFrame(const C4Vector& oldFrame,const C3X3Matrix& oldMatrix,const C4Vector& newFrame)
 {
-    printf("W: Transf. since grouping: %s, %s, %s, %s, %s, %s, %s\n",
-           utils::getPosString(false,_transformationsSinceGrouping.X(0)).c_str(),
-           utils::getPosString(false,_transformationsSinceGrouping.X(1)).c_str(),
-           utils::getPosString(false,_transformationsSinceGrouping.X(2)).c_str(),
-           utils::getPosString(false,_transformationsSinceGrouping.Q(0)).c_str(),
-           utils::getPosString(false,_transformationsSinceGrouping.Q(1)).c_str(),
-           utils::getPosString(false,_transformationsSinceGrouping.Q(2)).c_str(),
-           utils::getPosString(false,_transformationsSinceGrouping.Q(3)).c_str());
-    printf("W: localInertiaFrame: %s, %s, %s, %s, %s, %s, %s\n",
-           utils::getPosString(false,_localInertiaFrame.X(0)).c_str(),
-           utils::getPosString(false,_localInertiaFrame.X(1)).c_str(),
-           utils::getPosString(false,_localInertiaFrame.X(2)).c_str(),
-           utils::getPosString(false,_localInertiaFrame.Q(0)).c_str(),
-           utils::getPosString(false,_localInertiaFrame.Q(1)).c_str(),
-           utils::getPosString(false,_localInertiaFrame.Q(2)).c_str(),
-           utils::getPosString(false,_localInertiaFrame.Q(3)).c_str());
-   for (size_t i=0;i<childList.size();i++)
-       childList[i]->printInfos();
+    C3X3Matrix rot(oldFrame.getMatrix().getTranspose()*newFrame.getMatrix());
+    C3X3Matrix retVal(rot.getTranspose()*oldMatrix*rot);
+    return(retVal);
 }
 
-*/
+std::string CMeshWrapper::getInertiaMatrixErrorString() const
+{
+    return(getInertiaMatrixErrorString(_iMatrix));
+}
+
+std::string CMeshWrapper::getInertiaMatrixErrorString(const C3X3Matrix& matrix)
+{
+    std::string retVal="";
+    for (size_t i=0;i<3;i++)
+    {
+        for (size_t j=0;j<3;j++)
+        {
+            if (matrix(i,j)!=matrix(j,i))
+            {
+                retVal="Invalid inertia matrix: not symmetric";
+                break;
+            }
+        }
+    }
+    if (retVal=="")
+    {
+        if ( (matrix(0,0)>1e-8)&&(matrix(1,1)>1e-8)&&(matrix(2,2)>1e-8) )
+        {
+            C4Vector dummyRot;
+            C3Vector pmi;
+            if (getPMIFromMasslessTensor(matrix,dummyRot,pmi))
+            { // positive definite: eigenvals are positive
+                if ((pmi(0)+pmi(1)<pmi(2))||(pmi(0)+pmi(2)<pmi(1))||(pmi(1)+pmi(2)<pmi(0)))
+                    retVal="Invalid/unstable inertia matrix: A+B<C";
+            }
+            else
+                retVal="Invalid inertia matrix: not positive definite";
+        }
+        else
+            retVal="Invalid inertia matrix: negative or too small diagonal elements";
+    }
+    return(retVal);
+}

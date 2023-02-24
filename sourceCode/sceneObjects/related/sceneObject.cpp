@@ -579,17 +579,6 @@ bool CSceneObject::getShouldObjectBeDisplayed(int viewableHandle,int displayAttr
     if (_forceAlwaysVisible_tmp)
         return(true);
 
-    if (displayAttrib&sim_displayattribute_inertiaonly)
-    {
-        if (_objectType!=sim_object_shape_type)
-            return(false);
-        if (((CShape*)this)->getShapeIsDynamicallyStatic())
-            return(false);
-        if ((getTreeDynamicProperty()&sim_objdynprop_dynamic)==0)
-            return(false);
-        return(true);
-    }
-
     bool display=false;
     if (((displayAttrib&sim_displayattribute_pickpass)==0)||((_objectProperty&sim_objectproperty_selectinvisible)==0))
     { // ok, no pickpass and select invisible
@@ -988,8 +977,8 @@ bool CSceneObject::setBeforeDeleteCallbackSent()
     return(retVal);
 }
 
-bool CSceneObject::getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool& minMaxNotYetDefined,bool first,bool guiIsRendering)
-{ // For root selection display! Return value false means there is no global marking bounding box and min/max values are not valid
+bool CSceneObject::getModelBB(const C7Vector& baseCoordInv,C3Vector& minV,C3Vector& maxV,bool first)
+{ // For model selection display! Return value false means there is no model BB
     bool retVal=false;
     int objProp=getObjectProperty();
     int modProp=getModelProperty();
@@ -1000,33 +989,23 @@ bool CSceneObject::getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Ve
 
     if (includeThisBox&&exploreChildren)
     {
-        C3Vector smi,sma;
-        getBoundingBox(smi,sma);
         retVal=true;
-        C3Vector sm;
-        C7Vector ctm;
-        ctm=getCumulativeTransformation();
-        ctm=baseCoordInv*ctm;
-        for (int i=0;i<2;i++)
+        C3Vector bbs;
+        C7Vector bbf(getBB(&bbs));
+        C7Vector tr(baseCoordInv*getCumulativeTransformation()*bbf);
+        C3Vector v;
+        for (double i=-1.0;i<2.0;i=i+2.0)
         {
-            sm(0)=smi(0)*i+sma(0)*(1-i);
-            for (int j=0;j<2;j++)
+            v(0)=bbs(0)*i*0.5;
+            for (double j=-1.0;j<2.0;j=j+2.0)
             {
-                sm(1)=smi(1)*j+sma(1)*(1-j);
-                for (int k=0;k<2;k++)
+                v(1)=bbs(1)*j*0.5;
+                for (double k=-1.0;k<2.0;k=k+2.0)
                 {
-                    sm(2)=smi(2)*k+sma(2)*(1-k);
-                    if (minMaxNotYetDefined)
-                    {
-                        max=ctm*sm;
-                        min=max;
-                        minMaxNotYetDefined=false;
-                    }
-                    else
-                    {
-                        max.keepMax(ctm*sm);
-                        min.keepMin(ctm*sm);
-                    }
+                    v(2)=bbs(2)*k*0.5;
+                    C3Vector w(tr*v);
+                    maxV.keepMax(w);
+                    minV.keepMin(w);
                 }
             }
         }
@@ -1036,42 +1015,33 @@ bool CSceneObject::getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Ve
     {
         for (size_t i=0;i<getChildCount();i++)
         {
-            if (getChildFromIndex(i)->getGlobalMarkingBoundingBox(baseCoordInv,min,max,minMaxNotYetDefined,first,guiIsRendering))
+            if (getChildFromIndex(i)->getModelBB(baseCoordInv,minV,maxV,false))
                 retVal=true;
         }
     }
     return(retVal);
 }
 
-void CSceneObject::getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool guiIsRendering)
+void CSceneObject::getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoordInv,C3Vector& minV,C3Vector& maxV)
 {
-    C3Vector smi,sma;
-    getBoundingBox(smi,sma);
-    bool minMaxNotYetDefined=true;
-    C3Vector sm;
-    C7Vector ctm;
-    ctm=getCumulativeTransformation();
-    ctm=baseCoordInv*ctm;
-    for (int i=0;i<2;i++)
+    minV=C3Vector::inf;
+    maxV=C3Vector::ninf;
+    C3Vector bbs;
+    C7Vector bbf(getBB(&bbs));
+    C7Vector tr(baseCoordInv*getCumulativeTransformation()*bbf);
+    C3Vector v;
+    for (double i=-1.0;i<2.0;i=i+2.0)
     {
-        sm(0)=smi(0)*i+sma(0)*(1-i);
-        for (int j=0;j<2;j++)
+        v(0)=bbs(0)*i*0.5;
+        for (double j=-1.0;j<2.0;j=j+2.0)
         {
-            sm(1)=smi(1)*j+sma(1)*(1-j);
-            for (int k=0;k<2;k++)
+            v(1)=bbs(1)*j*0.5;
+            for (double k=-1.0;k<2.0;k=k+2.0)
             {
-                sm(2)=smi(2)*k+sma(2)*(1-k);
-                if (minMaxNotYetDefined)
-                {
-                    max=ctm*sm;
-                    min=max;
-                    minMaxNotYetDefined=false;
-                }
-                else
-                {
-                    max.keepMax(ctm*sm);
-                    min.keepMin(ctm*sm);
-                }
+                v(2)=bbs(2)*k*0.5;
+                C3Vector w(tr*v);
+                maxV.keepMax(w);
+                minV.keepMin(w);
             }
         }
     }
@@ -1339,6 +1309,11 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringObject("boundingBox",subC);
     subC->appendMapObject_stringDoubleArray("min",_boundingBoxMin.data,3);
     subC->appendMapObject_stringDoubleArray("max",_boundingBoxMax.data,3);
+    subC=new CInterfaceStackTable();
+    data->appendMapObject_stringObject("BB",subC);
+    _bbFrame.getData(p,true);
+    subC->appendMapObject_stringDoubleArray("pose",p,7);
+    subC->appendMapObject_stringDoubleArray("size",_bbSize.data,3);
     _appendObjectMovementEventData(data);
     subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("customData",subC);
@@ -1420,9 +1395,10 @@ CSceneObject* CSceneObject::copyYourself()
     theNewObject->_objectMovementRelativity[1]=_objectMovementRelativity[1];
     theNewObject->_objectMovementStepSize[0]=_objectMovementStepSize[0];
     theNewObject->_objectMovementStepSize[1]=_objectMovementStepSize[1];
-
     theNewObject->_boundingBoxMin=_boundingBoxMin;
     theNewObject->_boundingBoxMax=_boundingBoxMax;
+    theNewObject->_bbFrame=_bbFrame;
+    theNewObject->_bbSize=_bbSize;
     theNewObject->_sizeFactor=_sizeFactor;
     theNewObject->_sizeValues[0]=_sizeValues[0];
     theNewObject->_sizeValues[1]=_sizeValues[1];
@@ -1763,10 +1739,37 @@ void CSceneObject::_setBoundingBox(const C3Vector& vmin,const C3Vector& vmax)
     }
 }
 
+void CSceneObject::_setBB(const C7Vector& bbFrame,const C3Vector& bbSize)
+{
+    if ( ((bbSize-_bbSize).getLength()>0.0001)||((bbFrame.X-_bbFrame.X).getLength()>0.0001)||(bbFrame.Q.getAngleBetweenQuaternions(_bbFrame.Q)>0.001) )
+    {
+        _bbFrame=bbFrame;
+        _bbSize=bbSize;
+        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
+        {
+            const char* cmd="BB";
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
+            CInterfaceStackTable* subC=new CInterfaceStackTable();
+            data->appendMapObject_stringObject(cmd,subC);
+            double p[7]={_bbFrame.X(0),_bbFrame.X(1),_bbFrame.X(2),_bbFrame.Q(1),_bbFrame.Q(2),_bbFrame.Q(3),_bbFrame.Q(0)};
+            subC->appendMapObject_stringDoubleArray("pose",p,7);
+            subC->appendMapObject_stringDoubleArray("size",_bbSize.data,3);
+            App::worldContainer->pushEvent(event);
+        }
+    }
+}
+
 void CSceneObject::getBoundingBox(C3Vector& vmin,C3Vector& vmax) const
 {
     vmin=_boundingBoxMin;
     vmax=_boundingBoxMax;
+}
+
+C7Vector CSceneObject::getBB(C3Vector* bbSize/*=nullptr*/) const
+{
+    if (bbSize!=nullptr)
+        bbSize[0]=_bbSize;
+    return(_bbFrame);
 }
 
 void CSceneObject::temporarilyDisableDynamicTree()
@@ -3797,6 +3800,7 @@ void CSceneObject::displayFrames(CViewableBase* renderingObject,double size,bool
     C7Vector localFrame(getIntrinsicTransformation(true,&available));
     if (available)
         _displayFrame(tr*localFrame,size*0.0125);
+    _displayFrame(tr*_bbFrame,size*0.006,false); // frame of the bounding box
 #endif
 }
 
@@ -3869,12 +3873,11 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         sizeValueForPath=std::max<double>((maxCoord-minCoord).getLength()/3.0,pc->getSquareSize()*2.0);
     }
 
-    C4X4Matrix tr;
+    C4X4Matrix tr(getCumulativeTransformation().getMatrix());
     int axisInfo;
     if (_objectManipulationMode_flaggedForGridOverlay&8)
     { // rotation.
         axisInfo=_objectManipulationMode_flaggedForGridOverlay-8;
-        tr=getCumulativeTransformation().getMatrix();
 
         if (getObjectMovementRelativity(1)==0) // world
             tr.M.setIdentity();
@@ -3886,7 +3889,6 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
     else
     { // translation
         axisInfo=_objectManipulationMode_flaggedForGridOverlay-16;
-        tr=getCumulativeTransformation().getMatrix();
         if (getObjectMovementRelativity(0)==0) // world
             tr.M.setIdentity();
         if (getObjectMovementRelativity(0)==1) // parent frame
@@ -3897,9 +3899,8 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
             tr.X=tr*localPositionOnPath;
     }
     // Get the average bounding box size (or model bounding box size):
-    C3Vector bbMin,bbMax;
-    bbMin.clear();
-    bbMax.clear();
+    C3Vector bbMin(C3Vector::inf);
+    C3Vector bbMax(C3Vector::ninf);
     if (_modelBase)
     {
         C7Vector ctmi;
@@ -3908,8 +3909,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         else
             ctmi=getCumulativeTransformation().getInverse(); // actually maybe tr.getInverse would even be better?
 
-        bool b=true;
-        if (!getGlobalMarkingBoundingBox(ctmi,bbMin,bbMax,b,true,true))
+        if (!getModelBB(ctmi,bbMin,bbMax,true))
             bbMax=C3Vector(0.1,0.1,0.1); // shouldn't happen!
     }
     else

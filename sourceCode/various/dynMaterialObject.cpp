@@ -1633,7 +1633,7 @@ void CDynMaterialObject::_fixVortexInfVals()
     for (size_t i=0;i<33;i++)
     {
         if (_vortexFloatParams[i]<0.0)
-            _vortexFloatParams[i]=FLOAT_MAX;
+            _vortexFloatParams[i]=DBL_MAX;
     }
     // values at index 33 and later are signed
 }

@@ -278,6 +278,10 @@ void CVisionSensor::computeBoundingBox()
     C3Vector minV(-0.5*_visionSensorSize,-0.5*_visionSensorSize,-_visionSensorSize*2.0);
     C3Vector maxV(0.5*_visionSensorSize,0.5*_visionSensorSize,0.0);
     _setBoundingBox(minV,maxV);
+    C7Vector fr;
+    fr.Q.setIdentity();
+    fr.X=C3Vector(0.0,0.0,-1.0)*_visionSensorSize;
+    _setBB(fr,C3Vector(1.0,1.0,2.0)*_visionSensorSize);
 }
 
 void CVisionSensor::commonInit()
@@ -1362,9 +1366,9 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
         C7Vector cam(getFullCumulativeTransformation());
         if (!_currentPerspective)
         { // This doesn't work!!
-            C3Vector minV,maxV;
-            bool first=true;
-            viewBoxObject->getGlobalMarkingBoundingBox(getFullCumulativeTransformation().getInverse(),minV,maxV,first,true,false);
+            C3Vector minV(C3Vector::inf);
+            C3Vector maxV(C3Vector::ninf);
+            viewBoxObject->getModelBB((getCumulativeTransformation()*getBB()).getInverse(),minV,maxV,true);
             double shift=getFarClippingPlane()-0.505*(maxV(2)-minV(2)); // just a bit more than half!
             cam.X+=cam.Q.getMatrix().axis[2]*shift;
         }

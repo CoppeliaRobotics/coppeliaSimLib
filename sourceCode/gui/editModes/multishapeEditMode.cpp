@@ -5,7 +5,7 @@
 CMultishapeEditMode::CMultishapeEditMode(CShape* shape)
 {
     _shape=shape;
-    _shape->getMeshWrapper()->getAllShapeComponentsCumulative(_multishapeGeometricComponents);
+    _shape->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,_multishapeGeometricComponents);
     _multishapeGeometricComponentIndex=-1;
 }
 
@@ -55,6 +55,6 @@ CMesh* CMultishapeEditMode::getMultishapeGeometricComponentAtIndex(int index)
 
 void CMultishapeEditMode::displayAllGeometricComponents(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling)
 {
-    for (int i=0;i<int(_multishapeGeometricComponents.size());i++)
-        _multishapeGeometricComponents[i]->display(geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,i==_multishapeGeometricComponentIndex);
+    for (size_t i=0;i<_multishapeGeometricComponents.size();i++)
+        _multishapeGeometricComponents[i]->display(C7Vector::identityTransformation,geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,int(i)==_multishapeGeometricComponentIndex);
 }

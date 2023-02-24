@@ -1,7 +1,7 @@
-
 #pragma once
 
 #include <sceneObject.h>
+#include <mesh.h>
 #ifdef SIM_WITH_GUI
 #include <vMenubar.h>
 #endif
@@ -25,16 +25,16 @@ public:
     static CShape* _groupShapes(const std::vector<CShape*>& shapesToGroup);
 
     static void ungroupSelection(std::vector<int>* selection,bool showMessages);
-    static void _ungroupShape(CShape* shape,std::vector<CShape*>& newShapes);
+    static void _ungroupShape(CShape* it,std::vector<CShape*>& newShapes);
     static void _fullUngroupShape(CShape* shape,std::vector<CShape*>& newShapes);
 
     static int mergeSelection(std::vector<int>* selection,bool showMessages);
     static CShape* _mergeShapes(const std::vector<CShape*>& allShapesToMerge);
 
     static void divideSelection(std::vector<int>* selection,bool showMessages);
-    static bool _divideShape(CShape* shape,std::vector<CShape*>& newShapes);
+    static bool _divideShape(CShape* it,std::vector<CShape*>& newShapes);
 
-    static int generateConvexDecomposed(int shapeHandle,size_t nClusters,double maxConcavity,bool addExtraDistPoints,
+    static CMeshWrapper* generateConvexDecomposed(int shapeHandle,size_t nClusters,double maxConcavity,bool addExtraDistPoints,
                                         bool addFacesPoints,double maxConnectDist,size_t maxTrianglesInDecimatedMesh,
                                         size_t maxHullVertices,double smallClusterThreshold,
                                         bool individuallyConsiderMultishapeComponents,int maxIterations,
@@ -42,7 +42,7 @@ public:
                                         int planeDownsampling_VHACD,int convexHullDownsampling_VHACD,
                                         double alpha_VHACD,double beta_VHACD,double gamma_VHACD_old,bool pca_VHACD,
                                         bool voxelBased_VHACD,int maxVerticesPerCH_VHACD,double minVolumePerCH_VHACD);
-    static int generateConvexHull(int shapeHandle);
+    static CMesh* generateConvexHull(int shapeHandle);
     static int convexDecompose_apiVersion(int shapeHandle,int options,const int* intParams,const double* floatParams);
 
 #ifdef SIM_WITH_GUI

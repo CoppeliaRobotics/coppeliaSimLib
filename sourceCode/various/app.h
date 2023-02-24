@@ -71,6 +71,8 @@ public:
     static void setDefaultMouseMode(); // helper
     static bool isFullScreen(); // helper
     static void setFullScreen(bool f); // helper
+    static bool getShowInertias();
+    static void setShowInertias(bool show);
 
     static std::string getConsoleLogFilter();
     static void setConsoleLogFilter(const char* filter);
@@ -151,6 +153,7 @@ private:
     static int _dlgVerbosity;
     static int _exitCode;
     static bool _online;
+    static bool _showInertias;
     static std::string _consoleLogFilterStr;
     static std::string _startupScriptString;
 

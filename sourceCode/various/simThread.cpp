@@ -268,7 +268,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (obj!=nullptr)
             {
                 obj->setObjectProperty(obj->getObjectProperty()^sim_objectproperty_collapsed);
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
             }
         }
         if (cmd.cmdId==ADD_OR_REMOVE_TO_FROM_OBJECT_SELECTION_CMD)
@@ -282,7 +282,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         App::currentWorld->sceneObjects->addObjectToSelection(cmd.intParams[i]);
                     else
                         App::currentWorld->sceneObjects->removeObjectFromSelection(cmd.intParams[i]);
-                    App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                    App::undoRedo_sceneChanged("");
                 }
             }
         }
@@ -384,7 +384,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     if (theFloatingView->getCanBeClosed())
                     {
                         page->removeFloatingView(size_t(cmd.intParams[0]));
-                        App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                        App::undoRedo_sceneChanged("");
                     }
                 }
             }
@@ -394,7 +394,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             App::currentWorld->pageContainer->removePage(App::currentWorld->pageContainer->getActivePageIndex());
             App::logMsg(sim_verbosity_msgs,IDSNS_REMOVED_VIEW);
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
         }
 
         // Edit mode commands:
@@ -515,7 +515,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
             App::mainWindow->openglWidget->clearModelDragAndDropInfo();
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
         }
 
         if (cmd.cmdId==DISPLAY_VARIOUS_WARNING_MESSAGES_DURING_SIMULATION_CMD)
@@ -2279,7 +2279,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (shape!=nullptr)
                 {
                     std::vector<CMesh*> components;
-                    shape->getMeshWrapper()->getAllShapeComponentsCumulative(components);
+                    shape->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
                     for (size_t j=0;j<components.size();j++)
                     {
                         bool keepTextCoords=false;
@@ -2325,7 +2325,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     shapeList.push_back(shape);
                     std::vector<CMesh*> components;
-                    shape->getMeshWrapper()->getAllShapeComponentsCumulative(components);
+                    shape->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
                     for (size_t j=0;j<components.size();j++)
                     {
                         bool useTexCoords=false;
@@ -2362,7 +2362,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     CShape* shape=shapeList[i];
                     std::vector<CMesh*> components;
-                    shape->getMeshWrapper()->getAllShapeComponentsCumulative(components);
+                    shape->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
                     for (size_t j=0;j<components.size();j++)
                     {
                         CMesh* geom=components[j];
@@ -2378,7 +2378,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     C3Vector bbhs(shape->getBoundingBoxHalfSizes());
                     double s=std::max<double>(std::max<double>(bbhs(0),bbhs(1)),bbhs(2))*2.0;
                     std::vector<CMesh*> components;
-                    shape->getMeshWrapper()->getAllShapeComponentsCumulative(components);
+                    shape->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
                     for (size_t j=0;j<components.size();j++)
                     {
                         CMesh* geom=components[j];
@@ -2390,7 +2390,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             {
                                 std::vector<double> wvert;
                                 std::vector<int> wind;
-                                shape->getSingleMesh()->getCumulativeMeshes(wvert,&wind,nullptr);
+                                shape->getSingleMesh()->getCumulativeMeshes(C7Vector::identityTransformation,wvert,&wind,nullptr);
                                 if (shape->getSingleMesh()->getTextureCoords()->size()/2==wind.size())
                                 { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
                                     tp->setFixedCoordinates(shape->getSingleMesh()->getTextureCoords());
@@ -2430,14 +2430,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     s[1]=cmd.floatParams[1]/ySizeOriginal;
                 if (zSizeOriginal!=0.0)
                     s[2]=cmd.floatParams[2]/zSizeOriginal;
-                it->scaleMesh(s[0],s[1],s[2]);
+                it->scaleObjectNonIsometrically(s[0],s[1],s[2]);
             }
         }
         if (cmd.cmdId==APPLY_SCALING_GEOMETRYGUITRIGGEREDCMD)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->scaleMesh(cmd.floatParams[0],cmd.floatParams[1],cmd.floatParams[2]);
+                it->scaleObjectNonIsometrically(cmd.floatParams[0],cmd.floatParams[1],cmd.floatParams[2]);
         }
         if (cmd.cmdId==APPLY_FRAMEROTATION_GEOMETRYGUITRIGGEREDCMD)
         {
@@ -2568,9 +2568,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             //      ((CMesh*)shape->geomInfo)->color.setColor(0.5,0.5,0.5,sim_colorcomponent_ambient_diffuse);
             //      ((CMesh*)shape->geomInfo)->insideColor.setColor(0.5,0.5,0.5,sim_colorcomponent_ambient_diffuse);
                     geom->setTextureProperty(tp);
-                    std::vector<double> wvert;
+                    std::vector<double> any;
                     std::vector<int> wind;
-                    geom->getCumulativeMeshes(wvert,&wind,nullptr);
+                    geom->getCumulativeMeshes(C7Vector::identityTransformation,any,&wind,nullptr);
                     if (geom->getTextureCoords()->size()/2==wind.size())
                     { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
                         App::uiThread->messageBox_information(App::mainWindow,"Texture coordinates",IDS_USING_EXISTING_TEXTURE_COORDINATES,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
@@ -2627,9 +2627,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         //  ((CMesh*)shape->geomInfo)->color.setColor(0.5,0.5,0.5,sim_colorcomponent_ambient_diffuse);
                         //  ((CMesh*)shape->geomInfo)->insideColor.setColor(0.5,0.5,0.5,sim_colorcomponent_ambient_diffuse);
 
-                            std::vector<double> wvert;
+                            std::vector<double> any;
                             std::vector<int> wind;
-                            geom->getCumulativeMeshes(wvert,&wind,nullptr);
+                            geom->getCumulativeMeshes(C7Vector::identityTransformation,any,&wind,nullptr);
 
                             if (geom->getTextureCoords()->size()/2==wind.size())
                             { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
@@ -2701,7 +2701,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 std::vector<CMesh*> geoms;
-                it->getMeshWrapper()->getAllShapeComponentsCumulative(geoms);
+                it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,geoms);
                 int index=cmd.intParams[1];
                 if ((index>=0)&&(index<int(geoms.size())))
                 {
@@ -2716,7 +2716,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 std::vector<CMesh*> geoms;
-                it->getMeshWrapper()->getAllShapeComponentsCumulative(geoms);
+                it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,geoms);
                 int index=cmd.intParams[1];
                 if ((index>=0)&&(index<int(geoms.size())))
                 {
@@ -2731,7 +2731,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 std::vector<CMesh*> geoms;
-                it->getMeshWrapper()->getAllShapeComponentsCumulative(geoms);
+                it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,geoms);
                 int index=cmd.intParams[1];
                 if ((index>=0)&&(index<int(geoms.size())))
                 {
@@ -3186,11 +3186,17 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             for (size_t i=0;i<allComponents.size();i++)
                 allComponents[i]->setMass(allComponents[i]->getMass()*cmd.floatParams[0]);
         }
-        if (cmd.cmdId==SET_PRINCIPALMOMENTOFINTERIA_SHAPEDYNGUITRIGGEREDCMD)
+        if (cmd.cmdId==SET_INERTIAMATRIX_SHAPEDYNGUITRIGGEREDCMD)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->getMeshWrapper()->setPrincipalMomentsOfInertia(C3Vector(&cmd.floatParams[0]));
+            {
+                C3X3Matrix m(it->getMeshWrapper()->getMasslessInertiaMatrix());
+                m(size_t(cmd.intParams[1]),size_t(cmd.intParams[2]))=cmd.floatParams[0];
+                if (!cmd.boolParams[0])
+                    m(size_t(cmd.intParams[1]),size_t(cmd.intParams[2]))/=it->getMeshWrapper()->getMass();
+                it->getMeshWrapper()->setMasslessInertiaMatrix(m,cmd.intParams[1],cmd.intParams[2]);
+            }
         }
         if (cmd.cmdId==MULTIPLY_INERTIAFORSELECTION_SHAPEDYNGUITRIGGEREDCMD)
         {
@@ -3214,25 +3220,19 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
             for (size_t i=0;i<allComponents.size();i++)
-            {
-                C3Vector v(allComponents[i]->getPrincipalMomentsOfInertia());
-                v*=cmd.floatParams[0];
-                allComponents[i]->setPrincipalMomentsOfInertia(v);
-            }
+                allComponents[i]->setMasslessInertiaMatrix(allComponents[i]->getMasslessInertiaMatrix()*cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->getMeshWrapper()->setLocalInertiaFrame(cmd.transfParams[0]);
+                it->getMeshWrapper()->setCOM(cmd.posParams[0]);
         }
         if (cmd.cmdId==APPLY_DYNPARAMS_SHAPEDYNGUITRIGGEREDCMD)
         {
             CShape* last=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (last!=nullptr)
             {
-                C7Vector trLast(last->getFullCumulativeTransformation());
-                C7Vector trfLast(last->getMeshWrapper()->getLocalInertiaFrame());
                 bool lastIsHeightfield=(last->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield);
                 for (size_t i=1;i<cmd.intParams.size();i++)
                 {
@@ -3253,8 +3253,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                                 it->setStartInDynamicSleeping(last->getStartInDynamicSleeping());
                                 it->setSetAutomaticallyToNonStaticIfGetsParent(last->getSetAutomaticallyToNonStaticIfGetsParent());
                                 it->getMeshWrapper()->setMass(last->getMeshWrapper()->getMass());
-                                it->getMeshWrapper()->setPrincipalMomentsOfInertia(last->getMeshWrapper()->getPrincipalMomentsOfInertia());
-                                it->getMeshWrapper()->setLocalInertiaFrame(last->getMeshWrapper()->getLocalInertiaFrame());
+                                it->getMeshWrapper()->setMasslessInertiaMatrix(last->getMeshWrapper()->getMasslessInertiaMatrix());
+                                it->getMeshWrapper()->setCOM(last->getMeshWrapper()->getCOM());
                             }
                         }
                     }
@@ -3298,8 +3298,16 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     if (mass>0.0)
                     {
                         mass=desiredDensity*mass/1000.0;
-                        it->getMeshWrapper()->setPrincipalMomentsOfInertia(diagI);
-                        it->getMeshWrapper()->setLocalInertiaFrame(localTr);
+                        C3X3Matrix im;
+                        im.clear();
+                        im(0,0)=diagI(0);
+                        im(1,1)=diagI(1);
+                        im(2,2)=diagI(2);
+                        im=CMeshWrapper::getMasslesInertiaMatrixInNewFrame(localTr.Q,im,C4Vector::identityRotation);
+//                        C3X3Matrix rot(localTr.Q.getMatrix());
+//                        im=rot*im*rot.getTranspose();
+                        it->getMeshWrapper()->setMasslessInertiaMatrix(im);
+                        it->getMeshWrapper()->setCOM(localTr.X);
                         it->getMeshWrapper()->setMass(mass);
                     }
                 }
@@ -4350,9 +4358,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             int toid=cmd.intParams[0];
             CShape* newShape;
             if (toid!=-1)
-                newShape=new CShape(nullptr,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,&cmd.floatVectorParams[2]);
+                newShape=new CShape(C7Vector::identityTransformation,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,&cmd.floatVectorParams[2]);
             else
-                newShape=new CShape(nullptr,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
+                newShape=new CShape(C7Vector::identityTransformation,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
             newShape->setVisibleEdges(false);
             newShape->getSingleMesh()->setShadingAngle(0.0);
             newShape->getSingleMesh()->setEdgeThresholdAngle(0.0);
@@ -4377,7 +4385,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SHAPEEDIT_MAKEPRIMITIVE_GUITRIGGEREDCMD)
         {
-            CShape* newShape=new CShape(nullptr,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
+            CShape* newShape=new CShape(C7Vector::identityTransformation,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
             C3Vector size(newShape->getBoundingBoxHalfSizes()*2.0);
             C7Vector conf(newShape->getLocalTransformation());
             delete newShape;
@@ -4671,7 +4679,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         if (App::currentWorld->simulation->getDynamicContentVisualizationOnly())
             displayAttrib|=sim_displayattribute_dynamiccontentonly;
         CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(psh);
-        double dist=FLOAT_MAX;
+        double dist=DBL_MAX;
         bool ptValid=false;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
         {

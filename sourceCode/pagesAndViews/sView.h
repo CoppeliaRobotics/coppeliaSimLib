@@ -28,8 +28,6 @@ public:
     bool getShowEdges() const;
     void setThickEdges(bool thickEdges);
     bool getThickEdges() const;
-    void setVisualizeOnlyInertias(bool inertiasOnly);
-    bool getVisualizeOnlyInertias() const;
     int getCursor(int x,int y) const;
 
 
@@ -100,7 +98,6 @@ private:
     bool perspectiveDisplay;
     bool _showEdges;
     bool _thickEdges;
-    bool _visualizeOnlyInertias;
     bool _removeFloatingViewAtSimulationEnd;
     int _renderingMode;
     bool _xyGraphInAutoModeDuringSimulation;
@@ -152,7 +149,6 @@ private:
     bool _initialPerspectiveDisplay;
     bool _initialShowEdges;
     bool _initialThickEdges;
-    bool _initialVisualizeOnlyInertias;
     int _initialRenderingMode;
     bool _initialGraphIsTimeGraph;
 

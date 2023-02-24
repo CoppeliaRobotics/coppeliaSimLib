@@ -54,6 +54,7 @@ bool App::_online=false;
 std::string App::_consoleLogFilterStr;
 std::string App::_startupScriptString;
 long long int App::_nextUniqueId=0;
+bool App::_showInertias=false;
 
 bool App::_simulatorIsRunning=false;
 std::vector<std::string> App::_applicationArguments;
@@ -914,6 +915,23 @@ void App::setFullScreen(bool f)
 #endif
 }
 
+bool App::getShowInertias()
+{
+    return(_showInertias);
+}
+
+void App::setShowInertias(bool show)
+{
+    if (_showInertias!=show)
+    {
+        _showInertias=show;
+        if (_showInertias)
+            logMsg(sim_verbosity_msgs,IDSNS_SHOWING_INERTIAS);
+        else
+            logMsg(sim_verbosity_msgs,IDSNS_NOT_SHOWING_INERTIAS);
+    }
+}
+
 void App::_logMsgToStatusbar(const char* msg,bool html)
 {
     if (!VThread::isCurrentThreadTheUiThread())
@@ -1275,7 +1293,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
             if ((it!=nullptr)&&it->isCompound())
             {
                 std::vector<CMesh*> allGeometrics;
-                it->getMeshWrapper()->getAllShapeComponentsCumulative(allGeometrics);
+                it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
                 if ((objID2>=0)&&(objID2<int(allGeometrics.size())))
                     return(&allGeometrics[objID2]->color);
             }
@@ -1327,7 +1345,7 @@ CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,
         if (it!=nullptr)
         {
             std::vector<CMesh*> allGeometrics;
-            it->getMeshWrapper()->getAllShapeComponentsCumulative(allGeometrics);
+            it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
             if ((objID2>=0)&&(objID2<int(allGeometrics.size())))
             {
                 _isValid[0]=true;

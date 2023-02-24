@@ -32,7 +32,7 @@ bool CToolBarCommand::processCommand(int commandID)
                             view->getViewSize(viewSize);
 
                             cam->frameSceneOrSelectedObjects(double(viewSize[0])/double(viewSize[1]),view->getPerspectiveDisplay(),nullptr,true,true,1.0,view);
-                            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                            App::undoRedo_sceneChanged(""); 
                             cam->setFogTimer(4.0);
                         }
                     }
@@ -247,7 +247,7 @@ bool CToolBarCommand::processCommand(int commandID)
             if (App::currentWorld->pageContainer->getActivePageIndex()!=(commandID-VIEW_1_CMD))
             {
                 App::currentWorld->pageContainer->setActivePage(commandID-VIEW_1_CMD);
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); 
                 std::string str(IDSNS_SWAPPED_TO_PAGE);
                 str+=" ";
                 str+=boost::lexical_cast<std::string>(commandID-VIEW_1_CMD+1)+".";

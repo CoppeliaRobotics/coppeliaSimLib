@@ -2036,7 +2036,7 @@ int simSetShapeMassAndInertia_internal(int shapeHandle,double mass,const double*
 
         C4Vector rot;
         C3Vector pmoment;
-        CMeshWrapper::findPrincipalMomentOfInertia(m,rot,pmoment);
+        CMeshWrapper::getPMIFromMasslessTensor(m,rot,pmoment);
         if (pmoment(0)<0.0000001)
             pmoment(0)=0.0000001;
         if (pmoment(1)<0.0000001)
@@ -2064,21 +2064,18 @@ int simGetShapeMassAndInertia_internal(int shapeHandle,double* mass,double* iner
         if (!isShape(__func__,shapeHandle))
             return(-1);
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-
         mass[0]=it->getMeshWrapper()->getMass();
-        //double mmm=it->geomInfo->getMass();
-
-        C7Vector tr(it->getFullCumulativeTransformation()*it->getMeshWrapper()->getLocalInertiaFrame());
         C4X4Matrix ref;
         if (transformation==nullptr)
             ref.setIdentity();
         else
             ref.setData(transformation);
-        C3X3Matrix m(CMeshWrapper::getNewTensor(it->getMeshWrapper()->getPrincipalMomentsOfInertia(),ref.getTransformation().getInverse()*tr));
-        m*=mass[0]; // in CoppeliaSim we work with the "massless inertia"
+        C4X4Matrix xx(it->getFullCumulativeTransformation().getInverse()*ref.getTransformation());
+        C3X3Matrix m(it->getMeshWrapper()->getMasslessInertiaMatrix());
+        m=xx.M.getTranspose()*m*xx.M;
+        m*=mass[0];
         m.getData(inertiaMatrix);
-        (ref.getTransformation().getInverse()*tr).X.getData(centerOfMass);
-
+        (xx.getInverse()*it->getMeshWrapper()->getCOM()).getData(centerOfMass);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -2792,7 +2789,7 @@ int simSendData_internal(int targetID,int dataHeader,const char* dataName,const 
                 return(-1);
             }
         }
-        actionRadius=tt::getLimitedFloat(0.0,FLOAT_MAX,actionRadius);
+        actionRadius=tt::getLimitedFloat(0.0,DBL_MAX,actionRadius);
         emissionAngle1=tt::getLimitedFloat(0.0,piValue,emissionAngle1);
         emissionAngle2=tt::getLimitedFloat(0.0,piValT2,emissionAngle2);
         persistence=tt::getLimitedFloat(0.0,99999999999999.9,persistence);
@@ -3803,7 +3800,7 @@ int simReadDistance_internal(int distanceObjectHandle,double* smallestDistance)
             smallestDistance[0]=d;
             return(1);
         }
-        smallestDistance[0]=FLOAT_MAX; // new for V3.3.2 rev2
+        smallestDistance[0]=DBL_MAX; // new for V3.3.2 rev2
         return(0); // from -1 to 0 for V3.3.2 rev2
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5958,7 +5955,8 @@ int simGetQuaternionFromMatrix_internal(const double* matrix,double* quaternion)
 void _simGetLocalInertiaFrame_internal(const void* geomInfo,double* pos,double* quat)
 { // deprecated on 19.08.2022
     TRACE_C_API;
-    C7Vector tr(((CMeshWrapper*)geomInfo)->getLocalInertiaFrame());
+    C3Vector diag;
+    C7Vector tr(((CMeshWrapper*)geomInfo)->getDiagonalInertiaInfo(diag));
     tr.Q.getData(quat);
     tr.X.getData(pos);
 }
@@ -5966,7 +5964,7 @@ void _simGetLocalInertiaFrame_internal(const void* geomInfo,double* pos,double* 
 void _simGetPrincipalMomentOfInertia_internal(const void* geomInfo,double* inertia)
 { // deprecated on 19.08.2022
     TRACE_C_API;
-    ((CMeshWrapper*)geomInfo)->getPrincipalMomentsOfInertia().getData(inertia);
+    ((CMeshWrapper*)geomInfo)->getPMI().getData(inertia);
 }
 
 int simSetDoubleSignalOld_internal(const char* signalName,double signalValue)
@@ -6032,37 +6030,28 @@ int simGetShapeVertex_internal(int shapeHandle,int groupElementIndex,int vertexI
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,shapeHandle))
-        {
             return(-1);
-        }
         if (!isShape(__func__,shapeHandle))
-        {
             return(-1);
-        }
         if (App::currentWorld->environment->getSceneLocked())
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
             return(-1);
         }
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-        CMesh* cc=it->getMeshWrapper()->getShapeComponentAtIndex(groupElementIndex);
+        C7Vector ptr;
+        CMesh* cc=it->getMeshWrapper()->getShapeComponentAtIndex(C7Vector::identityTransformation,groupElementIndex,&ptr);
         if (cc==nullptr)
-        {
             return(0);
-        }
         std::vector<double> wvert;
-        cc->getCumulativeMeshes(wvert,nullptr,nullptr);
+        cc->getCumulativeMeshes(ptr,wvert,nullptr,nullptr);
         if ( (vertexIndex<0)||(vertexIndex>=int(wvert.size())/3) )
-        {
             return(0);
-        }
         relativePosition[0]=wvert[3*vertexIndex+0];
         relativePosition[1]=wvert[3*vertexIndex+1];
         relativePosition[2]=wvert[3*vertexIndex+2];
@@ -6077,39 +6066,30 @@ int simGetShapeTriangle_internal(int shapeHandle,int groupElementIndex,int trian
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,shapeHandle))
-        {
             return(-1);
-        }
         if (!isShape(__func__,shapeHandle))
-        {
             return(-1);
-        }
         if (App::currentWorld->environment->getSceneLocked())
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
             return(-1);
         }
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-        CMesh* cc=it->getMeshWrapper()->getShapeComponentAtIndex(groupElementIndex);
+        C7Vector ptr;
+        CMesh* cc=it->getMeshWrapper()->getShapeComponentAtIndex(C7Vector::identityTransformation,groupElementIndex,&ptr);
         if (cc==nullptr)
-        {
             return(0);
-        }
         std::vector<double> wvert;
         std::vector<int> wind;
         std::vector<double> wnorm;
-        cc->getCumulativeMeshes(wvert,&wind,&wnorm);
+        cc->getCumulativeMeshes(ptr,wvert,&wind,&wnorm);
         if ( (triangleIndex<0)||(triangleIndex>=int(wind.size())/3) )
-        {
             return(0);
-        }
         if (vertexIndices!=nullptr)
         {
             vertexIndices[0]=wind[3*triangleIndex+0];
@@ -6132,5 +6112,10 @@ int simGetShapeTriangle_internal(int shapeHandle,int groupElementIndex,int trian
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
+}
+
+const void* _simGetGeomProxyFromShape_internal(const void* shape)
+{
+    return(shape);
 }
 

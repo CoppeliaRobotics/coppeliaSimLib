@@ -83,10 +83,36 @@ CShape::CShape(const std::vector<double>& allHeights,int xSize,int ySize,double 
     setLocalTransformation(newLocalTr);
 }
 
-CShape::CShape(const C7Vector* transformation,const std::vector<double>& vert,const std::vector<int>& ind,const std::vector<double>* normals,const std::vector<double>* textCoord)
+CMeshWrapper* CShape::detachMesh()
+{
+    CMeshWrapper* retVal=_mesh;
+    _mesh=nullptr;
+    return(retVal);
+}
+
+void CShape::replaceMesh(CMeshWrapper* newMesh,bool keepMeshAttributes)
+{
+    removeMeshCalculationStructure();
+    if (_mesh!=nullptr)
+    {
+        if (keepMeshAttributes)
+            _mesh->copyAttributesTo(newMesh);
+        delete _mesh;
+    }
+    _mesh=newMesh;
+    _computeMeshBoundingBox();
+    computeBoundingBox();
+    _meshModificationCounter++;
+    actualizeContainsTransparentComponent();
+    pushObjectRefreshEvent();
+}
+
+CShape::CShape(const C7Vector& transformation,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords)
 {
     commonInit();
-    setLocalTransformation(reinitMesh(transformation,vert,ind,normals,textCoord));
+    _localTransformation=transformation;
+    CMesh* newMesh=new CMesh(_localTransformation,vertices,indices,optNormals,optTexCoords);
+    replaceMesh(newMesh,false);
 }
 
 CShape::CShape(const C7Vector& transformation,CMeshWrapper* newGeomInfo)
@@ -174,12 +200,12 @@ C7Vector CShape::reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeo
     _mesh=newGeomInfo;
     std::vector<double> wvert;
     std::vector<int> wind;
-    getMeshWrapper()->getCumulativeMeshes(wvert,&wind,nullptr);
+    getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,wvert,&wind,nullptr);
 
     // We align the bounding box:
     if (wvert.size()!=0)
     {
-        retVal=CAlgos::getMeshBoundingBoxPose(wvert,wind,true);
+        retVal=CAlgos::getMeshBoundingBox(wvert,wind,true);
         getMeshWrapper()->preMultiplyAllVerticeLocalFrames(retVal.getInverse());
     }
 
@@ -203,7 +229,7 @@ C3Vector CShape::getBoundingBoxHalfSizes() const
 void CShape::_computeMeshBoundingBox()
 {
     std::vector<double> visibleVertices;
-    _mesh->getCumulativeMeshes(visibleVertices,nullptr,nullptr);
+    _mesh->getCumulativeMeshes(C7Vector::identityTransformation,visibleVertices,nullptr,nullptr);
     for (size_t i=0;i<visibleVertices.size()/3;i++)
     {
         if (i==0)
@@ -222,7 +248,7 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<double>& vert,const std::v
     std::vector<double> wwert(vert);
     std::vector<int> wwind(ind);
     CMeshManip::removeNonReferencedVertices(wwert,wwind);
-    CMesh* newGeomInfo=new CMesh(wwert,wwind,norm);
+    CMesh* newGeomInfo=new CMesh(C7Vector::identityTransformation,wwert,wwind,norm,nullptr);
     if (textCoord!=nullptr)
     {
         std::vector<float> f;
@@ -238,7 +264,7 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<double>& vert,const std::v
     if (_mesh!=nullptr)
     {
         if (getMeshWrapper()->isMesh())
-            getSingleMesh()->copyVisualAttributesTo(newGeomInfo); // copy a few properties (not all)
+            newGeomInfo->takeVisualAttributesFrom(getSingleMesh()); // copy a few properties (not all)
     }
 
     delete _mesh;
@@ -248,7 +274,7 @@ C7Vector CShape::_acceptNewGeometry(const std::vector<double>& vert,const std::v
     // We align the bounding box:
     if (wwert.size()!=0)
     {
-        retVal=CAlgos::getMeshBoundingBoxPose(wwert,wwind,true);
+        retVal=CAlgos::getMeshBoundingBox(wwert,wwind,true);
         getMeshWrapper()->preMultiplyAllVerticeLocalFrames(retVal.getInverse());
     }
 
@@ -274,10 +300,10 @@ C7Vector CShape::_recomputeOrientation(C7Vector& m,bool alignWithMainAxis)
     // 3. We calculate the new orientation:
     std::vector<double> visibleVertices;
     std::vector<int> visibleIndices;
-    getMeshWrapper()->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
+    getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,visibleVertices,&visibleIndices,nullptr);
     C7Vector tr;
     if (visibleVertices.size()!=0)
-        tr=CAlgos::getMeshBoundingBoxPose(visibleVertices,visibleIndices,alignWithMainAxis);
+        tr=CAlgos::getMeshBoundingBox(visibleVertices,visibleIndices,alignWithMainAxis);
     else
         tr.setIdentity();
 
@@ -306,7 +332,7 @@ C7Vector CShape::_recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& e
     getMeshWrapper()->preMultiplyAllVerticeLocalFrames(m);
     std::vector<double> visibleVertices;
     std::vector<int> visibleIndices;
-    getMeshWrapper()->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
+    getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,visibleVertices,&visibleIndices,nullptr);
 
     // 1. We calculate the new orientation, based on the copy:
     bool success;
@@ -387,8 +413,8 @@ bool CShape::_getTubeReferenceFrame(const std::vector<double>& v,C7Vector& tr)
     C3Vector rightPt1(&v[3*indexRight+0]);
     int indexLeft2=-1;
     int indexRight2=-1;
-    double leftDist=FLOAT_MAX;
-    double rightDist=FLOAT_MAX;
+    double leftDist=DBL_MAX;
+    double rightDist=DBL_MAX;
     for (size_t i=0;i<v.size()/3;i++)
     {
         C3Vector pt(&v[3*i+0]);
@@ -419,8 +445,8 @@ bool CShape::_getTubeReferenceFrame(const std::vector<double>& v,C7Vector& tr)
     C3Vector rightPt2(&v[3*indexRight2+0]);
     int indexLeft3=-1;
     int indexRight3=-1;
-    leftDist=FLOAT_MAX;
-    rightDist=FLOAT_MAX;
+    leftDist=DBL_MAX;
+    rightDist=DBL_MAX;
     for (size_t i=0;i<v.size()/3;i++)
     {
         C3Vector pt(&v[3*i+0]);
@@ -651,61 +677,6 @@ bool CShape::_getCuboidReferenceFrame(const std::vector<double>& v,const std::ve
     return(true);
 }
 
-void CShape::scaleMesh(double xVal,double yVal,double zVal)
-{   // The geometric resource is scaled and the bounding box is recomputed.
-    double xp,yp,zp;
-    scaleMesh(xVal,yVal,zVal,xp,yp,zp);
-}
-
-void CShape::scaleMesh(double x,double y,double z,double& xp,double& yp,double& zp)
-{   // The geometric resource is scaled and the bounding box is recomputed.
-    // Normals are not recomputed if xVal==yVal==yVal
-    _meshModificationCounter++;
-    if (getMeshWrapper()->isPure())
-    { // we have some constraints in case we have a pure mesh (or several pure meshes in a group)
-        if (getMeshWrapper()->isMesh())
-        { // we have a pure mesh (non-group)
-            int purePrim=getSingleMesh()->getPurePrimitiveType();
-            if (purePrim==sim_primitiveshape_plane)
-                z=1.0;
-            if (purePrim==sim_primitiveshape_disc)
-            {
-                z=1.0;
-                y=x;
-            }
-            if ( (purePrim==sim_primitiveshape_spheroid)||(purePrim==sim_primitiveshape_capsule) )
-            {
-                y=x;
-                z=x;
-            }
-            if ( (purePrim==sim_primitiveshape_cylinder)||(purePrim==sim_primitiveshape_cone)||(purePrim==sim_primitiveshape_heightfield) )
-                y=x;
-        }
-    }
-    if (!getMeshWrapper()->isMesh())
-    { // we have a group. We do iso-scaling!
-        y=x;
-        z=x;
-    }
-
-    // Scale collision info if we have an isometric scaling:
-    if ( (x==y)&&(x==z)&&(_meshCalculationStructure!=nullptr) )
-        CPluginContainer::geomPlugin_scaleMesh(_meshCalculationStructure,x);
-    else
-        removeMeshCalculationStructure(); // we have to recompute it!
-
-    // Scale meshes and adjust textures:
-    getMeshWrapper()->scale(x,y,z);
-
-    // recompute the bounding box:
-    _computeMeshBoundingBox();
-    computeBoundingBox();
-
-    xp=x;
-    yp=y;
-    zp=z;
-}
-
 int CShape::getMeshModificationCounter()
 {
     return(_meshModificationCounter);
@@ -873,6 +844,9 @@ bool CShape::isPotentiallyRenderable() const
 void CShape::computeBoundingBox()
 {
     _setBoundingBox(getBoundingBoxHalfSizes()*-1.0,getBoundingBoxHalfSizes());
+    C3Vector s;
+    C7Vector fr(getMeshWrapper()->getBB(&s));
+    _setBB(fr,s);
 }
 
 void CShape::commonInit()
@@ -1052,14 +1026,25 @@ void CShape::display_extRenderer(CViewableBase* renderingObject,int displayAttri
         { // the bounding box is inside of the view (at least some part of it!)
             C7Vector tr=getCumulativeTransformation();
             int componentIndex=0;
-            getMeshWrapper()->display_extRenderer(this,displayAttrib,tr,_objectHandle,componentIndex);
+            getMeshWrapper()->display_extRenderer(C7Vector::identityTransformation,this,displayAttrib,tr,_objectHandle,componentIndex);
         }
     }
 }
 
 void CShape::scaleObject(double scalingFactor)
 {   
-    scaleMesh(scalingFactor,scalingFactor,scalingFactor); // will set the geomObject dynamics full refresh flag!
+    _meshModificationCounter++;
+    // Scale collision info
+    if (_meshCalculationStructure!=nullptr)
+        CPluginContainer::geomPlugin_scaleMesh(_meshCalculationStructure,scalingFactor);
+
+    // Scale meshes and adjust textures:
+    getMeshWrapper()->scale(scalingFactor);
+
+    // recompute the bounding box:
+    _computeMeshBoundingBox();
+    computeBoundingBox();
+
     CSceneObject::scaleObject(scalingFactor);
     pushObjectRefreshEvent();
     _dynamicsResetFlag=true;
@@ -1067,11 +1052,43 @@ void CShape::scaleObject(double scalingFactor)
 
 void CShape::scaleObjectNonIsometrically(double x,double y,double z)
 {
-    double xp,yp,zp;
-    scaleMesh(x,y,z,xp,yp,zp); // will set the geomObject dynamics full refresh flag!
-    CSceneObject::scaleObjectNonIsometrically(xp,yp,zp);
-    pushObjectRefreshEvent();
-    _dynamicsResetFlag=true;
+    if ( getMeshWrapper()->isMesh()&&((fabs(x-y)>fabs(0.001*x))&&(fabs(x-z)>fabs(0.001*x))) )
+    {
+        _meshModificationCounter++;
+        if (getMeshWrapper()->isPure())
+        { // we have some constraints in case we have a primitive mesh
+            int purePrim=getSingleMesh()->getPurePrimitiveType();
+            if (purePrim==sim_primitiveshape_plane)
+                z=1.0;
+            if (purePrim==sim_primitiveshape_disc)
+            {
+                z=1.0;
+                y=x;
+            }
+            if ( (purePrim==sim_primitiveshape_spheroid)||(purePrim==sim_primitiveshape_capsule) )
+            {
+                y=x;
+                z=x;
+            }
+            if ( (purePrim==sim_primitiveshape_cylinder)||(purePrim==sim_primitiveshape_cone)||(purePrim==sim_primitiveshape_heightfield) )
+                y=x;
+        }
+
+        removeMeshCalculationStructure(); // we have to recompute it!
+
+        // Scale meshes and adjust textures:
+        getSingleMesh()->scale(x,y,z);
+
+        // recompute the bounding box:
+        _computeMeshBoundingBox();
+        computeBoundingBox();
+
+        CSceneObject::scaleObjectNonIsometrically(x,y,z);
+        pushObjectRefreshEvent();
+        _dynamicsResetFlag=true;
+    }
+    else
+        scaleObject(cbrt(x*y*z)); // we have a compound or iso scaling
 }
 
 void CShape::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
@@ -1184,45 +1201,11 @@ void CShape::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {   // Storing
-            // Following tags are reserved (11/11/2012): Sco, Sc2, Eco, Ewt
-
-            if (true)
-            { // keep until 2022 for back compatibility
-                ar.storeDataName("Ge2");
-                ar.setCountingMode();
-                _serializeBackCompatibility(ar);
-                if (ar.setWritingMode())
-                    _serializeBackCompatibility(ar);
-            }
-            else
-            { // following was previously located in CGeomProxy:
-                if (_mesh->isMesh())
-                    ar.storeDataName("Gst");
-                else
-                    ar.storeDataName("Gsg");
-                ar.setCountingMode();
-                _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
-                if (ar.setWritingMode())
-                    _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
-
-                if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp()&&isMeshCalculationStructureInitialized())
-                {
-
-                    std::vector<unsigned char> serializationData;
-                    CPluginContainer::geomPlugin_getMeshSerializationData(_meshCalculationStructure,serializationData);
-                    ar.storeDataName("_oi");
-                    ar.setCountingMode(true);
-                    for (int i=0;i<serializationData.size();i++)
-                        ar << serializationData[i];
-                    ar.flush(false);
-                    if (ar.setWritingMode(true))
-                    {
-                        for (int i=0;i<serializationData.size();i++)
-                            ar << serializationData[i];
-                        ar.flush(false);
-                    }
-                }
-            }
+            ar.storeDataName("Ge2");
+            ar.setCountingMode();
+            _serializeMesh(ar);
+            if (ar.setWritingMode())
+                _serializeMesh(ar);
 
             ar.storeDataName("Mat");
             ar.setCountingMode();
@@ -1287,27 +1270,7 @@ void CShape::serialize(CSer& ar)
                     { // keep until 2024 for back compatibility
                         noHit=false;
                         ar >> byteQuantity; 
-                        _serializeBackCompatibility(ar);
-                        getMeshWrapper()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
-                    }
-                    if (theName.compare("Gst")==0)
-                    { // geometric (not yet used, but so that old versions will be able to read this)
-                        noHit=false;
-                        ar >> byteQuantity; 
-                        delete _mesh;
-                        _mesh=new CMesh();
-                        ((CMesh*)_mesh)->serialize(ar,getObjectAliasAndHandle().c_str());
-                        _computeMeshBoundingBox();
-                        getMeshWrapper()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
-                    }
-                    if (theName.compare("Gsg")==0)
-                    { // geomWrap (not yet used, but so that old versions will be able to read this)
-                        noHit=false;
-                        ar >> byteQuantity; 
-                        delete _mesh;
-                        _mesh=new CMeshWrapper();
-                        _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
-                        _computeMeshBoundingBox();
+                        _serializeMesh(ar);
                         getMeshWrapper()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
                     }
 
@@ -1411,37 +1374,9 @@ void CShape::serialize(CSer& ar)
         { // for non-exhaustive, is done in CSceneObjectContainer
             if (ar.isStoring())
             {
-                if (true)
-                { // keep until 2022 for back compatibility
-                    ar.xmlPushNewNode("meshProxy");
-                    _serializeBackCompatibility(ar);
-                    ar.xmlPopNode();
-                }
-                else
-                { // following previously located in geomProxy:
-                    ar.clearIncrementCounter();
-                    if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp()&&isMeshCalculationStructureInitialized())
-                    {
-                        std::vector<unsigned char> collInfoData;
-                        CPluginContainer::geomPlugin_getMeshSerializationData(_meshCalculationStructure,collInfoData);
-                        ar.xmlPushNewNode("calculationStructure");
-                        if (ar.xmlSaveDataInline(int(collInfoData.size())))
-                        {
-                            std::string str(base64_encode(&collInfoData[0],(unsigned int)collInfoData.size()));
-                            ar.xmlAddNode_string("data_base64Coded",str.c_str());
-                        }
-                        else
-                            ar.xmlAddNode_binFile("file",(std::string("calcStruct_")+_objectAlias+"-"+std::to_string(_objectHandle)).c_str(),&collInfoData[0],collInfoData.size());
-                        ar.xmlPopNode();
-                    }
-
-                    if (_mesh->isMesh())
-                        ar.xmlPushNewNode("mesh");
-                    else
-                        ar.xmlPushNewNode("compound");
-                    _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
-                    ar.xmlPopNode();
-                }
+                ar.xmlPushNewNode("meshProxy");
+                _serializeMesh(ar);
+                ar.xmlPopNode();
 
                 ar.xmlPushNewNode("dynamics");
                 ar.xmlAddNode_int("respondableMask",_dynamicCollisionMask);
@@ -1468,43 +1403,10 @@ void CShape::serialize(CSer& ar)
             {
                 bool meshProxyNotPresent=true;
                 if (ar.xmlPushChildNode("meshProxy",false))
-                { // keep until about 2024
-                    _serializeBackCompatibility(ar);
+                {
+                    _serializeMesh(ar);
                     ar.xmlPopNode();
                     meshProxyNotPresent=false;
-                }
-                if (ar.xmlPushChildNode("calculationStructure",false))
-                { // (not yet used, but so that old versions will be able to read this)
-                    std::string str;
-                    if (ar.xmlGetNode_string("data_base64Coded",str,false))
-                        str=base64_decode(str);
-                    else
-                        ar.xmlGetNode_binFile("file",str);
-
-                    std::vector<double> wvert;
-                    std::vector<int> wind;
-                    _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
-                    _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData((unsigned char*)str.c_str());
-                    ar.xmlPopNode();
-                }
-                if (ar.xmlPushChildNode("mesh",false))
-                { // (not yet used, but so that old versions will be able to read this)
-                    delete _mesh;
-                    _mesh=new CMesh();
-                    ((CMesh*)_mesh)->serialize(ar,getObjectAliasAndHandle().c_str());
-                    ar.xmlPopNode();
-                    _computeMeshBoundingBox();
-                }
-                else
-                {
-                    if (ar.xmlPushChildNode("compound",meshProxyNotPresent))
-                    {  // (not yet used, but so that old versions will be able to read this)
-                        delete _mesh;
-                        _mesh=new CMeshWrapper();
-                        _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
-                        ar.xmlPopNode();
-                        _computeMeshBoundingBox();
-                    }
                 }
 
                 if (ar.xmlPushChildNode("dynamics"))
@@ -1540,7 +1442,7 @@ void CShape::serialize(CSer& ar)
     }
 }
 
-void CShape::_serializeBackCompatibility(CSer& ar)
+void CShape::_serializeMesh(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -1552,9 +1454,9 @@ void CShape::_serializeBackCompatibility(CSer& ar)
             else
                 ar.storeDataName("Gsg");
             ar.setCountingMode();
-            _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
+            _mesh->serialize(ar,getObjectAliasAndHandle().c_str(),C7Vector::identityTransformation,true);
             if (ar.setWritingMode())
-                _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
+                _mesh->serialize(ar,getObjectAliasAndHandle().c_str(),C7Vector::identityTransformation,true);
 
             // (if undo/redo under way, getSaveExistingCalculationStructuresTemp is false)
             if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp()&&isMeshCalculationStructureInitialized())
@@ -1593,7 +1495,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                         ar >> byteQuantity; 
                         delete _mesh;
                         _mesh=new CMesh();
-                        ((CMesh*)_mesh)->serialize(ar,getObjectAliasAndHandle().c_str());
+                        ((CMesh*)_mesh)->serialize(ar,getObjectAliasAndHandle().c_str(),C7Vector::identityTransformation,true);
                     }
                     if (theName.compare("Gsg")==0)
                     { // geomWrap
@@ -1601,7 +1503,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                         ar >> byteQuantity; 
                         delete _mesh;
                         _mesh=new CMeshWrapper();
-                        _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
+                        _mesh->serialize(ar,getObjectAliasAndHandle().c_str(),C7Vector::identityTransformation,true);
                     }
 
                     if (theName.compare("Coi")==0)
@@ -1619,7 +1521,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                         }
                         std::vector<double> wvert;
                         std::vector<int> wind;
-                        _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
+                        _mesh->getCumulativeMeshes(C7Vector::identityTransformation,wvert,&wind,nullptr);
                         _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData(&data[0]);
                     }
                     if (noHit)
@@ -1654,7 +1556,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                 ar.xmlPushNewNode("mesh");
             else
                 ar.xmlPushNewNode("compound");
-            _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
+            _mesh->serialize(ar,getObjectAliasAndHandle().c_str(),C7Vector::identityTransformation,true);
             ar.xmlPopNode();
         }
         else
@@ -1669,7 +1571,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
 
                 std::vector<double> wvert;
                 std::vector<int> wind;
-                _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
+                _mesh->getCumulativeMeshes(C7Vector::identityTransformation,wvert,&wind,nullptr);
                 _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData((unsigned char*)str.c_str());
                 ar.xmlPopNode();
             }
@@ -1677,7 +1579,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
             {
                 delete _mesh;
                 _mesh=new CMesh();
-                ((CMesh*)_mesh)->serialize(ar,getObjectAliasAndHandle().c_str());
+                ((CMesh*)_mesh)->serialize(ar,getObjectAliasAndHandle().c_str(),C7Vector::identityTransformation,true);
                 ar.xmlPopNode();
             }
             else
@@ -1686,7 +1588,7 @@ void CShape::_serializeBackCompatibility(CSer& ar)
                 {
                     delete _mesh;
                     _mesh=new CMeshWrapper();
-                    _mesh->serialize(ar,getObjectAliasAndHandle().c_str());
+                    _mesh->serialize(ar,getObjectAliasAndHandle().c_str(),C7Vector::identityTransformation,true);
                     ar.xmlPopNode();
                 }
             }
@@ -1768,7 +1670,7 @@ void CShape::initializeMeshCalculationStructureIfNeeded()
     {
         std::vector<double> wvert;
         std::vector<int> wind;
-        _mesh->getCumulativeMeshes(wvert,&wind,nullptr);
+        _mesh->getCumulativeMeshes(C7Vector::identityTransformation,wvert,&wind,nullptr);
         double maxTriSize=App::currentWorld->environment->getCalculationMaxTriangleSize();
         double minTriSize=(std::max<double>(std::max<double>(_meshBoundingBoxHalfSizes(0),_meshBoundingBoxHalfSizes(1)),_meshBoundingBoxHalfSizes(2)))*2.0*App::currentWorld->environment->getCalculationMinRelTriangleSize();
         if (maxTriSize<minTriSize)
@@ -1977,15 +1879,16 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringObject("meshes",meshData);
 
     std::vector<CMesh*> all;
-    getMeshWrapper()->getAllShapeComponentsCumulative(all);
+    std::vector<C7Vector> allTr;
+    getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
     for (size_t i=0;i<all.size();i++)
     {
         CMesh* geom=all[i];
+        C7Vector tr(allTr[i]);
 
         CInterfaceStackTable* mesh=new CInterfaceStackTable();
         meshData->appendArrayObject(mesh);
 
-        C7Vector tr(geom->getVerticeLocalFrame());
         const std::vector<float>* wvert=geom->getVerticesForDisplayAndDisk();
         const std::vector<int>* wind=geom->getIndices();
         const std::vector<float>* wnorm=geom->getNormalsForDisplayAndDisk();
@@ -2056,7 +1959,8 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
         if (tp!=nullptr)
         {
             to=tp->getTextureObject();
-            tc=tp->getTextureCoordinates(-1,tr,wvert[0],wind[0]);
+//            tc=tp->getTextureCoordinates(-1,tr,wvert[0],wind[0]);
+            tc=tp->getTextureCoordinates(-1,geom->getBB(nullptr),wvert[0],wind[0]);
         }
 
         if ( (to!=nullptr)&&(tc!=nullptr) )
@@ -2129,6 +2033,18 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     }
 }
 
+void CShape::copyAttributesTo(CShape* target)
+{ // target should not yet be in the scene. Used when generating a shape from another
+    delete target->_dynMaterial;
+    target->_dynMaterial=_dynMaterial->copyYourself();
+    target->_shapeIsDynamicallyKinematic=_shapeIsDynamicallyKinematic;
+    target->_startInDynamicSleeping=_startInDynamicSleeping;
+    target->_shapeIsDynamicallyStatic=_shapeIsDynamicallyStatic;
+    target->_shapeIsDynamicallyRespondable=_shapeIsDynamicallyRespondable;
+    target->_dynamicCollisionMask=_dynamicCollisionMask;
+    target->_setAutomaticallyToNonStaticIfGetsParent=_setAutomaticallyToNonStaticIfGetsParent;
+}
+
 CSceneObject* CShape::copyYourself()
 {   
     CShape* newShape=(CShape*)CSceneObject::copyYourself();
@@ -2191,13 +2107,19 @@ int CShape::getComponentCount() const
     return(getMeshWrapper()->getComponentCount());
 }
 
+void CShape::displayInertia()
+{
+#ifdef SIM_WITH_OPENGL
+    C3Vector diag;
+    C7Vector tr(getCumulativeTransformation()*getMeshWrapper()->getDiagonalInertiaInfo(diag));
+    _displayInertia(tr,diag);
+#endif
+}
+
 void CShape::display(CViewableBase* renderingObject,int displayAttrib)
 {
     EASYLOCK(_objectMutex);
     displayShape(this,renderingObject,displayAttrib);
-
-//    printf("-----------------------------\n");
-//    getMeshWrapper()->printInfos();
 }
 
 bool CShape::setParent(CSceneObject* newParent)

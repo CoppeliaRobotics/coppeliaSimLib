@@ -113,7 +113,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
             if (assembleEnabled||disassembleEnabled)
             {
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -201,7 +201,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     for (size_t i=0;i<newSelection.size();i++)
                         App::currentWorld->sceneObjects->addObjectToSelection(newSelection[i]);
 
-                    App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                    App::undoRedo_sceneChanged("");
                 }
             }
         }
@@ -231,7 +231,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 }
                 App::currentWorld->sceneObjects->selectObject(last->getObjectHandle()); // We select the parent
 
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 std::string txt(IDSNS_ATTACHING_OBJECTS_TO);
                 txt+=last->getObjectAlias_printPath()+"'...";
                 App::logMsg(sim_verbosity_msgs,txt.c_str());
@@ -260,7 +260,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
                 App::currentWorld->sceneObjects->setObjectParent(it,nullptr,true);
             }
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
             App::logMsg(sim_verbosity_msgs,"done.");
         }
@@ -279,60 +279,19 @@ bool CSceneObjectOperations::processCommand(int commandID)
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-//          CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
             App::uiThread->showOrHideProgressBar(true,-1,"Morphing into convex shape(s)...");
             App::logMsg(sim_verbosity_msgs,IDSNS_MORPHING_INTO_CONVEX_SHAPES);
             bool printQHullFail=false;
-            for (int obji=0;obji<int(sel.size());obji++)
+            for (size_t i=0;i<sel.size();i++)
             {
-                CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(sel[obji]);
+                CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
                 if (it!=nullptr)
                 {
                     if ( (!it->getMeshWrapper()->isConvex())||it->isCompound() )
                     {
-                        int newShapeHandle=generateConvexHull(sel[obji]);
-                        if (newShapeHandle!=-1)
-                        {
-                            // Get the mass and inertia info from the old shape:
-                            C7Vector absCOM(it->getFullCumulativeTransformation());
-                            absCOM=absCOM*it->getMeshWrapper()->getLocalInertiaFrame();
-                            double mass=it->getMeshWrapper()->getMass();
-                            C7Vector absCOMNoShift(absCOM);
-                            absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
-                            C3X3Matrix tensor(CMeshWrapper::getNewTensor(it->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
-
-                            // Set-up the new shape:
-                            CShape* newShape=App::currentWorld->sceneObjects->getShapeFromHandle(newShapeHandle);
-                            C7Vector newLocal(it->getFullParentCumulativeTransformation().getInverse()*newShape->getFullCumulativeTransformation());
-                            C7Vector oldLocal(it->getFullLocalTransformation());
-                            newShape->getSingleMesh()->setConvexVisualAttributes();
-                            it->setNewMesh(newShape->getMeshWrapper());
-                            newShape->disconnectMesh();
-                            it->setLocalTransformation(newLocal); // The shape's frame was changed!
-                            App::currentWorld->sceneObjects->eraseObject(newShape,true);
-
-                            // Transfer the mass and inertia info to the new shape:
-                            it->getMeshWrapper()->setMass(mass);
-                            C4Vector rot;
-                            C3Vector pmoi;
-                            CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,pmoi);
-                            it->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoi);
-                            absCOM.Q=rot;
-                            C7Vector relCOM(it->getFullCumulativeTransformation().getInverse()*absCOM);
-                            it->getMeshWrapper()->setLocalInertiaFrame(relCOM);
-
-                            it->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,0.7f,0.7f);
-                            it->getSingleMesh()->setEdgeThresholdAngle(0.0);
-                            it->getSingleMesh()->setShadingAngle(0.0);
-                            it->getSingleMesh()->setVisibleEdges(false);
-
-                            // We need to correct all its children for this change of frame:
-                            for (size_t i=0;i<it->getChildCount();i++)
-                            {
-                                CSceneObject* child=it->getChildFromIndex(i);
-                                child->setLocalTransformation(newLocal.getInverse()*oldLocal*child->getLocalTransformation());
-                            }
-                        }
+                        CMesh* convexHull=generateConvexHull(sel[i]);
+                        if (convexHull!=nullptr)
+                            it->replaceMesh(convexHull,true);
                         else
                             printQHullFail=true;
                     }
@@ -350,7 +309,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 App::logMsg(sim_verbosity_errors,"Operation failed: is the Qhull plugin loaded?");
             else
             {
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -378,7 +337,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             {
                 std::vector<double> vert;
                 std::vector<int> ind;
-                sh->getMeshWrapper()->getCumulativeMeshes(vert,&ind,nullptr);
+                sh->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
                 C7Vector tr(sh->getFullCumulativeTransformation());
                 for (size_t i=0;i<vert.size()/3;i++)
                 {
@@ -406,52 +365,10 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     { // decimation algo was successful:
                         App::logMsg(sim_verbosity_msgs,IDSNS_DECIMATING_MESH);
 
-                        // Create the new shape:
-                        CShape* newShape=new CShape(nullptr,vertOut,indOut,nullptr,nullptr);
-                        newShape->getSingleMesh()->setConvexVisualAttributes();
-                        newShape->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation);
-                        App::currentWorld->sceneObjects->addObjectToScene(newShape,false,true);
+                        CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr);
+                        sh->replaceMesh(mesh,true);
 
-                        // Get the mass and inertia info from the old shape:
-                        C7Vector absCOM(sh->getFullCumulativeTransformation());
-                        absCOM=absCOM*sh->getMeshWrapper()->getLocalInertiaFrame();
-                        double mass=sh->getMeshWrapper()->getMass();
-                        C7Vector absCOMNoShift(absCOM);
-                        absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
-                        C3X3Matrix tensor(CMeshWrapper::getNewTensor(sh->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
-
-                        // Set-up the new shape:
-                        C7Vector newLocal(sh->getFullParentCumulativeTransformation().getInverse()*newShape->getFullCumulativeTransformation());
-                        C7Vector oldLocal(sh->getFullLocalTransformation());
-                        sh->setNewMesh(newShape->getMeshWrapper());
-                        newShape->disconnectMesh();
-                        sh->setLocalTransformation(newLocal); // The shape's frame was changed!
-                        App::currentWorld->sceneObjects->eraseObject(newShape,true);
-
-                        // Transfer the mass and inertia info to the new shape:
-                        sh->getMeshWrapper()->setMass(mass);
-                        C4Vector rot;
-                        C3Vector pmoi;
-                        CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,pmoi);
-                        sh->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoi);
-                        absCOM.Q=rot;
-                        C7Vector relCOM(sh->getFullCumulativeTransformation().getInverse()*absCOM);
-                        sh->getMeshWrapper()->setLocalInertiaFrame(relCOM);
-
-                        // Set some visual parameters:
-                        sh->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.7f,0.7f,1.0f);
-                        sh->getSingleMesh()->setEdgeThresholdAngle(0.0);
-                        sh->getSingleMesh()->setShadingAngle(0.0);
-                        sh->getSingleMesh()->setVisibleEdges(false);
-
-                        // We need to correct all its children for this change of frame:
-                        for (size_t i=0;i<sh->getChildCount();i++)
-                        {
-                            CSceneObject* child=sh->getChildFromIndex(i);
-                            child->setLocalTransformation(newLocal.getInverse()*oldLocal*child->getLocalTransformation());
-                        }
-
-                        App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                        App::undoRedo_sceneChanged("");
                         App::logMsg(sim_verbosity_msgs,"done.");
                     }
 
@@ -517,55 +434,21 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(sel[obji]);
                     if (it!=nullptr)
                     {
-                        int newShapeHandle=generateConvexDecomposed(sel[obji],nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,
+                        CMeshWrapper* mesh=generateConvexDecomposed(sel[obji],nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,
                                                                     maxConnectDist,maxTrianglesInDecimatedMesh,maxHullVertices,
                                                                     smallClusterThreshold,individuallyConsiderMultishapeComponents,
                                                                     maxIterations,useHACD,resolution,depth,concavity,planeDownsampling,
                                                                     convexHullDownsampling,alpha,beta,gamma,pca,voxelBased,
                                                                     maxNumVerticesPerCH,minVolumePerCH);
-                        if (newShapeHandle!=-1)
-                        {
-                            // Get the mass and inertia info from the old shape:
-                            C7Vector absCOM(it->getFullCumulativeTransformation());
-                            absCOM=absCOM*it->getMeshWrapper()->getLocalInertiaFrame();
-                            double mass=it->getMeshWrapper()->getMass();
-                            C7Vector absCOMNoShift(absCOM);
-                            absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
-                            C3X3Matrix tensor(CMeshWrapper::getNewTensor(it->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
-
-                            // Set-up the new shape:
-                            CShape* newShape=App::currentWorld->sceneObjects->getShapeFromHandle(newShapeHandle);
-                            C7Vector newLocal(it->getFullParentCumulativeTransformation().getInverse()*newShape->getFullCumulativeTransformation());
-                            C7Vector oldLocal(it->getFullLocalTransformation());
-                            it->setNewMesh(newShape->getMeshWrapper());
-                            newShape->disconnectMesh();
-                            it->setLocalTransformation(newLocal); // The shape's frame was changed!
-                            App::currentWorld->sceneObjects->eraseObject(newShape,true);
-
-                            // Transfer the mass and inertia info to the new shape:
-                            it->getMeshWrapper()->setMass(mass);
-                            C4Vector rot;
-                            C3Vector pmoi;
-                            CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,pmoi);
-                            it->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoi);
-                            absCOM.Q=rot;
-                            C7Vector relCOM(it->getFullCumulativeTransformation().getInverse()*absCOM);
-                            it->getMeshWrapper()->setLocalInertiaFrame(relCOM);
-
-                            // We need to correct all its children for this change of frame:
-                            for (size_t i=0;i<it->getChildCount();i++)
-                            {
-                                CSceneObject* child=it->getChildFromIndex(i);
-                                child->setLocalTransformation(newLocal.getInverse()*oldLocal*child->getLocalTransformation());
-                            }
-                        }
+                        if (mesh!=nullptr)
+                            it->replaceMesh(mesh,true);
                     }
                 }
                 App::uiThread->showOrHideProgressBar(false);
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
             App::currentWorld->sceneObjects->deselectObjects();
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -607,7 +490,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
 #endif
                 App::currentWorld->embeddedScriptContainer->removeScript(script->getScriptHandle());
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::setFullDialogRefreshFlag();
             }
         }
@@ -633,7 +516,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
 #endif
                 App::currentWorld->embeddedScriptContainer->removeScript(script->getScriptHandle());
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::setFullDialogRefreshFlag();
             }
         }
@@ -688,7 +571,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_CUTTING_SELECTION);
                 cutObjects(&sel,true);
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
             App::currentWorld->sceneObjects->deselectObjects();
@@ -710,7 +593,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs,IDSNS_PASTING_BUFFER);
             pasteCopyBuffer(true);
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -740,7 +623,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_DELETING_SELECTION);
                 deleteObjects(&sel,true);
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
             App::currentWorld->sceneObjects->deselectObjects();
@@ -806,14 +689,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
                                     if (!theShape->alignCuboidBoundingBoxWithMainAxis())
                                         cuboidFail=true;
                                 }
-                                App::undoRedo_sceneChangeStart(""); // ************************** UNDO thingy **************************
+                                App::undoRedo_sceneChangeStart("");
                             }
                             else
                                 informThatPurePrimitivesWereNotChanged=true;
                         }
                     }
                 }
-                App::undoRedo_sceneChangeEnd(); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChangeEnd();
 #ifdef SIM_WITH_GUI
                 if (informThatPurePrimitivesWereNotChanged)
                     App::uiThread->messageBox_warning(App::mainWindow,"Alignment",IDS_INFORM_PURE_PRIMITIVES_COULD_NOT_BE_REORIENTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
@@ -844,7 +727,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::logMsg(sim_verbosity_msgs,IDSNS_GROUPING_SELECTED_SHAPES);
             if (groupSelection(&sel,true)!=-1)
             {
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
             else
@@ -868,7 +751,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs,IDSNS_UNGROUPING_SELECTED_SHAPES);
             ungroupSelection(&sel,true);
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -890,7 +773,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::logMsg(sim_verbosity_msgs,IDSNS_MERGING_SELECTED_SHAPES);
             if (mergeSelection(&sel,true)>=0)
             {
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
             else
@@ -913,7 +796,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs,IDSNS_DIVIDING_SELECTED_SHAPES);
             divideSelection(&sel,true);
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -1141,12 +1024,14 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
             allConvex=false;
     }
     bool allToNonPure=( (pureCount<shapesToGroup.size())||includesHeightfields );
+    std::vector<CMeshWrapper*> allMeshes;
     for (size_t i=0;i<shapesToGroup.size();i++)
     {
         CShape* it=shapesToGroup[i];
         if (allToNonPure)
             it->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0); // this will be propagated to all geometrics!
-
+        allMeshes.push_back(it->getMeshWrapper());
+        it->detachMesh();
         App::currentWorld->drawingCont->announceObjectWillBeErased(it);
         App::currentWorld->pointCloudCont->announceObjectWillBeErased(it->getObjectHandle());
         App::currentWorld->bannerCont->announceObjectWillBeErased(it->getObjectHandle());
@@ -1154,77 +1039,22 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
 
     CShape* lastSel=shapesToGroup[shapesToGroup.size()-1];
 
-    // Let's first compute the composed mass and center of mass:
-    C3Vector newCenterOfMass; // absolute
-    newCenterOfMass.clear();
-    double cumulMass=0.0;
-    for (size_t i=0;i<shapesToGroup.size();i++)
+    CMeshWrapper* newWrapper=new CMeshWrapper();
+    for (size_t i=0;i<allMeshes.size();i++)
     {
-        CShape* it=shapesToGroup[i];
-        newCenterOfMass+=it->getFullCumulativeTransformation()*it->getMeshWrapper()->getLocalInertiaFrame().X*it->getMeshWrapper()->getMass();
-        cumulMass+=it->getMeshWrapper()->getMass();
-    }
-    newCenterOfMass/=cumulMass;
-    C3X3Matrix composedInertia; // relative to world
-    C7Vector newInertiaFrame(C4Vector::identityRotation,newCenterOfMass);
-    composedInertia.clear();
-
-    // Now the recipient and the first item:
-    CMeshWrapper* theWrap=new CMeshWrapper();
-    theWrap->setConvex(allConvex);
-    theWrap->childList.push_back(lastSel->getMeshWrapper());
-    lastSel->getMeshWrapper()->setTransformationsSinceGrouping(C7Vector::identityTransformation); // so that we can properly (i.e. like it was before) reorient the shape after ungrouping
-    lastSel->getMeshWrapper()->setName(lastSel->getObjectAlias());
-    C7Vector tmp(newInertiaFrame.getInverse()*lastSel->getFullCumulativeTransformation()*lastSel->getMeshWrapper()->getLocalInertiaFrame());
-    composedInertia+=CMeshWrapper::getNewTensor(lastSel->getMeshWrapper()->getPrincipalMomentsOfInertia(),tmp)*lastSel->getMeshWrapper()->getMass();
-
-    // now the other items:
-    std::vector<int> shapesToErase;
-    for (size_t i=0;i<shapesToGroup.size()-1;i++)
-    {
-        CShape* it=shapesToGroup[i];
-        it->getMeshWrapper()->setTransformationsSinceGrouping(C7Vector::identityTransformation); // so that we can properly (i.e. like it was before) reorient the shape after ungrouping
-        it->getMeshWrapper()->setName(it->getObjectAlias());
-
-        tmp=newInertiaFrame.getInverse()*it->getFullCumulativeTransformation()*it->getMeshWrapper()->getLocalInertiaFrame();
-        composedInertia+=CMeshWrapper::getNewTensor(it->getMeshWrapper()->getPrincipalMomentsOfInertia(),tmp)*it->getMeshWrapper()->getMass();
-
-        C7Vector correctionTr=lastSel->getFullCumulativeTransformation().getInverse()*it->getFullCumulativeTransformation();
-        it->getMeshWrapper()->preMultiplyAllVerticeLocalFrames(correctionTr);
-        theWrap->childList.push_back(it->getMeshWrapper());
-        it->disconnectMesh();
-        shapesToErase.push_back(it->getObjectHandle()); // erase it later (if we do it now, texture dependencies might get mixed up)
+        CMeshWrapper* mesh=allMeshes[i];
+        mesh->setName(shapesToGroup[i]->getObjectAlias().c_str());
+        mesh->setIFrame(lastSel->getCumulativeTransformation().getInverse()*shapesToGroup[i]->getCumulativeTransformation()*mesh->getIFrame());
+        newWrapper->addItem(mesh);
     }
 
-    lastSel->disconnectMesh();
-    C7Vector newTr(lastSel->reinitMesh2(lastSel->getFullCumulativeTransformation(),theWrap));
-    theWrap->setMass(cumulMass);
-    C7Vector oldTrLocal(lastSel->getFullLocalTransformation());
-    C7Vector newTrLocal(lastSel->getFullParentCumulativeTransformation().getInverse()*newTr);
-    lastSel->setLocalTransformation(newTrLocal);
-
-    // Set the composed inertia:
-    composedInertia/=cumulMass; // remember, we only normally work with massless inertias!
-    C7Vector newAbsOfComposedInertia;
-    newAbsOfComposedInertia.X=newCenterOfMass;
-    C3Vector principalMoments;
-    CMeshWrapper::findPrincipalMomentOfInertia(composedInertia,newAbsOfComposedInertia.Q,principalMoments);
-    lastSel->getMeshWrapper()->setLocalInertiaFrame(lastSel->getFullCumulativeTransformation().getInverse()*newAbsOfComposedInertia);
-    lastSel->getMeshWrapper()->setPrincipalMomentsOfInertia(principalMoments);
-
-    // correct the pos/orient. of all children of the 'lastSel' shape:
-    for (size_t i=0;i<lastSel->getChildCount();i++)
-    {
-        CSceneObject* child=lastSel->getChildFromIndex(i);
-        child->setLocalTransformation(newTrLocal.getInverse()*oldTrLocal*child->getLocalTransformation());
-    }
-
-    lastSel->actualizeContainsTransparentComponent();
-
+    lastSel->replaceMesh(newWrapper,false);
     App::currentWorld->textureContainer->updateAllDependencies();
 
+    std::vector<int> shapesToErase;
+    for (size_t i=0;i<shapesToGroup.size()-1;i++)
+        shapesToErase.push_back(shapesToGroup[i]->getObjectHandle());
     App::currentWorld->sceneObjects->eraseObjects(shapesToErase,true);
-    lastSel->pushObjectRefreshEvent();
 
     return(lastSel);
 }
@@ -1295,82 +1125,49 @@ void CSceneObjectOperations::_fullUngroupShape(CShape* shape,std::vector<CShape*
 
 void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,std::vector<CShape*>& newShapes)
 {
-    // Following 2 lines not needed, but added because a previous bug might have done something wrong! So here we make sure that all elements of the multishape are non-pure!!!
+    // added because a previous bug: (2014)
     if (!it->getMeshWrapper()->isPure())
         it->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0);
 
-    // we have to remove all attached drawing objects (we cannot correct for that or it would be very difficult!!)
+    // we have to remove all attached drawing objects
     App::currentWorld->drawingCont->announceObjectWillBeErased(it);
     App::currentWorld->pointCloudCont->announceObjectWillBeErased(it->getObjectHandle());
     App::currentWorld->bannerCont->announceObjectWillBeErased(it->getObjectHandle());
 
-    CMeshWrapper* oldGeomInfo=it->getMeshWrapper();
-    it->disconnectMesh();
-    C7Vector itCumulTransf(it->getFullCumulativeTransformation());
-    for (int i=int(oldGeomInfo->childList.size())-1;i>=0;i--)
+    CMeshWrapper* wrapper=it->getMeshWrapper();
+    C7Vector oldTransf(it->getCumulativeTransformation());
+    C7Vector oldParentTransf(it->getFullParentCumulativeTransformation());
+    it->detachMesh();
+    std::vector<CMeshWrapper*> meshes;
+    for (size_t i=0;i<wrapper->childList.size();i++)
     {
-        if (i==0)
-        { // the first element in the list keeps its original shape
-            C7Vector itOldLocal=it->getFullLocalTransformation();
-
-            C7Vector newTr(it->reinitMesh2(itCumulTransf,oldGeomInfo->childList[i]));
-            C7Vector itNewLocal(it->getFullParentCumulativeTransformation().getInverse()*newTr);
-            it->setLocalTransformation(itNewLocal);
-
-            // Now correct for all attached chil objects:
+        CMeshWrapper* mesh=wrapper->childList[i];
+        C7Vector newTransf(oldTransf*mesh->getIFrame());
+        mesh->setIFrame(C7Vector::identityTransformation);
+        if (i==wrapper->childList.size()-1)
+        {
+            it->replaceMesh(mesh,false);
+            it->setLocalTransformation(oldParentTransf.getInverse()*newTransf);
             for (size_t j=0;j<it->getChildCount();j++)
-            {
-                CSceneObject* aChild=it->getChildFromIndex(j);
-                C7Vector oldChild=aChild->getLocalTransformation();
-                aChild->setLocalTransformation(itNewLocal.getInverse()*itOldLocal*oldChild);
+            { // Adjust children for the frame change
+                CSceneObject* child=it->getChildFromIndex(j);
+                child->setLocalTransformation(newTransf.getInverse()*oldTransf*child->getLocalTransformation());
             }
-
-            // Correctly reorient the shape to what we had before grouping (important for inertia frames that are relative to the shape's frame):
-            C7Vector tr(oldGeomInfo->childList[i]->getTransformationsSinceGrouping());
-            C7Vector currentLocal=it->getFullLocalTransformation();
-            C7Vector tempLocal=it->getFullParentCumulativeTransformation().getInverse()*tr.getInverse();
-            it->setLocalTransformation(tempLocal);
-            it->alignBoundingBoxWithWorld();
-            it->setLocalTransformation(currentLocal*tempLocal.getInverse()*it->getFullLocalTransformation());
-            it->pushObjectRefreshEvent();
         }
         else
-        { // the other elements in the list will receive a new shape
-            // reinitMesh2
-            CShape* newIt=new CShape(itCumulTransf,oldGeomInfo->childList[i]);
-
-            newIt->setObjectAlias_direct(oldGeomInfo->childList[i]->getName().c_str());
-            newIt->setObjectName_direct_old(oldGeomInfo->childList[i]->getName().c_str());
-            newIt->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(newIt->getObjectName_old().c_str()).c_str());
-            newIt->setDynMaterial(it->getDynMaterial()->copyYourself());
-
-            App::currentWorld->sceneObjects->addObjectToScene(newIt,false,false);
-            newShapes.push_back(newIt);
-
-            // Now a few properties/things we want to be same for the new shape:
-            App::currentWorld->sceneObjects->setObjectParent(newIt,it->getParent(),true);
-            newIt->setSizeFactor(it->getSizeFactor());
-            newIt->setObjectProperty(it->getObjectProperty());
-            newIt->setLocalObjectSpecialProperty(it->getLocalObjectSpecialProperty());
-            newIt->setVisibilityLayer(it->getVisibilityLayer());
-            newIt->setShapeIsDynamicallyStatic(it->getShapeIsDynamicallyStatic());
-            newIt->setRespondable(it->getRespondable());
-            newIt->setDynamicCollisionMask(it->getDynamicCollisionMask());
-            newIt->actualizeContainsTransparentComponent();
-
-            // Correctly reorient the shape to what we had before grouping (important for inertia frames that are relative to the shape's frame):
-            C7Vector tr(oldGeomInfo->childList[i]->getTransformationsSinceGrouping());
-            C7Vector currentLocal=newIt->getFullLocalTransformation();
-            C7Vector tempLocal=newIt->getFullParentCumulativeTransformation().getInverse()*tr.getInverse();
-
-            newIt->setLocalTransformation(tempLocal);
-            newIt->alignBoundingBoxWithWorld();
-            newIt->setLocalTransformation(currentLocal*tempLocal.getInverse()*newIt->getFullLocalTransformation());
+        {
+            CShape* shape=new CShape();
+            it->copyAttributesTo(shape);
+            shape->replaceMesh(mesh,false);
+            shape->setLocalTransformation(newTransf);
+            App::currentWorld->sceneObjects->addObjectToScene(shape,false,false);
+            App::currentWorld->sceneObjects->setObjectParent(shape,it->getParent(),true);
+            App::currentWorld->sceneObjects->setObjectAlias(shape,mesh->getName().c_str(),true);
+            newShapes.push_back(shape);
         }
     }
-    oldGeomInfo->childList.clear();
-    delete oldGeomInfo;
-
+    wrapper->detachItems();
+    delete wrapper;
     App::currentWorld->textureContainer->updateAllDependencies();
 }
 
@@ -1454,85 +1251,43 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
 
     // We have to decompose completely the last shape:
     CShape* lastSel=allShapesToMerge[allShapesToMerge.size()-1];
-    std::vector<CShape*> allShapesExceptLast(allShapesToMerge.begin(),allShapesToMerge.end()-1);
+    std::vector<CShape*> allShapes(allShapesToMerge.begin(),allShapesToMerge.end());
     while (lastSel->isCompound())
     {
         std::vector<CShape*> ns;
         _ungroupShape(lastSel,ns);
-        allShapesExceptLast.insert(allShapesExceptLast.end(),ns.begin(),ns.end());
+        allShapes.insert(allShapes.end(),ns.begin(),ns.end());
     }
 
-    lastSel->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0);
-
-    if (allShapesExceptLast.size()>0)
+    std::vector<CMeshWrapper*> allMeshes;
+    for (size_t i=0;i<allShapes.size();i++)
     {
-        // we have to remove all attached drawing objects (we cannot correct for that or it would be very difficult!!)
-        App::currentWorld->drawingCont->announceObjectWillBeErased(lastSel);
-        App::currentWorld->pointCloudCont->announceObjectWillBeErased(lastSel->getObjectHandle());
-        App::currentWorld->bannerCont->announceObjectWillBeErased(lastSel->getObjectHandle());
-
-        std::vector<double> wvert;
-        std::vector<int> wind;
-        lastSel->getMeshWrapper()->getCumulativeMeshes(wvert,&wind,nullptr);
-        double cumulMass=lastSel->getMeshWrapper()->getMass();
-        C7Vector tr(lastSel->getFullCumulativeTransformation());
-        for (size_t i=0;i<wvert.size()/3;i++)
-        {
-            C3Vector v(&wvert[3*i+0]);
-            v*=tr;
-            wvert[3*i+0]=v(0);
-            wvert[3*i+1]=v(1);
-            wvert[3*i+2]=v(2);
-        }
-        int voff=(int)wvert.size();
-        for (size_t j=0;j<allShapesExceptLast.size();j++)
-        {
-            CShape* aShape=allShapesExceptLast[j];
-            aShape->getMeshWrapper()->getCumulativeMeshes(wvert,&wind,nullptr);
-            cumulMass+=aShape->getMeshWrapper()->getMass();
-            tr=aShape->getFullCumulativeTransformation();
-            for (size_t i=voff/3;i<wvert.size()/3;i++)
-            {
-                C3Vector v(&wvert[3*i+0]);
-                v*=tr;
-                wvert[3*i+0]=v(0);
-                wvert[3*i+1]=v(1);
-                wvert[3*i+2]=v(2);
-            }
-            App::currentWorld->sceneObjects->eraseObject(aShape,true);
-            voff=(int)wvert.size();
-        }
-
-        // We now have in wvert and wind all the vertices and indices (absolute vertices)
-        CMesh* geometricTemp=lastSel->getSingleMesh()->copyYourself();
-
-        C7Vector newTr(lastSel->reinitMesh(nullptr,wvert,wind,nullptr,nullptr));
-        C7Vector lastSelPreviousLocal(lastSel->getFullLocalTransformation());
-        C7Vector lastSelCurrentLocal(lastSel->getFullParentCumulativeTransformation().getInverse()*newTr);
-        lastSel->setLocalTransformation(lastSelCurrentLocal);
-
-        // Copy some CMesh properties (not all):
-        geometricTemp->copyVisualAttributesTo(lastSel->getSingleMesh());
-        lastSel->getSingleMesh()->actualizeGouraudShadingAndVisibleEdges(); // since 21/3/2014
-
-        // Copy the CMeshWrapper properties (not all):
-        lastSel->getMeshWrapper()->checkIfConvex();
-        lastSel->getMeshWrapper()->setMass(cumulMass); // we do not copy here!
-
-        // Do not copy following:
-        //      lastSel->geomInfo->setPrincipalMomentsOfInertia(lastSel->geomInfo->getPrincipalMomentsOfInertia());
-        lastSel->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation); // to have the inertia frame centered in the geometric middle of the mesh!
-        lastSel->pushObjectRefreshEvent();
-
-        delete geometricTemp;
-
-        // Adjust the transformation of all its children:
-        for (size_t i=0;i<lastSel->getChildCount();i++)
-        {
-            CSceneObject* child=lastSel->getChildFromIndex(i);
-            child->setLocalTransformation(lastSelCurrentLocal.getInverse()*lastSelPreviousLocal*child->getFullLocalTransformation());
-        }
+        CShape* it=allShapes[i];
+        allMeshes.push_back(it->getMeshWrapper());
+        it->detachMesh();
+        App::currentWorld->drawingCont->announceObjectWillBeErased(it);
+        App::currentWorld->pointCloudCont->announceObjectWillBeErased(it->getObjectHandle());
+        App::currentWorld->bannerCont->announceObjectWillBeErased(it->getObjectHandle());
     }
+
+    lastSel=allShapes[allShapes.size()-1];
+
+    std::vector<double> vertices;
+    std::vector<int> indices;
+    std::vector<double> normals;
+    for (size_t i=0;i<allMeshes.size();i++)
+    {
+        CMeshWrapper* mesh=allMeshes[i];
+        mesh->getCumulativeMeshes(allShapes[i]->getCumulativeTransformation(),vertices,&indices,&normals);
+    }
+    CMesh* newMesh=new CMesh(lastSel->getCumulativeTransformation(),vertices,indices,&normals,nullptr);
+    lastSel->replaceMesh(newMesh,true);
+
+    std::vector<int> shapesToErase;
+    for (size_t i=0;i<allShapes.size()-1;i++)
+        shapesToErase.push_back(allShapes[i]->getObjectHandle());
+    App::currentWorld->sceneObjects->eraseObjects(shapesToErase,true);
+    App::currentWorld->textureContainer->updateAllDependencies();
     return(lastSel);
 }
 
@@ -1597,87 +1352,45 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool sh
         App::uiThread->showOrHideProgressBar(false);
 }
 
-bool CSceneObjectOperations::_divideShape(CShape* shape,std::vector<CShape*>& newShapes)
+bool CSceneObjectOperations::_divideShape(CShape* it,std::vector<CShape*>& newShapes)
 {
-    App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),-1);
-    shape->getMeshWrapper()->removeAllTextures();
+    App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(it->getObjectHandle(),-1);
+    it->getMeshWrapper()->removeAllTextures();
 
-    _fullUngroupShape(shape,newShapes);
-    std::vector<CShape*> toDivide;
-    toDivide.push_back(shape);
-    toDivide.insert(toDivide.end(),newShapes.begin(),newShapes.end());
+    // we have to remove all attached drawing objects
+    App::currentWorld->drawingCont->announceObjectWillBeErased(it);
+    App::currentWorld->pointCloudCont->announceObjectWillBeErased(it->getObjectHandle());
+    App::currentWorld->bannerCont->announceObjectWillBeErased(it->getObjectHandle());
 
-    for (size_t i=0;i<toDivide.size();i++)
-    { // divide all non-compound, non-pure shapes:
-        CShape* it=toDivide[i];
-        if (!it->getMeshWrapper()->isPure())
-        {
-            std::vector<double> wvert;
-            std::vector<int> wind;
-            it->getMeshWrapper()->getCumulativeMeshes(wvert,&wind,nullptr);
-            int extractedCount=0;
-            while (true)
-            {
-                std::vector<double> subvert;
-                std::vector<int> subind;
-                if (CMeshManip::extractOneShape(&wvert,&wind,&subvert,&subind))
-                { // Something was extracted
-                    extractedCount++;
-
-                    C7Vector tmpTr(it->getFullCumulativeTransformation());
-                    CShape* newIt=new CShape(&tmpTr,subvert,subind,nullptr,nullptr);
-
-                    // Now a few properties/things we want to be same for the new shape:
-                    newIt->setSizeFactor(it->getSizeFactor());
-                    newIt->setObjectProperty(it->getObjectProperty());
-                    newIt->setLocalObjectSpecialProperty(it->getLocalObjectSpecialProperty());
-                    newIt->setVisibilityLayer(it->getVisibilityLayer());
-
-                    // Copy some CMesh properties:
-                    it->getSingleMesh()->copyVisualAttributesTo(newIt->getSingleMesh());
-                    newIt->getSingleMesh()->actualizeGouraudShadingAndVisibleEdges();
-                    newIt->setDynMaterial(it->getDynMaterial()->copyYourself());
-                    newIt->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation); // to have the inertia frame centered in the geometric middle of the mesh!
-                    newIt->actualizeContainsTransparentComponent();
-
-                    App::currentWorld->sceneObjects->addObjectToScene(newIt,false,false);
-                    App::currentWorld->sceneObjects->setObjectParent(newIt,it->getParent(),true);
-                    newShapes.push_back(newIt);
-                }
-                else
-                { // nothing was extracted
-                    if (extractedCount==0)
-                        break; // we couldn't extract anything!
-
-                    // Now adjust the old shape:
-                    C7Vector tmpTr(it->getFullCumulativeTransformation());
-                    C7Vector itLocalOld(it->getFullLocalTransformation());
-                    CMesh* oldGeomCopy=it->getSingleMesh()->copyYourself();
-                    C7Vector newTr(it->reinitMesh(&tmpTr,subvert,subind,nullptr,nullptr));
-                    it->setLocalTransformation(it->getFullParentCumulativeTransformation().getInverse()*newTr);
-
-                    // Copy the CMesh properties (not all):
-                    oldGeomCopy->copyVisualAttributesTo(it->getSingleMesh());
-                    it->getSingleMesh()->actualizeGouraudShadingAndVisibleEdges(); // since 21/3/2014
-
-                    // Do not copy following:
-                    //      it->geomInfo->setPrincipalMomentsOfInertia(it->geomInfo->getPrincipalMomentsOfInertia());
-                    it->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation); // to have the inertia frame centered in the geometric middle of the mesh!
-                    //      it->geomInfo->setLocalInertiaFrame(bla);
-
-                    delete oldGeomCopy;
-                    it->actualizeContainsTransparentComponent();
-                    it->pushObjectRefreshEvent();
-
-                    // Now we have to adjust all the children:
-                    for (size_t j=0;j<it->getChildCount();j++)
-                    {
-                        CSceneObject* child=it->getChildFromIndex(j);
-                        child->setLocalTransformation(it->getLocalTransformation().getInverse()*itLocalOld*child->getLocalTransformation());
-                    }
-                    break;
-                }
-            }
+    std::vector<double> vertices;
+    std::vector<int> indices;
+    it->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vertices,&indices,nullptr);
+    int extractedCount=0;
+    while (true)
+    {
+        std::vector<double> subvert;
+        std::vector<int> subind;
+        if (CMeshManip::extractOneShape(&vertices,&indices,&subvert,&subind))
+        { // Something was extracted
+            extractedCount++;
+            CMesh* mesh=new CMesh(it->getFullCumulativeTransformation(),subvert,subind,nullptr,nullptr);
+            CShape* shape=new CShape();
+            shape->replaceMesh(mesh,false);
+            if (it->getMeshWrapper()->isMesh())
+                ((CMesh*)it->getMeshWrapper())->copyVisualAttributesTo(mesh);
+            it->copyAttributesTo(shape);
+            shape->setLocalTransformation(it->getCumulativeTransformation());
+            App::currentWorld->sceneObjects->addObjectToScene(shape,false,false);
+            App::currentWorld->sceneObjects->setObjectParent(shape,it->getParent(),true);
+            newShapes.push_back(shape);
+        }
+        else
+        { // nothing was extracted
+            if (extractedCount==0)
+                break; // we couldn't extract anything!
+            CMesh* mesh=new CMesh(it->getFullCumulativeTransformation(),vertices,indices,nullptr,nullptr);
+            it->replaceMesh(mesh,true);
+            break;
         }
     }
     return(newShapes.size()>0);
@@ -1754,48 +1467,39 @@ void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection,doub
     App::setFullDialogRefreshFlag();
 }
 
-int CSceneObjectOperations::generateConvexHull(int shapeHandle)
+CMesh* CSceneObjectOperations::generateConvexHull(int shapeHandle)
 {
     TRACE_INTERNAL;
-    std::vector<double> allHullVertices;
-    allHullVertices.reserve(40000*3);
-
+    CMesh* retVal=nullptr;
     CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
     if (it!=nullptr)
     {
+        std::vector<double> allHullVertices;
         C7Vector transf(it->getFullCumulativeTransformation());
         std::vector<double> vert;
-        std::vector<double> vertD;
         std::vector<int> ind;
-        it->getMeshWrapper()->getCumulativeMeshes(vertD,&ind,nullptr);
-        for (int j=0;j<int(vertD.size())/3;j++)
+        it->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+        for (size_t i=0;i<vert.size()/3;i++)
         {
-            C3Vector v(&vertD[3*j+0]);
+            C3Vector v(vert.data()+3*i);
             v=transf*v;
             allHullVertices.push_back(v(0));
             allHullVertices.push_back(v(1));
             allHullVertices.push_back(v(2));
         }
-    }
-
-    if (allHullVertices.size()!=0)
-    {
-        std::vector<double> hull;
-        std::vector<int> indices;
-        std::vector<double> normals;
-        if (CMeshRoutines::getConvexHull(&allHullVertices,&hull,&indices))
+        if (allHullVertices.size()!=0)
         {
-            CShape* it=new CShape(nullptr,hull,indices,nullptr,nullptr);
-            it->getSingleMesh()->setConvexVisualAttributes();
-            it->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation);
-            App::currentWorld->sceneObjects->addObjectToScene(it,false,true);
-            return(it->getObjectHandle());
+            std::vector<double> hull;
+            std::vector<int> indices;
+            std::vector<double> normals;
+            if (CMeshRoutines::getConvexHull(&allHullVertices,&hull,&indices))
+                retVal=new CMesh(transf,hull,indices,nullptr,nullptr);
         }
     }
-    return(-1);
+    return(retVal);
 }
 
-int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClusters,double maxConcavity,
+CMeshWrapper* CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClusters,double maxConcavity,
                                              bool addExtraDistPoints,bool addFacesPoints,double maxConnectDist,
                                              size_t maxTrianglesInDecimatedMesh,size_t maxHullVertices,
                                              double smallClusterThreshold,bool individuallyConsiderMultishapeComponents,
@@ -1805,31 +1509,24 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                                              bool voxelBased_VHACD,int maxVerticesPerCH_VHACD,double minVolumePerCH_VHACD)
 {
     TRACE_INTERNAL;
+    CMeshWrapper* retVal=nullptr;
     std::vector<double> vert;
     std::vector<int> ind;
     CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
     if (it!=nullptr)
     {
-        C7Vector tr(it->getFullCumulativeTransformation());
-        std::vector<int> generatedShapeHandles;
+        std::vector<CMesh*> generatedMeshes;
         if (individuallyConsiderMultishapeComponents&&(!it->getMeshWrapper()->isMesh()))
         {
             std::vector<CMesh*> shapeComponents;
-            it->getMeshWrapper()->getAllShapeComponentsCumulative(shapeComponents);
-            for (int comp=0;comp<int(shapeComponents.size());comp++)
+            std::vector<C7Vector> ptrL;
+            it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,shapeComponents,&ptrL);
+            for (size_t comp=0;comp<shapeComponents.size();comp++)
             {
                 CMesh* geom=shapeComponents[comp];
                 vert.clear();
                 ind.clear();
-                geom->getCumulativeMeshes(vert,&ind,nullptr);
-                for (int j=0;j<int(vert.size()/3);j++)
-                {
-                    C3Vector v(&vert[3*j+0]);
-                    v=tr*v;
-                    vert[3*j+0]=v(0);
-                    vert[3*j+1]=v(1);
-                    vert[3*j+2]=v(2);
-                }
+                geom->getCumulativeMeshes(ptrL[comp],vert,&ind,nullptr);
                 std::vector<std::vector<double>*> outputVert;
                 std::vector<std::vector<int>*> outputInd;
                 int addClusters=0;
@@ -1838,7 +1535,7 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                     // For those situations, we try several times to convex decompose:
                     outputVert.clear();
                     outputInd.clear();
-                    std::vector<int> _tempHandles;
+                    std::vector<CMesh*> tempMeshes;
                     CMeshRoutines::convexDecompose(&vert[0],(int)vert.size(),&ind[0],(int)ind.size(),outputVert,outputInd,
                             nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,maxConnectDist,
                             maxTrianglesInDecimatedMesh,maxHullVertices,smallClusterThreshold,
@@ -1848,83 +1545,50 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                     int convexRecognizedCount=0;
                     for (size_t i=0;i<outputVert.size();i++)
                     {
-                        int handle=simCreateMeshShape_internal(2,20.0*piValue/180.0,&outputVert[i]->at(0),(int)outputVert[i]->size(),&outputInd[i]->at(0),(int)outputInd[i]->size(),nullptr);
-                        CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(handle);
-                        if (shape!=nullptr)
-                        {
-                            // Following flag is automatically set upon shape creation. Also, it seems that the convex decomposition algo sometimes failes..
-                            if (shape->getSingleMesh()->isConvex())
-                                convexRecognizedCount++; // CoppeliaSim convex test is more strict than what the convex decomp. algo does
-                            _tempHandles.push_back(handle);
-                            shape->getSingleMesh()->setConvexVisualAttributes();
-                            // Set some visual parameters:
-                            shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.7f,1.0f,0.7f);
-                            shape->getSingleMesh()->setEdgeThresholdAngle(0.0);
-                            shape->getSingleMesh()->setShadingAngle(0.0);
-                            shape->getSingleMesh()->setVisibleEdges(false);
-                        }
+                        CMesh* mesh=new CMesh(C7Vector::identityTransformation,outputVert[i][0],outputInd[i][0],nullptr,nullptr);
+                        if (mesh->isConvex())
+                            convexRecognizedCount++;
+                        tempMeshes.push_back(mesh);
                         delete outputVert[i];
                         delete outputInd[i];
                     }
                     // we check if all shapes are recognized as convex shapes by CoppeliaSim
                     if ( (convexRecognizedCount==int(outputVert.size())) || (tryNumber>=maxIterations-1) )
                     {
-                        for (int i=0;i<int(_tempHandles.size());i++)
-                            generatedShapeHandles.push_back(_tempHandles[i]);
+                        for (size_t i=0;i<tempMeshes.size();i++)
+                            generatedMeshes.push_back(tempMeshes[i]);
                         break;
                     }
                     else
                     { // No! Some shapes have a too large non-convexity. We take all generated shapes, and use them to generate new convex shapes:
                         vert.clear();
                         ind.clear();
-                        for (int i=0;i<int(_tempHandles.size());i++)
+                        for (size_t i=0;i<tempMeshes.size();i++)
                         {
-                            CShape* as=App::currentWorld->sceneObjects->getShapeFromHandle(_tempHandles[i]);
-                            if (as!=nullptr)
-                            {
-                                C7Vector tr2(as->getFullCumulativeTransformation());
-                                CMesh* geom=as->getSingleMesh();
-                                int offset=(int)vert.size()/3;
-                                geom->getCumulativeMeshes(vert,&ind,nullptr);
-                                for (int j=offset;j<int(vert.size()/3);j++)
-                                {
-                                    C3Vector v(&vert[3*j+0]);
-                                    v=tr2*v;
-                                    vert[3*j+0]=v(0);
-                                    vert[3*j+1]=v(1);
-                                    vert[3*j+2]=v(2);
-                                }
-                            }
-                            simRemoveObject_internal(_tempHandles[i]);
+                            CMesh* mesh=tempMeshes[i];
+                            int offset=(int)vert.size()/3;
+                            mesh->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+                            delete mesh;
                         }
                         // We adjust some parameters a bit, in order to obtain a better convexity for all shapes:
                         addClusters+=2;
-                        nClusters=addClusters+int(_tempHandles.size());
+                        nClusters=addClusters+int(tempMeshes.size());
                     }
                 }
             }
         }
         else
         {
-            it->getMeshWrapper()->getCumulativeMeshes(vert,&ind,nullptr);
-            for (int j=0;j<int(vert.size()/3);j++)
-            {
-                C3Vector v(&vert[3*j+0]);
-                v=tr*v;
-                vert[3*j+0]=v(0);
-                vert[3*j+1]=v(1);
-                vert[3*j+2]=v(2);
-            }
+            it->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
             std::vector<std::vector<double>*> outputVert;
             std::vector<std::vector<int>*> outputInd;
-
             int addClusters=0;
             for (int tryNumber=0;tryNumber<maxIterations;tryNumber++)
             { // the convex decomposition routine sometimes fails producing good convectivity (i.e. there are slightly non-convex items that CoppeliaSim doesn't want to recognize as convex)
                 // For those situations, we try several times to convex decompose:
                 outputVert.clear();
                 outputInd.clear();
-                std::vector<int> _tempHandles;
+                std::vector<CMesh*> tempMeshes;
                 CMeshRoutines::convexDecompose(&vert[0],(int)vert.size(),&ind[0],(int)ind.size(),outputVert,outputInd,
                         nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,maxConnectDist,
                         maxTrianglesInDecimatedMesh,maxHullVertices,smallClusterThreshold,
@@ -1932,74 +1596,50 @@ int CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClu
                         convexHullDownsampling_VHACD,alpha_VHACD,beta_VHACD,gamma_VHACD_old,pca_VHACD,
                         voxelBased_VHACD,maxVerticesPerCH_VHACD,minVolumePerCH_VHACD);
                 int convexRecognizedCount=0;
-                for (int i=0;i<int(outputVert.size());i++)
+                for (size_t i=0;i<outputVert.size();i++)
                 {
-                    int handle=simCreateMeshShape_internal(2,20.0*piValue/180.0,&outputVert[i]->at(0),(int)outputVert[i]->size(),&outputInd[i]->at(0),(int)outputInd[i]->size(),nullptr);
-                    CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(handle);
-                    if (shape!=nullptr)
-                    {
-                        // Following flag is automatically set upon shape creation. Also, it seems that the convex decomposition algo sometimes failes..
-                        if (shape->getSingleMesh()->isConvex())
-                            convexRecognizedCount++; // CoppeliaSim convex test is more strict than what the convex decomp. algo does
-                        _tempHandles.push_back(handle);
-
-                        shape->getSingleMesh()->setConvexVisualAttributes();
-                        // Set some visual parameters:
-                        shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.7f,1.0f,0.7f);
-                        shape->getSingleMesh()->setEdgeThresholdAngle(0.0);
-                        shape->getSingleMesh()->setShadingAngle(0.0);
-                        shape->getSingleMesh()->setVisibleEdges(false);
-                    }
+                    CMesh* mesh=new CMesh(C7Vector::identityTransformation,outputVert[i][0],outputInd[i][0],nullptr,nullptr);
+                    if (mesh->isConvex())
+                        convexRecognizedCount++;
+                    tempMeshes.push_back(mesh);
                     delete outputVert[i];
                     delete outputInd[i];
                 }
                 // we check if all shapes are recognized as convex shapes by CoppeliaSim
                 if ( (convexRecognizedCount==int(outputVert.size())) || (tryNumber>=maxIterations-1) )
                 {
-                    for (int i=0;i<int(_tempHandles.size());i++)
-                        generatedShapeHandles.push_back(_tempHandles[i]);
+                    for (size_t i=0;i<tempMeshes.size();i++)
+                        generatedMeshes.push_back(tempMeshes[i]);
                     break;
                 }
                 else
                 { // No! Some shapes have a too large non-convexity. We take all generated shapes, and use them to generate new convex shapes:
                     vert.clear();
                     ind.clear();
-                    for (int i=0;i<int(_tempHandles.size());i++)
+                    for (size_t i=0;i<tempMeshes.size();i++)
                     {
-                        CShape* as=App::currentWorld->sceneObjects->getShapeFromHandle(_tempHandles[i]);
-                        if (as!=nullptr)
-                        {
-                            C7Vector tr2(as->getFullCumulativeTransformation());
-                            CMesh* geom=as->getSingleMesh();
-                            int offset=(int)vert.size()/3;
-                            geom->getCumulativeMeshes(vert,&ind,nullptr);
-                            for (int j=offset;j<int(vert.size()/3);j++)
-                            {
-                                C3Vector v(&vert[3*j+0]);
-                                v=tr2*v;
-                                vert[3*j+0]=v(0);
-                                vert[3*j+1]=v(1);
-                                vert[3*j+2]=v(2);
-                            }
-                        }
-                        simRemoveObject_internal(_tempHandles[i]);
+                        CMesh* mesh=tempMeshes[i];
+                        int offset=(int)vert.size()/3;
+                        mesh->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+                        delete mesh;
                     }
                     // We adjust some parameters a bit, in order to obtain a better convexity for all shapes:
                     addClusters+=2;
-                    nClusters=addClusters+int(_tempHandles.size());
+                    nClusters=addClusters+int(tempMeshes.size());
                 }
             }
         }
 
-
-        int newShapeHandle=-1;
-        if (generatedShapeHandles.size()==1)
-            newShapeHandle=generatedShapeHandles[0];
-        if (generatedShapeHandles.size()>1)
-            newShapeHandle=simGroupShapes_internal(&generatedShapeHandles[0],(int)generatedShapeHandles.size()); // we have to group them first
-        return(newShapeHandle);
+        if (generatedMeshes.size()==1)
+            retVal=generatedMeshes[0];
+        else if (generatedMeshes.size()>1)
+        {
+            retVal=new CMeshWrapper();
+            for (size_t i=0;i<generatedMeshes.size();i++)
+                retVal->addItem(generatedMeshes[i]);
+        }
     }
-    return(-1);
+    return(retVal);
 }
 
 int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int options,const int* intParams,const double* floatParams)
@@ -2132,56 +1772,30 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
             minVolumePerCH=cmdOut.floatParams[7];
         }
     }
+    CMeshWrapper* mesh=nullptr;
     if (!abortp)
-        retVal=CSceneObjectOperations::generateConvexDecomposed(shapeHandle,nClusters,maxConcavity,addExtraDistPoints,
+        mesh=CSceneObjectOperations::generateConvexDecomposed(shapeHandle,nClusters,maxConcavity,addExtraDistPoints,
                                                         addFacesPoints,maxConnectDist,maxTrianglesInDecimatedMesh,
                                                         maxHullVertices,smallClusterThreshold,individuallyConsiderMultishapeComponents,
                                                         maxIterations,useHACD,resolution,20,concavity,planeDownsampling,
                                                         convexHullDownsampling,alpha,beta,0.00125,pca,voxelBasedMode,
                                                         maxVerticesPerCH,minVolumePerCH);
-    else
-        retVal=-1;
-
-    if (retVal!=-1)
-    { // transfer the inertia and mass:
-        // Get the mass and inertia info from the old shape:
+    if (mesh!=nullptr)
+    {
         CShape* oldShape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-        C7Vector absCOM(oldShape->getFullCumulativeTransformation());
-        absCOM=absCOM*oldShape->getMeshWrapper()->getLocalInertiaFrame();
-        double mass=oldShape->getMeshWrapper()->getMass();
-        C7Vector absCOMNoShift(absCOM);
-        absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
-        C3X3Matrix tensor(CMeshWrapper::getNewTensor(oldShape->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
-
-        // Transfer the mass and inertia info to the new shape:
-        CShape* newShape=App::currentWorld->sceneObjects->getShapeFromHandle(retVal);
-        newShape->getMeshWrapper()->setMass(mass);
-        C4Vector rot;
-        C3Vector pmoi;
-        CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,pmoi);
-        newShape->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoi);
-        absCOM.Q=rot;
-        C7Vector relCOM(newShape->getFullCumulativeTransformation().getInverse()*absCOM);
-        newShape->getMeshWrapper()->setLocalInertiaFrame(relCOM);
-    }
-
-    if ( (retVal!=-1)&&((options&1)!=0) )
-    { // we wanted a morph!!
-        CShape* newShape=App::currentWorld->sceneObjects->getShapeFromHandle(retVal);
-        CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-        C7Vector newLocal(it->getFullParentCumulativeTransformation().getInverse()*newShape->getFullCumulativeTransformation());
-        C7Vector oldLocal(it->getFullLocalTransformation());
-        it->setNewMesh(newShape->getMeshWrapper());
-        newShape->disconnectMesh();
-        it->setLocalTransformation(newLocal); // The shape's frame was changed!
-        App::currentWorld->sceneObjects->eraseObject(newShape,true);
-        // We need to correct all its children for this change of frame:
-        for (size_t i=0;i<it->getChildCount();i++)
-        {
-            CSceneObject* child=it->getChildFromIndex(i);
-            child->setLocalTransformation(newLocal.getInverse()*oldLocal*child->getLocalTransformation());
+        if ((options&1)!=0)
+        { // we wanted a morph
+            oldShape->replaceMesh(mesh,true);
+            retVal=oldShape->getObjectHandle();
         }
-        retVal=shapeHandle;
+        else
+        { // we want a new shape
+            CShape* newShape=new CShape();
+            newShape->replaceMesh(mesh,false);
+            newShape->setLocalTransformation(oldShape->getCumulativeTransformation());
+            oldShape->getMeshWrapper()->copyAttributesTo(mesh);
+            retVal=App::currentWorld->sceneObjects->addObjectToScene(newShape,false,true);
+        }
     }
     return(retVal);
 }

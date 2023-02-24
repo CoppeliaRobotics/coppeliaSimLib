@@ -137,6 +137,10 @@ void COctree::_readPositionsAndColorsAndSetDimensions()
         maxDim(1)+=_cellSize*0.5;
         maxDim(2)+=_cellSize*0.5;
         _setBoundingBox(minDim,maxDim);
+        C7Vector fr;
+        fr.setIdentity();
+        fr.X=(maxDim+minDim)*0.5;
+        _setBB(fr,maxDim-minDim);
     }
     else
     {
@@ -472,6 +476,8 @@ void COctree::clear()
     _colors.clear();
     _colorsByte.clear();
     _setBoundingBox(C3Vector(-0.1,-0.1,-0.1),C3Vector(+0.1,+0.1,+0.1));
+    _setBB(C7Vector::identityTransformation,C3Vector(0.2,0.2,0.2));
+
     _updateOctreeEvent();
 }
 
@@ -575,6 +581,9 @@ void COctree::scaleObject(double scalingFactor)
 {
     _cellSize*=scalingFactor;
     _setBoundingBox(_boundingBoxMin*scalingFactor,_boundingBoxMax*scalingFactor);
+    C7Vector fr(_bbFrame);
+    fr.X*=scalingFactor;
+    _setBB(fr,_bbSize*scalingFactor);
     for (size_t i=0;i<_voxelPositions.size();i++)
         _voxelPositions[i]*=scalingFactor;
     if (_octreeInfo!=nullptr)

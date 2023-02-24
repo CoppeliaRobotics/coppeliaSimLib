@@ -1,7 +1,7 @@
 #include <vector>
 #include <algos.h>
 
-C7Vector CAlgos::getMeshBoundingBoxPose(const std::vector<double>& vert,const std::vector<int>& ind,bool alignedWithMainAxis)
+C7Vector CAlgos::getMeshBoundingBox(const std::vector<double>& vert,const std::vector<int>& ind,bool alignedWithMainAxis,C3Vector* bbSize/*=nullptr*/)
 {
     C7Vector tr;
     tr.setIdentity();
@@ -23,26 +23,23 @@ C7Vector CAlgos::getMeshBoundingBoxPose(const std::vector<double>& vert,const st
     }
 
     // Compute the bounding box for these vertices
-    C3Vector bbMin;
-    C3Vector bbMax;
+    C3Vector bbMin(C3Vector::inf);
+    C3Vector bbMax(C3Vector::ninf);
     for (size_t i=0;i<vertices.size()/3;i++)
     {
         C3Vector curr(vertices.data()+3*i);
-        if (i==0)
-        {
-            bbMin=curr;
-            bbMax=curr;
-        }
-        else
-        {
-            bbMin.keepMin(curr);
-            bbMax.keepMax(curr);
-        }
+        bbMin.keepMin(curr);
+        bbMax.keepMax(curr);
     }
     C7Vector translation;
     translation.setIdentity();
     translation.X=(bbMin+bbMax)*0.5;
     tr=tr*translation;
+    if (bbSize!=nullptr)
+    {
+        for (size_t i=0;i<3;i++)
+            bbSize[0](i)=bbMax(i)-bbMin(i);
+    }
     return(tr);
 }
 
@@ -627,7 +624,7 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices,const std::ve
     }
 
     C3Vector alternateCenter;
-    double alternateSize=FLOAT_MAX;
+    double alternateSize=DBL_MAX;
     C4Vector bestSmallestDirectionAlternative;
 
     C3X3Matrix alternativeFrame(bestSmallestDirection);
@@ -743,7 +740,7 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices,const std::ve
     C3X3Matrix m(bestSmallestDirectionAlternative);
     C3Vector biggest;
     C3Vector smallest;
-    double smallestS=FLOAT_MAX;
+    double smallestS=DBL_MAX;
     double biggestS=0.0;
     for (int i=0;i<3;i++)
     {

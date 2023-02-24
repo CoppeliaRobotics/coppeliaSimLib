@@ -107,6 +107,7 @@ void CGraph::computeBoundingBox()
 {
     C3Vector maxV(_graphSize/2.0,_graphSize/2.0,_graphSize/2.0);
     _setBoundingBox(maxV*-1.0,maxV);
+    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_graphSize);
 }
 
 void CGraph::setJustDrawCurves(bool justCurves)
@@ -2760,8 +2761,8 @@ void CGraph::drawValues(int windowSize[2],double graphPosition[2],double graphSi
     labelPos[0]=graphPosition[0]+graphSize[0]-3.0*pixelSizeCoeff;
     labelPos[1]=graphPosition[1]+graphSize[1]-interline;
 
-    double maxVal[2]={-FLOAT_MAX,-FLOAT_MAX};
-    double minVal[2]={+FLOAT_MAX,+FLOAT_MAX};
+    double maxVal[2]={-DBL_MAX,-DBL_MAX};
+    double minVal[2]={+DBL_MAX,+DBL_MAX};
     if (dontRender)
         trackingValueIndex=-1;
     double ratio=graphSize[1]/graphSize[0];
@@ -3413,8 +3414,8 @@ void CGraph::drawValues(int windowSize[2],double graphPosition[2],double graphSi
 void CGraph::validateViewValues(int windowSize[2],double graphPosition[2],double graphSize[2],
             bool timeGraph,bool shiftOnly,bool keepProp,bool autoModeForTimeGraphXaxis)
 { // keepProp is false by default, shiftOnly also
-    double minValues[2]={-FLOAT_MAX,-FLOAT_MAX};
-    double maxValues[2]={+FLOAT_MAX,+FLOAT_MAX};
+    double minValues[2]={-DBL_MAX,-DBL_MAX};
+    double maxValues[2]={+DBL_MAX,+DBL_MAX};
     double minGraphSize[2]={0.00001,0.00001};
     if (timeGraph)
     {

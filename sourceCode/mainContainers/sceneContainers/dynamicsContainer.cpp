@@ -2156,7 +2156,7 @@ void CDynamicsContainer::_fixVortexInfVals()
     for (size_t i=3;i<9;i++)
     { // only in this range unsigned or had the inf. probl.
         if (_vortexFloatParams[i]<0.0)
-            _vortexFloatParams[i]=FLOAT_MAX;
+            _vortexFloatParams[i]=DBL_MAX;
     }
 }
 

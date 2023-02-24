@@ -91,6 +91,7 @@ void CMirror::computeBoundingBox()
     minV(2)=0.0;
     maxV(2)=0.0;
     _setBoundingBox(minV,maxV);
+    _setBB(C7Vector::identityTransformation,C3Vector(_mirrorWidth,_mirrorHeight,0.001));
 }
 
 CMirror::~CMirror()

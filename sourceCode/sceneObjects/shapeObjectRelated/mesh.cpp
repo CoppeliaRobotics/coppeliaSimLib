@@ -10,6 +10,7 @@
 #include <tt.h>
 #include <base64.h>
 #include <simFlavor.h>
+#include <algos.h>
 
 int CMesh::_nextUniqueID=0;
 unsigned int CMesh::_extRendererUniqueObjectID=0;
@@ -27,10 +28,10 @@ CMesh::CMesh()
     _commonInit();
 }
 
-CMesh::CMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals)
+CMesh::CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords)
 {
     _commonInit();
-    setMesh(vertices,indices,normals);
+    setMesh(meshFrame,vertices,indices,optNormals,optTexCoords);
 }
 
 CMesh::~CMesh()
@@ -57,7 +58,6 @@ void CMesh::_commonInit()
     _heightfieldXCount=0;
     _heightfieldYCount=0;
 
-    _verticeLocalFrame.setIdentity();
     _textureProperty=nullptr;
 
     _vertexBufferId=-1;
@@ -80,7 +80,7 @@ void CMesh::_commonInit()
     _extRendererTextureId=0;
 }
 
-void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex)
+void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex)
 { // function has virtual/non-virtual counterpart!
     if (!_wireframe_OLD)
     {
@@ -145,7 +145,7 @@ void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vecto
             }
         }
 
-        C7Vector tr2(tr*_verticeLocalFrame);
+        C7Vector tr2(tr*cumulIFrameTr*_iFrame*_bbFrame);
         static int a=0;
         a++;
         void* data[40];
@@ -197,7 +197,8 @@ void CMesh::display_extRenderer(CShape* geomData,int displayAttrib,const C7Vecto
         if (tp!=nullptr)
         {
             textured=true;
-            textureCoords=tp->getTextureCoordinates(geomData->getMeshModificationCounter(),_verticeLocalFrame,_verticesForDisplayAndDisk,_indices);
+//            textureCoords=tp->getTextureCoordinates(geomData->getMeshModificationCounter(),_verticeLocalFrame,_verticesForDisplayAndDisk,_indices);
+            textureCoords=tp->getTextureCoordinates(geomData->getMeshModificationCounter(),_bbFrame,_verticesForDisplayAndDisk,_indices);
             if (textureCoords==nullptr)
                 return; // Should normally never happen
             data[9]=&(textureCoords[0])[0];
@@ -283,7 +284,7 @@ bool CMesh::getContainsTransparentComponents() const
 CMesh* CMesh::copyYourself()
 { // function has virtual/non-virtual counterpart!
     CMesh* newIt=new CMesh();
-    copyWrapperInfos(newIt);
+    copyWrapperData(newIt);
 
     color.copyYourselfInto(&newIt->color);
     insideColor_DEPRECATED.copyYourselfInto(&newIt->insideColor_DEPRECATED);
@@ -294,7 +295,6 @@ CMesh* CMesh::copyYourself()
     newIt->_purePrimitiveYSize=_purePrimitiveYSize;
     newIt->_purePrimitiveZSizeOrHeight=_purePrimitiveZSizeOrHeight;
     newIt->_purePrimitiveInsideScaling=_purePrimitiveInsideScaling;
-    newIt->_verticeLocalFrame=_verticeLocalFrame;
 
     newIt->_heightfieldXCount=_heightfieldXCount;
     newIt->_heightfieldYCount=_heightfieldYCount;
@@ -332,10 +332,49 @@ CMesh* CMesh::copyYourself()
     return(newIt);
 }
 
+void CMesh::scale(double isoVal)
+{  // Function has virtual/non-virtual counterpart
+    CMeshWrapper::scale(isoVal);
+
+    _purePrimitiveXSizeOrDiameter*=isoVal;
+    _purePrimitiveYSize*=isoVal;
+    _purePrimitiveZSizeOrHeight*=isoVal;
+    if (_purePrimitive==sim_primitiveshape_heightfield)
+    {
+        for (int i=0;i<_heightfieldXCount*_heightfieldYCount;i++)
+            _heightfieldHeights[i]*=isoVal;
+    }
+
+    for (size_t i=0;i<_vertices.size()/3;i++)
+    {
+        C3Vector v(_vertices.data()+3*i);
+        v*=isoVal;
+        _vertices[3*i+0]=v(0);
+        _vertices[3*i+1]=v(1);
+        _vertices[3*i+2]=v(2);
+        _verticesForDisplayAndDisk[3*i+0]=(float)v(0);
+        _verticesForDisplayAndDisk[3*i+1]=(float)v(1);
+        _verticesForDisplayAndDisk[3*i+2]=(float)v(2);
+    }
+    
+    if (_textureProperty!=nullptr)
+        _textureProperty->scaleObject(isoVal);
+    if (isoVal<0.0) // flip faces
+        checkIfConvex();
+
+    decreaseVertexBufferRefCnt(_vertexBufferId);
+    decreaseNormalBufferRefCnt(_normalBufferId);
+    decreaseEdgeBufferRefCnt(_edgeBufferId);
+
+    _vertexBufferId=-1;
+    _normalBufferId=-1;
+    _edgeBufferId=-1;
+}
+
 void CMesh::scale(double xVal,double yVal,double zVal)
-{ // function has virtual/non-virtual counterpart!
-    // Following should not really be needed (normally already done by the calling function)
-    //--------------------
+{ // We scale along _bbFrame, not _iFrame, since non-iso scaling of inertia is delicate
+  // So we leave inertia items untouched
+  // Only for non-compound shapes
     if (_purePrimitive==sim_primitiveshape_plane)
         zVal=1.0;
     if (_purePrimitive==sim_primitiveshape_disc)
@@ -350,27 +389,22 @@ void CMesh::scale(double xVal,double yVal,double zVal)
         yVal=xVal;
         zVal=xVal;
     }
-
-    scaleWrapperInfos(xVal,yVal,zVal);
+    if (_purePrimitive==sim_primitiveshape_heightfield)
+    {
+        for (int i=0;i<_heightfieldXCount*_heightfieldYCount;i++)
+            _heightfieldHeights[i]*=zVal;
+    }
 
     _purePrimitiveXSizeOrDiameter*=xVal;
     _purePrimitiveYSize*=yVal;
     _purePrimitiveZSizeOrHeight*=zVal;
 
-    _verticeLocalFrame.X(0)*=xVal;
-    _verticeLocalFrame.X(1)*=yVal;
-    _verticeLocalFrame.X(2)*=zVal;
-
-    C7Vector inverse(_verticeLocalFrame.getInverse());
     for (size_t i=0;i<_vertices.size()/3;i++)
     {
-        C3Vector v;
-        v.setData(&_vertices[3*i+0]);
-        v=_verticeLocalFrame.Q*v;
+        C3Vector v(_vertices.data()+3*i);
         v(0)*=xVal;
         v(1)*=yVal;
         v(2)*=zVal;
-        v=inverse.Q*v;
         _vertices[3*i+0]=v(0);
         _vertices[3*i+1]=v(1);
         _vertices[3*i+2]=v(2);
@@ -378,17 +412,20 @@ void CMesh::scale(double xVal,double yVal,double zVal)
         _verticesForDisplayAndDisk[3*i+1]=(float)v(1);
         _verticesForDisplayAndDisk[3*i+2]=(float)v(2);
     }
-    
-    if (_purePrimitive==sim_primitiveshape_heightfield)
-    {
-        for (int i=0;i<_heightfieldXCount*_heightfieldYCount;i++)
-            _heightfieldHeights[i]*=zVal;
-    }
+
+    _bbSize(0)*=xVal;
+    _bbSize(1)*=yVal;
+    _bbSize(2)*=zVal;
+
+    C7Vector inv(_bbFrame.getInverse());
+    inv.X(0)*=xVal;
+    inv.X(1)*=yVal;
+    inv.X(2)*=zVal;
+    _bbFrame=inv.getInverse();
 
     if (_textureProperty!=nullptr)
         _textureProperty->scaleObject(xVal);
-    if ((xVal!=yVal)||(xVal!=zVal))
-        actualizeGouraudShadingAndVisibleEdges(); // we need to recompute the normals and edges
+    actualizeGouraudShadingAndVisibleEdges(); // we need to recompute the normals and edges
     if ((xVal<0.0)||(yVal<0.0)||(zVal<0.0)) // that effectively flips faces!
         checkIfConvex();
 
@@ -401,18 +438,70 @@ void CMesh::scale(double xVal,double yVal,double zVal)
     _edgeBufferId=-1;
 }
 
-void CMesh::setMesh(const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* normals)
+void CMesh::setMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords)
 {
     _vertices.assign(vertices.begin(),vertices.end());
     _indices.assign(indices.begin(),indices.end());
-    if (normals==nullptr)
+    CMeshManip::removeNonReferencedVertices(_vertices,_indices);
+    if (optNormals==nullptr)
     {
         CMeshManip::getNormals(&_vertices,&_indices,&_normals);
         _recomputeNormals();
     }
     else
-        _normals.assign(normals->begin(),normals->end());
-    _verticeLocalFrame.setIdentity();
+        _normals.assign(optNormals->begin(),optNormals->end());
+
+    // Express everything in the meshFrame:
+    C7Vector inv(meshFrame.getInverse());
+    for (size_t i=0;i<_vertices.size()/3;i++)
+    {
+        C3Vector v(_vertices.data()+3*i);
+        v=inv*v;
+        _vertices[3*i+0]=v(0);
+        _vertices[3*i+1]=v(1);
+        _vertices[3*i+2]=v(2);
+    }
+    for (size_t i=0;i<_normals.size()/3;i++)
+    {
+        C3Vector n(&_normals[3*i]);
+        n.normalize();
+        n=inv.Q*n;
+        _normals[3*i+0]=n(0);
+        _normals[3*i+1]=n(1);
+        _normals[3*i+2]=n(2);
+    }
+
+    // Find the _bbFrame, and express everything in that frame:
+    _bbFrame=CAlgos::getMeshBoundingBox(_vertices,_indices,false);
+    inv=_bbFrame.getInverse();
+    for (size_t i=0;i<_vertices.size()/3;i++)
+    {
+        C3Vector v(_vertices.data()+3*i);
+        v=inv*v;
+        _vertices[3*i+0]=v(0);
+        _vertices[3*i+1]=v(1);
+        _vertices[3*i+2]=v(2);
+    }
+    _computeBBSize();
+    for (size_t i=0;i<_normals.size()/3;i++)
+    {
+        C3Vector n(&_normals[3*i]);
+        n=inv.Q*n;
+        _normals[3*i+0]=n(0);
+        _normals[3*i+1]=n(1);
+        _normals[3*i+2]=n(2);
+    }
+
+    // Texture coordinates:
+    if (optTexCoords!=nullptr)
+    {
+        _textureCoordsTemp.resize(optTexCoords->size());
+        for (size_t i=0;i<optTexCoords->size();i++)
+            _textureCoordsTemp[i]=(float)optTexCoords->at(i);
+    }
+    else
+        _textureCoordsTemp.clear();
+
     _computeVisibleEdges();
     checkIfConvex();
 
@@ -498,14 +587,14 @@ void CMesh::setConvex(bool convex)
         */
 }
 
-void CMesh::getCumulativeMeshes(std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals)
+void CMesh::getCumulativeMeshes(const C7Vector& parentCumulTr,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals)
 { // function has virtual/non-virtual counterpart!
     size_t offset=vertices.size()/3;
+    C7Vector tr(parentCumulTr*_iFrame*_bbFrame);
     for (size_t i=0;i<_vertices.size()/3;i++)
     {
-        C3Vector v;
-        v.setData(&_vertices[3*i]);
-        v*=_verticeLocalFrame;
+        C3Vector v(_vertices.data()+3*i);
+        v*=tr;
         vertices.push_back(v(0));
         vertices.push_back(v(1));
         vertices.push_back(v(2));
@@ -517,15 +606,46 @@ void CMesh::getCumulativeMeshes(std::vector<double>& vertices,std::vector<int>* 
     }
     if (normals!=nullptr)
     {
-        C4Vector rot(_verticeLocalFrame.Q);
         for (size_t i=0;i<_normals.size()/3;i++)
         {
-            C3Vector v;
-            v.setData(&_normals[3*i]);
-            v=rot*v;
+            C3Vector v(_normals.data()+3*i);
+            v=tr.Q*v;
             normals->push_back(v(0));
             normals->push_back(v(1));
             normals->push_back(v(2));
+        }
+    }
+}
+
+void CMesh::getCumulativeMeshes(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals)
+{ // function has virtual/non-virtual counterpart!
+    if ( (wrapper==this)||(wrapper==nullptr) )
+    {
+        size_t offset=vertices.size()/3;
+        C7Vector tr(parentCumulTr*_iFrame*_bbFrame);
+        for (size_t i=0;i<_vertices.size()/3;i++)
+        {
+            C3Vector v(_vertices.data()+3*i);
+            v*=tr;
+            vertices.push_back(v(0));
+            vertices.push_back(v(1));
+            vertices.push_back(v(2));
+        }
+        if (indices!=nullptr)
+        {
+            for (size_t i=0;i<_indices.size();i++)
+                indices->push_back(_indices[i]+int(offset));
+        }
+        if (normals!=nullptr)
+        {
+            for (size_t i=0;i<_normals.size()/3;i++)
+            {
+                C3Vector v(_normals.data()+3*i);
+                v=tr.Q*v;
+                normals->push_back(v(0));
+                normals->push_back(v(1));
+                normals->push_back(v(2));
+            }
         }
     }
 }
@@ -737,20 +857,29 @@ bool CMesh::getColor(const char* colorName,int colorComponent,float* rgbData,int
     return(false);
 }
 
-void CMesh::getAllShapeComponentsCumulative(std::vector<CMesh*>& shapeComponentList)
+void CMesh::getAllShapeComponentsCumulative(const C7Vector& parentCumulTr,std::vector<CMesh*>& shapeComponentList,std::vector<C7Vector>* OptParentCumulTrList/*=nullptr*/)
 {   // function has virtual/non-virtual counterpart!
     // needed by the dynamics routine. We return ALL shape components!
     shapeComponentList.push_back(this);
+    if (OptParentCumulTrList!=nullptr)
+        OptParentCumulTrList->push_back(parentCumulTr);
 }
 
-CMesh* CMesh::getShapeComponentAtIndex(int& index)
+CMesh* CMesh::getShapeComponentAtIndex(const C7Vector& parentCumulTr,int& index,C7Vector* optParentCumulTrOut/*=nullptr*/)
 { // function has virtual/non-virtual counterpart!
-    if (index<0)
-        return(nullptr);
-    if (index==0)
-        return(this);
-    index--;
-    return(nullptr);
+    CMesh* retVal=nullptr;
+    if (index>=0)
+    {
+        if (index==0)
+        {
+            retVal=this;
+            if (optParentCumulTrOut!=nullptr)
+                optParentCumulTrOut[0]=parentCumulTr;
+        }
+        else
+            index--;
+    }
+    return(retVal);
 }
 
 int CMesh::getComponentCount() const
@@ -920,21 +1049,26 @@ void CMesh::setDisplayInverted_DEPRECATED(bool di)
     _displayInverted_DEPRECATED=di;
 }
 
-void CMesh::copyVisualAttributesTo(CMesh* target)
+void CMesh::takeVisualAttributesFrom(CMesh* origin)
 {
-    color.copyYourselfInto(&target->color);
-    insideColor_DEPRECATED.copyYourselfInto(&target->insideColor_DEPRECATED);
-    edgeColor_DEPRECATED.copyYourselfInto(&target->edgeColor_DEPRECATED);
+    origin->color.copyYourselfInto(&color);
+    origin->insideColor_DEPRECATED.copyYourselfInto(&insideColor_DEPRECATED);
+    origin->edgeColor_DEPRECATED.copyYourselfInto(&edgeColor_DEPRECATED);
+    _visibleEdges=origin->_visibleEdges;
+    _hideEdgeBorders_OLD=origin->_hideEdgeBorders_OLD;
+    _culling=origin->_culling;
+    _displayInverted_DEPRECATED=origin->_displayInverted_DEPRECATED;
+    _insideAndOutsideFacesSameColor_DEPRECATED=origin->_insideAndOutsideFacesSameColor_DEPRECATED;
+    _wireframe_OLD=origin->_wireframe_OLD;
+    _edgeWidth_DEPRERCATED=origin->_edgeWidth_DEPRERCATED;
+    _shadingAngle=origin->_shadingAngle;
+    _edgeThresholdAngle=origin->_edgeThresholdAngle;
+}
 
-    target->_visibleEdges=_visibleEdges;
-    target->_hideEdgeBorders_OLD=_hideEdgeBorders_OLD;
-    target->_culling=_culling;
-    target->_displayInverted_DEPRECATED=_displayInverted_DEPRECATED;
-    target->_insideAndOutsideFacesSameColor_DEPRECATED=_insideAndOutsideFacesSameColor_DEPRECATED;
-    target->_wireframe_OLD=_wireframe_OLD;
-    target->_edgeWidth_DEPRERCATED=_edgeWidth_DEPRERCATED;
-    target->_shadingAngle=_shadingAngle;
-    target->_edgeThresholdAngle=_edgeThresholdAngle;
+
+void CMesh::copyVisualAttributesTo(CMeshWrapper* target)
+{
+    target->takeVisualAttributesFrom(this);
 }
 
 double CMesh::getShadingAngle() const
@@ -977,16 +1111,6 @@ void CMesh::setWireframe_OLD(bool w)
 bool CMesh::getWireframe_OLD() const
 {
     return(_wireframe_OLD);
-}
-
-C7Vector CMesh::getVerticeLocalFrame() const
-{
-    return(_verticeLocalFrame);
-}
-
-void CMesh::setVerticeLocalFrame(const C7Vector& tr)
-{
-    _verticeLocalFrame=tr;
 }
 
 std::vector<double>* CMesh::getVertices()
@@ -1051,8 +1175,6 @@ void CMesh::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)
 { // function has virtual/non-virtual counterpart!
     _transformationsSinceGrouping=preTr*_transformationsSinceGrouping;
     _localInertiaFrame=preTr*_localInertiaFrame;
-
-    _verticeLocalFrame=preTr*_verticeLocalFrame;
 
     if (_textureProperty!=nullptr)
         _textureProperty->adjustForFrameChange(preTr);
@@ -1213,6 +1335,19 @@ void CMesh::_recomputeNormals()
     _normalsForDisplayAndDisk.resize(_normals.size());
     for (size_t i=0;i<_normals.size();i++)
         _normalsForDisplayAndDisk[i]=(float)_normals[i];
+}
+
+void CMesh::_computeBBSize()
+{
+    C3Vector mmin(DBL_MAX,DBL_MAX,DBL_MAX);
+    C3Vector mmax(-DBL_MAX,-DBL_MAX,-DBL_MAX);
+    for (size_t i=0;i<_vertices.size()/3;i++)
+    {
+        C3Vector v(_vertices.data()+3*i);
+        mmin.keepMin(v);
+        mmax.keepMax(v);
+    }
+    _bbSize=mmax-mmin;
 }
 
 void CMesh::_computeVisibleEdges()
@@ -1647,9 +1782,9 @@ void CMesh::getEdgesFromBufferBasedOnIndex(int index,std::vector<unsigned char>&
     edges.assign(_tempEdgesForDisk[index]->begin(),_tempEdgesForDisk[index]->end());
 }
 
-void CMesh::serialize(CSer& ar,const char* shapeName)
+bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumulIFrame,bool rootLevel)
 { // function has virtual/non-virtual counterpart!
-    serializeWrapperInfos(ar,shapeName);
+    bool hasNewBBFrameAndSize=CMeshWrapper::serialize(ar,shapeName,parentCumulIFrame,rootLevel);
     if (ar.isBinary())
     {
         if (ar.isStoring())
@@ -1728,19 +1863,19 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar << _purePrimitiveInsideScaling;
             ar.flush();
 
-
 #ifdef TMPOPERATION
-            ar.storeDataName("Ppf");
-            ar << (float)_verticeLocalFrame(0) << (float)_verticeLocalFrame(1) << (float)_verticeLocalFrame(2) << (float)_verticeLocalFrame(3);
-            ar << (float)_verticeLocalFrame(4) << (float)_verticeLocalFrame(5) << (float)_verticeLocalFrame(6);
+            ar.storeDataName("Ppf"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+            C7Vector w(parentCumulIFrame*_iFrame*_bbFrame);
+            ar << (float)w(0) << (float)w(1) << (float)w(2) << (float)w(3);
+            ar << (float)w(4) << (float)w(5) << (float)w(6);
             ar.flush();
 #endif
 
-            ar.storeDataName("_pf");
-            ar << _verticeLocalFrame(0) << _verticeLocalFrame(1) << _verticeLocalFrame(2) << _verticeLocalFrame(3);
-            ar << _verticeLocalFrame(4) << _verticeLocalFrame(5) << _verticeLocalFrame(6);
+            ar.storeDataName("_pf"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+            w=parentCumulIFrame*_iFrame*_bbFrame;
+            ar << w(0) << w(1) << w(2) << w(3);
+            ar << w(4) << w(5) << w(6);
             ar.flush();
-
 
 #ifdef TMPOPERATION
             ar.storeDataName("Gsa"); // write this always before Gs2
@@ -2011,24 +2146,36 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                         ar >> _purePrimitiveInsideScaling;
                     }
 
-                    if (theName.compare("Ppf")==0)
+                    if (theName.compare("Ppf")==0) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
                         float bla;
+                        C7Vector vlf; // prev. _verticesLocalframe
                         for (size_t i=0;i<7;i++)
                         {
                             ar >> bla;
-                            _verticeLocalFrame(i)=(double)bla;
+                            vlf(i)=(double)bla;
+                        }
+                        if (!hasNewBBFrameAndSize)
+                        {
+                            _bbFrame=(parentCumulIFrame*_iFrame).getInverse()*vlf;
+                            _computeBBSize();
                         }
                     }
 
-                    if (theName.compare("_pf")==0)
+                    if (theName.compare("_pf")==0) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     {
                         noHit=false;
+                        C7Vector vlf; // prev. _verticesLocalframe
                         ar >> byteQuantity;
-                        ar >> _verticeLocalFrame(0) >> _verticeLocalFrame(1) >> _verticeLocalFrame(2) >> _verticeLocalFrame(3);
-                        ar >> _verticeLocalFrame(4) >> _verticeLocalFrame(5) >> _verticeLocalFrame(6);
+                        ar >> vlf(0) >> vlf(1) >> vlf(2) >> vlf(3);
+                        ar >> vlf(4) >> vlf(5) >> vlf(6);
+                        if (!hasNewBBFrameAndSize)
+                        {
+                            _bbFrame=(parentCumulIFrame*_iFrame).getInverse()*vlf;
+                            _computeBBSize();
+                        }
                     }
 
                     if (theName.compare("Gsa")==0)
@@ -2140,9 +2287,11 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
             ar.xmlAddNode_3float("sizes",_purePrimitiveXSizeOrDiameter,_purePrimitiveYSize,_purePrimitiveZSizeOrHeight);
             ar.xmlPopNode();
 
-            ar.xmlPushNewNode("verticesLocalFrame");
-            ar.xmlAddNode_floats("position",_verticeLocalFrame.X.data,3);
-            ar.xmlAddNode_floats("quaternion",_verticeLocalFrame.Q.data,4);
+            ar.xmlAddNode_comment(" 'verticesLocalFrame' tag: deprecated, for backward compatibility ",false);
+            ar.xmlPushNewNode("verticesLocalFrame"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+            C7Vector w(parentCumulIFrame*_iFrame*_bbFrame);
+            ar.xmlAddNode_floats("position",w.X.data,3);
+            ar.xmlAddNode_floats("quaternion",w.Q.data,4);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("switches");
@@ -2197,11 +2346,14 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                 ar.xmlPopNode();
             }
 
-            if (ar.xmlPushChildNode("verticesLocalFrame"))
+            if (ar.xmlPushChildNode("verticesLocalFrame")) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
             {
-                ar.xmlGetNode_floats("position",_verticeLocalFrame.X.data,3);
-                ar.xmlGetNode_floats("quaternion",_verticeLocalFrame.Q.data,4);
-                _verticeLocalFrame.Q.normalize(); // just in case
+                C7Vector vlf; // prev. _verticesLocalframe
+                ar.xmlGetNode_floats("position",vlf.X.data,3);
+                ar.xmlGetNode_floats("quaternion",vlf.Q.data,4);
+                vlf.Q.normalize(); // just in case
+                if (!hasNewBBFrameAndSize)
+                    _bbFrame=(parentCumulIFrame*_iFrame).getInverse()*vlf;
                 ar.xmlPopNode();
             }
 
@@ -2241,33 +2393,36 @@ void CMesh::serialize(CSer& ar,const char* shapeName)
                     ar.xmlGetNode_meshFile("file",_verticesForDisplayAndDisk,_indices,_normalsForDisplayAndDisk,_edges);
                     actualizeGouraudShadingAndVisibleEdges();
                 }
+
                 _vertices.resize(_verticesForDisplayAndDisk.size());
                 for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
                     _vertices[i]=(double)_verticesForDisplayAndDisk[i];
                 _normals.resize(_normalsForDisplayAndDisk.size());
                 for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
                     _normals[i]=(double)_normalsForDisplayAndDisk[i];
+
                 ar.xmlPopNode();
             }
+            if (!hasNewBBFrameAndSize)
+                _computeBBSize();
         }
     }
 }
 
-void CMesh::display(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
+void CMesh::display(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
 { // function has virtual/non-virtual counterpart!
-    C3Vector e(_verticeLocalFrame.Q.getEulerAngles());
-    displayGeometric(this,geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,multishapeEditSelected);
+    displayGeometric(cumulIFrameTr*_iFrame,this,geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,multishapeEditSelected);
 }
 
-void CMesh::display_colorCoded(CShape* geomData,int objectId,int displayAttrib)
+void CMesh::display_colorCoded(const C7Vector& cumulIFrameTr,CShape* geomData,int objectId,int displayAttrib)
 { // function has virtual/non-virtual counterpart!
-    displayGeometric_colorCoded(this,geomData,objectId,displayAttrib);
+    displayGeometric_colorCoded(cumulIFrameTr*_iFrame,this,geomData,objectId,displayAttrib);
 }
 
 
-void CMesh::displayGhost(CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
+void CMesh::displayGhost(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
 { // function has virtual/non-virtual counterpart!
-    displayGeometricGhost(this,geomData,displayAttrib,originalColors,backfaceCulling,transparency,newColors);
+    displayGeometricGhost(cumulIFrameTr*_iFrame,this,geomData,displayAttrib,originalColors,backfaceCulling,transparency,newColors);
 }
 
 #ifdef SIM_WITH_GUI
@@ -2275,9 +2430,10 @@ bool CMesh::getNonCalculatedTextureCoordinates(std::vector<double>& texCoords)
 {
     if (_textureProperty==nullptr)
         return(false);
-    C7Vector dummyTr;
-    dummyTr.setIdentity();
-    std::vector<float>* tc=_textureProperty->getTextureCoordinates(-1,dummyTr,_verticesForDisplayAndDisk,_indices);
+//    C7Vector dummyTr;
+//    dummyTr.setIdentity();
+//    std::vector<float>* tc=_textureProperty->getTextureCoordinates(-1,dummyTr,_verticesForDisplayAndDisk,_indices);
+    std::vector<float>* tc=_textureProperty->getTextureCoordinates(-1,C7Vector::identityTransformation,_verticesForDisplayAndDisk,_indices);
     if (tc==nullptr)
         return(false);
     if (!_textureProperty->getFixedCoordinates())
@@ -2288,18 +2444,3 @@ bool CMesh::getNonCalculatedTextureCoordinates(std::vector<double>& texCoords)
     return(true);
 }
 #endif
-/*
-void CMesh::printInfos() const
-{
-    printf("M _verticeLocalFrame: %s, %s, %s, %s, %s, %s, %s\n",
-           utils::getPosString(false,_verticeLocalFrame.X(0)).c_str(),
-           utils::getPosString(false,_verticeLocalFrame.X(1)).c_str(),
-           utils::getPosString(false,_verticeLocalFrame.X(2)).c_str(),
-           utils::getPosString(false,_verticeLocalFrame.Q(0)).c_str(),
-           utils::getPosString(false,_verticeLocalFrame.Q(1)).c_str(),
-           utils::getPosString(false,_verticeLocalFrame.Q(2)).c_str(),
-           utils::getPosString(false,_verticeLocalFrame.Q(3)).c_str());
-    CMeshWrapper::printInfos();
-}
-
-*/

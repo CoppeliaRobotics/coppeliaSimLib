@@ -167,14 +167,14 @@ SIM_DLLEXPORT void _simAddJointCumulativeForcesOrTorques(void* joint,float force
 SIM_DLLEXPORT float _simGetMass(const void* geomInfo);
 SIM_DLLEXPORT float _simGetLocalInertiaInfo(const void* object,float* pos,float* quat,float* diagI);
 SIM_DLLEXPORT void _simGetPurePrimitiveSizes(const void* geometric,float* sizes);
-SIM_DLLEXPORT void _simGetVerticesLocalFrame(const void* geometric,float* pos,float* quat);
+SIM_DLLEXPORT void _simGetVerticesLocalFrame(const void* shape,const void* geometric,float* pos,float* quat);
 SIM_DLLEXPORT const float* _simGetHeightfieldData(const void* geometric,int* xCount,int* yCount,float* minHeight,float* maxHeight);
 SIM_DLLEXPORT void _simGetGravity(float* gravity);
 SIM_DLLEXPORT float _simGetPureHollowScaling(const void* geometric);
 SIM_DLLEXPORT void _simDynCallback(const int* intData,const float* floatData);
 SIM_DLLEXPORT int _simHandleJointControl(const void* joint,int auxV,const int* inputValuesInt,const float* inputValuesFloat,float* outputValues);
 SIM_DLLEXPORT int _simHandleCustomContact(int objHandle1,int objHandle2,int engine,int* dataInt,float* dataFloat);
-SIM_DLLEXPORT void _simGetCumulativeMeshes(const void* geomInfo,float** vertices,int* verticesSize,int** indices,int* indicesSize);
+SIM_DLLEXPORT void _simGetCumulativeMeshes(const void* shape,const void* geomInfo,float** vertices,int* verticesSize,int** indices,int* indicesSize);
 
 SIM_DLLEXPORT bool _simGetDistanceBetweenEntitiesIfSmaller(int entity1ID,int entity2ID,float* distance,float* ray,int* cacheBuffer,bool overrideMeasurableFlagIfNonCollection1,bool overrideMeasurableFlagIfNonCollection2,bool pathPlanningRoutineCalling);
 
@@ -554,3 +554,4 @@ SIM_DLLEXPORT void _simGetDynamicForceSensorLocalTransformationPart2(const void*
 SIM_DLLEXPORT void _simGetMotorPid(const void* joint,float* pParam,float* iParam,float* dParam);
 SIM_DLLEXPORT void _simGetPrincipalMomentOfInertia(const void* geomInfo,float* inertia);
 SIM_DLLEXPORT void _simGetLocalInertiaFrame(const void* geomInfo,float* pos,float* quat);
+SIM_DLLEXPORT const void* _simGetGeomProxyFromShape(const void* shape);

@@ -838,10 +838,6 @@ SIM_DLLEXPORT const void** _simGetObjectChildren(const void* object,int* count)
 {
     return(_simGetObjectChildren_internal(object,count));
 }
-SIM_DLLEXPORT const void* _simGetGeomProxyFromShape(const void* shape)
-{
-    return(_simGetGeomProxyFromShape_internal(shape));
-}
 SIM_DLLEXPORT const void* _simGetParentObject(const void* object)
 {
     return(_simGetParentObject_internal(object));
@@ -1681,17 +1677,17 @@ SIM_DLLEXPORT void _simGetPurePrimitiveSizes_D(const void* geometric,double* siz
 {
     return(_simGetPurePrimitiveSizes_internal(geometric,sizes));
 }
-SIM_DLLEXPORT void _simGetVerticesLocalFrame_D(const void* geometric,double* pos,double* quat)
+SIM_DLLEXPORT void _simGetVerticesLocalFrame_D(const void* shape,const void* geometric,double* pos,double* quat)
 {
-    return(_simGetVerticesLocalFrame_internal(geometric,pos,quat));
+    return(_simGetVerticesLocalFrame_internal(shape,geometric,pos,quat));
 }
 SIM_DLLEXPORT const double* _simGetHeightfieldData_D(const void* geometric,int* xCount,int* yCount,double* minHeight,double* maxHeight)
 {
     return(_simGetHeightfieldData_internal(geometric,xCount,yCount,minHeight,maxHeight));
 }
-SIM_DLLEXPORT void _simGetCumulativeMeshes_D(const void* geomInfo,double** vertices,int* verticesSize,int** indices,int* indicesSize)
+SIM_DLLEXPORT void _simGetCumulativeMeshes_D(const void* shape,const void* geomInfo,double** vertices,int* verticesSize,int** indices,int* indicesSize)
 {
-    return(_simGetCumulativeMeshes_internal(geomInfo,vertices,verticesSize,indices,indicesSize));
+    return(_simGetCumulativeMeshes_internal(shape,geomInfo,vertices,verticesSize,indices,indicesSize));
 }
 SIM_DLLEXPORT void _simGetGravity_D(double* gravity)
 {

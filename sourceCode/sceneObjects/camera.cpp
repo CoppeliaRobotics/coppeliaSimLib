@@ -64,11 +64,6 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
     C7Vector camTrInv(camTr.getInverse());
     int editMode=NO_EDIT_MODE;
     int displAttributes=0;
-    if (optionalView!=nullptr)
-    {
-        if (optionalView->getVisualizeOnlyInertias())
-            displAttributes=sim_displayattribute_inertiaonly;
-    }
     if (App::currentWorld->simulation->getDynamicContentVisualizationOnly())
         displAttributes=sim_displayattribute_dynamiccontentonly;
 
@@ -268,7 +263,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
                 CShape* shape=(CShape*)it;
                 C7Vector trr(camTrInv*shape->getFullCumulativeTransformation());
                 std::vector<double> wvert;
-                shape->getMeshWrapper()->getCumulativeMeshes(wvert,nullptr,nullptr);
+                shape->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,wvert,nullptr,nullptr);
                 for (int j=0;j<int(wvert.size())/3;j++)
                 {
                     C3Vector vq(&wvert[3*j+0]);
@@ -415,7 +410,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
             if (!done)
             {
                 C3Vector minV,maxV;
-                it->getBoundingBoxEncompassingBoundingBox(camTrInv,minV,maxV,false);
+                it->getBoundingBoxEncompassingBoundingBox(camTrInv,minV,maxV);
                 for (int k=0;k<2;k++)
                 {
                     for (int l=0;l<2;l++)
@@ -859,6 +854,10 @@ void CCamera::computeBoundingBox()
     C3Vector minV(-0.5*_cameraSize,-0.5*_cameraSize,-2.6*_cameraSize);
     C3Vector maxV(0.5*_cameraSize,2.2*_cameraSize,_cameraSize);
     _setBoundingBox(minV,maxV);
+    C7Vector fr;
+    fr.Q.setIdentity();
+    fr.X=C3Vector(0.0,0.85,-0.8)*_cameraSize;
+    _setBB(fr,C3Vector(1.0,2.7,3.6)*_cameraSize);
 }
 
 CCamera::~CCamera()
@@ -2685,8 +2684,6 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             displayAttrib|=sim_displayattribute_forbidedges;
         if (subView->getThickEdges())
             displayAttrib|=sim_displayattribute_thickEdges;
-        if ( subView->getVisualizeOnlyInertias()&&(App::getEditModeType()==NO_EDIT_MODE)&&(!App::currentWorld->simulation->getDynamicContentVisualizationOnly()) )
-            displayAttrib|=sim_displayattribute_inertiaonly|sim_displayattribute_forbidedges;
         viewIndex=int(subView->getViewIndex());
     }
 
@@ -2717,9 +2714,9 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
         C7Vector cam(getFullCumulativeTransformation());
         if (!_currentPerspective)
         {
-            C3Vector minV,maxV;
-            bool first=true;
-            viewBoxObject->getGlobalMarkingBoundingBox(getFullCumulativeTransformation().getInverse(),minV,maxV,first,true,true);
+            C3Vector minV(C3Vector::inf);
+            C3Vector maxV(C3Vector::ninf);
+            viewBoxObject->getModelBB((getCumulativeTransformation()*getBB()).getInverse(),minV,maxV,true);
             double shift=ORTHO_CAMERA_FAR_CLIPPING_PLANE-0.505*(maxV(2)-minV(2)); // just a bit more than half!
             cam.X+=cam.Q.getMatrix().axis[2]*shift;
         }
@@ -2829,6 +2826,20 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                         }
                         else if (it->getObjectHandle()!=App::mainWindow->editModeContainer->getEditModeObjectID())
                             it->display(this,atr);
+                    }
+                }
+            }
+
+            // Display inertia box overlays:
+            if ( App::getShowInertias()&&((displayAttrib&sim_displayattribute_renderpass)!=0)&&((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)&&getInternalRendering() )
+            {
+                for (size_t rp=0;rp<toRender.size();rp++)
+                {
+                    if (toRender[rp]->getObjectType()==sim_object_shape_type)
+                    {
+                        CShape* it=(CShape*)toRender[rp];
+                        if (!it->getShapeIsDynamicallyStatic())
+                            it->displayInertia();
                     }
                 }
             }

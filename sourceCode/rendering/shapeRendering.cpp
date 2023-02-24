@@ -124,34 +124,6 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
                     otherColorP=&otherColor;
                 }
             }
-/*
-            if (displayAttrib&sim_displayattribute_selected)
-            {
-                if (displayAttrib&sim_displayattribute_mode1)
-                {
-                    otherColor.setDefaultValues();
-                    otherColor.setColor(0.8,0.8,0.0,sim_colorcomponent_ambient_diffuse);
-                    otherColorP=&otherColor;
-                }
-                if (displayAttrib&sim_displayattribute_mode2)
-                {
-                    otherColor.setDefaultValues();
-                    otherColor.setColor(0.0,0.8,0.0,sim_colorcomponent_ambient_diffuse);
-                    otherColorP=&otherColor;
-                }
-            }
-*/
-            // Display the mass and inertia:
-            if ((displayAttrib&sim_displayattribute_inertiaonly)!=0)
-            {
-                C3Vector v(shape->getBoundingBoxHalfSizes()*2.0);
-                _displayInertia(shape->getMeshWrapper(),sqrt(v*v),normalVectorForLinesAndPoints.data);
-                otherColor.setDefaultValues();
-                otherColor.getColorsPtr()[0]=0.8f;
-                otherColor.getColorsPtr()[1]=0.8f;
-                otherColor.getColorsPtr()[2]=0.65f;
-                otherColorP=&otherColor;
-            }
 
             if (renderingObject->isObjectInsideView(shape->getFullCumulativeTransformation(),shape->getBoundingBoxHalfSizes()))
             { // the bounding box is inside of the view (at least some part of it!)
@@ -164,27 +136,27 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
                         if (shape->isMeshCalculationStructureInitialized())
                         {
                             fakeCol.setColor(0.5f,0.1f,0.1f,0);
-                            shape->getMeshWrapper()->display(shape,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
+                            shape->getMeshWrapper()->display(C7Vector::identityTransformation,shape,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
                         }
                         else
                         {
                             fakeCol.setColor(0.5f,0.5f,0.5f,0);
-                            shape->getMeshWrapper()->display(shape,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
+                            shape->getMeshWrapper()->display(C7Vector::identityTransformation,shape,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
                         }
                     }
                     else
                     { // normal visualization
                         if (shape->getContainsTransparentComponent())
                         {
-                            shape->getMeshWrapper()->display(shape,displayAttrib,otherColorP,shape->getDynamicFlag(),2,false);
-                            shape->getMeshWrapper()->display(shape,displayAttrib,otherColorP,shape->getDynamicFlag(),1,false);
+                            shape->getMeshWrapper()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),2,false);
+                            shape->getMeshWrapper()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),1,false);
                         }
                         else
-                            shape->getMeshWrapper()->display(shape,displayAttrib,otherColorP,shape->getDynamicFlag(),0,false);
+                            shape->getMeshWrapper()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),0,false);
                     }
                 }
                 else
-                    shape->getMeshWrapper()->display_colorCoded(shape,shape->getObjectHandle(),displayAttrib); // color-coded visualization
+                    shape->getMeshWrapper()->display_colorCoded(C7Vector::identityTransformation,shape,shape->getObjectHandle(),displayAttrib); // color-coded visualization
             }
             _disableAuxClippingPlanes();
         }
@@ -194,54 +166,34 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
     _commonFinish(shape,renderingObject);
 }
 
-void _displayInertia(CMeshWrapper* geomWrap,double bboxDiagonal,const double normalVectorForPointsAndLines[3])
+void _displayInertia(const C7Vector& tr,const C3Vector& pmi)
 {
-    C7Vector tr(geomWrap->getLocalInertiaFrame());
     glPushMatrix();
+    glPushAttrib(GL_POLYGON_BIT);
     glTranslated(tr.X(0),tr.X(1),tr.X(2));
     C4Vector axis=tr.Q.getAngleAndAxis();
     glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
-
     ogl::setMaterialColor(ogl::colorRed,ogl::colorBlack,ogl::colorBlack);
+    ogl::setAlpha(0.1);
+    C3Vector p(pmi);
+    for (size_t i=0;i<3;i++)
+    {
+        if (p(i)<0.0000001)
+            p(i)=0.0000001;
+    }
+    C3Vector hs(sqrt(6*(-p(0)+p(1)+p(2))),sqrt(6*(p(0)-p(1)+p(2))),sqrt(6*(p(0)+p(1)-p(2))));
+    hs*=1.01; // a tiny bit larger
 
-    C3Vector me(geomWrap->getPrincipalMomentsOfInertia());
-    C3Vector ma;
-    ma(0)=(me(1)+me(2))*(me(1)+me(2));
-    ma(1)=(me(0)+me(2))*(me(0)+me(2));
-    ma(2)=(me(1)+me(0))*(me(1)+me(0));
-    ma.normalize();
-    double mf=bboxDiagonal*0.6;
-    ogl::buffer.clear();
-    ogl::addBuffer3DPoints(-ma(0)*mf,-ma(1)*mf,+ma(2)*mf);
-    ogl::addBuffer3DPoints(-ma(0)*mf,-ma(1)*mf,-ma(2)*mf);
-    ogl::addBuffer3DPoints(+ma(0)*mf,-ma(1)*mf,-ma(2)*mf);
-    ogl::addBuffer3DPoints(+ma(0)*mf,-ma(1)*mf,+ma(2)*mf);
-    ogl::addBuffer3DPoints(-ma(0)*mf,-ma(1)*mf,+ma(2)*mf);
-    ogl::addBuffer3DPoints(-ma(0)*mf,+ma(1)*mf,+ma(2)*mf);
-    ogl::addBuffer3DPoints(+ma(0)*mf,+ma(1)*mf,+ma(2)*mf);
-    ogl::addBuffer3DPoints(+ma(0)*mf,+ma(1)*mf,-ma(2)*mf);
-    ogl::addBuffer3DPoints(-ma(0)*mf,+ma(1)*mf,-ma(2)*mf);
-    ogl::addBuffer3DPoints(-ma(0)*mf,+ma(1)*mf,+ma(2)*mf);
-    ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,normalVectorForPointsAndLines);
-    ogl::buffer.clear();
-    ogl::addBuffer3DPoints(-ma(0)*mf,-ma(1)*mf,-ma(2)*mf);
-    ogl::addBuffer3DPoints(-ma(0)*mf,+ma(1)*mf,-ma(2)*mf);
-    ogl::addBuffer3DPoints(+ma(0)*mf,-ma(1)*mf,-ma(2)*mf);
-    ogl::addBuffer3DPoints(+ma(0)*mf,+ma(1)*mf,-ma(2)*mf);
-    ogl::addBuffer3DPoints(+ma(0)*mf,-ma(1)*mf,+ma(2)*mf);
-    ogl::addBuffer3DPoints(+ma(0)*mf,+ma(1)*mf,+ma(2)*mf);
-    ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,normalVectorForPointsAndLines);
-    ogl::buffer.clear();
+    glDisable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    ogl::drawBox(hs(0),hs(1),hs(2),true,nullptr);
+    ogl::setAlpha(1.0);
+    ogl::drawBox(hs(0),hs(1),hs(2),false,nullptr);
+    glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
 
-    glLineWidth(3.0);
-    ogl::drawReference(bboxDiagonal*0.5);
-
-    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,0.4f,0.0f,1.0f);
-    double l=pow(geomWrap->getMass()/1000.0,0.3333); // Cubic root and mass density of 1000
-    glLineWidth(6.0);
-    ogl::drawBox(l,l,l,false,normalVectorForPointsAndLines);
-    glLineWidth(1.0);
-
+    glPopAttrib();
     glPopMatrix();
 }
 
@@ -256,7 +208,7 @@ void _displayTriangles(CMesh* geometric,int geomModifCounter,CTextureProperty* t
     const std::vector<float>& _normals=geometric->getNormalsForDisplayAndDisk()[0];
     if (tp!=nullptr)
     {
-        textureCoords=tp->getTextureCoordinates(geomModifCounter,geometric->getVerticeLocalFrame(),_vertices,_indices);
+        textureCoords=tp->getTextureCoordinates(geomModifCounter,geometric->getBB(nullptr),_vertices,_indices);
         if (textureCoords==nullptr)
             return; // Should normally never happen (should be caught before!)
         texCoordBufferIdPtr=tp->getTexCoordBufferIdPointer();
@@ -270,9 +222,11 @@ void _displayTriangles(CMesh* geometric,int geomModifCounter,CTextureProperty* t
 }
 
 
-void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
+void displayGeometric(const C7Vector& cumulIFrameTr,CMesh* geometric,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
 {
-
+//    printf("A: %f, %f, %f\n",cumulIFrameTr.X(0),cumulIFrameTr.X(1),cumulIFrameTr.X(2));
+//    printf("B: %f, %f, %f\n",geometric->getVFrame()(0),geometric->getVFrame()(1),geometric->getVFrame()(2));
+//    printf("C: %f, %f, %f\n",geometric->getVertices()->at(0),geometric->getVertices()->at(1),geometric->getVertices()->at(2));
     if (transparencyHandling!=0)
     {// 0=display always, 1=display transparent only, 2=display non-transparent only
         if ((transparencyHandling==1)&&(!geometric->getContainsTransparentComponents()))
@@ -280,7 +234,7 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
         if ((transparencyHandling==2)&&(geometric->getContainsTransparentComponents()))
             return;
     }
-    C7Vector _verticeLocalFrame(geometric->getVerticeLocalFrame());
+    C7Vector _verticeLocalFrame(cumulIFrameTr*geometric->getBB(nullptr));
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
     glTranslated(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
@@ -492,11 +446,11 @@ void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColor
     glPopMatrix();
 }
 
-void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,int displayAttrib)
+void displayGeometric_colorCoded(const C7Vector& cumulIFrameTr,CMesh* geometric,CShape* geomData,int objectId,int displayAttrib)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
-    C7Vector _verticeLocalFrame(geometric->getVerticeLocalFrame());
+    C7Vector _verticeLocalFrame(cumulIFrameTr*geometric->getBB(nullptr));
     glTranslated(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
     C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxis();
     glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
@@ -527,17 +481,17 @@ void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,
     glPopMatrix();
 }
 
-void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
+void displayGeometricGhost(const C7Vector& cumulIFrameTr,CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
 {
     if (originalColors)
     {
-        displayGeometric(geometric,geomData,displayAttrib,nullptr,0,0,false);
+        displayGeometric(cumulIFrameTr,geometric,geomData,displayAttrib,nullptr,0,0,false);
         return;
     }
 
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
-    C7Vector _verticeLocalFrame(geometric->getVerticeLocalFrame());
+    C7Vector _verticeLocalFrame(cumulIFrameTr*geometric->getBB(nullptr));
     glTranslated(_verticeLocalFrame.X(0),_verticeLocalFrame.X(1),_verticeLocalFrame.X(2));
     C4Vector axis=_verticeLocalFrame.Q.getAngleAndAxis();
     glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));

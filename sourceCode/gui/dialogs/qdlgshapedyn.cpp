@@ -4,11 +4,11 @@
 #include <utils.h>
 #include <simStrings.h>
 #include <app.h>
-#include <qdlginertiatensor.h>
 #include <QInputDialog>
 #include <vMessageBox.h>
 
 bool CQDlgShapeDyn::showDynamicWindow=false;
+bool CQDlgShapeDyn::masslessInertia=true;
 
 CQDlgShapeDyn::CQDlgShapeDyn(QWidget *parent) :
     CDlgEx(parent),
@@ -98,49 +98,69 @@ void CQDlgShapeDyn::refresh()
     ui->qqMassT2->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
     ui->qqID2->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
     ui->qqIT2->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqTensorMatrix->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqIX->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqIY->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqIZ->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
+    ui->qqI00->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
+    ui->qqI01->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
+    ui->qqI02->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
+    ui->qqI10->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
+    ui->qqI11->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
+    ui->qqI12->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
+    ui->qqI20->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
+    ui->qqI21->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
+    ui->qqI22->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
+    ui->qqMassless->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
     ui->qqPX->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
     ui->qqPY->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
     ui->qqPZ->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqAlpha->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqBeta->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqGamma->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
     ui->qqApplyMassAndInertiaProperties->setEnabled((sc>1)&&sel&&noEditModeAndNoSim);
 
     ui->qqDynamic->setChecked(sel&&lastSelIsNotStatic);
     ui->qqAutomaticToNonStatic->setChecked(sel&&it->getSetAutomaticallyToNonStaticIfGetsParent());
+    ui->qqMassless->setChecked(sel&&masslessInertia);
     ui->qqSleepModeStart->setChecked(sel&&it->getStartInDynamicSleeping());
+
+    if (masslessInertia)
+        ui->qqInertiaMatrixTitle->setTitle("Inertia matrix [m^2]");
+    else
+        ui->qqInertiaMatrixTitle->setTitle("Inertia matrix [kg*m^2]");
     if (sel)
     {
-        ui->qqMass->setText(utils::getMassString(it->getMeshWrapper()->getMass()).c_str());
-        C3Vector v(it->getMeshWrapper()->getPrincipalMomentsOfInertia());
-        ui->qqIX->setText(utils::getMasslessTensorString(false,v(0)).c_str());
-        ui->qqIY->setText(utils::getMasslessTensorString(false,v(1)).c_str());
-        ui->qqIZ->setText(utils::getMasslessTensorString(false,v(2)).c_str());
-        C4X4Matrix m(it->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
-        C3Vector e(m.M.getEulerAngles());
-        ui->qqPX->setText(utils::getPosString(true,m.X(0)).c_str());
-        ui->qqPY->setText(utils::getPosString(true,m.X(1)).c_str());
-        ui->qqPZ->setText(utils::getPosString(true,m.X(2)).c_str());
-        ui->qqAlpha->setText(utils::getAngleString(true,e(0)).c_str());
-        ui->qqBeta->setText(utils::getAngleString(true,e(1)).c_str());
-        ui->qqGamma->setText(utils::getAngleString(true,e(2)).c_str());
+        double mass=it->getMeshWrapper()->getMass();
+        ui->qqMass->setText(utils::getMassString(mass).c_str());
+        C3X3Matrix m(it->getMeshWrapper()->getMasslessInertiaMatrix());
+        if (!masslessInertia)
+            m*=mass;
+        ui->qqI00->setText(utils::getTensorString(masslessInertia,m(0,0)).c_str());
+        ui->qqI01->setText(utils::getTensorString(masslessInertia,m(0,1)).c_str());
+        ui->qqI02->setText(utils::getTensorString(masslessInertia,m(0,2)).c_str());
+        ui->qqI10->setText(utils::getTensorString(masslessInertia,m(1,0)).c_str());
+        ui->qqI11->setText(utils::getTensorString(masslessInertia,m(1,1)).c_str());
+        ui->qqI12->setText(utils::getTensorString(masslessInertia,m(1,2)).c_str());
+        ui->qqI20->setText(utils::getTensorString(masslessInertia,m(2,0)).c_str());
+        ui->qqI21->setText(utils::getTensorString(masslessInertia,m(2,1)).c_str());
+        ui->qqI22->setText(utils::getTensorString(masslessInertia,m(2,2)).c_str());
+        C3Vector com(it->getMeshWrapper()->getCOM());
+        ui->qqPX->setText(utils::getPosString(true,com(0)).c_str());
+        ui->qqPY->setText(utils::getPosString(true,com(1)).c_str());
+        ui->qqPZ->setText(utils::getPosString(true,com(2)).c_str());
+        ui->qqInfo->setText(it->getMeshWrapper()->getInertiaMatrixErrorString().c_str());
+        ui->qqInfo->setStyleSheet("QLabel { color : red; }");
     }
     else
     {
+        ui->qqInfo->setText("");
         ui->qqMass->setText("");
-        ui->qqIX->setText("");
-        ui->qqIY->setText("");
-        ui->qqIZ->setText("");
+        ui->qqI00->setText("");
+        ui->qqI01->setText("");
+        ui->qqI02->setText("");
+        ui->qqI10->setText("");
+        ui->qqI11->setText("");
+        ui->qqI12->setText("");
+        ui->qqI20->setText("");
+        ui->qqI21->setText("");
+        ui->qqI22->setText("");
         ui->qqPX->setText("");
         ui->qqPY->setText("");
         ui->qqPZ->setText("");
-        ui->qqAlpha->setText("");
-        ui->qqBeta->setText("");
-        ui->qqGamma->setText("");
     }
 
     selectLineEdit(lineEditToSelect);
@@ -343,77 +363,69 @@ void CQDlgShapeDyn::on_qqMassD2_clicked()
     }
 }
 
-void CQDlgShapeDyn::on_qqIX_editingFinished()
+void CQDlgShapeDyn::on_qqI00_editingFinished()
 {
-    if (!ui->qqIX->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
-        bool ok;
-        double newVal=ui->qqIX->text().toDouble(&ok);
-        if (ok&&(shape!=nullptr))
-        {
-            C3Vector v(shape->getMeshWrapper()->getPrincipalMomentsOfInertia());
-            v(0)=newVal;
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_PRINCIPALMOMENTOFINTERIA_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getObjectHandle());
-            cmd.floatParams.push_back(v(0));
-            cmd.floatParams.push_back(v(1));
-            cmd.floatParams.push_back(v(2));
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
+    _inertiaChanged(0,0,ui->qqI00);
 }
 
-void CQDlgShapeDyn::on_qqIY_editingFinished()
+void CQDlgShapeDyn::on_qqI01_editingFinished()
 {
-    if (!ui->qqIY->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
-        bool ok;
-        double newVal=ui->qqIY->text().toDouble(&ok);
-        if (ok&&(shape!=nullptr))
-        {
-            C3Vector v(shape->getMeshWrapper()->getPrincipalMomentsOfInertia());
-            v(1)=newVal;
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_PRINCIPALMOMENTOFINTERIA_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getObjectHandle());
-            cmd.floatParams.push_back(v(0));
-            cmd.floatParams.push_back(v(1));
-            cmd.floatParams.push_back(v(2));
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
+    _inertiaChanged(0,1,ui->qqI01);
 }
 
-void CQDlgShapeDyn::on_qqIZ_editingFinished()
+void CQDlgShapeDyn::on_qqI02_editingFinished()
 {
-    if (!ui->qqIZ->isModified())
+    _inertiaChanged(0,2,ui->qqI02);
+}
+
+void CQDlgShapeDyn::on_qqI10_editingFinished()
+{
+    _inertiaChanged(1,0,ui->qqI10);
+}
+
+void CQDlgShapeDyn::on_qqI11_editingFinished()
+{
+    _inertiaChanged(1,1,ui->qqI11);
+}
+
+void CQDlgShapeDyn::on_qqI12_editingFinished()
+{
+    _inertiaChanged(1,2,ui->qqI12);
+}
+
+void CQDlgShapeDyn::on_qqI20_editingFinished()
+{
+    _inertiaChanged(2,0,ui->qqI20);
+}
+
+void CQDlgShapeDyn::on_qqI21_editingFinished()
+{
+    _inertiaChanged(2,1,ui->qqI21);
+}
+
+void CQDlgShapeDyn::on_qqI22_editingFinished()
+{
+    _inertiaChanged(2,2,ui->qqI22);
+}
+
+void CQDlgShapeDyn::_inertiaChanged(size_t row,size_t col,QLineEdit* ct)
+{
+    if (!ct->isModified())
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        double newVal=ui->qqIZ->text().toDouble(&ok);
+        double newVal=ct->text().toDouble(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C3Vector v(shape->getMeshWrapper()->getPrincipalMomentsOfInertia());
-            v(2)=newVal;
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_PRINCIPALMOMENTOFINTERIA_SHAPEDYNGUITRIGGEREDCMD;
+            cmd.cmdId=SET_INERTIAMATRIX_SHAPEDYNGUITRIGGEREDCMD;
             cmd.intParams.push_back(shape->getObjectHandle());
-            cmd.floatParams.push_back(v(0));
-            cmd.floatParams.push_back(v(1));
-            cmd.floatParams.push_back(v(2));
+            cmd.intParams.push_back(row);
+            cmd.intParams.push_back(col);
+            cmd.floatParams.push_back(newVal);
+            cmd.boolParams.push_back(masslessInertia);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -463,12 +475,12 @@ void CQDlgShapeDyn::on_qqPX_editingFinished()
         double newVal=ui->qqPX->text().toDouble(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
-            tr.X(0)=newVal;
+            C3Vector com(shape->getMeshWrapper()->getCOM());
+            com(0)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
             cmd.intParams.push_back(shape->getObjectHandle());
-            cmd.transfParams.push_back(tr);
+            cmd.posParams.push_back(com);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -487,12 +499,12 @@ void CQDlgShapeDyn::on_qqPY_editingFinished()
         double newVal=ui->qqPY->text().toDouble(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
-            tr.X(1)=newVal;
+            C3Vector com(shape->getMeshWrapper()->getCOM());
+            com(1)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
             cmd.intParams.push_back(shape->getObjectHandle());
-            cmd.transfParams.push_back(tr);
+            cmd.posParams.push_back(com);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -511,90 +523,12 @@ void CQDlgShapeDyn::on_qqPZ_editingFinished()
         double newVal=ui->qqPZ->text().toDouble(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame());
-            tr.X(2)=newVal;
+            C3Vector com(shape->getMeshWrapper()->getCOM());
+            com(2)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
             cmd.intParams.push_back(shape->getObjectHandle());
-            cmd.transfParams.push_back(tr);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgShapeDyn::on_qqAlpha_editingFinished()
-{
-    if (!ui->qqAlpha->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
-        bool ok;
-        double newVal=ui->qqAlpha->text().toDouble(&ok);
-        if (ok&&(shape!=nullptr))
-        {
-            C4X4Matrix m(shape->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
-            C3Vector e(m.M.getEulerAngles());
-            e(0)=newVal*degToRad;
-            m.M.setEulerAngles(e);
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getObjectHandle());
-            cmd.transfParams.push_back(m.getTransformation());
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgShapeDyn::on_qqBeta_editingFinished()
-{
-    if (!ui->qqBeta->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
-        bool ok;
-        double newVal=ui->qqBeta->text().toDouble(&ok);
-        if (ok&&(shape!=nullptr))
-        {
-            C4X4Matrix m(shape->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
-            C3Vector e(m.M.getEulerAngles());
-            e(1)=newVal*degToRad;
-            m.M.setEulerAngles(e);
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getObjectHandle());
-            cmd.transfParams.push_back(m.getTransformation());
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgShapeDyn::on_qqGamma_editingFinished()
-{
-    if (!ui->qqGamma->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
-        bool ok;
-        double newVal=ui->qqGamma->text().toDouble(&ok);
-        if (ok&&(shape!=nullptr))
-        {
-            C4X4Matrix m(shape->getMeshWrapper()->getLocalInertiaFrame().getMatrix());
-            C3Vector e(m.M.getEulerAngles());
-            e(2)=newVal*degToRad;
-            m.M.setEulerAngles(e);
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getObjectHandle());
-            cmd.transfParams.push_back(m.getTransformation());
+            cmd.posParams.push_back(com);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -614,50 +548,6 @@ void CQDlgShapeDyn::on_qqApplyMassAndInertiaProperties_clicked()
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgShapeDyn::on_qqTensorMatrix_clicked()
-{
-    IF_UI_EVENT_CAN_WRITE_DATA
-    {
-        if (App::currentWorld->sceneObjects->getSelectionCount()==0)
-            return;
-        CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
-        CQDlgInertiaTensor theDialog(this);
-
-        C7Vector tr(shape->getMeshWrapper()->getLocalInertiaFrame()); // relative to the shape frame
-        tr=shape->getFullCumulativeTransformation()*tr; // relative to the absolute frame!
-        tr.X.clear(); // we just wanna reorient the inertia matrix, no shifting!
-        C3X3Matrix m(CMeshWrapper::getNewTensor(shape->getMeshWrapper()->getPrincipalMomentsOfInertia(),tr));
-        // m is now the absolute inertia tensor centered at the COM
-        m.getData(theDialog.tensor);
-        C3Vector com(shape->getMeshWrapper()->getLocalInertiaFrame().X);
-        com*=shape->getFullCumulativeTransformation(); // relative to the absolute frame!
-        com.getData(theDialog.com);
-        theDialog.applyToSelection=false;
-        theDialog.refresh();
-        if (theDialog.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL)
-        {
-            m.setData(theDialog.tensor);
-            C4Vector rot;
-            C3Vector pmoment;
-            CMeshWrapper::findPrincipalMomentOfInertia(m,rot,pmoment);
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            {
-                CShape* a=App::currentWorld->sceneObjects->getShapeFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-                if (a!=nullptr)
-                {
-                    if ((a==shape)||theDialog.applyToSelection)
-                    {
-                        a->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
-                        a->getMeshWrapper()->setLocalInertiaFrame(a->getFullCumulativeTransformation().getInverse()*C7Vector(rot,C3Vector(theDialog.com)));
-                    }
-                }
-            }
-            App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
-        }
-        refresh();
     }
 }
 
@@ -702,6 +592,16 @@ void CQDlgShapeDyn::on_qqComputeMassProperties_clicked()
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    }
+}
+
+void CQDlgShapeDyn::on_qqMassless_clicked()
+{
+    masslessInertia=!masslessInertia;
+    IF_UI_EVENT_CAN_READ_DATA
+    {
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }

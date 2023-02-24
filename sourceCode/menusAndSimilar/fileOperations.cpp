@@ -420,7 +420,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         App::logMsg(sim_verbosity_msgs,"done.");
                     else
                         App::logMsg(sim_verbosity_errors,"An error occurred during the import operation.");
-                    App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                    App::undoRedo_sceneChanged(""); 
                 }
                 else
                     App::logMsg(sim_verbosity_errors,"Aborted (file does not exist).");
@@ -1013,7 +1013,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
         App::currentWorld->sceneObjects->removeFromSelectionAllExceptModelBase(false);
         App::setRebuildHierarchyFlag();
         if (doUndoThingInHere)
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); 
     }
     else
     {
@@ -1116,13 +1116,13 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
         sel.push_back(modelBaseDummyID);
 
         CSceneObject* modelBaseObject=App::currentWorld->sceneObjects->getObjectFromHandle(modelBaseDummyID);
-        C3Vector minV,maxV;
-        bool b=true;
-        C7Vector modelTr(modelBaseObject->getCumulativeTransformation());
+        C3Vector minV(C3Vector::inf);
+        C3Vector maxV(C3Vector::ninf);
+        C7Vector modelTr(modelBaseObject->getCumulativeTransformation()*modelBaseObject->getBB());
         C3Vector modelBBSize;
         double modelNonDefaultTranslationStepSize=modelBaseObject->getObjectMovementStepSize(0);
 
-        if (modelBaseObject->getGlobalMarkingBoundingBox(modelTr.getInverse(),minV,maxV,b,true,false))
+        if (modelBaseObject->getModelBB(modelTr.getInverse(),minV,maxV,true))
         {
             modelBBSize=maxV-minV;
             modelTr.X+=modelTr.Q*((minV+maxV)*0.5);

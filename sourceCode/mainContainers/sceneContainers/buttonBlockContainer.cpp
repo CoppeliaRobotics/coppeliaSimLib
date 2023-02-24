@@ -928,7 +928,7 @@ bool CButtonBlockContainer::mouseUp(int xCoord,int yCoord,int currentView)
                 caughtButtonForDownUpEvent=-1;
                 mouseCaptured=false;
                 caughtButtonDown=false;
-                App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+                App::undoRedo_sceneChanged(""); 
                 return(true);
             }
         }
@@ -973,7 +973,7 @@ bool CButtonBlockContainer::mouseUp(int xCoord,int yCoord,int currentView)
             // Now we check if the button is a close-up button:
             if (itButton->getAttributes()&sim_buttonproperty_closeaction)
                 itBlock->setAttributes((itBlock->getAttributes()|sim_ui_property_visible)-sim_ui_property_visible);
-            App::undoRedo_sceneChanged(""); // ************************** UNDO thingy **************************
+            App::undoRedo_sceneChanged(""); 
         }
         caughtBlock=-1;
         caughtButton=-1;

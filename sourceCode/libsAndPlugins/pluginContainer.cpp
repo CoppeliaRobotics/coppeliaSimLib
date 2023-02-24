@@ -986,12 +986,12 @@ double CPluginContainer::dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vecto
         {
             std::vector<double> vert;
             std::vector<int> ind;
-            it->getMeshWrapper()->getCumulativeMeshes(vert,&ind,nullptr);
+            it->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
             C3Vector com;
             C3X3Matrix tensor;
             mass=CVolInt::getMassCenterOfMassAndInertiaTensor(&vert[0],(int)vert.size()/3,&ind[0],(int)ind.size()/3,1000.0,com,tensor);
             C4Vector rot;
-            CMeshWrapper::findPrincipalMomentOfInertia(tensor,rot,diagI);
+            CMeshWrapper::getPMIFromMasslessTensor(tensor,rot,diagI);
             tr=C7Vector(rot,com);
         }
     }
@@ -2185,7 +2185,7 @@ bool CPluginContainer::geomPlugin_getBoxPointDistanceIfSmaller(const C7Vector& b
 }
 double CPluginContainer::geomPlugin_getBoxPointDistance(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& point,C3Vector* distSegPt1/*=nullptr*/)
 {
-    double dist=FLOAT_MAX;
+    double dist=DBL_MAX;
     geomPlugin_getBoxPointDistanceIfSmaller(boxTransformation,boxHalfSize,boxIsSolid,point,dist,distSegPt1);
     return(dist);
 }
