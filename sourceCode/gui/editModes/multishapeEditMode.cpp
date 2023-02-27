@@ -5,7 +5,7 @@
 CMultishapeEditMode::CMultishapeEditMode(CShape* shape)
 {
     _shape=shape;
-    _shape->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,_multishapeGeometricComponents);
+    _shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,_multishapeGeometricComponents);
     _multishapeGeometricComponentIndex=-1;
 }
 

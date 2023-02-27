@@ -31,7 +31,7 @@ void displayGhost(CShape* shape,const C7Vector& tr,int displayAttributes,int opt
     C4Vector axis=tr.Q.getAngleAndAxis();
     glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
 
-    shape->getMeshWrapper()->displayGhost(C7Vector::identityTransformation,shape,displayAttributes,(options&4)!=0,(options&32)!=0,transparencyFactor,color);
+    shape->getMesh()->displayGhost(C7Vector::identityTransformation,shape,displayAttributes,(options&4)!=0,(options&32)!=0,transparencyFactor,color);
 
     glPopAttrib();
     glPopMatrix();

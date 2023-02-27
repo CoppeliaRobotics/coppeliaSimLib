@@ -32,22 +32,20 @@ CShape::CShape()
 }
 
 CShape::CShape(const std::vector<double>& allHeights,int xSize,int ySize,double dx,double zSize)
-{
+{ // heightfields
     commonInit();
 
-    C7Vector newLocalTr;
-
-    std::vector<double> vert;
-    std::vector<int> ind;
+    std::vector<double> vertices;
+    std::vector<int> indices;
     double yPos=-double(ySize-1)*dx*0.5;
     for (int i=0;i<ySize;i++)
     {
         double xPos=-double(xSize-1)*dx*0.5;
         for (int j=0;j<xSize;j++)
         {
-            vert.push_back(xPos);
-            vert.push_back(yPos);
-            vert.push_back(allHeights[i*xSize+j]);
+            vertices.push_back(xPos);
+            vertices.push_back(yPos);
+            vertices.push_back(allHeights[i*xSize+j]);
             xPos+=dx;
         }
         yPos+=dx;
@@ -57,19 +55,19 @@ CShape::CShape(const std::vector<double>& allHeights,int xSize,int ySize,double 
     {
         for (int j=0;j<xSize-1;j++)
         {
-            ind.push_back((i+0)*xSize+(j+0));
-            ind.push_back((i+0)*xSize+(j+1));
-            ind.push_back((i+1)*xSize+(j+0));
+            indices.push_back((i+0)*xSize+(j+0));
+            indices.push_back((i+0)*xSize+(j+1));
+            indices.push_back((i+1)*xSize+(j+0));
 
-            ind.push_back((i+0)*xSize+(j+1));
-            ind.push_back((i+1)*xSize+(j+1));
-            ind.push_back((i+1)*xSize+(j+0));
+            indices.push_back((i+0)*xSize+(j+1));
+            indices.push_back((i+1)*xSize+(j+1));
+            indices.push_back((i+1)*xSize+(j+0));
         }
     }
 
-    newLocalTr=_acceptNewGeometry(vert,ind,nullptr,nullptr);
-
-    getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_heightfield,double(xSize-1)*dx,double(ySize-1)*dx,zSize);
+    CMesh* newMesh=new CMesh(_localTransformation,vertices,indices,nullptr,nullptr);
+    replaceMesh(newMesh,false);
+    newMesh->setPurePrimitiveType(sim_primitiveshape_heightfield,double(xSize-1)*dx,double(ySize-1)*dx,zSize);
     std::vector<double> heightsInCorrectOrder;
     for (int i=0;i<ySize;i++)
     {
@@ -79,8 +77,7 @@ CShape::CShape(const std::vector<double>& allHeights,int xSize,int ySize,double 
         for (int j=0;j<xSize;j++)
             heightsInCorrectOrder.push_back(allHeights[i*xSize+j]);
     }
-    getSingleMesh()->setHeightfieldData(heightsInCorrectOrder,xSize,ySize);
-    setLocalTransformation(newLocalTr);
+    newMesh->setHeightfieldData(heightsInCorrectOrder,xSize,ySize);
 }
 
 CMeshWrapper* CShape::detachMesh()
@@ -108,17 +105,11 @@ void CShape::replaceMesh(CMeshWrapper* newMesh,bool keepMeshAttributes)
 }
 
 CShape::CShape(const C7Vector& transformation,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords)
-{
+{ // all types of meshes, except heightfields
     commonInit();
     _localTransformation=transformation;
     CMesh* newMesh=new CMesh(_localTransformation,vertices,indices,optNormals,optTexCoords);
     replaceMesh(newMesh,false);
-}
-
-CShape::CShape(const C7Vector& transformation,CMeshWrapper* newGeomInfo)
-{
-    commonInit();
-    setLocalTransformation(reinitMesh2(transformation,newGeomInfo));
 }
 
 CShape::~CShape()
@@ -128,96 +119,9 @@ CShape::~CShape()
     delete _dynMaterial;
 }
 
-C7Vector CShape::reinitMesh(const C7Vector* transformation,const std::vector<double>& vert,const std::vector<int>& ind,const std::vector<double>* normals,const std::vector<double>* textCoord)
-{
-    C7Vector retVal;
-
-    std::vector<double>* norms=nullptr;
-    std::vector<double> _norms;
-    if (normals!=nullptr)
-    {
-        norms=&_norms;
-        _norms.assign(normals->begin(),normals->end());
-        // Make sure the normals are normalized:
-        for (size_t i=0;i<_norms.size()/3;i++)
-        {
-            C3Vector n(&_norms[3*i]);
-            n.normalize();
-            _norms[3*i+0]=n(0);
-            _norms[3*i+1]=n(1);
-            _norms[3*i+2]=n(2);
-        }
-    }
-
-    if (transformation==nullptr)
-        retVal=_acceptNewGeometry(vert,ind,textCoord,norms);
-    else
-    {
-        std::vector<double> wvert(vert);
-        for (size_t i=0;i<vert.size()/3;i++)
-        {
-            C3Vector v(&vert[3*i+0]);
-            v*=(*transformation);
-            wvert[3*i+0]=v(0);
-            wvert[3*i+1]=v(1);
-            wvert[3*i+2]=v(2);
-        }
-        C7Vector tr(*transformation);
-        for (size_t i=0;i<_norms.size()/3;i++)
-        {
-            C3Vector n(&_norms[3*i+0]);
-            n*=tr;
-            _norms[3*i+0]=n(0);
-            _norms[3*i+1]=n(1);
-            _norms[3*i+2]=n(2);
-        }
-        retVal=_acceptNewGeometry(wvert,ind,textCoord,norms);
-    }
-    actualizeContainsTransparentComponent();
-    return(retVal);
-}
-
-void CShape::setNewMesh(CMeshWrapper* newGeomInfo)
-{
-    removeMeshCalculationStructure();
-    delete _mesh;
-    _mesh=newGeomInfo;
-    _meshModificationCounter++;
-    _computeMeshBoundingBox();
-    computeBoundingBox();
-    actualizeContainsTransparentComponent();
-}
-
-C7Vector CShape::reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeomInfo)
-{
-    C7Vector retVal;
-    retVal.setIdentity();
-    removeMeshCalculationStructure();
-    delete _mesh;
-    _meshModificationCounter++;
-
-    newGeomInfo->preMultiplyAllVerticeLocalFrames(transformation);
-    _mesh=newGeomInfo;
-    std::vector<double> wvert;
-    std::vector<int> wind;
-    getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,wvert,&wind,nullptr);
-
-    // We align the bounding box:
-    if (wvert.size()!=0)
-    {
-        retVal=CAlgos::getMeshBoundingBox(wvert,wind,true);
-        getMeshWrapper()->preMultiplyAllVerticeLocalFrames(retVal.getInverse());
-    }
-
-    _computeMeshBoundingBox();
-    computeBoundingBox();
-    actualizeContainsTransparentComponent();
-    return(retVal);
-}
-
 void CShape::invertFrontBack()
 {
-    getMeshWrapper()->flipFaces();
+    getMesh()->flipFaces();
     removeMeshCalculationStructure();// proximity sensors might check for the side!
 }
 
@@ -239,51 +143,6 @@ void CShape::_computeMeshBoundingBox()
     }
 }
 
-C7Vector CShape::_acceptNewGeometry(const std::vector<double>& vert,const std::vector<int>& ind,const std::vector<double>* textCoord,const std::vector<double>* norm)
-{
-    TRACE_INTERNAL;
-    C7Vector retVal;
-    retVal.setIdentity();
-
-    std::vector<double> wwert(vert);
-    std::vector<int> wwind(ind);
-    CMeshManip::removeNonReferencedVertices(wwert,wwind);
-    CMesh* newGeomInfo=new CMesh(C7Vector::identityTransformation,wwert,wwind,norm,nullptr);
-    if (textCoord!=nullptr)
-    {
-        std::vector<float> f;
-        f.resize(textCoord->size());
-        for (size_t i=0;i<textCoord->size();i++)
-            f[i]=(float)textCoord->at(i);
-        newGeomInfo->setTextureCoords(&f);
-    }
-
-    newGeomInfo->color.setDefaultValues();
-    newGeomInfo->color.setColor(0.9f,0.9f,0.9f,sim_colorcomponent_ambient_diffuse);
-
-    if (_mesh!=nullptr)
-    {
-        if (getMeshWrapper()->isMesh())
-            newGeomInfo->takeVisualAttributesFrom(getSingleMesh()); // copy a few properties (not all)
-    }
-
-    delete _mesh;
-    _mesh=newGeomInfo;
-    removeMeshCalculationStructure();
-
-    // We align the bounding box:
-    if (wwert.size()!=0)
-    {
-        retVal=CAlgos::getMeshBoundingBox(wwert,wwind,true);
-        getMeshWrapper()->preMultiplyAllVerticeLocalFrames(retVal.getInverse());
-    }
-
-    _computeMeshBoundingBox();
-    computeBoundingBox();
-    _meshModificationCounter++;
-    return(retVal);
-}
-
 C7Vector CShape::_recomputeOrientation(C7Vector& m,bool alignWithMainAxis)
 { // This routine will reorient the shape according to its main axis if
   // alignWithMainAxis is true, and according to the world if false.
@@ -294,21 +153,17 @@ C7Vector CShape::_recomputeOrientation(C7Vector& m,bool alignWithMainAxis)
 
     removeMeshCalculationStructure();
 
-    // 2. We set-up the absolute vertices and normal position/orientation:
-    getMeshWrapper()->preMultiplyAllVerticeLocalFrames(m);
 
     // 3. We calculate the new orientation:
     std::vector<double> visibleVertices;
     std::vector<int> visibleIndices;
-    getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,visibleVertices,&visibleIndices,nullptr);
+    getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,visibleVertices,&visibleIndices,nullptr);
     C7Vector tr;
     if (visibleVertices.size()!=0)
         tr=CAlgos::getMeshBoundingBox(visibleVertices,visibleIndices,alignWithMainAxis);
     else
         tr.setIdentity();
 
-    // 4. We apply it:
-    getMeshWrapper()->preMultiplyAllVerticeLocalFrames(tr.getInverse());
 
     // 5. We recompute usual things:
     _computeMeshBoundingBox();
@@ -329,10 +184,9 @@ C7Vector CShape::_recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& e
     C7Vector tr;
 
     // 0. We set-up the absolute vertices and retrieve them:
-    getMeshWrapper()->preMultiplyAllVerticeLocalFrames(m);
     std::vector<double> visibleVertices;
     std::vector<int> visibleIndices;
-    getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,visibleVertices,&visibleIndices,nullptr);
+    getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,visibleVertices,&visibleIndices,nullptr);
 
     // 1. We calculate the new orientation, based on the copy:
     bool success;
@@ -343,7 +197,6 @@ C7Vector CShape::_recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& e
     if (!success)
     {
         error=true;
-        getMeshWrapper()->preMultiplyAllVerticeLocalFrames(m.getInverse()); // don't forget to make operation backward before leaving!
         return(tr);
     }
 
@@ -370,9 +223,6 @@ C7Vector CShape::_recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& e
     C3Vector newCenter((maxV(0)+minV(0))*0.5,(maxV(1)+minV(1))*0.5,(maxV(2)+minV(2))*0.5); // relative pos
     newCenter=tr*newCenter; // now abs pos
     tr.X=newCenter;
-
-    // 5. We have the new center. We set all vertices relative to tr!!
-    getMeshWrapper()->preMultiplyAllVerticeLocalFrames(tr.getInverse());
 
     // 6. We recompute usual things:
     _computeMeshBoundingBox();
@@ -682,7 +532,7 @@ int CShape::getMeshModificationCounter()
     return(_meshModificationCounter);
 }
 
-CMeshWrapper* CShape::getMeshWrapper() const
+CMeshWrapper* CShape::getMesh() const
 {
     return(_mesh);
 }
@@ -693,11 +543,6 @@ CMesh* CShape::getSingleMesh() const
     if (_mesh->isMesh())
         retVal=(CMesh*)_mesh;
     return(retVal);
-}
-
-void CShape::disconnectMesh()
-{
-    _mesh=nullptr;
 }
 
 CDynMaterialObject* CShape::getDynMaterial()
@@ -743,7 +588,7 @@ bool CShape::getRigidBodyWasAlreadyPutToSleepOnce()
 
 void CShape::actualizeContainsTransparentComponent()
 {
-    _containsTransparentComponents=getMeshWrapper()->getContainsTransparentComponents();
+    _containsTransparentComponents=getMesh()->getContainsTransparentComponents();
 }
 
 bool CShape::getContainsTransparentComponent()
@@ -753,7 +598,7 @@ bool CShape::getContainsTransparentComponent()
 
 void CShape::prepareVerticesIndicesNormalsAndEdgesForSerialization()
 {
-    getMeshWrapper()->prepareVerticesIndicesNormalsAndEdgesForSerialization();
+    getMesh()->prepareVerticesIndicesNormalsAndEdgesForSerialization();
 }
 
 void CShape::setDynamicCollisionMask(unsigned short m)
@@ -793,7 +638,7 @@ std::string CShape::getObjectTypeInfo() const
 
 std::string CShape::getObjectTypeInfoExtended() const
 {
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
     {
         int pureType=getSingleMesh()->getPurePrimitiveType();
         if (pureType==sim_primitiveshape_none)
@@ -817,7 +662,7 @@ std::string CShape::getObjectTypeInfoExtended() const
     }
     else
     {
-        if (!getMeshWrapper()->isPure())
+        if (!getMesh()->isPure())
             return("Shape (compound)");
         else
             return("Shape (compound primitive)");
@@ -845,7 +690,7 @@ void CShape::computeBoundingBox()
 {
     _setBoundingBox(getBoundingBoxHalfSizes()*-1.0,getBoundingBoxHalfSizes());
     C3Vector s;
-    C7Vector fr(getMeshWrapper()->getBB(&s));
+    C7Vector fr(getMesh()->getBB(&s));
     _setBB(fr,s);
 }
 
@@ -989,24 +834,24 @@ void CShape::setShapeIsDynamicallyKinematic(bool kin)
 
 void CShape::setInsideAndOutsideFacesSameColor_DEPRECATED(bool s)
 {
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
         getSingleMesh()->setInsideAndOutsideFacesSameColor_DEPRECATED(s);
 }
 bool CShape::getInsideAndOutsideFacesSameColor_DEPRECATED()
 {
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
         return(getSingleMesh()->getInsideAndOutsideFacesSameColor_DEPRECATED());
     return(true);
 }
 
 bool CShape::isCompound() const
 {
-    return(!getMeshWrapper()->isMesh());
+    return(!getMesh()->isMesh());
 }
 
 int CShape::getEdgeWidth_DEPRECATED() const
 {
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
         return(getSingleMesh()->getEdgeWidth_DEPRECATED());
     return(0);
 }
@@ -1014,7 +859,7 @@ int CShape::getEdgeWidth_DEPRECATED() const
 void CShape::setEdgeWidth_DEPRECATED(int w)
 {
     w=tt::getLimitedInt(1,4,w);
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
         getSingleMesh()->setEdgeWidth_DEPRECATED(w);
 }
 
@@ -1026,7 +871,7 @@ void CShape::display_extRenderer(CViewableBase* renderingObject,int displayAttri
         { // the bounding box is inside of the view (at least some part of it!)
             C7Vector tr=getCumulativeTransformation();
             int componentIndex=0;
-            getMeshWrapper()->display_extRenderer(C7Vector::identityTransformation,this,displayAttrib,tr,_objectHandle,componentIndex);
+            getMesh()->display_extRenderer(C7Vector::identityTransformation,this,displayAttrib,tr,_objectHandle,componentIndex);
         }
     }
 }
@@ -1039,7 +884,7 @@ void CShape::scaleObject(double scalingFactor)
         CPluginContainer::geomPlugin_scaleMesh(_meshCalculationStructure,scalingFactor);
 
     // Scale meshes and adjust textures:
-    getMeshWrapper()->scale(scalingFactor);
+    getMesh()->scale(scalingFactor);
 
     // recompute the bounding box:
     _computeMeshBoundingBox();
@@ -1052,10 +897,10 @@ void CShape::scaleObject(double scalingFactor)
 
 void CShape::scaleObjectNonIsometrically(double x,double y,double z)
 {
-    if ( getMeshWrapper()->isMesh()&&((fabs(x-y)>fabs(0.001*x))&&(fabs(x-z)>fabs(0.001*x))) )
+    if ( getMesh()->isMesh()&&((fabs(x-y)>fabs(0.001*x))&&(fabs(x-z)>fabs(0.001*x))) )
     {
         _meshModificationCounter++;
-        if (getMeshWrapper()->isPure())
+        if (getMesh()->isPure())
         { // we have some constraints in case we have a primitive mesh
             int purePrim=getSingleMesh()->getPurePrimitiveType();
             if (purePrim==sim_primitiveshape_plane)
@@ -1095,8 +940,8 @@ void CShape::announceObjectWillBeErased(const CSceneObject* object,bool copyBuff
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceObjectWillBeErased(object,copyBuffer);
-    if (getMeshWrapper()!=nullptr)
-        getMeshWrapper()->announceSceneObjectWillBeErased(object); // for textures based on vision sensors
+    if (getMesh()!=nullptr)
+        getMesh()->announceSceneObjectWillBeErased(object); // for textures based on vision sensors
 }
 
 void CShape::announceCollectionWillBeErased(int groupID,bool copyBuffer)
@@ -1123,7 +968,7 @@ void CShape::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 void CShape::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
-    getMeshWrapper()->performSceneObjectLoadingMapping(map);
+    getMesh()->performSceneObjectLoadingMapping(map);
 }
 void CShape::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
@@ -1145,13 +990,13 @@ void CShape::performIkLoadingMapping(const std::map<int,int>* map,bool loadingAm
 void CShape::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
-    getMeshWrapper()->performTextureObjectLoadingMapping(map);
+    getMesh()->performTextureObjectLoadingMapping(map);
 }
 
 void CShape::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
-    getMeshWrapper()->performDynMaterialObjectLoadingMapping(map);
+    getMesh()->performDynMaterialObjectLoadingMapping(map);
 }
 
 void CShape::initializeInitialValues(bool simulationAlreadyRunning)
@@ -1271,7 +1116,7 @@ void CShape::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity; 
                         _serializeMesh(ar);
-                        getMeshWrapper()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
+                        getMesh()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
                     }
 
                     if (theName.compare("_oi")==0)
@@ -1681,14 +1526,14 @@ void CShape::initializeMeshCalculationStructureIfNeeded()
 
 bool CShape::getCulling() const
 {
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
         return(getSingleMesh()->getCulling());
     return(false);
 }
 
 void CShape::setCulling(bool culState)
 {
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
     {
         CMesh* m=getSingleMesh();
         if (m->getCulling()!=culState)
@@ -1711,14 +1556,14 @@ void CShape::setCulling(bool culState)
 
 bool CShape::getVisibleEdges() const
 {
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
         return(getSingleMesh()->getVisibleEdges());
     return(false);
 }
 
 void CShape::setVisibleEdges(bool v)
 {
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
     {
         CMesh* m=getSingleMesh();
         if (m->getVisibleEdges()!=v)
@@ -1742,14 +1587,14 @@ void CShape::setVisibleEdges(bool v)
 double CShape::getShadingAngle() const
 {
     double retVal=0.0;
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
         retVal=getSingleMesh()->getShadingAngle();
     return(retVal);
 }
 
 void CShape::setShadingAngle(double a)
 {
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
     {
         CMesh* m=getSingleMesh();
         if (fabs(m->getShadingAngle()-a)>0.001)
@@ -1773,24 +1618,24 @@ void CShape::decrementRespondableSuspendCount()
 
 bool CShape::getHideEdgeBorders_OLD() const
 {
-    return(getMeshWrapper()->getHideEdgeBorders_OLD());
+    return(getMesh()->getHideEdgeBorders_OLD());
 }
 
 void CShape::setHideEdgeBorders_OLD(bool v)
 {
-    getMeshWrapper()->setHideEdgeBorders_OLD(v);
+    getMesh()->setHideEdgeBorders_OLD(v);
 }
 
 bool CShape::getShapeWireframe_OLD() const
 {
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
         return(getSingleMesh()->getWireframe_OLD());
     return(false);
 }
 
 void CShape::setShapeWireframe_OLD(bool w)
 {
-    if (getMeshWrapper()->isMesh())
+    if (getMesh()->isMesh())
         getSingleMesh()->setWireframe_OLD(w);
 }
 
@@ -1880,7 +1725,7 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 
     std::vector<CMesh*> all;
     std::vector<C7Vector> allTr;
-    getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
+    getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
     for (size_t i=0;i<all.size();i++)
     {
         CMesh* geom=all[i];
@@ -2091,7 +1936,7 @@ void CShape::setColor(const char* colorName,int colorComponent,const float* rgbD
     const CShape* s=nullptr;
     if (_isInScene)
         s=this;
-    getMeshWrapper()->setColor(s,cnt,colorName,colorComponent,rgbData,rgbDataOffset);
+    getMesh()->setColor(s,cnt,colorName,colorComponent,rgbData,rgbDataOffset);
     if (colorComponent==sim_colorcomponent_transparency)
         actualizeContainsTransparentComponent();
 }
@@ -2099,20 +1944,25 @@ void CShape::setColor(const char* colorName,int colorComponent,const float* rgbD
 bool CShape::getColor(const char* colorName,int colorComponent,float* rgbData)
 {
     int rgbDataOffset=0;
-    return(getMeshWrapper()->getColor(colorName,colorComponent,rgbData,rgbDataOffset));
+    return(getMesh()->getColor(colorName,colorComponent,rgbData,rgbDataOffset));
 }
 
 int CShape::getComponentCount() const
 {
-    return(getMeshWrapper()->getComponentCount());
+    return(getMesh()->getComponentCount());
 }
 
-void CShape::displayInertia()
+void CShape::displayInertia(CViewableBase* renderingObject,double size,bool persp)
 {
 #ifdef SIM_WITH_OPENGL
+    if (persp)
+    {
+        C7Vector x(renderingObject->getCumulativeTransformation().getInverse()*getCumulativeTransformation());
+        size*=x(2);
+    }
     C3Vector diag;
-    C7Vector tr(getCumulativeTransformation()*getMeshWrapper()->getDiagonalInertiaInfo(diag));
-    _displayInertia(tr,diag);
+    C7Vector tr(getCumulativeTransformation()*getMesh()->getDiagonalInertiaInfo(diag));
+    _displayInertia(tr,diag,size*0.008);
 #endif
 }
 

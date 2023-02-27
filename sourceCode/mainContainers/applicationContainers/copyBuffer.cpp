@@ -491,7 +491,7 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
             {
                 CShape* it=(CShape*)objectBuffer[i];
                 CDynMaterialObject* mat=it->getDynMaterial();
-                it->getMeshWrapper()->setDynMaterialId_old(dynObjId);
+                it->getMesh()->setDynMaterialId_old(dynObjId);
                 mat->setObjectID(dynObjId++);
                 ar.storeDataName(SER_DYNMATERIAL);
                 ar.setCountingMode();

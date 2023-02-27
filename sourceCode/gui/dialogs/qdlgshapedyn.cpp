@@ -44,9 +44,9 @@ void CQDlgShapeDyn::refresh()
     CShape* it=App::currentWorld->sceneObjects->getLastSelectionShape();
     if (sel)
     {
-        notHeightfield=(it->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_heightfield);
+        notHeightfield=(it->getMesh()->getPurePrimitiveType()!=sim_primitiveshape_heightfield);
         lastSelIsNotStatic=!it->getShapeIsDynamicallyStatic();
-        lastSelIsConvex=it->getMeshWrapper()->isConvex();
+        lastSelIsConvex=it->getMesh()->isConvex();
     }
 
     // Material properties:
@@ -124,9 +124,9 @@ void CQDlgShapeDyn::refresh()
         ui->qqInertiaMatrixTitle->setTitle("Inertia matrix [kg*m^2]");
     if (sel)
     {
-        double mass=it->getMeshWrapper()->getMass();
+        double mass=it->getMesh()->getMass();
         ui->qqMass->setText(utils::getMassString(mass).c_str());
-        C3X3Matrix m(it->getMeshWrapper()->getMasslessInertiaMatrix());
+        C3X3Matrix m(it->getMesh()->getMasslessInertiaMatrix());
         if (!masslessInertia)
             m*=mass;
         ui->qqI00->setText(utils::getTensorString(masslessInertia,m(0,0)).c_str());
@@ -138,11 +138,11 @@ void CQDlgShapeDyn::refresh()
         ui->qqI20->setText(utils::getTensorString(masslessInertia,m(2,0)).c_str());
         ui->qqI21->setText(utils::getTensorString(masslessInertia,m(2,1)).c_str());
         ui->qqI22->setText(utils::getTensorString(masslessInertia,m(2,2)).c_str());
-        C3Vector com(it->getMeshWrapper()->getCOM());
+        C3Vector com(it->getMesh()->getCOM());
         ui->qqPX->setText(utils::getPosString(true,com(0)).c_str());
         ui->qqPY->setText(utils::getPosString(true,com(1)).c_str());
         ui->qqPZ->setText(utils::getPosString(true,com(2)).c_str());
-        ui->qqInfo->setText(it->getMeshWrapper()->getInertiaMatrixErrorString().c_str());
+        ui->qqInfo->setText(it->getMesh()->getInertiaMatrixErrorString().c_str());
         ui->qqInfo->setStyleSheet("QLabel { color : red; }");
     }
     else
@@ -211,7 +211,7 @@ void CQDlgShapeDyn::on_qqRespondable_clicked()
         CShape* it=App::currentWorld->sceneObjects->getLastSelectionShape();
         if (it!=nullptr)
         {
-            if ((!it->getRespondable())&&(!it->getMeshWrapper()->isPure())&&(!it->getMeshWrapper()->isConvex()))
+            if ((!it->getRespondable())&&(!it->getMesh()->isPure())&&(!it->getMesh()->isConvex()))
                 App::uiThread->messageBox_warning(App::mainWindow,"Shape",IDS_MAKING_NON_PURE_CONCAVE_SHAPE_RESPONDABLE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             App::appendSimulationThreadCommand(TOGGLE_RESPONDABLE_SHAPEDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -475,7 +475,7 @@ void CQDlgShapeDyn::on_qqPX_editingFinished()
         double newVal=ui->qqPX->text().toDouble(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C3Vector com(shape->getMeshWrapper()->getCOM());
+            C3Vector com(shape->getMesh()->getCOM());
             com(0)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
@@ -499,7 +499,7 @@ void CQDlgShapeDyn::on_qqPY_editingFinished()
         double newVal=ui->qqPY->text().toDouble(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C3Vector com(shape->getMeshWrapper()->getCOM());
+            C3Vector com(shape->getMesh()->getCOM());
             com(1)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
@@ -523,7 +523,7 @@ void CQDlgShapeDyn::on_qqPZ_editingFinished()
         double newVal=ui->qqPZ->text().toDouble(&ok);
         if (ok&&(shape!=nullptr))
         {
-            C3Vector com(shape->getMeshWrapper()->getCOM());
+            C3Vector com(shape->getMesh()->getCOM());
             com(2)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;

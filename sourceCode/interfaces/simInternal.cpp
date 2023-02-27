@@ -7355,7 +7355,7 @@ int simSetObjectColor_internal(int objectHandle,int index,int colorComponent,con
         {
             CShape* shape=(CShape*)it;
             std::vector<CMesh*> all;
-            shape->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all);
+            shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all);
             if ( (index>=0)&&(index<int(all.size()))&&(colorComponent<=sim_colorcomponent_auxiliary) )
             {
                 CMesh* geom=all[index];
@@ -7479,7 +7479,7 @@ int simGetObjectColor_internal(int objectHandle,int index,int colorComponent,flo
         {
             CShape* shape=(CShape*)it;
             std::vector<CMesh*> all;
-            shape->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all);
+            shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all);
             if ( (index>=0)&&(index<int(all.size()))&&(colorComponent<=sim_colorcomponent_auxiliary) )
             {
                 CMesh* geom=all[index];
@@ -8098,7 +8098,7 @@ int simCreateMeshShape_internal(int options,double shadingAngle,const double* ve
                     CShape* shape=new CShape(C7Vector::identityTransformation,vert,ind,nullptr,nullptr);
                     shape->getSingleMesh()->setShadingAngle(shadingAngle);
                     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
-                    shape->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation);
+                    shape->getMesh()->setLocalInertiaFrame(C7Vector::identityTransformation);
                     shape->setCulling((options&1)!=0);
                     shape->setVisibleEdges((options&2)!=0);
                     App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
@@ -8130,7 +8130,7 @@ int simGetShapeMesh_internal(int shapeHandle,double** vertices,int* verticesSize
         std::vector<double> wvert;
         std::vector<int> wind;
         std::vector<double> wnorm;
-        it->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,wvert,&wind,&wnorm);
+        it->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,wvert,&wind,&wnorm);
         vertices[0]=new double[wvert.size()];
         verticesSize[0]=int(wvert.size());
         indices[0]=new int[wind.size()];
@@ -9044,14 +9044,14 @@ int simGetObjectInt32Param_internal(int objectHandle,int parameterID,int* parame
             if (parameterID==sim_shapeintparam_compound)
             {
                 parameter[0]=0;
-                if (!shape->getMeshWrapper()->isMesh())
+                if (!shape->getMesh()->isMesh())
                     parameter[0]=1;
                 retVal=1;
             }
             if (parameterID==sim_shapeintparam_convex)
             {
                 parameter[0]=0;
-                if (shape->getMeshWrapper()->isConvex())
+                if (shape->getMesh()->isConvex())
                     parameter[0]=1;
                 retVal=1;
             }
@@ -9429,12 +9429,12 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
             }
             if (parameterID==sim_shapeintparam_convex)
             { // very careful when setting this!
-                shape->getMeshWrapper()->setConvex(parameter!=0);
+                shape->getMesh()->setConvex(parameter!=0);
                 retVal=1;
             }
             if (parameterID==sim_shapeintparam_convex_check)
             {
-                shape->getMeshWrapper()->checkIfConvex();
+                shape->getMesh()->checkIfConvex();
                 retVal=1;
             }
             if (parameterID==sim_shapeintparam_respondable_mask)
@@ -9773,12 +9773,12 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,double* par
             }
             if (parameterID==sim_shapefloatparam_mass)
             {
-                parameter[0]=shape->getMeshWrapper()->getMass();
+                parameter[0]=shape->getMesh()->getMass();
                 retVal=1;
             }
             if ((parameterID>=sim_shapefloatparam_texture_x)&&(parameterID<=sim_shapefloatparam_texture_scaling_y))
             {
-                if (shape->getMeshWrapper()->isMesh())
+                if (shape->getMesh()->isMesh())
                 {
                     CTextureProperty* tp=shape->getSingleMesh()->getTextureProperty();
                     if (tp!=nullptr)
@@ -9815,7 +9815,7 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,double* par
             }
             if (parameterID==sim_shapefloatparam_shading_angle)
             {
-                if (shape->getMeshWrapper()->isMesh())
+                if (shape->getMesh()->isMesh())
                 {
                     parameter[0]=shape->getSingleMesh()->getShadingAngle();
                     retVal=1;
@@ -9825,7 +9825,7 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,double* par
             }
             if (parameterID==sim_shapefloatparam_edge_angle)
             {
-                if (shape->getMeshWrapper()->isMesh())
+                if (shape->getMesh()->isMesh())
                 {
                     parameter[0]=shape->getSingleMesh()->getEdgeThresholdAngle();
                     retVal=1;
@@ -10203,12 +10203,12 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
             }
             if (parameterID==sim_shapefloatparam_mass)
             {
-                shape->getMeshWrapper()->setMass(parameter);
+                shape->getMesh()->setMass(parameter);
                 retVal=1;
             }
             if ((parameterID>=sim_shapefloatparam_texture_x)&&(parameterID<=sim_shapefloatparam_texture_scaling_y))
             {
-                if (shape->getMeshWrapper()->isMesh())
+                if (shape->getMesh()->isMesh())
                 {
                     CTextureProperty* tp=shape->getSingleMesh()->getTextureProperty();
                     if (tp!=nullptr)
@@ -10241,7 +10241,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
             }
             if (parameterID==sim_shapefloatparam_shading_angle)
             {
-                if (shape->getMeshWrapper()->isMesh())
+                if (shape->getMesh()->isMesh())
                 {
                     if (!VThread::isCurrentThreadTheUiThread())
                     { // we are NOT in the UI thread. We execute the command now:
@@ -10262,7 +10262,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
             }
             if (parameterID==sim_shapefloatparam_edge_angle)
             {
-                if (shape->getMeshWrapper()->isMesh())
+                if (shape->getMesh()->isMesh())
                 {
                     if (!VThread::isCurrentThreadTheUiThread())
                     { // we are NOT in the UI thread. We execute the command now:
@@ -10568,7 +10568,7 @@ char* simGetObjectStringParam_internal(int objectHandle,int parameterID,int* par
             if (parameterID==sim_shapestringparam_color_name)
             {
                 std::string colorNames;
-                shape->getMeshWrapper()->getColorStrings(colorNames);
+                shape->getMesh()->getColorStrings(colorNames);
                 if (colorNames.length()>0)
                 {
                     retVal=new char[colorNames.length()+1];
@@ -11626,7 +11626,7 @@ int simGetShapeMass_internal(int shapeHandle,double* mass)
             return(-1);
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
 
-        mass[0]=it->getMeshWrapper()->getMass();
+        mass[0]=it->getMesh()->getMass();
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -11648,7 +11648,7 @@ int simSetShapeMass_internal(int shapeHandle,double mass)
 
         if (mass<0.0000001)
             mass=0.0000001;
-        it->getMeshWrapper()->setMass(mass);
+        it->getMesh()->setMass(mass);
         it->setDynamicsResetFlag(true,false);
         return(1);
     }
@@ -11671,10 +11671,10 @@ int simGetShapeInertia_internal(int shapeHandle,double* inertiaMatrix,double* tr
 
         C4X4Matrix tr;
         tr.setIdentity();
-        tr.X=it->getMeshWrapper()->getCOM();
+        tr.X=it->getMesh()->getCOM();
         tr.getData(transformationMatrix);
-        C3X3Matrix m(it->getMeshWrapper()->getMasslessInertiaMatrix());
-        m*=it->getMeshWrapper()->getMass();
+        C3X3Matrix m(it->getMesh()->getMasslessInertiaMatrix());
+        m*=it->getMesh()->getMass();
         m.getData(inertiaMatrix);
         return(1);
     }
@@ -11703,7 +11703,7 @@ int simSetShapeInertia_internal(int shapeHandle,const double* inertiaMatrix,cons
         m.axis[0](1)=m.axis[1](0);
         m.axis[0](2)=m.axis[2](0);
         m.axis[1](2)=m.axis[2](1);
-        m/=it->getMeshWrapper()->getMass(); // in CoppeliaSim we work with the "massless inertia"
+        m/=it->getMesh()->getMass(); // in CoppeliaSim we work with the "massless inertia"
 
         C7Vector corr;
         corr.setIdentity();
@@ -11716,8 +11716,8 @@ int simSetShapeInertia_internal(int shapeHandle,const double* inertiaMatrix,cons
             pmoment(1)=0.0000001;
         if (pmoment(2)<0.0000001)
             pmoment(0)=0.0000001;
-        it->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
-        it->getMeshWrapper()->setLocalInertiaFrame(tr.getTransformation()*corr);
+        it->getMesh()->setPrincipalMomentsOfInertia(pmoment);
+        it->getMesh()->setLocalInertiaFrame(tr.getTransformation()*corr);
         it->setDynamicsResetFlag(true,false);
         return(1);
     }
@@ -12140,7 +12140,7 @@ int* simUngroupShape_internal(int shapeHandle,int* shapeCount)
             return(nullptr);
         }
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-        if (it->getMeshWrapper()->isMesh())
+        if (it->getMesh()->isMesh())
         {
             if (dividing)
             {
@@ -12417,7 +12417,7 @@ int simCreateTexture_internal(const char* fileName,int options,const double* pla
                     shape->setVisibleEdges(false);
                     shape->setRespondable(false);
                     shape->setShapeIsDynamicallyStatic(true);
-                    shape->getMeshWrapper()->setMass(1.0);
+                    shape->getMesh()->setMass(1.0);
 
                     if (resolution!=nullptr)
                     {
@@ -12476,7 +12476,7 @@ int simCreateTexture_internal(const char* fileName,int options,const double* pla
                 shape->setVisibleEdges(false);
                 shape->setRespondable(false);
                 shape->setShapeIsDynamicallyStatic(true);
-                shape->getMeshWrapper()->setMass(1.0);
+                shape->getMesh()->setMass(1.0);
 
                 CTextureObject* textureObj=new CTextureObject(resolution[0],resolution[1]);
                 textureObj->setRandomContent();
@@ -12896,7 +12896,7 @@ int simGetShapeGeomInfo_internal(int shapeHandle,int* intData,double* floatData,
         {
             CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
             retVal=0;
-            if (shape->getMeshWrapper()->isMesh())
+            if (shape->getMesh()->isMesh())
             {
                 CMesh* geom=shape->getSingleMesh();
                 if (intData!=nullptr)
@@ -12920,7 +12920,7 @@ int simGetShapeGeomInfo_internal(int shapeHandle,int* intData,double* floatData,
             else
             { // we have a compound...
                 retVal|=1;
-                if (shape->getMeshWrapper()->isPure())
+                if (shape->getMesh()->isPure())
                     retVal|=2;
             }
         }
@@ -13064,7 +13064,7 @@ int simGetShapeTextureId_internal(int shapeHandle)
         if (isShape(__func__,shapeHandle))
         {
             CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-            if (shape->getMeshWrapper()->isMesh())
+            if (shape->getMesh()->isMesh())
             {
                 CTextureProperty* tp=shape->getSingleMesh()->getTextureProperty();
                 if (tp!=nullptr)
@@ -13094,7 +13094,7 @@ int simSetShapeTexture_internal(int shapeHandle,int textureId,int mappingMode,in
         if (isShape(__func__,shapeHandle))
         {
             CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-            if (shape->getMeshWrapper()->isMesh())
+            if (shape->getMesh()->isMesh())
             {
                 CTextureProperty* tp=shape->getSingleMesh()->getTextureProperty();
                 if (tp!=nullptr)
@@ -13270,7 +13270,7 @@ int simReorientShapeBoundingBox_internal(int shapeHandle,int relativeToHandle,in
 
         CShape* theShape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
         CSceneObject* theObjectRelativeTo=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToHandle);
-        if ( (!theShape->getMeshWrapper()->isPure())||(theShape->isCompound()) )
+        if ( (!theShape->getMesh()->isPure())||(theShape->isCompound()) )
         { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
             if (relativeToHandle==-1)
                 theShape->alignBoundingBoxWithWorld();
@@ -13586,7 +13586,7 @@ char* simGetExtensionString_internal(int objectHandle,int index,const char* key)
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if ( (it->getObjectType()==sim_object_shape_type)&&(index>=0) )
                 {
-                    CMesh* geom=((CShape*)it)->getMeshWrapper()->getShapeComponentAtIndex(C7Vector::identityTransformation,index);
+                    CMesh* geom=((CShape*)it)->getMesh()->getShapeComponentAtIndex(C7Vector::identityTransformation,index);
                     if (geom!=nullptr)
                         extensionString=geom->color.getExtensionString();
                 }
@@ -13634,9 +13634,9 @@ int simComputeMassAndInertia_internal(int shapeHandle,double density)
             if (mass>0.0)
             {
                 mass=density*mass/1000.0;
-                shape->getMeshWrapper()->setPrincipalMomentsOfInertia(diagI);
-                shape->getMeshWrapper()->setLocalInertiaFrame(localTr);
-                shape->getMeshWrapper()->setMass(mass);
+                shape->getMesh()->setPrincipalMomentsOfInertia(diagI);
+                shape->getMesh()->setLocalInertiaFrame(localTr);
+                shape->getMesh()->setMass(mass);
                 App::undoRedo_sceneChanged("");
                 return(1);
             }
@@ -15523,7 +15523,7 @@ int simGetShapeViz_internal(int shapeHandle,int index,struct SShapeVizInfo* info
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
         std::vector<CMesh*> all;
         std::vector<C7Vector> allTr;
-        it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
+        it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
         if ( (index>=0)&&(index<int(all.size())) )
         {
             CMesh* geom=all[index];
@@ -15643,7 +15643,7 @@ int simGetShapeVizf_internal(int shapeHandle,int index,struct SShapeVizInfof* in
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
         std::vector<CMesh*> all;
         std::vector<C7Vector> allTr;
-        it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
+        it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
         if ( (index>=0)&&(index<int(all.size())) )
         {
             CMesh* geom=all[index];
@@ -16174,7 +16174,7 @@ int simApplyTexture_internal(int shapeHandle,const double* textureCoordinates,in
         if (isShape(__func__,shapeHandle))
         {
             CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-            if (shape->getMeshWrapper()->isMesh())
+            if (shape->getMesh()->isMesh())
             {
                 // first remove any existing texture:
                 CTextureProperty* tp=shape->getSingleMesh()->getTextureProperty();
@@ -16319,7 +16319,7 @@ char* simGetNamedStringParam_internal(const char* paramName,int* paramLength)
 const void* _simGetGeomWrapFromGeomProxy_internal(const void* geomData)
 {
     TRACE_C_API;
-    return(((CShape*)geomData)->getMeshWrapper());
+    return(((CShape*)geomData)->getMesh());
 }
 
 double _simGetMass_internal(const void* geomInfo)
@@ -16331,7 +16331,7 @@ double _simGetMass_internal(const void* geomInfo)
 double _simGetLocalInertiaInfo_internal(const void* object,double* pos,double* quat,double* diagI)
 { // returns the diag inertia (with mass!)
     CShape* shape=(CShape*)object;
-    CMeshWrapper* geomInfo=shape->getMeshWrapper();
+    CMeshWrapper* geomInfo=shape->getMesh();
     C3Vector diag;
     C7Vector tr(geomInfo->getDiagonalInertiaInfo(diag));
     double m=geomInfo->getMass();
@@ -16408,7 +16408,7 @@ void _simGetVerticesLocalFrame_internal(const void* shape,const void* geometric,
 {
     TRACE_C_API;
     C7Vector tr;
-    ((CShape*)shape)->getMeshWrapper()->getShapeRelBB(C7Vector::identityTransformation,(CMeshWrapper*)geometric,tr,nullptr);
+    ((CShape*)shape)->getMesh()->getShapeRelBB(C7Vector::identityTransformation,(CMeshWrapper*)geometric,tr,nullptr);
     tr.Q.getData(quat);
     tr.X.getData(pos);
 }
@@ -16424,7 +16424,7 @@ void _simGetCumulativeMeshes_internal(const void* shape,const void* geomInfo,dou
     TRACE_C_API;
     std::vector<double> vert;
     std::vector<int> ind;
-    ((CShape*)shape)->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,(CMeshWrapper*)geomInfo,vert,&ind,nullptr);
+    ((CShape*)shape)->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,(CMeshWrapper*)geomInfo,vert,&ind,nullptr);
 
     vertices[0]=new double[vert.size()];
     verticesSize[0]=(int)vert.size();

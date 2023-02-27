@@ -261,7 +261,7 @@ void CWorld::saveScene(CSer& ar)
         {
             CShape* it=sceneObjects->getShapeFromIndex(i);
             CDynMaterialObject* mat=it->getDynMaterial();
-            it->getMeshWrapper()->setDynMaterialId_old(dynObjId);
+            it->getMesh()->setDynMaterialId_old(dynObjId);
             mat->setObjectID(dynObjId++);
             ar.storeDataName(SER_DYNMATERIAL);
             ar.setCountingMode();
@@ -791,7 +791,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         if (loadedObjectList->at(i)->getObjectType()==sim_object_shape_type)
         {
             CShape* shape=(CShape*)loadedObjectList->at(i);
-            int matId=shape->getMeshWrapper()->getDynMaterialId_old();
+            int matId=shape->getMesh()->getDynMaterialId_old();
             if ((fileSimVersion<30303)&&(matId>=0))
             { // for backward compatibility(29/10/2016), when the dyn material was stored separaterly and shared among shapes
                 for (size_t j=0;j<loadedDynMaterialObjectList.size();j++)
@@ -815,7 +815,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
                         mat->setEngineFloatParam(sim_bullet_body_friction,0.25); // the new Bullet friction
                 }
             }
-            shape->getMeshWrapper()->setDynMaterialId_old(-1);
+            shape->getMesh()->setDynMaterialId_old(-1);
         }
     }
     sceneObjects->enableObjectActualization(true);
@@ -1698,9 +1698,9 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
             double mass=CPluginContainer::dyn_computeInertia(it->getObjectHandle(),localTr,diagI);
             double desiredDensity=1000.0;
             mass=desiredDensity*mass/1000.0;
-            it->getMeshWrapper()->setPrincipalMomentsOfInertia(diagI);
-            it->getMeshWrapper()->setLocalInertiaFrame(localTr);
-            it->getMeshWrapper()->setMass(mass);
+            it->getMesh()->setPrincipalMomentsOfInertia(diagI);
+            it->getMesh()->setLocalInertiaFrame(localTr);
+            it->getMesh()->setMass(mass);
         }
     }
     */

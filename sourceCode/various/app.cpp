@@ -1293,7 +1293,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
             if ((it!=nullptr)&&it->isCompound())
             {
                 std::vector<CMesh*> allGeometrics;
-                it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
+                it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
                 if ((objID2>=0)&&(objID2<int(allGeometrics.size())))
                     return(&allGeometrics[objID2]->color);
             }
@@ -1345,7 +1345,7 @@ CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,
         if (it!=nullptr)
         {
             std::vector<CMesh*> allGeometrics;
-            it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
+            it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
             if ((objID2>=0)&&(objID2<int(allGeometrics.size())))
             {
                 _isValid[0]=true;

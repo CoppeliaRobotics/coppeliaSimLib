@@ -25,7 +25,7 @@ CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContai
     edgeMaxAngle=135.0*degToRad;
     edgeDirectionChangeMaxAngle=45.0*degToRad;
 
-    _shape->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,_editionVertices,&_editionIndices,&_editionNormals);
+    _shape->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,_editionVertices,&_editionIndices,&_editionNormals);
     _editionTextureProperty=_shape->getSingleMesh()->getTextureProperty();
     if (_editionTextureProperty!=nullptr)
     {

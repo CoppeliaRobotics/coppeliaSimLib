@@ -36,7 +36,7 @@ void CQDlgGeometry::refresh()
     CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape==nullptr)
         return;
-    bool g=!shape->getMeshWrapper()->isMesh();
+    bool g=!shape->getMesh()->isMesh();
 
     ui->qqSizeX->setEnabled(noEditModeNoSim);
     ui->qqSizeY->setEnabled(noEditModeNoSim);
@@ -56,7 +56,7 @@ void CQDlgGeometry::refresh()
     ui->qqAlpha->setText(utils::getAngleString(true,rotationVal[0]).c_str());
     ui->qqBeta->setText(utils::getAngleString(true,rotationVal[1]).c_str());
     ui->qqGamma->setText(utils::getAngleString(true,rotationVal[2]).c_str());
-    bool canScaleFreely=(!g)&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_spheroid)&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_capsule);
+    bool canScaleFreely=(!g)&&(shape->getMesh()->getPurePrimitiveType()!=sim_primitiveshape_spheroid)&&(shape->getMesh()->getPurePrimitiveType()!=sim_primitiveshape_capsule);
     ui->qqKeepProp->setChecked(keepProp||(!canScaleFreely));
     ui->qqKeepProp->setEnabled(canScaleFreely&&noEditModeNoSim);
     ui->qqAlpha->setEnabled(((!isPureShape)||g)&&noEditModeNoSim);
@@ -70,21 +70,21 @@ void CQDlgGeometry::refresh()
             shapeTypeText="Compound primitive shape";
         else
         {
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield)
+            if (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield)
                 shapeTypeText="Heightfield shape";
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_plane)
+            if (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_plane)
                 shapeTypeText="Primitive shape (plane)";
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_disc)
+            if (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_disc)
                 shapeTypeText="Primitive shape (disc)";
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cuboid)
+            if (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_cuboid)
                 shapeTypeText="Primitive shape (cuboid)";
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_spheroid)
+            if (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_spheroid)
                 shapeTypeText="Primitive shape (spheroid)";
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cylinder)
+            if (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_cylinder)
                 shapeTypeText="Primitive shape (cylinder)";
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_capsule)
+            if (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_capsule)
                 shapeTypeText="Primitive shape (capsule)";
-            if (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cone)
+            if (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_cone)
                 shapeTypeText="Primitive shape (cone)";
         }
     }
@@ -143,12 +143,12 @@ void CQDlgGeometry::_initialize(int shapeHandle)
         titleText+="'";
         std::vector<double> wvert;
         std::vector<int> wind;
-        shape->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,wvert,&wind,nullptr);
+        shape->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,wvert,&wind,nullptr);
         vertexCount=(int)wvert.size()/3;
         triangleCount=(int)wind.size()/3;
-        isPureShape=shape->getMeshWrapper()->isPure();
-        isConvex=shape->getMeshWrapper()->isConvex();
-        isGroup=!shape->getMeshWrapper()->isMesh();
+        isPureShape=shape->getMesh()->isPure();
+        isConvex=shape->getMesh()->isConvex();
+        isGroup=!shape->getMesh()->isMesh();
     }
     insideRefreshTriggered=true;
     refresh();
@@ -233,12 +233,12 @@ void CQDlgGeometry::_readSize(int index)
                 sizeVal[index]=newVal;
             }
 
-            if ( shape->getMeshWrapper()->isMesh()&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_spheroid)&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_capsule) )
+            if ( shape->getMesh()->isMesh()&&(shape->getMesh()->getPurePrimitiveType()!=sim_primitiveshape_spheroid)&&(shape->getMesh()->getPurePrimitiveType()!=sim_primitiveshape_capsule) )
             {
-                if ( (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_disc)||
-                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cylinder)||
-                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cone)||
-                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
+                if ( (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_disc)||
+                    (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_cylinder)||
+                    (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_cone)||
+                    (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
                 {
                     if (index==0)
                         sizeVal[1]=sizeVal[0];
@@ -305,12 +305,12 @@ void CQDlgGeometry::_readScaling(int index)
             else
                 scaleVal[index]=newVal;
 
-            if ( shape->getMeshWrapper()->isMesh()&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_spheroid)&&(shape->getMeshWrapper()->getPurePrimitiveType()!=sim_primitiveshape_capsule) )
+            if ( shape->getMesh()->isMesh()&&(shape->getMesh()->getPurePrimitiveType()!=sim_primitiveshape_spheroid)&&(shape->getMesh()->getPurePrimitiveType()!=sim_primitiveshape_capsule) )
             {
-                if ( (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_disc)||
-                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cylinder)||
-                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_cone)||
-                    (shape->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
+                if ( (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_disc)||
+                    (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_cylinder)||
+                    (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_cone)||
+                    (shape->getMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
                 {
                     if (index==0)
                         scaleVal[1]=scaleVal[0];

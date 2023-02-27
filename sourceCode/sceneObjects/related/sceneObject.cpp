@@ -3800,7 +3800,7 @@ void CSceneObject::displayFrames(CViewableBase* renderingObject,double size,bool
     C7Vector localFrame(getIntrinsicTransformation(true,&available));
     if (available)
         _displayFrame(tr*localFrame,size*0.0125);
-    _displayFrame(tr*_bbFrame,size*0.006,false); // frame of the bounding box
+    _displayFrame(tr*_bbFrame,size*0.006,1); // frame of the bounding box
 #endif
 }
 

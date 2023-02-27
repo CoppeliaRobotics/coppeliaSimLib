@@ -23,7 +23,7 @@ See the GNU General Public License for more details.
 
 #ifdef SIM_WITH_OPENGL
 void _displayTriangles(CMesh* geometric,int geomModifCounter,CTextureProperty* tp);
-void _displayInertia(const C7Vector& tr,const C3Vector& pmi);
+void _displayInertia(const C7Vector& tr,const C3Vector& pmi,double comFrameSize);
 #endif
 
 void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib);

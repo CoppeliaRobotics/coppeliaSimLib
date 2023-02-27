@@ -287,7 +287,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
                 if (it!=nullptr)
                 {
-                    if ( (!it->getMeshWrapper()->isConvex())||it->isCompound() )
+                    if ( (!it->getMesh()->isConvex())||it->isCompound() )
                     {
                         CMesh* convexHull=generateConvexHull(sel[i]);
                         if (convexHull!=nullptr)
@@ -330,14 +330,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if ( (App::currentWorld->sceneObjects->getSelectionCount()==1)&&(App::currentWorld->sceneObjects->getLastSelectionObject()->getObjectType()==sim_object_shape_type) )
             {
                 sh=App::currentWorld->sceneObjects->getLastSelectionShape();
-                if (sh->getMeshWrapper()->isPure())
+                if (sh->getMesh()->isPure())
                     sh=nullptr;
             }
             if (sh!=nullptr)
             {
                 std::vector<double> vert;
                 std::vector<int> ind;
-                sh->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+                sh->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
                 C7Vector tr(sh->getFullCumulativeTransformation());
                 for (size_t i=0;i<vert.size()/3;i++)
                 {
@@ -673,7 +673,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         if (!found)
                         {
                             processedGeoms.push_back(theShape);
-                            if ( (!theShape->getMeshWrapper()->isPure())||(theShape->isCompound()) )
+                            if ( (!theShape->getMesh()->isPure())||(theShape->isCompound()) )
                             { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
                                 if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
                                     theShape->alignBoundingBoxWithWorld();
@@ -955,13 +955,13 @@ int CSceneObjectOperations::groupSelection(std::vector<int>* selection,bool show
         if (it!=nullptr)
         {
             shapesToGroup.push_back(it);
-            if (it->getMeshWrapper()->isPure())
+            if (it->getMesh()->isPure())
             {
                 pureCount++;
-                if ( (it->getMeshWrapper()->isMesh())&&(it->getSingleMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
+                if ( (it->getMesh()->isMesh())&&(it->getSingleMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
                     includesHeightfields=true;
             }
-            if (it->getMeshWrapper()->isConvex())
+            if (it->getMesh()->isConvex())
                 convexCount++;
         }
     }
@@ -1014,13 +1014,13 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
     for (size_t i=0;i<shapesToGroup.size();i++)
     {
         CShape* it=shapesToGroup[i];
-        if (it->getMeshWrapper()->isPure())
+        if (it->getMesh()->isPure())
         {
             pureCount++;
-            if ( (it->getMeshWrapper()->isMesh())&&(it->getSingleMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
+            if ( (it->getMesh()->isMesh())&&(it->getSingleMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
                 includesHeightfields=true;
         }
-        if (!it->getMeshWrapper()->isConvex())
+        if (!it->getMesh()->isConvex())
             allConvex=false;
     }
     bool allToNonPure=( (pureCount<shapesToGroup.size())||includesHeightfields );
@@ -1029,8 +1029,8 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
     {
         CShape* it=shapesToGroup[i];
         if (allToNonPure)
-            it->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0); // this will be propagated to all geometrics!
-        allMeshes.push_back(it->getMeshWrapper());
+            it->getMesh()->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0); // this will be propagated to all geometrics!
+        allMeshes.push_back(it->getMesh());
         it->detachMesh();
         App::currentWorld->drawingCont->announceObjectWillBeErased(it);
         App::currentWorld->pointCloudCont->announceObjectWillBeErased(it->getObjectHandle());
@@ -1126,15 +1126,15 @@ void CSceneObjectOperations::_fullUngroupShape(CShape* shape,std::vector<CShape*
 void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,std::vector<CShape*>& newShapes)
 {
     // added because a previous bug: (2014)
-    if (!it->getMeshWrapper()->isPure())
-        it->getMeshWrapper()->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0);
+    if (!it->getMesh()->isPure())
+        it->getMesh()->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0);
 
     // we have to remove all attached drawing objects
     App::currentWorld->drawingCont->announceObjectWillBeErased(it);
     App::currentWorld->pointCloudCont->announceObjectWillBeErased(it->getObjectHandle());
     App::currentWorld->bannerCont->announceObjectWillBeErased(it->getObjectHandle());
 
-    CMeshWrapper* wrapper=it->getMeshWrapper();
+    CMeshWrapper* wrapper=it->getMesh();
     C7Vector oldTransf(it->getCumulativeTransformation());
     C7Vector oldParentTransf(it->getFullParentCumulativeTransformation());
     it->detachMesh();
@@ -1186,7 +1186,7 @@ int CSceneObjectOperations::mergeSelection(std::vector<int>* selection,bool show
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
             if (it!=nullptr)
             {
-                if (it->getMeshWrapper()->isPure())
+                if (it->getMesh()->isPure())
                 {
 #ifdef SIM_WITH_GUI
                     if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_MERGING,IDS_MERGING_SOME_PURE_SHAPES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
@@ -1208,7 +1208,7 @@ int CSceneObjectOperations::mergeSelection(std::vector<int>* selection,bool show
         if (it!=nullptr)
         {
             shapesToMerge.push_back(it);
-            if (it->getMeshWrapper()->getTextureCount()!=0)
+            if (it->getMesh()->getTextureCount()!=0)
             {
 #ifdef SIM_WITH_GUI
                 if (showMessages)
@@ -1242,10 +1242,10 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
     for (size_t i=0;i<allShapesToMerge.size();i++)
     {
         CShape* it=allShapesToMerge[i];
-        if (it->getMeshWrapper()->getTextureCount()!=0)
+        if (it->getMesh()->getTextureCount()!=0)
         {
             App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(it->getObjectHandle(),-1);
-            it->getMeshWrapper()->removeAllTextures();
+            it->getMesh()->removeAllTextures();
         }
     }
 
@@ -1263,7 +1263,7 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
     for (size_t i=0;i<allShapes.size();i++)
     {
         CShape* it=allShapes[i];
-        allMeshes.push_back(it->getMeshWrapper());
+        allMeshes.push_back(it->getMesh());
         it->detachMesh();
         App::currentWorld->drawingCont->announceObjectWillBeErased(it);
         App::currentWorld->pointCloudCont->announceObjectWillBeErased(it->getObjectHandle());
@@ -1302,10 +1302,10 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool sh
     for (size_t i=0;i<selection->size();i++)
     {
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
-        if ( (it!=nullptr)&&(!it->getMeshWrapper()->isPure()) )
+        if ( (it!=nullptr)&&(!it->getMesh()->isPure()) )
         {
             shapesToDivide.push_back(it);
-            if (it->getMeshWrapper()->getTextureCount()!=0)
+            if (it->getMesh()->getTextureCount()!=0)
                 textureWarningOutput=true;
         }
     }
@@ -1355,7 +1355,7 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool sh
 bool CSceneObjectOperations::_divideShape(CShape* it,std::vector<CShape*>& newShapes)
 {
     App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(it->getObjectHandle(),-1);
-    it->getMeshWrapper()->removeAllTextures();
+    it->getMesh()->removeAllTextures();
 
     // we have to remove all attached drawing objects
     App::currentWorld->drawingCont->announceObjectWillBeErased(it);
@@ -1364,7 +1364,7 @@ bool CSceneObjectOperations::_divideShape(CShape* it,std::vector<CShape*>& newSh
 
     std::vector<double> vertices;
     std::vector<int> indices;
-    it->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vertices,&indices,nullptr);
+    it->getMesh()->getCumulativeMeshes(it->getFullCumulativeTransformation(),vertices,&indices,nullptr);
     int extractedCount=0;
     while (true)
     {
@@ -1376,8 +1376,8 @@ bool CSceneObjectOperations::_divideShape(CShape* it,std::vector<CShape*>& newSh
             CMesh* mesh=new CMesh(it->getFullCumulativeTransformation(),subvert,subind,nullptr,nullptr);
             CShape* shape=new CShape();
             shape->replaceMesh(mesh,false);
-            if (it->getMeshWrapper()->isMesh())
-                ((CMesh*)it->getMeshWrapper())->copyVisualAttributesTo(mesh);
+            if (it->getMesh()->isMesh())
+                ((CMesh*)it->getMesh())->copyVisualAttributesTo(mesh);
             it->copyAttributesTo(shape);
             shape->setLocalTransformation(it->getCumulativeTransformation());
             App::currentWorld->sceneObjects->addObjectToScene(shape,false,false);
@@ -1478,7 +1478,7 @@ CMesh* CSceneObjectOperations::generateConvexHull(int shapeHandle)
         C7Vector transf(it->getFullCumulativeTransformation());
         std::vector<double> vert;
         std::vector<int> ind;
-        it->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+        it->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
         for (size_t i=0;i<vert.size()/3;i++)
         {
             C3Vector v(vert.data()+3*i);
@@ -1516,11 +1516,11 @@ CMeshWrapper* CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,s
     if (it!=nullptr)
     {
         std::vector<CMesh*> generatedMeshes;
-        if (individuallyConsiderMultishapeComponents&&(!it->getMeshWrapper()->isMesh()))
+        if (individuallyConsiderMultishapeComponents&&(!it->getMesh()->isMesh()))
         {
             std::vector<CMesh*> shapeComponents;
             std::vector<C7Vector> ptrL;
-            it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,shapeComponents,&ptrL);
+            it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,shapeComponents,&ptrL);
             for (size_t comp=0;comp<shapeComponents.size();comp++)
             {
                 CMesh* geom=shapeComponents[comp];
@@ -1579,7 +1579,7 @@ CMeshWrapper* CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,s
         }
         else
         {
-            it->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+            it->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
             std::vector<std::vector<double>*> outputVert;
             std::vector<std::vector<int>*> outputInd;
             int addClusters=0;
@@ -1793,7 +1793,7 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
             CShape* newShape=new CShape();
             newShape->replaceMesh(mesh,false);
             newShape->setLocalTransformation(oldShape->getCumulativeTransformation());
-            oldShape->getMeshWrapper()->copyAttributesTo(mesh);
+            oldShape->getMesh()->copyAttributesTo(mesh);
             retVal=App::currentWorld->sceneObjects->addObjectToScene(newShape,false,true);
         }
     }
@@ -1815,7 +1815,7 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
         if (objects[i]->getObjectType()==sim_object_shape_type)
         {
             CShape* it=(CShape*)objects[i];
-            if (it->getMeshWrapper()->isMesh())
+            if (it->getMesh()->isMesh())
                 simpleShapeNumber++;
         }
     }
@@ -1828,7 +1828,7 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
     if (lastSelIsShape)
     {
         CShape* sh=App::currentWorld->sceneObjects->getLastSelectionShape();
-        lastSelIsNonPureShape=!sh->getMeshWrapper()->isPure();
+        lastSelIsNonPureShape=!sh->getMesh()->isPure();
         lastSelIsNonGrouping=!sh->isCompound();
     }
 

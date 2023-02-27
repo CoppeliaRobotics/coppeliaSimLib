@@ -51,7 +51,6 @@ public:
     virtual CMesh* getShapeComponentAtIndex(const C7Vector& parentCumulTr,int& index,C7Vector* optParentCumulTrOut=nullptr);
     virtual int getComponentCount() const;
     virtual bool serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumulIFrame,bool rootLevel);
-    virtual void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     virtual void flipFaces();
     virtual double getShadingAngle() const;
     virtual void setShadingAngle(double angle);

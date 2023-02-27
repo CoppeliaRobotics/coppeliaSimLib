@@ -482,7 +482,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
                 else
                 { // simple shape
                     bool goOn=(getEditModeType()==NO_EDIT_MODE);
-                    if (goOn&&(it->getMeshWrapper()->isPure()))
+                    if (goOn&&(it->getMesh()->isPure()))
                         goOn=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SHAPE_EDIT_MODE,IDS_SHAPE_IS_PURE_PRIMITIVE_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
                     if (goOn)
                     {

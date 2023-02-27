@@ -136,27 +136,27 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
                         if (shape->isMeshCalculationStructureInitialized())
                         {
                             fakeCol.setColor(0.5f,0.1f,0.1f,0);
-                            shape->getMeshWrapper()->display(C7Vector::identityTransformation,shape,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
+                            shape->getMesh()->display(C7Vector::identityTransformation,shape,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
                         }
                         else
                         {
                             fakeCol.setColor(0.5f,0.5f,0.5f,0);
-                            shape->getMeshWrapper()->display(C7Vector::identityTransformation,shape,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
+                            shape->getMesh()->display(C7Vector::identityTransformation,shape,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
                         }
                     }
                     else
                     { // normal visualization
                         if (shape->getContainsTransparentComponent())
                         {
-                            shape->getMeshWrapper()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),2,false);
-                            shape->getMeshWrapper()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),1,false);
+                            shape->getMesh()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),2,false);
+                            shape->getMesh()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),1,false);
                         }
                         else
-                            shape->getMeshWrapper()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),0,false);
+                            shape->getMesh()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),0,false);
                     }
                 }
                 else
-                    shape->getMeshWrapper()->display_colorCoded(C7Vector::identityTransformation,shape,shape->getObjectHandle(),displayAttrib); // color-coded visualization
+                    shape->getMesh()->display_colorCoded(C7Vector::identityTransformation,shape,shape->getObjectHandle(),displayAttrib); // color-coded visualization
             }
             _disableAuxClippingPlanes();
         }
@@ -166,7 +166,7 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
     _commonFinish(shape,renderingObject);
 }
 
-void _displayInertia(const C7Vector& tr,const C3Vector& pmi)
+void _displayInertia(const C7Vector& tr,const C3Vector& pmi,double comFrameSize)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
@@ -190,6 +190,10 @@ void _displayInertia(const C7Vector& tr,const C3Vector& pmi)
     ogl::drawBox(hs(0),hs(1),hs(2),true,nullptr);
     ogl::setAlpha(1.0);
     ogl::drawBox(hs(0),hs(1),hs(2),false,nullptr);
+
+
+    _displayFrame(C7Vector::identityTransformation,comFrameSize,2);
+
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
 

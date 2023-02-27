@@ -263,7 +263,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
                 CShape* shape=(CShape*)it;
                 C7Vector trr(camTrInv*shape->getFullCumulativeTransformation());
                 std::vector<double> wvert;
-                shape->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,wvert,nullptr,nullptr);
+                shape->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,wvert,nullptr,nullptr);
                 for (int j=0;j<int(wvert.size())/3;j++)
                 {
                     C3Vector vq(&wvert[3*j+0]);
@@ -2830,6 +2830,10 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                 }
             }
 
+            double val=_orthoViewSize;
+            if (_currentPerspective)
+                val=2.0*tan(_viewAngle*0.5);
+
             // Display inertia box overlays:
             if ( App::getShowInertias()&&((displayAttrib&sim_displayattribute_renderpass)!=0)&&((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)&&getInternalRendering() )
             {
@@ -2839,7 +2843,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                     {
                         CShape* it=(CShape*)toRender[rp];
                         if (!it->getShapeIsDynamicallyStatic())
-                            it->displayInertia();
+                            it->displayInertia(this,val,_currentPerspective);
                     }
                 }
             }
@@ -2852,9 +2856,6 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                     CSceneObject* it=toRender[rp];
                     if ( it->getSelected()&&((it->getObjectHandle()!=getObjectHandle())||mirrored) )
                     {
-                        double val=_orthoViewSize;
-                        if (_currentPerspective)
-                            val=2.0*tan(_viewAngle*0.5);
                         it->displayFrames(this,val,_currentPerspective);
                         it->displayBoundingBox(this,it->getObjectHandle()==lastSel);
                     }

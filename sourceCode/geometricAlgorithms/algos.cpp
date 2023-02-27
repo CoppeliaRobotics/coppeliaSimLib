@@ -1,14 +1,14 @@
 #include <vector>
 #include <algos.h>
 
-C7Vector CAlgos::getMeshBoundingBox(const std::vector<double>& vert,const std::vector<int>& ind,bool alignedWithMainAxis,C3Vector* bbSize/*=nullptr*/)
+C7Vector CAlgos::getMeshBoundingBox(const std::vector<double>& vert,const std::vector<int>& ind,bool findNewBBFrameOrientation,C3Vector* bbSize/*=nullptr*/)
 {
     C7Vector tr;
     tr.setIdentity();
     std::vector<double> vertices(vert);
 
-    if (alignedWithMainAxis)
-    {
+    if (findNewBBFrameOrientation)
+    { // find a new frame
         tr=getMainAxis(vertices,ind);
         C7Vector transfInverse(tr.getInverse());
 

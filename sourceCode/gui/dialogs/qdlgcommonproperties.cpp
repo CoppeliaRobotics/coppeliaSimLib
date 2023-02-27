@@ -63,7 +63,7 @@ void CQDlgCommonProperties::refresh()
         if (isShape)
         {
             isSimpleShape=!((CShape*)ls)->isCompound();
-            isPurePrimitive=((CShape*)ls)->getMeshWrapper()->isPure();
+            isPurePrimitive=((CShape*)ls)->getMesh()->isPure();
         }
     }
 

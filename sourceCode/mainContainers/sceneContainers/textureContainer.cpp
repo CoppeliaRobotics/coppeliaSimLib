@@ -168,8 +168,8 @@ void CTextureContainer::updateAllDependencies()
     for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
     {
         CShape* sh=App::currentWorld->sceneObjects->getShapeFromIndex(i);
-        if (sh->getMeshWrapper()!=nullptr)
-            sh->getMeshWrapper()->setTextureDependencies(sh->getObjectHandle());
+        if (sh->getMesh()!=nullptr)
+            sh->getMesh()->setTextureDependencies(sh->getObjectHandle());
     }
 }
 

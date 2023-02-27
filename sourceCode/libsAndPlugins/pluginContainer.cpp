@@ -982,11 +982,11 @@ double CPluginContainer::dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vecto
     if (mass==0.0)
     { // fallback algo
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-        if (it->getMeshWrapper()->isConvex())
+        if (it->getMesh()->isConvex())
         {
             std::vector<double> vert;
             std::vector<int> ind;
-            it->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+            it->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
             C3Vector com;
             C3X3Matrix tensor;
             mass=CVolInt::getMassCenterOfMassAndInertiaTensor(&vert[0],(int)vert.size()/3,&ind[0],(int)ind.size()/3,1000.0,com,tensor);

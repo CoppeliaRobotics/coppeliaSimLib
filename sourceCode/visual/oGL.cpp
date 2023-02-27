@@ -808,17 +808,19 @@ void ogl::drawSphere(double rr,int sides,int faces,bool smooth)
     }
 }
 
-void ogl::drawReference(double size,bool color/*=true*/)
+void ogl::drawReference(double size,int color/*=0*/)
 {
     float subSize=float(size/8.0);
     float subSubSize=float(subSize/2.0);
     setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
     glLineWidth(1.0);
     glNormal3f(0.0,0.0,1.0);
-    if (color)
+    if (color==0)
         setMaterialColor(sim_colorcomponent_emission,ogl::colorRed);
-    else
-        setMaterialColor(sim_colorcomponent_emission,ogl::colorGrey);
+    if (color==1)
+        setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
+    if (color==2)
+        setMaterialColor(sim_colorcomponent_emission,ogl::colorRed);
     glBegin(GL_LINES);
     glVertex3f(0.0,0.0,0.0);
     glVertex3f((float)size,0.0,0.0);
@@ -827,7 +829,7 @@ void ogl::drawReference(double size,bool color/*=true*/)
     glVertex3f((float)size-subSize,0.0,(float)-subSubSize);
     glVertex3f((float)size,0.0,0.0);
     glEnd();
-    if (color)
+    if (color==0)
         setMaterialColor(sim_colorcomponent_emission,ogl::colorGreen);
     glBegin(GL_LINES);
     glVertex3f(0.0,0.0,0.0);
@@ -837,7 +839,7 @@ void ogl::drawReference(double size,bool color/*=true*/)
     glVertex3f(0.0,(float)size-subSize,-subSubSize);
     glVertex3f(0.0,(float)size,0.0);
     glEnd();
-    if (color)
+    if (color==0)
         setMaterialColor(sim_colorcomponent_emission,ogl::colorBlue);
     glBegin(GL_LINES);
     glVertex3f(0.0,0.0,0.0);

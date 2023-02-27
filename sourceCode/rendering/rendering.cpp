@@ -405,7 +405,7 @@ void _restoreDefaultLights(CSceneObject* object,CViewableBase* viewable)
         _activateNonAmbientLights(-1,viewable);
 }
 
-void _displayFrame(const C7Vector& tr,double frameSize,bool color/*=true*/)
+void _displayFrame(const C7Vector& tr,double frameSize,int color/*=0*/)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);

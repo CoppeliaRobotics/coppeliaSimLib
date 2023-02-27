@@ -1376,7 +1376,6 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,double pointSpacing,cons
     if (options&4)
         shape->getSingleMesh()->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0);
 
-    shape->alignBoundingBoxWithWorld();
     shape->setCulling((options&1)!=0);
     shape->setVisibleEdges((options&2)!=0);
     shape->getSingleMesh()->setShadingAngle(shadingAngle);

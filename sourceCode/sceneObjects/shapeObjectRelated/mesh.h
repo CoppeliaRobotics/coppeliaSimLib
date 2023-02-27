@@ -40,7 +40,6 @@ public:
     CMesh* getShapeComponentAtIndex(const C7Vector& parentCumulTr,int& index,C7Vector* optParentCumulTrOut=nullptr);
     int getComponentCount() const;
     bool serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumulIFrame,bool rootLevel);
-    void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     void flipFaces();
     double getShadingAngle() const;
     void setShadingAngle(double angle);
@@ -126,10 +125,11 @@ public:
     int _heightfieldYCount;
 
 protected:
+    void _transformMesh(const C7Vector& tr);
     void _commonInit();
     void _recomputeNormals();
     void _computeVisibleEdges();
-    void _computeBBSize();
+    C3Vector _computeBBSize(C3Vector* optBBCenter=nullptr);
 
 
     static void _savePackedIntegers(CSer& ar,const std::vector<int>& data);

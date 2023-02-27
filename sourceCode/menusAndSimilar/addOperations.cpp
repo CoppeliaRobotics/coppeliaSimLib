@@ -10,6 +10,7 @@
 #include <mesh.h>
 #include <simStrings.h>
 #include <boost/lexical_cast.hpp>
+#include <set>
 
 CAddOperations::CAddOperations()
 {
@@ -574,19 +575,26 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
 
             // Now keep only visible objects:
+            std::set<CSceneObject*> objs;
             std::vector<CSceneObject*> inputObjects;
             for (size_t i=0;i<sel.size();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
                 if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
+                {
+                    objs.insert(it);
                     inputObjects.push_back(it);
+                }
             }
             // Now add objects from the original selection that do not have the model base flag:
             for (size_t i=0;i<sel0.size();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel0[i]);
                 if (!it->getModelBase())
-                    inputObjects.push_back(it);
+                {
+                    if (objs.find(it)==objs.end())
+                        inputObjects.push_back(it);
+                }
             }
 
             App::uiThread->showOrHideProgressBar(true,-1,"Computing convex hull...");
@@ -728,8 +736,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape->setObjectName_direct_old(IDSOGL_PLANE);
         shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,0.002)); // we shift the plane so that it is above the floor
-        shape->getMeshWrapper()->setMass(sizes(0)*sizes(1)*density*0.001); // we assume 1mm thickness
-        shape->getMeshWrapper()->setPMI(C3Vector(sizes(1)*sizes(1)/12.0,sizes(0)*sizes(0)/12.0,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0));
+        shape->getMesh()->setMass(sizes(0)*sizes(1)*density*0.001); // we assume 1mm thickness
+        shape->getMesh()->setPMI(C3Vector(sizes(1)*sizes(1)/12.0,sizes(0)*sizes(0)/12.0,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0));
     }
 
     if (type==sim_primitiveshape_cuboid)
@@ -751,8 +759,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape->setObjectName_direct_old(IDSOGL_RECTANGLE);
         shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,zhSize)); // we shift the rectangle so that it sits on the floor
-        shape->getMeshWrapper()->setMass(sizes(0)*sizes(1)*sizes(2)*density);
-        shape->getMeshWrapper()->setPMI(C3Vector((sizes(1)*sizes(1)+sizes(2)*sizes(2))/12.0,(sizes(0)*sizes(0)+sizes(2)*sizes(2))/12.0,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0));
+        shape->getMesh()->setMass(sizes(0)*sizes(1)*sizes(2)*density);
+        shape->getMesh()->setPMI(C3Vector((sizes(1)*sizes(1)+sizes(2)*sizes(2))/12.0,(sizes(0)*sizes(0)+sizes(2)*sizes(2))/12.0,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0));
     }
 
     if (type==sim_primitiveshape_spheroid)
@@ -784,10 +792,10 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape->setLocalTransformation(C3Vector(0.0,0.0,zhSize)); // we shift the sphere so that it sits on the floor
         double avR=(sizes(0)+sizes(1)+sizes(2))/6.0;
 
-        shape->getMeshWrapper()->setMass((4.0*piValue/3.0)*avR*avR*avR*density);
-        shape->getMeshWrapper()->setPMI(C3Vector(2.0*avR*avR/5.0,2.0*avR*avR/5.0,2.0*avR*avR/5.0));
+        shape->getMesh()->setMass((4.0*piValue/3.0)*avR*avR*avR*density);
+        shape->getMesh()->setPMI(C3Vector(2.0*avR*avR/5.0,2.0*avR*avR/5.0,2.0*avR*avR/5.0));
         double avr2=avR*2.0;
-        shape->getMeshWrapper()->scaleMassAndInertia(cbrt(sizes(0)*sizes(1)*sizes(2))/avr2);
+        shape->getMesh()->scaleMassAndInertia(cbrt(sizes(0)*sizes(1)*sizes(2))/avr2);
     }
 
     if ( (type==sim_primitiveshape_cylinder)||(type==sim_primitiveshape_cone) )
@@ -827,13 +835,13 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         if (type==sim_primitiveshape_cone)
             divider=3.0;
 
-        shape->getMeshWrapper()->setMass(piValue*avR*avR*divider*sizes(2)*density);
+        shape->getMesh()->setMass(piValue*avR*avR*divider*sizes(2)*density);
         if (type==sim_primitiveshape_cone)
-            shape->getMeshWrapper()->setPMI(C3Vector(3.0*(0.25*avR*avR+sizes(2)*sizes(2))/5.0,3.0*(0.25*avR*avR+sizes(2)*sizes(2))/5.0,3.0*avR*avR/10.0));
+            shape->getMesh()->setPMI(C3Vector(3.0*(0.25*avR*avR+sizes(2)*sizes(2))/5.0,3.0*(0.25*avR*avR+sizes(2)*sizes(2))/5.0,3.0*avR*avR/10.0));
         else
-            shape->getMeshWrapper()->setPMI(C3Vector((3.0*avR*avR+sizes(2)*sizes(2))/12.0,(3.0*avR*avR+sizes(2)*sizes(2))/12.0,avR*avR/2.0));
+            shape->getMesh()->setPMI(C3Vector((3.0*avR*avR+sizes(2)*sizes(2))/12.0,(3.0*avR*avR+sizes(2)*sizes(2))/12.0,avR*avR/2.0));
         double avR2=avR*2.0;
-        shape->getMeshWrapper()->scaleMassAndInertia(cbrt(sizes(0)*sizes(1)*avR2)/avR2);
+        shape->getMesh()->scaleMassAndInertia(cbrt(sizes(0)*sizes(1)*avR2)/avR2);
     }
 
     if (type==sim_primitiveshape_capsule)
@@ -866,10 +874,10 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         // For now, approximation:
         double avR=(sizes(0)+sizes(1))/4.0;
         double l=cylLength+maxs*0.75;
-        shape->getMeshWrapper()->setMass(piValue*avR*avR*l*density);
-        shape->getMeshWrapper()->setPMI(C3Vector((3.0*avR*avR+l*l)/12.0,(3.0*avR*avR+l*l)/12.0,avR*avR/2.0));
+        shape->getMesh()->setMass(piValue*avR*avR*l*density);
+        shape->getMesh()->setPMI(C3Vector((3.0*avR*avR+l*l)/12.0,(3.0*avR*avR+l*l)/12.0,avR*avR/2.0));
         double avR2=avR*2.0;
-        shape->getMeshWrapper()->scaleMassAndInertia(cbrt(sizes(0)*sizes(1)*avR2)/avR2);
+        shape->getMesh()->scaleMassAndInertia(cbrt(sizes(0)*sizes(1)*avR2)/avR2);
     }
 
     if (type==sim_primitiveshape_disc)
@@ -951,10 +959,10 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,0.002)); // Now we shift the disc so it sits just above the floor
         double avR=(sizes(0)+sizes(1))/4.0;
-        shape->getMeshWrapper()->setMass(piValue*avR*avR*density*0.001); // we assume 1mm thickness
-        shape->getMeshWrapper()->setPMI(C3Vector(3.0*(avR*avR)/12.0,3.0*(avR*avR)/12.0,avR*avR/2.0));
+        shape->getMesh()->setMass(piValue*avR*avR*density*0.001); // we assume 1mm thickness
+        shape->getMesh()->setPMI(C3Vector(3.0*(avR*avR)/12.0,3.0*(avR*avR)/12.0,avR*avR/2.0));
         double avR2=avR*2.0;
-        shape->getMeshWrapper()->scaleMassAndInertia(cbrt(sizes(0)*sizes(1)*avR2)/avR2);
+        shape->getMesh()->scaleMassAndInertia(cbrt(sizes(0)*sizes(1)*avR2)/avR2);
     }
 
     if (shape!=nullptr)
@@ -995,7 +1003,7 @@ CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& 
         std::vector<double> vertD;
         std::vector<double> vert;
         std::vector<int> ind;
-        ch->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vertD,&ind,nullptr);
+        ch->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vertD,&ind,nullptr);
         for (size_t j=0;j<ind.size()/3;j++)
         {
             int indd[3]={ind[3*j+0],ind[3*j+1],ind[3*j+2]};
@@ -1029,36 +1037,24 @@ CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& 
         std::vector<int> indices;
         if (CMeshRoutines::getConvexHull(&vert,&hull,&indices))
         {
-            retVal=new CShape(C7Vector::identityTransformation,hull,indices,nullptr,nullptr);
-            retVal->getSingleMesh()->setConvexVisualAttributes();
-            retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,0.7f,0.7f);
-            retVal->getSingleMesh()->setEdgeThresholdAngle(0.0);
-            retVal->getSingleMesh()->setShadingAngle(0.0);
-            retVal->getSingleMesh()->setVisibleEdges(false);
+            C3Vector mmin(DBL_MAX,DBL_MAX,DBL_MAX);
+            C3Vector mmax(-DBL_MAX,-DBL_MAX,-DBL_MAX);
+            for (size_t i=0;i<hull.size()/3;i++)
+            {
+                C3Vector v(hull.data()+3*i);
+                mmin.keepMin(v);
+                mmax.keepMax(v);
+            }
+            retVal=new CShape(ch->getCumulativeTransformation(),hull,indices,nullptr,nullptr);
+            retVal->setObjectAlias_direct("convexHull");
+            retVal->setObjectName_direct_old("convexHull");
+            retVal->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(retVal->getObjectName_old().c_str()).c_str());
 
-            // Since we extracted the convex hull from a single shape, we take over the inertia and mass parameters
-            // Get the mass and inertia info from the old shape:
-            C7Vector absCOM(ch->getFullCumulativeTransformation());
-            absCOM=absCOM*ch->getMeshWrapper()->getLocalInertiaFrame();
-            double mass=ch->getMeshWrapper()->getMass();
-            C7Vector absCOMNoShift(absCOM);
-            absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
-            C3X3Matrix tensor(CMeshWrapper::getMasslessTensorFromPMI(ch->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
+            ch->getMesh()->copyAttributesTo(retVal->getMesh()); // we extracted the hull from one single shape
 
-            // Transfer the mass and inertia info to the new shape:
-            retVal->getMeshWrapper()->setMass(mass);
-            C4Vector rot;
-            C3Vector pmoi;
-            CMeshWrapper::getPMIFromMasslessTensor(tensor,rot,pmoi);
-            retVal->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoi);
-            absCOM.Q=rot;
-            C7Vector relCOM(retVal->getFullCumulativeTransformation().getInverse()*absCOM);
-            retVal->getMeshWrapper()->setLocalInertiaFrame(relCOM);
-            App::currentWorld->sceneObjects->eraseObject(ch,false);
             App::currentWorld->sceneObjects->addObjectToScene(retVal,false,true);
         }
-        else
-            App::currentWorld->sceneObjects->eraseObject(ch,false);
+        App::currentWorld->sceneObjects->eraseObject(ch,false);
     }
     return(retVal);
 }
@@ -1081,7 +1077,7 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
             std::vector<double> vert;
             std::vector<double> vertD;
             std::vector<int> ind;
-            shape->getMeshWrapper()->getCumulativeMeshes(C7Vector::identityTransformation,vertD,&ind,nullptr);
+            shape->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vertD,&ind,nullptr);
             for (size_t j=0;j<vertD.size()/3;j++)
             {
                 C3Vector v(&vertD[3*j+0]);
@@ -1107,38 +1103,27 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
         std::vector<double> normals;
         if (CMeshRoutines::getConvexHull(&allHullVertices,&hull,&indices))
         {
-            retVal=new CShape(C7Vector::identityTransformation,hull,indices,nullptr,nullptr);
+            C3Vector mmin(DBL_MAX,DBL_MAX,DBL_MAX);
+            C3Vector mmax(-DBL_MAX,-DBL_MAX,-DBL_MAX);
+            for (size_t i=0;i<hull.size()/3;i++)
+            {
+                C3Vector v(hull.data()+3*i);
+                mmin.keepMin(v);
+                mmax.keepMax(v);
+            }
+            C7Vector transf;
+            transf.setIdentity();
+            if (inputObjects.size()>1)
+                transf.X=(mmin+mmax)*0.5;
+            else
+                transf=oneShape->getCumulativeTransformation();
+            retVal=new CShape(transf,hull,indices,nullptr,nullptr);
             retVal->setObjectAlias_direct("convexHull");
             retVal->setObjectName_direct_old("convexHull");
             retVal->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(retVal->getObjectName_old().c_str()).c_str());
-            retVal->getSingleMesh()->setConvexVisualAttributes();
-            retVal->setColor(nullptr,sim_colorcomponent_ambient_diffuse,1.0f,0.7f,0.7f);
-            retVal->getSingleMesh()->setEdgeThresholdAngle(0.0);
-            retVal->getSingleMesh()->setShadingAngle(0.0);
-            retVal->getSingleMesh()->setVisibleEdges(false);
 
             if ( (oneShape!=nullptr)&&(inputObjects.size()==1) )
-            { // Since we extracted the convex hull from a single shape, we take over the inertia and mass parameters
-                // Get the mass and inertia info from the old shape:
-                C7Vector absCOM(oneShape->getFullCumulativeTransformation());
-                absCOM=absCOM*oneShape->getMeshWrapper()->getLocalInertiaFrame();
-                double mass=oneShape->getMeshWrapper()->getMass();
-                C7Vector absCOMNoShift(absCOM);
-                absCOMNoShift.X.clear(); // we just wanna get the orientation of the inertia matrix, no shift info!
-                C3X3Matrix tensor(CMeshWrapper::getMasslessTensorFromPMI(oneShape->getMeshWrapper()->getPrincipalMomentsOfInertia(),absCOMNoShift));
-
-                // Transfer the mass and inertia info to the new shape:
-                retVal->getMeshWrapper()->setMass(mass);
-                C4Vector rot;
-                C3Vector pmoi;
-                CMeshWrapper::getPMIFromMasslessTensor(tensor,rot,pmoi);
-                retVal->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoi);
-                absCOM.Q=rot;
-                C7Vector relCOM(retVal->getFullCumulativeTransformation().getInverse()*absCOM);
-                retVal->getMeshWrapper()->setLocalInertiaFrame(relCOM);
-            }
-            else
-                retVal->getMeshWrapper()->setLocalInertiaFrame(C7Vector::identityTransformation);
+                oneShape->getMesh()->copyAttributesTo(retVal->getMesh()); // we extracted the hull from one single shape
             App::currentWorld->sceneObjects->addObjectToScene(retVal,false,generateAfterCreateCallback);
         }
     }

@@ -234,7 +234,6 @@ void CMeshWrapper::copyAttributesTo(CMeshWrapper* target)
     target->_pmi=_pmi;
     target->_pmiRotFrame=_pmiRotFrame;
     target->_dynMaterialId_old=_dynMaterialId_old;
-
     if (childList.size()==0)
         target->takeVisualAttributesFrom((CMesh*)this);
 }
@@ -586,16 +585,6 @@ int CMeshWrapper::getComponentCount() const
     for (size_t i=0;i<childList.size();i++)
         retVal+=childList[i]->getComponentCount();
     return(retVal);
-}
-
-void CMeshWrapper::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)
-{ // function has virtual/non-virtual counterpart!
-
-    _transformationsSinceGrouping=preTr*_transformationsSinceGrouping;
-    _localInertiaFrame=preTr*_localInertiaFrame;
-
-    for (size_t i=0;i<childList.size();i++)
-        childList[i]->preMultiplyAllVerticeLocalFrames(preTr);
 }
 
 void CMeshWrapper::flipFaces()

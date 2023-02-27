@@ -11,32 +11,25 @@ public:
     CShape();
     CShape(const std::vector<double>& allHeights,int xSize,int ySize,double dx,double zSize); // heightfield
     CShape(const C7Vector& transformation,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords); // mesh
-    CShape(const C7Vector& transformation,CMeshWrapper* newGeomInfo);
     virtual ~CShape();
 
     void replaceMesh(CMeshWrapper* newMesh,bool keepMeshAttributes);
     CMeshWrapper* detachMesh();
 
-    C7Vector reinitMesh(const C7Vector* transformation,const std::vector<double>& vert,const std::vector<int>& ind,const std::vector<double>* normals,const std::vector<double>* textCoord);
-    C7Vector reinitMesh2(const C7Vector& transformation,CMeshWrapper* newGeomInfo);
-    void setNewMesh(CMeshWrapper* newGeomInfo);
     void invertFrontBack();
     C3Vector getBoundingBoxHalfSizes() const;
 
     int getMeshModificationCounter();
-    CMeshWrapper* getMeshWrapper() const;
+    CMeshWrapper* getMesh() const;
     CMesh* getSingleMesh() const;
-    void disconnectMesh();
 
     void* _meshCalculationStructure;
     C3Vector _meshBoundingBoxHalfSizes;
     int _meshModificationCounter;
-    CMeshWrapper* _mesh;
-
 
     // Following functions are inherited from CSceneObject
     void display(CViewableBase* renderingObject,int displayAttrib);
-    void displayInertia();
+    void displayInertia(CViewableBase* renderingObject,double size,bool persp);
     void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void copyAttributesTo(CShape* target);
@@ -164,8 +157,8 @@ public:
     static void setDebugObbStructures(bool d);
 
 protected:
+    CMeshWrapper* _mesh;
     void _serializeMesh(CSer& ar);
-    C7Vector _acceptNewGeometry(const std::vector<double>& vert,const std::vector<int>& ind,const std::vector<double>* textCoord,const std::vector<double>* norm);
     C7Vector _recomputeOrientation(C7Vector& m,bool alignWithMainAxis);
     C7Vector _recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& error);
     static bool _getTubeReferenceFrame(const std::vector<double>& v,C7Vector& tr);

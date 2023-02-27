@@ -331,8 +331,8 @@ HEADERS += $$PWD/../programming/include/simMath/mathDefines.h \
     $$PWD/../programming/include/simMath/3Vector.h \
     $$PWD/sourceCode/various/simMainHeader.h
 
-HEADERS += $$PWD/../programming/include/simConst.h \
-    $$PWD/../programming/include/simTypes.h \
+HEADERS += $$PWD/../programming/include/simLib/simConst.h \
+    $$PWD/../programming/include/simLib/simTypes.h \
 
 HEADERS += $$PWD/sourceCode/backwardCompatibility/kinematics/ikGroup_old.h \
     $$PWD/sourceCode/shared/backwardCompatibility/kinematics/_ikGroup_old.h \

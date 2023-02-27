@@ -611,23 +611,23 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier,int tPosX,int tPos
                 {
                     if (((CShape*)it)->isCompound())
                     {
-                        if (((CShape*)it)->getMeshWrapper()->isPure())
+                        if (((CShape*)it)->getMesh()->isPure())
                             objectOrWorldIconID=PURE_MULTISHAPE_TREE_PICTURE;
-                        else if (((CShape*)it)->getMeshWrapper()->isConvex())
+                        else if (((CShape*)it)->getMesh()->isConvex())
                             objectOrWorldIconID=CONVEX_MULTISHAPE_TREE_PICTURE;
                         else
                             objectOrWorldIconID=MULTI_SHAPE_TREE_PICTURE;
                     }
                     else
                     {
-                        if (((CShape*)it)->getMeshWrapper()->isPure())
+                        if (((CShape*)it)->getMesh()->isPure())
                         {
-                            if (((CShape*)it)->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield)
+                            if (((CShape*)it)->getMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield)
                                 objectOrWorldIconID=HEIGHTFIELD_SHAPE_TREE_PICTURE;
                             else
                                 objectOrWorldIconID=PURE_SHAPE_TREE_PICTURE;
                         }
-                        else if (((CShape*)it)->getMeshWrapper()->isConvex())
+                        else if (((CShape*)it)->getMesh()->isConvex())
                             objectOrWorldIconID=CONVEX_SHAPE_TREE_PICTURE;
                         else
                             objectOrWorldIconID=SIMPLE_SHAPE_TREE_PICTURE;

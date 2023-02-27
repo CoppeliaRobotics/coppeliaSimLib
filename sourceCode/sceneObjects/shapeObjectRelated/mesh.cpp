@@ -438,6 +438,33 @@ void CMesh::scale(double xVal,double yVal,double zVal)
     _edgeBufferId=-1;
 }
 
+void CMesh::_transformMesh(const C7Vector& tr)
+{
+    for (size_t i=0;i<_vertices.size()/3;i++)
+    {
+        C3Vector v(_vertices.data()+3*i);
+        v=tr*v;
+        _vertices[3*i+0]=v(0);
+        _vertices[3*i+1]=v(1);
+        _vertices[3*i+2]=v(2);
+    }
+    for (size_t i=0;i<_normals.size()/3;i++)
+    {
+        C3Vector n(&_normals[3*i]);
+        n.normalize();
+        n=tr.Q*n;
+        _normals[3*i+0]=n(0);
+        _normals[3*i+1]=n(1);
+        _normals[3*i+2]=n(2);
+    }
+    _verticesForDisplayAndDisk.resize(_vertices.size());
+    for (size_t i=0;i<_vertices.size();i++)
+        _verticesForDisplayAndDisk[i]=(float)_vertices[i];
+    _normalsForDisplayAndDisk.resize(_normals.size());
+    for (size_t i=0;i<_normals.size();i++)
+        _normalsForDisplayAndDisk[i]=(float)_normals[i];
+}
+
 void CMesh::setMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords)
 {
     _vertices.assign(vertices.begin(),vertices.end());
@@ -453,44 +480,13 @@ void CMesh::setMesh(const C7Vector& meshFrame,const std::vector<double>& vertice
 
     // Express everything in the meshFrame:
     C7Vector inv(meshFrame.getInverse());
-    for (size_t i=0;i<_vertices.size()/3;i++)
-    {
-        C3Vector v(_vertices.data()+3*i);
-        v=inv*v;
-        _vertices[3*i+0]=v(0);
-        _vertices[3*i+1]=v(1);
-        _vertices[3*i+2]=v(2);
-    }
-    for (size_t i=0;i<_normals.size()/3;i++)
-    {
-        C3Vector n(&_normals[3*i]);
-        n.normalize();
-        n=inv.Q*n;
-        _normals[3*i+0]=n(0);
-        _normals[3*i+1]=n(1);
-        _normals[3*i+2]=n(2);
-    }
+    _transformMesh(inv);
 
     // Find the _bbFrame, and express everything in that frame:
     _bbFrame=CAlgos::getMeshBoundingBox(_vertices,_indices,false);
     inv=_bbFrame.getInverse();
-    for (size_t i=0;i<_vertices.size()/3;i++)
-    {
-        C3Vector v(_vertices.data()+3*i);
-        v=inv*v;
-        _vertices[3*i+0]=v(0);
-        _vertices[3*i+1]=v(1);
-        _vertices[3*i+2]=v(2);
-    }
-    _computeBBSize();
-    for (size_t i=0;i<_normals.size()/3;i++)
-    {
-        C3Vector n(&_normals[3*i]);
-        n=inv.Q*n;
-        _normals[3*i+0]=n(0);
-        _normals[3*i+1]=n(1);
-        _normals[3*i+2]=n(2);
-    }
+    _transformMesh(inv);
+    _bbSize=_computeBBSize();
 
     // Texture coordinates:
     if (optTexCoords!=nullptr)
@@ -512,13 +508,6 @@ void CMesh::setMesh(const C7Vector& meshFrame,const std::vector<double>& vertice
     _vertexBufferId=-1;
     _normalBufferId=-1;
     _edgeBufferId=-1;
-
-    _verticesForDisplayAndDisk.resize(_vertices.size());
-    for (size_t i=0;i<_vertices.size();i++)
-        _verticesForDisplayAndDisk[i]=(float)_vertices[i];
-    _normalsForDisplayAndDisk.resize(_normals.size());
-    for (size_t i=0;i<_normals.size();i++)
-        _normalsForDisplayAndDisk[i]=(float)_normals[i];
 }
 
 void CMesh::setPurePrimitiveType(int theType,double xOrDiameter,double y,double zOrHeight)
@@ -1170,16 +1159,6 @@ int* CMesh::getEdgeBufferIdPtr()
     return(&_edgeBufferId);
 }
 
-
-void CMesh::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)
-{ // function has virtual/non-virtual counterpart!
-    _transformationsSinceGrouping=preTr*_transformationsSinceGrouping;
-    _localInertiaFrame=preTr*_localInertiaFrame;
-
-    if (_textureProperty!=nullptr)
-        _textureProperty->adjustForFrameChange(preTr);
-}
-
 void CMesh::removeAllTextures()
 { // function has virtual/non-virtual counterpart!
     delete _textureProperty;
@@ -1337,8 +1316,9 @@ void CMesh::_recomputeNormals()
         _normalsForDisplayAndDisk[i]=(float)_normals[i];
 }
 
-void CMesh::_computeBBSize()
+C3Vector CMesh::_computeBBSize(C3Vector* optBBCenter/*=nullptr*/)
 {
+    C3Vector retBBSize;
     C3Vector mmin(DBL_MAX,DBL_MAX,DBL_MAX);
     C3Vector mmax(-DBL_MAX,-DBL_MAX,-DBL_MAX);
     for (size_t i=0;i<_vertices.size()/3;i++)
@@ -1347,7 +1327,10 @@ void CMesh::_computeBBSize()
         mmin.keepMin(v);
         mmax.keepMax(v);
     }
-    _bbSize=mmax-mmin;
+    retBBSize=mmax-mmin;
+    if (optBBCenter!=nullptr)
+        optBBCenter[0]=(mmax+mmin)*0.5;
+    return(retBBSize);
 }
 
 void CMesh::_computeVisibleEdges()
@@ -2159,8 +2142,28 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                         }
                         if (!hasNewBBFrameAndSize)
                         {
-                            _bbFrame=(parentCumulIFrame*_iFrame).getInverse()*vlf;
-                            _computeBBSize();
+                            if (true)
+                            {
+                                _bbFrame=(parentCumulIFrame*_iFrame).getInverse()*vlf; // with primitive shapes, _verticesLocalframe is always centered and aligned with the shape
+                                _bbSize=_computeBBSize();
+                            }
+                            else
+                            { // Find the _bbFrame, and express everything in that frame:
+/*
+                                C7Vector tmp((parentCumulIFrame*_iFrame).getInverse()*vlf);
+                                _transformMesh(tmp);
+                                _bbFrame.setIdentity();
+                                _bbSize=_computeBBSize(&_bbFrame.X);
+                                _transformMesh(_bbFrame.getInverse());
+*/
+                                /*
+                                C7Vector tmp((parentCumulIFrame*_iFrame).getInverse()*vlf);
+                                _transformMesh(tmp);
+                                _bbFrame.setIdentity();
+                                _bbSize=_computeBBSize();
+*/
+
+                            }
                         }
                     }
 
@@ -2174,7 +2177,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                         if (!hasNewBBFrameAndSize)
                         {
                             _bbFrame=(parentCumulIFrame*_iFrame).getInverse()*vlf;
-                            _computeBBSize();
+                            _bbSize=_computeBBSize();
                         }
                     }
 
@@ -2404,7 +2407,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                 ar.xmlPopNode();
             }
             if (!hasNewBBFrameAndSize)
-                _computeBBSize();
+                _bbSize=_computeBBSize();
         }
     }
 }

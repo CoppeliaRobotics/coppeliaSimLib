@@ -175,13 +175,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SET_SHAPE_SHADING_ANGLE_CMD)
         {
             CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
-            if ((shape!=nullptr)&&shape->getMeshWrapper()->isMesh())
+            if ((shape!=nullptr)&&shape->getMesh()->isMesh())
                 shape->getSingleMesh()->setShadingAngle(cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_SHAPE_EDGE_ANGLE_CMD)
         {
             CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
-            if ((shape!=nullptr)&&shape->getMeshWrapper()->isMesh())
+            if ((shape!=nullptr)&&shape->getMesh()->isMesh())
                 shape->getSingleMesh()->setEdgeThresholdAngle(cmd.floatParams[0]);
         }
 
@@ -2279,7 +2279,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (shape!=nullptr)
                 {
                     std::vector<CMesh*> components;
-                    shape->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
+                    shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
                     for (size_t j=0;j<components.size();j++)
                     {
                         bool keepTextCoords=false;
@@ -2325,7 +2325,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     shapeList.push_back(shape);
                     std::vector<CMesh*> components;
-                    shape->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
+                    shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
                     for (size_t j=0;j<components.size();j++)
                     {
                         bool useTexCoords=false;
@@ -2362,7 +2362,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     CShape* shape=shapeList[i];
                     std::vector<CMesh*> components;
-                    shape->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
+                    shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
                     for (size_t j=0;j<components.size();j++)
                     {
                         CMesh* geom=components[j];
@@ -2378,7 +2378,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     C3Vector bbhs(shape->getBoundingBoxHalfSizes());
                     double s=std::max<double>(std::max<double>(bbhs(0),bbhs(1)),bbhs(2))*2.0;
                     std::vector<CMesh*> components;
-                    shape->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
+                    shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
                     for (size_t j=0;j<components.size();j++)
                     {
                         CMesh* geom=components[j];
@@ -2701,7 +2701,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 std::vector<CMesh*> geoms;
-                it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,geoms);
+                it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,geoms);
                 int index=cmd.intParams[1];
                 if ((index>=0)&&(index<int(geoms.size())))
                 {
@@ -2716,7 +2716,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 std::vector<CMesh*> geoms;
-                it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,geoms);
+                it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,geoms);
                 int index=cmd.intParams[1];
                 if ((index>=0)&&(index<int(geoms.size())))
                 {
@@ -2731,7 +2731,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 std::vector<CMesh*> geoms;
-                it->getMeshWrapper()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,geoms);
+                it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,geoms);
                 int index=cmd.intParams[1];
                 if ((index>=0)&&(index<int(geoms.size())))
                 {
@@ -3160,7 +3160,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->getMeshWrapper()->setMass(cmd.floatParams[0]);
+                it->getMesh()->setMass(cmd.floatParams[0]);
         }
         if (cmd.cmdId==MULTIPLY_MASSFORSELECTION_SHAPEDYNGUITRIGGEREDCMD)
         {
@@ -3170,7 +3170,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
                 if ( (it!=nullptr)&&(!it->getShapeIsDynamicallyStatic()) )
                 {
-                    CMeshWrapper* sc=it->getMeshWrapper();
+                    CMeshWrapper* sc=it->getMesh();
                     for (size_t j=0;j<allComponents.size();j++)
                     {
                         if (allComponents[j]==sc)
@@ -3191,11 +3191,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                C3X3Matrix m(it->getMeshWrapper()->getMasslessInertiaMatrix());
+                C3X3Matrix m(it->getMesh()->getMasslessInertiaMatrix());
                 m(size_t(cmd.intParams[1]),size_t(cmd.intParams[2]))=cmd.floatParams[0];
                 if (!cmd.boolParams[0])
-                    m(size_t(cmd.intParams[1]),size_t(cmd.intParams[2]))/=it->getMeshWrapper()->getMass();
-                it->getMeshWrapper()->setMasslessInertiaMatrix(m,cmd.intParams[1],cmd.intParams[2]);
+                    m(size_t(cmd.intParams[1]),size_t(cmd.intParams[2]))/=it->getMesh()->getMass();
+                it->getMesh()->setMasslessInertiaMatrix(m,cmd.intParams[1],cmd.intParams[2]);
             }
         }
         if (cmd.cmdId==MULTIPLY_INERTIAFORSELECTION_SHAPEDYNGUITRIGGEREDCMD)
@@ -3206,7 +3206,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
                 if ( (it!=nullptr)&&(!it->getShapeIsDynamicallyStatic()) )
                 {
-                    CMeshWrapper* sc=it->getMeshWrapper();
+                    CMeshWrapper* sc=it->getMesh();
                     for (size_t j=0;j<allComponents.size();j++)
                     {
                         if (allComponents[j]==sc)
@@ -3226,20 +3226,20 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->getMeshWrapper()->setCOM(cmd.posParams[0]);
+                it->getMesh()->setCOM(cmd.posParams[0]);
         }
         if (cmd.cmdId==APPLY_DYNPARAMS_SHAPEDYNGUITRIGGEREDCMD)
         {
             CShape* last=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (last!=nullptr)
             {
-                bool lastIsHeightfield=(last->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield);
+                bool lastIsHeightfield=(last->getMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield);
                 for (size_t i=1;i<cmd.intParams.size();i++)
                 {
                     CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
                     if (it!=nullptr)
                     {
-                        bool itIsHeightfield=(it->getMeshWrapper()->getPurePrimitiveType()==sim_primitiveshape_heightfield);
+                        bool itIsHeightfield=(it->getMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield);
                         if (lastIsHeightfield)
                         { // Heightfields cannot be non-static
                             if (!itIsHeightfield)
@@ -3252,9 +3252,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                                 it->setShapeIsDynamicallyStatic(last->getShapeIsDynamicallyStatic());
                                 it->setStartInDynamicSleeping(last->getStartInDynamicSleeping());
                                 it->setSetAutomaticallyToNonStaticIfGetsParent(last->getSetAutomaticallyToNonStaticIfGetsParent());
-                                it->getMeshWrapper()->setMass(last->getMeshWrapper()->getMass());
-                                it->getMeshWrapper()->setMasslessInertiaMatrix(last->getMeshWrapper()->getMasslessInertiaMatrix());
-                                it->getMeshWrapper()->setCOM(last->getMeshWrapper()->getCOM());
+                                it->getMesh()->setMass(last->getMesh()->getMass());
+                                it->getMesh()->setMasslessInertiaMatrix(last->getMesh()->getMasslessInertiaMatrix());
+                                it->getMesh()->setCOM(last->getMesh()->getCOM());
                             }
                         }
                     }
@@ -3306,9 +3306,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         im=CMeshWrapper::getMasslesInertiaMatrixInNewFrame(localTr.Q,im,C4Vector::identityRotation);
 //                        C3X3Matrix rot(localTr.Q.getMatrix());
 //                        im=rot*im*rot.getTranspose();
-                        it->getMeshWrapper()->setMasslessInertiaMatrix(im);
-                        it->getMeshWrapper()->setCOM(localTr.X);
-                        it->getMeshWrapper()->setMass(mass);
+                        it->getMesh()->setMasslessInertiaMatrix(im);
+                        it->getMesh()->setCOM(localTr.X);
+                        it->getMesh()->setMass(mass);
                     }
                 }
             }

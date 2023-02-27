@@ -424,8 +424,8 @@ void CSceneObjectContainer::setTextureDependencies()
         CSceneObject* it=getObjectFromIndex(i);
         if (it->getObjectType()==sim_object_shape_type)
         {
-            if (((CShape*)it)->getMeshWrapper()!=nullptr)
-                ((CShape*)it)->getMeshWrapper()->setTextureDependencies(it->getObjectHandle());
+            if (((CShape*)it)->getMesh()!=nullptr)
+                ((CShape*)it)->getMesh()->setTextureDependencies(it->getObjectHandle());
         }
     }
 }
@@ -1590,7 +1590,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
             {
                 if (mass<0.0000001)
                     mass=0.0000001;
-                shape->getMeshWrapper()->setMass(mass);
+                shape->getMesh()->setMass(mass);
             }
 
             // Deprecated:
@@ -1613,7 +1613,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
                     inertiaFrame_old.M.setEulerAngles(euler);
                 }
                 ar.xmlPopNode();
-                shape->getMeshWrapper()->setCOM(inertiaFrame_old.X);
+                shape->getMesh()->setCOM(inertiaFrame_old.X);
             }
             C3X3Matrix iMatrix;
             iMatrix.clear();
@@ -1640,7 +1640,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
             {
                 iMatrix=inertiaFrame_old.M*iMatrix*inertiaFrame_old.M.getTranspose();
                 iMatrix/=mass; // in CoppeliaSim we work with the "massless inertia"
-                shape->getMeshWrapper()->setMasslessInertiaMatrix(iMatrix);
+                shape->getMesh()->setMasslessInertiaMatrix(iMatrix);
             }
             // -------------
             if (ar.xmlGetNode_floats("inertiaMatrix",inertia,9,false))
@@ -1651,12 +1651,12 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
                         iMatrix(i,j)=inertia[i*3+j];
                 }
                 iMatrix/=mass; // in CoppeliaSim we work with the "massless inertia"
-                shape->getMeshWrapper()->setMasslessInertiaMatrix(iMatrix);
+                shape->getMesh()->setMasslessInertiaMatrix(iMatrix);
             }
             C3Vector com;
             com.clear();
             if (ar.xmlGetNode_floats("centerOfMass",com.data,3,false))
-                shape->getMeshWrapper()->setCOM(com);
+                shape->getMesh()->setCOM(com);
 
             if (ar.xmlPushChildNode("switches",false))
             {
@@ -1689,7 +1689,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
 
         // We cannot decided of the position of the shape (the position is selected at the center of the shape)
         // But we can decide of the orientation of the shape (most of the time), so do it here (we simply reorient the shape's bounding box):
-        if ( (!shape->getMeshWrapper()->isPure())||(shape->isCompound()) )
+        if ( (!shape->getMesh()->isPure())||(shape->isCompound()) )
         {
             C7Vector oldAbsTr(shape->getCumulativeTransformation());
             C7Vector oldAbsTr2(dummy->getCumulativeTransformation().getInverse()*oldAbsTr);
@@ -2081,12 +2081,12 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
     ar.xmlAddNode_floats("initialLinearVelocity",shape->getInitialDynamicLinearVelocity().data,3);
     C3Vector vel(shape->getInitialDynamicAngularVelocity()*180.0/piValue);
     ar.xmlAddNode_floats("initialAngularVelocity",vel.data,3);
-    ar.xmlAddNode_float("mass",shape->getMeshWrapper()->getMass());
+    ar.xmlAddNode_float("mass",shape->getMesh()->getMass());
 
     // Deprecated:
     ar.xmlAddNode_comment(" 'localInertiaframe' tag: deprecated, for backward compatibility ",false);
     C3Vector diagI;
-    C7Vector tr(shape->getMeshWrapper()->getDiagonalInertiaInfo(diagI));
+    C7Vector tr(shape->getMesh()->getDiagonalInertiaInfo(diagI));
     ar.xmlPushNewNode("localInertiaFrame");
     ar.xmlAddNode_floats("position",tr.X.data,3);
     C3Vector euler(tr.Q.getEulerAngles());
@@ -2096,9 +2096,9 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
     ar.xmlAddNode_comment(" 'principalMomentOfInertia' tag: deprecated, for backward compatibility ",false);
     ar.xmlAddNode_floats("principalMomentOfInertia",diagI.data,3);
 
-    ar.xmlAddNode_floats("centerOfMass",shape->getMeshWrapper()->getCOM().data,3);
-    C3X3Matrix _im(shape->getMeshWrapper()->getMasslessInertiaMatrix());
-    _im*=shape->getMeshWrapper()->getMass();
+    ar.xmlAddNode_floats("centerOfMass",shape->getMesh()->getCOM().data,3);
+    C3X3Matrix _im(shape->getMesh()->getMasslessInertiaMatrix());
+    _im*=shape->getMesh()->getMass();
     double im[9];
     for (size_t i=0;i<3;i++)
     {

@@ -854,7 +854,7 @@ CShape* __getShapeFromGeomInfo(const void* geomInfo)
     for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
     {
         CShape* sh=App::currentWorld->sceneObjects->getShapeFromIndex(i);
-        if (sh->getMeshWrapper()==(CMeshWrapper*)geomInfo)
+        if (sh->getMesh()==(CMeshWrapper*)geomInfo)
             return(sh);
     }
     return(nullptr);
@@ -2026,7 +2026,7 @@ int simSetShapeMassAndInertia_internal(int shapeHandle,double mass,const double*
         m.axis[0](2)=m.axis[2](0);
         m.axis[1](2)=m.axis[2](1);
         m/=mass; // in CoppeliaSim we work with the "massless inertia"
-        it->getMeshWrapper()->setMass(mass);
+        it->getMesh()->setMass(mass);
         C3Vector com(centerOfMass);
         C4X4Matrix tr;
         if (transformation==nullptr)
@@ -2043,8 +2043,8 @@ int simSetShapeMassAndInertia_internal(int shapeHandle,double mass,const double*
             pmoment(1)=0.0000001;
         if (pmoment(2)<0.0000001)
             pmoment(0)=0.0000001;
-        it->getMeshWrapper()->setPrincipalMomentsOfInertia(pmoment);
-        it->getMeshWrapper()->setLocalInertiaFrame(it->getFullCumulativeTransformation().getInverse()*tr.getTransformation()*C7Vector(rot,com));
+        it->getMesh()->setPrincipalMomentsOfInertia(pmoment);
+        it->getMesh()->setLocalInertiaFrame(it->getFullCumulativeTransformation().getInverse()*tr.getTransformation()*C7Vector(rot,com));
         it->setDynamicsResetFlag(true,false);
         return(1);
     }
@@ -2064,18 +2064,18 @@ int simGetShapeMassAndInertia_internal(int shapeHandle,double* mass,double* iner
         if (!isShape(__func__,shapeHandle))
             return(-1);
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-        mass[0]=it->getMeshWrapper()->getMass();
+        mass[0]=it->getMesh()->getMass();
         C4X4Matrix ref;
         if (transformation==nullptr)
             ref.setIdentity();
         else
             ref.setData(transformation);
         C4X4Matrix xx(it->getFullCumulativeTransformation().getInverse()*ref.getTransformation());
-        C3X3Matrix m(it->getMeshWrapper()->getMasslessInertiaMatrix());
+        C3X3Matrix m(it->getMesh()->getMasslessInertiaMatrix());
         m=xx.M.getTranspose()*m*xx.M;
         m*=mass[0];
         m.getData(inertiaMatrix);
-        (xx.getInverse()*it->getMeshWrapper()->getCOM()).getData(centerOfMass);
+        (xx.getInverse()*it->getMesh()->getCOM()).getData(centerOfMass);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5889,7 +5889,7 @@ int simCreatePureShape_internal(int primitiveType,int options,const double* size
         shape->setLocalTransformation(C7Vector::identityTransformation);
         shape->setVisibleEdges((options&2)!=0);
         shape->setRespondable((options&8)!=0);
-        shape->getMeshWrapper()->setMass(tt::getLimitedFloat(0.000001,10000.0,mass));
+        shape->getMesh()->setMass(tt::getLimitedFloat(0.000001,10000.0,mass));
         return(shape->getObjectHandle());
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -6045,7 +6045,7 @@ int simGetShapeVertex_internal(int shapeHandle,int groupElementIndex,int vertexI
         }
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
         C7Vector ptr;
-        CMesh* cc=it->getMeshWrapper()->getShapeComponentAtIndex(C7Vector::identityTransformation,groupElementIndex,&ptr);
+        CMesh* cc=it->getMesh()->getShapeComponentAtIndex(C7Vector::identityTransformation,groupElementIndex,&ptr);
         if (cc==nullptr)
             return(0);
         std::vector<double> wvert;
@@ -6081,7 +6081,7 @@ int simGetShapeTriangle_internal(int shapeHandle,int groupElementIndex,int trian
         }
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
         C7Vector ptr;
-        CMesh* cc=it->getMeshWrapper()->getShapeComponentAtIndex(C7Vector::identityTransformation,groupElementIndex,&ptr);
+        CMesh* cc=it->getMesh()->getShapeComponentAtIndex(C7Vector::identityTransformation,groupElementIndex,&ptr);
         if (cc==nullptr)
             return(0);
         std::vector<double> wvert;
