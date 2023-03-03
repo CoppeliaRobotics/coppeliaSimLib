@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>322</height>
+    <height>255</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -81,87 +81,13 @@
     </property>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="groupBox_3">
+  <widget class="QGroupBox" name="groupBox_4">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>90</y>
      <width>411</width>
-     <height>71</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Vertices/triangles verification settings</string>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <widget class="QCheckBox" name="removeIdenticalVerticesCheckbox">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>25</y>
-      <width>311</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Remove identical vertices, tolerance [m]</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="removeIdenticalVerticesTolerance">
-    <property name="geometry">
-     <rect>
-      <x>325</x>
-      <y>25</y>
-      <width>76</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="removeIdenticalTriangles">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>221</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Remove identical triangles</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="ignoreTriangleWinding">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>45</y>
-      <width>191</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Ignore triangle winding</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="groupBox_4">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>170</y>
-     <width>411</width>
-     <height>121</height>
+     <height>141</height>
     </rect>
    </property>
    <property name="title">
@@ -238,7 +164,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>90</y>
+      <y>110</y>
       <width>151</width>
       <height>18</height>
      </rect>
@@ -255,7 +181,7 @@
      <rect>
       <x>10</x>
       <y>65</y>
-      <width>391</width>
+      <width>221</width>
       <height>18</height>
      </rect>
     </property>
@@ -263,7 +189,30 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Hide hierarchy during simul.</string>
+     <string>Hide hierarchy during simulation</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>85</y>
+      <width>211</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Identical vertices, tolerance [m]</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="removeIdenticalVerticesTolerance">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>85</y>
+      <width>76</width>
+      <height>18</height>
+     </rect>
     </property>
    </widget>
   </widget>
@@ -271,7 +220,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>295</y>
+     <y>230</y>
      <width>411</width>
      <height>18</height>
     </rect>
@@ -284,15 +233,12 @@
  <tabstops>
   <tabstop>translationStepSize</tabstop>
   <tabstop>rotationStepSize</tabstop>
-  <tabstop>removeIdenticalVerticesCheckbox</tabstop>
-  <tabstop>removeIdenticalVerticesTolerance</tabstop>
-  <tabstop>removeIdenticalTriangles</tabstop>
-  <tabstop>ignoreTriangleWinding</tabstop>
   <tabstop>undoRedo</tabstop>
   <tabstop>worldReference</tabstop>
   <tabstop>qqAutoSave</tabstop>
   <tabstop>hideConsole</tabstop>
   <tabstop>qqHideHierarchy</tabstop>
+  <tabstop>removeIdenticalVerticesTolerance</tabstop>
   <tabstop>qqAdjustOpenGl</tabstop>
  </tabstops>
  <resources/>

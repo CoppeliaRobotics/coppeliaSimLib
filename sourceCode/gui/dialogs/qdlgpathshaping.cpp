@@ -235,9 +235,9 @@ void CQDlgPathShaping::on_qqCoordinates_textChanged()
         std::string str(ui->qqCoordinates->toPlainText().toStdString());
         double tmp;
         while (_extractOneFloat(str,tmp))
-            cmd.floatParams.push_back(tmp);
-        if (cmd.floatParams.size()&1)
-            cmd.floatParams.push_back(0.0); // no odd number!
+            cmd.doubleParams.push_back(tmp);
+        if (cmd.doubleParams.size()&1)
+            cmd.doubleParams.push_back(0.0); // no odd number!
         App::appendSimulationThreadCommand(cmd);
         //App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         //App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

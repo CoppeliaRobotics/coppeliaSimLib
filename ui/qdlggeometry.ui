@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>413</height>
+    <height>293</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,7 +35,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
+      <y>25</y>
       <width>221</width>
       <height>18</height>
      </rect>
@@ -250,112 +250,11 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="groupBox_4">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>190</y>
-     <width>411</width>
-     <height>111</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Frame orientation, rotation factors</string>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <widget class="QLineEdit" name="qqGamma">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>65</y>
-      <width>76</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_7">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>65</y>
-      <width>151</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Gamma [deg]</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqBeta">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>45</y>
-      <width>76</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqAlpha">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>25</y>
-      <width>76</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_9">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>151</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Beta [deg]</string>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="qqApplyEuler">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>85</y>
-      <width>231</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Apply</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>25</y>
-      <width>151</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Alpha [deg]</string>
-    </property>
-   </widget>
-  </widget>
   <widget class="QGroupBox" name="groupBox_6">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>310</y>
+     <y>190</y>
      <width>411</width>
      <height>91</height>
     </rect>
@@ -456,10 +355,6 @@
   <tabstop>qqScaleY</tabstop>
   <tabstop>qqScaleZ</tabstop>
   <tabstop>qqApplyScale</tabstop>
-  <tabstop>qqAlpha</tabstop>
-  <tabstop>qqBeta</tabstop>
-  <tabstop>qqGamma</tabstop>
-  <tabstop>qqApplyEuler</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -7,7 +7,7 @@ class CMesh : public CMeshWrapper
 {
 public:
     CMesh();
-    CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords);
+    CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords);
     virtual ~CMesh();
 
     void display(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
@@ -54,15 +54,13 @@ public:
     void setHeightfieldDiamonds(bool d);
 
     int getUniqueID() const;
-    void setMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords);
+    void setMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords);
 
     void setHeightfieldData(const std::vector<double>& heights,int xCount,int yCount);
     double* getHeightfieldData(int& xCount,int& yCount,double& minHeight,double& maxHeight);
     void getPurePrimitiveSizes(C3Vector& s) const;
     void setPurePrimitiveInsideScaling_OLD(double s);
     double getPurePrimitiveInsideScaling_OLD() const;
-
-    void setConvexVisualAttributes();
 
     CTextureProperty* getTextureProperty();
     void setTextureProperty(CTextureProperty* tp);
@@ -99,6 +97,7 @@ public:
     void copyVisualAttributesTo(CMeshWrapper* target);
     void takeVisualAttributesFrom(CMesh* origin);
 
+    bool reorientBB(const C4Vector* rot);
 
     // Following few routines in order not to save duplicate data:
     static void clearTempVerticesIndicesNormalsAndEdges();
@@ -188,7 +187,6 @@ protected:
 
     static int _nextUniqueID;
 
-
     // temp, for serialization purpose:
     static std::vector<std::vector<float>*> _tempVerticesForDisk;
     static std::vector<std::vector<int>*> _tempIndicesForDisk;
@@ -197,7 +195,7 @@ protected:
 
 #ifdef SIM_WITH_GUI
 public:
-    bool getNonCalculatedTextureCoordinates(std::vector<double>& texCoords);
+    bool getNonCalculatedTextureCoordinates(std::vector<float>& texCoords);
 
 #endif
 };

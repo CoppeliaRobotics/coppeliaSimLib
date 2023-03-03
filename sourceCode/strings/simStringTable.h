@@ -575,21 +575,6 @@
 #define IDSNS_SELECTING_ALL_EDGES "Selecting all edges..."
 #define IDSNS_SELECTING_ALL_PATH_POINTS "Selecting all path points..."
 
-// Bounding box alignment
-#define IDS_BOUNDING_BOX_ALIGNMENT_MENU_ITEM "Reorient bounding box"
-#define IDS_ALIGN_SELECTED_SHAPE_MAIN_AXIS_MENU_ITEM "with main axes of random shape"
-#define IDS_ALIGN_SELECTED_SHAPE_WORLD_MENU_ITEM "with reference frame of world"
-#define IDSN_ALIGN_BB_WITH_TUBE "with main axis of cylinder shape"
-#define IDSN_ALIGN_BB_WITH_CUBOID "with main axis of cuboid shape"
-#define IDSNS_ALIGNING_BOUNDING_BOXES_WITH_MAIN_AXIS "Reorienting bounding box with main axes of random shape..."
-#define IDSNS_ALIGNING_BOUNDING_BOXES_WITH_WORLD "Reorienting bounding box with reference frame of world..."
-#define IDSNS_ALIGNING_BOUNDING_BOXES_WITH_TUBES "Reorienting bounding box with main axis of cylinder shape..."
-#define IDSNS_ALIGNING_BOUNDING_BOXES_WITH_CUBOIDS "Reorienting bounding box with main axes of cuboid shape..."
-#define IDS_INFORM_PURE_PRIMITIVES_COULD_NOT_BE_REORIENTED "One or more bounding boxes could not be reoriented: bounding boxes of non-compound pure primitive shapes cannot be reoriented."
-#define IDSN_INFORM_SHAPE_COULD_NOT_BE_REORIENTED_ALONG_TUBE "One or more bounding boxes could not be reoriented around a cylinder: make sure the shape is clean, cylindrical, and precisely defined."
-#define IDSN_INFORM_SHAPE_COULD_NOT_BE_REORIENTED_ALONG_CUBOID "One or more bounding boxes could not be reoriented around a cuboid: make sure the shape is clean, cuboidal, and precisely defined."
-
-
 #define IDS_LEAVE_2D_ELEMENT_EDIT_MODE_MENU_ITEM "Leave OpenGl-based custom UI edit mode"
 
 #define IDS_REMOVE_PAGE_MENU_ITEM "Remove page"

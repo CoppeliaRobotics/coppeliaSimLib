@@ -335,7 +335,7 @@ void CQDlgVisionSensors::on_qqSizeX_editingFinished()
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_OBJECTSIZE_VISIONSENSORGUITRIGGEREDCMD;
                 cmd.intParams.push_back(it->getObjectHandle());
-                cmd.floatParams.push_back(newVal);
+                cmd.doubleParams.push_back(newVal);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
@@ -367,9 +367,9 @@ void CQDlgVisionSensors::on_qqAdjustImageColor_clicked()
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_DEFAULTIMGCOL_VISIONSENSORGUITRIGGEREDCMD;
                 cmd.intParams.push_back(it->getObjectHandle());
-                cmd.floatParams.push_back(col[0]);
-                cmd.floatParams.push_back(col[1]);
-                cmd.floatParams.push_back(col[2]);
+                cmd.doubleParams.push_back(col[0]);
+                cmd.doubleParams.push_back(col[1]);
+                cmd.doubleParams.push_back(col[2]);
                 cmd.boolParams.push_back(theDialog.sameAsFog);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

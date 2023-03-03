@@ -12,7 +12,7 @@
 class CShapeEditMode
 {
 public:
-    CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContainer* objCont,CTextureContainer* textureCont,CUiThread* uiThread,bool identicalVerticesCheck,bool identicalTrianglesCheck,double identicalVerticesTolerance);
+    CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContainer* objCont,CTextureContainer* textureCont,CUiThread* uiThread);
     virtual ~CShapeEditMode();
 
     bool endEditMode(bool cancelChanges);
@@ -60,7 +60,7 @@ public:
     void deleteSelection(std::vector<int>* selection);
     void addMenu(VMenu* menu);
     bool processCommand(int commandID);
-    void copySelectedFaces(std::vector<int>* sel,std::vector<double>* vert,std::vector<int>* ind,std::vector<double>* norm,std::vector<double>* tex);
+    void copySelectedFaces(std::vector<int>* sel,std::vector<double>* vert,std::vector<int>* ind,std::vector<double>* norm,std::vector<float>* tex);
 
     bool getShowHiddenVerticeAndEdges();
     void setShowHiddenVerticeAndEdges(bool show);
@@ -97,12 +97,12 @@ private:
     std::vector<double> editBufferVerticesCopy;
     std::vector<int> editBufferIndicesCopy;
     std::vector<double> editBufferNormalsCopy;
-    std::vector<double> editBufferTextureCoordsCopy;
+    std::vector<float> editBufferTextureCoordsCopy;
 
     std::vector<double> _editionVertices;
     std::vector<int> _editionIndices;
     std::vector<double> _editionNormals;
-    std::vector<double> _editionTextureCoords;
+    std::vector<float> _editionTextureCoords;
     CTextureProperty* _editionTextureProperty;
     std::vector<unsigned char> _editionTexture;
     CEdgeCont _edgeCont;
@@ -111,7 +111,4 @@ private:
     bool automaticallyFollowEdges;
     double edgeMaxAngle;
     double edgeDirectionChangeMaxAngle;
-    bool _identicalVerticesCheck;
-    bool _identicalTrianglesCheck;
-    double _identicalVerticesTolerance;
 };

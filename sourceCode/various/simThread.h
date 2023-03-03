@@ -16,14 +16,15 @@ struct SSimulationThreadCommand
     std::vector<int> intParams;
     std::vector<quint64> uint64Params;
     std::vector<unsigned char> uint8Params;
-    std::vector<double> floatParams;
+    std::vector<double> doubleParams;
     std::vector<void*> objectParams;
     std::vector<std::string> stringParams;
     std::vector<C3Vector> posParams;
     std::vector<C4Vector> quatParams;
     std::vector<C7Vector> transfParams;
     std::vector<std::vector<int> > intVectorParams;
-    std::vector<std::vector<double> > floatVectorParams;
+    std::vector<std::vector<float> > floatVectorParams;
+    std::vector<std::vector<double> > doubleVectorParams;
 };
 
 #ifndef SIM_WITH_QT

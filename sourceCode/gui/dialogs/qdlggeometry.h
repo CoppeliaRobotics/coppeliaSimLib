@@ -27,7 +27,6 @@ public:
     void _setCurrentSizes();
     void _readSize(int index);
     void _readScaling(int index);
-    void _readRotation(int index);
 
     static void display(int shapeHandle,QWidget* theParentWindow);
 
@@ -62,14 +61,6 @@ private slots:
     void on_qqApplySize_clicked();
 
     void on_qqApplyScale_clicked();
-
-    void on_qqAlpha_editingFinished();
-
-    void on_qqBeta_editingFinished();
-
-    void on_qqGamma_editingFinished();
-
-    void on_qqApplyEuler_clicked();
 
 private:
     Ui::CQDlgGeometry *ui;

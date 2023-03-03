@@ -295,10 +295,6 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         else
                             printQHullFail=true;
                     }
-                    else
-                    { // that shape is not a compound and already convex. We just change its visual attributes:
-                        it->getSingleMesh()->setConvexVisualAttributes();
-                    }
                 }
             }
 
@@ -636,77 +632,75 @@ bool CSceneObjectOperations::processCommand(int commandID)
         }
         return(true);
     }
-    if ((commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MAIN_AXIS_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_TUBE_MAIN_AXIS_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_CUBOID_MAIN_AXIS_SOOCMD))
+    if ( (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER2_SOOCMD) )
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            bool tubeFail=false;
-            bool cuboidFail=false;
-            if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MAIN_AXIS_SOOCMD)
-                App::logMsg(sim_verbosity_msgs,IDSNS_ALIGNING_BOUNDING_BOXES_WITH_MAIN_AXIS);
-            if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
-                App::logMsg(sim_verbosity_msgs,IDSNS_ALIGNING_BOUNDING_BOXES_WITH_WORLD);
-            if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_TUBE_MAIN_AXIS_SOOCMD)
-                App::logMsg(sim_verbosity_msgs,IDSNS_ALIGNING_BOUNDING_BOXES_WITH_TUBES);
-            if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_CUBOID_MAIN_AXIS_SOOCMD)
-                App::logMsg(sim_verbosity_msgs,IDSNS_ALIGNING_BOUNDING_BOXES_WITH_CUBOIDS);
-            if (App::currentWorld->sceneObjects->getShapeCountInSelection(&sel)==int(sel.size()))
+            if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
+                App::logMsg(sim_verbosity_msgs,"Translating and rotating reference frame to world origin...");
+            if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD)
+                App::logMsg(sim_verbosity_msgs,"Translating reference frame to mesh center...");
+            if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER2_SOOCMD)
+                App::logMsg(sim_verbosity_msgs,"Translating and rotating reference frame to mesh center...");
+            bool success=true;
+            for (size_t i=0;i<sel.size();i++)
             {
-                std::vector<void*> processedGeoms;
-                processedGeoms.reserve(sel.size());
-                bool informThatPurePrimitivesWereNotChanged=false;
-                for (int i=0;i<int(sel.size());i++)
+                CShape* theShape=App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
+                if (theShape!=nullptr)
                 {
-                    CShape* theShape=App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
-                    if (theShape!=nullptr)
-                    {
-                        // Did we already process this geometric resource?
-                        bool found=false;
-                        for (size_t j=0;j<processedGeoms.size();j++)
-                        {
-                            if (processedGeoms[j]==(void*)theShape)
-                                found=true;
-                        }
-                        if (!found)
-                        {
-                            processedGeoms.push_back(theShape);
-                            if ( (!theShape->getMesh()->isPure())||(theShape->isCompound()) )
-                            { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
-                                if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
-                                    theShape->alignBoundingBoxWithWorld();
-                                if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MAIN_AXIS_SOOCMD)
-                                    theShape->alignBoundingBoxWithMainAxis();
-                                if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_TUBE_MAIN_AXIS_SOOCMD)
-                                {
-                                    if (!theShape->alignTubeBoundingBoxWithMainAxis())
-                                        tubeFail=true;
-                                }
-                                if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_CUBOID_MAIN_AXIS_SOOCMD)
-                                {
-                                    if (!theShape->alignCuboidBoundingBoxWithMainAxis())
-                                        cuboidFail=true;
-                                }
-                                App::undoRedo_sceneChangeStart("");
-                            }
-                            else
-                                informThatPurePrimitivesWereNotChanged=true;
-                        }
-                    }
+                    if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
+                        success=success&&theShape->relocateFrame("world");
+                    if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD)
+                        success=success&&theShape->relocateFrame("meshPos");
+                    if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER2_SOOCMD)
+                        success=success&&theShape->relocateFrame("meshPose");
                 }
-                App::undoRedo_sceneChangeEnd();
-#ifdef SIM_WITH_GUI
-                if (informThatPurePrimitivesWereNotChanged)
-                    App::uiThread->messageBox_warning(App::mainWindow,"Alignment",IDS_INFORM_PURE_PRIMITIVES_COULD_NOT_BE_REORIENTED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                if (tubeFail)
-                    App::uiThread->messageBox_warning(App::mainWindow,"Alignment",IDSN_INFORM_SHAPE_COULD_NOT_BE_REORIENTED_ALONG_TUBE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                if (cuboidFail)
-                    App::uiThread->messageBox_warning(App::mainWindow,"Alignment",IDSN_INFORM_SHAPE_COULD_NOT_BE_REORIENTED_ALONG_CUBOID,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-#endif
             }
-            App::logMsg(sim_verbosity_msgs,"done.");
+            App::undoRedo_sceneChanged("");
+            if (success)
+                App::logMsg(sim_verbosity_msgs,"done.");
+            else
+                App::logMsg(sim_verbosity_warnings,"One or more reference frames could not be relocated.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            App::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+
+    if ((commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD) )
+    {
+        if (!VThread::isCurrentThreadTheUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            std::vector<int> sel;
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)
+                App::logMsg(sim_verbosity_msgs,"aligning bounding box with mesh...");
+            if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
+                App::logMsg(sim_verbosity_msgs,"aligning bounding box with world...");
+            bool success=true;
+            for (size_t i=0;i<sel.size();i++)
+            {
+                CShape* theShape=App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
+                if (theShape!=nullptr)
+                {
+                    if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)
+                        success=success&&theShape->alignBB("mesh");
+                    if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
+                        success=success&&theShape->alignBB("world");
+                }
+            }
+            if (success)
+                App::logMsg(sim_verbosity_msgs,"done.");
+            else
+                App::logMsg(sim_verbosity_warnings,"One or more bounding boxes could not be reoriented.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1885,12 +1879,16 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
             grouping->appendMenuItem((shapeNumber==selItems)&&(selItems>0)&&noSim,false,SCENE_OBJECT_OPERATION_DIVIDE_SHAPES_SOOCMD,IDS_DIVIDE_SELECTED_SHAPES_MENU_ITEM);
             menu->appendMenuAndDetach(grouping,true,IDS_GROUPING_MERGING_MENU_ITEM);
 
+            VMenu* relocate=new VMenu();
+            relocate->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD,"translate and rotate to world origin");
+            relocate->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD,"translate to mesh center");
+            relocate->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER2_SOOCMD,"translate and rotate to mesh center");
+            menu->appendMenuAndDetach(relocate,true,"Reference frame");
+
             VMenu* align=new VMenu();
-            align->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD,IDS_ALIGN_SELECTED_SHAPE_WORLD_MENU_ITEM);
-            align->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MAIN_AXIS_SOOCMD,IDS_ALIGN_SELECTED_SHAPE_MAIN_AXIS_MENU_ITEM);
-            align->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_TUBE_MAIN_AXIS_SOOCMD,IDSN_ALIGN_BB_WITH_TUBE);
-            align->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_CUBOID_MAIN_AXIS_SOOCMD,IDSN_ALIGN_BB_WITH_CUBOID);
-            menu->appendMenuAndDetach(align,true,IDS_BOUNDING_BOX_ALIGNMENT_MENU_ITEM);
+            align->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD,"align with world");
+            align->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD,"align with mesh");
+            menu->appendMenuAndDetach(align,true,"Bounding box");
         }
     }
 }

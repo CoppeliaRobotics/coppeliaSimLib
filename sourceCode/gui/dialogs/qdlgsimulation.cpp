@@ -120,7 +120,7 @@ void CQDlgSimulation::on_qqTimeStep_editingFinished()
             {
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_TIMESTEP_SIMULATIONGUITRIGGEREDCMD;
-                cmd.floatParams.push_back(newVal);
+                cmd.doubleParams.push_back(newVal);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
@@ -206,7 +206,7 @@ void CQDlgSimulation::on_qqPauseTime_editingFinished()
             {
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_PAUSETIME_SIMULATIONGUITRIGGEREDCMD;
-                cmd.floatParams.push_back(newVal);
+                cmd.doubleParams.push_back(newVal);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
@@ -397,7 +397,7 @@ void CQDlgSimulation::on_qqDynTimeStep_editingFinished()
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_TIMESTEP_DYNAMICSGUITRIGGEREDCMD;
-            cmd.floatParams.push_back(newVal);
+            cmd.doubleParams.push_back(newVal);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }

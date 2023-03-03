@@ -23,10 +23,7 @@
 #define _USR_STEREO_DIST "stereoDist"
 #define _USR_VSYNC "vsync"
 #define _USR_DEBUG_OPENGL "debugOpenGl"
-#define _USR_REMOVE_IDENTICAL_VERTICES "removeIdenticalVertices"
-#define _USR_IDENTICAL_VERTICES_TOLERANCE "identicalVerticesTolerance"
-#define _USR_REMOVE_IDENTICAL_TRIANGLES "removeIdenticalTriangles"
-#define _USR_TRIANGLE_WINDING_CHECK "triangleWindingCheck"
+#define _USR_IDENTICAL_VERTICES_TOLERANCE "verticesTolerance"
 #define _USR_PROCESSOR_CORE_AFFINITY "processorCoreAffinity"
 #define _USR_DYNAMIC_ACTIVITY_RANGE "dynamicActivityRange"
 #define _USR_FREE_SERVER_PORT_START "freeServerPortStart"
@@ -363,10 +360,7 @@ CUserSettings::CUserSettings()
     freeServerPortRange=2000;
     _abortScriptExecutionButton=3;
     triCountInOBB=8; // gave best results in 2009/07/21
-    identicalVerticesCheck=true;
-    identicalVerticesTolerance=0.0001;
-    identicalTrianglesCheck=true;
-    identicalTrianglesWindingCheck=true;
+    verticesTolerance=0.0005;
     runCustomizationScripts=true;
     test1=false;
     macChildDialogType=-1; // default
@@ -741,10 +735,7 @@ void CUserSettings::saveUserSettings()
     c.addInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange,"");
     c.addInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,_abortScriptExecutionButton,"in seconds. Zero to disable.");
     c.addInteger(_USR_TRIANGLE_COUNT_IN_OBB,triCountInOBB,"");
-    c.addBoolean(_USR_REMOVE_IDENTICAL_VERTICES,identicalVerticesCheck,"");
-    c.addFloat(_USR_IDENTICAL_VERTICES_TOLERANCE,identicalVerticesTolerance,"");
-    c.addBoolean(_USR_REMOVE_IDENTICAL_TRIANGLES,identicalTrianglesCheck,"");
-    c.addBoolean(_USR_TRIANGLE_WINDING_CHECK,identicalTrianglesWindingCheck,"");
+    c.addFloat(_USR_IDENTICAL_VERTICES_TOLERANCE,verticesTolerance,"");
     c.addBoolean(_USR_RUN_CUSTOMIZATION_SCRIPTS,runCustomizationScripts,"");
     c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
     c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
@@ -1019,10 +1010,7 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange);
     c.getInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,_abortScriptExecutionButton);
     c.getInteger(_USR_TRIANGLE_COUNT_IN_OBB,triCountInOBB);
-    c.getBoolean(_USR_REMOVE_IDENTICAL_VERTICES,identicalVerticesCheck);
-    c.getFloat(_USR_IDENTICAL_VERTICES_TOLERANCE,identicalVerticesTolerance);
-    c.getBoolean(_USR_REMOVE_IDENTICAL_TRIANGLES,identicalTrianglesCheck);
-    c.getBoolean(_USR_TRIANGLE_WINDING_CHECK,identicalTrianglesWindingCheck);
+    c.getFloat(_USR_IDENTICAL_VERTICES_TOLERANCE,verticesTolerance);
     c.getBoolean(_USR_RUN_CUSTOMIZATION_SCRIPTS,runCustomizationScripts);
     c.getBoolean(_USR_TEST1,test1);
     c.getInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType);

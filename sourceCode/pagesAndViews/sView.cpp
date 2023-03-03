@@ -1178,7 +1178,7 @@ void CSView::_handleClickRayIntersection_old(int x,int y,bool mouseDown)
     SSimulationThreadCommand cmd;
     cmd.cmdId=CLICK_RAY_INTERSECTION_CMD_OLD;
     cmd.boolParams.push_back(mouseDown);
-    cmd.floatParams.push_back(cam->getNearClippingPlane());
+    cmd.doubleParams.push_back(cam->getNearClippingPlane());
     cmd.intParams.push_back(cam->getObjectHandle());
     cmd.transfParams.push_back(tr);
     App::appendSimulationThreadCommand(cmd);

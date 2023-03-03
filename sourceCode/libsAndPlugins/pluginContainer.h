@@ -30,6 +30,7 @@ typedef char (__cdecl *ptr_dynPlugin_getParticleData_D)(const void*,double*,doub
 typedef char (__cdecl *ptr_dynPlugin_getContactForce_D)(int,int,int,int*,double*);
 typedef int (__cdecl *ptr_dynPlugin_getDynamicStepDivider)(void);
 typedef double (__cdecl *ptr_mujocoPlugin_computeInertia)(int,double*,double*,double*);
+typedef double (__cdecl *ptr_mujocoPlugin_computePMI)(const double*,int,const int*,int,double*,double*,double*);
 // For backcompatibility with old Newton engine (still in single precision):
 typedef char (__cdecl *ptr_dynPlugin_startSimulation)(int,int,const float*,const int*);
 typedef void (__cdecl *ptr_dynPlugin_step)(float,float);
@@ -226,6 +227,7 @@ public:
     ptr_dynPlugin_getParticleData_D dynPlugin_getParticleData;
     ptr_dynPlugin_getContactForce_D dynPlugin_getContactForce;
     ptr_dynPlugin_getDynamicStepDivider dynPlugin_getDynamicStepDivider;
+    ptr_mujocoPlugin_computePMI mujocoPlugin_computePMI;
     ptr_mujocoPlugin_computeInertia mujocoPlugin_computeInertia;
     // For backcompatibility with old Newton engine (still in single precision):
     ptr_dynPlugin_startSimulation dynPlugin_startSimulationNewton;
@@ -449,6 +451,7 @@ public:
     static void** dyn_getParticles(int index,int* particlesCount,int* objectType,float** cols);
     static int dyn_getDynamicStepDivider();
     static double dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vector& diagI);
+    static double dyn_computePMI(const std::vector<double>& vertices,const std::vector<int>& indices,C7Vector& tr,C3Vector& diagI);
 
 
     // geom plugin:

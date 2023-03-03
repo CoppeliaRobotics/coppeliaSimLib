@@ -174,7 +174,8 @@ int CPlugin::load()
                 dynPlugin_getContactForceNewton=(ptr_dynPlugin_getContactForce)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getContactForce"));
                 dynPlugin_getDynamicStepDivider=(ptr_dynPlugin_getDynamicStepDivider)(VVarious::resolveLibraryFuncName(lib,"dynPlugin_getDynamicStepDivider"));
                 mujocoPlugin_computeInertia=(ptr_mujocoPlugin_computeInertia)(VVarious::resolveLibraryFuncName(lib,"mujocoPlugin_computeInertia"));
-                if (mujocoPlugin_computeInertia!=nullptr)
+                mujocoPlugin_computePMI=(ptr_mujocoPlugin_computePMI)(VVarious::resolveLibraryFuncName(lib,"mujocoPlugin_computePMI"));
+                if ( (mujocoPlugin_computeInertia!=nullptr)||(mujocoPlugin_computePMI!=nullptr) )
                     CPluginContainer::mujocoEngine=this;
 
                 // For the geom plugin:
@@ -973,12 +974,19 @@ int CPluginContainer::dyn_getDynamicStepDivider()
     return(0);
 }
 
+double CPluginContainer::dyn_computePMI(const std::vector<double>& vertices,const std::vector<int>& indices,C7Vector& tr,C3Vector& diagI)
+{ // returns the mass-less diagonal inertia. Returned mass is for a density of 1000
+    double mass=0.0;
+    if ( (mujocoEngine!=nullptr)&&(mujocoEngine->mujocoPlugin_computePMI!=nullptr) )
+        mass=mujocoEngine->mujocoPlugin_computePMI(vertices.data(),int(vertices.size()),indices.data(),int(indices.size()),tr.X.data,tr.Q.data,diagI.data);
+    return(mass);
+}
+
 double CPluginContainer::dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vector& diagI)
 { // returns the mass-less diagonal inertia, relative to the shape's ref frame. Returned mass is for a density of 1000
     double mass=0.0;
     if ( (mujocoEngine!=nullptr)&&(mujocoEngine->mujocoPlugin_computeInertia!=nullptr) )
         mass=mujocoEngine->mujocoPlugin_computeInertia(shapeHandle,tr.X.data,tr.Q.data,diagI.data);
-
     if (mass==0.0)
     { // fallback algo
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
@@ -991,7 +999,7 @@ double CPluginContainer::dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vecto
             C3X3Matrix tensor;
             mass=CVolInt::getMassCenterOfMassAndInertiaTensor(&vert[0],(int)vert.size()/3,&ind[0],(int)ind.size()/3,1000.0,com,tensor);
             C4Vector rot;
-            CMeshWrapper::getPMIFromMasslessTensor(tensor,rot,diagI);
+            CMeshWrapper::getPMIFromInertia(tensor,rot,diagI);
             tr=C7Vector(rot,com);
         }
     }

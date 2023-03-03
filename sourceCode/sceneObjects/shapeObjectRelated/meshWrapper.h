@@ -78,46 +78,35 @@ public:
 
     C7Vector getDiagonalInertiaInfo(C3Vector& diagMasslessI) const;
     C7Vector getBB(C3Vector* optBBSize) const;
+    void setBBFrame(const C7Vector& bbFrame);
+    virtual bool reorientBB(const C4Vector* rot);
     bool getShapeRelIFrame(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,C7Vector& shapeRelIFrame) const;
     bool getShapeRelBB(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,C7Vector& shapeRelBB,C3Vector* optBBSize) const;
     C3Vector getCOM() const;
     C7Vector getIFrame() const;
     void setIFrame(const C7Vector& iframe);
     void setCOM(const C3Vector& com);
-    C3X3Matrix getMasslessInertiaMatrix() const;
-    void setMasslessInertiaMatrix(const C3X3Matrix& im,int modifItemRow=-1,int modifItemCol=-1);
+    C3X3Matrix getInertia() const;
+    void setInertia(const C3X3Matrix& im,int modifItemRow=-1,int modifItemCol=-1);
     C3Vector getPMI() const;
     void setPMI(const C3Vector& pmi);
-    std::string getInertiaMatrixErrorString() const;
-    void fixInertiaMatrixAndComputePMI();
+    std::string getInertiaErrorString() const;
+    void fixInertiaAndComputePMI();
 
-    C7Vector getLocalInertiaFrame() const;
-    void setLocalInertiaFrame(const C7Vector& li);
-    C3Vector getPrincipalMomentsOfInertia() const;
-    void setPrincipalMomentsOfInertia(const C3Vector& inertia);
-
-    C7Vector getTransformationsSinceGrouping() const;
-    void setTransformationsSinceGrouping(const C7Vector& tr);
-
-    static bool getPMIFromMasslessTensor(const C3X3Matrix& tensor,C4Vector& rotation,C3Vector& principalMoments);
-    static C3X3Matrix getMasslessTensorFromPMI(const C3Vector& principalMoments,const C7Vector& newFrame);
-    static C3X3Matrix getMasslesInertiaMatrixInNewFrame(const C4Vector& oldFrame,const C3X3Matrix& oldMatrix,const C4Vector& newFrame);
-    static std::string getInertiaMatrixErrorString(const C3X3Matrix& matrix);
+    static bool getPMIFromInertia(const C3X3Matrix& tensor,C4Vector& rotation,C3Vector& principalMoments);
+    static C3X3Matrix getInertiaFromPMI(const C3Vector& principalMoments,const C7Vector& newFrame);
+    static C3X3Matrix getInertiaInNewFrame(const C4Vector& oldFrame,const C3X3Matrix& oldMatrix,const C4Vector& newFrame);
+    static std::string getInertiaErrorString(const C3X3Matrix& matrix);
 
     std::vector<CMeshWrapper*> childList;
 
 protected:
     void _commonInit();
-    void _computeInertiaFromChildren();
+    void _computeInertiaFromComposingInertias();
     std::string _name;
     bool _convex;
-
     double _mass;
-    // --------------------
-    C7Vector _transformationsSinceGrouping; // used to keep track of this geomWrap or geometric's configuration relative to the shape
-    C7Vector _localInertiaFrame; // frame relative to the shape.
-    C3Vector _principalMomentsOfInertia; // remember that we always work with a massless tensor. The tensor is multiplied with the mass in the dynamics module!
-    // --------------------
+
     C7Vector _iFrame; // Inertia ref. frame, relative to parent _iFrame. Identity if root
     C3Vector _com; // Center of mass, relative to _iFrame
     C3X3Matrix _iMatrix; // Mass-less inertia matrix, expressed in the _iFrame
@@ -125,7 +114,6 @@ protected:
     C4Vector _pmiRotFrame; // Frame of the principal moment of inertia (calculated from _iMatrix), expressed in the _iFrame
     C7Vector _bbFrame; // Ref. frame of the bounding box and vertices, relative to _iFrame
     C3Vector _bbSize; // Size of the bounding box, relative to _iFrame
-    // --------------------
 
     int _dynMaterialId_old;
 };

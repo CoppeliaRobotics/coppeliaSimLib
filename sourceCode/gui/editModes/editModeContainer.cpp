@@ -73,7 +73,7 @@ bool CEditModeContainer::enterEditMode(int objID,int modeType)
 
     if (modeType&SHAPE_EDIT_MODE)
     {
-        _shapeEditMode=new CShapeEditMode(App::currentWorld->sceneObjects->getShapeFromHandle(objID),modeType,App::currentWorld->sceneObjects,App::currentWorld->textureContainer,App::uiThread,App::userSettings->identicalVerticesCheck,App::userSettings->identicalTrianglesCheck,App::userSettings->identicalVerticesTolerance);
+        _shapeEditMode=new CShapeEditMode(App::currentWorld->sceneObjects->getShapeFromHandle(objID),modeType,App::currentWorld->sceneObjects,App::currentWorld->textureContainer,App::uiThread);
 
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;

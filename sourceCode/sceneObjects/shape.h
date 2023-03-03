@@ -10,11 +10,12 @@ public:
 
     CShape();
     CShape(const std::vector<double>& allHeights,int xSize,int ySize,double dx,double zSize); // heightfield
-    CShape(const C7Vector& transformation,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords); // mesh
+    CShape(const C7Vector& transformation,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords); // mesh
     virtual ~CShape();
 
     void replaceMesh(CMeshWrapper* newMesh,bool keepMeshAttributes);
     CMeshWrapper* detachMesh();
+    bool computeInertia(double density);
 
     void invertFrontBack();
     C3Vector getBoundingBoxHalfSizes() const;
@@ -138,11 +139,9 @@ public:
     void removeMeshCalculationStructure();
     bool doesShapeCollideWithShape(CShape* collidee,std::vector<double>* intersections);
 
-    // Bounding box functions
-    void alignBoundingBoxWithMainAxis();
-    void alignBoundingBoxWithWorld();
-    bool alignTubeBoundingBoxWithMainAxis();
-    bool alignCuboidBoundingBoxWithMainAxis();
+    bool relocateFrame(const char* mode);
+    bool alignBB(const char* mode);
+
 
     void setInsideAndOutsideFacesSameColor_DEPRECATED(bool s);
     bool getInsideAndOutsideFacesSameColor_DEPRECATED();
@@ -159,13 +158,7 @@ public:
 protected:
     CMeshWrapper* _mesh;
     void _serializeMesh(CSer& ar);
-    C7Vector _recomputeOrientation(C7Vector& m,bool alignWithMainAxis);
-    C7Vector _recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& error);
-    static bool _getTubeReferenceFrame(const std::vector<double>& v,C7Vector& tr);
-    static bool _getCuboidReferenceFrame(const std::vector<double>& v,const std::vector<int>& ind,C7Vector& tr);
     void _computeMeshBoundingBox();
-
-    bool _reorientGeometry(int type); // 0=main axis, 1=world, 2=tube, 3=cuboid
 
     unsigned short _dynamicCollisionMask;
     CSceneObject* _lastParentForLocalGlobalRespondable;

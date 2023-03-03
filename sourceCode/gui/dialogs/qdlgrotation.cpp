@@ -470,9 +470,9 @@ bool CQDlgRotation::_applyTransformation(int axis)
         for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         cmd.intParams.push_back(transfMode);
-        cmd.floatParams.push_back(TX[0]);
-        cmd.floatParams.push_back(TX[1]);
-        cmd.floatParams.push_back(TX[2]);
+        cmd.doubleParams.push_back(TX[0]);
+        cmd.doubleParams.push_back(TX[1]);
+        cmd.doubleParams.push_back(TX[2]);
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

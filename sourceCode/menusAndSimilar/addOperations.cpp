@@ -734,7 +734,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_PLANE);
         shape->setObjectName_direct_old(IDSOGL_PLANE);
-        shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,0.002)); // we shift the plane so that it is above the floor
         shape->getMesh()->setMass(sizes(0)*sizes(1)*density*0.001); // we assume 1mm thickness
         shape->getMesh()->setPMI(C3Vector(sizes(1)*sizes(1)/12.0,sizes(0)*sizes(0)/12.0,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0));
@@ -757,7 +756,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_RECTANGLE);
         shape->setObjectName_direct_old(IDSOGL_RECTANGLE);
-        shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,zhSize)); // we shift the rectangle so that it sits on the floor
         shape->getMesh()->setMass(sizes(0)*sizes(1)*sizes(2)*density);
         shape->getMesh()->setPMI(C3Vector((sizes(1)*sizes(1)+sizes(2)*sizes(2))/12.0,(sizes(0)*sizes(0)+sizes(2)*sizes(2))/12.0,(sizes(0)*sizes(0)+sizes(1)*sizes(1))/12.0));
@@ -788,7 +786,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_SPHERE);
         shape->setObjectName_direct_old(IDSOGL_SPHERE);
-        shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,zhSize)); // we shift the sphere so that it sits on the floor
         double avR=(sizes(0)+sizes(1)+sizes(2))/6.0;
 
@@ -828,7 +825,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
             shape->setObjectAlias_direct(IDSOGL_CYLINDER);
             shape->setObjectName_direct_old(IDSOGL_CYLINDER);
         }
-        shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,zhSize)); // Now we shift the cylinder so it sits on the floor
         double avR=(sizes(0)+sizes(1))/4.0;
         double divider=1.0;
@@ -868,7 +864,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_CAPSULE);
         shape->setObjectName_direct_old(IDSOGL_CAPSULE);
-        shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,sizes(2)*0.5));
 
         // For now, approximation:
@@ -956,7 +951,6 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
         shape->setObjectAlias_direct(IDSOGL_DISC);
         shape->setObjectName_direct_old(IDSOGL_DISC);
-        shape->alignBoundingBoxWithWorld();
         shape->setLocalTransformation(C3Vector(0.0,0.0,0.002)); // Now we shift the disc so it sits just above the floor
         double avR=(sizes(0)+sizes(1))/4.0;
         shape->getMesh()->setMass(piValue*avR*avR*density*0.001); // we assume 1mm thickness
@@ -1050,7 +1044,7 @@ CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& 
             retVal->setObjectName_direct_old("convexHull");
             retVal->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(retVal->getObjectName_old().c_str()).c_str());
 
-            ch->getMesh()->copyAttributesTo(retVal->getMesh()); // we extracted the hull from one single shape
+            ch->getMesh()->copyAttributesTo(retVal->getMesh());
 
             App::currentWorld->sceneObjects->addObjectToScene(retVal,false,true);
         }

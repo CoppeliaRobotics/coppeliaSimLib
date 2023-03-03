@@ -140,7 +140,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (!shape->isCompound())
                 {
                     shape->getSingleMesh()->color.setTranslucid(cmd.boolParams[0]);
-                    shape->getSingleMesh()->color.setOpacity(cmd.floatParams[0]);
+                    shape->getSingleMesh()->color.setOpacity(cmd.doubleParams[0]);
                     App::undoRedo_sceneChanged("");
                 }
             }
@@ -176,13 +176,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if ((shape!=nullptr)&&shape->getMesh()->isMesh())
-                shape->getSingleMesh()->setShadingAngle(cmd.floatParams[0]);
+                shape->getSingleMesh()->setShadingAngle(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_SHAPE_EDGE_ANGLE_CMD)
         {
             CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if ((shape!=nullptr)&&shape->getMesh()->isMesh())
-                shape->getSingleMesh()->setEdgeThresholdAngle(cmd.floatParams[0]);
+                shape->getSingleMesh()->setEdgeThresholdAngle(cmd.doubleParams[0]);
         }
 
     }
@@ -506,8 +506,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         double ss=obj->getObjectMovementStepSize(0);
                         if (ss==0.0)
                             ss=App::userSettings->getTranslationStepSize();
-                        double x=cmd.floatParams[0]-fmod(cmd.floatParams[0],ss);
-                        double y=cmd.floatParams[1]-fmod(cmd.floatParams[1],ss);
+                        double x=cmd.doubleParams[0]-fmod(cmd.doubleParams[0],ss);
+                        double y=cmd.doubleParams[1]-fmod(cmd.doubleParams[1],ss);
                         tr.X(0)+=x;
                         tr.X(1)+=y;
                         obj->setLocalTransformation(tr);
@@ -531,25 +531,25 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
             if (cam!=nullptr)
-                cam->setViewAngle(cmd.floatParams[0]);
+                cam->setViewAngle(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_ORTHO_VIEW_SIZE_CAMERAGUITRIGGEREDCMD)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
             if (cam!=nullptr)
-                cam->setOrthoViewSize(cmd.floatParams[0]);
+                cam->setOrthoViewSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_NEAR_CLIPPING_CAMERAGUITRIGGEREDCMD)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
             if (cam!=nullptr)
-                cam->setNearClippingPlane(cmd.floatParams[0]);
+                cam->setNearClippingPlane(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_FAR_CLIPPING_CAMERAGUITRIGGEREDCMD)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
             if (cam!=nullptr)
-                cam->setFarClippingPlane(cmd.floatParams[0]);
+                cam->setFarClippingPlane(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_TRACKED_OBJECT_CAMERAGUITRIGGEREDCMD)
         {
@@ -600,7 +600,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
             if (cam!=nullptr)
-                cam->setCameraSize(cmd.floatParams[0]);
+                cam->setCameraSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==TOGGLE_LOCALLIGHTS_CAMERAGUITRIGGEREDCMD)
         {
@@ -760,13 +760,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setNearClippingPlane(cmd.floatParams[0]);
+                it->setNearClippingPlane(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_FARCLIPPING_VISIONSENSORGUITRIGGEREDCMD)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setFarClippingPlane(cmd.floatParams[0]);
+                it->setFarClippingPlane(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_PERSPECTANGLE_OR_ORTHOSIZE_VISIONSENSORGUITRIGGEREDCMD)
         {
@@ -774,9 +774,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 if (it->getPerspective())
-                    it->setViewAngle(cmd.floatParams[0]);
+                    it->setViewAngle(cmd.doubleParams[0]);
                 else
-                    it->setOrthoViewSize(cmd.floatParams[0]);
+                    it->setOrthoViewSize(cmd.doubleParams[0]);
             }
         }
         if (cmd.cmdId==SET_RESOLUTION_VISIONSENSORGUITRIGGEREDCMD)
@@ -789,14 +789,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setVisionSensorSize(cmd.floatParams[0]);
+                it->setVisionSensorSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_DEFAULTIMGCOL_VISIONSENSORGUITRIGGEREDCMD)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                float w[3]={(float)cmd.floatParams[0],(float)cmd.floatParams[1],(float)cmd.floatParams[2]};
+                float w[3]={(float)cmd.doubleParams[0],(float)cmd.doubleParams[1],(float)cmd.doubleParams[2]};
                 it->setDefaultBufferValues(w);
                 it->setUseEnvironmentBackgroundColor(cmd.boolParams[0]);
             }
@@ -981,7 +981,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setThreshold(cmd.floatParams[0]);
+                it->setThreshold(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==TOGGLE_SEGMENTDISPLAY_DISTANCEGUITRIGGEREDCMD)
         {
@@ -993,7 +993,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setSegmentWidth(cmd.floatParams[0]);
+                it->setSegmentWidth(cmd.doubleParams[0]);
         }
 
 
@@ -1191,7 +1191,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SCALE_SCALINGGUITRIGGEREDCMD)
         {
             if (cmd.intParams.size()>0)
-                CSceneObjectOperations::scaleObjects(cmd.intParams,cmd.floatParams[0],!cmd.boolParams[0]);
+                CSceneObjectOperations::scaleObjects(cmd.intParams,cmd.doubleParams[0],!cmd.boolParams[0]);
         }
 
 
@@ -1209,7 +1209,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SET_TIMESTEP_SIMULATIONGUITRIGGEREDCMD)
         {
             if (App::currentWorld->simulation->isSimulationStopped())
-                App::currentWorld->simulation->setTimeStep(cmd.floatParams[0]);
+                App::currentWorld->simulation->setTimeStep(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_PPF_SIMULATIONGUITRIGGEREDCMD)
         {
@@ -1224,7 +1224,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SET_REALTIMEFACTOR_SIMULATIONGUITRIGGEREDCMD)
         {
             if (App::currentWorld->simulation->isSimulationStopped())
-                App::currentWorld->simulation->setRealTimeCoeff(cmd.floatParams[0]);
+                App::currentWorld->simulation->setRealTimeCoeff(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==TOGGLE_PAUSEATTIME_SIMULATIONGUITRIGGEREDCMD)
         {
@@ -1234,7 +1234,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SET_PAUSETIME_SIMULATIONGUITRIGGEREDCMD)
         {
             if (App::currentWorld->simulation->isSimulationStopped())
-                App::currentWorld->simulation->setPauseTime(cmd.floatParams[0]);
+                App::currentWorld->simulation->setPauseTime(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==TOGGLE_PAUSEATERROR_SIMULATIONGUITRIGGEREDCMD)
         {
@@ -1274,7 +1274,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_TIMESTEP_DYNAMICSGUITRIGGEREDCMD)
         {
-            App::currentWorld->dynamicsContainer->setDesiredStepSize(cmd.floatParams[0]);
+            App::currentWorld->dynamicsContainer->setDesiredStepSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==TOGGLE_EXPLICITHANDLING_PROXSENSORGUITRIGGEREDCMD)
         {
@@ -1298,7 +1298,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setProxSensorSize(cmd.floatParams[0]);
+                it->setProxSensorSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==APPLY_MAINPROP_PROXSENSORGUITRIGGEREDCMD)
         {
@@ -1360,10 +1360,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 it->setBackFaceDetection(cmd.boolParams[1]);
                 it->setClosestObjectMode(cmd.boolParams[2]);
                 it->setNormalCheck(cmd.boolParams[3]);
-                it->setAllowedNormal(cmd.floatParams[0]);
+                it->setAllowedNormal(cmd.doubleParams[0]);
 //                it->setCheckOcclusions(cmd.boolParams[4]);
                 it->convexVolume->setSmallestDistanceEnabled(cmd.boolParams[5]);
-                it->convexVolume->setSmallestDistanceAllowed(cmd.floatParams[1]);
+                it->convexVolume->setSmallestDistanceAllowed(cmd.doubleParams[1]);
                 if (it->getRandomizedDetection())
                 {
                     it->setRandomizedDetectionSampleCount(cmd.intParams[1]);
@@ -1377,81 +1377,81 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             CMill* mill=App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
             if (prox!=nullptr)
-                prox->convexVolume->setOffset(cmd.floatParams[0]);
+                prox->convexVolume->setOffset(cmd.doubleParams[0]);
             if (mill!=nullptr)
-                mill->convexVolume->setOffset(cmd.floatParams[0]);
+                mill->convexVolume->setOffset(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_RADIUS_DETECTIONVOLUMEGUITRIGGEREDCMD)
         {
             CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             CMill* mill=App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
             if (prox!=nullptr)
-                prox->convexVolume->setRadius(cmd.floatParams[0]);
+                prox->convexVolume->setRadius(cmd.doubleParams[0]);
             if (mill!=nullptr)
-                mill->convexVolume->setRadius(cmd.floatParams[0]);
+                mill->convexVolume->setRadius(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_RADIUSFAR_DETECTIONVOLUMEGUITRIGGEREDCMD)
         {
             CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             CMill* mill=App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
             if (prox!=nullptr)
-                prox->convexVolume->setRadiusFar(cmd.floatParams[0]);
+                prox->convexVolume->setRadiusFar(cmd.doubleParams[0]);
             if (mill!=nullptr)
-                mill->convexVolume->setRadiusFar(cmd.floatParams[0]);
+                mill->convexVolume->setRadiusFar(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_RANGE_DETECTIONVOLUMEGUITRIGGEREDCMD)
         {
             CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             CMill* mill=App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
             if (prox!=nullptr)
-                prox->convexVolume->setRange(cmd.floatParams[0]);
+                prox->convexVolume->setRange(cmd.doubleParams[0]);
             if (mill!=nullptr)
-                mill->convexVolume->setRange(cmd.floatParams[0]);
+                mill->convexVolume->setRange(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_XSIZE_DETECTIONVOLUMEGUITRIGGEREDCMD)
         {
             CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             CMill* mill=App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
             if (prox!=nullptr)
-                prox->convexVolume->setXSize(cmd.floatParams[0]);
+                prox->convexVolume->setXSize(cmd.doubleParams[0]);
             if (mill!=nullptr)
-                mill->convexVolume->setXSize(cmd.floatParams[0]);
+                mill->convexVolume->setXSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_YSIZE_DETECTIONVOLUMEGUITRIGGEREDCMD)
         {
             CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             CMill* mill=App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
             if (prox!=nullptr)
-                prox->convexVolume->setYSize(cmd.floatParams[0]);
+                prox->convexVolume->setYSize(cmd.doubleParams[0]);
             if (mill!=nullptr)
-                mill->convexVolume->setYSize(cmd.floatParams[0]);
+                mill->convexVolume->setYSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_XSIZEFAR_DETECTIONVOLUMEGUITRIGGEREDCMD)
         {
             CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             CMill* mill=App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
             if (prox!=nullptr)
-                prox->convexVolume->setXSizeFar(cmd.floatParams[0]);
+                prox->convexVolume->setXSizeFar(cmd.doubleParams[0]);
             if (mill!=nullptr)
-                mill->convexVolume->setXSizeFar(cmd.floatParams[0]);
+                mill->convexVolume->setXSizeFar(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_YSIZEFAR_DETECTIONVOLUMEGUITRIGGEREDCMD)
         {
             CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             CMill* mill=App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
             if (prox!=nullptr)
-                prox->convexVolume->setYSizeFar(cmd.floatParams[0]);
+                prox->convexVolume->setYSizeFar(cmd.doubleParams[0]);
             if (mill!=nullptr)
-                mill->convexVolume->setYSizeFar(cmd.floatParams[0]);
+                mill->convexVolume->setYSizeFar(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_ANGLE_DETECTIONVOLUMEGUITRIGGEREDCMD)
         {
             CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             CMill* mill=App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
             if (prox!=nullptr)
-                prox->convexVolume->setAngle(cmd.floatParams[0]);
+                prox->convexVolume->setAngle(cmd.doubleParams[0]);
             if (mill!=nullptr)
-                mill->convexVolume->setAngle(cmd.floatParams[0]);
+                mill->convexVolume->setAngle(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_FACECOUNT_DETECTIONVOLUMEGUITRIGGEREDCMD)
         {
@@ -1494,9 +1494,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CProxSensor* prox=App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
             CMill* mill=App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
             if (prox!=nullptr)
-                prox->convexVolume->setInsideAngleThing(cmd.floatParams[0]);
+                prox->convexVolume->setInsideAngleThing(cmd.doubleParams[0]);
             if (mill!=nullptr)
-                mill->convexVolume->setInsideAngleThing(cmd.floatParams[0]);
+                mill->convexVolume->setInsideAngleThing(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==APPLY_DETECTIONVOLUMEGUITRIGGEREDCMD)
         {
@@ -1584,7 +1584,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CMill* it=App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setSize(cmd.floatParams[0]);
+                it->setSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_ENTITYTOCUT_MILLGUITRIGGEREDCMD)
         {
@@ -1611,13 +1611,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CLight* it=App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setLightSize(cmd.floatParams[0]);
+                it->setLightSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_SPOTCUTOFF_LIGHTGUITRIGGEREDCMD)
         {
             CLight* it=App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setSpotCutoffAngle(cmd.floatParams[0]);
+                it->setSpotCutoffAngle(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_SPOTEXPONENT_LIGHTGUITRIGGEREDCMD)
         {
@@ -1629,19 +1629,19 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CLight* it=App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setAttenuationFactor(CONSTANT_ATTENUATION,cmd.floatParams[0]);
+                it->setAttenuationFactor(CONSTANT_ATTENUATION,cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_LINATTENUATION_LIGHTGUITRIGGEREDCMD)
         {
             CLight* it=App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setAttenuationFactor(LINEAR_ATTENUATION,cmd.floatParams[0]);
+                it->setAttenuationFactor(LINEAR_ATTENUATION,cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_QUADATTENUATION_LIGHTGUITRIGGEREDCMD)
         {
             CLight* it=App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setAttenuationFactor(QUADRATIC_ATTENUATION,cmd.floatParams[0]);
+                it->setAttenuationFactor(QUADRATIC_ATTENUATION,cmd.doubleParams[0]);
         }
 
 
@@ -1650,7 +1650,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CDummy* it=App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDummySize(cmd.floatParams[0]);
+                it->setDummySize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==APPLY_VISUALPROP_DUMMYGUITRIGGEREDCMD)
         {
@@ -1714,13 +1714,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CDummy* it=App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setVirtualDistanceOffsetOnPath(cmd.floatParams[0]);
+                it->setVirtualDistanceOffsetOnPath(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_COPYINCREMENT_DUMMYGUITRIGGEREDCMD)
         {
             CDummy* it=App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setVirtualDistanceOffsetOnPath_variationWhenCopy(cmd.floatParams[0]);
+                it->setVirtualDistanceOffsetOnPath_variationWhenCopy(cmd.doubleParams[0]);
         }
 
 
@@ -1735,19 +1735,19 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CMirror* it=App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setMirrorWidth(cmd.floatParams[0]);
+                it->setMirrorWidth(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_HEIGHT_MIRRORGUITRIGGEREDCMD)
         {
             CMirror* it=App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setMirrorHeight(cmd.floatParams[0]);
+                it->setMirrorHeight(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_REFLECTANCE_MIRRORGUITRIGGEREDCMD)
         {
             CMirror* it=App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setReflectance(cmd.floatParams[0]);
+                it->setReflectance(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_MIRRORFUNC_MIRRORGUITRIGGEREDCMD)
         {
@@ -1779,7 +1779,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             if (App::currentWorld->simulation->isSimulationStopped())
             {
-                App::currentWorld->environment->setCalculationMaxTriangleSize(cmd.floatParams[0]);
+                App::currentWorld->environment->setCalculationMaxTriangleSize(cmd.doubleParams[0]);
                 for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
                 {
                     CShape* sh=App::currentWorld->sceneObjects->getShapeFromIndex(i);
@@ -1789,7 +1789,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_MINTRIANGLESIZE_ENVIRONMENTGUITRIGGEREDCMD)
         {
-            App::currentWorld->environment->setCalculationMinRelTriangleSize(cmd.floatParams[0]);
+            App::currentWorld->environment->setCalculationMinRelTriangleSize(cmd.doubleParams[0]);
             for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
             {
                 CShape* sh=App::currentWorld->sceneObjects->getShapeFromIndex(i);
@@ -1839,15 +1839,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_START_FOGGUITRIGGEREDCMD)
         {
-            App::currentWorld->environment->setFogStart(cmd.floatParams[0]);
+            App::currentWorld->environment->setFogStart(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_END_FOGGUITRIGGEREDCMD)
         {
-            App::currentWorld->environment->setFogEnd(cmd.floatParams[0]);
+            App::currentWorld->environment->setFogEnd(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_DENSITY_FOGGUITRIGGEREDCMD)
         {
-            App::currentWorld->environment->setFogDensity(cmd.floatParams[0]);
+            App::currentWorld->environment->setFogDensity(cmd.doubleParams[0]);
         }
 
 
@@ -1857,9 +1857,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             float* col=App::getRGBPointerFromItem(cmd.intParams[0],cmd.intParams[1],cmd.intParams[2],cmd.intParams[3],nullptr);
             if (col!=nullptr)
             {
-                col[0]=(float)cmd.floatParams[0];
-                col[1]=(float)cmd.floatParams[1];
-                col[2]=(float)cmd.floatParams[2];
+                col[0]=(float)cmd.doubleParams[0];
+                col[1]=(float)cmd.doubleParams[1];
+                col[2]=(float)cmd.doubleParams[2];
             }
         }
 
@@ -1888,7 +1888,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
             CColorObject* it=App::getVisualParamPointerFromItem(cmd.intParams[0],cmd.intParams[1],cmd.intParams[2],nullptr,&allowedParts);
             if ( (it!=nullptr)&&(allowedParts&128) )
-                it->setOpacity(tt::getLimitedFloat(0.0,1.0,cmd.floatParams[0]));
+                it->setOpacity(tt::getLimitedFloat(0.0,1.0,cmd.doubleParams[0]));
         }
         if (cmd.cmdId==SET_NAME_MATERIALGUITRIGGEREDCMD)
         {
@@ -1915,9 +1915,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 it->setFlash(cmd.boolParams[0]);
                 it->setUseSimulationTime(cmd.boolParams[1]);
-                it->setFlashFrequency(cmd.floatParams[0]);
-                it->setFlashPhase(cmd.floatParams[1]);
-                it->setFlashRatio(cmd.floatParams[2]);
+                it->setFlashFrequency(cmd.doubleParams[0]);
+                it->setFlashPhase(cmd.doubleParams[1]);
+                it->setFlashRatio(cmd.doubleParams[2]);
             }
         }
 
@@ -1927,7 +1927,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setCellSize(cmd.floatParams[0]);
+                it->setCellSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==TOGGLE_SHOWSTRUCTURE_OCTREEGUITRIGGEREDCMD)
         {
@@ -1995,7 +1995,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setCellSize(cmd.floatParams[0]);
+                it->setCellSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==TOGGLE_SHOWOCTREE_PTCLOUDGUITRIGGEREDCMD)
         {
@@ -2042,7 +2042,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setBuildResolution(cmd.floatParams[0]);
+                it->setBuildResolution(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==TOGGLE_USEOCTREE_PTCLOUDGUITRIGGEREDCMD)
         {
@@ -2060,7 +2060,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setPointDisplayRatio(cmd.floatParams[0]);
+                it->setPointDisplayRatio(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SUBTRACT_OBJECTS_PTCLOUDGUITRIGGEREDCMD)
         {
@@ -2077,13 +2077,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setRemovalDistanceTolerance(cmd.floatParams[0]);
+                it->setRemovalDistanceTolerance(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_INSERTTOLERANCE_PTCLOUDGUITRIGGEREDCMD)
         {
             CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setInsertionDistanceTolerance(cmd.floatParams[0]);
+                it->setInsertionDistanceTolerance(cmd.doubleParams[0]);
         }
 
 
@@ -2092,7 +2092,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CForceSensor* it=App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setForceSensorSize(cmd.floatParams[0]);
+                it->setForceSensorSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==APPLY_VISUALPROP_FORCESENSORGUITRIGGEREDCMD)
         {
@@ -2161,13 +2161,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CForceSensor* it=App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setForceThreshold(cmd.floatParams[0]);
+                it->setForceThreshold(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_TORQUETHRESHOLD_FORCESENSORGUITRIGGEREDCMD)
         {
             CForceSensor* it=App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setTorqueThreshold(cmd.floatParams[0]);
+                it->setTorqueThreshold(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_CONSECTHRESHOLDVIOLATIONS_FORCESENSORGUITRIGGEREDCMD)
         {
@@ -2222,7 +2222,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setShadingAngle(cmd.floatParams[0]);
+                it->setShadingAngle(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==APPLY_OTHERPROP_SHAPEGUITRIGGEREDCMD)
         {
@@ -2425,11 +2425,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 double zSizeOriginal=2.0*bbhalfSizes(2);
                 double s[3]={1.0,1.0,1.0}; // imagine we have a plane that has dims x*y*0! keep default at 1.0
                 if (xSizeOriginal!=0.0)
-                    s[0]=cmd.floatParams[0]/xSizeOriginal;
+                    s[0]=cmd.doubleParams[0]/xSizeOriginal;
                 if (ySizeOriginal!=0.0)
-                    s[1]=cmd.floatParams[1]/ySizeOriginal;
+                    s[1]=cmd.doubleParams[1]/ySizeOriginal;
                 if (zSizeOriginal!=0.0)
-                    s[2]=cmd.floatParams[2]/zSizeOriginal;
+                    s[2]=cmd.doubleParams[2]/zSizeOriginal;
                 it->scaleObjectNonIsometrically(s[0],s[1],s[2]);
             }
         }
@@ -2437,22 +2437,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->scaleObjectNonIsometrically(cmd.floatParams[0],cmd.floatParams[1],cmd.floatParams[2]);
-        }
-        if (cmd.cmdId==APPLY_FRAMEROTATION_GEOMETRYGUITRIGGEREDCMD)
-        {
-            CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                C7Vector localBefore(it->getLocalTransformation());
-                C7Vector parentCumul(it->getFullParentCumulativeTransformation());
-                C7Vector tr;
-                tr.setIdentity();
-                tr.Q.setEulerAngles(cmd.floatParams[0],cmd.floatParams[1],cmd.floatParams[2]);
-                it->setLocalTransformation(parentCumul.getInverse()*tr.getInverse());
-                it->alignBoundingBoxWithWorld();
-                it->setLocalTransformation(localBefore*tr*parentCumul*it->getFullLocalTransformation());
-            }
+                it->scaleObjectNonIsometrically(cmd.doubleParams[0],cmd.doubleParams[1],cmd.doubleParams[2]);
         }
         if (cmd.cmdId==TOGGLE_BOOLPROP_TEXTUREGUITRIGGEREDCMD)
         {
@@ -2475,13 +2460,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 C7Vector tr(it->getTextureRelativeConfig());
                 if (cmd.intParams[3]<3)
                 { // position
-                    double newVal=tt::getLimitedFloat(-100.0,100.0,cmd.floatParams[0]);
+                    double newVal=tt::getLimitedFloat(-100.0,100.0,cmd.doubleParams[0]);
                     tr.X(cmd.intParams[3])=newVal;
                 }
                 else
                 { // orientation
                     C3Vector euler(tr.Q.getEulerAngles());
-                    euler(cmd.intParams[3]-3)=cmd.floatParams[0];
+                    euler(cmd.intParams[3]-3)=cmd.doubleParams[0];
                     tr.Q.setEulerAngles(euler);
                 }
                 it->setTextureRelativeConfig(tr);
@@ -2494,7 +2479,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 double x,y;
                 it->getTextureScaling(x,y);
-                double newVal=cmd.floatParams[0];
+                double newVal=cmd.doubleParams[0];
                 if (newVal>=0.0)
                     newVal=tt::getLimitedFloat(0.001,1000.0,newVal);
                 else
@@ -2736,7 +2721,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if ((index>=0)&&(index<int(geoms.size())))
                 {
                     CMesh* geom=geoms[index];
-                    geom->setShadingAngle(cmd.floatParams[0]);
+                    geom->setShadingAngle(cmd.doubleParams[0]);
                 }
             }
         }
@@ -2772,13 +2757,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDependencyJointOffset(cmd.floatParams[0]);
+                it->setDependencyJointOffset(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_MULTFACT_JOINTDEPENDENCYGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDependencyJointMult(cmd.floatParams[0]);
+                it->setDependencyJointMult(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_OTHERJOINT_JOINTDEPENDENCYGUITRIGGEREDCMD)
         {
@@ -2798,27 +2783,27 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setScrewLead(cmd.floatParams[0]);
+                it->setScrewLead(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_MINPOS_JOINTGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setPositionMin(cmd.floatParams[0]);
+                it->setPositionMin(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_RANGE_JOINTGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setPositionRange(cmd.floatParams[0]);
+                it->setPositionRange(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_POS_JOINTGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                it->setPosition(cmd.floatParams[0]);
-                it->setTargetPosition(cmd.floatParams[0]);
+                it->setPosition(cmd.doubleParams[0]);
+                it->setTargetPosition(cmd.doubleParams[0]);
             }
         }
         if (cmd.cmdId==APPLY_CONFIGPARAMS_JOINTGUITRIGGEREDCMD)
@@ -2898,31 +2883,31 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setLength(cmd.floatParams[0]);
+                it->setLength(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_DIAMETER_JOINTGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDiameter(cmd.floatParams[0]);
+                it->setDiameter(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_TARGETVELOCITY_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setTargetVelocity(cmd.floatParams[0]);
+                it->setTargetVelocity(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_FORCE_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setTargetForce(cmd.floatParams[0],true);
+                it->setTargetForce(cmd.doubleParams[0],true);
         }
         if (cmd.cmdId==SET_MAXFORCE_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setTargetForce(cmd.floatParams[0],false);
+                it->setTargetForce(cmd.doubleParams[0],false);
         }
         if (cmd.cmdId==APPLY_PARAMS_JOINTDYNGUITRIGGEREDCMD)
         {
@@ -2958,7 +2943,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 double maxVelAccelJerk[3];
                 it->getMaxVelAccelJerk(maxVelAccelJerk);
-                maxVelAccelJerk[cmd.intParams[1]]=cmd.floatParams[0];
+                maxVelAccelJerk[cmd.intParams[1]]=cmd.doubleParams[0];
                 it->setMaxVelAccelJerk(maxVelAccelJerk);
             }
         }
@@ -2966,13 +2951,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setTargetPosition(cmd.floatParams[0]);
+                it->setTargetPosition(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_KCVALUES_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setKc(cmd.floatParams[0],cmd.floatParams[1]);
+                it->setKc(cmd.doubleParams[0],cmd.doubleParams[1]);
         }
         if (cmd.cmdId==SET_JOINTCTRLMODE_JOINTDYNGUITRIGGEREDCMD)
         {
@@ -3041,7 +3026,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if ((it!=nullptr)&&(it->pathContainer!=nullptr))
-                it->pathContainer->setSquareSize(cmd.floatParams[0]);
+                it->pathContainer->setSquareSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_DISTANCEUNIT_PATH_OLD_GUITRIGGEREDCMD)
         {
@@ -3105,7 +3090,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setShapingElementMaxLength(cmd.floatParams[0]);
+                it->setShapingElementMaxLength(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_TYPE_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
         {
@@ -3117,14 +3102,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setShapingScaling(cmd.floatParams[0]);
+                it->setShapingScaling(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_COORDINATES_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
         {
             CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                it->shapingCoordinates.assign(cmd.floatParams.begin(),cmd.floatParams.end());
+                it->shapingCoordinates.assign(cmd.doubleParams.begin(),cmd.doubleParams.end());
                 it->setShapingElementMaxLength(it->getShapingElementMaxLength()); // To trigger an actualization!
             }
         }
@@ -3160,7 +3145,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->getMesh()->setMass(cmd.floatParams[0]);
+                it->getMesh()->setMass(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==MULTIPLY_MASSFORSELECTION_SHAPEDYNGUITRIGGEREDCMD)
         {
@@ -3184,18 +3169,18 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
             for (size_t i=0;i<allComponents.size();i++)
-                allComponents[i]->setMass(allComponents[i]->getMass()*cmd.floatParams[0]);
+                allComponents[i]->setMass(allComponents[i]->getMass()*cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_INERTIAMATRIX_SHAPEDYNGUITRIGGEREDCMD)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                C3X3Matrix m(it->getMesh()->getMasslessInertiaMatrix());
-                m(size_t(cmd.intParams[1]),size_t(cmd.intParams[2]))=cmd.floatParams[0];
+                C3X3Matrix m(it->getMesh()->getInertia());
+                m(size_t(cmd.intParams[1]),size_t(cmd.intParams[2]))=cmd.doubleParams[0];
                 if (!cmd.boolParams[0])
                     m(size_t(cmd.intParams[1]),size_t(cmd.intParams[2]))/=it->getMesh()->getMass();
-                it->getMesh()->setMasslessInertiaMatrix(m,cmd.intParams[1],cmd.intParams[2]);
+                it->getMesh()->setInertia(m,cmd.intParams[1],cmd.intParams[2]);
             }
         }
         if (cmd.cmdId==MULTIPLY_INERTIAFORSELECTION_SHAPEDYNGUITRIGGEREDCMD)
@@ -3220,7 +3205,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
             for (size_t i=0;i<allComponents.size();i++)
-                allComponents[i]->setMasslessInertiaMatrix(allComponents[i]->getMasslessInertiaMatrix()*cmd.floatParams[0]);
+                allComponents[i]->setInertia(allComponents[i]->getInertia()*cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD)
         {
@@ -3253,7 +3238,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                                 it->setStartInDynamicSleeping(last->getStartInDynamicSleeping());
                                 it->setSetAutomaticallyToNonStaticIfGetsParent(last->getSetAutomaticallyToNonStaticIfGetsParent());
                                 it->getMesh()->setMass(last->getMesh()->getMass());
-                                it->getMesh()->setMasslessInertiaMatrix(last->getMesh()->getMasslessInertiaMatrix());
+                                it->getMesh()->setInertia(last->getMesh()->getInertia());
                                 it->getMesh()->setCOM(last->getMesh()->getCOM());
                             }
                         }
@@ -3290,27 +3275,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
                 if (it!=nullptr)
-                {
-                    C7Vector localTr;
-                    C3Vector diagI; // massless
-                    double mass=CPluginContainer::dyn_computeInertia(it->getObjectHandle(),localTr,diagI);
-                    double desiredDensity=cmd.floatParams[0];
-                    if (mass>0.0)
-                    {
-                        mass=desiredDensity*mass/1000.0;
-                        C3X3Matrix im;
-                        im.clear();
-                        im(0,0)=diagI(0);
-                        im(1,1)=diagI(1);
-                        im(2,2)=diagI(2);
-                        im=CMeshWrapper::getMasslesInertiaMatrixInNewFrame(localTr.Q,im,C4Vector::identityRotation);
-//                        C3X3Matrix rot(localTr.Q.getMatrix());
-//                        im=rot*im*rot.getTranspose();
-                        it->getMesh()->setMasslessInertiaMatrix(im);
-                        it->getMesh()->setCOM(localTr.X);
-                        it->getMesh()->setMass(mass);
-                    }
-                }
+                    it->computeInertia(cmd.doubleParams[0]);
             }
         }
         if (cmd.cmdId==SET_MATERIAL_SHAPEDYNGUITRIGGEREDCMD)
@@ -3489,7 +3454,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setGraphSize(cmd.floatParams[0]);
+                it->setGraphSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_BUFFERSIZE_GRAPHGUITRIGGEREDCMD)
         {
@@ -3526,7 +3491,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 CGraphData_old* grData=it->getGraphData(cmd.intParams[1]);
                 if (grData!=nullptr)
-                    grData->setZoomFactor(cmd.floatParams[0]);
+                    grData->setZoomFactor(cmd.doubleParams[0]);
             }
         }
         if (cmd.cmdId==SET_VALUEOFFSET_GRAPHGUITRIGGEREDCMD)
@@ -3536,7 +3501,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 CGraphData_old* grData=it->getGraphData(cmd.intParams[1]);
                 if (grData!=nullptr)
-                    grData->setAddCoeff(cmd.floatParams[0]);
+                    grData->setAddCoeff(cmd.doubleParams[0]);
             }
         }
         if (cmd.cmdId==SET_MOVINGAVERAGEPERIOD_GRAPHGUITRIGGEREDCMD)
@@ -3761,7 +3726,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 int a=it->getObjectMovementOptions();
-                if (cmd.floatParams[0]<0.0)
+                if (cmd.doubleParams[0]<0.0)
                 {
                     if (App::currentWorld->simulation->isSimulationStopped())
                         a=a|1;
@@ -3774,7 +3739,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         a=(a|1)-1;
                     else
                         a=(a|2)-2;
-                    it->setObjectMovementStepSize(0,cmd.floatParams[0]);
+                    it->setObjectMovementStepSize(0,cmd.doubleParams[0]);
                 }
                 it->setObjectMovementOptions(a);
             }
@@ -3785,7 +3750,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
             {
                 int a=it->getObjectMovementOptions();
-                if (cmd.floatParams[0]<0.0)
+                if (cmd.doubleParams[0]<0.0)
                 {
                     if (App::currentWorld->simulation->isSimulationStopped())
                         a=a|4;
@@ -3798,7 +3763,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         a=(a|4)-4;
                     else
                         a=(a|8)-8;
-                    it->setObjectMovementStepSize(1,cmd.floatParams[0]);
+                    it->setObjectMovementStepSize(1,cmd.doubleParams[0]);
                 }
                 it->setObjectMovementOptions(a);
             }
@@ -3866,13 +3831,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             int transfMode=cmd.intParams[cmd.intParams.size()-2];
             int t=cmd.intParams[cmd.intParams.size()-1];
             double scalingValues[3];
-            scalingValues[0]=cmd.floatParams[0];
-            scalingValues[1]=cmd.floatParams[1];
-            scalingValues[2]=cmd.floatParams[2];
+            scalingValues[0]=cmd.doubleParams[0];
+            scalingValues[1]=cmd.doubleParams[1];
+            scalingValues[2]=cmd.doubleParams[2];
             double translationValues[3];
-            translationValues[0]=cmd.floatParams[3];
-            translationValues[1]=cmd.floatParams[4];
-            translationValues[2]=cmd.floatParams[5];
+            translationValues[0]=cmd.doubleParams[3];
+            translationValues[1]=cmd.doubleParams[4];
+            translationValues[2]=cmd.doubleParams[5];
             // Prepare the object that will be translated/scaled, and all other objects in selection appropriately:
             // There is one master object that acts as the translation/scaling pivot. That object needs to be carefully selected
             std::vector<CSceneObject*> allSelObj;
@@ -3979,9 +3944,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             int transfMode=cmd.intParams[cmd.intParams.size()-1];
             double rotAngles[3];
-            rotAngles[0]=cmd.floatParams[0];
-            rotAngles[1]=cmd.floatParams[1];
-            rotAngles[2]=cmd.floatParams[2];
+            rotAngles[0]=cmd.doubleParams[0];
+            rotAngles[1]=cmd.doubleParams[1];
+            rotAngles[2]=cmd.doubleParams[2];
             // Prepare the object that will be rotated, and all other objects in selection appropriately:
             // There is one master object that acts as the rotation pivot. That object needs to be carefully selected
             std::vector<CSceneObject*> allSelObj;
@@ -4140,9 +4105,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (it!=nullptr)
                 {
                     if (cmd.intParams[2]==0)
-                        it->setMinLinearPrecision(cmd.floatParams[0]);
+                        it->setMinLinearPrecision(cmd.doubleParams[0]);
                     else
-                        it->setMinAngularPrecision(cmd.floatParams[0]);
+                        it->setMinAngularPrecision(cmd.doubleParams[0]);
                 }
             }
         }
@@ -4155,9 +4120,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (it!=nullptr)
                 {
                     if (cmd.intParams[2]==0)
-                        it->setPositionWeight(cmd.floatParams[0]);
+                        it->setPositionWeight(cmd.doubleParams[0]);
                     else
-                        it->setOrientationWeight(cmd.floatParams[0]);
+                        it->setOrientationWeight(cmd.doubleParams[0]);
                 }
             }
         }
@@ -4240,7 +4205,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDampingFactor(cmd.floatParams[0]);
+                it->setDampingFactor(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_ITERATIONS_IKGROUPGUITRIGGEREDCMD)
         {
@@ -4269,32 +4234,17 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             App::userSettings->saveUserSettings();
         if (cmd.cmdId==SET_TRANSLATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD)
         {
-            App::userSettings->setTranslationStepSize(cmd.floatParams[0]);
+            App::userSettings->setTranslationStepSize(cmd.doubleParams[0]);
             App::userSettings->saveUserSettings();
         }
         if (cmd.cmdId==SET_ROTATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD)
         {
-            App::userSettings->setRotationStepSize(cmd.floatParams[0]);
-            App::userSettings->saveUserSettings();
-        }
-        if (cmd.cmdId==TOGGLE_REMOVEIDENTICALVERTICES_USERSETTINGSGUITRIGGEREDCMD)
-        {
-            App::userSettings->identicalVerticesCheck=!App::userSettings->identicalVerticesCheck;
+            App::userSettings->setRotationStepSize(cmd.doubleParams[0]);
             App::userSettings->saveUserSettings();
         }
         if (cmd.cmdId==SET_IDENTICALVERTICESTOLERANCE_USERSETTINGSGUITRIGGEREDCMD)
         {
-            App::userSettings->identicalVerticesTolerance=cmd.floatParams[0];
-            App::userSettings->saveUserSettings();
-        }
-        if (cmd.cmdId==TOGGLE_REMOVEIDENTICALTRIANGLES_USERSETTINGSGUITRIGGEREDCMD)
-        {
-            App::userSettings->identicalTrianglesCheck=!App::userSettings->identicalTrianglesCheck;
-            App::userSettings->saveUserSettings();
-        }
-        if (cmd.cmdId==TOGGLE_IGNORETRIANGLEWINDING_USERSETTINGSGUITRIGGEREDCMD)
-        {
-            App::userSettings->identicalTrianglesWindingCheck=!App::userSettings->identicalTrianglesWindingCheck;
+            App::userSettings->verticesTolerance=cmd.doubleParams[0];
             App::userSettings->saveUserSettings();
         }
         if (cmd.cmdId==TOGGLE_HIDEHIERARCHY_USERSETTINGSGUITRIGGEREDCMD)
@@ -4348,7 +4298,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             newDummy->setObjectAlias_direct(cmd.stringParams[0].c_str());
             newDummy->setObjectName_direct_old(cmd.stringParams[0].c_str());
             newDummy->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(newDummy->getObjectName_old().c_str()).c_str());
-            newDummy->setDummySize(cmd.floatParams[0]);
+            newDummy->setDummySize(cmd.doubleParams[0]);
             App::currentWorld->sceneObjects->addObjectToScene(newDummy,false,true);
             newDummy->setLocalTransformation(cmd.transfParams[0]);
         }
@@ -4358,9 +4308,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             int toid=cmd.intParams[0];
             CShape* newShape;
             if (toid!=-1)
-                newShape=new CShape(C7Vector::identityTransformation,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,&cmd.floatVectorParams[2]);
+                newShape=new CShape(C7Vector::identityTransformation,cmd.doubleVectorParams[0],cmd.intVectorParams[0],nullptr,&cmd.floatVectorParams[0]);
             else
-                newShape=new CShape(C7Vector::identityTransformation,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
+                newShape=new CShape(C7Vector::identityTransformation,cmd.doubleVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
             newShape->setVisibleEdges(false);
             newShape->getSingleMesh()->setShadingAngle(0.0);
             newShape->getSingleMesh()->setEdgeThresholdAngle(0.0);
@@ -4385,7 +4335,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SHAPEEDIT_MAKEPRIMITIVE_GUITRIGGEREDCMD)
         {
-            CShape* newShape=new CShape(C7Vector::identityTransformation,cmd.floatVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
+            CShape* newShape=new CShape(C7Vector::identityTransformation,cmd.doubleVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
             C3Vector size(newShape->getBoundingBoxHalfSizes()*2.0);
             C7Vector conf(newShape->getLocalTransformation());
             delete newShape;
@@ -4649,7 +4599,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 #ifdef SIM_WITH_GUI
 void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
 {
-    double nearClipp=cmd.floatParams[0];
+    double nearClipp=cmd.doubleParams[0];
     C7Vector transf=cmd.transfParams[0];
     bool mouseDown=cmd.boolParams[0];
     int cameraHandle=cmd.intParams[0];

@@ -31,10 +31,7 @@ void CQDlgSettings::refresh()
     ui->hideConsole->setVisible(false);
 #endif
 
-    ui->removeIdenticalVerticesCheckbox->setEnabled(noSim);
     ui->removeIdenticalVerticesTolerance->setEnabled(noSim);
-    ui->removeIdenticalTriangles->setEnabled(noSim);
-    ui->ignoreTriangleWinding->setEnabled(App::userSettings->identicalTrianglesCheck&&noSim);
     ui->qqHideHierarchy->setEnabled(noSim);
     ui->undoRedo->setEnabled(noEditModeAndNoSim);
     ui->qqAutoSave->setEnabled(noEditModeAndNoSim);
@@ -62,13 +59,7 @@ void CQDlgSettings::refresh()
     ui->rotationStepSize->addItem(utils::getAngleString(false,45.0*degToRad).c_str(),QVariant(45));
     _selectItemOfCombobox(ui->rotationStepSize,int(App::userSettings->getRotationStepSize()*radToDeg+0.5));
 
-    ui->removeIdenticalVerticesCheckbox->setChecked(App::userSettings->identicalVerticesCheck);
-    ui->removeIdenticalVerticesTolerance->setText(utils::getPosString(false,App::userSettings->identicalVerticesTolerance).c_str());
-
-    ui->removeIdenticalTriangles->setChecked(App::userSettings->identicalTrianglesCheck);
-    ui->ignoreTriangleWinding->setChecked(App::userSettings->identicalTrianglesWindingCheck);
-
-
+    ui->removeIdenticalVerticesTolerance->setText(utils::getPosString(false,App::userSettings->verticesTolerance).c_str());
 
     ui->qqHideHierarchy->setChecked(App::userSettings->sceneHierarchyHiddenDuringSimulation);
     ui->worldReference->setChecked(App::userSettings->displayWorldReference);
@@ -91,12 +82,6 @@ void CQDlgSettings::on_rotationStepSize_activated(int index)
     App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
-void CQDlgSettings::on_removeIdenticalVerticesCheckbox_clicked()
-{
-    App::appendSimulationThreadCommand(TOGGLE_REMOVEIDENTICALVERTICES_USERSETTINGSGUITRIGGEREDCMD);
-    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-}
-
 void CQDlgSettings::on_removeIdenticalVerticesTolerance_editingFinished()
 {
     if (!ui->removeIdenticalVerticesTolerance->isModified())
@@ -115,19 +100,6 @@ void CQDlgSettings::on_removeIdenticalVerticesTolerance_editingFinished()
     }
     App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
-
-void CQDlgSettings::on_removeIdenticalTriangles_clicked()
-{
-    App::appendSimulationThreadCommand(TOGGLE_REMOVEIDENTICALTRIANGLES_USERSETTINGSGUITRIGGEREDCMD);
-    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-}
-
-void CQDlgSettings::on_ignoreTriangleWinding_clicked()
-{
-    App::appendSimulationThreadCommand(TOGGLE_IGNORETRIANGLEWINDING_USERSETTINGSGUITRIGGEREDCMD);
-    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-}
-
 
 void CQDlgSettings::on_worldReference_clicked()
 {

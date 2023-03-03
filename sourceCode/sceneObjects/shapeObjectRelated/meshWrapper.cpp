@@ -9,6 +9,8 @@
 #include <Eigen/Eigenvalues>
 #include <iostream>
 #include <algos.h>
+#include <meshRoutines.h>
+#include <pluginContainer.h>
 
 CMeshWrapper::CMeshWrapper()
 {
@@ -25,7 +27,6 @@ void CMeshWrapper::_commonInit()
     _bbFrame.setIdentity();
     _bbSize.clear();
     setDefaultInertiaParams();
-    _transformationsSinceGrouping.setIdentity();
 }
 
 CMeshWrapper::~CMeshWrapper()
@@ -56,10 +57,10 @@ void CMeshWrapper::addItem(CMeshWrapper* m)
     std::vector<int> ind;
     getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
     _bbFrame=CAlgos::getMeshBoundingBox(vert,ind,false,&_bbSize);
-    _computeInertiaFromChildren();
+    _computeInertiaFromComposingInertias();
 }
 
-void CMeshWrapper::_computeInertiaFromChildren()
+void CMeshWrapper::_computeInertiaFromComposingInertias()
 {
     _mass=0.0;
     _com.clear();
@@ -69,23 +70,13 @@ void CMeshWrapper::_computeInertiaFromChildren()
         CMeshWrapper* mesh=childList[i];
         _mass+=mesh->getMass();
         _com=_com+mesh->getIFrame()*mesh->getCOM()*mesh->getMass();
-        C3X3Matrix matr(getMasslesInertiaMatrixInNewFrame(mesh->getIFrame().Q,mesh->getMasslessInertiaMatrix(),C4Vector::identityRotation));
+        C3X3Matrix matr(getInertiaInNewFrame(mesh->getIFrame().Q,mesh->getInertia(),C4Vector::identityRotation));
         matr=matr*mesh->getMass();
         _iMatrix=_iMatrix+matr;
     }
     _com=_com/_mass;
     _iMatrix=_iMatrix/_mass;
-    fixInertiaMatrixAndComputePMI();
-}
-
-C7Vector CMeshWrapper::getTransformationsSinceGrouping() const
-{
-    return(_transformationsSinceGrouping);
-}
-
-void CMeshWrapper::setTransformationsSinceGrouping(const C7Vector& tr)
-{
-    _transformationsSinceGrouping=tr;
+    fixInertiaAndComputePMI();
 }
 
 void CMeshWrapper::display(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
@@ -225,9 +216,6 @@ void CMeshWrapper::copyAttributesTo(CMeshWrapper* target)
 {
     target->_mass=_mass;
     target->_name=_name;
-    target->_localInertiaFrame=_localInertiaFrame;
-    target->_principalMomentsOfInertia=_principalMomentsOfInertia;
-    target->_transformationsSinceGrouping=_transformationsSinceGrouping;
     target->_iFrame=_iFrame;
     target->_com=_com;
     target->_iMatrix=_iMatrix;
@@ -244,9 +232,6 @@ void CMeshWrapper::copyWrapperData(CMeshWrapper* target)
     target->_name=_name;
     target->_convex=_convex;
 
-    target->_localInertiaFrame=_localInertiaFrame;
-    target->_principalMomentsOfInertia=_principalMomentsOfInertia;
-    target->_transformationsSinceGrouping=_transformationsSinceGrouping;
     target->_iFrame=_iFrame;
     target->_com=_com;
     target->_iMatrix=_iMatrix;
@@ -274,16 +259,12 @@ double CMeshWrapper::getMass() const
 
 void CMeshWrapper::setDefaultInertiaParams()
 {
-    _localInertiaFrame.setIdentity();
-    _principalMomentsOfInertia(0)=0.001;
-    _principalMomentsOfInertia(1)=0.001;
-    _principalMomentsOfInertia(2)=0.001;
     _com.clear();
     _iMatrix.clear();
     _iMatrix(0,0)=0.01;
     _iMatrix(1,1)=0.01;
     _iMatrix(2,2)=0.01;
-    fixInertiaMatrixAndComputePMI();
+    fixInertiaAndComputePMI();
 }
 
 void CMeshWrapper::setName(std::string newName)
@@ -320,6 +301,60 @@ C7Vector CMeshWrapper::getBB(C3Vector* optBBSize) const
     if (optBBSize!=nullptr)
         optBBSize[0]=_bbSize;
     return(_bbFrame);
+}
+
+void CMeshWrapper::setBBFrame(const C7Vector& bbFrame)
+{
+    _bbFrame=bbFrame;
+}
+
+bool CMeshWrapper::reorientBB(const C4Vector* rot)
+{ // function has virtual/non-virtual counterpart!
+    bool retVal=false;
+    if ( (!isMesh())||(!isPure()) )
+    {
+        std::vector<double> vertices;
+        if (rot!=nullptr)
+        {
+            C7Vector tr;
+            tr.X.clear();
+            tr.Q=rot[0];
+            getCumulativeMeshes(tr.getInverse(),vertices,nullptr,nullptr);
+            C3Vector mmin(DBL_MAX,DBL_MAX,DBL_MAX);
+            C3Vector mmax(-DBL_MAX,-DBL_MAX,-DBL_MAX);
+            for (size_t i=0;i<vertices.size()/3;i++)
+            {
+                C3Vector v(vertices.data()+3*i);
+                mmin.keepMin(v);
+                mmax.keepMax(v);
+            }
+            _bbSize=mmax-mmin;
+            C7Vector bbc;
+            bbc.Q.setIdentity();
+            bbc.X=(mmax+mmin)*0.5;
+            _bbFrame=tr*bbc;
+        }
+        else
+        {
+            std::vector<int> indices;
+            getCumulativeMeshes(C7Vector::identityTransformation,vertices,&indices,nullptr);
+            _bbFrame=CAlgos::getMeshBoundingBox(vertices,indices,true);
+            C7Vector inv(_bbFrame.getInverse());
+
+            C3Vector mmin(DBL_MAX,DBL_MAX,DBL_MAX);
+            C3Vector mmax(-DBL_MAX,-DBL_MAX,-DBL_MAX);
+            for (size_t i=0;i<vertices.size()/3;i++)
+            {
+                C3Vector v(vertices.data()+3*i);
+                v=inv*v;
+                mmin.keepMin(v);
+                mmax.keepMax(v);
+            }
+            _bbSize=mmax-mmin;
+        }
+        retVal=true;
+    }
+    return(retVal);
 }
 
 bool CMeshWrapper::getShapeRelIFrame(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,C7Vector& shapeRelIFrame) const
@@ -373,20 +408,20 @@ void CMeshWrapper::setCOM(const C3Vector& com)
     _com=com;
 }
 
-C3X3Matrix CMeshWrapper::getMasslessInertiaMatrix() const
+C3X3Matrix CMeshWrapper::getInertia() const
 {
     return(_iMatrix);
 }
 
-void CMeshWrapper::setMasslessInertiaMatrix(const C3X3Matrix& im,int modifItemRow/*=-1*/,int modifItemCol/*=-1*/)
+void CMeshWrapper::setInertia(const C3X3Matrix& im,int modifItemRow/*=-1*/,int modifItemCol/*=-1*/)
 {
     _iMatrix=im;
     if ( (modifItemRow!=-1)&&(modifItemCol!=-1) )
         _iMatrix(modifItemCol,modifItemRow)=_iMatrix(modifItemRow,modifItemCol);
-    fixInertiaMatrixAndComputePMI();
+    fixInertiaAndComputePMI();
 }
 
-void CMeshWrapper::fixInertiaMatrixAndComputePMI()
+void CMeshWrapper::fixInertiaAndComputePMI()
 {
     for (size_t i=0;i<3;i++)
     {
@@ -397,7 +432,7 @@ void CMeshWrapper::fixInertiaMatrixAndComputePMI()
         if (_iMatrix(i,i)<1e-8)
             _iMatrix(i,i)=1e-8;
     }
-    getPMIFromMasslessTensor(_iMatrix,_pmiRotFrame,_pmi);
+    getPMIFromInertia(_iMatrix,_pmiRotFrame,_pmi);
 }
 
 C3Vector CMeshWrapper::getPMI() const
@@ -412,32 +447,7 @@ void CMeshWrapper::setPMI(const C3Vector& pmi)
     im(0,0)=pmi(0);
     im(1,1)=pmi(1);
     im(2,2)=pmi(2);
-    setMasslessInertiaMatrix(im);
-}
-
-C7Vector CMeshWrapper::getLocalInertiaFrame() const
-{
-    return (_localInertiaFrame);
-}
-
-void CMeshWrapper::setLocalInertiaFrame(const C7Vector& li)
-{
-    _localInertiaFrame=li;
-}
-
-C3Vector CMeshWrapper::getPrincipalMomentsOfInertia() const
-{
-    return (_principalMomentsOfInertia);
-}
-
-void CMeshWrapper::setPrincipalMomentsOfInertia(const C3Vector& inertia)
-{ // massless inertia
-    _principalMomentsOfInertia=inertia;
-    _principalMomentsOfInertia(0)=tt::getLimitedFloat(0.0,10000.0,_principalMomentsOfInertia(0));
-    _principalMomentsOfInertia(1)=tt::getLimitedFloat(0.0,10000.0,_principalMomentsOfInertia(1));
-    _principalMomentsOfInertia(2)=tt::getLimitedFloat(0.0,10000.0,_principalMomentsOfInertia(2));
-    if (_principalMomentsOfInertia.getLength()==0.0)
-        _principalMomentsOfInertia(0)=0.001; // make sure we don't have a zero vector (problems with Bullet? and CoppeliaSim!)
+    setInertia(im);
 }
 
 void CMeshWrapper::prepareVerticesIndicesNormalsAndEdgesForSerialization()
@@ -450,7 +460,7 @@ void CMeshWrapper::scaleMassAndInertia(double s)
 {
     _mass*=s*s*s;
     _iMatrix*=s*s;
-    fixInertiaMatrixAndComputePMI();
+    fixInertiaAndComputePMI();
 }
 
 void CMeshWrapper::scale(double isoVal)
@@ -598,10 +608,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
 { // function has virtual/non-virtual counterpart!
     bool isNewTypeOfShapeFormat=false;
     if (rootLevel)
-    {
         _iFrame.setIdentity();
-        _transformationsSinceGrouping.setIdentity();
-    }
     if (ar.isBinary())
     {
         if (ar.isStoring())
@@ -710,6 +717,8 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
         { // Loading
             int byteQuantity;
             std::string theName="";
+            C3Vector principalMomentsOfInertia_OLD;
+            C7Vector localInertiaFrame_OLD;
             while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
                 theName=ar.readDataName();
@@ -756,12 +765,12 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                         for (size_t i=0;i<7;i++)
                         {
                             ar >> bla;
-                            _localInertiaFrame(i)=(double)bla;
+                            localInertiaFrame_OLD(i)=(double)bla;
                         }
                         for (size_t i=0;i<3;i++)
                         {
                             ar >> bla;
-                            _principalMomentsOfInertia(i)=(double)bla;
+                            principalMomentsOfInertia_OLD(i)=(double)bla;
                         }
                     }
 
@@ -769,45 +778,47 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _localInertiaFrame(0) >> _localInertiaFrame(1) >> _localInertiaFrame(2) >> _localInertiaFrame(3);
-                        ar >> _localInertiaFrame(4) >> _localInertiaFrame(5) >> _localInertiaFrame(6);
-                        ar >> _principalMomentsOfInertia(0) >> _principalMomentsOfInertia(1) >> _principalMomentsOfInertia(2);
+                        ar >> localInertiaFrame_OLD(0) >> localInertiaFrame_OLD(1) >> localInertiaFrame_OLD(2) >> localInertiaFrame_OLD(3);
+                        ar >> localInertiaFrame_OLD(4) >> localInertiaFrame_OLD(5) >> localInertiaFrame_OLD(6);
+                        ar >> principalMomentsOfInertia_OLD(0) >> principalMomentsOfInertia_OLD(1) >> principalMomentsOfInertia_OLD(2);
                     }
 
                     if (theName.compare("Vtb")==0) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     { // for backward comp. (flt->dbl)
                         noHit=false;
                         ar >> byteQuantity;
+                        C7Vector transformationsSinceGrouping_OLD;
                         float bla;
                         for (size_t i=0;i<7;i++)
                         {
                             ar >> bla;
-                            _transformationsSinceGrouping(i)=(double)bla;
+                            transformationsSinceGrouping_OLD(i)=(double)bla;
                         }
                         if (rootLevel)
-                            _transformationsSinceGrouping.setIdentity();
-                        _iFrame=parentCumulIFrame.getInverse()*_transformationsSinceGrouping;
-                        C7Vector inf(_transformationsSinceGrouping.getInverse()*_localInertiaFrame);
+                            transformationsSinceGrouping_OLD.setIdentity();
+                        _iFrame=parentCumulIFrame.getInverse()*transformationsSinceGrouping_OLD;
+                        C7Vector inf(transformationsSinceGrouping_OLD.getInverse()*localInertiaFrame_OLD);
                         _com=inf.X;
                         inf.X.clear();
-                        _iMatrix=getMasslessTensorFromPMI(_principalMomentsOfInertia,inf);
-                        fixInertiaMatrixAndComputePMI();
+                        _iMatrix=getInertiaFromPMI(principalMomentsOfInertia_OLD,inf);
+                        fixInertiaAndComputePMI();
                     }
 
                     if (theName.compare("_tb")==0) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     {
                         noHit=false;
+                        C7Vector transformationsSinceGrouping_OLD;
                         ar >> byteQuantity;
-                        ar >> _transformationsSinceGrouping(0) >> _transformationsSinceGrouping(1) >> _transformationsSinceGrouping(2) >> _transformationsSinceGrouping(3);
-                        ar >> _transformationsSinceGrouping(4) >> _transformationsSinceGrouping(5) >> _transformationsSinceGrouping(6);
+                        ar >> transformationsSinceGrouping_OLD(0) >> transformationsSinceGrouping_OLD(1) >> transformationsSinceGrouping_OLD(2) >> transformationsSinceGrouping_OLD(3);
+                        ar >> transformationsSinceGrouping_OLD(4) >> transformationsSinceGrouping_OLD(5) >> transformationsSinceGrouping_OLD(6);
                         if (rootLevel)
-                            _transformationsSinceGrouping.setIdentity();
-                        _iFrame=parentCumulIFrame.getInverse()*_transformationsSinceGrouping;
-                        C7Vector inf(_transformationsSinceGrouping.getInverse()*_localInertiaFrame);
+                            transformationsSinceGrouping_OLD.setIdentity();
+                        _iFrame=parentCumulIFrame.getInverse()*transformationsSinceGrouping_OLD;
+                        C7Vector inf(transformationsSinceGrouping_OLD.getInverse()*localInertiaFrame_OLD);
                         _com=inf.X;
                         inf.X.clear();
-                        _iMatrix=getMasslessTensorFromPMI(_principalMomentsOfInertia,inf);
-                        fixInertiaMatrixAndComputePMI();
+                        _iMatrix=getInertiaFromPMI(principalMomentsOfInertia_OLD,inf);
+                        fixInertiaAndComputePMI();
                     }
 
                     if (theName.compare("Ifr")==0)
@@ -835,7 +846,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                             for (size_t j=0;j<3;j++)
                                 ar >> _iMatrix(i,j);
                         }
-                        fixInertiaMatrixAndComputePMI();
+                        fixInertiaAndComputePMI();
                     }
                     if (theName.compare("Bbf")==0)
                     {
@@ -963,13 +974,14 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
             {
                 ar.xmlGetNode_string("name",_name);
 
+                C7Vector transformationsSinceGrouping_OLD;
                 if (ar.xmlPushChildNode("transformationSinceGrouping"))  // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                 {
-                    ar.xmlGetNode_floats("position",_transformationsSinceGrouping.X.data,3);
-                    ar.xmlGetNode_floats("quaternion",_transformationsSinceGrouping.Q.data,4);
+                    ar.xmlGetNode_floats("position",transformationsSinceGrouping_OLD.X.data,3);
+                    ar.xmlGetNode_floats("quaternion",transformationsSinceGrouping_OLD.Q.data,4);
                     if (rootLevel)
-                        _transformationsSinceGrouping.setIdentity();
-                    _transformationsSinceGrouping.Q.normalize(); // just in case
+                        transformationsSinceGrouping_OLD.setIdentity();
+                    transformationsSinceGrouping_OLD.Q.normalize(); // just in case
                     ar.xmlPopNode();
                 }
 
@@ -979,17 +991,19 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
 
                     if (ar.xmlPushChildNode("localInertiaFrame"))  // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     {
-                        ar.xmlGetNode_floats("position",_localInertiaFrame.X.data,3);
-                        ar.xmlGetNode_floats("quaternion",_localInertiaFrame.Q.data,4);
-                        _localInertiaFrame.Q.normalize(); // just in case
-                        ar.xmlGetNode_floats("principalMomentsOfInertia",_principalMomentsOfInertia.data,3);
+                        C7Vector localInertiaFrame_OLD;
+                        ar.xmlGetNode_floats("position",localInertiaFrame_OLD.X.data,3);
+                        ar.xmlGetNode_floats("quaternion",localInertiaFrame_OLD.Q.data,4);
+                        localInertiaFrame_OLD.Q.normalize(); // just in case
+                        C3Vector principalMomentsOfInertia_OLD;
+                        ar.xmlGetNode_floats("principalMomentsOfInertia",principalMomentsOfInertia_OLD.data,3);
                         ar.xmlPopNode();
-                        _iFrame=parentCumulIFrame.getInverse()*_transformationsSinceGrouping;
-                        C7Vector inf(_transformationsSinceGrouping.getInverse()*_localInertiaFrame);
+                        _iFrame=parentCumulIFrame.getInverse()*transformationsSinceGrouping_OLD;
+                        C7Vector inf(transformationsSinceGrouping_OLD.getInverse()*localInertiaFrame_OLD);
                         _com=inf.X;
                         inf.X.clear();
-                        _iMatrix=getMasslessTensorFromPMI(_principalMomentsOfInertia,inf);
-                        fixInertiaMatrixAndComputePMI();
+                        _iMatrix=getInertiaFromPMI(principalMomentsOfInertia_OLD,inf);
+                        fixInertiaAndComputePMI();
                     }
 
                     if (ar.xmlPushChildNode("inertiaFrame"))
@@ -1012,7 +1026,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                         for (size_t j=0;j<3;j++)
                             _iMatrix(i,j)=im[i*3+j];
                     }
-                    fixInertiaMatrixAndComputePMI();
+                    fixInertiaAndComputePMI();
 
                     if (ar.xmlPushChildNode("bbFrame"))
                     {
@@ -1073,36 +1087,34 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
 }
 
 
-bool CMeshWrapper::getPMIFromMasslessTensor(const C3X3Matrix& tensor,C4Vector& rotation,C3Vector& principalMoments)
+bool CMeshWrapper::getPMIFromInertia(const C3X3Matrix& tensor,C4Vector& rotation,C3Vector& principalMoments)
 { // tensor --> PMI + rotation (tensor and PMI are mass-less)
-    Eigen::Matrix3f m;
-    m(0,0)=tensor(0,0);
-    m(1,1)=tensor(1,1);
-    m(2,2)=tensor(2,2);
-    m(0,1)=tensor(0,1);
-    m(1,0)=tensor(0,1);
-    m(0,2)=tensor(0,2);
-    m(2,0)=tensor(0,2);
-    m(1,2)=tensor(1,2);
-    m(2,1)=tensor(1,2);
-    Eigen::EigenSolver<Eigen::Matrix3f> es(m);
-    Eigen::Vector3cf eigenVals=es.eigenvalues();
-    principalMoments.setData(eigenVals(0).real(),eigenVals(1).real(),eigenVals(2).real());
-    Eigen::Vector3cf eigenVect1=es.eigenvectors().col(0);
-    C3Vector eVect1(eigenVect1(0).real(),eigenVect1(1).real(),eigenVect1(2).real());
-    Eigen::Vector3cf eigenVect2=es.eigenvectors().col(1);
-    C3Vector eVect2(eigenVect2(0).real(),eigenVect2(1).real(),eigenVect2(2).real());
-    Eigen::Vector3cf eigenVect3=es.eigenvectors().col(2);
-    C3Vector eVect3(eigenVect3(0).real(),eigenVect3(1).real(),eigenVect3(2).real());
-    C3X3Matrix matr;
-    matr.axis[0]=eVect1;
-    matr.axis[1]=eVect2;
-    matr.axis[2]=eVect3;
-    rotation=matr.getQuaternion();
-    return((eigenVals(0).real()>0.0)&&(eigenVals(1).real()>0.0)&&(eigenVals(2).real()>0.0));
+    Eigen::Matrix3d m;
+    for (size_t i=0;i<3;i++)
+    {
+        for (size_t j=0;j<3;j++)
+            m(i,j)=tensor(j,i);
+    }
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver(m);
+    eigensolver.compute(m);
+    Eigen::Vector3d a=eigensolver.eigenvalues();
+    Eigen::Matrix3d v=eigensolver.eigenvectors();
+    int idx[3]={0,1,2};
+    for (size_t i=0;i<3;i++)
+        principalMoments(i)=a(i);
+    principalMoments.sort(idx);
+    C3X3Matrix r;
+    for (size_t i=0;i<3;i++)
+    {
+        r.axis[0](i)=v.col(idx[0]).normalized()(i);
+        r.axis[1](i)=v.col(idx[1]).normalized()(i);
+    }
+    r.axis[2]=r.axis[0]^r.axis[1];
+    rotation=r.getQuaternion();
+    return( (principalMoments(0)>0.0)&&(principalMoments(1)>0.0)&&(principalMoments(2)>0.0) );
 }
 
-C3X3Matrix CMeshWrapper::getMasslessTensorFromPMI(const C3Vector& principalMoments,const C7Vector& newFrame)
+C3X3Matrix CMeshWrapper::getInertiaFromPMI(const C3Vector& principalMoments,const C7Vector& newFrame)
 { // PMI + transf --> tensor (tensor and PMI are mass-less)
     C3X3Matrix tensor;
     tensor.clear();
@@ -1110,8 +1122,7 @@ C3X3Matrix CMeshWrapper::getMasslessTensorFromPMI(const C3Vector& principalMomen
     tensor.axis[1](1)=principalMoments(1);
     tensor.axis[2](2)=principalMoments(2);
     // 1. reorient the frame:
-    tensor=getMasslesInertiaMatrixInNewFrame(newFrame.Q,tensor,C4Vector::identityRotation);
-//    tensor=newFrame.Q.getMatrix()*tensor*newFrame.Q.getInverse().getMatrix();
+    tensor=getInertiaInNewFrame(newFrame.Q,tensor,C4Vector::identityRotation);
     // 2. shift the frame:
     C3X3Matrix D;
     D.setIdentity();
@@ -1123,19 +1134,19 @@ C3X3Matrix CMeshWrapper::getMasslessTensorFromPMI(const C3Vector& principalMomen
     return(tensor);
 }
 
-C3X3Matrix CMeshWrapper::getMasslesInertiaMatrixInNewFrame(const C4Vector& oldFrame,const C3X3Matrix& oldMatrix,const C4Vector& newFrame)
+C3X3Matrix CMeshWrapper::getInertiaInNewFrame(const C4Vector& oldFrame,const C3X3Matrix& oldMatrix,const C4Vector& newFrame)
 {
     C3X3Matrix rot(oldFrame.getMatrix().getTranspose()*newFrame.getMatrix());
     C3X3Matrix retVal(rot.getTranspose()*oldMatrix*rot);
     return(retVal);
 }
 
-std::string CMeshWrapper::getInertiaMatrixErrorString() const
+std::string CMeshWrapper::getInertiaErrorString() const
 {
-    return(getInertiaMatrixErrorString(_iMatrix));
+    return(getInertiaErrorString(_iMatrix));
 }
 
-std::string CMeshWrapper::getInertiaMatrixErrorString(const C3X3Matrix& matrix)
+std::string CMeshWrapper::getInertiaErrorString(const C3X3Matrix& matrix)
 {
     std::string retVal="";
     for (size_t i=0;i<3;i++)
@@ -1155,7 +1166,7 @@ std::string CMeshWrapper::getInertiaMatrixErrorString(const C3X3Matrix& matrix)
         {
             C4Vector dummyRot;
             C3Vector pmi;
-            if (getPMIFromMasslessTensor(matrix,dummyRot,pmi))
+            if (getPMIFromInertia(matrix,dummyRot,pmi))
             { // positive definite: eigenvals are positive
                 if ((pmi(0)+pmi(1)<pmi(2))||(pmi(0)+pmi(2)<pmi(1))||(pmi(1)+pmi(2)<pmi(0)))
                     retVal="Invalid/unstable inertia matrix: A+B<C";

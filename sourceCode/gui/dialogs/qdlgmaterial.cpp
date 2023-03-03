@@ -144,9 +144,9 @@ void CQDlgMaterial::_adjustCol(int colComponent)
             cmd.intParams.push_back(_objID1);
             cmd.intParams.push_back(_objID2);
             cmd.intParams.push_back(colComponent);
-            cmd.floatParams.push_back(col[0]);
-            cmd.floatParams.push_back(col[1]);
-            cmd.floatParams.push_back(col[2]);
+            cmd.doubleParams.push_back(col[0]);
+            cmd.doubleParams.push_back(col[1]);
+            cmd.doubleParams.push_back(col[2]);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -207,9 +207,9 @@ void CQDlgMaterial::on_qqPulsationAdjust_clicked()
                     cmd.intParams.push_back(_objID2);
                     cmd.boolParams.push_back(theDialog.pulsationEnabled);
                     cmd.boolParams.push_back(!theDialog.pulsationRealTime);
-                    cmd.floatParams.push_back(theDialog.pulsationFrequency);
-                    cmd.floatParams.push_back(theDialog.pulsationPhase);
-                    cmd.floatParams.push_back(theDialog.pulsationRatio);
+                    cmd.doubleParams.push_back(theDialog.pulsationFrequency);
+                    cmd.doubleParams.push_back(theDialog.pulsationPhase);
+                    cmd.doubleParams.push_back(theDialog.pulsationRatio);
                     App::appendSimulationThreadCommand(cmd);
                     App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                 }
@@ -291,7 +291,7 @@ void CQDlgMaterial::on_qqOpacity_editingFinished()
                 cmd.intParams.push_back(_objType);
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
-                cmd.floatParams.push_back(s);
+                cmd.doubleParams.push_back(s);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }

@@ -319,7 +319,7 @@ void CQDlgTextures::_setTextureConfig(int index)
         cmd.intParams.push_back(index);
         if (index>=3)
             newVal*=degToRad;
-        cmd.floatParams.push_back(newVal);
+        cmd.doubleParams.push_back(newVal);
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
     }
@@ -339,7 +339,7 @@ void CQDlgTextures::_setTextureScaling(int index)
         cmd.intParams.push_back(_objID1);
         cmd.intParams.push_back(_objID2);
         cmd.intParams.push_back(index);
-        cmd.floatParams.push_back(newVal);
+        cmd.doubleParams.push_back(newVal);
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
     }

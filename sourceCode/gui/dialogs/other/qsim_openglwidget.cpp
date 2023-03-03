@@ -611,9 +611,9 @@ void COpenglWidget::dropEvent(QDropEvent* dEvent)
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=MODEL_BROWSER_DRAG_AND_DROP_CMD;
                     cmd.stringParams.push_back(pathAndName);
-                    cmd.floatParams.push_back(desiredModelPosition(0));
-                    cmd.floatParams.push_back(desiredModelPosition(1));
-                    cmd.floatParams.push_back(desiredModelPosition(2));
+                    cmd.doubleParams.push_back(desiredModelPosition(0));
+                    cmd.doubleParams.push_back(desiredModelPosition(1));
+                    cmd.doubleParams.push_back(desiredModelPosition(2));
                     App::appendSimulationThreadCommand(cmd); // that command will clear _modelDragAndDropInfo once the model was loaded
                 }
                 else

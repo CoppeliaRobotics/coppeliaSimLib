@@ -457,7 +457,7 @@ void CQDlgIkElements::on_qqPrecisionLinear_editingFinished()
             cmd.intParams.push_back(_ikGroupHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(0); // linear
-            cmd.floatParams.push_back(newVal);
+            cmd.doubleParams.push_back(newVal);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -480,7 +480,7 @@ void CQDlgIkElements::on_qqPrecisionAngular_editingFinished()
             cmd.intParams.push_back(_ikGroupHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(1); // angular
-            cmd.floatParams.push_back(newVal*degToRad);
+            cmd.doubleParams.push_back(newVal*degToRad);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -503,7 +503,7 @@ void CQDlgIkElements::on_qqWeightLinear_editingFinished()
             cmd.intParams.push_back(_ikGroupHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(0); // linear
-            cmd.floatParams.push_back(newVal);
+            cmd.doubleParams.push_back(newVal);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -526,7 +526,7 @@ void CQDlgIkElements::on_qqWeightAngular_editingFinished()
             cmd.intParams.push_back(_ikGroupHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(1); // angular
-            cmd.floatParams.push_back(newVal);
+            cmd.doubleParams.push_back(newVal);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }

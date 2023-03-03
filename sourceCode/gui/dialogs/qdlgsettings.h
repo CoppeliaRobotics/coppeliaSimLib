@@ -26,13 +26,7 @@ private slots:
 
     void on_rotationStepSize_activated(int index);
 
-    void on_removeIdenticalVerticesCheckbox_clicked();
-
     void on_removeIdenticalVerticesTolerance_editingFinished();
-
-    void on_removeIdenticalTriangles_clicked();
-
-    void on_ignoreTriangleWinding_clicked();
 
     void on_worldReference_clicked();
 

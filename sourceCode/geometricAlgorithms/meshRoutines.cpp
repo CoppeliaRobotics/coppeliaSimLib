@@ -16,7 +16,7 @@ void CMeshRoutines::getEdgeFeatures(double* vertices,int verticesLength,int* ind
 { // theVertexIDs, theEdgeIDs or theFaceIDs can be nullptr
     // For each vertex, edge and face, an identifier will be associated:
     // Same triangle ID --> triangles belong to the same face (with given tolerance between normals)
-    // Same edge ID --> edges belong to the same edge (with given tolerance). -1 --> edge is embedded in a face 
+    // Same edge ID --> edges belong to the same edge (with given tolerance). -1 --> edge is embedded in a face
     // Vertex ID is -1 --> vertex is embedded in an edge or face
     // If for Display is true, we calculate edges for nice display, otherwise, we calculate edges that can be used for the dynamic collision rersponse algorithms
 
@@ -234,52 +234,25 @@ bool CMeshRoutines::getConvexHull(const double* verticesIn,int verticesInLength,
     verticesOut->clear();
     if (indicesOut!=nullptr)
         indicesOut->clear();
-    if (CPluginContainer::qhull(data))
+    if ( CPluginContainer::qhull(data)&&success )
     {
-        if (success)
+        for (int i=0;i<outVertLength;i++)
+            verticesOut->push_back(outVert[i]);
+        delete[] outVert;
+        if (indicesOut!=nullptr)
         {
-            for (int i=0;i<outVertLength;i++)
-                verticesOut->push_back(outVert[i]);
-            delete[] outVert;
-            if (indicesOut!=nullptr)
-            {
-                for (int i=0;i<outIndLength;i++)
-                    indicesOut->push_back(outInd[i]);
-                delete[] outInd;
-            }
-            return(true);
-            /*
-            C3Vector minV,maxV;
-            for (size_t i=0;i<verticesOut->size()/3;i++)
-            {
-                C3Vector v(&verticesOut->at(3*i));
-                if (i==0)
-                {
-                    minV=v;
-                    maxV=v;
-                }
-                else
-                {
-                    minV.keepMin(v);
-                    maxV.keepMax(v);
-                }
-            }
+            for (int i=0;i<outIndLength;i++)
+                indicesOut->push_back(outInd[i]);
+            delete[] outInd;
 
-            C3Vector dim(maxV-minV);
-
-            // We merge close vertices, in order to have less problems with tolerances (1% of the dimension of the hull):
-            CMeshManip::cleanUpMeshData(*verticesOut,*indicesOut,nullptr,nullptr,true,(dim(0)+dim(1)+dim(2))*0.001/3.0,false);
-            if ( (verticesOut->size()>=12)&&checkIfConvex(*verticesOut,*indicesOut,0.001) ) // 0.1%
-            {
-                printf("e\n");
-                return(true);
-            }
-            */
+            // TODO987 check if convex if not redo with larger tol
+            CMeshRoutines::removeDuplicateVerticesAndTriangles(verticesOut[0],indicesOut,nullptr,nullptr,App::userSettings->verticesTolerance);
+            CMeshRoutines::toDelaunayMesh(verticesOut[0],indicesOut[0],nullptr,nullptr);
         }
+        return(true);
     }
     else
         App::logMsg(sim_verbosity_errors,"Qhull failed. Is the Qhull plugin loaded?");
-    printf("F\n");
 
     return(false);
 }
@@ -479,9 +452,9 @@ bool CMeshRoutines::checkIfConvex(const std::vector<double>& vertices,const std:
     // Since identical vertices are allowed, first merge them:
     std::vector<double> vertices_(vertices);
     std::vector<int> indices_(indices);
-    CMeshManip::cleanUpMeshData(vertices_,indices_,nullptr,nullptr,true,App::userSettings->identicalVerticesTolerance,false);
+    CMeshRoutines::removeDuplicateVerticesAndTriangles(vertices_,&indices_,nullptr,nullptr,App::userSettings->verticesTolerance);
 
-    // Check if all edges touch exactly 2 triangles:
+    // Check if all edges touch exactly 2 triangles, i.e. the mesh is water-tight and remains so, when randomly moving vertices around:
     std::vector<std::map<int,int>> allEdges(vertices_.size()/3);
     for (size_t i=0;i<indices_.size()/3;i++)
     {
@@ -575,7 +548,7 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
     { // along y
         for (int j=0;j<(divX+1);j++)
         { // along x
-            tt::addToFloatArray(&vertices,-xhSize+j*xs,-yhSize+i*ys,-zhSize);   
+            tt::addToFloatArray(&vertices,-xhSize+j*xs,-yhSize+i*ys,-zhSize);
         }
     }
     // Plane2:
@@ -583,7 +556,7 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
     { // along z
         for (int j=0;j<(divX+1);j++)
         { // along x
-            tt::addToFloatArray(&vertices,-xhSize+j*xs,-yhSize,-zhSize+i*zs);   
+            tt::addToFloatArray(&vertices,-xhSize+j*xs,-yhSize,-zhSize+i*zs);
         }
     }
     // Plane3:
@@ -591,7 +564,7 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
     { // along z
         for (int j=0;j<(divX+1);j++)
         { // along x
-            tt::addToFloatArray(&vertices,-xhSize+j*xs,+yhSize,-zhSize+i*zs);   
+            tt::addToFloatArray(&vertices,-xhSize+j*xs,+yhSize,-zhSize+i*zs);
         }
     }
     // Plane4:
@@ -599,7 +572,7 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
     { // along y
         for (int j=0;j<(divX+1);j++)
         { // along x
-            tt::addToFloatArray(&vertices,-xhSize+j*xs,-yhSize+i*ys,+zhSize);   
+            tt::addToFloatArray(&vertices,-xhSize+j*xs,-yhSize+i*ys,+zhSize);
         }
     }
     // Plane5:
@@ -607,7 +580,7 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
     { // along y
         for (int j=1;j<divZ;j++)
         { // along z
-            tt::addToFloatArray(&vertices,-xhSize,-yhSize+i*ys,-zhSize+j*zs);   
+            tt::addToFloatArray(&vertices,-xhSize,-yhSize+i*ys,-zhSize+j*zs);
         }
     }
     // Plane6:
@@ -615,10 +588,10 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
     { // along y
         for (int j=1;j<divZ;j++)
         { // along z
-            tt::addToFloatArray(&vertices,+xhSize,-yhSize+i*ys,-zhSize+j*zs);   
+            tt::addToFloatArray(&vertices,+xhSize,-yhSize+i*ys,-zhSize+j*zs);
         }
     }
-    
+
     // Now we create the indices:
     //***************************
     // Plane1:
@@ -698,38 +671,38 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
     { // No vertical division
         if (divY==1)
         { // No division in Y -> here we have only one face
-            tt::addToIntArray(&indices,(divX+1)*divY,0,(divY+1)*(divX+1)+2*divZ*(divX+1)-divX-1);   
-            tt::addToIntArray(&indices,(divY+1)*(divX+1)+2*divZ*(divX+1)-divX-1,0,(divY+1)*(divX+1)+(divZ-1)*(divX+1)); 
+            tt::addToIntArray(&indices,(divX+1)*divY,0,(divY+1)*(divX+1)+2*divZ*(divX+1)-divX-1);
+            tt::addToIntArray(&indices,(divY+1)*(divX+1)+2*divZ*(divX+1)-divX-1,0,(divY+1)*(divX+1)+(divZ-1)*(divX+1));
         }
         else
         {
-            tt::addToIntArray(&indices,(divX+1)*divY,(divX+1)*(divY-1),(divY+1)*(divX+1)+2*divZ*(divX+1)-divX-1);   
-            tt::addToIntArray(&indices,(divX+1)*(divY+1)+2*divZ*(divX+1)+(divY-2)*(divX+1),(divY+1)*(divX+1)+2*divZ*(divX+1)-divX-1,(divX+1)*(divY-1)); 
-            tt::addToIntArray(&indices,(divY+1)*(divX+1)+2*divZ*(divX+1),0,(divY+1)*(divX+1)+(divZ-1)*(divX+1));    
-            tt::addToIntArray(&indices,divX+1,0,(divY+1)*(divX+1)+2*divZ*(divX+1)); 
+            tt::addToIntArray(&indices,(divX+1)*divY,(divX+1)*(divY-1),(divY+1)*(divX+1)+2*divZ*(divX+1)-divX-1);
+            tt::addToIntArray(&indices,(divX+1)*(divY+1)+2*divZ*(divX+1)+(divY-2)*(divX+1),(divY+1)*(divX+1)+2*divZ*(divX+1)-divX-1,(divX+1)*(divY-1));
+            tt::addToIntArray(&indices,(divY+1)*(divX+1)+2*divZ*(divX+1),0,(divY+1)*(divX+1)+(divZ-1)*(divX+1));
+            tt::addToIntArray(&indices,divX+1,0,(divY+1)*(divX+1)+2*divZ*(divX+1));
         }
         int up=(divY+1)*(divX+1)+2*divZ*(divX+1);
         int down=divX+1;
         for (int i=0;i<divY-2;i++)
         {
-            tt::addToIntArray(&indices,down+i*(divX+1),up+i*(divX+1),up+(i+1)*(divX+1));    
-            tt::addToIntArray(&indices,down+(i+1)*(divX+1),down+i*(divX+1),up+(i+1)*(divX+1));  
+            tt::addToIntArray(&indices,down+i*(divX+1),up+i*(divX+1),up+(i+1)*(divX+1));
+            tt::addToIntArray(&indices,down+(i+1)*(divX+1),down+i*(divX+1),up+(i+1)*(divX+1));
         }
     }
     else
     { // Vertical division
         if (divY==1)
         { // No division in Y
-            tt::addToIntArray(&indices,divY*(divX+1),0,(divY+1)*(divX+1));  
-            tt::addToIntArray(&indices,divY*(divX+1),(divY+1)*(divX+1),(divY+1)*(divX+1)+divZ*(divX+1));    
-            tt::addToIntArray(&indices,(divY+1)*(divX+1)+2*divZ*(divX+1)-2*(divX+1),(divY+1)*(divX+1)+(divZ-1)*(divX+1),(divY+1)*(divX+1)+2*divZ*(divX+1)-(divX+1));    
-            tt::addToIntArray(&indices,(divY+1)*(divX+1)+(divZ-1)*(divX+1),(divY+1)*(divX+1)+2*divZ*(divX+1)-2*(divX+1),(divY+1)*(divX+1)+(divZ-2)*(divX+1));   
+            tt::addToIntArray(&indices,divY*(divX+1),0,(divY+1)*(divX+1));
+            tt::addToIntArray(&indices,divY*(divX+1),(divY+1)*(divX+1),(divY+1)*(divX+1)+divZ*(divX+1));
+            tt::addToIntArray(&indices,(divY+1)*(divX+1)+2*divZ*(divX+1)-2*(divX+1),(divY+1)*(divX+1)+(divZ-1)*(divX+1),(divY+1)*(divX+1)+2*divZ*(divX+1)-(divX+1));
+            tt::addToIntArray(&indices,(divY+1)*(divX+1)+(divZ-1)*(divX+1),(divY+1)*(divX+1)+2*divZ*(divX+1)-2*(divX+1),(divY+1)*(divX+1)+(divZ-2)*(divX+1));
             int left=(divY+1)*(divX+1);
             int right=(divY+1)*(divX+1)+divZ*(divX+1);
             for (int i=0;i<divZ-2;i++)
             {
-                tt::addToIntArray(&indices,right+i*(divX+1),left+i*(divX+1),left+(i+1)*(divX+1));   
-                tt::addToIntArray(&indices,right+(i+1)*(divX+1),right+i*(divX+1),left+(i+1)*(divX+1));  
+                tt::addToIntArray(&indices,right+i*(divX+1),left+i*(divX+1),left+(i+1)*(divX+1));
+                tt::addToIntArray(&indices,right+(i+1)*(divX+1),right+i*(divX+1),left+(i+1)*(divX+1));
             }
         }
         else
@@ -737,10 +710,10 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
             // The corners first:
             int pos=(divY+1)*(divX+1)+2*divZ*(divX+1)+(divY-1)*(divX+1);
             int posInt=(divY+1)*(divX+1)+2*divZ*(divX+1);
-            tt::addToIntArray(&indices,divX+1,0,(divY+1)*(divX+1)); 
-            tt::addToIntArray(&indices,divX+1,(divY+1)*(divX+1),pos);   
-            tt::addToIntArray(&indices,divY*(divX+1),(divY-1)*(divX+1),pos+(divY-2)*(divZ-1));  
-            tt::addToIntArray(&indices,divY*(divX+1),pos+(divY-2)*(divZ-1),(divY+1)*(divX+1)+divZ*(divX+1));    
+            tt::addToIntArray(&indices,divX+1,0,(divY+1)*(divX+1));
+            tt::addToIntArray(&indices,divX+1,(divY+1)*(divX+1),pos);
+            tt::addToIntArray(&indices,divY*(divX+1),(divY-1)*(divX+1),pos+(divY-2)*(divZ-1));
+            tt::addToIntArray(&indices,divY*(divX+1),pos+(divY-2)*(divZ-1),(divY+1)*(divX+1)+divZ*(divX+1));
             tt::addToIntArray(&indices,pos+divZ-2,(divY+1)*(divX+1)+(divZ-2)*(divX+1),(divY+1)*(divX+1)+(divZ-1)*(divX+1));
             tt::addToIntArray(&indices,pos+divZ-2,(divY+1)*(divX+1)+(divZ-1)*(divX+1),posInt);
             tt::addToIntArray(&indices,posInt-2*(divX+1),pos+(divZ-1)*(divY-1)-1,posInt+(divY-2)*(divX+1));
@@ -752,10 +725,10 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
             int up2=posInt;
             for (int i=0;i<divY-2;i++)
             {
-                tt::addToIntArray(&indices,down1+(i+1)*(divX+1),down1+i*(divX+1),down2+i*(divZ-1)); 
-                tt::addToIntArray(&indices,down1+(i+1)*(divX+1),down2+i*(divZ-1),down2+(i+1)*(divZ-1)); 
-                tt::addToIntArray(&indices,up1+(i+1)*(divZ-1),up1+i*(divZ-1),up2+i*(divX+1));   
-                tt::addToIntArray(&indices,up1+(i+1)*(divZ-1),up2+i*(divX+1),up2+(i+1)*(divX+1));   
+                tt::addToIntArray(&indices,down1+(i+1)*(divX+1),down1+i*(divX+1),down2+i*(divZ-1));
+                tt::addToIntArray(&indices,down1+(i+1)*(divX+1),down2+i*(divZ-1),down2+(i+1)*(divZ-1));
+                tt::addToIntArray(&indices,up1+(i+1)*(divZ-1),up1+i*(divZ-1),up2+i*(divX+1));
+                tt::addToIntArray(&indices,up1+(i+1)*(divZ-1),up2+i*(divX+1),up2+(i+1)*(divX+1));
             }
             // The left and right part:
             int left1=(divY+1)*(divX+1);
@@ -764,10 +737,10 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
             int right2=(divY+1)*(divX+1)+divZ*(divX+1);
             for (int i=0;i<divZ-2;i++)
             {
-                tt::addToIntArray(&indices,left1+i*(divX+1),left1+(i+1)*(divX+1),left2+i);  
-                tt::addToIntArray(&indices,left2+i,left1+(i+1)*(divX+1),left2+i+1); 
-                tt::addToIntArray(&indices,right1+i,right1+i+1,right2+i*(divX+1));  
-                tt::addToIntArray(&indices,right2+i*(divX+1),right1+i+1,right2+(i+1)*(divX+1)); 
+                tt::addToIntArray(&indices,left1+i*(divX+1),left1+(i+1)*(divX+1),left2+i);
+                tt::addToIntArray(&indices,left2+i,left1+(i+1)*(divX+1),left2+i+1);
+                tt::addToIntArray(&indices,right1+i,right1+i+1,right2+i*(divX+1));
+                tt::addToIntArray(&indices,right2+i*(divX+1),right1+i+1,right2+(i+1)*(divX+1));
             }
         }
     }
@@ -786,38 +759,38 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
     { // No vertical division
         if (divY==1)
         { // No division in Y -> here we have only one face
-            tt::addToIntArray(&indices,divX,(divX+1)*divY+divX,(divY+1)*(divX+1)+2*divZ*(divX+1)-1);    
-            tt::addToIntArray(&indices,divX,(divY+1)*(divX+1)+2*divZ*(divX+1)-1,(divY+1)*(divX+1)+(divZ-1)*(divX+1)+divX);  
+            tt::addToIntArray(&indices,divX,(divX+1)*divY+divX,(divY+1)*(divX+1)+2*divZ*(divX+1)-1);
+            tt::addToIntArray(&indices,divX,(divY+1)*(divX+1)+2*divZ*(divX+1)-1,(divY+1)*(divX+1)+(divZ-1)*(divX+1)+divX);
         }
         else
         {
-            tt::addToIntArray(&indices,(divX+1)*(divY-1)+divX,(divX+1)*divY+divX,(divY+1)*(divX+1)+2*divZ*(divX+1)-1);  
-            tt::addToIntArray(&indices,(divY+1)*(divX+1)+2*divZ*(divX+1)-1,(divX+1)*(divY+1)+2*divZ*(divX+1)+(divY-2)*(divX+1)+divX,(divX+1)*(divY-1)+divX);    
-            tt::addToIntArray(&indices,divX,(divY+1)*(divX+1)+2*divZ*(divX+1)+divX,(divY+1)*(divX+1)+(divZ-1)*(divX+1)+divX);   
-            tt::addToIntArray(&indices,divX,2*divX+1,(divY+1)*(divX+1)+2*divZ*(divX+1)+divX);   
+            tt::addToIntArray(&indices,(divX+1)*(divY-1)+divX,(divX+1)*divY+divX,(divY+1)*(divX+1)+2*divZ*(divX+1)-1);
+            tt::addToIntArray(&indices,(divY+1)*(divX+1)+2*divZ*(divX+1)-1,(divX+1)*(divY+1)+2*divZ*(divX+1)+(divY-2)*(divX+1)+divX,(divX+1)*(divY-1)+divX);
+            tt::addToIntArray(&indices,divX,(divY+1)*(divX+1)+2*divZ*(divX+1)+divX,(divY+1)*(divX+1)+(divZ-1)*(divX+1)+divX);
+            tt::addToIntArray(&indices,divX,2*divX+1,(divY+1)*(divX+1)+2*divZ*(divX+1)+divX);
         }
         int up=(divY+1)*(divX+1)+2*divZ*(divX+1)+divX;
         int down=2*divX+1;
         for (int i=0;i<divY-2;i++)
         {
-            tt::addToIntArray(&indices,up+i*(divX+1),down+i*(divX+1),up+(i+1)*(divX+1));    
-            tt::addToIntArray(&indices,down+i*(divX+1),down+(i+1)*(divX+1),up+(i+1)*(divX+1));  
+            tt::addToIntArray(&indices,up+i*(divX+1),down+i*(divX+1),up+(i+1)*(divX+1));
+            tt::addToIntArray(&indices,down+i*(divX+1),down+(i+1)*(divX+1),up+(i+1)*(divX+1));
         }
     }
     else
     { // Vertical division
         if (divY==1)
         { // No division in Y
-            tt::addToIntArray(&indices,divX,divY*(divX+1)+divX,(divY+1)*(divX+1)+divX); 
-            tt::addToIntArray(&indices,(divY+1)*(divX+1)+divX,divY*(divX+1)+divX,(divY+1)*(divX+1)+divZ*(divX+1)+divX); 
-            tt::addToIntArray(&indices,(divY+1)*(divX+1)+(divZ-1)*(divX+1)+divX,(divY+1)*(divX+1)+2*divZ*(divX+1)-2*(divX+1)+divX,(divY+1)*(divX+1)+2*divZ*(divX+1)-1); 
-            tt::addToIntArray(&indices,(divY+1)*(divX+1)+2*divZ*(divX+1)-2*(divX+1)+divX,(divY+1)*(divX+1)+(divZ-1)*(divX+1)+divX,(divY+1)*(divX+1)+(divZ-2)*(divX+1)+divX);    
+            tt::addToIntArray(&indices,divX,divY*(divX+1)+divX,(divY+1)*(divX+1)+divX);
+            tt::addToIntArray(&indices,(divY+1)*(divX+1)+divX,divY*(divX+1)+divX,(divY+1)*(divX+1)+divZ*(divX+1)+divX);
+            tt::addToIntArray(&indices,(divY+1)*(divX+1)+(divZ-1)*(divX+1)+divX,(divY+1)*(divX+1)+2*divZ*(divX+1)-2*(divX+1)+divX,(divY+1)*(divX+1)+2*divZ*(divX+1)-1);
+            tt::addToIntArray(&indices,(divY+1)*(divX+1)+2*divZ*(divX+1)-2*(divX+1)+divX,(divY+1)*(divX+1)+(divZ-1)*(divX+1)+divX,(divY+1)*(divX+1)+(divZ-2)*(divX+1)+divX);
             int left=(divY+1)*(divX+1)+divX;
             int right=(divY+1)*(divX+1)+divZ*(divX+1)+divX;
             for (int i=0;i<divZ-2;i++)
             {
-                tt::addToIntArray(&indices,left+i*(divX+1),right+i*(divX+1),left+(i+1)*(divX+1));   
-                tt::addToIntArray(&indices,right+i*(divX+1),right+(i+1)*(divX+1),left+(i+1)*(divX+1));  
+                tt::addToIntArray(&indices,left+i*(divX+1),right+i*(divX+1),left+(i+1)*(divX+1));
+                tt::addToIntArray(&indices,right+i*(divX+1),right+(i+1)*(divX+1),left+(i+1)*(divX+1));
             }
         }
         else
@@ -825,10 +798,10 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
             // The corners first:
             int pos=(divY+1)*(divX+1)+2*divZ*(divX+1)+(divY-1)*(divX+1)+(divY-1)*(divZ-1);
             int posInt=(divY+1)*(divX+1)+2*divZ*(divX+1)+divX;
-            tt::addToIntArray(&indices,divX,2*divX+1,(divY+1)*(divX+1)+divX);   
-            tt::addToIntArray(&indices,(divY+1)*(divX+1)+divX,2*divX+1,pos);    
-            tt::addToIntArray(&indices,(divY-1)*(divX+1)+divX,divY*(divX+1)+divX,pos+(divY-2)*(divZ-1));    
-            tt::addToIntArray(&indices,pos+(divY-2)*(divZ-1),divY*(divX+1)+divX,(divY+1)*(divX+1)+divZ*(divX+1)+divX);  
+            tt::addToIntArray(&indices,divX,2*divX+1,(divY+1)*(divX+1)+divX);
+            tt::addToIntArray(&indices,(divY+1)*(divX+1)+divX,2*divX+1,pos);
+            tt::addToIntArray(&indices,(divY-1)*(divX+1)+divX,divY*(divX+1)+divX,pos+(divY-2)*(divZ-1));
+            tt::addToIntArray(&indices,pos+(divY-2)*(divZ-1),divY*(divX+1)+divX,(divY+1)*(divX+1)+divZ*(divX+1)+divX);
             tt::addToIntArray(&indices,(divY+1)*(divX+1)+(divZ-2)*(divX+1)+divX,pos+divZ-2,(divY+1)*(divX+1)+(divZ-1)*(divX+1)+divX);
             tt::addToIntArray(&indices,(divY+1)*(divX+1)+(divZ-1)*(divX+1)+divX,pos+divZ-2,posInt);
             tt::addToIntArray(&indices,pos+(divZ-1)*(divY-1)-1,posInt-2*(divX+1),posInt+(divY-2)*(divX+1));
@@ -840,10 +813,10 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
             int up2=posInt;
             for (int i=0;i<divY-2;i++)
             {
-                tt::addToIntArray(&indices,down1+i*(divX+1),down1+(i+1)*(divX+1),down2+i*(divZ-1)); 
-                tt::addToIntArray(&indices,down2+i*(divZ-1),down1+(i+1)*(divX+1),down2+(i+1)*(divZ-1)); 
-                tt::addToIntArray(&indices,up1+i*(divZ-1),up1+(i+1)*(divZ-1),up2+i*(divX+1));   
-                tt::addToIntArray(&indices,up2+i*(divX+1),up1+(i+1)*(divZ-1),up2+(i+1)*(divX+1));   
+                tt::addToIntArray(&indices,down1+i*(divX+1),down1+(i+1)*(divX+1),down2+i*(divZ-1));
+                tt::addToIntArray(&indices,down2+i*(divZ-1),down1+(i+1)*(divX+1),down2+(i+1)*(divZ-1));
+                tt::addToIntArray(&indices,up1+i*(divZ-1),up1+(i+1)*(divZ-1),up2+i*(divX+1));
+                tt::addToIntArray(&indices,up2+i*(divX+1),up1+(i+1)*(divZ-1),up2+(i+1)*(divX+1));
             }
             // The left and right part:
             int left1=(divY+1)*(divX+1)+divX;
@@ -852,10 +825,10 @@ void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& i
             int right2=(divY+1)*(divX+1)+divZ*(divX+1)+divX;
             for (int i=0;i<divZ-2;i++)
             {
-                tt::addToIntArray(&indices,left1+(i+1)*(divX+1),left1+i*(divX+1),left2+i);  
-                tt::addToIntArray(&indices,left1+(i+1)*(divX+1),left2+i,left2+i+1); 
-                tt::addToIntArray(&indices,right1+i+1,right1+i,right2+i*(divX+1));  
-                tt::addToIntArray(&indices,right1+i+1,right2+i*(divX+1),right2+(i+1)*(divX+1)); 
+                tt::addToIntArray(&indices,left1+(i+1)*(divX+1),left1+i*(divX+1),left2+i);
+                tt::addToIntArray(&indices,left1+(i+1)*(divX+1),left2+i,left2+i+1);
+                tt::addToIntArray(&indices,right1+i+1,right1+i,right2+i*(divX+1));
+                tt::addToIntArray(&indices,right1+i+1,right2+i*(divX+1),right2+(i+1)*(divX+1));
             }
         }
     }
@@ -901,7 +874,7 @@ void CMeshRoutines::createCapsule(std::vector<double>& vertices,std::vector<int>
 
     int off1=2;
     int off2=2*ff+faceSubdiv;
-    
+
     // We set up the indices:
     for (int i=0;i<sides-1;i++)
     {
@@ -1066,10 +1039,10 @@ void CMeshRoutines::createCylinder(std::vector<double>& vertices,std::vector<int
                 tt::addToIntArray(&indices,dsbStart+i+sides*(discDiv-2),1,dsbStart+i+sides*(discDiv-2)+1);
                 for (int j=0;j<discDiv-2;j++)
                 {
-                    tt::addToIntArray(&indices,dstStart+j*sides+i,dstStart+j*sides+i+1,dstStart+(j+1)*sides+i); 
-                    tt::addToIntArray(&indices,dstStart+j*sides+i+1,dstStart+(j+1)*sides+i+1,dstStart+(j+1)*sides+i);   
-                    tt::addToIntArray(&indices,dsbStart+j*sides+i+1,dsbStart+j*sides+i,dsbStart+(j+1)*sides+i); 
-                    tt::addToIntArray(&indices,dsbStart+(j+1)*sides+i+1,dsbStart+j*sides+i+1,dsbStart+(j+1)*sides+i);   
+                    tt::addToIntArray(&indices,dstStart+j*sides+i,dstStart+j*sides+i+1,dstStart+(j+1)*sides+i);
+                    tt::addToIntArray(&indices,dstStart+j*sides+i+1,dstStart+(j+1)*sides+i+1,dstStart+(j+1)*sides+i);
+                    tt::addToIntArray(&indices,dsbStart+j*sides+i+1,dsbStart+j*sides+i,dsbStart+(j+1)*sides+i);
+                    tt::addToIntArray(&indices,dsbStart+(j+1)*sides+i+1,dsbStart+j*sides+i+1,dsbStart+(j+1)*sides+i);
                 }
                 tt::addToIntArray(&indices,sideStart+i*(faces+1),sideStart+(i+1)*(faces+1),dstStart+i);
                 tt::addToIntArray(&indices,sideStart+(i+1)*(faces+1),dstStart+i+1,dstStart+i);
@@ -1079,8 +1052,8 @@ void CMeshRoutines::createCylinder(std::vector<double>& vertices,std::vector<int
         }
         for (int j=0;j<faces;j++)
         { // Here the rest:
-            tt::addToIntArray(&indices,i*(faces+1)+sideStart+j,i*(faces+1)+sideStart+j+1,(i+1)*(faces+1)+sideStart+j);  
-            tt::addToIntArray(&indices,i*(faces+1)+sideStart+j+1,(i+1)*(faces+1)+sideStart+j+1,(i+1)*(faces+1)+sideStart+j);    
+            tt::addToIntArray(&indices,i*(faces+1)+sideStart+j,i*(faces+1)+sideStart+j+1,(i+1)*(faces+1)+sideStart+j);
+            tt::addToIntArray(&indices,i*(faces+1)+sideStart+j+1,(i+1)*(faces+1)+sideStart+j+1,(i+1)*(faces+1)+sideStart+j);
         }
     }
 
@@ -1100,10 +1073,10 @@ void CMeshRoutines::createCylinder(std::vector<double>& vertices,std::vector<int
 
             for (int j=0;j<discDiv-2;j++)
             {
-                tt::addToIntArray(&indices,dstStart+j*sides+sides-1,dstStart+j*sides,dstStart+(j+2)*sides-1);   
-                tt::addToIntArray(&indices,dstStart+j*sides,dstStart+(j+1)*sides,dstStart+(j+2)*sides-1);   
-                tt::addToIntArray(&indices,dsbStart+j*sides,dsbStart+(j+1)*sides-1,dsbStart+(j+2)*sides-1); 
-                tt::addToIntArray(&indices,dsbStart+(j+1)*sides,dsbStart+j*sides,dsbStart+(j+2)*sides-1);   
+                tt::addToIntArray(&indices,dstStart+j*sides+sides-1,dstStart+j*sides,dstStart+(j+2)*sides-1);
+                tt::addToIntArray(&indices,dstStart+j*sides,dstStart+(j+1)*sides,dstStart+(j+2)*sides-1);
+                tt::addToIntArray(&indices,dsbStart+j*sides,dsbStart+(j+1)*sides-1,dsbStart+(j+2)*sides-1);
+                tt::addToIntArray(&indices,dsbStart+(j+1)*sides,dsbStart+j*sides,dsbStart+(j+2)*sides-1);
             }
             tt::addToIntArray(&indices,sideStart+(sides-1)*(faces+1),sideStart,dstStart+sides-1);
             tt::addToIntArray(&indices,sideStart,dstStart,dstStart+sides-1);
@@ -1113,13 +1086,13 @@ void CMeshRoutines::createCylinder(std::vector<double>& vertices,std::vector<int
     }
     for (int j=0;j<faces;j++)
     { // Here the rest:
-        tt::addToIntArray(&indices,(sides-1)*(faces+1)+sideStart+j,(sides-1)*(faces+1)+sideStart+j+1,sideStart+j);  
-        tt::addToIntArray(&indices,(sides-1)*(faces+1)+sideStart+j+1,sideStart+j+1,sideStart+j);    
+        tt::addToIntArray(&indices,(sides-1)*(faces+1)+sideStart+j,(sides-1)*(faces+1)+sideStart+j+1,sideStart+j);
+        tt::addToIntArray(&indices,(sides-1)*(faces+1)+sideStart+j+1,sideStart+j+1,sideStart+j);
     }
 
     if (cone)
     { // We have a degenerate cylinder, we need to remove degenerate triangles and double vertices:
-        CMeshManip::cleanUpMeshData(vertices,indices,nullptr,nullptr,true,0.0000001,false);
+        CMeshRoutines::removeDuplicateVerticesAndTriangles(vertices,&indices,nullptr,nullptr,App::userSettings->verticesTolerance);
     }
 
     // Now we scale the cylinder:
@@ -1146,9 +1119,9 @@ void CMeshRoutines::createAnnulus(std::vector<double>& vertices,std::vector<int>
 
     // We set up the vertices:
     for (int i=0;i<sides;i++)
-        tt::addToFloatArray(&vertices,R*(double)cos(sa*i),R*(double)sin(sa*i),zShift);    
+        tt::addToFloatArray(&vertices,R*(double)cos(sa*i),R*(double)sin(sa*i),zShift);
     for (int i=0;i<sides;i++)
-        tt::addToFloatArray(&vertices,r*(double)cos(sa*i),r*(double)sin(sa*i),zShift);    
+        tt::addToFloatArray(&vertices,r*(double)cos(sa*i),r*(double)sin(sa*i),zShift);
 
     // We set up the indices:
     for (int i=0;i<sides-1;i++)
@@ -1174,6 +1147,250 @@ void CMeshRoutines::createAnnulus(std::vector<double>& vertices,std::vector<int>
     {
         tt::addToIntArray(&indices,2*sides-1,sides-1,0);
         tt::addToIntArray(&indices,sides,2*sides-1,0);
+    }
+}
+
+class CKdNode1
+{
+public:
+    CKdNode1(double newVal)
+    {
+        kdNodes[0]=nullptr;
+        kdNodes[1]=nullptr;
+        val=newVal;
+        index=-1;
+        cnt=1;
+    }
+    virtual ~CKdNode1()
+    {
+        if (kdNodes[0]!=nullptr)
+            delete kdNodes[0];
+        if (kdNodes[1]!=nullptr)
+            delete kdNodes[1];
+    }
+
+    CKdNode1* insert(double newVal,double tolerance)
+    {
+        if (fabs(val-newVal)<tolerance)
+        {
+            cnt++;
+            return this;
+        }
+        else
+        {
+            if (newVal<val)
+            {
+                if (kdNodes[0]!=nullptr)
+                    return kdNodes[0]->insert(newVal,tolerance);
+                kdNodes[0]=new CKdNode1(newVal);
+                return kdNodes[0];
+            }
+            else
+            {
+                if (kdNodes[1]!=nullptr)
+                    return kdNodes[1]->insert(newVal,tolerance);
+                kdNodes[1]=new CKdNode1(newVal);
+                return kdNodes[1];
+            }
+        }
+    }
+
+    CKdNode1* kdNodes[2]; // neg and pos
+    double val;
+    int index;
+    int cnt;
+};
+
+void CMeshRoutines::toDelaunayMesh(const std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<float>* texCoords)
+{ // converts the mesh to a "Delaunay mesh", i.e. all touching edges have the same length
+    std::vector<int> directionIndices; // same size as indices
+    CKdNode1* allDirectionsTree=nullptr;
+    int nextDirectionsIndex=0;
+    std::vector<std::vector<int>> directionsOfVertices; // same size as number of nodes in allDirectionsTree
+    for (size_t i=0;i<indices.size()/3;i++)
+    {
+        int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
+        for (size_t j=0;j<3;j++)
+        {
+            size_t k=j+1;
+            if (k==3)
+                k=0;
+            C3Vector p0(vertices.data()+3*ind[j]);
+            C3Vector p1(vertices.data()+3*ind[k]);
+            C3Vector dx(p1-p0);
+            dx.normalize();
+            for (size_t l=0;l<3;l++)
+                dx(l)=fabs(dx(l));
+            double directionHash=dx(0)+2.0*dx(1)*3.0*dx(2);
+            CKdNode1* node=nullptr;
+            if (allDirectionsTree==nullptr)
+            {
+                allDirectionsTree=new CKdNode1(directionHash);
+                allDirectionsTree->index=nextDirectionsIndex++;
+                node=allDirectionsTree;
+            }
+            else
+            {
+                node=allDirectionsTree->insert(directionHash,0.05); // a ~1 meter segment may deviate by 5 cm. Better be too tolerant (pruning happens later on again)
+                if (node->index==-1)
+                    node->index=nextDirectionsIndex++; // new direction/node
+            }
+            directionIndices.push_back(node->index);
+            if (directionsOfVertices.size()<nextDirectionsIndex)
+                directionsOfVertices.push_back(std::vector<int>());
+            directionsOfVertices[size_t(node->index)].push_back(ind[j]);
+            directionsOfVertices[size_t(node->index)].push_back(ind[k]);
+        }
+    }
+    delete allDirectionsTree;
+    for (size_t i=0;i<indices.size()/3;i++)
+    {
+        int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
+        int dirInd[3]={directionIndices[3*i+0],directionIndices[3*i+1],directionIndices[3*i+2]};
+        C3Vector ns[3];
+        float nt[3][2];
+        if (normals!=nullptr)
+        {
+            ns[0]=C3Vector(normals->data()+9*i+0);
+            ns[1]=C3Vector(normals->data()+9*i+3);
+            ns[2]=C3Vector(normals->data()+9*i+6);
+        }
+        if (texCoords!=nullptr)
+        {
+            for (size_t j=0;j<3;j++)
+            {
+                nt[j][0]=texCoords->at(6*i+2*j+0);
+                nt[j][1]=texCoords->at(6*i+2*j+1);
+            }
+        }
+        for (size_t j=0;j<3;j++)
+        {
+            if (dirInd[j]>=0)
+            {
+                bool breakOut=false;
+                size_t k=j+1;
+                if (k==3)
+                    k=0;
+                size_t l=k+1;
+                if (l==3)
+                    l=0;
+                C3Vector p0(vertices.data()+3*ind[j]);
+                C3Vector p1(vertices.data()+3*ind[k]);
+                C3Vector dx(p1-p0);
+                double le=dx.normalize();
+                size_t dirIndex=dirInd[j];
+                std::vector<int> vert;
+                for (size_t m=0;m<directionsOfVertices[dirIndex].size();m++)
+                {
+                    int midInd=directionsOfVertices[dirIndex][m];
+                    if ( (midInd!=ind[j])&&(midInd!=ind[k]) )
+                    {
+                        C3Vector mid(vertices.data()+3*midInd);
+                        mid=mid-p0;
+                        double d=dx*mid;
+                        if ( (d>0.001*le)&&(d<0.999*le) ) // distances from segment endpoints
+                        {
+                            if ((mid-dx*d).getLength()<0.00001) // dist. perp. from line
+                            {
+                                // Add 2 new triangles:
+                                indices.push_back(ind[j]);
+                                indices.push_back(midInd);
+                                indices.push_back(ind[l]);
+                                directionIndices.push_back(dirInd[j]);
+                                directionIndices.push_back(-1); // new direction/edge that is not relevant
+                                directionIndices.push_back(dirInd[l]);
+                                if (normals!=nullptr)
+                                {
+                                    normals->push_back(ns[j](0));
+                                    normals->push_back(ns[j](1));
+                                    normals->push_back(ns[j](2));
+                                    normals->push_back((ns[j](0)+ns[k](0))/2.0);
+                                    normals->push_back((ns[j](1)+ns[k](1))/2.0);
+                                    normals->push_back((ns[j](2)+ns[k](2))/2.0);
+                                    normals->push_back(ns[l](0));
+                                    normals->push_back(ns[l](1));
+                                    normals->push_back(ns[l](2));
+                                }
+                                if (texCoords!=nullptr)
+                                {
+                                    texCoords->push_back(nt[j][0]);
+                                    texCoords->push_back(nt[j][1]);
+                                    texCoords->push_back((nt[j][0]+nt[k][0])/2.0f); // we take the middle, which is not correct!
+                                    texCoords->push_back((nt[j][1]+nt[k][1])/2.0f);
+                                    texCoords->push_back(nt[l][0]);
+                                    texCoords->push_back(nt[l][1]);
+                                }
+                                indices.push_back(midInd);
+                                indices.push_back(ind[k]);
+                                indices.push_back(ind[l]);
+                                directionIndices.push_back(dirInd[j]);
+                                directionIndices.push_back(dirInd[k]);
+                                directionIndices.push_back(-1); // new direction/edge that is not relevant
+                                if (normals!=nullptr)
+                                {
+                                    normals->push_back((ns[j](0)+ns[k](0))/2.0);
+                                    normals->push_back((ns[j](1)+ns[k](1))/2.0);
+                                    normals->push_back((ns[j](2)+ns[k](2))/2.0);
+                                    normals->push_back(ns[k](0));
+                                    normals->push_back(ns[k](1));
+                                    normals->push_back(ns[k](2));
+                                    normals->push_back(ns[l](0));
+                                    normals->push_back(ns[l](1));
+                                    normals->push_back(ns[l](2));
+                                }
+                                if (texCoords!=nullptr)
+                                {
+                                    texCoords->push_back((nt[j][0]+nt[k][0])/2.0f); // we take the middle, which is not correct!
+                                    texCoords->push_back((nt[j][1]+nt[k][1])/2.0f);
+                                    texCoords->push_back(nt[k][0]);
+                                    texCoords->push_back(nt[k][1]);
+                                    texCoords->push_back(nt[l][0]);
+                                    texCoords->push_back(nt[l][1]);
+                                }
+
+                                indices[3*i+0]=-1; // disable the original triangle
+                                breakOut=true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (breakOut)
+                    break;
+            }
+        }
+    }
+    std::vector<int> ind(indices);
+    indices.clear();
+    std::vector<double> norm;
+    if (normals!=nullptr)
+    {
+        norm.assign(normals->begin(),normals->end());
+        normals->clear();
+    }
+    std::vector<float> tex;
+    if (texCoords!=nullptr)
+    {
+        tex.assign(texCoords->begin(),texCoords->end());
+        texCoords->clear();
+    }
+    for (size_t i=0;i<ind.size()/3;i++)
+    {
+        if (ind[3*i+0]>=0)
+        {
+            for (size_t j=0;j<3;j++)
+                indices.push_back(ind[3*i+j]);
+            if (normals!=nullptr)
+            {
+                for (size_t j=0;j<9;j++)
+                    normals->push_back(norm[9*i+j]);
+            }
+            if (texCoords!=nullptr)
+            {
+                for (size_t j=0;j<6;j++)
+                    texCoords->push_back(tex[6*i+j]);
+            }
+        }
     }
 }
 
@@ -1327,7 +1544,7 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const 
                         }
                     }
                 }
-                CMeshManip::removeNonReferencedVertices(vert,ind);
+                CMeshRoutines::removeNonReferencedVertices(vert,ind);
                 edgeLength/=2.0;
                 CMeshManip::reduceTriangleSize(vert,ind,nullptr,nullptr,edgeLength,0.0001);
             }
@@ -1346,3 +1563,332 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const 
     }
     return(retVal);
 }
+
+class CKdNode3
+{
+public:
+    CKdNode3(const C3Vector& vert,size_t vertIndex)
+    {
+        kdNodes[0]=nullptr;
+        kdNodes[1]=nullptr;
+        vertex=vert;
+        index=vertIndex;
+    }
+    virtual ~CKdNode3()
+    {
+        if (kdNodes[0]!=nullptr)
+            delete kdNodes[0];
+        if (kdNodes[1]!=nullptr)
+            delete kdNodes[1];
+    }
+
+    CKdNode3* insert(const C3Vector& vert,size_t vertIndex,double tolerance,size_t axis=0)
+    {
+        size_t naxis=axis+1;
+        if (naxis>2)
+            naxis=0;
+        double d=vert(axis)-vertex(axis);
+        if (fabs(d)<tolerance)
+        {
+            CKdNode3* retNode=nullptr;
+            if ((vert-vertex).getLength()<tolerance)
+                retNode=this;
+            else
+            { // need to check both sides of the partition
+                if (kdNodes[0]!=nullptr)
+                    retNode=kdNodes[0]->getSimilar(vert,vertIndex,tolerance,naxis);
+                if ( (retNode==nullptr)&&(kdNodes[1]!=nullptr) )
+                    retNode=kdNodes[1]->getSimilar(vert,vertIndex,tolerance,naxis);
+            }
+            if (retNode!=nullptr)
+                return retNode;
+        }
+        if (d<0.0)
+        {
+            if (kdNodes[0]!=nullptr)
+                return kdNodes[0]->insert(vert,vertIndex,tolerance,naxis);
+            kdNodes[0]=new CKdNode3(vert,vertIndex);
+            return kdNodes[0];
+        }
+        else
+        {
+            if (kdNodes[1]!=nullptr)
+                return kdNodes[1]->insert(vert,vertIndex,tolerance,naxis);
+            kdNodes[1]=new CKdNode3(vert,vertIndex);
+            return kdNodes[1];
+        }
+    }
+
+    CKdNode3* getSimilar(const C3Vector& vert,size_t vertIndex,double tolerance,size_t axis=0)
+    {
+        size_t naxis=axis+1;
+        if (naxis>2)
+            naxis=0;
+        double d=vert(axis)-vertex(axis);
+        if (fabs(d)<tolerance)
+        {
+            if ((vert-vertex).getLength()<tolerance)
+                return this;
+        }
+        CKdNode3* retNode=nullptr;
+        if (d<tolerance)
+        {
+            if (kdNodes[0]!=nullptr)
+               retNode=kdNodes[0]->getSimilar(vert,vertIndex,tolerance,naxis);
+        }
+        if ( (retNode==nullptr)&&(d>-tolerance) )
+        {
+            if (kdNodes[1]!=nullptr)
+                retNode=kdNodes[1]->getSimilar(vert,vertIndex,tolerance,naxis);
+        }
+        return retNode;
+    }
+
+    CKdNode3* kdNodes[2]; // neg and pos
+    C3Vector vertex;
+    size_t index;
+};
+
+void CMeshRoutines::cleanupMesh(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<float>* texCoords,double distTolerance)
+{
+    removeNonReferencedVertices(vertices,indices);
+    removeDuplicateVerticesAndTriangles(vertices,&indices,normals,texCoords,distTolerance);
+    toDelaunayMesh(vertices,indices,normals,texCoords);
+}
+
+void CMeshRoutines::removeDuplicateVerticesAndTriangles(std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals,std::vector<float>* texCoords,double distTolerance)
+{
+    // slightly mix vertices:
+    std::vector<size_t> map;
+    map.resize(vertices.size()/3,-1);
+    std::vector<double> nvert;
+    size_t h=vertices.size()/6;
+    for (size_t i=0;i<h;i++)
+    {
+        map[i]=2*i+0;
+        nvert.push_back(vertices[3*i+0]);
+        nvert.push_back(vertices[3*i+1]);
+        nvert.push_back(vertices[3*i+2]);
+
+        map[h+i]=2*i+1;
+        nvert.push_back(vertices[3*h+3*i+0]);
+        nvert.push_back(vertices[3*h+3*i+1]);
+        nvert.push_back(vertices[3*h+3*i+2]);
+    }
+    if (fmod(double(vertices.size()),6.0)>0.1)
+    {
+        map[map.size()-1]=map.size()-1;
+        nvert.push_back(vertices[vertices.size()-3]);
+        nvert.push_back(vertices[vertices.size()-2]);
+        nvert.push_back(vertices[vertices.size()-1]);
+    }
+    if (indices!=nullptr)
+    {
+        for (size_t i=0;i<indices->size();i++)
+            indices->at(i)=map[indices->at(i)];
+    }
+
+    // Identify duplicate vertices:
+    CKdNode3* startNode=nullptr;
+    for (size_t i=0;i<nvert.size()/3;i++)
+    {
+        C3Vector v(nvert.data()+3*i);
+        CKdNode3* node=nullptr;
+        if (i==0)
+        {
+            startNode=new CKdNode3(v,i);
+            node=startNode;
+        }
+        else
+            node=startNode->insert(v,i,distTolerance,0);
+        map[i]=node->index;
+    }
+    delete startNode;
+
+    // Remove duplicate vertices:
+    vertices.clear();
+    std::vector<int> map2;
+    map2.resize(map.size(),-1);
+    for (size_t i=0;i<map.size();i++)
+    {
+        if (map[i]==i)
+        {
+            map2[i]=vertices.size()/3;
+            vertices.push_back(nvert[3*i+0]);
+            vertices.push_back(nvert[3*i+1]);
+            vertices.push_back(nvert[3*i+2]);
+        }
+    }
+    std::vector<int> nind;
+    std::vector<double> nnorm;
+    std::vector<float> ntex;
+    if (indices!=nullptr)
+    { // fix triangles
+        for (size_t i=0;i<indices->size();i++)
+            indices->at(i)=map2[map[indices->at(i)]];
+        // keep only non-degenerate triangles, keep smallest vertex triplet index first:
+        for (size_t i=0;i<indices->size()/3;i++)
+        {
+            int ind[3]={indices->at(3*i+0),indices->at(3*i+1),indices->at(3*i+2)};
+            if ( (ind[0]!=ind[1])&&(ind[0]!=ind[2])&&(ind[1]!=ind[2]) )
+            {
+                if ( (ind[0]>ind[1])&&(ind[0]>ind[2]) )
+                {
+                    nind.push_back(ind[0]);
+                    nind.push_back(ind[1]);
+                    nind.push_back(ind[2]);
+                    if (normals!=nullptr)
+                    {
+                        nnorm.push_back(normals->at(9*i+0));
+                        nnorm.push_back(normals->at(9*i+1));
+                        nnorm.push_back(normals->at(9*i+2));
+                        nnorm.push_back(normals->at(9*i+3));
+                        nnorm.push_back(normals->at(9*i+4));
+                        nnorm.push_back(normals->at(9*i+5));
+                        nnorm.push_back(normals->at(9*i+6));
+                        nnorm.push_back(normals->at(9*i+7));
+                        nnorm.push_back(normals->at(9*i+8));
+                    }
+                    if (texCoords!=nullptr)
+                    {
+                        ntex.push_back(texCoords->at(6*i+0));
+                        ntex.push_back(texCoords->at(6*i+1));
+                        ntex.push_back(texCoords->at(6*i+2));
+                        ntex.push_back(texCoords->at(6*i+3));
+                        ntex.push_back(texCoords->at(6*i+4));
+                        ntex.push_back(texCoords->at(6*i+5));
+                    }
+                }
+                else if ( (ind[1]>ind[0])&&(ind[1]>ind[2]) )
+                {
+                    nind.push_back(ind[1]);
+                    nind.push_back(ind[2]);
+                    nind.push_back(ind[0]);
+                    if (normals!=nullptr)
+                    {
+                        nnorm.push_back(normals->at(9*i+3));
+                        nnorm.push_back(normals->at(9*i+4));
+                        nnorm.push_back(normals->at(9*i+5));
+                        nnorm.push_back(normals->at(9*i+6));
+                        nnorm.push_back(normals->at(9*i+7));
+                        nnorm.push_back(normals->at(9*i+8));
+                        nnorm.push_back(normals->at(9*i+0));
+                        nnorm.push_back(normals->at(9*i+1));
+                        nnorm.push_back(normals->at(9*i+2));
+                    }
+                    if (texCoords!=nullptr)
+                    {
+                        ntex.push_back(texCoords->at(6*i+2));
+                        ntex.push_back(texCoords->at(6*i+3));
+                        ntex.push_back(texCoords->at(6*i+4));
+                        ntex.push_back(texCoords->at(6*i+5));
+                        ntex.push_back(texCoords->at(6*i+0));
+                        ntex.push_back(texCoords->at(6*i+1));
+                    }
+                }
+                else
+                {
+                    nind.push_back(ind[2]);
+                    nind.push_back(ind[0]);
+                    nind.push_back(ind[1]);
+                    if (normals!=nullptr)
+                    {
+                        nnorm.push_back(normals->at(9*i+6));
+                        nnorm.push_back(normals->at(9*i+7));
+                        nnorm.push_back(normals->at(9*i+8));
+                        nnorm.push_back(normals->at(9*i+0));
+                        nnorm.push_back(normals->at(9*i+1));
+                        nnorm.push_back(normals->at(9*i+2));
+                        nnorm.push_back(normals->at(9*i+3));
+                        nnorm.push_back(normals->at(9*i+4));
+                        nnorm.push_back(normals->at(9*i+5));
+                    }
+                    if (texCoords!=nullptr)
+                    {
+                        ntex.push_back(texCoords->at(6*i+4));
+                        ntex.push_back(texCoords->at(6*i+5));
+                        ntex.push_back(texCoords->at(6*i+0));
+                        ntex.push_back(texCoords->at(6*i+1));
+                        ntex.push_back(texCoords->at(6*i+2));
+                        ntex.push_back(texCoords->at(6*i+3));
+                    }
+                }
+            }
+        }
+    }
+    // remove similar triangles (a-b-c == a-c-b == etc.)
+    if (indices!=nullptr)
+    {
+        indices->clear();
+        if (normals!=nullptr)
+            normals->clear();
+        if (texCoords!=nullptr)
+            texCoords->clear();
+        std::map<int,std::vector<int>> imap;
+        for (size_t i=0;i<nind.size()/3;i++)
+        {
+            int ind[3]={nind[3*i+0],nind[3*i+1],nind[3*i+2]};
+            auto it=imap.find(ind[0]);
+            bool add=true;
+            if (it==imap.end())
+                imap[ind[0]]=std::vector<int>();
+            else
+            {
+                for (size_t j=0;j<imap[ind[0]].size()/2;j++)
+                {
+                    if ( (imap[ind[0]][2*j+0]==ind[1])&&(imap[ind[0]][2*j+1]==ind[2]) )
+                    {
+                        add=false;
+                        break;
+                    }
+                    if ( (imap[ind[0]][2*j+0]==ind[2])&&(imap[ind[0]][2*j+1]==ind[1]) )
+                    {
+                        add=false;
+                        break;
+                    }
+                }
+            }
+            if (add)
+            {
+                imap[ind[0]].push_back(ind[1]);
+                imap[ind[0]].push_back(ind[2]);
+                indices->push_back(ind[0]);
+                indices->push_back(ind[1]);
+                indices->push_back(ind[2]);
+                if (normals!=nullptr)
+                {
+                    for (size_t j=0;j<9;j++)
+                        normals->push_back(nnorm[9*i+j]);
+                }
+                if (texCoords!=nullptr)
+                {
+                    for (size_t j=0;j<9;j++)
+                        texCoords->push_back(ntex[6*i+j]);
+                }
+            }
+        }
+    }
+}
+
+void CMeshRoutines::removeNonReferencedVertices(std::vector<double>& vertices,std::vector<int>& indices)
+{
+    std::vector<double> vertTmp(vertices);
+    vertices.clear();
+    std::vector<int> mapping(vertTmp.size()/3,-1);
+    int freeSlot=0;
+    for (size_t i=0;i<indices.size();i++)
+    {
+        if (mapping[indices[i]]==-1)
+        {
+            vertices.push_back(vertTmp[3*indices[i]+0]);
+            vertices.push_back(vertTmp[3*indices[i]+1]);
+            vertices.push_back(vertTmp[3*indices[i]+2]);
+            mapping[indices[i]]=freeSlot;
+            indices[i]=freeSlot;
+            freeSlot++;
+        }
+        else
+            indices[i]=mapping[indices[i]];
+    }
+}
+

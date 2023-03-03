@@ -12,6 +12,7 @@
 #include <base64.h>
 #include <imgLoaderSaver.h>
 #include <utils.h>
+#include <meshRoutines.h>
 
 bool CShape::_visualizeObbStructures=false;
 
@@ -104,7 +105,7 @@ void CShape::replaceMesh(CMeshWrapper* newMesh,bool keepMeshAttributes)
     pushObjectRefreshEvent();
 }
 
-CShape::CShape(const C7Vector& transformation,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords)
+CShape::CShape(const C7Vector& transformation,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords)
 { // all types of meshes, except heightfields
     commonInit();
     _localTransformation=transformation;
@@ -141,390 +142,6 @@ void CShape::_computeMeshBoundingBox()
         else
             _meshBoundingBoxHalfSizes.keepMax(C3Vector(&visibleVertices[3*i+0]));
     }
-}
-
-C7Vector CShape::_recomputeOrientation(C7Vector& m,bool alignWithMainAxis)
-{ // This routine will reorient the shape according to its main axis if
-  // alignWithMainAxis is true, and according to the world if false.
-  // Don't forget to recompute (not done here) the new local transformation
-  // matrices of the objects linked to that geometric resource!!
-  // Input m is the cumulative transf. if alignWithMainAxis==false
-  // Returned m is the new local transformation of this geometry
-
-    removeMeshCalculationStructure();
-
-
-    // 3. We calculate the new orientation:
-    std::vector<double> visibleVertices;
-    std::vector<int> visibleIndices;
-    getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,visibleVertices,&visibleIndices,nullptr);
-    C7Vector tr;
-    if (visibleVertices.size()!=0)
-        tr=CAlgos::getMeshBoundingBox(visibleVertices,visibleIndices,alignWithMainAxis);
-    else
-        tr.setIdentity();
-
-
-    // 5. We recompute usual things:
-    _computeMeshBoundingBox();
-    computeBoundingBox();
-    _meshModificationCounter++;
-    return(tr);
-}
-
-
-C7Vector CShape::_recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& error)
-{ // This routine will reorient the tube shape according to its main axis
-  // Don't forget to recompute (not done here) the new local transformation
-  // matrices of the objects linked to that geometric resource!!
-  // Input m is the cumulative transf.
-  // Returned m is the new cumulative transformation of this geometry
-
-    error=false; // no error yet
-    C7Vector tr;
-
-    // 0. We set-up the absolute vertices and retrieve them:
-    std::vector<double> visibleVertices;
-    std::vector<int> visibleIndices;
-    getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,visibleVertices,&visibleIndices,nullptr);
-
-    // 1. We calculate the new orientation, based on the copy:
-    bool success;
-    if (tube)
-        success=_getTubeReferenceFrame(visibleVertices,tr);
-    else
-        success=_getCuboidReferenceFrame(visibleVertices,visibleIndices,tr);
-    if (!success)
-    {
-        error=true;
-        return(tr);
-    }
-
-    removeMeshCalculationStructure();
-
-    // 4. We have the desired orientation (tr.Q), we now calculate the position (should be the same or very very close to what we have in tr.X)
-    C7Vector trInv(tr.getInverse());
-    C3Vector maxV,minV;
-    for (size_t i=0;i<visibleVertices.size()/3;i++)
-    {
-        C3Vector v(&visibleVertices[3*i+0]);
-        v=trInv*v;
-        if (i==0)
-        {
-            maxV=v;
-            minV=v;
-        }
-        else
-        {
-            maxV.keepMax(v);
-            minV.keepMin(v);
-        }
-    }
-    C3Vector newCenter((maxV(0)+minV(0))*0.5,(maxV(1)+minV(1))*0.5,(maxV(2)+minV(2))*0.5); // relative pos
-    newCenter=tr*newCenter; // now abs pos
-    tr.X=newCenter;
-
-    // 6. We recompute usual things:
-    _computeMeshBoundingBox();
-    computeBoundingBox();
-    _meshModificationCounter++;
-    return(tr);
-}
-
-bool CShape::_getTubeReferenceFrame(const std::vector<double>& v,C7Vector& tr)
-{
-    tr.setIdentity();
-    // 1) Do we have enough points?
-    if (v.size()/3<6)
-        return(false);
-    // 2) Get the longest distance:
-    int indexLeft=-1;
-    int indexRight=-1;
-    double longestDist=0.0;
-    for (size_t i=0;i<v.size()/3;i++)
-    {
-        C3Vector pt1(&v[3*i+0]);
-        for (size_t j=i+1;j<v.size()/3;j++)
-        {
-            C3Vector pt2(&v[3*j+0]);
-            double l=(pt1-pt2).getLength();
-            if (l>longestDist)
-            {
-                longestDist=l;
-                indexLeft=int(i);
-                indexRight=int(j);
-            }
-        }
-    }
-    if (indexLeft==-1)
-        return(false); // all points are coincident!
-    // 3) For each of the 2 found points, find 1 closest neighbour that is not coincident:
-    C3Vector leftPt1(&v[3*indexLeft+0]);
-    C3Vector rightPt1(&v[3*indexRight+0]);
-    int indexLeft2=-1;
-    int indexRight2=-1;
-    double leftDist=DBL_MAX;
-    double rightDist=DBL_MAX;
-    for (size_t i=0;i<v.size()/3;i++)
-    {
-        C3Vector pt(&v[3*i+0]);
-        if (int(i)!=indexLeft)
-        {
-            double l=(pt-leftPt1).getLength();
-            if ( (l!=0.0)&&(l<leftDist) )
-            {
-                leftDist=l;
-                indexLeft2=int(i);
-            }
-        }
-        if (i!=indexRight)
-        {
-            double l=(pt-rightPt1).getLength();
-            if ( (l!=0.0)&&(l<rightDist) )
-            {
-                rightDist=l;
-                indexRight2=int(i);
-            }
-        }
-    }
-    if ((indexLeft2==-1)||(indexRight2==-1))
-        return(false); // error
-
-    // 4) For each of the 2 found segments, find 1 closest neighbour that forms a plane:
-    C3Vector leftPt2(&v[3*indexLeft2+0]);
-    C3Vector rightPt2(&v[3*indexRight2+0]);
-    int indexLeft3=-1;
-    int indexRight3=-1;
-    leftDist=DBL_MAX;
-    rightDist=DBL_MAX;
-    for (size_t i=0;i<v.size()/3;i++)
-    {
-        C3Vector pt(&v[3*i+0]);
-        if ( (int(i)!=indexLeft)&&(int(i)!=indexLeft2) )
-        {
-            double l1=(pt-leftPt1).getLength();
-            double l2=(pt-leftPt2).getLength();
-            if ( (l1!=0.0)&&(l2!=0.0)&&(l1<leftDist) )
-            {
-
-                double a=(leftPt1-pt).getAngle(leftPt2-pt);
-                if ( (a>1.0*degToRad)&&(a<179.0*degToRad) )
-                {
-                    leftDist=l1;
-                    indexLeft3=int(i);
-                }
-            }
-        }
-        if ((i!=indexRight)&&(i!=indexRight2))
-        {
-            double l1=(pt-rightPt1).getLength();
-            double l2=(pt-rightPt2).getLength();
-            if ( (l1!=0.0)&&(l2!=0.0)&&(l1<rightDist) )
-            {
-
-                double a=(rightPt1-pt).getAngle(rightPt2-pt);
-                if ( (a>1.0*degToRad)&&(a<179.0*degToRad) )
-                {
-                    rightDist=l1;
-                    indexRight3=int(i);
-                }
-            }
-        }
-    }
-    if ( (indexLeft3==-1)||(indexRight3==-1) )
-        return(false); // error
-
-    // 5) Prepare the normal vectory of the 2 tube endings (direction doesn't matter):
-    C3Vector leftPt3(&v[3*indexLeft3+0]);
-    C3Vector rightPt3(&v[3*indexRight3+0]);
-    C3Vector nLeft(((leftPt1-leftPt3)^(leftPt2-leftPt3)).getNormalized());
-    C3Vector nRight(((rightPt1-rightPt3)^(rightPt2-rightPt3)).getNormalized());
-    double a=nLeft.getAngle(nRight);
-    if ( (a>1.0*degToRad)&&(a<179.0*degToRad) )
-        return(false); // not precise enough
-
-    // 6) Now get all points at each endings that are within 2% of distance to the end planes (relative to the longest distances) and calculate the average positions:
-    C3Vector avgLeft,avgRight;
-    avgLeft.clear();
-    avgRight.clear();
-    double cntLeft=0.0;
-    double cntRight=0.0;
-    for (size_t i=0;i<v.size()/3;i++)
-    {
-        C3Vector pt(&v[3*i+0]);
-        C3Vector leftV(pt-leftPt1);
-        double d=fabs(leftV*nLeft);
-        if (d<longestDist*0.02)
-        {
-            cntLeft+=1.0;
-            avgLeft+=pt;
-        }
-
-        C3Vector rightV(pt-rightPt1);
-        d=fabs(rightV*nRight);
-        if (d<longestDist*0.02)
-        {
-            cntRight+=1.0;
-            avgRight+=pt;
-        }
-    }
-    if ( (cntLeft<3.99)||(cntRight<3.99) ) // at least 4 points at each ending! (extruded triangle doesn't work anyway because it is not centered in the bounding box)
-        return(false); // should not happen
-    avgLeft/=cntLeft;
-    avgRight/=cntRight;
-    C3Vector avgPos((avgLeft+avgRight)*0.5);
-
-    // 7) now compute a transformation matrix!
-    C4X4Matrix m;
-    m.setIdentity();
-    m.X=avgPos;
-    m.M.axis[2]=(avgLeft-avgRight).getNormalized();
-    m.M.axis[0]=C3Vector(1.02,1.33,1.69).getNormalized(); // just a random vector;
-    m.M.axis[1]=(m.M.axis[2]^m.M.axis[0]).getNormalized();
-    m.M.axis[0]=(m.M.axis[1]^m.M.axis[2]).getNormalized();
-    tr=m.getTransformation();
-
-    // 8) Last: check if the bounding box is centered (e.g. a triangle-cylinder (with 3 faces)
-    C3Vector maxV;
-    C3Vector minV;
-    C7Vector trInv(tr.getInverse());
-    for (size_t i=0;i<v.size()/3;i++)
-    {
-        C3Vector pt(&v[3*i+0]);
-        pt=trInv*pt;
-        if (i==0)
-        {
-            maxV=pt;
-            minV=pt;
-        }
-        else
-        {
-            maxV.keepMax(pt);
-            minV.keepMin(pt);
-        }
-    }
-    C3Vector dims(maxV(0)-minV(0),maxV(1)-minV(1),maxV(2)-minV(2));
-    C3Vector vars(fabs(maxV(0)+minV(0)),fabs(maxV(1)+minV(1)),fabs(maxV(2)+minV(2)));
-    for (size_t i=0;i<3;i++)
-    {
-        if (vars(i)/dims(1)>0.001) // 0.1% tolerance relative to the box dimension
-            return(false); // the bounding box would not be centered!
-    }
-    return(true);
-}
-
-bool CShape::_getCuboidReferenceFrame(const std::vector<double>& v,const std::vector<int>& ind,C7Vector& tr)
-{
-    tr.setIdentity();
-    // 1) Do we have enough points?
-    if (v.size()/3<8)
-        return(false);
-    // 2) Get the biggest triangle (in surface)
-    int biggestTriIndex=-1;
-    double biggestTriSurface=0.0;
-    C3Vector triangleN1;
-    for (int i=0;i<int(ind.size())/3;i++)
-    {
-        C3Vector pt1(&v[3*ind[3*i+0]+0]);
-        C3Vector pt2(&v[3*ind[3*i+1]+0]);
-        C3Vector pt3(&v[3*ind[3*i+2]+0]);
-        C3Vector v1(pt1-pt2);
-        C3Vector v2(pt1-pt3);
-        double s=(v1^v2).getLength();
-        if (s>biggestTriSurface)
-        {
-            biggestTriSurface=s;
-            biggestTriIndex=i;
-            triangleN1=(v1^v2).getNormalized();
-        }
-    }
-    if (biggestTriIndex==-1)
-        return(false);
-
-    // 3) Get the biggest triangle where the surface normal is perpendicular to the first triangle
-    int biggestTriIndex2=-1;
-    double biggestTriSurface2=0.0;
-    C3Vector triangleN2;
-    for (int i=0;i<int(ind.size())/3;i++)
-    {
-        if (i!=biggestTriIndex)
-        {
-            C3Vector pt1(&v[3*ind[3*i+0]+0]);
-            C3Vector pt2(&v[3*ind[3*i+1]+0]);
-            C3Vector pt3(&v[3*ind[3*i+2]+0]);
-            C3Vector v1(pt1-pt2);
-            C3Vector v2(pt1-pt3);
-            double s=(v1^v2).getLength();
-            C3Vector n((v1^v2).getNormalized());
-            if ((s>biggestTriSurface2)&&(fabs(triangleN1*n)<0.0001))
-            {
-                biggestTriSurface2=s;
-                biggestTriIndex2=i;
-                triangleN2=n;
-            }
-        }
-    }
-    if (biggestTriIndex2==-1)
-        return(false);
-
-
-    // 4) now compute a transformation matrix!
-    C4X4Matrix m;
-    m.setIdentity();
-    m.X.clear();
-    m.M.axis[0]=triangleN1;
-    m.M.axis[1]=triangleN2;
-    m.M.axis[2]=(m.M.axis[0]^m.M.axis[1]).getNormalized();
-
-    // 4) Get the center!
-    C3Vector maxV;
-    C3Vector minV;
-    C4X4Matrix mInv(m.getInverse());
-    for (int i=0;i<int(v.size())/3;i++)
-    {
-        C3Vector pt(&v[3*i+0]);
-        pt=mInv*pt;
-        if (i==0)
-        {
-            maxV=pt;
-            minV=pt;
-        }
-        else
-        {
-            maxV.keepMax(pt);
-            minV.keepMin(pt);
-        }
-    }
-    C3Vector avgPos((maxV(0)+minV(0))*0.5,(maxV(1)+minV(1))*0.5,(maxV(2)+minV(2))*0.5);
-    avgPos=m*avgPos;
-    m.X=avgPos;
-
-    // 5) get the dimensions and reorient the frame to have z the longest dim, y the second longest
-    C3Vector dim(maxV(0)-minV(0),maxV(1)-minV(1),maxV(2)-minV(2));
-    C3X3Matrix rot;
-    rot.setIdentity();
-    double xDim=dim(0);
-    double yDim=dim(1);
-    if ((dim(0)>dim(1))&&(dim(0)>dim(2)))
-    {
-        rot.buildYRotation(piValD2);
-        xDim=dim(2);
-    }
-    if ((dim(1)>dim(0))&&(dim(1)>dim(2)))
-    {
-        rot.buildXRotation(piValD2);
-        yDim=dim(2);
-    }
-    m.M*=rot;
-    // z has the biggest dimension now
-    if (yDim<xDim)
-    {
-        rot.buildZRotation(piValD2);
-        m.M*=rot;
-    }
-    // ok, now we have z,y,x ordered from largest to smallest
-    tr=m.getTransformation();
-    return(true);
 }
 
 int CShape::getMeshModificationCounter()
@@ -1443,55 +1060,132 @@ void CShape::_serializeMesh(CSer& ar)
     }
 }
 
-void CShape::alignBoundingBoxWithMainAxis()
+bool CShape::computeInertia(double density)
 {
-    _reorientGeometry(0);
-}
-void CShape::alignBoundingBoxWithWorld()
-{
-    _reorientGeometry(1);
-}
+    bool retVal=false;
+    double mass=0.0;
+    C7Vector localTr;
+    C3Vector diagI;
 
-bool CShape::alignTubeBoundingBoxWithMainAxis()
-{
-    return(_reorientGeometry(2));
-}
-
-bool CShape::alignCuboidBoundingBoxWithMainAxis()
-{
-    return(_reorientGeometry(3));
-}
-
-bool CShape::_reorientGeometry(int type)
-{ // return value is the success state of the operation
-    C7Vector m(getCumulativeTransformation());
-    C7Vector mNew;
-    bool error=false;
-    if (type<2)
-        mNew=_recomputeOrientation(m,type==0);
-    if (type==2)
-        mNew=_recomputeTubeOrCuboidOrientation(m,true,error);
-    if (type==3)
-        mNew=_recomputeTubeOrCuboidOrientation(m,false,error);
-
-    if (error)
-        return(false);
-
-    C7Vector mCorr(m.getInverse()*mNew);
-    C7Vector mCorrInv(mCorr.getInverse());
-
-    // Now we have to compute the new local transformation:
-    setLocalTransformation(getLocalTransformation()*mCorr);
-    if (_isInScene)
-        App::currentWorld->drawingCont->adjustForFrameChange(_objectHandle,mCorrInv);
-    for (size_t i=0;i<getChildCount();i++)
-    {
-        CSceneObject* child=getChildFromIndex(i);
-        child->setLocalTransformation(mCorrInv*child->getLocalTransformation());
+    if (_mesh->isPure())
+        mass=CPluginContainer::dyn_computeInertia(_objectHandle,localTr,diagI);
+    else
+    { // we use the convex hull
+        std::vector<double> vert;
+        _mesh->getCumulativeMeshes(C7Vector::identityTransformation,vert,nullptr,nullptr);
+        std::vector<double> hull;
+        std::vector<int> indices;
+        if (CMeshRoutines::getConvexHull(&vert,&hull,&indices))
+            mass=CPluginContainer::dyn_computePMI(hull,indices,localTr,diagI);
     }
-    App::setFullDialogRefreshFlag(); // so that textures and other things get updated!
-    pushObjectRefreshEvent();
-    return(true);
+    if (mass>0.0)
+    {
+        retVal=true;
+        C3X3Matrix im;
+        im.clear();
+        im(0,0)=diagI(0);
+        im(1,1)=diagI(1);
+        im(2,2)=diagI(2);
+        im=CMeshWrapper::getInertiaInNewFrame(localTr.Q,im,C4Vector::identityRotation);
+        _mesh->setMass(density*mass/1000.0);
+        _mesh->setInertia(im);
+        _mesh->setCOM(localTr.X);
+    }
+
+    return(retVal);
+}
+
+bool CShape::alignBB(const char* mode)
+{
+    bool retVal=false;
+    C7Vector shapeCumulTr(getCumulativeTransformation());
+    if (std::string(mode)=="world")
+        retVal=_mesh->reorientBB(&shapeCumulTr.getInverse().Q);
+    if (std::string(mode)=="mesh")
+        retVal=_mesh->reorientBB(nullptr);
+    if (retVal)
+    {
+        _computeMeshBoundingBox();
+        computeBoundingBox();
+        _meshModificationCounter++;
+        pushObjectRefreshEvent();
+    }
+    return(retVal);
+}
+
+bool CShape::relocateFrame(const char* mode)
+{
+    bool retVal=false;
+    if ( (!_mesh->isMesh())||(!_mesh->isPure()) )
+    { // we have a compound, or a non-primitive
+        retVal=true;
+        C7Vector shapeCumulTr(getCumulativeTransformation());
+        if (std::string(mode)=="world")
+        {
+            _mesh->setCOM(shapeCumulTr*_mesh->getCOM());
+            _mesh->setInertia(CMeshWrapper::getInertiaInNewFrame(shapeCumulTr.Q,_mesh->getInertia(),C4Vector::identityRotation));
+            _mesh->setBBFrame(shapeCumulTr*_mesh->getBB(nullptr));
+            if (getSingleMesh()==nullptr)
+            { // we have a compound
+                for (size_t i=0;i<_mesh->childList.size();i++)
+                    _mesh->childList[i]->setIFrame(shapeCumulTr*_mesh->childList[i]->getIFrame());
+            }
+            for (size_t i=0;i<getChildCount();i++)
+            {
+                CSceneObject* child=getChildFromIndex(i);
+                child->setLocalTransformation(shapeCumulTr*child->getLocalTransformation());
+            }
+            _localTransformation=getFullParentCumulativeTransformation().getInverse();
+        }
+        if (std::string(mode)=="meshPos")
+        {
+            C7Vector bbFrTr(_mesh->getBB(nullptr));
+            bbFrTr.Q.setIdentity();
+            C7Vector nLocal(_localTransformation*bbFrTr);
+
+            C7Vector oldBBFrame(_mesh->getBB(nullptr));
+            C7Vector newBBFrame(oldBBFrame);
+            newBBFrame.X.clear();
+            _mesh->setCOM(nLocal.getInverse()*_localTransformation*_mesh->getCOM());
+            // frame didn't rotate --> inertia stays same
+            _mesh->setBBFrame(nLocal.getInverse()*_localTransformation*_mesh->getBB(nullptr));
+            if (!_mesh->isMesh())
+            { // we have a compound
+                for (size_t i=0;i<_mesh->childList.size();i++)
+                    _mesh->childList[i]->setIFrame(nLocal.getInverse()*_localTransformation*_mesh->childList[i]->getIFrame());
+            }
+            for (size_t i=0;i<getChildCount();i++)
+            {
+                CSceneObject* child=getChildFromIndex(i);
+                child->setLocalTransformation(nLocal.getInverse()*_localTransformation*child->getLocalTransformation());
+            }
+            oldBBFrame.Q.setIdentity();
+            _localTransformation=nLocal;
+        }
+        if (std::string(mode)=="meshPose")
+        {
+            C7Vector oldBBFrame(_mesh->getBB(nullptr));
+            _mesh->setCOM(oldBBFrame.getInverse()*_mesh->getCOM());
+            _mesh->setInertia(CMeshWrapper::getInertiaInNewFrame(oldBBFrame.getInverse().Q,_mesh->getInertia(),C4Vector::identityRotation));
+            _mesh->setBBFrame(C7Vector::identityTransformation);
+            if (getSingleMesh()==nullptr)
+            { // we have a compound
+                for (size_t i=0;i<_mesh->childList.size();i++)
+                    _mesh->childList[i]->setIFrame(oldBBFrame.getInverse()*_mesh->childList[i]->getIFrame());
+            }
+            for (size_t i=0;i<getChildCount();i++)
+            {
+                CSceneObject* child=getChildFromIndex(i);
+                child->setLocalTransformation(oldBBFrame.getInverse()*child->getLocalTransformation());
+            }
+            _localTransformation=_localTransformation*oldBBFrame;
+        }
+        _computeMeshBoundingBox();
+        computeBoundingBox();
+        _meshModificationCounter++;
+        pushObjectRefreshEvent();
+    }
+    return(retVal);
 }
 
 void CShape::removeMeshCalculationStructure()

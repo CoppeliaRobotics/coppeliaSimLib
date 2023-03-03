@@ -53,16 +53,9 @@ void CQDlgGeometry::refresh()
     ui->qqScaleX->setText(utils::getMultString(true,scaleVal[0]).c_str());
     ui->qqScaleY->setText(utils::getMultString(true,scaleVal[1]).c_str());
     ui->qqScaleZ->setText(utils::getMultString(true,scaleVal[2]).c_str());
-    ui->qqAlpha->setText(utils::getAngleString(true,rotationVal[0]).c_str());
-    ui->qqBeta->setText(utils::getAngleString(true,rotationVal[1]).c_str());
-    ui->qqGamma->setText(utils::getAngleString(true,rotationVal[2]).c_str());
     bool canScaleFreely=(!g)&&(shape->getMesh()->getPurePrimitiveType()!=sim_primitiveshape_spheroid)&&(shape->getMesh()->getPurePrimitiveType()!=sim_primitiveshape_capsule);
     ui->qqKeepProp->setChecked(keepProp||(!canScaleFreely));
     ui->qqKeepProp->setEnabled(canScaleFreely&&noEditModeNoSim);
-    ui->qqAlpha->setEnabled(((!isPureShape)||g)&&noEditModeNoSim);
-    ui->qqBeta->setEnabled(((!isPureShape)||g)&&noEditModeNoSim);
-    ui->qqGamma->setEnabled(((!isPureShape)||g)&&noEditModeNoSim);
-    ui->qqApplyEuler->setEnabled(((!isPureShape)||g)&&noEditModeNoSim);
     std::string shapeTypeText;
     if (isPureShape)
     {
@@ -331,22 +324,6 @@ void CQDlgGeometry::_readScaling(int index)
     }
 }
 
-void CQDlgGeometry::_readRotation(int index)
-{
-    QLineEdit* ww[3]={ui->qqAlpha,ui->qqBeta,ui->qqGamma};
-    if ((!isLinkedDataValid())||(isPureShape&&(!isGroup)))
-        return;
-    bool ok;
-    double newVal=ww[index]->text().toDouble(&ok);
-    if (ok)
-    {
-        rotationVal[index]=newVal*degToRad;
-        C4Vector tr(rotationVal[0],rotationVal[1],rotationVal[2]);
-        C3Vector euler(tr.getEulerAngles());
-        euler.getData(rotationVal);
-    }
-}
-
 void CQDlgGeometry::on_qqKeepProp_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
@@ -463,9 +440,9 @@ void CQDlgGeometry::on_qqApplySize_clicked()
             SSimulationThreadCommand cmd;
             cmd.cmdId=APPLY_SIZE_GEOMETRYGUITRIGGEREDCMD;
             cmd.intParams.push_back(_shapeHandle);
-            cmd.floatParams.push_back(sizeVal[0]);
-            cmd.floatParams.push_back(sizeVal[1]);
-            cmd.floatParams.push_back(sizeVal[2]);
+            cmd.doubleParams.push_back(sizeVal[0]);
+            cmd.doubleParams.push_back(sizeVal[1]);
+            cmd.doubleParams.push_back(sizeVal[2]);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -482,73 +459,9 @@ void CQDlgGeometry::on_qqApplyScale_clicked()
             SSimulationThreadCommand cmd;
             cmd.cmdId=APPLY_SCALING_GEOMETRYGUITRIGGEREDCMD;
             cmd.intParams.push_back(_shapeHandle);
-            cmd.floatParams.push_back(scaleVal[0]);
-            cmd.floatParams.push_back(scaleVal[1]);
-            cmd.floatParams.push_back(scaleVal[2]);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-        }
-    }
-}
-
-void CQDlgGeometry::on_qqAlpha_editingFinished()
-{
-    if (!ui->qqAlpha->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        if (isLinkedDataValid())
-        {
-            _readRotation(0);
-            insideRefreshTriggered=true;
-            refresh();
-        }
-    }
-}
-
-void CQDlgGeometry::on_qqBeta_editingFinished()
-{
-    if (!ui->qqBeta->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        if (isLinkedDataValid())
-        {
-            _readRotation(1);
-            insideRefreshTriggered=true;
-            refresh();
-        }
-    }
-}
-
-void CQDlgGeometry::on_qqGamma_editingFinished()
-{
-    if (!ui->qqGamma->isModified())
-        return;
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        if (isLinkedDataValid())
-        {
-            _readRotation(2);
-            insideRefreshTriggered=true;
-            refresh();
-        }
-    }
-}
-
-void CQDlgGeometry::on_qqApplyEuler_clicked()
-{
-    IF_UI_EVENT_CAN_WRITE_DATA
-    {
-        if (isLinkedDataValid())
-        {
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=APPLY_FRAMEROTATION_GEOMETRYGUITRIGGEREDCMD;
-            cmd.intParams.push_back(_shapeHandle);
-            cmd.floatParams.push_back(rotationVal[0]);
-            cmd.floatParams.push_back(rotationVal[1]);
-            cmd.floatParams.push_back(rotationVal[2]);
+            cmd.doubleParams.push_back(scaleVal[0]);
+            cmd.doubleParams.push_back(scaleVal[1]);
+            cmd.doubleParams.push_back(scaleVal[2]);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

@@ -199,10 +199,10 @@ void CQDlgProximitySensors::on_qqAdjustDetectionParams_clicked()
                 cmd.boolParams.push_back(theDialog.backFace);
                 cmd.boolParams.push_back(!theDialog.fast);
                 cmd.boolParams.push_back(theDialog.limitedAngle);
-                cmd.floatParams.push_back(theDialog.angle);
+                cmd.doubleParams.push_back(theDialog.angle);
 //                cmd.boolParams.push_back(theDialog.occlusionCheck);
                 cmd.boolParams.push_back(theDialog.distanceContraint);
-                cmd.floatParams.push_back(theDialog.minimumDistance);
+                cmd.doubleParams.push_back(theDialog.minimumDistance);
                 cmd.intParams.push_back(theDialog.rayCount);
                 cmd.intParams.push_back(theDialog.rayDetectionCount);
                 App::appendSimulationThreadCommand(cmd);

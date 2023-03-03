@@ -44,7 +44,7 @@ void CQDlgScaling::_doTheScaling()
     SSimulationThreadCommand cmd;
     cmd.cmdId=SCALE_SCALINGGUITRIGGEREDCMD;
     cmd.intParams.assign(sel.begin(),sel.end());
-    cmd.floatParams.push_back(factor);
+    cmd.doubleParams.push_back(factor);
     cmd.boolParams.push_back(inPlace);
     App::appendSimulationThreadCommand(cmd);
     App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

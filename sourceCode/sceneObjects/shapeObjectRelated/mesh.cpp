@@ -28,7 +28,7 @@ CMesh::CMesh()
     _commonInit();
 }
 
-CMesh::CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords)
+CMesh::CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords)
 {
     _commonInit();
     setMesh(meshFrame,vertices,indices,optNormals,optTexCoords);
@@ -71,8 +71,8 @@ void CMesh::_commonInit()
     _displayInverted_DEPRECATED=false;
     _wireframe_OLD=false;
     _insideAndOutsideFacesSameColor_DEPRECATED=true;
-    _shadingAngle=0.5*degToRad;
-    _edgeThresholdAngle=_shadingAngle;
+    _shadingAngle=0.0;
+    _edgeThresholdAngle=0.0;
     _uniqueID=_nextUniqueID++;
 
     _extRendererObjectId=0;
@@ -463,13 +463,19 @@ void CMesh::_transformMesh(const C7Vector& tr)
     _normalsForDisplayAndDisk.resize(_normals.size());
     for (size_t i=0;i<_normals.size();i++)
         _normalsForDisplayAndDisk[i]=(float)_normals[i];
+
+    decreaseVertexBufferRefCnt(_vertexBufferId);
+    decreaseNormalBufferRefCnt(_normalBufferId);
+    decreaseEdgeBufferRefCnt(_edgeBufferId);
+    _vertexBufferId=-1;
+    _normalBufferId=-1;
+    _edgeBufferId=-1;
 }
 
-void CMesh::setMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<double>* optTexCoords)
+void CMesh::setMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords)
 {
     _vertices.assign(vertices.begin(),vertices.end());
     _indices.assign(indices.begin(),indices.end());
-    CMeshManip::removeNonReferencedVertices(_vertices,_indices);
     if (optNormals==nullptr)
     {
         CMeshManip::getNormals(&_vertices,&_indices,&_normals);
@@ -477,6 +483,17 @@ void CMesh::setMesh(const C7Vector& meshFrame,const std::vector<double>& vertice
     }
     else
         _normals.assign(optNormals->begin(),optNormals->end());
+
+    if (optTexCoords!=nullptr)
+    {
+        _textureCoordsTemp.assign(optTexCoords->begin(),optTexCoords->end());
+        CMeshRoutines::cleanupMesh(_vertices,_indices,&_normals,&_textureCoordsTemp,App::userSettings->verticesTolerance);
+    }
+    else
+    {
+        _textureCoordsTemp.clear();
+        CMeshRoutines::cleanupMesh(_vertices,_indices,&_normals,nullptr,App::userSettings->verticesTolerance);
+    }
 
     // Express everything in the meshFrame:
     C7Vector inv(meshFrame.getInverse());
@@ -488,16 +505,6 @@ void CMesh::setMesh(const C7Vector& meshFrame,const std::vector<double>& vertice
     _transformMesh(inv);
     _bbSize=_computeBBSize();
 
-    // Texture coordinates:
-    if (optTexCoords!=nullptr)
-    {
-        _textureCoordsTemp.resize(optTexCoords->size());
-        for (size_t i=0;i<optTexCoords->size();i++)
-            _textureCoordsTemp[i]=(float)optTexCoords->at(i);
-    }
-    else
-        _textureCoordsTemp.clear();
-
     _computeVisibleEdges();
     checkIfConvex();
 
@@ -508,6 +515,35 @@ void CMesh::setMesh(const C7Vector& meshFrame,const std::vector<double>& vertice
     _vertexBufferId=-1;
     _normalBufferId=-1;
     _edgeBufferId=-1;
+}
+
+bool CMesh::reorientBB(const C4Vector* rot)
+{ // function has virtual/non-virtual counterpart!
+    bool retVal=false;
+    if (!isPure())
+    {
+        if (rot!=nullptr)
+        {
+            C7Vector tr;
+            tr.X.clear();
+            tr.Q=rot[0];
+            _transformMesh(tr.getInverse()*_bbFrame);
+            C7Vector bbc;
+            bbc.setIdentity();
+            _bbSize=_computeBBSize(&bbc.X);
+            _bbFrame=tr*bbc;
+            _transformMesh(bbc.getInverse());
+        }
+        else
+        {
+            _transformMesh(_bbFrame);
+            _bbFrame=CAlgos::getMeshBoundingBox(_vertices,_indices,true);
+            _transformMesh(_bbFrame.getInverse());
+            _bbSize=_computeBBSize();
+        }
+        retVal=true;
+    }
+    return(retVal);
 }
 
 void CMesh::setPurePrimitiveType(int theType,double xOrDiameter,double y,double zOrHeight)
@@ -952,17 +988,6 @@ double CMesh::getPurePrimitiveInsideScaling_OLD() const
     return(_purePrimitiveInsideScaling);
 }
 
-void CMesh::setConvexVisualAttributes()
-{
-    _hideEdgeBorders_OLD=false;
-    setShadingAngle(0.0);
-    setEdgeThresholdAngle(0.0);
-    setVisibleEdges(false);
-    color.setConvexColors();
-    edgeColor_DEPRECATED.setColorsAllBlack();
-    _insideAndOutsideFacesSameColor_DEPRECATED=true;
-}
-
 CTextureProperty* CMesh::getTextureProperty()
 {
     return(_textureProperty);
@@ -1050,8 +1075,16 @@ void CMesh::takeVisualAttributesFrom(CMesh* origin)
     _insideAndOutsideFacesSameColor_DEPRECATED=origin->_insideAndOutsideFacesSameColor_DEPRECATED;
     _wireframe_OLD=origin->_wireframe_OLD;
     _edgeWidth_DEPRERCATED=origin->_edgeWidth_DEPRERCATED;
-    _shadingAngle=origin->_shadingAngle;
-    _edgeThresholdAngle=origin->_edgeThresholdAngle;
+    if (_shadingAngle!=origin->_shadingAngle)
+    {
+        _shadingAngle=origin->_shadingAngle;
+        _recomputeNormals();
+    }
+    if (_edgeThresholdAngle!=origin->_edgeThresholdAngle)
+    {
+        _edgeThresholdAngle=origin->_edgeThresholdAngle;
+        _computeVisibleEdges();
+    }
 }
 
 
@@ -2271,6 +2304,16 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                         ar.loadUnknownData();
                 }
             }
+            /* testing:
+            CMeshRoutines::toDelaunayMesh(_vertices,_indices,&_normals);
+            _verticesForDisplayAndDisk.resize(_vertices.size());
+            for (size_t i=0;i<_vertices.size();i++)
+                _verticesForDisplayAndDisk[i]=(float)_vertices[i];
+            _normalsForDisplayAndDisk.resize(_normals.size());
+            for (size_t i=0;i<_normals.size();i++)
+                _normalsForDisplayAndDisk[i]=(float)_normals[i];
+            checkIfConvex();
+             //   */
         }
     }
     else
@@ -2429,21 +2472,16 @@ void CMesh::displayGhost(const C7Vector& cumulIFrameTr,CShape* geomData,int disp
 }
 
 #ifdef SIM_WITH_GUI
-bool CMesh::getNonCalculatedTextureCoordinates(std::vector<double>& texCoords)
+bool CMesh::getNonCalculatedTextureCoordinates(std::vector<float>& texCoords)
 {
     if (_textureProperty==nullptr)
         return(false);
-//    C7Vector dummyTr;
-//    dummyTr.setIdentity();
-//    std::vector<float>* tc=_textureProperty->getTextureCoordinates(-1,dummyTr,_verticesForDisplayAndDisk,_indices);
     std::vector<float>* tc=_textureProperty->getTextureCoordinates(-1,C7Vector::identityTransformation,_verticesForDisplayAndDisk,_indices);
     if (tc==nullptr)
         return(false);
     if (!_textureProperty->getFixedCoordinates())
         return(false);
-    texCoords.resize(tc->size());
-    for (size_t i=0;i<tc->size();i++)
-        texCoords[i]=(double)tc->at(i);
+    texCoords.assign(tc->begin(),tc->end());
     return(true);
 }
 #endif

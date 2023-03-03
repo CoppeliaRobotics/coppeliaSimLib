@@ -217,9 +217,9 @@ void CQDlgColor::on_qqRedValue_editingFinished()
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
                 cmd.intParams.push_back(_colComponent);
-                cmd.floatParams.push_back(redState);
-                cmd.floatParams.push_back(greenState);
-                cmd.floatParams.push_back(blueState);
+                cmd.doubleParams.push_back(redState);
+                cmd.doubleParams.push_back(greenState);
+                cmd.doubleParams.push_back(blueState);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
@@ -250,9 +250,9 @@ void CQDlgColor::on_qqGreenValue_editingFinished()
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
                 cmd.intParams.push_back(_colComponent);
-                cmd.floatParams.push_back(redState);
-                cmd.floatParams.push_back(greenState);
-                cmd.floatParams.push_back(blueState);
+                cmd.doubleParams.push_back(redState);
+                cmd.doubleParams.push_back(greenState);
+                cmd.doubleParams.push_back(blueState);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
@@ -283,9 +283,9 @@ void CQDlgColor::on_qqBlueValue_editingFinished()
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
                 cmd.intParams.push_back(_colComponent);
-                cmd.floatParams.push_back(redState);
-                cmd.floatParams.push_back(greenState);
-                cmd.floatParams.push_back(blueState);
+                cmd.doubleParams.push_back(redState);
+                cmd.doubleParams.push_back(greenState);
+                cmd.doubleParams.push_back(blueState);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
@@ -316,9 +316,9 @@ void CQDlgColor::on_qqHueValue_editingFinished()
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
                 cmd.intParams.push_back(_colComponent);
-                cmd.floatParams.push_back(redState);
-                cmd.floatParams.push_back(greenState);
-                cmd.floatParams.push_back(blueState);
+                cmd.doubleParams.push_back(redState);
+                cmd.doubleParams.push_back(greenState);
+                cmd.doubleParams.push_back(blueState);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
@@ -349,9 +349,9 @@ void CQDlgColor::on_qqSaturationValue_editingFinished()
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
                 cmd.intParams.push_back(_colComponent);
-                cmd.floatParams.push_back(redState);
-                cmd.floatParams.push_back(greenState);
-                cmd.floatParams.push_back(blueState);
+                cmd.doubleParams.push_back(redState);
+                cmd.doubleParams.push_back(greenState);
+                cmd.doubleParams.push_back(blueState);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
@@ -382,9 +382,9 @@ void CQDlgColor::on_qqLuminosityValue_editingFinished()
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
                 cmd.intParams.push_back(_colComponent);
-                cmd.floatParams.push_back(redState);
-                cmd.floatParams.push_back(greenState);
-                cmd.floatParams.push_back(blueState);
+                cmd.doubleParams.push_back(redState);
+                cmd.doubleParams.push_back(greenState);
+                cmd.doubleParams.push_back(blueState);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
@@ -410,9 +410,9 @@ void CQDlgColor::on_qqRedSlider_sliderMoved(int position)
             cmd.intParams.push_back(_objID1);
             cmd.intParams.push_back(_objID2);
             cmd.intParams.push_back(_colComponent);
-            cmd.floatParams.push_back(redState);
-            cmd.floatParams.push_back(greenState);
-            cmd.floatParams.push_back(blueState);
+            cmd.doubleParams.push_back(redState);
+            cmd.doubleParams.push_back(greenState);
+            cmd.doubleParams.push_back(blueState);
             App::appendSimulationThreadCommand(cmd);
         }
         refresh();
@@ -436,9 +436,9 @@ void CQDlgColor::on_qqGreenSlider_sliderMoved(int position)
             cmd.intParams.push_back(_objID1);
             cmd.intParams.push_back(_objID2);
             cmd.intParams.push_back(_colComponent);
-            cmd.floatParams.push_back(redState);
-            cmd.floatParams.push_back(greenState);
-            cmd.floatParams.push_back(blueState);
+            cmd.doubleParams.push_back(redState);
+            cmd.doubleParams.push_back(greenState);
+            cmd.doubleParams.push_back(blueState);
             App::appendSimulationThreadCommand(cmd);
         }
         refresh();
@@ -462,9 +462,9 @@ void CQDlgColor::on_qqBlueSlider_sliderMoved(int position)
             cmd.intParams.push_back(_objID1);
             cmd.intParams.push_back(_objID2);
             cmd.intParams.push_back(_colComponent);
-            cmd.floatParams.push_back(redState);
-            cmd.floatParams.push_back(greenState);
-            cmd.floatParams.push_back(blueState);
+            cmd.doubleParams.push_back(redState);
+            cmd.doubleParams.push_back(greenState);
+            cmd.doubleParams.push_back(blueState);
             App::appendSimulationThreadCommand(cmd);
         }
         refresh();
@@ -488,9 +488,9 @@ void CQDlgColor::on_qqHueSlider_sliderMoved(int position)
             cmd.intParams.push_back(_objID1);
             cmd.intParams.push_back(_objID2);
             cmd.intParams.push_back(_colComponent);
-            cmd.floatParams.push_back(redState);
-            cmd.floatParams.push_back(greenState);
-            cmd.floatParams.push_back(blueState);
+            cmd.doubleParams.push_back(redState);
+            cmd.doubleParams.push_back(greenState);
+            cmd.doubleParams.push_back(blueState);
             App::appendSimulationThreadCommand(cmd);
         }
         refresh();
@@ -514,9 +514,9 @@ void CQDlgColor::on_qqSaturationSlider_sliderMoved(int position)
             cmd.intParams.push_back(_objID1);
             cmd.intParams.push_back(_objID2);
             cmd.intParams.push_back(_colComponent);
-            cmd.floatParams.push_back(redState);
-            cmd.floatParams.push_back(greenState);
-            cmd.floatParams.push_back(blueState);
+            cmd.doubleParams.push_back(redState);
+            cmd.doubleParams.push_back(greenState);
+            cmd.doubleParams.push_back(blueState);
             App::appendSimulationThreadCommand(cmd);
         }
         refresh();
@@ -540,9 +540,9 @@ void CQDlgColor::on_qqLuminositySlider_sliderMoved(int position)
             cmd.intParams.push_back(_objID1);
             cmd.intParams.push_back(_objID2);
             cmd.intParams.push_back(_colComponent);
-            cmd.floatParams.push_back(redState);
-            cmd.floatParams.push_back(greenState);
-            cmd.floatParams.push_back(blueState);
+            cmd.doubleParams.push_back(redState);
+            cmd.doubleParams.push_back(greenState);
+            cmd.doubleParams.push_back(blueState);
             App::appendSimulationThreadCommand(cmd);
         }
         refresh();

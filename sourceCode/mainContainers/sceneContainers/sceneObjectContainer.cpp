@@ -1640,7 +1640,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
             {
                 iMatrix=inertiaFrame_old.M*iMatrix*inertiaFrame_old.M.getTranspose();
                 iMatrix/=mass; // in CoppeliaSim we work with the "massless inertia"
-                shape->getMesh()->setMasslessInertiaMatrix(iMatrix);
+                shape->getMesh()->setInertia(iMatrix);
             }
             // -------------
             if (ar.xmlGetNode_floats("inertiaMatrix",inertia,9,false))
@@ -1651,7 +1651,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
                         iMatrix(i,j)=inertia[i*3+j];
                 }
                 iMatrix/=mass; // in CoppeliaSim we work with the "massless inertia"
-                shape->getMesh()->setMasslessInertiaMatrix(iMatrix);
+                shape->getMesh()->setInertia(iMatrix);
             }
             C3Vector com;
             com.clear();
@@ -1695,7 +1695,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
             C7Vector oldAbsTr2(dummy->getCumulativeTransformation().getInverse()*oldAbsTr);
             C7Vector x(oldAbsTr2*oldAbsTr.getInverse());
             shape->setLocalTransformation(oldAbsTr2);
-            shape->alignBoundingBoxWithWorld();
+            shape->alignBB("world");
             C7Vector newAbsTr2(shape->getCumulativeTransformation());
             C7Vector newAbsTr(x.getInverse()*newAbsTr2);
             shape->setLocalTransformation(newAbsTr);
@@ -2097,7 +2097,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
     ar.xmlAddNode_floats("principalMomentOfInertia",diagI.data,3);
 
     ar.xmlAddNode_floats("centerOfMass",shape->getMesh()->getCOM().data,3);
-    C3X3Matrix _im(shape->getMesh()->getMasslessInertiaMatrix());
+    C3X3Matrix _im(shape->getMesh()->getInertia());
     _im*=shape->getMesh()->getMass();
     double im[9];
     for (size_t i=0;i<3;i++)

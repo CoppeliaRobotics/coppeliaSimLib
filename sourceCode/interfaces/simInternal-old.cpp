@@ -2033,18 +2033,9 @@ int simSetShapeMassAndInertia_internal(int shapeHandle,double mass,const double*
             tr.setIdentity();
         else
             tr.setData(transformation);
-
-        C4Vector rot;
-        C3Vector pmoment;
-        CMeshWrapper::getPMIFromMasslessTensor(m,rot,pmoment);
-        if (pmoment(0)<0.0000001)
-            pmoment(0)=0.0000001;
-        if (pmoment(1)<0.0000001)
-            pmoment(1)=0.0000001;
-        if (pmoment(2)<0.0000001)
-            pmoment(0)=0.0000001;
-        it->getMesh()->setPrincipalMomentsOfInertia(pmoment);
-        it->getMesh()->setLocalInertiaFrame(it->getFullCumulativeTransformation().getInverse()*tr.getTransformation()*C7Vector(rot,com));
+        it->getMesh()->setCOM(it->getCumulativeTransformation().getInverse()*tr.getTransformation()*com);
+        m=CMeshWrapper::getInertiaInNewFrame(tr.M.getQuaternion(),m,it->getCumulativeTransformation().Q);
+        it->getMesh()->setInertia(m);
         it->setDynamicsResetFlag(true,false);
         return(1);
     }
@@ -2071,7 +2062,7 @@ int simGetShapeMassAndInertia_internal(int shapeHandle,double* mass,double* iner
         else
             ref.setData(transformation);
         C4X4Matrix xx(it->getFullCumulativeTransformation().getInverse()*ref.getTransformation());
-        C3X3Matrix m(it->getMesh()->getMasslessInertiaMatrix());
+        C3X3Matrix m(it->getMesh()->getInertia());
         m=xx.M.getTranspose()*m*xx.M;
         m*=mass[0];
         m.getData(inertiaMatrix);

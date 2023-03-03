@@ -8098,7 +8098,6 @@ int simCreateMeshShape_internal(int options,double shadingAngle,const double* ve
                     CShape* shape=new CShape(C7Vector::identityTransformation,vert,ind,nullptr,nullptr);
                     shape->getSingleMesh()->setShadingAngle(shadingAngle);
                     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
-                    shape->getMesh()->setLocalInertiaFrame(C7Vector::identityTransformation);
                     shape->setCulling((options&1)!=0);
                     shape->setVisibleEdges((options&2)!=0);
                     App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
@@ -10252,7 +10251,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
                         SSimulationThreadCommand cmd;
                         cmd.cmdId=SET_SHAPE_SHADING_ANGLE_CMD;
                         cmd.intParams.push_back(shape->getObjectHandle());
-                        cmd.floatParams.push_back(parameter);
+                        cmd.doubleParams.push_back(parameter);
                         App::appendSimulationThreadCommand(cmd);
                     }
                     retVal=1;
@@ -10273,7 +10272,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
                         SSimulationThreadCommand cmd;
                         cmd.cmdId=SET_SHAPE_EDGE_ANGLE_CMD;
                         cmd.intParams.push_back(shape->getObjectHandle());
-                        cmd.floatParams.push_back(parameter);
+                        cmd.doubleParams.push_back(parameter);
                         App::appendSimulationThreadCommand(cmd);
                     }
                     retVal=1;
@@ -11673,7 +11672,7 @@ int simGetShapeInertia_internal(int shapeHandle,double* inertiaMatrix,double* tr
         tr.setIdentity();
         tr.X=it->getMesh()->getCOM();
         tr.getData(transformationMatrix);
-        C3X3Matrix m(it->getMesh()->getMasslessInertiaMatrix());
+        C3X3Matrix m(it->getMesh()->getInertia());
         m*=it->getMesh()->getMass();
         m.getData(inertiaMatrix);
         return(1);
@@ -11705,19 +11704,9 @@ int simSetShapeInertia_internal(int shapeHandle,const double* inertiaMatrix,cons
         m.axis[1](2)=m.axis[2](1);
         m/=it->getMesh()->getMass(); // in CoppeliaSim we work with the "massless inertia"
 
-        C7Vector corr;
-        corr.setIdentity();
-        C3Vector pmoment;
-        CMeshWrapper::getPMIFromMasslessTensor(m,corr.Q,pmoment);
-
-        if (pmoment(0)<0.0000001)
-            pmoment(0)=0.0000001;
-        if (pmoment(1)<0.0000001)
-            pmoment(1)=0.0000001;
-        if (pmoment(2)<0.0000001)
-            pmoment(0)=0.0000001;
-        it->getMesh()->setPrincipalMomentsOfInertia(pmoment);
-        it->getMesh()->setLocalInertiaFrame(tr.getTransformation()*corr);
+        it->getMesh()->setCOM(tr.X);
+        m=CMeshWrapper::getInertiaInNewFrame(tr.M.getQuaternion(),m,C4Vector::identityRotation);
+        it->getMesh()->setInertia(m);
         it->setDynamicsResetFlag(true,false);
         return(1);
     }
@@ -13273,16 +13262,16 @@ int simReorientShapeBoundingBox_internal(int shapeHandle,int relativeToHandle,in
         if ( (!theShape->getMesh()->isPure())||(theShape->isCompound()) )
         { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
             if (relativeToHandle==-1)
-                theShape->alignBoundingBoxWithWorld();
+                theShape->alignBB("world");
             else if (relativeToHandle==sim_handle_self)
-                theShape->alignBoundingBoxWithMainAxis();
+                theShape->alignBB("mesh");
             else
             {
                 C7Vector oldAbsTr(theShape->getCumulativeTransformation());
                 C7Vector oldAbsTr2(theObjectRelativeTo->getCumulativeTransformation().getInverse()*oldAbsTr);
                 C7Vector x(oldAbsTr2*oldAbsTr.getInverse());
                 theShape->setLocalTransformation(theShape->getFullParentCumulativeTransformation().getInverse()*oldAbsTr2);
-                theShape->alignBoundingBoxWithWorld();
+                theShape->alignBB("world");
                 C7Vector newAbsTr2(theShape->getCumulativeTransformation());
                 C7Vector newAbsTr(x.getInverse()*newAbsTr2);
                 theShape->setLocalTransformation(theShape->getFullParentCumulativeTransformation().getInverse()*newAbsTr);
@@ -13634,9 +13623,10 @@ int simComputeMassAndInertia_internal(int shapeHandle,double density)
             if (mass>0.0)
             {
                 mass=density*mass/1000.0;
-                shape->getMesh()->setPrincipalMomentsOfInertia(diagI);
-                shape->getMesh()->setLocalInertiaFrame(localTr);
                 shape->getMesh()->setMass(mass);
+                shape->getMesh()->setCOM(localTr.X);
+                C3X3Matrix inertiaMatrix=CMeshWrapper::getInertiaFromPMI(diagI,localTr.getInverse());
+                shape->getMesh()->setInertia(inertiaMatrix);
                 App::undoRedo_sceneChanged("");
                 return(1);
             }
@@ -15592,9 +15582,9 @@ int simGetShapeViz_internal(int shapeHandle,int index,struct SShapeVizInfo* info
                 const char* ob=(char*)to->getTextureBufferPointer();
                 for (size_t i=0;i<totBytes;i++)
                     info->texture[i]=ob[i];
-                info->textureCoords=new double[tc->size()];
+                info->textureCoords=new float[tc->size()];
                 for (size_t i=0;i<tc->size();i++)
-                    info->textureCoords[i]=(double)tc->at(i);
+                    info->textureCoords[i]=tc->at(i);
                 info->textureApplyMode=tp->getApplyMode();
                 info->textureOptions=0;
                 if (tp->getRepeatU())

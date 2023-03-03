@@ -9,17 +9,15 @@
 #include <rendering.h>
 #include <tt.h>
 #include <utils.h>
+#include <meshRoutines.h>
 
-CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContainer* objCont,CTextureContainer* textureCont,CUiThread* uiThread,bool identicalVerticesCheck,bool identicalTrianglesCheck,double identicalVerticesTolerance)
+CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CSceneObjectContainer* objCont,CTextureContainer* textureCont,CUiThread* uiThread)
 {
     _shape=shape;
     _editModeType=editModeType;
     _objCont=objCont;
     _textureCont=textureCont;
     _uiThread=uiThread;
-    _identicalVerticesCheck=identicalVerticesCheck;
-    _identicalTrianglesCheck=identicalTrianglesCheck;
-    _identicalVerticesTolerance=identicalVerticesTolerance;
     showHiddenVerticeAndEdges=false;
     automaticallyFollowEdges=true;
     edgeMaxAngle=135.0*degToRad;
@@ -59,40 +57,11 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
 
     if (!cancelChanges)
     {
-        C7Vector oldTr(_shape->getCumulativeTransformation());
-        CMesh* gc=_shape->getSingleMesh();
-        gc->setPurePrimitiveType(sim_primitiveshape_none,1.0,1.0,1.0); // disable the pure characteristic
-        CMeshManip::cleanUpMeshData(_editionVertices,_editionIndices,nullptr,&_editionTextureCoords,_identicalVerticesCheck,_identicalVerticesTolerance,_identicalTrianglesCheck);
-
+        CMeshRoutines::cleanupMesh(_editionVertices,_editionIndices,nullptr,nullptr,App::userSettings->verticesTolerance);
         if (_editionVertices.size()!=0)
         { // The shape is not empty
-            gc->setMesh(C7Vector::identityTransformation,_editionVertices,_editionIndices,nullptr,nullptr); // will do the convectivity test
-            gc->actualizeGouraudShadingAndVisibleEdges();
-            _shape->removeMeshCalculationStructure();
-            // handle textures:
-            CTextureProperty* tp=gc->getTextureProperty();
-            if (tp!=nullptr)
-            {
-                if (tp->getFixedCoordinates())
-                {
-                    if (_editionTextureCoords.size()/2!=_editionIndices.size())
-                    { // should normally never happen
-                        _textureCont->announceGeneralObjectWillBeErased(_shape->getObjectHandle(),-1);
-                        delete tp;
-                        gc->setTextureProperty(nullptr);
-                    }
-                    else
-                    {
-                        std::vector<float> c;
-                        c.resize(_editionTextureCoords.size());
-                        for (int i=0;i<_editionTextureCoords.size();i++)
-                            c[i]=(float)_editionTextureCoords[i];
-                        tp->setFixedCoordinates(&c);
-                    }
-                }
-            }
-
-            _shape->alignBoundingBoxWithMainAxis();
+            CMesh* newMesh=new CMesh(C7Vector::identityTransformation,_editionVertices,_editionIndices,nullptr,nullptr);
+            _shape->replaceMesh(newMesh,true);
         }
         else
         { // The shape is empty!!! We have to remove it!
@@ -290,7 +259,7 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
             for (int i=0;i<int(_editionIndices.size());i++)
             {
                 glNormal3dv(&_editionNormals[3*i]);
-                glTexCoord2dv(&_editionTextureCoords[2*i]);
+                glTexCoord2fv(&_editionTextureCoords[2*i]);
                 glVertex3dv(&_editionVertices[3*_editionIndices[i]]);
             }
         }
@@ -431,15 +400,15 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
             if (_editionTextureProperty!=nullptr)
             {
                 glNormal3dv(&_editionNormals[9*i+0]);
-                glTexCoord2dv(&_editionTextureCoords[6*i+0]);
+                glTexCoord2fv(&_editionTextureCoords[6*i+0]);
                 glVertex3dv(&_editionVertices[3*_editionIndices[3*i+0]]);
 
                 glNormal3dv(&_editionNormals[9*i+3]);
-                glTexCoord2dv(&_editionTextureCoords[6*i+2]);
+                glTexCoord2fv(&_editionTextureCoords[6*i+2]);
                 glVertex3dv(&_editionVertices[3*_editionIndices[3*i+1]]);
 
                 glNormal3dv(&_editionNormals[9*i+6]);
-                glTexCoord2dv(&_editionTextureCoords[6*i+4]);
+                glTexCoord2fv(&_editionTextureCoords[6*i+4]);
                 glVertex3dv(&_editionVertices[3*_editionIndices[3*i+2]]);
             }
             else
@@ -474,15 +443,15 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
             if (_editionTextureProperty!=nullptr)
             {
                 glNormal3dv(&_editionNormals[9*i+0]);
-                glTexCoord2dv(&_editionTextureCoords[6*i+0]);
+                glTexCoord2fv(&_editionTextureCoords[6*i+0]);
                 glVertex3dv(&_editionVertices[3*_editionIndices[3*i+0]]);
 
                 glNormal3dv(&_editionNormals[9*i+3]);
-                glTexCoord2dv(&_editionTextureCoords[6*i+2]);
+                glTexCoord2fv(&_editionTextureCoords[6*i+2]);
                 glVertex3dv(&_editionVertices[3*_editionIndices[3*i+1]]);
 
                 glNormal3dv(&_editionNormals[9*i+6]);
-                glTexCoord2dv(&_editionTextureCoords[6*i+4]);
+                glTexCoord2fv(&_editionTextureCoords[6*i+4]);
                 glVertex3dv(&_editionVertices[3*_editionIndices[3*i+2]]);
             }
             else
@@ -565,7 +534,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
             for (int i=0;i<int(_editionIndices.size());i++)
             {
                 glNormal3dv(&_editionNormals[3*i]);
-                glTexCoord2dv(&_editionTextureCoords[2*i]);
+                glTexCoord2fv(&_editionTextureCoords[2*i]);
                 glVertex3dv(&_editionVertices[3*_editionIndices[i]]);
             }
         }
@@ -749,7 +718,7 @@ void CShapeEditMode::addTriangle(int ind1,int ind2,int ind3) // all edit mode ro
         _editionNormals.push_back(n[2]);
     }
     for (int i=0;i<6;i++)
-        _editionTextureCoords.push_back(0.0);
+        _editionTextureCoords.push_back(0.0f);
 }
 
 void CShapeEditMode::actualizeEditModeEditionEdges() // all edit mode routines should go somewhere else!!!
@@ -1365,7 +1334,7 @@ void CShapeEditMode::deleteSelection(std::vector<int>* selection)
     }
 }
 
-void CShapeEditMode::copySelectedFaces(std::vector<int>* sel,std::vector<double>* vert,std::vector<int>* ind,std::vector<double>* norm,std::vector<double>* tex)
+void CShapeEditMode::copySelectedFaces(std::vector<int>* sel,std::vector<double>* vert,std::vector<int>* ind,std::vector<double>* norm,std::vector<float>* tex)
 {  // norm or tex can be nullptr
     if (_editModeType&TRIANGLE_EDIT_MODE)
     {
@@ -1697,7 +1666,7 @@ void CShapeEditMode::makeShape()
     std::vector<double> nVertices;
     std::vector<int> nIndices;
     std::vector<double> nNormals;
-    std::vector<double> nTexCoords;
+    std::vector<float> nTexCoords;
     copySelectedFaces(&sel,&nVertices,&nIndices,&nNormals,&nTexCoords);
     if (nVertices.size()!=0)
     {   // Now we have to transform all vertices with the cumulative transform
@@ -1723,8 +1692,8 @@ void CShapeEditMode::makeShape()
             toid=_editionTextureProperty->getTextureObjectID();
         cmd.intParams.push_back(toid);
         cmd.intVectorParams.push_back(nIndices);
-        cmd.floatVectorParams.push_back(nVertices);
-        cmd.floatVectorParams.push_back(nNormals);
+        cmd.doubleVectorParams.push_back(nVertices);
+        cmd.doubleVectorParams.push_back(nNormals);
         cmd.floatVectorParams.push_back(nTexCoords);
         App::appendSimulationThreadCommand(cmd);
     }
@@ -1757,7 +1726,7 @@ void CShapeEditMode::makePrimitive(int what)
         cmd.cmdId=SHAPEEDIT_MAKEPRIMITIVE_GUITRIGGEREDCMD;
         cmd.intParams.push_back(what);
         cmd.intVectorParams.push_back(nIndices);
-        cmd.floatVectorParams.push_back(nVertices);
+        cmd.doubleVectorParams.push_back(nVertices);
         App::appendSimulationThreadCommand(cmd);
     }
 }

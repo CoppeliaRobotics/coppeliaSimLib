@@ -236,8 +236,8 @@ void App::appendSimulationThreadCommand(int cmdId,int intP1,int intP2,double flo
     cmd.cmdId=cmdId;
     cmd.intParams.push_back(intP1);
     cmd.intParams.push_back(intP2);
-    cmd.floatParams.push_back(floatP1);
-    cmd.floatParams.push_back(floatP2);
+    cmd.doubleParams.push_back(floatP1);
+    cmd.doubleParams.push_back(floatP2);
     if (stringP1==nullptr)
         cmd.stringParams.push_back("");
     else

@@ -126,7 +126,7 @@ void CQDlgShapeDyn::refresh()
     {
         double mass=it->getMesh()->getMass();
         ui->qqMass->setText(utils::getMassString(mass).c_str());
-        C3X3Matrix m(it->getMesh()->getMasslessInertiaMatrix());
+        C3X3Matrix m(it->getMesh()->getInertia());
         if (!masslessInertia)
             m*=mass;
         ui->qqI00->setText(utils::getTensorString(masslessInertia,m(0,0)).c_str());
@@ -142,7 +142,7 @@ void CQDlgShapeDyn::refresh()
         ui->qqPX->setText(utils::getPosString(true,com(0)).c_str());
         ui->qqPY->setText(utils::getPosString(true,com(1)).c_str());
         ui->qqPZ->setText(utils::getPosString(true,com(2)).c_str());
-        ui->qqInfo->setText(it->getMesh()->getInertiaMatrixErrorString().c_str());
+        ui->qqInfo->setText(it->getMesh()->getInertiaErrorString().c_str());
         ui->qqInfo->setStyleSheet("QLabel { color : red; }");
     }
     else
@@ -341,7 +341,7 @@ void CQDlgShapeDyn::on_qqMassT2_clicked()
         cmd.cmdId=MULTIPLY_MASSFORSELECTION_SHAPEDYNGUITRIGGEREDCMD;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        cmd.floatParams.push_back(2.0);
+        cmd.doubleParams.push_back(2.0);
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -356,7 +356,7 @@ void CQDlgShapeDyn::on_qqMassD2_clicked()
         cmd.cmdId=MULTIPLY_MASSFORSELECTION_SHAPEDYNGUITRIGGEREDCMD;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        cmd.floatParams.push_back(0.5);
+        cmd.doubleParams.push_back(0.5);
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -424,7 +424,7 @@ void CQDlgShapeDyn::_inertiaChanged(size_t row,size_t col,QLineEdit* ct)
             cmd.intParams.push_back(shape->getObjectHandle());
             cmd.intParams.push_back(row);
             cmd.intParams.push_back(col);
-            cmd.floatParams.push_back(newVal);
+            cmd.doubleParams.push_back(newVal);
             cmd.boolParams.push_back(masslessInertia);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -442,7 +442,7 @@ void CQDlgShapeDyn::on_qqIT2_clicked()
         cmd.cmdId=MULTIPLY_INERTIAFORSELECTION_SHAPEDYNGUITRIGGEREDCMD;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        cmd.floatParams.push_back(2.0);
+        cmd.doubleParams.push_back(2.0);
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -457,7 +457,7 @@ void CQDlgShapeDyn::on_qqID2_clicked()
         cmd.cmdId=MULTIPLY_INERTIAFORSELECTION_SHAPEDYNGUITRIGGEREDCMD;
         for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        cmd.floatParams.push_back(0.5);
+        cmd.doubleParams.push_back(0.5);
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -588,7 +588,7 @@ void CQDlgShapeDyn::on_qqComputeMassProperties_clicked()
             cmd.cmdId=COMPUTE_MASSANDINERTIA_SHAPEDYNGUITRIGGEREDCMD;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                 cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            cmd.floatParams.push_back(density);
+            cmd.doubleParams.push_back(density);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
