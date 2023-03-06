@@ -1111,7 +1111,10 @@ bool CShape::alignBB(const char* mode)
     bool retVal=false;
     C7Vector shapeCumulTr(getCumulativeTransformation());
     if (std::string(mode)=="world")
-        retVal=_mesh->reorientBB(&shapeCumulTr.getInverse().Q);
+    {
+        C7Vector shapeCumulTrInv(shapeCumulTr.getInverse());
+        retVal=_mesh->reorientBB(&shapeCumulTrInv.Q);
+    }
     if (std::string(mode)=="mesh")
         retVal=_mesh->reorientBB(nullptr);
     if (retVal)
