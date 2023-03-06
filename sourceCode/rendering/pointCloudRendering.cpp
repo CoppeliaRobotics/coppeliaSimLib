@@ -28,10 +28,6 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
     // At the beginning of every scene object display routine:
     _commonStart(pointCloud,renderingObject);
 
-    C3Vector mmaDim,mmiDim;
-    pointCloud->getBoundingBox(mmiDim,mmaDim);
-    C3Vector d(mmaDim-mmiDim);
-
     C3Vector normalVectorForLinesAndPoints(pointCloud->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Object display:

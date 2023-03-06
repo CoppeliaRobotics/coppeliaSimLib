@@ -1250,14 +1250,13 @@ void CJoint::computeBoundingBox()
         minV(0)=-maxV(0);
         minV(1)=-maxV(1);
         minV(2)=-maxV(2);
-        _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_diameter);
     }
     else
     {
         maxV(0)=maxV(1)=maxV(2)=_diameter;
         minV(0)=minV(1)=minV(2)=-maxV(0);
-        _setBB(C7Vector::identityTransformation,C3Vector(_diameter,_diameter,_length));
     }
+    _setBB(C7Vector::identityTransformation,C3Vector(_diameter,_diameter,_length)*0.5);
     _setBoundingBox(minV,maxV);
 }
 
@@ -1465,85 +1464,13 @@ void CJoint::scaleObject(double scalingFactor)
         }
     }
 
-    CSceneObject::scaleObject(scalingFactor);
     _dynamicsResetFlag=true;
-
     _lastForceOrTorqueValid_dynStep=false;
     _lastForceOrTorque_dynStep=0.0;
     _averageForceOrTorqueValid=false;
     _cumulatedForceOrTorque=0.0;
-}
 
-void CJoint::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    double diam=sqrt(x*y);
-    setDiameter(_diameter*diam);
-    setLength(_length*z);
-    setScrewLead(_screwLead*z);
-    if (_jointType==sim_joint_prismatic_subtype)
-    {
-        setPosition(_pos*z);
-        setPositionMin(_posMin*z);
-        setPositionRange(_posRange*z);
-        setDependencyJointOffset(_dependencyJointOffset*z);
-        setMaxStepSize_old(_maxStepSize_old*z);
-        setTargetPosition(_targetPos*z);
-        setTargetVelocity(_targetVel*z);
-
-        setKc(_dynCtrl_kc[0]*diam*diam,_dynCtrl_kc[1]*diam*diam);
-
-        if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
-            setTargetForce(_targetForce*diam*diam,false); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
-        if ( (_dynCtrlMode==sim_jointdynctrl_position)||(_dynCtrlMode==sim_jointdynctrl_positioncb) )
-            setTargetForce(_targetForce*diam*diam*diam,false); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
-
-        _jointPositionForMotionHandling_DEPRECATED*=z;
-        _maxAcceleration_DEPRECATED*=z;
-        _velocity_DEPRECATED*=z;
-
-        _maxVelAccelJerk[0]*=z;
-        _maxVelAccelJerk[1]*=z;
-        _maxVelAccelJerk[2]*=z;
-        setMaxVelAccelJerk(_maxVelAccelJerk);
-
-        if (_initialValuesInitialized)
-        {
-            _initialPosition*=z;
-            _initialTargetPosition*=z;
-            _initialTargetVelocity*=z;
-
-            if ( (_dynCtrlMode==sim_jointdynctrl_spring)||(_dynCtrlMode==sim_jointdynctrl_springcb) )
-                _initialDynCtrl_force*=diam*diam;//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
-            if ( (_dynCtrlMode==sim_jointdynctrl_position)||(_dynCtrlMode==sim_jointdynctrl_positioncb) )
-                _initialDynCtrl_force*=diam*diam*diam;//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
-
-            _initialDynCtrl_kc[0]*=diam*diam;
-            _initialDynCtrl_kc[1]*=diam*diam;
-
-            _initialVelocity_DEPRECATED*=z;
-
-            _initialMaxVelAccelJerk[0]*=z;
-            _initialMaxVelAccelJerk[1]*=z;
-            _initialMaxVelAccelJerk[2]*=z;
-        }
-    }
-
-    if (_jointType==sim_joint_revolute_subtype)
-    {
-        setTargetForce(_targetForce*diam*diam*diam*diam,false);//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
-
-        setKc(_dynCtrl_kc[0]*diam*diam*diam*diam,_dynCtrl_kc[1]*diam*diam*diam*diam);
-
-        if (_initialValuesInitialized)
-        {
-            _initialDynCtrl_force*=diam*diam*diam*diam;//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
-            _initialDynCtrl_kc[0]*=diam*diam*diam*diam;
-            _initialDynCtrl_kc[1]*=diam*diam*diam*diam;
-        }
-    }
-
-    CSceneObject::scaleObjectNonIsometrically(diam,diam,z);
-    _dynamicsResetFlag=true;
+    CSceneObject::scaleObject(scalingFactor);
 }
 
 void CJoint::addCumulativeForceOrTorque(double forceOrTorque,int countForAverage)

@@ -91,7 +91,7 @@ void CMirror::computeBoundingBox()
     minV(2)=0.0;
     maxV(2)=0.0;
     _setBoundingBox(minV,maxV);
-    _setBB(C7Vector::identityTransformation,C3Vector(_mirrorWidth,_mirrorHeight,0.001));
+    _setBB(C7Vector::identityTransformation,C3Vector(_mirrorWidth,_mirrorHeight,0.001)*0.5);
 }
 
 CMirror::~CMirror()
@@ -102,14 +102,8 @@ void CMirror::scaleObject(double scalingFactor)
 {
     _mirrorWidth*=scalingFactor;
     _mirrorHeight*=scalingFactor;
-    CSceneObject::scaleObject(scalingFactor);
-}
 
-void CMirror::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    _mirrorWidth*=x;
-    _mirrorHeight*=y;
-    CSceneObject::scaleObjectNonIsometrically(x,y,z);
+    CSceneObject::scaleObject(scalingFactor);
 }
 
 void CMirror::setMirrorWidth(double w)

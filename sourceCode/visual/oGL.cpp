@@ -824,30 +824,36 @@ void ogl::drawReference(double size,int color/*=0*/)
     glBegin(GL_LINES);
     glVertex3f(0.0,0.0,0.0);
     glVertex3f((float)size,0.0,0.0);
+    /*
     glVertex3f((float)size-subSize,0.0,(float)subSubSize);
     glVertex3f((float)size,0.0,0.0);
     glVertex3f((float)size-subSize,0.0,(float)-subSubSize);
     glVertex3f((float)size,0.0,0.0);
+    */
     glEnd();
     if (color==0)
         setMaterialColor(sim_colorcomponent_emission,ogl::colorGreen);
     glBegin(GL_LINES);
     glVertex3f(0.0,0.0,0.0);
     glVertex3f(0.0,(float)size,0.0);
+    /*
     glVertex3f(0.0,(float)size-subSize,subSubSize);
     glVertex3f(0.0,(float)size,0.0);
     glVertex3f(0.0,(float)size-subSize,-subSubSize);
     glVertex3f(0.0,(float)size,0.0);
+    */
     glEnd();
     if (color==0)
         setMaterialColor(sim_colorcomponent_emission,ogl::colorBlue);
     glBegin(GL_LINES);
     glVertex3f(0.0,0.0,0.0);
     glVertex3f(0.0,0.0,(float)size);
+    /*
     glVertex3f(0.0,subSubSize,(float)size-subSize);
     glVertex3f(0.0,0.0,(float)size);
     glVertex3f(0.0,-subSubSize,(float)size-subSize);
     glVertex3f(0.0,0.0,(float)size);
+    */
     glEnd();
 }
 

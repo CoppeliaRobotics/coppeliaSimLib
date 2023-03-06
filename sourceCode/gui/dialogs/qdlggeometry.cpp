@@ -152,10 +152,8 @@ void CQDlgGeometry::_setCurrentSizes()
     CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape!=nullptr)
     {
-        C3Vector bbhalfSizes(shape->getBoundingBoxHalfSizes());
-        sizeVal[0]=2.0*bbhalfSizes(0);
-        sizeVal[1]=2.0*bbhalfSizes(1);
-        sizeVal[2]=2.0*bbhalfSizes(2);
+        C3Vector bbSizes(shape->getBBHSize()*2.0);
+        bbSizes.getData(sizeVal);
     }
 }
 
@@ -209,8 +207,7 @@ void CQDlgGeometry::_readSize(int index)
             newVal=tt::getLimitedFloat(0.0001,1000.0,newVal);
             double sc=1.0;
 
-            C3Vector bbhalfSizes(shape->getBoundingBoxHalfSizes());
-
+            C3Vector bbhalfSizes(shape->getBBHSize());
             if ((sizeVal[index]!=0.0)&&(bbhalfSizes(index)!=0.0)) // imagine we have a plane that has dims x*y*0!
 
                 sc=newVal/sizeVal[index];
@@ -276,7 +273,7 @@ void CQDlgGeometry::_readScaling(int index)
         double newVal=ww[index]->text().toDouble(&ok);
         if (!keepProp)
         { // imagine we have a plane that has dims x*y*0!
-            C3Vector bbhalfSizes(shape->getBoundingBoxHalfSizes());
+            C3Vector bbhalfSizes(shape->getBBHSize());
             if (bbhalfSizes(index)==0.0)
                 newVal=1.0;
         }

@@ -21,7 +21,6 @@ public:
     CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
@@ -96,7 +95,6 @@ public:
     std::vector<double>* getPoints();
     const void* getPointCloudInfo() const;
     void* getPointCloudInfo();
-    void getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) const;
 
     CColorObject* getColor();
     std::vector<double>* getColors();

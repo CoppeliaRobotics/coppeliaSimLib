@@ -125,7 +125,7 @@ double CPathCont_old::getOnSpotDistanceToDistanceCoeff()
 
 void CPathCont_old::scaleObject(double scalingFactor)
 {
-    for (int i=0;i<int(_simplePathPoints.size());i++)
+    for (size_t i=0;i<_simplePathPoints.size();i++)
         _simplePathPoints[i]->scaleYourself(scalingFactor);
 
     _squareSize*=scalingFactor;
@@ -144,33 +144,6 @@ void CPathCont_old::scaleObject(double scalingFactor)
         _initialPosition*=scalingFactor;
         _initialNominalVelocity*=scalingFactor;
         _initialTargetNominalVelocity*=scalingFactor;
-    }
-
-    actualizePath();
-}
-
-void CPathCont_old::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    double xyz=cbrt(x*y*z);
-    for (int i=0;i<int(_simplePathPoints.size());i++)
-        _simplePathPoints[i]->scaleYourselfNonIsometrically(x,y,z);
-
-    _squareSize*=xyz;
-
-    _position*=double(xyz);
-    _maxAcceleration*=xyz;
-    _nominalVelocity*=xyz;
-    _targetNominalVelocity*=xyz;
-    _angleVarToDistanceCoeff*=xyz;
-    _onSpotDistanceToDistanceCoeff*=xyz;
-
-    _avp_turningCircleRadiusForHalfVelocity*=xyz;
-
-    if (_initialValuesInitialized)
-    {
-        _initialPosition*=xyz;
-        _initialNominalVelocity*=xyz;
-        _initialTargetNominalVelocity*=xyz;
     }
 
     actualizePath();

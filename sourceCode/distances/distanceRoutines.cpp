@@ -42,10 +42,10 @@ int CDistanceRoutine::insertExtendedCacheValue(unsigned long long int value)
 bool CDistanceRoutine::getOctreesHaveCoherentMovement(COctree* octree1,COctree* octree2)
 {
     bool retVal=false;
-    C7Vector tr1,tr2;
-    C3Vector hs1,hs2;
-    octree1->getTransfAndHalfSizeOfBoundingBox(tr1,hs1);
-    octree2->getTransfAndHalfSizeOfBoundingBox(tr2,hs2);
+    C3Vector hs1;
+    C7Vector tr1(octree1->getCumulativeTransformation()*octree1->getBB(&hs1));
+    C3Vector hs2;
+    C7Vector tr2(octree2->getCumulativeTransformation()*octree2->getBB(&hs2));
     for (size_t i=0;i<_objectCoherency.size();i++)
     {
         if ( (_objectCoherency[i].object1Id==octree1->getObjectHandle())&&(_objectCoherency[i].object2Id==octree2->getObjectHandle()) )
@@ -191,20 +191,9 @@ double CDistanceRoutine::_getApproxBoundingBoxDistance(CSceneObject* obj1,CScene
     for (size_t cnt=0;cnt<2;cnt++)
     {
         CSceneObject* obj=objs[cnt];
-        if (obj->getObjectType()==sim_object_shape_type)
-        {
-            halfSizes[cnt]=((CShape*)obj)->getBoundingBoxHalfSizes();
-            m[cnt]=obj->getFullCumulativeTransformation();
-        }
+        m[cnt]=obj->getCumulativeTransformation()*obj->getBB(&halfSizes[cnt]);
         if (obj->getObjectType()==sim_object_dummy_type)
-        {
             isPt[cnt]=true;
-            m[cnt]=obj->getFullCumulativeTransformation();
-        }
-        if (obj->getObjectType()==sim_object_octree_type)
-            ((COctree*)obj)->getTransfAndHalfSizeOfBoundingBox(m[cnt],halfSizes[cnt]);
-        if (obj->getObjectType()==sim_object_pointcloud_type)
-            ((CPointCloud*)obj)->getTransfAndHalfSizeOfBoundingBox(m[cnt],halfSizes[cnt]);
     }
     if (isPt[0])
     { // pt vs ...

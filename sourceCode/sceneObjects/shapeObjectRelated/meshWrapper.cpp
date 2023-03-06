@@ -941,7 +941,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                 for (size_t j=0;j<3;j++)
                     im[i*3+j]=_iMatrix(i,j);
             }
-            ar.xmlAddNode_floats("masslessInertiaMatrix",im,9);
+            ar.xmlAddNode_floats("inertia",im,9);
 
             ar.xmlPushNewNode("bbFrame");
             ar.xmlAddNode_floats("position",_bbFrame.X.data,3);
@@ -1020,7 +1020,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                     ar.xmlGetNode_floats("centerOfMass",_com.data,3);
 
                     double im[9];
-                    ar.xmlGetNode_floats("masslessInertiaMatrix",im,9);
+                    ar.xmlGetNode_floats("inertia",im,9);
                     for (size_t i=0;i<3;i++)
                     {
                         for (size_t j=0;j<3;j++)

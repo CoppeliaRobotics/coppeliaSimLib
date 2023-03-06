@@ -9507,19 +9507,18 @@ int simGetObjectFloatParam_internal(int objectHandle,int parameterID,double* par
                 }
                 if ((parameterID>=sim_objfloatparam_objbbox_min_x)&&(parameterID<=sim_objfloatparam_objbbox_max_z))
                 {
-                    C3Vector minV,maxV;
-                    it->getBoundingBox(minV,maxV);
+                    C3Vector hs(it->getBBHSize());
                     if (parameterID<=sim_objfloatparam_objbbox_min_z)
-                        parameter[0]=minV(parameterID-sim_objfloatparam_objbbox_min_x);
+                        parameter[0]=-hs(parameterID-sim_objfloatparam_objbbox_min_x);
                     else
-                        parameter[0]=maxV(parameterID-sim_objfloatparam_objbbox_max_x);
+                        parameter[0]=hs(parameterID-sim_objfloatparam_objbbox_max_x);
                     retVal=1;
                 }
                 if ((parameterID>=sim_objfloatparam_modelbbox_min_x)&&(parameterID<=sim_objfloatparam_modelbbox_max_z))
                 {
                     C3Vector minV(C3Vector::inf);
                     C3Vector maxV(C3Vector::ninf);
-                    if (!it->getModelBB((it->getCumulativeTransformation()*it->getBB()).getInverse(),minV,maxV,true))
+                    if (!it->getModelBB((it->getCumulativeTransformation()*it->getBB(nullptr)).getInverse(),minV,maxV,true))
                         retVal=0;
                     else
                     {
@@ -13617,19 +13616,8 @@ int simComputeMassAndInertia_internal(int shapeHandle,double density)
         if (isShape(__func__,shapeHandle))
         {
             CShape* shape=(CShape*)App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-            C7Vector localTr;
-            C3Vector diagI; // massless
-            double mass=CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),localTr,diagI);
-            if (mass>0.0)
-            {
-                mass=density*mass/1000.0;
-                shape->getMesh()->setMass(mass);
-                shape->getMesh()->setCOM(localTr.X);
-                C3X3Matrix inertiaMatrix=CMeshWrapper::getInertiaFromPMI(diagI,localTr.getInverse());
-                shape->getMesh()->setInertia(inertiaMatrix);
-                App::undoRedo_sceneChanged("");
+            if (shape->computeInertia(density))
                 return(1);
-            }
             return(0);
         }
         return(-1);
@@ -16318,20 +16306,34 @@ double _simGetMass_internal(const void* geomInfo)
     return(((CMeshWrapper*)geomInfo)->getMass());
 }
 
-double _simGetLocalInertiaInfo_internal(const void* object,double* pos,double* quat,double* diagI)
+double _simGetLocalInertiaInfo_internal(const void* object,double* pos,double* quat,double* diag)
 { // returns the diag inertia (with mass!)
     CShape* shape=(CShape*)object;
-    CMeshWrapper* geomInfo=shape->getMesh();
-    C3Vector diag;
-    C7Vector tr(geomInfo->getDiagonalInertiaInfo(diag));
-    double m=geomInfo->getMass();
+    C3Vector diagI;
+    C7Vector localTr(shape->getMesh()->getDiagonalInertiaInfo(diagI));
+    double mass=shape->getMesh()->getMass();
     if (App::currentWorld->dynamicsContainer->getComputeInertias())
-        CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),tr,diag);
-    tr.X.getData(pos);
-    tr.Q.getData(quat);
-    diag=diag*m;
-    diag.getData(diagI);
-    return(m);
+    {
+        if (shape->getMesh()->isPure())
+            mass=CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),localTr,diagI);
+        else
+        { // we use the convex hull
+            std::vector<double> vert;
+            shape->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vert,nullptr,nullptr);
+            std::vector<double> hull;
+            std::vector<int> indices;
+            if (CMeshRoutines::getConvexHull(&vert,&hull,&indices))
+                mass=CPluginContainer::dyn_computePMI(hull,indices,localTr,diagI);
+        }
+    }
+    if (mass>0.0)
+    {
+        localTr.X.getData(pos);
+        localTr.Q.getData(quat);
+        diagI=diagI*mass;
+        diagI.getData(diag);
+    }
+    return(mass);
 }
 
 int _simGetPurePrimitiveType_internal(const void* geomInfo)

@@ -76,10 +76,6 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
     // At the beginning of every scene object display routine:
     _commonStart(octree,renderingObject);
 
-    C3Vector mmaDim,mmiDim;
-    octree->getBoundingBox(mmiDim,mmaDim);
-    C3Vector d(mmaDim-mmiDim);
-
     C3Vector normalVectorForLinesAndPoints(octree->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Object display:

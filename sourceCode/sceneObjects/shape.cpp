@@ -308,7 +308,7 @@ void CShape::computeBoundingBox()
     _setBoundingBox(getBoundingBoxHalfSizes()*-1.0,getBoundingBoxHalfSizes());
     C3Vector s;
     C7Vector fr(getMesh()->getBB(&s));
-    _setBB(fr,s);
+    _setBB(fr,s*0.5);
 }
 
 void CShape::commonInit()
@@ -493,27 +493,36 @@ void CShape::display_extRenderer(CViewableBase* renderingObject,int displayAttri
     }
 }
 
+void CShape::displayFrames(CViewableBase* renderingObject,double size,bool persp)
+{
+#ifdef SIM_WITH_OPENGL
+    CSceneObject::displayFrames(renderingObject,size,persp);
+    if (persp)
+    {
+        C7Vector x(renderingObject->getCumulativeTransformation().getInverse()*getCumulativeTransformation());
+        size*=x(2);
+    }
+    C7Vector tr(getCumulativeTransformation());
+    _displayFrame(tr*_bbFrame,size*0.006,1); // frame of the bounding box
+#endif
+}
+
 void CShape::scaleObject(double scalingFactor)
 {   
     _meshModificationCounter++;
     // Scale collision info
     if (_meshCalculationStructure!=nullptr)
         CPluginContainer::geomPlugin_scaleMesh(_meshCalculationStructure,scalingFactor);
-
     // Scale meshes and adjust textures:
     getMesh()->scale(scalingFactor);
-
-    // recompute the bounding box:
+    _dynamicsResetFlag=true;
     _computeMeshBoundingBox();
-    computeBoundingBox();
 
     CSceneObject::scaleObject(scalingFactor);
-    pushObjectRefreshEvent();
-    _dynamicsResetFlag=true;
 }
 
 void CShape::scaleObjectNonIsometrically(double x,double y,double z)
-{
+{ // only shapes (and only certain shapes) can be scaled in an non-iso fashion
     if ( getMesh()->isMesh()&&((fabs(x-y)>fabs(0.001*x))&&(fabs(x-z)>fabs(0.001*x))) )
     {
         _meshModificationCounter++;
@@ -540,14 +549,16 @@ void CShape::scaleObjectNonIsometrically(double x,double y,double z)
 
         // Scale meshes and adjust textures:
         getSingleMesh()->scale(x,y,z);
-
-        // recompute the bounding box:
-        _computeMeshBoundingBox();
-        computeBoundingBox();
-
-        CSceneObject::scaleObjectNonIsometrically(x,y,z);
-        pushObjectRefreshEvent();
         _dynamicsResetFlag=true;
+        _computeMeshBoundingBox();
+
+        _sizeFactor*=cbrt(x*y*z);
+        _sizeValues[0]*=x;
+        _sizeValues[1]*=y;
+        _sizeValues[2]*=z;
+
+        computeBoundingBox();
+        pushObjectRefreshEvent();
     }
     else
         scaleObject(cbrt(x*y*z)); // we have a compound or iso scaling

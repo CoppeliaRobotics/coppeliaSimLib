@@ -456,7 +456,7 @@ void CMill::computeBoundingBox()
     C7Vector fr;
     fr.Q.setIdentity();
     fr.X=(minV+maxV)*0.5;
-    _setBB(fr,maxV-minV);
+    _setBB(fr,(maxV-minV)*0.5);
 }
 
 void CMill::resetMill(bool exceptExplicitHandling)
@@ -548,15 +548,8 @@ void CMill::scaleObject(double scalingFactor)
 {
     _size*=scalingFactor;
     convexVolume->scaleVolume(scalingFactor);
-    CSceneObject::scaleObject(scalingFactor);
-}
 
-void CMill::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    double xp,yp,zp;
-    convexVolume->scaleVolumeNonIsometrically(x,y,z,xp,yp,zp);
-    _size*=cbrt(xp*yp*zp);
-    CSceneObject::scaleObjectNonIsometrically(xp,yp,zp);
+    CSceneObject::scaleObject(scalingFactor);
 }
 
 void CMill::setMillType(int theType)

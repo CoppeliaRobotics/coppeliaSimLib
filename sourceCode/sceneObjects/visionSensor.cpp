@@ -281,7 +281,7 @@ void CVisionSensor::computeBoundingBox()
     C7Vector fr;
     fr.Q.setIdentity();
     fr.X=C3Vector(0.0,0.0,-1.0)*_visionSensorSize;
-    _setBB(fr,C3Vector(1.0,1.0,2.0)*_visionSensorSize);
+    _setBB(fr,C3Vector(1.0,1.0,2.0)*_visionSensorSize*0.5);
 }
 
 void CVisionSensor::commonInit()
@@ -1368,7 +1368,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
         { // This doesn't work!!
             C3Vector minV(C3Vector::inf);
             C3Vector maxV(C3Vector::ninf);
-            viewBoxObject->getModelBB((getCumulativeTransformation()*getBB()).getInverse(),minV,maxV,true);
+            viewBoxObject->getModelBB((getCumulativeTransformation()*getBB(nullptr)).getInverse(),minV,maxV,true);
             double shift=getFarClippingPlane()-0.505*(maxV(2)-minV(2)); // just a bit more than half!
             cam.X+=cam.Q.getMatrix().axis[2]*shift;
         }
@@ -1920,17 +1920,8 @@ void CVisionSensor::scaleObject(double scalingFactor)
     setFarClippingPlane(_farClippingPlane*scalingFactor);
     setOrthoViewSize(_orthoViewSize*scalingFactor);
     setVisionSensorSize(_visionSensorSize*scalingFactor);
-    CSceneObject::scaleObject(scalingFactor);
-}
 
-void CVisionSensor::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    setNearClippingPlane(_nearClippingPlane*z);
-    setFarClippingPlane(_farClippingPlane*z);
-    double avg=sqrt(x*y);
-    setOrthoViewSize(_orthoViewSize*avg);
-    setVisionSensorSize(_visionSensorSize*cbrt(x*y*z));
-    CSceneObject::scaleObjectNonIsometrically(avg,avg,z);
+    CSceneObject::scaleObject(scalingFactor);
 }
 
 void CVisionSensor::removeSceneDependencies()

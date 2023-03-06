@@ -255,7 +255,7 @@ void CDummy::computeBoundingBox()
 {
     C3Vector maxV(_dummySize/2.0,_dummySize/2.0,_dummySize/2.0);
     _setBoundingBox(maxV*-1.0,maxV);
-    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_dummySize);
+    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_dummySize*0.5);
 }
 
 void CDummy::scaleObject(double scalingFactor)
@@ -265,11 +265,6 @@ void CDummy::scaleObject(double scalingFactor)
     _virtualDistanceOffsetOnPath_variationWhenCopy*=scalingFactor;
 
     CSceneObject::scaleObject(scalingFactor);
-}
-
-void CDummy::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    scaleObject(cbrt(x*y*z));
 }
 
 void CDummy::removeSceneDependencies()

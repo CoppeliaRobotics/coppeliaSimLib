@@ -94,11 +94,15 @@ CSceneObject::CSceneObject()
 
     _specificLight=-1; // default, i.e. all lights
 
+    _bbFrame.setIdentity();
+    _bbHalfSize.clear();
     _sizeFactor=1.0;
     _sizeValues[0]=1.0;
     _sizeValues[1]=1.0;
     _sizeValues[2]=1.0;
     _dynamicsResetFlag=false;
+    _boundingBoxMin_OLD.clear();
+    _boundingBoxMax_OLD.clear();
 }
 
 CSceneObject::~CSceneObject() 
@@ -934,22 +938,15 @@ void CSceneObject::scaleObject(double scalingFactor)
     _sizeValues[0]*=scalingFactor;
     _sizeValues[1]*=scalingFactor;
     _sizeValues[2]*=scalingFactor;
-    computeBoundingBox();
-
     App::currentWorld->drawingCont->adjustForScaling(_objectHandle,scalingFactor,scalingFactor,scalingFactor);
     App::worldContainer->setModificationFlag(256); // object scaled
+    computeBoundingBox();
+    pushObjectRefreshEvent();
 }
 
 void CSceneObject::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    _sizeFactor*=cbrt(x*y*z);
-    _sizeValues[0]*=x;
-    _sizeValues[1]*=y;
-    _sizeValues[2]*=z;
-    computeBoundingBox();
-    pushObjectRefreshEvent();
-    App::currentWorld->drawingCont->adjustForScaling(_objectHandle,x,y,z);
-    App::worldContainer->setModificationFlag(256); // object scaled
+{ // arriving here only for objects that only supports iso scaling (all, except for shapes)
+    scaleObject(cbrt(x*y*z)); // most objects only scale isometrically
 }
 
 void CSceneObject::scalePosition(double scalingFactor)
@@ -992,6 +989,7 @@ bool CSceneObject::getModelBB(const C7Vector& baseCoordInv,C3Vector& minV,C3Vect
         retVal=true;
         C3Vector bbs;
         C7Vector bbf(getBB(&bbs));
+        bbs*=2.0;
         C7Vector tr(baseCoordInv*getCumulativeTransformation()*bbf);
         C3Vector v;
         for (double i=-1.0;i<2.0;i=i+2.0)
@@ -1020,31 +1018,6 @@ bool CSceneObject::getModelBB(const C7Vector& baseCoordInv,C3Vector& minV,C3Vect
         }
     }
     return(retVal);
-}
-
-void CSceneObject::getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoordInv,C3Vector& minV,C3Vector& maxV)
-{
-    minV=C3Vector::inf;
-    maxV=C3Vector::ninf;
-    C3Vector bbs;
-    C7Vector bbf(getBB(&bbs));
-    C7Vector tr(baseCoordInv*getCumulativeTransformation()*bbf);
-    C3Vector v;
-    for (double i=-1.0;i<2.0;i=i+2.0)
-    {
-        v(0)=bbs(0)*i*0.5;
-        for (double j=-1.0;j<2.0;j=j+2.0)
-        {
-            v(1)=bbs(1)*j*0.5;
-            for (double k=-1.0;k<2.0;k=k+2.0)
-            {
-                v(2)=bbs(2)*k*0.5;
-                C3Vector w(tr*v);
-                maxV.keepMax(w);
-                minV.keepMin(w);
-            }
-        }
-    }
 }
 
 void CSceneObject::performGcsLoadingMapping(const std::map<int,int>* map)
@@ -1307,13 +1280,13 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringInt64("parentUid",pUid);
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("boundingBox",subC);
-    subC->appendMapObject_stringDoubleArray("min",_boundingBoxMin.data,3);
-    subC->appendMapObject_stringDoubleArray("max",_boundingBoxMax.data,3);
+    subC->appendMapObject_stringDoubleArray("min",_boundingBoxMin_OLD.data,3);
+    subC->appendMapObject_stringDoubleArray("max",_boundingBoxMax_OLD.data,3);
     subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("BB",subC);
     _bbFrame.getData(p,true);
     subC->appendMapObject_stringDoubleArray("pose",p,7);
-    subC->appendMapObject_stringDoubleArray("size",_bbSize.data,3);
+    subC->appendMapObject_stringDoubleArray("hsize",_bbHalfSize.data,3);
     _appendObjectMovementEventData(data);
     subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("customData",subC);
@@ -1395,10 +1368,10 @@ CSceneObject* CSceneObject::copyYourself()
     theNewObject->_objectMovementRelativity[1]=_objectMovementRelativity[1];
     theNewObject->_objectMovementStepSize[0]=_objectMovementStepSize[0];
     theNewObject->_objectMovementStepSize[1]=_objectMovementStepSize[1];
-    theNewObject->_boundingBoxMin=_boundingBoxMin;
-    theNewObject->_boundingBoxMax=_boundingBoxMax;
+    theNewObject->_boundingBoxMin_OLD=_boundingBoxMin_OLD;
+    theNewObject->_boundingBoxMax_OLD=_boundingBoxMax_OLD;
     theNewObject->_bbFrame=_bbFrame;
-    theNewObject->_bbSize=_bbSize;
+    theNewObject->_bbHalfSize=_bbHalfSize;
     theNewObject->_sizeFactor=_sizeFactor;
     theNewObject->_sizeValues[0]=_sizeValues[0];
     theNewObject->_sizeValues[1]=_sizeValues[1];
@@ -1722,29 +1695,29 @@ void CSceneObject::computeBoundingBox()
 
 void CSceneObject::_setBoundingBox(const C3Vector& vmin,const C3Vector& vmax)
 {
-    if ( (_boundingBoxMin!=vmin)||(_boundingBoxMax!=vmax) )
+    if ( (_boundingBoxMin_OLD!=vmin)||(_boundingBoxMax_OLD!=vmax) )
     {
-        _boundingBoxMin=vmin;
-        _boundingBoxMax=vmax;
+        _boundingBoxMin_OLD=vmin;
+        _boundingBoxMax_OLD=vmax;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="boundingBox";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             CInterfaceStackTable* subC=new CInterfaceStackTable();
             data->appendMapObject_stringObject(cmd,subC);
-            subC->appendMapObject_stringDoubleArray("min",_boundingBoxMin.data,3);
-            subC->appendMapObject_stringDoubleArray("max",_boundingBoxMax.data,3);
+            subC->appendMapObject_stringDoubleArray("min",_boundingBoxMin_OLD.data,3);
+            subC->appendMapObject_stringDoubleArray("max",_boundingBoxMax_OLD.data,3);
             App::worldContainer->pushEvent(event);
         }
     }
 }
 
-void CSceneObject::_setBB(const C7Vector& bbFrame,const C3Vector& bbSize)
+void CSceneObject::_setBB(const C7Vector& bbFrame,const C3Vector& bbHalfSize)
 {
-    if ( ((bbSize-_bbSize).getLength()>0.0001)||((bbFrame.X-_bbFrame.X).getLength()>0.0001)||(bbFrame.Q.getAngleBetweenQuaternions(_bbFrame.Q)>0.001) )
+    if ( ((bbHalfSize-_bbHalfSize).getLength()>0.0001)||((bbFrame.X-_bbFrame.X).getLength()>0.0001)||(bbFrame.Q.getAngleBetweenQuaternions(_bbFrame.Q)>0.001) )
     {
         _bbFrame=bbFrame;
-        _bbSize=bbSize;
+        _bbHalfSize=bbHalfSize;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
             const char* cmd="BB";
@@ -1753,23 +1726,22 @@ void CSceneObject::_setBB(const C7Vector& bbFrame,const C3Vector& bbSize)
             data->appendMapObject_stringObject(cmd,subC);
             double p[7]={_bbFrame.X(0),_bbFrame.X(1),_bbFrame.X(2),_bbFrame.Q(1),_bbFrame.Q(2),_bbFrame.Q(3),_bbFrame.Q(0)};
             subC->appendMapObject_stringDoubleArray("pose",p,7);
-            subC->appendMapObject_stringDoubleArray("size",_bbSize.data,3);
+            subC->appendMapObject_stringDoubleArray("hsize",_bbHalfSize.data,3);
             App::worldContainer->pushEvent(event);
         }
     }
 }
 
-void CSceneObject::getBoundingBox(C3Vector& vmin,C3Vector& vmax) const
+C7Vector CSceneObject::getBB(C3Vector* bbHalfSize) const
 {
-    vmin=_boundingBoxMin;
-    vmax=_boundingBoxMax;
+    if (bbHalfSize!=nullptr)
+        bbHalfSize[0]=_bbHalfSize;
+    return(_bbFrame);
 }
 
-C7Vector CSceneObject::getBB(C3Vector* bbSize/*=nullptr*/) const
+C3Vector CSceneObject::getBBHSize() const
 {
-    if (bbSize!=nullptr)
-        bbSize[0]=_bbSize;
-    return(_bbFrame);
+    return(_bbHalfSize);
 }
 
 void CSceneObject::temporarilyDisableDynamicTree()
@@ -3757,9 +3729,9 @@ void CSceneObject::acquireCommonPropertiesFromObject_simpleXMLLoading(const CSce
 { // names can't be changed here, probably same with aliases!
 //    _objectName=obj->_objectName;
 //    _objectAlias=obj->_objectAlias;
+    //    _objectAltName=obj->_objectAltName;
     _objectTempAlias=obj->_objectTempAlias;
     _objectTempName_old=obj->_objectTempName_old;
-//    _objectAltName=obj->_objectAltName;
     _localTransformation=obj->_localTransformation;
     _hierarchyColorIndex=obj->_hierarchyColorIndex;
     _collectionSelfCollisionIndicator=obj->_collectionSelfCollisionIndicator;
@@ -3800,7 +3772,6 @@ void CSceneObject::displayFrames(CViewableBase* renderingObject,double size,bool
     C7Vector localFrame(getIntrinsicTransformation(true,&available));
     if (available)
         _displayFrame(tr*localFrame,size*0.0125);
-    _displayFrame(tr*_bbFrame,size*0.006,1); // frame of the bounding box
 #endif
 }
 
@@ -3812,19 +3783,24 @@ void CSceneObject::displayBoundingBox(CViewableBase* renderingObject,bool mainSe
 }
 
 #ifdef SIM_WITH_GUI
-void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay)
+void CSceneObject::displayManipulationModeOverlayGrid(CViewableBase* renderingObject,double size,bool persp)
 {
     if (_objectManipulationMode_flaggedForGridOverlay==0)
         return;
-    App::setLightDialogRefreshFlag(); // to actualize the position and orientation dialogs!
-    bool isPath=false;
+    if (persp)
+    {
+        C3Vector x(renderingObject->getCumulativeTransformation().getInverse()*_objectManipulationModeMouseDownPos);
+        size*=x(2);
+    }
+    size*=0.05;
+    ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
+    ogl::setAlpha(0.5);
+//    App::setLightDialogRefreshFlag(); // to actualize the position and orientation dialogs!
     bool isPathPoints=false;
-    double sizeValueForPath=0.0;
     C3Vector localPositionOnPath;
     localPositionOnPath.clear();
     if (_objectType==sim_object_path_type)
     {
-        isPath=true;
         std::vector<int> pathPointsToTakeIntoAccount;
         CPathCont_old* pc;
         if ( ( (App::getEditModeType()&PATH_EDIT_MODE_OLD)||(App::mainWindow->editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()!=0) )&&((_objectManipulationMode_flaggedForGridOverlay&8)==0) )
@@ -3870,7 +3846,6 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
             localPositionOnPath/=double(pathPointsToTakeIntoAccount.size());
         else
             return; // Should normally never happen
-        sizeValueForPath=std::max<double>((maxCoord-minCoord).getLength()/3.0,pc->getSquareSize()*2.0);
     }
 
     C4X4Matrix tr(getCumulativeTransformation().getMatrix());
@@ -3898,82 +3873,27 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         if (isPathPoints)
             tr.X=tr*localPositionOnPath;
     }
-    // Get the average bounding box size (or model bounding box size):
-    C3Vector bbMin(C3Vector::inf);
-    C3Vector bbMax(C3Vector::ninf);
-    if (_modelBase)
-    {
-        C7Vector ctmi;
-        if (_objectManipulationMode_flaggedForGridOverlay&8)
-            ctmi=tr.getInverse();
-        else
-            ctmi=getCumulativeTransformation().getInverse(); // actually maybe tr.getInverse would even be better?
 
-        if (!getModelBB(ctmi,bbMin,bbMax,true))
-            bbMax=C3Vector(0.1,0.1,0.1); // shouldn't happen!
-    }
-    else
-        getBoundingBox(bbMin,bbMax);
-    C3Vector bbs(bbMax-bbMin);
-
-    double halfSize=0.0;
-    // add the average size of the bounding box (important for models)
-    C3Vector bbsavg((bbMax+bbMin)*0.5);
     if (_objectManipulationMode_flaggedForGridOverlay&8)
     { // rotation
         // set the orientation according to the rotation axis:
         C3X3Matrix rot;
         if (axisInfo==0)
-        { // rotation around the x-axis
-            rot.buildYRotation(piValD2);
-            bbsavg(1)=0.0;
-            bbsavg(2)=0.0;
-            halfSize=1.5*std::max<double>(bbs(1),bbs(2))/2.0;
-        }
+            rot.buildYRotation(piValD2); // rot around x
         if (axisInfo==1)
-        { // rotation around the y-axis
-            rot.buildXRotation(-piValD2);
-            bbsavg(0)=0.0;
-            bbsavg(2)=0.0;
-            halfSize=1.5*std::max<double>(bbs(0),bbs(2))/2.0;
-        }
+            rot.buildXRotation(-piValD2); // rot around y
         if (axisInfo==2)
-        { // rotation around the z-axis
-            rot.setIdentity();
-            bbsavg(0)=0.0;
-            bbsavg(1)=0.0;
-            halfSize=1.5*std::max<double>(bbs(0),bbs(1))/2.0;
-        }
-
-        if (isPath)
-            halfSize=sizeValueForPath;
-
-        // adjust the z-position of the rotation center:
-        tr.X+=tr.M*bbsavg;
-        // now adjust the orientation
+            rot.setIdentity(); // rot around z
         tr.M*=rot;
-    }
-    else
-    {
-        if (!isPath)
-            halfSize=1.5*(bbs(0)+bbs(1)+bbs(2))/6.0;
-        else
-            halfSize=sizeValueForPath;
-
-        tr.X+=getCumulativeTransformation().Q*bbsavg;
     }
 
     glPushMatrix();
 
-    if (transparentAndOverlay)
-    {
-        glDisable(GL_DEPTH_TEST);
-        ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    }
+    glDisable(GL_DEPTH_TEST);
+    ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
     if (_objectManipulationMode_flaggedForGridOverlay&8)
     { // rotation
-    // Do the OGL transformation:
         glTranslated(tr.X(0),tr.X(1),tr.X(2));
         C3X3Matrix rrot;
         if (getObjectMovementRelativity(1)==2) // own frame
@@ -3989,8 +3909,8 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         double a=5.0*piValue/180.0-_objectManipulationModeTotalRotation;
         double oldX=cos(-_objectManipulationModeTotalRotation);
         double oldY=sin(-_objectManipulationModeTotalRotation);
-        double h=halfSize*0.9;
-        double ha=halfSize*0.95;
+        double h=size*1.4;
+        double ha=size*1.4;
         int cnt=1;
 
         // First the flat green circle:
@@ -4001,11 +3921,11 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         for (int i=0;i<72;i++)
         {
             glVertex3d(oldX*h,oldY*h,0.0);
-            glVertex3d(oldX*halfSize,oldY*halfSize,0.0);
+            glVertex3d(oldX*size,oldY*size,0.0);
             oldX=cos(a);
             oldY=sin(a);
             a+=5.0*piValue/180.0;
-            glVertex3d(oldX*halfSize,oldY*halfSize,0.0);
+            glVertex3d(oldX*size,oldY*size,0.0);
             glVertex3d(oldX*h,oldY*h,0.0);
         }
         glEnd();
@@ -4013,17 +3933,17 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
 
         // Now the graduation:
         ogl::setMaterialColor(sim_colorcomponent_emission,ogl::MANIPULATION_MODE_OVERLAY_GRID_COLOR);
-        a=5.0*piValue/180.0-_objectManipulationModeTotalRotation;
+        a=10.0*piValue/180.0-_objectManipulationModeTotalRotation;
         oldX=cos(-_objectManipulationModeTotalRotation);
         oldY=sin(-_objectManipulationModeTotalRotation);
-        for (int i=0;i<72;i++)
+        for (int i=0;i<36;i++)
         {
             glBegin(GL_LINE_STRIP);
-            glVertex3d(oldX*halfSize,oldY*halfSize,0.0);
+            glVertex3d(oldX*size,oldY*size,0.0);
             oldX=cos(a);
             oldY=sin(a);
-            a+=5.0*piValue/180.0;
-            glVertex3d(oldX*halfSize,oldY*halfSize,0.0);
+            a+=10.0*piValue/180.0;
+            glVertex3d(oldX*size,oldY*size,0.0);
             if (cnt==0)
                 glVertex3d(oldX*h,oldY*h,0.0);
             else
@@ -4035,18 +3955,16 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         }
         // Now the moving part:
         glLineWidth(3.0);
-        double h2=halfSize*0.8;
+        double h2=size*0.8;
         ogl::drawSingle3dLine(-h,0.0,0.0,h,0.0,0.0,nullptr);
         ogl::drawSingle3dLine(h,0.0,0.0,cos(0.1)*h2,sin(0.1)*h2,0.0,nullptr);
         ogl::drawSingle3dLine(h,0.0,0.0,cos(-0.1)*h2,sin(-0.1)*h2,0.0,nullptr);
         std::string s(utils::getAngleString(true,_objectManipulationModeTotalRotation));
-        double h3=halfSize*1.1;
+        double h3=size*1.1;
 
-        if (transparentAndOverlay)
-            ogl::setBlending(false);
-        ogl::drawBitmapTextTo3dPosition(h3,0.0,halfSize*0.05,s.c_str(),nullptr);
-        if (transparentAndOverlay)
-            ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        ogl::setBlending(false);
+        ogl::drawBitmapTextTo3dPosition(h3,0.0,size*0.05,s.c_str(),nullptr);
+        ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
         ogl::drawSingle3dLine(0.0,-h,0.0,0.0,h,0.0,nullptr);
         glLineWidth(1.0);
@@ -4091,26 +4009,8 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         glTranslated(-totTransl(0),-totTransl(1),-totTransl(2));
         C3Vector dir[2]={C3Vector::unitXVector,C3Vector::unitYVector};
         C3Vector perp[2]={C3Vector::unitYVector,C3Vector::unitXVector};
-        double unt=0.001;
-        double h=halfSize*2.0;
-        if (h/unt>20)
-            unt=0.002;
-        if (h/unt>20)
-            unt=0.005;
-        if (h/unt>20)
-            unt=0.01;
-        if (h/unt>20)
-            unt=0.02;
-        if (h/unt>20)
-            unt=0.05;
-        if (h/unt>20)
-            unt=0.1;
-        if (h/unt>20)
-            unt=0.2;
-        if (h/unt>20)
-            unt=0.5;
-
-        int grdCnt=int(h/unt);
+        double unt=size*0.25;
+        int grdCnt=5;
         C3Vector v;
 
         // First the green bands:
@@ -4121,7 +4021,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
         for (int axis=0;axis<2;axis++)
         {
             v=dir[axis]*-unt*double(grdCnt+1);
-            C3Vector w(perp[axis]*-unt*0.6);
+            C3Vector w(perp[axis]*-unt*0.8);
             glVertex3d(v(0)+w(0),v(1)+w(1),v(2)+w(2));
             glVertex3d(v(0)-w(0),v(1)-w(1),v(2)-w(2));
             glVertex3d(-v(0)-w(0),-v(1)-w(1),-v(2)-w(2));
@@ -4144,7 +4044,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
             for (int i=-grdCnt;i<=grdCnt;i++)
             {
                 C3Vector w(dir[axis]*-unt*double(i));
-                v=perp[axis]*-unt*0.6;
+                v=perp[axis]*-unt*0.8;
                 ogl::addBuffer3DPoints(v(0)+w(0),v(1)+w(1),v(2)+w(2));
                 v*=-1.0;
                 ogl::addBuffer3DPoints(v(0)+w(0),v(1)+w(1),v(2)+w(2));
@@ -4179,8 +4079,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
             if (xAxisOnly)
                 break;
         }
-        if (transparentAndOverlay)
-            ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glLineWidth(3.0);
         if (ogl::buffer.size()!=0)
             ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,nullptr);
@@ -4189,11 +4088,8 @@ void CSceneObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay
     }
     glPopMatrix();
 
-    if (transparentAndOverlay)
-    {
-        glEnable(GL_DEPTH_TEST);
-        ogl::setBlending(false);
-    }
+    glEnable(GL_DEPTH_TEST);
+    ogl::setBlending(false);
 }
 
 bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix& cameraAbsConf,double rotationAmount,bool perspective,int eventID)
@@ -4230,6 +4126,7 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
         _objectManipulationModeEventId=eventID;
         _objectManipulationModeTotalTranslation.clear();
         _objectManipulationModeTotalRotation=0.0;
+        _objectManipulationModeMouseDownPos=getCumulativeTransformation().X;
         // Let's first see around which axis we wanna rotate:
         int _objectMovementPreferredAxesTEMP=getObjectMovementPreferredAxes();
         bool specialMode=false;
@@ -4368,6 +4265,7 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
         _objectManipulationModeEventId=eventID;
         _objectManipulationModeTotalTranslation.clear();
         _objectManipulationModeTotalRotation=0.0;
+        _objectManipulationModeMouseDownPos=getCumulativeTransformation().X;
         // Let's first see on which plane we wanna translate:
         int _objectMovementPreferredAxesTEMP=getObjectMovementPreferredAxes();
         bool specialMode=false;

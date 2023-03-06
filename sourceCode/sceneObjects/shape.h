@@ -35,6 +35,7 @@ public:
     CSceneObject* copyYourself();
     void copyAttributesTo(CShape* target);
     void removeSceneDependencies();
+    void displayFrames(CViewableBase* renderingObject,double size,bool persp);
     void scaleObject(double scalingFactor);
     void scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);

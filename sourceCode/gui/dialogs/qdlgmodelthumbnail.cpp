@@ -85,11 +85,8 @@ void CQDlgModelThumbnail::actualizeBitmap()
         }
         if ( (!it->isObjectPartOfInvisibleModel())&&(it->getVisibilityLayer()&App::currentWorld->environment->getActiveLayers())&&display )
         {
-            C7Vector tr(it->getCumulativeTransformation());
-            C3Vector minV,maxV;
-            it->getBoundingBox(minV,maxV);
-            tr.X*=(maxV+minV)*0.5;
-            C3Vector hs((maxV-minV)*0.5);
+            C3Vector hs;
+            C7Vector tr(it->getCumulativeTransformation()*it->getBB(&hs));
             for (double x=-1.0;x<2.0;x+=2.0)
             {
                 for (double y=-1.0;y<2.0;y+=2.0)

@@ -277,7 +277,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
             {
                 done=true;
                 CPointCloud* ptCloud=(CPointCloud*)it;
-                C7Vector trr(camTrInv*ptCloud->getFullCumulativeTransformation());
+                C7Vector trr(camTrInv*ptCloud->getCumulativeTransformation());
                 std::vector<double>* wvert=ptCloud->getPoints();
                 for (int j=0;j<int(wvert->size())/3;j++)
                 {
@@ -292,7 +292,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
             {
                 done=true;
                 COctree* octree=(COctree*)it;
-                C7Vector trr(camTrInv*octree->getFullCumulativeTransformation());
+                C7Vector trr(camTrInv*octree->getCumulativeTransformation());
                 std::vector<double>* wvert=octree->getCubePositions();
                 for (int j=0;j<int(wvert->size())/3;j++)
                 {
@@ -303,114 +303,29 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
                     pts.push_back(vq(2));
                 }
             }
-            if (it->getObjectType()==sim_object_graph_type)
-            { // here we add the 3D curves
-                done=true;
-                CGraph* gr=(CGraph*)it;
-
-                C7Vector trr(camTrInv*gr->getFullCumulativeTransformation());
-
-                for (int k=0;k<int(gr->curves3d_old.size());k++)
-                {
-                    CGraphData_old* part0=gr->getGraphData(gr->curves3d_old[k]->data[0]);
-                    CGraphData_old* part1=gr->getGraphData(gr->curves3d_old[k]->data[1]);
-                    CGraphData_old* part2=gr->getGraphData(gr->curves3d_old[k]->data[2]);
-                    int pos=0;
-                    int absIndex;
-                    double point[3];
-                    bool cyclic0,cyclic1,cyclic2;
-                    double range0,range1,range2;
-                    if (part0!=nullptr)    
-                        CGraphingRoutines_old::getCyclicAndRangeValues(part0,cyclic0,range0);
-                    if (part1!=nullptr)    
-                        CGraphingRoutines_old::getCyclicAndRangeValues(part1,cyclic1,range1);
-                    if (part2!=nullptr)    
-                        CGraphingRoutines_old::getCyclicAndRangeValues(part2,cyclic2,range2);
-                    while (gr->getAbsIndexOfPosition(pos++,absIndex))
-                    {
-                        bool dataIsValid=true;
-                        if (part0!=nullptr)
-                        {
-                            if(!gr->getData(part0,absIndex,point[0],cyclic0,range0,true))
-                                dataIsValid=false;
-                        }
-                        else
-                            dataIsValid=false;
-                        if (part1!=nullptr)
-                        {
-                            if(!gr->getData(part1,absIndex,point[1],cyclic1,range1,true))
-                                dataIsValid=false;
-                        }
-                        else
-                            dataIsValid=false;
-                        if (part2!=nullptr)
-                        {
-                            if(!gr->getData(part2,absIndex,point[2],cyclic2,range2,true))
-                                dataIsValid=false;
-                        }
-                        else
-                            dataIsValid=false;
-                        if (dataIsValid)
-                        {
-                            C3Vector pp(point);
-                            if (gr->curves3d_old[k]->getCurveRelativeToWorld())
-                                pp=camTrInv*pp;
-                            else
-                                pp=trr*pp;
-                            pts.push_back(pp(0));
-                            pts.push_back(pp(1));
-                            pts.push_back(pp(2));
-                        }
-                    }
-                }
-
-                // Static 3D curves now:
-                for (int k=0;k<int(gr->staticStreamsAndCurves_old.size());k++)
-                {
-                    CStaticGraphCurve_old* itg=gr->staticStreamsAndCurves_old[k];
-                    if (itg->getCurveType()==2)
-                    {
-                        for (int j=0;j<int(itg->values.size()/3);j++)
-                        {
-                            C3Vector pp(itg->values[3*j+0],itg->values[3*j+1],itg->values[3*j+2]);
-                            if (itg->getRelativeToWorld())
-                                pp=camTrInv*pp;
-                            else
-                                pp=trr*pp;
-                            pts.push_back(pp(0));
-                            pts.push_back(pp(1));
-                            pts.push_back(pp(2));
-                        }
-                    }
-                }
-
-                // Now the graph object itself:
-                if (gr->xYZPlanesDisplay)
-                {
-                    C3Vector minV,maxV;
-                    it->getBoundingBox(minV,maxV);
-                    minV*=trr;
-                    maxV*=trr;
-                    for (int k=0;k<2;k++)
-                    {
-                        for (int l=0;l<2;l++)
-                        {
-                            for (int m=0;m<2;m++)
-                            {
-                                pts.push_back(minV(0)+(maxV(0)-minV(0))*k);
-                                pts.push_back(minV(1)+(maxV(1)-minV(1))*l);
-                                pts.push_back(minV(2)+(maxV(2)-minV(2))*m);
-                            }
-                        }
-                    }
-                }
-
-
-            }
             if (!done)
             {
-                C3Vector minV,maxV;
-                it->getBoundingBoxEncompassingBoundingBox(camTrInv,minV,maxV);
+                C3Vector minV(C3Vector::inf);
+                C3Vector maxV(C3Vector::ninf);
+                C3Vector bbs;
+                C7Vector tr(camTrInv*it->getCumulativeTransformation()*it->getBB(&bbs));
+                bbs*=2.0;
+                C3Vector v;
+                for (double k=-1.0;k<2.0;k=k+2.0)
+                {
+                    v(0)=bbs(0)*k*0.5;
+                    for (double l=-1.0;l<2.0;l=l+2.0)
+                    {
+                        v(1)=bbs(1)*l*0.5;
+                        for (double m=-1.0;m<2.0;m=m+2.0)
+                        {
+                            v(2)=bbs(2)*m*0.5;
+                            C3Vector w(tr*v);
+                            maxV.keepMax(w);
+                            minV.keepMin(w);
+                        }
+                    }
+                }
                 for (int k=0;k<2;k++)
                 {
                     for (int l=0;l<2;l++)
@@ -851,13 +766,13 @@ void CCamera::rotateCameraInCameraManipulationMode(const C7Vector& newLocalConf)
 
 void CCamera::computeBoundingBox()
 {
-    C3Vector minV(-0.5*_cameraSize,-0.5*_cameraSize,-2.6*_cameraSize);
-    C3Vector maxV(0.5*_cameraSize,2.2*_cameraSize,_cameraSize);
+    C3Vector minV(-0.5*_cameraSize,-0.5*_cameraSize,-2.8*_cameraSize);
+    C3Vector maxV(0.5*_cameraSize,2.3*_cameraSize,_cameraSize);
     _setBoundingBox(minV,maxV);
     C7Vector fr;
     fr.Q.setIdentity();
-    fr.X=C3Vector(0.0,0.85,-0.8)*_cameraSize;
-    _setBB(fr,C3Vector(1.0,2.7,3.6)*_cameraSize);
+    fr.X=C3Vector(0.0,0.9,-0.9)*_cameraSize;
+    _setBB(fr,C3Vector(1.0,2.8,3.8)*_cameraSize*0.5);
 }
 
 CCamera::~CCamera()
@@ -924,11 +839,6 @@ void CCamera::scaleObject(double scalingFactor)
     setOrthoViewSize(_orthoViewSize*scalingFactor);
 
     CSceneObject::scaleObject(scalingFactor);
-}
-
-void CCamera::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    scaleObject(cbrt(x*y*z));
 }
 
 void CCamera::setCameraSize(double size)
@@ -2031,10 +1941,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
 
 
 
-            bool secondPartOfManipOverlayNeeded=false;
-
-            // Display the sphere for rotation and shift-operations:
-            //-----------------------------------------------------------------------------------------------------
+            bool manipOverlayNeeded=false;
             if (mouseIsDown&&(!passiveSubView)&&(pass==RENDERPASS)&&(selectionStatus==NOSELECTION)&&( (navigationMode==sim_navigation_camerarotate)||
                 (navigationMode==sim_navigation_camerashift)||
                 (navigationMode==sim_navigation_objectshift)||
@@ -2105,40 +2012,26 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                     App::currentWorld->environment->reactivateFogThatWasTemporarilyDisabled();
                 }
                 else
-                { // We only display the manip mode overlay grids (no more green ball):
-                    secondPartOfManipOverlayNeeded=true;
-                    ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
-                    for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
-                    {
-                        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                        it->displayManipulationModeOverlayGrid(false);
-                    }
-                }
+                    manipOverlayNeeded=true;
             }
-            //-----------------------------------------------------------------------------------------------------
 
-            // very normal rendering:
+            // rendering:
             _drawObjects(renderingMode,pass,currentWinSize,subView,false);
 
-            if (secondPartOfManipOverlayNeeded)
+            if (manipOverlayNeeded)
             {
-                ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
-                ogl::setAlpha(0.25);
-
+                double val=_orthoViewSize;
+                if (_currentPerspective)
+                    val=2.0*tan(_viewAngle*0.5);
                 for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
                 {
                     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                    it->displayManipulationModeOverlayGrid(true);
+                    it->displayManipulationModeOverlayGrid(this,val,_currentPerspective);
                 }
             }
 
             if (pass==DEPTHPASS)
-            {
                 performDepthPerception(subView,isPerspective);
-                // The following instruct. is important depending on the depth-testing type
-                // we perform. It can be omitted with glDepthFunc(GL_LEQUAL)
-    //          App::currentWorld->environment->setBackgroundColor(currentWinSize);
-            }
             if (pass==PICKPASS)
                 hitForMouseUpProcessing_minus2MeansIgnore=handleHits(glRenderMode(GL_RENDER),selectBuff);
 
@@ -2716,7 +2609,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
         {
             C3Vector minV(C3Vector::inf);
             C3Vector maxV(C3Vector::ninf);
-            viewBoxObject->getModelBB((getCumulativeTransformation()*getBB()).getInverse(),minV,maxV,true);
+            viewBoxObject->getModelBB((getCumulativeTransformation()*getBB(nullptr)).getInverse(),minV,maxV,true);
             double shift=ORTHO_CAMERA_FAR_CLIPPING_PLANE-0.505*(maxV(2)-minV(2)); // just a bit more than half!
             cam.X+=cam.Q.getMatrix().axis[2]*shift;
         }
@@ -3207,7 +3100,7 @@ void CCamera::_drawOverlay(bool passiveView,bool drawText,bool displ_ref,int win
         glLineWidth(1.0);
 
         glPopMatrix();
-        ogl::setTextColor(ogl::colorWhite);
+        ogl::setTextColor(ogl::colorBlack);
         glTranslated(0.2*refSize,0.2*refSize,0.0);
         C3X3Matrix m0(tr0.Q.getMatrix());
         ogl::drawBitmapTextIntoScene(m0(0,0)*refSize,m0(1,0)*refSize,0.0,IDSOGL_X);

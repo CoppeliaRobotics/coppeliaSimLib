@@ -42,7 +42,7 @@ void CPath_old::computeBoundingBox()
 {
     C3Vector maxV(pathContainer->getSquareSize()/2.0,pathContainer->getSquareSize()/2.0,pathContainer->getSquareSize()/2.0);
     _setBoundingBox(maxV*-1.0,maxV);
-    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*pathContainer->getSquareSize());
+    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*pathContainer->getSquareSize()*0.5);
 }
 
 void CPath_old::scaleObject(double scalingFactor)
@@ -51,18 +51,9 @@ void CPath_old::scaleObject(double scalingFactor)
         pathContainer->scaleObject(scalingFactor);
     _shapingScaling*=scalingFactor;
     setShapingElementMaxLength(getShapingElementMaxLength()*scalingFactor);
+
     CSceneObject::scaleObject(scalingFactor);
 }
-
-void CPath_old::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    if (pathContainer!=nullptr)
-        pathContainer->scaleObjectNonIsometrically(x,y,z);
-    _shapingScaling*=cbrt(x*y*z);
-    setShapingElementMaxLength(getShapingElementMaxLength()*cbrt(x*y*z));
-    CSceneObject::scaleObjectNonIsometrically(x,y,z);
-}
-
 
 void CPath_old::setExplicitHandling(bool explicitHandl)
 {

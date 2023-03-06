@@ -1118,7 +1118,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
         CSceneObject* modelBaseObject=App::currentWorld->sceneObjects->getObjectFromHandle(modelBaseDummyID);
         C3Vector minV(C3Vector::inf);
         C3Vector maxV(C3Vector::ninf);
-        C7Vector modelTr(modelBaseObject->getCumulativeTransformation()*modelBaseObject->getBB());
+        C7Vector modelTr(modelBaseObject->getCumulativeTransformation()*modelBaseObject->getBB(nullptr));
         C3Vector modelBBSize;
         double modelNonDefaultTranslationStepSize=modelBaseObject->getObjectMovementStepSize(0);
 

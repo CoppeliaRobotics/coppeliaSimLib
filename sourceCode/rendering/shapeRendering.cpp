@@ -64,10 +64,8 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
             glLoadName(-1);
 
 #ifdef SIM_WITH_GUI
-        C3Vector minV,maxV;
-        shape->getBoundingBox(minV,maxV);
-        maxV-=minV;
-        double refSize=(maxV(0)+maxV(1)+maxV(2))/4.0;
+        C3Vector hs(shape->getBBHSize());
+        double refSize=(hs(0)+hs(1)+hs(2))/2.0;
         if (editNormals)
         {
             if ((displayAttrib&sim_displayattribute_renderpass)!=0)
@@ -125,7 +123,7 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
                 }
             }
 
-            if (renderingObject->isObjectInsideView(shape->getFullCumulativeTransformation(),shape->getBoundingBoxHalfSizes()))
+            if (renderingObject->isObjectInsideView(shape->getCumulativeTransformation()*shape->getBB(nullptr),shape->getBBHSize()))
             { // the bounding box is inside of the view (at least some part of it!)
                 if ((displayAttrib&sim_displayattribute_colorcoded)==0)
                 { // normal visualization

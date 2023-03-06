@@ -2375,7 +2375,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 for (size_t i=0;i<shapeList.size();i++)
                 {
                     CShape* shape=shapeList[i];
-                    C3Vector bbhs(shape->getBoundingBoxHalfSizes());
+                    C3Vector bbhs(shape->getBBHSize());
                     double s=std::max<double>(std::max<double>(bbhs(0),bbhs(1)),bbhs(2))*2.0;
                     std::vector<CMesh*> components;
                     shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
@@ -2419,11 +2419,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
-                C3Vector bbhalfSizes(it->getBoundingBoxHalfSizes());
+                C3Vector bbhalfSizes(it->getBBHSize());
                 double xSizeOriginal=2.0*bbhalfSizes(0);
                 double ySizeOriginal=2.0*bbhalfSizes(1);
                 double zSizeOriginal=2.0*bbhalfSizes(2);
                 double s[3]={1.0,1.0,1.0}; // imagine we have a plane that has dims x*y*0! keep default at 1.0
+
                 if (xSizeOriginal!=0.0)
                     s[0]=cmd.doubleParams[0]/xSizeOriginal;
                 if (ySizeOriginal!=0.0)
@@ -4336,8 +4337,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SHAPEEDIT_MAKEPRIMITIVE_GUITRIGGEREDCMD)
         {
             CShape* newShape=new CShape(C7Vector::identityTransformation,cmd.doubleVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
-            C3Vector size(newShape->getBoundingBoxHalfSizes()*2.0);
-            C7Vector conf(newShape->getLocalTransformation());
+            newShape->alignBB("mesh");
+            C3Vector size;
+            C7Vector conf(newShape->getLocalTransformation()*newShape->getBB(&size));
+            size*=2.0;
             delete newShape;
             CShape* shape=nullptr;
 

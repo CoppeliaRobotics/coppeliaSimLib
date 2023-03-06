@@ -15,7 +15,6 @@ public:
     CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);

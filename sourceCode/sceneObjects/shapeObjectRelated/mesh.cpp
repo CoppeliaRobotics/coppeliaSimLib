@@ -887,7 +887,7 @@ void CMesh::getAllShapeComponentsCumulative(const C7Vector& parentCumulTr,std::v
     // needed by the dynamics routine. We return ALL shape components!
     shapeComponentList.push_back(this);
     if (OptParentCumulTrList!=nullptr)
-        OptParentCumulTrList->push_back(parentCumulTr);
+        OptParentCumulTrList->push_back(parentCumulTr*_iFrame*_bbFrame);
 }
 
 CMesh* CMesh::getShapeComponentAtIndex(const C7Vector& parentCumulTr,int& index,C7Vector* optParentCumulTrOut/*=nullptr*/)
@@ -1960,6 +1960,8 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
         {       // Loading
             int byteQuantity;
             std::string theName="";
+            bool fixFrame_prior4_5_2=false;
+            C7Vector verticesLocalFrame_old; // prev. _verticesLocalframe
             while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
                 theName=ar.readDataName();
@@ -2167,51 +2169,23 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                         noHit=false;
                         ar >> byteQuantity;
                         float bla;
-                        C7Vector vlf; // prev. _verticesLocalframe
                         for (size_t i=0;i<7;i++)
                         {
                             ar >> bla;
-                            vlf(i)=(double)bla;
+                            verticesLocalFrame_old(i)=(double)bla;
                         }
                         if (!hasNewBBFrameAndSize)
-                        {
-                            if (true)
-                            {
-                                _bbFrame=(parentCumulIFrame*_iFrame).getInverse()*vlf; // with primitive shapes, _verticesLocalframe is always centered and aligned with the shape
-                                _bbSize=_computeBBSize();
-                            }
-                            else
-                            { // Find the _bbFrame, and express everything in that frame:
-/*
-                                C7Vector tmp((parentCumulIFrame*_iFrame).getInverse()*vlf);
-                                _transformMesh(tmp);
-                                _bbFrame.setIdentity();
-                                _bbSize=_computeBBSize(&_bbFrame.X);
-                                _transformMesh(_bbFrame.getInverse());
-*/
-                                /*
-                                C7Vector tmp((parentCumulIFrame*_iFrame).getInverse()*vlf);
-                                _transformMesh(tmp);
-                                _bbFrame.setIdentity();
-                                _bbSize=_computeBBSize();
-*/
-
-                            }
-                        }
+                            fixFrame_prior4_5_2=true;
                     }
 
                     if (theName.compare("_pf")==0) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     {
                         noHit=false;
-                        C7Vector vlf; // prev. _verticesLocalframe
                         ar >> byteQuantity;
-                        ar >> vlf(0) >> vlf(1) >> vlf(2) >> vlf(3);
-                        ar >> vlf(4) >> vlf(5) >> vlf(6);
+                        ar >> verticesLocalFrame_old(0) >> verticesLocalFrame_old(1) >> verticesLocalFrame_old(2) >> verticesLocalFrame_old(3);
+                        ar >> verticesLocalFrame_old(4) >> verticesLocalFrame_old(5) >> verticesLocalFrame_old(6);
                         if (!hasNewBBFrameAndSize)
-                        {
-                            _bbFrame=(parentCumulIFrame*_iFrame).getInverse()*vlf;
-                            _bbSize=_computeBBSize();
-                        }
+                            fixFrame_prior4_5_2=true;
                     }
 
                     if (theName.compare("Gsa")==0)
@@ -2304,16 +2278,16 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                         ar.loadUnknownData();
                 }
             }
-            /* testing:
-            CMeshRoutines::toDelaunayMesh(_vertices,_indices,&_normals);
-            _verticesForDisplayAndDisk.resize(_vertices.size());
-            for (size_t i=0;i<_vertices.size();i++)
-                _verticesForDisplayAndDisk[i]=(float)_vertices[i];
-            _normalsForDisplayAndDisk.resize(_normals.size());
-            for (size_t i=0;i<_normals.size();i++)
-                _normalsForDisplayAndDisk[i]=(float)_normals[i];
-            checkIfConvex();
-             //   */
+            if (fixFrame_prior4_5_2)
+            { // to accomodate new shapes (V4.5, rev2+)
+                //_bbFrame=(parentCumulIFrame*_iFrame).getInverse()*verticesLocalFrame_old; // with primitive shapes, _verticesLocalframe is always centered and aligned with the shape
+                //_bbSize=_computeBBSize();
+                _transformMesh((parentCumulIFrame*_iFrame).getInverse()*verticesLocalFrame_old);
+                _bbSize=_computeBBSize(&_bbFrame.X);
+                _bbFrame.setIdentity();
+                _transformMesh(_bbFrame.getInverse());
+                _bbFrame.X.clear();
+            }
         }
     }
     else
@@ -2373,6 +2347,8 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
         }
         else
         {
+            bool fixFrame_prior4_5_2=false;
+            C7Vector verticesLocalFrame_old; // prev. _verticesLocalframe
             ar.xmlGetNode_float("shadingAngle",_shadingAngle);
             _shadingAngle*=piValue/180.0;
             ar.xmlGetNode_float("edgeThresholdAngle",_edgeThresholdAngle);
@@ -2394,12 +2370,11 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
 
             if (ar.xmlPushChildNode("verticesLocalFrame")) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
             {
-                C7Vector vlf; // prev. _verticesLocalframe
-                ar.xmlGetNode_floats("position",vlf.X.data,3);
-                ar.xmlGetNode_floats("quaternion",vlf.Q.data,4);
-                vlf.Q.normalize(); // just in case
+                ar.xmlGetNode_floats("position",verticesLocalFrame_old.X.data,3);
+                ar.xmlGetNode_floats("quaternion",verticesLocalFrame_old.Q.data,4);
+                verticesLocalFrame_old.Q.normalize(); // just in case
                 if (!hasNewBBFrameAndSize)
-                    _bbFrame=(parentCumulIFrame*_iFrame).getInverse()*vlf;
+                    fixFrame_prior4_5_2=true;
                 ar.xmlPopNode();
             }
 
@@ -2449,8 +2424,16 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
 
                 ar.xmlPopNode();
             }
-            if (!hasNewBBFrameAndSize)
-                _bbSize=_computeBBSize();
+            if (fixFrame_prior4_5_2)
+            { // to accomodate new shapes (V4.5, rev2+)
+                //_bbFrame=(parentCumulIFrame*_iFrame).getInverse()*verticesLocalFrame_old; // with primitive shapes, _verticesLocalframe is always centered and aligned with the shape
+                //_bbSize=_computeBBSize();
+                _transformMesh((parentCumulIFrame*_iFrame).getInverse()*verticesLocalFrame_old);
+                _bbSize=_computeBBSize(&_bbFrame.X);
+                _bbFrame.setIdentity();
+                _transformMesh(_bbFrame.getInverse());
+                _bbFrame.X.clear();
+            }
         }
     }
 }

@@ -38,23 +38,13 @@ CPointCloud::CPointCloud()
     _nonEmptyCells=0;
     _pointDisplayRatio=1.0;
 
-    clear(); // also sets the _minDim and _maxDim values
-    computeBoundingBox();
+    clear(); // also resets the BB
 }
 
 CPointCloud::~CPointCloud()
 {
     TRACE_INTERNAL;
     clear();
-}
-
-void CPointCloud::getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) const
-{
-    hs=(_boundingBoxMax-_boundingBoxMin)*0.5;
-    C4X4Matrix m=getFullCumulativeTransformation().getMatrix();
-    C3Vector center((_boundingBoxMin+_boundingBoxMax)*0.5);
-    m.X+=m.M*center;
-    tr=m.getTransformation();
 }
 
 CColorObject* CPointCloud::getColor()
@@ -99,34 +89,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
                 _colors.push_back(1.0);
             }
         }
-        C3Vector minDim,maxDim;
-        for (size_t i=0;i<_points.size()/3;i++)
-        {
-            C3Vector p(&_points[3*i]);
-            if (i==0)
-            {
-                minDim=p;
-                maxDim=p;
-            }
-            else
-            {
-                minDim.keepMin(p);
-                maxDim.keepMax(p);
-            }
-        }
-        /*
-        minDim(0)-=_cellSize; // not *0.5 here! The point could lie on the other side of the cube (i.e. not centered)
-        minDim(1)-=_cellSize;
-        minDim(2)-=_cellSize;
-        maxDim(0)+=_cellSize;
-        maxDim(1)+=_cellSize;
-        maxDim(2)+=_cellSize;
-        */
-        _setBoundingBox(minDim,maxDim);
-        C7Vector fr;
-        fr.setIdentity();
-        fr.X=(maxDim+minDim)*0.5;
-        _setBB(fr,maxDim-minDim);
+        computeBoundingBox();
         _displayPoints.assign(_points.begin(),_points.end());
         _displayColors.assign(_colors.begin(),_colors.end());
         for (size_t i=0;i<_displayColors.size();i++)
@@ -196,7 +159,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
             C7Vector fr;
             fr.setIdentity();
             fr.X=(maxDim+minDim)*0.5;
-            _setBB(fr,maxDim-minDim);
+            _setBB(fr,(maxDim-minDim)*0.5);
         }
         else
         {
@@ -602,8 +565,8 @@ void CPointCloud::clear()
         CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
         _pointCloudInfo=nullptr;
     }
-    _setBoundingBox(C3Vector(-0.1,-0.1,-0.1),C3Vector(+0.1,+0.1,+0.1));
-    _setBB(C7Vector::identityTransformation,C3Vector(0.2,0.2,0.2));
+
+    computeBoundingBox();
     _nonEmptyCells=0;
     _updatePointCloudEvent();
 }
@@ -657,7 +620,36 @@ bool CPointCloud::isPotentiallyRenderable() const
 }
 
 void CPointCloud::computeBoundingBox()
-{ // handled elsewhere
+{
+    if (_points.size()>=6)
+    {
+        C3Vector minDim(C3Vector::inf);
+        C3Vector maxDim(C3Vector::ninf);
+        for (size_t i=0;i<_points.size()/3;i++)
+        {
+            C3Vector p(&_points[3*i]);
+            minDim.keepMin(p);
+            maxDim.keepMax(p);
+        }
+        /*
+        minDim(0)-=_cellSize; // not *0.5 here! The point could lie on the other side of the cube (i.e. not centered)
+        minDim(1)-=_cellSize;
+        minDim(2)-=_cellSize;
+        maxDim(0)+=_cellSize;
+        maxDim(1)+=_cellSize;
+        maxDim(2)+=_cellSize;
+        */
+        _setBoundingBox(minDim,maxDim);
+        C7Vector fr;
+        fr.setIdentity();
+        fr.X=(maxDim+minDim)*0.5;
+        _setBB(fr,(maxDim-minDim)*0.5);
+    }
+    else
+    {
+        _setBoundingBox(C3Vector(-0.1,-0.1,-0.1),C3Vector(+0.1,+0.1,+0.1));
+        _setBB(C7Vector::identityTransformation,C3Vector(0.1,0.1,0.1));
+    }
 }
 
 void CPointCloud::scaleObject(double scalingFactor)
@@ -666,11 +658,6 @@ void CPointCloud::scaleObject(double scalingFactor)
     _buildResolution*=scalingFactor;
     _removalDistanceTolerance*=scalingFactor;
     _insertionDistanceTolerance*=scalingFactor;
-    _setBoundingBox(_boundingBoxMin*scalingFactor,_boundingBoxMax*scalingFactor);
-    C7Vector fr(_bbFrame);
-    fr.X*=scalingFactor;
-    _setBB(fr,_bbSize*scalingFactor);
-
     for (size_t i=0;i<_points.size();i++)
         _points[i]*=scalingFactor;
     for (size_t i=0;i<_displayPoints.size();i++)
@@ -678,13 +665,8 @@ void CPointCloud::scaleObject(double scalingFactor)
     if (_pointCloudInfo!=nullptr)
         CPluginContainer::geomPlugin_scalePtcloud(_pointCloudInfo,scalingFactor);
     _updatePointCloudEvent();
-    CSceneObject::scaleObject(scalingFactor);
-}
 
-void CPointCloud::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    double s=cbrt(x*y*z);
-    scaleObject(s);
+    CSceneObject::scaleObject(scalingFactor);
 }
 
 void CPointCloud::removeSceneDependencies()
@@ -1124,8 +1106,10 @@ void CPointCloud::serialize(CSer& ar)
                     std::vector<unsigned char> data;
 #ifdef TMPOPERATION
                     ar.storeDataName("Mmd");
-                    ar << (float)_boundingBoxMin(0) << (float)_boundingBoxMin(1) << (float)_boundingBoxMin(2);
-                    ar << (float)_boundingBoxMax(0) << (float)_boundingBoxMax(1) << (float)_boundingBoxMax(2);
+                    C3Vector boundingBoxMin(_bbFrame.X-_bbHalfSize);
+                    C3Vector boundingBoxMax(_bbFrame.X+_bbHalfSize);
+                    ar << (float)boundingBoxMin(0) << (float)boundingBoxMin(1) << (float)boundingBoxMin(2);
+                    ar << (float)boundingBoxMax(0) << (float)boundingBoxMax(1) << (float)boundingBoxMax(2);
                     ar.flush();
 
                     CPluginContainer::geomPlugin_getPtcloudSerializationData_float(_pointCloudInfo,data);
@@ -1141,11 +1125,6 @@ void CPointCloud::serialize(CSer& ar)
                         ar.flush(false);
                     }
 #endif
-
-                    ar.storeDataName("_md");
-                    ar << _boundingBoxMin(0) << _boundingBoxMin(1) << _boundingBoxMin(2);
-                    ar << _boundingBoxMax(0) << _boundingBoxMax(1) << _boundingBoxMax(2);
-                    ar.flush();
 
                     CPluginContainer::geomPlugin_getPtcloudSerializationData(_pointCloudInfo,data);
                     ar.storeDataName("_o2");
@@ -1317,30 +1296,6 @@ void CPointCloud::serialize(CSer& ar)
                         else
                             clear();
                     }
-
-                    if (theName.compare("Mmd")==0)
-                    { // for backward comp. (flt->dbl)
-                        noHit=false;
-                        ar >> byteQuantity;
-                        float bla,bli,blo;
-                        ar >> bla >> bli >> blo;
-                        _boundingBoxMin(0)=(double)bla;
-                        _boundingBoxMin(1)=(double)bli;
-                        _boundingBoxMin(2)=(double)blo;
-                        ar >> bla >> bli >> blo;
-                        _boundingBoxMax(0)=(double)bla;
-                        _boundingBoxMax(1)=(double)bli;
-                        _boundingBoxMax(2)=(double)blo;
-                    }
-
-                    if (theName.compare("_md")==0)
-                    {
-                        noHit=false;
-                        ar >> byteQuantity;
-                        ar >> _boundingBoxMin(0) >> _boundingBoxMin(1) >> _boundingBoxMin(2);
-                        ar >> _boundingBoxMax(0) >> _boundingBoxMax(1) >> _boundingBoxMax(2);
-                    }
-
 
                     if (theName.compare("Var")==0)
                     {

@@ -786,7 +786,7 @@ void CProxSensor::computeBoundingBox()
     */
     C3Vector v(_proxSensorSize*0.5,_proxSensorSize*0.5,_proxSensorSize*0.5);
     _setBoundingBox(v*-1.0,v);
-    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_proxSensorSize);
+    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_proxSensorSize*0.5);
 }
 
 void CProxSensor::calculateFreshRandomizedRays()
@@ -1030,15 +1030,8 @@ void CProxSensor::scaleObject(double scalingFactor)
 {
     convexVolume->scaleVolume(scalingFactor);
     setProxSensorSize(_proxSensorSize*scalingFactor);
-    CSceneObject::scaleObject(scalingFactor);
-}
 
-void CProxSensor::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    double xp,yp,zp;
-    convexVolume->scaleVolumeNonIsometrically(x,y,z,xp,yp,zp);
-    setProxSensorSize(_proxSensorSize*cbrt(xp*yp*zp));
-    CSceneObject::scaleObjectNonIsometrically(xp,yp,zp);
+    CSceneObject::scaleObject(scalingFactor);
 }
 
 C3Vector CProxSensor::getDetectedPoint() const

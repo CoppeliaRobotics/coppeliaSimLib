@@ -425,6 +425,7 @@ void _displayBoundingBox(CSceneObject* object,CViewableBase* viewable,bool mainS
     glPushAttrib(GL_POLYGON_BIT);
     C3Vector bbs;
     C7Vector bb(object->getBB(&bbs));
+    bbs*=2.0;
     C7Vector bbInv(bb.getInverse());
     C7Vector tr=object->getCumulativeTransformation()*bb;
     glTranslated(tr.X(0),tr.X(1),tr.X(2));

@@ -142,7 +142,7 @@ bool CCollisionRoutine::_doesShapeCollideWithShape(CShape* shape1,CShape* shape2
     // Before building collision nodes, check if the shape's bounding boxes collide (new since 9/7/2014):
     if ( (!shape1->isMeshCalculationStructureInitialized())||(!shape2->isMeshCalculationStructureInitialized()) )
     {
-        if (!CPluginContainer::geomPlugin_getBoxBoxCollision(shape1->getFullCumulativeTransformation(),shape1->getBoundingBoxHalfSizes(),shape2->getFullCumulativeTransformation(),shape2->getBoundingBoxHalfSizes(),true))
+        if (!CPluginContainer::geomPlugin_getBoxBoxCollision(shape1->getCumulativeTransformation()*shape1->getBB(nullptr),shape1->getBBHSize(),shape2->getCumulativeTransformation()*shape2->getBB(nullptr),shape2->getBBHSize(),true))
             return(false);
     }
 
@@ -247,20 +247,9 @@ bool CCollisionRoutine::_areObjectBoundingBoxesOverlapping(CSceneObject* obj1,CS
     for (size_t cnt=0;cnt<2;cnt++)
     {
         CSceneObject* obj=objs[cnt];
-        if (obj->getObjectType()==sim_object_shape_type)
-        {
-            halfSizes[cnt]=((CShape*)obj)->getBoundingBoxHalfSizes();
-            m[cnt]=obj->getFullCumulativeTransformation();
-        }
+        m[cnt]=obj->getCumulativeTransformation()*obj->getBB(&halfSizes[cnt]);
         if (obj->getObjectType()==sim_object_dummy_type)
-        {
             halfSizes[cnt]=C3Vector(0.0001,0.0001,0.0001);
-            m[cnt]=obj->getFullCumulativeTransformation();
-        }
-        if (obj->getObjectType()==sim_object_octree_type)
-            ((COctree*)obj)->getTransfAndHalfSizeOfBoundingBox(m[cnt],halfSizes[cnt]);
-        if (obj->getObjectType()==sim_object_pointcloud_type)
-            ((CPointCloud*)obj)->getTransfAndHalfSizeOfBoundingBox(m[cnt],halfSizes[cnt]);
     }
     return (CPluginContainer::geomPlugin_getBoxBoxCollision(m[0],halfSizes[0],m[1],halfSizes[1],true));
 }

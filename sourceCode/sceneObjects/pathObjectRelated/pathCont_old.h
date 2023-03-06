@@ -66,7 +66,6 @@ public:
 //****************************
 
     void scaleObject(double scalingFactor);
-    void scaleObjectNonIsometrically(double x,double y,double z);
     void resetPath(CPath_old* it);
     void handlePath(CPath_old* it,double deltaTime);
     void handlePath_keepObjectUnchanged(double deltaTime,double& pos_,double& nomVel_,double& targetNomVel_,double maxAccel,bool invertVelocity,bool infiniteAccel); // so that the path can be handled by simFollowPath functions or such!

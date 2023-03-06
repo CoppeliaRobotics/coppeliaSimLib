@@ -35,23 +35,13 @@ COctree::COctree()
     _vertexBufferId=-1;
     _normalBufferId=-1;
 
-    clear(); // also sets the _minDim and _maxDim values
-    computeBoundingBox();
+    clear(); // also resets the BB
 }
 
 COctree::~COctree()
 {
     TRACE_INTERNAL;
     clear();
-}
-
-void COctree::getTransfAndHalfSizeOfBoundingBox(C7Vector& tr,C3Vector& hs) const
-{
-    hs=(_boundingBoxMax-_boundingBoxMin)*0.5;
-    C4X4Matrix m=getFullCumulativeTransformation().getMatrix();
-    C3Vector center((_boundingBoxMin+_boundingBoxMax)*0.5);
-    m.X+=m.M*center;
-    tr=m.getTransformation();
 }
 
 CColorObject* COctree::getColor()
@@ -115,32 +105,7 @@ void COctree::_readPositionsAndColorsAndSetDimensions()
         for (size_t i=0;i<_colors.size();i++)
             _colorsByte.push_back((unsigned char)(_colors[i]*255.1));
 
-        C3Vector minDim,maxDim;
-        for (size_t i=0;i<_voxelPositions.size()/3;i++)
-        {
-            C3Vector p(&_voxelPositions[3*i]);
-            if (i==0)
-            {
-                minDim=p;
-                maxDim=p;
-            }
-            else
-            {
-                minDim.keepMin(p);
-                maxDim.keepMax(p);
-            }
-        }
-        minDim(0)-=_cellSize*0.5;
-        minDim(1)-=_cellSize*0.5;
-        minDim(2)-=_cellSize*0.5;
-        maxDim(0)+=_cellSize*0.5;
-        maxDim(1)+=_cellSize*0.5;
-        maxDim(2)+=_cellSize*0.5;
-        _setBoundingBox(minDim,maxDim);
-        C7Vector fr;
-        fr.setIdentity();
-        fr.X=(maxDim+minDim)*0.5;
-        _setBB(fr,maxDim-minDim);
+        computeBoundingBox();
     }
     else
     {
@@ -475,9 +440,7 @@ void COctree::clear()
     _voxelPositions.clear();
     _colors.clear();
     _colorsByte.clear();
-    _setBoundingBox(C3Vector(-0.1,-0.1,-0.1),C3Vector(+0.1,+0.1,+0.1));
-    _setBB(C7Vector::identityTransformation,C3Vector(0.2,0.2,0.2));
-
+    computeBoundingBox();
     _updateOctreeEvent();
 }
 
@@ -574,28 +537,46 @@ bool COctree::isPotentiallyRenderable() const
 }
 
 void COctree::computeBoundingBox()
-{ // handled elsewhere
+{
+    if (_voxelPositions.size()>=6)
+    {
+        C3Vector minDim(C3Vector::inf);
+        C3Vector maxDim(C3Vector::ninf);
+        for (size_t i=0;i<_voxelPositions.size()/3;i++)
+        {
+            C3Vector p(&_voxelPositions[3*i]);
+            minDim.keepMin(p);
+            maxDim.keepMax(p);
+        }
+        minDim(0)-=_cellSize*0.5;
+        minDim(1)-=_cellSize*0.5;
+        minDim(2)-=_cellSize*0.5;
+        maxDim(0)+=_cellSize*0.5;
+        maxDim(1)+=_cellSize*0.5;
+        maxDim(2)+=_cellSize*0.5;
+        _setBoundingBox(minDim,maxDim);
+        C7Vector fr;
+        fr.setIdentity();
+        fr.X=(maxDim+minDim)*0.5;
+        _setBB(fr,(maxDim-minDim)*0.5);
+    }
+    else
+    {
+        _setBoundingBox(C3Vector(-0.1,-0.1,-0.1),C3Vector(+0.1,+0.1,+0.1));
+        _setBB(C7Vector::identityTransformation,C3Vector(0.1,0.1,0.1));
+    }
 }
 
 void COctree::scaleObject(double scalingFactor)
 {
     _cellSize*=scalingFactor;
-    _setBoundingBox(_boundingBoxMin*scalingFactor,_boundingBoxMax*scalingFactor);
-    C7Vector fr(_bbFrame);
-    fr.X*=scalingFactor;
-    _setBB(fr,_bbSize*scalingFactor);
     for (size_t i=0;i<_voxelPositions.size();i++)
         _voxelPositions[i]*=scalingFactor;
     if (_octreeInfo!=nullptr)
         CPluginContainer::geomPlugin_scaleOctree(_octreeInfo,scalingFactor);
     _updateOctreeEvent();
-    CSceneObject::scaleObject(scalingFactor);
-}
 
-void COctree::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    double s=cbrt(x*y*z);
-    scaleObject(s);
+    CSceneObject::scaleObject(scalingFactor);
 }
 
 void COctree::removeSceneDependencies()
@@ -847,8 +828,10 @@ void COctree::serialize(CSer& ar)
                     std::vector<unsigned char> data;
 #ifdef TMPOPERATION
                     ar.storeDataName("Mm2");
-                    ar << (float)_boundingBoxMin(0) << (float)_boundingBoxMin(1) << (float)_boundingBoxMin(2);
-                    ar << (float)_boundingBoxMax(0) << (float)_boundingBoxMax(1) << (float)_boundingBoxMax(2);
+                    C3Vector boundingBoxMin(_bbFrame.X-_bbHalfSize);
+                    C3Vector boundingBoxMax(_bbFrame.X+_bbHalfSize);
+                    ar << (float)boundingBoxMin(0) << (float)boundingBoxMin(1) << (float)boundingBoxMin(2);
+                    ar << (float)boundingBoxMax(0) << (float)boundingBoxMax(1) << (float)boundingBoxMax(2);
                     ar.flush();
 
                     CPluginContainer::geomPlugin_getOctreeSerializationData_float(_octreeInfo,data);
@@ -864,11 +847,6 @@ void COctree::serialize(CSer& ar)
                         ar.flush(false);
                     }
 #endif
-
-                    ar.storeDataName("_m2");
-                    ar << _boundingBoxMin(0) << _boundingBoxMin(1) << _boundingBoxMin(2);
-                    ar << _boundingBoxMax(0) << _boundingBoxMax(1) << _boundingBoxMax(2);
-                    ar.flush();
 
                     CPluginContainer::geomPlugin_getOctreeSerializationData(_octreeInfo,data);
                     ar.storeDataName("_o2");
@@ -991,29 +969,6 @@ void COctree::serialize(CSer& ar)
                             insertPoints(&pts[0],cnt,true,&cols[0],true,&tags[0],0);
                         else
                             _readPositionsAndColorsAndSetDimensions();
-                    }
-
-                    if (theName.compare("Mm2")==0)
-                    { // for backward comp. (flt->dbl)
-                        noHit=false;
-                        ar >> byteQuantity;
-                        float bla,bli,blo;
-                        ar >> bla >> bli >> blo;
-                        _boundingBoxMin(0)=(double)bla;
-                        _boundingBoxMin(1)=(double)bli;
-                        _boundingBoxMin(2)=(double)blo;
-                        ar >> bla >> bli >> blo;
-                        _boundingBoxMax(0)=(double)bla;
-                        _boundingBoxMax(1)=(double)bli;
-                        _boundingBoxMax(2)=(double)blo;
-                    }
-
-                    if (theName.compare("_m2")==0)
-                    {
-                        noHit=false;
-                        ar >> byteQuantity;
-                        ar >> _boundingBoxMin(0) >> _boundingBoxMin(1) >> _boundingBoxMin(2);
-                        ar >> _boundingBoxMax(0) >> _boundingBoxMax(1) >> _boundingBoxMax(2);
                     }
 
                     if (theName.compare("Co2")==0)

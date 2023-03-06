@@ -107,7 +107,7 @@ void CGraph::computeBoundingBox()
 {
     C3Vector maxV(_graphSize/2.0,_graphSize/2.0,_graphSize/2.0);
     _setBoundingBox(maxV*-1.0,maxV);
-    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_graphSize);
+    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_graphSize*0.5);
 }
 
 void CGraph::setJustDrawCurves(bool justCurves)
@@ -559,12 +559,8 @@ int CGraph::getNumberOfPoints() const
 void CGraph::scaleObject(double scalingFactor)
 {
     setGraphSize(_graphSize*scalingFactor);
-    CSceneObject::scaleObject(scalingFactor);
-}
 
-void CGraph::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    scaleObject(cbrt(x*y*z));
+    CSceneObject::scaleObject(scalingFactor);
 }
 
 void CGraph::removeSceneDependencies()

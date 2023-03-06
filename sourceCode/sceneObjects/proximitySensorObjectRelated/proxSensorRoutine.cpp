@@ -562,23 +562,11 @@ void CProxSensorRoutine::_orderGroupAccordingToApproxDistanceToSensingPoint(cons
 double CProxSensorRoutine::_getApproxPointObjectBoundingBoxDistance(const C3Vector& point,CSceneObject* obj)
 { // the returned distance is always same or smaller than the real distance!
     C3Vector halfSize;
-    C7Vector tr;
+    C7Vector tr(obj->getCumulativeTransformation()*obj->getBB(&halfSize));
     bool isPointToo=false;
 
-    if (obj->getObjectType()==sim_object_shape_type)
-    {
-        halfSize=((CShape*)obj)->getBoundingBoxHalfSizes();
-        tr=obj->getFullCumulativeTransformation();
-    }
     if (obj->getObjectType()==sim_object_dummy_type)
-    {
         isPointToo=true;
-        tr=obj->getFullCumulativeTransformation();
-    }
-    if (obj->getObjectType()==sim_object_octree_type)
-        ((COctree*)obj)->getTransfAndHalfSizeOfBoundingBox(tr,halfSize);
-    if (obj->getObjectType()==sim_object_pointcloud_type)
-        ((CPointCloud*)obj)->getTransfAndHalfSizeOfBoundingBox(tr,halfSize);
     if (isPointToo)
         return((tr.X-point).getLength()); // pt vs pt
     else
@@ -592,23 +580,11 @@ bool CProxSensorRoutine::_doesSensorVolumeOverlapWithObjectBoundingBox(CProxSens
     sensor->getSensingVolumeOBB(sensorTr,sensorHalfSize);
 
     C3Vector objectHalfSize;
-    C7Vector objectTr;
+    C7Vector objectTr(obj->getCumulativeTransformation()*obj->getBB(&objectHalfSize));
     bool objectIsPoint=false;
 
-    if (obj->getObjectType()==sim_object_shape_type)
-    {
-        objectHalfSize=((CShape*)obj)->getBoundingBoxHalfSizes();
-        objectTr=obj->getFullCumulativeTransformation();
-    }
     if (obj->getObjectType()==sim_object_dummy_type)
-    {
         objectIsPoint=true;
-        objectTr=obj->getFullCumulativeTransformation();
-    }
-    if (obj->getObjectType()==sim_object_octree_type)
-        ((COctree*)obj)->getTransfAndHalfSizeOfBoundingBox(objectTr,objectHalfSize);
-    if (obj->getObjectType()==sim_object_pointcloud_type)
-        ((CPointCloud*)obj)->getTransfAndHalfSizeOfBoundingBox(objectTr,objectHalfSize);
     if (objectIsPoint)
         return(CPluginContainer::geomPlugin_getBoxPointCollision(sensorTr,sensorHalfSize,objectTr.X));
     else

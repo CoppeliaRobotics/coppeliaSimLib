@@ -697,6 +697,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         success=success&&theShape->alignBB("world");
                 }
             }
+            App::undoRedo_sceneChanged("");
             if (success)
                 App::logMsg(sim_verbosity_msgs,"done.");
             else

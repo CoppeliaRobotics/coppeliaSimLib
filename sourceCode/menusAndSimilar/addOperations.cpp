@@ -152,12 +152,10 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     C7Vector m(camera->getFullCumulativeTransformation());
                     myNewCamera->setLocalTransformation(m);
                     myNewCamera->scaleObject(camera->getCameraSize()/myNewCamera->getCameraSize());
-                    C3Vector minV,maxV;
-                    myNewCamera->getBoundingBox(minV,maxV);
-                    m=myNewCamera->getFullLocalTransformation();
-                    maxV-=minV;
-                    double averageSize=(maxV(0)+maxV(1)+maxV(2))/3.0;
-                    double shiftForward=camera->getNearClippingPlane()-minV(2)+3.0*averageSize;
+                    C3Vector hs(myNewCamera->getBBHSize());
+                    m=myNewCamera->getLocalTransformation();
+                    double averageSize=(hs(0)+hs(1)+hs(2))/1.5;
+                    double shiftForward=camera->getNearClippingPlane()+hs(2)*2.0+3.0*averageSize;
                     m.X+=(m.Q.getAxis(2)*shiftForward);
                     myNewCamera->setLocalTransformation(m.X);
                 }
@@ -399,20 +397,17 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 if (isSet)
                 {
                     if (camera!=nullptr)
-                        m=camera->getFullLocalTransformation();
+                        m=camera->getLocalTransformation();
                     if (sens!=nullptr)
-                        m=sens->getFullLocalTransformation();
+                        m=sens->getLocalTransformation();
                     newObject->setLocalTransformation(m);
-
-                    C3Vector minV,maxV;
-                    newObject->getBoundingBox(minV,maxV);
-                    maxV-=minV;
-                    double averageSize=(maxV(0)+maxV(1)+maxV(2))/3.0;
+                    C3Vector hs(newObject->getBBHSize());
+                    double averageSize=(hs(0)+hs(1)+hs(2))/1.5;
                     double shiftForward;
                     if (camera!=nullptr)
-                        shiftForward=camera->getNearClippingPlane()-minV(2)+3.0*averageSize;
+                        shiftForward=camera->getNearClippingPlane()+hs(2)*2.0+3.0*averageSize;
                     if (sens!=nullptr)
-                        shiftForward=sens->getNearClippingPlane()-minV(2)+3.0*averageSize;
+                        shiftForward=sens->getNearClippingPlane()+hs(2)*2.0+3.0*averageSize;
                     m.X+=(m.Q.getAxis(2)*shiftForward);
                     newObject->setLocalTransformation(m.X);
                 }

@@ -163,7 +163,6 @@ public:
     bool setBeforeDeleteCallbackSent();
 
     bool getModelBB(const C7Vector& baseCoordInv,C3Vector& minV,C3Vector& maxV,bool first);
-    void getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoordInv,C3Vector& minV,C3Vector& maxV);
 
     int getModelSelectionHandle(bool firstObject=true);
 
@@ -302,13 +301,13 @@ public:
 
     void pushObjectCreationEvent() const;
     void pushObjectRefreshEvent() const;
-    void getBoundingBox(C3Vector& vmin,C3Vector& vmax) const;
-    C7Vector getBB(C3Vector* bbSize=nullptr) const;
+    C7Vector getBB(C3Vector* bbHalfSize) const;
+    C3Vector getBBHSize() const;
 
 protected:
     void _setModelInvisible(bool inv);
     void _setBoundingBox(const C3Vector& vmin,const C3Vector& vmax);
-    void _setBB(const C7Vector& bbFrame,const C3Vector& bbSize);
+    void _setBB(const C7Vector& bbFrame,const C3Vector& bbHalfSize);
     void _addCommonObjectEventData(CInterfaceStackTable* data) const;
     void _appendObjectMovementEventData(CInterfaceStackTable* data) const;
 
@@ -375,10 +374,10 @@ protected:
     int _objectMovementOptions; // bit0=transl not ok when sim. stopped, bit1=transl not ok when sim. running, bit2&bit3: same but for rotations, bit4: manualShift forbidden, bit5: manualRot forbidden, bit6-bit8: forbidden local translation axes, bit9-bit11: forbidden local rotation axes
     double _objectMovementStepSize[2]; // 0.0= use app default
     int _objectMovementRelativity[2]; //0=world, 1=parent, 2=own frame
-    C3Vector _boundingBoxMin;
-    C3Vector _boundingBoxMax;
+    C3Vector _boundingBoxMin_OLD;
+    C3Vector _boundingBoxMax_OLD;
     C7Vector _bbFrame;
-    C3Vector _bbSize;
+    C3Vector _bbHalfSize;
 
     double _sizeFactor; // just used so that scripts can also adjust for scaling
     double _sizeValues[3];
@@ -394,8 +393,10 @@ protected:
     int _objectManipulationModeAxisIndex;
     C3Vector _objectManipulationModeRelativePositionOfClickedPoint;
     C3Vector _objectManipulationModeTotalTranslation;
+    C3Vector _objectManipulationModeMouseDownPos;
     double _objectManipulationModeTotalRotation;
     unsigned char _objectManipulationMode_flaggedForGridOverlay; // is the rotation or translation axis index + 8 if it is a rotation, or +16 if it is a translation
+
     CCustomData _customObjectData;
     CCustomData _customObjectData_tempData; // this one is not serialized (but copied)!
     CCustomData_old* _customObjectData_old;
@@ -426,7 +427,7 @@ protected:
 
 #ifdef SIM_WITH_GUI
 public:
-    void displayManipulationModeOverlayGrid(bool transparentAndOverlay);
+    void displayManipulationModeOverlayGrid(CViewableBase* renderingObject,double size,bool persp);
     bool setLocalTransformationFromObjectRotationMode(const C4X4Matrix& cameraAbsConf,double rotationAmount,bool perspective,int eventID);
     bool setLocalTransformationFromObjectTranslationMode(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,double prevPos[2],double pos[2],double screenHalfSizes[2],double halfSizes[2],bool perspective,int eventID);
 #endif

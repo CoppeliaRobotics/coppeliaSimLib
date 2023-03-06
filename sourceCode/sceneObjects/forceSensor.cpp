@@ -421,7 +421,7 @@ void CForceSensor::computeBoundingBox()
 {
     C3Vector maxV(_forceSensorSize/2.0,_forceSensorSize/2.0,_forceSensorSize/2.0);
     _setBoundingBox(maxV*-1.0,maxV);
-    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_forceSensorSize);
+    _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_forceSensorSize*0.5);
 }
 
 void CForceSensor::setForceSensorSize(double s)
@@ -451,15 +451,10 @@ void CForceSensor::scaleObject(double scalingFactor)
     setForceSensorSize(_forceSensorSize*scalingFactor);
     _forceThreshold*=scalingFactor*scalingFactor*scalingFactor;//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
     _torqueThreshold*=scalingFactor*scalingFactor*scalingFactor*scalingFactor;//*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
-
-    CSceneObject::scaleObject(scalingFactor);
     _filteredValuesAreValid=false;
     _lastForceAndTorqueValid_dynStep=false;
-}
 
-void CForceSensor::scaleObjectNonIsometrically(double x,double y,double z)
-{
-    scaleObject(cbrt(x*y*z));
+    CSceneObject::scaleObject(scalingFactor);
 }
 
 void CForceSensor::removeSceneDependencies()
