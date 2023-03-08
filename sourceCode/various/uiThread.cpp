@@ -176,6 +176,8 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     {
         CQDlgSlider theDialog(App::mainWindow);
         theDialog.opMode=0;
+        if (cmdIn->boolParams[0])
+            theDialog.opMode=1; // multiple objects
         theDialog.triCnt=cmdIn->intParams[0];
         theDialog.decimationPercent=cmdIn->floatParams[0];
         theDialog.refresh();

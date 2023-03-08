@@ -70,8 +70,6 @@
 #define IDSNS_ADDING_A_FORCE_SENSOR "Adding a force sensor..."
 #define IDSNS_ADDING_A_PROXIMITY_SENSOR "Adding a proximity sensor..."
 #define IDSNS_ADDING_A_MILL "Adding a mill..."
-#define IDSNS_ADDING_CONVEX_HULL "Adding the convex hull of selected shapes and dummies..."
-#define IDSNS_ADDING_CONVEX_DECOMPOSITION "Adding the convex decomposition of selected shapes..."
 
 #define IDSNS_IMPORTING_HEIGHTFIELD_SHAPE "Importing heightfield shape..."
 
@@ -89,12 +87,6 @@
 #define IDSNS_TOGGLED_AUTOMATIC_EDGE_FOLLOWING "Toggled automatic edge following."
 #define IDSNS_EDGES_CANNOT_BE_COPIED_CUR_OR_PASTED "Edges can't be copied, cut or pasted."
 #define IDSNS_TOGGLED_HIDDEN_VERTICES_EDGES_SHOW_STATE "Toggled hidden vertices/edges show state."
-
-#define IDSNS_REPLACING_OBJECTS "Morphing objects..."
-#define IDSNS_MORPHING_INTO_CONVEX_SHAPES "Morphing selected shapes into convex shapes..."
-#define IDSNS_MORPHING_INTO_CONVEX_DECOMPOSITION "Morphing selected shapes into convex decomposition..."
-#define IDSNS_DECIMATING_MESH "Decimating mesh..."
-#define IDSNS_EXTRACTING_INSIDE_PART "Extracting inside part..."
 
 #define IDSNS_MEMORIZING_OBJECT_CONFIGURATION "Memorizing object configuration (object position/orientation, joint parameter)..."
 #define IDSNS_RESTORING_OBJECT_CONFIGURATION "Restoring object configuration (object position/orientation, joint parameter)..."
@@ -461,10 +453,6 @@
 #define IDS_RANDOMIZED_RAY_TYPE_MENU_ITEM  "Randomized ray type"
 
 
-#define IDS_CONVEX_MORPH_MENU_ITEM "Morph selection into convex shapes"
-#define IDS_CONVEX_DECOMPOSITION_MORPH_MENU_ITEM "Morph selection into its convex decomposition..."
-#define IDS_MESH_DECIMATION_MENU_ITEM "Decimate selected shape..."
-//#define IDS_REMOVE_SHAPE_INSIDE_MENU_ITEM "Extract inside of selected shape..."
 
 // ****************************************************************************
 

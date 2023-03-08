@@ -25,14 +25,16 @@ void CQDlgSlider::okEvent()
 
 void CQDlgSlider::refresh()
 {
-    if (opMode==0)
-    {
+    if ( (opMode==0)||(opMode==1) )
+    { // mesh decimation
         setWindowTitle("Mesh Decimation");
         ui->qqSlider->setMinimum(100);
         ui->qqSlider->setMaximum(900);
         std::string txt("Shape contains currently ");
         txt+=utils::getIntString(false,triCnt);
         txt+=" triangles.";
+        if (opMode==1)
+            txt.clear();
         ui->qqText1->setText(txt.c_str());
         decimationPercent=tt::getLimitedFloat(0.1,0.9,decimationPercent);
         ui->qqSlider->setSliderPosition(int(decimationPercent*1000.0));
@@ -53,7 +55,7 @@ void CQDlgSlider::on_qqOkCancelButtons_rejected()
 
 void CQDlgSlider::on_qqSlider_sliderMoved(int position)
 {
-    if (opMode==0)
+    if ( (opMode==0)||(opMode==1) )
     {
         decimationPercent=double(position)/1000.0;
         _displayDecimationText();
@@ -63,9 +65,12 @@ void CQDlgSlider::on_qqSlider_sliderMoved(int position)
 void CQDlgSlider::_displayDecimationText()
 {
     std::string txt="Decimate by ";
-    txt+=utils::getIntString(false,int(decimationPercent*100.0));
-    txt+="% (resulting shape will contain about ";
-    txt+=utils::getIntString(false,int(double(triCnt)*decimationPercent));
-    txt+=" triangles)";
+    txt+=utils::getIntString(false,int(decimationPercent*100.0))+"%";
+    if (opMode==0)
+    {
+        txt+=" (resulting shape will contain about ";
+        txt+=utils::getIntString(false,int(double(triCnt)*decimationPercent));
+        txt+=" triangles)";
+    }
     ui->qqText2->setText(txt.c_str());
 }

@@ -478,9 +478,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            // CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
 
             std::vector<int> newSelection;
 
@@ -514,8 +512,8 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             double minVolumePerCH=cmdOut.floatParams[7];
             if (!cancel)
             {
-                App::uiThread->showOrHideProgressBar(true,-1,"Computing convex decomposed shape(s)...");
-                App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_CONVEX_DECOMPOSITION);
+                App::currentWorld->sceneObjects->deselectObjects();
+                App::logMsg(sim_verbosity_msgs,"Adding convex decomposition(s)...");
                 for (int obji=0;obji<int(sel.size());obji++)
                 {
                     CShape* oldShape=App::currentWorld->sceneObjects->getShapeFromHandle(sel[obji]);
@@ -541,9 +539,6 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     }
                 }
 
-                App::uiThread->showOrHideProgressBar(false);
-
-                App::currentWorld->sceneObjects->deselectObjects();
                 for (size_t i=0;i<newSelection.size();i++)
                     App::currentWorld->sceneObjects->addObjectToSelection(newSelection[i]);
                 App::undoRedo_sceneChanged("");
@@ -565,11 +560,10 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);
-
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_CONVEX_HULL);
+            App::logMsg(sim_verbosity_msgs,"Adding convex hull...");
             App::currentWorld->sceneObjects->deselectObjects();
 
-            CShape* hull=addConvexHull(sel,true);
+            CShape* hull=addConvexHull(sel,0.0,true);
 
             if (hull!=nullptr)
             {
@@ -593,51 +587,29 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel0;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel0.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            std::vector<int> sel(sel0);
-            CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-
-            // Now keep only visible objects:
-            std::vector<CSceneObject*> inputObjects;
-            for (size_t i=0;i<sel.size();i++)
-            {
-                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
-                    inputObjects.push_back(it);
-            }
-            // Now add objects from the original selection that do not have the model base flag:
-            for (size_t i=0;i<sel0.size();i++)
-            {
-                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel0[i]);
-                if (!it->getModelBase())
-                    inputObjects.push_back(it);
-            }
+            std::vector<CSceneObject*> sel;
+            App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);
             double grow=0.03;
             bool doIt=true;
 #ifdef SIM_WITH_GUI
-            doIt=(inputObjects.size()>0)&&App::uiThread->dialogInputGetFloat(App::mainWindow,"Convex hull","Inflation parameter",0.05,0.001,10.0,3,&grow);
+            doIt=App::uiThread->dialogInputGetFloat(App::mainWindow,"Convex hull","Grow parameter",0.05,0.001,10.0,3,&grow);
 #endif
             App::currentWorld->sceneObjects->deselectObjects();
 
             if (doIt)
             {
-                App::uiThread->showOrHideProgressBar(true,-1,"Computing inflated convex hull...");
-                App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_CONVEX_HULL);
+                App::logMsg(sim_verbosity_msgs,"Adding inflated convex hull...");
 
-                CShape* hull=addInflatedConvexHull(inputObjects,grow);
+                CShape* hull=addConvexHull(sel,grow,true);
 
-                App::uiThread->showOrHideProgressBar(false);
-
-                if (hull==nullptr)
-                    App::logMsg(sim_verbosity_errors,"Operation failed: is the Qhull plugin loaded?");
-                else
+                if (hull!=nullptr)
                 {
                     App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
                     App::undoRedo_sceneChanged("");
                     App::logMsg(sim_verbosity_msgs,"done.");
                 }
+                else
+                    App::logMsg(sim_verbosity_errors,"Operation failed: is the Qhull plugin loaded?");
             }
             else
                 App::logMsg(sim_verbosity_msgs,"Aborted.");
@@ -953,74 +925,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
     return(shape);
 }
 
-CShape* CAddOperations::addInflatedConvexHull(const std::vector<CSceneObject*>& inputObjects,double margin)
-{
-    CShape* retVal=nullptr;
-    CShape* ch=addConvexHull(inputObjects,false);
-    if (ch!=nullptr)
-    {
-        C7Vector transf(ch->getFullCumulativeTransformation());
-        std::vector<double> vertD;
-        std::vector<double> vert;
-        std::vector<int> ind;
-        ch->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vertD,&ind,nullptr);
-        for (size_t j=0;j<ind.size()/3;j++)
-        {
-            int indd[3]={ind[3*j+0],ind[3*j+1],ind[3*j+2]};
-            C3Vector w[3]={C3Vector(&vertD[0]+3*indd[0]),C3Vector(&vertD[0]+3*indd[1]),C3Vector(&vertD[0]+3*indd[2])};
-            C3Vector v12(w[0]-w[1]);
-            C3Vector v13(w[0]-w[2]);
-            C3Vector n(v12^v13);
-            n.normalize();
-            n*=margin;
-            for (double k=-1.0;k<1.2;k+=2.0)
-            {
-                for (int l=0;l<3;l++)
-                {
-                    C3Vector vv(w[l]+n*k);
-                    vert.push_back(vv(0));
-                    vert.push_back(vv(1));
-                    vert.push_back(vv(2));
-                }
-            }
-        }
-        for (size_t j=0;j<vert.size()/3;j++)
-        {
-            C3Vector v(&vert[3*j+0]);
-            v=transf*v;
-            vert[3*j+0]=v(0);
-            vert[3*j+1]=v(1);
-            vert[3*j+2]=v(2);
-        }
-
-        std::vector<double> hull;
-        std::vector<int> indices;
-        if (CMeshRoutines::getConvexHull(&vert,&hull,&indices))
-        {
-            C3Vector mmin(DBL_MAX,DBL_MAX,DBL_MAX);
-            C3Vector mmax(-DBL_MAX,-DBL_MAX,-DBL_MAX);
-            for (size_t i=0;i<hull.size()/3;i++)
-            {
-                C3Vector v(hull.data()+3*i);
-                mmin.keepMin(v);
-                mmax.keepMax(v);
-            }
-            retVal=new CShape(ch->getCumulativeTransformation(),hull,indices,nullptr,nullptr);
-            retVal->setObjectAlias_direct("convexHull");
-            retVal->setObjectName_direct_old("convexHull");
-            retVal->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(retVal->getObjectName_old().c_str()).c_str());
-
-            ch->getMesh()->copyAttributesTo(retVal->getMesh());
-
-            App::currentWorld->sceneObjects->addObjectToScene(retVal,false,true);
-        }
-        App::currentWorld->sceneObjects->eraseObject(ch,false);
-    }
-    return(retVal);
-}
-
-
-CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObjects,bool generateAfterCreateCallback)
+CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObjects,double growDist,bool generateAfterCreateCallback)
 {
     CShape* retVal=nullptr;
 
@@ -1096,32 +1001,66 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
     }
     if (allHullVertices.size()!=0)
     {
-        std::vector<double> hull;
-        std::vector<int> indices;
-        std::vector<double> normals;
-        if (CMeshRoutines::getConvexHull(&allHullVertices,&hull,&indices))
+        std::vector<double> vert;
+        std::vector<int> ind;
+        if (CMeshRoutines::getConvexHull(&allHullVertices,&vert,&ind))
         {
-            C3Vector mmin(DBL_MAX,DBL_MAX,DBL_MAX);
-            C3Vector mmax(-DBL_MAX,-DBL_MAX,-DBL_MAX);
-            for (size_t i=0;i<hull.size()/3;i++)
+            if (growDist>0.0)
             {
-                C3Vector v(hull.data()+3*i);
-                mmin.keepMin(v);
-                mmax.keepMax(v);
-            }
-            C7Vector transf;
-            transf.setIdentity();
-            transf.X=(mmin+mmax)*0.5;
-            if ( (inputObjects.size()==1)&&(oneShape!=nullptr) )
-                transf=oneShape->getCumulativeTransformation();
-            retVal=new CShape(transf,hull,indices,nullptr,nullptr);
-            retVal->setObjectAlias_direct("convexHull");
-            retVal->setObjectName_direct_old("convexHull");
-            retVal->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(retVal->getObjectName_old().c_str()).c_str());
+                std::vector<double> vert2;
+                vert2.swap(vert);
+                for (size_t j=0;j<ind.size()/3;j++)
+                {
+                    int indd[3]={ind[3*j+0],ind[3*j+1],ind[3*j+2]};
+                    C3Vector w[3]={C3Vector(&vert2[0]+3*indd[0]),C3Vector(&vert2[0]+3*indd[1]),C3Vector(&vert2[0]+3*indd[2])};
+                    C3Vector v12(w[0]-w[1]);
+                    C3Vector v13(w[0]-w[2]);
+                    C3Vector n(v12^v13);
+                    n.normalize();
+                    n*=growDist;
+                    for (double k=-1.0;k<1.2;k+=2.0)
+                    {
+                        for (int l=0;l<3;l++)
+                        {
+                            C3Vector vv(w[l]+n*k);
+                            vert.push_back(vv(0));
+                            vert.push_back(vv(1));
+                            vert.push_back(vv(2));
+                        }
+                    }
+                }
 
-            if ( (oneShape!=nullptr)&&(inputObjects.size()==1) )
-                oneShape->getMesh()->copyAttributesTo(retVal->getMesh()); // we extracted the hull from one single shape
-            App::currentWorld->sceneObjects->addObjectToScene(retVal,false,generateAfterCreateCallback);
+                ind.clear();
+                vert2.clear();
+                vert2.swap(vert);
+                CMeshRoutines::getConvexHull(&vert2,&vert,&ind);
+            }
+            if ( (vert.size()>0)&&(ind.size()>0) )
+            {
+                C3Vector mmin(DBL_MAX,DBL_MAX,DBL_MAX);
+                C3Vector mmax(-DBL_MAX,-DBL_MAX,-DBL_MAX);
+                for (size_t i=0;i<vert.size()/3;i++)
+                {
+                    C3Vector v(vert.data()+3*i);
+                    mmin.keepMin(v);
+                    mmax.keepMax(v);
+                }
+                C7Vector transf;
+                transf.setIdentity();
+                transf.X=(mmin+mmax)*0.5;
+                if ( (inputObjects.size()==1)&&(oneShape!=nullptr) )
+                    transf=oneShape->getCumulativeTransformation();
+                retVal=new CShape(transf,vert,ind,nullptr,nullptr);
+                retVal->setObjectAlias_direct("convexHull");
+                retVal->setObjectName_direct_old("convexHull");
+                retVal->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(retVal->getObjectName_old().c_str()).c_str());
+
+                if ( (oneShape!=nullptr)&&(inputObjects.size()==1) )
+                    oneShape->getMesh()->copyAttributesTo(retVal->getMesh()); // we extracted the hull from one single shape
+                else
+                    retVal->alignBB("mesh");
+                App::currentWorld->sceneObjects->addObjectToScene(retVal,false,generateAfterCreateCallback);
+            }
         }
     }
     return(retVal);

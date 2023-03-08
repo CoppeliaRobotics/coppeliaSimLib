@@ -276,38 +276,25 @@ bool CSceneObjectOperations::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            App::uiThread->showOrHideProgressBar(true,-1,"Morphing into convex shape(s)...");
-            App::logMsg(sim_verbosity_msgs,IDSNS_MORPHING_INTO_CONVEX_SHAPES);
-            bool printQHullFail=false;
-            for (size_t i=0;i<sel.size();i++)
-            {
-                CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
-                if (it!=nullptr)
-                {
-                    if ( (!it->getMesh()->isConvex())||it->isCompound() )
-                    {
-                        CMesh* convexHull=generateConvexHull(sel[i]);
-                        if (convexHull!=nullptr)
-                            it->replaceMesh(convexHull,true);
-                        else
-                            printQHullFail=true;
-                    }
-                }
-            }
-
-            App::uiThread->showOrHideProgressBar(false);
+            std::vector<CSceneObject*> sel;
+            App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,true);
 
             App::currentWorld->sceneObjects->deselectObjects();
-            if (printQHullFail)
-                App::logMsg(sim_verbosity_errors,"Operation failed: is the Qhull plugin loaded?");
-            else
+            std::vector<int> toSelect;
+            App::logMsg(sim_verbosity_msgs,"Morphing into convex shape(s)...");
+            for (size_t i=0;i<sel.size();i++)
             {
-                App::undoRedo_sceneChanged("");
-                App::logMsg(sim_verbosity_msgs,"done.");
+                CShape* it=(CShape*)sel[i];
+                CMesh* convexHull=generateConvexHull(it->getObjectHandle());
+                if (convexHull!=nullptr)
+                {
+                    it->replaceMesh(convexHull,true);
+                    toSelect.push_back(it->getObjectHandle());
+                }
             }
+            App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -322,57 +309,46 @@ bool CSceneObjectOperations::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CShape* sh=nullptr;
-            if ( (App::currentWorld->sceneObjects->getSelectionCount()==1)&&(App::currentWorld->sceneObjects->getLastSelectionObject()->getObjectType()==sim_object_shape_type) )
+            std::vector<CSceneObject*> sel;
+            App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,true);
+            SUIThreadCommand cmdIn;
+            SUIThreadCommand cmdOut;
+            App::logMsg(sim_verbosity_msgs,"Decimating shape(s)...");
+            double decimationPercentage=0.0;
+            App::currentWorld->sceneObjects->deselectObjects();
+            std::vector<int> toSelect;
+            for (size_t i=0;i<sel.size();i++)
             {
-                sh=App::currentWorld->sceneObjects->getLastSelectionShape();
-                if (sh->getMesh()->isPure())
-                    sh=nullptr;
-            }
-            if (sh!=nullptr)
-            {
+                CShape* sh=(CShape*)sel[i];
                 std::vector<double> vert;
                 std::vector<int> ind;
-                sh->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
-                C7Vector tr(sh->getFullCumulativeTransformation());
-                for (size_t i=0;i<vert.size()/3;i++)
+                C7Vector tr(sh->getCumulativeTransformation());
+                sh->getMesh()->getCumulativeMeshes(tr,vert,&ind,nullptr);
+                if (i==0)
                 {
-                    C3Vector v(&vert[3*i+0]);
-                    v*=tr;
-                    vert[3*i+0]=v(0);
-                    vert[3*i+1]=v(1);
-                    vert[3*i+2]=v(2);
+                    cmdIn.cmdId=DISPLAY_MESH_DECIMATION_DIALOG_UITHREADCMD;
+                    cmdIn.intParams.push_back((int)ind.size()/3);
+                    cmdIn.floatParams.push_back(0.2);
+                    cmdIn.boolParams.push_back(sel.size()>1);
+                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                    if ( (cmdOut.boolParams.size()>0)&&cmdOut.boolParams[0] )
+                        decimationPercentage=cmdOut.floatParams[0];
                 }
-                SUIThreadCommand cmdIn;
-                SUIThreadCommand cmdOut;
-                cmdIn.cmdId=DISPLAY_MESH_DECIMATION_DIALOG_UITHREADCMD;
-                cmdIn.intParams.push_back((int)ind.size()/3);
-                cmdIn.floatParams.push_back(0.2);
-                App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-                if ((cmdOut.boolParams.size()>0)&&cmdOut.boolParams[0])
+                if (decimationPercentage>0.0)
                 {
-                    double decimationPercentage=cmdOut.floatParams[0];
                     std::vector<double> vertOut;
                     std::vector<int> indOut;
-
-                    App::uiThread->showOrHideProgressBar(true,-1,"Computing decimated shape...");
-
                     if (CMeshRoutines::getDecimatedMesh(vert,ind,decimationPercentage,vertOut,indOut))
                     { // decimation algo was successful:
-                        App::logMsg(sim_verbosity_msgs,IDSNS_DECIMATING_MESH);
-
                         CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr);
                         sh->replaceMesh(mesh,true);
-
-                        App::undoRedo_sceneChanged("");
-                        App::logMsg(sim_verbosity_msgs,"done.");
+                        toSelect.push_back(sh->getObjectHandle());
                     }
-
-                    App::uiThread->showOrHideProgressBar(false);
-
-                    App::currentWorld->sceneObjects->deselectObjects();
                 }
             }
+            App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -387,12 +363,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            // CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-
-            SUIThreadCommand cmdIn; // leave empty for default parameters
+            std::vector<CSceneObject*> sel;
+            App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,true);
+            SUIThreadCommand cmdIn;
             SUIThreadCommand cmdOut;
             cmdIn.cmdId=DISPLAY_CONVEX_DECOMPOSITION_DIALOG_UITHREADCMD;
             App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
@@ -420,31 +393,30 @@ bool CSceneObjectOperations::processCommand(int commandID)
             double beta=cmdOut.floatParams[5];
             double gamma=cmdOut.floatParams[6];
             double minVolumePerCH=cmdOut.floatParams[7];
+            App::currentWorld->sceneObjects->deselectObjects();
             if (!cancel)
             {
-                App::logMsg(sim_verbosity_msgs,IDSNS_MORPHING_INTO_CONVEX_DECOMPOSITION);
-                App::uiThread->showOrHideProgressBar(true,-1,"Morphing into convex decomposed shape(s)...");
-
-                for (int obji=0;obji<int(sel.size());obji++)
+                App::logMsg(sim_verbosity_msgs,"Morphing into convex decomposed shape(s)...");
+                std::vector<int> toSelect;
+                for (size_t i=0;i<sel.size();i++)
                 {
-                    CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(sel[obji]);
-                    if (it!=nullptr)
+                    CShape* it=(CShape*)sel[i];
+                    CMeshWrapper* mesh=generateConvexDecomposed(it->getObjectHandle(),nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,
+                                                                maxConnectDist,maxTrianglesInDecimatedMesh,maxHullVertices,
+                                                                smallClusterThreshold,individuallyConsiderMultishapeComponents,
+                                                                maxIterations,useHACD,resolution,depth,concavity,planeDownsampling,
+                                                                convexHullDownsampling,alpha,beta,gamma,pca,voxelBased,
+                                                                maxNumVerticesPerCH,minVolumePerCH);
+                    if (mesh!=nullptr)
                     {
-                        CMeshWrapper* mesh=generateConvexDecomposed(sel[obji],nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,
-                                                                    maxConnectDist,maxTrianglesInDecimatedMesh,maxHullVertices,
-                                                                    smallClusterThreshold,individuallyConsiderMultishapeComponents,
-                                                                    maxIterations,useHACD,resolution,depth,concavity,planeDownsampling,
-                                                                    convexHullDownsampling,alpha,beta,gamma,pca,voxelBased,
-                                                                    maxNumVerticesPerCH,minVolumePerCH);
-                        if (mesh!=nullptr)
-                            it->replaceMesh(mesh,true);
+                        it->replaceMesh(mesh,true);
+                        toSelect.push_back(it->getObjectHandle());
                     }
                 }
-                App::uiThread->showOrHideProgressBar(false);
+                App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
                 App::logMsg(sim_verbosity_msgs,"done.");
+                App::undoRedo_sceneChanged("");
             }
-            App::currentWorld->sceneObjects->deselectObjects();
-            App::undoRedo_sceneChanged("");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1719,10 +1691,9 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
         menu->appendMenuSeparator();
         if (CSimFlavor::getBoolVal(12))
         {
-//          menu->appendMenuItem((selItems>1)&&noSim,false,SCENE_OBJECT_OPERATION_REPLACE_OBJECTS_SOOCMD,IDS_REPLACE_OBJECTS_MENU_ITEM);
-            menu->appendMenuItem((shapesInRootSel>0)&&noSim,false,SCENE_OBJECT_OPERATION_MORPH_INTO_CONVEX_SHAPES_SOOCMD,IDS_CONVEX_MORPH_MENU_ITEM);
-            menu->appendMenuItem((shapesInRootSel>0)&&noSim,false,SCENE_OBJECT_OPERATION_MORPH_INTO_CONVEX_DECOMPOSITION_SOOCMD,IDS_CONVEX_DECOMPOSITION_MORPH_MENU_ITEM);
-            menu->appendMenuItem(lastSelIsShape&&(selItems==1)&&noSim&&lastSelIsNonPureShape,false,SCENE_OBJECT_OPERATION_DECIMATE_SHAPE_SOOCMD,IDS_MESH_DECIMATION_MENU_ITEM);
+            menu->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_MORPH_INTO_CONVEX_SHAPES_SOOCMD,"Morph into convex shape(s)");
+            menu->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_MORPH_INTO_CONVEX_DECOMPOSITION_SOOCMD,"Morph into convex decomposed shape(s)...");
+            menu->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_DECIMATE_SHAPE_SOOCMD,"Decimate shape(s)...");
         }
         menu->appendMenuSeparator();
         menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_OBJECT_FULL_COPY_SOOCMD,IDS_COPY_SELECTED_OBJECTS_MENU_ITEM);
