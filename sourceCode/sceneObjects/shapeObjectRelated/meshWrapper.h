@@ -62,6 +62,7 @@ public:
     virtual bool hasTextureThatUsesFixedTextureCoordinates() const;
     virtual void removeAllTextures();
     virtual void getColorStrings(std::string& colorStrings) const;
+    virtual CMesh* getFirstMesh();
 
     void copyAttributesTo(CMeshWrapper* target);
     void copyWrapperData(CMeshWrapper* target);
@@ -78,7 +79,7 @@ public:
 
     C7Vector getDiagonalInertiaInfo(C3Vector& diagMasslessI) const;
     C7Vector getBB(C3Vector* optBBSize) const;
-    void setBBFrame(const C7Vector& bbFrame);
+    virtual void setBBFrame(const C7Vector& bbFrame);
     virtual bool reorientBB(const C4Vector* rot);
     bool getShapeRelIFrame(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,C7Vector& shapeRelIFrame) const;
     bool getShapeRelBB(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,C7Vector& shapeRelBB,C3Vector* optBBSize) const;

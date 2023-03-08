@@ -98,6 +98,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_EMPTY_STRING_NOT_ALLOWED          "empty string is not allowed."
 #define SIM_ERROR_INVALID_CURVE_ID              "invalid curve id."
 #define SIM_ERROR_INVALID_ARGUMENTS             "invalid arguments."
+#define SIM_ERROR_INVALID_INPUT             "invalid input."
 #define SIM_ERROR_INVALID_FIRST_ARGUMENT        "invalid first argument."
 #define SIM_ERROR_INVALID_DIMENSIONS            "invalid dimensions."
 #define SIM_ERROR_INVALID_ITEM_HANDLE           "invalid item handle."

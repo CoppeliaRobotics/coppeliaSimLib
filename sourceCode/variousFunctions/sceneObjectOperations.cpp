@@ -632,32 +632,24 @@ bool CSceneObjectOperations::processCommand(int commandID)
         }
         return(true);
     }
-    if ( (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER2_SOOCMD) )
+    if ( (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD) )
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            std::vector<CSceneObject*> sel;
+            App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,true);
             if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
-                App::logMsg(sim_verbosity_msgs,"Translating and rotating reference frame to world origin...");
+                App::logMsg(sim_verbosity_msgs,"Relocating reference frame to world origin...");
             if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD)
-                App::logMsg(sim_verbosity_msgs,"Translating reference frame to mesh center...");
-            if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER2_SOOCMD)
-                App::logMsg(sim_verbosity_msgs,"Translating and rotating reference frame to mesh center...");
+                App::logMsg(sim_verbosity_msgs,"relocating reference frame to mesh center...");
             bool success=true;
             for (size_t i=0;i<sel.size();i++)
             {
-                CShape* theShape=App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
-                if (theShape!=nullptr)
-                {
-                    if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
-                        success=success&&theShape->relocateFrame("world");
-                    if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD)
-                        success=success&&theShape->relocateFrame("meshPos");
-                    if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER2_SOOCMD)
-                        success=success&&theShape->relocateFrame("meshPose");
-                }
+                CShape* theShape=(CShape*)sel[i];
+                if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
+                    success=theShape->relocateFrame("world")&&success;
+                if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD)
+                    success=theShape->relocateFrame("mesh")&&success;
             }
             App::undoRedo_sceneChanged("");
             if (success)
@@ -678,9 +670,8 @@ bool CSceneObjectOperations::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            std::vector<CSceneObject*> sel;
+            App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,true);
             if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)
                 App::logMsg(sim_verbosity_msgs,"aligning bounding box with mesh...");
             if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
@@ -688,14 +679,11 @@ bool CSceneObjectOperations::processCommand(int commandID)
             bool success=true;
             for (size_t i=0;i<sel.size();i++)
             {
-                CShape* theShape=App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
-                if (theShape!=nullptr)
-                {
-                    if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)
-                        success=success&&theShape->alignBB("mesh");
-                    if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
-                        success=success&&theShape->alignBB("world");
-                }
+                CShape* theShape=(CShape*)sel[i];
+                if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)
+                    success=theShape->alignBB("mesh")&&success;
+                if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
+                    success=theShape->alignBB("world")&&success;
             }
             App::undoRedo_sceneChanged("");
             if (success)
@@ -717,16 +705,11 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            App::logMsg(sim_verbosity_msgs,IDSNS_GROUPING_SELECTED_SHAPES);
-            if (groupSelection(&sel,true)!=-1)
-            {
-                App::undoRedo_sceneChanged("");
-                App::logMsg(sim_verbosity_msgs,"done.");
-            }
-            else
-                App::logMsg(sim_verbosity_msgs,"Aborted.");
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
+            App::logMsg(sim_verbosity_msgs,"Grouping shapes...");
+            groupSelection(&sel);
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -742,10 +725,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            App::logMsg(sim_verbosity_msgs,IDSNS_UNGROUPING_SELECTED_SHAPES);
-            ungroupSelection(&sel,true);
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
+            App::logMsg(sim_verbosity_msgs,"Ungrouping shapes...");
+            ungroupSelection(&sel);
             App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs,"done.");
         }
@@ -763,16 +745,11 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            App::logMsg(sim_verbosity_msgs,IDSNS_MERGING_SELECTED_SHAPES);
-            if (mergeSelection(&sel,true)>=0)
-            {
-                App::undoRedo_sceneChanged("");
-                App::logMsg(sim_verbosity_msgs,"done.");
-            }
-            else
-                App::logMsg(sim_verbosity_msgs,"Aborted.");
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
+            App::logMsg(sim_verbosity_msgs,"Merging shapes...");
+            mergeSelection(&sel);
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -787,10 +764,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            App::logMsg(sim_verbosity_msgs,IDSNS_DIVIDING_SELECTED_SHAPES);
-            divideSelection(&sel,true);
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
+            App::logMsg(sim_verbosity_msgs,"Dividing shapes...");
+            divideSelection(&sel);
             App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs,"done.");
         }
@@ -932,61 +908,17 @@ void CSceneObjectOperations::deleteObjects(std::vector<int>* selection,bool disp
         App::uiThread->showOrHideProgressBar(false);
 }
 
-int CSceneObjectOperations::groupSelection(std::vector<int>* selection,bool showMessages)
+int CSceneObjectOperations::groupSelection(std::vector<int>* selection)
 {
-    if (App::currentWorld->sceneObjects->getShapeCountInSelection(selection)!=int(selection->size()))
-        return(-1);
     if (selection->size()<2)
         return(-1);
 
-    // Check if some shapes are pure primitives, convex, and check if we have a heightfield:
-    size_t pureCount=0;
-    size_t convexCount=0;
-    bool includesHeightfields=false;
     std::vector<CShape*> shapesToGroup;
     for (size_t i=0;i<selection->size();i++)
     {
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
-        if (it!=nullptr)
-        {
-            shapesToGroup.push_back(it);
-            if (it->getMesh()->isPure())
-            {
-                pureCount++;
-                if ( (it->getMesh()->isMesh())&&(it->getSingleMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
-                    includesHeightfields=true;
-            }
-            if (it->getMesh()->isConvex())
-                convexCount++;
-        }
+        shapesToGroup.push_back(it);
     }
-
-    bool onlyPureShapes=false;
-    if ( (pureCount!=0)&&(pureCount!=shapesToGroup.size()) )
-    { // we are mixing pure and non-pure shapes. Ask what to do
-#ifdef SIM_WITH_GUI
-        if (showMessages)
-        {
-            if (VMESSAGEBOX_REPLY_YES!=App::uiThread->messageBox_warning(App::mainWindow,IDSN_GROUPING,IDS_GROUPING_PURE_AND_NON_PURE_SHAPES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
-                return(-1); // we abort
-        }
-#endif
-    }
-    else
-    {
-        onlyPureShapes=true;
-        if (includesHeightfields)
-        {
-#ifdef SIM_WITH_GUI
-            if (showMessages)
-                App::uiThread->messageBox_critical(App::mainWindow,IDS_GROUPING_MERGING_MENU_ITEM,IDS_GROUPING_HEIGHTFIELDS_ERROR_MESSAGE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-#endif
-            return(-1); // we abort, heightfields cannot be grouped
-        }
-    }
-
-    if (showMessages)
-        App::uiThread->showOrHideProgressBar(true,-1.0,"Grouping shapes...");
 
     App::currentWorld->sceneObjects->deselectObjects();
 
@@ -994,31 +926,29 @@ int CSceneObjectOperations::groupSelection(std::vector<int>* selection,bool show
 
     App::currentWorld->sceneObjects->selectObject(compoundShape->getObjectHandle());
 
-    if (showMessages)
-        App::uiThread->showOrHideProgressBar(false);
-
     return(compoundShape->getObjectHandle());
 
 }
 
 CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesToGroup)
-{ // returned shape is the last shape in the selection (it is modified, otherse are destroyed)
-    size_t pureCount=0;
-    bool includesHeightfields=false;
-    bool allConvex=true;
+{ // returned shape is the last shape in the selection (it is modified, others are destroyed)
+    size_t pureCount=0; // except for heightfields
     for (size_t i=0;i<shapesToGroup.size();i++)
     {
         CShape* it=shapesToGroup[i];
         if (it->getMesh()->isPure())
         {
-            pureCount++;
-            if ( (it->getMesh()->isMesh())&&(it->getSingleMesh()->getPurePrimitiveType()==sim_primitiveshape_heightfield) )
-                includesHeightfields=true;
+            CMesh* m=it->getSingleMesh();
+            if (m==nullptr)
+                pureCount++; // pure compound
+            else
+            {
+                if (m->getPurePrimitiveType()!=sim_primitiveshape_heightfield)
+                    pureCount++; // not a heightfield
+            }
         }
-        if (!it->getMesh()->isConvex())
-            allConvex=false;
     }
-    bool allToNonPure=( (pureCount<shapesToGroup.size())||includesHeightfields );
+    bool allToNonPure=(pureCount<shapesToGroup.size());
     std::vector<CMeshWrapper*> allMeshes;
     for (size_t i=0;i<shapesToGroup.size();i++)
     {
@@ -1054,10 +984,8 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
     return(lastSel);
 }
 
-void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection,bool showMessages)
+void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection)
 {
-    if (showMessages)
-        App::uiThread->showOrHideProgressBar(true,-1.0,"Ungrouping shapes...");
     std::vector<int> newObjectHandles;
     App::currentWorld->sceneObjects->deselectObjects();
     std::vector<int> finalSel;
@@ -1083,9 +1011,6 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection,bool s
         App::currentWorld->sceneObjects->addObjectToSelection(finalSel[i]);
         selection->push_back(finalSel[i]);
     }
-
-    if (showMessages)
-        App::uiThread->showOrHideProgressBar(false);
 
     if (newObjectHandles.size()>0)
     {
@@ -1166,77 +1091,31 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it,st
     App::currentWorld->textureContainer->updateAllDependencies();
 }
 
-int CSceneObjectOperations::mergeSelection(std::vector<int>* selection,bool showMessages)
+int CSceneObjectOperations::mergeSelection(std::vector<int>* selection)
 {
-    if (selection->size()<2)
-        return(-1);
-
+    int retVal=-1;
     std::vector<CShape*> shapesToMerge;
-
-    // Check if some shapes are pure primitives:
-    if (showMessages)
-    {
-        for (size_t i=0;i<selection->size();i++)
-        {
-            CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
-            if (it!=nullptr)
-            {
-                if (it->getMesh()->isPure())
-                {
-#ifdef SIM_WITH_GUI
-                    if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_MERGING,IDS_MERGING_SOME_PURE_SHAPES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES))
-                        break;
-                    return(-1); // we abort
-#else
-                    break;
-#endif
-                }
-            }
-        }
-    }
-
-    // Check if some shapes contain textures:
-    bool textureWarningOutput=false;
     for (size_t i=0;i<selection->size();i++)
     {
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
         if (it!=nullptr)
-        {
             shapesToMerge.push_back(it);
-            if (it->getMesh()->getTextureCount()!=0)
-            {
-#ifdef SIM_WITH_GUI
-                if (showMessages)
-                {
-                    if ( (!textureWarningOutput)&&(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,IDSN_MERGING,IDS_MERGING_OR_DIVIDING_REMOVES_TEXTURES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES)) )
-                        return(-1); // we abort
-                }
-#endif
-                textureWarningOutput=true;
-            }
-        }
     }
-
-    if (showMessages)
-        App::uiThread->showOrHideProgressBar(true,-1,"Merging shapes...");
-
     App::currentWorld->sceneObjects->deselectObjects();
-
-    CShape* mergedShape=_mergeShapes(shapesToMerge);
-
-    if (showMessages)
-        App::uiThread->showOrHideProgressBar(false);
-
-    App::currentWorld->sceneObjects->selectObject(mergedShape->getObjectHandle());
-
-    return(mergedShape->getObjectHandle());
+    if (shapesToMerge.size()>=2)
+    {
+        CShape* mergedShape=_mergeShapes(shapesToMerge);
+        retVal=mergedShape->getObjectHandle();
+        App::currentWorld->sceneObjects->selectObject(retVal);
+    }
+    return(retVal);
 }
 
-CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShapesToMerge)
-{ // returned shape is the last shape in the selection (it is modified, otherse are destroyed)
-    for (size_t i=0;i<allShapesToMerge.size();i++)
+CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShapes)
+{ // returned shape is the last shape in the selection (it is modified, others are destroyed)
+    for (size_t i=0;i<allShapes.size();i++)
     {
-        CShape* it=allShapesToMerge[i];
+        CShape* it=allShapes[i];
         if (it->getMesh()->getTextureCount()!=0)
         {
             App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(it->getObjectHandle(),-1);
@@ -1244,18 +1123,10 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
         }
     }
 
-    // We have to decompose completely the last shape:
-    CShape* lastSel=allShapesToMerge[allShapesToMerge.size()-1];
-    std::vector<CShape*> allShapes(allShapesToMerge.begin(),allShapesToMerge.end());
-    while (lastSel->isCompound())
-    {
-        std::vector<CShape*> ns;
-        _ungroupShape(lastSel,ns);
-        allShapes.insert(allShapes.end(),ns.begin(),ns.end());
-    }
+    CShape* lastSel=allShapes[allShapes.size()-1];
 
     std::vector<CMeshWrapper*> allMeshes;
-    for (size_t i=0;i<allShapes.size();i++)
+    for (size_t i=0;i<allShapes.size()-1;i++)
     {
         CShape* it=allShapes[i];
         allMeshes.push_back(it->getMesh());
@@ -1264,6 +1135,7 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
         App::currentWorld->pointCloudCont->announceObjectWillBeErased(it->getObjectHandle());
         App::currentWorld->bannerCont->announceObjectWillBeErased(it->getObjectHandle());
     }
+    allMeshes.push_back(allShapes[allShapes.size()-1]->getMesh());
 
     lastSel=allShapes[allShapes.size()-1];
 
@@ -1286,35 +1158,19 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
     return(lastSel);
 }
 
-void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool showMessages)
+void CSceneObjectOperations::divideSelection(std::vector<int>* selection)
 {
-    if (selection->size()<1)
-        return;
-
-    // Check if some shapes contain textures:
-    bool textureWarningOutput=false;
     std::vector<CShape*> shapesToDivide;
     for (size_t i=0;i<selection->size();i++)
     {
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
         if ( (it!=nullptr)&&(!it->getMesh()->isPure()) )
-        {
             shapesToDivide.push_back(it);
-            if (it->getMesh()->getTextureCount()!=0)
-                textureWarningOutput=true;
-        }
     }
-#ifdef SIM_WITH_GUI
-    if ( showMessages&&textureWarningOutput&&(VMESSAGEBOX_REPLY_NO==App::uiThread->messageBox_warning(App::mainWindow,"Dividing",IDS_MERGING_OR_DIVIDING_REMOVES_TEXTURES_PROCEED_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES)) )
-        return; // we abort
-#endif
 
     std::vector<int> newObjectHandles;
     App::currentWorld->sceneObjects->deselectObjects();
     selection->clear();
-
-    if (showMessages)
-        App::uiThread->showOrHideProgressBar(true,-1,"Dividing shapes...");
 
     for (size_t i=0;i<shapesToDivide.size();i++)
     {
@@ -1342,9 +1198,6 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool sh
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
-
-    if (showMessages)
-        App::uiThread->showOrHideProgressBar(false);
 }
 
 bool CSceneObjectOperations::_divideShape(CShape* it,std::vector<CShape*>& newShapes)
@@ -1798,6 +1651,22 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
 #ifdef SIM_WITH_GUI
 void CSceneObjectOperations::addMenu(VMenu* menu)
 {
+    std::vector<CSceneObject*> sel;
+    App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);
+    int shapeCnt=0;
+    int compoundCnt=0;
+    for (size_t i=0;i<sel.size();i++)
+    {
+        int t=sel[i]->getObjectType();
+        if (t==sim_object_shape_type)
+        {
+            CShape* it=(CShape*)sel[i];
+            shapeCnt++;
+            if (it->getSingleMesh()==nullptr)
+                compoundCnt++;
+        }
+    }
+
     size_t selItems=App::currentWorld->sceneObjects->getSelectionCount();
     size_t selDummies=App::currentWorld->sceneObjects->getDummyCountInSelection();
     size_t shapeNumber=App::currentWorld->sceneObjects->getShapeCountInSelection();
@@ -1873,23 +1742,22 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
             menu->appendMenuSeparator();
 
             VMenu* grouping=new VMenu();
-            grouping->appendMenuItem((shapeNumber==selItems)&&(selItems>1)&&noSim,false,SCENE_OBJECT_OPERATION_GROUP_SHAPES_SOOCMD,IDS_GROUP_SELECTED_SHAPES_MENU_ITEM);
-            grouping->appendMenuItem((shapeNumber==selItems)&&(selItems>0)&&noSim,false,SCENE_OBJECT_OPERATION_UNGROUP_SHAPES_SOOCMD,IDS_UNGROUP_SELECTED_SHAPES_MENU_ITEM);
+            grouping->appendMenuItem((shapeCnt>1)&&noSim,false,SCENE_OBJECT_OPERATION_GROUP_SHAPES_SOOCMD,"group");
+            grouping->appendMenuItem((compoundCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_UNGROUP_SHAPES_SOOCMD,"ungroup");
             grouping->appendMenuSeparator();
-            grouping->appendMenuItem((shapeNumber==selItems)&&(selItems>1)&&noSim,false,SCENE_OBJECT_OPERATION_MERGE_SHAPES_SOOCMD,IDS_MERGE_SELECTED_SHAPES_MENU_ITEM);
-            grouping->appendMenuItem((shapeNumber==selItems)&&(selItems>0)&&noSim,false,SCENE_OBJECT_OPERATION_DIVIDE_SHAPES_SOOCMD,IDS_DIVIDE_SELECTED_SHAPES_MENU_ITEM);
-            menu->appendMenuAndDetach(grouping,true,IDS_GROUPING_MERGING_MENU_ITEM);
+            grouping->appendMenuItem((shapeCnt>1)&&noSim,false,SCENE_OBJECT_OPERATION_MERGE_SHAPES_SOOCMD,"merge");
+            grouping->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_DIVIDE_SHAPES_SOOCMD,"divide");
+            menu->appendMenuAndDetach(grouping,true,"Shape grouping/merging");
 
             VMenu* relocate=new VMenu();
-            relocate->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD,"translate and rotate to world origin");
-            relocate->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD,"translate to mesh center");
-            relocate->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER2_SOOCMD,"translate and rotate to mesh center");
-            menu->appendMenuAndDetach(relocate,true,"Reference frame");
+            relocate->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD,"relocate to world origin");
+            relocate->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD,"relocate to mesh center");
+            menu->appendMenuAndDetach(relocate,true,"Shape reference frame");
 
             VMenu* align=new VMenu();
-            align->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD,"align with world");
-            align->appendMenuItem((shapeNumber==selItems)&&(selItems!=0)&&noSim,false,SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD,"align with mesh");
-            menu->appendMenuAndDetach(align,true,"Bounding box");
+            align->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD,"align with world");
+            align->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD,"align with mesh");
+            menu->appendMenuAndDetach(align,true,"Shape bounding box");
         }
     }
 }

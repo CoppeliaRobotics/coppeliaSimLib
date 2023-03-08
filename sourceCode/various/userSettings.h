@@ -45,7 +45,6 @@ public:
     double verticesTolerance;
     bool compressFiles;
     int triCountInOBB;
-    bool packIndices;
     bool runCustomizationScripts;
     bool test1;
     int macChildDialogType;
@@ -59,7 +58,6 @@ public:
     bool sceneHierarchyInitiallyVisible;
     bool sceneHierarchyHiddenDuringSimulation;
     int autoSaveDelay;
-    int bulletSerializationBuffer;
     int timeInMsForUndoRedoTooLongWarning;
     int bugFix1;
     bool compatibilityFix1;

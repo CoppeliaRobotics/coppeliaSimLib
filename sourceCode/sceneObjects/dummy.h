@@ -115,8 +115,8 @@ protected:
     void _setLinkType_sendOldIk(int t) const;
 
     bool _freeOnPathTrajectory;
-    double _virtualDistanceOffsetOnPath;
-    double _virtualDistanceOffsetOnPath_variationWhenCopy;
+    double _virtualDistanceOffsetOnPath_OLD;
+    double _virtualDistanceOffsetOnPath_variationWhenCopy_OLD;
     std::string _linkedDummyLoadAlias;
     std::string _linkedDummyLoadName_old;
 

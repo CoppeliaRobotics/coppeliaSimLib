@@ -20,7 +20,7 @@ private:
 
     static int _detectDummy(CProxSensor* sensor,CDummy* dummy,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold);
     static int _detectShape(CProxSensor* sensor,CShape* shape,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold);
-    static int _detectOctree(CProxSensor* sensor,COctree* octree,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold);
+    static int _detectOctree(CProxSensor* sensor,COcTree* octree,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold);
     static int _detectPointCloud(CProxSensor* sensor,CPointCloud* pointCloud,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold);
     static int _detectObject(CProxSensor* sensor,CSceneObject* object,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold);
 

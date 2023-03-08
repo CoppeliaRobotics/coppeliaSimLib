@@ -2190,7 +2190,7 @@ void CGraph::serialize(CSer& ar)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        times.clear();
+                        times.clear(); // could also have read "Gtd"
                         for (int i=0;i<bufferSize;i++)
                             times.push_back(0.0);
                         for (int i=0;i<byteQuantity/int(sizeof(double));i++)

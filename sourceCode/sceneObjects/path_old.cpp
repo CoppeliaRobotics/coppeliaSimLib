@@ -684,7 +684,7 @@ void CPath_old::serialize(CSer& ar)
                         int l;
                         ar >> l;
                         double c;
-                        shapingCoordinates.clear();
+                        shapingCoordinates.clear(); // we could also have read "Sec"
                         for (int i=0;i<l;i++)
                         {
                             ar >> c;

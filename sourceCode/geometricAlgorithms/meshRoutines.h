@@ -84,7 +84,7 @@ public:
         return((d*lv)/(lv*lv));
     };
 
-    static bool checkIfConvex(const std::vector<double>& vertices,const std::vector<int>& indices,double distanceToleranceInPercent);
+    static int getConvexType(const std::vector<double>& vertices,const std::vector<int>& indices,double distanceToleranceInPercent);
 
     static void createCube(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,const int subdivisions[3]);
     static void createSphere(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces);

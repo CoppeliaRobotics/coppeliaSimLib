@@ -21,17 +21,17 @@ public:
 
     static void addRootObjectChildrenToSelection(std::vector<int>& selection);
 
-    static int groupSelection(std::vector<int>* selection,bool showMessages);
+    static int groupSelection(std::vector<int>* selection);
     static CShape* _groupShapes(const std::vector<CShape*>& shapesToGroup);
 
-    static void ungroupSelection(std::vector<int>* selection,bool showMessages);
+    static void ungroupSelection(std::vector<int>* selection);
     static void _ungroupShape(CShape* it,std::vector<CShape*>& newShapes);
     static void _fullUngroupShape(CShape* shape,std::vector<CShape*>& newShapes);
 
-    static int mergeSelection(std::vector<int>* selection,bool showMessages);
+    static int mergeSelection(std::vector<int>* selection);
     static CShape* _mergeShapes(const std::vector<CShape*>& allShapesToMerge);
 
-    static void divideSelection(std::vector<int>* selection,bool showMessages);
+    static void divideSelection(std::vector<int>* selection);
     static bool _divideShape(CShape* it,std::vector<CShape*>& newShapes);
 
     static CMeshWrapper* generateConvexDecomposed(int shapeHandle,size_t nClusters,double maxConcavity,bool addExtraDistPoints,

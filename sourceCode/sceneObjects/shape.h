@@ -18,14 +18,12 @@ public:
     bool computeInertia(double density);
 
     void invertFrontBack();
-    C3Vector getBoundingBoxHalfSizes() const;
 
     int getMeshModificationCounter();
     CMeshWrapper* getMesh() const;
     CMesh* getSingleMesh() const;
 
     void* _meshCalculationStructure;
-    C3Vector _meshBoundingBoxHalfSizes;
     int _meshModificationCounter;
 
     // Following functions are inherited from CSceneObject
@@ -37,7 +35,7 @@ public:
     void removeSceneDependencies();
     void displayFrames(CViewableBase* renderingObject,double size,bool persp);
     void scaleObject(double scalingFactor);
-    void scaleObjectNonIsometrically(double x,double y,double z);
+    bool scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
     void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
@@ -142,7 +140,7 @@ public:
 
     bool relocateFrame(const char* mode);
     bool alignBB(const char* mode);
-
+    C7Vector getCumulCenteredMeshFrame() const;
 
     void setInsideAndOutsideFacesSameColor_DEPRECATED(bool s);
     bool getInsideAndOutsideFacesSameColor_DEPRECATED();
@@ -159,7 +157,6 @@ public:
 protected:
     CMeshWrapper* _mesh;
     void _serializeMesh(CSer& ar);
-    void _computeMeshBoundingBox();
 
     unsigned short _dynamicCollisionMask;
     CSceneObject* _lastParentForLocalGlobalRespondable;

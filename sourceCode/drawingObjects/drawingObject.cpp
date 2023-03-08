@@ -133,62 +133,6 @@ void CDrawingObject::setObjectUniqueId()
     _objectUid=App::getFreshUniqueId();
 }
 
-void CDrawingObject::adjustForFrameChange(const C7Vector& preCorrection)
-{
-    for (int i=0;i<int(_data.size())/floatsPerItem;i++)
-    {
-        for (int j=0;j<verticesPerItem;j++)
-        {
-            C3Vector v(&_data[floatsPerItem*i+j*3+0]);
-            v*=preCorrection;
-            v.getData(&_data[floatsPerItem*i+j*3+0]);
-        }
-        int off=verticesPerItem*3;
-        for (int j=0;j<quaternionsPerItem;j++)
-        {
-            C4Vector q(&_data[floatsPerItem*i+off+j*4+0]);
-            q=preCorrection.Q*q;
-            q.getData(&_data[floatsPerItem*i+off+j*4+0]);
-        }
-    }
-    _initBufferedEventData();
-    pushAppendNewPointEvent();
-}
-
-void CDrawingObject::adjustForScaling(double xScale,double yScale,double zScale)
-{
-    double avgScaling=(xScale+yScale+zScale)/3.0;
-    int tmp=_objectType&0x001f;
-    if ((tmp!=sim_drawing_points)&&(tmp!=sim_drawing_lines)&&(tmp!=sim_drawing_linestrip))
-        _size*=avgScaling;
-
-    for (int i=0;i<int(_data.size())/floatsPerItem;i++)
-    {
-        for (int j=0;j<verticesPerItem;j++)
-        {
-            C3Vector v(&_data[floatsPerItem*i+j*3+0]);
-            v(0)*=xScale;
-            v(1)*=yScale;
-            v(2)*=zScale;
-            v.getData(&_data[floatsPerItem*i+j*3+0]);
-        }
-        int off=verticesPerItem*3;
-        if (_objectType&sim_drawing_itemcolors)
-            off+=3;
-        if (_objectType&sim_drawing_vertexcolors)
-            off+=3*verticesPerItem;
-        if (_objectType&sim_drawing_itemsizes)
-        {
-            _data[floatsPerItem*i+off+0]*=avgScaling;
-            off+=1;
-        }
-        if (_objectType&sim_drawing_itemtransparency)
-            off+=1;
-    }
-    _initBufferedEventData();
-    pushAppendNewPointEvent();
-}
-
 void CDrawingObject::setItems(const double* itemData,size_t itemCnt)
 {
     addItem(nullptr);

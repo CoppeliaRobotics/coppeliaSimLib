@@ -26,8 +26,8 @@ CDummy::CDummy()
     _objectAltName_old=tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _freeOnPathTrajectory=false;
-    _virtualDistanceOffsetOnPath=0.0;
-    _virtualDistanceOffsetOnPath_variationWhenCopy=0.0;
+    _virtualDistanceOffsetOnPath_OLD=0.0;
+    _virtualDistanceOffsetOnPath_variationWhenCopy_OLD=0.0;
 
     _dummyColor.setDefaultValues();
     _dummyColor.setColor(1.0f,0.8f,0.55f,sim_colorcomponent_ambient_diffuse);
@@ -261,8 +261,8 @@ void CDummy::computeBoundingBox()
 void CDummy::scaleObject(double scalingFactor)
 {
     setDummySize(_dummySize*scalingFactor);
-    _virtualDistanceOffsetOnPath*=scalingFactor;
-    _virtualDistanceOffsetOnPath_variationWhenCopy*=scalingFactor;
+    _virtualDistanceOffsetOnPath_OLD*=scalingFactor;
+    _virtualDistanceOffsetOnPath_variationWhenCopy_OLD*=scalingFactor;
 
     CSceneObject::scaleObject(scalingFactor);
 }
@@ -304,15 +304,15 @@ CSceneObject* CDummy::copyYourself()
 
     if (App::worldContainer->copyBuffer->isCopyForPasting())
     { // here the original object is not reset (the variation) because it is located in the copy buffer!
-        _virtualDistanceOffsetOnPath+=_virtualDistanceOffsetOnPath_variationWhenCopy;
-        newDummy->_virtualDistanceOffsetOnPath=_virtualDistanceOffsetOnPath;
-        newDummy->_virtualDistanceOffsetOnPath_variationWhenCopy=0.0; // the new new object's variation is reset!
+        _virtualDistanceOffsetOnPath_OLD+=_virtualDistanceOffsetOnPath_variationWhenCopy_OLD;
+        newDummy->_virtualDistanceOffsetOnPath_OLD=_virtualDistanceOffsetOnPath_OLD;
+        newDummy->_virtualDistanceOffsetOnPath_variationWhenCopy_OLD=0.0; // the new new object's variation is reset!
     }
     else
     {
-        newDummy->_virtualDistanceOffsetOnPath=_virtualDistanceOffsetOnPath;
-        newDummy->_virtualDistanceOffsetOnPath_variationWhenCopy=_virtualDistanceOffsetOnPath_variationWhenCopy;
-        _virtualDistanceOffsetOnPath_variationWhenCopy=0.0; // we reset the original object!!
+        newDummy->_virtualDistanceOffsetOnPath_OLD=_virtualDistanceOffsetOnPath_OLD;
+        newDummy->_virtualDistanceOffsetOnPath_variationWhenCopy_OLD=_virtualDistanceOffsetOnPath_variationWhenCopy_OLD;
+        _virtualDistanceOffsetOnPath_variationWhenCopy_OLD=0.0; // we reset the original object!!
     }
 
     newDummy->_mujocoFloatParams.assign(_mujocoFloatParams.begin(),_mujocoFloatParams.end());
@@ -352,12 +352,12 @@ void CDummy::setFreeOnPathTrajectory(bool isFree)
 
 void CDummy::setVirtualDistanceOffsetOnPath(double off)
 {
-    _virtualDistanceOffsetOnPath=off;
+    _virtualDistanceOffsetOnPath_OLD=off;
 }
 
 void CDummy::setVirtualDistanceOffsetOnPath_variationWhenCopy(double off)
 {
-    _virtualDistanceOffsetOnPath_variationWhenCopy=off;
+    _virtualDistanceOffsetOnPath_variationWhenCopy_OLD=off;
 }
 
 void CDummy::announceCollectionWillBeErased(int groupID,bool copyBuffer)
@@ -470,12 +470,12 @@ void CDummy::serialize(CSer& ar)
 
 #ifdef TMPOPERATION
             ar.storeDataName("Po5");
-            ar << (float)_virtualDistanceOffsetOnPath << (float)_virtualDistanceOffsetOnPath_variationWhenCopy;
+            ar << (float)_virtualDistanceOffsetOnPath_OLD << (float)_virtualDistanceOffsetOnPath_variationWhenCopy_OLD;
             ar.flush();
 #endif
 
             ar.storeDataName("_o5");
-            ar << _virtualDistanceOffsetOnPath << _virtualDistanceOffsetOnPath_variationWhenCopy;
+            ar << _virtualDistanceOffsetOnPath_OLD << _virtualDistanceOffsetOnPath_variationWhenCopy_OLD;
             ar.flush();
 
 
@@ -559,7 +559,7 @@ void CDummy::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float bla;
                         ar >> bla;
-                        _virtualDistanceOffsetOnPath=(double)bla;
+                        _virtualDistanceOffsetOnPath_OLD=(double)bla;
                     }
                     if (theName.compare("Po5")==0)
                     { // for backward comp. (flt->dbl)
@@ -567,15 +567,15 @@ void CDummy::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float bla,bli;
                         ar >> bla >> bli;
-                        _virtualDistanceOffsetOnPath=(double)bla;
-                        _virtualDistanceOffsetOnPath_variationWhenCopy=(double)bli;
+                        _virtualDistanceOffsetOnPath_OLD=(double)bla;
+                        _virtualDistanceOffsetOnPath_variationWhenCopy_OLD=(double)bli;
                     }
 
                     if (theName.compare("_o5")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _virtualDistanceOffsetOnPath >> _virtualDistanceOffsetOnPath_variationWhenCopy;
+                        ar >> _virtualDistanceOffsetOnPath_OLD >> _virtualDistanceOffsetOnPath_variationWhenCopy_OLD;
                     }
 
 
@@ -707,8 +707,8 @@ void CDummy::serialize(CSer& ar)
                 ar.xmlAddNode_bool("assignedToParentPathOrientation",_assignedToParentPathOrientation);
                 ar.xmlPopNode();
 
-                ar.xmlAddNode_float("virtualDistanceOffsetOnPath",_virtualDistanceOffsetOnPath);
-                ar.xmlAddNode_float("virtualDistanceOffsetOnPath_whenCopy",_virtualDistanceOffsetOnPath_variationWhenCopy);
+                ar.xmlAddNode_float("virtualDistanceOffsetOnPath",_virtualDistanceOffsetOnPath_OLD);
+                ar.xmlAddNode_float("virtualDistanceOffsetOnPath_whenCopy",_virtualDistanceOffsetOnPath_variationWhenCopy_OLD);
             }
 
             ar.xmlPushNewNode("color");
@@ -767,8 +767,8 @@ void CDummy::serialize(CSer& ar)
 
             if (exhaustiveXml)
             {
-                ar.xmlGetNode_float("virtualDistanceOffsetOnPath",_virtualDistanceOffsetOnPath,exhaustiveXml);
-                ar.xmlGetNode_float("virtualDistanceOffsetOnPath_whenCopy",_virtualDistanceOffsetOnPath_variationWhenCopy,exhaustiveXml);
+                ar.xmlGetNode_float("virtualDistanceOffsetOnPath",_virtualDistanceOffsetOnPath_OLD,exhaustiveXml);
+                ar.xmlGetNode_float("virtualDistanceOffsetOnPath_whenCopy",_virtualDistanceOffsetOnPath_variationWhenCopy_OLD,exhaustiveXml);
             }
 
             if (ar.xmlPushChildNode("color",exhaustiveXml))
@@ -990,12 +990,12 @@ bool CDummy::getFreeOnPathTrajectory() const
 
 double CDummy::getVirtualDistanceOffsetOnPath() const
 {
-    return(_virtualDistanceOffsetOnPath);
+    return(_virtualDistanceOffsetOnPath_OLD);
 }
 
 double CDummy::getVirtualDistanceOffsetOnPath_variationWhenCopy() const
 {
-    return(_virtualDistanceOffsetOnPath_variationWhenCopy);
+    return(_virtualDistanceOffsetOnPath_variationWhenCopy_OLD);
 }
 
 std::string CDummy::getLinkedDummyLoadName_old() const

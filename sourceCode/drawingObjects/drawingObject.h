@@ -23,8 +23,6 @@ public:
     int getObjectType() const;
     bool announceObjectWillBeErased(const CSceneObject* object);
     bool announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
-    void adjustForFrameChange(const C7Vector& preCorrection);
-    void adjustForScaling(double xScale,double yScale,double zScale);
 
     void pushAddEvent();
     void pushAppendNewPointEvent();

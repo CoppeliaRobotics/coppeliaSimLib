@@ -284,7 +284,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
 
     C7Vector inv(sensor->getFullCumulativeTransformation().getInverse());
 
-    C7Vector shapeITr(inv*shape->getFullCumulativeTransformation());
+    C7Vector shapeITr(inv*shape->getCumulCenteredMeshFrame());
 
     if (sensor->getRandomizedDetection())
     {
@@ -381,7 +381,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
     return(retVal);
 }
 
-int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold)
+int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COcTree* octree,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold)
 { // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered the sensor
     if (dist==0.0)
         return(-1);
@@ -599,7 +599,7 @@ int CProxSensorRoutine::_detectObject(CProxSensor* sensor,CSceneObject* object,C
     if (object->getObjectType()==sim_object_shape_type)
         retVal=_detectShape(sensor,(CShape*)object,detectedPt,dist,triNormalNotNormalized,closestFeatureMode,angleLimitation,maxAngle,frontFace,backFace,minThreshold);
     if (object->getObjectType()==sim_object_octree_type)
-        retVal=_detectOctree(sensor,(COctree*)object,detectedPt,dist,triNormalNotNormalized,closestFeatureMode,angleLimitation,maxAngle,frontFace,backFace,minThreshold);
+        retVal=_detectOctree(sensor,(COcTree*)object,detectedPt,dist,triNormalNotNormalized,closestFeatureMode,angleLimitation,maxAngle,frontFace,backFace,minThreshold);
     if (object->getObjectType()==sim_object_pointcloud_type)
         retVal=_detectPointCloud(sensor,(CPointCloud*)object,detectedPt,dist,triNormalNotNormalized,closestFeatureMode,angleLimitation,maxAngle,frontFace,backFace,minThreshold);
     return(retVal);

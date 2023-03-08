@@ -31,7 +31,47 @@ CMesh::CMesh()
 CMesh::CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords)
 {
     _commonInit();
-    setMesh(meshFrame,vertices,indices,optNormals,optTexCoords);
+    _vertices.assign(vertices.begin(),vertices.end());
+    _indices.assign(indices.begin(),indices.end());
+    if (optNormals==nullptr)
+    {
+        CMeshManip::getNormals(&_vertices,&_indices,&_normals);
+        _recomputeNormals();
+    }
+    else
+        _normals.assign(optNormals->begin(),optNormals->end());
+
+    if (optTexCoords!=nullptr)
+    {
+        _textureCoordsTemp.assign(optTexCoords->begin(),optTexCoords->end());
+        CMeshRoutines::cleanupMesh(_vertices,_indices,&_normals,&_textureCoordsTemp,App::userSettings->verticesTolerance);
+    }
+    else
+    {
+        _textureCoordsTemp.clear();
+        CMeshRoutines::cleanupMesh(_vertices,_indices,&_normals,nullptr,App::userSettings->verticesTolerance);
+    }
+
+    // Express everything in the meshFrame:
+    C7Vector inv(meshFrame.getInverse());
+    _transformMesh(inv);
+
+    // Find the _bbFrame, and express everything in that frame:
+    _bbFrame=CAlgos::getMeshBoundingBox(_vertices,_indices,false);
+    inv=_bbFrame.getInverse();
+    _transformMesh(inv);
+    _bbSize=_computeBBSize();
+
+    _computeVisibleEdges();
+    checkIfConvex();
+
+    decreaseVertexBufferRefCnt(_vertexBufferId);
+    decreaseNormalBufferRefCnt(_normalBufferId);
+    decreaseEdgeBufferRefCnt(_edgeBufferId);
+
+    _vertexBufferId=-1;
+    _normalBufferId=-1;
+    _edgeBufferId=-1;
 }
 
 CMesh::~CMesh()
@@ -423,8 +463,9 @@ void CMesh::scale(double xVal,double yVal,double zVal)
     inv.X(2)*=zVal;
     _bbFrame=inv.getInverse();
 
-    if (_textureProperty!=nullptr)
-        _textureProperty->scaleObject(xVal);
+//    ignore the texture scaling...
+//    if (_textureProperty!=nullptr)
+//        _textureProperty->scaleObject(xVal);
     actualizeGouraudShadingAndVisibleEdges(); // we need to recompute the normals and edges
     if ((xVal<0.0)||(yVal<0.0)||(zVal<0.0)) // that effectively flips faces!
         checkIfConvex();
@@ -472,49 +513,11 @@ void CMesh::_transformMesh(const C7Vector& tr)
     _edgeBufferId=-1;
 }
 
-void CMesh::setMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords)
-{
-    _vertices.assign(vertices.begin(),vertices.end());
-    _indices.assign(indices.begin(),indices.end());
-    if (optNormals==nullptr)
-    {
-        CMeshManip::getNormals(&_vertices,&_indices,&_normals);
-        _recomputeNormals();
-    }
-    else
-        _normals.assign(optNormals->begin(),optNormals->end());
-
-    if (optTexCoords!=nullptr)
-    {
-        _textureCoordsTemp.assign(optTexCoords->begin(),optTexCoords->end());
-        CMeshRoutines::cleanupMesh(_vertices,_indices,&_normals,&_textureCoordsTemp,App::userSettings->verticesTolerance);
-    }
-    else
-    {
-        _textureCoordsTemp.clear();
-        CMeshRoutines::cleanupMesh(_vertices,_indices,&_normals,nullptr,App::userSettings->verticesTolerance);
-    }
-
-    // Express everything in the meshFrame:
-    C7Vector inv(meshFrame.getInverse());
-    _transformMesh(inv);
-
-    // Find the _bbFrame, and express everything in that frame:
-    _bbFrame=CAlgos::getMeshBoundingBox(_vertices,_indices,false);
-    inv=_bbFrame.getInverse();
-    _transformMesh(inv);
-    _bbSize=_computeBBSize();
-
-    _computeVisibleEdges();
-    checkIfConvex();
-
-    decreaseVertexBufferRefCnt(_vertexBufferId);
-    decreaseNormalBufferRefCnt(_normalBufferId);
-    decreaseEdgeBufferRefCnt(_edgeBufferId);
-
-    _vertexBufferId=-1;
-    _normalBufferId=-1;
-    _edgeBufferId=-1;
+void CMesh::setBBFrame(const C7Vector& bbFrame)
+{ // function has virtual/non-virtual counterpart!
+    if (_textureProperty!=nullptr)
+        _textureProperty->transformTexturePose(_bbFrame.getInverse()*bbFrame);
+    CMeshWrapper::setBBFrame(bbFrame);
 }
 
 bool CMesh::reorientBB(const C4Vector* rot)
@@ -522,6 +525,7 @@ bool CMesh::reorientBB(const C4Vector* rot)
     bool retVal=false;
     if (!isPure())
     {
+        C7Vector initialFrame(_bbFrame);
         if (rot!=nullptr)
         {
             C7Vector tr;
@@ -541,6 +545,8 @@ bool CMesh::reorientBB(const C4Vector* rot)
             _transformMesh(_bbFrame.getInverse());
             _bbSize=_computeBBSize();
         }
+        if (_textureProperty!=nullptr)
+            _textureProperty->transformTexturePose(initialFrame.getInverse()*_bbFrame);
         retVal=true;
     }
     return(retVal);
@@ -595,21 +601,14 @@ bool CMesh::containsOnlyPureConvexShapes()
     return(retVal);
 }
 
+CMesh* CMesh::getFirstMesh()
+{ // function has virtual/non-virtual counterpart!
+    return(this);
+}
+
 void CMesh::setConvex(bool convex)
 { // function has virtual/non-virtual counterpart!
     _convex=convex;
-
-/* removed on 24/3/2013
-    if (_convex)
-    { // convex shape handling in Bullet includes a very large margin. We can:
-        // 1. shrink the dynamic model using _bulletAutoShrinkConvexMesh. This adds some initial preprocessing time, can lead to crashes, and edges and points appear shifted inwards. Faces react correctly.
-        // 2. reduce the margin (what we do here). Erwin from Bullet doesn't recommend it (doesn't say why), but I got the best (still not good!!) results with it
-        _bulletNonDefaultCollisionMarginFactor=0.002;
-        _bulletNonDefaultCollisionMargin=true;
-    }
-    else
-        _bulletNonDefaultCollisionMargin=false;
-        */
 }
 
 void CMesh::getCumulativeMeshes(const C7Vector& parentCumulTr,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals)
@@ -1389,55 +1388,12 @@ void CMesh::_computeVisibleEdges()
 
 bool CMesh::checkIfConvex()
 { // function has virtual/non-virtual counterpart!
-    _convex=CMeshRoutines::checkIfConvex(_vertices,_indices,0.015); // 1.5% tolerance of the average bounding box side length
+    _convex=(CMeshRoutines::getConvexType(_vertices,_indices,0.015)==0); // 1.5% tolerance of the average bounding box side length
     setConvex(_convex);
     return(_convex);
 }
 
-void CMesh::_savePackedIntegers(CSer& ar,const std::vector<int>& data)
-{
-    ar << int(data.size());
-    int prevInd=0;
-    for (int i=0;i<int(data.size());i++)
-    {
-        int currInd=data[i];
-        int diff=currInd-prevInd;
-        if (abs(diff)<0x00000020) // 32
-        { // this index takes only 1 byte storage!
-            ar << (unsigned char)(diff+31); // we use the two msb to indicate the byte count (1 --> 0)
-        }
-        else
-        { // this index takes more than 1 byte storage!
-            if (abs(diff)<0x00002000) // 8192
-            { // this index takes 2 byte storage!
-                diff+=8191;
-                ar << (unsigned char)((diff&0x0000003f)|0x00000040); // we use the two msb to indicate the byte count (2 --> 1)
-                ar << (unsigned char)(diff>>6);
-            }
-            else
-            { // this index takes more than 2 byte storage!
-                if (abs(diff)<0x00200000) // 2097152
-                { // this index takes 3 byte storage!
-                    diff+=2097151;
-                    ar << (unsigned char)((diff&0x0000003f)|0x00000080); // we use the two msb to indicate the byte count (3 --> 2)
-                    ar << (unsigned char)(diff>>6);
-                    ar << (unsigned char)(diff>>14);
-                }
-                else
-                { // this index takes 4 byte storage!
-                    diff+=536870911;
-                    ar << (unsigned char)((diff&0x0000003f)|0x000000c0); // we use the two msb to indicate the byte count (4 --> 3)
-                    ar << (unsigned char)(diff>>6);
-                    ar << (unsigned char)(diff>>14);
-                    ar << (unsigned char)(diff>>22);
-                }
-            }
-        }
-        prevInd=currInd;
-    }
-}
-
-void CMesh::_loadPackedIntegers(CSer& ar,std::vector<int>& data)
+void CMesh::_loadPackedIntegers_OLD(CSer& ar,std::vector<int>& data)
 {
     int dataLength;
     ar >> dataLength;
@@ -1529,19 +1485,10 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
 
         for (size_t c=0;c<_tempIndicesForDisk.size();c++)
         {
-            if (App::userSettings->packIndices)
-            { // to save storage space
-                ar.storeDataName("In2");
-                _savePackedIntegers(ar,*_tempIndicesForDisk[c]);
-                ar.flush();
-            }
-            else
-            {
-                ar.storeDataName("Ind");
-                for (size_t i=0;i<_tempIndicesForDisk[c]->size();i++)
-                    ar << _tempIndicesForDisk[c]->at(i);
-                ar.flush();
-            }
+            ar.storeDataName("Ind");
+            for (size_t i=0;i<_tempIndicesForDisk[c]->size();i++)
+                ar << _tempIndicesForDisk[c]->at(i);
+            ar.flush();
         }
 
         for (size_t c=0;c<_tempNormalsForDisk.size();c++)
@@ -1597,12 +1544,12 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
                         ar >> arr->at(i);
                 }
                 if (theName.compare("In2")==0)
-                {
+                { // deprecated in 2023
                     noHit=false;
                     ar >> byteQuantity;
                     std::vector<int>* arr=new std::vector<int>;
                     _tempIndicesForDisk.push_back(arr);
-                    _loadPackedIntegers(ar,*arr);
+                    _loadPackedIntegers_OLD(ar,*arr);
                 }
                 if (theName.compare("Nor")==0)
                 {
@@ -2088,7 +2035,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                     { // for backward compatibility (1/7/2014)
                         noHit=false;
                         ar >> byteQuantity;
-                        _loadPackedIntegers(ar,_indices);
+                        _loadPackedIntegers_OLD(ar,_indices);
                     }
                     if (theName.compare("No2")==0)
                     { // for backward compatibility (1/7/2014)
@@ -2266,6 +2213,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _heightfieldXCount >> _heightfieldYCount;
+                        _heightfieldHeights.clear(); // could be non-empty, if "Hfd" tag is present
                         for (int i=0;i<_heightfieldXCount*_heightfieldYCount;i++)
                         {
                             double dummy;
@@ -2280,8 +2228,6 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
             }
             if (fixFrame_prior4_5_2)
             { // to accomodate new shapes (V4.5, rev2+)
-                //_bbFrame=(parentCumulIFrame*_iFrame).getInverse()*verticesLocalFrame_old; // with primitive shapes, _verticesLocalframe is always centered and aligned with the shape
-                //_bbSize=_computeBBSize();
                 _transformMesh((parentCumulIFrame*_iFrame).getInverse()*verticesLocalFrame_old);
                 _bbSize=_computeBBSize(&_bbFrame.X);
                 _bbFrame.setIdentity();
@@ -2426,8 +2372,6 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
             }
             if (fixFrame_prior4_5_2)
             { // to accomodate new shapes (V4.5, rev2+)
-                //_bbFrame=(parentCumulIFrame*_iFrame).getInverse()*verticesLocalFrame_old; // with primitive shapes, _verticesLocalframe is always centered and aligned with the shape
-                //_bbSize=_computeBBSize();
                 _transformMesh((parentCumulIFrame*_iFrame).getInverse()*verticesLocalFrame_old);
                 _bbSize=_computeBBSize(&_bbFrame.X);
                 _bbFrame.setIdentity();
@@ -2447,7 +2391,6 @@ void CMesh::display_colorCoded(const C7Vector& cumulIFrameTr,CShape* geomData,in
 { // function has virtual/non-virtual counterpart!
     displayGeometric_colorCoded(cumulIFrameTr*_iFrame,this,geomData,objectId,displayAttrib);
 }
-
 
 void CMesh::displayGhost(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
 { // function has virtual/non-virtual counterpart!

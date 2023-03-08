@@ -544,7 +544,7 @@ void _displayBoundingBox(const C3Vector* objectFrame,const C7Vector& absBBFrame,
 
     if (objectFrame!=nullptr)
     {
-        ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorGrey);
+        ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
         ogl::drawSingle3dLine(objectFrame->data,C3Vector::zeroVector.data,nullptr);
     }
 

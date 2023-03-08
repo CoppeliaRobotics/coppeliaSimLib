@@ -48,7 +48,7 @@ public:
     virtual CSceneObject* copyYourself();
     virtual void removeSceneDependencies();
     virtual void scaleObject(double scalingFactor);
-    virtual void scaleObjectNonIsometrically(double x,double y,double z);
+    virtual bool scaleObjectNonIsometrically(double x,double y,double z);
     virtual void serialize(CSer& ar);
 
     virtual void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);

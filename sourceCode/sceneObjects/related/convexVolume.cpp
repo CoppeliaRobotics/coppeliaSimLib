@@ -360,7 +360,7 @@ void CConvexVolume::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int vectSize;
                         ar >> vectSize;
-                        planesInside.clear();
+                        planesInside.clear(); // we might also have read "Nc0"
                         double dum;
                         for (int i=0;i<vectSize;i++)
                         {
@@ -393,7 +393,7 @@ void CConvexVolume::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int vectSize;
                         ar >> vectSize;
-                        planesOutside.clear();
+                        planesOutside.clear(); // we might also have read "Nc1"
                         double dum;
                         for (int i=0;i<vectSize;i++)
                         {
@@ -425,7 +425,7 @@ void CConvexVolume::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int vectSize;
                         ar >> vectSize;
-                        normalsInside.clear();
+                        normalsInside.clear(); // we might also have read "Nc2"
                         double dum;
                         for (int i=0;i<vectSize;i++)
                         {
@@ -457,7 +457,7 @@ void CConvexVolume::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int vectSize;
                         ar >> vectSize;
-                        normalsOutside.clear();
+                        normalsOutside.clear(); // we might also have read "Nc3"
                         double dum;
                         for (int i=0;i<vectSize;i++)
                         {
@@ -489,7 +489,7 @@ void CConvexVolume::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int vectSize;
                         ar >> vectSize;
-                        volumeEdges.clear();
+                        volumeEdges.clear(); // we might also have read "Nc4"
                         double dum;
                         for (int i=0;i<vectSize;i++)
                         {
@@ -521,7 +521,7 @@ void CConvexVolume::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int vectSize;
                         ar >> vectSize;
-                        nonDetectingVolumeEdges.clear();
+                        nonDetectingVolumeEdges.clear(); // we might also have read "Nc5"
                         double dum;
                         for (int i=0;i<vectSize;i++)
                         {
@@ -737,77 +737,6 @@ void CConvexVolume::scaleVolume(double scalingFactor)
     radius*=scalingFactor;
     radiusFar*=scalingFactor;
     _smallestDistanceAllowed*=scalingFactor;
-    solveInterferences();
-    computeVolumes();
-}
-
-void CConvexVolume::scaleVolumeNonIsometrically(double x,double y,double z,double& xRet,double& yRet,double& zRet)
-{
-    double xy=sqrt(x*y);
-    double xyz=cbrt(x*y*z);
-    double xz=sqrt(x*z);
-    if (_volumeType==RAY_TYPE_CONVEX_VOLUME)
-    {
-/*
-        offset*=xyz;
-        range*=xyz;
-        _smallestDistanceAllowed*=xyz;
-        xRet=xyz;
-        yRet=xyz;
-        zRet=xyz;
-        */
-        offset*=z;
-        range*=z;
-        _smallestDistanceAllowed*=z;
-        xRet=1.0;
-        yRet=1.0;
-        zRet=1.0;
-    }
-    if (_volumeType==PYRAMID_TYPE_CONVEX_VOLUME)
-    {
-        offset*=z;
-        range*=z;
-        xSize*=x;
-        ySize*=y;
-        xSizeFar*=x;
-        ySizeFar*=y;
-        _smallestDistanceAllowed*=z;
-        xRet=x;
-        yRet=y;
-        zRet=z;
-    }
-    if (_volumeType==CYLINDER_TYPE_CONVEX_VOLUME)
-    {
-        offset*=z;
-        range*=z;
-        radius*=xy;
-        radiusFar*=xy;
-        _smallestDistanceAllowed*=z;
-        xRet=xy;
-        yRet=xy;
-        zRet=z;
-    }
-    if (_volumeType==DISC_TYPE_CONVEX_VOLUME)
-    {
-        offset*=xz;
-        range*=xz;
-        radius*=xz;
-        ySize*=y;
-        _smallestDistanceAllowed*=xz;
-        xRet=xz;
-        yRet=y;
-        zRet=xz;
-    }
-    if (_volumeType==CONE_TYPE_CONVEX_VOLUME)
-    {
-        offset*=xyz;
-        range*=xyz;
-        radius*=xyz;
-        _smallestDistanceAllowed*=xyz;
-        xRet=xyz;
-        yRet=xyz;
-        zRet=xyz;
-    }
     solveInterferences();
     computeVolumes();
 }

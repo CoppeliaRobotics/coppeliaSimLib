@@ -613,7 +613,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         if (theName.compare(SER_OCTREE)==0)
         {
             ar >> byteQuantity;
-            COctree* myNewObject=new COctree();
+            COcTree* myNewObject=new COcTree();
             myNewObject->serialize(ar);
             noHit=false;
             return(myNewObject);
@@ -739,7 +739,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar,const char* name,b
         }
         if (ar.xmlPushChildNode(SERX_OCTREE,false))
         {
-            COctree* myNewObject=new COctree();
+            COcTree* myNewObject=new COcTree();
             myNewObject->serialize(ar);
             ar.xmlPopNode();
             return(myNewObject);
@@ -955,7 +955,7 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer& ar,CSce
             }
             if (nm.compare("ocTree")==0)
             {
-                COctree* myNewObject=new COctree();
+                COcTree* myNewObject=new COcTree();
                 myNewObject->serialize(ar);
                 obj=myNewObject;
                 addObjectToScene(obj,false,true);
@@ -1074,7 +1074,7 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar,const CSceneO
     }
     if (object->getObjectType()==sim_object_octree_type)
     {
-        COctree* obj=(COctree*)object;
+        COcTree* obj=(COcTree*)object;
         ar.xmlPushNewNode("ocTree");
         obj->serialize(ar);
     }
@@ -1977,7 +1977,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
         {
             int newShapeHandle=-1;
             if (allShapes.size()>=2)
-                newShapeHandle=CSceneObjectOperations::groupSelection(&allShapes,false);
+                newShapeHandle=CSceneObjectOperations::groupSelection(&allShapes);
             else
                 newShapeHandle=allShapes[0];
             retVal=getShapeFromHandle(newShapeHandle);
@@ -2036,7 +2036,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
         sel.push_back(h);
         while (sel.size()!=0)
         {
-            CSceneObjectOperations::ungroupSelection(&sel,false);
+            CSceneObjectOperations::ungroupSelection(&sel);
             for (size_t i=0;i<previousSel.size();i++)
             {
                 int previousID=previousSel[i];

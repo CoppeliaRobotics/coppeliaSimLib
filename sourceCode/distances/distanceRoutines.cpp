@@ -39,7 +39,7 @@ int CDistanceRoutine::insertExtendedCacheValue(unsigned long long int value)
     return(_nextExtendedCacheId++);
 }
 
-bool CDistanceRoutine::getOctreesHaveCoherentMovement(COctree* octree1,COctree* octree2)
+bool CDistanceRoutine::getOctreesHaveCoherentMovement(COcTree* octree1,COcTree* octree2)
 {
     bool retVal=false;
     C3Vector hs1;
@@ -280,7 +280,7 @@ bool CDistanceRoutine::_getShapeDummyDistanceIfSmaller(CShape* shape,CDummy* dum
     C3Vector rayPart0;
     C3Vector rayPart1(dummyPos);
     int buffer=0;
-    if (CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(shape->_meshCalculationStructure,shape->getFullCumulativeTransformation(),dummyPos,dist,&rayPart0,&buffer))
+    if (CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),dummyPos,dist,&rayPart0,&buffer))
     {
         rayPart0.getData(ray);
         rayPart1.getData(ray+3);
@@ -329,7 +329,7 @@ bool CDistanceRoutine::_getShapeShapeDistanceIfSmaller(CShape* shape1,CShape* sh
     shape2->initializeMeshCalculationStructureIfNeeded();
 
     C3Vector minDistPt1,minDistPt2;
-    if (CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(shape1->_meshCalculationStructure,shape1->getFullCumulativeTransformation(),shape2->_meshCalculationStructure,shape2->getFullCumulativeTransformation(),dist,&minDistPt1,&minDistPt2,cache1+1,cache2+1))
+    if (CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(shape1->_meshCalculationStructure,shape1->getCumulCenteredMeshFrame(),shape2->_meshCalculationStructure,shape2->getCumulCenteredMeshFrame(),dist,&minDistPt1,&minDistPt2,cache1+1,cache2+1))
     {
         minDistPt1.getData(ray+0);
         minDistPt2.getData(ray+3);
@@ -341,7 +341,7 @@ bool CDistanceRoutine::_getShapeShapeDistanceIfSmaller(CShape* shape1,CShape* sh
     return(false);
 }
 
-bool CDistanceRoutine::_getOctreeDummyDistanceIfSmaller(COctree* octree,CDummy* dummy,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagOctree,bool overrideMeasurableFlagDummy)
+bool CDistanceRoutine::_getOctreeDummyDistanceIfSmaller(COcTree* octree,CDummy* dummy,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagOctree,bool overrideMeasurableFlagDummy)
 {   // If the distance is smaller than 'dist', 'dist' is replaced and the return value is true
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // ray contains the point on object1 (0-2), the point on object2 (3-5) and the distance (6)
@@ -375,7 +375,7 @@ bool CDistanceRoutine::_getOctreeDummyDistanceIfSmaller(COctree* octree,CDummy* 
     return(false);
 }
 
-bool CDistanceRoutine::_getDummyOctreeDistanceIfSmaller(CDummy* dummy,COctree* octree,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagDummy,bool overrideMeasurableFlagOctree)
+bool CDistanceRoutine::_getDummyOctreeDistanceIfSmaller(CDummy* dummy,COcTree* octree,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagDummy,bool overrideMeasurableFlagOctree)
 {   // If the distance is smaller than 'dist', 'dist' is replaced and the return value is true
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // ray contains the point on object1 (0-2), the point on object2 (3-5) and the distance (6)
@@ -389,7 +389,7 @@ bool CDistanceRoutine::_getDummyOctreeDistanceIfSmaller(CDummy* dummy,COctree* o
     return(false);
 }
 
-bool CDistanceRoutine::_getOctreeShapeDistanceIfSmaller(COctree* octree,CShape* shape,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagOctree,bool overrideMeasurableFlagShape)
+bool CDistanceRoutine::_getOctreeShapeDistanceIfSmaller(COcTree* octree,CShape* shape,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagOctree,bool overrideMeasurableFlagShape)
 {   // If the distance is smaller than 'dist', 'dist' is replaced and the return value is true
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // ray contains the point on object1 (0-2), the point on object2 (3-5) and the distance (6)
@@ -411,7 +411,7 @@ bool CDistanceRoutine::_getOctreeShapeDistanceIfSmaller(COctree* octree,CShape* 
     unsigned long long int cache1V=getExtendedCacheValue(cache1[1]);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(shape->_meshCalculationStructure,shape->getFullCumulativeTransformation(),octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),dist,&distPt2,&distPt1,cache2+1,&cache1V))
+    if (CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),octree->getOctreeInfo(),octree->getCumulativeTransformation(),dist,&distPt2,&distPt1,cache2+1,&cache1V))
     {
         distPt1.getData(ray+0);
         distPt2.getData(ray+3);
@@ -424,7 +424,7 @@ bool CDistanceRoutine::_getOctreeShapeDistanceIfSmaller(COctree* octree,CShape* 
     return(false);
 }
 
-bool CDistanceRoutine::_getShapeOctreeDistanceIfSmaller(CShape* shape,COctree* octree,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagShape,bool overrideMeasurableFlagOctree)
+bool CDistanceRoutine::_getShapeOctreeDistanceIfSmaller(CShape* shape,COcTree* octree,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagShape,bool overrideMeasurableFlagOctree)
 {   // If the distance is smaller than 'dist', 'dist' is replaced and the return value is true
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // ray contains the point on object1 (0-2), the point on object2 (3-5) and the distance (6)
@@ -438,7 +438,7 @@ bool CDistanceRoutine::_getShapeOctreeDistanceIfSmaller(CShape* shape,COctree* o
     return(false);
 }
 
-bool CDistanceRoutine::_getOctreeOctreeDistanceIfSmaller(COctree* octree1,COctree* octree2,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagOctree1,bool overrideMeasurableFlagOctree2)
+bool CDistanceRoutine::_getOctreeOctreeDistanceIfSmaller(COcTree* octree1,COcTree* octree2,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagOctree1,bool overrideMeasurableFlagOctree2)
 {   // If the distance is smaller than 'dist', 'dist' is replaced and the return value is true
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // ray contains the point on object1 (0-2), the point on object2 (3-5) and the distance (6)
@@ -553,7 +553,7 @@ bool CDistanceRoutine::_getPointCloudShapeDistanceIfSmaller(CPointCloud* pointCl
     unsigned long long int cache1V=getExtendedCacheValue(cache1[1]);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(shape->_meshCalculationStructure,shape->getFullCumulativeTransformation(),pointCloud->getPointCloudInfo(),pointCloud->getFullCumulativeTransformation(),dist,&distPt2,&distPt1,cache2+1,&cache1V))
+    if (CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),pointCloud->getPointCloudInfo(),pointCloud->getCumulativeTransformation(),dist,&distPt2,&distPt1,cache2+1,&cache1V))
     {
         distPt1.getData(ray+0);
         distPt2.getData(ray+3);
@@ -580,7 +580,7 @@ bool CDistanceRoutine::_getShapePointCloudDistanceIfSmaller(CShape* shape,CPoint
     return(false);
 }
 
-bool CDistanceRoutine::_getOctreePointCloudDistanceIfSmaller(COctree* octree,CPointCloud* pointCloud,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagOctree,bool overrideMeasurableFlagPointCloud)
+bool CDistanceRoutine::_getOctreePointCloudDistanceIfSmaller(COcTree* octree,CPointCloud* pointCloud,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagOctree,bool overrideMeasurableFlagPointCloud)
 {   // If the distance is smaller than 'dist', 'dist' is replaced and the return value is true
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // ray contains the point on object1 (0-2), the point on object2 (3-5) and the distance (6)
@@ -617,7 +617,7 @@ bool CDistanceRoutine::_getOctreePointCloudDistanceIfSmaller(COctree* octree,CPo
     return(false);
 }
 
-bool CDistanceRoutine::_getPointCloudOctreeDistanceIfSmaller(CPointCloud* pointCloud,COctree* octree,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagPointCloud,bool overrideMeasurableFlagOctree)
+bool CDistanceRoutine::_getPointCloudOctreeDistanceIfSmaller(CPointCloud* pointCloud,COcTree* octree,double& dist,double ray[7],int cache1[2],int cache2[2],bool overrideMeasurableFlagPointCloud,bool overrideMeasurableFlagOctree)
 {   // If the distance is smaller than 'dist', 'dist' is replaced and the return value is true
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // ray contains the point on object1 (0-2), the point on object2 (3-5) and the distance (6)
@@ -692,7 +692,7 @@ bool CDistanceRoutine::_getObjectObjectDistanceIfSmaller(CSceneObject* object1,C
         if (object2->getObjectType()==sim_object_shape_type)
             return(_getDummyShapeDistanceIfSmaller((CDummy*)object1,(CShape*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
         if (object2->getObjectType()==sim_object_octree_type)
-            return(_getDummyOctreeDistanceIfSmaller((CDummy*)object1,(COctree*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
+            return(_getDummyOctreeDistanceIfSmaller((CDummy*)object1,(COcTree*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
         if (object2->getObjectType()==sim_object_pointcloud_type)
             return(_getDummyPointCloudDistanceIfSmaller((CDummy*)object1,(CPointCloud*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
     }
@@ -703,20 +703,20 @@ bool CDistanceRoutine::_getObjectObjectDistanceIfSmaller(CSceneObject* object1,C
         if (object2->getObjectType()==sim_object_shape_type)
             return(_getShapeShapeDistanceIfSmaller((CShape*)object1,(CShape*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
         if (object2->getObjectType()==sim_object_octree_type)
-            return(_getShapeOctreeDistanceIfSmaller((CShape*)object1,(COctree*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
+            return(_getShapeOctreeDistanceIfSmaller((CShape*)object1,(COcTree*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
         if (object2->getObjectType()==sim_object_pointcloud_type)
             return(_getShapePointCloudDistanceIfSmaller((CShape*)object1,(CPointCloud*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
     }
     if (object1->getObjectType()==sim_object_octree_type)
     {
         if (object2->getObjectType()==sim_object_dummy_type)
-            return(_getOctreeDummyDistanceIfSmaller((COctree*)object1,(CDummy*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
+            return(_getOctreeDummyDistanceIfSmaller((COcTree*)object1,(CDummy*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
         if (object2->getObjectType()==sim_object_shape_type)
-            return(_getOctreeShapeDistanceIfSmaller((COctree*)object1,(CShape*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
+            return(_getOctreeShapeDistanceIfSmaller((COcTree*)object1,(CShape*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
         if (object2->getObjectType()==sim_object_octree_type)
-            return(_getOctreeOctreeDistanceIfSmaller((COctree*)object1,(COctree*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
+            return(_getOctreeOctreeDistanceIfSmaller((COcTree*)object1,(COcTree*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
         if (object2->getObjectType()==sim_object_pointcloud_type)
-            return(_getOctreePointCloudDistanceIfSmaller((COctree*)object1,(CPointCloud*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
+            return(_getOctreePointCloudDistanceIfSmaller((COcTree*)object1,(CPointCloud*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
     }
     if (object1->getObjectType()==sim_object_pointcloud_type)
     {
@@ -725,7 +725,7 @@ bool CDistanceRoutine::_getObjectObjectDistanceIfSmaller(CSceneObject* object1,C
         if (object2->getObjectType()==sim_object_shape_type)
             return(_getPointCloudShapeDistanceIfSmaller((CPointCloud*)object1,(CShape*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
         if (object2->getObjectType()==sim_object_octree_type)
-            return(_getPointCloudOctreeDistanceIfSmaller((CPointCloud*)object1,(COctree*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
+            return(_getPointCloudOctreeDistanceIfSmaller((CPointCloud*)object1,(COcTree*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
         if (object2->getObjectType()==sim_object_pointcloud_type)
             return(_getPointCloudPointCloudDistanceIfSmaller((CPointCloud*)object1,(CPointCloud*)object2,dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2));
     }

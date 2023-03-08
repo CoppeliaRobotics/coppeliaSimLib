@@ -250,6 +250,7 @@ void CGhostObjectContainer::serialize(CSer& ar)
             removeGhost(-1,-1);
             int byteQuantity;
             std::string theName="";
+            std::vector<CGhostObject*> ghosts;
             while (theName.compare(SER_NEXT_STEP)!=0)
             {
                 theName=ar.readDataName();
@@ -288,11 +289,14 @@ void CGhostObjectContainer::serialize(CSer& ar)
                             go->tr.Q(1)=(double)bli;
                             go->tr.Q(2)=(double)blo;
                             go->tr.Q(3)=(double)blu;
-                            _allObjects.push_back(go);
+                            ghosts.push_back(go);
                         }
                     }
                     if (theName.compare("V02")==0)
                     { // for backward comp. (flt->dbl)
+                        for (size_t i=0;i<ghosts.size();i++)
+                            delete ghosts[i];
+                        ghosts.clear();
                         noHit=false;
                         ar >> byteQuantity;
                         int ghostCnt;
@@ -323,12 +327,15 @@ void CGhostObjectContainer::serialize(CSer& ar)
                             go->tr.Q(1)=(double)bli;
                             go->tr.Q(2)=(double)blo;
                             go->tr.Q(3)=(double)blu;
-                            _allObjects.push_back(go);
+                            ghosts.push_back(go);
                         }
                     }
 
                     if (theName.compare("_02")==0)
                     {
+                        for (size_t i=0;i<ghosts.size();i++)
+                            delete ghosts[i];
+                        ghosts.clear();
                         noHit=false;
                         ar >> byteQuantity;
                         int ghostCnt;
@@ -347,7 +354,7 @@ void CGhostObjectContainer::serialize(CSer& ar)
                                 ar >> go->color[j];
                             ar >> go->tr.X(0) >> go->tr.X(1) >> go->tr.X(2);
                             ar >> go->tr.Q(0) >> go->tr.Q(1) >> go->tr.Q(2) >> go->tr.Q(3);
-                            _allObjects.push_back(go);
+                            ghosts.push_back(go);
                         }
                     }
 
@@ -355,6 +362,7 @@ void CGhostObjectContainer::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
+            _allObjects.assign(ghosts.begin(),ghosts.end());
             if ( (_allObjects.size()!=0)&&CSimFlavor::getBoolVal(18) )
                 App::logMsg(sim_verbosity_errors,"Contains ghosts...");
         }

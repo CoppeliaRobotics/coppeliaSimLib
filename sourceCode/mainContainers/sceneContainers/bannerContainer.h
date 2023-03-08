@@ -22,8 +22,6 @@ public:
     void eraseAllObjects(bool onlyThoseCreatedFromScripts);
     void announceObjectWillBeErased(int objID);
     void removeObject(int objectID);
-    void adjustForFrameChange(int objectID,const C7Vector& preCorrection);
-    void adjustForScaling(int objectID,double xScale,double yScale,double zScale);
 
 private:
     std::vector<CBannerObject*> _allObjects;

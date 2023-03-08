@@ -938,15 +938,20 @@ void CSceneObject::scaleObject(double scalingFactor)
     _sizeValues[0]*=scalingFactor;
     _sizeValues[1]*=scalingFactor;
     _sizeValues[2]*=scalingFactor;
-    App::currentWorld->drawingCont->adjustForScaling(_objectHandle,scalingFactor,scalingFactor,scalingFactor);
     App::worldContainer->setModificationFlag(256); // object scaled
     computeBoundingBox();
     pushObjectRefreshEvent();
 }
 
-void CSceneObject::scaleObjectNonIsometrically(double x,double y,double z)
+bool CSceneObject::scaleObjectNonIsometrically(double x,double y,double z)
 { // arriving here only for objects that only supports iso scaling (all, except for shapes)
-    scaleObject(cbrt(x*y*z)); // most objects only scale isometrically
+    bool retVal=false;
+    if ( (x>0.00001)&&(y>0.00001)&&(z>0.00001) )
+    {
+        scaleObject(cbrt(x*y*z)); // most objects only scale isometrically
+        retVal=true;
+    }
+    return(retVal);
 }
 
 void CSceneObject::scalePosition(double scalingFactor)
@@ -1310,7 +1315,7 @@ CSceneObject* CSceneObject::copyYourself()
     if (getObjectType()==sim_object_shape_type)
         theNewObject=new CShape();
     if (getObjectType()==sim_object_octree_type)
-        theNewObject=new COctree();
+        theNewObject=new COcTree();
     if (getObjectType()==sim_object_pointcloud_type)
         theNewObject=new CPointCloud();
     if (getObjectType()==sim_object_joint_type)

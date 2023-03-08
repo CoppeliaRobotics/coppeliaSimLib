@@ -30,6 +30,7 @@ public:
     bool isPure() const;
     bool isConvex() const;
     bool checkIfConvex();
+    CMesh* getFirstMesh();
     void setConvex(bool convex);
     bool containsOnlyPureConvexShapes();
     void getCumulativeMeshes(const C7Vector& parentCumulTr,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals);
@@ -54,7 +55,6 @@ public:
     void setHeightfieldDiamonds(bool d);
 
     int getUniqueID() const;
-    void setMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords);
 
     void setHeightfieldData(const std::vector<double>& heights,int xCount,int yCount);
     double* getHeightfieldData(int& xCount,int& yCount,double& minHeight,double& maxHeight);
@@ -98,6 +98,7 @@ public:
     void takeVisualAttributesFrom(CMesh* origin);
 
     bool reorientBB(const C4Vector* rot);
+    void setBBFrame(const C7Vector& bbFrame);
 
     // Following few routines in order not to save duplicate data:
     static void clearTempVerticesIndicesNormalsAndEdges();
@@ -130,9 +131,7 @@ protected:
     void _computeVisibleEdges();
     C3Vector _computeBBSize(C3Vector* optBBCenter=nullptr);
 
-
-    static void _savePackedIntegers(CSer& ar,const std::vector<int>& data);
-    static void _loadPackedIntegers(CSer& ar,std::vector<int>& data);
+    static void _loadPackedIntegers_OLD(CSer& ar,std::vector<int>& data);
 
     std::vector<double> _vertices;
     std::vector<int> _indices;

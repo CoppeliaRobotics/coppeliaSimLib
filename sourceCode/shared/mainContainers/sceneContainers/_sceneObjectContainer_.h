@@ -13,7 +13,7 @@ class CProxSensor;
 class CVisionSensor;
 class CShape;
 class CForceSensor;
-class COctree;
+class COcTree;
 class CPointCloud;
 // Old objects:
 class CMirror;
@@ -72,12 +72,12 @@ public:
     CPath_old* getPathFromIndex(size_t index) const;
     CMill* getMillFromIndex(size_t index) const;
     CForceSensor* getForceSensorFromIndex(size_t index) const;
-    COctree* getOctreeFromIndex(size_t index) const;
+    COcTree* getOctreeFromIndex(size_t index) const;
     CPointCloud* getPointCloudFromIndex(size_t index) const;
     CDummy* getDummyFromHandle(int objectHandle) const;
     CJoint* getJointFromHandle(int objectHandle) const;
     CMirror* getMirrorFromHandle(int objectHandle) const;
-    COctree* getOctreeFromHandle(int objectHandle) const;
+    COcTree* getOctreeFromHandle(int objectHandle) const;
     CPointCloud* getPointCloudFromHandle(int objectHandle) const;
     CShape* getShapeFromHandle(int objectHandle) const;
     CProxSensor* getProximitySensorFromHandle(int objectHandle) const;
@@ -93,12 +93,13 @@ public:
     int getObjectHandleFromSelectionIndex(size_t index) const;
     const std::vector<int>* getSelectedObjectHandlesPtr() const;
     bool isObjectSelected(int objectHandle) const;
-    void getSelectedObjects(std::vector<CSceneObject*>& selection) const;
+    void getSelectedObjects(std::vector<CSceneObject*>& selection,int objectType=-1,bool includeModelObjects=false,bool onlyVisibleModelObjects=false) const;
+    void getSelectedObjectHandles(std::vector<int>& selection,int objectType=-1,bool includeModelObjects=false,bool onlyVisibleModelObjects=false) const;
     int getLastSelectionHandle(const std::vector<int>* selection=nullptr) const;
     bool isObjectInSelection(int objectHandle,const std::vector<int>* selection=nullptr) const;
     CSceneObject* getLastSelectionObject(const std::vector<int>* selection=nullptr) const;
     CMirror* getLastSelectionMirror() const;
-    COctree* getLastSelectionOctree() const;
+    COcTree* getLastSelectionOctree() const;
     CPointCloud* getLastSelectionPointCloud() const;
     CShape* getLastSelectionShape() const;
     CJoint* getLastSelectionJoint() const;
@@ -169,7 +170,7 @@ private:
     std::vector<CVisionSensor*> _visionSensorList;
     std::vector<CShape*> _shapeList;
     std::vector<CForceSensor*> _forceSensorList;
-    std::vector<COctree*> _octreeList;
+    std::vector<COcTree*> _octreeList;
     std::vector<CPointCloud*> _pointCloudList;
     // Old objects:
     std::vector<CMirror*> _mirrorList;

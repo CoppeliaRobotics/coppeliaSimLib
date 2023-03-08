@@ -14,8 +14,6 @@ public:
     int getObjectID();
 
     bool announceObjectWillBeErased(int objID);
-    void adjustForFrameChange(const C7Vector& preCorrection);
-    void adjustForScaling(double xScale,double yScale,double zScale);
 
     int getSceneObjectID();
     bool getCreatedFromScript();

@@ -8,12 +8,12 @@
 class CDummy;
 class CPointCloud;
 
-class COctree : public CSceneObject
+class COcTree : public CSceneObject
 {
 public:
 
-    COctree();
-    virtual ~COctree();
+    COcTree();
+    virtual ~COcTree();
 
     // Following functions are inherited from CSceneObject
     void display(CViewableBase* renderingObject,int displayAttrib);
@@ -54,7 +54,7 @@ public:
 
     void insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOctree,const unsigned char* optionalColors3,bool colorsAreIndividual,const unsigned int* optionalTags,unsigned int theTagWhenOptionalTagsIsNull);
     void insertShape(CShape* shape,unsigned int theTag);
-    void insertOctree(const COctree* octree,unsigned int theTag);
+    void insertOctree(const COcTree* octree,unsigned int theTag);
     void insertDummy(const CDummy* dummy,unsigned int theTag);
     void insertPointCloud(const CPointCloud* pointCloud,unsigned int theTag);
     void insertOctree(const void* octree2Info,const C7Vector& octree2Tr,unsigned int theTag);
@@ -63,7 +63,7 @@ public:
 
     void subtractPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOctree);
     void subtractShape(CShape* shape);
-    void subtractOctree(const COctree* octree);
+    void subtractOctree(const COcTree* octree);
     void subtractDummy(const CDummy* dummy);
     void subtractPointCloud(const CPointCloud* pointCloud);
     void subtractOctree(const void* octree2Info,const C7Vector& octree2Tr);

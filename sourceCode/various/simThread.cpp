@@ -1925,43 +1925,43 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
         if (cmd.cmdId==SET_VOXELSIZE_OCTREEGUITRIGGEREDCMD)
         {
-            COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+            COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setCellSize(cmd.doubleParams[0]);
         }
         if (cmd.cmdId==TOGGLE_SHOWSTRUCTURE_OCTREEGUITRIGGEREDCMD)
         {
-            COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+            COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setShowOctree(!it->getShowOctree());
         }
         if (cmd.cmdId==TOGGLE_RANDOMCOLORS_OCTREEGUITRIGGEREDCMD)
         {
-            COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+            COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setUseRandomColors(!it->getUseRandomColors());
         }
         if (cmd.cmdId==TOGGLE_SHOWPOINTS_OCTREEGUITRIGGEREDCMD)
         {
-            COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+            COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setUsePointsInsteadOfCubes(!it->getUsePointsInsteadOfCubes());
         }
         if (cmd.cmdId==SET_POINTSIZE_OCTREEGUITRIGGEREDCMD)
         {
-            COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+            COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setPointSize(cmd.intParams[1]);
         }
         if (cmd.cmdId==CLEAR_OCTREEGUITRIGGEREDCMD)
         {
-            COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+            COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->clear();
         }
         if (cmd.cmdId==INSERT_SELECTEDVISIBLEOBJECTS_OCTREEGUITRIGGEREDCMD)
         {
-            COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+            COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
                 std::vector<int> sel;
@@ -1972,7 +1972,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SUBTRACT_SELECTEDVISIBLEOBJECTS_OCTREEGUITRIGGEREDCMD)
         {
-            COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+            COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
             {
                 std::vector<int> sel;
@@ -1983,7 +1983,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==TOGGLE_COLOREMISSIVE_OCTREEGUITRIGGEREDCMD)
         {
-            COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+            COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
                 it->setColorIsEmissive(!it->getColorIsEmissive());
         }

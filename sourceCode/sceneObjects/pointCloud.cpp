@@ -273,11 +273,11 @@ int CPointCloud::removePoints(const double* pts,int ptsCnt,bool ptsAreRelativeTo
     return(pointCntRemoved);
 }
 
-void CPointCloud::subtractOctree(const COctree* octree)
+void CPointCloud::subtractOctree(const COcTree* octree)
 {
     TRACE_INTERNAL;
     if (octree->getOctreeInfo()!=nullptr)
-        subtractOctree(octree->getOctreeInfo(),((COctree*)octree)->getFullCumulativeTransformation());
+        subtractOctree(octree->getOctreeInfo(),((COcTree*)octree)->getFullCumulativeTransformation());
 }
 
 void CPointCloud::subtractDummy(const CDummy* dummy,double distanceTolerance)
@@ -335,7 +335,7 @@ void CPointCloud::subtractObjects(const std::vector<int>& sel)
 void CPointCloud::subtractObject(const CSceneObject* obj,double distanceTolerance)
 {
     if (obj->getObjectType()==sim_object_octree_type)
-        subtractOctree((COctree*)obj);
+        subtractOctree((COcTree*)obj);
     if (obj->getObjectType()==sim_object_dummy_type)
         subtractDummy((CDummy*)obj,distanceTolerance);
     if (obj->getObjectType()==sim_object_pointcloud_type)
@@ -471,17 +471,17 @@ void CPointCloud::insertShape(CShape* shape)
     TRACE_INTERNAL;
     // We first build an octree from the shape, then insert the octree cube points:
     shape->initializeMeshCalculationStructureIfNeeded();
-    C4X4Matrix m(getFullCumulativeTransformation().getMatrix());
+    C4X4Matrix m(getCumulativeTransformation().getMatrix());
     unsigned char dummyColor[3];
-    const C7Vector tr(getFullCumulativeTransformation());
-    void* octree=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->_meshCalculationStructure,shape->getFullCumulativeTransformation(),&tr,_buildResolution,dummyColor,0);
+    const C7Vector tr(getCumulativeTransformation());
+    void* octree=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),&tr,_buildResolution,dummyColor,0);
     std::vector<double> pts;
     CPluginContainer::geomPlugin_getOctreeVoxelPositions(octree,pts);
     CPluginContainer::geomPlugin_destroyOctree(octree);
     insertPoints(&pts[0],(int)pts.size()/3,true,nullptr,false);
 }
 
-void CPointCloud::insertOctree(const COctree* octree)
+void CPointCloud::insertOctree(const COcTree* octree)
 {
     TRACE_INTERNAL;
     if (octree->getOctreeInfo()!=nullptr)
@@ -545,7 +545,7 @@ void CPointCloud::insertObject(const CSceneObject* obj)
     if (obj->getObjectType()==sim_object_shape_type)
         insertShape((CShape*)obj);
     if (obj->getObjectType()==sim_object_octree_type)
-        insertOctree((COctree*)obj);
+        insertOctree((COcTree*)obj);
     if (obj->getObjectType()==sim_object_dummy_type)
         insertDummy((CDummy*)obj);
     if (obj->getObjectType()==sim_object_pointcloud_type)
@@ -1291,10 +1291,9 @@ void CPointCloud::serialize(CSer& ar)
                             ar >> cols[3*i+2];
                         }
                         // Now we need to rebuild the pointCloud:
+                        clear(); // We could also have read "Pt2"
                         if (cnt>0)
                             insertPoints(&pts[0],cnt,true,&cols[0],true);
-                        else
-                            clear();
                     }
 
                     if (theName.compare("Var")==0)
@@ -1341,7 +1340,7 @@ void CPointCloud::serialize(CSer& ar)
                             ar >> dummy;
                             data.push_back(dummy);
                         }
-                        if (_pointCloudInfo!=nullptr)
+                        if (_pointCloudInfo!=nullptr) // we could also have read "Co2"
                             CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
                         _pointCloudInfo=CPluginContainer::geomPlugin_getPtcloudFromSerializationData(&data[0]);
                         _readPositionsAndColorsAndSetDimensions();

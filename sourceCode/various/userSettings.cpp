@@ -35,7 +35,6 @@
 #define _USR_ROTATION_STEP_SIZE "objectRotationStepSize"
 #define _USR_COMPRESS_FILES "compressFiles"
 #define _USR_TRIANGLE_COUNT_IN_OBB "triCountInOBB"
-#define _USR_PACK_INDICES "packIndices"
 #define _USR_UNDO_REDO_ENABLED "undoRedoEnabled"
 #define _USR_UNDO_REDO_PARTIAL_WITH_CAMERAS "undoRedoOnlyPartialWithCameras"
 #define _USR_UNDO_REDO_LEVEL_COUNT "undoRedoLevelCount"
@@ -64,7 +63,6 @@
 #define _USR_SCENEHIERARCHY_INITIALLY_VISIBLE "sceneHierarchyInitiallyVisible"
 #define _USR_SCENEHIERARCHY_HIDDEN_DURING_SIMULATION "sceneHierarchyHiddenDuringSimulation"
 #define _USR_AUTO_SAVE_DELAY "autoSaveDelay"
-#define _USR_BULLET_SERIALIZATION_BUFFER "bulletSerializationBuffer"
 #define _USR_TIME_FOR_UNDO_REDO_TOO_LONG_WARNING "timeInMsForUndoRedoTooLongWarning"
 #define _USR_MIDDLE_MOUSE_BUTTON_SWITCHES_MODES "middleMouseButtonSwitchesModes"
 #define _USR_NAVIGATION_BACKWARD_COMPATIBILITY_MODE "navigationBackwardCompatibility"
@@ -303,11 +301,7 @@ CUserSettings::CUserSettings()
     autoSaveDelay=2; // 2 minutes for an auto-save by default. set to 0 for no auto-save
     doNotWritePersistentData=false;
     compressFiles=true;
-    packIndices=true;
     fileDialogs=-1; // default
-    bulletSerializationBuffer=10000000;
-
-
 
     // Undo/redo section:
     // *****************************
@@ -666,9 +660,7 @@ void CUserSettings::saveUserSettings()
     c.addInteger(_USR_AUTO_SAVE_DELAY,autoSaveDelay,"in minutes. 0 to disable.");
     c.addBoolean(_USR_DO_NOT_WRITE_PERSISTENT_DATA,doNotWritePersistentData,"");
     c.addBoolean(_USR_COMPRESS_FILES,compressFiles,"");
-    c.addBoolean(_USR_PACK_INDICES,packIndices,"");
     c.addInteger(_USR_FILE_DIALOGS_NATIVE,fileDialogs,"recommended to keep -1 (-1=default, 0=native dialogs, 1=Qt dialogs).");
-    c.addInteger(_USR_BULLET_SERIALIZATION_BUFFER,bulletSerializationBuffer,"");
 
 
     c.addRandomLine("");
@@ -946,9 +938,7 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_AUTO_SAVE_DELAY,autoSaveDelay);
     c.getBoolean(_USR_DO_NOT_WRITE_PERSISTENT_DATA,doNotWritePersistentData);
     c.getBoolean(_USR_COMPRESS_FILES,compressFiles);
-    c.getBoolean(_USR_PACK_INDICES,packIndices);
     c.getInteger(_USR_FILE_DIALOGS_NATIVE,fileDialogs);
-    c.getInteger(_USR_BULLET_SERIALIZATION_BUFFER,bulletSerializationBuffer);
 
 
     // Undo/redo section:

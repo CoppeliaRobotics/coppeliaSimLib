@@ -228,7 +228,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_AN_OCTREE);
-            COctree* newObject=new COctree();
+            COcTree* newObject=new COcTree();
             App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::undoRedo_sceneChanged("");
@@ -563,42 +563,13 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     { 
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel0;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel0.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            std::vector<int> sel(sel0);
-            CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+            std::vector<CSceneObject*> sel;
+            App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);
 
-            // Now keep only visible objects:
-            std::set<CSceneObject*> objs;
-            std::vector<CSceneObject*> inputObjects;
-            for (size_t i=0;i<sel.size();i++)
-            {
-                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
-                {
-                    objs.insert(it);
-                    inputObjects.push_back(it);
-                }
-            }
-            // Now add objects from the original selection that do not have the model base flag:
-            for (size_t i=0;i<sel0.size();i++)
-            {
-                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel0[i]);
-                if (!it->getModelBase())
-                {
-                    if (objs.find(it)==objs.end())
-                        inputObjects.push_back(it);
-                }
-            }
-
-            App::uiThread->showOrHideProgressBar(true,-1,"Computing convex hull...");
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_CONVEX_HULL);
             App::currentWorld->sceneObjects->deselectObjects();
 
-            CShape* hull=addConvexHull(inputObjects,true);
-
-            App::uiThread->showOrHideProgressBar(false);
+            CShape* hull=addConvexHull(sel,true);
 
             if (hull!=nullptr)
             {
@@ -1064,12 +1035,11 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
             oneShape=shape;
             C7Vector transf(shape->getFullCumulativeTransformation());
             std::vector<double> vert;
-            std::vector<double> vertD;
             std::vector<int> ind;
-            shape->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vertD,&ind,nullptr);
-            for (size_t j=0;j<vertD.size()/3;j++)
+            shape->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+            for (size_t j=0;j<vert.size()/3;j++)
             {
-                C3Vector v(&vertD[3*j+0]);
+                C3Vector v(&vert[3*j+0]);
                 v=transf*v;
                 allHullVertices.push_back(v(0));
                 allHullVertices.push_back(v(1));
@@ -1083,6 +1053,45 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
             allHullVertices.push_back(v(0));
             allHullVertices.push_back(v(1));
             allHullVertices.push_back(v(2));
+        }
+        if (it->getObjectType()==sim_object_pointcloud_type)
+        {
+            CPointCloud* ptCloud=(CPointCloud*)it;
+            C7Vector transf(ptCloud->getFullCumulativeTransformation());
+            const std::vector<double>* vert=ptCloud->getPoints();
+            for (size_t j=0;j<vert->size()/3;j++)
+            {
+                C3Vector v(vert->data()+3*j+0);
+                v=transf*v;
+                allHullVertices.push_back(v(0));
+                allHullVertices.push_back(v(1));
+                allHullVertices.push_back(v(2));
+            }
+        }
+        if (it->getObjectType()==sim_object_octree_type)
+        {
+            COcTree* ocTree=(COcTree*)it;
+            C7Vector transf(ocTree->getFullCumulativeTransformation());
+            const std::vector<double>* vert=ocTree->getCubePositions();
+            double vs=ocTree->getCellSize()*0.5;
+            for (size_t j=0;j<vert->size()/3;j++)
+            {
+                C3Vector v(vert->data()+3*j+0);
+                for (double a=-1.0;a<2.0;a+=2.0)
+                {
+                    for (double b=-1.0;b<2.0;b+=2.0)
+                    {
+                        for (double c=-1.0;c<2.0;c+=2.0)
+                        {
+                            C3Vector w(v(0)+a*vs,v(1)+b*vs,v(2)+c*vs);
+                            w=transf*w;
+                            allHullVertices.push_back(w(0));
+                            allHullVertices.push_back(w(1));
+                            allHullVertices.push_back(w(2));
+                        }
+                    }
+                }
+            }
         }
     }
     if (allHullVertices.size()!=0)
@@ -1102,9 +1111,8 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
             }
             C7Vector transf;
             transf.setIdentity();
-            if (inputObjects.size()>1)
-                transf.X=(mmin+mmax)*0.5;
-            else
+            transf.X=(mmin+mmax)*0.5;
+            if ( (inputObjects.size()==1)&&(oneShape!=nullptr) )
                 transf=oneShape->getCumulativeTransformation();
             retVal=new CShape(transf,hull,indices,nullptr,nullptr);
             retVal->setObjectAlias_direct("convexHull");
@@ -1122,6 +1130,25 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
 #ifdef SIM_WITH_GUI
 void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
 {
+    std::vector<CSceneObject*> sel;
+    App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);
+    int shapeCnt=0;
+    int dummyCnt=0;
+    int octreeCnt=0;
+    int ptcloudCnt=0;
+    for (size_t i=0;i<sel.size();i++)
+    {
+        int t=sel[i]->getObjectType();
+        if (t==sim_object_shape_type)
+            shapeCnt++;
+        if (t==sim_object_dummy_type)
+            dummyCnt++;
+        if (t==sim_object_octree_type)
+            octreeCnt++;
+        if (t==sim_object_pointcloud_type)
+            ptcloudCnt++;
+    }
+
     // subView can be null
     bool canAddChildScript=false;
     bool canAddCustomizationScript=false;
@@ -1277,10 +1304,13 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
             customizationScript->appendMenuAndDetach(customizationScriptThreaded,canAddCustomizationScript,"Threaded");
             menu->appendMenuAndDetach(customizationScript,canAddCustomizationScript,"Associated customization script");
 
+            bool convexHok=(shapeCnt+octreeCnt+ptcloudCnt>0);
+            if (!convexHok)
+                convexHok=(dummyCnt>3);
             menu->appendMenuSeparator();
-            menu->appendMenuItem(shapesAndDummiesInRootSel>0,false,ADD_COMMANDS_ADD_CONVEX_HULL_ACCMD,IDS_CONVEX_HULL_OF_SELECTION_MENU_ITEM);
-            menu->appendMenuItem(shapesInRootSel>0,false,ADD_COMMANDS_ADD_GROWN_CONVEX_HULL_ACCMD,IDS_GROWN_CONVEX_HULL_OF_SELECTED_SHAPE_MENU_ITEM);
-            menu->appendMenuItem(shapesInRootSel>0,false,ADD_COMMANDS_ADD_CONVEX_DECOMPOSITION_ACCMD,IDS_CONVEX_DECOMPOSITION_OF_SELECTION_MENU_ITEM);
+            menu->appendMenuItem(convexHok>0,false,ADD_COMMANDS_ADD_CONVEX_HULL_ACCMD,"Convex hull");
+            menu->appendMenuItem(convexHok>0,false,ADD_COMMANDS_ADD_GROWN_CONVEX_HULL_ACCMD,"Inflated convex hull...");
+            menu->appendMenuItem(shapeCnt>0,false,ADD_COMMANDS_ADD_CONVEX_DECOMPOSITION_ACCMD,"Convex decomposition...");
         }
     }
 }

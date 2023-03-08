@@ -19,13 +19,13 @@ public:
 private:
     static bool _doesObjectCollideWithObject(CSceneObject* object1,CSceneObject* object2,bool overrideObject1CollidableFlag,bool overrideObject2CollidableFlag,std::vector<double>* intersections);
     static bool _doesShapeCollideWithShape(CShape* shape1,CShape* shape2,std::vector<double>* intersections,bool overrideShape1CollidableFlag,bool overrideShape2CollidableFlag);
-    static bool _doesOctreeCollideWithShape(COctree* octree,CShape* shape,bool overrideOctreeCollidableFlag,bool overrideShapeCollidableFlag);
-    static bool _doesOctreeCollideWithOctree(COctree* octree1,COctree* octree2,bool overrideOctree1CollidableFlag,bool overrideOctree2CollidableFlag);
-    static bool _doesOctreeCollideWithPointCloud(COctree* octree,CPointCloud* pointCloud,bool overrideOctreeCollidableFlag,bool overridePointCloudCollidableFlag);
-    static bool _doesOctreeCollideWithDummy(COctree* octree,CDummy* dummy,bool overrideOctreeCollidableFlag,bool overrideDummyCollidableFlag);
+    static bool _doesOctreeCollideWithShape(COcTree* octree,CShape* shape,bool overrideOctreeCollidableFlag,bool overrideShapeCollidableFlag);
+    static bool _doesOctreeCollideWithOctree(COcTree* octree1,COcTree* octree2,bool overrideOctree1CollidableFlag,bool overrideOctree2CollidableFlag);
+    static bool _doesOctreeCollideWithPointCloud(COcTree* octree,CPointCloud* pointCloud,bool overrideOctreeCollidableFlag,bool overridePointCloudCollidableFlag);
+    static bool _doesOctreeCollideWithDummy(COcTree* octree,CDummy* dummy,bool overrideOctreeCollidableFlag,bool overrideDummyCollidableFlag);
 
     static bool _doesGroupCollideWithShape(const std::vector<CSceneObject*>& group,CShape* shape,std::vector<double>* intersections,bool overrideShapeCollidableFlag,int& collidingGroupObject);
-    static bool _doesGroupCollideWithOctree(const std::vector<CSceneObject*>& group,COctree* octree,bool overrideOctreeCollidableFlag,int& collidingGroupObject);
+    static bool _doesGroupCollideWithOctree(const std::vector<CSceneObject*>& group,COcTree* octree,bool overrideOctreeCollidableFlag,int& collidingGroupObject);
     static bool _doesGroupCollideWithDummy(const std::vector<CSceneObject*>& group,CDummy* dummy,bool overrideDummyCollidableFlag,int& collidingGroupObject);
     static bool _doesGroupCollideWithPointCloud(const std::vector<CSceneObject*>& group,CPointCloud* pointClout,bool overridePointCloudCollidableFlag,int& collidingGroupObject);
 

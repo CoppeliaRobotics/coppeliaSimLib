@@ -33,7 +33,7 @@ void CQDlgOctrees::refresh()
 
     bool sel=App::currentWorld->sceneObjects->isLastSelectionAnOctree();
     size_t objCnt=App::currentWorld->sceneObjects->getSelectionCount();
-    COctree* it=App::currentWorld->sceneObjects->getLastSelectionOctree();
+    COcTree* it=App::currentWorld->sceneObjects->getLastSelectionOctree();
 
     ui->qqSize->setEnabled(sel&&noEditModeAndNoSim);
     ui->qqColor->setEnabled(sel&&noEditModeAndNoSim);
@@ -155,7 +155,7 @@ void CQDlgOctrees::on_qqInsert_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        COctree* it=App::currentWorld->sceneObjects->getLastSelectionOctree();
+        COcTree* it=App::currentWorld->sceneObjects->getLastSelectionOctree();
         if (it!=nullptr)
         {
             std::vector<int> sel;
@@ -190,7 +190,7 @@ void CQDlgOctrees::on_qqSubtract_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        COctree* it=App::currentWorld->sceneObjects->getLastSelectionOctree();
+        COcTree* it=App::currentWorld->sceneObjects->getLastSelectionOctree();
         if (it!=nullptr)
         {
             std::vector<int> sel;

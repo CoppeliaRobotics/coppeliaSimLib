@@ -1026,7 +1026,7 @@ float* App::getRGBPointerFromItem(int objType,int objID1,int objID2,int colCompo
     if (objType==COLOR_ID_OCTREE)
     {
         _auxDlgTitle->assign("OC tree");
-        COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(objID1);
+        COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(objID1);
         if (it!=nullptr)
             return(it->getColor()->getColorsPtr());
     }

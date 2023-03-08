@@ -552,7 +552,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         if (filenameAndPath.length()!=0)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                            CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),App::userSettings->bulletSerializationBuffer);
+                            CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),10000000);
                             App::logMsg(sim_verbosity_msgs,"done.");
                         }
                         else
@@ -565,7 +565,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         if (filenameAndPath.length()!=0)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                            CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),App::userSettings->bulletSerializationBuffer);
+                            CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),10000000);
                             App::logMsg(sim_verbosity_msgs,"done.");
                         }
                         else
@@ -578,7 +578,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         if (filenameAndPath.length()!=0)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                            CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),App::userSettings->bulletSerializationBuffer);
+                            CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),10000000);
                             App::logMsg(sim_verbosity_msgs,"done.");
                         }
                         else

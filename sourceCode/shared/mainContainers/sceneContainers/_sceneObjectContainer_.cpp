@@ -5,6 +5,7 @@
 #include <tt.h>
 #include <utils.h>
 #include <app.h>
+#include <unordered_set>
 
 _CSceneObjectContainer_::_CSceneObjectContainer_()
 {
@@ -199,9 +200,9 @@ CForceSensor* _CSceneObjectContainer_::getForceSensorFromIndex(size_t index) con
     return(retVal);
 }
 
-COctree* _CSceneObjectContainer_::getOctreeFromIndex(size_t index) const
+COcTree* _CSceneObjectContainer_::getOctreeFromIndex(size_t index) const
 {
-    COctree* retVal=nullptr;
+    COcTree* retVal=nullptr;
     if (index<_octreeList.size())
         retVal=_octreeList[index];
     return(retVal);
@@ -251,12 +252,12 @@ CMirror* _CSceneObjectContainer_::getMirrorFromHandle(int objectHandle) const
     return(retVal);
 }
 
-COctree* _CSceneObjectContainer_::getOctreeFromHandle(int objectHandle) const
+COcTree* _CSceneObjectContainer_::getOctreeFromHandle(int objectHandle) const
 {
-    COctree* retVal=nullptr;
+    COcTree* retVal=nullptr;
     CSceneObject* it=getObjectFromHandle(objectHandle);
     if ( (it!=nullptr)&&(it->getObjectType()==sim_object_octree_type) )
-         retVal=(COctree*)it;
+         retVal=(COcTree*)it;
     return(retVal);
 }
 
@@ -502,7 +503,7 @@ bool _CSceneObjectContainer_::isLastSelectionAnOctree(const std::vector<int>* se
         sel=selection;
     if (sel->size()==0)
         return(false);
-    COctree* it=getOctreeFromHandle(sel->at(sel->size()-1));
+    COcTree* it=getOctreeFromHandle(sel->at(sel->size()-1));
     if (it!=nullptr)
         return(true);
     return(false);
@@ -688,13 +689,13 @@ CMirror* _CSceneObjectContainer_::getLastSelectionMirror() const
     return(nullptr);
 }
 
-COctree* _CSceneObjectContainer_::getLastSelectionOctree() const
+COcTree* _CSceneObjectContainer_::getLastSelectionOctree() const
 {
     CSceneObject* it=getLastSelectionObject();
     if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_octree_type)
-            return((COctree*)it);
+            return((COcTree*)it);
     }
     return(nullptr);
 }
@@ -840,15 +841,72 @@ bool _CSceneObjectContainer_::isObjectSelected(int objectHandle) const
     return(retVal);
 }
 
-void _CSceneObjectContainer_::getSelectedObjects(std::vector<CSceneObject*>& selection) const
+void _CSceneObjectContainer_::getSelectedObjectHandles(std::vector<int>& selection,int objectType/*=-1*/,bool includeModelObjects/*=false*/,bool onlyVisibleModelObjects/*=false*/) const
 {
+    std::vector<CSceneObject*> sel;
+    getSelectedObjects(sel,objectType,includeModelObjects,onlyVisibleModelObjects);
     selection.clear();
-    const std::vector<int>* _sel=&_selectedObjectHandles;
-    for (size_t i=0;i<_sel->size();i++)
+    for (size_t i=0;i<sel.size();i++)
+        selection.push_back(sel[i]->getObjectHandle());
+}
+
+void _CSceneObjectContainer_::getSelectedObjects(std::vector<CSceneObject*>& selection,int objectType/*=-1*/,bool includeModelObjects/*=false*/,bool onlyVisibleModelObjects/*=false*/) const
+{
+    std::unordered_set<int> objectsInList;
+    selection.clear();
+    const std::vector<int>* smallSel=getSelectedObjectHandlesPtr();
+
+    std::vector<CSceneObject*> models;
+    for (size_t i=0;i<smallSel->size();i++)
     {
-        CSceneObject* it=getObjectFromHandle(_sel->at(i));
-        if (it!=nullptr)
-            selection.push_back(it);
+        int h=smallSel->at(i);
+        CSceneObject* it=getObjectFromHandle(smallSel->at(i));
+        if (includeModelObjects)
+        { // We split the task in 2: first non-model objects, later we add model objects.
+            if (!it->getModelBase())
+            {
+                if ( (objectType==-1)||(objectType==it->getObjectType()) )
+                {
+                    selection.push_back(it);
+                    objectsInList.insert(h);
+                }
+            }
+            else
+                models.push_back(it);
+        }
+        else
+        { // only objects of the desired type
+            if ( (objectType==-1)||(objectType==it->getObjectType()) )
+            {
+                selection.push_back(it);
+                objectsInList.insert(h);
+            }
+        }
+    }
+
+    if (includeModelObjects)
+    {
+        for (size_t i=0;i<models.size();i++)
+        {
+            CSceneObject* it=models[i];
+            std::vector<CSceneObject*> newObjs;
+            it->getAllObjectsRecursive(&newObjs,true,true);
+            for (size_t j=0;j<newObjs.size();j++)
+            {
+                CSceneObject* nit=newObjs[j];
+                if ( (objectType==-1)||(objectType==nit->getObjectType()) )
+                {
+                    if (objectsInList.find(nit->getObjectHandle())==objectsInList.end())
+                    {
+                        if ( (!onlyVisibleModelObjects)||((!nit->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&nit->getVisibilityLayer())) )
+                        {
+                            objectsInList.insert(nit->getObjectHandle());
+                            selection.insert(selection.begin(),nit); // to the front, to preserve somewhat the selection order
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1076,7 +1134,7 @@ void _CSceneObjectContainer_::_addObject(CSceneObject* object)
     if (t==sim_object_forcesensor_type)
         _forceSensorList.push_back((CForceSensor*)object);
     if (t==sim_object_octree_type)
-        _octreeList.push_back((COctree*)object);
+        _octreeList.push_back((COcTree*)object);
     if (t==sim_object_pointcloud_type)
         _pointCloudList.push_back((CPointCloud*)object);
     if (t==sim_object_mirror_type)

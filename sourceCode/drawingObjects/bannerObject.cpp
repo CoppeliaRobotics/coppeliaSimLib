@@ -81,17 +81,6 @@ bool CBannerObject::toggleVisibility()
     return(_visible);
 }
 
-void CBannerObject::adjustForFrameChange(const C7Vector& preCorrection)
-{
-    _relativeConfig*=preCorrection;
-}
-
-void CBannerObject::adjustForScaling(double xScale,double yScale,double zScale)
-{
-    double avgScaling=(xScale+yScale+zScale)/3.0;
-    _relativeConfig.X*=avgScaling;
-}
-
 int CBannerObject::getOptions()
 {
     return(_options);

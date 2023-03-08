@@ -98,10 +98,6 @@
 
 #define IDSNS_MEMORIZING_OBJECT_CONFIGURATION "Memorizing object configuration (object position/orientation, joint parameter)..."
 #define IDSNS_RESTORING_OBJECT_CONFIGURATION "Restoring object configuration (object position/orientation, joint parameter)..."
-#define IDSNS_GROUPING_SELECTED_SHAPES "Grouping selected shapes..."
-#define IDSNS_UNGROUPING_SELECTED_SHAPES "Ungrouping selected shapes..."
-#define IDSNS_MERGING_SELECTED_SHAPES "Merging selected shapes..."
-#define IDSNS_DIVIDING_SELECTED_SHAPES "Dividing selected shapes..."
 
 #define IDSNS_LOADING_MODEL "Loading model"
 #define IDSNS_LOADING_UI "Loading OpenGl-based custom UI"
@@ -377,7 +373,6 @@
 
 #define IDS_EDIT_MENU_ITEM      "Edit"
 #define IDS_ADD_MENU_ITEM       "Add"
-#define IDS_GROUPING_MERGING_MENU_ITEM "Grouping / Merging"
 #define IDSN_GROUPING "Grouping"
 #define IDSN_MERGING "Merging"
 #define IDS_EXIT_MENU_ITEM      "Quit"
@@ -466,9 +461,6 @@
 #define IDS_RANDOMIZED_RAY_TYPE_MENU_ITEM  "Randomized ray type"
 
 
-#define IDS_CONVEX_HULL_OF_SELECTION_MENU_ITEM "Convex hull of selection"
-#define IDS_GROWN_CONVEX_HULL_OF_SELECTED_SHAPE_MENU_ITEM "Inflated convex hull of selection..."
-#define IDS_CONVEX_DECOMPOSITION_OF_SELECTION_MENU_ITEM "Convex decomposition of selection..."
 #define IDS_CONVEX_MORPH_MENU_ITEM "Morph selection into convex shapes"
 #define IDS_CONVEX_DECOMPOSITION_MORPH_MENU_ITEM "Morph selection into its convex decomposition..."
 #define IDS_MESH_DECIMATION_MENU_ITEM "Decimate selected shape..."
@@ -517,12 +509,6 @@
 
 #define IDS_SAVED_WITH_MORE_RECENT_VERSION_WARNING "The file was saved with a more recent CoppeliaSim version. Parts of the scene might not be operating as expected. Please update CoppeliaSim to the latest version."
 #define IDS_MODEL_SAVED_WITH_MORE_RECENT_VERSION_WARNING "The file was saved with a more recent CoppeliaSim version. Parts of the model might not be operating as expected. Please update CoppeliaSim to the latest version."
-
-// Edit menu item:
-#define IDS_GROUP_SELECTED_SHAPES_MENU_ITEM "Group selected shapes"
-#define IDS_UNGROUP_SELECTED_SHAPES_MENU_ITEM "Ungroup selected shapes"
-#define IDS_MERGE_SELECTED_SHAPES_MENU_ITEM "Merge selected shapes"
-#define IDS_DIVIDE_SELECTED_SHAPES_MENU_ITEM "Divide selected shapes"
 
 // Shape edit mode edit menu item:
 #define IDS_MAKE_SPHERE_WITH_SELECTED_TRIANGLES_MENU_ITEM "Make sphere with selected triangles"

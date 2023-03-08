@@ -67,24 +67,6 @@ void CDrawingContainer::removeObject(int objectId)
     }
 }
 
-void CDrawingContainer::adjustForFrameChange(int objectId,const C7Vector& preCorrection)
-{
-    for (size_t i=0;i<_allObjects.size();i++)
-    {
-        if (_allObjects[i]->getSceneObjectId()==objectId)
-            _allObjects[i]->adjustForFrameChange(preCorrection);
-    }
-}
-
-void CDrawingContainer::adjustForScaling(int objectId,double xScale,double yScale,double zScale)
-{
-    for (size_t i=0;i<_allObjects.size();i++)
-    {
-        if (_allObjects[i]->getSceneObjectId()==objectId)
-            _allObjects[i]->adjustForScaling(xScale,yScale,zScale);
-    }
-}
-
 void CDrawingContainer::eraseAllObjects()
 {
     while (_allObjects.size()>0)

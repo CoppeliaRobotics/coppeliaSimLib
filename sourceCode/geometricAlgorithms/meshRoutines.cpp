@@ -245,7 +245,6 @@ bool CMeshRoutines::getConvexHull(const double* verticesIn,int verticesInLength,
                 indicesOut->push_back(outInd[i]);
             delete[] outInd;
 
-            // TODO987 check if convex if not redo with larger tol
             CMeshRoutines::removeDuplicateVerticesAndTriangles(verticesOut[0],indicesOut,nullptr,nullptr,App::userSettings->verticesTolerance);
             CMeshRoutines::toDelaunayMesh(verticesOut[0],indicesOut[0],nullptr,nullptr);
         }
@@ -447,8 +446,8 @@ int CMeshRoutines::_getTriangleIndexFromEdge(std::vector<std::vector<int>* >& al
     return(-1);
 }
 
-bool CMeshRoutines::checkIfConvex(const std::vector<double>& vertices,const std::vector<int>& indices,double distanceToleranceInPercent)
-{
+int CMeshRoutines::getConvexType(const std::vector<double>& vertices,const std::vector<int>& indices,double distanceToleranceInPercent)
+{ // retVal=0: convex, 1: not convex, 2: not Delaunay mesh
     // Since identical vertices are allowed, first merge them:
     std::vector<double> vertices_(vertices);
     std::vector<int> indices_(indices);
@@ -482,7 +481,7 @@ bool CMeshRoutines::checkIfConvex(const std::vector<double>& vertices,const std:
         for (auto it=m.begin();it!=m.end();it++)
         {
             if (it->second!=2)
-                return(false);
+                return(2); // non-Delaunay mesh
         }
     }
 
@@ -521,10 +520,10 @@ bool CMeshRoutines::checkIfConvex(const std::vector<double>& vertices,const std:
             C3Vector v(vertices_.data()+3*j);
             double dist=v(0)*n(0)+v(1)*n(1)+v(2)*n(2)-d;
             if (dist>toleratedDist)
-                return(false);
+                return(1); // not convex (above tolerance)
         }
     }
-    return(true);
+    return(0);
 }
 
 void CMeshRoutines::createCube(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,const int subdivisions[3])
@@ -1203,192 +1202,195 @@ public:
 
 void CMeshRoutines::toDelaunayMesh(const std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<float>* texCoords)
 { // converts the mesh to a "Delaunay mesh", i.e. all touching edges have the same length
-    std::vector<int> directionIndices; // same size as indices
-    CKdNode1* allDirectionsTree=nullptr;
-    int nextDirectionsIndex=0;
-    std::vector<std::vector<int>> directionsOfVertices; // same size as number of nodes in allDirectionsTree
-    for (size_t i=0;i<indices.size()/3;i++)
-    {
-        int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
-        for (size_t j=0;j<3;j++)
+    if (getConvexType(vertices,indices,0.015)==2)
+    { // we indeed have a non-Delaunay mesh
+        std::vector<int> directionIndices; // same size as indices
+        CKdNode1* allDirectionsTree=nullptr;
+        int nextDirectionsIndex=0;
+        std::vector<std::vector<int>> directionsOfVertices; // same size as number of nodes in allDirectionsTree
+        for (size_t i=0;i<indices.size()/3;i++)
         {
-            size_t k=j+1;
-            if (k==3)
-                k=0;
-            C3Vector p0(vertices.data()+3*ind[j]);
-            C3Vector p1(vertices.data()+3*ind[k]);
-            C3Vector dx(p1-p0);
-            dx.normalize();
-            for (size_t l=0;l<3;l++)
-                dx(l)=fabs(dx(l));
-            double directionHash=dx(0)+2.0*dx(1)*3.0*dx(2);
-            CKdNode1* node=nullptr;
-            if (allDirectionsTree==nullptr)
-            {
-                allDirectionsTree=new CKdNode1(directionHash);
-                allDirectionsTree->index=nextDirectionsIndex++;
-                node=allDirectionsTree;
-            }
-            else
-            {
-                node=allDirectionsTree->insert(directionHash,0.05); // a ~1 meter segment may deviate by 5 cm. Better be too tolerant (pruning happens later on again)
-                if (node->index==-1)
-                    node->index=nextDirectionsIndex++; // new direction/node
-            }
-            directionIndices.push_back(node->index);
-            if (directionsOfVertices.size()<nextDirectionsIndex)
-                directionsOfVertices.push_back(std::vector<int>());
-            directionsOfVertices[size_t(node->index)].push_back(ind[j]);
-            directionsOfVertices[size_t(node->index)].push_back(ind[k]);
-        }
-    }
-    delete allDirectionsTree;
-    for (size_t i=0;i<indices.size()/3;i++)
-    {
-        int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
-        int dirInd[3]={directionIndices[3*i+0],directionIndices[3*i+1],directionIndices[3*i+2]};
-        C3Vector ns[3];
-        float nt[3][2];
-        if (normals!=nullptr)
-        {
-            ns[0]=C3Vector(normals->data()+9*i+0);
-            ns[1]=C3Vector(normals->data()+9*i+3);
-            ns[2]=C3Vector(normals->data()+9*i+6);
-        }
-        if (texCoords!=nullptr)
-        {
+            int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
             for (size_t j=0;j<3;j++)
             {
-                nt[j][0]=texCoords->at(6*i+2*j+0);
-                nt[j][1]=texCoords->at(6*i+2*j+1);
-            }
-        }
-        for (size_t j=0;j<3;j++)
-        {
-            if (dirInd[j]>=0)
-            {
-                bool breakOut=false;
                 size_t k=j+1;
                 if (k==3)
                     k=0;
-                size_t l=k+1;
-                if (l==3)
-                    l=0;
                 C3Vector p0(vertices.data()+3*ind[j]);
                 C3Vector p1(vertices.data()+3*ind[k]);
                 C3Vector dx(p1-p0);
-                double le=dx.normalize();
-                size_t dirIndex=dirInd[j];
-                std::vector<int> vert;
-                for (size_t m=0;m<directionsOfVertices[dirIndex].size();m++)
+                dx.normalize();
+                for (size_t l=0;l<3;l++)
+                    dx(l)=fabs(dx(l));
+                double directionHash=dx(0)+2.0*dx(1)*3.0*dx(2);
+                CKdNode1* node=nullptr;
+                if (allDirectionsTree==nullptr)
                 {
-                    int midInd=directionsOfVertices[dirIndex][m];
-                    if ( (midInd!=ind[j])&&(midInd!=ind[k]) )
-                    {
-                        C3Vector mid(vertices.data()+3*midInd);
-                        mid=mid-p0;
-                        double d=dx*mid;
-                        if ( (d>0.001*le)&&(d<0.999*le) ) // distances from segment endpoints
-                        {
-                            if ((mid-dx*d).getLength()<0.00001) // dist. perp. from line
-                            {
-                                // Add 2 new triangles:
-                                indices.push_back(ind[j]);
-                                indices.push_back(midInd);
-                                indices.push_back(ind[l]);
-                                directionIndices.push_back(dirInd[j]);
-                                directionIndices.push_back(-1); // new direction/edge that is not relevant
-                                directionIndices.push_back(dirInd[l]);
-                                if (normals!=nullptr)
-                                {
-                                    normals->push_back(ns[j](0));
-                                    normals->push_back(ns[j](1));
-                                    normals->push_back(ns[j](2));
-                                    normals->push_back((ns[j](0)+ns[k](0))/2.0);
-                                    normals->push_back((ns[j](1)+ns[k](1))/2.0);
-                                    normals->push_back((ns[j](2)+ns[k](2))/2.0);
-                                    normals->push_back(ns[l](0));
-                                    normals->push_back(ns[l](1));
-                                    normals->push_back(ns[l](2));
-                                }
-                                if (texCoords!=nullptr)
-                                {
-                                    texCoords->push_back(nt[j][0]);
-                                    texCoords->push_back(nt[j][1]);
-                                    texCoords->push_back((nt[j][0]+nt[k][0])/2.0f); // we take the middle, which is not correct!
-                                    texCoords->push_back((nt[j][1]+nt[k][1])/2.0f);
-                                    texCoords->push_back(nt[l][0]);
-                                    texCoords->push_back(nt[l][1]);
-                                }
-                                indices.push_back(midInd);
-                                indices.push_back(ind[k]);
-                                indices.push_back(ind[l]);
-                                directionIndices.push_back(dirInd[j]);
-                                directionIndices.push_back(dirInd[k]);
-                                directionIndices.push_back(-1); // new direction/edge that is not relevant
-                                if (normals!=nullptr)
-                                {
-                                    normals->push_back((ns[j](0)+ns[k](0))/2.0);
-                                    normals->push_back((ns[j](1)+ns[k](1))/2.0);
-                                    normals->push_back((ns[j](2)+ns[k](2))/2.0);
-                                    normals->push_back(ns[k](0));
-                                    normals->push_back(ns[k](1));
-                                    normals->push_back(ns[k](2));
-                                    normals->push_back(ns[l](0));
-                                    normals->push_back(ns[l](1));
-                                    normals->push_back(ns[l](2));
-                                }
-                                if (texCoords!=nullptr)
-                                {
-                                    texCoords->push_back((nt[j][0]+nt[k][0])/2.0f); // we take the middle, which is not correct!
-                                    texCoords->push_back((nt[j][1]+nt[k][1])/2.0f);
-                                    texCoords->push_back(nt[k][0]);
-                                    texCoords->push_back(nt[k][1]);
-                                    texCoords->push_back(nt[l][0]);
-                                    texCoords->push_back(nt[l][1]);
-                                }
-
-                                indices[3*i+0]=-1; // disable the original triangle
-                                breakOut=true;
-                                break;
-                            }
-                        }
-                    }
+                    allDirectionsTree=new CKdNode1(directionHash);
+                    allDirectionsTree->index=nextDirectionsIndex++;
+                    node=allDirectionsTree;
                 }
-                if (breakOut)
-                    break;
+                else
+                {
+                    node=allDirectionsTree->insert(directionHash,0.05); // a ~1 meter segment may deviate by 5 cm. Better be too tolerant (pruning happens later on again)
+                    if (node->index==-1)
+                        node->index=nextDirectionsIndex++; // new direction/node
+                }
+                directionIndices.push_back(node->index);
+                if (directionsOfVertices.size()<nextDirectionsIndex)
+                    directionsOfVertices.push_back(std::vector<int>());
+                directionsOfVertices[size_t(node->index)].push_back(ind[j]);
+                directionsOfVertices[size_t(node->index)].push_back(ind[k]);
             }
         }
-    }
-    std::vector<int> ind(indices);
-    indices.clear();
-    std::vector<double> norm;
-    if (normals!=nullptr)
-    {
-        norm.assign(normals->begin(),normals->end());
-        normals->clear();
-    }
-    std::vector<float> tex;
-    if (texCoords!=nullptr)
-    {
-        tex.assign(texCoords->begin(),texCoords->end());
-        texCoords->clear();
-    }
-    for (size_t i=0;i<ind.size()/3;i++)
-    {
-        if (ind[3*i+0]>=0)
+        delete allDirectionsTree;
+        for (size_t i=0;i<indices.size()/3;i++)
         {
-            for (size_t j=0;j<3;j++)
-                indices.push_back(ind[3*i+j]);
+            int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
+            int dirInd[3]={directionIndices[3*i+0],directionIndices[3*i+1],directionIndices[3*i+2]};
+            C3Vector ns[3];
+            float nt[3][2];
             if (normals!=nullptr)
             {
-                for (size_t j=0;j<9;j++)
-                    normals->push_back(norm[9*i+j]);
+                ns[0]=C3Vector(normals->data()+9*i+0);
+                ns[1]=C3Vector(normals->data()+9*i+3);
+                ns[2]=C3Vector(normals->data()+9*i+6);
             }
             if (texCoords!=nullptr)
             {
-                for (size_t j=0;j<6;j++)
-                    texCoords->push_back(tex[6*i+j]);
+                for (size_t j=0;j<3;j++)
+                {
+                    nt[j][0]=texCoords->at(6*i+2*j+0);
+                    nt[j][1]=texCoords->at(6*i+2*j+1);
+                }
+            }
+            for (size_t j=0;j<3;j++)
+            {
+                if (dirInd[j]>=0)
+                {
+                    bool breakOut=false;
+                    size_t k=j+1;
+                    if (k==3)
+                        k=0;
+                    size_t l=k+1;
+                    if (l==3)
+                        l=0;
+                    C3Vector p0(vertices.data()+3*ind[j]);
+                    C3Vector p1(vertices.data()+3*ind[k]);
+                    C3Vector dx(p1-p0);
+                    double le=dx.normalize();
+                    size_t dirIndex=dirInd[j];
+                    std::vector<int> vert;
+                    for (size_t m=0;m<directionsOfVertices[dirIndex].size();m++)
+                    {
+                        int midInd=directionsOfVertices[dirIndex][m];
+                        if ( (midInd!=ind[j])&&(midInd!=ind[k]) )
+                        {
+                            C3Vector mid(vertices.data()+3*midInd);
+                            mid=mid-p0;
+                            double d=dx*mid;
+                            if ( (d>0.001*le)&&(d<0.999*le) ) // distances from segment endpoints
+                            {
+                                if ((mid-dx*d).getLength()<0.00001) // dist. perp. from line
+                                {
+                                    // Add 2 new triangles:
+                                    indices.push_back(ind[j]);
+                                    indices.push_back(midInd);
+                                    indices.push_back(ind[l]);
+                                    directionIndices.push_back(dirInd[j]);
+                                    directionIndices.push_back(-1); // new direction/edge that is not relevant
+                                    directionIndices.push_back(dirInd[l]);
+                                    if (normals!=nullptr)
+                                    {
+                                        normals->push_back(ns[j](0));
+                                        normals->push_back(ns[j](1));
+                                        normals->push_back(ns[j](2));
+                                        normals->push_back((ns[j](0)+ns[k](0))/2.0);
+                                        normals->push_back((ns[j](1)+ns[k](1))/2.0);
+                                        normals->push_back((ns[j](2)+ns[k](2))/2.0);
+                                        normals->push_back(ns[l](0));
+                                        normals->push_back(ns[l](1));
+                                        normals->push_back(ns[l](2));
+                                    }
+                                    if (texCoords!=nullptr)
+                                    {
+                                        texCoords->push_back(nt[j][0]);
+                                        texCoords->push_back(nt[j][1]);
+                                        texCoords->push_back((nt[j][0]+nt[k][0])/2.0f); // we take the middle, which is not correct!
+                                        texCoords->push_back((nt[j][1]+nt[k][1])/2.0f);
+                                        texCoords->push_back(nt[l][0]);
+                                        texCoords->push_back(nt[l][1]);
+                                    }
+                                    indices.push_back(midInd);
+                                    indices.push_back(ind[k]);
+                                    indices.push_back(ind[l]);
+                                    directionIndices.push_back(dirInd[j]);
+                                    directionIndices.push_back(dirInd[k]);
+                                    directionIndices.push_back(-1); // new direction/edge that is not relevant
+                                    if (normals!=nullptr)
+                                    {
+                                        normals->push_back((ns[j](0)+ns[k](0))/2.0);
+                                        normals->push_back((ns[j](1)+ns[k](1))/2.0);
+                                        normals->push_back((ns[j](2)+ns[k](2))/2.0);
+                                        normals->push_back(ns[k](0));
+                                        normals->push_back(ns[k](1));
+                                        normals->push_back(ns[k](2));
+                                        normals->push_back(ns[l](0));
+                                        normals->push_back(ns[l](1));
+                                        normals->push_back(ns[l](2));
+                                    }
+                                    if (texCoords!=nullptr)
+                                    {
+                                        texCoords->push_back((nt[j][0]+nt[k][0])/2.0f); // we take the middle, which is not correct!
+                                        texCoords->push_back((nt[j][1]+nt[k][1])/2.0f);
+                                        texCoords->push_back(nt[k][0]);
+                                        texCoords->push_back(nt[k][1]);
+                                        texCoords->push_back(nt[l][0]);
+                                        texCoords->push_back(nt[l][1]);
+                                    }
+
+                                    indices[3*i+0]=-1; // disable the original triangle
+                                    breakOut=true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (breakOut)
+                        break;
+                }
+            }
+        }
+        std::vector<int> ind(indices);
+        indices.clear();
+        std::vector<double> norm;
+        if (normals!=nullptr)
+        {
+            norm.assign(normals->begin(),normals->end());
+            normals->clear();
+        }
+        std::vector<float> tex;
+        if (texCoords!=nullptr)
+        {
+            tex.assign(texCoords->begin(),texCoords->end());
+            texCoords->clear();
+        }
+        for (size_t i=0;i<ind.size()/3;i++)
+        {
+            if (ind[3*i+0]>=0)
+            {
+                for (size_t j=0;j<3;j++)
+                    indices.push_back(ind[3*i+j]);
+                if (normals!=nullptr)
+                {
+                    for (size_t j=0;j<9;j++)
+                        normals->push_back(norm[9*i+j]);
+                }
+                if (texCoords!=nullptr)
+                {
+                    for (size_t j=0;j<6;j++)
+                        texCoords->push_back(tex[6*i+j]);
+                }
             }
         }
     }

@@ -6,7 +6,7 @@
 #include <simMath/7Vector.h>
 
 class CDummy;
-class COctree;
+class COcTree;
 
 class CPointCloud : public CSceneObject
 {
@@ -53,14 +53,14 @@ public:
     int getMaxPointCountPerCell() const;
     void insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,const unsigned char* optionalColors3,bool colorsAreIndividual);
     void insertShape(CShape* shape);
-    void insertOctree(const COctree* octree);
+    void insertOctree(const COcTree* octree);
     void insertDummy(const CDummy* dummy);
     void insertPointCloud(const CPointCloud* pointCloud);
     void insertObjects(const std::vector<int>& sel);
     void insertObject(const CSceneObject* obj);
 
     int removePoints(const double* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,double distanceTolerance);
-    void subtractOctree(const COctree* octree);
+    void subtractOctree(const COcTree* octree);
     void subtractDummy(const CDummy* dummy,double distanceTolerance);
     void subtractPointCloud(const CPointCloud* pointCloud,double distanceTolerance);
     void subtractOctree(const void* octree2Info,const C7Vector& octree2Tr);

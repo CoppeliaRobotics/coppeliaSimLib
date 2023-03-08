@@ -68,25 +68,6 @@ void CBannerContainer::removeObject(int objectID)
     }
 }
 
-void CBannerContainer::adjustForFrameChange(int objectID,const C7Vector& preCorrection)
-{
-    for (int i=0;i<int(_allObjects.size());i++)
-    {
-        if (_allObjects[i]->getSceneObjectID()==objectID)
-            _allObjects[i]->adjustForFrameChange(preCorrection);
-    }
-}
-
-void CBannerContainer::adjustForScaling(int objectID,double xScale,double yScale,double zScale)
-{
-    for (int i=0;i<int(_allObjects.size());i++)
-    {
-        if (_allObjects[i]->getSceneObjectID()==objectID)
-            _allObjects[i]->adjustForScaling(xScale,yScale,zScale);
-    }
-}
-
-
 void CBannerContainer::announceObjectWillBeErased(int objID)
 { // Never called from copy buffer!
     int i=0;

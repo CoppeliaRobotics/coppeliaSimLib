@@ -10,7 +10,7 @@
 #include <app.h>
 #include <octreeRendering.h>
 
-COctree::COctree()
+COcTree::COcTree()
 {
     TRACE_INTERNAL;
     _objectType=sim_object_octree_type;
@@ -38,48 +38,48 @@ COctree::COctree()
     clear(); // also resets the BB
 }
 
-COctree::~COctree()
+COcTree::~COcTree()
 {
     TRACE_INTERNAL;
     clear();
 }
 
-CColorObject* COctree::getColor()
+CColorObject* COcTree::getColor()
 {
     return(&color);
 }
 
-void COctree::setVertexBufferId(int id)
+void COcTree::setVertexBufferId(int id)
 {
     _vertexBufferId=id;
 }
 
-int COctree::getVertexBufferId() const
+int COcTree::getVertexBufferId() const
 {
     return(_vertexBufferId);
 }
 
-void COctree::setNormalBufferId(int id)
+void COcTree::setNormalBufferId(int id)
 {
     _normalBufferId=id;
 }
 
-int COctree::getNormalBufferId() const
+int COcTree::getNormalBufferId() const
 {
     return(_normalBufferId);
 }
 
-float* COctree::getCubeVertices()
+float* COcTree::getCubeVertices()
 {
     return(_cubeVertices);
 }
 
-float* COctree::getColors()
+float* COcTree::getColors()
 {
     return(&_colors[0]);
 }
 
-void COctree::_readPositionsAndColorsAndSetDimensions()
+void COcTree::_readPositionsAndColorsAndSetDimensions()
 {
     std::vector<double> _voxelPositions_old;
     _voxelPositions_old.swap(_voxelPositions);
@@ -146,7 +146,7 @@ void COctree::_readPositionsAndColorsAndSetDimensions()
     }
 }
 
-void COctree::_updateOctreeEvent() const
+void COcTree::_updateOctreeEvent() const
 {
     if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
@@ -175,7 +175,7 @@ void COctree::_updateOctreeEvent() const
     }
 }
 
-void COctree::insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOctree,const unsigned char* optionalColors3,bool colorsAreIndividual,const unsigned int* optionalTags,unsigned int theTagWhenOptionalTagsIsNull)
+void COcTree::insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOctree,const unsigned char* optionalColors3,bool colorsAreIndividual,const unsigned int* optionalTags,unsigned int theTagWhenOptionalTagsIsNull)
 {
     TRACE_INTERNAL;
     const double* _pts=pts;
@@ -226,13 +226,13 @@ void COctree::insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOct
     _readPositionsAndColorsAndSetDimensions();
 }
 
-void COctree::insertShape(CShape* shape,unsigned int theTag)
+void COcTree::insertShape(CShape* shape,unsigned int theTag)
 {
     TRACE_INTERNAL;
     shape->initializeMeshCalculationStructureIfNeeded();
 
-    C7Vector octreeTr(getFullCumulativeTransformation());
-    C7Vector shapeTr(((CShape*)shape)->getFullCumulativeTransformation());
+    C7Vector octreeTr(getCumulativeTransformation());
+    C7Vector shapeTr(((CShape*)shape)->getCumulCenteredMeshFrame());
     unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1),(unsigned char)(color.getColorsPtr()[1]*255.1),(unsigned char)(color.getColorsPtr()[2]*255.1)};
     if (_octreeInfo==nullptr)
         _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->_meshCalculationStructure,shapeTr,&octreeTr,_cellSize,cols,theTag);
@@ -241,20 +241,20 @@ void COctree::insertShape(CShape* shape,unsigned int theTag)
     _readPositionsAndColorsAndSetDimensions();
 }
 
-void COctree::insertOctree(const COctree* octree,unsigned int theTag)
+void COcTree::insertOctree(const COcTree* octree,unsigned int theTag)
 {
     TRACE_INTERNAL;
     if (octree->_octreeInfo!=nullptr)
-        insertOctree(octree->_octreeInfo,((COctree*)octree)->getFullCumulativeTransformation().getMatrix(),theTag);
+        insertOctree(octree->_octreeInfo,((COcTree*)octree)->getFullCumulativeTransformation().getMatrix(),theTag);
 }
 
-void COctree::insertDummy(const CDummy* dummy,unsigned int theTag)
+void COcTree::insertDummy(const CDummy* dummy,unsigned int theTag)
 {
     TRACE_INTERNAL;
     insertPoints(dummy->getFullCumulativeTransformation().X.data,1,false,nullptr,false,nullptr,theTag);
 }
 
-void COctree::insertPointCloud(const CPointCloud* pointCloud,unsigned int theTag)
+void COcTree::insertPointCloud(const CPointCloud* pointCloud,unsigned int theTag)
 {
     TRACE_INTERNAL;
     if (pointCloud->getPointCloudInfo()!=nullptr)
@@ -275,7 +275,7 @@ void COctree::insertPointCloud(const CPointCloud* pointCloud,unsigned int theTag
 }
 
 
-void COctree::insertOctree(const void* octree2Info,const C7Vector& octree2Tr,unsigned int theTag)
+void COcTree::insertOctree(const void* octree2Info,const C7Vector& octree2Tr,unsigned int theTag)
 {
     TRACE_INTERNAL;
 
@@ -290,7 +290,7 @@ void COctree::insertOctree(const void* octree2Info,const C7Vector& octree2Tr,uns
     _readPositionsAndColorsAndSetDimensions();
 }
 
-void COctree::insertObjects(const std::vector<int>& sel)
+void COcTree::insertObjects(const std::vector<int>& sel)
 {
     for (size_t i=0;i<sel.size();i++)
     {
@@ -300,19 +300,19 @@ void COctree::insertObjects(const std::vector<int>& sel)
     }
 }
 
-void COctree::insertObject(const CSceneObject* obj,unsigned int theTag)
+void COcTree::insertObject(const CSceneObject* obj,unsigned int theTag)
 {
     if (obj->getObjectType()==sim_object_shape_type)
         insertShape((CShape*)obj,theTag);
     if (obj->getObjectType()==sim_object_octree_type)
-        insertOctree((COctree*)obj,theTag);
+        insertOctree((COcTree*)obj,theTag);
     if (obj->getObjectType()==sim_object_dummy_type)
         insertDummy((CDummy*)obj,theTag);
     if (obj->getObjectType()==sim_object_pointcloud_type)
         insertPointCloud((CPointCloud*)obj,theTag);
 }
 
-void COctree::subtractPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOctree)
+void COcTree::subtractPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOctree)
 {
     TRACE_INTERNAL;
     const double* _pts=pts;
@@ -341,15 +341,15 @@ void COctree::subtractPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToO
     _readPositionsAndColorsAndSetDimensions();
 }
 
-void COctree::subtractShape(CShape* shape)
+void COcTree::subtractShape(CShape* shape)
 {
     TRACE_INTERNAL;
     if (_octreeInfo!=nullptr)
     {
         shape->initializeMeshCalculationStructureIfNeeded();
 
-        C4X4Matrix octreeM(getFullCumulativeTransformation().getMatrix());
-        C4X4Matrix shapeM(((CShape*)shape)->getFullCumulativeTransformation().getMatrix());
+        C4X4Matrix octreeM(getCumulativeTransformation().getMatrix());
+        C4X4Matrix shapeM(((CShape*)shape)->getCumulCenteredMeshFrame().getMatrix());
         if (CPluginContainer::geomPlugin_removeMeshFromOctree(_octreeInfo,octreeM,shape->_meshCalculationStructure,shapeM))
         {
             CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
@@ -359,20 +359,20 @@ void COctree::subtractShape(CShape* shape)
     }
 }
 
-void COctree::subtractOctree(const COctree* octree)
+void COcTree::subtractOctree(const COcTree* octree)
 {
     TRACE_INTERNAL;
     if (octree->_octreeInfo!=nullptr)
-        subtractOctree(octree->_octreeInfo,((COctree*)octree)->getFullCumulativeTransformation());
+        subtractOctree(octree->_octreeInfo,((COcTree*)octree)->getFullCumulativeTransformation());
 }
 
-void COctree::subtractDummy(const CDummy* dummy)
+void COcTree::subtractDummy(const CDummy* dummy)
 {
     TRACE_INTERNAL;
     subtractPoints(dummy->getFullCumulativeTransformation().X.data,1,false);
 }
 
-void COctree::subtractPointCloud(const CPointCloud* pointCloud)
+void COcTree::subtractPointCloud(const CPointCloud* pointCloud)
 {
     TRACE_INTERNAL;
     if (pointCloud->getPointCloudInfo()!=nullptr)
@@ -393,7 +393,7 @@ void COctree::subtractPointCloud(const CPointCloud* pointCloud)
 }
 
 
-void COctree::subtractOctree(const void* octree2Info,const C7Vector& octree2Tr)
+void COcTree::subtractOctree(const void* octree2Info,const C7Vector& octree2Tr)
 {
     TRACE_INTERNAL;
     if (_octreeInfo!=nullptr)
@@ -407,7 +407,7 @@ void COctree::subtractOctree(const void* octree2Info,const C7Vector& octree2Tr)
     }
 }
 
-void COctree::subtractObjects(const std::vector<int>& sel)
+void COcTree::subtractObjects(const std::vector<int>& sel)
 {
     for (size_t i=0;i<sel.size();i++)
     {
@@ -417,19 +417,19 @@ void COctree::subtractObjects(const std::vector<int>& sel)
     }
 }
 
-void COctree::subtractObject(const CSceneObject* obj)
+void COcTree::subtractObject(const CSceneObject* obj)
 {
     if (obj->getObjectType()==sim_object_shape_type)
         subtractShape((CShape*)obj);
     if (obj->getObjectType()==sim_object_octree_type)
-        subtractOctree((COctree*)obj);
+        subtractOctree((COcTree*)obj);
     if (obj->getObjectType()==sim_object_dummy_type)
         subtractDummy((CDummy*)obj);
     if (obj->getObjectType()==sim_object_pointcloud_type)
         subtractPointCloud((CPointCloud*)obj);
 }
 
-void COctree::clear()
+void COcTree::clear()
 {
     TRACE_INTERNAL;
     if (_octreeInfo!=nullptr)
@@ -444,12 +444,12 @@ void COctree::clear()
     _updateOctreeEvent();
 }
 
-bool COctree::getUseRandomColors() const
+bool COcTree::getUseRandomColors() const
 {
     return(_useRandomColors);
 }
 
-void COctree::setUseRandomColors(bool r)
+void COcTree::setUseRandomColors(bool r)
 {
     if (r!=_useRandomColors)
     {
@@ -458,85 +458,85 @@ void COctree::setUseRandomColors(bool r)
     }
 }
 
-bool COctree::getColorIsEmissive() const
+bool COcTree::getColorIsEmissive() const
 {
     return(_colorIsEmissive);
 }
 
-void COctree::setColorIsEmissive(bool e)
+void COcTree::setColorIsEmissive(bool e)
 {
     _colorIsEmissive=e;
 }
 
-bool COctree::getUsePointsInsteadOfCubes() const
+bool COcTree::getUsePointsInsteadOfCubes() const
 {
     return(_usePointsInsteadOfCubes);
 }
 
-void COctree::setUsePointsInsteadOfCubes(bool r)
+void COcTree::setUsePointsInsteadOfCubes(bool r)
 {
     _usePointsInsteadOfCubes=r;
 }
 
-bool COctree::getSaveCalculationStructure() const
+bool COcTree::getSaveCalculationStructure() const
 {
     return(_saveCalculationStructure);
 }
 
-void COctree::setSaveCalculationStructure(bool s)
+void COcTree::setSaveCalculationStructure(bool s)
 {
     _saveCalculationStructure=s;
 }
 
-int COctree::getPointSize() const
+int COcTree::getPointSize() const
 {
     return(_pointSize);
 }
 
-void COctree::setPointSize(int s)
+void COcTree::setPointSize(int s)
 {
     _pointSize=s;
 }
 
-const std::vector<double>* COctree::getCubePositions() const
+const std::vector<double>* COcTree::getCubePositions() const
 {
     TRACE_INTERNAL;
     return(&_voxelPositions);
 }
 
-std::vector<double>* COctree::getCubePositions()
+std::vector<double>* COcTree::getCubePositions()
 {
     TRACE_INTERNAL;
     return(&_voxelPositions);
 }
 
-std::string COctree::getObjectTypeInfo() const
+std::string COcTree::getObjectTypeInfo() const
 {
     return(IDSOGL_OCTREE);
 }
 
-std::string COctree::getObjectTypeInfoExtended() const
+std::string COcTree::getObjectTypeInfoExtended() const
 {
     return(IDSOGL_OCTREE);
 }
-bool COctree::isPotentiallyCollidable() const
+bool COcTree::isPotentiallyCollidable() const
 {
     return(true);
 }
-bool COctree::isPotentiallyMeasurable() const
+bool COcTree::isPotentiallyMeasurable() const
 {
     return(true);
 }
-bool COctree::isPotentiallyDetectable() const
+bool COcTree::isPotentiallyDetectable() const
 {
     return(true);
 }
-bool COctree::isPotentiallyRenderable() const
+bool COcTree::isPotentiallyRenderable() const
 {
     return(true);
 }
 
-void COctree::computeBoundingBox()
+void COcTree::computeBoundingBox()
 {
     if (_voxelPositions.size()>=6)
     {
@@ -567,7 +567,7 @@ void COctree::computeBoundingBox()
     }
 }
 
-void COctree::scaleObject(double scalingFactor)
+void COcTree::scaleObject(double scalingFactor)
 {
     _cellSize*=scalingFactor;
     for (size_t i=0;i<_voxelPositions.size();i++)
@@ -579,12 +579,12 @@ void COctree::scaleObject(double scalingFactor)
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void COctree::removeSceneDependencies()
+void COcTree::removeSceneDependencies()
 {
     CSceneObject::removeSceneDependencies();
 }
 
-void COctree::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void COcTree::addSpecializedObjectEventData(CInterfaceStackTable* data) const
 {
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("octree",subC);
@@ -612,9 +612,9 @@ void COctree::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringString("colors",buff,l,true);
 }
 
-CSceneObject* COctree::copyYourself()
+CSceneObject* COcTree::copyYourself()
 {
-    COctree* newOctree=(COctree*)CSceneObject::copyYourself();
+    COcTree* newOctree=(COcTree*)CSceneObject::copyYourself();
 
     newOctree->_cellSize=_cellSize;
     color.copyYourselfInto(&newOctree->color);
@@ -633,7 +633,7 @@ CSceneObject* COctree::copyYourself()
     return(newOctree);
 }
 
-void COctree::setCellSize(double theNewSize)
+void COcTree::setCellSize(double theNewSize)
 {
     if (_octreeInfo!=nullptr)
         theNewSize=tt::getLimitedFloat(_cellSize,1.0,theNewSize); // we can't reduce the cell size for an existing octree, because it doesn't make sense!
@@ -653,96 +653,96 @@ void COctree::setCellSize(double theNewSize)
     }
 }
 
-double COctree::getCellSize() const
+double COcTree::getCellSize() const
 {
     return(_cellSize);
 }
 
-void COctree::setCellSizeForDisplay(double theNewSizeForDisplay)
+void COcTree::setCellSizeForDisplay(double theNewSizeForDisplay)
 {
     _cellSizeForDisplay=theNewSizeForDisplay;
 }
 
-double COctree::getCellSizeForDisplay() const
+double COcTree::getCellSizeForDisplay() const
 {
     return(_cellSizeForDisplay);
 }
 
-bool COctree::getShowOctree() const
+bool COcTree::getShowOctree() const
 {
     return(_showOctreeStructure);
 }
 
-void COctree::setShowOctree(bool show)
+void COcTree::setShowOctree(bool show)
 {
     _showOctreeStructure=show;
 }
 
-const void* COctree::getOctreeInfo() const
+const void* COcTree::getOctreeInfo() const
 {
     return(_octreeInfo);
 }
 
-void* COctree::getOctreeInfo()
+void* COcTree::getOctreeInfo()
 {
     return(_octreeInfo);
 }
 
-void COctree::announceCollectionWillBeErased(int groupID,bool copyBuffer)
+void COcTree::announceCollectionWillBeErased(int groupID,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceCollectionWillBeErased(groupID,copyBuffer);
 }
-void COctree::announceCollisionWillBeErased(int collisionID,bool copyBuffer)
+void COcTree::announceCollisionWillBeErased(int collisionID,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceCollisionWillBeErased(collisionID,copyBuffer);
 }
-void COctree::announceDistanceWillBeErased(int distanceID,bool copyBuffer)
+void COcTree::announceDistanceWillBeErased(int distanceID,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID,copyBuffer);
 }
 
-void COctree::performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+void COcTree::performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map,loadingAmodel);
 }
-void COctree::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+void COcTree::performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map,loadingAmodel);
 }
-void COctree::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+void COcTree::performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performCollisionLoadingMapping(map,loadingAmodel);
 }
-void COctree::performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+void COcTree::performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performDistanceLoadingMapping(map,loadingAmodel);
 }
 
-void COctree::performTextureObjectLoadingMapping(const std::map<int,int>* map)
+void COcTree::performTextureObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void COctree::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
+void COcTree::performDynMaterialObjectLoadingMapping(const std::map<int,int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
 
-void COctree::initializeInitialValues(bool simulationAlreadyRunning)
+void COcTree::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
 }
 
-void COctree::simulationAboutToStart()
+void COcTree::simulationAboutToStart()
 {
     initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
 }
 
-void COctree::simulationEnded()
+void COcTree::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
@@ -753,7 +753,7 @@ void COctree::simulationEnded()
     CSceneObject::simulationEnded();
 }
 
-void COctree::serialize(CSer& ar)
+void COcTree::serialize(CSer& ar)
 {
     CSceneObject::serialize(ar);
     if (ar.isBinary())
@@ -965,6 +965,7 @@ void COctree::serialize(CSer& ar)
                             ar >> cols[3*i+2];
                         }
                         // Now we need to rebuild the octree:
+                        clear(); // we might also have read "Pt2"
                         if (cnt>0)
                             insertPoints(&pts[0],cnt,true,&cols[0],true,&tags[0],0);
                         else
@@ -994,14 +995,13 @@ void COctree::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         std::vector<unsigned char> data;
-                        data.reserve(byteQuantity);
                         unsigned char dummy;
                         for (int i=0;i<byteQuantity;i++)
                         {
                             ar >> dummy;
                             data.push_back(dummy);
                         }
-                        if (_octreeInfo!=nullptr)
+                        if (_octreeInfo!=nullptr) // we could have also read "Co2"
                             CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
                         _octreeInfo=CPluginContainer::geomPlugin_getOctreeFromSerializationData(&data[0]);
                         _readPositionsAndColorsAndSetDimensions();
@@ -1176,24 +1176,24 @@ void COctree::serialize(CSer& ar)
     }
 }
 
-void COctree::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
+void COcTree::performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map,loadingAmodel);
 }
 
-void COctree::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
+void COcTree::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceObjectWillBeErased(object,copyBuffer);
 }
 
-void COctree::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
+void COcTree::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID,copyBuffer);
 }
 
-void COctree::display(CViewableBase* renderingObject,int displayAttrib)
+void COcTree::display(CViewableBase* renderingObject,int displayAttrib)
 {
     EASYLOCK(_objectMutex);
     displayOctree(this,renderingObject,displayAttrib);

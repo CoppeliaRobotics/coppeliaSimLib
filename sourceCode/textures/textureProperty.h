@@ -24,7 +24,7 @@ public:
     bool getInterpolateColors();
     void setApplyMode(int dt);
     int getApplyMode();
-    void adjustForFrameChange(const C7Vector& mCorrection);
+    void transformTexturePose(const C7Vector& mCorrection);
 
     int getTextureObjectID();
     CTextureObject* getTextureObject();

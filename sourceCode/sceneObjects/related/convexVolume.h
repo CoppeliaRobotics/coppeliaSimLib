@@ -23,7 +23,6 @@ public:
 
     CConvexVolume* copyYourself();
     void scaleVolume(double scalingFactor);
-    void scaleVolumeNonIsometrically(double x,double y,double z,double& xRet,double& yRet,double& zRet);
     void serialize(CSer& ar);
     bool getVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const;
     void disableVolumeComputation(bool disableIt);

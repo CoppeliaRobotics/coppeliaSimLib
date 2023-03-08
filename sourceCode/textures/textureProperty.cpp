@@ -116,7 +116,7 @@ void CTextureProperty::scaleObject(double scalingFactor)
     }
 }
 
-void CTextureProperty::adjustForFrameChange(const C7Vector& mCorrection)
+void CTextureProperty::transformTexturePose(const C7Vector& mCorrection)
 {
     _textureRelativeConfig=mCorrection*_textureRelativeConfig;
 }

@@ -23,13 +23,9 @@ public:
     void announceObjectWillBeErased(const CSceneObject* object);
     void announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     void removeObject(int objectId);
-    void adjustForFrameChange(int objectId,const C7Vector& preCorrection);
-    void adjustForScaling(int objectId,double xScale,double yScale,double zScale);
 
     void pushGenesisEvents();
     void pushAppendNewPointEvents();
-
-
 
 private:
     std::vector<CDrawingObject*> _allObjects;

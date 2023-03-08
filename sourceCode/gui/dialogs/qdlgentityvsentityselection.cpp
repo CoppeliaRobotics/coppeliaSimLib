@@ -109,7 +109,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     // Now Octrees:
     for (size_t i=0;i<App::currentWorld->sceneObjects->getOctreeCount();i++)
     {
-        COctree* it=App::currentWorld->sceneObjects->getOctreeFromIndex(i);
+        COcTree* it=App::currentWorld->sceneObjects->getOctreeFromIndex(i);
         std::string name(tt::decorateString("[",IDSN_OCTREE,"] "));
         name+=it->getObjectAlias_printPath();
         names.push_back(name);
@@ -199,7 +199,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     // Now Octrees:
     for (size_t i=0;i<App::currentWorld->sceneObjects->getOctreeCount();i++)
     {
-        COctree* it=App::currentWorld->sceneObjects->getOctreeFromIndex(i);
+        COcTree* it=App::currentWorld->sceneObjects->getOctreeFromIndex(i);
         std::string name(tt::decorateString("[",IDSN_OCTREE,"] "));
         name+=it->getObjectAlias_printPath();
         names.push_back(name);

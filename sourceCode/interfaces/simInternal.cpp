@@ -12093,9 +12093,9 @@ int simGroupShapes_internal(const int* shapeHandles,int shapeCount)
         const std::vector<int> initSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
         int retVal;
         if (merging)
-            retVal=CSceneObjectOperations::mergeSelection(&shapes,false);
+            retVal=CSceneObjectOperations::mergeSelection(&shapes);
         else
-            retVal=CSceneObjectOperations::groupSelection(&shapes,false);
+            retVal=CSceneObjectOperations::groupSelection(&shapes);
         App::currentWorld->sceneObjects->setSelectedObjectHandles(&initSelection);
         return(retVal);
     }
@@ -12137,7 +12137,7 @@ int* simUngroupShape_internal(int shapeHandle,int* shapeCount)
                 std::vector<int> sel;
                 previousSel.push_back(shapeHandle);
                 sel.push_back(shapeHandle);
-                CSceneObjectOperations::divideSelection(&sel,false);
+                CSceneObjectOperations::divideSelection(&sel);
                 for (size_t j=0;j<sel.size();j++)
                 {
                     if (sel[j]!=shapeHandle)
@@ -12175,7 +12175,7 @@ int* simUngroupShape_internal(int shapeHandle,int* shapeCount)
         sel.push_back(shapeHandle);
         while (sel.size()!=0)
         {
-            CSceneObjectOperations::ungroupSelection(&sel,false);
+            CSceneObjectOperations::ungroupSelection(&sel);
             for (int i=0;i<int(previousSel.size());i++)
             {
                 int previousID=previousSel[i];
@@ -13030,8 +13030,10 @@ int simScaleObject_internal(int objectHandle,double xScale,double yScale,double 
         if (doesObjectExist(__func__,objectHandle))
         {
             CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            obj->scaleObjectNonIsometrically(xScale,yScale,zScale);
-            return(1);
+            if (obj->scaleObjectNonIsometrically(xScale,yScale,zScale))
+                return(1);
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_INPUT);
+            return(-1);
         }
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -14894,7 +14896,7 @@ int simCreateOctree_internal(double voxelSize,int options,double pointSize,void*
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        COctree* it=new COctree();
+        COcTree* it=new COcTree();
         it->setCellSize(voxelSize);
         it->setPointSize(int(pointSize+0.5));
         it->setUseRandomColors(options&1);
@@ -15000,7 +15002,7 @@ int simInsertVoxelsIntoOctree_internal(int octreeHandle,int options,const double
     {
         if (!isOctree(__func__,octreeHandle))
             return(-1);
-        COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
+        COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
         if ( (tag==nullptr)||(color==nullptr) )
         {
             if (color==nullptr)
@@ -15035,7 +15037,7 @@ int simRemoveVoxelsFromOctree_internal(int octreeHandle,int options,const double
     {
         if (!isOctree(__func__,octreeHandle))
             return(-1);
-        COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
+        COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
         if (pts==nullptr)
             it->clear();
         else
@@ -15131,7 +15133,7 @@ const double* simGetOctreeVoxels_internal(int octreeHandle,int* ptCnt,void* rese
     {
         if (!isOctree(__func__,octreeHandle))
             return(nullptr);
-        COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
+        COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
         const std::vector<double>* p=it->getCubePositions();
         if (p->size()==0)
         {
@@ -15183,7 +15185,7 @@ int simInsertObjectIntoOctree_internal(int octreeHandle,int objectHandle,int opt
             return(-1);
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
-        COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
+        COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
 
         float savedCols[3];
         it->getColor()->getColor(savedCols,sim_colorcomponent_ambient_diffuse);
@@ -15218,7 +15220,7 @@ int simSubtractObjectFromOctree_internal(int octreeHandle,int objectHandle,int o
             return(-1);
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
-        COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
+        COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
         it->subtractObject(App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle));
         int retVal=int(it->getCubePositions()->size())/3;
         return(retVal);
@@ -15305,7 +15307,7 @@ int simCheckOctreePointOccupancy_internal(int octreeHandle,int options,const dou
             return(-1);
         if (ptCnt<=0)
             return(-1);
-        COctree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
+        COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
         if (it->getOctreeInfo()==nullptr)
             return(0);
         const double* _pts=points;

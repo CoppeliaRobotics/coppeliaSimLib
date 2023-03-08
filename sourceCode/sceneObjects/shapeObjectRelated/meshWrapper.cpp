@@ -224,6 +224,8 @@ void CMeshWrapper::copyAttributesTo(CMeshWrapper* target)
     target->_dynMaterialId_old=_dynMaterialId_old;
     if (childList.size()==0)
         target->takeVisualAttributesFrom((CMesh*)this);
+    else
+        target->takeVisualAttributesFrom(getFirstMesh());
 }
 
 void CMeshWrapper::copyWrapperData(CMeshWrapper* target)
@@ -304,7 +306,7 @@ C7Vector CMeshWrapper::getBB(C3Vector* optBBSize) const
 }
 
 void CMeshWrapper::setBBFrame(const C7Vector& bbFrame)
-{
+{ // function has virtual/non-virtual counterpart!
     _bbFrame=bbFrame;
 }
 
@@ -506,6 +508,11 @@ bool CMeshWrapper::isPure() const
 bool CMeshWrapper::isConvex() const
 { // function has virtual/non-virtual counterpart!
     return(_convex);
+}
+
+CMesh* CMeshWrapper::getFirstMesh()
+{ // function has virtual/non-virtual counterpart!
+    return(childList[0]->getFirstMesh());
 }
 
 bool CMeshWrapper::containsOnlyPureConvexShapes()

@@ -751,6 +751,7 @@ void CSPage::serialize(CSer& ar)
 
                     if (theName.compare("_vr")==0)
                     {
+                        _allViewAuxSizesAndPos.clear(); // could also have read "Fvr"
                         noHit=false;
                         ar >> byteQuantity;
                         int n;

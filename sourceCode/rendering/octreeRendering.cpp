@@ -71,7 +71,7 @@ const float _cubeNormals[]={
     0.0,1.0,0.0
 };
 
-void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAttrib)
+void displayOctree(COcTree* octree,CViewableBase* renderingObject,int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(octree,renderingObject);
@@ -285,7 +285,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
 
 #else
 
-void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAttrib)
+void displayOctree(COcTree* octree,CViewableBase* renderingObject,int displayAttrib)
 {
 
 }

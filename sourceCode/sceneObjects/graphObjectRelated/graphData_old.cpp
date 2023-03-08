@@ -646,8 +646,7 @@ void CGraphData_old::serialize(CSer& ar,void* it)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        _floatData.reserve(cg->getBufferSize());
-                        _floatData.clear();
+                        _floatData.clear(); // could also have read "Dt9"
                         for (int i=0;i<cg->getBufferSize();i++)
                             _floatData.push_back(0.0);
                         for (int i=0;i<byteQuantity/int(sizeof(double));i++)
@@ -677,7 +676,7 @@ void CGraphData_old::serialize(CSer& ar,void* it)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        _transformedFloatData.clear();
+                        _transformedFloatData.clear(); // could also have read "Ifd"
                         for (int i=0;i<cg->getBufferSize();i++)
                             _transformedFloatData.push_back(0.0);
                         for (int i=0;i<byteQuantity/int(sizeof(double));i++)

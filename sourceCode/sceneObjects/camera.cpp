@@ -291,7 +291,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
             if (it->getObjectType()==sim_object_octree_type)
             {
                 done=true;
-                COctree* octree=(COctree*)it;
+                COcTree* octree=(COcTree*)it;
                 C7Vector trr(camTrInv*octree->getCumulativeTransformation());
                 std::vector<double>* wvert=octree->getCubePositions();
                 for (int j=0;j<int(wvert->size())/3;j++)

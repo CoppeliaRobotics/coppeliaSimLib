@@ -702,7 +702,7 @@ void CMainWindow::refreshDialogs_uiThread()
             title+=utils::getTimeString(false,App::currentWorld->simulation->getSimulationTime());
         }
         title+=" (";
-        title+=utils::getDoubleString(false,_fps,1,4);
+        title+=utils::getDoubleString(false,_fps,1,2);
         title+=" fps)";
         if (editModeContainer->getEditModeType()&TRIANGLE_EDIT_MODE)
             title+=IDS____TRIANGLE_EDIT_MODE;
