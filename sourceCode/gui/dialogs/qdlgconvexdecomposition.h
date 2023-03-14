@@ -22,8 +22,6 @@ public:
     void refresh();
 
 
-    bool individuallyConsiderMultishapeComponents;
-    int maxIterations;
     bool useHACD;
 
     // HACD params:
@@ -63,8 +61,6 @@ private slots:
     void on_qqTargetBlabla_editingFinished();
     void on_qqMaxHullVertices_editingFinished();
     void on_qqSmallClusterThreshold_editingFinished();
-    void on_qqIndividualComponents_clicked();
-    void on_qqMaxIterations_editingFinished();
     void on_qqPcaEnabled_clicked();
     void on_qqVoxelBased_clicked();
     void on_qqResolution_editingFinished();

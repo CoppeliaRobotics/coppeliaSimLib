@@ -158,29 +158,9 @@ void CQDlgOctrees::on_qqInsert_clicked()
         COcTree* it=App::currentWorld->sceneObjects->getLastSelectionOctree();
         if (it!=nullptr)
         {
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount()-1;i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-
-            // Now keep only visible objects:
-            std::vector<int> sel2;
-            for (size_t i=0;i<sel.size();i++)
-            {
-                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
-                    sel2.push_back(sel[i]);
-            }
-            App::appendSimulationThreadCommand(SHOW_PROGRESSDLGGUITRIGGEREDCMD,-1,-1,0.0,0.0,"Inserting object(s) into octree...");
             SSimulationThreadCommand cmd;
             cmd.cmdId=INSERT_SELECTEDVISIBLEOBJECTS_OCTREEGUITRIGGEREDCMD;
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
-            for (size_t i=0;i<sel2.size();i++)
-                cmd.intParams.push_back(sel2[i]);
             App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(HIDE_PROGRESSDLGGUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(SET_OBJECT_SELECTION_GUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
@@ -193,29 +173,9 @@ void CQDlgOctrees::on_qqSubtract_clicked()
         COcTree* it=App::currentWorld->sceneObjects->getLastSelectionOctree();
         if (it!=nullptr)
         {
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount()-1;i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-
-            // Now keep only visible objects:
-            std::vector<int> sel2;
-            for (size_t i=0;i<sel.size();i++)
-            {
-                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                if ( (!it->isObjectPartOfInvisibleModel())&&(App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer()) )
-                    sel2.push_back(sel[i]);
-            }
-            App::appendSimulationThreadCommand(SHOW_PROGRESSDLGGUITRIGGEREDCMD,-1,-1,0.0,0.0,"Subtracting object(s) from octree...");
             SSimulationThreadCommand cmd;
             cmd.cmdId=SUBTRACT_SELECTEDVISIBLEOBJECTS_OCTREEGUITRIGGEREDCMD;
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
-            for (size_t i=0;i<sel2.size();i++)
-                cmd.intParams.push_back(sel2[i]);
             App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(HIDE_PROGRESSDLGGUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(SET_OBJECT_SELECTION_GUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }

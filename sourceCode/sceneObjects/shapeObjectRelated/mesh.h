@@ -31,8 +31,7 @@ public:
     bool isConvex() const;
     bool checkIfConvex();
     CMesh* getFirstMesh();
-    void setConvex(bool convex);
-    bool containsOnlyPureConvexShapes();
+    int countTriangles() const;
     void getCumulativeMeshes(const C7Vector& parentCumulTr,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals);
     void getCumulativeMeshes(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals);
     void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
@@ -151,6 +150,8 @@ protected:
     int _edgeWidth_DEPRERCATED;
     double _shadingAngle;
     double _edgeThresholdAngle;
+    bool _convex;
+
 
     CTextureProperty* _textureProperty;
     int _uniqueID;

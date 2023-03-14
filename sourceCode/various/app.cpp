@@ -785,7 +785,7 @@ std::string App::getApplicationNamedParam(const char* paramName)
     return("");
 }
 
-int App::setApplicationNamedParam(const char* paramName,const char* param,int paramLength)
+int App::setApplicationNamedParam(const char* paramName,const char* param,int paramLength/*=0*/)
 {
     int retVal=-1;
     if (strlen(paramName)>0)
@@ -793,8 +793,14 @@ int App::setApplicationNamedParam(const char* paramName,const char* param,int pa
         retVal=0;
         if (getApplicationNamedParam(paramName).size()==0)
             retVal=1;
-        if (paramLength!=0)
-            _applicationNamedParams[paramName]=std::string(param,param+paramLength);
+        int l=paramLength;
+        if (l==0)
+        {
+            if (param!=nullptr)
+                l=strlen(param);
+        }
+        if (l!=0)
+            _applicationNamedParams[paramName]=std::string(param,param+l);
         else
         {
             std::map<std::string,std::string>::iterator it=_applicationNamedParams.find(paramName);
@@ -922,14 +928,7 @@ bool App::getShowInertias()
 
 void App::setShowInertias(bool show)
 {
-    if (_showInertias!=show)
-    {
-        _showInertias=show;
-        if (_showInertias)
-            logMsg(sim_verbosity_msgs,IDSNS_SHOWING_INERTIAS);
-        else
-            logMsg(sim_verbosity_msgs,IDSNS_NOT_SHOWING_INERTIAS);
-    }
+    _showInertias=show;
 }
 
 void App::_logMsgToStatusbar(const char* msg,bool html)

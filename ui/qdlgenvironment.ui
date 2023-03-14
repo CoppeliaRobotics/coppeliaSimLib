@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>473</height>
+    <height>338</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -102,43 +102,20 @@
      <x>10</x>
      <y>90</y>
      <width>411</width>
-     <height>111</height>
+     <height>71</height>
     </rect>
    </property>
    <property name="title">
-    <string>Calculation preprocessing</string>
+    <string>Various</string>
    </property>
    <property name="flat">
     <bool>false</bool>
    </property>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>25</y>
-      <width>311</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Maximum triangle size (absolute) [m]</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqMaxTriangleSize">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>25</y>
-      <width>76</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="qqSaveCalcStruct">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>85</y>
+      <y>25</y>
       <width>401</width>
       <height>18</height>
      </rect>
@@ -150,80 +127,12 @@
      <string>Save operation also saves existing calculation structures</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>311</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Minimum triangle size (relative)</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqMinRelTriangleSize">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>45</y>
-      <width>76</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>65</y>
-      <width>401</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>See also variable 'triCountInOBB' in usrset.txt</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="groupBox_4">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>210</y>
-     <width>411</width>
-     <height>91</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Various</string>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <widget class="QCheckBox" name="qqShapeTexturesDisabled">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>25</y>
-      <width>391</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Shape textures disabled</string>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="qqNextSaveIsDefinitive">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>45</y>
-      <width>391</width>
+      <width>251</width>
       <height>18</height>
      </rect>
     </property>
@@ -234,27 +143,20 @@
      <string>Lock scene after next scene save</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="qqExtensionString">
+   <widget class="QCheckBox" name="qqShapeTexturesDisabled">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>65</y>
-      <width>251</width>
+      <x>260</x>
+      <y>45</y>
+      <width>151</width>
       <height>18</height>
      </rect>
     </property>
-   </widget>
-   <widget class="QLabel" name="label_10">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>65</y>
-      <width>141</width>
-      <height>18</height>
-     </rect>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Extension string</string>
+     <string>Shape textures disabled</string>
     </property>
    </widget>
   </widget>
@@ -262,7 +164,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>310</y>
+     <y>175</y>
      <width>411</width>
      <height>151</height>
     </rect>
@@ -290,12 +192,9 @@
   <tabstop>qqBackgroundColorDown</tabstop>
   <tabstop>qqAmbientLightColor</tabstop>
   <tabstop>qqFogAdjust</tabstop>
-  <tabstop>qqMaxTriangleSize</tabstop>
-  <tabstop>qqMinRelTriangleSize</tabstop>
   <tabstop>qqSaveCalcStruct</tabstop>
   <tabstop>qqShapeTexturesDisabled</tabstop>
   <tabstop>qqNextSaveIsDefinitive</tabstop>
-  <tabstop>qqExtensionString</tabstop>
   <tabstop>qqAcknowledgments</tabstop>
  </tabstops>
  <resources/>

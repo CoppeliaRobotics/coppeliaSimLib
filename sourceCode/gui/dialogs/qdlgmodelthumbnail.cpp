@@ -61,7 +61,7 @@ void CQDlgModelThumbnail::initialize()
     rs->setVisibilityLayer(0);
     sel.clear();
     sel.push_back(modelBaseDummyID);
-    CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+    App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,-1,true,false);
     actualizeBitmap();
 }
 

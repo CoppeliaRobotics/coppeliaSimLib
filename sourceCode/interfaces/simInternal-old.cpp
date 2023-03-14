@@ -435,12 +435,9 @@ int simCopyPasteSelectedObjects_internal()
         if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
             return(-1);
         std::vector<int> sel;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,-1,fullModelCopyFromApi);
         if (sel.size()>0)
         {
-            if (fullModelCopyFromApi)
-                CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
             App::worldContainer->copyBuffer->memorizeBuffer();
             App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),0);
             App::currentWorld->sceneObjects->deselectObjects();
@@ -5096,9 +5093,7 @@ int simDeleteSelectedObjects_internal()
         if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
             return(-1);
         std::vector<int> sel;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+        App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,-1,true);
         App::currentWorld->sceneObjects->deselectObjects();
         App::currentWorld->sceneObjects->eraseObjects(sel,true);
         return(1);

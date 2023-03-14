@@ -51,10 +51,6 @@ private slots:
 
     void on_qqMass_editingFinished();
 
-    void on_qqMassT2_clicked();
-
-    void on_qqMassD2_clicked();
-
     void on_qqI00_editingFinished();
     void on_qqI01_editingFinished();
     void on_qqI02_editingFinished();
@@ -64,10 +60,6 @@ private slots:
     void on_qqI20_editingFinished();
     void on_qqI21_editingFinished();
     void on_qqI22_editingFinished();
-
-    void on_qqIT2_clicked();
-
-    void on_qqID2_clicked();
 
     void on_qqPX_editingFinished();
 
@@ -80,8 +72,6 @@ private slots:
     void on_qqAutomaticToNonStatic_clicked();
 
     void on_qqApplyMaterialProperties_clicked();
-
-    void on_qqComputeMassProperties_clicked();
 
     void on_qqMassless_clicked();
 

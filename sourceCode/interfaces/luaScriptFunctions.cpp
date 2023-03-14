@@ -869,6 +869,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.floatparam_dynamic_step_size",sim_floatparam_dynamic_step_size,true},
     {"sim.floatparam_mouse_wheel_zoom_factor",sim_floatparam_mouse_wheel_zoom_factor,true},
     {"sim.floatparam_physicstimestep",sim_floatparam_physicstimestep,true},
+    {"sim.floatparam_maxtrisizeabs",sim_floatparam_maxtrisizeabs,true},
+    {"sim.floatparam_mintrisizerel",sim_floatparam_mintrisizerel,true},
 
     // Array parameters:
     {"sim.arrayparam_gravity",sim_arrayparam_gravity,true},
@@ -4835,7 +4837,7 @@ int _simRemoveModel(luaWrap_lua_State* L)
                 {
                     std::vector<int> modelObjects;
                     modelObjects.push_back(objId);
-                    CSceneObjectOperations::addRootObjectChildrenToSelection(modelObjects);
+                    App::currentWorld->sceneObjects->addModelObjects(modelObjects);
                     bool ok=true;
                     for (size_t j=0;j<modelObjects.size();j++)
                     {

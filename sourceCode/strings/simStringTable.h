@@ -20,10 +20,6 @@
 #define IDSNS_CREATED_VIEWS "Created View(s)."
 #define IDSNS_REMOVED_VIEW "Removed view."
 
-#define IDSNS_SHAPE_TEXTURES_ENABLED "Shape textures enabled."
-#define IDSNS_SHAPE_TEXTURES_DISABLED "Shape textures disabled."
-#define IDSNS_SHOWING_INERTIAS "Visualizing inertias."
-#define IDSNS_NOT_SHOWING_INERTIAS "Hiding inertias."
 #define IDSNS_NOW_IN_AUTO_MODE "View in auto mode."
 #define IDSNS_AUTO_MODE_DISABLED "View auto mode disabled."
 #define IDSNS_KEEPING_PROPORTIONS_AT_1_1 "View has proportions constrained to 1:1."
@@ -351,8 +347,6 @@
 #define IDSN_SCRIPTS   "Scripts"
 
 #define IDSN_ENVIRONMENT "Environment"
-#define IDSN_SHAPE_TEXTURES_ENABLED "Shape textures enabled"
-#define IDSN_SHOW_INERTIAS "Visualize inertias"
 
 #define IDSN_USER_SETTINGS "User settings"
 

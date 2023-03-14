@@ -159,7 +159,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
                     std::vector<int> sel;
                     sel.push_back(it->getObjectHandle());
-                    CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+                    App::currentWorld->sceneObjects->addModelObjects(sel);
                     std::string masterName(it->getObjectName_old());
 
                     App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),0);
@@ -170,7 +170,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         std::string altName(clones[i]->getObjectAltName_old());
                         std::vector<int> objs;
                         objs.push_back(clones[i]->getObjectHandle());
-                        CSceneObjectOperations::addRootObjectChildrenToSelection(objs);
+                        App::currentWorld->sceneObjects->addModelObjects(objs);
                         C7Vector tr(clones[i]->getLocalTransformation());
                         CSceneObject* parent(clones[i]->getParent());
                         int order=App::currentWorld->sceneObjects->getObjectSequence(clones[i]);
@@ -282,18 +282,47 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::currentWorld->sceneObjects->deselectObjects();
             std::vector<int> toSelect;
             App::logMsg(sim_verbosity_msgs,"Morphing into convex shape(s)...");
+            App::uiThread->showOrHideProgressBar(true,-1,"Morphing into convex shape(s)...");
             for (size_t i=0;i<sel.size();i++)
             {
                 CShape* it=(CShape*)sel[i];
-                CMesh* convexHull=generateConvexHull(it->getObjectHandle());
-                if (convexHull!=nullptr)
+                if (!it->getMesh()->isConvex())
                 {
-                    it->replaceMesh(convexHull,true);
+                    C7Vector obbTr(it->getCumulativeTransformation()*it->getBB(nullptr));
+                    double mass=it->getMesh()->getMass();
+                    C3Vector com(it->getMesh()->getCOM());
+                    C3X3Matrix inertia(it->getMesh()->getInertia());
+                    if (it->isCompound())
+                    { // ungroup, then group again
+                        C7Vector tr(it->getCumulativeTransformation());
+                        std::vector<CShape*> newShapes;
+                        _fullUngroupShape(it,newShapes);
+                        newShapes.push_back(it);
+                        for (size_t j=0;j<newShapes.size();j++)
+                        {
+                            CMesh* convexHull=generateConvexHull(newShapes[j]->getObjectHandle());
+                            if (convexHull!=nullptr)
+                                newShapes[j]->replaceMesh(convexHull,true);
+                        }
+                        _groupShapes(newShapes);
+                        it->relocateFrame("custom",&tr);
+                        it->getMesh()->setMass(mass);
+                        it->getMesh()->setCOM(com);
+                        it->getMesh()->setInertia(inertia);
+                    }
+                    else
+                    {
+                        CMesh* convexHull=generateConvexHull(it->getObjectHandle());
+                        if (convexHull!=nullptr)
+                            it->replaceMesh(convexHull,true);
+                    }
+                    it->alignBB("custom",&obbTr);
                     toSelect.push_back(it->getObjectHandle());
                 }
             }
             App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
             App::undoRedo_sceneChanged("");
+            App::uiThread->showOrHideProgressBar(false);
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -311,44 +340,91 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,true);
-            SUIThreadCommand cmdIn;
-            SUIThreadCommand cmdOut;
-            App::logMsg(sim_verbosity_msgs,"Decimating shape(s)...");
-            double decimationPercentage=0.0;
-            App::currentWorld->sceneObjects->deselectObjects();
-            std::vector<int> toSelect;
+
+            int totalTriangles=0;
             for (size_t i=0;i<sel.size();i++)
             {
-                CShape* sh=(CShape*)sel[i];
-                std::vector<double> vert;
-                std::vector<int> ind;
-                C7Vector tr(sh->getCumulativeTransformation());
-                sh->getMesh()->getCumulativeMeshes(tr,vert,&ind,nullptr);
-                if (i==0)
+                CShape* it=(CShape*)sel[i];
+                totalTriangles+=it->getMesh()->countTriangles();
+            }
+
+            double percentageToKeep=0.0;
+            SUIThreadCommand cmdIn;
+            SUIThreadCommand cmdOut;
+            cmdIn.cmdId=DISPLAY_MESH_DECIMATION_DIALOG_UITHREADCMD;
+            cmdIn.intParams.push_back(totalTriangles);
+            cmdIn.floatParams.push_back(0.2);
+            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            if ( (cmdOut.boolParams.size()>0)&&cmdOut.boolParams[0] )
+                percentageToKeep=cmdOut.floatParams[0];
+            App::currentWorld->sceneObjects->deselectObjects();
+            if (percentageToKeep>0.0)
+            {
+                App::logMsg(sim_verbosity_msgs,"Decimating shape(s)...");
+                App::uiThread->showOrHideProgressBar(true,-1,"Decimating shape(s)...");
+                std::vector<int> toSelect;
+                for (size_t i=0;i<sel.size();i++)
                 {
-                    cmdIn.cmdId=DISPLAY_MESH_DECIMATION_DIALOG_UITHREADCMD;
-                    cmdIn.intParams.push_back((int)ind.size()/3);
-                    cmdIn.floatParams.push_back(0.2);
-                    cmdIn.boolParams.push_back(sel.size()>1);
-                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-                    if ( (cmdOut.boolParams.size()>0)&&cmdOut.boolParams[0] )
-                        decimationPercentage=cmdOut.floatParams[0];
-                }
-                if (decimationPercentage>0.0)
-                {
-                    std::vector<double> vertOut;
-                    std::vector<int> indOut;
-                    if (CMeshRoutines::getDecimatedMesh(vert,ind,decimationPercentage,vertOut,indOut))
-                    { // decimation algo was successful:
-                        CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr);
-                        sh->replaceMesh(mesh,true);
-                        toSelect.push_back(sh->getObjectHandle());
+                    CShape* it=(CShape*)sel[i];
+                    C7Vector obbTr(it->getCumulativeTransformation()*it->getBB(nullptr));
+                    double mass=it->getMesh()->getMass();
+                    C3Vector com(it->getMesh()->getCOM());
+                    C3X3Matrix inertia(it->getMesh()->getInertia());
+                    bool success=false;
+                    if (it->isCompound())
+                    { // ungroup, then group again
+                        C7Vector tr(it->getCumulativeTransformation());
+                        std::vector<CShape*> newShapes;
+                        _fullUngroupShape(it,newShapes);
+                        newShapes.push_back(it);
+                        for (size_t j=0;j<newShapes.size();j++)
+                        {
+                            std::vector<double> vert;
+                            std::vector<int> ind;
+                            CShape* it2=newShapes[j];
+                            C7Vector tr(it2->getCumulativeTransformation());
+                            it2->getMesh()->getCumulativeMeshes(tr,vert,&ind,nullptr);
+                            std::vector<double> vertOut;
+                            std::vector<int> indOut;
+                            if (CMeshRoutines::getDecimatedMesh(vert,ind,percentageToKeep,vertOut,indOut))
+                            { // decimation algo was successful:
+                                CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr);
+                                it2->replaceMesh(mesh,true);
+                            }
+                        }
+                        _groupShapes(newShapes);
+                        it->relocateFrame("custom",&tr);
+                        it->getMesh()->setMass(mass);
+                        it->getMesh()->setCOM(com);
+                        it->getMesh()->setInertia(inertia);
+                        success=true;
+                    }
+                    else
+                    {
+                        std::vector<double> vert;
+                        std::vector<int> ind;
+                        C7Vector tr(it->getCumulativeTransformation());
+                        it->getMesh()->getCumulativeMeshes(tr,vert,&ind,nullptr);
+                        std::vector<double> vertOut;
+                        std::vector<int> indOut;
+                        if (CMeshRoutines::getDecimatedMesh(vert,ind,percentageToKeep,vertOut,indOut))
+                        { // decimation algo was successful:
+                            CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr);
+                            it->replaceMesh(mesh,true);
+                            success=true;
+                        }
+                    }
+                    if (success)
+                    {
+                        it->alignBB("custom",&obbTr);
+                        toSelect.push_back(it->getObjectHandle());
                     }
                 }
+                App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
+                App::undoRedo_sceneChanged("");
+                App::uiThread->showOrHideProgressBar(false);
+                App::logMsg(sim_verbosity_msgs,"done.");
             }
-            App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
-            App::undoRedo_sceneChanged("");
-            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -377,8 +453,6 @@ bool CSceneObjectOperations::processCommand(int commandID)
             double smallClusterThreshold=cmdOut.floatParams[1];
             int maxTrianglesInDecimatedMesh=cmdOut.intParams[2];
             double maxConnectDist=cmdOut.floatParams[2];
-            bool individuallyConsiderMultishapeComponents=cmdOut.boolParams[2];
-            int maxIterations=cmdOut.intParams[3];
             bool cancel=cmdOut.boolParams[4];
             bool useHACD=cmdOut.boolParams[5];
             bool pca=cmdOut.boolParams[6];
@@ -397,20 +471,141 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (!cancel)
             {
                 App::logMsg(sim_verbosity_msgs,"Morphing into convex decomposed shape(s)...");
+                App::uiThread->showOrHideProgressBar(true,-1,"Morphing into convex decomposed shape(s)...");
                 std::vector<int> toSelect;
                 for (size_t i=0;i<sel.size();i++)
                 {
                     CShape* it=(CShape*)sel[i];
-                    CMeshWrapper* mesh=generateConvexDecomposed(it->getObjectHandle(),nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,
-                                                                maxConnectDist,maxTrianglesInDecimatedMesh,maxHullVertices,
-                                                                smallClusterThreshold,individuallyConsiderMultishapeComponents,
-                                                                maxIterations,useHACD,resolution,depth,concavity,planeDownsampling,
-                                                                convexHullDownsampling,alpha,beta,gamma,pca,voxelBased,
-                                                                maxNumVerticesPerCH,minVolumePerCH);
-                    if (mesh!=nullptr)
+                    if (!it->getMesh()->isConvex())
                     {
-                        it->replaceMesh(mesh,true);
+                        CShape* morphedShape=morphToConvexDecomposed(it,nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,
+                                                                    maxConnectDist,maxTrianglesInDecimatedMesh,maxHullVertices,
+                                                                    smallClusterThreshold,
+                                                                    useHACD,resolution,depth,concavity,planeDownsampling,
+                                                                    convexHullDownsampling,alpha,beta,gamma,pca,voxelBased,
+                                                                    maxNumVerticesPerCH,minVolumePerCH);
+                        if (morphedShape!=nullptr)
+                            toSelect.push_back(morphedShape->getObjectHandle());
+                    }
+                }
+                App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
+                App::logMsg(sim_verbosity_msgs,"done.");
+                App::uiThread->showOrHideProgressBar(false);
+                App::undoRedo_sceneChanged("");
+            }
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            App::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+
+    if (commandID==SCENE_OBJECT_OPERATION_COMPUTE_INERTIA_SOOCMD)
+    {
+        if (!VThread::isCurrentThreadTheUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            std::vector<CSceneObject*> sel;
+            App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,false);
+            App::currentWorld->sceneObjects->deselectObjects();
+            bool ok;
+            double density=0.0;
+#ifdef SIM_WITH_GUI
+            ok=App::uiThread->dialogInputGetFloat(App::mainWindow,"Body density","Uniform density",1000.05,0.1,30000,1,&density);
+#endif
+            if (ok)
+            {
+                App::logMsg(sim_verbosity_msgs,"Computing mass and inertia...");
+                App::uiThread->showOrHideProgressBar(true,-1,"Computing mass and inertia...");
+                std::vector<int> toSelect;
+                for (size_t i=0;i<sel.size();i++)
+                {
+                    CShape* it=(CShape*)sel[i];
+                    if (!it->getStatic())
+                    {
                         toSelect.push_back(it->getObjectHandle());
+                        it->computeInertia(density);
+                    }
+                }
+                App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
+                App::logMsg(sim_verbosity_msgs,"done.");
+                App::uiThread->showOrHideProgressBar(false);
+                App::undoRedo_sceneChanged("");
+            }
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            App::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+
+    if (commandID==SCENE_OBJECT_OPERATION_SCALE_MASS_SOOCMD)
+    {
+        if (!VThread::isCurrentThreadTheUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            std::vector<CSceneObject*> sel;
+            App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,false);
+            App::currentWorld->sceneObjects->deselectObjects();
+            bool ok;
+            double fact=0.0;
+#ifdef SIM_WITH_GUI
+            ok=App::uiThread->dialogInputGetFloat(App::mainWindow,"Mass scaling","Scaling factor",2.0,0.1,10.0,1,&fact);
+#endif
+            if (ok)
+            {
+                App::logMsg(sim_verbosity_msgs,"Scaling mass...");
+                std::vector<int> toSelect;
+                for (size_t i=0;i<sel.size();i++)
+                {
+                    CShape* it=(CShape*)sel[i];
+                    if (!it->getStatic())
+                    {
+                        toSelect.push_back(it->getObjectHandle());
+                        it->getMesh()->setMass(it->getMesh()->getMass()*fact);
+                    }
+                }
+                App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
+                App::logMsg(sim_verbosity_msgs,"done.");
+                App::undoRedo_sceneChanged("");
+            }
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            App::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+
+    if (commandID==SCENE_OBJECT_OPERATION_SCALE_INERTIA_SOOCMD)
+    {
+        if (!VThread::isCurrentThreadTheUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            std::vector<CSceneObject*> sel;
+            App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,false);
+            App::currentWorld->sceneObjects->deselectObjects();
+            bool ok;
+            double fact=0.0;
+#ifdef SIM_WITH_GUI
+            ok=App::uiThread->dialogInputGetFloat(App::mainWindow,"Inertia scaling","Scaling factor",2.0,0.1,10.0,1,&fact);
+#endif
+            if (ok)
+            {
+                App::logMsg(sim_verbosity_msgs,"Scaling inertia...");
+                std::vector<int> toSelect;
+                for (size_t i=0;i<sel.size();i++)
+                {
+                    CShape* it=(CShape*)sel[i];
+                    if (!it->getStatic())
+                    {
+                        toSelect.push_back(it->getObjectHandle());
+                        it->getMesh()->setInertia(it->getMesh()->getInertia()*fact);
                     }
                 }
                 App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
@@ -796,24 +991,6 @@ bool CSceneObjectOperations::processCommand(int commandID)
     return(false);
 }
 
-void CSceneObjectOperations::addRootObjectChildrenToSelection(std::vector<int>& selection)
-{
-    for (int i=0;i<int(selection.size());i++)
-    {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(selection[i]);
-        if ( (it!=nullptr)&&it->getModelBase() )
-        {
-            std::vector<CSceneObject*> newObjs;
-            it->getAllObjectsRecursive(&newObjs,false,true);
-            for (int j=0;j<int(newObjs.size());j++)
-            {
-                if (!App::currentWorld->sceneObjects->isObjectInSelection(newObjs[j]->getObjectHandle(),&selection))
-                    selection.push_back(newObjs[j]->getObjectHandle());
-            }
-        }
-    }
-}
-
 void CSceneObjectOperations::copyObjects(std::vector<int>* selection,bool displayMessages)
 {
     if (displayMessages)
@@ -821,7 +998,7 @@ void CSceneObjectOperations::copyObjects(std::vector<int>* selection,bool displa
 
     // We first copy the selection:
     std::vector<int> sel(*selection);
-    addRootObjectChildrenToSelection(sel);
+    App::currentWorld->sceneObjects->addModelObjects(sel);
     App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),0);
     App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
 
@@ -857,7 +1034,7 @@ void CSceneObjectOperations::cutObjects(std::vector<int>* selection,bool display
     if (displayMessages)
         App::uiThread->showOrHideProgressBar(true,-1.0,"Cutting objects...");
 
-    addRootObjectChildrenToSelection(*selection);
+    App::currentWorld->sceneObjects->addModelObjects(*selection);
     copyObjects(selection,false);
     deleteObjects(selection,false);
     App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
@@ -872,7 +1049,7 @@ void CSceneObjectOperations::deleteObjects(std::vector<int>* selection,bool disp
     if (displayMessages)
         App::uiThread->showOrHideProgressBar(true,-1.0,"Deleting objects...");
 
-    addRootObjectChildrenToSelection(selection[0]);
+    App::currentWorld->sceneObjects->addModelObjects(selection[0]);
     App::currentWorld->sceneObjects->eraseObjects(selection[0],true);
     App::currentWorld->sceneObjects->deselectObjects();
 
@@ -996,22 +1173,16 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection)
     }
 }
 
-void CSceneObjectOperations::_fullUngroupShape(CShape* shape,std::vector<CShape*>& newShapes)
+void CSceneObjectOperations::_fullUngroupShape(CShape* it,std::vector<CShape*>& newShapes)
 {
-    std::vector<CShape*> toCheckAndUngroup;
-    while (shape->isCompound())
+    while (it->isCompound())
     {
-        std::vector<CShape*> ns;
-        _ungroupShape(shape,ns);
-        toCheckAndUngroup.insert(toCheckAndUngroup.end(),ns.begin(),ns.end());
-    }
-    for (size_t i=0;i<toCheckAndUngroup.size();i++)
-    {
-        std::vector<CShape*> ns;
-        CShape* it=toCheckAndUngroup[i];
-        _fullUngroupShape(it,ns);
-        newShapes.push_back(it);
-        newShapes.insert(newShapes.end(),ns.begin(),ns.end());
+        _ungroupShape(it,newShapes);
+        for (size_t i=0;i<newShapes.size();i++)
+        {
+            while (newShapes[i]->isCompound())
+                _ungroupShape(newShapes[i],newShapes);
+        }
     }
 }
 
@@ -1202,6 +1373,7 @@ bool CSceneObjectOperations::_divideShape(CShape* it,std::vector<CShape*>& newSh
             shape->setLocalTransformation(it->getCumulativeTransformation());
             App::currentWorld->sceneObjects->addObjectToScene(shape,false,false);
             App::currentWorld->sceneObjects->setObjectParent(shape,it->getParent(),true);
+            App::currentWorld->sceneObjects->setObjectAlias(shape,it->getObjectAlias().c_str(),true);
             newShapes.push_back(shape);
         }
         else
@@ -1219,7 +1391,7 @@ bool CSceneObjectOperations::_divideShape(CShape* it,std::vector<CShape*>& newSh
 void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection,double scalingFactor,bool scalePositionsToo)
 {
     std::vector<int> sel(selection);
-    CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+    App::currentWorld->sceneObjects->addModelObjects(sel);
     for (size_t i=0;i<sel.size();i++)
     {
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
@@ -1312,154 +1484,122 @@ CMesh* CSceneObjectOperations::generateConvexHull(int shapeHandle)
             std::vector<double> hull;
             std::vector<int> indices;
             std::vector<double> normals;
-            if (CMeshRoutines::getConvexHull(&allHullVertices,&hull,&indices))
+            if (CMeshRoutines::getConvexHull(allHullVertices,hull,indices))
                 retVal=new CMesh(transf,hull,indices,nullptr,nullptr);
         }
     }
     return(retVal);
 }
 
-CMeshWrapper* CSceneObjectOperations::generateConvexDecomposed(int shapeHandle,size_t nClusters,double maxConcavity,
+CShape* CSceneObjectOperations::morphToConvexDecomposed(CShape* it,size_t nClusters,double maxConcavity,
                                              bool addExtraDistPoints,bool addFacesPoints,double maxConnectDist,
                                              size_t maxTrianglesInDecimatedMesh,size_t maxHullVertices,
-                                             double smallClusterThreshold,bool individuallyConsiderMultishapeComponents,
-                                             int maxIterations,bool useHACD,int resolution_VHACD,int depth_VHACD_old,double concavity_VHACD,
+                                             double smallClusterThreshold,bool useHACD,int resolution_VHACD,int depth_VHACD_old,double concavity_VHACD,
                                              int planeDownsampling_VHACD,int convexHullDownsampling_VHACD,
                                              double alpha_VHACD,double beta_VHACD,double gamma_VHACD_old,bool pca_VHACD,
                                              bool voxelBased_VHACD,int maxVerticesPerCH_VHACD,double minVolumePerCH_VHACD)
 {
-    TRACE_INTERNAL;
-    CMeshWrapper* retVal=nullptr;
-    std::vector<double> vert;
-    std::vector<int> ind;
-    CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-    if (it!=nullptr)
-    {
-        std::vector<CMesh*> generatedMeshes;
-        if (individuallyConsiderMultishapeComponents&&(!it->getMesh()->isMesh()))
+    CShape* morphedShape=nullptr;
+    C7Vector obbTr(it->getCumulativeTransformation()*it->getBB(nullptr));
+    if (it->isCompound())
+    { // ungroup, then group again
+        C7Vector tr(it->getCumulativeTransformation());
+        double mass=it->getMesh()->getMass();
+        C3Vector com(it->getMesh()->getCOM());
+        C3X3Matrix inertia(it->getMesh()->getInertia());
+        std::vector<CShape*> newShapes;
+        _fullUngroupShape(it,newShapes);
+        newShapes.push_back(it);
+        std::vector<CShape*> newShapes2;
+        for (size_t j=0;j<newShapes.size();j++)
         {
-            std::vector<CMesh*> shapeComponents;
-            std::vector<C7Vector> ptrL;
-            it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,shapeComponents,&ptrL);
-            for (size_t comp=0;comp<shapeComponents.size();comp++)
-            {
-                CMesh* geom=shapeComponents[comp];
-                vert.clear();
-                ind.clear();
-                geom->getCumulativeMeshes(ptrL[comp],vert,&ind,nullptr);
-                std::vector<std::vector<double>*> outputVert;
-                std::vector<std::vector<int>*> outputInd;
-                int addClusters=0;
-                for (int tryNumber=0;tryNumber<maxIterations;tryNumber++)
-                { // the convex decomposition routine sometimes fails producing good convectivity (i.e. there are slightly non-convex items that CoppeliaSim doesn't want to recognize as convex)
-                    // For those situations, we try several times to convex decompose:
-                    outputVert.clear();
-                    outputInd.clear();
-                    std::vector<CMesh*> tempMeshes;
-                    CMeshRoutines::convexDecompose(&vert[0],(int)vert.size(),&ind[0],(int)ind.size(),outputVert,outputInd,
-                            nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,maxConnectDist,
-                            maxTrianglesInDecimatedMesh,maxHullVertices,smallClusterThreshold,
-                            useHACD,resolution_VHACD,depth_VHACD_old,concavity_VHACD,planeDownsampling_VHACD,
-                            convexHullDownsampling_VHACD,alpha_VHACD,beta_VHACD,gamma_VHACD_old,pca_VHACD,
-                            voxelBased_VHACD,maxVerticesPerCH_VHACD,minVolumePerCH_VHACD);
-                    int convexRecognizedCount=0;
-                    for (size_t i=0;i<outputVert.size();i++)
-                    {
-                        CMesh* mesh=new CMesh(C7Vector::identityTransformation,outputVert[i][0],outputInd[i][0],nullptr,nullptr);
-                        if (mesh->isConvex())
-                            convexRecognizedCount++;
-                        tempMeshes.push_back(mesh);
-                        delete outputVert[i];
-                        delete outputInd[i];
-                    }
-                    // we check if all shapes are recognized as convex shapes by CoppeliaSim
-                    if ( (convexRecognizedCount==int(outputVert.size())) || (tryNumber>=maxIterations-1) )
-                    {
-                        for (size_t i=0;i<tempMeshes.size();i++)
-                            generatedMeshes.push_back(tempMeshes[i]);
-                        break;
-                    }
-                    else
-                    { // No! Some shapes have a too large non-convexity. We take all generated shapes, and use them to generate new convex shapes:
-                        vert.clear();
-                        ind.clear();
-                        for (size_t i=0;i<tempMeshes.size();i++)
-                        {
-                            CMesh* mesh=tempMeshes[i];
-                            int offset=(int)vert.size()/3;
-                            mesh->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
-                            delete mesh;
-                        }
-                        // We adjust some parameters a bit, in order to obtain a better convexity for all shapes:
-                        addClusters+=2;
-                        nClusters=addClusters+int(tempMeshes.size());
-                    }
-                }
-            }
-        }
-        else
-        {
-            it->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+            CShape* it2=newShapes[j];
+            std::vector<double> vert;
+            std::vector<int> ind;
+            it2->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
             std::vector<std::vector<double>*> outputVert;
             std::vector<std::vector<int>*> outputInd;
-            int addClusters=0;
-            for (int tryNumber=0;tryNumber<maxIterations;tryNumber++)
-            { // the convex decomposition routine sometimes fails producing good convectivity (i.e. there are slightly non-convex items that CoppeliaSim doesn't want to recognize as convex)
-                // For those situations, we try several times to convex decompose:
-                outputVert.clear();
-                outputInd.clear();
-                std::vector<CMesh*> tempMeshes;
-                CMeshRoutines::convexDecompose(&vert[0],(int)vert.size(),&ind[0],(int)ind.size(),outputVert,outputInd,
-                        nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,maxConnectDist,
-                        maxTrianglesInDecimatedMesh,maxHullVertices,smallClusterThreshold,
-                        useHACD,resolution_VHACD,depth_VHACD_old,concavity_VHACD,planeDownsampling_VHACD,
-                        convexHullDownsampling_VHACD,alpha_VHACD,beta_VHACD,gamma_VHACD_old,pca_VHACD,
-                        voxelBased_VHACD,maxVerticesPerCH_VHACD,minVolumePerCH_VHACD);
-                int convexRecognizedCount=0;
-                for (size_t i=0;i<outputVert.size();i++)
+            CMeshRoutines::convexDecompose(&vert[0],(int)vert.size(),&ind[0],(int)ind.size(),outputVert,outputInd,
+                    nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,maxConnectDist,
+                    maxTrianglesInDecimatedMesh,maxHullVertices,smallClusterThreshold,
+                    useHACD,resolution_VHACD,depth_VHACD_old,concavity_VHACD,planeDownsampling_VHACD,
+                    convexHullDownsampling_VHACD,alpha_VHACD,beta_VHACD,gamma_VHACD_old,pca_VHACD,
+                    voxelBased_VHACD,maxVerticesPerCH_VHACD,minVolumePerCH_VHACD);
+            std::vector<CMesh*> allMeshes;
+            for (size_t i=0;i<outputVert.size();i++)
+            {
+                bool addMesh=true;
+                if (CMeshRoutines::getConvexType(outputVert[i][0],outputInd[i][0],0.015)!=0)
+                    addMesh=CMeshRoutines::getConvexHull(outputVert[i][0],outputVert[i][0],outputInd[i][0]);
+                if (addMesh)
                 {
                     CMesh* mesh=new CMesh(C7Vector::identityTransformation,outputVert[i][0],outputInd[i][0],nullptr,nullptr);
-                    if (mesh->isConvex())
-                        convexRecognizedCount++;
-                    tempMeshes.push_back(mesh);
-                    delete outputVert[i];
-                    delete outputInd[i];
+                    allMeshes.push_back(mesh);
                 }
-                // we check if all shapes are recognized as convex shapes by CoppeliaSim
-                if ( (convexRecognizedCount==int(outputVert.size())) || (tryNumber>=maxIterations-1) )
-                {
-                    for (size_t i=0;i<tempMeshes.size();i++)
-                        generatedMeshes.push_back(tempMeshes[i]);
-                    break;
-                }
-                else
-                { // No! Some shapes have a too large non-convexity. We take all generated shapes, and use them to generate new convex shapes:
-                    vert.clear();
-                    ind.clear();
-                    for (size_t i=0;i<tempMeshes.size();i++)
-                    {
-                        CMesh* mesh=tempMeshes[i];
-                        int offset=(int)vert.size()/3;
-                        mesh->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
-                        delete mesh;
-                    }
-                    // We adjust some parameters a bit, in order to obtain a better convexity for all shapes:
-                    addClusters+=2;
-                    nClusters=addClusters+int(tempMeshes.size());
-                }
+                delete outputVert[i];
+                delete outputInd[i];
             }
+            if (allMeshes.size()>0)
+            {
+                CMeshWrapper* wrap=new CMeshWrapper();
+                for (size_t i=0;i<allMeshes.size();i++)
+                    wrap->addItem(allMeshes[i]);
+                it2->replaceMesh(wrap,true);
+                newShapes2.push_back(it2);
+            }
+            else
+                App::currentWorld->sceneObjects->eraseObject(it2,true);
         }
-
-        if (generatedMeshes.size()==1)
-            retVal=generatedMeshes[0];
-        else if (generatedMeshes.size()>1)
+        if (newShapes2.size()>0)
         {
-            retVal=new CMeshWrapper();
-            for (size_t i=0;i<generatedMeshes.size();i++)
-                retVal->addItem(generatedMeshes[i]);
+            morphedShape=newShapes2[newShapes2.size()-1];
+            if (newShapes2.size()>1)
+                _groupShapes(newShapes2);
+            morphedShape->relocateFrame("custom",&tr);
+            morphedShape->getMesh()->setMass(mass);
+            morphedShape->getMesh()->setCOM(com);
+            morphedShape->getMesh()->setInertia(inertia);
         }
     }
-    return(retVal);
+    else
+    {
+        std::vector<double> vert;
+        std::vector<int> ind;
+        it->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
+        std::vector<std::vector<double>*> outputVert;
+        std::vector<std::vector<int>*> outputInd;
+        CMeshRoutines::convexDecompose(&vert[0],(int)vert.size(),&ind[0],(int)ind.size(),outputVert,outputInd,
+                nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,maxConnectDist,
+                maxTrianglesInDecimatedMesh,maxHullVertices,smallClusterThreshold,
+                useHACD,resolution_VHACD,depth_VHACD_old,concavity_VHACD,planeDownsampling_VHACD,
+                convexHullDownsampling_VHACD,alpha_VHACD,beta_VHACD,gamma_VHACD_old,pca_VHACD,
+                voxelBased_VHACD,maxVerticesPerCH_VHACD,minVolumePerCH_VHACD);
+        std::vector<CMesh*> allMeshes;
+        for (size_t i=0;i<outputVert.size();i++)
+        {
+            bool addMesh=true;
+            if (CMeshRoutines::getConvexType(outputVert[i][0],outputInd[i][0],0.015)!=0)
+                addMesh=CMeshRoutines::getConvexHull(outputVert[i][0],outputVert[i][0],outputInd[i][0]);
+            if (addMesh)
+            {
+                CMesh* mesh=new CMesh(C7Vector::identityTransformation,outputVert[i][0],outputInd[i][0],nullptr,nullptr);
+                allMeshes.push_back(mesh);
+            }
+            delete outputVert[i];
+            delete outputInd[i];
+        }
+        if (allMeshes.size()>0)
+        {
+            morphedShape=it;
+            CMeshWrapper* wrap=new CMeshWrapper();
+            for (size_t i=0;i<allMeshes.size();i++)
+                wrap->addItem(allMeshes[i]);
+            it->replaceMesh(wrap,true);
+        }
+    }
+    if (morphedShape)
+        morphedShape->alignBB("custom",&obbTr);
+    return(morphedShape);
 }
 
 int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int options,const int* intParams,const double* floatParams)
@@ -1480,8 +1620,8 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
     static double smallClusterThreshold=0.25;
     static int maxTrianglesInDecimatedMesh=500;
     static double maxConnectDist=30.0;
-    static bool individuallyConsiderMultishapeComponents=false;
-    static int maxIterations=4;
+    // static bool individuallyConsiderMultishapeComponents=false;
+    // static int maxIterations=4;
     static bool useHACD=false; // i.e. use V-HACD
     static int resolution=100000;
 // not present in newest VHACD   static int depth=20;
@@ -1506,10 +1646,8 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
         smallClusterThreshold=floatParams[2];
         maxTrianglesInDecimatedMesh=intParams[1];
         maxConnectDist=floatParams[1];
-        individuallyConsiderMultishapeComponents=(options&32)!=0;
-        maxIterations=intParams[3];
-        if (maxIterations<=0)
-            maxIterations=4; // zero asks for default value
+        //individuallyConsiderMultishapeComponents=(options&32)!=0;
+        // maxIterations=intParams[3];
         useHACD=true; // forgotten, fixed thanks to Patrick Gruener
         if (options&128)
         { // we have more parameters than usual (i.e. the V-HACD parameters):
@@ -1543,9 +1681,9 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
         cmdIn.floatParams.push_back(smallClusterThreshold);
         cmdIn.intParams.push_back(maxTrianglesInDecimatedMesh);
         cmdIn.floatParams.push_back(maxConnectDist);
-        cmdIn.boolParams.push_back(individuallyConsiderMultishapeComponents);
+        cmdIn.boolParams.push_back(true);
         cmdIn.boolParams.push_back(false);
-        cmdIn.intParams.push_back(maxIterations);
+        cmdIn.intParams.push_back(4); // previously maxIterations
         cmdIn.boolParams.push_back(false);
         cmdIn.boolParams.push_back(useHACD);
         cmdIn.intParams.push_back(resolution);
@@ -1575,8 +1713,8 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
             smallClusterThreshold=cmdOut.floatParams[1];
             maxTrianglesInDecimatedMesh=cmdOut.intParams[2];
             maxConnectDist=cmdOut.floatParams[2];
-            individuallyConsiderMultishapeComponents=cmdOut.boolParams[2];
-            maxIterations=cmdOut.intParams[3];
+            // individuallyConsiderMultishapeComponents=cmdOut.boolParams[2];
+            // maxIterations=cmdOut.intParams[3];
             useHACD=cmdOut.boolParams[5];
             resolution=cmdOut.intParams[4];
             // depth=cmdOut.intParams[5];
@@ -1592,31 +1730,26 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
             minVolumePerCH=cmdOut.floatParams[7];
         }
     }
-    CMeshWrapper* mesh=nullptr;
+    CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
     if (!abortp)
-        mesh=CSceneObjectOperations::generateConvexDecomposed(shapeHandle,nClusters,maxConcavity,addExtraDistPoints,
+    {
+        if ((options&1)==0)
+        { // We want to create a new shape from it:
+            CShape* it2=new CShape();
+            it2->replaceMesh(it->getMesh()->copyYourself(),false);
+            it2->setLocalTransformation(it->getCumulativeTransformation());
+            App::currentWorld->sceneObjects->addObjectToScene(it2,false,true);
+            it=it2;
+        }
+        it=CSceneObjectOperations::morphToConvexDecomposed(it,nClusters,maxConcavity,addExtraDistPoints,
                                                         addFacesPoints,maxConnectDist,maxTrianglesInDecimatedMesh,
-                                                        maxHullVertices,smallClusterThreshold,individuallyConsiderMultishapeComponents,
-                                                        maxIterations,useHACD,resolution,20,concavity,planeDownsampling,
+                                                        maxHullVertices,smallClusterThreshold,
+                                                        useHACD,resolution,20,concavity,planeDownsampling,
                                                         convexHullDownsampling,alpha,beta,0.00125,pca,voxelBasedMode,
                                                         maxVerticesPerCH,minVolumePerCH);
-    if (mesh!=nullptr)
-    {
-        CShape* oldShape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-        if ((options&1)!=0)
-        { // we wanted a morph
-            oldShape->replaceMesh(mesh,true);
-            retVal=oldShape->getObjectHandle();
-        }
-        else
-        { // we want a new shape
-            CShape* newShape=new CShape();
-            newShape->replaceMesh(mesh,false);
-            newShape->setLocalTransformation(oldShape->getCumulativeTransformation());
-            oldShape->getMesh()->copyAttributesTo(mesh);
-            retVal=App::currentWorld->sceneObjects->addObjectToScene(newShape,false,true);
-        }
     }
+    if (it!=nullptr)
+        retVal=it->getObjectHandle();
     return(retVal);
 }
 
@@ -1637,6 +1770,15 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
             if (it->getSingleMesh()==nullptr)
                 compoundCnt++;
         }
+    }
+    int dynShapeCnt=0;
+    sel.clear();
+    App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,false);
+    for (size_t i=0;i<sel.size();i++)
+    {
+        CShape* it=(CShape*)sel[i];
+        if (!it->getStatic())
+            dynShapeCnt++;
     }
 
     size_t selItems=App::currentWorld->sceneObjects->getSelectionCount();
@@ -1676,11 +1818,7 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
         hasChildScriptAttached=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))!=nullptr);
         hasCustomizationScriptAttached=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))!=nullptr);
     }
-    std::vector<int> rootSel;
-    for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-        rootSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-    CSceneObjectOperations::addRootObjectChildrenToSelection(rootSel);
-    size_t shapesInRootSel=App::currentWorld->sceneObjects->getShapeCountInSelection(&rootSel);
+
     if (App::getEditModeType()==NO_EDIT_MODE)
     {
         menu->appendMenuItem(App::currentWorld->undoBufferContainer->canUndo(),false,SCENE_OBJECT_OPERATION_UNDO_SOOCMD,IDSN_UNDO);
@@ -1729,6 +1867,12 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
             align->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD,"align with world");
             align->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD,"align with mesh");
             menu->appendMenuAndDetach(align,true,"Shape bounding box");
+
+            VMenu* minertia=new VMenu();
+            minertia->appendMenuItem((dynShapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_COMPUTE_INERTIA_SOOCMD,"compute from uniform density...");
+            minertia->appendMenuItem((dynShapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_SCALE_MASS_SOOCMD,"scale mass...");
+            minertia->appendMenuItem((dynShapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_SCALE_INERTIA_SOOCMD,"scale inertia...");
+            menu->appendMenuAndDetach(minertia,true,"Shape mass and inertia");
         }
     }
 }

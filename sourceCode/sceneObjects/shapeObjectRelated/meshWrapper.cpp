@@ -22,7 +22,6 @@ void CMeshWrapper::_commonInit()
     _mass=1.0;
     _name="sub__0";
     _dynMaterialId_old=-1; // not used anymore since V3.4.0
-    _convex=false;
     _iFrame.setIdentity();
     _bbFrame.setIdentity();
     _bbSize.clear();
@@ -44,15 +43,6 @@ void CMeshWrapper::detachItems()
 void CMeshWrapper::addItem(CMeshWrapper* m)
 {
     childList.push_back(m);
-    _convex=true;
-    for (size_t i=0;i<childList.size();i++)
-    {
-        if (!childList[i]->isConvex())
-        {
-            _convex=false;
-            break;
-        }
-    }
     std::vector<double> vert;
     std::vector<int> ind;
     getCumulativeMeshes(C7Vector::identityTransformation,vert,&ind,nullptr);
@@ -232,7 +222,6 @@ void CMeshWrapper::copyWrapperData(CMeshWrapper* target)
 {
     target->_mass=_mass;
     target->_name=_name;
-    target->_convex=_convex;
 
     target->_iFrame=_iFrame;
     target->_com=_com;
@@ -241,7 +230,6 @@ void CMeshWrapper::copyWrapperData(CMeshWrapper* target)
     target->_pmiRotFrame=_pmiRotFrame;
     target->_bbFrame=_bbFrame;
     target->_bbSize=_bbSize;
-
 
     target->_dynMaterialId_old=_dynMaterialId_old;
 
@@ -475,8 +463,6 @@ void CMeshWrapper::scale(double isoVal)
 
     for (size_t i=0;i<childList.size();i++)
         childList[i]->scale(isoVal);
-    if (isoVal<0.0) // that effectively flips faces!
-        checkIfConvex();
 }
 
 void CMeshWrapper::setPurePrimitiveType(int theType,double xOrDiameter,double y,double zOrHeight)
@@ -486,7 +472,6 @@ void CMeshWrapper::setPurePrimitiveType(int theType,double xOrDiameter,double y,
     {
         for (size_t i=0;i<childList.size();i++)
             childList[i]->setPurePrimitiveType(theType,xOrDiameter,y,zOrHeight);
-        // _convex=false;  NO!!!
     }
 }
 
@@ -507,7 +492,10 @@ bool CMeshWrapper::isPure() const
 
 bool CMeshWrapper::isConvex() const
 { // function has virtual/non-virtual counterpart!
-    return(_convex);
+    bool retVal=true;
+    for (size_t i=0;i<childList.size();i++)
+        retVal=retVal&&childList[i]->isConvex();
+    return(retVal);
 }
 
 CMesh* CMeshWrapper::getFirstMesh()
@@ -515,34 +503,18 @@ CMesh* CMeshWrapper::getFirstMesh()
     return(childList[0]->getFirstMesh());
 }
 
-bool CMeshWrapper::containsOnlyPureConvexShapes()
-{ // function has virtual/non-virtual counterpart!
-    bool retVal=true;
-    for (size_t i=0;i<childList.size();i++)
-        retVal=retVal&&childList[i]->containsOnlyPureConvexShapes();
-    if (retVal)
-        _convex=retVal; // needed since there was a bug where pure planes and pure discs were considered as convex
-    return(retVal);
-}
-
-bool CMeshWrapper::checkIfConvex()
-{ // function has virtual/non-virtual counterpart!
-    _convex=true;
-    for (size_t i=0;i<childList.size();i++)
-        _convex=_convex&&childList[i]->checkIfConvex();
-    setConvex(_convex);
-    return(_convex);
-}
-
-void CMeshWrapper::setConvex(bool convex)
-{ // function has virtual/non-virtual counterpart!
-    _convex=convex;
-}
-
 void CMeshWrapper::takeVisualAttributesFrom(CMesh* origin)
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->takeVisualAttributesFrom(origin);
+}
+
+int CMeshWrapper::countTriangles() const
+{ // function has virtual/non-virtual counterpart!
+    int retVal=0;
+    for (size_t i=0;i<childList.size();i++)
+        retVal+=childList[i]->countTriangles();
+    return(retVal);
 }
 
 void CMeshWrapper::getCumulativeMeshes(const C7Vector& parentCumulTr,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals)
@@ -608,7 +580,6 @@ void CMeshWrapper::flipFaces()
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
         childList[i]->flipFaces();
-    checkIfConvex();
 }
 
 bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumulIFrame,bool rootLevel)
@@ -701,8 +672,8 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
 
             ar.storeDataName("Var");
             unsigned char nothing=0;
-            SIM_SET_CLEAR_BIT(nothing,2,_convex);
-            SIM_SET_CLEAR_BIT(nothing,5,true); // means: we do not have to make the convectivity test for this shape (was already done). Added this on 28/1/2013
+            // SIM_SET_CLEAR_BIT(nothing,2,_convex);
+            SIM_SET_CLEAR_BIT(nothing,5,true);
             ar << nothing;
             ar.flush();
 
@@ -875,7 +846,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        _convex=SIM_IS_BIT_SET(nothing,2);
+                        // _convex=SIM_IS_BIT_SET(nothing,2);
                     }
                     if (theName.compare("Geo")==0)
                     {
@@ -957,10 +928,6 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
 
             ar.xmlAddNode_floats("bbSize",_bbSize.data,3);
             ar.xmlPopNode(); // "dynamics" node
-
-            ar.xmlPushNewNode("switches");
-            ar.xmlAddNode_bool("convex",_convex);
-            ar.xmlPopNode();
 
             for (size_t i=0;i<childList.size();i++)
             {
@@ -1048,11 +1015,6 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                     ar.xmlPopNode(); // "dynamics" node
                 }
 
-                if (ar.xmlPushChildNode("switches"))
-                {
-                    ar.xmlGetNode_bool("convex",_convex);
-                    ar.xmlPopNode();
-                }
                 if (ar.xmlPushChildNode("child",false))
                 {
                     while (true)

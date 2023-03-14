@@ -39,10 +39,8 @@ public:
     virtual bool isMesh() const;
     virtual bool isPure() const;
     virtual bool isConvex() const;
-    virtual bool checkIfConvex();
-    virtual void setConvex(bool convex);
-    virtual bool containsOnlyPureConvexShapes();
     virtual void takeVisualAttributesFrom(CMesh* origin);
+    virtual int countTriangles() const;
     virtual void getCumulativeMeshes(const C7Vector& parentCumulTr,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals);
     virtual void getCumulativeMeshes(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals);
     virtual void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
@@ -105,7 +103,6 @@ protected:
     void _commonInit();
     void _computeInertiaFromComposingInertias();
     std::string _name;
-    bool _convex;
     double _mass;
 
     C7Vector _iFrame; // Inertia ref. frame, relative to parent _iFrame. Identity if root

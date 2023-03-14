@@ -27,8 +27,6 @@ private slots:
 
     void on_qqFogAdjust_clicked();
 
-    void on_qqMaxTriangleSize_editingFinished();
-
     void on_qqSaveCalcStruct_clicked();
 
     void on_qqShapeTexturesDisabled_clicked();
@@ -36,10 +34,6 @@ private slots:
     void on_qqNextSaveIsDefinitive_clicked();
 
     void on_qqAcknowledgments_textChanged();
-
-    void on_qqMinRelTriangleSize_editingFinished();
-
-    void on_qqExtensionString_editingFinished();
 
 private:
     Ui::CQDlgEnvironment *ui;

@@ -189,17 +189,14 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
             // 2. List of current selection, excluding this camera and the skybox objects:
             std::vector<int> tmp;
             if (useSystemSelection)
-            {
-                for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                    tmp.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            }
+                App::currentWorld->sceneObjects->getSelectedObjectHandles(tmp);
             else
             {
                 if (selectedObjects!=nullptr)
                     tmp.assign(selectedObjects->begin(),selectedObjects->end());
             }
             if (includeModelObjects)
-                CSceneObjectOperations::addRootObjectChildrenToSelection(tmp);
+                App::currentWorld->sceneObjects->addModelObjects(tmp);
             std::vector<CSceneObject*> selectionVisibleObjs;
             for (int i=0;i<int(tmp.size());i++)
             { // We only wanna have visible objects, otherwise we get strange behaviour with some models!! And only objects that are not ignored by the view-fitting:
@@ -2735,7 +2732,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                     if (toRender[rp]->getObjectType()==sim_object_shape_type)
                     {
                         CShape* it=(CShape*)toRender[rp];
-                        if (!it->getShapeIsDynamicallyStatic())
+                        if (!it->getStatic())
                             it->displayInertia(this,val,_currentPerspective);
                     }
                 }

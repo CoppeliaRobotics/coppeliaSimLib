@@ -176,8 +176,6 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     {
         CQDlgSlider theDialog(App::mainWindow);
         theDialog.opMode=0;
-        if (cmdIn->boolParams[0])
-            theDialog.opMode=1; // multiple objects
         theDialog.triCnt=cmdIn->intParams[0];
         theDialog.decimationPercent=cmdIn->floatParams[0];
         theDialog.refresh();
@@ -218,9 +216,9 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
             theDialog.smallClusterThreshold=cmdIn->floatParams[1];
             theDialog.maxTrianglesInDecimatedMesh=cmdIn->intParams[2];
             theDialog.maxConnectDist=cmdIn->floatParams[2];
-            theDialog.individuallyConsiderMultishapeComponents=cmdIn->boolParams[2];
+            // reserved=cmdIn->boolParams[2];
             // reserved=cmdIn->boolParams[3];
-            theDialog.maxIterations=cmdIn->intParams[3];
+            // reserved=cmdIn->intParams[3];
             // reserved=cmdIn->boolParams[4];
             theDialog.useHACD=cmdIn->boolParams[5];
             theDialog.resolution=cmdIn->intParams[4];
@@ -248,9 +246,9 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
         cmdOut->floatParams.push_back(theDialog.smallClusterThreshold);
         cmdOut->intParams.push_back(theDialog.maxTrianglesInDecimatedMesh);
         cmdOut->floatParams.push_back(theDialog.maxConnectDist);
-        cmdOut->boolParams.push_back(theDialog.individuallyConsiderMultishapeComponents);
+        cmdOut->boolParams.push_back(true);
         cmdOut->boolParams.push_back(false);
-        cmdOut->intParams.push_back(theDialog.maxIterations);
+        cmdOut->intParams.push_back(4); // previously maxIterations
         cmdOut->boolParams.push_back(cancel);
         cmdOut->boolParams.push_back(theDialog.useHACD);
         cmdOut->intParams.push_back(theDialog.resolution);

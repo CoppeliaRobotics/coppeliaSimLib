@@ -9,9 +9,7 @@ CQDlgConvexDecomposition::CQDlgConvexDecomposition(QWidget *parent) :
     ui(new Ui::CQDlgConvexDecomposition)
 {
     // First set-up default values:
-    individuallyConsiderMultishapeComponents=false;
-    maxIterations=4;
-    useHACD=false; // i.e. use V-HACD
+    useHACD=true; // i.e. do not use V-HACD, HACD somehow still better at producing smaller compounds
     // HACD params:
     addExtraDistPoints=true;
     addFacesPoints=true;
@@ -56,9 +54,6 @@ void CQDlgConvexDecomposition::okEvent()
 
 void CQDlgConvexDecomposition::refresh()
 {
-    ui->qqIndividualComponents->setChecked(individuallyConsiderMultishapeComponents);
-    ui->qqMaxIterations->setText(utils::getIntString(false,maxIterations).c_str());
-
     // HACD:
     ui->qqHACD->setChecked(useHACD);
     ui->qqExtraDistPoints->setChecked(addExtraDistPoints);
@@ -175,23 +170,6 @@ void CQDlgConvexDecomposition::on_qqSmallClusterThreshold_editingFinished()
     double newVal=ui->qqSmallClusterThreshold->text().toDouble(&ok);
     if (ok)
         smallClusterThreshold=tt::getLimitedFloat(0.01,1.0,newVal);
-    refresh();
-}
-
-void CQDlgConvexDecomposition::on_qqIndividualComponents_clicked()
-{
-    individuallyConsiderMultishapeComponents=!individuallyConsiderMultishapeComponents;
-    refresh();
-}
-
-void CQDlgConvexDecomposition::on_qqMaxIterations_editingFinished()
-{
-    if (!ui->qqMaxIterations->isModified())
-        return;
-    bool ok;
-    int newVal=ui->qqMaxIterations->text().toInt(&ok);
-    if (ok)
-        maxIterations=tt::getLimitedInt(1,10,newVal);
     refresh();
 }
 

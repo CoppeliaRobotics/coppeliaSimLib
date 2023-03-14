@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>539</height>
+    <height>486</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>500</y>
+     <y>450</y>
      <width>411</width>
      <height>32</height>
     </rect>
@@ -29,50 +29,11 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QCheckBox" name="qqIndividualComponents">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>401</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::StrongFocus</enum>
-   </property>
-   <property name="text">
-    <string>Handle compound shape components individually</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_7">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>30</y>
-     <width>231</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Max. iterations</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="qqMaxIterations">
-   <property name="geometry">
-    <rect>
-     <x>330</x>
-     <y>30</y>
-     <width>75</width>
-     <height>18</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QGroupBox" name="qqHACD">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>60</y>
+     <y>10</y>
      <width>411</width>
      <height>171</height>
     </rect>
@@ -261,7 +222,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>240</y>
+     <y>190</y>
      <width>411</width>
      <height>251</height>
     </rect>
@@ -540,8 +501,6 @@
   </widget>
  </widget>
  <tabstops>
-  <tabstop>qqIndividualComponents</tabstop>
-  <tabstop>qqMaxIterations</tabstop>
   <tabstop>qqHACD</tabstop>
   <tabstop>qqExtraDistPoints</tabstop>
   <tabstop>qqExtraFacesPoints</tabstop>

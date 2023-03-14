@@ -19,25 +19,21 @@ public:
     static void deleteObjects(std::vector<int>* selection,bool displayMessages);
     static void scaleObjects(const std::vector<int>& selection,double scalingFactor,bool scalePositionsToo);
 
-    static void addRootObjectChildrenToSelection(std::vector<int>& selection);
-
     static int groupSelection(std::vector<int>* selection);
     static CShape* _groupShapes(const std::vector<CShape*>& shapesToGroup);
 
     static void ungroupSelection(std::vector<int>* selection);
+    static void _fullUngroupShape(CShape* it,std::vector<CShape*>& newShapes);
     static void _ungroupShape(CShape* it,std::vector<CShape*>& newShapes);
-    static void _fullUngroupShape(CShape* shape,std::vector<CShape*>& newShapes);
 
     static int mergeSelection(std::vector<int>* selection);
     static CShape* _mergeShapes(const std::vector<CShape*>& allShapesToMerge);
 
     static void divideSelection(std::vector<int>* selection);
     static bool _divideShape(CShape* it,std::vector<CShape*>& newShapes);
-
-    static CMeshWrapper* generateConvexDecomposed(int shapeHandle,size_t nClusters,double maxConcavity,bool addExtraDistPoints,
+    static CShape* morphToConvexDecomposed(CShape* it,size_t nClusters,double maxConcavity,bool addExtraDistPoints,
                                         bool addFacesPoints,double maxConnectDist,size_t maxTrianglesInDecimatedMesh,
                                         size_t maxHullVertices,double smallClusterThreshold,
-                                        bool individuallyConsiderMultishapeComponents,int maxIterations,
                                         bool useHACD,int resolution_VHACD,int depth_VHACD_old,double concavity_VHACD,
                                         int planeDownsampling_VHACD,int convexHullDownsampling_VHACD,
                                         double alpha_VHACD,double beta_VHACD,double gamma_VHACD_old,bool pca_VHACD,

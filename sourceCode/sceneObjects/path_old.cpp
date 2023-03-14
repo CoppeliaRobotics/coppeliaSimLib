@@ -443,7 +443,7 @@ void CPath_old::_generatePathShape()
             }
             std::vector<double> vertOut;
             std::vector<int> indOut;
-            convexSuccess=CMeshRoutines::getConvexHull(&tmpVert,&vertOut,&indOut);
+            convexSuccess=CMeshRoutines::getConvexHull(tmpVert,vertOut,indOut);
             if (!convexSuccess)
                 break;
             if (i==0)

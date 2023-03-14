@@ -89,6 +89,7 @@ public:
 
     int getHighestObjectHandle() const;
 
+    void addModelObjects(std::vector<int>& selection) const;
 
     // Selection:
     bool isSelectionSame(std::vector<int>& sel,bool actualize) const;

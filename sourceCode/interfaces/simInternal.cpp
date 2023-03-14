@@ -1347,8 +1347,7 @@ int simRemoveModel_internal(int objectHandle)
         // Erase the objects:
         std::vector<int> sel;
         sel.push_back(objectHandle);
-        CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-
+        App::currentWorld->sceneObjects->addModelObjects(sel);
         App::currentWorld->sceneObjects->eraseObjects(sel,true);
 
         // Restore the initial selection:
@@ -4244,6 +4243,31 @@ int simSetFloatParam_internal(int parameter,double floatState)
             return(0);
         }
 
+        if (parameter==sim_floatparam_maxtrisizeabs)
+        {
+            if (App::currentWorld->environment==nullptr)
+                return(-1);
+            App::currentWorld->environment->setCalculationMaxTriangleSize(floatState);
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
+            {
+                CShape* sh=App::currentWorld->sceneObjects->getShapeFromIndex(i);
+                sh->removeMeshCalculationStructure();
+            }
+            return(1);
+        }
+        if (parameter==sim_floatparam_mintrisizerel)
+        {
+            if (App::currentWorld->environment==nullptr)
+                return(-1);
+            App::currentWorld->environment->setCalculationMinRelTriangleSize(floatState);
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
+            {
+                CShape* sh=App::currentWorld->sceneObjects->getShapeFromIndex(i);
+                sh->removeMeshCalculationStructure();
+            }
+            return(1);
+        }
+
         if (parameter==sim_floatparam_stereo_distance)
         {
 #ifdef SIM_WITH_GUI
@@ -4283,6 +4307,20 @@ int simGetFloatParam_internal(int parameter,double* floatState)
         if (parameter==sim_floatparam_rand)
         {
             floatState[0]=SIM_RAND_FLOAT;
+            return(1);
+        }
+        if (parameter==sim_floatparam_maxtrisizeabs)
+        {
+            if (App::currentWorld->environment==nullptr)
+                return(-1);
+            floatState[0]=App::currentWorld->environment->getCalculationMaxTriangleSize();
+            return(1);
+        }
+        if (parameter==sim_floatparam_mintrisizerel)
+        {
+            if (App::currentWorld->environment==nullptr)
+                return(-1);
+            floatState[0]=App::currentWorld->environment->getCalculationMinRelTriangleSize();
             return(1);
         }
         if (parameter==sim_floatparam_simulation_time_step)
@@ -6303,7 +6341,7 @@ int simCopyPasteObjects_internal(int* objectHandles,int objectCount,int options)
                 sel.assign(selT.begin(),selT.end());
 
             if (options&1)
-                CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+                App::currentWorld->sceneObjects->addModelObjects(sel);
             App::worldContainer->copyBuffer->memorizeBuffer();
             App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),options>>1);
             App::currentWorld->sceneObjects->deselectObjects();
@@ -9008,14 +9046,14 @@ int simGetObjectInt32Param_internal(int objectHandle,int parameterID,int* parame
             if (parameterID==sim_shapeintparam_static)
             {
                 parameter[0]=0;
-                if (shape->getShapeIsDynamicallyStatic())
+                if (shape->getStatic())
                     parameter[0]=1;
                 retVal=1;
             }
             if (parameterID==sim_shapeintparam_kinematic)
             {
                 parameter[0]=0;
-                if (shape->getShapeIsDynamicallyKinematic())
+                if (shape->getDynKinematic())
                     parameter[0]=1;
                 retVal=1;
             }
@@ -9398,12 +9436,12 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
             }
             if (parameterID==sim_shapeintparam_static)
             {
-                shape->setShapeIsDynamicallyStatic(parameter!=0);
+                shape->setStatic(parameter!=0);
                 retVal=1;
             }
             if (parameterID==sim_shapeintparam_kinematic)
             {
-                shape->setShapeIsDynamicallyKinematic(parameter!=0);
+                shape->setDynKinematic(parameter!=0);
                 retVal=1;
             }
             if (parameterID==sim_shapeintparam_respondablesuspendcnt)
@@ -9426,14 +9464,10 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
                 shape->setShapeWireframe_OLD(parameter!=0);
                 retVal=1;
             }
-            if (parameterID==sim_shapeintparam_convex)
-            { // very careful when setting this!
-                shape->getMesh()->setConvex(parameter!=0);
-                retVal=1;
-            }
             if (parameterID==sim_shapeintparam_convex_check)
             {
-                shape->getMesh()->checkIfConvex();
+                if (shape->getSingleMesh()!=nullptr)
+                    shape->getSingleMesh()->checkIfConvex();
                 retVal=1;
             }
             if (parameterID==sim_shapeintparam_respondable_mask)
@@ -12404,7 +12438,7 @@ int simCreateTexture_internal(const char* fileName,int options,const double* pla
                     shape->setCulling(false);
                     shape->setVisibleEdges(false);
                     shape->setRespondable(false);
-                    shape->setShapeIsDynamicallyStatic(true);
+                    shape->setStatic(true);
                     shape->getMesh()->setMass(1.0);
 
                     if (resolution!=nullptr)
@@ -12463,7 +12497,7 @@ int simCreateTexture_internal(const char* fileName,int options,const double* pla
                 shape->setCulling(false);
                 shape->setVisibleEdges(false);
                 shape->setRespondable(false);
-                shape->setShapeIsDynamicallyStatic(true);
+                shape->setStatic(true);
                 shape->getMesh()->setMass(1.0);
 
                 CTextureObject* textureObj=new CTextureObject(resolution[0],resolution[1]);
@@ -13365,9 +13399,10 @@ int simGetQHull_internal(const double* inVertices,int inVerticesL,double** verti
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=0;
+        std::vector<double> vIn(inVertices,inVertices+inVerticesL);
         std::vector<double> vOut;
         std::vector<int> iOut;
-        bool res=CMeshRoutines::getConvexHull(inVertices,inVerticesL,&vOut,&iOut);
+        bool res=CMeshRoutines::getConvexHull(vIn,vOut,iOut);
         if (res)
         {
             verticesOut[0]=new double[vOut.size()];
@@ -16324,7 +16359,7 @@ double _simGetLocalInertiaInfo_internal(const void* object,double* pos,double* q
             shape->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation,vert,nullptr,nullptr);
             std::vector<double> hull;
             std::vector<int> indices;
-            if (CMeshRoutines::getConvexHull(&vert,&hull,&indices))
+            if (CMeshRoutines::getConvexHull(vert,hull,indices))
                 mass=CPluginContainer::dyn_computePMI(hull,indices,localTr,diagI);
         }
     }
@@ -16474,7 +16509,7 @@ void _simGetObjectCumulativeTransformation_internal(const void* object,double* p
 bool _simIsShapeDynamicallyStatic_internal(const void* shape)
 {
     TRACE_C_API;
-    return(((CShape*)shape)->getShapeIsDynamicallyStatic());
+    return(((CShape*)shape)->getStatic());
 }
 
 void _simGetInitialDynamicVelocity_internal(const void* shape,double* vel)

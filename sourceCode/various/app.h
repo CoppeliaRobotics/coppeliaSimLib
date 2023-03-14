@@ -48,7 +48,7 @@ public:
     static std::string getApplicationArgument(int index);
     static void setApplicationArgument(int index,std::string arg);
     static std::string getApplicationNamedParam(const char* paramName);
-    static int setApplicationNamedParam(const char* paramName,const char* param,int paramLength);
+    static int setApplicationNamedParam(const char* paramName,const char* param,int paramLength=0);
     static void setAdditionalAddOnScript1(const char* script);
     static std::string getAdditionalAddOnScript1();
     static void setAdditionalAddOnScript2(const char* script);

@@ -473,87 +473,6 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         }
         return(true);
     }
-    if (commandID==ADD_COMMANDS_ADD_CONVEX_DECOMPOSITION_ACCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
-
-            std::vector<int> newSelection;
-
-            SUIThreadCommand cmdIn; // leave empty for default parameters
-            SUIThreadCommand cmdOut;
-            cmdIn.cmdId=DISPLAY_CONVEX_DECOMPOSITION_DIALOG_UITHREADCMD;
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-            bool addExtraDistPoints=cmdOut.boolParams[0];
-            bool addFacesPoints=cmdOut.boolParams[1];
-            int nClusters=cmdOut.intParams[0];
-            int maxHullVertices=cmdOut.intParams[1];
-            double maxConcavity=cmdOut.floatParams[0];
-            double smallClusterThreshold=cmdOut.floatParams[1];
-            int maxTrianglesInDecimatedMesh=cmdOut.intParams[2];
-            double maxConnectDist=cmdOut.floatParams[2];
-            bool individuallyConsiderMultishapeComponents=cmdOut.boolParams[2];
-            int maxIterations=cmdOut.intParams[3];
-            bool cancel=cmdOut.boolParams[4];
-            bool useHACD=cmdOut.boolParams[5];
-            bool pca=cmdOut.boolParams[6];
-            bool voxelBased=cmdOut.boolParams[7];
-            int resolution=cmdOut.intParams[4];
-            int depth=cmdOut.intParams[5];
-            int planeDownsampling=cmdOut.intParams[6];
-            int convexHullDownsampling=cmdOut.intParams[7];
-            int maxNumVerticesPerCH=cmdOut.intParams[8];
-            double concavity=cmdOut.floatParams[3];
-            double alpha=cmdOut.floatParams[4];
-            double beta=cmdOut.floatParams[5];
-            double gamma=cmdOut.floatParams[6];
-            double minVolumePerCH=cmdOut.floatParams[7];
-            if (!cancel)
-            {
-                App::currentWorld->sceneObjects->deselectObjects();
-                App::logMsg(sim_verbosity_msgs,"Adding convex decomposition(s)...");
-                for (int obji=0;obji<int(sel.size());obji++)
-                {
-                    CShape* oldShape=App::currentWorld->sceneObjects->getShapeFromHandle(sel[obji]);
-                    if (oldShape!=nullptr)
-                    {
-                        CMeshWrapper* mesh=CSceneObjectOperations::generateConvexDecomposed(sel[obji],nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,
-                                                                                    maxConnectDist,maxTrianglesInDecimatedMesh,maxHullVertices,
-                                                                                    smallClusterThreshold,individuallyConsiderMultishapeComponents,
-                                                                                    maxIterations,useHACD,resolution,depth,concavity,planeDownsampling,
-                                                                                    convexHullDownsampling,alpha,beta,gamma,pca,voxelBased,
-                                                                                    maxNumVerticesPerCH,minVolumePerCH);
-                        if (mesh!=nullptr)
-                        {
-                            CShape* newShape=new CShape();
-                            newShape->replaceMesh(mesh,true);
-                            newShape->setLocalTransformation(oldShape->getCumulativeTransformation());
-                            int newShapeHandle=App::currentWorld->sceneObjects->addObjectToScene(newShape,false,true);
-                            App::currentWorld->sceneObjects->setObjectAlias(newShape,oldShape->getObjectAlias().c_str(),true);
-                            App::currentWorld->sceneObjects->setObjectName_old(newShape,"generated_part",true);
-                            App::currentWorld->sceneObjects->setObjectAltName_old(newShape,"generated_part",true);
-                            newSelection.push_back(newShapeHandle);
-                        }
-                    }
-                }
-
-                for (size_t i=0;i<newSelection.size();i++)
-                    App::currentWorld->sceneObjects->addObjectToSelection(newSelection[i]);
-                App::undoRedo_sceneChanged("");
-                App::logMsg(sim_verbosity_msgs,"done.");
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-
     if (commandID==ADD_COMMANDS_ADD_CONVEX_HULL_ACCMD)
     { 
         if (!VThread::isCurrentThreadTheUiThread())
@@ -561,6 +480,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);
             App::logMsg(sim_verbosity_msgs,"Adding convex hull...");
+            App::uiThread->showOrHideProgressBar(true,-1,"Adding convex hull...");
             App::currentWorld->sceneObjects->deselectObjects();
 
             CShape* hull=addConvexHull(sel,0.0,true);
@@ -573,6 +493,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             }
             else
                 App::logMsg(sim_verbosity_errors,"Operation failed: is the Qhull plugin loaded?");
+            App::uiThread->showOrHideProgressBar(false);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -599,17 +520,20 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             if (doIt)
             {
                 App::logMsg(sim_verbosity_msgs,"Adding inflated convex hull...");
+                App::uiThread->showOrHideProgressBar(true,-1,"Adding inflated convex hull...");
 
                 CShape* hull=addConvexHull(sel,grow,true);
 
                 if (hull!=nullptr)
                 {
                     App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
+                    App::uiThread->showOrHideProgressBar(false);
                     App::undoRedo_sceneChanged("");
                     App::logMsg(sim_verbosity_msgs,"done.");
                 }
                 else
                     App::logMsg(sim_verbosity_errors,"Operation failed: is the Qhull plugin loaded?");
+                App::uiThread->showOrHideProgressBar(false);
             }
             else
                 App::logMsg(sim_verbosity_msgs,"Aborted.");
@@ -914,7 +838,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
             int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable;
             shape->setLocalObjectSpecialProperty((shape->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
             shape->setRespondable(true);
-            shape->setShapeIsDynamicallyStatic(false);
+            shape->setStatic(false);
             shape->setColor(nullptr,sim_colorcomponent_ambient_diffuse,0.85f,0.85f,1.0f);
             shape->setRespondable(true);
         }
@@ -1003,7 +927,7 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
     {
         std::vector<double> vert;
         std::vector<int> ind;
-        if (CMeshRoutines::getConvexHull(&allHullVertices,&vert,&ind))
+        if (CMeshRoutines::getConvexHull(allHullVertices,vert,ind))
         {
             if (growDist>0.0)
             {
@@ -1033,7 +957,7 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
                 ind.clear();
                 vert2.clear();
                 vert2.swap(vert);
-                CMeshRoutines::getConvexHull(&vert2,&vert,&ind);
+                CMeshRoutines::getConvexHull(vert2,vert,ind);
             }
             if ( (vert.size()>0)&&(ind.size()>0) )
             {
@@ -1096,13 +1020,6 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
         canAddChildScript=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))==nullptr)&&App::currentWorld->simulation->isSimulationStopped();
         canAddCustomizationScript=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))==nullptr)&&App::currentWorld->simulation->isSimulationStopped();
     }
-
-    std::vector<int> rootSel;
-    for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-        rootSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-    CSceneObjectOperations::addRootObjectChildrenToSelection(rootSel);
-    size_t shapesInRootSel=App::currentWorld->sceneObjects->getShapeCountInSelection(&rootSel);
-    size_t shapesAndDummiesInRootSel=App::currentWorld->sceneObjects->getShapeCountInSelection(&rootSel)+App::currentWorld->sceneObjects->getDummyCountInSelection(&rootSel);
 
     bool linkedObjIsInexistentOrNotGraphNorRenderingSens=true;
     if (subView!=nullptr)
@@ -1249,7 +1166,6 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
             menu->appendMenuSeparator();
             menu->appendMenuItem(convexHok>0,false,ADD_COMMANDS_ADD_CONVEX_HULL_ACCMD,"Convex hull");
             menu->appendMenuItem(convexHok>0,false,ADD_COMMANDS_ADD_GROWN_CONVEX_HULL_ACCMD,"Inflated convex hull...");
-            menu->appendMenuItem(shapeCnt>0,false,ADD_COMMANDS_ADD_CONVEX_DECOMPOSITION_ACCMD,"Convex decomposition...");
         }
     }
 }

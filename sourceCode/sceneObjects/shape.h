@@ -92,10 +92,10 @@ public:
 
     bool getStartInDynamicSleeping() const;
     void setStartInDynamicSleeping(bool sleeping);
-    bool getShapeIsDynamicallyStatic() const;
-    void setShapeIsDynamicallyStatic(bool sta);
-    bool getShapeIsDynamicallyKinematic() const;
-    void setShapeIsDynamicallyKinematic(bool kin);
+    bool getStatic() const;
+    void setStatic(bool sta);
+    bool getDynKinematic() const;
+    void setDynKinematic(bool kin);
 
     C3Vector getInitialDynamicLinearVelocity();
     void setInitialDynamicLinearVelocity(const C3Vector& vel);
@@ -138,8 +138,8 @@ public:
     void removeMeshCalculationStructure();
     bool doesShapeCollideWithShape(CShape* collidee,std::vector<double>* intersections);
 
-    bool relocateFrame(const char* mode);
-    bool alignBB(const char* mode);
+    bool relocateFrame(const char* mode,const C7Vector* tr=nullptr);
+    bool alignBB(const char* mode,const C7Vector* tr=nullptr);
     C7Vector getCumulCenteredMeshFrame() const;
 
     void setInsideAndOutsideFacesSameColor_DEPRECATED(bool s);

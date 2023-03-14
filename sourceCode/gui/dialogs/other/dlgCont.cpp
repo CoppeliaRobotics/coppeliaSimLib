@@ -339,6 +339,14 @@ void CDlgCont::addMenu(VMenu* menu)
         menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString!=nullptr,App::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG),TOGGLE_AVI_RECORDER_DLG_CMD,IDSN_AVI_RECORDER,true);
         menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(SETTINGS_DLG),TOGGLE_SETTINGS_DLG_CMD,IDSN_USER_SETTINGS,false);
     }
+
+    if (!CSimFlavor::getBoolVal(15))
+    {
+        menu->appendMenuSeparator();
+        menu->appendMenuItem(true,App::getShowInertias(),TOGGLE_SHOW_INERTIA_DLG_CMD,"Visualize inertias",true);
+        bool enabled=App::getApplicationNamedParam("simIK.debug_world")=="true";
+        menu->appendMenuItem(true,enabled,TOGGLE_SHOW_IKWORLD_DLG_CMD,"Visualize IK world",true);
+    }
 }
 
 bool CDlgCont::processCommand(int commandID)
@@ -649,6 +657,30 @@ bool CDlgCont::processCommand(int commandID)
         {
             if (App::getEditModeType()==NO_EDIT_MODE)
                 openOrBringToFront(CALCULATION_DLG_OLD);
+            return(true);
+        }
+        if (commandID==TOGGLE_SHOW_INERTIA_DLG_CMD)
+        {
+            App::setShowInertias(!App::getShowInertias());
+            if (App::getShowInertias())
+                App::logMsg(sim_verbosity_msgs,"Visualizing inertias");
+            else
+                App::logMsg(sim_verbosity_msgs,"Hiding inertias");
+            return(true);
+        }
+        if (commandID==TOGGLE_SHOW_IKWORLD_DLG_CMD)
+        {
+            bool enabled=App::getApplicationNamedParam("simIK.debug_world")=="true";
+            if (enabled)
+            {
+                App::setApplicationNamedParam("simIK.debug_world","");
+                App::logMsg(sim_verbosity_msgs,"Visualizing IK worlds");
+            }
+            else
+            {
+                App::setApplicationNamedParam("simIK.debug_world","true");
+                App::logMsg(sim_verbosity_msgs,"Hiding IK worlds");
+            }
             return(true);
         }
     }

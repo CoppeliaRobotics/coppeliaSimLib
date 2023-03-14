@@ -440,13 +440,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             if (CPluginContainer::isAssimpPluginAvailable())
             {
                 std::vector<int> sel;
-                for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                    sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
                 if (!App::currentWorld->environment->getSceneLocked())
                 {
                     App::logMsg(sim_verbosity_msgs,IDSNS_EXPORTING_SHAPES);
-                    CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-                    if (0==App::currentWorld->sceneObjects->getShapeCountInSelection(&sel))
+                    if (sel.size()==0)
                         return(true); // Selection contains nothing that can be exported!
                     std::string tst(App::folders->getImportExportPath());
                     std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDSNS_EXPORTING_SHAPES,tst.c_str(),"",false,"Mesh files","obj","ply","stl","dae");
@@ -489,12 +487,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_graph_type,true,false);
             App::logMsg(sim_verbosity_msgs,IDSNS_EXPORTING_GRAPH_DATA);
             App::currentWorld->simulation->stopSimulation();
-            if (App::currentWorld->sceneObjects->getGraphCountInSelection(&sel)!=0)
+            if (sel.size()!=0)
             {
                 std::string tst(App::folders->getOtherFilesPath());
                 std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_GRAPHS___,tst.c_str(),"",false,"CSV Files","csv");
@@ -1135,57 +1131,54 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
             App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 #endif
 
-        if (sel.size()>0)
+        App::currentWorld->sceneObjects->addModelObjects(sel);
+        void* plugRetVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelsave,nullptr,nullptr,nullptr);
+        delete[] (char*)plugRetVal;
+
+        std::string infoPrintOut(IDSNS_SAVING_MODEL);
+        if (pathAndFilename!=nullptr)
         {
-            CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-            void* plugRetVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelsave,nullptr,nullptr,nullptr);
-            delete[] (char*)plugRetVal;
+            if (setCurrentDir)
+                App::folders->setModelsPath(App::folders->getPathFromFull(pathAndFilename).c_str());
+            infoPrintOut+=" (";
+            infoPrintOut+=std::string(pathAndFilename)+"). ";
+        }
 
-            std::string infoPrintOut(IDSNS_SAVING_MODEL);
-            if (pathAndFilename!=nullptr)
+        if (pathAndFilename!=nullptr)
+        { // saving to file...
+            CSer* serObj;
+            if (CSer::getFileTypeFromName(pathAndFilename)==CSer::filetype_csim_xml_simplemodel_file)
             {
-                if (setCurrentDir)
-                    App::folders->setModelsPath(App::folders->getPathFromFull(pathAndFilename).c_str());
-                infoPrintOut+=" (";
-                infoPrintOut+=std::string(pathAndFilename)+"). ";
-            }
-
-            if (pathAndFilename!=nullptr)
-            { // saving to file...
-                CSer* serObj;
-                if (CSer::getFileTypeFromName(pathAndFilename)==CSer::filetype_csim_xml_simplemodel_file)
-                {
-                    VFile::eraseFilesWithPrefix(VVarious::splitPath_path(pathAndFilename).c_str(),(VVarious::splitPath_fileBase(pathAndFilename)+"_").c_str());
-                    serObj=new CSer(pathAndFilename,CSer::filetype_csim_xml_xmodel_file); // we can only save exhaustive models
-                    serObj->writeOpenXml(App::userSettings->xmlExportSplitSize,App::userSettings->xmlExportKnownFormats);
-                }
-                else
-                {
-                    serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
-                    serObj->writeOpenBinary(App::userSettings->compressFiles);
-                }
-                App::worldContainer->copyBuffer->serializeCurrentSelection(serObj[0],&sel,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
-                serObj->writeClose();
-                delete serObj;
+                VFile::eraseFilesWithPrefix(VVarious::splitPath_path(pathAndFilename).c_str(),(VVarious::splitPath_fileBase(pathAndFilename)+"_").c_str());
+                serObj=new CSer(pathAndFilename,CSer::filetype_csim_xml_xmodel_file); // we can only save exhaustive models
+                serObj->writeOpenXml(App::userSettings->xmlExportSplitSize,App::userSettings->xmlExportKnownFormats);
             }
             else
-            { // saving to buffer...
-                CSer serObj(saveBuffer[0],CSer::filetype_csim_bin_model_buff);
-
-                serObj.writeOpenBinary(App::userSettings->compressFiles);
-                App::worldContainer->copyBuffer->serializeCurrentSelection(serObj,&sel,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
-                serObj.writeClose();
+            {
+                serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
+                serObj->writeOpenBinary(App::userSettings->compressFiles);
             }
-            infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
-            infoPrintOut+=" ";
-            infoPrintOut+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
-
-            if (displayMessages)
-                App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
-            if (displayMessages)
-                App::logMsg(sim_verbosity_msgs,IDSNS_MODEL_WAS_SAVED);
-            return(true);
+            App::worldContainer->copyBuffer->serializeCurrentSelection(serObj[0],&sel,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
+            serObj->writeClose();
+            delete serObj;
         }
+        else
+        { // saving to buffer...
+            CSer serObj(saveBuffer[0],CSer::filetype_csim_bin_model_buff);
+
+            serObj.writeOpenBinary(App::userSettings->compressFiles);
+            App::worldContainer->copyBuffer->serializeCurrentSelection(serObj,&sel,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
+            serObj.writeClose();
+        }
+        infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
+        infoPrintOut+=" ";
+        infoPrintOut+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
+
+        if (displayMessages)
+            App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
+        if (displayMessages)
+            App::logMsg(sim_verbosity_msgs,IDSNS_MODEL_WAS_SAVED);
+        return(true);
     }
     return(false);
 }
@@ -1390,7 +1383,7 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,double pointSpacing,cons
     int propToRemove=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable;
     shape->setLocalObjectSpecialProperty((shape->getLocalObjectSpecialProperty()|propToRemove)-propToRemove);
     shape->setRespondable((options&8)==0);
-    shape->setShapeIsDynamicallyStatic(true);
+    shape->setStatic(true);
 
     return(shape->getObjectHandle());
 }
@@ -1498,11 +1491,10 @@ void CFileOperations::addMenu(VMenu* menu)
         justModelSelected=(obj!=nullptr)&&(obj->getModelBase());
     }
     std::vector<int> sel;
-    for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-        sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-    CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-    size_t shapeNumber=App::currentWorld->sceneObjects->getShapeCountInSelection(&sel);
-    size_t graphNumber=App::currentWorld->sceneObjects->getGraphCountInSelection(&sel);
+    App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
+    size_t shapeNumber=sel.size();
+    App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_graph_type,true);
+    size_t graphNumber=sel.size();
 
     menu->appendMenuItem(fileOpOk,false,FILE_OPERATION_NEW_SCENE_FOCMD,IDS_NEW_SCENE_MENU_ITEM);
 

@@ -1775,27 +1775,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             App::currentWorld->mainSettings->mirrorsDisabled=!App::currentWorld->mainSettings->mirrorsDisabled;
         }
-        if (cmd.cmdId==SET_MAXTRIANGLESIZE_ENVIRONMENTGUITRIGGEREDCMD)
-        {
-            if (App::currentWorld->simulation->isSimulationStopped())
-            {
-                App::currentWorld->environment->setCalculationMaxTriangleSize(cmd.doubleParams[0]);
-                for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
-                {
-                    CShape* sh=App::currentWorld->sceneObjects->getShapeFromIndex(i);
-                    sh->removeMeshCalculationStructure();
-                }
-            }
-        }
-        if (cmd.cmdId==SET_MINTRIANGLESIZE_ENVIRONMENTGUITRIGGEREDCMD)
-        {
-            App::currentWorld->environment->setCalculationMinRelTriangleSize(cmd.doubleParams[0]);
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
-            {
-                CShape* sh=App::currentWorld->sceneObjects->getShapeFromIndex(i);
-                sh->removeMeshCalculationStructure();
-            }
-        }
         if (cmd.cmdId==TOGGLE_SAVECALCSTRUCT_ENVIRONMENTGUITRIGGEREDCMD)
         {
             App::currentWorld->environment->setSaveExistingCalculationStructures(!App::currentWorld->environment->getSaveExistingCalculationStructures());
@@ -1824,10 +1803,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==CLEANUP_GHOSTS_ENVIRONMENTGUITRIGGEREDCMD)
         {
             App::currentWorld->ghostObjectCont->removeGhost(-1,-1);
-        }
-        if (cmd.cmdId==SET_EXTSTRING_ENVIRONMENTGUITRIGGEREDCMD)
-        {
-            App::currentWorld->environment->setExtensionString(cmd.stringParams[0].c_str());
         }
         if (cmd.cmdId==TOGGLE_ENABLED_FOGGUITRIGGEREDCMD)
         {
@@ -1961,25 +1936,29 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==INSERT_SELECTEDVISIBLEOBJECTS_OCTREEGUITRIGGEREDCMD)
         {
-            COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                std::vector<int> sel;
-                for (size_t i=1;i<cmd.intParams.size();i++)
-                    sel.push_back(cmd.intParams[i]);
-                it->insertObjects(sel);
-            }
+            COcTree* it=App::currentWorld->sceneObjects->getLastSelectionOctree();
+            App::currentWorld->sceneObjects->popLastSelection();
+            std::vector<int> sel;
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,-1,true,true);
+            App::currentWorld->sceneObjects->deselectObjects();
+            App::logMsg(sim_verbosity_msgs,"Inserting objects into OC tree...");
+            it->insertObjects(sel);
+            App::currentWorld->sceneObjects->addObjectToSelection(it->getObjectHandle());
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         if (cmd.cmdId==SUBTRACT_SELECTEDVISIBLEOBJECTS_OCTREEGUITRIGGEREDCMD)
         {
-            COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                std::vector<int> sel;
-                for (size_t i=1;i<cmd.intParams.size();i++)
-                    sel.push_back(cmd.intParams[i]);
-                it->subtractObjects(sel);
-            }
+            COcTree* it=App::currentWorld->sceneObjects->getLastSelectionOctree();
+            App::currentWorld->sceneObjects->popLastSelection();
+            std::vector<int> sel;
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,-1,true,true);
+            App::currentWorld->sceneObjects->deselectObjects();
+            App::logMsg(sim_verbosity_msgs,"Subtracting objects from OC tree...");
+            it->subtractObjects(sel);
+            App::currentWorld->sceneObjects->addObjectToSelection(it->getObjectHandle());
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         if (cmd.cmdId==TOGGLE_COLOREMISSIVE_OCTREEGUITRIGGEREDCMD)
         {
@@ -1987,10 +1966,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
                 it->setColorIsEmissive(!it->getColorIsEmissive());
         }
-
-
-
-
         if (cmd.cmdId==SET_MAXVOXELSIZE_PTCLOUDGUITRIGGEREDCMD)
         {
             CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
@@ -2023,14 +1998,16 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==INSERT_OBJECTS_PTCLOUDGUITRIGGEREDCMD)
         {
-            CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                std::vector<int> sel;
-                for (size_t i=1;i<cmd.intParams.size();i++)
-                    sel.push_back(cmd.intParams[i]);
-                it->insertObjects(sel);
-            }
+            CPointCloud* it=App::currentWorld->sceneObjects->getLastSelectionPointCloud();
+            App::currentWorld->sceneObjects->popLastSelection();
+            std::vector<int> sel;
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,-1,true,true);
+            App::currentWorld->sceneObjects->deselectObjects();
+            App::logMsg(sim_verbosity_msgs,"Inserting objects into point cloud...");
+            it->insertObjects(sel);
+            App::currentWorld->sceneObjects->addObjectToSelection(it->getObjectHandle());
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         if (cmd.cmdId==SET_MAXPTCNT_PTCLOUDGUITRIGGEREDCMD)
         {
@@ -2064,14 +2041,16 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SUBTRACT_OBJECTS_PTCLOUDGUITRIGGEREDCMD)
         {
-            CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-            {
-                std::vector<int> sel;
-                for (size_t i=1;i<cmd.intParams.size();i++)
-                    sel.push_back(cmd.intParams[i]);
-                it->subtractObjects(sel);
-            }
+            CPointCloud* it=App::currentWorld->sceneObjects->getLastSelectionPointCloud();
+            App::currentWorld->sceneObjects->popLastSelection();
+            std::vector<int> sel;
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,-1,true,true);
+            App::currentWorld->sceneObjects->deselectObjects();
+            App::logMsg(sim_verbosity_msgs,"Subtracting objects from point cloud...");
+            it->subtractObjects(sel);
+            App::currentWorld->sceneObjects->addObjectToSelection(it->getObjectHandle());
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
         }
         if (cmd.cmdId==SET_SUBTRACTTOLERANCE_PTCLOUDGUITRIGGEREDCMD)
         {
@@ -3122,7 +3101,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setShapeIsDynamicallyStatic(!it->getShapeIsDynamicallyStatic());
+                it->setStatic(!it->getStatic());
         }
         if (cmd.cmdId==TOGGLE_STARTINSLEEPMODE_SHAPEDYNGUITRIGGEREDCMD)
         {
@@ -3148,30 +3127,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it!=nullptr)
                 it->getMesh()->setMass(cmd.doubleParams[0]);
         }
-        if (cmd.cmdId==MULTIPLY_MASSFORSELECTION_SHAPEDYNGUITRIGGEREDCMD)
-        {
-            std::vector<CMeshWrapper*> allComponents;
-            for (size_t i=0;i<cmd.intParams.size();i++)
-            {
-                CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
-                if ( (it!=nullptr)&&(!it->getShapeIsDynamicallyStatic()) )
-                {
-                    CMeshWrapper* sc=it->getMesh();
-                    for (size_t j=0;j<allComponents.size();j++)
-                    {
-                        if (allComponents[j]==sc)
-                        {
-                            sc=nullptr;
-                            break;
-                        }
-                    }
-                    if (sc!=nullptr)
-                        allComponents.push_back(sc);
-                }
-            }
-            for (size_t i=0;i<allComponents.size();i++)
-                allComponents[i]->setMass(allComponents[i]->getMass()*cmd.doubleParams[0]);
-        }
         if (cmd.cmdId==SET_INERTIAMATRIX_SHAPEDYNGUITRIGGEREDCMD)
         {
             CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
@@ -3183,30 +3138,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     m(size_t(cmd.intParams[1]),size_t(cmd.intParams[2]))/=it->getMesh()->getMass();
                 it->getMesh()->setInertia(m,cmd.intParams[1],cmd.intParams[2]);
             }
-        }
-        if (cmd.cmdId==MULTIPLY_INERTIAFORSELECTION_SHAPEDYNGUITRIGGEREDCMD)
-        {
-            std::vector<CMeshWrapper*> allComponents;
-            for (size_t i=0;i<cmd.intParams.size();i++)
-            {
-                CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
-                if ( (it!=nullptr)&&(!it->getShapeIsDynamicallyStatic()) )
-                {
-                    CMeshWrapper* sc=it->getMesh();
-                    for (size_t j=0;j<allComponents.size();j++)
-                    {
-                        if (allComponents[j]==sc)
-                        {
-                            sc=nullptr;
-                            break;
-                        }
-                    }
-                    if (sc!=nullptr)
-                        allComponents.push_back(sc);
-                }
-            }
-            for (size_t i=0;i<allComponents.size();i++)
-                allComponents[i]->setInertia(allComponents[i]->getInertia()*cmd.doubleParams[0]);
         }
         if (cmd.cmdId==SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD)
         {
@@ -3229,13 +3160,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         if (lastIsHeightfield)
                         { // Heightfields cannot be non-static
                             if (!itIsHeightfield)
-                                it->setShapeIsDynamicallyStatic(true);
+                                it->setStatic(true);
                         }
                         else
                         {
                             if (!itIsHeightfield)
                             {
-                                it->setShapeIsDynamicallyStatic(last->getShapeIsDynamicallyStatic());
+                                it->setStatic(last->getStatic());
                                 it->setStartInDynamicSleeping(last->getStartInDynamicSleeping());
                                 it->setSetAutomaticallyToNonStaticIfGetsParent(last->getSetAutomaticallyToNonStaticIfGetsParent());
                                 it->getMesh()->setMass(last->getMesh()->getMass());
@@ -3268,15 +3199,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         it->setDynamicCollisionMask(last->getDynamicCollisionMask());
                     }
                 }
-            }
-        }
-        if (cmd.cmdId==COMPUTE_MASSANDINERTIA_SHAPEDYNGUITRIGGEREDCMD)
-        {
-            for (size_t i=0;i<cmd.intParams.size();i++)
-            {
-                CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
-                if (it!=nullptr)
-                    it->computeInertia(cmd.doubleParams[0]);
             }
         }
         if (cmd.cmdId==SET_MATERIAL_SHAPEDYNGUITRIGGEREDCMD)

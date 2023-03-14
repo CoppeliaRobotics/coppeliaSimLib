@@ -45,7 +45,7 @@ void CQDlgShapeDyn::refresh()
     if (sel)
     {
         notHeightfield=(it->getMesh()->getPurePrimitiveType()!=sim_primitiveshape_heightfield);
-        lastSelIsNotStatic=!it->getShapeIsDynamicallyStatic();
+        lastSelIsNotStatic=!it->getStatic();
         lastSelIsConvex=it->getMesh()->isConvex();
     }
 
@@ -92,12 +92,7 @@ void CQDlgShapeDyn::refresh()
     ui->qqDynamic->setEnabled(sel&&noEditModeAndNoSim&&notHeightfield);
     ui->qqSleepModeStart->setVisible(App::userSettings->showOldDlgs);
     ui->qqSleepModeStart->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqComputeMassProperties->setEnabled(sel&&noEditModeAndNoSim&&lastSelIsNotStatic);
     ui->qqMass->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqMassD2->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqMassT2->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqID2->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
-    ui->qqIT2->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
     ui->qqI00->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
     ui->qqI01->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
     ui->qqI02->setEnabled(sel&&lastSelIsNotStatic&&noEditModeAndNoSim);
@@ -333,36 +328,6 @@ void CQDlgShapeDyn::on_qqMass_editingFinished()
     }
 }
 
-void CQDlgShapeDyn::on_qqMassT2_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=MULTIPLY_MASSFORSELECTION_SHAPEDYNGUITRIGGEREDCMD;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        cmd.doubleParams.push_back(2.0);
-        App::appendSimulationThreadCommand(cmd);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgShapeDyn::on_qqMassD2_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=MULTIPLY_MASSFORSELECTION_SHAPEDYNGUITRIGGEREDCMD;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        cmd.doubleParams.push_back(0.5);
-        App::appendSimulationThreadCommand(cmd);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
 void CQDlgShapeDyn::on_qqI00_editingFinished()
 {
     _inertiaChanged(0,0,ui->qqI00);
@@ -429,37 +394,6 @@ void CQDlgShapeDyn::_inertiaChanged(size_t row,size_t col,QLineEdit* ct)
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-
-void CQDlgShapeDyn::on_qqIT2_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=MULTIPLY_INERTIAFORSELECTION_SHAPEDYNGUITRIGGEREDCMD;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        cmd.doubleParams.push_back(2.0);
-        App::appendSimulationThreadCommand(cmd);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgShapeDyn::on_qqID2_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=MULTIPLY_INERTIAFORSELECTION_SHAPEDYNGUITRIGGEREDCMD;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        cmd.doubleParams.push_back(0.5);
-        App::appendSimulationThreadCommand(cmd);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
@@ -572,26 +506,6 @@ void CQDlgShapeDyn::on_qqApplyMaterialProperties_clicked()
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgShapeDyn::on_qqComputeMassProperties_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        bool ok;
-        double density=(double)QInputDialog::getDouble(this,"Body density","Uniform density",1000.0,0.1,30000.0,1,&ok);
-        if (ok)
-        {
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=COMPUTE_MASSANDINERTIA_SHAPEDYNGUITRIGGEREDCMD;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            cmd.doubleParams.push_back(density);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }

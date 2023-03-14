@@ -394,34 +394,6 @@ bool CSView::getFitViewToSelection() const
 
 bool CSView::processCommand(int commandID,int subViewIndex)
 { // Return value is true if the command belonged to hierarchy menu and was executed
-    if (commandID==VIEW_FUNCTIONS_TEXTURED_DISPLAY_VFCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->environment->setShapeTexturesEnabled(!App::currentWorld->environment->getShapeTexturesEnabled());
-            App::undoRedo_sceneChanged(""); 
-            if (App::currentWorld->environment->getShapeTexturesEnabled())
-                App::logMsg(sim_verbosity_msgs,IDSNS_SHAPE_TEXTURES_ENABLED);
-            else
-                App::logMsg(sim_verbosity_msgs,IDSNS_SHAPE_TEXTURES_DISABLED);
-            App::setFullDialogRefreshFlag(); // so that env. dlg gets refreshed
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-
-    if (commandID==VIEW_FUNCTIONS_SHOW_INERTIAS_VFCMD)
-    {
-        App::setShowInertias(!App::getShowInertias());
-        return(true);
-    }
-
     if (commandID==VIEW_FUNCTIONS_XY_GRAPH_AUTO_MODE_DURING_SIMULATION_VFCMD)
     {
         if (!VThread::isCurrentThreadTheUiThread())
@@ -899,8 +871,6 @@ void CSView::addMenu(VMenu* menu)
     bool lastSelIsRendSens=false;
     if (selSize>0)
     {
-//        if (App::currentWorld->objCont->getLastSelection_object()->getObjectType()==sim_object_graph_type)
-//            lastSelIsGraph=true;
         if (App::currentWorld->sceneObjects->getLastSelectionObject()->getObjectType()==sim_object_camera_type)
             lastSelIsCamera=true;
         if (App::currentWorld->sceneObjects->getLastSelectionObject()->getObjectType()==sim_object_visionsensor_type)
@@ -908,13 +878,7 @@ void CSView::addMenu(VMenu* menu)
     }
     if (camera!=nullptr)
     { // The linked object is a camera:
-        menu->appendMenuItem(true,App::getShowInertias(),VIEW_FUNCTIONS_SHOW_INERTIAS_VFCMD,IDSN_SHOW_INERTIAS,true);
-        menu->appendMenuItem(true,App::currentWorld->environment->getShapeTexturesEnabled(),VIEW_FUNCTIONS_TEXTURED_DISPLAY_VFCMD,IDSN_SHAPE_TEXTURES_ENABLED,true);
-        menu->appendMenuSeparator();
-
-//        if ( (selSize==1)&&lastSelIsGraph )
-//            menu->appendMenuItem(true,false,VIEW_FUNCTIONS_LOOK_AT_GRAPH_VFCMD,IDS_LOOK_AT_SELECTED_GRAPH_MENU_ITEM);
-        /*else*/ if ( (selSize==1)&&lastSelIsRendSens )
+        if ( (selSize==1)&&lastSelIsRendSens )
             menu->appendMenuItem(true,false,VIEW_FUNCTIONS_LOOK_AT_VISION_SENSOR_VFCMD,IDS_LOOK_AT_SELECTED_VISION_SENSOR_MENU_ITEM);
         else
             menu->appendMenuItem(lastSelIsCamera&&(selSize==1),false,VIEW_FUNCTIONS_LOOK_THROUGH_CAMERA_VFCMD,IDS_LOOK_THROUGH_SELECTED_CAMERA_MENU_ITEM);

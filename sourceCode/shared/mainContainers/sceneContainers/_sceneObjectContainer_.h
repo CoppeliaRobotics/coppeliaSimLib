@@ -97,6 +97,7 @@ public:
     void getSelectedObjectHandles(std::vector<int>& selection,int objectType=-1,bool includeModelObjects=false,bool onlyVisibleModelObjects=false) const;
     int getLastSelectionHandle(const std::vector<int>* selection=nullptr) const;
     bool isObjectInSelection(int objectHandle,const std::vector<int>* selection=nullptr) const;
+    void popLastSelection();
     CSceneObject* getLastSelectionObject(const std::vector<int>* selection=nullptr) const;
     CMirror* getLastSelectionMirror() const;
     COcTree* getLastSelectionOctree() const;

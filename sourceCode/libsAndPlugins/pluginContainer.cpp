@@ -723,6 +723,8 @@ bool CPluginContainer::qhull(void* data)
         _qhullAddress(data);
         return(true);
     }
+    else
+        App::logMsg(sim_verbosity_errors,"QHull plugin was not found.");
     return(false);
 }
 

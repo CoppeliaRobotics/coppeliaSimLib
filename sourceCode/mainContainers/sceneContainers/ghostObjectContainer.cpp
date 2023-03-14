@@ -41,7 +41,7 @@ int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOp
     std::vector<int> rootSel;
     rootSel.push_back(theObjectHandle);
     if ((theOptions&1)!=0)
-        CSceneObjectOperations::addRootObjectChildrenToSelection(rootSel);
+        App::currentWorld->sceneObjects->addModelObjects(rootSel);
 
     std::vector<CShape*> objsToAdd;
     for (size_t i=0;i<rootSel.size();i++)

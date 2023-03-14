@@ -809,7 +809,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
                 CDynMaterialObject* mat=shape->getDynMaterial();
                 if (mat->getEngineBoolParam(sim_bullet_body_sticky,nullptr))
                 { // Formely sticky contact objects need to be adjusted for the new Bullet:
-                    if (shape->getShapeIsDynamicallyStatic())
+                    if (shape->getStatic())
                         mat->setEngineFloatParam(sim_bullet_body_friction,mat->getEngineFloatParam(sim_bullet_body_oldfriction,nullptr)); // the new Bullet friction
                     else
                         mat->setEngineFloatParam(sim_bullet_body_friction,0.25); // the new Bullet friction

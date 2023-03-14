@@ -210,7 +210,9 @@ void _displayTriangles(CMesh* geometric,int geomModifCounter,CTextureProperty* t
     const std::vector<float>& _normals=geometric->getNormalsForDisplayAndDisk()[0];
     if (tp!=nullptr)
     {
-        textureCoords=tp->getTextureCoordinates(geomModifCounter,geometric->getBB(nullptr),_vertices,_indices);
+        // BLABLIHERE. Now textures are relative to the "naked" vertices. 14.03.2023
+//        textureCoords=tp->getTextureCoordinates(geomModifCounter,geometric->getBB(nullptr),_vertices,_indices);
+        textureCoords=tp->getTextureCoordinates(geomModifCounter,C7Vector::identityTransformation,_vertices,_indices);
         if (textureCoords==nullptr)
             return; // Should normally never happen (should be caught before!)
         texCoordBufferIdPtr=tp->getTexCoordBufferIdPointer();

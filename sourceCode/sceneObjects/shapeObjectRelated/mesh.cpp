@@ -108,6 +108,7 @@ void CMesh::_commonInit()
     _visibleEdges=false;
     _hideEdgeBorders_OLD=false;
     _culling=false;
+    _convex=false;
     _displayInverted_DEPRECATED=false;
     _wireframe_OLD=false;
     _insideAndOutsideFacesSameColor_DEPRECATED=true;
@@ -350,6 +351,7 @@ CMesh* CMesh::copyYourself()
     newIt->_edgeThresholdAngle=_edgeThresholdAngle;
     newIt->_edgeWidth_DEPRERCATED=_edgeWidth_DEPRERCATED;
 
+    newIt->_convex=_convex;
     newIt->_vertices.assign(_vertices.begin(),_vertices.end());
     newIt->_indices.assign(_indices.begin(),_indices.end());
     newIt->_normals.assign(_normals.begin(),_normals.end());
@@ -593,22 +595,14 @@ bool CMesh::isConvex() const
     return(_convex);
 }
 
-bool CMesh::containsOnlyPureConvexShapes()
-{ // function has virtual/non-virtual counterpart!
-    bool retVal=((_purePrimitive!=sim_primitiveshape_none)&&(_purePrimitive!=sim_primitiveshape_heightfield)&&(_purePrimitive!=sim_primitiveshape_plane)&&(_purePrimitive!=sim_primitiveshape_disc));
-    if (retVal)
-        _convex=retVal; // needed since there was a bug where pure planes and pure discs were considered as convex
-    return(retVal);
-}
-
 CMesh* CMesh::getFirstMesh()
 { // function has virtual/non-virtual counterpart!
     return(this);
 }
 
-void CMesh::setConvex(bool convex)
-{ // function has virtual/non-virtual counterpart!
-    _convex=convex;
+int CMesh::countTriangles() const
+{
+    return(int(_indices.size()/3));
 }
 
 void CMesh::getCumulativeMeshes(const C7Vector& parentCumulTr,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals)
@@ -1389,7 +1383,6 @@ void CMesh::_computeVisibleEdges()
 bool CMesh::checkIfConvex()
 { // function has virtual/non-virtual counterpart!
     _convex=(CMeshRoutines::getConvexType(_vertices,_indices,0.015)==0); // 1.5% tolerance of the average bounding box side length
-    setConvex(_convex);
     return(_convex);
 }
 
@@ -1877,6 +1870,12 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
             ar << nothing;
             ar.flush();
 
+            ar.storeDataName("Va2"); // Since V4.5
+            nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_convex);
+            ar << nothing;
+            ar.flush();
+
             if (_textureProperty!=nullptr)
             {
                 ar.storeDataName("Toj");
@@ -1908,6 +1907,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
             int byteQuantity;
             std::string theName="";
             bool fixFrame_prior4_5_2=false;
+            bool hasConvexFlag=false;
             C7Vector verticesLocalFrame_old; // prev. _verticesLocalframe
             while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
@@ -2188,6 +2188,15 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                         // if (CSimFlavor::getBoolVal(18))
                         //    _visibleEdges=false;
                     }
+                    if (theName=="Va2")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _convex=SIM_IS_BIT_SET(nothing,0);
+                        hasConvexFlag=true;
+                    }
                     if (theName.compare("Toj")==0)
                     {
                         noHit=false;
@@ -2234,6 +2243,8 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                 _transformMesh(_bbFrame.getInverse());
                 _bbFrame.X.clear();
             }
+            if (!hasConvexFlag)
+                checkIfConvex();
         }
     }
     else
@@ -2378,6 +2389,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                 _transformMesh(_bbFrame.getInverse());
                 _bbFrame.X.clear();
             }
+            checkIfConvex(); // with XML, we do not serialize the _convex flag. So we recompute it
         }
     }
 }

@@ -10,6 +10,7 @@
 #include <sstream>
 #include <iostream>
 #include <simFlavor.h>
+#include <unordered_set>
 
 CSceneObjectContainer::CSceneObjectContainer()
 {
@@ -1422,6 +1423,30 @@ void CSceneObjectContainer::deselectObjects()
     }
 }
 
+void CSceneObjectContainer::addModelObjects(std::vector<int>& selection) const
+{
+    std::unordered_set<int> objectsInOutputList;
+    for (size_t i=0;i<selection.size();i++)
+    {
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(selection[i]);
+        objectsInOutputList.insert(it->getObjectHandle());
+        if (it->getModelBase())
+        {
+            std::vector<CSceneObject*> newObjs;
+            it->getAllObjectsRecursive(&newObjs,false,true);
+            for (size_t j=0;j<newObjs.size();j++)
+            {
+                CSceneObject* it2=newObjs[j];
+                if (objectsInOutputList.find(it2->getObjectHandle())==objectsInOutputList.end())
+                {
+                    selection.insert(selection.begin(),it2->getObjectHandle());
+                    objectsInOutputList.insert(it2->getObjectHandle());
+                }
+            }
+        }
+    }
+}
+
 void CSceneObjectContainer::addObjectToSelection(int objectHandle)
 {
     if (objectHandle>=0)
@@ -1662,7 +1687,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
             {
                 bool b;
                 if (ar.xmlGetNode_bool("static",b,false))
-                    shape->setShapeIsDynamicallyStatic(b);
+                    shape->setStatic(b);
                 if (ar.xmlGetNode_bool("respondable",b,false))
                     shape->setRespondable(b);
                 if (ar.xmlGetNode_bool("startSleeping",b,false))
@@ -2108,7 +2133,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar,CShape* shape)
     ar.xmlAddNode_floats("inertiaMatrix",im,9);
 
     ar.xmlPushNewNode("switches");
-    ar.xmlAddNode_bool("static",shape->getShapeIsDynamicallyStatic());
+    ar.xmlAddNode_bool("static",shape->getStatic());
     ar.xmlAddNode_bool("respondable",shape->getRespondable());
     ar.xmlAddNode_bool("startSleeping",shape->getStartInDynamicSleeping());
     ar.xmlAddNode_bool("setToDynamicIfGetsParent",shape->getSetAutomaticallyToNonStaticIfGetsParent());

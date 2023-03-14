@@ -188,38 +188,62 @@ void CMeshRoutines::getEdgeFeatures(double* vertices,int verticesLength,int* ind
     }
 }
 
-bool CMeshRoutines::getConvexHull(std::vector<double>* verticesInOut,std::vector<int>* indicesInOut)
+void CMeshRoutines::removeThinTriangles(std::vector<double>& vertices,std::vector<int>& indices,double percentageToKeep)
 {
-    std::vector<double> outV;
-    std::vector<int> outI;
-    bool result;
-    if (indicesInOut!=nullptr)
-        result=getConvexHull(verticesInOut,&outV,&outI);
-    else
-        result=getConvexHull(verticesInOut,&outV,nullptr);
-    verticesInOut->clear();
-    verticesInOut->assign(outV.begin(),outV.end());
-    if (indicesInOut!=nullptr)
+    std::vector<std::pair<double,size_t>> thinPairs;
+    for (size_t i=0;i<indices.size()/3;i++)
     {
-        indicesInOut->clear();
-        indicesInOut->assign(outI.begin(),outI.end());
+        int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
+        size_t mmax1,mmax2,mmax3;
+        double lng=0.0;
+        for (size_t j=0;j<3;j++)
+        {
+            size_t k=j+1;
+            if (k>2)
+                k=0;
+            size_t l=k+1;
+            if (l>2)
+                l=0;
+            double s=(C3Vector(vertices.data()+3*ind[j])-C3Vector(vertices.data()+3*ind[k])).getLength();
+            if (s>lng)
+            {
+                lng=s;
+                mmax1=j;
+                mmax2=k;
+                mmax3=l;
+            }
+        }
+        C3Vector dir(C3Vector(vertices.data()+3*ind[mmax2])-C3Vector(vertices.data()+3*ind[mmax1]));
+        double L=dir.normalize();
+        C3Vector v(C3Vector(vertices.data()+3*ind[mmax3])-C3Vector(vertices.data()+3*ind[mmax1]));
+        double s2=dir*v;
+        double thinness=(v-dir*s2).getLength()/L;
+        thinPairs.push_back(std::make_pair(thinness,i));
     }
-    return(result);
+    std::sort(thinPairs.begin(),thinPairs.end(),[](const std::pair<double,int>& p1, const std::pair<double,int>& p2) {
+         return p1.first > p2.first;
+     });
+
+    std::vector<int> nind;
+    nind.swap(indices);
+    for (size_t i=0;i<int(percentageToKeep*double(nind.size()/3));i++)
+    {
+        size_t j=thinPairs[i].second;
+        indices.push_back(nind[3*j+0]);
+        indices.push_back(nind[3*j+1]);
+        indices.push_back(nind[3*j+2]);
+    }
+    removeNonReferencedVertices(vertices,indices);
 }
 
-bool CMeshRoutines::getConvexHull(const std::vector<double>* verticesIn,std::vector<double>* verticesOut,std::vector<int>* indicesOut)
+bool CMeshRoutines::getConvexHull(const std::vector<double>& verticesIn,std::vector<double>& verticesOut,std::vector<int>& indicesOut)
 {
-    return(getConvexHull(&verticesIn->at(0),(int)verticesIn->size(),verticesOut,indicesOut));
-}
-
-bool CMeshRoutines::getConvexHull(const double* verticesIn,int verticesInLength,std::vector<double>* verticesOut,std::vector<int>* indicesOut)
-{
+    std::vector<double> vertIn(verticesIn); // make a copy, in case we use same in/out buffer
+    int verticesInLength=int(vertIn.size());
     void* data[10];
-    data[0]=(double*)verticesIn;
+    data[0]=(double*)vertIn.data();
     data[1]=&verticesInLength;
     bool generateIndices=true;
-    if (indicesOut==nullptr)
-        generateIndices=false;
     data[2]=&generateIndices;
     bool success=false;
     data[3]=&success;
@@ -231,32 +255,33 @@ bool CMeshRoutines::getConvexHull(const double* verticesIn,int verticesInLength,
     data[6]=&outInd;
     int outIndLength;
     data[7]=&outIndLength;
-    verticesOut->clear();
-    if (indicesOut!=nullptr)
-        indicesOut->clear();
-    if ( CPluginContainer::qhull(data)&&success )
-    {
-        for (int i=0;i<outVertLength;i++)
-            verticesOut->push_back(outVert[i]);
-        delete[] outVert;
-        if (indicesOut!=nullptr)
+    for (size_t j=0;j<5;j++)
+    { // we try 5 times, each time with the output of previous calculation:
+        verticesOut.clear();
+        indicesOut.clear();
+        if ( CPluginContainer::qhull(data)&&success )
         {
-            for (int i=0;i<outIndLength;i++)
-                indicesOut->push_back(outInd[i]);
+            verticesOut.assign(outVert,outVert+outVertLength);
+            delete[] outVert;
+            indicesOut.assign(outInd,outInd+outIndLength);
             delete[] outInd;
-
-            CMeshRoutines::removeDuplicateVerticesAndTriangles(verticesOut[0],indicesOut,nullptr,nullptr,App::userSettings->verticesTolerance);
-            CMeshRoutines::toDelaunayMesh(verticesOut[0],indicesOut[0],nullptr,nullptr);
+            CMeshRoutines::removeDuplicateVerticesAndTriangles(verticesOut,&indicesOut,nullptr,nullptr,App::userSettings->verticesTolerance);
+            CMeshRoutines::toDelaunayMesh(verticesOut,indicesOut,nullptr,nullptr);
+            if (getConvexType(verticesOut,indicesOut,0.015)==0)
+                return(true);
+            // QHull failed producing a correct convex hull. We try again, by removing problematic points, i.e. points that lie very close to edges
+            removeThinTriangles(verticesOut,indicesOut,0.99);
+            vertIn.swap(verticesOut);
+            data[0]=(double*)vertIn.data();
+            verticesInLength=int(vertIn.size());
         }
-        return(true);
     }
-    else
-        App::logMsg(sim_verbosity_errors,"Qhull failed. Is the Qhull plugin loaded?");
-
+    verticesOut.clear();
+    indicesOut.clear();
     return(false);
 }
 
-bool CMeshRoutines::getDecimatedMesh(const std::vector<double>& verticesIn,const std::vector<int>& indicesIn,double decimationPercentage,std::vector<double>& verticesOut,std::vector<int>& indicesOut)
+bool CMeshRoutines::getDecimatedMesh(const std::vector<double>& verticesIn,const std::vector<int>& indicesIn,double percentageToKeep,std::vector<double>& verticesOut,std::vector<int>& indicesOut)
 {
     bool retVal=false;
     if ( (verticesIn.size()>=9)&&(indicesIn.size()>=6) )
@@ -268,7 +293,7 @@ bool CMeshRoutines::getDecimatedMesh(const std::vector<double>& verticesIn,const
         data[2]=(int*)&indicesIn[0];
         int il=(int)indicesIn.size();
         data[3]=&il;
-        data[4]=&decimationPercentage;
+        data[4]=&percentageToKeep;
         int version=0;
         data[5]=&version;
         bool success=false;
@@ -375,7 +400,7 @@ int CMeshRoutines::convexDecompose(const double* vertices,int verticesLength,con
         delete[] vertList[mesh];
         delete[] indList[mesh];
 
-        getConvexHull(_vert,_ind); // better results with that! (convex decomp. routine has large tolerance regarding convexivity)
+        getConvexHull(_vert[0],_vert[0],_ind[0]); // better results with that! (convex decomp. routine has large tolerance regarding convexivity)
 
         // We do some checkings on our own here, just in case:
         C3Vector mmin,mmax;
@@ -1420,7 +1445,7 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const 
     std::unordered_set<SGeodVertNode*> unvisitedNodes;
     std::vector<SGeodVertNode*> allNodes;
     // Extract a convex hull from the vertices:
-    if (getConvexHull(&inVert,&vert,&ind))
+    if (getConvexHull(inVert,vert,ind))
     {
         double edgeLength=DBL_MAX;
         while (true)

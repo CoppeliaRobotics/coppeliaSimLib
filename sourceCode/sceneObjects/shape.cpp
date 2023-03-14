@@ -421,19 +421,19 @@ void CShape::setStartInDynamicSleeping(bool sleeping)
     _startInDynamicSleeping=sleeping;
 }
 
-bool CShape::getShapeIsDynamicallyStatic() const
+bool CShape::getStatic() const
 {
     return(_shapeIsDynamicallyStatic);
 }
 
-void CShape::setShapeIsDynamicallyStatic(bool sta)
+void CShape::setStatic(bool sta)
 {
     _shapeIsDynamicallyStatic=sta;
     if (!sta)
         _setAutomaticallyToNonStaticIfGetsParent=false;
 }
 
-bool CShape::getShapeIsDynamicallyKinematic() const
+bool CShape::getDynKinematic() const
 {
     bool retVal=_shapeIsDynamicallyKinematic;
     if (_objectAlias=="Floor")
@@ -441,7 +441,7 @@ bool CShape::getShapeIsDynamicallyKinematic() const
     return(retVal);
 }
 
-void CShape::setShapeIsDynamicallyKinematic(bool kin)
+void CShape::setDynKinematic(bool kin)
 {
     _shapeIsDynamicallyKinematic=kin;
     if (_objectAlias=="Floor")
@@ -756,7 +756,6 @@ void CShape::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity; 
                         _serializeMesh(ar);
-                        getMesh()->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
                     }
 
                     if (theName.compare("Mat")==0)
@@ -1076,7 +1075,7 @@ bool CShape::computeInertia(double density)
         _mesh->getCumulativeMeshes(C7Vector::identityTransformation,vert,nullptr,nullptr);
         std::vector<double> hull;
         std::vector<int> indices;
-        if (CMeshRoutines::getConvexHull(&vert,&hull,&indices))
+        if (CMeshRoutines::getConvexHull(vert,hull,indices))
             mass=CPluginContainer::dyn_computePMI(hull,indices,localTr,diagI);
     }
     if (mass>0.0)
@@ -1096,17 +1095,21 @@ bool CShape::computeInertia(double density)
     return(retVal);
 }
 
-bool CShape::alignBB(const char* mode)
+bool CShape::alignBB(const char* mode,const C7Vector* tr/*=nullptr*/)
 {
     bool retVal=false;
-    C7Vector shapeCumulTr(getCumulativeTransformation());
     if (std::string(mode)=="world")
     {
-        C7Vector shapeCumulTrInv(shapeCumulTr.getInverse());
+        C7Vector shapeCumulTrInv(getCumulativeTransformation().getInverse());
         retVal=_mesh->reorientBB(&shapeCumulTrInv.Q);
     }
     if (std::string(mode)=="mesh")
         retVal=_mesh->reorientBB(nullptr);
+    if ( (std::string(mode)=="custom")&&(tr!=nullptr) )
+    {
+        C7Vector shapeCumulTrInv(getCumulativeTransformation().getInverse()*tr[0]);
+        retVal=_mesh->reorientBB(&shapeCumulTrInv.Q);
+    }
     if (retVal)
     {
         computeBoundingBox();
@@ -1116,7 +1119,7 @@ bool CShape::alignBB(const char* mode)
     return(retVal);
 }
 
-bool CShape::relocateFrame(const char* mode)
+bool CShape::relocateFrame(const char* mode,const C7Vector* tr/*=nullptr*/)
 {
     bool retVal=false;
     if ( (!_mesh->isMesh())||(!_mesh->isPure()) )
@@ -1157,6 +1160,24 @@ bool CShape::relocateFrame(const char* mode)
                 child->setLocalTransformation(oldBBFrame.getInverse()*child->getLocalTransformation());
             }
             _localTransformation=_localTransformation*oldBBFrame;
+        }
+        if ( (std::string(mode)=="custom")&&(tr!=nullptr) )
+        {
+            C7Vector x(getCumulativeTransformation().getInverse()*tr[0]);
+            _mesh->setCOM(x.getInverse()*_mesh->getCOM());
+            _mesh->setInertia(CMeshWrapper::getInertiaInNewFrame(x.getInverse().Q,_mesh->getInertia(),C4Vector::identityRotation));
+            _mesh->setBBFrame(C7Vector::identityTransformation);
+            if (getSingleMesh()==nullptr)
+            { // we have a compound
+                for (size_t i=0;i<_mesh->childList.size();i++)
+                    _mesh->childList[i]->setIFrame(x.getInverse()*_mesh->childList[i]->getIFrame());
+            }
+            for (size_t i=0;i<getChildCount();i++)
+            {
+                CSceneObject* child=getChildFromIndex(i);
+                child->setLocalTransformation(x.getInverse()*child->getLocalTransformation());
+            }
+            _localTransformation=_localTransformation*x;
         }
         computeBoundingBox();
         _meshModificationCounter++;
@@ -1651,6 +1672,6 @@ bool CShape::setParent(CSceneObject* newParent)
 { // Overridden from CSceneObject
     bool retVal=CSceneObject::setParent(newParent);
     if (retVal&&getSetAutomaticallyToNonStaticIfGetsParent())
-        setShapeIsDynamicallyStatic(false);
+        setStatic(false);
     return(retVal);
 }

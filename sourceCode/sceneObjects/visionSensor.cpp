@@ -1602,7 +1602,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool d
         { // we have a model here that we want to render. We render also non-renderable object. And only those currently visible:
             std::vector<int> rootSel;
             rootSel.push_back(object->getObjectHandle());
-            CSceneObjectOperations::addRootObjectChildrenToSelection(rootSel);
+            App::currentWorld->sceneObjects->addModelObjects(rootSel);
             for (int i=0;i<int(rootSel.size());i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(rootSel[i]);
@@ -1778,7 +1778,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(int entityID,bo
         { // we have a model here that we want to render. We render also non-renderable object. And only those currently visible:
             std::vector<int> rootSel;
             rootSel.push_back(object->getObjectHandle());
-            CSceneObjectOperations::addRootObjectChildrenToSelection(rootSel);
+            App::currentWorld->sceneObjects->addModelObjects(rootSel);
             for (int i=0;i<int(rootSel.size());i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(rootSel[i]);
@@ -1886,7 +1886,7 @@ int CVisionSensor::_getActiveMirrors(int entityID,bool detectAll,bool entityIsMo
         { // we have a model here that we want to render. We render also non-renderable object. And only those currently visible:
             std::vector<int> rootSel;
             rootSel.push_back(object->getObjectHandle());
-            CSceneObjectOperations::addRootObjectChildrenToSelection(rootSel);
+            App::currentWorld->sceneObjects->addModelObjects(rootSel);
             for (int i=0;i<int(rootSel.size());i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(rootSel[i]);

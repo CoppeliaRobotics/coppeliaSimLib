@@ -20,10 +20,9 @@ public:
 
     static void getEdgeFeatures(double* vertices,int verticesLength,int* indices,int indicesLength,
             std::vector<int>* vertexIDs,std::vector<int>* edgeIDs,std::vector<int>* faceIDs,double angleTolerance,bool forDisplay,bool hideEdgeBorders);
-    static bool getConvexHull(std::vector<double>* verticesInOut,std::vector<int>* indicesInOut);
-    static bool getConvexHull(const std::vector<double>* verticesIn,std::vector<double>* verticesOut,std::vector<int>* indicesOut);
-    static bool getConvexHull(const double* verticesIn,int verticesInLength,std::vector<double>* verticesOut,std::vector<int>* indicesOut);
-    static bool getDecimatedMesh(const std::vector<double>& verticesIn,const std::vector<int>& indicesIn,double decimationPercentage,std::vector<double>& verticesOut,std::vector<int>& indicesOut);
+
+    static bool getConvexHull(const std::vector<double>& verticesIn,std::vector<double>& verticesOut,std::vector<int>& indicesOut);
+    static bool getDecimatedMesh(const std::vector<double>& verticesIn,const std::vector<int>& indicesIn,double percentageToKeep,std::vector<double>& verticesOut,std::vector<int>& indicesOut);
 
     inline static bool getMinDistBetweenSegmentAndPoint_IfSmaller(const C3Vector& lp0,
                             const C3Vector& lv0,const C3Vector& dummyPos,double &dist,C3Vector& segA)
@@ -96,6 +95,7 @@ public:
     static void toDelaunayMesh(const std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<float>* texCoords);
     static void removeDuplicateVerticesAndTriangles(std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals,std::vector<float>* texCoords,double distTolerance);
     static void removeNonReferencedVertices(std::vector<double>& vertices,std::vector<int>& indices);
+    static void removeThinTriangles(std::vector<double>& vertices,std::vector<int>& indices,double percentageToKeep);
 
 private:
     static void _insertEdge(std::vector<std::vector<int>* >& allEdges,int vertexIndex1,int vertexIndex2,int triangleIndex); // used for convex check

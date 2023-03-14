@@ -1199,7 +1199,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
                     if (it->getObjectType()==sim_object_shape_type)
                     {
                         CShape* so=(CShape*)it;
-                        if (so->getShapeIsDynamicallyStatic())
+                        if (so->getStatic())
                         { // static
                             if (so->getRespondable())
                                 txt+=IDS_SHAPE_IS_STATIC_AND_RESPONDABLE;
