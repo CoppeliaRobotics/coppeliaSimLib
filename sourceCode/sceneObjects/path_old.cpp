@@ -41,7 +41,7 @@ CPath_old::~CPath_old()
 void CPath_old::computeBoundingBox()
 {
     C3Vector maxV(pathContainer->getSquareSize()/2.0,pathContainer->getSquareSize()/2.0,pathContainer->getSquareSize()/2.0);
-    _setBoundingBox(maxV*-1.0,maxV);
+    _setBoundingBox_OLD(maxV*-1.0,maxV);
     _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*pathContainer->getSquareSize()*0.5);
 }
 

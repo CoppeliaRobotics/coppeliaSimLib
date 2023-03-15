@@ -6105,3 +6105,55 @@ const void* _simGetGeomProxyFromShape_internal(const void* shape)
     return(shape);
 }
 
+int simReorientShapeBoundingBox_internal(int shapeHandle,int relativeToHandle,int reservedSetToZero)
+{ // deprecated on 15.03.2023
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (!isShape(__func__,shapeHandle))
+            return(-1);
+        if ( (relativeToHandle!=-1)&&(relativeToHandle!=sim_handle_self) )
+        {
+            if (!doesObjectExist(__func__,relativeToHandle))
+                return(-1);
+        }
+
+        CShape* theShape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CSceneObject* theObjectRelativeTo=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToHandle);
+        if ( (!theShape->getMesh()->isPure())||(theShape->isCompound()) )
+        { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
+            if (relativeToHandle==-1)
+            {
+                theShape->alignBB("world");
+                theShape->relocateFrame("mesh"); // needed to keep a similar behaviour (often used after sim.groupShapes, in order to 'know' the frame pose rel. to the new geometry)
+            }
+            else if (relativeToHandle==sim_handle_self)
+            {
+                theShape->alignBB("mesh");
+                theShape->relocateFrame("mesh"); // needed to keep a similar behaviour (often used after sim.groupShapes, in order to 'know' the frame pose rel. to the new geometry)
+            }
+            else
+            {
+                C7Vector oldAbsTr(theShape->getCumulativeTransformation());
+                C7Vector oldAbsTr2(theObjectRelativeTo->getCumulativeTransformation().getInverse()*oldAbsTr);
+                C7Vector x(oldAbsTr2*oldAbsTr.getInverse());
+                theShape->setLocalTransformation(theShape->getFullParentCumulativeTransformation().getInverse()*oldAbsTr2);
+                theShape->alignBB("world");
+                C7Vector newAbsTr2(theShape->getCumulativeTransformation());
+                C7Vector newAbsTr(x.getInverse()*newAbsTr2);
+                theShape->setLocalTransformation(theShape->getFullParentCumulativeTransformation().getInverse()*newAbsTr);
+                theShape->relocateFrame("mesh"); // needed to keep a similar behaviour (often used after sim.groupShapes, in order to 'know' the frame pose rel. to the new geometry)
+            }
+        }
+        else
+            return(0);
+        return(1); // success
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+

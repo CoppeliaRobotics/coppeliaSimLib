@@ -2295,6 +2295,10 @@ SIM_DLLEXPORT int _simGetJointCallbackCallOrder(const void* joint)
     // silent b/c of Newton
     return(1); // not needed anymore
 }
+SIM_DLLEXPORT int simReorientShapeBoundingBox(int shapeHandle,int relativeToHandle,int reservedSetToZero)
+{
+    return(simReorientShapeBoundingBox_internal(shapeHandle,relativeToHandle,reservedSetToZero));
+}
 SIM_DLLEXPORT int simSetDoubleSignal(const char* signalName,double signalValue)
 {
     return(simSetDoubleSignalOld_internal(signalName,signalValue));

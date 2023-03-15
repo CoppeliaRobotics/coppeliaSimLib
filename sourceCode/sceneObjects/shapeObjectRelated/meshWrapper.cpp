@@ -672,7 +672,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
 
             ar.storeDataName("Var");
             unsigned char nothing=0;
-            // SIM_SET_CLEAR_BIT(nothing,2,_convex);
+            SIM_SET_CLEAR_BIT(nothing,2,isConvex()); // for backward compatibility
             SIM_SET_CLEAR_BIT(nothing,5,true);
             ar << nothing;
             ar.flush();
@@ -719,7 +719,6 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                         if (_mass==0.0) // to catch an old bug
                             _mass=0.001;
                     }
-
                     if (theName.compare("_as")==0)
                     {
                         noHit=false;
@@ -846,7 +845,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        // _convex=SIM_IS_BIT_SET(nothing,2);
+                        _convex_OLD=SIM_IS_BIT_SET(nothing,2);
                     }
                     if (theName.compare("Geo")==0)
                     {

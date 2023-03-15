@@ -1698,7 +1698,7 @@ void CSceneObject::computeBoundingBox()
 { // overridden
 }
 
-void CSceneObject::_setBoundingBox(const C3Vector& vmin,const C3Vector& vmax)
+void CSceneObject::_setBoundingBox_OLD(const C3Vector& vmin,const C3Vector& vmax)
 {
     if ( (_boundingBoxMin_OLD!=vmin)||(_boundingBoxMax_OLD!=vmax) )
     {

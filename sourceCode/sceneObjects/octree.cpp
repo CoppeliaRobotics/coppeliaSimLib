@@ -554,7 +554,7 @@ void COcTree::computeBoundingBox()
         maxDim(0)+=_cellSize*0.5;
         maxDim(1)+=_cellSize*0.5;
         maxDim(2)+=_cellSize*0.5;
-        _setBoundingBox(minDim,maxDim);
+        _setBoundingBox_OLD(minDim,maxDim);
         C7Vector fr;
         fr.setIdentity();
         fr.X=(maxDim+minDim)*0.5;
@@ -562,7 +562,7 @@ void COcTree::computeBoundingBox()
     }
     else
     {
-        _setBoundingBox(C3Vector(-0.1,-0.1,-0.1),C3Vector(+0.1,+0.1,+0.1));
+        _setBoundingBox_OLD(C3Vector(-0.1,-0.1,-0.1),C3Vector(+0.1,+0.1,+0.1));
         _setBB(C7Vector::identityTransformation,C3Vector(0.1,0.1,0.1));
     }
 }

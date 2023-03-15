@@ -1257,7 +1257,7 @@ void CJoint::computeBoundingBox()
         minV(0)=minV(1)=minV(2)=-maxV(0);
     }
     _setBB(C7Vector::identityTransformation,C3Vector(_diameter,_diameter,_length)*0.5);
-    _setBoundingBox(minV,maxV);
+    _setBoundingBox_OLD(minV,maxV);
 }
 
 bool CJoint::setScrewLead(double lead)

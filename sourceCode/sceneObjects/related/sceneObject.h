@@ -306,7 +306,7 @@ public:
 
 protected:
     void _setModelInvisible(bool inv);
-    void _setBoundingBox(const C3Vector& vmin,const C3Vector& vmax);
+    void _setBoundingBox_OLD(const C3Vector& vmin,const C3Vector& vmax);
     void _setBB(const C7Vector& bbFrame,const C3Vector& bbHalfSize);
     void _addCommonObjectEventData(CInterfaceStackTable* data) const;
     void _appendObjectMovementEventData(CInterfaceStackTable* data) const;

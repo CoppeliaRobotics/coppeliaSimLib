@@ -215,4 +215,5 @@ int simClearDoubleSignalOld_internal(const char* signalName);
 int simGetShapeVertex_internal(int shapeHandle,int groupElementIndex,int vertexIndex,double* relativePosition);
 int simGetShapeTriangle_internal(int shapeHandle,int groupElementIndex,int triangleIndex,int* vertexIndices,double* triangleNormals);
 const void* _simGetGeomProxyFromShape_internal(const void* shape);
+int simReorientShapeBoundingBox_internal(int shapeHandle,int relativeToHandle,int reservedSetToZero);
 

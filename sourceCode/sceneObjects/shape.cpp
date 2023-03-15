@@ -307,7 +307,7 @@ void CShape::computeBoundingBox()
             }
         }
     }
-    _setBoundingBox(vmin,vmax);
+    _setBoundingBox_OLD(vmin,vmax);
 }
 
 void CShape::commonInit()
@@ -1502,8 +1502,7 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
         if (tp!=nullptr)
         {
             to=tp->getTextureObject();
-//            tc=tp->getTextureCoordinates(-1,tr,wvert[0],wind[0]);
-            tc=tp->getTextureCoordinates(-1,geom->getBB(nullptr),wvert[0],wind[0]);
+            tc=tp->getTextureCoordinates(-1,wvert[0],wind[0]);
         }
 
         if ( (to!=nullptr)&&(tc!=nullptr) )

@@ -546,9 +546,13 @@ SIM_DLLEXPORT int* simGetCollectionObjects(int collectionHandle,int* objectCount
 {
     return(simGetCollectionObjects_internal(collectionHandle,objectCount));
 }
-SIM_DLLEXPORT int simReorientShapeBoundingBox(int shapeHandle,int relativeToHandle,int reservedSetToZero)
+SIM_DLLEXPORT int simAlignShapeBB(int shapeHandle,const double* pose)
 {
-    return(simReorientShapeBoundingBox_internal(shapeHandle,relativeToHandle,reservedSetToZero));
+    return(simAlignShapeBB_internal(shapeHandle,pose));
+}
+SIM_DLLEXPORT int simRelocateShapeFrame(int shapeHandle,const double* pose)
+{
+    return(simRelocateShapeFrame_internal(shapeHandle,pose));
 }
 SIM_DLLEXPORT int simSaveImage(const unsigned char* image,const int* resolution,int options,const char* filename,int quality,void* reserved)
 {

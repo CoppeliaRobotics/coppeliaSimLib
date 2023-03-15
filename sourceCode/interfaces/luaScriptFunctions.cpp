@@ -346,7 +346,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.handleSandboxScript",_simHandleSandboxScript,          "sim.handleSandboxScript(int callType)",true},
     {"sim.handleChildScripts",_simHandleChildScripts,            "int calledScripts=sim.handleChildScripts(int callType)",true},
     {"sim.handleEmbeddedScripts",_simHandleEmbeddedScripts,      "int calledScripts=sim.handleEmbeddedScripts(int callType)",true},
-    {"sim.reorientShapeBoundingBox",_simReorientShapeBoundingBox,"int result=sim.reorientShapeBoundingBox(int shapeHandle,int relativeToHandle)",true},
+    {"sim.alignShapeBB",_simAlignShapeBB,                        "int result=sim.alignShapeBB(int shapeHandle,float[7] pose)",true},
+    {"sim.relocateShapeFrame",_simRelocateShapeFrame,            "int result=sim.relocateShapeFrame(int shapeHandle,float[7] pose)",true},
     {"sim.handleVisionSensor",_simHandleVisionSensor,            "int detectionCount,float[] auxPacket1,float[] auxPacket2=sim.handleVisionSensor(int sensorHandle)",true},
     {"sim.readVisionSensor",_simReadVisionSensor,                "int result,float[] auxPacket1,float[] auxPacket2=sim.readVisionSensor(int sensorHandle)",true},
     {"sim.resetVisionSensor",_simResetVisionSensor,              "sim.resetVisionSensor(int sensorHandle)",true},
@@ -602,6 +603,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setDoubleSignal",_simSetDoubleSignal,                  "Deprecated. Use sim.setFloatSignal instead",false},
     {"sim.getDoubleSignal",_simGetDoubleSignal,                  "Deprecated. Use sim.getFloatSignal instead",false},
     {"sim.clearDoubleSignal",_simClearDoubleSignal,              "Deprecated. Use sim.clearFloatSignal instead",false},
+    {"sim.reorientShapeBoundingBox",_simReorientShapeBoundingBox,"Deprecated. Use sim.alignShapeBB and/or sim.relocateShapeFrame instead",false},
 
     {"",nullptr,"",false}
 };
@@ -5359,6 +5361,32 @@ int _simTest(luaWrap_lua_State* L)
             luaWrap_lua_pushnumber(L,dist);
             pushDoubleTableOntoStack(L,path.size(),path.data());
             LUA_END(2);
+        }
+        if (cmd.compare("sim.recomputeInertia")==0)
+        {
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
+            {
+                CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
+                if (!it->getStatic())
+                {
+                    CMeshWrapper* mesh=it->getMesh();
+                    double mass=mesh->getMass();
+                    C3Vector diagI;
+                    mesh->getDiagonalInertiaInfo(diagI);
+                    double wOld=cbrt(diagI(0)*diagI(1)*diagI(2));
+                    if (it->computeInertia(1000.0))
+                    {
+                        mesh->setMass(mass);
+                        C3Vector diagI2;
+                        mesh->getDiagonalInertiaInfo(diagI2);
+                        double wNew=cbrt(diagI2(0)*diagI2(1)*diagI2(2));
+                        mesh->setInertia(mesh->getInertia()*(wOld/wNew));
+                        mesh->getDiagonalInertiaInfo(diagI2);
+                        wNew=cbrt(diagI2(0)*diagI2(1)*diagI2(2));
+                    }
+                }
+            }
+            LUA_END(0);
         }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -12032,21 +12060,41 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simReorientShapeBoundingBox(luaWrap_lua_State* L)
+int _simAlignShapeBB(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.reorientShapeBoundingBox");
+    LUA_START("sim.alignShapeBB");
 
     int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_number,7))
     {
         int shapeHandle=luaToInt(L,1);
-        int relativeToHandle=luaToInt(L,2);
-        retVal=simReorientShapeBoundingBox_internal(shapeHandle,relativeToHandle,0);
+        double pose[7];
+        getDoublesFromTable(L,2,7,pose);
+        retVal=simAlignShapeBB_internal(shapeHandle,pose);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
+    luaWrap_lua_pushboolean(L,retVal==1);
+    LUA_END(1);
+}
+
+int _simRelocateShapeFrame(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.relocateShapeFrame");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_number,7))
+    {
+        int shapeHandle=luaToInt(L,1);
+        double pose[7];
+        getDoublesFromTable(L,2,7,pose);
+        retVal=simRelocateShapeFrame_internal(shapeHandle,pose);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushboolean(L,retVal==1);
     LUA_END(1);
 }
 
@@ -21492,3 +21540,22 @@ int _simClearDoubleSignal(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
+
+int _simReorientShapeBoundingBox(luaWrap_lua_State* L)
+{ // deprecated on 15.03.2023
+    TRACE_LUA_API;
+    LUA_START("sim.reorientShapeBoundingBox");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int shapeHandle=luaToInt(L,1);
+        int relativeToHandle=luaToInt(L,2);
+        retVal=simReorientShapeBoundingBox_internal(shapeHandle,relativeToHandle,0);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+

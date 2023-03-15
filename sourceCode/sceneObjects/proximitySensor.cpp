@@ -782,10 +782,10 @@ void CProxSensor::computeBoundingBox()
     C3Vector n(-_proxSensorSize*0.5,-_proxSensorSize*0.5,-_proxSensorSize*0.5);
     minV.keepMin(n);
     maxV.keepMax(m);
-    _setBoundingBox(minV,maxV);
+    _setBoundingBox_OLD(minV,maxV);
     */
     C3Vector v(_proxSensorSize*0.5,_proxSensorSize*0.5,_proxSensorSize*0.5);
-    _setBoundingBox(v*-1.0,v);
+    _setBoundingBox_OLD(v*-1.0,v);
     _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_proxSensorSize*0.5);
 }
 

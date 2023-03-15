@@ -44,12 +44,14 @@ CMesh::CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const
     if (optTexCoords!=nullptr)
     {
         _textureCoordsTemp.assign(optTexCoords->begin(),optTexCoords->end());
-        CMeshRoutines::cleanupMesh(_vertices,_indices,&_normals,&_textureCoordsTemp,App::userSettings->verticesTolerance);
+        // Following causes problems with fixed texture coordinates, so we do not clean up the mesh for now
+        //CMeshRoutines::cleanupMesh(_vertices,_indices,&_normals,&_textureCoordsTemp,App::userSettings->verticesTolerance);
     }
     else
     {
         _textureCoordsTemp.clear();
-        CMeshRoutines::cleanupMesh(_vertices,_indices,&_normals,nullptr,App::userSettings->verticesTolerance);
+        // Following causes problems with fixed texture coordinates, so we do not clean up the mesh for now
+        //CMeshRoutines::cleanupMesh(_vertices,_indices,&_normals,nullptr,App::userSettings->verticesTolerance);
     }
 
     // Express everything in the meshFrame:
@@ -238,8 +240,7 @@ void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,i
         if (tp!=nullptr)
         {
             textured=true;
-//            textureCoords=tp->getTextureCoordinates(geomData->getMeshModificationCounter(),_verticeLocalFrame,_verticesForDisplayAndDisk,_indices);
-            textureCoords=tp->getTextureCoordinates(geomData->getMeshModificationCounter(),_bbFrame,_verticesForDisplayAndDisk,_indices);
+            textureCoords=tp->getTextureCoordinates(geomData->getMeshModificationCounter(),_verticesForDisplayAndDisk,_indices);
             if (textureCoords==nullptr)
                 return; // Should normally never happen
             data[9]=&(textureCoords[0])[0];
@@ -483,6 +484,8 @@ void CMesh::scale(double xVal,double yVal,double zVal)
 
 void CMesh::_transformMesh(const C7Vector& tr)
 {
+    if (_textureProperty!=nullptr)
+        _textureProperty->transformTexturePose(tr);
     for (size_t i=0;i<_vertices.size()/3;i++)
     {
         C3Vector v(_vertices.data()+3*i);
@@ -517,8 +520,6 @@ void CMesh::_transformMesh(const C7Vector& tr)
 
 void CMesh::setBBFrame(const C7Vector& bbFrame)
 { // function has virtual/non-virtual counterpart!
-    if (_textureProperty!=nullptr)
-        _textureProperty->transformTexturePose(_bbFrame.getInverse()*bbFrame);
     CMeshWrapper::setBBFrame(bbFrame);
 }
 
@@ -547,8 +548,6 @@ bool CMesh::reorientBB(const C4Vector* rot)
             _transformMesh(_bbFrame.getInverse());
             _bbSize=_computeBBSize();
         }
-        if (_textureProperty!=nullptr)
-            _textureProperty->transformTexturePose(initialFrame.getInverse()*_bbFrame);
         retVal=true;
     }
     return(retVal);
@@ -1068,6 +1067,13 @@ void CMesh::takeVisualAttributesFrom(CMesh* origin)
     _insideAndOutsideFacesSameColor_DEPRECATED=origin->_insideAndOutsideFacesSameColor_DEPRECATED;
     _wireframe_OLD=origin->_wireframe_OLD;
     _edgeWidth_DEPRERCATED=origin->_edgeWidth_DEPRERCATED;
+    if ( (origin->_textureProperty!=nullptr)&&(_textureCoordsTemp.size()>0) )
+    {
+        if (_textureProperty!=nullptr)
+            delete _textureProperty;
+        _textureProperty=origin->_textureProperty->copyYourself();
+        _textureProperty->setFixedCoordinates(&_textureCoordsTemp);
+    }
     if (_shadingAngle!=origin->_shadingAngle)
     {
         _shadingAngle=origin->_shadingAngle;
@@ -2244,7 +2250,15 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                 _bbFrame.X.clear();
             }
             if (!hasConvexFlag)
+            {
                 checkIfConvex();
+                if ( (!_convex)&&_convex_OLD )
+                { // in some rare cases, old shapes won't be detected as convex anymore. Make them convex in that case!
+                    CMeshRoutines::getConvexHull(_vertices,_vertices,_indices);
+                    actualizeGouraudShadingAndVisibleEdges();
+                    checkIfConvex();
+                }
+            }
         }
     }
     else
@@ -2390,6 +2404,12 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                 _bbFrame.X.clear();
             }
             checkIfConvex(); // with XML, we do not serialize the _convex flag. So we recompute it
+            if ( (!_convex)&&_convex_OLD )
+            { // in some rare cases, old shapes won't be detected as convex anymore. Make them convex in that case!
+                CMeshRoutines::getConvexHull(_vertices,_vertices,_indices);
+                actualizeGouraudShadingAndVisibleEdges();
+                checkIfConvex();
+            }
         }
     }
 }
@@ -2414,7 +2434,7 @@ bool CMesh::getNonCalculatedTextureCoordinates(std::vector<float>& texCoords)
 {
     if (_textureProperty==nullptr)
         return(false);
-    std::vector<float>* tc=_textureProperty->getTextureCoordinates(-1,C7Vector::identityTransformation,_verticesForDisplayAndDisk,_indices);
+    std::vector<float>* tc=_textureProperty->getTextureCoordinates(-1,_verticesForDisplayAndDisk,_indices);
     if (tc==nullptr)
         return(false);
     if (!_textureProperty->getFixedCoordinates())

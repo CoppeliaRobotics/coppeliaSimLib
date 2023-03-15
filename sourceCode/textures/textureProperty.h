@@ -28,7 +28,7 @@ public:
 
     int getTextureObjectID();
     CTextureObject* getTextureObject();
-    std::vector<float>* getTextureCoordinates(int objectStateId,const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles);
+    std::vector<float>* getTextureCoordinates(int objectStateId,const std::vector<float>& vertices,const std::vector<int>& triangles);
     std::vector<float>* getFixedTextureCoordinates();
     C7Vector getTextureRelativeConfig();
     void setTextureRelativeConfig(const C7Vector& c);

@@ -57,10 +57,10 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
 
     if (!cancelChanges)
     {
-        CMeshRoutines::cleanupMesh(_editionVertices,_editionIndices,nullptr,nullptr,App::userSettings->verticesTolerance);
+//        CMeshRoutines::cleanupMesh(_editionVertices,_editionIndices,nullptr,&_editionTextureCoords,App::userSettings->verticesTolerance);
         if (_editionVertices.size()!=0)
         { // The shape is not empty
-            CMesh* newMesh=new CMesh(C7Vector::identityTransformation,_editionVertices,_editionIndices,nullptr,nullptr);
+            CMesh* newMesh=new CMesh(C7Vector::identityTransformation,_editionVertices,_editionIndices,nullptr,&_editionTextureCoords);
             _shape->replaceMesh(newMesh,true);
         }
         else

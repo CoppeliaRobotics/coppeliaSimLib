@@ -452,7 +452,7 @@ void CMill::computeBoundingBox()
     C3Vector n(-_size*0.25,-_size*0.25,-_size*0.25);
     minV.keepMin(n);
     maxV.keepMax(m);
-    _setBoundingBox(minV,maxV);
+    _setBoundingBox_OLD(minV,maxV);
     C7Vector fr;
     fr.Q.setIdentity();
     fr.X=(minV+maxV)*0.5;

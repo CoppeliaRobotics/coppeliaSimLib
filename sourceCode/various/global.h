@@ -1484,8 +1484,8 @@ enum { // keep below 2^20=1048576 (b/c of handleflags)
     SIM_IDSTART_SCENEOBJECT             =0,
     SIM_IDEND_SCENEOBJECT               =999999,
 
-    SIM_IDSTART_COLLECTION              =1000000,
-    SIM_IDEND_COLLECTION                =1009999,
+    SIM_IDSTART_COLLECTION              =2000000, // for V4.6 can be set to 1000000, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
+    SIM_IDEND_COLLECTION                =2010000, // for V4.6 can be set to 1009999, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
 
     SIM_IDSTART_LUASCRIPT               =1010000,
     SIM_IDEND_LUASCRIPT                 =1019999,
@@ -1494,8 +1494,8 @@ enum { // keep below 2^20=1048576 (b/c of handleflags)
     SIM_IDEND_INTERFACESTACK            =1029999,
 
     // Textures are also serialized
-    SIM_IDSTART_TEXTURE                 =1030000,
-    SIM_IDEND_TEXTURE                   =1039999,
+    SIM_IDSTART_TEXTURE                 =2180009, // for V4.6 can be set to 1030000, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
+    SIM_IDEND_TEXTURE                   =2280009, // for V4.6 can be set to 1039999, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
 };
 
 enum { // Old. Values are serialized:

@@ -143,7 +143,7 @@ std::vector<float>* CTextureProperty::getFixedTextureCoordinates()
     return(nullptr);
 }
 
-std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles)
+std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,const std::vector<float>& vertices,const std::vector<int>& triangles)
 { // can return nullptr if texture needs to be destroyed!
     if (_fixedTextureCoordinates.size()!=0)
     { // We have fixed coordinates!
@@ -167,7 +167,7 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
     _texCoordBufferId=-1;
 
     _calculatedTextureCoordinates.clear();
-    C7Vector tr(_textureRelativeConfig.getInverse()*transf);
+    C7Vector tr(_textureRelativeConfig.getInverse());
     CTextureObject* it=nullptr;
     if (_textureOrVisionSensorObjectID>SIM_IDEND_SCENEOBJECT)
         it=App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);

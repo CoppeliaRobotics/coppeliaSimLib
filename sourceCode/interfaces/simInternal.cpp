@@ -13275,7 +13275,7 @@ int* simGetCollectionObjects_internal(int collectionHandle,int* objectCount)
     return(nullptr);
 }
 
-int simReorientShapeBoundingBox_internal(int shapeHandle,int relativeToHandle,int reservedSetToZero)
+int simAlignShapeBB_internal(int shapeHandle,const double* pose)
 {
     TRACE_C_API;
 
@@ -13286,35 +13286,61 @@ int simReorientShapeBoundingBox_internal(int shapeHandle,int relativeToHandle,in
     {
         if (!isShape(__func__,shapeHandle))
             return(-1);
-        if ( (relativeToHandle!=-1)&&(relativeToHandle!=sim_handle_self) )
-        {
-            if (!doesObjectExist(__func__,relativeToHandle))
-                return(-1);
-        }
-
         CShape* theShape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-        CSceneObject* theObjectRelativeTo=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToHandle);
         if ( (!theShape->getMesh()->isPure())||(theShape->isCompound()) )
         { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
-            if (relativeToHandle==-1)
-                theShape->alignBB("world");
-            else if (relativeToHandle==sim_handle_self)
+            if (pose==nullptr)
                 theShape->alignBB("mesh");
             else
             {
-                C7Vector oldAbsTr(theShape->getCumulativeTransformation());
-                C7Vector oldAbsTr2(theObjectRelativeTo->getCumulativeTransformation().getInverse()*oldAbsTr);
-                C7Vector x(oldAbsTr2*oldAbsTr.getInverse());
-                theShape->setLocalTransformation(theShape->getFullParentCumulativeTransformation().getInverse()*oldAbsTr2);
-                theShape->alignBB("world");
-                C7Vector newAbsTr2(theShape->getCumulativeTransformation());
-                C7Vector newAbsTr(x.getInverse()*newAbsTr2);
-                theShape->setLocalTransformation(theShape->getFullParentCumulativeTransformation().getInverse()*newAbsTr);
+                C7Vector tr;
+                tr.setData(pose,true);
+                if ( (tr.Q(0)==0.0)&&(tr.Q(1)==0.0)&&(tr.Q(2)==0.0)&&(tr.Q(3)==0.0) )
+                    theShape->alignBB("mesh");
+                else
+                    theShape->alignBB("custom",&tr);
             }
+            return(1);
         }
-        else
-            return(0);
-        return(1); // success
+        return(0);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
+
+int simRelocateShapeFrame_internal(int shapeHandle,const double* pose)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (!isShape(__func__,shapeHandle))
+            return(-1);
+        CShape* theShape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        if ( (!theShape->getMesh()->isPure())||(theShape->isCompound()) )
+        { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
+            if (pose==nullptr)
+                theShape->relocateFrame("mesh");
+            else
+            {
+                C7Vector tr;
+                tr.setData(pose,true);
+                if ( (tr.Q(0)==0.0)&&(tr.Q(1)==0.0)&&(tr.Q(2)==0.0)&&(tr.Q(3)==0.0) )
+                    theShape->relocateFrame("mesh");
+                else
+                {
+                    C7Vector x(tr.getInverse()*theShape->getCumulativeTransformation());
+                    theShape->setLocalTransformation(theShape->getFullParentCumulativeTransformation().getInverse()*x);
+                    theShape->relocateFrame("world");
+                    theShape->setLocalTransformation(theShape->getLocalTransformation()*tr);
+                }
+            }
+            return(1);
+        }
+        return(0);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
@@ -15594,8 +15620,7 @@ int simGetShapeViz_internal(int shapeHandle,int index,struct SShapeVizInfo* info
             if (tp!=nullptr)
             {
                 to=tp->getTextureObject();
-//                tc=tp->getTextureCoordinates(-1,tr,geom->getVerticesForDisplayAndDisk()[0],wind[0]);
-                tc=tp->getTextureCoordinates(-1,geom->getBB(nullptr),geom->getVerticesForDisplayAndDisk()[0],wind[0]);
+                tc=tp->getTextureCoordinates(-1,geom->getVerticesForDisplayAndDisk()[0],wind[0]);
             }
 
             if ( (to!=nullptr)&&(tc!=nullptr) )
@@ -15714,8 +15739,7 @@ int simGetShapeVizf_internal(int shapeHandle,int index,struct SShapeVizInfof* in
             if (tp!=nullptr)
             {
                 to=tp->getTextureObject();
-//                tc=tp->getTextureCoordinates(-1,tr,wvert[0],wind[0]);
-                tc=tp->getTextureCoordinates(-1,geom->getBB(nullptr),wvert[0],wind[0]);
+                tc=tp->getTextureCoordinates(-1,wvert[0],wind[0]);
             }
 
             if ( (to!=nullptr)&&(tc!=nullptr) )

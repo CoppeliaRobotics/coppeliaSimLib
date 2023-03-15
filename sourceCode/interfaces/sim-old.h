@@ -370,6 +370,7 @@ SIM_DLLEXPORT bool _simIsDynamicMotorTorqueModulationEnabled(const void* joint);
 SIM_DLLEXPORT int _simGetContactCallbackCount();
 SIM_DLLEXPORT const void* _simGetContactCallback(int index);
 SIM_DLLEXPORT int _simGetJointCallbackCallOrder(const void* joint);
+SIM_DLLEXPORT int simReorientShapeBoundingBox(int shapeHandle,int relativeToHandle,int reservedSetToZero);
 
 
 /* deprecated, double and single precision functions (compatibility): */

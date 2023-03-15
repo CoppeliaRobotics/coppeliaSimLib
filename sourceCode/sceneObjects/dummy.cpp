@@ -254,7 +254,7 @@ bool CDummy::isPotentiallyDetectable() const
 void CDummy::computeBoundingBox()
 {
     C3Vector maxV(_dummySize/2.0,_dummySize/2.0,_dummySize/2.0);
-    _setBoundingBox(maxV*-1.0,maxV);
+    _setBoundingBox_OLD(maxV*-1.0,maxV);
     _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_dummySize*0.5);
 }
 

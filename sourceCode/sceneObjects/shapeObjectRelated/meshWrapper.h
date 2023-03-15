@@ -114,4 +114,5 @@ protected:
     C3Vector _bbSize; // Size of the bounding box, relative to _iFrame
 
     int _dynMaterialId_old;
+    bool _convex_OLD;
 };
