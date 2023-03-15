@@ -221,6 +221,7 @@ SIM_DLLEXPORT int simInitScript(int scriptHandle);
 SIM_DLLEXPORT int simModuleEntry(int handle,const char* label,int state);
 SIM_DLLEXPORT int simCheckExecAuthorization(const char* what,const char* args);
 SIM_DLLEXPORT int simGetVisionSensorRes(int sensorHandle,int* resolution);
+SIM_DLLEXPORT int simCreateShape(int options,double shadingAngle,const double* vertices,int verticesSize,const int* indices,int indicesSize,const double* normals,const float* textureCoords,const unsigned char* texture,const int* textureRes);
 // Following courtesy of Stephen James:
 SIM_DLLEXPORT int simExtLaunchUIThread(const char* applicationName,int options,const char* sceneOrModelOrUiToLoad,const char* applicationDir_);
 SIM_DLLEXPORT int simExtCanInitSimThread();

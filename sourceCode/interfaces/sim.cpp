@@ -814,6 +814,10 @@ SIM_DLLEXPORT int simGetVisionSensorRes(int sensorHandle,int* resolution)
 {
     return(simGetVisionSensorRes_internal(sensorHandle,resolution));
 }
+SIM_DLLEXPORT int simCreateShape(int options,double shadingAngle,const double* vertices,int verticesSize,const int* indices,int indicesSize,const double* normals,const float* textureCoords,const unsigned char* texture,const int* textureRes)
+{
+    return(simCreateShape_internal(options,shadingAngle,vertices,verticesSize,indices,indicesSize,normals,textureCoords,texture,textureRes));
+}
 SIM_DLLEXPORT void _simSetDynamicSimulationIconCode(void* object,int code)
 {
     return(_simSetDynamicSimulationIconCode_internal(object,code));

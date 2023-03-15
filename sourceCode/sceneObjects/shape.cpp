@@ -66,7 +66,7 @@ CShape::CShape(const std::vector<double>& allHeights,int xSize,int ySize,double 
         }
     }
 
-    CMesh* newMesh=new CMesh(_localTransformation,vertices,indices,nullptr,nullptr);
+    CMesh* newMesh=new CMesh(_localTransformation,vertices,indices,nullptr,nullptr,0);
     replaceMesh(newMesh,false);
     newMesh->setPurePrimitiveType(sim_primitiveshape_heightfield,double(xSize-1)*dx,double(ySize-1)*dx,zSize);
     std::vector<double> heightsInCorrectOrder;
@@ -104,11 +104,11 @@ void CShape::replaceMesh(CMeshWrapper* newMesh,bool keepMeshAttributes)
     pushObjectRefreshEvent();
 }
 
-CShape::CShape(const C7Vector& transformation,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords)
+CShape::CShape(const C7Vector& transformation,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords,int options)
 { // all types of meshes, except heightfields
     commonInit();
     _localTransformation=transformation;
-    CMesh* newMesh=new CMesh(_localTransformation,vertices,indices,optNormals,optTexCoords);
+    CMesh* newMesh=new CMesh(_localTransformation,vertices,indices,optNormals,optTexCoords,options);
     replaceMesh(newMesh,false);
 }
 
@@ -526,16 +526,13 @@ bool CShape::scaleObjectNonIsometrically(double x,double y,double z)
     {
         if (getMesh()->isPure())
         { // we have some constraints in case we have a primitive mesh
+            int purePrim=getSingleMesh()->getPurePrimitiveType();
+            if ( (purePrim==sim_primitiveshape_plane)||(purePrim==sim_primitiveshape_disc) )
+                z=1.0;
             if ( (x>=0.00001)&&(y>=0.00001)&&(z>=0.00001) )
             { // no x/y/z flipping for primitives
-                int purePrim=getSingleMesh()->getPurePrimitiveType();
-                if (purePrim==sim_primitiveshape_plane)
-                    z=1.0;
                 if (purePrim==sim_primitiveshape_disc)
-                {
-                    z=1.0;
                     y=x;
-                }
                 if ( (purePrim==sim_primitiveshape_spheroid)||(purePrim==sim_primitiveshape_capsule) )
                 {
                     y=x;
@@ -550,6 +547,14 @@ bool CShape::scaleObjectNonIsometrically(double x,double y,double z)
 
         if (retVal)
         {
+            C3Vector s;
+            _mesh->getBB(&s);
+            if (s(0)==0.0)
+                x=1.0;
+            if (s(1)==0.0)
+                y=1.0;
+            if (s(2)==0.0)
+                z=1.0;
             if ( (fabs(x)>=0.00001)&&(fabs(y)>=0.00001)&&(fabs(z)>=0.00001) )
             { // Make sure we do not have too small scalings
                 _meshModificationCounter++;

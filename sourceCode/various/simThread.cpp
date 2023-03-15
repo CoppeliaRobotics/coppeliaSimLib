@@ -4231,9 +4231,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             int toid=cmd.intParams[0];
             CShape* newShape;
             if (toid!=-1)
-                newShape=new CShape(C7Vector::identityTransformation,cmd.doubleVectorParams[0],cmd.intVectorParams[0],nullptr,&cmd.floatVectorParams[0]);
+                newShape=new CShape(C7Vector::identityTransformation,cmd.doubleVectorParams[0],cmd.intVectorParams[0],nullptr,&cmd.floatVectorParams[0],0);
             else
-                newShape=new CShape(C7Vector::identityTransformation,cmd.doubleVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
+                newShape=new CShape(C7Vector::identityTransformation,cmd.doubleVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr,0);
             newShape->setVisibleEdges(false);
             newShape->getSingleMesh()->setShadingAngle(0.0);
             newShape->getSingleMesh()->setEdgeThresholdAngle(0.0);
@@ -4258,7 +4258,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SHAPEEDIT_MAKEPRIMITIVE_GUITRIGGEREDCMD)
         {
-            CShape* newShape=new CShape(C7Vector::identityTransformation,cmd.doubleVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr);
+            CShape* newShape=new CShape(C7Vector::identityTransformation,cmd.doubleVectorParams[0],cmd.intVectorParams[0],nullptr,nullptr,0);
             newShape->alignBB("mesh");
             C3Vector size;
             C7Vector conf(newShape->getLocalTransformation()*newShape->getBB(&size));

@@ -593,7 +593,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
         for (int i=0;i<divX*divY*6;i++)
             tt::addToFloatArray(&normals,0.0,0.0,1.0);
 
-        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
+        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr,0);
         shape->setObjectAlias_direct(IDSOGL_PLANE);
         shape->setObjectName_direct_old(IDSOGL_PLANE);
         shape->setLocalTransformation(C3Vector(0.0,0.0,0.002)); // we shift the plane so that it is above the floor
@@ -615,7 +615,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
 
         CMeshRoutines::createCube(vertices,indices,C3Vector(xhSize*2.0,yhSize*2.0,zhSize*2.0),theDiv);
 
-        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
+        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr,0);
         shape->setObjectAlias_direct(IDSOGL_RECTANGLE);
         shape->setObjectName_direct_old(IDSOGL_RECTANGLE);
         shape->setLocalTransformation(C3Vector(0.0,0.0,zhSize)); // we shift the rectangle so that it sits on the floor
@@ -645,7 +645,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
 
         CMeshRoutines::createSphere(vertices,indices,C3Vector(xhSize*2.0,yhSize*2.0,zhSize*2.0),sides,faceSubdiv);
 
-        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
+        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr,0);
         shape->setObjectAlias_direct(IDSOGL_SPHERE);
         shape->setObjectName_direct_old(IDSOGL_SPHERE);
         shape->setLocalTransformation(C3Vector(0.0,0.0,zhSize)); // we shift the sphere so that it sits on the floor
@@ -676,7 +676,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
 
         CMeshRoutines::createCylinder(vertices,indices,C3Vector(xhSize*2.0,yhSize*2.0,zhSize*2.0),sides,faceSubdiv+1,discDiv,(options&4)!=0,type==sim_primitiveshape_cone);
 
-        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
+        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr,0);
         if (type==sim_primitiveshape_cone)
         {
             shape->setObjectAlias_direct("Cone");
@@ -723,7 +723,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
 
         CMeshRoutines::createCapsule(vertices,indices,C3Vector(sizes(0),sizes(1),cylLength),sides,faceSubdiv);
 
-        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
+        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr,0);
         shape->setObjectAlias_direct(IDSOGL_CAPSULE);
         shape->setObjectName_direct_old(IDSOGL_CAPSULE);
         shape->setLocalTransformation(C3Vector(0.0,0.0,sizes(2)*0.5));
@@ -810,7 +810,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int op
             vertices[3*i+1]=p(1);
         }
 
-        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
+        shape=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr,0);
         shape->setObjectAlias_direct(IDSOGL_DISC);
         shape->setObjectName_direct_old(IDSOGL_DISC);
         shape->setLocalTransformation(C3Vector(0.0,0.0,0.002)); // Now we shift the disc so it sits just above the floor
@@ -974,7 +974,7 @@ CShape* CAddOperations::addConvexHull(const std::vector<CSceneObject*>& inputObj
                 transf.X=(mmin+mmax)*0.5;
                 if ( (inputObjects.size()==1)&&(oneShape!=nullptr) )
                     transf=oneShape->getCumulativeTransformation();
-                retVal=new CShape(transf,vert,ind,nullptr,nullptr);
+                retVal=new CShape(transf,vert,ind,nullptr,nullptr,0);
                 retVal->setObjectAlias_direct("convexHull");
                 retVal->setObjectName_direct_old("convexHull");
                 retVal->setObjectAltName_direct_old(tt::getObjectAltNameFromObjectName(retVal->getObjectName_old().c_str()).c_str());

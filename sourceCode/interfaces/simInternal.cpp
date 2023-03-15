@@ -8106,6 +8106,53 @@ int simExportMesh_internal(int fileformat,const char* pathAndFilename,int option
     return(-1);
 }
 
+int simCreateShape_internal(int options,double shadingAngle,const double* vertices,int verticesSize,const int* indices,int indicesSize,const double* normals,const float* textureCoords,const unsigned char* texture,const int* textureRes)
+{
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        std::vector<double> vert(vertices,vertices+verticesSize);
+        std::vector<int> ind(indices,indices+indicesSize);
+        std::vector<double> _norm;
+        std::vector<double>* norm=nullptr;
+        if (normals!=nullptr)
+        {
+            _norm.assign(normals,normals+indicesSize*3);
+            norm=&_norm;
+        }
+        std::vector<float> _textCoords;
+        std::vector<float>* textCoords=nullptr;
+        const unsigned char* img=nullptr;
+        const int* res=nullptr;
+        if ( (textureCoords!=nullptr)&&(texture!=nullptr)&&(textureRes!=nullptr) )
+        {
+            _textCoords.assign(textureCoords,textureCoords+indicesSize*2);
+            textCoords=&_textCoords;
+            img=texture;
+            res=textureRes;
+        }
+        CShape* shape=new CShape(C7Vector::identityTransformation,vert,ind,norm,textCoords,options);
+        shape->getSingleMesh()->setShadingAngle(shadingAngle);
+        shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
+        int h=App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
+        if (img!=nullptr)
+        {
+            CTextureObject* textureObj=new CTextureObject(textureRes[0],textureRes[1]);
+            textureObj->setImage(options&16,options&32,(options&64)==0,texture);
+            textureObj->setObjectName("importedTexture");
+            textureObj->addDependentObject(h,shape->getSingleMesh()->getUniqueID());
+            int h=App::currentWorld->textureContainer->addObject(textureObj,false); // might erase the textureObj and return a similar object already present!!
+            shape->getSingleMesh()->getTextureProperty()->setTextureObjectID(h);
+        }
+        return(h);
+    }
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(-1);
+}
 
 int simCreateMeshShape_internal(int options,double shadingAngle,const double* vertices,int verticesSize,const int* indices,int indicesSize,double* reserved)
 {
@@ -8113,7 +8160,6 @@ int simCreateMeshShape_internal(int options,double shadingAngle,const double* ve
 
     if (!isSimulatorInitialized(__func__))
         return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if ( (indicesSize>=3)&&((indicesSize/3)*3==indicesSize) )
@@ -8133,7 +8179,7 @@ int simCreateMeshShape_internal(int options,double shadingAngle,const double* ve
                 {
                     std::vector<double> vert(vertices,vertices+verticesSize);
                     std::vector<int> ind(indices,indices+indicesSize);
-                    CShape* shape=new CShape(C7Vector::identityTransformation,vert,ind,nullptr,nullptr);
+                    CShape* shape=new CShape(C7Vector::identityTransformation,vert,ind,nullptr,nullptr,0);
                     shape->getSingleMesh()->setShadingAngle(shadingAngle);
                     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
                     shape->setCulling((options&1)!=0);

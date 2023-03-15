@@ -425,9 +425,14 @@ CTextureProperty* CTextureProperty::copyYourself()
     return(newObj);
 }
 
-int CTextureProperty::getTextureObjectID()
+int CTextureProperty::getTextureObjectID() const
 {
     return(_textureOrVisionSensorObjectID);
+}
+
+void CTextureProperty::setTextureObjectID(int id)
+{
+    _textureOrVisionSensorObjectID=id;
 }
 
 CTextureObject* CTextureProperty::getTextureObject()

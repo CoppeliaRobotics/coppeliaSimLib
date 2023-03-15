@@ -26,7 +26,8 @@ public:
     int getApplyMode();
     void transformTexturePose(const C7Vector& mCorrection);
 
-    int getTextureObjectID();
+    int getTextureObjectID() const;
+    void setTextureObjectID(int id);
     CTextureObject* getTextureObject();
     std::vector<float>* getTextureCoordinates(int objectStateId,const std::vector<float>& vertices,const std::vector<int>& triangles);
     std::vector<float>* getFixedTextureCoordinates();

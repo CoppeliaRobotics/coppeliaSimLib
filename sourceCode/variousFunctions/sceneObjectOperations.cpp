@@ -388,7 +388,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             std::vector<int> indOut;
                             if (CMeshRoutines::getDecimatedMesh(vert,ind,percentageToKeep,vertOut,indOut))
                             { // decimation algo was successful:
-                                CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr);
+                                CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr,0);
                                 it2->replaceMesh(mesh,true);
                             }
                         }
@@ -409,7 +409,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         std::vector<int> indOut;
                         if (CMeshRoutines::getDecimatedMesh(vert,ind,percentageToKeep,vertOut,indOut))
                         { // decimation algo was successful:
-                            CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr);
+                            CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr,0);
                             it->replaceMesh(mesh,true);
                             success=true;
                         }
@@ -1290,7 +1290,7 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
         CMeshWrapper* mesh=allMeshes[i];
         mesh->getCumulativeMeshes(allShapes[i]->getCumulativeTransformation(),vertices,&indices,&normals);
     }
-    CMesh* newMesh=new CMesh(lastSel->getCumulativeTransformation(),vertices,indices,&normals,nullptr);
+    CMesh* newMesh=new CMesh(lastSel->getCumulativeTransformation(),vertices,indices,&normals,nullptr,0);
     lastSel->replaceMesh(newMesh,true);
 
     std::vector<int> shapesToErase;
@@ -1364,7 +1364,7 @@ bool CSceneObjectOperations::_divideShape(CShape* it,std::vector<CShape*>& newSh
         if (CMeshManip::extractOneShape(&vertices,&indices,&subvert,&subind))
         { // Something was extracted
             extractedCount++;
-            CMesh* mesh=new CMesh(it->getFullCumulativeTransformation(),subvert,subind,nullptr,nullptr);
+            CMesh* mesh=new CMesh(it->getFullCumulativeTransformation(),subvert,subind,nullptr,nullptr,0);
             CShape* shape=new CShape();
             shape->replaceMesh(mesh,false);
             if (it->getMesh()->isMesh())
@@ -1380,7 +1380,7 @@ bool CSceneObjectOperations::_divideShape(CShape* it,std::vector<CShape*>& newSh
         { // nothing was extracted
             if (extractedCount==0)
                 break; // we couldn't extract anything!
-            CMesh* mesh=new CMesh(it->getFullCumulativeTransformation(),vertices,indices,nullptr,nullptr);
+            CMesh* mesh=new CMesh(it->getFullCumulativeTransformation(),vertices,indices,nullptr,nullptr,0);
             it->replaceMesh(mesh,true);
             break;
         }
@@ -1485,7 +1485,7 @@ CMesh* CSceneObjectOperations::generateConvexHull(int shapeHandle)
             std::vector<int> indices;
             std::vector<double> normals;
             if (CMeshRoutines::getConvexHull(allHullVertices,hull,indices))
-                retVal=new CMesh(transf,hull,indices,nullptr,nullptr);
+                retVal=new CMesh(transf,hull,indices,nullptr,nullptr,0);
         }
     }
     return(retVal);
@@ -1533,7 +1533,7 @@ CShape* CSceneObjectOperations::morphToConvexDecomposed(CShape* it,size_t nClust
                     addMesh=CMeshRoutines::getConvexHull(outputVert[i][0],outputVert[i][0],outputInd[i][0]);
                 if (addMesh)
                 {
-                    CMesh* mesh=new CMesh(C7Vector::identityTransformation,outputVert[i][0],outputInd[i][0],nullptr,nullptr);
+                    CMesh* mesh=new CMesh(C7Vector::identityTransformation,outputVert[i][0],outputInd[i][0],nullptr,nullptr,0);
                     allMeshes.push_back(mesh);
                 }
                 delete outputVert[i];
@@ -1582,7 +1582,7 @@ CShape* CSceneObjectOperations::morphToConvexDecomposed(CShape* it,size_t nClust
                 addMesh=CMeshRoutines::getConvexHull(outputVert[i][0],outputVert[i][0],outputInd[i][0]);
             if (addMesh)
             {
-                CMesh* mesh=new CMesh(C7Vector::identityTransformation,outputVert[i][0],outputInd[i][0],nullptr,nullptr);
+                CMesh* mesh=new CMesh(C7Vector::identityTransformation,outputVert[i][0],outputInd[i][0],nullptr,nullptr,0);
                 allMeshes.push_back(mesh);
             }
             delete outputVert[i];

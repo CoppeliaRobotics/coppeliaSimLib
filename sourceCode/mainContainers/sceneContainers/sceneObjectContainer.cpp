@@ -1914,7 +1914,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
                     }
                     if (ok)
                     {
-                        retVal=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr);
+                        retVal=new CShape(C7Vector::identityTransformation,vertices,indices,nullptr,nullptr,0);
                         addObjectToScene(retVal,false,true);
                     }
                 }

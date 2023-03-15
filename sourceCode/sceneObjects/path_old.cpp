@@ -521,7 +521,7 @@ CShape* CPath_old::getShape() const
             vert[3*i+2]=v(2);
         }
         std::vector<int> ind(_pathShapeIndices);
-        retVal=new CShape(C7Vector::identityTransformation,vert,ind,nullptr,nullptr);
+        retVal=new CShape(C7Vector::identityTransformation,vert,ind,nullptr,nullptr,0);
     }
     return(retVal);
 }

@@ -285,7 +285,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.importShape",_simImportShape,                          "int shapeHandle=sim.importShape(int fileformat,string pathAndFilename,int options,float identicalVerticeTolerance,float scalingFactor)",true},
     {"sim.importMesh",_simImportMesh,                            "float[1..*] vertices,int[1..*] indices=sim.importMesh(int fileformat,string pathAndFilename,int options,float identicalVerticeTolerance,float scalingFactor)",true},
     {"sim.exportMesh",_simExportMesh,                            "sim.exportMesh(int fileformat,string pathAndFilename,int options,float scalingFactor,float[1..*] vertices,int[1..*] indices)",true},
-    {"sim.createMeshShape",_simCreateMeshShape,                  "int shapeHandle=sim.createMeshShape(int options,float shadingAngle,float[] vertices,int[] indices)",true},
+    {"sim.createShape",_simCreateShape,                          "int shapeHandle=sim.createShape(int options,float shadingAngle,float[] vertices,int[] indices,float[] normals,float[] textureCoordinates,buffer texture,int[2] textureResolution)",true},
     {"sim.getShapeMesh",_simGetShapeMesh,                        "float[] vertices,int[] indices,float[] normals=sim.getShapeMesh(int shapeHandle)",true},
     {"sim.createPrimitiveShape",_simCreatePrimitiveShape,        "int shapeHandle=sim.createPrimitiveShape(int primitiveType,float[3] sizes,int options=0)",true},
     {"sim.createHeightfieldShape",_simCreateHeightfieldShape,    "int shapeHandle=sim.createHeightfieldShape(int options,float shadingAngle,int xPointCount,int yPointCount,float xSize,float[] heights)",true},
@@ -604,6 +604,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getDoubleSignal",_simGetDoubleSignal,                  "Deprecated. Use sim.getFloatSignal instead",false},
     {"sim.clearDoubleSignal",_simClearDoubleSignal,              "Deprecated. Use sim.clearFloatSignal instead",false},
     {"sim.reorientShapeBoundingBox",_simReorientShapeBoundingBox,"Deprecated. Use sim.alignShapeBB and/or sim.relocateShapeFrame instead",false},
+    {"sim.createMeshShape",_simCreateMeshShape,                  "Deprecated. Use sim.createShape instead",false},
 
     {"",nullptr,"",false}
 };
@@ -9606,10 +9607,10 @@ int _simExportMesh(luaWrap_lua_State* L)
 
 
 
-int _simCreateMeshShape(luaWrap_lua_State* L)
+int _simCreateShape(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.createMeshShape");
+    LUA_START("sim.createShape");
 
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
@@ -9630,13 +9631,42 @@ int _simCreateMeshShape(luaWrap_lua_State* L)
             res=checkOneGeneralInputArgument(L,4,lua_arg_number,il,false,false,&errorString);
             if (res==2)
             {
-                double* vertices=new double[vl];
-                int* indices=new int[il];
-                getDoublesFromTable(L,3,vl,vertices);
-                getIntsFromTable(L,4,il,indices);
-                retVal=simCreateMeshShape_internal(options,shadingAngle,vertices,vl,indices,il,nullptr);
-                delete[] indices;
-                delete[] vertices;
+                std::vector<double> vertices;
+                vertices.resize(vl);
+                std::vector<int> indices;
+                indices.resize(il);
+                getDoublesFromTable(L,3,vl,vertices.data());
+                getIntsFromTable(L,4,il,indices.data());
+
+                std::vector<double> normals;
+                normals.resize(il*3);
+                double* _normals=nullptr;
+                std::vector<float> texCoords;
+                texCoords.resize(il*2);
+                float* _texCoords=nullptr;
+                int resol[2];
+                unsigned char* img=nullptr;
+
+                res=checkOneGeneralInputArgument(L,5,lua_arg_number,il*3,true,true,&errorString);
+                if (res==2)
+                {
+                    getDoublesFromTable(L,5,il*3,normals.data());
+                    _normals=normals.data();
+                }
+                res=checkOneGeneralInputArgument(L,6,lua_arg_number,il*2,true,true,&errorString);
+                if (res==2)
+                {
+                    getFloatsFromTable(L,6,il*2,texCoords.data());
+                    _texCoords=texCoords.data();
+                }
+                res=checkOneGeneralInputArgument(L,7,lua_arg_string,0,true,true,&errorString);
+                size_t l;
+                if (res==2)
+                    img=(unsigned char*)luaWrap_lua_tolstring(L,7,&l);
+                res=checkOneGeneralInputArgument(L,8,lua_arg_integer,2,true,true,&errorString);
+                if (res==2)
+                    getIntsFromTable(L,8,2,resol);
+                retVal=simCreateShape_internal(options,shadingAngle,vertices.data(),vl,indices.data(),il,_normals,_texCoords,img,resol);
             }
         }
     }
@@ -21552,6 +21582,46 @@ int _simReorientShapeBoundingBox(luaWrap_lua_State* L)
         int shapeHandle=luaToInt(L,1);
         int relativeToHandle=luaToInt(L,2);
         retVal=simReorientShapeBoundingBox_internal(shapeHandle,relativeToHandle,0);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simCreateMeshShape(luaWrap_lua_State* L)
+{ // deprecated on 15.03.2023
+    TRACE_LUA_API;
+    LUA_START("sim.createMeshShape");
+
+    int retVal=-1; // means error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    {
+        int options=luaToInt(L,1);
+        double shadingAngle=luaToDouble(L,2);
+
+        int vl=2;
+        int il=2;
+        if ( (luaWrap_lua_gettop(L)>=4)&&luaWrap_lua_istable(L,3)&&luaWrap_lua_istable(L,4) )
+        {
+            vl=(int)luaWrap_lua_rawlen(L,3);
+            il=(int)luaWrap_lua_rawlen(L,4);
+        }
+        int res=checkOneGeneralInputArgument(L,3,lua_arg_number,vl,false,false,&errorString);
+        if (res==2)
+        {
+            res=checkOneGeneralInputArgument(L,4,lua_arg_number,il,false,false,&errorString);
+            if (res==2)
+            {
+                double* vertices=new double[vl];
+                int* indices=new int[il];
+                getDoublesFromTable(L,3,vl,vertices);
+                getIntsFromTable(L,4,il,indices);
+                retVal=simCreateMeshShape_internal(options,shadingAngle,vertices,vl,indices,il,nullptr);
+                delete[] indices;
+                delete[] vertices;
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

@@ -191,6 +191,7 @@ int simAuxiliaryConsolePrint_internal(int consoleHandle,const char* text);
 int simImportShape_internal(int fileformat,const char* pathAndFilename,int options,double identicalVerticeTolerance,double scalingFactor);
 int simImportMesh_internal(int fileformat,const char* pathAndFilename,int options,double identicalVerticeTolerance,double scalingFactor,double*** vertices,int** verticesSizes,int*** indices,int** indicesSizes,double*** reserved,char*** names);
 int simExportMesh_internal(int fileformat,const char* pathAndFilename,int options,double scalingFactor,int elementCount,const double** vertices,const int* verticesSizes,const int** indices,const int* indicesSizes,double** reserved,const char** names);
+int simCreateShape_internal(int options,double shadingAngle,const double* vertices,int verticesSize,const int* indices,int indicesSize,const double* normals,const float* textureCoords,const unsigned char* texture,const int* textureRes);
 int simCreateMeshShape_internal(int options,double shadingAngle,const double* vertices,int verticesSize,const int* indices,int indicesSize,double* reserved);
 int simCreatePrimitiveShape_internal(int primitiveType,const double* sizes,int options);
 int simCreateHeightfieldShape_internal(int options,double shadingAngle,int xPointCount,int yPointCount,double xSize,const double* heights);

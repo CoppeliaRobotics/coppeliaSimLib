@@ -28,7 +28,7 @@ CMesh::CMesh()
     _commonInit();
 }
 
-CMesh::CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords)
+CMesh::CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords,int options)
 {
     _commonInit();
     _vertices.assign(vertices.begin(),vertices.end());
@@ -63,6 +63,21 @@ CMesh::CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const
     inv=_bbFrame.getInverse();
     _transformMesh(inv);
     _bbSize=_computeBBSize();
+    _culling=((options&1)!=0);
+    _visibleEdges=((options&2)!=0);
+
+    delete _textureProperty;
+    _textureProperty=nullptr;
+    if (optTexCoords!=nullptr)
+    {
+        _textureProperty=new CTextureProperty();
+        _textureProperty->setInterpolateColors((options&4)==0);
+        if ((options&8)!=0)
+            _textureProperty->setApplyMode(1);
+        else
+            _textureProperty->setApplyMode(0);
+        _textureProperty->setFixedCoordinates(optTexCoords);
+    }
 
     _computeVisibleEdges();
     checkIfConvex();
