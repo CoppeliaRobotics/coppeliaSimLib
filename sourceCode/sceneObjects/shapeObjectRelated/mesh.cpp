@@ -41,17 +41,20 @@ CMesh::CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const
     else
         _normals.assign(optNormals->begin(),optNormals->end());
 
+    std::vector<float> texCoords;
     if (optTexCoords!=nullptr)
     {
-        _textureCoordsTemp.assign(optTexCoords->begin(),optTexCoords->end());
+        texCoords.assign(optTexCoords->begin(),optTexCoords->end());
+        CMeshRoutines::removeNonReferencedVertices(_vertices,_indices);
         // Following causes problems with fixed texture coordinates, so we do not clean up the mesh for now
-        //CMeshRoutines::cleanupMesh(_vertices,_indices,&_normals,&_textureCoordsTemp,App::userSettings->verticesTolerance);
+        //CMeshRoutines::removeDuplicateVerticesAndTriangles(_vertices,&_indices&,_normals,texCoords,App::userSettings->verticesTolerance);
+        //CMeshRoutines::toDelaunayMesh(_vertices,_indices,&_normals,texCoords);
     }
     else
     {
-        _textureCoordsTemp.clear();
-        // Following causes problems with fixed texture coordinates, so we do not clean up the mesh for now
-        //CMeshRoutines::cleanupMesh(_vertices,_indices,&_normals,nullptr,App::userSettings->verticesTolerance);
+        CMeshRoutines::removeNonReferencedVertices(_vertices,_indices);
+        CMeshRoutines::removeDuplicateVerticesAndTriangles(_vertices,&_indices,&_normals,nullptr,App::userSettings->verticesTolerance);
+        //CMeshRoutines::toDelaunayMesh(_vertices,_indices,&_normals,nullptr);
     }
 
     // Express everything in the meshFrame:
@@ -76,7 +79,7 @@ CMesh::CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const
             _textureProperty->setApplyMode(1);
         else
             _textureProperty->setApplyMode(0);
-        _textureProperty->setFixedCoordinates(optTexCoords);
+        _textureProperty->setFixedCoordinates(&texCoords);
     }
 
     _computeVisibleEdges();
@@ -1082,12 +1085,11 @@ void CMesh::takeVisualAttributesFrom(CMesh* origin)
     _insideAndOutsideFacesSameColor_DEPRECATED=origin->_insideAndOutsideFacesSameColor_DEPRECATED;
     _wireframe_OLD=origin->_wireframe_OLD;
     _edgeWidth_DEPRERCATED=origin->_edgeWidth_DEPRERCATED;
-    if ( (origin->_textureProperty!=nullptr)&&(_textureCoordsTemp.size()>0) )
+    if ( (origin->_textureProperty!=nullptr)&&(_textureProperty!=nullptr) )
     {
-        if (_textureProperty!=nullptr)
-            delete _textureProperty;
-        _textureProperty=origin->_textureProperty->copyYourself();
-        _textureProperty->setFixedCoordinates(&_textureCoordsTemp);
+        _textureProperty->setInterpolateColors(origin->_textureProperty->getInterpolateColors());
+        _textureProperty->setApplyMode(origin->_textureProperty->getApplyMode());
+        _textureProperty->setTextureObjectID(origin->_textureProperty->getTextureObjectID());
     }
     if (_shadingAngle!=origin->_shadingAngle)
     {
@@ -1172,18 +1174,6 @@ std::vector<double>* CMesh::getNormals()
 std::vector<float>* CMesh::getNormalsForDisplayAndDisk()
 {
     return(&_normalsForDisplayAndDisk);
-}
-
-const std::vector<float>* CMesh::getTextureCoords() const
-{
-    return(&_textureCoordsTemp);
-}
-
-void CMesh::setTextureCoords(const std::vector<float>* tc)
-{
-    _textureCoordsTemp.clear();
-    if (tc!=nullptr)
-        _textureCoordsTemp.assign(tc->begin(),tc->end());
 }
 
 std::vector<unsigned char>* CMesh::getEdges()

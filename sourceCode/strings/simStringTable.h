@@ -816,7 +816,6 @@
 #define IDS_SWITCH_TO_PHYSX_ENGINE_MENU_ITEM "Using the PhysX physics engine"
 
 #define IDS_WANNA_SAVE_THE_SCENE_WARNING "Do you wish to save the changes?"
-#define IDS_USING_EXISTING_TEXTURE_COORDINATES "Texture coordinates from a previous import operation were found and will be used"
 #define IDS_GROUPING_HEIGHTFIELDS_ERROR_MESSAGE "The selection contains one or several heightfields. Heightfields cannot be grouped with other pure shapes."
 #define IDSN_IMPORT_HEIGHTFIELD "Heightfield"
 

@@ -648,22 +648,6 @@
       <string>Invert faces</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="qqHiddenBorder">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>65</y>
-       <width>111</width>
-       <height>18</height>
-      </rect>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::StrongFocus</enum>
-     </property>
-     <property name="text">
-      <string>Hidden border</string>
-     </property>
-    </widget>
    </widget>
    <widget class="QToolButton" name="qqApplyMain">
     <property name="geometry">
@@ -1245,7 +1229,6 @@
   <tabstop>qqApplyColors</tabstop>
   <tabstop>qqShadingAngle</tabstop>
   <tabstop>qqShowEdges</tabstop>
-  <tabstop>qqHiddenBorder</tabstop>
   <tabstop>qqBackfaceCulling</tabstop>
   <tabstop>qqInvertFaces</tabstop>
   <tabstop>qqWireframe</tabstop>

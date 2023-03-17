@@ -5375,7 +5375,7 @@ int _simTest(luaWrap_lua_State* L)
                     C3Vector diagI;
                     mesh->getDiagonalInertiaInfo(diagI);
                     double wOld=cbrt(diagI(0)*diagI(1)*diagI(2));
-                    if (it->computeInertia(1000.0))
+                    if (it->computeMassAndInertia(1000.0))
                     {
                         mesh->setMass(mass);
                         C3Vector diagI2;
@@ -5384,6 +5384,29 @@ int _simTest(luaWrap_lua_State* L)
                         mesh->setInertia(mesh->getInertia()*(wOld/wNew));
                         mesh->getDiagonalInertiaInfo(diagI2);
                         wNew=cbrt(diagI2(0)*diagI2(1)*diagI2(2));
+                    }
+                }
+            }
+            LUA_END(0);
+        }
+        if ( (cmd.compare("sim.recomputeInertia1KeepMass")==0)||(cmd.compare("sim.recomputeInertia2KeepMass")==0)||(cmd.compare("sim.recomputeInertia4KeepMass")==0) )
+        {
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
+            {
+                CShape* it=App::currentWorld->sceneObjects->getShapeFromIndex(i);
+                if (!it->getStatic())
+                {
+                    CMeshWrapper* mesh=it->getMesh();
+                    double mass=mesh->getMass();
+                    if (it->computeMassAndInertia(1000.0))
+                    {
+                        mesh->setMass(mass); // keep mass
+                        double f=1.0;
+                        if (cmd.compare("sim.recomputeInertia2KeepMass")==0)
+                            f=2.0;
+                        if (cmd.compare("sim.recomputeInertia4KeepMass")==0)
+                            f=4.0;
+                        mesh->setInertia(mesh->getInertia()*f);
                     }
                 }
             }

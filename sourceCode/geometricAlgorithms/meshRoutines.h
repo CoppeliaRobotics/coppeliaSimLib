@@ -22,7 +22,7 @@ public:
             std::vector<int>* vertexIDs,std::vector<int>* edgeIDs,std::vector<int>* faceIDs,double angleTolerance,bool forDisplay,bool hideEdgeBorders);
 
     static bool getConvexHull(const std::vector<double>& verticesIn,std::vector<double>& verticesOut,std::vector<int>& indicesOut);
-    static bool getDecimatedMesh(const std::vector<double>& verticesIn,const std::vector<int>& indicesIn,double percentageToKeep,std::vector<double>& verticesOut,std::vector<int>& indicesOut);
+    static bool getDecimatedMesh(const std::vector<double>& verticesIn,const std::vector<int>& indicesIn,double percentageToKeep,std::vector<double>& verticesOut,std::vector<int>& indicesOut,double distTolerance);
 
     inline static bool getMinDistBetweenSegmentAndPoint_IfSmaller(const C3Vector& lp0,
                             const C3Vector& lv0,const C3Vector& dummyPos,double &dist,C3Vector& segA)
@@ -91,7 +91,6 @@ public:
     static void createCylinder(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces,int discDiv,bool openEnds,bool cone);
     static void createAnnulus(std::vector<double>& vertices,std::vector<int>& indices,double Dlarge,double Dsmall,double zShift,int sides,bool faceUp);
     static double getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const C3Vector& pt2,const std::vector<double>& vertices,std::vector<double>* path=nullptr,double maxEdgeLength=0.01);
-    static void cleanupMesh(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<float>* texCoords,double distTolerance);
     static void toDelaunayMesh(const std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<float>* texCoords);
     static void removeDuplicateVerticesAndTriangles(std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals,std::vector<float>* texCoords,double distTolerance);
     static void removeNonReferencedVertices(std::vector<double>& vertices,std::vector<int>& indices);

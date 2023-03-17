@@ -15,7 +15,7 @@ public:
 
     void replaceMesh(CMeshWrapper* newMesh,bool keepMeshAttributes);
     CMeshWrapper* detachMesh();
-    bool computeInertia(double density);
+    bool computeMassAndInertia(double density);
 
     void invertFrontBack();
 

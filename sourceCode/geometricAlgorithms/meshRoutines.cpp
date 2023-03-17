@@ -281,17 +281,21 @@ bool CMeshRoutines::getConvexHull(const std::vector<double>& verticesIn,std::vec
     return(false);
 }
 
-bool CMeshRoutines::getDecimatedMesh(const std::vector<double>& verticesIn,const std::vector<int>& indicesIn,double percentageToKeep,std::vector<double>& verticesOut,std::vector<int>& indicesOut)
+bool CMeshRoutines::getDecimatedMesh(const std::vector<double>& verticesIn,const std::vector<int>& indicesIn,double percentageToKeep,std::vector<double>& verticesOut,std::vector<int>& indicesOut,double distTolerance)
 {
     bool retVal=false;
     if ( (verticesIn.size()>=9)&&(indicesIn.size()>=6) )
     {
+        std::vector<double> vert(verticesIn);
+        std::vector<int> ind(indicesIn);
+        removeDuplicateVerticesAndTriangles(vert,&ind,nullptr,nullptr,distTolerance);
+
         void* data[20];
-        data[0]=(double*)&verticesIn[0];
-        int vl=(int)verticesIn.size();
+        data[0]=vert.data();
+        int vl=(int)vert.size();
         data[1]=&vl;
-        data[2]=(int*)&indicesIn[0];
-        int il=(int)indicesIn.size();
+        data[2]=ind.data();
+        int il=(int)ind.size();
         data[3]=&il;
         data[4]=&percentageToKeep;
         int version=0;
@@ -1675,13 +1679,6 @@ public:
     C3Vector vertex;
     size_t index;
 };
-
-void CMeshRoutines::cleanupMesh(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<float>* texCoords,double distTolerance)
-{
-    removeNonReferencedVertices(vertices,indices);
-    removeDuplicateVerticesAndTriangles(vertices,&indices,normals,texCoords,distTolerance);
-    toDelaunayMesh(vertices,indices,normals,texCoords);
-}
 
 void CMeshRoutines::removeDuplicateVerticesAndTriangles(std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals,std::vector<float>* texCoords,double distTolerance)
 {

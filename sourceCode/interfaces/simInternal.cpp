@@ -8136,6 +8136,7 @@ int simCreateShape_internal(int options,double shadingAngle,const double* vertic
             res=textureRes;
         }
         CShape* shape=new CShape(C7Vector::identityTransformation,vert,ind,norm,textCoords,options);
+        shape->alignBB("mesh");
         shape->getSingleMesh()->setShadingAngle(shadingAngle);
         shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
         int h=App::currentWorld->sceneObjects->addObjectToScene(shape,false,true);
@@ -11966,7 +11967,7 @@ int simGenerateShapeFromPath_internal(const double* pppath,int pathSize,const do
                 }
                 previousVerticesOffset+=int(secVertCnt);
             }
-            int h=simCreateMeshShape_internal(0,0.0,&vertices[0],int(vertices.size()),&indices[0],int(indices.size()),nullptr);
+            int h=simCreateShape_internal(0,0.0,&vertices[0],int(vertices.size()),&indices[0],int(indices.size()),nullptr,nullptr,nullptr,nullptr);
             return(h);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PATH);
@@ -13522,7 +13523,7 @@ int simGetDecimatedMesh_internal(const double* inVertices,int inVerticesL,const 
         std::vector<int> iOut;
         std::vector<double> vIn(inVertices,inVertices+inVerticesL);
         std::vector<int> iIn(inIndices,inIndices+inIndicesL);
-        bool res=CMeshRoutines::getDecimatedMesh(vIn,iIn,decimationPercent,vOut,iOut);
+        bool res=CMeshRoutines::getDecimatedMesh(vIn,iIn,decimationPercent,vOut,iOut,App::userSettings->verticesTolerance);
         if (res)
         {
             verticesOut[0]=new double[vOut.size()];
@@ -13725,7 +13726,7 @@ int simComputeMassAndInertia_internal(int shapeHandle,double density)
         if (isShape(__func__,shapeHandle))
         {
             CShape* shape=(CShape*)App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-            if (shape->computeInertia(density))
+            if (shape->computeMassAndInertia(density))
                 return(1);
             return(0);
         }

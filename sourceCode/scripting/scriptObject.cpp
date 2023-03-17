@@ -7170,6 +7170,11 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+
+    if (_containsScriptText_old(scriptObject,"sim.reorientShapeBoundingBox"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.reorientShapeBoundingBox...");
+    if (_containsScriptText_old(scriptObject,"sim.createMeshShape"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.createMeshShape...");
     if (_containsScriptText_old(scriptObject,"sim.getObjectSelection"))
         App::logMsg(sim_verbosity_errors,"Contains sim.getObjectSelection...");
     if (_containsScriptText_old(scriptObject,"sim.setObjectSelection"))

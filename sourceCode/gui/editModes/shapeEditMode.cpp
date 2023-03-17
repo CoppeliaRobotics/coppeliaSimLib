@@ -57,10 +57,26 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
 
     if (!cancelChanges)
     {
-//        CMeshRoutines::cleanupMesh(_editionVertices,_editionIndices,nullptr,&_editionTextureCoords,App::userSettings->verticesTolerance);
+        CMeshRoutines::removeNonReferencedVertices(_editionVertices,_editionIndices);
         if (_editionVertices.size()!=0)
         { // The shape is not empty
-            CMesh* newMesh=new CMesh(C7Vector::identityTransformation,_editionVertices,_editionIndices,nullptr,&_editionTextureCoords,0);
+            CMesh* newMesh;
+            bool hadImportedTextureCoords=false;
+            if (_shape->getSingleMesh()->getTextureProperty()!=nullptr)
+                hadImportedTextureCoords=_shape->getSingleMesh()->getTextureProperty()->getFixedCoordinates();
+            if (hadImportedTextureCoords)
+            {
+                // Following causes problems with fixed texture coordinates, so we do not clean up the mesh for now
+                //CMeshRoutines::removeDuplicateVerticesAndTriangles(_editionVertices,&_editionIndices,nullptr,_editionTextureCoords,App::userSettings->verticesTolerance);
+                //CMeshRoutines::toDelaunayMesh(_editionVertices,_editionIndices,nullptr,_editionTextureCoords);
+                newMesh=new CMesh(C7Vector::identityTransformation,_editionVertices,_editionIndices,nullptr,&_editionTextureCoords,0);
+            }
+            else
+            {
+                CMeshRoutines::removeDuplicateVerticesAndTriangles(_editionVertices,&_editionIndices,nullptr,nullptr,App::userSettings->verticesTolerance);
+                CMeshRoutines::toDelaunayMesh(_editionVertices,_editionIndices,nullptr,nullptr);
+                newMesh=new CMesh(C7Vector::identityTransformation,_editionVertices,_editionIndices,nullptr,nullptr,0);
+            }
             _shape->replaceMesh(newMesh,true);
         }
         else

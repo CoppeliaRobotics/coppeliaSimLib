@@ -49,8 +49,6 @@ private slots:
 
     void on_qqEditMultishape_clicked();
 
-    void on_qqHiddenBorder_clicked();
-
 private:
     Ui::CQDlgShapes *ui;
 };

@@ -82,23 +82,6 @@ void CMeshWrapper::_computeInertiaFromComposingInertias()
     }
     _iMatrix=_iMatrix/_mass;
     fixInertiaAndComputePMI();
-    /*
-    _mass=0.0;
-    _com.clear();
-    _iMatrix.clear();
-    for (size_t i=0;i<childList.size();i++)
-    {
-        CMeshWrapper* mesh=childList[i];
-        _mass+=mesh->getMass();
-        _com=_com+mesh->getIFrame()*mesh->getCOM()*mesh->getMass();
-        C3X3Matrix matr(getInertiaInNewFrame(mesh->getIFrame().Q,mesh->getInertia(),C4Vector::identityRotation));
-        matr=matr*mesh->getMass();
-        _iMatrix=_iMatrix+matr;
-    }
-    _com=_com/_mass;
-    _iMatrix=_iMatrix/_mass;
-    fixInertiaAndComputePMI();
-    */
 }
 
 void CMeshWrapper::display(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)

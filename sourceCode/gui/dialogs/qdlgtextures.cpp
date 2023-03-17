@@ -40,7 +40,6 @@ void CQDlgTextures::refresh()
     CTextureProperty* tp=App::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,nullptr,&applyTexture3D,nullptr,&geom);
     bool simStopped=App::currentWorld->simulation->isSimulationStopped();
     bool usingFixedTextureCoordinates=false;
-    bool foundTextureCoordinatesOnShape=false;
     bool forbidU=false;
     bool forbidV=false;
 
@@ -52,8 +51,6 @@ void CQDlgTextures::refresh()
             forbidU=(tp->getTextureMapMode()==sim_texturemap_cylinder)||(tp->getTextureMapMode()==sim_texturemap_sphere);
             forbidV=(tp->getTextureMapMode()==sim_texturemap_sphere);
         }
-        else
-            foundTextureCoordinatesOnShape=(geom->getTextureCoords()->size()!=0);
     }
 
     // Common part (plus select/remove, enabled later)
@@ -192,7 +189,7 @@ void CQDlgTextures::refresh()
         }
         ui->qqTextureName->setText(textureName.c_str());
 
-        if (foundTextureCoordinatesOnShape||usingFixedTextureCoordinates)
+        if (usingFixedTextureCoordinates)
             ui->qqTextureCoordinates->setText(IDS_FROM_SHAPE_IMPORT);
         else
             ui->qqTextureCoordinates->setText(IDS_CALCULATED);
@@ -201,10 +198,7 @@ void CQDlgTextures::refresh()
     {
         // Check if there are already existing textures:
         ui->qqRemoveSelect->setEnabled( (App::currentWorld->textureContainer->getObjectAtIndex(0)!=nullptr)||(App::currentWorld->sceneObjects->getVisionSensorCount()!=0) );
-        if (foundTextureCoordinatesOnShape)
-            ui->qqTextureCoordinates->setText(IDS_FROM_SHAPE_IMPORT);
-        else
-            ui->qqTextureCoordinates->setText(IDS_TEXTURE_NAME_NONE); // Actually just "none"
+        ui->qqTextureCoordinates->setText(IDS_TEXTURE_NAME_NONE); // Actually just "none"
 
         ui->qqX->setText("");
         ui->qqY->setText("");

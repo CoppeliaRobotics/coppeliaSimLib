@@ -2244,12 +2244,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
         }
-        if (cmd.cmdId==TOGGLE_HIDEEDGEBORDERS_SHAPEGUITRIGGEREDCMD)
-        {
-            CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
-            if (it!=nullptr)
-                it->setHideEdgeBorders_OLD(!it->getHideEdgeBorders_OLD());
-        }
         if (cmd.cmdId==CLEAR_TEXTURES_SHAPEGUITRIGGEREDCMD)
         {
             for (size_t i=0;i<cmd.intParams.size();i++)
@@ -2261,26 +2255,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
                     for (size_t j=0;j<components.size();j++)
                     {
-                        bool keepTextCoords=false;
                         CTextureProperty* tp=components[j]->getTextureProperty();
                         if (tp!=nullptr)
                         {
-                            // Keep the text. coords if simple shape:
-                            if (!shape->isCompound())
-                            {
-                                std::vector<float>* tc=tp->getFixedTextureCoordinates();
-                                if (tc!=nullptr)
-                                {
-                                    shape->getSingleMesh()->setTextureCoords(tc);
-                                    keepTextCoords=true;
-                                }
-                            }
                             App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),-1);
                             delete tp;
                             components[j]->setTextureProperty(nullptr);
                         }
-                        if (!keepTextCoords)
-                            components[j]->setTextureCoords(nullptr); // discard existing texture coordinates
                     }
                 }
             }
@@ -2307,31 +2288,18 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
                     for (size_t j=0;j<components.size();j++)
                     {
-                        bool useTexCoords=false;
                         CTextureProperty* tp=components[j]->getTextureProperty();
                         if (tp!=nullptr)
                         {
-                            // Keep the text. coords if simple shape:
-                            if (!shape->isCompound())
-                            {
-                                std::vector<float>* tc=tp->getFixedTextureCoordinates();
-                                if (tc!=nullptr)
-                                {
-                                    useTexCoords=true;
-                                    shape->getSingleMesh()->setTextureCoords(tc);
-                                }
-                            }
                             App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),-1);
                             delete tp;
                             components[j]->setTextureProperty(nullptr);
                         }
-                        if (!useTexCoords)
-                            components[j]->setTextureCoords(nullptr); // discard existing texture coordinates
                     }
                 }
             }
 
-            // 2. Load and apply the "dirt" texture:
+            // 2. Load and apply the texture:
             if (shapeList.size()!=0)
             {
                 CTextureObject* textureObj=new CTextureObject(resX,resY);
@@ -2362,31 +2330,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         CMesh* geom=components[j];
                         CTextureProperty* tp=new CTextureProperty(textureID);
-                        bool useTexCoords=false;
-                        if (!shape->isCompound())
-                        {
-                            if (shape->getSingleMesh()->getTextureCoords()->size()!=0)
-                            {
-                                std::vector<double> wvert;
-                                std::vector<int> wind;
-                                shape->getSingleMesh()->getCumulativeMeshes(C7Vector::identityTransformation,wvert,&wind,nullptr);
-                                if (shape->getSingleMesh()->getTextureCoords()->size()/2==wind.size())
-                                { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
-                                    tp->setFixedCoordinates(shape->getSingleMesh()->getTextureCoords());
-                                    shape->getSingleMesh()->setTextureCoords(nullptr);
-                                    useTexCoords=true;
-                                }
-                            }
-                        }
-                        if (!useTexCoords)
-                        {
-                            tp->setRepeatU(true);
-                            tp->setRepeatV(true);
-                            tp->setTextureMapMode(sim_texturemap_cube);
-                            tp->setInterpolateColors(true);
-                            tp->setApplyMode(0);
-                            tp->setTextureScaling(s,s);
-                        }
+                        tp->setRepeatU(true);
+                        tp->setRepeatV(true);
+                        tp->setTextureMapMode(sim_texturemap_cube);
+                        tp->setInterpolateColors(true);
+                        tp->setApplyMode(0);
+                        tp->setTextureScaling(s,s);
                         geom->setTextureProperty(tp);
                     }
                 }
@@ -2528,21 +2477,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 int textureID=App::currentWorld->textureContainer->addObject(textureObj,false); // might erase the textureObj and return a similar object already present!!
                 CTextureProperty* tp=new CTextureProperty(textureID);
                 if (geom!=nullptr)
-                {
-                    // Following 2 since 12/6/2011 because now by default we have the modulate mode (non-decal)
-            //      ((CMesh*)shape->geomInfo)->color.setColor(0.5,0.5,0.5,sim_colorcomponent_ambient_diffuse);
-            //      ((CMesh*)shape->geomInfo)->insideColor.setColor(0.5,0.5,0.5,sim_colorcomponent_ambient_diffuse);
                     geom->setTextureProperty(tp);
-                    std::vector<double> any;
-                    std::vector<int> wind;
-                    geom->getCumulativeMeshes(C7Vector::identityTransformation,any,&wind,nullptr);
-                    if (geom->getTextureCoords()->size()/2==wind.size())
-                    { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
-                        App::uiThread->messageBox_information(App::mainWindow,"Texture coordinates",IDS_USING_EXISTING_TEXTURE_COORDINATES,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                        tp->setFixedCoordinates(geom->getTextureCoords());
-                        geom->setTextureCoords(nullptr);
-                    }
-                }
                 else
                 {
                     tp->setApplyMode(1); // 13/1/2012
@@ -2570,9 +2505,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     if (tp!=nullptr)
                     { // remove the texture
-                        std::vector<float>* tc=tp->getFixedTextureCoordinates();
-                        if (tc!=nullptr)
-                            geom->setTextureCoords(tc);
                         App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1],geom->getUniqueID());
                         delete tp;
                         geom->setTextureProperty(nullptr);
@@ -2585,22 +2517,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             {
                                 CTextureObject* to=App::currentWorld->textureContainer->getObject(tObject);
                                 to->addDependentObject(cmd.intParams[1],geom->getUniqueID());
-                            }
-                            tp=new CTextureProperty(tObject);
-                            geom->setTextureProperty(tp);
-                            // Following 2 since 12/6/2011 because now by default we have the modulate mode (non-decal)
-                        //  ((CMesh*)shape->geomInfo)->color.setColor(0.5,0.5,0.5,sim_colorcomponent_ambient_diffuse);
-                        //  ((CMesh*)shape->geomInfo)->insideColor.setColor(0.5,0.5,0.5,sim_colorcomponent_ambient_diffuse);
-
-                            std::vector<double> any;
-                            std::vector<int> wind;
-                            geom->getCumulativeMeshes(C7Vector::identityTransformation,any,&wind,nullptr);
-
-                            if (geom->getTextureCoords()->size()/2==wind.size())
-                            { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
-                                App::uiThread->messageBox_information(App::mainWindow,"Texture coordinates",IDS_USING_EXISTING_TEXTURE_COORDINATES,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                                tp->setFixedCoordinates(geom->getTextureCoords());
-                                geom->setTextureCoords(nullptr);
+                                tp=new CTextureProperty(tObject);
+                                geom->setTextureProperty(tp);
+                                tp->setTextureObjectID(tObject);
                             }
                         }
                     }
@@ -4244,13 +4163,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (toid!=-1)
             {
                 CTextureObject* to=App::currentWorld->textureContainer->getObject(toid);
-                if (to!=nullptr)
+                if ( (to!=nullptr)&&(newShape->getSingleMesh()->getTextureProperty()!=nullptr) )
                 {
                     to->addDependentObject(newShape->getObjectHandle(),newShape->getSingleMesh()->getUniqueID());
-                    CTextureProperty* tp=new CTextureProperty(to->getObjectID());
-                    newShape->getSingleMesh()->setTextureProperty(tp);
-                    tp->setFixedCoordinates(newShape->getSingleMesh()->getTextureCoords());
-                    newShape->getSingleMesh()->setTextureCoords(nullptr);
+                    newShape->getSingleMesh()->getTextureProperty()->setTextureObjectID(toid);
                 }
             }
             App::logMsg(sim_verbosity_msgs,"done.");

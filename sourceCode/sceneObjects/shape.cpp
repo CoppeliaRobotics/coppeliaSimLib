@@ -94,7 +94,10 @@ void CShape::replaceMesh(CMeshWrapper* newMesh,bool keepMeshAttributes)
     if (_mesh!=nullptr)
     {
         if (keepMeshAttributes)
+        {
             _mesh->copyAttributesTo(newMesh);
+            // textureObj->addDependentObject(h,shape->getSingleMesh()->getUniqueID());
+        }
         delete _mesh;
     }
     _mesh=newMesh;
@@ -1065,7 +1068,7 @@ void CShape::_serializeMesh(CSer& ar)
     }
 }
 
-bool CShape::computeInertia(double density)
+bool CShape::computeMassAndInertia(double density)
 {
     bool retVal=false;
     double mass=0.0;
@@ -1146,7 +1149,7 @@ bool CShape::relocateFrame(const char* mode,const C7Vector* tr/*=nullptr*/)
                 CSceneObject* child=getChildFromIndex(i);
                 child->setLocalTransformation(shapeCumulTr*child->getLocalTransformation());
             }
-            _localTransformation=getFullParentCumulativeTransformation().getInverse();
+            setLocalTransformation(getFullParentCumulativeTransformation().getInverse());
         }
         if (std::string(mode)=="mesh")
         {
@@ -1164,7 +1167,7 @@ bool CShape::relocateFrame(const char* mode,const C7Vector* tr/*=nullptr*/)
                 CSceneObject* child=getChildFromIndex(i);
                 child->setLocalTransformation(oldBBFrame.getInverse()*child->getLocalTransformation());
             }
-            _localTransformation=_localTransformation*oldBBFrame;
+            setLocalTransformation(_localTransformation*oldBBFrame);
         }
         if ( (std::string(mode)=="custom")&&(tr!=nullptr) )
         {
@@ -1182,7 +1185,7 @@ bool CShape::relocateFrame(const char* mode,const C7Vector* tr/*=nullptr*/)
                 CSceneObject* child=getChildFromIndex(i);
                 child->setLocalTransformation(x.getInverse()*child->getLocalTransformation());
             }
-            _localTransformation=_localTransformation*x;
+            setLocalTransformation(_localTransformation*x);
         }
         computeBoundingBox();
         _meshModificationCounter++;

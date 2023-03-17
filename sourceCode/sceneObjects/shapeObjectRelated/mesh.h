@@ -87,8 +87,6 @@ public:
     int* getVertexBufferIdPtr();
     int* getNormalBufferIdPtr();
     int* getEdgeBufferIdPtr();
-    const std::vector<float>* getTextureCoords() const;
-    void setTextureCoords(const std::vector<float>* tc);
 
     std::vector<float>* getVerticesForDisplayAndDisk();
     std::vector<float>* getNormalsForDisplayAndDisk();
@@ -136,7 +134,6 @@ protected:
     std::vector<int> _indices;
     std::vector<double> _normals;
     std::vector<unsigned char> _edges;
-    std::vector<float> _textureCoordsTemp; // 2 values per vertex
 
     std::vector<float> _verticesForDisplayAndDisk;
     std::vector<float> _normalsForDisplayAndDisk;

@@ -386,7 +386,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             it2->getMesh()->getCumulativeMeshes(tr,vert,&ind,nullptr);
                             std::vector<double> vertOut;
                             std::vector<int> indOut;
-                            if (CMeshRoutines::getDecimatedMesh(vert,ind,percentageToKeep,vertOut,indOut))
+                            if (CMeshRoutines::getDecimatedMesh(vert,ind,percentageToKeep,vertOut,indOut,App::userSettings->verticesTolerance))
                             { // decimation algo was successful:
                                 CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr,0);
                                 it2->replaceMesh(mesh,true);
@@ -407,7 +407,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         it->getMesh()->getCumulativeMeshes(tr,vert,&ind,nullptr);
                         std::vector<double> vertOut;
                         std::vector<int> indOut;
-                        if (CMeshRoutines::getDecimatedMesh(vert,ind,percentageToKeep,vertOut,indOut))
+                        if (CMeshRoutines::getDecimatedMesh(vert,ind,percentageToKeep,vertOut,indOut,App::userSettings->verticesTolerance))
                         { // decimation algo was successful:
                             CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr,0);
                             it->replaceMesh(mesh,true);
@@ -526,7 +526,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     if (!it->getStatic())
                     {
                         toSelect.push_back(it->getObjectHandle());
-                        it->computeInertia(density);
+                        it->computeMassAndInertia(density);
                     }
                 }
                 App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
@@ -554,7 +554,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             bool ok;
             double fact=0.0;
 #ifdef SIM_WITH_GUI
-            ok=App::uiThread->dialogInputGetFloat(App::mainWindow,"Mass scaling","Scaling factor",2.0,0.1,10.0,1,&fact);
+            ok=App::uiThread->dialogInputGetFloat(App::mainWindow,"Mass scaling","Scaling factor",2.0,0.1,10.0,2,&fact);
 #endif
             if (ok)
             {
@@ -593,7 +593,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             bool ok;
             double fact=0.0;
 #ifdef SIM_WITH_GUI
-            ok=App::uiThread->dialogInputGetFloat(App::mainWindow,"Inertia scaling","Scaling factor",2.0,0.1,10.0,1,&fact);
+            ok=App::uiThread->dialogInputGetFloat(App::mainWindow,"Inertia scaling","Scaling factor",2.0,0.1,10.0,2,&fact);
 #endif
             if (ok)
             {

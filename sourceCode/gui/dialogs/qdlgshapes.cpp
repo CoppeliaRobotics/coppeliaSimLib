@@ -55,10 +55,8 @@ void CQDlgShapes::refresh()
     ui->qqBackfaceCulling->setEnabled(ssel&&noEditModeAndNoSim);
     ui->qqShowEdges->setEnabled(ssel&&noEditModeAndNoSim);
 
-    ui->qqHiddenBorder->setVisible(App::userSettings->showOldDlgs);
     ui->qqWireframe->setVisible(App::userSettings->showOldDlgs);
     ui->qqWireframe->setEnabled(ssel&&noEditModeAndNoSim);
-    ui->qqHiddenBorder->setEnabled(ssel&&noEditModeAndNoSim);
 
     ui->qqApplyColors->setEnabled(ssel&&(ssc>1)&&noEditModeAndNoSim);
     ui->qqAdjustOutsideColor->setEnabled(ssel&&noEditModeAndNoSim);
@@ -81,7 +79,6 @@ void CQDlgShapes::refresh()
         ui->qqBackfaceCulling->setChecked(it->getSingleMesh()->getCulling());
         ui->qqWireframe->setChecked(it->getSingleMesh()->getWireframe_OLD());
         ui->qqShowEdges->setChecked(it->getSingleMesh()->getVisibleEdges());
-        ui->qqHiddenBorder->setChecked(it->getSingleMesh()->getHideEdgeBorders_OLD());
     }
     else
     {
@@ -89,7 +86,6 @@ void CQDlgShapes::refresh()
         ui->qqBackfaceCulling->setChecked(false);
         ui->qqWireframe->setChecked(false);
         ui->qqShowEdges->setChecked(false);
-        ui->qqHiddenBorder->setChecked(false);
     }
     selectLineEdit(lineEditToSelect);
 }
@@ -275,12 +271,3 @@ void CQDlgShapes::on_qqEditMultishape_clicked()
     App::appendSimulationThreadCommand(cmd);
 }
 
-void CQDlgShapes::on_qqHiddenBorder_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_HIDEEDGEBORDERS_SHAPEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
