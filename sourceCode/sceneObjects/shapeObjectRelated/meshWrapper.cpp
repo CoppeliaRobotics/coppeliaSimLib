@@ -22,6 +22,7 @@ void CMeshWrapper::_commonInit()
     _mass=1.0;
     _name="sub__0";
     _dynMaterialId_old=-1; // not used anymore since V3.4.0
+    _convex_OLD=false; // not used anymore since V4.5
     _iFrame.setIdentity();
     _bbFrame.setIdentity();
     _bbSize.clear();
@@ -82,23 +83,6 @@ void CMeshWrapper::_computeInertiaFromComposingInertias()
     }
     _iMatrix=_iMatrix/_mass;
     fixInertiaAndComputePMI();
-    /*
-    _mass=0.0;
-    _com.clear();
-    _iMatrix.clear();
-    for (size_t i=0;i<childList.size();i++)
-    {
-        CMeshWrapper* mesh=childList[i];
-        _mass+=mesh->getMass();
-        _com=_com+mesh->getIFrame()*mesh->getCOM()*mesh->getMass();
-        C3X3Matrix matr(getInertiaInNewFrame(mesh->getIFrame().Q,mesh->getInertia(),C4Vector::identityRotation));
-        matr=matr*mesh->getMass();
-        _iMatrix=_iMatrix+matr;
-    }
-    _com=_com/_mass;
-    _iMatrix=_iMatrix/_mass;
-    fixInertiaAndComputePMI();
-    */
 }
 
 void CMeshWrapper::display(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
@@ -980,7 +964,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                 ar.xmlGetNode_string("name",_name);
 
                 C7Vector transformationsSinceGrouping_OLD;
-                if (ar.xmlPushChildNode("transformationSinceGrouping"))  // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+                if (ar.xmlPushChildNode("transformationSinceGrouping",false))  // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                 {
                     ar.xmlGetNode_floats("position",transformationsSinceGrouping_OLD.X.data,3);
                     ar.xmlGetNode_floats("quaternion",transformationsSinceGrouping_OLD.Q.data,4);
@@ -994,7 +978,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                 {
                     ar.xmlGetNode_float("mass",_mass);
 
-                    if (ar.xmlPushChildNode("localInertiaFrame"))  // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+                    if (ar.xmlPushChildNode("localInertiaFrame",false))  // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     {
                         C7Vector localInertiaFrame_OLD;
                         ar.xmlGetNode_floats("position",localInertiaFrame_OLD.X.data,3);
@@ -1025,13 +1009,15 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                     ar.xmlGetNode_floats("centerOfMass",_com.data,3);
 
                     double im[9];
-                    ar.xmlGetNode_floats("inertia",im,9);
-                    for (size_t i=0;i<3;i++)
+                    if (ar.xmlGetNode_floats("inertia",im,9))
                     {
-                        for (size_t j=0;j<3;j++)
-                            _iMatrix(i,j)=im[i*3+j];
+                        for (size_t i=0;i<3;i++)
+                        {
+                            for (size_t j=0;j<3;j++)
+                                _iMatrix(i,j)=im[i*3+j];
+                        }
+                        fixInertiaAndComputePMI();
                     }
-                    fixInertiaAndComputePMI();
 
                     if (ar.xmlPushChildNode("bbFrame"))
                     {
@@ -1044,6 +1030,12 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                     ar.xmlGetNode_floats("bbSize",_bbSize.data,3);
 
                     ar.xmlPopNode(); // "dynamics" node
+                }
+
+                if (ar.xmlPushChildNode("switches",false)) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+                {
+                    ar.xmlGetNode_bool("convex",_convex_OLD);
+                    ar.xmlPopNode();
                 }
 
                 if (ar.xmlPushChildNode("child",false))

@@ -2170,6 +2170,13 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         }
         else
         {
+            /*
+            std::vector<double> v;
+            std::vector<int> ind;
+            geom->getCumulativeMeshes(C7Vector::identityTransformation,v,&ind,nullptr);
+            ar.xmlAddNode_floats("vertices",v);
+            ar.xmlAddNode_ints("indices",geom->getIndices()[0]);
+            */
             std::vector<float> v;
             v.resize(geom->getVertices()->size());
             for (size_t i=0;i<geom->getVertices()->size()/3;i++)

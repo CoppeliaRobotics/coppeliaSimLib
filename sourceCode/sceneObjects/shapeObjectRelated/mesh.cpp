@@ -521,12 +521,7 @@ void CMesh::_transformMesh(const C7Vector& tr)
         _normals[3*i+1]=n(1);
         _normals[3*i+2]=n(2);
     }
-    _verticesForDisplayAndDisk.resize(_vertices.size());
-    for (size_t i=0;i<_vertices.size();i++)
-        _verticesForDisplayAndDisk[i]=(float)_vertices[i];
-    _normalsForDisplayAndDisk.resize(_normals.size());
-    for (size_t i=0;i<_normals.size();i++)
-        _normalsForDisplayAndDisk[i]=(float)_normals[i];
+    _updateDisplayAndDiskValues();
 
     decreaseVertexBufferRefCnt(_vertexBufferId);
     decreaseNormalBufferRefCnt(_normalBufferId);
@@ -2261,6 +2256,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                 { // in some rare cases, old shapes won't be detected as convex anymore. Make them convex in that case!
                     CMeshRoutines::getConvexHull(_vertices,_vertices,_indices);
                     actualizeGouraudShadingAndVisibleEdges();
+                    _updateDisplayAndDiskValues();
                     checkIfConvex();
                 }
             }
@@ -2294,6 +2290,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
             ar.xmlAddNode_bool("edgesVisible",_visibleEdges);
             ar.xmlAddNode_bool("culling",_culling);
             ar.xmlAddNode_bool("wireframe",_wireframe_OLD);
+            ar.xmlAddNode_comment(" 'hideEdgeBorders' tag: deprecated, for backward compatibility ",false);
             ar.xmlAddNode_bool("hideEdgeBorders",_hideEdgeBorders_OLD);
             ar.xmlPopNode();
 
@@ -2344,7 +2341,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                 ar.xmlPopNode();
             }
 
-            if (ar.xmlPushChildNode("verticesLocalFrame")) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
+            if (ar.xmlPushChildNode("verticesLocalFrame",false)) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
             {
                 ar.xmlGetNode_floats("position",verticesLocalFrame_old.X.data,3);
                 ar.xmlGetNode_floats("quaternion",verticesLocalFrame_old.Q.data,4);
@@ -2359,7 +2356,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                 ar.xmlGetNode_bool("edgesVisible",_visibleEdges);
                 ar.xmlGetNode_bool("culling",_culling);
                 ar.xmlGetNode_bool("wireframe",_wireframe_OLD);
-                ar.xmlGetNode_bool("hideEdgeBorders",_hideEdgeBorders_OLD);
+                ar.xmlGetNode_bool("hideEdgeBorders",_hideEdgeBorders_OLD,false);
                 ar.xmlPopNode();
             }
 
@@ -2391,12 +2388,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                     actualizeGouraudShadingAndVisibleEdges();
                 }
 
-                _vertices.resize(_verticesForDisplayAndDisk.size());
-                for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
-                    _vertices[i]=(double)_verticesForDisplayAndDisk[i];
-                _normals.resize(_normalsForDisplayAndDisk.size());
-                for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
-                    _normals[i]=(double)_normalsForDisplayAndDisk[i];
+                _updateNonDisplayAndNonDiskValues();
 
                 ar.xmlPopNode();
             }
@@ -2408,15 +2400,37 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                 _transformMesh(_bbFrame.getInverse());
                 _bbFrame.X.clear();
             }
+
             checkIfConvex(); // with XML, we do not serialize the _convex flag. So we recompute it
             if ( (!_convex)&&_convex_OLD )
             { // in some rare cases, old shapes won't be detected as convex anymore. Make them convex in that case!
                 CMeshRoutines::getConvexHull(_vertices,_vertices,_indices);
                 actualizeGouraudShadingAndVisibleEdges();
+                _updateDisplayAndDiskValues();
                 checkIfConvex();
             }
         }
     }
+}
+
+void CMesh::_updateNonDisplayAndNonDiskValues()
+{
+    _vertices.resize(_verticesForDisplayAndDisk.size());
+    for (size_t i=0;i<_verticesForDisplayAndDisk.size();i++)
+        _vertices[i]=(double)_verticesForDisplayAndDisk[i];
+    _normals.resize(_normalsForDisplayAndDisk.size());
+    for (size_t i=0;i<_normalsForDisplayAndDisk.size();i++)
+        _normals[i]=(double)_normalsForDisplayAndDisk[i];
+}
+
+void CMesh::_updateDisplayAndDiskValues()
+{
+    _verticesForDisplayAndDisk.resize(_vertices.size());
+    for (size_t i=0;i<_vertices.size();i++)
+        _verticesForDisplayAndDisk[i]=(float)_vertices[i];
+    _normalsForDisplayAndDisk.resize(_normals.size());
+    for (size_t i=0;i<_normals.size();i++)
+        _normalsForDisplayAndDisk[i]=(float)_normals[i];
 }
 
 void CMesh::display(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)

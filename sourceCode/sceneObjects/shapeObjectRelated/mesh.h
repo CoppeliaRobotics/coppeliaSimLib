@@ -122,6 +122,8 @@ public:
     int _heightfieldYCount;
 
 protected:
+    void _updateNonDisplayAndNonDiskValues();
+    void _updateDisplayAndDiskValues();
     void _transformMesh(const C7Vector& tr);
     void _commonInit();
     void _recomputeNormals();
