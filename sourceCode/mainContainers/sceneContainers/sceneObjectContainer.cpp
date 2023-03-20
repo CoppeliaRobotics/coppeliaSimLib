@@ -1712,7 +1712,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar,C7Vector& desiredLoc
         setObjectAltName_old(shape,dummy->getObjectAltName_old().c_str(),true);
         shape->setLocalTransformation(dummy->getFullCumulativeTransformation()*tr);
 
-        // We cannot decided of the position of the shape (the position is selected at the center of the shape)
+        // We cannot decided of the position of the shape (the position is selected at the center of the shape, or at least it used to be like that)
         // But we can decide of the orientation of the shape (most of the time), so do it here (we simply reorient the shape's bounding box):
         if ( (!shape->getMesh()->isPure())||(shape->isCompound()) )
         {
@@ -2002,7 +2002,11 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
         {
             int newShapeHandle=-1;
             if (allShapes.size()>=2)
+            {
                 newShapeHandle=CSceneObjectOperations::groupSelection(&allShapes);
+                CShape* itt=getShapeFromHandle(newShapeHandle);
+                itt->relocateFrame("world");
+            }
             else
                 newShapeHandle=allShapes[0];
             retVal=getShapeFromHandle(newShapeHandle);

@@ -1521,7 +1521,7 @@ void CSer::xmlAddNode_float(const char* name,double val)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%f") % val).c_str());
+    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%.4e") % val).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1529,7 +1529,7 @@ void CSer::xmlAddNode_2float(const char* name,double val1,double val2)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%f %f") % val1 % val2).c_str());
+    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%.4e %.4e") % val1 % val2).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1537,7 +1537,7 @@ void CSer::xmlAddNode_3float(const char* name,double val1,double val2,double val
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%f %f %f") % val1 % val2 %val3).c_str());
+    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%.4e %.4e %.4e") % val1 % val2 %val3).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1545,7 +1545,7 @@ void CSer::xmlAddNode_4float(const char* name,double val1,double val2,double val
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%f %f %f %f") % val1 % val2 %val3 %val4).c_str());
+    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%.4e %.4e %.4e %.4e") % val1 % val2 %val3 %val4).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1558,7 +1558,7 @@ void CSer::xmlAddNode_floats(const char* name,const float* vals,size_t cnt)
     {
         if (i>0)
             tmp+=" ";
-        tmp+=boost::str(boost::format("%f") % vals[i]);
+        tmp+=boost::str(boost::format("%.4e") % vals[i]);
     }
     sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
@@ -1573,7 +1573,7 @@ void CSer::xmlAddNode_floats(const char* name,const double* vals,size_t cnt)
     {
         if (i>0)
             tmp+=" ";
-        tmp+=boost::str(boost::format("%f") % vals[i]);
+        tmp+=boost::str(boost::format("%.4e") % vals[i]);
     }
     sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
@@ -1588,7 +1588,7 @@ void CSer::xmlAddNode_floats(const char* name,const std::vector<float>& vals)
     {
         if (i>0)
             tmp+=" ";
-        tmp+=boost::str(boost::format("%f") % vals[i]);
+        tmp+=boost::str(boost::format("%.4e") % vals[i]);
     }
     sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
@@ -1603,7 +1603,7 @@ void CSer::xmlAddNode_floats(const char* name,const std::vector<double>& vals)
     {
         if (i>0)
             tmp+=" ";
-        tmp+=boost::str(boost::format("%f") % vals[i]);
+        tmp+=boost::str(boost::format("%.4e") % vals[i]);
     }
     sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
