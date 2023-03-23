@@ -1120,9 +1120,9 @@ bool CShape::relocateFrame(const char* mode,const C7Vector* tr/*=nullptr*/)
     if ( (!_mesh->isMesh())||(!_mesh->isPure()) )
     { // we have a compound, or a non-primitive
         retVal=true;
-        C7Vector shapeCumulTr(getCumulativeTransformation());
         if (std::string(mode)=="world")
         {
+            C7Vector shapeCumulTr(getCumulativeTransformation());
             _mesh->setCOM(shapeCumulTr*_mesh->getCOM());
             _mesh->setInertia(CMeshWrapper::getInertiaInNewFrame(shapeCumulTr.Q,_mesh->getInertia(),C4Vector::identityRotation));
             _mesh->setBBFrame(shapeCumulTr*_mesh->getBB(nullptr));
@@ -1137,6 +1137,24 @@ bool CShape::relocateFrame(const char* mode,const C7Vector* tr/*=nullptr*/)
                 child->setLocalTransformation(shapeCumulTr*child->getLocalTransformation());
             }
             setLocalTransformation(getFullParentCumulativeTransformation().getInverse());
+        }
+        if (std::string(mode)=="parent")
+        {
+            C7Vector localOld(_localTransformation);
+            _mesh->setCOM(localOld*_mesh->getCOM());
+            _mesh->setInertia(CMeshWrapper::getInertiaInNewFrame(localOld.Q,_mesh->getInertia(),C4Vector::identityRotation));
+            _mesh->setBBFrame(localOld*_mesh->getBB(nullptr));
+            if (getSingleMesh()==nullptr)
+            { // we have a compound
+                for (size_t i=0;i<_mesh->childList.size();i++)
+                    _mesh->childList[i]->setIFrame(localOld*_mesh->childList[i]->getIFrame());
+            }
+            for (size_t i=0;i<getChildCount();i++)
+            {
+                CSceneObject* child=getChildFromIndex(i);
+                child->setLocalTransformation(localOld*child->getLocalTransformation());
+            }
+            setLocalTransformation(C7Vector::identityTransformation);
         }
         if (std::string(mode)=="mesh")
         {

@@ -228,7 +228,7 @@ void CQDlgIkElements::refresh()
         for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
         {
             CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-            if (tooltip->isObjectParentedWith(it2))
+            if (tooltip->hasAncestor(it2))
             {
                 names.push_back(it2->getObjectAlias_printPath());
                 ids.push_back(it2->getObjectHandle());

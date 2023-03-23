@@ -164,7 +164,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
                     bool displayMaybe=it->getShouldObjectBeDisplayed(_objectHandle,displAttributes);
                     if (displayMaybe)
                     {
-                        if ( ((skybox==nullptr)||(!it->isObjectParentedWith(skybox)))&&((it->getObjectProperty()&sim_objectproperty_ignoreviewfitting)==0))
+                        if ( ((skybox==nullptr)||(!it->hasAncestor(skybox)))&&((it->getObjectProperty()&sim_objectproperty_ignoreviewfitting)==0))
                             visibleObjs.push_back(it);
                     }
                 }
@@ -180,7 +180,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
                         bool displayMaybe=it->getShouldObjectBeDisplayed(_objectHandle,displAttributes);
                         if (displayMaybe)
                         {
-                            if ((skybox==nullptr)||(!it->isObjectParentedWith(skybox)))
+                            if ((skybox==nullptr)||(!it->hasAncestor(skybox)))
                                 visibleObjs.push_back(it);
                         }
                     }
@@ -206,7 +206,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
                     bool displayMaybe=it->getShouldObjectBeDisplayed(_objectHandle,displAttributes);
                     if (displayMaybe)
                     {
-                        if ( ((skybox==nullptr)||(!it->isObjectParentedWith(skybox)))&&((it->getObjectProperty()&sim_objectproperty_ignoreviewfitting)==0) )
+                        if ( ((skybox==nullptr)||(!it->hasAncestor(skybox)))&&((it->getObjectProperty()&sim_objectproperty_ignoreviewfitting)==0) )
                             selectionVisibleObjs.push_back(it);
                     }
                 }
@@ -789,7 +789,7 @@ void CCamera::handleCameraTracking()
 {
     TRACE_INTERNAL;
     CSceneObject* tr=App::currentWorld->sceneObjects->getObjectFromHandle(_trackedObjectHandle);
-    if ((tr==nullptr)||(tr==this)||tr->isObjectParentedWith(this))
+    if ((tr==nullptr)||(tr==this)||tr->hasAncestor(this))
         _trackedObjectHandle=-1;
     else
     {

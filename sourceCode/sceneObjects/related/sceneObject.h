@@ -284,7 +284,7 @@ public:
     int getIkPluginCounterpartHandle() const;
 
     std::string getDisplayName() const;
-    bool isObjectParentedWith(const CSceneObject* thePotentialParent) const;
+    bool hasAncestor(const CSceneObject* potentialAncestor) const;
 
     void setParentHandle_forSerializationOnly(int pHandle);
 

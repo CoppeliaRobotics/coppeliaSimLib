@@ -75,7 +75,7 @@ public:
     void writeSimpleXmlSceneObjectTree(CSer& ar,const CSceneObject* object);
 
     bool setObjectAlias(CSceneObject* object,const char* newAlias,bool allowNameAdjustment);
-    void setObjectParent(CSceneObject* object,CSceneObject* newParent,bool keepInPlace);
+    bool setObjectParent(CSceneObject* object,CSceneObject* newParent,bool keepInPlace);
 
     // Overridden from _CSceneObjectContainer_:
     bool setObjectSequence(CSceneObject* object,int order);

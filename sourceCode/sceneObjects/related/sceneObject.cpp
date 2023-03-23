@@ -3653,15 +3653,15 @@ int CSceneObject::getIkPluginCounterpartHandle() const
     return(_ikPluginCounterpartHandle);
 }
 
-bool CSceneObject::isObjectParentedWith(const CSceneObject* thePotentialParent) const
+bool CSceneObject::hasAncestor(const CSceneObject* potentialAncestor) const
 {
     bool retVal=false;
     if (getParent()!=nullptr)
     {
-        if (getParent()==thePotentialParent)
+        if (getParent()==potentialAncestor)
             retVal=true;
         else
-            retVal=getParent()->isObjectParentedWith(thePotentialParent);
+            retVal=getParent()->hasAncestor(potentialAncestor);
     }
     return(retVal);
 }

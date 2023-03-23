@@ -1107,49 +1107,55 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar,const CSceneO
     ar.xmlPopNode();
 }
 
-void CSceneObjectContainer::setObjectParent(CSceneObject* object,CSceneObject* newParent,bool keepInPlace)
+bool CSceneObjectContainer::setObjectParent(CSceneObject* object,CSceneObject* newParent,bool keepInPlace)
 {
     TRACE_INTERNAL;
-    checkObjectIsInstanciated(object,__func__);
-    if (newParent!=nullptr)
-        checkObjectIsInstanciated(newParent,__func__);
-    CSceneObject* oldParent=object->getParent();
-    if (oldParent!=newParent)
+    bool retVal=false;
+    if ( (newParent==nullptr)||(!newParent->hasAncestor(object)) )
     {
-        _hierarchyChangeCounter++;
-        C7Vector absTr(object->getCumulativeTransformation());
-        if (oldParent!=nullptr)
-        {
-            oldParent->removeChild(object);
-            if (oldParent->getObjectType()==sim_object_joint_type)
-                ((CJoint*)oldParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
-            if (oldParent->getObjectType()==sim_object_forcesensor_type)
-                ((CForceSensor*)oldParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
-        }
-        else
-            _removeFromOrphanObjects(object);
+        retVal=true;
+        checkObjectIsInstanciated(object,__func__);
         if (newParent!=nullptr)
+            checkObjectIsInstanciated(newParent,__func__);
+        CSceneObject* oldParent=object->getParent();
+        if (oldParent!=newParent)
         {
-            newParent->addChild(object);
-            if (newParent->getObjectType()==sim_object_joint_type)
-                ((CJoint*)newParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
-            if (newParent->getObjectType()==sim_object_forcesensor_type)
-                ((CForceSensor*)newParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
-        }
-        else
-            _addToOrphanObjects(object);
-        object->setParent(newParent);
-        object->recomputeModelInfluencedValues();
-        _handleOrderIndexOfOrphans();
+            _hierarchyChangeCounter++;
+            C7Vector absTr(object->getCumulativeTransformation());
+            if (oldParent!=nullptr)
+            {
+                oldParent->removeChild(object);
+                if (oldParent->getObjectType()==sim_object_joint_type)
+                    ((CJoint*)oldParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
+                if (oldParent->getObjectType()==sim_object_forcesensor_type)
+                    ((CForceSensor*)oldParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
+            }
+            else
+                _removeFromOrphanObjects(object);
+            if (newParent!=nullptr)
+            {
+                newParent->addChild(object);
+                if (newParent->getObjectType()==sim_object_joint_type)
+                    ((CJoint*)newParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
+                if (newParent->getObjectType()==sim_object_forcesensor_type)
+                    ((CForceSensor*)newParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
+            }
+            else
+                _addToOrphanObjects(object);
+            object->setParent(newParent);
+            object->recomputeModelInfluencedValues();
+            _handleOrderIndexOfOrphans();
 
-        if (keepInPlace)
-        {
-            C7Vector parentTr(object->getFullParentCumulativeTransformation());
-            object->setLocalTransformation(parentTr.getInverse()*absTr);
-        }
+            if (keepInPlace)
+            {
+                C7Vector parentTr(object->getFullParentCumulativeTransformation());
+                object->setLocalTransformation(parentTr.getInverse()*absTr);
+            }
 
-        App::currentWorld->sceneObjects->actualizeObjectInformation();
+            App::currentWorld->sceneObjects->actualizeObjectInformation();
+        }
     }
+    return(retVal);
 }
 
 bool CSceneObjectContainer::setObjectAlias(CSceneObject* object,const char* newAlias,bool allowNameAdjustment)

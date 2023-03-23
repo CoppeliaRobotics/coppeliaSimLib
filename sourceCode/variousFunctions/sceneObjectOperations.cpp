@@ -224,7 +224,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (sel.size()>1)
             {
                 CSceneObject* last=App::currentWorld->sceneObjects->getObjectFromHandle(sel[sel.size()-1]);
-                for (int i=0;i<int(sel.size())-1;i++)
+                for (size_t i=0;i<sel.size()-1;i++)
                 {
                     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
                     App::currentWorld->sceneObjects->setObjectParent(it,last,true);
@@ -799,7 +799,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         }
         return(true);
     }
-    if ( (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD) )
+    if ( (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_PARENT_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD) )
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -807,17 +807,27 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,true);
             if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
                 App::logMsg(sim_verbosity_msgs,"Relocating reference frame to world origin...");
+            if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_PARENT_SOOCMD)
+                App::logMsg(sim_verbosity_msgs,"Relocating reference frame to parent origin...");
             if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD)
                 App::logMsg(sim_verbosity_msgs,"relocating reference frame to mesh center...");
             bool success=true;
+            std::vector<int> toSelect;
             for (size_t i=0;i<sel.size();i++)
             {
                 CShape* theShape=(CShape*)sel[i];
+                bool r=false;
                 if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
-                    success=theShape->relocateFrame("world")&&success;
+                    r=theShape->relocateFrame("world");
+                if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_PARENT_SOOCMD)
+                    r=theShape->relocateFrame("parent");
                 if (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD)
-                    success=theShape->relocateFrame("mesh")&&success;
+                    r=theShape->relocateFrame("mesh");
+                if (r)
+                    toSelect.push_back(theShape->getObjectHandle());
+                success=r&&success;
             }
+            App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
             App::undoRedo_sceneChanged("");
             if (success)
                 App::logMsg(sim_verbosity_msgs,"done.");
@@ -844,14 +854,20 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
                 App::logMsg(sim_verbosity_msgs,"aligning bounding box with world...");
             bool success=true;
+            std::vector<int> toSelect;
             for (size_t i=0;i<sel.size();i++)
             {
                 CShape* theShape=(CShape*)sel[i];
+                bool r=false;
                 if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)
-                    success=theShape->alignBB("mesh")&&success;
+                    r=theShape->alignBB("mesh");
                 if (commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
-                    success=theShape->alignBB("world")&&success;
+                    r=theShape->alignBB("world");
+                if (r)
+                    toSelect.push_back(theShape->getObjectHandle());
+                success=r&&success;
             }
+            App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
             App::undoRedo_sceneChanged("");
             if (success)
                 App::logMsg(sim_verbosity_msgs,"done.");
@@ -1824,8 +1840,8 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
         menu->appendMenuItem(App::currentWorld->undoBufferContainer->canUndo(),false,SCENE_OBJECT_OPERATION_UNDO_SOOCMD,IDSN_UNDO);
         menu->appendMenuItem(App::currentWorld->undoBufferContainer->canRedo(),false,SCENE_OBJECT_OPERATION_REDO_SOOCMD,IDSN_REDO);
         menu->appendMenuSeparator();
-        menu->appendMenuItem(selItems>1,false,SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD,IDS_MAKE_LAST_SELECTED_OBJECTS_PARENT_MENU_ITEM);
-        menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_MAKE_ORPHANS_SOOCMD,IDS_MAKE_SELECTED_OBJECT_S__ORPHAN_MENU_ITEM);
+        menu->appendMenuItem(selItems>1,false,SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD,"Make last selected object parent");
+        menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_MAKE_ORPHANS_SOOCMD,"Make selected object(s) orphan");
         menu->appendMenuSeparator();
         if (CSimFlavor::getBoolVal(12))
         {
@@ -1860,6 +1876,7 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
 
             VMenu* relocate=new VMenu();
             relocate->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD,"relocate to world origin");
+            relocate->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_PARENT_SOOCMD,"relocate to parent origin");
             relocate->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD,"relocate to mesh center");
             menu->appendMenuAndDetach(relocate,true,"Shape reference frame");
 

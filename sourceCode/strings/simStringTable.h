@@ -370,9 +370,6 @@
 #define IDS_UNLINK_SELECTED_DUMMIES_MENU_ITEM "Unlink selected dummies"
 #define IDS_MERGING_OR_DIVIDING_REMOVES_TEXTURES_PROCEED_INFO_MESSAGE "Merging or dividing shapes will remove their associated textures. Do you want to proceed?"
 
-#define IDS_MAKE_LAST_SELECTED_OBJECTS_PARENT_MENU_ITEM "Make last selected object parent"
-#define IDS_MAKE_SELECTED_OBJECT_S__ORPHAN_MENU_ITEM "Make selected object(s) orphan"
-
 #define IDS_GCSOBJECT_ALREADY_THERE_MESSAGE "The specified object is part of a mechanism that is already handled by"
 #define IDS_CAD_DATA_IMPORT_PROGRESS "CAD data import progress"
 #define IDS_EXPAND_SELECTED_TREE_MENU_ITEM "Expand selected trees"

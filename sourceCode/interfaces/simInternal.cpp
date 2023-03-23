@@ -6325,7 +6325,7 @@ int simCopyPasteObjects_internal(int* objectHandles,int objectCount,int options)
                             CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromHandle(selT[j]);
                             if (it!=it2)
                             {
-                                if (it->isObjectParentedWith(it2))
+                                if (it->hasAncestor(it2))
                                 {
                                     ok=false;
                                     break;

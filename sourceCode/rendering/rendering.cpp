@@ -262,7 +262,7 @@ void _activateNonAmbientLights(int lightHandle,CViewableBase* viewable)
         {
             CLight* light=lList[i];
             bool LocalLight=light->getLightIsLocal();
-            if ( ((!useLocalLights)&&(!LocalLight))||(useLocalLights&&LocalLight&&light->isObjectParentedWith(viewable)) )
+            if ( ((!useLocalLights)&&(!LocalLight))||(useLocalLights&&LocalLight&&light->hasAncestor(viewable)) )
             {
                 if ((light->getLightActive())&&(activeLightCounter<CLight::getMaxAvailableOglLights()))
                 {
