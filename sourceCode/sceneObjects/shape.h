@@ -151,9 +151,6 @@ public:
     void setRigidBodyWasAlreadyPutToSleepOnce(bool s);
     bool getRigidBodyWasAlreadyPutToSleepOnce();
 
-    static bool getDebugObbStructures();
-    static void setDebugObbStructures(bool d);
-
 protected:
     CMeshWrapper* _mesh;
     void _serializeMesh(CSer& ar);
@@ -184,6 +181,4 @@ protected:
 
     C3Vector _initialInitialDynamicLinearVelocity;
     C3Vector _initialInitialDynamicAngularVelocity;
-    static bool _visualizeObbStructures;
-
 };

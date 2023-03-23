@@ -43,7 +43,6 @@ void CHelpMenu::addMenu(VMenu* menu)
     VMenu* debugMenu=new VMenu();
     debugMenu->appendMenuItem(true,!CViewableBase::getFrustumCullingEnabled(),DISABLE_FRUSTUM_CULLING_DEBUG_CMD,"Disable frustum culling",true);
     debugMenu->appendMenuItem(true,!CDistanceRoutine::getDistanceCachingEnabled(),DISABLE_DISTANCE_CACHING_DEBUG_CMD,"Disable distance caching",true);
-    debugMenu->appendMenuItem(true,CShape::getDebugObbStructures(),VISUALIZE_OBB_STRUCTURE_DEBUG_CMD,"Visualize prepared OBB calculation structures",true);
     menu->appendMenuAndDetach(debugMenu,true,"Debug");
     if (CSimFlavor::getBoolVal(19))
     {
@@ -111,14 +110,6 @@ bool CHelpMenu::processCommand(int commandID)
         IF_UI_EVENT_CAN_READ_DATA_CMD("DISABLE_DISTANCE_CACHING_DEBUG_CMD")
         {
             CDistanceRoutine::setDistanceCachingEnabled(!CDistanceRoutine::getDistanceCachingEnabled());
-        }
-        return(true);
-    }
-    if (commandID==VISUALIZE_OBB_STRUCTURE_DEBUG_CMD)
-    {
-        IF_UI_EVENT_CAN_READ_DATA_CMD("VISUALIZE_OBB_STRUCTURE_DEBUG_CMD")
-        {
-            CShape::setDebugObbStructures(!CShape::getDebugObbStructures());
         }
         return(true);
     }

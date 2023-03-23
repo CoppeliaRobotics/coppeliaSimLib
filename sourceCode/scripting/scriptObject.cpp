@@ -7171,6 +7171,13 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
     }
     */
 
+
+
+    if (_containsScriptText_old(scriptObject,"simIK.syncToIkWorld"))
+        App::logMsg(sim_verbosity_errors,"Contains simIK.syncToIkWorld...");
+    if (_containsScriptText_old(scriptObject,"simIK.syncFromIkWorld"))
+        App::logMsg(sim_verbosity_errors,"Contains simIK.syncFromIkWorld...");
+
     if (_containsScriptText_old(scriptObject,"sim.reorientShapeBoundingBox"))
         App::logMsg(sim_verbosity_errors,"Contains sim.reorientShapeBoundingBox...");
     if (_containsScriptText_old(scriptObject,"sim.createMeshShape"))

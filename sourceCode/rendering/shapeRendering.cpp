@@ -49,9 +49,7 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
 #endif
     bool editMode=editNormals||editVertices||editEdges||editMultishape;
 
-    bool obbVisualizationMode=(shape->getDebugObbStructures()&&((displayAttrib&sim_displayattribute_forvisionsensor)==0));
-
-    if (shape->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib)||editMode||obbVisualizationMode)
+    if (shape->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib)||editMode)
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
@@ -127,31 +125,13 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
             { // the bounding box is inside of the view (at least some part of it!)
                 if ((displayAttrib&sim_displayattribute_colorcoded)==0)
                 { // normal visualization
-                    if (obbVisualizationMode)
-                    { // visualize OBB calculation structures
-                        CColorObject fakeCol;
-                        fakeCol.setDefaultValues();
-                        if (shape->isMeshCalculationStructureInitialized())
-                        {
-                            fakeCol.setColor(0.5f,0.1f,0.1f,0);
-                            shape->getMesh()->display(C7Vector::identityTransformation,shape,(displayAttrib|sim_displayattribute_trianglewireframe)-sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
-                        }
-                        else
-                        {
-                            fakeCol.setColor(0.5f,0.5f,0.5f,0);
-                            shape->getMesh()->display(C7Vector::identityTransformation,shape,displayAttrib|sim_displayattribute_trianglewireframe,&fakeCol,shape->getDynamicFlag(),0,false);
-                        }
+                    if (shape->getContainsTransparentComponent())
+                    {
+                        shape->getMesh()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),2,false);
+                        shape->getMesh()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),1,false);
                     }
                     else
-                    { // normal visualization
-                        if (shape->getContainsTransparentComponent())
-                        {
-                            shape->getMesh()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),2,false);
-                            shape->getMesh()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),1,false);
-                        }
-                        else
-                            shape->getMesh()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),0,false);
-                    }
+                        shape->getMesh()->display(C7Vector::identityTransformation,shape,displayAttrib,otherColorP,shape->getDynamicFlag(),0,false);
                 }
                 else
                     shape->getMesh()->display_colorCoded(C7Vector::identityTransformation,shape,shape->getObjectHandle(),displayAttrib); // color-coded visualization

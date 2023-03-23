@@ -1856,7 +1856,7 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
             grouping->appendMenuSeparator();
             grouping->appendMenuItem((shapeCnt>1)&&noSim,false,SCENE_OBJECT_OPERATION_MERGE_SHAPES_SOOCMD,"merge");
             grouping->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_DIVIDE_SHAPES_SOOCMD,"divide");
-            menu->appendMenuAndDetach(grouping,true,"Shape grouping/merging");
+            menu->appendMenuAndDetach(grouping,true,"Shape grouping / merging");
 
             VMenu* relocate=new VMenu();
             relocate->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD,"relocate to world origin");

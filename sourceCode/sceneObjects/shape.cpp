@@ -14,19 +14,6 @@
 #include <utils.h>
 #include <meshRoutines.h>
 
-bool CShape::_visualizeObbStructures=false;
-
-bool CShape::getDebugObbStructures()
-{
-    return(_visualizeObbStructures);
-}
-
-void CShape::setDebugObbStructures(bool d)
-{
-    _visualizeObbStructures=d;
-}
-
-
 CShape::CShape()
 {
     commonInit();
