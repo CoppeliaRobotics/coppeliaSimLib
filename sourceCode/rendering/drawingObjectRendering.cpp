@@ -172,9 +172,21 @@ void displayDrawingObject(CDrawingObject* drawingObject,C7Vector& tr,bool overla
     if ( (tmp==sim_drawing_discpoints)||(tmp==sim_drawing_discpts) )
         _drawDiscPoints(drawingObject,displayAttrib,cameraRTM);
     if ( (tmp==sim_drawing_cubepoints)||(tmp==sim_drawing_cubepts) )
+    {
+        if (overlay)
+            glEnable(GL_CULL_FACE);
         _drawCubePoints(drawingObject,displayAttrib,cameraRTM);
+        if (overlay)
+            glDisable(GL_CULL_FACE);
+    }
     if (tmp==sim_drawing_spherepts)
+    {
+        if (overlay)
+            glEnable(GL_CULL_FACE);
         _drawSpherePoints(drawingObject,displayAttrib);
+        if (overlay)
+            glDisable(GL_CULL_FACE);
+    }
 
     if (overlay)
         glEnable(GL_DEPTH_TEST);

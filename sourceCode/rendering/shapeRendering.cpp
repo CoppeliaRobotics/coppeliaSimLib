@@ -616,18 +616,18 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
 
 }
 
-void displayGeometric(CMesh* geometric,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
+void displayGeometric(const C7Vector& cumulIFrameTr,CMesh* geometric,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
 {
 
 }
 
-void displayGeometric_colorCoded(CMesh* geometric,CShape* geomData,int objectId,int displayAttrib)
+void displayGeometric_colorCoded(const C7Vector& cumulIFrameTr,CMesh* geometric,CShape* geomData,int objectId,int displayAttrib)
 {
 
 }
 
 
-void displayGeometricGhost(CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
+void displayGeometricGhost(const C7Vector& cumulIFrameTr,CMesh* geometric,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors)
 {
 
 }
