@@ -2411,6 +2411,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
             }
         }
     }
+    return(hasNewBBFrameAndSize);
 }
 
 void CMesh::_updateNonDisplayAndNonDiskValues()
