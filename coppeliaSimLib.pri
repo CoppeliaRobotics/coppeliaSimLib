@@ -60,6 +60,7 @@ WITH_QT {
     QMAKE_CFLAGS += -fp:precise
     QMAKE_CXXFLAGS += -O2
     QMAKE_CXXFLAGS += -fp:precise
+    QMAKE_CXXFLAGS += -we4715 # "error when no return value"
 
     QMAKE_CFLAGS_WARN_ON = -W3
     QMAKE_CFLAGS_WARN_ON += -wd4100 # "unreferenced formal parameter"
@@ -105,6 +106,7 @@ WITH_QT {
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-but-set-variable
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-local-typedefs
     QMAKE_CXXFLAGS_WARN_ON += -Wno-narrowing
+    QMAKE_CXXFLAGS += -Werror=return-type
 
     DEFINES += SIM_COMPILER_STR=\\\"GCC\\\"
 }
@@ -132,6 +134,7 @@ clang* {
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-but-set-variable
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-local-typedefs
     QMAKE_CXXFLAGS_WARN_ON += -Wno-narrowing
+    QMAKE_CXXFLAGS += -Werror=return-type
     QMAKE_CFLAGS += -mmacosx-version-min=10.7
     QMAKE_CXXFLAGS += -mmacosx-version-min=10.7
 
