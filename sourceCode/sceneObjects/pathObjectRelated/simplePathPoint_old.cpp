@@ -155,6 +155,7 @@ void CSimplePathPoint_old::serialize(CSer& ar)
                         ar >> bla[4] >> bla[5] >> bla[6];
                         for (size_t i=0;i<7;i++)
                             _transformation(i)=(double)bla[i];
+                        _transformation.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
                         ar >> bla[0] >> bla[1];
                         _bezierFactorBefore=(double)bla[0];
                         _bezierFactorAfter=(double)bla[1];
@@ -169,6 +170,7 @@ void CSimplePathPoint_old::serialize(CSer& ar)
                         ar >> byteQuantity;
                         ar >> _transformation(0) >> _transformation(1) >> _transformation(2) >> _transformation(3);
                         ar >> _transformation(4) >> _transformation(5) >> _transformation(6);
+                        _transformation.Q.normalize();
                         ar >> _bezierFactorBefore >> _bezierFactorAfter;
                         ar >> _bezierPointCount;
                         ar >> _maxRelAbsVelocity;

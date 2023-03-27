@@ -327,6 +327,7 @@ void CGhostObjectContainer::serialize(CSer& ar)
                             go->tr.Q(1)=(double)bli;
                             go->tr.Q(2)=(double)blo;
                             go->tr.Q(3)=(double)blu;
+                            go->tr.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
                             ghosts.push_back(go);
                         }
                     }
@@ -354,6 +355,7 @@ void CGhostObjectContainer::serialize(CSer& ar)
                                 ar >> go->color[j];
                             ar >> go->tr.X(0) >> go->tr.X(1) >> go->tr.X(2);
                             ar >> go->tr.Q(0) >> go->tr.Q(1) >> go->tr.Q(2) >> go->tr.Q(3);
+                            go->tr.Q.normalize();
                             ghosts.push_back(go);
                         }
                     }

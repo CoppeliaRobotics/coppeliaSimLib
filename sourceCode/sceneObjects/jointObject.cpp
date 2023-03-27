@@ -2593,7 +2593,7 @@ void CJoint::serialize(CSer& ar)
                         _sphericalTransf(1)=(double)b;
                         _sphericalTransf(2)=(double)c;
                         _sphericalTransf(3)=(double)d;
-                        _sphericalTransf.normalize();
+                        _sphericalTransf.normalize(); // we read from float. Make sure we are perfectly normalized!
                     }
 
                     if (theName.compare("_st")==0)

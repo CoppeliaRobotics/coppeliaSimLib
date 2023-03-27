@@ -418,6 +418,7 @@ void CModelListWidget::serializePart1(CSer& ar)
                             ar >> bla;
                             _allThumbnailsInfo[i].modelTr(j)=(double)bla;
                         }
+                        _allThumbnailsInfo[i].modelTr.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
                         for (int j=0;j<3;j++)
                         {
                             ar >> bla;
@@ -450,6 +451,7 @@ void CModelListWidget::serializePart1(CSer& ar)
                         _allThumbnailsInfo[i].validFileFormat=dum3;
                         for (int j=0;j<7;j++)
                             ar >> _allThumbnailsInfo[i].modelTr(j);
+                        _allThumbnailsInfo[i].modelTr.Q.normalize();
                         for (int j=0;j<3;j++)
                             ar >> _allThumbnailsInfo[i].modelBoundingBoxSize(j);
                         ar >> _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;

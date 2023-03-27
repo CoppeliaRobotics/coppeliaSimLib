@@ -2127,6 +2127,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                             ar >> bla;
                             verticesLocalFrame_old(i)=(double)bla;
                         }
+                        verticesLocalFrame_old.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
                         if (!hasNewBBFrameAndSize)
                             fixFrame_prior4_5_2=true;
                     }
@@ -2137,6 +2138,7 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                         ar >> byteQuantity;
                         ar >> verticesLocalFrame_old(0) >> verticesLocalFrame_old(1) >> verticesLocalFrame_old(2) >> verticesLocalFrame_old(3);
                         ar >> verticesLocalFrame_old(4) >> verticesLocalFrame_old(5) >> verticesLocalFrame_old(6);
+                        verticesLocalFrame_old.Q.normalize();
                         if (!hasNewBBFrameAndSize)
                             fixFrame_prior4_5_2=true;
                     }

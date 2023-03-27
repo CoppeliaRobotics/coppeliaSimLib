@@ -249,6 +249,7 @@ void  CThumbnail::serializeAdditionalModelInfos(CSer& ar,C7Vector& modelTr,C3Vec
                             ar >> bla;
                             modelTr(i)=(double)bla;
                         }
+                        modelTr.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
                         for (int i=0;i<3;i++)
                         {
                             ar >> bla;
@@ -264,6 +265,7 @@ void  CThumbnail::serializeAdditionalModelInfos(CSer& ar,C7Vector& modelTr,C3Vec
                         ar >> byteQuantity;
                         for (int i=0;i<7;i++)
                             ar >> modelTr(i);
+                        modelTr.Q.normalize();
                         for (int i=0;i<3;i++)
                             ar >> modelBBSize(i);
                         ar >> modelNonDefaultTranslationStepSize;

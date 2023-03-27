@@ -639,6 +639,7 @@ void CTextureProperty::serialize(CSer& ar)
                             ar >> bla;
                             _textureRelativeConfig.Q(i)=(double)bla;
                         }
+                        _textureRelativeConfig.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
                         for (size_t i=0;i<3;i++)
                         {
                             ar >> bla;
@@ -651,6 +652,7 @@ void CTextureProperty::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _textureRelativeConfig.Q(0) >> _textureRelativeConfig.Q(1) >> _textureRelativeConfig.Q(2) >> _textureRelativeConfig.Q(3);
+                        _textureRelativeConfig.Q.normalize();
                         ar >> _textureRelativeConfig.X(0) >> _textureRelativeConfig.X(1) >> _textureRelativeConfig.X(2);
                     }
 

@@ -760,6 +760,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                             ar >> bla;
                             localInertiaFrame_OLD(i)=(double)bla;
                         }
+                        localInertiaFrame_OLD.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
                         for (size_t i=0;i<3;i++)
                         {
                             ar >> bla;
@@ -773,6 +774,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                         ar >> byteQuantity;
                         ar >> localInertiaFrame_OLD(0) >> localInertiaFrame_OLD(1) >> localInertiaFrame_OLD(2) >> localInertiaFrame_OLD(3);
                         ar >> localInertiaFrame_OLD(4) >> localInertiaFrame_OLD(5) >> localInertiaFrame_OLD(6);
+                        localInertiaFrame_OLD.Q.normalize();
                         ar >> principalMomentsOfInertia_OLD(0) >> principalMomentsOfInertia_OLD(1) >> principalMomentsOfInertia_OLD(2);
                     }
 
@@ -787,6 +789,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                             ar >> bla;
                             transformationsSinceGrouping_OLD(i)=(double)bla;
                         }
+                        transformationsSinceGrouping_OLD.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
                         if (rootLevel)
                             transformationsSinceGrouping_OLD.setIdentity();
                         _iFrame=parentCumulIFrame.getInverse()*transformationsSinceGrouping_OLD;
@@ -804,6 +807,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
                         ar >> byteQuantity;
                         ar >> transformationsSinceGrouping_OLD(0) >> transformationsSinceGrouping_OLD(1) >> transformationsSinceGrouping_OLD(2) >> transformationsSinceGrouping_OLD(3);
                         ar >> transformationsSinceGrouping_OLD(4) >> transformationsSinceGrouping_OLD(5) >> transformationsSinceGrouping_OLD(6);
+                        transformationsSinceGrouping_OLD.Q.normalize();
                         if (rootLevel)
                             transformationsSinceGrouping_OLD.setIdentity();
                         _iFrame=parentCumulIFrame.getInverse()*transformationsSinceGrouping_OLD;

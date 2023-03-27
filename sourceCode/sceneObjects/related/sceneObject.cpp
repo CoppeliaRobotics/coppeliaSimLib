@@ -2401,6 +2401,7 @@ void CSceneObject::serialize(CSer& ar)
                         tr.X(0)=(double)a[4];
                         tr.X(1)=(double)a[5];
                         tr.X(2)=(double)a[6];
+                        tr.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
                         setLocalTransformation(tr);
                     }
 
@@ -2410,6 +2411,7 @@ void CSceneObject::serialize(CSer& ar)
                         ar >> byteQuantity;
                         C7Vector tr;
                         ar >> tr.Q(0) >> tr.Q(1) >> tr.Q(2) >> tr.Q(3) >> tr.X(0) >> tr.X(1) >> tr.X(2);
+                        tr.Q.normalize();
                         setLocalTransformation(tr);
                     }
 
@@ -2439,6 +2441,8 @@ void CSceneObject::serialize(CSer& ar)
                         _assemblingLocalTransformation.X(0)=(double)a[4];
                         _assemblingLocalTransformation.X(1)=(double)a[5];
                         _assemblingLocalTransformation.X(2)=(double)a[6];
+                        _assemblingLocalTransformation.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
+
                         if (ar.getSerializationVersionThatWroteThisFile()<20)
                         {
                             C3Vector v(_assemblingLocalTransformation.Q(1),_assemblingLocalTransformation.Q(2),_assemblingLocalTransformation.Q(3));
@@ -2452,6 +2456,7 @@ void CSceneObject::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _assemblingLocalTransformation.Q(0) >> _assemblingLocalTransformation.Q(1) >> _assemblingLocalTransformation.Q(2) >> _assemblingLocalTransformation.Q(3) >> _assemblingLocalTransformation.X(0) >> _assemblingLocalTransformation.X(1) >> _assemblingLocalTransformation.X(2);
+                        _assemblingLocalTransformation.Q.normalize();
                         if (ar.getSerializationVersionThatWroteThisFile()<20)
                         {
                             C3Vector v(_assemblingLocalTransformation.Q(1),_assemblingLocalTransformation.Q(2),_assemblingLocalTransformation.Q(3));
