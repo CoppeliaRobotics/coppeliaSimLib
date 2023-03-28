@@ -243,7 +243,7 @@ CUserSettings::CUserSettings()
     noEdgesWhenMouseDownInCameraView=false;
     noTexturesWhenMouseDownInCameraView=false;
     noCustomUisWhenMouseDownInCameraView=true;
-    hierarchyRefreshCnt=3;
+    hierarchyRefreshCnt=6;
 
     _setIntVector3(childScriptColor_background,205,205,205);
     _setIntVector3(childScriptColor_selection,128,128,255);
