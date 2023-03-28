@@ -168,7 +168,7 @@ bool CPathCont_old::_getBezierPointsForVirtualDistance(double& l,int& index0,int
         return(false);
     if (_attributes&sim_pathproperty_closed_path)
     {
-        l=CMath::robustMod(l,pl);
+        l=robustMod(l,pl);
         while (l<0.0)
             l+=pl;
     }
@@ -267,7 +267,7 @@ void CPathCont_old::handlePath_keepObjectUnchanged(double deltaTime,double& pos_
             { // We normalize the position
                 while (newPos<0.0)
                     newPos+=getBezierVirtualPathLength();
-                newPos=CMath::robustMod(newPos,getBezierVirtualPathLength());
+                newPos=robustMod(newPos,getBezierVirtualPathLength());
             }
             else
             {
@@ -299,7 +299,7 @@ void CPathCont_old::handlePath_keepObjectUnchanged(double deltaTime,double& pos_
     // Adjust the pos:
     if (_attributes&sim_pathproperty_closed_path)
     {
-        pos_=CMath::robustMod(pos_,getBezierVirtualPathLength());
+        pos_=robustMod(pos_,getBezierVirtualPathLength());
         while (pos_<0.0)
             pos_+=getBezierVirtualPathLength();
     }
@@ -1421,7 +1421,7 @@ bool CPathCont_old::_getPointOnBezierCurveAtVirtualDistance(double& l,int& index
     }
     if (_attributes&sim_pathproperty_closed_path)
     {
-        l=CMath::robustMod(l,totLength);
+        l=robustMod(l,totLength);
         if (l<0.0)
             l+=totLength;
     }
@@ -1502,7 +1502,7 @@ bool CPathCont_old::getPointOnBezierCurveAtNormalDistance(double& l,int& index0,
     if (_attributes&sim_pathproperty_closed_path)
     {
         tt::limitValue(0.0,l,l);
-        l=CMath::robustMod(l,totLength);
+        l=robustMod(l,totLength);
     }
     else
         tt::limitValue(0.0,totLength,l);
@@ -1534,7 +1534,7 @@ void CPathCont_old::setPosition(double p)
 {
     if (_attributes&sim_pathproperty_closed_path)
     {
-        p=CMath::robustMod(p,getBezierVirtualPathLength());
+        p=robustMod(p,getBezierVirtualPathLength());
         while (p<0.0)
             p+=getBezierVirtualPathLength();
     }

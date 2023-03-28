@@ -412,8 +412,8 @@ if(WITH_GUI)
 endif()
 
 target_sources(coppeliaSim PRIVATE
-    ${COPPELIASIM_INCLUDE_DIR}/simMath/MyMath.cpp
-    ${COPPELIASIM_INCLUDE_DIR}/simMath/MMatrix.cpp
+    ${COPPELIASIM_INCLUDE_DIR}/simMath/mathFuncs.cpp
+    ${COPPELIASIM_INCLUDE_DIR}/simMath/mXnMatrix.cpp
     ${COPPELIASIM_INCLUDE_DIR}/simMath/7Vector.cpp
     ${COPPELIASIM_INCLUDE_DIR}/simMath/4X4Matrix.cpp
     ${COPPELIASIM_INCLUDE_DIR}/simMath/4Vector.cpp

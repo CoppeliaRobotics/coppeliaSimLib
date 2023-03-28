@@ -864,7 +864,7 @@ bool CPathPlanningTask::initiateSteppedSearch(bool showProgressDlg,double maxTim
     double angularCoeff=stepSize/angularStepSize;
     if (pathPlanningType==sim_pathplanning_nonholonomic)
     {
-        double maxSteeringAngle=2.0*CMath::robustAsin(stepSize/minTurningCircleDiameter);
+        double maxSteeringAngle=2.0*robustAsin(stepSize/minTurningCircleDiameter);
         void* p=CPathPlanningInterface::createNonHolonomicPathPlanningObject(_startDummyID,_goalDummyID,_robotEntityID,
             _obstacleEntityID,angularCoeff,1.0,0.01,maxSteeringAngle,stepSize,searchMinValue,searchRange,searchDirection,clearanceAndMaxDistance);
         _steppedSearchTemp_theTask=p;

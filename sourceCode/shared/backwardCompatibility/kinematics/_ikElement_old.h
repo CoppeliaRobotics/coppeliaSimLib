@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <simMath/MyMath.h>
+#include <simMath/mathFuncs.h>
 #include <syncObject.h>
 
 enum {

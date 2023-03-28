@@ -5,7 +5,7 @@
 #include <sceneObject.h>
 #include <jointObject.h>
 #include <dummy.h>
-#include <simMath/MMatrix.h>
+#include <simMath/mXnMatrix.h>
 
 class CIkGroup_old : public _CIkGroup_old
 {

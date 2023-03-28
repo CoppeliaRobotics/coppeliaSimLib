@@ -1031,7 +1031,7 @@ void CJoint::resetJoint_DEPRECATED()
 }
 
 void CJoint::handleJoint_DEPRECATED(double deltaTime)
-{ // DEPRECATED. handling the motion here. Not elegant at all. In future, try using the Reflexxes RML library!
+{ // DEPRECATED
     if ( (_jointMode!=sim_jointmode_motion_deprecated)||(!App::currentWorld->mainSettings->jointMotionHandlingEnabled_DEPRECATED) )
         return;
     if (_unlimitedAcceleration_DEPRECATED)
@@ -1045,7 +1045,7 @@ void CJoint::handleJoint_DEPRECATED(double deltaTime)
                 if (_invertTargetVelocityAtLimits_DEPRECATED)
                 {
                     double cycleTime=2.0*_posRange/_velocity_DEPRECATED;
-                    deltaTime=CMath::robustMod(deltaTime,cycleTime);
+                    deltaTime=robustMod(deltaTime,cycleTime);
                     while (true)
                     {
                         _velocity_DEPRECATED=_targetVel;

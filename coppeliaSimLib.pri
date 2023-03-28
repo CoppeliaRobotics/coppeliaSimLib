@@ -325,8 +325,8 @@ WITH_GUI {
 }
 
 HEADERS += $$PWD/../programming/include/simMath/mathDefines.h \
-    $$PWD/../programming/include/simMath/MyMath.h \
-    $$PWD/../programming/include/simMath/MMatrix.h \
+    $$PWD/../programming/include/simMath/mathFuncs.h \
+    $$PWD/../programming/include/simMath/mXnMatrix.h \
     $$PWD/../programming/include/simMath/7Vector.h \
     $$PWD/../programming/include/simMath/4X4Matrix.h \
     $$PWD/../programming/include/simMath/4Vector.h \
@@ -728,8 +728,8 @@ WITH_GUI {
     HEADERS += $$PWD/sourceCode/gui/libs/auxLibVideo.h \
 }
 
-SOURCES += $$PWD/../programming/include/simMath/MyMath.cpp \
-    $$PWD/../programming/include/simMath/MMatrix.cpp \
+SOURCES += $$PWD/../programming/include/simMath/mathFuncs.cpp \
+    $$PWD/../programming/include/simMath/mXnMatrix.cpp \
     $$PWD/../programming/include/simMath/7Vector.cpp \
     $$PWD/../programming/include/simMath/4X4Matrix.cpp \
     $$PWD/../programming/include/simMath/4Vector.cpp \

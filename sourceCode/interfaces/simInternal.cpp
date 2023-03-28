@@ -1501,6 +1501,11 @@ int simSetObjectMatrix_internal(int objectHandle,int relativeToObjectHandle,cons
         objectHandle=objectHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
+        if (!isFloatArrayOk(matrix,12))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
@@ -1524,6 +1529,7 @@ int simSetObjectMatrix_internal(int objectHandle,int relativeToObjectHandle,cons
             it->setDynamicsResetFlag(true,true);
         C4X4Matrix m;
         m.setData(matrix);
+        m.M.normalize();
         if (inverse)
             m.inverse();
         CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
@@ -1613,6 +1619,11 @@ int simSetObjectPose_internal(int objectHandle,int relativeToObjectHandle,const 
         objectHandle=objectHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
+        if (!isFloatArrayOk(pose,7))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
@@ -1636,6 +1647,7 @@ int simSetObjectPose_internal(int objectHandle,int relativeToObjectHandle,const 
             it->setDynamicsResetFlag(true,true);
         C7Vector tr;
         tr.setData(pose,(handleFlags&sim_handleflag_wxyzquat)==0);
+        tr.Q.normalize();
         if (inverse)
             tr.inverse();
         CSceneObject* objRel=App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
@@ -1724,6 +1736,11 @@ int simSetObjectPosition_internal(int objectHandle,int relativeToObjectHandle,co
         objectHandle=objectHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
+        if (!isFloatArrayOk(position,3))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
@@ -1841,6 +1858,11 @@ int simSetObjectOrientation_internal(int objectHandle,int relativeToObjectHandle
         objectHandle=objectHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
+        if (!isFloatArrayOk(eulerAngles,3))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
@@ -2101,6 +2123,11 @@ int simSetObjectChildPose_internal(int objectHandle,const double* pose)
     {
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
+        if (!isFloatArrayOk(pose,7))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (obj->getObjectType()==sim_object_joint_type)
         {
@@ -2109,6 +2136,7 @@ int simSetObjectChildPose_internal(int objectHandle,const double* pose)
             {
                 C7Vector tr;
                 tr.setData(pose,true);
+                tr.Q.normalize();
                 it->setSphericalTransformation(C4Vector(tr.Q));
                 it->setIntrinsicTransformationError(C7Vector::identityTransformation);
             }
@@ -2162,6 +2190,11 @@ int simSetJointInterval_internal(int objectHandle,bool cyclic,const double* inte
             return(-1);
         if (!isJoint(__func__,objectHandle))
             return(-1);
+        if (!isFloatArrayOk(interval,2))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
 // Some models need to modify that
 //        if ( App::currentWorld->simulation->isSimulationStopped()||((it->getJointMode()!=sim_jointmode_dynamic)&&(!it->getHybridFunctionality_old())) )
@@ -2354,7 +2387,11 @@ int simBuildIdentityMatrix_internal(double* matrix)
 int simBuildMatrix_internal(const double* position,const double* eulerAngles,double* matrix)
 {
     TRACE_C_API;
-
+    if ( (!isFloatArrayOk(position,3))||(!isFloatArrayOk(eulerAngles,3)) )
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
     C4X4Matrix m;
     m.M.setEulerAngles(C3Vector(eulerAngles));
     m.X.setData(position);
@@ -2367,7 +2404,11 @@ int simBuildPose_internal(const double* position,const double* eulerAngles,doubl
     // CoppeliaSim quaternion, internally: w x y z
     // CoppeliaSim quaternion, at interfaces: x y z w
     TRACE_C_API;
-
+    if ( (!isFloatArrayOk(position,3))||(!isFloatArrayOk(eulerAngles,3)) )
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
     C7Vector tr(C4Vector(eulerAngles[0],eulerAngles[1],eulerAngles[2]),C3Vector(position));
     tr.getData(pose,true);
     return(1);
@@ -2376,9 +2417,14 @@ int simBuildPose_internal(const double* position,const double* eulerAngles,doubl
 int simGetEulerAnglesFromMatrix_internal(const double* matrix,double* eulerAngles)
 {
     TRACE_C_API;
-
+    if (!isFloatArrayOk(matrix,12))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
     C4X4Matrix m;
     m.setData(matrix);
+    m.M.normalize();
     m.M.getEulerAngles().getData(eulerAngles);
     return(1);
 }
@@ -2386,9 +2432,14 @@ int simGetEulerAnglesFromMatrix_internal(const double* matrix,double* eulerAngle
 int simInvertMatrix_internal(double* matrix)
 {
     TRACE_C_API;
-
+    if (!isFloatArrayOk(matrix,12))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
     C4X4Matrix m;
     m.setData(matrix);
+    m.M.normalize();
     m.inverse();
     m.getData(matrix);
     return(1);
@@ -2397,7 +2448,11 @@ int simInvertMatrix_internal(double* matrix)
 int simInvertPose_internal(double* pose)
 {
     TRACE_C_API;
-
+    if (!isFloatArrayOk(pose,7))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
     C7Vector p;
     p.setData(pose,true);
     p.inverse();
@@ -2408,11 +2463,23 @@ int simInvertPose_internal(double* pose)
 int simMultiplyMatrices_internal(const double* matrixIn1,const double* matrixIn2,double* matrixOut)
 {
     TRACE_C_API;
+    if (!isFloatArrayOk(matrixIn1,12))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
+    if (!isFloatArrayOk(matrixIn2,12))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
 
     C4X4Matrix mIn1;
     mIn1.setData(matrixIn1);
+    mIn1.M.normalize();
     C4X4Matrix mIn2;
     mIn2.setData(matrixIn2);
+    mIn2.M.normalize();
     (mIn1*mIn2).getData(matrixOut);
     return(1);
 }
@@ -2420,11 +2487,23 @@ int simMultiplyMatrices_internal(const double* matrixIn1,const double* matrixIn2
 int simMultiplyPoses_internal(const double* poseIn1,const double* poseIn2,double* poseOut)
 {
     TRACE_C_API;
+    if (!isFloatArrayOk(poseIn1,7))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
+    if (!isFloatArrayOk(poseIn2,7))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
 
     C7Vector pIn1;
     pIn1.setData(poseIn1,true);
+    pIn1.Q.normalize();
     C7Vector pIn2;
     pIn2.setData(poseIn2,true);
+    pIn2.Q.normalize();
     (pIn1*pIn2).getData(poseOut,true);
     return(1);
 }
@@ -2432,9 +2511,15 @@ int simMultiplyPoses_internal(const double* poseIn1,const double* poseIn2,double
 int simPoseToMatrix_internal(const double* poseIn,double* matrixOut)
 {
     TRACE_C_API;
+    if (!isFloatArrayOk(poseIn,7))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
 
     C7Vector pIn;
     pIn.setData(poseIn,true);
+    pIn.Q.normalize();
     pIn.getMatrix().getData(matrixOut);
     return(1);
 }
@@ -2442,9 +2527,15 @@ int simPoseToMatrix_internal(const double* poseIn,double* matrixOut)
 int simMatrixToPose_internal(const double* matrixIn,double* poseOut)
 {
     TRACE_C_API;
+    if (!isFloatArrayOk(matrixIn,12))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
 
     C4X4Matrix mIn;
     mIn.setData(matrixIn);
+    mIn.M.normalize();
     mIn.getTransformation().getData(poseOut,true);
     return(1);
 }
@@ -2452,11 +2543,23 @@ int simMatrixToPose_internal(const double* matrixIn,double* poseOut)
 int simInterpolateMatrices_internal(const double* matrixIn1,const double* matrixIn2,double interpolFactor,double* matrixOut)
 {
     TRACE_C_API;
+    if (!isFloatArrayOk(matrixIn1,12))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
+    if (!isFloatArrayOk(matrixIn2,12))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
 
     C4X4Matrix mIn1;
     mIn1.setData(matrixIn1);
+    mIn1.M.normalize();
     C4X4Matrix mIn2;
     mIn2.setData(matrixIn2);
+    mIn2.M.normalize();
     C7Vector tr;
     tr.buildInterpolation(mIn1.getTransformation(),mIn2.getTransformation(),interpolFactor);
     (tr.getMatrix()).getData(matrixOut);
@@ -2466,11 +2569,23 @@ int simInterpolateMatrices_internal(const double* matrixIn1,const double* matrix
 int simInterpolatePoses_internal(const double* poseIn1,const double* poseIn2,double interpolFactor,double* poseOut)
 {
     TRACE_C_API;
+    if (!isFloatArrayOk(poseIn1,7))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
+    if (!isFloatArrayOk(poseIn2,7))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
 
     C7Vector pIn1;
     pIn1.setData(poseIn1,true);
+    pIn1.Q.normalize();
     C7Vector pIn2;
     pIn2.setData(poseIn2,true);
+    pIn2.Q.normalize();
     C7Vector tr;
     tr.buildInterpolation(pIn1,pIn2,interpolFactor);
     tr.getData(poseOut,true);
@@ -2480,9 +2595,15 @@ int simInterpolatePoses_internal(const double* poseIn1,const double* poseIn2,dou
 int simTransformVector_internal(const double* matrix,double* vect)
 {
     TRACE_C_API;
+    if (!isFloatArrayOk(matrix,12))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
 
     C4X4Matrix m;
     m.setData(matrix);
+    m.M.normalize();
     C3Vector v(vect);
     (m*v).getData(vect);
     return(1);
@@ -3443,6 +3564,11 @@ int simSetArrayParam_internal(int parameter,const double* arrayOfValues)
     {
         if (parameter==sim_arrayparam_gravity)
         {
+            if (!isFloatArrayOk(arrayOfValues,3))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                return(-1);
+            }
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+4+8+16+32))
                 return(-1);
             if (App::currentWorld->dynamicsContainer==nullptr)
@@ -3453,6 +3579,11 @@ int simSetArrayParam_internal(int parameter,const double* arrayOfValues)
 
         if (parameter==sim_arrayparam_fog)
         {
+            if (!isFloatArrayOk(arrayOfValues,3))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                return(-1);
+            }
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+4+8+16+32))
                 return(-1);
             if (App::currentWorld->environment==nullptr)
@@ -3464,6 +3595,11 @@ int simSetArrayParam_internal(int parameter,const double* arrayOfValues)
         }
         if (parameter==sim_arrayparam_fog_color)
         {
+            if (!isFloatArrayOk(arrayOfValues,3))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                return(-1);
+            }
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+4+8+16+32))
                 return(-1);
             if (App::currentWorld->environment==nullptr)
@@ -3475,6 +3611,11 @@ int simSetArrayParam_internal(int parameter,const double* arrayOfValues)
         }
         if (parameter==sim_arrayparam_background_color1)
         {
+            if (!isFloatArrayOk(arrayOfValues,3))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                return(-1);
+            }
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+4+8+16+32))
                 return(-1);
             if (App::currentWorld->environment==nullptr)
@@ -3486,6 +3627,11 @@ int simSetArrayParam_internal(int parameter,const double* arrayOfValues)
         }
         if (parameter==sim_arrayparam_background_color2)
         {
+            if (!isFloatArrayOk(arrayOfValues,3))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                return(-1);
+            }
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+4+8+16+32))
                 return(-1);
             if (App::currentWorld->environment==nullptr)
@@ -3497,6 +3643,11 @@ int simSetArrayParam_internal(int parameter,const double* arrayOfValues)
         }
         if (parameter==sim_arrayparam_ambient_light)
         {
+            if (!isFloatArrayOk(arrayOfValues,3))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                return(-1);
+            }
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+4+8+16+32))
                 return(-1);
             if (App::currentWorld->environment==nullptr)
@@ -7100,9 +7251,23 @@ int simAddForceAndTorque_internal(int shapeHandle,const double* force,const doub
         f.clear();
         t.clear();
         if (force!=nullptr)
+        {
+            if (!isFloatArrayOk(force,3))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                return(-1);
+            }
             f.setData(force);
+        }
         if (torque!=nullptr)
+        {
+            if (!isFloatArrayOk(torque,3))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                return(-1);
+            }
             t.setData(torque);
+        }
 
         if ((handleFlags&sim_handleflag_resetforce)!=0)
             it->clearAdditionalForce();
@@ -7136,6 +7301,16 @@ int simAddForce_internal(int shapeHandle,const double* position,const double* fo
             return(-1);
         if (!isShape(__func__,handle))
             return(-1);
+        if (!isFloatArrayOk(position,3))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
+        if (!isFloatArrayOk(force,3))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(handle);
         C3Vector r(position);
         C3Vector f(force);
@@ -8089,6 +8264,9 @@ int simExportMesh_internal(int fileformat,const char* pathAndFilename,int option
             {
                 if ( (verticesSizes[i]<9)||((verticesSizes[i]/3)*3!=verticesSizes[i]) )
                     invalidValues=true;
+
+                if (!isFloatArrayOk(vertices[i],verticesSizes[i]))
+                    invalidValues=true;
                 if ( (indicesSizes[i]<3)||((indicesSizes[i]/3)*3!=indicesSizes[i]) )
                     invalidValues=true;
             }
@@ -8115,6 +8293,11 @@ int simCreateShape_internal(int options,double shadingAngle,const double* vertic
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
+        if (!isFloatArrayOk(vertices,verticesSize))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         std::vector<double> vert(vertices,vertices+verticesSize);
         std::vector<int> ind(indices,indices+indicesSize);
         std::vector<double> _norm;
@@ -8163,6 +8346,11 @@ int simCreateMeshShape_internal(int options,double shadingAngle,const double* ve
         return(-1);
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
+        if (!isFloatArrayOk(vertices,verticesSize))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         if ( (indicesSize>=3)&&((indicesSize/3)*3==indicesSize) )
         {
             bool badIndices=false;
@@ -8245,6 +8433,11 @@ int simCreatePrimitiveShape_internal(int primitiveType,const double* sizes,int o
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
+        if (!isFloatArrayOk(sizes,3))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         C3Vector s(tt::getLimitedFloat(0.00001,100000.0,sizes[0]),tt::getLimitedFloat(0.00001,100000.0,sizes[1]),tt::getLimitedFloat(0.00001,100000.0,sizes[2]));
         CShape* shape=CAddOperations::addPrimitiveShape(primitiveType,s,options,nullptr,0,32,0,false,1);
         int retVal=-1;
@@ -8437,6 +8630,11 @@ int simCreateJoint_internal(int jointType,int jointMode,int options,const double
         it->setHybridFunctionality_old(options&1);
         if (sizes!=nullptr)
         {
+            if (!isFloatArrayOk(sizes,2))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                return(-1);
+            }
             it->setLength(sizes[0]);
             it->setDiameter(sizes[1]);
         }
@@ -10881,10 +11079,22 @@ int simGetRotationAxis_internal(const double* matrixStart,const double* matrixGo
 {
     TRACE_C_API;
 
+    if (!isFloatArrayOk(matrixStart,12))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
+    if (!isFloatArrayOk(matrixGoal,12))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
     C4X4Matrix mStart;
     mStart.setData(matrixStart);
+    mStart.M.normalize();
     C4X4Matrix mGoal;
     mGoal.setData(matrixGoal);
+    mGoal.M.normalize();
 
     // Following few lines taken from the quaternion interpolation part:
     C4Vector AA(mStart.M.getQuaternion());
@@ -10915,8 +11125,24 @@ int simRotateAroundAxis_internal(const double* matrixIn,const double* axis,const
 {
     TRACE_C_API;
 
+    if (!isFloatArrayOk(matrixIn,12))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
+    if (!isFloatArrayOk(axis,3))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
+    if (!isFloatArrayOk(axisPos,3))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
     C4X4Matrix mIn;
     mIn.setData(matrixIn);
+    mIn.M.normalize();
     C7Vector m(mIn);
     C3Vector ax(axis);
     C3Vector pos(axisPos);
@@ -11491,7 +11717,7 @@ int _simSetVisionSensorDepth_internal(int sensorHandle,int options,const float* 
 }
 
 int simRuckigPos_internal(int dofs,double baseCycleTime,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const bool* selection,const double* targetPos,const double* targetVel,double* reserved1,int* reserved2)
-{
+{ // input floats are check on the plugin side
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
@@ -11509,7 +11735,7 @@ int simRuckigPos_internal(int dofs,double baseCycleTime,int flags,const double* 
 }
 
 int simRuckigVel_internal(int dofs,double baseCycleTime,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const bool* selection,const double* targetVel,double* reserved1,int* reserved2)
-{
+{ // input floats are check on the plugin side
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
@@ -11642,6 +11868,11 @@ int simSetObjectQuaternion_internal(int objectHandle,int relativeToObjectHandle,
 
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
+        if (!isFloatArrayOk(quaternion,4))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
@@ -11662,6 +11893,7 @@ int simSetObjectQuaternion_internal(int objectHandle,int relativeToObjectHandle,
         {
             C4Vector q;
             q.setData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
+            q.normalize();
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),q.getEulerAngles());
         }
         else
@@ -11670,6 +11902,7 @@ int simSetObjectQuaternion_internal(int objectHandle,int relativeToObjectHandle,
             { // special here, in order to not lose precision in a series of get/set
                 C7Vector tr(it->getLocalTransformation());
                 tr.Q.setData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
+                tr.Q.normalize();
                 it->setLocalTransformation(tr);
             }
             else
@@ -11682,6 +11915,7 @@ int simSetObjectQuaternion_internal(int objectHandle,int relativeToObjectHandle,
                     relTr=relObj->getFullCumulativeTransformation();
                 C7Vector x(relTr.getInverse()*absTr);
                 x.Q.setData(quaternion,(handleFlags&sim_handleflag_wxyzquat)==0);
+                x.Q.normalize();
                 absTr=relTr*x;
                 App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),absTr.Q.getEulerAngles());
             }
@@ -11772,10 +12006,21 @@ int simSetShapeInertia_internal(int shapeHandle,const double* inertiaMatrix,cons
     {
         if (!isShape(__func__,shapeHandle))
             return(-1);
+        if (!isFloatArrayOk(inertiaMatrix,9))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
+        if (!isFloatArrayOk(transformationMatrix,12))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
 
         C4X4Matrix tr;
         tr.setData(transformationMatrix);
+        tr.M.normalize();
 
         C3X3Matrix m;
         m.setData(inertiaMatrix);
@@ -11828,6 +12073,16 @@ int simGenerateShapeFromPath_internal(const double* pppath,int pathSize,const do
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
+        if (!isFloatArrayOk(pppath,pathSize))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
+        if (!isFloatArrayOk(section,sectionSize))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         // First make sure the points are not coincident:
         std::vector<double> ppath;
         C3Vector prevV;
@@ -11838,6 +12093,7 @@ int simGenerateShapeFromPath_internal(const double* pppath,int pathSize,const do
         {
             C3Vector v(pppath+7*i);
             C4Vector q(pppath+7*i+3,true);
+            q.normalize();
             double d=(prevV-v).getLength();
             if ( (d>=0.0005)||(i==0) )
             {
@@ -13340,12 +13596,20 @@ int simAlignShapeBB_internal(int shapeHandle,const double* pose)
                 theShape->alignBB("mesh");
             else
             {
+                if (!isFloatArrayOk(pose,7))
+                {
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                    return(-1);
+                }
                 C7Vector tr;
                 tr.setData(pose,true);
                 if ( (tr.Q(0)==0.0)&&(tr.Q(1)==0.0)&&(tr.Q(2)==0.0)&&(tr.Q(3)==0.0) )
                     theShape->alignBB("mesh");
                 else
+                {
+                    tr.Q.normalize();
                     theShape->alignBB("custom",&tr);
+                }
             }
             return(1);
         }
@@ -13373,12 +13637,18 @@ int simRelocateShapeFrame_internal(int shapeHandle,const double* pose)
                 theShape->relocateFrame("mesh");
             else
             {
+                if (!isFloatArrayOk(pose,7))
+                {
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                    return(-1);
+                }
                 C7Vector tr;
                 tr.setData(pose,true);
                 if ( (tr.Q(0)==0.0)&&(tr.Q(1)==0.0)&&(tr.Q(2)==0.0)&&(tr.Q(3)==0.0) )
                     theShape->relocateFrame("mesh");
                 else
                 {
+                    tr.Q.normalize();
                     C7Vector x(tr.getInverse()*theShape->getCumulativeTransformation());
                     theShape->setLocalTransformation(theShape->getFullParentCumulativeTransformation().getInverse()*x);
                     theShape->relocateFrame("world");
@@ -13469,6 +13739,11 @@ int simGetQHull_internal(const double* inVertices,int inVerticesL,double** verti
     if (!isSimulatorInitialized(__func__))
         return(-1);
 
+    if (!isFloatArrayOk(inVertices,inVerticesL))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=0;
@@ -13512,7 +13787,10 @@ int simGetDecimatedMesh_internal(const double* inVertices,int inVerticesL,const 
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
+        return(-1);
+    if (!isFloatArrayOk(inVertices,inVerticesL))
     {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
         return(-1);
     }
 
@@ -14051,6 +14329,11 @@ int simPushDoubleTableOntoStack_internal(int stackHandle,const double* values,in
 
     if (!isSimulatorInitialized(__func__))
         return(-1);
+    if (!isFloatArrayOk(values,valueCnt))
+    {
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+        return(-1);
+    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -15110,6 +15393,11 @@ int simInsertVoxelsIntoOctree_internal(int octreeHandle,int options,const double
     {
         if (!isOctree(__func__,octreeHandle))
             return(-1);
+        if (!isFloatArrayOk(pts,ptCnt*3))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
         if ( (tag==nullptr)||(color==nullptr) )
         {
@@ -15149,7 +15437,14 @@ int simRemoveVoxelsFromOctree_internal(int octreeHandle,int options,const double
         if (pts==nullptr)
             it->clear();
         else
+        {
+            if (!isFloatArrayOk(pts,ptCnt*3))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                return(-1);
+            }
             it->subtractPoints(pts,ptCnt,options&1);
+        }
         int retVal=int(it->getCubePositions()->size())/3;
         return(retVal);
     }
@@ -15168,6 +15463,11 @@ int simInsertPointsIntoPointCloud_internal(int pointCloudHandle,int options,cons
     {
         if (!isPointCloud(__func__,pointCloudHandle))
             return(-1);
+        if (!isFloatArrayOk(pts,ptCnt*3))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
         double insertionToleranceSaved=it->getInsertionDistanceTolerance();
         int optionalValuesBits=0;
@@ -15199,7 +15499,14 @@ int simRemovePointsFromPointCloud_internal(int pointCloudHandle,int options,cons
         if (pts==nullptr)
             it->clear();
         else
+        {
+            if (!isFloatArrayOk(pts,ptCnt*3))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                return(-1);
+            }
             it->removePoints(pts,ptCnt,options&1,tolerance);
+        }
         int retVal=int(it->getPoints()->size())/3;
         return(retVal);
     }
@@ -15222,7 +15529,14 @@ int simIntersectPointsWithPointCloud_internal(int pointCloudHandle,int options,c
         if (pts==nullptr)
             it->clear();
         else
+        {
+            if (!isFloatArrayOk(pts,ptCnt*3))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+                return(-1);
+            }
             it->intersectPoints(pts,ptCnt,options&1,tolerance);
+        }
         int retVal=int(it->getPoints()->size())/3;
         return(retVal);
     }
@@ -15418,6 +15732,11 @@ int simCheckOctreePointOccupancy_internal(int octreeHandle,int options,const dou
         COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
         if (it->getOctreeInfo()==nullptr)
             return(0);
+        if (!isFloatArrayOk(points,ptCnt*3))
+        {
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
+            return(-1);
+        }
         const double* _pts=points;
         std::vector<double> __pts;
         if (options&1)

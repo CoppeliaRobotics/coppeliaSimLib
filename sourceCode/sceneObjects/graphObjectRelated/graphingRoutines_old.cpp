@@ -1247,7 +1247,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex,int objectID,double& valu
                 if (dataIndex==GRAPH_SCENEOBJECT_PROXSENSOR_ELEVATION)
                 {
                     double r=pt.getLength();
-                    double el=CMath::robustAsin(pt(1)/r);
+                    double el=robustAsin(pt(1)/r);
                     value=el;
                 }
                 if (dataIndex==GRAPH_SCENEOBJECT_PROXSENSOR_AZIMUTH)

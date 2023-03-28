@@ -175,7 +175,7 @@ void makeColorCurrent(const CColorObject* visParam,bool forceNonTransparent,bool
             if (!visParam->getUseSimulationTime())
                 t=float(VDateTime::getTimeInMs())/1000.0;
             t+=visParam->getFlashPhase()/visParam->getFlashFrequency();
-            t=(float)CMath::robustMod((double)t,double(1.0/visParam->getFlashFrequency()))*visParam->getFlashFrequency();
+            t=(float)robustMod((double)t,double(1.0/visParam->getFlashFrequency()))*visParam->getFlashFrequency();
             if (t>(1.0-visParam->getFlashRatio()))
             { // Flash is on
                     t=t-1.0+visParam->getFlashRatio();

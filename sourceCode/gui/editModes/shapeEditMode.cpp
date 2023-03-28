@@ -814,7 +814,7 @@ double CShapeEditMode::getEdgeAngle(int edgeID) // all edit mode routines should
                 smallestScalarProduct=sp;
         }
     }
-    return(CMath::robustAcos(smallestScalarProduct));
+    return(robustAcos(smallestScalarProduct));
 }
 
 void CShapeEditMode::getNextEdges(int rearVertex,int frontVertex,std::vector<int>& edgeList) // all edit mode routines should go somewhere else!!!

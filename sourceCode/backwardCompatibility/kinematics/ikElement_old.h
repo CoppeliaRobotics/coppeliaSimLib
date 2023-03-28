@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ser.h>
-#include <simMath/MyMath.h>
+#include <simMath/mathFuncs.h>
 #include <_ikElement_old.h>
 
 class CIkElement_old : public _CIkElement_old
