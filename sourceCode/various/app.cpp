@@ -1420,6 +1420,16 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
             __logMsg(pluginName,verbosityLevel,logMsg);
         retVal=true;
     }
+    else
+    { // let's just print a naked message. The plugin maybe wasn't registered yet? (e.g. in plugin start function)
+        std::string msg;
+        msg+=pluginName;
+        msg+=": ";
+        msg+=logMsg;
+        msg+="\n";
+        printf(msg.c_str());
+        retVal=true;
+    }
     return(retVal);
 }
 
