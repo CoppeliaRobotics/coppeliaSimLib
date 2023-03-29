@@ -674,12 +674,12 @@ bool CDlgCont::processCommand(int commandID)
             if (enabled)
             {
                 App::setApplicationNamedParam("simIK.debug_world","");
-                App::logMsg(sim_verbosity_msgs,"Visualizing IK worlds");
+                App::logMsg(sim_verbosity_msgs,"Hiding IK worlds");
             }
             else
             {
                 App::setApplicationNamedParam("simIK.debug_world","true");
-                App::logMsg(sim_verbosity_msgs,"Hiding IK worlds");
+                App::logMsg(sim_verbosity_msgs,"Visualizing IK worlds");
             }
             return(true);
         }
