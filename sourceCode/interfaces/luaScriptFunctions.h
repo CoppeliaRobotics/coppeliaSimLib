@@ -131,10 +131,8 @@ extern int _simBuildIdentityMatrix(luaWrap_lua_State* L);
 extern int _simBuildMatrix(luaWrap_lua_State* L);
 extern int _simBuildPose(luaWrap_lua_State* L);
 extern int _simGetEulerAnglesFromMatrix(luaWrap_lua_State* L);
-extern int _simInvertMatrix(luaWrap_lua_State* L);
 extern int _simMultiplyMatrices(luaWrap_lua_State* L);
 extern int _simMultiplyPoses(luaWrap_lua_State* L);
-extern int _simInvertPose(luaWrap_lua_State* L);
 extern int _simInterpolatePoses(luaWrap_lua_State* L);
 extern int _simPoseToMatrix(luaWrap_lua_State* L);
 extern int _simMatrixToPose(luaWrap_lua_State* L);
@@ -408,6 +406,8 @@ extern int _simGetGenesisEvents(luaWrap_lua_State* L);
 extern int _simBroadcastMsg(luaWrap_lua_State* L);
 extern int _simHandleJointMotion(luaWrap_lua_State* L);
 extern int _simGetVisionSensorRes(luaWrap_lua_State* L);
+extern int _simGetMatrixInverse(luaWrap_lua_State* L);
+extern int _simGetPoseInverse(luaWrap_lua_State* L);
 
 // DEPRECATED
 void moduleCommonPart_old(luaWrap_lua_State* L,int action,std::string* errorString);
@@ -624,3 +624,5 @@ extern int _simGetDoubleSignal(luaWrap_lua_State* L);
 extern int _simClearDoubleSignal(luaWrap_lua_State* L);
 extern int _simReorientShapeBoundingBox(luaWrap_lua_State* L);
 extern int _simCreateMeshShape(luaWrap_lua_State* L);
+extern int _simInvertMatrix(luaWrap_lua_State* L);
+extern int _simInvertPose(luaWrap_lua_State* L);

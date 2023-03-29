@@ -7171,8 +7171,10 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
     }
     */
 
-
-
+    if (_containsScriptText_old(scriptObject,"sim.invertMatrix"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.invertMatrix...");
+    if (_containsScriptText_old(scriptObject,"sim.invertPose"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.invertPose...");
     if (_containsScriptText_old(scriptObject,"simIK.syncToIkWorld"))
         App::logMsg(sim_verbosity_errors,"Contains simIK.syncToIkWorld...");
     if (_containsScriptText_old(scriptObject,"simIK.syncFromIkWorld"))

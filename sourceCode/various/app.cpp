@@ -1422,9 +1422,9 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
     }
     else
     { // let's just print a naked message. The plugin maybe wasn't registered yet? (e.g. in plugin start function)
-        std::string msg;
+        std::string msg("[");
         msg+=pluginName;
-        msg+=": ";
+        msg+="(unknown plugin)]   ";
         msg+=logMsg;
         msg+="\n";
         printf(msg.c_str());
@@ -1716,7 +1716,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
                     }
                     for (size_t i=0;i<consoleTxt.size();i++)
                         (*_consoleMsgsArchive) << consoleTxt[i];
-                    (*_consoleMsgsArchive) << ((unsigned char)13) << ((unsigned char)10);
+                    //(*_consoleMsgsArchive) << ((unsigned char)13) << ((unsigned char)10);
                     _consoleMsgsFile->flush();
                 }
             }

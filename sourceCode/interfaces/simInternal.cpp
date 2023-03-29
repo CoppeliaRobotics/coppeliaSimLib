@@ -16356,7 +16356,6 @@ char* simGetApiInfo_internal(int scriptHandleOrType,const char* apiWord)
 int simSetModuleInfo_internal(const char* moduleName,int infoType,const char* stringInfo,int intInfo)
 {
     TRACE_C_API;
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CPlugin* plug=CPluginContainer::getPluginFromName(moduleName,true);

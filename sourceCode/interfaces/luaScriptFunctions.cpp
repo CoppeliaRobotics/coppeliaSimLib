@@ -156,8 +156,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.buildMatrix",_simBuildMatrix,                          "float[12] matrix=sim.buildMatrix(float[3] position,float[3] eulerAngles)",true},
     {"sim.buildPose",_simBuildPose,                              "float[7] pose=sim.buildPose(float[3] position,float[3] eulerAnglesOrAxis,int mode=0,float[3] axis2=nil)",true},
     {"sim.getEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"float[3] eulerAngles=sim.getEulerAnglesFromMatrix(float[12] matrix)",true},
-    {"sim.invertMatrix",_simInvertMatrix,                        "sim.invertMatrix(float[12] matrix)",true},
-    {"sim.invertPose",_simInvertPose,                            "sim.invertPose(float[7] pose)",true},
+    {"sim.getMatrixInverse",_simGetMatrixInverse,                "float[12] matrix=sim.getMatrixInverse(float[12] matrix)",true},
+    {"sim.getPoseInverse",_simGetPoseInverse,                    "float[7] pose=sim.getPoseInverse(float[7] pose)",true},
     {"sim.multiplyMatrices",_simMultiplyMatrices,                "float[12] resultMatrix=sim.multiplyMatrices(float[12] matrixIn1,float[12] matrixIn2)",true},
     {"sim.multiplyPoses",_simMultiplyPoses,                      "float[7] resultPose=sim.multiplyPoses(float[7] poseIn1,float[7] poseIn2)",true},
     {"sim.interpolateMatrices",_simInterpolateMatrices,          "float[12] resultMatrix=sim.interpolateMatrices(float[12] matrixIn1,float[12] matrixIn2,float interpolFactor)",true},
@@ -605,6 +605,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.clearDoubleSignal",_simClearDoubleSignal,              "Deprecated. Use sim.clearFloatSignal instead",false},
     {"sim.reorientShapeBoundingBox",_simReorientShapeBoundingBox,"Deprecated. Use sim.alignShapeBB and/or sim.relocateShapeFrame instead",false},
     {"sim.createMeshShape",_simCreateMeshShape,                  "Deprecated. Use sim.createShape instead",false},
+    {"sim.invertMatrix",_simInvertMatrix,                        "Deprecated. Use sim.getMatrixInverse instead",false},
+    {"sim.invertPose",_simInvertPose,                            "Deprecated. Use sim.getPoseInverse instead",false},
 
     {"",nullptr,"",false}
 };
@@ -4267,20 +4269,20 @@ int _simGetEulerAnglesFromMatrix(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simInvertMatrix(luaWrap_lua_State* L)
+int _simGetMatrixInverse(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.invertMatrix");
+    LUA_START("sim.getMatrixInverse");
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,12))
     {
         double arr[12];
         getDoublesFromTable(L,1,12,arr);
         retVal=simInvertMatrix_internal(arr);
-        for (int i=0;i<12;i++)
+        if (retVal>=0)
         {
-            luaWrap_lua_pushnumber(L,arr[i]);
-            luaWrap_lua_rawseti(L,1,i+1);
+            pushDoubleTableOntoStack(L,12,arr); // Success
+            LUA_END(1);
         }
     }
 
@@ -4289,20 +4291,20 @@ int _simInvertMatrix(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simInvertPose(luaWrap_lua_State* L)
+int _simGetPoseInverse(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.invertPose");
+    LUA_START("sim.getPoseInverse");
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,7))
     {
         double arr[7];
         getDoublesFromTable(L,1,7,arr);
         retVal=simInvertPose_internal(arr);
-        for (int i=0;i<7;i++)
+        if (retVal>=0)
         {
-            luaWrap_lua_pushnumber(L,arr[i]);
-            luaWrap_lua_rawseti(L,1,i+1);
+            pushDoubleTableOntoStack(L,7,arr); // Success
+            LUA_END(1);
         }
     }
 
@@ -13646,7 +13648,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simBuildIdentityMatrix",_simBuildIdentityMatrix,          "Use the newer sim.buildIdentityMatrix notation",false},
     {"simBuildMatrix",_simBuildMatrix,                          "Use the newer sim.buildMatrix notation",false},
     {"simGetEulerAnglesFromMatrix",_simGetEulerAnglesFromMatrix,"Use the newer sim.getEulerAnglesFromMatrix notation",false},
-    {"simInvertMatrix",_simInvertMatrix,                        "Use the newer sim.invertMatrix notation",false},
+    {"simInvertMatrix",_simInvertMatrix,                        "Deprecated. Use sim.getMatrixInverse instead",false},
     {"simMultiplyMatrices",_simMultiplyMatrices,                "Use the newer sim.multiplyMatrices notation",false},
     {"simInterpolateMatrices",_simInterpolateMatrices,          "Use the newer sim.interpolateMatrices notation",false},
     {"simMultiplyVector",_simMultiplyVector,                    "Use the newer sim.multiplyVector notation",false},
@@ -21644,6 +21646,50 @@ int _simCreateMeshShape(luaWrap_lua_State* L)
                 delete[] indices;
                 delete[] vertices;
             }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simInvertMatrix(luaWrap_lua_State* L)
+{ // deprecated on 29.03.2023
+    TRACE_LUA_API;
+    LUA_START("sim.invertMatrix");
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,12))
+    {
+        double arr[12];
+        getDoublesFromTable(L,1,12,arr);
+        retVal=simInvertMatrix_internal(arr);
+        for (int i=0;i<12;i++)
+        {
+            luaWrap_lua_pushnumber(L,arr[i]);
+            luaWrap_lua_rawseti(L,1,i+1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simInvertPose(luaWrap_lua_State* L)
+{ // deprecated on 29.03.2023
+    TRACE_LUA_API;
+    LUA_START("sim.invertPose");
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,7))
+    {
+        double arr[7];
+        getDoublesFromTable(L,1,7,arr);
+        retVal=simInvertPose_internal(arr);
+        for (int i=0;i<7;i++)
+        {
+            luaWrap_lua_pushnumber(L,arr[i]);
+            luaWrap_lua_rawseti(L,1,i+1);
         }
     }
 
