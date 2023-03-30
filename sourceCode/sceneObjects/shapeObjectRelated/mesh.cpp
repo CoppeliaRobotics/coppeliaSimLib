@@ -2256,12 +2256,30 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                 checkIfConvex();
                 if ( (!_convex)&&_convex_OLD )
                 { // in some rare cases, old shapes won't be detected as convex anymore. Make them convex in that case!
-                    CMeshRoutines::getConvexHull(_vertices,_vertices,_indices);
+                    if (CMeshRoutines::getConvexHull(_vertices,_vertices,_indices))
+                    {
+                        actualizeGouraudShadingAndVisibleEdges();
+                        _updateDisplayAndDiskValues();
+                        checkIfConvex();
+                    }
+                }
+            }
+            /* Needed to fix models and scenes just after release V4.5.1, rev0
+            if ( _convex && (CMeshRoutines::getConvexType(_vertices,_indices,0.015)!=0) )
+            {
+                static int cnt=0;
+                static int fcnt=0;
+                if (CMeshRoutines::getConvexHull(_vertices,_vertices,_indices))
+                {
                     actualizeGouraudShadingAndVisibleEdges();
                     _updateDisplayAndDiskValues();
                     checkIfConvex();
+                    if (_convex)
+                        fcnt++;
                 }
+                printf("bad,fixed: %i,%i\n",++cnt,fcnt);
             }
+            //*/
         }
     }
     else
@@ -2406,10 +2424,12 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
             checkIfConvex(); // with XML, we do not serialize the _convex flag. So we recompute it
             if ( (!_convex)&&_convex_OLD )
             { // in some rare cases, old shapes won't be detected as convex anymore. Make them convex in that case!
-                CMeshRoutines::getConvexHull(_vertices,_vertices,_indices);
-                actualizeGouraudShadingAndVisibleEdges();
-                _updateDisplayAndDiskValues();
-                checkIfConvex();
+                if (CMeshRoutines::getConvexHull(_vertices,_vertices,_indices))
+                {
+                    actualizeGouraudShadingAndVisibleEdges();
+                    _updateDisplayAndDiskValues();
+                    checkIfConvex();
+                }
             }
         }
     }

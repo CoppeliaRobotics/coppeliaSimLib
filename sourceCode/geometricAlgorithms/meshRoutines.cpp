@@ -237,11 +237,13 @@ void CMeshRoutines::removeThinTriangles(std::vector<double>& vertices,std::vecto
 }
 
 bool CMeshRoutines::getConvexHull(const std::vector<double>& verticesIn,std::vector<double>& verticesOut,std::vector<int>& indicesOut)
-{
-    std::vector<double> vertIn(verticesIn); // make a copy, in case we use same in/out buffer
-    int verticesInLength=int(vertIn.size());
+{ // If algo fails, verticesOut are the same as verticesIn, and indicesOut is not touched
+    // Keep in mind that verticesIn and verticesOut could be the same buffer
+    std::vector<double> initVerticesIn(verticesIn);
+    std::vector<double> vert(initVerticesIn);
+    int verticesInLength=int(vert.size());
     void* data[10];
-    data[0]=(double*)vertIn.data();
+    data[0]=(double*)vert.data();
     data[1]=&verticesInLength;
     bool generateIndices=true;
     data[2]=&generateIndices;
@@ -257,27 +259,37 @@ bool CMeshRoutines::getConvexHull(const std::vector<double>& verticesIn,std::vec
     data[7]=&outIndLength;
     for (size_t j=0;j<5;j++)
     { // we try 5 times, each time with the output of previous calculation:
-        verticesOut.clear();
-        indicesOut.clear();
         if ( CPluginContainer::qhull(data)&&success )
         {
-            verticesOut.assign(outVert,outVert+outVertLength);
+            std::vector<double> vertices(outVert,outVert+outVertLength);
+            std::vector<int> indices(outInd,outInd+outIndLength);
+            removeDuplicateVerticesAndTriangles(vertices,&indices,nullptr,nullptr,App::userSettings->verticesTolerance);
+            toDelaunayMesh(vertices,indices,nullptr,nullptr);
+            bool tooFewTriangles=false;
+            if (indices.size()<12)
+            { // revert vertex removal and DelaunayMesh from above
+                vertices.assign(outVert,outVert+outVertLength);
+                indices.assign(outInd,outInd+outIndLength);
+                tooFewTriangles=true;
+            }
             delete[] outVert;
-            indicesOut.assign(outInd,outInd+outIndLength);
             delete[] outInd;
-            CMeshRoutines::removeDuplicateVerticesAndTriangles(verticesOut,&indicesOut,nullptr,nullptr,App::userSettings->verticesTolerance);
-            CMeshRoutines::toDelaunayMesh(verticesOut,indicesOut,nullptr,nullptr);
-            if (getConvexType(verticesOut,indicesOut,0.015)==0)
+            if (getConvexType(vertices,indices,0.015)==0)
+            {
+                verticesOut.assign(vertices.begin(),vertices.end());
+                indicesOut.assign(indices.begin(),indices.end());
                 return(true);
+            }
             // QHull failed producing a correct convex hull. We try again, by removing problematic points, i.e. points that lie very close to edges
-            removeThinTriangles(verticesOut,indicesOut,0.99);
-            vertIn.swap(verticesOut);
-            data[0]=(double*)vertIn.data();
-            verticesInLength=int(vertIn.size());
+            if (tooFewTriangles)
+                break;
+            removeThinTriangles(vertices,indices,0.99);
+            vert.swap(vertices);
+            data[0]=(double*)vert.data();
+            verticesInLength=int(vert.size());
         }
     }
-    verticesOut.clear();
-    indicesOut.clear();
+    verticesOut.assign(initVerticesIn.begin(),initVerticesIn.end());
     return(false);
 }
 
@@ -480,7 +492,7 @@ int CMeshRoutines::getConvexType(const std::vector<double>& vertices,const std::
     // Since identical vertices are allowed, first merge them:
     std::vector<double> vertices_(vertices);
     std::vector<int> indices_(indices);
-    CMeshRoutines::removeDuplicateVerticesAndTriangles(vertices_,&indices_,nullptr,nullptr,App::userSettings->verticesTolerance);
+    removeDuplicateVerticesAndTriangles(vertices_,&indices_,nullptr,nullptr,App::userSettings->verticesTolerance);
 
     // Check if all edges touch exactly 2 triangles, i.e. the mesh is water-tight and remains so, when randomly moving vertices around:
     std::vector<std::map<int,int>> allEdges(vertices_.size()/3);
@@ -1120,7 +1132,7 @@ void CMeshRoutines::createCylinder(std::vector<double>& vertices,std::vector<int
 
     if (cone)
     { // We have a degenerate cylinder, we need to remove degenerate triangles and double vertices:
-        CMeshRoutines::removeDuplicateVerticesAndTriangles(vertices,&indices,nullptr,nullptr,App::userSettings->verticesTolerance);
+        removeDuplicateVerticesAndTriangles(vertices,&indices,nullptr,nullptr,App::userSettings->verticesTolerance);
     }
 
     // Now we scale the cylinder:

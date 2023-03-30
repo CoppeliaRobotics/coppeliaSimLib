@@ -492,7 +492,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
             else
-                App::logMsg(sim_verbosity_errors,"Operation failed: is the Qhull plugin loaded?");
+                App::logMsg(sim_verbosity_errors,"Operation failed.");
             App::uiThread->showOrHideProgressBar(false);
         }
         else
@@ -532,7 +532,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     App::logMsg(sim_verbosity_msgs,"done.");
                 }
                 else
-                    App::logMsg(sim_verbosity_errors,"Operation failed: is the Qhull plugin loaded?");
+                    App::logMsg(sim_verbosity_errors,"Operation failed.");
                 App::uiThread->showOrHideProgressBar(false);
             }
             else
@@ -1160,9 +1160,7 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
             customizationScript->appendMenuAndDetach(customizationScriptThreaded,canAddCustomizationScript,"Threaded");
             menu->appendMenuAndDetach(customizationScript,canAddCustomizationScript,"Associated customization script");
 
-            bool convexHok=(shapeCnt+octreeCnt+ptcloudCnt>0);
-            if (!convexHok)
-                convexHok=(dummyCnt>3);
+            bool convexHok=((shapeCnt+octreeCnt+ptcloudCnt>0)||(dummyCnt>=4));
             menu->appendMenuSeparator();
             menu->appendMenuItem(convexHok>0,false,ADD_COMMANDS_ADD_CONVEX_HULL_ACCMD,"Convex hull");
             menu->appendMenuItem(convexHok>0,false,ADD_COMMANDS_ADD_GROWN_CONVEX_HULL_ACCMD,"Inflated convex hull...");

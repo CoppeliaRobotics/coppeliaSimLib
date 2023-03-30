@@ -1598,6 +1598,8 @@ void CShape::copyAttributesTo(CShape* target)
     target->_shapeIsDynamicallyRespondable=_shapeIsDynamicallyRespondable;
     target->_dynamicCollisionMask=_dynamicCollisionMask;
     target->_setAutomaticallyToNonStaticIfGetsParent=_setAutomaticallyToNonStaticIfGetsParent;
+
+    target->setVisibilityLayer(getVisibilityLayer()); // actually a CSceneObject property
 }
 
 CSceneObject* CShape::copyYourself()
