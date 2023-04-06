@@ -63,6 +63,7 @@ std::string App::_additionalAddOnScript1;
 std::string App::_additionalAddOnScript2;
 volatile int App::_quitLevel=0;
 bool App::_consoleMsgsToFile=false;
+std::string App::_consoleMsgsFilename="debugLog.txt";
 VFile* App::_consoleMsgsFile=nullptr;
 VArchive* App::_consoleMsgsArchive=nullptr;
 CGm* App::gm=nullptr;
@@ -517,6 +518,7 @@ App::~App()
         _consoleMsgsFile=nullptr;
     }
     _consoleMsgsToFile=false;
+    _consoleMsgsFilename="debugLog.txt";
     _startupScriptString.clear();
     _consoleLogFilterStr.clear();
     _consoleVerbosity=sim_verbosity_default;
@@ -1489,6 +1491,16 @@ void App::setConsoleMsgToFile(bool f)
     _consoleMsgsToFile=f;
 }
 
+std::string App::getConsoleMsgFile()
+{
+    return(_consoleMsgsFilename);
+}
+
+void App::setConsoleMsgFile(const char* f)
+{
+    _consoleMsgsFilename=f;
+}
+
 bool App::isCurrentThreadTheUiThread()
 {
     return(VThread::isCurrentThreadTheUiThread());
@@ -1622,7 +1634,15 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         if (consoleLogFormat.empty())
         {
             auto f=std::getenv("COPPELIASIM_CONSOLE_LOG_FORMAT");
-            consoleLogFormat=f?f:"[{origin}:{verbosity}]   {message}";
+            if (f==nullptr)
+            {
+                if ( (userSettings!=nullptr)&&userSettings->timeStamp )
+                    consoleLogFormat="[{stamp}][{origin}:{verbosity}]   {message}";
+                else
+                    consoleLogFormat="[{origin}:{verbosity}]   {message}";
+            }
+            else
+                consoleLogFormat=f;
         }
         if (statusbarLogFormat.empty())
         {
@@ -1661,6 +1681,14 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         std::stringstream ss1; ss1<<std::fixed<<std::setprecision(3)<<0.001*(t-lastTime);
         vars["delta"]=ss1.str();
         lastTime=t;
+        int st=int(VDateTime::getTimeInMs());
+        int hours=st/3600000;
+        st -=hours*3600000;
+        int minutes=st/60000;
+        st -=minutes*60000;
+        int seconds=st/1000;
+        std::stringstream ss2; ss2<<std::setfill('0')<<std::setw(2)<<hours<<":"<<std::setfill('0')<<std::setw(2)<<minutes<<":"<<std::setfill('0')<<std::setw(2)<<seconds;
+        vars["stamp"]=ss2.str();
 
         if ( (realVerbosityLevel==sim_verbosity_errors)||(realVerbosityLevel==sim_verbosity_scripterrors) )
         {   vars["verbosity"]="error"; vars["color"]="red"; }
@@ -1700,6 +1728,9 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
      //   boost::replace_all(vars["message"],"\n","\n    ");
 
         std::string consoleTxt(replaceVars(consoleLogFormat,vars)+"\n");
+        if (userSettings==nullptr)
+            consoleLogFormat.clear();
+
         if (!_consoleLogFilter(consoleTxt.c_str()))
         {
             if (consoleVerbosity==-1)
@@ -1711,7 +1742,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
                 {
                     if (_consoleMsgsFile==nullptr)
                     {
-                        _consoleMsgsFile=new VFile("debugLog.txt",VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
+                        _consoleMsgsFile=new VFile(_consoleMsgsFilename.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
                         _consoleMsgsArchive=new VArchive(_consoleMsgsFile,VArchive::STORE);
                     }
                     for (size_t i=0;i<consoleTxt.size();i++)

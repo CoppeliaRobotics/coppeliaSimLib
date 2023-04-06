@@ -197,7 +197,7 @@ double CMeshManip::getMaxEdgeLength(const std::vector<double>& vertices,const st
     return(retVal);
 }
 
-bool CMeshManip::reduceTriangleSize(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<float>* texCoords,double maxEdgeSize,double verticeMergeTolerance)
+bool CMeshManip::reduceTriangleSize(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<float>* texCoords,double maxEdgeSize)
 { // returns false if nothing is left
     // if maxEdgeSize is 0.0, then half of the maximum triangle edge is used as maxEdgeSize
     // if verticeMergeTolerance is 0.0, vertices are not merged
@@ -214,8 +214,7 @@ bool CMeshManip::reduceTriangleSize(std::vector<double>& vertices,std::vector<in
                 break;
         }
         // Merge identical vertices:
-        if (verticeMergeTolerance>0.0)
-            CMeshRoutines::removeDuplicateVerticesAndTriangles(vertices,&indices,normals,texCoords,verticeMergeTolerance);
+        CMeshRoutines::removeDuplicateVerticesAndTriangles(vertices,&indices,normals,texCoords,0.000001);
     }
     return(indices.size()!=0);
 }

@@ -18,7 +18,7 @@ public:
     static void useOnlyReferencedVertices(std::vector<double>* vertices,std::vector<double>* sVertices,std::vector<int>* sIndices);
 
     static double getMaxEdgeLength(const std::vector<double>& vertices,const std::vector<int>& indices);
-    static bool reduceTriangleSize(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<float>* texCoords,double maxEdgeSize,double verticeMergeTolerance);
+    static bool reduceTriangleSize(std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<float>* texCoords,double maxEdgeSize);
     static bool correctTriangleWinding(std::vector<double>* vertices,std::vector<int>* indices);
     static bool isInsideOut(std::vector<double>* vertices,std::vector<int>* indices);
     static void setInsideOut(std::vector<int>* indices);

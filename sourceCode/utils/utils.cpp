@@ -450,7 +450,7 @@ std::string utils::getMassString(double num)
 
 std::string utils::getTensorString(bool massless,double num)
 {
-    return getDoubleString(true,num,3,5);
+    return getDoubleString(true,num,3,5,0.0001,99.0);
 }
 
 std::string utils::getLinVelString(bool sign,double num)

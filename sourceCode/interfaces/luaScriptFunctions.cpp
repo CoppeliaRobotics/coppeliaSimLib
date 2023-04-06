@@ -250,7 +250,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.clearFloatSignal",_simClearFloatSignal,                "sim.clearFloatSignal(string signalName)",true},
     {"sim.setStringSignal",_simSetStringSignal,                  "sim.setStringSignal(string signalName,buffer signalValue)",true},
     {"sim.getStringSignal",_simGetStringSignal,                  "buffer signalValue=sim.getStringSignal(string signalName)",true},
-    {"sim.clearStringSignal",_simClearStringSignal,              "clearStringSignal(string signalName)",true},
+    {"sim.clearStringSignal",_simClearStringSignal,              "sim.clearStringSignal(string signalName)",true},
     {"sim.getSignalName",_simGetSignalName,                      "string signalName=sim.getSignalName(int signalIndex,int signalType)",true},
     {"sim.persistentDataWrite",_simPersistentDataWrite,          "sim.persistentDataWrite(string dataTag,buffer dataValue,int options=0)",true},
     {"sim.persistentDataRead",_simPersistentDataRead,            "buffer dataValue=sim.persistentDataRead(string dataTag)",true},

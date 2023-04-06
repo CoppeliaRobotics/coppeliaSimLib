@@ -35,6 +35,7 @@ public:
     std::string _consoleLogFilter;
     std::string _overrideDialogVerbosity;
     bool undecoratedStatusbarMessages;
+    bool timeStamp;
     bool displayWorldReference;
     bool useGlFinish;
     bool useGlFinish_visionSensors;

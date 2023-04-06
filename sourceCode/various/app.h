@@ -89,6 +89,8 @@ public:
     static int getVerbosityLevelFromString(const char* verbosityStr);
     static bool getConsoleMsgToFile();
     static void setConsoleMsgToFile(bool f);
+    static std::string getConsoleMsgFile();
+    static void setConsoleMsgFile(const char* f);
     static bool isCurrentThreadTheUiThread();
     static void clearStatusbar();
     static int getDlgVerbosity();
@@ -129,6 +131,7 @@ private:
     static std::string _getHtmlEscapedString(const char* str);
     bool _initSuccessful;
     static bool _consoleMsgsToFile;
+    static std::string _consoleMsgsFilename;
     static VFile* _consoleMsgsFile;
     static VArchive* _consoleMsgsArchive;
 

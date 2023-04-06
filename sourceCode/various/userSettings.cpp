@@ -55,8 +55,10 @@
 #define _USR_STATUSBAR_VERBOSITY "statusbarVerbosity"
 #define _USR_DIALOG_VERBOSITY "dialogVerbosity"
 #define _USR_LOG_FILTER "logFilter"
+#define _USR_TIMESTAMP "timeStamp"
 #define _USR_UNDECORATED_STATUSBAR_MSGS "undecoratedStatusbarMessages"
 #define _USR_CONSOLE_MSGS_TO_FILE "consoleMsgsToFile"
+#define _USR_CONSOLE_MSGS_FILE "consoleMsgsFile"
 #define _USR_FORCE_BUG_FIX_REL_30002 "forceBugFix_rel30002"
 #define _USR_STATUSBAR_INITIALLY_VISIBLE "statusbarInitiallyVisible"
 #define _USR_MODELBROWSER_INITIALLY_VISIBLE "modelBrowserInitiallyVisible"
@@ -193,6 +195,7 @@ CUserSettings::CUserSettings()
     _overrideDialogVerbosity="default";
     _consoleLogFilter="";
     undecoratedStatusbarMessages=false;
+    timeStamp=false;
 
     // Rendering section:
     // *****************************
@@ -354,7 +357,7 @@ CUserSettings::CUserSettings()
     freeServerPortRange=2000;
     _abortScriptExecutionButton=3;
     triCountInOBB=8; // gave best results in 2009/07/21
-    verticesTolerance=0.0005;
+    verticesTolerance=0.000001;
     runCustomizationScripts=true;
     test1=false;
     macChildDialogType=-1; // default
@@ -537,10 +540,12 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_ALWAYS_SHOW_CONSOLE,alwaysShowConsole,"");
     c.addString(_USR_VERBOSITY,_overrideConsoleVerbosity,"to override console verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, scripterrors, scriptwarnings, msgs, infos, debug, trace, tracelua or traceall");
     c.addString(_USR_STATUSBAR_VERBOSITY,_overrideStatusbarVerbosity,"to override statusbar verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, scripterrors, scriptwarnings, msgs, infos, debug, trace, tracelua or traceall");
-    c.addString(_USR_LOG_FILTER,_consoleLogFilter,"leave empty for no filter. Filter format: txta1&txta2&...&txtaN|txtb1&txtb2&...&txtbN|...");
     c.addString(_USR_DIALOG_VERBOSITY,_overrideDialogVerbosity,"to override dialog verbosity setting, use any of: default (do not override), none, errors, warnings, questions or infos");
+    c.addBoolean(_USR_TIMESTAMP,timeStamp,"");
+    c.addString(_USR_LOG_FILTER,_consoleLogFilter,"leave empty for no filter. Filter format: txta1&txta2&...&txtaN|txtb1&txtb2&...&txtbN|...");
     c.addBoolean(_USR_UNDECORATED_STATUSBAR_MSGS,undecoratedStatusbarMessages,"");
-    c.addBoolean(_USR_CONSOLE_MSGS_TO_FILE,App::getConsoleMsgToFile(),"if true, console messages are sent to debugLog.txt");
+    c.addBoolean(_USR_CONSOLE_MSGS_TO_FILE,App::getConsoleMsgToFile(),"if true, console messages are sent to consoleMsgsFile");
+    c.addString(_USR_CONSOLE_MSGS_FILE,App::getConsoleMsgFile(),"defaults to debugLog.txt");
     c.addRandomLine("");
     c.addRandomLine("");
 
@@ -770,7 +775,6 @@ void CUserSettings::saveUserSettings()
 void CUserSettings::loadUserSettings()
 {
     CConfReaderAndWriter c;
-
     std::string file(CFolderSystem::getUserSettingsPath());
     file+="/";
     file+=USER_SETTINGS_FILENAME;
@@ -822,11 +826,14 @@ void CUserSettings::loadUserSettings()
         else
             App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in usrset.txt: %s.",_overrideDialogVerbosity.c_str());
     }
-
+    c.getBoolean(_USR_TIMESTAMP,timeStamp);
     c.getBoolean(_USR_UNDECORATED_STATUSBAR_MSGS,undecoratedStatusbarMessages);
     bool dummyBool=false;
     if (c.getBoolean(_USR_CONSOLE_MSGS_TO_FILE,dummyBool))
         App::setConsoleMsgToFile(dummyBool);
+    std::string debugFile;
+    if (c.getString(_USR_CONSOLE_MSGS_FILE,debugFile))
+        App::setConsoleMsgFile(debugFile.c_str());
 
     // Rendering section:
     // *****************************

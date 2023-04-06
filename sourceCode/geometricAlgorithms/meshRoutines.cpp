@@ -263,7 +263,7 @@ bool CMeshRoutines::getConvexHull(const std::vector<double>& verticesIn,std::vec
         {
             std::vector<double> vertices(outVert,outVert+outVertLength);
             std::vector<int> indices(outInd,outInd+outIndLength);
-            removeDuplicateVerticesAndTriangles(vertices,&indices,nullptr,nullptr,App::userSettings->verticesTolerance);
+            removeDuplicateVerticesAndTriangles(vertices,&indices,nullptr,nullptr,0.0005);
             toDelaunayMesh(vertices,indices,nullptr,nullptr);
             bool tooFewTriangles=false;
             if (indices.size()<12)
@@ -492,7 +492,7 @@ int CMeshRoutines::getConvexType(const std::vector<double>& vertices,const std::
     // Since identical vertices are allowed, first merge them:
     std::vector<double> vertices_(vertices);
     std::vector<int> indices_(indices);
-    removeDuplicateVerticesAndTriangles(vertices_,&indices_,nullptr,nullptr,App::userSettings->verticesTolerance);
+    removeDuplicateVerticesAndTriangles(vertices_,&indices_,nullptr,nullptr,0.000001);
 
     // Check if all edges touch exactly 2 triangles, i.e. the mesh is water-tight and remains so, when randomly moving vertices around:
     std::vector<std::map<int,int>> allEdges(vertices_.size()/3);
@@ -1132,7 +1132,7 @@ void CMeshRoutines::createCylinder(std::vector<double>& vertices,std::vector<int
 
     if (cone)
     { // We have a degenerate cylinder, we need to remove degenerate triangles and double vertices:
-        removeDuplicateVerticesAndTriangles(vertices,&indices,nullptr,nullptr,App::userSettings->verticesTolerance);
+        removeDuplicateVerticesAndTriangles(vertices,&indices,nullptr,nullptr,0.000001);
     }
 
     // Now we scale the cylinder:
@@ -1589,7 +1589,7 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const 
                 }
                 CMeshRoutines::removeNonReferencedVertices(vert,ind);
                 edgeLength/=2.0;
-                CMeshManip::reduceTriangleSize(vert,ind,nullptr,nullptr,edgeLength,0.0001);
+                CMeshManip::reduceTriangleSize(vert,ind,nullptr,nullptr,edgeLength);
             }
 
             for (size_t i=0;i<allNodes.size();i++)

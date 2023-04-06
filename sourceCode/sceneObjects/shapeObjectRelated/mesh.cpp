@@ -41,21 +41,13 @@ CMesh::CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const
     else
         _normals.assign(optNormals->begin(),optNormals->end());
 
+    // Do not modify meshes at this stage (other than rotation/translation). If you must do it, do it before
+    // This is however ok:
+    CMeshRoutines::removeNonReferencedVertices(_vertices,_indices);
+
     std::vector<float> texCoords;
     if (optTexCoords!=nullptr)
-    {
         texCoords.assign(optTexCoords->begin(),optTexCoords->end());
-        CMeshRoutines::removeNonReferencedVertices(_vertices,_indices);
-        // Following causes problems with fixed texture coordinates, so we do not clean up the mesh for now
-        //CMeshRoutines::removeDuplicateVerticesAndTriangles(_vertices,&_indices&,_normals,texCoords,App::userSettings->verticesTolerance);
-        //CMeshRoutines::toDelaunayMesh(_vertices,_indices,&_normals,texCoords);
-    }
-    else
-    {
-        CMeshRoutines::removeNonReferencedVertices(_vertices,_indices);
-        CMeshRoutines::removeDuplicateVerticesAndTriangles(_vertices,&_indices,&_normals,nullptr,App::userSettings->verticesTolerance);
-        //CMeshRoutines::toDelaunayMesh(_vertices,_indices,&_normals,nullptr);
-    }
 
     // Express everything in the meshFrame:
     C7Vector inv(meshFrame.getInverse());

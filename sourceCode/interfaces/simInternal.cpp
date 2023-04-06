@@ -8318,6 +8318,11 @@ int simCreateShape_internal(int options,double shadingAngle,const double* vertic
             img=texture;
             res=textureRes;
         }
+        else
+        { // Simplify meshes only at import, and only if there are no textures (for now):
+            CMeshRoutines::removeDuplicateVerticesAndTriangles(vert,&ind,norm,nullptr,App::userSettings->verticesTolerance);
+        }
+
         CShape* shape=new CShape(C7Vector::identityTransformation,vert,ind,norm,textCoords,options);
         shape->alignBB("mesh");
         shape->getSingleMesh()->setShadingAngle(shadingAngle);
@@ -8368,6 +8373,8 @@ int simCreateMeshShape_internal(int options,double shadingAngle,const double* ve
                 {
                     std::vector<double> vert(vertices,vertices+verticesSize);
                     std::vector<int> ind(indices,indices+indicesSize);
+                    // Simplify meshes only at import:
+                    CMeshRoutines::removeDuplicateVerticesAndTriangles(vert,&ind,nullptr,nullptr,App::userSettings->verticesTolerance);
                     CShape* shape=new CShape(C7Vector::identityTransformation,vert,ind,nullptr,nullptr,0);
                     shape->getSingleMesh()->setShadingAngle(shadingAngle);
                     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);

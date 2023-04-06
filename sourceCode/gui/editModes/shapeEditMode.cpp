@@ -68,7 +68,6 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
             {
                 // Following causes problems with fixed texture coordinates, so we do not clean up the mesh for now
                 //CMeshRoutines::removeDuplicateVerticesAndTriangles(_editionVertices,&_editionIndices,nullptr,_editionTextureCoords,App::userSettings->verticesTolerance);
-                //CMeshRoutines::toDelaunayMesh(_editionVertices,_editionIndices,nullptr,_editionTextureCoords);
                 newMesh=new CMesh(C7Vector::identityTransformation,_editionVertices,_editionIndices,nullptr,&_editionTextureCoords,0);
             }
             else
@@ -1764,7 +1763,7 @@ void CShapeEditMode::subdivideTriangles()
     if (_editModeType&TRIANGLE_EDIT_MODE)
     {
         deselectEditModeBuffer();
-        CMeshManip::reduceTriangleSize(_editionVertices,_editionIndices,&_editionNormals,&_editionTextureCoords,0.0,0.00001); // 0.0 simple uses the half of the max edge!
+        CMeshManip::reduceTriangleSize(_editionVertices,_editionIndices,&_editionNormals,&_editionTextureCoords,0.0); // 0.0 simple uses the half of the max edge!
         actualizeEditModeEditionEdges();
     }
 }
