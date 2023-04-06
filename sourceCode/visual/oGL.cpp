@@ -1164,8 +1164,8 @@ void ogl::loadBitmapFont(const unsigned char* fontData,int fontHeight,int theFon
             temp[i]=0;
         int sizeX=fontData[p++];
         int sizeY=fontData[p++];
-        int originX=(char)fontData[p++];
-        int originY=(char)fontData[p++];
+        int originX=(signed char)fontData[p++];
+        int originY=(signed char)fontData[p++];
         int charWidth=fontData[p++];
 //      if (letter==int('e'))
     //      int aaa=0;
