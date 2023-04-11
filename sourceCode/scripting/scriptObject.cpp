@@ -7171,6 +7171,8 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
     }
     */
 
+    if (_containsScriptText_old(scriptObject,"sim.shapestringparam_color_name"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.shapestringparam_color_name...");
     if (_containsScriptText_old(scriptObject,"sim.invertMatrix"))
         App::logMsg(sim_verbosity_errors,"Contains sim.invertMatrix...");
     if (_containsScriptText_old(scriptObject,"sim.invertPose"))

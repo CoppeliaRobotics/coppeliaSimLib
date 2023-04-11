@@ -1208,7 +1208,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.shapefloatparam_init_velocity_a",sim_shapefloatparam_init_ang_velocity_x,false},
     {"sim.shapefloatparam_init_velocity_b",sim_shapefloatparam_init_ang_velocity_y,false},
     {"sim.shapefloatparam_init_velocity_g",sim_shapefloatparam_init_ang_velocity_z,false},
-    {"sim.shapestringparam_color_name",sim_shapestringparam_color_name,true},
+    {"sim.shapestringparam_colorname",sim_shapestringparam_colorname,true},
     {"sim.shapeintparam_edge_visibility",sim_shapeintparam_edge_visibility,true},
     {"sim.shapefloatparam_shading_angle",sim_shapefloatparam_shading_angle,true},
     {"sim.shapefloatparam_edge_angle",sim_shapefloatparam_edge_angle,true},
@@ -1655,6 +1655,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.ruckig_minaccel",sim_ruckig_minaccel,true},
 
     // deprecated!
+    {"sim.shapestringparam_color_name",sim_shapestringparam_color_name,false},
     {"sim.jointfloatparam_screw_pitch",sim_jointfloatparam_screw_pitch,false},
     {"sim.boolparam_force_show_wireless_emission",sim_boolparam_force_show_wireless_emission,false},
     {"sim.boolparam_force_show_wireless_reception",sim_boolparam_force_show_wireless_reception,false},

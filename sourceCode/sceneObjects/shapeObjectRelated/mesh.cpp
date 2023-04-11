@@ -1189,25 +1189,37 @@ void CMesh::removeAllTextures()
     _textureProperty=nullptr;
 }
 
-void CMesh::getColorStrings(std::string& colorStrings) const
+void CMesh::getColorStrings(std::string& colorStrings,bool onlyNamed) const
 { // function has virtual/non-virtual counterpart!
-    if ( (color.getColorName().length()>0)&&(colorStrings.find(color.getColorName())==std::string::npos) )
+    if (!onlyNamed)
     {
         if (colorStrings.length()!=0)
             colorStrings+=" ";
-        colorStrings+=color.getColorName();
+        if (color.getColorName().length()>0)
+            colorStrings+=color.getColorName();
+        else
+            colorStrings+="*";
     }
-    if ( (insideColor_DEPRECATED.getColorName().length()>0)&&(colorStrings.find(insideColor_DEPRECATED.getColorName())==std::string::npos) )
+    else
     {
-        if (colorStrings.length()!=0)
-            colorStrings+=" ";
-        colorStrings+=insideColor_DEPRECATED.getColorName();
-    }
-    if ( (edgeColor_DEPRECATED.getColorName().length()>0)&&(colorStrings.find(edgeColor_DEPRECATED.getColorName())==std::string::npos) )
-    {
-        if (colorStrings.length()!=0)
-            colorStrings+=" ";
-        colorStrings+=edgeColor_DEPRECATED.getColorName();
+        if ( (color.getColorName().length()>0)&&(colorStrings.find(color.getColorName())==std::string::npos) )
+        {
+            if (colorStrings.length()!=0)
+                colorStrings+=" ";
+            colorStrings+=color.getColorName();
+        }
+        if ( (insideColor_DEPRECATED.getColorName().length()>0)&&(colorStrings.find(insideColor_DEPRECATED.getColorName())==std::string::npos) )
+        {
+            if (colorStrings.length()!=0)
+                colorStrings+=" ";
+            colorStrings+=insideColor_DEPRECATED.getColorName();
+        }
+        if ( (edgeColor_DEPRECATED.getColorName().length()>0)&&(colorStrings.find(edgeColor_DEPRECATED.getColorName())==std::string::npos) )
+        {
+            if (colorStrings.length()!=0)
+                colorStrings+=" ";
+            colorStrings+=edgeColor_DEPRECATED.getColorName();
+        }
     }
 }
 

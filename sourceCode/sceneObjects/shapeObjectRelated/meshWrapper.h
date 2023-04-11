@@ -59,7 +59,7 @@ public:
     virtual int getTextureCount() const;
     virtual bool hasTextureThatUsesFixedTextureCoordinates() const;
     virtual void removeAllTextures();
-    virtual void getColorStrings(std::string& colorStrings) const;
+    virtual void getColorStrings(std::string& colorStrings,bool onlyNamed) const;
     virtual CMesh* getFirstMesh();
 
     void copyAttributesTo(CMeshWrapper* target);

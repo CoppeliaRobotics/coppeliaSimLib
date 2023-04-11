@@ -162,10 +162,10 @@ void CMeshWrapper::removeAllTextures()
         childList[i]->removeAllTextures();
 }
 
-void CMeshWrapper::getColorStrings(std::string& colorStrings) const
+void CMeshWrapper::getColorStrings(std::string& colorStrings,bool onlyNamed) const
 { // function has virtual/non-virtual counterpart!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->getColorStrings(colorStrings);
+        childList[i]->getColorStrings(colorStrings,onlyNamed);
 }
 
 bool CMeshWrapper::getContainsTransparentComponents() const

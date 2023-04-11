@@ -50,7 +50,7 @@ public:
     int getTextureCount() const;
     bool hasTextureThatUsesFixedTextureCoordinates() const;
     void removeAllTextures();
-    void getColorStrings(std::string& colorStrings) const;
+    void getColorStrings(std::string& colorStrings,bool onlyNamed) const;
     void setHeightfieldDiamonds(bool d);
 
     int getUniqueID() const;

@@ -10849,10 +10849,10 @@ char* simGetObjectStringParam_internal(int objectHandle,int parameterID,int* par
         }
         if (shape!=nullptr)
         {
-            if (parameterID==sim_shapestringparam_color_name)
-            {
+            if ( (parameterID==sim_shapestringparam_colorname)||(parameterID==sim_shapestringparam_color_name) )
+            { // sim_shapestringparam_color_name is deprecated
                 std::string colorNames;
-                shape->getMesh()->getColorStrings(colorNames);
+                shape->getMesh()->getColorStrings(colorNames,parameterID!=sim_shapestringparam_colorname);
                 if (colorNames.length()>0)
                 {
                     retVal=new char[colorNames.length()+1];
