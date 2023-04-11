@@ -8320,7 +8320,7 @@ int simCreateShape_internal(int options,double shadingAngle,const double* vertic
         }
         else
         { // Simplify meshes only at import, and only if there are no textures (for now):
-            CMeshRoutines::removeDuplicateVerticesAndTriangles(vert,&ind,norm,nullptr,App::userSettings->verticesTolerance);
+            CMeshRoutines::removeDuplicateVerticesAndTriangles(vert,&ind,norm,nullptr,App::userSettings->identicalVertexTolerance);
         }
 
         CShape* shape=new CShape(C7Vector::identityTransformation,vert,ind,norm,textCoords,options);
@@ -8374,7 +8374,7 @@ int simCreateMeshShape_internal(int options,double shadingAngle,const double* ve
                     std::vector<double> vert(vertices,vertices+verticesSize);
                     std::vector<int> ind(indices,indices+indicesSize);
                     // Simplify meshes only at import:
-                    CMeshRoutines::removeDuplicateVerticesAndTriangles(vert,&ind,nullptr,nullptr,App::userSettings->verticesTolerance);
+                    CMeshRoutines::removeDuplicateVerticesAndTriangles(vert,&ind,nullptr,nullptr,App::userSettings->identicalVertexTolerance);
                     CShape* shape=new CShape(C7Vector::identityTransformation,vert,ind,nullptr,nullptr,0);
                     shape->getSingleMesh()->setShadingAngle(shadingAngle);
                     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
@@ -13808,7 +13808,7 @@ int simGetDecimatedMesh_internal(const double* inVertices,int inVerticesL,const 
         std::vector<int> iOut;
         std::vector<double> vIn(inVertices,inVertices+inVerticesL);
         std::vector<int> iIn(inIndices,inIndices+inIndicesL);
-        bool res=CMeshRoutines::getDecimatedMesh(vIn,iIn,decimationPercent,vOut,iOut,App::userSettings->verticesTolerance);
+        bool res=CMeshRoutines::getDecimatedMesh(vIn,iIn,decimationPercent,vOut,iOut,App::userSettings->identicalVertexTolerance);
         if (res)
         {
             verticesOut[0]=new double[vOut.size()];

@@ -453,7 +453,7 @@ void CPath_old::_generatePathShape()
             }
 
             // We remove the degenerate triangles:
-            CMeshRoutines::removeDuplicateVerticesAndTriangles(vertOut,&indOut,nullptr,nullptr,App::userSettings->verticesTolerance);
+            CMeshRoutines::removeDuplicateVerticesAndTriangles(vertOut,&indOut,nullptr,nullptr,App::userSettings->identicalVertexTolerance);
 
             // we merge the individual elements
             CMeshManip::mergeWith(&_pathShapeVertices,&_pathShapeIndices,nullptr,&vertOut,&indOut,nullptr);
@@ -461,7 +461,7 @@ void CPath_old::_generatePathShape()
 
         if (convexSuccess)
         { // We make a final check of the resulting shape:
-            CMeshRoutines::removeDuplicateVerticesAndTriangles(_pathShapeVertices,&_pathShapeIndices,nullptr,nullptr,App::userSettings->verticesTolerance);
+            CMeshRoutines::removeDuplicateVerticesAndTriangles(_pathShapeVertices,&_pathShapeIndices,nullptr,nullptr,App::userSettings->identicalVertexTolerance);
         }
     }
 

@@ -43,7 +43,7 @@ public:
     double stereoDist;
     int vsync;
     bool debugOpenGl;
-    double verticesTolerance;
+    double identicalVertexTolerance;
     bool compressFiles;
     int triCountInOBB;
     bool runCustomizationScripts;

@@ -3,18 +3,7 @@
 
 #include <simLib/simConst.h>
 #include <simLib/simTypes.h>
-
-#ifndef SIM_DLLEXPORT
-    #ifdef WIN_SIM
-        #define SIM_DLLEXPORT extern "C" __declspec(dllexport)
-    #endif
-    #ifdef MAC_SIM
-        #define SIM_DLLEXPORT extern "C" __attribute__((visibility("default")))
-    #endif
-    #ifdef LIN_SIM
-        #define SIM_DLLEXPORT extern "C" __attribute__((visibility("default")))
-    #endif
-#endif
+#include <simLib/simExp.h>
 
 SIM_DLLEXPORT int simRunSimulator(const char* applicationName,int options,void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)());
 SIM_DLLEXPORT int simRunSimulatorEx(const char* applicationName,int options,void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(),int stopDelay,const char* sceneOrModelToLoad);

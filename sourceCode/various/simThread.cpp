@@ -4084,11 +4084,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             App::userSettings->setRotationStepSize(cmd.doubleParams[0]);
             App::userSettings->saveUserSettings();
         }
-        if (cmd.cmdId==SET_IDENTICALVERTICESTOLERANCE_USERSETTINGSGUITRIGGEREDCMD)
-        {
-            App::userSettings->verticesTolerance=cmd.doubleParams[0];
-            App::userSettings->saveUserSettings();
-        }
         if (cmd.cmdId==TOGGLE_HIDEHIERARCHY_USERSETTINGSGUITRIGGEREDCMD)
         {
             App::userSettings->sceneHierarchyHiddenDuringSimulation=!App::userSettings->sceneHierarchyHiddenDuringSimulation;

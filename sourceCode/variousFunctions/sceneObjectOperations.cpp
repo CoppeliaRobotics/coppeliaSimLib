@@ -214,7 +214,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         return(true);
     }
 
-    if (commandID==SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD)
+    if ( (commandID==SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_MAKE_PARENT_AND_MOVE_SOOCMD) )
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -227,13 +227,13 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 for (size_t i=0;i<sel.size()-1;i++)
                 {
                     CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-                    App::currentWorld->sceneObjects->setObjectParent(it,last,true);
+                    App::currentWorld->sceneObjects->setObjectParent(it,last,commandID==SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD);
                 }
                 App::currentWorld->sceneObjects->selectObject(last->getObjectHandle()); // We select the parent
 
                 App::undoRedo_sceneChanged("");
-                std::string txt(IDSNS_ATTACHING_OBJECTS_TO);
-                txt+=last->getObjectAlias_printPath()+"'...";
+                std::string txt("Setting object '");
+                txt+=last->getObjectAlias_printPath()+"' parent...";
                 App::logMsg(sim_verbosity_msgs,txt.c_str());
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
@@ -254,7 +254,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            App::logMsg(sim_verbosity_msgs,IDSNS_MAKING_ORPHANS);
+            App::logMsg(sim_verbosity_msgs,"Setting object(s) parent-less...");
             for (size_t i=0;i<sel.size();i++)
             {
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
@@ -386,7 +386,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                             it2->getMesh()->getCumulativeMeshes(tr,vert,&ind,nullptr);
                             std::vector<double> vertOut;
                             std::vector<int> indOut;
-                            if (CMeshRoutines::getDecimatedMesh(vert,ind,percentageToKeep,vertOut,indOut,App::userSettings->verticesTolerance))
+                            if (CMeshRoutines::getDecimatedMesh(vert,ind,percentageToKeep,vertOut,indOut,App::userSettings->identicalVertexTolerance))
                             { // decimation algo was successful:
                                 CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr,0);
                                 it2->replaceMesh(mesh,true);
@@ -407,7 +407,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         it->getMesh()->getCumulativeMeshes(tr,vert,&ind,nullptr);
                         std::vector<double> vertOut;
                         std::vector<int> indOut;
-                        if (CMeshRoutines::getDecimatedMesh(vert,ind,percentageToKeep,vertOut,indOut,App::userSettings->verticesTolerance))
+                        if (CMeshRoutines::getDecimatedMesh(vert,ind,percentageToKeep,vertOut,indOut,App::userSettings->identicalVertexTolerance))
                         { // decimation algo was successful:
                             CMesh* mesh=new CMesh(tr,vertOut,indOut,nullptr,nullptr,0);
                             it->replaceMesh(mesh,true);
@@ -1840,8 +1840,9 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
         menu->appendMenuItem(App::currentWorld->undoBufferContainer->canUndo(),false,SCENE_OBJECT_OPERATION_UNDO_SOOCMD,IDSN_UNDO);
         menu->appendMenuItem(App::currentWorld->undoBufferContainer->canRedo(),false,SCENE_OBJECT_OPERATION_REDO_SOOCMD,IDSN_REDO);
         menu->appendMenuSeparator();
-        menu->appendMenuItem(selItems>1,false,SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD,"Make last selected object parent");
-        menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_MAKE_ORPHANS_SOOCMD,"Make selected object(s) orphan");
+        menu->appendMenuItem(selItems>1,false,SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD,"Set parent, keep pose(s)");
+        menu->appendMenuItem(selItems>1,false,SCENE_OBJECT_OPERATION_MAKE_PARENT_AND_MOVE_SOOCMD,"Set parent");
+        menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_MAKE_ORPHANS_SOOCMD,"Set parent-less");
         menu->appendMenuSeparator();
         if (CSimFlavor::getBoolVal(12))
         {
@@ -1850,12 +1851,12 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
             menu->appendMenuItem((shapeCnt>0)&&noSim,false,SCENE_OBJECT_OPERATION_DECIMATE_SHAPE_SOOCMD,"Decimate shape(s)...");
         }
         menu->appendMenuSeparator();
-        menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_OBJECT_FULL_COPY_SOOCMD,IDS_COPY_SELECTED_OBJECTS_MENU_ITEM);
-        menu->appendMenuItem(!App::worldContainer->copyBuffer->isBufferEmpty(),false,SCENE_OBJECT_OPERATION_PASTE_OBJECTS_SOOCMD,IDS_PASTE_BUFFER_MENU_ITEM);
-        menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_DELETE_OBJECTS_SOOCMD,IDS_DELETE_SELECTED_OBJECTS_MENU_ITEM);
-        menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_OBJECT_FULL_CUT_SOOCMD,IDS_CUT_SELECTED_OBJECTS_MENU_ITEM);
+        menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_OBJECT_FULL_COPY_SOOCMD,"Copy object(s)");
+        menu->appendMenuItem(!App::worldContainer->copyBuffer->isBufferEmpty(),false,SCENE_OBJECT_OPERATION_PASTE_OBJECTS_SOOCMD,"Paste buffer");
+        menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_DELETE_OBJECTS_SOOCMD,"Delete object(s)");
+        menu->appendMenuItem(selItems>0,false,SCENE_OBJECT_OPERATION_OBJECT_FULL_CUT_SOOCMD,"Cut object(s)");
         menu->appendMenuSeparator();
-        menu->appendMenuItem(true,false,SCENE_OBJECT_OPERATION_SELECT_ALL_OBJECTS_SOOCMD,IDSN_SELECT_ALL_MENU_ITEM);
+        menu->appendMenuItem(true,false,SCENE_OBJECT_OPERATION_SELECT_ALL_OBJECTS_SOOCMD,"Select all");
         menu->appendMenuSeparator();
 
         if (CSimFlavor::getBoolVal(12))

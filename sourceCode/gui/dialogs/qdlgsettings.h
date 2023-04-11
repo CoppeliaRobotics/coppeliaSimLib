@@ -26,8 +26,6 @@ private slots:
 
     void on_rotationStepSize_activated(int index);
 
-    void on_removeIdenticalVerticesTolerance_editingFinished();
-
     void on_worldReference_clicked();
 
     void on_undoRedo_clicked();

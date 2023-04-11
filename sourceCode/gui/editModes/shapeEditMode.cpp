@@ -67,12 +67,12 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
             if (hadImportedTextureCoords)
             {
                 // Following causes problems with fixed texture coordinates, so we do not clean up the mesh for now
-                //CMeshRoutines::removeDuplicateVerticesAndTriangles(_editionVertices,&_editionIndices,nullptr,_editionTextureCoords,App::userSettings->verticesTolerance);
+                //CMeshRoutines::removeDuplicateVerticesAndTriangles(_editionVertices,&_editionIndices,nullptr,_editionTextureCoords,App::userSettings->identicalVertexTolerance);
                 newMesh=new CMesh(C7Vector::identityTransformation,_editionVertices,_editionIndices,nullptr,&_editionTextureCoords,0);
             }
             else
             {
-                CMeshRoutines::removeDuplicateVerticesAndTriangles(_editionVertices,&_editionIndices,nullptr,nullptr,App::userSettings->verticesTolerance);
+                CMeshRoutines::removeDuplicateVerticesAndTriangles(_editionVertices,&_editionIndices,nullptr,nullptr,App::userSettings->identicalVertexTolerance);
                 CMeshRoutines::toDelaunayMesh(_editionVertices,_editionIndices,nullptr,nullptr);
                 newMesh=new CMesh(C7Vector::identityTransformation,_editionVertices,_editionIndices,nullptr,nullptr,0);
             }

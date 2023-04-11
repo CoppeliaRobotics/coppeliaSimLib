@@ -108,8 +108,6 @@
 #define IDSNS_BACKWARD_ROLL_PERFORMED "Backward roll performed."
 #define IDSNS_EXECUTING_UNDO "Executing undo... "
 #define IDSNS_EXECUTING_REDO "Executing redo... "
-#define IDSNS_ATTACHING_OBJECTS_TO "Attaching object(s) to '"
-#define IDSNS_MAKING_ORPHANS "Making orphan(s)..."
 #define IDSN_ASSEMBLING_2_OBJECTS "Assembling 2 objects..."
 #define IDSN_DISASSEMBLING_OBJECT "Disassembling object..."
 #define IDSN_TRANSFERRING_DNA_TO_CLONES "Transferring DNA to clones..."
@@ -522,14 +520,7 @@
 #define IDS_INVALID_COLLISION_ITEM_COMBINATION "The item combination is invalid (i.e. cannot collide)"
 #define IDS_INVALID_DISTANCE_ITEM_COMBINATION "The item combination is invalid (i.e. cannot be measured)"
 
-#define IDS_COPY_SELECTED_OBJECTS_MENU_ITEM "Copy selected objects"
-#define IDS_PASTE_BUFFER_MENU_ITEM "Paste buffer"
-//#define IDS_CLEAR_COPY_BUFFER_MENU_ITEM "Clear copy buffer"
-#define IDS_DELETE_SELECTED_OBJECTS_MENU_ITEM "Delete selected objects"
-
-
 #define IDS_MAKE_CYLINDER_WITH_SELECTED_TRIANGLES_MENU_ITEM "Make cylinder with selected triangles"
-#define IDS_CUT_SELECTED_OBJECTS_MENU_ITEM "Cut selected objects"
 #define IDSN_SELECT_ALL_MENU_ITEM "Select all"
 
 #define IDSN_REMOVE_MENU_ITEM "Remove"

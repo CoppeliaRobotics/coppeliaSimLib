@@ -31,7 +31,6 @@ void CQDlgSettings::refresh()
     ui->hideConsole->setVisible(false);
 #endif
 
-    ui->removeIdenticalVerticesTolerance->setEnabled(noSim);
     ui->qqHideHierarchy->setEnabled(noSim);
     ui->undoRedo->setEnabled(noEditModeAndNoSim);
     ui->qqAutoSave->setEnabled(noEditModeAndNoSim);
@@ -59,8 +58,6 @@ void CQDlgSettings::refresh()
     ui->rotationStepSize->addItem(utils::getAngleString(false,45.0*degToRad).c_str(),QVariant(45));
     _selectItemOfCombobox(ui->rotationStepSize,int(App::userSettings->getRotationStepSize()*radToDeg+0.5));
 
-    ui->removeIdenticalVerticesTolerance->setText(utils::getPosString(false,App::userSettings->verticesTolerance).c_str());
-
     ui->qqHideHierarchy->setChecked(App::userSettings->sceneHierarchyHiddenDuringSimulation);
     ui->worldReference->setChecked(App::userSettings->displayWorldReference);
     ui->undoRedo->setChecked(App::userSettings->getUndoRedoEnabled());
@@ -79,25 +76,6 @@ void CQDlgSettings::on_translationStepSize_activated(int index)
 void CQDlgSettings::on_rotationStepSize_activated(int index)
 {
     App::appendSimulationThreadCommand(SET_ROTATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,double(ui->rotationStepSize->itemData(index).toInt())*degToRad);
-    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-}
-
-void CQDlgSettings::on_removeIdenticalVerticesTolerance_editingFinished()
-{
-    if (!ui->removeIdenticalVerticesTolerance->isModified())
-        return;
-    double newVal;
-    bool ok;
-    newVal=ui->removeIdenticalVerticesTolerance->text().toDouble(&ok);
-    if (ok)
-    {
-        if (newVal>=0.0)
-        {
-            if (newVal>0.5)
-                newVal=0.5;
-            App::appendSimulationThreadCommand(SET_IDENTICALVERTICESTOLERANCE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,newVal);
-        }
-    }
     App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
