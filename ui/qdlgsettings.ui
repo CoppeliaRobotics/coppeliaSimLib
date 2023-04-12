@@ -203,7 +203,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Additional parameters can be adjusted in usrset.txt, see thee terminal</string>
+    <string>Additional parameters can be adjusted in usrset.txt, see the terminal</string>
    </property>
   </widget>
  </widget>

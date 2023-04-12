@@ -1687,8 +1687,11 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         int minutes=st/60000;
         st -=minutes*60000;
         int seconds=st/1000;
-        std::stringstream ss2; ss2<<std::setfill('0')<<std::setw(2)<<hours<<":"<<std::setfill('0')<<std::setw(2)<<minutes<<":"<<std::setfill('0')<<std::setw(2)<<seconds;
+        st -=seconds*1000;
+        std::stringstream ss2; ss2<<std::setfill('0')<<std::setw(2)<<hours<<":"<<std::setfill('0')<<std::setw(2)<<minutes<<":"<<std::setfill('0')<<std::setw(2)<<seconds<<"."<<std::setfill('3')<<std::setw(3)<<st;
         vars["stamp"]=ss2.str();
+        vars["uts"]=QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz").toStdString().c_str();
+
 
         if ( (realVerbosityLevel==sim_verbosity_errors)||(realVerbosityLevel==sim_verbosity_scripterrors) )
         {   vars["verbosity"]="error"; vars["color"]="red"; }
