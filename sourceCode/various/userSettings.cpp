@@ -56,6 +56,7 @@
 #define _USR_DIALOG_VERBOSITY "dialogVerbosity"
 #define _USR_LOG_FILTER "logFilter"
 #define _USR_TIMESTAMP "timeStamp"
+#define _USR_PRELOAD_ALL_PLUGINS "preloadAllPlugins"
 #define _USR_UNDECORATED_STATUSBAR_MSGS "undecoratedStatusbarMessages"
 #define _USR_CONSOLE_MSGS_TO_FILE "consoleMsgsToFile"
 #define _USR_CONSOLE_MSGS_FILE "consoleMsgsFile"
@@ -194,6 +195,7 @@ CUserSettings::CUserSettings()
     _overrideStatusbarVerbosity="default";
     _overrideDialogVerbosity="default";
     _consoleLogFilter="";
+    preloadAllPlugins=true;
     undecoratedStatusbarMessages=false;
     timeStamp=false;
 
@@ -543,6 +545,7 @@ void CUserSettings::saveUserSettings()
     c.addString(_USR_DIALOG_VERBOSITY,_overrideDialogVerbosity,"to override dialog verbosity setting, use any of: default (do not override), none, errors, warnings, questions or infos");
     c.addBoolean(_USR_TIMESTAMP,timeStamp,"");
     c.addString(_USR_LOG_FILTER,_consoleLogFilter,"leave empty for no filter. Filter format: txta1&txta2&...&txtaN|txtb1&txtb2&...&txtbN|...");
+    c.addBoolean(_USR_PRELOAD_ALL_PLUGINS,preloadAllPlugins,"if false, plugins won't be automatically loaded at startup");
     c.addBoolean(_USR_UNDECORATED_STATUSBAR_MSGS,undecoratedStatusbarMessages,"");
     c.addBoolean(_USR_CONSOLE_MSGS_TO_FILE,App::getConsoleMsgToFile(),"if true, console messages are sent to consoleMsgsFile");
     c.addString(_USR_CONSOLE_MSGS_FILE,App::getConsoleMsgFile(),"defaults to debugLog.txt");
@@ -827,6 +830,7 @@ void CUserSettings::loadUserSettings()
             App::logMsg(sim_verbosity_errors,"unrecognized verbosity value in usrset.txt: %s.",_overrideDialogVerbosity.c_str());
     }
     c.getBoolean(_USR_TIMESTAMP,timeStamp);
+    c.getBoolean(_USR_PRELOAD_ALL_PLUGINS,preloadAllPlugins);
     c.getBoolean(_USR_UNDECORATED_STATUSBAR_MSGS,undecoratedStatusbarMessages);
     bool dummyBool=false;
     if (c.getBoolean(_USR_CONSOLE_MSGS_TO_FILE,dummyBool))
