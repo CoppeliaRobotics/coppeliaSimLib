@@ -988,18 +988,6 @@ int simRunSimulator_internal(const char* applicationName,int options,void(*initC
 #endif
     SignalHandler sigH(SignalHandler::SIG_INT | SignalHandler::SIG_TERM | SignalHandler::SIG_CLOSE);
 
-    std::string flav("n/a");
-#ifdef SIM_FL
-    flav=std::to_string(SIM_FL).c_str();
-#endif
-    std::string str("CoppeliaSim v");
-    str+=SIM_PROGRAM_VERSION;
-    str+=", ";
-    str+=SIM_PROGRAM_REVISION;
-    str+=", flavor: ";
-    str+=flav+", ";
-    str+=SIM_PLATFORM;
-    App::logMsg(sim_verbosity_loadinfos,str.c_str());
     CSimFlavor::run(0);
 
     TRACE_C_API;
@@ -1074,10 +1062,9 @@ int simRunSimulator_internal(const char* applicationName,int options,void(*initC
     App::deleteWorldsContainer();
     App::logMsg(sim_verbosity_loadinfos,"2");
     CSimFlavor::run(3);
-    App::logMsg(sim_verbosity_loadinfos,"1");
     CThreadPool_old::cleanUp();
+    App::logMsg(sim_verbosity_loadinfos,"1");
     delete applicationBasicInitialization;
-    App::logMsg(sim_verbosity_loadinfos,"done.");
     return(1);
 }
 

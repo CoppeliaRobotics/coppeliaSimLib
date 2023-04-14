@@ -26,8 +26,8 @@ class VVarious
 public:
     static bool executeExternalApplication(const char* file,const char* arguments,const char* switchToDirectory,int showFlag);
 
-    static WLibrary openLibrary(const char* filename);
-    static void closeLibrary(WLibrary lib);
+    static WLibrary openLibrary(const char* filename,std::string* errMsg);
+    static void closeLibrary(WLibrary lib,std::string* errMsg);
     static WLibraryFunc resolveLibraryFuncName(WLibrary lib,const char* funcName);
 
     static std::string getModulePath();

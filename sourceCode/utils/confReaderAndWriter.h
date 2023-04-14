@@ -10,7 +10,7 @@ public:
     CConfReaderAndWriter();
     virtual ~CConfReaderAndWriter();
 
-    bool readConfiguration(const char* filename);
+    bool readConfiguration(const char* filename,const char* namespaceNamedParam);
     bool writeConfiguration(const char* filename);
 
     bool getString(const char* variableName,std::string& variable) const;

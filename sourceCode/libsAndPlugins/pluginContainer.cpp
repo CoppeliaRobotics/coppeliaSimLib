@@ -32,7 +32,12 @@ CPlugin::CPlugin(const char* filename,const char* pluginName)
 CPlugin::~CPlugin()
 {
     if (instance!=nullptr)
-        VVarious::closeLibrary(instance);
+    {
+        std::string errStr;
+        VVarious::closeLibrary(instance,&errStr);
+        if (errStr.size()>0)
+            App::logMsg(sim_verbosity_errors,errStr.c_str());
+    }
     if (geomPlugin_createMesh!=nullptr) // also check constructor above
         CPluginContainer::currentGeomPlugin=nullptr;
     if (ikPlugin_createEnv!=nullptr) // also check constructor above
@@ -77,7 +82,10 @@ std::string CPlugin::getName() const
 
 int CPlugin::load()
 {
-    WLibrary lib=VVarious::openLibrary(_filename.c_str()); // here we have the extension in the filename (.dll, .so or .dylib)
+    std::string errStr;
+    WLibrary lib=VVarious::openLibrary(_filename.c_str(),&errStr); // here we have the extension in the filename (.dll, .so or .dylib)
+    if (errStr.size()>0)
+        App::logMsg(sim_verbosity_errors,errStr.c_str());
     if (lib!=nullptr)
     {
         instance=lib;
@@ -353,13 +361,19 @@ int CPlugin::load()
 
                 return(int(pluginVersion)); // success!
             }
-            VVarious::closeLibrary(instance);
+            std::string errStr;
+            VVarious::closeLibrary(instance,&errStr);
+            if (errStr.size()>0)
+                App::logMsg(sim_verbosity_errors,errStr.c_str());
             instance=nullptr;
             return(0); // could not properly initialize
         }
         else
         {
-            VVarious::closeLibrary(instance);
+            std::string errStr;
+            VVarious::closeLibrary(instance,&errStr);
+            if (errStr.size()>0)
+                App::logMsg(sim_verbosity_errors,errStr.c_str());
             instance=nullptr;
             return(-1); // missing entry points
         }

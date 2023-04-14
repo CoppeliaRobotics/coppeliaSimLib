@@ -4,6 +4,7 @@
 #include <vFile.h>
 #include <vArchive.h>
 #include <boost/lexical_cast.hpp>
+#include <app.h>
 
 CConfReaderAndWriter::CConfReaderAndWriter()
 {
@@ -13,7 +14,7 @@ CConfReaderAndWriter::~CConfReaderAndWriter()
 {
 }
 
-bool CConfReaderAndWriter::readConfiguration(const char* filename)
+bool CConfReaderAndWriter::readConfiguration(const char* filename,const char* namespaceNamedParam)
 {
     bool retVal=false;
     if (VFile::doesFileExist(filename))
@@ -51,6 +52,18 @@ bool CConfReaderAndWriter::readConfiguration(const char* filename)
             archive.close();
             file.close();
             retVal=true;
+
+            if (namespaceNamedParam!=nullptr)
+            {
+                for (size_t i=0;i<_variables.size();i++)
+                {
+                    std::string ns=App::getApplicationNamedParam((std::string(namespaceNamedParam)+"."+_variables[i]).c_str());
+                    if (ns.size()>0)
+                        _values[i]=ns;
+                    else
+                        App::setApplicationNamedParam((std::string(namespaceNamedParam)+"."+_variables[i]).c_str(),_values[i].c_str());
+                }
+            }
         }
         catch(VFILE_EXCEPTION_TYPE e)
         {

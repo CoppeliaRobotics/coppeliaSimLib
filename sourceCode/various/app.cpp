@@ -300,9 +300,21 @@ App::App(bool headless)
     _initSuccessful=false;
     _browserEnabled=true;
 
-
     userSettings=new CUserSettings();
     folders=new CFolderSystem();
+
+    std::string str("CoppeliaSim v");
+    str+=SIM_PROGRAM_VERSION;
+    str+=", ";
+    str+=SIM_PROGRAM_REVISION;
+    str+=", flavor: ";
+#ifdef SIM_FL
+    str+=std::to_string(SIM_FL);
+#else
+    str+="n/a";
+#endif
+    str+=SIM_PLATFORM;
+    logMsg(sim_verbosity_loadinfos,str.c_str());
 
 #ifdef SIM_WITH_OPENGL
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);

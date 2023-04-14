@@ -29,14 +29,22 @@ bool CAuxLibVideo::loadLibrary()
 
 bool CAuxLibVideo::_loadLibrary(const char* pathAndFilename)
 {
-    _lib=VVarious::openLibrary(pathAndFilename);
+    std::string errStr;
+    _lib=VVarious::openLibrary(pathAndFilename,&errStr);
+    if (errStr.size()>0)
+        App::logMsg(sim_verbosity_errors,errStr.c_str());
     return(_lib!=nullptr);
 }
 
 void CAuxLibVideo::unloadLibrary()
 {
     if (_lib!=nullptr)
-        VVarious::closeLibrary(_lib);
+    {
+        std::string errStr;
+        VVarious::closeLibrary(_lib,&errStr);
+        if (errStr.size()>0)
+            App::logMsg(sim_verbosity_errors,errStr.c_str());
+    }
     _lib=nullptr;
 }
 

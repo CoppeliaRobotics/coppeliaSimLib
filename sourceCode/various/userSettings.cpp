@@ -600,8 +600,7 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_MODELBROWSER_INITIALLY_VISIBLE,modelBrowserInitiallyVisible,"");
     c.addBoolean(_USR_SCENEHIERARCHY_INITIALLY_VISIBLE,sceneHierarchyInitiallyVisible,"");
     c.addBoolean(_USR_SCENEHIERARCHY_HIDDEN_DURING_SIMULATION,sceneHierarchyHiddenDuringSimulation,"");
-
-    c.addString(_USR_SCRIPT_EDITOR_FONT,scriptEditorFont,"empty=default. e.g. \"Courier\", \"Courier New\", \"Consolas\", etc.");
+    c.addString(_USR_SCRIPT_EDITOR_FONT,scriptEditorFont,"empty=default. e.g. \"Courier New\", \"DejaVu Sans Mono\", \"Consolas\", \"Ubuntu Mono\", etc.");
     c.addBoolean(_USR_SCRIPT_EDITOR_BOLDFONT,scriptEditorBoldFont,"");
     c.addInteger(_USR_SCRIPT_EDITOR_FONT_SIZE,scriptEditorFontSize,"-1=default.");
 
@@ -781,10 +780,7 @@ void CUserSettings::loadUserSettings()
     std::string file(CFolderSystem::getUserSettingsPath());
     file+="/";
     file+=USER_SETTINGS_FILENAME;
-    std::string tmp("user settings file is ");
-    tmp+=file;
-    App::logMsg(sim_verbosity_loadinfos,tmp.c_str());
-    if (!c.readConfiguration(file.c_str()))
+    if (!c.readConfiguration(file.c_str(),"settings"))
         saveUserSettings();
 
     // Debugging section:
@@ -1048,5 +1044,11 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_FLOAT_LICENSE_ENABLED,floatingLicenseEnabled);
     c.getString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer);
     c.getInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort);
+
+
+
+    std::string tmp("user settings file is ");
+    tmp+=file;
+    App::logMsg(sim_verbosity_loadinfos,tmp.c_str());
 }
 

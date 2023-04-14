@@ -304,7 +304,7 @@ bool VVarious::isAbsolutePath(const char* pathAndOptionalFilename)
 #endif
 }
 
-WLibrary VVarious::openLibrary(const char* filename)
+WLibrary VVarious::openLibrary(const char* filename,std::string* errMsg)
 { // here we have the extension in the filename (.dll, .so or .dylib)
 #ifndef SIM_WITH_QT
 #ifdef WIN_SIM
@@ -314,8 +314,13 @@ WLibrary VVarious::openLibrary(const char* filename)
     if (!lib)
     {
         auto err = dlerror();
-        if (err)
-            fprintf(stderr, "error: dlopen(%s): %s\n", filename, err);
+        if ( err&&(errMsg!=nullptr) )
+        {
+            errMsg[0]="error: dlopen (";
+            errMsg[0]+=filename;
+            errMsg[0]+="): ";
+            errMsg[0]+=err;
+        }
     }
     return lib;
 #endif
@@ -323,7 +328,13 @@ WLibrary VVarious::openLibrary(const char* filename)
     WLibrary lib=new QLibrary(filename);
     if (!lib->load())
     {
-        qCritical() << "error: library (" << filename << ") load:" << lib->errorString();
+        if (errMsg!=nullptr)
+        {
+            errMsg[0]="error: library (";
+            errMsg[0]+=filename;
+            errMsg[0]+=") load: ";
+            errMsg[0]+=lib->errorString().toStdString();
+        }
         delete lib;
         lib=nullptr;
     }
@@ -331,7 +342,7 @@ WLibrary VVarious::openLibrary(const char* filename)
 #endif
 }
 
-void VVarious::closeLibrary(WLibrary lib)
+void VVarious::closeLibrary(WLibrary lib,std::string* errMsg)
 {
 #ifndef SIM_WITH_QT
 #ifdef WIN_SIM
@@ -341,15 +352,21 @@ void VVarious::closeLibrary(WLibrary lib)
     if (dlclose(lib) != 0)
     {
         auto err = dlerror();
-        if (err)
-            fprintf(stderr, "error: dlclose: %s\n", err);
+        if ( err&&(errMsg!=nullptr) )
+        {
+            errMsg[0]="error: dlclose: ";
+            errMsg[0]+=err;
+        }
     }
 #endif
 #else
     if (lib!=nullptr)
     {
-        if (!lib->unload())
-            qCritical() << "error: library unload:" << lib->errorString();
+        if ( (!lib->unload())&&(errMsg!=nullptr) )
+        {
+            errMsg[0]="error: library unload: ";
+            errMsg[0]+=lib->errorString().toStdString();
+        }
         delete lib;
     }
 #endif
