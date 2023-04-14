@@ -171,6 +171,7 @@
 #define _USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR "doNotShowVideoCompressionLibraryLoadError"
 #define _USR_SUPPRESS_STARTUP_DIALOG "suppressStartupDialogs"
 #define _USR_SUPPRESS_XML_OVERWRITE_MSG "suppressXmlOverwriteMsg"
+#define _USR_ALLOW_SETTINGS_WRITE "allowSettingsWrite"
 
 #define _USR_SCRIPT_EDITOR_FONT "scriptEditorFont"
 #define _USR_SCRIPT_EDITOR_FONT_SIZE "scriptEditorFontSize"
@@ -307,6 +308,7 @@ CUserSettings::CUserSettings()
     doNotWritePersistentData=false;
     compressFiles=true;
     fileDialogs=-1; // default
+    allowSettingsWrite=true;
 
     // Undo/redo section:
     // *****************************
@@ -535,243 +537,247 @@ void CUserSettings::_setIntVector3(int v[3],int a,int b,int c)
 
 void CUserSettings::saveUserSettings()
 {
-    CConfReaderAndWriter c;
-
-    c.addRandomLine("// Debugging");
-    c.addRandomLine("// =================================================");
-    c.addBoolean(_USR_ALWAYS_SHOW_CONSOLE,alwaysShowConsole,"");
-    c.addString(_USR_VERBOSITY,_overrideConsoleVerbosity,"to override console verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, scripterrors, scriptwarnings, msgs, infos, debug, trace, tracelua or traceall");
-    c.addString(_USR_STATUSBAR_VERBOSITY,_overrideStatusbarVerbosity,"to override statusbar verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, scripterrors, scriptwarnings, msgs, infos, debug, trace, tracelua or traceall");
-    c.addString(_USR_DIALOG_VERBOSITY,_overrideDialogVerbosity,"to override dialog verbosity setting, use any of: default (do not override), none, errors, warnings, questions or infos");
-    c.addBoolean(_USR_TIMESTAMP,timeStamp,"");
-    c.addString(_USR_LOG_FILTER,_consoleLogFilter,"leave empty for no filter. Filter format: txta1&txta2&...&txtaN|txtb1&txtb2&...&txtbN|...");
-    c.addBoolean(_USR_PRELOAD_ALL_PLUGINS,preloadAllPlugins,"if false, plugins won't be automatically loaded at startup");
-    c.addBoolean(_USR_UNDECORATED_STATUSBAR_MSGS,undecoratedStatusbarMessages,"");
-    c.addBoolean(_USR_CONSOLE_MSGS_TO_FILE,App::getConsoleMsgToFile(),"if true, console messages are sent to consoleMsgsFile");
-    c.addString(_USR_CONSOLE_MSGS_FILE,App::getConsoleMsgFile(),"defaults to debugLog.txt");
-    c.addRandomLine("");
-    c.addRandomLine("");
-
-
-    c.addRandomLine("// Rendering");
-    c.addRandomLine("// =================================================");
-    c.addInteger(_USR_IDLE_FPS,_idleFps,"");
-    c.addInteger(_USR_DESIRED_OPENGL_MAJOR,desiredOpenGlMajor,"recommended to keep -1.");
-    c.addInteger(_USR_DESIRED_OPENGL_MINOR,desiredOpenGlMinor,"recommended to keep -1.");
-    c.addInteger(_USR_OFFSCREEN_CONTEXT_TYPE,offscreenContextType,"recommended to keep -1 (-1=default, 0=Qt offscreen, 1=QGLWidget/QOpenGLWidget visible, 2=QGLWidget/QOpenGLWidget invisible).");
-    c.addInteger(_USR_FBO_TYPE,fboType,"recommended to keep -1 (-1=default, 0=native, 1=QOpenGLFramebufferObject).");
-    c.addBoolean(_USR_FORCE_FBO_VIA_EXT,forceFboViaExt,"recommended to keep false.");
-    c.addInteger(_USR_VBO_OPERATION,vboOperation,"recommended to keep -1 (-1=default, 0=always off, 1=on when available).");
-    c.addInteger(_USR_VBO_PERSISTENCE_IN_MS,vboPersistenceInMs,"recommended to keep 5000.");
-    c.addBoolean(_USR_OGL_COMPATIBILITY_TWEAK_1,oglCompatibilityTweak1,"recommended to keep false since it causes small memory leaks.");
-    c.addInteger(_USR_VISION_SENSORS_USE_GUI_WINDOWED,visionSensorsUseGuiThread_windowed,"recommended to keep -1 (-1=default, 0=GUI when not otherwise possible, 1=always GUI).");
-    c.addInteger(_USR_VISION_SENSORS_USE_GUI_HEADLESS,visionSensorsUseGuiThread_headless,"recommended to keep -1 (-1=default, 0=GUI when not otherwise possible, 1=always GUI).");
-    c.addBoolean(_USR_USE_GLFINISH,useGlFinish,"recommended to keep false. Graphic card dependent.");
-    c.addBoolean(_USR_USE_GLFINISH_VISION_SENSORS,useGlFinish_visionSensors,"recommended to keep false. Graphic card dependent.");
-    c.addInteger(_USR_VSYNC,vsync,"recommended to keep at 0. Graphic card dependent.");
-    c.addBoolean(_USR_DEBUG_OPENGL,debugOpenGl,"");
-    c.addFloat(_USR_STEREO_DIST,stereoDist,"0=no stereo, otherwise the intra occular distance (0.0635 for the human eyes).");
-    c.addInteger(_USR_HIGH_RES_DISPLAY,highResDisplay,"-1=none, 1=special, 2=enabled, 3=enable oglScaling and guiScaling below.");
-    c.addInteger(_USR_GUESSED_SCALING_FOR_2X_OPENGL,guessedDisplayScalingThresholdFor2xOpenGl,"200=default");
-    c.addInteger(_USR_OGL_SCALING,oglScaling,"1=default. No effect if highResDisplay!=3 above.");
-    c.addFloat(_USR_GUI_SCALING,guiScaling,"1.0=default. No effect if highResDisplay!=3 above.");
-    c.addBoolean(_USR_NO_EDGES_WHEN_MOUSE_DOWN,noEdgesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
-    c.addBoolean(_USR_NO_TEXTURES_WHEN_MOUSE_DOWN,noTexturesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
-    c.addBoolean(_USR_NO_CUSTOM_UIS_WHEN_MOUSE_DOWN,noCustomUisWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
-    c.addInteger(_USR_HIERARCHY_REFRESH_CNT,hierarchyRefreshCnt,"");
-
-
-    c.addRandomLine("");
-    c.addRandomLine("");
-
-
-    c.addRandomLine("// Visual");
-    c.addRandomLine("// =================================================");
-    c.addIntVector2(_USR_INIT_WINDOW_SIZE,initWindowSize,"0,0 for fullscreen");
-    c.addBoolean(_USR_DARK_MODE,darkMode,"");
-    c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_SHIFT,renderingSurfaceVShift,"");
-    c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_RESIZE,renderingSurfaceVResize,"");
-    c.addBoolean(_USR_DISPLAY_WORLD_REF,displayWorldReference,"");
-    c.addBoolean(_USR_ANTIALIASING,antiAliasing,"");
-    c.addInteger(_USR_GUI_FONT_SIZE_WIN,guiFontSize_Win,"-1=default");
-    c.addInteger(_USR_GUI_FONT_SIZE_MAC,guiFontSize_Mac,"-1=default");
-    c.addInteger(_USR_GUI_FONT_SIZE_LINUX,guiFontSize_Linux,"-1=default");
-    c.addBoolean(_USR_STATUSBAR_INITIALLY_VISIBLE,statusbarInitiallyVisible,"");
-    c.addBoolean(_USR_MODELBROWSER_INITIALLY_VISIBLE,modelBrowserInitiallyVisible,"");
-    c.addBoolean(_USR_SCENEHIERARCHY_INITIALLY_VISIBLE,sceneHierarchyInitiallyVisible,"");
-    c.addBoolean(_USR_SCENEHIERARCHY_HIDDEN_DURING_SIMULATION,sceneHierarchyHiddenDuringSimulation,"");
-    c.addString(_USR_SCRIPT_EDITOR_FONT,scriptEditorFont,"empty=default. e.g. \"Courier New\", \"DejaVu Sans Mono\", \"Consolas\", \"Ubuntu Mono\", etc.");
-    c.addBoolean(_USR_SCRIPT_EDITOR_BOLDFONT,scriptEditorBoldFont,"");
-    c.addInteger(_USR_SCRIPT_EDITOR_FONT_SIZE,scriptEditorFontSize,"-1=default.");
-
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_BACKGROUND,mainScriptColor_background,"");
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_SELECTION,mainScriptColor_selection,"");
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_COMMENT,mainScriptColor_comment,"");
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_NUMBER,mainScriptColor_number,"");
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_STRING,mainScriptColor_string,"");
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_CHARACTER,mainScriptColor_character,"");
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_OPERATOR,mainScriptColor_operator,"");
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_PREPROCESSOR,mainScriptColor_preprocessor,"");
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_IDENTIFIER,mainScriptColor_identifier,"");
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD,mainScriptColor_word,"");
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD2,mainScriptColor_word2,"");
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD3,mainScriptColor_word3,"");
-    c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD4,mainScriptColor_word4,"");
-
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_BACKGROUND,childScriptColor_background,"");
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_SELECTION,childScriptColor_selection,"");
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_COMMENT,childScriptColor_comment,"");
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_NUMBER,childScriptColor_number,"");
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_STRING,childScriptColor_string,"");
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_CHARACTER,childScriptColor_character,"");
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_OPERATOR,childScriptColor_operator,"");
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_PREPROCESSOR,childScriptColor_preprocessor,"");
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_IDENTIFIER,childScriptColor_identifier,"");
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD,childScriptColor_word,"");
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD2,childScriptColor_word2,"");
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD3,childScriptColor_word3,"");
-    c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD4,childScriptColor_word4,"");
-
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_BACKGROUND,customizationScriptColor_background,"");
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_SELECTION,customizationScriptColor_selection,"");
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_COMMENT,customizationScriptColor_comment,"");
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_NUMBER,customizationScriptColor_number,"");
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_STRING,customizationScriptColor_string,"");
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_CHARACTER,customizationScriptColor_character,"");
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_OPERATOR,customizationScriptColor_operator,"");
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_PREPROCESSOR,customizationScriptColor_preprocessor,"");
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_IDENTIFIER,customizationScriptColor_identifier,"");
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD,customizationScriptColor_word,"");
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD2,customizationScriptColor_word2,"");
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD3,customizationScriptColor_word3,"");
-    c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD4,customizationScriptColor_word4,"");
-
-    c.addRandomLine("");
-    c.addRandomLine("");
-
-
-    c.addRandomLine("// Directories");
-    c.addRandomLine("// =================================================");
-    c.addString(_USR_DIRECTORY_FOR_SCENES,defaultDirectoryForScenes,"absolute path, e.g. d:/myScenes (or leave empty for default path)");
-    c.addString(_USR_DIRECTORY_FOR_MODELS,defaultDirectoryForModels,"absolute path, e.g. d:/myModels (or leave empty for default path)");
-    c.addString(_USR_DIRECTORY_FOR_IMPORTEXPORT,defaultDirectoryForImportExport,"absolute path, e.g. d:/myCadFiles (or leave empty for default path)");
-    c.addString(_USR_DIRECTORY_FOR_MISC,defaultDirectoryForMiscFiles,"absolute path, e.g. d:/myMiscFiles (or leave empty for default path)");
-
-
-    c.addRandomLine("");
-    c.addRandomLine("");
-
-
-    c.addRandomLine("// Serialization");
-    c.addRandomLine("// =================================================");
-    c.addInteger(_USR_AUTO_SAVE_DELAY,autoSaveDelay,"in minutes. 0 to disable.");
-    c.addBoolean(_USR_DO_NOT_WRITE_PERSISTENT_DATA,doNotWritePersistentData,"");
-    c.addBoolean(_USR_COMPRESS_FILES,compressFiles,"");
-    c.addInteger(_USR_FILE_DIALOGS_NATIVE,fileDialogs,"recommended to keep -1 (-1=default, 0=native dialogs, 1=Qt dialogs).");
-
-
-    c.addRandomLine("");
-    c.addRandomLine("");
-
-
-    c.addRandomLine("// Undo/Redo");
-    c.addRandomLine("// =================================================");
-    c.addBoolean(_USR_UNDO_REDO_ENABLED,_undoRedoEnabled,"");
-    c.addBoolean(_USR_UNDO_REDO_PARTIAL_WITH_CAMERAS,_undoRedoOnlyPartialWithCameras,"");
-    c.addInteger(_USR_UNDO_REDO_LEVEL_COUNT,undoRedoLevelCount,"");
-    c.addInteger(_USR_UNDO_REDO_MAX_BUFFER_SIZE,undoRedoMaxBufferSize,"");
-    c.addInteger(_USR_TIME_FOR_UNDO_REDO_TOO_LONG_WARNING,timeInMsForUndoRedoTooLongWarning,"");
-    c.addRandomLine("");
-    c.addRandomLine("");
-
-
-    c.addRandomLine("// Messaging");
-    c.addRandomLine("// =================================================");
-    c.addBoolean(_USR_DO_NOT_SHOW_CRASH_RECOVERY_MESSAGE,doNotShowCrashRecoveryMessage,"");
-    c.addBoolean(_USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE,doNotShowUpdateCheckMessage,"");
-    c.addBoolean(_USR_DO_NOT_SHOW_PROGRESS_BARS,doNotShowProgressBars,"");
-    c.addBoolean(_USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES,doNotShowAcknowledgmentMessages,"");
-    c.addBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError,"");
-    c.addBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs,"");
-    c.addBoolean(_USR_SUPPRESS_XML_OVERWRITE_MSG,suppressXmlOverwriteMsg,"");
-
-
-
-    c.addRandomLine("");
-    c.addRandomLine("");
-
-
-    c.addRandomLine("// Compatibility");
-    c.addRandomLine("// =================================================");
-    c.addBoolean(_USR_MIDDLE_MOUSE_BUTTON_SWITCHES_MODES,middleMouseButtonSwitchesModes,"has only an effect if navigationBackwardCompatibility is true.");
-    c.addBoolean(_USR_NAVIGATION_BACKWARD_COMPATIBILITY_MODE,navigationBackwardCompatibility,"recommended to keep false.");
-    c.addFloat(_USR_COLOR_ADJUST_BACK_COMPATIBILITY,colorAdjust_backCompatibility,"recommended to keep 1.0");
-    c.addBoolean(_USR_SPECIFIC_GPU_TWEAK,specificGpuTweak,"");
-    c.addBoolean(_USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES,useAlternateSerialPortRoutines,"");
-    c.addBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi,"");
-    c.addBoolean(_USR_SHOW_old_DLGS,showOldDlgs,"");
-    c.addBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour,"");
-    c.addBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts,"");
-    c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
-    c.addBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal,"");
-    c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
-
-
-
-
-    c.addRandomLine("");
-    c.addRandomLine("");
-
-    c.addRandomLine("// Various");
-    c.addRandomLine("// =================================================");
-    c.addFloat(_USR_MOUSE_WHEEL_ZOOM_FACTOR,mouseWheelZoomFactor,"");
-    c.addFloat(_USR_DYNAMIC_ACTIVITY_RANGE,dynamicActivityRange,"");
-    c.addFloat(_USR_TRANSLATION_STEP_SIZE,_translationStepSize,"");
-    c.addFloat(_USR_ROTATION_STEP_SIZE,_rotationStepSize*radToDeg,"");
-    if (CThreadPool_old::getProcessorCoreAffinity()!=0)
-        c.addInteger(_USR_PROCESSOR_CORE_AFFINITY,CThreadPool_old::getProcessorCoreAffinity(),"recommended to keep 0 (-1:os default, 0:all threads on same core, m: affinity mask (bit1=core1, bit2=core2, etc.))");
-    c.addInteger(_USR_FREE_SERVER_PORT_START,freeServerPortStart,"");
-    c.addInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange,"");
-    c.addInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,_abortScriptExecutionButton,"in seconds. Zero to disable.");
-    c.addInteger(_USR_TRIANGLE_COUNT_IN_OBB,triCountInOBB,"");
-    c.addFloat(_USR_IDENTICAL_VERTICES_TOLERANCE,identicalVertexTolerance,"");
-    c.addBoolean(_USR_RUN_CUSTOMIZATION_SCRIPTS,runCustomizationScripts,"");
-    c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
-    c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
-    c.addString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath,"e.g. d:/myLuaRoutines");
-    c.addString(_USR_ADDITIONAL_PYTHON_PATH,additionalPythonPath,"e.g. d:/myPythonRoutines");
-    c.addString(_USR_DEFAULT_PYTHON,defaultPython,"e.g. c:/Python38/python.exe");
-    c.addBoolean(_USR_EXECUTE_UNSAFE,executeUnsafe,"recommended to keep false.");
-    c.addInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex,"");
-    c.addInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth,"-1=default.");
-    c.addString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditor,"");
-    c.addInteger(_USR_XML_EXPORT_SPLIT_SIZE,xmlExportSplitSize,"0=generate a single file.");
-    c.addBoolean(_USR_XML_EXPORT_KNOWN_FORMATS,xmlExportKnownFormats,"true=if several files are generated, mesh and image files are saved under known formats.");
-
-    c.addRandomLine("");
-    c.addRandomLine("");
-
-    c.addRandomLine("// License");
-    c.addRandomLine("// =================================================");
-    c.addString(_USR_LICENSE,license,"");
-    if (licenseEndpoint.size()>0)
-        c.addString(_USR_LICENSE_ENDPOINT,licenseEndpoint,"");
-    if (keepDongleOpen)
-        c.addBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen,"");
-    if (floatingLicenseEnabled)
+    if (allowSettingsWrite)
     {
-        c.addBoolean(_USR_FLOAT_LICENSE_ENABLED,floatingLicenseEnabled,"");
-        c.addString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer,"");
-        c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort,"");
-    }
+        CConfReaderAndWriter c;
 
-    std::string file(CFolderSystem::getUserSettingsPath());
-    file+="/";
-    file+=USER_SETTINGS_FILENAME;
-    c.writeConfiguration(file.c_str());
-    std::string txt("wrote user settings to ");
-    txt+=file;
-    App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
+        c.addRandomLine("// Debugging");
+        c.addRandomLine("// =================================================");
+        c.addBoolean(_USR_ALWAYS_SHOW_CONSOLE,alwaysShowConsole,"");
+        c.addString(_USR_VERBOSITY,_overrideConsoleVerbosity,"to override console verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, scripterrors, scriptwarnings, msgs, infos, debug, trace, tracelua or traceall");
+        c.addString(_USR_STATUSBAR_VERBOSITY,_overrideStatusbarVerbosity,"to override statusbar verbosity setting, use any of: default (do not override), none, errors, warnings, loadinfos, scripterrors, scriptwarnings, msgs, infos, debug, trace, tracelua or traceall");
+        c.addString(_USR_DIALOG_VERBOSITY,_overrideDialogVerbosity,"to override dialog verbosity setting, use any of: default (do not override), none, errors, warnings, questions or infos");
+        c.addBoolean(_USR_TIMESTAMP,timeStamp,"");
+        c.addString(_USR_LOG_FILTER,_consoleLogFilter,"leave empty for no filter. Filter format: txta1&txta2&...&txtaN|txtb1&txtb2&...&txtbN|...");
+        c.addBoolean(_USR_PRELOAD_ALL_PLUGINS,preloadAllPlugins,"if false, plugins won't be automatically loaded at startup");
+        c.addBoolean(_USR_UNDECORATED_STATUSBAR_MSGS,undecoratedStatusbarMessages,"");
+        c.addBoolean(_USR_CONSOLE_MSGS_TO_FILE,App::getConsoleMsgToFile(),"if true, console messages are sent to consoleMsgsFile");
+        c.addString(_USR_CONSOLE_MSGS_FILE,App::getConsoleMsgFile(),"defaults to debugLog.txt");
+        c.addRandomLine("");
+        c.addRandomLine("");
+
+
+        c.addRandomLine("// Rendering");
+        c.addRandomLine("// =================================================");
+        c.addInteger(_USR_IDLE_FPS,_idleFps,"");
+        c.addInteger(_USR_DESIRED_OPENGL_MAJOR,desiredOpenGlMajor,"recommended to keep -1.");
+        c.addInteger(_USR_DESIRED_OPENGL_MINOR,desiredOpenGlMinor,"recommended to keep -1.");
+        c.addInteger(_USR_OFFSCREEN_CONTEXT_TYPE,offscreenContextType,"recommended to keep -1 (-1=default, 0=Qt offscreen, 1=QGLWidget/QOpenGLWidget visible, 2=QGLWidget/QOpenGLWidget invisible).");
+        c.addInteger(_USR_FBO_TYPE,fboType,"recommended to keep -1 (-1=default, 0=native, 1=QOpenGLFramebufferObject).");
+        c.addBoolean(_USR_FORCE_FBO_VIA_EXT,forceFboViaExt,"recommended to keep false.");
+        c.addInteger(_USR_VBO_OPERATION,vboOperation,"recommended to keep -1 (-1=default, 0=always off, 1=on when available).");
+        c.addInteger(_USR_VBO_PERSISTENCE_IN_MS,vboPersistenceInMs,"recommended to keep 5000.");
+        c.addBoolean(_USR_OGL_COMPATIBILITY_TWEAK_1,oglCompatibilityTweak1,"recommended to keep false since it causes small memory leaks.");
+        c.addInteger(_USR_VISION_SENSORS_USE_GUI_WINDOWED,visionSensorsUseGuiThread_windowed,"recommended to keep -1 (-1=default, 0=GUI when not otherwise possible, 1=always GUI).");
+        c.addInteger(_USR_VISION_SENSORS_USE_GUI_HEADLESS,visionSensorsUseGuiThread_headless,"recommended to keep -1 (-1=default, 0=GUI when not otherwise possible, 1=always GUI).");
+        c.addBoolean(_USR_USE_GLFINISH,useGlFinish,"recommended to keep false. Graphic card dependent.");
+        c.addBoolean(_USR_USE_GLFINISH_VISION_SENSORS,useGlFinish_visionSensors,"recommended to keep false. Graphic card dependent.");
+        c.addInteger(_USR_VSYNC,vsync,"recommended to keep at 0. Graphic card dependent.");
+        c.addBoolean(_USR_DEBUG_OPENGL,debugOpenGl,"");
+        c.addFloat(_USR_STEREO_DIST,stereoDist,"0=no stereo, otherwise the intra occular distance (0.0635 for the human eyes).");
+        c.addInteger(_USR_HIGH_RES_DISPLAY,highResDisplay,"-1=none, 1=special, 2=enabled, 3=enable oglScaling and guiScaling below.");
+        c.addInteger(_USR_GUESSED_SCALING_FOR_2X_OPENGL,guessedDisplayScalingThresholdFor2xOpenGl,"200=default");
+        c.addInteger(_USR_OGL_SCALING,oglScaling,"1=default. No effect if highResDisplay!=3 above.");
+        c.addFloat(_USR_GUI_SCALING,guiScaling,"1.0=default. No effect if highResDisplay!=3 above.");
+        c.addBoolean(_USR_NO_EDGES_WHEN_MOUSE_DOWN,noEdgesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
+        c.addBoolean(_USR_NO_TEXTURES_WHEN_MOUSE_DOWN,noTexturesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
+        c.addBoolean(_USR_NO_CUSTOM_UIS_WHEN_MOUSE_DOWN,noCustomUisWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
+        c.addInteger(_USR_HIERARCHY_REFRESH_CNT,hierarchyRefreshCnt,"");
+
+
+        c.addRandomLine("");
+        c.addRandomLine("");
+
+
+        c.addRandomLine("// Visual");
+        c.addRandomLine("// =================================================");
+        c.addIntVector2(_USR_INIT_WINDOW_SIZE,initWindowSize,"0,0 for fullscreen");
+        c.addBoolean(_USR_DARK_MODE,darkMode,"");
+        c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_SHIFT,renderingSurfaceVShift,"");
+        c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_RESIZE,renderingSurfaceVResize,"");
+        c.addBoolean(_USR_DISPLAY_WORLD_REF,displayWorldReference,"");
+        c.addBoolean(_USR_ANTIALIASING,antiAliasing,"");
+        c.addInteger(_USR_GUI_FONT_SIZE_WIN,guiFontSize_Win,"-1=default");
+        c.addInteger(_USR_GUI_FONT_SIZE_MAC,guiFontSize_Mac,"-1=default");
+        c.addInteger(_USR_GUI_FONT_SIZE_LINUX,guiFontSize_Linux,"-1=default");
+        c.addBoolean(_USR_STATUSBAR_INITIALLY_VISIBLE,statusbarInitiallyVisible,"");
+        c.addBoolean(_USR_MODELBROWSER_INITIALLY_VISIBLE,modelBrowserInitiallyVisible,"");
+        c.addBoolean(_USR_SCENEHIERARCHY_INITIALLY_VISIBLE,sceneHierarchyInitiallyVisible,"");
+        c.addBoolean(_USR_SCENEHIERARCHY_HIDDEN_DURING_SIMULATION,sceneHierarchyHiddenDuringSimulation,"");
+        c.addString(_USR_SCRIPT_EDITOR_FONT,scriptEditorFont,"empty=default. e.g. \"Courier New\", \"DejaVu Sans Mono\", \"Consolas\", \"Ubuntu Mono\", etc.");
+        c.addBoolean(_USR_SCRIPT_EDITOR_BOLDFONT,scriptEditorBoldFont,"");
+        c.addInteger(_USR_SCRIPT_EDITOR_FONT_SIZE,scriptEditorFontSize,"-1=default.");
+
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_BACKGROUND,mainScriptColor_background,"");
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_SELECTION,mainScriptColor_selection,"");
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_COMMENT,mainScriptColor_comment,"");
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_NUMBER,mainScriptColor_number,"");
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_STRING,mainScriptColor_string,"");
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_CHARACTER,mainScriptColor_character,"");
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_OPERATOR,mainScriptColor_operator,"");
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_PREPROCESSOR,mainScriptColor_preprocessor,"");
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_IDENTIFIER,mainScriptColor_identifier,"");
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD,mainScriptColor_word,"");
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD2,mainScriptColor_word2,"");
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD3,mainScriptColor_word3,"");
+        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD4,mainScriptColor_word4,"");
+
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_BACKGROUND,childScriptColor_background,"");
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_SELECTION,childScriptColor_selection,"");
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_COMMENT,childScriptColor_comment,"");
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_NUMBER,childScriptColor_number,"");
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_STRING,childScriptColor_string,"");
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_CHARACTER,childScriptColor_character,"");
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_OPERATOR,childScriptColor_operator,"");
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_PREPROCESSOR,childScriptColor_preprocessor,"");
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_IDENTIFIER,childScriptColor_identifier,"");
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD,childScriptColor_word,"");
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD2,childScriptColor_word2,"");
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD3,childScriptColor_word3,"");
+        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD4,childScriptColor_word4,"");
+
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_BACKGROUND,customizationScriptColor_background,"");
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_SELECTION,customizationScriptColor_selection,"");
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_COMMENT,customizationScriptColor_comment,"");
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_NUMBER,customizationScriptColor_number,"");
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_STRING,customizationScriptColor_string,"");
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_CHARACTER,customizationScriptColor_character,"");
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_OPERATOR,customizationScriptColor_operator,"");
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_PREPROCESSOR,customizationScriptColor_preprocessor,"");
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_IDENTIFIER,customizationScriptColor_identifier,"");
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD,customizationScriptColor_word,"");
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD2,customizationScriptColor_word2,"");
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD3,customizationScriptColor_word3,"");
+        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD4,customizationScriptColor_word4,"");
+
+        c.addRandomLine("");
+        c.addRandomLine("");
+
+
+        c.addRandomLine("// Directories");
+        c.addRandomLine("// =================================================");
+        c.addString(_USR_DIRECTORY_FOR_SCENES,defaultDirectoryForScenes,"absolute path, e.g. d:/myScenes (or leave empty for default path)");
+        c.addString(_USR_DIRECTORY_FOR_MODELS,defaultDirectoryForModels,"absolute path, e.g. d:/myModels (or leave empty for default path)");
+        c.addString(_USR_DIRECTORY_FOR_IMPORTEXPORT,defaultDirectoryForImportExport,"absolute path, e.g. d:/myCadFiles (or leave empty for default path)");
+        c.addString(_USR_DIRECTORY_FOR_MISC,defaultDirectoryForMiscFiles,"absolute path, e.g. d:/myMiscFiles (or leave empty for default path)");
+
+
+        c.addRandomLine("");
+        c.addRandomLine("");
+
+
+        c.addRandomLine("// Serialization");
+        c.addRandomLine("// =================================================");
+        c.addInteger(_USR_AUTO_SAVE_DELAY,autoSaveDelay,"in minutes. 0 to disable.");
+        c.addBoolean(_USR_DO_NOT_WRITE_PERSISTENT_DATA,doNotWritePersistentData,"");
+        c.addBoolean(_USR_COMPRESS_FILES,compressFiles,"");
+        c.addInteger(_USR_FILE_DIALOGS_NATIVE,fileDialogs,"recommended to keep -1 (-1=default, 0=native dialogs, 1=Qt dialogs).");
+        c.addBoolean(_USR_ALLOW_SETTINGS_WRITE,allowSettingsWrite,"");
+
+
+        c.addRandomLine("");
+        c.addRandomLine("");
+
+
+        c.addRandomLine("// Undo/Redo");
+        c.addRandomLine("// =================================================");
+        c.addBoolean(_USR_UNDO_REDO_ENABLED,_undoRedoEnabled,"");
+        c.addBoolean(_USR_UNDO_REDO_PARTIAL_WITH_CAMERAS,_undoRedoOnlyPartialWithCameras,"");
+        c.addInteger(_USR_UNDO_REDO_LEVEL_COUNT,undoRedoLevelCount,"");
+        c.addInteger(_USR_UNDO_REDO_MAX_BUFFER_SIZE,undoRedoMaxBufferSize,"");
+        c.addInteger(_USR_TIME_FOR_UNDO_REDO_TOO_LONG_WARNING,timeInMsForUndoRedoTooLongWarning,"");
+        c.addRandomLine("");
+        c.addRandomLine("");
+
+
+        c.addRandomLine("// Messaging");
+        c.addRandomLine("// =================================================");
+        c.addBoolean(_USR_DO_NOT_SHOW_CRASH_RECOVERY_MESSAGE,doNotShowCrashRecoveryMessage,"");
+        c.addBoolean(_USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE,doNotShowUpdateCheckMessage,"");
+        c.addBoolean(_USR_DO_NOT_SHOW_PROGRESS_BARS,doNotShowProgressBars,"");
+        c.addBoolean(_USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES,doNotShowAcknowledgmentMessages,"");
+        c.addBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError,"");
+        c.addBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs,"");
+        c.addBoolean(_USR_SUPPRESS_XML_OVERWRITE_MSG,suppressXmlOverwriteMsg,"");
+
+
+
+        c.addRandomLine("");
+        c.addRandomLine("");
+
+
+        c.addRandomLine("// Compatibility");
+        c.addRandomLine("// =================================================");
+        c.addBoolean(_USR_MIDDLE_MOUSE_BUTTON_SWITCHES_MODES,middleMouseButtonSwitchesModes,"has only an effect if navigationBackwardCompatibility is true.");
+        c.addBoolean(_USR_NAVIGATION_BACKWARD_COMPATIBILITY_MODE,navigationBackwardCompatibility,"recommended to keep false.");
+        c.addFloat(_USR_COLOR_ADJUST_BACK_COMPATIBILITY,colorAdjust_backCompatibility,"recommended to keep 1.0");
+        c.addBoolean(_USR_SPECIFIC_GPU_TWEAK,specificGpuTweak,"");
+        c.addBoolean(_USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES,useAlternateSerialPortRoutines,"");
+        c.addBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi,"");
+        c.addBoolean(_USR_SHOW_old_DLGS,showOldDlgs,"");
+        c.addBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour,"");
+        c.addBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts,"");
+        c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
+        c.addBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal,"");
+        c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
+
+
+
+
+        c.addRandomLine("");
+        c.addRandomLine("");
+
+        c.addRandomLine("// Various");
+        c.addRandomLine("// =================================================");
+        c.addFloat(_USR_MOUSE_WHEEL_ZOOM_FACTOR,mouseWheelZoomFactor,"");
+        c.addFloat(_USR_DYNAMIC_ACTIVITY_RANGE,dynamicActivityRange,"");
+        c.addFloat(_USR_TRANSLATION_STEP_SIZE,_translationStepSize,"");
+        c.addFloat(_USR_ROTATION_STEP_SIZE,_rotationStepSize*radToDeg,"");
+        if (CThreadPool_old::getProcessorCoreAffinity()!=0)
+            c.addInteger(_USR_PROCESSOR_CORE_AFFINITY,CThreadPool_old::getProcessorCoreAffinity(),"recommended to keep 0 (-1:os default, 0:all threads on same core, m: affinity mask (bit1=core1, bit2=core2, etc.))");
+        c.addInteger(_USR_FREE_SERVER_PORT_START,freeServerPortStart,"");
+        c.addInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange,"");
+        c.addInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,_abortScriptExecutionButton,"in seconds. Zero to disable.");
+        c.addInteger(_USR_TRIANGLE_COUNT_IN_OBB,triCountInOBB,"");
+        c.addFloat(_USR_IDENTICAL_VERTICES_TOLERANCE,identicalVertexTolerance,"");
+        c.addBoolean(_USR_RUN_CUSTOMIZATION_SCRIPTS,runCustomizationScripts,"");
+        c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
+        c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
+        c.addString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath,"e.g. d:/myLuaRoutines");
+        c.addString(_USR_ADDITIONAL_PYTHON_PATH,additionalPythonPath,"e.g. d:/myPythonRoutines");
+        c.addString(_USR_DEFAULT_PYTHON,defaultPython,"e.g. c:/Python38/python.exe");
+        c.addBoolean(_USR_EXECUTE_UNSAFE,executeUnsafe,"recommended to keep false.");
+        c.addInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex,"");
+        c.addInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth,"-1=default.");
+        c.addString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditor,"");
+        c.addInteger(_USR_XML_EXPORT_SPLIT_SIZE,xmlExportSplitSize,"0=generate a single file.");
+        c.addBoolean(_USR_XML_EXPORT_KNOWN_FORMATS,xmlExportKnownFormats,"true=if several files are generated, mesh and image files are saved under known formats.");
+
+        c.addRandomLine("");
+        c.addRandomLine("");
+
+        c.addRandomLine("// License");
+        c.addRandomLine("// =================================================");
+        c.addString(_USR_LICENSE,license,"");
+        if (licenseEndpoint.size()>0)
+            c.addString(_USR_LICENSE_ENDPOINT,licenseEndpoint,"");
+        if (keepDongleOpen)
+            c.addBoolean(_USR_KEEP_DONGLE_OPEN,keepDongleOpen,"");
+        if (floatingLicenseEnabled)
+        {
+            c.addBoolean(_USR_FLOAT_LICENSE_ENABLED,floatingLicenseEnabled,"");
+            c.addString(_USR_FLOAT_LICENSE_SERVER_ADDRESS,floatingLicenseServer,"");
+            c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT,floatingLicensePort,"");
+        }
+
+        std::string file(CFolderSystem::getUserSettingsPath());
+        file+="/";
+        file+=USER_SETTINGS_FILENAME;
+        c.writeConfiguration(file.c_str());
+        std::string txt("wrote user settings to ");
+        txt+=file;
+        App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
+    }
 }
 
 void CUserSettings::loadUserSettings()
@@ -946,7 +952,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_DO_NOT_WRITE_PERSISTENT_DATA,doNotWritePersistentData);
     c.getBoolean(_USR_COMPRESS_FILES,compressFiles);
     c.getInteger(_USR_FILE_DIALOGS_NATIVE,fileDialogs);
-
+    c.getBoolean(_USR_ALLOW_SETTINGS_WRITE,allowSettingsWrite);
 
     // Undo/redo section:
     // *****************************

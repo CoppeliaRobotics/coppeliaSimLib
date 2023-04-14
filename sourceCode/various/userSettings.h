@@ -105,6 +105,7 @@ public:
     bool doNotShowVideoCompressionLibraryLoadError;
     bool suppressStartupDialogs;
     bool suppressXmlOverwriteMsg;
+    bool allowSettingsWrite;
 
     std::string scriptEditorFont;
     bool scriptEditorBoldFont;
