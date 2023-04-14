@@ -228,7 +228,7 @@ void simulatorInit()
     */
 
      // Now load the other plugins too:
-    for (size_t i=0;i<theNames.size();i++)
+    for (size_t i=0;App::userSettings->preloadAllPlugins&&i<theNames.size();i++)
     {
         if (theDirAndNames[i].compare("")!=0)
         { // not yet loaded

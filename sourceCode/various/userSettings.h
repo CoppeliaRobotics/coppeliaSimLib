@@ -34,6 +34,7 @@ public:
     std::string _overrideStatusbarVerbosity;
     std::string _consoleLogFilter;
     std::string _overrideDialogVerbosity;
+    bool preloadAllPlugins;
     bool undecoratedStatusbarMessages;
     bool timeStamp;
     bool displayWorldReference;
