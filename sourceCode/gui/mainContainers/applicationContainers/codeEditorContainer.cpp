@@ -370,6 +370,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     editorNode->SetAttribute("searchable",toBoolStr(true));
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
+                    editorNode->SetAttribute("script-up-to-date",it->getIsUpToDate());
                     if (it->getLanguage()==CScriptObject::lang_lua)
                     {
                         editorNode->SetAttribute("lang","lua");
@@ -498,6 +499,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     editorNode->SetAttribute("searchable",toBoolStr(true));
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
+                    editorNode->SetAttribute("script-up-to-date",it->getIsUpToDate());
                     if (it->getLanguage()==CScriptObject::lang_lua)
                     {
                         editorNode->SetAttribute("lang","lua");

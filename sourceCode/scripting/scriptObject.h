@@ -86,6 +86,7 @@ public:
     bool resetScript();
     bool initScript();
     bool hasInterpreterState() const;
+    bool getIsUpToDate();
     bool isSimulationScript() const;
     bool isEmbeddedScript() const;
     bool isSceneSwitchPersistentScript() const;

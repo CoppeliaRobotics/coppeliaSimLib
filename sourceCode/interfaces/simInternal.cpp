@@ -16546,7 +16546,10 @@ int simEventNotification_internal(const char* event)
                         {
                             int h;
                             if (tt::stringToInt(handle,h))
+                            {
                                 App::mainWindow->codeEditorContainer->restartScript(h);
+                                retVal=1;
+                            }
                         }
                     }
 #endif
