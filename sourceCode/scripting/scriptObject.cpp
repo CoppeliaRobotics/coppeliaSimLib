@@ -2390,7 +2390,10 @@ bool CScriptObject::initScript()
 
 bool CScriptObject::getIsUpToDate()
 {
-    return( hasInterpreterState()&&(_scriptTextExec.compare(getScriptText())!=0) );
+    bool retVal=true;
+    if ( hasInterpreterState()&&(_scriptTextExec.compare(getScriptText())!=0) )
+        retVal=false;
+    return(retVal);
 }
 
 bool CScriptObject::_killInterpreterState()
