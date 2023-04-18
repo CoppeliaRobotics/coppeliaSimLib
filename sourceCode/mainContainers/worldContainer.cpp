@@ -638,6 +638,11 @@ void CWorldContainer::pushGenesisEvents()
     if (getEventsEnabled())
     {
         {
+            auto [event,data]=_prepareGeneralEvent(EVENTTYPE_GENESISBEGIN,-1,-1,nullptr,nullptr,false);
+            pushEvent(event);
+        }
+
+        {
             auto [event,data]=_prepareGeneralEvent(EVENTTYPE_APPSESSION,-1,-1,nullptr,nullptr,false);
             data->appendMapObject_stringString("sessionId",_sessionId.c_str(),0);
             pushEvent(event);
@@ -651,6 +656,11 @@ void CWorldContainer::pushGenesisEvents()
         }
 
         currentWorld->pushGenesisEvents();
+
+        {
+            auto [event,data]=_prepareGeneralEvent(EVENTTYPE_GENESISEND,-1,-1,nullptr,nullptr,false);
+            pushEvent(event);
+        }
     }
 }
 

@@ -35,6 +35,8 @@
 #define EVENTTYPE_APPSESSION "appSession"
 #define EVENTTYPE_APPSETTINGSCHANGED "appSettingsChanged"
 #define EVENTTYPE_SIMULATIONCHANGED "simulationChanged"
+#define EVENTTYPE_GENESISBEGIN "genesisBegin"
+#define EVENTTYPE_GENESISEND "genesisEnd"
 
 struct SEventInfo
 {
