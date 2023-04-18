@@ -520,15 +520,15 @@ void CDrawingObject::pushAddEvent()
                 break;
             case sim_drawing_triangles : tp="triangle";
                 break;
-            case sim_drawing_trianglepoints : tp="trianglePoint";
+            case sim_drawing_trianglepts : tp="trianglePoint";
                 break;
-            case sim_drawing_quadpoints : tp="quadPoint";
+            case sim_drawing_quadpts : tp="quadPoint";
                 break;
-            case sim_drawing_discpoints : tp="discPoint";
+            case sim_drawing_discpts : tp="discPoint";
                 break;
-            case sim_drawing_cubepoints : tp="cubePoint";
+            case sim_drawing_cubepts : tp="cubePoint";
                 break;
-            case sim_drawing_spherepoints : tp="spherePoint";
+            case sim_drawing_spherepts : tp="spherePoint";
                 break;
         }
         data->appendMapObject_stringString("type",tp.c_str(),0);
