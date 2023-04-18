@@ -88,7 +88,7 @@ public:
     std::tuple<SEventInfo,CInterfaceStackTable*> _prepareGeneralEvent(const char* event,int objectHandle,long long int uid,const char* objType,const char* fieldName,bool mergeable);
     void _combineDuplicateEvents(SBufferedEvents* events) const;
     void _mergeEvents(SBufferedEvents* events) const;
-    void _prepareEventsForDispatch(SBufferedEvents* events) const;
+    void _prepareEventsForDispatch(SBufferedEvents* events,bool genesisEvents) const;
 
 
     void pushEvent(SEventInfo& event);

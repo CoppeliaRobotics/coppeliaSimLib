@@ -305,13 +305,14 @@ App::App(bool headless)
 
     std::string str("CoppeliaSim v");
     str+=SIM_PROGRAM_VERSION;
-    str+=", ";
+    str+=" ";
     str+=SIM_PROGRAM_REVISION;
     str+=", flavor: ";
 #ifdef SIM_FL
     str+=std::to_string(SIM_FL);
+    str+=", ";
 #else
-    str+="n/a";
+    str+="n/a, ";
 #endif
     str+=SIM_PLATFORM;
     logMsg(sim_verbosity_loadinfos,str.c_str());

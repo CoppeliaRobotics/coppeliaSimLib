@@ -629,7 +629,7 @@ void CWorldContainer::getGenesisEvents(CInterfaceStack* stack)
     swapBufferedEvents(savedEvents);
 
     // Condition events
-    _prepareEventsForDispatch(tmpEvents);
+    _prepareEventsForDispatch(tmpEvents,true);
     delete tmpEvents;
 }
 
@@ -684,7 +684,7 @@ void CWorldContainer::dispatchEvents()
         _bufferedEvents->eventsStack->pushTableOntoStack();
         _eventMutex.unlock();
 
-        _prepareEventsForDispatch(tmpEvents);
+        _prepareEventsForDispatch(tmpEvents,false);
 
         // Dispatch events:
         callScripts(sim_syscb_event,tmpEvents->eventsStack,nullptr);
@@ -777,7 +777,7 @@ void CWorldContainer::_mergeEvents(SBufferedEvents* events) const
     }
 }
 
-void CWorldContainer::_prepareEventsForDispatch(SBufferedEvents* events) const
+void CWorldContainer::_prepareEventsForDispatch(SBufferedEvents* events,bool genesisEvents) const
 {
     if (_mergeTheEvents)
     {
@@ -788,11 +788,23 @@ void CWorldContainer::_prepareEventsForDispatch(SBufferedEvents* events) const
         CInterfaceStackTable* buff=(CInterfaceStackTable*)events->eventsStack->getStackObjectFromIndex(0);
         if (!buff->isEmpty())
         {
+            bool negOffset=( genesisEvents&&(_mergedEventSeq>0) );
             for (size_t i=0;i<buff->getArraySize();i++)
             {
                 CInterfaceStackTable* s=(CInterfaceStackTable*)buff->getArrayItemAtIndex(i);
                 CInterfaceStackInteger* n=(CInterfaceStackInteger*)s->getMapObject("seq");
-                n->setValue(_mergedEventSeq++);
+                long long int ev;
+                if (negOffset)
+                    ev=_mergedEventSeq-buff->getArraySize()+i;
+                else
+                    ev=_mergedEventSeq++;
+                n->setValue(ev);
+                /*
+                if (genesisEvents)
+                    printf("EventSeq: %i *\n",ev);
+                else
+                    printf("EventSeq: %i\n",ev);
+                    */
             }
         }
     }
