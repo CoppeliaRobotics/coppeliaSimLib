@@ -543,6 +543,8 @@ void CDrawingObject::pushAddEvent()
 
         data->appendMapObject_stringBool("clearPoints",true);
 
+        data->appendMapObject_stringBool("overlay",_objectType&sim_drawing_overlay);
+
         App::worldContainer->pushEvent(event);
 
         _initBufferedEventData();
