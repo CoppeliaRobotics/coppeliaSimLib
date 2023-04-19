@@ -363,14 +363,13 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     editorNode->SetAttribute("toolbar",toBoolStr(true));
                     editorNode->SetAttribute("statusbar",toBoolStr(false));
                     editorNode->SetAttribute("wrap-word",toBoolStr(false));
-                    editorNode->SetAttribute("can-restart",toBoolStr(!( (it->getScriptType()==sim_scripttype_mainscript)||it->getThreadedExecution_oldThreads() )));
                     editorNode->SetAttribute("max-lines",0);
                     editorNode->SetAttribute("activate",toBoolStr(true));
                     editorNode->SetAttribute("editable",toBoolStr(true));
                     editorNode->SetAttribute("searchable",toBoolStr(true));
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
-                    editorNode->SetAttribute("can-restart-in-sim","true");
+                    editorNode->SetAttribute("can-restart-in-sim",toBoolStr(!( (it->getScriptType()==sim_scripttype_mainscript)||it->getThreadedExecution_oldThreads() )));
                     editorNode->SetAttribute("script-up-to-date",toBoolStr(it->getIsUpToDate()));
                     if (it->getLanguage()==CScriptObject::lang_lua)
                     {
@@ -493,7 +492,6 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     editorNode->SetAttribute("toolbar",toBoolStr(true));
                     editorNode->SetAttribute("statusbar",toBoolStr(false));
                     editorNode->SetAttribute("wrap-word",toBoolStr(false));
-                    editorNode->SetAttribute("can-restart",toBoolStr(true));
                     editorNode->SetAttribute("max-lines",0);
                     editorNode->SetAttribute("activate",toBoolStr(true));
                     editorNode->SetAttribute("editable",toBoolStr(true));
