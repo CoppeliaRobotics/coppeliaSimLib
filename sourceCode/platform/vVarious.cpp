@@ -316,7 +316,7 @@ WLibrary VVarious::openLibrary(const char* filename,std::string* errMsg)
         auto err = dlerror();
         if ( err&&(errMsg!=nullptr) )
         {
-            errMsg[0]="error: dlopen (";
+            errMsg[0]="dlopen (";
             errMsg[0]+=filename;
             errMsg[0]+="): ";
             errMsg[0]+=err;
@@ -330,7 +330,7 @@ WLibrary VVarious::openLibrary(const char* filename,std::string* errMsg)
     {
         if (errMsg!=nullptr)
         {
-            errMsg[0]="error: library (";
+            errMsg[0]="library (";
             errMsg[0]+=filename;
             errMsg[0]+=") load: ";
             errMsg[0]+=lib->errorString().toStdString();

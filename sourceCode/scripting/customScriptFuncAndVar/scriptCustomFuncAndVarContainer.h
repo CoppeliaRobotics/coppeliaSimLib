@@ -27,8 +27,6 @@ public:
     size_t getCustomVariableCount() const;
     CScriptCustomVariable* getCustomVariableFromIndex(size_t index);
 
-    void outputWarningWithFunctionNamesWithoutPlugin(bool o);
-
     void appendAllVariableNames_spaceSeparated_keywordHighlight(std::string& v);
     void pushAllFunctionNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
     void pushAllVariableNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
@@ -39,6 +37,4 @@ public:
 protected:
     std::vector<CScriptCustomFunction*> _allCustomFunctions;
     std::vector<CScriptCustomVariable*> _allCustomVariables;
-
-    bool _warningAboutFunctionNamesWithoutPlugin;
 };

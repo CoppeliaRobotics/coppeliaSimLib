@@ -370,6 +370,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     editorNode->SetAttribute("searchable",toBoolStr(true));
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
+                    editorNode->SetAttribute("can-restart-in-sim","true");
                     editorNode->SetAttribute("script-up-to-date",toBoolStr(it->getIsUpToDate()));
                     if (it->getLanguage()==CScriptObject::lang_lua)
                     {
@@ -499,6 +500,8 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     editorNode->SetAttribute("searchable",toBoolStr(true));
                     editorNode->SetAttribute("line-numbers",toBoolStr(true));
                     editorNode->SetAttribute("tab-width",4);
+                    editorNode->SetAttribute("can-restart-in-sim","true");
+                    editorNode->SetAttribute("can-restart-in-nosim","true");
                     editorNode->SetAttribute("script-up-to-date",toBoolStr(it->getIsUpToDate()));
                     if (it->getLanguage()==CScriptObject::lang_lua)
                     {

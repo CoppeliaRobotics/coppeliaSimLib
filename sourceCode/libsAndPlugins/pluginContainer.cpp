@@ -80,12 +80,9 @@ std::string CPlugin::getName() const
     return(_name);
 }
 
-int CPlugin::load()
+int CPlugin::loadAndInit(std::string* errStr)
 {
-    std::string errStr;
-    WLibrary lib=VVarious::openLibrary(_filename.c_str(),&errStr); // here we have the extension in the filename (.dll, .so or .dylib)
-    if (errStr.size()>0)
-        App::logMsg(sim_verbosity_errors,errStr.c_str());
+    WLibrary lib=VVarious::openLibrary(_filename.c_str(),errStr); // here we have the extension in the filename (.dll, .so or .dylib)
     if (lib!=nullptr)
     {
         instance=lib;
@@ -287,7 +284,6 @@ int CPlugin::load()
 
                 // For the IK plugin:
                 ikPlugin_createEnv=(ptr_ikPlugin_createEnv)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_createEnv"));
-//                ikPlugin_switchEnvironment=(ptr_ikPlugin_switchEnvironment)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_switchEnvironment"));
                 ikPlugin_eraseEnvironment=(ptr_ikPlugin_eraseEnvironment)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_eraseEnvironment"));
                 ikPlugin_eraseObject=(ptr_ikPlugin_eraseObject)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_eraseObject"));
                 ikPlugin_setObjectParent=(ptr_ikPlugin_setObjectParent)(VVarious::resolveLibraryFuncName(lib,"ikPlugin_setObjectParent"));
@@ -361,25 +357,23 @@ int CPlugin::load()
 
                 return(int(pluginVersion)); // success!
             }
-            std::string errStr;
-            VVarious::closeLibrary(instance,&errStr);
-            if (errStr.size()>0)
-                App::logMsg(sim_verbosity_errors,errStr.c_str());
+            VVarious::closeLibrary(instance,nullptr);
+            if (errStr!=nullptr)
+                errStr[0]="could not properly initialize plugin";
             instance=nullptr;
             return(0); // could not properly initialize
         }
         else
         {
-            std::string errStr;
-            VVarious::closeLibrary(instance,&errStr);
-            if (errStr.size()>0)
-                App::logMsg(sim_verbosity_errors,errStr.c_str());
+            VVarious::closeLibrary(instance,nullptr);
+            if (errStr!=nullptr)
+                errStr[0]="missing entry points in plugin";
             instance=nullptr;
             return(-1); // missing entry points
         }
     }
     else
-        return(-2); // could not load
+        return(-2); // could not open library
 }
 
 void* CPlugin::sendEventCallbackMessage(int msg,int* auxVals,void* data,int retVals[4])
@@ -430,7 +424,7 @@ CPluginContainer::~CPluginContainer()
 {
 }
 
-int CPluginContainer::addPlugin(const char* filename,const char* pluginName)
+int CPluginContainer::addAndInitPlugin(const char* filename,const char* pluginName)
 {
     TRACE_INTERNAL;
     App::logMsg(sim_verbosity_debug,(std::string("addPlugin: ")+pluginName).c_str());
@@ -444,9 +438,12 @@ int CPluginContainer::addPlugin(const char* filename,const char* pluginName)
     plug=new CPlugin(filename,pluginName);
     plug->handle=_nextHandle;
     _allPlugins.push_back(plug);
-    int loadRes=plug->load();
+    std::string errStr;
+    int loadRes=plug->loadAndInit(&errStr);
     if (loadRes<=0)
     { // failed
+        if (errStr.size()>0)
+            App::logMsg(sim_verbosity_errors,errStr.c_str());
         _allPlugins.pop_back();
         delete plug;
         return(loadRes-1);

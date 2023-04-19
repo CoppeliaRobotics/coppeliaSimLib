@@ -201,7 +201,7 @@ class CPlugin
 public:
     CPlugin(const char* filename,const char* pluginName);
     virtual ~CPlugin();
-    int load();
+    int loadAndInit(std::string* errStr);
     void setConsoleVerbosity(int level);
     int getConsoleVerbosity() const;
     void setStatusbarVerbosity(int level);
@@ -412,7 +412,7 @@ public:
     CPluginContainer();
     virtual ~CPluginContainer();
 
-    static int addPlugin(const char* filename,const char* pluginName);
+    static int addAndInitPlugin(const char* filename,const char* pluginName);
     static void* sendEventCallbackMessageToAllPlugins(int msg,int* auxVals,void* data,int retVals[4]);
     static void* sendEventCallbackMessageToOnePlugin(const char* pluginName,int msg,int* auxVals,void* data,int retVals[4]);
     static int getPluginCount();

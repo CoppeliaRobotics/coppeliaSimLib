@@ -608,22 +608,6 @@ void App::deleteWorldsContainer()
     worldContainer=nullptr;
 }
 
-void App::_runInitializationCallback(void(*initCallBack)())
-{
-    TRACE_INTERNAL;
-    if (initCallBack!=nullptr)
-        initCallBack(); // this should load all plugins
-
-    App::worldContainer->scriptCustomFuncAndVarContainer->outputWarningWithFunctionNamesWithoutPlugin(true);
-}
-
-void App::_runDeinitializationCallback(void(*deinitCallBack)())
-{
-    TRACE_INTERNAL;
-    if (deinitCallBack!=nullptr)
-        deinitCallBack(); // this will unload all plugins!!
-}
-
 void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(),bool launchSimThread)
 { // We arrive here with a single thread: the UI thread!
     TRACE_INTERNAL;
@@ -636,9 +620,8 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
 
     _simulatorIsRunning=true;
 
-    // Load the plugins via callback mechanism
-    // Plugins are loaded by the UI thread! (still the only thread)
-    _runInitializationCallback(initCallBack);
+    if (initCallBack!=nullptr)
+        initCallBack(); // this will load all plugins (from the UI thread)
 
     // Now start the main simulation thread (i.e. the "SIM thread", the one that handles a simulation):
     _workThreadLoopCallback=loopCallBack;
@@ -723,8 +706,8 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
     while (_quitLevel==2)
         VThread::sleep(1);
 
-    // Ok, we unload the plugins. This happens with the UI thread!
-    _runDeinitializationCallback(deinitCallBack);
+    if (deinitCallBack!=nullptr)
+        deinitCallBack(); // this will unload all plugins (from the UI thread)
 
     deinitGl_ifNeeded();
     _simulatorIsRunning=false;

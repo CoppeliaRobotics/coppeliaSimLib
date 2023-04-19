@@ -3,18 +3,12 @@
 
 CScriptCustomFuncAndVarContainer::CScriptCustomFuncAndVarContainer()
 {
-    _warningAboutFunctionNamesWithoutPlugin=false;
 }
 
 CScriptCustomFuncAndVarContainer::~CScriptCustomFuncAndVarContainer()
 {
     removeAllCustomFunctions();
     removeAllCustomVariables();
-}
-
-void CScriptCustomFuncAndVarContainer::outputWarningWithFunctionNamesWithoutPlugin(bool o)
-{
-    _warningAboutFunctionNamesWithoutPlugin=o;
 }
 
 void CScriptCustomFuncAndVarContainer::removeAllCustomFunctions()
@@ -68,7 +62,7 @@ bool CScriptCustomFuncAndVarContainer::insertCustomFunction(CScriptCustomFunctio
     if (function->getFunctionName().length()==0)
         return(false);
 
-    if ((function->getPluginName()=="")&&_warningAboutFunctionNamesWithoutPlugin)
+    if (function->getPluginName()=="")
     {
         std::string msg("detected a custom function name that is not formatted as");
         msg+="\n         funcName@pluginName: ";

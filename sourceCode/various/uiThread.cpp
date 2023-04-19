@@ -128,7 +128,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     if ( (cmdIn->cmdId>PLUGIN_START_PLUGUITHREADCMD)&&(cmdIn->cmdId<PLUGIN_END_PLUGUITHREADCMD) )
     {
         if (cmdIn->cmdId==PLUGIN_LOAD_AND_START_PLUGUITHREADCMD)
-            cmdOut->intParams.push_back(CPluginContainer::addPlugin(cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str()));
+            cmdOut->intParams.push_back(CPluginContainer::addAndInitPlugin(cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str()));
         if (cmdIn->cmdId==PLUGIN_STOP_AND_UNLOAD_PLUGUITHREADCMD)
             cmdOut->boolParams.push_back(CPluginContainer::unloadPlugin(cmdIn->intParams[0]));
     }

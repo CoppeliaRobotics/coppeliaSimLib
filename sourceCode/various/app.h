@@ -139,8 +139,6 @@ private:
     static bool _canInitSimThread;
     static long long int _nextUniqueId;
 
-    static void _runInitializationCallback(void(*initCallBack)());
-    static void _runDeinitializationCallback(void(*deinitCallBack)());
     static void _processGuiEventsUntilQuit();
 
 //  static VTHREAD_ID_TYPE _guiThread;
