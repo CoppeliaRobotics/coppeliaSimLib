@@ -3,7 +3,6 @@
 #include <utils.h>
 #include <dummy.h>
 #include <global.h>
-#include <easyLock.h>
 #include <app.h>
 #include <tt.h>
 #include <dummyRendering.h>
@@ -949,7 +948,6 @@ void CDummy::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 
 void CDummy::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayDummy(this,renderingObject,displayAttrib);
 }
 

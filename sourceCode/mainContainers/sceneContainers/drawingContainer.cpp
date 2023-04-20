@@ -1,7 +1,6 @@
 #include <simInternal.h>
 #include <drawingContainer.h>
 #include <viewableBase.h>
-#include <easyLock.h>
 #include <app.h>
 
 CDrawingContainer::CDrawingContainer()
@@ -34,7 +33,6 @@ CDrawingObject* CDrawingContainer::getObject(int objectId)
 
 int CDrawingContainer::addObject(CDrawingObject* it)
 {
-    EASYLOCK(_objectMutex);
     int newId=0;
     newId++;
     while (getObject(newId)!=nullptr)
@@ -48,7 +46,6 @@ int CDrawingContainer::addObject(CDrawingObject* it)
 
 void CDrawingContainer::removeObject(int objectId)
 {
-    EASYLOCK(_objectMutex);
     for (size_t i=0;i<_allObjects.size();i++)
     {
         if (_allObjects[i]->getObjectId()==objectId)
@@ -114,7 +111,6 @@ void CDrawingContainer::renderYour3DStuff_overlay(CViewableBase* renderingObject
 
 void CDrawingContainer::drawAll(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM)
 {
-    EASYLOCK(_objectMutex);
     for (size_t i=0;i<_allObjects.size();i++)
         _allObjects[i]->draw(overlay,transparentObject,displayAttrib,cameraCTM);
 }
@@ -123,7 +119,6 @@ void CDrawingContainer::drawObjectsParentedWith(bool overlay,bool transparentObj
 {
     if ((displayAttrib&sim_displayattribute_nodrawingobjects)==0)
     {
-        EASYLOCK(_objectMutex);
         for (size_t i=0;i<_allObjects.size();i++)
         {
             if ( (_allObjects[i]->getSceneObjectId()==parentObjectId)&&((_allObjects[i]->getObjectType()&sim_drawing_painttag)!=0) )

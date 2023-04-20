@@ -5,7 +5,6 @@
 #include <pointCloud.h>
 #include <pluginContainer.h>
 #include <sceneObjectOperations.h>
-#include <easyLock.h>
 #include <global.h>
 #include <app.h>
 #include <octreeRendering.h>
@@ -1195,7 +1194,6 @@ void COcTree::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 
 void COcTree::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayOctree(this,renderingObject,displayAttrib);
 }
 

@@ -4,7 +4,6 @@
 #include <linMotionRoutines.h>
 #include <simStrings.h>
 #include <utils.h>
-#include <easyLock.h>
 #include <app.h>
 #include <jointRendering.h>
 #include <pluginContainer.h>
@@ -4209,7 +4208,6 @@ void CJoint::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 
 void CJoint::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayJoint(this,renderingObject,displayAttrib);
 }
 

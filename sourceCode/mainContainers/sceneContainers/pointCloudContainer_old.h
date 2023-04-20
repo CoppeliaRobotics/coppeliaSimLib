@@ -2,7 +2,6 @@
 
 #include <ptCloud_old.h>
 #include <simMath/7Vector.h>
-#include <vMutex.h>
 
 class CViewableBase;
 
@@ -27,5 +26,4 @@ public:
 
 private:
     std::vector<CPtCloud_old*> _allObjects;
-    VMutex _objectMutex;
 };

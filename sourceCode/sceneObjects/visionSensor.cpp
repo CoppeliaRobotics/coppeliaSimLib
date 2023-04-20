@@ -10,7 +10,6 @@
 #include <vVarious.h>
 #include <utils.h>
 #include <threadPool_old.h>
-#include <easyLock.h>
 #include <app.h>
 #include <pluginContainer.h>
 #include <visionSensorRendering.h>
@@ -2871,7 +2870,6 @@ void CVisionSensor::detectVisionSensorEntity_executedViaUiThread(int entityID,bo
 
 void CVisionSensor::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayVisionSensor(this,renderingObject,displayAttrib);
 }
 

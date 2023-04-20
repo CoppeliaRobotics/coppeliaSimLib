@@ -3,7 +3,6 @@
 #include <tt.h>
 #include <simStrings.h>
 #include <utils.h>
-#include <easyLock.h>
 #include <app.h>
 #include <mirrorRendering.h>
 
@@ -463,6 +462,5 @@ void CMirror::serialize(CSer& ar)
 
 void CMirror::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayMirror(this,renderingObject,displayAttrib);
 }

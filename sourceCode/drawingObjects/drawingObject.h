@@ -2,7 +2,6 @@
 
 #include <colorObject.h>
 #include <simMath/4X4Matrix.h>
-#include <vMutex.h>
 
 class CSceneObject;
 
@@ -61,8 +60,6 @@ protected:
     double _duplicateTolerance;
     int _creatorHandle;
     bool _rebuildRemoteItems;
-
-    VMutex _objectMutex;
 
     std::vector<double> _data;
     std::vector<double> _bufferedEventData;

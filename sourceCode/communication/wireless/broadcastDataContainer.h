@@ -1,7 +1,6 @@
 #pragma once
 
 #include <broadcastData.h>
-#include <vMutex.h>
 #include <broadcastDataVisual.h>
 
 class CBroadcastDataContainer
@@ -25,8 +24,6 @@ public:
     static void setWirelessForceShow_reception(bool f);
 
 private:
-    VMutex _objectMutex;
-
     std::vector<CBroadcastData*> _allObjects;
     std::vector<CBroadcastDataVisual*> _allVisualObjects;
     static bool _wirelessForceShow_emission;

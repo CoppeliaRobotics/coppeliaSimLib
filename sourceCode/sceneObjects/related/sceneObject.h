@@ -4,7 +4,6 @@
 #include <simMath/3Vector.h>
 #include <simMath/4Vector.h>
 #include <simMath/7Vector.h>
-#include <vMutex.h>
 #include <map>
 #include <userParameters.h>
 #include <customData.h>
@@ -386,7 +385,6 @@ protected:
 
     double _transparentObjectDistanceOffset;
 
-    VMutex _objectMutex;
     C3Vector _objectManipulationModeSubTranslation;
     double _objectManipulationModeSubRotation;
     int _objectManipulationModeEventId;

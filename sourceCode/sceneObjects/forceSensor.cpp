@@ -4,7 +4,6 @@
 #include <simStrings.h>
 #include <algorithm>
 #include <utils.h>
-#include <easyLock.h>
 #include <app.h>
 #include <forceSensorRendering.h>
 
@@ -824,6 +823,5 @@ void CForceSensor::serialize(CSer& ar)
 
 void CForceSensor::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayForceSensor(this,renderingObject,displayAttrib);
 }

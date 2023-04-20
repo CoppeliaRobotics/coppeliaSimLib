@@ -3,7 +3,6 @@
 #include <tt.h>
 #include <simStrings.h>
 #include <utils.h>
-#include <easyLock.h>
 #include <app.h>
 #include <lightRendering.h>
 
@@ -743,6 +742,5 @@ void CLight::serialize(CSer& ar)
 
 void CLight::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayLight(this,renderingObject,displayAttrib);
 }

@@ -2,7 +2,6 @@
 #include <drawingObject.h>
 #include <app.h>
 #include <tt.h>
-#include <easyLock.h>
 #include <drawingObjectRendering.h>
 
 double CDrawingObject::getSize() const
@@ -148,7 +147,6 @@ void CDrawingObject::addItems(const double* itemData,size_t itemCnt)
 
 bool CDrawingObject::addItem(const double* itemData)
 {
-    EASYLOCK(_objectMutex);
     if (itemData==nullptr)
     {
         _data.clear();
@@ -352,7 +350,6 @@ void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,
 {
     if (displayAttrib&sim_displayattribute_colorcoded)
         return;
-    EASYLOCK(_objectMutex);
 
     if (_objectType&sim_drawing_overlay)
     {

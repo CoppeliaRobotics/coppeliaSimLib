@@ -3271,7 +3271,7 @@ int simLockResources_internal(int lockType,int reserved)
     }
     if (res)
     {
-        EASYLOCK(_lockForExtLockList);
+        CEasyLock easyLock(_lockForExtLockList,__func__);
         retVal=obj->getObjectHandle();
         _extLockList.push_back(obj);
     }
@@ -3291,7 +3291,7 @@ int simUnlockResources_internal(int lockHandle)
 #ifdef SIM_WITH_QT
     int retVal=0;
     { // scope parenthesis are important here!
-        EASYLOCK(_lockForExtLockList);
+        CEasyLock easyLock(_lockForExtLockList,__func__);
         for (int i=0;i<int(_extLockList.size());i++)
         {
             if (_extLockList[i]->getObjectHandle()==lockHandle)

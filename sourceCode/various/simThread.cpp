@@ -87,7 +87,7 @@ void CSimThread::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int 
     cmd.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
     cmd.postTime=(int)VDateTime::getTimeInMs();
     cmd.execDelay=executionDelay;
-    EASYLOCK(_simulationThreadCommandsMutex);
+    CEasyLock easyLock(_simulationThreadCommandsMutex,__func__);
     _simulationThreadCommands_tmp.push_back(cmd);
 }
 
@@ -96,7 +96,7 @@ void CSimThread::_handleSimulationThreadCommands()
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         { // Keep the parenthesis!
-            EASYLOCK(_simulationThreadCommandsMutex);
+            CEasyLock easyLock(_simulationThreadCommandsMutex,__func__);
             for (unsigned int i=0;i<_simulationThreadCommands_tmp.size();i++)
                 _simulationThreadCommands.push_back(_simulationThreadCommands_tmp[i]);
             _simulationThreadCommands_tmp.clear();

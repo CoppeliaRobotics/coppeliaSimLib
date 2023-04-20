@@ -6,7 +6,6 @@
 #include <boost/lexical_cast.hpp>
 #include <vVarious.h>
 #include <utils.h>
-#include <easyLock.h>
 #include <app.h>
 #include <graphRendering.h>
 #include <simFlavor.h>
@@ -2537,7 +2536,6 @@ void CGraph::serialize(CSer& ar)
 
 void CGraph::display(CViewableBase* renderingObject,int displayAttrib)
 { // This is a quite ugly routine which requires refactoring!
-    EASYLOCK(_objectMutex);
     displayGraph(this,renderingObject,displayAttrib);
 }
 

@@ -4,7 +4,6 @@
 #include <proxSensorRoutine.h>
 #include <vDateTime.h>
 #include <utils.h>
-#include <easyLock.h>
 #include <app.h>
 #include <pluginContainer.h>
 #include <proximitySensorRendering.h>
@@ -1070,6 +1069,5 @@ int CProxSensor::getSensorType() const
 
 void CProxSensor::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayProximitySensor(this,renderingObject,displayAttrib);
 }

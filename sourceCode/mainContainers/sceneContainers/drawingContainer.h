@@ -29,5 +29,4 @@ public:
 
 private:
     std::vector<CDrawingObject*> _allObjects;
-    VMutex _objectMutex;
 };

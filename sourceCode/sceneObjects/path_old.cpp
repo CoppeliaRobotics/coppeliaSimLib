@@ -5,7 +5,6 @@
 #include <meshRoutines.h>
 #include <simStrings.h>
 #include <utils.h>
-#include <easyLock.h>
 #include <app.h>
 #include <pathRendering.h>
 
@@ -784,7 +783,6 @@ void CPath_old::serialize(CSer& ar)
 
 void CPath_old::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayPath(this,renderingObject,displayAttrib);
 }
 

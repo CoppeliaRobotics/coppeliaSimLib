@@ -1,4 +1,3 @@
-#include <easyLock.h>
 #include <simInternal.h>
 #include <broadcastDataContainer.h>
 #include <app.h>
@@ -50,7 +49,6 @@ void CBroadcastDataContainer::simulationEnded()
 
 void CBroadcastDataContainer::broadcastData(int emitterID,int targetID,int dataHeader,std::string& dataName,double timeOutSimulationTime,double actionRadius,int antennaHandle,double emissionAngle1,double emissionAngle2,const char* data,int dataLength)
 { // Called by the SIM or UI thread
-    EASYLOCK(_objectMutex);
     CBroadcastData* it=new CBroadcastData(emitterID,targetID,dataHeader,dataName,timeOutSimulationTime,actionRadius,antennaHandle,emissionAngle1,emissionAngle2,data,dataLength);
     _allObjects.push_back(it);
     if (App::currentWorld->environment->getVisualizeWirelessEmitters()||_wirelessForceShow_emission)
@@ -76,7 +74,6 @@ void CBroadcastDataContainer::broadcastData(int emitterID,int targetID,int dataH
 
 char* CBroadcastDataContainer::receiveData(int receiverID,double simulationTime,int dataHeader,std::string& dataName,int antennaHandle,int& dataLength,int index,int& senderID,int& dataHeaderR,std::string& dataNameR)
 {
-    EASYLOCK(_objectMutex);
     int originalIndex=index;
     char* retVal=nullptr;
     for (size_t i=0;i<_allObjects.size();i++)
@@ -128,7 +125,6 @@ char* CBroadcastDataContainer::receiveData(int receiverID,double simulationTime,
 
 void CBroadcastDataContainer::eraseAllObjects()
 {
-    EASYLOCK(_objectMutex);
     for (size_t i=0;i<_allObjects.size();i++)
         delete _allObjects[i];
     _allObjects.clear();
@@ -139,14 +135,12 @@ void CBroadcastDataContainer::eraseAllObjects()
 
 void CBroadcastDataContainer::removeObject(int index)
 {
-    EASYLOCK(_objectMutex);
     delete _allObjects[index];
     _allObjects.erase(_allObjects.begin()+index);
 }
 
 void CBroadcastDataContainer::removeTimedOutObjects(double simulationTime)
 {
-    EASYLOCK(_objectMutex);
     for (int i=0;i<int(_allObjects.size());i++)
     {
         if (_allObjects[i]->doesRequireDestruction(simulationTime))
@@ -169,7 +163,6 @@ void CBroadcastDataContainer::removeTimedOutObjects(double simulationTime)
 
 void CBroadcastDataContainer::visualizeCommunications(int pcTimeInMs)
 {
-    EASYLOCK(_objectMutex);
     for (size_t i=0;i<_allVisualObjects.size();i++)
         _allVisualObjects[i]->visualize();
 }

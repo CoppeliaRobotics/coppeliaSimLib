@@ -9,7 +9,6 @@
 #include <simStrings.h>
 #include <vDateTime.h>
 #include <utils.h>
-#include <easyLock.h>
 #include <app.h>
 #include <cameraRendering.h>
 #ifdef SIM_WITH_OPENGL
@@ -1654,7 +1653,6 @@ void CCamera::serialize(CSer& ar)
 
 void CCamera::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayCamera(this,renderingObject,displayAttrib);
 }
 

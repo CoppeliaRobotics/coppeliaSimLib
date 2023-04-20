@@ -5,7 +5,6 @@
 #include <app.h>
 #include <meshWrapper.h>
 #include <mesh.h>
-#include <easyLock.h>
 #include <pluginContainer.h>
 #include <shapeRendering.h>
 #include <meshManip.h>
@@ -1678,7 +1677,6 @@ void CShape::displayInertia(CViewableBase* renderingObject,double size,bool pers
 
 void CShape::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayShape(this,renderingObject,displayAttrib);
 }
 

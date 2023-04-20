@@ -3,7 +3,6 @@
 #include <tt.h>
 #include <vDateTime.h>
 #include <utils.h>
-#include <easyLock.h>
 #include <app.h>
 #include <pluginContainer.h>
 #include <millRendering.h>
@@ -571,6 +570,5 @@ int CMill::getMillType() const
 
 void CMill::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayMill(this,renderingObject,displayAttrib);
 }

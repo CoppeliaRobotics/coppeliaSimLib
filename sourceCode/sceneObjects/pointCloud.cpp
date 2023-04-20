@@ -5,7 +5,6 @@
 #include <pointCloud.h>
 #include <pluginContainer.h>
 #include <sceneObjectOperations.h>
-#include <easyLock.h>
 #include <global.h>
 #include <vDateTime.h>
 #include <app.h>
@@ -1556,6 +1555,5 @@ void CPointCloud::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 
 void CPointCloud::display(CViewableBase* renderingObject,int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     displayPointCloud(this,renderingObject,displayAttrib);
 }

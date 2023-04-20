@@ -1,7 +1,6 @@
 #include <simInternal.h>
 #include <pointCloudContainer_old.h>
 #include <viewableBase.h>
-#include <easyLock.h>
 #include <app.h>
 
 CPointCloudContainer_old::CPointCloudContainer_old()
@@ -30,7 +29,6 @@ CPtCloud_old* CPointCloudContainer_old::getObject(int objectID)
 
 int CPointCloudContainer_old::addObject(CPtCloud_old* it)
 {
-    EASYLOCK(_objectMutex);
     int newID=0;
     newID++;
     while (getObject(newID)!=nullptr)
@@ -44,7 +42,6 @@ int CPointCloudContainer_old::addObject(CPtCloud_old* it)
 
 void CPointCloudContainer_old::eraseAllObjects(bool onlyNonPersistentOnes)
 {
-    EASYLOCK(_objectMutex);
     size_t i=0;
     while (i<_allObjects.size())
     {
@@ -57,7 +54,6 @@ void CPointCloudContainer_old::eraseAllObjects(bool onlyNonPersistentOnes)
 
 bool CPointCloudContainer_old::removeObject(int objectID)
 {
-    EASYLOCK(_objectMutex);
     for (size_t i=0;i<_allObjects.size();i++)
     {
         if (_allObjects[i]->getObjectID()==objectID)
@@ -104,7 +100,6 @@ void CPointCloudContainer_old::renderYour3DStuff_overlay(CViewableBase* renderin
 
 void CPointCloudContainer_old::drawAll(int displayAttrib)
 {
-    EASYLOCK(_objectMutex);
     for (size_t i=0;i<_allObjects.size();i++)
         _allObjects[i]->draw(displayAttrib);
 }
