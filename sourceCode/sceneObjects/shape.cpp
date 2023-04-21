@@ -279,24 +279,6 @@ void CShape::computeBoundingBox()
     C7Vector fr(getMesh()->getBB(&s));
     s*=0.5;
     _setBB(fr,s);
-
-    // Old:
-    C3Vector vmin(C3Vector::inf);
-    C3Vector vmax(C3Vector::ninf);
-    for (double i=-1.0;i<2.0;i+=2.0)
-    {
-        for (double j=-1.0;j<2.0;j+=2.0)
-        {
-            for (double k=-1.0;k<2.0;k+=2.0)
-            {
-                C3Vector v(i*s(0),j*s(1),k*s(2));
-                v=fr*v;
-                vmin.keepMin(v);
-                vmax.keepMax(v);
-            }
-        }
-    }
-    _setBoundingBox_OLD(vmin,vmax);
 }
 
 void CShape::commonInit()

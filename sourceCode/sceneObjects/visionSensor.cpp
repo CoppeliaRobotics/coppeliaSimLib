@@ -274,9 +274,6 @@ unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX
 
 void CVisionSensor::computeBoundingBox()
 {
-    C3Vector minV(-0.5*_visionSensorSize,-0.5*_visionSensorSize,-_visionSensorSize*2.0);
-    C3Vector maxV(0.5*_visionSensorSize,0.5*_visionSensorSize,0.0);
-    _setBoundingBox_OLD(minV,maxV);
     C7Vector fr;
     fr.Q.setIdentity();
     fr.X=C3Vector(0.0,0.0,-1.0)*_visionSensorSize;

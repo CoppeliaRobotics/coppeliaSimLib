@@ -305,7 +305,6 @@ public:
 
 protected:
     void _setModelInvisible(bool inv);
-    void _setBoundingBox_OLD(const C3Vector& vmin,const C3Vector& vmax);
     void _setBB(const C7Vector& bbFrame,const C3Vector& bbHalfSize);
     void _addCommonObjectEventData(CInterfaceStackTable* data) const;
     void _appendObjectMovementEventData(CInterfaceStackTable* data) const;
@@ -373,8 +372,6 @@ protected:
     int _objectMovementOptions; // bit0=transl not ok when sim. stopped, bit1=transl not ok when sim. running, bit2&bit3: same but for rotations, bit4: manualShift forbidden, bit5: manualRot forbidden, bit6-bit8: forbidden local translation axes, bit9-bit11: forbidden local rotation axes
     double _objectMovementStepSize[2]; // 0.0= use app default
     int _objectMovementRelativity[2]; //0=world, 1=parent, 2=own frame
-    C3Vector _boundingBoxMin_OLD;
-    C3Vector _boundingBoxMax_OLD;
     C7Vector _bbFrame;
     C3Vector _bbHalfSize;
 

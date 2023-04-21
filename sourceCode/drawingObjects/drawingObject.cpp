@@ -61,8 +61,8 @@ CDrawingObject::CDrawingObject(int theObjectType,double size,double duplicateTol
     size=tt::getLimitedFloat(0.0001,100.0,size);
     _size=size;
     if (maxItemCount==0)
-        maxItemCount=100000;
-    maxItemCount=tt::getLimitedInt(1,10000000,maxItemCount);
+        maxItemCount=1000;
+    maxItemCount=tt::getLimitedInt(1,1000000,maxItemCount);
     _maxItemCount=maxItemCount;
     _startItem=0;
     int tmp=theObjectType&0x001f;

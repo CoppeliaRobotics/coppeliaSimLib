@@ -762,9 +762,6 @@ void CCamera::rotateCameraInCameraManipulationMode(const C7Vector& newLocalConf)
 
 void CCamera::computeBoundingBox()
 {
-    C3Vector minV(-0.5*_cameraSize,-0.5*_cameraSize,-2.8*_cameraSize);
-    C3Vector maxV(0.5*_cameraSize,2.3*_cameraSize,_cameraSize);
-    _setBoundingBox_OLD(minV,maxV);
     C7Vector fr;
     fr.Q.setIdentity();
     fr.X=C3Vector(0.0,0.9,-0.9)*_cameraSize;

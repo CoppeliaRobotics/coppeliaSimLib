@@ -418,8 +418,6 @@ bool CForceSensor::isPotentiallyRenderable() const
 
 void CForceSensor::computeBoundingBox()
 {
-    C3Vector maxV(_forceSensorSize/2.0,_forceSensorSize/2.0,_forceSensorSize/2.0);
-    _setBoundingBox_OLD(maxV*-1.0,maxV);
     _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_forceSensorSize*0.5);
 }
 

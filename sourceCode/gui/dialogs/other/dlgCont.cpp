@@ -344,8 +344,9 @@ void CDlgCont::addMenu(VMenu* menu)
     {
         menu->appendMenuSeparator();
         menu->appendMenuItem(true,App::getShowInertias(),TOGGLE_SHOW_INERTIA_DLG_CMD,"Visualize inertias",true);
-        bool enabled=App::getApplicationNamedParam("simIK.debug_world")=="true";
-        menu->appendMenuItem(true,enabled,TOGGLE_SHOW_IKWORLD_DLG_CMD,"Visualize IK world",true);
+        std::string w(App::getApplicationNamedParam("simIK.debug_world"));
+        menu->appendMenuItem(true,(w=="1")||(w=="3"),TOGGLE_SHOW_IKWORLDS_DLG_CMD,"Visualize IK worlds",true);
+        menu->appendMenuItem(true,(w=="2")||(w=="3"),TOGGLE_SHOW_IKWORLDJACOBIANS_DLG_CMD,"Display IK world Jacobians",true);
     }
 }
 
@@ -668,18 +669,45 @@ bool CDlgCont::processCommand(int commandID)
                 App::logMsg(sim_verbosity_msgs,"Hiding inertias");
             return(true);
         }
-        if (commandID==TOGGLE_SHOW_IKWORLD_DLG_CMD)
+        if (commandID==TOGGLE_SHOW_IKWORLDS_DLG_CMD)
         {
-            bool enabled=App::getApplicationNamedParam("simIK.debug_world")=="true";
-            if (enabled)
+            std::string w(App::getApplicationNamedParam("simIK.debug_world"));
+            if ( (w=="1")||(w=="3") )
             {
-                App::setApplicationNamedParam("simIK.debug_world","");
+                if (w=="1")
+                    App::setApplicationNamedParam("simIK.debug_world","0");
+                else
+                    App::setApplicationNamedParam("simIK.debug_world","2");
                 App::logMsg(sim_verbosity_msgs,"Hiding IK worlds");
             }
             else
             {
-                App::setApplicationNamedParam("simIK.debug_world","true");
+                if (w=="2")
+                    App::setApplicationNamedParam("simIK.debug_world","3");
+                else
+                    App::setApplicationNamedParam("simIK.debug_world","1");
                 App::logMsg(sim_verbosity_msgs,"Visualizing IK worlds");
+            }
+            return(true);
+        }
+        if (commandID==TOGGLE_SHOW_IKWORLDJACOBIANS_DLG_CMD)
+        {
+            std::string w(App::getApplicationNamedParam("simIK.debug_world"));
+            if ( (w=="2")||(w=="3") )
+            {
+                if (w=="2")
+                    App::setApplicationNamedParam("simIK.debug_world","0");
+                else
+                    App::setApplicationNamedParam("simIK.debug_world","1");
+                App::logMsg(sim_verbosity_msgs,"Hiding IK world Jacobians");
+            }
+            else
+            {
+                if (w=="1")
+                    App::setApplicationNamedParam("simIK.debug_world","3");
+                else
+                    App::setApplicationNamedParam("simIK.debug_world","2");
+                App::logMsg(sim_verbosity_msgs,"Displaying IK world Jacobians");
             }
             return(true);
         }

@@ -123,7 +123,6 @@ void CLight::computeBoundingBox()
         maxV(2)=0.5*_lightSize;
         _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_lightSize*0.5);
     }
-    _setBoundingBox_OLD(minV,maxV);
 }
 
 void CLight::_setDefaultColors()

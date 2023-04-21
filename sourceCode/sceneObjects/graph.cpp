@@ -104,8 +104,6 @@ bool CGraph::isPotentiallyRenderable() const
 
 void CGraph::computeBoundingBox()
 {
-    C3Vector maxV(_graphSize/2.0,_graphSize/2.0,_graphSize/2.0);
-    _setBoundingBox_OLD(maxV*-1.0,maxV);
     _setBB(C7Vector::identityTransformation,C3Vector(1.0,1.0,1.0)*_graphSize*0.5);
 }
 

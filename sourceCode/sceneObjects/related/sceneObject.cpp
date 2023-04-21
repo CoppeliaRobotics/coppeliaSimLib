@@ -101,8 +101,6 @@ CSceneObject::CSceneObject()
     _sizeValues[1]=1.0;
     _sizeValues[2]=1.0;
     _dynamicsResetFlag=false;
-    _boundingBoxMin_OLD.clear();
-    _boundingBoxMax_OLD.clear();
 }
 
 CSceneObject::~CSceneObject() 
@@ -1285,10 +1283,6 @@ void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringInt64("parentUid",pUid);
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("boundingBox",subC);
-    subC->appendMapObject_stringDoubleArray("min",_boundingBoxMin_OLD.data,3);
-    subC->appendMapObject_stringDoubleArray("max",_boundingBoxMax_OLD.data,3);
-    subC=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("BB",subC);
     _bbFrame.getData(p,true);
     subC->appendMapObject_stringDoubleArray("pose",p,7);
     subC->appendMapObject_stringDoubleArray("hsize",_bbHalfSize.data,3);
@@ -1373,8 +1367,6 @@ CSceneObject* CSceneObject::copyYourself()
     theNewObject->_objectMovementRelativity[1]=_objectMovementRelativity[1];
     theNewObject->_objectMovementStepSize[0]=_objectMovementStepSize[0];
     theNewObject->_objectMovementStepSize[1]=_objectMovementStepSize[1];
-    theNewObject->_boundingBoxMin_OLD=_boundingBoxMin_OLD;
-    theNewObject->_boundingBoxMax_OLD=_boundingBoxMax_OLD;
     theNewObject->_bbFrame=_bbFrame;
     theNewObject->_bbHalfSize=_bbHalfSize;
     theNewObject->_sizeFactor=_sizeFactor;
@@ -1698,25 +1690,6 @@ void CSceneObject::computeBoundingBox()
 { // overridden
 }
 
-void CSceneObject::_setBoundingBox_OLD(const C3Vector& vmin,const C3Vector& vmax)
-{
-    if ( (_boundingBoxMin_OLD!=vmin)||(_boundingBoxMax_OLD!=vmax) )
-    {
-        _boundingBoxMin_OLD=vmin;
-        _boundingBoxMax_OLD=vmax;
-        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
-        {
-            const char* cmd="boundingBox";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
-            CInterfaceStackTable* subC=new CInterfaceStackTable();
-            data->appendMapObject_stringObject(cmd,subC);
-            subC->appendMapObject_stringDoubleArray("min",_boundingBoxMin_OLD.data,3);
-            subC->appendMapObject_stringDoubleArray("max",_boundingBoxMax_OLD.data,3);
-            App::worldContainer->pushEvent(event);
-        }
-    }
-}
-
 void CSceneObject::_setBB(const C7Vector& bbFrame,const C3Vector& bbHalfSize)
 {
     if ( ((bbHalfSize-_bbHalfSize).getLength()>0.0001)||((bbFrame.X-_bbFrame.X).getLength()>0.0001)||(bbFrame.Q.getAngleBetweenQuaternions(_bbFrame.Q)>0.001) )
@@ -1725,7 +1698,7 @@ void CSceneObject::_setBB(const C7Vector& bbFrame,const C3Vector& bbHalfSize)
         _bbHalfSize=bbHalfSize;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            const char* cmd="BB";
+            const char* cmd="boundingBox";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             CInterfaceStackTable* subC=new CInterfaceStackTable();
             data->appendMapObject_stringObject(cmd,subC);

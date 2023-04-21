@@ -82,14 +82,6 @@ CColorObject* CMirror::getClipPlaneColor()
 
 void CMirror::computeBoundingBox()
 {
-    C3Vector minV,maxV;
-    minV(0)=-0.5*_mirrorWidth;
-    maxV(0)=0.5*_mirrorWidth;
-    minV(1)=-0.5*_mirrorHeight;
-    maxV(1)=0.5*_mirrorHeight;
-    minV(2)=0.0;
-    maxV(2)=0.0;
-    _setBoundingBox_OLD(minV,maxV);
     _setBB(C7Vector::identityTransformation,C3Vector(_mirrorWidth,_mirrorHeight,0.001)*0.5);
 }
 

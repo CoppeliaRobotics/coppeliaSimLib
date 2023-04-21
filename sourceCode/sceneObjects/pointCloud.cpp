@@ -154,7 +154,6 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
             maxDim(1)+=_cellSize;
             maxDim(2)+=_cellSize;
             */
-            _setBoundingBox_OLD(minDim,maxDim);
             C7Vector fr;
             fr.setIdentity();
             fr.X=(maxDim+minDim)*0.5;
@@ -638,17 +637,13 @@ void CPointCloud::computeBoundingBox()
         maxDim(1)+=_cellSize;
         maxDim(2)+=_cellSize;
         */
-        _setBoundingBox_OLD(minDim,maxDim);
         C7Vector fr;
         fr.setIdentity();
         fr.X=(maxDim+minDim)*0.5;
         _setBB(fr,(maxDim-minDim)*0.5);
     }
     else
-    {
-        _setBoundingBox_OLD(C3Vector(-0.1,-0.1,-0.1),C3Vector(+0.1,+0.1,+0.1));
         _setBB(C7Vector::identityTransformation,C3Vector(0.1,0.1,0.1));
-    }
 }
 
 void CPointCloud::scaleObject(double scalingFactor)
