@@ -8419,7 +8419,7 @@ int simGetShapeMesh_internal(int shapeHandle,double** vertices,int* verticesSize
 }
 
 int simCreatePrimitiveShape_internal(int primitiveType,const double* sizes,int options)
-{ // options: bit: 0=culling, 1=sharp edges, 2=open
+{ // options: bit: 0=culling, 1=sharp edges, 2=open ends with cylinders, 3=force simple shape (i.e. not pure)
     TRACE_C_API;
 
     if (!isSimulatorInitialized(__func__))
@@ -8433,7 +8433,10 @@ int simCreatePrimitiveShape_internal(int primitiveType,const double* sizes,int o
             return(-1);
         }
         C3Vector s(tt::getLimitedFloat(0.00001,100000.0,sizes[0]),tt::getLimitedFloat(0.00001,100000.0,sizes[1]),tt::getLimitedFloat(0.00001,100000.0,sizes[2]));
-        CShape* shape=CAddOperations::addPrimitiveShape(primitiveType,s,options,nullptr,0,32,0,false,1);
+        int pureType=1; // pure
+        if ((options&8)!=0)
+            pureType=0; // non-pure
+        CShape* shape=CAddOperations::addPrimitiveShape(primitiveType,s,options,nullptr,0,32,0,false,pureType);
         int retVal=-1;
         if (shape!=nullptr)
         {
