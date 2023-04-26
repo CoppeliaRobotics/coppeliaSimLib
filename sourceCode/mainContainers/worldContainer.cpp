@@ -804,7 +804,7 @@ void CWorldContainer::_prepareEventsForDispatch(SBufferedEvents* events,bool gen
                 CInterfaceStackTable* s=(CInterfaceStackTable*)buff->getArrayItemAtIndex(i);
                 CInterfaceStackInteger* n=(CInterfaceStackInteger*)s->getMapObject("seq");
                 long long int ev;
-                if (negOffset)
+                if (false)//negOffset)
                     ev=_mergedEventSeq-buff->getArraySize()+i;
                 else
                     ev=_mergedEventSeq++;

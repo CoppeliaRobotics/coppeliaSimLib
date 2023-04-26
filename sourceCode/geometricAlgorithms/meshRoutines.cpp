@@ -1446,23 +1446,42 @@ struct SGeodVertNode {
 };
 
 
-double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const C3Vector& pt2,const std::vector<double>& vertices,std::vector<double>* path/*=nullptr*/,double maxEdgeLength/*=0.01*/,int* debugShape/*=nullptr*/)
+double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const C3Vector& pt2,const std::vector<double>& vertices,const std::vector<int>* auxIndices/*=nullptr*/,std::vector<double>* path/*=nullptr*/,double maxEdgeLength/*=0.01*/,int* debugShape/*=nullptr*/)
 {
+    double retVal=DBL_MAX;
     std::vector<double> vert;
     std::vector<int> ind;
-    std::vector<double> inVert(vertices);
-    inVert.push_back(pt2(0));
-    inVert.push_back(pt2(1));
-    inVert.push_back(pt2(2));
-    inVert.push_back(pt1(0));
-    inVert.push_back(pt1(1));
-    inVert.push_back(pt1(2));
-    double retVal=DBL_MAX;
-    std::unordered_set<SGeodVertNode*> unvisitedNodes;
-    std::vector<SGeodVertNode*> allNodes;
-    // Extract a convex hull from the vertices:
-    if (getConvexHull(inVert,vert,ind))
+    if ( (auxIndices!=nullptr)&&(auxIndices->size()!=0) )
+    { // Try to work on the raw mesh, if it is a single mesh:
+        std::vector<double> v1(vertices.begin(),vertices.end());
+        std::vector<int> i1(auxIndices->begin(),auxIndices->end());
+        std::vector<double> v2;
+        std::vector<int> i2;
+        if (!CMeshManip::extractOneShape(&v1,&i1,&v2,&i2))
+        {
+            vert.assign(vertices.begin(),vertices.end());
+            ind.assign(auxIndices->begin(),auxIndices->end());
+            removeDuplicateVerticesAndTriangles(vert,&ind,nullptr,nullptr,0.0);
+            removeNonReferencedVertices(vert,ind);
+            toDelaunayMesh(vert,ind,nullptr,nullptr);
+        }
+    }
+    if (vert.size()==0)
+    { // Extract a convex hull from the vertices:
+        std::vector<double> inVert(vertices);
+        inVert.push_back(pt2(0));
+        inVert.push_back(pt2(1));
+        inVert.push_back(pt2(2));
+        inVert.push_back(pt1(0));
+        inVert.push_back(pt1(1));
+        inVert.push_back(pt1(2));
+        if (!getConvexHull(inVert,vert,ind))
+            vert.clear();
+    }
+    if ( (vert.size()>=9)&&(ind.size()>=3) )
     {
+        std::unordered_set<SGeodVertNode*> unvisitedNodes;
+        std::vector<SGeodVertNode*> allNodes;
         CMeshManip::reduceTriangleSize(vert,ind,nullptr,nullptr,maxEdgeLength);
         if (debugShape!=nullptr)
             debugShape[0]=simCreateShape_internal(0,0.0,vert.data(),vert.size(),ind.data(),ind.size(),nullptr,nullptr,nullptr,nullptr);

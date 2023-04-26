@@ -5352,7 +5352,7 @@ int _simTest(luaWrap_lua_State* L)
             LUA_END(s);
         }
         if (cmd.compare("sim.getGeodesicInfo")==0)
-        {
+        { // pt1,pt2,vertices,indices(can be {}),maxEdge,debugShape
             C3Vector pt1,pt2;
             getDoublesFromTable(L,2,3,pt1.data);
             getDoublesFromTable(L,3,3,pt2.data);
@@ -5360,12 +5360,16 @@ int _simTest(luaWrap_lua_State* L)
             std::vector<double> vertices;
             vertices.resize(vl);
             getDoublesFromTable(L,4,vl,vertices.data());
+            int il=3*((int)luaWrap_lua_rawlen(L,5)/3);
+            std::vector<int> indices;
+            indices.resize(il);
+            getIntsFromTable(L,5,il,indices.data());
             std::vector<double> path;
             int debugShape=-1;
             int* _debugShape=nullptr;
-            if (luaToBool(L,6))
+            if (luaToBool(L,7))
                 _debugShape=&debugShape;
-            double dist=CMeshRoutines::getGeodesicDistanceOnConvexMesh(pt1,pt2,vertices,&path,luaToDouble(L,5),_debugShape);
+            double dist=CMeshRoutines::getGeodesicDistanceOnConvexMesh(pt1,pt2,vertices,&indices,&path,luaToDouble(L,6),_debugShape);
             luaWrap_lua_pushnumber(L,dist);
             pushDoubleTableOntoStack(L,path.size(),path.data());
             luaWrap_lua_pushinteger(L,debugShape);

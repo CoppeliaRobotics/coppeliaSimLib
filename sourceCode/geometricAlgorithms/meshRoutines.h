@@ -90,7 +90,7 @@ public:
     static void createCapsule(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faceSubdiv);
     static void createCylinder(std::vector<double>& vertices,std::vector<int>& indices,const C3Vector& sizes,int sides,int faces,int discDiv,bool openEnds,bool cone);
     static void createAnnulus(std::vector<double>& vertices,std::vector<int>& indices,double Dlarge,double Dsmall,double zShift,int sides,bool faceUp);
-    static double getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const C3Vector& pt2,const std::vector<double>& vertices,std::vector<double>* path=nullptr,double maxEdgeLength=0.01,int* debugShape=nullptr);
+    static double getGeodesicDistanceOnConvexMesh(const C3Vector& pt1,const C3Vector& pt2,const std::vector<double>& vertices,const std::vector<int>* auxIndices=nullptr,std::vector<double>* path=nullptr,double maxEdgeLength=0.01,int* debugShape=nullptr);
     static void toDelaunayMesh(const std::vector<double>& vertices,std::vector<int>& indices,std::vector<double>* normals,std::vector<float>* texCoords);
     static void removeDuplicateVerticesAndTriangles(std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals,std::vector<float>* texCoords,double distTolerance);
     static void removeNonReferencedVertices(std::vector<double>& vertices,std::vector<int>& indices);
